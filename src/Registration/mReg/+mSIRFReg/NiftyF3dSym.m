@@ -26,7 +26,7 @@ classdef NiftyF3dSym < mSIRFReg.SIRFReg
     methods
         function self = NiftyF3dSym()
             self.name = 'SIRFRegNiftyF3dSym';
-            self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
+            self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end
         function delete(self)

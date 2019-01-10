@@ -30,7 +30,7 @@ classdef NiftyResample < handle
     methods
         function self = NiftyResample(src)
             self.name = 'SIRFRegNiftyResample';
-            self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
+            self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end
         function delete(self)
@@ -52,11 +52,11 @@ classdef NiftyResample < handle
         function add_transformation(self, src)
             %Add transformation.
             if isa(src, 'mSIRFReg.AffineTransformation')
-                h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
+                h = calllib('msirfreg', 'mReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
             elseif isa(src, 'mSIRFReg.NiftiImageData3DDisplacement')
-                h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
+                h = calllib('msirfreg', 'mReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
             elseif isa(src, 'mSIRFReg.NiftiImageData3DDeformation')
-                h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
+                h = calllib('msirfreg', 'mReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
             else 
                 error('Transformation should be affine, deformation or displacement.')
             end
@@ -83,7 +83,7 @@ classdef NiftyResample < handle
         end
         function process(self)
             %Process.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_process', self.handle_);
+            h = calllib('msirfreg', 'mReg_SIRFRegNiftyResample_process', self.handle_);
             mUtilities.check_status([self.name ':process'], h);
             mUtilities.delete(h)
         end
@@ -91,7 +91,7 @@ classdef NiftyResample < handle
             %Get output.
             output = mSIRFReg.NiftiImageData3D();
             mUtilities.delete(output.handle_)
-            output.handle_ = calllib('msirfreg', 'mSIRFReg_parameter', self.handle_, self.name, 'output');
+            output.handle_ = calllib('msirfreg', 'mReg_parameter', self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
         end
     end

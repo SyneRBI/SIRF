@@ -29,42 +29,34 @@ namespace sirf {
     // ---------------------------------------------------------------------------- //
     // NiftiImageData
     // ---------------------------------------------------------------------------- //
-	void*
-        cSIRFReg_NiftiImageDataParameter(const DataHandle* handle, const char* name);
+    void* cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // SIRFReg
     // ---------------------------------------------------------------------------- //
-	void*
-		cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv);
-	void*
-		cSIRFReg_SIRFRegParameter(const DataHandle* handle, const char* name);
+    void* cReg_setSIRFRegParameter(void* hp, const char* name, const void* hv);
+    void* cReg_SIRFRegParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // SIRFRegNiftyF3dSym
     // ---------------------------------------------------------------------------- //
-    void*
-        cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const void* hv);
+    void* cReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const void* hv);
 
     // ---------------------------------------------------------------------------- //
     // SIRFRegNiftyResample
     // ---------------------------------------------------------------------------- //
-    void*
-        cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, const void* hv);
-    void*
-        cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const char* name);
+    void* cReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, const void* hv);
+    void* cReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // SIRFRegImageWeightedMean
     // ---------------------------------------------------------------------------- //
-    void*
-        cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name);
+    void* cReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // AffineTransformation
     // ---------------------------------------------------------------------------- //
-    void*
-        cSIRFReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, const char* name);
+    void* cReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, const char* name);
 }
 
 #endif

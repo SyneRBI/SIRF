@@ -28,13 +28,13 @@ classdef NiftiImageData3DDisplacement < mSIRFReg.NiftiImageData3DTensor & mSIRFR
             narginchk(0,3)
             self.name = 'NiftiImageData3DDisplacement';
             if nargin < 1
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
+                self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             elseif ischar(src1)
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src1);
+                self.handle_ = calllib('msirfreg', 'mReg_objectFromFile', self.name, src1);
             elseif nargin == 3 && isa(src1, 'mSIRFReg.NiftiImageData3D') && isa(src2, 'mSIRFReg.NiftiImageData3D') && isa(src3, 'mSIRFReg.NiftiImageData3D')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
+                self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
             elseif isa(src1, 'mSIRFReg.NiftiImageData3DDeformation')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DDisplacement_create_from_def', src1.handle_);
+                self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DDisplacement_create_from_def', src1.handle_);
             end
             mUtilities.check_status(self.name, self.handle_)
         end

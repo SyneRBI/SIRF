@@ -28,13 +28,13 @@ classdef NiftiImageData3DDeformation < mSIRFReg.NiftiImageData3DTensor & mSIRFRe
             narginchk(0,3)
             self.name = 'NiftiImageData3DDeformation';
             if nargin < 1
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
+                self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             elseif ischar(src1)
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src1);
+                self.handle_ = calllib('msirfreg', 'mReg_objectFromFile', self.name, src1);
             elseif nargin == 3 && isa(src1, 'mSIRFReg.NiftiImageData3D') && isa(src2, 'mSIRFReg.NiftiImageData3D') && isa(src3, 'mSIRFReg.NiftiImageData3D')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);                
+                self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);                
             elseif isa(src1, 'mSIRFReg.NiftiImageData3DDisplacement')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DDeformation_create_from_disp', src1.handle_);
+                self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DDeformation_create_from_disp', src1.handle_);
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -74,16 +74,16 @@ classdef NiftiImageData3DDeformation < mSIRFReg.NiftiImageData3DTensor & mSIRFRe
             end
 		    z = mSIRFReg.NiftiImageData3DDeformation();
 		    if num_trans == 2
-		        z.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DDeformation_compose_single_deformation',...
+		        z.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
 		        	ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, [], [], []);
 		    elseif num_trans == 3
-		        z.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DDeformation_compose_single_deformation',...
+		        z.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
 		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, [], []);
 		    elseif num_trans == 4
-		        z.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DDeformation_compose_single_deformation',...
+		        z.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
 		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, trans(4).handle_, []);
 		    elseif num_trans == 5
-		        z.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DDeformation_compose_single_deformation',...
+		        z.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
 		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, trans(4).handle_, trans(5).handle_);
 		    else
 		        error('compose_transformations_into_single_deformation only implemented for up to 5 transformations.')

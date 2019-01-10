@@ -83,7 +83,7 @@ wrongFloatParameterValue
 //   NiftiImageData
 // ------------------------------------------------------------------------------------ //
 void*
-sirf::cSIRFReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
+sirf::cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
 {
     NiftiImageData<float>& s = objectFromHandle<NiftiImageData<float> >(handle);
     if (strcmp(name, "max") == 0)
@@ -100,7 +100,7 @@ sirf::cSIRFReg_NiftiImageDataParameter(const DataHandle* handle, const char* nam
 // ------------------------------------------------------------------------------------ //
 // set
 void*
-sirf::cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
+sirf::cReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
 {
     std::shared_ptr<const ImageData> im_sptr;
 
@@ -130,7 +130,7 @@ sirf::cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
 }
 // get
 void*
-sirf::cSIRFReg_SIRFRegParameter(const DataHandle* handle, const char* name)
+sirf::cReg_SIRFRegParameter(const DataHandle* handle, const char* name)
 {
     Registration<float>& s = objectFromHandle<Registration<float> >(handle);
     if (strcmp(name, "output") == 0) {
@@ -144,7 +144,7 @@ sirf::cSIRFReg_SIRFRegParameter(const DataHandle* handle, const char* name)
 // ------------------------------------------------------------------------------------ //
 // set
 void*
-sirf::cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const void* hv)
+sirf::cReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const void* hv)
 {
     NiftyF3dSym<float>& s = objectFromHandle<NiftyF3dSym<float> >(hp);
     if (strcmp(name, "floating_time_point") == 0)
@@ -165,7 +165,7 @@ sirf::cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const 
 // ------------------------------------------------------------------------------------ //
 // set
 void*
-sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, const void* hv)
+sirf::cReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, const void* hv)
 {
     std::shared_ptr<const ImageData> im_sptr;
 
@@ -186,7 +186,7 @@ sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, cons
 }
 // get
 void*
-sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const char* name)
+sirf::cReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const char* name)
 {
     NiftyResample<float>& s = objectFromHandle<NiftyResample<float> >(handle);
     if (strcmp(name, "output") == 0)
@@ -200,7 +200,7 @@ sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const cha
 // ------------------------------------------------------------------------------------ //
 // get
 void*
-sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name)
+sirf::cReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name)
 {
     ImageWeightedMean<float>& s = objectFromHandle<ImageWeightedMean<float> >(handle);
     if (strcmp(name, "output") == 0)
@@ -214,7 +214,7 @@ sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const
 // ------------------------------------------------------------------------------------ //
 // get
 void*
-sirf::cSIRFReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, const char* name)
+sirf::cReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, const char* name)
 {
     AffineTransformation<float>& s = objectFromHandle<AffineTransformation<float> >(handle);
     if (strcmp(name, "determinant") == 0) {

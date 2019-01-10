@@ -51,7 +51,7 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 
 //default constructors
 extern "C"
-void* cSIRFReg_newObject(const char* name)
+void* cReg_newObject(const char* name)
 {
 	try {
         if (strcmp(name, "NiftiImageData") == 0)
@@ -81,18 +81,18 @@ void* cSIRFReg_newObject(const char* name)
 
 // set parameters
 extern "C"
-void* cSIRFReg_setParameter
+void* cReg_setParameter
 (void* ptr_s, const char* obj, const char* name, const void* ptr_v)
 {
 	try {
 		CAST_PTR(DataHandle, hs, ptr_s);
 		CAST_PTR(DataHandle, hv, ptr_v);
         if (strcmp(obj, "SIRFReg") == 0)
-            return cSIRFReg_setSIRFRegParameter(ptr_s, name, ptr_v);
+            return cReg_setSIRFRegParameter(ptr_s, name, ptr_v);
         if (strcmp(obj, "SIRFRegNiftyF3dSym") == 0)
-            return cSIRFReg_setSIRFRegNiftyF3dSymParameter(ptr_s, name, ptr_v);
+            return cReg_setSIRFRegNiftyF3dSymParameter(ptr_s, name, ptr_v);
         if (strcmp(obj, "SIRFRegNiftyResample") == 0)
-            return cSIRFReg_setSIRFRegNiftyResampleParameter(ptr_s, name, ptr_v);
+            return cReg_setSIRFRegNiftyResampleParameter(ptr_s, name, ptr_v);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -100,20 +100,20 @@ void* cSIRFReg_setParameter
 
 // get functions
 extern "C"
-void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name) 
+void* cReg_parameter(const void* ptr, const char* obj, const char* name)
 {
 	try {
 		CAST_PTR(DataHandle, handle, ptr);
         if (strcmp(obj, "NiftiImageData") == 0)
-            return cSIRFReg_NiftiImageDataParameter(handle, name);
+            return cReg_NiftiImageDataParameter(handle, name);
         if (strcmp(obj, "SIRFReg") == 0)
-            return cSIRFReg_SIRFRegParameter(handle, name);
+            return cReg_SIRFRegParameter(handle, name);
         if (strcmp(obj, "SIRFRegNiftyResample") == 0)
-            return cSIRFReg_SIRFRegNiftyResampleParameter(handle, name);
+            return cReg_SIRFRegNiftyResampleParameter(handle, name);
         if (strcmp(obj, "SIRFRegImageWeightedMean") == 0)
-            return cSIRFReg_SIRFRegImageWeightedMeanParameter(handle, name);
+            return cReg_SIRFRegImageWeightedMeanParameter(handle, name);
         if (strcmp(obj, "SIRFRegAffineTransformation") == 0)
-            return cSIRFReg_SIRFRegAffineTransformationParameter(handle, name);
+            return cReg_SIRFRegAffineTransformationParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -121,7 +121,7 @@ void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name)
 
 // constructors from file
 extern "C"
-void* cSIRFReg_objectFromFile(const char* name, const char* filename)
+void* cReg_objectFromFile(const char* name, const char* filename)
 {
 	try {
         if (strcmp(name, "NiftiImageData") == 0) {
@@ -162,7 +162,7 @@ void* cSIRFReg_objectFromFile(const char* name, const char* filename)
 //      NiftiImageData
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
+void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
 {
     try {
         std::vector<NiftiImageData<float> > vec;
@@ -180,7 +180,7 @@ void* cSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, 
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype)
+void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype)
 {
 	try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(ptr);
@@ -190,7 +190,7 @@ void* cSIRFReg_NiftiImageData_write(const void* ptr, const char* filename, const
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_fill(const void* ptr, const float val)
+void* cReg_NiftiImageData_fill(const void* ptr, const float val)
 {
     try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(ptr);
@@ -200,7 +200,7 @@ void* cSIRFReg_NiftiImageData_fill(const void* ptr, const float val)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_fill_arr(const void* ptr, size_t ptr_data)
+void* cReg_NiftiImageData_fill_arr(const void* ptr, size_t ptr_data)
 {
     try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(ptr);
@@ -212,7 +212,7 @@ void* cSIRFReg_NiftiImageData_fill_arr(const void* ptr, size_t ptr_data)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void* orig_ptr)
+void* cReg_NiftiImageData_deep_copy(const void* copy_ptr, const void* orig_ptr)
 {
     try {
         NiftiImageData<float>& orig = objectFromHandle<NiftiImageData<float> >(orig_ptr);
@@ -223,7 +223,7 @@ void* cSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void* orig_p
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_get_dimensions(const void* ptr, size_t ptr_dim)
+void* cReg_NiftiImageData_get_dimensions(const void* ptr, size_t ptr_dim)
 {
     try {
         NiftiImageData<float> & im = objectFromHandle<NiftiImageData<float> >(ptr);
@@ -235,7 +235,7 @@ void* cSIRFReg_NiftiImageData_get_dimensions(const void* ptr, size_t ptr_dim)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_get_data(const void* ptr, size_t ptr_data)
+void* cReg_NiftiImageData_get_data(const void* ptr, size_t ptr_data)
 {
     try {
         const NiftiImageData<float>& im = objectFromHandle<const NiftiImageData<float> >(ptr);
@@ -248,7 +248,7 @@ void* cSIRFReg_NiftiImageData_get_data(const void* ptr, size_t ptr_data)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type)
+void* cReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type)
 {
     try {
         NiftiImageData<float>& res = objectFromHandle<NiftiImageData<float> >(res_ptr);
@@ -258,13 +258,13 @@ void* cSIRFReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr,
         if      (maths_type == 0) res = im1 + im2;
         else if (maths_type == 1) res = im1 - im2;
         else
-            throw std::runtime_error("cSIRFReg_NiftiImageData_maths_im: Bad maths type (0=add, 1=subtract).");
+            throw std::runtime_error("cReg_NiftiImageData_maths_im: Bad maths type (0=add, 1=subtract).");
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type)
+void* cReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type)
 {
     try {
         NiftiImageData<float>& res = objectFromHandle<NiftiImageData<float> >(res_ptr);
@@ -274,13 +274,13 @@ void* cSIRFReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr
         else if (maths_type == 1) res = im1 - val;
         else if (maths_type == 2) res = im1 * val;
         else
-            throw std::runtime_error("cSIRFReg_NiftiImageData_maths_val: Bad maths type (0=add, 1=subtract, 2=multiply.");
+            throw std::runtime_error("cReg_NiftiImageData_maths_val: Bad maths type (0=add, 1=subtract, 2=multiply.");
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_equal(const void* im1_ptr, const void* im2_ptr)
+void* cReg_NiftiImageData_equal(const void* im1_ptr, const void* im2_ptr)
 {
     try {
         NiftiImageData<float>& im1 = objectFromHandle<NiftiImageData<float> >(im1_ptr);
@@ -290,7 +290,7 @@ void* cSIRFReg_NiftiImageData_equal(const void* im1_ptr, const void* im2_ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr)
+void* cReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr)
 {
     try {
         NiftiImageData<float>& im1 = objectFromHandle<NiftiImageData<float> >(im1_ptr);
@@ -300,7 +300,7 @@ void* cSIRFReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_get_original_datatype(const void* im_ptr)
+void* cReg_NiftiImageData_get_original_datatype(const void* im_ptr)
 {
     try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
@@ -309,7 +309,7 @@ void* cSIRFReg_NiftiImageData_get_original_datatype(const void* im_ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, size_t max_index_ptr)
+void* cReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, size_t max_index_ptr)
 {
     try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
@@ -326,7 +326,7 @@ void* cSIRFReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, siz
 // -------------------------------------------------------------------------------- //
 /* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 extern "C"
-void* cSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr)
+void* cReg_NiftiImageData3D_from_PETImageData(void* ptr)
 {
 	try {
         sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(ptr);
@@ -337,7 +337,7 @@ void* cSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr)
 	CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj)
+void* cReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj)
 {
     try {
         NiftiImageData3D<float>& im = objectFromHandle<NiftiImageData3D<float> >(ptr);
@@ -352,7 +352,7 @@ void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj)
 //      NiftiImageData3DTensor
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_NiftiImageData3DTensor_write_split_xyz_components(const void *ptr, const char* filename, const int datatype)
+void* cReg_NiftiImageData3DTensor_write_split_xyz_components(const void *ptr, const char* filename, const int datatype)
 {
 	try {
         NiftiImageData3DTensor<float>& im = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
@@ -362,7 +362,7 @@ void* cSIRFReg_NiftiImageData3DTensor_write_split_xyz_components(const void *ptr
 	CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void* ptr, const void* obj)
+void* cReg_NiftiImageData3DTensor_create_from_3D_image(const void* ptr, const void* obj)
 {
     try {
         NiftiImageData3DTensor<float>& im = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
@@ -373,7 +373,7 @@ void* cSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void* ptr, cons
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr)
+void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr)
 {
     try {
         NiftiImageData3D<float>& x = objectFromHandle<NiftiImageData3D<float> >(x_ptr);
@@ -392,7 +392,7 @@ void* cSIRFReg_NiftiImageData3DTensor_construct_from_3_components(const char* ob
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim)
+void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim)
 {
     try {
         NiftiImageData3DTensor<float>& im = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
@@ -404,7 +404,7 @@ void* cSIRFReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int 
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DDeformation
 // -------------------------------------------------------------------------------- //
-void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5)
+void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5)
 {
     try {
         // This is an ugly hack because I can't get virtual methods to work for multiple inherited (NiftiImageData3DDeformation/NiftiImageData3DDisplacement).
@@ -440,7 +440,7 @@ void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr)
+void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr)
 {
     try {
         NiftiImageData3DDisplacement<float>& disp = objectFromHandle<NiftiImageData3DDisplacement<float> >(disp_ptr);
@@ -452,7 +452,7 @@ void* cSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr
 //      NiftiImageData3DDisplacement
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr)
+void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr)
 {
     try {
         NiftiImageData3DDeformation<float>& def = objectFromHandle<NiftiImageData3DDeformation<float> >(def_ptr);
@@ -465,7 +465,7 @@ void* cSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr)
 //      SIRFReg
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFReg_process(void* ptr)
+void* cReg_SIRFReg_process(void* ptr)
 {
     try {
         Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
@@ -475,7 +475,7 @@ void* cSIRFReg_SIRFReg_process(void* ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type)
+void* cReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type)
 {
     try {
         Registration<float>& reg = objectFromHandle<Registration<float>>(ptr);
@@ -488,12 +488,12 @@ void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const
         else if (strcmp(transform_type, "inverse_displacement") == 0)
             return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_inverse()));
         else
-            throw std::runtime_error("cSIRFReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
+            throw std::runtime_error("cReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
+void* cReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
 {
     try {
         Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
@@ -506,7 +506,7 @@ void* cSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const cha
 //      SIRFRegNiftyAladinSym
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir)
+void* cReg_SIRFReg_get_TM(const void* ptr, const char* dir)
 {
     try {
         NiftyAladinSym<float>& reg = objectFromHandle<NiftyAladinSym<float> >(ptr);
@@ -525,7 +525,7 @@ void* cSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir)
 //      SIRFRegNiftyResample
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char *type)
+void* cReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char *type)
 {
     try {
         NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(self);
@@ -542,7 +542,7 @@ void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* t
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegNiftyResample_process(void* ptr)
+void* cReg_SIRFRegNiftyResample_process(void* ptr)
 {
     try {
         NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(ptr);
@@ -556,7 +556,7 @@ void* cSIRFReg_SIRFRegNiftyResample_process(void* ptr)
 //      SIRFRegImageWeightedMean
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void *obj, const float weight)
+void* cReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void *obj, const float weight)
 {
     try {
         ImageWeightedMean<float>& im_weight = objectFromHandle<ImageWeightedMean<float> >(ptr);
@@ -567,7 +567,7 @@ void* cSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void *obj, co
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight)
+void* cReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight)
 {
     try {
         ImageWeightedMean<float>& im_weight = objectFromHandle<ImageWeightedMean<float> >(ptr);
@@ -577,7 +577,7 @@ void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean_process(void* ptr)
+void* cReg_SIRFRegImageWeightedMean_process(void* ptr)
 {
     try {
         ImageWeightedMean<float>& im_weight = objectFromHandle<ImageWeightedMean<float> >(ptr);
@@ -590,7 +590,7 @@ void* cSIRFReg_SIRFRegImageWeightedMean_process(void* ptr)
 //      Transformation
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref)
+void* cReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref)
 {
     try {
         Transformation<float> *trans;
@@ -602,7 +602,7 @@ void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, c
         else if (strcmp(name,"NiftiImageData3DDeformation") == 0)
             trans = &objectFromHandle<NiftiImageData3DDeformation<float> >(ptr);
         else
-            throw std::runtime_error("cSIRFReg_Transformation_get_as_deformation_field: type should be affine, disp or def.");
+            throw std::runtime_error("cReg_Transformation_get_as_deformation_field: type should be affine, disp or def.");
 
         NiftiImageData<float>& ref_im = objectFromHandle<NiftiImageData<float> >(ref);
         std::shared_ptr<NiftiImageData3DDeformation<float> > sptr
@@ -616,7 +616,7 @@ void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, c
 //      AffineTransformation
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(size_t ptr_TM)
+void* cReg_SIRFRegAffineTransformation_construct_from_TM(size_t ptr_TM)
 {
     try {
         float* TM = (float*)ptr_TM;
@@ -632,7 +632,7 @@ void* cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(size_t ptr_TM)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr)
+void* cReg_SIRFRegAffineTransformation_deep_copy(const void* ptr)
 {
     try {
         AffineTransformation<float>& mat = objectFromHandle<AffineTransformation<float> >(ptr);
@@ -642,7 +642,7 @@ void* cSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename)
+void* cReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename)
 {
     try {
         AffineTransformation<float>& mat = objectFromHandle<AffineTransformation<float> >(ptr);
@@ -652,7 +652,7 @@ void* cSIRFReg_SIRFRegAffineTransformation_write(const void* ptr, const char* fi
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, size_t ptr_TM)
+void* cReg_SIRFRegAffineTransformation_as_array(const void* ptr, size_t ptr_TM)
 {
     try {
         AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
@@ -665,7 +665,7 @@ void* cSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, size_t ptr_
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_get_identity()
+void* cReg_SIRFRegAffineTransformation_get_identity()
 {
     try {
         std::shared_ptr<AffineTransformation<float> > sptr(new AffineTransformation<float>);
@@ -674,7 +674,7 @@ void* cSIRFReg_SIRFRegAffineTransformation_get_identity()
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr)
+void* cReg_SIRFRegAffineTransformation_get_inverse(const void* ptr)
 {
     try {
         AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
@@ -684,7 +684,7 @@ void* cSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr)
+void* cReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
         AffineTransformation<float>& mat1 = objectFromHandle<AffineTransformation<float> >(mat1_ptr);
@@ -696,7 +696,7 @@ void* cSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void*
 }
 
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr)
+void* cReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
         AffineTransformation<float>& mat1 = objectFromHandle<AffineTransformation<float> >(mat1_ptr);
