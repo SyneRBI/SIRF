@@ -24,17 +24,17 @@ LINK_DIRECTORIES(${cGadgetron_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES(${cGadgetron_INCLUDE_DIR})
 
 # Executables
-SET(SIRF_executables
+SET(SYN_executables
     sirf_registration
     sirf_do_images_match
     sirf_resample
     )
 
-FOREACH(elem ${SIRF_executables})
+FOREACH(elem ${SYN_executables})
     ADD_EXECUTABLE(${elem} ${elem}.cpp)
-    TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron SIRFReg)
+    TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-ENDFOREACH(elem ${SIRFREG_executables})
+ENDFOREACH(elem ${SYN_executables})
 
 # Tests
 ADD_SUBDIRECTORY(tests)
