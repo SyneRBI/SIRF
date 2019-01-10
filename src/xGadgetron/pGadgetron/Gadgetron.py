@@ -561,7 +561,8 @@ class ImageData(SIRF.ImageData):
     def get_info(self, par):
         '''
         Returns the array of values of the specified image information 
-        parameter.
+        parameter. Parameters names are the same as the names of Image class
+        public methods (except is_real and info).
         par: parameter name
         '''
         ni = self.number()
