@@ -1,7 +1,7 @@
 %module pysirfreg
 %{
-#include "csirfreg.h"
+#include "cReg.h"
 #include <cmath>
 %}
-%include "csirfreg.h"
+%include "cReg.h"
 

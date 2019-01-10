@@ -61,7 +61,7 @@ int main()
 	path_out = SIRF_path + "/src/Registration/mReg/";
 	status = generate_matlab_interface
 		("CSIRFREG", "cSIRFReg", 
-			path_in, "csirfreg.h", 
+			path_in, "cReg.h", 
 			path_out, "msirfreg.h", "msirfreg.c", 1);
 	if (status)
 		cout << "wrong input file format" << endl;

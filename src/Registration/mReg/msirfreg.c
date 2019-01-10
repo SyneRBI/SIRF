@@ -24,7 +24,7 @@ limitations under the License.
 
 #include <mex.h>
 #include "matrix.h"
-#include "csirfreg.h"
+#include "cReg.h"
 
 #ifndef CSIRFREG_FOR_MATLAB
 #define PTR_INT size_t
