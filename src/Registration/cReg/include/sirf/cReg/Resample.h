@@ -34,7 +34,7 @@ i.e., Trans3(Trans2(Trans1(x))).
 #define _SIRFREGRESAMPLE_H_
 
 #include <vector>
-#include "sirf/cReg/SIRFRegTransformation.h"
+#include "sirf/cReg/Transformation.h"
 
 namespace sirf {
 

@@ -29,7 +29,7 @@ limitations under the License.
 
 #include "sirf/cSTIR/stir_data_containers.h"
 #include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/SIRFRegNiftyResample.h"
+#include "sirf/cReg/NiftyResample.h"
 
 using namespace sirf;
 

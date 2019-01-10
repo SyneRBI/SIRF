@@ -21,11 +21,11 @@ limitations under the License.
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/cReg/csirfreg_p.h"
 #include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/SIRFReg.h"
-#include "sirf/cReg/SIRFRegNiftyF3dSym.h"
-#include "sirf/cReg/SIRFRegNiftyResample.h"
-#include "sirf/cReg/SIRFRegImageWeightedMean.h"
-#include "sirf/cReg/SIRFRegAffineTransformation.h"
+#include "sirf/cReg/Registration.h"
+#include "sirf/cReg/NiftyF3dSym.h"
+#include "sirf/cReg/NiftyResample.h"
+#include "sirf/cReg/ImageWeightedMean.h"
+#include "sirf/cReg/AffineTransformation.h"
 
 using namespace sirf;
 

@@ -29,11 +29,11 @@ If multiple transformations are given, they will be applied in the order they we
 \author CCP PETMR
 */
 
-#include "sirf/cReg/SIRFRegNiftyResample.h"
+#include "sirf/cReg/NiftyResample.h"
 #include "sirf/cReg/NiftiImageData3D.h"
 #include "sirf/cSTIR/stir_data_containers.h"
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
-#include "sirf/cReg/SIRFRegAffineTransformation.h"
+#include "sirf/cReg/AffineTransformation.h"
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 #include "sirf/cReg/NiftiImageData3DDisplacement.h"
 

@@ -21,35 +21,35 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief bstract resampling base class
+\brief Base class for all SIRF registration.
 
 \author Richard Brown
 \author CCP PETMR
 */
 
-#include "sirf/cReg/SIRFRegResample.h"
+#include "sirf/cReg/Registration.h"
+#include <stdexcept>
 
 using namespace sirf;
 
 template<class dataType>
-void SIRFRegResample<dataType>::add_transformation(const std::shared_ptr<const SIRFRegTransformation<dataType> > transformation_sptr)
+void SIRFReg<dataType>::check_parameters() const
 {
-    _transformations.push_back(transformation_sptr);
+    // If anything is missing
+    if (!_floating_image_sptr)
+        throw std::runtime_error("Floating image has not been set.");
+    if (!_reference_image_sptr)
+        throw std::runtime_error("Reference image has not been set.");
 }
 
 template<class dataType>
-void SIRFRegResample<dataType>::check_parameters()
+void SIRFReg<dataType>::set_parameter(const std::string &par, const std::string &arg1, const std::string &arg2)
 {
-    // If anything is missing
-    if (!_reference_image_sptr)
-        throw std::runtime_error("Reference image has not been set.");
-    if (!_floating_image_sptr)
-        throw std::runtime_error("Floating image has not been set.");
-    if (_interpolation_type == NOTSET)
-        throw std::runtime_error("Interpolation type has not been set.");
+    _extra_params.push_back(par);
+    _extra_params.push_back(arg1);
+    _extra_params.push_back(arg2);
 }
 
 namespace sirf {
-template class SIRFRegResample<float>;
+template class SIRFReg<float>;
 }
-

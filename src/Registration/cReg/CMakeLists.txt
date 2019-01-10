@@ -16,7 +16,7 @@
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyRegistration.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegResample.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegTransformation.cpp" "SIRFRegAffineTransformation.cpp")
+SET(SOURCES "Registration.cpp" "NiftyRegistration.cpp" "NiftyAladinSym.cpp" "NiftyF3dSym.cpp" "ImageWeightedMean.cpp" "Resample.cpp" "NiftyResample.cpp" "Transformation.cpp" "AffineTransformation.cpp")
 
 # Add in nifti_image wrappers
 SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")
@@ -68,12 +68,12 @@ INSTALL(TARGETS SIRFReg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib    )
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 SET(SIRFREG_executables
-    sirfreg_affine_to_disp
-    sirfreg_print_nifti_info
-    sirfreg_aladin
-    sirfreg_tensor_split_join
-    sirfreg_change_datatype
-    sirfreg_crop_image
+    sirf_affine_to_disp
+    sirf_print_nifti_info
+    sirf_aladin
+    sirf_tensor_split_join
+    sirf_change_datatype
+    sirf_crop_image
     )
 
 FOREACH(elem ${SIRFREG_executables})

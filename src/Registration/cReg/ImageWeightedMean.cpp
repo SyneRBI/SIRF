@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/SIRFRegImageWeightedMean.h"
+#include "sirf/cReg/ImageWeightedMean.h"
 #include "sirf/cReg/NiftiImageData.h"
 #include <iostream>
 

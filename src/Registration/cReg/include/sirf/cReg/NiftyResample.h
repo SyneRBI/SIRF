@@ -42,8 +42,8 @@ the output image) can have nt and/or nu != 1.
 #include <iostream>
 #include "sirf/cReg/NiftiImageData3D.h"
 #include "sirf/cReg/NiftiImageData3DTensor.h"
-#include "sirf/cReg/SIRFRegTransformation.h"
-#include "sirf/cReg/SIRFRegResample.h"
+#include "sirf/cReg/Transformation.h"
+#include "sirf/cReg/Resample.h"
 
 namespace sirf {
 

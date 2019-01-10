@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
-#include "sirf/cReg/SIRFRegTransformation.h"
+#include "sirf/cReg/Transformation.h"
 #include "sirf/cReg/NiftiImageData3DDisplacement.h"
 #include <_reg_globalTrans.h>
 #include <sstream>

@@ -31,7 +31,7 @@ limitations under the License.
 #define _NIFTIIMAGEDATA3DDEFORMATION_H_
 
 #include "sirf/cReg/NiftiImageData3DTensor.h"
-#include "sirf/cReg/SIRFRegTransformation.h"
+#include "sirf/cReg/Transformation.h"
 
 namespace sirf {
 

@@ -27,11 +27,11 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/SIRFRegNiftyResample.h"
+#include "sirf/cReg/NiftyResample.h"
 #include "sirf/cReg/NiftiImageData3DTensor.h"
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 #include "sirf/cReg/NiftiImageData3DDisplacement.h"
-#include "sirf/cReg/SIRFRegAffineTransformation.h"
+#include "sirf/cReg/AffineTransformation.h"
 #include <_reg_resampling.h>
 #include <_reg_globalTrans.h>
 #include <_reg_tools.h>
