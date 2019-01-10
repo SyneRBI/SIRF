@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Classes for SIRFReg transformations.
+\brief Class for displacement field transformations.
 
 \author Richard Brown
 \author CCP PETMR

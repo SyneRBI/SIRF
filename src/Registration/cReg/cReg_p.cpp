@@ -96,7 +96,7 @@ sirf::cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
         return parameterNotFound(name, __FILE__, __LINE__);
 }
 // ------------------------------------------------------------------------------------ //
-//   SIRFReg
+//   Registration
 // ------------------------------------------------------------------------------------ //
 // set
 void*
@@ -140,7 +140,7 @@ sirf::cReg_RegistrationParameter(const DataHandle* handle, const char* name)
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
 // ------------------------------------------------------------------------------------ //
-//   SIRFRegNiftyF3dSym
+//   NiftyF3dSym
 // ------------------------------------------------------------------------------------ //
 // set
 void*
@@ -161,7 +161,7 @@ sirf::cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv)
     return new DataHandle;
 }
 // ------------------------------------------------------------------------------------ //
-//   SIRFRegNiftyResample
+//   NiftyResample
 // ------------------------------------------------------------------------------------ //
 // set
 void*
@@ -196,7 +196,7 @@ sirf::cReg_NiftyResampleParameter(const DataHandle* handle, const char* name)
 }
 
 // ------------------------------------------------------------------------------------ //
-//   SIRFRegImageWeightedMean
+//   ImageWeightedMean
 // ------------------------------------------------------------------------------------ //
 // get
 void*

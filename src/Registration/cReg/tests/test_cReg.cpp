@@ -701,7 +701,7 @@ int main(int argc, char* argv[])
         res.fill(4.5F);
 
         if (*wm1.get_output() != res)
-            throw std::runtime_error("SIRFRegImageWeightedMean3D failed.");
+            throw std::runtime_error("ImageWeightedMean3D failed.");
 
         // Get def from aladin
         std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
@@ -727,7 +727,7 @@ int main(int argc, char* argv[])
         res4D.fill(4.5);
 
         if (*wm2.get_output() != res4D)
-            throw std::runtime_error("SIRFRegImageWeightedMean3DTensor failed.");
+            throw std::runtime_error("ImageWeightedMean3DTensor failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished weighted mean test.\n";
@@ -736,27 +736,27 @@ int main(int argc, char* argv[])
 /* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Starting STIR to SIRFReg test...\n";
+        std::cout << "//                  Starting STIR to Nifti test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
             // Open stir image
             sirf::PETImageData pet_image_data(ref_aladin_filename);
             NiftiImageData3D<float> image_data_from_stir(pet_image_data);
 
-            // Now fill the stir and sirfreg images with 1 and 100, respectively
+            // Now fill the stir and nifti images with 1 and 100, respectively
             pet_image_data.fill(1.F);
             image_data_from_stir.fill(100.F);
 
             if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) < 1.e-5F)
-                throw std::runtime_error("STIR & SIRFReg seem to share the same data pointers (their values should be different, but they're the same).");
+                throw std::runtime_error("STIR & Nifti seem to share the same data pointers (their values should be different, but they're the same).");
 
-            // Fill the stir image with the sirfreg
+            // Fill the stir image with the Nifti
             image_data_from_stir.copy_data_to(pet_image_data);
             if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) > 1.e-5F)
                 throw std::runtime_error("NiftiImageData3D::copy_data_to failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Finished STIR to SIRFReg test.\n";
+        std::cout << "//                  Finished STIR to Nifti test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 */

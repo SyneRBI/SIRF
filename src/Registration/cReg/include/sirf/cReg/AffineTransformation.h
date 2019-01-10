@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Classes for SIRFReg transformations.
+\brief Class for affine transformations.
 \author Richard Brown
 \author CCP PETMR
 */
@@ -33,7 +33,7 @@ limitations under the License.
 #include "sirf/cReg/Transformation.h"
 
 namespace sirf {
-/// Class for SIRFReg transformations with an affine transformation
+///Class for affine transformations
 template<class dataType>
 class AffineTransformation : public Transformation<dataType>
 {

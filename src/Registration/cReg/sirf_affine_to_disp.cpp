@@ -38,7 +38,7 @@ using namespace sirf;
 /// Print usage
 void print_usage()
 {
-    std::cout << "\n*** sirfreg_affine_to_disp usage ***\n";
+    std::cout << "\n*** sirf_affine_to_disp usage ***\n";
 
     // Required flags
     std::cout << "\n  Required flags:\n";

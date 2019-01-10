@@ -503,7 +503,7 @@ void* cReg_Registration_set_parameter(const void* ptr, const char* par, const ch
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      SIRFRegNiftyAladinSym
+//      NiftyAladinSym
 // -------------------------------------------------------------------------------- //
 extern "C"
 void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir)
@@ -522,7 +522,7 @@ void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir)
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      SIRFRegNiftyResample
+//      NiftyResample
 // -------------------------------------------------------------------------------- //
 extern "C"
 void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char *type)
@@ -553,7 +553,7 @@ void* cReg_NiftyResample_process(void* ptr)
 }
 
 // -------------------------------------------------------------------------------- //
-//      SIRFRegImageWeightedMean
+//      ImageWeightedMean
 // -------------------------------------------------------------------------------- //
 extern "C"
 void* cReg_ImageWeightedMean_add_image(void* ptr, const void *obj, const float weight)

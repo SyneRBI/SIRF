@@ -56,7 +56,7 @@ namespace sirf {
 template<class dataType> class Transformation;
 class ImageData;
 
-/// Base class for registration algorithms wrapped by SIRFReg
+/// Base class for SIRF registration algorithms
 template<class dataType>
 class Registration
 {

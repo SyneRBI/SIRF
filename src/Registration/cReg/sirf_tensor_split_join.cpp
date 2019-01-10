@@ -35,7 +35,7 @@ using namespace sirf;
 
 void print_usage()
 {
-    std::cout << "\nUsage: sirfreg_tensor_split_join --join/split filename_4D filename_x filename_y filename z\n";
+    std::cout << "\nUsage: sirf_tensor_split_join --join/split filename_4D filename_x filename_y filename z\n";
 }
 
 enum JoinOrSplit{join,split};

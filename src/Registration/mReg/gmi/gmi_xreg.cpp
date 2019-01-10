@@ -54,7 +54,7 @@ int main()
 	string SIRF_path;
 	SIRF_path = sirf::getenv("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
-		cout << "SIRF_PATH not defined, cannot find sirfreg library" << endl;
+		cout << "SIRF_PATH not defined, cannot find reg library" << endl;
 		return 1;
 	}
 	path_in = SIRF_path + "/src/Registration/cReg/";

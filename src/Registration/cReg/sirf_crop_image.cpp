@@ -36,7 +36,7 @@ using namespace sirf;
 /// Print usage
 void print_usage()
 {
-    std::cout << "\n\n\n*** Usage: sirfreg_crop_image output_filename input_filename [at least one optional parameter] ***\n\n";
+    std::cout << "\n\n\n*** Usage: sirf_crop_image output_filename input_filename [at least one optional parameter] ***\n\n";
     std::cout << "Where optional parameters are:\n";
     std::cout << "\t[--x_min <val>]\n";
     std::cout << "\t[--x_max <val>]\n";

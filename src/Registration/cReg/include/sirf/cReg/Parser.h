@@ -37,7 +37,7 @@ limitations under the License.
 #include <type_traits>
 
 namespace sirf {
-/// SIRFReg parser
+/// Reg parser
 template<class Z>
 class Parser
 {

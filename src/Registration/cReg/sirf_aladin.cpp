@@ -44,7 +44,7 @@ static std::shared_ptr<const NiftiImageData3D<float> > read_as_sptr(const std::s
 /// print usage
 void print_usage()
 {
-    std::cout << "\n*** sirfreg_aladin usage ***\n";
+    std::cout << "\n*** sirf_aladin usage ***\n";
 
     // Required flags
     std::cout << "\n  Required flags:\n";

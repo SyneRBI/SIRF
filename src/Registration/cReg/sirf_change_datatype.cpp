@@ -36,7 +36,7 @@ using namespace sirf;
 /// Print usage
 void print_usage(const std::vector<std::string> &datatypes)
 {
-    std::cout << "\n\n\n*** Usage: sirfreg_change_datatype output_filename input_filename desired_datatype ***\n\n";
+    std::cout << "\n\n\n*** Usage: sirf_change_datatype output_filename input_filename desired_datatype ***\n\n";
     std::cout << "Supported datatypes:\n";
     for (unsigned i=0; i<datatypes.size(); ++i)
         std::cout << "\t" << datatypes[i] << "\n";

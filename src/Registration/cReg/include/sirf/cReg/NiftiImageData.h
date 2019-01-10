@@ -23,7 +23,7 @@ limitations under the License.
 \ingroup Registration
 \brief Base class for SIRF nifti image data.
 
-Generally SIRFReg (not necessarily NiftyReg) will preferentially use
+Generally SIRF (not necessarily NiftyReg) will preferentially use
 the qform over the sform code. This is the same for ITK and ANTs, but
 is not the case for SPM/MRIcroGL/FSLeyes/Mango.
 

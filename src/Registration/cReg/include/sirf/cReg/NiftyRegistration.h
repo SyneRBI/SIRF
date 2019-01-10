@@ -53,7 +53,7 @@ namespace sirf {
 /// Forward declarations
 template<class dataType> class NiftiImageData3D;
 
-/// Base class for registration algorithms wrapped by SIRFReg
+/// Base class for wrapped NiftyReg registration algorithms
 template<class dataType>
 class NiftyRegistration : public Registration<dataType>
 {
