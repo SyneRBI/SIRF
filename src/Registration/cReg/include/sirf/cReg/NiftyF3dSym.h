@@ -46,8 +46,8 @@ public:
     /// Constructor
     NiftyF3dSym()
     {
-        _floating_time_point  = -1;
-        _reference_time_point = -1;
+        _floating_time_point  = 1;
+        _reference_time_point = 1;
     }
 
     /// Process

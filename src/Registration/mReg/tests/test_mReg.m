@@ -456,8 +456,8 @@ function try_niftyf3d(g)
     nf.set_reference_image(g.ref_f3d);
     nf.set_floating_image(g.flo_f3d);
     nf.set_parameter_file(g.parameter_file_f3d);
-    nf.set_reference_time_point(1);
-    nf.set_floating_time_point(1);
+    % nf.set_reference_time_point(1);
+    % nf.set_floating_time_point(1);
     nf.set_initial_affine_transformation(tm_init);
     nf.process();
 
