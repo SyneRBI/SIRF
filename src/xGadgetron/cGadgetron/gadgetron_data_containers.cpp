@@ -38,6 +38,23 @@ using namespace sirf;
 std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
 
+static std::string get_date_time_string()
+{
+    time_t rawtime;
+    struct tm * timeinfo;
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+
+    std::stringstream str;
+    str << timeinfo->tm_year+1900 << "-"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_mon+1 << "-"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_mday << " "
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_hour << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_sec;
+    return str.str();
+}
+
 void 
 MRAcquisitionData::write(const char* filename)
 {
@@ -1022,13 +1039,8 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
 		return;
     // If the groupname hasn't been set, use the current date and time.
     std::string group = groupname;
-    if (group.empty()) {
-        auto t = std::time(nullptr);
-        auto tm = *std::localtime(&t);
-        std::ostringstream oss;
-        oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
-        group = oss.str();
-    }
+    if (group.empty())
+        group = get_date_time_string();
 	Mutex mtx;
 	mtx.lock();
 	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
