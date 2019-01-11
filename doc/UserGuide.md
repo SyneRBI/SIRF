@@ -624,22 +624,22 @@ The following additional methods are added to the PET `AcquisitionModel`:
            
 ### `DataContainer`
 
-`sirf.DataContainer` has the method `copy` as an alias to `clone`. 
-A number of methods are currently implemented on CCPi and not on SIRF `DataContainers`:
-1. (Pixelwise) binary operations:
-    1. `add(self, other , out=None, *args, **kwargs)`
-    1. `subtract(self, other, out=None , *args, **kwargs):`
-    1. `multiply(self, other , out=None, *args, **kwargs)` present with different signature `multiply(self, other)`
-    1. `divide(self, other , out=None ,*args, **kwargs)` present with different signature `divide(self, other)`
-    1. `power(self, other , out=None ,*args, **kwargs)`
-    1. `maximum(self, other , out=None ,*args, **kwargs)`
-1. all inline algebra is missing, achievable by using the above methods.
+`sirf.DataContainer` has been added the method `copy` as an alias to `clone`. 
+A number of methods are currently implemented on CCPi have been added to SIRF `DataContainers`:
+1. (Pixelwise) binary operations, notice that the CCPi implementation allows optional `*args, **kwargs` input parameters:
+    1. `add(self, other , out=None)`
+    1. `subtract(self, other, out=None):`
+    1. `multiply(self, other , out=None)` 
+    1. `divide(self, other , out=None)` 
+    1. `power(self, other , out=None)`
+    1. `maximum(self, other , out=None)`
+1. all inline algebra
 1. (Pixelwise) unary operations:
-    1. `abs(self, out=None, *args,  **kwargs)`
-    1. `sign(self, out=None, *args,  **kwargs)`
-    1. `sqrt(self, out=None, *args,  **kwargs)`
+    1. `abs(self, out=None)`
+    1. `sign(self, out=None)`
+    1. `sqrt(self, out=None)`
 1. reductions
-    1. `sum(out=None, *args,  **kwargs)`
+    1. `sum(self)`
 # Appendix <a name="Appendix"></a>
 
 ## Acquisition data storage scheme management <a name="storage_management"></a>
