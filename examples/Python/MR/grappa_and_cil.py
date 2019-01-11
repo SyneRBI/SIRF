@@ -1,9 +1,8 @@
 '''
-GRAPPA reconstruction with the steepest descent step: illustrates
-the use of Acquisition Model projections
+Example of reconstruction using CCPi/CIL FISTA algorithm 
 
 Usage:
-  grappa_and_steepest_descent.py [--help | options]
+  grappa_and_cil.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
@@ -13,8 +12,8 @@ Options:
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+## Copyright 2015 - 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging

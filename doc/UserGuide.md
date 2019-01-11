@@ -598,6 +598,7 @@ a number of methods and properties were added to SIRF Python classes for compati
 ### `AcquisitionModel`
 
 PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](https://github.com/vais-ral/CCPi-Framework/blob/master/Wrappers/Python/ccpi/optimisation/ops.py#L32). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+In all what follows the parameter `out` must be set to `None` and it is added to the signature of the methods for compatibility. 
 The methods that have been added both in MR and PET :
 1. `direct(img, out=None)` Projects an image into the (simulated) acquisition space, alias of `forward`.
 2. `adjoint(data, out=None)` Back-projects acquisition data to image space, alias of `backward`.
@@ -606,7 +607,7 @@ The methods that have been added both in MR and PET :
 `True` for MR and PET without accidental coincidences/scatter term.
 
 PET Specific:
-1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of `forward`.
+1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of `forward`. On this method the parameter `out` is available and can be used to pass an `AcquisitionData` instance to store the result of `direct` into.
 2. `adjoint(ad, subset_num = 0, num_subsets = 1, out = None)` Back-projects acquisition data into image space, if the `AcquisitionModel` is linear. `out` is not currently available, must be set to `None`
 
 The PET acquisition model relates an image `x` to the acquisition data `y` as
@@ -624,22 +625,22 @@ The following additional methods are added to the PET `AcquisitionModel`:
            
 ### `DataContainer`
 
-`sirf.DataContainer` has the method `copy` as an alias to `clone`. 
-A number of methods are currently implemented on CCPi and not on SIRF `DataContainers`:
-1. (Pixelwise) binary operations:
-    1. `add(self, other , out=None, *args, **kwargs)`
-    1. `subtract(self, other, out=None , *args, **kwargs):`
-    1. `multiply(self, other , out=None, *args, **kwargs)` present with different signature `multiply(self, other)`
-    1. `divide(self, other , out=None ,*args, **kwargs)` present with different signature `divide(self, other)`
-    1. `power(self, other , out=None ,*args, **kwargs)`
-    1. `maximum(self, other , out=None ,*args, **kwargs)`
-1. all inline algebra is missing, achievable by using the above methods.
+`sirf.DataContainer` has been added the method `copy` as an alias to `clone`. 
+Below the list of methods currently implemented on CCPi that have been added to SIRF `DataContainers`. In all what follows the parameter `out` allows the user to pass a `DataContainer` to store the result of the operation to. 
+1. (Pixelwise) binary operations, notice that the CCPi implementation allows optional `*args, **kwargs` input parameters:
+    1. `add(self, other , out=None)`
+    1. `subtract(self, other, out=None):`
+    1. `multiply(self, other , out=None)` 
+    1. `divide(self, other , out=None)` 
+    1. `power(self, other , out=None)`
+    1. `maximum(self, other , out=None)`
+1. all inline algebra
 1. (Pixelwise) unary operations:
-    1. `abs(self, out=None, *args,  **kwargs)`
-    1. `sign(self, out=None, *args,  **kwargs)`
-    1. `sqrt(self, out=None, *args,  **kwargs)`
+    1. `abs(self, out=None)`
+    1. `sign(self, out=None)`
+    1. `sqrt(self, out=None)`
 1. reductions
-    1. `sum(out=None, *args,  **kwargs)`
+    1. `sum(self)`
 # Appendix <a name="Appendix"></a>
 
 ## Acquisition data storage scheme management <a name="storage_management"></a>
