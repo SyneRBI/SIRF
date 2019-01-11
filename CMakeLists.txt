@@ -71,8 +71,10 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 #### optional back-ends
 # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
-option(BUILD_PYTHON "Build SIRF with python" ON)
-if (BUILD_PYTHON)
+find_package(PythonInterp QUIET)
+find_package(PythonLibs QUIET)
+option(BUILD_PYTHON "Build SIRF with python" ${PYTHONLIBS_FOUND})
+if (BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
   find_package(PythonInterp REQUIRED)
   find_package(PythonLibs REQUIRED)
 
@@ -95,8 +97,9 @@ if (BUILD_PYTHON)
 endif(BUILD_PYTHON)
 
 
-option(BUILD_MATLAB "Build SIRF with matlab" ON)
-if (BUILD_MATLAB)
+FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
+option(BUILD_MATLAB "Build SIRF with matlab" ${Matlab_FOUND})
+if (BUILD_MATLAB AND NOT ${Matlab_FOUND})
   message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
   FIND_PACKAGE(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
   matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
