@@ -66,7 +66,7 @@ public:
     virtual void process();
 
     /// Get output (as NiftiImageData)
-    const std::shared_ptr<const NiftiImageData<dataType> > get_output() const { return _output_image_nifti_sptr; }
+    const std::shared_ptr<const NiftiImageData<dataType> > get_output_sptr() const { return _output_image_nifti_sptr; }
 
 protected:
 

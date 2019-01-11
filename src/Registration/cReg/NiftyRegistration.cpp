@@ -35,7 +35,7 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataType>::get_deformation_field_forward() const
+const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataType>::get_deformation_field_forward_sptr() const
 {
     // Get displacement as NiftiImageData3DDisplacement (from Transformation)
     std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_fwd = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_forward_sptr);
@@ -44,7 +44,7 @@ const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataTyp
 }
 
 template<class dataType>
-const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataType>::get_deformation_field_inverse() const
+const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataType>::get_deformation_field_inverse_sptr() const
 {
     // Get displacement as NiftiImageData3DDisplacement (from Transformation)
     std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_inv= std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_inverse_sptr);

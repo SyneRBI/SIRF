@@ -47,10 +47,10 @@ public:
     void process();
 
     /// Get forwards transformation matrix
-    const std::shared_ptr<const AffineTransformation<dataType> > get_transformation_matrix_forward() const { return _TM_forward_sptr; }
+    const std::shared_ptr<const AffineTransformation<dataType> > get_transformation_matrix_forward_sptr() const { return _TM_forward_sptr; }
 
     /// Get inverse transformation matrix
-    const std::shared_ptr<const AffineTransformation<dataType> > get_transformation_matrix_inverse() const { return _TM_inverse_sptr; }
+    const std::shared_ptr<const AffineTransformation<dataType> > get_transformation_matrix_inverse_sptr() const { return _TM_inverse_sptr; }
 
 protected:
 

@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
             res->add_transformation(trans[i]);
         res->set_interpolation_type(interp);
         res->process();
-        res->get_output()->write(output);
+        res->get_output_sptr()->write(output);
     }
 
     // If there was an error

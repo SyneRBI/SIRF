@@ -66,13 +66,13 @@ public:
     virtual ~NiftyRegistration() {}
 
     /// Get forward deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward() const;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr() const;
 
     /// Get inverse deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse() const;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr() const;
 
     /// Get registered image as NiftiImageData3D
-    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const { return _warped_image_nifti_sptr; }
+    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output_sptr() const { return _warped_image_nifti_sptr; }
 
 protected:
 

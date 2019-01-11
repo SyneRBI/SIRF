@@ -201,31 +201,31 @@ int main(int argc, char* argv[])
 
         // Warped image
         if (flag_warped != -1)
-            reg->get_output()->write(argv[flag_warped+1]);
+            reg->get_output_sptr()->write(argv[flag_warped+1]);
 
         // TMs - only if rigid/affine
         if (strcmp(algo.c_str(),"aladin")==0) {
             if (flag_TM_forward != -1)
-                std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_forward()->write(argv[flag_TM_forward+1]);
+                std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_forward_sptr()->write(argv[flag_TM_forward+1]);
             if (flag_TM_inverse != -1)
-                std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_inverse()->write(argv[flag_TM_inverse+1]);
+                std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_inverse_sptr()->write(argv[flag_TM_inverse+1]);
         }
 
         // Forward disp field images
         if (flag_disp_fwd != -1)
-            reg->get_displacement_field_forward()->write(argv[flag_disp_fwd+1]);
+            reg->get_displacement_field_forward_sptr()->write(argv[flag_disp_fwd+1]);
 
         // Forward def field images
         if (flag_def_fwd != -1)
-            reg->get_deformation_field_forward()->write(argv[flag_def_fwd+1]);
+            reg->get_deformation_field_forward_sptr()->write(argv[flag_def_fwd+1]);
 
         // Inverse disp field images
         if (flag_disp_inv != -1)
-            reg->get_displacement_field_inverse()->write(argv[flag_disp_inv+1]);
+            reg->get_displacement_field_inverse_sptr()->write(argv[flag_disp_inv+1]);
 
         // Inverse def field images
         if (flag_def_inv != -1)
-            reg->get_deformation_field_inverse()->write(argv[flag_def_inv+1]);
+            reg->get_deformation_field_inverse_sptr()->write(argv[flag_def_inv+1]);
     }
 
     // If there was an error

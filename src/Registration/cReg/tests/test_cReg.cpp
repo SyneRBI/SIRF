@@ -500,13 +500,13 @@ int main(int argc, char* argv[])
         NA.process();
 
         // Get outputs
-        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NA.get_output();
-        std::shared_ptr<const AffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward());
-        std::shared_ptr<const AffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward());
-        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
-        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_inverse());
-        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward());
-        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_inverse());
+        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NA.get_output_sptr();
+        std::shared_ptr<const AffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
+        std::shared_ptr<const AffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward_sptr());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_inverse_sptr());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward_sptr());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_inverse_sptr());
 
         warped_sptr->write    (      aladin_warped    );
         TM_forward_sptr->write(       TM_forward      );
@@ -520,7 +520,7 @@ int main(int argc, char* argv[])
         TM_forward_sptr->print();
 
         // Inverse TM
-        const AffineTransformation<float> &inverse_tm = *NA.get_transformation_matrix_inverse();
+        const AffineTransformation<float> &inverse_tm = *NA.get_transformation_matrix_inverse_sptr();
         inverse_tm.print();
 
         // Test converting disp to def
@@ -552,11 +552,11 @@ int main(int argc, char* argv[])
         NF.process();
 
         // Get outputs
-        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NF.get_output();
-        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NF.get_deformation_field_forward());
-        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NF.get_deformation_field_inverse());
-        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_forward());
-        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_inverse());
+        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NF.get_output_sptr();
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NF.get_deformation_field_forward_sptr());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NF.get_deformation_field_inverse_sptr());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_forward_sptr());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_inverse_sptr());
 
         warped_sptr->write      (  f3d_warped   );
         def_forward_sptr->write (f3d_def_forward);
@@ -576,14 +576,14 @@ int main(int argc, char* argv[])
         std::cout << "//------------------------------------------------------------------------ //\n";
 
         // Get outputs from aladin
-        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
-        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward_sptr());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward_sptr());
 
         // Affine
         std::cout << "\nTesting affine...\n";
         AffineTransformation<float> a1;
         AffineTransformation<float> a2(TM_forward);
-        AffineTransformation<float> a3(*NA.get_transformation_matrix_forward());
+        AffineTransformation<float> a3(*NA.get_transformation_matrix_forward_sptr());
 
         // Displacement
         std::cout << "\nTesting displacement...\n";
@@ -627,9 +627,9 @@ int main(int argc, char* argv[])
         std::cout << "//------------------------------------------------------------------------ //\n";
 
         std::shared_ptr<const Transformation<float> > tm_iden  = std::make_shared<const AffineTransformation<float> >();
-        std::shared_ptr<const Transformation<float> > tm       = NA.get_transformation_matrix_forward();
-        std::shared_ptr<const Transformation<float> > disp     = NA.get_displacement_field_forward();
-        std::shared_ptr<const Transformation<float> > deff     = NA.get_deformation_field_forward();
+        std::shared_ptr<const Transformation<float> > tm       = NA.get_transformation_matrix_forward_sptr();
+        std::shared_ptr<const Transformation<float> > disp     = NA.get_displacement_field_forward_sptr();
+        std::shared_ptr<const Transformation<float> > deff     = NA.get_deformation_field_forward_sptr();
 
         std::cout << "Testing rigid resample...\n";
         NiftyResample<float> nr1;
@@ -640,7 +640,7 @@ int main(int argc, char* argv[])
         nr1.add_transformation(tm_iden);
         nr1.add_transformation(tm);
         nr1.process();
-        nr1.get_output()->write(rigid_resample);
+        nr1.get_output_sptr()->write(rigid_resample);
 
         std::cout << "Testing non-rigid displacement...\n";
         NiftyResample<float> nr2;
@@ -650,7 +650,7 @@ int main(int argc, char* argv[])
         nr2.set_interpolation_type_to_linear(); // try different interpolations
         nr2.add_transformation(disp);
         nr2.process();
-        nr2.get_output()->write(nonrigid_resample_disp);
+        nr2.get_output_sptr()->write(nonrigid_resample_disp);
 
         std::cout << "Testing non-rigid deformation...\n";
         NiftyResample<float> nr3;
@@ -660,7 +660,7 @@ int main(int argc, char* argv[])
         nr3.add_transformation(deff);
         nr3.set_interpolation_type_to_linear();
         nr3.process();
-        nr3.get_output()->write(nonrigid_resample_def);
+        nr3.get_output_sptr()->write(nonrigid_resample_def);
 
         // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
         // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
@@ -695,16 +695,16 @@ int main(int argc, char* argv[])
         wm1.add_image(im3, 3.F);
         wm1.add_image(im4, 1.F);
         wm1.process();
-        wm1.get_output()->write(output_weighted_mean);
+        wm1.get_output_sptr()->write(output_weighted_mean);
         //  Answer should be 4.5, so compare it to that!
         NiftiImageData3D<float> res = *ref_aladin;
         res.fill(4.5F);
 
-        if (*wm1.get_output() != res)
+        if (*wm1.get_output_sptr() != res)
             throw std::runtime_error("ImageWeightedMean3D failed.");
 
         // Get def from aladin
-        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward_sptr());
 
         //  Do 4D
         ImageWeightedMean<float> wm2;
@@ -721,12 +721,12 @@ int main(int argc, char* argv[])
         wm2.add_image(im4D3, 3.F);
         wm2.add_image(im4D4, 1.F);
         wm2.process();
-        wm2.get_output()->write(output_weighted_mean_def);
+        wm2.get_output_sptr()->write(output_weighted_mean_def);
         //  Answer should be 4.5, so compare it to that!
         NiftiImageData3DTensor<float> res4D = *def_forward_sptr;
         res4D.fill(4.5);
 
-        if (*wm2.get_output() != res4D)
+        if (*wm2.get_output_sptr() != res4D)
             throw std::runtime_error("ImageWeightedMean3DTensor failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -769,8 +769,8 @@ int main(int argc, char* argv[])
         AffineTransformation<float> a(TM_forward);
 
         // Multiply forward and inverse, should equal identity
-        AffineTransformation<float> b = *NA.get_transformation_matrix_forward();
-        AffineTransformation<float> c = *NA.get_transformation_matrix_inverse();
+        AffineTransformation<float> b = *NA.get_transformation_matrix_forward_sptr();
+        AffineTransformation<float> c = *NA.get_transformation_matrix_inverse_sptr();
         AffineTransformation<float> d = b * c;
         AffineTransformation<float> e;
         if (d != e)

@@ -81,19 +81,19 @@ public:
     virtual void process() = 0;
 
     /// Get registered image
-    const std::shared_ptr<const ImageData> get_output() const { return _warped_image_sptr; }
+    const std::shared_ptr<const ImageData> get_output_sptr() const { return _warped_image_sptr; }
 
     /// Get forward deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward() const = 0;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr() const = 0;
 
     /// Get inverse deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse() const = 0;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr() const = 0;
 
     /// Get forward displacement field image
-    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward() const { return _disp_image_forward_sptr; }
+    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr() const { return _disp_image_forward_sptr; }
 
     /// Get inverse displacement field image
-    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse() const { return _disp_image_inverse_sptr; }
+    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr() const { return _disp_image_inverse_sptr; }
 
     /// Set string parameter. Check if any set methods match the method given by par.
     /// If so, set the value given by arg. Convert to float/int etc., as necessary.

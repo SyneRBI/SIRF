@@ -125,7 +125,7 @@ public:
 
             // Get the key that corresponds to the keyword
             std::shared_ptr<ParserKeyBase<Z> > key;
-            key = this->get_key(keyword);
+            key = this->get_key_sptr(keyword);
 
             // Figure out the variables from the line of text
             key->get_arguments(line);
@@ -212,7 +212,7 @@ public:
     }
 
     /// Get a key from its keyword
-    std::shared_ptr<ParserKeyBase<Z> > get_key(std::string &keyword)
+    std::shared_ptr<ParserKeyBase<Z> > get_key_sptr(std::string &keyword)
     {
         // Compare the keyword to the list of keys
         typename std::map<std::string, std::shared_ptr<ParserKeyBase<Z> > >::iterator it;

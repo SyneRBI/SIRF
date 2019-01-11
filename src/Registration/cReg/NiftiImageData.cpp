@@ -917,7 +917,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
         resample.set_reference_image(im1.clone());
         resample.set_floating_image(im2.clone());
         resample.process();
-        norm = resample.get_output()->get_norm(im1);
+        norm = resample.get_output_sptr()->get_norm(im1);
     }
 
     if (norm < epsilon)

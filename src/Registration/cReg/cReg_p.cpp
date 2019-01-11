@@ -134,7 +134,7 @@ sirf::cReg_RegistrationParameter(const DataHandle* handle, const char* name)
 {
     Registration<float>& s = objectFromHandle<Registration<float> >(handle);
     if (strcmp(name, "output") == 0) {
-        return newObjectHandle(s.get_output());
+        return newObjectHandle(s.get_output_sptr());
 	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
@@ -190,7 +190,7 @@ sirf::cReg_NiftyResampleParameter(const DataHandle* handle, const char* name)
 {
     NiftyResample<float>& s = objectFromHandle<NiftyResample<float> >(handle);
     if (strcmp(name, "output") == 0)
-        return newObjectHandle(s.get_output());
+        return newObjectHandle(s.get_output_sptr());
     else
         return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -204,7 +204,7 @@ sirf::cReg_ImageWeightedMeanParameter(const DataHandle* handle, const char* name
 {
     ImageWeightedMean<float>& s = objectFromHandle<ImageWeightedMean<float> >(handle);
     if (strcmp(name, "output") == 0)
-        return newObjectHandle(s.get_output());
+        return newObjectHandle(s.get_output_sptr());
     else
         return parameterNotFound(name, __FILE__, __LINE__);
 }
