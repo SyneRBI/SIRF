@@ -34,9 +34,9 @@ limitations under the License.
 #include <algorithm>
 
 namespace sirf {
-/// Get template type
+/// Get template type as human-readable name.
 template<class A>
-std::string get_typeid(A)
+std::string get_typename(A)
 {
     if      (typeid(A) == typeid(const char *))  return "const char *";
     else if (typeid(A) == typeid(int))           return "int";
@@ -44,7 +44,7 @@ std::string get_typeid(A)
     else if (typeid(A) == typeid(double))        return "double";
     else if (typeid(A) == typeid(unsigned int))  return "unsigned int";
     else if (typeid(A) == typeid(bool))          return "bool";
-    else                                         return "unknown";
+    else                                         return typeid(A).name();
 }
 
 /*!
@@ -208,7 +208,7 @@ public:
         // Set the argument
         std::cout << "\tSetting argument...\n";
         this->get_argument(line, 0, _arg1);
-        std::cout << "\t\tExpected type: " << get_typeid(_arg1) << "\n";
+        std::cout << "\t\tExpected type: " << get_typename(_arg1) << "\n";
         std::cout << "\t\tValue:         " << _arg1 << "\n";
     }
 
@@ -221,7 +221,7 @@ public:
     }
 
     /// Print number of arguments expected
-    virtual void print_num_arguments_expected() const { std::cout << "\tNumber arguments expected: 1 (" << get_typeid(_arg1) << ")\n"; }
+    virtual void print_num_arguments_expected() const { std::cout << "\tNumber arguments expected: 1 (" << get_typename(_arg1) << ")\n"; }
 
 protected:
 
@@ -254,13 +254,13 @@ public:
         // Set the first argument
         std::cout << "\tSetting first argument...\n";
         this->get_argument(line, 0, _arg1);
-        std::cout << "\t\tExpected type: " << get_typeid(_arg1) << "\n";
+        std::cout << "\t\tExpected type: " << get_typename(_arg1) << "\n";
         std::cout << "\t\tValue:         " << _arg1 << "\n";
 
         // Set the second argument
         std::cout << "\tSetting second argument...\n";
         this->get_argument(line, 1, _arg2);
-        std::cout << "\t\tExpected type: " << get_typeid(_arg2) << "\n";
+        std::cout << "\t\tExpected type: " << get_typename(_arg2) << "\n";
         std::cout << "\t\tValue:         " << _arg2 << "\n";
     }
 
@@ -273,7 +273,7 @@ public:
     }
 
     /// Print number of arguments expected
-    virtual void print_num_arguments_expected() const { std::cout << "\tNumber arguments expected: 2 (" << get_typeid(_arg1) << " and " << get_typeid(_arg2) << ")\n"; }
+    virtual void print_num_arguments_expected() const { std::cout << "\tNumber arguments expected: 2 (" << get_typename(_arg1) << " and " << get_typename(_arg2) << ")\n"; }
 
 protected:
 
