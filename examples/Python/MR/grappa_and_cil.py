@@ -1,9 +1,8 @@
 '''
-GRAPPA reconstruction with the steepest descent step: illustrates
-the use of Acquisition Model projections
+Example of reconstruction using CCPi/CIL FISTA algorithm 
 
 Usage:
-  grappa_and_steepest_descent.py [--help | options]
+  grappa_and_cil.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
