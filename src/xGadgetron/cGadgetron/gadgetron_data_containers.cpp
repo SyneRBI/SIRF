@@ -1009,7 +1009,7 @@ GadgetronImageData::read(std::string filename)
 		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 	}
 
-    this->set_up_geom_info();
+    //this->set_up_geom_info();
 	return 0;
 }
 
@@ -1100,7 +1100,7 @@ images_(), nimages_(0)
 		if (boost::iequals(value, target))
 			append(u);
 	}
-    this->set_up_geom_info();
+    //this->set_up_geom_info();
 }
 
 void

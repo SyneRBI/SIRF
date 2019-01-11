@@ -30,6 +30,7 @@ limitations under the License.
 #ifndef DATA_HANDLE_TYPES
 #define DATA_HANDLE_TYPES
 
+#include <stdexcept>
 #include <stdlib.h>
 #include <string>
 
@@ -51,6 +52,12 @@ limitations under the License.
 		handle->set(0, &status);\
 		return (void*)handle;\
         }\
+	catch (const std::exception &error) {\
+		ExecutionStatus status(error.what(), __FILE__, __LINE__);\
+		DataHandle* handle = new DataHandle;\
+		handle->set(0, &status);\
+		return (void*)handle;\
+	}\
 	catch (...) {\
 		ExecutionStatus status("unhandled", __FILE__, __LINE__);\
 		DataHandle* handle = new DataHandle;\
