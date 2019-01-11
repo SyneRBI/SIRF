@@ -964,7 +964,7 @@ class AcquisitionSensitivityModel:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-class AcquisitionModel(object):
+class AcquisitionModel:
     ''' 
     Class for a PET acquisition model that relates an image x to the
     acquisition data y as
