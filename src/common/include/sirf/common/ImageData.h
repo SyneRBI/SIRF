@@ -1,3 +1,23 @@
+/*
+CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2018 Rutherford Appleton Laboratory STFC
+Copyright 2018 University College London
+
+This is software developed for the Collaborative Computational
+Project in Positron Emission Tomography and Magnetic Resonance imaging
+(http://www.ccppetmr.ac.uk/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
 #pragma once
 
 #ifndef SIRF_ABSTRACT_IMAGE_DATA_TYPE
@@ -66,7 +86,9 @@ namespace sirf {
             // If the geometrical info has not been created yet, throw an error
             if (!_geom_info_sptr)
                 throw std::runtime_error("Geometrical info not initialised. This implies that"
-                                         " your constructor did not call set_up_geom_info().");
+                                         " your constructor did not call set_up_geom_info() or there was "
+                                         "an error. Build in debug mode and lookout for any printed text "
+                                         "containing '::set_up_geom_info()'.");
             return _geom_info_sptr;
         }
         /// Clone and return as unique pointer.
