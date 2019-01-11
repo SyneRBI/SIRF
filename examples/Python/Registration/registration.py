@@ -1,7 +1,7 @@
-'''Demo for synergistic rigid/affine registration.
+'''Regsitration of SIRF images.
 
 Usage:
-  synergistic_rigid_registration [--help | options]
+  registration [--help | options]
 
 Options:
   --eng_ref <eng>              engine for reference image [default: Reg]
@@ -10,8 +10,8 @@ Options:
   --flo <file>                 floating image (default: test2.nii.gz)
   --par <file>                 parameter file (default: niftyreg_aladin.par)
   --algo <algo>                registration algorithm [default: NiftyAladinSym]
-  #--rmask                     mask of reference image
-  #--fmask                     mask of floating image
+  --rmask                      mask of reference image
+  --fmask                      mask of floating image
   --warped <file>              warped image filename [default: output]
   --TM_forward                 forward transformation matrix (if rigid/affine)
   --TM_inverse                 inverse transformation matrix (if rigid/affine)
@@ -22,8 +22,7 @@ Options:
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 Rutherford Appleton Laboratory STFC
-## Copyright 2018 University College London.
+## Copyright 2018 - 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -55,6 +54,8 @@ ref_file = args['--ref']
 flo_file = args['--flo']
 par_file = args['--par']
 algo = args['--algo']
+rmask_file = args['--rmask']
+fmask_file = args['--fmask']
 
 # if using the default for any, need to get the examples folder
 if (ref_file or flo_file or par_file) is None: 
@@ -97,6 +98,15 @@ def main():
     reg.set_reference_image(ref)
     reg.set_floating_image(flo)
     reg.set_parameter_file(par_file)
+
+    # If masks have been requested, enter them
+    if rmask_file:
+      rmask = eng_ref.ImageData(rmask_file)
+      reg.set_reference_mask(rmask)
+    if fmask_file:
+      fmask = eng_flo.ImageData(fmask_file)
+      reg.set_floating_mask(fmask)
+
     reg.process()
 
     # Output

@@ -597,6 +597,18 @@ class _Registration(ABC):
             raise AssertionError()
         _setParameter_sirf(self.handle, 'Registration', 'floating_image', floating_image.handle)
 
+    def set_reference_mask(self, reference_mask):
+        """Sets the reference mask."""
+        if not isinstance(reference_mask, SIRF.ImageData):
+            raise AssertionError()
+        _setParameter_sirf(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
+
+    def set_floating_mask(self, floating_mask):
+        """Sets the floating mask."""
+        if not isinstance(floating_mask, SIRF.ImageData):
+            raise AssertionError()
+        _setParameter_sirf(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
+
     def get_output(self):
         """Gets the registered image."""
         output = self.reference_image.same_object()

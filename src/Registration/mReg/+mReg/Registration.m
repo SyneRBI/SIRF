@@ -52,6 +52,16 @@ classdef (Abstract = true) Registration < handle
             assert(isa(input, 'mReg.NiftiImageData3D'))
             mReg.setParameter(self.handle_, 'Registration', 'floating_image', input, 'h')
         end
+        function set_reference_mask(self, input)
+            %Sets the reference mask.
+            assert(isa(input, 'mReg.NiftiImageData3D'))
+            mReg.setParameter(self.handle_, 'Registration', 'reference_mask', input, 'h')
+        end
+        function set_floating_mask(self, input)
+            %Sets the floating mask.
+            assert(isa(input, 'mReg.NiftiImageData3D'))
+            mReg.setParameter(self.handle_, 'Registration', 'floating_mask', input, 'h')
+        end
         function output = get_output(self)
             %Gets the registered image.
             output = mReg.NiftiImageData3D();

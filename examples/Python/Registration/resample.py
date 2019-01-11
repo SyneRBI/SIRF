@@ -1,7 +1,7 @@
-'''Demo for synergistic resampling.
+'''Resampling of SIRF images.
 
 Usage:
-  synergistic_resample [--help | options]
+  resample [--help | options]
 
 Options:
   --eng_ref <eng>              engine for reference image [default: Reg]
@@ -16,8 +16,7 @@ Options:
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 Rutherford Appleton Laboratory STFC
-## Copyright 2018 University College London.
+## Copyright 2018 - 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
