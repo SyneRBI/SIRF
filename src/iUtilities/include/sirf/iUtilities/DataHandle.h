@@ -30,9 +30,9 @@ limitations under the License.
 #ifndef DATA_HANDLE_TYPES
 #define DATA_HANDLE_TYPES
 
+#include <stdexcept>
 #include <stdlib.h>
 #include <string>
-#include <stdexcept>
 
 #include "sirf/iUtilities/LocalisedException.h"
 
