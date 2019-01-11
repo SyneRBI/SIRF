@@ -218,7 +218,7 @@ class _Transformation(ABC):
 
 class NiftiImageData(SIRF.ImageData):
     """
-    General class for nifti image.
+    General class for nifti image data.
     """
     def __init__(self, src=None):
         self.handle = None
@@ -391,9 +391,15 @@ class NiftiImageData(SIRF.ImageData):
             raise error('print_headers only implemented for up to 5 images.')
 
 
+class ImageData(NiftiImageData):
+    """
+    Alias class for nifti image data.
+    """
+
+
 class NiftiImageData3D(NiftiImageData):
     """
-    3D nifti image.
+    Class for 3D nifti image data.
     """
     def __init__(self, src=None):
         self.handle = None
@@ -424,15 +430,9 @@ class NiftiImageData3D(NiftiImageData):
         try_calling(pyreg.cReg_NiftiImageData3D_copy_data_to(self.handle, pet_image.handle))
 
 
-class ImageData(NiftiImageData3D):
-    """
-    3D nifti image.
-    """
-
-
 class NiftiImageData3DTensor(NiftiImageData):
     """
-    3D tensor nifti image.
+    Class for 3D tensor nifti image data.
     """
     def __init__(self, src1=None, src2=None, src3=None):
         self.handle = None
@@ -480,7 +480,7 @@ class NiftiImageData3DTensor(NiftiImageData):
 
 class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
     """
-    3D tensor displacement nifti image.
+    Class for 3D displacement nifti image data.
     """
     def __init__(self, src1=None, src2=None, src3=None):
         self.handle = None
@@ -505,7 +505,7 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
 
 class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
     """
-    3D tensor deformation nifti image.
+    Class for 3D deformation nifti image data.
     """
 
     def __init__(self, src1=None, src2=None, src3=None):

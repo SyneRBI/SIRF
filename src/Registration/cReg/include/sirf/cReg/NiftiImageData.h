@@ -23,22 +23,6 @@ limitations under the License.
 \ingroup Registration
 \brief Base class for SIRF nifti image data.
 
-Generally SIRF (not necessarily NiftyReg) will preferentially use
-the qform over the sform code. This is the same for ITK and ANTs, but
-is not the case for SPM/MRIcroGL/FSLeyes/Mango.
-
-qform/sform
-The qform code describes "scanner-anatomical" coordinates, whereas the
-sform code describes the location of the voxels in some standard space.
-
-For qform > 0, the origin of coordinates would generally be whatever
-the scanner origin is; for example, in MRI, (0,0,0) is the center
-of the gradient coil.
-
-For sform > 0, the origin of coordinates would depend on the value
-of sform_code; for example, for the Talairach coordinate system,
-(0,0,0) corresponds to the Anterior Commissure.
-
 \author Richard Brown
 \author CCP PETMR
 */
@@ -57,7 +41,37 @@ of sform_code; for example, for the Talairach coordinate system,
 
 namespace sirf {
 
-/// SIRF image data
+/*!
+\file
+\ingroup Registration
+\brief Base class for SIRF's nifti image data.
+
+This is a wrapper around the basic nifti_image (stored as a sptr),
+with extra functionality.
+
+This is the general form, and any number of dimensions are allowed. 
+This is contrary to the derived classes, which have specific requirements
+(e.g., NiftiImageData3DDeformation requires 5 dimensions, of which the 4th (time) == 1).
+
+To move between different images types (e.g., STIRImageData and MRImageData), 
+we need to know the patient's position relative to the scanner. For this, only
+qform_code == 1 will suffice.
+
+qform/sform
+The qform code describes "scanner-anatomical" coordinates, whereas the
+sform code describes the location of the voxels in some standard space.
+
+For qform > 0, the origin of coordinates would generally be whatever
+the scanner origin is; for example, in MRI, (0,0,0) is the center
+of the gradient coil.
+
+For sform > 0, the origin of coordinates would depend on the value
+of sform_code; for example, for the Talairach coordinate system,
+(0,0,0) corresponds to the Anterior Commissure.
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType>
 class NiftiImageData : public ImageData
 {

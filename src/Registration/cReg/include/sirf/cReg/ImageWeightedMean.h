@@ -37,7 +37,16 @@ namespace sirf {
 // Forward delcarations
 template<class dataType> class NiftiImageData;
 
-/// Calculate the weighted mean of a set of images
+/*!
+\file
+\ingroup Registration
+\brief Perform weighted mean of multiple images.
+
+TODO - would be simple for this to work in terms of ImageData instead of NiftiImageData.
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType>
 class ImageWeightedMean
 {

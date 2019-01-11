@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Class for deformation/displacement SIRF image data.
+\brief Class for deformation SIRF image data.
 
 \author Richard Brown
 \author CCP PETMR
@@ -38,7 +38,16 @@ namespace sirf {
 template<class dataType> class NiftiImageData3D;
 template<class dataType> class NiftiImageData3DDisplacement;
 
-/// SIRF nifti image data deformation field image
+/*!
+\ingroup Registration
+\brief Class for deformation SIRF image data.
+
+Here, we require ndim == 5, nt == 1 (so contains x,y,z dimensions as well as u==3 for the tensor component).
+Also require intent_p1 == DEF_FIELD.
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType>
 class NiftiImageData3DDeformation : public NiftiImageData3DTensor<dataType>, public Transformation<dataType>
 {
@@ -68,7 +77,7 @@ public:
     /// Create from 3D image
     void create_from_3D_image(const NiftiImageData3D<dataType> &image);
 
-    /// Create from CPP image
+    /// Create from control point grid image
     void create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData3D<dataType> &ref);
 
     /// Get as deformation field

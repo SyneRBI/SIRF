@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Check if two images match to a given precision.
+\brief Check if two SIRF images match to a given precision.
 
 \author Richard Brown
 \author CCP PETMR

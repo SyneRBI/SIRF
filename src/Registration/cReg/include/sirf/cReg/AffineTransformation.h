@@ -33,7 +33,12 @@ limitations under the License.
 #include "sirf/cReg/Transformation.h"
 
 namespace sirf {
-///Class for affine transformations
+/*!
+\ingroup Registration
+\brief Class for affine transformations.
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType>
 class AffineTransformation : public Transformation<dataType>
 {

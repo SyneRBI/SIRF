@@ -38,7 +38,15 @@ namespace sirf {
 /// Forward declarations
 template<class dataType> class AffineTransformation;
 
-/// Wrapper around NiftyReg's aladin class for rigid and affine transformations
+/*!
+\ingroup Registration
+\brief NiftyReg's aladin class for rigid and affine registrations.
+
+Since this algorithm is affine/rigid, it can also return a transformation matrix if desired.
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType> class NiftyAladinSym : public NiftyRegistration<dataType>
 {
 public:

@@ -1,5 +1,5 @@
 classdef NiftiImageData3D < mReg.NiftiImageData
-% Class for image data.
+% Class for 3D image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018-2019 University College London

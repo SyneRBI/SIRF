@@ -38,7 +38,18 @@ namespace sirf {
 /// Forward declarations
 template<class dataType> class AffineTransformation;
 
-/// Wrapper around NiftyReg's f3d class for non-rigid transformations
+/*!
+\ingroup Registration
+\brief NiftyReg's f3d class for non-rigid registrations.
+
+User can set an initial affine transformation if desired. 
+
+In theory, multiple time points can be used, but thus far has only been tested for
+t == 1 for both reference and floating images.
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType> class NiftyF3dSym : public NiftyRegistration<dataType>
 {
 public:

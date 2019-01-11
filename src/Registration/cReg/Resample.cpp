@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief bstract resampling base class
+\brief Abstract resampling base class
 
 \author Richard Brown
 \author CCP PETMR

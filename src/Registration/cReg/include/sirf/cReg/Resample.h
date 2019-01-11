@@ -23,9 +23,6 @@ limitations under the License.
 \ingroup Registration
 \brief Abstract resampling base class
 
-If multiple transformations are set, they will be used in the order that they have been added.
-i.e., Trans3(Trans2(Trans1(x))).
-
 \author Richard Brown
 \author CCP PETMR
 */
@@ -41,7 +38,17 @@ namespace sirf {
 template<class dataType> class Transformation;
 class ImageData;
 
-/// Wrapper around NiftyReg's resample class
+/*!
+\file
+\ingroup Registration
+\brief Abstract resampling base class
+
+If multiple transformations are set, they will be used in the order that they have been added.
+i.e., Trans3(Trans2(Trans1(x))).
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType>
 class Resample
 {

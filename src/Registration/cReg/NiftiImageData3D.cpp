@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Base class for SIRF image data.
+\brief Base class for 3D SIRF image data.
 
 \author Richard Brown
 \author CCP PETMR

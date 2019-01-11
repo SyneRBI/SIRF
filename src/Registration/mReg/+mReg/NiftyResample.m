@@ -1,5 +1,5 @@
 classdef NiftyResample < handle
-% Class resampling nifti image using NiftyReg.
+% Class for resampling using NiftyReg.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018-2019 University College London

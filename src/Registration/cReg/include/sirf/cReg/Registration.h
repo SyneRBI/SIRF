@@ -23,23 +23,6 @@ limitations under the License.
 \ingroup Registration
 \brief Base class for all SIRF registration.
 
-The parameter file should have interfile-like syntax.
-The variables will be stored as a vector of floats and converted into the required type (int, unsigned int, etc) if necessary.
-Multiple variables for a given parameter should be comma separated.
-Spaces and tabs will be ignored.
-For the title, it doesn't matter what is written as it will be ignored, but something has to be there (otherwise the first parameter will be ignored).
-Possible parameters are all the Set<something> methods for each class (e.g., nifty_aladin::SetPerformRigid) and should be written in the parameter file without the "Set" (e.g., PerformRigid).
-
-An example is given below:
-    SomeTitle :=
-        ReferenceTimePoint := 1
-        FloatingTimePoint := 2
-        LinearEnergyWeights := 1.5,1
-        AdditiveMC :=
-    end :=
-
-More examples can be found in data/examples/Registration/paramFiles
-
 \author Richard Brown
 \author CCP PETMR
 */
@@ -56,7 +39,34 @@ namespace sirf {
 template<class dataType> class Transformation;
 class ImageData;
 
-/// Base class for SIRF registration algorithms
+/*!
+\ingroup Registration
+\brief Base class for all SIRF registration.
+
+Registration classes can be set up with parameter files or inputting arguments directly with the set_parameter() method.
+
+If using a parameter file, it should have interfile-like syntax.
+The variables will be stored as a vector of floats and converted into the required type (int, unsigned int, etc) if necessary.
+Multiple variables for a given parameter should be comma separated.
+Spaces and tabs will be ignored.
+For the title, it doesn't matter what is written as it will be ignored, but something has to be there (otherwise the first parameter will be ignored).
+Possible parameters are all the Set<something> methods for each class (e.g., nifty_aladin::SetPerformRigid) and should be written in the parameter file without the "Set" (e.g., PerformRigid).
+
+An example is given below:
+\verbatim
+    SomeTitle :=
+        ReferenceTimePoint := 1
+        FloatingTimePoint := 2
+        LinearEnergyWeights := 1.5,1
+        AdditiveMC :=
+    end :=
+\endverbatim
+
+More examples can be found in data/examples/Registration/paramFiles
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType>
 class Registration
 {

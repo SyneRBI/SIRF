@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief NiftyReg's aladin class for rigid and affine registrations.
+\brief Parser keys for 0, 1 and 2 arguments
 
 \author Richard Brown
 \author CCP PETMR
@@ -47,7 +47,13 @@ std::string get_typeid(A)
     else                                         return "unknown";
 }
 
-/// Abstract base class for a parser key
+/*!
+\ingroup Registration
+\brief Base for parser keys
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class Z>
 class ParserKeyBase
 {
@@ -140,7 +146,13 @@ protected:
     std::shared_ptr<Z> _object;
 };
 
-/// Abstract base class for a parser key with 0 arguments
+/*!
+\ingroup Registration
+\brief Class for parser keys with 0 arguments
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class Z>
 class ParserKey0Arg : public ParserKeyBase<Z>
 {
@@ -173,7 +185,13 @@ protected:
     void (Z::*_function)();
 };
 
-/// Abstract base class for a parser key with 1 argument
+/*!
+\ingroup Registration
+\brief Class for parser keys with 1 argument
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class Z, class A>
 class ParserKey1Arg : public ParserKeyBase<Z>
 {
@@ -213,7 +231,13 @@ protected:
     A _arg1;
 };
 
-/// Abstract base class for a parser key with 2 arguments
+/*!
+\ingroup Registration
+\brief Class for parser keys with 2 arguments
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class Z, class A, class B>
 class ParserKey2Arg : public ParserKeyBase<Z>
 {

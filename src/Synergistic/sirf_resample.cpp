@@ -22,6 +22,7 @@ limitations under the License.
 \file
 \ingroup Registration
 \brief Perform resampling with any type of SIRF image and any SIRF resampling algorithm.
+
 If no transformations are given, identity will be used.
 If multiple transformations are given, they will be applied in the order they were given.
 

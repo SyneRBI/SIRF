@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Dump info of a nifti image
+\brief Dump info of one or more nifti images
 
 \author Richard Brown
 \author CCP PETMR

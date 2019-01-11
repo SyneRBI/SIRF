@@ -23,12 +23,6 @@ limitations under the License.
 \ingroup Registration
 \brief Resampling class based on nifty resample
 
-If multiple transformations are set, they will be used in the order that they have been added.
-i.e., Trans3(Trans2(Trans1(x))).
-
-The reference image must be 3D (i.e., NiftiImageData3D), but the floating image (and therefore
-the output image) can have nt and/or nu != 1.
-
 \author Richard Brown
 \author CCP PETMR
 */
@@ -50,7 +44,16 @@ namespace sirf {
 template<class dataType> class NiftiImageData3DDisplacement;
 template<class dataType> class AffineTransformation;
 
-/// Wrapper around NiftyReg's resample class
+/*!
+\ingroup Registration
+\brief Resampling class based on nifty resample
+
+The reference image must be 3D (i.e., NiftiImageData3D), but the floating image (and therefore
+the output image) can have nt and/or nu != 1.
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType>
 class NiftyResample : public Resample<dataType>
 {
@@ -76,11 +79,11 @@ protected:
     /// Set up the output image
     void set_up_output_image();
 
-    /// Reference image as a NiftyImageData3D
+    /// Reference image as a NiftiImageData3D
     std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_nifti_sptr;
-    /// Floating image as a NiftyImageData
+    /// Floating image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _floating_image_nifti_sptr;
-    /// Floating image as a NiftyImageData
+    /// Floating image as a NiftiImageData
     std::shared_ptr<NiftiImageData<dataType> >       _output_image_nifti_sptr;
 };
 }

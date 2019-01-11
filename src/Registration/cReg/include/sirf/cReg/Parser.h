@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief NiftyReg's aladin class for rigid and affine registrations.
+\brief Small class to parse parameter files.
 
 \author Richard Brown
 \author CCP PETMR
@@ -37,7 +37,14 @@ limitations under the License.
 #include <type_traits>
 
 namespace sirf {
-/// Reg parser
+/*!
+\file
+\ingroup Registration
+\brief Small class to parse parameter files.
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class Z>
 class Parser
 {

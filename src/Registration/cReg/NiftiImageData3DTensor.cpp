@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Class for deformation and displacement SIRF image data.
+\brief Class for tensor SIRF image data.
 
 \author Richard Brown
 \author CCP PETMR

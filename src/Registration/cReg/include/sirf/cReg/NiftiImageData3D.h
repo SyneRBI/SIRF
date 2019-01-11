@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Base class for SIRF image data.
+\brief 3D Nifti image.
 
 \author Richard Brown
 \author CCP PETMR
@@ -33,7 +33,15 @@ limitations under the License.
 
 namespace sirf {
 
-/// SIRF image data
+/*!
+\ingroup Registration
+\brief 3D Nifti image.
+
+Here, we require that the number of dimensions == 3.
+
+\author Richard Brown
+\author CCP PETMR
+*/
 template<class dataType>
 class NiftiImageData3D : public NiftiImageData<dataType>
 {

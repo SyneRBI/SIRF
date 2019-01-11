@@ -36,8 +36,17 @@ namespace sirf {
 template<class dataType> class NiftiImageData3D;
 template<class dataType> class NiftiImageData3DDeformation;
 
-/// Base class for transformations
-template<class dataType>
+/*!
+\ingroup Registration
+\brief Base class for transformations.
+
+All transformations need to be able to convert themselves
+to a deformation field. In this fashion, they can be composed
+into a single transformation.
+
+\author Richard Brown
+\author CCP PETMR
+*/template<class dataType>
 class Transformation
 {
 public:

@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Base class for all SIRF registration.
+\brief Base class for all NiftyReg registration algorithms.
 
 \author Richard Brown
 \author CCP PETMR

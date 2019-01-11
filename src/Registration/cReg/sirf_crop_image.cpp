@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Convert affine transformation matrix to displacement or deformation field image(s)
+\brief Crop a nifti image
 
 \author Richard Brown
 \author CCP PETMR
