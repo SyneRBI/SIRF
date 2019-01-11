@@ -84,6 +84,8 @@ option(BUILD_PYTHON "Build SIRF with python" ${PYTHONLIBS_FOUND})
 if (BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
   find_package(PythonInterp REQUIRED)
   find_package(PythonLibs REQUIRED)
+endif(BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
+if (BUILD_PYTHON)
 
   # PYTHON_DEST_DIR allows the user to select the install destination of the 
   # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
@@ -107,8 +109,10 @@ endif(BUILD_PYTHON)
 FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
 option(BUILD_MATLAB "Build SIRF with matlab" ${Matlab_FOUND})
 if (BUILD_MATLAB AND NOT ${Matlab_FOUND})
-  message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
   FIND_PACKAGE(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
+endif()
+if (BUILD_MATLAB)
+  message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
   matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
   # MATLAB_DEST_DIR allows the user to select the install destination of the 
   # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
