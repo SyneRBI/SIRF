@@ -1033,13 +1033,13 @@ class AcquisitionModel(object):
     def get_background_term(self):
         '''Returns the background term of the AcquisitionModel
            
-           PET acquisition model that relates an image x to the
+           A PET acquisition model relates an image x to the
            acquisition data y as
            (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
-           a and b are otional additive and background terms representing
+           a and b are optional additive and background terms representing
            the effects of accidental coincidences and scattering;
            S is the Acquisition Sensitivity Map
            
@@ -1052,13 +1052,13 @@ class AcquisitionModel(object):
     def get_additive_term(self):
         '''Returns the additive term of the AcquisitionModel
            
-           PET acquisition model that relates an image x to the
+           A PET acquisition model relates an image x to the
            acquisition data y as
            (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
-           a and b are otional additive and background terms representing
+           a and b are optional additive and background terms representing
            the effects of accidental coincidences and scattering;
            S is the Acquisition Sensitivity Map
            
@@ -1071,13 +1071,13 @@ class AcquisitionModel(object):
     def get_constant_term(self):
         '''Returns the sum of the additive and background terms of the AcquisitionModel
            
-           PET acquisition model that relates an image x to the
+           A PET acquisition model relates an image x to the
            acquisition data y as
            (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
-           a and b are otional additive and background terms representing
+           a and b are optional additive and background terms representing
            the effects of accidental coincidences and scattering;
            S is the Acquisition Sensitivity Map
            
