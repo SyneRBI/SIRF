@@ -74,14 +74,16 @@ class OperatorInd(object):
         return self.sirf2sub(y)
 
     def direct(self, x):
-        return self(x)
+        y = self.__op__.direct(x, subset_num=self.__subset_num__,
+                                num_subsets=self.__num_subsets__)
+        return self.sirf2sub(y)
 
     def forward(self, x):
         return self(x)
 
     def adjoint(self, x):
         x = self.sub2sirf(x)
-        return self.__op__.backward(x, subset_num=self.__subset_num__,
+        return self.__op__.adjoint(x, subset_num=self.__subset_num__,
                                     num_subsets=self.__num_subsets__)
 
     def allocate_direct(self, x=None):
@@ -184,6 +186,7 @@ def PowerMethodNonsquare(op, numiters, x0=None):
     #x0 = ImageData(geometry = vg, dimension_labels=['vertical','horizontal_y','horizontal_x'])
     #print (x0)
     #x0.fill(numpy.random.randn(*x0.shape))
+    print ("call powermethod")
 
     if x0 is None:
         x0 = op.create_image_data()

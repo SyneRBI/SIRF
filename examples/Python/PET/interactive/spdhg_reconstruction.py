@@ -206,7 +206,7 @@ g_reg = FGP_TV_SIRF(lambdaReg=.3,
                     device='cpu')
 #%%
 
-g_reg = TGV_TV_SIRF(regularisation_parameter=0.00025,
+g_reg = TGV_TV_SIRF(regularisation_parameter=0.0005,
                     alpha1=1,
                     alpha0=0.7,
                     iterations=250,
@@ -233,7 +233,7 @@ g_reg = Diff4th_SIRF(regularisation_parameter=3.5,
 #%%
 
 
-A = SubsetOperator(am, 14)
+A = SubsetOperator(am.get_linear_acquisition_model(), 14)
 A_norms = [PowerMethodNonsquare(Ai, 10, x0=image.copy()) for Ai in A]
 #%%
 # increase the norms to allow for inaccuracies in their computation
@@ -248,7 +248,7 @@ recon_noreg = spdhg(f, g_noreg, A, A_norms=Ls)
 #%%
 
 # set the number of iterations
-niter = 20
+niter = 5
 
 
 # %%

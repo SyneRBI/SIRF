@@ -964,7 +964,7 @@ class AcquisitionSensitivityModel:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-class AcquisitionModel:
+class AcquisitionModel(object):
     ''' 
     Class for a PET acquisition model that relates an image x to the
     acquisition data y as
@@ -1033,13 +1033,13 @@ class AcquisitionModel:
     def get_background_term(self):
         '''Returns the background term of the AcquisitionModel
            
-           A PET acquisition model relates an image x to the
+           PET acquisition model that relates an image x to the
            acquisition data y as
            (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
-           a and b are optional additive and background terms representing
+           a and b are otional additive and background terms representing
            the effects of accidental coincidences and scattering;
            S is the Acquisition Sensitivity Map
            
@@ -1052,13 +1052,13 @@ class AcquisitionModel:
     def get_additive_term(self):
         '''Returns the additive term of the AcquisitionModel
            
-           A PET acquisition model relates an image x to the
+           PET acquisition model that relates an image x to the
            acquisition data y as
            (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
-           a and b are optional additive and background terms representing
+           a and b are otional additive and background terms representing
            the effects of accidental coincidences and scattering;
            S is the Acquisition Sensitivity Map
            
@@ -1071,13 +1071,13 @@ class AcquisitionModel:
     def get_constant_term(self):
         '''Returns the sum of the additive and background terms of the AcquisitionModel
            
-           A PET acquisition model relates an image x to the
+           PET acquisition model that relates an image x to the
            acquisition data y as
            (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
-           a and b are optional additive and background terms representing
+           a and b are otional additive and background terms representing
            the effects of accidental coincidences and scattering;
            S is the Acquisition Sensitivity Map
            
@@ -1153,7 +1153,7 @@ class AcquisitionModel:
         if self.is_linear():
 	    if not out is None:
 		error('out parameter currently not supported')
-            return self.backward(ad, subset_num = subset_num,
+            return self.backward(ad, subset_num = subset_num, 
                              num_subsets = num_subsets)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
@@ -1173,7 +1173,6 @@ class AcquisitionModel:
                 return self.bt.norm() == 0
             else:
                 return self.bt.norm() == 0 and self.at.norm() == 0
-
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a sparse
@@ -1185,6 +1184,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
+        super(AcquisitionModelUsingMatrix, self).__init__()
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
@@ -1224,6 +1224,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
+        super(AcquisitionModelUsingRayTracingMatrix, self).__init__(matrix)
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
