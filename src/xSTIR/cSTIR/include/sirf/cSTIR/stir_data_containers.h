@@ -602,6 +602,7 @@ namespace sirf {
 				new Voxels3DF(
 					*ad.get_proj_data_info_sptr(),
 					zoom, origin, sizes));
+			this->set_up_geom_info();
 		}
 		STIRImageData(const Image3DF& image)
 		{
