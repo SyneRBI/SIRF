@@ -22,6 +22,7 @@ if(BUILD_PYTHON)
   INCLUDE("${SWIG_USE_FILE}")
 
   include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+  include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron/include)
 
   SET_SOURCE_FILES_PROPERTIES(pygadgetron.i PROPERTIES CPLUSPLUS ON)  
   SET_SOURCE_FILES_PROPERTIES(pygadgetron.i PROPERTIES SWIG_FLAGS "-I${cGadgetron_INCLUDE_DIR}")

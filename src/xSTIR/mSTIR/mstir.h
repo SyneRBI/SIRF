@@ -84,16 +84,12 @@ EXPORTED_FUNCTION 	void* mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_da
 EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float sy, float sz, float x, float y, float z);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v);
+EXPORTED_FUNCTION 	void* mSTIR_imageFromImageData(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny);
 EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v);
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename); 
-EXPORTED_FUNCTION 	void* mSTIR_norm(const void* ptr_x);
-EXPORTED_FUNCTION 	void*	mSTIR_dot(const void* ptr_x, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_multiply(const void* ptr_x, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_divide(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION 	void* mNewTextWriter(const char* stream);
 EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w);

@@ -1,4 +1,4 @@
-classdef ImageData < mGadgetron.DataContainer
+classdef ImageData < DataContainer
 % Class for MR image data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -117,8 +117,8 @@ classdef ImageData < mGadgetron.DataContainer
 %         other dimensions (z/slice/repetition etc.).
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             if self.number() > 0
-                calllib('mgadgetron', 'mGT_getImageDimensions', ...
-                    self.handle_, 0, ptr_i);
+                img = self.image(1);
+                calllib('mgadgetron', 'mGT_getImageDim', img.handle_, ptr_i);
             else
                 data = [];
                 return
@@ -128,36 +128,38 @@ classdef ImageData < mGadgetron.DataContainer
             n = dim(1)*dim(2)*nz;
             if self.is_real()
                 ptr_v = libpointer('singlePtr', zeros(n, 1));
-                calllib('mgadgetron', 'mGT_getImagesDataAsFloatArray', ...
-                    self.handle_, ptr_v)
+                h = calllib('mgadgetron', 'mGT_getImagesDataAsFloatArray', ...
+                    self.handle_, ptr_v);
                 data = reshape(ptr_v.Value, dim(1), dim(2), nz);
             else
-                ptr_re = libpointer('singlePtr', zeros(n, 1));
-                ptr_im = libpointer('singlePtr', zeros(n, 1));
-                calllib...
-                    ('mgadgetron', 'mGT_getImagesDataAsComplexArray', ...
-                    self.handle_, ptr_re, ptr_im)
-                re = reshape(ptr_re.Value, dim(1), dim(2), nz);
-                im = reshape(ptr_im.Value, dim(1), dim(2), nz);
-                data = re + 1j*im;
+                ptr_z = libpointer('singlePtr', zeros(2, n));
+                h = calllib...
+                    ('mgadgetron', 'mGT_getImagesDataAsCmplxArray', ...
+                    self.handle_, ptr_z);
+                data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
+                    dim(1), dim(2), nz);
             end
+            mUtilities.check_status('ImageData', h);
+            mUtilities.delete(h)
         end
         function fill(self, data)
 %***SIRF*** Changes image data to that in 3D complex array argument.
             if isempty(self.handle_)
                 error('ImageData:empty_object', 'cannot handle empty object')
             end
-            re = real(data);
-            im = imag(data);
-            if isa(re, 'single')
-                ptr_re = libpointer('singlePtr', re);
-                ptr_im = libpointer('singlePtr', im);
+            if self.is_real()
+                h = calllib('mgadgetron', 'mGT_setImagesDataAsRealArray', ...
+                    self.handle_, data);
             else
-                ptr_re = libpointer('singlePtr', single(re));
-                ptr_im = libpointer('singlePtr', single(im));
+                z = [real(data(:))'; imag(data(:))'];
+                if isa(z, 'single')
+                    ptr_z = libpointer('singlePtr', z);
+                else
+                    ptr_z = libpointer('singlePtr', single(z));
+                end
+                h = calllib('mgadgetron', 'mGT_setImagesDataAsCmplxArray', ...
+                    self.handle_, ptr_z);
             end
-            h = calllib('mgadgetron', 'mGT_setComplexImagesData', ...
-                self.handle_, ptr_re, ptr_im);
             mUtilities.check_status('ImageData', h);
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)

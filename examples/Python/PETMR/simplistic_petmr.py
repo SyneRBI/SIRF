@@ -61,13 +61,14 @@ def main():
     recon.set_input(processed_data)
     recon.process()
     complex_image = recon.get_output()
+    print(complex_image.norm())
+    print(complex_image.dot(complex_image))
 
 # PET
     # convert MR image into PET image
-    image_arr = abs(complex_image.as_array()) # image as Python array
-    image = PET.ImageData()                   # empty PET ImageData object
-    image.initialise(image_arr.shape[::-1])   # set image shape
-    image.fill(image_arr)                     # fill image with values
+    image = PET.ImageData(complex_image)
+    print(image.norm())
+    print(image.dot(image))
     # apply filter that zeroes the image outside a cylinder of the same
     # diameter as the image xy-section size
     filter = PET.TruncateToCylinderProcessor()

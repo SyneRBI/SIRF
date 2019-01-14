@@ -1,4 +1,4 @@
-classdef ImageData < mSTIR.DataContainer
+classdef ImageData < DataContainer
 % Class for PET image data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

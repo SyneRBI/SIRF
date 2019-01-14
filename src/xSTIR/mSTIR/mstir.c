@@ -183,6 +183,9 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v) {
 EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v) {
 	return cSTIR_imageFromImage(ptr_v);
 }
+EXPORTED_FUNCTION 	void* mSTIR_imageFromImageData(void* ptr_v) {
+	return cSTIR_imageFromImageData(ptr_v);
+}
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad) {
 	return cSTIR_imageFromAcquisitionData(ptr_ad);
 }
@@ -197,21 +200,6 @@ EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 }
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename) {
 	return cSTIR_writeImage(ptr_i, filename);
-}
-EXPORTED_FUNCTION 	void* mSTIR_norm(const void* ptr_x) {
-	return cSTIR_norm(ptr_x);
-}
-EXPORTED_FUNCTION 	void*	mSTIR_dot(const void* ptr_x, const void* ptr_y) {
-	return cSTIR_dot(ptr_x, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y) {
-	return cSTIR_axpby(a, ptr_x, b, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mSTIR_multiply(const void* ptr_x, const void* ptr_y) {
-	return cSTIR_multiply(ptr_x, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mSTIR_divide(const void* ptr_x, const void* ptr_y) {
-	return cSTIR_divide(ptr_x, ptr_y);
 }
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream) {
 	return newTextPrinter(stream);
