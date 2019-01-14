@@ -54,10 +54,11 @@ import pSTIR as pet
 from ccpi.optimisation.spdhg import spdhg
 from ccpi.optimisation.spdhg import KullbackLeibler
 from ccpi.optimisation.funcs import ZeroFun
+from ccpi.plugins.regularisers import FGP_TV, TGV, LLT_ROF, Diff4th
 # from ccpi.optimisation.funcs import IndicatorBox
 from spdhgutils import PowerMethodNonsquare
-from spdhgutils import FGP_TV_SIRF, TGV_TV_SIRF, ROF_LLT_SIRF, Diff4th_SIRF
 from spdhgutils import SubsetOperator
+from spdhgutils import cilPluginToSIRFFactory
 
 # plotting settings
 # plt.ion() # interactive 'on' such that plots appear during loops
@@ -196,44 +197,46 @@ elif EXAMPLE == 'nema':
 
 g_noreg = ZeroFun()
 
-
-g_reg = FGP_TV_SIRF(lambdaReg=.3,
-                    iterationsTV=1000,
-                    tolerance=1e-5,
-                    methodTV=0,
-                    nonnegativity=1,
-                    printing=0,
-                    device='cpu')
 #%%
 
-g_reg = TGV_TV_SIRF(regularisation_parameter=0.0005,
-                    alpha1=1,
-                    alpha0=0.7,
-                    iterations=250,
-                    LipshitzConst=12,
-                    device='cpu')
-
+g_reg = cilPluginToSIRFFactory.getInstance(FGP_TV, 
+                                           lambdaReg=.3,
+                                           iterationsTV=1000,
+                                           tolerance=1e-5,
+                                           methodTV=0,
+                                           nonnegativity=1,
+                                           printing=0,
+                                           device='cpu')
+#%%
 '''
-g_reg = ROF_LLT_SIRF(regularisation_parameterROF=0.04,
-                     regularisation_parameterLLT=0.01,
-                     iterations=500,
-                     time_marching_parameter=0.00002,
-                     device='cpu')
+g_reg = cilPluginToSIRFFactory.getInstance(LLT_ROF, 
+                                           regularisation_parameterROF=0.04,
+                                           regularisation_parameterLLT=0.01,
+                                           iterations=500,
+                                           time_marching_parameter=0.00002,
+                                           device='cpu')
 
+g_reg = cilPluginToSIRFFactory.getInstance(TGV, 
+                                           regularisation_parameter=0.0005,
+                                           alpha1=1,
+                                           alpha0=0.7,
+                                           iterations=250,
+                                           LipshitzConst=12,
+                                           device='cpu')
 
-
-
-g_reg = Diff4th_SIRF(regularisation_parameter=3.5,
-                     edge_parameter=0.02,
-                     iterations=500,
-                     time_marching_parameter=0.001,
-                     device='cpu')
+g_reg = cilPluginToSIRFFactory.getInstance(Diff4th, 
+                                           regularisation_parameter=3.5,
+                                           edge_parameter=0.02,
+                                           iterations=500,
+                                           time_marching_parameter=0.001,
+                                           device='cpu')
 '''
 #g_reg = IndicatorBox(lower=0,upper=1)
 #%%
 
 
-A = SubsetOperator(am.get_linear_acquisition_model(), 14)
+n_of_subsets = 14
+A = SubsetOperator(am.get_linear_acquisition_model(), n_of_subsets)
 A_norms = [PowerMethodNonsquare(Ai, 10, x0=image.copy()) for Ai in A]
 #%%
 # increase the norms to allow for inaccuracies in their computation
@@ -248,7 +251,8 @@ recon_noreg = spdhg(f, g_noreg, A, A_norms=Ls)
 #%%
 
 # set the number of iterations
-niter = 5
+epochs = 5
+niter = epochs * n_of_subsets
 
 
 # %%

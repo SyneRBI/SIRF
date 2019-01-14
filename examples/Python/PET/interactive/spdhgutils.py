@@ -134,45 +134,30 @@ def SubsetOperator(op, nsubsets):
 
 # the FGP_TV will output a CCPi DataContainer not a SIRF one, so
 # we will need to wrap it in something compatible
-class FGP_TV_SIRF(FGP_TV):
-    '''SIRF wrapper for CCPi CIL plugin FGP_TV'''
-    def prox(self, x, sigma):
-        print("calling FGP")
-        out = super(FGP_TV_SIRF, self).prox(x, sigma)
-        print("done")
-        y = x.copy()
-        y.fill(out.as_array())
-        return y
 
-class TGV_TV_SIRF(TGV):
-    '''SIRF wrapper for CCPi CIL plugin TGV'''
-    def prox(self, x, sigma):
-        print("calling FGP")
-        out = super(TGV_TV_SIRF, self).prox(x, sigma)
-        print("done")
-        y = x.copy()
-        y.fill(out.as_array())
-        return y
+class cilPluginToSIRFFactory(object):
+    '''Factory to create SIRF wrappers for CCPi CIL plugins'''
+    @staticmethod
+    def getInstance(thetype, **kwargs):
+        '''Returns an instance of a CCPi CIL plugin wrapped to work on SIRF DataContainers'''
+        obj = thetype(**kwargs)
+        orig_prox = obj.prox
+        obj.prox = cilPluginToSIRFFactory.prox(orig_prox, 
+                                               obj.__class__.__name__)
+        return obj
+    @staticmethod
+    def prox(method, classname):
+        def wrapped(x, sigma):
+            '''Wrapped method'''
+            print("calling ", classname)
+            #out = super(Diff4th_SIRF, self).prox(x, sigma)
+            out = method(x, sigma)
+            print("done")
+            y = x.copy()
+            y.fill(out.as_array())
+            return y
+        return wrapped
 
-class ROF_LLT_SIRF(LLT_ROF):
-    '''SIRF wrapper for CCPi CIL plugin LLT_ROF'''
-    def prox(self, x, sigma):
-        print("calling ROF_LLT")
-        out = super(ROF_LLT_SIRF, self).prox(x, sigma)
-        print("done")
-        y = x.copy()
-        y.fill(out.as_array())
-        return y
-
-class Diff4th_SIRF(Diff4th):
-    '''SIRF wrapper for CCPi CIL plugin Diff4th'''
-    def prox(self, x, sigma):
-        print("calling Diff4th")
-        out = super(Diff4th_SIRF, self).prox(x, sigma)
-        print("done")
-        y = x.copy()
-        y.fill(out.as_array())
-        return y
 def PowerMethodNonsquare(op, numiters, x0=None):
     # Initialise random
     # Jakob's
