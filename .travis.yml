@@ -131,6 +131,12 @@ before_install:
       BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
       # If ITK is required, use conda
       if [[ $EXTRA_BUILD_FLAGS == *"-DUSE_ITK=ON"* ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+        bash miniconda.sh -b -p $HOME/miniconda
+        export PATH="$HOME/miniconda/bin:$PATH"
+        hash -r
+        conda config --set always_yes yes --set changeps1 no
+        conda update -q conda
         conda install -c conda-forge itk
       fi
       if [ $PYMVER == 2 ]; then
