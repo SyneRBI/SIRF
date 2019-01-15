@@ -63,7 +63,7 @@ matrix:
  - os: osx
    python: 2.7
    # +boost +itk -hdf5 +swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
 
 env:
  global:
@@ -130,7 +130,7 @@ before_install:
       brew update
       BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
       # If ITK is required, use conda
-      if [[ $EXTRA_BUILD_FLAGS == *"-DUSE_ITK=ON"* ]]; then
+      if [[ $EXTRA_BUILD_FLAGS == *"-DUSE_ITK=ON"* AND $EXTRA_BUILD_FLAGS == *"-DUSE_SYSTEM_ITK=ON"*]]; then
         wget https://repo.continuum.io/miniconda/Miniconda$PYMVER-latest-Linux-x86_64.sh -O miniconda.sh;
         bash miniconda.sh -b -p $HOME/miniconda
         export PATH="$HOME/miniconda/bin:$PATH"
