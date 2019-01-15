@@ -268,6 +268,32 @@ for i in range(niter):
     print(recon_reg.iter)
     recon_reg.update()
 
+
+#%%
+if EXAMPLE == 'nema':
+    # reconstruct with STIR
+
+    # define objective function to be maximized as
+    # Poisson logarithmic likelihood (with linear model for mean)
+    obj_fun = pet.make_Poisson_loglikelihood(noisy_data)
+    obj_fun.set_acquisition_model(am)
+    # create the reconstruction object
+    recon = pet.OSMAPOSLReconstructor()
+    recon.set_objective_function(obj_fun)
+                                 
+    num_subsets = 7
+    # Feel free to increase these
+    num_subiterations = 4
+    recon.set_num_subsets(num_subsets)
+    recon.set_num_subiterations(num_subiterations)
+    initial_image = noisy_data.create_uniform_image(1.0, nxny)
+    image=initial_image
+    recon.set_up(image)
+    # set the initial image estimate
+    recon.set_current_estimate(image)
+    # reconstruct
+    recon.process()
+
 #%%  show result
 # imshow3(recon_noreg.x, limits=[-0.3,cmax], title='recon noreg')
 # imshow3(recon_reg.x, limits=[-0.3,cmax], title='recon reg')
@@ -299,16 +325,24 @@ elif EXAMPLE == 'nema':
     sliceno = recon_noreg.x.as_array().shape[0]/2
     sliceno = 71
     fig = plt.figure()
-    plt.subplot(1, 2, 1)
+    plt.subplot(1, 3, 1)
     plt.imshow(recon_noreg.x.as_array()[sliceno, :, :], cmap='gray')
     #plt.clim(-0.3,cmax)
     plt.title('{} iter SPDHG'.format(niter))
     plt.colorbar(shrink=.6)
     plt.axis('off')
-    plt.subplot(1, 2, 2)
+    
+    plt.subplot(1, 3, 2)
     plt.imshow(recon_reg.x.as_array()[sliceno, :, :], cmap='gray')
     #plt.clim(-0.3,cmax)
     plt.title('{} iter SPDHG + TGV_TV'.format(niter))
+    plt.colorbar(shrink=.6)
+    plt.axis('off')
+    
+    plt.subplot(1, 3, 3)
+    plt.imshow(recon.get_current_estimate().as_array()[sliceno, :, :], cmap='gray')
+    #plt.clim(-0.3,cmax)
+    plt.title('4 iter OSMAPOSL '.format(niter))
     plt.colorbar(shrink=.6)
     plt.axis('off')
     plt.show()
