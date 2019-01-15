@@ -21,12 +21,17 @@
 # ------------------------------------------------------------------------
 FIND_PACKAGE(NiftyReg)
 if (NiftyReg_FOUND)
-	MESSAGE(STATUS "\n\nSIRF's registration was developed with NiftyReg 1.5.59, and cannot be guaranteed for other version numbers.\n"
-    "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
-    "If there is a version mismatch, the keys in the parser may need to be altered.\n")
+	if(NOT ("${NR_VERSION}" MATCHES "1.5.59" OR "${NR_VERSION}" MATCHES "1.5.61"))
+		MESSAGE(STATUS "\n\nSIRF's registration was developed with NiftyReg 1.5.59 and 1.5.61, and cannot be guaranteed for other version numbers.\n"
+	    "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
+	    "If there is a version mismatch, the keys in the parser may need to be altered.\n")
+	endif()
 else()
 	MESSAGE(FATAL_ERROR "Registration has been enabled, but there are no registration packages available.")
 endif()
+
+# Include a preprocessor to compile code depenging on version number.
+add_definitions(-DNR_VERSION="${NR_VERSION}")
 
 # ------------------------------------------------------------------------
 # Add c++, python, matlab components (if desired)

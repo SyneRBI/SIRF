@@ -145,12 +145,6 @@ if (REG_ENABLE)
   ADD_SUBDIRECTORY(src/Registration)
 endif()
 
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-
 # Synergistic code currently only works if STIR, Gadgetron and Registration are built
 if (REG_ENABLE AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS)
   ADD_SUBDIRECTORY(src/Synergistic)
