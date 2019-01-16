@@ -30,6 +30,7 @@ limitations under the License.
 #pragma once
 
 #include <vector>
+#include <memory>
 #include "sirf/cReg/Transformation.h"
 
 namespace sirf {
