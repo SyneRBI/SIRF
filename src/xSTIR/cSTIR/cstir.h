@@ -113,6 +113,7 @@ extern "C" {
 	// Image methods
 	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
 	void* cSTIR_getImageVoxelSizes(const void* ptr_im, PTR_FLOAT ptr_vs);
+	void* cSTIR_getImageTransformMatrix(const void* ptr_im, PTR_FLOAT ptr_md);
 	void* cSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
 	void* cSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
 	void* cSTIR_voxels3DF(int nx, int ny, int nz,
@@ -124,16 +125,7 @@ extern "C" {
 	void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny);
 	void* cSTIR_fillImage(void* ptr_i, float v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
-	//void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
-
-	// Data container methods
-	void* cSTIR_norm(const void* ptr_x);
-	void*	cSTIR_dot(const void* ptr_x, const void* ptr_y);
-	//void* cSTIR_mult(float a, const void* ptr_x);
-	void* cSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y);
-	void* cSTIR_multiply(const void* ptr_x, const void* ptr_y);
-	void* cSTIR_divide(const void* ptr_x, const void* ptr_y);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);

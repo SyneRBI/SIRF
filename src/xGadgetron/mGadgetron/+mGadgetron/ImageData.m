@@ -1,4 +1,4 @@
-classdef ImageData < mGadgetron.DataContainer
+classdef ImageData < DataContainer
 % Class for MR image data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

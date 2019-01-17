@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Matlab Interface Generators
-\brief The executable for generating Matlab interface for iutilities library.
+\brief The executable for generating Matlab interface for cgadgetron library.
 
 \author Evgueni Ovtchinnikov
 \author CCP PETMR
@@ -54,15 +54,15 @@ int main()
 	string SIRF_path;
 	SIRF_path = sirf::getenv("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
-		cout << "SIRF_PATH not defined, cannot find iutilities library" << endl;
+		cout << "SIRF_PATH not defined, cannot find csirf library" << endl;
 		return 1;
 	}
-	path_in = SIRF_path + "/src/iUtilities/";
-	path_out = path_in;
+	path_in = SIRF_path + "/src/common/";
+	path_out = SIRF_path + "/src/common/";
 	status = generate_matlab_interface\
-		("IUTILITIES", "---", 
-			path_in, "iutilities.h", 
-			path_out, "miutilities.h", "miutilities.c");
+		("CSIRF", "cSIRF", 
+			path_in, "csirf.h", 
+			path_out, "msirf.h", "msirf.c");
 	if (status)
 		cout << "wrong input file format" << endl;
 }

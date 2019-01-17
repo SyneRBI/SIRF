@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Copyright 2016 University College London
+# Author: Evgueni Ovtchinnikov
+# Copyright 2017 STFC
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,15 +16,10 @@
 #
 #=========================================================================
 
-# Create an executable
-#ADD_EXECUTABLE (test4 ${CMAKE_CURRENT_SOURCE_DIR}/test4.cpp ${STIR_REGISTRIES})
-#SET_TARGET_PROPERTIES (test4
-#    PROPERTIES FOLDER ${CMAKE_INSTALL_PREFIX}/bin
-#    INSTALL_NAME_DIR "${PROJECT_NAME}")
-#TARGET_LINK_LIBRARIES(test4 PUBLIC cstir )
+if(BUILD_MATLAB)
 
-  add_executable(test4 ${CMAKE_CURRENT_SOURCE_DIR}/test4.cpp ${STIR_REGISTRIES})
-  target_link_libraries(test4 csirf cstir ${STIR_LIBRARIES})
-  INSTALL(TARGETS test4 DESTINATION bin)
+  add_executable(gmi_csirf gmi_csirf.cpp)
+  target_link_libraries(gmi_csirf mig csirf)
+  INSTALL(TARGETS gmi_csirf DESTINATION bin)
 
-ADD_TEST(NAME PET_TEST_CPLUSPLUS COMMAND test4 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+endif(BUILD_MATLAB)

@@ -1,6 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2018 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -27,15 +28,33 @@ limitations under the License.
 \author CCP PETMR
 */
 #include <cmath>
+#include <iomanip>
 
-#include "cgadgetron_shared_ptr.h"
-#include "gadgetron_data_containers.h"
+#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
 
 using namespace gadgetron;
 using namespace sirf;
 
 std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
+
+static std::string get_date_time_string()
+{
+    time_t rawtime;
+    struct tm * timeinfo;
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+
+    std::stringstream str;
+    str << timeinfo->tm_year+1900 << "-"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_mon+1 << "-"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_mday << " "
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_hour << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_sec;
+    return str.str();
+}
 
 void 
 MRAcquisitionData::write(const char* filename)
@@ -114,7 +133,7 @@ MRAcquisitionData::undersampled() const
 }
 
 int 
-MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim)
+MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 {
 	ISMRMRD::Acquisition acq;
 	int* dim = (int*)ptr_dim;
@@ -215,7 +234,7 @@ MRAcquisitionData::get_data(complex_float_t* z, int all)
 }
 
 unsigned int 
-MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im)
+MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im) const
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
@@ -340,7 +359,7 @@ MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 }
 
 void
-MRAcquisitionData::dot(const DataContainer& dc, void* ptr)
+MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
 	MRAcquisitionData& other = (MRAcquisitionData&)dc;
 	int n = number();
@@ -521,7 +540,7 @@ const DataContainer& a_y)
 //}
 
 float 
-MRAcquisitionData::norm()
+MRAcquisitionData::norm() const
 {
 	int n = number();
 	float r = 0;
@@ -553,7 +572,7 @@ MRAcquisitionData::clone()
 void
 MRAcquisitionData::order()
 {
-	typedef std::array<int, 3> tuple;
+	typedef std::array<int, 4> tuple;
 	int na = number();
 	tuple t;
 	std::vector<tuple> vt;
@@ -561,14 +580,16 @@ MRAcquisitionData::order()
 		ISMRMRD::Acquisition acq;
 		get_acquisition(i, acq);
 		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().slice;
-		t[2] = acq.idx().kspace_encode_step_1;
+		t[1] = acq.idx().phase;
+		t[2] = acq.idx().slice;
+		t[3] = acq.idx().kspace_encode_step_1;
 		vt.push_back(t);
 	}
 	if (index_)
 		delete[] index_;
 	index_ = new int[na];
 	Multisort::sort(vt, index_);
+	ordered_ = true;
 }
 
 void
@@ -667,7 +688,7 @@ AcquisitionsFile::take_over(MRAcquisitionData& ac)
 }
 
 unsigned int 
-AcquisitionsFile::items()
+AcquisitionsFile::items() const
 {
 	Mutex mtx;
 	mtx.lock();
@@ -677,7 +698,7 @@ AcquisitionsFile::items()
 }
 
 void 
-AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 {
 	int ind = index(num);
 	Mutex mtx;
@@ -814,7 +835,7 @@ AcquisitionsVector::set_acquisition_data
 }
 
 void
-GadgetronImageData::dot(const DataContainer& dc, void* ptr)
+GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 {
 	GadgetronImageData& ic = (GadgetronImageData&)dc;
 	complex_float_t z = 0;
@@ -909,7 +930,7 @@ const DataContainer& a_y)
 //}
 
 float 
-GadgetronImageData::norm()
+GadgetronImageData::norm() const
 {
 	float r = 0;
 	for (unsigned int i = 0; i < number(); i++) {
@@ -931,15 +952,19 @@ GadgetronImageData::order()
 	for (int i = 0; i < ni; i++) {
       ImageWrap& iw = image_wrap(i);
       ISMRMRD::ImageHeader& head = iw.head();
-		t[0] = head.repetition;
-		t[1] = head.position[2];
-		t[2] = head.slice;
+		t[0] = head.contrast;
+        t[1] = head.repetition;
+        // Calculate the projection of the position in the slice direction
+        t[2] = head.position[0] * head.slice_dir[0] +
+               head.position[1] * head.slice_dir[1] +
+               head.position[2] * head.slice_dir[2];
 		vt.push_back(t);
 	}
 	if (index_)
 		delete[] index_;
 	index_ = new int[ni];
 	Multisort::sort(vt, index_);
+	ordered_ = true;
 }
 
 std::shared_ptr<std::vector<std::string> >
@@ -1025,18 +1050,24 @@ GadgetronImageData::read(std::string filename)
 		//std::cout << "image dimensions: "
 		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 	}
+
+    this->set_up_geom_info();
 	return 0;
 }
 
 void
-GadgetronImageData::write(std::string filename, std::string groupname)
+GadgetronImageData::write(const std::string &filename, const std::string &groupname) const
 {
 	//if (images_.size() < 1)
 	if (number() < 1)
 		return;
+    // If the groupname hasn't been set, use the current date and time.
+    std::string group = groupname;
+    if (group.empty())
+        group = get_date_time_string();
 	Mutex mtx;
 	mtx.lock();
-	ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
+	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
 	mtx.unlock();
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);
@@ -1093,6 +1124,16 @@ GadgetronImageData::set_real_data(const float* z)
 }
 
 GadgetronImagesVector::GadgetronImagesVector
+(const GadgetronImagesVector& images) :
+images_(), nimages_(0)
+{
+	for (unsigned int i = 0; i < images.number(); i++) {
+		const ImageWrap& u = images.image_wrap(i);
+		append(u);
+	}
+}
+
+GadgetronImagesVector::GadgetronImagesVector
 (GadgetronImagesVector& images, const char* attr, const char* target) : 
 images_(), nimages_(0)
 {
@@ -1105,6 +1146,7 @@ images_(), nimages_(0)
 		if (boost::iequals(value, target))
 			append(u);
 	}
+    this->set_up_geom_info();
 }
 
 void
@@ -1159,6 +1201,108 @@ GadgetronImagesVector::set_real_data(const float* data)
 	//GadgetronImagesVectorIterator iter = begin();
 	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
+}
+
+static bool is_unit_vector(const float * const vec)
+{
+    return std::abs(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] - 1.F) < 1.e-4F;
+}
+
+void
+GadgetronImagesVector::set_up_geom_info()
+{
+    // Get image
+    ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
+
+    // Size
+    VoxelisedGeometricalInfo3D::Size size;
+    for(int i=0; i<2; ++i)
+        size[i] = ih1.matrix_size[i];
+    size[2] = this->number();
+
+    // The following will only work if the 0th index is read direction,
+    // 1st is phase direction and 2nd is slice direction. This should be the case if order has been called.
+
+    // Spacing
+    VoxelisedGeometricalInfo3D::Spacing spacing;
+    for(int i=0; i<3; ++i)
+        spacing[i] = ih1.field_of_view[i] / size[i];
+
+    // If there are more than 1 slices, then take the size of the voxel
+    // in the z-direction to be the distance between voxel centres (this
+    // accounts for under-sampled data (and also over-sampled).
+    if (this->number() > 1) {
+
+        // First check that the slice direction is a unit vector
+        const float * const slice_dir = ih1.slice_dir;
+        if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir)) {
+#ifndef NDEBUG
+            std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
+#endif
+            return;
+        }
+
+        // Calculate the spacing!
+        ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
+        float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
+                ih1.position[1] * ih1.slice_dir[1] +
+                ih1.position[2] * ih1.slice_dir[2];
+        float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
+                ih2.position[1] * ih2.slice_dir[1] +
+                ih2.position[2] * ih2.slice_dir[2];
+        spacing[2] = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
+
+        // Now for some more checks...
+        // Loop over all images, and
+        // 1. Check that the slice_dir is always constant
+        // 2. Check that spacing is more-or-less constant
+        for (unsigned im=0; im<number()-1; ++im) {
+
+            ISMRMRD::ImageHeader &ih1 = image_wrap( im ).head();
+            ISMRMRD::ImageHeader &ih2 = image_wrap(im+1).head();
+
+            // 1. Check that the slice_dir is always constant
+            for (int dim=0; dim<3; ++dim)
+                if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F) {
+#ifndef NDEBUG
+                    std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.");
+#endif
+                    return;
+                }
+
+            // 2. Check that spacing is constant
+            float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
+                    ih1.position[1] * ih1.slice_dir[1] +
+                    ih1.position[2] * ih1.slice_dir[2];
+            float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
+                    ih2.position[1] * ih2.slice_dir[1] +
+                    ih2.position[2] * ih2.slice_dir[2];
+            float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
+            if (std::abs(spacing[2]-new_spacing) > 1.e-4F) {
+#ifndef NDEBUG
+                std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.");
+#endif
+                return;
+            }
+        }
+    }
+
+    // Offset
+    VoxelisedGeometricalInfo3D::Offset offset;
+    for (int i=0; i<3; ++i)
+        offset[i] = ih1.position[i];
+
+    // Direction
+    VoxelisedGeometricalInfo3D::DirectionMatrix direction;
+    for (int axis=0; axis<3; ++axis) {
+        direction[0][axis] = ih1.read_dir[axis];
+        direction[1][axis] = ih1.phase_dir[axis];
+        direction[2][axis] = ih1.slice_dir[axis];
+    }
+
+    // Initialise the geom info shared pointer
+    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction);
 }
 
 void

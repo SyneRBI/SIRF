@@ -34,7 +34,7 @@ limitations under the License.
 
 #include <stdlib.h>
 
-#include "stir_data_containers.h"
+#include "sirf/cSTIR/stir_data_containers.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f

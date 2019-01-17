@@ -6,7 +6,8 @@
 
 #include "cstir.h"
 #include "object.h"
-#include "stir_x.h"
+
+#include "sirf/cSTIR/stir_x.h"
 #include "sirf/common/getenv.h"
 
 using namespace stir;

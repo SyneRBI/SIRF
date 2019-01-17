@@ -19,12 +19,10 @@ limitations under the License.
 
 */
 
-#include "stir/common.h"
-
 #include "sirf/iUtilities/DataHandle.h"
-#include "cstir_shared_ptr.h"
-#include "cstir_p.h"
-#include "stir_x.h"
+#include "sirf/cSTIR/stir_types.h"
+#include "sirf/cSTIR/cstir_p.h"
+#include "sirf/cSTIR/stir_x.h"
 
 using namespace stir;
 using namespace sirf;
@@ -890,10 +888,7 @@ void* cSTIR_writeImage(void* ptr_i, const char* filename)
 {
 	try {
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
-		Image3DF& image = id.data();
-		shared_ptr<OutputFileFormat<Image3DF> > format_sptr =
-			OutputFileFormat<Image3DF>::default_sptr();
-		format_sptr->write_to_file(filename, image);
+		id.write(filename);
 		return (void*) new DataHandle;
 	}
 	CATCH;
@@ -999,6 +994,21 @@ void* cSTIR_getImageVoxelSizes(const void* ptr_im, size_t ptr_vs)
 }
 
 extern "C"
+void* cSTIR_getImageTransformMatrix(const void* ptr_im, size_t ptr_md)
+{
+	try {
+        STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+		float* data = (float*)ptr_md;
+		TransformMatrix3D mx = id.get_geom_info_sptr()->calculate_index_to_physical_point_matrix();
+		for (int j = 0; j < 4; j++)
+			for (int i = 0; i < 4; i++)
+				data[i + 4 * j] = mx[j][i];
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 {
 	try {
@@ -1035,134 +1045,3 @@ void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
 	}
 	CATCH;
 }
-
-extern "C"
-void*
-cSTIR_norm(const void* ptr_x)
-{
-	try {
-		DataContainer& x =
-			objectFromHandle<DataContainer >(ptr_x);
-		return dataHandle(x.norm());
-	}
-	CATCH;
-}
-
-//extern "C"
-//void*
-//cSTIR_dot(const void* ptr_x, const void* ptr_y)
-//{
-//	try {
-//		DataContainer& x =
-//			objectFromHandle<DataContainer >(ptr_x);
-//		DataContainer& y =
-//			objectFromHandle<DataContainer >(ptr_y);
-//		return dataHandle(x.dot(y));
-//	}
-//	CATCH;
-//}
-
-extern "C"
-void*
-cSTIR_dot(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		DataContainer& x =
-			objectFromHandle<DataContainer >(ptr_x);
-		DataContainer& y =
-			objectFromHandle<DataContainer >(ptr_y);
-		float s;
-		//x.dot(y, &s);
-		complex_float_t z(0.0, 0.0);
-		x.dot(y, &z);
-		s = z.real();
-		return dataHandle(s);
-		//return dataHandle(x.dot(y));
-	}
-	CATCH;
-}
-
-//extern "C"
-//void*
-//cSTIR_mult(float a, const void* ptr_x)
-//{
-//	try {
-//		DataContainer& x =
-//			objectFromHandle<DataContainer >(ptr_x);
-//		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-//		//sptr_z->mult(a, x);
-//		float zero = 0.0;
-//		sptr_z->axpby(&a, x, &zero, x);
-//		return newObjectHandle<DataContainer >(sptr_z);
-//	}
-//	CATCH;
-//}
-
-//extern "C"
-//void*
-//cSTIR_axpby(
-//	float a, const void* ptr_x,
-//	float b, const void* ptr_y
-//) {
-//	try {
-//		DataContainer& x =
-//			objectFromHandle<DataContainer >(ptr_x);
-//		DataContainer& y =
-//			objectFromHandle<DataContainer >(ptr_y);
-//		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-//		sptr_z->axpby(a, x, b, y);
-//		return newObjectHandle<DataContainer >(sptr_z);
-//	}
-//	CATCH;
-//}
-
-extern "C"
-void*
-cSTIR_axpby(
-float a, const void* ptr_x,
-float b, const void* ptr_y
-) {
-	try {
-		DataContainer& x =
-			objectFromHandle<DataContainer >(ptr_x);
-		DataContainer& y =
-			objectFromHandle<DataContainer >(ptr_y);
-		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		sptr_z->axpby(&a, x, &b, y);
-		return newObjectHandle<DataContainer >(sptr_z);
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSTIR_multiply(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		DataContainer& x =
-			objectFromHandle<DataContainer >(ptr_x);
-		DataContainer& y =
-			objectFromHandle<DataContainer >(ptr_y);
-		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		sptr_z->multiply(x, y);
-		return newObjectHandle<DataContainer >(sptr_z);
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSTIR_divide(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		DataContainer& x =
-			objectFromHandle<DataContainer >(ptr_x);
-		DataContainer& y =
-			objectFromHandle<DataContainer >(ptr_y);
-		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		sptr_z->divide(x, y);
-		return newObjectHandle<DataContainer >(sptr_z);
-	}
-	CATCH;
-}
-

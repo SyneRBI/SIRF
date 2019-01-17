@@ -34,13 +34,15 @@ limitations under the License.
 
 #include <chrono>
 #include <fstream>
+#include <exception>
 
-#include "cstir_shared_ptr.h"
+#include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/iUtilities/DataHandle.h"
-#include "stir_types.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/PETImageData.h"
+#include "sirf/cSTIR/stir_types.h"
+#include "sirf/common/GeometricalInfo.h"
 
 namespace sirf {
 
@@ -207,12 +209,12 @@ namespace sirf {
 		}
 
 		// data container methods
-		unsigned int items() { return 1; }
-		virtual void dot(const DataContainer& a_x, void* ptr);
+		unsigned int items() const { return 1; }
+		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
-		virtual float norm();
+		virtual float norm() const;
 		//virtual float dot(const DataContainer& x);
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y);
@@ -377,12 +379,12 @@ namespace sirf {
 			return stir::shared_ptr<PETAcquisitionData>
 				(_template->same_acquisition_data(*data()));
 		}
-		virtual DataContainer* new_data_container()
+		virtual DataContainer* new_data_container() const
 		{
 			init();
 			return (DataContainer*)_template->same_acquisition_data(*data());
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(new_data_container()));
@@ -461,12 +463,12 @@ namespace sirf {
 			return stir::shared_ptr<PETAcquisitionData>
 				(_template->same_acquisition_data(*data()));
 		}
-		virtual DataContainer* new_data_container()
+		virtual DataContainer* new_data_container() const
 		{
 			init();
 			return _template->same_acquisition_data(*data());
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(new_data_container()));
@@ -580,82 +582,94 @@ namespace sirf {
 			std::shared_ptr<Iterator_const> _sptr_iter;
 		};
 		STIRImageData() {}
-		STIRImageData(const ImageData& id)
-		{
-			Dimensions dim = id.dimensions();
-			int nx = dim["x"];
-			int ny = dim["y"];
-			int nz = 1;
-			Dimensions::iterator it = dim.begin();
-			while (it != dim.end()) {
-				if (it->first != "x" && it->first != "y")
-					nz *= it->second;
-				++it;
-			}
-			Voxels3DF voxels(stir::IndexRange3D(0, nz - 1,
-				-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
-				Coord3DF(0, 0, 0),
-				Coord3DF(3, 3, 3.375));
-			_data.reset(voxels.clone());
-			copy(id.begin(), begin(), end());
-		}
+        STIRImageData(const ImageData& id);
 		STIRImageData(const STIRImageData& image)
 		{
 			_data.reset(image.data().clone());
+            this->set_up_geom_info();
 		}
 		STIRImageData(const PETAcquisitionData& ad)
 		{
 			_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
+            this->set_up_geom_info();
 		}
 		STIRImageData(const Image3DF& image)
 		{
 			_data.reset(image.clone());
+            this->set_up_geom_info();
 		}
 		STIRImageData(const Voxels3DF& v)
 		{
 			_data.reset(v.clone());
+            this->set_up_geom_info();
 		}
 		STIRImageData(const stir::ProjDataInfo& pdi)
 		{
 			_data.reset(new Voxels3DF(pdi));
+            this->set_up_geom_info();
 		}
 		STIRImageData(stir::shared_ptr<Image3DF> ptr)
 		{
 			_data = ptr;
+            this->set_up_geom_info();
 		}
 		STIRImageData(std::string filename)
 		{
 			_data = stir::read_from_file<Image3DF>(filename);
+            this->set_up_geom_info();
 		}
-		STIRImageData* same_image_data()
+		STIRImageData* same_image_data() const
 		{
 			STIRImageData* ptr_image = new STIRImageData;
 			ptr_image->_data.reset(_data->get_empty_copy());
+            ptr_image->set_up_geom_info();
 			return ptr_image;
 		}
 		stir::shared_ptr<STIRImageData> new_image_data()
 		{
 			return stir::shared_ptr<STIRImageData>(same_image_data());
 		}
-		DataContainer* new_data_container()
+		DataContainer* new_data_container() const
 		{
 			return (DataContainer*)same_image_data();
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
-		unsigned int items()
+		unsigned int items() const
 		{
 			return 1;
 		}
+        /// Write to file
+        virtual void write(const std::string &filename) const;
+        /// Write to file using format file.
+        /*! This allows speciyfing the output file format used by STIR using a text file.
+            Keywords are specified by STIR.
 
-		virtual void dot(const DataContainer& a_x, void* ptr);
+            If "" is passed as argument for format_file, the default format will be used.
+
+            An example is given below for writing the image in the nifti format. STIR uses
+            ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
+            \verbatim
+            OutputFileFormat Parameters:=
+                output file format type := ITK
+                ITK Output File Format Parameters:=
+                number format := float
+                number_of_bytes_per_pixel:=4
+                default extension:=.nii
+                End ITK Output File Format Parameters:=
+           End:=
+           \endverbatim
+        */
+        virtual void write(const std::string &filename, const std::string &format_file) const;
+
+		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
-		virtual float norm();
+		virtual float norm() const;
 		//virtual float dot(const DataContainer& other);
 		//void mult(float a, const DataContainer& x);
 		virtual void multiply(const DataContainer& x,
@@ -728,7 +742,24 @@ namespace sirf {
 			return *_end_const;
 		}
 
+        /// Clone and return as unique pointer.
+        std::unique_ptr<STIRImageData> clone() const
+        {
+            return std::unique_ptr<STIRImageData>(this->clone_impl());
+        }
+
+    private:
+        /// Clone helper function. Don't use.
+        virtual STIRImageData* clone_impl() const
+        {
+            return new STIRImageData(*this->data().clone());
+        }
+
 	protected:
+
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info();
+
 		stir::shared_ptr<Image3DF> _data;
 		mutable stir::shared_ptr<Iterator> _begin;
 		mutable stir::shared_ptr<Iterator> _end;
@@ -740,6 +771,6 @@ namespace sirf {
 		//mutable stir::shared_ptr<Iterator_const> _end_const;
 	};
 
-}
+}  // namespace sirf
 
 #endif

@@ -32,11 +32,13 @@ except:
 import sys
 import time
 
-from pUtilities import *
+from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
+     try_calling, assert_validity, assert_validities, petmr_data_path, \
+     existing_filepath, pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
-import pyiutilities as pyiutil
-import pystir
+import sirf.pyiutilities as pyiutil
+import sirf.pystir as pystir
 
 try:
     input = raw_input
@@ -90,6 +92,14 @@ def _float_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
     check_status(h, inspect.stack()[1])
     value = pyiutil.floatDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _float_pars(handle, set, par, n):
+    h = pystir.cSTIR_parameter(handle, set, par)
+    check_status(h)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.floatDataItemFromHandle(h, i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _getParameterHandle(hs, set, par):
@@ -383,6 +393,12 @@ class ImageData(SIRF.ImageData):
         try_calling \
             (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
         return tuple(vs[::-1])
+    def transf_matrix(self):
+        assert self.handle is not None
+        tm = numpy.ndarray((4, 4), dtype = numpy.float32)
+        try_calling \
+            (pystir.cSTIR_getImageTransformMatrix(self.handle, tm.ctypes.data))
+        return tm
     def as_array(self):
         '''Returns 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None

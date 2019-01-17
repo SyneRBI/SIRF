@@ -21,6 +21,7 @@
 	1. [Naming](#conventions_naming)
 	2. [File conventions](#conventions_file)
 	3. [Others](#conventions_others)
+6. [Cloning data container](#clone_datacontainer)
 
 # Overview <a name="Overview"></a>
 
@@ -445,3 +446,8 @@ The programming style used in SIRF resembles closely that used in STIR. When imp
 * Access to all class data should be achieved via `get` and `set` methods.
 * If outputs are passed as an argument (via reference or pointer), put them first in the list of arguments.
 * Error handling should be performed via try/catch statements.
+
+# Cloning data container <a name="clone_datacontainer"></a>
+This section should hopefully clear up a bit of confusion around the way cloning an image/acquisition data in SIRF.
+
+We often store an image/acquisition data as a more general version of itself. For example, we might store a `STIRImageData` as an `ImageData`. However, we need to be able to create a clone of the original object. This requires covariant return types, which is tricky with shared/unique pointers. We followed the advice in [this Fluent C++ blog](https://www.fluentcpp.com/2017/09/12/how-to-return-a-smart-pointer-and-use-covariance/). Therefore any new classes should contain a `clone` method (which returns a unique pointer), and a `clone_impl` (which returns a bare pointer) that should only be used by `clone`.

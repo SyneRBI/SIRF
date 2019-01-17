@@ -23,6 +23,7 @@ function import_str = set_up_PET(engine, alias)
         engine = 'STIR';
     end
     try
+        libload_sirf();
         eval(['libload_' lower(engine)])
     catch me
         fprintf(me.message)

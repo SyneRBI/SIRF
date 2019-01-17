@@ -32,8 +32,9 @@ limitations under the License.
 
 #include <stdlib.h>
 #include <string>
+#include <stdexcept>
 
-#include "LocalisedException.h"
+#include "sirf/iUtilities/LocalisedException.h"
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
@@ -50,6 +51,12 @@ limitations under the License.
 		DataHandle* handle = new DataHandle;\
 		handle->set(0, &status);\
 		return (void*)handle;\
+        }\
+    catch (const std::exception &error) {\
+        ExecutionStatus status(error.what(), __FILE__, __LINE__);\
+        DataHandle* handle = new DataHandle;\
+        handle->set(0, &status);\
+        return (void*)handle;\
         }\
 	catch (...) {\
 		ExecutionStatus status("unhandled", __FILE__, __LINE__);\
