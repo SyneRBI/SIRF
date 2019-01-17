@@ -593,7 +593,7 @@ MRAcquisitionData::order()
 }
 
 void
-MRAcquisitionData::time_order()
+MRAcquisitionData::sort_by_time()
 {
 	typedef std::array<uint32_t , 1>  tuple;
 	tuple t;
