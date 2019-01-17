@@ -19,13 +19,7 @@
 find_package(STIR 3.1.0)
 if (STIR_FOUND)
 
-	get_cmake_property(_variableNames VARIABLES)
-	list (SORT _variableNames)
-	foreach (_variableName ${_variableNames})
-		if ("${_variableName}" MATCHES "ITK" OR "${${_variableName}}" MATCHES "ITK")
-			set(STIR_BUILT_WITH_ITK TRUE PARENT_SCOPE)
-		endif()
-	endforeach()
+  set("STIR_BUILT_WITH_ITK" "${STIR_BUILT_WITH_ITK}" PARENT_SCOPE)
 
   # need to add this explicitly to get the STIR_REGISTRIES to compile
   include_directories("${STIR_INCLUDE_DIRS}")
