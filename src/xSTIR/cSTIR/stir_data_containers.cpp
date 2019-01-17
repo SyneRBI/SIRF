@@ -406,7 +406,7 @@ void
 STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
 	STIRImageData& x = (STIRImageData&)a_x;
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
 #else
@@ -434,7 +434,7 @@ const void* ptr_b, const DataContainer& a_y)
 	float b = *(float*)ptr_b;
 	STIRImageData& x = (STIRImageData&)a_x;
 	STIRImageData& y = (STIRImageData&)a_y;
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
 	Image3DF::const_full_iterator iter_y;
@@ -455,7 +455,7 @@ const void* ptr_b, const DataContainer& a_y)
 float
 STIRImageData::norm() const
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 	//Array<3, float>::const_full_iterator iter;
 	Image3DF::const_full_iterator iter;
 #else
@@ -475,7 +475,7 @@ STIRImageData::norm() const
 //STIRImageData::dot(const DataContainer& a_x)
 //{
 //	STIRImageData& x = (STIRImageData&)a_x;
-//#ifdef _MSC_VER
+//#if defined(_MSC_VER) && _MSC_VER < 1900
 //	Image3DF::full_iterator iter;
 //	Image3DF::const_full_iterator iter_x;
 //#else
@@ -496,7 +496,7 @@ STIRImageData::norm() const
 //STIRImageData::mult(float a, const DataContainer& a_x)
 //{
 //	STIRImageData& x = (STIRImageData&)a_x;
-//#ifdef _MSC_VER
+//#if defined(_MSC_VER) && _MSC_VER < 1900
 //	Image3DF::full_iterator iter;
 //	Image3DF::const_full_iterator iter_x;
 //#else
@@ -516,7 +516,7 @@ const DataContainer& a_y)
 {
 	STIRImageData& x = (STIRImageData&)a_x;
 	STIRImageData& y = (STIRImageData&)a_y;
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
 	Image3DF::const_full_iterator iter_y;
@@ -541,7 +541,7 @@ const DataContainer& a_y)
 {
 	STIRImageData& x = (STIRImageData&)a_x;
 	STIRImageData& y = (STIRImageData&)a_y;
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
 	Image3DF::const_full_iterator iter_y;
@@ -585,7 +585,7 @@ const DataContainer& a_y)
 //{
 //	STIRImageData& x = (STIRImageData&)a_x;
 //	STIRImageData& y = (STIRImageData&)a_y;
-//#ifdef _MSC_VER
+//#if defined(_MSC_VER) && _MSC_VER < 1900
 //	Image3DF::full_iterator iter;
 //	Image3DF::const_full_iterator iter_x;
 //	Image3DF::const_full_iterator iter_y;

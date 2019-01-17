@@ -28,6 +28,7 @@ limitations under the License.
 \author CCP PETMR
 */
 #include <cmath>
+#include <iomanip>
 
 #include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
@@ -37,6 +38,23 @@ using namespace sirf;
 
 std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
+
+static std::string get_date_time_string()
+{
+    time_t rawtime;
+    struct tm * timeinfo;
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+
+    std::stringstream str;
+    str << timeinfo->tm_year+1900 << "-"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_mon+1 << "-"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_mday << " "
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_hour << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_min << ":"
+        << std::setw(2) << std::setfill('0') << timeinfo->tm_sec;
+    return str.str();
+}
 
 void 
 MRAcquisitionData::write(const char* filename)
@@ -1038,9 +1056,13 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
 	//if (images_.size() < 1)
 	if (number() < 1)
 		return;
+    // If the groupname hasn't been set, use the current date and time.
+    std::string group = groupname;
+    if (group.empty())
+        group = get_date_time_string();
 	Mutex mtx;
 	mtx.lock();
-	ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
+	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
 	mtx.unlock();
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);
