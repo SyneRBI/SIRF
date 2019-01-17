@@ -14,7 +14,7 @@
 
 //#include "stir_types.h"
 #include "stir_x.h"
-//#include "SIRF/common/envar.h"
+//#include "sirf/common/envar.h"
 
 using namespace stir;
 using namespace ecat;

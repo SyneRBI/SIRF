@@ -34,7 +34,7 @@ limitations under the License.
 using namespace std;
 
 // EnvironmentVariable function definition
-//#include "SIRF/common/envar.h"
+//#include "sirf/common/envar.h"
 
 // Matlab interface generator prototype - see src/common/mig.cpp
 int generate_matlab_interface(

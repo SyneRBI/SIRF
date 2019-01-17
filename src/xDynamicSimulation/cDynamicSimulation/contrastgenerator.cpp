@@ -14,7 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <cmath>
 #include <math.h>
 #include <algorithm>
-#include <omp.h>
+//TODO Johannes #include <omp.h>
 
 //#include "Testing/auxiliary_testing_functions.h"
 

@@ -19,7 +19,7 @@
 */
 
 #include <string>
-#include "SIRF/common/geometrical_info.h"
+#include "sirf/common/geometrical_info.h"
 
 //template <int num_dimensions>
 //VoxelisedGeometricalInfo<num_dimensions>::

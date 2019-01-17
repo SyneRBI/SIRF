@@ -83,7 +83,7 @@ protected:
 	ISMRMRD::IsmrmrdHeader hdr_;
 
 	TrajVessel traj_;
-	std::string traj_type_;
+	ISMRMRD::TrajectoryType traj_type_;
 
 };
 
@@ -92,7 +92,7 @@ class CartesianTrajectoryContainer : public aTrajectoryContainer{
 public:
 	CartesianTrajectoryContainer() :aTrajectoryContainer()
 	{
-		traj_type_ = "Cartesian"; 
+		traj_type_ = ISMRMRD::TrajectoryType::CARTESIAN;
 	}
 
 	void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu){};
@@ -107,7 +107,13 @@ class RPETrajectoryContainer : public aTrajectoryContainer{
 public:
 	RPETrajectoryContainer():aTrajectoryContainer()
 	{	
-		traj_type_ = "RPE"; 
+		traj_type_ = ISMRMRD::TrajectoryType::EPI;
+        traj_type_ = ISMRMRD::TrajectoryType::OTHER;
+        traj_type_ = ISMRMRD::TrajectoryType::RADIAL;
+        traj_type_ = ISMRMRD::TrajectoryType::SPIRAL;
+        traj_type_ = ISMRMRD::TrajectoryType::CARTESIAN;
+        traj_type_ = ISMRMRD::TrajectoryType::GOLDENANGLE;
+        throw std::runtime_error("No idea what this should be. Ask Johannes...");
 	}
 	
 	void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu);

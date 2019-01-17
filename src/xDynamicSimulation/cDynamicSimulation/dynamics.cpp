@@ -19,7 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 
 
-#include "SIRF/common/multisort.h"
+#include "sirf/common/multisort.h"
 #include "dynamics.h"
 
 

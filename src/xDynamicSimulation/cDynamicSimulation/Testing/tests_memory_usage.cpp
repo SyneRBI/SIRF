@@ -8,7 +8,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include <time.h> 
-#include <omp.h>
+//TODO Johannes #include <omp.h>
 
 #include <ismrmrd/ismrmrd.h>
 

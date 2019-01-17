@@ -40,8 +40,8 @@ limitations under the License.
 #include "ismrmrd_fftw.h"
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_image_wrap.h"
-#include "SIRF/common/data_container.h"
-#include "SIRF/common/multisort.h"
+#include "sirf/common/data_container.h"
+#include "sirf/common/multisort.h"
 #include "localised_exception.h"
 
 /*!

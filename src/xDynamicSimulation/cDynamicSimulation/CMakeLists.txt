@@ -16,11 +16,15 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
 	endforeach()
   endif()
 	
+# NiftyReg
+include("${CMAKE_SOURCE_DIR}/src/Registration/NiftyReg.cmake")
+	
 include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron)
 include_directories(${PROJECT_SOURCE_DIR}/src/xSTIR/cSTIR)
 include_directories(${PROJECT_SOURCE_DIR}/src/Registration/cReg)
 include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
+include_directories("${GADGETRON_INCLUDE_DIR}/../")
 
 include_directories(./Testing)
 

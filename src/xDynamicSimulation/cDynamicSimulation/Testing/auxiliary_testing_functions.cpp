@@ -10,7 +10,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "auxiliary_testing_functions.h"
 
 
-#include <omp.h>
+//TODO Johannes #include <omp.h>
 #include <sstream>
 #include <math.h>
 #include <cmath>
@@ -245,7 +245,7 @@ std::vector< ISMRMRD::Encoding > aux_test::get_mock_encoding_vector( void )
 {
 	ISMRMRD::Encoding enc;
 
-	enc.trajectory = "Cartesian";
+	enc.trajectory = ISMRMRD::TrajectoryType::CARTESIAN;
 
 	enc.encodedSpace = get_mock_encoded_space();
 	enc.reconSpace = get_mock_recon_space();

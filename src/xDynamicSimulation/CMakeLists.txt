@@ -13,7 +13,7 @@ endif ()
 
 find_package(ISMRMRD)
 if (ISMRMRD_FOUND)
-  set(CMAKE_MODULE_PATH "${ISMRMRD_DIR}")
+  set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
 
   find_package(FFTW3 COMPONENTS single REQUIRED)
 
@@ -28,21 +28,6 @@ if (ISMRMRD_FOUND)
   link_directories("${ISMRMRD_LIBRARY_DIRS}")
 
 endif()
-
-######### Find The Gadgetron ############
-find_path(GADGETRON_CMAKE_MODULES FindGadgetron.cmake HINTS $ENV{GADGETRON_HOME}/share/gadgetron/cmake) 
-if (NOT GADGETRON_CMAKE_MODULES)
-  MESSAGE(FATAL_ERROR "GADGETRON_CMAKE_MODULES cannot be found. 
-   Try to set GADGETRON_HOME environment variable.")
-endif(NOT GADGETRON_CMAKE_MODULES)
-
-set(CMAKE_MODULE_PATH "${GADGETRON_CMAKE_MODULES}")
-
-## find the package
-find_package(Gadgetron REQUIRED)
-include_directories(${GADGETRON_INCLUDE_DIR})
-link_directories(${GADGETRON_LIB_DIR})
-
 
 #########################################
 

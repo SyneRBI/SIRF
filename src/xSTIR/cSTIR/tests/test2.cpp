@@ -8,7 +8,7 @@
 #include "cstir.h"
 #include "handle.h"
 #include "stir_types.h"
-//#include "SIRF/common/envar.h"
+//#include "sirf/common/envar.h"
 
 using namespace stir;
 using namespace ecat;

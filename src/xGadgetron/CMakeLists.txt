@@ -26,7 +26,7 @@ endif ()
   
 find_package(ISMRMRD)
 if (ISMRMRD_FOUND)
-  set(CMAKE_MODULE_PATH "${ISMRMRD_DIR}")
+  set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
 
   find_package(FFTW3 COMPONENTS single REQUIRED)
 
@@ -36,6 +36,15 @@ if (ISMRMRD_FOUND)
 	file(GLOB FFTW_DLLS "${FFTW3_DLL_DIR}/*.dll")
     install( FILES ${FFTW_DLLS} DESTINATION bin )
 endif()
+	
+# Loop over each library, find it and add it. Then link. Do it twice to resolve linking errors depending on order
+include_directories("${GADGETRON_INCLUDE_DIR}/../")
+SET(GADGETRON_requiredLibs toolbox_cpucore toolbox_cpunfft)
+FOREACH(elem ${GADGETRON_requiredLibs} ${GADGETRON_requiredLibs})
+  FIND_LIBRARY(gadgetron_${elem} ${elem} HINTS ${GADGETRON_HOME}/lib)
+  MARK_AS_ADVANCED(gadgetron_${elem})
+  SET(SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK ${SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK} gadgetron_${elem})
+ENDFOREACH()
 	
     
   find_package(HDF5 1.8 COMPONENTS C REQUIRED)
@@ -50,7 +59,7 @@ endif()
 
   set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cGadgetron")
 
-  ADD_SUBDIRECTORY(pGadgetron)
-  ADD_SUBDIRECTORY(mGadgetron)
+  #TODO Johannes ADD_SUBDIRECTORY(pGadgetron)
+  #TODO Johannes ADD_SUBDIRECTORY(mGadgetron)
 
 endif()

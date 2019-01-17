@@ -50,7 +50,7 @@ set(SIRF_VERSION
 
 option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" WIN32)
 ####### CMake path
-set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # If OSX give the advanced option to use absolute paths for shared libraries
 if (APPLE)
@@ -120,10 +120,28 @@ endif()
 
 ENABLE_TESTING()
 
+######### Find The Gadgetron ############
+if (NOT GADGETRON_HOME)
+  SET(GADGETRON_HOME $ENV{GADGETRON_HOME} CACHE PATH "Gadgetron home")
+endif()
+find_path(GADGETRON_CMAKE_MODULES "FindGadgetron.cmake" HINTS "${GADGETRON_HOME}/share/gadgetron/cmake") 
+if (NOT GADGETRON_CMAKE_MODULES)
+  MESSAGE(FATAL_ERROR "GADGETRON_CMAKE_MODULES cannot be found. 
+   Try to set GADGETRON_HOME variable.")
+endif(NOT GADGETRON_CMAKE_MODULES)
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${GADGETRON_CMAKE_MODULES}")
+
+## find the package
+find_package(Gadgetron REQUIRED)
+include_directories(${GADGETRON_INCLUDE_DIR})
+link_directories(${GADGETRON_LIB_DIR})
+
+
 ADD_SUBDIRECTORY(src/iUtilities)
+ADD_SUBDIRECTORY(src/common)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
-ADD_SUBDIRECTORY(src/common)
 ADD_SUBDIRECTORY(src/xDynamicSimulation)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")

@@ -35,6 +35,8 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
 include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 
 add_library(cgadgetron cgadgetron.cpp gadgetron_x.cpp gadgetron_image_wrap.cpp gadgetron_data_containers.cpp gadgetron_client.cpp ismrmrd_fftw.cpp encoding.cpp)
+# c++14 is required by the parts of Gadgetron that we need, so cgadgetron needs to be c++14.
+target_compile_features(cgadgetron PRIVATE cxx_std_14)
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
@@ -63,10 +65,6 @@ endif()
 target_link_libraries(cgadgetron ismrmrd)
 target_link_libraries(cgadgetron "${FFTW3_LIBRARIES}")
 target_link_libraries(cgadgetron "${HDF5_LIBRARIES}")
-
-set( SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpucore ${GADGETRON_LIBRARIES} )
-set( SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpunfft ${GADGETRON_LIBRARIES_TOLINK} )
-
 
 target_link_libraries(cgadgetron "${SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK}")
 
