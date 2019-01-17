@@ -1,6 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2018 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -1009,7 +1010,7 @@ GadgetronImageData::read(std::string filename)
 		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 	}
 
-    //this->set_up_geom_info();
+    this->set_up_geom_info();
 	return 0;
 }
 
@@ -1100,7 +1101,7 @@ images_(), nimages_(0)
 		if (boost::iequals(value, target))
 			append(u);
 	}
-    //this->set_up_geom_info();
+    this->set_up_geom_info();
 }
 
 void
@@ -1189,8 +1190,12 @@ GadgetronImagesVector::set_up_geom_info()
 
         // First check that the slice direction is a unit vector
         const float * const slice_dir = ih1.slice_dir;
-        if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir))
-            throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.");
+        if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir)) {
+#ifndef NDEBUG
+            std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
+#endif
+            return;
+        }
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
@@ -1213,8 +1218,12 @@ GadgetronImagesVector::set_up_geom_info()
 
             // 1. Check that the slice_dir is always constant
             for (int dim=0; dim<3; ++dim)
-                if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F)
-                    throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.");
+                if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F) {
+#ifndef NDEBUG
+                    std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.");
+#endif
+                    return;
+                }
 
             // 2. Check that spacing is constant
             float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
@@ -1224,8 +1233,12 @@ GadgetronImagesVector::set_up_geom_info()
                     ih2.position[1] * ih2.slice_dir[1] +
                     ih2.position[2] * ih2.slice_dir[2];
             float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
-            if (std::abs(spacing[2]-new_spacing) > 1.e-4F)
-                throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.");
+            if (std::abs(spacing[2]-new_spacing) > 1.e-4F) {
+#ifndef NDEBUG
+                std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.");
+#endif
+                return;
+            }
         }
     }
 
