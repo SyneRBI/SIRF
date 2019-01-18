@@ -39,14 +39,16 @@ args = docopt(__doc__, version=__version__)
 
 import time
 
-# import engine module
-from pGadgetron import *
+# import SIRF utilities
+from sirf.Utilities import examples_data_path, existing_filepath, show_3D_array
+# import MR engine types
+from sirf.Gadgetron import AcquisitionData, Reconstructor
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
 output_file = args['--output']
 
 def main():

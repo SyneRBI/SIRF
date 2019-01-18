@@ -43,6 +43,20 @@ def petmr_data_path(petmr):
         raise error(errorMsg)
 
 
+def examples_data_path(data_type):
+    '''
+    Returns the path to PET/MR/Registration data used by SIRF/examples demos.
+    data_type: either 'PET' or 'MR' or 'Registration'
+    '''
+    data_path = '/data/examples/' + data_type
+    SIRF_PATH = os.environ.get('SIRF_PATH')
+    if SIRF_PATH is not None:
+        return SIRF_PATH + data_path
+    else:
+        errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
+        raise error(errorMsg)
+
+
 def existing_filepath(data_path, file_name):
     '''
     Returns the filepath (path/name) to an existing file.

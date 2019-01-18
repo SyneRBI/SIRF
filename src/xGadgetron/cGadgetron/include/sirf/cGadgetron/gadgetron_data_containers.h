@@ -189,6 +189,7 @@ namespace sirf {
 		virtual void get_data(complex_float_t* z, int all = 1);
 
 		void order();
+		void sort_by_time();
 		bool ordered() const { return ordered_; }
 		void set_ordered(bool ordered) { ordered_ = ordered; }
 		int* index() { return index_; }
