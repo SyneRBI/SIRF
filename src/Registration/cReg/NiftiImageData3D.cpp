@@ -36,66 +36,7 @@ using namespace sirf;
 template<class dataType>
 NiftiImageData3D<dataType>::NiftiImageData3D(const ImageData& id)
 {
-    std::shared_ptr<const VoxelisedGeometricalInfo3D > info = id.get_geom_info_sptr();
-    typedef VoxelisedGeometricalInfo3D Info;
-    Info::Size            size    = info->get_size();
-    Info::Spacing         spacing = info->get_spacing();
-    Info::TransformMatrix tm      = info->calculate_index_to_physical_point_matrix();
-
-    int dims[8];
-    dims[0] = 3;
-    dims[1] = int(size[0]);
-    dims[2] = int(size[1]);
-    dims[3] = int(size[2]);
-    dims[4] = 1;
-    dims[5] = 1;
-    dims[6] = 1;
-    dims[7] = 1;
-
-    nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
-    this->_nifti_image = std::shared_ptr<nifti_image>(im, nifti_image_free);
-
-    // Spacing
-    this->_nifti_image->pixdim[1]=this->_nifti_image->dx=spacing[0];
-    this->_nifti_image->pixdim[2]=this->_nifti_image->dy=spacing[1];
-    this->_nifti_image->pixdim[3]=this->_nifti_image->dz=spacing[2];
-    this->_nifti_image->pixdim[4]=0.F;
-    this->_nifti_image->pixdim[5]=0.F;
-    this->_nifti_image->pixdim[6]=0.F;
-    this->_nifti_image->pixdim[7]=0.F;
-    // Distances in mm
-    this->_nifti_image->xyz_units=2;
-    // Set the transformation matrix information
-    this->_nifti_image->qform_code=1;
-    AffineTransformation<float> tm_orig;
-    for (int i=0;i<4;++i)
-        for (int j=0;j<4;++j)
-            tm_orig[i][j]=tm[i][j];
-
-    AffineTransformation<float> tm_flip;
-    tm_flip[0][0] = tm_flip[1][1] = -1.F;
-    AffineTransformation<float> tm_final = tm_flip*tm_orig;
-    for (int i=0;i<4;++i)
-        for (int j=0;j<4;++j)
-            this->_nifti_image->qto_xyz.m[i][j]=tm_final[i][j];
-
-    this->_nifti_image->qto_ijk =
-            nifti_mat44_inverse(this->_nifti_image->qto_xyz);
-    nifti_mat44_to_quatern( this->_nifti_image->qto_xyz,
-                            &this->_nifti_image->quatern_b,
-                            &this->_nifti_image->quatern_c,
-                            &this->_nifti_image->quatern_d,
-                            &this->_nifti_image->qoffset_x,
-                            &this->_nifti_image->qoffset_y,
-                            &this->_nifti_image->qoffset_z,
-                            nullptr,
-                            nullptr,
-                            nullptr,
-                            &this->_nifti_image->qfac );
-    this->_nifti_image->pixdim[0]=this->_nifti_image->qfac;
-
-    // Check everything is ok
-    reg_checkAndCorrectDimension(this->_nifti_image.get());
+    this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*id.get_geom_info_sptr());
 
     // Always float
     this->set_up_data(NIFTI_TYPE_FLOAT32);

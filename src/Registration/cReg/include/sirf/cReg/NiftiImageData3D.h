@@ -62,6 +62,10 @@ public:
     NiftiImageData3D(const nifti_image &image_nifti)
         : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3D); }
 
+    /// Construct from array
+    NiftiImageData3D(const dataType * const data, const VoxelisedGeometricalInfo3D &geom)
+        : NiftiImageData<dataType>(data, geom) { this->check_dimensions(this->_3D); }
+
     /// Construct from any other image data (e.g., STIRImageData)
     NiftiImageData3D(const ImageData& id);
 

@@ -74,10 +74,10 @@ public:
     AffineTransformation operator* (const AffineTransformation &other) const;
 
     /// Overload [] operator (const)
-    dataType const *operator [](int i) const { return _tm[i]; }
+    dataType const *operator [](unsigned i) const { return _tm[i]; }
 
     /// Overload [] operator
-    dataType *operator [](int i) { return _tm[i]; }
+    dataType *operator [](unsigned i) { return _tm[i]; }
 
     /// Get raw mat44
     mat44 get_as_mat44() const;

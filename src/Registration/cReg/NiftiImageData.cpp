@@ -93,6 +93,84 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
 }
 
 template<class dataType>
+NiftiImageData<dataType>::NiftiImageData(const dataType * const data, const VoxelisedGeometricalInfo3D &geom)
+{
+    this->_nifti_image = create_from_geom_info(geom);
+
+    // Always float
+    this->set_up_data(NIFTI_TYPE_FLOAT32);
+
+    for (unsigned i=0; i<_nifti_image->nvox; ++i)
+        this->_data[i] = dataType(data[i]);
+}
+
+template<class dataType>
+std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom)
+{
+    typedef VoxelisedGeometricalInfo3D Info;
+    Info::Size            size    = geom.get_size();
+    Info::Spacing         spacing = geom.get_spacing();
+    Info::TransformMatrix tm      = geom.calculate_index_to_physical_point_matrix();
+
+    int dims[8];
+    dims[0] = 3;
+    dims[1] = int(size[0]);
+    dims[2] = int(size[1]);
+    dims[3] = int(size[2]);
+    dims[4] = 1;
+    dims[5] = 1;
+    dims[6] = 1;
+    dims[7] = 1;
+
+    nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
+    std::shared_ptr<nifti_image> _nifti_image = std::shared_ptr<nifti_image>(im, nifti_image_free);
+
+    // Spacing
+    _nifti_image->pixdim[1]=_nifti_image->dx=spacing[0];
+    _nifti_image->pixdim[2]=_nifti_image->dy=spacing[1];
+    _nifti_image->pixdim[3]=_nifti_image->dz=spacing[2];
+    _nifti_image->pixdim[4]=0.F;
+    _nifti_image->pixdim[5]=0.F;
+    _nifti_image->pixdim[6]=0.F;
+    _nifti_image->pixdim[7]=0.F;
+    // Distances in mm
+    _nifti_image->xyz_units=2;
+    // Set the transformation matrix information
+    _nifti_image->qform_code=1;
+    AffineTransformation<float> tm_orig;
+    for (unsigned i=0;i<4;++i)
+        for (unsigned j=0;j<4;++j)
+            tm_orig[i][j]=tm[i][j];
+
+    AffineTransformation<float> tm_flip;
+    tm_flip[0][0] = tm_flip[1][1] = -1.F;
+    AffineTransformation<float> tm_final = tm_flip*tm_orig;
+    for (unsigned i=0;i<4;++i)
+        for (unsigned j=0;j<4;++j)
+            _nifti_image->qto_xyz.m[i][j]=tm_final[i][j];
+
+    _nifti_image->qto_ijk =
+            nifti_mat44_inverse(_nifti_image->qto_xyz);
+    nifti_mat44_to_quatern( _nifti_image->qto_xyz,
+                            &_nifti_image->quatern_b,
+                            &_nifti_image->quatern_c,
+                            &_nifti_image->quatern_d,
+                            &_nifti_image->qoffset_x,
+                            &_nifti_image->qoffset_y,
+                            &_nifti_image->qoffset_z,
+                            nullptr,
+                            nullptr,
+                            nullptr,
+                            &_nifti_image->qfac );
+    _nifti_image->pixdim[0]=_nifti_image->qfac;
+
+    // Check everything is ok
+    reg_checkAndCorrectDimension(_nifti_image.get());
+
+    return _nifti_image;
+}
+
+template<class dataType>
 bool NiftiImageData<dataType>::operator==(const NiftiImageData<dataType> &other) const
 {
     if (this == &other)

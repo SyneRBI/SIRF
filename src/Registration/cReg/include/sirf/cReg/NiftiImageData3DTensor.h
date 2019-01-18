@@ -67,6 +67,10 @@ public:
     NiftiImageData3DTensor(const nifti_image &image_nifti)
         : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3DTensor); }
 
+    /// Construct from array
+    NiftiImageData3DTensor(const dataType * const data, const VoxelisedGeometricalInfo3D &geom)
+        : NiftiImageData<dataType>(data, geom) { this->check_dimensions(this->_3DTensor); }
+
     /// Create from 3 individual components
     NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z);
 
