@@ -172,7 +172,8 @@ namespace sirf {
 			const DataContainer& a_y);
 		//virtual complex_float_t dot(const DataContainer& dc);
 		virtual float norm() const;
-		//float diff(MRAcquisitionData& other);
+		virtual void write(const std::string &filename) const;
+		virtual void get_data(complex_float_t* z, int all = 1);
 
 		// regular methods
 
@@ -186,8 +187,6 @@ namespace sirf {
 		//void get_acquisitions_flags(unsigned int n, int* flags);
 		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im) const;
 	
-		virtual void get_data(complex_float_t* z, int all = 1);
-
 		void order();
 		void sort_by_time();
 		bool ordered() const { return ordered_; }
@@ -212,7 +211,6 @@ namespace sirf {
 			* to exclude potentially incompatible input. 
     	*/
 		void read( const std::string& filename_ismrmrd_with_ext );
-		void write(const char* filename);
 
 	protected:
 		bool ordered_;
@@ -879,6 +877,9 @@ namespace sirf {
 		virtual void divide(
 			const DataContainer& a_x,
 			const DataContainer& a_y)
+		{
+		}
+		virtual void write(const std::string &filename) const 
 		{
 		}
 		void get_dim(int slice, int* dim) //const

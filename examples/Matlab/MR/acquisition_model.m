@@ -91,7 +91,11 @@ acq_model.set_coil_sensitivity_maps(csms);
 
 % use the acquisition model (forward projection) to produce simulated
 % acquisition data
-simulated_acq_data = acq_model.forward(image_data);
+sim_acq_data = acq_model.forward(image_data);
+
+% test i/o
+sim_acq_data.write('sim_acq_data.h5');
+simulated_acq_data = AcquisitionData('sim_acq_data.h5');
 
 % get simulated acquisition data as a Matlab double array
 simulated_acq_array = simulated_acq_data.as_array();
