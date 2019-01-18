@@ -115,6 +115,10 @@ classdef DataContainer < handle
             end
             mUtilities.check_status('DataContainer:mtimes', z.handle_);
         end
+		function write(self, filename)
+			handle = calllib('msirf', 'mSIRF_write', self.handle_, filename);
+            mUtilities.check_status('DataContainer:write', handle);
+		end
     end
     methods(Static)
         function z = axpby(a, x, b, y)

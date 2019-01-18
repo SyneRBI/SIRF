@@ -48,19 +48,19 @@ classdef ImageData < mSIRF.ImageData
             self.handle_ = calllib('mgadgetron', 'mGT_readImages', file);
             mUtilities.check_status(self.name_, self.handle_);
         end
-        function write(self, file, dataset)
-%***SIRF*** write(file, dataset) writes this image to a file in HDF5 format;
-%         file   : file name (Matlab char string)
-%         dataset: dataset name (Matlab char string)
-            if isempty(self.handle_)
-                error('ImageData:empty_object', ...
-                    'cannot handle empty object')
-            end
-            handle = calllib('mgadgetron', 'mGT_writeImages', ...
-                self.handle_, file, dataset);
-            mUtilities.check_status(self.name_, handle);
-            mUtilities.delete(handle)
-        end
+%         function write(self, file, dataset)
+% %***SIRF*** write(file, dataset) writes this image to a file in HDF5 format;
+% %         file   : file name (Matlab char string)
+% %         dataset: dataset name (Matlab char string)
+%             if isempty(self.handle_)
+%                 error('ImageData:empty_object', ...
+%                     'cannot handle empty object')
+%             end
+%             handle = calllib('mgadgetron', 'mGT_writeImages', ...
+%                 self.handle_, file, dataset);
+%             mUtilities.check_status(self.name_, handle);
+%             mUtilities.delete(handle)
+%         end
         function img = image(self, num)
             img = mGadgetron.Image();
             img.handle_ = calllib('mgadgetron', 'mGT_imageWrapFromContainer', ...

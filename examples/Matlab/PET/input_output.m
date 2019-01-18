@@ -46,7 +46,7 @@ try
 
     % create image of dimensions and voxel sizes compatible with the scanner
     % geometry (stored in the AcquisitionData object ad)
-    % and initialize each voxel to 1.0
+    % and initialize each voxel to 2.0
     image = acq_data.create_uniform_image(2.0);
     % show the image
     image_array = image.as_array();

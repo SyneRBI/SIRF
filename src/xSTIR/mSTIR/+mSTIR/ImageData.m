@@ -141,11 +141,11 @@ classdef ImageData < mSIRF.ImageData
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
             mUtilities.check_status('ImageData:read_from_file', self.handle_);
         end
-        function write(self, filename)
-            h = calllib('mstir', 'mSTIR_writeImage', self.handle_, filename);
-            mUtilities.check_status('ImageData:write', h);
-            mUtilities.delete(h)
-        end
+%         function write(self, filename)
+%             h = calllib('mstir', 'mSTIR_writeImage', self.handle_, filename);
+%             mUtilities.check_status('ImageData:write', h);
+%             mUtilities.delete(h)
+%         end
         function add_shape(self, shape, add)
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
