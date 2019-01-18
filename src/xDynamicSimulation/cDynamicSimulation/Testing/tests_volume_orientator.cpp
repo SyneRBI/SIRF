@@ -11,7 +11,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "auxiliary_testing_functions.h"
-#include "auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
 
 

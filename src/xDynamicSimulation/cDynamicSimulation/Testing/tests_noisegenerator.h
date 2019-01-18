@@ -9,7 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
-#include "dynsim_noisegenerator.h"
+#include "sirf/cDynamicSimulation/dynsim_noisegenerator.h"
 
 
 

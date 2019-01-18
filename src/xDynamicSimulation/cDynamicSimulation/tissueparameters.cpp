@@ -8,7 +8,7 @@ institute	PTB Berlin
 
 #include <stdio.h>
 #include <iostream>
-#include "tissueparameters.h"
+#include "sirf/cDynamicSimulation/tissueparameters.h"
 
 using boost::property_tree::ptree;
 

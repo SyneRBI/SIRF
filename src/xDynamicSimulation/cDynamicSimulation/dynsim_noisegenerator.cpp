@@ -11,7 +11,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <stdexcept>
 
 
-#include "dynsim_noisegenerator.h"
+#include "sirf/cDynamicSimulation/dynsim_noisegenerator.h"
 
 
 using namespace sirf;

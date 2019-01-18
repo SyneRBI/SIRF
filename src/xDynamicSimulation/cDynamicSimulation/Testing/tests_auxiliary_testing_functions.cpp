@@ -15,9 +15,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include "sirf/cGadgetron/gadgetron_data_containers.h" 
 
-#include "auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
-#include "dynamics.h"
+#include "sirf/cDynamicSimulation/dynamics.h"
 
 using namespace sirf;
 

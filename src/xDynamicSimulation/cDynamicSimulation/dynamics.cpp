@@ -20,7 +20,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "sirf/common/multisort.h"
-#include "dynamics.h"
+#include "sirf/cDynamicSimulation/dynamics.h"
+#include "sirf/cReg/NiftiImageData3D.h"
 
 
 using namespace sirf;
@@ -332,8 +333,8 @@ NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_displacement_
 
 	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
 
-	  /// Constructor
-    SIRFRegImageWeightedMean4D dvf_interpolator;
+	/// Constructor
+    sirf::ImageWeightedMean<float> dvf_interpolator;
     
     if(keep_motion_fields_in_memory_)
 	{
@@ -346,9 +347,9 @@ NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_displacement_
 	    dvf_interpolator.add_image( temp_mvf_filenames_[bin_ceil], linear_interpolation_weight);
 	} 
 
-    dvf_interpolator.update();
+    dvf_interpolator.process();
     
-    NiftiImageData3DDeformation<float> output_deformation = dvf_interpolator.get_output();
+    NiftiImageData3DDeformation<float> output_deformation = *dvf_interpolator.get_output_sptr();
 
     return output_deformation;
 
@@ -879,8 +880,8 @@ void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData
 	if( num_disp_fields ==0 )
 		throw std::runtime_error("Please call prep_displacements_fields() first.");
 
-	SIRFImageData sirf_img = SIRFImageData( img ); 
-	auto sptr_pet_nifti = sirf_img.get_image_as_nifti();
+	NiftiImageData3D<float> sirf_img( img );
+	auto sptr_pet_nifti = sirf_img.get_raw_nifti_sptr();
 
 	float const img_off_x = sptr_pet_nifti->qoffset_x;
 	float const img_off_y = sptr_pet_nifti->qoffset_y;
@@ -905,7 +906,7 @@ void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData
 	for(size_t i=0; i<num_disp_fields; i++)
 	{
 
-		auto sptr_mvf_nifti = this->sirf_displacement_fields_[i].get_image_as_nifti();
+		auto sptr_mvf_nifti = this->sirf_displacement_fields_[i].get_raw_nifti_sptr();
 
 		sptr_mvf_nifti->qoffset_x = img_off_x;
 		sptr_mvf_nifti->qoffset_y = img_off_y;
@@ -916,7 +917,7 @@ void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData
 		sptr_mvf_nifti->quatern_d = img_quart_d ;
 		sptr_mvf_nifti->qfac	  = img_quart_ac;
 
-		this->sirf_displacement_fields_[i] = NiftiImageData3DDeformation<float>(sptr_mvf_nifti);
+		this->sirf_displacement_fields_[i] = NiftiImageData3DDeformation<float>(*sptr_mvf_nifti);
 
 	}
 }

@@ -8,7 +8,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_dynamics.h"
 
-#include "auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 #include "auxiliary_testing_functions.h"
 #include "sirf/cReg/NiftiImageData3D.h"
 

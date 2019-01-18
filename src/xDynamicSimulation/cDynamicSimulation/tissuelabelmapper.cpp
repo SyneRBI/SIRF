@@ -6,7 +6,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-#include "tissuelabelmapper.h"
+#include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 
 
 

@@ -8,7 +8,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
-#include "dynamics.h"
+#include "sirf/cDynamicSimulation/dynamics.h"
 
 
 

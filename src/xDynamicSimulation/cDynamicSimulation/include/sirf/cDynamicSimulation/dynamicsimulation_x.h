@@ -20,11 +20,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/cGadgetron/encoding.h"
 
-#include "tissuelabelmapper.h"
-#include "contrastgenerator.h"
-#include "dynamics.h"
-#include "dynsim_noisegenerator.h"
-#include "volume_orientator.h"
+#include "sirf/cDynamicSimulation/tissuelabelmapper.h"
+#include "sirf/cDynamicSimulation/contrastgenerator.h"
+#include "sirf/cDynamicSimulation/dynamics.h"
+#include "sirf/cDynamicSimulation/dynsim_noisegenerator.h"
+#include "sirf/cDynamicSimulation/volume_orientator.h"
 
 
 

@@ -14,8 +14,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
-#include "tissueparameters.h"
-#include "tissuelabelmapper.h"
+#include "sirf/cDynamicSimulation/tissueparameters.h"
+#include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 
 
 #include "sirf/cSTIR/stir_types.h"

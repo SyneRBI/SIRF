@@ -12,7 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <ismrmrd/ismrmrd.h>
 
-#include "../auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 #include "auxiliary_testing_functions.h"
 
 #include "tests_auxiliary_input_output.h"

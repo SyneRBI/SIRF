@@ -13,7 +13,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynsim_deformer.h"
 
 #include "auxiliary_testing_functions.h"
-#include "auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 

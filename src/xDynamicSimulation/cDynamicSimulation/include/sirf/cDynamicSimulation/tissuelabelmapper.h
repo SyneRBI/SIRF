@@ -21,7 +21,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <utility>
 #include <memory>
 
-#include "tissueparameters.h"
+#include "sirf/cDynamicSimulation/tissueparameters.h"
 
 
 typedef std::vector< std::shared_ptr<TissueParameter> > TissueVector;

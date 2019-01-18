@@ -7,7 +7,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 
-#include "phantom_input.h"
+#include "sirf/cDynamicSimulation/phantom_input.h"
 
 
 

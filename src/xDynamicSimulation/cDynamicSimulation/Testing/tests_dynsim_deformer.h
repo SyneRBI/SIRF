@@ -8,7 +8,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
-#include "dynsim_deformer.h"
+#include "sirf/cDynamicSimulation/dynsim_deformer.h"
 
 
 class DynSimDeformerTester {

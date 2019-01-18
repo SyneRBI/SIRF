@@ -6,7 +6,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-#include "dynsim_deformer.h"
+#include "sirf/cDynamicSimulation/dynsim_deformer.h"
 
 
 #include <stdexcept>
@@ -142,13 +142,13 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 	auto deformed_img = resampler.get_output_sptr();
     auto deformed_img_as_nifti = deformed_img->get_raw_nifti_sptr();
 	
-	if( deformed_img_as_nifti.nvox != img.getNumberOfDataElements() )
+	if( deformed_img_as_nifti->nvox != img.getNumberOfDataElements() )
 		throw std::runtime_error("Something went wrong during the resampling. The output image and input image have different number of voxels.");
 
 	// for( size_t i_vox=0; i_vox< deformed_img_as_nifti.nvox; i_vox++)			
 	// 	*(img.begin() + i_vox) = ((float*) deformed_img_as_nifti.data)[i_vox];
 
-	memcpy(deformed_img_as_nifti.data, img.begin(), sizeof(float) * deformed_img_as_nifti.nvox);
+	memcpy(deformed_img_as_nifti->data, img.begin(), sizeof(float) * deformed_img_as_nifti->nvox);
 
 }
 
@@ -169,9 +169,10 @@ void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& 
 
 void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields)
 {
-	SIRFImageData img_to_deform(img);
+	std::shared_ptr<NiftiImageData3D<float> > img_to_deform =
+            std::make_shared<NiftiImageData3D<float> >(img);
 
-    SIRFRegNiftyResample resampler; 
+    NiftyResample<float> resampler;
 
     resampler.set_interpolation_type_to_cubic_spline();
 	resampler.set_reference_image(img_to_deform);
@@ -179,13 +180,13 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
 
 	for( size_t i_disp=0; i_disp<vec_displacement_fields.size(); i_disp++)
 	{
-		SIRFRegTransformationDisplacement disp_trafo( vec_displacement_fields[i_disp] );
-		resampler.add_transformation_disp(disp_trafo);
+        std::shared_ptr<NiftiImageData3DDisplacement<float> > disp_trafo =
+                std::make_shared<NiftiImageData3DDisplacement<float> >( vec_displacement_fields[i_disp] );
+		resampler.add_transformation(disp_trafo);
 	}
 
-	resampler.update();
+	resampler.process();
 
-	SIRFImageData deformed_img = resampler.get_output();
-	deformed_img.copy_data_to( img );
-
+	auto deformed_img = resampler.get_output_sptr();
+    img.sirf::ImageData::fill(*deformed_img);
 }

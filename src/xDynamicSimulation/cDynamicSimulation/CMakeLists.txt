@@ -61,7 +61,9 @@ add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
 set (cdynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
 
-target_include_directories(cdynamicsimulation PUBLIC "${cDynamicSimulation_INCLUDE_DIR}")
+TARGET_INCLUDE_DIRECTORIES(cdynamicsimulation PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
+)
 target_include_directories(cdynamicsimulation PRIVATE "${FFTW3_INCLUDE_DIR}")
 target_include_directories(cdynamicsimulation PUBLIC "${HDF5_INCLUDE_DIRS}")
 

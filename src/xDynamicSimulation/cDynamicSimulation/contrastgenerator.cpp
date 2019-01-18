@@ -6,7 +6,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-#include "contrastgenerator.h"
+#include "sirf/cDynamicSimulation/contrastgenerator.h"
 
 
 #include <memory>

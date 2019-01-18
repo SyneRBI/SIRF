@@ -16,13 +16,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <ismrmrd/ismrmrd.h>
 
-#include "phantom_input.h"
-#include "tissueparameters.h"
-#include "tissuelabelmapper.h"
+#include "sirf/cDynamicSimulation/phantom_input.h"
+#include "sirf/cDynamicSimulation/tissueparameters.h"
+#include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 
 
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
-#include "auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
 #include "sirf/cReg/ImageWeightedMean.h"
 #include "sirf/cReg/NiftiImageData3DDeformation.h"

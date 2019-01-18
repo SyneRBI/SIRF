@@ -8,13 +8,13 @@ date: 15. March 2018
 #include <mutex>
 #include <sstream>
 
-#include "dynamicsimulation_x.h"
+#include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
 
-#include "auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 
-#include "dynsim_deformer.h"
+#include "sirf/cDynamicSimulation/dynsim_deformer.h"
 
 
 
@@ -473,7 +473,9 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 			this->acquire_raw_data();	
 
 			float const ms_per_second = 1000.f;
-			sptr_target_acquisitions_->axpby(1.0f * time_in_dynamic_state/ms_per_second, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
+            float const result = time_in_dynamic_state/ms_per_second;
+            float const zero = 0.f;
+			sptr_target_acquisitions_->axpby(&result, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
 
 			this->add_noise();
 

@@ -19,9 +19,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
 
-#include "dynamicsimulation_x.h"
+#include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
 #include "auxiliary_testing_functions.h"
-#include "phantom_input.h"
+#include "sirf/cDynamicSimulation/phantom_input.h"
 
 #include "tests_dynamicsimulation.h"
 

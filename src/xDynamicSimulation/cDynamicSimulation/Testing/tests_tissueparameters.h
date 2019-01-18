@@ -17,7 +17,7 @@ parameter structs and the xml parser filling them.
 #include <iostream>
 
 
-#include "tissueparameters.h"
+#include "sirf/cDynamicSimulation/tissueparameters.h"
 
 
 

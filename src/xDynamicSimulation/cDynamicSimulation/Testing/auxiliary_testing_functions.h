@@ -17,13 +17,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
 #include "sirf/cGadgetron/gadgetron_image_wrap.h"
 
-#include "auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
-#include "phantom_input.h"
-#include "tissueparameters.h"
-#include "tissuelabelmapper.h"
-#include "contrastgenerator.h"
-#include "dynamics.h"
+#include "sirf/cDynamicSimulation/phantom_input.h"
+#include "sirf/cDynamicSimulation/tissueparameters.h"
+#include "sirf/cDynamicSimulation/tissuelabelmapper.h"
+#include "sirf/cDynamicSimulation/contrastgenerator.h"
+#include "sirf/cDynamicSimulation/dynamics.h"
 #include "sirf/cGadgetron/encoding.h"
 
 

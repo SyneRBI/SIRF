@@ -19,11 +19,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "auxiliary_testing_functions.h"
 
-#include "tissuelabelmapper.h"
-#include "tissueparameters.h"
-#include "contrastgenerator.h"
-#include "phantom_input.h"
-#include "../auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/tissuelabelmapper.h"
+#include "sirf/cDynamicSimulation/tissueparameters.h"
+#include "sirf/cDynamicSimulation/contrastgenerator.h"
+#include "sirf/cDynamicSimulation/phantom_input.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
 using namespace ISMRMRD;
 using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;

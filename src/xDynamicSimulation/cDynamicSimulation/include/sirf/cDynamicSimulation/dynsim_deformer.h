@@ -14,9 +14,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <ismrmrd/ismrmrd.h>
 
-#include "contrastgenerator.h"
+#include "sirf/cDynamicSimulation/contrastgenerator.h"
 
-#include "auxiliary_input_output.h" // this header (rather the Gadgetron Base IO including Nifti) must not be included after the SIRFImageData.h headers. DONT put it into the cpp!
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h" // this header (rather the Gadgetron Base IO including Nifti) must not be included after the SIRFImageData.h headers. DONT put it into the cpp!
 
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 #include "sirf/cSTIR/stir_data_containers.h"
