@@ -586,8 +586,8 @@ MRAcquisitionData::order()
 	int na = number();
 	tuple t;
 	std::vector<tuple> vt;
-	ISMRMRD::Acquisition acq;
 	for (int i = 0; i < na; i++) {
+		ISMRMRD::Acquisition acq;
 		get_acquisition(i, acq);
 		t[0] = acq.idx().repetition;
 		t[1] = acq.idx().phase;
