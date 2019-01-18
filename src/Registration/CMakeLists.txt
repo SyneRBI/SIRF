@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2016, 2017 University College London
+# Copyright 2018 - 2019 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,55 +16,31 @@
 #
 #=========================================================================
 
-# To be able to build with niftyreg, you need to append the cmake_cxx_flags
-# to suppress errors from converting float to double
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
-
-# SIRF stuff
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/common/include)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/iUtilities)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/common/include/SIRF/common)
-# STIR stuff
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/xSTIR/cSTIR)
-find_package(STIR)
-INCLUDE_DIRECTORIES("${STIR_INCLUDE_DIRS}")
-# Gadgetron stuff
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/xGadgetron/cGadgetron)
-find_package(ISMRMRD)
-INCLUDE_DIRECTORIES(${ISMRMRD_INCLUDE_DIRS})
-
+# ------------------------------------------------------------------------
 # NiftyReg
-include("${CMAKE_CURRENT_SOURCE_DIR}/NiftyReg.cmake")
+# ------------------------------------------------------------------------
+FIND_PACKAGE(NiftyReg)
+if (NiftyReg_FOUND)
+	if(NOT ("${NR_VERSION}" MATCHES "1.5.59" OR "${NR_VERSION}" MATCHES "1.5.61"))
+		MESSAGE(STATUS "\n\nSIRF's registration was developed with NiftyReg 1.5.59 and 1.5.61, and cannot be guaranteed for other version numbers.\n"
+	    "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
+	    "If there is a version mismatch, the keys in the parser may need to be altered.\n")
+	endif()
+else()
+	MESSAGE(FATAL_ERROR "Registration has been enabled, but there are no registration packages available.")
+endif()
 
-# Compile the C++
+# Include a preprocessor to compile code depenging on version number.
+add_definitions(-DNR_VERSION="${NR_VERSION}")
+
+# ------------------------------------------------------------------------
+# Add c++, python, matlab components (if desired)
+# ------------------------------------------------------------------------
+SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
+INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
 ADD_SUBDIRECTORY(cReg)
-INCLUDE_DIRECTORIES(cReg)
-
-# Python or MATLAB
-OPTION(BUILD_SIRFREG_PYTHON "Build Python SWIG module" BUILD_PYTHON)
-OPTION(BUILD_SIRFREG_MATLAB "Build MATLAB SWIG module" BUILD_MATLAB)
-
-set(cSIRFREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
-
-# If python or matlab desired
-IF(BUILD_SIRFREG_PYTHON OR BUILD_SIRFREG_MATLAB)
-	# Find Swig
-	FIND_PACKAGE(SWIG REQUIRED)
-	INCLUDE(${SWIG_USE_FILE})
-	SET(CMAKE_SWIG_FLAGS "")
-
-	# Wrap the doxygen documentation in matlab and python
-	OPTION(SIRFREG_SWIG_DOXY "Wrap the SIRFReg doxygen documentation so that it is available in Matlab and Python." ON)
-	IF(SIRFREG_SWIG_DOXY)
-		ADD_SUBDIRECTORY(swigDoxy)
-		SET(SWIG_SIRFREG_DOCUMENTATION_PATH "%include ${CMAKE_CURRENT_BINARY_DIR}/swigDoxy/SWIG_SIRFREG_DOCUMENTATION.i")
-	ENDIF(SIRFREG_SWIG_DOXY)
-ENDIF(BUILD_SIRFREG_PYTHON OR BUILD_SIRFREG_MATLAB)
-
-# Python
-IF(BUILD_SIRFREG_PYTHON)
-    #ADD_SUBDIRECTORY(pReg)
-ENDIF()
+ADD_SUBDIRECTORY(pReg)
+ADD_SUBDIRECTORY(mReg)
 
 # MATLAB
 IF(BUILD_SIRFREG_MATLAB)

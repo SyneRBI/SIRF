@@ -128,24 +128,6 @@ int test2()
 		//deleteDataHandle(img);
 
 		HANDLE(prior, cSTIR_newObject("QuadraticPrior"));
-		
-		HANDLE(prior2, cSTIR_newObject("PLSPrior"));
-		handle = floatDataHandle(0.5);
-		CALL(cSTIR_setParameter(prior2, "PLSPrior", "penalisation_factor", handle));
-		deleteDataHandle(handle);
-		handle = floatDataHandle(0.5);
-		CALL(cSTIR_setParameter(prior2, "PLSPrior", "alpha", handle));
-		deleteDataHandle(handle);
-		handle = floatDataHandle(0.5);
-		CALL(cSTIR_setParameter(prior2, "PLSPrior", "eta", handle));
-		deleteDataHandle(handle);
-		handle = charDataHandle("test");
-		CALL(cSTIR_setParameter(prior2, "PLSPrior", "kappa_filename", handle));
-		deleteDataHandle(handle);
-		handle = charDataHandle("test");
-		CALL(cSTIR_setParameter(prior2, "PLSPrior", "anatomical_filename", handle));
-		deleteDataHandle(handle);
-		cSTIR_setupPLSPrior(prior2);
 
 		std::string obj_fun_name
 			("PoissonLogLikelihoodWithLinearModelForMeanAndProjData");

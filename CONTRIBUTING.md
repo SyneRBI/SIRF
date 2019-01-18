@@ -42,6 +42,18 @@ using [a phrase such that github auto-closes the issue when merged to master](ht
 Suggested reading: 
 https://help.github.com/articles/fork-a-repo/, https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project or https://guides.github.com/activities/forking/.
 
+### A note on copyright dates and notices (and licenses)
+
+(Almost) all SIRF files start with a copyright and license header. Please do this for your files as well.
+If you modify an existing file, you need to make sure the copyright header is up-to-date for your changes
+(unless it's a trivial change).
+
+If you copied code from somewhere, you need to preserve its copyright date/notice. If you copied non-SIRF code,
+you need to make sure its license is compatible with the SIRF license, and indicate clearly what the license
+of the copied code is (and follow its terms of course).
+
+In addition, you might need to add yourself to [NOTICE.txt](https://github.com/CCPPETMR/SIRF/blob/master/NOTICE.txt).
+
 ## Project rules
 
 - Only one official, stable, up-to-date branch: **master**

@@ -11,53 +11,60 @@ language: cpp
 
 # Environment variables
 # Note: On trusty we need to build Armadillo and boost ourselves (the system versions are too old)
+# Note: On OSX we can't test SYSTEM_Boost=OFF due to excessive log size (https://github.com/CCPPETMR/SIRF-SuperBuild/issues/167)
+# Note: currently ACE is not building correctly, so ACE is not built on any configuration https://github.com/CCPPETMR/SIRF-SuperBuild/issues/#174
+# Note: on Trusty, g++-7 causes errors with the system ACE, so cannot use g++-7 or later https://github.com/CCPPETMR/SIRF-SuperBuild/issues/169
 # Note: altering the matrix here will cause re-building of caches,
 # so try to keep this concise to avoid need to update
+# Note: the line above each `env` contains a resume of the parameters passed to cmake.
+#       + or - refer to the value of the parameter affecting the specific package is passed to cmake:
+#       i.e. -boost == -DUSE_SYSTEM_Boost=OFF, which means that Boost will be built.
 matrix:
  include:
- # linux g{cc,++}-5 py{27,3}
+ # linux g{cc,++}-{5,6} py{27,3}
  - os: linux
    python: 3
    # -boost +fftw3 +hdf5
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" MATRIX_EVAL="CC=gcc-5 CXX=g++-5" PYMVER=3
  - os: linux
    python: 2.7
    # -boost +fftw3 +hdf5 +siemens_to_ismrmrd +swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON" CC=gcc-5 CXX=g++-5 PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc-5 CXX=g++-5" PYMVER=2
  - os: linux
    python: 3
-   # +DEVEL -boost -hdf5 -fftw3 +siemens_to_ismrmrd
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DBUILD_siemens_to_ismrmrd=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
+   # +DEVEL -boost -hdf5 -fftw3 +ace +siemens_to_ismrmrd
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_ACE=ON -DBUILD_siemens_to_ismrmrd=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
  - os: linux
    python: 2.7
-   # +DEVEL -boost -fftw3 -hdf5 -swig
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc-5 CXX=g++-5 PYMVER=2
+   # +DEVEL -boost -fftw3 -hdf5 -swig +ace
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
  # osx g{cc,++} py{27,36}
  - os: osx
    python: 2.7
    # +boost -hdf5 -swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
  - os: osx
-   # -boost -hdf5 -swig
+   # +boost +fftw3 -hdf5 -swig
    python: 3
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
  - os: osx
    python: 2.7
    # +DEVEL +boost -hdf5 +swig
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
  - os: osx
    python: 2.7
    # +DEVEL +boost -fftw3 -hdf5 +swig
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
  # itk
  - os: linux
    python: 3
    # -boost +itk +fftw3 +hdf5
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
- - os: osx
-   python: 2.7
-   # +boost +itk -hdf5 +swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" MATRIX_EVAL="CC=gcc-5 CXX=g++-5" PYMVER=3
+ # Can't use ITK on OSX at the moment, as it times out.
+ # - os: osx
+ #   python: 2.7
+ #   # +boost +itk -hdf5 +swig
+ #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
 
 env:
  global:
@@ -80,6 +87,7 @@ addons:
    - git-core
    - build-essential
    - g++-5
+   - g++-6
    - libboost-all-dev
    - libhdf5-serial-dev
    - libfftw3-dev
@@ -87,6 +95,8 @@ addons:
    - python3-dev
    - python-tk
    - python3-tk
+   - libopenblas-dev
+   - libatlas-base-dev
    - liblapack-dev
    - libxml2-dev
    - libarmadillo-dev
@@ -94,6 +104,8 @@ addons:
    - libplplot-dev
    - swig
    - ccache
+   # for building ACE (note: Trusty only)
+   - realpath
    # not in whitelist
    - libxslt-dev
    - libace-dev
@@ -105,6 +117,11 @@ cache:
   - pip
 
 before_install:
+ # Set C and C++ compiler etc using trick from
+ # https://docs.travis-ci.com/user/languages/cpp/#c11c11-and-beyond-and-toolchain-versioning
+ - eval "${MATRIX_EVAL}"
+ - $CC --version
+ - $CXX --version
  - mkdir -p ~/.local/bin
  - pushd ~/.local/bin
  # Note: use ( set -ev; ... ) to echo commands and exit immediately on failure
@@ -145,20 +162,27 @@ before_install:
         brew install ace
         brew install swig
         brew install ccache
+        if [[ $EXTRA_BUILD_FLAGS == *"SYSTEM_FFTW3=ON"* ]]; then
+            brew install fftw
+        else
+            echo "Not installing FFTW as we are building it"
+        fi
         # need curl to get pip and more recent cmake
         brew install curl
         #brew install cmake # already present
         # alternative: get our own
         #curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz
         #tar xzf cmake.tar.gz
-        #mv cmake-*/CMake.app/Contents/* cmake-*
-        #export PATH="$PWD/cmake-*/bin:$PATH"
+        #mv cmake-*/CMake.app/Contents/* cmake
+        #export PATH="$PWD/cmake/bin:$PATH"
       )
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       PY_EXE=python$PYMVER
-      curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz
-      tar xzf cmake.tar.gz
-      export PATH="$PWD/cmake-*/bin:$PATH"
+      curl -L -O https://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1-Linux-x86_64.tar.gz
+      ls -l cmake-*
+      tar xzf cmake-*.tar.gz
+      mv cmake-*x86_64 cmake
+      export PATH="$PWD/cmake/bin:$PATH"
     fi
  - echo "Using Python executable $PY_EXE"
  # get pip
@@ -169,19 +193,24 @@ before_install:
  # ensure python bin dir exists (and coverage dependencies installed)
  - $PY_EXE -m pip install --user -U nose codecov coveralls
  # for counting clones, excluding ours
- - git clone https://$GITHUB_API_TOKEN@github.com/ccp-petmr-codebot/github-stats --branch CCPPETMR/SIRF-SuperBuild
- # update with last fortnight's clones from GitHub API
- - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
- # count unique clones, excluding travis, and print total
- - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
+ - |
+    if [[ -n "$GITHUB_API_TOKEN" ]]; then
+      git clone https://$GITHUB_API_TOKEN@github.com/ccp-petmr-codebot/github-stats --branch CCPPETMR/SIRF-SuperBuild
+      # update with last fortnight's clones from GitHub API
+      TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
+      # count unique clones, excluding travis, and print total
+      TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
+    fi
  - $PY_EXE --version
  - $PY_EXE -m pip --version
  - $PY_EXE -m pip freeze
  # ccache compiler override
  - ln -s "$(which ccache)" g++
  - ln -s "$(which ccache)" g++-5
+ - ln -s "$(which ccache)" g++-6
  - ln -s "$(which ccache)" gcc
  - ln -s "$(which ccache)" gcc-5
+ - ln -s "$(which ccache)" gcc-6
  - export PATH="$PWD:$PATH"
  - popd
  # Use Travis' currently checked-out SIRF commit ID to build.
@@ -211,6 +240,7 @@ script:
  - cat builds/SIRF/build/Testing/Temporary/LastTest.log
  # may exceed 4MB travis log limit
  - cat gadgetron.log
+
 
 
 after_success:

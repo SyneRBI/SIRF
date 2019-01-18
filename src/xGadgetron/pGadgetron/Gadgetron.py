@@ -2,22 +2,22 @@
 Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
+# CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+# Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+#
+# This is software developed for the Collaborative Computational
+# Project in Positron Emission Tomography and Magnetic Resonance imaging
+# (http://www.ccppetmr.ac.uk/).
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#       http://www.apache.org/licenses/LICENSE-2.0
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 
 import abc
 import numpy
@@ -29,16 +29,16 @@ except:
     HAVE_PYLAB = False
 import sys
 import time
-##try:
-##    from ismrmrdtools import coils
-##    HAVE_ISMRMRDTOOLS = True
-##except:
-##    print('ismrmrd-python-tools not installed')
-##    HAVE_ISMRMRDTOOLS = False
 
-from pUtilities import *
-import pyiutilities as pyiutil
-import pygadgetron
+from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
+     try_calling, assert_validity, assert_validities, label_and_name, \
+     name_and_parameters, parse_arglist, petmr_data_path, existing_filepath, \
+     pTest, RE_PYEXT
+from sirf import SIRF
+from sirf.SIRF import DataContainer
+import sirf.pyiutilities as pyiutil
+import sirf.pygadgetron as pygadgetron
+import sirf.pysirf as pysirf
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -86,18 +86,14 @@ def _int_pars(handle, set, par, n):
     check_status(h)
     for i in range(n):
         value += (pyiutil.intDataItemFromHandle(h, i),)
-#        value += (pyiutil.intDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint16_pars(handle, set, par, n):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
-    #value = (pyiutil.uint16DataItemFromHandle(h, 0),)
-    #for i in range(1, n):
     value = ()
     for i in range(n):
         value += (pyiutil.uint16DataItemFromHandle(h, i),)
-#        value += (pyiutil.uint16DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint32_pars(handle, set, par, n):
@@ -106,7 +102,6 @@ def _uint32_pars(handle, set, par, n):
     value = ()
     for i in range(n):
         value += (pyiutil.uint32DataItemFromHandle(h, i),)
-#        value += (pyiutil.uint32DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint64_pars(handle, set, par, n):
@@ -115,7 +110,6 @@ def _uint64_pars(handle, set, par, n):
     value = ()
     for i in range(n):
         value += (pyiutil.uint64DataItemFromHandle(h, i),)
-#        value += (pyiutil.uint64DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _char_par(handle, set, par):
@@ -136,7 +130,6 @@ def _float_pars(handle, set, par, n):
     value = ()
     for i in range(n):
         value += (pyiutil.floatDataItemFromHandle(h, i),)
-#        value += (pyiutil.floatDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _parameterHandle(hs, set, par):
@@ -158,7 +151,7 @@ def raw_data_path():
     return petmr_data_path('mr')
 
 ### low-level client functionality
-### likely to be obsolete- not used for a long time
+### likely to be obsolete - not used for a long time
 ##class ClientConnector:
 ##    def __init__(self):
 ##        self.handle = None
@@ -205,189 +198,6 @@ def raw_data_path():
 ##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
 
-# base class for complex data container classes
-class DataContainer(ABC):
-    '''
-    Class for an abstract data container.
-    '''
-    def __init__(self):
-        self.handle = None
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    @abc.abstractmethod
-    def same_object(self):
-        '''
-        Returns an object of the same type as self.
-        '''
-        pass
-    def number(self):
-        '''
-        Returns the number of items in the container.
-        '''
-        assert self.handle is not None
-        handle = pygadgetron.cGT_dataItems(self.handle)
-        check_status(handle)
-        n = pyiutil.intDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return n
-    def norm(self):
-        '''
-        Returns the 2-norm of the container data viewed as a vector.
-        '''
-        assert self.handle is not None
-        handle = pygadgetron.cGT_norm(self.handle)
-        check_status(handle)
-        r = pyiutil.floatDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return r;
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-##        assert self.handle is not None
-##        assert type(self) == type(other)
-        assert_validities(self, other)
-        handle = pygadgetron.cGT_dot(self.handle, other.handle)
-        check_status(handle)
-        re = pyiutil.floatReDataFromHandle(handle)
-        im = pyiutil.floatImDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return complex(re, im)
-    def multiply(self, other):
-        '''
-        Returns the elementwise product of this and another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pygadgetron.cGT_multiply(self.handle, other.handle)
-        check_status(z.handle)
-        return z
-    def divide(self, other):
-        '''
-        Returns the elementwise ratio of this and another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pygadgetron.cGT_divide(self.handle, other.handle)
-        check_status(z.handle)
-        return z
-    def __add__(self, other):
-        '''
-        Overloads + for data containers.
-        Returns the sum of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-##        assert self.handle is not None
-##        assert type(self) == type(other)
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pygadgetron.cGT_axpby\
-            (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
-        return z;
-    def __sub__(self, other):
-        '''
-        Overloads - for data containers.
-        Returns the difference of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-##        assert self.handle is not None
-##        assert type(self) == type(other)
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pygadgetron.cGT_axpby\
-            (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
-        return z;
-    def __mul__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar or another
-        data container. Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
-        other: DataContainer or a (real or complex) scalar
-        '''
-        assert self.handle is not None
-        if type(self) == type(other):
-            return self.multiply(other)
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(complex(0,0)):
-            z.handle = pygadgetron.cGT_axpby\
-                (other.real, other.imag, self.handle, 0, 0, self.handle)
-            return z;
-        elif type(other) == type(0.0):
-            z.handle = pygadgetron.cGT_axpby\
-                (other, 0, self.handle, 0, 0, self.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def __rmul__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar from
-        the left, i.e. computes and returns the product other*self.
-        other: a real or complex scalar
-        '''
-        assert self.handle is not None
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(complex(0,0)):
-            z.handle = pygadgetron.cGT_axpby\
-                (other.real, other.imag, self.handle, 0, 0, self.handle)
-            return z;
-        elif type(other) == type(0.0):
-            z.handle = pygadgetron.cGT_axpby\
-                (other, 0, self.handle, 0, 0, self.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def __truediv__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar or another
-        data container. Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
-        other: DataContainer or a (real or complex) scalar
-        '''
-        assert self.handle is not None
-        if type(self) == type(other):
-            return self.divide(other)
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(complex(0,0)):
-            other = 1/other
-            z.handle = pygadgetron.cGT_axpby\
-                (other.real, other.imag, self.handle, 0, 0, self.handle)
-            return z;
-        elif type(other) == type(0.0):
-            z.handle = pygadgetron.cGT_axpby\
-                (1/other, 0, self.handle, 0, 0, self.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-
-    @staticmethod
-    def axpby(a, x, b, y):
-        '''
-        Returns a linear combination a*x + b*y of two containers x and y.
-        a and b: complex scalars
-        x and y: DataContainers
-        '''
-##        assert type(x) == type(y)
-        assert_validities(x, y)
-        z = x.same_object()
-        z.handle = pygadgetron.cGT_axpby\
-            (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
-        return z;
-
 class CoilImageData(DataContainer):
     '''
     Class for a coil images container.
@@ -408,7 +218,6 @@ class CoilImageData(DataContainer):
         Calculates coil images from a given sorted acquisitions.
         acqs: AcquisitionData
         '''
-        #assert isinstance(acqs, AcquisitionData)
         assert_validity(acqs, AcquisitionData)
         if acqs.is_sorted() is False:
             print('WARNING: acquisitions may be in a wrong order')
@@ -593,29 +402,6 @@ class Image:
         assert self.handle is not None
         t = self.data_type()
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
-    def as_array(self):
-        '''
-        Returns image data as a 3D Numpy ndarray.
-        '''
-        assert self.handle is not None
-        dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getImageDim(self.handle, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
-        nz = nz*nc
-        if self.is_real():
-            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            pygadgetron.cGT_getImageDataAsFloatArray\
-                (self.handle, array.ctypes.data)
-            return array
-        else:
-            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            pygadgetron.cGT_getImageDataAsComplexArray\
-                (self.handle, re.ctypes.data, im.ctypes.data)
-            return re + 1j*im
     def version(self):
         assert self.handle is not None
         return _int_par(self.handle, 'image', 'version')
@@ -692,7 +478,8 @@ class Image:
     def info(self, method):
         return eval('self.' + method + '()')
 
-class ImageData(DataContainer):
+#class ImageData(DataContainer):
+class ImageData(SIRF.ImageData):
     '''
     Class for an MR images container.
     Each item in the container is a 3D complex or float array of the image 
@@ -750,44 +537,7 @@ class ImageData(DataContainer):
         return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-##    def show(self):
-##        '''
-##        Interactively displays self's images.
-##        '''
-##        assert self.handle is not None
-##        if not HAVE_PYLAB:
-##            print('pylab not found')
-##            return
-##        ni = self.number()
-##        if ni == 1:
-##            print('%d image' % ni)
-##        else:
-##            print('%d images' % ni)
-##        if ni < 1:
-##            return
-##        data = self.as_array()
-##        if not self.is_real():
-##            data = abs(data)
-##        print('Please enter the number of the image to view')
-##        print('(a value outside the range [1 : %d] will stop this loop)' % ni)
-##        while True:
-##            s = str(input('image: '))
-##            if len(s) < 1:
-##                break
-##            i = int(s)
-##            if i < 1 or i > ni:
-##                break
-##            image = self.image(i - 1)
-##            pylab.figure(i)
-##            pylab.title('image %d' % i)
-##            arr = image.as_array()
-##            if not image.is_real():
-##                arr = abs(arr)
-##            pylab.imshow(arr[0,:,:])
-##            #pylab.imshow(data[i - 1, :, :])
-##            print('Close Figure %d window to continue...' % i)
-##            pylab.show()
-    def write(self, out_file, out_group):
+    def write(self, out_file, out_group=''):
         '''
         Writes self's images to an hdf5 file.
         out_file : the file name (Python string)
@@ -811,7 +561,8 @@ class ImageData(DataContainer):
     def get_info(self, par):
         '''
         Returns the array of values of the specified image information 
-        parameter.
+        parameter. Parameters names are the same as the names of Image class
+        public methods (except is_real and info).
         par: parameter name
         '''
         ni = self.number()
@@ -820,6 +571,18 @@ class ImageData(DataContainer):
             image = self.image(i)
             info[i] = image.info(par)
         return info
+    def fill(self, data):
+        '''
+        Fills self's image data with specified values.
+        data: Python Numpy array
+        '''
+        assert self.handle is not None
+        if self.is_real():
+            try_calling(pygadgetron.cGT_setImagesDataAsFloatArray\
+                (self.handle, data.ctypes.data))
+        else:
+            try_calling(pygadgetron.cGT_setImagesDataAsCmplxArray\
+                (self.handle, data.ctypes.data))
     def as_array(self):
         '''
         Returns all self's images as a 3D Numpy ndarray.
@@ -830,8 +593,6 @@ class ImageData(DataContainer):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         image = Image(self)
         pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
-##        pygadgetron.cGT_getImageDimensions\
-##            (self.handle, 0, dim.ctypes.data)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]
@@ -839,25 +600,14 @@ class ImageData(DataContainer):
         nz = nz*nc*self.number()
         if self.is_real():
             array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            pygadgetron.cGT_getImagesDataAsFloatArray\
-                (self.handle, array.ctypes.data)
+            try_calling(pygadgetron.cGT_getImagesDataAsFloatArray\
+                (self.handle, array.ctypes.data))
             return array
         else:
-            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            pygadgetron.cGT_getImagesDataAsComplexArray\
-                (self.handle, re.ctypes.data, im.ctypes.data)
-            return re + 1j*im
-    def fill(self, data):
-        '''
-        Fills self's image data with specified values.
-        data: Python Numpy array
-        '''
-        assert self.handle is not None
-        re = numpy.real(data).astype(numpy.float32)
-        im = numpy.imag(data).astype(numpy.float32)
-        try_calling(pygadgetron.cGT_setComplexImagesData\
-            (self.handle, re.ctypes.data, im.ctypes.data))
+            z = numpy.ndarray((nz, ny, nx), dtype = numpy.complex64)
+            try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
+                (self.handle, z.ctypes.data))
+            return z
 
 DataContainer.register(ImageData)
 
@@ -1101,6 +851,14 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
+    def fill(self, data):
+        '''
+        Fills self's acquisitions with specified values.
+        data: Python Numpy array
+        '''
+        assert self.handle is not None
+        try_calling(pygadgetron.cGT_fillAcquisitionsData\
+            (self.handle, data.ctypes.data, 1))
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
@@ -1109,26 +867,13 @@ class AcquisitionData(DataContainer):
         na = self.number()
         ny, nc, ns = self.dimensions(select)
         if select == 'all': # return all
-            n = na
+            return_all = 1
         else: # return only image-related
-            n = na + 1
-        re = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
-        im = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
-        hv = pygadgetron.cGT_getAcquisitionsData\
-            (self.handle, n, re.ctypes.data, im.ctypes.data)
-        pyiutil.deleteDataHandle(hv)
-        return re + 1j*im
-    def fill(self, data):
-        '''
-        Fills self's acquisitions with specified values.
-        data: Python Numpy array
-        '''
-        assert self.handle is not None
-        na, nc, ns = data.shape
-        re = numpy.real(data).astype(numpy.float32)
-        im = numpy.imag(data).astype(numpy.float32)
-        try_calling(pygadgetron.cGT_setAcquisitionsData\
-            (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
+            return_all = 0
+        z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+        try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
+            (self.handle, z.ctypes.data, return_all))
+        return z
     def write(self, out_file):
         '''
         Writes self's acquisitions to an hdf5 file.
@@ -1150,8 +895,6 @@ class AcquisitionModel:
         if acqs == None:
             self.handle = pygadgetron.cGT_newObject('AcquisitionModel')
         else:
-##        assert isinstance(acqs, AcquisitionData)
-##        assert isinstance(imgs, ImageData)
             assert_validity(acqs, AcquisitionData)
             assert_validity(imgs, ImageData)
             self.handle = \
@@ -1170,11 +913,9 @@ class AcquisitionModel:
         Specifies the coil sensitivity maps to be used by the model.
         csm: CoilSensitivityData
         '''
-##        assert isinstance(csm, CoilSensitivityData)
         assert_validity(csm, CoilSensitivityData)
         try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
             (self.handle, 'coil_sensitivity_maps', csm.handle))
-##        try_calling(pygadgetron.cGT_setCSMs(self.handle, csm.handle))
     def forward(self, image):
         '''
         Projects an image into (simulated) acquisitions space.
@@ -1182,7 +923,6 @@ class AcquisitionModel:
         expected to be received from the scanner.
         image: ImageData
         '''
-##        assert isinstance(image, ImageData)
         assert_validity(image, ImageData)
         ad = AcquisitionData()
         ad.handle = pygadgetron.cGT_AcquisitionModelForward\
@@ -1195,7 +935,6 @@ class AcquisitionModel:
         transpose of the forward projection.
         ad: AcquisitionData
         '''
-##        assert isinstance(ad, AcquisitionData)
         assert_validity(ad, AcquisitionData)
         image = ImageData()
         image.handle = pygadgetron.cGT_AcquisitionModelBackward\
@@ -1356,7 +1095,6 @@ class Reconstructor(GadgetChain):
         Returns the output from the chain for specified input.
         input_data: AcquisitionData
         '''
-##        assert isinstance(input_data, AcquisitionData)
         assert_validity(input_data, AcquisitionData)
         handle = pygadgetron.cGT_reconstructImages\
              (self.handle, input_data.handle)
@@ -1408,7 +1146,6 @@ class ImageDataProcessor(GadgetChain):
             self.set_input(input_data)
         if self.input_data is None:
             raise error('input data not set')
-##        assert isinstance(self.input_data, ImageData)
         assert_validity(self.input_data, ImageData)
         image = ImageData()
         image.handle = pygadgetron.cGT_processImages\
@@ -1465,7 +1202,6 @@ class AcquisitionDataProcessor(GadgetChain):
             self.set_input(input_data)
         if self.input_data is None:
             raise error('input data not set')
-##        assert isinstance(self.input_data, AcquisitionData)
         assert_validity(self.input_data, AcquisitionData)
         acquisitions = AcquisitionData()
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\

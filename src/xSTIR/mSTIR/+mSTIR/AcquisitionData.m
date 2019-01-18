@@ -1,4 +1,4 @@
-classdef AcquisitionData < mSTIR.DataContainer
+classdef AcquisitionData < mSIRF.DataContainer
 % Class for PET acquisition data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

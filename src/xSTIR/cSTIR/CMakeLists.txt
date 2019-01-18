@@ -1,6 +1,7 @@
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 University College London
+# Copyright 2016 - 2018 University College London
+# Copyright 2017, 2018 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,15 +21,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 find_package(STIR REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-
 add_library(cstir 
     cstir_p.cpp cstir_tw.cpp stir_data_containers.cpp stir_x.cpp cstir.cpp)
 target_include_directories(cstir PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
+target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 
-target_link_libraries(cstir iutilities)
-target_link_libraries(cstir common)
+target_link_libraries(cstir csirf iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))

@@ -1,6 +1,8 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2017 - 2019 University College London
+
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
 (http://www.ccppetmr.ac.uk/).
@@ -19,8 +21,7 @@ limitations under the License.
 
 using namespace stir;
 
-#include "cstir_shared_ptr.h"
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "printer.h"
 
 extern "C" {
@@ -30,7 +31,7 @@ extern "C" {
 	}
 	void* deleteMexPrinter(void* ptr) {
     //mexPrintf("deleting mexTextPrinter...");
-		delete (mexTextPrinter*)ptr;
+		delete static_cast<mexTextPrinter*>(ptr);
     //mexPrintf("ok\n");
 		return new DataHandle;
 	}

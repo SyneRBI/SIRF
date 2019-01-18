@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2016, 2017 University College London
+# Copyright 2018 - 2019 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -13,51 +13,81 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
+
+# Configure the aladin/f3d files dependent on NiftyReg version number
+include(${CMAKE_CURRENT_SOURCE_DIR}/../callable_NR_methods.cmake)
+get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin" "${NR_VERSION}" NR_aladin_parser_methods)
+get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d"    "${NR_VERSION}" NR_f3d_parser_methods   )
+get_runtime_methods("../callable_NR_aladin_methods.txt" "${NR_VERSION}" NR_aladin_runtime_methods)
+get_runtime_methods("../callable_NR_f3d_methods.txt"    "${NR_VERSION}" NR_f3d_runtime_methods   )
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp.in"    "${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp"   )
+
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFImageData.cpp" "SIRFImageDataDeformation.cpp" "SIRFRegTransformation.cpp")
-SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFImageData.h"   "SIRFImageDataDeformation.h"    "SIRFRegTransformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+SET(SOURCES "Registration.cpp" "NiftyRegistration.cpp" "NiftyAladinSym.cpp" "NiftyF3dSym.cpp" "ImageWeightedMean.cpp" "Resample.cpp" "NiftyResample.cpp" "Transformation.cpp" "AffineTransformation.cpp")
+
+# Add in nifti_image wrappers
+SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")
 
 # If we're also wrapping to python or matlab, include the c-files
-IF(BUILD_SIRFREG_PYTHON OR BUILD_SIRFREG_MATLAB)
-	SET(SOURCES ${SOURCES} "csirfreg.cpp" "csirfreg_p.cpp")
-	SET(HEADERS ${HEADERS}  "csirfreg.h"   "csirfreg_p.h" )
+IF(BUILD_PYTHON OR BUILD_MATLAB)
+	SET(SOURCES ${SOURCES} "cReg.cpp" "cReg_p.cpp")
 ENDIF()
 
 # Create library
-ADD_LIBRARY(SIRFReg ${SOURCES} )
-#TARGET_LINK_LIBRARIES(SIRFReg SIRF_common)
+ADD_LIBRARY(Reg ${SOURCES})
 
-# Link against stir and gadgetron
-TARGET_LINK_LIBRARIES(SIRFReg cstir)
-#TARGET_LINK_LIBRARIES(SIRFReg cgadgetron)
+# Link to SIRF stuff
+TARGET_LINK_LIBRARIES(Reg PUBLIC csirf)
+target_link_libraries(Reg PUBLIC iutilities)
+TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
+)
 
-# Boost
-FIND_PACKAGE(Boost 1.63.0 COMPONENTS filesystem)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(SIRFReg ${Boost_LIBRARIES})
+find_package(OpenMP)
 
 # NiftyReg
-TARGET_LINK_LIBRARIES(SIRFReg ${NiftyReg_Libs})
+TARGET_LINK_LIBRARIES(Reg PUBLIC ${NiftyReg_Libs})
+if (OpenMP_CXX_FOUND)
+  TARGET_LINK_LIBRARIES(Reg PUBLIC OpenMP::OpenMP_CXX)
+endif()
 
 # Add libz (should be in /usr/local)
 FIND_LIBRARY(LIBZ  z)
-TARGET_LINK_LIBRARIES(SIRFReg ${LIBZ})
+TARGET_LINK_LIBRARIES(Reg PUBLIC ${LIBZ})
+
+# Add boost library dependencies
+if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
+  # This is harder than it should be on older CMake versions to be able to cope with
+  # spaces in filenames.
+  foreach(C SYSTEM FILESYSTEM)
+    target_link_libraries(Reg PUBLIC optimized "${Boost_${C}_LIBRARY_RELEASE}")
+    target_link_libraries(Reg PUBLIC debug  "${Boost_${C}_LIBRARY_DEBUG}")
+  endforeach()
+else()
+  # Nice and simple for recent CMake (which knows about your Boost version)
+  target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
+endif()
 
 # Install
-INSTALL(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
-INSTALL(TARGETS SIRFReg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib    )
+INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib    )
 
 # Need to include the directory to be able to compile the example programs
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-SET(SIRFREG_executables
-    affine_to_disp
-    sirfreg_aladin)
+SET(REG_executables
+    sirf_affine_to_disp
+    sirf_print_nifti_info
+    sirf_tensor_split_join
+    sirf_change_datatype
+    sirf_crop_image
+    )
 
-FOREACH(elem ${SIRFREG_executables} )
-    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
-    TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC SIRFReg)
+FOREACH(elem ${REG_executables})
+    ADD_EXECUTABLE(${elem} ${elem}.cpp)
+    TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-ENDFOREACH(elem ${SIRFREG_executables})
+ENDFOREACH(elem ${REG_executables})
 
 ADD_SUBDIRECTORY(tests)

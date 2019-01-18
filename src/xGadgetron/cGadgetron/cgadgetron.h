@@ -70,14 +70,9 @@ extern "C" {
 	void* cGT_cloneAcquisitions(void* ptr_input);
 	void* cGT_orderAcquisitions(void* ptr_acqs);
 	void* cGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim);
-	void* cGT_getAcquisitionsFlags
-		(void* ptr_acqs, unsigned int n, PTR_INT ptr_f);
-	void* cGT_getAcquisitionsData
-		(void* ptr_acqs, unsigned int slice, PTR_FLOAT ptr_r, PTR_FLOAT ptr_i);
-	void* cGT_setAcquisitionsData
-		(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
-		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 	void*	cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
+	void* cGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
+	void* cGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 
 	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
@@ -92,25 +87,10 @@ extern "C" {
 	void* cGT_imageDataType(const void* ptr_x, int im_num);
 	void cGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
 	void* cGT_imageType(const void* ptr_img);
-	void cGT_getImageDataAsFloatArray(void* ptr_img, PTR_FLOAT ptr_data);
-	void cGT_getImageDataAsComplexArray
-		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void cGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
-	void cGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
-	void cGT_getImagesDataAsComplexArray
-		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void* cGT_setComplexImagesData
-		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-
-	// Data container methods
-	void* cGT_dataItems(const void* ptr_x);
-	void* cGT_norm(const void* ptr_x);
-	void* cGT_dot(const void* ptr_x, const void* ptr_y);
-	void* cGT_axpby(
-		float ar, float ai, const void* ptr_x,
-		float br, float bi, const void* ptr_y);
-	void* cGT_multiply(const void* ptr_x, const void* ptr_y);
-	void* cGT_divide(const void* ptr_x, const void* ptr_y);
+	void* cGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
+	void* cGT_setImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
+	void* cGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
+	void* cGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 
 	// gadget chain methods
 	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);

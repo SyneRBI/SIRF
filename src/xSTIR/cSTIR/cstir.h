@@ -120,20 +120,12 @@ extern "C" {
 		float sx, float sy, float sz, float x, float y, float z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);
 	void* cSTIR_imageFromImage(void* ptr_v);
+	void* cSTIR_imageFromImageData(void* ptr_v);
 	void* cSTIR_imageFromAcquisitionData(void* ptr_ad);
 	void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny);
 	void* cSTIR_fillImage(void* ptr_i, float v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
-	//void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
-
-	// Data container methods
-	void* cSTIR_norm(const void* ptr_x);
-	void*	cSTIR_dot(const void* ptr_x, const void* ptr_y);
-	//void* cSTIR_mult(float a, const void* ptr_x);
-	void* cSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y);
-	void* cSTIR_multiply(const void* ptr_x, const void* ptr_y);
-	void* cSTIR_divide(const void* ptr_x, const void* ptr_y);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);
@@ -142,9 +134,6 @@ extern "C" {
 	void closeChannel(int channel, void* ptr_w);
 	void* deleteTextPrinter(void* ptr);
 	void* deleteTextWriter(void* ptr_w);
-
-	// PLSPrior methods
-	//void* cSTIR_setupPLSPrior(void* ptr_r);
 
 #ifndef CSTIR_FOR_MATLAB
 }

@@ -1,4 +1,4 @@
-classdef AcquisitionData < mGadgetron.DataContainer
+classdef AcquisitionData < mSIRF.DataContainer
 % Class for MR acquisitions data.
 % Each item in the container is a complex array of acquisition 
 % samples for each coil.
@@ -160,23 +160,20 @@ classdef AcquisitionData < mGadgetron.DataContainer
             if nargin < 2
                 select = 'all';
             end
-            [ns, nc, ma] = self.dimensions(select);
-            na = self.number();
+            [ns, nc, na] = self.dimensions(select);
+            %na = self.number();
             if strcmp(select, 'all')
-                n = na;
-                ma = na;
+                all = 1;
             else
-                n = na + 1;
+                all = 0;
             end
-            m = ns*nc*ma;
-            ptr_re = libpointer('singlePtr', zeros(m, 1));
-            ptr_im = libpointer('singlePtr', zeros(m, 1));
+            n = ns*nc*na;
+            ptr_z = libpointer('singlePtr', zeros(2, n));
             calllib...
-                ('mgadgetron', 'mGT_getAcquisitionsData', ...
-                self.handle_, n, ptr_re, ptr_im);
-            re = reshape(ptr_re.Value, ns, nc, ma);
-            im = reshape(ptr_im.Value, ns, nc, ma);
-            data = re + 1i*im;
+                ('mgadgetron', 'mGT_acquisitionsDataAsArray', ...
+                self.handle_, ptr_z, all);
+            data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
+                ns, nc, na);
         end
         function fill(self, data)
 %***SIRF*** Changes acquisition data to that in 3D complex array argument.
@@ -184,18 +181,14 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
             end
-            [ns, nc, na] = size(data);
-            re = real(data);
-            im = imag(data);
-            if isa(re, 'single')
-                ptr_re = libpointer('singlePtr', re);
-                ptr_im = libpointer('singlePtr', im);
+            z = [real(data(:))'; imag(data(:))'];
+            if isa(z, 'single')
+                ptr_z = libpointer('singlePtr', z);
             else
-                ptr_re = libpointer('singlePtr', single(re));
-                ptr_im = libpointer('singlePtr', single(im));
+                ptr_z = libpointer('singlePtr', single(z));
             end
-            h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
-                self.handle_, na, nc, ns, ptr_re, ptr_im);
+            h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
+                self.handle_, ptr_z, 1);
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
         end

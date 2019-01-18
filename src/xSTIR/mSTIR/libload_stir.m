@@ -5,7 +5,7 @@ if ~libisloaded('miutilities')
     try
         [notfound, warnings] = loadlibrary('miutilities');
     catch
-        error('mutilities library failed to load\n')
+        error('miutilities library failed to load\n')
     end
 end
 % load STIR interface library
