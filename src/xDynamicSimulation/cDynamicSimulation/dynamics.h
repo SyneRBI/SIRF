@@ -21,11 +21,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissuelabelmapper.h"
 
 
-#include "gadgetron_data_containers.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
 #include "auxiliary_input_output.h"
 
-#include "SIRFRegImageWeightedMean.h"
-#include "SIRFImageDataDeformation.h"
+#include "sirf/cReg/ImageWeightedMean.h"
+#include "sirf/cReg/NiftiImageData3DDeformation.h"
 
 
 
@@ -114,7 +114,7 @@ public:
 
 	~MotionDynamic();
 
-	SIRFImageDataDeformation get_interpolated_displacement_field(SignalAxisType signal);
+	sirf::NiftiImageData3DDeformation<float> get_interpolated_displacement_field(SignalAxisType signal);
 
 	int get_which_motion_dynamic_am_i();
 	int get_num_total_motion_dynamics();
@@ -145,7 +145,7 @@ protected:
 	int which_motion_dynamic_am_i_;
 
 	MotionFieldContainer displacment_fields_;
-	std::vector< SIRFImageDataDeformation > sirf_displacement_fields_; 
+	std::vector< sirf::NiftiImageData3DDeformation<float> > sirf_displacement_fields_;
 
 };
 
@@ -272,7 +272,7 @@ public:
 	PETMotionDynamic():aPETDynamic(), MotionDynamic() {};
 	PETMotionDynamic(int const num_simul_states): aPETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
-	void align_motion_fields_with_image( const sirf::PETImageData& img);
+	void align_motion_fields_with_image( const sirf::STIRImageData& img);
 	void prep_displacements_fields( void );
 private:
 	bool const keep_motion_fields_in_memory_ = true;

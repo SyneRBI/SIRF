@@ -12,13 +12,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
-#include "gadgetron_data_containers.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
 
 
-#include "gadgetron_x.h"
-#include "stir_x.h"
+#include "sirf/cGadgetron/gadgetron_x.h"
+#include "sirf/cSTIR/stir_x.h"
 
-#include "encoding.h"
+#include "sirf/cGadgetron/encoding.h"
 
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
@@ -165,10 +165,10 @@ private:
 
 	PoissonNoiseGenerator noise_generator_;
 
-	sirf::PETImageData get_reduced_pet_img_in_template_format( const sirf::PETImageData& full_size_img );
+	sirf::STIRImageData get_reduced_pet_img_in_template_format( const sirf::STIRImageData& full_size_img );
 
 	PETContrastGenerator pet_cont_gen_;
-	sirf::PETImageData template_image_data_;
+	sirf::STIRImageData template_image_data_;
 
 	sirf::PETAcquisitionModelUsingMatrix acq_model_;
 

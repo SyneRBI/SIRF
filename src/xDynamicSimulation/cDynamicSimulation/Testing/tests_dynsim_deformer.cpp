@@ -15,7 +15,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "auxiliary_testing_functions.h"
 #include "auxiliary_input_output.h"
 
-#include "SIRFImageDataDeformation.h"
+#include "sirf/cReg/NiftiImageData3DDeformation.h"
 
 
 
@@ -59,9 +59,9 @@ try
 			float const signal = (float)i_motion/(float)num_simul_cardiac_states;
 
 			std::cout << "Getting mvf for signal = " << signal << std::endl;
-			SIRFImageDataDeformation curr_mvf = motion_dyn.get_interpolated_displacement_field( signal );
+			NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_displacement_field( signal );
 
-			std::vector< SIRFImageDataDeformation > vec_mvfs;
+			std::vector< NiftiImageData3DDeformation<float> > vec_mvfs;
 			vec_mvfs.push_back( curr_mvf );
 
 			mr_cont_gen.map_contrast();
@@ -104,11 +104,11 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 		
 		motion_dyn.prep_displacements_fields();
 
-		PETImageData template_img( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH ); 
+		STIRImageData template_img( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH ); 
 		motion_dyn.align_motion_fields_with_image( template_img );
 
 		pet_cont_gen.map_tissue();
-		std::vector< sirf::PETImageData > static_state = pet_cont_gen.get_contrast_filled_volumes();
+		std::vector< sirf::STIRImageData > static_state = pet_cont_gen.get_contrast_filled_volumes();
 
 		std::string filename_static = std::string(SHARED_FOLDER_PATH) + "/pet_activity_map_static";
 		data_io::write_PET_image_to_hv(filename_static, static_state[0]);
@@ -120,15 +120,15 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 			float const signal = (float)i_motion/(float)num_simul_cardiac_states;
 
 			std::cout << "Getting mvf for signal = " << signal << std::endl;
-			SIRFImageDataDeformation curr_mvf = motion_dyn.get_interpolated_displacement_field( signal );
+			NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_displacement_field( signal );
 
-			std::vector< SIRFImageDataDeformation > vec_mvfs;
+			std::vector< NiftiImageData3DDeformation<float> > vec_mvfs;
 			vec_mvfs.push_back( curr_mvf );
 
 			pet_cont_gen.map_tissue();
 			DynamicSimulationDeformer::deform_contrast_generator(pet_cont_gen, vec_mvfs);
 			
-			std::vector< sirf::PETImageData > curr_motion_state = pet_cont_gen.get_contrast_filled_volumes();
+			std::vector< sirf::STIRImageData > curr_motion_state = pet_cont_gen.get_contrast_filled_volumes();
 			
 			std::stringstream filename_stream;
 			filename_stream << SHARED_FOLDER_PATH << "pet_activity_map_state_" << i_motion; 		
@@ -156,7 +156,7 @@ bool DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior()
 	{
 		bool test_succesful = true;
 	
-		typedef SIRFImageData ImageType; 
+		typedef NiftiImageData<float> ImageType;
 		size_t const num_cycles = 10000;
 
 		

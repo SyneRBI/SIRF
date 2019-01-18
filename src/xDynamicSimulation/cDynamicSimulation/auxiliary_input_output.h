@@ -26,8 +26,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/xml.h>
 #include <gadgetron/ImageIOAnalyze.h>
 
-#include "stir_data_containers.h"
-#include "gadgetron_data_containers.h"
+#include "sirf/cSTIR/stir_data_containers.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
  
 #include "test_input_filenames.h"
 
@@ -164,7 +164,7 @@ namespace data_io{
 
 
 
-	void write_PET_image_to_hv( const std::string& filename_without_ext,const sirf::PETImageData& img);
+	void write_PET_image_to_hv( const std::string& filename_without_ext,const sirf::STIRImageData& img);
 
 
 	template <typename T>

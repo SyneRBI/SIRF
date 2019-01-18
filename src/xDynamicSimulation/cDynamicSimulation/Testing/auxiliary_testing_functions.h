@@ -14,8 +14,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
-#include "gadgetron_data_containers.h"
-#include "gadgetron_image_wrap.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/cGadgetron/gadgetron_image_wrap.h"
 
 #include "auxiliary_input_output.h"
 
@@ -24,7 +24,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
 #include "dynamics.h"
-#include "encoding.h"
+#include "sirf/cGadgetron/encoding.h"
 
 
 #include "test_input_filenames.h"

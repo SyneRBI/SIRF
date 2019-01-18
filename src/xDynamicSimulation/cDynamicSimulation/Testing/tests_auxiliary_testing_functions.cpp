@@ -13,7 +13,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <fstream>
 
 #include <ismrmrd/ismrmrd.h>
-#include "gadgetron_data_containers.h" 
+#include "sirf/cGadgetron/gadgetron_data_containers.h" 
 
 #include "auxiliary_input_output.h"
 

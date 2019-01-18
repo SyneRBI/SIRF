@@ -18,7 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "all_simulation_tests.h"
 
 
-#include "SIRFImageData.h"
+#include "sirf/cReg/NiftiImageData.h"
 
 int main( int argc, char *argv[] )
 {

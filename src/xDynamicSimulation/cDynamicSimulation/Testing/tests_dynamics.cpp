@@ -10,6 +10,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "auxiliary_input_output.h"
 #include "auxiliary_testing_functions.h"
+#include "sirf/cReg/NiftiImageData3D.h"
 
 using namespace sirf;
 
@@ -355,9 +356,9 @@ bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
 	{
 		bool test_succesful = true;
 
-		auto pet_img = PETImageData(PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH);
-		SIRFImageData pet_sirf_img( pet_img );
-		auto pet_img_data = pet_sirf_img.get_image_as_nifti();
+		auto pet_img = STIRImageData(PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH);
+		NiftiImageData3D<float> pet_sirf_img( pet_img );
+		auto pet_img_data = pet_sirf_img.get_raw_nifti_sptr();
 
 		float const img_off_x = pet_img_data->qoffset_x;
 		float const img_off_y = pet_img_data->qoffset_y;
@@ -410,7 +411,7 @@ bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
 
 
 		auto some_mvf = motion_dyn.get_interpolated_displacement_field( 0.f );
-		auto mvf_img_data = some_mvf.get_image_as_nifti();
+		auto mvf_img_data = some_mvf.get_raw_nifti_sptr();
 
 		float const mvf_off_x = mvf_img_data->qoffset_x;
 		float const mvf_off_y = mvf_img_data->qoffset_y;

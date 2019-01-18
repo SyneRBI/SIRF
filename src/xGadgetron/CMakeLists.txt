@@ -44,7 +44,7 @@ endif()
 	
 # Loop over each library, find it and add it. Then link. Do it twice to resolve linking errors depending on order
 include_directories("${GADGETRON_INCLUDE_DIR}/../")
-SET(GADGETRON_requiredLibs toolbox_cpucore toolbox_cpunfft)
+SET(GADGETRON_requiredLibs toolbox_cpucore toolbox_cpunfft toolbox_log toolbox_cpufft)
 FOREACH(elem ${GADGETRON_requiredLibs} ${GADGETRON_requiredLibs})
   FIND_LIBRARY(gadgetron_${elem} ${elem} HINTS ${GADGETRON_HOME}/lib)
   MARK_AS_ADVANCED(gadgetron_${elem})
@@ -62,7 +62,7 @@ ENDFOREACH()
 
   set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cGadgetron")
 
-  #TODO Johannes ADD_SUBDIRECTORY(pGadgetron)
-  #TODO Johannes ADD_SUBDIRECTORY(mGadgetron)
+  ADD_SUBDIRECTORY(pGadgetron)
+  ADD_SUBDIRECTORY(mGadgetron)
 
 endif()

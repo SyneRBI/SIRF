@@ -409,12 +409,12 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 
 void PETContrastGenerator::set_template_image_from_file( const std::string& filename_header_with_ext )
 {
- 	 this->template_pet_image_data_ = sirf::PETImageData(filename_header_with_ext);
+ 	 this->template_pet_image_data_ = sirf::STIRImageData(filename_header_with_ext);
  	 this->template_img_is_set_ = true;
  	 
 };
 
-std::vector< PETImageData >& PETContrastGenerator::get_contrast_filled_volumes()
+std::vector< STIRImageData >& PETContrastGenerator::get_contrast_filled_volumes()
 {
 	return this->contrast_filled_volumes_;	
 }
@@ -505,7 +505,7 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 	  	contrast_img.resize(num_voxels, 0);
 
 
-		PETImageData pet_img_dat( template_pet_image_data_ );
+		STIRImageData pet_img_dat( template_pet_image_data_ );
 		std::vector< float > voxel_sizes(3,0.f);
 		pet_img_dat.get_voxel_sizes(&voxel_sizes[0]);
 		float const voxel_volume_mm3 = voxel_sizes[0] * voxel_sizes[1] * voxel_sizes[2];

@@ -307,7 +307,7 @@ MotionDynamic::~MotionDynamic()
 }
 
 
-SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(SignalAxisType signal)
+NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_displacement_field(SignalAxisType signal)
 {
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
@@ -348,7 +348,7 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 
     dvf_interpolator.update();
     
-    SIRFImageDataDeformation output_deformation = dvf_interpolator.get_output();
+    NiftiImageData3DDeformation<float> output_deformation = dvf_interpolator.get_output();
 
     return output_deformation;
 
@@ -491,7 +491,7 @@ void MotionDynamic::prep_displacements_fields()
 	{
 		for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
 		{
-			SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
+			NiftiImageData3DDeformation<float> temp_deformation( this->temp_mvf_filenames_[i] );
 			this->sirf_displacement_fields_.push_back( temp_deformation );
 		}
 
@@ -863,7 +863,7 @@ void PETMotionDynamic::prep_displacements_fields( void )
 
 	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
 	{
-		SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
+		NiftiImageData3DDeformation<float> temp_deformation( this->temp_mvf_filenames_[i] );
 		this->sirf_displacement_fields_.push_back( temp_deformation );
 	}
 
@@ -871,7 +871,7 @@ void PETMotionDynamic::prep_displacements_fields( void )
 	std::cout << "... finished." <<std::endl;
 }
 
-void PETMotionDynamic::align_motion_fields_with_image( const sirf::PETImageData& img )
+void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData& img )
 {
 
 	size_t const num_disp_fields = this->sirf_displacement_fields_.size();
@@ -916,7 +916,7 @@ void PETMotionDynamic::align_motion_fields_with_image( const sirf::PETImageData&
 		sptr_mvf_nifti->quatern_d = img_quart_d ;
 		sptr_mvf_nifti->qfac	  = img_quart_ac;
 
-		this->sirf_displacement_fields_[i] = SIRFImageDataDeformation(sptr_mvf_nifti);
+		this->sirf_displacement_fields_[i] = NiftiImageData3DDeformation<float>(sptr_mvf_nifti);
 
 	}
 }

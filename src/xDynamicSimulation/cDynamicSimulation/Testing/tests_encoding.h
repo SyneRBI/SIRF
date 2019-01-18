@@ -9,7 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
-#include "encoding.h"
+#include "sirf/cGadgetron/encoding.h"
 
 
 namespace test_enc

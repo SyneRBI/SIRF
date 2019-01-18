@@ -34,7 +34,7 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
 	endforeach()
   endif()
 	
-add_library(cgadgetron cgadgetron.cpp gadgetron_x.cpp gadgetron_image_wrap.cpp gadgetron_data_containers.cpp gadgetron_client.cpp ismrmrd_fftw.cpp encoding.cpp)
+add_library(cgadgetron cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp ismrmrd_fftw.cpp encoding.cpp)
 # c++14 is required by the parts of Gadgetron that we need, so cgadgetron needs to be c++14.
 target_compile_features(cgadgetron PRIVATE cxx_std_14)
 

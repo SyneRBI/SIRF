@@ -12,7 +12,7 @@ date: 15. March 2018
 
 #include "auxiliary_input_output.h"
 
-#include "SIRFImageDataDeformation.h"
+#include "sirf/cReg/NiftiImageData3DDeformation.h"
 
 #include "dynsim_deformer.h"
 
@@ -140,7 +140,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 
                 cout << "# of mr acquis in this dynamic motion x contrast state: " << acquisitions_for_this_contrast_state.number() << endl;
 
-                std::vector<SIRFImageDataDeformation> all_motion_fields;
+                std::vector<sirf::NiftiImageData3DDeformation<float> > all_motion_fields;
                     
                 for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dyns; i_motion_dyn++ )
                 {
@@ -331,9 +331,9 @@ void PETDynamicSimulation::write_simulation_results( const std::string& filename
 
 	this->pet_cont_gen_.map_tissue();
 
-	std::vector< PETImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
+	std::vector< STIRImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
 
-	PETImageData attenuation_map = contrast_filled_volumes[1];
+	STIRImageData attenuation_map = contrast_filled_volumes[1];
 
 	attenuation_map = this->get_reduced_pet_img_in_template_format( attenuation_map );	
 
@@ -372,7 +372,9 @@ void PETDynamicSimulation::simulate_statics()
 	this->acquire_raw_data();
 	float const scale_factor = 25000.f;
 	float const ms_per_second = 1000.f;
-	sptr_target_acquisitions_->axpby(1.0f * scale_factor/ms_per_second, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
+    float const result = scale_factor/ms_per_second;
+    float const zero = 0.f;
+	sptr_target_acquisitions_->axpby(&result, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
 
 	this->add_noise();
 	
@@ -451,7 +453,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 
 		if( time_in_dynamic_state > 0)
 		{
-			std::vector<SIRFImageDataDeformation> all_motion_fields;
+			std::vector<sirf::NiftiImageData3DDeformation<float> > all_motion_fields;
 			
 			for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dynamics; i_motion_dyn++ )
 			{
@@ -489,7 +491,7 @@ void PETDynamicSimulation::set_template_acquisition_data(void)
 
 void PETDynamicSimulation::set_template_image_data( const std::string& filename_header_with_ext )
 {
-	this->template_image_data_ = PETImageData(filename_header_with_ext);	
+	this->template_image_data_ = STIRImageData(filename_header_with_ext);
 }
 
 void PETDynamicSimulation::set_output_filename_prefix( const std::string& output_filename_prefix)
@@ -499,16 +501,16 @@ void PETDynamicSimulation::set_output_filename_prefix( const std::string& output
 
 void PETDynamicSimulation::acquire_raw_data( void )
 {
-	std::vector< PETImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
+	std::vector< STIRImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
 
-	PETImageData activity_img = contrast_filled_volumes[0];
-	PETImageData attenuation_map = contrast_filled_volumes[1];
+	STIRImageData activity_img = contrast_filled_volumes[0];
+	STIRImageData attenuation_map = contrast_filled_volumes[1];
 
 	activity_img = this->get_reduced_pet_img_in_template_format( activity_img );	
 	attenuation_map = this->get_reduced_pet_img_in_template_format( attenuation_map );	
 
 
-	PETImageData template_img(activity_img);
+	STIRImageData template_img(activity_img);
 
 	Image3DF& image = activity_img.data();
 	stir::shared_ptr< stir::OutputFileFormat<Image3DF >> format_sptr =
@@ -525,7 +527,7 @@ void PETDynamicSimulation::acquire_raw_data( void )
 	this->acq_model_.set_asm( std::make_shared<PETAttenuationModel>(att_mod)); 
 
 	auto succeeded = this->acq_model_.set_up( stir::shared_ptr<PETAcquisitionDataInFile>(new PETAcquisitionDataInFile(source_acquisitions_)),
-	 			       stir::shared_ptr<PETImageData>(new PETImageData(template_img) ) );	
+	 			       stir::shared_ptr<STIRImageData>(new STIRImageData(template_img) ) );
 
 	if( succeeded == stir::Succeeded::no )
 		throw std::runtime_error("Setup of acquisition model failed");
@@ -535,7 +537,7 @@ void PETDynamicSimulation::acquire_raw_data( void )
 	
 }
 
-PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const PETImageData& full_size_img)
+STIRImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const STIRImageData& full_size_img)
 {
 	std::vector< int > input_dims;
 	input_dims.resize(3,0);
@@ -591,7 +593,7 @@ PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const
 		reduced_data[linear_index_subset] = vol_data[linear_index_vol_data];
 	}	
 
-	PETImageData out( this-> template_image_data_ );
+	STIRImageData out( this-> template_image_data_ );
 	out.set_data(&reduced_data[0]);
 
 	return out;

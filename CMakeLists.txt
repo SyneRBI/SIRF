@@ -155,7 +155,6 @@ ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/common)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
-ADD_SUBDIRECTORY(src/xDynamicSimulation)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
@@ -163,6 +162,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 option(REG_ENABLE "Build the SIRF registration package" ON)
 if (REG_ENABLE)
   ADD_SUBDIRECTORY(src/Registration)
+  ADD_SUBDIRECTORY(src/xDynamicSimulation)
 endif()
 
 # Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built

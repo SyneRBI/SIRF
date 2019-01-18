@@ -15,7 +15,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <vector>
 #include <stdexcept>
 
-#include "gadgetron_data_containers.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
 #include <ismrmrd/ismrmrd.h>
 
 

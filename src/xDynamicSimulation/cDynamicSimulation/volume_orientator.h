@@ -8,8 +8,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
-#include "gadgetron_data_containers.h"
-#include "localised_exception.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/iUtilities/LocalisedException.h"
 
 
 

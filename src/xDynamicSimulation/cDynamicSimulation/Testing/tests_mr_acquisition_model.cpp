@@ -15,9 +15,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <ismrmrd/ismrmrd.h>
 
-#include "gadgetron_x.h"
-#include "gadgetron_image_wrap.h"
-#include "gadgetron_data_containers.h"
+#include "sirf/cGadgetron/gadgetron_x.h"
+#include "sirf/cGadgetron/gadgetron_image_wrap.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
 
 
 #include "auxiliary_testing_functions.h"
@@ -44,7 +44,7 @@ bool tests_mracqmod::test_fwd_method( void )
 
 		CoilDataAsCFImage csm = aux_test::get_mock_coildata_as_cfimage();
 
-		ImagesVector img_vec;
+        sirf::GadgetronImagesVector img_vec;
 		img_vec.append(MOCK_DATA_TYPE, new ISMRMRD::Image< complex_float_t> (img));
 
 		// ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
@@ -55,20 +55,28 @@ bool tests_mracqmod::test_fwd_method( void )
 		
 		
 		MRAcquisitionModel acq_model(std::shared_ptr<AcquisitionsVector> ( new AcquisitionsVector(source_acqs) ), 
-							  std::shared_ptr<ImagesVector> (new ImagesVector(img_vec) ));
+							  std::shared_ptr<GadgetronImagesVector> (new GadgetronImagesVector(img_vec) ));
 
 		ImageWrap img_wrap(MOCK_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(img));		
 
 		AcquisitionsVector target_acqs;
 		target_acqs.copy_acquisitions_info( source_acqs );
 
-		std::vector<float> re_img_wrap_data, im_img_wrap_data;
-		re_img_wrap_data.resize(img.getNumberOfDataElements(), 150);
-		im_img_wrap_data.resize(img.getNumberOfDataElements(), 70);
+        complex_float_t *img_wrap_data = new complex_float_t[img.getNumberOfDataElements()];
 		
-		img_wrap.get_cmplx_data( &re_img_wrap_data[0], &im_img_wrap_data[0] );
+        img_wrap.get_complex_data(img_wrap_data);
+        img_wrap_data->real();
+
+        float *re_img_wrap_data = new float[img.getNumberOfDataElements()];
+        for (int i=0; i<img.getNumberOfDataElements(); ++i)
+            re_img_wrap_data[i] = img_wrap_data[i].real();
 		
-		data_io::write_raw<float> ( std::string(SHARED_FOLDER_PATH) + "test_fwd_method_real_imgWrapData", &re_img_wrap_data[0], re_img_wrap_data.size());
+		data_io::write_raw<float> ( std::string(SHARED_FOLDER_PATH) + "test_fwd_method_real_imgWrapData", re_img_wrap_data, img.getNumberOfDataElements());
+
+        delete [] img_wrap_data;
+        img_wrap_data = nullptr;
+        delete [] re_img_wrap_data;
+        re_img_wrap_data = nullptr;
 	
 		unsigned int offset = 0;
 

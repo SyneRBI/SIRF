@@ -7,8 +7,8 @@
 //USING_NAMESPACE_ECAT
 
 #include "object.h"
-//#include "stir_types.h"
-#include "stir_x.h"
+//#include "sirf/cSTIR/stir_types.h"
+#include "sirf/cSTIR/stir_x.h"
 //#include "sirf/common/envar.h"
 
 using namespace stir;

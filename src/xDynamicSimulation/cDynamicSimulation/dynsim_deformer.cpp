@@ -16,7 +16,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 
-#include "SIRFRegNiftyResample.h"
+#include "sirf/cReg/NiftyResample.h"
+#include "sirf/cReg/NiftiImageData3DDisplacement.h"
 
 using namespace sirf;
 
@@ -62,7 +63,7 @@ ISMRMRD::Image< float > DynamicSimulationDeformer::extract_complex_subpart( ISMR
 
 
 
-void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation> &vec_displacement_fields)
+void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields)
 {
 	boost::filesystem::path temp_dir_name(temp_folder_name_);
 	bool const temp_folder_creation_successful = boost::filesystem::create_directories(temp_dir_name);
@@ -90,7 +91,7 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 			}
 		}
 		
-		std::vector< SIRFImageDataDeformation> empty_vec_to_free_memory;
+		std::vector< NiftiImageData3DDeformation<float> > empty_vec_to_free_memory;
 		vec_displacement_fields.swap( empty_vec_to_free_memory );
 	}
 	else
@@ -110,7 +111,7 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 }
 
 
-void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<SIRFImageDataDeformation> &vec_displacement_fields)
+void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields)
 {
 	std::stringstream namestream_temp_img_output;
 	namestream_temp_img_output << temp_folder_name_ << "/temp_img_data";
@@ -120,9 +121,10 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 
 	filename_temp_img += ".hdr";
 
-    SIRFImageData img_to_deform(filename_temp_img);
+    std::shared_ptr<NiftiImageData<float> > img_to_deform =
+            std::make_shared<NiftiImageData<float> >(filename_temp_img);
 
-    SIRFRegNiftyResample resampler; 
+    NiftyResample<float> resampler;
 
     resampler.set_interpolation_type_to_cubic_spline();
 	resampler.set_reference_image(img_to_deform);
@@ -130,14 +132,15 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 
 	for( size_t i_disp=0; i_disp<vec_displacement_fields.size(); i_disp++)
 	{
-		SIRFRegTransformationDisplacement disp_trafo( vec_displacement_fields[i_disp] );
-		resampler.add_transformation_disp(disp_trafo);
+        std::shared_ptr<NiftiImageData3DDisplacement<float> > disp_trafo =
+                std::make_shared<NiftiImageData3DDisplacement<float> >( vec_displacement_fields[i_disp] );
+		resampler.add_transformation(disp_trafo);
 	}
 
-	resampler.update();
+	resampler.process();
 
-	auto deformed_img = resampler.get_output();
-	auto deformed_img_as_nifti = *(deformed_img.get_image_as_nifti());
+	auto deformed_img = resampler.get_output_sptr();
+    auto deformed_img_as_nifti = deformed_img->get_raw_nifti_sptr();
 	
 	if( deformed_img_as_nifti.nvox != img.getNumberOfDataElements() )
 		throw std::runtime_error("Something went wrong during the resampling. The output image and input image have different number of voxels.");
@@ -150,21 +153,21 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 }
 
 
-void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation>& vec_displacement_fields)
+void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields)
 {
-	std::vector< PETImageData >&  vect_img_data = mr_cont_gen.get_contrast_filled_volumes();
+	std::vector< STIRImageData >&  vect_img_data = mr_cont_gen.get_contrast_filled_volumes();
 
 	if( vect_img_data.size() != 2)
 		throw std::runtime_error(" Please call map_tissue before the deformation of the contrast generator. You need both activity and attenaution in the correct motion state.");
 	
 	for(size_t i_cont=0; i_cont<vect_img_data.size(); i_cont++)
 	{
-		PETImageData &curr_img = vect_img_data[i_cont];
+		STIRImageData &curr_img = vect_img_data[i_cont];
 		deform_pet_image( curr_img, vec_displacement_fields );
 	}
 }
 
-void DynamicSimulationDeformer::deform_pet_image(PETImageData& img, std::vector<SIRFImageDataDeformation>& vec_displacement_fields)
+void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields)
 {
 	SIRFImageData img_to_deform(img);
 

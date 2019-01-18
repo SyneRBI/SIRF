@@ -8,7 +8,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <stdexcept>
 
-#include "encoding.h"
+#include "sirf/cGadgetron/encoding.h"
 
 
 #include <gadgetron/hoNDArray.h>
@@ -23,8 +23,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <gadgetron/vector_td_utilities.h>
 #include <gadgetron/vector_td_io.h>
-
-#include "localised_exception.h"
 
 
 using namespace sirf;

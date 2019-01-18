@@ -386,7 +386,7 @@ void run_tests_dynsim_deformer( void )
 	bool tests_successful = true;
 
 	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
-	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
+	// tests_successful *= DynSimDeformerTester::test_NiftiImageData3DDeformation<float>_memory_behavior();
 	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	if ( !tests_successful )

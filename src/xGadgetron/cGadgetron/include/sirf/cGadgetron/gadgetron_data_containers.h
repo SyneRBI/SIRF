@@ -200,7 +200,7 @@ namespace sirf {
 		void set_ordered(bool ordered) { ordered_ = ordered; }
 		int* index() { return &index_[0]; }
 		const int* index() const { return &index_[0]; }
-		int index(int i)
+		int index(int i) const
 		{
 			if(i >= 0 && i < (int)number())
 			{

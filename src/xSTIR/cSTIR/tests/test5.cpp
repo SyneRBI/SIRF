@@ -4,8 +4,8 @@
 #include "stir/IO/stir_ecat_common.h"
 
 #include "object.h"
-#include "stir_x.h"
-#include "gadgetron_data_containers.h"
+#include "sirf/cSTIR/stir_x.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
 
 using namespace stir;
 using namespace ecat;

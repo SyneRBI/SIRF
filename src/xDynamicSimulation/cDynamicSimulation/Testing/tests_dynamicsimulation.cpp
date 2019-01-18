@@ -17,7 +17,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
-#include "gadgetron_data_containers.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
 
 #include "dynamicsimulation_x.h"
 #include "auxiliary_testing_functions.h"
@@ -489,7 +489,7 @@ try
 	    	std::replace( output_name.begin(), output_name.end(), '.', 'c'); // replace all 'x' to 'y'
 	    	std::cout<<"potential name = " << output_name <<std::endl;
 		
-		    curr_gt_mvf.save_to_file(output_name);
+		    curr_gt_mvf.write(output_name);
 		    
 
 		}

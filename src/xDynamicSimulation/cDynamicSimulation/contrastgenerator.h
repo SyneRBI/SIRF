@@ -18,8 +18,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissuelabelmapper.h"
 
 
-#include "stir_types.h"
-#include "stir_data_containers.h"
+#include "sirf/cSTIR/stir_types.h"
+#include "sirf/cSTIR/stir_data_containers.h"
 
 // base class for contrast generators. inherit for different modalities.
 // Reading the header is the same for each modality (hopefully!!!).
@@ -101,7 +101,7 @@ public:
 	std::vector< int > get_dimensions( void );
 	std::vector< float > get_voxel_sizes( void );
 
-	std::vector< sirf::PETImageData >& get_contrast_filled_volumes();
+	std::vector< sirf::STIRImageData >& get_contrast_filled_volumes();
 
 	std::vector< float > get_template_based_volume_subset(const std::vector<float>& vol_data, const std::vector<size_t>& data_dims);
 
@@ -113,9 +113,9 @@ private:
 
 	bool template_img_is_set_ = false;
 
-	std::vector < sirf::PETImageData > contrast_filled_volumes_;
+	std::vector < sirf::STIRImageData > contrast_filled_volumes_;
 	void map_tissueparams_member(int const case_map);
 	
-	sirf::PETImageData template_pet_image_data_;
+	sirf::STIRImageData template_pet_image_data_;
 
 };

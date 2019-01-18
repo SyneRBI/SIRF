@@ -401,7 +401,7 @@ void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 		pet_contgen.map_contrast();
 		auto volume_container = pet_contgen.get_contrast_filled_volumes();
 
-		PETImageData contrast_volume = volume_container[0];
+		STIRImageData contrast_volume = volume_container[0];
 		
 		auto dims = pet_contgen.get_dimensions();
 
