@@ -67,6 +67,10 @@ public:
     NiftiImageData3DDeformation(const NiftiImageData<dataType>& tensor)
         : NiftiImageData3DTensor<dataType>(tensor) { this->check_dimensions(this->_3DDef); }
 
+    /// Construct from array
+    NiftiImageData3DDeformation(const dataType * const data, const VoxelisedGeometricalInfo3D &geom)
+        : NiftiImageData3DTensor<dataType>(data, geom) { this->check_dimensions(this->_3DDef); }
+
     /// Create from 3 individual components
     NiftiImageData3DDeformation(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z)
         : NiftiImageData3DTensor<dataType>(x,y,z) { this->check_dimensions(this->_3DDef); }

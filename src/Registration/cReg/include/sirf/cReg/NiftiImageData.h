@@ -168,6 +168,12 @@ public:
     /// Nifti constructor
     NiftiImageData(const nifti_image &image_nifti);
 
+    /// Construct from array
+    NiftiImageData(const dataType * const data, const VoxelisedGeometricalInfo3D &geom);
+
+    /// Create NiftiImageData from geometrical info
+    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom);
+
     /// Equality operator
     bool operator==(const NiftiImageData &other) const;
 
