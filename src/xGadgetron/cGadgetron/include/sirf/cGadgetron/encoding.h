@@ -107,13 +107,7 @@ class RPETrajectoryContainer : public aTrajectoryContainer{
 public:
 	RPETrajectoryContainer():aTrajectoryContainer()
 	{	
-		traj_type_ = ISMRMRD::TrajectoryType::EPI;
-        traj_type_ = ISMRMRD::TrajectoryType::OTHER;
-        traj_type_ = ISMRMRD::TrajectoryType::RADIAL;
-        traj_type_ = ISMRMRD::TrajectoryType::SPIRAL;
-        traj_type_ = ISMRMRD::TrajectoryType::CARTESIAN;
-        traj_type_ = ISMRMRD::TrajectoryType::GOLDENANGLE;
-        throw std::runtime_error("No idea what this should be. Ask Johannes...");
+	    traj_type_ = ISMRMRD::TrajectoryType::OTHER;
 	}
 	
 	void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu);
