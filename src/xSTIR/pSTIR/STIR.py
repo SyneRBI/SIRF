@@ -374,11 +374,11 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
-    def write(self, filename):
-        '''Writes self to an Interfile - see STIR documentation for details.
-        '''
-        assert self.handle is not None
-        try_calling(pystir.cSTIR_writeImage(self.handle, filename))
+##    def write(self, filename):
+##        '''Writes self to an Interfile - see STIR documentation for details.
+##        '''
+##        assert self.handle is not None
+##        try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def dimensions(self):
         '''Returns image dimensions as a tuple (nx, ny, nz).'''
         assert self.handle is not None

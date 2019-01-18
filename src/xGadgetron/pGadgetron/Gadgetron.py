@@ -538,15 +538,15 @@ class ImageData(SIRF.ImageData):
         return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-    def write(self, out_file, out_group=''):
-        '''
-        Writes self's images to an hdf5 file.
-        out_file : the file name (Python string)
-        out_group: hdf5 dataset name (Python string)
-        '''
-        assert self.handle is not None
-        try_calling(pygadgetron.cGT_writeImages\
-                    (self.handle, out_file, out_group))
+##    def write(self, out_file, out_group=''):
+##        '''
+##        Writes self's images to an hdf5 file.
+##        out_file : the file name (Python string)
+##        out_group: hdf5 dataset name (Python string)
+##        '''
+##        assert self.handle is not None
+##        try_calling(pygadgetron.cGT_writeImages\
+##                    (self.handle, out_file, out_group))
     def select(self, attr, value):
         '''
         Creates an images container with images from self with the specified

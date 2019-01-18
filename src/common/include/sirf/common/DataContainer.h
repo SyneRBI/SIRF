@@ -53,6 +53,7 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;
+		virtual void write(const std::string &filename) const {}
 	};
 }
 
