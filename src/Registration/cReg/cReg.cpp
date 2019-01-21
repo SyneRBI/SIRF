@@ -324,30 +324,19 @@ void* cReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, size_t 
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3D
 // -------------------------------------------------------------------------------- //
-/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
+
 extern "C"
-void* cReg_NiftiImageData3D_from_PETImageData(void* ptr)
+void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr)
 {
 	try {
-        sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(ptr);
-        shared_ptr<NiftiImageData3D<float> >
+        ImageData& pet_im = objectFromHandle<ImageData>(ptr);
+        std::shared_ptr<NiftiImageData3D<float> >
             sptr(new NiftiImageData3D<float>(pet_im));
         return newObjectHandle(sptr);
     }
 	CATCH;
 }
-extern "C"
-void* cReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj)
-{
-    try {
-        NiftiImageData3D<float>& im = objectFromHandle<NiftiImageData3D<float> >(ptr);
-        sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(obj);
-        im.copy_data_to(pet_im);
-        return new DataHandle;
-    }
-    CATCH;
-}
-*/
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DTensor
 // -------------------------------------------------------------------------------- //

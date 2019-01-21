@@ -408,9 +408,9 @@ class NiftiImageData3D(NiftiImageData):
             self.handle = pyreg.cReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pyreg.cReg_objectFromFile(self.name, src)
-        elif isinstance(src, pSTIR.ImageData):
-            # src is stir ImageData
-            self.handle = pyreg.cReg_NiftiImageData3D_from_PETImageData(src.handle)
+        elif isinstance(src, SIRF.ImageData):
+            # src is ImageData
+            self.handle = pyreg.cReg_NiftiImageData3D_from_SIRFImageData(src.handle)
         else:
             raise error('Wrong source in NiftiImageData3D constructor')
         check_status(self.handle)
@@ -418,16 +418,6 @@ class NiftiImageData3D(NiftiImageData):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-
-    def copy_data_to(self, pet_image):
-        """Fill the STIRImageData with the values from NiftiImageData3D."""
-        if self.handle is None:
-            raise AssertionError()
-        if not isinstance(pet_image, pSTIR.ImageData):
-            raise AssertionError()
-        if pet_image.handle is None:
-            raise AssertionError()
-        try_calling(pyreg.cReg_NiftiImageData3D_copy_data_to(self.handle, pet_image.handle))
 
 
 class NiftiImageData3DTensor(NiftiImageData):
