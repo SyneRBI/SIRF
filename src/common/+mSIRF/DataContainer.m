@@ -71,7 +71,7 @@ classdef DataContainer < handle
         end
         function z = plus(self, other)
 %***SIRF*** Overloads + for data containers.
-%         Returns the difference of this data container with another one
+%         Returns the sum of this data container with another one
 %         viewed as vectors.
             mUtilities.assert_validities(self, other)
             z = self.axpby(1, self, 1, other);
@@ -79,7 +79,7 @@ classdef DataContainer < handle
         end
         function z = times(self, other)
 %***SIRF*** Overloads .* for data containers.
-%         Returns the difference of this data container with another one
+%         Returns the elementwise product of this data container with another one
 %         viewed as vectors.
             mUtilities.assert_validities(self, other)
             z = self.same_object();
@@ -89,7 +89,7 @@ classdef DataContainer < handle
         end
         function z = rdivide(self, other)
 %***SIRF*** Overloads ./ for data containers.
-%         Returns the difference of this data container with another one
+%         Returns the elementwise ratio of this data container with another one
 %         viewed as vectors.
             mUtilities.assert_validities(self, other)
             z = self.same_object();
@@ -109,6 +109,18 @@ classdef DataContainer < handle
             end
             if isscalar(other)
                 z = self.axpby(other, self, 0, self);
+            else
+                error('DataContainer:mtimes', ...
+                    'Wrong argument type %s\n', class(other))
+            end
+            mUtilities.check_status('DataContainer:mtimes', z.handle_);
+        end
+        function z = mrdivide(self, other)
+%***SIRF*** mtimes(other) overloads / for data containers multiplication 
+%         by a scalar. 
+%         Returns the ratio self/other where other is a scalar.
+            if isscalar(other)
+                z = self.axpby(1.0/other, self, 0, self);
             else
                 error('DataContainer:mtimes', ...
                     'Wrong argument type %s\n', class(other))
