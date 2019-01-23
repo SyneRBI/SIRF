@@ -27,6 +27,7 @@ if nargin < 1
 end
 import_str = set_up_MR(engine);
 eval(import_str)
+mr_data_path = mUtilities.examples_data_path('MR');
 
 % define raw data source
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
