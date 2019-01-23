@@ -161,6 +161,20 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 # Optional registration
 option(REG_ENABLE "Build the SIRF registration package" ON)
 if (REG_ENABLE)
+
+  # Find NiftyReg
+  set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake")
+  FIND_PACKAGE(NiftyReg)
+  if (NiftyReg_FOUND)
+    if(NOT ("${NR_VERSION}" MATCHES "1.5.59" OR "${NR_VERSION}" MATCHES "1.5.61"))
+      MESSAGE(STATUS "\n\nSIRF's registration was developed with NiftyReg 1.5.59 and 1.5.61, and cannot be guaranteed for other version numbers.\n"
+        "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
+        "If there is a version mismatch, the keys in the parser may need to be altered.\n")
+    endif()
+  else()
+    MESSAGE(FATAL_ERROR "Registration has been enabled, but there are no registration packages available.")
+  endif()
+
   ADD_SUBDIRECTORY(src/Registration)
   ADD_SUBDIRECTORY(src/xDynamicSimulation)
 endif()
