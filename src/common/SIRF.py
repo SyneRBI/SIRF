@@ -214,6 +214,6 @@ class DataContainer(ABC):
 
 class ImageData(DataContainer):
     @abc.abstractmethod
-    def write(self):
+    def write(self, filename):
         """Write image to file."""
     pass
