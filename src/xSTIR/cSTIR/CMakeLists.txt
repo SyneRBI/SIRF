@@ -25,6 +25,7 @@ target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
 target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
+target_include_directories(cstir PUBLIC "${STIR_INCLUDE_DIRS}")
 
 target_link_libraries(cstir csirf iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")
