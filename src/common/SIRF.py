@@ -213,7 +213,6 @@ class DataContainer(ABC):
             raise error('wrong multiplier')
 
 class ImageData(DataContainer):
-    @abc.abstractmethod
     def write(self, filename):
         """Write image to file."""
     pass
