@@ -19,8 +19,6 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-find_package(STIR REQUIRED)
-
 add_library(cstir 
     cstir_p.cpp cstir_tw.cpp stir_data_containers.cpp stir_x.cpp cstir.cpp)
 target_include_directories(cstir PUBLIC
