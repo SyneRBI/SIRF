@@ -27,6 +27,7 @@ if nargin < 1
 end
 import_str = set_up_PET(engine);
 eval(import_str)
+pet_data_path = mUtilities.examples_data_path('PET');
 
 AcquisitionData.set_storage_scheme('memory');
 
@@ -38,7 +39,7 @@ try
     % create listmode-to-sinograms converter object
     lm2sino = ListmodeToSinograms();
 
-    default_path=fullfile(pet_data_path, 'mMR');
+    default_path = fullfile(pet_data_path, 'mMR');
 
     [filename, pathname] = uigetfile...
         ('*.l.hdr', 'Select listmode data file', default_path);

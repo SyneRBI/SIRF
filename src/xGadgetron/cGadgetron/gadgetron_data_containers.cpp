@@ -57,12 +57,12 @@ static std::string get_date_time_string()
 }
 
 void 
-MRAcquisitionData::write(const char* filename)
+MRAcquisitionData::write(const std::string &filename) const
 {
 	Mutex mtx;
 	mtx.lock();
 	shared_ptr<ISMRMRD::Dataset> dataset
-		(new ISMRMRD::Dataset(filename, "/dataset", true));
+		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", true));
 	dataset->writeHeader(acqs_info_);
 	mtx.unlock();
 	int n = number();

@@ -36,7 +36,7 @@ eval(import_str)
 test = mUtilities.mTest('test1.txt', record);
 
 filename = 'simulated_MR_2D_cartesian.h5';
-pathname = mr_data_path();
+pathname = mUtilities.examples_data_path('MR');
 acq_data = AcquisitionData(fullfile(pathname, filename));
 test.check(acq_data.norm())
 

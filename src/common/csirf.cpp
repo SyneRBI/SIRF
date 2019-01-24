@@ -135,3 +135,15 @@ cSIRF_divide(const void* ptr_x, const void* ptr_y)
 	CATCH;
 }
 
+extern "C"
+void*
+cSIRF_write(const void* ptr, const char* filename)
+{
+	try {
+		DataContainer& data =
+			objectFromHandle<DataContainer >(ptr);
+		data.write(filename);
+		return new DataHandle;
+	}
+	CATCH;
+}

@@ -24,6 +24,7 @@ if nargin < 1
 end
 import_str = set_up_PET(engine);
 eval(import_str)
+pet_data_path = [mUtilities.examples_data_path('PET') '/mMR'];
 
 try
     % direct all information printing to info.txt;

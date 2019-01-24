@@ -34,7 +34,7 @@ test = mUtilities.mTest('test1.txt', record);
 
 % define raw data source
 filename = 'Utahscat600k_ca_seg4.hs';
-pathname = pet_data_path();
+pathname = mUtilities.examples_data_path('PET');
 acq_data = AcquisitionData(fullfile(pathname, filename));
 s = acq_data.norm();
 v = variance(acq_data);

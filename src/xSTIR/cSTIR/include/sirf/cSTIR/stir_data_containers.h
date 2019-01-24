@@ -202,11 +202,6 @@ namespace sirf {
 		}
 		void fill_from(const float* d) { data()->fill_from(d); }
 		void copy_to(float* d) { data()->copy_to(d); }
-		void write(const char* filename)
-		{
-			ProjDataFile pd(*data(), filename, false);
-			pd.fill(*data());
-		}
 
 		// data container methods
 		unsigned int items() const { return 1; }
@@ -223,6 +218,11 @@ namespace sirf {
 		virtual void inv(float a, const DataContainer& x);
 		//virtual void axpby(float a, const DataContainer& x,
 		//	float b, const DataContainer& y);
+		virtual void write(const std::string &filename) const
+		{
+			ProjDataFile pd(*data(), filename.c_str(), false);
+			pd.fill(*data());
+		}
 
 		// ProjData methods
 		int get_num_tangential_poss()

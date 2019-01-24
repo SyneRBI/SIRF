@@ -192,17 +192,17 @@ classdef AcquisitionData < mSIRF.DataContainer
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
         end
-        function write(self, file)
-%         Writes self's acquisitions to an hdf5 file.
-%         file : the file name (Matlab string)
-            if isempty(self.handle_)
-                error('AcquisitionData:empty_object', ...
-                    'cannot handle empty object')
-            end
-            h = calllib('mgadgetron', 'mGT_writeAcquisitions',...
-                self.handle_, file);
-            mUtilities.check_status('AcquisitionData:write', h);
-            mUtilities.delete(h)
-        end
+%         function write(self, file)
+% %         Writes self's acquisitions to an hdf5 file.
+% %         file : the file name (Matlab string)
+%             if isempty(self.handle_)
+%                 error('AcquisitionData:empty_object', ...
+%                     'cannot handle empty object')
+%             end
+%             h = calllib('mgadgetron', 'mGT_writeAcquisitions',...
+%                 self.handle_, file);
+%             mUtilities.check_status('AcquisitionData:write', h);
+%             mUtilities.delete(h)
+%         end
     end
 end

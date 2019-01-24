@@ -33,7 +33,7 @@ import time
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, label_and_name, \
      name_and_parameters, parse_arglist, \
-	 examples_data_path, petmr_data_path, existing_filepath, \
+     examples_data_path, petmr_data_path, existing_filepath, \
      pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
@@ -141,11 +141,6 @@ def _parameterHandle(hs, set, par):
 
 # data path finding helper functions
 def mr_data_path():
-    '''
-    Returns default path to MR raw data files.
-    '''
-    return petmr_data_path('mr')
-def raw_data_path():
     '''
     Returns default path to MR raw data files.
     '''
@@ -538,15 +533,15 @@ class ImageData(SIRF.ImageData):
         return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-    def write(self, out_file, out_group=''):
-        '''
-        Writes self's images to an hdf5 file.
-        out_file : the file name (Python string)
-        out_group: hdf5 dataset name (Python string)
-        '''
-        assert self.handle is not None
-        try_calling(pygadgetron.cGT_writeImages\
-                    (self.handle, out_file, out_group))
+##    def write(self, out_file, out_group=''):
+##        '''
+##        Writes self's images to an hdf5 file.
+##        out_file : the file name (Python string)
+##        out_group: hdf5 dataset name (Python string)
+##        '''
+##        assert self.handle is not None
+##        try_calling(pygadgetron.cGT_writeImages\
+##                    (self.handle, out_file, out_group))
     def select(self, attr, value):
         '''
         Creates an images container with images from self with the specified
@@ -875,14 +870,14 @@ class AcquisitionData(DataContainer):
         try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
             (self.handle, z.ctypes.data, return_all))
         return z
-    def write(self, out_file):
-        '''
-        Writes self's acquisitions to an hdf5 file.
-        out_file : the file name (Python string)
-        '''
-        assert self.handle is not None
-        try_calling(pygadgetron.cGT_writeAcquisitions\
-                    (self.handle, out_file))
+##    def write(self, out_file):
+##        '''
+##        Writes self's acquisitions to an hdf5 file.
+##        out_file : the file name (Python string)
+##        '''
+##        assert self.handle is not None
+##        try_calling(pygadgetron.cGT_writeAcquisitions\
+##                    (self.handle, out_file))
 
 DataContainer.register(AcquisitionData)
 

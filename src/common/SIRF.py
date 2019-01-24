@@ -29,7 +29,7 @@ except:
     HAVE_PYLAB = False
 import sys
 
-from sirf.Utilities import assert_validities, check_status
+from sirf.Utilities import assert_validities, check_status, try_calling
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
@@ -117,6 +117,12 @@ class DataContainer(ABC):
         z.handle = pysirf.cSIRF_divide(self.handle, other.handle)
         check_status(z.handle)
         return z
+    def write(self, filename):
+        '''
+        Writes to file.
+        '''
+        assert self.handle is not None
+        try_calling(pysirf.cSIRF_write(self.handle, filename))
     def __add__(self, other):
         '''
         Overloads + for data containers.

@@ -58,6 +58,7 @@ if nargin < 1
 end
 import_str = set_up_MR(engine);
 eval(import_str)
+mr_data_path = mUtilities.examples_data_path('MR');
 
 % Get the filename of the input ISMRMRD h5 file
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
