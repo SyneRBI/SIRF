@@ -45,12 +45,15 @@ TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
 )
 
-find_package(OpenMP)
-
 # NiftyReg
 TARGET_LINK_LIBRARIES(Reg PUBLIC ${NiftyReg_Libs})
-if (OpenMP_CXX_FOUND)
-  TARGET_LINK_LIBRARIES(Reg PUBLIC OpenMP::OpenMP_CXX)
+
+# If niftyreg was bulit with OpenMP
+if (NiftyReg_built_with_openmp)
+  find_package(OpenMP REQUIRED)
+  if (OpenMP_CXX_FOUND)
+    TARGET_LINK_LIBRARIES(Reg PUBLIC OpenMP::OpenMP_CXX)
+  endif()
 endif()
 
 # Add libz (should be in /usr/local)
