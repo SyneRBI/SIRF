@@ -1,4 +1,4 @@
-function alias = set_up_PET(engine)
+function alias = set_up_engine(engine)
 % Creates a string, evaluating which imports PET engine.
 % Optionally creates also its alias (e.g. named PET, to have PET.ImageData etc.)
 
@@ -19,12 +19,31 @@ function alias = set_up_PET(engine)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-    if isempty(engine)
-        engine = 'STIR';
+    narginchk(1,1);
+    try
+        libload_sirf();
+        eval(['libload_' lower(engine)])
+    catch me
+        fprintf(me.message)
+        error('package %s failed to load\n', engine)
     end
-    if nargout == 0
-    	set_up_engine(engine);
-    else
-    	alias = set_up_engine(engine);
+    
+    if nargout == 0 
+        return;
+    end
+    
+    %% For returning as an alias
+    
+    % Get the folder containing the engine
+    filename = mfilename();
+    filepath = mfilename('fullpath');
+    l = length(filepath) - length(filename);
+    path = [filepath(1:l) '+m' engine '/'];
+    
+    % Loop over all classes and functions and set alias to handle
+    files = dir([path '*.m']);
+    for i=1:size(files,1)
+        file = files(i).name(1:end-2); % remove .m
+        eval(['alias.' file ' = @m' engine '.' file ';']);
     end
 end
