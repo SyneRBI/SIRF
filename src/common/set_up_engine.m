@@ -35,15 +35,12 @@ function alias = set_up_engine(engine)
     %% For returning as an alias
     
     % Get the folder containing the engine
-    filename = mfilename();
-    filepath = mfilename('fullpath');
-    l = length(filepath) - length(filename);
-    path = [filepath(1:l) '+m' engine '/'];
+    path = [fileparts(mfilename('fullpath')) '/+m' engine '/'];
     
     % Loop over all classes and functions and set alias to handle
     files = dir([path '*.m']);
     for i=1:size(files,1)
-        file = files(i).name(1:end-2); % remove .m
-        eval(['alias.' file ' = @m' engine '.' file ';']);
+        [~,file,~] = fileparts(files(i).name);
+        alias.(file) = eval(['@m' engine '.' file]);
     end
 end

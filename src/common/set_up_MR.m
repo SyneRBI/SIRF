@@ -19,7 +19,7 @@ function import_str = set_up_MR(engine, alias)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-    if isempty(engine)
+    if nargin == 0 || isempty(engine)
         engine = 'Gadgetron';
     end
     if nargout == 0
