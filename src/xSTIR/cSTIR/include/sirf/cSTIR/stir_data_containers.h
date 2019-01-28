@@ -180,6 +180,10 @@ namespace sirf {
 			}
 			return _storage_scheme;
 		}
+		static stir::shared_ptr<PETAcquisitionData> storage_template()
+		{
+			return _template;
+		}
 
 		stir::shared_ptr<stir::ProjData> data()
 		{
