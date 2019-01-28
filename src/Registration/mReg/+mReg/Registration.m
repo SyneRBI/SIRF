@@ -21,6 +21,7 @@ classdef (Abstract = true) Registration < handle
     properties
         name
         handle_
+        reference_image
     end
     methods(Static)
         function name = class_name()
@@ -44,27 +45,29 @@ classdef (Abstract = true) Registration < handle
         end
         function set_reference_image(self, input)
             %Sets the reference image.
-            assert(isa(input, 'mReg.NiftiImageData3D'))
+            assert(isa(input, 'mSIRF.ImageData'))
+            self.reference_image = input;
             mReg.setParameter(self.handle_, 'Registration', 'reference_image', input, 'h')
         end
         function set_floating_image(self, input)
             %Sets the floating image.
-            assert(isa(input, 'mReg.NiftiImageData3D'))
+            assert(isa(input, 'mSIRF.ImageData'))
             mReg.setParameter(self.handle_, 'Registration', 'floating_image', input, 'h')
         end
         function set_reference_mask(self, input)
             %Sets the reference mask.
-            assert(isa(input, 'mReg.NiftiImageData3D'))
+            assert(isa(input, 'mSIRF.ImageData'))
             mReg.setParameter(self.handle_, 'Registration', 'reference_mask', input, 'h')
         end
         function set_floating_mask(self, input)
             %Sets the floating mask.
-            assert(isa(input, 'mReg.NiftiImageData3D'))
+            assert(isa(input, 'mSIRF.ImageData'))
             mReg.setParameter(self.handle_, 'Registration', 'floating_mask', input, 'h')
         end
         function output = get_output(self)
             %Gets the registered image.
-            output = mReg.NiftiImageData3D();
+            assert(~isempty(self.reference_image) && ~isempty(self.reference_image.handle_))
+            output = self.reference_image.same_object();
             mUtilities.delete(output.handle_)
             output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, 'Registration', 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)

@@ -1,4 +1,4 @@
-classdef NiftiImageData < handle
+classdef NiftiImageData < mSIRF.ImageData
 % Class for image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -20,11 +20,13 @@ classdef NiftiImageData < handle
 
     properties
         name
-        handle_
     end
     methods(Static)
         function name = class_name()
             name = 'NiftiImageData';
+        end
+        function obj = same_object()
+            obj = mReg.NiftiImageData();
         end
     end
     methods
@@ -35,8 +37,10 @@ classdef NiftiImageData < handle
                 self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
+            elseif isa(src, 'mSIRF.ImageData')
+                self.handle_ = calllib('mreg', 'mReg_NiftiImageData3D_from_SIRFImageData', src.handle_);
             else
-                error('NiftiImageData accepts no args or filename.')
+                error('NiftiImageData accepts no args, filename or mSIRF.ImageData.')
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -144,17 +148,7 @@ classdef NiftiImageData < handle
         end
         function output = deep_copy(self)
             %Deep copy image.
-            if strcmp(self.name, 'NiftiImageData')
-                output = mReg.NiftiImageData();
-            elseif strcmp(self.name, 'NiftiImageData3D')
-                output = mReg.NiftiImageData3D();
-            elseif strcmp(self.name, 'NiftiImageData3DTensor')
-                output = mReg.NiftiImageData3DTensor();
-            elseif strcmp(self.name, 'NiftiImageData3DDeformation')
-                output = mReg.NiftiImageData3DDeformation();
-            elseif strcmp(self.name, 'NiftiImageData3DDisplacement')
-                output = mReg.NiftiImageData3DDisplacement();
-            end
+            output = self.same_object();
             calllib('mreg', 'mReg_NiftiImageData_deep_copy', output.handle_, self.handle_);
             mUtilities.check_status([self.name ':get_output'], output.handle_)
         end

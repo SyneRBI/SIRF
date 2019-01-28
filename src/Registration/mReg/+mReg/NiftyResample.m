@@ -21,6 +21,7 @@ classdef NiftyResample < handle
     properties
         name
         handle_
+        reference_image
     end
     methods(Static)
         function name = class_name()
@@ -41,12 +42,13 @@ classdef NiftyResample < handle
         end
         function set_reference_image(self, reference_image)
             %Set reference image.
-            assert(isa(reference_image, 'mReg.NiftiImageData3D'), 'NiftyResample::set_reference_image expects NiftiImageData3D')
+            assert(isa(reference_image, 'mSIRF.ImageData'), 'NiftyResample::set_reference_image expects mSIRF.ImageData')
+            self.reference_image = reference_image;
             mReg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
             %Set floating image.
-            assert(isa(floating_image, 'mReg.NiftiImageData3D'), 'NiftyResample::set_floating_image expects NiftiImageData3D')
+            assert(isa(floating_image, 'mSIRF.ImageData'), 'NiftyResample::set_floating_image expects mSIRF.ImageData')
             mReg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
         function add_transformation(self, src)
@@ -89,7 +91,8 @@ classdef NiftyResample < handle
         end
         function output = get_output(self)
             %Get output.
-            output = mReg.NiftiImageData3D();
+            assert(~isempty(self.reference_image) && ~isempty(self.reference_image.handle_))
+            output = self.reference_image.same_object();
             mUtilities.delete(output.handle_)
             output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
