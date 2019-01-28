@@ -1,4 +1,4 @@
-function import_str = set_up_PET(engine, alias)
+function alias = set_up_PET(engine)
 % Creates a string, evaluating which imports PET engine.
 % Optionally creates also its alias (e.g. named PET, to have PET.ImageData etc.)
 
@@ -19,26 +19,12 @@ function import_str = set_up_PET(engine, alias)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-    if isempty(engine)
+    if nargin == 0 || isempty(engine)
         engine = 'STIR';
     end
-    try
-        libload_sirf();
-        eval(['libload_' lower(engine)])
-    catch me
-        fprintf(me.message)
-        error('package %s failed to load\n', engine)
-    end
-    if nargin < 2
-        import_str = ['import m' engine '.*'];
+    if nargout == 0
+    	set_up_engine(engine);
     else
-        if ~strcmp(['m' engine], alias)
-            filename = mfilename();
-            filepath = mfilename('fullpath');
-            l = length(filepath) - length(filename);
-            path = filepath(1:l);
-            copyfile([path '/+m' engine], [path '/+' alias], 'f')
-        end
-        import_str = ' ';
+    	alias = set_up_engine(engine);
     end
 end

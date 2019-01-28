@@ -1,6 +1,6 @@
-function import_str = set_up_MR(engine, alias)
-% Creates a string, evaluating which imports MR engine.
-% Optionally creates also its alias (e.g. named MR, to have MR.ImageData etc.)
+function alias = set_up_engine(engine)
+% Creates a string, evaluating which imports PET engine.
+% Optionally creates also its alias (e.g. named PET, to have PET.ImageData etc.)
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -19,12 +19,28 @@ function import_str = set_up_MR(engine, alias)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-    if nargin == 0 || isempty(engine)
-        engine = 'Gadgetron';
+    narginchk(1,1);
+    try
+        libload_sirf();
+        eval(['libload_' lower(engine)])
+    catch me
+        fprintf(me.message)
+        error('package %s failed to load\n', engine)
     end
-    if nargout == 0
-        set_up_engine(engine);
-    else
-        alias = set_up_engine(engine);
+    
+    if nargout == 0 
+        return;
+    end
+    
+    %% For returning as an alias
+    
+    % Get the folder containing the engine
+    path = [fileparts(mfilename('fullpath')) '/+m' engine '/'];
+    
+    % Loop over all classes and functions and set alias to handle
+    files = dir([path '*.m']);
+    for i=1:size(files,1)
+        [~,file,~] = fileparts(files(i).name);
+        alias.(file) = eval(['@m' engine '.' file]);
     end
 end
