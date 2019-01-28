@@ -126,6 +126,9 @@ void NiftyF3dSym<dataType>::check_parameters() const
 template<class dataType>
 void NiftyF3dSym<dataType>::parse_parameter_file()
 {
+    if (this->_parameter_filename.empty())
+        return;
+
     Parser<reg_f3d_sym<dataType> > parser;
     parser.set_object   (    _registration_sptr     );
     parser.set_filename ( this->_parameter_filename );
