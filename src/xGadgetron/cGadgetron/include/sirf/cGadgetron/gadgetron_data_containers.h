@@ -148,7 +148,7 @@ namespace sirf {
 		// 'export' constructors: workaround for creating 'ABC' objects
 		virtual gadgetron::unique_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
 		virtual MRAcquisitionData*
-			same_acquisitions_container(const AcquisitionsInfo& info) = 0;
+			same_acquisitions_container(const AcquisitionsInfo& info) const = 0;
 
 		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
 
@@ -180,7 +180,11 @@ namespace sirf {
 		std::string acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
 
-		gadgetron::shared_ptr<MRAcquisitionData> clone();
+		//gadgetron::shared_ptr<MRAcquisitionData> clone();
+		gadgetron::unique_ptr<MRAcquisitionData> clone() const
+		{
+			return gadgetron::unique_ptr<MRAcquisitionData>(this->clone_impl());
+		}
 
 		bool undersampled() const;
 		int get_acquisitions_dimensions(size_t ptr_dim) const;
@@ -221,6 +225,8 @@ namespace sirf {
 		// new MRAcquisitionData objects will be created from this template
 		// using same_acquisitions_container()
 		static gadgetron::shared_ptr<MRAcquisitionData> acqs_templ_;
+
+		virtual MRAcquisitionData* clone_impl() const = 0;
 	};
 
 	/*!
@@ -273,10 +279,10 @@ namespace sirf {
 		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
-		virtual MRAcquisitionData*
-			same_acquisitions_container(const AcquisitionsInfo& info)
+		virtual AcquisitionsFile*
+			same_acquisitions_container(const AcquisitionsInfo& info) const
 		{
-			return (MRAcquisitionData*) new AcquisitionsFile(info);
+			return (AcquisitionsFile*) new AcquisitionsFile(info);
 		}
 		//virtual DataContainer*
 		//	new_data_container() const
@@ -303,6 +309,7 @@ namespace sirf {
 		bool own_file_;
 		std::string filename_;
 		gadgetron::shared_ptr<ISMRMRD::Dataset> dataset_;
+		virtual AcquisitionsFile* clone_impl() const;
 	};
 
 	/*!
@@ -352,8 +359,8 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
-		virtual MRAcquisitionData* same_acquisitions_container
-			(const AcquisitionsInfo& info)
+		virtual AcquisitionsVector* same_acquisitions_container
+			(const AcquisitionsInfo& info) const
 		{
 			return new AcquisitionsVector(info);
 		}
@@ -380,6 +387,7 @@ namespace sirf {
 
 	private:
 		std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
+		virtual AcquisitionsVector* clone_impl() const;
 	};
 
 	/*!
