@@ -85,8 +85,6 @@ void* cReg_setParameter
 (void* ptr_s, const char* obj, const char* name, const void* ptr_v)
 {
 	try {
-		CAST_PTR(DataHandle, hs, ptr_s);
-		CAST_PTR(DataHandle, hv, ptr_v);
         if (strcmp(obj, "Registration") == 0)
             return cReg_setRegistrationParameter(ptr_s, name, ptr_v);
         if (strcmp(obj, "NiftyF3dSym") == 0)

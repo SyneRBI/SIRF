@@ -59,6 +59,12 @@ class ParserKeyBase
 {
 public:
 
+    /// Constructor
+    ParserKeyBase() {}
+
+    /// Destructor
+    virtual ~ParserKeyBase() {}
+
     /// Set object
     void set_object(std::shared_ptr<Z> object) { _object = object; }
 
@@ -158,6 +164,12 @@ class ParserKey0Arg : public ParserKeyBase<Z>
 {
 public:
 
+    /// Constructor
+    ParserKey0Arg() {}
+
+    /// Destructor
+    virtual ~ParserKey0Arg() {}
+
     /// Set function
     void set_function(void (Z::*function)()) { _function = function; }
 
@@ -196,6 +208,12 @@ template<class Z, class A>
 class ParserKey1Arg : public ParserKeyBase<Z>
 {
 public:
+
+    /// Constructor
+    ParserKey1Arg() {}
+
+    /// Destructor
+    virtual ~ParserKey1Arg() {}
 
     /// Set function
     void set_function(void (Z::*function)(A)) { _function = function; }
@@ -242,6 +260,12 @@ template<class Z, class A, class B>
 class ParserKey2Arg : public ParserKeyBase<Z>
 {
 public:
+
+    /// Constructor
+    ParserKey2Arg() {}
+
+    /// Destructor
+    virtual ~ParserKey2Arg() {}
 
     /// Set function
     void set_function(void (Z::*function)(A,B)) { _function = function; }

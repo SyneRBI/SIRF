@@ -50,6 +50,12 @@ class Parser
 {
 public:
 
+    /// Constructor
+    Parser() {}
+
+    /// Destructor
+    virtual ~Parser() {}
+
     /// Set object
     void set_object(std::shared_ptr<Z> object) { _object = object; }
 
