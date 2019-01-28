@@ -367,21 +367,28 @@ namespace sirf {
 				new PETAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
-		virtual DataContainer* new_data_container() const
-		{
-			init();
-			return _template->same_acquisition_data(this->get_exam_info_sptr(),
-				this->get_proj_data_info_sptr());
-		}
+		//virtual DataContainer* new_data_container() const
+		//{
+		//	init();
+		//	return _template->same_acquisition_data(this->get_exam_info_sptr(),
+		//		this->get_proj_data_info_sptr());
+		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
+			init();
+			DataContainer* ptr = _template->same_acquisition_data(this->get_exam_info_sptr(),
+				this->get_proj_data_info_sptr());
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(new_data_container()));
+				(stir::shared_ptr<DataContainer>(ptr));
+//			(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
 		{
-			return stir::shared_ptr<PETAcquisitionData>
-				((PETAcquisitionData*)new_data_container());
+			init();
+			return stir::shared_ptr < PETAcquisitionData >
+				(_template->same_acquisition_data(this->get_exam_info_sptr(),
+				this->get_proj_data_info_sptr()));
+				//((PETAcquisitionData*)new_data_container());
 		}
 
 	private:
@@ -422,7 +429,10 @@ namespace sirf {
 			_data.reset(ptr);
 		}
 
-		static void init() { PETAcquisitionDataInFile::init(); }
+		static void init() 
+		{ 
+			PETAcquisitionDataInFile::init(); 
+		}
 		static void set_as_template()
 		{
 			init();
@@ -438,21 +448,28 @@ namespace sirf {
 				new PETAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
-		virtual DataContainer* new_data_container() const
-		{
-			init();
-			return _template->same_acquisition_data(this->get_exam_info_sptr(),
-				this->get_proj_data_info_sptr());
-		}
+		//virtual DataContainer* new_data_container() const
+		//{
+		//	init();
+		//	return _template->same_acquisition_data(this->get_exam_info_sptr(),
+		//		this->get_proj_data_info_sptr());
+		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
+			init();
+			DataContainer* ptr = _template->same_acquisition_data
+				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr());
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(new_data_container()));
+				(stir::shared_ptr<DataContainer>(ptr));
+			//(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
 		{
+			init();
 			return stir::shared_ptr < PETAcquisitionData >
-				((PETAcquisitionData*)new_data_container());
+				(_template->same_acquisition_data
+				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr()));
+			//((PETAcquisitionData*)new_data_container());
 		}
 
 	};

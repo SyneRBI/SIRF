@@ -41,7 +41,7 @@ namespace sirf {
 	class DataContainer {
 	public:
 		virtual ~DataContainer() {}
-		virtual DataContainer* new_data_container() const = 0;
+		//virtual DataContainer* new_data_container() const = 0;
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
 		virtual unsigned int items() const = 0;
 		virtual float norm() const = 0;

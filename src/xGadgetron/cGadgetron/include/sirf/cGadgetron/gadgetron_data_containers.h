@@ -148,7 +148,7 @@ namespace sirf {
 		// 'export' constructors: workaround for creating 'ABC' objects
 		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
 		virtual MRAcquisitionData*
-			same_acquisitions_container(AcquisitionsInfo info) = 0;
+			same_acquisitions_container(const AcquisitionsInfo& info) = 0;
 
 		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
 
@@ -274,20 +274,23 @@ namespace sirf {
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
 		virtual MRAcquisitionData*
-			same_acquisitions_container(AcquisitionsInfo info)
+			same_acquisitions_container(const AcquisitionsInfo& info)
 		{
 			return (MRAcquisitionData*) new AcquisitionsFile(info);
 		}
-		virtual DataContainer*
-			new_data_container() const
-		{
-			init();
-			return acqs_templ_->same_acquisitions_container(acqs_info_);
-		}
+		//virtual DataContainer*
+		//	new_data_container() const
+		//{
+		//	init();
+		//	return acqs_templ_->same_acquisitions_container(acqs_info_);
+		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
+			init();
+			DataContainer* ptr = acqs_templ_->same_acquisitions_container(acqs_info_);
 			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+				(gadgetron::shared_ptr<DataContainer>(ptr));
+//			(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
 		{
@@ -316,7 +319,10 @@ namespace sirf {
 		{
 			acqs_info_ = info;
 		}
-		static void init() { AcquisitionsFile::init(); }
+		static void init() 
+		{ 
+			AcquisitionsFile::init(); 
+		}
 		static void set_as_template()
 		{
 			init();
@@ -347,24 +353,27 @@ namespace sirf {
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
 		virtual MRAcquisitionData* same_acquisitions_container
-			(AcquisitionsInfo info)
+			(const AcquisitionsInfo& info)
 		{
 			return new AcquisitionsVector(info);
 		}
-		virtual DataContainer* new_data_container() const
-		{
-			AcquisitionsFile::init();
-			return acqs_templ_->same_acquisitions_container(acqs_info_);
-		}
+		//virtual DataContainer* new_data_container() const
+		//{
+		//	AcquisitionsFile::init();
+		//	return acqs_templ_->same_acquisitions_container(acqs_info_);
+		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
+			init();
+			DataContainer* ptr = acqs_templ_->same_acquisitions_container(acqs_info_);
 			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+				(gadgetron::shared_ptr<DataContainer>(ptr));
+//			(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual gadgetron::shared_ptr<MRAcquisitionData>
 			new_acquisitions_container()
 		{
-			AcquisitionsFile::init();
+			init();
 			return gadgetron::shared_ptr<MRAcquisitionData>
 				(acqs_templ_->same_acquisitions_container(acqs_info_));
 		}
