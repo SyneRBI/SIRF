@@ -162,6 +162,10 @@ classdef ImageData < mSIRF.ImageData
         end
         function dim = size(self)
 %***SIRF*** Returns the dimensions of 3D array of this image values at voxels.
+            if isempty(self.handle_)
+                dim = [];
+                return
+            end
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             h = calllib...
                 ('mstir', 'mSTIR_getImageDimensions', self.handle_, ptr_i);

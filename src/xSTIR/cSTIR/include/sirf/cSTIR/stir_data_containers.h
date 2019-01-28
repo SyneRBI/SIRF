@@ -141,13 +141,13 @@ namespace sirf {
 		// virtual constructors
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) = 0;
-		virtual PETAcquisitionData* same_acquisition_data(const stir::ProjData& pd) = 0;
+			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
+		virtual PETAcquisitionData* same_acquisition_data
+			(const stir::ProjData& pd) const = 0;
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
-			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) = 0;
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
-		//virtual DataContainer* new_data_container() = 0;
+			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) const = 0;
+		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
 
 		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,
@@ -164,7 +164,8 @@ namespace sirf {
 				num_tang_poss_to_trim,
 				max_in_segment_num_to_process
 				));
-			stir::shared_ptr<PETAcquisitionData> sptr(same_acquisition_data
+			stir::shared_ptr<PETAcquisitionData> 
+				sptr(same_acquisition_data
 				(data()->get_exam_info_sptr(), out_proj_data_info_sptr));
 			SSRB(*sptr, *data(), do_normalisation);
 			return sptr;
@@ -195,13 +196,19 @@ namespace sirf {
 
 		// data import/export
 		void fill(float v) { data()->fill(v); }
-		void fill(PETAcquisitionData& ad)
+		void fill(const PETAcquisitionData& ad)
 		{
 			stir::shared_ptr<stir::ProjData> sptr = ad.data();
 			data()->fill(*sptr);
 		}
 		void fill_from(const float* d) { data()->fill_from(d); }
 		void copy_to(float* d) { data()->copy_to(d); }
+		stir::shared_ptr<PETAcquisitionData> clone() const
+		{
+			stir::shared_ptr<PETAcquisitionData> sptr = new_acquisition_data();
+			sptr->fill(*this);
+			return sptr;
+		}
 
 		// data container methods
 		unsigned int items() const { return 1; }
@@ -354,26 +361,27 @@ namespace sirf {
 
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
+			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const
 		{
 			PETAcquisitionData* ptr_ad =
 				new PETAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
-		virtual PETAcquisitionData* same_acquisition_data(const stir::ProjData& pd)
+		virtual PETAcquisitionData* same_acquisition_data
+			(const stir::ProjData& pd) const
 		{
 			PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile(pd);
 			return ptr_ad;
 		}
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
-			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) const
 		{
 			PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile
 				(sptr_ei, scanner_name, span, max_ring_diff, view_mash_factor);
 			return ptr_ad;
 		}
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data()
+		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
 		{
 			init();
 			return stir::shared_ptr<PETAcquisitionData>
@@ -438,26 +446,27 @@ namespace sirf {
 
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
+			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const
 		{
 			PETAcquisitionData* ptr_ad =
 				new PETAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
-		virtual PETAcquisitionData* same_acquisition_data(const stir::ProjData& pd)
+		virtual PETAcquisitionData* same_acquisition_data
+			(const stir::ProjData& pd) const
 		{
 			PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory(pd);
 			return ptr_ad;
 		}
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
-			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) const
 		{
 			PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory
 				(sptr_ei, scanner_name, span, max_ring_diff, view_mash_factor);
 			return ptr_ad;
 		}
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data()
+		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
 		{
 			init();
 			return stir::shared_ptr<PETAcquisitionData>

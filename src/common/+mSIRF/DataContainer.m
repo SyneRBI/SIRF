@@ -23,7 +23,7 @@ classdef DataContainer < handle
         handle_
     end
     methods (Abstract, Static)
-        same_object(self)
+        same_object()
     end
     methods
         function self = DataContainer()
