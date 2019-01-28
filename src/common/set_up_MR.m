@@ -1,4 +1,4 @@
-function import_str = set_up_MR(engine, alias)
+function alias = set_up_MR(engine)
 % Creates a string, evaluating which imports MR engine.
 % Optionally creates also its alias (e.g. named MR, to have MR.ImageData etc.)
 
