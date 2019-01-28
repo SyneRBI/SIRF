@@ -25,6 +25,7 @@ limitations under the License.
 
 namespace gadgetron {
 	using std::shared_ptr;
+	using std::unique_ptr;
 }
 
 #endif

@@ -146,7 +146,7 @@ namespace sirf {
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
 
 		// 'export' constructors: workaround for creating 'ABC' objects
-		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
+		virtual gadgetron::unique_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
 		virtual MRAcquisitionData*
 			same_acquisitions_container(const AcquisitionsInfo& info) = 0;
 
@@ -292,10 +292,10 @@ namespace sirf {
 				(gadgetron::shared_ptr<DataContainer>(ptr));
 //			(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
-		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
+		virtual gadgetron::unique_ptr<MRAcquisitionData> new_acquisitions_container()
 		{
 			init();
-			return gadgetron::shared_ptr<MRAcquisitionData>
+			return gadgetron::unique_ptr<MRAcquisitionData>
 				(acqs_templ_->same_acquisitions_container(acqs_info_));
 		}
 
@@ -370,11 +370,11 @@ namespace sirf {
 				(gadgetron::shared_ptr<DataContainer>(ptr));
 //			(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
-		virtual gadgetron::shared_ptr<MRAcquisitionData>
+		virtual gadgetron::unique_ptr<MRAcquisitionData>
 			new_acquisitions_container()
 		{
 			init();
-			return gadgetron::shared_ptr<MRAcquisitionData>
+			return gadgetron::unique_ptr<MRAcquisitionData>
 				(acqs_templ_->same_acquisitions_container(acqs_info_));
 		}
 
@@ -704,14 +704,15 @@ namespace sirf {
 				sptr_image_wrap(im_num);
 			return *sptr_iw;
 		}
-		virtual DataContainer* new_data_container() const
-		{
-			return (DataContainer*)new GadgetronImagesVector();
-		}
+		//virtual DataContainer* new_data_container() const
+		//{
+		//	return (DataContainer*)new GadgetronImagesVector();
+		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+				(gadgetron::shared_ptr<DataContainer>(new GadgetronImagesVector()));
+//			(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
 		{

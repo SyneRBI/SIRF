@@ -627,14 +627,15 @@ namespace sirf {
 		{
 			return stir::shared_ptr<STIRImageData>(same_image_data());
 		}
-		DataContainer* new_data_container() const
-		{
-			return (DataContainer*)same_image_data();
-		}
+		//DataContainer* new_data_container() const
+		//{
+		//	return (DataContainer*)same_image_data();
+		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(new_data_container()));
+				(stir::shared_ptr<DataContainer>(same_image_data()));
+//			(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 		unsigned int items() const
 		{
