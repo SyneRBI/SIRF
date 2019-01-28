@@ -874,7 +874,7 @@ namespace sirf {
 	\brief Abstract coil data container class.
 
 	*/
-	class CoilDataContainer : public DataContainer {
+	class CoilDataContainer { //: public DataContainer {
 	public:
 		virtual float norm() const
 		{
@@ -975,6 +975,7 @@ namespace sirf {
 	class CoilImagesContainer : public CoilDataContainer {
 	public:
 		virtual CoilData& operator()(int slice) = 0;
+		virtual unsigned int items() const = 0;
 		virtual void compute(MRAcquisitionData& ac);
 		ISMRMRD::Encoding encoding() const
 		{
@@ -1027,6 +1028,7 @@ namespace sirf {
 			csm_smoothness_ = s;
 		}
 		virtual CoilData& operator()(int slice) = 0;
+		virtual unsigned int items() const = 0;
 
 		virtual void compute(MRAcquisitionData& ac)
 		{

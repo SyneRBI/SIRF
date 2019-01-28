@@ -788,16 +788,16 @@ class AcquisitionData(DataContainer):
         '''
         ap = AcquisitionDataProcessor(list)
         return ap.process(self)
-    def clone(self):
-        '''
-        Returns a copy of self.
-        '''
-        ad = AcquisitionData()
-        ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
-        check_status(ad.handle)
-        return ad;
-##        ap = AcquisitionDataProcessor()
-##        return ap.process(self)
+##    def clone(self):
+##        '''
+##        Returns a copy of self.
+##        '''
+##        ad = AcquisitionData()
+##        ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
+##        check_status(ad.handle)
+##        return ad;
+####        ap = AcquisitionDataProcessor()
+####        return ap.process(self)
     def acquisition(self, num):
         '''
         Returns the specified acquisition.

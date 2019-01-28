@@ -63,6 +63,12 @@ class DataContainer(ABC):
         __add__ below.
         '''
         pass
+    def clone(self):
+        assert self.handle is not None
+        x = self.same_object()
+        x.handle = pysirf.cSIRF_clone(self.handle)
+        check_status(x.handle)
+        return x
     def number(self):
         '''
         Returns the number of items in the container.

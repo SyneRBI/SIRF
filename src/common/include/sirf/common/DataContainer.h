@@ -54,6 +54,12 @@ namespace sirf {
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;
 		virtual void write(const std::string &filename) const = 0;
+		std::unique_ptr<DataContainer> clone() const
+		{
+			return std::unique_ptr<DataContainer>(this->clone_impl());
+		}
+	protected:
+		virtual DataContainer* clone_impl() const = 0;
 	};
 }
 
