@@ -569,6 +569,19 @@ MRAcquisitionData::norm() const
 //	return sptr_ad;
 //}
 
+MRAcquisitionData*
+MRAcquisitionData::clone_base() const
+{
+	MRAcquisitionData* ptr_ad =
+		acqs_templ_->same_acquisitions_container(this->acqs_info_);
+	for (int i = 0; i < number(); i++) {
+		ISMRMRD::Acquisition acq;
+		get_acquisition(i, acq);
+		ptr_ad->append_acquisition(acq);
+	}
+	return ptr_ad;
+}
+
 void
 MRAcquisitionData::order()
 {
@@ -657,19 +670,6 @@ AcquisitionsFile::~AcquisitionsFile()
 		std::remove(filename_.c_str());
 		mtx.unlock();
 	}
-}
-
-AcquisitionsFile*
-AcquisitionsFile::clone_impl() const
-{
-	AcquisitionsFile* ptr_ad =
-		same_acquisitions_container(this->acqs_info_);
-	for (int i = 0; i < number(); i++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		ptr_ad->append_acquisition(acq);
-	}
-	return ptr_ad;
 }
 
 void 
@@ -805,19 +805,6 @@ AcquisitionsFile::set_data(const complex_float_t* z, int all)
 		sptr_ac->append_acquisition(acq);
 	}
 	take_over(*sptr_ac);
-}
-
-AcquisitionsVector*
-AcquisitionsVector::clone_impl() const
-{
-	AcquisitionsVector* ptr_ad =
-		same_acquisitions_container(this->acqs_info_);
-	for (int i = 0; i < number(); i++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		ptr_ad->append_acquisition(acq);
-	}
-	return ptr_ad;
 }
 
 void

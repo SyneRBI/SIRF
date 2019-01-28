@@ -725,8 +725,11 @@ class AcquisitionData(DataContainer):
         ''' 
         Returns a true copy of this object (not Python handle).
         '''
-        ad = AcquisitionData(self)
-        ad.fill(self)
+##        ad = AcquisitionData(self)
+##        ad.fill(self)
+        ad = AcquisitionData()
+        ad.handle = pystir.cSTIR_cloneAcquisitionData(self.handle)
+        check_status(ad.handle)
         ad.src = 'clone'
         return ad
     def get_uniform_copy(self, value = 0):

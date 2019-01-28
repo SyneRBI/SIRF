@@ -202,11 +202,15 @@ namespace sirf {
 		}
 		void fill_from(const float* d) { data()->fill_from(d); }
 		void copy_to(float* d) { data()->copy_to(d); }
-		stir::shared_ptr<PETAcquisitionData> clone() const
+		//stir::shared_ptr<PETAcquisitionData> clone() const
+		//{
+		//	stir::shared_ptr<PETAcquisitionData> sptr = new_acquisition_data();
+		//	sptr->fill(*this);
+		//	return sptr;
+		//}
+		std::unique_ptr<PETAcquisitionData> clone() const
 		{
-			stir::shared_ptr<PETAcquisitionData> sptr = new_acquisition_data();
-			sptr->fill(*this);
-			return sptr;
+			return std::unique_ptr<PETAcquisitionData>(clone_impl());
 		}
 
 		// data container methods
@@ -279,7 +283,8 @@ namespace sirf {
 			proj_data_info_from_scanner(std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 		{
-			stir::shared_ptr<stir::Scanner> sptr_s(stir::Scanner::get_scanner_from_name(scanner_name));
+			stir::shared_ptr<stir::Scanner> 
+				sptr_s(stir::Scanner::get_scanner_from_name(scanner_name));
 			//std::cout << "scanner: " << sptr_s->get_name().c_str() << '\n';
 			if (boost::iequals(sptr_s->get_name(), "unknown")) {
 				throw LocalisedException("Unknown scanner", __FILE__, __LINE__);
@@ -296,6 +301,16 @@ namespace sirf {
 		static std::string _storage_scheme;
 		static stir::shared_ptr<PETAcquisitionData> _template;
 		stir::shared_ptr<stir::ProjData> _data;
+		virtual PETAcquisitionData* clone_impl() const = 0;
+		PETAcquisitionData* clone_base() const
+		{
+			stir::shared_ptr<stir::ExamInfo> sptr_ei = get_exam_info_sptr();
+			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = get_proj_data_info_sptr();
+			PETAcquisitionData* ptr = 
+				_template->same_acquisition_data(sptr_ei, sptr_pdi);
+			ptr->fill(*this);
+			return ptr;
+		}
 
 	};
 
@@ -394,6 +409,11 @@ namespace sirf {
 	private:
 		bool _owns_file;
 		std::string _filename;
+		virtual PETAcquisitionDataInFile* clone_impl() const
+		{
+			init();
+			return (PETAcquisitionDataInFile*)clone_base();
+		}
 	};
 
 	/*!
@@ -471,7 +491,12 @@ namespace sirf {
 				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr()));
 			//((PETAcquisitionData*)new_data_container());
 		}
-
+	private:
+		virtual PETAcquisitionDataInMemory* clone_impl() const
+		{
+			init();
+			return (PETAcquisitionDataInMemory*)clone_base();
+		}
 	};
 
 	/*!

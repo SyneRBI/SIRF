@@ -227,6 +227,7 @@ namespace sirf {
 		static gadgetron::shared_ptr<MRAcquisitionData> acqs_templ_;
 
 		virtual MRAcquisitionData* clone_impl() const = 0;
+		MRAcquisitionData* clone_base() const;
 	};
 
 	/*!
@@ -309,7 +310,11 @@ namespace sirf {
 		bool own_file_;
 		std::string filename_;
 		gadgetron::shared_ptr<ISMRMRD::Dataset> dataset_;
-		virtual AcquisitionsFile* clone_impl() const;
+		virtual AcquisitionsFile* clone_impl() const
+		{
+			init();
+			return (AcquisitionsFile*)clone_base();
+		}
 	};
 
 	/*!
@@ -387,7 +392,11 @@ namespace sirf {
 
 	private:
 		std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
-		virtual AcquisitionsVector* clone_impl() const;
+		virtual AcquisitionsVector* clone_impl() const
+		{
+			init();
+			return (AcquisitionsVector*)clone_base();
+		}
 	};
 
 	/*!

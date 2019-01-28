@@ -490,6 +490,17 @@ void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 }
 
 extern "C"
+void* cSTIR_cloneAcquisitionData(void* ptr_ad)
+{
+	try {
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		shared_ptr<PETAcquisitionData> sptr(sptr_ad->clone());
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_rebinnedAcquisitionData(void* ptr_t, 
 const int num_segments_to_combine,
 const int num_views_to_combine,
