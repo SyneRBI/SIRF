@@ -517,15 +517,16 @@ extern "C"
 void* cSTIR_acquisitionsDataFromScannerInfo
 (const char* scanner, int span, int max_ring_diff, int view_mash_factor)
 {
-	//std::string storage = PETAcquisitionData::storage_scheme();
 	try{
 		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
-		stir::shared_ptr<PETAcquisitionData> sptr_t = 
+		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
+			PETAcquisitionData::proj_data_info_from_scanner
+			(scanner, span, max_ring_diff, view_mash_factor);
+		stir::shared_ptr<PETAcquisitionData> sptr_t =
 			PETAcquisitionData::storage_template();
-		//shared_ptr<PETAcquisitionDataInMemory>
-		//	sptr_t(new PETAcquisitionDataInMemory);
 		shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
-			(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
+			(sptr_ei, sptr_pdi));
+		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
 	}
 	CATCH;
