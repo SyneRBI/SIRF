@@ -344,13 +344,6 @@ class ImageData(SIRF.ImageData):
             raise error('wrong fill value.' + \
                         ' Should be numpy.ndarray, float or int')
         return self
-##    def clone(self):
-##        '''Creates a copy of this image.'''
-##        assert self.handle is not None
-##        image = ImageData()
-##        image.handle = pystir.cSTIR_imageFromImage(self.handle)
-##        check_status(image.handle)
-##        return image
     def get_uniform_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
         assert self.handle is not None
@@ -374,11 +367,6 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
-##    def write(self, filename):
-##        '''Writes self to an Interfile - see STIR documentation for details.
-##        '''
-##        assert self.handle is not None
-##        try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def dimensions(self):
         '''Returns image dimensions as a tuple (nx, ny, nz).'''
         assert self.handle is not None
@@ -716,23 +704,6 @@ class AcquisitionData(DataContainer):
             raise error('Wrong fill value.' + \
                 ' Should be numpy.ndarray, AcquisitionData, float or int')
         return self
-##    def write(self, filename):
-##        '''Writes self to an Interfile - see STIR documentation for details.
-##        '''
-##        assert self.handle is not None
-##        try_calling(pystir.cSTIR_writeAcquisitionData(self.handle, filename))
-##    def clone(self):
-##        ''' 
-##        Returns a true copy of this object (not Python handle).
-##        '''
-####        ad = AcquisitionData(self)
-####        ad.fill(self)
-##        ad = AcquisitionData()
-##        ad.handle = pysirf.cSIRF_clone(self.handle)
-####        ad.handle = pystir.cSTIR_cloneAcquisitionData(self.handle)
-##        check_status(ad.handle)
-##        ad.src = 'clone'
-##        return ad
     def get_uniform_copy(self, value = 0):
         ''' 
         Returns a true copy of this object filled with a given value;

@@ -511,24 +511,8 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         ip = ImageDataProcessor(list)
         return ip.process(self)
-    def clone(self):
-        '''
-        Returns a copy of self.
-        '''
-        assert self.handle is not None
-        ip = ImageDataProcessor()
-        return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-##    def write(self, out_file, out_group=''):
-##        '''
-##        Writes self's images to an hdf5 file.
-##        out_file : the file name (Python string)
-##        out_group: hdf5 dataset name (Python string)
-##        '''
-##        assert self.handle is not None
-##        try_calling(pygadgetron.cGT_writeImages\
-##                    (self.handle, out_file, out_group))
     def select(self, attr, value):
         '''
         Creates an images container with images from self with the specified
@@ -775,16 +759,6 @@ class AcquisitionData(DataContainer):
         '''
         ap = AcquisitionDataProcessor(list)
         return ap.process(self)
-##    def clone(self):
-##        '''
-##        Returns a copy of self.
-##        '''
-##        ad = AcquisitionData()
-##        ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
-##        check_status(ad.handle)
-##        return ad;
-####        ap = AcquisitionDataProcessor()
-####        return ap.process(self)
     def acquisition(self, num):
         '''
         Returns the specified acquisition.
@@ -857,14 +831,6 @@ class AcquisitionData(DataContainer):
         try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
             (self.handle, z.ctypes.data, return_all))
         return z
-##    def write(self, out_file):
-##        '''
-##        Writes self's acquisitions to an hdf5 file.
-##        out_file : the file name (Python string)
-##        '''
-##        assert self.handle is not None
-##        try_calling(pygadgetron.cGT_writeAcquisitions\
-##                    (self.handle, out_file))
 
 DataContainer.register(AcquisitionData)
 
