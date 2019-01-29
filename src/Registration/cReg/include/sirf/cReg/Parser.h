@@ -60,7 +60,7 @@ public:
     void set_object(std::shared_ptr<Z> object) { _object = object; }
 
     /// Set filename
-    void set_filename(boost::filesystem::path filename) { _filename = filename; }
+    void set_filename(std::string filename) { _filename = filename; }
 
     /// Add key with 0 arguments
     void add_key(const std::string &keyword, void (Z::*function)())
@@ -155,12 +155,12 @@ public:
     void open_file(std::ifstream &file)
     {
         // Open file
-        file.open(_filename.string());
+        file.open(_filename);
 
         // Check file is open
         if (!file) {
             file.close();
-            throw std::runtime_error("Unable to open registration parameter file:\n\t" + _filename.string());
+            throw std::runtime_error("Unable to open registration parameter file:\n\t" + _filename);
         }
 
         std::cout << "\nSuccessfully opened the parameter file: " << _filename << "\n";
@@ -245,9 +245,9 @@ public:
 
 protected:
     /// Object
-    std::shared_ptr<Z>                                                _object;
+    std::shared_ptr<Z>                                         _object;
     /// Filename
-    boost::filesystem::path                                           _filename;
+    std::string                                                _filename;
     /// Map of keys
     std::map<std::string, std::shared_ptr<ParserKeyBase<Z> > > _keys;
 };

@@ -34,7 +34,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 #include <iostream>
-#include <boost/filesystem.hpp>
 #include <sstream>
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/ImageData.h"
@@ -316,7 +315,7 @@ protected:
     NiftiImageData maths(const float val, const MathsType type) const;
 
     /// Open nifti image
-    static void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path &filename);
+    static void open_nifti_image(std::shared_ptr<nifti_image> &image, const std::string &filename);
 
     /// Copy nifti image
     static void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);

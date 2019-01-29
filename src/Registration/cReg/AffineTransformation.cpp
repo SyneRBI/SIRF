@@ -31,6 +31,7 @@ limitations under the License.
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 #include <_reg_globalTrans.h>
 #include <iomanip>
+#include <boost/filesystem.hpp>
 
 using namespace sirf;
 
@@ -103,14 +104,15 @@ AffineTransformation<dataType>::AffineTransformation()
 template<class dataType>
 AffineTransformation<dataType>::AffineTransformation(const std::string &filename)
 {
-    // Check that the file exists
-    if (!boost::filesystem::exists(filename))
-        throw std::runtime_error("Cannot find the file: " + filename + ".");
-
     std::cout << "\n\nReading transformation matrix from file...\n\n";
 
     try{
         std::ifstream file(filename);
+
+        // Check opening worked
+        if (!file.good())
+            throw std::runtime_error("Cannot find the file: " + filename + ".");
+
         for (int i=0; i<4; ++i)
             for (int j=0; j<4; ++j)
                 file >> _tm[i][j];
