@@ -874,7 +874,7 @@ namespace sirf {
 	\brief Abstract coil data container class.
 
 	*/
-	class CoilDataContainer { //: public DataContainer {
+	class CoilDataContainer : public DataContainer {
 	public:
 		virtual float norm() const
 		{
@@ -964,6 +964,10 @@ namespace sirf {
 			coil_data_.push_back(sptr_cd);
 		}
 	private:
+		virtual CoilDataVector* clone_impl() const
+		{
+			return new CoilDataVector(*this);
+		}
 		std::vector< gadgetron::shared_ptr<CoilData> > coil_data_;
 	};
 
@@ -1013,6 +1017,11 @@ namespace sirf {
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
 		{
 			CoilDataVector::append(sptr_cd);
+		}
+	private:
+		virtual CoilImagesVector* clone_impl() const
+		{
+			return new CoilImagesVector(*this);
 		}
 	};
 
@@ -1109,7 +1118,11 @@ namespace sirf {
 		{
 			CoilDataVector::append(sptr_cd);
 		}
-
+	private:
+		virtual CoilSensitivitiesAsImages* clone_impl() const
+		{
+			return new CoilSensitivitiesAsImages(*this);
+		}
 	};
 }
 
