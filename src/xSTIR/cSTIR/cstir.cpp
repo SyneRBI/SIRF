@@ -1026,16 +1026,9 @@ extern "C"
 void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 {
 	try {
-		//STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		float* data = (float*)ptr_data;
 		id.get_data(data);
-		//if (id.get_data(data)) {
-		//	ExecutionStatus status("not a regular image", __FILE__, __LINE__);
-		//	DataHandle* handle = new DataHandle;
-		//	handle->set(0, &status);
-		//	return (void*)handle;
-		//}
 		return new DataHandle;
 	}
 	CATCH;
@@ -1045,16 +1038,9 @@ extern "C"
 void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
 {
 	try {
-		//STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		float* data = (float*)ptr_data;
 		id.set_data(data);
-		//if (id.set_data(data)) {
-		//	ExecutionStatus status("not a regular image", __FILE__, __LINE__);
-		//	DataHandle* handle = new DataHandle;
-		//	handle->set(0, &status);
-		//	return (void*)handle;
-		//}
 		return new DataHandle;
 	}
 	CATCH;

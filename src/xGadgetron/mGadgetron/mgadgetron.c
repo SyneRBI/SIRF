@@ -65,9 +65,6 @@ EXPORTED_FUNCTION 	void mGT_getCoilDataDimensions (void* ptr_csms, int csm_num, 
 EXPORTED_FUNCTION 	void mGT_getCoilData (void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
 	cGT_getCoilData (ptr_csms, csm_num, ptr_re, ptr_im);
 }
-EXPORTED_FUNCTION 	void mGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_FLOAT ptr) {
-	cGT_getCoilDataAbs(ptr_csms, csm_num, ptr);
-}
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs) {
 	return cGT_AcquisitionModel(ptr_acqs, ptr_imgs);
 }

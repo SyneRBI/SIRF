@@ -202,12 +202,6 @@ namespace sirf {
 		}
 		void fill_from(const float* d) { data()->fill_from(d); }
 		void copy_to(float* d) { data()->copy_to(d); }
-		//stir::shared_ptr<PETAcquisitionData> clone() const
-		//{
-		//	stir::shared_ptr<PETAcquisitionData> sptr = new_acquisition_data();
-		//	sptr->fill(*this);
-		//	return sptr;
-		//}
 		std::unique_ptr<PETAcquisitionData> clone() const
 		{
 			return std::unique_ptr<PETAcquisitionData>(clone_impl());
@@ -215,19 +209,16 @@ namespace sirf {
 
 		// data container methods
 		unsigned int items() const { return 1; }
+		virtual float norm() const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
-		virtual float norm() const;
-		//virtual float dot(const DataContainer& x);
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y);
 		virtual void divide
 			(const DataContainer& x, const DataContainer& y);
 		virtual void inv(float a, const DataContainer& x);
-		//virtual void axpby(float a, const DataContainer& x,
-		//	float b, const DataContainer& y);
 		virtual void write(const std::string &filename) const
 		{
 			ProjDataFile pd(*data(), filename.c_str(), false);
@@ -382,12 +373,6 @@ namespace sirf {
 				new PETAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
-		//virtual DataContainer* new_data_container() const
-		//{
-		//	init();
-		//	return _template->same_acquisition_data(this->get_exam_info_sptr(),
-		//		this->get_proj_data_info_sptr());
-		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			init();
@@ -395,7 +380,6 @@ namespace sirf {
 				this->get_proj_data_info_sptr());
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(ptr));
-//			(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
 		{
@@ -403,7 +387,6 @@ namespace sirf {
 			return stir::shared_ptr < PETAcquisitionData >
 				(_template->same_acquisition_data(this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()));
-				//((PETAcquisitionData*)new_data_container());
 		}
 
 	private:
@@ -468,12 +451,6 @@ namespace sirf {
 				new PETAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
-		//virtual DataContainer* new_data_container() const
-		//{
-		//	init();
-		//	return _template->same_acquisition_data(this->get_exam_info_sptr(),
-		//		this->get_proj_data_info_sptr());
-		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			init();
@@ -481,7 +458,6 @@ namespace sirf {
 				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr());
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(ptr));
-			//(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
 		{
@@ -489,7 +465,6 @@ namespace sirf {
 			return stir::shared_ptr < PETAcquisitionData >
 				(_template->same_acquisition_data
 				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr()));
-			//((PETAcquisitionData*)new_data_container());
 		}
 	private:
 		virtual PETAcquisitionDataInMemory* clone_impl() const
@@ -652,15 +627,10 @@ namespace sirf {
 		{
 			return stir::shared_ptr<STIRImageData>(same_image_data());
 		}
-		//DataContainer* new_data_container() const
-		//{
-		//	return (DataContainer*)same_image_data();
-		//}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(same_image_data()));
-//			(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 		unsigned int items() const
 		{
@@ -689,19 +659,15 @@ namespace sirf {
         */
         virtual void write(const std::string &filename, const std::string &format_file) const;
 
+		virtual float norm() const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
-		virtual float norm() const;
-		//virtual float dot(const DataContainer& other);
-		//void mult(float a, const DataContainer& x);
 		virtual void multiply(const DataContainer& x,
 			const DataContainer& y);
 		virtual void divide(const DataContainer& x,
 			const DataContainer& y);
-		//virtual void axpby(float a, const DataContainer& x,
-		//	float b, const DataContainer& y);
 
 		Image3DF& data()
 		{
@@ -789,10 +755,6 @@ namespace sirf {
 		mutable stir::shared_ptr<Iterator> _end;
 		mutable stir::shared_ptr<Iterator_const> _begin_const;
 		mutable stir::shared_ptr<Iterator_const> _end_const;
-		//mutable stir::shared_ptr<Iterator> _begin;
-		//mutable stir::shared_ptr<Iterator> _end;
-		//mutable stir::shared_ptr<Iterator_const> _begin_const;
-		//mutable stir::shared_ptr<Iterator_const> _end_const;
 	};
 
 }  // namespace sirf

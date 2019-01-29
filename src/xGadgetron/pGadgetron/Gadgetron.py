@@ -365,19 +365,6 @@ class CoilSensitivityData(DataContainer):
         pygadgetron.cGT_getCoilData\
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
-    def abs_as_array(self, csm_num):
-        '''
-        Returns the abs of specified csm as Numpy ndarray.
-        csm_num: csm (slice) number
-        '''
-        assert self.handle is not None
-        nx, ny, nz, nc = self.map_dimensions()
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
-        pygadgetron.cGT_getCoilDataAbs\
-            (self.handle, csm_num, array.ctypes.data)
-        return array
 
 DataContainer.register(CoilSensitivityData)
 
