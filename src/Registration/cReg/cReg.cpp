@@ -363,9 +363,9 @@ extern "C"
 void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr)
 {
     try {
-        NiftiImageData3D<float>& x = objectFromHandle<NiftiImageData3D<float> >(x_ptr);
-        NiftiImageData3D<float>& y = objectFromHandle<NiftiImageData3D<float> >(y_ptr);
-        NiftiImageData3D<float>& z = objectFromHandle<NiftiImageData3D<float> >(z_ptr);
+        ImageData& x = objectFromHandle<ImageData>(x_ptr);
+        ImageData& y = objectFromHandle<ImageData>(y_ptr);
+        ImageData& z = objectFromHandle<ImageData>(z_ptr);
 
         std::shared_ptr<NiftiImageData3DTensor<float> > sptr;
         if (strcmp(obj,"NiftiImageData3DTensor") == 0)
