@@ -1,4 +1,4 @@
-classdef ImageData < mReg.NiftiImageData
+classdef ImageData < mReg.NiftiImageData3D
 % Alias class for nifti image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

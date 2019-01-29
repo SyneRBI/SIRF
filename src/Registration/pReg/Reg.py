@@ -391,12 +391,6 @@ class NiftiImageData(SIRF.ImageData):
             raise error('print_headers only implemented for up to 5 images.')
 
 
-class ImageData(NiftiImageData):
-    """
-    Alias class for nifti image data.
-    """
-
-
 class NiftiImageData3D(NiftiImageData):
     """
     Class for 3D nifti image data.
@@ -419,6 +413,11 @@ class NiftiImageData3D(NiftiImageData):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+
+class ImageData(NiftiImageData3D):
+    """
+    Alias class for nifti image data.
+    """
 
 class NiftiImageData3DTensor(NiftiImageData):
     """
