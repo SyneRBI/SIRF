@@ -44,7 +44,6 @@ EXPORTED_FUNCTION 	void* mGT_computeCoilSensitivities(void* ptr_csms, void* ptr_
 EXPORTED_FUNCTION 	void* mGT_appendCSM (void* ptr_csms, int nx, int ny, int nz, int nc,  PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 EXPORTED_FUNCTION 	void mGT_getCoilDataDimensions (void* ptr_csms, int csm_num, PTR_INT ptr_dim);
 EXPORTED_FUNCTION 	void mGT_getCoilData (void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-EXPORTED_FUNCTION 	void mGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_FLOAT ptr);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_setUpAcquisitionModel (void* ptr_am, const void* ptr_acqs, const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_setAcquisitionModelParameter (void* ptr_am, const char* name, const void* ptr);

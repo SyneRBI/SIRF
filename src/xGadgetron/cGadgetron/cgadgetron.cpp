@@ -287,9 +287,9 @@ cGT_appendCSM
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
 		float* re = (float*)ptr_re;
 		float* im = (float*)ptr_im;
-		CoilSensitivitiesContainer& list =
+		CoilSensitivitiesContainer& csms =
 			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
-		list.append_csm(nx, ny, nz, nc, re, im);
+		csms.append_csm(nx, ny, nz, nc, re, im);
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -301,9 +301,9 @@ cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& list =
+	CoilDataContainer& csms =
 		objectFromHandle<CoilDataContainer>(h_csms);
-	list.get_dim(csm_num, dim);
+	csms.get_dim(csm_num, dim);
 }
 
 extern "C"
@@ -313,20 +313,9 @@ cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
 	float* re = (float*)ptr_re;
 	float* im = (float*)ptr_im;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& list =
+	CoilDataContainer& csms =
 		objectFromHandle<CoilDataContainer>(h_csms);
-	list.get_data(csm_num, re, im);
-}
-
-extern "C"
-void
-cGT_getCoilDataAbs(void* ptr_csms, int csm_num, size_t ptr)
-{
-	float* v = (float*)ptr;
-	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& list =
-		objectFromHandle<CoilDataContainer>(h_csms);
-	list.get_data_abs(csm_num, v);
+	csms.get_data(csm_num, re, im);
 }
 
 extern "C"
@@ -489,7 +478,6 @@ extern "C"
 void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
-	//if (!boost::filesystem::exists(file))
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
@@ -842,8 +830,8 @@ cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-		list.write(out_file, out_group);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.write(out_file, out_group);
 	}
 	CATCH;
 
@@ -914,7 +902,6 @@ cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		//GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		imgs.get_data(z);
 		return new DataHandle;
@@ -929,7 +916,6 @@ cGT_setImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		//GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		imgs.set_data(z);
 		return new DataHandle;
