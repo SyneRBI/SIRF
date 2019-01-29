@@ -46,6 +46,7 @@ limitations under the License.
 #include "sirf/cGadgetron/ismrmrd_fftw.h"
 #include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/cGadgetron/gadgetron_image_wrap.h"
+#include "sirf/iUtilities/LocalisedException.h"
 
 /*!
 \ingroup Gadgetron Data Containers
@@ -878,36 +879,34 @@ namespace sirf {
 	public:
 		virtual float norm() const
 		{
+			THROW("CoilDataContainer algebra not yet implemented, sorry!");
 			return 0.0;
 		}
 		virtual void dot(const DataContainer& dc, void* ptr) const
-		{}
-		//virtual complex_float_t dot(const DataContainer& dc)
-		//{
-		//	return complex_float_t(0.0, 0.0);
-		//}
+		{
+			THROW("CoilDataContainer algebra not yet implemented, sorry!");
+		}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y)
 		{
+			THROW("CoilDataContainer algebra not yet implemented, sorry!");
 		}
-		//virtual void axpby(
-		//	complex_float_t a, const DataContainer& a_x,
-		//	complex_float_t b, const DataContainer& a_y)
-		//{
-		//}
 		virtual void multiply(
 			const DataContainer& a_x,
 			const DataContainer& a_y)
 		{
+			THROW("CoilDataContainer algebra not yet implemented, sorry!");
 		}
 		virtual void divide(
 			const DataContainer& a_x,
 			const DataContainer& a_y)
 		{
+			THROW("CoilDataContainer algebra not yet implemented, sorry!");
 		}
 		virtual void write(const std::string &filename) const 
 		{
+			THROW("CoilDataContainer::write not yet implemented, sorry!");
 		}
 		void get_dim(int slice, int* dim) //const
 		{
@@ -1053,7 +1052,6 @@ namespace sirf {
 		void append_csm
 			(int nx, int ny, int nz, int nc, const float* re, const float* im)
 		{
-			//CoilData* ptr_img = new CoilDataType(nx, ny, nz, nc);
 			CoilData* ptr_img = new CoilDataAsCFImage(nx, ny, nz, nc);
 			gadgetron::shared_ptr<CoilData> sptr_img(ptr_img);
 			ptr_img->set_data(re, im);
