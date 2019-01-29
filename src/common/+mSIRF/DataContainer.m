@@ -42,6 +42,15 @@ classdef DataContainer < handle
             num = calllib('miutilities', 'mIntDataFromHandle', handle);
             mUtilities.delete(handle)
         end
+        function copy = clone(self)
+            if isempty(self.handle_)
+                error('DataContainer:clone:empty_object', ...
+                    'cannot handle empty object')
+            end
+            copy = self.same_object();
+            copy.handle_ = calllib('msirf', 'mSIRF_clone', self.handle_);
+            mUtilities.check_status('DataContainer', copy.handle_);
+        end
         function r = norm(self)
 %***SIRF*** Returns the 2-norm of this data container viewed as a vector.
             handle = calllib('msirf', 'mSIRF_norm', self.handle_);

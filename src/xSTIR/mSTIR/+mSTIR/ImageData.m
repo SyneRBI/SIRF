@@ -113,13 +113,6 @@ classdef ImageData < mSIRF.ImageData
             mUtilities.check_status('ImageData:fill', h)
             mUtilities.delete(h)
         end
-        function image = clone(self)
-%***SIRF*** Creates a copy of this image.
-            image = mSTIR.ImageData();
-            image.handle_ = calllib('mstir', 'mSTIR_imageFromImage',...
-                self.handle_);
-            mUtilities.check_status('ImageData:clone', self.handle_)
-        end
         function image = get_uniform_copy(self, value)
 %***SIRF*** Creates a copy of this image filled with the specified value.
             if nargin < 2
@@ -141,11 +134,6 @@ classdef ImageData < mSIRF.ImageData
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
             mUtilities.check_status('ImageData:read_from_file', self.handle_);
         end
-%         function write(self, filename)
-%             h = calllib('mstir', 'mSTIR_writeImage', self.handle_, filename);
-%             mUtilities.check_status('ImageData:write', h);
-%             mUtilities.delete(h)
-%         end
         function add_shape(self, shape, add)
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
