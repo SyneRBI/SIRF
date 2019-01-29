@@ -287,9 +287,9 @@ cGT_appendCSM
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
 		float* re = (float*)ptr_re;
 		float* im = (float*)ptr_im;
-		CoilSensitivitiesContainer& list =
+		CoilSensitivitiesContainer& csms =
 			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
-		list.append_csm(nx, ny, nz, nc, re, im);
+		csms.append_csm(nx, ny, nz, nc, re, im);
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -301,9 +301,9 @@ cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& list =
+	CoilDataContainer& csms =
 		objectFromHandle<CoilDataContainer>(h_csms);
-	list.get_dim(csm_num, dim);
+	csms.get_dim(csm_num, dim);
 }
 
 extern "C"
@@ -313,9 +313,9 @@ cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
 	float* re = (float*)ptr_re;
 	float* im = (float*)ptr_im;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& list =
+	CoilDataContainer& csms =
 		objectFromHandle<CoilDataContainer>(h_csms);
-	list.get_data(csm_num, re, im);
+	csms.get_data(csm_num, re, im);
 }
 
 extern "C"
@@ -830,8 +830,8 @@ cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-		list.write(out_file, out_group);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.write(out_file, out_group);
 	}
 	CATCH;
 
