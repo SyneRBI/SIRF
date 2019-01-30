@@ -82,9 +82,10 @@ public:
     /// Get as deformation field
     virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
 
-    virtual NiftiImageData3DDisplacement* same_image_data() const
+    virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {
-        return new NiftiImageData3DDisplacement;
+        return new ObjectHandle<DataContainer>
+            (std::shared_ptr<DataContainer>(new NiftiImageData3DDisplacement));
     }
     /// Write
     virtual void write(const std::string &filename) const { this->NiftiImageData<dataType>::write(filename); }

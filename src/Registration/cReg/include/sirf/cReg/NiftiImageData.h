@@ -416,18 +416,10 @@ protected:
     {
 	return new NiftiImageData(*this);
     }
-    virtual NiftiImageData* same_image_data() const
-    {
-        return new NiftiImageData;
-    }
-    DataContainer* new_data_container() const
-    {
-        return (DataContainer*)this->same_image_data();
-    }
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {
         return new ObjectHandle<DataContainer>
-            (std::shared_ptr<DataContainer>(this->new_data_container()));
+            (std::shared_ptr<DataContainer>(new NiftiImageData));
     }
     unsigned int items() const { return 1; }
     virtual void dot      (const DataContainer& a_x, void* ptr) const;

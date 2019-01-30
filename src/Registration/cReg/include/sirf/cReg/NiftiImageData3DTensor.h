@@ -86,9 +86,10 @@ public:
     /// Flip component of nu
     void flip_component(const int dim);
 
-    virtual NiftiImageData3DTensor* same_image_data() const
+    virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {
-        return new NiftiImageData3DTensor;
+        return new ObjectHandle<DataContainer>
+            (std::shared_ptr<DataContainer>(new NiftiImageData3DTensor));
     }
     /// Clone and return as unique pointer.
     std::unique_ptr<NiftiImageData3DTensor> clone() const

@@ -93,9 +93,10 @@ public:
     /// Compose multiple transformations into single deformation field
     static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<const Transformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref);
 
-    virtual NiftiImageData3DDeformation* same_image_data() const
+    virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {
-        return new NiftiImageData3DDeformation;
+        return new ObjectHandle<DataContainer>
+            (std::shared_ptr<DataContainer>(new NiftiImageData3DDeformation));
     }
     /// Write
     virtual void write(const std::string &filename) const { this->NiftiImageData<dataType>::write(filename); }
