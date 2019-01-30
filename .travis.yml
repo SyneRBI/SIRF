@@ -138,11 +138,11 @@ before_install:
         echo "Installing ITK via miniconda"
         wget https://repo.continuum.io/miniconda/Miniconda$PYMVER-latest-MacOSX-x86_64.sh -O miniconda.sh;
         bash miniconda.sh -b -p $HOME/miniconda
-        export PATH="$HOME/miniconda/bin:$PATH"
         hash -r
-        conda config --set always_yes yes --set changeps1 no
-        conda update -q conda
-        conda install -c conda-forge libitk=4.13.0=0
+        $HOME/miniconda/bin/conda config --set always_yes yes --set changeps1 no
+        $HOME/miniconda/bin/conda update -q conda
+        $HOME/miniconda/bin/conda install -c conda-forge libitk=4.13.0=0
+        EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS $HOME/miniconda/lib/cmake/ITK-4.13"
       fi
       if [ $PYMVER == 2 ]; then
         PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
