@@ -1,9 +1,13 @@
 function alias = set_up_engine(engine)
-% Creates a string, evaluating which imports PET engine.
-% Optionally creates also its alias (e.g. named PET, to have PET.ImageData etc.)
+% Imports a given engine.
+% The engine can optionally be returned as an alias (actually a struct).
+% e.g., eng=set_up_engine('STIR') enables opening STIRImageData with eng.ImageData
+% Caveat: help(eng.ImageData) etc. will work, but help(eng) will not (because eng is just a struct).
+% See also set_up_PET and set_up_MR and set_up_Reg
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -35,10 +39,11 @@ function alias = set_up_engine(engine)
     %% For returning as an alias
     
     % Get the folder containing the engine
-    path = [fileparts(mfilename('fullpath')) '/+m' engine '/'];
+    path = fileparts(mfilename('fullpath'));
+    path = fullfile(path, ['+m' engine]);
     
     % Loop over all classes and functions and set alias to handle
-    files = dir([path '*.m']);
+    files = dir([path '/*.m']);
     for i=1:size(files,1)
         [~,file,~] = fileparts(files(i).name);
         alias.(file) = eval(['@m' engine '.' file]);
