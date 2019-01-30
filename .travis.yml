@@ -180,7 +180,6 @@ before_install:
         # Use docker for gadgetron
         brew install docker
         docker pull gadgetron/ubuntu_1604_cuda80
-        docker run --publish=9002:9002 --volume=/tmp/gadgetron_data:/tmp/gadgetron_data --rm -t gadgetron/ubuntu_1604_cuda80
       )
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       PY_EXE=python$PYMVER
@@ -238,7 +237,12 @@ install:
  - source $PWD/INSTALL/bin/env_ccppetmr.sh
 
 script:
- - ./INSTALL/bin/gadgetron >& gadgetron.log&
+ - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      docker run --publish=9002:9002 --volume=/tmp/gadgetron_data:/tmp/gadgetron_data --rm -t gadgetron/ubuntu_1604_cuda80 >& gadgetron.log&
+    else
+      ./INSTALL/bin/gadgetron >& gadgetron.log&
+    fi
  # print for debugging
  - cat builds/SIRF/build/CMakeCache.txt
  - ctest -VV
