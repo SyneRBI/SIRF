@@ -1,9 +1,9 @@
-function alias = set_up_MR(engine)
-% Imports a given MR engine. If no engine is given, a default is used.
+function alias = set_up_engine(engine)
+% Imports a given engine.
 % The engine can optionally be returned as an alias (actually a struct).
-% e.g., eng=set_up_engine('Gadgetron') enables opening GadgetronImageData with eng.ImageData
+% e.g., eng=set_up_engine('STIR') enables opening STIRImageData with eng.ImageData
 % Caveat: help(eng.ImageData) etc. will work, but help(eng) will not (because eng is just a struct).
-% See also set_up_engine and set_up_PET and set_up_Reg
+% See also set_up_PET and set_up_MR and set_up_Reg
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -23,12 +23,29 @@ function alias = set_up_MR(engine)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-    if nargin == 0 || isempty(engine)
-        engine = 'Gadgetron';
+    narginchk(1,1);
+    try
+        libload_sirf();
+        eval(['libload_' lower(engine)])
+    catch me
+        fprintf(me.message)
+        error('package %s failed to load\n', engine)
     end
-    if nargout == 0
-        set_up_engine(engine);
-    else
-        alias = set_up_engine(engine);
+    
+    if nargout == 0 
+        return;
+    end
+    
+    %% For returning as an alias
+    
+    % Get the folder containing the engine
+    path = fileparts(mfilename('fullpath'));
+    path = fullfile(path, ['+m' engine], '*m');
+    files = dir(path);
+    
+    % Loop over all classes and functions and set alias to handle
+    for i=1:size(files,1)
+        [~,file,~] = fileparts(files(i).name);
+        alias.(file) = eval(['@m' engine '.' file]);
     end
 end
