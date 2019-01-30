@@ -178,6 +178,7 @@ before_install:
         #mv cmake-*/CMake.app/Contents/* cmake
         #export PATH="$PWD/cmake/bin:$PATH"
         # Use docker for gadgetron
+        brew install docker
         docker pull gadgetron/ubuntu_1604_cuda80
         docker run --publish=9002:9002 --volume=/tmp/gadgetron_data:/tmp/gadgetron_data --rm -t gadgetron/ubuntu_1604_cuda80
       )
