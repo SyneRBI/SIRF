@@ -57,6 +57,9 @@ EXPORTED_FUNCTION void* mSIRF_divide(const void* ptr_x, const void* ptr_y) {
 EXPORTED_FUNCTION void* mSIRF_write(const void* ptr, const char* filename) {
 	return cSIRF_write(ptr, filename);
 }
+EXPORTED_FUNCTION void* mSIRF_clone(void* ptr_x) {
+	return cSIRF_clone(ptr_x);
+}
 #ifndef CSIRF_FOR_MATLAB
 }
 #endif
