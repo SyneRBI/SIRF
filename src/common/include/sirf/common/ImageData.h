@@ -25,7 +25,6 @@ limitations under the License.
 
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/DataContainer.h"
-#include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/GeometricalInfo.h"
 

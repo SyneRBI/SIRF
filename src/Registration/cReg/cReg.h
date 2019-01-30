@@ -1,0 +1,107 @@
+/*
+CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2017 - 2019 University College London
+
+This is software developed for the Collaborative Computational
+Project in Positron Emission Tomography and Magnetic Resonance imaging
+(http://www.ccppetmr.ac.uk/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+#ifndef cREG_INTERFACE
+#define cREG_INTERFACE
+
+#ifndef CREG_FOR_MATLAB
+#define PTR_INT size_t
+#define PTR_FLOAT size_t
+#define PTR_DOUBLE size_t
+
+extern "C" {
+#else
+#define PTR_INT int*
+#define PTR_FLOAT float*
+#define PTR_DOUBLE double*
+#endif
+
+    // Common Reg Object methods
+    void* cReg_newObject(const char* name);
+    void* cReg_objectFromFile(const char* name, const char* filename);
+    void* cReg_setParameter(void* ptr, const char* obj, const char* name, const void* value);
+    void* cReg_parameter(const void* ptr, const char* obj, const char* name);
+
+    // NiftiImageData
+    void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
+    void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
+    void* cReg_NiftiImageData_fill(const void* ptr, const float val);
+    void* cReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
+    void* cReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
+    void* cReg_NiftiImageData_get_dimensions(const void* ptr, PTR_INT ptr_dim);
+    void* cReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data);
+    void* cReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type);
+    void* cReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type);
+    void* cReg_NiftiImageData_equal(const void* im1_ptr, const void* im2_ptr);
+    void* cReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr);
+    void* cReg_NiftiImageData_get_original_datatype(const void* im_ptr);
+    void* cReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr);
+
+    // NiftiImageData3D
+    void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr);
+
+    // NiftiImageData3DTensor
+    void* cReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype);
+    void* cReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
+    void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
+    void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
+
+    // NiftiImageData3DDeformation
+    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
+    void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
+
+    // NiftiImageData3DDisplacement
+    void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
+
+    // Registration
+    void* cReg_Registration_process(void* ptr);
+    void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
+    void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+
+    // Aladin methods
+    void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
+
+    // NiftyResample
+    void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
+    void* cReg_NiftyResample_process(void* ptr);
+
+    // ImageWeightedMean
+    void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
+    void* cReg_ImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
+    void* cReg_ImageWeightedMean_process(void* ptr);
+
+    // Transformation
+    void* cReg_Transformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
+
+    // AffineTransformation
+    void* cReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
+    void* cReg_AffineTransformation_deep_copy(const void* ptr);
+    void* cReg_AffineTransformation_write(const void* ptr, const char* filename);
+    void* cReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
+    void* cReg_AffineTransformation_get_identity();
+    void* cReg_AffineTransformation_get_inverse(const void* ptr);
+    void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
+    void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
+
+#ifndef CREG_FOR_MATLAB
+}
+#endif
+
+#endif

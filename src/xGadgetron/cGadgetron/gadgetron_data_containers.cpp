@@ -759,12 +759,30 @@ GadgetronImageData::order()
                head.position[1] * head.slice_dir[1] +
                head.position[2] * head.slice_dir[2];
 		vt.push_back(t);
+#ifndef NDEBUG
+        std::cout << "Before sorting. Image " << i << "/" << ni <<  ", Contrast: " << t[0] << ", Repetition: " << t[1] << ", Projection: " << t[2] << "\n";
+#endif
 	}
 	if (index_)
 		delete[] index_;
 	index_ = new int[ni];
 	Multisort::sort(vt, index_);
 	ordered_ = true;
+
+#ifndef NDEBUG
+    std::cout << "After sorting...\n";
+    for (int i = 0; i < ni; i++) {
+      ImageWrap& iw = image_wrap(i);
+      ISMRMRD::ImageHeader& head = iw.head();
+		t[0] = head.contrast;
+        t[1] = head.repetition;
+        // Calculate the projection of the position in the slice direction
+        t[2] = head.position[0] * head.slice_dir[0] +
+               head.position[1] * head.slice_dir[1] +
+               head.position[2] * head.slice_dir[2];
+        std::cout << "Image " << i << "/" << ni <<  ", Contrast: " << t[0] << ", Repetition: " << t[1] << ", Projection: " << t[2] << "\n";
+	}
+#endif
 }
 
 std::shared_ptr<std::vector<std::string> >
@@ -931,6 +949,7 @@ images_(), nimages_(0)
 		const ImageWrap& u = images.image_wrap(i);
 		append(u);
 	}
+    this->set_up_geom_info();
 }
 
 GadgetronImagesVector::GadgetronImagesVector
@@ -1008,9 +1027,42 @@ static bool is_unit_vector(const float * const vec)
     return std::abs(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] - 1.F) < 1.e-4F;
 }
 
+static void print_slice_directions(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
+{
+    std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.\n";
+    for (unsigned im=0; im<images.size(); ++im) {
+        ISMRMRD::ImageHeader &ih = images[im]->head();
+        float *sd = ih.slice_dir;
+        std::cout << "Slice dir " << im << ": [" << sd[0] << ", " << sd[1] << ", " << sd[2] << "]\n";
+    }
+}
+
+static void print_slice_distances(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
+{
+    std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.\n";
+    for (unsigned im=0; im<images.size()-1; ++im) {
+        ISMRMRD::ImageHeader &ih1 = images[ im ]->head();
+        ISMRMRD::ImageHeader &ih2 = images[im+1]->head();
+        float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
+                ih1.position[1] * ih1.slice_dir[1] +
+                ih1.position[2] * ih1.slice_dir[2];
+        float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
+                ih2.position[1] * ih2.slice_dir[1] +
+                ih2.position[2] * ih2.slice_dir[2];
+        std::cout << "Spacing " << im << ": " << projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2 << "\n";
+    }
+}
+
 void
 GadgetronImagesVector::set_up_geom_info()
 {
+#ifndef NDEBUG
+    std::cout << "\nSetting up geometrical info for GadgetronImagesVector...\n";
+#endif
+
+    if (!this->ordered())
+        this->order();
+
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
 
@@ -1036,9 +1088,9 @@ GadgetronImagesVector::set_up_geom_info()
         // First check that the slice direction is a unit vector
         const float * const slice_dir = ih1.slice_dir;
         if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir)) {
-#ifndef NDEBUG
+
             std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
-#endif
+
             return;
         }
 
@@ -1064,9 +1116,7 @@ GadgetronImagesVector::set_up_geom_info()
             // 1. Check that the slice_dir is always constant
             for (int dim=0; dim<3; ++dim)
                 if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F) {
-#ifndef NDEBUG
-                    std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.");
-#endif
+                    print_slice_directions(this->images_);
                     return;
                 }
 
@@ -1079,9 +1129,7 @@ GadgetronImagesVector::set_up_geom_info()
                     ih2.position[2] * ih2.slice_dir[2];
             float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
             if (std::abs(spacing[2]-new_spacing) > 1.e-4F) {
-#ifndef NDEBUG
-                std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.");
-#endif
+                print_slice_distances(images_);
                 return;
             }
         }

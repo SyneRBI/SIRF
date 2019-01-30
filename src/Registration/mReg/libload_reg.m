@@ -1,4 +1,4 @@
-function libload_stir
+function libload_reg
 % load C++-to-C interface library
 if ~libisloaded('miutilities')
     fprintf('loading miutilities library...\n')
@@ -8,13 +8,13 @@ if ~libisloaded('miutilities')
         error('miutilities library failed to load\n')
     end
 end
-% load STIR interface library
-if ~libisloaded('mstir')
-    fprintf('loading mstir library...\n')
+% load Reg interface library
+if ~libisloaded('mreg')
+    fprintf('loading mreg library...\n')
     try
-        [notfound, warnings] = loadlibrary('mstir');
+        [notfound, warnings] = loadlibrary('mreg');
     catch
-        error('mstir library failed to load\n')
+        error('mreg library failed to load\n')
     end
 end
 end

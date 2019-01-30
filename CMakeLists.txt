@@ -138,3 +138,17 @@ ADD_SUBDIRECTORY(src/common)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
+
+# Optional registration
+option(REG_ENABLE "Build the SIRF registration package" ON)
+if (REG_ENABLE)
+  ADD_SUBDIRECTORY(src/Registration)
+endif()
+
+# Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built
+if (REG_ENABLE AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
+  MESSAGE(STATUS "Registration, Gadgetron and STIR (with ITK) have been built. Building synergistic code.")
+  ADD_SUBDIRECTORY(src/Synergistic)
+else()
+  MESSAGE(STATUS "One or more of the following components are missing: Registration, Gadgetron and STIR (with ITK). Synergistic code will not be built.")
+endif()

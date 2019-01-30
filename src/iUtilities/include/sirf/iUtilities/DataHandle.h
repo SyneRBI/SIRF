@@ -32,7 +32,6 @@ limitations under the License.
 
 #include <stdlib.h>
 #include <string>
-#include <stdexcept>
 
 #include "sirf/iUtilities/LocalisedException.h"
 

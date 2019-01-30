@@ -31,6 +31,7 @@ if (ISMRMRD_FOUND)
   # ISMRMRD config cmake file which means that library location is
   # not part of the target.
   set(cGadgetron_LIBRARY_DIRS "${ISMRMRD_LIBRARY_DIRS}" PARENT_SCOPE)
+  set(cGadgetron_INCLUDE_DIR "${ISMRMRD_INCLUDE_DIR}" PARENT_SCOPE)
 
   find_package(FFTW3 COMPONENTS single REQUIRED)
 

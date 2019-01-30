@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Copyright 2016 University College London
+# Author: Richard Brown
+# Copyright 2016, 2017 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,22 +16,9 @@
 #
 #=========================================================================
 
-find_package(STIR 3.1.0)
-if (STIR_FOUND)
+MATLAB_ADD_UNIT_TEST(NAME REG_TEST_MATLAB
+UNITTEST_FILE   test_mReg.m
+ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
+NO_UNITTEST_FRAMEWORK
+WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-  set("STIR_BUILT_WITH_ITK" "${STIR_BUILT_WITH_ITK}" PARENT_SCOPE)
-
-  set(cSTIR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cSTIR")
-
-  ADD_SUBDIRECTORY(cSTIR)
-  ADD_SUBDIRECTORY(pSTIR)
-  ADD_SUBDIRECTORY(mSTIR)
-
-  # Going to need this elsewhere
-  SET(STIR_REGISTRIES ${STIR_REGISTRIES} PARENT_SCOPE)
-
-else()
-
-  message(WARNING "STIR not found. This is probably not what you want. If you need it, set STIR_DIR.")
-
-endif()
