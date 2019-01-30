@@ -345,7 +345,7 @@ class NiftiImageData(SIRF.ImageData):
             raise AssertionError()
         handle = pyreg.cReg_NiftiImageData_get_original_datatype(self.handle)
         check_status(handle)
-        datatype = pyiutil.charDataFromHandle(handle)
+        datatype = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return datatype
 

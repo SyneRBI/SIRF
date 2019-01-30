@@ -22,7 +22,6 @@ import time
 
 import numpy as np
 import pReg
-import pSTIR
 from pUtilities import *
 
 # Paths
@@ -750,37 +749,6 @@ def try_weighted_mean(na):
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-# TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-"""
-# STIR to Nifti
-def try_stir_to_nifti():
-    time.sleep(0.5)
-    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting STIR to Nifti test...\n')
-    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
-    time.sleep(0.5)
-
-    # Open stir image
-    pet_image_data = pSTIR.ImageData(ref_aladin_filename)
-    image_data_from_stir = pReg.NiftiImageData3D(pet_image_data)
-
-    # Now fill the stir and nifti images with 1 and 100, respectively
-    pet_image_data.fill(1.)
-    image_data_from_stir.fill(100)
-    if pet_image_data.as_array().max() == image_data_from_stir.get_max():
-        raise AssertionError()
-
-    # Fill the stir image with the nifti
-    image_data_from_stir.copy_data_to(pet_image_data)
-    if pet_image_data.as_array().max() != image_data_from_stir.get_max():
-        raise AssertionError()
-
-    time.sleep(0.5)
-    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished STIR to Nifti test.\n')
-    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
-    time.sleep(0.5)
-"""
 
 # AffineTransformation
 def try_affinetransformation(na):
@@ -824,7 +792,6 @@ def test():
     try_transformations(na)
     try_resample(na)
     try_weighted_mean(na)
-    # try_stir_to_nifti() TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
     try_affinetransformation(na)
 
 

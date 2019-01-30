@@ -58,24 +58,30 @@ int main(int argc, char* argv[])
         if (argc==1) SIRF_PATH = getenv("SIRF_PATH");
         else         SIRF_PATH = argv[1];
 
-        // Input filenames
-        const std::string nifti_filename = SIRF_PATH + "/data/examples/Registration/test2.nii.gz";
+        // Test STIR -> Nifti
+            {
+            // Input filenames
+            const std::string nifti_filename = SIRF_PATH + "/data/examples/Registration/test2.nii.gz";
 
-        // Load the image as a NiftiImageData3D
-        NiftiImageData3D<float> image_nifti(nifti_filename);
+            // Load the image as a NiftiImageData3D
+            NiftiImageData3D<float> image_nifti(nifti_filename);
 
-        // Read as STIRImageData, convert NiftiImageData3D and save to file
-        STIRImageData image_stir(nifti_filename);
-        NiftiImageData3D<float> image_nifti_from_stir(image_stir);
-        image_nifti_from_stir.write("results/stir_to_nifti.nii",image_nifti.get_original_datatype());
+            // Read as STIRImageData, convert NiftiImageData3D and save to file
+            STIRImageData image_stir(nifti_filename);
+            NiftiImageData3D<float> image_nifti_from_stir(image_stir);
+            image_nifti_from_stir.write("results/stir_to_nifti.nii",image_nifti.get_original_datatype());
 
-        // Compare the two
-        if (image_nifti != image_nifti_from_stir)
-            throw std::runtime_error("Conversion from STIR to Nifti failed");
+            // Compare the two
+            if (image_nifti != image_nifti_from_stir)
+                throw std::runtime_error("Conversion from STIR to Nifti failed");
 
-        // Also save the STIRImageData to file (might be useful visual for comparison)
-        create_stir_output_file_format("results/stir_output_file_format_nifti.par");
-        image_stir.write("results/stir.nii","results/stir_output_file_format_nifti.par");
+            // Also save the STIRImageData to file (might be useful visual for comparison)
+            create_stir_output_file_format("results/stir_output_file_format_nifti.par");
+            image_stir.write("results/stir.nii","results/stir_output_file_format_nifti.par");
+        }
+
+        // Test Gadgetron -> Nifti
+        // TODO
 
     // Error handling
     } catch(const std::exception &error) {

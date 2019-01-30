@@ -302,7 +302,7 @@ void* cReg_NiftiImageData_get_original_datatype(const void* im_ptr)
 {
     try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
-        return charDataHandleFromCharData(nifti_datatype_to_string(im.get_original_datatype()));
+        return dataHandle<int>(im.get_original_datatype());
     }
     CATCH;
 }

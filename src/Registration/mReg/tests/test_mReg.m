@@ -15,8 +15,7 @@
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-[~] = set_up_Reg([]);
-[~] = set_up_PET([]);
+set_up_Reg([]);
 
 % Paths
 SIRF_PATH     = getenv('SIRF_PATH');
@@ -75,7 +74,6 @@ try_niftyf3d(g);
 try_transformations(g,na);
 try_resample(g,na);
 try_weighted_mean(g,na);
-% try_stir_to_nifti(g); TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 
 function try_niftiimage(g)
 	disp('% ----------------------------------------------------------------------- %')
@@ -632,35 +630,6 @@ function try_weighted_mean(g,na)
     disp('%                  Finished weighted mean test.')
     disp('%------------------------------------------------------------------------ %')
 end
-
-% TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-%{
-function try_stir_to_nifti(g)
-    disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting STIR to Nifti test...')
-    disp('%------------------------------------------------------------------------ %')
-
-		% Open stir image
-                pet_image_data = mSTIR.ImageData(g.ref_aladin_filename);
-		image_data_from_stir = mReg.NiftiImageData3D(pet_image_data);
-
-		% Now fill the stir and nifti images with 1 and 100, respectively
-		pet_image_data.fill(1.);
-		image_data_from_stir.fill(100);
-		arr_pet = pet_image_data.as_array();
-		assert(max(arr_pet(:)) ~= image_data_from_stir.get_max(), 'Maxes of STIR and Nifti images should be different.');
-
-		% Fill the stir image with the nifti
-		image_data_from_stir.copy_data_to(pet_image_data);
-		arr_pet = pet_image_data.as_array();
-		assert(max(arr_pet(:)) == image_data_from_stir.get_max(), 'Maxes of STIR and Nifti images should match.');
-
-
-    disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished STIR to Nifti test.')
-    disp('%------------------------------------------------------------------------ %')
-end
-%}
 
 function try_AffineTransformation(g,na)
     disp('% ----------------------------------------------------------------------- %')

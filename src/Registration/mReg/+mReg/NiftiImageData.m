@@ -164,7 +164,7 @@ classdef NiftiImageData < mSIRF.ImageData
             %Get original image datatype (internally everything is converted to float).
             h = calllib('mreg', 'mReg_NiftiImageData_get_original_datatype', self.handle_);
             mUtilities.check_status('NiftiImageData', h);
-            datatype = calllib('miutilities', 'mCharDataFromHandle', h);
+            datatype = calllib('miutilities', 'mIntDataFromHandle', h);
             mUtilities.delete(h)
         end
         function crop(self, min_, max_)
