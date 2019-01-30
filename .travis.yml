@@ -138,9 +138,7 @@ before_install:
         hash -r
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
-        wget https://conda.anaconda.org/conda-forge/osx-64/libitk-4.13.0-0.tar.bz2
-        conda install -p $HOME/ --offline libitk-4.13.0-0.tar.bz2
-        EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DITK_DIR=$HOME/lib/cmake/ITK-4.13"
+        conda install -c conda-forge libitk=4.13.0=0
       fi
       if [ $PYMVER == 2 ]; then
         PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
