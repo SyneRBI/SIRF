@@ -1,9 +1,13 @@
 function alias = set_up_Reg(engine)
-% Creates a string, evaluating which imports PET engine.
-% Optionally creates also its alias (e.g. named PET, to have PET.ImageData etc.)
+% Imports a given registration engine. If no engine is given, a default is used.
+% The engine can optionally be returned as an alias (actually a struct).
+% e.g., eng=set_up_Reg() enables opening a Nifti ImageData with eng.ImageData
+% Caveat: help(eng.ImageData) etc. will work, but help(eng) will not (because eng is just a struct).
+% See also set_up_engine and set_up_PET and set_up_Reg
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
