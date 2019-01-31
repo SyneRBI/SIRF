@@ -64,10 +64,6 @@ matrix:
    python: 2.7
    # +boost +itk -hdf5 +swig
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DBUILD_TESTING_Gadgetron=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
- - os: osx
-   python: 2.7
-   # +boost +itk -hdf5 +swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DBUILD_TESTING_Gadgetron=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
 
 env:
  global:
@@ -142,7 +138,7 @@ before_install:
         $HOME/miniconda/bin/conda config --set always_yes yes --set changeps1 no
         $HOME/miniconda/bin/conda update -q conda
         $HOME/miniconda/bin/conda install -c conda-forge libitk=4.13.0=0
-        EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -ITK_DIR=$HOME/miniconda/lib/cmake/ITK-4.13"
+        EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DITK_DIR=$HOME/miniconda/lib/cmake/ITK-4.13"
       fi
       if [ $PYMVER == 2 ]; then
         PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
