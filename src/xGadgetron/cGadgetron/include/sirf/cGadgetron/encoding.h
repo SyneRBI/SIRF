@@ -67,7 +67,7 @@ public:
 	void set_header(ISMRMRD::IsmrmrdHeader hdr);
 	void set_trajectory( TrajVessel trajectory );
 	
-	std::string get_traj_type( void );
+	ISMRMRD::TrajectoryType get_traj_type( void );
 	TrajVessel get_trajectory( void );
 
 	void overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader& hdr);

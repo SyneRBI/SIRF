@@ -78,11 +78,11 @@ TrajVessel aTrajectoryContainer::get_trajectory( void )
 	return this->traj_;
 }
 
-std::string aTrajectoryContainer::get_traj_type( void )
+ISMRMRD::TrajectoryType aTrajectoryContainer::get_traj_type( void )
 {
-    throw std::runtime_error("aTrajectoryContainer::get_traj_type: This should return ISMRMRD::TrajectoryType, not std::string");
+    // throw std::runtime_error("aTrajectoryContainer::get_traj_type: This should return ISMRMRD::TrajectoryType, not std::string");
     // TODO Johannes Uncomment below when fixed.
-    //return this->traj_type_;
+    return this->traj_type_;
 }
 
 void aTrajectoryContainer::norm_trajectory( void )

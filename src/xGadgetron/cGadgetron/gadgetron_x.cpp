@@ -367,7 +367,11 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	if(  2 * img.getMatrixSizeX() != readout_size ) 
 		throw LocalisedException("The image dimensions passed to the simulation are not half the size of the encoded space in the header. Readout os 2 is assumed.", __FILE__, __LINE__);
 
-	if ( this->sptr_traj_->get_traj_type() == "Cartesian" )
+
+	ISMRMRD::TrajectoryType trajectory_type = this->sptr_traj_->get_traj_type();
+
+
+	if ( trajectory_type  == ISMRMRD::TrajectoryType::CARTESIAN )
 	{
 		if( img.getMatrixSizeY() != ny  )
 			throw LocalisedException("Acquisition info contains ny not matching image dimension y", __FILE__, __LINE__);
@@ -406,9 +410,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	ISMRMRD::NDArray< complex_float_t > k_data;
 	
-	std::string trajectory_type = this->sptr_traj_->get_traj_type();
 
-	if( trajectory_type == "RPE" )
+	if( trajectory_type == ISMRMRD::TrajectoryType::OTHER )
 	{
 		std::cout << "RPE Acquisition Process" << std::endl;
 
@@ -424,7 +427,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		k_data = RPE_FFT.get_k_data();
 
 	}
-	else if( trajectory_type == "" || trajectory_type == "Cartesian" ) 
+	else if(trajectory_type == ISMRMRD::TrajectoryType::CARTESIAN ) 
 	{
 		std::cout << "Cartesian Acquisition Process" << std::endl;
 		FullySampledCartesianFFT CartFFT;
