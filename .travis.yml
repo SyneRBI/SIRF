@@ -179,6 +179,7 @@ before_install:
         #export PATH="$PWD/cmake/bin:$PATH"
         # Use docker for gadgetron
         brew install docker
+        open --background -a Docker
         docker pull gadgetron/ubuntu_1604_cuda80
       )
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
