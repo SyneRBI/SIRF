@@ -75,8 +75,6 @@ env:
 # Ubuntu 14.04 LTS
 dist: trusty
 
-# sudo required for docker
-sudo: required
 services:
  - docker
 
