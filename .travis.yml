@@ -178,8 +178,9 @@ before_install:
         #mv cmake-*/CMake.app/Contents/* cmake
         #export PATH="$PWD/cmake/bin:$PATH"
         # Use docker for gadgetron
-        brew install docker
-        open --background -a Docker
+        brew install docker docker-machine
+        docker-machine create default
+        eval $(docker-machine env default)
         docker pull gadgetron/ubuntu_1604_cuda80
       )
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -240,7 +241,7 @@ install:
 script:
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      docker run --publish=9002:9002 --volume=/tmp/gadgetron_data:/tmp/gadgetron_data --rm -t gadgetron/ubuntu_1604_cuda80 >& gadgetron.log&
+      docker run --publish 9002:9002 --volume=/tmp/gadgetron_data:/tmp/gadgetron_data --rm -t gadgetron/ubuntu_1604_cuda80 >& gadgetron.log&
     else
       ./INSTALL/bin/gadgetron >& gadgetron.log&
     fi
