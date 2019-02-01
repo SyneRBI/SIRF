@@ -76,7 +76,7 @@ public:
 protected:
 
     /// Check parameters
-    virtual void check_parameters();
+    virtual void check_parameters() const;
 
     /// Parse parameter file
     virtual void parse_parameter_file();

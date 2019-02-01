@@ -460,15 +460,13 @@ NiftiImageData<dataType> NiftiImageData<dataType>::maths(const float val, const 
 
 /// Open nifti image
 template<class dataType>
-void NiftiImageData<dataType>::open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path &filename)
+void NiftiImageData<dataType>::open_nifti_image(std::shared_ptr<nifti_image> &image, const std::string &filename)
 {
     // Check filename has been entered, file exists and file is nifti
     if (filename.empty())
         throw std::runtime_error("Empty filename has been supplied, cannot open nifti image.");
-    if (!boost::filesystem::exists(filename))
-        throw std::runtime_error("Cannot find the file: " + filename.string() + ".");
     if (is_nifti_file(filename.c_str()) == -1)
-        throw std::runtime_error("Attempting to open a file that is not a NIFTI image.\n\tFilename: " + filename.string());
+        throw std::runtime_error("Attempting to open a file that is not a NIFTI image.\n\tFilename: " + filename);
 
     // Open file
     nifti_image *im = nifti_image_read(filename.c_str(), 1);

@@ -85,8 +85,6 @@ void* cReg_setParameter
 (void* ptr_s, const char* obj, const char* name, const void* ptr_v)
 {
 	try {
-		CAST_PTR(DataHandle, hs, ptr_s);
-		CAST_PTR(DataHandle, hv, ptr_v);
         if (strcmp(obj, "Registration") == 0)
             return cReg_setRegistrationParameter(ptr_s, name, ptr_v);
         if (strcmp(obj, "NiftyF3dSym") == 0)
@@ -304,7 +302,7 @@ void* cReg_NiftiImageData_get_original_datatype(const void* im_ptr)
 {
     try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
-        return charDataHandleFromCharData(nifti_datatype_to_string(im.get_original_datatype()));
+        return dataHandle<int>(im.get_original_datatype());
     }
     CATCH;
 }
@@ -324,30 +322,19 @@ void* cReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, size_t 
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3D
 // -------------------------------------------------------------------------------- //
-/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
+
 extern "C"
-void* cReg_NiftiImageData3D_from_PETImageData(void* ptr)
+void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr)
 {
 	try {
-        sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(ptr);
-        shared_ptr<NiftiImageData3D<float> >
+        ImageData& pet_im = objectFromHandle<ImageData>(ptr);
+        std::shared_ptr<NiftiImageData3D<float> >
             sptr(new NiftiImageData3D<float>(pet_im));
         return newObjectHandle(sptr);
     }
 	CATCH;
 }
-extern "C"
-void* cReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj)
-{
-    try {
-        NiftiImageData3D<float>& im = objectFromHandle<NiftiImageData3D<float> >(ptr);
-        sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(obj);
-        im.copy_data_to(pet_im);
-        return new DataHandle;
-    }
-    CATCH;
-}
-*/
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DTensor
 // -------------------------------------------------------------------------------- //
@@ -376,9 +363,9 @@ extern "C"
 void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr)
 {
     try {
-        NiftiImageData3D<float>& x = objectFromHandle<NiftiImageData3D<float> >(x_ptr);
-        NiftiImageData3D<float>& y = objectFromHandle<NiftiImageData3D<float> >(y_ptr);
-        NiftiImageData3D<float>& z = objectFromHandle<NiftiImageData3D<float> >(z_ptr);
+        ImageData& x = objectFromHandle<ImageData>(x_ptr);
+        ImageData& y = objectFromHandle<ImageData>(y_ptr);
+        ImageData& z = objectFromHandle<ImageData>(z_ptr);
 
         std::shared_ptr<NiftiImageData3DTensor<float> > sptr;
         if (strcmp(obj,"NiftiImageData3DTensor") == 0)

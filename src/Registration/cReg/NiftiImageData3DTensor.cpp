@@ -103,18 +103,20 @@ void NiftiImageData3DTensor<dataType>::write_split_xyz_components(const std::str
     if (filename_pattern.empty())
         throw std::runtime_error("Error, cannot write " + filename_pattern + " to file because filename is blank.");
 
-    std::string filename_x, filename_y, filename_z;
+    // Check it contains the %s format
+    size_t pos = filename_pattern.find("%s");
+    if (pos == filename_pattern.npos)
+        throw std::runtime_error("Filename (" + filename_pattern + ") should be given in boost format (e.g., output_%s.nii)");
 
-    try{
-        filename_x = str(boost::format(filename_pattern) % "x");
-        filename_y = str(boost::format(filename_pattern) % "y");
-        filename_z = str(boost::format(filename_pattern) % "z");
-    }
-    catch (const std::exception &exc) {
-        throw std::runtime_error("Filename (" + filename_pattern + ") should be given in boost format (e.g., output_%s.nii)\n\t" + std::string(exc.what()));
-    }
+    std::vector<std::string> filenames(3);
+    for (unsigned i=0; i<3; ++i)
+        filenames[i] = filename_pattern;
 
-    this->write_split_xyz_components(filename_x, filename_y, filename_z, datatype);
+    filenames[0].replace(pos, 2, "x");
+    filenames[1].replace(pos, 2, "y");
+    filenames[2].replace(pos, 2, "z");
+
+    this->write_split_xyz_components(filenames[0], filenames[1], filenames[2], datatype);
 }
 
 template<class dataType>

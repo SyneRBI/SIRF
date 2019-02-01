@@ -2,7 +2,6 @@
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 Copyright 2017 - 2019 University College London
-
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
 (http://www.ccppetmr.ac.uk/).
@@ -88,11 +87,10 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_original_datatype(const void
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr) {
 	return cReg_NiftiImageData_crop(im_ptr, min_index_ptr, max_index_ptr);
 }
-/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-    void* cReg_NiftiImageData3D_from_PETImageData(void* ptr);
-    void* cReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj);
-*/
-EXPORTED_FUNCTION  void* mReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3D_from_SIRFImageData(void* ptr) {
+	return cReg_NiftiImageData3D_from_SIRFImageData(ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
 	return cReg_NiftiImageData3DTensor_write_split_xyz_components(ptr, filename, datatype);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj) {

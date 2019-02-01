@@ -57,12 +57,12 @@ static std::string get_date_time_string()
 }
 
 void 
-MRAcquisitionData::write(const char* filename)
+MRAcquisitionData::write(const std::string &filename) const
 {
 	Mutex mtx;
 	mtx.lock();
 	shared_ptr<ISMRMRD::Dataset> dataset
-		(new ISMRMRD::Dataset(filename, "/dataset", true));
+		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", true));
 	dataset->writeHeader(acqs_info_);
 	mtx.unlock();
 	int n = number();
@@ -243,63 +243,6 @@ MRAcquisitionData::get_data(complex_float_t* z, int all)
 	}
 }
 
-unsigned int 
-MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im) const
-{
-	ISMRMRD::Acquisition acq;
-	unsigned int na = number();
-	unsigned int n = 0;
-	if (slice >= na) {
-		for (unsigned int a = 0, i = 0; a < na; a++) {
-			get_acquisition(a, acq);
-			if (TO_BE_IGNORED(acq) && slice > na) {
-				std::cout << "ignoring acquisition " << a << '\n';
-				continue;
-			}
-			n++;
-			unsigned int nc = acq.active_channels();
-			unsigned int ns = acq.number_of_samples();
-			for (unsigned int c = 0; c < nc; c++) {
-				for (unsigned int s = 0; s < ns; s++, i++) {
-					complex_float_t z = acq.data(s, c);
-					re[i] = std::real(z);
-					im[i] = std::imag(z);
-				}
-			}
-		}
-		return n;
-	}
-	int* dim = new int[3];
-	size_t ptr_dim = (size_t)dim;
-	get_acquisitions_dimensions(ptr_dim);
-	unsigned int ny = dim[2]; //e.reconSpace.matrixSize.y;
-							  //unsigned int ny = dim[1]; //e.reconSpace.matrixSize.y;
-	delete[] dim;
-	unsigned int y = 0;
-	for (; y + ny*slice < na;) {
-		get_acquisition(y + ny*slice, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-		y++;
-	}
-	for (; y + ny*slice < na; n++) {
-		get_acquisition(y + ny*slice, acq);
-		unsigned int nc = acq.active_channels();
-		unsigned int ns = acq.number_of_samples();
-		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int s = 0; s < ns; s++) {
-				complex_float_t z = acq.data(s, c);
-				re[s + ns*(n + ny*c)] = std::real(z);
-				im[s + ns*(n + ny*c)] = std::imag(z);
-			}
-		}
-		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-			break;
-	}
-	return n;
-}
-
 void 
 MRAcquisitionData::axpby
 (complex_float_t a, const ISMRMRD::Acquisition& acq_x,
@@ -429,37 +372,6 @@ const void* ptr_b, const DataContainer& a_y)
 	}
 }
 
-//void
-//MRAcquisitionData::axpby(
-//	complex_float_t a, const DataContainer& a_x,
-//	complex_float_t b, const DataContainer& a_y)
-//{
-//	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-//	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
-//	int m = x.number();
-//	int n = y.number();
-//	ISMRMRD::Acquisition ax;
-//	ISMRMRD::Acquisition ay;
-//	for (int i = 0, j = 0; i < n && j < m;) {
-//		y.get_acquisition(i, ay);
-//		x.get_acquisition(j, ax);
-//		if (TO_BE_IGNORED(ay)) {
-//			std::cout << i << " ignored (ay)\n";
-//			i++;
-//			continue;
-//		}
-//		if (TO_BE_IGNORED(ax)) {
-//			std::cout << j << " ignored (ax)\n";
-//			j++;
-//			continue;
-//		}
-//		MRAcquisitionData::axpby(a, ax, b, ay);
-//		append_acquisition(ay);
-//		i++;
-//		j++;
-//	}
-//}
-
 void
 MRAcquisitionData::multiply(
 const DataContainer& a_x,
@@ -522,33 +434,6 @@ const DataContainer& a_y)
 	}
 }
 
-//complex_float_t
-//MRAcquisitionData::dot(const DataContainer& dc)
-//{
-//	MRAcquisitionData& other = (MRAcquisitionData&)dc;
-//	int n = number();
-//	int m = other.number();
-//	complex_float_t z = 0;
-//	ISMRMRD::Acquisition a;
-//	ISMRMRD::Acquisition b;
-//	for (int i = 0, j = 0; i < n && j < m;) {
-//		get_acquisition(i, a);
-//		if (TO_BE_IGNORED(a)) {
-//			i++;
-//			continue;
-//		}
-//		other.get_acquisition(j, b);
-//		if (TO_BE_IGNORED(b)) {
-//			j++;
-//			continue;
-//		}
-//		z += MRAcquisitionData::dot(a, b);
-//		i++;
-//		j++;
-//	}
-//	return z;
-//}
-
 float 
 MRAcquisitionData::norm() const
 {
@@ -566,17 +451,17 @@ MRAcquisitionData::norm() const
 	return sqrt(r);
 }
 
-gadgetron::shared_ptr<MRAcquisitionData> 
-MRAcquisitionData::clone()
+MRAcquisitionData*
+MRAcquisitionData::clone_base() const
 {
-	gadgetron::shared_ptr<MRAcquisitionData> sptr_ad =
-		new_acquisitions_container();
+	MRAcquisitionData* ptr_ad =
+		acqs_templ_->same_acquisitions_container(this->acqs_info_);
 	for (int i = 0; i < number(); i++) {
 		ISMRMRD::Acquisition acq;
 		get_acquisition(i, acq);
-		sptr_ad->append_acquisition(acq);
+		ptr_ad->append_acquisition(acq);
 	}
-	return sptr_ad;
+	return ptr_ad;
 }
 
 void
@@ -754,37 +639,6 @@ AcquisitionsFile::write_acquisitions_info()
 	mtx.unlock();
 }
 
-int
-AcquisitionsFile::set_acquisition_data
-(int na, int nc, int ns, const float* re, const float* im)
-{
-	shared_ptr<MRAcquisitionData> sptr_ac =
-		this->new_acquisitions_container();
-	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
-	ptr_ac->set_acquisitions_info(acqs_info_);
-	ptr_ac->write_acquisitions_info();
-	ptr_ac->set_ordered(true);
-	ISMRMRD::Acquisition acq;
-	int ma = number();
-	for (int a = 0, i = 0; a < ma; a++) {
-		get_acquisition(a, acq);
-		if (TO_BE_IGNORED(acq) && ma > na) {
-			std::cout << "ignoring acquisition " << a << '\n';
-			continue;
-		}
-		unsigned int mc = acq.active_channels();
-		unsigned int ms = acq.number_of_samples();
-		if (mc != nc || ms != ns)
-			return -1;
-		for (int c = 0; c < nc; c++)
-			for (int s = 0; s < ns; s++, i++)
-				acq.data(s, c) = complex_float_t((float)re[i], (float)im[i]);
-		sptr_ac->append_acquisition(acq);
-	}
-	take_over(*sptr_ac);
-	return 0;
-}
-
 void
 AcquisitionsFile::set_data(const complex_float_t* z, int all)
 {
@@ -830,28 +684,6 @@ AcquisitionsVector::set_data(const complex_float_t* z, int all)
 	}
 }
 
-int
-AcquisitionsVector::set_acquisition_data
-(int na, int nc, int ns, const float* re, const float* im)
-{
-	int ma = number();
-	for (int a = 0, i = 0; a < ma; a++) {
-		ISMRMRD::Acquisition& acq = *acqs_[a];
-		if (TO_BE_IGNORED(acq) && ma > na) {
-			std::cout << "ignoring acquisition " << a << '\n';
-			continue;
-		}
-		unsigned int mc = acq.active_channels();
-		unsigned int ms = acq.number_of_samples();
-		if (mc != nc || ms != ns)
-			return -1;
-		for (int c = 0; c < nc; c++)
-			for (int s = 0; s < ns; s++, i++)
-				acq.data(s, c) = complex_float_t((float)re[i], (float)im[i]);
-	}
-	return 0;
-}
-
 void
 GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 {
@@ -887,25 +719,6 @@ const void* ptr_b, const DataContainer& a_y)
 	}
 }
 
-//void
-//GadgetronImageData::axpby(
-//	complex_float_t a, const DataContainer& a_x,
-//	complex_float_t b, const DataContainer& a_y)
-//{
-//	GadgetronImageData& x = (GadgetronImageData&)a_x;
-//	GadgetronImageData& y = (GadgetronImageData&)a_y;
-//	ImageWrap w(x.image_wrap(0));
-//	complex_float_t zero(0.0, 0.0);
-//	complex_float_t one(1.0, 0.0);
-//	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-//		const ImageWrap& u = x.image_wrap(i);
-//		const ImageWrap& v = y.image_wrap(i);
-//		w.axpby(a, u, zero);
-//		w.axpby(b, v, one);
-//		append(w);
-//	}
-//}
-
 void
 GadgetronImageData::multiply(
 const DataContainer& a_x,
@@ -933,19 +746,6 @@ const DataContainer& a_y)
 		append(w);
 	}
 }
-
-//complex_float_t
-//GadgetronImageData::dot(const DataContainer& dc)
-//{
-//	GadgetronImageData& ic = (GadgetronImageData&)dc;
-//	complex_float_t z = 0;
-//	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
-//		const ImageWrap& u = image_wrap(i);
-//		const ImageWrap& v = ic.image_wrap(i);
-//		z += u.dot(v);
-//	}
-//	return z;
-//}
 
 float 
 GadgetronImageData::norm() const
@@ -1245,12 +1045,41 @@ static bool is_unit_vector(const float * const vec)
     return std::abs(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] - 1.F) < 1.e-4F;
 }
 
+static void print_slice_directions(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
+{
+    std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.\n";
+    for (unsigned im=0; im<images.size(); ++im) {
+        ISMRMRD::ImageHeader &ih = images[im]->head();
+        float *sd = ih.slice_dir;
+        std::cout << "Slice dir " << im << ": [" << sd[0] << ", " << sd[1] << ", " << sd[2] << "]\n";
+    }
+}
+
+static void print_slice_distances(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
+{
+    std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.\n";
+    for (unsigned im=0; im<images.size()-1; ++im) {
+        ISMRMRD::ImageHeader &ih1 = images[ im ]->head();
+        ISMRMRD::ImageHeader &ih2 = images[im+1]->head();
+        float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
+                ih1.position[1] * ih1.slice_dir[1] +
+                ih1.position[2] * ih1.slice_dir[2];
+        float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
+                ih2.position[1] * ih2.slice_dir[1] +
+                ih2.position[2] * ih2.slice_dir[2];
+        std::cout << "Spacing " << im << ": " << projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2 << "\n";
+    }
+}
+
 void
 GadgetronImagesVector::set_up_geom_info()
 {
 #ifndef NDEBUG
     std::cout << "\nSetting up geometrical info for GadgetronImagesVector...\n";
 #endif
+
+    if (!this->ordered())
+        this->order();
 
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
@@ -1277,9 +1106,9 @@ GadgetronImagesVector::set_up_geom_info()
         // First check that the slice direction is a unit vector
         const float * const slice_dir = ih1.slice_dir;
         if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir)) {
-#ifndef NDEBUG
+
             std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
-#endif
+
             return;
         }
 
@@ -1305,9 +1134,7 @@ GadgetronImagesVector::set_up_geom_info()
             // 1. Check that the slice_dir is always constant
             for (int dim=0; dim<3; ++dim)
                 if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F) {
-#ifndef NDEBUG
-                    std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.");
-#endif
+                    print_slice_directions(this->images_);
                     return;
                 }
 
@@ -1320,9 +1147,7 @@ GadgetronImagesVector::set_up_geom_info()
                     ih2.position[2] * ih2.slice_dir[2];
             float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
             if (std::abs(spacing[2]-new_spacing) > 1.e-4F) {
-#ifndef NDEBUG
-                std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.");
-#endif
+                print_slice_distances(images_);
                 return;
             }
         }
@@ -1365,17 +1190,6 @@ CoilDataAsCFImage::set_data(const float* re, const float* im)
 	complex_float_t* ptr = img_.getDataPtr();
 	for (size_t i = 0; i < n; i++)
 		ptr[i] = complex_float_t((float)re[i], (float)im[i]);
-}
-
-void 
-CoilDataAsCFImage::get_data_abs(float* v) const
-{
-	size_t n = img_.getNumberOfDataElements();
-	const complex_float_t* ptr = img_.getDataPtr();
-	for (size_t i = 0; i < n; i++) {
-		complex_float_t z = ptr[i];
-		v[i] = std::abs(z);
-	}
 }
 
 void 

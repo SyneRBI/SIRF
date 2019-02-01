@@ -28,7 +28,7 @@ if nargin < 1
 end
 import_str = set_up_MR(engine);
 eval(import_str)
-
+mr_data_path = mUtilities.examples_data_path('MR');
 
 % In this demo, rather than using a predefined image reconstruction 
 % object, here an image reconstruction object is created by concatinating 

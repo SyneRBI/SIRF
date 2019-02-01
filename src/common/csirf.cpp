@@ -30,6 +30,10 @@ limitations under the License.
 
 using namespace sirf;
 
+#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))
+#define SPTR_FROM_HANDLE(Object, X, H) \
+	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+
 extern "C"
 void*
 cSIRF_dataItems(const void* ptr_x)
@@ -135,3 +139,28 @@ cSIRF_divide(const void* ptr_x, const void* ptr_y)
 	CATCH;
 }
 
+extern "C"
+void*
+cSIRF_write(const void* ptr, const char* filename)
+{
+	try {
+		DataContainer& data =
+			objectFromHandle<DataContainer >(ptr);
+		data.write(filename);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* 
+cSIRF_clone(void* ptr_x)
+{
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		std::shared_ptr<DataContainer> sptr(x.clone());
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}

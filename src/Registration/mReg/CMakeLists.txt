@@ -23,11 +23,10 @@ if(BUILD_MATLAB)
   include_directories(${Matlab_INCLUDE_DIRS})
 
   add_library(mreg SHARED mreg.c printer.cpp)
-  target_link_libraries(mreg cstir)
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mreg PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
-  target_link_libraries(mreg Reg iutilities csirf ${Matlab_LIBRARIES} ${STIR_LIBRARIES})
+  target_link_libraries(mreg Reg iutilities csirf cstir ${Matlab_LIBRARIES} ${STIR_LIBRARIES})
   INSTALL(TARGETS mreg DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mreg.h DESTINATION "${MATLAB_DEST}")
   INSTALL(DIRECTORY +mReg DESTINATION "${MATLAB_DEST}")

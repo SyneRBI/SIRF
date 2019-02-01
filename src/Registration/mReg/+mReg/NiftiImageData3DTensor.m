@@ -22,6 +22,9 @@ classdef NiftiImageData3DTensor < mReg.NiftiImageData
         function name = class_name()
             name = 'NiftiImageData3DTensor';
         end
+        function obj = same_object()
+            obj = mReg.NiftiImageData3DTensor();
+        end
     end
     methods
         function self = NiftiImageData3DTensor(src1, src2, src3)
@@ -31,7 +34,7 @@ classdef NiftiImageData3DTensor < mReg.NiftiImageData
                 self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src1)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src1);
-            elseif nargin == 3 && isa(src1, 'mReg.NiftiImageData3D') && isa(src2, 'mReg.NiftiImageData3D') && isa(src3, 'mReg.NiftiImageData3D')
+            elseif nargin == 3 && isa(src1, 'mSIRF.ImageData') && isa(src2, 'mSIRF.ImageData') && isa(src3, 'mSIRF.ImageData')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
             end
             mUtilities.check_status(self.name, self.handle_)
@@ -54,7 +57,7 @@ classdef NiftiImageData3DTensor < mReg.NiftiImageData
         end
         function create_from_3D_image(self, src)
             %Create deformation/displacement field from 3D image.
-            assert(isa(src, 'mReg.NiftiImageData3D'), [self.name ':create_from_3D_imageInput. Input should be NiftiImageData3D.'])
+            assert(isa(src, 'mSIRF.ImageData'), [self.name ':create_from_3D_imageInput. Input should be mSIRF.ImageData.'])
             h = calllib('mreg', 'mReg_NiftiImageData3DTensor_create_from_3D_image', self.handle_, src.handle_);
             mUtilities.check_status([self.name ':create_from_3d_image'], h);
             mUtilities.delete(h)

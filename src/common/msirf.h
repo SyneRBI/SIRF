@@ -41,6 +41,8 @@ EXPORTED_FUNCTION void*	mSIRF_dot(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION void* mSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x, const PTR_FLOAT ptr_b, const void* ptr_y);
 EXPORTED_FUNCTION void* mSIRF_multiply(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION void* mSIRF_divide(const void* ptr_x, const void* ptr_y);
+EXPORTED_FUNCTION void* mSIRF_write(const void* ptr, const char* filename);
+EXPORTED_FUNCTION void* mSIRF_clone(void* ptr_x);
 #ifndef CSIRF_FOR_MATLAB
 }
 #endif

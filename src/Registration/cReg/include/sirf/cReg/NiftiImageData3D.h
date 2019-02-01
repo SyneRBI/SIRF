@@ -69,9 +69,10 @@ public:
     /// Construct from any other image data (e.g., STIRImageData)
     NiftiImageData3D(const ImageData& id);
 
-    virtual NiftiImageData3D* same_image_data() const
+    virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {
-        return new NiftiImageData3D;
+        return new ObjectHandle<DataContainer>
+            (std::shared_ptr<DataContainer>(new NiftiImageData3D));
     }
     /// Clone and return as unique pointer.
     std::unique_ptr<NiftiImageData3D> clone() const

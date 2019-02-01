@@ -33,7 +33,7 @@ import time
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, label_and_name, \
      name_and_parameters, parse_arglist, \
-	 examples_data_path, petmr_data_path, existing_filepath, \
+     examples_data_path, petmr_data_path, existing_filepath, \
      pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
@@ -141,11 +141,6 @@ def _parameterHandle(hs, set, par):
 
 # data path finding helper functions
 def mr_data_path():
-    '''
-    Returns default path to MR raw data files.
-    '''
-    return petmr_data_path('mr')
-def raw_data_path():
     '''
     Returns default path to MR raw data files.
     '''
@@ -370,19 +365,6 @@ class CoilSensitivityData(DataContainer):
         pygadgetron.cGT_getCoilData\
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
-    def abs_as_array(self, csm_num):
-        '''
-        Returns the abs of specified csm as Numpy ndarray.
-        csm_num: csm (slice) number
-        '''
-        assert self.handle is not None
-        nx, ny, nz, nc = self.map_dimensions()
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
-        pygadgetron.cGT_getCoilDataAbs\
-            (self.handle, csm_num, array.ctypes.data)
-        return array
 
 DataContainer.register(CoilSensitivityData)
 
@@ -529,24 +511,8 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         ip = ImageDataProcessor(list)
         return ip.process(self)
-    def clone(self):
-        '''
-        Returns a copy of self.
-        '''
-        assert self.handle is not None
-        ip = ImageDataProcessor()
-        return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-    def write(self, out_file, out_group=''):
-        '''
-        Writes self's images to an hdf5 file.
-        out_file : the file name (Python string)
-        out_group: hdf5 dataset name (Python string)
-        '''
-        assert self.handle is not None
-        try_calling(pygadgetron.cGT_writeImages\
-                    (self.handle, out_file, out_group))
     def select(self, attr, value):
         '''
         Creates an images container with images from self with the specified
@@ -793,16 +759,6 @@ class AcquisitionData(DataContainer):
         '''
         ap = AcquisitionDataProcessor(list)
         return ap.process(self)
-    def clone(self):
-        '''
-        Returns a copy of self.
-        '''
-        ad = AcquisitionData()
-        ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
-        check_status(ad.handle)
-        return ad;
-##        ap = AcquisitionDataProcessor()
-##        return ap.process(self)
     def acquisition(self, num):
         '''
         Returns the specified acquisition.
@@ -875,14 +831,6 @@ class AcquisitionData(DataContainer):
         try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
             (self.handle, z.ctypes.data, return_all))
         return z
-    def write(self, out_file):
-        '''
-        Writes self's acquisitions to an hdf5 file.
-        out_file : the file name (Python string)
-        '''
-        assert self.handle is not None
-        try_calling(pygadgetron.cGT_writeAcquisitions\
-                    (self.handle, out_file))
 
 DataContainer.register(AcquisitionData)
 

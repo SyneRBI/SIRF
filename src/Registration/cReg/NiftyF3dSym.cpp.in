@@ -82,7 +82,9 @@ void NiftyF3dSym<dataType>::process()
     _registration_sptr->Run();
 
     // Get the warped image
-    this->_warped_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(**_registration_sptr->GetWarpedImage());
+    nifti_image *warped_im = *_registration_sptr->GetWarpedImage();
+    this->_warped_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(*warped_im);
+    nifti_image_free(warped_im);
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
     if (this->_floating_image_nifti_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
@@ -110,7 +112,7 @@ void NiftyF3dSym<dataType>::process()
 }
 
 template<class dataType>
-void NiftyF3dSym<dataType>::check_parameters()
+void NiftyF3dSym<dataType>::check_parameters() const
 {
     Registration<dataType>::check_parameters();
 
@@ -124,6 +126,9 @@ void NiftyF3dSym<dataType>::check_parameters()
 template<class dataType>
 void NiftyF3dSym<dataType>::parse_parameter_file()
 {
+    if (this->_parameter_filename.empty())
+        return;
+
     Parser<reg_f3d_sym<dataType> > parser;
     parser.set_object   (    _registration_sptr     );
     parser.set_filename ( this->_parameter_filename );

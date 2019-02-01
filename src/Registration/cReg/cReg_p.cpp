@@ -114,7 +114,6 @@ sirf::cReg_setRegistrationParameter(void* hp, const char* name, const void* hv)
     }
     else if (strcmp(name, "floating_image") == 0) {
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
-        std::cout << "\n setting floating image.\n";
         s.set_floating_image(im_sptr);
     }
     else if (strcmp(name, "reference_mask") == 0) {

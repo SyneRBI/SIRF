@@ -17,8 +17,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 # Configure the aladin/f3d files dependent on NiftyReg version number
 include(${CMAKE_CURRENT_SOURCE_DIR}/../callable_NR_methods.cmake)
-get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin" "${NR_VERSION}" NR_aladin_parser_methods)
-get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d"    "${NR_VERSION}" NR_f3d_parser_methods   )
+get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin_sym" "${NR_VERSION}" NR_aladin_parser_methods)
+get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d_sym"    "${NR_VERSION}" NR_f3d_parser_methods   )
 get_runtime_methods("../callable_NR_aladin_methods.txt" "${NR_VERSION}" NR_aladin_runtime_methods)
 get_runtime_methods("../callable_NR_f3d_methods.txt"    "${NR_VERSION}" NR_f3d_runtime_methods   )
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp")
@@ -45,12 +45,15 @@ TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
 )
 
-find_package(OpenMP)
-
 # NiftyReg
 TARGET_LINK_LIBRARIES(Reg PUBLIC ${NiftyReg_Libs})
-if (OpenMP_CXX_FOUND)
-  TARGET_LINK_LIBRARIES(Reg PUBLIC OpenMP::OpenMP_CXX)
+
+# If niftyreg was bulit with OpenMP
+if (NiftyReg_built_with_openmp)
+  find_package(OpenMP REQUIRED)
+  if (OpenMP_CXX_FOUND)
+    TARGET_LINK_LIBRARIES(Reg PUBLIC OpenMP::OpenMP_CXX)
+  endif()
 endif()
 
 # Add libz (should be in /usr/local)

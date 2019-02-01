@@ -73,6 +73,7 @@ extern "C" {
 	void* cSTIR_getAcquisitionsStorageScheme();
 	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
+	void* cSTIR_cloneAcquisitionData(void* ptr_ad);
 	void* cSTIR_rebinnedAcquisitionData(void* ptr_t,
 		const int num_segments_to_combine,
 		const int num_views_to_combine,

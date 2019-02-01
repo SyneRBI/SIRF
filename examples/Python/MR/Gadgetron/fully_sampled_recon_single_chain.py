@@ -40,7 +40,8 @@ args = docopt(__doc__, version=__version__)
 import time
 
 # import SIRF utilities
-from sirf.Utilities import examples_data_path, existing_filepath, show_3D_array
+from sirf.Utilities import examples_data_path, existing_filepath, \
+     show_3D_array, error
 # import MR engine types
 from sirf.Gadgetron import AcquisitionData, Reconstructor
 
@@ -113,7 +114,7 @@ def main():
         # named after the current date and time
         time_str = time.asctime()
         print('writing to %s' % output_file)
-        image_data.write(output_file, time_str)
+        image_data.write(output_file) #, time_str)
 
 ##        saved_image_data = ImageData(output_file)
 ##        image_array = saved_image_data.as_array()

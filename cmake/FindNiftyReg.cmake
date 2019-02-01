@@ -26,11 +26,12 @@ IF (NOT IS_DIRECTORY ${NiftyReg_Binary_DIR})
 ENDIF()
 
 IF(EXISTS "${NiftyReg_Binary_DIR}/CMakeCache.txt")
-  LOAD_CACHE("${NiftyReg_Binary_DIR}" READ_WITH_PREFIX "nifty" "NiftyReg_SOURCE_DIR" "CMAKE_INSTALL_PREFIX")
+  LOAD_CACHE("${NiftyReg_Binary_DIR}" READ_WITH_PREFIX "nifty" "NiftyReg_SOURCE_DIR" "CMAKE_INSTALL_PREFIX" "USE_OPENMP")
 endif()
 
 SET(NiftyReg_Source_DIR ${niftyNiftyReg_SOURCE_DIR})
 SET(NiftyReg_Install_DIR ${niftyCMAKE_INSTALL_PREFIX})
+SET(NiftyReg_built_with_openmp ${niftyUSE_OPENMP})
 
 # Include
 INCLUDE_DIRECTORIES(${NiftyReg_Source_DIR}/reg-io/nrrd/NrrdIO) # ugly, but required for nrrdIO.h

@@ -19,14 +19,13 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-find_package(STIR REQUIRED)
-
 add_library(cstir 
     cstir_p.cpp cstir_tw.cpp stir_data_containers.cpp stir_x.cpp cstir.cpp)
 target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
 target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
+target_include_directories(cstir PUBLIC "${STIR_INCLUDE_DIRS}")
 
 target_link_libraries(cstir csirf iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")

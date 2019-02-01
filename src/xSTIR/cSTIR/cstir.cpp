@@ -490,6 +490,17 @@ void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 }
 
 extern "C"
+void* cSTIR_cloneAcquisitionData(void* ptr_ad)
+{
+	try {
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		shared_ptr<PETAcquisitionData> sptr(sptr_ad->clone());
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_rebinnedAcquisitionData(void* ptr_t, 
 const int num_segments_to_combine,
 const int num_views_to_combine,
@@ -517,13 +528,16 @@ extern "C"
 void* cSTIR_acquisitionsDataFromScannerInfo
 (const char* scanner, int span, int max_ring_diff, int view_mash_factor)
 {
-	std::string storage = PETAcquisitionData::storage_scheme();
 	try{
 		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
-		shared_ptr<PETAcquisitionDataInMemory>
-			sptr_t(new PETAcquisitionDataInMemory);
+		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
+			PETAcquisitionData::proj_data_info_from_scanner
+			(scanner, span, max_ring_diff, view_mash_factor);
+		stir::shared_ptr<PETAcquisitionData> sptr_t =
+			PETAcquisitionData::storage_template();
 		shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
-			(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
+			(sptr_ei, sptr_pdi));
+		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -1012,16 +1026,9 @@ extern "C"
 void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 {
 	try {
-		//STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		float* data = (float*)ptr_data;
 		id.get_data(data);
-		//if (id.get_data(data)) {
-		//	ExecutionStatus status("not a regular image", __FILE__, __LINE__);
-		//	DataHandle* handle = new DataHandle;
-		//	handle->set(0, &status);
-		//	return (void*)handle;
-		//}
 		return new DataHandle;
 	}
 	CATCH;
@@ -1031,16 +1038,9 @@ extern "C"
 void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
 {
 	try {
-		//STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		float* data = (float*)ptr_data;
 		id.set_data(data);
-		//if (id.set_data(data)) {
-		//	ExecutionStatus status("not a regular image", __FILE__, __LINE__);
-		//	DataHandle* handle = new DataHandle;
-		//	handle->set(0, &status);
-		//	return (void*)handle;
-		//}
 		return new DataHandle;
 	}
 	CATCH;
