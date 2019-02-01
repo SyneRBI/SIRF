@@ -141,7 +141,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
                 cout << "# of mr acquis in this dynamic motion x contrast state: " << acquisitions_for_this_contrast_state.number() << endl;
 
                 std::vector<sirf::NiftiImageData3DDeformation<float> > all_motion_fields;
-                    
+                
                 for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dyns; i_motion_dyn++ )
                 {
                     cout << "Preparing motion fields for motion dynamic # " << i_motion_dyn << endl;
@@ -151,7 +151,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 
                     int const motion_bin_number = current_combination[ i_motion_dyn ];						
                     SignalBin bin = signal_bins[ motion_bin_number ];
-
+	                
                     all_motion_fields.push_back( motion_dyn->get_interpolated_displacement_field( std::get<1>(bin) ) ); 
 
                 }
@@ -222,9 +222,9 @@ void MRDynamicSimulation::set_trajectory( std::shared_ptr<aTrajectoryContainer> 
 
 void MRDynamicSimulation::set_noise_scaling( std::shared_ptr<aTrajectoryContainer> sptr_trajectory )
 {
-	auto traj_type = sptr_trajectory->get_traj_type();
+	ISMRMRD::TrajectoryType traj_type = sptr_trajectory->get_traj_type();
 
-	if( traj_type.compare( "RPE" ) == 0 )
+	if( traj_type == ISMRMRD::TrajectoryType::OTHER )
 		this->noise_generator_.set_sampling_specific_scaling(RPE_NOISE_SCALING);
 }
 
