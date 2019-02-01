@@ -1,4 +1,4 @@
-/* ================================================
+ /* ================================================
 
 Author: Johannes Mayer
 Date: 2018.03.26
@@ -67,6 +67,10 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array)
 	}
 	
 } 
+
+
+void test_read_1D_dataset_from_h5( std::string h5_filename_with_suffix);
+void test_read_geometrical_info_from_h5( std::string h5_filename_with_suffix );
 
 
 void test_read_h5_segmentation_for_xcat_input_check(std::string h5_filename_with_suffix);

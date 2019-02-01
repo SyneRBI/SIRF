@@ -20,6 +20,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <typeinfo>
 
 
+#include "sirf/common/GeometricalInfo.h"
+
 #include "H5Cpp.h"
 
 
@@ -34,6 +36,46 @@ ISMRMRD::NDArray< DataTypeMotionFields > read_motionfield_from_h5( const std::st
 ISMRMRD::NDArray< DataTypeMotionFields > read_cardiac_motionfield_from_h5( const std::string& h5_filename_with_suffix );
 ISMRMRD::NDArray< DataTypeMotionFields > read_respiratory_motionfield_from_h5( const std::string& h5_filename_with_suffix );
 
+
+
+
+template < typename T >
+std::vector< T > read_1D_dataset_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader  )
+{
+	using namespace H5;
+	const H5std_string dataset_name_h5 = name_dataset;	
+
+	H5File file( h5_filename_with_suffix, H5F_ACC_RDONLY );
+	DataSet dataset = file.openDataSet( H5std_string( name_dataset ));
+
+	H5T_class_t type_class = dataset.getTypeClass();
+
+	if( type_class == data_type_dataset )
+	{
+	    DataSpace dataspace = dataset.getSpace();
+		hsize_t dimensions_input[8];
+        hsize_t ndims = dataspace.getSimpleExtentDims( dimensions_input, NULL);
+
+        if( ndims != 1 )
+        	throw std::runtime_error(" Please only read 1D data. Remaining information is stored in the geometry.");
+
+        size_t const num_elements = dataspace.getSimpleExtentNpoints();
+
+        std::cout << "Reading " << num_elements << " data elements." << std::endl;
+
+        std::vector< T > output( num_elements );
+		dataset.read( &output[0], data_type_reader, dataspace, dataspace);
+
+		return output;
+	}
+	else
+	{
+		throw std::runtime_error("Please give read only from datasets with type passed to data_type.");
+	}
+
+}
+
+sirf::VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( const std::string& h5_filename_with_suffix, const std::string& name_group );
 
 
 

@@ -40,6 +40,31 @@ bool test_read_h5_segmentation_correct_content( std::string h5_filename_with_suf
 		
 }
 
+void test_read_1D_dataset_from_h5( std::string h5_filename_with_suffix)
+{
+
+	std::string const name_dataset = "segmentation/data";
+
+	std::cout << "Reading dataset /" << name_dataset <<std::endl;
+
+	H5T_class_t type_input = H5T_INTEGER;
+	H5::PredType type_reader = H5::PredType::NATIVE_UINT32;
+
+ 	std::vector< DataTypeSegmentation > input = read_1D_dataset_from_h5<DataTypeSegmentation>(h5_filename_with_suffix, name_dataset, type_input, type_reader);
+
+	std::string output_name_xcat_seg =std::string( SHARED_FOLDER_PATH ) + "test_output_xcat_seg_from_1D_dataset" ;
+	data_io::write_raw<DataTypeSegmentation> (output_name_xcat_seg, &input[0], input.size()); 	
+
+}
+
+void test_read_geometrical_info_from_h5( std::string h5_filename_with_suffix )
+{
+	std::string const group_name = "segmentation";
+
+
+}
+
+
 
 void test_read_h5_segmentation_for_xcat_input_check( std::string h5_filename_xcat_seg_with_suffix)
 {
