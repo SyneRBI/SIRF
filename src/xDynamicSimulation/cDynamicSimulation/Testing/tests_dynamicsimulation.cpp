@@ -216,24 +216,24 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 	 	// cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
 	 	// cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
 		
-		respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
-	 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
-
 		// auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		// cardiac_motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
+
+		respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
+	 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
 
 		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
 
 
 		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_motion_dyn ));
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
 
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_simul_states_myocardium_contrast_dyn = 38;
-		int const num_simul_states_blood_contrast_dyn = 38;
+		int const num_simul_states_myocardium_contrast_dyn = 10;
+		int const num_simul_states_blood_contrast_dyn = 10;
 
 		MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
 
