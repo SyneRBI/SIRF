@@ -47,21 +47,49 @@ TissueParameterList aux_test::get_mock_tissue_param_list( void )
 	return tiss_list;	
 }
 
-LabelArray aux_test::get_mock_label_array( void )
+
+sirf::VoxelisedGeometricalInfo3D get_mock_geometrical_info( void )
+{
+
+	sirf::VoxelisedGeometricalInfo3D::Offset offset{0.f,0.f,0.f};
+	sirf::VoxelisedGeometricalInfo3D::Spacing spacing{1.f,1.f,1.f};
+	sirf::VoxelisedGeometricalInfo3D::Size data_size{2,2,2};
+	sirf::VoxelisedGeometricalInfo3D::DirectionMatrix dir_mat;
+
+	dir_mat[0] = {1,0,0};
+	dir_mat[1] = {0,1,0};
+	dir_mat[2] = {0,0,1};
+
+	sirf::VoxelisedGeometricalInfo3D mock_geo_info( offset, spacing, data_size, dir_mat);
+
+	return mock_geo_info;
+}
+
+
+
+LabelVolume aux_test::get_mock_label_array( void )
 {
 	
-	std::vector< size_t > labels_dims = {2,2,2};
-	LabelArray labels_list(labels_dims);
+	auto geo_info = get_mock_geometrical_info();
+	auto data_size = geo_info.get_size();
 
-	for( int i=0; i< labels_list.getNumberOfElements(); i++)
+	size_t const num_vox = data_size[0] * data_size[1] * data_size[2];
+
+	std::vector<float> mock_data;
+	float const default_value = 0.f;
+	mock_data.assign( num_vox, default_value);
+
+	LabelVolume label_vol(&mock_data[0], labels_dims);
+
+	for( int i=0; i< label_vol.getNumberOfElements(); i++)
 	{
-		if( i< labels_list.getNumberOfElements()/2 )
-			labels_list(i) = 1;
+		if( i< label_vol.getNumberOfElements()/2 )
+			label_vol(i) = 1;
 		else
-			labels_list(i) = 2;
+			label_vol(i) = 2;
 	}
 
-	return labels_list;	
+	return label_vol;	
 }
 
 TissueParameter aux_test::get_mock_tissue_parameter( void )

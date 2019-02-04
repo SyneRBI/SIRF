@@ -26,6 +26,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/dynamics.h"
 #include "sirf/cGadgetron/encoding.h"
 
+#include "sirf/common/GeometricalInfo.h"
 
 #include "test_input_filenames.h"
 
@@ -47,7 +48,9 @@ namespace aux_test
 {
 
 	TissueParameterList get_mock_tissue_param_list( void );
-	LabelArray get_mock_label_array( void );
+	
+	sirf::VoxelisedGeometricalInfo3D get_mock_geometrical_info( void );
+	LabelVolume get_mock_label_array( void );
 
 	TissueParameter get_mock_tissue_parameter( void );
 	PETTissueParameter get_mock_PET_tissue_parameter( void );

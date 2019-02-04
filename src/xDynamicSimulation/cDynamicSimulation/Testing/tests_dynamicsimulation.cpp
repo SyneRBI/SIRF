@@ -169,15 +169,15 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 
 	try
 	{	
-		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
-					
-		auto data_dims = segmentation_labels.getDims();
 		
-		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
+		auto data_dims = segmentation_labels.get_dimensions();
+		
+		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
 		
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
@@ -309,29 +309,29 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 
 	try
 	{	
-		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
-	
-		data_io::write_raw( std::string(SHARED_FOLDER_PATH) + "seg_in_sim", segmentation_labels.begin(), segmentation_labels.getNumberOfElements() );
 
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+		
+		auto data_dims = segmentation_labels.get_dimensions();
 
-		 
 
 		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
 		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
 		mr_dyn_sim.set_trajectory( sptr_traj );
 
-		auto data_dims = segmentation_labels.getDims();
-		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
+		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
 		
 		std::cout << epiph( data_dims[0] ) <<std::endl;
 		std::cout << epiph( data_dims[1] ) <<std::endl;
 		std::cout << epiph( data_dims[2] ) <<std::endl;
+		std::cout << epiph( data_dims[3] ) <<std::endl;
 
-		size_t num_coils = 20;
+
+		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
 

@@ -12,7 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 TissueLabelMapper::TissueLabelMapper() {}
 
-TissueLabelMapper::TissueLabelMapper(const LabelArray& segmentation_labels, const std::string& filepath_tissue_parameter_xml)
+TissueLabelMapper::TissueLabelMapper(const LabelVolume& segmentation_labels, const std::string& filepath_tissue_parameter_xml)
 {
 	this->filepath_tissue_parameter_xml_ = filepath_tissue_parameter_xml;
 	this->segmentation_labels_ = segmentation_labels;
@@ -26,7 +26,7 @@ std::string TissueLabelMapper::get_filepath_tissue_parameter_xml()
 }
 
 
-LabelArray TissueLabelMapper::get_segmentation_labels( void )
+LabelVolume TissueLabelMapper::get_segmentation_labels( void )
 {
 	return this->segmentation_labels_;
 }
@@ -48,7 +48,14 @@ const size_t* TissueLabelMapper::get_segmentation_dimensions( void )
 	return this->segmentation_labels_.getDims();		
 }
 
-TissueVector assign_tissue_parameters_to_labels( const TissueParameterList& tiss_list, const LabelArray& label_volume )
+
+void TissueLabelMapper::assign_tissues_to_labels( void )
+{
+	this->segmentation_tissues_ = assign_tissue_parameters_to_labels( this->tissue_parameter_list_, this->segmentation_labels_);
+}
+	
+
+TissueVector assign_tissue_parameters_to_labels( const TissueParameterList& tiss_list, const LabelVolume& label_volume )
 {
 
 	size_t const num_tissue_params = tiss_list.size();
@@ -60,28 +67,38 @@ TissueVector assign_tissue_parameters_to_labels( const TissueParameterList& tiss
 		lut.insert(std::make_pair( tiss_list[i].label_, std::make_shared<TissueParameter>(tiss_list[i]) ));	//map label to pointer
 	}
 
-	size_t const num_voxels = label_volume.getNumberOfElements();
+	std::vector< int > vol_dims(8);
+	&vol_dims[0] = label_volume.get_dimensions();
 
-	TissueVector tissue_volume;
-	tissue_volume.resize(num_voxels);
+	size_t num_voxels = 1;
+	for(int i=1; i<4; i++)
+	{
+		std::cout << "data dimension " << vol_dims[i] << std::endl;
+		num_voxels *= vol_dims[i];
+	}
+
+	std::cout << " Num voxels " << num_voxels << std::endl;
+
+	TissueVector tissue_vect;
+	tissue_vect.resize(num_voxels);
 
 	for( size_t i_vox =0; i_vox<num_voxels; i_vox++)
 	{
-		auto key_value_pair = lut.find( *(label_volume.getDataPtr() + i_vox) );
+		auto key_value_pair = lut.find( (LabelType)label_volume( i_vox ) );
 		if( key_value_pair != lut.end())
 		{	
-			tissue_volume[i_vox] = key_value_pair->second;
+			tissue_vect[i_vox] = key_value_pair->second;
 		}
 		else
 		{	
 			std::stringstream msg;
-			msg << "The label " <<  *(label_volume.getDataPtr() +i_vox) << " in your label volume does not appear in the label list.";
+			msg << "The label " <<  label_volume(i_vox) << " in your label volume does not appear in the label list.";
 			throw std::runtime_error(msg.str());
 		}
 
 	}
 
-	return tissue_volume;
+	return tissue_vect;
 }
 
 
@@ -118,8 +135,3 @@ void TissueLabelMapper::replace_petmr_tissue_parameters( const LabelType&  label
 }
 
 
-void TissueLabelMapper::assign_tissues_to_labels( void )
-{
-	this->segmentation_tissues_ = assign_tissue_parameters_to_labels( this->tissue_parameter_list_, this->segmentation_labels_);
-}
-	

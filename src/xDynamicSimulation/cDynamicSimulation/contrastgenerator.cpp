@@ -23,7 +23,7 @@ using namespace sirf;
 using namespace ISMRMRD;
 
 
-AbstractContrastGenerator::AbstractContrastGenerator(const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml)
+AbstractContrastGenerator::AbstractContrastGenerator(const LabelVolume& tissue_labels, const std::string& filename_tissue_parameter_xml)
 {
 	this->tlm_ = TissueLabelMapper( tissue_labels, filename_tissue_parameter_xml );
 	tlm_.map_labels_to_tissue_from_xml();
@@ -36,7 +36,7 @@ void AbstractContrastGenerator::replace_petmr_tissue_parameters(LabelType label,
 }
 
 
-MRContrastGenerator::MRContrastGenerator (const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml) :
+MRContrastGenerator::MRContrastGenerator (const LabelVolume& tissue_labels, const std::string& filename_tissue_parameter_xml) :
 AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }
@@ -402,7 +402,7 @@ std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParamet
 
 
 
-PETContrastGenerator::PETContrastGenerator (const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml) :
+PETContrastGenerator::PETContrastGenerator (const LabelVolume& tissue_labels, const std::string& filename_tissue_parameter_xml) :
 AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }
