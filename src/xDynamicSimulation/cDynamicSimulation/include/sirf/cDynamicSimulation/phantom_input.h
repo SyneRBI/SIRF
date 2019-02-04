@@ -81,9 +81,20 @@ std::vector< T > read_1D_dataset_from_h5( const std::string& h5_filename_with_su
 sirf::VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( const std::string& h5_filename_with_suffix, const std::string& name_group );
 
 
-// template <typename dataType>
-// sirf::NiftiImageData3D<dataType> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader )
-sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader );
+template< typename inputType >
+sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader )
+{
+	std::stringstream sstream_dataset;
+	sstream_dataset << name_dataset <<  "/data";
+	std::vector< inputType >	dat = read_1D_dataset_from_h5 <inputType> ( h5_filename_with_suffix, sstream_dataset.str(), data_type_dataset, data_type_reader );
+	sirf::VoxelisedGeometricalInfo3D geo_info = read_voxelised_geometry_info_from_h5_dataset( h5_filename_with_suffix, name_dataset );
+
+	sirf::NiftiImageData3D< float > nifti_img( &dat[0], geo_info);
+
+	return nifti_img;
+}
+
+// sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader );
 
 sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::string& h5_filename_with_suffix);
 

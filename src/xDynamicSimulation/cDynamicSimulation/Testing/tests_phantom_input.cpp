@@ -101,12 +101,14 @@ void test_read_segmentation_to_nifti( std::string h5_filename_with_suffix )
 	H5::PredType type_reader = H5::PredType::NATIVE_UINT32;
 
 	// sirf::NiftiImageData3D<float> segmentation_nifti =  read_nifti_from_h5<DataTypeSegmentation>( h5_filename_with_suffix, dataset_name, type_input, type_reader );
-	sirf::NiftiImageData3D<float> segmentation_nifti =  read_nifti_from_h5( h5_filename_with_suffix, dataset_name, type_input, type_reader );
+	sirf::NiftiImageData3D<float> segmentation_nifti =  read_nifti_from_h5<DataTypeSegmentation>( h5_filename_with_suffix, dataset_name, type_input, type_reader );
 
 	std::string output_name_seg_nifti =std::string( SHARED_FOLDER_PATH ) + "test_output_xcat_seg_from_nifti" ;
 	
+	std::cout << epiph( segmentation_nifti.get_max() ) <<std::endl;
+
 	segmentation_nifti.write( output_name_seg_nifti);
-	
+
 }
 
 
