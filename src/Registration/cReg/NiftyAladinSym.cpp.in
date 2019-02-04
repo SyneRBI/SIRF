@@ -87,13 +87,13 @@ void NiftyAladinSym<dataType>::process()
         this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the forward and inverse transformation matrices
-    this->_TM_forward_sptr = std::make_shared<AffineTransformation<dataType> >(*this->_registration_sptr->GetTransformationMatrix());
-    this->_TM_inverse_sptr = std::make_shared<AffineTransformation<dataType> >(nifti_mat44_inverse(*_registration_sptr->GetTransformationMatrix()));
+    this->_TM_forward_sptr = std::make_shared<AffineTransformation<float> >(*this->_registration_sptr->GetTransformationMatrix());
+    this->_TM_inverse_sptr = std::make_shared<AffineTransformation<float> >(nifti_mat44_inverse(*_registration_sptr->GetTransformationMatrix()));
 
     std::cout << "\nPrinting forwards tranformation matrix:\n";
     _TM_forward_sptr->print();
     std::cout << "\nPrinting inverse tranformation matrix:\n";
-    std::dynamic_pointer_cast<const AffineTransformation<dataType> >(_TM_inverse_sptr)->print();
+    std::dynamic_pointer_cast<const AffineTransformation<float> >(_TM_inverse_sptr)->print();
 
     // Get as deformation and displacement
     NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(ref);

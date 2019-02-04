@@ -677,7 +677,7 @@ void NiftiImageData<dataType>::set_up_data(const int original_datatype)
     // Save the original datatype, we'll convert it back to this just before saving
     _original_datatype = original_datatype;
 
-    // TODO display a warning that data will be lost if original was e.g., double
+    // Display a warning that data will be lost if original was e.g., double
     if (original_datatype != NIFTI_TYPE_FLOAT32) {
         if (_nifti_image->nbyper > int(sizeof(float)))
             std::cout << "\nDecreasing number of bytes per pixel, could cause loss of accuracy.\n"
@@ -887,7 +887,7 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
         images.push_back(ims[i]->get_raw_nifti_sptr());
 
     // Print transformation matrices
-    std::vector<AffineTransformation<dataType> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
+    std::vector<AffineTransformation<float> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
     for(unsigned j=0; j<images.size(); j++) {
         qto_ijk_vec.push_back(images[j]->qto_ijk.m);
         qto_xyz_vec.push_back(images[j]->qto_xyz.m);
@@ -895,13 +895,13 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
         sto_xyz_vec.push_back(images[j]->sto_xyz.m);
     }
     std::cout << "\t" << std::left << std::setw(19) << "qto_ijk:" << "\n";
-    AffineTransformation<dataType>::print(qto_ijk_vec);
+    AffineTransformation<float>::print(qto_ijk_vec);
     std::cout << "\t" << std::left << std::setw(19) << "qto_xyz:" << "\n";
-    AffineTransformation<dataType>::print(qto_xyz_vec);
+    AffineTransformation<float>::print(qto_xyz_vec);
     std::cout << "\t" << std::left << std::setw(19) << "sto_ijk:" << "\n";
-    AffineTransformation<dataType>::print(sto_ijk_vec);
+    AffineTransformation<float>::print(sto_ijk_vec);
     std::cout << "\t" << std::left << std::setw(19) << "sto_xyz:" << "\n";
-    AffineTransformation<dataType>::print(sto_xyz_vec);
+    AffineTransformation<float>::print(sto_xyz_vec);
 
     // Print original datatype
     std::string original_datatype = "orig_datatype: ";
