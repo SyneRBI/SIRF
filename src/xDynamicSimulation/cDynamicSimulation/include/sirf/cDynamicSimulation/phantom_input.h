@@ -85,6 +85,9 @@ sirf::VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( c
 // sirf::NiftiImageData3D<dataType> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader )
 sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader );
 
+sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::string& h5_filename_with_suffix);
+
+
 
 
 template< typename T > 

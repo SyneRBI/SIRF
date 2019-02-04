@@ -87,6 +87,16 @@ sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename
 	return nifti_img;
 }
 
+sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::string& h5_filename_with_suffix);
+{
+	std::string const dataset_name = "/segmentation";
+	H5T_class_t type_input = H5T_INTEGER;
+	H5::PredType type_reader = H5::PredType::NATIVE_UINT32;
+
+	sirf::NiftiImageData3D<float> segmentation_nifti =  read_nifti_from_h5( h5_filename_with_suffix, dataset_name, type_input, type_reader );
+
+	return segmentation_nifti;
+}
 
 
 

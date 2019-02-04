@@ -106,6 +106,7 @@ void test_read_segmentation_to_nifti( std::string h5_filename_with_suffix )
 	std::string output_name_seg_nifti =std::string( SHARED_FOLDER_PATH ) + "test_output_xcat_seg_from_nifti" ;
 	
 	segmentation_nifti.write( output_name_seg_nifti);
+	
 }
 
 
