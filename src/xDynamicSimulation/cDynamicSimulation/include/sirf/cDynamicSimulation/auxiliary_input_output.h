@@ -24,7 +24,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <stdexcept>
 
 #include <ismrmrd/xml.h>
-#include <gadgetron/ImageIOAnalyze.h>
+// #include <gadgetron/ImageIOAnalyze.h>
 
 #include "sirf/cSTIR/stir_data_containers.h"
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
@@ -95,16 +95,18 @@ namespace data_io{
 		float const pix_size_U = 0.f;
 		float const pix_size_Vec = 1.f;
 
-		Gadgetron::hoNDArray< T > data_to_be_written( img_dims );
-		size_t const num_elements = img.getNumberOfDataElements();
+		// Gadgetron::hoNDArray< T > data_to_be_written( img_dims );
+		// size_t const num_elements = img.getNumberOfDataElements();
 		
-		for( size_t i=0; i<num_elements; i++)
-			*(data_to_be_written.begin() + i) = *(img.begin() + i);
+		// for( size_t i=0; i<num_elements; i++)
+		// 	*(data_to_be_written.begin() + i) = *(img.begin() + i);
 	
 
-		Gadgetron::ImageIOAnalyze analyze_io( PIX_SIZE_X, PIX_SIZE_Y, PIX_SIZE_Z, pix_size_U, pix_size_Vec);
+		// Gadgetron::ImageIOAnalyze analyze_io( PIX_SIZE_X, PIX_SIZE_Y, PIX_SIZE_Z, pix_size_U, pix_size_Vec);
 
-		analyze_io.export_array(data_to_be_written, output_name_without_ext);
+		// analyze_io.export_array(data_to_be_written, output_name_without_ext);
+
+		throw std::runtime_error("THIS FUNCTION IS OUTCOMMENTED SINCE IT BREAKS EVERYTHING BECAUSE OF THE INCLUSION PROBLEM.");
 
 		std::cout << "Finished writing "  << output_name_without_ext << std::endl;		
 	};

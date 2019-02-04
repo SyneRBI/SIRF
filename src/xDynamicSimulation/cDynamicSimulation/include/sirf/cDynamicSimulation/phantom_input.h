@@ -21,6 +21,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "sirf/common/GeometricalInfo.h"
+#include "sirf/cReg/NiftiImageData3D.h"
 
 #include "H5Cpp.h"
 
@@ -44,6 +45,8 @@ std::vector< T > read_1D_dataset_from_h5( const std::string& h5_filename_with_su
 {
 	using namespace H5;
 	const H5std_string dataset_name_h5 = name_dataset;	
+
+	std::cout << "Opening dataset " << name_dataset <<std::endl;
 
 	H5File file( h5_filename_with_suffix, H5F_ACC_RDONLY );
 	DataSet dataset = file.openDataSet( H5std_string( name_dataset ));
@@ -76,6 +79,11 @@ std::vector< T > read_1D_dataset_from_h5( const std::string& h5_filename_with_su
 }
 
 sirf::VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( const std::string& h5_filename_with_suffix, const std::string& name_group );
+
+
+// template <typename dataType>
+// sirf::NiftiImageData3D<dataType> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader )
+sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader );
 
 
 

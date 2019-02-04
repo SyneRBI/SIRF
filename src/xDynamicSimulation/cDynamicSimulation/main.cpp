@@ -19,6 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "sirf/cReg/NiftiImageData.h"
+#include "sirf/cReg/NiftiImageData3D.h"
 
 int main( int argc, char *argv[] )
 {

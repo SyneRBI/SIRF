@@ -6,13 +6,19 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-
-#include "sirf/cDynamicSimulation/phantom_input.h"
 #include "auxiliary_testing_functions.h"
+
+#include "sirf/common/GeometricalInfo.h"
+
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/phantom_input.h"
+
+
 
 #include "tests_phantom_input.h"
 
+
+using namespace sirf;
 
 bool test_read_h5_segmentation_correct_dims( std::string h5_filename_with_suffix)
 {
@@ -43,9 +49,9 @@ bool test_read_h5_segmentation_correct_content( std::string h5_filename_with_suf
 void test_read_1D_dataset_from_h5( std::string h5_filename_with_suffix)
 {
 
-	std::string const name_dataset = "segmentation/data";
+	std::string const name_dataset = "/segmentation/data";
 
-	std::cout << "Reading dataset /" << name_dataset <<std::endl;
+	std::cout << "Reading dataset " << name_dataset <<std::endl;
 
 	H5T_class_t type_input = H5T_INTEGER;
 	H5::PredType type_reader = H5::PredType::NATIVE_UINT32;
@@ -59,11 +65,48 @@ void test_read_1D_dataset_from_h5( std::string h5_filename_with_suffix)
 
 void test_read_geometrical_info_from_h5( std::string h5_filename_with_suffix )
 {
-	std::string const group_name = "segmentation";
+	std::string const group_name = "/segmentation";
+ 
+	VoxelisedGeometricalInfo3D geom_info = read_voxelised_geometry_info_from_h5_dataset( h5_filename_with_suffix, group_name);
+
+	VoxelisedGeometricalInfo3D::Offset 				input_offset 	 = geom_info.get_offset();
+    VoxelisedGeometricalInfo3D::Spacing 			input_spacing	 = geom_info.get_spacing();
+    VoxelisedGeometricalInfo3D::Size 				input_size   	 = geom_info.get_size() ;
+    VoxelisedGeometricalInfo3D::DirectionMatrix 	input_direction  = geom_info.get_direction() ;
 
 
+    for(int i=0; i<3; i++)
+    {
+    	std::cout << epiph(		input_offset[i]	    ) << std::endl;
+    	std::cout << epiph(		input_spacing[i]	) << std::endl;
+    	std::cout << epiph(		input_size[i]	 	) << std::endl;
+    }
+
+    std::cout << "Direction Matrix:" << std::endl;
+    
+    for(int i=0; i<3; i++)
+	for(int j=0; j<3; j++)
+    {
+    	std::cout << epiph(		input_direction[i][j]	    ) << "   " ;
+    	if (j == 2 )
+    		std::cout << std::endl;
+    }
 }
 
+void test_read_segmentation_to_nifti( std::string h5_filename_with_suffix )
+{
+
+	std::string const dataset_name = "/segmentation";
+	H5T_class_t type_input = H5T_INTEGER;
+	H5::PredType type_reader = H5::PredType::NATIVE_UINT32;
+
+	// sirf::NiftiImageData3D<float> segmentation_nifti =  read_nifti_from_h5<DataTypeSegmentation>( h5_filename_with_suffix, dataset_name, type_input, type_reader );
+	sirf::NiftiImageData3D<float> segmentation_nifti =  read_nifti_from_h5( h5_filename_with_suffix, dataset_name, type_input, type_reader );
+
+	std::string output_name_seg_nifti =std::string( SHARED_FOLDER_PATH ) + "test_output_xcat_seg_from_nifti" ;
+	
+	segmentation_nifti.write( output_name_seg_nifti);
+}
 
 
 void test_read_h5_segmentation_for_xcat_input_check( std::string h5_filename_xcat_seg_with_suffix)
