@@ -55,10 +55,10 @@ public:
     void process();
 
     /// Get forwards transformation matrix
-    const std::shared_ptr<const AffineTransformation<dataType> > get_transformation_matrix_forward_sptr() const { return _TM_forward_sptr; }
+    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_forward_sptr() const { return _TM_forward_sptr; }
 
     /// Get inverse transformation matrix
-    const std::shared_ptr<const AffineTransformation<dataType> > get_transformation_matrix_inverse_sptr() const { return _TM_inverse_sptr; }
+    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr() const { return _TM_inverse_sptr; }
 
 protected:
 
@@ -72,8 +72,8 @@ protected:
     std::shared_ptr<reg_aladin_sym<dataType> > _registration_sptr;
 
     /// Forwards transformation matrix
-    std::shared_ptr<AffineTransformation<dataType> > _TM_forward_sptr;
+    std::shared_ptr<AffineTransformation<float> > _TM_forward_sptr;
     /// Inverse transformation matrix
-    std::shared_ptr<AffineTransformation<dataType> > _TM_inverse_sptr;
+    std::shared_ptr<AffineTransformation<float> > _TM_inverse_sptr;
 };
 }
