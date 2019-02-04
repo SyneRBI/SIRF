@@ -66,7 +66,8 @@ public:
         : NiftiImageData3DTensor<dataType>(tensor) { this->check_dimensions(this->_3DDisp); }
 
     /// Construct from array
-    NiftiImageData3DDisplacement(const dataType * const data, const VoxelisedGeometricalInfo3D &geom)
+    template<class inputType>
+    NiftiImageData3DDisplacement(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
         : NiftiImageData3DTensor<dataType>(data, geom) { this->check_dimensions(this->_3DDisp); }
 
     /// Create from 3 individual components

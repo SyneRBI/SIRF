@@ -168,7 +168,36 @@ public:
     NiftiImageData(const nifti_image &image_nifti);
 
     /// Construct from array
-    NiftiImageData(const dataType * const data, const VoxelisedGeometricalInfo3D &geom);
+    template<class inputType>
+    NiftiImageData(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
+    {
+        this->_nifti_image = create_from_geom_info(geom);
+
+        // Set the datatype
+        if      (typeid(inputType) == typeid(bool))               this->set_up_data(DT_BINARY);
+        else if (typeid(inputType) == typeid(signed char))        this->set_up_data(DT_INT8);
+        else if (typeid(inputType) == typeid(signed short))       this->set_up_data(DT_INT16);
+        else if (typeid(inputType) == typeid(signed int))         this->set_up_data(DT_INT32);
+        else if (typeid(inputType) == typeid(float))              this->set_up_data(DT_FLOAT32);
+        else if (typeid(inputType) == typeid(double))             this->set_up_data(DT_FLOAT64);
+        else if (typeid(inputType) == typeid(unsigned char))      this->set_up_data(DT_UINT8);
+        else if (typeid(inputType) == typeid(unsigned short))     this->set_up_data(DT_UINT16);
+        else if (typeid(inputType) == typeid(unsigned int))       this->set_up_data(DT_UINT32);
+        else if (typeid(inputType) == typeid(signed long long))   this->set_up_data(DT_INT64);
+        else if (typeid(inputType) == typeid(unsigned long long)) this->set_up_data(DT_UINT64);
+        else if (typeid(inputType) == typeid(long double))        this->set_up_data(DT_FLOAT128);
+        else {
+            std::stringstream ss;
+            ss << "NiftiImageData constructor from raw array: ";
+            ss << typeid (inputType).name();
+            ss << " (bytes per voxel: ";
+            ss << sizeof(inputType) << ").";
+            throw std::runtime_error(ss.str());
+        }
+
+        for (unsigned i=0; i<_nifti_image->nvox; ++i)
+            this->_data[i] = dataType(data[i]);
+    }
 
     /// Create NiftiImageData from geometrical info
     static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom);
