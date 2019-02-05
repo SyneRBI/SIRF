@@ -2,19 +2,11 @@ function libload_stir
 % load C++-to-C interface library
 if ~libisloaded('miutilities')
     fprintf('loading miutilities library...\n')
-    try
-        [notfound, warnings] = loadlibrary('miutilities');
-    catch
-        error('miutilities library failed to load\n')
-    end
+    loadlibrary('miutilities');
 end
 % load STIR interface library
 if ~libisloaded('mstir')
     fprintf('loading mstir library...\n')
-    try
-        [notfound, warnings] = loadlibrary('mstir');
-    catch
-        error('mstir library failed to load\n')
-    end
+    loadlibrary('mstir');
 end
 end
