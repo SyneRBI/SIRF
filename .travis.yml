@@ -245,7 +245,7 @@ script:
  - ./INSTALL/bin/gadgetron >& gadgetron.log&
  # print for debugging
  - cat builds/SIRF/build/CMakeCache.txt
- - ctest -VV
+ - DYLD_PRINT_LIBRARIES=YES ctest -VV
  # print for debugging
  - cat builds/SIRF/build/Testing/Temporary/LastTest.log
  # may exceed 4MB travis log limit
