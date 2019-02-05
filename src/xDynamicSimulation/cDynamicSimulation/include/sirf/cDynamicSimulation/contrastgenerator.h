@@ -26,7 +26,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // otherwise the header reading can be just inherited and implemented
 // as a virutal method
 
-using ISMRMRD::NDArray;
 using ISMRMRD::IsmrmrdHeader;
 
 

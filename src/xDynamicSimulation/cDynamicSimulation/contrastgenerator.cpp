@@ -157,7 +157,6 @@ void MRContrastGenerator::map_contrast()
 	TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
 	size_t const num_voxels = tissue_params.size();	
 
-
 	std::vector<std::vector< complex_float_t> > contrast_vector;
 	contrast_vector.resize(num_voxels);
 
@@ -171,19 +170,18 @@ void MRContrastGenerator::map_contrast()
 
 	size_t const num_contrasts = contrast_vector[0].size();
 
-	const size_t* segmentation_dims = this->tlm_.get_segmentation_dimensions();
+	const int* segmentation_dims = this->tlm_.get_segmentation_dimensions();
 
 	std::vector<size_t> data_size;
 	
-	for( int i_dim=0; i_dim<ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i_dim++)
+	for( int i_dim=0; i_dim< 8; i_dim++)
 	{
-		data_size.push_back( segmentation_dims[i_dim] );
+		data_size.push_back( (size_t)segmentation_dims[i_dim] );
 	}
 	
-		
-	size_t Nz = data_size[2];
-	size_t Ny = data_size[1];
-	size_t Nx = data_size[0];
+	size_t Nz = data_size[3];
+	size_t Ny = data_size[2];
+	size_t Nx = data_size[1];
 
 
 	ISMRMRD::Image< complex_float_t > contrast_img(Nx, Ny, Nz, 1);
@@ -191,7 +189,7 @@ void MRContrastGenerator::map_contrast()
 	for( size_t i_contrast = 0; i_contrast<num_contrasts; i_contrast++)
 	{
 	
-		#pragma omp parallel
+		// #pragma omp parallel
 		for( size_t nz=0; nz<Nz; nz++)
 		{
 			for( size_t ny=0; ny<Ny; ny++)
@@ -485,12 +483,12 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 	if (this->template_img_is_set_)
 	{
 
-		const size_t* segmentation_dims = this->tlm_.get_segmentation_dimensions();
+		const int* segmentation_dims = this->tlm_.get_segmentation_dimensions();
 
 		std::vector<size_t> data_dims;
 		for( int i_dim=0; i_dim<3; i_dim++)
 		{
-			data_dims.push_back( segmentation_dims[i_dim] );
+			data_dims.push_back( (size_t)segmentation_dims[i_dim] );
 		}
 		
 		TissueVector tissue_params = this->tlm_.get_segmentation_tissues();

@@ -22,6 +22,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using namespace sirf;
 
+
 TissueParameterList aux_test::get_mock_tissue_param_list( void )
 {
 	TissueParameter par1, par2, par3, par4;
@@ -47,8 +48,7 @@ TissueParameterList aux_test::get_mock_tissue_param_list( void )
 	return tiss_list;	
 }
 
-
-sirf::VoxelisedGeometricalInfo3D get_mock_geometrical_info( void )
+sirf::VoxelisedGeometricalInfo3D aux_test::get_mock_geometrical_info( void )
 {
 
 	sirf::VoxelisedGeometricalInfo3D::Offset offset{0.f,0.f,0.f};
@@ -67,11 +67,11 @@ sirf::VoxelisedGeometricalInfo3D get_mock_geometrical_info( void )
 
 
 
-LabelVolume aux_test::get_mock_label_array( void )
+LabelVolume aux_test::get_mock_label_volume( void )
 {
 	
-	auto geo_info = get_mock_geometrical_info();
-	auto data_size = geo_info.get_size();
+	sirf::VoxelisedGeometricalInfo3D mock_geo_info = aux_test::get_mock_geometrical_info();
+	auto data_size = mock_geo_info.get_size();
 
 	size_t const num_vox = data_size[0] * data_size[1] * data_size[2];
 
@@ -79,11 +79,11 @@ LabelVolume aux_test::get_mock_label_array( void )
 	float const default_value = 0.f;
 	mock_data.assign( num_vox, default_value);
 
-	LabelVolume label_vol(&mock_data[0], labels_dims);
+	LabelVolume label_vol(&mock_data[0], mock_geo_info);
 
-	for( int i=0; i< label_vol.getNumberOfElements(); i++)
+	for( int i=0; i< label_vol.get_num_voxels(); i++)
 	{
-		if( i< label_vol.getNumberOfElements()/2 )
+		if( i< label_vol.get_num_voxels()/2 )
 			label_vol(i) = 1;
 		else
 			label_vol(i) = 2;
@@ -163,7 +163,7 @@ std::pair< TissueParameter, TissueParameter> aux_test::get_mock_contrast_signal_
 
 MRContrastGenerator aux_test::get_mock_mr_contrast_generator( void )
 {
-	LabelArray label_list = get_mock_label_array();
+	LabelVolume label_list = get_mock_label_volume();
 
 	MRContrastGenerator mr_cont(label_list, XML_TEST_PATH);
 
@@ -177,7 +177,7 @@ MRContrastGenerator aux_test::get_mock_mr_contrast_generator( void )
 
 PETContrastGenerator aux_test::get_mock_pet_contrast_generator( void )
 {
-	LabelArray segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 	PETContrastGenerator pet_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 	pet_cont_gen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );

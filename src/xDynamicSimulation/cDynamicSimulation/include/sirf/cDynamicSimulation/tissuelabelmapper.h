@@ -41,7 +41,7 @@ public:
 	};
 
 	std::string get_filepath_tissue_parameter_xml( void );
-	const size_t* get_segmentation_dimensions( void );
+	const int* get_segmentation_dimensions( void );
 
 	LabelVolume get_segmentation_labels( void );
 	TissueParameterList get_tissue_parameter_list( void );

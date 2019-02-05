@@ -43,9 +43,9 @@ void TissueLabelMapper::map_labels_to_tissue_from_xml( void )
 }
 
 
-const size_t* TissueLabelMapper::get_segmentation_dimensions( void )
+const int* TissueLabelMapper::get_segmentation_dimensions( void )
 {
-	return this->segmentation_labels_.getDims();		
+	return this->segmentation_labels_.get_dimensions();		
 }
 
 
@@ -67,21 +67,10 @@ TissueVector assign_tissue_parameters_to_labels( const TissueParameterList& tiss
 		lut.insert(std::make_pair( tiss_list[i].label_, std::make_shared<TissueParameter>(tiss_list[i]) ));	//map label to pointer
 	}
 
-	std::vector< int > vol_dims(8);
-	&vol_dims[0] = label_volume.get_dimensions();
-
-	size_t num_voxels = 1;
-	for(int i=1; i<4; i++)
-	{
-		std::cout << "data dimension " << vol_dims[i] << std::endl;
-		num_voxels *= vol_dims[i];
-	}
-
-	std::cout << " Num voxels " << num_voxels << std::endl;
-
-	TissueVector tissue_vect;
-	tissue_vect.resize(num_voxels);
-
+	size_t const num_voxels = label_volume.get_num_voxels();
+	
+	TissueVector tissue_vect(num_voxels);
+	
 	for( size_t i_vox =0; i_vox<num_voxels; i_vox++)
 	{
 		auto key_value_pair = lut.find( (LabelType)label_volume( i_vox ) );
@@ -92,7 +81,7 @@ TissueVector assign_tissue_parameters_to_labels( const TissueParameterList& tiss
 		else
 		{	
 			std::stringstream msg;
-			msg << "The label " <<  label_volume(i_vox) << " in your label volume does not appear in the label list.";
+			msg << "The label " <<  (LabelType)label_volume(i_vox) << " in your label volume does not appear in the label list.";
 			throw std::runtime_error(msg.str());
 		}
 

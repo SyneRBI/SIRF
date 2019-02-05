@@ -278,7 +278,6 @@ void run_tests_contrastgenerator(void)
 	mr_contgen_tests.push_back( test_contgen::test_mr_map_contrast_dim_check() );
 	std::cout << "----------------------------------------------------" <<std::endl;
 
-
 	test_contgen::test_match_output_dims_to_headerinfo();
 	std::cout << "----------------------------------------------------" <<std::endl;
 	test_contgen::test_mr_map_contrast_application_to_xcat();
@@ -390,7 +389,7 @@ void run_tests_dynsim_deformer( void )
 
 	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
 	// tests_successful *= DynSimDeformerTester::test_NiftiImageData3DDeformation<float>_memory_behavior();
-	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	if ( !tests_successful )
 	{

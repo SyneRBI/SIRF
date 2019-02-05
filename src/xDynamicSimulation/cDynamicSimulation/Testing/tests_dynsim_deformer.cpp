@@ -27,7 +27,8 @@ bool DynSimDeformerTester::test_deform_contrast_generator( void )
 try
 	{
 
-		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);

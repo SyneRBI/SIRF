@@ -49,8 +49,8 @@ namespace aux_test
 
 	TissueParameterList get_mock_tissue_param_list( void );
 	
+	LabelVolume get_mock_label_volume( void );
 	sirf::VoxelisedGeometricalInfo3D get_mock_geometrical_info( void );
-	LabelVolume get_mock_label_array( void );
 
 	TissueParameter get_mock_tissue_parameter( void );
 	PETTissueParameter get_mock_PET_tissue_parameter( void );
@@ -105,26 +105,5 @@ namespace aux_test
 	SignalContainer get_mock_sawtooth_signal( sirf::AcquisitionsVector acq_vec, TimeAxisType const period_duration_ms);
 
 	
-
-	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
-	{
-		size_t const num_elements = one_array.getNumberOfElements();
-		size_t const num_elements_other = other_array.getNumberOfElements();
-
-		if( num_elements != num_elements_other)
-		{
-			return false;
-		}
-		else
-		{
-			bool content_is_equal = true;
-			for(int i=0; i<num_elements; i++)
-			{
-				content_is_equal *= ( one_array(i) == other_array(i) );
-			}
-			return content_is_equal;
-		}
-	};
-
 
 }// namespace aux_test
