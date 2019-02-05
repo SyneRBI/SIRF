@@ -68,7 +68,8 @@ public:
         : NiftiImageData<dataType>(data, geom) { this->check_dimensions(this->_3D); }
 
     /// Construct from any other image data (e.g., STIRImageData)
-    NiftiImageData3D(const ImageData& id);
+    NiftiImageData3D(const ImageData& id)
+        : NiftiImageData<dataType>(id) { this->check_dimensions(this->_3D); }
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {

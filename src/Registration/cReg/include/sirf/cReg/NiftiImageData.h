@@ -199,6 +199,9 @@ public:
             this->_data[i] = dataType(data[i]);
     }
 
+    /// Construct from any other image data (e.g., STIRImageData)
+    NiftiImageData(const ImageData& id);
+
     /// Create NiftiImageData from geometrical info
     static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
 

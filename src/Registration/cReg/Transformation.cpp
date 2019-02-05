@@ -35,7 +35,7 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void Transformation<dataType>::check_ref_and_def(const NiftiImageData3D<dataType> &ref, const NiftiImageData3DDeformation<dataType> &def)
+void Transformation<dataType>::check_ref_and_def(const NiftiImageData<dataType> &ref, const NiftiImageData3DDeformation<dataType> &def)
 {
     // Check image size of ref matches def
     const int *ref_dims = ref.get_dimensions();

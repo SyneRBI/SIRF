@@ -47,14 +47,14 @@ NiftiImageData3DDeformation<dataType>::NiftiImageData3DDeformation(const NiftiIm
 }
 
 template<class dataType>
-void NiftiImageData3DDeformation<dataType>::create_from_3D_image(const NiftiImageData3D<dataType> &image)
+void NiftiImageData3DDeformation<dataType>::create_from_3D_image(const NiftiImageData<dataType> &image)
 {
     this->NiftiImageData3DTensor<dataType>::create_from_3D_image(image);
     //_nifti_image->intent_p1 = 0; not necessary. 0 by default
 }
 
 template<class dataType>
-void NiftiImageData3DDeformation<dataType>::create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData3D<dataType> &ref)
+void NiftiImageData3DDeformation<dataType>::create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData<dataType> &ref)
 {
     this->create_from_3D_image(ref);
 
@@ -67,14 +67,14 @@ void NiftiImageData3DDeformation<dataType>::create_from_cpp(NiftiImageData3DTens
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &ref) const
 {
     this->check_ref_and_def(ref,*this);
     return *this;
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::compose_single_deformation(const std::vector<const Transformation<dataType>*> &transformations, const NiftiImageData3D<dataType> &ref)
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::compose_single_deformation(const std::vector<const Transformation<dataType>*> &transformations, const NiftiImageData<dataType> &ref)
 {
     if (transformations.size() == 0)
         throw std::runtime_error("NiftiImageData3DDeformation::compose_single_deformation no transformations given.");
@@ -89,7 +89,7 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::com
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::compose_single_deformation(const std::vector<std::shared_ptr<const Transformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref)
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::compose_single_deformation(const std::vector<std::shared_ptr<const Transformation<dataType> > > &transformations, const NiftiImageData<dataType> &ref)
 {
     std::vector<const Transformation<dataType>*> vec;
     for (unsigned i=0; i<transformations.size(); ++i)

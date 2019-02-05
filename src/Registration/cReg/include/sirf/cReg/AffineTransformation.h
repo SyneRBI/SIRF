@@ -86,7 +86,7 @@ public:
     virtual ~AffineTransformation() {}
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref) const;
 
     /// Deep copy
     virtual AffineTransformation deep_copy() const;

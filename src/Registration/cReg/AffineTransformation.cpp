@@ -191,7 +191,7 @@ mat44 AffineTransformation<dataType>::get_as_mat44() const
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> AffineTransformation<dataType>::get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const
+NiftiImageData3DDeformation<dataType> AffineTransformation<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &ref) const
 {
     NiftiImageData3DDeformation<dataType> def;
     def.create_from_3D_image(ref);

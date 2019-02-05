@@ -93,6 +93,18 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
 }
 
 template<class dataType>
+NiftiImageData<dataType>::NiftiImageData(const ImageData& id)
+{
+    this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*id.get_geom_info_sptr());
+
+    // Always float
+    this->set_up_data(NIFTI_TYPE_FLOAT32);
+
+    // Finally, copy the data
+    this->copy(id.begin(), this->begin(), this->end());
+}
+
+template<class dataType>
 std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor)
 {
     typedef VoxelisedGeometricalInfo3D Info;

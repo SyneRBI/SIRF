@@ -43,14 +43,14 @@ NiftiImageData3DDisplacement<dataType>::NiftiImageData3DDisplacement(const Nifti
 }
 
 template<class dataType>
-void NiftiImageData3DDisplacement<dataType>::create_from_3D_image(const NiftiImageData3D<dataType> &image)
+void NiftiImageData3DDisplacement<dataType>::create_from_3D_image(const NiftiImageData<dataType> &image)
 {
     this->NiftiImageData3DTensor<dataType>::create_from_3D_image(image);
     this->_nifti_image->intent_p1 = 1;
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &ref) const
 {
     NiftiImageData3DDeformation<dataType> def(*this);
     this->check_ref_and_def(ref,def);
