@@ -93,7 +93,7 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
 }
 
 template<class dataType>
-std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom)
+std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor)
 {
     typedef VoxelisedGeometricalInfo3D Info;
     Info::Size            size    = geom.get_size();
@@ -109,6 +109,12 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
     dims[5] = 1;
     dims[6] = 1;
     dims[7] = 1;
+
+    // If tensor image, dims[0] and dims[5] should be 5 and 3, respectively
+    if (is_tensor) {
+        dims[0] = 5;
+        dims[5] = 3;
+    }
 
     nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
     std::shared_ptr<nifti_image> _nifti_image = std::shared_ptr<nifti_image>(im, nifti_image_free);
@@ -967,8 +973,10 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 2 not initialised.");
 
     // Check the number of dimensions match
-    if(im1.get_dimensions()[0] != im2.get_dimensions()[0])
+    if(im1.get_dimensions()[0] != im2.get_dimensions()[0]) {
+        std::cout << "\nImage comparison: different number of dimensions (" << im1.get_dimensions()[0] << " versus " << im2.get_dimensions()[0] << ").\n";
         return false;
+    }
 
     // Get required accuracy compared to the image maxes
     float norm;

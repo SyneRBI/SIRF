@@ -377,6 +377,16 @@ int main(int argc, char* argv[])
         if (fabs(h.get_min() + 30.F) > 1.e-7F )
             throw std::runtime_error("NiftiImageData3DTensor flip_component() failed.");
 
+        // Test creating an image from an array
+        unsigned int *data_array = new unsigned int[h.get_raw_nifti_sptr()->nvox];
+        for (unsigned i=0; i<h.get_raw_nifti_sptr()->nvox; ++i)
+            data_array[i] = static_cast<unsigned int>(h(i));
+        // Construct image
+        NiftiImageData3DTensor<float> t(data_array, *h.get_geom_info_sptr());
+        // Delete array
+        delete [] data_array;
+        data_array = nullptr;
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData3DTensor test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
@@ -447,6 +457,16 @@ int main(int argc, char* argv[])
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw std::runtime_error("NiftiImageData3DDisplacement get_dimensions() failed.");
+
+        // Test creating an image from an array
+        unsigned int *data_array = new unsigned int[h.get_raw_nifti_sptr()->nvox];
+        for (unsigned i=0; i<h.get_raw_nifti_sptr()->nvox; ++i)
+            data_array[i] = static_cast<unsigned int>(h(i));
+        // Construct image
+        NiftiImageData3DDisplacement<float> t(data_array, *h.get_geom_info_sptr());
+        // Delete array
+        delete [] data_array;
+        data_array = nullptr;
 
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -519,6 +539,16 @@ int main(int argc, char* argv[])
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw std::runtime_error("NiftiImageData3DDeformation get_dimensions() failed.");
+
+        // Test creating an image from an array
+        unsigned int *data_array = new unsigned int[h.get_raw_nifti_sptr()->nvox];
+        for (unsigned i=0; i<h.get_raw_nifti_sptr()->nvox; ++i)
+            data_array[i] = static_cast<unsigned int>(h(i));
+        // Construct image
+        NiftiImageData3DDeformation<float> t(data_array, *h.get_geom_info_sptr());
+        // Delete array
+        delete [] data_array;
+        data_array = nullptr;
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData3DDeformation test.\n";

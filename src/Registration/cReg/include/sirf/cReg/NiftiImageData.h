@@ -169,9 +169,9 @@ public:
 
     /// Construct from array
     template<class inputType>
-    NiftiImageData(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
+    NiftiImageData(const inputType * const data, const VoxelisedGeometricalInfo3D &geom, const bool is_tensor = false)
     {
-        this->_nifti_image = create_from_geom_info(geom);
+        this->_nifti_image = create_from_geom_info(geom, is_tensor);
 
         // Set the datatype
         if      (typeid(inputType) == typeid(bool))               this->set_up_data(DT_BINARY);
@@ -200,7 +200,7 @@ public:
     }
 
     /// Create NiftiImageData from geometrical info
-    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom);
+    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
 
     /// Equality operator
     bool operator==(const NiftiImageData &other) const;

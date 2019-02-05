@@ -68,7 +68,7 @@ public:
     /// Construct from array
     template<class inputType>
     NiftiImageData3DDisplacement(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
-        : NiftiImageData3DTensor<dataType>(data, geom) { this->check_dimensions(this->_3DDisp); }
+        : NiftiImageData3DTensor<dataType>(data, geom) { this->_nifti_image->intent_code = NIFTI_INTENT_VECTOR; this->_nifti_image->intent_p1=1; }
 
     /// Create from 3 individual components
     NiftiImageData3DDisplacement(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z)

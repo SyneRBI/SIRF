@@ -70,7 +70,7 @@ public:
     /// Construct from array
     template<class inputType>
     NiftiImageData3DTensor(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
-        : NiftiImageData<dataType>(data, geom) { this->check_dimensions(this->_3DTensor); }
+        : NiftiImageData<dataType>(data, geom, true) { this->_nifti_image->intent_code = NIFTI_INTENT_VECTOR; this->_nifti_image->intent_p1=-1; }
 
     /// Create from 3 individual components
     NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z);
