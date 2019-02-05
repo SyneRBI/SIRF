@@ -29,6 +29,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cSTIR/stir_data_containers.h"
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
  
+#include "sirf/common/GeometricalInfo.h"
+#include "sirf/cReg/NiftiImageData3D.h"
+	
+
 #include "test_input_filenames.h"
 
 #define PIX_SIZE_X 3.20f
@@ -75,38 +79,49 @@ namespace data_io{
 	};
 
 
+
 	template <typename T>
 	void write_ISMRMRD_Image_to_Analyze(std::string const output_name_without_ext, ISMRMRD::Image<T> &img)
 	{
 		std::cout << "Started writing " << output_name_without_ext << std::endl;	
+		std::cout << "Only first channel will be written to file. " << output_name_without_ext << std::endl;	
 
-		std::vector < size_t > img_dims;
-		img_dims.push_back( img.getMatrixSizeX() );
-		img_dims.push_back( img.getMatrixSizeY() );
-		img_dims.push_back( img.getMatrixSizeZ() );
-		img_dims.push_back( 1 );
-		img_dims.push_back( img.getNumberOfChannels() );
+		// determine data size. only take first channel
+		sirf::VoxelisedGeometricalInfo3D::Size data_size{ (unsigned int)img.getMatrixSizeX() , (unsigned int)img.getMatrixSizeY() , (unsigned int)img.getMatrixSizeZ() };
+		
+		// set spacing
+		float const pix_size_X = (float)img.getFieldOfViewX() / (float)data_size[0];
+		float const pix_size_Y = (float)img.getFieldOfViewY() / (float)data_size[1];
+		float const pix_size_Z = (float)img.getFieldOfViewZ() / (float)data_size[2];
+
+		sirf::VoxelisedGeometricalInfo3D::Spacing spacing{pix_size_X, pix_size_Y,  pix_size_Z};
 
 		
-		// float const pix_size_X = (float)img.getFieldOfViewX() / (float)img_dims[0];
-		// float const pix_size_Y = (float)img.getFieldOfViewY() / (float)img_dims[1];
-		// float const pix_size_Z = (float)img.getFieldOfViewZ() / (float)img_dims[2];
+		sirf::VoxelisedGeometricalInfo3D::Offset offset;
+		for( int i=0; i<3; i++)
+			offset[i] = (-0.5f * data_size[i] + 0.5f) * spacing[i];
 
-		float const pix_size_U = 0.f;
-		float const pix_size_Vec = 1.f;
 
-		// Gadgetron::hoNDArray< T > data_to_be_written( img_dims );
-		// size_t const num_elements = img.getNumberOfDataElements();
-		
-		// for( size_t i=0; i<num_elements; i++)
-		// 	*(data_to_be_written.begin() + i) = *(img.begin() + i);
+		sirf::VoxelisedGeometricalInfo3D::DirectionMatrix dir_mat;
 	
+		dir_mat[0] = {1,0,0};
+		dir_mat[1] = {0,1,0};
+		dir_mat[2] = {0,0,1};
 
-		// Gadgetron::ImageIOAnalyze analyze_io( PIX_SIZE_X, PIX_SIZE_Y, PIX_SIZE_Z, pix_size_U, pix_size_Vec);
+		sirf::VoxelisedGeometricalInfo3D geometry_info( offset, spacing, data_size, dir_mat);
+			
+		
+		size_t const num_relevant_elements = data_size[0]*data_size[1]*data_size[2] ;
+		
+		
+		std::vector< float > data( num_relevant_elements );
 
-		// analyze_io.export_array(data_to_be_written, output_name_without_ext);
 
-		throw std::runtime_error("THIS FUNCTION IS OUTCOMMENTED SINCE IT BREAKS EVERYTHING BECAUSE OF THE INCLUSION PROBLEM.");
+		for( size_t i=0; i<num_relevant_elements; i++)
+		 	data[i] = std::abs(*(img.begin() + i));
+	
+		sirf::NiftiImageData3D<float> nifti_img(&data[0], geometry_info);
+		nifti_img.write( output_name_without_ext + ".nii");
 
 		std::cout << "Finished writing "  << output_name_without_ext << std::endl;		
 	};
