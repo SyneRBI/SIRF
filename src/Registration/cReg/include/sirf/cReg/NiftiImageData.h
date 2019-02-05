@@ -272,8 +272,11 @@ public:
     /// Get norm
     float get_norm(const NiftiImageData&) const;
 
-    /// Get number of voxels
+    /// Get data size in each dimension
     const int* get_dimensions() const;
+
+    /// Get total number of voxels
+    size_t get_num_voxels() const;
 
     /// Print header info
     void print_header() const;

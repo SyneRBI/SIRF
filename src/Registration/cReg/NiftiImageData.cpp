@@ -364,6 +364,12 @@ const int* NiftiImageData<dataType>::get_dimensions() const
 }
 
 template<class dataType>
+size_t NiftiImageData<dataType>::get_num_voxels() const
+{
+    return _nifti_image->nvox;
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_type)
 {
     if (!this->is_initialised())
