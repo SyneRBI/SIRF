@@ -131,7 +131,7 @@ public:
 protected:
 
 	bool const destroy_upon_deletion_ = true;
-	bool const keep_motion_fields_in_memory_ = false;
+	bool const keep_motion_fields_in_memory_ = true;
 
 	std::string setup_tmp_folder_name( void );
 	bool make_temp_folder();
@@ -145,7 +145,7 @@ protected:
 	static int num_total_motion_dynamics_;
 	int which_motion_dynamic_am_i_;
 
-	std::vector<MotionFieldType> displacment_fields_;
+	std::vector<MotionFieldType> displacement_fields_;
 	std::vector< sirf::NiftiImageData3DDeformation<float> > sirf_displacement_fields_;
 };
 

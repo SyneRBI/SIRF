@@ -64,20 +64,48 @@ void run_tests_dynamics( void )
 
 	bool tests_successful = true;
 	std::vector< bool > dyn_tests;
-	
+	std::cout << "start ----------------------------------------------------" <<std::endl;
+	std::cout << "1 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_is_in_bin());
+
+	std::cout << "2 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
+
+	std::cout << "3 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());
+
+	std::cout << "4 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_get_set_bins());
+
+	std::cout << "5 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
+
+	std::cout << "6 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_motion_dynamic_counter());
+
+	std::cout << "7 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_prep_motion_fields());
+
+	std::cout << "8 ----------------------------------------------------" <<std::endl;
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
+
+	std::cout << "10 ----------------------------------------------------" <<std::endl;
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_prep_motion_fields());	
+
+	std::cout << "11 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_interpolate_dvfs());
-	dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
+
+	std::cout << "12 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
+
+	std::cout << "13 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
-	dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
+	
+	std::cout << "14 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
+	
+	std::cout << "end ----------------------------------------------------" <<std::endl;
+
 
 	std::cout << "dynamics test results = ";
 	for( size_t i=0; i<dyn_tests.size(); i++)
@@ -388,9 +416,18 @@ void run_tests_dynsim_deformer( void )
 	// bool tests_successful = true;
 	bool tests_successful = true;
 
-	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
-	// tests_successful *= DynSimDeformerTester::test_NiftiImageData3DDeformation<float>_memory_behavior();
+	std::cout << " Start -------------------------- " <<std::endl;
+
+	std::cout << " 1-------------------------- " <<std::endl;
+	tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
+
+	std::cout << " 2 -------------------------- " <<std::endl;
+	tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
+
+	std::cout << " 3 -------------------------- " <<std::endl;
 	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+
+	std::cout << " End -------------------------- " <<std::endl;
 
 	if ( !tests_successful )
 	{

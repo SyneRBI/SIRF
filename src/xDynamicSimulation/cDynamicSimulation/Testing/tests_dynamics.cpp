@@ -333,7 +333,7 @@ try
 	{
 		bool test_succesful = true;
 
-		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);
@@ -401,7 +401,7 @@ bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
 		cout << epiph( img_dv ) << endl;
 		cout << epiph( img_dw ) << endl;
 
-		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		int const num_simul_bins = 1;
 		PETMotionDynamic motion_dyn(num_simul_bins);
@@ -470,7 +470,7 @@ try
 	{
 		bool test_succesful = true;
 
-		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);
@@ -496,7 +496,7 @@ bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 	{
 		bool test_succesful = true;
 
-		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);

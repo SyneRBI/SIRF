@@ -21,8 +21,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/common/multisort.h"
 #include "sirf/cDynamicSimulation/dynamics.h"
-#include "sirf/cReg/NiftiImageData3D.h"
 
+#include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/cReg/NiftiImageData3DDisplacement.h"
 
 using namespace sirf;
 
@@ -310,17 +312,16 @@ MotionDynamic::~MotionDynamic()
 
 NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_deformation_field(SignalAxisType signal)
 {
+	if( this->temp_mvf_filenames_.size() == 0 && this->displacement_fields_.size() == 0)
+		throw std::runtime_error("Before calling get_interpolated_deformation_field: Please use prep_displacement_fields() if the fields are not kept in memory, or set_displacement_fields() if they are.");
+
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
-	if( !keep_motion_fields_in_memory_ && this->temp_mvf_filenames_.size() == 0)
-		throw std::runtime_error("Please use prep_displacement_fields() before calling get_interpolated_deformation_field");
+	size_t const num_motion_fields = keep_motion_fields_in_memory_? this->displacement_fields_.size() : this->temp_mvf_filenames_.size();
 	
-
 	// check in which interval the signal lies
 	SignalAxisType signal_on_bin_range;
-	
-	size_t const num_motion_fields = this->temp_mvf_filenames_.size();
 
 	if( this->is_cyclic_dynamic_ )
 		signal_on_bin_range = num_motion_fields * signal;
@@ -329,17 +330,16 @@ NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_deformation_f
 
 	int const bin_floor = int( signal_on_bin_range +1) -1;
 	int const bin_ceil  = int( signal_on_bin_range + 1) % this->num_simul_states_;
-	
 
 	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
 
 	/// Constructor
     sirf::ImageWeightedMean<float> dvf_interpolator;
-    
+
     if(keep_motion_fields_in_memory_)
 	{
-	    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
-	    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_ceil], linear_interpolation_weight);
+	    dvf_interpolator.add_image( this->displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
+	    dvf_interpolator.add_image( this->displacement_fields_[bin_ceil], linear_interpolation_weight);
 	}
 	else 
 	{
@@ -347,10 +347,12 @@ NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_deformation_f
 	    dvf_interpolator.add_image( temp_mvf_filenames_[bin_ceil], linear_interpolation_weight);
 	} 
 
-    dvf_interpolator.process();
-    
-    return *dvf_interpolator.get_output_sptr();
 
+    dvf_interpolator.process();
+
+    sirf::NiftiImageData3DDisplacement<float> interpolated_dvf( *dvf_interpolator.get_output_sptr() );
+
+    return interpolated_dvf.get_as_deformation_field( interpolated_dvf );
 }
 
 
@@ -453,7 +455,7 @@ void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFie
 			size_t const lin_index = (((nt*Nv + nv)*Nz + nz)*Ny + ny)*Nx + nx;
 			img(nx,ny,nz,nv) = 	  *(motion_fields.begin() + lin_index);
 		}
-		// this->displacment_fields_.push_back(img);
+		// this->displacement_fields_.push_back(img);
 	}
 }
 
@@ -465,17 +467,17 @@ void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3D
 		this->set_bins( this->num_simul_states_ );
 	}
 
-	this->displacment_fields_ = input_displacement_fields;	
+	this->displacement_fields_ = input_displacement_fields;	
 
 }
 
 void MotionDynamic::prep_displacement_fields()
 {
 
-	if(this->displacment_fields_.size() == 0)
+	if(this->displacement_fields_.size() == 0)
 		throw std::runtime_error("Please call set_displacements_fields() first.");
 
-	std::cout << "Preparing displacment fields ... " <<std::endl;
+	std::cout << "Preparing displacement fields ... " <<std::endl;
 
 	if( !keep_motion_fields_in_memory_ )
 	{
@@ -483,12 +485,12 @@ void MotionDynamic::prep_displacement_fields()
 
 		if( temp_folder_creation_successful )
 		{
-			for(int i=0; i<this->displacment_fields_.size(); i++)
+			for(int i=0; i<this->displacement_fields_.size(); i++)
 			{
 				std::stringstream temp_filename_mvf;
 				temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i; 
 		
-				this->displacment_fields_[i].write( temp_filename_mvf.str() );
+				this->displacement_fields_[i].write( temp_filename_mvf.str() );
 
 				temp_filename_mvf << ".nii";
 				this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
@@ -499,7 +501,7 @@ void MotionDynamic::prep_displacement_fields()
 			throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
 
 		std::vector<MotionFieldType> empty_container;
-		this->displacment_fields_.swap(empty_container);
+		this->displacement_fields_.swap(empty_container);
 	}
 
 	std::cout << "... finished." <<std::endl;
@@ -834,7 +836,7 @@ TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 
 // void PETMotionDynamic::prep_displacement_fields( void )
 // {
-// 	if(this->displacment_fields_.size() == 0)
+// 	if(this->displacement_fields_.size() == 0)
 // 		throw std::runtime_error("Please call set_displacements_fields() first.");
 
 // 	std::cout << "Preparing PET displacement fields..." <<std::endl;
@@ -843,18 +845,18 @@ TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 
 // 	if( temp_folder_creation_successful )
 // 	{
-// 		for(int i=0; i<this->displacment_fields_.size(); i++)
+// 		for(int i=0; i<this->displacement_fields_.size(); i++)
 // 		{
 // 			std::stringstream temp_filename_mvf;
 // 			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
 
-// 			data_io::write_MVF_from_ISMRMRD_Image_to_Analyze_In_PET_Geometry<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
+// 			data_io::write_MVF_from_ISMRMRD_Image_to_Analyze_In_PET_Geometry<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacement_fields_[i]);
 // 			temp_filename_mvf << ".hdr";
 // 			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
 // 		}
 
 // 		std::vector<MotionFieldType> empty_container;
-// 		this->displacment_fields_.swap(empty_container); 
+// 		this->displacement_fields_.swap(empty_container); 
 
 // 	}
 // 	else
