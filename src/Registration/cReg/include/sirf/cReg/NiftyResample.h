@@ -33,23 +33,15 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <iostream>
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/NiftiImageData3DTensor.h"
-#include "sirf/cReg/Transformation.h"
 #include "sirf/cReg/Resample.h"
 
 namespace sirf {
-
-// Forward declarations
-template<class dataType> class NiftiImageData3DDisplacement;
-template<class dataType> class AffineTransformation;
 
 /*!
 \ingroup Registration
 \brief Resampling class based on nifty resample
 
-The reference image must be 3D (i.e., NiftiImageData3D), but the floating image (and therefore
-the output image) can have nt and/or nu != 1.
+The reference image and floating image can have nt and/or nu != 1.
 
 \author Richard Brown
 \author CCP PETMR
@@ -79,8 +71,8 @@ protected:
     /// Set up the output image
     void set_up_output_image();
 
-    /// Reference image as a NiftiImageData3D
-    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_nifti_sptr;
+    /// Reference image as a NiftiImageData
+    std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;
     /// Floating image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _floating_image_nifti_sptr;
     /// Floating image as a NiftiImageData

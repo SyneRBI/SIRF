@@ -33,18 +33,6 @@ limitations under the License.
 
 using namespace sirf;
 
-template<class dataType>
-NiftiImageData3D<dataType>::NiftiImageData3D(const ImageData& id)
-{
-    this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*id.get_geom_info_sptr());
-
-    // Always float
-    this->set_up_data(NIFTI_TYPE_FLOAT32);
-
-    // Finally, copy the data
-    this->copy(id.begin(), this->begin(), this->end());
-}
-
 namespace sirf {
 template class NiftiImageData3D<float>;
 }

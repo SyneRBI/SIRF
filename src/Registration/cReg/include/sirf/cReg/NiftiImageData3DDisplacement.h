@@ -68,7 +68,7 @@ public:
     /// Construct from array
     template<class inputType>
     NiftiImageData3DDisplacement(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
-        : NiftiImageData3DTensor<dataType>(data, geom) { this->check_dimensions(this->_3DDisp); }
+        : NiftiImageData3DTensor<dataType>(data, geom) { this->_nifti_image->intent_code = NIFTI_INTENT_VECTOR; this->_nifti_image->intent_p1=1; }
 
     /// Create from 3 individual components
     NiftiImageData3DDisplacement(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z)
@@ -78,10 +78,10 @@ public:
     NiftiImageData3DDisplacement(const NiftiImageData3DDeformation<dataType> &def);
 
     /// Create from 3D image
-    void create_from_3D_image(const NiftiImageData3D<dataType> &image);
+    void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref) const;
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {

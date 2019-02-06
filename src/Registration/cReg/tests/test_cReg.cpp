@@ -293,10 +293,6 @@ int main(int argc, char* argv[])
         // Check values are still the same (there would be rounding involved, since we originally turn
         // the float into unsigned int and then back). However, this is ok, as we know that the input
         // image was already of type NIFTI_TYPE_UINT8 (unsigned char).
-        NiftiImageData3D<float>::print_headers({&b, &t});
-        for (unsigned i=0; i<b.get_raw_nifti_sptr()->nvox; ++i)
-            if (std::abs(b(i) - t(i)) > 1e-4F)
-                throw std::runtime_error("NiftiImageData3D constructor from array.");
         if (b != t)
             throw std::runtime_error("NiftiImageData3D constructor from array.");
 
@@ -377,6 +373,18 @@ int main(int argc, char* argv[])
         if (fabs(h.get_min() + 30.F) > 1.e-7F )
             throw std::runtime_error("NiftiImageData3DTensor flip_component() failed.");
 
+        // Test creating an image from an array
+        float *data_array = new float[h.get_raw_nifti_sptr()->nvox];
+        for (unsigned i=0; i<h.get_raw_nifti_sptr()->nvox; ++i)
+            data_array[i] = static_cast<float>(h(i));
+        // Construct image
+        NiftiImageData3DTensor<float> t(data_array, *h.get_geom_info_sptr());
+        // Delete array
+        delete [] data_array;
+        data_array = nullptr;
+        if (h != t)
+            throw std::runtime_error("NiftiImageData3DTensor constructor from array.");
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData3DTensor test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
@@ -447,6 +455,18 @@ int main(int argc, char* argv[])
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw std::runtime_error("NiftiImageData3DDisplacement get_dimensions() failed.");
+
+        // Test creating an image from an array
+        float *data_array = new float[h.get_raw_nifti_sptr()->nvox];
+        for (unsigned i=0; i<h.get_raw_nifti_sptr()->nvox; ++i)
+            data_array[i] = static_cast<float>(h(i));
+        // Construct image
+        NiftiImageData3DDisplacement<float> t(data_array, *h.get_geom_info_sptr());
+        // Delete array
+        delete [] data_array;
+        data_array = nullptr;
+        if (h != t)
+            throw std::runtime_error("NiftiImageData3DDisplacement constructor from array.");
 
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -519,6 +539,18 @@ int main(int argc, char* argv[])
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw std::runtime_error("NiftiImageData3DDeformation get_dimensions() failed.");
+
+        // Test creating an image from an array
+        float *data_array = new float[h.get_raw_nifti_sptr()->nvox];
+        for (unsigned i=0; i<h.get_raw_nifti_sptr()->nvox; ++i)
+            data_array[i] = static_cast<float>(h(i));
+        // Construct image
+        NiftiImageData3DDeformation<float> t(data_array, *h.get_geom_info_sptr());
+        // Delete array
+        delete [] data_array;
+        data_array = nullptr;
+        if (h != t)
+            throw std::runtime_error("NiftiImageData3DDeformation constructor from array.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData3DDeformation test.\n";

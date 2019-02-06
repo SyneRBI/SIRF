@@ -70,13 +70,13 @@ public:
     /// Construct from array
     template<class inputType>
     NiftiImageData3DTensor(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
-        : NiftiImageData<dataType>(data, geom) { this->check_dimensions(this->_3DTensor); }
+        : NiftiImageData<dataType>(data, geom, true) { this->_nifti_image->intent_code = NIFTI_INTENT_VECTOR; this->_nifti_image->intent_p1=-1; }
 
     /// Create from 3 individual components
     NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z);
 
     /// Create from 3D image.
-    virtual void create_from_3D_image(const NiftiImageData3D<dataType> &image);
+    virtual void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Save to file as x-, y-, z-components
     void write_split_xyz_components(const std::string &filename_pattern, const int datatype=-1) const;

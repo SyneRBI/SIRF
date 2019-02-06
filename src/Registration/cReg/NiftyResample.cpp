@@ -30,7 +30,6 @@ limitations under the License.
 #include "sirf/cReg/NiftyResample.h"
 #include "sirf/cReg/NiftiImageData3DTensor.h"
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
-#include "sirf/cReg/NiftiImageData3DDisplacement.h"
 #include "sirf/cReg/AffineTransformation.h"
 #include <_reg_resampling.h>
 #include <_reg_globalTrans.h>
@@ -47,7 +46,7 @@ void NiftyResample<dataType>::process()
     // Check that all the required information has been entered
     this->check_parameters();
 
-    // Get reference and floating images as NiftiImageData3D
+    // Get reference and floating images as NiftiImageData
     set_up_input_images();
 
     // Setup output image
@@ -63,7 +62,7 @@ void NiftyResample<dataType>::process()
             NiftiImageData3DDeformation<dataType>::compose_single_deformation(this->_transformations, *this->_reference_image_nifti_sptr);
 
     // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty C-style cast?)
-    NiftiImageData3D<dataType> flo = *this->_floating_image_nifti_sptr;
+    NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
 
     reg_resampleImage(flo.get_raw_nifti_sptr().get(),
                       this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
@@ -82,16 +81,16 @@ void NiftyResample<dataType>::process()
 template<class dataType>
 void NiftyResample<dataType>::set_up_input_images()
 {
-    // Try to dynamic cast from ImageData to NiftiImageData3D. This will only succeed if original type was NiftiImageData3D
-    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_reference_image_sptr);
-    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_floating_image_sptr);
+    // Try to dynamic cast from ImageData to NiftiImageData. This will only succeed if original type was NiftiImageData
+    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData<dataType> >(this->_reference_image_sptr);
+    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData<dataType> >(this->_floating_image_sptr);
 
     // If either is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
-    // In this case, construct a NiftiImageData3D
+    // In this case, construct a NiftiImageData
     if (!this->_reference_image_nifti_sptr)
-        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_reference_image_sptr);
+        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData<dataType> >(*this->_reference_image_sptr);
     if (!this->_floating_image_nifti_sptr)
-        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_floating_image_sptr);
+        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData<dataType> >(*this->_floating_image_sptr);
 }
 
 template<class dataType>
@@ -117,7 +116,7 @@ void NiftyResample<dataType>::set_up_output_image()
     output_ptr->nbyper      = flo_ptr->nbyper;
     memset(output_ptr->intent_name, 0, 16);
     strcpy(output_ptr->intent_name,flo_ptr->intent_name);
-    output_ptr->nvox = unsigned(output_ptr->dim[1] * output_ptr->dim[2] * output_ptr->dim[3] * output_ptr->dim[4] * output_ptr->dim[5]);
+    output_ptr->nvox = this->_reference_image_nifti_sptr->get_num_voxels();
 
     // Allocate the data
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));

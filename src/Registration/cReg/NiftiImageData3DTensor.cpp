@@ -61,7 +61,7 @@ NiftiImageData3DTensor<dataType>::NiftiImageData3DTensor(const NiftiImageData3D<
 }
 
 template<class dataType>
-void NiftiImageData3DTensor<dataType>::create_from_3D_image(const NiftiImageData3D<dataType> &image)
+void NiftiImageData3DTensor<dataType>::create_from_3D_image(const NiftiImageData<dataType> &image)
 {
     if (!image.is_initialised())
         throw std::runtime_error("NiftiImageData3DTensor::create_from_3D_image. Input image not initialised.");
