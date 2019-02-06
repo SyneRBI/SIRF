@@ -138,6 +138,7 @@ before_install:
         /usr/local/bin/conda config --set always_yes yes --set changeps1 no
         /usr/local/bin/conda update -q conda
         /usr/local/bin/conda install -c conda-forge libitk=4.13.0=0
+        EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DITK_DIR=/usr/local/lib/cmake/ITK-4.13"
       fi
       if [ $PYMVER == 2 ]; then
         PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
