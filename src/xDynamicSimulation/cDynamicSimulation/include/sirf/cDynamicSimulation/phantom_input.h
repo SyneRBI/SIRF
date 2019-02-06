@@ -22,6 +22,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/common/GeometricalInfo.h"
 #include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/cReg/NiftiImageData3DDisplacement.h"
 
 #include "H5Cpp.h"
 
@@ -97,7 +98,7 @@ sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename
 // sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader );
 
 sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::string& h5_filename_with_suffix);
-
+std::vector< sirf::NiftiImageData3DDisplacement <float> > read_motionfields_to_nifti_from_h5(const std::string& h5_filename_with_suffix, const std::string& motionfield_type);
 
 
 

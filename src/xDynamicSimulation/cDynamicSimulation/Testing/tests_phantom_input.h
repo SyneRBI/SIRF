@@ -73,6 +73,8 @@ void test_read_1D_dataset_from_h5( std::string h5_filename_with_suffix );
 void test_read_geometrical_info_from_h5( std::string h5_filename_with_suffix );
 
 void test_read_segmentation_to_nifti( std::string h5_filename_with_suffix );
+void test_read_motionfield_to_nifti(  std::string h5_filename_with_suffix );
+
 
 void test_read_h5_segmentation_for_xcat_input_check(std::string h5_filename_with_suffix);
 bool test_read_dataset_from_h5(std::string h5_filename_with_suffix);

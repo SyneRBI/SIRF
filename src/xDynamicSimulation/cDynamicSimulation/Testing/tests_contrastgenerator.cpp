@@ -102,20 +102,16 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 void test_contgen::test_match_output_dims_to_headerinfo( void )
 {
 
-	std::cout << "nag " <<std::endl;
+	
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-	std::cout << "nag " <<std::endl;
-
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
 
-	std::cout << "nag " <<std::endl;
+	
 	ISMRMRD::IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-	std::cout << "nag " <<std::endl;
+	
 	mr_contgen.set_rawdata_header(hdr);
-	std::cout << "nag " <<std::endl;
-	std::cout << "nag " <<std::endl;
 	mr_contgen.map_contrast();
-	std::cout << "nag " <<std::endl;
+	
 
 	// std::vector< ISMRMRD::Image< complex_float_t> > mr_contrasts = mr_contget.get_contrast_filled_volumes();
 	auto mr_contrasts = mr_contgen.get_contrast_filled_volumes();

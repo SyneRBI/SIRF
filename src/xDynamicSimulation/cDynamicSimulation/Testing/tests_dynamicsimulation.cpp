@@ -469,7 +469,7 @@ try
 
 		auto card_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		card_dyn.set_displacement_fields( card_motion_fields, true );
-		card_dyn.prep_displacements_fields();
+		card_dyn.prep_displacement_fields();
 
 		
 
@@ -480,7 +480,7 @@ try
 
 			auto curr_signal = std::get<1>( bins[i] );
 			std::cout << "Getting GT MVF for state " << curr_signal << std::endl;
-			auto curr_gt_mvf = card_dyn.get_interpolated_displacement_field( curr_signal );
+			auto curr_gt_mvf = card_dyn.get_interpolated_deformation_field( curr_signal );
 			
 
 			name_stream_output << curr_signal;

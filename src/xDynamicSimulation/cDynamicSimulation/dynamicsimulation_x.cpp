@@ -93,7 +93,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	for(size_t i=0; i<num_motion_dyns; i++)	
 	{
 		num_states_per_motion.push_back(motion_dynamics_[i]->get_num_simul_states());			
-		motion_dynamics_[i]->prep_displacements_fields();
+		motion_dynamics_[i]->prep_displacement_fields();
 	}
 
 	LinearCombiGenerator lcg(num_states_per_motion);
@@ -152,7 +152,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
                     int const motion_bin_number = current_combination[ i_motion_dyn ];						
                     SignalBin bin = signal_bins[ motion_bin_number ];
 	                
-                    all_motion_fields.push_back( motion_dyn->get_interpolated_displacement_field( std::get<1>(bin) ) ); 
+                    all_motion_fields.push_back( motion_dyn->get_interpolated_deformation_field( std::get<1>(bin) ) ); 
 
                 }
 
@@ -416,7 +416,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 	{	
 		cout << "Number simulated states for motion dynamic #" << i << ": " << motion_dynamics_[i]->get_num_simul_states() <<endl;
 		all_num_dyn_states.push_back(motion_dynamics_[i]->get_num_simul_states());			
-		motion_dynamics_[i]->prep_displacements_fields();
+		motion_dynamics_[i]->prep_displacement_fields();
 		motion_dynamics_[i]->align_motion_fields_with_image( this->template_image_data_);
 	}
 
@@ -464,7 +464,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 
 				SignalBin bin = signal_bins[ current_combination[i_motion_dyn] ];	
 
-				all_motion_fields.push_back( sptr_motion_dyn->get_interpolated_displacement_field( std::get<1>(bin) ) ); 
+				all_motion_fields.push_back( sptr_motion_dyn->get_interpolated_deformation_field( std::get<1>(bin) ) ); 
 
 			}
 

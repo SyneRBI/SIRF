@@ -111,6 +111,37 @@ void test_read_segmentation_to_nifti( std::string h5_filename_with_suffix )
 
 }
 
+void test_read_motionfield_to_nifti(  std::string h5_filename_with_suffix )
+{
+
+	std::string const type_motionfield = "cardiac";
+	std::vector< sirf::NiftiImageData3DDisplacement <float> > all_dvfs = read_motionfields_to_nifti_from_h5(h5_filename_with_suffix, type_motionfield);
+
+	std::cout << "Number of motion fields " << all_dvfs.size() << std::endl;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void test_read_h5_segmentation_for_xcat_input_check( std::string h5_filename_xcat_seg_with_suffix)
 {

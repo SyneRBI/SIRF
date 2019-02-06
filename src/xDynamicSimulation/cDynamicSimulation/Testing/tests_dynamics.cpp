@@ -406,11 +406,10 @@ bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
 		int const num_simul_bins = 1;
 		PETMotionDynamic motion_dyn(num_simul_bins);
 		motion_dyn.set_displacement_fields(resp_mvfs);
-		motion_dyn.prep_displacements_fields();
+		motion_dyn.prep_displacement_fields();
 		motion_dyn.align_motion_fields_with_image(pet_img);
 
-
-		auto some_mvf = motion_dyn.get_interpolated_displacement_field( 0.f );
+		auto some_mvf = motion_dyn.get_interpolated_deformation_field( 0.f );
 		auto mvf_img_data = some_mvf.get_raw_nifti_sptr();
 
 		float const mvf_off_x = mvf_img_data->qoffset_x;
@@ -476,7 +475,7 @@ try
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);
 		motion_dyn.set_displacement_fields(resp_mvfs);
-		motion_dyn.prep_displacements_fields();
+		motion_dyn.prep_displacement_fields();
 
 		return test_succesful;
 	}
@@ -502,11 +501,11 @@ bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);
 		motion_dyn.set_displacement_fields(resp_mvfs);
-		motion_dyn.prep_displacements_fields();
+		motion_dyn.prep_displacement_fields();
 
 		SignalAxisType motion_signal = 0.6;
 
-		auto interpolated_dvf = motion_dyn.get_interpolated_displacement_field(motion_signal);
+		auto interpolated_dvf = motion_dyn.get_interpolated_deformation_field(motion_signal);
 
 		return test_succesful;
 	}

@@ -330,9 +330,10 @@ void run_tests_phantom_input( void )
 {
 	bool tests_successful = true;
 
-	// test_read_1D_dataset_from_h5(H5_PHANTOM_TEST_PATH);
-	// test_read_geometrical_info_from_h5( H5_PHANTOM_TEST_PATH );
+	test_read_1D_dataset_from_h5(H5_PHANTOM_TEST_PATH);
+	test_read_geometrical_info_from_h5( H5_PHANTOM_TEST_PATH );
 	test_read_segmentation_to_nifti( H5_PHANTOM_TEST_PATH );
+	test_read_motionfield_to_nifti(  H5_PHANTOM_TEST_PATH );
 
 	// tests_successful *= test_read_h5_segmentation_correct_dims(H5_PHANTOM_TEST_PATH);
 	// tests_successful *= test_read_h5_segmentation_correct_content(H5_PHANTOM_TEST_PATH);

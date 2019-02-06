@@ -45,7 +45,7 @@ try
 		auto motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		motion_dyn.set_displacement_fields( motion_fields, true );
 		
-		motion_dyn.prep_displacements_fields();
+		motion_dyn.prep_displacement_fields();
 
 		mr_cont_gen.map_contrast();
 		auto static_state = mr_cont_gen.get_contrast_filled_volumes();
@@ -60,7 +60,7 @@ try
 			float const signal = (float)i_motion/(float)num_simul_cardiac_states;
 
 			std::cout << "Getting mvf for signal = " << signal << std::endl;
-			NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_displacement_field( signal );
+			NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_deformation_field( signal );
 
 			std::vector< NiftiImageData3DDeformation<float> > vec_mvfs;
 			vec_mvfs.push_back( curr_mvf );
@@ -103,7 +103,7 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 		auto motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		motion_dyn.set_displacement_fields( motion_fields, true );
 		
-		motion_dyn.prep_displacements_fields();
+		motion_dyn.prep_displacement_fields();
 
 		STIRImageData template_img( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH ); 
 		motion_dyn.align_motion_fields_with_image( template_img );
@@ -121,7 +121,7 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 			float const signal = (float)i_motion/(float)num_simul_cardiac_states;
 
 			std::cout << "Getting mvf for signal = " << signal << std::endl;
-			NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_displacement_field( signal );
+			NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_deformation_field( signal );
 
 			std::vector< NiftiImageData3DDeformation<float> > vec_mvfs;
 			vec_mvfs.push_back( curr_mvf );

@@ -89,7 +89,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define XML_XCAT_PATH SHARED_FOLDER_PATH "XMLTestData/XCAT_TissueParameters_XML.xml" 
 
 // #define H5_PHANTOM_TEST_PATH  SHARED_FOLDER_PATH "h5_testfile_cube_size3.h5"
-#define H5_PHANTOM_TEST_PATH  SHARED_FOLDER_PATH "testdata_inputoutput/xcat_phantom_incl_geomertry_192.h5"
+#define H5_PHANTOM_TEST_PATH  SHARED_FOLDER_PATH "testdata_inputoutput/xcat_phantom_incl_geomertry_64.h5"
 
 
 #define ACQU_FILE_NAME  SHARED_FOLDER_PATH "acquisitions_file_fwd_test.h5"

@@ -391,15 +391,6 @@ std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParamet
 
 
 
-
-
-
-
-
-
-
-
-
 PETContrastGenerator::PETContrastGenerator (const LabelVolume& tissue_labels, const std::string& filename_tissue_parameter_xml) :
 AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {

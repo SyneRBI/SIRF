@@ -77,19 +77,6 @@ VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( const s
 
 	return geo_info;
 }
-/*
-template< typename dataType >
-sirf::NiftiImageData3D<dataType> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader )
-{
-	std::stringstream sstream_dataset;
-	sstream_dataset << name_dataset <<  "/data";
-	std::vector< dataType >	dat = read_1D_dataset_from_h5 <dataType> ( h5_filename_with_suffix, sstream_dataset.str(), data_type_dataset, data_type_reader );
-	sirf::VoxelisedGeometricalInfo3D geo_info = read_voxelised_geometry_info_from_h5_dataset( h5_filename_with_suffix, name_dataset );
-
-	sirf::NiftiImageData3D< dataType > nifti_img( &dat[0], geo_info);
-
-	return nifti_img;
-}*/
 
 sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::string& h5_filename_with_suffix)
 {
@@ -105,6 +92,63 @@ sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::stri
 	return segmentation_nifti;
 }
 
+std::vector< sirf::NiftiImageData3DDisplacement <float> > read_motionfields_to_nifti_from_h5(const std::string& h5_filename_with_suffix, const std::string& motionfield_type)
+{
+
+
+	VoxelisedGeometricalInfo3D geo_info = read_voxelised_geometry_info_from_h5_dataset(h5_filename_with_suffix, "/segmentation");
+
+	sirf::VoxelisedGeometricalInfo3D::Size const data_size = geo_info.get_size();
+	size_t const num_voxels = data_size[0] * data_size[1] * data_size[2];
+
+
+	std::stringstream sstream_name_dataset;
+	sstream_name_dataset << "/motionfields/" << motionfield_type << "/data";
+
+	H5T_class_t type_input_float = H5T_FLOAT;
+	PredType type_reader_float = PredType::NATIVE_FLOAT;
+
+	std::vector< float > dvf_data = read_1D_dataset_from_h5 <float> ( h5_filename_with_suffix, sstream_name_dataset.str(), type_input_float, type_reader_float );
+
+	size_t const num_dimensions = 3;
+	size_t const num_phases = dvf_data.size() / (num_voxels * num_dimensions); 
+
+	std::vector< sirf::NiftiImageData3DDisplacement <float> > out;
+
+	for( int i=0; i<num_phases; i++ )
+	{
+		sirf::NiftiImageData3DDisplacement<float> dvf_i( &dvf_data[i * num_dimensions*num_voxels], geo_info);
+		out.push_back(dvf_i);
+	}
+
+	return out;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// OLD STUFF, DELETE AS SOON AS UP AND RUNNING
 
 
 ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( const std::string& h5_filename_with_suffix)

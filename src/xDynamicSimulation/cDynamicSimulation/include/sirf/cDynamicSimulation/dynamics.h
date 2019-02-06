@@ -37,8 +37,8 @@ typedef std::tuple<SignalAxisType,SignalAxisType,SignalAxisType> SignalBin;
 typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
 typedef std::vector< SignalPoint > SignalContainer;
 
-typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContainer;
-
+// typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContainer;
+typedef sirf::NiftiImageData3DDisplacement<float> MotionFieldType;
 
 
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
@@ -114,7 +114,7 @@ public:
 
 	~MotionDynamic();
 
-	sirf::NiftiImageData3DDeformation<float> get_interpolated_displacement_field(SignalAxisType signal);
+	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(SignalAxisType signal);
 
 	int get_which_motion_dynamic_am_i();
 	int get_num_total_motion_dynamics();
@@ -122,8 +122,9 @@ public:
 	std::string get_temp_folder_name();
 
 	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic = false);
+	void set_displacement_fields( std::vector< MotionFieldType >input_vectors, bool const motion_fields_are_cyclic = false);
 	     
-	virtual void prep_displacements_fields( void );
+	virtual void prep_displacement_fields( void );
 
 	bool delete_temp_folder();
 
@@ -144,9 +145,8 @@ protected:
 	static int num_total_motion_dynamics_;
 	int which_motion_dynamic_am_i_;
 
-	MotionFieldContainer displacment_fields_;
+	std::vector<MotionFieldType> displacment_fields_;
 	std::vector< sirf::NiftiImageData3DDeformation<float> > sirf_displacement_fields_;
-
 };
 
 class aMRDynamic : virtual public aDynamic{
@@ -177,7 +177,7 @@ public:
 	MRMotionDynamic():aMRDynamic(), MotionDynamic() {};
 	MRMotionDynamic(int const num_simul_states): aMRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
-	void prep_displacements_fields( void );
+	// void prep_displacement_fields( void );
 	virtual void bin_mr_acquisitions( sirf::AcquisitionsVector& all_acquisitions );
 };
 
@@ -273,7 +273,7 @@ public:
 	PETMotionDynamic(int const num_simul_states): aPETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
 	void align_motion_fields_with_image( const sirf::STIRImageData& img);
-	void prep_displacements_fields( void );
+	// void prep_displacement_fields( void );
 private:
 	bool const keep_motion_fields_in_memory_ = true;
 
