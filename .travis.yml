@@ -138,6 +138,8 @@ before_install:
         /usr/local/bin/conda config --set always_yes yes --set changeps1 no
         /usr/local/bin/conda update -q conda
         /usr/local/bin/conda install -c conda-forge libitk=4.13.0=0
+        echo "im about to print"
+        ls /usr/local/lib/cmake/
         EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DITK_DIR=/usr/local/lib/cmake/ITK-4.13"
       fi
       if [ $PYMVER == 2 ]; then
