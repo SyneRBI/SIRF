@@ -418,11 +418,15 @@ void run_tests_dynsim_deformer( void )
 
 	std::cout << " Start -------------------------- " <<std::endl;
 
-	std::cout << " 1-------------------------- " <<std::endl;
+	std::cout << " 0-------------------------- " <<std::endl;
+	// tests_successful *= DynSimDeformerTester::test_nifti_data_deformation();
+
+	// std::cout << " 1-------------------------- " <<std::endl;
+	
 	tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
 
 	std::cout << " 2 -------------------------- " <<std::endl;
-	tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
+	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
 
 	std::cout << " 3 -------------------------- " <<std::endl;
 	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();

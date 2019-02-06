@@ -15,11 +15,63 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "auxiliary_testing_functions.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
+#include "sirf/cReg/NiftyResample.h"
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 
 
 
 using namespace sirf;
+
+
+bool DynSimDeformerTester::test_nifti_data_deformation( void )
+{
+
+try
+{
+
+	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+
+	auto sptr_img_to_deform = std::make_shared< NiftiImageData3D<float> >( segmentation_labels );
+
+	auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+
+
+	std::string output_name = "deformed_segmentation";
+
+
+
+	for(size_t i=0; i<motion_fields.size(); i++)
+	{
+		std::stringstream sstream_output; 
+		sstream_output << SHARED_FOLDER_PATH <<"/" << output_name <<"_state_" << i;
+
+		NiftyResample<float> resampler;
+
+	    resampler.set_interpolation_type_to_cubic_spline();
+		resampler.set_reference_image(sptr_img_to_deform);
+		resampler.set_floating_image (sptr_img_to_deform);
+
+        auto disp_trafo = std::make_shared<NiftiImageData3DDeformation<float> >( ( motion_fields[i] ).get_as_deformation_field(motion_fields[i]) );
+		resampler.add_transformation(disp_trafo);
+
+		resampler.process();
+
+		auto deformed_img = resampler.get_output_sptr();
+		deformed_img->write( sstream_output.str() );
+
+	}
+
+	return true;
+}
+catch( std::runtime_error const &e)
+{
+	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << e.what() << std::endl;
+	throw e;
+}
+}
+
+
 
 bool DynSimDeformerTester::test_deform_contrast_generator( void )
 {
@@ -34,33 +86,15 @@ try
 		ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
 		mr_cont_gen.set_rawdata_header(hdr);
 
-
-
-		int const num_simul_cardiac_states = 10;
-		MRMotionDynamic  motion_dyn(num_simul_cardiac_states);
-
-		// auto motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		// motion_dyn.set_displacement_fields( motion_fields, false );
+	
+		auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-		auto motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		motion_dyn.set_displacement_fields( motion_fields, true );
-		
-		motion_dyn.prep_displacement_fields();
-
-		mr_cont_gen.map_contrast();
-		auto static_state = mr_cont_gen.get_contrast_filled_volumes();
-
-		std::string filename_static = std::string(SHARED_FOLDER_PATH) + "mr_contrast_map_static";
-		data_io::write_ISMRMRD_Image_to_Analyze(filename_static, static_state[0]);
 
 
-
-		for( size_t i_motion=0; i_motion<num_simul_cardiac_states; i_motion++)
+		for( size_t i=0; i<motion_fields.size(); i++)
 		{
-			float const signal = (float)i_motion/(float)num_simul_cardiac_states;
-
-			std::cout << "Getting mvf for signal = " << signal << std::endl;
-			NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_deformation_field( signal );
+			std::cout << "Getting mvf #" << i << std::endl;
+			NiftiImageData3DDeformation<float> curr_mvf = (motion_fields[i]).get_as_deformation_field( motion_fields[i] );
 
 			std::vector< NiftiImageData3DDeformation<float> > vec_mvfs;
 			vec_mvfs.push_back( curr_mvf );
@@ -71,7 +105,7 @@ try
 			auto curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
 			
 			std::stringstream filename_stream;
-			filename_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_" << i_motion; 		
+			filename_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_" << i; 		
 			
 			data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > (filename_stream.str(), curr_motion_state[0]);
 		}
@@ -157,7 +191,7 @@ bool DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior()
 	{
 		bool test_succesful = true;
 	
-		typedef NiftiImageData<float> ImageType;
+		typedef NiftiImageData3D<float> ImageType;
 		size_t const num_cycles = 10000;
 
 		
