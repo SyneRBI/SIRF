@@ -133,7 +133,7 @@ before_install:
       if [[ $EXTRA_BUILD_FLAGS == *"-DUSE_ITK=ON"* ]] && [[ $EXTRA_BUILD_FLAGS == *"-DUSE_SYSTEM_ITK=ON"* ]]; then
         echo "Installing ITK via miniconda"
         wget https://repo.continuum.io/miniconda/Miniconda$PYMVER-latest-MacOSX-x86_64.sh -O miniconda.sh;
-        bash miniconda.sh -b -u -p /usr/local
+        bash miniconda.sh -b -p /usr/local
         hash -r
         /usr/local/bin/conda config --set always_yes yes --set changeps1 no
         /usr/local/bin/conda update -q conda
