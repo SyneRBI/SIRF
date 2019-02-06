@@ -126,25 +126,15 @@ std::vector< sirf::NiftiImageData3DDisplacement <float> > read_motionfields_to_n
 
 
 
+std::vector< sirf::NiftiImageData3DDisplacement <float> > read_cardiac_motionfields_to_nifti_from_h5( const std::string& h5_filename_with_suffix )
+{
+	return read_motionfields_to_nifti_from_h5(h5_filename_with_suffix, "cardiac");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
+std::vector< sirf::NiftiImageData3DDisplacement <float> > read_respiratory_motionfields_to_nifti_from_h5( const std::string& h5_filename_with_suffix )
+{
+	return read_motionfields_to_nifti_from_h5(h5_filename_with_suffix, "respiratory");
+}
 
 
 
