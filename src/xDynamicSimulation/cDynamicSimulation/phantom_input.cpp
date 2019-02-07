@@ -64,9 +64,9 @@ VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( const s
 	// TODO: read this from file aswell instead of hard coding
 	VoxelisedGeometricalInfo3D::Coordinate l_dir, p_dir, s_dir;
 
-	l_dir[0]=1; l_dir[1]=0;	l_dir[2]=0;
-	p_dir[0]=0; p_dir[1]=1;	p_dir[2]=0;
-	s_dir[0]=0; s_dir[1]=0;	s_dir[2]=1;
+	l_dir[0]=-1; 	l_dir[1]= 0;		l_dir[2]=0;
+	p_dir[0]=0; 	p_dir[1]=-1;	p_dir[2]=0;
+	s_dir[0]=0; 	s_dir[1]= 0;	s_dir[2]=1;
 
 
     VoxelisedGeometricalInfo3D::DirectionMatrix geo_dir;
@@ -109,9 +109,12 @@ std::vector< sirf::NiftiImageData3DDisplacement <float> > read_motionfields_to_n
 	PredType type_reader_float = PredType::NATIVE_FLOAT;
 
 	std::vector< float > dvf_data = read_1D_dataset_from_h5 <float> ( h5_filename_with_suffix, sstream_name_dataset.str(), type_input_float, type_reader_float );
+	
+	scale_vector_data_to_geometry( dvf_data, geo_info );
 
 	size_t const num_dimensions = 3;
 	size_t const num_phases = dvf_data.size() / (num_voxels * num_dimensions); 
+
 
 	std::vector< sirf::NiftiImageData3DDisplacement <float> > out;
 
@@ -122,6 +125,44 @@ std::vector< sirf::NiftiImageData3DDisplacement <float> > read_motionfields_to_n
 	}
 
 	return out;
+}
+
+void scale_vector_data_to_geometry( std::vector<float> &vect_data, const VoxelisedGeometricalInfo3D& geo_info)
+{
+	const VoxelisedGeometricalInfo3D::Spacing 	  input_spacing = geo_info.get_spacing();
+    const VoxelisedGeometricalInfo3D::Size        input_size    = geo_info.get_size();
+
+    size_t const Nz = input_size[2];
+	size_t const Ny = input_size[1];
+	size_t const Nx = input_size[0];
+
+   	size_t const num_voxels = Nx*Ny*Nz;
+	
+	size_t const num_dimensions = 3;
+	size_t const Nt = vect_data.size() / (num_voxels * num_dimensions); 
+	
+	if( vect_data.size() != num_voxels * Nt * num_dimensions)
+		throw std::runtime_error("The vectorfield data does not match the geometrical information you passed.");
+
+	std::array<float, 3> direction_sign{ 1, 1, 1};
+
+
+	for( size_t nt=0; nt<Nt; nt++)
+    for( size_t nz=0; nz<Nz; nz++)
+    for( size_t ny=0; ny<Ny; ny++)
+	for( size_t nx=0; nx<Nx; nx++)
+	{
+		size_t const voxel_access = (((nt*Nz + nz)*Ny + ny)*Nx + nx) *num_dimensions;
+		for(size_t nv=0; nv<num_dimensions; nv++)
+		{
+			size_t const linear_access 		= voxel_access + nv;
+			size_t const reverted_access 	= voxel_access + 2 - nv;
+
+			// vect_data[linear_access] = direction_sign[nv] * input_spacing[nv] * vect_data[reverted_access];
+			vect_data[linear_access] = direction_sign[nv] * input_spacing[nv] * vect_data[linear_access];
+			// vect_data[linear_access] = direction_sign[nv] * 1 * vect_data[linear_access];
+		}
+	}
 }
 
 
