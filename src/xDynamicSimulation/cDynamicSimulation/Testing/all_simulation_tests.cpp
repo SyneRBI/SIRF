@@ -86,22 +86,25 @@ void run_tests_dynamics( void )
 	std::cout << "7 ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
 
-	std::cout << "8 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
+	std::cout << "7.1 --------------------------------------------------" <<std::endl;
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
 
-	std::cout << "10 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_prep_motion_fields());	
+	// std::cout << "8 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
 
-	std::cout << "11 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_interpolate_dvfs());
+	// std::cout << "10 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_prep_motion_fields());	
 
-	std::cout << "12 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
+	// std::cout << "11 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_interpolate_dvfs());
 
-	std::cout << "13 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
+	// std::cout << "12 ----------------------------------------------------" <<std::endl;
+	// // dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
+
+	// std::cout << "13 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
 	
-	std::cout << "14 ----------------------------------------------------" <<std::endl;
+	// std::cout << "14 ----------------------------------------------------" <<std::endl;
 	// dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
 	
 	std::cout << "end ----------------------------------------------------" <<std::endl;

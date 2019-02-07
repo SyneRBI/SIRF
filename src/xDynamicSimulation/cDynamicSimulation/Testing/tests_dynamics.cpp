@@ -327,6 +327,33 @@ bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 
 }
 
+bool test_dynamic::test_motion_dynamic_save_gt_deformations( )
+{
+	try
+	{
+		bool test_succesful = true;
+
+		int const num_motion_states = 4;
+		MRMotionDynamic motion_dyn( num_motion_states );
+
+		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		motion_dyn.set_displacement_fields(resp_mvfs);
+
+		std::vector<float> gt_points{0.1, 0.05, 0.4};
+		motion_dyn.save_ground_truth_deformations(gt_points);
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
+		throw e;
+	}
+}
+
+
+
 bool test_dynamic::test_motion_dynamic_set_motion_fields()
 {
 try

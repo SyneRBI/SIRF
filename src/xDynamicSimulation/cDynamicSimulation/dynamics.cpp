@@ -22,10 +22,14 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/common/multisort.h"
 #include "sirf/cDynamicSimulation/dynamics.h"
 
+#include "sirf/cReg/NiftyResample.h"
 #include "sirf/cReg/NiftiImageData3D.h"
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 #include "sirf/cReg/NiftiImageData3DDisplacement.h"
 
+#include <_reg_localTrans.h>
+
+using namespace std;
 using namespace sirf;
 
 
@@ -285,7 +289,7 @@ MotionDynamic::MotionDynamic():aDynamic()
 	this->num_total_motion_dynamics_ += 1;
 	
 	this->temp_folder_name_ = setup_tmp_folder_name();
-
+	this->ground_truth_folder_name_ = setup_gt_folder_name();
 }
 
 MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic()
@@ -297,7 +301,7 @@ MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic()
 	this->num_total_motion_dynamics_ += 1;
 
 	this->temp_folder_name_ = setup_tmp_folder_name();
-
+	this->ground_truth_folder_name_ = setup_gt_folder_name();
 }
 
 
@@ -370,10 +374,37 @@ std::string MotionDynamic::setup_tmp_folder_name()
 
 }
 
+std::string MotionDynamic::setup_gt_folder_name()
+{
+	std::string const gt_folder_prefix = "ground_truth_folder_motion_dyn_";
+	std::stringstream name_stream;
+	name_stream << this->temp_folder_prefix_ << gt_folder_prefix << this->which_motion_dynamic_am_i_;
+	return name_stream.str();
+}
+
 std::string MotionDynamic::get_temp_folder_name()
 {
 	return this->temp_folder_name_;
 }
+
+bool MotionDynamic::make_ground_truth_folder()
+{
+	try
+	{
+		std::cout << "Generating temporary folder " << this->ground_truth_folder_name_ << std::endl;
+		boost::filesystem::path dir_to_make(this->ground_truth_folder_name_.c_str());
+		bool folder_creation_worked = boost::filesystem::create_directories(dir_to_make);
+
+		return folder_creation_worked;
+
+	}
+	catch(boost::system::error_code& e)
+	{
+		std::cout << e.message() << std::endl;
+		throw e;	
+	}
+}
+
 
 bool MotionDynamic::make_temp_folder()
 {
@@ -488,7 +519,7 @@ void MotionDynamic::prep_displacement_fields()
 			for(int i=0; i<this->displacement_fields_.size(); i++)
 			{
 				std::stringstream temp_filename_mvf;
-				temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i; 
+				temp_filename_mvf << this->temp_folder_name_ << this->temp_mvf_prefix_ << i; 
 		
 				this->displacement_fields_[i].write( temp_filename_mvf.str() );
 
@@ -505,6 +536,63 @@ void MotionDynamic::prep_displacement_fields()
 	}
 
 	std::cout << "... finished." <<std::endl;
+}
+
+void MotionDynamic::save_ground_truth_deformations( std::vector< SignalAxisType > gt_signal_points)
+{
+
+	this->make_ground_truth_folder();
+
+	// std::vector<SignalAxisType>::iterator minimum_pos = std::min_element(std::begin(gt_signal_points), std::end(gt_signal_points));
+	// SignalAxisType gt_signal_offset = *minimum_pos;
+
+	// std::cout << "Subtracting offset of signal " << gt_signal_offset << std::endl;
+
+	// NiftiImageData3DDeformation<float> offset_deformation = this->get_interpolated_deformation_field( gt_signal_offset ); 
+	// NiftiImageData3DDeformation<float> const inverse_offset_deformation = calc_inverse_offset_deformation( offset_deformation ); 
+	
+
+	for( size_t i=0; i<gt_signal_points.size(); i++)
+	{
+
+		NiftiImageData3DDeformation<float> const gt_deformation_with_offset = this->get_interpolated_deformation_field( gt_signal_points[i] );
+
+
+		// NiftyResample<float> resampler;
+
+	 //    resampler.set_interpolation_type_to_cubic_spline();
+		// resampler.set_reference_image( std::make_shared< NiftiImageData3DDeformation<float> const > ( gt_deformation_with_offset ));
+		// resampler.set_floating_image ( std::make_shared< NiftiImageData3DDeformation<float> const > ( gt_deformation_with_offset ));
+	
+		// resampler.add_transformation( std::make_shared<NiftiImageData3DDeformation<float> >( gt_deformation_with_offset ) );
+		// resampler.add_transformation( std::make_shared<NiftiImageData3DDeformation<float> >( inverse_offset_deformation ) );
+
+		// resampler.process();
+
+		// const std::shared_ptr<const NiftiImageData3DDeformation<float> > offset_corrected_gt_deformation = resampler.get_output_sptr();
+
+		stringstream sstream_output;
+		sstream_output << this->ground_truth_folder_name_ << "/gt_deformation_state_" << gt_signal_points[i];
+		std::cout << sstream_output.str() << std::endl;
+
+		// offset_corrected_gt_deformation.write( sstream_output.str() );
+		gt_deformation_with_offset.write( sstream_output.str() );		
+  	}
+}
+
+NiftiImageData3DDeformation<float>  
+MotionDynamic::calc_inverse_offset_deformation( NiftiImageData3DDeformation<float> offset_deformation )
+{
+	std::shared_ptr<nifti_image> sptr_offset_deformation = offset_deformation.get_raw_nifti_sptr();
+	std::shared_ptr<nifti_image> sptr_inverse_offset_deformation = std::make_shared< nifti_image >(*sptr_offset_deformation);
+
+	float const inversion_tolerance = 0.1f;
+
+	reg_defFieldInvert(sptr_offset_deformation.get(), sptr_inverse_offset_deformation.get(), inversion_tolerance );
+
+	NiftiImageData3DDeformation<float> inverse_offset( *sptr_inverse_offset_deformation );		
+
+	return inverse_offset;
 }
 
 

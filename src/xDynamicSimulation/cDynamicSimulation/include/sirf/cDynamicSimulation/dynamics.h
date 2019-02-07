@@ -125,21 +125,29 @@ public:
 	void set_displacement_fields( std::vector< MotionFieldType >input_vectors, bool const motion_fields_are_cyclic = false);
 	     
 	virtual void prep_displacement_fields( void );
+	virtual void save_ground_truth_deformations( std::vector< SignalAxisType > gt_signal_points);
 
 	bool delete_temp_folder();
-
+	
 protected:
 
 	bool const destroy_upon_deletion_ = true;
 	bool const keep_motion_fields_in_memory_ = true;
 
 	std::string setup_tmp_folder_name( void );
+	std::string setup_gt_folder_name( void );
 	bool make_temp_folder();
+	bool make_ground_truth_folder();
+
+	sirf::NiftiImageData3DDeformation<float> calc_inverse_offset_deformation( sirf::NiftiImageData3DDeformation<float> offset_deformation );
+
 
 	std::string const temp_folder_prefix_  = "/tmp/";;
 	std::string const temp_mvf_prefix_ = "/motion_field_";
+
 	std::string temp_folder_name_ ;
-	
+	std::string ground_truth_folder_name_ ;
+
 	std::vector< std::string > temp_mvf_filenames_;
 
 	static int num_total_motion_dynamics_;

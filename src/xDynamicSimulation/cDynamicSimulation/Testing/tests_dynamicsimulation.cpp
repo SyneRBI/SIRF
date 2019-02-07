@@ -278,8 +278,8 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 	 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
 		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
-		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
 		
 		// ####################################################################################################
 
