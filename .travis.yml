@@ -251,6 +251,11 @@ script:
  - ./INSTALL/bin/gadgetron >& gadgetron.log&
  # print for debugging
  - cat builds/SIRF/build/CMakeCache.txt
+ - cd builds/SIRF/build
+ - echo "about to do sirf ctests"
+ - DYLD_PRINT_LIBRARIES=YES ctest -VV
+ - echo "finished sirf ctests"
+ - cd ../../../
  - DYLD_PRINT_LIBRARIES=YES ctest -VV
  # print for debugging
  - cat builds/SIRF/build/Testing/Temporary/LastTest.log
