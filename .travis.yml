@@ -138,8 +138,7 @@ before_install:
         $HOME/miniconda/bin/conda config --set always_yes yes --set changeps1 no
         $HOME/miniconda/bin/conda update -q conda
         $HOME/miniconda/bin/conda install -c conda-forge libitk=4.13.0=0
-        EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DITK_DIR=$HOME/miniconda/lib/cmake/ITK-4.13"
-        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HOME/miniconda/lib
+        ln -s $HOME/miniconda/lib/* /usr/local/lib
       fi
       if [ $PYMVER == 2 ]; then
         PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
