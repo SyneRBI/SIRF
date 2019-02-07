@@ -38,8 +38,6 @@ try
 
 	std::string output_name = "deformed_segmentation";
 
-
-
 	for(size_t i=0; i<motion_fields.size(); i++)
 	{
 		std::stringstream sstream_output; 
@@ -89,7 +87,6 @@ try
 	
 		auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-
 
 		for( size_t i=0; i<motion_fields.size(); i++)
 		{

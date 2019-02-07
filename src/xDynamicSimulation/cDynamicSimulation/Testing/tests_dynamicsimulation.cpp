@@ -199,12 +199,12 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 15;
+		float const test_SNR = 150;
 		size_t const noise_label = 13;
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 8;
+		int const num_simul_motion_dyn = 5;
 		
 		MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
 

@@ -120,7 +120,6 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 		throw std::runtime_error("Something went wrong during the resampling. The output image and input image have different number of voxels.");
 
 	memcpy(img.begin(), deformed_img_as_nifti->data, sizeof(float) * deformed_img_as_nifti->nvox);
-
 }
 
 
