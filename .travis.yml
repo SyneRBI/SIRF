@@ -138,7 +138,12 @@ before_install:
         $HOME/miniconda/bin/conda config --set always_yes yes --set changeps1 no
         $HOME/miniconda/bin/conda update -q conda
         $HOME/miniconda/bin/conda install -c conda-forge libitk=4.13.0=0
-        ln -s $HOME/miniconda/lib/* /usr/local/lib
+        mkdir $HOME/miniconda/temp_lib/
+        itk_libs=(libITK* libtiff.5.dylib libhdf5* libitk* libpng16.16.dylib)
+        for i in ${itk_libs[@]}; do
+          ln $HOME/miniconda/lib/$i $HOME/miniconda/temp_lib/
+        done
+        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HOME/miniconda/temp_lib/
         EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DITK_DIR=$HOME/miniconda/lib/cmake/ITK-4.13"
       fi
       if [ $PYMVER == 2 ]; then
