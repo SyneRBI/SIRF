@@ -63,11 +63,13 @@ public:
         : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3D); }
 
     /// Construct from array
-    NiftiImageData3D(const dataType * const data, const VoxelisedGeometricalInfo3D &geom)
+    template<class inputType>
+    NiftiImageData3D(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
         : NiftiImageData<dataType>(data, geom) { this->check_dimensions(this->_3D); }
 
     /// Construct from any other image data (e.g., STIRImageData)
-    NiftiImageData3D(const ImageData& id);
+    NiftiImageData3D(const ImageData& id)
+        : NiftiImageData<dataType>(id) { this->check_dimensions(this->_3D); }
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {

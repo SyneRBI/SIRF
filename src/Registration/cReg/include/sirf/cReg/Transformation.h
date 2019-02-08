@@ -33,6 +33,7 @@ limitations under the License.
 namespace sirf {
 
 // Forward declarations
+template<class dataType> class NiftiImageData;
 template<class dataType> class NiftiImageData3D;
 template<class dataType> class NiftiImageData3DDeformation;
 
@@ -58,13 +59,13 @@ public:
     virtual ~Transformation() {}
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const = 0;
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref) const = 0;
 
     /// Write
     virtual void write(const std::string &filename) const = 0;
 
 protected:
     /// Check that the deformation field image matches the reference image.
-    static void check_ref_and_def(const NiftiImageData3D<dataType> &ref, const NiftiImageData3DDeformation<dataType> &def);
+    static void check_ref_and_def(const NiftiImageData<dataType> &ref, const NiftiImageData3DDeformation<dataType> &def);
 };
 }

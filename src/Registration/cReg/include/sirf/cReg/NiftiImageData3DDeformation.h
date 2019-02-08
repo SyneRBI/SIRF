@@ -68,8 +68,9 @@ public:
         : NiftiImageData3DTensor<dataType>(tensor) { this->check_dimensions(this->_3DDef); }
 
     /// Construct from array
-    NiftiImageData3DDeformation(const dataType * const data, const VoxelisedGeometricalInfo3D &geom)
-        : NiftiImageData3DTensor<dataType>(data, geom) { this->check_dimensions(this->_3DDef); }
+    template<class inputType>
+    NiftiImageData3DDeformation(const inputType * const data, const VoxelisedGeometricalInfo3D &geom)
+        : NiftiImageData3DTensor<dataType>(data, geom) { this->_nifti_image->intent_code = NIFTI_INTENT_VECTOR; this->_nifti_image->intent_p1=0; }
 
     /// Create from 3 individual components
     NiftiImageData3DDeformation(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z)
@@ -79,19 +80,19 @@ public:
     NiftiImageData3DDeformation(const NiftiImageData3DDisplacement<dataType> &disp);
 
     /// Create from 3D image
-    void create_from_3D_image(const NiftiImageData3D<dataType> &image);
+    void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Create from control point grid image
-    void create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData3D<dataType> &ref);
+    void create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData<dataType> &ref);
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
+    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData<dataType> &ref) const;
 
     /// Compose multiple transformations into single deformation field
-    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<const Transformation<dataType> *> &transformations, const NiftiImageData3D<dataType> &ref);
+    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<const Transformation<dataType> *> &transformations, const NiftiImageData<dataType> &ref);
 
     /// Compose multiple transformations into single deformation field
-    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<const Transformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref);
+    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<const Transformation<dataType> > > &transformations, const NiftiImageData<dataType> &ref);
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {

@@ -93,19 +93,19 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
 }
 
 template<class dataType>
-NiftiImageData<dataType>::NiftiImageData(const dataType * const data, const VoxelisedGeometricalInfo3D &geom)
+NiftiImageData<dataType>::NiftiImageData(const ImageData& id)
 {
-    this->_nifti_image = create_from_geom_info(geom);
+    this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*id.get_geom_info_sptr());
 
     // Always float
     this->set_up_data(NIFTI_TYPE_FLOAT32);
 
-    for (unsigned i=0; i<_nifti_image->nvox; ++i)
-        this->_data[i] = dataType(data[i]);
+    // Finally, copy the data
+    this->copy(id.begin(), this->begin(), this->end());
 }
 
 template<class dataType>
-std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom)
+std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor)
 {
     typedef VoxelisedGeometricalInfo3D Info;
     Info::Size            size    = geom.get_size();
@@ -121,6 +121,12 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
     dims[5] = 1;
     dims[6] = 1;
     dims[7] = 1;
+
+    // If tensor image, dims[0] and dims[5] should be 5 and 3, respectively
+    if (is_tensor) {
+        dims[0] = 5;
+        dims[5] = 3;
+    }
 
     nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
     std::shared_ptr<nifti_image> _nifti_image = std::shared_ptr<nifti_image>(im, nifti_image_free);
@@ -143,7 +149,7 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
             tm_orig[i][j]=tm[i][j];
 
     AffineTransformation<float> tm_flip;
-    tm_flip[0][0] = tm_flip[1][1] = -1.F;
+    tm_flip[0][0] = tm_flip[1][1] = -1.F; // VoxelisedGeometricalInfo3D is LPS, but nifti is RAS so flip first and second dims.
     AffineTransformation<float> tm_final = tm_flip*tm_orig;
     for (unsigned i=0;i<4;++i)
         for (unsigned j=0;j<4;++j)
@@ -373,6 +379,12 @@ template<class dataType>
 const int* NiftiImageData<dataType>::get_dimensions() const
 {
     return _nifti_image->dim;
+}
+
+template<class dataType>
+size_t NiftiImageData<dataType>::get_num_voxels() const
+{
+    return _nifti_image->nvox;
 }
 
 template<class dataType>
@@ -689,7 +701,7 @@ void NiftiImageData<dataType>::set_up_data(const int original_datatype)
     // Save the original datatype, we'll convert it back to this just before saving
     _original_datatype = original_datatype;
 
-    // TODO display a warning that data will be lost if original was e.g., double
+    // Display a warning that data will be lost if original was e.g., double
     if (original_datatype != NIFTI_TYPE_FLOAT32) {
         if (_nifti_image->nbyper > int(sizeof(float)))
             std::cout << "\nDecreasing number of bytes per pixel, could cause loss of accuracy.\n"
@@ -899,7 +911,7 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
         images.push_back(ims[i]->get_raw_nifti_sptr());
 
     // Print transformation matrices
-    std::vector<AffineTransformation<dataType> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
+    std::vector<AffineTransformation<float> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
     for(unsigned j=0; j<images.size(); j++) {
         qto_ijk_vec.push_back(images[j]->qto_ijk.m);
         qto_xyz_vec.push_back(images[j]->qto_xyz.m);
@@ -907,13 +919,13 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
         sto_xyz_vec.push_back(images[j]->sto_xyz.m);
     }
     std::cout << "\t" << std::left << std::setw(19) << "qto_ijk:" << "\n";
-    AffineTransformation<dataType>::print(qto_ijk_vec);
+    AffineTransformation<float>::print(qto_ijk_vec);
     std::cout << "\t" << std::left << std::setw(19) << "qto_xyz:" << "\n";
-    AffineTransformation<dataType>::print(qto_xyz_vec);
+    AffineTransformation<float>::print(qto_xyz_vec);
     std::cout << "\t" << std::left << std::setw(19) << "sto_ijk:" << "\n";
-    AffineTransformation<dataType>::print(sto_ijk_vec);
+    AffineTransformation<float>::print(sto_ijk_vec);
     std::cout << "\t" << std::left << std::setw(19) << "sto_xyz:" << "\n";
-    AffineTransformation<dataType>::print(sto_xyz_vec);
+    AffineTransformation<float>::print(sto_xyz_vec);
 
     // Print original datatype
     std::string original_datatype = "orig_datatype: ";
@@ -973,8 +985,10 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 2 not initialised.");
 
     // Check the number of dimensions match
-    if(im1.get_dimensions()[0] != im2.get_dimensions()[0])
+    if(im1.get_dimensions()[0] != im2.get_dimensions()[0]) {
+        std::cout << "\nImage comparison: different number of dimensions (" << im1.get_dimensions()[0] << " versus " << im2.get_dimensions()[0] << ").\n";
         return false;
+    }
 
     // Get required accuracy compared to the image maxes
     float norm;
@@ -996,7 +1010,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
         norm = resample.get_output_sptr()->get_norm(im1);
     }
 
-    if (norm < epsilon)
+    if (norm <= epsilon)
         return true;
 
     std::cout << "\nImages are not equal (norm > epsilon).\n";
@@ -1089,24 +1103,30 @@ void NiftiImageData<dataType>::set_up_geom_info()
 
     // Number of voxels
     VoxelisedGeometricalInfo3D::Size size;
-    for (int i=0; i<3; ++i)
+    for (unsigned i=0; i<3; ++i)
         size[i] = unsigned(_nifti_image->dim[i+1]);
 
     // Voxel spacing
     VoxelisedGeometricalInfo3D::Spacing spacing;
-    for (int i=0; i<3; ++i)
+    for (unsigned i=0; i<3; ++i)
         spacing[i] = _nifti_image->pixdim[i+1];
+
+    // VoxelisedGeometricalInfo3D is LPS, but nifti is RAS so flip first and second dims.
+    AffineTransformation<float> tm_orig(_nifti_image->qto_xyz.m);
+    AffineTransformation<float> tm_flip;
+    tm_flip[0][0] = tm_flip[1][1] = -1.F;
+    AffineTransformation<float> tm_final = tm_flip*tm_orig;
 
     // Offset
     VoxelisedGeometricalInfo3D::Offset offset;
-    for (int i=0; i<3; ++i)
-        offset[i] = _nifti_image->qto_xyz.m[i][3];
+    for (unsigned i=0; i<3; ++i)
+        offset[i] = tm_final[i][3];
 
     // Transformation matrix
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
-    for (int i=0; i<3; ++i)
-        for (int j=0; j<3; ++j)
-            direction[i][j] = _nifti_image->qto_xyz.m[i][j];
+    for (unsigned i=0; i<3; ++i)
+        for (unsigned j=0; j<3; ++j)
+            direction[i][j] = tm_final[i][j] / spacing[i];
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
