@@ -133,7 +133,9 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(SimpleReconGadget);
 		NEW_GADGET(GenericReconFieldOfViewAdjustmentGadget);
 		NEW_GADGET(GenericReconImageArrayScalingGadget);
+		NEW_GADGET(FatWaterGadget);
 		NEW_GADGET(ImageArraySplitGadget);
+		NEW_GADGET(PhysioInterpolationGadget);
 		NEW_GADGET(ExtractGadget);
 		NEW_GADGET(ComplexToFloatGadget);
 		NEW_GADGET(FloatToShortGadget);

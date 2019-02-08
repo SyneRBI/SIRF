@@ -76,7 +76,8 @@ def main():
         'RemoveROOversamplingGadget', \
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', \
-        'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])
+        'SimpleReconGadget', 'FatWaterGadget', 'ImageArraySplitGadget', \
+        'PhysioInterpolationGadget', 'ex:ExtractGadget'])
         
     # ExtractGadget defines which type of image should be returned:
     # none      0

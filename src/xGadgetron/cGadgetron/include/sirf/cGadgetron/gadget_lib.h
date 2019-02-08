@@ -351,6 +351,17 @@ namespace sirf {
 		}
 	};
 
+	class FatWaterGadget : public Gadget {
+	public:
+		FatWaterGadget() :
+			Gadget("FatWater", "gadgetron_fatwater", "FatWaterGadget")
+		{}
+		static const char* class_name()
+		{
+			return "FatWaterGadget";		
+		}
+	};
+
 	class ImageArraySplitGadget : public Gadget {
 	public:
 		ImageArraySplitGadget() :
@@ -359,6 +370,22 @@ namespace sirf {
 		static const char* class_name()
 		{
 			return "ImageArraySplitGadget";
+		}
+	};
+
+	class PhysioInterpolationGadget : public Gadget {
+	public:
+		PhysioInterpolationGadget() :
+			Gadget("PhysioInterpolation", "gadgetron_mricore", "PhysioInterpolationGadget")
+		{
+			add_property("phases", "30");
+			add_property("mode", "0");
+			add_property("first_beat_on_trigger", "true");
+			add_property("interp_method", "BSpline");
+		}
+		static const char* class_name()
+		{
+			return "PhysioInterpolationGadget";
 		}
 	};
 
