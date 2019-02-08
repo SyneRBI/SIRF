@@ -506,7 +506,7 @@ void MotionDynamic::prep_displacement_fields()
 {
 
 	if(this->displacement_fields_.size() == 0)
-		throw std::runtime_error("Please call set_displacements_fields() first.");
+		throw std::runtime_error("Please call set_displacement_fields() first.");
 
 	std::cout << "Preparing displacement fields ... " <<std::endl;
 
@@ -540,6 +540,8 @@ void MotionDynamic::prep_displacement_fields()
 
 void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points)
 {
+	bool const correct_for_offset = true;
+
 
 	this->make_ground_truth_folder();
 
@@ -557,23 +559,27 @@ void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType
 
 		NiftiImageData3DDeformation<float> gt_deformation_with_offset = this->get_interpolated_deformation_field( gt_signal_points[i] );
 		
-		// std::vector< std::shared_ptr<const NiftiImageData3DDeformation<float> > > vec_gt_def_with_offset;
-		// std::vector< std::shared_ptr<const Transformation<float>              > > vec; 
-		// vec_gt_def_with_offset.push_back(std::make_shared<const NiftiImageData3DDeformation<float> >( vec_gt_def_with_offset ));
-		// vec_gt_def_with_offset.push_back(sptr_inverse_offset_deformation);
+		std::vector< std::shared_ptr<const Transformation<float> > > vec_gt_def_with_offset;
+
+		vec_gt_def_with_offset.push_back(std::make_shared<const NiftiImageData3DDeformation<float> >( gt_deformation_with_offset ));
+		vec_gt_def_with_offset.push_back(sptr_inverse_offset_deformation);
 		
-		// NiftiImageData3DDeformation<float> const gt_deformation_without_offset_correction = NiftiImageData3DDeformation<float>::compose_single_deformation(vec_gt_def_with_offset, offset_deformation);
-		// NiftiImageData3DDeformation<float> const gt_deformation_without_offset_correction = NiftiImageData3DDeformation<float>::compose_single_deformation(vec, offset_deformation);
-				
+		NiftiImageData3DDeformation<float> gt_deformation;
+		
+		if( correct_for_offset )
+			gt_deformation = NiftiImageData3DDeformation<float>::compose_single_deformation(vec_gt_def_with_offset, *sptr_inverse_offset_deformation);
+		else
+			gt_deformation = gt_deformation_with_offset;
+						
 		stringstream sstream_output;
 		sstream_output << this->ground_truth_folder_name_ << "/gt_deformation_state_" << gt_signal_points[i];
 		std::cout << sstream_output.str() << std::endl;
 
-		// NiftiImageData3DDisplacement<float> const gt_deformation_without_offset_correction( gt_deformation_without_offset );
-		// gt_deformation_without_offset_correction.write( sstream_output.str() );		
+		NiftiImageData3DDisplacement<float> const gt_displacement( gt_deformation );
+		gt_displacement.write( sstream_output.str() );		
 
-		NiftiImageData3DDisplacement<float> const gt_displacements_with_offset( gt_deformation_with_offset );
-		gt_displacements_with_offset.write( sstream_output.str() );		
+		// NiftiImageData3DDisplacement<float> const gt_displacements_with_offset( gt_deformation_with_offset );
+		// gt_displacements_with_offset.write( sstream_output.str() );		
   	}
 }
 
@@ -598,9 +604,13 @@ MotionDynamic::calc_inverse_offset_deformation( NiftiImageData3DDeformation<floa
 	std::shared_ptr<nifti_image> sptr_offset_deformation = offset_deformation.get_raw_nifti_sptr();
 	std::shared_ptr<nifti_image> sptr_inverse_offset_deformation = std::make_shared< nifti_image >(*sptr_offset_deformation);
 
-	float const inversion_tolerance = 0.1f;
+	float const inversion_tolerance = 0.01f;
+
+	std::cout << "Inverting offset vectorfield ... " << std::endl;
 
 	reg_defFieldInvert(sptr_offset_deformation.get(), sptr_inverse_offset_deformation.get(), inversion_tolerance );
+
+	std::cout << " ... finished." << std::endl;
 
 	NiftiImageData3DDeformation<float> inverse_offset( *sptr_inverse_offset_deformation );		
 

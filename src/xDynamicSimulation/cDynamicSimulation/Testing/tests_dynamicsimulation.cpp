@@ -204,7 +204,7 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 10;
+		int const num_simul_motion_dyn = 5;
 		
 		MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
 
