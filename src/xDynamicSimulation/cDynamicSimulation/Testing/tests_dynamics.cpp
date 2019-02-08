@@ -333,14 +333,16 @@ bool test_dynamic::test_motion_dynamic_save_gt_deformations( )
 	{
 		bool test_succesful = true;
 
-		int const num_motion_states = 4;
+		int const num_motion_states = 10;
 		MRMotionDynamic motion_dyn( num_motion_states );
 
 		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		motion_dyn.set_displacement_fields(resp_mvfs);
 
 		std::vector<float> gt_points{0.1, 0.05, 0.4};
-		motion_dyn.save_ground_truth_deformations(gt_points);
+		// motion_dyn.save_ground_truth_deformations(gt_points);
+
+		motion_dyn.save_ground_truth_displacements();
 
 		return test_succesful;
 	}

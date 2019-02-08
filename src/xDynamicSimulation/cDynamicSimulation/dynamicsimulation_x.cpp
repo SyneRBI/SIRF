@@ -55,6 +55,14 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 	}
 }
 
+void MRDynamicSimulation::save_ground_truth_displacements( void )
+{
+	for(size_t i=0; i<this->motion_dynamics_.size(); i++)
+	{
+		this->motion_dynamics_[i]->save_ground_truth_displacements();
+	}
+}
+
 void MRDynamicSimulation::add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn )
 {
 	this->motion_dynamics_.push_back( sptr_motion_dyn );
@@ -350,8 +358,14 @@ void PETDynamicSimulation::write_simulation_results( const std::string& filename
 	std::cout << "Writing PET attenuation map ... ";
 	format_sptr->write_to_file( stream_filename_attenuation_map.str() , attenuation_image);
 	std::cout << "... finished." << std::endl;
+}
 
-
+void PETDynamicSimulation::save_ground_truth_displacements( void )
+{
+	for(size_t i=0; i<this->motion_dynamics_.size(); i++)
+	{
+		this->motion_dynamics_[i]->save_ground_truth_displacements();
+	}
 }
 
 void PETDynamicSimulation::add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn)

@@ -204,7 +204,7 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 5;
+		int const num_simul_motion_dyn = 10;
 		
 		MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
 
@@ -287,6 +287,11 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		t = clock();
 		mr_dyn_sim.simulate_dynamics();
 		t = clock() - t;
+
+		std::cout << "Storing ground truth motion information" << std::endl;
+		mr_dyn_sim.save_ground_truth_displacements();
+
+
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 		mr_dyn_sim.write_simulation_results( FILENAME_MR_MOTION_CONTRAST_DYNSIM );

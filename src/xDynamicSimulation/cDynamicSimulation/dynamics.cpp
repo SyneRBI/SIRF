@@ -538,46 +538,58 @@ void MotionDynamic::prep_displacement_fields()
 	std::cout << "... finished." <<std::endl;
 }
 
-void MotionDynamic::save_ground_truth_deformations( std::vector< SignalAxisType > gt_signal_points)
+void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points)
 {
 
 	this->make_ground_truth_folder();
 
-	// std::vector<SignalAxisType>::iterator minimum_pos = std::min_element(std::begin(gt_signal_points), std::end(gt_signal_points));
-	// SignalAxisType gt_signal_offset = *minimum_pos;
+	std::vector<SignalAxisType>::iterator minimum_pos = std::min_element(std::begin(gt_signal_points), std::end(gt_signal_points));
+	SignalAxisType gt_signal_offset = *minimum_pos;
 
-	// std::cout << "Subtracting offset of signal " << gt_signal_offset << std::endl;
+	std::cout << "Subtracting offset of signal " << gt_signal_offset << std::endl;
 
-	// NiftiImageData3DDeformation<float> offset_deformation = this->get_interpolated_deformation_field( gt_signal_offset ); 
-	// NiftiImageData3DDeformation<float> const inverse_offset_deformation = calc_inverse_offset_deformation( offset_deformation ); 
+	NiftiImageData3DDeformation<float> offset_deformation = this->get_interpolated_deformation_field( gt_signal_offset ); 
+
+	std::shared_ptr<const NiftiImageData3DDeformation<float> > sptr_inverse_offset_deformation = std::make_shared<const NiftiImageData3DDeformation<float> >(calc_inverse_offset_deformation( offset_deformation ));
 	
-
 	for( size_t i=0; i<gt_signal_points.size(); i++)
 	{
 
-		NiftiImageData3DDeformation<float> const gt_deformation_with_offset = this->get_interpolated_deformation_field( gt_signal_points[i] );
-
-
-		// NiftyResample<float> resampler;
-
-	 //    resampler.set_interpolation_type_to_cubic_spline();
-		// resampler.set_reference_image( std::make_shared< NiftiImageData3DDeformation<float> const > ( gt_deformation_with_offset ));
-		// resampler.set_floating_image ( std::make_shared< NiftiImageData3DDeformation<float> const > ( gt_deformation_with_offset ));
-	
-		// resampler.add_transformation( std::make_shared<NiftiImageData3DDeformation<float> >( gt_deformation_with_offset ) );
-		// resampler.add_transformation( std::make_shared<NiftiImageData3DDeformation<float> >( inverse_offset_deformation ) );
-
-		// resampler.process();
-
-		// const std::shared_ptr<const NiftiImageData3DDeformation<float> > offset_corrected_gt_deformation = resampler.get_output_sptr();
-
+		NiftiImageData3DDeformation<float> gt_deformation_with_offset = this->get_interpolated_deformation_field( gt_signal_points[i] );
+		
+		// std::vector< std::shared_ptr<const NiftiImageData3DDeformation<float> > > vec_gt_def_with_offset;
+		// std::vector< std::shared_ptr<const Transformation<float>              > > vec; 
+		// vec_gt_def_with_offset.push_back(std::make_shared<const NiftiImageData3DDeformation<float> >( vec_gt_def_with_offset ));
+		// vec_gt_def_with_offset.push_back(sptr_inverse_offset_deformation);
+		
+		// NiftiImageData3DDeformation<float> const gt_deformation_without_offset_correction = NiftiImageData3DDeformation<float>::compose_single_deformation(vec_gt_def_with_offset, offset_deformation);
+		// NiftiImageData3DDeformation<float> const gt_deformation_without_offset_correction = NiftiImageData3DDeformation<float>::compose_single_deformation(vec, offset_deformation);
+				
 		stringstream sstream_output;
 		sstream_output << this->ground_truth_folder_name_ << "/gt_deformation_state_" << gt_signal_points[i];
 		std::cout << sstream_output.str() << std::endl;
 
-		// offset_corrected_gt_deformation.write( sstream_output.str() );
-		gt_deformation_with_offset.write( sstream_output.str() );		
+		// NiftiImageData3DDisplacement<float> const gt_deformation_without_offset_correction( gt_deformation_without_offset );
+		// gt_deformation_without_offset_correction.write( sstream_output.str() );		
+
+		NiftiImageData3DDisplacement<float> const gt_displacements_with_offset( gt_deformation_with_offset );
+		gt_displacements_with_offset.write( sstream_output.str() );		
   	}
+}
+
+void MotionDynamic::save_ground_truth_displacements( void )
+{
+	std::vector< SignalBin > simulated_motion_bins = this->get_bins();
+	std::vector< SignalAxisType > bin_centers;
+
+	for( size_t i=0; i<simulated_motion_bins.size(); i++)
+	{	
+		std::cout << "pushing center " << std::get<1>( simulated_motion_bins[i]) << std::endl;
+		bin_centers.push_back( std::get<1>( simulated_motion_bins[i]) );
+	}
+
+	this->save_ground_truth_displacements( bin_centers );
+
 }
 
 NiftiImageData3DDeformation<float>  

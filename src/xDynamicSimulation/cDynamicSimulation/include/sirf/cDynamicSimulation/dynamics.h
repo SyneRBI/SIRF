@@ -125,7 +125,9 @@ public:
 	void set_displacement_fields( std::vector< MotionFieldType >input_vectors, bool const motion_fields_are_cyclic = false);
 	     
 	virtual void prep_displacement_fields( void );
-	virtual void save_ground_truth_deformations( std::vector< SignalAxisType > gt_signal_points);
+
+	virtual void save_ground_truth_displacements( void );
+	void save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points);
 
 	bool delete_temp_folder();
 	

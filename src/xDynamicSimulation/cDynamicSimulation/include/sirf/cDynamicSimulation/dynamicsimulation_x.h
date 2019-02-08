@@ -54,8 +54,11 @@ public:
 
 	virtual void simulate_dynamics( void ) = 0;
 	virtual void write_simulation_results( const std::string& filename_output_with_extension ) = 0;
+	virtual void save_ground_truth_displacements() = 0;
+
 
 	virtual void acquire_raw_data( void ) = 0;
+
 
 
 protected:
@@ -79,6 +82,8 @@ public:
 	virtual void set_filename_rawdata( std::string const filename_template_rawdata );
 	void write_simulation_results( const std::string& filename_output_with_extension );
 
+	void save_ground_truth_displacements( void );
+
 	void add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn);
 	void add_dynamic( std::shared_ptr<MRContrastDynamic> sptr_contrast_dyn); 
 
@@ -100,6 +105,7 @@ public:
 
 	virtual void acquire_raw_data( void );
 
+	
 
 	
 
@@ -152,6 +158,8 @@ public:
 	virtual void acquire_raw_data( void );
 	void add_noise( void );
 	void write_simulation_results( const std::string& filename_output_with_extension );
+
+	void save_ground_truth_displacements( void );
 
 private:
 
