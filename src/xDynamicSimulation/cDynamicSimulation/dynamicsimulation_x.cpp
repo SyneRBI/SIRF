@@ -528,15 +528,10 @@ void PETDynamicSimulation::acquire_raw_data( void )
 
 	STIRImageData template_img(activity_img);
 
-	Image3DF& image = activity_img.data();
-	stir::shared_ptr< stir::OutputFileFormat<Image3DF >> format_sptr =
-	stir::OutputFileFormat<Image3DF>::default_sptr();
+	std::string outname_img = "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv";
+	template_img.write( outname_img ); 
 
-	format_sptr->write_to_file( "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv" , image);
-	cout << "Finished Writing image in memory" << endl;
-	
 	stir::shared_ptr<stir::ProjMatrixByBin> sptr_ray_matrix (new RayTracingMatrix() );
-
 	this->acq_model_.set_matrix( sptr_ray_matrix );		
 
 	PETAttenuationModel att_mod(attenuation_map, this->acq_model_);
