@@ -131,6 +131,7 @@ def main():
     diff = image.clone() - image
     print('norm of image.clone() - image: %f' % diff.norm())
     
+    # In DataContainers the method copy is an alias of clone
     # test clone vs copy
     diff = acq_data.copy() - acq_data.clone()
     print('norm of acq_data.copy() - acq_data.clone(): %e' % diff.norm()    

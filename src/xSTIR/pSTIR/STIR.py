@@ -1172,8 +1172,7 @@ class AcquisitionModel(object):
                      self.at is None:
                 return self.bt.norm() == 0
             else:
-                return self.bt.norm() == 0 and self.at.norm() == 0 
-        
+                return self.bt.norm() == 0 and self.at.norm() == 0
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a sparse
@@ -1185,6 +1184,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
+        super(AcquisitionModelUsingMatrix, self).__init__()
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
@@ -1224,6 +1224,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
+        super(AcquisitionModelUsingRayTracingMatrix, self).__init__(matrix)
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)

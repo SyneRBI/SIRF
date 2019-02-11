@@ -319,32 +319,44 @@ class DataContainer(ABC):
             return self
         self.fill(self.divide(other).as_array())
         return self
-    def abs(self):
+    def abs(self, out=None):
         '''Returns the element-wise absolute value of the DataContainer data
         
            uses NumPy 
         '''
-        z = self.clone()
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
         z.fill(
                numpy.abs(self.as_array())
         )
         return z
-    def sign(self):
+    def sign(self, out=None):
         '''Returns the element-wise sign of the DataContainer data
         
            uses NumPy 
         '''
-        z = self.clone()
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
         z.fill(
                numpy.sign(self.as_array())
         )
         return z
-    def sqrt(self):
+    def sqrt(self, out=None):
         '''Returns the element-wise sqrt of the DataContainer data
-        
-           uses NumPy 
+
+           uses NumPy
         '''
-        z = self.clone()
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
         z.fill(
                numpy.sqrt(self.as_array())
         )
@@ -353,10 +365,10 @@ class DataContainer(ABC):
         '''Returns the sum of DataContainer elements.
 
            it is a reduction operation
-        
-           uses NumPy 
+
+           uses NumPy
         '''
         return numpy.sum(self.as_array())
- 
+
 class ImageData(DataContainer):
     pass

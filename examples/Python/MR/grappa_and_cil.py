@@ -34,7 +34,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-
 from sirf.Utilities import existing_filepath
 from sirf.Utilities import error
 from sirf.Utilities import show_3D_array
@@ -53,7 +52,6 @@ from ccpi.optimisation.algs import FISTA, FBPD, CGLS
 
 import numpy
 import time
-
 
 # process command-line options
 data_file = args['--file']
@@ -362,7 +360,6 @@ if True:
 
     # use the acquisition model (forward projection) to simulate acquisition data
     simulated_data = acq_model.forward( image_data )
-
 
     norm2sq = Norm2sq( A = acq_model , b = simulated_data , c = 1)
     x_init = image_data
