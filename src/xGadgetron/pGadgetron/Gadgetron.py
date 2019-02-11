@@ -949,20 +949,18 @@ class AcquisitionModel:
         check_status(image.handle)
         return image
     def direct(self, image, out = None):
-        '''Projects an image into the (simulated) acquisition space, 
-           if the AcquisitionModel is linear. 
-           Added for CCPi CIL compatibility
+        '''Alias of forward
 
+           Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if not out is None:
             raise error('out is not supported')
         return self.forward(image)
     def adjoint(self, ad , out = None):
-        '''Back-projects acquisition data into image space, if the 
-           AcquisitionModel is linear
-           Added for CCPi CIL compatibility
+        '''Alias of backward
 
+           Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if not out is None:
