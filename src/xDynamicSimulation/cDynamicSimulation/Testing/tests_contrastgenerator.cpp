@@ -390,33 +390,33 @@ void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 {
 	try
 	{
-		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-
-		PETContrastGenerator pet_contgen (segmentation_labels, XML_XCAT_PATH); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
+		PETContrastGenerator pet_contgen = aux_test::get_mock_pet_contrast_generator( );
 
 		pet_contgen.map_contrast();
 		auto volume_container = pet_contgen.get_contrast_filled_volumes();
 
 		STIRImageData contrast_volume = volume_container[0];
-		
+	
 		auto dims = pet_contgen.get_dimensions();
 
 		int Nx = dims[0];
 		int Ny = dims[1];
 		int Nz = dims[2];
-
-		std::cout << epiph( Nx ) << std::endl;
-		std::cout << epiph( Ny ) << std::endl;
-		std::cout << epiph( Nz ) << std::endl;
-
-		std::vector< float > data_output;
-		data_output.resize(Nx*Ny*Nz, 0);
-
-		contrast_volume.get_data(&data_output[0]);
-
+		std::cout << " dims " << Nx << "," << Ny << ","<< Nz;
 		std::stringstream outname_contrast; 
-		outname_contrast << std::string(SHARED_FOLDER_PATH) << "xcat_pet_contrast"<< Nz << "x"<< Ny << "x" << Nx;
+		outname_contrast << std::string(SHARED_FOLDER_PATH) << "xcat_pet_contrast";
+
+
+		std::vector<float> data_output(Nx*Ny*Nz, 0.f);
+		// for( size_t i=0; i<data_output.size(); i++)
+			// std::cout << data_output[i] <<std::endl;
+
+		contrast_volume.get_data( &data_output[0] );
+
+		// contrast_volume.write( outname_contrast.str() );
+		// for( size_t i=0; i<data_output.size(); i++)
+			// std::cout << data_output[i] <<std::endl;
+
 		data_io::write_raw< float >( outname_contrast.str() , &data_output[0], Nx*Ny*Nz);
 
 	}

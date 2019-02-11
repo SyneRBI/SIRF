@@ -475,20 +475,8 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 	{
 
 		const int* segmentation_dims = this->tlm_.get_segmentation_dimensions();
-
-		std::vector<size_t> data_dims;
-		for( int i_dim=0; i_dim<3; i_dim++)
-		{
-			data_dims.push_back( (size_t)segmentation_dims[i_dim] );
-		}
 		
-		TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
-	
-		size_t Nz = data_dims[2];
-		size_t Ny = data_dims[1];
-		size_t Nx = data_dims[0];
-		
-		size_t const num_voxels = Nx*Ny*Nz;
+		size_t const num_voxels = size_t( segmentation_dims[1] * segmentation_dims[2] * segmentation_dims[3] );
 
 	  	std::vector < float > contrast_img;
 	  	contrast_img.resize(num_voxels, 0);
@@ -497,22 +485,25 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 		STIRImageData pet_img_dat( template_pet_image_data_ );
 		std::vector< float > voxel_sizes(3,0.f);
 		pet_img_dat.get_voxel_sizes(&voxel_sizes[0]);
-		float const voxel_volume_mm3 = voxel_sizes[0] * voxel_sizes[1] * voxel_sizes[2];
+		float const voxel_volume_ml = voxel_sizes[0] * voxel_sizes[1] * voxel_sizes[2] / 1000.f;
 
+		TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
 
 		// #pragma omp parallel
+		std::cout << "num vox " << num_voxels <<std::endl;
+
 		for( size_t i_vox=0; i_vox<num_voxels; i_vox++)
 		{
 			TissueParameter param_in_voxel = *(tissue_params[i_vox]);
 
 			if(case_map==CASE_MAP_PET_CONTRAST)
-				contrast_img[i_vox] = (param_in_voxel.pet_tissue_.activity_kBq_ml_ * voxel_volume_mm3 / 1000.f);						
+				contrast_img[i_vox] = param_in_voxel.pet_tissue_.activity_kBq_ml_ * voxel_volume_ml ;						
 			else if(case_map == CASE_MAP_PET_ATTENUATION)
-				{
-					contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_cm_;						
-				}
+				contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_cm_;										
+
 		}
 	
+
 		pet_img_dat.set_data( &contrast_img[0] );
 
 		this->contrast_filled_volumes_.push_back( pet_img_dat );
