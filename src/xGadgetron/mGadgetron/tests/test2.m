@@ -30,21 +30,22 @@ end
 if nargin < 1
     record = false;
 end
-import_str = set_up_MR(engine);
-eval(import_str)
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
 
 test = mUtilities.mTest('test2.txt', record);
 
 filename = 'simulated_MR_2D_cartesian_Grappa2.h5';
 pathname = mUtilities.examples_data_path('MR');
-acq_data = AcquisitionData(fullfile(pathname, filename));
+acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 test.check(acq_data.norm())
 
 prep_gadgets = {'RemoveROOversamplingGadget'};
 processed_data = acq_data.process(prep_gadgets);
 test.check(processed_data.norm())
 
-recon = CartesianGRAPPAReconstructor();
+recon = MR.CartesianGRAPPAReconstructor();
 recon.compute_gfactors(false);
 recon.set_input(processed_data);
 recon.process();
@@ -52,10 +53,10 @@ complex_images = recon.get_output();
 test.check(complex_images.norm())
 
 processed_data.sort()
-csms = CoilSensitivityData();
+csms = MR.CoilSensitivityData();
 csms.calculate(processed_data)
 
-am = AcquisitionModel(processed_data, complex_images);
+am = MR.AcquisitionModel(processed_data, complex_images);
 am.set_coil_sensitivity_maps(csms)
 fwd_acqs = am.forward(complex_images);
 fwd_acqs_norm = fwd_acqs.norm();
