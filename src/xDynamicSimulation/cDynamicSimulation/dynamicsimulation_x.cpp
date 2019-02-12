@@ -423,6 +423,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 	TimeBinSet tot_time_interval{total_time};
 
 	this->pet_cont_gen_.map_tissue();
+
 	this->set_template_acquisition_data();
 
 	size_t const num_motion_dynamics = this->motion_dynamics_.size();
@@ -433,6 +434,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 		cout << "Number simulated states for motion dynamic #" << i << ": " << motion_dynamics_[i]->get_num_simul_states() <<endl;
 		all_num_dyn_states.push_back(motion_dynamics_[i]->get_num_simul_states());			
 		motion_dynamics_[i]->prep_displacement_fields();
+
 		motion_dynamics_[i]->align_motion_fields_with_image( this->template_image_data_);
 	}
 
@@ -524,14 +526,18 @@ void PETDynamicSimulation::acquire_raw_data( void )
 	STIRImageData activity_img = contrast_filled_volumes[0];
 	STIRImageData attenuation_map = contrast_filled_volumes[1];
 
+	std::string outname_img = "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv";
+	activity_img.write( outname_img ); 
+
+
 	activity_img = this->get_reduced_pet_img_in_template_format( activity_img );	
 	attenuation_map = this->get_reduced_pet_img_in_template_format( attenuation_map );	
 
 
 	STIRImageData template_img(activity_img);
 
-	std::string outname_img = "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv";
-	template_img.write( outname_img ); 
+	outname_img = "/media/sf_SharedFolder/CCPPETMR/imageInMemory_templatedims.hv";
+	activity_img.write( outname_img ); 
 
 	stir::shared_ptr<stir::ProjMatrixByBin> sptr_ray_matrix (new RayTracingMatrix() );
 	this->acq_model_.set_matrix( sptr_ray_matrix );		
@@ -560,8 +566,6 @@ STIRImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( cons
 	size_t Ny = input_dims[1];
 	size_t Nx = input_dims[0];
 	
-	
-
 	size_t const num_voxels = Nx*Ny*Nz;
 
   	std::vector < float > vol_data;
