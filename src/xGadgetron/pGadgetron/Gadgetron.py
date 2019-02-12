@@ -545,9 +545,13 @@ class ImageData(SIRF.ImageData):
         '''
         assert self.handle is not None
         if self.is_real():
+            if data.dtype != numpy.float32:
+                data = data.astype(numpy.float32)
             try_calling(pygadgetron.cGT_setImagesDataAsFloatArray\
                 (self.handle, data.ctypes.data))
         else:
+            if data.dtype != numpy.complex64:
+                data = data.astype(numpy.complex64)
             try_calling(pygadgetron.cGT_setImagesDataAsCmplxArray\
                 (self.handle, data.ctypes.data))
     def as_array(self):
