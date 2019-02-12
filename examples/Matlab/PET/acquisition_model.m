@@ -26,23 +26,24 @@ function acquisition_model(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
 pet_data_path = mUtilities.examples_data_path('PET');
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt');
+    PET.MessageRedirector('info.txt');
 
     % create uniform image
-    image = ImageData();
+    image = PET.ImageData();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)
 
     % create a shape
-    shape = EllipticCylinder();
+    shape = PET.EllipticCylinder();
 
     % add a shape to the image
     shape.set_length(400);
@@ -69,7 +70,7 @@ try
     % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
-    template = AcquisitionData(fullfile(pathname, filename));
+    template = PET.AcquisitionData(fullfile(pathname, filename));
     
     % create example bin efficiencies
     bin_eff = template.clone();
@@ -81,7 +82,7 @@ try
     bin_eff.fill(bin_eff_arr);
     
     % create acquisition sensitivity model based on bin efficiencies
-    as_mod1 = AcquisitionSensitivityModel(bin_eff);
+    as_mod1 = PET.AcquisitionSensitivityModel(bin_eff);
 
     % create acquisition sensitivity model based on other bin efficiencies
     % to illustrate that AcquisitionSensitivityModel can be combined
@@ -90,10 +91,10 @@ try
     mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
         'other bin efficiencies', 'tang. pos.', 'views');
     bin_eff.fill(bin_eff_arr);
-    as_mod2 = AcquisitionSensitivityModel(bin_eff);
+    as_mod2 = PET.AcquisitionSensitivityModel(bin_eff);
 
     % chain the two sensitivity models
-    as_model = AcquisitionSensitivityModel(as_mod1, as_mod2);
+    as_model = PET.AcquisitionSensitivityModel(as_mod1, as_mod2);
     as_model.set_up(template)
 
     % create acquisition data where every bin is set to 1
@@ -107,7 +108,7 @@ try
 
     % select the acquisition model that implements the geometric
     % forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_model = PET.AcquisitionModelUsingRayTracingMatrix();
 
     % set acquisition model normalisation
     acq_model.set_acquisition_sensitivity(as_model);

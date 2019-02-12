@@ -26,8 +26,9 @@ function fully_sampled_recon_single_chain(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
 mr_data_path = mUtilities.examples_data_path('MR');
 
 % In this demo, rather than using a predefined image reconstruction 
@@ -53,7 +54,7 @@ gadgets = [...
     ];
 
 % create reconstructor
-recon = Reconstructor(gadgets);
+recon = MR.Reconstructor(gadgets);
 
 % change a property of the gadget labelled 'ex'
 % ExtractGadget defines which type of image should be returned:
@@ -68,7 +69,7 @@ recon.set_gadget_property('ex', 'extract_mask', 5);
 
 % define raw data source
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-acq_data = AcquisitionData(fullfile(pathname, filename));
+acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 recon.set_input(acq_data)
 
 % perform reconstruction

@@ -26,13 +26,14 @@ function input_output(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
 
 try
     % create acquisition data from scanner parameters
     fprintf('creating acquisition data...\n')
-    acq_data = AcquisitionData('Siemens_mMR');
+    acq_data = PET.AcquisitionData('Siemens_mMR');
     % set all values to 1.0
     acq_data.fill(1.0);
 
@@ -62,14 +63,14 @@ try
     image.write('twos');
 
     % read acquisition data and image from files and display
-    acq = AcquisitionData('ones.hs');
+    acq = PET.AcquisitionData('ones.hs');
     acq_array = acq.as_array();
     acq_dim = size(acq_array);
     fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
     z = uint16(acq_dim(3)/2);
     mUtilities.show_2D_array(acq_array(:,:,z), 'Acquisition data',...
         'tang. pos.', 'views');
-    img = ImageData();
+    img = PET.ImageData();
     img.read_from_file('twos.hv');
     image_array = img.as_array();
     image_dim = size(image_array);

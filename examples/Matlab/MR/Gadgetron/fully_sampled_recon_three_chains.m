@@ -30,16 +30,17 @@ function fully_sampled_recon_three_chains(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
 mr_data_path = mUtilities.examples_data_path('MR');
 
 % acquisitions will be read from this HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-acq_data = AcquisitionData(fullfile(pathname, filename));
+acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 
 % process data using Acquisitions processing chain
-acq_proc = AcquisitionDataProcessor({'RemoveROOversamplingGadget'});
+acq_proc = MR.AcquisitionDataProcessor({'RemoveROOversamplingGadget'});
 fprintf('processing acquisitions...\n')
 acq_proc.set_input(acq_data)
 acq_proc.process();
@@ -67,7 +68,7 @@ preprocessed_data.fill(preprocessed_data_array)
 
 % build reconstruction chain, here using a pre-set Set of gadgets. Can
 % alternatively pass in list of gadgets as a cell array of gadget names.
-recon = Reconstructor({'SimpleReconGadgetSet'});
+recon = MR.Reconstructor({'SimpleReconGadgetSet'});
 
 % provide pre-processed k-space data to recon
 recon.set_input(preprocessed_data)
@@ -82,7 +83,7 @@ complex_image_data = recon.get_output();
 % extract real images using Images processing chain
 % Note this still returns an mGadgetron.ImageData object that requires use
 % of as_array() or show() to visulaise.
-img_proc = ImageDataProcessor({'ExtractGadget'});
+img_proc = MR.ImageDataProcessor({'ExtractGadget'});
 fprintf('processing images...\n')
 img_proc.set_input(complex_image_data)
 img_proc.process();

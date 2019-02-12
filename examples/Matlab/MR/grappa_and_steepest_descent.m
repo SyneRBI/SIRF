@@ -25,21 +25,22 @@ function grappa_and_steepest_descent(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
 mr_data_path = mUtilities.examples_data_path('MR');
 
 % define raw data source
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-acq_data = AcquisitionData(fullfile(pathname, filename));
+acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 
 % pre-process acquisitions
 fprintf('---\n preprocessing...\n');
-preprocessed_data = preprocess_acquisition_data(acq_data);
+preprocessed_data = MR.preprocess_acquisition_data(acq_data);
 pd_norm = preprocessed_data.norm();
 
 % perform reconstruction
-recon = CartesianGRAPPAReconstructor();
+recon = MR.CartesianGRAPPAReconstructor();
 recon.compute_gfactors(false);
 recon.set_input(preprocessed_data);
 fprintf('---\n reconstructing...\n');
@@ -47,7 +48,7 @@ recon.process();
 image_data = recon.get_output();
 
 % compute coil sensitivity maps
-csms = CoilSensitivityData();
+csms = MR.CoilSensitivityData();
 fprintf('---\n sorting acquisitions...\n')
 preprocessed_data.sort()
 fprintf('---\n calculating sensitivity maps...\n')
@@ -55,7 +56,7 @@ csms.calculate(preprocessed_data)
 
 % create acquisition model based on the acquisition parameters
 % stored in preprocessed_data and image parameters stored in complex_images
-acq_model = AcquisitionModel(preprocessed_data, image_data);
+acq_model = MR.AcquisitionModel(preprocessed_data, image_data);
 acq_model.set_coil_sensitivity_maps(csms)
 
 % use the acquisition model (forward projection) to simulate acquisitions
