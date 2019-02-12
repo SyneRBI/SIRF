@@ -20,6 +20,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cReg/NiftiImageData3DDisplacement.h"
 #include "sirf/common/GeometricalInfo.h"
 
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
+
 using namespace sirf;
 
 ISMRMRD::Image< float > DynamicSimulationDeformer::extract_real_part(  ISMRMRD::Image< complex_float_t >& complex_img )
@@ -137,26 +139,38 @@ void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& 
 	}
 }
 
-void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector<NiftiImageData3DDeformation<float> >& vec_displacement_fields)
+void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector<NiftiImageData3DDeformation<float> >& vec_deformation_fields)
 {
-	std::shared_ptr<NiftiImageData3D<float> > img_to_deform =
+    std::cout << "printing vox geo inf for stir image" << std::endl;
+	print_io::print_voxelized_geometrical_info( img );            
+
+	std::shared_ptr<NiftiImageData3D<float> > sptr_img_to_deform =
             std::make_shared<NiftiImageData3D<float> >(img);
+    std::cout << "#####################################################################" << std::endl;        
+
+    std::cout << "printing vox geo inf for niftiimage from stir image" << std::endl;
+	print_io::print_voxelized_geometrical_info( *sptr_img_to_deform );            
+
+	std::cout << " \n printing vox geo inf for deformation field" << std::endl;
+	print_io::print_voxelized_geometrical_info( vec_deformation_fields[0] );
 
     NiftyResample<float> resampler;
 
     resampler.set_interpolation_type_to_cubic_spline();
-	resampler.set_reference_image(img_to_deform);
-	resampler.set_floating_image(img_to_deform);
 
-	for( size_t i_disp=0; i_disp<vec_displacement_fields.size(); i_disp++)
+    resampler.set_reference_image(sptr_img_to_deform);
+	resampler.set_floating_image(sptr_img_to_deform);
+
+	for( size_t i_disp=0; i_disp<vec_deformation_fields.size(); i_disp++)
 	{
-        std::shared_ptr<NiftiImageData3DDisplacement<float> > disp_trafo =
-                std::make_shared<NiftiImageData3DDisplacement<float> >( vec_displacement_fields[i_disp] );
+        std::shared_ptr<NiftiImageData3DDeformation<float> > disp_trafo =
+                std::make_shared<NiftiImageData3DDeformation<float> >( vec_deformation_fields[i_disp] );
 		resampler.add_transformation(disp_trafo);
 	}
 
 	resampler.process();
 
 	auto deformed_img = resampler.get_output_sptr();
+	deformed_img->write( "/media/sf_SharedFolder/CCPPETMR/img_post_deforming" );
     img.sirf::ImageData::fill(*deformed_img);
 }
