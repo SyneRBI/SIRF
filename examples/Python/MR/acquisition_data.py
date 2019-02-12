@@ -84,12 +84,12 @@ def main():
     flags = acq_data.get_info('flags', where)
 
     # inspect the first readout flag
-    if flags[0] & IMAGE_DATA_MASK:
+    flags0 = acq_data.get_info('flags', range(1))
+    if flags0 & IMAGE_DATA_MASK:
         print('first readout is image data')
     else:
         # should see this if input data file is test_2D_2x.h5
         print('first readout is not image data')
-        print(flags[0])
         
     # display flags
     print('Flags'),
