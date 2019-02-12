@@ -34,11 +34,12 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+import sirf
 from sirf.Utilities import existing_filepath
 from sirf.Utilities import error
 from sirf.Utilities import show_3D_array
 from sirf.Gadgetron import petmr_data_path
-from sirf.Gadgetron import AcquisitionData
+from sirf.Gadgetron import AcquisitionData, ImageData
 from sirf.Gadgetron import AcquisitionModel
 from sirf.Gadgetron import AcquisitionDataProcessor
 from sirf.Gadgetron import CartesianGRAPPAReconstructor
@@ -50,6 +51,7 @@ from ccpi.optimisation.funcs import ZeroFun
 from ccpi.optimisation.algs import FISTA, FBPD, CGLS
 #from ccpi.optimisation.ops import PowerMethodNonsquare
 from ccpi.plugins.regularisers import FGP_TV#, TGV, LLT_ROF, Diff4th
+from ccpi.framework import DataContainer as cilDataContainer
 
 import numpy
 import time
@@ -284,11 +286,20 @@ class cilPluginToSIRFFactory(object):
         def wrapped(x, sigma):
             '''Wrapped method'''
             print("calling ", classname)
-            #out = super(Diff4th_SIRF, self).prox(x, sigma)
-            out = method(x, sigma)
+            if isinstance(x, sirf.Gadgetron.ImageData):
+                # if the data is MR => complex we operate the regulariser
+                # only on the real part
+                X = x.as_array()
+                out = method(cilDataContainer(X.real), sigma)
+                X.real = out.as_array()[:]
+                y = x.copy()
+                y.fill(X)
+            else:
+                out = method(x, sigma)
+                y = x.copy()
+                y.fill(out)
             print("done")
-            y = x.copy()
-            y.fill(out.as_array())
+                
             return y
         return wrapped
 
@@ -307,17 +318,6 @@ class SumFunction(Function):
     
 def PowerMethodNonsquare(op,numiters , x0=None):
     # Initialise random
-    # Jakob's
-    # inputsize , outputsize = op.size()
-    #x0 = ImageContainer(numpy.random.randn(*inputsize)
-    # Edo's
-    #vg = ImageGeometry(voxel_num_x=inputsize[0],
-    #                   voxel_num_y=inputsize[1], 
-    #                   voxel_num_z=inputsize[2])
-    #
-    #x0 = ImageData(geometry = vg, dimension_labels=['vertical','horizontal_y','horizontal_x'])
-    #print (x0)
-    #x0.fill(numpy.random.randn(*x0.shape))
     
     if x0 is None:
         #x0 = op.create_image_data()
@@ -389,13 +389,18 @@ if True:
     # use the acquisition model (forward projection) to simulate acquisition data
     simulated_data = acq_model.forward( image_data )
 
+    # create a Norm2square objective function
+    # c || Ax - y ||^2
     norm2sq = Norm2sq( A = acq_model , b = simulated_data , c = 1)
+    # create a random initialisation image by shuffling the real
+    # image data. 
     x_init = image_data.copy()
     x = x_init.as_array().flatten()
     numpy.random.shuffle(x)
     x = numpy.reshape(x, x_init.as_array().shape)
     x_init.fill(x)
     del x
+    show_3D_array(x_init.as_array().real)
     
     # test if <Ax0,y0> = <y0, A^Tx0>
     y0 = simulated_data.copy()
@@ -409,24 +414,16 @@ if True:
     by0 = acq_model.adjoint(y0)
     a = fx0.dot(y0)
     b = by0.dot(x0)
-    numpy.testing.assert_almost_equal(abs((a-b)/a), 0, decimal=5)
+    numpy.testing.assert_almost_equal(abs((a-b)/a), 0, decimal=4)
     
-    show_3D_array(x_init.as_array().real)
     
-    #x_init.fill(numpy.random.randn(*image_data.as_array().shape))
-    # x_init.fill(numpy.zeros(numpy.shape(image_data.as_array().shape))+little_value)
-#%%
     # calculate Lipschitz constant
-    # x_init.fill(numpy.random.randn(*x_init.as_array().shape))
     lipschitz = PowerMethodNonsquare( acq_model , numiters = 10 , x0 = x_init) [0] 
     norm2sq.L = lipschitz  
     print ("Lipschitz " , norm2sq.L)
-    #x_init = ImageData(geometry=ig, 
-    #               dimension_labels=['horizontal_x','horizontal_y','vertical'])
-    #l2 = Norm2sq(TomoIdentity(ig),x_init,c=0.0003)
-    #x_init.fill(numpy.random.random(x_init.shape))
-    #f_plus = SumFunction(f,l2)
+    
 #%%
+    # create a Gradient Descent algorithm which minimises norm2sq
     gd = GradientDescent(x_init=x_init, 
                objective_function=norm2sq, rate=lipschitz/3.)
 
@@ -441,65 +438,86 @@ if True:
         if i%1 == 0:
             print ("\rIteration {} Loss: {} pix {}".format(gd.iteration, 
                gd.get_current_loss(), pixval[-1]/gadgval))
+    
     fig = plt.figure()
-    #plt.imshow(gd.get_output().as_array()[0].real)
-    #plt.show()
     plt.plot([i/gadgval for i in gd.loss])
     plt.show()
     
-    show_3D_array(gd.get_output().as_array().real, suptitle='Gradient Descent (magnitude)')
+    #show_3D_array(gd.get_output().as_array().real, suptitle='Gradient Descent (magnitude)')
 
 #%%
-    # USE FISTA
-    
-    #norm2sq.L = 0.5
-#%%
-    
+    # USE FISTA with Regularisation   
     no_regulariser = ZeroFun()
+    # create a regulariser with the Factory
     regulariser = cilPluginToSIRFFactory.getInstance(FGP_TV, 
-                                           lambdaReg=.00003,
-                                           iterationsTV=1000,
+                                           lambdaReg=1.,
+                                           iterationsTV=300,
                                            tolerance=1e-5,
                                            methodTV=0,
                                            nonnegativity=0,
                                            printing=0,
                                            device='cpu')
-    options = {'tol': 1e-4, 'iter': 3, 'memopt':False}
+    options = {'tol': 1e-4, 'iter': 10, 'memopt':False}
 
-    #x_fista0, it0, timing0, criter0 = FISTA(x_init, norm2sq, no_regulariser ,  opt=options)
     norm2sq.L = lipschitz*3.
+    # create a FISTA algorithm instance
     fista = FISTAAlg(x_init=x_init, f=norm2sq, g=regulariser, opt=options)
     fpixval = []
     #%%
+    # run FISTA
     for i,el in enumerate(fista):
         fpixval.append( fista.get_output().as_array()[0][46][160])
         if i%1 == 0:
             print ("\rFISTA Iteration {} Loss: {} pix {}".format(fista.iteration, 
                fista.get_current_loss(), fpixval[-1]/gadgval))
+#%%
+    fista_noreg = FISTAAlg(x_init=x_init, f=norm2sq, g=no_regulariser, opt=options)
+    fpixval = []
+    #%%
+    # run FISTA
+    for i,el in enumerate(fista_noreg):
+        fpixval.append( fista_noreg.get_output().as_array()[0][46][160])
+        if i%1 == 0:
+            print ("\rFISTA Iteration {} Loss: {} pix {}".format(fista_noreg.iteration, 
+               fista_noreg.get_current_loss(), fpixval[-1]/gadgval))
 
-    refined_image_array = fista.get_output().as_array()
+    #refined_image_array = fista.get_output().as_array()
 
     # show reconstructed and refined images
     
     title = 'FISTA image data (magnitude)'
-    show_3D_array(abs(refined_image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
-    show_3D_array(fista.get_output().as_array().real, suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+    #show_3D_array(abs(refined_image_array), suptitle = title, label = 'slice', \
+    #              xlabel = 'samples', ylabel = 'readouts')
     fig = plt.figure()
     #plt.imshow(gd.get_output().as_array()[0].real)
     #plt.show()
     plt.plot([i/gadgval for i in fista.loss])
     plt.show()
     
+    #%%
+    # plot the results
+    fig = plt.figure()
+    ax1 = plt.subplot(1,4,1)
+    plt.imshow(abs(image_data.as_array()[0]))
+    ax1.set_title('Initial Data')
+    ax2 = plt.subplot(1,4,2)
+    plt.imshow(abs(gd.get_output().as_array()[0]))
+    ax2.set_title('Gradient Descent')
+    ax2 = plt.subplot(1,4,3)
+    plt.imshow(abs(fista_noreg.get_output().as_array()[0]))
+    ax2.set_title('FISTA no reg')
+    ax2 = plt.subplot(1,4,4)
+    plt.imshow(abs(fista.get_output().as_array()[0]))
+    ax2.set_title('FISTA + FGP_TV')
+    plt.show()
 #%%
-    options['iter'] = 20
-    out = FBPD(x_init, operator=acq_model, constraint=None, data_fidelity=norm2sq,\
-         regulariser=None, opt=options)
-    # x, it, timing, criter
-    title = 'FBPD'
-    show_3D_array(abs(out[0].as_array()), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+#    options['iter'] = 20
+#    out = FBPD(x_init, operator=acq_model, constraint=None, data_fidelity=norm2sq,\
+#         regulariser=None, opt=options)
+#    # x, it, timing, criter
+#    title = 'FBPD'
+#    show_3D_array(abs(out[0].as_array()), suptitle = title, label = 'slice', \
+#                  xlabel = 'samples', ylabel = 'readouts')
     #%%
 #    options['iter'] = 50
 #    # x_init, operator , data , opt=None):
