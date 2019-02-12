@@ -49,6 +49,7 @@ from ccpi.optimisation.funcs import Norm2sq
 from ccpi.optimisation.funcs import ZeroFun
 from ccpi.optimisation.algs import FISTA, FBPD, CGLS
 #from ccpi.optimisation.ops import PowerMethodNonsquare
+from ccpi.plugins.regularisers import FGP_TV#, TGV, LLT_ROF, Diff4th
 
 import numpy
 import time
@@ -59,14 +60,14 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
 class Algorithm(object):
-    iteration = 0
-    stop_cryterion = 'max_iter'
-    __max_iteration = 0
-    __loss = []
-    memopt = False
-    timing = []
-    def __init__(self, *args, **kwargs):
-        pass
+    
+    def __init__(self):
+        self.iteration = 0
+        self.stop_cryterion = 'max_iter'
+        self.__max_iteration = 0
+        self.__loss = []
+        self.memopt = False
+        self.timing = []
     def set_up(self, *args, **kwargs):
         raise NotImplementedError()
     def update(self):
@@ -109,13 +110,15 @@ class Algorithm(object):
 class GradientDescent(Algorithm):
     '''Implementation of a simple Gradient Descent algorithm
     '''
-    x = None
-    rate = 0
-    objective_function = None
-    regulariser = None
+    
     def __init__(self, **kwargs):
         '''initialisation can be done at creation time if all 
         proper variables are passed or later with set_up'''
+        super(GradientDescent, self).__init__()
+        self.x = None
+        self.rate = 0
+        self.objective_function = None
+        self.regulariser = None
         args = ['x_init', 'objective_function', 'rate']
         for k,v in kwargs.items():
             if k in args:
@@ -165,13 +168,15 @@ class FISTAAlg(Algorithm):
       h:
       opt: additional algorithm 
     '''
-    f = None
-    g = None
-    invL = None
-    t_old = 1
+    
     def __init__(self, **kwargs):
         '''initialisation can be done at creation time if all 
         proper variables are passed or later with set_up'''
+        super(FISTAAlg, self).__init__()
+        self.f = None
+        self.g = None
+        self.invL = None
+        self.t_old = 1
         args = ['x_init', 'f', 'g', 'opt']
         for k,v in kwargs.items():
             if k in args:
@@ -264,6 +269,29 @@ class FISTAAlg(Algorithm):
         
         self.loss.append( self.f(self.x) + self.g(self.x) )
         
+class cilPluginToSIRFFactory(object):
+    '''Factory to create SIRF wrappers for CCPi CIL plugins'''
+    @staticmethod
+    def getInstance(thetype, **kwargs):
+        '''Returns an instance of a CCPi CIL plugin wrapped to work on SIRF DataContainers'''
+        obj = thetype(**kwargs)
+        orig_prox = obj.prox
+        obj.prox = cilPluginToSIRFFactory.prox(orig_prox, 
+                                               obj.__class__.__name__)
+        return obj
+    @staticmethod
+    def prox(method, classname):
+        def wrapped(x, sigma):
+            '''Wrapped method'''
+            print("calling ", classname)
+            #out = super(Diff4th_SIRF, self).prox(x, sigma)
+            out = method(x, sigma)
+            print("done")
+            y = x.copy()
+            y.fill(out.as_array())
+            return y
+        return wrapped
+
     
 from ccpi.optimisation.funcs import Function
 class SumFunction(Function):
@@ -362,17 +390,32 @@ if True:
     simulated_data = acq_model.forward( image_data )
 
     norm2sq = Norm2sq( A = acq_model , b = simulated_data , c = 1)
-    x_init = image_data
+    x_init = image_data.copy()
     x = x_init.as_array().flatten()
     numpy.random.shuffle(x)
     x = numpy.reshape(x, x_init.as_array().shape)
     x_init.fill(x)
     del x
+    
+    # test if <Ax0,y0> = <y0, A^Tx0>
+    y0 = simulated_data.copy()
+    x = y0.as_array().flatten()
+    numpy.random.shuffle(x)
+    x = numpy.reshape(x, y0.as_array().shape)
+    y0.fill(x)
+    del x     
+    x0 = x_init
+    fx0 = acq_model.direct(x0)
+    by0 = acq_model.adjoint(y0)
+    a = fx0.dot(y0)
+    b = by0.dot(x0)
+    numpy.testing.assert_almost_equal(abs((a-b)/a), 0, decimal=5)
+    
     show_3D_array(x_init.as_array().real)
     
     #x_init.fill(numpy.random.randn(*image_data.as_array().shape))
     # x_init.fill(numpy.zeros(numpy.shape(image_data.as_array().shape))+little_value)
-    
+#%%
     # calculate Lipschitz constant
     # x_init.fill(numpy.random.randn(*x_init.as_array().shape))
     lipschitz = PowerMethodNonsquare( acq_model , numiters = 10 , x0 = x_init) [0] 
@@ -383,9 +426,10 @@ if True:
     #l2 = Norm2sq(TomoIdentity(ig),x_init,c=0.0003)
     #x_init.fill(numpy.random.random(x_init.shape))
     #f_plus = SumFunction(f,l2)
-    gd = GradientDescent(x_init=image_data*0., 
-               objective_function=norm2sq, rate=norm2sq.L/3)
-    #%%
+#%%
+    gd = GradientDescent(x_init=x_init, 
+               objective_function=norm2sq, rate=lipschitz/3.)
+
     gd.max_iteration = 20
     pixval = []
     gadgval = image_data.as_array()[0][46][160]
@@ -410,16 +454,27 @@ if True:
     
     #norm2sq.L = 0.5
 #%%
+    
     no_regulariser = ZeroFun()
+    regulariser = cilPluginToSIRFFactory.getInstance(FGP_TV, 
+                                           lambdaReg=.00003,
+                                           iterationsTV=1000,
+                                           tolerance=1e-5,
+                                           methodTV=0,
+                                           nonnegativity=0,
+                                           printing=0,
+                                           device='cpu')
     options = {'tol': 1e-4, 'iter': 3, 'memopt':False}
 
-    x_fista0, it0, timing0, criter0 = FISTA(x_init, norm2sq, no_regulariser ,  opt=options)
-    fista = FISTAAlg(x_init=x_init, f=norm2sq, g=no_regulariser, opt=options)
+    #x_fista0, it0, timing0, criter0 = FISTA(x_init, norm2sq, no_regulariser ,  opt=options)
+    norm2sq.L = lipschitz*3.
+    fista = FISTAAlg(x_init=x_init, f=norm2sq, g=regulariser, opt=options)
     fpixval = []
+    #%%
     for i,el in enumerate(fista):
         fpixval.append( fista.get_output().as_array()[0][46][160])
         if i%1 == 0:
-            print ("\rIteration {} Loss: {} pix {}".format(fista.iteration, 
+            print ("\rFISTA Iteration {} Loss: {} pix {}".format(fista.iteration, 
                fista.get_current_loss(), fpixval[-1]/gadgval))
 
     refined_image_array = fista.get_output().as_array()
@@ -431,6 +486,11 @@ if True:
                   xlabel = 'samples', ylabel = 'readouts')
     show_3D_array(fista.get_output().as_array().real, suptitle = title, label = 'slice', \
                   xlabel = 'samples', ylabel = 'readouts')
+    fig = plt.figure()
+    #plt.imshow(gd.get_output().as_array()[0].real)
+    #plt.show()
+    plt.plot([i/gadgval for i in fista.loss])
+    plt.show()
     
 #%%
     options['iter'] = 20
@@ -441,13 +501,13 @@ if True:
     show_3D_array(abs(out[0].as_array()), suptitle = title, label = 'slice', \
                   xlabel = 'samples', ylabel = 'readouts')
     #%%
-    options['iter'] = 50
-    # x_init, operator , data , opt=None):
-    outcgls = CGLS(x_init, operator=acq_model, data=simulated_data, opt=options)
-    # x, it, timing, criter
-    title = 'CGLS'
-    show_3D_array(abs(outcgls[0].as_array()), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+#    options['iter'] = 50
+#    # x_init, operator , data , opt=None):
+#    outcgls = CGLS(x_init, operator=acq_model, data=simulated_data, opt=options)
+#    # x, it, timing, criter
+#    title = 'CGLS'
+#    show_3D_array(abs(outcgls[0].as_array()), suptitle = title, label = 'slice', \
+#                  xlabel = 'samples', ylabel = 'readouts')
 #try:
 #    main()
 #    print('done')
