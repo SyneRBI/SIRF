@@ -409,27 +409,44 @@ class ImageData(SIRF.ImageData):
             return
         data = self.as_array()
         nz = data.shape[0]
-        if slice is not None:
+#        if slice is not None:
+        if type(slice) == type(1):
             if slice < 0 or slice >= nz:
                 return
-#            slice -= 1
             show_2D_array('slice %d' % slice, data[slice,:,:])
             return
-        print('Please enter slice numbers (e.g.: 0, 3-5)')
-        print('(a value outside the range 0 to %d will stop this loop)' % \
-			(nz - 1))
+        elif slice is None:
+            ni = nz
+            slice = range(nz)
+        else:
+            try:
+                ni = len(slice)
+            except:
+                raise error('wrong slice list')
         if title is None:
             title = 'Selected images'
-        while True:
-            s = str(input('slices to display: '))
-            if len(s) < 1:
-                break
-            err = show_3D_array(data, index = s, label = 'slice', \
-                                xlabel = 'x', ylabel = 'y', \
-				suptitle = title)
-            if err != 0:
-                print('out-of-range slice numbers selected, quitting the loop')
-                break
+        f = 0
+        while f < ni:
+            t = min(f + 16, ni)
+            err = show_3D_array(data, index = slice[f : t], \
+                                label = 'slice', xlabel = 'x', ylabel = 'y', \
+                                suptitle = title, show = (t == ni))
+            f = t
+##        print('Please enter slice numbers (e.g.: 0, 3-5)')
+##        print('(a value outside the range 0 to %d will stop this loop)' % \
+##			(nz - 1))
+##        if title is None:
+##            title = 'Selected images'
+##        while True:
+##            s = str(input('slices to display: '))
+##            if len(s) < 1:
+##                break
+##            err = show_3D_array(data, index = s, label = 'slice', \
+##                                xlabel = 'x', ylabel = 'y', \
+##				suptitle = title)
+##            if err != 0:
+##                print('out-of-range slice numbers selected, quitting the loop')
+##                break
 
 DataContainer.register(ImageData)
 
