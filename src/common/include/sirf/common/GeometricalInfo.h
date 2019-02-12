@@ -33,6 +33,9 @@ public:
 	// Eventually something here like
 	// Coordinate transform_index_to_physical_point(Index)
 	// Index transform_physical_point_to_index(Coordinate)
+
+    /// Print info
+    virtual void print_info() const = 0;
 };
 
 
@@ -84,6 +87,29 @@ public:
     const DirectionMatrix get_direction() const;
 
     const TransformMatrix calculate_index_to_physical_point_matrix() const;
+
+    /// Print info
+    virtual void print_info() const
+    {
+        std::cout << "Offset: (";
+        std::cout << offset[0] << ", " << offset[1] << ", " << offset[2] << ")\n";
+
+        std::cout << "Spacing: (";
+        std::cout << spacing[0] << ", " << spacing[1] << ", " << spacing[2] << ")\n";
+
+        std::cout << "Size: (";
+        std::cout << size[0] << ", " << size[1] << ", " << size[2] << ")\n";
+
+        std::cout << "Dir mat: \n";
+        for( int i=0;i<3; i++) {
+            for( int j=0;j<3; j++) {
+                std::cout << direction[i][j];
+                if (j<2) std::cout << ", ";
+                else     std::cout << "\n";
+            }
+        }
+        std::cout << "\n";
+    }
 
 private:
 	Offset offset;
