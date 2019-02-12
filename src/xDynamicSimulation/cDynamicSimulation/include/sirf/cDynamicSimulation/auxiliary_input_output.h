@@ -29,7 +29,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cSTIR/stir_data_containers.h"
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
  
+
 #include "sirf/common/GeometricalInfo.h"
+#include "sirf/common/ImageData.h"
+
 #include "sirf/cReg/NiftiImageData3D.h"
 	
 
@@ -49,6 +52,11 @@ typedef float SignalAxisType;
 typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
 typedef std::vector< SignalPoint > SignalContainer;
 
+
+namespace print_io{
+
+	void print_voxelized_geometrical_info( const sirf::ImageData& im );
+}
 
 
 namespace data_io{
