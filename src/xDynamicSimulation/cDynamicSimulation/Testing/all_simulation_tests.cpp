@@ -65,29 +65,29 @@ void run_tests_dynamics( void )
 	bool tests_successful = true;
 	std::vector< bool > dyn_tests;
 	std::cout << "start ----------------------------------------------------" <<std::endl;
-	std::cout << "1 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_is_in_bin());
+	// std::cout << "1 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_is_in_bin());
 
-	std::cout << "2 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
+	// std::cout << "2 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
 
-	std::cout << "3 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());
+	// std::cout << "3 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());
 
-	std::cout << "4 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_get_set_bins());
+	// std::cout << "4 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_get_set_bins());
 
-	std::cout << "5 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
+	// std::cout << "5 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
 
-	std::cout << "6 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_counter());
+	// std::cout << "6 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_counter());
 
-	std::cout << "7 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
+	// std::cout << "7 ----------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
 
-	std::cout << "7.1 --------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
+	// std::cout << "7.1 --------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
 
 	// std::cout << "8 ----------------------------------------------------" <<std::endl;
 	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
@@ -99,7 +99,7 @@ void run_tests_dynamics( void )
 	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_interpolate_dvfs());
 
 	// std::cout << "12 ----------------------------------------------------" <<std::endl;
-	// // dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
+	// dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
 
 	// std::cout << "13 ----------------------------------------------------" <<std::endl;
 	// dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
@@ -133,24 +133,59 @@ void run_tests_dynamic_simulation( void )
 {
 
 	bool tests_successful = true;
-	
-	// tests_successful *= tests_mr_dynsim::test_acquisitionsvector_memory_management();
+	std::vector< bool > mr_dynsim_tests;
 
-	//tests_successful *= test_lin_combi_gen::test_get_all_combinations();
+	std::cout << "start ----------------------------------------------------" <<std::endl;
+	std::cout << "MR 1 ----------------------------------------------------" <<std::endl;
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_acquisitionsvector_memory_management());
 
-	// tests_successful *= tests_mr_dynsim::test_constructor();
+	std::cout << "MR 2 ----------------------------------------------------" <<std::endl;
+	// mr_dynsim_tests.push_back(test_lin_combi_gen::test_get_all_combinations());
+
+	std::cout << "MR 3 ----------------------------------------------------" <<std::endl;
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_constructor());
+
+	std::cout << "MR void test 1 ----------------------------------------------------" <<std::endl;
 	// tests_mr_dynsim::test_extract_hdr_information();
+
+	std::cout << "MR 4 ----------------------------------------------------" <<std::endl;
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_dynamics());
+
+	std::cout << "MR 5 ----------------------------------------------------" <<std::endl;
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
+
 	
-	tests_successful *= tests_mr_dynsim::test_simulate_dynamics();
+	std::cout << "mr dynamic simulation test results = ";
+	for( size_t i=0; i<mr_dynsim_tests.size(); i++)
+	{
+		std::cout << mr_dynsim_tests[i] << " / ";
+		tests_successful *= mr_dynsim_tests[i];
+	}
+	std::cout << std::endl;
 
-	// tests_successful *= tests_mr_dynsim::test_simulate_rpe_acquisition();
+
+	std::vector< bool > pet_dynsim_tests;
+
+	std::cout << "PET 1 ----------------------------------------------------" <<std::endl;
+	// pet_dynsim_tests.push_back(test_pet_dynsim::test_constructor());
+
+	std::cout << "PET 2 ----------------------------------------------------" <<std::endl;
+	// pet_dynsim_tests.push_back(test_pet_dynsim::set_template_acquisition_data());
+
+	std::cout << "PET 3 ----------------------------------------------------" <<std::endl;
+	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
+
+	std::cout << "PET 4 ----------------------------------------------------" <<std::endl;
+	pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
 
 
-	// tests_successful *= test_pet_dynsim::test_constructor();
-	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
-	// tests_successful *= test_pet_dynsim::test_simulate_statics();
-	// tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
-	// tests_successful *= test_pet_dynsim::get_ground_truth_motion_fields();
+	std::cout << "pet dynamic simulation test results = ";
+	for( size_t i=0; i<pet_dynsim_tests.size(); i++)
+	{
+		std::cout << pet_dynsim_tests[i] << " / ";
+		tests_successful *= pet_dynsim_tests[i];
+	}
+	std::cout << std::endl;
 
 
 	if ( !tests_successful )
@@ -274,56 +309,56 @@ void run_tests_contrastgenerator(void)
 
 	
 	// // tlm tests
-	std::cout << "----------------------------------------------------" <<std::endl;
-	tlm_tests.push_back( test_tlm::test_get_filepath_tissue_parameter_xml() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	tlm_tests.push_back( test_tlm::test_get_labels_array() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	tlm_tests.push_back( test_tlm::test_get_segmentation_dimensions() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_found() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_not_found() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	tlm_tests.push_back( test_tlm::test_map_labels_to_tissue_from_xml() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	tlm_tests.push_back( test_tlm::test_replace_petmr_tissue_parameters() );
-	std::cout << "----------------------------------------------------" <<std::endl;
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// tlm_tests.push_back( test_tlm::test_get_filepath_tissue_parameter_xml() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// tlm_tests.push_back( test_tlm::test_get_labels_array() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// tlm_tests.push_back( test_tlm::test_get_segmentation_dimensions() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_found() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_not_found() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// tlm_tests.push_back( test_tlm::test_map_labels_to_tissue_from_xml() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// tlm_tests.push_back( test_tlm::test_replace_petmr_tissue_parameters() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
 
-	std::cout << "tlm test results = ";
-	for( size_t i=0; i<tlm_tests.size(); i++)
-	{
-		std::cout << tlm_tests[i] << " / ";
-		tests_successful *= tlm_tests[i];
-	}
-	std::cout << std::endl;
+	// std::cout << "tlm test results = ";
+	// for( size_t i=0; i<tlm_tests.size(); i++)
+	// {
+	// 	std::cout << tlm_tests[i] << " / ";
+	// 	tests_successful *= tlm_tests[i];
+	// }
+	// std::cout << std::endl;
 
-	// mr contgen tests
-	std::cout << "----------------------------------------------------" <<std::endl;
-	mr_contgen_tests.push_back( test_contgen::test_mr_constructor() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	mr_contgen_tests.push_back( test_contgen::test_mr_set_rawdata_header() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	mr_contgen_tests.push_back( test_contgen::test_map_flash_contrast() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	mr_contgen_tests.push_back( test_contgen::test_mr_map_contrast_dim_check() );
-	std::cout << "----------------------------------------------------" <<std::endl;
+	// // mr contgen tests
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// mr_contgen_tests.push_back( test_contgen::test_mr_constructor() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// mr_contgen_tests.push_back( test_contgen::test_mr_set_rawdata_header() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// mr_contgen_tests.push_back( test_contgen::test_map_flash_contrast() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// mr_contgen_tests.push_back( test_contgen::test_mr_map_contrast_dim_check() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
 
-	test_contgen::test_match_output_dims_to_headerinfo();
-	std::cout << "----------------------------------------------------" <<std::endl;
-	test_contgen::test_mr_map_contrast_application_to_xcat();
-	std::cout << "----------------------------------------------------" <<std::endl;
-	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
-	std::cout << "----------------------------------------------------" <<std::endl;
-	test_contgen::test_get_signal_for_tissuelabel_in_xcat();
-	std::cout << "----------------------------------------------------" <<std::endl;
-	std::cout << "mr contgen test results = ";
-	for( size_t i=0; i<mr_contgen_tests.size(); i++)
-	{
-		std::cout << mr_contgen_tests[i] << " / ";
-		tests_successful *= mr_contgen_tests[i];
-	}
-	std::cout << std::endl;
+	// test_contgen::test_match_output_dims_to_headerinfo();
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// test_contgen::test_mr_map_contrast_application_to_xcat();
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// test_contgen::test_get_signal_for_tissuelabel_in_xcat();
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// std::cout << "mr contgen test results = ";
+	// for( size_t i=0; i<mr_contgen_tests.size(); i++)
+	// {
+	// 	std::cout << mr_contgen_tests[i] << " / ";
+	// 	tests_successful *= mr_contgen_tests[i];
+	// }
+	// std::cout << std::endl;
 
 	// pet contgen tests
 	std::cout << "----------------------------------------------------" <<std::endl;
@@ -416,13 +451,12 @@ void run_tests_encoding( void )
 
 void run_tests_dynsim_deformer( void )
 {
-	// bool tests_successful = true;
 	bool tests_successful = true;
 
 	std::cout << " Start -------------------------- " <<std::endl;
 
 	std::cout << " 0-------------------------- " <<std::endl;
-	tests_successful *= DynSimDeformerTester::test_nifti_data_deformation();
+	// tests_successful *= DynSimDeformerTester::test_nifti_data_deformation();
 
 	// std::cout << " 1-------------------------- " <<std::endl;
 	
@@ -432,7 +466,7 @@ void run_tests_dynsim_deformer( void )
 	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
 
 	std::cout << " 3 -------------------------- " <<std::endl;
-	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	std::cout << " End -------------------------- " <<std::endl;
 

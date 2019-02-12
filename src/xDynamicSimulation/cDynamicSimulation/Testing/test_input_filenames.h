@@ -16,7 +16,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define SHARED_FOLDER_PATH "/media/sf_SharedFolder/CCPPETMR/"
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
-#define USE_128_CUBE_INPUT
+#define USE_208_CUBE_INPUT
 
 #ifdef USE_64_CUBE_INPUT
 
@@ -67,7 +67,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #elif defined(USE_208_CUBE_INPUT)
 	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128x128x208.h5"
-	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_208_cubed.h5"
+	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_incl_geomertry_208.h5"
 
 	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "ISMRMSimInput/MR/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5" 
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
