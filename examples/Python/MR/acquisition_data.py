@@ -89,6 +89,7 @@ def main():
     else:
         # should see this if input data file is test_2D_2x.h5
         print('first readout is not image data')
+        print(flags[0])
         
     # display flags
     print('Flags'),

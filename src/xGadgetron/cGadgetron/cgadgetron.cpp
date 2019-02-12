@@ -464,13 +464,13 @@ cGT_getAcquisitionsStorageScheme()
 
 extern "C"
 void*
-cGT_orderAcquisitions(void* ptr_acqs)
+cGT_sortAcquisitions(void* ptr_acqs)
 {
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		acqs.order();
+		acqs.sort();
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -686,6 +686,8 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 			objectFromHandle<MRAcquisitionData>(h_acqs);
 		if (boost::iequals(name, "undersampled"))
 			return dataHandle((int)acqs.undersampled());
+		if (boost::iequals(name, "sorted"))
+			return dataHandle((int)acqs.sorted());
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;

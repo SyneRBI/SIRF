@@ -145,12 +145,12 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 	int slice = 0;
 	int y = 0;
 	// assume all dimensions (samples, coils [, acqs per slice]) regular
-	int nrd = ordered() ? 3 : 2;
+	int nrd = sorted() ? 3 : 2;
 	// number of regular readouts
 	int nrr = 0;
 	//int not_reg = 0;
 	for (; y < na;) {
-		for (; y < na && ordered();) {
+		for (; y < na && sorted();) {
 			get_acquisition(y, acq);
 			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
 				break;
@@ -177,7 +177,7 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 					nrd = 1;
 			}
 			ny++;
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) && ordered())
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) && sorted())
 				break;
 		}
 		if (slice == 0) {
@@ -455,7 +455,7 @@ MRAcquisitionData::clone_base() const
 }
 
 void
-MRAcquisitionData::order()
+MRAcquisitionData::sort()
 {
 	typedef std::array<int, 4> tuple;
 	int na = number();
@@ -474,7 +474,7 @@ MRAcquisitionData::order()
 		delete[] index_;
 	index_ = new int[na];
 	Multisort::sort(vt, index_);
-	ordered_ = true;
+	sorted_ = true;
 }
 
 void
@@ -552,8 +552,8 @@ AcquisitionsFile::take_over(MRAcquisitionData& ac)
 	if (index_)
 		delete[] index_;
 	int* index = ac.index();
-	ordered_ = ac.ordered();
-	if (ordered_ && index) {
+	sorted_ = ac.sorted();
+	if (sorted_ && index) {
 		unsigned int n = number();
 		index_ = new int[n];
 		memcpy(index_, index, n*sizeof(int));
@@ -629,7 +629,7 @@ AcquisitionsFile::set_data(const complex_float_t* z, int all)
 	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
 	ptr_ac->set_acquisitions_info(acqs_info_);
 	ptr_ac->write_acquisitions_info();
-	ptr_ac->set_ordered(true);
+	ptr_ac->set_sorted(true);
 	ISMRMRD::Acquisition acq;
 	int na = number();
 	for (int a = 0, i = 0; a < na; a++) {
@@ -743,7 +743,7 @@ GadgetronImageData::norm() const
 }
 
 void
-GadgetronImageData::order()
+GadgetronImageData::sort()
 {
 	typedef std::array<float, 3> tuple;
 	int ni = number();
@@ -767,7 +767,7 @@ GadgetronImageData::order()
 		delete[] index_;
 	index_ = new int[ni];
 	Multisort::sort(vt, index_);
-	ordered_ = true;
+	sorted_ = true;
 
 #ifndef NDEBUG
     std::cout << "After sorting...\n";
@@ -1060,8 +1060,8 @@ GadgetronImagesVector::set_up_geom_info()
     std::cout << "\nSetting up geometrical info for GadgetronImagesVector...\n";
 #endif
 
-    if (!this->ordered())
-        this->order();
+    if (!this->sorted())
+        this->sort();
 
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
@@ -1073,7 +1073,7 @@ GadgetronImagesVector::set_up_geom_info()
     size[2] = this->number();
 
     // The following will only work if the 0th index is read direction,
-    // 1st is phase direction and 2nd is slice direction. This should be the case if order has been called.
+    // 1st is phase direction and 2nd is slice direction. This should be the case if sort has been called.
 
     // Spacing
     VoxelisedGeometricalInfo3D::Spacing spacing;

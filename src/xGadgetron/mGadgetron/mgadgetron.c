@@ -104,13 +104,13 @@ EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned i
 EXPORTED_FUNCTION 	void* mGT_cloneAcquisitions(void* ptr_input) {
 	return cGT_cloneAcquisitions(ptr_input);
 }
-EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs) {
-	return cGT_orderAcquisitions(ptr_acqs);
+EXPORTED_FUNCTION 	void* mGT_sortAcquisitions(void* ptr_acqs) {
+	return cGT_sortAcquisitions(ptr_acqs);
 }
 EXPORTED_FUNCTION 	void* mGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim) {
 	return cGT_getAcquisitionsDimensions(ptr_acqs, ptr_dim);
 }
-EXPORTED_FUNCTION 	void*	mGT_writeAcquisitions(void* ptr_acqs, const char* filename) {
+EXPORTED_FUNCTION 	void* mGT_writeAcquisitions(void* ptr_acqs, const char* filename) {
 	return cGT_writeAcquisitions(ptr_acqs, filename);
 }
 EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {

@@ -67,9 +67,9 @@ extern "C" {
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_cloneAcquisitions(void* ptr_input);
-	void* cGT_orderAcquisitions(void* ptr_acqs);
+	void* cGT_sortAcquisitions(void* ptr_acqs);
 	void* cGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim);
-	void*	cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
+	void* cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
 	void* cGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 	void* cGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 

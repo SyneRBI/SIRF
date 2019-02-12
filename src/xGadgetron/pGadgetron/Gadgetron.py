@@ -741,10 +741,12 @@ class AcquisitionData(DataContainer):
             - kspace_encode_step_1
         '''
         assert self.handle is not None
-        try_calling(pygadgetron.cGT_orderAcquisitions(self.handle))
+        try_calling(pygadgetron.cGT_sortAcquisitions(self.handle))
         self.sorted = True
     def is_sorted(self):
-        return self.sorted
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisitions', 'sorted')
+        #return self.sorted
     def is_undersampled(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisitions', 'undersampled')

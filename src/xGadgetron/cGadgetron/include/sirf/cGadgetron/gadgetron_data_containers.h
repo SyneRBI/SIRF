@@ -93,7 +93,7 @@ namespace sirf {
 	*/
 	class MRAcquisitionData : public DataContainer {
 	public:
-		MRAcquisitionData() : ordered_(false), index_(0) {}
+		MRAcquisitionData() : sorted_(false), index_(0) {}
 		virtual ~MRAcquisitionData()
 		{
 			if (index_)
@@ -179,10 +179,10 @@ namespace sirf {
 		bool undersampled() const;
 		int get_acquisitions_dimensions(size_t ptr_dim) const;
 	
-		void order();
+		void sort();
 		void sort_by_time();
-		bool ordered() const { return ordered_; }
-		void set_ordered(bool ordered) { ordered_ = ordered; }
+		bool sorted() const { return sorted_; }
+		void set_sorted(bool sorted) { sorted_ = sorted; }
 		int* index() { return index_; }
 		const int* index() const { return index_; }
 		int index(int i) const
@@ -205,7 +205,7 @@ namespace sirf {
 		void read( const std::string& filename_ismrmrd_with_ext );
 
 	protected:
-		bool ordered_;
+		bool sorted_;
 		int* index_;
 		AcquisitionsInfo acqs_info_;
 
@@ -380,7 +380,7 @@ namespace sirf {
 
 	class ISMRMRDImageData : public MRImageData {
 	public:
-		ISMRMRDImageData() : ordered_(false), index_(0) {}
+		ISMRMRDImageData() : sorted_(false), index_(0) {}
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
 		virtual ~ISMRMRDImageData()
@@ -448,9 +448,9 @@ namespace sirf {
 			const DataContainer& a_x,
 			const DataContainer& a_y);
 
-		void order();
-		bool ordered() const { return ordered_; }
-		void set_ordered(bool ordered) { ordered_ = ordered; }
+		void sort();
+		bool sorted() const { return sorted_; }
+		void set_sorted(bool sorted) { sorted_ = sorted; }
 		int* index() { return index_; }
 		const int* index() const { return index_; }
 		int index(int i) const
@@ -462,7 +462,7 @@ namespace sirf {
 		}
 
 	protected:
-		bool ordered_;
+		bool sorted_;
 		int* index_;
 	};
 
@@ -998,8 +998,8 @@ namespace sirf {
 
 		virtual void compute(MRAcquisitionData& ac)
 		{
-			//if (!ac.ordered())
-			//	ac.order();
+			//if (!ac.sorted())
+			//	ac.sort();
 			CoilImagesVector cis;
 			cis.compute(ac);
 			compute(cis);
