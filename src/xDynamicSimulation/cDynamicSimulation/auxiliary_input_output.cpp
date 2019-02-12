@@ -16,6 +16,46 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using namespace sirf;
 
+
+// ++++++++++++++++++ print IO +++++++++++++
+void print_io::print_voxelized_geometrical_info( const sirf::ImageData& im )
+{
+
+    std::shared_ptr<const VoxelisedGeometricalInfo3D > sptr_geo_info = im.get_geom_info_sptr();
+
+    VoxelisedGeometricalInfo3D::Offset 				curr_offset 	=	sptr_geo_info->get_offset();
+    VoxelisedGeometricalInfo3D::Spacing 			curr_spacing 	=	sptr_geo_info->get_spacing();
+    VoxelisedGeometricalInfo3D::Size 				curr_size 		=	sptr_geo_info->get_size();
+    VoxelisedGeometricalInfo3D::DirectionMatrix 	curr_dirmat 	=	sptr_geo_info->get_direction();
+
+
+    std::cout << "Offset: (";
+    for( int i=0;i<3; i++)
+    	std::cout <<  curr_offset[i]<< " / ";
+    std::cout << ")"<< std::endl;
+
+    std::cout << "Spacing: (";
+    for( int i=0;i<3; i++)
+    	std::cout <<  curr_spacing[i]<< " / ";
+    std::cout << ")"<< std::endl;
+
+    std::cout << "Size: (";
+    for( int i=0;i<3; i++)
+    	std::cout <<  curr_size[i]<< " / ";
+    std::cout << ")"<< std::endl;
+
+    std::cout << "Dir mat: \n";
+	for( int i=0;i<3; i++)
+	for( int j=0;j<3; j++)
+	{
+		std::cout << curr_dirmat[i][j] << "  ";
+		if(j==2)
+			std::cout << "\n";
+	}
+	std::cout << "\n";
+
+}
+
 // ++++++++++++++++++ data_IO ++++++++++++++++
 
 SignalContainer data_io::read_surrogate_signal( const std::string& filename_time_axis, const std::string& filename_signal )
