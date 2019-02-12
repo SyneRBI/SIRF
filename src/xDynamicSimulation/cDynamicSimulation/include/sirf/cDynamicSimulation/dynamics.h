@@ -156,7 +156,7 @@ protected:
 	int which_motion_dynamic_am_i_;
 
 	std::vector<MotionFieldType> displacement_fields_;
-	std::vector< sirf::NiftiImageData3DDeformation<float> > sirf_displacement_fields_;
+	// std::vector< sirf::NiftiImageData3DDeformation<float> > sirf_displacement_fields_;
 };
 
 class aMRDynamic : virtual public aDynamic{

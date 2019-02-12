@@ -985,7 +985,7 @@ TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData& img )
 {
 
-	size_t const num_disp_fields = this->sirf_displacement_fields_.size();
+	size_t const num_disp_fields = this->displacement_fields_.size();
 
 	if( num_disp_fields ==0 )
 		throw std::runtime_error("Please call prep_displacement_fields() first.");
@@ -1003,20 +1003,18 @@ void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData
 	float const img_quart_ac = sptr_pet_nifti->qfac;
 
 
-	float const img_dx = sptr_pet_nifti->dx;
-    float const img_dy = sptr_pet_nifti->dy;
-    float const img_dz = sptr_pet_nifti->dz;
-    float const img_dt = sptr_pet_nifti->dt;
-    float const img_du = sptr_pet_nifti->du;
-    float const img_dv = sptr_pet_nifti->dv;
-    float const img_dw = sptr_pet_nifti->dw;
-
-
+	// float const img_dx = sptr_pet_nifti->dx;
+ //    float const img_dy = sptr_pet_nifti->dy;
+ //    float const img_dz = sptr_pet_nifti->dz;
+ //    float const img_dt = sptr_pet_nifti->dt;
+ //    float const img_du = sptr_pet_nifti->du;
+ //    float const img_dv = sptr_pet_nifti->dv;
+ //    float const img_dw = sptr_pet_nifti->dw;
 
 	for(size_t i=0; i<num_disp_fields; i++)
 	{
 
-		auto sptr_mvf_nifti = this->sirf_displacement_fields_[i].get_raw_nifti_sptr();
+		auto sptr_mvf_nifti = this->displacement_fields_[i].get_raw_nifti_sptr();
 
 		sptr_mvf_nifti->qoffset_x = img_off_x;
 		sptr_mvf_nifti->qoffset_y = img_off_y;
@@ -1027,7 +1025,7 @@ void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData
 		sptr_mvf_nifti->quatern_d = img_quart_d ;
 		sptr_mvf_nifti->qfac	  = img_quart_ac;
 
-		this->sirf_displacement_fields_[i] = NiftiImageData3DDeformation<float>(*sptr_mvf_nifti);
+		this->displacement_fields_[i] = NiftiImageData3DDisplacement<float>(*sptr_mvf_nifti);
 
 	}
 }
