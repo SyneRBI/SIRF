@@ -6,11 +6,11 @@ if(BUILD_PYTHON)
   function(python_pkg_alias PY_PKG_NEW PY_PKG_OLD)
     list(APPEND PYTHON_SETUP_PKGS ${PY_PKG_NEW})
     set(PYTHON_SETUP_PKGS "${PYTHON_SETUP_PKGS}" PARENT_SCOPE)
-    set(SETUP_PY_INIT_IN  "${CMAKE_CURRENT_LIST_DIR}/__init__.py.in")
-    set(SETUP_PY_INIT_OUT "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PY_PKG_NEW}/__init__.py")
-    set(SETUP_PY_DIR      "${PYTHON_DEST}/${PY_PKG_NEW}")
-    configure_file("${SETUP_PY_INIT_IN}" "${SETUP_PY_INIT_OUT}")
-    install(FILES "${SETUP_PY_INIT_OUT}" DESTINATION "${SETUP_PY_DIR}")
+    set(SETUP_PY_INIT_IN "${CMAKE_CURRENT_LIST_DIR}/__init__.py.in")
+    set(SETUP_PY_INIT "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PY_PKG_NEW}/__init__.py")
+    configure_file("${SETUP_PY_INIT_IN}" "${SETUP_PY_INIT}")
+    install(FILES "${SETUP_PY_INIT}"
+      DESTINATION "${PYTHON_DEST}/${PY_PKG_NEW}")
     # message(STATUS "setup.py:${SETUP_PY_INIT}")
     message(STATUS "setup.py:${PY_PKG_NEW}<-${PY_PKG_OLD}")
   endfunction(python_pkg_alias)
@@ -29,12 +29,11 @@ if(BUILD_PYTHON)
 
   # Create setup.py
   set(SETUP_PY_IN "${CMAKE_CURRENT_LIST_DIR}/setup.py.in")
-  set(SETUP_PY_OUT "${CMAKE_CURRENT_BINARY_DIR}/cmake/setup.py")
-  set(SETUP_PY_DIR "${PYTHON_DEST}")
+  set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/cmake/setup.py")
   set(SETUP_PY_INIT "${PYTHON_DEST}/sirf/__init__.py")
-  message(STATUS "setup.py:${SETUP_PY_DIR}/setup.py")
-  configure_file("${SETUP_PY_IN}" "${SETUP_PY_OUT}")
-  install(FILES "${SETUP_PY_OUT}" DESTINATION "${SETUP_PY_DIR}")
+  configure_file("${SETUP_PY_IN}" "${SETUP_PY}")
+  install(FILES "${SETUP_PY}" DESTINATION "${PYTHON_DEST}")
+  message(STATUS "setup.py:${PYTHON_DEST}/setup.py")
 
   if(PYTHONINTERP_FOUND)
     # python setup.py build
@@ -42,7 +41,7 @@ if(BUILD_PYTHON)
       COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
       COMMAND "${CMAKE_COMMAND}" -E touch "${SETUP_PY_INIT}"
       COMMAND "${PYTHON_EXECUTABLE}" setup.py build
-      DEPENDS "${SETUP_PY}"
+      DEPENDS "${PYTHON_DEST}/setup.py"
       WORKING_DIRECTORY "${PYTHON_DEST}")
 
     add_custom_target(pybuild_sirf ALL DEPENDS "${SETUP_PY_INIT}")
