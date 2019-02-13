@@ -624,6 +624,10 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 	if(this->dyn_signal_.size() == 0)
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
 
+	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
+	time_ordered_acquisitions.time_order();
+	TimeAxisType time_offset = SIRF_SCANNER_MS_PER_TIC * time_ordered_acquisitions.get_acquisition_sptr(0)->acquisition_time_stamp();
+
 
 	std::deque< size_t > relevant_acq_numbers;
 	std::deque< size_t > acq_not_binned;
@@ -650,7 +654,7 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 			auto sptr_acq = all_acquisitions.get_acquisition_sptr( curr_pos );
 			auto acq_hdr = sptr_acq->getHead();
 			
-			TimeAxisType acq_time = (TimeAxisType)acq_hdr.acquisition_time_stamp;
+			TimeAxisType acq_time = SIRF_SCANNER_MS_PER_TIC * (TimeAxisType)acq_hdr.acquisition_time_stamp - time_offset;
 			
 			SignalAxisType signal_of_acq = this->linear_interpolate_signal( acq_time );
 			
@@ -702,7 +706,7 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 
 	size_t const num_acquis = time_ordered_acquisitions.number();	
 
-	TimeAxisType total_time = (time_ordered_acquisitions.get_acquisition_sptr(num_acquis-1)->acquisition_time_stamp() -
+	TimeAxisType total_time = SIRF_SCANNER_MS_PER_TIC * (time_ordered_acquisitions.get_acquisition_sptr(num_acquis-1)->acquisition_time_stamp() -
 							   time_ordered_acquisitions.get_acquisition_sptr(0)->acquisition_time_stamp());
 
 	std::vector< size_t > index_lims;

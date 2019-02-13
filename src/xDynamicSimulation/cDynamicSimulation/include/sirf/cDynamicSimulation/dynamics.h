@@ -28,6 +28,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 
 
+#define SIRF_SCANNER_MS_PER_TIC 2.5
+
 
 typedef float TimeAxisType;
 typedef float SignalAxisType;
