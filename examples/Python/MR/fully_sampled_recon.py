@@ -86,19 +86,22 @@ def main():
     image_data.write(args['--output'])
 
     # show reconstructed image data
-    image_array = image_data.as_array()
     title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+    image_data.show(title = title)
+##    image_array = image_data.as_array()
+##    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
+##                  xlabel = 'samples', ylabel = 'readouts')
 
     # filter the image
+    image_array = image_data.as_array()
     select = image_array.real < 0.2*numpy.amax(image_array.real)
     image_array[select] = 0
     image_data.fill(image_array)
-    image_array = image_data.as_array()
     title = 'Filtered image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+    image_data.show(title = title)
+##    image_array = image_data.as_array()
+##    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
+##                  xlabel = 'samples', ylabel = 'readouts')
 
 try:
     main()
