@@ -93,13 +93,8 @@ namespace sirf {
 	*/
 	class MRAcquisitionData : public DataContainer {
 	public:
-		MRAcquisitionData() : sorted_(false), index_(0) {}
-		virtual ~MRAcquisitionData()
-		{
-			if (index_)
-				delete[] index_;
-		}
-
+		MRAcquisitionData() : sorted_(false) {}
+		
 		// static methods
 
 		static std::string storage_scheme()
@@ -183,11 +178,11 @@ namespace sirf {
 		void sort_by_time();
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
-		int* index() { return index_; }
-		const int* index() const { return index_; }
+		int* index() { return &index_[0]; }
+		const int* index() const { return &index_[0]; }
 		int index(int i) const
 		{
-			if (index_ && i >= 0 && i < (int)number())
+			if (index_.size()>0 && i >= 0 && i < (int)number())
 				return index_[i];
 			else
 				return i;
@@ -206,7 +201,7 @@ namespace sirf {
 
 	protected:
 		bool sorted_;
-		int* index_;
+		std::vector<int> index_;
 		AcquisitionsInfo acqs_info_;
 
 		static std::string _storage_scheme;
@@ -380,14 +375,10 @@ namespace sirf {
 
 	class ISMRMRDImageData : public MRImageData {
 	public:
-		ISMRMRDImageData() : sorted_(false), index_(0) {}
+		ISMRMRDImageData() : sorted_(false) {}
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
-		virtual ~ISMRMRDImageData()
-		{
-			if (index_)
-				delete[] index_;
-		}
+		
 
 		virtual unsigned int number() const = 0;
 		virtual int types() = 0;
@@ -451,11 +442,11 @@ namespace sirf {
 		void sort();
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
-		int* index() { return index_; }
-		const int* index() const { return index_; }
+		int* index() { return &index_[0]; }
+		const int* index() const { return &index_[0]; }
 		int index(int i) const
 		{
-			if (index_)
+			if (index_.size()>0 && i < index_.size() && i >= 0)
 				return index_[i];
 			else
 				return i;
@@ -463,7 +454,7 @@ namespace sirf {
 
 	protected:
 		bool sorted_;
-		int* index_;
+		std::vector<int> index_;
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;
