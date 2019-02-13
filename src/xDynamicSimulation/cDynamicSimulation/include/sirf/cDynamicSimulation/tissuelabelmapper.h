@@ -35,7 +35,7 @@ public:
 	TissueLabelMapper();
 	TissueLabelMapper(const LabelVolume& label_array, const std::string& xml_path);
 
-	inline TissueVector get_segmentation_tissues (void)
+	inline TissueVector get_segmentation_tissues (void) const
 	{
 		return this->segmentation_tissues_;
 	};

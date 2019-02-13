@@ -35,6 +35,19 @@ void AbstractContrastGenerator::replace_petmr_tissue_parameters(LabelType label,
 	this->tlm_.replace_petmr_tissue_parameters(label, tiss_param);
 }
 
+TissueParameter AbstractContrastGenerator::get_petmr_tissue_parameter( LabelType label ) const
+{
+	TissueVector all_tissues = this->tlm_.get_segmentation_tissues();
+
+	for( size_t i=0; i<all_tissues.size(); i++)
+	{
+		if( all_tissues[i]->label_ == label)
+			return *(all_tissues[i]);
+	}
+
+	throw std::runtime_error("The label you asked for is apparently not given in the segmentation/XML combination you passed to the simulation.");
+}		
+
 
 MRContrastGenerator::MRContrastGenerator (const LabelVolume& tissue_labels, const std::string& filename_tissue_parameter_xml) :
 AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)

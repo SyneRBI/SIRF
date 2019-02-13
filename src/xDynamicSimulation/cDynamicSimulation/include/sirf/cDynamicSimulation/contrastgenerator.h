@@ -47,7 +47,7 @@ public:
 	// pure virtual since formats are very diff for pet and mri and ct
 	virtual void map_contrast()=0;
 	void replace_petmr_tissue_parameters(LabelType label, TissueParameter tiss_param);	
-	
+	TissueParameter get_petmr_tissue_parameter( LabelType label ) const;		
 protected:
 
 	TissueLabelMapper tlm_;
