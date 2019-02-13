@@ -579,7 +579,7 @@ class ImageData(SIRF.ImageData):
             try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
-    def show(self, slice = None, title = None):
+    def show(self, slice = None, title = None, cmap = 'gray', postpone = False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -590,8 +590,10 @@ class ImageData(SIRF.ImageData):
         if type(slice) == type(1):
             if slice < 0 or slice >= nz:
                 return
-            show_2D_array('slice %d' % slice, data[slice,:,:])
-            return
+            ns = 1
+            slice = [slice]
+##            show_2D_array('slice %d' % slice, data[slice,:,:])
+##            return
         elif slice is None:
             ni = nz
             slice = range(nz)
@@ -610,10 +612,11 @@ class ImageData(SIRF.ImageData):
         while f < ni:
             t = min(f + 16, ni)
             err = show_3D_array(abs(data), index = slice[f : t], \
-                                tile_shape = tiles, \
+                                tile_shape = tiles, cmap = cmap, \
                                 label = 'slice', xlabel = 'samples', \
                                 ylabel = 'readouts', \
-                                suptitle = title, show = (t == ni))
+                                suptitle = title, \
+                                show = (t == ni) and not postpone)
             f = t
 
 DataContainer.register(ImageData)

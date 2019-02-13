@@ -35,12 +35,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-try:
-    import pylab
-    HAVE_PYLAB = True
-except:
-    HAVE_PYLAB = False
-
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -100,19 +94,11 @@ def main():
     grad = acq_model.backward(residual)
     w = acq_model.forward(grad)
     tau = (grad.dot(grad))/(w.dot(w)) # locally optimal steepest descent step
-##    tau = (grad*grad)/(w*w) # locally optimal steepest descent step
     refined_image_data = image_data - grad * tau # refined image
 
-    image_array = image_data.as_array()
-    refined_image_array = refined_image_data.as_array()
-
-    # show reconstructed and refined images
-    title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts', show = False)
-    title = 'Refined image data (magnitude)'
-    show_3D_array(abs(refined_image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+    image_data.show(title = 'Reconstructed image data (magnitude)', \
+                    postpone = True)
+    refined_image_data.show(title = 'Refined image data (magnitude)')
 
 try:
     main()
