@@ -154,6 +154,9 @@ void run_tests_dynamic_simulation( void )
 	std::cout << "MR 5 ----------------------------------------------------" <<std::endl;
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
 
+	std::cout << "MR 6 ----------------------------------------------------" <<std::endl;
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
+
 	
 	std::cout << "mr dynamic simulation test results = ";
 	for( size_t i=0; i<mr_dynsim_tests.size(); i++)
@@ -173,10 +176,10 @@ void run_tests_dynamic_simulation( void )
 	// pet_dynsim_tests.push_back(test_pet_dynsim::set_template_acquisition_data());
 
 	std::cout << "PET 3 ----------------------------------------------------" <<std::endl;
-	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
+	pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
 
 	std::cout << "PET 4 ----------------------------------------------------" <<std::endl;
-	pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
+	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
 
 
 	std::cout << "pet dynamic simulation test results = ";
@@ -305,7 +308,7 @@ void run_tests_tissueparameters(void)
 void run_tests_contrastgenerator(void)
 {
 	bool tests_successful = true;
-	std::vector< bool > tlm_tests, mr_contgen_tests, pet_contgen_tests;
+	std::vector< bool > tlm_tests, abstract_contgen_tests, mr_contgen_tests, pet_contgen_tests;
 
 	
 	// // tlm tests
@@ -332,6 +335,16 @@ void run_tests_contrastgenerator(void)
 	// 	tests_successful *= tlm_tests[i];
 	// }
 	// std::cout << std::endl;
+
+	// abstract contgent tests
+	std::cout << "----------------------------------------------------" <<std::endl;
+	abstract_contgen_tests.push_back( test_contgen::test_get_tissue_parameter() );
+		for( size_t i=0; i<abstract_contgen_tests.size(); i++)
+	{
+		std::cout << abstract_contgen_tests[i] << " / ";
+		tests_successful *= abstract_contgen_tests[i];
+	}
+	std::cout << std::endl;
 
 	// // mr contgen tests
 	// std::cout << "----------------------------------------------------" <<std::endl;
@@ -361,24 +374,24 @@ void run_tests_contrastgenerator(void)
 	// std::cout << std::endl;
 
 	// pet contgen tests
-	std::cout << "----------------------------------------------------" <<std::endl;
-	pet_contgen_tests.push_back( test_contgen::test_pet_constructor() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
-	std::cout << "----------------------------------------------------" <<std::endl;
-	pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
-	std::cout << "----------------------------------------------------" <<std::endl;
-	test_contgen::test_pet_map_contrast_application_to_xcat();
-	std::cout << "----------------------------------------------------" <<std::endl;
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// pet_contgen_tests.push_back( test_contgen::test_pet_constructor() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// test_contgen::test_pet_map_contrast_application_to_xcat();
+	// std::cout << "----------------------------------------------------" <<std::endl;
 
-	std::cout << "pet contgen test results = ";
-	for( size_t i=0; i<pet_contgen_tests.size(); i++)
-	{
-		std::cout << pet_contgen_tests[i] << " / ";
-		tests_successful *= pet_contgen_tests[i];
-	}
+	// std::cout << "pet contgen test results = ";
+	// for( size_t i=0; i<pet_contgen_tests.size(); i++)
+	// {
+	// 	std::cout << pet_contgen_tests[i] << " / ";
+	// 	tests_successful *= pet_contgen_tests[i];
+	// }
 	std::cout << std::endl;
 
 	if ( !tests_successful )
