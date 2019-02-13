@@ -184,8 +184,8 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		mr_dyn_sim.set_coilmaps( csm );
 
 
-		std::string const traj_name = "ITLGCRPE";
-		// std::string const traj_name = "Cartesian";
+		// std::string const traj_name = "ITLGCRPE";
+		std::string const traj_name = "Cartesian";
 
 		if( traj_name == "ITLGCRPE") 
 		{
@@ -199,7 +199,7 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 150;
+		float const test_SNR = 15;
 		size_t const noise_label = 13;
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
@@ -213,70 +213,70 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		
 		// SETTING UP MOTION DYNAMICS ########################################################################
 
-	 	cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
-	 	cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
+	 // 	cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
+	 // 	cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
 		
-		auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		cardiac_motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
+		// auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		// cardiac_motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
 
-		respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
-	 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
+		// respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
+	 // 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
 
-		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
+		// auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		// respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
 
 
 		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_motion_dyn ));
-		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
 
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_simul_states_myocardium_contrast_dyn = 2;
-		int const num_simul_states_blood_contrast_dyn = 2;
+		// int const num_simul_states_myocardium_contrast_dyn = 2;
+		// int const num_simul_states_blood_contrast_dyn = 2;
 
-		MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
+		// MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
 
-		std::vector<LabelType> myocardium_dynamic_labels = {1, 2, 3, 4};	
-		for(int i=0; i<myocardium_dynamic_labels.size(); i++)
-		{
-			std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to myocardium dynamic." << std::endl;
-			myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
-		}
+		// std::vector<LabelType> myocardium_dynamic_labels = {1, 2, 3, 4};	
+		// for(int i=0; i<myocardium_dynamic_labels.size(); i++)
+		// {
+		// 	std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to myocardium dynamic." << std::endl;
+		// 	myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
+		// }
 
-		std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
-		for(int i=0; i<blood_dynamic_labels.size(); i++)
-		{
-			std::cout << "Adding label " << blood_dynamic_labels[i] << " to vascular dynamic." << std::endl;
-			blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
-		}
+		// std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
+		// for(int i=0; i<blood_dynamic_labels.size(); i++)
+		// {
+		// 	std::cout << "Adding label " << blood_dynamic_labels[i] << " to vascular dynamic." << std::endl;
+		// 	blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
+		// }
 
 
-		auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
+		// auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
 
-		myocardium_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+		// myocardium_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
 
-		auto blood_extremes_0 = extreme_tissue_params.first;
-		auto blood_extremes_1 = extreme_tissue_params.second;
+		// auto blood_extremes_0 = extreme_tissue_params.first;
+		// auto blood_extremes_1 = extreme_tissue_params.second;
 
-		blood_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
-		blood_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
-		blood_extremes_0.mr_tissue_.t2_miliseconds_= 100;
+		// blood_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
+		// blood_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
+		// blood_extremes_0.mr_tissue_.t2_miliseconds_= 100;
 		
-		blood_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
-		blood_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
-		blood_extremes_1.mr_tissue_.t2_miliseconds_= 100;
+		// blood_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
+		// blood_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
+		// blood_extremes_1.mr_tissue_.t2_miliseconds_= 100;
 
-		blood_cont_dyn.set_parameter_extremes(blood_extremes_0, blood_extremes_1);
+		// blood_cont_dyn.set_parameter_extremes(blood_extremes_0, blood_extremes_1);
 
-		SignalContainer myocard_contrast_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
-		SignalContainer blood_contrast_signal = aux_test::get_generic_contrast_in_and_outflow_signal( all_acquis );
+		// SignalContainer myocard_contrast_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
+		// SignalContainer blood_contrast_signal = aux_test::get_generic_contrast_in_and_outflow_signal( all_acquis );
 
-		myocardium_cont_dyn.set_dyn_signal( myocard_contrast_signal );
-	 	myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
+		// myocardium_cont_dyn.set_dyn_signal( myocard_contrast_signal );
+	 // 	myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-	 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
-		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
+	 // 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
+		// blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
 		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
 		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
@@ -369,6 +369,175 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 }
 
 
+
+bool tests_mr_dynsim::test_dce_acquisition( void )
+{
+	try
+	{	
+		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/DCE/";
+		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/DCE/";
+
+
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+
+		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+		
+		auto data_dims = segmentation_labels.get_dimensions();
+		
+		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
+		
+		size_t num_coils = 4;
+		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+		mr_dyn_sim.set_coilmaps( csm );
+
+
+		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
+		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
+		mr_dyn_sim.set_trajectory( sptr_traj );
+		
+		AcquisitionsVector all_acquis;
+		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
+		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+
+		float const test_SNR = 10;
+		size_t const noise_label = 13;
+		
+		mr_dyn_sim.set_SNR(test_SNR);
+		mr_dyn_sim.set_noise_label( noise_label );
+		
+		int const num_simul_motion_dyn = 10;
+		
+		MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
+
+		// SignalContainer mock_respiratory_signal = // get it from file! aux_test::get_mock_sinus_signal(all_acquis, 3000);
+		
+		// SETTING UP MOTION DYNAMICS ########################################################################
+
+	 	// respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
+	 	// respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
+
+		// auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		// respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
+
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+
+
+		// SETTING UP CONRAST DYNAMICS ########################################################################
+
+		int const num_contrast_states = 10;
+		
+		MRContrastDynamic aif_contrast(num_contrast_states), healthy_tissue_contrast(num_contrast_states), lesion_contrast(num_contrast_states);
+
+		std::vector<LabelType> aif_dynamic_labels = {5, 6, 7, 8, 36, 37};	
+		for(int i=0; i<aif_dynamic_labels.size(); i++)
+		{
+			std::cout << "Adding label " << aif_dynamic_labels[i] << " to AIF dynamic." << std::endl;
+			aif_contrast.add_dynamic_label(aif_dynamic_labels[i]);
+		}
+
+		std::vector<LabelType> healthy_tissue_dynamic_labels = {13};	
+		for(int i=0; i<healthy_tissue_dynamic_labels.size(); i++)
+		{
+			std::cout << "Adding label " << healthy_tissue_dynamic_labels[i] << " to healthy tissue dynamic." << std::endl;
+			healthy_tissue_contrast.add_dynamic_label(healthy_tissue_dynamic_labels[i]);
+		}
+
+		std::vector<LabelType> lesion_dynamic_labels = {74};
+		for(int i=0; i<lesion_dynamic_labels.size(); i++)
+		{
+			std::cout << "Adding label " << lesion_dynamic_labels[i] << " to lesion dynamic." << std::endl;
+			lesion_contrast.add_dynamic_label(lesion_dynamic_labels[i]);
+		}
+
+		// set up contrast dynamics for vessels
+		TissueParameter aif_0 = mr_cont_gen.get_petmr_tissue_parameter( aif_dynamic_labels[0] );
+		TissueParameter aif_1 = aif_0;
+
+		aif_0.mr_tissue_.t1_miliseconds_ = 282;
+
+		aif_contrast.set_parameter_extremes( aif_0, aif_1 );
+
+		// set up contrast dynamics for healthy liver
+		TissueParameter healthy_tissue_0 = mr_cont_gen.get_petmr_tissue_parameter( healthy_tissue_dynamic_labels[0] );
+		TissueParameter healthy_tissue_1 = healthy_tissue_0;
+
+		healthy_tissue_0.mr_tissue_.t1_miliseconds_ = 498;
+
+		healthy_tissue_contrast.set_parameter_extremes( healthy_tissue_0, healthy_tissue_1 );
+
+		// set up contrast dynamics for lesion
+		TissueParameter lesion_tissue_0 = mr_cont_gen.get_petmr_tissue_parameter( lesion_dynamic_labels[0] );
+		TissueParameter lesion_tissue_1 = lesion_tissue_0;
+
+		lesion_tissue_0.mr_tissue_.t1_miliseconds_ = 737;
+
+		lesion_contrast.set_parameter_extremes( lesion_tissue_0, lesion_tissue_1 );
+
+
+		std::string const filename_contrast_timepoints = input_path + "/timepoints_dce_contrast_signal";
+		
+		std::string const filename_aif_t1_ =input_path + "/aif_signal_T1_0_0.28155_T1_1_1.984";
+		std::string const filename_healthy_tissue_t1 = input_path + "/liver_signal_T1_0_0.49819_T1_1_0.80405";
+		std::string const filename_lesion_t1_ = input_path + "/lesion_signal_T1_0_0.73695_T1_1_2.1075";
+
+		SignalContainer aif_dyn_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_aif_t1_);
+		SignalContainer healthy_dyn_tissue_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_healthy_tissue_t1);
+		SignalContainer lesion_dyn_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_lesion_t1_);
+
+
+		aif_contrast.set_dyn_signal( aif_dyn_signal );
+		healthy_tissue_contrast.set_dyn_signal( healthy_dyn_tissue_signal );
+		lesion_contrast.set_dyn_signal( lesion_dyn_signal );
+
+
+	 	aif_contrast.bin_mr_acquisitions( all_acquis );
+		healthy_tissue_contrast.bin_mr_acquisitions( all_acquis );
+		lesion_contrast.bin_mr_acquisitions( all_acquis );
+
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (aif_contrast) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (healthy_tissue_contrast) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (lesion_contrast) );
+
+		
+		// ####################################################################################################
+
+		clock_t t;
+		t = clock();
+		mr_dyn_sim.simulate_dynamics();
+		t = clock() - t;
+
+		std::cout << "Storing ground truth motion information" << std::endl;
+		mr_dyn_sim.save_ground_truth_displacements();
+
+
+
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+
+		std::string const filename_dce_output = output_path + "output_grpe_dce_simulation";
+
+		mr_dyn_sim.write_simulation_results( filename_dce_output );
+
+     	return false;
+
+
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
+}
+
+
+
+
+
+
+
+
 // PET #################################################################################
 
 
@@ -431,7 +600,7 @@ bool test_pet_dynsim::test_simulate_statics()
 		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
 
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
-		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/ISMRMSim/Output/StaticPET/MeasTime25s_myo_act_4/pet_stat_simul");
+		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/");
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );

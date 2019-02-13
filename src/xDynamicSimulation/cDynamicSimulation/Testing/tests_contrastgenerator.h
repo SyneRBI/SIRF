@@ -15,6 +15,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 namespace test_contgen
 {
 
+bool test_get_tissue_parameter( void );
+
 bool test_mr_constructor( void );
 bool test_mr_set_rawdata_header( void );
 

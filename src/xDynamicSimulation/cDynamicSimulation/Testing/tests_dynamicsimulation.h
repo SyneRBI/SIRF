@@ -30,6 +30,8 @@ bool test_simulate_dynamics( void );
 
 bool test_simulate_rpe_acquisition( void );
 
+bool test_dce_acquisition( void );
+
 }
 
 namespace test_pet_dynsim

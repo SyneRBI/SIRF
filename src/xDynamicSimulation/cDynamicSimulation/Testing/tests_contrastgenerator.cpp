@@ -33,6 +33,30 @@ using namespace sirf;
 
 // contrast generator
 
+
+bool test_contgen::test_get_tissue_parameter( void )
+{
+	try
+	{	
+		MRContrastGenerator cont_gen = aux_test::get_mock_mr_contrast_generator();
+
+		LabelType label = 52;
+		TissueParameter tiss_par = cont_gen.get_petmr_tissue_parameter( label );		
+
+		std::cout << "Label " << label << " was associated with the parameter " << tiss_par.name_ <<std::endl;
+
+		return true;
+	}
+	catch( const std::exception& e)
+	{	
+		std::cout << "Exception caught at highest level in main" << std::endl;
+		std::cout<< e.what() << '\n';			
+		return false;
+	}
+
+}
+
+
 bool test_contgen::test_mr_constructor( void )
 {
 	LabelVolume segmentation_labels = aux_test::get_mock_label_volume();
