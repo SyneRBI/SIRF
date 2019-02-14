@@ -490,7 +490,7 @@ void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFie
 	}
 }
 
-void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3DDisplacement <float> >input_displacement_fields, bool const motion_fields_are_cyclic)
+void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3DDisplacement <float> > &input_displacement_fields, bool const motion_fields_are_cyclic)
 {
 	if ( motion_fields_are_cyclic )
 	{
@@ -499,6 +499,12 @@ void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3D
 	}
 
 	this->displacement_fields_ = input_displacement_fields;	
+
+	if( true ) 
+	{
+		std::vector< sirf::NiftiImageData3DDisplacement<float> >  empty_container;
+		input_displacement_fields.swap(empty_container);
+	}
 
 }
 
