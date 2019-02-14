@@ -1027,6 +1027,14 @@ static bool is_unit_vector(const float * const vec)
     return std::abs(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] - 1.F) < 1.e-4F;
 }
 
+static bool are_vectors_equal(const float * const vec1, const float * const vec2)
+{
+    for (int i=0; i<3; ++i)
+        if (std::abs(vec1[i] - vec2[i]) > 1.e-4F)
+            return false;
+    return true;
+}
+
 static void print_slice_directions(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
 {
     std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.\n";
@@ -1054,6 +1062,39 @@ static void print_slice_distances(const std::vector<gadgetron::shared_ptr<ImageW
 }
 
 void
+GadgetronImagesVector::print_header(const unsigned im_num)
+{
+    // Get image
+    ISMRMRD::ImageHeader &ih = image_wrap(im_num).head();
+    std::cout << "\n";
+    std::cout << "phase:                  " << ih.phase                  << "\n";
+    std::cout << "slice:                  " << ih.slice                  << "\n";
+    std::cout << "average:                " << ih.average                << "\n";
+    std::cout << "version:                " << ih.version                << "\n";
+    std::cout << "channels:               " << ih.channels               << "\n";
+    std::cout << "contrast:               " << ih.contrast               << "\n";
+    std::cout << "data_type:              " << ih.data_type              << "\n";
+    std::cout << "image_type:             " << ih.image_type             << "\n";
+    std::cout << "repetition:             " << ih.repetition             << "\n";
+    std::cout << "image_index:            " << ih.image_index            << "\n";
+    std::cout << "measurement_uid:        " << ih.measurement_uid        << "\n";
+    std::cout << "measurement_uid:        " << ih.measurement_uid        << "\n";
+    std::cout << "image_series_index:     " << ih.image_series_index     << "\n";
+    std::cout << "attribute_string_len:   " << ih.attribute_string_len   << "\n";
+    std::cout << "acquisition_time_stamp: " << ih.acquisition_time_stamp << "\n";
+    std::cout << "user_int:               "; for (int i=0;i<8;++i) std::cout << ih.user_int[i]               << " "; std::cout << "\n";
+    std::cout << "user_float:             "; for (int i=0;i<8;++i) std::cout << ih.user_float[i]             << " "; std::cout << "\n";
+    std::cout << "position:               "; for (int i=0;i<3;++i) std::cout << ih.position[i]               << " "; std::cout << "\n";
+    std::cout << "read_dir:               "; for (int i=0;i<3;++i) std::cout << ih.read_dir[i]               << " "; std::cout << "\n";
+    std::cout << "phase_dir:              "; for (int i=0;i<3;++i) std::cout << ih.phase_dir[i]              << " "; std::cout << "\n";
+    std::cout << "slice_dir:              "; for (int i=0;i<3;++i) std::cout << ih.slice_dir[i]              << " "; std::cout << "\n";
+    std::cout << "matrix_size:            "; for (int i=0;i<3;++i) std::cout << ih.matrix_size[i]            << " "; std::cout << "\n";
+    std::cout << "field_of_view:          "; for (int i=0;i<3;++i) std::cout << ih.field_of_view[i]          << " "; std::cout << "\n";
+    std::cout << "physiology_time_stamp:  "; for (int i=0;i<3;++i) std::cout << ih.physiology_time_stamp[i]  << " "; std::cout << "\n";
+    std::cout << "patient_table_position: "; for (int i=0;i<3;++i) std::cout << ih.patient_table_position[i] << " "; std::cout << "\n";
+}
+
+void
 GadgetronImagesVector::set_up_geom_info()
 {
 #ifndef NDEBUG
@@ -1066,9 +1107,22 @@ GadgetronImagesVector::set_up_geom_info()
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
 
+    // Check that the read, phase and slice directions are unit vectors and constant
+    for (unsigned im=0; im<number(); ++im) {
+        ISMRMRD::ImageHeader &ih = image_wrap(im).head();
+        if (!(is_unit_vector(ih.read_dir) && is_unit_vector(ih.phase_dir) && is_unit_vector(ih.slice_dir))) {
+            std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
+            return;
+        }
+        if (!(are_vectors_equal(ih1.read_dir,ih.read_dir) && are_vectors_equal(ih1.phase_dir,ih.phase_dir) && are_vectors_equal(ih1.slice_dir,ih.slice_dir))) {
+            std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should be constant over slices.\n";
+            return;
+        }
+    }
+
     // Size
     VoxelisedGeometricalInfo3D::Size size;
-    for(int i=0; i<2; ++i)
+    for(unsigned i=0; i<2; ++i)
         size[i] = ih1.matrix_size[i];
     size[2] = this->number();
 
@@ -1077,22 +1131,13 @@ GadgetronImagesVector::set_up_geom_info()
 
     // Spacing
     VoxelisedGeometricalInfo3D::Spacing spacing;
-    for(int i=0; i<3; ++i)
+    for(unsigned i=0; i<3; ++i)
         spacing[i] = ih1.field_of_view[i] / size[i];
 
     // If there are more than 1 slices, then take the size of the voxel
     // in the z-direction to be the distance between voxel centres (this
     // accounts for under-sampled data (and also over-sampled).
     if (this->number() > 1) {
-
-        // First check that the slice direction is a unit vector
-        const float * const slice_dir = ih1.slice_dir;
-        if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir)) {
-
-            std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
-
-            return;
-        }
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
@@ -1104,21 +1149,11 @@ GadgetronImagesVector::set_up_geom_info()
                 ih2.position[2] * ih2.slice_dir[2];
         spacing[2] = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
 
-        // Now for some more checks...
-        // Loop over all images, and
-        // 1. Check that the slice_dir is always constant
-        // 2. Check that spacing is more-or-less constant
+        // Check: Loop over all images, and check that spacing is more-or-less constant
         for (unsigned im=0; im<number()-1; ++im) {
 
             ISMRMRD::ImageHeader &ih1 = image_wrap( im ).head();
             ISMRMRD::ImageHeader &ih2 = image_wrap(im+1).head();
-
-            // 1. Check that the slice_dir is always constant
-            for (int dim=0; dim<3; ++dim)
-                if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F) {
-                    print_slice_directions(this->images_);
-                    return;
-                }
 
             // 2. Check that spacing is constant
             float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
