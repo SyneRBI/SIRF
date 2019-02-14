@@ -249,6 +249,8 @@ const DataContainer& a_y
 STIRImageData::STIRImageData(const ImageData& id)
 {
     throw std::runtime_error("TODO - create STIRImageData from general SIRFImageData.");
+    
+
     /* The following is incorrect.
     Dimensions dim = id.dimensions();
     int nx = dim["x"];

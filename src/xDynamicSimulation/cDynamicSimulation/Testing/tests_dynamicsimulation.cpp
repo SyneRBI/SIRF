@@ -378,7 +378,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/DCE/";
 
 
-		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( input_path + "Phantoms/xcat_phantom_incl_geomertry_192_dce.h5" );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
@@ -401,7 +401,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 10;
+		float const test_SNR = 15;
 		size_t const noise_label = 13;
 		
 		mr_dyn_sim.set_SNR(test_SNR);
@@ -515,12 +515,11 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
-		std::string const filename_dce_output = output_path + "output_grpe_dce_simulation";
+		std::string const filename_dce_output = output_path + "output_grpe_dce_simulation.h5";
 
 		mr_dyn_sim.write_simulation_results( filename_dce_output );
 
-     	return false;
-
+     	return true;
 
 	}
 	catch( std::runtime_error const &e)
