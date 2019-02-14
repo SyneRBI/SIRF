@@ -22,9 +22,8 @@ if(BUILD_MATLAB)
 
   include_directories(${Matlab_INCLUDE_DIRS})
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
   add_executable(gmi_xstir gmi_xstir.cpp)
-  target_link_libraries(gmi_xstir mig)
+  target_link_libraries(gmi_xstir csirf mig)
   INSTALL(TARGETS gmi_xstir DESTINATION bin)
 
 endif(BUILD_MATLAB)

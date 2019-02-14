@@ -19,14 +19,16 @@
 find_package(STIR 3.1.0)
 if (STIR_FOUND)
 
-  # need to add this explicitly to get the STIR_REGISTRIES to compile
-  include_directories("${STIR_INCLUDE_DIRS}")
+  set("STIR_BUILT_WITH_ITK" "${STIR_BUILT_WITH_ITK}" PARENT_SCOPE)
 
   set(cSTIR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cSTIR")
 
   ADD_SUBDIRECTORY(cSTIR)
   ADD_SUBDIRECTORY(pSTIR)
   ADD_SUBDIRECTORY(mSTIR)
+
+  # Going to need this elsewhere
+  SET(STIR_REGISTRIES ${STIR_REGISTRIES} PARENT_SCOPE)
 
 else()
 

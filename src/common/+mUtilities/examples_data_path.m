@@ -1,9 +1,6 @@
-function p = mr_data_path
-% Tries to find path to MR raw data.
-% The user may like to set a Matlab variable SIRF_MR_DATA_PATH
-% to the path to their raw MR data.
-% If it is not set, the path to SIRF subfolder /data/examples/MR
-% will be used.
+function p = examples_data_path(petmr)
+% If SIRF_PATH is defined, returns path to PET or MR examples raw data.
+% Otherwise, defaults to current folder.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -22,15 +19,10 @@ function p = mr_data_path
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-SIRF_MR_DATA_PATH = getenv('SIRF_MR_DATA_PATH');
-if ~isempty(SIRF_MR_DATA_PATH)
-    p = SIRF_MR_DATA_PATH;
-else
     SIRF_PATH = getenv('SIRF_PATH');
     if ~isempty(SIRF_PATH)
-        p = [SIRF_PATH '/data/examples/MR'];
+        p = [SIRF_PATH '/data/examples/' petmr];
     else
         p = './';
     end
-end
 end

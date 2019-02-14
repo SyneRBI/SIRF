@@ -128,7 +128,7 @@ image.fill(image_array);
 # We will use our own imshow function (which was defined above) for brevity.
 
 # Get the middle slice number
-slice_num=image_array.shape[0]/2;
+slice_num=image_array.shape[0]//2;
 # Create a new figure
 plt.figure();
 # Display the slice
@@ -169,7 +169,7 @@ print(acquisition_array.shape)
 # AcquisitionData are organised by sinograms, so we need to use the first index
 # of the accquisition_array.
 plt.figure()
-slice_num=acquisition_array.shape[0]/2;
+slice_num=acquisition_array.shape[0]//2;
 imshow(acquisition_array[slice_num,:,:,], [], 'Forward projection');
 
 #%% Display some different 'views' in a movie

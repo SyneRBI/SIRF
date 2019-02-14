@@ -24,16 +24,18 @@ function steepest_ascent(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = mUtilities.examples_data_path('PET');
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt');
+    PET.MessageRedirector('info.txt');
 
     % create uniform image
-    image = ImageData();
+    image = PET.ImageData();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)
@@ -41,21 +43,21 @@ try
 
     % create filter that zeroes the image outside a cylinder of the same
     % diameter as the image xy-section size
-    filter = TruncateToCylinderProcessor();
+    filter = PET.TruncateToCylinderProcessor();
     % apply the filter to the image (zero the image outside the cylindric FOV)
     filter.apply(image)
 
     % define acquisition data
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file', pet_data_path);
-    acq_data = AcquisitionData(fullfile(pathname, filename));
+    acq_data = PET.AcquisitionData(fullfile(pathname, filename));
 
     % define the acquisition model
-    acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_model = PET.AcquisitionModelUsingRayTracingMatrix();
 
     % create objective function of Poisson logarithmic likelihood type
     % compatible with the acquisition data type
-    obj_fun = make_Poisson_loglikelihood(acq_data);
+    obj_fun = PET.make_Poisson_loglikelihood(acq_data);
     obj_fun.set_acquisition_model(acq_model)
     obj_fun.set_num_subsets(12)
     obj_fun.set_up(image)

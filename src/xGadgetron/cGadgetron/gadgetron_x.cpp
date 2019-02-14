@@ -69,7 +69,7 @@ check_gadgetron_connection(std::string host, std::string port)
 shared_ptr<aGadget> 
 GadgetChain::gadget_sptr(std::string id)
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 	std::list<shared_ptr<GadgetHandle> >::iterator gh;
 #else
 	typename std::list<shared_ptr<GadgetHandle> >::iterator gh;
@@ -90,7 +90,7 @@ GadgetChain::xml() const
 	xml_script += "xmlns=\"http://gadgetron.sf.net/gadgetron\"\n";
 	xml_script += "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n";
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 	std::list<shared_ptr<GadgetHandle> >::const_iterator gh;
 #else
 	typename std::list<shared_ptr<GadgetHandle> >::const_iterator gh;
@@ -180,7 +180,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 		}
 	}
 	check_gadgetron_connection(host_, port_);
-	sptr_images_->order();
+	sptr_images_->sort();
 }
 
 void 

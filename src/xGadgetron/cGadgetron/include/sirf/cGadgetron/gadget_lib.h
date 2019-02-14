@@ -74,7 +74,7 @@ namespace sirf {
 			xml_script += " <name>" + gadget_ + "</name>\n";
 			xml_script += " <dll>" + dll_ + "</dll>\n";
 			xml_script += " <classname>" + class_ + "</classname>\n";
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 			std::map<std::string, std::string>::const_iterator it;
 #else
 			typename std::map<std::string, std::string>::const_iterator it;
@@ -351,6 +351,17 @@ namespace sirf {
 		}
 	};
 
+	class FatWaterGadget : public Gadget {
+	public:
+		FatWaterGadget() :
+			Gadget("FatWater", "gadgetron_fatwater", "FatWaterGadget")
+		{}
+		static const char* class_name()
+		{
+			return "FatWaterGadget";		
+		}
+	};
+
 	class ImageArraySplitGadget : public Gadget {
 	public:
 		ImageArraySplitGadget() :
@@ -359,6 +370,22 @@ namespace sirf {
 		static const char* class_name()
 		{
 			return "ImageArraySplitGadget";
+		}
+	};
+
+	class PhysioInterpolationGadget : public Gadget {
+	public:
+		PhysioInterpolationGadget() :
+			Gadget("PhysioInterpolation", "gadgetron_mricore", "PhysioInterpolationGadget")
+		{
+			add_property("phases", "30");
+			add_property("mode", "0");
+			add_property("first_beat_on_trigger", "true");
+			add_property("interp_method", "BSpline");
+		}
+		static const char* class_name()
+		{
+			return "PhysioInterpolationGadget";
 		}
 	};
 

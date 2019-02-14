@@ -26,19 +26,24 @@ function osem_reconstruction(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+AD = PET.AcquisitionData();
+AD.set_storage_scheme('memory');
+%AcquisitionData.set_storage_scheme('memory');
+pet_data_path = mUtilities.examples_data_path('PET');
 
 try
     % direct all printing to MatlabCommand Window
-    MessageRedirector('stdout');
+    PET.MessageRedirector('stdout');
 
     % create acquisition model
-    acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_model = PET.AcquisitionModelUsingRayTracingMatrix();
     
     % PET acquisition data to be read from this file
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
-    acq_data = AcquisitionData(fullfile(pathname, filename));
+    acq_data = PET.AcquisitionData(fullfile(pathname, filename));
 
     % create initial image estimate of dimensions and voxel sizes
     % compatible with the scanner geometry (included in the AcquisitionData
@@ -47,7 +52,7 @@ try
 
     % create objective function of Poisson logarithmic likelihood type
     % compatible with the acquisition data type
-    obj_fun = make_Poisson_loglikelihood(acq_data);
+    obj_fun = PET.make_Poisson_loglikelihood(acq_data);
     obj_fun.set_acquisition_model(acq_model)
     
     num_subiterations = 2;
@@ -57,7 +62,7 @@ try
     % this example, we actually run OSEM);
     % this algorithm does not converge to the maximum of the objective function
     % but is used in practice to speed-up calculations
-    recon = OSMAPOSLReconstructor();    
+    recon = PET.OSMAPOSLReconstructor();    
     recon.set_objective_function(obj_fun)
     recon.set_input(acq_data)
     recon.set_num_subsets(12)
@@ -78,7 +83,7 @@ try
     recon.set_current_estimate(image)
 
     % suppress further information printing
-    MessageRedirector();
+    PET.MessageRedirector();
 
     % in order to see the reconstructed image evolution
     % open up the user's access to the iterative process

@@ -30,42 +30,43 @@ end
 if nargin < 1
     record = false;
 end
-import_str = set_up_MR(engine);
-eval(import_str)
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
 
 test = mUtilities.mTest('test1.txt', record);
 
 filename = 'simulated_MR_2D_cartesian.h5';
-pathname = mr_data_path();
-acq_data = AcquisitionData(fullfile(pathname, filename));
+pathname = mUtilities.examples_data_path('MR');
+acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 test.check(acq_data.norm())
 
 prep_gadgets = {'RemoveROOversamplingGadget'};
 processed_data = acq_data.process(prep_gadgets);
 test.check(processed_data.norm())
 
-recon = FullySampledCartesianReconstructor();
+recon = MR.FullySampledCartesianReconstructor();
 recon.set_input(processed_data);
 recon.process();
 complex_images = recon.get_output();
 test.check(complex_images.norm())
 
 processed_data.sort()
-csms = CoilSensitivityData();
+csms = MR.CoilSensitivityData();
 csms.calculate(processed_data)
 
-am = AcquisitionModel(processed_data, complex_images);
+am = MR.AcquisitionModel(processed_data, complex_images);
 am.set_coil_sensitivity_maps(csms)
 fwd_acqs = am.forward(complex_images);
 fwd_acqs_norm = fwd_acqs.norm();
 test.check(fwd_acqs_norm)
 
-acqs_diff = fwd_acqs - processed_data;
+acqs_diff = fwd_acqs - processed_data*complex(1);
 rr = acqs_diff.norm()/fwd_acqs_norm;
 test.check(rr, 1e-4)
 
 bwd_images = am.backward(processed_data);
-imgs_diff = bwd_images - complex_images;
+imgs_diff = bwd_images + complex_images*(-1);
 rd = imgs_diff.norm()/complex_images.norm();
 test.check(rd, 1e-4)
 

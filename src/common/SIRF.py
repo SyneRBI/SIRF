@@ -29,7 +29,7 @@ except:
     HAVE_PYLAB = False
 import sys
 
-from pUtilities import *
+from sirf.Utilities import assert_validities, check_status, try_calling
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
@@ -65,6 +65,12 @@ class DataContainer(ABC):
         __add__ below.
         '''
         pass
+    def clone(self):
+        assert self.handle is not None
+        x = self.same_object()
+        x.handle = pysirf.cSIRF_clone(self.handle)
+        check_status(x.handle)
+        return x
     def number(self):
         '''
         Returns the number of items in the container.
@@ -130,6 +136,7 @@ class DataContainer(ABC):
         check_status(z.handle)
         return z
     def add(self, other, out=None):
+>>>>>>> origin
         '''
         Addition for data containers.
 
@@ -149,6 +156,12 @@ class DataContainer(ABC):
             (one.ctypes.data, self.handle, one.ctypes.data, other.handle)
         check_status(z.handle)
         return z;
+    def write(self, filename):
+        '''
+        Writes to file.
+        '''
+        assert self.handle is not None
+        try_calling(pysirf.cSIRF_write(self.handle, filename))
     def __add__(self, other):
         '''
         Overloads + for data containers.

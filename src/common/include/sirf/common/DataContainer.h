@@ -41,11 +41,11 @@ namespace sirf {
 	class DataContainer {
 	public:
 		virtual ~DataContainer() {}
-		virtual DataContainer* new_data_container() = 0;
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() = 0;
-		virtual unsigned int items() = 0;
-		virtual float norm() = 0;
-		virtual void dot(const DataContainer& dc, void* ptr) = 0;
+		//virtual DataContainer* new_data_container() const = 0;
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
+		virtual unsigned int items() const = 0;
+		virtual float norm() const = 0;
+		virtual void dot(const DataContainer& dc, void* ptr) const = 0;
 		virtual void multiply
 		(const DataContainer& x, const DataContainer& y) = 0;
 		virtual void divide
@@ -53,6 +53,13 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;
+		virtual void write(const std::string &filename) const = 0;
+		std::unique_ptr<DataContainer> clone() const
+		{
+			return std::unique_ptr<DataContainer>(this->clone_impl());
+		}
+	protected:
+		virtual DataContainer* clone_impl() const = 0;
 	};
 }
 

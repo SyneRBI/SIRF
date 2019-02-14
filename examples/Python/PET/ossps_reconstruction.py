@@ -107,8 +107,12 @@ def main():
         print('You may neet to close Figure %d window to continue' % (iter + 1))
     pylab.show()
 
-    # interactively display the reconstructed image
-    image.show()
+    # display the reconstructed image
+    #image.show(15) # show one
+    #image.show([1, 10, 11, 12]) # show list
+    #image.show((1, 10, 11, 12))
+    #image.show(range(2, 30, 3)) # show range
+    image.show() # show all
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

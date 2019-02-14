@@ -11,6 +11,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  -o <outp>, --output=<path>  output file name [default: output.h5]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -82,21 +83,17 @@ def main():
     
     # retrieve reconstruced image data
     image_data = recon.get_output()
+    image_data.write(args['--output'])
 
     # show reconstructed image data
-    image_array = image_data.as_array()
-    title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+    image_data.show(title = 'Reconstructed image data (magnitude)')
 
     # filter the image
+    image_array = image_data.as_array()
     select = image_array.real < 0.2*numpy.amax(image_array.real)
     image_array[select] = 0
-    image_data.fill(image_array)
-    image_array = image_data.as_array()
-    title = 'Filtered image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+    image_data.fill(abs(image_array))
+    image_data.show(title = 'Filtered image data (magnitude)')
 
 try:
     main()

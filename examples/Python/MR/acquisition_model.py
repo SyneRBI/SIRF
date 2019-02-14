@@ -37,8 +37,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtilities import show_3D_array
-
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -123,22 +121,13 @@ def main():
     if output_file is not None:
         simulated_acq_data.write(output_file)
 
-    # get simulated acquisition data as a Python ndarray
-    simulated_acq_array = simulated_acq_data.as_array();
     # display simulated acquisition data
-#    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,2,0))
-    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,0,2))
-    title = 'Simulated acquisition data (magnitude)'
-    show_3D_array(simulated_acq_array, power = 0.2, suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
+    simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
 
     # backproject simulated acquisition data
     backprojected_data = acq_model.backward(simulated_acq_data)
-    # show backprojected data
-    backprojected_array = backprojected_data.as_array()
-    title = 'Backprojected data (magnitude)'
-    show_3D_array(abs(backprojected_array), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
+    # display backprojected data
+    backprojected_data.show(title = 'Backprojected data (magnitude)')
 
 try:
     main()

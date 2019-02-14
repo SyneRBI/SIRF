@@ -1,7 +1,7 @@
 
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 - 2018 University College London
+# Copyright 2016 - 2019 University College London
 # Copyright 2016 - 2018 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,19 +66,30 @@ endif(APPLE)
 
 #### we need the boost library from boost.org
 set(BOOST_ROOT CACHE PATH "root of Boost")
-find_package( Boost 1.36.0 REQUIRED )
+find_package(Boost 1.36.0 COMPONENTS system filesystem thread date_time chrono REQUIRED)
+# For Visual Studio we have to disable the auto-linking feature of boost
+# where just including a boost file automatically adds it to the linker path.
+# Although this sounds great, it sadly breaks because of conflicting file-paths when linking etc etc.
+# In any case, we need to add the libraries by hand for other systems.
+# See http://stackoverflow.com/questions/32252016/cmake-visual-studio-build-looks-for-wrong-library
+add_definitions(-DBOOST_ALL_NO_LIB)
+
 include_directories(${Boost_INCLUDE_DIRS})
 
 #### optional back-ends
 # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
-find_package(PythonInterp)
-find_package(PythonLibs)
-set (BUILD_PYTHON ${PYTHONLIBS_FOUND})
+find_package(PythonInterp QUIET)
+find_package(PythonLibs QUIET)
+option(BUILD_PYTHON "Build SIRF with python" ${PYTHONLIBS_FOUND})
+if (BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
+  message(FATAL_ERROR "Python enabled but not found")
+endif(BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
 if (BUILD_PYTHON)
-# PYTHON_DEST_DIR allows the user to select the install destination of the 
-# SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
-# updated on the GUI.
-# If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python 
+
+  # PYTHON_DEST_DIR allows the user to select the install destination of the 
+  # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
+  # updated on the GUI.
+  # If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python 
   set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
   if (PYTHON_DEST_DIR)
    set(PYTHON_DEST "${PYTHON_DEST_DIR}")
@@ -94,16 +105,18 @@ if (BUILD_PYTHON)
 endif(BUILD_PYTHON)
 
 
-message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
-FIND_PACKAGE(Matlab COMPONENTS MAIN_PROGRAM)
-set (BUILD_MATLAB ${Matlab_FOUND})
-
+FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
+option(BUILD_MATLAB "Build SIRF with matlab" ${Matlab_FOUND})
+if (BUILD_MATLAB AND NOT ${Matlab_FOUND})
+  message(FATAL_ERROR "Matlab enabled but not found")
+endif()
 if (BUILD_MATLAB)
+  message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
   matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
-# MATLAB_DEST_DIR allows the user to select the install destination of the 
-# SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
-# updated on the GUI. 
-# If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab 
+  # MATLAB_DEST_DIR allows the user to select the install destination of the 
+  # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
+  # updated on the GUI. 
+  # If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab 
   set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
   if (MATLAB_DEST_DIR)
    set(MATLAB_DEST "${MATLAB_DEST_DIR}")
@@ -112,7 +125,7 @@ if (BUILD_MATLAB)
   endif()
   message(STATUS "Matlab libraries found")
   message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
-endif()
+endif(BUILD_MATLAB)
 
 if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
   message(FATAL_ERROR "SIRF needs either MATLAB or Python")
@@ -121,7 +134,21 @@ endif()
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/iUtilities)
+ADD_SUBDIRECTORY(src/common)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
-ADD_SUBDIRECTORY(src/common)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
+
+# Optional registration
+option(REG_ENABLE "Build the SIRF registration package" ON)
+if (REG_ENABLE)
+  ADD_SUBDIRECTORY(src/Registration)
+endif()
+
+# Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built
+if (REG_ENABLE AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
+  MESSAGE(STATUS "Registration, Gadgetron and STIR (with ITK) have been built. Building synergistic code.")
+  ADD_SUBDIRECTORY(src/Synergistic)
+else()
+  MESSAGE(STATUS "One or more of the following components are missing: Registration, Gadgetron and STIR (with ITK). Synergistic code will not be built.")
+endif()

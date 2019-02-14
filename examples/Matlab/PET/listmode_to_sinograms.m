@@ -25,20 +25,24 @@ function listmode_to_sinograms(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = mUtilities.examples_data_path('PET');
 
-AcquisitionData.set_storage_scheme('memory');
+AD = PET.AcquisitionData();
+AD.set_storage_scheme('memory');
+%AcquisitionData.set_storage_scheme('memory');
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt', 'warn.txt');
+    PET.MessageRedirector('info.txt', 'warn.txt');
 
     % create listmode-to-sinograms converter object
-    lm2sino = ListmodeToSinograms();
+    lm2sino = PET.ListmodeToSinograms();
 
-    default_path=fullfile(pet_data_path, 'mMR');
+    default_path = fullfile(pet_data_path, 'mMR');
 
     [filename, pathname] = uigetfile...
         ('*.l.hdr', 'Select listmode data file', default_path);
