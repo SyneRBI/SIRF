@@ -136,7 +136,6 @@ class DataContainer(ABC):
         check_status(z.handle)
         return z
     def add(self, other, out=None):
->>>>>>> origin
         '''
         Addition for data containers.
 
