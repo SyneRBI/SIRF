@@ -613,7 +613,7 @@ class ImageData(SIRF.ImageData):
             t = min(f + 16, ni)
             err = show_3D_array(abs(data), index = slice[f : t], \
                                 tile_shape = tiles, cmap = cmap, \
-                                label = 'slice', xlabel = 'samples', \
+                                label = 'image', xlabel = 'samples', \
                                 ylabel = 'readouts', \
                                 suptitle = title, \
                                 show = (t == ni) and not postpone)
