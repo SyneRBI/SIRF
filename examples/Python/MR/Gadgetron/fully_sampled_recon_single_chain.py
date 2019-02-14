@@ -40,8 +40,7 @@ args = docopt(__doc__, version=__version__)
 import time
 
 # import SIRF utilities
-from sirf.Utilities import examples_data_path, existing_filepath, \
-     show_3D_array, error
+from sirf.Utilities import examples_data_path, existing_filepath
 # import MR engine types
 from sirf.Gadgetron import AcquisitionData, Reconstructor
 
@@ -110,7 +109,7 @@ def main():
         im_type = image.image_type()
         im_series = image.image_series_index()
         print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
-    image_data.show()
+    image_data.show(title = 'Images magnitude and imaginary part')
 
     if output_file is not None:
         # write images to a new group in args.output
