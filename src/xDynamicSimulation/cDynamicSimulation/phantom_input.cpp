@@ -80,6 +80,8 @@ VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( const s
 
 sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::string& h5_filename_with_suffix)
 {
+	std::cout << "Reading segmentation from file: " << h5_filename_with_suffix <<std::endl;
+
 	std::string const dataset_name = "/segmentation";
 	H5T_class_t type_input = H5T_INTEGER;
 	H5::PredType type_reader = H5::PredType::NATIVE_UINT32;
@@ -95,6 +97,7 @@ sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::stri
 std::vector< sirf::NiftiImageData3DDisplacement <float> > read_motionfields_to_nifti_from_h5(const std::string& h5_filename_with_suffix, const std::string& motionfield_type)
 {
 
+	std::cout << "Reading motionfield from file: " << h5_filename_with_suffix << std::endl;
 
 	VoxelisedGeometricalInfo3D geo_info = read_voxelised_geometry_info_from_h5_dataset(h5_filename_with_suffix, "/segmentation");
 
