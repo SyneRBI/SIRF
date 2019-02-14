@@ -266,9 +266,10 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 
 void ContrastDynamic::set_bins( int const num_bins )
 {
-	this->num_simul_states_ = num_bins+1;
+	if(num_simul_states_ != 1)
+		this->num_simul_states_ = num_bins+1;
 
-	for(int i_state=0; i_state<=num_bins; i_state++)
+	for(int i_state=0; i_state<this->num_simul_states_; i_state++)
 	{	
 		SignalBin bin;
 
@@ -502,8 +503,10 @@ void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3D
 
 	if( true ) 
 	{
+		std::cout << "WARNING: Emtpying the passed vector to save memory." <<std::endl;
 		std::vector< sirf::NiftiImageData3DDisplacement<float> >  empty_container;
 		input_displacement_fields.swap(empty_container);
+
 	}
 
 }
