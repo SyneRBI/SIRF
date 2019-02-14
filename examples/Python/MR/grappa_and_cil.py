@@ -91,6 +91,7 @@ class Algorithm(object):
             time0 = time.time()
             self.update()
             self.timing.append( time.time() - time0 )
+            self.update_objective()
             self.iteration += 1
     def get_output(self):
         '''Returns the solution found'''
@@ -98,6 +99,8 @@ class Algorithm(object):
     def get_current_loss(self):
         '''Returns the current value of the loss function'''
         return self.__loss[-1]
+    def update_objective(self):
+        raise NotImplementedError()
     @property
     def loss(self):
         return self.__loss
@@ -150,8 +153,9 @@ class GradientDescent(Algorithm):
             self.x_update *= -self.rate
             self.x += self.x_update
         else:
-            self.x += -self.rate * self.objective_function.grad(self.x)
-            
+            self.x += -self.rate * self.objective_function.grad(self.x)    
+
+    def update_objective(self):
         self.loss.append(self.objective_function(self.x))
         
 
@@ -268,7 +272,7 @@ class FISTAAlg(Algorithm):
             self.x_old = self.x.copy()
             self.t_old = self.t
         
-        
+    def update_objective(self):     
         self.loss.append( self.f(self.x) + self.g(self.x) )
         
 class cilPluginToSIRFFactory(object):
@@ -431,11 +435,11 @@ if True:
     pixval = []
     gadgval = image_data.as_array()[0][46][160]
     import matplotlib.pyplot as plt
-    for i,el in enumerate(gd):
+    for i in gd:
     #for i in range(10):
     #    gd.update()
         pixval.append( gd.get_output().as_array()[0][46][160])
-        if i%1 == 0:
+        if True:
             print ("\rIteration {} Loss: {} pix {}".format(gd.iteration, 
                gd.get_current_loss(), pixval[-1]/gadgval))
     
@@ -497,18 +501,36 @@ if True:
     #%%
     # plot the results
     fig = plt.figure()
-    ax1 = plt.subplot(1,4,1)
-    plt.imshow(abs(image_data.as_array()[0]))
-    ax1.set_title('Initial Data')
-    ax2 = plt.subplot(1,4,2)
-    plt.imshow(abs(gd.get_output().as_array()[0]))
+    #ax1 = plt.subplot(1,4,1)
+    #plt.imshow(abs(image_data.as_array()[0]), cmap='gray')
+    #plt.clim(0, 5)
+    #ax1.set_title('Initial Data')
+    #ax2 = plt.subplot(1,4,2)
+    ax2 = plt.subplot(1,2,1)
+    plt.imshow(abs(gd.get_output().as_array()[0]), cmap='gray')
+    plt.clim(0, 7)
     ax2.set_title('Gradient Descent')
-    ax2 = plt.subplot(1,4,3)
-    plt.imshow(abs(fista_noreg.get_output().as_array()[0]))
-    ax2.set_title('FISTA no reg')
-    ax2 = plt.subplot(1,4,4)
-    plt.imshow(abs(fista.get_output().as_array()[0]))
+    ax2.set_yticklabels([])
+    ax2.set_xticklabels([])
+    #ax2 = plt.subplot(1,4,3)
+    #ax2 = plt.subplot(1,2,1)
+    #plt.imshow(abs(fista_noreg.get_output().as_array()[0]), cmap='gray')
+    #plt.clim(0, 5)
+    #ax2.set_title('FISTA no reg')
+    #ax2 = plt.subplot(1,4,4)
+    ax2 = plt.subplot(1,2,2)
+    ax2.set_yticklabels([])
+    ax2.set_xticklabels([])
+    plt.imshow(abs(fista.get_output().as_array()[0]), cmap='gray')
+    plt.clim(0, 7)
     ax2.set_title('FISTA + FGP_TV')
+    plt.show()
+    #%%
+    # plot convergence
+    fig = plt.figure()
+    ax = plt.plot([gd.loss[i]/max(gd.loss) for i in range(10)], label='Gradient Descent')
+    ax = plt.plot([el/max(fista.loss) for el in fista.loss], label='FISTA + FGP_TV')
+    plt.legend()
     plt.show()
 #%%
 #    options['iter'] = 20
