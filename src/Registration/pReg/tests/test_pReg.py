@@ -625,6 +625,9 @@ def try_transformations(na):
     if composed != na.get_deformation_field_forward():
         raise AssertionError()
 
+    # Test get_inverse
+    tm_inv = tm_iden.get_inverse()
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished Transformation test.\n')
