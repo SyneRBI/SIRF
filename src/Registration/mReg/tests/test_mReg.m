@@ -519,6 +519,9 @@ function try_transformations(g,na)
     composed = mReg.NiftiImageData3DDeformation.compose_single_deformation(trans, g.ref_aladin);
     assert(composed == na.get_deformation_field_forward(), 'compose_single_deformation failed.')
 
+    % Test get_inverse
+    tm_inv = tm_iden.get_inverse();
+
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Transformation test.')
