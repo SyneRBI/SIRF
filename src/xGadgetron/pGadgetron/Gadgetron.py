@@ -579,6 +579,45 @@ class ImageData(SIRF.ImageData):
             try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
+    def show(self, slice = None, title = None, cmap = 'gray', postpone = False):
+        '''Displays xy-cross-section(s) of images.'''
+        assert self.handle is not None
+        if not HAVE_PYLAB:
+            print('pylab not found')
+            return
+        data = self.as_array()
+        nz = data.shape[0]
+        if type(slice) == type(1):
+            if slice < 0 or slice >= nz:
+                return
+            ns = 1
+            slice = [slice]
+##            show_2D_array('slice %d' % slice, data[slice,:,:])
+##            return
+        elif slice is None:
+            ni = nz
+            slice = range(nz)
+        else:
+            try:
+                ni = len(slice)
+            except:
+                raise error('wrong slice list')
+        if title is None:
+            title = 'Selected images'
+        if ni >= 16:
+            tiles = (4, 4)
+        else:
+            tiles = None
+        f = 0
+        while f < ni:
+            t = min(f + 16, ni)
+            err = show_3D_array(abs(data), index = slice[f : t], \
+                                tile_shape = tiles, cmap = cmap, \
+                                label = 'image', xlabel = 'samples', \
+                                ylabel = 'readouts', \
+                                suptitle = title, \
+                                show = (t == ni) and not postpone)
+            f = t
 
 DataContainer.register(ImageData)
 
@@ -837,6 +876,46 @@ class AcquisitionData(DataContainer):
         try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
             (self.handle, z.ctypes.data, return_all))
         return z
+    def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \
+             postpone = False):
+        '''Displays xy-cross-section(s) of images.'''
+        assert self.handle is not None
+        if not HAVE_PYLAB:
+            print('pylab not found')
+            return
+        data = numpy.transpose(self.as_array(), (1, 0, 2))
+        nz = data.shape[0]
+        if type(slice) == type(1):
+            if slice < 0 or slice >= nz:
+                return
+            ns = 1
+            slice = [slice]
+##            show_2D_array('slice %d' % slice, data[slice,:,:])
+##            return
+        elif slice is None:
+            ns = nz
+            slice = range(nz)
+        else:
+            try:
+                ns = len(slice)
+            except:
+                raise error('wrong slice list')
+        if title is None:
+            title = 'Selected images'
+        if ns >= 16:
+            tiles = (4, 4)
+        else:
+            tiles = None
+        f = 0
+        while f < ns:
+            t = min(f + 16, ns)
+            err = show_3D_array(abs(data), index = slice[f : t], \
+                                tile_shape = tiles, \
+                                label = 'coil', xlabel = 'samples', \
+                                ylabel = 'readouts', \
+                                suptitle = title, cmap = cmap, power = power, \
+                                show = (t == ns) and not postpone)
+            f = t
 
 DataContainer.register(AcquisitionData)
 

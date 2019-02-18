@@ -67,14 +67,14 @@ classdef AffineTransformation < mReg.Transformation
             assert(isa(other, 'mReg.AffineTransformation'))
             mat = mReg.AffineTransformation();
             mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
-            mUtilities.check_status('AffineTransformation:mtimes', mat);
+            mUtilities.check_status('AffineTransformation:mtimes', mat.handle_);
         end
 
         function mat = deep_copy(self)
             %Deep copy.
             mat = mReg.AffineTransformation();
             mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_deep_copy', self.handle_);
-            mUtilities.check_status('AffineTransformation:mtimes', mat);
+            mUtilities.check_status('AffineTransformation:mtimes', mat.handle_);
         end
 
         function write(self, filename)
@@ -95,7 +95,7 @@ classdef AffineTransformation < mReg.Transformation
             %Get forward transformation matrix.
             tm = mReg.AffineTransformation();
             tm.handle_ = calllib('mreg', 'mReg_AffineTransformation_get_inverse', self.handle_);
-            mUtilities.check_status('AffineTransformation:get_inverse', tm);
+            mUtilities.check_status('AffineTransformation:get_inverse', tm.handle_);
         end
     end
     methods(Static)

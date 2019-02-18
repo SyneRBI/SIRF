@@ -688,6 +688,9 @@ int main(int argc, char* argv[])
         if (composed.get_as_deformation_field(*ref_aladin) != *def_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::compose_single_deformation failed.");
 
+        // Test get_inverse
+        AffineTransformation<float> tm_inv = tm_iden.get_inverse();
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished transformations test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
