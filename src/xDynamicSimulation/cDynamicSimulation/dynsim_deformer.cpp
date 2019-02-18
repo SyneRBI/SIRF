@@ -154,6 +154,19 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
 	std::cout << " \n printing vox geo inf for deformation field" << std::endl;
 	print_io::print_voxelized_geometrical_info( vec_deformation_fields[0] );
 
+
+
+	auto geom_stir_img = img.get_geom_info_sptr();
+
+	std::vector<NiftiImageData3DDeformation<float> > deformation_fields_with_stir_geometry;
+	for(size_t i=0; i<vec_deformation_fields.size(); i++)
+	{
+
+		auto sptr_nifti = vec_deformation_fields[i].get_raw_nifti_sptr();
+		deformation_fields_with_stir_geometry.push_back( NiftiImageData3DDeformation<float>((float*)sptr_nifti->data, *geom_stir_img));
+
+	}
+
     NiftyResample<float> resampler;
 
     resampler.set_interpolation_type_to_cubic_spline();
@@ -161,11 +174,19 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
     resampler.set_reference_image(sptr_img_to_deform);
 	resampler.set_floating_image(sptr_img_to_deform);
 
-	for( size_t i_disp=0; i_disp<vec_deformation_fields.size(); i_disp++)
+	// for( size_t i_disp=0; i_disp<vec_deformation_fields.size(); i_disp++)
+	// {
+ //        std::shared_ptr<NiftiImageData3DDeformation<float> > disp_trafo =
+ //                std::make_shared<NiftiImageData3DDeformation<float> >( vec_deformation_fields[i_disp] );
+	// 	resampler.add_transformation(disp_trafo);
+	// }
+
+
+	for( size_t i_disp=0; i_disp<deformation_fields_with_stir_geometry.size(); i_disp++)
 	{
-        std::shared_ptr<NiftiImageData3DDeformation<float> > disp_trafo =
-                std::make_shared<NiftiImageData3DDeformation<float> >( vec_deformation_fields[i_disp] );
-		resampler.add_transformation(disp_trafo);
+    	 std::shared_ptr<NiftiImageData3DDeformation<float> > disp_trafo =
+    	 std::make_shared<NiftiImageData3DDeformation<float> >( deformation_fields_with_stir_geometry[i_disp] );
+		 resampler.add_transformation(disp_trafo);
 	}
 
 	resampler.process();
