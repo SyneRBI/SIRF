@@ -494,7 +494,10 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 	  	contrast_img.resize(num_voxels, 0);
 
 	  	// STIRImageData pet_img_dat( template_pet_image_data_ );
-	  	STIRImageData pet_img_dat( this->tlm_.get_segmentation_labels() );
+	  	LabelVolume nifti_seg = this->tlm_.get_segmentation_labels();
+
+		nifti_seg.write("temp_niftisegmentation.nii");
+	  	STIRImageData pet_img_dat( "temp_niftisegmentation.nii" );
 
 		std::vector< float > voxel_sizes(3,0.f);
 		pet_img_dat.get_voxel_sizes(&voxel_sizes[0]);
