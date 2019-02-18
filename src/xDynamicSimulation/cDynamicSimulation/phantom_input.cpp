@@ -64,9 +64,9 @@ VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( const s
 	// TODO: read this from file aswell instead of hard coding
 	VoxelisedGeometricalInfo3D::Coordinate l_dir, p_dir, s_dir;
 
-	l_dir[0]=-1; 	l_dir[1]= 0;	l_dir[2]=0;
-	p_dir[0]=0; 	p_dir[1]= -1;	p_dir[2]=0;
-	s_dir[0]=0; 	s_dir[1]= 0;	s_dir[2]=1;
+	l_dir[0]=1; 	l_dir[1]= 0;	l_dir[2]=0;
+	p_dir[0]=0; 	p_dir[1]= 1;	p_dir[2]=0;
+	s_dir[0]=0; 	s_dir[1]= 0;	s_dir[2]=-1;
 
 
     VoxelisedGeometricalInfo3D::DirectionMatrix geo_dir;
