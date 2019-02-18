@@ -442,8 +442,8 @@ namespace sirf {
 		void sort();
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
-		int* index() { return &index_[0]; }
-		const int* index() const { return &index_[0]; }
+		std::vector<int> index() { return index_; }
+		const std::vector<int> index() const { return index_; }
 		int index(int i) const
 		{
 			if (index_.size()>0 && i < index_.size() && i >= 0)
