@@ -55,15 +55,16 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_192Cube_1Echo.h5" 
 	
 	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_192_cubed.h5"
-	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_incl_geomertry_192.h5"
+	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "XCATSegmentations/xcat192Cube_DCE/xcat_phantom_incl_geomertry_192_dce.h5"
+
 
 
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
 
 
-	#define PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH SHARED_FOLDER_PATH ""
-	#define PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH SHARED_FOLDER_PATH ""
-	#define PET_TEMPLATE_ACQUISITION_DATA_PATH SHARED_FOLDER_PATH ""
+	#define PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input_contgen192.hv"
+	#define PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input_acquisition.hv"
+	#define PET_TEMPLATE_ACQUISITION_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_acquisition_input.hs"
 
 
 #elif defined(USE_208_CUBE_INPUT)

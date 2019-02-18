@@ -135,7 +135,8 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 		// auto motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		// motion_dyn.set_displacement_fields( motion_fields, false );
 		
-		auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		// auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		motion_dyn.set_displacement_fields( motion_fields, true );
 		
 		motion_dyn.prep_displacement_fields();
@@ -166,7 +167,10 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 			
 			std::stringstream filename_stream;
 			filename_stream << SHARED_FOLDER_PATH << "pet_activity_map_state_" << i_motion; 		
-			data_io::write_PET_image_to_hv(filename_stream.str(), curr_motion_state[0]);		
+
+			sirf::NiftiImageData3D<float> curr_motion_state_nii( curr_motion_state[0] );				
+			curr_motion_state_nii.write(filename_stream.str() );
+			// data_io::write_PET_image_to_hv(filename_stream.str(), curr_motion_state[0]);		
 		}
 
 		return true;

@@ -155,7 +155,6 @@ void run_tests_dynamic_simulation( void )
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
 
 	std::cout << "MR 6 ----------------------------------------------------" <<std::endl;
-	std::cout << "nag " << std::endl;
 	mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 
 	
@@ -338,8 +337,8 @@ void run_tests_contrastgenerator(void)
 	// std::cout << std::endl;
 
 	// abstract contgent tests
-	std::cout << "----------------------------------------------------" <<std::endl;
-	abstract_contgen_tests.push_back( test_contgen::test_get_tissue_parameter() );
+	// std::cout << "----------------------------------------------------" <<std::endl;
+	// abstract_contgen_tests.push_back( test_contgen::test_get_tissue_parameter() );
 		for( size_t i=0; i<abstract_contgen_tests.size(); i++)
 	{
 		std::cout << abstract_contgen_tests[i] << " / ";
@@ -377,15 +376,15 @@ void run_tests_contrastgenerator(void)
 	// pet contgen tests
 	// std::cout << "----------------------------------------------------" <<std::endl;
 	// pet_contgen_tests.push_back( test_contgen::test_pet_constructor() );
+	std::cout << "----------------------------------------------------" <<std::endl;
+	pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
+	std::cout << "----------------------------------------------------" <<std::endl;
+	pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
+	std::cout << "----------------------------------------------------" <<std::endl;
+	pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
 	// std::cout << "----------------------------------------------------" <<std::endl;
-	// pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
-	// std::cout << "----------------------------------------------------" <<std::endl;
-	// pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
-	// std::cout << "----------------------------------------------------" <<std::endl;
-	// pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
-	// std::cout << "----------------------------------------------------" <<std::endl;
-	// test_contgen::test_pet_map_contrast_application_to_xcat();
-	// std::cout << "----------------------------------------------------" <<std::endl;
+	test_contgen::test_pet_map_contrast_application_to_xcat();
+	std::cout << "----------------------------------------------------" <<std::endl;
 
 	// std::cout << "pet contgen test results = ";
 	// for( size_t i=0; i<pet_contgen_tests.size(); i++)
