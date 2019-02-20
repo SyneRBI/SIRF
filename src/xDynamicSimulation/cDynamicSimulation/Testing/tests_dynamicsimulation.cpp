@@ -401,32 +401,38 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 15;
+		float const test_SNR = 19;
 		size_t const noise_label = 13;
 		
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 10;
+		int const num_simul_motion_dyn = 8;
 		
 		MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
 
+	
+		std::string const filename_resp_timepoints = input_path + "/timepoints_dce_resp_signal";
+		std::string const filename_resp_signal = input_path + "/dce_resp_signal";
+
+		SignalContainer respiratory_signal = data_io::read_surrogate_signal(filename_resp_timepoints, filename_resp_signal);
+
 		// SignalContainer mock_respiratory_signal = // get it from file! aux_test::get_mock_sinus_signal(all_acquis, 3000);
-		
+
 		// SETTING UP MOTION DYNAMICS ########################################################################
 
-	 	// respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
-	 	// respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
+	 	respiratory_motion_dyn.set_dyn_signal( respiratory_signal );
+	 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
 
-		// auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		// respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
+		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
 
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
 
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_contrast_states = 10;
+		int const num_contrast_states = 48;
 		
 		MRContrastDynamic aif_contrast(num_contrast_states), healthy_tissue_contrast(num_contrast_states), lesion_contrast(num_contrast_states);
 
