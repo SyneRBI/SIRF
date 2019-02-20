@@ -976,7 +976,7 @@ GadgetronImagesVector::get_data(complex_float_t* data) const
 	GadgetronImagesVector::Iterator_const stop = end();
 	GadgetronImagesVector::Iterator_const iter = begin();
 	for (; iter != stop; ++iter, ++data)
-		*data = *iter;
+		*data = (*iter).complex_float();
 }
 
 void

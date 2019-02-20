@@ -95,7 +95,8 @@ namespace sirf {
 		class Iterator {
 		public:
 			Iterator(int type, void* data, unsigned int dsize, size_t n) :
-				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
+				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0), 
+				ref_(data, type)
 			{}
 			Iterator(const Iterator& iter)
 			{
@@ -165,7 +166,8 @@ namespace sirf {
 		class Iterator_const {
 		public:
 			Iterator_const(int type, void* data, unsigned int dsize, size_t n) :
-				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
+				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0),
+				ref_(data, type)
 			{}
 			Iterator_const(const Iterator_const& iter)
 			{
@@ -359,7 +361,7 @@ namespace sirf {
 			ImageWrap::Iterator_const i = begin_const();
 			ImageWrap::Iterator_const stop = end_const();
 			for (; i != stop; ++data, ++i) {
-				*data = *i;
+				*data = (*i).complex_float();
 			}
 			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
 		}
