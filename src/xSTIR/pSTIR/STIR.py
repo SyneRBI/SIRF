@@ -425,10 +425,14 @@ class ImageData(SIRF.ImageData):
                 raise error('wrong slice list')
         if title is None:
             title = 'Selected images'
+        if ni >= 16:
+            tiles = (4, 4)
+        else:
+            tiles = None
         f = 0
         while f < ni:
             t = min(f + 16, ni)
-            err = show_3D_array(data, index = slice[f : t], \
+            err = show_3D_array(data, index = slice[f : t], tile_shape = tiles, \
                                 label = 'slice', xlabel = 'x', ylabel = 'y', \
                                 suptitle = title, show = (t == ni))
             f = t
@@ -740,7 +744,7 @@ class AcquisitionData(DataContainer):
             max_in_segment_num_to_process)
         check_status(ad.handle)
         return ad
-    def show(self, title = None):
+    def show(self, sino = None, title = None):
         '''Displays interactively selected sinograms.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -748,22 +752,49 @@ class AcquisitionData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
-        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
-        print('(a value outside the range 0 to %d will stop this loop)' % \
-			(nz - 1))
+        if type(sino) == type(1):
+            if sino < 0 or sino >= nz:
+                return
+            show_2D_array('sinogram %d' % sino, data[sino,:,:])
+            return
+        elif sino is None:
+            ns = nz
+            sino = range(nz)
+        else:
+            try:
+                ns = len(sino)
+            except:
+                raise error('wrong sinograms list')
         if title is None:
             title = 'Selected sinograms'
-        while True:
-            s = str(input('sinograms to display: '))
-            if len(s) < 1:
-                break
-            err = show_3D_array(data, suptitle = title, \
-				index = s, label = 'sinogram', \
-                                xlabel = 'tang. pos.', ylabel = 'view')
-            if err != 0:
-                print('out-of-range sinogram number(s) selected, quitting' + \
-					' the loop')
-                break
+        if ns >= 16:
+            tiles = (4, 4)
+        else:
+            tiles = None
+        f = 0
+        while f < ns:
+            t = min(f + 16, ns)
+            err = show_3D_array(data, index = sino[f : t], tile_shape = tiles, \
+                                label = 'sinogram', \
+                                xlabel = 'tang.pos', ylabel = 'view', \
+                                suptitle = title, show = (t == ns))
+            f = t
+##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
+##        print('(a value outside the range 0 to %d will stop this loop)' % \
+##			(nz - 1))
+##        if title is None:
+##            title = 'Selected sinograms'
+##        while True:
+##            s = str(input('sinograms to display: '))
+##            if len(s) < 1:
+##                break
+##            err = show_3D_array(data, suptitle = title, \
+##				index = s, label = 'sinogram', \
+##                                xlabel = 'tang. pos.', ylabel = 'view')
+##            if err != 0:
+##                print('out-of-range sinogram number(s) selected, quitting' + \
+##					' the loop')
+##                break
 
 DataContainer.register(AcquisitionData)
 
