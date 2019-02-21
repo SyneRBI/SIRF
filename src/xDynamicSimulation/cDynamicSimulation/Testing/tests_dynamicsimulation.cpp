@@ -396,7 +396,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
 		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
 		mr_dyn_sim.set_trajectory( sptr_traj );
-		
+
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
@@ -448,6 +448,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		{
 			std::cout << "Adding label " << healthy_tissue_dynamic_labels[i] << " to healthy tissue dynamic." << std::endl;
 			healthy_tissue_contrast.add_dynamic_label(healthy_tissue_dynamic_labels[i]);
+
 		}
 
 		std::vector<LabelType> lesion_dynamic_labels = {74};
@@ -461,7 +462,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		TissueParameter aif_0 = mr_cont_gen.get_petmr_tissue_parameter( aif_dynamic_labels[0] );
 		TissueParameter aif_1 = aif_0;
 
-		aif_0.mr_tissue_.t1_miliseconds_ = 282;
+		aif_0.mr_tissue_.t1_miliseconds_ = 234;
 
 		aif_contrast.set_parameter_extremes( aif_0, aif_1 );
 
@@ -469,7 +470,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		TissueParameter healthy_tissue_0 = mr_cont_gen.get_petmr_tissue_parameter( healthy_tissue_dynamic_labels[0] );
 		TissueParameter healthy_tissue_1 = healthy_tissue_0;
 
-		healthy_tissue_0.mr_tissue_.t1_miliseconds_ = 498;
+		healthy_tissue_0.mr_tissue_.t1_miliseconds_ = 457;
 
 		healthy_tissue_contrast.set_parameter_extremes( healthy_tissue_0, healthy_tissue_1 );
 
@@ -477,16 +478,16 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		TissueParameter lesion_tissue_0 = mr_cont_gen.get_petmr_tissue_parameter( lesion_dynamic_labels[0] );
 		TissueParameter lesion_tissue_1 = lesion_tissue_0;
 
-		lesion_tissue_0.mr_tissue_.t1_miliseconds_ = 737;
+		lesion_tissue_0.mr_tissue_.t1_miliseconds_ = 432;
 
 		lesion_contrast.set_parameter_extremes( lesion_tissue_0, lesion_tissue_1 );
 
 
 		std::string const filename_contrast_timepoints = input_path + "/timepoints_dce_contrast_signal";
 		
-		std::string const filename_aif_t1_ =input_path + "/aif_signal_T1_0_0.28155_T1_1_1.984";
-		std::string const filename_healthy_tissue_t1 = input_path + "/liver_signal_T1_0_0.49819_T1_1_0.80405";
-		std::string const filename_lesion_t1_ = input_path + "/lesion_signal_T1_0_0.73695_T1_1_2.1075";
+		std::string const filename_aif_t1_ =input_path + "/aif_signal_T1_0_0.23482_T1_1_2.0853";
+		std::string const filename_healthy_tissue_t1 = input_path + "/liver_signal_T1_0_0.45683_T1_1_0.80503";
+		std::string const filename_lesion_t1_ = input_path + "/lesion_signal_T1_0_0.43241_T1_1_0.82076";
 
 		SignalContainer aif_dyn_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_aif_t1_);
 		SignalContainer healthy_dyn_tissue_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_healthy_tissue_t1);

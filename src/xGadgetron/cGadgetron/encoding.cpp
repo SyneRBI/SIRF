@@ -242,7 +242,7 @@ void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 
 	Encoding enc = all_encodings[0];
 	EncodingSpace enc_space = enc.encodedSpace;
-	
+
 	MatrixSize encoding_mat_size = enc_space.matrixSize;
 
 	unsigned short NRadial = encoding_mat_size.y;
@@ -254,7 +254,6 @@ void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 
    	std::vector<float> radial_shift{0.f, 2.f, 1.f, 3.f};
 
-	
 	for( unsigned na=0; na<NAngles; na++)
 	for( unsigned nr=0; nr<NRadial; nr++)
 	{
@@ -269,7 +268,6 @@ void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 		this->traj_(nr, na, 0) = nx;
 		this->traj_(nr, na, 1) = ny;
 	}
-
 	this->norm_trajectory();
 }
 

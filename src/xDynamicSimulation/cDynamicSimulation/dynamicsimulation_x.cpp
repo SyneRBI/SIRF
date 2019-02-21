@@ -91,7 +91,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	this->acq_model_.setTraj( this->sptr_trajectory_ );
 
 	this->mr_cont_gen_.map_contrast();
-		
+	
 	// all contrast dynamic variations are sampled at the same timepoint.
     size_t const num_contrast_dyns = this->contrast_dynamics_.size();
     size_t num_contrast_states = (num_contrast_dyns > 0)? contrast_dynamics_[0]->get_num_simul_states() : 1;
@@ -105,7 +105,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	}
 
 	LinearCombiGenerator lcg(num_states_per_motion);
-	
+
 	size_t const num_tot_motion_states = lcg.get_num_total_combinations();
 
 	std::vector< DimensionsType >  all_dynamic_state_combos = lcg.get_all_combinations();
