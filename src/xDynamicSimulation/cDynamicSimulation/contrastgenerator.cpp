@@ -146,7 +146,6 @@ void MRContrastGenerator::map_contrast()
 	ISMRMRD::SequenceParameters const sequ_par = *(this->hdr_.sequenceParameters);
 	std::string const sequ_name = *(sequ_par.sequence_type);
 
-	std::cout << "seq name is " << sequ_name << std::endl;
 	if(sequ_name.compare("Flash") == 0)
 	{
 		contrast_map_function = &map_flash_contrast;
