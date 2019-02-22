@@ -25,11 +25,11 @@ matrix:
  - os: linux
    python: 3
    # -boost +fftw3 +hdf5
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" MATRIX_EVAL="CC=gcc-5 CXX=g++-5" PYMVER=3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
  - os: linux
    python: 2.7
    # -boost +fftw3 +hdf5 +siemens_to_ismrmrd +swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc-5 CXX=g++-5" PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
  - os: linux
    python: 3
    # +DEVEL -boost -hdf5 -fftw3 +ace +siemens_to_ismrmrd
@@ -59,7 +59,7 @@ matrix:
  - os: linux
    python: 3
    # -boost +itk +fftw3 +hdf5
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" MATRIX_EVAL="CC=gcc-5 CXX=g++-5" PYMVER=3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
  # Can't use ITK on OSX at the moment, as it times out.
  # - os: osx
  #   python: 2.7
@@ -130,6 +130,11 @@ before_install:
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update
       BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
+      brew install openblas
+      # Get openblas version
+      blas_ver=$(brew list --versions openblas)
+      blas_ver=${blas_ver#"openblas "}
+      EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DCBLAS_INCLUDE_DIR=/usr/local/Cellar/openblas/${blas_ver}/include -DCBLAS_LIBRARY=/usr/local/Cellar/openblas/${blas_ver}/lib/libblas.dylib"
       if [ $PYMVER == 2 ]; then
         PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
         PY_EXE=$PYINST/bin/python2.7
