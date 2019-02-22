@@ -178,8 +178,7 @@ namespace sirf {
 		void sort_by_time();
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
-		std::vector<int> index() { return index_; }
-		const std::vector<int> index() const { return index_; }
+
 		int index(int i) const
 		{
 			if (index_.size()>0 && i >= 0 && i < (int)number())
