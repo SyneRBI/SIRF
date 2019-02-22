@@ -518,13 +518,6 @@ sirf::NiftiImageData3DDisplacement<float> MotionDynamic::scale_displacementfield
 
     sirf::VoxelisedGeometricalInfo3D::Spacing voxel_sizes = dvf.get_geom_info_sptr()->get_spacing();
 
-	std::cout << epiph( dvf_dims[0] ) <<std::endl;
-	std::cout << epiph( dvf_dims[1] ) <<std::endl;
-	std::cout << epiph( dvf_dims[2] ) <<std::endl;
-	std::cout << epiph( dvf_dims[3] ) <<std::endl;
-	std::cout << epiph( dvf_dims[4] ) <<std::endl;
-	std::cout << epiph( dvf_dims[5] ) <<std::endl;
-
     if( dvf_dims[5] != 3)
      	throw std::runtime_error( "The dimensions of your dvf are not 3D in the 4th spot of the dims but instead." );
 
