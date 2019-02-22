@@ -452,44 +452,44 @@ bool MotionDynamic::delete_temp_folder()
 ;
 }
 
-
-void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic)
-{
+// delete this!
+// void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic)
+// {
 	
-	if ( motion_fields_are_cyclic )
-	{
-		this->is_cyclic_dynamic_ = true;
-		this->set_bins( this->num_simul_states_ );
-	}	
+// 	if ( motion_fields_are_cyclic )
+// 	{
+// 		this->is_cyclic_dynamic_ = true;
+// 		this->set_bins( this->num_simul_states_ );
+// 	}	
 
 
-	using namespace ISMRMRD;
+// 	using namespace ISMRMRD;
 
-	const size_t* dimensions = motion_fields.getDims();
+// 	const size_t* dimensions = motion_fields.getDims();
 
-	size_t const Nt = dimensions[0];
-	size_t const Nv = dimensions[1];
-	size_t const Nz = dimensions[2];
-	size_t const Ny = dimensions[3];
-	size_t const Nx = dimensions[4];
+// 	size_t const Nt = dimensions[0];
+// 	size_t const Nv = dimensions[1];
+// 	size_t const Nz = dimensions[2];
+// 	size_t const Ny = dimensions[3];
+// 	size_t const Nx = dimensions[4];
 
-	for(size_t nt=0; nt<Nt; nt++)
-	{
+// 	for(size_t nt=0; nt<Nt; nt++)
+// 	{
 		
-		Image<DataTypeMotionFields> img(dimensions[4],dimensions[3], dimensions[2], dimensions[1]);
+// 		Image<DataTypeMotionFields> img(dimensions[4],dimensions[3], dimensions[2], dimensions[1]);
  		
- 		for(uint16_t  nv= 0; nv<Nv ; nv++)
-		for(uint16_t  nz= 0; nz<Nz ; nz++)
-		for(uint16_t  ny= 0; ny<Ny ; ny++)
-		for(uint16_t  nx= 0; nx<Nx ; nx++)
-		{
-			// size_t const lin_index = ((((Nt-1 -nt)*Nv + Nv-1 -nv)*Nz + Nz-1 - nz)*Ny + Ny-1 - ny)*Nx + Nx-1 - nx;
-			size_t const lin_index = (((nt*Nv + nv)*Nz + nz)*Ny + ny)*Nx + nx;
-			img(nx,ny,nz,nv) = 	  *(motion_fields.begin() + lin_index);
-		}
-		// this->displacement_fields_.push_back(img);
-	}
-}
+//  		for(uint16_t  nv= 0; nv<Nv ; nv++)
+// 		for(uint16_t  nz= 0; nz<Nz ; nz++)
+// 		for(uint16_t  ny= 0; ny<Ny ; ny++)
+// 		for(uint16_t  nx= 0; nx<Nx ; nx++)
+// 		{
+// 			// size_t const lin_index = ((((Nt-1 -nt)*Nv + Nv-1 -nv)*Nz + Nz-1 - nz)*Ny + Ny-1 - ny)*Nx + Nx-1 - nx;
+// 			size_t const lin_index = (((nt*Nv + nv)*Nz + nz)*Ny + ny)*Nx + nx;
+// 			img(nx,ny,nz,nv) = 	  *(motion_fields.begin() + lin_index);
+// 		}
+// 		// this->displacement_fields_.push_back(img);
+// 	}
+// }
 
 void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3DDisplacement <float> > &input_displacement_fields, bool const motion_fields_are_cyclic)
 {
@@ -499,16 +499,41 @@ void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3D
 		this->set_bins( this->num_simul_states_ );
 	}
 
-	this->displacement_fields_ = input_displacement_fields;	
+	for(size_t i=0; i<input_displacement_fields.size(); i++)
+		this->displacement_fields_.push_back( this->scale_displacementfields_to_mm( input_displacement_fields[i]));
 
 	if( true ) 
 	{
 		std::cout << "WARNING: Emtpying the passed vector to save memory." <<std::endl;
 		std::vector< sirf::NiftiImageData3DDisplacement<float> >  empty_container;
 		input_displacement_fields.swap(empty_container);
-
 	}
 
+}
+
+sirf::NiftiImageData3DDisplacement<float> MotionDynamic::scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf )
+{
+	
+    const int* dvf_dims = dvf.get_dimensions() ;
+
+    sirf::VoxelisedGeometricalInfo3D::Spacing voxel_sizes = dvf.get_geom_info_sptr()->get_spacing();
+
+    if( dvf_dims[4] != 3)
+    	throw std::runtime_error( "The dimensions of your dvf are not 3D in the 4th spot of the dims." );
+
+    sirf::NiftiImageData3DDisplacement<float> scaled_dvf(dvf);
+
+    for(int nz=0; nz<(int)dvf_dims[3]; nz++)
+	for(int ny=0; ny<(int)dvf_dims[2]; ny++)
+	for(int nx=0; nx<(int)dvf_dims[1]; nx++)
+	{
+		
+		for(int nv=0; nv<dvf_dims[4]; nv++)
+		{
+			const int idx[7] = {nx, ny, nz, nv, 0};
+			scaled_dvf(idx) =  voxel_sizes[nv] * dvf(idx);
+		}
+	}
 }
 
 void MotionDynamic::prep_displacement_fields()
