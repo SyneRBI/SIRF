@@ -233,6 +233,18 @@ void* cReg_NiftiImageData_get_dimensions(const void* ptr, size_t ptr_dim)
     CATCH;
 }
 extern "C"
+void* cReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out)
+{
+    try {
+        NiftiImageData<float> & im = objectFromHandle<NiftiImageData<float> >(ptr);
+        float* dim = (float*)ptr_out;
+        for (int i=0; i<8; ++i)
+            dim[i] = im.get_raw_nifti_sptr()->pixdim[i];
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
 void* cReg_NiftiImageData_get_data(const void* ptr, size_t ptr_data)
 {
     try {
