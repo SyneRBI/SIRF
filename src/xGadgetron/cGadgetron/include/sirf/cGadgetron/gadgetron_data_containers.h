@@ -93,8 +93,6 @@ namespace sirf {
 	*/
 	class MRAcquisitionData : public DataContainer {
 	public:
-		MRAcquisitionData() : sorted_(false) {}
-		
 		// static methods
 
 		static std::string storage_scheme()
@@ -199,7 +197,7 @@ namespace sirf {
 		void read( const std::string& filename_ismrmrd_with_ext );
 
 	protected:
-		bool sorted_;
+		bool sorted_=false;
 		std::vector<int> index_;
 		AcquisitionsInfo acqs_info_;
 
@@ -374,7 +372,6 @@ namespace sirf {
 
 	class ISMRMRDImageData : public MRImageData {
 	public:
-		ISMRMRDImageData() : sorted_(false) {}
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
 		
@@ -452,7 +449,7 @@ namespace sirf {
 		}
 
 	protected:
-		bool sorted_;
+		bool sorted_=false;
 		std::vector<int> index_;
 	};
 
