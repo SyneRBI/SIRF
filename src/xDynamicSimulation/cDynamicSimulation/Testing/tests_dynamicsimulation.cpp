@@ -409,17 +409,16 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		
 		int const num_simul_motion_dyn = 8;
 		
-		MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
 
+		// SETTING UP MOTION DYNAMICS ########################################################################
+
+/*
+		MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
 	
 		std::string const filename_resp_timepoints = input_path + "/timepoints_dce_resp_signal";
 		std::string const filename_resp_signal = input_path + "/dce_resp_signal";
 
 		SignalContainer respiratory_signal = data_io::read_surrogate_signal(filename_resp_timepoints, filename_resp_signal);
-
-		// SignalContainer mock_respiratory_signal = // get it from file! aux_test::get_mock_sinus_signal(all_acquis, 3000);
-
-		// SETTING UP MOTION DYNAMICS ########################################################################
 
 	 	respiratory_motion_dyn.set_dyn_signal( respiratory_signal );
 	 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
@@ -428,7 +427,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
 
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
-
+*/
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
