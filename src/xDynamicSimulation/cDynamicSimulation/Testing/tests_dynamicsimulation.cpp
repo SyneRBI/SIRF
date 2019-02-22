@@ -407,28 +407,29 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 8;
-		
-		MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
+		int const num_simul_motion_dyn = 1;
 
-	
-		std::string const filename_resp_timepoints = input_path + "/timepoints_dce_resp_signal";
-		std::string const filename_resp_signal = input_path + "/dce_resp_signal";
-
-		SignalContainer respiratory_signal = data_io::read_surrogate_signal(filename_resp_timepoints, filename_resp_signal);
-
-		// SignalContainer mock_respiratory_signal = // get it from file! aux_test::get_mock_sinus_signal(all_acquis, 3000);
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
+		if( num_simul_motion_dyn > 1)
+		{
+			MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
 
-	 	respiratory_motion_dyn.set_dyn_signal( respiratory_signal );
-	 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
+		
+			std::string const filename_resp_timepoints = input_path + "/timepoints_dce_resp_signal";
+			std::string const filename_resp_signal = input_path + "/dce_resp_signal";
 
-		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
+			SignalContainer respiratory_signal = data_io::read_surrogate_signal(filename_resp_timepoints, filename_resp_signal);
 
-		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
 
+		 	respiratory_motion_dyn.set_dyn_signal( respiratory_signal );
+		 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
+
+			auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
+
+			// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+		}
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
@@ -522,7 +523,10 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
-		std::string const filename_dce_output = output_path + "output_grpe_dce_simulation.h5";
+		std::stringstream outname_stream;
+		outname_stream << "output_grpe_dce_simulation_num_motion_states_" << num_simul_motion_dyn <<"_num_contrast_states_" << num_contrast_states;
+
+		std::string const filename_dce_output = output_path + outname_stream.str() + ".h5";
 
 		mr_dyn_sim.write_simulation_results( filename_dce_output );
 
