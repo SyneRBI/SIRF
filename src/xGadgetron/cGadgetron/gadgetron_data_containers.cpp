@@ -961,7 +961,14 @@ images_(), nimages_(0)
 		std::string atts = u.attributes();
 		ISMRMRD::MetaContainer mc;
 		ISMRMRD::deserialize(atts.c_str(), mc);
-		std::string value = mc.as_str(attr);
+		size_t l = mc.length(attr);
+		std::string value;
+		for (int j = 0; j < l; j++) {
+			if (j)
+				value += " ";
+			value += mc.as_str(attr, j);
+		}
+		//std::cout << value.c_str() << '\n';
 		if (boost::iequals(value, target))
 			append(u);
 	}
