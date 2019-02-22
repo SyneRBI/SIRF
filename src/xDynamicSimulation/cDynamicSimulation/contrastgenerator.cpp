@@ -140,13 +140,13 @@ void MRContrastGenerator::map_contrast()
 		std::vector< ISMRMRD::Image< complex_float_t> > temp(0);
 		this->contrast_filled_volumes_.swap(temp);
 	}
-
-
+	
 	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr);
 
 	ISMRMRD::SequenceParameters const sequ_par = *(this->hdr_.sequenceParameters);
 	std::string const sequ_name = *(sequ_par.sequence_type);
 
+	std::cout << "seq name is " << sequ_name << std::endl;
 	if(sequ_name.compare("Flash") == 0)
 	{
 		contrast_map_function = &map_flash_contrast;
@@ -164,8 +164,6 @@ void MRContrastGenerator::map_contrast()
 		throw std::runtime_error( error_msg_stream.str() );
 	}
 
-
-
 	TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
 	size_t const num_voxels = tissue_params.size();	
 
@@ -173,7 +171,7 @@ void MRContrastGenerator::map_contrast()
 	contrast_vector.resize(num_voxels);
 
 	
-	#pragma omp parallel
+	// #pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
 	{	
 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
