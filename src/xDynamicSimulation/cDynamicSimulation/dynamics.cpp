@@ -518,8 +518,15 @@ sirf::NiftiImageData3DDisplacement<float> MotionDynamic::scale_displacementfield
 
     sirf::VoxelisedGeometricalInfo3D::Spacing voxel_sizes = dvf.get_geom_info_sptr()->get_spacing();
 
-    if( dvf_dims[4] != 3)
-    	throw std::runtime_error( "The dimensions of your dvf are not 3D in the 4th spot of the dims." );
+	std::cout << epiph( dvf_dims[0] ) <<std::endl;
+	std::cout << epiph( dvf_dims[1] ) <<std::endl;
+	std::cout << epiph( dvf_dims[2] ) <<std::endl;
+	std::cout << epiph( dvf_dims[3] ) <<std::endl;
+	std::cout << epiph( dvf_dims[4] ) <<std::endl;
+	std::cout << epiph( dvf_dims[5] ) <<std::endl;
+
+    if( dvf_dims[5] != 3)
+     	throw std::runtime_error( "The dimensions of your dvf are not 3D in the 4th spot of the dims but instead." );
 
     sirf::NiftiImageData3DDisplacement<float> scaled_dvf(dvf);
 
@@ -528,12 +535,14 @@ sirf::NiftiImageData3DDisplacement<float> MotionDynamic::scale_displacementfield
 	for(int nx=0; nx<(int)dvf_dims[1]; nx++)
 	{
 		
-		for(int nv=0; nv<dvf_dims[4]; nv++)
+		for(int nv=0; nv<dvf_dims[5]; nv++)
 		{
-			const int idx[7] = {nx, ny, nz, nv, 0};
+			const int idx[7] = {nx, ny, nz, 0, nv, 0};
 			scaled_dvf(idx) =  voxel_sizes[nv] * dvf(idx);
 		}
 	}
+	
+	return scaled_dvf;
 }
 
 void MotionDynamic::prep_displacement_fields()
