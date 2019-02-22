@@ -560,7 +560,7 @@ AcquisitionsFile::take_over(MRAcquisitionData& ac)
 	
 	
 	sorted_ = ac.sorted();
-	index_ = ac.index_;
+	index_ = ac.index();
 
 	dataset_ = af.dataset_;
 	if (own_file_) {
