@@ -557,14 +557,9 @@ AcquisitionsFile::take_over(MRAcquisitionData& ac)
 	AcquisitionsFile& af = (AcquisitionsFile&)ac;
 	acqs_info_ = ac.acquisitions_info();
 	
-	std::vector<int> other_index = ac.index();
-	sorted_ = ac.sorted();
 	
-	if (sorted_ && other_index.size()>0) {
-		index_ = other_index;
-	}
-	else
-		index_.resize(0);
+	sorted_ = ac.sorted();
+	index_ = ac.index_;
 
 	dataset_ = af.dataset_;
 	if (own_file_) {
