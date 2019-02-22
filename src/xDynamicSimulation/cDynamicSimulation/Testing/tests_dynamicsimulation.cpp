@@ -407,20 +407,18 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 1;
-
+		int const num_simul_motion_dyn = 8;
+		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
 		if( num_simul_motion_dyn > 1)
 		{
 			MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
 
-		
 			std::string const filename_resp_timepoints = input_path + "/timepoints_dce_resp_signal";
 			std::string const filename_resp_signal = input_path + "/dce_resp_signal";
 
 			SignalContainer respiratory_signal = data_io::read_surrogate_signal(filename_resp_timepoints, filename_resp_signal);
-
 
 		 	respiratory_motion_dyn.set_dyn_signal( respiratory_signal );
 		 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
@@ -428,7 +426,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 			auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 			respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
 
-			// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+			mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
 		}
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################

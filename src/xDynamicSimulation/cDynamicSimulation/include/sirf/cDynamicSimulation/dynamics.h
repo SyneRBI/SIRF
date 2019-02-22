@@ -145,6 +145,7 @@ protected:
 
 	sirf::NiftiImageData3DDeformation<float> calc_inverse_offset_deformation( sirf::NiftiImageData3DDeformation<float> offset_deformation );
 
+	sirf::NiftiImageData3DDisplacement<float> scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf);
 
 	std::string const temp_folder_prefix_  = "/tmp/";;
 	std::string const temp_mvf_prefix_ = "/motion_field_";
