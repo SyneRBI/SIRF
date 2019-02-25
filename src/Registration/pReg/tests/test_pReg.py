@@ -175,6 +175,11 @@ def try_niftiimage():
     if s.as_array().shape != (64, 64, 63):
         raise AssertionError("NiftiImageData crop() failed.")
 
+    # Get voxel sizes
+    s = b.get_voxel_sizes()
+    if not all(numpy.equal(s,numpy.array([0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]))):
+        raise AssertionError("NiftiImageData get_voxel_sizes() failed.")
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData test.\n')
@@ -624,6 +629,9 @@ def try_transformations(na):
     composed = pReg.NiftiImageData3DDeformation.compose_single_deformation(trans, ref_aladin)
     if composed != na.get_deformation_field_forward():
         raise AssertionError()
+
+    # Test get_inverse
+    tm_inv = tm_iden.get_inverse()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

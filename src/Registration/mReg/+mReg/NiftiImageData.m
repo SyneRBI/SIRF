@@ -118,10 +118,18 @@ classdef NiftiImageData < mSIRF.ImageData
             value = mReg.parameter(self.handle_, 'NiftiImageData', 'sum', 'f');
         end
         function value = get_dimensions(self)
-            %Get dimensions.
+            %Get dimensions. Returns nifti format.
+            %i.e., dim[0]=ndims, dim[1]=nx, dim[2]=ny,...
             ptr_i = libpointer('int32Ptr', zeros(1, 8));
             calllib('mreg', 'mReg_NiftiImageData_get_dimensions', self.handle_, ptr_i);
             value = ptr_i.Value;
+        end
+        function value = get_voxel_sizes(self)
+            %Get voxel sizes. Returns nifti format.
+            %i.e., dim[0]=?, dim[1]=dx, dim[2]=dy,...
+            ptr_v = libpointer('singlePtr', zeros(1, 8));
+            calllib('mreg', 'mReg_NiftiImageData_get_voxel_sizes', self.handle_, ptr_v);
+            value = ptr_v.Value;
         end
         function fill(self, val)
             %Fill image with single value.

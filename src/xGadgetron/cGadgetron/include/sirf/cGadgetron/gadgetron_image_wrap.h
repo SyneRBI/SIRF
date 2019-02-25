@@ -95,7 +95,7 @@ namespace sirf {
 		class Iterator {
 		public:
 			Iterator(int type, void* data, unsigned int dsize, size_t n) :
-				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0), 
+				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0),
 				ref_(data, type)
 			{}
 			Iterator(const Iterator& iter)

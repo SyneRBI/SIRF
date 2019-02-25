@@ -157,9 +157,11 @@ function try_niftiimage(g)
     max_(3) = 62;
     e = e;
     s.crop(min_,max_);
-    size(s.as_array())
     assert(all(size(s.as_array()) == [64, 64, 63]), 'NiftiImageData crop() failed.')
 
+    % Get voxel sizes
+    s = b.get_voxel_sizes();
+    assert(all(s == [0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]), 'NiftiImageData get_voxel_sizes() failed.')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
@@ -518,6 +520,9 @@ function try_transformations(g,na)
     trans = [tm_iden, tm_iden, c3];
     composed = mReg.NiftiImageData3DDeformation.compose_single_deformation(trans, g.ref_aladin);
     assert(composed == na.get_deformation_field_forward(), 'compose_single_deformation failed.')
+
+    % Test get_inverse
+    tm_inv = tm_iden.get_inverse();
 
 
 	disp('% ----------------------------------------------------------------------- %')

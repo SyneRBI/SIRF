@@ -151,19 +151,21 @@ def show_3D_array\
 #            if z < 1 or z > nz:
             if z < 0 or z >= nz:
                 return k + 1
+    ny = array.shape[1]
+    nx = array.shape[2]
     if tile_shape is None:
-        ny = array.shape[1]
-        nx = array.shape[2]
         rows = int(round(math.sqrt(n*nx/ny)))
         if rows < 1:
             rows = 1
         if rows > n:
             rows = n
         cols = (n - 1)//rows + 1
+        last_row = rows - 1
     else:
         rows, cols = tile_shape
-        assert rows*cols >= array.shape[0],\
-                "tile rows x columns must equal the 3rd dim extent of array"
+        assert rows*cols >= n, \
+            "tile rows x columns must be not less than the number of images"
+        last_row = (n - 1)//cols
     if scale is None:
         if power is None:
             vmin = numpy.amin(array)
@@ -190,7 +192,7 @@ def show_3D_array\
             ax.set_title(titles[k])
         row = k//cols
         col = k - row*cols
-        if xlabel is None and ylabel is None or row < rows - 1 or col > 0:
+        if xlabel is None and ylabel is None or row < last_row or col > 0:
             ax.set_axis_off()
         else:
             ax.set_axis_on()

@@ -120,10 +120,7 @@ def main():
 ##    real_image_data = img_proc.process(complex_image_data)
 
     # show obtained images
-    image_array = real_image_data.as_array()
-    title = 'Reconstructed image data (magnitude)'
-    show_3D_array(image_array, suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
+    real_image_data.show(title = 'Reconstructed image data (magnitude)')
 
 try:
     main()
