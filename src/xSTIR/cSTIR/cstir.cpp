@@ -847,6 +847,19 @@ cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 }
 
 extern "C"
+void*
+cSTIR_PLSPriorGradient(void* ptr_p, int dir)
+{
+	try {
+		PLSPrior<float>& prior = objectFromHandle<PLSPrior<float> >(ptr_p);
+		sptrImage3DF sptr_im = prior.get_anatomical_grad_sptr(dir);
+		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		return newObjectHandle(sptr_id);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_voxels3DF
 (int nx, int ny, int nz,
 float sx, float sy, float sz,

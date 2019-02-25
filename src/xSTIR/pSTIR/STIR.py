@@ -1246,22 +1246,43 @@ class PLSPrior(Prior):
     def get_only_2D(self):
         v = _int_par(self.handle, 'PLSPrior', 'only_2D')
         return v != 0
+    def set_alpha(self, v):
+        _set_float_par(self.handle, 'PLSPrior', 'alpha', v)
+    def get_alpha(self):
+        return _float_par(self.handle, 'PLSPrior', 'alpha')
+    def set_eta(self, v):
+        _set_float_par(self.handle, 'PLSPrior', 'eta', v)
+    def get_eta(self):
+        return _float_par(self.handle, 'PLSPrior', 'eta')
     def set_anatomical_image(self, image):
         assert isinstance(image, ImageData)
-        _setParameter(self.handle, 'PLSPrior',\
-            'anatomical_image', image.handle)
+        _setParameter(self.handle, 'PLSPrior', 'anatomical_image', image.handle)
     def get_anatomical_image(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter\
             (self.handle, 'PLSPrior', 'anatomical_image')
         check_status(image.handle)
         return image
+    def get_anatomical_grad(self, direction):
+        image = ImageData()
+        image.handle = pystir.cSTIR_PLSPriorGradient(self.handle, direction)
+        check_status(image.handle)
+        return image
+    def set_anatomical_filename(self, filename):
+        _set_char_par(self.handle, 'PLSPrior', 'anatomical_filename', filename)
     def set_kappa(self, image):
         assert isinstance(image, ImageData)
         _setParameter(self.handle, 'PLSPrior', 'kappa', image.handle)
     def get_kappa(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'kappa')
+        check_status(image.handle)
+        return image
+    def set_kappa_filename(self, filename):
+        _set_char_par(self.handle, 'PLSPrior', 'kappa_filename', filename)
+    def get_norm(self):
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'norm')
         check_status(image.handle)
         return image
 

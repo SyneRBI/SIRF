@@ -302,6 +302,10 @@ sirf::cSTIR_setPLSPriorParameter
 		objectFromHandle<PLSPrior<float> >(hp);
 	if (boost::iequals(name, "only_2D"))
 		prior.set_only_2D(dataFromHandle<int>((void*)hv));
+	else if (boost::iequals(name, "alpha"))
+		prior.set_alpha(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "eta"))
+		prior.set_eta(dataFromHandle<float>((void*)hv));
 	else if (boost::iequals(name, "anatomical_image")) {
 		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_anatomical_image_sptr(id.data_sptr());
@@ -310,6 +314,10 @@ sirf::cSTIR_setPLSPriorParameter
 		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
 	}
+	else if (boost::iequals(name, "kappa_filename"))
+		prior.set_kappa_filename(charDataFromDataHandle(hv));
+	else if (boost::iequals(name, "anatomical_filename"))
+		prior.set_anatomical_filename(charDataFromDataHandle(hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -323,6 +331,10 @@ sirf::cSTIR_PLSPriorParameter
 		objectFromHandle<PLSPrior<float> >(hp);
 	if (boost::iequals(name, "only_2D"))
 		return dataHandle<int>(prior.get_only_2D());
+	else if (boost::iequals(name, "alpha"))
+		return dataHandle<float>(prior.get_alpha());
+	else if (boost::iequals(name, "eta"))
+		return dataHandle<float>(prior.get_eta());
 	else if (boost::iequals(name, "anatomical_image")) {
 		sptrImage3DF sptr_im = prior.get_anatomical_image_sptr();
 		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
@@ -330,6 +342,11 @@ sirf::cSTIR_PLSPriorParameter
 	}
 	else if (boost::iequals(name, "kappa")) {
 		sptrImage3DF sptr_im = prior.get_kappa_sptr();
+		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		return newObjectHandle(sptr_id);
+	}
+	else if (boost::iequals(name, "norm")) {
+		sptrImage3DF sptr_im = prior.get_norm_sptr();
 		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
 		return newObjectHandle(sptr_id);
 	}
