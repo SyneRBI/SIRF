@@ -368,19 +368,19 @@ class ImageData(SIRF.ImageData):
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
     def dimensions(self):
-        '''Returns image dimensions as a tuple (nx, ny, nz).'''
+        '''Returns image dimensions as a tuple (nz, ny, nx).'''
         assert self.handle is not None
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
-        return tuple(dim[::-1])
+        return tuple(dim) #[::-1])
     def voxel_sizes(self):
-        '''Returns image voxel sizes as a tuple (vx, vy, vz).'''
+        '''Returns image voxel sizes as a tuple (vz, vy, vx).'''
         assert self.handle is not None
         vs = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling \
             (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
-        return tuple(vs[::-1])
+        return tuple(vs) #[::-1])
     def transf_matrix(self):
         assert self.handle is not None
         tm = numpy.ndarray((4, 4), dtype = numpy.float32)
