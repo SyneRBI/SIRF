@@ -17,10 +17,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "all_simulation_tests.h"
 
-
-#include "sirf/cReg/NiftiImageData.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-
 int main( int argc, char *argv[] )
 {
 	std::cout << "Starting... " <<std::endl;
@@ -45,9 +41,6 @@ int main( int argc, char *argv[] )
 		// run_tests_volume_orientator();
 		// run_tests_memory_usage();
 		
-		sirf::NiftiImageData3D<float> f_img;
-		// sirf::NiftiImageData3D<size_t> st_img;
-
 		return 0;
 	}
 
