@@ -304,7 +304,8 @@ MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 void
 MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
-	MRAcquisitionData& other = (MRAcquisitionData&)dc;
+	//MRAcquisitionData& other = (MRAcquisitionData&)dc;
+	DYNAMIC_CAST(MRAcquisitionData, other, dc);
 	int n = number();
 	int m = other.number();
 	complex_float_t z = 0;
@@ -336,8 +337,10 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	complex_float_t a = *(complex_float_t*)ptr_a;
 	complex_float_t b = *(complex_float_t*)ptr_b;
-	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	DYNAMIC_CAST(MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(MRAcquisitionData, y, a_y);
+	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
@@ -367,8 +370,10 @@ MRAcquisitionData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	DYNAMIC_CAST(MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(MRAcquisitionData, y, a_y);
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
@@ -398,8 +403,10 @@ MRAcquisitionData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	DYNAMIC_CAST(MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(MRAcquisitionData, y, a_y);
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
@@ -547,7 +554,8 @@ AcquisitionsFile::~AcquisitionsFile()
 void 
 AcquisitionsFile::take_over(MRAcquisitionData& ac)
 {
-	AcquisitionsFile& af = (AcquisitionsFile&)ac;
+	//AcquisitionsFile& af = (AcquisitionsFile&)ac;
+	DYNAMIC_CAST(AcquisitionsFile, af, ac);
 	acqs_info_ = ac.acquisitions_info();
 	if (index_)
 		delete[] index_;
@@ -669,7 +677,8 @@ AcquisitionsVector::set_data(const complex_float_t* z, int all)
 void
 GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 {
-	GadgetronImageData& ic = (GadgetronImageData&)dc;
+	//GadgetronImageData& ic = (GadgetronImageData&)dc;
+	DYNAMIC_CAST(GadgetronImageData, ic, dc);
 	complex_float_t z = 0;
 	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
 		const ImageWrap& u = image_wrap(i);
@@ -687,8 +696,10 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	complex_float_t a = *(complex_float_t*)ptr_a;
 	complex_float_t b = *(complex_float_t*)ptr_b;
-	GadgetronImageData& x = (GadgetronImageData&)a_x;
-	GadgetronImageData& y = (GadgetronImageData&)a_y;
+	DYNAMIC_CAST(GadgetronImageData, x, a_x);
+	DYNAMIC_CAST(GadgetronImageData, y, a_y);
+	//GadgetronImageData& x = (GadgetronImageData&)a_x;
+	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	ImageWrap w(x.image_wrap(0));
 	complex_float_t zero(0.0, 0.0);
 	complex_float_t one(1.0, 0.0);
@@ -706,8 +717,10 @@ GadgetronImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	GadgetronImageData& x = (GadgetronImageData&)a_x;
-	GadgetronImageData& y = (GadgetronImageData&)a_y;
+	//GadgetronImageData& x = (GadgetronImageData&)a_x;
+	//GadgetronImageData& y = (GadgetronImageData&)a_y;
+	DYNAMIC_CAST(GadgetronImageData, x, a_x);
+	DYNAMIC_CAST(GadgetronImageData, y, a_y);
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.multiply(y.image_wrap(i));
@@ -720,8 +733,10 @@ GadgetronImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	GadgetronImageData& x = (GadgetronImageData&)a_x;
-	GadgetronImageData& y = (GadgetronImageData&)a_y;
+	//GadgetronImageData& x = (GadgetronImageData&)a_x;
+	//GadgetronImageData& y = (GadgetronImageData&)a_y;
+	DYNAMIC_CAST(GadgetronImageData, x, a_x);
+	DYNAMIC_CAST(GadgetronImageData, y, a_y);
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.divide(y.image_wrap(i));

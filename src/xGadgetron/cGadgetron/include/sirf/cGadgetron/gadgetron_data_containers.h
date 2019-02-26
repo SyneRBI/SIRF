@@ -48,6 +48,8 @@ limitations under the License.
 #include "sirf/cGadgetron/gadgetron_image_wrap.h"
 #include "sirf/iUtilities/LocalisedException.h"
 
+#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+
 /*!
 \ingroup Gadgetron Data Containers
 \brief Acquisitions filter.
@@ -504,12 +506,14 @@ namespace sirf {
 			}
 			virtual bool operator==(const BaseIter& ai) const
 			{
-				const Iterator& i = (const Iterator&)ai;
+				//const Iterator& i = (const Iterator&)ai;
+				DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ == i.iter_;
 			}
 			virtual bool operator!=(const BaseIter& ai) const
 			{
-				const Iterator& i = (const Iterator&)ai;
+				//const Iterator& i = (const Iterator&)ai;
+				DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator& operator++()
@@ -577,12 +581,14 @@ namespace sirf {
 			}
 			bool operator==(const BaseIter_const& ai) const
 			{
-				const Iterator_const& i = (const Iterator_const&)ai;
+				//const Iterator_const& i = (const Iterator_const&)ai;
+				DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ == i.iter_;
 			}
 			bool operator!=(const BaseIter_const& ai) const
 			{
-				const Iterator_const& i = (const Iterator_const&)ai;
+				//const Iterator_const& i = (const Iterator_const&)ai;
+				DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator_const& operator++()
@@ -873,27 +879,32 @@ namespace sirf {
 		}
 		void get_dim(int slice, int* dim) //const
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.get_dim(dim);
 		}
 		void get_data(int slice, float* re, float* im) //const
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.get_data(re, im);
 		}
 		void set_data(int slice, float* re, float* im)
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.set_data(re, im);
 		}
 		void get_data(int slice, complex_float_t* data) //const
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.get_data(data);
 		}
 		void set_data(int slice, complex_float_t* data)
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.set_data(data);
 		}
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_csm) = 0;
