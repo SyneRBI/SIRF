@@ -176,10 +176,10 @@ void run_tests_dynamic_simulation( void )
 	// pet_dynsim_tests.push_back(test_pet_dynsim::set_template_acquisition_data());
 
 	std::cout << "PET 3 ----------------------------------------------------" <<std::endl;
-	pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
+	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
 
 	std::cout << "PET 4 ----------------------------------------------------" <<std::endl;
-	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
+	pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
 
 
 	std::cout << "pet dynamic simulation test results = ";

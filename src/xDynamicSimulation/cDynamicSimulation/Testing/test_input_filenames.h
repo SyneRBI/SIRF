@@ -16,7 +16,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define SHARED_FOLDER_PATH "/media/sf_SharedFolder/CCPPETMR/"
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
-#define USE_192_CUBE_INPUT
+#define USE_208_CUBE_INPUT
 
 #ifdef USE_64_CUBE_INPUT
 
@@ -74,17 +74,17 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "ISMRMSimInput/MR/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5" 
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
 
-	#define PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH SHARED_FOLDER_PATH "ISMRMSimInput/PET/template_image_input_contgen.hv"
-	#define PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH SHARED_FOLDER_PATH "ISMRMSimInput/PET/template_image_input_acquisition.hv"
-	#define PET_TEMPLATE_ACQUISITION_DATA_PATH SHARED_FOLDER_PATH "ISMRMSimInput/PET/template_span11.hs"
+	#define PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH SHARED_FOLDER_PATH "PublicationData/Input/PET/template_image_input_contgen.hv"
+	#define PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH SHARED_FOLDER_PATH "PublicationData/Input/PET/template_image_input_acquisition.hv"
+	#define PET_TEMPLATE_ACQUISITION_DATA_PATH SHARED_FOLDER_PATH "PublicationData/Input/PET/template_span11.hs"
 
 #endif
 
-#define TIME_POINTS_CARDIAC_PATH SHARED_FOLDER_PATH "ISMRMSimInput/card_time"
-#define CARDIAC_SIGNAL_PATH SHARED_FOLDER_PATH "ISMRMSimInput/card_signal"
+#define TIME_POINTS_CARDIAC_PATH SHARED_FOLDER_PATH "PublicationData/Input/SurrogateSignals/card_time"
+#define CARDIAC_SIGNAL_PATH SHARED_FOLDER_PATH "PublicationData/Input/SurrogateSignals/card_signal"
 
-#define TIME_POINTS_RESP_PATH SHARED_FOLDER_PATH "ISMRMSimInput/resp_time"
-#define RESP_SIGNAL_PATH SHARED_FOLDER_PATH "ISMRMSimInput/resp_signal"
+#define TIME_POINTS_RESP_PATH SHARED_FOLDER_PATH "PublicationData/Input/SurrogateSignals/resp_time"
+#define RESP_SIGNAL_PATH SHARED_FOLDER_PATH "PublicationData/Input/SurrogateSignals/resp_signal"
 
 
 #define XML_TEST_PATH SHARED_FOLDER_PATH "XMLTestData/test_TissueParameters_XML.xml" 
