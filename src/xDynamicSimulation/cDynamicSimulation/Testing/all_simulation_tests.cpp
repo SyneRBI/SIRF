@@ -519,9 +519,10 @@ void run_tests_memory_usage( void )
 {
 	bool tests_successful = true;
 
-	// tests_memory::test_acquisition_memory();
+	tests_memory::test_acquisition_memory();
+	// tests_memory::test_downsizing_acquisition_memory();
 	// tests_successful *= tests_memory::test_acquisition_vector_memory();
-	tests_successful *=tests_memory::test_acquisition_vector_ordering_memory();
+	// tests_successful *=tests_memory::test_acquisition_vector_ordering_memory();
 	// tests_successful *= tests_memory::test_ndarray_memory_managment();
 	// tests_successful *= tests_memory::tests_resizing_acquisition_memory();
 	// tests_successful *= tests_memory::tests_VD_h5_file_content();

@@ -39,27 +39,34 @@ bool tests_memory::test_acquisition_memory( void )
 
 		size_t num_iterations = 1000;
 
-		for(size_t i=0; i<num_iterations; i++)
+		bool construct_inside_loop = false;
+
+		
+		if( construct_inside_loop )
 		{
-			std::cout << "loopindex i " << i <<std::endl;
-			AcquisitionsVector temp_dummy_vector;
-			temp_dummy_vector.copy_acquisitions_info(all_acquis);
-			
-
-			for(size_t i_acq=0; i_acq<all_acquis.number(); i_acq++)
-			{	
-				ISMRMRD::Acquisition acq;
-			    all_acquis.get_acquisition(i_acq, acq);
-			    temp_dummy_vector.append_acquisition(acq);
-			}
-
-			ISMRMRD::Acquisition acq;	
-			for(size_t j=0; j<temp_dummy_vector.items(); j++)
+			for(size_t i=0; i<num_iterations; i++)
 			{
-				temp_dummy_vector.get_acquisition(j, acq);
-			    std::cout << acq.scan_counter() << std::endl;
+				std::cout << "loopindex i " << i <<std::endl;
+		
+				for(size_t i_acq=0; i_acq<all_acquis.number(); i_acq++)
+				{	
+					ISMRMRD::Acquisition acq;
+				    all_acquis.get_acquisition(i_acq, acq);
+				}
 			}
+		} 
+		else
+		{
+			for(size_t i=0; i<num_iterations; i++)
+			{
+				std::cout << "loopindex i " << i <<std::endl;
 
+				ISMRMRD::Acquisition acq;
+				for(size_t i_acq=0; i_acq<all_acquis.number(); i_acq++)
+				{	
+				    all_acquis.get_acquisition(i_acq, acq);
+				}
+			}
 		}
 
 		return true;
@@ -72,6 +79,61 @@ bool tests_memory::test_acquisition_memory( void )
 		throw e;
 	}
 }
+
+
+bool tests_memory::test_downsizing_acquisition_memory( void )
+{
+	try
+	{	
+		AcquisitionsVector all_acquis;
+		all_acquis.read( std::string( ISMRMRD_H5_TEST_PATH ));
+
+		size_t num_iterations = 1000;
+
+		AcquisitionsVector downsized_acquisitionsvector;
+		downsized_acquisitionsvector.copy_acquisitions_info( all_acquis );
+		for(size_t i_acq=0; i_acq<all_acquis.number(); i_acq++)
+		{	
+			ISMRMRD::Acquisition acq;
+		    all_acquis.get_acquisition(i_acq, acq);
+		    acq.resize(1,1);
+			downsized_acquisitionsvector.append_acquisition(acq);
+		}
+
+		for(size_t i=0; i<num_iterations; i++)
+		{
+			std::cout << "loopindex i " << i <<std::endl;
+			AcquisitionsVector temp_dummy_vector;
+			temp_dummy_vector.copy_acquisitions_info(all_acquis);
+		
+			ISMRMRD::Acquisition acq;
+			for(size_t i_acq=0; i_acq<downsized_acquisitionsvector.number(); i_acq++)
+			{	
+			    downsized_acquisitionsvector.get_acquisition(i_acq, acq);
+				temp_dummy_vector.append_acquisition(acq);
+			}
+		}
+		
+		return true;
+
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+
+
+
+
+
+
+
+
+
+
 
 bool tests_memory::test_acquisition_vector_ordering_memory( void )
 {
