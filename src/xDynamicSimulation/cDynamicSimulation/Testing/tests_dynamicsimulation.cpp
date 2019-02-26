@@ -407,7 +407,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 8;
+		int const num_simul_motion_dyn = 1;
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
