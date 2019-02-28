@@ -30,26 +30,25 @@ if(BUILD_PYTHON)
   # Create setup.py
   set(SETUP_PY_IN "${CMAKE_CURRENT_LIST_DIR}/setup.py.in")
   set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/cmake/setup.py")
-  set(SETUP_PY_INIT "${PYTHON_DEST}/sirf/__init__.py")
   configure_file("${SETUP_PY_IN}" "${SETUP_PY}")
   install(FILES "${SETUP_PY}" DESTINATION "${PYTHON_DEST}")
   message(STATUS "setup.py:${PYTHON_DEST}/setup.py")
+  # create sirf/__init__.py
+  set(PY_MOD_INIT_IN "${CMAKE_CURRENT_LIST_DIR}/sirf.__init__.py.in")
+  set(PY_MOD_INIT "${CMAKE_CURRENT_BINARY_DIR}/cmake/__init__.py")
+  configure_file("${PY_MOD_INIT_IN}" "${PY_MOD_INIT}")
+  install(FILES "${PY_MOD_INIT}" DESTINATION "${PYTHON_DEST}/sirf")
 
   if(PYTHONINTERP_FOUND)
     # python setup.py build
-    add_custom_command(OUTPUT "${SETUP_PY_INIT}"
+    add_custom_command(OUTPUT "${PYTHON_DEST}/sirf/__init__.py"
       COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
-      COMMAND "${CMAKE_COMMAND}" -E touch "${SETUP_PY_INIT}"
+      COMMAND "${CMAKE_COMMAND}" -E touch "${PYTHON_DEST}/sirf/__init__.py"
       COMMAND "${PYTHON_EXECUTABLE}" setup.py build
       DEPENDS "${PYTHON_DEST}/setup.py"
       WORKING_DIRECTORY "${PYTHON_DEST}")
-    #add_custom_target(pybuild_sirf ALL DEPENDS "${SETUP_PY_INIT}")
+    #add_custom_target(pybuild_sirf ALL DEPENDS "${PY_MOD_INIT}")
     # cannot do above (#179 -> https://github.com/CCPPETMR/SIRF/pull/308)
-    install(CODE "execute_process(\n\
-      COMMAND\n\
-        \"${CMAKE_COMMAND}\" -E make_directory \"${PYTHON_DEST}/sirf\"\n\
-      COMMAND\n\
-        \"${CMAKE_COMMAND}\" -E touch \"${SETUP_PY_INIT}\")")
 
     # python setup.py install
     if("${PYTHON_STRATEGY}" STREQUAL "SETUP_PY")
