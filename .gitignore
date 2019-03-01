@@ -187,9 +187,10 @@ FakesAssemblies/
 # Covers JetBrains IDEs: CLion
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
-# Ignore entire idea
-# Comment as required
-*.idea
+# CLion
+.idea/*
+cmake-build-debug/*
+cmake-build-release/*
 
 # User-specific stuff
 .idea/**/workspace.xml
@@ -234,20 +235,12 @@ object_script.*.Debug
 /.qmake.stash
 *.pro.user
 *.pro.user.*
-*.qbs.user
-*.qbs.user.*
-*.moc
-moc_*.cpp
 moc_*.h
 qrc_*.cpp
 ui_*.h
 *.qmlc
 *.jsc
 Makefile*
-*build-*
-
-# Qt unit tests
-target_wrapper.*
 
 # QtCreator
 *.autosave
