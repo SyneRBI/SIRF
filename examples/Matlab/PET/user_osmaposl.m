@@ -26,21 +26,23 @@ function user_osmaposl(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = mUtilities.examples_data_path('PET');
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt');
+    PET.MessageRedirector('info.txt');
 
     % PET acquisition data to be read from this file
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
-    acq_data = AcquisitionData(fullfile(pathname, filename));
+    acq_data = PET.AcquisitionData(fullfile(pathname, filename));
 
     % create filter that zeroes the image outside a cylinder of the same
     % diameter as the image xy-section size
-    filter = TruncateToCylinderProcessor();
+    filter = PET.TruncateToCylinderProcessor();
 
     % create initial image estimate of dimensions and voxel sizes
     % compatible with the scanner geometry (included in the AcquisitionData
@@ -51,17 +53,17 @@ try
     filter.apply(image)
 
     % create acquisition model
-    acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_model = PET.AcquisitionModelUsingRayTracingMatrix();
     
     % create prior
-    prior = QuadraticPrior();
+    prior = PET.QuadraticPrior();
     prior.set_penalisation_factor(0.5);
 	prior.set_up(image);
 
     num_subsets = 12;
     % create objective function of Poisson logarithmic likelihood type
     % compatible with the acquisition data type
-    obj_fun = make_Poisson_loglikelihood(acq_data);
+    obj_fun = PET.make_Poisson_loglikelihood(acq_data);
     obj_fun.set_acquisition_model(acq_model)
     obj_fun.set_num_subsets(num_subsets)
     obj_fun.set_up(image)

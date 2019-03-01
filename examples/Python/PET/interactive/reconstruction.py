@@ -84,7 +84,7 @@ image.fill(image_array);
 mu_map = pet.ImageData('attenuation.hv');
 mu_map_array=mu_map.as_array();
 #%% bitmap display of images
-slice=image_array.shape[0]/2;
+slice=image_array.shape[0]//2;
 plt.figure();
 #plt.subplot(1,2,1);
 imshow(image_array[slice,:,:,], [], 'emission image');
@@ -133,7 +133,7 @@ init_image.fill(cmax/4)
 make_cylindrical_FOV(init_image)
 # display
 idata = init_image.as_array()
-slice=idata.shape[0]/2;
+slice=idata.shape[0]//2;
 plt.figure()
 imshow(idata[slice,:,:],[0,cmax], 'initial image');
 

@@ -32,11 +32,13 @@ except:
 import sys
 import time
 
-from pUtilities import *
+from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
+     try_calling, assert_validity, assert_validities, petmr_data_path, \
+     existing_filepath, pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
-import pyiutilities as pyiutil
-import pystir
+import sirf.pyiutilities as pyiutil
+import sirf.pystir as pystir
 
 try:
     input = raw_input
@@ -90,6 +92,14 @@ def _float_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
     check_status(h, inspect.stack()[1])
     value = pyiutil.floatDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _float_pars(handle, set, par, n):
+    h = pystir.cSTIR_parameter(handle, set, par)
+    check_status(h)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.floatDataItemFromHandle(h, i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _getParameterHandle(hs, set, par):
@@ -334,13 +344,6 @@ class ImageData(SIRF.ImageData):
             raise error('wrong fill value.' + \
                         ' Should be numpy.ndarray, float or int')
         return self
-    def clone(self):
-        '''Creates a copy of this image.'''
-        assert self.handle is not None
-        image = ImageData()
-        image.handle = pystir.cSTIR_imageFromImage(self.handle)
-        check_status(image.handle)
-        return image
     def get_uniform_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
         assert self.handle is not None
@@ -364,25 +367,26 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
-    def write(self, filename):
-        '''Writes self to an Interfile - see STIR documentation for details.
-        '''
-        assert self.handle is not None
-        try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def dimensions(self):
-        '''Returns image dimensions as a tuple (nx, ny, nz).'''
+        '''Returns image dimensions as a tuple (nz, ny, nx).'''
         assert self.handle is not None
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
-        return tuple(dim[::-1])
+        return tuple(dim) #[::-1])
     def voxel_sizes(self):
-        '''Returns image voxel sizes as a tuple (vx, vy, vz).'''
+        '''Returns image voxel sizes as a tuple (vz, vy, vx).'''
         assert self.handle is not None
         vs = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling \
             (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
-        return tuple(vs[::-1])
+        return tuple(vs) #[::-1])
+    def transf_matrix(self):
+        assert self.handle is not None
+        tm = numpy.ndarray((4, 4), dtype = numpy.float32)
+        try_calling \
+            (pystir.cSTIR_getImageTransformMatrix(self.handle, tm.ctypes.data))
+        return tm
     def as_array(self):
         '''Returns 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
@@ -405,27 +409,48 @@ class ImageData(SIRF.ImageData):
             return
         data = self.as_array()
         nz = data.shape[0]
-        if slice is not None:
+#        if slice is not None:
+        if type(slice) == type(1):
             if slice < 0 or slice >= nz:
                 return
-#            slice -= 1
             show_2D_array('slice %d' % slice, data[slice,:,:])
             return
-        print('Please enter slice numbers (e.g.: 0, 3-5)')
-        print('(a value outside the range 0 to %d will stop this loop)' % \
-			(nz - 1))
+        elif slice is None:
+            ni = nz
+            slice = range(nz)
+        else:
+            try:
+                ni = len(slice)
+            except:
+                raise error('wrong slice list')
         if title is None:
             title = 'Selected images'
-        while True:
-            s = str(input('slices to display: '))
-            if len(s) < 1:
-                break
-            err = show_3D_array(data, index = s, label = 'slice', \
-                                xlabel = 'x', ylabel = 'y', \
-				suptitle = title)
-            if err != 0:
-                print('out-of-range slice numbers selected, quitting the loop')
-                break
+        if ni >= 16:
+            tiles = (4, 4)
+        else:
+            tiles = None
+        f = 0
+        while f < ni:
+            t = min(f + 16, ni)
+            err = show_3D_array(data, index = slice[f : t], tile_shape = tiles, \
+                                label = 'slice', xlabel = 'x', ylabel = 'y', \
+                                suptitle = title, show = (t == ni))
+            f = t
+##        print('Please enter slice numbers (e.g.: 0, 3-5)')
+##        print('(a value outside the range 0 to %d will stop this loop)' % \
+##			(nz - 1))
+##        if title is None:
+##            title = 'Selected images'
+##        while True:
+##            s = str(input('slices to display: '))
+##            if len(s) < 1:
+##                break
+##            err = show_3D_array(data, index = s, label = 'slice', \
+##                                xlabel = 'x', ylabel = 'y', \
+##				suptitle = title)
+##            if err != 0:
+##                print('out-of-range slice numbers selected, quitting the loop')
+##                break
 
 DataContainer.register(ImageData)
 
@@ -700,19 +725,6 @@ class AcquisitionData(DataContainer):
             raise error('Wrong fill value.' + \
                 ' Should be numpy.ndarray, AcquisitionData, float or int')
         return self
-    def write(self, filename):
-        '''Writes self to an Interfile - see STIR documentation for details.
-        '''
-        assert self.handle is not None
-        try_calling(pystir.cSTIR_writeAcquisitionData(self.handle, filename))
-    def clone(self):
-        ''' 
-        Returns a true copy of this object (not Python handle).
-        '''
-        ad = AcquisitionData(self)
-        ad.fill(self)
-        ad.src = 'clone'
-        return ad
     def get_uniform_copy(self, value = 0):
         ''' 
         Returns a true copy of this object filled with a given value;
@@ -732,7 +744,7 @@ class AcquisitionData(DataContainer):
             max_in_segment_num_to_process)
         check_status(ad.handle)
         return ad
-    def show(self, title = None):
+    def show(self, sino = None, title = None):
         '''Displays interactively selected sinograms.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -740,22 +752,49 @@ class AcquisitionData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
-        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
-        print('(a value outside the range 0 to %d will stop this loop)' % \
-			(nz - 1))
+        if type(sino) == type(1):
+            if sino < 0 or sino >= nz:
+                return
+            show_2D_array('sinogram %d' % sino, data[sino,:,:])
+            return
+        elif sino is None:
+            ns = nz
+            sino = range(nz)
+        else:
+            try:
+                ns = len(sino)
+            except:
+                raise error('wrong sinograms list')
         if title is None:
             title = 'Selected sinograms'
-        while True:
-            s = str(input('sinograms to display: '))
-            if len(s) < 1:
-                break
-            err = show_3D_array(data, suptitle = title, \
-				index = s, label = 'sinogram', \
-                                xlabel = 'tang. pos.', ylabel = 'view')
-            if err != 0:
-                print('out-of-range sinogram number(s) selected, quitting' + \
-					' the loop')
-                break
+        if ns >= 16:
+            tiles = (4, 4)
+        else:
+            tiles = None
+        f = 0
+        while f < ns:
+            t = min(f + 16, ns)
+            err = show_3D_array(data, index = sino[f : t], tile_shape = tiles, \
+                                label = 'sinogram', \
+                                xlabel = 'tang.pos', ylabel = 'view', \
+                                suptitle = title, show = (t == ns))
+            f = t
+##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
+##        print('(a value outside the range 0 to %d will stop this loop)' % \
+##			(nz - 1))
+##        if title is None:
+##            title = 'Selected sinograms'
+##        while True:
+##            s = str(input('sinograms to display: '))
+##            if len(s) < 1:
+##                break
+##            err = show_3D_array(data, suptitle = title, \
+##				index = s, label = 'sinogram', \
+##                                xlabel = 'tang. pos.', ylabel = 'view')
+##            if err != 0:
+##                print('out-of-range sinogram number(s) selected, quitting' + \
+##					' the loop')
+##                break
 
 DataContainer.register(AcquisitionData)
 
@@ -1207,22 +1246,43 @@ class PLSPrior(Prior):
     def get_only_2D(self):
         v = _int_par(self.handle, 'PLSPrior', 'only_2D')
         return v != 0
+    def set_alpha(self, v):
+        _set_float_par(self.handle, 'PLSPrior', 'alpha', v)
+    def get_alpha(self):
+        return _float_par(self.handle, 'PLSPrior', 'alpha')
+    def set_eta(self, v):
+        _set_float_par(self.handle, 'PLSPrior', 'eta', v)
+    def get_eta(self):
+        return _float_par(self.handle, 'PLSPrior', 'eta')
     def set_anatomical_image(self, image):
         assert isinstance(image, ImageData)
-        _setParameter(self.handle, 'PLSPrior',\
-            'anatomical_image', image.handle)
+        _setParameter(self.handle, 'PLSPrior', 'anatomical_image', image.handle)
     def get_anatomical_image(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter\
             (self.handle, 'PLSPrior', 'anatomical_image')
         check_status(image.handle)
         return image
+    def get_anatomical_grad(self, direction):
+        image = ImageData()
+        image.handle = pystir.cSTIR_PLSPriorGradient(self.handle, direction)
+        check_status(image.handle)
+        return image
+    def set_anatomical_filename(self, filename):
+        _set_char_par(self.handle, 'PLSPrior', 'anatomical_filename', filename)
     def set_kappa(self, image):
         assert isinstance(image, ImageData)
         _setParameter(self.handle, 'PLSPrior', 'kappa', image.handle)
     def get_kappa(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'kappa')
+        check_status(image.handle)
+        return image
+    def set_kappa_filename(self, filename):
+        _set_char_par(self.handle, 'PLSPrior', 'kappa_filename', filename)
+    def get_norm(self):
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'norm')
         check_status(image.handle)
         return image
 

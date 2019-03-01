@@ -140,7 +140,7 @@ namespace sirf {
 			*ptr_ptr = (void*)ptr_im;
 			ISMRMRD::Image<T>& im = *ptr_im;
 			im.setHead(h);
-			im.setImageType(ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE);
+			//im.setImageType(ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE);
 
 			//Read meta attributes
 			typedef unsigned long long size_t_type;

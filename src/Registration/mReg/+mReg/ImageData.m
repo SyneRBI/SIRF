@@ -1,12 +1,8 @@
-function p = pet_data_path
-% Tries to find path to PET raw data.
-% The user may like to set a Matlab variable SIRF_PET_DATA_PATH
-% to the path to their raw PET data.
-% If it is not set, the path to SIRF subfolder /data/examples/PET
-% will be used.
+classdef ImageData < mReg.NiftiImageData3D
+% Alias class for nifti image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2018-2019 University College London
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -22,15 +18,4 @@ function p = pet_data_path
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-SIRF_PET_DATA_PATH = getenv('SIRF_PET_DATA_PATH');
-if ~isempty(SIRF_PET_DATA_PATH)
-    p = SIRF_PET_DATA_PATH;
-else
-    SIRF_PATH = getenv('SIRF_PATH');
-    if ~isempty(SIRF_PATH)
-        p = [SIRF_PATH '/data/examples/PET'];
-    else
-        p = './';
-    end
-end
 end

@@ -51,6 +51,12 @@ limitations under the License.
 		handle->set(0, &status);\
 		return (void*)handle;\
         }\
+    catch (const std::exception &error) {\
+        ExecutionStatus status(error.what(), __FILE__, __LINE__);\
+        DataHandle* handle = new DataHandle;\
+        handle->set(0, &status);\
+        return (void*)handle;\
+        }\
 	catch (...) {\
 		ExecutionStatus status("unhandled", __FILE__, __LINE__);\
 		DataHandle* handle = new DataHandle;\

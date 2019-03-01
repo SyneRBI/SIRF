@@ -48,7 +48,6 @@ extern "C" {
 		(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
 	void cGT_getCoilData
 		(void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void cGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_FLOAT ptr);
 
 	// acquisition model methods
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
@@ -68,9 +67,9 @@ extern "C" {
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_cloneAcquisitions(void* ptr_input);
-	void* cGT_orderAcquisitions(void* ptr_acqs);
+	void* cGT_sortAcquisitions(void* ptr_acqs);
 	void* cGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim);
-	void*	cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
+	void* cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
 	void* cGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 	void* cGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 
@@ -91,16 +90,6 @@ extern "C" {
 	void* cGT_setImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 	void* cGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 	void* cGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
-
-	// data container methods
-	void* cGT_dataItems(const void* ptr_x);
-	void* cGT_norm(const void* ptr_x);
-	void* cGT_dot(const void* ptr_x, const void* ptr_y);
-	void* cGT_axpby(
-		float ar, float ai, const void* ptr_x,
-		float br, float bi, const void* ptr_y);
-	void* cGT_multiply(const void* ptr_x, const void* ptr_y);
-	void* cGT_divide(const void* ptr_x, const void* ptr_y);
 
 	// gadget chain methods
 	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);

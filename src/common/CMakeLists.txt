@@ -21,14 +21,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
-
 add_library(csirf csirf.cpp)
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(csirf iutilities)
+target_include_directories(csirf PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
+  )
+target_link_libraries(csirf PUBLIC iutilities)
+INSTALL(TARGETS csirf DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 if (BUILD_PYTHON)
 
@@ -50,11 +51,20 @@ endif (BUILD_PYTHON)
 
 if (BUILD_MATLAB)
 
-  add_library(mig mig.cpp)
+  include_directories(${Matlab_INCLUDE_DIRS})
 
+  add_library(mig mig.cpp)
+  add_library(msirf SHARED msirf.c)
+  SET_TARGET_PROPERTIES(msirf PROPERTIES SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
+  target_link_libraries(msirf csirf iutilities ${Matlab_LIBRARIES})
+
+  INSTALL(TARGETS msirf DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES msirf.h DESTINATION "${MATLAB_DEST}")
   INSTALL(DIRECTORY +mUtilities DESTINATION "${MATLAB_DEST}")
+  INSTALL(DIRECTORY +mSIRF DESTINATION "${MATLAB_DEST}")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
 
-endif (BUILD_MATLAB)
+  ADD_SUBDIRECTORY(gmi)
 
+endif (BUILD_MATLAB)

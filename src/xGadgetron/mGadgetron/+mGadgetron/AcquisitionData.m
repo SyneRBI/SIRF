@@ -1,4 +1,4 @@
-classdef AcquisitionData < mGadgetron.DataContainer
+classdef AcquisitionData < mSIRF.DataContainer
 % Class for MR acquisitions data.
 % Each item in the container is a complex array of acquisition 
 % samples for each coil.
@@ -84,7 +84,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
             end
-            handle = calllib('mgadgetron', 'mGT_orderAcquisitions', ...
+            handle = calllib('mgadgetron', 'mGT_sortAcquisitions', ...
                 self.handle_);
             mUtilities.check_status('AcquisitionData', handle);
             mUtilities.delete(handle)
@@ -111,11 +111,6 @@ classdef AcquisitionData < mGadgetron.DataContainer
                     'cannot handle empty object')
             end
             ap = mGadgetron.AcquisitionDataProcessor(list);
-            a = ap.process(self);
-        end
-        function a = clone(self)
-%***SIRF*** Returns a copy of self.
-            ap = mGadgetron.AcquisitionDataProcessor();
             a = ap.process(self);
         end
         function [ns, nc, na] = dimensions(self, select)
@@ -190,18 +185,6 @@ classdef AcquisitionData < mGadgetron.DataContainer
             h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
                 self.handle_, ptr_z, 1);
             mUtilities.check_status('AcquisitionData', h);
-            mUtilities.delete(h)
-        end
-        function write(self, file)
-%         Writes self's acquisitions to an hdf5 file.
-%         file : the file name (Matlab string)
-            if isempty(self.handle_)
-                error('AcquisitionData:empty_object', ...
-                    'cannot handle empty object')
-            end
-            h = calllib('mgadgetron', 'mGT_writeAcquisitions',...
-                self.handle_, file);
-            mUtilities.check_status('AcquisitionData:write', h);
             mUtilities.delete(h)
         end
     end

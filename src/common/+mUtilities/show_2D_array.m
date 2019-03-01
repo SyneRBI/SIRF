@@ -25,6 +25,13 @@ figure;
 if nargin < 5
     vmin = min(array(:));
     vmax = max(array(:));
+    if vmin == vmax
+        if vmax > 0
+            vmin = 0;
+        else
+            vmax = 0;
+        end
+    end
 else
     vmin = scale(1);
     vmax = scale(2);

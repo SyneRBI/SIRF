@@ -70,6 +70,7 @@ namespace sirf {
 	typedef stir::shared_ptr<Image3DF> sptrImage3DF;
 	typedef stir::shared_ptr<stir::ProjData> sptrProjData;
 	typedef stir::CartesianCoordinate3D<float> Coord3DF;
+	typedef stir::CartesianCoordinate3D<int> Coord3DI;
 	typedef stir::VoxelsOnCartesianGrid<float> Voxels3DF;
 	typedef stir::shared_ptr<Voxels3DF> sptrVoxels3DF;
 	typedef stir::shared_ptr<stir::Shape3D> sptrShape3D;

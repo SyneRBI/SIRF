@@ -39,14 +39,16 @@ args = docopt(__doc__, version=__version__)
 
 import time
 
-# import engine module
-from pGadgetron import *
+# import SIRF utilities
+from sirf.Utilities import examples_data_path, existing_filepath
+# import MR engine types
+from sirf.Gadgetron import AcquisitionData, Reconstructor
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
 output_file = args['--output']
 
 def main():
@@ -67,10 +69,15 @@ def main():
     # and using set_gadget_property(label, propery, value).
     # The gadgets will be concatenated and will be executed as soon as 
     # process() is called.
-    recon = Reconstructor(['RemoveROOversamplingGadget', \
+    recon = Reconstructor([ \
+        'NoiseAdjustGadget', \
+        'AsymmetricEchoAdjustROGadget', \
+        'RemoveROOversamplingGadget', \
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', \
         'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])
+##        'SimpleReconGadget', 'FatWaterGadget', 'ImageArraySplitGadget', \
+##        'PhysioInterpolationGadget', 'ex:ExtractGadget'])
         
     # ExtractGadget defines which type of image should be returned:
     # none      0
@@ -79,8 +86,8 @@ def main():
     # imag      4
     # phase     8
     # max       16  
-    # in this example '5' returns both magnitude and imag    
-    recon.set_gadget_property('ex', 'extract_mask', 5) 
+    # in this example '5' returns both magnitude and imaginary part
+    recon.set_gadget_property('ex', 'extract_mask', 5)
     
     # provide raw k-space data as input
     recon.set_input(acq_data)
@@ -92,30 +99,25 @@ def main():
     image_data = recon.get_output()
 
     # show reconstructed image data
-    image_array = image_data.as_array()
-    title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_array[0::2,:,:]), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                  cmap = 'gray', show = False)
-    title = 'Reconstructed image data (imaginary part)'
-    show_3D_array(image_array[1::2,:,:].imag, suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                  cmap = 'gray')
+    for im in range(image_data.number()):
+        image = image_data.image(im)
+        # image types   series
+        # magnitude 1       0
+        # phase     2    3000
+        # real      3    1000
+        # imag      4    2000
+        im_type = image.image_type()
+        im_series = image.image_series_index()
+        print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
+    image_data.show(title = 'Images magnitude and imaginary part')
 
     if output_file is not None:
         # write images to a new group in args.output
         # named after the current date and time
         time_str = time.asctime()
         print('writing to %s' % output_file)
-        image_data.write(output_file, time_str)
+        image_data.write(output_file) #, time_str)
 
-        saved_image_data = ImageData(output_file)
-        image_array = saved_image_data.as_array()
-        title = 'Reconstructed images (magnitude)'
-        show_3D_array(abs(image_array), suptitle = title, \
-                      xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                      cmap = 'gray')
-    
 try:
     main()
     print('done')

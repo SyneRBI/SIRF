@@ -23,9 +23,8 @@
 #    INSTALL_NAME_DIR "${PROJECT_NAME}")
 #TARGET_LINK_LIBRARIES(test4 PUBLIC cstir )
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
   add_executable(test4 ${CMAKE_CURRENT_SOURCE_DIR}/test4.cpp ${STIR_REGISTRIES})
-  target_link_libraries(test4 cstir ${STIR_LIBRARIES})
+  target_link_libraries(test4 csirf cstir ${STIR_LIBRARIES})
   INSTALL(TARGETS test4 DESTINATION bin)
 
 ADD_TEST(NAME PET_TEST_CPLUSPLUS COMMAND test4 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

@@ -65,9 +65,6 @@ EXPORTED_FUNCTION 	void mGT_getCoilDataDimensions (void* ptr_csms, int csm_num, 
 EXPORTED_FUNCTION 	void mGT_getCoilData (void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
 	cGT_getCoilData (ptr_csms, csm_num, ptr_re, ptr_im);
 }
-EXPORTED_FUNCTION 	void mGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_FLOAT ptr) {
-	cGT_getCoilDataAbs(ptr_csms, csm_num, ptr);
-}
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs) {
 	return cGT_AcquisitionModel(ptr_acqs, ptr_imgs);
 }
@@ -107,13 +104,13 @@ EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned i
 EXPORTED_FUNCTION 	void* mGT_cloneAcquisitions(void* ptr_input) {
 	return cGT_cloneAcquisitions(ptr_input);
 }
-EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs) {
-	return cGT_orderAcquisitions(ptr_acqs);
+EXPORTED_FUNCTION 	void* mGT_sortAcquisitions(void* ptr_acqs) {
+	return cGT_sortAcquisitions(ptr_acqs);
 }
 EXPORTED_FUNCTION 	void* mGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim) {
 	return cGT_getAcquisitionsDimensions(ptr_acqs, ptr_dim);
 }
-EXPORTED_FUNCTION 	void*	mGT_writeAcquisitions(void* ptr_acqs, const char* filename) {
+EXPORTED_FUNCTION 	void* mGT_writeAcquisitions(void* ptr_acqs, const char* filename) {
 	return cGT_writeAcquisitions(ptr_acqs, filename);
 }
 EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {
@@ -163,24 +160,6 @@ EXPORTED_FUNCTION 	void* mGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT
 }
 EXPORTED_FUNCTION 	void* mGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
 	return cGT_setImagesDataAsCmplxArray(ptr_imgs, ptr_z);
-}
-EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {
-	return cGT_dataItems(ptr_x);
-}
-EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x) {
-	return cGT_norm(ptr_x);
-}
-EXPORTED_FUNCTION 	void* mGT_dot(const void* ptr_x, const void* ptr_y) {
-	return cGT_dot(ptr_x, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mGT_axpby( float ar, float ai, const void* ptr_x, float br, float bi, const void* ptr_y) {
-	return cGT_axpby(ar, ai, ptr_x, br, bi, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mGT_multiply(const void* ptr_x, const void* ptr_y) {
-	return cGT_multiply(ptr_x, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mGT_divide(const void* ptr_x, const void* ptr_y) {
-	return cGT_divide(ptr_x, ptr_y);
 }
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r) {
 	return cGT_addReader(ptr_gc, id, ptr_r);

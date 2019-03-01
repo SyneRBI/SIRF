@@ -21,15 +21,13 @@ classdef DataContainer < handle
 
     properties
         handle_
-        meta_
     end
     methods (Abstract, Static)
-        same_object(self)
+        same_object()
     end
     methods
         function self = DataContainer()
             self.handle_ = [];
-            self.meta_ = meta.class.fromName('mGadgetron.DataContainer');
         end
         function delete(self)
             if ~isempty(self.handle_)
@@ -39,14 +37,23 @@ classdef DataContainer < handle
         end
         function num = number(self)
 %***SIRF*** Returns the number of items in this container.
-            handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
+            handle = calllib('msirf', 'mSIRF_dataItems', self.handle_);
             mUtilities.check_status('DataContainer', handle);
             num = calllib('miutilities', 'mIntDataFromHandle', handle);
             mUtilities.delete(handle)
         end
+        function copy = clone(self)
+            if isempty(self.handle_)
+                error('DataContainer:clone:empty_object', ...
+                    'cannot handle empty object')
+            end
+            copy = self.same_object();
+            copy.handle_ = calllib('msirf', 'mSIRF_clone', self.handle_);
+            mUtilities.check_status('DataContainer', copy.handle_);
+        end
         function r = norm(self)
 %***SIRF*** Returns the 2-norm of this data container viewed as a vector.
-            handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
+            handle = calllib('msirf', 'mSIRF_norm', self.handle_);
             mUtilities.check_status('DataContainer', handle);
             r = calllib('miutilities', 'mFloatDataFromHandle', handle);
             mUtilities.delete(handle)
@@ -54,11 +61,8 @@ classdef DataContainer < handle
         function z = dot(self, other)
 %***SIRF*** Returns the dot product of this data container with another one 
 %         viewed as vectors.
-            %assert(lt(metaclass(other), self.meta_))
-            %assert(isobject(other))
-            %assert(strcmp(class(self), class(other)))
             mUtilities.assert_validities(self, other)
-            handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
+            handle = calllib('msirf', 'mSIRF_dot', self.handle_, ...
                 other.handle_);
             mUtilities.check_status('DataContainer', handle);
             re = calllib('miutilities', 'mFloatReDataFromHandle', handle);
@@ -70,41 +74,35 @@ classdef DataContainer < handle
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
-            %assert(strcmp(class(self), class(other)))
             mUtilities.assert_validities(self, other)
-            z = self.same_object();
-            z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
-                1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
+            z = self.axpby(1, self, -1, other);
             mUtilities.check_status('DataContainer:minus', z.handle_);
         end
         function z = plus(self, other)
 %***SIRF*** Overloads + for data containers.
-%         Returns the difference of this data container with another one
+%         Returns the sum of this data container with another one
 %         viewed as vectors.
-            %assert(strcmp(class(self), class(other)))
             mUtilities.assert_validities(self, other)
-            z = self.same_object();
-            z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
-                1.0, 0.0, self.handle_, 1.0, 0.0, other.handle_);
+            z = self.axpby(1, self, 1, other);
             mUtilities.check_status('DataContainer:plus', z.handle_);
         end
         function z = times(self, other)
 %***SIRF*** Overloads .* for data containers.
-%         Returns the difference of this data container with another one
+%         Returns the elementwise product of this data container with another one
 %         viewed as vectors.
             mUtilities.assert_validities(self, other)
             z = self.same_object();
-            z.handle_ = calllib('mstir', 'mGadgetron_multiply', ...
+            z.handle_ = calllib('msirf', 'mSIRF_multiply', ...
                 self.handle_, other.handle_);
             mUtilities.check_status('DataContainer:times', z.handle_);
         end
         function z = rdivide(self, other)
 %***SIRF*** Overloads ./ for data containers.
-%         Returns the difference of this data container with another one
+%         Returns the elementwise ratio of this data container with another one
 %         viewed as vectors.
             mUtilities.assert_validities(self, other)
             z = self.same_object();
-            z.handle_ = calllib('mstir', 'mGadgetron_divide', ...
+            z.handle_ = calllib('msirf', 'mSIRF_divide', ...
                 self.handle_, other.handle_);
             mUtilities.check_status('DataContainer:rdivide', z.handle_);
         end
@@ -117,21 +115,31 @@ classdef DataContainer < handle
             if strcmp(class(self), class(other))
                 z = self.dot(other);
                 return
-            elseif isreal(other)
-                z = self.same_object();
-                z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
-                    other, 0.0, self.handle_, 0.0, 0.0, self.handle_);
-            elseif iscomplex(other)
-                z = self.same_object();
-                z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
-                    real(other), imag(other), self.handle_, ...
-                    0.0, 0.0, self.handle_);
+            end
+            if isscalar(other)
+                z = self.axpby(other, self, 0, self);
             else
                 error('DataContainer:mtimes', ...
                     'Wrong argument type %s\n', class(other))
             end
             mUtilities.check_status('DataContainer:mtimes', z.handle_);
         end
+        function z = mrdivide(self, other)
+%***SIRF*** mtimes(other) overloads / for data containers multiplication 
+%         by a scalar. 
+%         Returns the ratio self/other where other is a scalar.
+            if isscalar(other)
+                z = self.axpby(1.0/other, self, 0, self);
+            else
+                error('DataContainer:mtimes', ...
+                    'Wrong argument type %s\n', class(other))
+            end
+            mUtilities.check_status('DataContainer:mtimes', z.handle_);
+        end
+		function write(self, filename)
+			handle = calllib('msirf', 'mSIRF_write', self.handle_, filename);
+            mUtilities.check_status('DataContainer:write', handle);
+		end
     end
     methods(Static)
         function z = axpby(a, x, b, y)
@@ -142,8 +150,14 @@ classdef DataContainer < handle
             %assert(strcmp(class(x), class(y)))
             mUtilities.assert_validities(x, y)
             z = x.same_object();
-            z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
-                real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
+            a = single(a);
+            b = single(b);
+            za = [real(a); imag(a)];
+            zb = [real(b); imag(b)];
+            ptr_za = libpointer('singlePtr', za);
+            ptr_zb = libpointer('singlePtr', zb);
+            z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                ptr_za, x.handle_, ptr_zb, y.handle_);
             mUtilities.check_status('DataContainer:axpby', z.handle_);
         end
     end

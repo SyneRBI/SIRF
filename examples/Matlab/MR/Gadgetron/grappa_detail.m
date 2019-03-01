@@ -50,8 +50,10 @@ function grappa_detail
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
+mr_data_path = mUtilities.examples_data_path('MR');
 
 % Get the filename of the input ISMRMRD h5 file
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
@@ -63,7 +65,7 @@ filein = fullfile(pn,fn) ;
 
 % Create an Acquisition Container. Here because of the previous
 % 'import mGadgetron.*', this will be of type mGadgetron.AcquisitionData
-acq_data = AcquisitionData(filein);
+acq_data = MR.AcquisitionData(filein);
 
 % Pre-process this input data using three preparation gadgets
 % from gadgetron.
@@ -121,7 +123,7 @@ recon_gadgets =  [...
     {'ImageArraySplitGadget'} ...
     ];
 
-recon = Reconstructor(recon_gadgets) ;
+recon = MR.Reconstructor(recon_gadgets) ;
 
 
 % 2) The GRAPPA gadget can compute G-factors in addition to
@@ -182,7 +184,3 @@ else
     title = 'G-factor data (magnitude)';
     mUtilities.show_3D_array(gfact_array, title, 'samples', 'readouts', 'slice');
 end
-
-
-
-

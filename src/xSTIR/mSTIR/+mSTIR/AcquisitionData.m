@@ -1,4 +1,4 @@
-classdef AcquisitionData < mSTIR.DataContainer
+classdef AcquisitionData < mSIRF.DataContainer
 % Class for PET acquisition data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -206,19 +206,6 @@ classdef AcquisitionData < mSTIR.DataContainer
             else
                 error([self.name ':fill'], 'wrong fill value')
             end
-        end
-        function write(self, filename)
-%***SIRF*** Writes self to an Interfile - see STIR documentation for details.
-            assert(~isempty(self.handle_), 'Empty AcquisitionData object')
-            h = calllib('mstir', 'mSTIR_writeAcquisitionData',...
-                self.handle_, filename);
-            mUtilities.check_status([self.name ':write'], h);
-            mUtilities.delete(h)
-        end
-        function ad = clone(self)
-%***SIRF*** Returns a true copy of this object (not Matlab handle).
-            ad = mSTIR.AcquisitionData(self);
-            ad.fill(self)
         end
         function ad = get_uniform_copy(self, value)
 %***SIRF*** get_uniform_copy(value) returns a true copy of this object 

@@ -57,6 +57,7 @@ EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, i
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsStorageScheme();
 EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme);
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t);
+EXPORTED_FUNCTION 	void* mSTIR_cloneAcquisitionData(void* ptr_ad);
 EXPORTED_FUNCTION 	void* mSTIR_rebinnedAcquisitionData(void* ptr_t, const int num_segments_to_combine, const int num_views_to_combine, const int num_tang_poss_to_trim, const bool do_normalisation, const int max_in_segment_num_to_process );
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromScannerInfo (const char* scanner, int span, int max_ring_diff, int view_mash_factor);
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
@@ -77,8 +78,10 @@ EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradient (void* ptr_f, void* ptr
 EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradientNotDivided (void* ptr_f, void* ptr_i, int subset);
 EXPORTED_FUNCTION 	void* mSTIR_setupPrior(void* ptr_p, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i);
+EXPORTED_FUNCTION 	void* mSTIR_PLSPriorGradient(void* ptr_p, int dir);
 EXPORTED_FUNCTION 	void* mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
 EXPORTED_FUNCTION 	void* mSTIR_getImageVoxelSizes(const void* ptr_im, PTR_FLOAT ptr_vs);
+EXPORTED_FUNCTION 	void* mSTIR_getImageTransformMatrix(const void* ptr_im, PTR_FLOAT ptr_md);
 EXPORTED_FUNCTION 	void* mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION 	void* mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float sy, float sz, float x, float y, float z);
@@ -90,11 +93,6 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int
 EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v);
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename); 
-EXPORTED_FUNCTION 	void* mSTIR_norm(const void* ptr_x);
-EXPORTED_FUNCTION 	void*	mSTIR_dot(const void* ptr_x, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_multiply(const void* ptr_x, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_divide(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION 	void* mNewTextWriter(const char* stream);
 EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w);

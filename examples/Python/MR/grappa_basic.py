@@ -99,17 +99,10 @@ def main():
     
 
     # retrieve reconstruced image and G-factor data
-    output = recon.get_output()
-
-    # show reconstructed image and G-factor data
-    output_array = output.as_array()
-    title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(output_array[0::2,:,:]), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                  show = False)
-    title = 'Reconstructed G-factor data (magnitude)'
-    show_3D_array(abs(output_array[1::2,:,:]), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
+    image_data = recon.get_output('image')
+    gfact_data = recon.get_output('gfactor')
+    image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
+    gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
 
 try:
     main()

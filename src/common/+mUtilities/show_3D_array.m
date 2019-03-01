@@ -1,5 +1,13 @@
 function err = show_3D_array(array, sup_title, x_label, y_label, label, index)
 % Shows 3D array as a set of xy-slices, optionally labelled.
+%    array     : 3D array
+%    suptitle  : figure title
+%    xlabel    : label for x axis
+%    ylabel    : label for y axis
+%    label     : tile title prefix
+%    index     : z-slices index, either integer array or string of the form
+%              : 'a, b-c, ...', where 'b-c' is decoded as 'b, b+1, ..., c';
+%              : out-of-range index value causes error (non-zero) return
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.

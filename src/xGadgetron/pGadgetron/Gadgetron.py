@@ -30,11 +30,15 @@ except:
 import sys
 import time
 
-from pUtilities import *
+from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
+     try_calling, assert_validity, assert_validities, label_and_name, \
+     name_and_parameters, parse_arglist, \
+     examples_data_path, petmr_data_path, existing_filepath, \
+     pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
-import pyiutilities as pyiutil
-import pygadgetron
+import sirf.pyiutilities as pyiutil
+import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
@@ -42,7 +46,7 @@ if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
 else:
     ABC = abc.ABCMeta('ABC', (), {})
 
-# max number of acquisitions dimensiona
+# max number of acquisitions dimensions
 MAX_ACQ_DIMENSIONS = 16
 
 # mask for image-related acquisitions
@@ -141,11 +145,6 @@ def mr_data_path():
     Returns default path to MR raw data files.
     '''
     return petmr_data_path('mr')
-def raw_data_path():
-    '''
-    Returns default path to MR raw data files.
-    '''
-    return petmr_data_path('mr')
 
 ### low-level client functionality
 ### likely to be obsolete - not used for a long time
@@ -222,20 +221,20 @@ class CoilImageData(DataContainer):
             (self.handle, acqs.handle))
     def image_dimensions(self):
         '''
-        Returns each coil images array dimensions as a tuple (nx, ny, nz, nc),
+        Returns each coil images array dimensions as a tuple (nc, nz, ny, nx),
         where nc is the number of active coils and nx, ny, nz are slice
         dimensions.
         '''
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCoilDataDimensions\
             (self.handle, 0, dim.ctypes.data)
-        return tuple(numpy.asarray(dim))
+        return tuple(dim[::-1])
     def as_array(self, ci_num):
         '''
         Returns specified coil images array as Numpy ndarray.
         ci_num: coil images array (slice) number
         '''
-        nx, ny, nz, nc = self.image_dimensions()
+        nc, nz, ny, nx = self.image_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
@@ -343,7 +342,7 @@ class CoilSensitivityData(DataContainer):
         pyiutil.deleteDataHandle(handle)
     def map_dimensions(self):
         '''
-        Returns each csm dimensions as a tuple (nx, ny, nz, nc),
+        Returns each csm dimensions as a tuple (nc, nz, ny, nx),
         where nc is the number of active coils and nx, ny, nz are slice
         dimensions.
         '''
@@ -351,14 +350,14 @@ class CoilSensitivityData(DataContainer):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCoilDataDimensions\
             (self.handle, 0, dim.ctypes.data)
-        return tuple(numpy.asarray(dim))
+        return tuple(dim[::-1])
     def as_array(self, csm_num):
         '''
         Returns specified csm as Numpy ndarray.
         csm_num: csm (slice) number
         '''
         assert self.handle is not None
-        nx, ny, nz, nc = self.map_dimensions()
+        nc, nz, ny, nx = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
@@ -366,19 +365,6 @@ class CoilSensitivityData(DataContainer):
         pygadgetron.cGT_getCoilData\
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
-    def abs_as_array(self, csm_num):
-        '''
-        Returns the abs of specified csm as Numpy ndarray.
-        csm_num: csm (slice) number
-        '''
-        assert self.handle is not None
-        nx, ny, nz, nc = self.map_dimensions()
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
-        pygadgetron.cGT_getCoilDataAbs\
-            (self.handle, csm_num, array.ctypes.data)
-        return array
 
 DataContainer.register(CoilSensitivityData)
 
@@ -525,24 +511,8 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         ip = ImageDataProcessor(list)
         return ip.process(self)
-    def clone(self):
-        '''
-        Returns a copy of self.
-        '''
-        assert self.handle is not None
-        ip = ImageDataProcessor()
-        return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-    def write(self, out_file, out_group):
-        '''
-        Writes self's images to an hdf5 file.
-        out_file : the file name (Python string)
-        out_group: hdf5 dataset name (Python string)
-        '''
-        assert self.handle is not None
-        try_calling(pygadgetron.cGT_writeImages\
-                    (self.handle, out_file, out_group))
     def select(self, attr, value):
         '''
         Creates an images container with images from self with the specified
@@ -558,7 +528,8 @@ class ImageData(SIRF.ImageData):
     def get_info(self, par):
         '''
         Returns the array of values of the specified image information 
-        parameter.
+        parameter. Parameters names are the same as the names of Image class
+        public methods (except is_real and info).
         par: parameter name
         '''
         ni = self.number()
@@ -574,9 +545,13 @@ class ImageData(SIRF.ImageData):
         '''
         assert self.handle is not None
         if self.is_real():
+            if data.dtype != numpy.float32:
+                data = data.astype(numpy.float32)
             try_calling(pygadgetron.cGT_setImagesDataAsFloatArray\
                 (self.handle, data.ctypes.data))
         else:
+            if data.dtype != numpy.complex64:
+                data = data.astype(numpy.complex64)
             try_calling(pygadgetron.cGT_setImagesDataAsCmplxArray\
                 (self.handle, data.ctypes.data))
     def as_array(self):
@@ -604,6 +579,45 @@ class ImageData(SIRF.ImageData):
             try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
+    def show(self, slice = None, title = None, cmap = 'gray', postpone = False):
+        '''Displays xy-cross-section(s) of images.'''
+        assert self.handle is not None
+        if not HAVE_PYLAB:
+            print('pylab not found')
+            return
+        data = self.as_array()
+        nz = data.shape[0]
+        if type(slice) == type(1):
+            if slice < 0 or slice >= nz:
+                return
+            ns = 1
+            slice = [slice]
+##            show_2D_array('slice %d' % slice, data[slice,:,:])
+##            return
+        elif slice is None:
+            ni = nz
+            slice = range(nz)
+        else:
+            try:
+                ni = len(slice)
+            except:
+                raise error('wrong slice list')
+        if title is None:
+            title = 'Selected images'
+        if ni >= 16:
+            tiles = (4, 4)
+        else:
+            tiles = None
+        f = 0
+        while f < ni:
+            t = min(f + 16, ni)
+            err = show_3D_array(abs(data), index = slice[f : t], \
+                                tile_shape = tiles, cmap = cmap, \
+                                label = 'image', xlabel = 'samples', \
+                                ylabel = 'readouts', \
+                                suptitle = title, \
+                                show = (t == ni) and not postpone)
+            f = t
 
 DataContainer.register(ImageData)
 
@@ -770,10 +784,12 @@ class AcquisitionData(DataContainer):
             - kspace_encode_step_1
         '''
         assert self.handle is not None
-        try_calling(pygadgetron.cGT_orderAcquisitions(self.handle))
+        try_calling(pygadgetron.cGT_sortAcquisitions(self.handle))
         self.sorted = True
     def is_sorted(self):
-        return self.sorted
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisitions', 'sorted')
+        #return self.sorted
     def is_undersampled(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisitions', 'undersampled')
@@ -788,16 +804,6 @@ class AcquisitionData(DataContainer):
         '''
         ap = AcquisitionDataProcessor(list)
         return ap.process(self)
-    def clone(self):
-        '''
-        Returns a copy of self.
-        '''
-        ad = AcquisitionData()
-        ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
-        check_status(ad.handle)
-        return ad;
-##        ap = AcquisitionDataProcessor()
-##        return ap.process(self)
     def acquisition(self, num):
         '''
         Returns the specified acquisition.
@@ -870,14 +876,46 @@ class AcquisitionData(DataContainer):
         try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
             (self.handle, z.ctypes.data, return_all))
         return z
-    def write(self, out_file):
-        '''
-        Writes self's acquisitions to an hdf5 file.
-        out_file : the file name (Python string)
-        '''
+    def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \
+             postpone = False):
+        '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
-        try_calling(pygadgetron.cGT_writeAcquisitions\
-                    (self.handle, out_file))
+        if not HAVE_PYLAB:
+            print('pylab not found')
+            return
+        data = numpy.transpose(self.as_array(), (1, 0, 2))
+        nz = data.shape[0]
+        if type(slice) == type(1):
+            if slice < 0 or slice >= nz:
+                return
+            ns = 1
+            slice = [slice]
+##            show_2D_array('slice %d' % slice, data[slice,:,:])
+##            return
+        elif slice is None:
+            ns = nz
+            slice = range(nz)
+        else:
+            try:
+                ns = len(slice)
+            except:
+                raise error('wrong slice list')
+        if title is None:
+            title = 'Selected images'
+        if ns >= 16:
+            tiles = (4, 4)
+        else:
+            tiles = None
+        f = 0
+        while f < ns:
+            t = min(f + 16, ns)
+            err = show_3D_array(abs(data), index = slice[f : t], \
+                                tile_shape = tiles, \
+                                label = 'coil', xlabel = 'samples', \
+                                ylabel = 'readouts', \
+                                suptitle = title, cmap = cmap, power = power, \
+                                show = (t == ns) and not postpone)
+            f = t
 
 DataContainer.register(AcquisitionData)
 

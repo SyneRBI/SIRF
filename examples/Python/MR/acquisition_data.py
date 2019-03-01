@@ -84,7 +84,8 @@ def main():
     flags = acq_data.get_info('flags', where)
 
     # inspect the first readout flag
-    if flags[0] & IMAGE_DATA_MASK:
+    flags0 = acq_data.get_info('flags', range(1))
+    if flags0 & IMAGE_DATA_MASK:
         print('first readout is image data')
     else:
         # should see this if input data file is test_2D_2x.h5
@@ -92,67 +93,41 @@ def main():
         
     # display flags
     print('Flags'),
-    print(flags) #[where])
+    print(flags)
     
     # inspect some kspace_encode_step_1 counters
     encode_step_1 = acq_data.get_info('kspace_encode_step_1', where)
     print('Ky/PE - encoding'),
-    print(encode_step_1) #[where])
+    print(encode_step_1)
     
     # inspect some slice counters
     slice = acq_data.get_info('slice', where)
     print('Slices'),
-    print(slice) #[where])
+    print(slice)
     
     # inspect some repetition counters
     repetition = acq_data.get_info('repetition', where)
     print('Repetitions'),
-    print(repetition) #[where])
+    print(repetition)
 
     # inspect some physiology time stamps
     pts = acq_data.get_info('physiology_time_stamp', where)
     print('Physiology time stamps'),
-    print(pts) #[where])
+    print(pts)
 
-    # copy raw data into python array and determine its size
     # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 
     # size is 2x256 phase encoding, 8 receiver coils and points 512 readout 
     # points (frequency encoding dimension)
-    acq_array = acq_data.as_array()
-    acq_shape = acq_array.shape
-    print('input data dimensions: %dx%dx%d' % acq_shape)
-
-    ny = ni
-##    # cap the number of readouts to display
-##    ns = (slice[ni - 1] + 1)*(repetition[ni - 1] + 1)
-##    print('total number of slices: %d' % ns)
-##    nr = ni//ns
-##    print('readouts per slice: %d' % nr)
-##    if ns > slcs:
-##        print('too many slices, showing %d only' % slcs)
-##        ny = slcs*nr # display this many only
-##    else:
-##        ny = ni # display all
-
-    acq_array = numpy.transpose(acq_array,(1,0,2))
-    acq_array = acq_array[:,:ny,:]
+    dim = acq_data.dimensions()
+    print('input data dimensions: %dx%dx%d' % dim)
     title = 'Acquisition data (magnitude)'
-    show_3D_array(acq_array, power = 0.2, suptitle = title, label = 'coil', \
-                  xlabel = 'samples', ylabel = 'readouts', \
-                  cmap = 'gray', show = False)
+    acq_data.show(title = title, postpone = True)
 
     cloned_acq_data = acq_data.clone()
-    cloned_acq_array = cloned_acq_data.as_array()
-    cloned_acq_shape = cloned_acq_array.shape
-    print('cloned data dimensions: %dx%dx%d' % cloned_acq_shape)
-
-    cloned_acq_array = numpy.transpose(cloned_acq_array,(1,0,2))
-    cloned_acq_array = cloned_acq_array[:,:ny,:]
+    cloned_dim = cloned_acq_data.dimensions()
+    print('cloned data dimensions: %dx%dx%d' % cloned_dim)
     title = 'Cloned acquisition data (magnitude)'
-    show_3D_array(cloned_acq_array, power = 0.2, \
-                  suptitle = title, label = 'coil', \
-                  xlabel = 'samples', ylabel = 'readouts', \
-                  cmap = 'gray', show = False)
+    cloned_acq_data.show(title = title, postpone = True)
 
     # pre-process acquired k-space data
     # Prior to image reconstruction several pre-processing steps such as 
@@ -163,19 +138,12 @@ def main():
     print('---\n pre-processing acquisition data...')
     processed_acq_data = preprocess_acquisition_data(acq_data)
 
-    # copy processed acquisition data into an array and determine its size
     # by removing the oversampling factor of 2 along the readout direction, the
     # number of readout samples was halfed
-    processed_acq_array = processed_acq_data.as_array()
-    processed_acq_shape = processed_acq_array.shape
-    print('processed data dimensions: %dx%dx%d' % processed_acq_shape)
-
-    processed_acq_array = numpy.transpose(processed_acq_array,(1,0,2))
-    processed_acq_array = processed_acq_array[:,:ny,:]
+    proc_dim = processed_acq_data.dimensions()
+    print('processed data dimensions: %dx%dx%d' % proc_dim)
     title = 'Processed acquisition data (magnitude)'
-    show_3D_array(processed_acq_array, power = 0.2, \
-                  suptitle = title, label = 'coil', \
-                  xlabel = 'samples', ylabel = 'readouts', cmap = 'gray')
+    processed_acq_data.show(title = title)
 
 try:
     main()
