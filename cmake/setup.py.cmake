@@ -40,16 +40,6 @@ if(BUILD_PYTHON)
   install(FILES "${PY_MOD_INIT}" DESTINATION "${PYTHON_DEST}/sirf")
 
   if(PYTHONINTERP_FOUND)
-    # python setup.py build
-    add_custom_command(OUTPUT "${PYTHON_DEST}/sirf/__init__.py"
-      COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
-      COMMAND "${CMAKE_COMMAND}" -E touch "${PYTHON_DEST}/sirf/__init__.py"
-      COMMAND "${PYTHON_EXECUTABLE}" setup.py build
-      DEPENDS "${PYTHON_DEST}/setup.py"
-      WORKING_DIRECTORY "${PYTHON_DEST}")
-    #add_custom_target(pybuild_sirf ALL DEPENDS "${PY_MOD_INIT}")
-    # cannot do above (#179 -> https://github.com/CCPPETMR/SIRF/pull/308)
-
     # python setup.py install
     if("${PYTHON_STRATEGY}" STREQUAL "SETUP_PY")
       install(CODE "execute_process(COMMAND\n\
