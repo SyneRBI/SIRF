@@ -386,15 +386,12 @@ void PETDynamicSimulation::simulate_statics()
 	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
-	float const scale_factor = 25000.f;
-	float const ms_per_second = 1000.f;
-    float const result = scale_factor/ms_per_second;
-    float const zero = 0.f;
-	sptr_target_acquisitions_->axpby(&result, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
+	std::cout << "Finished rawdata acquisition." << std::endl;
+	float const scale_factor = 50.f;
+	float const zero = 0.f;
+	sptr_target_acquisitions_->axpby(&scale_factor, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
 
 	this->add_noise();
-	
-
 }
 
 void PETDynamicSimulation::add_noise( void )
@@ -551,6 +548,7 @@ void PETDynamicSimulation::acquire_raw_data( void )
 	if( succeeded == stir::Succeeded::no )
 		throw std::runtime_error("Setup of acquisition model failed");
 
+	std::cout << "Application of forward model." << std::endl;
 	this->sptr_target_acquisitions_ = this->acq_model_.forward(activity_img);
 
 	
