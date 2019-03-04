@@ -6,11 +6,13 @@ if(BUILD_PYTHON)
   function(python_pkg_alias PY_PKG_NEW PY_PKG_OLD)
     list(APPEND PYTHON_SETUP_PKGS ${PY_PKG_NEW})
     set(PYTHON_SETUP_PKGS "${PYTHON_SETUP_PKGS}" PARENT_SCOPE)
-    set(SETUP_PY_INIT_IN "${CMAKE_CURRENT_LIST_DIR}/__init__.py.in")
-    set(SETUP_PY_INIT "${PYTHON_DEST}/${PY_PKG_NEW}/__init__.py")
-    configure_file("${SETUP_PY_INIT_IN}" "${SETUP_PY_INIT}")
-    # message(STATUS "setup.py:${SETUP_PY_INIT}")
-    message(STATUS "setup.py:${PY_PKG_NEW}<-${PY_PKG_OLD}")
+    set(PY_PKG_INIT_IN "${CMAKE_CURRENT_LIST_DIR}/__init__.py.in")
+    set(PY_PKG_INIT "${CMAKE_CURRENT_BINARY_DIR}/cmake/${PY_PKG_NEW}/__init__.py")
+    configure_file("${PY_PKG_INIT_IN}" "${PY_PKG_INIT}")  # depends: PY_PKG_OLD
+    install(FILES "${PY_PKG_INIT}"
+      DESTINATION "${PYTHON_DEST}/${PY_PKG_NEW}")
+    # message(STATUS "__init__.py:${PY_INIT}")
+    message(STATUS "python alias:${PY_PKG_NEW}<-${PY_PKG_OLD}")
   endfunction(python_pkg_alias)
   python_pkg_alias(pGadgetron "sirf.Gadgetron")
   python_pkg_alias(pSTIR "sirf.STIR")
@@ -27,26 +29,21 @@ if(BUILD_PYTHON)
 
   # Create setup.py
   set(SETUP_PY_IN "${CMAKE_CURRENT_LIST_DIR}/setup.py.in")
-  set(SETUP_PY "${PYTHON_DEST}/setup.py")
-  set(SETUP_PY_INIT "${PYTHON_DEST}/sirf/__init__.py")
-  message(STATUS "setup.py:${SETUP_PY}")
+  set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/cmake/setup.py")
   configure_file("${SETUP_PY_IN}" "${SETUP_PY}")
+  install(FILES "${SETUP_PY}" DESTINATION "${PYTHON_DEST}")
+  message(STATUS "setup.py:${PYTHON_DEST}/setup.py")
+  # create sirf/__init__.py
+  set(PY_MOD_INIT_IN "${CMAKE_CURRENT_LIST_DIR}/sirf.__init__.py.in")
+  set(PY_MOD_INIT "${CMAKE_CURRENT_BINARY_DIR}/cmake/__init__.py")
+  configure_file("${PY_MOD_INIT_IN}" "${PY_MOD_INIT}")
+  install(FILES "${PY_MOD_INIT}" DESTINATION "${PYTHON_DEST}/sirf")
 
   if(PYTHONINTERP_FOUND)
-    # python setup.py build
-    add_custom_command(OUTPUT "${SETUP_PY_INIT}"
-      COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
-      COMMAND "${CMAKE_COMMAND}" -E touch "${SETUP_PY_INIT}"
-      COMMAND "${PYTHON_EXECUTABLE}" setup.py build
-      DEPENDS "${SETUP_PY}"
-      WORKING_DIRECTORY "${PYTHON_DEST}")
-
-    add_custom_target(pybuild_sirf ALL DEPENDS "${SETUP_PY_INIT}")
-
     # python setup.py install
     if("${PYTHON_STRATEGY}" STREQUAL "SETUP_PY")
       install(CODE "execute_process(COMMAND\n\
-        \"${PYTHON_EXECUTABLE}\" setup.py install\n\
+        \"${PYTHON_EXECUTABLE}\" setup.py build install\n\
         WORKING_DIRECTORY \"${PYTHON_DEST}\")")
     endif()
   endif(PYTHONINTERP_FOUND)
