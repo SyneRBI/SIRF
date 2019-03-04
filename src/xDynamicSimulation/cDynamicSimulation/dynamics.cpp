@@ -576,7 +576,7 @@ void MotionDynamic::prep_displacement_fields()
 
 void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points)
 {
-	bool const correct_for_offset = true;
+	bool const correct_for_offset = false;
 
 
 	this->make_ground_truth_folder();
@@ -588,8 +588,12 @@ void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType
 
 	NiftiImageData3DDeformation<float> offset_deformation = this->get_interpolated_deformation_field( gt_signal_offset ); 
 
-	std::shared_ptr<const NiftiImageData3DDeformation<float> > sptr_inverse_offset_deformation = std::make_shared<const NiftiImageData3DDeformation<float> >(calc_inverse_offset_deformation( offset_deformation ));
-	
+
+	std::shared_ptr<const NiftiImageData3DDeformation<float> > sptr_inverse_offset_deformation; 
+	//= std::make_shared<const NiftiImageData3DDeformation<float> >(calc_inverse_offset_deformation( offset_deformation ));
+	if( correct_for_offset )
+		sptr_inverse_offset_deformation = std::make_shared<const NiftiImageData3DDeformation<float> >(calc_inverse_offset_deformation( offset_deformation ));
+
 	for( size_t i=0; i<gt_signal_points.size(); i++)
 	{
 
@@ -598,7 +602,9 @@ void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType
 		std::vector< std::shared_ptr<const Transformation<float> > > vec_gt_def_with_offset;
 
 		vec_gt_def_with_offset.push_back(std::make_shared<const NiftiImageData3DDeformation<float> >( gt_deformation_with_offset ));
-		vec_gt_def_with_offset.push_back(sptr_inverse_offset_deformation);
+
+		if( correct_for_offset )
+			vec_gt_def_with_offset.push_back(sptr_inverse_offset_deformation);
 		
 		NiftiImageData3DDeformation<float> gt_deformation;
 		
