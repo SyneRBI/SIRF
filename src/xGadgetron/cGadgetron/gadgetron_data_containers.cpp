@@ -507,7 +507,7 @@ MRAcquisitionData::sort_by_time()
 
 	index_.resize(num_acquis);
 	
-	if( num_acquis <= 0 )
+	if( num_acquis == 0 )
 		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
 	else
 		Multisort::sort( vt, &index_[0] );
