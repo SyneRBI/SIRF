@@ -9,7 +9,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
-
 #include <memory>
 
 #include <stir/GeneralisedPoissonNoiseGenerator.h>
@@ -44,12 +43,16 @@ protected:
 class PoissonNoiseGenerator: public aNoiseGenerator{
 
 public:
-
-	PoissonNoiseGenerator():aNoiseGenerator(), stir_noise_gen_(1.0f,true)
+	
+	PoissonNoiseGenerator():aNoiseGenerator(), stir_noise_gen_(1.0f,false)
 	{
-		this->stir_noise_gen_.seed(this->random_seed_);
+		this->stir_noise_gen_.seed(this->generate_pseudo_seed());
 	}
 
+	PoissonNoiseGenerator(float const noise_scale):aNoiseGenerator(), stir_noise_gen_(noise_scale,false)
+	{
+		this->stir_noise_gen_.seed(this->generate_pseudo_seed());
+	}
 
 	virtual void set_random_seed( SeedType const seed) 
 	{
@@ -61,6 +64,7 @@ public:
 
 private:
 	stir::GeneralisedPoissonNoiseGenerator stir_noise_gen_;	
+	unsigned int generate_pseudo_seed();
 
 };
 

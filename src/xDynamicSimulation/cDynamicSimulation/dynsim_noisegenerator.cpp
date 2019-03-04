@@ -9,7 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <math.h>
 #include <random>
 #include <stdexcept>
-
+#include <stdlib.h>
 
 #include "sirf/cDynamicSimulation/dynsim_noisegenerator.h"
 
@@ -31,6 +31,16 @@ void PoissonNoiseGenerator::add_noise( PETAcquisitionData& noisy_acq, PETAcquisi
 	{
 		std::cout << "Something went wrong in adding poisson noise" << std::endl;
 	}
+}
+
+unsigned int PoissonNoiseGenerator::generate_pseudo_seed( void )
+{
+	srand (this->random_seed_);
+	unsigned int seed = 0;
+	while(seed == 0)
+		seed = rand();
+
+	return seed;
 }
 
 void GaussianNoiseGenerator::add_noise( AcquisitionsVector& acquisition_vector ) 
