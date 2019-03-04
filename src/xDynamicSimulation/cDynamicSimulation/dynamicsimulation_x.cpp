@@ -387,7 +387,7 @@ void PETDynamicSimulation::simulate_statics()
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
 	std::cout << "Finished rawdata acquisition." << std::endl;
-	float const scale_factor = 50.f;
+	float const scale_factor = 25.f;
 	float const zero = 0.f;
 	sptr_target_acquisitions_->axpby(&scale_factor, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
 
