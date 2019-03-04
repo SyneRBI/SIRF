@@ -512,7 +512,6 @@ MRAcquisitionData::sort_by_time()
 	else
 		Multisort::sort( vt, &index_[0] );
 
-	sorted_ = true;
 }
 
 AcquisitionsFile::AcquisitionsFile
