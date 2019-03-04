@@ -396,7 +396,13 @@ void PETDynamicSimulation::simulate_statics()
 
 void PETDynamicSimulation::add_noise( void )
 {
-	this->noise_generator_.add_noise( *sptr_target_acquisitions_, *sptr_target_acquisitions_ );
+	this->sptr_noise_generator_->add_noise( *sptr_target_acquisitions_, *sptr_target_acquisitions_ );
+}	
+
+void PETDynamicSimulation::add_noise( float const scaling_factor )
+{
+	sptr_noise_generator_ = std::make_shared< PoissonNoiseGenerator >( scaling_factor );	
+	this->sptr_noise_generator_->add_noise( *sptr_target_acquisitions_, *sptr_target_acquisitions_ );
 }	
 
 void PETDynamicSimulation::simulate_dynamics( void )

@@ -104,9 +104,6 @@ public:
 
 
 	virtual void acquire_raw_data( void );
-
-	
-
 	
 
 private:
@@ -156,9 +153,11 @@ public:
 	void add_dynamic( std::shared_ptr<PETContrastDynamic> sptr_contrast_dyn); 
 
 	virtual void acquire_raw_data( void );
+	
 	void add_noise( void );
-	void write_simulation_results( const std::string& filename_output_with_extension );
+	void add_noise( float const scaling_factor );
 
+	void write_simulation_results( const std::string& filename_output_with_extension );
 	void save_ground_truth_displacements( void );
 
 private:
@@ -171,7 +170,7 @@ private:
 	std::vector< std::shared_ptr<PETMotionDynamic> > motion_dynamics_;
 	std::vector< std::shared_ptr<PETContrastDynamic> > contrast_dynamics_;
 
-	PoissonNoiseGenerator noise_generator_;
+	std::shared_ptr<PoissonNoiseGenerator> sptr_noise_generator_;
 
 	sirf::STIRImageData get_reduced_pet_img_in_template_format( const sirf::STIRImageData& full_size_img );
 
