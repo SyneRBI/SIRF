@@ -23,6 +23,9 @@ using std::cout;
 using std::endl;
 
 
+#define PET_GLOBAL_NOISE_SCALING = 18.f;
+
+
 void MRDynamicSimulation::set_filename_rawdata( std::string const filename_template_rawdata ) 
 {
 	aDynamicSimulation::set_filename_rawdata( filename_template_rawdata );
@@ -387,11 +390,8 @@ void PETDynamicSimulation::simulate_statics()
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
 	std::cout << "Finished rawdata acquisition." << std::endl;
-	float const scale_factor = 20.f;
-	float const zero = 0.f;
-	sptr_target_acquisitions_->axpby(&scale_factor, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
-
-	this->add_noise();
+	
+	this->add_noise(PET_GLOBAL_NOISE_SCALING);
 }
 
 void PETDynamicSimulation::add_noise( void )
@@ -445,8 +445,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 	
 	size_t const num_total_dyn_states = lcg.get_num_total_combinations();
 	std::vector< DimensionsType >  all_dyn_state_combos = lcg.get_all_combinations();
-	
-	
+		
 
 	for( size_t i_dyn_state=0; i_dyn_state < num_total_dyn_states; i_dyn_state++)
 	{
@@ -498,7 +497,12 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
             float const zero = 0.f;
 			sptr_target_acquisitions_->axpby(&result, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
 
-			this->add_noise();
+			if( time_in_dynamic_state > total_scan_time)
+				throw std::runtime_error("The time in the dynamic state is longer than the total scan time. Maybe you confused the units of dynamic time signal and passed acquisition time.");
+
+			float const noise_scaling = PET_GLOBAL_NOISE_SCALING * (float)time_in_dynamic_state/(float)total_scan_time;
+
+			this->add_noise(noise_scaling);
 
 			output_name_stream << ".hs";
 			this->write_simulation_results( output_name_stream.str() );
