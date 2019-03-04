@@ -86,8 +86,8 @@ void run_tests_dynamics( void )
 	// std::cout << "7 ----------------------------------------------------" <<std::endl;
 	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
 
-	// std::cout << "7.1 --------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
+	std::cout << "7.1 --------------------------------------------------" <<std::endl;
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
 
 	// std::cout << "8 ----------------------------------------------------" <<std::endl;
 	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
@@ -176,10 +176,10 @@ void run_tests_dynamic_simulation( void )
 	// pet_dynsim_tests.push_back(test_pet_dynsim::set_template_acquisition_data());
 
 	std::cout << "PET 3 ----------------------------------------------------" <<std::endl;
-	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
+	pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
 
 	std::cout << "PET 4 ----------------------------------------------------" <<std::endl;
-	pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
+	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
 
 
 	std::cout << "pet dynamic simulation test results = ";

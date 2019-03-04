@@ -619,7 +619,6 @@ bool test_pet_dynsim::test_simulate_statics()
 		t = clock() - t;
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
-
 		
 		pet_dyn_sim.write_simulation_results(FILENAME_STATICSIM_PET);
 
