@@ -648,13 +648,13 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
 
-		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/PublicationData/Output/pet_dyn_4D_cardiac_simul");
+		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/PublicationData/Output/PET/pet_dyn_4D_cardiac_simul");
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
 		
 		// int const num_simul_resp_states = 10;
-		int const num_simul_card_states = 10;
+		int const num_simul_card_states = 3;
 
 		// PETMotionDynamic  resp_dyn(num_simul_resp_states);
 		PETMotionDynamic  card_dyn(num_simul_card_states);

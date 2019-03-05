@@ -490,12 +490,14 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 
 			this->pet_cont_gen_.map_tissue();//crucial call, as the deformation results in deformed contrast generator data
 			DynamicSimulationDeformer::deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
+			// std::cout <<"Norm before acquisition "<< sptr_target_acquisitions_->norm() << std::endl;
 			this->acquire_raw_data();	
+			std::cout <<"Norm after acquisition " << sptr_target_acquisitions_->norm() << std::endl;
 
 			float const ms_per_second = 1000.f;
             float const result = time_in_dynamic_state/ms_per_second;
             float const zero = 0.f;
-			sptr_target_acquisitions_->axpby(&result, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
+			// sptr_target_acquisitions_->axpby(&result, *sptr_target_acquisitions_, &zero, *sptr_target_acquisitions_ );
 
 			if( time_in_dynamic_state > total_scan_time)
 				throw std::runtime_error("The time in the dynamic state is longer than the total scan time. Maybe you confused the units of dynamic time signal and passed acquisition time.");
@@ -506,6 +508,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 
 			output_name_stream << ".hs";
 			this->write_simulation_results( output_name_stream.str() );
+			this->sptr_target_acquisitions_->fill(0.f);
 		}
 	}
 }
