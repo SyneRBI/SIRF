@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""pSTIR tests
+"""sirf.STIR tests
 v{version}
 
 Usage:
@@ -14,9 +14,10 @@ Options:
 {licence}
 """
 import math
-from pSTIR import *
-__version__ = "0.2.2"
-__author__ = "Casper da Costa-Luis"
+from sirf.STIR import *
+from sirf.Utilities import runner, RE_PYEXT, __license__
+__version__ = "0.2.3"
+__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
 def norm(v):
