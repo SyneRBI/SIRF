@@ -247,11 +247,7 @@ script:
  - echo "----------- Last 200 lines of gadgetron.log"
  - tail -n 200 gadgetron.log
 
-
-
-
-
 after_success:
- - cd SIRF
+ - cd sources/SIRF
  - codecov
  - coveralls
