@@ -506,6 +506,12 @@ def try_niftyaladin():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
+    # First set up some masks
+    ref_mask = ref_aladin.deep_copy()
+    flo_mask = flo_aladin.deep_copy()
+    ref_mask.fill(1)
+    flo_mask.fill(1)
+
     # default constructor
     na = pReg.NiftyAladinSym()
     na.set_reference_image(ref_aladin)
@@ -514,6 +520,8 @@ def try_niftyaladin():
     na.set_parameter("SetInterpolationToCubic")
     na.set_parameter("SetLevelsToPerform", "1")
     na.set_parameter("SetMaxIterations", "5")
+    na.set_reference_mask(ref_mask);
+    na.set_floating_mask(flo_mask);
     na.process()
 
     # Get outputs
