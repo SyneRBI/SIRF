@@ -411,7 +411,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
-		if( num_simul_motion_dyn > 1)
+		if( num_simul_motion_dyn > 0)
 		{
 			MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
 
@@ -426,7 +426,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 			auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 			respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
 
-			mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+			mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( respiratory_motion_dyn ));
 		}
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
