@@ -416,6 +416,12 @@ function na =try_niftyaladin(g)
 	disp('%                  Starting Nifty aladin test...')
 	disp('%------------------------------------------------------------------------ %')
 
+    % First set up some masks
+    ref_mask = g.ref_aladin.deep_copy();
+    flo_mask = g.flo_aladin.deep_copy();
+    ref_mask.fill(1);
+    flo_mask.fill(1);
+
 	% default constructor
     na = mReg.NiftyAladinSym();
     na.set_reference_image(g.ref_aladin);
@@ -424,6 +430,8 @@ function na =try_niftyaladin(g)
     na.set_parameter('SetInterpolationToCubic');
     na.set_parameter('SetLevelsToPerform', '1');
     na.set_parameter('SetMaxIterations', '5');
+    na.set_reference_mask(ref_mask);
+    na.set_floating_mask(flo_mask);
     na.process();
 
     % Get outputs

@@ -56,12 +56,13 @@ void NiftyAladinSym<dataType>::process()
     _registration_sptr->SetInputFloating(flo.get_raw_nifti_sptr().get());
 
     // Set masks (if present). Again, need to copy to get rid of const
+    NiftiImageData3D<dataType> ref_mask, flo_mask;
     if (this->_reference_mask_nifti_sptr && this->_reference_mask_nifti_sptr->is_initialised()) {
-        NiftiImageData3D<dataType> ref_mask = *this->_reference_mask_nifti_sptr;
+        ref_mask = *this->_reference_mask_nifti_sptr;
         _registration_sptr->SetInputMask(ref_mask.get_raw_nifti_sptr().get());
     }
     if (this->_floating_mask_nifti_sptr && this->_floating_mask_nifti_sptr->is_initialised()) {
-        NiftiImageData3D<dataType> flo_mask = *this->_floating_mask_nifti_sptr;
+        flo_mask = *this->_floating_mask_nifti_sptr;
         _registration_sptr->SetInputMask(flo_mask.get_raw_nifti_sptr().get());
     }
 

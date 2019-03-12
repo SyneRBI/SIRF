@@ -563,12 +563,20 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty aladin test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
+        // First set up some masks
+        std::shared_ptr<NiftiImageData3D<float> > ref_mask = ref_aladin->clone();
+        std::shared_ptr<NiftiImageData3D<float> > flo_mask = flo_aladin->clone();
+        ref_mask->fill(1.F);
+        flo_mask->fill(1.F);
+
         NA.set_reference_image               (            ref_aladin         );
         NA.set_floating_image                (            flo_aladin         );
         NA.set_parameter_file                (      parameter_file_aladin    );
         NA.set_parameter("SetInterpolationToCubic");
         NA.set_parameter("SetLevelsToPerform","1");
         NA.set_parameter("SetMaxIterations","5");
+        NA.set_reference_mask(ref_mask);
+        NA.set_floating_mask(flo_mask);
         NA.process();
 
         // Get outputs
@@ -615,12 +623,20 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty f3d test..\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
+        // First set up some masks
+        std::shared_ptr<NiftiImageData3D<float> > ref_mask = ref_f3d->clone();
+        std::shared_ptr<NiftiImageData3D<float> > flo_mask = flo_f3d->clone();
+        ref_mask->fill(1.F);
+        flo_mask->fill(1.F);
+
         NiftyF3dSym<float> NF;
         NF.set_reference_image               (           ref_f3d          );
         NF.set_floating_image                (           flo_f3d          );
         NF.set_parameter_file                (     parameter_file_f3d     );
         NF.set_reference_time_point          (             1              );
         NF.set_floating_time_point           (             1              );
+        NF.set_reference_mask(ref_mask);
+        NF.set_floating_mask(flo_mask);
         NF.process();
 
         // Get outputs
