@@ -248,6 +248,8 @@ script:
  - tail -n 200 gadgetron.log
 
 after_success:
- - cd sources/SIRF
+ - pushd sources/SIRF/
+ - sed -ir 's/SIRF-SuperBuild\/INSTALL\/python\/sirf\/(\w*\.py)/\1/g' .coverage
  - codecov
  - coveralls
+ - popd
