@@ -466,6 +466,7 @@ MRAcquisitionData::sort()
 {
 	typedef std::array<int, 4> tuple;
 	int na = number();
+
 	tuple t;
 	std::vector<tuple> vt;
 	for (int i = 0; i < na; i++) {
@@ -477,10 +478,14 @@ MRAcquisitionData::sort()
 		t[3] = acq.idx().kspace_encode_step_1;
 		vt.push_back(t);
 	}
-	if (index_)
-		delete[] index_;
-	index_ = new int[na];
-	Multisort::sort(vt, index_);
+
+	index_.resize(na);
+
+	if( na <= 0 )
+		std::cerr << "WARNING: You try to sort an empty container of acquisition data." << std::endl;
+	else
+		Multisort::sort( vt, &index_[0] );
+
 	sorted_ = true;
 }
 
@@ -500,10 +505,12 @@ MRAcquisitionData::sort_by_time()
 		vt.push_back( t );
 	}
 
-	if (index_)
-		delete[] index_;
-	index_ = new int[num_acquis];
-	Multisort::sort( vt ,index_ );
+	index_.resize(num_acquis);
+	
+	if( num_acquis == 0 )
+		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
+	else
+		Multisort::sort( vt, &index_[0] );
 
 }
 
@@ -557,17 +564,11 @@ AcquisitionsFile::take_over(MRAcquisitionData& ac)
 	//AcquisitionsFile& af = (AcquisitionsFile&)ac;
 	DYNAMIC_CAST(AcquisitionsFile, af, ac);
 	acqs_info_ = ac.acquisitions_info();
-	if (index_)
-		delete[] index_;
-	int* index = ac.index();
+	
+	
 	sorted_ = ac.sorted();
-	if (sorted_ && index) {
-		unsigned int n = number();
-		index_ = new int[n];
-		memcpy(index_, index, n*sizeof(int));
-	}
-	else
-		index_ = 0;
+	index_ = ac.index();
+
 	dataset_ = af.dataset_;
 	if (own_file_) {
 		Mutex mtx;
@@ -778,10 +779,9 @@ GadgetronImageData::sort()
         std::cout << "Before sorting. Image " << i << "/" << ni <<  ", Contrast: " << t[0] << ", Repetition: " << t[1] << ", Projection: " << t[2] << "\n";
 #endif
 	}
-	if (index_)
-		delete[] index_;
-	index_ = new int[ni];
-	Multisort::sort(vt, index_);
+
+	index_.resize(ni);
+	Multisort::sort(vt, &index_[0] );
 	sorted_ = true;
 
 #ifndef NDEBUG
