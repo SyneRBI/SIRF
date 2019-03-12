@@ -21,5 +21,5 @@
 #
 #=========================================================================
 add_test(NAME PET_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=pSTIR src/xSTIR/pSTIR/
+  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR/
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
