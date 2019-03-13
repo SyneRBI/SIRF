@@ -94,7 +94,7 @@ ref = eng_ref.ImageData(ref_file);
 flo = eng_flo.ImageData(flo_file);
 
 % Dynamically create resample algorithm
-res = eval(['mReg.' algo]);
+res = eval(['sirf.Reg.' algo]);
 res.set_reference_image(ref)
 res.set_floating_image(flo)
 res.set_interpolation_type(intrp)
@@ -103,7 +103,7 @@ res.set_interpolation_type(intrp)
 for i=1:size(trans_filenames)
   disp(['Transformation ' i ' filename: ' trans_filenames(i)])
   disp(['Transformation ' i ' type: ' trans_types(i)])
-  trans = eval(['mReg.' trans_types(i) '(' trans_filenames(i) ');']);
+  trans = eval(['sirf.Reg.' trans_types(i) '(' trans_filenames(i) ');']);
   res.add_transformation(trans);
 end
  

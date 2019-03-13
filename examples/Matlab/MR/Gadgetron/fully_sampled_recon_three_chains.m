@@ -81,7 +81,7 @@ recon.process()
 complex_image_data = recon.get_output();
 
 % extract real images using Images processing chain
-% Note this still returns an mGadgetron.ImageData object that requires use
+% Note this still returns an sirf.Gadgetron.ImageData object that requires use
 % of as_array() or show() to visulaise.
 img_proc = MR.ImageDataProcessor({'ExtractGadget'});
 fprintf('processing images...\n')

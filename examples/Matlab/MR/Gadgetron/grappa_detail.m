@@ -64,7 +64,7 @@ filein = fullfile(pn,fn) ;
 % the 'process' method.
 
 % Create an Acquisition Container. Here because of the previous
-% 'import mGadgetron.*', this will be of type mGadgetron.AcquisitionData
+% 'import sirf.Gadgetron.*', this will be of type sirf.Gadgetron.AcquisitionData
 acq_data = MR.AcquisitionData(filein);
 
 % Pre-process this input data using three preparation gadgets
@@ -76,7 +76,7 @@ prep_gadgets = [{'NoiseAdjustGadget'}, ...
 
 % Call gadgetron by using the 'process' method. This runs the gadgets
 % specified in prep_gadgets, returning an instance
-% of an mGadgetron.AcquisitionsContainer
+% of an sirf.Gadgetron.AcquisitionsContainer
 preprocessed_data = acq_data.process(prep_gadgets);
 
 % Extract sorted k-space, permute dimensions and display
@@ -106,7 +106,7 @@ end
 %   recon = CartesianGRAPPAReconstructor()
 %
 %    To find what this does behind the scenes:
-%     type edit mGadgetron.CartesianGRAPPAReconstructor
+%     type edit sirf.Gadgetron.CartesianGRAPPAReconstructor
 %     and note the name assigned in the self function, here
 %       'SimpleGRAPPAReconstructionProcessor'.
 %     Then find the gadget chain defined by the class with the same
@@ -151,7 +151,7 @@ recon.process();
 % for both the reconstructed images and g-factors, before extracting the
 % data as MATLAB arrays. Containers in effect point to the data.
 
-% Get images and gfactors as containers with type mGadgetron.ImagesContainer
+% Get images and gfactors as containers with type sirf.Gadgetron.ImagesContainer
 % (Note this syntax may change in the future with the addition of a
 %  method '.get_gfactor'.)
 image_data = recon.get_output('image');
