@@ -44,20 +44,20 @@ classdef NiftyResample < handle
             %Set reference image.
             assert(isa(reference_image, 'mSIRF.ImageData'), 'NiftyResample::set_reference_image expects mSIRF.ImageData')
             self.reference_image = reference_image;
-            mReg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
+            sirf.Reg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
             %Set floating image.
             assert(isa(floating_image, 'mSIRF.ImageData'), 'NiftyResample::set_floating_image expects mSIRF.ImageData')
-            mReg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
+            sirf.Reg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
         function add_transformation(self, src)
             %Add transformation.
-            if isa(src, 'mReg.AffineTransformation')
+            if isa(src, 'sirf.Reg.AffineTransformation')
                 h = calllib('mreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
-            elseif isa(src, 'mReg.NiftiImageData3DDisplacement')
+            elseif isa(src, 'sirf.Reg.NiftiImageData3DDisplacement')
                 h = calllib('mreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
-            elseif isa(src, 'mReg.NiftiImageData3DDeformation')
+            elseif isa(src, 'sirf.Reg.NiftiImageData3DDeformation')
                 h = calllib('mreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
             else 
                 error('Transformation should be affine, deformation or displacement.')
@@ -65,23 +65,23 @@ classdef NiftyResample < handle
         end
         function set_interpolation_type(self, type)
             %Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc.
-            mReg.setParameter(self.handle_, self.name, 'interpolation_type', type, 'i')
+            sirf.Reg.setParameter(self.handle_, self.name, 'interpolation_type', type, 'i')
         end
         function set_interpolation_type_to_nearest_neighbour(self)
             %Set interpolation type to nearest neighbour.
-            mReg.setParameter(self.handle_, self.name, 'interpolation_type', 0, 'i')
+            sirf.Reg.setParameter(self.handle_, self.name, 'interpolation_type', 0, 'i')
         end
         function set_interpolation_type_to_linear(self)
             %Set interpolation type to linear.
-            mReg.setParameter(self.handle_, self.name, 'interpolation_type', 1, 'i')
+            sirf.Reg.setParameter(self.handle_, self.name, 'interpolation_type', 1, 'i')
         end
         function set_interpolation_type_to_cubic_spline(self)
             %Set interpolation type to cubic spline.
-            mReg.setParameter(self.handle_, self.name, 'interpolation_type', 3, 'i')
+            sirf.Reg.setParameter(self.handle_, self.name, 'interpolation_type', 3, 'i')
         end
         function set_interpolation_type_to_sinc(self)
             %Set interpolation type to sinc.
-            mReg.setParameter(self.handle_, self.name, 'interpolation_type', 4, 'i')
+            sirf.Reg.setParameter(self.handle_, self.name, 'interpolation_type', 4, 'i')
         end
         function process(self)
             %Process.

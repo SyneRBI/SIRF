@@ -1,8 +1,8 @@
-classdef (Abstract = true) Transformation < handle & matlab.mixin.Heterogeneous
-% Abstract class for transformations.
+classdef NiftiImageData3D < sirf.Reg.NiftiImageData
+% Class for 3D image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2018-2019 University College London
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -20,28 +20,32 @@ classdef (Abstract = true) Transformation < handle & matlab.mixin.Heterogeneous
 
     methods(Static)
         function name = class_name()
-            name = 'Transformation';
+            name = 'NiftiImageData3D';
+        end
+        function obj = same_object()
+            obj = sirf.Reg.NiftiImageData3D();
         end
     end
     methods
-        function self = Transformation()
-            self.name = 'Transformation';
-            self.handle_ = [];
+        function self = NiftiImageData3D(src)
+            narginchk(0,1)
+            self.name = 'NiftiImageData3D';
+            if nargin < 1
+                self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
+            elseif ischar(src)
+                self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
+            elseif isa(src, 'mSIRF.ImageData')
+                self.handle_ = calllib('mreg', 'mReg_NiftiImageData3D_from_SIRFImageData', src.handle_);
+            else
+                error('NiftiImageData3D accepts no args, filename or mSIRF.ImageData.')
+            end
+            mUtilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
                 mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
-        end
-        function output = get_as_deformation_field(self, ref)
-            %Get any type of transformation as a deformation field.
-            %This is useful for joining them together. Require a reference
-            %image for converting transformation matrices to deformations.
-            assert(isa(ref, 'mSIRF.ImageData'))
-            output = mReg.NiftiImageData3DDeformation();
-            output.handle_ = calllib('mreg', 'mReg_Transformation_get_as_deformation_field', self.handle_, self.name, ref.handle_);
-            mUtilities.check_status([self.name ':get_as_deformation_field'], output.handle_);
         end
     end
 end

@@ -1,4 +1,4 @@
-classdef NiftiImageData3DTensor < mReg.NiftiImageData
+classdef NiftiImageData3DTensor < sirf.Reg.NiftiImageData
 % Class for tensor image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -23,7 +23,7 @@ classdef NiftiImageData3DTensor < mReg.NiftiImageData
             name = 'NiftiImageData3DTensor';
         end
         function obj = same_object()
-            obj = mReg.NiftiImageData3DTensor();
+            obj = sirf.Reg.NiftiImageData3DTensor();
         end
     end
     methods

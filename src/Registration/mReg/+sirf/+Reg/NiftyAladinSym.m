@@ -1,4 +1,4 @@
-classdef NiftyAladinSym < mReg.Registration
+classdef NiftyAladinSym < sirf.Reg.Registration
 % Registration class using NiftyReg's symmetric aladin.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -37,13 +37,13 @@ classdef NiftyAladinSym < mReg.Registration
         end
         function tm = get_transformation_matrix_forward(self)
             %Get forward transformation matrix.
-            tm = mReg.AffineTransformation();
+            tm = sirf.Reg.AffineTransformation();
             tm.handle_ = calllib('mreg', 'mReg_NiftyAladin_get_TM', self.handle_, 'forward');
             mUtilities.check_status([self.name ':get_transformation_matrix_forward'], tm.handle_);
         end
         function tm = get_transformation_matrix_inverse(self)
             %Get inverse transformation matrix.
-            tm = mReg.AffineTransformation();
+            tm = sirf.Reg.AffineTransformation();
             tm.handle_ = calllib('mreg', 'mReg_NiftyAladin_get_TM', self.handle_, 'inverse');
             mUtilities.check_status([self.name ':get_transformation_matrix_inverse'], tm.handle_);
         end

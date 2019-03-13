@@ -26,7 +26,7 @@ classdef NiftiImageData < mSIRF.ImageData
             name = 'NiftiImageData';
         end
         function obj = same_object()
-            obj = mReg.NiftiImageData();
+            obj = sirf.Reg.NiftiImageData();
         end
     end
     methods
@@ -53,7 +53,7 @@ classdef NiftiImageData < mSIRF.ImageData
         function z = plus(self, other)
             % Overloads the addition operator
             z = self.deep_copy();
-            if isa(other, 'mReg.NiftiImageData')
+            if isa(other, 'sirf.Reg.NiftiImageData')
             	calllib('mreg', 'mReg_NiftiImageData_maths_im', z.handle_, self.handle_, other.handle_, 0);
             elseif isnumeric(other)
             	calllib('mreg', 'mReg_NiftiImageData_maths_num', z.handle_, self.handle_, other, 0);
@@ -65,7 +65,7 @@ classdef NiftiImageData < mSIRF.ImageData
         function z = minus(self, other)
             % Overloads the subtraction operator
             z = self.deep_copy();
-            if isa(other, 'mReg.NiftiImageData')
+            if isa(other, 'sirf.Reg.NiftiImageData')
             	calllib('mreg', 'mReg_NiftiImageData_maths_im', z.handle_, self.handle_, other.handle_, 1);
             elseif isnumeric(other)
             	calllib('mreg', 'mReg_NiftiImageData_maths_num', z.handle_, self.handle_, other, 1);
@@ -86,7 +86,7 @@ classdef NiftiImageData < mSIRF.ImageData
         end
         function value = eq(self, other)
         	% Overload equality operator
-        	assert(isa(other, 'mReg.NiftiImageData'));
+        	assert(isa(other, 'sirf.Reg.NiftiImageData'));
     	    hv = calllib('mreg', 'mReg_NiftiImageData_equal', self.handle_, other.handle_);
 			mUtilities.check_status('parameter', hv);
     		value = logical(calllib('miutilities', 'mIntDataFromHandle', hv));
@@ -107,15 +107,15 @@ classdef NiftiImageData < mSIRF.ImageData
         end
         function value = get_max(self)
             %Get max.
-            value = mReg.parameter(self.handle_, 'NiftiImageData', 'max', 'f');
+            value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'max', 'f');
         end
         function value = get_min(self)
             %Get min.
-            value = mReg.parameter(self.handle_, 'NiftiImageData', 'min', 'f');
+            value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'min', 'f');
         end
         function value = get_sum(self)
             %Get sum.
-            value = mReg.parameter(self.handle_, 'NiftiImageData', 'sum', 'f');
+            value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'sum', 'f');
         end
         function value = get_dimensions(self)
             %Get dimensions. Returns nifti format.
@@ -192,7 +192,7 @@ classdef NiftiImageData < mSIRF.ImageData
     methods(Static)
         function print_headers(to_print)
             %Print metadata of one or multiple (up to 5) nifti images.
-            assert(ismatrix(to_print) && isa(to_print, 'mReg.NiftiImageData'), 'NiftiImageData.print_headers: give list of NiftiImageData.')
+            assert(ismatrix(to_print) && isa(to_print, 'sirf.Reg.NiftiImageData'), 'NiftiImageData.print_headers: give list of NiftiImageData.')
             num_ims = size(to_print,2);
             if num_ims == 1
                 h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 1, to_print(1).handle_, [], [], [], []);

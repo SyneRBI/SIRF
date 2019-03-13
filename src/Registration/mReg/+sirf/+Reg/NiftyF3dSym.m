@@ -1,5 +1,5 @@
-classdef NiftiImageData3DDisplacement < mReg.NiftiImageData3DTensor & mReg.Transformation
-% Class for displacement image data.
+classdef NiftyF3dSym < sirf.Reg.Registration
+% Registration class using NiftyReg's symmetric f3d.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018-2019 University College London
@@ -20,25 +20,13 @@ classdef NiftiImageData3DDisplacement < mReg.NiftiImageData3DTensor & mReg.Trans
 
     methods(Static)
         function name = class_name()
-            name = 'NiftiImageData3DDisplacement';
-        end
-        function obj = same_object()
-            obj = mReg.NiftiImageData3DDisplacement();
+            name = 'NiftyF3dSym';
         end
     end
     methods
-        function self = NiftiImageData3DDisplacement(src1, src2, src3)
-            narginchk(0,3)
-            self.name = 'NiftiImageData3DDisplacement';
-            if nargin < 1
-                self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
-            elseif ischar(src1)
-                self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src1);
-            elseif nargin == 3 && isa(src1, 'mSIRF.ImageData') && isa(src2, 'mSIRF.ImageData') && isa(src3, 'mSIRF.ImageData')
-                self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
-            elseif isa(src1, 'mReg.NiftiImageData3DDeformation')
-                self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDisplacement_create_from_def', src1.handle_);
-            end
+        function self = NiftyF3dSym()
+            self.name = 'NiftyF3dSym';
+            self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end
         function delete(self)
@@ -46,6 +34,19 @@ classdef NiftiImageData3DDisplacement < mReg.NiftiImageData3DTensor & mReg.Trans
                 mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
+        end
+        function set_floating_time_point(self, floating_time_point)
+            %Set floating time point.
+            sirf.Reg.setParameter(self.handle_, self.name, 'floating_time_point', floating_time_point, 'i')
+        end
+        function set_reference_time_point(self, reference_time_point)
+            %Set reference time point.
+            sirf.Reg.setParameter(self.handle_, self.name, 'reference_time_point', reference_time_point, 'i')
+        end
+        function set_initial_affine_transformation(self, src)
+            %Set initial affine transformation.
+            assert(isa(src, 'sirf.Reg.AffineTransformation'))
+            sirf.Reg.setParameter(self.handle_, self.name, 'initial_affine_transformation', src, 'h');
         end
     end
 end
