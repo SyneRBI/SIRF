@@ -1,4 +1,4 @@
-classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
+classdef AcquisitionDataProcessor < sirf.Gadgetron.GadgetChain
 % Class for a chain of gadgets that has AcquisitionData on input and output.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -39,7 +39,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             if nargin > 0
                 for i = 1 : size(list, 2)
                     [label, name] = mUtilities.label_and_name(list{i});
-                    self.add_gadget(label, mGadgetron.Gadget(name));
+                    self.add_gadget(label, sirf.Gadgetron.Gadget(name));
                 end
             end
         end
@@ -52,7 +52,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
         end
         function set_input(self, input)
 %***SIRF*** Sets the input data.
-            %assert(isa(input, 'mGadgetron.AcquisitionData'))
+            %assert(isa(input, 'sirf.Gadgetron.AcquisitionData'))
             assert(strcmp(input.class_name(), 'AcquisitionData'))
             self.input_ = input;
         end
@@ -67,7 +67,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
                 error('ImageDataProcessor:input', 'input not set')
             end
             mUtilities.assert_validity(self.input_, 'AcquisitionData')
-            acqs = mGadgetron.AcquisitionData();
+            acqs = sirf.Gadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...
                 self.handle_, self.input_.handle_);

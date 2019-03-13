@@ -31,7 +31,7 @@ classdef AcquisitionData < mSIRF.DataContainer
             name = 'AcquisitionData';
         end
         function obj = same_object()
-            obj = mGadgetron.AcquisitionData();
+            obj = sirf.Gadgetron.AcquisitionData();
         end
         function set_storage_scheme(scheme)
 %***SIRF*** Sets acquisition data storage scheme.
@@ -62,7 +62,7 @@ classdef AcquisitionData < mSIRF.DataContainer
             self.name_ = 'AcquisitionData';
             self.handle_ = [];
             self.sorted_ = false;
-            %self.info_ = mGadgetron.AcquisitionInfo.empty(0);
+            %self.info_ = sirf.Gadgetron.AcquisitionInfo.empty(0);
             if nargin > 0
                 self.handle_ = calllib('mgadgetron', ...
                     'mGT_ISMRMRDAcquisitionsFromFile', filename);
@@ -110,7 +110,7 @@ classdef AcquisitionData < mSIRF.DataContainer
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
             end
-            ap = mGadgetron.AcquisitionDataProcessor(list);
+            ap = sirf.Gadgetron.AcquisitionDataProcessor(list);
             a = ap.process(self);
         end
         function [ns, nc, na] = dimensions(self, select)
@@ -140,7 +140,7 @@ classdef AcquisitionData < mSIRF.DataContainer
             end
         end
         function a = acquisition(self, num)
-            a = mGadgetron.Acquisition();
+            a = sirf.Gadgetron.Acquisition();
             a.handle_ = calllib('mgadgetron', ...
                 'mGT_acquisitionFromContainer', self.handle_, num - 1);
         end

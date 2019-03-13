@@ -28,7 +28,7 @@ classdef CoilSensitivityData < mSIRF.DataContainer
             name = 'CoilSensitivityData';
         end
         function obj = same_object()
-            obj = mGadgetron.CoilSensitivityData();
+            obj = sirf.Gadgetron.CoilSensitivityData();
         end
     end
     methods

@@ -57,7 +57,7 @@ classdef AcquisitionModel < handle
 %***SIRF*** Returns the forward projection of the specified ImageData argument
 %         simulating the actual data expected to be received from the scanner.
             mUtilities.assert_validity(image, 'ImageData')
-            acqs = mGadgetron.AcquisitionData();
+            acqs = sirf.Gadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelForward', ...
                 self.handle_, image.handle_);
@@ -68,7 +68,7 @@ classdef AcquisitionModel < handle
 %         of AcquisitionData type into image space using a complex
 %         transpose of the forward projection.
             mUtilities.assert_validity(acqs, 'AcquisitionData')
-            imgs = mGadgetron.ImageData();
+            imgs = sirf.Gadgetron.ImageData();
             imgs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelBackward', ...
                 self.handle_, acqs.handle_);

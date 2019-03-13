@@ -1,4 +1,4 @@
-classdef Reconstructor < mGadgetron.GadgetChain
+classdef Reconstructor < sirf.Gadgetron.GadgetChain
 % Class for reconstructing images using Gadgetron 
 % 
 % Reconstructor Methods:
@@ -47,7 +47,7 @@ classdef Reconstructor < mGadgetron.GadgetChain
             if nargin > 0
                 for i = 1 : size(list, 2)
                     [label, name] = mUtilities.label_and_name(list{i});
-                    self.add_gadget(label, mGadgetron.Gadget(name));
+                    self.add_gadget(label, sirf.Gadgetron.Gadget(name));
                 end
             end
         end
@@ -61,7 +61,7 @@ classdef Reconstructor < mGadgetron.GadgetChain
         function set_input(self, input_data)
 %***SIRF*** Sets the specified AcquisitionData argument as the input.
 %         See also PROCESS
-            %assert(isa(input_data, 'mGadgetron.AcquisitionData'))
+            %assert(isa(input_data, 'sirf.Gadgetron.AcquisitionData'))
             assert(strcmp(input_data.class_name(), 'AcquisitionData'))
             self.input_ = input_data;
         end
@@ -72,7 +72,7 @@ classdef Reconstructor < mGadgetron.GadgetChain
                     'no input data for reconstruction')
             end
             mUtilities.assert_validity(self.input_, 'AcquisitionData')
-            self.images_ = mGadgetron.ImageData();
+            self.images_ = sirf.Gadgetron.ImageData();
             self.images_.handle_ = calllib...
                 ('mgadgetron', 'mGT_reconstructImages', ...
                 self.handle_, self.input_.handle_);

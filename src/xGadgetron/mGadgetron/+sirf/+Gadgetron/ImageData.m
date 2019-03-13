@@ -26,7 +26,7 @@ classdef ImageData < mSIRF.ImageData
             name = 'ImageData';
         end
         function obj = same_object()
-            obj = mGadgetron.ImageData();
+            obj = sirf.Gadgetron.ImageData();
         end
     end
     methods
@@ -49,7 +49,7 @@ classdef ImageData < mSIRF.ImageData
             mUtilities.check_status(self.name_, self.handle_);
         end
         function img = image(self, num)
-            img = mGadgetron.Image();
+            img = sirf.Gadgetron.Image();
             img.handle_ = calllib('mgadgetron', 'mGT_imageWrapFromContainer', ...
                 self.handle_, num - 1);
             mUtilities.check_status(self.name_, img.handle_);
@@ -63,7 +63,7 @@ classdef ImageData < mSIRF.ImageData
                 error('ImageData:empty_object', ...
                     'cannot handle empty object')
             end
-            images = mGadgetron.ImageData();
+            images = sirf.Gadgetron.ImageData();
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
                 self.handle_, attribute, value);
             mUtilities.check_status(self.name_, images.handle_);
@@ -79,7 +79,7 @@ classdef ImageData < mSIRF.ImageData
 %             brackets can be used to assign values to gadget properties,
 %             and an optional label can be used to change the labelled
 %             gadget properties after the chain has been defined.
-            ip = mGadgetron.ImageDataProcessor(list);
+            ip = sirf.Gadgetron.ImageDataProcessor(list);
             images = ip.process(self);
         end
         function ft = is_real(self)

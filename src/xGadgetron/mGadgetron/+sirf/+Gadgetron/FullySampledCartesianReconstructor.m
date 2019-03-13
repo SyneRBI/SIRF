@@ -1,5 +1,5 @@
-classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
-% Class for the GRAPPA reconstructor from undersampled Cartesian raw data.
+classdef FullySampledCartesianReconstructor < sirf.Gadgetron.Reconstructor
+% Class for a fully sampled Cartesian MR data reconstructor.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -21,9 +21,8 @@ classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
     properties
     end
     methods
-        function self = CartesianGRAPPAReconstructor()
-%         Creates Cartesian GRAPPA Reconstructor.
-            self.name_ = 'SimpleGRAPPAReconstructionProcessor';
+        function self = FullySampledCartesianReconstructor()
+            self.name_ = 'SimpleReconstructionProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
@@ -35,11 +34,6 @@ classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
                 %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = [];
-        end
-        function compute_gfactors(self, flag)
-%***SIRF*** Switches the computation of G-factors during the reconstruction
-%         on (flag = true) or off (flag = false).
-            self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
         end
     end
 end
