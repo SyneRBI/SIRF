@@ -34,7 +34,7 @@ classdef NiftiImageData3DDisplacement < sirf.Reg.NiftiImageData3DTensor & sirf.R
                 self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src1)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src1);
-            elseif nargin == 3 && isa(src1, 'mSIRF.ImageData') && isa(src2, 'mSIRF.ImageData') && isa(src3, 'mSIRF.ImageData')
+            elseif nargin == 3 && isa(src1, 'sirf.SIRF.ImageData') && isa(src2, 'sirf.SIRF.ImageData') && isa(src3, 'sirf.SIRF.ImageData')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
             elseif isa(src1, 'sirf.Reg.NiftiImageData3DDeformation')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDisplacement_create_from_def', src1.handle_);

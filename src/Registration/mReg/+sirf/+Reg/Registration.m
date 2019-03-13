@@ -45,23 +45,23 @@ classdef (Abstract = true) Registration < handle
         end
         function set_reference_image(self, input)
             %Sets the reference image.
-            assert(isa(input, 'mSIRF.ImageData'))
+            assert(isa(input, 'sirf.SIRF.ImageData'))
             self.reference_image = input;
             sirf.Reg.setParameter(self.handle_, 'Registration', 'reference_image', input, 'h')
         end
         function set_floating_image(self, input)
             %Sets the floating image.
-            assert(isa(input, 'mSIRF.ImageData'))
+            assert(isa(input, 'sirf.SIRF.ImageData'))
             sirf.Reg.setParameter(self.handle_, 'Registration', 'floating_image', input, 'h')
         end
         function set_reference_mask(self, input)
             %Sets the reference mask.
-            assert(isa(input, 'mSIRF.ImageData'))
+            assert(isa(input, 'sirf.SIRF.ImageData'))
             sirf.Reg.setParameter(self.handle_, 'Registration', 'reference_mask', input, 'h')
         end
         function set_floating_mask(self, input)
             %Sets the floating mask.
-            assert(isa(input, 'mSIRF.ImageData'))
+            assert(isa(input, 'sirf.SIRF.ImageData'))
             sirf.Reg.setParameter(self.handle_, 'Registration', 'floating_mask', input, 'h')
         end
         function output = get_output(self)

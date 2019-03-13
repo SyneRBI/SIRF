@@ -1,4 +1,4 @@
-classdef ImageData < mSIRF.ImageData
+classdef ImageData < sirf.SIRF.ImageData
 % Class for MR image data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

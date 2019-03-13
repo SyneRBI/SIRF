@@ -1,4 +1,4 @@
-classdef NiftiImageData < mSIRF.ImageData
+classdef NiftiImageData < sirf.SIRF.ImageData
 % Class for image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -37,10 +37,10 @@ classdef NiftiImageData < mSIRF.ImageData
                 self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
-            elseif isa(src, 'mSIRF.ImageData')
+            elseif isa(src, 'sirf.SIRF.ImageData')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3D_from_SIRFImageData', src.handle_);
             else
-                error('NiftiImageData accepts no args, filename or mSIRF.ImageData.')
+                error('NiftiImageData accepts no args, filename or sirf.SIRF.ImageData.')
             end
             sirf.Utilities.check_status(self.name, self.handle_)
         end

@@ -34,7 +34,7 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
                 self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src1)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src1);
-            elseif nargin == 3 && isa(src1, 'mSIRF.ImageData') && isa(src2, 'mSIRF.ImageData') && isa(src3, 'mSIRF.ImageData')
+            elseif nargin == 3 && isa(src1, 'sirf.SIRF.ImageData') && isa(src2, 'sirf.SIRF.ImageData') && isa(src3, 'sirf.SIRF.ImageData')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);                
             elseif isa(src1, 'sirf.Reg.NiftiImageData3DDisplacement')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_create_from_disp', src1.handle_);
@@ -51,7 +51,7 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
     methods(Static)
         function z = compose_single_deformation(trans, ref)
 	    	%Compose up to transformations into single deformation.
-		    assert(isa(ref, 'mSIRF.ImageData'))
+		    assert(isa(ref, 'sirf.SIRF.ImageData'))
 		    assert(isa(trans, 'sirf.Reg.Transformation'))
 		    if isrow(trans)
                 trans=trans'; 

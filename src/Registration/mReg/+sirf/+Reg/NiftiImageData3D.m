@@ -34,10 +34,10 @@ classdef NiftiImageData3D < sirf.Reg.NiftiImageData
                 self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
-            elseif isa(src, 'mSIRF.ImageData')
+            elseif isa(src, 'sirf.SIRF.ImageData')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3D_from_SIRFImageData', src.handle_);
             else
-                error('NiftiImageData3D accepts no args, filename or mSIRF.ImageData.')
+                error('NiftiImageData3D accepts no args, filename or sirf.SIRF.ImageData.')
             end
             sirf.Utilities.check_status(self.name, self.handle_)
         end

@@ -42,13 +42,13 @@ classdef NiftyResample < handle
         end
         function set_reference_image(self, reference_image)
             %Set reference image.
-            assert(isa(reference_image, 'mSIRF.ImageData'), 'NiftyResample::set_reference_image expects mSIRF.ImageData')
+            assert(isa(reference_image, 'sirf.SIRF.ImageData'), 'NiftyResample::set_reference_image expects sirf.SIRF.ImageData')
             self.reference_image = reference_image;
             sirf.Reg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
             %Set floating image.
-            assert(isa(floating_image, 'mSIRF.ImageData'), 'NiftyResample::set_floating_image expects mSIRF.ImageData')
+            assert(isa(floating_image, 'sirf.SIRF.ImageData'), 'NiftyResample::set_floating_image expects sirf.SIRF.ImageData')
             sirf.Reg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
         function add_transformation(self, src)

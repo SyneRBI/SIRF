@@ -1,4 +1,4 @@
-classdef ImageData < mSIRF.DataContainer
+classdef ImageData < sirf.SIRF.DataContainer
 % INTERNAL USE ONLY.
 % Class for an abstract data container.
 

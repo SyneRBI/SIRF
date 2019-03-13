@@ -83,7 +83,7 @@ classdef AffineTransformation < sirf.Reg.Transformation
         end
         function value = get_determinant(self)
             %Get determinant.
-            value = mSTIR.parameter(self.handle_, self.name, 'determinant', 'f');
+            value = sirf.STIR.parameter(self.handle_, self.name, 'determinant', 'f');
         end
         function tm = as_array(self)
             %Get forward transformation matrix.

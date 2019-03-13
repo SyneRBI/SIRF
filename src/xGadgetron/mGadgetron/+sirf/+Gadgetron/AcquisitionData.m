@@ -1,4 +1,4 @@
-classdef AcquisitionData < mSIRF.DataContainer
+classdef AcquisitionData < sirf.SIRF.DataContainer
 % Class for MR acquisitions data.
 % Each item in the container is a complex array of acquisition 
 % samples for each coil.
