@@ -1,5 +1,5 @@
 classdef AcquisitionModelUsingRayTracingMatrix < ...
-        mSTIR.AcquisitionModelUsingMatrix
+        sirf.STIR.AcquisitionModelUsingMatrix
 % Class for PET acquisition model using the ray tracing projection matrix.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -31,9 +31,9 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
             mUtilities.check_status([self.name ':ctor'], self.handle_)
             if nargin < 1
-                matrix = mSTIR.RayTracingMatrix();
+                matrix = sirf.STIR.RayTracingMatrix();
             end
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
@@ -47,7 +47,7 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
 %***SIRF*** Returns the ray tracing matrix used for projecting;
 %         matrix:  a RayTracingMatrix object representing G in (F) -
 %                  see AcquisitionModel
-            matrix = mSTIR.RayTracingMatrix();
+            matrix = sirf.STIR.RayTracingMatrix();
             mUtilities.delete(matrix.handle_)
             matrix.handle_ = calllib('mstir', 'mSTIR_parameter',...
                 self.handle_, self.name, 'matrix');

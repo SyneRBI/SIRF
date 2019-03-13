@@ -1,6 +1,5 @@
-classdef Shape < handle
-% Class for an abstract geometric shape.
-% Objects of this class are used as building blocks for creating phantom images.
+classdef EllipticCylinder < sirf.STIR.Shape
+% Class for elliptic cylinder shape.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -20,34 +19,33 @@ classdef Shape < handle
 % limitations under the License.
 
     properties
-        handle_
-    end
-    methods (Static)
-        function name = class_name()
-            name = 'Shape';
-        end
+        name
     end
     methods
-        function self = Shape()
-            self.handle_ = [];
+        function self = EllipticCylinder()
+%         Creates an EllipticCylinder object.
+            self.name = 'EllipsoidalCylinder';
+            self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
         end
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
                 mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
-        function set_origin(self, origin)
-% ***SIRF*** Sets the (discrete) coordinates of the shape centre on a voxel grid.
-            mSTIR.setParameter(self.handle_, 'Shape', 'x', origin(1), 'f')
-            mSTIR.setParameter(self.handle_, 'Shape', 'y', origin(2), 'f')
-            mSTIR.setParameter(self.handle_, 'Shape', 'z', origin(3), 'f')
+        function set_length(self, value)
+%***SIRF*** Sets the length (height) of the cylinder.
+            sirf.STIR.setParameter(self.handle_, self.name, 'length', value, 'f')
         end
-        function [x, y, z] = get_origin(self)
-% ***SIRF*** Returns the coordinates of the shape centre on a voxel grid.
-            x = mSTIR.parameter(self.handle_, 'Shape', 'x', 'f');
-            y = mSTIR.parameter(self.handle_, 'Shape', 'y', 'f');
-            z = mSTIR.parameter(self.handle_, 'Shape', 'z', 'f');
+        function value = get_length(self)
+%***SIRF*** Returns the length (height) of the cylinder.
+            value = sirf.STIR.parameter(self.handle_, self.name, 'length', 'f');
+        end
+        function set_radii(self, r)
+%***SIRF*** Sets the radii of the cylinder.
+            sirf.STIR.setParameter(self.handle_, self.name, 'radius_x', r(1), 'f')
+            sirf.STIR.setParameter(self.handle_, self.name, 'radius_y', r(2), 'f')
         end
     end
 end

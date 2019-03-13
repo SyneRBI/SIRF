@@ -27,7 +27,7 @@ classdef AcquisitionData < mSIRF.DataContainer
             name = 'AcquisitionData';
         end
         function obj = same_object()
-            obj = mSTIR.AcquisitionData();
+            obj = sirf.STIR.AcquisitionData();
         end
         function set_storage_scheme(scheme)
 %***SIRF*** Sets acquisition data storage scheme.
@@ -99,7 +99,7 @@ classdef AcquisitionData < mSIRF.DataContainer
                         'AcquisitionData', arg);
                     self.read_only = true;
                 end
-            elseif isa(arg, 'mSTIR.AcquisitionData')
+            elseif isa(arg, 'sirf.STIR.AcquisitionData')
                 self.handle_ = calllib...
                     ('mstir', 'mSTIR_acquisitionsDataFromTemplate',...
                     arg.handle_);
@@ -132,7 +132,7 @@ classdef AcquisitionData < mSIRF.DataContainer
 %           the acquisition data in self.
 %           The specified value, if present, is assigned at all image voxels.
 %           value: a float.
-            image = mSTIR.ImageData();
+            image = sirf.STIR.ImageData();
             if nargin < 3
                 image.handle_ = calllib...
                     ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle_);
@@ -197,7 +197,7 @@ classdef AcquisitionData < mSIRF.DataContainer
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
                 mUtilities.delete(h)
-            elseif isa(value, 'mSTIR.AcquisitionData')
+            elseif isa(value, 'sirf.STIR.AcquisitionData')
                 h = calllib('mstir', ...
                     'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
                     self.handle_, value.handle_);
@@ -214,7 +214,7 @@ classdef AcquisitionData < mSIRF.DataContainer
             if nargin < 2
                 value = 0;
             end
-            ad = mSTIR.AcquisitionData(self);
+            ad = sirf.STIR.AcquisitionData(self);
             ad.fill(value)
         end
     end

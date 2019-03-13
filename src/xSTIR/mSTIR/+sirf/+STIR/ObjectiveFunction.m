@@ -41,13 +41,13 @@ classdef ObjectiveFunction < handle
         function set_prior(self, prior)
 %***SIRF*** Sets the prior (penalty term to be added to the objective function).
             mUtilities.assert_validity(prior, 'Prior')
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, 'GeneralisedObjectiveFunction', 'prior',...
                 prior, 'h')
         end
         function prior = get_prior(self)
 %***SIRF*** Returns the prior currently used by this objective function.
-            prior = mSTIR.Prior();
+            prior = sirf.STIR.Prior();
             prior.handle_ = calllib('mstir', 'mSTIR_parameter',...
                 self.handle_, 'GeneralisedObjectiveFunction', 'prior');
             mUtilities.check_status...
@@ -60,7 +60,7 @@ classdef ObjectiveFunction < handle
 %         Assuming for simplicity of illustration that the ray tracing 
 %         projector G is a matrix, the subsets in question correspond to
 %         subsets of its rows.
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, 'GeneralisedObjectiveFunction', ...
                 'num_subsets', num, 'i')
         end
@@ -93,7 +93,7 @@ classdef ObjectiveFunction < handle
             if nargin < 3
                 subset = -1;
             end
-            g = mSTIR.ImageData();
+            g = sirf.STIR.ImageData();
             g.handle_ = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
                 self.handle_, image.handle_, subset);
             mUtilities.check_status...

@@ -37,7 +37,7 @@ classdef Reconstructor < handle
         end
         function set_input(self, input_data)
             mUtilities.assert_validity(input_data, 'AcquisitionData')
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, self.R, 'input_data', input_data, 'h')
         end
         function process(self)
@@ -77,7 +77,7 @@ classdef Reconstructor < handle
 %                 Each file will be named [prefix '_' subiter_num], 
 %                 where subiter_num is the number of the sub-iteration 
 %                 at which the respective image estimate was saved.
-            mSTIR.setParameter(self.handle_, self.R, 'output_filename_prefix',...
+            sirf.STIR.setParameter(self.handle_, self.R, 'output_filename_prefix',...
                 prefix, 'c')
         end
     end

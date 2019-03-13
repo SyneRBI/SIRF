@@ -1,4 +1,4 @@
-classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
+classdef PoissonLogLikelihoodWithLinearModelForMean < sirf.STIR.ObjectiveFunction
 % ADVANCED USERS ONLY.
 % Class for STIR PoissonLogLikelihoodWithLinearModelForMean object, see
 % http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMean.html
@@ -34,7 +34,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
         end
         function set_sensitivity_filename(self, name)
 %***SIRF*** Specifies the file with the sensitivity data to be used.
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'sensitivity_filename', name, 'c')
         end
@@ -45,7 +45,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
             else
                 str = 'false';
             end
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'use_subset_sensitivities', str, 'c')
         end
@@ -56,13 +56,13 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
             else
                 str = 'false';
             end
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'recompute_sensitivity', str, 'c')
         end
         function sens = get_subset_sensitivity(self, subset)
 %***SIRF*** Returns the specified subset sensitivity data as ImageData.
-            sens = mSTIR.ImageData();
+            sens = sirf.STIR.ImageData();
             sens.handle_ = calllib('mstir', 'mSTIR_subsetSensitivity',...
                 self.handle_, subset);
             mUtilities.check_status...
@@ -74,7 +74,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
 %***SIRF*** Returns the backprojection of the ratio of measured to estimated
 %         acquisition data for the specified image and subset.
             mUtilities.assert_validity(image, 'ImageData')
-            bar = mSTIR.ImageData();
+            bar = sirf.STIR.ImageData();
             bar.handle_ = calllib...
                 ('mstir', 'mSTIR_objectiveFunctionGradientNotDivided',...
                 self.handle_, image.handle_, subset);

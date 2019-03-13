@@ -1,4 +1,4 @@
-classdef FBP2DReconstructor < mSTIR.Reconstructor
+classdef FBP2DReconstructor < sirf.STIR.Reconstructor
 % Class for reconstructor objects using FBP2D algorithm.
 
 % FBP2D stands for Filtered Back Projection 2D, see
@@ -47,26 +47,26 @@ classdef FBP2DReconstructor < mSTIR.Reconstructor
             self.handle_ = [];
         end
         function set_input(self, input_data)
-            mSTIR.setParameter(self.handle_, self.name, 'input', input_data, 'h')
+            sirf.STIR.setParameter(self.handle_, self.name, 'input', input_data, 'h')
         end
         function set_zoom(self, zoom)
-            mSTIR.setParameter(self.handle_, self.name, 'zoom', zoom, 'f')
+            sirf.STIR.setParameter(self.handle_, self.name, 'zoom', zoom, 'f')
         end
         function set_alpha_cosine_window(self, alpha)
 %***SIRF*** Set alpha in the apodizing filter.
 %         See the class documentation for the filter. The value of alpha should
 %         be between 0.5 and 1. alpha=0.5 corresponds to the Hann filter, while
 %         0.54 corresponds to the Hamming filter.
-            mSTIR.setParameter(self.handle_, self.name, 'alpha', alpha, 'f')
+            sirf.STIR.setParameter(self.handle_, self.name, 'alpha', alpha, 'f')
         end
         function set_frequency_cut_off(self, fc)
 %***SIRF*** Set the cut-off frequency for the apodizing filter.
 %         See the class documentation for the filter. The value of fc should be
 %         between 0 and 0.5.
-            mSTIR.setParameter(self.handle_, self.name, 'fc', fc, 'f')
+            sirf.STIR.setParameter(self.handle_, self.name, 'fc', fc, 'f')
         end
         function set_output_image_size_xy(self, xy)
-            mSTIR.setParameter(self.handle_, self.name, 'xy', xy, 'i')
+            sirf.STIR.setParameter(self.handle_, self.name, 'xy', xy, 'i')
         end
         function set_up(self, image)
             h = calllib('mstir', 'mSTIR_setupFBP2DReconstruction', ...
@@ -79,7 +79,7 @@ classdef FBP2DReconstructor < mSTIR.Reconstructor
             mUtilities.check_status([self.name ':reconstruct'], h);
         end
         function image = get_output(self)
-            image = mSTIR.ImageData();
+            image = sirf.STIR.ImageData();
             image.handle_ = calllib('mstir', 'mSTIR_parameter', ...
                 self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], image.handle_);

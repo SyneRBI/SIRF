@@ -68,15 +68,15 @@ classdef ListmodeToSinograms < handle
         end
         function set_input(self, file)
             %***SIRF*** Sets the listmode file name.
-            mSTIR.setParameter(self.handle_, self.name_, 'input', file, 'c')
+            sirf.STIR.setParameter(self.handle_, self.name_, 'input', file, 'c')
         end
         function set_output_prefix(self, file)
             %***SIRF*** Sets the sinograms file names prefix.
-            mSTIR.setParameter(self.handle_, self.name_, 'output', file, 'c')
+            sirf.STIR.setParameter(self.handle_, self.name_, 'output', file, 'c')
         end
         function set_template(self, file)
             %***SIRF*** Sets the sinograms template.
-            mSTIR.setParameter(self.handle_, self.name_, 'template', file, 'c')
+            sirf.STIR.setParameter(self.handle_, self.name_, 'template', file, 'c')
         end
         function set_time_interval(self, start, stop)
             %***SIRF*** Sets time interval.
@@ -112,7 +112,7 @@ classdef ListmodeToSinograms < handle
         end
         function process(self)
             %***SIRF*** Performs the conversion.
-            self.output_ = mSTIR.AcquisitionData();
+            self.output_ = sirf.STIR.AcquisitionData();
             self.output_.handle_ = calllib...
                 ('mstir', 'mSTIR_convertListmodeToSinograms', ...
                 self.handle_);
@@ -126,7 +126,7 @@ classdef ListmodeToSinograms < handle
         end
         function randoms = estimate_randoms(self)
             %***SIRF*** Estimates randoms.
-            randoms = mSTIR.AcquisitionData();
+            randoms = sirf.STIR.AcquisitionData();
             randoms.handle_ = calllib('mstir', 'mSTIR_computeRandoms', ...
                 self.handle_);
             mUtilities.check_status...

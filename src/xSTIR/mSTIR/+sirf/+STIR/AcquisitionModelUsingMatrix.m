@@ -1,4 +1,4 @@
-classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
+classdef AcquisitionModelUsingMatrix < sirf.STIR.AcquisitionModel
 % ADVANCED USERS ONLY.    
 % Class for PET acquisition model with the geometric projection G
 % represented by a sparse matrix - see AcquisitionModel.
@@ -32,10 +32,10 @@ classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
             mUtilities.check_status([self.name ':ctor'], self.handle_)
             if nargin < 1
-                matrix = mSTIR.RayTracingMatrix();
+                matrix = sirf.STIR.RayTracingMatrix();
             end
             mUtilities.assert_validity(matrix, 'RayTracingMatrix')
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
@@ -49,7 +49,7 @@ classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
 %***SIRF*** set_matrix(matrix) sets the projection matrix to be used.
 %         matrix:  a projection matrix object to represent G in (F).
             mUtilities.assert_validity(matrix, 'RayTracingMatrix')
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, self.name, 'matrix', matrix, 'h')
         end
     end

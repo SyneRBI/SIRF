@@ -27,7 +27,7 @@ classdef ImageData < mSIRF.ImageData
             name = 'ImageData';
         end
         function obj = same_object()
-            obj = mSTIR.ImageData();
+            obj = sirf.STIR.ImageData();
         end
     end
     methods
@@ -118,7 +118,7 @@ classdef ImageData < mSIRF.ImageData
             if nargin < 2
                 value = 1.0;
             end
-            image = mSTIR.ImageData();
+            image = sirf.STIR.ImageData();
             image.handle_ = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle_);
             mUtilities.check_status('ImageData:get_uniform_copy', self.handle_)

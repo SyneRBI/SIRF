@@ -24,6 +24,6 @@ function obj_fun = make_Poisson_loglikelihood(acq_data)
 % limitations under the License.
 
     mUtilities.assert_validity(acq_data, 'AcquisitionData')
-    obj_fun = mSTIR.PoissonLogLikelihoodWithLinearModelForMeanAndProjData();
+    obj_fun = sirf.STIR.PoissonLogLikelihoodWithLinearModelForMeanAndProjData();
     obj_fun.set_acquisition_data(acq_data);
 end

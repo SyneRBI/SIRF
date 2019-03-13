@@ -1,5 +1,6 @@
-classdef EllipticCylinder < mSTIR.Shape
-% Class for elliptic cylinder shape.
+classdef Shape < handle
+% Class for an abstract geometric shape.
+% Objects of this class are used as building blocks for creating phantom images.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -19,33 +20,34 @@ classdef EllipticCylinder < mSTIR.Shape
 % limitations under the License.
 
     properties
-        name
+        handle_
+    end
+    methods (Static)
+        function name = class_name()
+            name = 'Shape';
+        end
     end
     methods
-        function self = EllipticCylinder()
-%         Creates an EllipticCylinder object.
-            self.name = 'EllipsoidalCylinder';
-            self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
+        function self = Shape()
+            self.handle_ = [];
         end
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
                 mUtilities.delete(self.handle_)
-                self.handle_ = [];
             end
         end
-        function set_length(self, value)
-%***SIRF*** Sets the length (height) of the cylinder.
-            mSTIR.setParameter(self.handle_, self.name, 'length', value, 'f')
+        function set_origin(self, origin)
+% ***SIRF*** Sets the (discrete) coordinates of the shape centre on a voxel grid.
+            sirf.STIR.setParameter(self.handle_, 'Shape', 'x', origin(1), 'f')
+            sirf.STIR.setParameter(self.handle_, 'Shape', 'y', origin(2), 'f')
+            sirf.STIR.setParameter(self.handle_, 'Shape', 'z', origin(3), 'f')
         end
-        function value = get_length(self)
-%***SIRF*** Returns the length (height) of the cylinder.
-            value = mSTIR.parameter(self.handle_, self.name, 'length', 'f');
-        end
-        function set_radii(self, r)
-%***SIRF*** Sets the radii of the cylinder.
-            mSTIR.setParameter(self.handle_, self.name, 'radius_x', r(1), 'f')
-            mSTIR.setParameter(self.handle_, self.name, 'radius_y', r(2), 'f')
+        function [x, y, z] = get_origin(self)
+% ***SIRF*** Returns the coordinates of the shape centre on a voxel grid.
+            x = sirf.STIR.parameter(self.handle_, 'Shape', 'x', 'f');
+            y = sirf.STIR.parameter(self.handle_, 'Shape', 'y', 'f');
+            z = sirf.STIR.parameter(self.handle_, 'Shape', 'z', 'f');
         end
     end
 end

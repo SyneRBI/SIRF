@@ -34,7 +34,7 @@ classdef RayTracingMatrix < handle
             self.name = 'RayTracingMatrix';
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, self.name, 'num_tangential_LORs', 2, 'i')
         end
         function delete(self)
@@ -44,11 +44,11 @@ classdef RayTracingMatrix < handle
 %***SIRF*** Set the number of LORs (or rays) for each bin in the sinogram.
 %         They are currently (approximately) parallel and spaced in the
 %         tangential direction (i.e. orthogonal to the axial direction).
-            mSTIR.setParameter...
+            sirf.STIR.setParameter...
                 (self.handle_, self.name, 'num_tangential_LORs', num, 'i')
         end
         function value = get_num_tangential_LORs(self)
-            value = mSTIR.parameter...
+            value = sirf.STIR.parameter...
                 (self.handle_, self.name, 'num_tangential_LORs', 'i');
         end
     end

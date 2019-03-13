@@ -1,4 +1,4 @@
-classdef IterativeReconstructor < mSTIR.Reconstructor
+classdef IterativeReconstructor < sirf.STIR.Reconstructor
 % Class for a generic iterative PET reconstructor.
 % Iterative reconstructors of this class maximize the objective function
 % that is formed by components corresponding to subsets of the acquisition
@@ -42,81 +42,81 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
         end
         function set_num_subsets(self, n)
 %***SIRF*** Sets the number of components of acquisition data.
-            mSTIR.setParameter(self.handle_, self.IR, 'num_subsets', n, 'i')
+            sirf.STIR.setParameter(self.handle_, self.IR, 'num_subsets', n, 'i')
         end
         function n = get_num_subsets(self)
 %***SIRF*** Returns the number of components of acquisition data.
-            n = mSTIR.parameter(self.handle_, self.IR, 'num_subsets', 'i');
+            n = sirf.STIR.parameter(self.handle_, self.IR, 'num_subsets', 'i');
         end
         function set_start_subset_num(self, n)
 %***SIRF*** Sets the first component of acquisition data to work with.
-            mSTIR.setParameter(self.handle_,...
+            sirf.STIR.setParameter(self.handle_,...
                 self.IR, 'start_subset_num', n, 'i')
         end
         function n = get_start_subset_num(self)
 %***SIRF*** Returns the first component of acquisition data to work with.
-            n = mSTIR.parameter(self.handle_,...
+            n = sirf.STIR.parameter(self.handle_,...
                 self.IR, 'start_subset_num', 'i');
         end
         function set_num_subiterations(self, n)
 %***SIRF*** Sets the number of subset iterations.
-            mSTIR.setParameter(self.handle_,...
+            sirf.STIR.setParameter(self.handle_,...
                 self.IR, 'num_subiterations', n, 'i')
         end
         function n = get_num_subiterations(self)
 %***SIRF*** Returns the number of subset iterations.
-            n = mSTIR.parameter(self.handle_,...
+            n = sirf.STIR.parameter(self.handle_,...
                 self.IR, 'num_subiterations', 'i');
         end
         function set_start_subiteration_num(self, n)
 %***SIRF*** Sets the subset iteration to start with.
-            mSTIR.setParameter(self.handle_,...
+            sirf.STIR.setParameter(self.handle_,...
                 self.IR, 'start_subiteration_num', n, 'i')
         end
         function n = get_start_subiteration_num(self)
 %***SIRF*** Returns the subset iteration to start with.
-            n = mSTIR.parameter(self.handle_,...
+            n = sirf.STIR.parameter(self.handle_,...
                 self.IR, 'start_subiteration_num', 'i');
         end
         function set_subiteration_num(self, iter)
 %***SIRF*** Sets the current subset iteration.
-            mSTIR.setParameter(self.handle_,...
+            sirf.STIR.setParameter(self.handle_,...
                 self.IR, 'subiteration_num', iter, 'i')
         end
         function iter = get_subiteration_num(self)
 %***SIRF*** Returns the current subset iteration.
-            iter = mSTIR.parameter(self.handle_,...
+            iter = sirf.STIR.parameter(self.handle_,...
                 self.IR, 'subiteration_num', 'i');
         end
         function set_save_interval(self, n)
 %***SIRF*** Sets the saving interval size. 
 %         Size 1 means the iterated approximate image must be saved to 
 %         a file every iteration, size 2 every other iteration etc.
-            mSTIR.setParameter(self.handle_,...
+            sirf.STIR.setParameter(self.handle_,...
                 self.IR, 'save_interval', n, 'i')
         end
 %         function set_inter_iteration_filter_interval(self, n)
 % %***SIRF*** Sets the filtering interval size: size 1 means the iterated 
 % %         approximate image must be filtered every iteration, size 2 every 
 % %         other iteration etc.
-%             mSTIR.setParameter(self.handle_, self.IR,...
+%             sirf.STIR.setParameter(self.handle_, self.IR,...
 %                 'inter_iteration_filter_interval', n, 'i')
 %         end
         function set_objective_function(self, obj_fun)
 %***SIRF*** Sets the objective function to be maximized.
             mUtilities.assert_validity(obj_fun, 'ObjectiveFunction')
-            mSTIR.setParameter(self.handle_, self.IR,...
+            sirf.STIR.setParameter(self.handle_, self.IR,...
                 'objective_function', obj_fun, 'h')
         end
 %         function set_inter_iteration_filter(self, filter)
 % %***SIRF*** Sets the filter to be applied at intervals specified by current
 % %         setting for inter-iteration filter interval.
-%             mSTIR.setParameter(self.handle_, self.IR,...
+%             sirf.STIR.setParameter(self.handle_, self.IR,...
 %                 'inter_iteration_filter_type', filter, 'h')
 %         end
 %         function filter = get_inter_iteration_filter(self)
 % %***SIRF*** Returns the inter-iteration filter currently in use.
-%             filter = mSTIR.DataProcessor();
+%             filter = sirf.STIR.DataProcessor();
 %             filter.handle_ = calllib('mstir', 'mSTIR_parameter',...
 %                 self.handle_, self.IR, 'inter_iteration_filter_type');
 %             mUtilities.check_status...

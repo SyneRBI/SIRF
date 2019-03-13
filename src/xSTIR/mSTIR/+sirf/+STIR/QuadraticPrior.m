@@ -1,4 +1,4 @@
-classdef QuadraticPrior < mSTIR.Prior
+classdef QuadraticPrior < sirf.STIR.Prior
 % Class for the prior that is a quadratic function of the image values.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
