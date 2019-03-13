@@ -79,24 +79,24 @@ classdef MessageRedirector < handle
             else
                 h = calllib('mstir', 'mDeleteTextWriter', self.info);
             end
-            mUtilities.check_status('MessageRedirector:delete', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('MessageRedirector:delete', h);
+            sirf.Utilities.delete(h)
             calllib('mstir', 'mCloseChannel', 1, self.warn)
             if self.warn_case == 0
                 h = calllib('mstir', 'mDeleteMexPrinter', self.warn);
             else
                 h = calllib('mstir', 'mDeleteTextWriter', self.warn);
             end
-            mUtilities.check_status('MessageRedirector:delete', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('MessageRedirector:delete', h);
+            sirf.Utilities.delete(h)
             calllib('mstir', 'mCloseChannel', 2, self.errr)
             if self.errr_case == 0
                 h = calllib('mstir', 'mDeleteMexPrinter', self.errr);
             else
                 h = calllib('mstir', 'mDeleteTextWriter', self.errr);
             end
-            mUtilities.check_status('MessageRedirector:delete', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('MessageRedirector:delete', h);
+            sirf.Utilities.delete(h)
         end
     end
 end

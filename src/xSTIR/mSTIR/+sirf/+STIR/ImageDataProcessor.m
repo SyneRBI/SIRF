@@ -33,15 +33,15 @@ classdef ImageDataProcessor < handle
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
             end
         end
         function apply(self, image)
 %***SIRF*** Processes the specified image.
             h = calllib('mstir', 'mSTIR_applyImageDataProcessor',...
                 self.handle_, image.handle_);
-            mUtilities.check_status('DataProcessor:apply', h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('DataProcessor:apply', h)
+            sirf.Utilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function set_input(self, input)
@@ -58,7 +58,7 @@ classdef ImageDataProcessor < handle
             if isempty(self.input_)
                 error('ImageDataProcessor:input', 'input not set')
             end
-            mUtilities.assert_validity(self.input_, 'ImageData')
+            sirf.Utilities.assert_validity(self.input_, 'ImageData')
             output = self.input_.clone();
             self.apply(output)
             self.output_ = output;

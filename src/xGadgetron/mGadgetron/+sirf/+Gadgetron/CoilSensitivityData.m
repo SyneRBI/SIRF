@@ -40,27 +40,27 @@ classdef CoilSensitivityData < mSIRF.DataContainer
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteObject', self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function calculate(self, acqs)
 %***SIRF*** Calculates coil sensitivity maps from sorted acquisitions
 %         specified by an AcquisitionData argument.
-            mUtilities.assert_validity(acqs, 'AcquisitionData')
+            sirf.Utilities.assert_validity(acqs, 'AcquisitionData')
             if ~acqs.is_sorted()
                 fprintf('WARNING: acquisitions may be in a wrong order\n')
             end
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = calllib('mgadgetron', 'mGT_CoilSensitivities', '');
-            mUtilities.check_status(self.name_, self.handle_);
+            sirf.Utilities.check_status(self.name_, self.handle_);
             handle = calllib('mgadgetron', 'mGT_computeCoilSensitivities', ...
                 self.handle_, acqs.handle_);
-            mUtilities.check_status(self.name_, handle);
-            mUtilities.delete(handle)
+            sirf.Utilities.check_status(self.name_, handle);
+            sirf.Utilities.delete(handle)
             %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function data = csm_as_array(self, csm_num)

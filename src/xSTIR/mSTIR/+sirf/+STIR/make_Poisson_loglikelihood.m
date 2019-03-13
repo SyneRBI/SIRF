@@ -23,7 +23,7 @@ function obj_fun = make_Poisson_loglikelihood(acq_data)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-    mUtilities.assert_validity(acq_data, 'AcquisitionData')
+    sirf.Utilities.assert_validity(acq_data, 'AcquisitionData')
     obj_fun = sirf.STIR.PoissonLogLikelihoodWithLinearModelForMeanAndProjData();
     obj_fun.set_acquisition_data(acq_data);
 end

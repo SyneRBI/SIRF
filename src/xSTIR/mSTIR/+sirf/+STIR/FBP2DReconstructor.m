@@ -40,10 +40,10 @@ classdef FBP2DReconstructor < sirf.STIR.Reconstructor
 %         the parameters of reconstruction.
             self.name = 'FBP2D';
             self.handle_ = calllib('mstir', 'mSTIR_newObject', 'FBP2D');
-            mUtilities.check_status(self.name, self.handle_);
+            sirf.Utilities.check_status(self.name, self.handle_);
         end
         function delete(self)
-            mUtilities.delete(self.handle_)
+            sirf.Utilities.delete(self.handle_)
             self.handle_ = [];
         end
         function set_input(self, input_data)
@@ -71,18 +71,18 @@ classdef FBP2DReconstructor < sirf.STIR.Reconstructor
         function set_up(self, image)
             h = calllib('mstir', 'mSTIR_setupFBP2DReconstruction', ...
                 self.handle_, image.handle_);
-            mUtilities.check_status([self.name ':set_up'], h);
+            sirf.Utilities.check_status([self.name ':set_up'], h);
         end
         function reconstruct(self)
             h = calllib('mstir', 'mSTIR_runFBP2DReconstruction', ...
                 self.handle_);
-            mUtilities.check_status([self.name ':reconstruct'], h);
+            sirf.Utilities.check_status([self.name ':reconstruct'], h);
         end
         function image = get_output(self)
             image = sirf.STIR.ImageData();
             image.handle_ = calllib('mstir', 'mSTIR_parameter', ...
                 self.handle_, self.name, 'output');
-            mUtilities.check_status([self.name ':get_output'], image.handle_);
+            sirf.Utilities.check_status([self.name ':get_output'], image.handle_);
         end
     end
 end

@@ -43,17 +43,17 @@ classdef Reconstructor < sirf.Gadgetron.GadgetChain
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            mUtilities.check_status(self.name_, self.handle_);
+            sirf.Utilities.check_status(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = mUtilities.label_and_name(list{i});
+                    [label, name] = sirf.Utilities.label_and_name(list{i});
                     self.add_gadget(label, sirf.Gadgetron.Gadget(name));
                 end
             end
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
                 %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
@@ -71,12 +71,12 @@ classdef Reconstructor < sirf.Gadgetron.GadgetChain
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
             end
-            mUtilities.assert_validity(self.input_, 'AcquisitionData')
+            sirf.Utilities.assert_validity(self.input_, 'AcquisitionData')
             self.images_ = sirf.Gadgetron.ImageData();
             self.images_.handle_ = calllib...
                 ('mgadgetron', 'mGT_reconstructImages', ...
                 self.handle_, self.input_.handle_);
-            mUtilities.check_status(self.name_, self.images_.handle_);
+            sirf.Utilities.check_status(self.name_, self.images_.handle_);
         end
         function images = get_output(self, subset)
 %***SIRF*** get_output(subset) returns the results of the image reconstruction 

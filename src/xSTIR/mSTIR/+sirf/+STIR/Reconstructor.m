@@ -36,7 +36,7 @@ classdef Reconstructor < handle
             end
         end
         function set_input(self, input_data)
-            mUtilities.assert_validity(input_data, 'AcquisitionData')
+            sirf.Utilities.assert_validity(input_data, 'AcquisitionData')
             sirf.STIR.setParameter...
                 (self.handle_, self.R, 'input_data', input_data, 'h')
         end
@@ -47,11 +47,11 @@ classdef Reconstructor < handle
             if isempty(self.image)
                 error('Reconstructor:process', 'current estimate not set')
             end
-            mUtilities.assert_validity(self.image, 'ImageData')
+            sirf.Utilities.assert_validity(self.image, 'ImageData')
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle_, self.image.handle_);
-            mUtilities.check_status('Reconstructor:process', h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('Reconstructor:process', h)
+            sirf.Utilities.delete(h)
         end
         function image = get_output(self)
             image = self.image;
@@ -60,11 +60,11 @@ classdef Reconstructor < handle
 %***SIRF*** Reconstruct the image 
 %         by applying currently set range of
 %         iterations to the image estimate specified by the argument.
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle_, image.handle_);
-            mUtilities.check_status([self.IR ':reconstruct'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.IR ':reconstruct'], h)
+            sirf.Utilities.delete(h)
         end
         function set_output_filename_prefix(self, prefix)
 %***SIRF*** Specifies the naming for the output files.

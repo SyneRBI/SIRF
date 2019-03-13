@@ -30,7 +30,7 @@ classdef (Abstract = true) Transformation < handle & matlab.mixin.Heterogeneous
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -41,7 +41,7 @@ classdef (Abstract = true) Transformation < handle & matlab.mixin.Heterogeneous
             assert(isa(ref, 'mSIRF.ImageData'))
             output = sirf.Reg.NiftiImageData3DDeformation();
             output.handle_ = calllib('mreg', 'mReg_Transformation_get_as_deformation_field', self.handle_, self.name, ref.handle_);
-            mUtilities.check_status([self.name ':get_as_deformation_field'], output.handle_);
+            sirf.Utilities.check_status([self.name ':get_as_deformation_field'], output.handle_);
         end
     end
 end

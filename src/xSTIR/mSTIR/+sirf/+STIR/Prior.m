@@ -35,7 +35,7 @@ classdef Prior < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
             end
         end
         function set_penalisation_factor(self, value)
@@ -54,8 +54,8 @@ classdef Prior < handle
 %***SIRF*** Prepares the prior for use.
             h = calllib('mstir', 'mSTIR_setupPrior',...
                 self.handle_, image.handle_);
-            mUtilities.check_status('Prior:set_up', h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('Prior:set_up', h)
+            sirf.Utilities.delete(h)
         end
         function grad = get_gradient(self, image)
 %***SIRF*** Returns the value of the gradient of the prior for the specified 
@@ -63,7 +63,7 @@ classdef Prior < handle
             grad = sirf.STIR.ImageData();
             grad.handle_ = calllib('mstir', 'mSTIR_priorGradient', ...
                 self.handle_, image.handle_);
-            mUtilities.check_status('Prior:get_gradient', grad.handle_)
+            sirf.Utilities.check_status('Prior:get_gradient', grad.handle_)
         end
     end
 end

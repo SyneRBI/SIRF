@@ -31,11 +31,11 @@ classdef ImageWeightedMean < handle
         function self = ImageWeightedMean(src)
             self.name = 'ImageWeightedMean';
             self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -49,21 +49,21 @@ classdef ImageWeightedMean < handle
             else
                 error("sirf.Reg.ImageWeightedMean.add_image: image must be mSIRF.ImageData or filename.")
             end
-            mUtilities.check_status([self.name ':add_image'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name ':add_image'], h);
+            sirf.Utilities.delete(h)
         end
         function process(self)
             %Process.
             h = calllib('mreg', 'mReg_ImageWeightedMean_process', self.handle_);
-            mUtilities.check_status([self.name ':process'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name ':process'], h);
+            sirf.Utilities.delete(h)
         end
         function output = get_output(self)
             %Get output.
             output = sirf.Reg.NiftiImageData();
-            mUtilities.delete(output.handle_)
+            sirf.Utilities.delete(output.handle_)
             output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, self.name, 'output');
-            mUtilities.check_status([self.name ':get_output'], output.handle_)
+            sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
         end
     end
 end

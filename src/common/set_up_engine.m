@@ -47,6 +47,5 @@ function alias = set_up_engine(engine)
     for i=1:size(files,1)
         [~,file,~] = fileparts(files(i).name);
         alias.(file) = eval(['@sirf.' engine '.' file]);
-        global alias;
     end
 end

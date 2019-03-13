@@ -14,10 +14,10 @@ function setParameter(hs, set, par, value, type)
             ('mstir', 'mSTIR_setParameter', hs, set, par, value.handle_);
     else
         handle = calllib('mstir', 'mSTIR_setParameter', hs, set, par, hv);
-        mUtilities.delete(hv)
+        sirf.Utilities.delete(hv)
         %calllib('mutilities', 'mDeleteDataHandle', hv)
     end
-    mUtilities.check_status('setParameter', handle)
-    mUtilities.delete(handle)
+    sirf.Utilities.check_status('setParameter', handle)
+    sirf.Utilities.delete(handle)
     %calllib('mutilities', 'mDeleteDataHandle', handle)
 end

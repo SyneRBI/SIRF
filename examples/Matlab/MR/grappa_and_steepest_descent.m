@@ -28,7 +28,7 @@ end
 % import_str = set_up_MR(engine);
 % eval(import_str)
 MR = set_up_MR(engine);
-mr_data_path = mUtilities.examples_data_path('MR');
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % define raw data source
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
@@ -76,8 +76,8 @@ refined_image_data = image_data - grad*tau;
 image_array = image_data.as_array();
 refined_image_array = refined_image_data.as_array();
 title = 'Reconstructed image data (magnitude)';
-mUtilities.show_3D_array(abs(image_array), title, 'samples', 'readouts', 'slice');
+sirf.Utilities.show_3D_array(abs(image_array), title, 'samples', 'readouts', 'slice');
 title = 'Refined image data (magnitude)';
-mUtilities.show_3D_array...
+sirf.Utilities.show_3D_array...
     (abs(refined_image_array), title, 'samples', 'readouts', 'slice');
 

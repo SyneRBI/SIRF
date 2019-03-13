@@ -34,10 +34,10 @@ end
 % eval(import_str)
 MR = set_up_MR(engine);
 
-test = mUtilities.mTest('test1.txt', record);
+test = sirf.Utilities.mTest('test1.txt', record);
 
 filename = 'simulated_MR_2D_cartesian.h5';
-pathname = mUtilities.examples_data_path('MR');
+pathname = sirf.Utilities.examples_data_path('MR');
 acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 test.check(acq_data.norm())
 

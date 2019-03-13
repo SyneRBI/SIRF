@@ -35,11 +35,11 @@ classdef OSMAPOSLReconstructor < sirf.STIR.IterativeReconstructor
             self.handle_ = calllib...
                 ('mstir', 'mSTIR_objectFromFile',...
                 'OSMAPOSLReconstruction', filename);
-            mUtilities.check_status(self.name, self.handle_);
+            sirf.Utilities.check_status(self.name, self.handle_);
         end
         function delete(self)
             %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-            mUtilities.delete(self.handle_)
+            sirf.Utilities.delete(self.handle_)
             self.handle_ = [];
         end
         function set_MAP_model(self, model)

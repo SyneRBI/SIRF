@@ -1,6 +1,6 @@
 function value = parameter(handle, set, name, type, n)
     hv = calllib('mgadgetron', 'mGT_parameter', handle, set, name);
-    mUtilities.check_status('parameter', hv)
+    sirf.Utilities.check_status('parameter', hv)
     if strcmp(type, 'i')
         value = calllib('miutilities', 'mIntDataFromHandle', hv);
     elseif strcmp(type, 'f')

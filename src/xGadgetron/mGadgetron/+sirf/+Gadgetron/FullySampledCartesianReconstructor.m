@@ -26,11 +26,11 @@ classdef FullySampledCartesianReconstructor < sirf.Gadgetron.Reconstructor
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            mUtilities.check_status(self.name_, self.handle_);
+            sirf.Utilities.check_status(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = [];

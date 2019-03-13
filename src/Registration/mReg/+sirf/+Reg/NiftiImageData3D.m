@@ -39,11 +39,11 @@ classdef NiftiImageData3D < sirf.Reg.NiftiImageData
             else
                 error('NiftiImageData3D accepts no args, filename or mSIRF.ImageData.')
             end
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end

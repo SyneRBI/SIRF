@@ -35,7 +35,7 @@ classdef (Abstract = true) Registration < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -68,40 +68,40 @@ classdef (Abstract = true) Registration < handle
             %Gets the registered image.
             assert(~isempty(self.reference_image) && ~isempty(self.reference_image.handle_))
             output = self.reference_image.same_object();
-            mUtilities.delete(output.handle_)
+            sirf.Utilities.delete(output.handle_)
             output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, 'Registration', 'output');
-            mUtilities.check_status([self.name ':get_output'], output.handle_)
+            sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
         end
         function process(self)
             %Run the registration.
             assert(~isempty(self.handle_), 'Registration.process: Registration object is empty.')
             h = calllib('mreg', 'mReg_Registration_process', self.handle_);
-            mUtilities.check_status([self.name ':process'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name ':process'], h);
+            sirf.Utilities.delete(h)
         end
         function output = get_deformation_field_forward(self)
             %Gets the forward deformation field image.
             output = sirf.Reg.NiftiImageData3DDeformation();
             output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'forward_deformation');
-            mUtilities.check_status([self.name ':get_deformation_field_forward'], output.handle_);
+            sirf.Utilities.check_status([self.name ':get_deformation_field_forward'], output.handle_);
         end
         function output = get_deformation_field_inverse(self)
             %Gets the inverse deformation field image.
             output = sirf.Reg.NiftiImageData3DDeformation();
             output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_deformation');
-            mUtilities.check_status([self.name ':get_deformation_field_inverse'], output.handle_);
+            sirf.Utilities.check_status([self.name ':get_deformation_field_inverse'], output.handle_);
         end
         function output = get_displacement_field_forward(self)
             %Gets the forward displacement field image.
             output = sirf.Reg.NiftiImageData3DDisplacement();
             output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'forward_displacement');
-            mUtilities.check_status([self.name ':get_displacement_field_forward'], output.handle_);
+            sirf.Utilities.check_status([self.name ':get_displacement_field_forward'], output.handle_);
         end
         function output = get_displacement_field_inverse(self)
             %Gets the inverse displacement field image.
             output = sirf.Reg.NiftiImageData3DDisplacement();
             output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_displacement');
-            mUtilities.check_status([self.name ':get_displacement_field_inverse'], output.handle_);
+            sirf.Utilities.check_status([self.name ':get_displacement_field_inverse'], output.handle_);
         end
         function set_parameter(self, par, arg1, arg2)
             %Set string parameter. Check if any set methods match the method given by par.

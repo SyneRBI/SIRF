@@ -36,7 +36,7 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -104,7 +104,7 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
 %         end
         function set_objective_function(self, obj_fun)
 %***SIRF*** Sets the objective function to be maximized.
-            mUtilities.assert_validity(obj_fun, 'ObjectiveFunction')
+            sirf.Utilities.assert_validity(obj_fun, 'ObjectiveFunction')
             sirf.STIR.setParameter(self.handle_, self.IR,...
                 'objective_function', obj_fun, 'h')
         end
@@ -119,18 +119,18 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
 %             filter = sirf.STIR.DataProcessor();
 %             filter.handle_ = calllib('mstir', 'mSTIR_parameter',...
 %                 self.handle_, self.IR, 'inter_iteration_filter_type');
-%             mUtilities.check_status...
+%             sirf.Utilities.check_status...
 %                 ([self.IR ':get_inter_iteration_filter'], filter.handle_)
 %         end
         function set_up(self, image)
 %***SIRF*** Prepares the reconstructor for use.
 %         The argumant is an ImageData object used as a template for the
 %         reconstructed image.
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_setupReconstruction',...
                 self.handle_, image.handle_);
-            mUtilities.check_status([self.IR ':set_up'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.IR ':set_up'], h)
+            sirf.Utilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function set_current_subset(self, subset)
@@ -139,7 +139,7 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
         end
         function set_current_estimate(self, image)
 %***SIRF*** Sets the current image estimate.
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             self.image = image;
         end
         function image = get_current_estimate(self)
@@ -156,8 +156,8 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
             end
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle_, self.image.handle_);
-            mUtilities.check_status([self.IR ':update_current_image'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.IR ':update_current_image'], h)
+            sirf.Utilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function process(self)
@@ -169,28 +169,28 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
             end
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle_, self.image.handle_);
-            mUtilities.check_status([self.IR ':process'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.IR ':process'], h)
+            sirf.Utilities.delete(h)
         end
         function update(self, image)
 %***SIRF*** Updates the image estimate specified by the argument 
 %         by performing one iteration on the current subspace.
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle_, image.handle_);
-            mUtilities.check_status([self.IR ':update'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.IR ':update'], h)
+            sirf.Utilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
 %         function reconstruct(self, image)
 % %***SIRF*** Reconstruct the image 
 % %         by applying currently set range of
 % %         iterations to the image estimate specified by the argument.
-%             mUtilities.assert_validity(image, 'ImageData')
+%             sirf.Utilities.assert_validity(image, 'ImageData')
 %             h = calllib('mstir', 'mSTIR_runReconstruction',...
 %                 self.handle_, image.handle_);
-%             mUtilities.check_status([self.IR ':reconstruct'], h)
-%             mUtilities.delete(h)
+%             sirf.Utilities.check_status([self.IR ':reconstruct'], h)
+%             sirf.Utilities.delete(h)
 %             %calllib('mutilities', 'mDeleteDataHandle', h)
 %         end
     end

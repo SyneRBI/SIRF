@@ -39,16 +39,16 @@ classdef AcquisitionData < mSIRF.DataContainer
 %               RAM (avoid if data is very large)
             h = calllib...
                 ('mstir', 'mSTIR_setAcquisitionsStorageScheme', scheme);
-            mUtilities.check_status('AcquisitionData', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('AcquisitionData', h);
+            sirf.Utilities.delete(h)
         end
         function scheme = get_storage_scheme()
 %***SIRF*** Returns current acquisition storage scheme name
             h = calllib...
                 ('mstir', 'mSTIR_getAcquisitionsStorageScheme');
-            mUtilities.check_status('AcquisitionData', h);
+            sirf.Utilities.check_status('AcquisitionData', h);
             scheme = calllib('miutilities', 'mCharDataFromHandle', h);
-            mUtilities.delete(h)
+            sirf.Utilities.delete(h)
         end
     end
     methods
@@ -107,22 +107,22 @@ classdef AcquisitionData < mSIRF.DataContainer
                 error('AcquisitionData:wrong_ctor_source', ...
                 'wrong source in AcquisitionData constructor')
             end
-            mUtilities.check_status(self.name, self.handle_);
+            sirf.Utilities.check_status(self.name, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function read_from_file(self, filename)
 %***SIRF*** Reads acquisition data from a file.
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
             end
             self.handle_ = calllib('mstir', 'mSTIR_objectFromFile', ...
                 'AcquisitionData', filename);
-            mUtilities.check_status(self.name, self.handle_);
+            sirf.Utilities.check_status(self.name, self.handle_);
             self.read_only = true;
         end
         function image = create_uniform_image(self, value, nx, ny)
@@ -141,7 +141,7 @@ classdef AcquisitionData < mSIRF.DataContainer
                     ('mstir', 'mSTIR_imageFromAcquisitionDataAndNxNy',...
                     self.handle_, nx, ny);
             end
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ([self.name ':create_uniform_image'], image.handle_);
             if nargin > 1
                 image.fill(value)
@@ -182,9 +182,9 @@ classdef AcquisitionData < mSIRF.DataContainer
                     h = calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
                         self.handle_, value);
                 end
-                mUtilities.check_status...
+                sirf.Utilities.check_status...
                     ([self.name ':fill'], h);
-                mUtilities.delete(h)
+                sirf.Utilities.delete(h)
             elseif isa(value, 'double')
                 if numel(value) > 1
                     ptr_v = libpointer('singlePtr', single(value));
@@ -194,15 +194,15 @@ classdef AcquisitionData < mSIRF.DataContainer
                     h = calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
                         self.handle_, single(value));
                 end
-                mUtilities.check_status...
+                sirf.Utilities.check_status...
                     ([self.name ':fill'], h);
-                mUtilities.delete(h)
+                sirf.Utilities.delete(h)
             elseif isa(value, 'sirf.STIR.AcquisitionData')
                 h = calllib('mstir', ...
                     'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
                     self.handle_, value.handle_);
-                mUtilities.check_status([self.name ':fill'], h);
-                mUtilities.delete(h)
+                sirf.Utilities.check_status([self.name ':fill'], h);
+                sirf.Utilities.delete(h)
             else
                 error([self.name ':fill'], 'wrong fill value')
             end

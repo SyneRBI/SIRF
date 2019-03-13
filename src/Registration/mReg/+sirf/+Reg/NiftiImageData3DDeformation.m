@@ -39,11 +39,11 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
             elseif isa(src1, 'sirf.Reg.NiftiImageData3DDisplacement')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_create_from_disp', src1.handle_);
             end
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -91,7 +91,7 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
 		    else
 		        error('compose_transformations_into_single_deformation only implemented for up to 5 transformations.')
 		    end
-		    mUtilities.check_status('compose_transformations_into_single_deformation', z.handle_);
+		    sirf.Utilities.check_status('compose_transformations_into_single_deformation', z.handle_);
 		end
     end
 end

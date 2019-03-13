@@ -27,11 +27,11 @@ classdef NiftyF3dSym < sirf.Reg.Registration
         function self = NiftyF3dSym()
             self.name = 'NiftyF3dSym';
             self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end

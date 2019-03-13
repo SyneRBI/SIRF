@@ -34,13 +34,13 @@ classdef ObjectiveFunction < handle
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function set_prior(self, prior)
 %***SIRF*** Sets the prior (penalty term to be added to the objective function).
-            mUtilities.assert_validity(prior, 'Prior')
+            sirf.Utilities.assert_validity(prior, 'Prior')
             sirf.STIR.setParameter...
                 (self.handle_, 'GeneralisedObjectiveFunction', 'prior',...
                 prior, 'h')
@@ -50,7 +50,7 @@ classdef ObjectiveFunction < handle
             prior = sirf.STIR.Prior();
             prior.handle_ = calllib('mstir', 'mSTIR_parameter',...
                 self.handle_, 'GeneralisedObjectiveFunction', 'prior');
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ('GeneralisedObjectiveFunction:get_prior', prior.handle_)
         end
         function set_num_subsets(self, num)
@@ -66,44 +66,44 @@ classdef ObjectiveFunction < handle
         end
         function set_up(self, image)
 %***SIRF*** Prepares this object for use.
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_setupObjectiveFunction', ...
                 self.handle_, image.handle_);
-            mUtilities.check_status('GeneralisedObjectiveFunction:set_up', h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('GeneralisedObjectiveFunction:set_up', h)
+            sirf.Utilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function v = get_value(self, image)
 %***SIRF*** Returns the value of this objective function 
 %         on the specified image.
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_objectiveFunctionValue',...
                 self.handle_, image.handle_);
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ('GeneralisedObjectiveFunction:value', h)
             v = calllib('miutilities', 'mFloatDataFromHandle', h);
-            mUtilities.delete(h)
+            sirf.Utilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function g = get_subset_gradient(self, image, subset)
 %***SIRF*** Returns the value of the additive component of the gradient 
 %         of this objective function on the specified image corresponding 
 %         to the specified subset (see method set_num_subsets()).
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             if nargin < 3
                 subset = -1;
             end
             g = sirf.STIR.ImageData();
             g.handle_ = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
                 self.handle_, image.handle_, subset);
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ('GeneralisedObjectiveFunction:gradient', g.handle_)
         end
         function g = get_gradient(self, image)
 %***SIRF*** Returns the gradient of the objective function 
 %         on the specified image.
 %         image: ImageData object
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             g = self.get_subset_gradient(image);
         end
     end

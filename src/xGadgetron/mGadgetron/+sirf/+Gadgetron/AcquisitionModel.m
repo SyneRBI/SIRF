@@ -30,15 +30,15 @@ classdef AcquisitionModel < handle
  %        based on two specified templates of types AcquisitionData and ImageData 
  %        respectively.
             self.name_ = 'MR_AcquisitionModel';
-            mUtilities.assert_validity(acq_template, 'AcquisitionData')
-            mUtilities.assert_validity(img_template, 'ImageData')
+            sirf.Utilities.assert_validity(acq_template, 'AcquisitionData')
+            sirf.Utilities.assert_validity(img_template, 'ImageData')
             self.handle_ = calllib('mgadgetron', 'mGT_AcquisitionModel',...
                 acq_template.handle_, img_template.handle_);
-            mUtilities.check_status(self.name_, self.handle_);
+            sirf.Utilities.check_status(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = [];
@@ -46,33 +46,33 @@ classdef AcquisitionModel < handle
         function set_coil_sensitivity_maps(self, csms)
 %***SIRF*** Instructs to use the coil sensitivity maps specified by the argument
 %         (a CoilSensitivityData object).
-            mUtilities.assert_validity(csms, 'CoilSensitivityData')
+            sirf.Utilities.assert_validity(csms, 'CoilSensitivityData')
             handle = calllib('mgadgetron', 'mGT_setCSMs', ...
                 self.handle_, csms.handle_);
-            mUtilities.check_status(self.name_, handle);
-            mUtilities.delete(handle)
+            sirf.Utilities.check_status(self.name_, handle);
+            sirf.Utilities.delete(handle)
             %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function acqs = forward(self, image)
 %***SIRF*** Returns the forward projection of the specified ImageData argument
 %         simulating the actual data expected to be received from the scanner.
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             acqs = sirf.Gadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelForward', ...
                 self.handle_, image.handle_);
-            mUtilities.check_status(self.name_, acqs.handle_);
+            sirf.Utilities.check_status(self.name_, acqs.handle_);
         end
         function imgs = backward(self, acqs)
 %***SIRF*** Backprojects the acquisition data specified by the argument
 %         of AcquisitionData type into image space using a complex
 %         transpose of the forward projection.
-            mUtilities.assert_validity(acqs, 'AcquisitionData')
+            sirf.Utilities.assert_validity(acqs, 'AcquisitionData')
             imgs = sirf.Gadgetron.ImageData();
             imgs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelBackward', ...
                 self.handle_, acqs.handle_);
-            mUtilities.check_status(self.name_, imgs.handle_);
+            sirf.Utilities.check_status(self.name_, imgs.handle_);
         end
     end
 end

@@ -43,7 +43,7 @@ if nargin < 6
 else
     if ischar(index)
         try
-            index = mUtilities.str_to_int_list(index);
+            index = sirf.Utilities.str_to_int_list(index);
         catch
             return
         end

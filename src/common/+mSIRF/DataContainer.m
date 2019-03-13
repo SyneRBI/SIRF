@@ -31,16 +31,16 @@ classdef DataContainer < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function num = number(self)
 %***SIRF*** Returns the number of items in this container.
             handle = calllib('msirf', 'mSIRF_dataItems', self.handle_);
-            mUtilities.check_status('DataContainer', handle);
+            sirf.Utilities.check_status('DataContainer', handle);
             num = calllib('miutilities', 'mIntDataFromHandle', handle);
-            mUtilities.delete(handle)
+            sirf.Utilities.delete(handle)
         end
         function copy = clone(self)
             if isempty(self.handle_)
@@ -49,62 +49,62 @@ classdef DataContainer < handle
             end
             copy = self.same_object();
             copy.handle_ = calllib('msirf', 'mSIRF_clone', self.handle_);
-            mUtilities.check_status('DataContainer', copy.handle_);
+            sirf.Utilities.check_status('DataContainer', copy.handle_);
         end
         function r = norm(self)
 %***SIRF*** Returns the 2-norm of this data container viewed as a vector.
             handle = calllib('msirf', 'mSIRF_norm', self.handle_);
-            mUtilities.check_status('DataContainer', handle);
+            sirf.Utilities.check_status('DataContainer', handle);
             r = calllib('miutilities', 'mFloatDataFromHandle', handle);
-            mUtilities.delete(handle)
+            sirf.Utilities.delete(handle)
         end
         function z = dot(self, other)
 %***SIRF*** Returns the dot product of this data container with another one 
 %         viewed as vectors.
-            mUtilities.assert_validities(self, other)
+            sirf.Utilities.assert_validities(self, other)
             handle = calllib('msirf', 'mSIRF_dot', self.handle_, ...
                 other.handle_);
-            mUtilities.check_status('DataContainer', handle);
+            sirf.Utilities.check_status('DataContainer', handle);
             re = calllib('miutilities', 'mFloatReDataFromHandle', handle);
             im = calllib('miutilities', 'mFloatImDataFromHandle', handle);
             z = complex(re, im);
-            mUtilities.delete(handle)
+            sirf.Utilities.delete(handle)
         end
         function z = minus(self, other)
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
-            mUtilities.assert_validities(self, other)
+            sirf.Utilities.assert_validities(self, other)
             z = self.axpby(1, self, -1, other);
-            mUtilities.check_status('DataContainer:minus', z.handle_);
+            sirf.Utilities.check_status('DataContainer:minus', z.handle_);
         end
         function z = plus(self, other)
 %***SIRF*** Overloads + for data containers.
 %         Returns the sum of this data container with another one
 %         viewed as vectors.
-            mUtilities.assert_validities(self, other)
+            sirf.Utilities.assert_validities(self, other)
             z = self.axpby(1, self, 1, other);
-            mUtilities.check_status('DataContainer:plus', z.handle_);
+            sirf.Utilities.check_status('DataContainer:plus', z.handle_);
         end
         function z = times(self, other)
 %***SIRF*** Overloads .* for data containers.
 %         Returns the elementwise product of this data container with another one
 %         viewed as vectors.
-            mUtilities.assert_validities(self, other)
+            sirf.Utilities.assert_validities(self, other)
             z = self.same_object();
             z.handle_ = calllib('msirf', 'mSIRF_multiply', ...
                 self.handle_, other.handle_);
-            mUtilities.check_status('DataContainer:times', z.handle_);
+            sirf.Utilities.check_status('DataContainer:times', z.handle_);
         end
         function z = rdivide(self, other)
 %***SIRF*** Overloads ./ for data containers.
 %         Returns the elementwise ratio of this data container with another one
 %         viewed as vectors.
-            mUtilities.assert_validities(self, other)
+            sirf.Utilities.assert_validities(self, other)
             z = self.same_object();
             z.handle_ = calllib('msirf', 'mSIRF_divide', ...
                 self.handle_, other.handle_);
-            mUtilities.check_status('DataContainer:rdivide', z.handle_);
+            sirf.Utilities.check_status('DataContainer:rdivide', z.handle_);
         end
         function z = mtimes(self, other)
 %***SIRF*** mtimes(other) overloads * for data containers multiplication 
@@ -122,7 +122,7 @@ classdef DataContainer < handle
                 error('DataContainer:mtimes', ...
                     'Wrong argument type %s\n', class(other))
             end
-            mUtilities.check_status('DataContainer:mtimes', z.handle_);
+            sirf.Utilities.check_status('DataContainer:mtimes', z.handle_);
         end
         function z = mrdivide(self, other)
 %***SIRF*** mtimes(other) overloads / for data containers multiplication 
@@ -134,11 +134,11 @@ classdef DataContainer < handle
                 error('DataContainer:mtimes', ...
                     'Wrong argument type %s\n', class(other))
             end
-            mUtilities.check_status('DataContainer:mtimes', z.handle_);
+            sirf.Utilities.check_status('DataContainer:mtimes', z.handle_);
         end
 		function write(self, filename)
 			handle = calllib('msirf', 'mSIRF_write', self.handle_, filename);
-            mUtilities.check_status('DataContainer:write', handle);
+            sirf.Utilities.check_status('DataContainer:write', handle);
 		end
     end
     methods(Static)
@@ -148,7 +148,7 @@ classdef DataContainer < handle
 %         a and b: complex scalars
 %         x and y: DataContainers
             %assert(strcmp(class(x), class(y)))
-            mUtilities.assert_validities(x, y)
+            sirf.Utilities.assert_validities(x, y)
             z = x.same_object();
             a = single(a);
             b = single(b);
@@ -158,7 +158,7 @@ classdef DataContainer < handle
             ptr_zb = libpointer('singlePtr', zb);
             z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
                 ptr_za, x.handle_, ptr_zb, y.handle_);
-            mUtilities.check_status('DataContainer:axpby', z.handle_);
+            sirf.Utilities.check_status('DataContainer:axpby', z.handle_);
         end
     end
 end

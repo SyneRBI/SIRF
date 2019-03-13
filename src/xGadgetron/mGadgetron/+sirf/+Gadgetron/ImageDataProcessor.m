@@ -35,10 +35,10 @@ classdef ImageDataProcessor < sirf.Gadgetron.GadgetChain
             self.name_ = 'ImageDataProcessor';
             self.handle_ = calllib...
                 ('mgadgetron', 'mGT_newObject', 'ImagesProcessor');
-            mUtilities.check_status(self.name_, self.handle_);
+            sirf.Utilities.check_status(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = mUtilities.label_and_name(list{i});
+                    [label, name] = sirf.Utilities.label_and_name(list{i});
                     self.add_gadget(label, sirf.Gadgetron.Gadget(name));
                 end
             end
@@ -47,7 +47,7 @@ classdef ImageDataProcessor < sirf.Gadgetron.GadgetChain
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
                 %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
@@ -68,13 +68,13 @@ classdef ImageDataProcessor < sirf.Gadgetron.GadgetChain
             if isempty(self.input_)
                 error('ImageDataProcessor:input', 'input not set')
             end
-            mUtilities.assert_validity(self.input_, 'ImageData')
+            sirf.Utilities.assert_validity(self.input_, 'ImageData')
             image = sirf.Gadgetron.ImageData();
             image.handle_ = calllib...
                 ('mgadgetron', 'mGT_processImages', ...
                 self.handle_, self.input_.handle_);
 %                 self.handle_, input_data.handle_);
-            mUtilities.check_status(self.name_, image.handle_);
+            sirf.Utilities.check_status(self.name_, image.handle_);
             self.output_ = image;
         end
         function output = get_output(self)

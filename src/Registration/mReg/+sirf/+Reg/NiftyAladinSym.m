@@ -27,11 +27,11 @@ classdef NiftyAladinSym < sirf.Reg.Registration
         function self = NiftyAladinSym()
             self.name = 'NiftyAladinSym';
             self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -39,13 +39,13 @@ classdef NiftyAladinSym < sirf.Reg.Registration
             %Get forward transformation matrix.
             tm = sirf.Reg.AffineTransformation();
             tm.handle_ = calllib('mreg', 'mReg_NiftyAladin_get_TM', self.handle_, 'forward');
-            mUtilities.check_status([self.name ':get_transformation_matrix_forward'], tm.handle_);
+            sirf.Utilities.check_status([self.name ':get_transformation_matrix_forward'], tm.handle_);
         end
         function tm = get_transformation_matrix_inverse(self)
             %Get inverse transformation matrix.
             tm = sirf.Reg.AffineTransformation();
             tm.handle_ = calllib('mreg', 'mReg_NiftyAladin_get_TM', self.handle_, 'inverse');
-            mUtilities.check_status([self.name ':get_transformation_matrix_inverse'], tm.handle_);
+            sirf.Utilities.check_status([self.name ':get_transformation_matrix_inverse'], tm.handle_);
         end
     end
 end

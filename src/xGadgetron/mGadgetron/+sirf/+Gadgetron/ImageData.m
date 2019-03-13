@@ -37,22 +37,22 @@ classdef ImageData < mSIRF.ImageData
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function read_from_file(self, file)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
             end
             self.handle_ = calllib('mgadgetron', 'mGT_readImages', file);
-            mUtilities.check_status(self.name_, self.handle_);
+            sirf.Utilities.check_status(self.name_, self.handle_);
         end
         function img = image(self, num)
             img = sirf.Gadgetron.Image();
             img.handle_ = calllib('mgadgetron', 'mGT_imageWrapFromContainer', ...
                 self.handle_, num - 1);
-            mUtilities.check_status(self.name_, img.handle_);
+            sirf.Utilities.check_status(self.name_, img.handle_);
         end
         function images = select(self, attribute, value)
 %***STIR*** select(attribute, value) returns a subset of this image data 
@@ -66,7 +66,7 @@ classdef ImageData < mSIRF.ImageData
             images = sirf.Gadgetron.ImageData();
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
                 self.handle_, attribute, value);
-            mUtilities.check_status(self.name_, images.handle_);
+            sirf.Utilities.check_status(self.name_, images.handle_);
         end
         function images = process(self, list)
 %***SIRF*** process(list) returns images processed by a chain of gadgets.
@@ -86,11 +86,11 @@ classdef ImageData < mSIRF.ImageData
 %***SIRF*** Returns true if this image data is real and false otherwise.
             handle = calllib('mgadgetron', 'mGT_imageDataType', ...
                 self.handle_, 0);
-            mUtilities.check_status(self.name_, handle);
+            sirf.Utilities.check_status(self.name_, handle);
             v = calllib('miutilities', 'mIntDataFromHandle', handle);
             %v = calllib('mutilities', 'mIntDataFromHandle', handle);
             %calllib('mutilities', 'mDeleteDataHandle', handle)
-            mUtilities.delete(handle)
+            sirf.Utilities.delete(handle)
             ft = (v ~= 7 && v ~= 8);
         end
         function data = as_array(self)
@@ -121,8 +121,8 @@ classdef ImageData < mSIRF.ImageData
                 data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
                     dim(1), dim(2), nz);
             end
-            mUtilities.check_status('ImageData', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('ImageData', h);
+            sirf.Utilities.delete(h)
         end
         function fill(self, data)
 %***SIRF*** Changes image data to that in 3D complex array argument.
@@ -142,8 +142,8 @@ classdef ImageData < mSIRF.ImageData
                 h = calllib('mgadgetron', 'mGT_setImagesDataAsCmplxArray', ...
                     self.handle_, ptr_z);
             end
-            mUtilities.check_status('ImageData', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('ImageData', h);
+            sirf.Utilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function show(self)

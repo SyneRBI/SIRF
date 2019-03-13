@@ -37,11 +37,11 @@ classdef NiftiImageData3DTensor < sirf.Reg.NiftiImageData
             elseif nargin == 3 && isa(src1, 'mSIRF.ImageData') && isa(src2, 'mSIRF.ImageData') && isa(src3, 'mSIRF.ImageData')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
             end
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -52,22 +52,22 @@ classdef NiftiImageData3DTensor < sirf.Reg.NiftiImageData
                 datatype = -1;
             end
             h = calllib('mreg', 'mReg_NiftiImageData3DTensor_write_split_xyz_components', self.handle_, filename, datatype);
-            mUtilities.check_status([self.name ':write'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name ':write'], h);
+            sirf.Utilities.delete(h)
         end
         function create_from_3D_image(self, src)
             %Create deformation/displacement field from 3D image.
             assert(isa(src, 'mSIRF.ImageData'), [self.name ':create_from_3D_imageInput. Input should be mSIRF.ImageData.'])
             h = calllib('mreg', 'mReg_NiftiImageData3DTensor_create_from_3D_image', self.handle_, src.handle_);
-            mUtilities.check_status([self.name ':create_from_3d_image'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name ':create_from_3d_image'], h);
+            sirf.Utilities.delete(h)
         end
         function flip_component(self, dim)
             % Flip component of nu
             assert(dim>=0 && dim<=2, 'Dimension to flip should be between 0 and 2.')
             h = calllib('mreg', 'mReg_NiftiImageData3DTensor_flip_component', self.handle_, dim);
-            mUtilities.check_status([self.name ':flip_component'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name ':flip_component'], h);
+            sirf.Utilities.delete(h)
         end
     end
 end

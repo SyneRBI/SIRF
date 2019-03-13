@@ -62,7 +62,7 @@ classdef ListmodeToSinograms < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -84,31 +84,31 @@ classdef ListmodeToSinograms < handle
             ptr = libpointer('singlePtr', [start stop]);
             h = calllib('mstir', 'mSTIR_setListmodeToSinogramsInterval', ...
                 self.handle_, ptr);
-            mUtilities.check_status([self.name_ ':set_interval'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name_ ':set_interval'], h);
+            sirf.Utilities.delete(h)
         end
         function flag_on(self, flag)
             %***SIRF*** Switches on (sets to 'true') a conversion flag 
             % (see conversion flags description above).
             h = calllib('mstir', 'mSTIR_setListmodeToSinogramsFlag', ...
                 self.handle_, flag, 1);
-            mUtilities.check_status([self.name_ ':flag_on'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name_ ':flag_on'], h);
+            sirf.Utilities.delete(h)
         end
         function flag_off(self, flag)
             %***SIRF*** Switches off (sets to 'false') a conversion flag 
             % (see conversion flags description above).
             h = calllib('mstir', 'mSTIR_setListmodeToSinogramsFlag', ...
                 self.handle_, flag, 0);
-            mUtilities.check_status([self.name_ ':flag_on'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name_ ':flag_on'], h);
+            sirf.Utilities.delete(h)
         end
         function set_up(self)
             %***SIRF*** Sets up the conversion.
             h = calllib('mstir', 'mSTIR_setupListmodeToSinogramsConverter', ...
                 self.handle_);
-            mUtilities.check_status([self.name_ ':set_up'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name_ ':set_up'], h);
+            sirf.Utilities.delete(h)
         end
         function process(self)
             %***SIRF*** Performs the conversion.
@@ -116,7 +116,7 @@ classdef ListmodeToSinograms < handle
             self.output_.handle_ = calllib...
                 ('mstir', 'mSTIR_convertListmodeToSinograms', ...
                 self.handle_);
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ([self.name_ ':process'], self.output_.handle_);
         end
         function output = get_output(self)
@@ -129,7 +129,7 @@ classdef ListmodeToSinograms < handle
             randoms = sirf.STIR.AcquisitionData();
             randoms.handle_ = calllib('mstir', 'mSTIR_computeRandoms', ...
                 self.handle_);
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ([self.name_ ':estimate_randoms'], randoms.handle_);
         end
     end

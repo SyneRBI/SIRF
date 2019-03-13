@@ -77,18 +77,18 @@ classdef AcquisitionSensitivityModel < handle
                     'wrong sources in AcquisitionSensitivityModel constructor')
                 end
             end
-            mUtilities.check_status([self.name_ ':ctor'], self.handle_)
+            sirf.Utilities.check_status([self.name_ ':ctor'], self.handle_)
         end
         function set_up(self, acq_data)
 %***SIRF*** Sets up the object.
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
-            mUtilities.assert_validity(acq_data, 'AcquisitionData')
+            sirf.Utilities.assert_validity(acq_data, 'AcquisitionData')
             h = calllib('mstir',...
                 'mSTIR_setupAcquisitionSensitivityModel',...
                 self.handle_, acq_data.handle_);
-            mUtilities.check_status([self.name_ ':set_up'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name_ ':set_up'], h)
+            sirf.Utilities.delete(h)
         end
         function normalise(self, acq_data)
 %***SIRF*** Multiplies the argument by n (cf. AcquisitionModel).
@@ -96,12 +96,12 @@ classdef AcquisitionSensitivityModel < handle
 %         n is a product of two normalisations.
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
-            mUtilities.assert_validity(acq_data, 'AcquisitionData')
+            sirf.Utilities.assert_validity(acq_data, 'AcquisitionData')
             h = calllib('mstir',...
                 'mSTIR_applyAcquisitionSensitivityModel',...
                 self.handle_, acq_data.handle_, 'normalise');
-            mUtilities.check_status([self.name_ ':set_up'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name_ ':set_up'], h)
+            sirf.Utilities.delete(h)
         end
         function unnormalise(self, acq_data)
 %***SIRF*** Multiplies the argument by 1/n (cf. AcquisitionModel).
@@ -109,12 +109,12 @@ classdef AcquisitionSensitivityModel < handle
 %         n is a product of two normalisations.
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
-            mUtilities.assert_validity(acq_data, 'AcquisitionData')
+            sirf.Utilities.assert_validity(acq_data, 'AcquisitionData')
             h = calllib('mstir',...
                 'mSTIR_applyAcquisitionSensitivityModel',...
                 self.handle_, acq_data.handle_, 'unnormalise');
-            mUtilities.check_status([self.name_ ':set_up'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name_ ':set_up'], h)
+            sirf.Utilities.delete(h)
         end
         function fwd_data = forward(self, acq_data)
 %***SIRF*** Same as unnormalise except that the argument remains unchanged
@@ -122,12 +122,12 @@ classdef AcquisitionSensitivityModel < handle
 %         by 1/n is returned.
            assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
-            mUtilities.assert_validity(acq_data, 'AcquisitionData')
+            sirf.Utilities.assert_validity(acq_data, 'AcquisitionData')
             fwd_data = sirf.STIR.AcquisitionData();
             fwd_data.handle_ = calllib('mstir',...
                 'mSTIR_applyAcquisitionSensitivityModel',...
                 self.handle_, acq_data.handle_, 'fwd');
-            mUtilities.check_status([self.name_ ':set_up'], fwd_data.handle_)
+            sirf.Utilities.check_status([self.name_ ':set_up'], fwd_data.handle_)
         end
         function inv_data = invert(self, acq_data)
 %***SIRF*** Same as normalise except that the argument remains unchanged
@@ -135,16 +135,16 @@ classdef AcquisitionSensitivityModel < handle
 %         by n is returned.
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
-            mUtilities.assert_validity(acq_data, 'AcquisitionData')
+            sirf.Utilities.assert_validity(acq_data, 'AcquisitionData')
             inv_data = sirf.STIR.AcquisitionData();
             inv_data.handle_ = calllib('mstir',...
                 'mSTIR_applyAcquisitionSensitivityModel',...
                 self.handle_, acq_data.handle_, 'inv');
-            mUtilities.check_status([self.name_ ':set_up'], inv_data.handle_)
+            sirf.Utilities.check_status([self.name_ ':set_up'], inv_data.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end

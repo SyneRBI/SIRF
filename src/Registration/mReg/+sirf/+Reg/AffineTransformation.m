@@ -42,11 +42,11 @@ classdef AffineTransformation < sirf.Reg.Transformation
             else
                 error('AffineTransformation accepts no args, filename or 4x4 array.')
             end
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -54,9 +54,9 @@ classdef AffineTransformation < sirf.Reg.Transformation
             %Overload comparison operator.
             assert(isa(other, 'sirf.Reg.AffineTransformation'))
             handle = calllib('mreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
-            mUtilities.check_status('AffineTransformation:eq', handle);
+            sirf.Utilities.check_status('AffineTransformation:eq', handle);
             value = logical(calllib('miutilities', 'mIntDataFromHandle', handle));
-            mUtilities.delete(handle)
+            sirf.Utilities.delete(handle)
         end
         function value = ne(self, other)
             %Overload comparison operator.
@@ -67,14 +67,14 @@ classdef AffineTransformation < sirf.Reg.Transformation
             assert(isa(other, 'sirf.Reg.AffineTransformation'))
             mat = sirf.Reg.AffineTransformation();
             mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
-            mUtilities.check_status('AffineTransformation:mtimes', mat.handle_);
+            sirf.Utilities.check_status('AffineTransformation:mtimes', mat.handle_);
         end
 
         function mat = deep_copy(self)
             %Deep copy.
             mat = sirf.Reg.AffineTransformation();
             mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_deep_copy', self.handle_);
-            mUtilities.check_status('AffineTransformation:mtimes', mat.handle_);
+            sirf.Utilities.check_status('AffineTransformation:mtimes', mat.handle_);
         end
 
         function write(self, filename)
@@ -95,7 +95,7 @@ classdef AffineTransformation < sirf.Reg.Transformation
             %Get forward transformation matrix.
             tm = sirf.Reg.AffineTransformation();
             tm.handle_ = calllib('mreg', 'mReg_AffineTransformation_get_inverse', self.handle_);
-            mUtilities.check_status('AffineTransformation:get_inverse', tm.handle_);
+            sirf.Utilities.check_status('AffineTransformation:get_inverse', tm.handle_);
         end
     end
     methods(Static)

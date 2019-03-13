@@ -39,11 +39,11 @@ classdef NiftiImageData3DDisplacement < sirf.Reg.NiftiImageData3DTensor & sirf.R
             elseif isa(src1, 'sirf.Reg.NiftiImageData3DDeformation')
                 self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDisplacement_create_from_def', src1.handle_);
             end
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end

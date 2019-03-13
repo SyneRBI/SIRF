@@ -43,13 +43,13 @@ classdef ImageData < mSIRF.ImageData
             else
                 self.handle_ = calllib...
                     ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
-                mUtilities.check_status('ImageData', self.handle_)
+                sirf.Utilities.check_status('ImageData', self.handle_)
             end
             self.rimsize = -1;
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -84,16 +84,16 @@ classdef ImageData < mSIRF.ImageData
                 end
             end
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
             end
             voxels = calllib('mstir', 'mSTIR_voxels3DF',...
                 dim(1), dim(2), dim(3),...
                 vsize(1), vsize(2), vsize(3),...
                 origin(1), origin(2), origin(3));
-            mUtilities.check_status('ImageData:initialise', voxels)
+            sirf.Utilities.check_status('ImageData:initialise', voxels)
             self.handle_ = calllib('mstir', 'mSTIR_imageFromVoxels', voxels);
-            mUtilities.check_status('ImageData:initialise', self.handle_)
-            mUtilities.delete(voxels)
+            sirf.Utilities.check_status('ImageData:initialise', self.handle_)
+            sirf.Utilities.delete(voxels)
         end
         function fill(self, value)
 %***SIRF*** Sets this image values at voxels.
@@ -110,8 +110,8 @@ classdef ImageData < mSIRF.ImageData
                 end
                 h = calllib('mstir', 'mSTIR_setImageData', self.handle_, ptr_v);
             end
-            mUtilities.check_status('ImageData:fill', h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('ImageData:fill', h)
+            sirf.Utilities.delete(h)
         end
         function image = get_uniform_copy(self, value)
 %***SIRF*** Creates a copy of this image filled with the specified value.
@@ -121,32 +121,32 @@ classdef ImageData < mSIRF.ImageData
             image = sirf.STIR.ImageData();
             image.handle_ = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle_);
-            mUtilities.check_status('ImageData:get_uniform_copy', self.handle_)
+            sirf.Utilities.check_status('ImageData:get_uniform_copy', self.handle_)
             image.fill(value)
         end
         function read_from_file(self, filename)
 %***SIRF*** Reads the image data from a file.
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
             end
             self.handle_ = calllib...
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
-            mUtilities.check_status('ImageData:read_from_file', self.handle_);
+            sirf.Utilities.check_status('ImageData:read_from_file', self.handle_);
         end
         function add_shape(self, shape, add)
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
 %         by the value of the last argument.
-            mUtilities.assert_validity(shape, 'Shape')
+            sirf.Utilities.assert_validity(shape, 'Shape')
             if isempty(self.handle_)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
             h = calllib...
                 ('mstir', 'mSTIR_addShape', self.handle_,...
                 shape.handle_, add);
-            mUtilities.check_status('ImageData:add_shape', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('ImageData:add_shape', h);
+            sirf.Utilities.delete(h)
         end
         function dim = size(self)
 %***SIRF*** Returns the dimensions of 3D array of this image values at voxels.
@@ -157,8 +157,8 @@ classdef ImageData < mSIRF.ImageData
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             h = calllib...
                 ('mstir', 'mSTIR_getImageDimensions', self.handle_, ptr_i);
-            mUtilities.check_status('ImageData:as_array', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('ImageData:as_array', h);
+            sirf.Utilities.delete(h)
             idim = ptr_i.Value;
             dim = [idim(3) idim(2) idim(1)];
 %             dim = fliplr(idim); % does not work
@@ -171,8 +171,8 @@ classdef ImageData < mSIRF.ImageData
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             h = calllib...
                 ('mstir', 'mSTIR_getImageDimensions', self.handle_, ptr_i);
-            mUtilities.check_status('ImageData:as_array', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('ImageData:as_array', h);
+            sirf.Utilities.delete(h)
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
 %             [ptr, data] = calllib...
@@ -181,8 +181,8 @@ classdef ImageData < mSIRF.ImageData
             ptr_v = libpointer('singlePtr', zeros(n, 1));
             h = calllib...
                 ('mstir', 'mSTIR_getImageData', self.handle_, ptr_v);
-            mUtilities.check_status('ImageData:as_array', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('ImageData:as_array', h);
+            sirf.Utilities.delete(h)
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
         function show(self, z)
@@ -195,7 +195,7 @@ classdef ImageData < mSIRF.ImageData
             end
             if nargin > 1
                 the_title = sprintf('Slice %d', z);
-                mUtilities.show_2D_array(data(:,:,z), the_title, 'x', 'y');
+                sirf.Utilities.show_2D_array(data(:,:,z), the_title, 'x', 'y');
                 return
             end                
             data = data/max(data(:));
@@ -203,7 +203,7 @@ classdef ImageData < mSIRF.ImageData
                 'or 0 to stop the loop')
             while true
                 s = input('z-slices to display: ', 's');
-                err = mUtilities.show_3D_array...
+                err = sirf.Utilities.show_3D_array...
                     (data, 'Selected slices', 'x', 'y', 'slice', s); %elect);
                 if err ~= 0
                     fprintf('out-of-range slice numbers selected, %s\n', ...

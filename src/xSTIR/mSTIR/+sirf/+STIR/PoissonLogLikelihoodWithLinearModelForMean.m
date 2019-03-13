@@ -28,7 +28,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < sirf.STIR.ObjectiveFunctio
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -65,7 +65,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < sirf.STIR.ObjectiveFunctio
             sens = sirf.STIR.ImageData();
             sens.handle_ = calllib('mstir', 'mSTIR_subsetSensitivity',...
                 self.handle_, subset);
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ('PoissonLinModMean:get_subset_sensitivity',...
                 sens.handle_)
         end
@@ -73,12 +73,12 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < sirf.STIR.ObjectiveFunctio
                 (self, image, subset)
 %***SIRF*** Returns the backprojection of the ratio of measured to estimated
 %         acquisition data for the specified image and subset.
-            mUtilities.assert_validity(image, 'ImageData')
+            sirf.Utilities.assert_validity(image, 'ImageData')
             bar = sirf.STIR.ImageData();
             bar.handle_ = calllib...
                 ('mstir', 'mSTIR_objectiveFunctionGradientNotDivided',...
                 self.handle_, image.handle_, subset);
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ('PoissonLinModMean:get_backprojection_of_acquisition_ratio',...
                 bar.handle_)
         end

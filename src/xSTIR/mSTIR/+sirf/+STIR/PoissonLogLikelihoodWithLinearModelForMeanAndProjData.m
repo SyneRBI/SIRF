@@ -37,7 +37,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -65,7 +65,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
 %         end
         function set_acquisition_model(self, acq_model)
 %***SIRF*** Sets the acquisition model to be used by this objective function.
-            mUtilities.assert_validity(acq_model, 'AcquisitionModel')
+            sirf.Utilities.assert_validity(acq_model, 'AcquisitionModel')
             sirf.STIR.setParameter(self.handle_, self.name,...
                 'acquisition_model', acq_model, 'h')
         end
@@ -74,12 +74,12 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
             acq_model = sirf.STIR.AcquisitionModelUsingMatrix();
             acq_model.handle_ = calllib('mstir', 'mSTIR_parameter',...
                 self.handle_, self.name, 'acquisition_model');
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ([self.name ':get_acquisition_model'], acq_model.handle_)
         end
         function set_acquisition_data(self, acq_data)
 %***SIRF*** Sets the acquisition data to be used by this objective function.
-            mUtilities.assert_validity(acq_data, 'AcquisitionData')
+            sirf.Utilities.assert_validity(acq_data, 'AcquisitionData')
             sirf.STIR.setParameter(self.handle_, self.name,...
                 'acquisition_data', acq_data, 'h')
 %             sirf.STIR.setParameter(self.handle_, self.name,...

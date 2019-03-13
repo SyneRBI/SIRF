@@ -29,7 +29,7 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
 %                  see AcquisitionModel
             self.name = 'AcqModUsingMatrix';
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
-            mUtilities.check_status([self.name ':ctor'], self.handle_)
+            sirf.Utilities.check_status([self.name ':ctor'], self.handle_)
             if nargin < 1
                 matrix = sirf.STIR.RayTracingMatrix();
             end
@@ -39,7 +39,7 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -48,10 +48,10 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
 %         matrix:  a RayTracingMatrix object representing G in (F) -
 %                  see AcquisitionModel
             matrix = sirf.STIR.RayTracingMatrix();
-            mUtilities.delete(matrix.handle_)
+            sirf.Utilities.delete(matrix.handle_)
             matrix.handle_ = calllib('mstir', 'mSTIR_parameter',...
                 self.handle_, self.name, 'matrix');
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ([self.name ':get_matrix'], matrix.handle_)
         end
         function set_num_tangential_LORs(self, value)

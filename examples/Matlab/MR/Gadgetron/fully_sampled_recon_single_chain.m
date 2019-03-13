@@ -29,7 +29,7 @@ end
 % import_str = set_up_MR(engine);
 % eval(import_str)
 MR = set_up_MR(engine);
-mr_data_path = mUtilities.examples_data_path('MR');
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % In this demo, rather than using a predefined image reconstruction 
 % object, here an image reconstruction object is created by concatinating 
@@ -86,9 +86,9 @@ if exist('montage','file') && exist('mat2gray','file')
 else
     image_array = image_data.as_array();
     title = 'Reconstructed image data (magnitude)';
-    mUtilities.show_3D_array(abs(image_array(:,:,1:2:end)), title, ...
+    sirf.Utilities.show_3D_array(abs(image_array(:,:,1:2:end)), title, ...
         'samples', 'readouts', 'slice');
     title = 'Reconstructed image data (imaginary part)';
-    mUtilities.show_3D_array(imag(image_array(:,:,2:2:end)), title, ...
+    sirf.Utilities.show_3D_array(imag(image_array(:,:,2:2:end)), title, ...
         'samples', 'readouts', 'slice');
 end

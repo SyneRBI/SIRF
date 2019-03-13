@@ -33,7 +33,7 @@ end
 % import_str = set_up_MR(engine);
 % eval(import_str)
 MR = set_up_MR(engine);
-mr_data_path = mUtilities.examples_data_path('MR');
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % acquisitions will be read from this HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
@@ -95,6 +95,6 @@ real_image_data = img_proc.get_output();
 % See other demos for use of as_array() to extract a MATLAB array and then
 % plot
 title = 'Reconstructed image data (magnitude)';
-mUtilities.show_3D_array(abs(real_image_data.as_array()), title, ...
+sirf.Utilities.show_3D_array(abs(real_image_data.as_array()), title, ...
     'samples', 'readouts', 'slice');
 

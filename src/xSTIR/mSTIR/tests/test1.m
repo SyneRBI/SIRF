@@ -31,11 +31,11 @@ end
 % eval(import_str)
 PET = set_up_PET(engine);
 
-test = mUtilities.mTest('test1.txt', record);
+test = sirf.Utilities.mTest('test1.txt', record);
 
 % define raw data source
 filename = 'Utahscat600k_ca_seg4.hs';
-pathname = mUtilities.examples_data_path('PET');
+pathname = sirf.Utilities.examples_data_path('PET');
 acq_data = PET.AcquisitionData(fullfile(pathname, filename));
 s = acq_data.norm();
 v = variance(acq_data);

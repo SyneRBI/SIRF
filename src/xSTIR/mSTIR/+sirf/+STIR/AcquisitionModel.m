@@ -48,28 +48,28 @@ classdef AcquisitionModel < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function set_additive_term(self, at)
 %***SIRF*** sets the additive term a in the acquisition model;
 %         at:  an AcquisitionData object containing a.
-            mUtilities.assert_validity(at, 'AcquisitionData')
+            sirf.Utilities.assert_validity(at, 'AcquisitionData')
             sirf.STIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'additive_term', at, 'h');
         end
         function set_background_term(self, bt)
 %***SIRF*** sets the background term b in the acquisition model;
 %         bt:  an AcquisitionData object containing b.
-            mUtilities.assert_validity(bt, 'AcquisitionData')
+            sirf.Utilities.assert_validity(bt, 'AcquisitionData')
             sirf.STIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'background_term', bt, 'h');
         end
         function set_acquisition_sensitivity(self, asm)
 %***SIRF*** sets the acquisition sensitivity model responsible for n in the acquisition model;
 %         asm: an AcquisitionSensitivityModel object.
-            mUtilities.assert_validity(asm, 'AcquisitionSensitivityModel')
+            sirf.Utilities.assert_validity(asm, 'AcquisitionSensitivityModel')
             sirf.STIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'asm', asm, 'h');
         end
@@ -84,13 +84,13 @@ classdef AcquisitionModel < handle
 %                     projection;
 %         img_templ:  an ImageData object used as a template for creating an
 %                     ImageData object to store backprojection.
-            mUtilities.assert_validity(acq_templ, 'AcquisitionData')
-            mUtilities.assert_validity(img_templ, 'ImageData')
+            sirf.Utilities.assert_validity(acq_templ, 'AcquisitionData')
+            sirf.Utilities.assert_validity(img_templ, 'ImageData')
             h = calllib...
                 ('mstir', 'mSTIR_setupAcquisitionModel',...
                 self.handle_, acq_templ.handle_, img_templ.handle_);
-            mUtilities.check_status([self.name ':set_up'], h)
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name ':set_up'], h)
+            sirf.Utilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function ad = forward(self, x, subset_num, num_subsets)
@@ -98,7 +98,7 @@ classdef AcquisitionModel < handle
 %         Usage: 
 %             acq_data = forward(image);
 %         x:  an ImageData object.
-            mUtilities.assert_validity(x, 'ImageData')
+            sirf.Utilities.assert_validity(x, 'ImageData')
             if nargin < 4
                 subset_num = 0;
                 num_subsets = 1;
@@ -106,12 +106,12 @@ classdef AcquisitionModel < handle
             ad = sirf.STIR.AcquisitionData();
             ad.handle_ = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
                 self.handle_, x.handle_, subset_num, num_subsets);
-            mUtilities.check_status([self.name ':forward'], ad.handle_)
+            sirf.Utilities.check_status([self.name ':forward'], ad.handle_)
         end
         function image = backward(self, y, subset_num, num_subsets)
 %***SIRF*** returns the backprojection of y (see AcquisitionModel)
 %         y:  an AcquisitionData object.
-            mUtilities.assert_validity(y, 'AcquisitionData')
+            sirf.Utilities.assert_validity(y, 'AcquisitionData')
             if nargin < 4
                 subset_num = 0;
                 num_subsets = 1;
@@ -119,7 +119,7 @@ classdef AcquisitionModel < handle
             image = sirf.STIR.ImageData();
             image.handle_ = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
                 self.handle_, y.handle_, subset_num, num_subsets);
-            mUtilities.check_status...
+            sirf.Utilities.check_status...
                 ([self.name ':backward'], image.handle_)
         end
     end

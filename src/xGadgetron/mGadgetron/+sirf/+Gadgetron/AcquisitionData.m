@@ -43,16 +43,16 @@ classdef AcquisitionData < mSIRF.DataContainer
 %               RAM (avoid if data is very large)
             h = calllib...
                 ('mgadgetron', 'mGT_setAcquisitionsStorageScheme', scheme);
-            mUtilities.check_status('AcquisitionData', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('AcquisitionData', h);
+            sirf.Utilities.delete(h)
         end
         function scheme = get_storage_scheme()
 %***SIRF*** Returns current acquisition storage scheme name
             h = calllib...
                 ('mgadgetron', 'mGT_getAcquisitionsStorageScheme');
-            mUtilities.check_status('AcquisitionData', h);
+            sirf.Utilities.check_status('AcquisitionData', h);
             scheme = calllib('miutilities', 'mCharDataFromHandle', h);
-            mUtilities.delete(h)
+            sirf.Utilities.delete(h)
         end
     end
     methods
@@ -66,12 +66,12 @@ classdef AcquisitionData < mSIRF.DataContainer
             if nargin > 0
                 self.handle_ = calllib('mgadgetron', ...
                     'mGT_ISMRMRDAcquisitionsFromFile', filename);
-                mUtilities.check_status(self.name_, self.handle_);
+                sirf.Utilities.check_status(self.name_, self.handle_);
             end
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -86,8 +86,8 @@ classdef AcquisitionData < mSIRF.DataContainer
             end
             handle = calllib('mgadgetron', 'mGT_sortAcquisitions', ...
                 self.handle_);
-            mUtilities.check_status('AcquisitionData', handle);
-            mUtilities.delete(handle)
+            sirf.Utilities.check_status('AcquisitionData', handle);
+            sirf.Utilities.delete(handle)
             self.sorted_ = true;
         end
         function sorted = is_sorted(self)
@@ -184,8 +184,8 @@ classdef AcquisitionData < mSIRF.DataContainer
             end
             h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
                 self.handle_, ptr_z, 1);
-            mUtilities.check_status('AcquisitionData', h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status('AcquisitionData', h);
+            sirf.Utilities.delete(h)
         end
     end
 end

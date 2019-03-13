@@ -32,11 +32,11 @@ classdef NiftyResample < handle
         function self = NiftyResample(src)
             self.name = 'NiftyResample';
             self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
-            mUtilities.check_status(self.name, self.handle_)
+            sirf.Utilities.check_status(self.name, self.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -86,16 +86,16 @@ classdef NiftyResample < handle
         function process(self)
             %Process.
             h = calllib('mreg', 'mReg_NiftyResample_process', self.handle_);
-            mUtilities.check_status([self.name ':process'], h);
-            mUtilities.delete(h)
+            sirf.Utilities.check_status([self.name ':process'], h);
+            sirf.Utilities.delete(h)
         end
         function output = get_output(self)
             %Get output.
             assert(~isempty(self.reference_image) && ~isempty(self.reference_image.handle_))
             output = self.reference_image.same_object();
-            mUtilities.delete(output.handle_)
+            sirf.Utilities.delete(output.handle_)
             output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, self.name, 'output');
-            mUtilities.check_status([self.name ':get_output'], output.handle_)
+            sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
         end
     end
 end

@@ -34,10 +34,10 @@ end
 % eval(import_str)
 MR = set_up_MR(engine);
 
-test = mUtilities.mTest('test2.txt', record);
+test = sirf.Utilities.mTest('test2.txt', record);
 
 filename = 'simulated_MR_2D_cartesian_Grappa2.h5';
-pathname = mUtilities.examples_data_path('MR');
+pathname = sirf.Utilities.examples_data_path('MR');
 acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 test.check(acq_data.norm())
 

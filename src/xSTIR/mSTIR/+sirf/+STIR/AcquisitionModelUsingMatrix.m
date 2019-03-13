@@ -30,25 +30,25 @@ classdef AcquisitionModelUsingMatrix < sirf.STIR.AcquisitionModel
 %                  see AcquisitionModel
             self.name = 'AcqModUsingMatrix';
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
-            mUtilities.check_status([self.name ':ctor'], self.handle_)
+            sirf.Utilities.check_status([self.name ':ctor'], self.handle_)
             if nargin < 1
                 matrix = sirf.STIR.RayTracingMatrix();
             end
-            mUtilities.assert_validity(matrix, 'RayTracingMatrix')
+            sirf.Utilities.assert_validity(matrix, 'RayTracingMatrix')
             sirf.STIR.setParameter...
                 (self.handle_, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
             if ~isempty(self.handle_)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-                mUtilities.delete(self.handle_)
+                sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function set_matrix(self, matrix)
 %***SIRF*** set_matrix(matrix) sets the projection matrix to be used.
 %         matrix:  a projection matrix object to represent G in (F).
-            mUtilities.assert_validity(matrix, 'RayTracingMatrix')
+            sirf.Utilities.assert_validity(matrix, 'RayTracingMatrix')
             sirf.STIR.setParameter...
                 (self.handle_, self.name, 'matrix', matrix, 'h')
         end
