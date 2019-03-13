@@ -31,11 +31,11 @@ function try_stirtonifti(g)
     nifti_filename = fullfile(g.SIRF_PATH, '/data/examples/Registration/test2.nii.gz');
 
     % Load the image as a NiftiImageData3D
-    image_nifti = mReg.NiftiImageData3D(nifti_filename);
+    image_nifti = sirf.Reg.NiftiImageData3D(nifti_filename);
 
     % Read as STIRImageData, convert to NiftiImageData3D and save to file
     image_stir = mSTIR.ImageData(nifti_filename);
-    image_nifti_from_stir = mReg.NiftiImageData3D(image_stir);
+    image_nifti_from_stir = sirf.Reg.NiftiImageData3D(image_stir);
     image_nifti_from_stir.write('results/stir_to_nifti.nii',image_nifti.get_original_datatype());
 
     % Compare the two
