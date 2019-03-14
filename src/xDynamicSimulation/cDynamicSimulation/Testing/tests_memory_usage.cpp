@@ -35,7 +35,8 @@ bool tests_memory::test_acquisition_memory( void )
 	try
 	{	
 		AcquisitionsVector all_acquis;
-		all_acquis.read( std::string( ISMRMRD_H5_TEST_PATH ));
+		// all_acquis.read( std::string( ISMRMRD_H5_TEST_PATH ));
+		all_acquis.read( std::string( ISMRMRD_H5_TEST_PATH ), false);
 
 		size_t num_iterations = 1000;
 
