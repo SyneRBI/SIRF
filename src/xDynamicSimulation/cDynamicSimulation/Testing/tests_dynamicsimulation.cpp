@@ -398,7 +398,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		mr_dyn_sim.set_trajectory( sptr_traj );
 
 		AcquisitionsVector all_acquis;
-		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
+		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 		float const test_SNR = 19;
@@ -411,7 +411,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
-		if( num_simul_motion_dyn > 1)
+		if( num_simul_motion_dyn > 0)
 		{
 			MRMotionDynamic respiratory_motion_dyn( num_simul_motion_dyn );
 
@@ -426,12 +426,12 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 			auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 			respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
 
-			mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+			mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( respiratory_motion_dyn ));
 		}
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_contrast_states = 48;
+		int const num_contrast_states = 2;
 		
 		MRContrastDynamic aif_contrast(num_contrast_states), healthy_tissue_contrast(num_contrast_states), lesion_contrast(num_contrast_states);
 

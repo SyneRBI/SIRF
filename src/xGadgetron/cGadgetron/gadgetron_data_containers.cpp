@@ -80,7 +80,7 @@ MRAcquisitionData::write(const std::string &filename) const
 }
 
 void
-MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
+MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext, bool const keep_data )
 {
 	
 	bool const verbose = true;
@@ -115,7 +115,12 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 				continue;
 
 			else
+			{
+				if( !keep_data )
+					acq.resize(1); //delete data for simulation part
 				this->append_acquisition( acq );
+
+			}
 		}
 		if( verbose )
 		{
