@@ -89,7 +89,7 @@ namespace data_io{
 
 
 	template <typename T>
-	void write_ISMRMRD_Image_to_Analyze(std::string const output_name_without_ext, ISMRMRD::Image<T> &img)
+	void write_ISMRMRD_Image_to_nii(std::string const output_name_without_ext, ISMRMRD::Image<T> &img)
 	{
 		std::cout << "Started writing " << output_name_without_ext << std::endl;	
 		std::cout << "Only first channel will be written to file. " << output_name_without_ext << std::endl;	
@@ -156,7 +156,7 @@ namespace data_io{
 			mvf(nx, ny, nz, 2) *= PIX_SIZE_X;
 		}
 
-		write_ISMRMRD_Image_to_Analyze<T> (output_name_without_ext, mvf);
+		write_ISMRMRD_Image_to_nii<T> (output_name_without_ext, mvf);
 	
 	}
 
@@ -182,7 +182,7 @@ namespace data_io{
 			mvf(nx, ny, nz, 2) *= PIX_SIZE_Z;
 		}
 
-		write_ISMRMRD_Image_to_Analyze<T> (output_name_without_ext, mvf);
+		write_ISMRMRD_Image_to_nii<T> (output_name_without_ext, mvf);
 	
 	}
 

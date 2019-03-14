@@ -108,7 +108,7 @@ bool test_aux_test_funs::test_get_mock_gaussian_csm( void )
 		std::stringstream name_stream;
 		name_stream << "/media/sf_SharedFolder/CCPPETMR/test_mock_gaussian_csm_";
 		
-		data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > (name_stream.str(), mock_csm);
+		data_io::write_ISMRMRD_Image_to_nii< complex_float_t > (name_stream.str(), mock_csm);
 
 	}
 	catch( std::runtime_error const &e)
