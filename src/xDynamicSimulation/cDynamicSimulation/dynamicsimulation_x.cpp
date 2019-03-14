@@ -163,6 +163,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
                     int const motion_bin_number = current_combination[ i_motion_dyn ];						
                     SignalBin bin = signal_bins[ motion_bin_number ];
 	                
+	                std::cout << "Getting interpolated motion field in state " << std::get<1>(bin) << std::endl;
                     all_motion_fields.push_back( motion_dyn->get_interpolated_deformation_field( std::get<1>(bin) ) ); 
 
                 }
