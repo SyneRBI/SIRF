@@ -398,7 +398,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		mr_dyn_sim.set_trajectory( sptr_traj );
 
 		AcquisitionsVector all_acquis;
-		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
+		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 		float const test_SNR = 19;
@@ -431,7 +431,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_contrast_states = 48;
+		int const num_contrast_states = 2;
 		
 		MRContrastDynamic aif_contrast(num_contrast_states), healthy_tissue_contrast(num_contrast_states), lesion_contrast(num_contrast_states);
 
