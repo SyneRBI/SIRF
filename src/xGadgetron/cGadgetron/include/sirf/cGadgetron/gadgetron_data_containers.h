@@ -219,7 +219,7 @@ namespace sirf {
 			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
 			* to exclude potentially incompatible input. 
     	*/
-		void read( const std::string& filename_ismrmrd_with_ext );
+		void read( const std::string& filename_ismrmrd_with_ext, bool const keep_data=true );
 
 	protected:
 		bool ordered_;
