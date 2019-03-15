@@ -1196,9 +1196,11 @@ class AcquisitionModel(object):
                              num_subsets = num_subsets)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
+
     def is_affine(self):
         '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''
         return True
+
     def is_linear(self):
         '''Returns whether the acquisition model is linear (i.e. corresponding to A*x, with zero background term)'''
         if self.bt is None and self.at is None:
@@ -1212,6 +1214,15 @@ class AcquisitionModel(object):
                 return self.bt.norm() == 0
             else:
                 return self.bt.norm() == 0 and self.at.norm() == 0
+
+    def range_geometry(self):
+        '''Returns the template of ImageData'''
+        return self.img_templ
+
+    def domain_geometry(self):
+        '''Returns the template of AcquisitionData'''
+        return self.acq_templ
+
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a sparse

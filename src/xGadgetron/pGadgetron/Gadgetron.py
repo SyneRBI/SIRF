@@ -945,6 +945,9 @@ class AcquisitionModel:
             self.handle = \
                 pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         check_status(self.handle)
+        # saves reference to template of AcquisitionData and ImageData
+        self.acq_templ = acqs
+        self.img_templ = imgs
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1010,6 +1013,14 @@ class AcquisitionModel:
     def is_linear(self):
         '''Returns whether the acquisition model is linear (i.e. corresponding to A*x, with zero background term)'''
         return True
+
+    def range_geometry(self):
+        '''Returns the template of ImageData'''
+        return self.img_templ
+
+    def domain_geometry(self):
+        '''Returns the template of AcquisitionData'''
+        return self.acq_templ
 
 class Gadget:
     '''
