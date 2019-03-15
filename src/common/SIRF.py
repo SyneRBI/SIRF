@@ -381,6 +381,12 @@ class DataContainer(ABC):
            uses NumPy
         '''
         return numpy.sum(self.as_array())
+    def get_uniform_copy(self, value=1.0):
+        '''Initialises an instance of DataContainer based on the template'''
+        y = self.clone()
+        y.fill(value)
+        return y
+
 
 class ImageData(DataContainer):
     pass
