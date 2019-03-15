@@ -121,7 +121,7 @@ if EXAMPLE in ['brain', 'thorax']:
     mu_map = pet.ImageData('attenuation.hv')
     mu_map_array = mu_map.as_array()
     # bitmap display of images
-    sliceno = image_array.shape[0]/2
+    sliceno = image_array.shape[0]//2
     plt.figure()
     imshow(image_array[sliceno, :, :, ], title='emission image')
 
