@@ -387,6 +387,12 @@ class DataContainer(ABC):
         y.fill(value)
         return y
 
+    def squared_norm(self):
+        '''Returns the squared norm of a DataContainer viewed as a vector
+        
+        CIL/SIRF compatibility'''
+        return self.dot(self)
+
 
 class ImageData(DataContainer):
     pass
