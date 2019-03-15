@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""pSTIR OSSPS reconstruction tests
+"""sirf.STIR OSSPS reconstruction tests
 v{version}
 
 Usage:
@@ -13,9 +13,10 @@ Options:
 
 {licence}
 """
-from pSTIR import *
-__version__ = "0.2.2"
-__author__ = "Casper da Costa-Luis"
+from sirf.STIR import *
+from sirf.Utilities import runner, RE_PYEXT, __license__
+__version__ = "0.2.3"
+__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
 def test_main(rec=False, verb=False, throw=True):

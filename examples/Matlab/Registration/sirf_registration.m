@@ -119,7 +119,7 @@ ref = eng_ref.ImageData(ref_file);
 flo = eng_flo.ImageData(flo_file);
 
 % Dynamically create resample algorithm
-reg = eval(['mReg.' algo]);
+reg = eval(['sirf.Reg.' algo]);
 reg.set_reference_image(ref)
 reg.set_floating_image(flo)
 if exist('par_file','var')

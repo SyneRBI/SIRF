@@ -15,7 +15,7 @@
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-set_up_Reg([]);
+set_up_Reg();
 
 % Paths
 SIRF_PATH     = getenv('SIRF_PATH');
@@ -59,10 +59,10 @@ g.output_weighted_mean                       = fullfile(output_prefix, 'matlab_w
 g.output_weighted_mean_def                   = fullfile(output_prefix, 'matlab_weighted_mean_def.nii');
 g.output_float                               = fullfile(output_prefix, 'matlab_reg_aladin_float.nii');
 
-g.ref_aladin                                 = mReg.NiftiImageData3D( g.ref_aladin_filename );
-g.flo_aladin                                 = mReg.NiftiImageData3D( g.flo_aladin_filename );
-g.ref_f3d                                    = mReg.NiftiImageData3D(   g.ref_f3d_filename  );
-g.flo_f3d                                    = mReg.NiftiImageData3D(   g.flo_f3d_filename  );
+g.ref_aladin                                 = sirf.Reg.NiftiImageData3D( g.ref_aladin_filename );
+g.flo_aladin                                 = sirf.Reg.NiftiImageData3D( g.flo_aladin_filename );
+g.ref_f3d                                    = sirf.Reg.NiftiImageData3D(   g.ref_f3d_filename  );
+g.flo_f3d                                    = sirf.Reg.NiftiImageData3D(   g.flo_f3d_filename  );
 
 try_niftiimage(g);
 try_niftiimage3d(g);
@@ -81,10 +81,10 @@ function try_niftiimage(g)
 	disp('%------------------------------------------------------------------------ %')
 
     % default constructor
-    a = mReg.NiftiImageData();
+    a = sirf.Reg.NiftiImageData();
 
     % Read from file
-    b = mReg.NiftiImageData(g.ref_aladin_filename);
+    b = sirf.Reg.NiftiImageData(g.ref_aladin_filename);
 
     % Save to file
     b.write(g.save_nifti_image);
@@ -138,14 +138,14 @@ function try_niftiimage(g)
 
     % Test saving to datatype
     g.ref_aladin.write(g.output_float,16); % save to float
-    ref_aladin_float = mReg.NiftiImageData3D(g.output_float);
+    ref_aladin_float = sirf.Reg.NiftiImageData3D(g.output_float);
     arr1 = g.ref_aladin.as_array();
     arr2 = ref_aladin_float.as_array();
     assert(all(arr1(:)==arr2(:)), 'NiftiImageData::write()/change_datatype() failed.');
 
     % Test print methods
     q.print_header();
-    mReg.NiftiImageData.print_headers([q s]);
+    sirf.Reg.NiftiImageData.print_headers([q s]);
 
     % Crop image
     min_ = [];
@@ -157,9 +157,11 @@ function try_niftiimage(g)
     max_(3) = 62;
     e = e;
     s.crop(min_,max_);
-    size(s.as_array())
     assert(all(size(s.as_array()) == [64, 64, 63]), 'NiftiImageData crop() failed.')
 
+    % Get voxel sizes
+    s = b.get_voxel_sizes();
+    assert(all(s == [0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]), 'NiftiImageData get_voxel_sizes() failed.')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
@@ -172,10 +174,10 @@ function try_niftiimage3d(g)
     disp('%------------------------------------------------------------------------ %')
 
     % default constructor
-    a = mReg.NiftiImageData3D();
+    a = sirf.Reg.NiftiImageData3D();
 
     % Read from file
-    b = mReg.NiftiImageData3D(g.ref_aladin_filename);
+    b = sirf.Reg.NiftiImageData3D(g.ref_aladin_filename);
 
     % Save to file
     b.write(g.save_nifti_image_3d);
@@ -226,7 +228,7 @@ function try_niftiimage3dtensor(g)
     disp('%------------------------------------------------------------------------ %')
 
     % Create NiftiImageData3DTensor from NiftiImageData3D
-    b = mReg.NiftiImageData3DTensor();
+    b = sirf.Reg.NiftiImageData3DTensor();
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
@@ -234,7 +236,7 @@ function try_niftiimage3dtensor(g)
     b.write_split_xyz_components(g.save_nifti_image_3d_tensor_split);
 
     % Constructor from file
-    c = mReg.NiftiImageData3DTensor(g.save_nifti_image_3d_tensor_not_split);
+    c = sirf.Reg.NiftiImageData3DTensor(g.save_nifti_image_3d_tensor_not_split);
 
     % Fill
     c.fill(100)
@@ -278,7 +280,7 @@ function try_niftiimage3dtensor(g)
     im1.fill(30);
     im2.fill(20);
     im3.fill(-10);
-    h = mReg.NiftiImageData3DTensor(im1, im2, im3);
+    h = sirf.Reg.NiftiImageData3DTensor(im1, im2, im3);
 
     % Test flip components
     h.flip_component(0);
@@ -297,7 +299,7 @@ function try_niftiimage3ddisplacement(g)
     disp('%------------------------------------------------------------------------ %')
 
     % Create NiftiImageData3DDisplacement from NiftiImageData3D
-    b = mReg.NiftiImageData3DDisplacement();
+    b = sirf.Reg.NiftiImageData3DDisplacement();
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
@@ -305,10 +307,10 @@ function try_niftiimage3ddisplacement(g)
     b.write_split_xyz_components(g.save_nifti_image_3d_displacement_split);
 
     % Constructor from file
-    c = mReg.NiftiImageData3DDisplacement(g.save_nifti_image_3d_displacement_not_split);
+    c = sirf.Reg.NiftiImageData3DDisplacement(g.save_nifti_image_3d_displacement_not_split);
 
     % Constructor from 3x3D
-    h = mReg.NiftiImageData3DDisplacement(g.ref_aladin, g.ref_aladin, g.ref_aladin);
+    h = sirf.Reg.NiftiImageData3DDisplacement(g.ref_aladin, g.ref_aladin, g.ref_aladin);
 
     % Fill
     c.fill(100)
@@ -356,7 +358,7 @@ function try_niftiimage3ddeformation(g)
     disp('%------------------------------------------------------------------------ %')
 
     % Create NiftiImageData3DDeformation from NiftiImageData3D
-    b = mReg.NiftiImageData3DDeformation();
+    b = sirf.Reg.NiftiImageData3DDeformation();
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
@@ -364,10 +366,10 @@ function try_niftiimage3ddeformation(g)
     b.write_split_xyz_components(g.save_nifti_image_3d_deformation_split);
 
     % Constructor from file
-    c = mReg.NiftiImageData3DDeformation(g.save_nifti_image_3d_deformation_not_split);
+    c = sirf.Reg.NiftiImageData3DDeformation(g.save_nifti_image_3d_deformation_not_split);
 
     % Constructor from 3x3D
-    h = mReg.NiftiImageData3DDeformation(g.ref_aladin, g.ref_aladin, g.ref_aladin);
+    h = sirf.Reg.NiftiImageData3DDeformation(g.ref_aladin, g.ref_aladin, g.ref_aladin);
 
     % Fill
     c.fill(100)
@@ -414,14 +416,22 @@ function na =try_niftyaladin(g)
 	disp('%                  Starting Nifty aladin test...')
 	disp('%------------------------------------------------------------------------ %')
 
+    % First set up some masks
+    ref_mask = g.ref_aladin.deep_copy();
+    flo_mask = g.flo_aladin.deep_copy();
+    ref_mask.fill(1);
+    flo_mask.fill(1);
+
 	% default constructor
-    na = mReg.NiftyAladinSym();
+    na = sirf.Reg.NiftyAladinSym();
     na.set_reference_image(g.ref_aladin);
     na.set_floating_image(g.flo_aladin);
     na.set_parameter_file(g.parameter_file_aladin);
     na.set_parameter('SetInterpolationToCubic');
     na.set_parameter('SetLevelsToPerform', '1');
     na.set_parameter('SetMaxIterations', '5');
+    na.set_reference_mask(ref_mask);
+    na.set_floating_mask(flo_mask);
     na.process();
 
     % Get outputs
@@ -446,11 +456,11 @@ function na =try_niftyaladin(g)
     inverse_tm = na.get_transformation_matrix_inverse().as_array()
 
     % Test converting disp to def
-    a = mReg.NiftiImageData3DDeformation(disp_forward);
+    a = sirf.Reg.NiftiImageData3DDeformation(disp_forward);
     assert(a == def_forward, 'NiftiImageData3DDeformation::create_from_disp() failed.');
 
     % Test converting def to disp
-    b = mReg.NiftiImageData3DDisplacement(def_forward);
+    b = sirf.Reg.NiftiImageData3DDisplacement(def_forward);
     assert(b == disp_forward, 'NiftiImageData3DDisplacement::create_from_def() failed.');
 
 	disp('% ----------------------------------------------------------------------- %')
@@ -464,10 +474,10 @@ function try_niftyf3d(g)
 	disp('%------------------------------------------------------------------------ %')
 
     % Get initial transformation
-    tm_init = mReg.AffineTransformation(g.TM_forward);
+    tm_init = sirf.Reg.AffineTransformation(g.TM_forward);
 
 	% default constructor
-    nf = mReg.NiftyF3dSym();
+    nf = sirf.Reg.NiftyF3dSym();
     nf.set_reference_image(g.ref_f3d);
     nf.set_floating_image(g.flo_f3d);
     nf.set_parameter_file(g.parameter_file_f3d);
@@ -514,10 +524,13 @@ function try_transformations(g,na)
     assert(c_def == na.get_deformation_field_forward(), 'TransformationDeformation get_as_deformation_field() failed.')
 
     % Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-    tm_iden = mReg.AffineTransformation.get_identity();
+    tm_iden = sirf.Reg.AffineTransformation.get_identity();
     trans = [tm_iden, tm_iden, c3];
-    composed = mReg.NiftiImageData3DDeformation.compose_single_deformation(trans, g.ref_aladin);
+    composed = sirf.Reg.NiftiImageData3DDeformation.compose_single_deformation(trans, g.ref_aladin);
     assert(composed == na.get_deformation_field_forward(), 'compose_single_deformation failed.')
+
+    % Test get_inverse
+    tm_inv = tm_iden.get_inverse();
 
 
 	disp('% ----------------------------------------------------------------------- %')
@@ -530,13 +543,13 @@ function try_resample(g,na)
     disp('%                  Starting Nifty resample test...')
     disp('%------------------------------------------------------------------------ %')
 
-	tm_iden = mReg.AffineTransformation.get_identity();
+	tm_iden = sirf.Reg.AffineTransformation.get_identity();
     tm      = na.get_transformation_matrix_forward();
     displ   = na.get_displacement_field_forward();
     deff    = na.get_deformation_field_forward();
 
     disp('Testing rigid resample...')
-    nr1 = mReg.NiftyResample();
+    nr1 = sirf.Reg.NiftyResample();
     nr1.set_reference_image(g.ref_aladin);
     nr1.set_floating_image(g.flo_aladin);
     nr1.set_interpolation_type_to_cubic_spline();  % try different interpolations
@@ -547,7 +560,7 @@ function try_resample(g,na)
     nr1.get_output().write(g.rigid_resample);
 
     disp('Testing non-rigid displacement...')
-    nr2 = mReg.NiftyResample();
+    nr2 = sirf.Reg.NiftyResample();
     nr2.set_reference_image(g.ref_aladin);
     nr2.set_floating_image(g.flo_aladin);
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
@@ -557,7 +570,7 @@ function try_resample(g,na)
     nr2.get_output().write(g.nonrigid_resample_disp);
 
     disp('Testing non-rigid deformation...')
-    nr3 = mReg.NiftyResample();
+    nr3 = sirf.Reg.NiftyResample();
     nr3.set_reference_image(g.ref_aladin)
     nr3.set_floating_image(g.flo_aladin)
     nr3.set_interpolation_type_to_nearest_neighbour()  % try different interpolations
@@ -583,7 +596,7 @@ function try_weighted_mean(g,na)
     disp('%------------------------------------------------------------------------ %')
 
 		% Do 3D
-		wm1 = mReg.ImageWeightedMean();
+		wm1 = sirf.Reg.ImageWeightedMean();
         % Change to float to avoid rounding errors
         im1 = g.ref_aladin.deep_copy();
         im2 = g.ref_aladin.deep_copy();
@@ -605,7 +618,7 @@ function try_weighted_mean(g,na)
 		assert(wm1.get_output() == res, '3D weighted mean test failed.')
 
 		% Do 4D
-		wm2 = mReg.ImageWeightedMean();
+		wm2 = sirf.Reg.ImageWeightedMean();
 		im1 = na.get_deformation_field_forward().deep_copy();
 		im2 = na.get_deformation_field_forward().deep_copy();
 		im3 = na.get_deformation_field_forward().deep_copy();
@@ -637,13 +650,13 @@ function try_AffineTransformation(g,na)
     disp('%------------------------------------------------------------------------ %')
 
     % Construct from file
-    a = mReg.AffineTransformation(TM_forward);
+    a = sirf.Reg.AffineTransformation(TM_forward);
 
     % Multiply forward and inverse, should equal identity
     b = na.get_transformation_matrix_forward();
     c = na.get_transformation_matrix_inverse();
     d = b * c;
-    e = mReg.AffineTransformation.get_identity();
+    e = sirf.Reg.AffineTransformation.get_identity();
     assert(d == e, 'AffineTransformation::mult/comparison failed.');
 
     assert(e.get_determinant() - 1. < 1.e-7, 'AffineTransformation::get_determinant failed.');

@@ -46,7 +46,7 @@ if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
 else:
     ABC = abc.ABCMeta('ABC', (), {})
 
-# max number of acquisitions dimensiona
+# max number of acquisitions dimensions
 MAX_ACQ_DIMENSIONS = 16
 
 # mask for image-related acquisitions
@@ -221,20 +221,20 @@ class CoilImageData(DataContainer):
             (self.handle, acqs.handle))
     def image_dimensions(self):
         '''
-        Returns each coil images array dimensions as a tuple (nx, ny, nz, nc),
+        Returns each coil images array dimensions as a tuple (nc, nz, ny, nx),
         where nc is the number of active coils and nx, ny, nz are slice
         dimensions.
         '''
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCoilDataDimensions\
             (self.handle, 0, dim.ctypes.data)
-        return tuple(numpy.asarray(dim))
+        return tuple(dim[::-1])
     def as_array(self, ci_num):
         '''
         Returns specified coil images array as Numpy ndarray.
         ci_num: coil images array (slice) number
         '''
-        nx, ny, nz, nc = self.image_dimensions()
+        nc, nz, ny, nx = self.image_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
@@ -342,7 +342,7 @@ class CoilSensitivityData(DataContainer):
         pyiutil.deleteDataHandle(handle)
     def map_dimensions(self):
         '''
-        Returns each csm dimensions as a tuple (nx, ny, nz, nc),
+        Returns each csm dimensions as a tuple (nc, nz, ny, nx),
         where nc is the number of active coils and nx, ny, nz are slice
         dimensions.
         '''
@@ -350,14 +350,14 @@ class CoilSensitivityData(DataContainer):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCoilDataDimensions\
             (self.handle, 0, dim.ctypes.data)
-        return tuple(numpy.asarray(dim))
+        return tuple(dim[::-1])
     def as_array(self, csm_num):
         '''
         Returns specified csm as Numpy ndarray.
         csm_num: csm (slice) number
         '''
         assert self.handle is not None
-        nx, ny, nz, nc = self.map_dimensions()
+        nc, nz, ny, nx = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
@@ -624,7 +624,7 @@ class ImageData(SIRF.ImageData):
             t = min(f + 16, ni)
             err = show_3D_array(abs(data), index = slice[f : t], \
                                 tile_shape = tiles, cmap = cmap, \
-                                label = 'slice', xlabel = 'samples', \
+                                label = 'image', xlabel = 'samples', \
                                 ylabel = 'readouts', \
                                 suptitle = title, \
                                 show = (t == ni) and not postpone)

@@ -28,7 +28,7 @@ end
 % import_str = set_up_PET(engine);
 % eval(import_str)
 PET = set_up_PET(engine);
-pet_data_path = mUtilities.examples_data_path('PET');
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 AD = PET.AcquisitionData();
 AD.set_storage_scheme('memory');
@@ -80,14 +80,14 @@ try
     acq_dim = size(acq_array);
     fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
     z = uint16(acq_dim(3)/2);
-    mUtilities.show_2D_array(acq_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
 
     % compute randoms
     fprintf('estimating randoms, please wait...\n')
     randoms = lm2sino.estimate_randoms();
     rnd_array = randoms.as_array();
-    mUtilities.show_2D_array(rnd_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(rnd_array(:,:,z), ...
         'randoms', 'tang. pos.', 'views');
 
 catch err

@@ -29,7 +29,7 @@ end
 % import_str = set_up_PET(engine);
 % eval(import_str)
 PET = set_up_PET(engine);
-pet_data_path = mUtilities.examples_data_path('PET');
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 try
     % direct all information printing to info.txt;
@@ -65,7 +65,7 @@ try
 
     % display the created phantom image
     image_array = image.as_array();
-    mUtilities.show_2D_array(image_array(:,:,z), 'phantom', 'x', 'y');
+    sirf.Utilities.show_2D_array(image_array(:,:,z), 'phantom', 'x', 'y');
 
     % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile...
@@ -77,7 +77,7 @@ try
     bin_eff.fill(2.0);
     bin_eff_arr = bin_eff.as_array();
     bin_eff_arr(:, 10:50, :) = 0;
-    mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
+    sirf.Utilities.show_2D_array(bin_eff_arr(:,:,z), ...
         'bin efficiencies', 'tang. pos.', 'views');
     bin_eff.fill(bin_eff_arr);
     
@@ -88,7 +88,7 @@ try
     % to illustrate that AcquisitionSensitivityModel can be combined
     bin_eff_arr(:, 10:50, :) = 2.0;
     bin_eff_arr(:, 60:80, :) = 0;
-    mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
+    sirf.Utilities.show_2D_array(bin_eff_arr(:,:,z), ...
         'other bin efficiencies', 'tang. pos.', 'views');
     bin_eff.fill(bin_eff_arr);
     as_mod2 = PET.AcquisitionSensitivityModel(bin_eff);
@@ -103,7 +103,7 @@ try
     % apply the chained model to view combined bin efficiencies
     as_model.unnormalise(ones)
     ones_arr = ones.as_array();
-    mUtilities.show_2D_array(ones_arr(:,:,z), ...
+    sirf.Utilities.show_2D_array(ones_arr(:,:,z), ...
         'combined bin efficiencies', 'tang. pos.', 'views');
 
     % select the acquisition model that implements the geometric
@@ -122,7 +122,7 @@ try
     % display simulated data
     acq_array = simulated_data.as_array();
     acq_dim = size(acq_array);
-    mUtilities.show_2D_array(acq_array(:,:,uint16(acq_dim(3)/2)), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,uint16(acq_dim(3)/2)), ...
         'simulated acquisition data', 'tang. pos.', 'views');
 
     % backproject the simulated data
@@ -131,7 +131,7 @@ try
     backprojected_image = acq_model.backward(simulated_data);
     % display backprojected data
     image_array = backprojected_image.as_array();
-    mUtilities.show_2D_array(image_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(image_array(:,:,z), ...
         'backprojection of simulated data', 'x', 'y');
 
 catch err

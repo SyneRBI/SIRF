@@ -33,7 +33,7 @@ end
 % import_str = set_up_MR(engine);
 % eval(import_str)
 MR = set_up_MR(engine);
-mr_data_path = mUtilities.examples_data_path('MR');
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % acquisitions will be read from this HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
@@ -81,7 +81,7 @@ recon.process()
 complex_image_data = recon.get_output();
 
 % extract real images using Images processing chain
-% Note this still returns an mGadgetron.ImageData object that requires use
+% Note this still returns an sirf.Gadgetron.ImageData object that requires use
 % of as_array() or show() to visulaise.
 img_proc = MR.ImageDataProcessor({'ExtractGadget'});
 fprintf('processing images...\n')
@@ -95,6 +95,6 @@ real_image_data = img_proc.get_output();
 % See other demos for use of as_array() to extract a MATLAB array and then
 % plot
 title = 'Reconstructed image data (magnitude)';
-mUtilities.show_3D_array(abs(real_image_data.as_array()), title, ...
+sirf.Utilities.show_3D_array(abs(real_image_data.as_array()), title, ...
     'samples', 'readouts', 'slice');
 

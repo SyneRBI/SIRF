@@ -29,6 +29,7 @@ limitations under the License.
 
 #include "sirf/cReg/ImageWeightedMean.h"
 #include "sirf/cReg/NiftiImageData.h"
+#include "sirf/cReg/NiftyResample.h"
 #include <iostream>
 
 using namespace sirf;
@@ -58,6 +59,22 @@ void ImageWeightedMean<dataType>::process()
     // Do all the various checks before performing average
     check_can_do_mean();
 
+    // Check the image metdata. If they don't match, resample
+    std::vector<std::shared_ptr<const NiftiImageData<dataType> > > images_sptr;
+    for (unsigned i=0; i<_input_image_sptrs.size(); i++) {
+        if (NiftiImageData<dataType>::do_nifti_image_metadata_match(*_input_image_sptrs[0],*_input_image_sptrs[i], false))
+            images_sptr.push_back(_input_image_sptrs[i]);
+        else {
+            std::cout << "\nImageWeightedMean: Mismatch in image metadata, so resampling taking first image as reference...\n";
+            NiftyResample<float> resample;
+            resample.set_interpolation_type_to_nearest_neighbour();
+            resample.set_reference_image(_input_image_sptrs[0]);
+            resample.set_floating_image(_input_image_sptrs[i]);
+            resample.process();
+            images_sptr.push_back(resample.get_output_sptr());
+        }
+    }
+
     // Need to normalise the weights so that sum = 1
     float sum_of_weights = 0.;
     std::vector<float> normalised_weights = _weights;
@@ -86,16 +103,6 @@ void ImageWeightedMean<dataType>::check_can_do_mean() const
     // Check that num_images > 0. If not, throw error
     if (_input_image_sptrs.size() == 0)
         throw std::runtime_error("Need to add images to be able to do weighted mean.");
-
-    // Check each of the images against all the other images
-    for (unsigned i=0; i<_input_image_sptrs.size(); i++) {
-        for (unsigned j=i+1; j<_input_image_sptrs.size(); j++) {
-
-            std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*_input_image_sptrs[i],*_input_image_sptrs[j], true))
-                throw std::runtime_error("There is a mismatch in images. Cannot calculate their weighted mean. (TODO: would be easy to just.)");
-        }
-    }
 
     std::cout << "\nAll images match, we can calculate their weighted average.\n";
 }

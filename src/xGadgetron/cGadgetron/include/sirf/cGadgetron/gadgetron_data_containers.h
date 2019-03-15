@@ -48,6 +48,8 @@ limitations under the License.
 #include "sirf/cGadgetron/gadgetron_image_wrap.h"
 #include "sirf/iUtilities/LocalisedException.h"
 
+#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+
 /*!
 \ingroup Gadgetron Data Containers
 \brief Acquisitions filter.
@@ -93,13 +95,6 @@ namespace sirf {
 	*/
 	class MRAcquisitionData : public DataContainer {
 	public:
-		MRAcquisitionData() : sorted_(false), index_(0) {}
-		virtual ~MRAcquisitionData()
-		{
-			if (index_)
-				delete[] index_;
-		}
-
 		// static methods
 
 		static std::string storage_scheme()
@@ -183,11 +178,13 @@ namespace sirf {
 		void sort_by_time();
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
-		int* index() { return index_; }
-		const int* index() const { return index_; }
+
+		std::vector<int> index() { return index_; }
+		const std::vector<int>& index() const { return index_; }
+
 		int index(int i) const
 		{
-			if (index_ && i >= 0 && i < (int)number())
+			if (index_.size()>0 && i >= 0 && i < (int)number())
 				return index_[i];
 			else
 				return i;
@@ -205,8 +202,8 @@ namespace sirf {
 		void read( const std::string& filename_ismrmrd_with_ext );
 
 	protected:
-		bool sorted_;
-		int* index_;
+		bool sorted_=false;
+		std::vector<int> index_;
 		AcquisitionsInfo acqs_info_;
 
 		static std::string _storage_scheme;
@@ -380,14 +377,9 @@ namespace sirf {
 
 	class ISMRMRDImageData : public MRImageData {
 	public:
-		ISMRMRDImageData() : sorted_(false), index_(0) {}
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
-		virtual ~ISMRMRDImageData()
-		{
-			if (index_)
-				delete[] index_;
-		}
+		
 
 		virtual unsigned int number() const = 0;
 		virtual int types() = 0;
@@ -451,19 +443,19 @@ namespace sirf {
 		void sort();
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
-		int* index() { return index_; }
-		const int* index() const { return index_; }
+		std::vector<int> index() { return index_; }
+		const std::vector<int>& index() const { return index_; }
 		int index(int i) const
 		{
-			if (index_)
+			if (index_.size()>0 && i < index_.size() && i >= 0)
 				return index_[i];
 			else
 				return i;
 		}
 
 	protected:
-		bool sorted_;
-		int* index_;
+		bool sorted_=false;
+		std::vector<int> index_;
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;
@@ -504,12 +496,14 @@ namespace sirf {
 			}
 			virtual bool operator==(const BaseIter& ai) const
 			{
-				const Iterator& i = (const Iterator&)ai;
+				//const Iterator& i = (const Iterator&)ai;
+				DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ == i.iter_;
 			}
 			virtual bool operator!=(const BaseIter& ai) const
 			{
-				const Iterator& i = (const Iterator&)ai;
+				//const Iterator& i = (const Iterator&)ai;
+				DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator& operator++()
@@ -577,12 +571,14 @@ namespace sirf {
 			}
 			bool operator==(const BaseIter_const& ai) const
 			{
-				const Iterator_const& i = (const Iterator_const&)ai;
+				//const Iterator_const& i = (const Iterator_const&)ai;
+				DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ == i.iter_;
 			}
 			bool operator!=(const BaseIter_const& ai) const
 			{
-				const Iterator_const& i = (const Iterator_const&)ai;
+				//const Iterator_const& i = (const Iterator_const&)ai;
+				DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator_const& operator++()
@@ -873,27 +869,32 @@ namespace sirf {
 		}
 		void get_dim(int slice, int* dim) //const
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.get_dim(dim);
 		}
 		void get_data(int slice, float* re, float* im) //const
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.get_data(re, im);
 		}
 		void set_data(int slice, float* re, float* im)
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.set_data(re, im);
 		}
 		void get_data(int slice, complex_float_t* data) //const
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.get_data(data);
 		}
 		void set_data(int slice, complex_float_t* data)
 		{
-			CoilData& ci = (CoilData&)(*this)(slice);
+			//CoilData& ci = (CoilData&)(*this)(slice);
+			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.set_data(data);
 		}
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_csm) = 0;

@@ -26,6 +26,8 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
+#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+
 std::string PETAcquisitionData::_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
@@ -55,7 +57,8 @@ PETAcquisitionData::norm() const
 void
 PETAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	DYNAMIC_CAST(PETAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	double t = 0;
@@ -91,8 +94,10 @@ const void* ptr_b, const DataContainer& a_y
 {
 	float a = *(float*)ptr_a;
 	float b = *(float*)ptr_b;
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	DYNAMIC_CAST(PETAcquisitionData, x, a_x);
+	DYNAMIC_CAST(PETAcquisitionData, y, a_y);
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -131,7 +136,8 @@ const void* ptr_b, const DataContainer& a_y
 void
 PETAcquisitionData::inv(float amin, const DataContainer& a_x)
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	DYNAMIC_CAST(PETAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	for (int s = 0; s <= n && s <= nx; ++s)
@@ -166,8 +172,10 @@ const DataContainer& a_x,
 const DataContainer& a_y
 )
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	DYNAMIC_CAST(PETAcquisitionData, x, a_x);
+	DYNAMIC_CAST(PETAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -209,8 +217,10 @@ const DataContainer& a_x,
 const DataContainer& a_y
 )
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	DYNAMIC_CAST(PETAcquisitionData, x, a_x);
+	DYNAMIC_CAST(PETAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -302,7 +312,8 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
 void
 STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
-	STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	DYNAMIC_CAST(STIRImageData, x, a_x);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -329,8 +340,10 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	float a = *(float*)ptr_a;
 	float b = *(float*)ptr_b;
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(STIRImageData, x, a_x);
+	DYNAMIC_CAST(STIRImageData, y, a_y);
+	//STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& y = (STIRImageData&)a_y;
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -373,8 +386,10 @@ STIRImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(STIRImageData, x, a_x);
+	DYNAMIC_CAST(STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -398,8 +413,10 @@ STIRImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(STIRImageData, x, a_x);
+	DYNAMIC_CAST(STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -456,7 +473,8 @@ STIRImageData::get_dimensions(int* dim) const
 void
 STIRImageData::get_voxel_sizes(float* vsize) const
 {
-	const Voxels3DF& voxels = (const Voxels3DF&)*_data;
+	//const Voxels3DF& voxels = (const Voxels3DF&)*_data;
+	DYNAMIC_CAST(const Voxels3DF, voxels, _data);
 	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
 	for (int i = 0; i < 3; i++)
 		vsize[i] = vs[i + 1];
