@@ -244,8 +244,7 @@ $RECYCLE.BIN/
 *.s
 *.pyd
 *.pyc
-*.mexw64
-*.mexa64
+*.mex*
 *.mat
 *.am
 *.thresholded
@@ -253,7 +252,15 @@ $RECYCLE.BIN/
 *.backup
 *.db
 *.opendb
-.coverage
+
+# Common editor backups
+~$*
+*~
+*.bak
+\#*
+.#*
+
+# other
 htmlcov/
 info.txt
 warn.txt
