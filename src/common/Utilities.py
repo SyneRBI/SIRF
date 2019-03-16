@@ -9,7 +9,8 @@ import sirf.pyiutilities as pyiutil
 import re
 
 __licence__ = """CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2019 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -226,6 +227,10 @@ def show_3D_array\
 
 
 def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
+    '''
+    Check if 2 floats are equal up to a tolerance
+    Throws an error if abs(expected - actual) > abstol + reltol*abs(expected)
+    '''
     if abs(expected - actual) > abstol + reltol*abs(expected):
         raise ValueError("|%.3g - %.3g| > %.3g" %
                          (expected, actual, abstol + reltol*abs(expected)))
@@ -259,6 +264,12 @@ class pTest(object):
             self.file.close()
 
     def check(self, value, abs_tol=0, rel_tol=1e-3):
+        '''
+        Tests if value is equal to the recorded one (or record it)
+        value        : the value that was computed
+        abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
+        '''
+
         if self.record:
             self.file.write('%e\n' % value)
         else:
@@ -280,6 +291,20 @@ class pTest(object):
                         print('+++ test %d passed' % self.ntest)
         self.ntest += 1
 
+    def check_if_equal(self, expected, value, abs_tol=0, rel_tol=1e-3):
+        '''
+        Tests if value is equal to the expected one (or record it).
+        expected     : the true value
+        value        : the value that was computed
+        abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
+        '''
+        if self.record:
+            self.file.write('%e\n' % expected)
+            self.ntest += 1
+        else:
+            # run normal test (as `expected' will have been written to file)
+            # Note that this will increment ntest
+            self.check(value, abs_tol, rel_tol)
 
 class CheckRaise(pTest):
     def __init__(self, *a, **k):
