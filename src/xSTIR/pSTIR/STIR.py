@@ -530,9 +530,9 @@ class RayTracingMatrix:
     Class for objects holding sparse matrix representation of the ray
     tracing projector G (see AcquisitionModel class).
     '''
+    name = 'RayTracingMatrix'
+
     def __init__(self):
-        self.handle = None
-        self.name = 'RayTracingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
         _set_int_par(self.handle, self.name, 'num_tangential_LORs', 2)
@@ -1114,8 +1114,9 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
     def set_matrix(self, matrix):
         ''' 
         Sets the ray tracing matrix to be used for projecting;
-        matrix:  a RayTracingMatrix object to represent G in acquisition model.
+        matrix:  a matrix object to represent G in acquisition model.
         '''
+        # TODO will need to allow for different matrices here
         assert_validity(matrix, RayTracingMatrix)
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
 ##    def get_matrix(self):
@@ -1130,8 +1131,8 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
 
 class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
     ''' 
-    Class for a PET acquisition model that uses (implicitly) a ray tracing
-    matrix for G in (F) - see AcquisitionModel class.
+    Class for a PET acquisition model that uses (implicitly) a RayTracingMatrix
+    for G in (F) - see AcquisitionModel class.
     '''
     def __init__(self, matrix = None):
         ''' 
@@ -1146,34 +1147,31 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
-        self.matrix = matrix
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-##    def set_matrix(self, matrix):
-##        ''' 
-##        Sets the ray tracing matrix to be used for projecting;
-##        matrix:  a RayTracingMatrix object to represent G in (F).
-##        '''
-##        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
-    def get_matrix(self):
+    def set_matrix(self, matrix):
         ''' 
-        Returns the ray tracing matrix used for projecting;
-        matrix:  a RayTracingMatrix object representing G in acquisition model.
+        Sets the ray tracing matrix to be used for projecting;
+        matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
-        matrix = RayTracingMatrix()
-        matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
-        check_status(matrix.handle)
-        return matrix
+        # only allow RayTracingMatrix
+        assert_validity(matrix, RayTracingMatrix)
+        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def set_num_tangential_LORs(self, value):
         '''
-        Set the number of LORs (or rays) for each bin in the sinogram.
-        They are currently (approximately) parallel and spaced in the
-        tangential direction (i.e. orthogonal to the axial direction).
+        See :func:`~sirf.STIR.RayTracingMatrix.set_num_tangential_LORs`
         '''
-##        return self.matrix.set_num_tangential_LORs(value)
-        return self.get_matrix().set_num_tangential_LORs(value)
+        matrix_handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
+        _set_int_par(matrix_handle, RayTracingMatrix.name, 'num_tangential_LORs', value)
+        return self
+    def get_num_tangential_LORs(self):
+        '''
+        See :func:`~sirf.STIR.RayTracingMatrix.get_num_tangential_LORs`
+        '''
+        matrix_handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
+        return _int_par(matrix_handle, RayTracingMatrix.name, 'num_tangential_LORs')
 
 class Prior:
     '''

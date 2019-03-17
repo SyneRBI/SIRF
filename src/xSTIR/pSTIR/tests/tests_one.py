@@ -41,6 +41,12 @@ def test_main(rec=False, verb=False, throw=True):
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
+    # create an acq_model that is explicitly a RayTracingMatrix and test it a tiny bit
+    am = AcquisitionModelUsingRayTracingMatrix()
+    am.set_num_tangential_LORs(3);
+    test.check_if_equal(3, am.get_num_tangential_LORs());
+
+    # create the matrix on its own, and use that for later tests
     matrix = RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
     test.check_if_equal(2, matrix.get_num_tangential_LORs());
