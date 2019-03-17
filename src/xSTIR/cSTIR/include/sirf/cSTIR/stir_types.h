@@ -52,6 +52,7 @@ limitations under the License.
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
+#include "stir/recon_buildblock/ProjMatrixByBinSPECTUB.h"
 #include "stir/recon_buildblock/QuadraticPrior.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
@@ -82,6 +83,7 @@ namespace sirf {
 	//PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
 	typedef stir::ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
 	typedef stir::ProjMatrixByBinUsingRayTracing RayTracingMatrix;
+        typedef stir::ProjMatrixByBinSPECTUB SPECTUBMatrix;
 	typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;
 	typedef stir::DataProcessor<Image3DF> DataProcessor3DF;

@@ -553,6 +553,21 @@ class RayTracingMatrix:
         '''
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
+class SPECTUBMatrix:
+    '''
+    Class for objects holding sparse matrix representation of a SPECT
+    projector (developed at the University of Barcelona) (see AcquisitionModel class).
+    '''
+    name = 'SPECTUBMatrix'
+
+    def __init__(self):
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+        #_set_int_par(self.handle, self.name, 'num_tangential_LORs', 2)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
 class AcquisitionData(DataContainer):
     '''Class for PET acquisition data.'''
     def __init__\
@@ -1106,8 +1121,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         check_status(self.handle)
         if matrix is None:
             matrix = RayTracingMatrix()
-        assert_validity(matrix, RayTracingMatrix)
-        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        self.set_matrix(matrix)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1117,7 +1131,10 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         matrix:  a matrix object to represent G in acquisition model.
         '''
         # TODO will need to allow for different matrices here
-        assert_validity(matrix, RayTracingMatrix)
+        try:
+            assert_validity(matrix, SPECTUBMatrix)
+        except:
+            assert_validity(matrix, RayTracingMatrix)
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
 ##    def get_matrix(self):
 ##        ''' 

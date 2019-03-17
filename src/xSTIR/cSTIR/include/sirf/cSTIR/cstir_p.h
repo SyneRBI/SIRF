@@ -49,6 +49,13 @@ namespace sirf {
 		cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name);
 
 	void*
+		cSTIR_setSPECTUBMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name);
+
+	void*
 		cSTIR_setAcquisitionModelParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 

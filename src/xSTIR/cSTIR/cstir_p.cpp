@@ -212,6 +212,32 @@ sirf::cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name
 }
 
 void*
+sirf::cSTIR_setSPECTUBMatrixParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	SPECTUBMatrix& matrix =
+		objectFromHandle<SPECTUBMatrix>(hp);
+        /*	int value = dataFromHandle<int>(hv);
+	if (boost::iequals(name, "num_tangential_LORs"))
+		matrix.set_num_tangential_LORs(value);
+                else*/
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name)
+{
+	SPECTUBMatrix& matrix =
+		objectFromHandle<SPECTUBMatrix>(handle);
+        /*
+	if (boost::iequals(name, "num_tangential_LORs"))
+		return dataHandle<int>(matrix.get_num_tangential_LORs());
+        */
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 sirf::cSTIR_setAcquisitionModelParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
