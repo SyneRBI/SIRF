@@ -43,6 +43,7 @@ def test_main(rec=False, verb=False, throw=True):
 
     matrix = RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
+    test.check_if_equal(2, matrix.get_num_tangential_LORs());
 
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
