@@ -661,6 +661,18 @@ function try_AffineTransformation(g,na)
 
     assert(e.get_determinant() - 1. < 1.e-7, 'AffineTransformation::get_determinant failed.');
 
+    % Test get_Euler_angles
+    array(4,4) =  0;
+    array(1,3) =  1;
+    array(2,2) = -1;
+    array(3,1) = -1;
+    array(4,4) =  1;
+    test_Eul = sirf.Reg.AffineTransformation(array);
+    % Example given by rotm2eul for MATLAB is [0 0 1; 0 -1 0; -1 0 0] -> XYZ = [-3.1416 1.5708 0]
+    Eul = test_Eul.get_Euler_angles()
+    Eul_expected = [-3.1416, 1.5708, 0]
+    assert(all(abs(Eul-Eul_expected) < 1e-4), 'AffineTransformation get_Euler_angles() failed.')
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished AffineTransformation test.')
     disp('%------------------------------------------------------------------------ %')

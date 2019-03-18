@@ -103,6 +103,9 @@ public:
     /// Get inverse
     AffineTransformation get_inverse() const;
 
+    /// Get Euler angles (XYZ)
+    const std::array<dataType,3> get_Euler_angles() const;
+
 protected:
     dataType _tm[4][4];
 };

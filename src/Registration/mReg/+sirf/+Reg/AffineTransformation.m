@@ -97,6 +97,12 @@ classdef AffineTransformation < sirf.Reg.Transformation
             tm.handle_ = calllib('mreg', 'mReg_AffineTransformation_get_inverse', self.handle_);
             sirf.Utilities.check_status('AffineTransformation:get_inverse', tm.handle_);
         end
+        function eul = get_Euler_angles(self)
+            %Get Euler angles of transformation matrix (XYZ).
+            ptr_v = libpointer('singlePtr', zeros(1,3));
+            calllib('mreg', 'mReg_AffineTransformation_get_Euler_angles', self.handle_, ptr_v);
+            eul = ptr_v.Value;
+        end
     end
     methods(Static)
         function mat = get_identity()
