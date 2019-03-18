@@ -416,7 +416,7 @@ void run_tests_phantom_input( void )
 	// test_read_1D_dataset_from_h5(H5_PHANTOM_TEST_PATH);
 	// test_read_geometrical_info_from_h5( H5_PHANTOM_TEST_PATH );
 	// test_read_segmentation_to_nifti( H5_PHANTOM_TEST_PATH );
-	test_read_motionfield_to_nifti(  H5_PHANTOM_TEST_PATH );
+	test_read_motionfield_to_nifti(  H5_XCAT_PHANTOM_PATH );
 
 	// tests_successful *= test_read_h5_segmentation_correct_dims(H5_XCAT_PHANTOM_PATH);
 	// tests_successful *= test_read_h5_segmentation_correct_content(H5_XCAT_PHANTOM_PATH);
