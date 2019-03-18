@@ -489,7 +489,7 @@ STIRImageData::get_data(float* data) const
 	if (!image.get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
 		//return -1;
-	std::cout << "trying new const iterator...\n";
+	//std::cout << "trying new const iterator...\n";
 	STIRImageData::Iterator_const iter(begin());
 	for (int i = 0; iter != end(); ++i, ++iter)
 		data[i] = *iter;
@@ -520,7 +520,7 @@ STIRImageData::set_data(const float* data)
 	size_t n = 1;
 	for (int i = 0; i < 3; i++)
 		n *= (max_indices[i + 1] - min_indices[i + 1] + 1);
-	std::cout << "trying new iterator...\n";
+	//std::cout << "trying new iterator...\n";
 	STIRImageData::Iterator iter(begin());
 	for (int i = 0; iter != end(); ++i, ++iter)
 		*iter = data[i];
