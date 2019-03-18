@@ -101,8 +101,12 @@ std::vector< sirf::NiftiImageData3DDisplacement <float> > read_motionfields_to_n
 
 	VoxelisedGeometricalInfo3D geo_info = read_voxelised_geometry_info_from_h5_dataset(h5_filename_with_suffix, "/segmentation");
 
-	sirf::VoxelisedGeometricalInfo3D::Size const data_size = geo_info.get_size();
+	VoxelisedGeometricalInfo3D::Size const data_size = geo_info.get_size();
 	size_t const num_voxels = data_size[0] * data_size[1] * data_size[2];
+
+	VoxelisedGeometricalInfo3D::Spacing const spacing = geo_info.get_spacing();
+	for( int i=0; i<3; ++i)
+		std::cout <<  "#################SPACING in " << i << " = " <<  spacing[i] <<std::endl;
 
 
 	std::stringstream sstream_name_dataset;

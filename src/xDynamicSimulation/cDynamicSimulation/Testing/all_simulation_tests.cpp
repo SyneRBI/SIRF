@@ -86,8 +86,8 @@ void run_tests_dynamics( void )
 	// std::cout << "7 ----------------------------------------------------" <<std::endl;
 	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
 
-	std::cout << "7.1 --------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
+	// std::cout << "7.1 --------------------------------------------------" <<std::endl;
+	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
 
 	// std::cout << "8 ----------------------------------------------------" <<std::endl;
 	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
@@ -106,6 +106,9 @@ void run_tests_dynamics( void )
 	
 	// std::cout << "14 ----------------------------------------------------" <<std::endl;
 	// dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
+
+	std::cout << "15 ----------------------------------------------------" <<std::endl;
+	dyn_tests.push_back(test_dynamic::test_nonisotropic_mvf_resampling () );
 	
 	std::cout << "end ----------------------------------------------------" <<std::endl;
 
@@ -409,9 +412,9 @@ void run_tests_phantom_input( void )
 {
 	bool tests_successful = true;
 
-	test_read_1D_dataset_from_h5(H5_PHANTOM_TEST_PATH);
-	test_read_geometrical_info_from_h5( H5_PHANTOM_TEST_PATH );
-	test_read_segmentation_to_nifti( H5_PHANTOM_TEST_PATH );
+	// test_read_1D_dataset_from_h5(H5_PHANTOM_TEST_PATH);
+	// test_read_geometrical_info_from_h5( H5_PHANTOM_TEST_PATH );
+	// test_read_segmentation_to_nifti( H5_PHANTOM_TEST_PATH );
 	test_read_motionfield_to_nifti(  H5_PHANTOM_TEST_PATH );
 
 	// tests_successful *= test_read_h5_segmentation_correct_dims(H5_PHANTOM_TEST_PATH);

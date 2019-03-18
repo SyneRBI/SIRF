@@ -7,10 +7,15 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 #include "tests_dynamics.h"
-
-#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 #include "auxiliary_testing_functions.h"
+
+#include "sirf/common/GeometricalInfo.h"
+#include "sirf/cDynamicSimulation/auxiliary_input_output.h"
+
+#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/cReg/NiftiImageData3DDisplacement.h"
 #include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/cReg/NiftyResample.h"
 
 using namespace sirf;
 
@@ -535,6 +540,74 @@ bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 		SignalAxisType motion_signal = 0.6;
 
 		auto interpolated_dvf = motion_dyn.get_interpolated_deformation_field(motion_signal);
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
+		throw e;
+	}
+}
+
+bool test_dynamic::test_nonisotropic_mvf_resampling( void )
+{
+	try
+	{
+		bool test_succesful = true;
+
+		std::string const output_path = std::string(SHARED_FOLDER_PATH);
+
+		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		NiftiImageData3DDisplacement<float> ref_mvf = resp_motion_fields[ resp_motion_fields.size()-1 ];
+
+
+		ref_mvf.write( output_path + "mvf_read_in_iso" );
+
+		VoxelisedGeometricalInfo3D ref_geo = *( ref_mvf.get_geom_info_sptr() );
+	    
+
+	    VoxelisedGeometricalInfo3D::Offset ref_offset = ref_geo.get_offset() ;
+	    VoxelisedGeometricalInfo3D::Size ref_size = ref_geo.get_size() ;
+    	VoxelisedGeometricalInfo3D::DirectionMatrix ref_dir = ref_geo.get_direction() ;
+
+		VoxelisedGeometricalInfo3D::Spacing ref_spacing = ref_geo.get_spacing();
+		VoxelisedGeometricalInfo3D::Spacing dst_spacing = ref_spacing;
+		
+		std::vector<float > spacing_scaling {2,3,4} ;
+
+		dst_spacing[0] = spacing_scaling[0] * dst_spacing[0];
+		dst_spacing[1] = spacing_scaling[1] * dst_spacing[1];
+		dst_spacing[2] = spacing_scaling[2] * dst_spacing[2];
+
+		// ref_offset[0] = spacing_scaling[0] * ref_offset[0];
+		// ref_offset[1] = spacing_scaling[1] * ref_offset[1];
+		// ref_offset[2] = spacing_scaling[2] * ref_offset[2];
+
+
+
+		VoxelisedGeometricalInfo3D dst_geo(ref_offset, dst_spacing, ref_size, ref_dir );
+
+		NiftiImageData3DDisplacement<float> dst_mvf( (float*) ref_mvf.get_raw_nifti_sptr()->data, dst_geo);
+		dst_mvf.write( output_path + "mvf_non_iso_dstgeo" );
+
+
+
+
+		NiftyResample<float> resampler;
+
+	    resampler.set_interpolation_type_to_cubic_spline();
+		// resampler.set_reference_image(std::make_shared< NiftiImageData3DDisplacement<float> >(dst_mvf));
+		// resampler.set_floating_image (std::make_shared< NiftiImageData3DDisplacement<float> >(ref_mvf));
+
+		resampler.set_floating_image(std::make_shared< NiftiImageData3DDisplacement<float> >(dst_mvf));
+		resampler.set_reference_image (std::make_shared< NiftiImageData3DDisplacement<float> >(ref_mvf));
+
+		
+        resampler.process();
+
+		resampler.get_output_sptr()->write( output_path + "mvf_non_iso_resampled" );
 
 		return test_succesful;
 	}

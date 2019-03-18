@@ -31,6 +31,7 @@ bool test_mvf_vs_pet_img_quarternions( void );
 bool test_motion_dynamic_temp_interpolate_dvfs( void );
 bool test_motion_dynamic_save_gt_deformations( void );
 
+bool test_nonisotropic_mvf_resampling( void );
 
 bool test_mr_contrast_motion_dyn_get_num_simul_states( void );
 
