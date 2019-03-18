@@ -88,8 +88,8 @@ try
 		mr_cont_gen.set_rawdata_header(hdr);
 
 	
-		// auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		// auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
 
 		for( size_t i=0; i<motion_fields.size(); i++)
@@ -108,7 +108,7 @@ try
 			std::stringstream filename_stream;
 			filename_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_" << i; 		
 			
-			data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > (filename_stream.str(), curr_motion_state[0]);
+			data_io::write_ISMRMRD_Image_to_nii< complex_float_t > (filename_stream.str(), curr_motion_state[0]);
 		}
 
 		return true;
@@ -132,13 +132,10 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 		int const num_simul_cardiac_states = 10;
 		PETMotionDynamic  motion_dyn(num_simul_cardiac_states);
 
-		// auto motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		// motion_dyn.set_displacement_fields( motion_fields, false );
+		// auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-		auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		// auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		motion_dyn.set_displacement_fields( motion_fields, true );
-		
 		motion_dyn.prep_displacement_fields();
 
 		STIRImageData template_img( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH ); 

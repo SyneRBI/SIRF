@@ -69,9 +69,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #elif defined(USE_208_CUBE_INPUT)
 	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128x128x208.h5"
-	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_incl_geomertry_208.h5"
+	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_incl_geomertry_208.h5"
+	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "XCATSegmentations/xcat208Cube/xcat_phantom_incl_geomertry_208.h5"
 
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "ISMRMSimInput/MR/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5" 
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "PublicationData/Input/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5" 
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
 
 	#define PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH SHARED_FOLDER_PATH "PublicationData/Input/PET/template_image_input_contgen.hv"

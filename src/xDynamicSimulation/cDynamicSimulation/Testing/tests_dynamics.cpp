@@ -344,7 +344,7 @@ bool test_dynamic::test_motion_dynamic_save_gt_deformations( )
 		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		motion_dyn.set_displacement_fields(resp_mvfs);
 
-		std::vector<float> gt_points{0.7};
+		std::vector<float> gt_points{0.0, 0.1, 0.2, 0.3, 0.4};
 		motion_dyn.save_ground_truth_displacements(gt_points);
 
 		// motion_dyn.save_ground_truth_displacements();

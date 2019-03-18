@@ -31,11 +31,11 @@ bool aVolumeOrientatorTester::test_reorient_image(  )
 		aVolumeOrientator vol_or(ro_dir);
 
 		auto img = aux_test::get_mock_ismrmrd_image_with_gradients();
-		data_io::write_ISMRMRD_Image_to_Analyze(OUTPUTNAME_INPUT_IMG, img);
+		data_io::write_ISMRMRD_Image_to_nii(OUTPUTNAME_INPUT_IMG, img);
 
 
 		img = vol_or.reorient_image< float > ( img );
-		data_io::write_ISMRMRD_Image_to_Analyze(OUTPUTNAME_REORIENTED_IMG, img);
+		data_io::write_ISMRMRD_Image_to_nii(OUTPUTNAME_REORIENTED_IMG, img);
 
 		return test_succesful;
 

@@ -486,7 +486,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		
 		std::string const filename_aif_t1_ =input_path + "/aif_signal_T1_0_0.23482_T1_1_2.0853";
 		std::string const filename_healthy_tissue_t1 = input_path + "/liver_signal_T1_0_0.45683_T1_1_0.80503";
-		std::string const filename_lesion_t1_ = input_path + "/lesion_signal_T1_0_0.43241_T1_1_0.82076";
+ 		std::string const filename_lesion_t1_ = input_path + "/lesion_signal_T1_0_0.43241_T1_1_0.82076";
 
 		SignalContainer aif_dyn_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_aif_t1_);
 		SignalContainer healthy_dyn_tissue_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_healthy_tissue_t1);
@@ -648,13 +648,14 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
 
-		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/PublicationData/Output/PET/pet_dyn_4D_cardiac_simul");
+		// pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/PublicationData/Output/PET/Cardiac4D/pet_dyn_4D_cardiac_simul");
+		pet_dyn_sim.set_output_filename_prefix("pet_dyn_4D_cardiac_simul");
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
 		
 		// int const num_simul_resp_states = 10;
-		int const num_simul_card_states = 3;
+		int const num_simul_card_states = 10;
 
 		// PETMotionDynamic  resp_dyn(num_simul_resp_states);
 		PETMotionDynamic  card_dyn(num_simul_card_states);
@@ -703,8 +704,6 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 		// auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		auto card_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-
- 
 		// resp_dyn.set_displacement_fields( resp_motion_fields, false );
 		card_dyn.set_displacement_fields( card_motion_fields, true );
 		

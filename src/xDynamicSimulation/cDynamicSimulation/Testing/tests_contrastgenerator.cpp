@@ -201,7 +201,7 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	{	
 		std::stringstream name_stream;
 		name_stream << SHARED_FOLDER_PATH << "testoutput_mr_cont_gent_contrast_" << i_contrast;
-		data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > ( name_stream.str(), mr_contrasts[i_contrast]);
+		data_io::write_ISMRMRD_Image_to_nii< complex_float_t > ( name_stream.str(), mr_contrasts[i_contrast]);
 	}			
 }
 
@@ -251,7 +251,7 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 		*(output_img.begin() + i_vx) = std::abs( *(img_data.begin()+ i_vx) );
 	
 
-	data_io::write_ISMRMRD_Image_to_Analyze<float>(output_name_pre_contrast, output_img);
+	data_io::write_ISMRMRD_Image_to_nii<float>(output_name_pre_contrast, output_img);
 
 
 
@@ -271,7 +271,7 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 	for(size_t i_vx=0; i_vx<num_voxels; i_vx++) 
 		*(output_img.begin() + i_vx) = std::abs( *(img_data.begin()+ i_vx) );
 
-	data_io::write_ISMRMRD_Image_to_Analyze<float>(output_name_post_contrast, output_img);
+	data_io::write_ISMRMRD_Image_to_nii<float>(output_name_post_contrast, output_img);
 
 
 }
