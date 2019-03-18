@@ -591,6 +591,24 @@ namespace sirf {
 			_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
             this->set_up_geom_info();
 		}
+		STIRImageData
+		(const PETAcquisitionData& ad, const int nx, const int ny, const float zoom=1.F)
+		//! construct image with appropriate sizes for the given PETAcquisitionData
+		/*!
+			The number of z-planes is automatically determined in the STIR
+			implementation (see STIR documentation for VoxelsOnCartesianGrid),
+			but x and y size can be chosen. Voxel sizing is default_bin_size/zoom
+			(again, see STIR documentation for default_bin_size).
+		*/
+		{
+			const Coord3DF origin(0, 0, 0);
+			const Coord3DI sizes(-1, ny, nx);
+			_data.reset(
+				new Voxels3DF(
+					*ad.get_proj_data_info_sptr(),
+					zoom, origin, sizes));
+			this->set_up_geom_info();
+		}
 		STIRImageData(const Image3DF& image)
 		{
 			_data.reset(image.clone());
