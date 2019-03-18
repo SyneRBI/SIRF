@@ -61,7 +61,8 @@ VoxelisedGeometricalInfo3D read_voxelised_geometry_info_from_h5_dataset( const s
 	
 
 
-	// TODO: read this from file aswell instead of hard coding
+	
+	// THIS ORIENTATION NEEDS TO BE FIXED DUE TO STIRs ++- ORIENTATION
 	VoxelisedGeometricalInfo3D::Coordinate l_dir, p_dir, s_dir;
 
 	l_dir[0]=1; 	l_dir[1]= 0;	l_dir[2]=0;
@@ -147,7 +148,7 @@ void scale_vector_data_to_geometry( std::vector<float> &vect_data, const Voxelis
 	if( vect_data.size() != num_voxels * Nt * num_dimensions)
 		throw std::runtime_error("The vectorfield data does not match the geometrical information you passed.");
 
-	std::array<float, 3> direction_sign{ 1, 1, 1};
+	std::array<float, 3> direction_sign{ 1, 1, 1 };
 
 
 	for( size_t nt=0; nt<Nt; nt++)

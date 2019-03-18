@@ -532,6 +532,7 @@ sirf::NiftiImageData3DDisplacement<float> MotionDynamic::scale_displacementfield
 		{
 			const int idx[7] = {nx, ny, nz, 0, nv, 0};
 			scaled_dvf(idx) =  voxel_sizes[nv] * dvf(idx);
+			// scaled_dvf(idx) =  1 * dvf(idx);
 		}
 	}
 	

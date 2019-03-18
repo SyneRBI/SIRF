@@ -114,11 +114,13 @@ void test_read_segmentation_to_nifti( std::string h5_filename_with_suffix )
 void test_read_motionfield_to_nifti(  std::string h5_filename_with_suffix )
 {
 
-	std::string const type_motionfield = "cardiac";
+	std::string const type_motionfield = "respiratory";
 	std::vector< sirf::NiftiImageData3DDisplacement <float> > all_dvfs = read_motionfields_to_nifti_from_h5(h5_filename_with_suffix, type_motionfield);
 
 	std::cout << "Number of motion fields " << all_dvfs.size() << std::endl;
+	std::string output_name_mvf_nifti =std::string( SHARED_FOLDER_PATH ) + "test_output_mvf_from_nifti" ;
 
+	all_dvfs[all_dvfs.size()-1].write( output_name_mvf_nifti );
 }
 
 

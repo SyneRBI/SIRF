@@ -409,13 +409,13 @@ void run_tests_phantom_input( void )
 {
 	bool tests_successful = true;
 
-	test_read_1D_dataset_from_h5(H5_PHANTOM_TEST_PATH);
-	test_read_geometrical_info_from_h5( H5_PHANTOM_TEST_PATH );
-	test_read_segmentation_to_nifti( H5_PHANTOM_TEST_PATH );
-	test_read_motionfield_to_nifti(  H5_PHANTOM_TEST_PATH );
+	// test_read_1D_dataset_from_h5(H5_XCAT_PHANTOM_PATH);
+	// test_read_geometrical_info_from_h5( H5_XCAT_PHANTOM_PATH );
+	test_read_segmentation_to_nifti( H5_XCAT_PHANTOM_PATH );
+	test_read_motionfield_to_nifti(  H5_XCAT_PHANTOM_PATH );
 
-	// tests_successful *= test_read_h5_segmentation_correct_dims(H5_PHANTOM_TEST_PATH);
-	// tests_successful *= test_read_h5_segmentation_correct_content(H5_PHANTOM_TEST_PATH);
+	// tests_successful *= test_read_h5_segmentation_correct_dims(H5_XCAT_PHANTOM_PATH);
+	// tests_successful *= test_read_h5_segmentation_correct_content(H5_XCAT_PHANTOM_PATH);
 	
 	// test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
 	// tests_successful *= test_read_h5_motionfields();
@@ -473,13 +473,13 @@ void run_tests_dynsim_deformer( void )
 
 	// std::cout << " 1-------------------------- " <<std::endl;
 	
-	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
+	tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
 
 	std::cout << " 2 -------------------------- " <<std::endl;
 	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
 
 	std::cout << " 3 -------------------------- " <<std::endl;
-	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	std::cout << " End -------------------------- " <<std::endl;
 
