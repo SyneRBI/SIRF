@@ -813,7 +813,7 @@ def try_affinetransformation(na):
     h = g.as_array()
     if not np.allclose(f, h, atol=1e-4):
         raise AssertionError('AffineTransformation as_array() failed.')
-    
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished AffineTransformation test.\n')
