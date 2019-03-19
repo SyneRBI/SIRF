@@ -77,6 +77,7 @@ EXPORTED_FUNCTION     void* mReg_AffineTransformation_write(const void* ptr, con
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_identity();
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_inverse(const void* ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 #ifndef CREG_FOR_MATLAB

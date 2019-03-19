@@ -98,6 +98,7 @@ extern "C" {
     void* cReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
     void* cReg_AffineTransformation_get_identity();
     void* cReg_AffineTransformation_get_inverse(const void* ptr);
+    void* cReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler);
     void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
     void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 

@@ -683,6 +683,19 @@ void* cReg_AffineTransformation_get_inverse(const void* ptr)
     CATCH;
 }
 extern "C"
+void* cReg_AffineTransformation_get_Euler_angles(const void* ptr, size_t Euler)
+{
+    try {
+        AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
+        std::array<float,3> Euler_array = tm.get_Euler_angles();
+        float* Euler_float = (float*)Euler;
+        for (unsigned i=0; i<3; ++i)
+            Euler_float[i] = Euler_array[i];
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
 void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {

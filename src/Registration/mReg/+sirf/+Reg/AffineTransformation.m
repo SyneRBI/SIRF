@@ -66,7 +66,7 @@ classdef AffineTransformation < sirf.Reg.Transformation
             %Overload multiplication operator.
             assert(isa(other, 'sirf.Reg.AffineTransformation'))
             mat = sirf.Reg.AffineTransformation();
-            mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
+            mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_mul', self.handle_, other.handle_);
             sirf.Utilities.check_status('AffineTransformation:mtimes', mat.handle_);
         end
 
@@ -83,19 +83,25 @@ classdef AffineTransformation < sirf.Reg.Transformation
         end
         function value = get_determinant(self)
             %Get determinant.
-            value = sirf.STIR.parameter(self.handle_, self.name, 'determinant', 'f');
+            value = sirf.Reg.parameter(self.handle_, self.name, 'determinant', 'f');
         end
         function tm = as_array(self)
             %Get forward transformation matrix.
             ptr_v = libpointer('singlePtr', zeros(4, 4));
             calllib('mreg', 'mReg_AffineTransformation_as_array', self.handle_, ptr_v);
-            tm = ptr_v.Value;
+            tm = ptr_v.Value';
         end    
         function tm = get_inverse(self)
             %Get forward transformation matrix.
             tm = sirf.Reg.AffineTransformation();
             tm.handle_ = calllib('mreg', 'mReg_AffineTransformation_get_inverse', self.handle_);
             sirf.Utilities.check_status('AffineTransformation:get_inverse', tm.handle_);
+        end
+        function eul = get_Euler_angles(self)
+            %Get Euler angles of transformation matrix (XYZ).
+            ptr_v = libpointer('singlePtr', zeros(1,3));
+            calllib('mreg', 'mReg_AffineTransformation_get_Euler_angles', self.handle_, ptr_v);
+            eul = ptr_v.Value;
         end
     end
     methods(Static)

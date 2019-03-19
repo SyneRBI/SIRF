@@ -870,6 +870,21 @@ int main(int argc, char* argv[])
         if (e.get_determinant() - 1.F > 1.e-7F)
             throw std::runtime_error("AffineTransformation::get_determinant failed.");
 
+        // Test get_Euler_angles
+        AffineTransformation<float> test_Eul;
+        for (int i=0; i<4; ++i)
+            for (int j=0; j<4; ++j)
+                test_Eul[i][j]=0.F;
+        test_Eul[0][2] =  1.F;
+        test_Eul[1][1] = -1.F;
+        test_Eul[2][0] = -1.F;
+        // Example given by rotm2eul for MATLAB is [0 0 1; 0 -1 0; -1 0 0] -> XYZ = [-3.1416 1.5708 0]
+        std::array<float,3> Eul = test_Eul.get_Euler_angles();
+        std::array<float,3> Eul_expected{-3.1416F, 1.5708F, 0.F};
+        for (unsigned i=0; i<3; ++i)
+            if (std::abs(Eul[i] - Eul_expected[i]) > 1e-4F)
+                throw std::runtime_error("AffineTransformation::get_Euler_angles failed.");
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished AffineTransformation test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
