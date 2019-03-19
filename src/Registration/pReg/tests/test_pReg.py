@@ -806,6 +806,13 @@ def try_affinetransformation(na):
     print(Eul_expected)
     if not np.allclose(Eul, Eul_expected, atol=1e-4):
         raise AssertionError('AffineTransformation get_Euler_angles() failed.')
+
+    # Check as_array
+    f = b.as_array()
+    g = pReg.AffineTransformation(f)
+    h = g.as_array()
+    if not np.allclose(f, h, atol=1e-4):
+        raise AssertionError('AffineTransformation as_array() failed.')
     
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
