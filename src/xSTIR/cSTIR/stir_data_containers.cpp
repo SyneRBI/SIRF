@@ -474,7 +474,7 @@ void
 STIRImageData::get_voxel_sizes(float* vsize) const
 {
 	//const Voxels3DF& voxels = (const Voxels3DF&)*_data;
-	DYNAMIC_CAST(const Voxels3DF, voxels, _data);
+	DYNAMIC_CAST(const Voxels3DF, voxels, *_data);
 	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
 	for (int i = 0; i < 3; i++)
 		vsize[i] = vs[i + 1];
