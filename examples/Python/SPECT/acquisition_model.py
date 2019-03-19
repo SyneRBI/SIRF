@@ -5,11 +5,10 @@ Usage:
   acquisition_model [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
+  -f <file>, --file=<file>    raw data file [default: SPECT_template.hs]
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/SPECT
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
-  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 
 There is an interactive demo with much more documentation on this process.
 You probably want to check that instead.
@@ -37,34 +36,25 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtilities import show_2D_array
+import os.path
+from sirf.Utilities import show_2D_array, examples_data_path
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+from sirf.STIR import *
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('SPECT')
 raw_data_file = existing_filepath(data_path, data_file)
 output_file = args['--output']
 
-def main():
-
-##    AcquisitionData.set_storage_scheme('mem')
-
-    # no info printing from the engine, warnings and errors sent to stdout
-#    msg_red = MessageRedirector()
-    # output goes to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
-
-    # create an empty image
-    image = ImageData()
-    image_size = (111, 111, 64)
-    voxel_size = (3, 3, 3.32) # voxel sizes are in mm
-    image.initialise(image_size, voxel_size)
-
+def create_sample_image(image):
+    '''
+    fill the image with some simple geometric shapes
+    '''
+    image.fill(0)
     # create a shape
     shape = EllipticCylinder()
     shape.set_length(400)
@@ -83,16 +73,29 @@ def main():
     shape.set_origin((-60, -30, 10))
     image.add_shape(shape, scale = 0.75)
 
+def main():
+
+##    AcquisitionData.set_storage_scheme('mem')
+
+    # no info printing from the engine, warnings and errors sent to stdout
+    # msg_red = MessageRedirector()
+    # output goes to files
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'error.txt')
+
+    # raw data to be used as a template for the acquisition model
+    acq_template = AcquisitionData(raw_data_file)
+
+    # create image with suitable sizes
+    image = acq_template.create_uniform_image()
+    create_sample_image(image)
     image.write("simulated_image.hv")
+
     # z-pixel coordinate of the xy-cross-section to show
-    z = int(image_size[2]/2)
+    z = image.dimensions()[0]//2
 
     # show the phantom image
     image_array = image.as_array()
     show_2D_array('Phantom image', image_array[z,:,:])
-
-    # raw data to be used as a template for the acquisition model
-    acq_template = AcquisitionData(raw_data_file)
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
