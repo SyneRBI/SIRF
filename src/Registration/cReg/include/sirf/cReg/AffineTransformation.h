@@ -31,6 +31,7 @@ limitations under the License.
 #include <vector>
 #include <nifti1_io.h>
 #include "sirf/cReg/Transformation.h"
+#include <array>
 
 namespace sirf {
 /*!
