@@ -1159,19 +1159,26 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         # only allow RayTracingMatrix
         assert_validity(matrix, RayTracingMatrix)
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+    def get_matrix(self):
+        '''
+        Returns the ray tracing matrix used for projecting;
+        matrix:  a RayTracingMatrix object representing G in acquisition model.
+        '''
+        matrix = RayTracingMatrix()
+        matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
+        check_status(matrix.handle)
+        return matrix
     def set_num_tangential_LORs(self, value):
         '''
         See :func:`~sirf.STIR.RayTracingMatrix.set_num_tangential_LORs`
         '''
-        matrix_handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
-        _set_int_par(matrix_handle, RayTracingMatrix.name, 'num_tangential_LORs', value)
-        return self
+##        return self.matrix.set_num_tangential_LORs(value)
+        return self.get_matrix().set_num_tangential_LORs(value)
     def get_num_tangential_LORs(self):
         '''
         See :func:`~sirf.STIR.RayTracingMatrix.get_num_tangential_LORs`
         '''
-        matrix_handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
-        return _int_par(matrix_handle, RayTracingMatrix.name, 'num_tangential_LORs')
+        return self.get_matrix().get_num_tangential_LORs()
 
 class Prior:
     '''
