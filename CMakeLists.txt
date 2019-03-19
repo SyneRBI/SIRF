@@ -32,7 +32,8 @@ PROJECT(SIRF)
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 # require 2.8.3 to get FOLDER properties support
 # require 3.3 for descent FindMatlab.cmake
-cmake_minimum_required(VERSION 3.3.0)
+# require 3.9 for compatible FindOPENMP.cmake
+cmake_minimum_required(VERSION 3.9.0)
 
 # set default build-type to Release
 if(NOT CMAKE_BUILD_TYPE)

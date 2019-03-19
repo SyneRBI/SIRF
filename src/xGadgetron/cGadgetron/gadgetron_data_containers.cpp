@@ -994,7 +994,7 @@ void
 GadgetronImagesVector::get_data(complex_float_t* data) const
 {
 	//std::copy(begin(), end(), data);
-	std::cout << "trying new const image wrap iterator...\n";
+	//std::cout << "trying new const image wrap iterator...\n";
 	GadgetronImagesVector::Iterator_const stop = end();
 	GadgetronImagesVector::Iterator_const iter = begin();
 	for (; iter != stop; ++iter, ++data)
@@ -1012,7 +1012,7 @@ GadgetronImagesVector::set_data(const complex_float_t* data)
 	//n *= dim[2];
 	//n *= dim[3];
 	//std::copy(data, data + n, begin());
-	std::cout << "trying new image wrap iterator...\n";
+	//std::cout << "trying new image wrap iterator...\n";
 	GadgetronImagesVector::Iterator stop = end();
 	GadgetronImagesVector::Iterator iter = begin();
 	//GadgetronImagesVectorIterator stop = end();
