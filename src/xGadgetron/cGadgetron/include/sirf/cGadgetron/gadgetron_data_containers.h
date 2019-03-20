@@ -48,7 +48,8 @@ limitations under the License.
 #include "sirf/cGadgetron/gadgetron_image_wrap.h"
 #include "sirf/iUtilities/LocalisedException.h"
 
-#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+//#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 /*!
 \ingroup Gadgetron Data Containers
