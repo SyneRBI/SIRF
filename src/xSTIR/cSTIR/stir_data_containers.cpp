@@ -19,7 +19,7 @@ limitations under the License.
 
 */
 
-#include "sirf/cSTIR/stir_data_containers.h"
+#include "sirf/STIR/stir_data_containers.h"
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
 

@@ -41,7 +41,7 @@ limitations under the License.
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/PETImageData.h"
-#include "sirf/cSTIR/stir_types.h"
+#include "sirf/STIR/stir_types.h"
 #include "sirf/common/GeometricalInfo.h"
 
 namespace sirf {

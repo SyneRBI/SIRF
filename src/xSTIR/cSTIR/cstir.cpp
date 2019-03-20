@@ -20,9 +20,9 @@ limitations under the License.
 */
 
 #include "sirf/iUtilities/DataHandle.h"
-#include "sirf/cSTIR/stir_types.h"
-#include "sirf/cSTIR/cstir_p.h"
-#include "sirf/cSTIR/stir_x.h"
+#include "sirf/STIR/stir_types.h"
+#include "sirf/STIR/cstir_p.h"
+#include "sirf/STIR/stir_x.h"
 
 using namespace stir;
 using namespace sirf;

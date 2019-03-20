@@ -30,8 +30,8 @@ limitations under the License.
 #include <cmath>
 #include <iomanip>
 
-#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 using namespace gadgetron;
 using namespace sirf;
