@@ -5,7 +5,7 @@ Usage:
   acquisition_model [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: SPECT_template.hs]
+  -f <file>, --file=<file>    raw data file [default: template_sinogram.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/SPECT
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
