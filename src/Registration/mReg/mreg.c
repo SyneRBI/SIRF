@@ -162,6 +162,9 @@ EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_identity() {
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_inverse(const void* ptr) {
 	return cReg_AffineTransformation_get_inverse(ptr);
 }
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler) {
+	return cReg_AffineTransformation_get_Euler_angles(ptr, Euler);
+}
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr) {
 	return cReg_AffineTransformation_mul(mat1_ptr, mat2_ptr);
 }
