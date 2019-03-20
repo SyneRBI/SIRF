@@ -190,9 +190,9 @@ class Shape:
         '''
         Sets the (discrete) coordinates of the shape centre on a voxel grid.
         '''
-        _set_float_par(self.handle, 'Shape', 'x', origin[0])
+        _set_float_par(self.handle, 'Shape', 'x', origin[2])
         _set_float_par(self.handle, 'Shape', 'y', origin[1])
-        _set_float_par(self.handle, 'Shape', 'z', origin[2])
+        _set_float_par(self.handle, 'Shape', 'z', origin[0])
     def get_origin(self):
         '''
         Returns the coordinates of the shape centre on a voxel grid.
@@ -227,8 +227,8 @@ class EllipticCylinder(Shape):
     def get_radius_y(self):
         return _float_par(self.handle, self.name, 'radius_y')
     def set_radii(self, radii):
-        _set_float_par(self.handle, self.name, 'radius_x', radii[0])
-        _set_float_par(self.handle, self.name, 'radius_y', radii[1])
+        _set_float_par(self.handle, self.name, 'radius_x', radii[1])
+        _set_float_par(self.handle, self.name, 'radius_y', radii[0])
     def get_radii(self):
         rx = _float_par(self.handle, self.name, 'radius_x')
         ry = _float_par(self.handle, self.name, 'radius_y')
@@ -313,9 +313,9 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = None
         voxels = pystir.cSTIR_voxels3DF\
-                      (dim[0], dim[1], dim[2], \
-                       vsize[0], vsize[1], vsize[2], \
-                       origin[0], origin[1], origin[2])
+                      (dim[2], dim[1], dim[0], \
+                       vsize[2], vsize[1], vsize[0], \
+                       origin[2], origin[1], origin[0])
         check_status(voxels)
         self.handle = pystir.cSTIR_imageFromVoxels(voxels)
         check_status(self.handle)

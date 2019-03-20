@@ -66,8 +66,8 @@ def test_main(rec=False, verb=False, throw=True):
 
     filter = TruncateToCylinderProcessor()
 
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375)
+    image_size = (31, 111, 111)
+    voxel_size = (3.375, 3, 3)
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
