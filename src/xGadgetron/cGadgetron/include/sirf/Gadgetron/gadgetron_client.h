@@ -45,8 +45,8 @@ limitations under the License.
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/meta.h>
 
-#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 enum GadgetronMessageID {
 	GADGET_MESSAGE_INT_ID_MIN = 0,
