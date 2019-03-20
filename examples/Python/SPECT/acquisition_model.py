@@ -80,7 +80,7 @@ def main():
     # no info printing from the engine, warnings and errors sent to stdout
     # msg_red = MessageRedirector()
     # output goes to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'error.txt')
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # raw data to be used as a template for the acquisition model
     acq_template = AcquisitionData(raw_data_file)

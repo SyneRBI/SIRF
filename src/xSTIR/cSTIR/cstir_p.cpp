@@ -1,6 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2018- 2019 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -36,6 +37,16 @@ using namespace sirf;
 extern "C"
 char* charDataFromHandle(const void* ptr);
 
+static void*
+handle_error(const std::string& error_string, const char* file, int line) 
+{
+	DataHandle* handle = new DataHandle;
+	ExecutionStatus status(error_string.c_str(), file, line);
+	handle->set(0, &status);
+	return (void*)handle;
+}
+
+// TODO write below in terms of handle_error() function above
 static void*
 parameterNotFound(const char* name, const char* file, int line) 
 {
@@ -217,11 +228,16 @@ sirf::cSTIR_setSPECTUBMatrixParameter
 {
 	SPECTUBMatrix& matrix =
 		objectFromHandle<SPECTUBMatrix>(hp);
-        /*	int value = dataFromHandle<int>(hv);
-	if (boost::iequals(name, "num_tangential_LORs"))
-		matrix.set_num_tangential_LORs(value);
-                else*/
-		return parameterNotFound(name, __FILE__, __LINE__);
+        int value = dataFromHandle<int>(hv);
+	if (boost::iequals(name, "keep_all_views_in_cache"))
+		matrix.set_keep_all_views_in_cache(value);
+        else if (boost::iequals(name, "attenuation_image"))
+                {
+                       STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+                       matrix.set_attenuation_image_sptr(id.data_sptr());
+                }
+        else
+                return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
 }
 
@@ -230,10 +246,17 @@ sirf::cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name)
 {
 	SPECTUBMatrix& matrix =
 		objectFromHandle<SPECTUBMatrix>(handle);
-        /*
-	if (boost::iequals(name, "num_tangential_LORs"))
-		return dataHandle<int>(matrix.get_num_tangential_LORs());
-        */
+	if (boost::iequals(name, "keep_all_views_in_cache"))
+		return dataHandle<int>(matrix.get_keep_all_views_in_cache());
+        else if (boost::iequals(name, "attenuation_image"))
+                {
+                  shared_ptr<const DiscretisedDensity<3,float> > att_im_sptr(matrix.get_attenuation_image_sptr());
+                  if (!att_im_sptr)
+                       return handle_error("SPECTUBMatrix: attenuation image not set", __FILE__, __LINE__);
+                  sptrImage3DF sptr_im(att_im_sptr->clone());
+                  shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+                  return newObjectHandle(sptr_id);
+                }
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

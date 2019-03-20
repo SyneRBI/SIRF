@@ -463,6 +463,18 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 }
 
 extern "C"
+void* cSTIR_SPECTUBMatrixSetResolution
+	(const void* ptr_acq_matrix,
+         const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D)
+{
+	try {
+                SPECTUBMatrix& matrix = objectFromHandle<SPECTUBMatrix>(ptr_acq_matrix);
+                matrix.set_resolution_model(collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D);
+                return (void*)new DataHandle;
+        }
+        CATCH;
+}
+extern "C"
 void*
 cSTIR_setAcquisitionsStorageScheme(const char* scheme)
 { 

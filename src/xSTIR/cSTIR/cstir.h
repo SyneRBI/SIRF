@@ -69,7 +69,12 @@ extern "C" {
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 		int subset_num, int num_subsets);
 
-	// Acquisition data methods
+        // Acquisition Model Matrix
+        void* cSTIR_SPECTUBMatrixSetResolution
+                 (const void* ptr_acq_matrix,
+                  const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D);
+
+        // Acquisition data methods
 	void* cSTIR_getAcquisitionsStorageScheme();
 	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
