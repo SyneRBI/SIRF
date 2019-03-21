@@ -52,7 +52,12 @@ acquired_data=sirf.STIR.AcquisitionData('simulation.hs')
 image=acquired_data.create_uniform_image()
 
 #%% create an acquisition model
+# We will first ignore attenuation (as an illustration)
 acq_model_matrix = sirf.STIR.SPECTUBMatrix();
+# Set some options
+# you can find out more about these by typing asking for help
+#help(acq_model_matrix.set_keep_all_views_in_cache)
+# be careful that you don't run out of memory with the next setting
 acq_model_matrix.set_keep_all_views_in_cache(True)
 acq_model_matrix.set_resolution_model(1,.05, False)
 am = sirf.STIR.AcquisitionModelUsingMatrix(acq_model_matrix)
@@ -63,12 +68,12 @@ obj_fun.set_acquisition_model(am)
 
 #%% create OSMAPOSL reconstructor
 # This implements the Ordered Subsets Maximum A-Posteriori One Step Late
-# Since we are not using a penalty, or prior in this example, it
+# Since we are not using a penalty, or prior, in this example, it
 # defaults to using MLEM, but we will modify it to OSEM
 recon = sirf.STIR.OSMAPOSLReconstructor()
 recon.set_objective_function(obj_fun)
-recon.set_num_subsets(4)
-recon.set_num_subiterations(5)
+recon.set_num_subsets(12)
+recon.set_num_subiterations(10)
 
 #%% reconstruct the image
 # First create a new image to use for the reconstruction
@@ -79,42 +84,49 @@ reconstructed_image.fill(1)
 # set up the reconstructor
 recon.set_up(reconstructed_image)
 # do actual recon
+# This will use the image argument as an initial image and then update it
 recon.reconstruct(reconstructed_image)
 
 #%% display of image
 reconstructed_array=reconstructed_image.as_array()
 slice=reconstructed_array.shape[0]/3;
-sirf.Utilities.show_2D_array('reconstructed image after 5 sub-iterations',reconstructed_array[slice,:,:,]);
+sirf.Utilities.show_2D_array('reconstructed image (no AC) after 10 sub-iterations',reconstructed_array[slice,:,:,]);
+#%% show all slices
+sirf.Utilities.show_3D_array(reconstructed_array,suptitle='reconstructed image (no AC) after 10 sub-iterations');
+#%% show original input of the simulation
+image=sirf.STIR.ImageData('emission.hv')
+sirf.Utilities.show_3D_array(image.as_array(),suptitle='original input');
 
 #%% do another set of iterations
 recon.reconstruct(reconstructed_image)
 reconstructed_array=reconstructed_image.as_array()
-sirf.Utilities.show_2D_array('reconstructed image after 10 sub-iterations',reconstructed_array[slice,:,:,]);
+sirf.Utilities.show_2D_array('reconstructed image (no AC) after 20 sub-iterations',reconstructed_array[slice,:,:,]);
 
-#%% forward project the image again with this acquisition model and display
-acquired_data = am2.forward(image)
-acquisition_array = acquired_data.as_array()
-sirf.Utilities.show_3D_array(acquisition_array);
+#%% forward project the reconstructed image with this acquisition model and display
+# This will show that the estimated data doesn't fit the acquired data very well
+# (as we didn't include attenuation)
+estimated_data = am.forward(reconstructed_image)
+estimated_array = estimated_data.as_array()
+sirf.Utilities.show_2D_array('estimated data (no AC)', estimated_array[slice,:,:]);
+sirf.Utilities.show_2D_array('acquired data', acquired_data.as_array()[slice,:,:]);
 
-#%% Let us reconstruct this data with the original acquisition model (without bin efficiencies)
-obj_fun.set_acquisition_data(acquired_data)
-obj_fun.set_acquisition_model(am)
+#%% Now we include attenuation
+atten_image=sirf.STIR.ImageData('attenuation.hv')
+acq_model_matrix.set_attenuation_image(atten_image)
+
 reconstructed_image.fill(1)
 recon.set_up(reconstructed_image)
 recon.set_num_subiterations(10)
 recon.reconstruct(reconstructed_image)
 #%% display
 # we fix the max for the colour scale related to the true max
-cmax = image.as_array().max()*1.2;
+#cmax = image.as_array().max()*1.2;
 reconstructed_array=reconstructed_image.as_array()
 plt.figure()
-imshow(reconstructed_array[slice,:,:,], [0,cmax],'reconstructed image with original acquisition model');
-#%% Now we use the correct acquisition model
-obj_fun.set_acquisition_model(am2)
-reconstructed_image.fill(1)
-recon.set_up(reconstructed_image)
-recon.reconstruct(reconstructed_image)
-#%% display
-reconstructed_array=reconstructed_image.as_array()
-plt.figure()
-imshow(reconstructed_array[slice,:,:,], [0,cmax],'reconstructed image with correct acquisition model');
+sirf.Utilities.show_2D_array('reconstructed image with attenuation included',reconstructed_array[slice,:,:,]);
+
+#%% forward project the reconstructed image with the AC acquisition model and display
+estimated_data = am.forward(reconstructed_image)
+estimated_array = estimated_data.as_array()
+sirf.Utilities.show_2D_array('estimated data (with AC)', estimated_array[slice,:,:]);
+sirf.Utilities.show_2D_array('acquired data', acquired_data.as_array()[slice,:,:]);

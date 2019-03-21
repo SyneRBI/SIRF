@@ -76,11 +76,6 @@ def imshow(image, limits, title=''):
     plt.axis('off');
     return bitmap
 
-def make_positive(image_array):
-    """Truncate any negatives in an ndarray to zero."""
-    image_array[image_array<0] = 0;
-    return image_array;
-
 def create_sample_image(image):
     '''
     fill the image with some simple geometric shapes
@@ -104,6 +99,32 @@ def create_sample_image(image):
     shape.set_origin((-60, -30, 10))
     image.add_shape(shape, scale = 0.75)
 
+    # another
+    shape = sirf.STIR.EllipticCylinder()
+    shape.set_length(40)
+    shape.set_radii((20, 20))
+    shape.set_origin((0, 30, 30))
+    image.add_shape(shape, scale = 1)
+
+def create_attenuation_image(image):
+    '''
+    fill the attenuation image with some simple geometric shapes
+    '''
+    image.fill(0)
+    # create a shape
+    shape = sirf.STIR.EllipticCylinder()
+    shape.set_length(400)
+    shape.set_radii((120, 120))
+    shape.set_origin((0, 0, 0))
+
+    # add the shape to the image
+    image.add_shape(shape, scale = 0.15)
+
+    # add another shape
+    shape.set_radii((30, 30))
+    shape.set_origin((60, -30, 10))
+    image.add_shape(shape, scale = -.1)
+
 #%% Go to directory with input files
 # Adapt this path to your situation (or start everything in the relevant directory)
 os.chdir(sirf.Utilities.examples_data_path('SPECT'))
@@ -117,6 +138,7 @@ import glob
 for file in glob.glob(r'*s'): # copy all *s files
     shutil.copy(file, dest_dir)
 os.chdir('working_folder/simple')
+
 #%% OK. finally done with initial set-up...
 
 #%% Specify sinogram dimensions
@@ -125,10 +147,14 @@ os.chdir('working_folder/simple')
 # We read a file supplied with the demo as an AcquisitionData object
 acq_template = sirf.STIR.AcquisitionData('template_sinogram.hs');
 
-#%% Create an image with suitable sizes
+#%% Create an emission and attenuation image with suitable sizes
 image = acq_template.create_uniform_image()
 create_sample_image(image)
 image.write("emission.hv")
+
+atten_image = image.get_uniform_copy(0)
+create_attenuation_image(atten_image)
+atten_image.write("attenuation.hv")
 
 #%% What is an ImageData?
 # Images are represented by objects with several methods. The most important method
@@ -151,7 +177,7 @@ image_array*=0.01;
 # (This will not modify the file content, only the variable in memory.)
 image.fill(image_array);
 
-#%% Display the middle slice of the image (which is really a 3D volume)
+#%% Display the middle slice of the images (which is really a 3D volume)
 # We will use our own imshow function (which was defined above) for brevity.
 
 # Get the middle slice number
@@ -159,7 +185,10 @@ slice_num=image_array.shape[0]//2;
 # Create a new figure
 plt.figure();
 # Display the slice
+plt.subplot(1,2,1)
 imshow(image_array[slice_num,:,:,], [], 'emission image');
+plt.subplot(1,2,2)
+imshow(atten_image.as_array()[slice_num,:,:,], [], 'attenuation image');
 
 #%% OK. Now we will do some SPECT projections!
 # SIRF uses AcquisitionModel as the object to do forward and back-projections.
@@ -172,12 +201,11 @@ acq_model_matrix = sirf.STIR.SPECTUBMatrix();
 
 #%% Set some options
 # you can find out more about these by typing asking for help
-help(acq_model_matrix.set_keep_all_views_in_cache)
-# be careful that you don't run out of memory with the next setting
-acq_model_matrix.set_keep_all_views_in_cache(True)
 help(acq_model_matrix.set_resolution_model)
 acq_model_matrix.set_resolution_model(1,.05, False)
 
+#%% Add the attenuation to the model
+acq_model_matrix.set_attenuation_image(atten_image)
 #%% create an acquisition model with this matrix
 am = sirf.STIR.AcquisitionModelUsingMatrix(acq_model_matrix)
 #%% Now set-up our acquisition model with all information that it needs about the data and image.
