@@ -160,6 +160,9 @@ void run_tests_dynamic_simulation( void )
 	std::cout << "MR 6 ----------------------------------------------------" <<std::endl;
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 
+	std::cout << "MR 7 ----------------------------------------------------" <<std::endl;
+	mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
+
 	
 	std::cout << "mr dynamic simulation test results = ";
 	for( size_t i=0; i<mr_dynsim_tests.size(); i++)
@@ -182,7 +185,7 @@ void run_tests_dynamic_simulation( void )
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
 
 	std::cout << "PET 4 ----------------------------------------------------" <<std::endl;
-	pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
+	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
 
 
 	std::cout << "pet dynamic simulation test results = ";
@@ -477,13 +480,13 @@ void run_tests_dynsim_deformer( void )
 
 	// std::cout << " 1-------------------------- " <<std::endl;
 	
-	tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
+	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
 
 	std::cout << " 2 -------------------------- " <<std::endl;
 	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
 
 	std::cout << " 3 -------------------------- " <<std::endl;
-	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	std::cout << " End -------------------------- " <<std::endl;
 
