@@ -500,7 +500,7 @@ void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3D
 	}
 
 	for(size_t i=0; i<input_displacement_fields.size(); i++)
-		this->displacement_fields_.push_back( this->scale_displacementfields_to_mm( input_displacement_fields[i]));
+		this->displacement_fields_.push_back( input_displacement_fields[i] );
 
 	if( true ) 
 	{
