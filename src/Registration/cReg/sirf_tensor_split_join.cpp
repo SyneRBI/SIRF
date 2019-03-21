@@ -28,8 +28,8 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "sirf/cReg/NiftiImageData3DTensor.h"
-#include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3DTensor.h"
+#include "sirf/Reg/NiftiImageData3D.h"
 
 using namespace sirf;
 

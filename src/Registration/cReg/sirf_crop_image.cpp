@@ -29,7 +29,7 @@ limitations under the License.
 
 #include <iostream>
 #include <vector>
-#include <sirf/cReg/NiftiImageData.h>
+#include <sirf/Reg/NiftiImageData.h>
 
 using namespace sirf;
 

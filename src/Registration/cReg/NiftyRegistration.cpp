@@ -27,10 +27,10 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/NiftyRegistration.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/NiftiImageData3DDisplacement.h"
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftyRegistration.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
 
 using namespace sirf;
 
