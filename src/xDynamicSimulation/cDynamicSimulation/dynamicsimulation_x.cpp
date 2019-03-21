@@ -439,7 +439,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 		all_num_dyn_states.push_back(motion_dynamics_[i]->get_num_simul_states());			
 		motion_dynamics_[i]->prep_displacement_fields();
 
-		motion_dynamics_[i]->align_motion_fields_with_image( this->template_image_data_);
+		// motion_dynamics_[i]->align_motion_fields_with_image( this->template_image_data_);
 	}
 
 	LinearCombiGenerator lcg(all_num_dyn_states);
