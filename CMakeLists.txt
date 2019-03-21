@@ -147,6 +147,11 @@ if (REG_ENABLE)
 endif()
 
 # Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built
+message("\n\n\n\n\n\nRB_temp REG_ENABLE:" ${REG_ENABLE})
+message("\n\nRB_temp STIR_REGISTRIES:" ${STIR_REGISTRIES})
+message("\n\nRB_temp cGadgetron_LIBRARY_DIRS:" ${cGadgetron_LIBRARY_DIRS})
+message("\n\nRB_temp STIR_BUILT_WITH_ITK:" ${STIR_BUILT_WITH_ITK} "\n\n")
+message(FATAL_ERROR "ok")
 if (REG_ENABLE AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
   MESSAGE(STATUS "Registration, Gadgetron and STIR (with ITK) have been built. Building synergistic code.")
   ADD_SUBDIRECTORY(src/Synergistic)
