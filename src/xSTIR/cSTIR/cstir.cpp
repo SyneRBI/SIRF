@@ -23,6 +23,7 @@ limitations under the License.
 #include "sirf/STIR/stir_types.h"
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
+#include "stir/ImagingModality.h"
 
 using namespace stir;
 using namespace sirf;
@@ -530,6 +531,7 @@ void* cSTIR_acquisitionsDataFromScannerInfo
 {
 	try{
 		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
+        sptr_ei->imaging_modality = ImagingModality::PT;
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
