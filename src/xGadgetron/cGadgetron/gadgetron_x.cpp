@@ -364,7 +364,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 
 
-	if(  2 * img.getMatrixSizeX() != readout_size ) 
+	if(  2 * nx != readout_size ) 
 		throw LocalisedException("The image dimensions passed to the simulation are not half the size of the encoded space in the header. Readout os 2 is assumed.", __FILE__, __LINE__);
 
 
@@ -437,17 +437,18 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	}
 	
 	unsigned int const num_acq = sptr_acqs_->items(); 
-	unsigned int num_sampled_readout_pts = k_data.getDims()[0];
 
 	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
 	{
 	
 		auto sptr_curr_acq = this->sptr_acqs_->get_acquisition_sptr( i_acq );
+		unsigned int num_sampled_readout_pts = readout_size - ( readout_size/2 - sptr_curr_acq->center_sample() );
 
 		if( readout_size < num_sampled_readout_pts )			
 			throw LocalisedException("The number of samples you try to acquire is larger than the volume dimension in readout direction.", __FILE__, __LINE__);
 			
 		sptr_curr_acq->resize(num_sampled_readout_pts, nc);
+		
 		memset((void*)sptr_curr_acq->getDataPtr(), 0, sptr_curr_acq->getDataSize());
 
 		uint16_t const enc_step_1 = sptr_curr_acq->getHead().idx.kspace_encode_step_1;
