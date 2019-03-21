@@ -125,9 +125,9 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 }
 
 
-void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& mr_cont_gen, std::vector<NiftiImageData3DDeformation<float> >& vec_displacement_fields)
+void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<NiftiImageData3DDeformation<float> >& vec_displacement_fields)
 {
-	std::vector< STIRImageData >&  vect_img_data = mr_cont_gen.get_contrast_filled_volumes();
+	std::vector< STIRImageData >&  vect_img_data = pet_cont_gen.get_contrast_filled_volumes();
 
 	if( vect_img_data.size() != 2)
 		throw std::runtime_error(" Please call map_tissue before the deformation of the contrast generator. You need both activity and attenaution in the correct motion state.");
