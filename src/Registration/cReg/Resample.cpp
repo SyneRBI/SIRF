@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/Resample.h"
+#include "sirf/Reg/Resample.h"
 
 using namespace sirf;
 

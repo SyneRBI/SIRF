@@ -29,7 +29,7 @@ limitations under the License.
 
 #pragma once
 
-#include "sirf/cReg/NiftyRegistration.h"
+#include "sirf/Reg/NiftyRegistration.h"
 
 template<class dataType> class reg_aladin_sym;
 
