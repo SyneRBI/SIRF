@@ -588,7 +588,7 @@ namespace sirf {
 		}
 		STIRImageData(const PETAcquisitionData& ad)
 		{
-			_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
+			_data.reset(new Voxels3DF(ad.get_exam_info_sptr(),*ad.get_proj_data_info_sptr()));
             this->set_up_geom_info();
 		}
 		STIRImageData(const Image3DF& image)
