@@ -139,13 +139,13 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 		motion_dyn.prep_displacement_fields();
 
 		STIRImageData template_img( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH ); 
-		motion_dyn.align_motion_fields_with_image( template_img );
+		// motion_dyn.align_motion_fields_with_image( template_img );
 
 		pet_cont_gen.map_tissue();
 		std::vector< sirf::STIRImageData > static_state = pet_cont_gen.get_contrast_filled_volumes();
 
-		std::string filename_static = std::string(SHARED_FOLDER_PATH) + "/pet_activity_map_static";
-		data_io::write_PET_image_to_hv(filename_static, static_state[0]);
+		// std::string filename_static = std::string(SHARED_FOLDER_PATH) + "/pet_activity_map_static";
+		// data_io::write_PET_image_to_hv(filename_static, static_state[0]);
 
 		for( size_t i_motion=0; i_motion<num_simul_cardiac_states; i_motion++)
 		{
