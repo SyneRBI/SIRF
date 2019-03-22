@@ -81,11 +81,17 @@ include_directories(${Boost_INCLUDE_DIRS})
 # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
 find_package(PythonInterp QUIET)
 find_package(PythonLibs QUIET)
-option(BUILD_PYTHON "Build SIRF with python" ${PYTHONLIBS_FOUND})
-if (BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
-  message(FATAL_ERROR "Python enabled but not found")
-endif(BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
-if (BUILD_PYTHON)
+if (NOT PYTHONLIBS_FOUND)
+  message(STATUS "Pythonlibs not found (set PYTHON_EXECUTABLE if you want it)")
+  set(default_DISABLE_PYTHON ON)
+else()
+  set(default_DISABLE_PYTHON OFF)
+endif()
+
+option(DISABLE_PYTHON "Disable building SIRF python support" ${default_DISABLE_PYTHON})
+if (DISABLE_PYTHON)
+  message(STATUS "Python support disabled")
+else(DISABLE_PYTHON)
 
   # PYTHON_DEST_DIR allows the user to select the install destination of the 
   # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
@@ -103,15 +109,22 @@ if (BUILD_PYTHON)
     PYTHONPATH: prefix PYTHONPATH \n\
     SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
     CONDA:      do nothing")
-endif(BUILD_PYTHON)
+endif(DISABLE_PYTHON)
 
 
 FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
-option(BUILD_MATLAB "Build SIRF with matlab" ${Matlab_FOUND})
-if (BUILD_MATLAB AND NOT ${Matlab_FOUND})
-  message(FATAL_ERROR "Matlab enabled but not found")
+if (NOT Matlab_FOUND)
+  message(STATUS "MATLAB not found (set Matlab_ROOT_DIR if you want it)")
+  set(default_DISABLE_Matlab ON)
+else()
+  set(default_DISABLE_Matlab OFF)
 endif()
-if (BUILD_MATLAB)
+
+option(DISABLE_Matlab "Disable building SIRF matlab support" ${default_DISABLE_Matlab})
+if (DISABLE_Matlab)
+  message(STATUS "Matlab support disabled")
+else(DISABLE_Matlab)
+
   message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
   matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
   # MATLAB_DEST_DIR allows the user to select the install destination of the 
@@ -126,25 +139,34 @@ if (BUILD_MATLAB)
   endif()
   message(STATUS "Matlab libraries found")
   message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
-endif(BUILD_MATLAB)
-
-if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
-  message(FATAL_ERROR "SIRF needs either MATLAB or Python")
-endif()
+endif(DISABLE_Matlab)
 
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/common)
-ADD_SUBDIRECTORY(src/xSTIR)
-ADD_SUBDIRECTORY(src/xGadgetron)
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
-# Optional registration
-option(REG_ENABLE "Build the SIRF registration package" ON)
-if (REG_ENABLE)
+option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
+if (DISABLE_STIR)
+  message(STATUS "STIR support disabled.")
+else()
+  ADD_SUBDIRECTORY(src/xSTIR)
+endif()
+option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
+if (DISABLE_Gadgetron)
+  message(STATUS "Gadgetron support disabled.")
+else()
+  ADD_SUBDIRECTORY(src/xGadgetron)
+endif()
+option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
+if (DISABLE_Registration)
+  message(STATUS "Registration support disabled.")
+else()
   ADD_SUBDIRECTORY(src/Registration)
 endif()
+#mark_as_advanced(DISABLE_STIR DISABLE_Gadgetron DISABLE_Registration)
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
 # Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built
 if (REG_ENABLE AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
