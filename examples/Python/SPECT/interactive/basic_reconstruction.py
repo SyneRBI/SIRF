@@ -49,8 +49,12 @@ os.chdir(sirf.Utilities.examples_data_path('SPECT'))
 os.chdir('working_folder/simple')
 #%% Read in data
 acquired_data=sirf.STIR.AcquisitionData('simulation.hs')
-image=acquired_data.create_uniform_image()
-
+attenuation_image = sirf.STIR.ImageData('attenuation.hv')
+#%% Create a new image to use for the reconstruction
+# We will just use the attenuation image as a 'template' to have the same voxel sizes etc
+reconstructed_image=attenuation_image.clone()
+# Set its values to 1 to create a uniform image
+reconstructed_image.fill(1)
 #%% create an acquisition model
 # We will first ignore attenuation (as an illustration)
 acq_model_matrix = sirf.STIR.SPECTUBMatrix();
@@ -61,7 +65,7 @@ acq_model_matrix = sirf.STIR.SPECTUBMatrix();
 acq_model_matrix.set_keep_all_views_in_cache(True)
 acq_model_matrix.set_resolution_model(1,.05, False)
 am = sirf.STIR.AcquisitionModelUsingMatrix(acq_model_matrix)
-am.set_up(acquired_data,image); 
+am.set_up(acquired_data,reconstructed_image);
 #%% create objective function
 obj_fun = sirf.STIR.make_Poisson_loglikelihood(acquired_data)
 obj_fun.set_acquisition_model(am)
@@ -76,11 +80,6 @@ recon.set_num_subsets(12)
 recon.set_num_subiterations(10)
 
 #%% reconstruct the image
-# First create a new image to use for the reconstruction
-# We will just use the original as a 'template' to have the same voxel sizes etc
-reconstructed_image=image.clone()
-# Set its values to 1 to create a uniform image
-reconstructed_image.fill(1)
 # set up the reconstructor
 recon.set_up(reconstructed_image)
 # do actual recon
@@ -111,8 +110,7 @@ sirf.Utilities.show_2D_array('estimated data (no AC)', estimated_array[slice,:,:
 sirf.Utilities.show_2D_array('acquired data', acquired_data.as_array()[slice,:,:]);
 
 #%% Now we include attenuation
-atten_image=sirf.STIR.ImageData('attenuation.hv')
-acq_model_matrix.set_attenuation_image(atten_image)
+acq_model_matrix.set_attenuation_image(attenuation_image)
 
 reconstructed_image.fill(1)
 recon.set_up(reconstructed_image)

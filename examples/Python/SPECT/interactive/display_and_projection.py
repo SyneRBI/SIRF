@@ -48,7 +48,6 @@ import shutil
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
 #%% import the SIRF module into Python
-import sirf
 import sirf.Utilities
 import sirf.STIR
 #%% First define some handy function definitions
@@ -146,9 +145,12 @@ os.chdir('working_folder/simple')
 # You do this by using existing spect data as a 'template'.
 # We read a file supplied with the demo as an AcquisitionData object
 acq_template = sirf.STIR.AcquisitionData('template_sinogram.hs');
-
+acq_dimensions = acq_template.dimensions()
 #%% Create an emission and attenuation image with suitable sizes
-image = acq_template.create_uniform_image()
+image = sirf.STIR.ImageData();
+image_size = (acq_dimensions[2],acq_dimensions[2], acq_dimensions[0]);
+voxel_size = (3.32, 3.32, 3.32); # TODO: get these from acq_template
+image.initialise(image_size, voxel_size)
 create_sample_image(image)
 image.write("emission.hv")
 
@@ -230,6 +232,8 @@ print(acquisition_array.shape)
 plt.figure()
 slice_num=acquisition_array.shape[0]//2;
 imshow(acquisition_array[slice_num,:,:,], [], 'Forward projection');
+#%% Show all sinograms
+sirf.Utilities.show_3D_array(acquisition_array, suptitle='Forward projection');
 
 #%% Display some different 'views' in a movie
 # See note at start of file about your backend if this doesn't work.
