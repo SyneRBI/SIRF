@@ -29,8 +29,8 @@ limitations under the License.
 
 #pragma once
 
-#include "sirf/cReg/NiftiImageData3DTensor.h"
-#include "sirf/cReg/Transformation.h"
+#include "sirf/Reg/NiftiImageData3DTensor.h"
+#include "sirf/Reg/Transformation.h"
 
 namespace sirf {
 

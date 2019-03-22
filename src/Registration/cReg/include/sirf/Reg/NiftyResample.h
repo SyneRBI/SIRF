@@ -33,7 +33,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <iostream>
-#include "sirf/cReg/Resample.h"
+#include "sirf/Reg/Resample.h"
 
 namespace sirf {
 

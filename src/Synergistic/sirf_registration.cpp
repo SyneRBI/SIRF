@@ -27,12 +27,12 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/NiftyAladinSym.h"
-#include "sirf/cReg/NiftyF3dSym.h"
-#include "sirf/cReg/AffineTransformation.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cSTIR/stir_data_containers.h"
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Reg/NiftyAladinSym.h"
+#include "sirf/Reg/NiftyF3dSym.h"
+#include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/STIR/stir_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 
 using namespace sirf;

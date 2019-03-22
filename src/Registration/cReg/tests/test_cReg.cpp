@@ -28,13 +28,13 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "sirf/cReg/NiftyAladinSym.h"
-#include "sirf/cReg/NiftyF3dSym.h"
-#include "sirf/cReg/NiftyResample.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/ImageWeightedMean.h"
-#include "sirf/cReg/NiftiImageData3DDisplacement.h"
-#include "sirf/cReg/AffineTransformation.h"
+#include "sirf/Reg/NiftyAladinSym.h"
+#include "sirf/Reg/NiftyF3dSym.h"
+#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/Reg/ImageWeightedMean.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
+#include "sirf/Reg/AffineTransformation.h"
 #include <memory>
 
 using namespace sirf;

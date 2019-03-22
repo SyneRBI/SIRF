@@ -27,16 +27,16 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/NiftiImageData.h"
+#include "sirf/Reg/NiftiImageData.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
 #include <boost/filesystem.hpp>
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/NiftiImageData3DTensor.h"
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
-#include "sirf/cReg/NiftiImageData3DDisplacement.h"
-#include "sirf/cReg/AffineTransformation.h"
-#include "sirf/cReg/NiftyResample.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3DTensor.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
+#include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/NiftyResample.h"
 #include <iomanip>
 #include <cmath>
 

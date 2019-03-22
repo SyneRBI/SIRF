@@ -29,7 +29,7 @@ limitations under the License.
 
 #pragma once
 
-#include "sirf/cReg/Registration.h"
+#include "sirf/Reg/Registration.h"
 
 namespace sirf {
 
