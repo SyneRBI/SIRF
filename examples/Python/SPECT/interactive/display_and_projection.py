@@ -148,7 +148,7 @@ acq_template = sirf.STIR.AcquisitionData('template_sinogram.hs');
 acq_dimensions = acq_template.dimensions()
 #%% Create an emission and attenuation image with suitable sizes
 image = sirf.STIR.ImageData();
-image_size = (int(acq_dimensions[0]),int(acq_dimensions[2]), int(acq_dimensions[2]));
+image_size = (acq_dimensions[0],acq_dimensions[2], acq_dimensions[2]);
 voxel_size = (3.32, 3.32, 3.32); # TODO: get these from acq_template
 image.initialise(image_size, voxel_size)
 create_sample_image(image)
@@ -157,7 +157,7 @@ image.write("emission.hv")
 atten_image = image.get_uniform_copy(0)
 create_attenuation_image(atten_image)
 atten_image.write("attenuation.hv")
-sirf.Utilities.show_3D_array(image_array,suptitle='emission image')
+
 #%% What is an ImageData?
 # Images are represented by objects with several methods. The most important method
 # is as_array() which we'll use below.
