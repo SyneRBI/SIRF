@@ -54,7 +54,7 @@ def test_main(rec=False, verb=False, throw=True):
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('pet')
 
     raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
     ad = AcquisitionData(raw_data_file)

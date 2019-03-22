@@ -56,7 +56,7 @@ pen_factor = args['--penf']
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('pet')
 raw_data_file = existing_filepath(data_path, data_file)
 if args['--anim'] is not None:
     ai_file = existing_filepath(data_path, args['--anim'])

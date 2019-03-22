@@ -89,7 +89,7 @@ def make_cylindrical_FOV(image):
 
 #%% Go to directory with input files
 # Adapt this path to your situation (or start everything in the relevant directory)
-os.chdir(pet.petmr_data_path('pet'))
+os.chdir(pet.examples_data_path('pet'))
 #%% Copy files to a working folder and change directory to where these files are.
 # We do this to avoid cluttering your SIRF files. This way, you can delete 
 # working_folder and start from scratch.

@@ -32,6 +32,8 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 def petmr_data_path(petmr):
     '''
+    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
+
     Returns the path to PET or MR data.
     petmr: either 'pet' or 'mr' (case-insensitive)
     '''

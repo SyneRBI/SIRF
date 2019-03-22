@@ -33,7 +33,8 @@ import sys
 import time
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, assert_validities, petmr_data_path, \
+     try_calling, assert_validity, assert_validities, \
+     examples_data_path, petmr_data_path, \
      existing_filepath, pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer

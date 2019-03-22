@@ -42,7 +42,7 @@ exec('from p' + args['--engine'] + ' import *')
 
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('pet')
 templ_file = args['--tfile']
 templ_file = existing_filepath(data_path, templ_file)
 acq_file = args['--afile']

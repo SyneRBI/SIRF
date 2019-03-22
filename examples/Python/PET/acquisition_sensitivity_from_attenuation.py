@@ -48,8 +48,8 @@ data_path = args['--path']
 if data_path is None:
     # default to data/examples/PET/mMR
     # Note: seem to need / even on Windows
-    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
-    data_path = petmr_data_path('pet') + '/mMR'
+    #data_path = os.path.join(examples_data_path('pet'), 'mMR')
+    data_path = examples_data_path('pet') + '/mMR'
 temp_file = existing_filepath(data_path, temp_file)
 attn_file = existing_filepath(data_path, attn_file)
 storage = args['--storage']
