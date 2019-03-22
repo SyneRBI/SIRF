@@ -27,9 +27,9 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cSTIR/stir_data_containers.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/NiftyResample.h"
+#include "sirf/STIR/stir_data_containers.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftyResample.h"
 
 using namespace sirf;
 

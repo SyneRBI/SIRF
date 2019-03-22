@@ -29,8 +29,8 @@ limitations under the License.
 
 #include <boost/asio.hpp>
 
-#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
-#include "sirf/cGadgetron/gadgetron_client.h"
+#include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_client.h"
 
 using namespace gadgetron;
 using namespace sirf;

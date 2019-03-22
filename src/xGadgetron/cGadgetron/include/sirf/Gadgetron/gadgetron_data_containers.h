@@ -43,12 +43,13 @@ limitations under the License.
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/MRImageData.h"
 #include "sirf/common/multisort.h"
-#include "sirf/cGadgetron/ismrmrd_fftw.h"
-#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
-#include "sirf/cGadgetron/gadgetron_image_wrap.h"
+#include "sirf/Gadgetron/ismrmrd_fftw.h"
+#include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_image_wrap.h"
 #include "sirf/iUtilities/LocalisedException.h"
 
-#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+//#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 /*!
 \ingroup Gadgetron Data Containers

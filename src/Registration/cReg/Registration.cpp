@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/Registration.h"
+#include "sirf/Reg/Registration.h"
 #include <stdexcept>
 
 using namespace sirf;

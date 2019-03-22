@@ -23,16 +23,16 @@ limitations under the License.
 #include <stdlib.h>
 
 #include "sirf/iUtilities/DataHandle.h"
-#include "sirf/cSTIR/stir_types.h"
-#include "sirf/cSTIR/cstir_p.h"
-#include "sirf/cSTIR/stir_x.h"
+#include "sirf/STIR/stir_types.h"
+#include "sirf/STIR/cstir_p.h"
+#include "sirf/STIR/stir_x.h"
 
 using namespace stir;
 using namespace sirf;
 
 #define SPTR_FROM_HANDLE(Object, X, H) \
 	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
-#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 extern "C"
 char* charDataFromHandle(const void* ptr);

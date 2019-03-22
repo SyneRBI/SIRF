@@ -97,8 +97,8 @@ def main():
     filter = TruncateToCylinderProcessor()
 
     # create initial image estimate
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375) # voxel sizes are in mm
+    image_size = (31, 111, 111)
+    voxel_size = (3.375, 3, 3) # voxel sizes are in mm
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)

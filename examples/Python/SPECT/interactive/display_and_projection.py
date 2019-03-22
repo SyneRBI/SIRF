@@ -83,26 +83,26 @@ def create_sample_image(image):
     # create a shape
     shape = sirf.STIR.EllipticCylinder()
     shape.set_length(400)
-    shape.set_radii((100, 40))
-    shape.set_origin((0, 60, 10))
+    shape.set_radii((40, 100))
+    shape.set_origin((10, 60, 0))
 
     # add the shape to the image
     image.add_shape(shape, scale = 1)
 
     # add another shape
     shape.set_radii((30, 30))
-    shape.set_origin((60, -30, 10))
+    shape.set_origin((10, -30, 60))
     image.add_shape(shape, scale = 1.5)
 
     # add another shape
-    shape.set_origin((-60, -30, 10))
+    shape.set_origin((10, -30, -60))
     image.add_shape(shape, scale = 0.75)
 
     # another
     shape = sirf.STIR.EllipticCylinder()
     shape.set_length(40)
     shape.set_radii((20, 20))
-    shape.set_origin((0, 30, 30))
+    shape.set_origin((30, 30, 0))
     image.add_shape(shape, scale = 1)
 
 def create_attenuation_image(image):
@@ -148,7 +148,7 @@ acq_template = sirf.STIR.AcquisitionData('template_sinogram.hs');
 acq_dimensions = acq_template.dimensions()
 #%% Create an emission and attenuation image with suitable sizes
 image = sirf.STIR.ImageData();
-image_size = (acq_dimensions[2],acq_dimensions[2], acq_dimensions[0]);
+image_size = (int(acq_dimensions[0]),int(acq_dimensions[2]), int(acq_dimensions[2]));
 voxel_size = (3.32, 3.32, 3.32); # TODO: get these from acq_template
 image.initialise(image_size, voxel_size)
 create_sample_image(image)
@@ -157,7 +157,7 @@ image.write("emission.hv")
 atten_image = image.get_uniform_copy(0)
 create_attenuation_image(atten_image)
 atten_image.write("attenuation.hv")
-
+sirf.Utilities.show_3D_array(image_array,suptitle='emission image')
 #%% What is an ImageData?
 # Images are represented by objects with several methods. The most important method
 # is as_array() which we'll use below.
@@ -191,7 +191,8 @@ plt.subplot(1,2,1)
 imshow(image_array[slice_num,:,:,], [], 'emission image');
 plt.subplot(1,2,2)
 imshow(atten_image.as_array()[slice_num,:,:,], [], 'attenuation image');
-
+#%% Or show all slices
+sirf.Utilities.show_3D_array(image_array,suptitle='emission image')
 #%% OK. Now we will do some SPECT projections!
 # SIRF uses AcquisitionModel as the object to do forward and back-projections.
 # We will create an AcquisitionModel object and then use it to forward project

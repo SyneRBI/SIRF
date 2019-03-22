@@ -29,7 +29,7 @@ limitations under the License.
 
 #pragma once
 
-#include "sirf/cReg/ParserKey.h"
+#include "sirf/Reg/ParserKey.h"
 #include <memory>
 #include <map>
 #include <fstream>

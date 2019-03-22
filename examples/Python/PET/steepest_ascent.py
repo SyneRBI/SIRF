@@ -77,8 +77,8 @@ def main():
     nx = 111
     ny = 111
     nz = 31
-    image_size = (nx, ny, nz)
-    voxel_size = (3, 3, 3.375) # sizes are in mm
+    image_size = (nz, ny, nx)
+    voxel_size = (3.375, 3, 3) # sizes are in mm
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
