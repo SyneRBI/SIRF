@@ -313,9 +313,9 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = None
         voxels = pystir.cSTIR_voxels3DF\
-                      (dim[2], dim[1], dim[0], \
-                       vsize[2], vsize[1], vsize[0], \
-                       origin[2], origin[1], origin[0])
+                      (int(dim[2]), int(dim[1]), int(dim[0]), \
+                       float(vsize[2]), float(vsize[1]), float(vsize[0]), \
+                       float(origin[2]), float(origin[1]), float(origin[0]))
         check_status(voxels)
         self.handle = pystir.cSTIR_imageFromVoxels(voxels)
         check_status(self.handle)
