@@ -41,13 +41,20 @@ def test_main(rec=False, verb=False, throw=True):
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
+    # create an acq_model that is explicitly a RayTracingMatrix and test it a tiny bit
+    am = AcquisitionModelUsingRayTracingMatrix()
+    am.set_num_tangential_LORs(3);
+    test.check_if_equal(3, am.get_num_tangential_LORs());
+
+    # create the matrix on its own, and use that for later tests
     matrix = RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
+    test.check_if_equal(2, matrix.get_num_tangential_LORs());
 
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('pet')
 
     raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
     ad = AcquisitionData(raw_data_file)
@@ -59,8 +66,8 @@ def test_main(rec=False, verb=False, throw=True):
 
     filter = TruncateToCylinderProcessor()
 
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375)
+    image_size = (31, 111, 111)
+    voxel_size = (3.375, 3, 3)
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)

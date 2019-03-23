@@ -74,6 +74,7 @@ try_niftyf3d(g);
 try_transformations(g,na);
 try_resample(g,na);
 try_weighted_mean(g,na);
+try_affinetransformation(g,na);
 
 function try_niftiimage(g)
 	disp('% ----------------------------------------------------------------------- %')
@@ -644,13 +645,13 @@ function try_weighted_mean(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_AffineTransformation(g,na)
+function try_affinetransformation(g,na)
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting AffineTransformation test...')
     disp('%------------------------------------------------------------------------ %')
 
     % Construct from file
-    a = sirf.Reg.AffineTransformation(TM_forward);
+    a = sirf.Reg.AffineTransformation(g.TM_forward);
 
     % Multiply forward and inverse, should equal identity
     b = na.get_transformation_matrix_forward();
@@ -660,6 +661,24 @@ function try_AffineTransformation(g,na)
     assert(d == e, 'AffineTransformation::mult/comparison failed.');
 
     assert(e.get_determinant() - 1. < 1.e-7, 'AffineTransformation::get_determinant failed.');
+
+    % Test get_Euler_angles
+    array(4,4) =  0;
+    array(1,3) =  1;
+    array(2,2) = -1;
+    array(3,1) = -1;
+    array(4,4) =  1;
+    test_Eul = sirf.Reg.AffineTransformation(array);
+    % Example given by rotm2eul for MATLAB is [0 0 1; 0 -1 0; -1 0 0] -> XYZ = [-3.1416 1.5708 0]
+    Eul = test_Eul.get_Euler_angles();
+    Eul_expected = [-3.1416, 1.5708, 0];
+    assert(all(abs(Eul-Eul_expected) < 1e-4), 'AffineTransformation get_Euler_angles() failed.')
+
+    % Check as_array
+    f = b.as_array()
+    g = sirf.Reg.AffineTransformation(f);
+    h = g.as_array()
+    assert(all(all(abs(f-h) < 1e-4)), 'AffineTransformation as_array() failed.')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished AffineTransformation test.')

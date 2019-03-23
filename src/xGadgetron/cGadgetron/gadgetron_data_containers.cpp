@@ -30,8 +30,8 @@ limitations under the License.
 #include <cmath>
 #include <iomanip>
 
-#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -305,7 +305,7 @@ void
 MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
 	//MRAcquisitionData& other = (MRAcquisitionData&)dc;
-	DYNAMIC_CAST(MRAcquisitionData, other, dc);
+	DYNAMIC_CAST(const MRAcquisitionData, other, dc);
 	int n = number();
 	int m = other.number();
 	complex_float_t z = 0;
@@ -337,8 +337,8 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	complex_float_t a = *(complex_float_t*)ptr_a;
 	complex_float_t b = *(complex_float_t*)ptr_b;
-	DYNAMIC_CAST(MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(MRAcquisitionData, y, a_y);
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
 	int m = x.number();
@@ -372,8 +372,8 @@ const DataContainer& a_y)
 {
 	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
-	DYNAMIC_CAST(MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(MRAcquisitionData, y, a_y);
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
@@ -405,8 +405,8 @@ const DataContainer& a_y)
 {
 	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
-	DYNAMIC_CAST(MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(MRAcquisitionData, y, a_y);
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
@@ -679,7 +679,7 @@ void
 GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 {
 	//GadgetronImageData& ic = (GadgetronImageData&)dc;
-	DYNAMIC_CAST(GadgetronImageData, ic, dc);
+	DYNAMIC_CAST(const GadgetronImageData, ic, dc);
 	complex_float_t z = 0;
 	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
 		const ImageWrap& u = image_wrap(i);
@@ -697,8 +697,8 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	complex_float_t a = *(complex_float_t*)ptr_a;
 	complex_float_t b = *(complex_float_t*)ptr_b;
-	DYNAMIC_CAST(GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(GadgetronImageData, y, a_y);
+	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	//GadgetronImageData& x = (GadgetronImageData&)a_x;
 	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	ImageWrap w(x.image_wrap(0));
@@ -720,8 +720,8 @@ const DataContainer& a_y)
 {
 	//GadgetronImageData& x = (GadgetronImageData&)a_x;
 	//GadgetronImageData& y = (GadgetronImageData&)a_y;
-	DYNAMIC_CAST(GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(GadgetronImageData, y, a_y);
+	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.multiply(y.image_wrap(i));
@@ -736,8 +736,8 @@ const DataContainer& a_y)
 {
 	//GadgetronImageData& x = (GadgetronImageData&)a_x;
 	//GadgetronImageData& y = (GadgetronImageData&)a_y;
-	DYNAMIC_CAST(GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(GadgetronImageData, y, a_y);
+	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.divide(y.image_wrap(i));
@@ -994,6 +994,7 @@ void
 GadgetronImagesVector::get_data(complex_float_t* data) const
 {
 	//std::copy(begin(), end(), data);
+	//std::cout << "trying new const image wrap iterator...\n";
 	GadgetronImagesVector::Iterator_const stop = end();
 	GadgetronImagesVector::Iterator_const iter = begin();
 	for (; iter != stop; ++iter, ++data)
@@ -1011,6 +1012,7 @@ GadgetronImagesVector::set_data(const complex_float_t* data)
 	//n *= dim[2];
 	//n *= dim[3];
 	//std::copy(data, data + n, begin());
+	//std::cout << "trying new image wrap iterator...\n";
 	GadgetronImagesVector::Iterator stop = end();
 	GadgetronImagesVector::Iterator iter = begin();
 	//GadgetronImagesVectorIterator stop = end();

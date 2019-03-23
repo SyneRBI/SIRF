@@ -42,7 +42,7 @@ exec('from p' + args['--engine'] + ' import *')
 
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('pet')
 templ_file = args['--tfile']
 templ_file = existing_filepath(data_path, templ_file)
 acq_file = args['--afile']
@@ -75,29 +75,29 @@ def main():
     # show the image
     nz, ny, nx = image.dimensions()
     vz, vy, vx = image.voxel_sizes()
-    print('phantom dimensions: %dx%dx%d' % (nx, ny, nz))
-    print('phantom voxel sizes: %fx%fx%f' % (vx, vy, vz))
-    image_size = (111, 111, int(nz))
-    voxel_size = (3.0, 3.0, float(vz))
+    print('phantom dimensions: %dx%dx%d' % (nz, ny, nx))
+    print('phantom voxel sizes: %fx%fx%f' % (vz, vy, vx))
+    image_size = (int(nz), 111, 111)
+    voxel_size = (float(vz), 3.0, 3.0)
     image = ImageData()
     image.initialise(image_size, voxel_size)
 
     # create a shape
     shape = EllipticCylinder()
     shape.set_length(400)
-    shape.set_radii((100, 40))
-    shape.set_origin((0, 60, 10))
+    shape.set_radii((40, 100))
+    shape.set_origin((10, 60, 0))
 
     # add the shape to the image
     image.add_shape(shape, scale = 1)
 
     # add another shape
     shape.set_radii((30, 30))
-    shape.set_origin((60, -30, 10))
+    shape.set_origin((10, -30, 60))
     image.add_shape(shape, scale = 1.5)
 
     # add another shape
-    shape.set_origin((-60, -30, 10))
+    shape.set_origin((10, -30, -60))
     image.add_shape(shape, scale = 0.75)
 
     image_array = image.as_array()

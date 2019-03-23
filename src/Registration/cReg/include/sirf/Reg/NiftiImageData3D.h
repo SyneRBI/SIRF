@@ -29,7 +29,7 @@ limitations under the License.
 
 #pragma once
 
-#include "sirf/cReg/NiftiImageData.h"
+#include "sirf/Reg/NiftiImageData.h"
 
 namespace sirf {
 

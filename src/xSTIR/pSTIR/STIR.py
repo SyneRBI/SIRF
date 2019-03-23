@@ -33,7 +33,8 @@ import sys
 import time
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, assert_validities, petmr_data_path, \
+     try_calling, assert_validity, assert_validities, \
+     examples_data_path, petmr_data_path, \
      existing_filepath, pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
@@ -190,9 +191,9 @@ class Shape:
         '''
         Sets the (discrete) coordinates of the shape centre on a voxel grid.
         '''
-        _set_float_par(self.handle, 'Shape', 'x', origin[0])
+        _set_float_par(self.handle, 'Shape', 'x', origin[2])
         _set_float_par(self.handle, 'Shape', 'y', origin[1])
-        _set_float_par(self.handle, 'Shape', 'z', origin[2])
+        _set_float_par(self.handle, 'Shape', 'z', origin[0])
     def get_origin(self):
         '''
         Returns the coordinates of the shape centre on a voxel grid.
@@ -227,8 +228,8 @@ class EllipticCylinder(Shape):
     def get_radius_y(self):
         return _float_par(self.handle, self.name, 'radius_y')
     def set_radii(self, radii):
-        _set_float_par(self.handle, self.name, 'radius_x', radii[0])
-        _set_float_par(self.handle, self.name, 'radius_y', radii[1])
+        _set_float_par(self.handle, self.name, 'radius_x', radii[1])
+        _set_float_par(self.handle, self.name, 'radius_y', radii[0])
     def get_radii(self):
         rx = _float_par(self.handle, self.name, 'radius_x')
         ry = _float_par(self.handle, self.name, 'radius_y')
@@ -313,9 +314,9 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = None
         voxels = pystir.cSTIR_voxels3DF\
-                      (dim[0], dim[1], dim[2], \
-                       vsize[0], vsize[1], vsize[2], \
-                       origin[0], origin[1], origin[2])
+                      (int(dim[2]), int(dim[1]), int(dim[0]), \
+                       float(vsize[2]), float(vsize[1]), float(vsize[0]), \
+                       float(origin[2]), float(origin[1]), float(origin[0]))
         check_status(voxels)
         self.handle = pystir.cSTIR_imageFromVoxels(voxels)
         check_status(self.handle)
@@ -530,9 +531,9 @@ class RayTracingMatrix:
     Class for objects holding sparse matrix representation of the ray
     tracing projector G (see AcquisitionModel class).
     '''
+    name = 'RayTracingMatrix'
+
     def __init__(self):
-        self.handle = None
-        self.name = 'RayTracingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
         _set_int_par(self.handle, self.name, 'num_tangential_LORs', 2)
@@ -1249,8 +1250,9 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
     def set_matrix(self, matrix):
         ''' 
         Sets the ray tracing matrix to be used for projecting;
-        matrix:  a RayTracingMatrix object to represent G in acquisition model.
+        matrix:  a matrix object to represent G in acquisition model.
         '''
+        # TODO will need to allow for different matrices here
         assert_validity(matrix, RayTracingMatrix)
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
 ##    def get_matrix(self):
@@ -1265,8 +1267,8 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
 
 class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
     ''' 
-    Class for a PET acquisition model that uses (implicitly) a ray tracing
-    matrix for G in (F) - see AcquisitionModel class.
+    Class for a PET acquisition model that uses (implicitly) a RayTracingMatrix
+    for G in (F) - see AcquisitionModel class.
     '''
     def __init__(self, matrix = None):
         ''' 
@@ -1282,19 +1284,20 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
-        self.matrix = matrix
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-##    def set_matrix(self, matrix):
-##        ''' 
-##        Sets the ray tracing matrix to be used for projecting;
-##        matrix:  a RayTracingMatrix object to represent G in (F).
-##        '''
-##        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
-    def get_matrix(self):
+    def set_matrix(self, matrix):
         ''' 
+        Sets the ray tracing matrix to be used for projecting;
+        matrix:  a RayTracingMatrix object to represent G in acquisition model.
+        '''
+        # only allow RayTracingMatrix
+        assert_validity(matrix, RayTracingMatrix)
+        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+    def get_matrix(self):
+        '''
         Returns the ray tracing matrix used for projecting;
         matrix:  a RayTracingMatrix object representing G in acquisition model.
         '''
@@ -1304,12 +1307,15 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         return matrix
     def set_num_tangential_LORs(self, value):
         '''
-        Set the number of LORs (or rays) for each bin in the sinogram.
-        They are currently (approximately) parallel and spaced in the
-        tangential direction (i.e. orthogonal to the axial direction).
+        See :func:`~sirf.STIR.RayTracingMatrix.set_num_tangential_LORs`
         '''
 ##        return self.matrix.set_num_tangential_LORs(value)
         return self.get_matrix().set_num_tangential_LORs(value)
+    def get_num_tangential_LORs(self):
+        '''
+        See :func:`~sirf.STIR.RayTracingMatrix.get_num_tangential_LORs`
+        '''
+        return self.get_matrix().get_num_tangential_LORs()
 
 class Prior:
     '''

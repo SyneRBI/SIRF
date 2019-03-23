@@ -790,6 +790,30 @@ def try_affinetransformation(na):
     if e.get_determinant() - 1. > 1.e-7:
         raise AssertionError('AffineTransformation::get_determinant failed.')
 
+    # Test get_Euler_angles
+    array = np.zeros((4, 4), dtype=numpy.float32)
+
+    array[0,2] =  1
+    array[1,1] = -1
+    array[2,0] = -1
+    array[3,3] =  1
+    test_Eul = pReg.AffineTransformation(array)
+    # Example given by rotm2eul for MATLAB is [0 0 1; 0 -1 0; -1 0 0] -> XYZ = [-3.1416 1.5708 0]
+    Eul = test_Eul.get_Euler_angles()
+    Eul_expected =  np.array(3, dtype=np.float32)
+    Eul_expected = [-3.1416, 1.5708, 0]
+    print(Eul)
+    print(Eul_expected)
+    if not np.allclose(Eul, Eul_expected, atol=1e-4):
+        raise AssertionError('AffineTransformation get_Euler_angles() failed.')
+
+    # Check as_array
+    f = b.as_array()
+    g = pReg.AffineTransformation(f)
+    h = g.as_array()
+    if not np.allclose(f, h, atol=1e-4):
+        raise AssertionError('AffineTransformation as_array() failed.')
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished AffineTransformation test.\n')

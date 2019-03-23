@@ -27,7 +27,7 @@ def test_main(rec=False, verb=False, throw=True):
 
     msg_red = MessageRedirector()
 
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('pet')
     raw_data_file = existing_filepath(data_path, 'my_forward_projection.hs')
     acq_data = AcquisitionData(raw_data_file)
 

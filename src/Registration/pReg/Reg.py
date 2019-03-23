@@ -834,7 +834,12 @@ class AffineTransformation(_Transformation):
         elif isinstance(src, numpy.ndarray):
             if src.shape != (4, 4):
                 raise AssertionError()
-            self.handle = pyreg.cReg_AffineTransformation_construct_from_TM(src.ctypes.data)
+            # Need to transpose relative to MATLAB
+            trans = numpy.zeros((4, 4), dtype=numpy.float32)
+            for i in range(4):
+                for j in range(4):
+                    trans[i,j] = src[j,i]
+            self.handle = pyreg.cReg_AffineTransformation_construct_from_TM(trans.ctypes.data)
         else:
             raise error('Wrong source in affine transformation constructor')
         check_status(self.handle)
@@ -899,6 +904,14 @@ class AffineTransformation(_Transformation):
         tm.handle = pyreg.cReg_AffineTransformation_get_inverse(self.handle)
         check_status(tm.handle)
         return tm
+
+    def get_Euler_angles(self):
+        """Get Euler angles of transformation matrix (XYZ)."""
+        if self.handle is None:
+            raise AssertionError()
+        eul = numpy.ndarray(3, dtype=numpy.float32)
+        try_calling(pyreg.cReg_AffineTransformation_get_Euler_angles(self.handle, eul.ctypes.data))
+        return eul
 
     @staticmethod
     def get_identity():

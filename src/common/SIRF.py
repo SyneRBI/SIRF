@@ -240,10 +240,10 @@ class DataContainer(ABC):
             return z;
         except:
             raise error('wrong multiplier')
-    def __truediv__(self, other):
+    def __div__(self, other):
         '''
         Overloads / for data containers multiplication by a scalar or another
-        data container.
+        data container (Python 2.*)
 
         Returns the product self*other if other is a scalar
         or the elementwise product if it is DataContainer.
@@ -393,6 +393,11 @@ class DataContainer(ABC):
         CIL/SIRF compatibility'''
         return self.dot(self)
 
+    def __truediv__(self, other):
+        '''
+        Same as __div__ but for Python 3.*
+        '''
+        return self.__div__(other)
 
 class ImageData(DataContainer):
     pass

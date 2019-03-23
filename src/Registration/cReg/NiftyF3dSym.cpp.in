@@ -27,11 +27,11 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/NiftyF3dSym.h"
-#include "sirf/cReg/Parser.h"
-#include "sirf/cReg/AffineTransformation.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/NiftiImageData3DDisplacement.h"
+#include "sirf/Reg/NiftyF3dSym.h"
+#include "sirf/Reg/Parser.h"
+#include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include <_reg_f3d_sym.h>
 
 using namespace sirf;

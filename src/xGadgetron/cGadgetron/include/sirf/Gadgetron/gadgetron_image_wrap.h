@@ -36,8 +36,8 @@ limitations under the License.
 #include <ismrmrd/xml.h>
 
 #include "sirf/common/ANumRef.h"
-#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
-#include "sirf/cGadgetron/xgadgetron_utilities.h"
+#include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/xgadgetron_utilities.h"
 
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
@@ -339,7 +339,7 @@ namespace sirf {
 		void get_data(float* data) const
 		{
 			//std::cout << "in get_data\n";
-			std::cout << "trying new image wrap iterator...\n";
+			//std::cout << "trying new image wrap iterator...\n";
 			ImageWrap::Iterator_const i = begin_const();
 			ImageWrap::Iterator_const stop = end_const();
 			for (; i != stop; ++data, ++i) {
@@ -357,7 +357,7 @@ namespace sirf {
 		void get_complex_data(complex_float_t* data) const
 		{
 			//std::cout << "in get_complex_data\n";
-			std::cout << "trying new const image wrap iterator...\n";
+			//std::cout << "trying new const image wrap iterator...\n";
 			ImageWrap::Iterator_const i = begin_const();
 			ImageWrap::Iterator_const stop = end_const();
 			for (; i != stop; ++data, ++i) {
@@ -368,7 +368,7 @@ namespace sirf {
 		void set_complex_data(const complex_float_t* data)
 		{
 			//std::cout << "in set_complex_data\n";
-			std::cout << "trying new image wrap iterator...\n";
+			//std::cout << "trying new image wrap iterator...\n";
 			ImageWrap::Iterator i = begin();
 			ImageWrap::Iterator stop = end();
 			for (; i != stop; ++i, ++data) {
