@@ -54,7 +54,7 @@ end
 % import_str = set_up_MR(engine);
 % eval(import_str)
 MR = set_up_MR(engine);
-mr_data_path = mUtilities.examples_data_path('MR');
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % MR raw data formats from different vendors can be transformed to 
 % HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
@@ -92,7 +92,7 @@ if exist('montage','file') && exist('mat2gray','file')
     idisp = mat2gray(abs(image_data.as_array()));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    mUtilities.show_3D_array...
+    sirf.Utilities.show_3D_array...
         (abs(image_data.as_array()), 'Reconstructed image data (magnitude)', ...
         'samples', 'readouts', 'slice');
 end
@@ -101,6 +101,6 @@ end
 image_array = image_data.as_array();
 image_array(abs(image_array) < 0.2*max(image_array(:))) = 0;
 image_data.fill(image_array);
-mUtilities.show_3D_array...
+sirf.Utilities.show_3D_array...
     (abs(image_data.as_array()), 'Filtered image data (magnitude)', ...
     'samples', 'readouts', 'slice');

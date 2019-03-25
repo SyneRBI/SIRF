@@ -20,9 +20,9 @@ limitations under the License.
 */
 
 #include "sirf/iUtilities/DataHandle.h"
-#include "sirf/cSTIR/stir_types.h"
-#include "sirf/cSTIR/cstir_p.h"
-#include "sirf/cSTIR/stir_x.h"
+#include "sirf/STIR/stir_types.h"
+#include "sirf/STIR/cstir_p.h"
+#include "sirf/STIR/stir_x.h"
 
 using namespace stir;
 using namespace sirf;
@@ -533,9 +533,8 @@ void* cSTIR_acquisitionsDataFromScannerInfo
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
-		stir::shared_ptr<PETAcquisitionData> sptr_t =
-			PETAcquisitionData::storage_template();
-		shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
+		stir::shared_ptr<PETAcquisitionData> sptr_t(new PETAcquisitionDataInMemory());
+		stir::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
 			(sptr_ei, sptr_pdi));
 		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
@@ -842,6 +841,19 @@ cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 		Image3DF& grad = sptr->data();
 		prior.compute_gradient(grad, image);
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_PLSPriorGradient(void* ptr_p, int dir)
+{
+	try {
+		PLSPrior<float>& prior = objectFromHandle<PLSPrior<float> >(ptr_p);
+		sptrImage3DF sptr_im = prior.get_anatomical_grad_sptr(dir);
+		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		return newObjectHandle(sptr_id);
 	}
 	CATCH;
 }

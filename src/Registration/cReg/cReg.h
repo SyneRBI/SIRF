@@ -46,6 +46,7 @@ extern "C" {
     void* cReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
     void* cReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
     void* cReg_NiftiImageData_get_dimensions(const void* ptr, PTR_INT ptr_dim);
+    void* cReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out);
     void* cReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data);
     void* cReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type);
     void* cReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type);
@@ -97,6 +98,7 @@ extern "C" {
     void* cReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
     void* cReg_AffineTransformation_get_identity();
     void* cReg_AffineTransformation_get_inverse(const void* ptr);
+    void* cReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler);
     void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
     void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 

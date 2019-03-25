@@ -175,6 +175,11 @@ def try_niftiimage():
     if s.as_array().shape != (64, 64, 63):
         raise AssertionError("NiftiImageData crop() failed.")
 
+    # Get voxel sizes
+    s = b.get_voxel_sizes()
+    if not all(numpy.equal(s,numpy.array([0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]))):
+        raise AssertionError("NiftiImageData get_voxel_sizes() failed.")
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData test.\n')
@@ -501,6 +506,12 @@ def try_niftyaladin():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
+    # First set up some masks
+    ref_mask = ref_aladin.deep_copy()
+    flo_mask = flo_aladin.deep_copy()
+    ref_mask.fill(1)
+    flo_mask.fill(1)
+
     # default constructor
     na = pReg.NiftyAladinSym()
     na.set_reference_image(ref_aladin)
@@ -509,6 +520,8 @@ def try_niftyaladin():
     na.set_parameter("SetInterpolationToCubic")
     na.set_parameter("SetLevelsToPerform", "1")
     na.set_parameter("SetMaxIterations", "5")
+    na.set_reference_mask(ref_mask);
+    na.set_floating_mask(flo_mask);
     na.process()
 
     # Get outputs
@@ -776,6 +789,30 @@ def try_affinetransformation(na):
 
     if e.get_determinant() - 1. > 1.e-7:
         raise AssertionError('AffineTransformation::get_determinant failed.')
+
+    # Test get_Euler_angles
+    array = np.zeros((4, 4), dtype=numpy.float32)
+
+    array[0,2] =  1
+    array[1,1] = -1
+    array[2,0] = -1
+    array[3,3] =  1
+    test_Eul = pReg.AffineTransformation(array)
+    # Example given by rotm2eul for MATLAB is [0 0 1; 0 -1 0; -1 0 0] -> XYZ = [-3.1416 1.5708 0]
+    Eul = test_Eul.get_Euler_angles()
+    Eul_expected =  np.array(3, dtype=np.float32)
+    Eul_expected = [-3.1416, 1.5708, 0]
+    print(Eul)
+    print(Eul_expected)
+    if not np.allclose(Eul, Eul_expected, atol=1e-4):
+        raise AssertionError('AffineTransformation get_Euler_angles() failed.')
+
+    # Check as_array
+    f = b.as_array()
+    g = pReg.AffineTransformation(f)
+    h = g.as_array()
+    if not np.allclose(f, h, atol=1e-4):
+        raise AssertionError('AffineTransformation as_array() failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

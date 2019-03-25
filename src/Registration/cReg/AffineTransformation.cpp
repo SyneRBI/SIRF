@@ -27,8 +27,8 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/cReg/AffineTransformation.h"
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include <_reg_globalTrans.h>
 #include <iomanip>
 #include <boost/filesystem.hpp>
@@ -248,6 +248,26 @@ AffineTransformation<dataType> AffineTransformation<dataType>::get_inverse() con
 {
     mat44 res = nifti_mat44_inverse(this->get_as_mat44());
     return AffineTransformation(res.m);
+}
+
+template<class dataType>
+const std::array<dataType,3> AffineTransformation<dataType>::get_Euler_angles() const
+{
+    float sy = sqrt(_tm[0][0] * _tm[0][0] +  _tm[1][0] * _tm[1][0] );
+    bool singular = sy < 1e-6F;
+
+    dataType x, y, z;
+    if (!singular) {
+        x = atan2(_tm[2][1], _tm[2][2]);
+        y = atan2(-_tm[2][0], sy);
+        z = atan2(_tm[1][0], _tm[0][0]);
+    }
+    else {
+        x = atan2(-_tm[1][2], _tm[1][1]);
+        y = atan2(-_tm[2][0], sy);
+        z = 0;
+    }
+    return std::array<dataType,3>{x, y, z};
 }
 
 namespace sirf {

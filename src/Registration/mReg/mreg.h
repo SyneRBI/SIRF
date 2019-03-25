@@ -45,6 +45,7 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_fill(const void* ptr, const floa
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_dimensions(const void* ptr, PTR_INT ptr_dim);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type);
@@ -76,6 +77,7 @@ EXPORTED_FUNCTION     void* mReg_AffineTransformation_write(const void* ptr, con
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_identity();
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_inverse(const void* ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 #ifndef CREG_FOR_MATLAB

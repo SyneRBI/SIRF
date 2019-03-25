@@ -59,7 +59,7 @@ end
 % import_str = set_up_MR(engine);
 % eval(import_str)
 MR = set_up_MR(engine);
-mr_data_path = mUtilities.examples_data_path('MR');
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % Get the filename of the input ISMRMRD h5 file
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;

@@ -25,7 +25,7 @@ end
 % import_str = set_up_PET(engine);
 % eval(import_str)
 PET = set_up_PET(engine);
-pet_data_path = [mUtilities.examples_data_path('PET') '/mMR'];
+pet_data_path = [sirf.Utilities.examples_data_path('PET') '/mMR'];
 
 try
     % direct all information printing to info.txt;
@@ -55,7 +55,7 @@ try
     acq_array = fwd_data.as_array();    
     acq_dim = size(acq_array);
     z = uint16(acq_dim(3)/2);
-    mUtilities.show_2D_array(acq_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'Bin efficiencies', 'tang. pos.', 'views');
 
 catch err

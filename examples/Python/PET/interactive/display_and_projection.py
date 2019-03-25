@@ -47,7 +47,7 @@ import sys
 import shutil
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
-#%% Use the 'pet' prefix for all SIRF functions
+#%% Use the 'PET' prefix for all SIRF functions
 # This is done here to explicitly differentiate between SIRF pet functions and 
 # anything else.
 import pSTIR as pet
@@ -89,7 +89,7 @@ def make_cylindrical_FOV(image):
 
 #%% Go to directory with input files
 # Adapt this path to your situation (or start everything in the relevant directory)
-os.chdir(pet.petmr_data_path('pet'))
+os.chdir(pet.examples_data_path('PET'))
 #%% Copy files to a working folder and change directory to where these files are.
 # We do this to avoid cluttering your SIRF files. This way, you can delete 
 # working_folder and start from scratch.

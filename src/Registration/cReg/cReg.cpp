@@ -21,17 +21,17 @@ limitations under the License.
 
 #include "sirf/iUtilities/DataHandle.h"
 #include "cReg.h"
-#include "sirf/cReg/cReg_p.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/NiftiImageData3DTensor.h"
-#include "sirf/cReg/NiftiImageData3DDisplacement.h"
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
-#include "sirf/cReg/NiftyAladinSym.h"
-#include "sirf/cReg/NiftyF3dSym.h"
-#include "sirf/cReg/NiftyResample.h"
-#include "sirf/cReg/ImageWeightedMean.h"
-#include "sirf/cReg/Transformation.h"
-#include "sirf/cReg/AffineTransformation.h"
+#include "sirf/Reg/cReg_p.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3DTensor.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftyAladinSym.h"
+#include "sirf/Reg/NiftyF3dSym.h"
+#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/ImageWeightedMean.h"
+#include "sirf/Reg/Transformation.h"
+#include "sirf/Reg/AffineTransformation.h"
 
 using namespace sirf;
 
@@ -228,6 +228,18 @@ void* cReg_NiftiImageData_get_dimensions(const void* ptr, size_t ptr_dim)
         int* dim = (int*)ptr_dim;
         for (int i=0; i<8; ++i)
             dim[i] = im.get_dimensions()[i];
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out)
+{
+    try {
+        NiftiImageData<float> & im = objectFromHandle<NiftiImageData<float> >(ptr);
+        float* dim = (float*)ptr_out;
+        for (int i=0; i<8; ++i)
+            dim[i] = im.get_raw_nifti_sptr()->pixdim[i];
         return new DataHandle;
     }
     CATCH;
@@ -667,6 +679,19 @@ void* cReg_AffineTransformation_get_inverse(const void* ptr)
         AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
         std::shared_ptr<AffineTransformation<float> > sptr(new AffineTransformation<float>(tm.get_inverse()));
         return newObjectHandle(sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_AffineTransformation_get_Euler_angles(const void* ptr, size_t Euler)
+{
+    try {
+        AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
+        std::array<float,3> Euler_array = tm.get_Euler_angles();
+        float* Euler_float = (float*)Euler;
+        for (unsigned i=0; i<3; ++i)
+            Euler_float[i] = Euler_array[i];
+        return new DataHandle;
     }
     CATCH;
 }

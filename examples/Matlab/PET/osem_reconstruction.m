@@ -32,7 +32,7 @@ PET = set_up_PET(engine);
 AD = PET.AcquisitionData();
 AD.set_storage_scheme('memory');
 %AcquisitionData.set_storage_scheme('memory');
-pet_data_path = mUtilities.examples_data_path('PET');
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 try
     % direct all printing to MatlabCommand Window
@@ -77,7 +77,7 @@ try
     % display the initial image
     z = 20;
     image_array = image.as_array();
-    mUtilities.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
+    sirf.Utilities.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
 
     % set the initial image estimate
     recon.set_current_estimate(image)
@@ -95,7 +95,7 @@ try
         % display the current image
         image_array = recon.get_current_estimate().as_array();
         the_title = sprintf('iteration %d', iter);
-        mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+        sirf.Utilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
     end
 
 catch err

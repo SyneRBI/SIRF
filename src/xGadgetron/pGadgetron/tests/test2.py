@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test set 2.
+"""sirf.Gadgetron test set 2.
 v{version}
 
 Undersampled data tests
@@ -15,9 +15,10 @@ Options:
 
 {licence}
 """
-from pGadgetron import *
 # Created on Tue Nov 21 11:23:39 2017
-__version__ = "0.2.0"
+from sirf.Gadgetron import *
+from sirf.Utilities import runner, RE_PYEXT, __license__
+__version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 

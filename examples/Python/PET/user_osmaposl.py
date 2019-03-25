@@ -46,7 +46,7 @@ num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 
 # user implementation of Ordered Subset Maximum A Posteriori One Step Late
@@ -97,8 +97,8 @@ def main():
     filter = TruncateToCylinderProcessor()
 
     # create initial image estimate
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375) # voxel sizes are in mm
+    image_size = (31, 111, 111)
+    voxel_size = (3.375, 3, 3) # voxel sizes are in mm
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)

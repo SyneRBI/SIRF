@@ -48,7 +48,7 @@ num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 init_file = args['--init']
 

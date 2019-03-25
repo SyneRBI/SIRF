@@ -49,7 +49,7 @@ exec('from p' + args['--engine'] + ' import *')
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 addv = float(args['--addv'])
 back = float(args['--back'])
@@ -67,30 +67,30 @@ def main():
 
     # create an empty image
     image = ImageData()
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375) # voxel sizes are in mm
+    image_size = (31, 111, 111)
+    voxel_size = (3.375, 3, 3) # voxel sizes are in mm
     image.initialise(image_size, voxel_size)
 
     # create a shape
     shape = EllipticCylinder()
     shape.set_length(400)
-    shape.set_radii((100, 40))
-    shape.set_origin((0, 60, 10))
+    shape.set_radii((40, 100))
+    shape.set_origin((10, 60, 0))
 
     # add the shape to the image
     image.add_shape(shape, scale = 1)
 
     # add another shape
     shape.set_radii((30, 30))
-    shape.set_origin((60, -30, 10))
+    shape.set_origin((10, -30, 60))
     image.add_shape(shape, scale = 1.5)
 
     # add another shape
-    shape.set_origin((-60, -30, 10))
+    shape.set_origin((10, -30, -60))
     image.add_shape(shape, scale = 0.75)
 
     # z-pixel coordinate of the xy-crossection to show
-    z = int(image_size[2]/2)
+    z = int(image_size[0]/2)
 
     # show the phantom image
     image_array = image.as_array()

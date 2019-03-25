@@ -53,7 +53,7 @@ end
 % import_str = set_up_MR(engine);
 % eval(import_str)
 MR = set_up_MR(engine);
-mr_data_path = mUtilities.examples_data_path('MR');
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % Get the filename of the input ISMRMRD h5 file
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
@@ -64,7 +64,7 @@ filein = fullfile(pn,fn) ;
 % the 'process' method.
 
 % Create an Acquisition Container. Here because of the previous
-% 'import mGadgetron.*', this will be of type mGadgetron.AcquisitionData
+% 'import sirf.Gadgetron.*', this will be of type sirf.Gadgetron.AcquisitionData
 acq_data = MR.AcquisitionData(filein);
 
 % Pre-process this input data using three preparation gadgets
@@ -76,7 +76,7 @@ prep_gadgets = [{'NoiseAdjustGadget'}, ...
 
 % Call gadgetron by using the 'process' method. This runs the gadgets
 % specified in prep_gadgets, returning an instance
-% of an mGadgetron.AcquisitionsContainer
+% of an sirf.Gadgetron.AcquisitionsContainer
 preprocessed_data = acq_data.process(prep_gadgets);
 
 % Extract sorted k-space, permute dimensions and display
@@ -91,9 +91,9 @@ if exist('imshow','file') && exist('imadjust','file') && exist('mat2gray','file'
 else
     preprocessed_array = permute(preprocessed_array,[1 3 2]) ; %  [nx ny ncoil]
     title = 'Acquisition data (magnitude)';
-    mUtilities.show_3D_array...
+    sirf.Utilities.show_3D_array...
         (abs(preprocessed_array).^0.2, title, 'samples', 'readouts', 'coil');
-    mUtilities.set_window(0.1, 0.1, 0.8, 0.8)
+    sirf.Utilities.set_window(0.1, 0.1, 0.8, 0.8)
 end
 
 % Perform reconstruction of the preprocessed data.
@@ -106,7 +106,7 @@ end
 %   recon = CartesianGRAPPAReconstructor()
 %
 %    To find what this does behind the scenes:
-%     type edit mGadgetron.CartesianGRAPPAReconstructor
+%     type edit sirf.Gadgetron.CartesianGRAPPAReconstructor
 %     and note the name assigned in the self function, here
 %       'SimpleGRAPPAReconstructionProcessor'.
 %     Then find the gadget chain defined by the class with the same
@@ -151,7 +151,7 @@ recon.process();
 % for both the reconstructed images and g-factors, before extracting the
 % data as MATLAB arrays. Containers in effect point to the data.
 
-% Get images and gfactors as containers with type mGadgetron.ImagesContainer
+% Get images and gfactors as containers with type sirf.Gadgetron.ImagesContainer
 % (Note this syntax may change in the future with the addition of a
 %  method '.get_gfactor'.)
 image_data = recon.get_output('image');
@@ -180,7 +180,7 @@ else
     image_array = abs(image_array);
     gfact_array = abs(gfact_array);
     title = 'Reconstructed image data (magnitude)';
-    mUtilities.show_3D_array(image_array, title, 'samples', 'readouts', 'slice');
+    sirf.Utilities.show_3D_array(image_array, title, 'samples', 'readouts', 'slice');
     title = 'G-factor data (magnitude)';
-    mUtilities.show_3D_array(gfact_array, title, 'samples', 'readouts', 'slice');
+    sirf.Utilities.show_3D_array(gfact_array, title, 'samples', 'readouts', 'slice');
 end

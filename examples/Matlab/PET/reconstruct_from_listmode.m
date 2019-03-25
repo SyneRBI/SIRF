@@ -30,7 +30,7 @@ end
 PET = set_up_PET(engine);
 AD = PET.AcquisitionData();
 AD.set_storage_scheme('memory');
-pet_data_path = mUtilities.examples_data_path('PET');
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 %AcquisitionData.set_storage_scheme('memory');
 
@@ -88,7 +88,7 @@ try
     acq_dim = size(acq_array);
     fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
     z = round(acq_dim(3)/2);
-    mUtilities.show_2D_array(acq_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
 
     % read attenuation image
@@ -97,7 +97,7 @@ try
     % select a slice appropriate for the NEMA acquistion data
     z = 72;
     % z = round(size(attn_image_as_array, 3)/2);
-    mUtilities.show_2D_array(attn_image_as_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(attn_image_as_array(:,:,z), ...
         'attenuation image', 'tang. pos.', 'views');
 
     % create initial image estimate of dimensions and voxel sizes
@@ -166,7 +166,7 @@ try
     % display the reconstructed image
     image_array = recon.get_current_estimate().as_array();
     the_title = sprintf('Reconstructed image');
-    mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+    sirf.Utilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
 
 catch err
     % display error information

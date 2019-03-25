@@ -29,7 +29,7 @@ end
 % import_str = set_up_PET(engine);
 % eval(import_str)
 PET = set_up_PET(engine);
-pet_data_path = mUtilities.examples_data_path('PET');
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 try
     % direct all information printing to info.txt;
