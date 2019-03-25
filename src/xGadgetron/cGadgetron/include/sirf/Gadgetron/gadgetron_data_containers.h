@@ -749,7 +749,7 @@ namespace sirf {
         }
 
         /// Print header info
-        void print_header(const unsigned im_num=0);
+        void print_header(const unsigned im_num);
 
     protected:
         /// Populate the geometrical info metadata (from the image's own metadata)
