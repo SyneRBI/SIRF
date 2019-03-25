@@ -52,7 +52,7 @@ except:
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('MR')
+    data_path = examples_data_path('MR')
 nit = int(args['--iter'])
 
 def main():

@@ -42,7 +42,7 @@ import os
 import matplotlib.pyplot as plt
 
 #%% GO TO MR FOLDER
-os.chdir(pMR.petmr_data_path('MR'))
+os.chdir(pMR.examples_data_path('MR'))
 
 #%% LOAD RAW MR DATA
 # MR raw data formats from different vendors can be transformed to 
