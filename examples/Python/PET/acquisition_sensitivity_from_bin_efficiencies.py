@@ -44,7 +44,7 @@ exec('from p' + args['--engine'] + ' import *')
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = examples_data_path('pet')
+    data_path = examples_data_path('PET')
 storage = args['--storage']
 
 def main():

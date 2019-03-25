@@ -144,7 +144,7 @@ def mr_data_path():
     '''
     Returns default path to MR raw data files.
     '''
-    return petmr_data_path('mr')
+    return petmr_data_path('MR')
 
 ### low-level client functionality
 ### likely to be obsolete - not used for a long time

@@ -48,7 +48,7 @@ from pGadgetron import *
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = petmr_data_path('MR')
 sigma = float(args['--sigma'])
 
 def gaussian(x, mu, sigma):
