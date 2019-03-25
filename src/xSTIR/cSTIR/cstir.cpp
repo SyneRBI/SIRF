@@ -533,7 +533,9 @@ void* cSTIR_acquisitionsDataFromScannerInfo
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
-		stir::shared_ptr<PETAcquisitionData> sptr_t(new PETAcquisitionDataInMemory());
+		PETAcquisitionDataInFile::init();
+		stir::shared_ptr<PETAcquisitionData> sptr_t =
+			PETAcquisitionData::storage_template();
 		stir::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
 			(sptr_ei, sptr_pdi));
 		sptr->fill(0.0f);
