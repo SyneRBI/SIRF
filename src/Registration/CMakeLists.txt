@@ -17,10 +17,10 @@
 #=========================================================================
 
 # ------------------------------------------------------------------------
-# NiftyReg
+# NIFTYREG
 # ------------------------------------------------------------------------
-FIND_PACKAGE(NiftyReg 1.5.61)
-if (NiftyReg_FOUND)
+FIND_PACKAGE(NIFTYREG 1.5.61)
+if (NIFTYREG_FOUND)
 
 	get_cmake_property(_variableNames VARIABLES)
 	list (SORT _variableNames)
@@ -28,10 +28,10 @@ if (NiftyReg_FOUND)
 	    message(STATUS "${_variableName}=${${_variableName}}")
 	endforeach()
 
-	# Add in the NiftyReg stuff
-	INCLUDE_DIRECTORIES("${NiftyReg_INCLUDE_DIRS}")
-  	LINK_DIRECTORIES("${NiftyReg_LIBRARY_DIRS}")
-  	SET(NiftyReg_LIBRARY_DIRS "${NiftyReg_LIBRARY_DIRS}" PARENT_SCOPE) # need elsewhere
+	# Add in the NIFTYREG stuff
+	INCLUDE_DIRECTORIES("${NIFTYREG_INCLUDE_DIRS}")
+  	LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
+  	SET(NIFTYREG_LIBRARY_DIRS "${NIFTYREG_LIBRARY_DIRS}" PARENT_SCOPE) # need elsewhere
 	
 	SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
 	INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
@@ -42,6 +42,6 @@ if (NiftyReg_FOUND)
 
 else()
 
-  message(WARNING "NiftyReg not found. This is probably not what you want. If you need it, set NiftyReg_DIR.")
+  message(WARNING "NIFTYREG not found. This is probably not what you want. If you need it, set NIFTYREG_DIR.")
 
 endif()
