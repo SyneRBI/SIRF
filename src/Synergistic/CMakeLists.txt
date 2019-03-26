@@ -23,6 +23,9 @@ SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 LINK_DIRECTORIES(${cGadgetron_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES(${cGadgetron_INCLUDE_DIR})
 
+# NiftyReg libraries
+LINK_DIRECTORIES("${NiftyReg_LIBRARY_DIRS}")
+
 # Executables
 SET(SYN_executables
     sirf_registration

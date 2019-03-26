@@ -19,25 +19,29 @@
 # ------------------------------------------------------------------------
 # NiftyReg
 # ------------------------------------------------------------------------
-FIND_PACKAGE(NiftyReg)
+FIND_PACKAGE(NiftyReg 1.5.61)
 if (NiftyReg_FOUND)
-	if(NOT ("${NR_VERSION}" MATCHES "1.5.59" OR "${NR_VERSION}" MATCHES "1.5.61"))
-		MESSAGE(STATUS "\n\nSIRF's registration was developed with NiftyReg 1.5.59 and 1.5.61, and cannot be guaranteed for other version numbers.\n"
-	    "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
-	    "If there is a version mismatch, the keys in the parser may need to be altered.\n")
-	endif()
+
+	get_cmake_property(_variableNames VARIABLES)
+	list (SORT _variableNames)
+	foreach (_variableName ${_variableNames})
+	    message(STATUS "${_variableName}=${${_variableName}}")
+	endforeach()
+
+	# Add in the NiftyReg stuff
+	INCLUDE_DIRECTORIES("${NiftyReg_INCLUDE_DIRS}")
+  	LINK_DIRECTORIES("${NiftyReg_LIBRARY_DIRS}")
+  	SET(NiftyReg_LIBRARY_DIRS "${NiftyReg_LIBRARY_DIRS}" PARENT_SCOPE) # need elsewhere
+	
+	SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
+	INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
+	
+	ADD_SUBDIRECTORY(cReg)
+	ADD_SUBDIRECTORY(pReg)
+	ADD_SUBDIRECTORY(mReg)
+
 else()
-	MESSAGE(FATAL_ERROR "Registration has been enabled, but there are no registration packages available.")
+
+  message(WARNING "NiftyReg not found. This is probably not what you want. If you need it, set NiftyReg_DIR.")
+
 endif()
-
-# Include a preprocessor to compile code depenging on version number.
-add_definitions(-DNR_VERSION="${NR_VERSION}")
-
-# ------------------------------------------------------------------------
-# Add c++, python, matlab components (if desired)
-# ------------------------------------------------------------------------
-SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
-INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
-ADD_SUBDIRECTORY(cReg)
-ADD_SUBDIRECTORY(pReg)
-ADD_SUBDIRECTORY(mReg)
