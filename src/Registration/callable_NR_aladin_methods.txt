@@ -27,35 +27,35 @@
 # 4 onwards. Compatible with which versions of NiftyReg
 
 # So the first entry is a method called "SetAlignCentre", which accepts a single argument of type 
-# string. It is available in versions 1.5.59 and 1.5.61.
+# string. It is available in versions 1.5.59, 1.5.61 and 1.5.63.
 
-Known versions: 1.5.59,1.5.61
+Known versions: 1.5.59,1.5.61, 1.5.63
 
-SetInterpolationToCubic,           -,        -, 1.5.59, 1.5.61
-SetInterpolationToNearestNeighbor, -,        -, 1.5.59, 1.5.61
-SetInterpolationToTrilinear,       -,        -, 1.5.59, 1.5.61
-SetAlignCentre,                    str,      -, 1.5.59, 1.5.61
-SetInputTransform,                 str,      -, 1.5.59, 1.5.61
-SetPerformAffine,                  str,      -, 1.5.59, 1.5.61
-SetPerformRigid,                   str,      -, 1.5.59, 1.5.61
+SetInterpolationToCubic,           -,        -, 1.5.59, 1.5.61, 1.5.63
+SetInterpolationToNearestNeighbor, -,        -, 1.5.59, 1.5.61, 1.5.63
+SetInterpolationToTrilinear,       -,        -, 1.5.59, 1.5.61, 1.5.63
+SetAlignCentre,                    str,      -, 1.5.59, 1.5.61, 1.5.63
+SetInputTransform,                 str,      -, 1.5.59, 1.5.61, 1.5.63
+SetPerformAffine,                  str,      -, 1.5.59, 1.5.61, 1.5.63
+SetPerformRigid,                   str,      -, 1.5.59, 1.5.61, 1.5.63
 SetAlignCentreGravity,             str,      -, 1.5.59
-SetVerbose,                        str,      -, 1.5.59, 1.5.61
-SetBlockPercentage,                int,      -, 1.5.59, 1.5.61
-SetInterpolation,                  int,      -, 1.5.59, 1.5.61
-SetBlockStepSize,                  int,      -, 1.5.59, 1.5.61
-setCaptureRangeVox,                int,      -, 1.5.59, 1.5.61
-setPlatformCode,                   int,      -, 1.5.59, 1.5.61
-SetLevelsToPerform,                unsigned, -, 1.5.59, 1.5.61
-SetMaxIterations,                  unsigned, -, 1.5.59, 1.5.61
-SetNumberOfLevels,                 unsigned, -, 1.5.59, 1.5.61
-setGpuIdx,                         unsigned, -, 1.5.59, 1.5.61
-SetFloatingSigma,                  float,    -, 1.5.59, 1.5.61
-SetInlierLts,                      float,    -, 1.5.59, 1.5.61
-SetReferenceSigma,                 float,    -, 1.5.59, 1.5.61
-SetFloatingLowerThreshold,         float,    -, 1.5.59, 1.5.61
-SetFloatingUpperThreshold,         float,    -, 1.5.59, 1.5.61
-SetReferenceLowerThreshold,        float,    -, 1.5.59, 1.5.61
-SetReferenceUpperThreshold,        float,    -, 1.5.59, 1.5.61
-SetWarpedPaddingValue,             float,    -, 1.5.59, 1.5.61
-SetInputTransform,                 str,      -, 1.5.61
-SetAlignCentreMass,                int,      -, 1.5.61
+SetVerbose,                        str,      -, 1.5.59, 1.5.61, 1.5.63
+SetBlockPercentage,                int,      -, 1.5.59, 1.5.61, 1.5.63
+SetInterpolation,                  int,      -, 1.5.59, 1.5.61, 1.5.63
+SetBlockStepSize,                  int,      -, 1.5.59, 1.5.61, 1.5.63
+setCaptureRangeVox,                int,      -, 1.5.59, 1.5.61, 1.5.63
+setPlatformCode,                   int,      -, 1.5.59, 1.5.61, 1.5.63
+SetLevelsToPerform,                unsigned, -, 1.5.59, 1.5.61, 1.5.63
+SetMaxIterations,                  unsigned, -, 1.5.59, 1.5.61, 1.5.63
+SetNumberOfLevels,                 unsigned, -, 1.5.59, 1.5.61, 1.5.63
+setGpuIdx,                         unsigned, -, 1.5.59, 1.5.61, 1.5.63
+SetFloatingSigma,                  float,    -, 1.5.59, 1.5.61, 1.5.63
+SetInlierLts,                      float,    -, 1.5.59, 1.5.61, 1.5.63
+SetReferenceSigma,                 float,    -, 1.5.59, 1.5.61, 1.5.63
+SetFloatingLowerThreshold,         float,    -, 1.5.59, 1.5.61, 1.5.63
+SetFloatingUpperThreshold,         float,    -, 1.5.59, 1.5.61, 1.5.63
+SetReferenceLowerThreshold,        float,    -, 1.5.59, 1.5.61, 1.5.63
+SetReferenceUpperThreshold,        float,    -, 1.5.59, 1.5.61, 1.5.63
+SetWarpedPaddingValue,             float,    -, 1.5.59, 1.5.61, 1.5.63
+SetInputTransform,                 str,      -, 1.5.61, 1.5.63
+SetAlignCentreMass,                int,      -, 1.5.61, 1.5.63
