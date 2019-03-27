@@ -15,12 +15,12 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Configure the aladin/f3d files dependent on NiftyReg version number
+# Configure the aladin/f3d files dependent on NIFTYREG version number
 include(${CMAKE_CURRENT_SOURCE_DIR}/../callable_NR_methods.cmake)
-get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin_sym" "${NiftyReg_VERSION}" NR_aladin_parser_methods)
-get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d_sym"    "${NiftyReg_VERSION}" NR_f3d_parser_methods   )
-get_runtime_methods("../callable_NR_aladin_methods.txt" "${NiftyReg_VERSION}" NR_aladin_runtime_methods)
-get_runtime_methods("../callable_NR_f3d_methods.txt"    "${NiftyReg_VERSION}" NR_f3d_runtime_methods   )
+get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin_sym" "${NIFTYREG_VERSION}" NR_aladin_parser_methods)
+get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d_sym"    "${NIFTYREG_VERSION}" NR_f3d_parser_methods   )
+get_runtime_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_runtime_methods)
+get_runtime_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_runtime_methods   )
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp.in"    "${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp"   )
 
@@ -45,11 +45,11 @@ TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
 )
 
-# NiftyReg
-TARGET_LINK_LIBRARIES(Reg PUBLIC ${NiftyReg_LIBRARIES})
+# NIFTYREG
+TARGET_LINK_LIBRARIES(Reg PUBLIC ${NIFTYREG_LIBRARIES})
 
 # If niftyreg was bulit with OpenMP
-if (NiftyReg_BUILT_WITH_OPENMP)
+if (NIFTYREG_BUILT_WITH_OPENMP)
   find_package(OpenMP REQUIRED)
   if (OpenMP_CXX_FOUND)
     TARGET_LINK_LIBRARIES(Reg PUBLIC OpenMP::OpenMP_CXX)

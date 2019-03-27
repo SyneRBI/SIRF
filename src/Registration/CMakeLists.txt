@@ -17,15 +17,15 @@
 #=========================================================================
 
 # ------------------------------------------------------------------------
-# NiftyReg
+# NIFTYREG
 # ------------------------------------------------------------------------
-FIND_PACKAGE(NiftyReg 1.5.61)
-if (NiftyReg_FOUND)
-	
-	# Add in the NiftyReg stuff
-	INCLUDE_DIRECTORIES("${NiftyReg_INCLUDE_DIRS}")
-  	LINK_DIRECTORIES("${NiftyReg_LIBRARY_DIRS}")
-  	SET(NiftyReg_LIBRARY_DIRS "${NiftyReg_LIBRARY_DIRS}" PARENT_SCOPE) # need elsewhere
+FIND_PACKAGE(NIFTYREG 1.5.61)
+if (NIFTYREG_FOUND)
+
+	# Add in the NIFTYREG stuff
+	INCLUDE_DIRECTORIES("${NIFTYREG_INCLUDE_DIRS}")
+  	LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
+  	SET(NIFTYREG_LIBRARY_DIRS "${NIFTYREG_LIBRARY_DIRS}" PARENT_SCOPE) # need elsewhere
 	
 	SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
 	INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
@@ -36,9 +36,9 @@ if (NiftyReg_FOUND)
 
 else()
 	
-	message(WARNING "NiftyReg not found. This is probably not what you want. If you need it, set NiftyReg_DIR.")
+	message(WARNING "NIFTYREG not found. This is probably not what you want. If you need it, set NIFTYREG_DIR.")
 	# Following will prevent building synergistic code 
-	# (but will not change cached variable, so attempt to find NiftyReg again on next Configure)
+	# (but will not change cached variable, so attempt to find NIFTYREG again on next Configure)
 	set(REG_ENABLE OFF PARENT_SCOPE)
 
 endif()
