@@ -27,30 +27,30 @@
 # 4 onwards. Compatible with which versions of NiftyReg
 
 # So the first entry is a method called "SetAlignCentre", which accepts a single argument of type 
-# string. It is available in versions 1.5.59 and 1.5.61.
+# string. It is available in versions 1.5.59, 1.5.61 and 1.5.63.
 
-Known versions: 1.5.59,1.5.61
+Known versions: 1.5.59,1.5.61,1.5.63
 
-SetCompositionStepNumber,    int,      -,        1.5.59, 1.5.61
-SetInverseConsistencyWeight, dataType, -,        1.5.59, 1.5.61
-SetJacobianLogWeight,        dataType, -,        1.5.61, 1.5.61
-SetLinearEnergyWeight,       dataType, -,        1.5.59, 1.5.61
-SetWarpedPaddingValue,       dataType, -,        1.5.59, 1.5.61
-SetBendingEnergyWeight,      dataType, -,        1.5.59, 1.5.61
-SetFloatingSmoothingSigma,   dataType, -,        1.5.59, 1.5.61
-SetGradientSmoothingSigma,   dataType, -,        1.5.59, 1.5.61
-SetReferenceSmoothingSigma,  dataType, -,        1.5.59, 1.5.61
-SetLNCCKernelType,           int,      -,        1.5.59, 1.5.61
-SetLevelNumber,              unsigned, -,        1.5.59, 1.5.61
-SetLevelToPerform,           unsigned, -,        1.5.59, 1.5.61
-SetMaximalIterationNumber,   unsigned, -,        1.5.59, 1.5.61
-SetPerturbationNumber,       unsigned, -,        1.5.59, 1.5.61
-SetSSDWeight,                int,      int,      1.5.59, 1.5.61
-SetLNCCWeight,               int,      double,   1.5.59, 1.5.61
-SetNMIWeight,                int,      double,   1.5.59, 1.5.61
-SetKLDWeight,                int,      unsigned, 1.5.59, 1.5.61
-SetFloatingThresholdUp,      unsigned, dataType, 1.5.59, 1.5.61
-SetFloatingThresholdLow,     unsigned, dataType, 1.5.59, 1.5.61
-SetReferenceThresholdUp,     unsigned, dataType, 1.5.59, 1.5.61
-SetReferenceThresholdLow,    unsigned, dataType, 1.5.59, 1.5.61
-SetSpacing,                  unsigned, dataType, 1.5.59, 1.5.61
+SetCompositionStepNumber,    int,      -,        1.5.59, 1.5.61, 1.5.63
+SetInverseConsistencyWeight, dataType, -,        1.5.59, 1.5.61, 1.5.63
+SetJacobianLogWeight,        dataType, -,        1.5.59, 1.5.61, 1.5.63
+SetLinearEnergyWeight,       dataType, -,        1.5.59, 1.5.61, 1.5.63
+SetWarpedPaddingValue,       dataType, -,        1.5.59, 1.5.61, 1.5.63
+SetBendingEnergyWeight,      dataType, -,        1.5.59, 1.5.61, 1.5.63
+SetFloatingSmoothingSigma,   dataType, -,        1.5.59, 1.5.61, 1.5.63
+SetGradientSmoothingSigma,   dataType, -,        1.5.59, 1.5.61, 1.5.63
+SetReferenceSmoothingSigma,  dataType, -,        1.5.59, 1.5.61, 1.5.63
+SetLNCCKernelType,           int,      -,        1.5.59, 1.5.61, 1.5.63
+SetLevelNumber,              unsigned, -,        1.5.59, 1.5.61, 1.5.63
+SetLevelToPerform,           unsigned, -,        1.5.59, 1.5.61, 1.5.63
+SetMaximalIterationNumber,   unsigned, -,        1.5.59, 1.5.61, 1.5.63
+SetPerturbationNumber,       unsigned, -,        1.5.59, 1.5.61, 1.5.63
+SetSSDWeight,                int,      int,      1.5.59, 1.5.61, 1.5.63
+SetLNCCWeight,               int,      double,   1.5.59, 1.5.61, 1.5.63
+SetNMIWeight,                int,      double,   1.5.59, 1.5.61, 1.5.63
+SetKLDWeight,                int,      unsigned, 1.5.59, 1.5.61, 1.5.63
+SetFloatingThresholdUp,      unsigned, dataType, 1.5.59, 1.5.61, 1.5.63
+SetFloatingThresholdLow,     unsigned, dataType, 1.5.59, 1.5.61, 1.5.63
+SetReferenceThresholdUp,     unsigned, dataType, 1.5.59, 1.5.61, 1.5.63
+SetReferenceThresholdLow,    unsigned, dataType, 1.5.59, 1.5.61, 1.5.63
+SetSpacing,                  unsigned, dataType, 1.5.59, 1.5.61, 1.5.63
