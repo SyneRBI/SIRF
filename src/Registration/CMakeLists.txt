@@ -37,5 +37,8 @@ if (NIFTYREG_FOUND)
 else()
 
   message(WARNING "NIFTYREG not found. This is probably not what you want. If you need it, set NIFTYREG_DIR.")
+  # Following will prevent building synergistic code 
+  # (but will not change cached variable, so attempt to find NiftyReg again on next Configure)
+  set(REG_ENABLE OFF PARENT_SCOPE)
 
 endif()
