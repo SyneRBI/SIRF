@@ -22,12 +22,6 @@
 FIND_PACKAGE(NIFTYREG 1.5.61)
 if (NIFTYREG_FOUND)
 
-	get_cmake_property(_variableNames VARIABLES)
-	list (SORT _variableNames)
-	foreach (_variableName ${_variableNames})
-	    message(STATUS "${_variableName}=${${_variableName}}")
-	endforeach()
-
 	# Add in the NIFTYREG stuff
 	INCLUDE_DIRECTORIES("${NIFTYREG_INCLUDE_DIRS}")
   	LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")

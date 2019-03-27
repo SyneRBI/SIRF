@@ -56,10 +56,6 @@ if (NIFTYREG_BUILT_WITH_OPENMP)
   endif()
 endif()
 
-# Add libz (should be in /usr/local)
-#FIND_LIBRARY(LIBZ  z)
-#TARGET_LINK_LIBRARIES(Reg PUBLIC ${LIBZ})
-
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
