@@ -403,13 +403,13 @@ try
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 19;
+		float const test_SNR = 25;
 		size_t const noise_label = 13;
 		
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 2;
+		int const num_simul_motion_dyn = 8;
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
@@ -437,6 +437,10 @@ try
 
 		 	motion_dyn.set_dyn_signal( motion_signal );
 		 	motion_dyn.bin_mr_acquisitions( all_acquis );
+
+		 	auto binned_acq = motion_dyn.get_binned_mr_acquisitions();
+		 	for( int i=0; i<binned_acq.size(); ++i)
+		 		std::cout<< "In this bin " << i << " we have " << binned_acq[i].number() << " acquisitions." << std::endl;;
 
 		 	if( do_cardiac_sim )
 			{
