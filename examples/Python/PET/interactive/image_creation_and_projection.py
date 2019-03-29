@@ -61,8 +61,8 @@ show_3D_array(image.as_array())
 #%% forward project this image and display all sinograms
 acquired_data = am.forward(image)
 acquisition_array = acquired_data.as_array();
-show_3D_array(acquisition_array);
+show_3D_array(acquisition_array[0,:,:,:]);
 #%% Show every 8th view 
 # Doing this here with a complicated one-liner...
-show_3D_array(acquisition_array[:,range(0,acquisition_array.shape[1],8),:].transpose(1,0,2))
+show_3D_array(acquisition_array[0,:,range(0,acquisition_array.shape[2],8),:].transpose(1,0,2))
 # You could now of course try the animation of the previous demo...

@@ -43,7 +43,7 @@ args = docopt(__doc__, version=__version__)
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
@@ -112,8 +112,8 @@ def main():
     # and 'damage' the backprojection making it look less like the
     # actual image
     if beff != 1:
-        bin_eff_arr[:,10:50,:] = 0
-    show_2D_array('Bin efficiencies', bin_eff_arr[0,:,:])
+        bin_eff_arr[0,:,10:50,:] = 0
+    show_2D_array('Bin efficiencies', bin_eff_arr[0,0,:,:])
     bin_eff.fill(bin_eff_arr)
 
     asm = AcquisitionSensitivityModel(bin_eff)
@@ -141,7 +141,7 @@ def main():
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
-    show_2D_array('Forward projection', simulated_data_as_array[0,:,:])
+    show_2D_array('Forward projection', simulated_data_as_array[0,0,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection

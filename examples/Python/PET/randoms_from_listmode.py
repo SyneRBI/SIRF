@@ -49,7 +49,7 @@ from pUtilities import show_3D_array
 import numpy as np
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_path = args['--path']
@@ -106,7 +106,7 @@ def main():
     delayeds_acq_array = delayeds_acq_data.as_array()
     randoms_estimate_acq_array = randoms_estimate_acq_data.as_array()
     acq_dim = delayeds_acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+    print('acquisition data dimensions: %dx%dx%dx%d' % acq_dim)
     print('The total number of delayed coincidences and estimated randoms have to be very similar.')
     print('Let us check this:')
     print('total delayeds: %.1f, total estimated randoms: %.1f' % (delayeds_acq_array.sum(), randoms_estimate_acq_array.sum()))
@@ -114,8 +114,8 @@ def main():
     print('max delayeds: %f, max estimated randoms: %f' % (delayeds_acq_array.max(), randoms_estimate_acq_array.max()))
 
     print('A single sinogram (this will look very different for noisy data)')
-    z = acq_dim[0]//2
-    show_3D_array(np.stack((delayeds_acq_array[z,:,:], randoms_estimate_acq_array[z,:,:])), titles=('raw delayeds', ' estimated randoms'))
+    z = acq_dim[1]//2
+    show_3D_array(np.stack((delayeds_acq_array[0,z,:,:], randoms_estimate_acq_array[0,z,:,:])), titles=('raw delayeds', ' estimated randoms'))
 
     pylab.show()
 

@@ -105,7 +105,7 @@ acquisition_array = acquired_data.as_array()
 
 #%% Display bitmaps of a middle sinogram
 plt.figure()
-imshow(acquisition_array[0,:,:,], [], 'Forward projection');
+imshow(acquisition_array[0,0,:,:,], [], 'Forward projection');
 
 #%% close all plots
 plt.close('all')

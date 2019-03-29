@@ -147,20 +147,30 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                 image.fill(value)
             end
         end
+        function dim = dimensions(self)
+%***SIRF*** Returns array of the acquisition data dimensions.
+%           Dimensions are:
+%           - number of tangential positions
+%           - number of views
+%           - number of sinograms
+%           - number of TOF bins
+            ptr_i = libpointer('int32Ptr', zeros(4, 1));
+            calllib('mstir', 'mSTIR_getAcquisitionsDimensions', ...
+                self.handle_, ptr_i);
+            dim = ptr_i.Value;
+        end
         function data = as_array(self)
 %***SIRF*** Returns 3D array of the acquisition data values.
 %           Dimensions are:
 %           - number of tangential positions
 %           - number of views
 %           - number of sinograms
-            ptr_i = libpointer('int32Ptr', zeros(3, 1));
-            calllib('mstir', 'mSTIR_getAcquisitionsDimensions', ...
-                self.handle_, ptr_i);
-            dim = ptr_i.Value;
-            n = dim(1)*dim(2)*dim(3);
+%           - number of TOF bins
+            dim = self.dimensions();
+            n = dim(1)*dim(2)*dim(3)*dim(4);
             ptr_v = libpointer('singlePtr', zeros(n, 1));
             calllib('mstir', 'mSTIR_getAcquisitionsData', self.handle_, ptr_v);
-            data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
+            data = reshape(ptr_v.Value, dim(1), dim(2), dim(3), dim(4));
         end
         function fill(self, value)
 %***SIRF*** fill(value) fills the object with values;

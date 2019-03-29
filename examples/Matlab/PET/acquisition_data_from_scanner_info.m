@@ -43,9 +43,13 @@ try
     acq_data.fill(1.0);
 
     % copy the acquisition data into a Python array
-    acq_array = acq_data.as_array();
-    acq_dim = size(acq_array);
-    fprintf('acquisition data dimensions (maximum resolution): %d x %d x %d\n', acq_dim)
+    %acq_array = acq_data.as_array();
+    acq_dim = acq_data.dimensions();
+    fprintf('acquisition data dimensions (maximum resolution):\n')
+    fprintf('tang. pos: %d\n', acq_dim(1))
+    fprintf('views: %d\n', acq_dim(2))
+    fprintf('sinograms: %d\n', acq_dim(3))
+    fprintf('TOF bins: %d\n', acq_dim(4))
 
     % create acquisition data from scanner parameters but with axial compression etc
     span=11;
@@ -53,9 +57,13 @@ try
     view_mash_factor=2;
     acq_data = PET.AcquisitionData('Siemens_mMR', span, max_ring_diff, view_mash_factor);
     % copy the acquisition data into a Python array
-    acq_array = acq_data.as_array();
-    acq_dim = size(acq_array);
-    fprintf('acquisition data dimensions (span 11, view mashing 2): %d x %d x %d\n', acq_dim)
+    %acq_array = acq_data.as_array();
+    acq_dim = acq_data.dimensions();
+    fprintf('acquisition data dimensions (span 11, view mashing 2):\n')
+    fprintf('tang. pos: %d\n', acq_dim(1))
+    fprintf('views: %d\n', acq_dim(2))
+    fprintf('sinograms: %d\n', acq_dim(3))
+    fprintf('TOF bins: %d\n', acq_dim(4))
 
     % write the acquisition data to a file (commented out for this demo)
     % acq_data.write('example_mMR_ones.hs')

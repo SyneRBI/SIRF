@@ -39,8 +39,9 @@ try
 
     % copy the acquisition data into a Python array and display
     acq_array = acq_data.as_array();
-    acq_dim = size(acq_array);
-    fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
+    %acq_dim = size(acq_array);
+    acq_dim = acq_data.dimensions();
+    fprintf('acquisition data dimensions: %d x %d x %d x %d\n', acq_dim)
     z = uint16(acq_dim(3)/2);
     sirf.Utilities.show_2D_array(acq_array(:,:,z), 'Acquisition data',...
         'tang. pos.', 'views');
@@ -65,8 +66,9 @@ try
     % read acquisition data and image from files and display
     acq = PET.AcquisitionData('ones.hs');
     acq_array = acq.as_array();
-    acq_dim = size(acq_array);
-    fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
+    %acq_dim = size(acq_array);
+    acq_dim = acq_data.dimensions();
+    fprintf('acquisition data dimensions: %d x %d x %d x %d\n', acq_dim)
     z = uint16(acq_dim(3)/2);
     sirf.Utilities.show_2D_array(acq_array(:,:,z), 'Acquisition data',...
         'tang. pos.', 'views');

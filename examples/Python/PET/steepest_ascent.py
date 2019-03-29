@@ -45,7 +45,7 @@ import scipy.optimize
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 step = float(args['--step'])
