@@ -331,6 +331,18 @@ void* cReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, size_t 
     CATCH;
 }
 
+extern "C"
+void* cReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order)
+{
+    try {
+        NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
+        float spacing[3] = {x,y,z};
+        im.set_voxel_spacing(spacing,interpolation_order);
+        return new DataHandle;
+    }
+    CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3D
 // -------------------------------------------------------------------------------- //

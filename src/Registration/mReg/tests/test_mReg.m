@@ -39,6 +39,9 @@ g.save_nifti_image_3d_deformation_not_split  = fullfile(output_prefix, 'matlab_s
 g.save_nifti_image_3d_deformation_split      = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDeformation_split_%s.nii');
 g.save_nifti_image_3d_displacement_not_split = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDisplacement_not_split.nii');
 g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDisplacement_split_%s.nii');
+g.save_nifti_image_upsample                  = fullfile(output_prefix, 'matlab_save_NiftiImageData_upsample.nii');
+g.save_nifti_image_downsample                = fullfile(output_prefix, 'matlab_save_NiftiImageData_downsample.nii');
+g.save_nifti_image_up_downsample             = fullfile(output_prefix, 'matlab_save_NiftiImageData_upsample_downsample.nii');
 g.aladin_warped                              = fullfile(output_prefix, 'matlab_aladin_warped.nii');
 g.f3d_warped                                 = fullfile(output_prefix, 'matlab_f3d_warped.nii');
 g.TM_forward		                     = fullfile(output_prefix, 'matlab_TM_forward.txt');
@@ -163,6 +166,27 @@ function try_niftiimage(g)
     % Get voxel sizes
     s = b.get_voxel_sizes();
     assert(all(s == [0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]), 'NiftiImageData get_voxel_sizes() failed.')
+
+    % Check upsampling/downsampling
+    u = sirf.Reg.NiftiImageData(g.ref_aladin_filename);
+    original_spacing    = u.get_voxel_sizes();
+    original_spacing    = original_spacing(2:4);
+    upsampled_spacing   = [original_spacing(1)/2, original_spacing(2)/4, original_spacing(3)];
+    downsampled_spacing = [original_spacing(1)*2, original_spacing(2)*4, original_spacing(3)];
+    % Downsample
+    v = u.deep_copy();
+    v.set_voxel_spacing(downsampled_spacing,3);
+    v.write(g.save_nifti_image_downsample);
+    % Upsample then downsample, check nothing has changed
+    w = u.deep_copy();
+    w.set_voxel_spacing(upsampled_spacing,0);
+    w.write(g.save_nifti_image_upsample);
+    x = w.deep_copy();
+    x.set_voxel_spacing(original_spacing,0);
+    x.write(g.save_nifti_image_up_downsample);
+    sirf.Reg.NiftiImageData.print_headers([u v w x]);
+    assert(x == u, 'NiftiImageData::upsample()/downsample() failed.')
+
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
@@ -347,6 +371,27 @@ function try_niftiimage3ddisplacement(g)
     assert(max(arr(:)) == 100, 'NiftiImageData3DDisplacement as_array().max() failed.')
     assert(ndims(arr) == 5, 'NiftiImageData3DDisplacement as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImageData3DDisplacement as_array().shape failed.')
+
+    % Check upsampling/downsampling
+    u = sirf.Reg.NiftiImageData3DDisplacement(g.save_nifti_image_3d_displacement_not_split);
+    original_spacing    = u.get_voxel_sizes();
+    original_spacing    = original_spacing(2:4);
+    upsampled_spacing   = [original_spacing(1)/2, original_spacing(2)/4, original_spacing(3)];
+    downsampled_spacing = [original_spacing(1)*2, original_spacing(2)*4, original_spacing(3)];
+    % Downsample
+    v = u.deep_copy();
+    v.set_voxel_spacing(downsampled_spacing,3);
+    v.write(g.save_nifti_image_downsample);
+    % Upsample then downsample, check nothing has changed
+    w = u.deep_copy();
+    w.set_voxel_spacing(upsampled_spacing,0);
+    w.write(g.save_nifti_image_upsample);
+    x = w.deep_copy();
+    x.set_voxel_spacing(original_spacing,0);
+    x.write(g.save_nifti_image_up_downsample);
+    sirf.Reg.NiftiImageData.print_headers([u v w x]);
+    assert(x == u, 'NiftiImageData3DDisplacement::upsample()/downsample() failed.')
+
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData3DDisplacement test.')

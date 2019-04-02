@@ -188,6 +188,13 @@ classdef NiftiImageData < sirf.SIRF.ImageData
             h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 1, self.handle_, [], [], [], []);
             sirf.Utilities.check_status('parameter', h)
         end
+        function set_voxel_spacing(self,spacing,interpolation_order)
+            % Set the voxel spacing. Requires resampling image, and so interpolation order is required.
+            % As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation.
+            assert(isnumeric(spacing) && length(spacing)==3, 'New spacing should be array of 3 numbers')
+            h = calllib('mreg', 'mReg_NiftiImageData_set_voxel_spacing', self.handle_, spacing(1), spacing(2), spacing(3), interpolation_order);
+            sirf.Utilities.check_status('parameter', h)
+        end
     end
     methods(Static)
         function print_headers(to_print)
