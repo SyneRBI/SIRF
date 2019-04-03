@@ -238,6 +238,10 @@ namespace sirf {
 		{
 			return data()->get_num_sinograms();
 		}
+		int get_num_TOF_bins()
+		{
+			return 1;
+		}
 		int get_max_segment_num() const
 		{
 			return data()->get_max_segment_num();

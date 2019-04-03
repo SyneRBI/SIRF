@@ -38,7 +38,7 @@ args = docopt(__doc__, version=__version__)
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 num_subsets = int(args['--subs'])
@@ -122,7 +122,7 @@ def main():
     image_array = image.as_array()
     show_2D_array('Reconstructed image at z = 20', image_array[20,:,:])
 
-    image.write('my_image.hv')
+#    image.write('my_image.hv')
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

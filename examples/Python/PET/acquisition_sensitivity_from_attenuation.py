@@ -39,7 +39,7 @@ import math
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 temp_file = args['--temp']
@@ -96,8 +96,8 @@ def main():
     # show 'bin efficiencies'
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
-    z = acq_dim[0]//2
-    show_2D_array('Bin efficiencies', acq_array[z,:,:])
+    z = acq_dim[1]//2
+    show_2D_array('Bin efficiencies', acq_array[0,z,:,:])
 
 try:
     main()
