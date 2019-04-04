@@ -36,51 +36,51 @@ function registration(varargin)
 %% Parse the input
 i=1;
 while i <= length(varargin)
-    if     strcmp(varargin{i},'eng_ref')
+    if     strcmp(varargin{i},'--eng_ref')
         eng_ref = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'eng_flo')
+    elseif strcmp(varargin{i},'--eng_flo')
         eng_flo = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'ref')
+    elseif strcmp(varargin{i},'--ref')
         ref_file = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'flo')
+    elseif strcmp(varargin{i},'--flo')
         flo_file = get_arg(varargin,i,1);
         i=i+2;
-   elseif strcmp(varargin{i},'algo')
+   elseif strcmp(varargin{i},'--algo')
         algo = get_arg(varargin,i,1);
         i=i+2;
-   elseif strcmp(varargin{i},'warped')
+   elseif strcmp(varargin{i},'--warped')
         warped = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'par')
+    elseif strcmp(varargin{i},'--par')
         par_file = get_arg(varargin,i,1);
         i=i+2;
         
-    elseif strcmp(varargin{i},'rmask')
+    elseif strcmp(varargin{i},'--rmask')
         rmask = get_arg(varargin,i,1);
         i=i+2;        
-    elseif strcmp(varargin{i},'fmask')
+    elseif strcmp(varargin{i},'--fmask')
         fmask = get_arg(varargin,i,1);
         i=i+2;        
         
-    elseif strcmp(varargin{i},'TM_forward')
+    elseif strcmp(varargin{i},'--TM_forward')
         TM_forward = get_arg(varargin,i,1);
         i=i+2;        
-    elseif strcmp(varargin{i},'TM_inverse')
+    elseif strcmp(varargin{i},'--TM_inverse')
         TM_inverse = get_arg(varargin,i,1);
         i=i+2;        
-    elseif strcmp(varargin{i},'disp_fwd_4D')
+    elseif strcmp(varargin{i},'--disp_fwd_4D')
         disp_fwd_4D = get_arg(varargin,i,1);
         i=i+2;        
-    elseif strcmp(varargin{i},'disp_inv_4D')
+    elseif strcmp(varargin{i},'--disp_inv_4D')
         disp_inv_4D = get_arg(varargin,i,1);
         i=i+2;        
-    elseif strcmp(varargin{i},'def_fwd_4D')
+    elseif strcmp(varargin{i},'--def_fwd_4D')
         def_fwd_4D = get_arg(varargin,i,1);
         i=i+2;        
-    elseif strcmp(varargin{i},'def_inv_4D')
+    elseif strcmp(varargin{i},'--def_inv_4D')
         def_inv_4D = get_arg(varargin,i,1);
         i=i+2;
     else
