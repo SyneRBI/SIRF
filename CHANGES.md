@@ -10,6 +10,7 @@
 * Matlab: in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
 * Update minimum required version of CMake to 3.9.0.
 * added TOF bins dimension to PETAcquisitionData
+* Wrapping of NiftyReg to allow registration/resampling in SIRF.
 
 ## v1.1.0
 

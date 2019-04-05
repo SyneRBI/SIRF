@@ -34,9 +34,9 @@ This User’s Guide describes version 1.1 of SIRF. The software can be found on 
 
 ## General architecture <a name="General_architecture"></a>
 
-The code builds upon existing Open Source software packages for medical image reconstruction. At the outset, these packages are STIR for PET reconstruction, and Gadgetron for MRI. SIRF provides MATLAB and Python interfaces to these underlying reconstruction engines. Underlying SIRF are C interfaces to these reconstruction engines. These interfaces are called from higher level MATLAB or Python interfaces. 
+The code builds upon existing Open Source software packages for medical image reconstruction. At the outset, these packages are STIR for PET reconstruction, Gadgetron for MRI and NiftyReg for registration/resampling. SIRF provides MATLAB and Python interfaces to these underlying reconstruction engines. This is done by wrapping the engines in a C++ layer, and then placing a C-interface between the wrapped C++ engines and the MATLAB and Python interfaces. 
 
-At present, you should only use the MATLAB and Python interfaces. The underlying C library is internal and likely to change over the next few releases. 
+At present, you should only use the C++, MATLAB and Python interfaces. The underlying C library is internal and likely to change over the next few releases.
 
 ## Supported scanners and file formats <a name="Supported_scanners_and_file_formats"></a>
 
