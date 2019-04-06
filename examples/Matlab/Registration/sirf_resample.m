@@ -33,28 +33,28 @@ trans_types={};
 %% Parse the input
 i=1;
 while i <= length(varargin)
-    if     strcmp(varargin{i},'eng_ref')
+    if     strcmp(varargin{i},'--eng_ref')
         eng_ref = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'eng_flo')
+    elseif strcmp(varargin{i},'--eng_flo')
         eng_flo = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'ref')
+    elseif strcmp(varargin{i},'--ref')
         ref_file = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'flo')
+    elseif strcmp(varargin{i},'--flo')
         flo_file = get_arg(varargin,i,1);
         i=i+2;
-   elseif strcmp(varargin{i},'algo')
+   elseif strcmp(varargin{i},'--algo')
         algo = get_arg(varargin,i,1);
         i=i+2;
-   elseif strcmp(varargin{i},'output')
+   elseif strcmp(varargin{i},'--output')
         output = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'intrp')
+    elseif strcmp(varargin{i},'--intrp')
         intrp = str2num(get_arg(varargin,i,1));
         i=i+2;
-    elseif strcmp(varargin{i},'trans')
+    elseif strcmp(varargin{i},'--trans')
         trans_filenames = [trans_filenames; get_arg(varargin,i,1)];
         trans_types     = [trans_types;     get_arg(varargin,i,2)];
         i=i+3;

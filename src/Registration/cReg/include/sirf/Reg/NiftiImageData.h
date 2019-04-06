@@ -71,6 +71,15 @@ of sform_code; for example, for the Talairach coordinate system,
 \author Richard Brown
 \author CCP PETMR
 */
+
+typedef enum
+{
+   MEAN_KERNEL,
+   LINEAR_KERNEL,
+   GAUSSIAN_KERNEL,
+   CUBIC_SPLINE_KERNEL
+} NREG_CONV_KERNEL_TYPE;
+
 template<class dataType>
 class NiftiImageData : public ImageData
 {
@@ -321,6 +330,13 @@ public:
     /// Dump nifti element
     template<typename T>
     static void dump_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
+
+    /// Set the voxel spacing. Requires resampling image, and so interpolation order is required.
+    /// As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation.
+    void set_voxel_spacing(const float factors[3], const int interpolation_order);
+
+    /// Kernel convolution
+    void kernel_convolution(const float sigma, NREG_CONV_KERNEL_TYPE conv_type = GAUSSIAN_KERNEL);
 
 protected:
 

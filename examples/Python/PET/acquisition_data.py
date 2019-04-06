@@ -34,17 +34,22 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 import math
+import numpy
 
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+#exec('from sirf.' + args['--engine'] + ' import *')
+pet_engine = 'sirf.' + args['--engine']
+for obj in ['error', 'examples_data_path', 'existing_filepath', \
+            'AcquisitionData', 'MessageRedirector']:
+    exec('from ' + pet_engine + ' import ' + obj)
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = examples_data_path('pet')
+    data_path = examples_data_path('PET')
 storage = args['--storage']
 
 # select acquisition data storage scheme
@@ -74,8 +79,8 @@ def main():
 
     # copy the acquisition data into a Python array and display
     dim = acq_data.dimensions()
-    print('data dimensions: %d x %d x %d' % dim)
-    acq_data.show(range(dim[0]//4))
+    print('data dimensions: %d x %d x %d x %d' % dim)
+    acq_data.show(range(dim[1]//4))
     acq_array = acq_data.as_array()
     # print('data dimensions: %d x %d x %d' % acq_array.shape)
     # acq_dim = acq_array.shape
@@ -85,7 +90,7 @@ def main():
     # rebin the acquisition data
     new_acq_data = acq_data.rebin(3)
     rdim = new_acq_data.dimensions()
-    print('rebinned data dimensions: %d x %d x %d' % rdim)
+    print('rebinned data dimensions: %d x %d x %d x %d' % rdim)
     new_acq_data.show(range(rdim[0]//3), title = 'Rebinned acquisition data')
     #acq_array = new_acq_data.as_array()
     #print('rebinned data dimensions: %d x %d x %d' % acq_array.shape)
@@ -93,7 +98,7 @@ def main():
     # clone the acquisition data
     new_acq_data = acq_data.clone()
     # display the cloned data
-    new_acq_data.show(range(dim[0]//4), title = 'Cloned acquisition data')
+    new_acq_data.show(range(dim[1]//4), title = 'Cloned acquisition data')
     # acq_array = new_acq_data.as_array()
     # show_2D_array('Cloned acquisition data', acq_array[z,:,:])
 
@@ -112,7 +117,7 @@ def main():
     print('norm of acq_data*10: %f' % new_acq_data.norm())
 
     # display the scaled data
-    new_acq_data.show(range(dim[0]//4), title = 'Scaled acquisition data')
+    new_acq_data.show(range(dim[1]//4), title = 'Scaled acquisition data')
     # acq_array = new_acq_data.as_array()
     # show_2D_array('Scaled acquisition data', acq_array[z,:,:])
 

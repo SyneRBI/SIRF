@@ -32,10 +32,10 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 def petmr_data_path(petmr):
     '''
-    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
-
     Returns the path to PET or MR data.
-    petmr: either 'pet' or 'mr' (case-insensitive)
+    petmr: either 'PET' or 'MR'
+
+    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
     '''
     data_path = '/data/examples/' + petmr.upper()
     SIRF_PATH = os.environ.get('SIRF_PATH')

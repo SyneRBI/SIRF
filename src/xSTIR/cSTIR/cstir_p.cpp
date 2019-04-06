@@ -524,9 +524,9 @@ sirf::cSTIR_iterativeReconstructionParameter
 	if (boost::iequals(name, "start_subiteration_num"))
 		return dataHandle<int>(recon.get_start_subiteration_num());
 	if (boost::iequals(name, "subiteration_num")) {
-		//xSTIR_IterativeReconstruction3DF& xrecon =
-		//	(xSTIR_IterativeReconstruction3DF&)(recon);
-		DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+		xSTIR_IterativeReconstruction3DF& xrecon =
+			(xSTIR_IterativeReconstruction3DF&)(recon);
+		//DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
 		return dataHandle<int>(xrecon.subiteration());
 	}
 	if (boost::iequals(name, "objective_function"))

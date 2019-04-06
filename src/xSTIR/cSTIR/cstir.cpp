@@ -23,6 +23,7 @@ limitations under the License.
 #include "sirf/STIR/stir_types.h"
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
+#include "stir/ImagingModality.h"
 
 using namespace stir;
 using namespace sirf;
@@ -530,10 +531,13 @@ void* cSTIR_acquisitionsDataFromScannerInfo
 {
 	try{
 		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
+        sptr_ei->imaging_modality = ImagingModality::PT;
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
-		stir::shared_ptr<PETAcquisitionData> sptr_t(new PETAcquisitionDataInMemory());
+		PETAcquisitionDataInFile::init();
+		stir::shared_ptr<PETAcquisitionData> sptr_t =
+			PETAcquisitionData::storage_template();
 		stir::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
 			(sptr_ei, sptr_pdi));
 		sptr->fill(0.0f);
@@ -551,6 +555,7 @@ void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
 		dim[0] = sptr_ad->get_num_tangential_poss();
 		dim[1] = sptr_ad->get_num_views();
 		dim[2] = sptr_ad->get_num_sinograms();
+		dim[3] = sptr_ad->get_num_TOF_bins();
 		return (void*)new DataHandle;
 	}
 	CATCH;

@@ -69,7 +69,7 @@ def make_cylindrical_FOV(image):
 
 #%% go to directory with input files
 # adapt this path to your situation (or start everything in the relevant directory)
-os.chdir(pet.examples_data_path('pet'))
+os.chdir(pet.examples_data_path('PET'))
 #%% copy files to working folder and change directory to where the output files are
 shutil.rmtree('working_folder/thorax_single_slice',True)
 shutil.copytree('thorax_single_slice','working_folder/thorax_single_slice')
@@ -105,7 +105,7 @@ acquisition_array = acquired_data.as_array()
 
 #%% Display bitmaps of a middle sinogram
 plt.figure()
-imshow(acquisition_array[0,:,:,], [], 'Forward projection');
+imshow(acquisition_array[0,0,:,:,], [], 'Forward projection');
 
 #%% close all plots
 plt.close('all')

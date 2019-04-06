@@ -46,6 +46,9 @@ save_nifti_image_3d_deformation_not_split = output_prefix + "save_NiftiImageData
 save_nifti_image_3d_deformation_split = output_prefix + "save_NiftiImageData3DDeformation_split_%s.nii"
 save_nifti_image_3d_displacement_not_split = output_prefix + "save_NiftiImageData3DDisplacement_not_split.nii"
 save_nifti_image_3d_displacement_split = output_prefix + "save_NiftiImageData3DDisplacement_split_%s.nii"
+save_nifti_image_upsample = output_prefix + "save_NiftiImageData_upsample.nii";
+save_nifti_image_downsample = output_prefix + "save_NiftiImageData_downsample.nii";
+save_nifti_image_up_downsample = output_prefix + "save_NiftiImageData_upsample_downsample.nii";
 aladin_warped = output_prefix + "aladin_warped.nii"
 f3d_warped = output_prefix + "f3d_warped.nii"
 TM_forward = output_prefix + "TM_forward.txt"
@@ -179,6 +182,28 @@ def try_niftiimage():
     s = b.get_voxel_sizes()
     if not all(numpy.equal(s,numpy.array([0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]))):
         raise AssertionError("NiftiImageData get_voxel_sizes() failed.")
+
+    # Check upsampling/downsampling
+    u = pReg.NiftiImageData(ref_aladin_filename);
+    original_spacing    = u.get_voxel_sizes();
+    original_spacing    = original_spacing[1:4];
+    upsampled_spacing   = [original_spacing[0]/2, original_spacing[1]/4, original_spacing[2]];
+    downsampled_spacing = [original_spacing[0]*2, original_spacing[1]*4, original_spacing[2]];
+    # Downsample
+    v = u.deep_copy();
+    v.set_voxel_spacing(downsampled_spacing,3);
+    v.write(save_nifti_image_downsample);
+    # Upsample then downsample, check nothing has changed
+    w = u.deep_copy();
+    w.set_voxel_spacing(upsampled_spacing,0);
+    w.write(save_nifti_image_upsample);
+    x = w.deep_copy();
+    x.set_voxel_spacing(original_spacing,0);
+    x.write(save_nifti_image_up_downsample);
+    pReg.NiftiImageData.print_headers([u, v, w, x]);
+    if x != u:
+        raise AssertionError('NiftiImageData::upsample()/downsample() failed.')
+
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -415,6 +440,27 @@ def try_niftiimage3ddisplacement():
         raise AssertionError('NiftiImageData3DDisplacement as_array() ndims failed.')
     if arr.shape != (64, 64, 64, 1, 3):
         raise AssertionError('NiftiImageData3DDisplacement as_array().shape failed.')
+
+    # Check upsampling/downsampling
+    u = pReg.NiftiImageData3DDisplacement(save_nifti_image_3d_displacement_not_split);
+    original_spacing    = u.get_voxel_sizes();
+    original_spacing    = original_spacing[1:4];
+    upsampled_spacing   = [original_spacing[0]/2, original_spacing[1]/4, original_spacing[2]];
+    downsampled_spacing = [original_spacing[0]*2, original_spacing[1]*4, original_spacing[2]];
+    # Downsample
+    v = u.deep_copy();
+    v.set_voxel_spacing(downsampled_spacing,3);
+    v.write(save_nifti_image_downsample);
+    # Upsample then downsample, check nothing has changed
+    w = u.deep_copy();
+    w.set_voxel_spacing(upsampled_spacing,0);
+    w.write(save_nifti_image_upsample);
+    x = w.deep_copy();
+    x.set_voxel_spacing(original_spacing,0);
+    x.write(save_nifti_image_up_downsample);
+    pReg.NiftiImageData.print_headers([u, v, w, x]);
+    if x != u:
+        raise AssertionError('NiftiImageData3DDisplacement::upsample()/downsample() failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

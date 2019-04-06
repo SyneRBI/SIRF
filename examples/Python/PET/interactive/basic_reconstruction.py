@@ -96,7 +96,7 @@ bin_efficiencies = acquired_data.clone()
 bin_efficiencies.fill(1.)
 # set a portion of bin efficiencies to zero;
 bin_efficiencies_array = bin_efficiencies.as_array()
-bin_efficiencies_array[:,5:20,:] = 0
+bin_efficiencies_array[0,:,5:20,:] = 0
 bin_efficiencies.fill(bin_efficiencies_array)
 #%% Create a new acquisition model
 am2 = pet.AcquisitionModelUsingRayTracingMatrix()

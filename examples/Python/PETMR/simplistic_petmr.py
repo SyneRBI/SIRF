@@ -42,7 +42,7 @@ args = docopt(__doc__, version=__version__)
 data_file = args['--file']
 data_path = args['--mr_path']
 if data_path is None:
-    data_path = pUtil.petmr_data_path('mr')
+    data_path = pUtil.examples_data_path('MR')
 input_file = pUtil.existing_filepath(data_path, data_file)
 
 # import MR and PET engines

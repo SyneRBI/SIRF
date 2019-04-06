@@ -70,6 +70,9 @@ int main(int argc, char* argv[])
     const std::string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImageData3DDeformation_split_%s.nii";
     const std::string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImageData3DDisplacement_not_split.nii";
     const std::string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImageData3DDisplacement_split_%s.nii";
+    const std::string save_nifti_image_upsample                  = output_prefix   + "save_NiftiImageData_upsample.nii";
+    const std::string save_nifti_image_downsample                = output_prefix   + "save_NiftiImageData_downsample.nii";
+    const std::string save_nifti_image_up_downsample             = output_prefix   + "save_NiftiImageData_upsample_downsample.nii";
     const std::string flo_aladin_as_unsigned_int                 = output_prefix   + "flo_aladin_as_unsigned_int.nii";
     const std::string aladin_warped            = output_prefix   + "aladin_warped.nii";
     const std::string f3d_warped               = output_prefix   + "f3d_warped.nii";
@@ -220,6 +223,28 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData constructor from array.");
         // Save to file (useful for UI comparison)
         t.write(flo_aladin_as_unsigned_int);
+
+        // Check upsampling/downsampling
+        NiftiImageData<float> u(ref_aladin_filename);
+        float *pixdim = u.get_raw_nifti_sptr()->pixdim;
+        float original_spacing[3]    = {pixdim[1],       pixdim[2],       pixdim[3]};
+        float upsampled_spacing[3]   = {pixdim[1] / 2.F, pixdim[2] / 4.F, pixdim[3]};
+        float downsampled_spacing[3] = {pixdim[1] * 2.F, pixdim[2] * 4.F, pixdim[3]};
+        // Downsample
+        NiftiImageData<float> v = u;
+        v.set_voxel_spacing(downsampled_spacing,3);
+        v.write(save_nifti_image_downsample);
+        // Upsample then downsample, check nothing has changed
+        NiftiImageData<float> w = u;
+        w.set_voxel_spacing(upsampled_spacing,0);
+        w.write(save_nifti_image_upsample);
+        NiftiImageData<float> x = w;
+        x.set_voxel_spacing(original_spacing,0);
+        x.write(save_nifti_image_up_downsample);
+        NiftiImageData<float>::print_headers({&u, &v, &w, &x});
+        if (x != u)
+            throw std::runtime_error("NiftiImageData::upsample()/downsample() failed.");
+
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData test.\n";
@@ -467,6 +492,24 @@ int main(int argc, char* argv[])
         data_array = nullptr;
         if (h != t)
             throw std::runtime_error("NiftiImageData3DDisplacement constructor from array.");
+
+        // Check upsampling/downsampling
+        NiftiImageData3DDisplacement<float> u(save_nifti_image_3d_displacement_not_split);
+        float *pixdim = u.get_raw_nifti_sptr()->pixdim;
+        float original_spacing[3]    = {pixdim[1],       pixdim[2],       pixdim[3]};
+        float upsampled_spacing[3]   = {pixdim[1] / 2.F, pixdim[2] / 4.F, pixdim[3]};
+        float downsampled_spacing[3] = {pixdim[1] * 2.F, pixdim[2] * 4.F, pixdim[3]};
+        // Downsample
+        NiftiImageData3DDisplacement<float> v = u;
+        v.set_voxel_spacing(downsampled_spacing,3);
+        // Upsample then downsample, check nothing has changed
+        NiftiImageData3DDisplacement<float> w = u;
+        w.set_voxel_spacing(upsampled_spacing,0);
+        NiftiImageData3DDisplacement<float> z = w;
+        z.set_voxel_spacing(original_spacing,0);
+        NiftiImageData3DDisplacement<float>::print_headers({&u, &v, &w, &z});
+        if (z != u)
+            throw std::runtime_error("NiftiImageData3DDisplacement::upsample()/downsample() failed.");
 
 
         std::cout << "// ----------------------------------------------------------------------- //\n";

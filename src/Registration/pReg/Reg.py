@@ -375,6 +375,14 @@ class NiftiImageData(SIRF.ImageData):
         """See DataContainer.same_object()."""
         return NiftiImageData()
 
+    def set_voxel_spacing(self, spacing, interpolation_order):
+        """Set the voxel spacing. Requires resampling image, and so interpolation order is required. 
+        As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation."""
+        if len(spacing) != 3:
+            raise AssertionError("New spacing should be array of 3 numbers.")
+            type(interpolation_order)
+        try_calling(pyreg.cReg_NiftiImageData_set_voxel_spacing(self.handle, float(spacing[0]), float(spacing[1]), float(spacing[2]), int(interpolation_order)))
+
     @staticmethod
     def print_headers(to_print):
         """Print nifti header metadata of one or multiple (up to 5) nifti images."""

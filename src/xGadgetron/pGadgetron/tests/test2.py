@@ -27,7 +27,7 @@ def test_main(rec=False, verb=False, throw=True):
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
-    data_path = mr_data_path()
+    data_path = examples_data_path('MR')
     input_data = AcquisitionData(
             data_path + '/simulated_MR_2D_cartesian_Grappa2.h5')
     test.check(input_data.norm())
