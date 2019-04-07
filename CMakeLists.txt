@@ -161,13 +161,14 @@ if (DISABLE_Registration)
   message(STATUS "Registration support disabled.")
 else()
   ADD_SUBDIRECTORY(src/Registration)
+  # will set BUILD_Registration if it's actually built
 endif()
 #mark_as_advanced(DISABLE_STIR DISABLE_Gadgetron DISABLE_Registration)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
 # Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built
-if (REG_ENABLE AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
+if (BUILD_Registration AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
   MESSAGE(STATUS "Registration, Gadgetron and STIR (with ITK) have been built. Building synergistic code.")
   ADD_SUBDIRECTORY(src/Synergistic)
 else()
