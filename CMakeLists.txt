@@ -78,67 +78,65 @@ add_definitions(-DBOOST_ALL_NO_LIB)
 include_directories(${Boost_INCLUDE_DIRS})
 
 #### optional back-ends
-# find Python interpreter. Needed for tests, and best to enforce consistency anyway.
-find_package(PythonInterp QUIET)
-find_package(PythonLibs QUIET)
-if (NOT PYTHONLIBS_FOUND)
-  message(STATUS "Pythonlibs not found (set PYTHON_EXECUTABLE if you want it)")
-  set(default_DISABLE_PYTHON ON)
-else()
-  set(default_DISABLE_PYTHON OFF)
-endif()
-
-option(DISABLE_PYTHON "Disable building SIRF python support" ${default_DISABLE_PYTHON})
+option(DISABLE_PYTHON "Disable building SIRF python support" OFF)
 if (DISABLE_PYTHON)
   message(STATUS "Python support disabled")
 else(DISABLE_PYTHON)
-
-  # PYTHON_DEST_DIR allows the user to select the install destination of the 
-  # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
-  # updated on the GUI.
-  # If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python 
-  set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
-  if (PYTHON_DEST_DIR)
-   set(PYTHON_DEST "${PYTHON_DEST_DIR}")
-  else() 
-    set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
-  endif()
-  message(STATUS "Python libraries found")
-  message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
-  set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
+  # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
+  find_package(PythonInterp QUIET)
+  find_package(PythonLibs)
+  if (PYTHONLIBS_FOUND)
+    set(BUILD_PYTHON ON)
+    # PYTHON_DEST_DIR allows the user to select the install destination of the
+    # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be
+    # updated on the GUI.
+    # If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python
+    set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
+    if (PYTHON_DEST_DIR)
+      set(PYTHON_DEST "${PYTHON_DEST_DIR}")
+    else()
+      set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
+    endif()
+    message(STATUS "Python libraries found")
+    message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
+    set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
     PYTHONPATH: prefix PYTHONPATH \n\
     SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
     CONDA:      do nothing")
+
+  else(PYTHONLIBS_FOUND)
+    message(WARNING "Pythonlibs not found. Best to set PYTHON_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
+  endif(PYTHONLIBS_FOUND)
+
 endif(DISABLE_PYTHON)
 
 
-FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
-if (NOT Matlab_FOUND)
-  message(STATUS "MATLAB not found (set Matlab_ROOT_DIR if you want it)")
-  set(default_DISABLE_Matlab ON)
-else()
-  set(default_DISABLE_Matlab OFF)
-endif()
-
-option(DISABLE_Matlab "Disable building SIRF matlab support" ${default_DISABLE_Matlab})
+option(DISABLE_Matlab "Disable building SIRF matlab support" OFF)
 if (DISABLE_Matlab)
   message(STATUS "Matlab support disabled")
 else(DISABLE_Matlab)
 
-  message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
-  matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
-  # MATLAB_DEST_DIR allows the user to select the install destination of the 
-  # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
-  # updated on the GUI. 
-  # If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab 
-  set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
-  if (MATLAB_DEST_DIR)
-   set(MATLAB_DEST "${MATLAB_DEST_DIR}")
-  else() 
-    set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
+  FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
+  if (NOT Matlab_FOUND)
+    message(WARNING "MATLAB not found. Set Matlab_ROOT_DIR if you want it. Set DISABLE_Matlab to ON to silence this warning.")
+  else()
+    set(BUILD_MATLAB ON)
+    message(STATUS "Attempting to find MATLAB Mex extension (This might launch MATLAB so might take a while)")
+    matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
+    # MATLAB_DEST_DIR allows the user to select the install destination of the
+    # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be
+    # updated on the GUI.
+    # If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab
+    set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
+    if (MATLAB_DEST_DIR)
+      set(MATLAB_DEST "${MATLAB_DEST_DIR}")
+    else()
+      set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
+    endif()
+    message(STATUS "Matlab libraries found")
+    message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
   endif()
-  message(STATUS "Matlab libraries found")
-  message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
+
 endif(DISABLE_Matlab)
 
 ENABLE_TESTING()
