@@ -22,6 +22,8 @@
 FIND_PACKAGE(NIFTYREG 1.5.61)
 if (NIFTYREG_FOUND)
 
+        set(BUILD_Registration ON PARENT_SCOPE)
+
 	# Add in the NIFTYREG stuff
 	INCLUDE_DIRECTORIES("${NIFTYREG_INCLUDE_DIRS}")
   	LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
@@ -35,10 +37,7 @@ if (NIFTYREG_FOUND)
 	ADD_SUBDIRECTORY(mReg)
 
 else()
-	
-	message(WARNING "NIFTYREG not found. This is probably not what you want. If you need it, set NIFTYREG_DIR.")
-	# Following will prevent building synergistic code 
-	# (but will not change cached variable, so attempt to find NIFTYREG again on next Configure)
-	set(REG_ENABLE OFF PARENT_SCOPE)
+	message(WARNING "NIFTYREG not found. This is probably not what you want. If you need it, set NIFTYREG_DIR. Set DISABLE_Registration to OFF to silence this warning.")
+        set(BUILD_Registration OFF PARENT_SCOPE)
 
 endif()
