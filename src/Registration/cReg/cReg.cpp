@@ -202,9 +202,37 @@ void* cReg_NiftiImageData_fill_arr(const void* ptr, size_t ptr_data)
 {
     try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(ptr);
-        float* data = (float*)ptr_data;
-        for (int i=0; i<int(im.get_raw_nifti_sptr()->nvox); ++i)
-            im(i) = data[i];
+
+        const int *dims = im.get_dimensions();
+        int dim_x = dims[1];
+        int dim_y = dims[2];
+        int dim_z = dims[3];
+        int dim_t = dims[4];
+        int dim_u = dims[5];
+        int dim_v = dims[6];
+        int dim_w = dims[7];
+        // Only implemented for 3D scalar or tensor images. of x,y,z,t,u,v,w, throw an error if t,v,w are != 1.
+        if (dim_t!=1 || dim_v!=1 || dim_w!=1)
+            throw std::runtime_error("fill only implemented for 3D scalar or tensor images (should be easy to extend).");
+
+        // Get arrays
+        float *im_data = static_cast<float*>(im.get_raw_nifti_sptr()->data);
+        float *data = (float*)ptr_data;
+
+        // nifti_image data are stored as u,x,y,z, whereas python and matlab need x,y,z,u
+        int nifti_idx, wrap_idx;
+        for (int u=0; u<dim_u; ++u) {
+            for (int x=0; x<dim_x; ++x) {
+                for (int y=0; y<dim_y; ++y) {
+                    for (int z=0; z<dim_z; ++z) {
+                        wrap_idx  = u + dim_u*(x + dim_x*(y + dim_y*(z)));
+                        nifti_idx = x + dim_x*(y + dim_y*(z + dim_z*(u)));
+                        im_data[nifti_idx] = data[wrap_idx];
+                    }
+                }
+            }
+        }
+
         return new DataHandle;
     }
     CATCH;
@@ -245,14 +273,39 @@ void* cReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out)
     CATCH;
 }
 extern "C"
-void* cReg_NiftiImageData_get_data(const void* ptr, size_t ptr_data)
+void* cReg_NiftiImageData_as_array(const void* ptr, size_t ptr_data)
 {
     try {
         const NiftiImageData<float>& im = objectFromHandle<const NiftiImageData<float> >(ptr);
-        float* data = (float*)ptr_data;
-        size_t mem = im.get_raw_nifti_sptr()->nvox * size_t(im.get_raw_nifti_sptr()->nbyper);
-        // Copy!
-        memcpy(data, im.get_raw_nifti_sptr()->data, mem);
+        const int *dims = im.get_dimensions();
+        int dim_x = dims[1];
+        int dim_y = dims[2];
+        int dim_z = dims[3];
+        int dim_t = dims[4];
+        int dim_u = dims[5];
+        int dim_v = dims[6];
+        int dim_w = dims[7];
+        // Only implemented for 3D scalar or tensor images. of x,y,z,t,u,v,w, throw an error if t,v,w are != 1.
+        if (dim_t!=1 || dim_v!=1 || dim_w!=1)
+            throw std::runtime_error("as_array only implemented for 3D scalar or tensor images (should be easy to extend).");
+
+        // Get arrays
+        const float *im_data = static_cast<float*>(im.get_raw_nifti_sptr()->data);
+        float *data = (float*)ptr_data;
+
+        // nifti_image data are stored as u,x,y,z, whereas python and matlab need x,y,z,u
+        int nifti_idx, wrap_idx;
+        for (int u=0; u<dim_u; ++u) {
+            for (int x=0; x<dim_x; ++x) {
+                for (int y=0; y<dim_y; ++y) {
+                    for (int z=0; z<dim_z; ++z) {
+                        wrap_idx  = u + dim_u*(x + dim_x*(y + dim_y*(z)));
+                        nifti_idx = x + dim_x*(y + dim_y*(z + dim_z*(u)));
+                        data[wrap_idx] = im_data[nifti_idx];
+                    }
+                }
+            }
+        }
         return new DataHandle;
     }
     CATCH;

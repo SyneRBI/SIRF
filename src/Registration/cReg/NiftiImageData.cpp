@@ -321,16 +321,15 @@ float NiftiImageData<dataType>::get_mean() const
         throw std::runtime_error("NiftiImageData<dataType>::get_min(): Image not initialised.");
 
     float sum = 0.F;
-    int count = 0;
-    for (int i=0; i<int(_nifti_image->nvox); ++i) {
-        if (std::isnan(_data[i]))
-            throw std::runtime_error("NiftiImageData<dataType>::get_mean: Image contains NaN voxels.");
-        sum += _data[i];
-        ++count;
-    }
+    int nan_count = 0;
+    for (unsigned i=0; i<_nifti_image->nvox; ++i)
+        if (!std::isnan(_data[i])) {
+            sum += _data[i];
+            ++nan_count;
+        }
 
     // Get data
-    return sum / float(count);
+    return sum / float(nan_count);
 }
 
 template<class dataType>
@@ -369,12 +368,10 @@ float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) 
     // Use double precision to minimise rounding errors
     double result(0);
     size_t num_vox = _nifti_image->nvox;
-    for (size_t i=0; i<num_vox; ++i) {
-        // If either value is nan, error
-        if (std::isnan(this->operator()(i)+other(i)))
-            throw std::runtime_error("NiftiImageData<dataType>::get_norm: One or both contain NaN voxels.");
-        result += double(pow( this->operator()(i) - other(i), 2));
-    }
+    for (size_t i=0; i<num_vox; ++i)
+        // If either value is nan, skip
+        if (!std::isnan(this->operator()(i)+other(i)))
+            result += double(pow( this->operator()(i) - other(i), 2));
 
     return float(sqrt(result));
 }
@@ -792,7 +789,7 @@ bool NiftiImageData<dataType>::do_nifti_image_metadata_match(const NiftiImageDat
             do_nifti_image_metadata_elements_match("dx",              im1_sptr->dx,              im2_sptr->dx,               verbose) &&
             do_nifti_image_metadata_elements_match("dy",              im1_sptr->dy,              im2_sptr->dy,               verbose) &&
             do_nifti_image_metadata_elements_match("dz",              im1_sptr->dz,              im2_sptr->dz,               verbose) &&
-            do_nifti_image_metadata_elements_match("ext_list",        im1_sptr->ext_list,        im2_sptr->ext_list,         verbose) &&
+            //do_nifti_image_metadata_elements_match("ext_list",        im1_sptr->ext_list,        im2_sptr->ext_list,         verbose) &&
             do_nifti_image_metadata_elements_match("freq_dim",        im1_sptr->freq_dim,        im2_sptr->freq_dim,         verbose) &&
             do_nifti_image_metadata_elements_match("iname_offset",    im1_sptr->iname_offset,    im2_sptr->iname_offset,     verbose) &&
             do_nifti_image_metadata_elements_match("intent_code",     im1_sptr->intent_code,     im2_sptr->intent_code,      verbose) &&

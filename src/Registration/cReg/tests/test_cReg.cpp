@@ -618,6 +618,8 @@ int main(int argc, char* argv[])
         NA.set_parameter("SetInterpolationToCubic");
         NA.set_parameter("SetLevelsToPerform","1");
         NA.set_parameter("SetMaxIterations","5");
+        NA.set_parameter("SetPerformRigid","1");
+        NA.set_parameter("SetPerformAffine","0");
         NA.set_reference_mask(ref_mask);
         NA.set_floating_mask(flo_mask);
         NA.process();
