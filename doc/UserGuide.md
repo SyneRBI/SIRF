@@ -78,7 +78,7 @@ The MR module and the demos create temporary files during operation. They are no
 
 ### Object-oriented paradigm <a name="Object-oriented_paradigm"></a>
 
-SIRF library modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class ImageData that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
+SIRF library modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
 
     image = ImageData('my_image.h5'); 
 
@@ -90,7 +90,7 @@ and to copy the data into a Matlab array one uses method as_array():
 
     image_data_array = image.as_array(); 
 
-Parameters of objects are modified/accessed via set/get methods (mutators and accessors). For example, the value of an objective function handled by object named obj_fun on an image data object image is computed by its method  get_value() as  
+Parameters of objects are modified/accessed via set/get methods (mutators and accessors). For example, the value of an objective function handled by object named `obj_fun` on an image data object image is computed by its method  get_value() as  
 
     obj_fun_value = obj_fun.get_value(image); 
 
@@ -104,15 +104,15 @@ Error handling is via exceptions, i.e. functions do not return an error status, 
 
 ### Naming conventions <a name="Naming_conventions"></a>
 
-- Types/classes start with capitals, every word is capitalised, no underscores, e.g. AcquisitionModel. 
+- Types/classes start with capitals, every word is capitalised, no underscores, e.g. `AcquisitionModel`. 
 
-- Class methods are lower case, underscores between different words, e.g. get_voxel_size(). 
+- Class methods are lower case, underscores between different words, e.g. `get_voxel_size()`. 
 
 - Methods indicating  
 
-    - a number of things start with num, e.g. num_gates. 
+    - a number of things start with `num`, e.g. `num_gates`. 
 
-    - the number of an item in a sequence end with num, e.g. gate_num. 
+    - the number of an item in a sequence end with `num`, e.g. `gate_num`. 
 
 ### Units and index ordering <a name="Units_and_index_ordering"></a>
 
@@ -124,42 +124,42 @@ For arrays in the target language, we use “native” ordering of indices in Py
 
     image_array(x,y,z) % Matlab 
 
-For images, the meaning of z,y,x is currently acquisition dependent. Geometric information will be added later. 
+For images, the meaning of `x`, `y` and `z` is currently acquisition dependent. Geometric information will be added later. 
 
 ### Handles <a name="Handles"></a>
 
-In both Matlab and Python, SIRF operates with handles to objects, which affects the meaning of the assignment x = y: instead of creating a separate copy of y stored in x, x simply points to the same underlying data. As the result, any changes in x simultaneously change y. 
+In both Matlab and Python, SIRF operates with handles to objects, which affects the meaning of the assignment `x = y`: instead of creating a separate copy of `y` stored in `x`, `x` simply points to the same underlying data. As the result, any changes in `x` simultaneously change `y`. 
 
 In order to have a true (i.e. independent) copy of a SIRF object, the user must call the object methods that create copies of them (see below). 
 	
 ## Library components <a name="Library_components"></a>
 
-At present, the SIRF library provides two Python interface modules pSTIR and pGadgetron for STIR and Gadgetron respectively, and two respective Matlab modules mSTIR and mGadgetron. 
+At present, the SIRF library provides two Python interface modules `sirf.STIR` and `sirf.Gadgetron` for STIR and Gadgetron respectively, and two respective Matlab modules `sirf.STIR` and `sirf.Gadgetron`. 
 
 ### Getting help on SIRF library modules <a name="Getting_help_on_SIRF_library_modules"></a>
 
 We remind that to see the contents of a Python module, the user needs to import it and use Python's help, and in Matlab one needs to use doc. For example,  
 
     # Python  
-    import pSTIR 
-    help(pSTIR) 
+    import sirf.STIR 
+    help(sirf.STIR) 
 
-will show the components of pSTIR, and similarly 
+will show the components of the module `sirf.STIR`, and similarly 
 
     % Matlab 
-    doc mSTIR 
+    doc sirf.Gadgetron 
 
-will show the components of mGadgetron. In the same way,   
+will show the components of `sirf.Gadgetron`. In the same way,   
 
     # Python  
-    help(pGadgetron.ImageData) 
+    help(sirf.Gadgetron.ImageData) 
 
-will provide information on pGadgetron ImageData class, and  
+will provide information on the class `ImageData` defined in the module `sirf.Gadgetron`, and  
 
     % Matlab 
-    doc mSTIR.AcquisitionData  
+    doc sirf.STIR.AcquisitionData  
 
-on the mSTIR.AcquisitionData class. Regrettably, help and doc show all methods, including some common built-in methods such as __weakref__ method in Python or addlistener method in Matlab. Methods that are not related to SIRF is relatively easy to identify in Python (built-in methods have underscores in names). In Matlab they are difficult to identify, which is why we mark relevant Matlab methods other than constructors with \*\*\*SIRF\*\*\*. Methods not marked this way should be ignored. 
+on the `sirf.STIR.AcquisitionData` class. Regrettably, help and doc show all methods, including some common built-in methods such as `__weakref__` method in Python or `addlistener` method in Matlab. Methods that are not related to SIRF is relatively easy to identify in Python (built-in methods have underscores in names). In Matlab they are difficult to identify, which is why we mark relevant Matlab methods other than constructors with `***SIRF***`. Methods not marked this way should be ignored. 
 
 In order to understand the functionality of a derived class (see [Object-oriented paradigm](#Object-oriented_paradigm)), you are advised to first get help on the classes it is derived from. In Python, you can see that a class is derived by the presence of "Method resolution order" section in Python help output, which lists all classes it is derived from. You are advised to get help on all these classes except Python's class `builtins.object`. In Matlab, look at "Superclasses" item in "Class Details", and get help on the classes listed there except Matlab's class `handle`.
 
@@ -180,11 +180,13 @@ and a method to create a copy of the object
     recon.process(); 
     output_image_data=recon.get_output(); 
 
-Classes follow a simple hierarchy, where top-level describes the generic functionality, and derived classes add/specify functionality. To see an example, look up Reconstructor and IterativeReconstructor classes in pSTIR or mSTIR using help or doc. We note that help(pSTIR.IterativeReconstructor) and doc mSTIR.IterativeReconstructor will show all the functionality of this class, i.e. including that of Reconstructor (and also some built-in functionality common to Python/Matlab classes). 
+Classes follow a simple hierarchy, where top-level describes the generic functionality, and derived classes add/specify functionality. To see an example, look up `Reconstructor` and `IterativeReconstructor` classes in `sirf.STIR` or `sirf.STIR` using `help` or `doc`. We note that `help(sirf.STIR.IterativeReconstructor)` and `doc sirf.STIR.IterativeReconstructor` will show all the functionality of this class, i.e. including that of `Reconstructor` (and also some built-in functionality common to Python/Matlab classes). 
 
-In what follows we use PET instead of pSTIR/mSTIR and MR instead of pGadgetron/mGadgetron to cover both Python and Matlab and also prospective alternative reconstruction engines. 
+<!---
+In what follows we use PET instead of `sirf.STIR` and MR instead of `sirf.Gadgetron` to cover prospective alternative reconstruction engines. 
+--->
 
-In the rest of the document we give basic information on the SIRF classes, including brief descriptions of the methods that are of interest to the user. Please use the inline help facility discussed above for more information. 
+In the rest of the document we give basic information on the SIRF classes, including brief descriptions of the methods that are of interest to the user. Please use the inline help facility discussed above for more information. Descriptions are given for Python modules, which usually contain more functionality.
 
 ### Basic classes <a name="Basic_classes"></a>
 

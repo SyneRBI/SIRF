@@ -2,14 +2,18 @@
 
 ## v2.0.0-rc.1
 
-* removed `using` statements from the header files
-* created namespace `sirf`
-* added default constructor and set_up to MRAcquisitionModel
-* implemented sorting of MR images
-* implemented reading of MR acquisition data from ISMRMRD file
+* Removed `using` statements from the header files
+* Created namespace `sirf`
+* Added default constructor and set_up to MRAcquisitionModel
+* Implemented sorting of MR images
+* Implemented reading of MR acquisition data from ISMRMRD file
 * Matlab: in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
-* Update minimum required version of CMake to 3.9.0.
-* added TOF bins dimension to PETAcquisitionData
+* Updated minimum required version of CMake to 3.9.0.
+* Implemented `NumRef` type to handle numerical values of a priori unknown type (to handle efficiently real and complex ISMRMRD images).
+* Implemented new `ImageData` hierarchy common to PET and MR.
+* Implemented `ImageData` iterators hierarchy to facilitate copying data between PET and MR images.
+* Modified ObjectHandle type so that it can handle both `std::shared_ptr` and `boost::shared_ptr`.
+* Added TOF bins dimension to `PETAcquisitionData`
 * Wrapping of NiftyReg to allow registration/resampling in SIRF.
 
 ## v1.1.0
