@@ -168,9 +168,9 @@ endif()
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
 # Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built
-if (BUILD_Registration AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
-  MESSAGE(STATUS "Registration, Gadgetron and STIR (with ITK) have been built. Building synergistic code.")
+if (BUILD_Registration AND ISMRMRD_FOUND AND STIR_FOUND AND "${STIR_BUILT_WITH_ITK}")
+  MESSAGE(STATUS "Registration, ISMRMRD and STIR-with-ITK have been built. Building synergistic code.")
   ADD_SUBDIRECTORY(src/Synergistic)
 else()
-  MESSAGE(STATUS "One or more of the following components are missing: Registration, Gadgetron and STIR (with ITK). Synergistic code will not be built.")
+  MESSAGE(STATUS "One or more of the following components are missing: Registration (${BUILD_Registration}), ISMRMRD (${ISMRMRD_FOUND}) and STIR-with-ITK (STIR: ${STIR_FOUND}, with ITK: ${STIR_BUILT_WITH_ITK}). Synergistic code will not be built.")
 endif()

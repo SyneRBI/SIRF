@@ -30,6 +30,7 @@ if (ISMRMRD_FOUND)
   # We need the following line because there is a problem with the
   # ISMRMRD config cmake file which means that library location is
   # not part of the target.
+  set(ISMRMRD_FOUND ${ISMRMRD_FOUND} PARENT_SCOPE) # Parent scope needed for synergistic code
   set(cGadgetron_LIBRARY_DIRS "${ISMRMRD_LIBRARY_DIRS}" PARENT_SCOPE)
   set(cGadgetron_INCLUDE_DIR "${ISMRMRD_INCLUDE_DIR}" PARENT_SCOPE)
 

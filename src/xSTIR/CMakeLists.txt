@@ -19,6 +19,7 @@
 find_package(STIR 3.1.0)
 if (STIR_FOUND)
 
+  set(STIR_FOUND ${STIR_FOUND} PARENT_SCOPE) # Parent scope needed for synergistic code
   set("STIR_BUILT_WITH_ITK" "${STIR_BUILT_WITH_ITK}" PARENT_SCOPE)
 
   set(cSTIR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cSTIR")
