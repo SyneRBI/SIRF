@@ -69,8 +69,8 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_dimensions(const void* ptr, 
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out) {
 	return cReg_NiftiImageData_get_voxel_sizes(ptr, ptr_out);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data) {
-	return cReg_NiftiImageData_get_data(ptr, ptr_data);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_as_array(const void* ptr, PTR_FLOAT ptr_data) {
+	return cReg_NiftiImageData_as_array(ptr, ptr_data);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type) {
 	return cReg_NiftiImageData_maths_im(res_ptr, im1_ptr, im2_ptr, maths_type);
