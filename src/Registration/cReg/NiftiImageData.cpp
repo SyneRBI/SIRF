@@ -321,16 +321,15 @@ float NiftiImageData<dataType>::get_mean() const
         throw std::runtime_error("NiftiImageData<dataType>::get_min(): Image not initialised.");
 
     float sum = 0.F;
-    int count = 0;
-    for (int i=0; i<int(_nifti_image->nvox); ++i) {
-        if (std::isnan(_data[i]))
-            throw std::runtime_error("NiftiImageData<dataType>::get_mean: Image contains NaN voxels.");
-        sum += _data[i];
-        ++count;
-    }
+    int nan_count = 0;
+    for (unsigned i=0; i<_nifti_image->nvox; ++i)
+        if (!std::isnan(_data[i])) {
+            sum += _data[i];
+            ++nan_count;
+        }
 
     // Get data
-    return sum / float(count);
+    return sum / float(nan_count);
 }
 
 template<class dataType>
@@ -369,12 +368,10 @@ float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) 
     // Use double precision to minimise rounding errors
     double result(0);
     size_t num_vox = _nifti_image->nvox;
-    for (size_t i=0; i<num_vox; ++i) {
-        // If either value is nan, error
-        if (std::isnan(this->operator()(i)+other(i)))
-            throw std::runtime_error("NiftiImageData<dataType>::get_norm: One or both contain NaN voxels.");
-        result += double(pow( this->operator()(i) - other(i), 2));
-    }
+    for (size_t i=0; i<num_vox; ++i)
+        // If either value is nan, skip
+        if (!std::isnan(this->operator()(i)+other(i)))
+            result += double(pow( this->operator()(i) - other(i), 2));
 
     return float(sqrt(result));
 }
