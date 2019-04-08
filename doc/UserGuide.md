@@ -223,11 +223,13 @@ Class for acquisition data.
     fill       (PET/MR) Replaces the object data with user-supplied data. 
     clone      (PET/MR) Returns a copy of this object. 
     write      (PET/MR) Writes the object data to a file. 
-    sort           (MR) Sort the object data. 
-    is_sorted      (MR) Returns true if and only if the object data is sorted. 
-    get_info       (MR) Returns information on the object data. 
-    process        (MR) Processes the object data by a chain of gadgets. 
-    dimensions     (MR) Returns the object data dimensions
+    sort           (MR) Sorts the acquisition data. 
+    is_sorted      (MR) Returns true if and only if the acquisition data is sorted. 
+    get_info       (MR) Returns information on the acquisition data. 
+    process        (MR) Processes the acquisition data by a chain of gadgets. 
+    dimensions     (MR) Returns the acquisition data dimensions
+    show       (PET/MR) Displays the acquisition data as a set of 2D sinograms (PET)
+                        or xy-slices (MR)
 
 ##### ImageData
 
@@ -235,20 +237,20 @@ Class for data representing 3D objects.
 
 ###### Methods:
 
-    ImageData   (PET)  Constructor. Reads data from a file or creates empty object. 
-    initialise  (PET)  Sets the image size in voxels, voxel sizes and the origin. 
-    fill     (PET/MR)  Replaces the object data with user-supplied data. 
-    as_array (PET/MR)  Returns the object data as an array. 
-    clone    (PET/MR)  Returns a copy of this object. 
+    ImageData (PET/MR)  Constructor. Reads data from a file or creates empty object. 
+    initialise   (PET)  Sets the image size in voxels, voxel sizes and the origin. 
+    fill      (PET/MR)  Replaces the object data with user-supplied data. 
+    as_array  (PET/MR)  Returns the object data as an array. 
+    clone     (PET/MR)  Returns a copy of this object. 
     read_from_file
-             (PET/MR)  Reads the image data from file.
+              (PET/MR)  Reads the image data from file.
     get_uniform_copy   
-                (PET)  Returns a copy of this image filled with a constant value. 
-    add_shape   (PET)  Adds a uniform shape to the image. 
-    show     (PET/MR)  Interactively displays the image. 
-    write    (PET/MR)  Writes the object data to a file. 
-    dimensions  (PET)  Returns the object data dimensions
-    voxel_sizes (PET)  Returns the voxel sizes
+                 (PET)  Returns a copy of this image filled with a constant value. 
+    add_shape    (PET)  Adds a shape to the image. 
+    show      (PET/MR)  Displays the image as a set of 2D xy-slices. 
+    write     (PET/MR)  Writes the object data to a file. 
+    dimensions   (PET)  Returns the object data dimensions
+    voxel_sizes  (PET)  Returns the voxel sizes
 	
 ##### CoilSensitivityData (MR)
 
@@ -308,7 +310,9 @@ Class for objects that process AcquisitionData objects.
 ###### Methods:
 
     AcquisitionDataProcessor  
-               (MR) Constructor. Creates new processor object defined by the argument. 
+               (MR) Constructor. Creates new processor object (a chain of gadgets,
+                    see section Programming chains of Gadgetron gadgets) defined by 
+                    the argument. 
     set_input  (MR) Sets the processor input. 
     process    (MR) Processes the image data on input. 
     get_output (MR) Retrieves the processed image data. 
@@ -368,7 +372,7 @@ Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One S
 
 ###### Methods (in addition to those of IterativeReconstructor): 
 
-    OSMAPOSLReconstructor  Constructor. Creates new reconstructor object.  
+    OSMAPOSLReconstructor  Constructor. Creates new OSMAPOSL reconstructor object.  
 
 ##### OSSPSReconstructor (PET) 
 
@@ -376,7 +380,7 @@ Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Sur
 
 ###### Methods (in addition to those of IterativeReconstructor): 
 
-    OSSPSReconstructor   Constructor. Creates new reconstructor object. 
+    OSSPSReconstructor   Constructor. Creates new OSSPS reconstructor object. 
 
 ##### FullySampledReconstructor (MR) 
 
@@ -455,19 +459,23 @@ Class for the acquisition process modelling. Main component is the forward proje
 
 For PET, F(x) is the right-hand side of the following equation:
 
-    (F)    y = (1/n)(G x + a) + b 
+    (F)    y = S(G x + a) + b 
 
 where  
 
-G, ray tracing matrix, is a matrix whose columns correspond to the image voxels and rows to pairs of scanner's detectors (bins), each column simulating the impact of this voxel's radiation on the data acquired by the bins; 
+`G` is *ray tracing matrix*, (conceptually) a matrix whose columns correspond to the image voxels and rows to pairs of scanner's detectors (bins), each column simulating the impact of this voxel's radiation on the data acquired by the bins (this matrix is never actually computed);
 
-a and b, additive and background terms, represent the effects of accidental coincidences and scattering; 
+`a` and `b` are *additive* and *background terms* representing the effects of accidental coincidences and scattering; 
 
+`S` is *acquisition sensitivity model* representing detector sensitivities and attenuation. 
+
+<!---
 n, bin normalization, is the inverse of bin efficiencies. 
+--->
 
 Accordingly, the backprojection B is given by
 
-    (B)    x = G' (1/n) y 
+    (B)    x = G' S y 
 
 where G' is the transpose of G. 
 
@@ -485,8 +493,7 @@ where G' is the transpose of G.
                               templates provided by the arguments. 
     set_additive_term   (PET) Sets term a in (F). 
     set_acquisition_sensitivity   
-                        (PET) Defines n in (F) via AcquisitionSensitivityModel
-                              (see below). 
+                        (PET) Defines AcquisitionSensitivityModel S (see below). 
     set_coil_sensitivity_maps  
                          (MR) Sets coil sensitivity maps to be used.  
 
@@ -498,7 +505,7 @@ where G' is the transpose of G.
 
 ##### AcquisitionModelUsingRayTracingMatrix (PET) 
 
-Class for the PET acquisition process model that uses (implicitly) a sparse matrix for G in (F). This class inherits the methods of PET AcquisitionModel class, with forward projection defined by (F) and backprojection by (B).
+Class for the PET acquisition process model that uses (implicitly) a sparse matrix for `G` in (F). This class inherits the methods of PET AcquisitionModel class, with forward projection defined by (F) and backprojection by (B).
 
 ###### Methods (in addition to those of AcquisitionModel): 
 
@@ -514,7 +521,7 @@ Class for the PET acquisition process model that uses (implicitly) a sparse matr
 ##### AcquisitionSensitivityModel (PET)
 
 Class for a part of AcquisitionModel that accounts for bin efficiencies and attenuation.
-Provides methods for for applying (1/n) factor in (F) and (B) or its inverse. 
+Provides methods for for applying `S` factor in (F) and (B) or its inverse. 
 
 ###### Methods: 
 
@@ -528,12 +535,12 @@ Provides methods for for applying (1/n) factor in (F) and (B) or its inverse.
                      of the two objects' normalisations.
 
     set_up           Sets up the object.
-    normalise        Multiplies the argument (AcquisitionData) by n.
-    unnormalise      Multiplies the argument (AcquisitionData) by (1/n).
-    forward          Returns the argument multiplied by (1/n). The argument
+    normalise        Applies the inverse of S to the AcquisitionData argument.
+    unnormalise      Applies S to the AcquisitionData argument.
+    forward          Returns the argument multiplied by S. The argument
                      is not changed.
-    invert           Returns the argument multiplied by n. The argument
-                     is not changed.
+    invert           Returns the argument multiplied by the inverse of S. 
+                     The argument is not changed.
 
 ###### Examples: 
 
@@ -560,27 +567,29 @@ The user have an option of adding a penalty term (referred to as prior) to the o
 
 ###### Methods: 
 
-    set_prior        Specifies the prior. 
-    set_num_subsets  Specifies the number of subsets. 
-    set_up           Prepares this object for use. 
-    get_value        Returns the value of the objective function. 
-    get_gradient     Returns the gradient of the objective function. 
+    ObjectiveFunction  Constructor. Creates a new empty object.
+    set_prior          Specifies the prior. 
+    set_num_subsets    Specifies the number of subsets. 
+    set_up             Prepares this object for use. 
+    get_value          Returns the value of the objective function. 
+    get_gradient       Returns the gradient of the objective function. 
     get_subset_gradient 
-                     Returns the component of the gradient for the specified subset. 
+                       Returns the component of the gradient for the specified subset. 
     get_backprojection_of_acquisition_ratio 
-                     Returns the backprojection of the ratio of measured to estimated 
-                     acquisition data. 
+                       Returns the backprojection of the ratio of measured to estimated 
+                       acquisition data. 
     set_acquisition_model 
-                     Specifies the acquisition model to be used. 
+                       Specifies the acquisition model to be used. 
     set_acquisition_data 
-                     Specifies the acquisition data to be used.  
+                       Specifies the acquisition data to be used.  
 
-##### QuadraticPrior (PET)
+##### Prior (PET)
 
 Class for a penalty term to be added to the objective function. 
 
 ###### Methods: 
 
+    Prior                    Constructor. Creates a new empty object.
     set_penalisation_factor  Specifies the prior's scaling factor. 
     get_gradient             Returns the prior gradient.  
 
