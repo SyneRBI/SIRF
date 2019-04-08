@@ -34,12 +34,12 @@ Known versions: 1.5.59,1.5.61, 1.5.63
 SetInterpolationToCubic,           -,        -, 1.5.59, 1.5.61, 1.5.63
 SetInterpolationToNearestNeighbor, -,        -, 1.5.59, 1.5.61, 1.5.63
 SetInterpolationToTrilinear,       -,        -, 1.5.59, 1.5.61, 1.5.63
-SetAlignCentre,                    str,      -, 1.5.59, 1.5.61, 1.5.63
+SetAlignCentre,                    bool,     -, 1.5.59, 1.5.61, 1.5.63
 SetInputTransform,                 str,      -, 1.5.59, 1.5.61, 1.5.63
-SetPerformAffine,                  str,      -, 1.5.59, 1.5.61, 1.5.63
-SetPerformRigid,                   str,      -, 1.5.59, 1.5.61, 1.5.63
-SetAlignCentreGravity,             str,      -, 1.5.59
-SetVerbose,                        str,      -, 1.5.59, 1.5.61, 1.5.63
+SetPerformAffine,                  bool,     -, 1.5.59, 1.5.61, 1.5.63
+SetPerformRigid,                   bool,     -, 1.5.59, 1.5.61, 1.5.63
+SetAlignCentreGravity,             bool,     -, 1.5.59
+SetVerbose,                        bool,     -, 1.5.59, 1.5.61, 1.5.63
 SetBlockPercentage,                int,      -, 1.5.59, 1.5.61, 1.5.63
 SetInterpolation,                  int,      -, 1.5.59, 1.5.61, 1.5.63
 SetBlockStepSize,                  int,      -, 1.5.59, 1.5.61, 1.5.63
