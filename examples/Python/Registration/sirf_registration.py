@@ -10,15 +10,15 @@ Options:
   --flo <file>                 floating image (default: test2.nii.gz)
   --par <file>                 parameter file (default: niftyreg_aladin.par)
   --algo <algo>                registration algorithm [default: NiftyAladinSym]
-  --rmask                      mask of reference image
-  --fmask                      mask of floating image
+  --rmask <file>               mask of reference image
+  --fmask <file>               mask of floating image
   --warped <file>              warped image filename [default: output]
-  --TM_forward                 forward transformation matrix (if rigid/affine)
-  --TM_inverse                 inverse transformation matrix (if rigid/affine)
-  --disp_fwd_4D                4D forward displacement field image
-  --def_fwd_4D                 4D forward deformation field image
-  --disp_inv_4D                4D inverse displacement field image
-  --def_inv_4D                 4D inverse deformation field image
+  --TM_forward <file>          forward transformation matrix (if rigid/affine)
+  --TM_inverse <file>          inverse transformation matrix (if rigid/affine)
+  --disp_fwd_4D <file>         4D forward displacement field image
+  --def_fwd_4D <file>          4D forward deformation field image
+  --disp_inv_4D <file>         4D inverse displacement field image
+  --def_inv_4D <file>          4D inverse deformation field image
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -58,7 +58,7 @@ rmask_file = args['--rmask']
 fmask_file = args['--fmask']
 
 # if using the default for any, need to get the examples folder
-if (ref_file or flo_file or par_file) is None: 
+if (ref_file is None or flo_file is None or par_file is None): 
   SIRF_PATH = os.environ.get('SIRF_PATH')
   if SIRF_PATH is not None:
     examples_path = SIRF_PATH + '/data/examples/Registration'
