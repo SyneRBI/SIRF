@@ -165,7 +165,7 @@ classdef NiftiImageData < sirf.SIRF.ImageData
             dim = self.get_dimensions();
             dim = dim(2:dim(1)+1);
             ptr_v = libpointer('singlePtr', zeros(dim));
-            calllib('mreg', 'mReg_NiftiImageData_get_data', self.handle_, ptr_v);
+            calllib('mreg', 'mReg_NiftiImageData_as_array', self.handle_, ptr_v);
             array = reshape(ptr_v.Value,dim);
         end
         function datatype = get_original_datatype(self)

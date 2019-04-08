@@ -344,7 +344,7 @@ class NiftiImageData(SIRF.ImageData):
         dim = self.get_dimensions()
         dim = dim[1:dim[0]+1]
         array = numpy.ndarray(dim, dtype=numpy.float32)
-        try_calling(pyreg.cReg_NiftiImageData_get_data(self.handle, array.ctypes.data))
+        try_calling(pyreg.cReg_NiftiImageData_as_array(self.handle, array.ctypes.data))
         return array
 
     def get_original_datatype(self):
