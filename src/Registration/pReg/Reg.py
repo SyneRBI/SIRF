@@ -29,7 +29,6 @@ from pUtilities import *
 from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
-import pSTIR
 
 try:
     input_ = raw_input
