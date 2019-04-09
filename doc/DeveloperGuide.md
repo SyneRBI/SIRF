@@ -48,11 +48,11 @@ To summarise, SIRF software is structured as the following set of layers (from t
 
 | SIRF software layers | Files (PET) | Files (MR) |
 | --- | --- | --- |
-| Matlab/Python OO interface modules | +mSTIR/*.m pSTIR.py | +mGadgetron/*.m pGadgetron.py |
-| Matlab/Python interfaces to C | mstir.\* pystir.* | mgadgetron.\* pygadgetron.* |
-| C interface to C\++ code | cstir.* | cgadgetron.* |
-| Extended engine functionality | xSTIR/cSTIR/* | xGadgetron/cGadgetron/* |
-| Reconstruction engines | STIR/* | Gadgetron/* |
+| Matlab/Python OO interface modules | `+STIR/*.m STIR.py` | `+Gadgetron/*.m pGadgetron.py` |
+| Matlab/Python interfaces to C | `mstir.\* pystir.*` | `mgadgetron.\* pygadgetron.*` |
+| C interface to C\++ code | `cstir.*` | `cgadgetron.*` |
+| Extended engine functionality | `xSTIR/cSTIR/*` | `xGadgetron/cGadgetron/*` |
+| Reconstruction engines | `STIR/*` | `Gadgetron/*` |
 
 As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c", "p" and "m". These correspond to the various layers of SIRF: eXtended engine functionality, C-interface, Python and Matlab.
 
@@ -80,6 +80,10 @@ A class for handling PET acquisition data. Based on STIR `ProjData` class and re
 
 A class for handling PET image data. Based on STIR `DiscretisedDensity` class and retains most of its functionality. Has additional algebraic operations functionality. *Files:* `SIRF/src/xSTIR/cSTIR/stir_data_containers.*`.
 
+###### ListmodeToSinograms <a name="ListmodeToSinograms"></a>
+
+A class for listmode-to-sinogram conversion and randoms estimation.
+
 ###### PETAcquisitionModel <a name="PETAcquisitionModel"></a>
 
 A class for PET acquisition process simulation. Has method `forward` for simulating acquisition process in a PET scanner and method `backward` for the adjoint (transposed) operation. *Files:* `SIRF/src/xSTIR/cSTIR/stir_x.*`.
@@ -88,12 +92,15 @@ A class for PET acquisition process simulation. Has method `forward` for simulat
 
 A class derived from `PETAcquisitionModel`. Employs STIR object `ProjMatrixByBin` in forward- and backprojection. *Files:* `SIRF/src/xSTIR/cSTIR/stir_x.*`.
 
+###### PETAcquisitionSensitivityModel <a name="PETAcquisitionSensitivityModel"></a>
+
+A class for PET acquisition sensitivity simulation, responsible for modelling detector efficiencies and attenuation.
+
 #### Extended Gadgetron functionality <a name="Extended Gadgetron functionality"></a>
 
 Extended Gadgetron functionality in SIRF is built entirely upon the Gadgetron client `gadgetron_ismrmrd_client.cpp`: SIRF essentially provides an alternative client. The server-side parts of the Gadgetron code are not used at present. This, for example, allows the use of Gadgetron without its installation under Windows - instead, Gadgetron can be run on a Linux Virtual Machine.
 
 ###### MRAcquisitionData <a name="MRAcquisitionData"></a>
-
 
 A container class for storing and handling ISMRMRD acquisitions. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_data_containers.*`.
 
@@ -123,6 +130,9 @@ At present, the set of classes that have been derived from Gadgets (representing
     GenericReconCartesianGrappaGadget
     GenericReconFieldOfViewAdjustmentGadget
     GenericReconImageArrayScalingGadget
+    FatWaterGadget
+    PhysioInterpolationGadget
+
     ImageArraySplitGadget
     ExtractGadget
     ComplexToFloatGadget
@@ -274,6 +284,7 @@ The next two wrappers demonstrate how data is exchanged between C++ and Matlab/P
 
 	extern "C"
 	void* cGT_getAcquisitionsData
+
 	(void* ptr_acqs, unsigned int slice, size_t ptr_re, size_t ptr_im)
 	{
 		try {
