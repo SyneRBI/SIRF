@@ -41,9 +41,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 ####### Set Version number etc
-set(VERSION_MAJOR   1 )
-set(VERSION_MINOR   1 )
-set(VERSION_PATCH   1 )
+set(VERSION_MAJOR   2 )
+set(VERSION_MINOR   0 )
+set(VERSION_PATCH   0-rc.1 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 set(SIRF_VERSION
