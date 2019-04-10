@@ -2,27 +2,34 @@
 
 ## v2.0.0-rc.1
 
-* Removed `using` statements from the header files
-* Created namespace `sirf`
-* Added default constructor and set_up to MRAcquisitionModel
-* Implemented sorting of MR images
-* Implemented reading of MR acquisition data from ISMRMRD file
-* Matlab: in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
-* Updated minimum required version of CMake to 3.9.0.
-* Implemented `NumRef` type to handle numerical values of a priori unknown type (to handle efficiently real and complex ISMRMRD images).
-* Implemented new `ImageData` hierarchy common to PET and MR.
-* Implemented `ImageData` iterators hierarchy to facilitate copying data between PET and MR images.
-* Modified ObjectHandle type so that it can handle both `std::shared_ptr` and `boost::shared_ptr`.
-* Added TOF bins dimension to `PETAcquisitionData`
 * Wrapping of NiftyReg to allow registration/resampling in SIRF.
+* Implemented new `ImageData` hierarchy common to PET and MR. `ImageData` contain geometrical info.
+* MR/Gadgetron
+  * Added default constructor and set_up to MRAcquisitionModel
+  * Implemented sorting of MR images
+  * Implemented reading of MR acquisition data from ISMRMRD file
+* PET/STIR
+  * projectors can now handle subsets (although with a somewhat ugly work-around)
+  * added FBP2D, SSRB and the Parallel Level Sets prior
+  * added TOF bins dimension to `PETAcquisitionData` (still fixed to have size 1)
+* C++ changes
+  * Removed `using` statements from the C++ header files
+  * Created namespace `sirf`
+  * include files are now moved to subdirectories (such as `include/sirf/common`).
+  * Modified ObjectHandle type so that it can handle both `std::shared_ptr` and `boost::shared_ptr`.
+* Python/MATLAB:
+  * `petmr_data_path` is now obsolete. Use `examples_data_path` instead.
+* Python:
+  * everything is now in a `sirf` module. Use for instance `import sirf.Gadgetron`
+* Matlab:
+  * in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
+* CMake:
+  * Updated minimum required version of CMake to 3.9.0.
 
 ## v1.1.0
 
 * Various bug fixes and corrections
 * `BUILD_STIR_WITH_OPENMP` is now `ON` by default
-* Virtual Machine amendments:
-  * UK English keyboard
-  * Password protection removed from screen lock
 * Gadgetron data processors check for Gadgetron server crash
 * More data files in `SIRF/data/examples/MR`
 * Grayscale plotting enabled

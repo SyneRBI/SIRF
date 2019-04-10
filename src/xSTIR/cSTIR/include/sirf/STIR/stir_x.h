@@ -607,13 +607,9 @@ The actual algorithm is described in
 		{
 			set_input_data(acq.data());
 		}
-		void set_zoom(double z)
+		void set_zoom(float v)
 		{
-			zoom = z;
-		}
-		void set_output_image_size_xy(int xy)
-		{
-			output_image_size_xy = xy;
+                        set_zoom_xy(v);
 		}
 		void set_alpha_ramp(double alpha)
 		{
