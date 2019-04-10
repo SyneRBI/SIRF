@@ -69,7 +69,7 @@ recon.reconstruct(reconstructed_image)
 
 #%% display of image
 reconstructed_array=reconstructed_image.as_array()
-slice=reconstructed_array.shape[0]/3;
+slice=reconstructed_array.shape[0]//3;
 show_2D_array('reconstructed image after 5 sub-iterations',reconstructed_array[slice,:,:,]);
 
 #%% do a another set of iterations
@@ -109,7 +109,7 @@ am2.set_up(templ,image);
 #%% forward project the image again with this acquisition model and display
 acquired_data = am2.forward(image)
 acquisition_array = acquired_data.as_array()
-show_3D_array(acquisition_array);
+show_3D_array(acquisition_array[0,:,:,:]);
 
 #%% Let us reconstruct this data with the original acquisition model (without bin efficiencies)
 obj_fun.set_acquisition_data(acquired_data)
