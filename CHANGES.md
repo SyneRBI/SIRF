@@ -17,9 +17,14 @@
   * Created namespace `sirf`
   * include files are now moved to subdirectories (such as `include/sirf/common`).
   * Modified ObjectHandle type so that it can handle both `std::shared_ptr` and `boost::shared_ptr`.
-* Python: everything is now in a `sirf` module. Use for instance `import sirf.Gadgetron`
-* Matlab: in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
-* Updated minimum required version of CMake to 3.9.0.
+* Python/MATLAB:
+  * `petmr_data_path` is now obsolete. Use `examples_data_path` instead.
+* Python:
+  * everything is now in a `sirf` module. Use for instance `import sirf.Gadgetron`
+* Matlab:
+  * in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
+* CMake:
+  * Updated minimum required version of CMake to 3.9.0.
 
 ## v1.1.0
 
