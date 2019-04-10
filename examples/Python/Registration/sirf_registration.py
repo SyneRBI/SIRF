@@ -114,21 +114,21 @@ def main():
     reg.get_output().write(args['--warped'])
 
     # TMs
-    if args['--TM_forward'] is not False:
+    if args['--TM_forward'] is not None:
         reg.get_transformation_matrix_forward().write(args['--TM_forward'])
-    if args['--TM_inverse'] is not False:
+    if args['--TM_inverse'] is not None:
         reg.get_transformation_matrix_inverse().write(args['--TM_inverse'])
 
     # Disp fields
-    if args['--disp_fwd_4D'] is not False:
+    if args['--disp_fwd_4D'] is not None:
         reg.get_displacement_field_forward().write(args['--disp_fwd_4D'])
-    if args['--disp_inv_4D'] is not False:
+    if args['--disp_inv_4D'] is not None:
         reg.get_displacement_field_inverse().write(args['--disp_inv_4D'])
 
     # Def fields
-    if args['--def_fwd_4D'] is not False:
+    if args['--def_fwd_4D'] is not None:
         reg.get_deformation_field_forward().write(args['--def_fwd_4D'])
-    if args['--def_inv_4D'] is not False:
+    if args['--def_inv_4D'] is not None:
         reg.get_deformation_field_inverse().write(args['--def_inv_4D'])
 
 
