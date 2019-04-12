@@ -670,7 +670,8 @@ class AcquisitionData(DataContainer):
     def as_array(self):
         ''' 
         Returns a copy of acquisition data stored in this object as a
-        NumPy ndarray of 3 dimensions (in default C ordering of data):
+        NumPy ndarray of 4 dimensions (in default C ordering of data):
+        - number of TOF bins
         - number of sinograms
         - number of views
         - number of tangential positions.
