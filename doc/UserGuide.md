@@ -82,15 +82,15 @@ SIRF library modules are interfaces to object-oriented C++, which makes it reaso
 
     image = ImageData('my_image.h5'); 
 
-We note that an MR ImageData object contains not only the voxel values, but also a number of parameters specified by the ISMRMRD format of MR image data. The object data is encapsulated, i.e. is not directly accessible from the user's code (being handled mostly by the underpinning C++ code) and is processed by the object methods. For example, to display the data encapsulated by image, one needs to call its method show(): 
+We note that an MR `ImageData` object contains not only the voxel values, but also a number of parameters specified by the ISMRMRD format of MR image data. The object data is encapsulated, i.e. is not directly accessible from the user's code (being handled mostly by the underpinning C++ code) and is processed by the object methods. For example, to display the data encapsulated by image, one needs to call its method `show()`: 
 
     image.show(); 
 
-and to copy the data into a Matlab array one uses method as_array(): 
+and to copy the data into a Matlab array one uses method `as_array()`: 
 
     image_data_array = image.as_array(); 
 
-Parameters of objects are modified/accessed via set/get methods (mutators and accessors). For example, the value of an objective function handled by object named `obj_fun` on an image data object image is computed by its method  get_value() as  
+Parameters of objects are modified/accessed via set/get methods (mutators and accessors). For example, the value of an objective function handled by object named `obj_fun` on an image data object image is computed by its method  `get_value()` as  
 
     obj_fun_value = obj_fun.get_value(image); 
 
@@ -192,9 +192,9 @@ In the rest of the document we give basic information on the SIRF classes, inclu
 
 #### Data Containers 
 
-Reconstructed data are represented by ImageData objects. Currently they represent 3D volumes discretised using voxels.  
+Reconstructed data are represented by `ImageData` objects. Currently they represent 3D volumes discretised using voxels.  
 
-Measured data (either raw or after some pre-processing) are represented by AcquisitionData objects. These contain everything what is needed to be able to reconstruct the data (including scanner information and geometry). 
+Measured data (either raw or after some pre-processing) are represented by `AcquisitionData` objects. These contain everything what is needed to be able to reconstruct the data (including scanner information and geometry). 
 
 ##### AcquisitionData
 
@@ -282,7 +282,7 @@ Class for storing coil sensitivity maps.
 
 ##### ImageDataProcessor
 
-Class for objects that process ImageData objects. 
+Class for objects that process `ImageData` objects. 
 
 ###### Methods:
 
@@ -296,7 +296,7 @@ Class for objects that process ImageData objects.
 
 ##### TruncateToCylinderProcessor (PET)
 
-Class for the image processor that zeroes the image outside a cylinder. Inherits the methods of ImageDataProcessor. 
+Class for the image processor that zeroes the image outside a cylinder. Inherits the methods of `ImageDataProcessor`. 
 
 ###### Methods (in addition to those of ImageDataProcessor): 
 
@@ -305,7 +305,7 @@ Class for the image processor that zeroes the image outside a cylinder. Inherits
 
 ##### AcquisitionDataProcessor
 
-Class for objects that process AcquisitionData objects. 
+Class for objects that process `AcquisitionData` objects. 
 
 ###### Methods:
 
@@ -345,7 +345,7 @@ Class for a generic image reconstructor.
 
 ##### IterativeReconstructor (PET) 
 
-Class for PET reconstruction algorithms that use Ordered Subsets technique whereby the acquisition data is split into subsets, and the objective function and its gradient are represented as the sums of components corresponding to subsets. Typically, one iteration of such algorithm would deal with one subset, and is therefore referred to as sub-iteration. Inherits the methods of Reconstructor. 
+Class for PET reconstruction algorithms that use Ordered Subsets technique whereby the acquisition data is split into subsets, and the objective function and its gradient are represented as the sums of components corresponding to subsets. Typically, one iteration of such algorithm would deal with one subset, and is therefore referred to as sub-iteration. Inherits the methods of `Reconstructor`. 
 
 ###### Methods (in addition to those of Reconstructor): 
 
@@ -368,7 +368,7 @@ Class for PET reconstruction algorithms that use Ordered Subsets technique where
 
 ##### OSMAPOSLReconstructor (PET) 
 
-Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One Step Late reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html). Inherits the methods of IterativeReconstructor. 
+Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One Step Late reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html). Inherits the methods of `IterativeReconstructor`. 
 
 ###### Methods (in addition to those of IterativeReconstructor): 
 
@@ -376,7 +376,7 @@ Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One S
 
 ##### OSSPSReconstructor (PET) 
 
-Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Surrogate reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html). Inherits the methods of IterativeReconstructor.  
+Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Surrogate reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html). Inherits the methods of `IterativeReconstructor`.  
 
 ###### Methods (in addition to those of IterativeReconstructor): 
 
@@ -384,7 +384,7 @@ Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Sur
 
 ##### FullySampledReconstructor (MR) 
 
-Class for a reconstructor from fully sampled Cartesian raw data. Inherits the methods of Reconstructor. 
+Class for a reconstructor from fully sampled Cartesian raw data. Inherits the methods of `Reconstructor`. 
 
 ###### Methods (in addition to those of Reconstructor): 
 
@@ -392,7 +392,7 @@ Class for a reconstructor from fully sampled Cartesian raw data. Inherits the me
 
 ##### CartesianGRAPPAReconstructor (MR) 
 
-Class for a reconstructor from undersampled Cartesian raw data. Inherits the methods of Reconstructor. 
+Class for a reconstructor from undersampled Cartesian raw data. Inherits the methods of `Reconstructor`. 
 
 ###### Methods (in addition to those of Reconstructor): 
 
@@ -403,18 +403,15 @@ Class for a reconstructor from undersampled Cartesian raw data. Inherits the met
 ##### ListmodeToSinograms (PET)
 
 Class for converting raw data from listmode format into *sinograms*,
-i.e. histogrammed data in the format of PETAcquisitionData.
+i.e. histogrammed data in the format of PET `AcquisitionData`.
 
 It has 2 main functions:
-  - `process()` can be used to read prompts and/or delayed coincidences to produce a single
-    PETAcquisitionData. 2 variables decide what done with 3 possible cases:
+  - `process()` can be used to read prompts and/or delayed coincidences to produce a single PET `AcquisitionData`. Two variables decide what is done with 3 possible cases:
        - `store_prompts`=`true`, `store_delayeds`=`false`: only prompts are stored
        - `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds are stored
        - `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds are stored
-    Clearly, enabling the `store_delayeds` option only makes sense if the data was 
-    acquired accordingly.
-  - estimate_randoms() can be used to get a relatively noiseless estimate of the 
-    random coincidences.
+  Clearly, enabling the `store_delayeds` option only makes sense if the data was acquired accordingly.
+  - `estimate_randoms()` can be used to get a relatively noiseless estimate of the random coincidences.
 
 ###### Methods:
 
@@ -455,9 +452,9 @@ It has 2 main functions:
 
 ##### AcquisitionModel 
 
-Class for the acquisition process modelling. Main component is the forward projection operation F that for a given image data x estimates the data y = F(x) to be acquired by the scanner (simulated acquisition data). The transpose B of the Frechet derivative of F is referred to as backprojection (if F is linear, e.g. a matrix, then B is the transpose of F).
+Class for the acquisition process modelling. Main component is the forward projection operation `F` that for a given image data `x` estimates the data `y = F(x)` to be acquired by the scanner (simulated acquisition data). The transpose `B` of the Frechet derivative of `F` is referred to as backprojection (if `F` is linear, e.g. a matrix, then `B` is the transpose of `F`).
 
-For PET, F(x) is the right-hand side of the following equation:
+For PET, `F(x)` is the right-hand side of the following equation:
 
     (F)    y = S(G x + a) + b 
 
@@ -465,7 +462,7 @@ where
 
 `G` is *ray tracing matrix*, (conceptually) a matrix whose columns correspond to the image voxels and rows to pairs of scanner's detectors (bins), each column simulating the impact of this voxel's radiation on the data acquired by the bins (this matrix is never actually computed);
 
-`a` and `b` are *additive* and *background terms* representing the effects of accidental coincidences and scattering; 
+`a` and `b` are *additive* and *background* terms representing the effects of accidental coincidences and scattering; 
 
 `S` is *acquisition sensitivity model* representing detector sensitivities and attenuation. 
 
@@ -473,11 +470,11 @@ where
 n, bin normalization, is the inverse of bin efficiencies. 
 --->
 
-Accordingly, the backprojection B is given by
+Accordingly, the backprojection `B` is the right-hand side of
 
     (B)    x = G' S y 
 
-where G' is the transpose of G. 
+where `G'` is the transpose of `G`. 
 
 ###### Methods: 
 
@@ -520,7 +517,7 @@ Class for the PET acquisition process model that uses (implicitly) a sparse matr
 
 ##### AcquisitionSensitivityModel (PET)
 
-Class for a part of AcquisitionModel that accounts for bin efficiencies and attenuation.
+Class for a part of `AcquisitionModel` that accounts for bin efficiencies and attenuation.
 Provides methods for for applying `S` factor in (F) and (B) or its inverse. 
 
 ###### Methods: 
@@ -561,7 +558,7 @@ Provides methods for for applying `S` factor in (F) and (B) or its inverse.
 
 ##### ObjectiveFunction (PET) 
 
-Class for objective functions maximized by iterative Ordered Subsets reconstruction algorithms. At present we use Poisson logarithmic likelihood function with linear model for mean and a specific arrangement of the acquisition data. To make our interface more user-friendly, we provide a convenience function make_PoissonLogLikelihood that creates objects of this class (instead of the usual constructor) based on the acquisition data to be used. 
+Class for objective functions maximized by iterative Ordered Subsets reconstruction algorithms. At present we use Poisson logarithmic likelihood function with linear model for mean and a specific arrangement of the acquisition data. To make our interface more user-friendly, we provide a convenience function `make_PoissonLogLikelihood` that creates objects of this class (instead of the usual constructor) based on the acquisition data to be used. 
 
 The user have an option of adding a penalty term (referred to as prior) to the objective function. At present, we have just one particular kind of prior implemented, the quadratic prior described in the next section. 
 
@@ -615,7 +612,7 @@ A particular setting of storage scheme by a Matlab script or a Python script run
 
 ## Programming chains of Gadgetron gadgets <a name="programming_Gadgetron_chains"></a>
 
-Gadgetron is a MR reconstruction framework which was designed to process a datastream, i.e. rather than waiting for a complete 3D k-space to be acquired, each readout (frequency encoding line) is processed immidiately (if possible, e.g. Fourier transform along phase encoding can only be applied once all phase encoding lines have been acquired) (https://github.com/gadgetron/gadgetron/wiki/What-Is-The-Gadgetron). The reconstruction is performed by a chain of gadgets, i.e. pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
+[Gadgetron](https://github.com/gadgetron/gadgetron/wiki/What-Is-The-Gadgetron) is an MR reconstruction framework which was designed to process a datastream, i.e. rather than waiting for a complete 3D k-space to be acquired, each readout (frequency encoding line) is processed immediately (if possible - e.g. Fourier transform along phase encoding can only be applied once all phase encoding lines have been acquired). The reconstruction is performed by a chain of gadgets, i.e. pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
 
 ### Creating and running gadget chains by SIRF script  <a name="creating_and_running_gadget_chains"></a>
 
@@ -647,12 +644,12 @@ The following example of a gadget chain definition is taken from demo script `fu
     # in this example '5' returns both magnitude and imag
     recon.set_gadget_property('ex', 'extract_mask', 5)
 
-The input data is defined by creating an AcquisitionData object and passing it to the reconstruction object via its method `set_input`:
+The input data is defined by creating an `AcquisitionData` object and passing it to the reconstruction object via its method `set_input`:
 
     acq_data = AcquisitionData(input_file_name);
     my_recon.set_input(acq_data);
 
-and the reconstruction is performed by calling the method `process`, and the reconstructed images are returned as an ImageData object by the method `get_output`:
+and the reconstruction is performed by calling the method `process`, and the reconstructed images are returned as an `ImageData` object by the method `get_output`:
 
     my_recon.process();
     image_data = my_recon.get_output();
@@ -686,7 +683,7 @@ While the way to use Gadgetron just described is the most efficient performance-
 
 This section provides a concise description of Gadgetron gadgets that can be used by current SIRF release scripts in a way described in the previous section. For further information consult Gadgetron documentation.
 
-Below `internal<N>` refers to Gadgetron data objects to which SIRF does not provide interface at present. We emphasize that splitting Gadgetron chains into sub-chains in a way described in the previous section only makes sense if the input of the first gadget and the output of the last gadget of each sub-chain are either AcquisitionData or ImageData.
+Below `internal<N>` refers to Gadgetron data objects to which SIRF does not provide interface at present. We emphasize that splitting Gadgetron chains into sub-chains in a way described in the previous section only makes sense if the input of the first gadget and the output of the last gadget of each sub-chain are either `AcquisitionData` or `ImageData`.
 
 #### RemoveROOversamplingGadget
 
@@ -731,7 +728,7 @@ Collects lines of k-space until a certain trigger condition is encountered, i.e.
 | | | ignore_segment | "true" |
 | | | verbose | "true" |
 
-Inserts the collected data into a buffer more suitable for recon processing.
+Inserts the collected data into a buffer more suitable for the reconstruction processing.
 
 #### SimpleReconGadget
 
@@ -739,7 +736,7 @@ Inserts the collected data into a buffer more suitable for recon processing.
 | - | - | - |
 | internal2 | internal3 | none |
 
-Performs simple fast Fouriertransforms to transform acquired k-space data to image space.
+Performs simple fast Fourier transforms to transform acquired k-space data to image space.
 
 #### GenericReconCartesianReferencePrepGadget
 
@@ -778,7 +775,7 @@ Performs GRAPPA kernel calibration, calculate coil sensitivity maps and carry ou
 | | | perform_timing | "false" |
 | | | verbose | "false" |
 
-Adjusts FOV and image resolution according to the parameters given for the reconstructed image in the file header.
+Adjusts Field Of View and image resolution according to the parameters given for the reconstructed image in the file header.
 
 #### GenericReconImageArrayScalingGadget
 
@@ -793,7 +790,7 @@ Adjusts FOV and image resolution according to the parameters given for the recon
 | | | use_constant_scalingFactor | "true" |
 | | | auto_scaling_only_once | "true" |
 
-Applie scaling to image, g-factor map, SNR map and/or SNR standard deviation map.
+Applies scaling to image, g-factor map, SNR map and/or SNR standard deviation map.
 
 #### ImageArraySplitGadget
 
@@ -801,7 +798,7 @@ Applie scaling to image, g-factor map, SNR map and/or SNR standard deviation map
 | - | - | - |
 | internal3 | ImageData | none |
 
-Splits array of images (7D [X, Y, Z, CHA, N, S, LOC]) into individual images (4D [X, Y, Z, CHA])
+Splits array of images (7D: `[X, Y, Z, CHA, N, S, LOC]`) into individual images (4D: `[X, Y, Z, CHA]`)
 
 #### ExtractGadget
 
@@ -809,7 +806,7 @@ Splits array of images (7D [X, Y, Z, CHA, N, S, LOC]) into individual images (4D
 | - | - | - | - |
 | ImageData | ImageData | extract_mask | "1" |
 
-Extracts a certain type of image data from the reconstructed image stream, i.e. extract_mask=1 yields magnitude images, extract_mask=2 yields readl images.
+Extracts a certain type of image data from the reconstructed image stream, i.e. `extract_mask = 1` yields images' magnitudes, `extract_mask = 2` yields real parts of images.
 
 #### ComplexToFloatGadget
 
