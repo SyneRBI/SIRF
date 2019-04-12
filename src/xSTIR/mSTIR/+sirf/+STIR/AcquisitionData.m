@@ -160,7 +160,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             dim = ptr_i.Value;
         end
         function data = as_array(self)
-%***SIRF*** Returns 3D array of the acquisition data values.
+%***SIRF*** Returns 4D array of the acquisition data values.
 %           Dimensions are:
 %           - number of tangential positions
 %           - number of views
