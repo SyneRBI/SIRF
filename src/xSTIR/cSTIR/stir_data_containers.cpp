@@ -32,26 +32,33 @@ using namespace sirf;
 std::string PETAcquisitionData::_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
-float
-PETAcquisitionData::norm() const
+float PETAcquisitionData::norm() const
 {
 	double t = 0.0;
+
 	for (int s = 0; s <= get_max_segment_num(); ++s)
 	{
 		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
 		SegmentBySinogram<float>::full_iterator seg_iter;
-		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
+
+                for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+                {
 			double r = *seg_iter++;
 			t += r*r;
 		}
-		if (s != 0) {
+
+                if (s != 0)
+                {
 			seg = get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
+
+                        for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+                        {
 				double r = *seg_iter++;
 				t += r*r;
 			}
 		}
 	}
+
 	return sqrt((float)t);
 }
 

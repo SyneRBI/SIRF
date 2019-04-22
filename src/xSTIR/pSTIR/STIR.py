@@ -731,18 +731,26 @@ class AcquisitionData(DataContainer):
             max_in_segment_num_to_process)
         check_status(ad.handle)
         return ad
-    def show(self, sino = None, title = None):
+    
+    
+    def show(self, sino = None, tof=0, title = None):
         '''Displays interactively selected sinograms.'''
         assert self.handle is not None
+        
         if not HAVE_PYLAB:
             print('pylab not found')
+            
             return
+        
         data = self.as_array()
         nz = data.shape[0]
+        
         if type(sino) == type(1):
             if sino < 0 or sino >= nz:
                 return
-            show_2D_array('sinogram %d' % sino, data[0,sino,:,:])
+            
+            show_2D_array('sinogram %d' % sino, data[tof,sino,:,:])
+            
             return
         elif sino is None:
             ns = nz
@@ -752,21 +760,28 @@ class AcquisitionData(DataContainer):
                 ns = len(sino)
             except:
                 raise error('wrong sinograms list')
+        
         if title is None:
             title = 'Selected sinograms'
-        if ns >= 16:
-            tiles = (4, 4)
-        else:
-            tiles = None
+        
+        #if ns >= 16:
+            #tiles = (4, 4)
+        #else:
+            #tiles = None
+        
         f = 0
+        
         while f < ns:
             t = min(f + 16, ns)
-            err = show_3D_array(data[0,:,:,:], \
-                                index = sino[f : t], tile_shape = tiles, \
-                                label = 'sinogram', \
-                                xlabel = 'tang.pos', ylabel = 'view', \
-                                suptitle = title, show = (t == ns))
+            
+            #err = show_3D_array(data[0,:,:,:], \
+            #                    index = sino[f : t], tile_shape = tiles, \
+            #                    label = 'sinogram', \
+            #                    xlabel = 'tang.pos', ylabel = 'view', \
+            #                    suptitle = title, show = (t == ns))
+            
             f = t
+
 ##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
@@ -783,6 +798,7 @@ class AcquisitionData(DataContainer):
 ##                print('out-of-range sinogram number(s) selected, quitting' + \
 ##					' the loop')
 ##                break
+
 
 DataContainer.register(AcquisitionData)
 
