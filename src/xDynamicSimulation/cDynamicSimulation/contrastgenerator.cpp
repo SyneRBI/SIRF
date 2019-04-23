@@ -131,6 +131,10 @@ void MRContrastGenerator::match_output_dims_to_headerinfo( void )
 	this->contrast_filled_volumes_ = padded_volumes;
 }
 
+void MRContrastGenerator::resample_to_template_image( void )
+{
+
+}
 
 void MRContrastGenerator::map_contrast()
 {
@@ -526,4 +530,7 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 
 
 
+void PETContrastGenerator::resample_to_template_image( void )
+{
 
+}

@@ -49,7 +49,7 @@ public:
 	void replace_petmr_tissue_parameters(LabelType label, TissueParameter tiss_param);	
 	TissueParameter get_petmr_tissue_parameter( LabelType label );		
 protected:
-
+	virtual void resample_to_template_image( void )=0;
 	TissueLabelMapper tlm_;
 
 };
@@ -72,6 +72,7 @@ public:
 
 private:
 
+	void resample_to_template_image( void );
 	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes_;
 	IsmrmrdHeader hdr_;
 
@@ -107,6 +108,8 @@ public:
 	void map_attenuation();
 
 private:
+
+	void resample_to_template_image( void );
 
 	bool template_img_is_set_ = false;
 
