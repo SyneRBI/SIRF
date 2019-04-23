@@ -525,35 +525,5 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 }
 
 
-std::vector< float > PETContrastGenerator::get_template_based_volume_subset(const std::vector<float>& vol_data, const std::vector<size_t>& data_dims)
-{
-	std::vector< int > template_dims = this->get_dimensions();
-
-	std::vector< float > out;
-	out.resize(template_dims[0]*template_dims[1]*template_dims[2],0);
-
-	std::vector< size_t > offsets;
-	for(int i = 0; i<3; i++)
-	{
-		if(data_dims[i] >= template_dims[i])
-			offsets.push_back(data_dims[i]/2 - template_dims[i]/2);
-		else
-			throw std::runtime_error("Please give only data which has equal or larger data dimensions than the template image.");
-	}
-
-	for(size_t nz = 0; nz<template_dims[2]; nz++)
-	for(size_t ny = 0; ny<template_dims[1]; ny++)
-	for(size_t nx = 0; nx<template_dims[0]; nx++)
-	{
-		
-		size_t const linear_index_vol_data = ( (nz+offsets[2]) * data_dims[1] + (ny+offsets[1]) ) * data_dims[0] + (nx+offsets[0]);
-		size_t const linear_index_subset = (nz*template_dims[1] + ny)*template_dims[0] + nx;
-		
-		out[linear_index_subset] = vol_data[linear_index_vol_data];
-	}	
-
-	return out;
-}
-
 
 
