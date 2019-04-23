@@ -66,7 +66,7 @@ public:
 	void map_contrast();
 	complex_float_t get_signal_for_tissuelabel( size_t const label );
 
-	std::vector< ISMRMRD::Image< complex_float_t> >& get_contrast_filled_volumes();
+	std::vector< ISMRMRD::Image< complex_float_t> >& get_contrast_filled_volumes(bool const resample_output=false);
 
 	void match_output_dims_to_headerinfo( void );
 
@@ -100,7 +100,7 @@ public:
 	std::vector< int > get_dimensions( void );
 	std::vector< float > get_voxel_sizes( void );
 
-	std::vector< sirf::STIRImageData >& get_contrast_filled_volumes();
+	std::vector< sirf::STIRImageData >& get_contrast_filled_volumes(bool const resample_output=false);
 
 	std::vector< float > get_template_based_volume_subset(const std::vector<float>& vol_data, const std::vector<size_t>& data_dims);
 

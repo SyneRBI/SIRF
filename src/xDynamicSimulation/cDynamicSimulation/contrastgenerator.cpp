@@ -58,9 +58,10 @@ void MRContrastGenerator::set_rawdata_header(const ISMRMRD::IsmrmrdHeader& hdr)
 	this->hdr_ = hdr;
 }
 
-std::vector< ISMRMRD::Image< complex_float_t> >& MRContrastGenerator::get_contrast_filled_volumes()
+std::vector< ISMRMRD::Image< complex_float_t> >& MRContrastGenerator::get_contrast_filled_volumes(bool const resample_output)
 {
-	return this->contrast_filled_volumes_;	
+	if( resample_output == false )
+		return this->contrast_filled_volumes_;	
 }
 
 
@@ -412,9 +413,10 @@ void PETContrastGenerator::set_template_image_from_file( const std::string& file
  	 
 };
 
-std::vector< STIRImageData >& PETContrastGenerator::get_contrast_filled_volumes()
+std::vector< STIRImageData >& PETContrastGenerator::get_contrast_filled_volumes(bool const resample_output)
 {
-	return this->contrast_filled_volumes_;	
+	if( resample_output == false)
+		return this->contrast_filled_volumes_;	
 }
 
 
