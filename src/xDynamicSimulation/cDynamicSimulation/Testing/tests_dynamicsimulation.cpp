@@ -375,6 +375,8 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 try
 	{	
 		bool const do_cardiac_sim = false;
+		bool const simulate_data = false;
+		bool const store_gt_mvfs = true;
 
 		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
 		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/";
@@ -403,7 +405,7 @@ try
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 25;
+		float const test_SNR = 2500;
 		size_t const noise_label = 13;
 		
 		mr_dyn_sim.set_SNR(test_SNR);
@@ -457,24 +459,30 @@ try
 		}
 		// ####################################################################################################
 
-		clock_t t;
-		t = clock();
-		mr_dyn_sim.simulate_dynamics();
-		t = clock() - t;
+		if( simulate_data )
+		{
+			clock_t t;
+			t = clock();
+			mr_dyn_sim.simulate_dynamics();
+			t = clock() - t;
 
-		std::cout << "Storing ground truth motion information" << std::endl;
-		// mr_dyn_sim.save_ground_truth_displacements();
+			std::cout << " TIME FOR 4D MRI SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
-		std::cout << " TIME FOR 4D MRI SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+			std::string const motion_type = do_cardiac_sim ? "cardiac" : "respiratory";			
 
-		std::string const motion_type = do_cardiac_sim ? "cardiac" : "respiratory";			
+			std::stringstream outname_stream;
+			outname_stream << "output_grpe_mri_simulation_" << "motion_type_" << motion_type << "_num_motion_states_" << num_simul_motion_dyn;
+			
+			std::string const filename_mri_output = output_path + outname_stream.str() + ".h5";
 
-		std::stringstream outname_stream;
-		outname_stream << "output_grpe_mri_simulation_" << "motion_type_" << motion_type << "_num_motion_states_" << num_simul_motion_dyn;
-		
-		std::string const filename_mri_output = output_path + outname_stream.str() + ".h5";
+			mr_dyn_sim.write_simulation_results( filename_mri_output );
 
-		mr_dyn_sim.write_simulation_results( filename_mri_output );
+		}
+		if( store_gt_mvfs )
+		{
+			std::cout << "Storing ground truth motion information" << std::endl;
+			mr_dyn_sim.save_ground_truth_displacements();
+		}
 
      	return true;
 
