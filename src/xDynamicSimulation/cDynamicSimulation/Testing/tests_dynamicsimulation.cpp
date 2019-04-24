@@ -375,8 +375,8 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 try
 	{	
 		bool const do_cardiac_sim = false;
-		bool const simulate_data = false;
-		bool const store_gt_mvfs = true;
+		bool const simulate_data = true;
+		bool const store_gt_mvfs = false;
 
 		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
 		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/";
@@ -405,13 +405,13 @@ try
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 2500;
+		float const test_SNR = 25;
 		size_t const noise_label = 13;
 		
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 8;
+		int const num_simul_motion_dyn = 24;
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
@@ -777,7 +777,7 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
 		
 		// int const num_simul_resp_states = 10;
-		int const num_simul_card_states = 10;
+		int const num_simul_card_states = 24;
 
 		// PETMotionDynamic  resp_dyn(num_simul_resp_states);
 		PETMotionDynamic  card_dyn(num_simul_card_states);
