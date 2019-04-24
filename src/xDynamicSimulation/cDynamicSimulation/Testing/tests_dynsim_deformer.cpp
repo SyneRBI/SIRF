@@ -88,8 +88,8 @@ try
 		mr_cont_gen.set_rawdata_header(hdr);
 
 	
-		auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		// auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		// auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
 
 		for( size_t i=0; i<motion_fields.size(); i++)
@@ -202,6 +202,78 @@ bool DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior()
 			// ImageType another_img(temp_img);				
 		}
 
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+}
+
+bool DynSimDeformerTester::test_motion_of_MotionDynamics()
+{
+
+	try
+	{
+		bool test_succesful = true;
+
+		//	---------------------------------------
+		// Prep
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+
+		ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+		mr_cont_gen.set_rawdata_header(hdr);
+
+		//	---------------------------------------
+		// Set motion infos
+		int const num_simul_motion_dyn = 8;
+		MRMotionDynamic motion_dyn( num_simul_motion_dyn );
+		
+		bool card_motion = false;
+
+		if( card_motion )
+		{
+			auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			motion_dyn.set_displacement_fields( motion_fields, card_motion );
+		}
+		else
+		{
+			auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			motion_dyn.set_displacement_fields( motion_fields, card_motion );
+		}
+
+ 		
+		std::vector< SignalBin > motion_bins = motion_dyn.get_bins();
+
+		for( size_t i=0; i<motion_bins.size(); i++)
+		{
+
+			float const motion_state = std::get<1>(motion_bins[i]);
+
+			std::cout << "Getting mvf for motion state " << motion_state << std::endl;
+		
+			
+			sirf::NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_deformation_field( motion_state );
+			
+			std::vector< NiftiImageData3DDeformation<float> > vec_mvfs;
+			vec_mvfs.push_back( curr_mvf );
+
+			mr_cont_gen.map_contrast();
+			DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, vec_mvfs);
+			
+			auto curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
+			
+			std::stringstream filename_stream;
+			filename_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_from_dyn_" << i; 		
+			
+			data_io::write_ISMRMRD_Image_to_nii< complex_float_t > (filename_stream.str(), curr_motion_state[0]);
+		}
+	
 		return test_succesful;
 	}
 	catch( std::runtime_error const &e)
