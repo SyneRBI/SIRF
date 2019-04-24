@@ -383,13 +383,16 @@ void run_tests_contrastgenerator(void)
 	// std::cout << "----------------------------------------------------" <<std::endl;
 	// pet_contgen_tests.push_back( test_contgen::test_pet_constructor() );
 	std::cout << "----------------------------------------------------" <<std::endl;
-	pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
+	// pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
 	std::cout << "----------------------------------------------------" <<std::endl;
-	pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
+	// pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
 	std::cout << "----------------------------------------------------" <<std::endl;
-	pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
-	// std::cout << "----------------------------------------------------" <<std::endl;
-	test_contgen::test_pet_map_contrast_application_to_xcat();
+	// pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
+	std::cout << "----------------------------------------------------" <<std::endl;
+	pet_contgen_tests.push_back( test_contgen::test_resample_to_template_image() );
+	
+	std::cout << "----------------------------------------------------" <<std::endl;
+	// test_contgen::test_pet_map_contrast_application_to_xcat();
 	std::cout << "----------------------------------------------------" <<std::endl;
 
 	// std::cout << "pet contgen test results = ";
@@ -479,14 +482,16 @@ void run_tests_dynsim_deformer( void )
 	// tests_successful *= DynSimDeformerTester::test_nifti_data_deformation();
 
 	// std::cout << " 1-------------------------- " <<std::endl;
-	
 	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
 
 	std::cout << " 2 -------------------------- " <<std::endl;
 	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
 
 	std::cout << " 3 -------------------------- " <<std::endl;
-	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+
+	std::cout << " 4-------------------------- " <<std::endl;
+	tests_successful *= DynSimDeformerTester::test_motion_of_MotionDynamics();
 
 	std::cout << " End -------------------------- " <<std::endl;
 

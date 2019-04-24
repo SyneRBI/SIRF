@@ -25,9 +25,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/phantom_input.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
+using namespace std;
 using namespace ISMRMRD;
-using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
-
 using namespace stir;
 using namespace sirf;
 
@@ -367,6 +366,7 @@ bool test_contgen::test_pet_map_attenuation( void )
 
 		pet_contgen.map_attenuation();
 
+		pet_contgen.map_contrast();
 
 		return true;
 	}
@@ -409,6 +409,41 @@ bool test_contgen::test_set_template_image_from_file( void )
 
 }
 
+bool test_contgen::test_resample_to_template_image( void )
+{
+	try
+	{
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+
+		PETContrastGenerator pet_contgen( segmentation_labels, XML_XCAT_PATH ); 
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );						
+
+		pet_contgen.map_contrast();
+
+		auto resampled_images = pet_contgen.get_contrast_filled_volumes( true );
+
+		std::cout << "There are " << resampled_images.size() << " resampled PET images." <<std::endl;
+
+		for(int i=0; i<resampled_images.size(); ++i)
+		{
+			stringstream outname;
+			outname << SHARED_FOLDER_PATH << "resampled_PET_image_" << i;
+
+			sirf::NiftiImageData3D<float> resampled_nifti( resampled_images[i] );
+
+			resampled_nifti.write( outname.str() );
+		}
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+}
 
 void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 {

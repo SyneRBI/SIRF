@@ -7,7 +7,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
-
+#include "sirf/cReg/NiftyResample.h"
 
 #include <memory>
 #include <stdexcept>
@@ -60,8 +60,11 @@ void MRContrastGenerator::set_rawdata_header(const ISMRMRD::IsmrmrdHeader& hdr)
 
 std::vector< ISMRMRD::Image< complex_float_t> >& MRContrastGenerator::get_contrast_filled_volumes(bool const resample_output)
 {
-	if( resample_output == false )
-		return this->contrast_filled_volumes_;	
+	if( resample_output == true )
+		this->resample_to_template_image();
+
+	return this->contrast_filled_volumes_;
+
 }
 
 
@@ -110,6 +113,7 @@ void MRContrastGenerator::match_output_dims_to_headerinfo( void )
 		bool dims_match = true;
 		for( int i = 0; i<3; i++)
 			dims_match *= (size_ratio[i] == 1 || size_ratio[i] == 2);		
+					
 					
 		if( dims_match )
 		{
@@ -419,8 +423,10 @@ void PETContrastGenerator::set_template_image_from_file( const std::string& file
 
 std::vector< STIRImageData >& PETContrastGenerator::get_contrast_filled_volumes(bool const resample_output)
 {
-	if( resample_output == false)
-		return this->contrast_filled_volumes_;	
+	if( resample_output == true )
+		this->resample_to_template_image();
+
+	return this->contrast_filled_volumes_;
 }
 
 
@@ -533,4 +539,24 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 void PETContrastGenerator::resample_to_template_image( void )
 {
 
+	NiftyResample<float> resampler;
+
+    resampler.set_interpolation_type_to_cubic_spline();
+	resampler.set_reference_image(std::make_shared< sirf::STIRImageData > (this->template_pet_image_data_));
+	// resampler.set_floating_image(std::make_shared< sirf::STIRImageData > (this->template_pet_image_data_));
+	
+	auto contrast_volumes = this->get_contrast_filled_volumes();
+
+	for(int i=0; i<contrast_volumes.size(); ++i)
+	{
+		resampler.set_floating_image(std::make_shared< sirf::STIRImageData >( contrast_volumes[i]));
+		// resampler.set_reference_image(std::make_shared< sirf::STIRImageData >( contrast_volumes[i]));
+		resampler.process();
+		
+
+		auto deformed_img = resampler.get_output_sptr();
+		this->contrast_filled_volumes_[i] = sirf::STIRImageData( this->template_pet_image_data_ ); //constructor for STIRImageData from ImageData does not exist yet.
+		this->contrast_filled_volumes_[i].set_data( (float*)( deformed_img->get_raw_nifti_sptr()->data ) );
+
+	}
 }
