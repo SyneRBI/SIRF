@@ -34,6 +34,34 @@ using namespace sirf;
 #define SPTR_FROM_HANDLE(Object, X, H) \
 	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 
+
+static void*
+unknownObject(const char* obj, const char* name, const char* file, int line)
+{
+	DataHandle* handle = new DataHandle;
+	std::string error = "unknown ";
+	error += obj;
+	error += " '";
+	error += name;
+	error += "'";
+	ExecutionStatus status(error.c_str(), file, line);
+	handle->set(0, &status);
+	return (void*)handle;
+}
+
+//default constructors
+extern "C"
+void* cSIRF_newObject(const char* name)
+{
+	try {
+        if (strcmp(name, "DataHandleVector") == 0)
+            return newObjectHandle(std::shared_ptr<DataHandleVector>(new DataHandleVector));
+		return unknownObject("object", name, __FILE__, __LINE__);
+	}
+	CATCH;
+}
+
+
 extern "C"
 void*
 cSIRF_dataItems(const void* ptr_x)
@@ -163,4 +191,13 @@ cSIRF_clone(void* ptr_x)
 		return newObjectHandle(sptr);
 	}
 	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_DataHandleVector_push_back(void* self, const void* to_append)
+{
+    DataHandleVector& vec = objectFromHandle<DataHandleVector>(self);
+    vec.push_back(to_append);
+    return new DataHandle;
 }

@@ -32,6 +32,9 @@ extern "C" {
 #define PTR_DOUBLE double*
 #endif
 
+// New SIRF objects
+void* cSIRF_newObject(const char* name);
+
 // Data container methods
 void* cSIRF_dataItems(const void* ptr_x);
 void* cSIRF_norm(const void* ptr_x);
@@ -42,6 +45,9 @@ void* cSIRF_multiply(const void* ptr_x, const void* ptr_y);
 void* cSIRF_divide(const void* ptr_x, const void* ptr_y);
 void* cSIRF_write(const void* ptr, const char* filename);
 void* cSIRF_clone(void* ptr_x);
+
+// DataHandleVector methods
+void* cSIRF_DataHandleVector_push_back(void* self, const void* to_append);
 
 #ifndef CSIRF_FOR_MATLAB
 }

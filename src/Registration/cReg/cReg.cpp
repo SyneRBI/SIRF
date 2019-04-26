@@ -160,17 +160,16 @@ void* cReg_objectFromFile(const char* name, const char* filename)
 //      NiftiImageData
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
+void* cReg_NiftiImageData_print_headers(const void* handle_vector_ptr)
 {
     try {
-        std::vector<NiftiImageData<float> > vec;
-        if (num_ims >= 1) vec.push_back(objectFromHandle<NiftiImageData<float> >(im1));
+        DataHandleVector handle_vector = objectFromHandle<DataHandleVector>(handle_vector_ptr);
+        std::vector<const NiftiImageData<float> > vec;
         if (num_ims >= 2) vec.push_back(objectFromHandle<NiftiImageData<float> >(im2));
-        if (num_ims >= 3) vec.push_back(objectFromHandle<NiftiImageData<float> >(im3));
-        if (num_ims >= 4) vec.push_back(objectFromHandle<NiftiImageData<float> >(im4));
-        if (num_ims >= 5) vec.push_back(objectFromHandle<NiftiImageData<float> >(im5));
+        for (unsigned i=0; i<handle_vector.size(); ++i)
+            vec.push_back(objectFromHandle<const NiftiImageData<float> >(handle_vector.at(i)));
         std::vector<const NiftiImageData<float>*> vec_ptr;
-        for (int i=0; i<vec.size(); ++i)
+        for (unsigned i=0; i<vec.size(); ++i)
             vec_ptr.push_back(&vec[i]);
         NiftiImageData<float>::print_headers(vec_ptr);
         return new DataHandle;

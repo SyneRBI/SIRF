@@ -48,8 +48,8 @@ EXPORTED_FUNCTION     void* mReg_setParameter(void* ptr, const char* obj, const 
 EXPORTED_FUNCTION     void* mReg_parameter(const void* ptr, const char* obj, const char* name) {
 	return cReg_parameter(ptr, obj, name);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
-	return cReg_NiftiImageData_print_headers(num_ims, im1, im2, im3, im4, im5);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const void *handle_vector_ptr) {
+	return cReg_NiftiImageData_print_headers(handle_vector_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype) {
 	return cReg_NiftiImageData_write(ptr, filename, datatype);

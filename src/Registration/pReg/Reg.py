@@ -368,7 +368,9 @@ class NiftiImageData(SIRF.ImageData):
 
     def print_header(self):
         """Print nifti header metadata."""
-        try_calling(pyreg.cReg_NiftiImageData_print_headers(1, self.handle, None, None, None, None))
+        vec = SIRF.DataHandleVector()
+        vec.push_back(self.handle)
+        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
     def same_object(self):
         """See DataContainer.same_object()."""
@@ -384,26 +386,13 @@ class NiftiImageData(SIRF.ImageData):
 
     @staticmethod
     def print_headers(to_print):
-        """Print nifti header metadata of one or multiple (up to 5) nifti images."""
+        """Print nifti header metadata of one or multiple nifti images."""
         if not all(isinstance(n, NiftiImageData) for n in to_print):
             raise AssertionError()
-        if len(to_print) == 1:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                1, to_print[0].handle, None, None, None, None))
-        elif len(to_print) == 2:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                2, to_print[0].handle, to_print[1].handle, None, None, None))
-        elif len(to_print) == 3:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                3, to_print[0].handle, to_print[1].handle, to_print[2].handle, None, None))
-        elif len(to_print) == 4:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                4, to_print[0].handle, to_print[1].handle, to_print[2].handle, to_print[3].handle, None))
-        elif len(to_print) == 5:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                5, to_print[0].handle, to_print[1].handle, to_print[2].handle, to_print[3].handle, to_print[4].handle))
-        else:
-            raise error('print_headers only implemented for up to 5 images.')
+        vec = SIRF.DataHandleVector()
+        for n in to_print:
+            vec.push_back(n.handle)
+        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
 
 class NiftiImageData3D(NiftiImageData):
