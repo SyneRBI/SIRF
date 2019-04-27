@@ -108,8 +108,8 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_compone
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim) {
 	return cReg_NiftiImageData3DTensor_flip_component(ptr, dim);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5) {
-	return cReg_NiftiImageData3DDeformation_compose_single_deformation(im, num_elements, types, trans1, trans2, trans3, trans4, trans5);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr) {
+	return cReg_NiftiImageData3DDeformation_compose_single_deformation(im, types, trans_vector_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr) {
 	return cReg_NiftiImageData3DDeformation_create_from_disp(disp_ptr);

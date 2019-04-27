@@ -66,7 +66,7 @@ extern "C" {
     void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
 
     // NiftiImageData3DDeformation
-    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
+    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
     void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
 
     // NiftiImageData3DDisplacement

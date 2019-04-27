@@ -541,21 +541,13 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
                 types += '2'
             elif isinstance(n, NiftiImageData3DDeformation):
                 types += '3'
+        # Convert transformations into SIRF vector
+        vec = SIRF.DataHandleVector()
+        for n in trans:
+            vec.push_back(n.handle)
         z = NiftiImageData3DDeformation()
-        if len(trans) == 2:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, None, None, None)
-        elif len(trans) == 3:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, None, None)
-        elif len(trans) == 4:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, None)
-        elif len(trans) == 5:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, trans[4].handle)
-        else:
-            raise error('compose_single_deformation only implemented for up to 5 transformations.')
+        z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
+            ref.handle, types, vec.handle)
         check_status(z.handle)
         return z
 
