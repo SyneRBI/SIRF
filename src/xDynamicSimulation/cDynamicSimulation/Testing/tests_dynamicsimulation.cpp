@@ -26,6 +26,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynamicsimulation.h"
 
 
+using namespace std;
 using namespace sirf;
 using namespace ISMRMRD;
 
@@ -374,7 +375,7 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 {
 try
 	{	
-		bool const do_cardiac_sim = false;
+		bool const do_cardiac_sim = true;
 		bool const simulate_data = true;
 		bool const store_gt_mvfs = false;
 
@@ -405,7 +406,7 @@ try
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 25;
+		float const test_SNR = 250;
 		size_t const noise_label = 13;
 		
 		mr_dyn_sim.set_SNR(test_SNR);
@@ -734,7 +735,7 @@ bool test_pet_dynsim::test_simulate_statics()
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
-
+ 
 		clock_t t;
 		t = clock();
 		pet_dyn_sim.simulate_statics();
@@ -849,5 +850,106 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 }
 
 
+bool test_pet_dynsim::test_4d_pet_acquisition()
+{
+
+	try
+	{
+
+		bool const do_cardiac_sim = true;
+		bool const simulate_data = true;
+		bool const store_gt_mvfs = false;
 
 
+		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
+		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/PET/";
+
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		PETContrastGenerator pet_cont_gen( segmentation_labels, XML_XCAT_PATH);
+
+		pet_cont_gen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
+
+		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
+
+
+		// fix name of output
+		stringstream prefix_stream;
+		prefix_stream << "pet_dyn_4D_";
+		if(do_cardiac_sim){prefix_stream << "cardiac";}else{ prefix_stream << "resp"; } prefix_stream << "_simul";
+
+		pet_dyn_sim.set_output_filename_prefix(prefix_stream.str());
+		
+		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
+		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
+		
+		int const num_sim_motion_states = 24;
+
+		PETMotionDynamic motion_dyn( num_sim_motion_states );
+
+		SignalContainer motion_signal;
+
+		stringstream path_time_pts, path_sig_pts;
+
+		path_time_pts  << input_path << "/SurrogateSignals/";
+		path_sig_pts << input_path << "/SurrogateSignals/";
+
+		if( do_cardiac_sim )
+		{
+			path_time_pts << "card_time";
+			path_sig_pts  << "card_signal";
+		}
+		else
+		{
+			path_time_pts << "resp_time";
+			path_sig_pts  << "resp_signal";
+		}
+
+		motion_signal = data_io::read_surrogate_signal( path_time_pts.str(), path_sig_pts.str());
+
+		auto first_card_pt = motion_signal[0];
+		auto last_card_pt = motion_signal[ motion_signal.size()-1 ];
+
+		float min_time_card_ms = first_card_pt.first;
+		float tot_time_card_ms = last_card_pt.first - first_card_pt.first;
+
+
+		for( size_t i=0; i<motion_signal.size(); i++)
+		{
+			auto curr_sig_pt = motion_signal[i];	
+			curr_sig_pt.first = curr_sig_pt.first - min_time_card_ms;
+			motion_signal[i] = curr_sig_pt;
+		}
+
+	 	motion_dyn.set_dyn_signal( motion_signal );
+
+	 	TimeBin total_time(0, tot_time_card_ms);
+
+	 	motion_dyn.bin_total_time_interval( total_time );
+		
+	 	if( do_cardiac_sim )
+		{
+			auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			motion_dyn.set_displacement_fields( motion_fields, true );
+		}
+		else
+		{ 		
+			auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			motion_dyn.set_displacement_fields( motion_fields, false );
+
+		}
+		
+		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (motion_dyn) );
+		
+		pet_dyn_sim.simulate_dynamics( tot_time_card_ms );
+		return true;
+
+
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
+
+}
