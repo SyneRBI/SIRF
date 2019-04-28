@@ -659,7 +659,7 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		
 		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
 		
-		int const num_simul_bins = 16;
+		int const num_simul_bins = 24;
 		aPETDynamic pet_dyn(num_simul_bins);
 
 	

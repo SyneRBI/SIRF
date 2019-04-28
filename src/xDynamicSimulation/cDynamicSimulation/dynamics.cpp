@@ -828,7 +828,65 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 {
 	if(this->dyn_signal_.size() == 0)
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
+
+	// up-sample the time point to temporal resolution of 1ms
+	TimeAxisType delta_time_ms = 1;
+
+	std::vector<TimeAxisType> upsampled_time_pts;
+	std::vector<SignalAxisType> upsampled_signal;
+
+	TimeAxisType current_time = time_interval_total_dynamic_process.min_;
+	std::cout << "Upsampling signal to temporal resolution of 1ms." << std::endl;
 	
+	while(current_time <= time_interval_total_dynamic_process.max_)
+	{
+		upsampled_time_pts.push_back(current_time);
+		upsampled_signal.push_back( this->linear_interpolate_signal(current_time));
+
+		current_time +=delta_time_ms;
+	}
+
+	std::cout << "Finished upsampling signal." << std::endl;
+
+	size_t const num_bins = signal_bins_.size();
+
+	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
+	{
+		std::cout << "Summing up signal for bin " << i_bin << "/ " << num_bins <<std::endl;
+		SignalBin bin = this->signal_bins_[i_bin];
+
+		TimeBinSet time_intervals_for_bin;
+
+		auto bin_min = std::get<0>(bin);
+		auto bin_max = std::get<2>(bin);
+
+		TimeBin curr_time_interval;
+		bool new_bin = true;
+		TimeAxisType time_in_bin = 0;
+		for(size_t j=0; j<upsampled_signal.size(); ++j)
+		{
+			SignalAxisType curr_sig = upsampled_signal[j];
+			
+			if( curr_sig>= bin_min && curr_sig< bin_max)
+			{
+				if(new_bin)
+					curr_time_interval.min_ = upsampled_time_pts[j];
+
+				time_in_bin += delta_time_ms;
+			}
+			else
+			{
+				curr_time_interval.max_ = curr_time_interval.min_ + time_in_bin;
+				time_intervals_for_bin.push_back( curr_time_interval );
+				time_in_bin = 0;
+				new_bin = true;
+			}
+		}
+		this->binned_time_intervals_.push_back( time_intervals_for_bin );
+		
+	}
+
+	/*	
 	size_t const num_bins = signal_bins_.size();
 	size_t const num_signal_supports = dyn_signal_.size();
 	
@@ -957,6 +1015,7 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 		time_intervals_for_bin = intersect_time_bin_sets(time_intervals_for_bin, temp_set);	
 		this->binned_time_intervals_.push_back(time_intervals_for_bin);
 	}
+	*/
 
 }
 
