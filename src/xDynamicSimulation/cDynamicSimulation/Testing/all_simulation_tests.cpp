@@ -105,10 +105,10 @@ void run_tests_dynamics( void )
 	// dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
 	
 	// std::cout << "14 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
+	dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
 
 	std::cout << "15 ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_nonisotropic_mvf_resampling () );
+	// dyn_tests.push_back(test_dynamic::test_nonisotropic_mvf_resampling () );
 	
 	std::cout << "end ----------------------------------------------------" <<std::endl;
 
@@ -186,6 +186,9 @@ void run_tests_dynamic_simulation( void )
 
 	std::cout << "PET 4 ----------------------------------------------------" <<std::endl;
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
+
+	std::cout << "PET 5 ----------------------------------------------------" <<std::endl;
+	// pet_dynsim_tests.push_back(test_pet_dynsim::test_4d_pet_acquisition());
 
 
 	std::cout << "pet dynamic simulation test results = ";
@@ -488,10 +491,10 @@ void run_tests_dynsim_deformer( void )
 	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
 
 	std::cout << " 3 -------------------------- " <<std::endl;
-	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	std::cout << " 4-------------------------- " <<std::endl;
-	tests_successful *= DynSimDeformerTester::test_motion_of_MotionDynamics();
+	// tests_successful *= DynSimDeformerTester::test_motion_of_MotionDynamics();
 
 	std::cout << " End -------------------------- " <<std::endl;
 

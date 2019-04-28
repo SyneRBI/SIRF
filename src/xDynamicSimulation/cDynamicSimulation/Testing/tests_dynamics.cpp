@@ -656,18 +656,10 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 	try
 	{
 		bool test_succesful = true;
-		// int const num_sig_pts = 4;
-		// for(int i=0; i<num_sig_pts; i++)
-		// {
-		// 	SignalPoint sp;
-		// 	sp.first = i*100 + i*i*sqrt(2);
-		// 	sp.second = (SignalAxisType)(i%2);
-		// 	signal_cont.push_back( sp );
-		// }
-
-		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
 		
-		int const num_simul_bins = 10;
+		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
+		
+		int const num_simul_bins = 16;
 		aPETDynamic pet_dyn(num_simul_bins);
 
 	
@@ -682,8 +674,7 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		for( size_t i=0; i<card_sig.size(); i++)
 		{
 			auto curr_sig_pt = card_sig[i];	
-			curr_sig_pt.first = 25000 * (curr_sig_pt.first - min_time_ms)/tot_time_ms;
-			std::cout << curr_sig_pt.first <<std::endl;
+			curr_sig_pt.first = curr_sig_pt.first - min_time_ms;
 			card_sig[i] = curr_sig_pt;
 		}
 
@@ -696,16 +687,25 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		std::cout << "total time ms: " << tot_time_ms <<std::endl;
 	 	pet_dyn.set_dyn_signal( card_sig );
 
-	 	pet_dyn.bin_total_time_interval( TimeBin(0,tot_time_ms) );
-		TimeBin total_time(0, 25);
-
-		pet_dyn.bin_total_time_interval( total_time );
+		TimeBin total_time(0, tot_time_ms);
+	 	pet_dyn.bin_total_time_interval( total_time );
 
 		for(int i=0; i<num_simul_bins; i++)
+		{
 			cout <<"Time spent in bin " <<i << " = " << pet_dyn.get_time_spent_in_bin(i) <<endl;
+		}
+		for(int i=0; i<num_simul_bins; i++)
+		{
+			cout <<"Percantage of total time in bin " <<i << " = " << pet_dyn.get_time_spent_in_bin(i)/tot_time_ms <<endl;
+		}
 
-
-
+		float sum_of_times = 0.0;
+		for(int i=0; i<num_simul_bins; i++)
+		{
+			sum_of_times += pet_dyn.get_time_spent_in_bin(i);
+			
+		}
+		cout <<"Sum over all times spent in bins " << sum_of_times/tot_time_ms << std::endl;;
 
 		return test_succesful;
 	}
