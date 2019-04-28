@@ -129,11 +129,11 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
 
 			
-		int const num_simul_cardiac_states = 10;
+		int const num_simul_cardiac_states = 8;
 		PETMotionDynamic  motion_dyn(num_simul_cardiac_states);
 
-		// auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		// auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
 		motion_dyn.set_displacement_fields( motion_fields, true );
 		motion_dyn.prep_displacement_fields();
