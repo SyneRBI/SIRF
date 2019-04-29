@@ -39,7 +39,7 @@ EXPORTED_FUNCTION  void* mReg_newObject(const char* name);
 EXPORTED_FUNCTION     void* mReg_objectFromFile(const char* name, const char* filename);
 EXPORTED_FUNCTION     void* mReg_setParameter(void* ptr, const char* obj, const char* name, const void* value);
 EXPORTED_FUNCTION     void* mReg_parameter(const void* ptr, const char* obj, const char* name);
-EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_fill(const void* ptr, const float val);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
@@ -59,7 +59,7 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_write_split_xyz_componen
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
-EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr);

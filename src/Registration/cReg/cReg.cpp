@@ -160,19 +160,14 @@ void* cReg_objectFromFile(const char* name, const char* filename)
 //      NiftiImageData
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
+void* cReg_NiftiImageData_print_headers(const void* handle_vector_ptr)
 {
     try {
-        std::vector<NiftiImageData<float> > vec;
-        if (num_ims >= 1) vec.push_back(objectFromHandle<NiftiImageData<float> >(im1));
-        if (num_ims >= 2) vec.push_back(objectFromHandle<NiftiImageData<float> >(im2));
-        if (num_ims >= 3) vec.push_back(objectFromHandle<NiftiImageData<float> >(im3));
-        if (num_ims >= 4) vec.push_back(objectFromHandle<NiftiImageData<float> >(im4));
-        if (num_ims >= 5) vec.push_back(objectFromHandle<NiftiImageData<float> >(im5));
-        std::vector<const NiftiImageData<float>*> vec_ptr;
-        for (int i=0; i<vec.size(); ++i)
-            vec_ptr.push_back(&vec[i]);
-        NiftiImageData<float>::print_headers(vec_ptr);
+        const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+        std::vector<const NiftiImageData<float>*> vec;
+        for (unsigned i=0; i<handle_vector.size(); ++i)
+            vec.push_back(&objectFromHandle<const NiftiImageData<float> >(handle_vector.at(i)));
+        NiftiImageData<float>::print_headers(vec);
         return new DataHandle;
     }
     CATCH;
@@ -468,27 +463,18 @@ void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim)
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DDeformation
 // -------------------------------------------------------------------------------- //
-void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5)
+void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr)
 {
     try {
         // This is an ugly hack because I can't get virtual methods to work for multiple inherited (NiftiImageData3DDeformation/NiftiImageData3DDisplacement).
         // So, we also give a string which tells us what type they are, and we change the template type of objectFromHandle accordingly.
 
-        // Also, we can't have default arguments in C, so if we only want to compose 3 transformations, set the 4th and 5th as 'None' in Python. In C,
-        // we create a vector from all the non-'None' arguments and then convert them to their derived classes.
-
         // Sorry this is so ugly.
 
         // There's always going to be at least two transformations, so start by putting them in the vector
-        std::vector<const void*> vec = {trans1, trans2};
-        // Add in any extras, depending on the number of transformations
-        if (num_elements >= 3) vec.push_back(trans3);
-        if (num_elements >= 4) vec.push_back(trans4);
-        if (num_elements >= 5) vec.push_back(trans5);
-
-        // Vector for casting to the correct type
+        const DataHandleVector vec = objectFromHandle<const DataHandleVector>(trans_vector_ptr);
         std::vector<const Transformation<float> *> trans_vec;
-        for (int i=0; i<num_elements; ++i)
+        for (unsigned i=0; i<vec.size(); ++i)
             if      (types[i] == '1')
                 trans_vec.push_back(&objectFromHandle<const AffineTransformation<float> >(vec.at(i)));
             else if (types[i] == '2')

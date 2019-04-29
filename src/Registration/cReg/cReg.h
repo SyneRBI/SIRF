@@ -40,7 +40,7 @@ extern "C" {
     void* cReg_parameter(const void* ptr, const char* obj, const char* name);
 
     // NiftiImageData
-    void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
+    void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
     void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
     void* cReg_NiftiImageData_fill(const void* ptr, const float val);
     void* cReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
@@ -66,7 +66,7 @@ extern "C" {
     void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
 
     // NiftiImageData3DDeformation
-    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
+    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
     void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
 
     // NiftiImageData3DDisplacement
