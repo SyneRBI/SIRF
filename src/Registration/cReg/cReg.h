@@ -94,14 +94,23 @@ extern "C" {
 
     // AffineTransformation
     void* cReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
+    void* cReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr);
     void* cReg_AffineTransformation_deep_copy(const void* ptr);
     void* cReg_AffineTransformation_write(const void* ptr, const char* filename);
     void* cReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
     void* cReg_AffineTransformation_get_identity();
     void* cReg_AffineTransformation_get_inverse(const void* ptr);
     void* cReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler);
+    void* cReg_AffineTransformation_get_quaternion(const void* ptr);
     void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
     void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
+    void* cReg_AffineTransformation_get_average(const void *handle_vector_ptr);
+
+    // Quaternion
+    void* cReg_Quaternion_construct_from_array(PTR_FLOAT arr);
+    void* cReg_Quaternion_construct_from_AffineTransformation(const void* ptr);
+    void* cReg_Quaternion_get_average(const void *handle_vector_ptr);
+    void* cReg_Quaternion_as_array(const void* ptr, PTR_FLOAT arr);
 
 #ifndef CREG_FOR_MATLAB
 }

@@ -150,6 +150,9 @@ EXPORTED_FUNCTION     void* mReg_Transformation_get_as_deformation_field(const v
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM) {
 	return cReg_AffineTransformation_construct_from_TM(ptr_TM);
 }
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr) {
+	return cReg_AffineTransformation_construct_from_trans_and_quaternion(trans_ptr, quat_ptr);
+}
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_deep_copy(const void* ptr) {
 	return cReg_AffineTransformation_deep_copy(ptr);
 }
@@ -168,11 +171,29 @@ EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_inverse(const void* pt
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler) {
 	return cReg_AffineTransformation_get_Euler_angles(ptr, Euler);
 }
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_quaternion(const void* ptr) {
+	return cReg_AffineTransformation_get_quaternion(ptr);
+}
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr) {
 	return cReg_AffineTransformation_mul(mat1_ptr, mat2_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr) {
 	return cReg_AffineTransformation_equal(mat1_ptr, mat2_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_average(const void *handle_vector_ptr) {
+	return cReg_AffineTransformation_get_average(handle_vector_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_Quaternion_construct_from_array(PTR_FLOAT arr) {
+	return cReg_Quaternion_construct_from_array(arr);
+}
+EXPORTED_FUNCTION     void* mReg_Quaternion_construct_from_AffineTransformation(const void* ptr) {
+	return cReg_Quaternion_construct_from_AffineTransformation(ptr);
+}
+EXPORTED_FUNCTION     void* mReg_Quaternion_get_average(const void *handle_vector_ptr) {
+	return cReg_Quaternion_get_average(handle_vector_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_Quaternion_as_array(const void* ptr, PTR_FLOAT arr) {
+	return cReg_Quaternion_as_array(ptr, arr);
 }
 #ifndef CREG_FOR_MATLAB
 }

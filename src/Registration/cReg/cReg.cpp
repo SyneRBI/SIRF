@@ -32,6 +32,7 @@ limitations under the License.
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/Transformation.h"
 #include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/Quaternion.h"
 
 using namespace sirf;
 
@@ -682,6 +683,19 @@ void* cReg_AffineTransformation_construct_from_TM(size_t ptr_TM)
     CATCH;
 }
 extern "C"
+void* cReg_AffineTransformation_construct_from_trans_and_quaternion(size_t trans_ptr, const void* quat_ptr)
+{
+    try {
+        Quaternion<float>& quat = objectFromHandle<Quaternion<float> >(quat_ptr);
+        std::array<float,3> trans;
+        for (unsigned i=0; i<3; ++i)
+            trans[i] = ((float*)trans_ptr)[i];
+        return newObjectHandle(
+                    std::make_shared<AffineTransformation<float> >(trans,quat));
+    }
+    CATCH;
+}
+extern "C"
 void* cReg_AffineTransformation_deep_copy(const void* ptr)
 {
     try {
@@ -747,6 +761,16 @@ void* cReg_AffineTransformation_get_Euler_angles(const void* ptr, size_t Euler)
     CATCH;
 }
 extern "C"
+void* cReg_AffineTransformation_get_quaternion(const void* ptr)
+{
+    try {
+        AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
+        return newObjectHandle(
+                    std::make_shared<Quaternion<float> >(tm.get_quaternion()));
+    }
+    CATCH;
+}
+extern "C"
 void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
@@ -767,4 +791,54 @@ void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr
         return dataHandle<int>(mat1 == mat2);
     }
     CATCH;
+}
+extern "C"
+void* cReg_AffineTransformation_get_average(const void* handle_vector_ptr)
+{
+    const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+    std::vector<const AffineTransformation<float> > vec;
+    for (unsigned i=0; i<handle_vector.size(); ++i)
+        vec.push_back(objectFromHandle<const AffineTransformation<float> >(handle_vector.at(i)));
+
+    return newObjectHandle(
+                std::make_shared<AffineTransformation<float> >(AffineTransformation<float>::get_average(vec)));
+}
+extern "C"
+void* cReg_Quaternion_construct_from_array(size_t arr)
+{
+    float* arr_float = (float*)arr;
+    return newObjectHandle(
+                std::make_shared<Quaternion<float> >(arr_float[0],arr_float[1],arr_float[2],arr_float[3]));
+}
+
+extern "C"
+void* cReg_Quaternion_construct_from_AffineTransformation(const void* ptr)
+{
+    AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
+    return newObjectHandle(
+                std::make_shared<Quaternion<float> >(tm.get_quaternion()));
+}
+
+extern "C"
+void* cReg_Quaternion_get_average(const void *handle_vector_ptr)
+{
+    const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+    std::vector<Quaternion<float> > vec;
+    for (unsigned i=0; i<handle_vector.size(); ++i)
+        vec.push_back(objectFromHandle<Quaternion<float> >(handle_vector.at(i)));
+
+    return newObjectHandle(
+                std::make_shared<Quaternion<float> >(Quaternion<float>::get_average(vec)));
+}
+
+extern "C"
+void* cReg_Quaternion_as_array(const void* ptr, size_t arr)
+{
+    Quaternion<float>& quat = objectFromHandle<Quaternion<float> >(ptr);
+    float* arr_float = (float*)arr;
+    arr_float[0] = quat.w;
+    arr_float[1] = quat.x;
+    arr_float[2] = quat.y;
+    arr_float[3] = quat.z;
+    return new DataHandle;
 }

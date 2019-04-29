@@ -34,6 +34,10 @@ limitations under the License.
 #include <array>
 
 namespace sirf {
+
+// Forward declarations
+template<class dataType> class Quaternion;
+
 /*!
 \ingroup Registration
 \brief Class for affine transformations.
@@ -44,8 +48,9 @@ template<class dataType>
 class AffineTransformation : public Transformation<dataType>
 {
 public:
+
     /// Print multiple AffineTransformation
-    static void print(const std::vector<sirf::AffineTransformation<dataType> > &mats);
+    static void print(const std::vector<AffineTransformation<dataType> > &mats);
 
     /// Default constructor - identity matrix
     AffineTransformation();
@@ -58,6 +63,10 @@ public:
 
     /// Construct from mat44
     AffineTransformation(const mat44 &tm);
+
+    /// Construct from translation and quaternion
+    /// Code from here: https://uk.mathworks.com/help/robotics/ref/quaternion.rotmat.html
+    AffineTransformation(const std::array<dataType,3> &trans, const Quaternion<dataType> &quat);
 
     /// Copy constructor
     AffineTransformation(const AffineTransformation& to_copy);
@@ -106,6 +115,12 @@ public:
 
     /// Get Euler angles (XYZ)
     const std::array<dataType,3> get_Euler_angles() const;
+
+    /// Get quaternion
+    Quaternion<dataType> get_quaternion() const;
+
+    /// Average transformation matrices (using quaternions for rotation component)
+    static AffineTransformation get_average(const std::vector<const AffineTransformation<dataType> > &mats);
 
 protected:
     dataType _tm[4][4];

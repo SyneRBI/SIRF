@@ -78,6 +78,7 @@ try_transformations(g,na);
 try_resample(g,na);
 try_weighted_mean(g,na);
 try_affinetransformation(g,na);
+try_quaternion();
 
 function try_niftiimage(g)
 	disp('% ----------------------------------------------------------------------- %')
@@ -725,7 +726,66 @@ function try_affinetransformation(g,na)
     h = g.as_array()
     assert(all(all(abs(f-h) < 1e-4)), 'AffineTransformation as_array() failed.')
 
+    % Average
+    to_average(4,4) =  0;
+    to_average(1,3) =  1;
+    to_average(2,2) =  1;
+    to_average(3,1) = -1;
+    to_average(4,4) =  1;
+    to_average = sirf.Reg.AffineTransformation(to_average);
+    average = sirf.Reg.AffineTransformation.get_average([to_average, to_average, to_average]);
+    disp(average.as_array())
+    disp(to_average.as_array())
+    assert(to_average == average, 'AffineTransformation::get_average() failed.')
+
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished AffineTransformation test.')
+    disp('%------------------------------------------------------------------------ %')
+end
+
+function try_quaternion()
+    disp('% ----------------------------------------------------------------------- %')
+    disp('%                  Starting Quaternion test...')
+    disp('%------------------------------------------------------------------------ %')
+
+    % Construct TM
+    array(4,4) =  0;
+    array(1,3) =  1;
+    array(2,2) =  1;
+    array(3,1) = -1;
+    array(4,4) =  1;
+    rotm = sirf.Reg.AffineTransformation(array);
+
+    % Convert to quaternion
+    quat = sirf.Reg.Quaternion(rotm);
+    a = quat.as_array();
+
+    % Construct from numpy array
+    expt_array = [0.707107, 0., 0.707107, 0.];
+    expt = sirf.Reg.Quaternion(expt_array);
+
+    % Compare to expected values
+    quat_array = quat.as_array();
+    assert(all(abs(quat_array-expt_array)) < 1e-4, 'Quaternion from TM failed.')
+    
+    % Convert back to TM
+    trans_array = [0., 0., 0.];
+    affine = sirf.Reg.AffineTransformation(trans_array,quat);
+    assert(affine == rotm, 'TM to quaternion failed.');
+
+    % Convert TM to quaternion
+    quat2 = affine.get_quaternion();
+    quat2_array = quat2.as_array();
+    assert(all(abs(quat_array-quat2_array)) < 1e-4, 'AffineTransformation:get_quaternion() failed.')
+
+    % Average!
+    average = sirf.Reg.Quaternion.get_average([quat, quat, quat]);
+    average_array = average.as_array();
+    assert(all(abs(quat_array-average_array)) < 1e-4, 'Quaternion average failed.')
+    disp(average.as_array())
+
+    disp('% ----------------------------------------------------------------------- %')
+    disp('%                  Finished Quaternion test.')
     disp('%------------------------------------------------------------------------ %')
 end
