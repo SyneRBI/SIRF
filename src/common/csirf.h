@@ -47,7 +47,7 @@ void* cSIRF_write(const void* ptr, const char* filename);
 void* cSIRF_clone(void* ptr_x);
 
 // DataHandleVector methods
-void* cSIRF_DataHandleVector_push_back(void* self, const void* to_append);
+void* cSIRF_DataHandleVector_push_back(void* self, void* to_append);
 
 #ifndef CSIRF_FOR_MATLAB
 }

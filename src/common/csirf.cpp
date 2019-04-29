@@ -195,7 +195,7 @@ cSIRF_clone(void* ptr_x)
 
 extern "C"
 void*
-cSIRF_DataHandleVector_push_back(void* self, const void* to_append)
+cSIRF_DataHandleVector_push_back(void* self, void* to_append)
 {
     DataHandleVector& vec = objectFromHandle<DataHandleVector>(self);
     vec.push_back(to_append);

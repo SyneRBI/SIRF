@@ -163,14 +163,11 @@ extern "C"
 void* cReg_NiftiImageData_print_headers(const void* handle_vector_ptr)
 {
     try {
-        DataHandleVector handle_vector = objectFromHandle<DataHandleVector>(handle_vector_ptr);
-        std::vector<const NiftiImageData<float> > vec;
+        const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+        std::vector<const NiftiImageData<float>*> vec;
         for (unsigned i=0; i<handle_vector.size(); ++i)
-            vec.push_back(objectFromHandle<const NiftiImageData<float> >(handle_vector.at(i)));
-        std::vector<const NiftiImageData<float>*> vec_ptr;
-        for (unsigned i=0; i<vec.size(); ++i)
-            vec_ptr.push_back(&vec[i]);
-        NiftiImageData<float>::print_headers(vec_ptr);
+            vec.push_back(&objectFromHandle<const NiftiImageData<float> >(handle_vector.at(i)));
+        NiftiImageData<float>::print_headers(vec);
         return new DataHandle;
     }
     CATCH;
@@ -475,7 +472,7 @@ void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im
         // Sorry this is so ugly.
 
         // There's always going to be at least two transformations, so start by putting them in the vector
-        DataHandleVector vec = objectFromHandle<DataHandleVector>(trans_vector_ptr);
+        const DataHandleVector vec = objectFromHandle<const DataHandleVector>(trans_vector_ptr);
         std::vector<const Transformation<float> *> trans_vec;
         for (unsigned i=0; i<vec.size(); ++i)
             if      (types[i] == '1')

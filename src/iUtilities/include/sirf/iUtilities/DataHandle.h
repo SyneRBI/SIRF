@@ -66,7 +66,7 @@ limitations under the License.
 				}\
 
 /// Typedef of vector of void pointers for a vector of handles
-typedef std::vector<const void *> DataHandleVector;
+typedef std::vector<void const *> DataHandleVector;
 
 /*!
 \ingroup C Interface to C++ Objects
