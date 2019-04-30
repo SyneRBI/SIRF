@@ -162,7 +162,7 @@ AffineTransformation<dataType>::AffineTransformation(const std::array<dataType,3
     _tm[1][2] = 2*c*d-2*a*b;
 
     _tm[2][0] = 2*b*d-2*a*c;
-    _tm[2][1] = 2*c*d-2*a*b;
+    _tm[2][1] = 2*c*d+2*a*b;
     _tm[2][2] = dataType(2*pow(a,2) -1 + 2*pow(d,2));
 }
 
