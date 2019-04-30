@@ -119,6 +119,9 @@ public:
     /// Get quaternion
     Quaternion<dataType> get_quaternion() const;
 
+    /// Is rigid? If so, determinant will be +/- 1.
+    bool is_rigid() const;
+
     /// Average transformation matrices (using quaternions for rotation component)
     static AffineTransformation get_average(const std::vector<AffineTransformation<dataType> > &mats);
 

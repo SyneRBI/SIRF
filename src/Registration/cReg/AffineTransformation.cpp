@@ -285,6 +285,9 @@ AffineTransformation<dataType> AffineTransformation<dataType>::get_inverse() con
 template<class dataType>
 const std::array<dataType,3> AffineTransformation<dataType>::get_Euler_angles() const
 {
+    if (!this->is_rigid())
+        throw std::runtime_error("Transformation matrix needs to be rigid in order for Euler angles to be calculated.");
+
     float sy = sqrt(_tm[0][0] * _tm[0][0] +  _tm[1][0] * _tm[1][0] );
     bool singular = sy < 1e-6F;
 
@@ -306,6 +309,12 @@ template<class dataType>
 Quaternion<dataType> AffineTransformation<dataType>::get_quaternion() const
 {
     return Quaternion<dataType>(*this);
+}
+
+template<class dataType>
+bool AffineTransformation<dataType>::is_rigid() const
+{
+    return std::abs(dataType(std::pow(this->get_determinant(),2)) - 1.F) < 1.e-4F;
 }
 
 template<class dataType>

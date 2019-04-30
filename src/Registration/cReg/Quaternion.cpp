@@ -36,6 +36,9 @@ using namespace sirf;
 template<class dataType>
 Quaternion<dataType>::Quaternion(const AffineTransformation<dataType> tm)
 {
+    if (!tm.is_rigid())
+        throw std::runtime_error("Transformation matrix needs to be rigid in order for quaternion to be constructed.");
+
     dataType trace = tm[0][0] + tm[1][1] + tm[2][2];
     if( trace > 0 ) {
         dataType s = 0.5f / sqrtf(trace+ 1.0f);
@@ -126,7 +129,7 @@ Quaternion<dataType> Quaternion<dataType>::get_average(const std::vector<Quatern
     result.y /= dataType(quaternions.size());
     result.z /= dataType(quaternions.size());
 
-    return result;
+    return result.normalise();
 }
 
 template<class dataType>
