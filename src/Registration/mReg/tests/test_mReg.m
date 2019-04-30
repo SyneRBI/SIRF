@@ -726,17 +726,26 @@ function try_affinetransformation(g,na)
     h = g.as_array()
     assert(all(all(abs(f-h) < 1e-4)), 'AffineTransformation as_array() failed.')
 
-    % Average
-    to_average(4,4) =  0;
-    to_average(1,3) =  1;
-    to_average(2,2) =  1;
-    to_average(3,1) = -1;
-    to_average(4,4) =  1;
-    to_average = sirf.Reg.AffineTransformation(to_average);
-    average = sirf.Reg.AffineTransformation.get_average([to_average, to_average, to_average]);
-    disp(average.as_array())
-    disp(to_average.as_array())
-    assert(to_average == average, 'AffineTransformation::get_average() failed.')
+    % Average!
+    trans = [0., 0., 0.];
+    quat_1_array = [0.92707,  0.02149,   0.19191,  0.32132];
+    quat_2_array = [0.90361,  0.0025836, 0.097279, 0.41716];
+    quat_3_array = [0.75868, -0.21289,   0.53263,  0.30884];
+    quat_1 = sirf.Reg.Quaternion(quat_1_array);
+    quat_2 = sirf.Reg.Quaternion(quat_2_array);
+    quat_3 = sirf.Reg.Quaternion(quat_3_array);
+    tm_1   = sirf.Reg.AffineTransformation(trans,quat_1);
+    tm_2   = sirf.Reg.AffineTransformation(trans,quat_2);
+    tm_3   = sirf.Reg.AffineTransformation(trans,quat_3);
+    average = sirf.Reg.AffineTransformation.get_average([tm_1, tm_2, tm_3]);
+    exptd_avg_array = [ 0.5836, -0.6736, 0.4535, 0;,...
+                        0.6007,  0.7339, 0.3171, 0;,...
+                       -0.5464,  0.0874, 0.8329, 0;,...
+                        0,       0,      0,      1];
+    exptd_average = sirf.Reg.AffineTransformation(exptd_avg_array);
+    average_array = average.as_array();
+    assert(all(all(abs(exptd_avg_array-average_array) < 1e-4)), 'AffineTransformation average failed.')
+    disp(average_array)
 
 
     disp('% ----------------------------------------------------------------------- %')
@@ -780,10 +789,19 @@ function try_quaternion()
     assert(all(abs(quat_array-quat2_array)) < 1e-4, 'AffineTransformation:get_quaternion() failed.')
 
     % Average!
-    average = sirf.Reg.Quaternion.get_average([quat, quat, quat]);
+    quat_1_array = [0.92707,  0.02149,   0.19191,  0.32132];
+    quat_2_array = [0.90361,  0.0025836, 0.097279, 0.41716];
+    quat_3_array = [0.75868, -0.21289,   0.53263,  0.30884];
+    quat_1 = sirf.Reg.Quaternion(quat_1_array);
+    quat_2 = sirf.Reg.Quaternion(quat_2_array);
+    quat_3 = sirf.Reg.Quaternion(quat_3_array);
+    exptd_avg_array = [0.88748, -0.0647152, 0.281671, 0.35896];
+    exptd_average = sirf.Reg.Quaternion(exptd_avg_array);
+    average = sirf.Reg.Quaternion.get_average([quat_1, quat_2, quat_3]);
     average_array = average.as_array();
-    assert(all(abs(quat_array-average_array)) < 1e-4, 'Quaternion average failed.')
-    disp(average.as_array())
+    assert(all(abs(exptd_avg_array-average_array) < 1e-4), 'Quaternion average failed.')
+    disp(average_array)
+
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished Quaternion test.')

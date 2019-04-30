@@ -859,18 +859,34 @@ def try_affinetransformation(na):
     if not np.allclose(f, h, atol=1e-4):
         raise AssertionError('AffineTransformation as_array() failed.')
 
-    # Average
-    to_average = np.zeros((4, 4), dtype=numpy.float32)
-    to_average[0,2] = 1
-    to_average[1,1] = 1
-    to_average[2,0] = -1
-    to_average[3,3] = 1
-    to_average = pReg.AffineTransformation(to_average)
-    average = pReg.AffineTransformation.get_average([to_average, to_average, to_average])
+    # Average!
+    trans = np.array([0., 0., 0.],dtype=numpy.float32)
+    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=numpy.float32)
+    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=numpy.float32)
+    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=numpy.float32)
+    quat_1 = pReg.Quaternion(quat_1_array)
+    quat_2 = pReg.Quaternion(quat_2_array)
+    quat_3 = pReg.Quaternion(quat_3_array)
+    tm_1 = pReg.AffineTransformation(trans,quat_1)
+    tm_2 = pReg.AffineTransformation(trans,quat_2)
+    tm_3 = pReg.AffineTransformation(trans,quat_3)
+    average = pReg.AffineTransformation.get_average([tm_1, tm_2, tm_3])
+    exptd_avg_array = np.zeros((4, 4), dtype=numpy.float32)
+    exptd_avg_array[0][0] =  0.5836;
+    exptd_avg_array[0][1] = -0.6736;
+    exptd_avg_array[0][2] =  0.4535;
+    exptd_avg_array[1][0] =  0.6007;
+    exptd_avg_array[1][1] =  0.7339;
+    exptd_avg_array[1][2] =  0.3171;
+    exptd_avg_array[2][0] = -0.5464;
+    exptd_avg_array[2][1] =  0.0874;
+    exptd_avg_array[2][2] =  0.8329;
+    exptd_avg_array[3][3] =  1;
+    exptd_average = pReg.AffineTransformation(exptd_avg_array)
+    if exptd_average != average, atol=1e-4:
+        raise AssertionError('AffineTransformation average failed.')
     print(average.as_array())
-    print(to_average.as_array())
-    if to_average != average:
-        raise AssertionError('AffineTransformation::get_average() failed.')
+
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -918,8 +934,16 @@ def try_quaternion():
         raise AssertionError('AffineTransformation:get_quaternion() failed.')
 
     # Average!
-    average = pReg.Quaternion.get_average([quat, quat, quat])
-    if not np.allclose(quat.as_array(), average.as_array(), atol=1e-4):
+    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=numpy.float32)
+    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=numpy.float32)
+    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=numpy.float32)
+    quat_1 = pReg.Quaternion(quat_1_array)
+    quat_2 = pReg.Quaternion(quat_2_array)
+    quat_3 = pReg.Quaternion(quat_3_array)
+    exptd_avg_array = np.array([0.88748, -0.0647152, 0.281671, 0.35896],dtype=numpy.float32)
+    exptd_average = pReg.Quaternion(exptd_avg_array)
+    average = pReg.Quaternion.get_average([quat_1, quat_2, quat_3])
+    if not np.allclose(exptd_average.as_array(), average.as_array(), atol=1e-4):
         raise AssertionError('Quaternion average failed.')
     print(average.as_array())
 

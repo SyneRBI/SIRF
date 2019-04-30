@@ -933,18 +933,25 @@ int main(int argc, char* argv[])
                 throw std::runtime_error("AffineTransformation::get_Euler_angles failed.");
 
         // Average!
-        AffineTransformation<float> to_average;
-        for (unsigned i=0; i<4; ++i)
-            for (unsigned j=0; j<4; ++j)
-                to_average[i][j]=0.F;
-        to_average[0][2] =  1.f;
-        to_average[1][1] =  1.f;
-        to_average[2][0] = -1.f;
-        to_average[3][3] =  1.f;
-        AffineTransformation<float> average = AffineTransformation<float>::get_average({to_average, to_average, to_average});
-        if (average != to_average)
-            throw std::runtime_error("AffineTransformation::get_average failed.");
-        average.print();
+        Quaternion<float> quat_1(0.92707F,  0.02149F,   0.19191F,  0.32132F);
+        Quaternion<float> quat_2(0.90361F,  0.0025836F, 0.097279F, 0.41716F);
+        Quaternion<float> quat_3(0.75868F, -0.21289F,   0.53263F,  0.30884F);
+        AffineTransformation<float> tm_1({0.F,0.F,0.F},quat_1);
+        AffineTransformation<float> tm_2({0.F,0.F,0.F},quat_2);
+        AffineTransformation<float> tm_3({0.F,0.F,0.F},quat_3);
+        AffineTransformation<float> average = AffineTransformation<float>::get_average({tm_1,tm_2,tm_3});
+        AffineTransformation<float> exptd_average;
+        exptd_average[0][0] =  0.5836F;
+        exptd_average[0][1] = -0.6736F;
+        exptd_average[0][2] =  0.4535F;
+        exptd_average[1][0] =  0.6007F;
+        exptd_average[1][1] =  0.7339F;
+        exptd_average[1][2] =  0.3171F;
+        exptd_average[2][0] = -0.5464F;
+        exptd_average[2][1] =  0.0874F;
+        exptd_average[2][2] =  0.8329F;
+        if (average != exptd_average)
+            throw std::runtime_error("AffineTransformation::get_average() failed.");
 
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -987,8 +994,13 @@ int main(int argc, char* argv[])
             throw std::runtime_error("AffineTransformation.get_quaternion()/Quaternion::dot() failed.");
 
         // Average!
-        Quaternion<float> average = Quaternion<float>::get_average({quat,quat,quat});
-        if (average != quat)
+        Quaternion<float> quat_1(0.92707F,  0.02149F,   0.19191F,  0.32132F);
+        Quaternion<float> quat_2(0.90361F,  0.0025836F, 0.097279F, 0.41716F);
+        Quaternion<float> quat_3(0.75868F, -0.21289F,   0.53263F,  0.30884F);
+        Quaternion<float> average = Quaternion<float>::get_average({quat_1,quat_2,quat_3});
+        Quaternion<float> exptd_average(0.88748F, -0.0647152F, 0.281671F, 0.35896F);
+
+        if (average != exptd_average)
             throw std::runtime_error("Quaternion::get_average() failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
