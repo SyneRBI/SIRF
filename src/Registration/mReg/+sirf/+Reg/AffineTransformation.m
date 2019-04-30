@@ -92,7 +92,7 @@ classdef AffineTransformation < sirf.Reg.Transformation
             %Get forward transformation matrix.
             ptr_v = libpointer('singlePtr', zeros(4, 4));
             calllib('mreg', 'mReg_AffineTransformation_as_array', self.handle_, ptr_v);
-            tm = ptr_v.Value;
+            tm = ptr_v.Value';
         end    
         function tm = get_inverse(self)
             %Get forward transformation matrix.
