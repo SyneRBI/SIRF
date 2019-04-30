@@ -309,7 +309,7 @@ Quaternion<dataType> AffineTransformation<dataType>::get_quaternion() const
 }
 
 template<class dataType>
-AffineTransformation<dataType> AffineTransformation<dataType>::get_average(const std::vector<const AffineTransformation<dataType> > &mats)
+AffineTransformation<dataType> AffineTransformation<dataType>::get_average(const std::vector<AffineTransformation<dataType> > &mats)
 {
     // Array for translations and vector of quaternions
     std::array<dataType,3> avg_trans{0.F,0.F,0.F};

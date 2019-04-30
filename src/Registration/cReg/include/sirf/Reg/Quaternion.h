@@ -29,6 +29,7 @@ limitations under the License.
 #pragma once
 
 #include <array>
+#include <vector>
 
 namespace sirf {
 

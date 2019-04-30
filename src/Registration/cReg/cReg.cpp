@@ -796,9 +796,9 @@ extern "C"
 void* cReg_AffineTransformation_get_average(const void* handle_vector_ptr)
 {
     const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
-    std::vector<const AffineTransformation<float> > vec;
+    std::vector<AffineTransformation<float> > vec;
     for (unsigned i=0; i<handle_vector.size(); ++i)
-        vec.push_back(objectFromHandle<const AffineTransformation<float> >(handle_vector.at(i)));
+        vec.push_back(objectFromHandle<AffineTransformation<float> >(handle_vector.at(i)));
 
     return newObjectHandle(
                 std::make_shared<AffineTransformation<float> >(AffineTransformation<float>::get_average(vec)));

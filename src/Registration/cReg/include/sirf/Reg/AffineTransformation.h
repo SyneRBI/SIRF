@@ -120,7 +120,7 @@ public:
     Quaternion<dataType> get_quaternion() const;
 
     /// Average transformation matrices (using quaternions for rotation component)
-    static AffineTransformation get_average(const std::vector<const AffineTransformation<dataType> > &mats);
+    static AffineTransformation get_average(const std::vector<AffineTransformation<dataType> > &mats);
 
 protected:
     dataType _tm[4][4];
