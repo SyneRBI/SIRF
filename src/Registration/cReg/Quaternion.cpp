@@ -102,25 +102,20 @@ Quaternion<dataType> Quaternion<dataType>::get_average(const std::vector<Quatern
         return quaternions[0];
 
     // Sum up all quaternions. Start with first, loop over rest
-    Quaternion result(quaternions[0]);
+    Quaternion<dataType> result(quaternions[0]);
 
     for (unsigned i=1; i<quaternions.size(); ++i) {
 
         // But first, check whether subsequent quaternions need to be inverted.
         // Because q and -q are the same rotation, but cannot be averaged, we have to make sure they are all the same.
-        if (quaternions[i].is_quaternion_close(quaternions[0])) {
-            result.w += quaternions[i].w;
-            result.x += quaternions[i].x;
-            result.y += quaternions[i].y;
-            result.z += quaternions[i].z;
-        }
-        else {
-            Quaternion flipped = quaternions[i].inverse_sign_quaternion();
-            result.w += flipped.w;
-            result.x += flipped.x;
-            result.y += flipped.y;
-            result.z += flipped.z;
-        }
+        Quaternion<dataType> next = quaternions[i];
+        if (!quaternions[i].is_quaternion_close(quaternions[0]))
+            next = quaternions[i].inverse_sign_quaternion();
+
+        result.w += next.w;
+        result.x += next.x;
+        result.y += next.y;
+        result.z += next.z;
     }
 
     // Divide by number of quaternions
@@ -135,12 +130,11 @@ Quaternion<dataType> Quaternion<dataType>::get_average(const std::vector<Quatern
 template<class dataType>
 Quaternion<dataType> Quaternion<dataType>::normalise() const
 {
-    dataType new_w, new_x, new_y, new_z;
-    dataType lengthD = 1.0f / (w*w + x*x + y*y + z*z);
-    new_w = w * lengthD;
-    new_x = x * lengthD;
-    new_y = y * lengthD;
-    new_z = z * lengthD;
+    dataType magnitude = std::sqrt(w*w + x*x + y*y + z*z);
+    dataType new_w = w / magnitude;
+    dataType new_x = x / magnitude;
+    dataType new_y = y / magnitude;
+    dataType new_z = z / magnitude;
     return Quaternion<dataType>(new_w, new_x, new_y, new_z);
 }
 
