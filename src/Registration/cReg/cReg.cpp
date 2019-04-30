@@ -836,9 +836,8 @@ void* cReg_Quaternion_as_array(const void* ptr, size_t arr)
 {
     Quaternion<float>& quat = objectFromHandle<Quaternion<float> >(ptr);
     float* arr_float = (float*)arr;
-    arr_float[0] = quat.w;
-    arr_float[1] = quat.x;
-    arr_float[2] = quat.y;
-    arr_float[3] = quat.z;
+    std::array<float,4> quat_data = quat.get_data();
+    for (unsigned i=0; i<4; ++i)
+        arr_float[i] = quat_data[i];
     return new DataHandle;
 }

@@ -29,6 +29,7 @@ limitations under the License.
 
 #include "sirf/Reg/Quaternion.h"
 #include "sirf/Reg/AffineTransformation.h"
+#include <iostream>
 #include <cmath>
 
 using namespace sirf;
@@ -77,12 +78,11 @@ bool Quaternion<dataType>::operator==(const Quaternion &other) const
 {
     if (this == &other)
         return true;
-    if (std::fabs(w - other.w) < 1e-4f &&
-            std::fabs(x - other.x) < 1e-4f &&
-            std::fabs(y - other.y) < 1e-4f &&
-            std::fabs(z - other.z) < 1e-4f)
-        return true;
-    return false;
+
+    // Compare by turning them into TMs and comparing those
+    AffineTransformation<dataType> a({0.F,0.F,0.F},*this);
+    AffineTransformation<dataType> b({0.F,0.F,0.F},other);
+    return a==b;
 }
 
 template<class dataType>
@@ -154,6 +154,34 @@ template<class dataType>
 dataType Quaternion<dataType>::dot(const Quaternion<dataType> &other) const
 {
     return x*other.x + y*other.y + z*other.z + w*other.w;
+}
+
+template<class dataType>
+void Quaternion<dataType>::print() const
+{
+    std::cout << this->w << " + " << this->x << "i + " << this->y << "j + " << this->z << "k\n";
+}
+
+template<class dataType>
+std::array<dataType,4> Quaternion<dataType>::get_data() const
+{
+    return std::array<dataType,4>{w,x,y,z};
+}
+
+template<class dataType>
+void Quaternion<dataType>::set_data(const std::array<dataType,4> &data)
+{
+    w = data[0];
+    x = data[1];
+    y = data[2];
+    z = data[3];
+}
+
+template<class dataType>
+std::array<dataType,3> Quaternion<dataType>::get_Euler_angles() const
+{
+    // Create TM with 0 translation and then get the Euler angles from that
+    return AffineTransformation<dataType>({0.F,0.F,0.F},*this).get_Euler_angles();
 }
 
 template<class dataType>

@@ -65,8 +65,6 @@ public:
     /// Average quaternions
     static Quaternion get_average(const std::vector<Quaternion> &quaternions);
 
-    dataType w, x, y, z;
-
     /// Dot product with another quaternion
     dataType dot(const Quaternion &other) const;
 
@@ -76,7 +74,22 @@ public:
     /// Normalise quaternion
     Quaternion normalise() const;
 
+    /// Print quaternion
+    void print() const;
+
+    /// Get the data
+    std::array<dataType,4> get_data() const;
+
+    /// Set the data
+    void set_data(const std::array<dataType,4> &data);
+
+    /// Get as Euler angles
+    std::array<dataType,3> get_Euler_angles() const;
+
 private:
+
+    /// Data
+    dataType w, x, y, z;
 
     /// Returns true if the input quaternion is close to the original. This can
     /// be used to check whether or not one of two quaternions which are supposed to

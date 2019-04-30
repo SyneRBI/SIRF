@@ -148,10 +148,11 @@ AffineTransformation<dataType>::AffineTransformation(const std::array<dataType,3
         _tm[i][3] = trans[i];
 
     // Convert quaternions back to rotation matrix
-    const dataType a(quat.w);
-    const dataType b(quat.x);
-    const dataType c(quat.y);
-    const dataType d(quat.z);
+    std::array<dataType,4> quat_data = quat.get_data();
+    const dataType a(quat_data[0]);
+    const dataType b(quat_data[1]);
+    const dataType c(quat_data[2]);
+    const dataType d(quat_data[3]);
 
     _tm[0][0] = dataType(2*pow(a,2) -1 + 2*pow(b,2));
     _tm[0][1] = 2*b*c-2*a*d;
