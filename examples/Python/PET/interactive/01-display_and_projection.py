@@ -107,7 +107,7 @@ mu_map = pet.ImageData('attenuation.hv');
 # Images are represented by objects with several methods. The most important method 
 # is as_array() which we'll use below.
 # Let's see what all the methods are.
-# help(pet.ImageData)
+help(pet.ImageData)
 
 #%% Use as_array to get the underlying array of numbers
 image_array=image.as_array();
@@ -160,7 +160,7 @@ am.set_up(templ,image);
 # Input is a SIRF ImageData object (not image_array), output is an AcquisitionData object.
 acquired_data=am.forward(image)
 #%% Check what methods an AcquisitionData object has
-# help(acquired_data)
+help(acquired_data)
 #%% Let's get the Python array
 acquisition_array = acquired_data.as_array()
 print(acquisition_array.shape)
@@ -198,5 +198,4 @@ imshow(backprojected_array[slice_num,:,:],[], 'backprojection');
 
 #%% close all plots
 plt.close('all')
-print ("here")
 #%% End of this demo!

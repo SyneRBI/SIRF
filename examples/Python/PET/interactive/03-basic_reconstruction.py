@@ -70,13 +70,13 @@ recon.reconstruct(reconstructed_image)
 #%% display of image
 reconstructed_array=reconstructed_image.as_array()
 # slice=reconstructed_array.shape[0]//3;
-sliceno = 9
-show_2D_array('reconstructed image after 5 sub-iterations',reconstructed_array[sliceno,:,:,]);
+slice_num = 9
+show_2D_array('reconstructed image after 5 sub-iterations',reconstructed_array[slice_num,:,:,]);
 
 #%% do a another set of iterations
 recon.reconstruct(reconstructed_image)
 reconstructed_array=reconstructed_image.as_array()
-show_2D_array('reconstructed image after 10 sub-iterations',reconstructed_array[sliceno,:,:,]);
+show_2D_array('reconstructed image after 10 sub-iterations',reconstructed_array[slice_num,:,:,]);
 
 #%% We now add a multiplicative term to the acquisition model
 # In PET, detector-pairs have different efficiencies. We want to include
@@ -124,7 +124,7 @@ recon.reconstruct(reconstructed_image)
 cmax = image.as_array().max()*1.2;
 reconstructed_array=reconstructed_image.as_array()
 plt.figure()
-imshow(reconstructed_array[sliceno,:,:,], [0,cmax],'reconstructed image with original acquisition model');
+imshow(reconstructed_array[slice_num,:,:,], [0,cmax],'reconstructed image with original acquisition model');
 #%% Now we use the correct acquisition model
 obj_fun.set_acquisition_model(am2)
 reconstructed_image.fill(1)
@@ -133,4 +133,4 @@ recon.reconstruct(reconstructed_image)
 #%% display
 reconstructed_array=reconstructed_image.as_array()
 plt.figure()
-imshow(reconstructed_array[sliceno,:,:,], [0,cmax],'reconstructed image with correct acquisition model');
+imshow(reconstructed_array[slice_num,:,:,], [0,cmax],'reconstructed image with correct acquisition model');
