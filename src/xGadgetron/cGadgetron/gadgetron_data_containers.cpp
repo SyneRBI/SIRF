@@ -466,18 +466,25 @@ MRAcquisitionData::sort()
 {
 	typedef std::array<int, 4> tuple;
 	int na = number();
-
+	int last = -1;
+	int max_rep = 0;
 	tuple t;
 	std::vector<tuple> vt;
 	for (int i = 0; i < na; i++) {
 		ISMRMRD::Acquisition acq;
 		get_acquisition(i, acq);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
+			last = i;
 		t[0] = acq.idx().repetition;
 		t[1] = acq.idx().phase;
 		t[2] = acq.idx().slice;
 		t[3] = acq.idx().kspace_encode_step_1;
 		vt.push_back(t);
+		if (t[0] > max_rep)
+			max_rep = t[0];
 	}
+	if (last > -1)
+		vt[last][0] = max_rep + 1;
 
 	index_.resize(na);
 
@@ -1239,7 +1246,12 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	ISMRMRD::Acquisition acq;
 	par = ac.acquisitions_info();
 	ISMRMRD::deserialize(par.c_str(), header);
-	ac.get_acquisition(0, acq);
+	//ac.get_acquisition(0, acq);
+	for (unsigned int i = 0; i < ac.number(); i++) {
+		ac.get_acquisition(i, acq);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+			break;
+	}
 	encoding_ = header.encoding[0];
 
 	ISMRMRD::Encoding e = header.encoding[0];
