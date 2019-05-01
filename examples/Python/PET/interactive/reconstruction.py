@@ -84,10 +84,10 @@ image.fill(image_array);
 mu_map = pet.ImageData('attenuation.hv');
 mu_map_array=mu_map.as_array();
 #%% bitmap display of images
-sliceno=image_array.shape[0]//2;
+slice_num=image_array.shape[0]//2;
 plt.figure();
 #plt.subplot(1,2,1);
-imshow(image_array[sliceno,:,:,], [], 'emission image');
+imshow(image_array[slice_num,:,:,], [], 'emission image');
 #plt.subplot(1,2,2);
 #imshow(mu_map_array[slice,:,:,], [], 'attenuation image');
 
@@ -133,9 +133,9 @@ init_image.fill(cmax/4)
 make_cylindrical_FOV(init_image)
 # display
 idata = init_image.as_array()
-sliceno=idata.shape[0]//2;
+slice_num=idata.shape[0]//2;
 plt.figure()
-imshow(idata[sliceno,:,:],[0,cmax], 'initial image');
+imshow(idata[slice_num,:,:],[0,cmax], 'initial image');
 
 #%% reconstruct the image 
 reconstructed_image=init_image.clone()
@@ -149,9 +149,9 @@ reconstructed_array=reconstructed_image.as_array()
 
 plt.figure();
 plt.subplot(1,2,1);
-imshow(image_array[sliceno,:,:,], [0,cmax*1.2],'emission image');
+imshow(image_array[slice_num,:,:,], [0,cmax*1.2],'emission image');
 plt.subplot(1,2,2);
-imshow(reconstructed_array[sliceno,:,:,], [0,cmax*1.2], 'reconstructed image');
+imshow(reconstructed_array[slice_num,:,:,], [0,cmax*1.2], 'reconstructed image');
 
 
 #%% Generate a noisy realisation of the data
@@ -164,9 +164,9 @@ noisy_data.fill(noisy_array);
 #%% Display bitmaps of the middle sinogram
 plt.figure()
 plt.subplot(1,2,1);
-imshow(acquisition_array[0][sliceno,:,:,], [0,acquisition_array.max()], 'original');
+imshow(acquisition_array[0][slice_num,:,:,], [0,acquisition_array.max()], 'original');
 plt.subplot(1,2,2);
-imshow(noisy_array[0][sliceno,:,:,], [0,acquisition_array.max()], 'noisy');
+imshow(noisy_array[0][slice_num,:,:,], [0,acquisition_array.max()], 'noisy');
 
 #%% reconstruct the noisy data
 obj_fun.set_acquisition_data(noisy_data)
@@ -190,12 +190,12 @@ all_osem_images = numpy.ndarray(shape=(num_subiters+1,) + idata.shape );
 current_image = init_image.clone()
 osem_objective_function_values = [ obj_fun.value(current_image) ]
 all_osem_images[0,:,:,:] =  current_image.as_array();
-for iterno in range(1, num_subiters+1):
+for iter_num in range(1, num_subiters+1):
     recon.update(current_image);
     
     obj_fun_value = obj_fun.value(current_image);
     osem_objective_function_values.append(obj_fun_value);
-    all_osem_images[iterno,:,:,:] =  current_image.as_array();
+    all_osem_images[iter_num,:,:,:] =  current_image.as_array();
   
 #%% define a function for plotting images and the updates
 def plot_progress(all_images, title, subiterations = []):
@@ -205,12 +205,12 @@ def plot_progress(all_images, title, subiterations = []):
     num_rows = len(all_images);
     plt.close('all');
     for iterno in subiterations:
-        plt.figure(iterno)
+        plt.figure(iter_num)
         for r in range(num_rows):
             plt.subplot(num_rows,2,2*r+1)
-            imshow(all_images[r][iterno,sliceno,:,:], [0,cmax], '%s at %d' % (title[r],  iterno))
+            imshow(all_images[r][iter_num,slice_num,:,:], [0,cmax], '%s at %d' % (title[r],  iter_num))
             plt.subplot(num_rows,2,2*r+2)
-            imshow(all_images[r][iterno,sliceno,:,:]-all_images[r][iterno-1,sliceno,:,:],[-cmax*.1,cmax*.1], 'update')
+            imshow(all_images[r][iter_num,slice_num,:,:]-all_images[r][iter_num-1,slice_num,:,:],[-cmax*.1,cmax*.1], 'update')
             plt.pause(.05)
         
 #%% now call this function to see how we went along
@@ -225,8 +225,8 @@ plt.title('Objective function values')
 plt.xlabel('sub-iterations')
 
 #%% ROI
-ROI_lesion = all_osem_images[:,(sliceno,), 65:70, 40:45];
-ROI_lung = all_osem_images[:,(sliceno,), 75:80, 45:50];
+ROI_lesion = all_osem_images[:,(slice_num,), 65:70, 40:45];
+ROI_lung = all_osem_images[:,(slice_num,), 75:80, 45:50];
 
 ROI_mean_lesion = ROI_lesion.mean(axis=(1,2,3))
 ROI_std_lesion = ROI_lesion.std(axis=(1,2,3))
@@ -277,7 +277,7 @@ all_images = numpy.ndarray(shape=(num_subiters+1,) + idata.shape );
 all_images[0,:,:,:] =  idata;
 
 #%% perform GD iterations
-for iterno in range(1, num_subiters+1):  
+for iter_num in range(1, num_subiters+1):  
     # obtain gradient for subset 0
     # with current settings, this means we will only use the data of that subset
     # (gradient descent with subsets is too complicated for this demo)
@@ -294,7 +294,7 @@ for iterno in range(1, num_subiters+1):
     # compute objective function value for plotting, and write some diagnostics
     obj_fun_value = obj_fun.value(current_image)
     GD_objective_function_values.append(obj_fun_value)
-    all_images[iterno,:,:,:] = idata; 
+    all_images[iter_num,:,:,:] = idata; 
 #%% Plot objective function values
 plt.figure()
 #plt.hold('on')
