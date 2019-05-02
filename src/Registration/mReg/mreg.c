@@ -48,8 +48,8 @@ EXPORTED_FUNCTION     void* mReg_setParameter(void* ptr, const char* obj, const 
 EXPORTED_FUNCTION     void* mReg_parameter(const void* ptr, const char* obj, const char* name) {
 	return cReg_parameter(ptr, obj, name);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
-	return cReg_NiftiImageData_print_headers(num_ims, im1, im2, im3, im4, im5);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const void *handle_vector_ptr) {
+	return cReg_NiftiImageData_print_headers(handle_vector_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype) {
 	return cReg_NiftiImageData_write(ptr, filename, datatype);
@@ -69,8 +69,8 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_dimensions(const void* ptr, 
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out) {
 	return cReg_NiftiImageData_get_voxel_sizes(ptr, ptr_out);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data) {
-	return cReg_NiftiImageData_get_data(ptr, ptr_data);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_as_array(const void* ptr, PTR_FLOAT ptr_data) {
+	return cReg_NiftiImageData_as_array(ptr, ptr_data);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type) {
 	return cReg_NiftiImageData_maths_im(res_ptr, im1_ptr, im2_ptr, maths_type);
@@ -90,6 +90,9 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_original_datatype(const void
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr) {
 	return cReg_NiftiImageData_crop(im_ptr, min_index_ptr, max_index_ptr);
 }
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order) {
+	return cReg_NiftiImageData_set_voxel_spacing(im_ptr, x, y, z, interpolation_order);
+}
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3D_from_SIRFImageData(void* ptr) {
 	return cReg_NiftiImageData3D_from_SIRFImageData(ptr);
 }
@@ -105,8 +108,8 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_compone
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim) {
 	return cReg_NiftiImageData3DTensor_flip_component(ptr, dim);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5) {
-	return cReg_NiftiImageData3DDeformation_compose_single_deformation(im, num_elements, types, trans1, trans2, trans3, trans4, trans5);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr) {
+	return cReg_NiftiImageData3DDeformation_compose_single_deformation(im, types, trans_vector_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr) {
 	return cReg_NiftiImageData3DDeformation_create_from_disp(disp_ptr);

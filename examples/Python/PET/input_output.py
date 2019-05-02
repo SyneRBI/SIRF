@@ -38,11 +38,11 @@ args = docopt(__doc__, version=__version__)
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 data_path = args['--path']
 if data_path is None:
-    data_path = examples_data_path('pet')
+    data_path = examples_data_path('PET')
 templ_file = args['--tfile']
 templ_file = existing_filepath(data_path, templ_file)
 acq_file = args['--afile']
@@ -64,7 +64,8 @@ def main():
 ##    print('rebinning...')
 ##    acq_template = acq_template.rebin(15)
     acq_dim = acq_template.dimensions()
-    print('acquisition data dimensions: %d sinograms, %d views, %d tang. pos.' \
+    print('acquisition data dimensions: ' + \
+          '%d TOF bins %d sinograms, %d views, %d tang. pos.' \
           % acq_dim)
 
     # create image of dimensions and voxel sizes compatible with the scanner
@@ -117,8 +118,8 @@ def main():
     acq_array = simulated_data.as_array()
     acq_dim = acq_array.shape
 ##    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
-    z = acq_dim[0]//2
-    show_2D_array('Simulated acquisition data', acq_array[z,:,:])
+    z = acq_dim[1]//2
+    show_2D_array('Simulated acquisition data', acq_array[0,z,:,:])
 
     # write acquisition data and image to files
     print('writing acquisition data...')
@@ -131,8 +132,8 @@ def main():
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
 ##    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
-    z = acq_dim[0]//2
-    show_2D_array('Simulated acquisition data', acq_array[z,:,:])
+    z = acq_dim[1]//2
+    show_2D_array('Simulated acquisition data', acq_array[0,z,:,:])
 
     # show the image again
     img = ImageData()

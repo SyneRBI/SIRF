@@ -26,7 +26,7 @@
 # Overview <a name="Overview"></a>
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. This document describes in detail the interfacing principles and structure in order to facilitate the contributions to SIRF from any interested developer.
-This Developer's Guide is for version 1.1.0-rc.1 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
+This Developer's Guide is for version 2.0 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
 
 # SIRF structure <a name="SIRF_structure"></a>
 
@@ -46,13 +46,13 @@ Our topmost interface layer are Object-Oriented Matlab and Python modules that c
 
 To summarise, SIRF software is structured as the following set of layers (from top to bottom):
 
-| SIRF software layers | Files (PET) | Files (MR) |
+| SIRF software layers | PET | MR | Registration | Common
 | --- | --- | --- |
-| Matlab/Python OO interface modules | +mSTIR/*.m pSTIR.py | +mGadgetron/*.m pGadgetron.py |
-| Matlab/Python interfaces to C | mstir.\* pystir.* | mgadgetron.\* pygadgetron.* |
-| C interface to C\++ code | cstir.* | cgadgetron.* |
-| Extended engine functionality | xSTIR/cSTIR/* | xGadgetron/cGadgetron/* |
-| Reconstruction engines | STIR/* | Gadgetron/* |
+| Matlab/Python OO interfaces | `+STIR STIR.py` | `+Gadgetron Gadgetron.py`| `+Reg Reg.py` | `+SIRF SIRF.py`
+| Matlab/Python interfaces to C | `mstir.* pystir.*` | `mgadgetron.* pygadgetron.*` | `mreg.* pyreg.py`| `msirf.m pysirf.py`
+| C interface to C\++ code | `cstir.*` | `cgadgetron.*` | `cReg.*`| `csirf.*`
+| Extended engine functionality | `xSTIR/cSTIR/*` | `xGadgetron/cGadgetron/*` |
+| Reconstruction engines | `STIR/*` | `Gadgetron/*` |
 
 As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c", "p" and "m". These correspond to the various layers of SIRF: eXtended engine functionality, C-interface, Python and Matlab.
 
@@ -80,6 +80,10 @@ A class for handling PET acquisition data. Based on STIR `ProjData` class and re
 
 A class for handling PET image data. Based on STIR `DiscretisedDensity` class and retains most of its functionality. Has additional algebraic operations functionality. *Files:* `SIRF/src/xSTIR/cSTIR/stir_data_containers.*`.
 
+###### ListmodeToSinograms <a name="ListmodeToSinograms"></a>
+
+A class for listmode-to-sinogram conversion and randoms estimation.
+
 ###### PETAcquisitionModel <a name="PETAcquisitionModel"></a>
 
 A class for PET acquisition process simulation. Has method `forward` for simulating acquisition process in a PET scanner and method `backward` for the adjoint (transposed) operation. *Files:* `SIRF/src/xSTIR/cSTIR/stir_x.*`.
@@ -88,12 +92,15 @@ A class for PET acquisition process simulation. Has method `forward` for simulat
 
 A class derived from `PETAcquisitionModel`. Employs STIR object `ProjMatrixByBin` in forward- and backprojection. *Files:* `SIRF/src/xSTIR/cSTIR/stir_x.*`.
 
+###### PETAcquisitionSensitivityModel <a name="PETAcquisitionSensitivityModel"></a>
+
+A class for PET acquisition sensitivity simulation, responsible for modelling detector efficiencies and attenuation.
+
 #### Extended Gadgetron functionality <a name="Extended Gadgetron functionality"></a>
 
 Extended Gadgetron functionality in SIRF is built entirely upon the Gadgetron client `gadgetron_ismrmrd_client.cpp`: SIRF essentially provides an alternative client. The server-side parts of the Gadgetron code are not used at present. This, for example, allows the use of Gadgetron without its installation under Windows - instead, Gadgetron can be run on a Linux Virtual Machine.
 
 ###### MRAcquisitionData <a name="MRAcquisitionData"></a>
-
 
 A container class for storing and handling ISMRMRD acquisitions. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_data_containers.*`.
 
@@ -123,6 +130,9 @@ At present, the set of classes that have been derived from Gadgets (representing
     GenericReconCartesianGrappaGadget
     GenericReconFieldOfViewAdjustmentGadget
     GenericReconImageArrayScalingGadget
+    FatWaterGadget
+    PhysioInterpolationGadget
+
     ImageArraySplitGadget
     ExtractGadget
     ComplexToFloatGadget
@@ -136,13 +146,13 @@ The C interface layer is a set of C functions that wrap SIRF C++ code.
 
 Each interface function has arguments of basic C types: `void*`, `int`, `float` and `char*`, and some functions have either arguments of types `int*` and `float*` (for interfacing to Matlab) or of type `size_t` (for interfacing to Python). The return value of each interface function is either `void` (to be deprecated) or `void*`. *Files:* `SIRF/src/xSTIR/cSTIR/cstir.*`, `SIRF/src/xGadgetron/cGadgetron/cgadgetron.*`.
 
-SIRF Python and Matlab objects do not have direct access to C\++ objects and their data. Their role is to obtain a reference to a C\++ object or its data by calling a C interface function and pass it to another C\++ object by calling another C interface function. A C\++ object or data reference is wrapped into an object of the class DataHandle, which additionally has a property that records any exceptions thrown by the C++ code, and the pointer to this DataHandle object is passed as a `void*` argument or return value. To simplify/shorten the coding of wrapping/unwrapping, a class template ObjectHandle is derived from DataHandle. *Files:* `SIRF/src/iUtilities/data_handle.h`, `SIRF/scr/common/include/SIRF/common/object_handle.inl`.
+SIRF Python and Matlab objects do not have direct access to C\++ objects and their data. Their role is to obtain a reference to a C\++ object or its data by calling a C interface function and pass it to another C\++ object by calling another C interface function. A C\++ object or data reference is wrapped into an object of the class `DataHandle`, which additionally has a property that records any exceptions thrown by the C++ code, and the pointer to this `DataHandle` object is passed as a `void*` argument or return value. To simplify/shorten the coding of wrapping/unwrapping, a class template `ObjectHandle` is derived from `DataHandle`. *Files:* `SIRF/src/iUtilities/data_handle.h`, `SIRF/scr/common/include/SIRF/common/object_handle.inl`.
 
 ### Matlab and Python interfaces to C <a name="Matlab_Python_interfaces"></a>
 
-Wrapping C\++ into C dramatically simplifies the interfacing into any programming language. In the case of Matlab, no interfacing is required under Linux, where Matlab can call C library functions directly via `calllib()`, whereas under Windows one just need to add  `__declspec(dllexport)` in front of every C function, which is done by executables `gmi_xstir.exe` and `gmi_xgadgetron.exe`.
+Wrapping C\++ into C dramatically simplifies the interfacing into any programming language. In the case of Matlab, no interfacing is required under Linux, where Matlab can call C library functions directly via `calllib()`, whereas under Windows one just need to add  `__declspec(dllexport)` in front of every C function, which is done by executables `gmi_xstir.exe`, `gmi_xgadgetron.exe` etc.
 
-For Python, we use SWIG, which requires just these 5 lines to generate the interface for STIR (and similar 5 lines for Gadgetron):
+For Python, we use SWIG, which requires just these 5 lines to generate the interface for STIR (and similar lines for Gadgetron and Registration):
 
     %module pystir
     %{
@@ -153,18 +163,22 @@ For Python, we use SWIG, which requires just these 5 lines to generate the inter
 
 ### Matlab and Python OO interfaces <a name="Matlab_Python_OO_interfaces"></a>
 
-Matlab and Python interfaces of the previous section are not user-friendly and not Object-Oriented, which is why on top of them we have Object-Oriented modules +mSTIR and +mGadgetron in Matlab and pSTIR.py and pGadgetron.py in Python. These modules are described in User Guide.
+Matlab and Python interfaces of the previous section are not user-friendly and not Object-Oriented, which is why on top of them we have Object-Oriented modules `+STIR`, `+Gadgetron` and `+Reg` in Matlab and `STIR.py`, `Gadgetron.py` and `Reg.py` in Python. These modules are described in User Guide.
 
 ## Source files folder structure
 
     SIRF/src
         common         : code common to all engines
         iUtilities     : interface utilities
-        xGadgetron     : Gadgetron extesions and interfaces
+        Registration   
+            cReg       : C wrappers for NiftyReg
+            mReg       : Object-Oriented Matlab interface
+            pReg       : Object-Oriented Python interface
+        xGadgetron     
             cGadgetron : Gadgetron extensions and C wrappers
             mGadgetron : Object-Oriented Matlab interface
             pGadgetron : Object-Oriented Python interface
-        xSTIR          : STIR extensions and interfaces
+        xSTIR          
             cSTIR      : STIR extensions and C wrappers
             mSTIR      : Object-Oriented Matlab interface
             pSTIR      : Object-Oriented Python interface
@@ -173,11 +187,11 @@ Matlab and Python interfaces of the previous section are not user-friendly and n
 
 Data processed by reconstruction engines are often of complicated structure and generally cannot be efficiently handled by script languages. For this reason, in SIRF all data processing is performed by the engines and their extensions, and scripts do not have direct access to data.
 
-The only way for user's scripts to work with the engine data is to get a copy of it in a script array format via as_array() methods of SIRF data container classes and pass an array to the engine via their fill() methods.
+The only way for user's scripts to work with the engine data is to get a copy of it in a script array format via `as_array()` methods of SIRF data container classes and pass an array to the engine via their `fill()` methods.
 
 # Illustration <a name="Illustration"></a>
 
-In this section we illustrate how the SIRF software layers interact. To avoid duplication, we focus on the case of MR reconstruction by Gadgetron. The PET case is totally parallel.
+In this section we illustrate how the SIRF software layers interact. To avoid duplication, we focus on the case of MR reconstruction by Gadgetron. The PET and Registration cases are totally parallel.
 
 ### Python <a name="Illustration_Python"></a>
 
@@ -185,7 +199,7 @@ A reconstruction script would normally contain the following line indicating the
 
     acq_data = AcquisitionData(filename)
 
-(mind that the actual data reading from the indicated file happens later on). The above line creates a Python object of AcquisitionData class. The definition of this class is provided in the Python module pGadgetron.py, and the constructor method that is called to create this object calls, in turn, a C function via SWIG-generated C-to-Python interface module pygadgetron.py:
+(mind that the actual data reading from the indicated file happens later on). The above line creates a Python object of `AcquisitionData` class. The definition of this class is provided in the Python module `Gadgetron.py`, and the constructor method that is called to create this object calls, in turn, a C function via SWIG-generated C-to-Python interface module pygadgetron.py:
 
     self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(filename)
 
@@ -204,12 +218,14 @@ The C function that is called is as follows:
         CATCH;
     }
 
-As can be seen from the above C source, the function checks if the acquisition data file exists, and if it does, creates an MRAcquisitionData object of derived type AcquisitionsFile. The return value of this function, which ends up in `acq_data.handle`, is a C void pointer to a C++ object ObjectHandle that encapsulates a shared pointer to an MRAcquisitionData object (cf. [C interface](#C_interface)). We note that MRAcquisitionData and AcquisitionsFile types are part of extended Gadgetron functionality, the first layer above the Gadgetron engine, and the ObjectHandle type is part of the second layer. Finally, the constructor of AcquisitionsFile has the following line:
+As can be seen from the above C source, the function checks if the acquisition data file exists, and if it does, creates an `MRAcquisitionData` object of derived type `AcquisitionsFile`. The return value of this function, which ends up in `acq_data.handle`, is a C void pointer to a C++ object `ObjectHandle` that encapsulates a shared pointer to an `MRAcquisitionData` object (cf. [C interface](#C_interface)). We note that `MRAcquisitionData` and `AcquisitionsFile` types are part of extended Gadgetron functionality, the first layer above the Gadgetron engine, and the `ObjectHandle` type is part of the second layer. Finally, the constructor of `AcquisitionsFile` has the following line:
 
     dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
         (new ISMRMRD::Dataset(filename.c_str(), "/dataset"));
 
 showing that the acquisition data file is handled by the Dataset object of ISMRMRD library employed by Gadgetron engine.
+
+If exception is thrown, it is caught by the `CATCH` macro, which records it in the `DataHandle` object that this function will return, so that it can be reported by Python and Matlab interface module `AcquistionData` objects.
 
 ### Matlab <a name="Illustration_Matlab"></a>
 
@@ -217,7 +233,7 @@ In the case of a Matlab script, the line
 
     acq_data = AcquisitionData(filename);
 
-creates a Matlab object of AcquisitionData class, the constructor of which contains a C function call (via Matlab's calllib function)
+creates a Matlab object of `AcquisitionData` class, the constructor of which contains a C function call (via Matlab's `calllib` function)
 
     self.handle_ = calllib('mgadgetron', ...
         'mGT_ISMRMRDAcquisitionsFromFile', filename);
@@ -248,7 +264,7 @@ If a new class has default constructor, you may like to add the following two li
 
 For all other constructors and other methods of your class you will need to write a C wrapper, the prototype of which **must** be placed in `cgadgetron.h`. The definition of the wrapper may be added to `cgadgetron.cpp` or a new file in `SIRF/src/xGadgetron/cGadgetron`, which will need to be mentioned in `add_library` statement in `CMakeLists.txt`.
 
-It is advised to use existing C wrappers as templates. An example of a C wrapper for a constructor of an object of class MRAcquisitionData was given above in section Illustration. It exposes some general principles in creating C wrappers:
+It is advised to use existing C wrappers as templates. An example of a C wrapper for a constructor of an object of class `MRAcquisitionData` was given above in section Illustration. It exposes some general principles in creating C wrappers:
 
 - wrapper should return a pointer to `DataHandle` object cast into `void*`;
 - wrapper should use `try{} CATCH;` bracket for passing C++ exceptions to Python and Matlab;
@@ -258,58 +274,52 @@ It is advised to use existing C wrappers as templates. An example of a C wrapper
 Some further principles are illustrated by the following example of a wrapper:
 
 	extern "C"
-	void* cGT_norm(const void* ptr_x)
+	void*
+	cSIRF_norm(const void* ptr_x)
 	{
 		try {
-			aDataContainer<complex_float_t>& x =
-				objectFromHandle<aDataContainer<complex_float_t> >(ptr_x);
+			DataContainer& x =
+				objectFromHandle<DataContainer >(ptr_x);
 			return dataHandle(x.norm());
 		}
 		CATCH;
 	}
 
-This wrapper returns the return value of the method `norm()` of an object of the class template `aDataContainer<complex_float_t>`. The argument of the wrapper is actually a pointer to a `DataHandle` object that stores a shared pointer to an `aDataContainer<complex_float_t>` object. The function template `objectFromHandle` obtains a reference to this object, thus enabling the call to its method `norm()`. The function template `dataHandle`, which has one argument of arbitrary scalar type, wraps the return value of `norm()` into `DataHandle` object, and returns the pointer to this object as `void*`.
+This wrapper returns the return value of the method `norm()` of an object of the class `DataContainer`, from which all SIRF data container classes (`MRImageData`, `PETAcquisitionData` etc.) are derived. The argument of the wrapper is actually a pointer to a `DataHandle` object that stores a shared pointer to a `DataContainer` object. The function template `objectFromHandle` obtains a reference to this object, thus enabling the call to its method `norm()`. The function template `dataHandle`, which has one argument of arbitrary scalar type, wraps the return value of `norm()` into a `DataHandle` object, and returns the pointer to this object as `void*`. 
 
 The next two wrappers demonstrate how data is exchanged between C++ and Matlab/Python arrays.
 
 	extern "C"
-	void* cGT_getAcquisitionsData
-	(void* ptr_acqs, unsigned int slice, size_t ptr_re, size_t ptr_im)
+	void*
+	cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 	{
 		try {
-			float* re = (float*)ptr_re;
-			float* im = (float*)ptr_im;
+			complex_float_t* z = (complex_float_t*)ptr_z;
+			CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 			MRAcquisitionData& acqs =
-				objectFromHandle<MRAcquisitionData>(ptr_acqs);
-			acqs.get_acquisitions_data(slice, re, im);
-			return (void*)new DataHandle;
+				objectFromHandle<MRAcquisitionData>(h_acqs);
+			acqs.get_data(z, all);
+			return new DataHandle;
 		}
 		CATCH;
 	}
-
+	
 	extern "C"
-	void* cGT_setAcquisitionsData
-	(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
-	size_t ptr_re, size_t ptr_im)
+	void*
+	cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
 	{
 		try {
-			float* re = (float*)ptr_re;
-			float* im = (float*)ptr_im;
+			complex_float_t* z = (complex_float_t*)ptr_z;
+			CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 			MRAcquisitionData& acqs =
-				objectFromHandle<MRAcquisitionData>(ptr_acqs);
-			int err = acqs.set_acquisition_data(na, nc, ns, re, im);
-			DataHandle* handle = new DataHandle;
-            if (err)
-                handle->set_status("Mismatching acquisition dimensions",
-                    __FILE__, __LINE__);
-			return (void*)handle;
+				objectFromHandle<MRAcquisitionData>(h_acqs);
+			acqs.set_data(z, all);
+			return new DataHandle;
 		}
 		CATCH;
 	}
 
-Both wrappers obtain a pointer to `DataHandle` containing the reference `acqs` to an `MRAcquisitionData` object and pointers to the data of two Matlab/Python arrays storing real and imaginary part of MR acquisitions. The reference `acqs` is used to call methods `get_acquisitions_data` and `set_acquisitions_data` which perform the data exchange.
-
-The second wrapper also shows how to deal with errors. If `set_acquisitions_data` returns non-zero error flag, method `set_status` of a `DataHandle` object is called that records the error message and location. This error message and location are used by SIRF Python and Matlab OO interfaces to throw an exception.
+Both wrappers obtain a pointer `ptr_acqs` to a `DataHandle` object containing the reference `acqs` to an `MRAcquisitionData` object and pointer `ptr_z` to the data of a Matlab/Python array storing MR acquisitions data. The reference `acqs` is used to call methods `get_data` and `set_data` which perform the data exchange. The argument `all` specifies whether all acquisition data must be put in the receiving `ptr_z`-referenced array or whether data not directly used in the reconstruction (e.g. noise calibration data) must be ignored. Exceptions are handled by the `CATCH` macro, successful execution returns a default empty `DataHandle` object, the only role of which in this case is to report successful return.
 
 ### Step 2: create Matlab and Python Object-Oriented interface for your additions <a name="Create_OO_interface"></a>
 
@@ -317,7 +327,7 @@ This section demonstrates how C wrappers of the previous section are used by the
 
 #### Python
 
-The SIRF build creates a Python module `pygadgetron.py` with SWIG-generated interface to Python for C wrappers declared in `cgadgetron.h` and a Python module `pyutilities.py` with various interface utilities. An example of a Python interface function from `pygadgetron.py` is the function `pygadgetron.cGT_ISMRMRDAcquisitionsFromFile` featuring in Illustration section. This function is called by the constructor of the Python class `AcquisitionData` defined in SIRF Object-Oriented interface module `pGadgetron.py`:
+The SIRF build creates a Python module `pygadgetron.py` with SWIG-generated interface to Python for C wrappers declared in `cgadgetron.h` and a Python module `pyutilities.py` with various interface utilities. An example of a Python interface function from `pygadgetron.py` is the function `pygadgetron.cGT_ISMRMRDAcquisitionsFromFile` featuring in Illustration section. This function is called by the constructor of the Python class `AcquisitionData` defined in SIRF Object-Oriented interface module `Gadgetron.py`:
 
     self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(filename)
 
@@ -327,73 +337,62 @@ and the destructor of this class calls a Python interface function `deleteDataHa
 
 Class `AcquisitionData` has method `as_array()` that creates and returns a Python array containing acquisition data copied from `MRAcquisitionData` as follows
 
-    re = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
-    im = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
-    try_calling(pygadgetron.cGT_getAcquisitionsData\
-        (self.handle, n, re.ctypes.data, im.ctypes.data))
-    return re + 1j*im
+    z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+    try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
+        (self.handle, z.ctypes.data, return_all))
+    return z
 
-where `try_calling` is a function that checks the execution status stored by `DataHandle` object, the pointer to which is returned by `cGT_getAcquisitionsData`, and throws Python exception if the execution status is abnormal. In a similar way, the data stored in a complex Python array `data` is copied to `MRAcquisitionData` as follows
+where `try_calling` is a function that checks the execution status stored by `DataHandle` object, the pointer to which is returned by `cGT_getAcquisitionsData`, and throws Python exception if the execution status is abnormal. In a similar way, the data stored in a complex Python array `data` is copied to `MRAcquisitionData` by the method `fill()` as follows
 
-    na, nc, ns = data.shape
-    re = numpy.real(data).astype(numpy.float32)
-    im = numpy.imag(data).astype(numpy.float32)
-    try_calling(pygadgetron.cGT_setAcquisitionsData\
-        (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
+    try_calling(pygadgetron.cGT_fillAcquisitionsData\
+        (self.handle, data.ctypes.data, fill_all))
 
-The hierarchy of SIRF interface classes mirrors that of its C\++ classes: the C++ class `MRAcquisitionData` inherits from `aDataContainer`, and, accordingly, `AcquisitionData` inherits from `DataContainer` class of the interface module `pGadgetron.py`. The latter class has method `norm()`, which has the following implementation:
+The hierarchy of SIRF interface classes mirrors that of its C\++ classes: the C++ class `MRAcquisitionData` inherits from C++ `DataContainer`, and, accordingly, `AcquisitionData` inherits from `DataContainer` class of the interface module `SIRF.py`. The latter class has method `norm()`, which has the following implementation:
 
-    handle = pygadgetron.cGT_norm(self.handle)
+    handle = pysirf.cSIRF_norm(self.handle)
     check_status(handle)
     r = pyiutility.floatDataFromHandle(handle)
     pyiutility.deleteDataHandle(handle)
     return r
 
-where `check_status` is the status-checking function called by `try_calling`, and the function `floatDataFromHandle` retrieves a single precision `float` value stored in `DataHandle` object of `handle`.
+where `check_status` is the status-checking function (called by `try_calling` in the previous examples), and the function `floatDataFromHandle` retrieves a single precision `float` value stored in `DataHandle` object of `handle`.
 
 #### Matlab
 
-SIRF build at present does not generate Matlab interface. to generate them, the user must execute `gmi_xstir` and `gmi_xgadgetron` in subfolder `bin` of the installation folder. This will create files `mstir.c` and `mgadgetron.c` containing Matlab callable C wrappers for SIRF C interface functions (cf. `mGT_ISMRMRDAcquisitionsFile` in section Illustration), and corresponding specification files `mstir.h` and `mgadgetron.h`.
+SIRF build at present does not generate Matlab interface. to generate them, the user must execute `gmi_*` executables in subfolder `bin` of the installation folder. This will create files `m*.c` containing Matlab callable C wrappers for SIRF C interface functions (cf. `mGT_ISMRMRDAcquisitionsFile` in section Illustration), and corresponding specification files `m*.h`.
 
 The Matlab counterparts of the code pieces of the previous section are:
 
+    % AcquisitionData constructor contains
     self.handle_ = calllib('mgadgetron', ...
         'mGT_ISMRMRDAcquisitionsFromFile', filename);
 
+    % AcquisitionData destructor contains
     if ~isempty(self.handle_)
-        mUtilities.delete(self.handle_)
-        self.handle_ = [];
+        sirf.Utilities.delete(self.handle_)
+        self.handle_ = []; % to avoid deletion by the base class
     end
 
-(note that `self.handle_` needs to be set to empty to avoid its deletion by the base class)
+    % AcquisitionData.as_array() contains
+    n = ns*nc*na;
+    ptr_z = libpointer('singlePtr', zeros(2, n));
+    calllib('mgadgetron', 'mGT_acquisitionsDataAsArray', ...
+        self.handle_, ptr_z, all);
+    data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
+        ns, nc, na);
 
-    ptr_re = libpointer('singlePtr', zeros(na*nc*ns, 1));
-    ptr_im = libpointer('singlePtr', zeros(na*nc*ns, 1));
-    calllib('mgadgetron', 'mGT_getAcquisitionsData', ...
-        self.handle_, n, ptr_re, ptr_im);
-    re = reshape(ptr_re.Value, ns, nc, na);
-    im = reshape(ptr_im.Value, ns, nc, na);
-    data = re + 1i*im;
+    % AcquisitionData.fill() contains
+    z = [real(data(:))'; imag(data(:))'];
+    h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
+        self.handle_, ptr_z, all);
+    sirf.Utilities.check_status('AcquisitionData', h);
+    sirf.Utilities.delete(h)
 
-    [ns, nc, na] = size(data);
-    re = real(data);
-    im = imag(data);
-    if isa(re, 'single')
-        ptr_re = libpointer('singlePtr', re);
-        ptr_im = libpointer('singlePtr', im);
-    else
-        ptr_re = libpointer('singlePtr', single(re));
-        ptr_im = libpointer('singlePtr', single(im));
-    end
-    h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
-        self.handle_, na, nc, ns, ptr_re, ptr_im);
-    mUtilities.check_status('AcquisitionData', h);
-    mUtilities.delete(h)
-
-    handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
-    mUtilities.check_status('DataContainer', handle);
+    % DataContainer.norm() contains
+    handle = calllib('msirf', 'mSIRF_norm', self.handle_);
+    self.Utilities.check_status('DataContainer', handle);
     r = calllib('miutilities', 'mFloatDataFromHandle', handle);
-    mUtilities.delete(handle)
+    sirf.Utilities.delete(handle)
 
 # Adding a gadget to SIRF gadget library <a name="Adding_gadget"></a>
 

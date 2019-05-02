@@ -29,7 +29,6 @@ from pUtilities import *
 from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
-import pSTIR
 
 try:
     input_ = raw_input
@@ -344,7 +343,7 @@ class NiftiImageData(SIRF.ImageData):
         dim = self.get_dimensions()
         dim = dim[1:dim[0]+1]
         array = numpy.ndarray(dim, dtype=numpy.float32)
-        try_calling(pyreg.cReg_NiftiImageData_get_data(self.handle, array.ctypes.data))
+        try_calling(pyreg.cReg_NiftiImageData_as_array(self.handle, array.ctypes.data))
         return array
 
     def get_original_datatype(self):
@@ -369,34 +368,31 @@ class NiftiImageData(SIRF.ImageData):
 
     def print_header(self):
         """Print nifti header metadata."""
-        try_calling(pyreg.cReg_NiftiImageData_print_headers(1, self.handle, None, None, None, None))
+        vec = SIRF.DataHandleVector()
+        vec.push_back(self.handle)
+        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
     def same_object(self):
         """See DataContainer.same_object()."""
         return NiftiImageData()
 
+    def set_voxel_spacing(self, spacing, interpolation_order):
+        """Set the voxel spacing. Requires resampling image, and so interpolation order is required. 
+        As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation."""
+        if len(spacing) != 3:
+            raise AssertionError("New spacing should be array of 3 numbers.")
+            type(interpolation_order)
+        try_calling(pyreg.cReg_NiftiImageData_set_voxel_spacing(self.handle, float(spacing[0]), float(spacing[1]), float(spacing[2]), int(interpolation_order)))
+
     @staticmethod
     def print_headers(to_print):
-        """Print nifti header metadata of one or multiple (up to 5) nifti images."""
+        """Print nifti header metadata of one or multiple nifti images."""
         if not all(isinstance(n, NiftiImageData) for n in to_print):
             raise AssertionError()
-        if len(to_print) == 1:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                1, to_print[0].handle, None, None, None, None))
-        elif len(to_print) == 2:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                2, to_print[0].handle, to_print[1].handle, None, None, None))
-        elif len(to_print) == 3:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                3, to_print[0].handle, to_print[1].handle, to_print[2].handle, None, None))
-        elif len(to_print) == 4:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                4, to_print[0].handle, to_print[1].handle, to_print[2].handle, to_print[3].handle, None))
-        elif len(to_print) == 5:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                5, to_print[0].handle, to_print[1].handle, to_print[2].handle, to_print[3].handle, to_print[4].handle))
-        else:
-            raise error('print_headers only implemented for up to 5 images.')
+        vec = SIRF.DataHandleVector()
+        for n in to_print:
+            vec.push_back(n.handle)
+        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
 
 class NiftiImageData3D(NiftiImageData):
@@ -545,21 +541,13 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
                 types += '2'
             elif isinstance(n, NiftiImageData3DDeformation):
                 types += '3'
+        # Convert transformations into SIRF vector
+        vec = SIRF.DataHandleVector()
+        for n in trans:
+            vec.push_back(n.handle)
         z = NiftiImageData3DDeformation()
-        if len(trans) == 2:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, None, None, None)
-        elif len(trans) == 3:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, None, None)
-        elif len(trans) == 4:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, None)
-        elif len(trans) == 5:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, trans[4].handle)
-        else:
-            raise error('compose_single_deformation only implemented for up to 5 transformations.')
+        z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
+            ref.handle, types, vec.handle)
         check_status(z.handle)
         return z
 

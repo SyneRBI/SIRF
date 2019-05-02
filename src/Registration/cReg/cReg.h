@@ -40,20 +40,21 @@ extern "C" {
     void* cReg_parameter(const void* ptr, const char* obj, const char* name);
 
     // NiftiImageData
-    void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
+    void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
     void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
     void* cReg_NiftiImageData_fill(const void* ptr, const float val);
     void* cReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
     void* cReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
     void* cReg_NiftiImageData_get_dimensions(const void* ptr, PTR_INT ptr_dim);
     void* cReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out);
-    void* cReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data);
+    void* cReg_NiftiImageData_as_array(const void* ptr, PTR_FLOAT ptr_data);
     void* cReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type);
     void* cReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type);
     void* cReg_NiftiImageData_equal(const void* im1_ptr, const void* im2_ptr);
     void* cReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr);
     void* cReg_NiftiImageData_get_original_datatype(const void* im_ptr);
     void* cReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr);
+    void* cReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order);
 
     // NiftiImageData3D
     void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr);
@@ -65,7 +66,7 @@ extern "C" {
     void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
 
     // NiftiImageData3DDeformation
-    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
+    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
     void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
 
     // NiftiImageData3DDisplacement

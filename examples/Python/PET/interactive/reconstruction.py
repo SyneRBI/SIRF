@@ -69,7 +69,7 @@ def make_cylindrical_FOV(image):
 
 #%% go to directory with input files
 # adapt this path to your situation (or start everything in the relevant directory)
-os.chdir(pet.examples_data_path('pet'))
+os.chdir(pet.examples_data_path('PET'))
 #%% copy files to working folder and change directory to where the output files are
 shutil.rmtree('working_folder/thorax_single_slice',True)
 shutil.copytree('thorax_single_slice','working_folder/thorax_single_slice')
@@ -84,10 +84,10 @@ image.fill(image_array);
 mu_map = pet.ImageData('attenuation.hv');
 mu_map_array=mu_map.as_array();
 #%% bitmap display of images
-slice=image_array.shape[0]//2;
+slice_num=image_array.shape[0]//2;
 plt.figure();
 #plt.subplot(1,2,1);
-imshow(image_array[slice,:,:,], [], 'emission image');
+imshow(image_array[slice_num,:,:,], [], 'emission image');
 #plt.subplot(1,2,2);
 #imshow(mu_map_array[slice,:,:,], [], 'attenuation image');
 
@@ -105,7 +105,7 @@ acquisition_array = acquired_data.as_array()
 
 #%% Display bitmaps of a middle sinogram
 plt.figure()
-imshow(acquisition_array[0,:,:,], [], 'Forward projection');
+imshow(acquisition_array[0,0,:,:,], [], 'Forward projection');
 
 #%% close all plots
 plt.close('all')
@@ -133,9 +133,9 @@ init_image.fill(cmax/4)
 make_cylindrical_FOV(init_image)
 # display
 idata = init_image.as_array()
-slice=idata.shape[0]//2;
+slice_num=idata.shape[0]//2;
 plt.figure()
-imshow(idata[slice,:,:],[0,cmax], 'initial image');
+imshow(idata[slice_num,:,:],[0,cmax], 'initial image');
 
 #%% reconstruct the image 
 reconstructed_image=init_image.clone()
@@ -149,9 +149,9 @@ reconstructed_array=reconstructed_image.as_array()
 
 plt.figure();
 plt.subplot(1,2,1);
-imshow(image_array[slice,:,:,], [0,cmax*1.2],'emission image');
+imshow(image_array[slice_num,:,:,], [0,cmax*1.2],'emission image');
 plt.subplot(1,2,2);
-imshow(reconstructed_array[slice,:,:,], [0,cmax*1.2], 'reconstructed image');
+imshow(reconstructed_array[slice_num,:,:,], [0,cmax*1.2], 'reconstructed image');
 
 
 #%% Generate a noisy realisation of the data
@@ -164,9 +164,9 @@ noisy_data.fill(noisy_array);
 #%% Display bitmaps of the middle sinogram
 plt.figure()
 plt.subplot(1,2,1);
-imshow(acquisition_array[slice,:,:,], [0,acquisition_array.max()], 'original');
+imshow(acquisition_array[0][slice_num,:,:,], [0,acquisition_array.max()], 'original');
 plt.subplot(1,2,2);
-imshow(noisy_array[slice,:,:,], [0,acquisition_array.max()], 'noisy');
+imshow(noisy_array[0][slice_num,:,:,], [0,acquisition_array.max()], 'noisy');
 
 #%% reconstruct the noisy data
 obj_fun.set_acquisition_data(noisy_data)
@@ -180,9 +180,9 @@ noisy_reconstructed_array=noisy_reconstructed_image.as_array()
 
 plt.figure();
 plt.subplot(1,2,1);
-imshow(reconstructed_array[slice,:,:,], [0,cmax*1.2], 'no noise');
+imshow(reconstructed_array[0], [0,cmax*1.2], 'no noise');
 plt.subplot(1,2,2);
-imshow(noisy_reconstructed_array[slice,:,:,], [0,cmax*1.2], 'with noise');
+imshow(noisy_reconstructed_array[0], [0,cmax*1.2], 'with noise');
 
 #%% run same reconstruction but saving images and objective function values every sub-iteration
 num_subiters = 64;
@@ -190,12 +190,12 @@ all_osem_images = numpy.ndarray(shape=(num_subiters+1,) + idata.shape );
 current_image = init_image.clone()
 osem_objective_function_values = [ obj_fun.value(current_image) ]
 all_osem_images[0,:,:,:] =  current_image.as_array();
-for iter in range(1, num_subiters+1):
+for iter_num in range(1, num_subiters+1):
     recon.update(current_image);
     
     obj_fun_value = obj_fun.value(current_image);
     osem_objective_function_values.append(obj_fun_value);
-    all_osem_images[iter,:,:,:] =  current_image.as_array();
+    all_osem_images[iter_num,:,:,:] =  current_image.as_array();
   
 #%% define a function for plotting images and the updates
 def plot_progress(all_images, title, subiterations = []):
@@ -204,13 +204,13 @@ def plot_progress(all_images, title, subiterations = []):
         subiterations = range(1, num_subiters+1);
     num_rows = len(all_images);
     plt.close('all');
-    for iter in subiterations:
-        plt.figure(iter)
+    for iterno in subiterations:
+        plt.figure(iter_num)
         for r in range(num_rows):
             plt.subplot(num_rows,2,2*r+1)
-            imshow(all_images[r][iter,slice,:,:], [0,cmax], '%s at %d' % (title[r],  iter))
+            imshow(all_images[r][iter_num,slice_num,:,:], [0,cmax], '%s at %d' % (title[r],  iter_num))
             plt.subplot(num_rows,2,2*r+2)
-            imshow(all_images[r][iter,slice,:,:]-all_images[r][iter-1,slice,:,:],[-cmax*.1,cmax*.1], 'update')
+            imshow(all_images[r][iter_num,slice_num,:,:]-all_images[r][iter_num-1,slice_num,:,:],[-cmax*.1,cmax*.1], 'update')
             plt.pause(.05)
         
 #%% now call this function to see how we went along
@@ -225,8 +225,8 @@ plt.title('Objective function values')
 plt.xlabel('sub-iterations')
 
 #%% ROI
-ROI_lesion = all_osem_images[:,(slice,), 65:70, 40:45];
-ROI_lung = all_osem_images[:,(slice,), 75:80, 45:50];
+ROI_lesion = all_osem_images[:,(slice_num,), 65:70, 40:45];
+ROI_lung = all_osem_images[:,(slice_num,), 75:80, 45:50];
 
 ROI_mean_lesion = ROI_lesion.mean(axis=(1,2,3))
 ROI_std_lesion = ROI_lesion.std(axis=(1,2,3))
@@ -277,7 +277,7 @@ all_images = numpy.ndarray(shape=(num_subiters+1,) + idata.shape );
 all_images[0,:,:,:] =  idata;
 
 #%% perform GD iterations
-for iter in range(1, num_subiters+1):  
+for iter_num in range(1, num_subiters+1):  
     # obtain gradient for subset 0
     # with current settings, this means we will only use the data of that subset
     # (gradient descent with subsets is too complicated for this demo)
@@ -294,7 +294,7 @@ for iter in range(1, num_subiters+1):
     # compute objective function value for plotting, and write some diagnostics
     obj_fun_value = obj_fun.value(current_image)
     GD_objective_function_values.append(obj_fun_value)
-    all_images[iter,:,:,:] = idata; 
+    all_images[iter_num,:,:,:] = idata; 
 #%% Plot objective function values
 plt.figure()
 #plt.hold('on')

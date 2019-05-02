@@ -34,8 +34,7 @@ import time
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, \
-     examples_data_path, petmr_data_path, \
-     existing_filepath, pTest, RE_PYEXT
+     examples_data_path, existing_filepath, pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
@@ -55,6 +54,9 @@ INFO_CHANNEL = 0
 WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
+
+MAX_ACQ_DIMS = 10
+MAX_IMG_DIMS = 10
 
 ###########################################################
 ############ Utilities for internal use only ##############
@@ -371,10 +373,10 @@ class ImageData(SIRF.ImageData):
     def dimensions(self):
         '''Returns image dimensions as a tuple (nz, ny, nx).'''
         assert self.handle is not None
-        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
-        return tuple(dim) #[::-1])
+        return tuple(dim[:3]) #[::-1])
     def voxel_sizes(self):
         '''Returns image voxel sizes as a tuple (vz, vy, vx).'''
         assert self.handle is not None
@@ -391,15 +393,7 @@ class ImageData(SIRF.ImageData):
     def as_array(self):
         '''Returns 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
-        dim = numpy.ndarray((9,), dtype = numpy.int32)
-        try_calling \
-            (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
-        nz = dim[0]
-        ny = dim[1]
-        nx = dim[2]
-        if nx == 0 or ny == 0 or nz == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+        array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
     def show(self, slice = None, title = None):
@@ -662,36 +656,28 @@ class AcquisitionData(DataContainer):
         return image
     def dimensions(self):
         ''' Returns a tuple of the data dimensions:
+        - number of TOF bins
         - number of sinograms
         - number of views
         - number of tangential positions.
         '''
         assert self.handle is not None
-        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype = numpy.int32)
         try_calling(pystir.cSTIR_getAcquisitionsDimensions\
             (self.handle, dim.ctypes.data))
-        nt = dim[0]
-        nv = dim[1]
-        ns = dim[2]
-        return ns, nv, nt
+        dim = dim[:4]
+        return tuple(dim[::-1])
     def as_array(self):
         ''' 
         Returns a copy of acquisition data stored in this object as a
-        NumPy ndarray of 3 dimensions (in default C ordering of data):
+        NumPy ndarray of 4 dimensions (in default C ordering of data):
+        - number of TOF bins
         - number of sinograms
         - number of views
         - number of tangential positions.
         '''
         assert self.handle is not None
-        dim = numpy.ndarray((3,), dtype = numpy.int32)
-        try_calling(pystir.cSTIR_getAcquisitionsDimensions\
-            (self.handle, dim.ctypes.data))
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        if nx == 0 or ny == 0 or nz == 0:
-            raise error('Acquisition data not present')
-        array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+        array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getAcquisitionsData\
             (self.handle, array.ctypes.data))
         return array
@@ -756,7 +742,7 @@ class AcquisitionData(DataContainer):
         if type(sino) == type(1):
             if sino < 0 or sino >= nz:
                 return
-            show_2D_array('sinogram %d' % sino, data[sino,:,:])
+            show_2D_array('sinogram %d' % sino, data[0,sino,:,:])
             return
         elif sino is None:
             ns = nz
@@ -775,7 +761,8 @@ class AcquisitionData(DataContainer):
         f = 0
         while f < ns:
             t = min(f + 16, ns)
-            err = show_3D_array(data, index = sino[f : t], tile_shape = tiles, \
+            err = show_3D_array(data[0,:,:,:], \
+                                index = sino[f : t], tile_shape = tiles, \
                                 label = 'sinogram', \
                                 xlabel = 'tang.pos', ylabel = 'view', \
                                 suptitle = title, show = (t == ns))

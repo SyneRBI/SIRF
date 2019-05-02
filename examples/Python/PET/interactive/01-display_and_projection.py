@@ -47,7 +47,7 @@ import sys
 import shutil
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
-#%% Use the 'pet' prefix for all SIRF functions
+#%% Use the 'PET' prefix for all SIRF functions
 # This is done here to explicitly differentiate between SIRF pet functions and 
 # anything else.
 import pSTIR as pet
@@ -89,7 +89,7 @@ def make_cylindrical_FOV(image):
 
 #%% Go to directory with input files
 # Adapt this path to your situation (or start everything in the relevant directory)
-os.chdir(pet.examples_data_path('pet'))
+os.chdir(pet.examples_data_path('PET'))
 #%% Copy files to a working folder and change directory to where these files are.
 # We do this to avoid cluttering your SIRF files. This way, you can delete 
 # working_folder and start from scratch.
@@ -169,8 +169,8 @@ print(acquisition_array.shape)
 # AcquisitionData are organised by sinograms, so we need to use the first index
 # of the accquisition_array.
 plt.figure()
-slice_num=acquisition_array.shape[0]//2;
-imshow(acquisition_array[slice_num,:,:,], [], 'Forward projection');
+slice_num=acquisition_array.shape[1]//2;
+imshow(acquisition_array[0,slice_num,:,:,], [], 'Forward projection');
 
 #%% Display some different 'views' in a movie
 # See note at start of file about your backend if this doesn't work.
@@ -180,7 +180,7 @@ fig=plt.figure()
 num_views=acquisition_array.shape[1]
 # first construct all the plots
 for view in range(0,num_views,4):
-    bitmap=plt.imshow(acquisition_array[:,view,:,]);
+    bitmap=plt.imshow(acquisition_array[0,:,view,:,]);
     plt.clim(0,acquisition_array.max())
     plt.axis('off');
     bitmaps.append([bitmap])
@@ -198,5 +198,4 @@ imshow(backprojected_array[slice_num,:,:],[], 'backprojection');
 
 #%% close all plots
 plt.close('all')
-
 #%% End of this demo!

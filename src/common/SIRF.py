@@ -401,3 +401,21 @@ class DataContainer(ABC):
 
 class ImageData(DataContainer):
     pass
+
+class DataHandleVector:
+    """
+    DataHandle vector.
+    """
+    def __init__(self):
+        self.name = 'DataHandleVector'
+        self.handle = pysirf.cSIRF_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def push_back(self, handle):
+        """Push back new data handle."""
+        try_calling(pysirf.cSIRF_DataHandleVector_push_back(self.handle, handle))
+        check_status(self.handle)

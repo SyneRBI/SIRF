@@ -160,19 +160,14 @@ void* cReg_objectFromFile(const char* name, const char* filename)
 //      NiftiImageData
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
+void* cReg_NiftiImageData_print_headers(const void* handle_vector_ptr)
 {
     try {
-        std::vector<NiftiImageData<float> > vec;
-        if (num_ims >= 1) vec.push_back(objectFromHandle<NiftiImageData<float> >(im1));
-        if (num_ims >= 2) vec.push_back(objectFromHandle<NiftiImageData<float> >(im2));
-        if (num_ims >= 3) vec.push_back(objectFromHandle<NiftiImageData<float> >(im3));
-        if (num_ims >= 4) vec.push_back(objectFromHandle<NiftiImageData<float> >(im4));
-        if (num_ims >= 5) vec.push_back(objectFromHandle<NiftiImageData<float> >(im5));
-        std::vector<const NiftiImageData<float>*> vec_ptr;
-        for (int i=0; i<vec.size(); ++i)
-            vec_ptr.push_back(&vec[i]);
-        NiftiImageData<float>::print_headers(vec_ptr);
+        const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+        std::vector<const NiftiImageData<float>*> vec;
+        for (unsigned i=0; i<handle_vector.size(); ++i)
+            vec.push_back(&objectFromHandle<const NiftiImageData<float> >(handle_vector.at(i)));
+        NiftiImageData<float>::print_headers(vec);
         return new DataHandle;
     }
     CATCH;
@@ -202,9 +197,37 @@ void* cReg_NiftiImageData_fill_arr(const void* ptr, size_t ptr_data)
 {
     try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(ptr);
-        float* data = (float*)ptr_data;
-        for (int i=0; i<int(im.get_raw_nifti_sptr()->nvox); ++i)
-            im(i) = data[i];
+
+        const int *dims = im.get_dimensions();
+        int dim_x = dims[1];
+        int dim_y = dims[2];
+        int dim_z = dims[3];
+        int dim_t = dims[4];
+        int dim_u = dims[5];
+        int dim_v = dims[6];
+        int dim_w = dims[7];
+        // Only implemented for 3D scalar or tensor images. of x,y,z,t,u,v,w, throw an error if t,v,w are != 1.
+        if (dim_t!=1 || dim_v!=1 || dim_w!=1)
+            throw std::runtime_error("fill only implemented for 3D scalar or tensor images (should be easy to extend).");
+
+        // Get arrays
+        float *im_data = static_cast<float*>(im.get_raw_nifti_sptr()->data);
+        float *data = (float*)ptr_data;
+
+        // nifti_image data are stored as u,x,y,z, whereas python and matlab need x,y,z,u
+        int nifti_idx, wrap_idx;
+        for (int u=0; u<dim_u; ++u) {
+            for (int x=0; x<dim_x; ++x) {
+                for (int y=0; y<dim_y; ++y) {
+                    for (int z=0; z<dim_z; ++z) {
+                        wrap_idx  = u + dim_u*(x + dim_x*(y + dim_y*(z)));
+                        nifti_idx = x + dim_x*(y + dim_y*(z + dim_z*(u)));
+                        im_data[nifti_idx] = data[wrap_idx];
+                    }
+                }
+            }
+        }
+
         return new DataHandle;
     }
     CATCH;
@@ -245,14 +268,39 @@ void* cReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out)
     CATCH;
 }
 extern "C"
-void* cReg_NiftiImageData_get_data(const void* ptr, size_t ptr_data)
+void* cReg_NiftiImageData_as_array(const void* ptr, size_t ptr_data)
 {
     try {
         const NiftiImageData<float>& im = objectFromHandle<const NiftiImageData<float> >(ptr);
-        float* data = (float*)ptr_data;
-        size_t mem = im.get_raw_nifti_sptr()->nvox * size_t(im.get_raw_nifti_sptr()->nbyper);
-        // Copy!
-        memcpy(data, im.get_raw_nifti_sptr()->data, mem);
+        const int *dims = im.get_dimensions();
+        int dim_x = dims[1];
+        int dim_y = dims[2];
+        int dim_z = dims[3];
+        int dim_t = dims[4];
+        int dim_u = dims[5];
+        int dim_v = dims[6];
+        int dim_w = dims[7];
+        // Only implemented for 3D scalar or tensor images. of x,y,z,t,u,v,w, throw an error if t,v,w are != 1.
+        if (dim_t!=1 || dim_v!=1 || dim_w!=1)
+            throw std::runtime_error("as_array only implemented for 3D scalar or tensor images (should be easy to extend).");
+
+        // Get arrays
+        const float *im_data = static_cast<float*>(im.get_raw_nifti_sptr()->data);
+        float *data = (float*)ptr_data;
+
+        // nifti_image data are stored as u,x,y,z, whereas python and matlab need x,y,z,u
+        int nifti_idx, wrap_idx;
+        for (int u=0; u<dim_u; ++u) {
+            for (int x=0; x<dim_x; ++x) {
+                for (int y=0; y<dim_y; ++y) {
+                    for (int z=0; z<dim_z; ++z) {
+                        wrap_idx  = u + dim_u*(x + dim_x*(y + dim_y*(z)));
+                        nifti_idx = x + dim_x*(y + dim_y*(z + dim_z*(u)));
+                        data[wrap_idx] = im_data[nifti_idx];
+                    }
+                }
+            }
+        }
         return new DataHandle;
     }
     CATCH;
@@ -331,6 +379,18 @@ void* cReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, size_t 
     CATCH;
 }
 
+extern "C"
+void* cReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order)
+{
+    try {
+        NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
+        float spacing[3] = {x,y,z};
+        im.set_voxel_spacing(spacing,interpolation_order);
+        return new DataHandle;
+    }
+    CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3D
 // -------------------------------------------------------------------------------- //
@@ -403,27 +463,18 @@ void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim)
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DDeformation
 // -------------------------------------------------------------------------------- //
-void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5)
+void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr)
 {
     try {
         // This is an ugly hack because I can't get virtual methods to work for multiple inherited (NiftiImageData3DDeformation/NiftiImageData3DDisplacement).
         // So, we also give a string which tells us what type they are, and we change the template type of objectFromHandle accordingly.
 
-        // Also, we can't have default arguments in C, so if we only want to compose 3 transformations, set the 4th and 5th as 'None' in Python. In C,
-        // we create a vector from all the non-'None' arguments and then convert them to their derived classes.
-
         // Sorry this is so ugly.
 
         // There's always going to be at least two transformations, so start by putting them in the vector
-        std::vector<const void*> vec = {trans1, trans2};
-        // Add in any extras, depending on the number of transformations
-        if (num_elements >= 3) vec.push_back(trans3);
-        if (num_elements >= 4) vec.push_back(trans4);
-        if (num_elements >= 5) vec.push_back(trans5);
-
-        // Vector for casting to the correct type
+        const DataHandleVector vec = objectFromHandle<const DataHandleVector>(trans_vector_ptr);
         std::vector<const Transformation<float> *> trans_vec;
-        for (int i=0; i<num_elements; ++i)
+        for (unsigned i=0; i<vec.size(); ++i)
             if      (types[i] == '1')
                 trans_vec.push_back(&objectFromHandle<const AffineTransformation<float> >(vec.at(i)));
             else if (types[i] == '2')

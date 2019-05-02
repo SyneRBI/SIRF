@@ -36,7 +36,10 @@ limitations under the License.
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
-EXPORTED_FUNCTION  void* mSIRF_dataItems(const void* ptr_x) {
+EXPORTED_FUNCTION  void* mSIRF_newObject(const char* name) {
+	return cSIRF_newObject(name);
+}
+EXPORTED_FUNCTION void* mSIRF_dataItems(const void* ptr_x) {
 	return cSIRF_dataItems(ptr_x);
 }
 EXPORTED_FUNCTION void* mSIRF_norm(const void* ptr_x) {
@@ -59,6 +62,9 @@ EXPORTED_FUNCTION void* mSIRF_write(const void* ptr, const char* filename) {
 }
 EXPORTED_FUNCTION void* mSIRF_clone(void* ptr_x) {
 	return cSIRF_clone(ptr_x);
+}
+EXPORTED_FUNCTION void* mSIRF_DataHandleVector_push_back(void* self, void* to_append) {
+	return cSIRF_DataHandleVector_push_back(self, to_append);
 }
 #ifndef CSIRF_FOR_MATLAB
 }

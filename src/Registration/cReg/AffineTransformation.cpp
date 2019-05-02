@@ -141,7 +141,7 @@ bool AffineTransformation<dataType>::operator==(const AffineTransformation &othe
         return true;
     for (int i=0; i<4; i++)
         for (int j=0; j<4; j++)
-            if( fabs(_tm[j][i] - other._tm[j][i]) > 1.e-5F )
+            if( fabs(_tm[j][i] - other._tm[j][i]) > 1.e-4F )
                 return false;
     return true;
 }

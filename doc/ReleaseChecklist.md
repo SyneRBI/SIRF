@@ -20,7 +20,7 @@ VER=1.0.0-rc.1
 2. SuperBuild
  - [ ] update `CHANGES.md`
  - [ ] update `NOTICE.txt`
- - [ ] update `SIRF-Superbuild/version_config.cmake` with new `SIRF_TAG`
+ - [ ] update `SIRF-Superbuild/version_config.cmake` with new `SIRF_TAG` (and `STIR_TAG` etc if necessary)
  - [ ] `git push`
  - [ ] check Travis
  - [ ] `git tag -a v$VER -m "version $VER"`

@@ -32,10 +32,10 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 def petmr_data_path(petmr):
     '''
-    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
-
     Returns the path to PET or MR data.
-    petmr: either 'pet' or 'mr' (case-insensitive)
+    petmr: either 'PET' or 'MR'
+
+    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
     '''
     data_path = '/data/examples/' + petmr.upper()
     SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -360,7 +360,7 @@ def check_status(handle, stack = None):
         line = pyiutil.executionErrorLine(handle)
         errorMsg = \
             repr(msg) + ' exception caught at line ' + \
-            repr(line) + ' of ' + file + '\n' + \
+            repr(line) + ' of ' + file + '; ' + \
             'the reconstruction engine output may provide more information'
         raise error(errorMsg)
 
