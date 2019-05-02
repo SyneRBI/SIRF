@@ -398,6 +398,45 @@ Class for a reconstructor from undersampled Cartesian raw data. Inherits the met
 
     CartesianGRAPPAReconstructor  Constructor. Creates new reconstructor object. 
 
+### Registration and resampling classes
+
+SIRF is capable of performing rigid, affine and non-rigid registrations. Resampling functionality is also available. Initially, this has provided through the wrapping of NiftyReg (although future releases may incorporate other packages).
+
+Below examples are given for rigid/affine and non-rigid registrations, as well as resampling. More complete examples for both Matlab and python can be found in the examples folder.
+
+##### Rigid/affine registration 
+
+	reg = Reg.NiftyAladinSym()
+	reg.set_reference_image(ref)
+	reg.set_floating_image(flo)
+	reg.set_parameter_file(par_file)
+	reg.set_parameter('SetPerformRigid','1')
+	reg.set_parameter('SetPerformAffine','0')
+	reg.process()
+	output = reg.get_output()
+
+##### Non-rigid registration
+
+	reg = Reg.NiftyF3dSym()
+	reg.set_reference_image(ref)
+	reg.set_floating_image(flo)
+	reg.set_parameter_file(par_file)
+	reg.set_parameter('SetPerformRigid','1')
+	reg.set_parameter('SetPerformAffine','0')
+	reg.process()
+	output = reg.get_output()
+	
+##### Resampling
+
+	res = NiftyResample()
+	res.set_reference_image(ref)
+	res.set_floating_image(flo)
+	res.set_interpolation_type(1)
+	res.add_transformation(trans1)
+	res.add_transformation(trans2)
+	res.process()
+	output = res.get_output()
+
 ### Other classes <a name="Other_classes"></a>
 
 ##### ListmodeToSinograms (PET)
