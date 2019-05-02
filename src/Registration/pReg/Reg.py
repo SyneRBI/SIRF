@@ -523,7 +523,7 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
 
     @staticmethod
     def compose_single_deformation(trans, ref):
-        """Compose up to transformations into single deformation."""
+        """Compose transformations into single deformation."""
         if not isinstance(ref, NiftiImageData3D):
             raise AssertionError()
         if not all(isinstance(n, _Transformation) for n in trans):
@@ -812,14 +812,14 @@ class AffineTransformation(_Transformation):
     """
     Class for affine transformations.
     """
-    def __init__(self, src=None):
+    def __init__(self, src=None, quat=None):
         self.handle = None
         self.name = 'AffineTransformation'
         if src is None:
             self.handle = pyreg.cReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pyreg.cReg_objectFromFile(self.name, src)
-        elif isinstance(src, numpy.ndarray):
+        elif isinstance(src, numpy.ndarray) and quat is None:
             if src.shape != (4, 4):
                 raise AssertionError()
             # Need to transpose relative to MATLAB
@@ -827,9 +827,11 @@ class AffineTransformation(_Transformation):
             for i in range(4):
                 for j in range(4):
                     trans[i,j] = src[j,i]
-            self.handle = pyreg.cReg_AffineTransformation_construct_from_TM(trans.ctypes.data)
+                self.handle = pyreg.cReg_AffineTransformation_construct_from_TM(trans.ctypes.data)
+        elif isinstance(src, numpy.ndarray) and quat is not None and isinstance(quat, Quaternion):
+            self.handle = pyreg.cReg_AffineTransformation_construct_from_trans_and_quaternion(src.ctypes.data, quat.handle)
         else:
-            raise error('Wrong source in affine transformation constructor')
+            raise error('AffineTransformation accepts no args, filename, 4x4 array or translation with quaternion.')
         check_status(self.handle)
 
     def __del__(self):
@@ -901,9 +903,77 @@ class AffineTransformation(_Transformation):
         try_calling(pyreg.cReg_AffineTransformation_get_Euler_angles(self.handle, eul.ctypes.data))
         return eul
 
+    def get_quaternion(self):
+        """Get quaternion."""
+        if self.handle is None:
+            raise AssertionError()
+        quat_zeros = numpy.array([0., 0., 0., 0.],dtype=numpy.float32)
+        quat = Quaternion(quat_zeros)
+        quat.handle = pyreg.cReg_AffineTransformation_get_quaternion(self.handle)
+        check_status(quat.handle)
+        return quat
+
     @staticmethod
     def get_identity():
         """Get identity matrix."""
         mat = AffineTransformation()
         mat.handle = pyreg.cReg_AffineTransformation_get_identity()
         return mat
+
+    @staticmethod
+    def get_average(to_average):
+        """Get average of transformations."""
+        if not all(isinstance(n, AffineTransformation) for n in to_average):
+            raise AssertionError("AffineTransformation:get_average() input list should only contain AffineTransformations.")
+        tm = AffineTransformation()
+        vec = SIRF.DataHandleVector()
+        for n in to_average:
+            vec.push_back(n.handle)
+        tm.handle = pyreg.cReg_AffineTransformation_get_average(vec.handle)
+        check_status(tm.handle)
+        return tm
+
+
+class Quaternion:
+    """
+    Class for quaternions.
+    """
+    def __init__(self, src=None):
+        self.handle = None
+        self.name = 'Quaternion'
+        if isinstance(src, numpy.ndarray):
+            if src.size != 4:
+                raise AssertionError('Quaternion constructor from numpy array is wrong size.')
+            self.handle = pyreg.cReg_Quaternion_construct_from_array(src.ctypes.data)
+        elif isinstance(src, AffineTransformation):
+            self.handle = pyreg.cReg_Quaternion_construct_from_AffineTransformation(src.handle)
+        else:
+            raise error('Wrong source in quaternion constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def as_array(self):
+        """Get quaternion as array."""
+        if self.handle is None:
+            raise AssertionError()
+        arr = numpy.ndarray(4, dtype=numpy.float32)
+        try_calling(pyreg.cReg_Quaternion_as_array(self.handle, arr.ctypes.data))
+        return arr
+
+    @staticmethod
+    def get_average(to_average):
+        """Get average of quaternions."""
+        if not all(isinstance(n, Quaternion) for n in to_average):
+            raise AssertionError()
+        quat_zeros = numpy.array([0., 0., 0., 0.],dtype=numpy.float32)
+        quat = Quaternion(quat_zeros)
+        if not all(isinstance(n, Quaternion) for n in to_average):
+            raise AssertionError()
+        vec = SIRF.DataHandleVector()
+        for n in to_average:
+            vec.push_back(n.handle)
+        quat.handle = pyreg.cReg_Quaternion_get_average(vec.handle)
+        return quat

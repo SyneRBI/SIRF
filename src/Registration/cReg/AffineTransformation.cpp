@@ -29,6 +29,7 @@ limitations under the License.
 
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/Quaternion.h"
 #include <_reg_globalTrans.h>
 #include <iomanip>
 #include <boost/filesystem.hpp>
@@ -132,6 +133,38 @@ AffineTransformation<dataType>::AffineTransformation(const mat44 &tm)
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
             this->_tm[i][j] = dataType(tm.m[i][j]);
+}
+
+template<class dataType>
+AffineTransformation<dataType>::AffineTransformation(const std::array<dataType,3> &trans, const Quaternion<dataType> &quat)
+{
+    // Set bottom row to [0,0,0,1]
+    for (unsigned i=0; i<3; ++i)
+        _tm[3][i] = 0.f;
+    _tm[3][3] = 1.f;
+
+    // Translations are easy
+    for (unsigned i=0; i<3; ++i)
+        _tm[i][3] = trans[i];
+
+    // Convert quaternions back to rotation matrix
+    std::array<dataType,4> quat_data = quat.get_data();
+    const dataType a(quat_data[0]);
+    const dataType b(quat_data[1]);
+    const dataType c(quat_data[2]);
+    const dataType d(quat_data[3]);
+
+    _tm[0][0] = dataType(2*pow(a,2) -1 + 2*pow(b,2));
+    _tm[0][1] = 2*b*c-2*a*d;
+    _tm[0][2] = 2*b*d+2*a*c;
+
+    _tm[1][0] = 2*b*c+2*a*d;
+    _tm[1][1] = dataType(2*pow(a,2) -1 + 2*pow(c,2));
+    _tm[1][2] = 2*c*d-2*a*b;
+
+    _tm[2][0] = 2*b*d-2*a*c;
+    _tm[2][1] = 2*c*d+2*a*b;
+    _tm[2][2] = dataType(2*pow(a,2) -1 + 2*pow(d,2));
 }
 
 template<class dataType>
@@ -253,6 +286,9 @@ AffineTransformation<dataType> AffineTransformation<dataType>::get_inverse() con
 template<class dataType>
 const std::array<dataType,3> AffineTransformation<dataType>::get_Euler_angles() const
 {
+    if (!this->is_rigid())
+        throw std::runtime_error("Transformation matrix needs to be rigid in order for Euler angles to be calculated.");
+
     float sy = sqrt(_tm[0][0] * _tm[0][0] +  _tm[1][0] * _tm[1][0] );
     bool singular = sy < 1e-6F;
 
@@ -268,6 +304,45 @@ const std::array<dataType,3> AffineTransformation<dataType>::get_Euler_angles() 
         z = 0;
     }
     return std::array<dataType,3>{x, y, z};
+}
+
+template<class dataType>
+Quaternion<dataType> AffineTransformation<dataType>::get_quaternion() const
+{
+    return Quaternion<dataType>(*this);
+}
+
+template<class dataType>
+bool AffineTransformation<dataType>::is_rigid() const
+{
+    return std::abs(dataType(std::pow(this->get_determinant(),2)) - 1.F) < 1.e-4F;
+}
+
+template<class dataType>
+AffineTransformation<dataType> AffineTransformation<dataType>::get_average(const std::vector<AffineTransformation<dataType> > &mats)
+{
+    // Array for translations and vector of quaternions
+    std::array<dataType,3> avg_trans{0.F,0.F,0.F};
+    std::vector<Quaternion<dataType> > quaternions;
+
+    // loop over all matrices
+    for (size_t i=0; i<mats.size(); ++i) {
+        // sum translations
+        for (unsigned i=0; i<3; ++i)
+            avg_trans[i] += mats[i][i][3];
+
+        // For quaternions, need to extract them from TM
+        quaternions.push_back(Quaternion<dataType>(mats[i]));
+    }
+    // For translations, average by dividing by number of TMs
+    for (unsigned i=0; i<3; ++i)
+        avg_trans[i] /= dataType(mats.size());
+
+    // For quaternions, slightly more complicated
+    Quaternion<dataType> avg_quaternion = Quaternion<dataType>::get_average(quaternions);
+
+    // Return the average
+    return AffineTransformation<dataType>(avg_trans,avg_quaternion);
 }
 
 namespace sirf {
