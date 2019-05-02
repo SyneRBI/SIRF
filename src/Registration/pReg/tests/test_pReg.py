@@ -883,7 +883,7 @@ def try_affinetransformation(na):
     exptd_avg_array[2][2] =  0.8329;
     exptd_avg_array[3][3] =  1;
     exptd_average = pReg.AffineTransformation(exptd_avg_array)
-    if exptd_average != average, atol=1e-4:
+    if exptd_average != average:
         raise AssertionError('AffineTransformation average failed.')
     print(average.as_array())
 
