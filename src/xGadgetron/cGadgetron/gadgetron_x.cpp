@@ -275,7 +275,12 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	ISMRMRD::deserialize(par.c_str(), header);
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq; // (acq_);
-	sptr_acqs_->get_acquisition(0, acq);
+	//sptr_acqs_->get_acquisition(0, acq);
+	for (unsigned int i = 0; i < sptr_acqs_->number(); i++) {
+		sptr_acqs_->get_acquisition(i, acq);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+			break;
+	}
 
 	//int readout = e.encodedSpace.matrixSize.x;
 	unsigned int nx = e.reconSpace.matrixSize.x;
@@ -343,7 +348,12 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	ISMRMRD::deserialize(par.c_str(), header);
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq;
-	sptr_acqs_->get_acquisition(0, acq);
+	//sptr_acqs_->get_acquisition(0, acq);
+	for (unsigned int i = 0; i < ac.number(); i++) {
+		ac.get_acquisition(i, acq);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+			break;
+	}
 
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	unsigned int ny = e.reconSpace.matrixSize.y;

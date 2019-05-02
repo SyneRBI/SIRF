@@ -342,8 +342,9 @@ namespace sirf {
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic
-			) : sptr_acqs_(sptr_ac), sptr_imgs_(sptr_ic)
+			) : sptr_acqs_(sptr_ac) //, sptr_imgs_(sptr_ic)
 		{
+			set_image_template(sptr_ic);
 		}
 
 		// Records the acquisition template to be used. 
@@ -356,6 +357,35 @@ namespace sirf {
 		void set_image_template
 			(gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
+			for (int j = 0; j < sptr_ic->number(); j++) {
+				const ImageWrap& iw = sptr_ic->image_wrap(j);
+				std::string atts = iw.attributes();
+				int atts_size = atts.size();
+				if (atts_size < 1)
+					continue;
+				ISMRMRD::MetaContainer mc;
+				ISMRMRD::deserialize(atts.c_str(), mc);
+				const char* attr = "GADGETRON_DataRole";
+				size_t l = mc.length(attr);
+				bool ok = false;
+				std::string value;
+				for (int i = 0; i < l; i++) {
+					if (boost::iequals(mc.as_str(attr, i), "image")) {
+						ok = true;
+						break;
+					}
+					if (i)
+						value += " ";
+					value += mc.as_str(attr, i);
+				}
+				if (!ok) {
+					std::string msg("MRAcquisitionModel cannot use ");
+					msg += "image data with GADGETRON_DataRole = ";
+					msg += value;
+					msg += " as template";
+					throw LocalisedException(msg.c_str(), __FILE__, __LINE__);
+				}
+			}
 			sptr_imgs_ = sptr_ic;
 		}
 		// Records the coil sensitivities maps to be used. 
@@ -370,7 +400,8 @@ namespace sirf {
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
 			sptr_acqs_ = sptr_ac;
-			sptr_imgs_ = sptr_ic;
+			set_image_template(sptr_ic);
+			//sptr_imgs_ = sptr_ic;
 		}
 
 		// Forward projects one image item (typically xy-slice) into
