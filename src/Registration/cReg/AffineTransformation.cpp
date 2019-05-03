@@ -105,8 +105,9 @@ AffineTransformation<dataType>::AffineTransformation()
 template<class dataType>
 AffineTransformation<dataType>::AffineTransformation(const std::string &filename)
 {
+#ifndef NDEBUG
     std::cout << "\n\nReading transformation matrix from file...\n\n";
-
+#endif
     try{
         std::ifstream file(filename);
 
@@ -121,10 +122,10 @@ AffineTransformation<dataType>::AffineTransformation(const std::string &filename
     catch (...) {
         throw std::runtime_error("Failed reading affine matrix (" + filename + ").\n\t");
     }
-
+#ifndef NDEBUG
     std::cout << "\n\nSuccessfully read transformation matrix from file:\n";
-
     this->print();
+#endif
 }
 
 template<class dataType>
