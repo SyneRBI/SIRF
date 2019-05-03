@@ -404,9 +404,28 @@ SIRF is capable of performing rigid, affine and non-rigid registrations. Resampl
 
 Below examples are given for rigid/affine and non-rigid registrations, as well as resampling. More complete examples for both Matlab and python can be found in the examples folder.
 
-##### Rigid/affine registration 
+#### Rigid/affine registration (NiftyAladinSym)
 
-	reg = Reg.NiftyAladinSym()
+###### Methods
+
+	set_parameter_file						Set the parameter file
+	set_parameter							Set a parameter
+	set_reference_image						Set the reference image
+	set_floating_image						Set the floating image
+	set_reference_mask						Set the mask of the reference image
+	set_floating_mask						Set the mask of the floating image
+	process									Start the registration process
+	get_output								Get the registered image
+	get_transformation_matrix_forward		Get the forward transformation matrix
+	get_transformation_matrix_inverse		Get the inverse transformation matrix
+	get_deformation_field_forward			Get the forward deformation field
+	get_deformation_field_inverse			Get the inverse deformation field
+	get_displacement_field_forward			Get the forward displacement field
+	get_displacement_field_inverse			Get the inverse displacement field
+
+###### Example
+
+	reg = NiftyAladinSym()
 	reg.set_reference_image(ref)
 	reg.set_floating_image(flo)
 	reg.set_parameter_file(par_file)
@@ -415,9 +434,25 @@ Below examples are given for rigid/affine and non-rigid registrations, as well a
 	reg.process()
 	output = reg.get_output()
 
-##### Non-rigid registration
+##### Non-rigid registration (NiftyF3dSym)
+###### Methods
 
-	reg = Reg.NiftyF3dSym()
+	set_parameter_file						Set the parameter file
+	set_parameter							Set a parameter
+	set_reference_image						Set the reference image
+	set_floating_image						Set the floating image
+	set_reference_mask						Set the mask of the reference image
+	set_floating_mask						Set the mask of the floating image
+	process									Start the registration process
+	get_output								Get the registered image
+	get_deformation_field_forward			Get the forward deformation field
+	get_deformation_field_inverse			Get the inverse deformation field
+	get_displacement_field_forward			Get the forward displacement field
+	get_displacement_field_inverse			Get the inverse displacement field
+	set_initial_affine_transformation		Set the initial affine transformation
+
+###### Example
+	reg = NiftyF3dSym()
 	reg.set_reference_image(ref)
 	reg.set_floating_image(flo)
 	reg.set_parameter_file(par_file)
@@ -426,8 +461,17 @@ Below examples are given for rigid/affine and non-rigid registrations, as well a
 	reg.process()
 	output = reg.get_output()
 	
-##### Resampling
+##### Resampling (NiftyResample)
+###### Methods
 
+	set_reference_image						Set the reference image
+	set_floating_image						Set the floating
+	process									Start the registration process
+	get_output								Get the registered image
+	add_transformation						Add transformation (any type)
+	set_interpolation_type					Set interpolation type
+
+###### Example
 	res = NiftyResample()
 	res.set_reference_image(ref)
 	res.set_floating_image(flo)
