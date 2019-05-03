@@ -63,7 +63,7 @@ classdef AffineTransformation < sirf.Reg.Transformation
         end
         function value = ne(self, other)
             %Overload comparison operator.
-            value = (self == other);
+            value = ~(self == other);
         end
         function mat = mtimes(self, other)
             %Overload multiplication operator.
