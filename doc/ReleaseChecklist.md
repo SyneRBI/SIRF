@@ -7,8 +7,8 @@ VER=1.0.0-rc.1
 1. SIRF
  - [ ] update `CHANGES.md`
  - [ ] update `NOTICE.txt`
- - [ ] update version numbers in [SIRF/CMakeLists.txt](CMakeLists.txt)
- - [ ] update version numbers in the [doc/UsersGuide.md](doc/UserGuide.md) etc
+ - [ ] update version numbers in [SIRF/CMakeLists.txt](https://github.com/CCPPETMR/SIRF/blob/master/CMakeLists.txt)
+ - [ ] update version numbers in the [doc/UsersGuide.md](https://github.com/CCPPETMR/SIRF/blob/master/doc/UserGuide.md) etc
  - [ ] run all demos
  - [ ] run ctest
  - [ ] `git push` 
