@@ -35,7 +35,7 @@ if(BUILD_PYTHON)
   #INCLUDE_DIRECTORIES("${NUMPY_INCLUDE_DIRS}")
   # Tell CMake it needs to re-run SWIG when .h file changes
   set(SWIG_MODULE_pygadgetron_EXTRA_DEPS "${cGadgetron_INCLUDE_DIR}/cgadgetron.h")
-  SWIG_ADD_MODULE(pygadgetron python pygadgetron.i)
+  SWIG_ADD_LIBRARY(pygadgetron python pygadgetron.i)
   SWIG_LINK_LIBRARIES(pygadgetron cgadgetron iutilities "${PYTHON_LIBRARIES}")
 
   INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")

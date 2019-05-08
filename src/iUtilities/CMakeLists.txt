@@ -40,7 +40,7 @@ if(BUILD_PYTHON)
   #FIND_PACKAGE(Numpy REQUIRED)
   #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
   set(SWIG_MODULE_pyiutilities_EXTRA_DEPS "include/sirf/iUtilities/DataHandle.h" "iutilities.h")
-  SWIG_ADD_MODULE(pyiutilities python pyiutilities.i)
+  SWIG_ADD_LIBRARY(pyiutilities python pyiutilities.i)
   SWIG_LINK_LIBRARIES(pyiutilities iutilities ${PYTHON_LIBRARIES})
 
   INSTALL(TARGETS ${SWIG_MODULE_pyiutilities_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
