@@ -18,6 +18,10 @@
 
 if(BUILD_PYTHON)
 
+  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+    # policy introduced in CMake 3.13
+    cmake_policy(SET CMP0078 OLD)
+  endif()
   FIND_PACKAGE(SWIG REQUIRED)
   INCLUDE("${SWIG_USE_FILE}")
 
@@ -35,7 +39,7 @@ if(BUILD_PYTHON)
   #INCLUDE_DIRECTORIES("${NUMPY_INCLUDE_DIRS}")
   # Tell CMake it needs to re-run SWIG when .h file changes
   set(SWIG_MODULE_pygadgetron_EXTRA_DEPS "${cGadgetron_INCLUDE_DIR}/cgadgetron.h")
-  SWIG_ADD_MODULE(pygadgetron python pygadgetron.i)
+  SWIG_ADD_LIBRARY(pygadgetron LANGUAGE python TYPE MODULE SOURCES pygadgetron.i)
   SWIG_LINK_LIBRARIES(pygadgetron cgadgetron iutilities "${PYTHON_LIBRARIES}")
 
   INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
