@@ -20,6 +20,12 @@
 
 # cmake file for building SIRF. See the SIRF User's Guide and http://www.cmake.org.
 
+# Set the CMake policy for SWIG
+# https://cmake.org/cmake/help/v3.14/policy/CMP0078.html#policy:CMP0078
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+  # policy introduced in CMake 3.13
+  cmake_policy(SET CMP0078 OLD)
+endif()
 # avoid warning about WIN32 no longer defined in CYGWIN
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
 
