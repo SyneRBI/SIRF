@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v2.0.0-rc.3
+* Set CMake policy CMP0079 
+* use `swig_add_library` instead of `swig_add_module`
+
 ## v2.0.0-rc.2
 * Averaging of rigid transformation matrices via quaternions (and therefore a quaternion class)
 * Arrays of SIRF objects can be passed from the python and matlab interfaces to the C++ level (e.g., averaging a large number of matrices) via the DataHandleVector class. This is an internal class that should not be used. Simply pass a native array of objects and SIRF will convert to the DataHandleVector class if necessary.
