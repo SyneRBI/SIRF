@@ -32,7 +32,10 @@ target_link_libraries(csirf PUBLIC iutilities)
 INSTALL(TARGETS csirf DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 if (BUILD_PYTHON)
-
+  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+    # policy introduced in CMake 3.13
+    cmake_policy(SET CMP0078 OLD)
+  endif()
   FIND_PACKAGE(SWIG REQUIRED)
   INCLUDE("${SWIG_USE_FILE}")
   SET_SOURCE_FILES_PROPERTIES(pysirf.i PROPERTIES CPLUSPLUS ON)

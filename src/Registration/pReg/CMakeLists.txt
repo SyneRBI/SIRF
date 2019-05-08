@@ -17,6 +17,10 @@
 #=========================================================================
 
 if(BUILD_PYTHON)
+  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+    # policy introduced in CMake 3.13
+    cmake_policy(SET CMP0078 OLD)
+  endif()
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
   FIND_PACKAGE(SWIG REQUIRED)
