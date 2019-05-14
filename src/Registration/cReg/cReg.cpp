@@ -553,6 +553,20 @@ void* cReg_Registration_set_parameter(const void* ptr, const char* par, const ch
     }
     CATCH;
 }
+extern "C"
+void* cReg_Registration_print_all_wrapped_methods(const char* name)
+{
+    try {
+        if (strcmp(name, "NiftyAladinSym") == 0)
+            NiftyAladinSym<float>::print_all_wrapped_methods();
+        else if (strcmp(name, "NiftyF3dSym") == 0)
+            NiftyF3dSym<float>::print_all_wrapped_methods();
+        else
+            throw std::runtime_error("cReg_Registration_print_all_wrapped_methods: Non-existent reconstruction algorithm name.");
+        return new DataHandle;
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      NiftyAladinSym
 // -------------------------------------------------------------------------------- //

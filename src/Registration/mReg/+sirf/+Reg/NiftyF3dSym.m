@@ -49,4 +49,12 @@ classdef NiftyF3dSym < sirf.Reg.Registration
             sirf.Reg.setParameter(self.handle_, self.name, 'initial_affine_transformation', src, 'h');
         end
     end
+    methods(Static)
+	function print_all_wrapped_methods()
+	    %Print list of all wrapped methods.
+	    disp('In C++, this class is templated. "dataType" corresponds to "float" for Matlab and python.')
+	    h = calllib('mreg', 'mReg_Registration_print_all_wrapped_methods', 'NiftyF3dSym');
+	    sirf.Utilities.check_status('parameter', h)
+	end
+    end
 end

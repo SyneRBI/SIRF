@@ -65,6 +65,7 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(co
 EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
 EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+EXPORTED_FUNCTION     void* mReg_Registration_print_all_wrapped_methods(const char* name);
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr);

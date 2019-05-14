@@ -21,6 +21,8 @@ get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin_sym" "${NIFTY
 get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d_sym"    "${NIFTYREG_VERSION}" NR_f3d_parser_methods   )
 get_runtime_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_runtime_methods)
 get_runtime_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_runtime_methods   )
+get_list_of_wrapped_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_list_methods)
+get_list_of_wrapped_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_list_methods   )
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp.in"    "${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp"   )
 
