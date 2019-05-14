@@ -607,6 +607,9 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty aladin test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
+        // Print all available methods
+        NiftyAladinSym<float>::print_all_wrapped_methods();
+
         // First set up some masks
         std::shared_ptr<NiftiImageData3D<float> > ref_mask = ref_aladin->clone();
         std::shared_ptr<NiftiImageData3D<float> > flo_mask = flo_aladin->clone();
@@ -668,6 +671,9 @@ int main(int argc, char* argv[])
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting Nifty f3d test..\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Print all available methods
+        NiftyF3dSym<float>::print_all_wrapped_methods();
 
         // First set up some masks
         std::shared_ptr<NiftiImageData3D<float> > ref_mask = ref_f3d->clone();

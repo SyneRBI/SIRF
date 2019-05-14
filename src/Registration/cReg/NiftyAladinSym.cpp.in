@@ -110,6 +110,12 @@ void NiftyAladinSym<dataType>::process()
 }
 
 template<class dataType>
+void NiftyAladinSym<dataType>::print_all_wrapped_methods()
+{
+    std::cout << ${NR_aladin_list_methods};
+}
+
+template<class dataType>
 void NiftyAladinSym<dataType>::parse_parameter_file()
 {
     if (this->_parameter_filename.empty())

@@ -73,6 +73,9 @@ public:
     /// Set initial affine transformation
     void set_initial_affine_transformation(const std::shared_ptr<const AffineTransformation<float> > mat) { _initial_transformation_sptr = mat; }
 
+    /// Print all wrapped methods
+    static void print_all_wrapped_methods();
+
 protected:
 
     /// Check parameters

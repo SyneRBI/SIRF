@@ -463,6 +463,9 @@ function na =try_niftyaladin(g)
 	disp('%                  Starting Nifty aladin test...')
 	disp('%------------------------------------------------------------------------ %')
 
+    % Print all wrapped methods.
+    sirf.Reg.NiftyAladinSym.print_all_wrapped_methods();
+
     % First set up some masks
     ref_mask = g.ref_aladin.deep_copy();
     flo_mask = g.flo_aladin.deep_copy();
@@ -519,6 +522,9 @@ function try_niftyf3d(g)
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Nifty f3d test...')
 	disp('%------------------------------------------------------------------------ %')
+
+	% Print all wrapped methods.
+	sirf.Reg.NiftyF3dSym.print_all_wrapped_methods();
 
     % Get initial transformation
     tm_init = sirf.Reg.AffineTransformation(g.TM_forward);

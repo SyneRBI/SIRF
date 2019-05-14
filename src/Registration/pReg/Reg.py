@@ -671,6 +671,12 @@ class NiftyAladinSym(_Registration):
         tm.handle = pyreg.cReg_NiftyAladin_get_TM(self.handle, 'inverse')
         return tm
 
+    @staticmethod
+    def print_all_wrapped_methods():
+        """Print all wrapped methods."""
+        print("In C++, this class is templated. \"dataType\" corresponds to \"float\" for Matlab and python.")
+        try_calling(pyreg.cReg_Registration_print_all_wrapped_methods('NiftyAladinSym'))
+
 
 class NiftyF3dSym(_Registration):
     """
@@ -699,6 +705,12 @@ class NiftyF3dSym(_Registration):
         if not isinstance(src, AffineTransformation):
             raise AssertionError()
         _setParameter_sirf(self.handle, self.name, 'initial_affine_transformation', src.handle)
+
+    @staticmethod
+    def print_all_wrapped_methods():
+        """Print all wrapped methods."""
+        print("In C++, this class is templated. \"dataType\" corresponds to \"float\" for Matlab and python.")
+        try_calling(pyreg.cReg_Registration_print_all_wrapped_methods('NiftyF3dSym'))
 
 
 class NiftyResample:
