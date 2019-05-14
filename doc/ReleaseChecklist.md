@@ -16,6 +16,7 @@ VER=1.0.0-rc.1
  - [ ] run doxygen, check, send files for uploading and update the doxygen link on Wiki
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
+ - [ ] Add release title and description including everything since the last release
  
 2. SuperBuild
  - [ ] update `CHANGES.md`
@@ -36,23 +37,28 @@ VER=1.0.0-rc.1
  - [ ] `vagrant up`
  - [ ] Virtualbox Guest Additions
  - [ ] run `first_run.sh` script (gnome settings and zero-fill trick)
- - [ ] [deselect](https://github.com/CCPPETMR/CCPPETMR_VM/blob/master/vagrant/README.md#notes-about-ubuntu-box-for-version-100) the serial port.
+ - [ ] check that the serial port is [deselected](https://github.com/CCPPETMR/CCPPETMR_VM/blob/master/vagrant/README.md#notes-about-ubuntu-box-for-version-100).
  - [ ] export the VM
  - [ ] ctest on VM
  - [ ] upload to website
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
-
-4. Website
+ 
+4. SIRF-Exercises
+ - [ ] run all exercises
+ - [ ] `git tag -a v$VER -m "version $VER"`
+ - [ ] `git push origin v$VER`
+ 
+5. Website
  - [ ] update Software page (version info, VM etc)
  - [ ] upload doxygen
  - [ ] update link for doxygen in [Wiki](https://github.com/CCPPETMR/SIRF/wiki/Software-Documentation)
  - [ ] add news flash
 
-5. Announce
+6. Announce
  - [ ] Send email
 
-6. Tag wikis
+7. Tag wikis
  - [ ] `git clone https://github.com/CCPPETMR/SIRF.wiki.git; cd SIRF.wiki` (or pull)
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
