@@ -76,6 +76,7 @@ extern "C" {
     void* cReg_Registration_process(void* ptr);
     void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
     void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+    void* cReg_Registration_print_all_wrapped_methods(const char* name);
 
     // Aladin methods
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);

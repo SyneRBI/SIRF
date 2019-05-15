@@ -126,6 +126,9 @@ EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image
 EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2) {
 	return cReg_Registration_set_parameter(ptr, par, arg1, arg2);
 }
+EXPORTED_FUNCTION     void* mReg_Registration_print_all_wrapped_methods(const char* name) {
+	return cReg_Registration_print_all_wrapped_methods(name);
+}
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir) {
 	return cReg_NiftyAladin_get_TM(ptr, dir);
 }

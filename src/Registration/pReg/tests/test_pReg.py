@@ -558,6 +558,9 @@ def try_niftyaladin():
     ref_mask.fill(1)
     flo_mask.fill(1)
 
+    # Print all wrapped methods.
+    pReg.NiftyAladinSym.print_all_wrapped_methods()
+
     # default constructor
     na = pReg.NiftyAladinSym()
     na.set_reference_image(ref_aladin)
@@ -622,6 +625,9 @@ def try_niftyf3d():
 
     # Get initial transformation
     tm_init = pReg.AffineTransformation(TM_forward)
+
+    # Print all wrapped methods.
+    pReg.NiftyF3dSym.print_all_wrapped_methods()
 
     # default constructor
     nf = pReg.NiftyF3dSym()
