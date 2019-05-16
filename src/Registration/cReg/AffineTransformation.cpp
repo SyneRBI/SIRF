@@ -109,6 +109,11 @@ AffineTransformation<dataType>::AffineTransformation(const std::string &filename
     std::cout << "\n\nReading transformation matrix from file...\n\n";
 #endif
     try{
+        std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+        // If the file is greater than 10KB it's exxxtremely unlikely it's a 4x4 TM
+        if (in.tellg() > 10000)
+            throw std::runtime_error("File over 10KB, assuming it's not a TM");
+
         std::ifstream file(filename);
 
         // Check opening worked
