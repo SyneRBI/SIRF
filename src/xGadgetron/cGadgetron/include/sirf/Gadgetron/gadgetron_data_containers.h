@@ -509,7 +509,7 @@ namespace sirf {
 			}
 			Iterator& operator++()
 			{
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range("cannot advance out-of-range iterator");
 				++iter_;
 				if (iter_ == end_ && i_ < n_ - 1) {
@@ -523,7 +523,7 @@ namespace sirf {
 			Iterator& operator++(int)
 			{
 				sptr_iter_.reset(new Iterator(*this));
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range("cannot advance out-of-range iterator");
 				++iter_;
 				if (iter_ == end_ && i_ < n_ - 1) {
@@ -536,7 +536,7 @@ namespace sirf {
 			}
 			NumRef& operator*()
 			{
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range
 					("cannot dereference out-of-range iterator");
 				return *iter_;
@@ -569,6 +569,7 @@ namespace sirf {
 				iter_ = iter.iter_;
 				end_ = iter.end_;
 				sptr_iter_ = iter.sptr_iter_;
+                return *this;
 			}
 			bool operator==(const BaseIter_const& ai) const
 			{
@@ -584,7 +585,7 @@ namespace sirf {
 			}
 			Iterator_const& operator++()
 			{
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range("cannot advance out-of-range iterator");
 				++iter_;
 				if (iter_ == end_ && i_ < n_ - 1) {
@@ -599,7 +600,7 @@ namespace sirf {
 			//Iterator_const& operator++(int)
 			//{
 			//	sptr_iter_.reset(new Iterator_const(*this));
-			//	if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+			//	if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 			//		throw std::out_of_range("cannot advance out-of-range iterator");
 			//	++iter_;
 			//	if (iter_ == end_ && i_ < n_ - 1) {
@@ -612,7 +613,7 @@ namespace sirf {
 			//}
 			const NumRef& operator*() const
 			{
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range
 					("cannot dereference out-of-range iterator");
 				ref_.copy(*iter_);
