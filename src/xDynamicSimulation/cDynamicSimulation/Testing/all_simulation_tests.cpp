@@ -161,7 +161,7 @@ void run_tests_dynamic_simulation( void )
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 
 	std::cout << "MR 7 ----------------------------------------------------" <<std::endl;
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
 
 	
 	std::cout << "mr dynamic simulation test results = ";
@@ -188,7 +188,7 @@ void run_tests_dynamic_simulation( void )
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
 
 	std::cout << "PET 5 ----------------------------------------------------" <<std::endl;
-	// pet_dynsim_tests.push_back(test_pet_dynsim::test_4d_pet_acquisition());
+	pet_dynsim_tests.push_back(test_pet_dynsim::test_4d_pet_acquisition());
 
 
 	std::cout << "pet dynamic simulation test results = ";

@@ -856,13 +856,13 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 	try
 	{
 
-		bool const do_cardiac_sim = true;
+		bool const do_cardiac_sim = false;
 		bool const simulate_data = true;
 		bool const store_gt_mvfs = false;
 
 
 		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
-		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/PET/";
+		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/PET/";
 
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		PETContrastGenerator pet_cont_gen( segmentation_labels, XML_XCAT_PATH);
