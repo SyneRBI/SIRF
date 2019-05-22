@@ -147,7 +147,7 @@ protected:
 
 	sirf::NiftiImageData3DDisplacement<float> scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf);
 
-	std::string const temp_folder_prefix_  = "/tmp/";;
+	std::string const temp_folder_prefix_  = "/media/sf_SharedFolder/CCPPETMR/PublicationData/Output/MotionFields/";
 	std::string const temp_mvf_prefix_ = "/motion_field_";
 
 	std::string temp_folder_name_ ;

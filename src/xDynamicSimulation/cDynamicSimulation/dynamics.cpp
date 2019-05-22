@@ -333,8 +333,8 @@ NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_deformation_f
 	else
 		signal_on_bin_range = (num_motion_fields  - 1)* signal;
 
-	int const bin_floor = int( signal_on_bin_range +1) -1;
-	int const bin_ceil  = int( signal_on_bin_range + 1) % this->num_simul_states_;
+	int const bin_floor = int( signal_on_bin_range + 1) -1;
+	// erroneous int const bin_ceil  = int( signal_on_bin_range + 1) % this->num_simul_states_;
 
 	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
 
@@ -343,6 +343,10 @@ NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_deformation_f
 
     if(keep_motion_fields_in_memory_)
 	{
+		std::cout << epiph(this->displacement_fields_.size()) <<std::endl;
+		std::cout << epiph(bin_floor) <<std::endl;
+		std::cout << epiph(bin_ceil) <<std::endl;
+
 	    dvf_interpolator.add_image( this->displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
 	    dvf_interpolator.add_image( this->displacement_fields_[bin_ceil], linear_interpolation_weight);
 	}
