@@ -856,10 +856,9 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 	try
 	{
 
-		bool const do_cardiac_sim = false;
-		bool const simulate_data = true;
-		bool const store_gt_mvfs = false;
-
+		bool const do_cardiac_sim = true;
+		bool const simulate_data = false;
+		bool const store_gt_mvfs = true;
 
 		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
 		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/PET/";
@@ -870,7 +869,6 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 		pet_cont_gen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
 
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
-
 
 		// fix name of output
 		stringstream prefix_stream;
@@ -884,65 +882,82 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 		
 		int const num_sim_motion_states = 24;
 
-		PETMotionDynamic motion_dyn( num_sim_motion_states );
+		float tot_time_ms = 30 * 60 * 1000; // 20 Minute Exam
 
-		SignalContainer motion_signal;
+		if( num_sim_motion_states > 1 )
 
-		stringstream path_time_pts, path_sig_pts;
-
-		path_time_pts  << input_path << "/SurrogateSignals/";
-		path_sig_pts << input_path << "/SurrogateSignals/";
-
-		if( do_cardiac_sim )
 		{
-			path_time_pts << "card_time";
-			path_sig_pts  << "card_signal";
+			PETMotionDynamic motion_dyn( num_sim_motion_states );
+
+			SignalContainer motion_signal;
+
+			stringstream path_time_pts, path_sig_pts;
+
+			path_time_pts  << input_path << "/SurrogateSignals/";
+			path_sig_pts << input_path << "/SurrogateSignals/";
+
+			if( do_cardiac_sim )
+			{
+				path_time_pts << "card_time";
+				path_sig_pts  << "card_signal";
+			}
+			else
+			{
+				path_time_pts << "resp_time";
+				path_sig_pts  << "resp_signal";
+			}
+
+			motion_signal = data_io::read_surrogate_signal( path_time_pts.str(), path_sig_pts.str());
+
+			auto first_card_pt = motion_signal[0];
+			auto last_card_pt = motion_signal[ motion_signal.size()-1 ];
+
+			float min_time_card_ms = first_card_pt.first;
+			tot_time_ms = last_card_pt.first - first_card_pt.first;
+
+
+			for( size_t i=0; i<motion_signal.size(); i++)
+			{
+				auto curr_sig_pt = motion_signal[i];	
+				curr_sig_pt.first = curr_sig_pt.first - min_time_card_ms;
+				motion_signal[i] = curr_sig_pt;
+			}
+
+		 	motion_dyn.set_dyn_signal( motion_signal );
+
+		 	TimeBin total_time(0, tot_time_ms);
+
+		 	motion_dyn.bin_total_time_interval( total_time );
+			
+		 	if( do_cardiac_sim )
+			{
+				auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+				motion_dyn.set_displacement_fields( motion_fields, true );
+			}
+			else
+			{ 		
+				auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+				motion_dyn.set_displacement_fields( motion_fields, false );
+			}
+			
+			pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (motion_dyn) );
+
 		}
-		else
+		if( simulate_data )
 		{
-			path_time_pts << "resp_time";
-			path_sig_pts  << "resp_signal";
+			std::cout << "Simulating Data" << std::endl;
+			pet_dyn_sim.simulate_dynamics( tot_time_ms );
+			std::cout << "Finished Simulating Data" << std::endl;
 		}
 
-		motion_signal = data_io::read_surrogate_signal( path_time_pts.str(), path_sig_pts.str());
-
-		auto first_card_pt = motion_signal[0];
-		auto last_card_pt = motion_signal[ motion_signal.size()-1 ];
-
-		float min_time_card_ms = first_card_pt.first;
-		float tot_time_card_ms = last_card_pt.first - first_card_pt.first;
-
-
-		for( size_t i=0; i<motion_signal.size(); i++)
+		if( store_gt_mvfs )
 		{
-			auto curr_sig_pt = motion_signal[i];	
-			curr_sig_pt.first = curr_sig_pt.first - min_time_card_ms;
-			motion_signal[i] = curr_sig_pt;
+			std::cout << "Storing GT MVFs" << std::endl;
+			pet_dyn_sim.save_ground_truth_displacements();
+			std::cout << "Finished Storing GT MVFs" << std::endl;
 		}
 
-	 	motion_dyn.set_dyn_signal( motion_signal );
-
-	 	TimeBin total_time(0, tot_time_card_ms);
-
-	 	motion_dyn.bin_total_time_interval( total_time );
-		
-	 	if( do_cardiac_sim )
-		{
-			auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-			motion_dyn.set_displacement_fields( motion_fields, true );
-		}
-		else
-		{ 		
-			auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-			motion_dyn.set_displacement_fields( motion_fields, false );
-
-		}
-		
-		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (motion_dyn) );
-		
-		pet_dyn_sim.simulate_dynamics( tot_time_card_ms );
 		return true;
-
 
 	}
 	catch( std::runtime_error const &e)
