@@ -342,9 +342,13 @@ namespace sirf {
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic
-			) : sptr_acqs_(sptr_ac), sptr_imgs_(sptr_ic)
+			) : sptr_acqs_(sptr_ac) //, sptr_imgs_(sptr_ic)
 		{
+			set_image_template(sptr_ic);
 		}
+		
+		// make sure ic contains "true" images (and not e.g. G-factors)
+		void check_data_role(const GadgetronImageData& ic);
 
 		// Records the acquisition template to be used. 
 		void set_acquisition_template
@@ -356,6 +360,7 @@ namespace sirf {
 		void set_image_template
 			(gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
+			check_data_role(*sptr_ic);
 			sptr_imgs_ = sptr_ic;
 		}
 		// Records the coil sensitivities maps to be used. 
@@ -370,7 +375,8 @@ namespace sirf {
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
 			sptr_acqs_ = sptr_ac;
-			sptr_imgs_ = sptr_ic;
+			set_image_template(sptr_ic);
+			//sptr_imgs_ = sptr_ic;
 		}
 
 		// Forward projects one image item (typically xy-slice) into
@@ -414,6 +420,7 @@ namespace sirf {
 			if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 				throw LocalisedException
 				("coil sensitivity maps not found", __FILE__, __LINE__);
+			check_data_role(ic);
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs =
 				sptr_acqs_->new_acquisitions_container();
 			sptr_acqs->copy_acquisitions_info(*sptr_acqs_);

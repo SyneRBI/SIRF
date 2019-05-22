@@ -185,7 +185,9 @@ classdef NiftiImageData < sirf.SIRF.ImageData
         end
         function print_header(self)
             %Print metadata of nifti image.
-            h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 1, self.handle_, [], [], [], []);
+            vec = sirf.SIRF.DataHandleVector();
+            vec.push_back(self.handle_)
+            h = calllib('mreg', 'mReg_NiftiImageData_print_headers', vec.handle_);
             sirf.Utilities.check_status('parameter', h)
         end
         function set_voxel_spacing(self,spacing,interpolation_order)
@@ -198,22 +200,13 @@ classdef NiftiImageData < sirf.SIRF.ImageData
     end
     methods(Static)
         function print_headers(to_print)
-            %Print metadata of one or multiple (up to 5) nifti images.
+            %Print metadata of one or multiple nifti images.
             assert(ismatrix(to_print) && isa(to_print, 'sirf.Reg.NiftiImageData'), 'NiftiImageData.print_headers: give list of NiftiImageData.')
-            num_ims = size(to_print,2);
-            if num_ims == 1
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 1, to_print(1).handle_, [], [], [], []);
-            elseif num_ims == 2
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 2, to_print(1).handle_, to_print(2).handle_, [], [], []);
-            elseif num_ims == 3
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 3, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, [], []);
-            elseif num_ims == 4
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 4, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, to_print(4).handle_, []);
-            elseif num_ims == 5
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 5, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, to_print(4).handle_, to_print(5).handle_);
-            else
-                error('print_headers only implemented for up to 5 images.')
+            vec = sirf.SIRF.DataHandleVector();
+            for n = 1:length(to_print)
+                vec.push_back(to_print(n).handle_);
             end
+            h = calllib('mreg', 'mReg_NiftiImageData_print_headers', vec.handle_);
             sirf.Utilities.check_status('parameter', h)
         end
     end

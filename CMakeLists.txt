@@ -20,6 +20,12 @@
 
 # cmake file for building SIRF. See the SIRF User's Guide and http://www.cmake.org.
 
+# Set the CMake policy for SWIG
+# https://cmake.org/cmake/help/v3.14/policy/CMP0078.html#policy:CMP0078
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+  # policy introduced in CMake 3.13
+  cmake_policy(SET CMP0078 OLD)
+endif()
 # avoid warning about WIN32 no longer defined in CYGWIN
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
 
@@ -43,7 +49,7 @@ endif()
 ####### Set Version number etc
 set(VERSION_MAJOR   2 )
 set(VERSION_MINOR   0 )
-set(VERSION_PATCH   0-rc.1 )
+set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 set(SIRF_VERSION
@@ -168,20 +174,25 @@ endif()
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
 # Synergistic code currently only works if STIR (with ITK), ISMRMRD and Registration are built
-if (BUILD_Registration AND cGadgetron_LIBRARY_DIRS AND STIR_REGISTRIES AND "${STIR_BUILT_WITH_ITK}")
-  MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built. Building synergistic code.")
-  ADD_SUBDIRECTORY(src/Synergistic)
+option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
+if (DISABLE_Synergistic)
+  message(STATUS "Synergistic code disabled.")
 else()
-  MESSAGE(STATUS "One or more of the following components are missing: Registration, ISMRMRD and STIR (with ITK). Synergistic code will not be built.")
-  if (NOT BUILD_Registration)
-    MESSAGE(STATUS "Registration missing.")
-  endif()
-  if (NOT cGadgetron_LIBRARY_DIRS)
-    MESSAGE(STATUS "ISMRMRD missing.")
-  endif()
-  if (NOT STIR_REGISTRIES)
-    MESSAGE(STATUS "STIR missing.")
-  elseif(NOT STIR_BUILT_WITH_ITK)
-    MESSAGE(STATUS "STIR not built with ITK.")
+  if (BUILD_Registration AND cGadgetron_LIBRARY_DIRS AND STIR_REGISTRIES AND "${STIR_BUILT_WITH_ITK}")
+    MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built. Building synergistic code.")
+    ADD_SUBDIRECTORY(src/Synergistic)
+  else()
+    MESSAGE(STATUS "One or more of the following components are missing: Registration, ISMRMRD and STIR (with ITK). Synergistic code will not be built.")
+    if (NOT BUILD_Registration)
+      MESSAGE(STATUS "Registration missing.")
+    endif()
+    if (NOT cGadgetron_LIBRARY_DIRS)
+      MESSAGE(STATUS "ISMRMRD missing.")
+    endif()
+    if (NOT STIR_REGISTRIES)
+      MESSAGE(STATUS "STIR missing.")
+    elseif(NOT STIR_BUILT_WITH_ITK)
+      MESSAGE(STATUS "STIR not built with ITK.")
+    endif()
   endif()
 endif()

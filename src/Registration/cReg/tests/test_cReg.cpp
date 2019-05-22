@@ -35,6 +35,7 @@ limitations under the License.
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/Quaternion.h"
 #include <memory>
 
 using namespace sirf;
@@ -606,6 +607,9 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty aladin test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
+        // Print all available methods
+        NiftyAladinSym<float>::print_all_wrapped_methods();
+
         // First set up some masks
         std::shared_ptr<NiftiImageData3D<float> > ref_mask = ref_aladin->clone();
         std::shared_ptr<NiftiImageData3D<float> > flo_mask = flo_aladin->clone();
@@ -667,6 +671,9 @@ int main(int argc, char* argv[])
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting Nifty f3d test..\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Print all available methods
+        NiftyF3dSym<float>::print_all_wrapped_methods();
 
         // First set up some masks
         std::shared_ptr<NiftiImageData3D<float> > ref_mask = ref_f3d->clone();
@@ -923,6 +930,7 @@ int main(int argc, char* argv[])
         test_Eul[0][2] =  1.F;
         test_Eul[1][1] = -1.F;
         test_Eul[2][0] = -1.F;
+        test_Eul[3][3] =  1.F;
         // Example given by rotm2eul for MATLAB is [0 0 1; 0 -1 0; -1 0 0] -> XYZ = [-3.1416 1.5708 0]
         std::array<float,3> Eul = test_Eul.get_Euler_angles();
         std::array<float,3> Eul_expected{-3.1416F, 1.5708F, 0.F};
@@ -930,8 +938,79 @@ int main(int argc, char* argv[])
             if (std::abs(Eul[i] - Eul_expected[i]) > 1e-4F)
                 throw std::runtime_error("AffineTransformation::get_Euler_angles failed.");
 
+        // Average!
+        Quaternion<float> quat_1(0.92707F,  0.02149F,   0.19191F,  0.32132F);
+        Quaternion<float> quat_2(0.90361F,  0.0025836F, 0.097279F, 0.41716F);
+        Quaternion<float> quat_3(0.75868F, -0.21289F,   0.53263F,  0.30884F);
+        AffineTransformation<float> tm_1({0.F,0.F,0.F},quat_1);
+        AffineTransformation<float> tm_2({0.F,0.F,0.F},quat_2);
+        AffineTransformation<float> tm_3({0.F,0.F,0.F},quat_3);
+        AffineTransformation<float> average = AffineTransformation<float>::get_average({tm_1,tm_2,tm_3});
+        AffineTransformation<float> exptd_average;
+        exptd_average[0][0] =  0.5836F;
+        exptd_average[0][1] = -0.6736F;
+        exptd_average[0][2] =  0.4535F;
+        exptd_average[1][0] =  0.6007F;
+        exptd_average[1][1] =  0.7339F;
+        exptd_average[1][2] =  0.3171F;
+        exptd_average[2][0] = -0.5464F;
+        exptd_average[2][1] =  0.0874F;
+        exptd_average[2][2] =  0.8329F;
+        if (average != exptd_average)
+            throw std::runtime_error("AffineTransformation::get_average() failed.");
+
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished AffineTransformation test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    {
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting Quaternion test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Construct TM
+        AffineTransformation<float> rotm;
+        for (unsigned i=0; i<4; ++i)
+            for (unsigned j=0; j<4; ++j)
+                rotm[i][j]=0.F;
+        rotm[0][2] =  1.f;
+        rotm[1][1] =  1.f;
+        rotm[2][0] = -1.f;
+        rotm[3][3] =  1.f;
+
+        // Convert to quaternion
+        Quaternion<float> quat(rotm);
+        // Compare to expected values
+        Quaternion<float> expt(0.707107f, 0.f, 0.707107f, 0.f);
+
+        if (quat != expt)
+            throw std::runtime_error("Quaternion from TM failed.");
+
+        // Convert back to TM
+        std::array<float,3> trans{0.F,0.F,0.F};
+        AffineTransformation<float> affine(trans,quat);
+        if (affine != rotm)
+            throw std::runtime_error("TM to quaternion failed.");
+
+        // Convert TM to quaternion
+        Quaternion<float> quat2 = affine.get_quaternion();
+        if (std::abs(quat.dot(quat2)) -1.f > 1.e-4f)
+            throw std::runtime_error("AffineTransformation.get_quaternion()/Quaternion::dot() failed.");
+
+        // Average!
+        Quaternion<float> quat_1(0.92707F,  0.02149F,   0.19191F,  0.32132F);
+        Quaternion<float> quat_2(0.90361F,  0.0025836F, 0.097279F, 0.41716F);
+        Quaternion<float> quat_3(0.75868F, -0.21289F,   0.53263F,  0.30884F);
+        Quaternion<float> average = Quaternion<float>::get_average({quat_1,quat_2,quat_3});
+        Quaternion<float> exptd_average(0.88748F, -0.0647152F, 0.281671F, 0.35896F);
+
+        if (average != exptd_average)
+            throw std::runtime_error("Quaternion::get_average() failed.");
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished Quaternion test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 

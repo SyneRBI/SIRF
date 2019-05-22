@@ -32,6 +32,7 @@ limitations under the License.
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/Transformation.h"
 #include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/Quaternion.h"
 
 using namespace sirf;
 
@@ -160,19 +161,14 @@ void* cReg_objectFromFile(const char* name, const char* filename)
 //      NiftiImageData
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
+void* cReg_NiftiImageData_print_headers(const void* handle_vector_ptr)
 {
     try {
-        std::vector<NiftiImageData<float> > vec;
-        if (num_ims >= 1) vec.push_back(objectFromHandle<NiftiImageData<float> >(im1));
-        if (num_ims >= 2) vec.push_back(objectFromHandle<NiftiImageData<float> >(im2));
-        if (num_ims >= 3) vec.push_back(objectFromHandle<NiftiImageData<float> >(im3));
-        if (num_ims >= 4) vec.push_back(objectFromHandle<NiftiImageData<float> >(im4));
-        if (num_ims >= 5) vec.push_back(objectFromHandle<NiftiImageData<float> >(im5));
-        std::vector<const NiftiImageData<float>*> vec_ptr;
-        for (int i=0; i<vec.size(); ++i)
-            vec_ptr.push_back(&vec[i]);
-        NiftiImageData<float>::print_headers(vec_ptr);
+        const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+        std::vector<const NiftiImageData<float>*> vec;
+        for (unsigned i=0; i<handle_vector.size(); ++i)
+            vec.push_back(&objectFromHandle<const NiftiImageData<float> >(handle_vector.at(i)));
+        NiftiImageData<float>::print_headers(vec);
         return new DataHandle;
     }
     CATCH;
@@ -468,27 +464,18 @@ void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim)
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DDeformation
 // -------------------------------------------------------------------------------- //
-void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5)
+void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr)
 {
     try {
         // This is an ugly hack because I can't get virtual methods to work for multiple inherited (NiftiImageData3DDeformation/NiftiImageData3DDisplacement).
         // So, we also give a string which tells us what type they are, and we change the template type of objectFromHandle accordingly.
 
-        // Also, we can't have default arguments in C, so if we only want to compose 3 transformations, set the 4th and 5th as 'None' in Python. In C,
-        // we create a vector from all the non-'None' arguments and then convert them to their derived classes.
-
         // Sorry this is so ugly.
 
         // There's always going to be at least two transformations, so start by putting them in the vector
-        std::vector<const void*> vec = {trans1, trans2};
-        // Add in any extras, depending on the number of transformations
-        if (num_elements >= 3) vec.push_back(trans3);
-        if (num_elements >= 4) vec.push_back(trans4);
-        if (num_elements >= 5) vec.push_back(trans5);
-
-        // Vector for casting to the correct type
+        const DataHandleVector vec = objectFromHandle<const DataHandleVector>(trans_vector_ptr);
         std::vector<const Transformation<float> *> trans_vec;
-        for (int i=0; i<num_elements; ++i)
+        for (unsigned i=0; i<vec.size(); ++i)
             if      (types[i] == '1')
                 trans_vec.push_back(&objectFromHandle<const AffineTransformation<float> >(vec.at(i)));
             else if (types[i] == '2')
@@ -562,6 +549,20 @@ void* cReg_Registration_set_parameter(const void* ptr, const char* par, const ch
     try {
         Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
         reg.set_parameter(par, arg1, arg2);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_Registration_print_all_wrapped_methods(const char* name)
+{
+    try {
+        if (strcmp(name, "NiftyAladinSym") == 0)
+            NiftyAladinSym<float>::print_all_wrapped_methods();
+        else if (strcmp(name, "NiftyF3dSym") == 0)
+            NiftyF3dSym<float>::print_all_wrapped_methods();
+        else
+            throw std::runtime_error("cReg_Registration_print_all_wrapped_methods: Non-existent reconstruction algorithm name.");
         return new DataHandle;
     }
     CATCH;
@@ -696,6 +697,19 @@ void* cReg_AffineTransformation_construct_from_TM(size_t ptr_TM)
     CATCH;
 }
 extern "C"
+void* cReg_AffineTransformation_construct_from_trans_and_quaternion(size_t trans_ptr, const void* quat_ptr)
+{
+    try {
+        Quaternion<float>& quat = objectFromHandle<Quaternion<float> >(quat_ptr);
+        std::array<float,3> trans;
+        for (unsigned i=0; i<3; ++i)
+            trans[i] = ((float*)trans_ptr)[i];
+        return newObjectHandle(
+                    std::make_shared<AffineTransformation<float> >(trans,quat));
+    }
+    CATCH;
+}
+extern "C"
 void* cReg_AffineTransformation_deep_copy(const void* ptr)
 {
     try {
@@ -761,6 +775,16 @@ void* cReg_AffineTransformation_get_Euler_angles(const void* ptr, size_t Euler)
     CATCH;
 }
 extern "C"
+void* cReg_AffineTransformation_get_quaternion(const void* ptr)
+{
+    try {
+        AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
+        return newObjectHandle(
+                    std::make_shared<Quaternion<float> >(tm.get_quaternion()));
+    }
+    CATCH;
+}
+extern "C"
 void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
@@ -781,4 +805,53 @@ void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr
         return dataHandle<int>(mat1 == mat2);
     }
     CATCH;
+}
+extern "C"
+void* cReg_AffineTransformation_get_average(const void* handle_vector_ptr)
+{
+    const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+    std::vector<AffineTransformation<float> > vec;
+    for (unsigned i=0; i<handle_vector.size(); ++i)
+        vec.push_back(objectFromHandle<AffineTransformation<float> >(handle_vector.at(i)));
+
+    return newObjectHandle(
+                std::make_shared<AffineTransformation<float> >(AffineTransformation<float>::get_average(vec)));
+}
+extern "C"
+void* cReg_Quaternion_construct_from_array(size_t arr)
+{
+    float* arr_float = (float*)arr;
+    return newObjectHandle(
+                std::make_shared<Quaternion<float> >(arr_float[0],arr_float[1],arr_float[2],arr_float[3]));
+}
+
+extern "C"
+void* cReg_Quaternion_construct_from_AffineTransformation(const void* ptr)
+{
+    AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
+    return newObjectHandle(
+                std::make_shared<Quaternion<float> >(tm.get_quaternion()));
+}
+
+extern "C"
+void* cReg_Quaternion_get_average(const void *handle_vector_ptr)
+{
+    const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+    std::vector<Quaternion<float> > vec;
+    for (unsigned i=0; i<handle_vector.size(); ++i)
+        vec.push_back(objectFromHandle<Quaternion<float> >(handle_vector.at(i)));
+
+    return newObjectHandle(
+                std::make_shared<Quaternion<float> >(Quaternion<float>::get_average(vec)));
+}
+
+extern "C"
+void* cReg_Quaternion_as_array(const void* ptr, size_t arr)
+{
+    Quaternion<float>& quat = objectFromHandle<Quaternion<float> >(ptr);
+    float* arr_float = (float*)arr;
+    std::array<float,4> quat_data = quat.get_data();
+    for (unsigned i=0; i<4; ++i)
+        arr_float[i] = quat_data[i];
+    return new DataHandle;
 }

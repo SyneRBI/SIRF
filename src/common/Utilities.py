@@ -360,7 +360,7 @@ def check_status(handle, stack = None):
         line = pyiutil.executionErrorLine(handle)
         errorMsg = \
             repr(msg) + ' exception caught at line ' + \
-            repr(line) + ' of ' + file + '\n' + \
+            repr(line) + ' of ' + file + '; ' + \
             'the reconstruction engine output may provide more information'
         raise error(errorMsg)
 

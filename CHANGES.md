@@ -1,7 +1,14 @@
 # ChangeLog
 
-## v2.0.0-rc.1
+## v2.0.0
 
+* Set CMake policy CMP0079.
+* Use `swig_add_library` instead of `swig_add_module`.
+* Averaging of rigid transformation matrices via quaternions (and therefore a quaternion class).
+* Arrays of SIRF objects can be passed from the Python and Matlab interfaces to the C++ level (e.g., averaging a large number of matrices) via the DataHandleVector class. This is an internal class that should not be used. Simply pass a native array of objects and SIRF will convert to the DataHandleVector class if necessary.
+* Image data role checks in MRAcquisitionModel introduced.
+* Corrected ISMRMRD acquisition sorting.
+* Added PhysioInterpolationGadget and FatWaterGadget to SIRF gadgets library.
 * Wrapping of NiftyReg to allow registration/resampling in SIRF.
 * Implemented new `ImageData` hierarchy common to PET and MR. `ImageData` contain geometrical info.
 * MR/Gadgetron

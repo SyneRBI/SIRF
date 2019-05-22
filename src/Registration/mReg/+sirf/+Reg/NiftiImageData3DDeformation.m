@@ -53,11 +53,7 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
 	    	%Compose up to transformations into single deformation.
 		    assert(isa(ref, 'sirf.SIRF.ImageData'))
 		    assert(isa(trans, 'sirf.Reg.Transformation'))
-		    if isrow(trans)
-                trans=trans'; 
-            end
-		    assert(iscolumn(trans));
-            num_trans = size(trans,1);
+            num_trans = length(trans);
 		    if num_trans == 1
 		    	z = trans(1).get_as_deformation_field(ref);
 		        return
@@ -75,23 +71,13 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
                     types = [types '3'];
                 end
             end
-		    z = sirf.Reg.NiftiImageData3DDeformation();
-		    if num_trans == 2
-		        z.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
-		        	ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, [], [], []);
-		    elseif num_trans == 3
-		        z.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
-		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, [], []);
-		    elseif num_trans == 4
-		        z.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
-		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, trans(4).handle_, []);
-		    elseif num_trans == 5
-		        z.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
-		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, trans(4).handle_, trans(5).handle_);
-		    else
-		        error('compose_transformations_into_single_deformation only implemented for up to 5 transformations.')
-		    end
-		    sirf.Utilities.check_status('compose_transformations_into_single_deformation', z.handle_);
+            % Convert transformations into SIRF vector
+            vec = sirf.SIRF.DataHandleVector()
+            for n = 1:num_trans
+                vec.push_back(trans(n).handle_);
+            end
+            z = sirf.Reg.NiftiImageData3DDeformation();
+            z.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',ref.handle_, types, vec.handle_);
 		end
     end
 end

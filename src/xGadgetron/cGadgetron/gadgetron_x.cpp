@@ -232,6 +232,38 @@ ImagesProcessor::check_connection()
 	conn().wait();
 }
 
+void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
+{
+	for (int j = 0; j < ic.number(); j++) {
+		const ImageWrap& iw = ic.image_wrap(j);
+		std::string atts = iw.attributes();
+		int atts_size = atts.size();
+		if (atts_size < 1)
+			continue;
+		ISMRMRD::MetaContainer mc;
+		ISMRMRD::deserialize(atts.c_str(), mc);
+		const char* attr = "GADGETRON_DataRole";
+		size_t l = mc.length(attr);
+		bool ok = false;
+		std::string value;
+		for (int i = 0; i < l; i++) {
+			if (boost::iequals(mc.as_str(attr, i), "image")) {
+				ok = true;
+				break;
+			}
+			if (i)
+				value += " ";
+			value += mc.as_str(attr, i);
+		}
+		if (!ok) {
+			std::string msg("MRAcquisitionModel cannot use ");
+			msg += "image data with GADGETRON_DataRole = ";
+			msg += value;
+			throw LocalisedException(msg.c_str(), __FILE__, __LINE__);
+		}
+	}
+}
+
 void
 MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
 	MRAcquisitionData& ac)
@@ -275,7 +307,12 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	ISMRMRD::deserialize(par.c_str(), header);
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq; // (acq_);
-	sptr_acqs_->get_acquisition(0, acq);
+	//sptr_acqs_->get_acquisition(0, acq);
+	for (unsigned int i = 0; i < sptr_acqs_->number(); i++) {
+		sptr_acqs_->get_acquisition(i, acq);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+			break;
+	}
 
 	//int readout = e.encodedSpace.matrixSize.x;
 	unsigned int nx = e.reconSpace.matrixSize.x;
@@ -343,7 +380,12 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	ISMRMRD::deserialize(par.c_str(), header);
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq;
-	sptr_acqs_->get_acquisition(0, acq);
+	//sptr_acqs_->get_acquisition(0, acq);
+	for (unsigned int i = 0; i < ac.number(); i++) {
+		ac.get_acquisition(i, acq);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+			break;
+	}
 
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	unsigned int ny = e.reconSpace.matrixSize.y;

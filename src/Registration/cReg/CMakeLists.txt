@@ -21,11 +21,13 @@ get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin_sym" "${NIFTY
 get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d_sym"    "${NIFTYREG_VERSION}" NR_f3d_parser_methods   )
 get_runtime_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_runtime_methods)
 get_runtime_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_runtime_methods   )
+get_list_of_wrapped_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_list_methods)
+get_list_of_wrapped_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_list_methods   )
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp.in"    "${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp"   )
 
 # Add in the common files
-SET(SOURCES "Registration.cpp" "NiftyRegistration.cpp" "NiftyAladinSym.cpp" "NiftyF3dSym.cpp" "ImageWeightedMean.cpp" "Resample.cpp" "NiftyResample.cpp" "Transformation.cpp" "AffineTransformation.cpp")
+SET(SOURCES "Registration.cpp" "NiftyRegistration.cpp" "NiftyAladinSym.cpp" "NiftyF3dSym.cpp" "ImageWeightedMean.cpp" "Resample.cpp" "NiftyResample.cpp" "Transformation.cpp" "AffineTransformation.cpp" "Quaternion.cpp")
 
 # Add in nifti_image wrappers
 SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")
@@ -70,10 +72,7 @@ else()
 endif()
 
 # Install
-INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib    )
-
-# Need to include the directory to be able to compile the example programs
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
+INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 SET(REG_executables
     sirf_affine_to_disp

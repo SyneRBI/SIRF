@@ -198,5 +198,4 @@ imshow(backprojected_array[slice_num,:,:],[], 'backprojection');
 
 #%% close all plots
 plt.close('all')
-
 #%% End of this demo!

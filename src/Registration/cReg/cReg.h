@@ -40,7 +40,7 @@ extern "C" {
     void* cReg_parameter(const void* ptr, const char* obj, const char* name);
 
     // NiftiImageData
-    void* cReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
+    void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
     void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
     void* cReg_NiftiImageData_fill(const void* ptr, const float val);
     void* cReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
@@ -66,7 +66,7 @@ extern "C" {
     void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
 
     // NiftiImageData3DDeformation
-    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
+    void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
     void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
 
     // NiftiImageData3DDisplacement
@@ -76,6 +76,7 @@ extern "C" {
     void* cReg_Registration_process(void* ptr);
     void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
     void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+    void* cReg_Registration_print_all_wrapped_methods(const char* name);
 
     // Aladin methods
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
@@ -94,14 +95,23 @@ extern "C" {
 
     // AffineTransformation
     void* cReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
+    void* cReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr);
     void* cReg_AffineTransformation_deep_copy(const void* ptr);
     void* cReg_AffineTransformation_write(const void* ptr, const char* filename);
     void* cReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
     void* cReg_AffineTransformation_get_identity();
     void* cReg_AffineTransformation_get_inverse(const void* ptr);
     void* cReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler);
+    void* cReg_AffineTransformation_get_quaternion(const void* ptr);
     void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
     void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
+    void* cReg_AffineTransformation_get_average(const void *handle_vector_ptr);
+
+    // Quaternion
+    void* cReg_Quaternion_construct_from_array(PTR_FLOAT arr);
+    void* cReg_Quaternion_construct_from_AffineTransformation(const void* ptr);
+    void* cReg_Quaternion_get_average(const void *handle_vector_ptr);
+    void* cReg_Quaternion_as_array(const void* ptr, PTR_FLOAT arr);
 
 #ifndef CREG_FOR_MATLAB
 }

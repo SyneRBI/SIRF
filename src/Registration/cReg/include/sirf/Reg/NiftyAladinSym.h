@@ -60,6 +60,9 @@ public:
     /// Get inverse transformation matrix
     const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr() const { return _TM_inverse_sptr; }
 
+    /// Print all wrapped methods
+    static void print_all_wrapped_methods();
+
 protected:
 
     /// Parse parameter file
