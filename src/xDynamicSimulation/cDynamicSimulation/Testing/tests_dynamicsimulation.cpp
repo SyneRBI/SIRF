@@ -880,7 +880,7 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
 		
-		int const num_sim_motion_states = 24;
+		int const num_sim_motion_states = 8;
 
 		float tot_time_ms = 30 * 60 * 1000; // 20 Minute Exam
 
