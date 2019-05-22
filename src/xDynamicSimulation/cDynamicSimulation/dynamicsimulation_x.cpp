@@ -23,7 +23,7 @@ using std::cout;
 using std::endl;
 
 
-#define PET_GLOBAL_NOISE_SCALING 18.f
+#define PET_GLOBAL_NOISE_SCALING 1.8f
 
 
 void MRDynamicSimulation::set_filename_rawdata( std::string const filename_template_rawdata ) 
@@ -355,15 +355,6 @@ void PETDynamicSimulation::write_simulation_results( const std::string& filename
 
 	attenuation_map.write( stream_filename_attenuation_map.str() );
 
-	// stir::shared_ptr< stir::OutputFileFormat<Image3DF >> format_sptr =
-	// stir::OutputFileFormat<Image3DF>::default_sptr();
-
-
-	// Image3DF& attenuation_image = attenuation_map.data();
-
-	// std::cout << "Writing PET attenuation map ... ";
-	// format_sptr->write_to_file( stream_filename_attenuation_map.str() , attenuation_image);
-	// std::cout << "... finished." << std::endl;
 }
 
 void PETDynamicSimulation::save_ground_truth_displacements( void )
@@ -564,8 +555,6 @@ void PETDynamicSimulation::acquire_raw_data( void )
 
 	std::cout << "Application of forward model." << std::endl;
 	this->sptr_target_acquisitions_ = this->acq_model_.forward(activity_img);
-
-	
 }
 
 STIRImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const STIRImageData& full_size_img)

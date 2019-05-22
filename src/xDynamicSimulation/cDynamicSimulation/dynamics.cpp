@@ -852,7 +852,7 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 
 	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
 	{
-		std::cout << "Summing up signal for bin " << i_bin << "/ " << num_bins <<std::endl;
+		std::cout << "Calculating time bins for " << i_bin << "/ " << num_bins <<std::endl;
 		SignalBin bin = this->signal_bins_[i_bin];
 
 		TimeBinSet time_intervals_for_bin;
