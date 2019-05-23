@@ -14,9 +14,9 @@
     {"name": "da Costa-Luis, Casper O.", "orcid": "0000-0002-7211-1557", "affiliation": "KCL"},
     {"name": "Thomas, Ben", "orcid": "0000-0002-9784-1177"},
     {"name": "Atkinson, David", "orcid": "0000-0003-1124-6666"},
-    {"name": "Mayer, Johannes", "orcid": "0000-0002-2500-445X", "affiliation": "Physikalisch-Technische Bundesanstalt"},
+    {"name": "Mayer, Johannes", "orcid": "0000-0002-2500-445X", "affiliation": "Physikalisch-Technische Bundesanstalt (PTB)"},
     {"name": "Gillman, Ashley", "orcid": "0000-0001-9130-1092", "affiliation": "CSIRO, University of Queensland"},
-    {"name": "Kolbitsch, Christoph", "orcid": "0000-0002-4355-8368"},
+    {"name": "Kolbitsch, Christoph", "orcid": "0000-0002-4355-8368", "affiliation": "Physikalisch-Technische Bundesanstalt (PTB)"},
     {"name": "Ehrhardt, Matthias J.", "affiliation": "University of Bath"},
     {"name": "Whitehead, Alexander", "affiliation": "UCL"}]
 }}
