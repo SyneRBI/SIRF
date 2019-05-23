@@ -412,7 +412,7 @@ try
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 24;
+		int const num_simul_motion_dyn = 8;
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
@@ -558,7 +558,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_contrast_states = 2;
+		int const num_contrast_states = 0;
 		
 		MRContrastDynamic aif_contrast(num_contrast_states), healthy_tissue_contrast(num_contrast_states), lesion_contrast(num_contrast_states);
 
