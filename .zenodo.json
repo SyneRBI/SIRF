@@ -2,7 +2,6 @@
   "title": "CCPPETMR SIRF",
   "keywords": [
     "image-reconstruction", "pet-mr", "medical-imaging"],
-  "license": "Apache-2.0",
   "related_identifiers": [
     {"identifier": "10.1109/NSSMIC.2017.8532815", "relation": "documents"}],
   "communities": [{"identifier": "ccp-petmr"}],
@@ -11,7 +10,7 @@
     {"name": "Brown, Richard", "orcid": "0000-0001-6989-9200", "affiliation": "University College London"},
     {"name": "Thielemans, Kris", "orcid", "0000-0002-5514-199X", "affiliation": "University College London"},
     {"name": "Pasca, Edoardo"},
-    {"name": "da Costa-Luis, Casper O.", "orcid": "0000-0002-7211-1557", "affiliation": "KCL"},
+    {"name": "da Costa-Luis, Casper O.", "orcid": "0000-0002-7211-1557", "affiliation": "King's College London"},
     {"name": "Thomas, Ben", "orcid": "0000-0002-9784-1177", "affiliation": "University College London"},
     {"name": "Atkinson, David", "orcid": "0000-0003-1124-6666", "affiliation": "University College London"},
     {"name": "Mayer, Johannes", "orcid": "0000-0002-2500-445X", "affiliation": "Physikalisch-Technische Bundesanstalt (PTB)"},
