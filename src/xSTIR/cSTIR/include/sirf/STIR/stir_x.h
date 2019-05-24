@@ -399,6 +399,22 @@ The actual algorithm is described in
 		//shared_ptr<stir::BinNormalisation> sptr_normalisation_;
 	};
 
+    class PETSingleScatterSimulation : public stir::SingleScatterSimulation
+    {
+    public:
+        //!
+        PETSingleScatterSimulation() : stir::SingleScatterSimulation()
+        {
+            std::cout<< " I am Here!!! " << std::endl;
+        }
+        //!
+        PETSingleScatterSimulation(std::string filename) :
+        stir::SingleScatterSimulation(filename)
+        {}
+
+//        bool set_up();
+    };
+
 	/*!
 	\ingroup STIR Extensions
 	\brief Ray tracing matrix implementation of the PET acquisition model.

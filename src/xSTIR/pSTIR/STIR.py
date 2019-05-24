@@ -1728,6 +1728,34 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
 ##        check_status(obj_fun.handle)
 ##        return obj_fun
 
+class SingleScatterSimulator():
+    '''
+    Class for simulating the scatter contribution in an image.
+    This class
+    '''
+    def __init__(self, filename = ''):
+        self.handle = None
+        self.image = None
+        self.name = 'PETSingleScatterSimulation'
+        self.filename = filename
+
+        if not self.filename:
+            self.handle = pystir.cSTIR_newObject(self.name)
+            print('SingleScatterSimulator:: I am in Constructor 0000')
+        else:
+            self.handle = pystir.cSTIR_objectFromFile
+            ('PETSingleScatterSimulation', self.filename)
+
+        print('SingleScatterSimulator:: I am in Constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutild.deleteDataHandle(self.handle)
+
+    def set_up(self):
+        print('SingleScatterSimulator:: I am in set up')
+
 class OSSPSReconstructor(IterativeReconstructor):
     '''
     Class for reconstructor objects using Ordered Subsets Separable 

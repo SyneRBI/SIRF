@@ -87,6 +87,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (boost::iequals(name, "EllipsoidalCylinder"))
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
+        if (boost::iequals(name, "PETSingleScatterSimulation"))
+            return NEW_OBJECT_HANDLE(PETSingleScatterSimulation);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -212,6 +214,11 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 				sptr(new ListmodeToSinograms(filename));
 			return newObjectHandle(sptr);
 		}
+        if (boost::iequals(name, "PETSingleScatterSimulation")) {
+            shared_ptr<PETSingleScatterSimulation>
+                sptr(new PETSingleScatterSimulation(filename));
+            return newObjectHandle(sptr);
+        }
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;

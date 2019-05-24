@@ -58,6 +58,7 @@ limitations under the License.
 #include "stir/shared_ptr.h"
 #include "stir/SSRB.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
+#include "stir/scatter/SingleScatterSimulation.h"
 
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"
