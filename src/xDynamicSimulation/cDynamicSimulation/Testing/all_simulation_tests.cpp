@@ -259,7 +259,7 @@ void run_tests_mr_acquisition_model( void )
 
 void run_tests_auxiliary_input_output( void )
 {
-
+	std::cout << "Starting aux io tests" << std::endl;
 	bool tests_successful = true;
 
 	// test_aux_io::test_write_ndarray_to_raw();
@@ -485,13 +485,13 @@ void run_tests_dynsim_deformer( void )
 	// tests_successful *= DynSimDeformerTester::test_nifti_data_deformation();
 
 	// std::cout << " 1-------------------------- " <<std::endl;
-	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
+	tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
 
 	std::cout << " 2 -------------------------- " <<std::endl;
 	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
 
 	std::cout << " 3 -------------------------- " <<std::endl;
-	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
+	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	std::cout << " 4-------------------------- " <<std::endl;
 	// tests_successful *= DynSimDeformerTester::test_motion_of_MotionDynamics();

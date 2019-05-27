@@ -67,20 +67,17 @@ SignalContainer data_io::read_surrogate_signal( const std::string& filename_time
 
   	if( time_points.size() == signal_points.size())
   	{
-
   		std::cout << time_points.size() << " signal points read from file." <<std::endl;
   		for( size_t i=0; i<time_points.size(); i++)
   		{
 	  		SignalPoint sp (time_points[i], signal_points[i]);
 	  		signal.push_back( sp );
 	  	}
-
   	}
   	else
   		throw std::runtime_error( "The two files given dont have the same number of data points in them." );
 
   	return signal;
-
 }
 
 void data_io::write_PET_image_to_hv( const std::string& filename_without_ext,const sirf::STIRImageData& img)
