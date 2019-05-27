@@ -196,22 +196,25 @@ namespace data_io{
 	std::vector< T > read_single_column_txt( const std::string& filename_txt_without_ext )
 	{
 		std::string const filename_with_ext = filename_txt_without_ext + ".txt";
+
 		std::vector <T> output;
 		std::string line; 
 		std::ifstream myfile (filename_with_ext);
+
 		if (myfile.is_open())
-		  {
-		  	while ( getline (myfile,line) )
+		{
+			while ( getline (myfile,line) )
 		    {
 		      T val;
-		      myfile >> val;
-		      output.push_back(val);
+		      while(myfile >> val)
+		          output.push_back(val);
 		    }
-		    myfile.close();
-		  }
 
-		 else
-			 throw std::runtime_error( "Unable to open file "+filename_with_ext);
+		    myfile.close();
+		}
+
+		else
+			throw std::runtime_error( "Unable to open file "+filename_with_ext);
 
 		return output;
 	}
