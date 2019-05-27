@@ -343,11 +343,7 @@ NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_deformation_f
 
     if(keep_motion_fields_in_memory_)
 	{
-		std::cout << epiph(this->displacement_fields_.size()) <<std::endl;
-		std::cout << epiph(bin_floor) <<std::endl;
-		std::cout << epiph(bin_ceil) <<std::endl;
-
-	    dvf_interpolator.add_image( this->displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
+		dvf_interpolator.add_image( this->displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
 	    dvf_interpolator.add_image( this->displacement_fields_[bin_ceil], linear_interpolation_weight);
 	}
 	else 
@@ -581,7 +577,7 @@ void MotionDynamic::prep_displacement_fields()
 
 void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points)
 {
-	bool const correct_for_offset = false;
+	bool const correct_for_offset = true;
 
 
 	this->make_ground_truth_folder();
@@ -749,7 +745,7 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 	}
 
 	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
-	time_ordered_acquisitions.time_order();
+	time_ordered_acquisitions.time_order(); 
 
 	size_t const num_acquis = time_ordered_acquisitions.number();	
 
