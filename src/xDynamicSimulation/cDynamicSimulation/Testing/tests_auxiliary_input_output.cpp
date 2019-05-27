@@ -89,12 +89,11 @@ bool test_aux_io::test_read_single_column_txt( void )
 	try
 	{	
 		bool test_successful = true;
-
-		std::string const filename_input = std::string(SHARED_FOLDER_PATH) + "testdata_inputoutput/testfile";
-
+		
+		// std::string const filename_input = std::string(SHARED_FOLDER_PATH) + "testdata_inputoutput/testfile";
+		std::string const filename_input = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/SurrogateSignals/card_time";
 
 		std::vector< float > input = data_io::read_single_column_txt<float>(filename_input);
-
 		std::cout << epiph( input.size() ) << std::endl;
 
 		for( size_t i=0; i<input.size(); i++)
