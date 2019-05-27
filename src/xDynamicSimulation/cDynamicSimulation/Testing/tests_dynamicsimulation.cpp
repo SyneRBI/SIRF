@@ -406,13 +406,13 @@ try
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
-		float const test_SNR = 250;
+		float const test_SNR = 250000000;
 		size_t const noise_label = 13;
 		
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 8;
+		int const num_simul_motion_dyn = 16;
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
@@ -437,6 +437,9 @@ try
 			}
 
 			SignalContainer motion_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
+
+			for( size_t j=0; j< motion_signal.size(); ++j)
+				std::cout << motion_signal[j].first << "," << motion_signal[j].second << std::endl;
 
 		 	motion_dyn.set_dyn_signal( motion_signal );
 		 	motion_dyn.bin_mr_acquisitions( all_acquis );
@@ -534,7 +537,8 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		int const num_simul_motion_dyn = 1;
+		
+		int const num_simul_motion_dyn = 16;
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
@@ -558,8 +562,22 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_contrast_states = 0;
+		int const num_contrast_states = 48;
 		
+		int const t1_aif_0	= 235;
+		int const t1_lesion_0	= 527;
+		int const t1_healthy_tissue_0	= 488;
+
+
+		std::string const filename_contrast_timepoints = input_path + "/timepoints_dce_contrast_signal";
+		
+		std::string const filename_aif_t1_ =input_path + "/aif_signal_T1_0_0.23482_T1_1_2.0853";
+		std::string const filename_healthy_tissue_t1 = input_path + "/liver_signal_T1_0_0.48778_T1_1_0.90637";
+ 		std::string const filename_lesion_t1_ = input_path + "/lesion_signal_T1_0_0.52744_T1_1_1.2473";
+
+
+		// ####################################################################################################
+
 		MRContrastDynamic aif_contrast(num_contrast_states), healthy_tissue_contrast(num_contrast_states), lesion_contrast(num_contrast_states);
 
 		std::vector<LabelType> aif_dynamic_labels = {5, 6, 7, 8, 36, 37};	
@@ -588,7 +606,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		TissueParameter aif_0 = mr_cont_gen.get_petmr_tissue_parameter( aif_dynamic_labels[0] );
 		TissueParameter aif_1 = aif_0;
 
-		aif_0.mr_tissue_.t1_miliseconds_ = 234;
+		aif_0.mr_tissue_.t1_miliseconds_ = t1_aif_0;
 
 		aif_contrast.set_parameter_extremes( aif_0, aif_1 );
 
@@ -596,7 +614,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		TissueParameter healthy_tissue_0 = mr_cont_gen.get_petmr_tissue_parameter( healthy_tissue_dynamic_labels[0] );
 		TissueParameter healthy_tissue_1 = healthy_tissue_0;
 
-		healthy_tissue_0.mr_tissue_.t1_miliseconds_ = 457;
+		healthy_tissue_0.mr_tissue_.t1_miliseconds_ = t1_healthy_tissue_0;
 
 		healthy_tissue_contrast.set_parameter_extremes( healthy_tissue_0, healthy_tissue_1 );
 
@@ -604,17 +622,11 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		TissueParameter lesion_tissue_0 = mr_cont_gen.get_petmr_tissue_parameter( lesion_dynamic_labels[0] );
 		TissueParameter lesion_tissue_1 = lesion_tissue_0;
 
-		lesion_tissue_0.mr_tissue_.t1_miliseconds_ = 432;
+		lesion_tissue_0.mr_tissue_.t1_miliseconds_ = t1_lesion_0;
 
 		lesion_contrast.set_parameter_extremes( lesion_tissue_0, lesion_tissue_1 );
 
-
-		std::string const filename_contrast_timepoints = input_path + "/timepoints_dce_contrast_signal";
-		
-		std::string const filename_aif_t1_ =input_path + "/aif_signal_T1_0_0.23482_T1_1_2.0853";
-		std::string const filename_healthy_tissue_t1 = input_path + "/liver_signal_T1_0_0.45683_T1_1_0.80503";
- 		std::string const filename_lesion_t1_ = input_path + "/lesion_signal_T1_0_0.43241_T1_1_0.82076";
-
+		// read in the contrast signal 
 		SignalContainer aif_dyn_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_aif_t1_);
 		SignalContainer healthy_dyn_tissue_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_healthy_tissue_t1);
 		SignalContainer lesion_dyn_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_lesion_t1_);
@@ -629,10 +641,12 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		healthy_tissue_contrast.bin_mr_acquisitions( all_acquis );
 		lesion_contrast.bin_mr_acquisitions( all_acquis );
 
-		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (aif_contrast) );
-		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (healthy_tissue_contrast) );
-		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (lesion_contrast) );
-
+		if( num_contrast_states > 0)
+		{
+			mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (aif_contrast) );
+			mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (healthy_tissue_contrast) );
+			mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (lesion_contrast) );
+		}
 		
 		// ####################################################################################################
 
@@ -643,8 +657,6 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 
 		std::cout << "Storing ground truth motion information" << std::endl;
 		mr_dyn_sim.save_ground_truth_displacements();
-
-
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
