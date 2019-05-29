@@ -85,6 +85,12 @@ def _char_par(handle, set, par):
     value = pyiutil.charDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
+def _bool_par(handle, set, par):
+    h = pystir.cSTIR_parameter(handle, set, par)
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.boolDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
 def _int_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
     check_status(h, inspect.stack()[1])
@@ -236,6 +242,38 @@ class EllipticCylinder(Shape):
         rx = _float_par(self.handle, self.name, 'radius_x')
         ry = _float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
+
+class SingleScatterSimulator():
+    '''
+    Class for simulating the scatter contribution in an image.
+    This class
+    '''
+    def __init__(self, filename = ''):
+        self.handle = None
+        self.image = None
+        self.name = 'SingleScatterSimulation'
+        self.filename = filename
+
+        if not self.filename:
+            self.handle = pystir.cSTIR_newObject(self.name)
+        else:
+            self.handle = pystir.cSTIR_objectFromFile
+
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutild.deleteDataHandle(self.handle)
+
+    def set_up(self):
+        print('SingleScatterSimulator:: I am in set up')
+
+    def set_Acquisition_template(self, arg):
+        pystir.cSTIR_setParameter(self.handle, self.name, 'template_proj_data_info', arg)
+
+    def has_Acquisition_template(self):
+        ret = _bool_par(self.handle, self.name, 'has_template_proj_data_info')
+        return ret
 
 #class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
@@ -1727,34 +1765,6 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
 ##            (self.handle, self.name, 'objective_function')
 ##        check_status(obj_fun.handle)
 ##        return obj_fun
-
-class SingleScatterSimulator():
-    '''
-    Class for simulating the scatter contribution in an image.
-    This class
-    '''
-    def __init__(self, filename = ''):
-        self.handle = None
-        self.image = None
-        self.name = 'PETSingleScatterSimulation'
-        self.filename = filename
-
-        if not self.filename:
-            self.handle = pystir.cSTIR_newObject(self.name)
-            print('SingleScatterSimulator:: I am in Constructor 0000')
-        else:
-            self.handle = pystir.cSTIR_objectFromFile
-            ('PETSingleScatterSimulation', self.filename)
-
-        print('SingleScatterSimulator:: I am in Constructor')
-        check_status(self.handle)
-
-    def __del__(self):
-        if self.handle is not None:
-            pyiutild.deleteDataHandle(self.handle)
-
-    def set_up(self):
-        print('SingleScatterSimulator:: I am in set up')
 
 class OSSPSReconstructor(IterativeReconstructor):
     '''

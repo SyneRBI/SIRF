@@ -87,8 +87,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (boost::iequals(name, "EllipsoidalCylinder"))
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
-        if (boost::iequals(name, "PETSingleScatterSimulation"))
-            return NEW_OBJECT_HANDLE(PETSingleScatterSimulation);
+        if (boost::iequals(name, "SingleScatterSimulation"))
+            return NEW_OBJECT_HANDLE(SingleScatterSimulation);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -107,6 +107,8 @@ void* cSTIR_setParameter
 			return cSTIR_setShapeParameter(ptr_s, name, ptr_v);
 		else if (boost::iequals(obj, "EllipsoidalCylinder"))
 			return cSTIR_setEllipsoidalCylinderParameter(hs, name, hv);
+        else if (boost::iequals(obj, "SingleScatterSimulation"))
+            return cSTIR_setSingleScatterSimulationParameter(hs, name, hv);
 		else if (boost::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 			return cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 			(hs, name, hv);
@@ -164,6 +166,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_rayTracingMatrixParameter(handle, name);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_acqModUsingMatrixParameter(handle, name);
+        else if (boost::iequals(obj, "SingleScatterSimulation"))
+            return cSTIR_SingleScatterSimulationParameter(handle, name);
 		else if (boost::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_generalisedPriorParameter(handle, name);
 		else if (boost::iequals(obj, "PLSPrior"))
@@ -214,9 +218,9 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 				sptr(new ListmodeToSinograms(filename));
 			return newObjectHandle(sptr);
 		}
-        if (boost::iequals(name, "PETSingleScatterSimulation")) {
-            shared_ptr<PETSingleScatterSimulation>
-                sptr(new PETSingleScatterSimulation(filename));
+        if (boost::iequals(name, "SingleScatterSimulation")) {
+            shared_ptr<SingleScatterSimulation>
+                sptr(new SingleScatterSimulation(filename));
             return newObjectHandle(sptr);
         }
 		return unknownObject("object", name, __FILE__, __LINE__);

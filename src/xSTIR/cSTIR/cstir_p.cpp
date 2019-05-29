@@ -148,6 +148,35 @@ sirf::cSTIR_setEllipsoidalCylinderParameter
 }
 
 void*
+sirf::cSTIR_setSingleScatterSimulationParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+    SingleScatterSimulation& c =
+        objectFromHandle<SingleScatterSimulation>(hp);
+
+    if (boost::iequals(name, "template_proj_data_info"))
+    {
+        PETAcquisitionData& o = objectFromHandle<PETAcquisitionData>(hv);
+        shared_ptr< ProjDataInfo> obj_sptr = o.get_proj_data_info_sptr();
+        c.set_template_proj_data_info_sptr(obj_sptr);
+    }
+//    else if (boost::iequals(name, "radius_x"))
+//    {
+//        c.set_radius_x(value);
+//    }
+//    else if (boost::iequals(name, "radius_y"))
+//    {
+//        c.set_radius_y(value);
+//    }
+    else
+    {
+        return parameterNotFound(name, __FILE__, __LINE__);
+    }
+    return new DataHandle;
+}
+
+
+void*
 sirf::cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name)
 {
 	EllipsoidalCylinder& c =
@@ -159,6 +188,24 @@ sirf::cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* n
 	if (boost::iequals(name, "radius_y"))
 		return dataHandle<float>(c.get_radius_y());
 	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+sirf::cSTIR_SingleScatterSimulationParameter(const DataHandle* handle, const char* name)
+{
+    SingleScatterSimulation& c =
+        objectFromHandle<SingleScatterSimulation>(handle);
+
+    if (boost::iequals(name, "template_proj_data_info"))
+    {
+//        return dataHandle<float>(c.get_length());
+    }
+    else if(boost::iequals(name, "has_template_proj_data_info"))
+    {
+        return  dataHandle<bool>(!c.has_template_proj_data_info());
+    }
+
+    return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 void*

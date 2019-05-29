@@ -38,8 +38,15 @@ namespace sirf {
 		cSTIR_setEllipsoidalCylinderParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 
+    void*
+        cSTIR_setSingleScatterSimulationParameter
+        (DataHandle* hp, const char* name, const DataHandle* hv);
+
 	void*
 		cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name);
+
+    void*
+    cSTIR_SingleScatterSimulationParameter(const DataHandle* handle, const char* name);
 
 	void*
 		cSTIR_setRayTracingMatrixParameter

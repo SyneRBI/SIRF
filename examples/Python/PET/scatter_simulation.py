@@ -19,8 +19,7 @@ You probably want to check that instead.
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2018 University College London.
+## Copyright 2019 University of Hull
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -66,97 +65,106 @@ def main():
     # no info printing from the engine, warnings and errors sent to stdout
     msg_red = MessageRedirector()
     # output goes to files
-##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    ##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
-    # create an empty image
-    image = ImageData()
-    image_size = (31, 111, 111)
-    voxel_size = (3.375, 3, 3) # voxel sizes are in mm
-    image.initialise(image_size, voxel_size)
+    # # create an empty image
+    # image = ImageData()
+    # image_size = (31, 111, 111)
+    # voxel_size = (3.375, 3, 3) # voxel sizes are in mm
+    # image.initialise(image_size, voxel_size)
+    #
+    # # create a shape
+    # shape = EllipticCylinder()
+    # shape.set_length(400)
+    # shape.set_radii((40, 100))
+    # shape.set_origin((10, 60, 0))
+    #
+    # # add the shape to the image
+    # image.add_shape(shape, scale = 1)
+    #
+    # # add another shape
+    # shape.set_radii((30, 30))
+    # shape.set_origin((10, -30, 60))
+    # image.add_shape(shape, scale = 1.5)
+    #
+    # # add another shape
+    # shape.set_origin((10, -30, -60))
+    # image.add_shape(shape, scale = 0.75)
+    #
+    # # z-pixel coordinate of the xy-crossection to show
+    # z = int(image_size[0]/2)
+    #
+    # # show the phantom image
+    # image_array = image.as_array()
+    # show_2D_array('Phantom image', image_array[z,:,:])
 
-    # create a shape
-    shape = EllipticCylinder()
-    shape.set_length(400)
-    shape.set_radii((40, 100))
-    shape.set_origin((10, 60, 0))
+    # Create a template Acquisition Model
+    tmpl_acq_data = pystir.cSTIR_acquisitionsDataFromScannerInfo('ECAT 931', 1, 0, 1)
 
-    # add the shape to the image
-    image.add_shape(shape, scale = 1)
-
-    # add another shape
-    shape.set_radii((30, 30))
-    shape.set_origin((10, -30, 60))
-    image.add_shape(shape, scale = 1.5)
-
-    # add another shape
-    shape.set_origin((10, -30, -60))
-    image.add_shape(shape, scale = 0.75)
-
-    # z-pixel coordinate of the xy-crossection to show
-    z = int(image_size[0]/2)
-
-    # show the phantom image
-    image_array = image.as_array()
-    show_2D_array('Phantom image', image_array[z,:,:])
-
+    # Crete the Single Scatter Simulation model
     sss = SingleScatterSimulator()
 
+    # Input in the Simulator information about the Acquisition
+    sss.set_Acquisition_template(tmpl_acq_data)
+
+    # Check if the Acquisition template was set properly
+    if not sss.has_Acquisition_template():
+        sys.exit('Could not set the acquisition template')
 
 
-    # raw data to be used as a template for the acquisition model
-    acq_template = AcquisitionData(raw_data_file)
+    debug_stop = 0
 
-    # select acquisition model that implements the geometric
-    # forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
-
-    # testing bin efficiencies
-    bin_eff = acq_template.clone()
-    bin_eff.fill(beff)
-    bin_eff_arr = bin_eff.as_array()
-    # As an example, if bin efficiencies are non-trivial, set a portion of them to zero;
-    # this should zero the corresponding portion of forward projection
-    # and 'damage' the backprojection making it look less like the
-    # actual image
-    if beff != 1:
-        bin_eff_arr[0,:,10:50,:] = 0
-    show_2D_array('Bin efficiencies', bin_eff_arr[0,0,:,:])
-    bin_eff.fill(bin_eff_arr)
-
-    asm = AcquisitionSensitivityModel(bin_eff)
-    acq_model.set_acquisition_sensitivity(asm)
-
-    # As an example, add both an additive term and background term
-    # (you normally wouldn't do this for real data)
-    add = acq_template.clone()
-    add.fill(addv)
-    acq_model.set_additive_term(add)
-
-    bck = acq_template.clone()
-    bck.fill(back)
-    acq_model.set_background_term(bck)
-
-    print('projecting image...')
-    # project the image to obtain simulated acquisition data
-    # data from raw_data_file is used as a template
-    acq_model.set_up(acq_template, image)
-    simulated_data = acq_template.get_uniform_copy()
-    acq_model.forward(image, 0, 4, simulated_data)
-#    simulated_data = acq_model.forward(image, 0, 4)
-    if output_file is not None:
-        simulated_data.write(output_file)
-
-    # show simulated acquisition data
-    simulated_data_as_array = simulated_data.as_array()
-    show_2D_array('Forward projection', simulated_data_as_array[0,0,:,:])
-
-    print('backprojecting the forward projection...')
-    # backproject the computed forward projection
-    # note that the backprojection takes the acquisition sensitivy model asm into account as well
-    back_projected_image = acq_model.backward(simulated_data, 0, 4)
-
-    back_projected_image_as_array = back_projected_image.as_array()
-    show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
+#     # select acquisition model that implements the geometric
+#     # forward projection by a ray tracing matrix multiplication
+#     acq_model = AcquisitionModelUsingRayTracingMatrix()
+#
+#     # testing bin efficiencies
+#     bin_eff = acq_template.clone()
+#     bin_eff.fill(beff)
+#     bin_eff_arr = bin_eff.as_array()
+#     # As an example, if bin efficiencies are non-trivial, set a portion of them to zero;
+#     # this should zero the corresponding portion of forward projection
+#     # and 'damage' the backprojection making it look less like the
+#     # actual image
+#     if beff != 1:
+#         bin_eff_arr[0,:,10:50,:] = 0
+#     show_2D_array('Bin efficiencies', bin_eff_arr[0,0,:,:])
+#     bin_eff.fill(bin_eff_arr)
+#
+#     asm = AcquisitionSensitivityModel(bin_eff)
+#     acq_model.set_acquisition_sensitivity(asm)
+#
+#     # As an example, add both an additive term and background term
+#     # (you normally wouldn't do this for real data)
+#     add = acq_template.clone()
+#     add.fill(addv)
+#     acq_model.set_additive_term(add)
+#
+#     bck = acq_template.clone()
+#     bck.fill(back)
+#     acq_model.set_background_term(bck)
+#
+#     print('projecting image...')
+#     # project the image to obtain simulated acquisition data
+#     # data from raw_data_file is used as a template
+#     acq_model.set_up(acq_template, image)
+#     simulated_data = acq_template.get_uniform_copy()
+#     acq_model.forward(image, 0, 4, simulated_data)
+# #    simulated_data = acq_model.forward(image, 0, 4)
+#     if output_file is not None:
+#         simulated_data.write(output_file)
+#
+#     # show simulated acquisition data
+#     simulated_data_as_array = simulated_data.as_array()
+#     show_2D_array('Forward projection', simulated_data_as_array[0,0,:,:])
+#
+#     print('backprojecting the forward projection...')
+#     # backproject the computed forward projection
+#     # note that the backprojection takes the acquisition sensitivy model asm into account as well
+#     back_projected_image = acq_model.backward(simulated_data, 0, 4)
+#
+#     back_projected_image_as_array = back_projected_image.as_array()
+#     show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
 
 try:
     main()
