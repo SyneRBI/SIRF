@@ -226,7 +226,7 @@ before_install:
  - BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_URL=$PWD -DSIRF_TAG=$TRAVIS_COMMIT"
  # get SuperBuild
  - cd ..
- - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
+ - git clone https://github.com/NikEfth/SIRF-SuperBuild --recursive -b point_2_Scatter_simulation
  - cd SIRF-SuperBuild
  - cmake --version
 
