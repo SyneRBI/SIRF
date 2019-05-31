@@ -263,54 +263,31 @@ class SingleScatterSimulator():
 
     def __del__(self):
         if self.handle is not None:
-            pyiutild.deleteDataHandle(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
 
     def set_up(self):
-        print('SingleScatterSimulator:: I am in set up')
+        '''Sets up the Simulator.
+        '''
+#        AcquisitionData output_data = cSTIR.acquisition_data()
+        try_calling(pystir.cSTIR_setupSingleScatterSimulation \
+                    (self.handle, output_data.handle))
+        return output_data
 
-    def set_Acquisition_template(self, arg):
+    def set_acquisition_data(self, arg):
         ''' Set the template of the acquisition data.
         '''
-        par = pystir.cSTIR_getAcquisitionsData(arg.handle, arg.name);
-        _setParameter(self.handle, self.name, 'template_proj_data_info', par)
+        _setParameter(self.handle, self.name, 'set_acquisition_data', arg.handle)
 
-    def set_low_energy_threshold(self, threshold):
-        _set_float_par(self.handle, self.name, 'low_energy_threshold', threshold)
+    def set_activity_image(self, image):
+        _setParameter(self.handle, self.name, 'set_activity_image', image.handle)
 
-    def set_high_energy_threshold(self, threshold):
-        _set_float_par(self.handle, self.name, 'high_energy_threshold', threshold)
+    def set_attenuation_image(self, image):
+        _setParameter(self.handle, self.name, 'set_attenuation_image', image.handle)
 
-    def set_energy_resolution(self, energy_resolution):
-        ''' Set the energy properties of the Scanner in keV.
+    def simulate(self):
+        '''Performs the simulation
         '''
-        _set_float_par(self.handle, self.name, 'set_Scanner_energy_information', energy_resolution)
-
-    def has_Acquisition_template(self):
-        ''' Returns True if there is template set.
-        '''
-        return _bool_par(self.handle, self.name, 'has_template_proj_data_info')
-
-    def has_Scanner_with_Energy_info(self):
-        ''' Returns True if the Scanner tempate has information on energy (e.g. energy
-        resolution and reference energy.
-        '''
-        return _bool_par(self.handle, self.name, 'has_Scanner_with_energy_information')
-
-    def has_energy_window(self):
-        ''' Returns true if the energy window has been setup.
-        '''
-        return _bool_par(self.handle, self.name, 'has_energy_window')
-
-    def get_energy_resolution(self):
-        ''' Get the energy resolution of the Scanner.
-        '''
-        return _float_par(self.handle, self.name, 'get_energy_resolution')
-
-    def get_low_energy_threshold(self):
-        return _float_par(self.handle, self.name, 'low_energy_threshold')
-
-    def get_high_energy_threshold(self):
-        return _float_par(self.handle, self.name, 'high_energy_threshold')
+        pass
 
 
 #class ImageData(DataContainer):
@@ -797,6 +774,19 @@ class AcquisitionData(DataContainer):
         ad.fill(value)
         ad.src = 'copy'
         return ad
+
+    def set_low_energy_threshold(self, threshold):
+        _set_float_par(self.handle, self.name, 'low_energy_threshold', threshold)
+
+    def set_high_energy_threshold(self, threshold):
+        _set_float_par(self.handle, self.name, 'high_energy_threshold', threshold)
+
+    def get_low_energy_threshold(self):
+        return _float_par(self.handle, self.name, 'low_energy_threshold')
+
+    def get_high_energy_threshold(self):
+        return _float_par(self.handle, self.name, 'high_energy_threshold')
+
     def rebin(self, num_segments_to_combine, \
         num_views_to_combine = 1, num_tang_poss_to_trim = 0, \
         do_normalisation = True, max_in_segment_num_to_process = -1):

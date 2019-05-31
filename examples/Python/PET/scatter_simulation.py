@@ -70,10 +70,6 @@ def main():
 
     # Create a template Acquisition Model
     tmpl_acq_data = AcquisitionData('ECAT 931', 1, 0, 1)
-    sss = SingleScatterSimulator()
-
-    # Input in the Simulator information about the Acquisition
-    sss.set_Acquisition_template(tmpl_acq_data)
 
     # create the attenuation image
     atten_image = ImageData(tmpl_acq_data)
@@ -119,39 +115,24 @@ def main():
     act_image_array = act_image.as_array()
     show_2D_array('Activity image', act_image_array[z, :, :])
 
-    # Crete the Single Scatter Simulation model
+    # Create the Single Scatter Simulation model
+    sss = SingleScatterSimulator()
 
+    # Input in the Simulator information about the Acquisition
+    sss.set_acquisition_data(tmpl_acq_data)
 
-    # Check if the Acquisition template was set properly
-    if not sss.has_Acquisition_template():
-        sys.exit('Could not set the acquisition template')
+    # Set the attenuation image
+    sss.set_attenuation_image(atten_image)
 
-    if not sss.has_Scanner_with_Energy_info():
-        print("Please remember to set up the scanner energy resolution and reference energy.\n " \
-              "In this example I will set it for you to 35% :-)")
-        assert isinstance(sss, SingleScatterSimulator)
-        sss.set_energy_resolution(0.15)
-        en_res = sss.get_energy_resolution()
-        print("The energy resolution of the scanner is: ", str(en_res))
-    else:
-        en_res = sss.get_energy_resolution()
-        print("The energy resolution of the scanner is: ", str(en_res))
+    # Set the activity image
+    sss.set_activity_image(act_image)
 
-    if not sss.has_energy_window():
-        le = 450.0
-        he = 650.0
-        print('The energy window has not been set-up. In this example I will set it up for you'
-              'at ', str(le), ' keV to ', str(he), ' keV.')
-        sss.set_low_energy_threshold(le)
-        sss.set_high_energy_threshold(he)
-        print("The energy window is set from ",
-              sss.get_low_energy_threshold(),
-              " keV to ", sss.get_high_energy_threshold(), " keV.")
-    else:
-        print("The energy window is set from ",
-              sss.get_low_energy_threshold(),
-              " keV to ", sss.get_high_energy_threshold(), " keV.")
+    # At last call set_up()
+    output_data = sss.set_up()
 
+    # sss.simulate()
+
+    # sss_data = sss.get_output()
 
     debug_stop = 0
 

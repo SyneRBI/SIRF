@@ -137,6 +137,8 @@ extern "C" {
 	void* deleteTextPrinter(void* ptr);
 	void* deleteTextWriter(void* ptr_w);
 
+    //Scatter related methods
+    void* cSTIR_setupSingleScatterSimulation(void* ptr_r);
 #ifndef CSTIR_FOR_MATLAB
 }
 #endif

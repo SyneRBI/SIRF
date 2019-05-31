@@ -154,7 +154,7 @@ sirf::cSTIR_setSingleScatterSimulationParameter
     SingleScatterSimulation& c =
         objectFromHandle<SingleScatterSimulation>(hp);
 
-    if (boost::iequals(name, "template_proj_data_info"))
+    if (boost::iequals(name, "set_acquisition_data"))
     {
         PETAcquisitionData& o = objectFromHandle<PETAcquisitionData>(hv);
         shared_ptr< ProjDataInfo> obj_sptr = o.get_proj_data_info_sptr();
@@ -163,41 +163,40 @@ sirf::cSTIR_setSingleScatterSimulationParameter
         shared_ptr< ExamInfo> obj_sptr2 = o.get_exam_info_sptr();
         c.set_exam_info_sptr(obj_sptr2);
     }
-    else if (boost::iequals(name, "set_Scanner_energy_information"))
+    else if (boost::iequals(name, "set_activity_image"))
     {
-        float arg = dataFromHandle<float>(hv);
-        if(!is_null_ptr(c.get_template_proj_data_info_sptr()))
-        {
-            c.get_template_proj_data_info_sptr()->get_scanner_sptr()->set_energy_resolution(arg);
-            c.get_template_proj_data_info_sptr()->get_scanner_sptr()->set_reference_energy(511.f);
-        }
+        SPTR_FROM_HANDLE(Image3DF, image_sptr, hv);
+        c.set_activity_image_sptr(image_sptr);
     }
-    else if (boost::iequals(name, "low_energy_threshold"))
+    else if (boost::iequals(name, "set_attenuation_image"))
     {
-        float arg = dataFromHandle<float>(hv);
-        if(!is_null_ptr(c.get_ExamInfo_sptr()))
-        {
-            c.get_ExamInfo_sptr()->set_low_energy_thres(arg);
-        }
+        SPTR_FROM_HANDLE(Image3DF, image_sptr, hv);
+        c.set_density_image_sptr(image_sptr);
     }
-    else if (boost::iequals(name, "high_energy_threshold"))
-    {
-        float arg = dataFromHandle<float>(hv);
-        if(!is_null_ptr(c.get_ExamInfo_sptr()))
-        {
-            c.get_ExamInfo_sptr()->set_high_energy_thres(arg);
-        }
-    }
-
-//    else if (boost::iequals(name, "radius_y"))
-//    {
-//        c.set_radius_y(value);
-//    }
     else
     {
         return parameterNotFound(name, __FILE__, __LINE__);
     }
     return new DataHandle;
+}
+
+void*
+sirf::cSTIR_SingleScatterSimulationParameter(const DataHandle* handle, const char* name)
+{
+    SingleScatterSimulation& c =
+        objectFromHandle<SingleScatterSimulation>(handle);
+
+    // Reserved for get output
+    if (boost::iequals(name, "template_proj_data_info"))
+    {
+//        return dataHandle<float>(c.get_length());
+    }
+//    else if (boost::iequals(name, "has_ExamInfo_with_energy_information"))
+//    {
+//        return  dataHandle<bool>(!am.has_ExamInfo_with_energy_information());
+//    }
+
+    return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 
@@ -213,65 +212,6 @@ sirf::cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* n
 	if (boost::iequals(name, "radius_y"))
 		return dataHandle<float>(c.get_radius_y());
 	return parameterNotFound(name, __FILE__, __LINE__);
-}
-
-void*
-sirf::cSTIR_SingleScatterSimulationParameter(const DataHandle* handle, const char* name)
-{
-    SingleScatterSimulation& c =
-        objectFromHandle<SingleScatterSimulation>(handle);
-
-    if (boost::iequals(name, "template_proj_data_info"))
-    {
-//        return dataHandle<float>(c.get_length());
-    }
-    else if(boost::iequals(name, "has_template_proj_data_info"))
-    {
-        return  dataHandle<bool>(c.has_template_proj_data_info());
-    }
-    else if (boost::iequals(name, "has_Scanner_with_energy_information"))
-    {
-        if (!is_null_ptr(c.get_template_proj_data_info_sptr()))
-            return  dataHandle<bool>(c.get_template_proj_data_info_sptr()->has_energy_information());
-        else
-            return dataHandle<bool>(false);
-    }
-    else if (boost::iequals(name, "get_energy_resolution"))
-    {
-        if (!is_null_ptr(c.get_template_proj_data_info_sptr()))
-            return  dataHandle<float>(c.get_template_proj_data_info_sptr()->get_scanner_sptr()->get_energy_resolution());
-        else
-            return dataHandle<float>(-1.f);
-    }
-    else if (boost::iequals(name, "has_energy_window"))
-    {
-        if (!is_null_ptr(c.get_ExamInfo_sptr()))
-            return  dataHandle<bool>(c.get_ExamInfo_sptr()->has_energy_information());
-        else
-            return dataHandle<bool>(false);
-    }
-    else if (boost::iequals(name, "low_energy_threshold"))
-    {
-        if (!is_null_ptr(c.get_ExamInfo_sptr()))
-            return  dataHandle<float>(c.get_ExamInfo_sptr()->get_low_energy_thres());
-        else
-            return dataHandle<bool>(-1.0);
-    }
-    else if (boost::iequals(name, "high_energy_threshold"))
-    {
-        if (!is_null_ptr(c.get_ExamInfo_sptr()))
-            return  dataHandle<float>(c.get_ExamInfo_sptr()->get_high_energy_thres());
-        else
-            return dataHandle<bool>(-1.0);
-    }
-
-
-//    else if (boost::iequals(name, "has_ExamInfo_with_energy_information"))
-//    {
-//        return  dataHandle<bool>(!am.has_ExamInfo_with_energy_information());
-//    }
-
-    return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 void*

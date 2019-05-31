@@ -193,17 +193,17 @@ namespace sirf {
 			_data = data;
 		}
 
-        inline bool has_Scanner_with_energy_information() const
+        void set_low_energy_threshold(float arg)
         {
-            return this->_data->get_proj_data_info_sptr()->get_scanner_sptr()->has_energy_information();
+            get_exam_info_sptr()->set_low_energy_thres(arg);
         }
 
-        inline bool has_ExamInfo_with_energy_information() const
+        void set_high_energy_threshold(float arg)
         {
-            return this->_data->get_exam_info().has_energy_information();
+            get_exam_info_sptr()->set_high_energy_thres(arg);
         }
 
-		// data import/export
+        // data import/export
 		void fill(float v) { data()->fill(v); }
 		void fill(const PETAcquisitionData& ad)
 		{
@@ -252,6 +252,14 @@ namespace sirf {
 		{
 			return 1;
 		}
+        float get_low_energy_threshold() const
+        {
+            return get_exam_info_sptr()->get_low_energy_thres();
+        }
+        float get_high_energy_threshold() const
+        {
+            return get_exam_info_sptr()->get_high_energy_thres();
+        }
 		int get_max_segment_num() const
 		{
 			return data()->get_max_segment_num();

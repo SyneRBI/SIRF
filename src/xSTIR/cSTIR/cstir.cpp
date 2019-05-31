@@ -1073,3 +1073,18 @@ void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
 	}
 	CATCH;
 }
+
+extern "C"
+void* cSTIR_setupSingleScatterSimulation(void* ptr_r)
+{
+    try {
+        DataHandle* handle = new DataHandle;
+        SingleScatterSimulation& sss =
+            objectFromHandle< SingleScatterSimulation >(ptr_r);
+        if (sss.set_up() != Succeeded::yes) {
+            //TODO
+        }
+        return (void*)handle;
+    }
+    CATCH;
+}
