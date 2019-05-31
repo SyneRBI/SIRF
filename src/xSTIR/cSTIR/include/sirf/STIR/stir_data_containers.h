@@ -193,6 +193,16 @@ namespace sirf {
 			_data = data;
 		}
 
+        inline bool has_Scanner_with_energy_information() const
+        {
+            return this->_data->get_proj_data_info_sptr()->get_scanner_sptr()->has_energy_information();
+        }
+
+        inline bool has_ExamInfo_with_energy_information() const
+        {
+            return this->_data->get_exam_info().has_energy_information();
+        }
+
 		// data import/export
 		void fill(float v) { data()->fill(v); }
 		void fill(const PETAcquisitionData& ad)

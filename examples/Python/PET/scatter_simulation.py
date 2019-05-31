@@ -37,6 +37,7 @@ You probably want to check that instead.
 
 __version__ = '0.1.0'
 from docopt import docopt
+
 args = docopt(__doc__, version=__version__)
 
 # import engine module
@@ -55,64 +56,105 @@ if data_path is None:
 raw_data_file = existing_filepath(data_path, data_file)
 addv = float(args['--addv'])
 back = float(args['--back'])
-beff = 1/float(args['--norm'])
+beff = 1 / float(args['--norm'])
 output_file = args['--output']
 
-def main():
 
-##    AcquisitionData.set_storage_scheme('mem')
+def main():
+    ##    AcquisitionData.set_storage_scheme('mem')
 
     # no info printing from the engine, warnings and errors sent to stdout
     msg_red = MessageRedirector()
     # output goes to files
     ##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
-    # # create an empty image
-    # image = ImageData()
-    # image_size = (31, 111, 111)
-    # voxel_size = (3.375, 3, 3) # voxel sizes are in mm
-    # image.initialise(image_size, voxel_size)
-    #
-    # # create a shape
-    # shape = EllipticCylinder()
-    # shape.set_length(400)
-    # shape.set_radii((40, 100))
-    # shape.set_origin((10, 60, 0))
-    #
-    # # add the shape to the image
-    # image.add_shape(shape, scale = 1)
-    #
-    # # add another shape
-    # shape.set_radii((30, 30))
-    # shape.set_origin((10, -30, 60))
-    # image.add_shape(shape, scale = 1.5)
-    #
-    # # add another shape
-    # shape.set_origin((10, -30, -60))
-    # image.add_shape(shape, scale = 0.75)
-    #
-    # # z-pixel coordinate of the xy-crossection to show
-    # z = int(image_size[0]/2)
-    #
-    # # show the phantom image
-    # image_array = image.as_array()
-    # show_2D_array('Phantom image', image_array[z,:,:])
-
     # Create a template Acquisition Model
-    tmpl_acq_data = pystir.cSTIR_acquisitionsDataFromScannerInfo('ECAT 931', 1, 0, 1)
-
-    # Crete the Single Scatter Simulation model
+    tmpl_acq_data = AcquisitionData('ECAT 931', 1, 0, 1)
     sss = SingleScatterSimulator()
 
     # Input in the Simulator information about the Acquisition
     sss.set_Acquisition_template(tmpl_acq_data)
 
+    # create the attenuation image
+    atten_image = ImageData(tmpl_acq_data)
+    image_size = atten_image.dimensions()
+    voxel_size = atten_image.voxel_sizes()
+
+    # create a cylindrical water phantom
+    water_cyl = EllipticCylinder()
+    water_cyl.set_length(image_size[0]*voxel_size[0])
+    water_cyl.set_radii((image_size[1]*voxel_size[1]*0.25, \
+                     image_size[2]*voxel_size[2]*0.25))
+    water_cyl.set_origin((image_size[0]*voxel_size[0]*0.5, 0, 0))
+
+    # add the shape to the image
+    atten_image.add_shape(water_cyl, scale = 9.687E-02)
+
+    # z-pixel coordinate of the xy-crossection to show
+    z = int(image_size[0]*0.5)
+
+    # show the phantom image
+    atten_image_array = atten_image.as_array()
+    show_2D_array('Attenuation image', atten_image_array[z,:,:])
+
+    # Create the activity image
+    act_image = atten_image.clone();
+    act_image.fill(0.0)
+
+    # create the activity cylinder
+    act_cyl = EllipticCylinder()
+    act_cyl.set_length(image_size[0] * voxel_size[0])
+    act_cyl.set_radii((image_size[1] * voxel_size[1] * 0.125, \
+                         image_size[2] * voxel_size[2] * 0.125))
+    act_cyl.set_origin((0, image_size[1] * voxel_size[1] * 0.06, \
+                          image_size[2] * voxel_size[2] * 0.06))
+
+    # add the shape to the image
+    act_image.add_shape(act_cyl, scale=1)
+
+    # z-pixel coordinate of the xy-crossection to show
+    z = int(image_size[0] * 0.5)
+
+    # show the phantom image
+    act_image_array = act_image.as_array()
+    show_2D_array('Activity image', act_image_array[z, :, :])
+
+    # Crete the Single Scatter Simulation model
+
+
     # Check if the Acquisition template was set properly
     if not sss.has_Acquisition_template():
         sys.exit('Could not set the acquisition template')
 
+    if not sss.has_Scanner_with_Energy_info():
+        print("Please remember to set up the scanner energy resolution and reference energy.\n " \
+              "In this example I will set it for you to 35% :-)")
+        assert isinstance(sss, SingleScatterSimulator)
+        sss.set_energy_resolution(0.15)
+        en_res = sss.get_energy_resolution()
+        print("The energy resolution of the scanner is: ", str(en_res))
+    else:
+        en_res = sss.get_energy_resolution()
+        print("The energy resolution of the scanner is: ", str(en_res))
+
+    if not sss.has_energy_window():
+        le = 450.0
+        he = 650.0
+        print('The energy window has not been set-up. In this example I will set it up for you'
+              'at ', str(le), ' keV to ', str(he), ' keV.')
+        sss.set_low_energy_threshold(le)
+        sss.set_high_energy_threshold(he)
+        print("The energy window is set from ",
+              sss.get_low_energy_threshold(),
+              " keV to ", sss.get_high_energy_threshold(), " keV.")
+    else:
+        print("The energy window is set from ",
+              sss.get_low_energy_threshold(),
+              " keV to ", sss.get_high_energy_threshold(), " keV.")
+
 
     debug_stop = 0
+
 
 #     # select acquisition model that implements the geometric
 #     # forward projection by a ray tracing matrix multiplication

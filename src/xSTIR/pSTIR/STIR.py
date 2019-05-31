@@ -269,11 +269,49 @@ class SingleScatterSimulator():
         print('SingleScatterSimulator:: I am in set up')
 
     def set_Acquisition_template(self, arg):
-        pystir.cSTIR_setParameter(self.handle, self.name, 'template_proj_data_info', arg)
+        ''' Set the template of the acquisition data.
+        '''
+        par = pystir.cSTIR_getAcquisitionsData(arg.handle, arg.name);
+        _setParameter(self.handle, self.name, 'template_proj_data_info', par)
+
+    def set_low_energy_threshold(self, threshold):
+        _set_float_par(self.handle, self.name, 'low_energy_threshold', threshold)
+
+    def set_high_energy_threshold(self, threshold):
+        _set_float_par(self.handle, self.name, 'high_energy_threshold', threshold)
+
+    def set_energy_resolution(self, energy_resolution):
+        ''' Set the energy properties of the Scanner in keV.
+        '''
+        _set_float_par(self.handle, self.name, 'set_Scanner_energy_information', energy_resolution)
 
     def has_Acquisition_template(self):
-        ret = _bool_par(self.handle, self.name, 'has_template_proj_data_info')
-        return ret
+        ''' Returns True if there is template set.
+        '''
+        return _bool_par(self.handle, self.name, 'has_template_proj_data_info')
+
+    def has_Scanner_with_Energy_info(self):
+        ''' Returns True if the Scanner tempate has information on energy (e.g. energy
+        resolution and reference energy.
+        '''
+        return _bool_par(self.handle, self.name, 'has_Scanner_with_energy_information')
+
+    def has_energy_window(self):
+        ''' Returns true if the energy window has been setup.
+        '''
+        return _bool_par(self.handle, self.name, 'has_energy_window')
+
+    def get_energy_resolution(self):
+        ''' Get the energy resolution of the Scanner.
+        '''
+        return _float_par(self.handle, self.name, 'get_energy_resolution')
+
+    def get_low_energy_threshold(self):
+        return _float_par(self.handle, self.name, 'low_energy_threshold')
+
+    def get_high_energy_threshold(self):
+        return _float_par(self.handle, self.name, 'high_energy_threshold')
+
 
 #class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):

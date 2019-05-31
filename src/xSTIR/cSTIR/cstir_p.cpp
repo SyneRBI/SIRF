@@ -159,11 +159,36 @@ sirf::cSTIR_setSingleScatterSimulationParameter
         PETAcquisitionData& o = objectFromHandle<PETAcquisitionData>(hv);
         shared_ptr< ProjDataInfo> obj_sptr = o.get_proj_data_info_sptr();
         c.set_template_proj_data_info_sptr(obj_sptr);
+
+        shared_ptr< ExamInfo> obj_sptr2 = o.get_exam_info_sptr();
+        c.set_exam_info_sptr(obj_sptr2);
     }
-//    else if (boost::iequals(name, "radius_x"))
-//    {
-//        c.set_radius_x(value);
-//    }
+    else if (boost::iequals(name, "set_Scanner_energy_information"))
+    {
+        float arg = dataFromHandle<float>(hv);
+        if(!is_null_ptr(c.get_template_proj_data_info_sptr()))
+        {
+            c.get_template_proj_data_info_sptr()->get_scanner_sptr()->set_energy_resolution(arg);
+            c.get_template_proj_data_info_sptr()->get_scanner_sptr()->set_reference_energy(511.f);
+        }
+    }
+    else if (boost::iequals(name, "low_energy_threshold"))
+    {
+        float arg = dataFromHandle<float>(hv);
+        if(!is_null_ptr(c.get_ExamInfo_sptr()))
+        {
+            c.get_ExamInfo_sptr()->set_low_energy_thres(arg);
+        }
+    }
+    else if (boost::iequals(name, "high_energy_threshold"))
+    {
+        float arg = dataFromHandle<float>(hv);
+        if(!is_null_ptr(c.get_ExamInfo_sptr()))
+        {
+            c.get_ExamInfo_sptr()->set_high_energy_thres(arg);
+        }
+    }
+
 //    else if (boost::iequals(name, "radius_y"))
 //    {
 //        c.set_radius_y(value);
@@ -202,8 +227,49 @@ sirf::cSTIR_SingleScatterSimulationParameter(const DataHandle* handle, const cha
     }
     else if(boost::iequals(name, "has_template_proj_data_info"))
     {
-        return  dataHandle<bool>(!c.has_template_proj_data_info());
+        return  dataHandle<bool>(c.has_template_proj_data_info());
     }
+    else if (boost::iequals(name, "has_Scanner_with_energy_information"))
+    {
+        if (!is_null_ptr(c.get_template_proj_data_info_sptr()))
+            return  dataHandle<bool>(c.get_template_proj_data_info_sptr()->has_energy_information());
+        else
+            return dataHandle<bool>(false);
+    }
+    else if (boost::iequals(name, "get_energy_resolution"))
+    {
+        if (!is_null_ptr(c.get_template_proj_data_info_sptr()))
+            return  dataHandle<float>(c.get_template_proj_data_info_sptr()->get_scanner_sptr()->get_energy_resolution());
+        else
+            return dataHandle<float>(-1.f);
+    }
+    else if (boost::iequals(name, "has_energy_window"))
+    {
+        if (!is_null_ptr(c.get_ExamInfo_sptr()))
+            return  dataHandle<bool>(c.get_ExamInfo_sptr()->has_energy_information());
+        else
+            return dataHandle<bool>(false);
+    }
+    else if (boost::iequals(name, "low_energy_threshold"))
+    {
+        if (!is_null_ptr(c.get_ExamInfo_sptr()))
+            return  dataHandle<float>(c.get_ExamInfo_sptr()->get_low_energy_thres());
+        else
+            return dataHandle<bool>(-1.0);
+    }
+    else if (boost::iequals(name, "high_energy_threshold"))
+    {
+        if (!is_null_ptr(c.get_ExamInfo_sptr()))
+            return  dataHandle<float>(c.get_ExamInfo_sptr()->get_high_energy_thres());
+        else
+            return dataHandle<bool>(-1.0);
+    }
+
+
+//    else if (boost::iequals(name, "has_ExamInfo_with_energy_information"))
+//    {
+//        return  dataHandle<bool>(!am.has_ExamInfo_with_energy_information());
+//    }
 
     return parameterNotFound(name, __FILE__, __LINE__);
 }
