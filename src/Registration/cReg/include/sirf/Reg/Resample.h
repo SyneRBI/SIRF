@@ -97,6 +97,9 @@ public:
     /// Set interpolation type to sinc
     void set_interpolation_type_to_sinc() { _interpolation_type = SINC; }
 
+    /// Set padding value
+    void set_padding_value(const float padding_value) { _padding_value = padding_value; }
+
     /// Process
     virtual void process() = 0;
 
@@ -121,5 +124,8 @@ protected:
 
     /// Output image
     std::shared_ptr<ImageData> _output_image_sptr;
+
+    /// Padding value
+    float _padding_value = 0;
 };
 }

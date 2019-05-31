@@ -9,6 +9,7 @@ function resample(varargin)
 %   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
 %   --trans_filenames ...        transformation filenames, (with quotations): "filename1,filename2,filename3"
 %   --trans_types ...            transformation types, e.g. (with quotations): "AffineTransformation,NiftiImageData3DDeformation,NiftiImageData3DDisplacement"
+%   --pad <pad>                  Padding value
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018 - 2019 University College London.
@@ -58,6 +59,9 @@ while i <= length(varargin)
         trans_filenames = [trans_filenames; get_arg(varargin,i,1)];
         trans_types     = [trans_types;     get_arg(varargin,i,2)];
         i=i+3;
+    elseif strcmp(varargin{i},'--pad')
+        pad = get_arg(varargin,i,1)
+        i=i+2;
     else
         error(['Unknown argument: ' varargin{i} '. Use help(function) for help.']);  
     end
@@ -105,6 +109,11 @@ for i=1:size(trans_filenames)
   disp(['Transformation ' i ' type: ' trans_types(i)])
   trans = eval(['sirf.Reg.' trans_types(i) '(' trans_filenames(i) ');']);
   res.add_transformation(trans);
+end
+ 
+% If padding value has been set
+if exist('pad','var')
+    res.set_padding_value(pad);
 end
  
 % Resample
