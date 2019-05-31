@@ -600,6 +600,7 @@ function try_resample(g,na)
     tm      = na.get_transformation_matrix_forward();
     displ   = na.get_displacement_field_forward();
     deff    = na.get_deformation_field_forward();
+    padding_value = -20;
 
     disp('Testing rigid resample...')
     nr1 = sirf.Reg.NiftyResample();
@@ -619,8 +620,11 @@ function try_resample(g,na)
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
     nr2.set_interpolation_type_to_linear();  % try different interpolations
     nr2.add_transformation(displ);
+    nr2.set_padding_value(padding_value);
     nr2.process();
     nr2.get_output().write(g.nonrigid_resample_disp);
+
+    assert(nr2.get_output().get_min() == padding_value, 'NiftyResample:set_padding_value failed.')
 
     disp('Testing non-rigid deformation...')
     nr3 = sirf.Reg.NiftyResample();

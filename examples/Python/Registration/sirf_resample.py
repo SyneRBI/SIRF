@@ -13,6 +13,7 @@ Options:
   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
   --trans_filenames ...        transformation filenames, (with quotations): "filename1,filename2,filename3"
   --trans_types ...            transformation types, e.g. (with quotations): "AffineTransformation,NiftiImageData3DDeformation,NiftiImageData3DDisplacement"
+  --pad <pad>                  Padding value
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -47,6 +48,7 @@ exec('import p' + args['--eng_flo'] + ' as eng_flo')
 ref_file = args['--ref']
 flo_file = args['--flo']
 algo = args['--algo']
+pad = args['--pad']
 
 # if using the default for any, need to get the examples folder
 if (ref_file or flo_file) is None: 
@@ -102,6 +104,10 @@ def main():
       trans_class = getattr(pReg, trans_types[i])
       trans = trans_class(trans_filenames[i])
       res.add_transformation(trans)
+
+    # If padding value has been set
+    if pad is not None:
+      res.set_padding_value(pad)
 
     # Resample
     res.process()
