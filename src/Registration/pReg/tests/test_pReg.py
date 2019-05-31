@@ -712,6 +712,7 @@ def try_resample(na):
     tm      = na.get_transformation_matrix_forward()
     disp    = na.get_displacement_field_forward()
     deff    = na.get_deformation_field_forward()
+    padding_value = -20
 
     sys.stderr.write('Testing rigid resample...\n')
     nr1 = pReg.NiftyResample()
@@ -731,8 +732,12 @@ def try_resample(na):
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
     nr2.set_interpolation_type_to_linear()  # try different interpolations
     nr2.add_transformation(disp)
+    nr2.set_padding_value(padding_value)
     nr2.process()
     nr2.get_output().write(nonrigid_resample_disp)
+
+    if nr2.get_output().get_min() != padding_value:
+        raise AssertionError('NiftyResample:set_padding_value failed')
 
     sys.stderr.write('Testing non-rigid deformation...\n')
     nr3 = pReg.NiftyResample()

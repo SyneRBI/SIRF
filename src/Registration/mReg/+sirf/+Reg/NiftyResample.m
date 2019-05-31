@@ -83,6 +83,10 @@ classdef NiftyResample < handle
             %Set interpolation type to sinc.
             sirf.Reg.setParameter(self.handle_, self.name, 'interpolation_type', 4, 'i')
         end
+        function set_padding_value(self, val)
+            %Set padding value.
+            sirf.Reg.setParameter(self.handle_, self.name, 'padding', val, 'f')
+        end
         function process(self)
             %Process.
             h = calllib('mreg', 'mReg_NiftyResample_process', self.handle_);

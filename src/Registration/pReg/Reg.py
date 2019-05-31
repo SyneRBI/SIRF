@@ -773,6 +773,10 @@ class NiftyResample:
         """Set interpolation type to sinc."""
         _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 4)
 
+    def set_padding_value(self, val):
+        """Set padding value."""
+        _set_float_par_sirf(self.handle, self.name, 'padding', val)
+
     def process(self):
         """Process."""
         try_calling(pyreg.cReg_NiftyResample_process(self.handle))
