@@ -277,6 +277,11 @@ def try_niftiimage3d():
     if arr.shape != (64, 64, 64):
         raise AssertionError('NiftiImageData3D as_array().shape failed.')
 
+    # try linear algebra
+    h = d/10000;
+    if abs(h.get_max()-d.get_max()/10000) > 1e-4:
+        raise AssertionError('NiftiImageData3D linear algebra failed.')
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData3D test.\n')
