@@ -243,6 +243,10 @@ function try_niftiimage3d(g)
     assert(ndims(arr) == 3, 'NiftiImageData3D as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64]), 'NiftiImageData3D as_array().shape failed.')
 
+    % try linear algebra
+    h = d/10000;
+    assert(abs(h.get_max()-d.get_max()/10000) < 1e-4,'NiftiImageData3D linear algebra failed.')
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData3D test.')
     disp('%------------------------------------------------------------------------ %')
