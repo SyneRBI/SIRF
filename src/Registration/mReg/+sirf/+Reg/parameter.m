@@ -5,5 +5,7 @@ function value = parameter(handle, set, name, type)
         value = calllib('miutilities', 'mIntDataFromHandle', hv);
     elseif strcmp(type, 'f')
         value = calllib('miutilities', 'mFloatDataFromHandle', hv);
+    elseif strcmp(type, 'b')
+        value = calllib('miutilities', 'mBoolDataFromHandle', hv);
     end
 end

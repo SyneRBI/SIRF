@@ -20,10 +20,9 @@ Object-Oriented wrap for the cReg-to-Python interface pyreg.py
 #   limitations under the License.
 
 import abc
-import inspect
-import numpy
 import sys
 import time
+import numbers
 
 from pUtilities import *
 from sirf import SIRF
@@ -92,6 +91,14 @@ def _int_par_sirf(handle, set_, par):
     return value
 
 
+def _bool_par_sirf(handle, set_, par):
+    h = pyreg.cReg_parameter(handle, set_, par)
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.boolDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
 def _float_par_sirf(handle, set_, par):
     h = pyreg.cReg_parameter(handle, set_, par)
     check_status(h, inspect.stack()[1])
@@ -108,7 +115,6 @@ def _float_pars_sirf(handle, set_, par, n):
         value += (pyiutil.floatDataItemFromHandle(h, i), )
     pyiutil.deleteDataHandle(h)
     return value
-
 
 def _getParameterHandle_sirf(hs, set_, par):
     handle = pyreg.cReg_parameter(hs, set_, par)
@@ -314,10 +320,23 @@ class NiftiImageData(SIRF.ImageData):
         return out
 
     def fill(self, val):
-        """Fill image with single value."""
+        """Fill image with single value or numpy array."""
         if self.handle is None:
             raise AssertionError()
-        try_calling(pyreg.cReg_NiftiImageData_fill(self.handle, val))
+        if isinstance(val, numpy.ndarray):
+            if val.dtype is numpy.dtype('float32'):
+                # print('keeping dtype float32')
+                v = val
+            else:
+                # print('changing dtype to float32')
+                v = val.astype(numpy.float32)
+            try_calling(pyreg.cReg_NiftiImageData_fill_arr(self.handle, v.ctypes.data))
+        elif isinstance(val, float):
+            try_calling(pyreg.cReg_NiftiImageData_fill(self.handle, val))
+        elif isinstance(val, int):
+            try_calling(pyreg.cReg_NiftiImageData_fill(self.handle, float(val)))
+        else:
+            raise error('wrong fill value. Should be numpy.ndarray, float or int')
 
     def deep_copy(self):
         """Deep copy image."""
@@ -383,6 +402,10 @@ class NiftiImageData(SIRF.ImageData):
             raise AssertionError("New spacing should be array of 3 numbers.")
             type(interpolation_order)
         try_calling(pyreg.cReg_NiftiImageData_set_voxel_spacing(self.handle, float(spacing[0]), float(spacing[1]), float(spacing[2]), int(interpolation_order)))
+
+    def get_contains_nans(self):
+        """Returns true if image contains any voxels with NaNs."""
+        return _bool_par_sirf(self.handle, 'NiftiImageData', 'contains_nans')
 
     @staticmethod
     def print_headers(to_print):
