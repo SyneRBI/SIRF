@@ -246,6 +246,14 @@ int main(int argc, char* argv[])
         if (x != u)
             throw std::runtime_error("NiftiImageData::upsample()/downsample() failed.");
 
+        // Test contains NaNs
+        x.fill(0.f);
+        if (x.get_contains_nans())
+            throw std::runtime_error("NiftiImageData::get_contains_nans() 1 failed.");
+        x(0) = NAN;
+        if (!x.get_contains_nans())
+            throw std::runtime_error("NiftiImageData::get_contains_nans() 2 failed.");
+
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData test.\n";

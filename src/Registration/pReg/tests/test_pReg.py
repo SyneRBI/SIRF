@@ -204,6 +204,16 @@ def try_niftiimage():
     if x != u:
         raise AssertionError('NiftiImageData::upsample()/downsample() failed.')
 
+    # Check get_contains_nans
+    x_arr = x.as_array()
+    x_arr.fill(0)
+    x.fill(x_arr)
+    if x.get_contains_nans():
+        raise AssertionError('NiftiImageData::get_contains_nans() 1 failed.')
+    x_arr[1] = np.nan
+    x.fill(x_arr)
+    if not x.get_contains_nans():
+        raise AssertionError('NiftiImageData::get_contains_nans() 2 failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

@@ -73,6 +73,10 @@ extern "C" {
 	{
 		return charDataFromDataHandle((const DataHandle*)ptr);
 	}
+    bool boolDataFromHandle(const void* ptr)
+    {
+        return dataFromHandle<bool>(ptr);
+    }
 	int intDataFromHandle(const void* ptr)
 	{
 		return dataFromHandle<int>(ptr);

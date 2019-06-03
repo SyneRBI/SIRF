@@ -95,8 +95,9 @@ sirf::cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
         return dataHandle<float>(s.get_min());
     if (strcmp(name, "sum") == 0)
         return dataHandle<float>(s.get_sum());
-    else
-        return parameterNotFound(name, __FILE__, __LINE__);
+    if (strcmp(name, "contains_nans") == 0)
+        return dataHandle<bool>(s.get_contains_nans());
+    return parameterNotFound(name, __FILE__, __LINE__);
 }
 // ------------------------------------------------------------------------------------ //
 //   Registration

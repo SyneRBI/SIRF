@@ -188,6 +188,15 @@ function try_niftiimage(g)
     sirf.Reg.NiftiImageData.print_headers([u v w x]);
     assert(x == u, 'NiftiImageData::upsample()/downsample() failed.')
 
+    % Check get_contains_nans
+    x_arr = x.as_array();
+    x_arr(:)=0;
+    x.fill(x_arr);
+    assert(~x.get_contains_nans(),'NiftiImageData::get_contains_nans() 1 failed.')
+    x_arr(1) = nan;
+    x.fill(x_arr);
+    assert(x.get_contains_nans(),'NiftiImageData::get_contains_nans() 2 failed.')
+
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
