@@ -338,6 +338,9 @@ public:
     /// Kernel convolution
     void kernel_convolution(const float sigma, NREG_CONV_KERNEL_TYPE conv_type = GAUSSIAN_KERNEL);
 
+    /// Does the image contain any NaNs?
+    bool get_contains_nans() const;
+
 protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};

@@ -950,6 +950,11 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
     for(unsigned i=0; i<ims.size(); i++)
         std::cout << std::setw(19) << ims[i]->get_mean();
 
+    // Print if image contains nans
+    std::cout << "\n\t" << std::left << std::setw(19) << "contains nans?: ";
+    for(unsigned i=0; i<ims.size(); i++)
+        std::cout << std::setw(19) << ims[i]->get_contains_nans();
+
     std::cout << "\n\n";
 }
 
@@ -1140,6 +1145,16 @@ void NiftiImageData<dataType>::kernel_convolution(const float sigma, NREG_CONV_K
     for(int i=0; i<_nifti_image->nt; ++i) sigma_t[i]=sigma; //-0.7355f?
     reg_tools_kernelConvolution(_nifti_image.get(),sigma_t,conv_type);
     delete []sigma_t;
+}
+
+template<class dataType>
+bool NiftiImageData<dataType>::get_contains_nans() const
+{
+    if (is_initialised())
+        for (unsigned i=0; i<this->get_num_voxels(); ++i)
+            if (isnan(_data[i]))
+                return true;
+    return false;
 }
 
 template<class dataType>
