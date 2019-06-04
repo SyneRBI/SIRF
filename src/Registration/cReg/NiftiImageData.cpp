@@ -1152,7 +1152,7 @@ bool NiftiImageData<dataType>::get_contains_nans() const
 {
     if (is_initialised())
         for (unsigned i=0; i<this->get_num_voxels(); ++i)
-            if (isnan(_data[i]))
+            if (std::isnan(_data[i]))
                 return true;
     return false;
 }
