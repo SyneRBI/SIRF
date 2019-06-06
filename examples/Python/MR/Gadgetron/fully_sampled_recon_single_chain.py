@@ -40,7 +40,7 @@ args = docopt(__doc__, version=__version__)
 import time
 
 # import SIRF utilities
-from sirf.Utilities import examples_data_path, existing_filepath
+from sirf.Utilities import examples_data_path, existing_filepath, error
 # import MR engine types
 from sirf.Gadgetron import AcquisitionData, Reconstructor
 
@@ -85,9 +85,10 @@ def main():
     # real      2
     # imag      4
     # phase     8
-    # max       16  
     # in this example '5' returns both magnitude and imaginary part
-    recon.set_gadget_property('ex', 'extract_mask', 5)
+##    recon.set_gadget_property('ex', 'extract_mask', 5)
+    recon.set_gadget_property('ex', 'extract_magnitude', True)
+    recon.set_gadget_property('ex', 'extract_imag', True)
     
     # provide raw k-space data as input
     recon.set_input(acq_data)
