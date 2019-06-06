@@ -394,7 +394,11 @@ namespace sirf {
 		ExtractGadget() :
 			Gadget("Extract", "gadgetron_mricore", "ExtractGadget")
 		{
-			add_property("extract_mask", "1");
+			add_property("extract_mask", "0");
+			add_property("extract_magnitude", "true");
+			add_property("extract_real", "false");
+			add_property("extract_imag", "false");
+			add_property("extract_phase", "false");
 		}
 		static const char* class_name()
 		{
