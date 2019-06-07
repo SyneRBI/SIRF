@@ -123,6 +123,8 @@ public:
 
 	std::string get_temp_folder_name();
 
+	void set_ground_truth_folder_name( std::string const name_existing_folder );
+
 	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic = false);
 	void set_displacement_fields( std::vector< MotionFieldType > &input_vectors, bool const motion_fields_are_cyclic = false);
 	     

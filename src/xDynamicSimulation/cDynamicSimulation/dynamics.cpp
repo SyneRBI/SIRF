@@ -491,6 +491,13 @@ bool MotionDynamic::delete_temp_folder()
 // 	}
 // }
 
+
+void MotionDynamic::set_ground_truth_folder_name( std::string const name_existing_folder_path )
+{
+	this->ground_truth_folder_name_ = name_existing_folder_path;
+	this->make_ground_truth_folder();
+}
+
 void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3DDisplacement <float> > &input_displacement_fields, bool const motion_fields_are_cyclic)
 {
 	if ( motion_fields_are_cyclic )
