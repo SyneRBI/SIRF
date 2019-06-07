@@ -35,7 +35,9 @@ limitations under the License.
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
-EXPORTED_FUNCTION  void* mSTIR_newObject(const char* name);
+EXPORTED_FUNCTION  void* mSetParameter (void* ptr, const char* obj, const char* name, const void* value);
+EXPORTED_FUNCTION 	void* mParameter(const void* ptr, const char* obj, const char* name);
+EXPORTED_FUNCTION 	void* mSTIR_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mSTIR_objectFromFile(const char* name, const char* filename);
 EXPORTED_FUNCTION 	void* mSTIR_setParameter (void* ptr, const char* obj, const char* name, const void* value);
 EXPORTED_FUNCTION 	void* mSTIR_parameter(const void* ptr, const char* obj, const char* name);
