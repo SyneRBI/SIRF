@@ -246,6 +246,14 @@ int main(int argc, char* argv[])
         if (x != u)
             throw std::runtime_error("NiftiImageData::upsample()/downsample() failed.");
 
+        // Test contains NaNs
+        x.fill(0.f);
+        if (x.get_contains_nans())
+            throw std::runtime_error("NiftiImageData::get_contains_nans() 1 failed.");
+        x(0) = NAN;
+        if (!x.get_contains_nans())
+            throw std::runtime_error("NiftiImageData::get_contains_nans() 2 failed.");
+
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData test.\n";
@@ -773,6 +781,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<const Transformation<float> > tm       = NA.get_transformation_matrix_forward_sptr();
         std::shared_ptr<const Transformation<float> > disp     = NA.get_displacement_field_forward_sptr();
         std::shared_ptr<const Transformation<float> > deff     = NA.get_deformation_field_forward_sptr();
+        float padding_value = -20.f;
 
         std::cout << "Testing rigid resample...\n";
         NiftyResample<float> nr1;
@@ -792,8 +801,12 @@ int main(int argc, char* argv[])
         nr2.set_interpolation_type_to_sinc(); // try different interpolations
         nr2.set_interpolation_type_to_linear(); // try different interpolations
         nr2.add_transformation(disp);
+        nr2.set_padding_value(padding_value);
         nr2.process();
         nr2.get_output_sptr()->write(nonrigid_resample_disp);
+
+        if (std::abs(nr2.get_output_sptr()->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
+            throw std::runtime_error("NiftyResample::set_padding_value failed.");
 
         std::cout << "Testing non-rigid deformation...\n";
         NiftyResample<float> nr3;

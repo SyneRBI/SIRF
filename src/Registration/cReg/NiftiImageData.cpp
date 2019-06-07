@@ -950,6 +950,11 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
     for(unsigned i=0; i<ims.size(); i++)
         std::cout << std::setw(19) << ims[i]->get_mean();
 
+    // Print if image contains nans
+    std::cout << "\n\t" << std::left << std::setw(19) << "contains nans?: ";
+    for(unsigned i=0; i<ims.size(); i++)
+        std::cout << std::setw(19) << ims[i]->get_contains_nans();
+
     std::cout << "\n\n";
 }
 
@@ -1143,6 +1148,16 @@ void NiftiImageData<dataType>::kernel_convolution(const float sigma, NREG_CONV_K
 }
 
 template<class dataType>
+bool NiftiImageData<dataType>::get_contains_nans() const
+{
+    if (is_initialised())
+        for (unsigned i=0; i<this->get_num_voxels(); ++i)
+            if (std::isnan(_data[i]))
+                return true;
+    return false;
+}
+
+template<class dataType>
 bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
 {
     if(!im1.is_initialised())
@@ -1216,6 +1231,11 @@ void NiftiImageData<dataType>::axpby(
     const float b = *static_cast<const float*>(ptr_b);
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     assert(_nifti_image->nvox == y._nifti_image->nvox);
 
@@ -1238,6 +1258,11 @@ void NiftiImageData<dataType>::multiply
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     assert(_nifti_image->nvox == y._nifti_image->nvox);
 
@@ -1251,6 +1276,11 @@ void NiftiImageData<dataType>::divide
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     assert(_nifti_image->nvox == y._nifti_image->nvox);
 

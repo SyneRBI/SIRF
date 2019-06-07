@@ -204,6 +204,16 @@ def try_niftiimage():
     if x != u:
         raise AssertionError('NiftiImageData::upsample()/downsample() failed.')
 
+    # Check get_contains_nans
+    x_arr = x.as_array()
+    x_arr.fill(0)
+    x.fill(x_arr)
+    if x.get_contains_nans():
+        raise AssertionError('NiftiImageData::get_contains_nans() 1 failed.')
+    x_arr[1] = np.nan
+    x.fill(x_arr)
+    if not x.get_contains_nans():
+        raise AssertionError('NiftiImageData::get_contains_nans() 2 failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -276,6 +286,11 @@ def try_niftiimage3d():
         raise AssertionError('NiftiImageData3D as_array() ndims failed.')
     if arr.shape != (64, 64, 64):
         raise AssertionError('NiftiImageData3D as_array().shape failed.')
+
+    # try linear algebra
+    h = d/10000;
+    if abs(h.get_max()-d.get_max()/10000) > 1e-4:
+        raise AssertionError('NiftiImageData3D linear algebra failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -712,6 +727,7 @@ def try_resample(na):
     tm      = na.get_transformation_matrix_forward()
     disp    = na.get_displacement_field_forward()
     deff    = na.get_deformation_field_forward()
+    padding_value = -20
 
     sys.stderr.write('Testing rigid resample...\n')
     nr1 = pReg.NiftyResample()
@@ -731,8 +747,12 @@ def try_resample(na):
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
     nr2.set_interpolation_type_to_linear()  # try different interpolations
     nr2.add_transformation(disp)
+    nr2.set_padding_value(padding_value)
     nr2.process()
     nr2.get_output().write(nonrigid_resample_disp)
+
+    if nr2.get_output().get_min() != padding_value:
+        raise AssertionError('NiftyResample:set_padding_value failed')
 
     sys.stderr.write('Testing non-rigid deformation...\n')
     nr3 = pReg.NiftyResample()

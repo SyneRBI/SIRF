@@ -188,6 +188,15 @@ function try_niftiimage(g)
     sirf.Reg.NiftiImageData.print_headers([u v w x]);
     assert(x == u, 'NiftiImageData::upsample()/downsample() failed.')
 
+    % Check get_contains_nans
+    x_arr = x.as_array();
+    x_arr(:)=0;
+    x.fill(x_arr);
+    assert(~x.get_contains_nans(),'NiftiImageData::get_contains_nans() 1 failed.')
+    x_arr(1) = nan;
+    x.fill(x_arr);
+    assert(x.get_contains_nans(),'NiftiImageData::get_contains_nans() 2 failed.')
+
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
@@ -242,6 +251,10 @@ function try_niftiimage3d(g)
     assert(max(arr(:)) == 100, 'NiftiImageData3D as_array().max() failed.')
     assert(ndims(arr) == 3, 'NiftiImageData3D as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64]), 'NiftiImageData3D as_array().shape failed.')
+
+    % try linear algebra
+    h = d/10000;
+    assert(abs(h.get_max()-d.get_max()/10000) < 1e-4,'NiftiImageData3D linear algebra failed.')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData3D test.')
@@ -600,6 +613,7 @@ function try_resample(g,na)
     tm      = na.get_transformation_matrix_forward();
     displ   = na.get_displacement_field_forward();
     deff    = na.get_deformation_field_forward();
+    padding_value = -20;
 
     disp('Testing rigid resample...')
     nr1 = sirf.Reg.NiftyResample();
@@ -619,8 +633,11 @@ function try_resample(g,na)
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
     nr2.set_interpolation_type_to_linear();  % try different interpolations
     nr2.add_transformation(displ);
+    nr2.set_padding_value(padding_value);
     nr2.process();
     nr2.get_output().write(g.nonrigid_resample_disp);
+
+    assert(nr2.get_output().get_min() == padding_value, 'NiftyResample:set_padding_value failed.')
 
     disp('Testing non-rigid deformation...')
     nr3 = sirf.Reg.NiftyResample();

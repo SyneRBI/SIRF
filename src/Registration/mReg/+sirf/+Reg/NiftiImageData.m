@@ -197,6 +197,10 @@ classdef NiftiImageData < sirf.SIRF.ImageData
             h = calllib('mreg', 'mReg_NiftiImageData_set_voxel_spacing', self.handle_, spacing(1), spacing(2), spacing(3), interpolation_order);
             sirf.Utilities.check_status('parameter', h)
         end
+        function value = get_contains_nans(self)
+            % Returns true if the image contains any nans.
+            value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'contains_nans', 'b');
+        end
     end
     methods(Static)
         function print_headers(to_print)
