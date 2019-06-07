@@ -894,5 +894,49 @@ SignalContainer aux_test::get_generic_cardiac_signal( sirf::AcquisitionsVector &
 }
 
 
+MRContrastDynamic aux_test::get_constant_contrast( LabelType const which_tissue_label, TissueParameter const template_param, float const T1_ms)
+{
+	// constant contrast -> i.e. only one state
+	int const num_sim_states = 1; 
+	MRContrastDynamic cont_dyn(num_sim_states);
+
+	cont_dyn.add_dynamic_label(which_tissue_label);
+
+	// mock signal out of two constant points -> will generate constant T1 as set in the dynamic
+	SignalPoint sig_pt_0(0,1); 
+	SignalPoint sig_pt_1(1,1);
+	SignalContainer signal{sig_pt_0, sig_pt_1};
+
+	cont_dyn.set_dyn_signal(signal);
+
+	// fix two parameters that correspond to the 0 and 1.
+	TissueParameter param_at_1 = template_param;
+	param_at_1.mr_tissue_.t1_miliseconds_ = T1_ms;
+	
+	cont_dyn.set_parameter_extremes( template_param, param_at_1);
+
+	return cont_dyn;
+}
 
 
+
+void aux_test::store_roi( LabelVolume& label_vol, std::vector<float> const labels, std::string const output_prefix)
+{
+	for(size_t lab=0; lab<labels.size(); ++lab)
+	{
+		LabelVolume temp_vol = label_vol;
+
+		float const curr_label = labels[lab];
+		for(size_t i=0; i<label_vol.get_num_voxels(); ++i)
+		{
+			if( temp_vol(i) == curr_label )
+				temp_vol(i) = 1;
+			else
+				temp_vol(i) = 0;
+		}
+
+		std::stringstream curr_fname; 
+		curr_fname << output_prefix << "_label_" << curr_label; 
+		temp_vol.write(curr_fname.str()); 
+	}
+}
