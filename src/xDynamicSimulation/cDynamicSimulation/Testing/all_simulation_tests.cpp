@@ -158,10 +158,10 @@ void run_tests_dynamic_simulation( void )
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
 
 	std::cout << "MR 6 ----------------------------------------------------" <<std::endl;
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 
 	std::cout << "MR 7 ----------------------------------------------------" <<std::endl;
-	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
+	mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
 
 	
 	std::cout << "mr dynamic simulation test results = ";
