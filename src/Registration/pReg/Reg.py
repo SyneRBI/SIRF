@@ -29,6 +29,11 @@ from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
 
+import sirf.select_module as select_module
+select_module.module = 'pyreg'
+import sirf.parameters as parms
+
+
 try:
     input_ = raw_input
 except NameError:
@@ -43,88 +48,6 @@ INFO_CHANNEL = 0
 WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
-
-###########################################################
-############ Utilities for internal use only ##############
-
-
-def _setParameter_sirf(hs, set_, par, hv, stack=None):
-    # try_calling(pyreg.cReg_setParameter(hs, set, par, hv))
-    if stack is None:
-        stack = inspect.stack()[1]
-    h = pyreg.cReg_setParameter(hs, set_, par, hv)
-    check_status(h, stack)
-    pyiutil.deleteDataHandle(h)
-
-
-def _set_char_par_sirf(handle, set_, par, value):
-    h = pyiutil.charDataHandle(value)
-    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-
-
-def _set_int_par_sirf(handle, set_, par, value):
-    h = pyiutil.intDataHandle(value)
-    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-
-
-def _set_float_par_sirf(handle, set_, par, value):
-    h = pyiutil.floatDataHandle(value)
-    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-
-
-def _char_par_sirf(handle, set_, par):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.charDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def _int_par_sirf(handle, set_, par):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.intDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def _bool_par_sirf(handle, set_, par):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.boolDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def _float_par_sirf(handle, set_, par):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.floatDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def _float_pars_sirf(handle, set_, par, n):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.floatDataItemFromHandle(h, i), )
-    pyiutil.deleteDataHandle(h)
-    return value
-
-def _getParameterHandle_sirf(hs, set_, par):
-    handle = pyreg.cReg_parameter(hs, set_, par)
-    check_status(handle, inspect.stack()[1])
-    return handle
-
-
-def _tmp_filename():
-    return repr(int(1000*time.time()))
-###########################################################
 
 
 class MessageRedirector:
@@ -292,15 +215,15 @@ class NiftiImageData(SIRF.ImageData):
 
     def get_max(self):
         """Get max."""
-        return _float_par_sirf(self.handle, 'NiftiImageData', 'max')
+        return float_par(self.handle, 'NiftiImageData', 'max')
 
     def get_min(self):
         """Get min."""
-        return _float_par_sirf(self.handle, 'NiftiImageData', 'min')
+        return float_par(self.handle, 'NiftiImageData', 'min')
 
     def get_sum(self):
         """Get sum."""
-        return _float_par_sirf(self.handle, 'NiftiImageData', 'sum')
+        return float_par(self.handle, 'NiftiImageData', 'sum')
 
     def get_dimensions(self):
         """Get dimensions. Returns nifti format.
@@ -405,7 +328,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def get_contains_nans(self):
         """Returns true if image contains any voxels with NaNs."""
-        return _bool_par_sirf(self.handle, 'NiftiImageData', 'contains_nans')
+        return bool_par(self.handle, 'NiftiImageData', 'contains_nans')
 
     @staticmethod
     def print_headers(to_print):
@@ -590,32 +513,32 @@ class _Registration(ABC):
 
     def set_parameter_file(self, filename):
         """Sets the parameter filename."""
-        _set_char_par_sirf(self.handle, 'Registration', 'parameter_file', filename)
+        set_char_par(self.handle, 'Registration', 'parameter_file', filename)
 
     def set_reference_image(self, reference_image):
         """Sets the reference image."""
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        _setParameter_sirf(self.handle, 'Registration', 'reference_image', reference_image.handle)
+        _set_parameter(self.handle, 'Registration', 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Sets the floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'Registration', 'floating_image', floating_image.handle)
+        _set_parameter(self.handle, 'Registration', 'floating_image', floating_image.handle)
 
     def set_reference_mask(self, reference_mask):
         """Sets the reference mask."""
         if not isinstance(reference_mask, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
+        _set_parameter(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
 
     def set_floating_mask(self, floating_mask):
         """Sets the floating mask."""
         if not isinstance(floating_mask, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
+        _set_parameter(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
 
     def get_output(self):
         """Gets the registered image."""
@@ -717,17 +640,17 @@ class NiftyF3dSym(_Registration):
 
     def set_floating_time_point(self, floating_time_point):
         """Set floating time point."""
-        _set_int_par_sirf(self.handle, self.name, 'floating_time_point', floating_time_point)
+        set_int_par(self.handle, self.name, 'floating_time_point', floating_time_point)
 
     def set_reference_time_point(self, reference_time_point):
         """Set reference time point."""
-        _set_int_par_sirf(self.handle, self.name, 'reference_time_point', reference_time_point)
+        set_int_par(self.handle, self.name, 'reference_time_point', reference_time_point)
 
     def set_initial_affine_transformation(self, src):
         """Set initial affine transformation."""
         if not isinstance(src, AffineTransformation):
             raise AssertionError()
-        _setParameter_sirf(self.handle, self.name, 'initial_affine_transformation', src.handle)
+        _set_parameter(self.handle, self.name, 'initial_affine_transformation', src.handle)
 
     @staticmethod
     def print_all_wrapped_methods():
@@ -755,13 +678,13 @@ class NiftyResample:
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        _setParameter_sirf(self.handle, self.name, 'reference_image', reference_image.handle)
+        _set_parameter(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Set floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, self.name, 'floating_image', floating_image.handle)
+        _set_parameter(self.handle, self.name, 'floating_image', floating_image.handle)
 
     def add_transformation(self, src):
         """Add transformation."""
@@ -778,27 +701,27 @@ class NiftyResample:
         """Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""
         if not isinstance(interp_type, int):
             raise AssertionError()
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', interp_type)
+        set_int_par(self.handle, self.name, 'interpolation_type', interp_type)
 
     def set_interpolation_type_to_nearest_neighbour(self):
         """Set interpolation type to nearest neighbour."""
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 0)
+        set_int_par(self.handle, self.name, 'interpolation_type', 0)
 
     def set_interpolation_type_to_linear(self):
         """Set interpolation type to linear."""
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 1)
+        set_int_par(self.handle, self.name, 'interpolation_type', 1)
 
     def set_interpolation_type_to_cubic_spline(self):
         """Set interpolation type to cubic spline."""
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 3)
+        set_int_par(self.handle, self.name, 'interpolation_type', 3)
 
     def set_interpolation_type_to_sinc(self):
         """Set interpolation type to sinc."""
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 4)
+        set_int_par(self.handle, self.name, 'interpolation_type', 4)
 
     def set_padding_value(self, val):
         """Set padding value."""
-        _set_float_par_sirf(self.handle, self.name, 'padding', val)
+        set_float_par(self.handle, self.name, 'padding', val)
 
     def process(self):
         """Process."""
@@ -807,7 +730,7 @@ class NiftyResample:
     def get_output(self):
         """Get output."""
         image = self.reference_image.same_object()
-        image.handle = _getParameterHandle_sirf(self.handle, self.name, 'output')
+        image.handle = parameter_handle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 
@@ -842,7 +765,7 @@ class ImageWeightedMean:
     def get_output(self):
         """Get output."""
         image = NiftiImageData()
-        image.handle = _getParameterHandle_sirf(self.handle, self.name, 'output')
+        image.handle = parameter_handle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 
@@ -917,7 +840,7 @@ class AffineTransformation(_Transformation):
 
     def get_determinant(self):
         """Get determinant."""
-        return _float_par_sirf(self.handle, self.name, 'determinant')
+        return float_par(self.handle, self.name, 'determinant')
 
     def as_array(self):
         """Get forward transformation matrix."""
