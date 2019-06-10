@@ -39,6 +39,7 @@ def int_par(handle, set, par):
 def int_pars(handle, set, par, n):
     h = parameter(handle, set, par)
     check_status(h)
+    value = ()
     for i in range(n):
         value += (pyiutil.intDataItemFromHandle(h, i),)
     pyiutil.deleteDataHandle(h)
