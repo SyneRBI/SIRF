@@ -50,6 +50,14 @@ ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
 
 
+def _set_parameter(hs, group, par, hv, stack = None):
+    if stack is None:
+        stack = inspect.stack()[1]
+    h = setParameter(hs, group, par, hv)
+    check_status(h, stack)
+    pyiutil.deleteDataHandle(h)
+
+
 class MessageRedirector:
     """
     Class for registration printing redirection to files/stdout/stderr.
@@ -215,15 +223,15 @@ class NiftiImageData(SIRF.ImageData):
 
     def get_max(self):
         """Get max."""
-        return float_par(self.handle, 'NiftiImageData', 'max')
+        return parms.float_par(self.handle, 'NiftiImageData', 'max')
 
     def get_min(self):
         """Get min."""
-        return float_par(self.handle, 'NiftiImageData', 'min')
+        return parms.float_par(self.handle, 'NiftiImageData', 'min')
 
     def get_sum(self):
         """Get sum."""
-        return float_par(self.handle, 'NiftiImageData', 'sum')
+        return parms.float_par(self.handle, 'NiftiImageData', 'sum')
 
     def get_dimensions(self):
         """Get dimensions. Returns nifti format.
@@ -328,7 +336,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def get_contains_nans(self):
         """Returns true if image contains any voxels with NaNs."""
-        return bool_par(self.handle, 'NiftiImageData', 'contains_nans')
+        return parms.bool_par(self.handle, 'NiftiImageData', 'contains_nans')
 
     @staticmethod
     def print_headers(to_print):
@@ -513,7 +521,7 @@ class _Registration(ABC):
 
     def set_parameter_file(self, filename):
         """Sets the parameter filename."""
-        set_char_par(self.handle, 'Registration', 'parameter_file', filename)
+        parms.set_char_par(self.handle, 'Registration', 'parameter_file', filename)
 
     def set_reference_image(self, reference_image):
         """Sets the reference image."""
@@ -640,11 +648,11 @@ class NiftyF3dSym(_Registration):
 
     def set_floating_time_point(self, floating_time_point):
         """Set floating time point."""
-        set_int_par(self.handle, self.name, 'floating_time_point', floating_time_point)
+        parms.set_int_par(self.handle, self.name, 'floating_time_point', floating_time_point)
 
     def set_reference_time_point(self, reference_time_point):
         """Set reference time point."""
-        set_int_par(self.handle, self.name, 'reference_time_point', reference_time_point)
+        parms.set_int_par(self.handle, self.name, 'reference_time_point', reference_time_point)
 
     def set_initial_affine_transformation(self, src):
         """Set initial affine transformation."""
@@ -701,27 +709,27 @@ class NiftyResample:
         """Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""
         if not isinstance(interp_type, int):
             raise AssertionError()
-        set_int_par(self.handle, self.name, 'interpolation_type', interp_type)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', interp_type)
 
     def set_interpolation_type_to_nearest_neighbour(self):
         """Set interpolation type to nearest neighbour."""
-        set_int_par(self.handle, self.name, 'interpolation_type', 0)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', 0)
 
     def set_interpolation_type_to_linear(self):
         """Set interpolation type to linear."""
-        set_int_par(self.handle, self.name, 'interpolation_type', 1)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', 1)
 
     def set_interpolation_type_to_cubic_spline(self):
         """Set interpolation type to cubic spline."""
-        set_int_par(self.handle, self.name, 'interpolation_type', 3)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', 3)
 
     def set_interpolation_type_to_sinc(self):
         """Set interpolation type to sinc."""
-        set_int_par(self.handle, self.name, 'interpolation_type', 4)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', 4)
 
     def set_padding_value(self, val):
         """Set padding value."""
-        set_float_par(self.handle, self.name, 'padding', val)
+        parms.set_float_par(self.handle, self.name, 'padding', val)
 
     def process(self):
         """Process."""
@@ -840,7 +848,7 @@ class AffineTransformation(_Transformation):
 
     def get_determinant(self):
         """Get determinant."""
-        return float_par(self.handle, self.name, 'determinant')
+        return parms.float_par(self.handle, self.name, 'determinant')
 
     def as_array(self):
         """Get forward transformation matrix."""
