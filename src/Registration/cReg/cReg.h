@@ -36,8 +36,8 @@ extern "C" {
     // Common Reg Object methods
     void* cReg_newObject(const char* name);
     void* cReg_objectFromFile(const char* name, const char* filename);
-    void* cReg_setParameter(void* ptr, const char* obj, const char* name, const void* value);
-    void* cReg_parameter(const void* ptr, const char* obj, const char* name);
+    void* setParameter(void* ptr, const char* obj, const char* name, const void* value);
+    void* parameter(const void* ptr, const char* obj, const char* name);
 
     // NiftiImageData
     void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);

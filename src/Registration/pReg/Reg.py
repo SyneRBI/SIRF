@@ -49,15 +49,6 @@ WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
 
-
-def _set_parameter(hs, group, par, hv, stack = None):
-    if stack is None:
-        stack = inspect.stack()[1]
-    h = setParameter(hs, group, par, hv)
-    check_status(h, stack)
-    pyiutil.deleteDataHandle(h)
-
-
 class MessageRedirector:
     """
     Class for registration printing redirection to files/stdout/stderr.
@@ -528,31 +519,30 @@ class _Registration(ABC):
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        _set_parameter(self.handle, 'Registration', 'reference_image', reference_image.handle)
+        parms._set_parameter(self.handle, 'Registration', 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Sets the floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        _set_parameter(self.handle, 'Registration', 'floating_image', floating_image.handle)
+        parms._set_parameter(self.handle, 'Registration', 'floating_image', floating_image.handle)
 
     def set_reference_mask(self, reference_mask):
         """Sets the reference mask."""
         if not isinstance(reference_mask, SIRF.ImageData):
             raise AssertionError()
-        _set_parameter(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
+        parms._set_parameter(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
 
     def set_floating_mask(self, floating_mask):
         """Sets the floating mask."""
         if not isinstance(floating_mask, SIRF.ImageData):
             raise AssertionError()
-        _set_parameter(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
+        parms._set_parameter(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
 
     def get_output(self):
         """Gets the registered image."""
         output = self.reference_image.same_object()
-        output.handle = pyreg.cReg_parameter(self.handle, 'Registration', 'output')
-        check_status(output.handle)
+        output.handle = parms.parameter_handle(self.handle, 'Registration', 'output')
         return output
 
     def process(self):
@@ -658,7 +648,7 @@ class NiftyF3dSym(_Registration):
         """Set initial affine transformation."""
         if not isinstance(src, AffineTransformation):
             raise AssertionError()
-        _set_parameter(self.handle, self.name, 'initial_affine_transformation', src.handle)
+        parms._set_parameter(self.handle, self.name, 'initial_affine_transformation', src.handle)
 
     @staticmethod
     def print_all_wrapped_methods():
@@ -686,13 +676,13 @@ class NiftyResample:
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        _set_parameter(self.handle, self.name, 'reference_image', reference_image.handle)
+        parms._set_parameter(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Set floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        _set_parameter(self.handle, self.name, 'floating_image', floating_image.handle)
+        parms._set_parameter(self.handle, self.name, 'floating_image', floating_image.handle)
 
     def add_transformation(self, src):
         """Add transformation."""
@@ -738,7 +728,7 @@ class NiftyResample:
     def get_output(self):
         """Get output."""
         image = self.reference_image.same_object()
-        image.handle = parameter_handle(self.handle, self.name, 'output')
+        image.handle = parms.parameter_handle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 
@@ -773,7 +763,7 @@ class ImageWeightedMean:
     def get_output(self):
         """Get output."""
         image = NiftiImageData()
-        image.handle = parameter_handle(self.handle, self.name, 'output')
+        image.handle = parms.parameter_handle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 

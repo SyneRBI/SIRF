@@ -1,5 +1,5 @@
 function value = parameter(handle, set, name, type)
-    hv = calllib('mreg', 'mReg_parameter', handle, set, name);
+    hv = calllib('mreg', 'mParameter', handle, set, name);
     sirf.Utilities.check_status('parameter', hv)
     if strcmp(type, 'i')
         value = calllib('miutilities', 'mIntDataFromHandle', hv);

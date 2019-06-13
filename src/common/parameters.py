@@ -34,7 +34,7 @@ def set_float_par(handle, group, par, value):
 
 
 def bool_par(handle, group, par):
-    h = pyreg.cReg_parameter(handle, group, par)
+    h = parameter(handle, group, par)
     check_status(h, inspect.stack()[1])
     value = pyiutil.boolDataFromHandle(h)
     pyiutil.deleteDataHandle(h)

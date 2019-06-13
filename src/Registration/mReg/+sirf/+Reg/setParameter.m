@@ -11,9 +11,9 @@ function setParameter(hs, set, par, value, type)
     end
     if has_handle
         handle = calllib...
-            ('mreg', 'mReg_setParameter', hs, set, par, value.handle_);
+            ('mreg', 'mSetParameter', hs, set, par, value.handle_);
     else
-        handle = calllib('mreg', 'mReg_setParameter', hs, set, par, hv);
+        handle = calllib('mreg', 'mSetParameter', hs, set, par, hv);
         sirf.Utilities.delete(hv)
         %calllib('mutilities', 'mDeleteDataHandle', hv)
     end
