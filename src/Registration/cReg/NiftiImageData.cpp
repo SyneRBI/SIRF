@@ -29,7 +29,6 @@ limitations under the License.
 
 #include "sirf/Reg/NiftiImageData.h"
 #include <nifti1_io.h>
-#include <_reg_tools.h>
 #include "_reg_resampling.h"
 #include <boost/filesystem.hpp>
 #include "sirf/Reg/NiftiImageData3D.h"
@@ -41,6 +40,8 @@ limitations under the License.
 #include <iomanip>
 #include <cmath>
 
+// Remove NiftyReg's definition of isnan
+#undef isnan
 
 using namespace sirf;
 
