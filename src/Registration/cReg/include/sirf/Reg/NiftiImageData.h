@@ -37,6 +37,7 @@ limitations under the License.
 #include <sstream>
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/ImageData.h"
+#include <_reg_tools.h>
 
 namespace sirf {
 
@@ -71,14 +72,6 @@ of sform_code; for example, for the Talairach coordinate system,
 \author Richard Brown
 \author CCP PETMR
 */
-
-typedef enum
-{
-   MEAN_KERNEL,
-   LINEAR_KERNEL,
-   GAUSSIAN_KERNEL,
-   CUBIC_SPLINE_KERNEL
-} NREG_CONV_KERNEL_TYPE;
 
 template<class dataType>
 class NiftiImageData : public ImageData
