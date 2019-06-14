@@ -982,7 +982,7 @@ class AcquisitionModel:
         at:  an AcquisitionData object containing a.
         '''
         assert_validity(at, AcquisitionData)
-        parms.setParameter\
+        parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
     def set_background_term(self, bt):
         ''' 
@@ -990,7 +990,7 @@ class AcquisitionModel:
         bt:  an AcquisitionData object containing b.
         '''
         assert_validity(bt, AcquisitionData)
-        parms.setParameter\
+        parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
     def set_acquisition_sensitivity(self, asm):
         ''' 
@@ -998,7 +998,7 @@ class AcquisitionModel:
         norm:  an AcquisitionSensitivityModel object containing normalisation n.
         '''
         assert_validity(asm, AcquisitionSensitivityModel)
-        parms.setParameter\
+        parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
     def forward(self, image, subset_num = 0, num_subsets = 1, ad = None):
         ''' 
@@ -1045,7 +1045,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
-        parms.setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1056,7 +1056,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         '''
         # TODO will need to allow for different matrices here
         assert_validity(matrix, RayTracingMatrix)
-        parms.setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
 ##    def get_matrix(self):
 ##        ''' 
 ##        Returns the ray tracing matrix used for projecting;
@@ -1085,7 +1085,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
-        parms.setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1096,7 +1096,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         '''
         # only allow RayTracingMatrix
         assert_validity(matrix, RayTracingMatrix)
-        parms.setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
     def get_matrix(self):
         '''
         Returns the ray tracing matrix used for projecting;
@@ -1199,7 +1199,7 @@ class PLSPrior(Prior):
         return parms.float_par(self.handle, 'PLSPrior', 'eta')
     def set_anatomical_image(self, image):
         assert isinstance(image, ImageData)
-        parms.setParameter(self.handle, 'PLSPrior', 'anatomical_image', image.handle)
+        parms.set_parameter(self.handle, 'PLSPrior', 'anatomical_image', image.handle)
     def get_anatomical_image(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter\
@@ -1215,7 +1215,7 @@ class PLSPrior(Prior):
         parms.set_char_par(self.handle, 'PLSPrior', 'anatomical_filename', filename)
     def set_kappa(self, image):
         assert isinstance(image, ImageData)
-        parms.setParameter(self.handle, 'PLSPrior', 'kappa', image.handle)
+        parms.set_parameter(self.handle, 'PLSPrior', 'kappa', image.handle)
     def get_kappa(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'kappa')
@@ -1244,7 +1244,7 @@ class ObjectiveFunction:
         Sets the prior (penalty term to be added to the objective function).
         '''
         assert_validity(prior, Prior)
-        parms.setParameter(self.handle, 'GeneralisedObjectiveFunction',\
+        parms.set_parameter(self.handle, 'GeneralisedObjectiveFunction',\
             'prior', prior.handle)
         self.prior = prior
     def get_prior(self):
@@ -1398,7 +1398,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         Sets the acquisition model to be used by this objective function.
         '''
         assert_validity(am, AcquisitionModel)
-        parms.setParameter\
+        parms.set_parameter\
             (self.handle, self.name, 'acquisition_model', am.handle)
 ##    def get_acquisition_model(self):
 ##        '''
@@ -1416,7 +1416,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         Sets the acquisition data to be used by this objective function.
         '''
         assert_validity(ad, AcquisitionData)
-        parms.setParameter\
+        parms.set_parameter\
             (self.handle, self.name, 'acquisition_data', ad.handle)
 
 class Reconstructor:
@@ -1437,7 +1437,7 @@ class Reconstructor:
         '''
         # TODO: move to C++
         assert_validity(input_data, AcquisitionData)
-        parms.setParameter(self.handle, 'Reconstruction', \
+        parms.set_parameter(self.handle, 'Reconstruction', \
                       'input_data', input_data.handle)
     def set_output_filename_prefix(self, prefix):
         '''Sets the output file name prefix.
@@ -1479,7 +1479,7 @@ class FBP2DReconstructor:
         '''Sets the acquisition data to use for reconstruction.
         '''
         assert_validity(input_data, AcquisitionData)
-        parms.setParameter(self.handle, 'FBP2D', 'input', input_data.handle)
+        parms.set_parameter(self.handle, 'FBP2D', 'input', input_data.handle)
     def set_zoom(self, v):
         parms.set_float_par(self.handle, 'FBP2D', 'zoom', v)
     def set_alpha_cosine_window(self, v):
@@ -1584,7 +1584,7 @@ class IterativeReconstructor(Reconstructor):
         '''Specifies the objective function to be maximized.
         '''
         assert_validity(obj, ObjectiveFunction)
-        parms.setParameter\
+        parms.set_parameter\
             (self.handle, 'IterativeReconstruction',\
              'objective_function', obj.handle)
 ##    def get_objective_function(self):

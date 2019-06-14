@@ -519,25 +519,25 @@ class _Registration(ABC):
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        parms._set_parameter(self.handle, 'Registration', 'reference_image', reference_image.handle)
+        parms.set_parameter(self.handle, 'Registration', 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Sets the floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        parms._set_parameter(self.handle, 'Registration', 'floating_image', floating_image.handle)
+        parms.set_parameter(self.handle, 'Registration', 'floating_image', floating_image.handle)
 
     def set_reference_mask(self, reference_mask):
         """Sets the reference mask."""
         if not isinstance(reference_mask, SIRF.ImageData):
             raise AssertionError()
-        parms._set_parameter(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
+        parms.set_parameter(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
 
     def set_floating_mask(self, floating_mask):
         """Sets the floating mask."""
         if not isinstance(floating_mask, SIRF.ImageData):
             raise AssertionError()
-        parms._set_parameter(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
+        parms.set_parameter(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
 
     def get_output(self):
         """Gets the registered image."""
@@ -648,7 +648,7 @@ class NiftyF3dSym(_Registration):
         """Set initial affine transformation."""
         if not isinstance(src, AffineTransformation):
             raise AssertionError()
-        parms._set_parameter(self.handle, self.name, 'initial_affine_transformation', src.handle)
+        parms.set_parameter(self.handle, self.name, 'initial_affine_transformation', src.handle)
 
     @staticmethod
     def print_all_wrapped_methods():
@@ -676,13 +676,13 @@ class NiftyResample:
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        parms._set_parameter(self.handle, self.name, 'reference_image', reference_image.handle)
+        parms.set_parameter(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Set floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        parms._set_parameter(self.handle, self.name, 'floating_image', floating_image.handle)
+        parms.set_parameter(self.handle, self.name, 'floating_image', floating_image.handle)
 
     def add_transformation(self, src):
         """Add transformation."""
