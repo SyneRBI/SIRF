@@ -144,7 +144,7 @@ void* cSTIR_setParameter
 			return cSTIR_setOSSPSParameter(hs, name, hv);
 		else if (boost::iequals(obj, "FBP2D"))
 			return cSTIR_setFBP2DParameter(hs, name, hv);
-        else if(boost::iequals(obj, ""))
+        else if(boost::iequals(obj, "PETSingleScatterSimulation"))
             return cSTIR_setScatterSimulationParameter(hs, name, hv);
 		else
 			return unknownObject("object", obj, __FILE__, __LINE__);

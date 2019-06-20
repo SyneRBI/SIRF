@@ -1,5 +1,21 @@
 '''Scatter simulation demo: creates an image, projects it to simulate
 acquisition data and runs a scatter simulation
+
+Usage:
+  scatter_simulation [--help | options]
+
+Options:
+  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
+                              subfolder of SIRF root folder
+  -a <addv>, --addv=<addv>    additive term value [default: 0]
+  -b <back>, --back=<back>    background term value [default: 0]
+  -n <norm>, --norm=<norm>    normalization value [default: 1]
+  -o <file>, --output=<file>  output file for simulated data
+  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+
+There is an interactive demo with much more documentation on this process.
+You probably want to check that instead.
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)

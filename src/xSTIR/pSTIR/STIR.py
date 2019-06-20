@@ -1741,11 +1741,8 @@ class SingleScatterSimulator():
 
         if not self.filename:
             self.handle = pystir.cSTIR_newObject(self.name)
-            print('SingleScatterSimulator:: I am in Constructor 0000')
         else:
             self.handle = pystir.cSTIR_objectFromFile(self.name, self.filename)
-
-        print('SingleScatterSimulator:: I am in Constructor')
         check_status(self.handle)
 
     def __del__(self):
@@ -1762,14 +1759,13 @@ class SingleScatterSimulator():
         assert_validity(acq, PETAcquisitionData)
         _setParameter(self.handle, self.name, 'setAcquisitionData', acq.handle)
 
-    def set_attenuation_image(self):
-        pass
+    def set_attenuation_image(self, image):
+        assert_validity(image, ImageData)
+        _setParameter(self.handle, self.name, 'setAttenuationImage', acq.handle)
 
-    def set_activity_image(self):
-        pass
-
-    def set_attenuation_image_for_scatter_points(self):
-        pass
+    def set_activity_image(self, image):
+        assert_validity(image, ImageData)
+        _setParameter(self.handle, self.name, 'setActivityImage', acq.handle)
 
     def get_simulated_data(self):
         if self.output is None:
