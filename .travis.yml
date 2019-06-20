@@ -68,7 +68,7 @@ matrix:
 env:
  global:
   # Need STIR_TAG=master at present, see https://github.com/CCPPETMR/SIRF/issues/366
-  - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSTIR_TAG=master"
+  - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSTIR_URL=https://github.com/NikEfth/STIR -DSTIR_TAG=Scatter_simulation -DSTIR_BUILD_EXECUTABLES=ON"
   # don't use too many threads - may crash
   - MAKEFLAGS="-j 2"
 
