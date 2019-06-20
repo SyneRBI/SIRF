@@ -1747,7 +1747,7 @@ class SingleScatterSimulator():
 
     def __del__(self):
         if self.handle is not None:
-            pyiutild.deleteDataHandle(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
 
     def run_scatter_simulation(self):
         print('ScatterSimulator:: In the run_scatter_simulation!')

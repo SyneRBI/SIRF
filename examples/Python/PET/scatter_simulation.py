@@ -127,8 +127,11 @@ def main():
     # Set the activity image
     sss.set_activity_image(act_image)
 
+    # Run the scatter simulation
     sss.run_scatter_simulation()
 
+    # Get the simulated sinogram.
+    # Note: The sinogram has been downscaled.
     sss_data = sss.get_simulated_data()
 
     # show simulated scatter data
