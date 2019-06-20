@@ -1756,16 +1756,16 @@ class SingleScatterSimulator():
         check_status(self.output.handle)
 
     def set_acquisition_data(self, acq):
-        assert_validity(acq, PETAcquisitionData)
+        assert_validity(acq, AcquisitionData)
         _setParameter(self.handle, self.name, 'setAcquisitionData', acq.handle)
 
     def set_attenuation_image(self, image):
         assert_validity(image, ImageData)
-        _setParameter(self.handle, self.name, 'setAttenuationImage', acq.handle)
+        _setParameter(self.handle, self.name, 'setAttenuationImage', image.handle)
 
     def set_activity_image(self, image):
         assert_validity(image, ImageData)
-        _setParameter(self.handle, self.name, 'setActivityImage', acq.handle)
+        _setParameter(self.handle, self.name, 'setActivityImage', image.handle)
 
     def get_simulated_data(self):
         if self.output is None:
