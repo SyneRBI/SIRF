@@ -96,6 +96,7 @@ extern "C" {
 	void* cSTIR_runFBP2DReconstruction(void* ptr_r);
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);
+    void* cSTIR_runScatterSimulation(void* ptr_r);
 	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
 
 	// Objective function methods

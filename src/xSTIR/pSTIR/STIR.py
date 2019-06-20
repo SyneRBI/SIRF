@@ -1750,10 +1750,11 @@ class SingleScatterSimulator():
             pyiutild.deleteDataHandle(self.handle)
 
     def run_scatter_simulation(self):
-        print('ScatterEstimator:: In the run_scatter_simulation!')
+        print('ScatterSimulator:: In the run_scatter_simulation!')
         self.output = AcquisitionData()
         self.output.handle = pystir.cSTIR_runScatterSimulation(self.handle)
         check_status(self.output.handle)
+        print('ScatterSimulator:: Simulation finished.')
 
     def set_acquisition_data(self, acq):
         assert_validity(acq, AcquisitionData)

@@ -127,9 +127,6 @@ def main():
     # Set the activity image
     sss.set_activity_image(act_image)
 
-    # At last call set_up()
-    output_data = sss.set_up()
-
     sss.run_scatter_simulation()
 
     # sss_data = sss.get_output()
