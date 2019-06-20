@@ -402,17 +402,69 @@ The actual algorithm is described in
     class PETSingleScatterSimulation : public stir::SingleScatterSimulation
     {
     public:
-        //!
+        //! Default constructor
         PETSingleScatterSimulation() : stir::SingleScatterSimulation()
-        {
-            std::cout<< " I am Here!!! " << std::endl;
-        }
-        //!
+        {}
+        //! Overloaded constructor which takes the parameter file
         PETSingleScatterSimulation(std::string filename) :
         stir::SingleScatterSimulation(filename)
         {}
 
-//        bool set_up();
+        void set_acquisition_model_sptr(stir::shared_ptr<PETAcquisitionData> arg)
+        {
+            sptr_output_ = arg;
+
+            stir::SingleScatterSimulation::set_template_proj_data_info_sptr(
+                        sptr_output_->get_proj_data_info_sptr());
+            stir::SingleScatterSimulation::set_exam_info_sptr(
+                        sptr_output_->get_exam_info_sptr());
+
+            stir::SingleScatterSimulation::set_output_proj_data_sptr(sptr_output_->data());
+        }
+
+        stir::shared_ptr<PETAcquisitionData> get_scatter_sptr() const
+        {
+            return sptr_output_;
+        }
+
+        void set_activity_image_sptr(stir::shared_ptr<STIRImageData> arg)
+        {
+            stir::SingleScatterSimulation::set_activity_image_sptr(arg->data_sptr());
+        }
+
+        void set_attenuation_image_sptr(stir::shared_ptr<STIRImageData> arg)
+        {
+            stir::SingleScatterSimulation::set_density_image_sptr(arg->data_sptr());
+            stir::SingleScatterSimulation::set_density_image_for_scatter_points_sptr(arg->data_sptr());
+        }
+
+    protected:
+        stir::shared_ptr<PETAcquisitionData> sptr_output_;
+
+    };
+
+    class PETSingleScatterEstimation : public stir::ScatterEstimation
+    {
+    public:
+        //!
+        PETSingleScatterEstimation() : stir::ScatterEstimation()
+        {
+            std::cout<< " I am Here!!! " << std::endl;
+        }
+        //! Overloaded constructor which takes the parameter file
+        PETSingleScatterEstimation(std::string filename) :
+        stir::ScatterEstimation(filename)
+        {}
+
+        stir::shared_ptr<PETAcquisitionData> get_scatter_estimate(int est_num = -1) const
+        {
+            if (est_num == -1) // Get the last one
+                est_num = num_scatter_iterations;
+            std::string filename = output_scatter_estimate_prefix + "_" + std::to_string(est_num);
+            return stir::shared_ptr<PETAcquisitionData>
+                (new PETAcquisitionDataInFile(filename.c_str()));
+        }
+
     };
 
 	/*!

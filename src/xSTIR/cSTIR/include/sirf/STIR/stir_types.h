@@ -59,7 +59,7 @@ limitations under the License.
 #include "stir/SSRB.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
 #include "stir/scatter/SingleScatterSimulation.h"
-
+#include "stir/scatter/ScatterEstimation.h"
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"
 

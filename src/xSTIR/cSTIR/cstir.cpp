@@ -89,6 +89,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
         if (boost::iequals(name, "PETSingleScatterSimulation"))
             return NEW_OBJECT_HANDLE(PETSingleScatterSimulation);
+        if (boost::iequals(name, "PETSingleScatterEstimation"))
+            return NEW_OBJECT_HANDLE(PETSingleScatterEstimation);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -142,6 +144,8 @@ void* cSTIR_setParameter
 			return cSTIR_setOSSPSParameter(hs, name, hv);
 		else if (boost::iequals(obj, "FBP2D"))
 			return cSTIR_setFBP2DParameter(hs, name, hv);
+        else if(boost::iequals(obj, ""))
+            return cSTIR_setScatterSimulationParameter(hs, name, hv);
 		else
 			return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -219,6 +223,11 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
                 sptr(new PETSingleScatterSimulation(filename));
             return newObjectHandle(sptr);
         }
+        if (boost::iequals(name, "PETSingleScatterEstimation")) {
+            shared_ptr<PETSingleScatterEstimation>
+                sptr(new PETSingleScatterEstimation(filename));
+            return newObjectHandle(sptr);
+        }
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -283,6 +292,19 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 		return newObjectHandle(lm2s.get_output());
 	}
 	CATCH;
+}
+
+extern "C"
+void* cSTIR_runScatterSimulation(void* ptr)
+{
+    try {
+        PETSingleScatterSimulation& sss = objectFromHandle<PETSingleScatterSimulation>(ptr);
+        sss.set_up();
+        sss.default_downsampling();
+        sss.process_data();
+        return newObjectHandle(sss.get_scatter_sptr());
+    }
+    CATCH;
 }
 
 extern "C"
