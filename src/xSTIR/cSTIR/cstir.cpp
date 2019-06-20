@@ -89,8 +89,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
         if (boost::iequals(name, "PETSingleScatterSimulation"))
             return NEW_OBJECT_HANDLE(PETSingleScatterSimulation);
-        if (boost::iequals(name, "PETSingleScatterEstimation"))
-            return NEW_OBJECT_HANDLE(PETSingleScatterEstimation);
+        if (boost::iequals(name, "PETScatterEstimation"))
+            return NEW_OBJECT_HANDLE(PETScatterEstimation);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -223,9 +223,9 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
                 sptr(new PETSingleScatterSimulation(filename));
             return newObjectHandle(sptr);
         }
-        if (boost::iequals(name, "PETSingleScatterEstimation")) {
-            shared_ptr<PETSingleScatterEstimation>
-                sptr(new PETSingleScatterEstimation(filename));
+        if (boost::iequals(name, "PETScatterEstimation")) {
+            shared_ptr<PETScatterEstimation>
+                sptr(new PETScatterEstimation(filename));
             return newObjectHandle(sptr);
         }
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -304,6 +304,30 @@ void* cSTIR_runScatterSimulation(void* ptr)
 
         sss.process_data();
         return newObjectHandle(sss.get_scatter_sptr());
+    }
+    CATCH;
+}
+
+extern "C"
+void* cSTIR_setupScatterEstimation(void* ptr_r)
+{
+    try {
+//        PETScatterEstimation & se =
+//                objectFromHandle<PETScatterEstimation>(ptr_r);
+//        se.process_data();
+//        return newObjectHandle(sss.get_scatter_sptr());
+    }
+    CATCH;
+}
+
+extern "C"
+void* cSTIR_runScatterEstimation(void* ptr_r)
+{
+    try {
+        PETScatterEstimation & se =
+                objectFromHandle<PETScatterEstimation>(ptr_r);
+        se.process_data();
+        return newObjectHandle(se.get_scatter_estimate());
     }
     CATCH;
 }

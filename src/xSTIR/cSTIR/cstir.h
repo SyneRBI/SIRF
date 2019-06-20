@@ -98,6 +98,8 @@ extern "C" {
 	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);
     void* cSTIR_runScatterSimulation(void* ptr_r);
 	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
+    void* cSTIR_setupScatterEstimation(void* ptr_r, void* ptr_i);
+    void* cSTIR_runScatterEstimation(void* ptr_r);
 
 	// Objective function methods
 	void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i);

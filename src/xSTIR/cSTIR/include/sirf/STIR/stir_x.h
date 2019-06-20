@@ -444,16 +444,14 @@ The actual algorithm is described in
 
     };
 
-    class PETSingleScatterEstimation : public stir::ScatterEstimation
+    class PETScatterEstimation : public stir::ScatterEstimation
     {
     public:
         //!
-        PETSingleScatterEstimation() : stir::ScatterEstimation()
-        {
-            std::cout<< " I am Here!!! " << std::endl;
-        }
+        PETScatterEstimation() : stir::ScatterEstimation()
+        {}
         //! Overloaded constructor which takes the parameter file
-        PETSingleScatterEstimation(std::string filename) :
+        PETScatterEstimation(std::string filename) :
         stir::ScatterEstimation(filename)
         {}
 

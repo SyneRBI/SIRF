@@ -1750,7 +1750,7 @@ class SingleScatterSimulator():
             pyiutil.deleteDataHandle(self.handle)
 
     def process(self):
-        print('ScatterSimulator:: Waiting the scatter simulation of finish ...')
+        print('ScatterSimulator:: Waiting the scatter simulation to finish ...')
         self.output = AcquisitionData()
         self.output.handle = pystir.cSTIR_runScatterSimulation(self.handle)
         check_status(self.output.handle)
@@ -1780,16 +1780,14 @@ class ScatterEstimator():
     def __init__(self, filename = ''):
         self.handle = None
         self.image = None
-        self.name = 'PETSingleScatterEstimation'
+        self.name = 'PETScatterEstimation'
         self.filename = filename
 
         if not self.filename:
             self.handle = pystir.cSTIR_newObject(self.name)
-            print('ScatterEstimator:: I am in Constructor 0000')
         else:
             self.handle = pystir.cSTIR_objectFromFile(self.name, self.filename)
 
-        print('ScatterEstimator:: I am in Constructor')
         check_status(self.handle)
 
     def __del__(self):
@@ -1797,10 +1795,11 @@ class ScatterEstimator():
             pyiutil.deleteDataHandle(self.handle)
 
     def process(self):
-        pass
-
-    def set_parameter_file(self, par_file):
-        _setParameter(self.handle, self.name, 'setParameterFile', image.handle)
+        print('ScatterEstimator:: Waiting the scatter estimation to finish ...')
+        self.output = AcquisitionData()
+        self.output.handle = pystir.cSTIR_runScatterEstimation(self.handle)
+        check_status(self.output.handle)
+        print('ScatterSimulator:: Estimation finished.')
 
     def get_output(self, est_num):
         print('ScatterEstimator:: doing here')
