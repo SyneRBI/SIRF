@@ -129,62 +129,11 @@ def main():
 
     sss.run_scatter_simulation()
 
-    # sss_data = sss.get_output()
+    sss_data = sss.get_simulated_data()
 
-    debug_stop = 0
-
-
-#     # select acquisition model that implements the geometric
-#     # forward projection by a ray tracing matrix multiplication
-#     acq_model = AcquisitionModelUsingRayTracingMatrix()
-#
-#     # testing bin efficiencies
-#     bin_eff = acq_template.clone()
-#     bin_eff.fill(beff)
-#     bin_eff_arr = bin_eff.as_array()
-#     # As an example, if bin efficiencies are non-trivial, set a portion of them to zero;
-#     # this should zero the corresponding portion of forward projection
-#     # and 'damage' the backprojection making it look less like the
-#     # actual image
-#     if beff != 1:
-#         bin_eff_arr[0,:,10:50,:] = 0
-#     show_2D_array('Bin efficiencies', bin_eff_arr[0,0,:,:])
-#     bin_eff.fill(bin_eff_arr)
-#
-#     asm = AcquisitionSensitivityModel(bin_eff)
-#     acq_model.set_acquisition_sensitivity(asm)
-#
-#     # As an example, add both an additive term and background term
-#     # (you normally wouldn't do this for real data)
-#     add = acq_template.clone()
-#     add.fill(addv)
-#     acq_model.set_additive_term(add)
-#
-#     bck = acq_template.clone()
-#     bck.fill(back)
-#     acq_model.set_background_term(bck)
-#
-#     print('projecting image...')
-#     # project the image to obtain simulated acquisition data
-#     # data from raw_data_file is used as a template
-#     acq_model.set_up(acq_template, image)
-#     simulated_data = acq_template.get_uniform_copy()
-#     acq_model.forward(image, 0, 4, simulated_data)
-# #    simulated_data = acq_model.forward(image, 0, 4)
-#     if output_file is not None:
-#         simulated_data.write(output_file)
-#
-#     # show simulated acquisition data
-#     simulated_data_as_array = simulated_data.as_array()
-#     show_2D_array('Forward projection', simulated_data_as_array[0,0,:,:])
-#
-#     print('backprojecting the forward projection...')
-#     # backproject the computed forward projection
-#     # note that the backprojection takes the acquisition sensitivy model asm into account as well
-#     back_projected_image = acq_model.backward(simulated_data, 0, 4)
-#
-#     back_projected_image_as_array = back_projected_image.as_array()
-#     show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
+    # show simulated scatter data
+    simulated_scatter_as_array = sss_data.as_array()
+    show_2D_array('Scatter simulation', simulated_scatter_as_array[0,0,:,:])
 
 try:
     main()

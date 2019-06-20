@@ -424,6 +424,7 @@ The actual algorithm is described in
 
         stir::shared_ptr<PETAcquisitionData> get_scatter_sptr() const
         {
+            sptr_output_->set_data(stir::SingleScatterSimulation::get_output_proj_data_sptr());
             return sptr_output_;
         }
 
