@@ -1,4 +1,4 @@
-{ "metadata": {
+{
   "title": "CCPPETMR SIRF",
   "keywords": [
     "image-reconstruction", "pet-mr", "medical-imaging"],
@@ -18,4 +18,4 @@
     {"name": "Kolbitsch, Christoph", "orcid": "0000-0002-4355-8368", "affiliation": "Physikalisch-Technische Bundesanstalt (PTB)"},
     {"name": "Ehrhardt, Matthias J.", "affiliation": "University of Bath"},
     {"name": "Whitehead, Alexander", "affiliation": "University College London"}]
-}}
+}
