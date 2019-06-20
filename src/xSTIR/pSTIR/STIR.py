@@ -1743,8 +1743,7 @@ class SingleScatterSimulator():
             self.handle = pystir.cSTIR_newObject(self.name)
             print('SingleScatterSimulator:: I am in Constructor 0000')
         else:
-            self.handle = pystir.cSTIR_objectFromFile
-            ('PETSingleScatterSimulation', self.filename)
+            self.handle = pystir.cSTIR_objectFromFile(self.name, self.filename)
 
         print('SingleScatterSimulator:: I am in Constructor')
         check_status(self.handle)
@@ -1753,8 +1752,63 @@ class SingleScatterSimulator():
         if self.handle is not None:
             pyiutild.deleteDataHandle(self.handle)
 
+    def run_scatter_simulation(self):
+        print('ScatterEstimator:: In the run_scatter_simulation!')
+        self.output = AcquisitionData()
+        self.output.handle = pystir.cSTIR_runScatterSimulation(self.handle)
+        check_status(self.output.handle)
+
+    def set_acquisition_data(self, acq):
+        assert_validity(acq, PETAcquisitionData)
+        _setParameter(self.handle, self.name, 'setAcquisitionData', acq.handle)
+
+    def set_attenuation_image(self):
+        pass
+
+    def set_activity_image(self):
+        pass
+
+    def set_attenuation_image_for_scatter_points(self):
+        pass
+
+    def get_simulated_data(self):
+        if self.output is None:
+            raise error('Simulation of scatter not done.')
+        return self.output
+
+class ScatterEstimator():
+    '''
+    Class for estimating the scatter contribution
+    '''
+    def __init__(self, filename = ''):
+        self.handle = None
+        self.image = None
+        self.name = 'PETSingleScatterEstimation'
+        self.filename = filename
+
+        if not self.filename:
+            self.handle = pystir.cSTIR_newObject(self.name)
+            print('ScatterEstimator:: I am in Constructor 0000')
+        else:
+            self.handle = pystir.cSTIR_objectFromFile(self.name, self.filename)
+
+        print('ScatterEstimator:: I am in Constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutild.deleteDataHandle(self.handle)
+
     def set_up(self):
-        print('SingleScatterSimulator:: I am in set up')
+        print('ScatterEstimator:: I am in set up')
+
+    def run_scatter_estimation(self):
+        print('ScatterEstimator:: doing here')
+        pass
+
+    def get_background_data(self, est_num):
+        print('ScatterEstimator:: doing here')
+        pass
 
 class OSSPSReconstructor(IterativeReconstructor):
     '''
