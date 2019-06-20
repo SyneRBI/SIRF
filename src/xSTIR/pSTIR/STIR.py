@@ -1749,8 +1749,8 @@ class SingleScatterSimulator():
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def run_scatter_simulation(self):
-        print('ScatterSimulator:: In the run_scatter_simulation!')
+    def process(self):
+        print('ScatterSimulator:: Waiting the scatter simulation of finish ...')
         self.output = AcquisitionData()
         self.output.handle = pystir.cSTIR_runScatterSimulation(self.handle)
         check_status(self.output.handle)
@@ -1768,7 +1768,7 @@ class SingleScatterSimulator():
         assert_validity(image, ImageData)
         _setParameter(self.handle, self.name, 'setActivityImage', image.handle)
 
-    def get_simulated_data(self):
+    def get_output(self):
         if self.output is None:
             raise error('Simulation of scatter not done.')
         return self.output
@@ -1794,16 +1794,15 @@ class ScatterEstimator():
 
     def __del__(self):
         if self.handle is not None:
-            pyiutild.deleteDataHandle(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
 
-    def set_up(self):
-        print('ScatterEstimator:: I am in set up')
-
-    def run_scatter_estimation(self):
-        print('ScatterEstimator:: doing here')
+    def process(self):
         pass
 
-    def get_background_data(self, est_num):
+    def set_parameter_file(self, par_file):
+        _setParameter(self.handle, self.name, 'setParameterFile', image.handle)
+
+    def get_output(self, est_num):
         print('ScatterEstimator:: doing here')
         pass
 
