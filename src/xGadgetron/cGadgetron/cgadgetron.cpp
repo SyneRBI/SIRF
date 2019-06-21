@@ -1253,3 +1253,16 @@ cGT_disconnect(void* ptr_con)
 	return (void*)new DataHandle;
 }
 
+extern "C"
+void*
+parameter(void* ptr, const char* obj, const char* name)
+{
+	return cGT_parameter(ptr, obj, name);
+}
+
+extern "C"
+void*
+setParameter(void* ptr, const char* obj, const char* par, const void* val)
+{
+	return cGT_setParameter(ptr, obj, par, val);
+}

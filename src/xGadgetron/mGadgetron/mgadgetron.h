@@ -34,7 +34,9 @@ limitations under the License.
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
-EXPORTED_FUNCTION  void* mGT_newObject(const char* name);
+EXPORTED_FUNCTION  void* mParameter(void* ptr, const char* obj, const char* name);
+EXPORTED_FUNCTION 	void* mSetParameter (void* ptr, const char* obj, const char* par, const void* val);
+EXPORTED_FUNCTION 	void* mGT_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION 	void* mGT_setParameter (void* ptr, const char* obj, const char* par, const void* val);
 EXPORTED_FUNCTION 	void*	mGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);

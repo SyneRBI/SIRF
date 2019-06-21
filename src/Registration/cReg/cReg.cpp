@@ -82,7 +82,7 @@ void* cReg_newObject(const char* name)
 
 // set parameters
 extern "C"
-void* cReg_setParameter
+void* setParameter
 (void* ptr_s, const char* obj, const char* name, const void* ptr_v)
 {
 	try {
@@ -99,7 +99,7 @@ void* cReg_setParameter
 
 // get functions
 extern "C"
-void* cReg_parameter(const void* ptr, const char* obj, const char* name)
+void* parameter(const void* ptr, const char* obj, const char* name)
 {
 	try {
 		CAST_PTR(DataHandle, handle, ptr);
