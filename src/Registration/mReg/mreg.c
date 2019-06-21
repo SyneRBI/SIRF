@@ -42,11 +42,11 @@ EXPORTED_FUNCTION  void* mReg_newObject(const char* name) {
 EXPORTED_FUNCTION     void* mReg_objectFromFile(const char* name, const char* filename) {
 	return cReg_objectFromFile(name, filename);
 }
-EXPORTED_FUNCTION     void* mReg_setParameter(void* ptr, const char* obj, const char* name, const void* value) {
-	return cReg_setParameter(ptr, obj, name, value);
+EXPORTED_FUNCTION     void* mSetParameter(void* ptr, const char* obj, const char* name, const void* value) {
+	return setParameter(ptr, obj, name, value);
 }
-EXPORTED_FUNCTION     void* mReg_parameter(const void* ptr, const char* obj, const char* name) {
-	return cReg_parameter(ptr, obj, name);
+EXPORTED_FUNCTION     void* mParameter(const void* ptr, const char* obj, const char* name) {
+	return parameter(ptr, obj, name);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const void *handle_vector_ptr) {
 	return cReg_NiftiImageData_print_headers(handle_vector_ptr);

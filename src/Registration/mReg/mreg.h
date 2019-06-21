@@ -37,8 +37,8 @@ limitations under the License.
 #endif
 EXPORTED_FUNCTION  void* mReg_newObject(const char* name);
 EXPORTED_FUNCTION     void* mReg_objectFromFile(const char* name, const char* filename);
-EXPORTED_FUNCTION     void* mReg_setParameter(void* ptr, const char* obj, const char* name, const void* value);
-EXPORTED_FUNCTION     void* mReg_parameter(const void* ptr, const char* obj, const char* name);
+EXPORTED_FUNCTION     void* mSetParameter(void* ptr, const char* obj, const char* name, const void* value);
+EXPORTED_FUNCTION     void* mParameter(const void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_fill(const void* ptr, const float val);

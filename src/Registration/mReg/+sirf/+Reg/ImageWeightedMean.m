@@ -62,7 +62,7 @@ classdef ImageWeightedMean < handle
             %Get output.
             output = sirf.Reg.NiftiImageData();
             sirf.Utilities.delete(output.handle_)
-            output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, self.name, 'output');
+            output.handle_ = calllib('mreg', 'mParameter', self.handle_, self.name, 'output');
             sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
         end
     end

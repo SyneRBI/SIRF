@@ -32,6 +32,11 @@ extern "C" {
 #define PTR_DOUBLE double*
 #endif
 
+	// Unified parameter exchange methods
+	void* setParameter
+		(void* ptr, const char* obj, const char* name, const void* value);
+	void* parameter(const void* ptr, const char* obj, const char* name);
+
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);
 	void* cSTIR_objectFromFile(const char* name, const char* filename);

@@ -41,6 +41,10 @@ import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
 
+import sirf.select_module as select_module
+select_module.module = 'pygadgetron'
+import sirf.parameters as parms
+
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
 else:
@@ -67,77 +71,6 @@ ISMRMRD_FLOAT    = 5 ##, /**< corresponds to float */
 ISMRMRD_DOUBLE   = 6 ##, /**< corresponds to double */
 ISMRMRD_CXFLOAT  = 7 ##, /**< corresponds to complex float */
 ISMRMRD_CXDOUBLE = 8 ##  /**< corresponds to complex double */
-
-###########################################################
-############ Utilities for internal use only ##############
-def _setParameter(hs, set, par, hv):
-    try_calling(pygadgetron.cGT_setParameter(hs, set, par, hv))
-def _set_int_par(handle, set, par, value):
-    h = pyiutil.intDataHandle(value)
-    _setParameter(handle, set, par, h)
-    pyiutil.deleteDataHandle(h)
-def _int_par(handle, set, par):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = pyiutil.intDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _int_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    for i in range(n):
-        value += (pyiutil.intDataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _uint16_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.uint16DataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _uint32_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.uint32DataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _uint64_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.uint64DataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _char_par(handle, set, par):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = pyiutil.charDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _float_par(handle, set, par):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    v = pyiutil.floatDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return v
-def _float_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.floatDataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _parameterHandle(hs, set, par):
-    handle = pygadgetron.cGT_parameter(hs, set, par)
-    check_status(handle)
-    return handle
-###########################################################
 
 # data path finding helper functions
 def mr_data_path():
@@ -289,7 +222,8 @@ class CoilSensitivityData(DataContainer):
             parm = {}
         if isinstance(data, AcquisitionData):
             assert data.handle is not None
-            _set_int_par\
+            #_set_int_par\
+            parms.set_int_par\
                 (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
             try_calling(pygadgetron.cGT_computeCoilSensitivities\
                 (self.handle, data.handle))
@@ -309,7 +243,8 @@ class CoilSensitivityData(DataContainer):
             elif method_name == 'SRSS':
                 if 'niter' in parm:
                     nit = int(parm['niter'])
-                    _set_int_par\
+                    #_set_int_par\
+                    parms.set_int_par\
                         (self.handle, 'coil_sensitivity', 'smoothness', nit)
                 try_calling(pygadgetron.cGT_computeCSMsFromCIs\
                     (self.handle, data.handle))
@@ -389,76 +324,79 @@ class Image:
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
     def version(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'version')
+        return parms.int_par(self.handle, 'image', 'version')
     def flags(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'flags')
+        return parms.int_par(self.handle, 'image', 'flags')
+        #return _int_par(self.handle, 'image', 'flags')
     def data_type(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'data_type')
+        return parms.int_par(self.handle, 'image', 'data_type')
     def measurement_uid(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'measurement_uid')
+        return parms.int_par(self.handle, 'image', 'measurement_uid')
     def channels(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'channels')
+        return parms.int_par(self.handle, 'image', 'channels')
     def average(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'average')
+        return parms.int_par(self.handle, 'image', 'average')
     def slice(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'slice')
+        return parms.int_par(self.handle, 'image', 'slice')
     def contrast(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'contrast')
+        return parms.int_par(self.handle, 'image', 'contrast')
     def phase(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'phase')
+        return parms.int_par(self.handle, 'image', 'phase')
     def repetition(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'repetition')
+        return parms.int_par(self.handle, 'image', 'repetition')
     def set(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'set')
+        return parms.int_par(self.handle, 'image', 'set')
     def acquisition_time_stamp(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'acquisition_time_stamp')
+        return parms.int_par(self.handle, 'image', 'acquisition_time_stamp')
     def image_type(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'image_type')
+        return parms.int_par(self.handle, 'image', 'image_type')
     def image_index(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'image_index')
+        return parms.int_par(self.handle, 'image', 'image_index')
     def image_series_index(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'image_series_index')
+        return parms.int_par(self.handle, 'image', 'image_series_index')
     def attribute_string_len(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'attribute_string_len')
+        return parms.int_par(self.handle, 'image', 'attribute_string_len')
     def matrix_size(self):
         assert self.handle is not None
-        return _uint16_pars(self.handle, 'image', 'matrix_size', 3)[::-1]
+        return parms.uint16_pars(self.handle, 'image', 'matrix_size', 3)[::-1]
+        #return _uint16_pars(self.handle, 'image', 'matrix_size', 3)[::-1]
     def physiology_time_stamp(self):
         assert self.handle is not None
-        return _uint32_pars(self.handle, 'image', 'physiology_time_stamp', 3)
+        return parms.uint32_pars(self.handle, 'image', 'physiology_time_stamp', 3)
     def field_of_view(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'field_of_view', 3)
+        return parms.float_pars(self.handle, 'image', 'field_of_view', 3)
     def position(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'position', 3)
+        return parms.float_pars(self.handle, 'image', 'position', 3)
     def read_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'read_dir', 3)
+        return parms.float_pars(self.handle, 'image', 'read_dir', 3)
     def phase_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'phase_dir', 3)
+        return parms.float_pars(self.handle, 'image', 'phase_dir', 3)
     def slice_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'slice_dir', 3)
+        return parms.float_pars(self.handle, 'image', 'slice_dir', 3)
     def patient_table_position(self):
         assert self.handle is not None
-        return _float_pars \
+        #return parms.float_pars \
+        return parms.float_pars \
                (self.handle, 'image', 'patient_table_position', 3)
     def info(self, method):
         return eval('self.' + method + '()')
@@ -642,104 +580,105 @@ class Acquisition:
             pyiutil.deleteDataHandle(self.handle)
     def version(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'version')
+        return parms.int_par(self.handle, 'acquisition', 'version')
     def flags(self):
         '''
         Returns acquisition flags as an integer (each bit corresponding to a 
         flag).
         '''
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'flags')
+        return parms.int_par(self.handle, 'acquisition', 'flags')
+        #return _int_par(self.handle, 'acquisition', 'flags')
     def measurement_uid(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'measurement_uid')
+        return parms.int_par(self.handle, 'acquisition', 'measurement_uid')
     def scan_counter(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'scan_counter')
+        return parms.int_par(self.handle, 'acquisition', 'scan_counter')
     def acquisition_time_stamp(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'acquisition_time_stamp')
+        return parms.int_par(self.handle, 'acquisition', 'acquisition_time_stamp')
     def number_of_samples(self):
         '''
         returns the number of samples in the readout direction.
         '''
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'number_of_samples')
+        return parms.int_par(self.handle, 'acquisition', 'number_of_samples')
     def available_channels(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'available_channels')
+        return parms.int_par(self.handle, 'acquisition', 'available_channels')
     def active_channels(self):
         '''
         Returns the number of active channels (coils).
         '''
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'active_channels')
+        return parms.int_par(self.handle, 'acquisition', 'active_channels')
     def discard_pre(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'discard_pre')
+        return parms.int_par(self.handle, 'acquisition', 'discard_pre')
     def discard_post(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'discard_post')
+        return parms.int_par(self.handle, 'acquisition', 'discard_post')
     def center_sample(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'center_sample')
+        return parms.int_par(self.handle, 'acquisition', 'center_sample')
     def encoding_space_ref(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'encoding_space_ref')
+        return parms.int_par(self.handle, 'acquisition', 'encoding_space_ref')
     def trajectory_dimensions(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'trajectory_dimensions')
+        return parms.int_par(self.handle, 'acquisition', 'trajectory_dimensions')
     def kspace_encode_step_1(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
+        return parms.int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
     def kspace_encode_step_2(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2')
+        return parms.int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2')
     def average(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_average')
+        return parms.int_par(self.handle, 'acquisition', 'idx_average')
     def slice(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_slice')
+        return parms.int_par(self.handle, 'acquisition', 'idx_slice')
     def contrast(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_contrast')
+        return parms.int_par(self.handle, 'acquisition', 'idx_contrast')
     def phase(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_phase')
+        return parms.int_par(self.handle, 'acquisition', 'idx_phase')
     def repetition(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_repetition')
+        return parms.int_par(self.handle, 'acquisition', 'idx_repetition')
     def set(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_set')
+        return parms.int_par(self.handle, 'acquisition', 'idx_set')
     def segment(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_segment')
+        return parms.int_par(self.handle, 'acquisition', 'idx_segment')
     def physiology_time_stamp(self):
         assert self.handle is not None
-        return _uint32_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
+        return parms.uint32_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
     def channel_mask(self):
         assert self.handle is not None
-        return _uint64_pars(self.handle, 'acquisition', 'channel_mask', 16)
+        return parms.uint64_pars(self.handle, 'acquisition', 'channel_mask', 16)
     def sample_time_us(self):
         assert self.handle is not None
-        return _float_par(self.handle, 'acquisition', 'sample_time_us')
+        return parms.float_par(self.handle, 'acquisition', 'sample_time_us')
     def position(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'acquisition', 'position', 3)
+        return parms.float_pars(self.handle, 'acquisition', 'position', 3)
     def read_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'acquisition', 'read_dir', 3)
+        return parms.float_pars(self.handle, 'acquisition', 'read_dir', 3)
     def phase_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'acquisition', 'phase_dir', 3)
+        return parms.float_pars(self.handle, 'acquisition', 'phase_dir', 3)
     def slice_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'acquisition', 'slice_dir', 3)
+        return parms.float_pars(self.handle, 'acquisition', 'slice_dir', 3)
     def patient_table_position(self):
         assert self.handle is not None
-        return _float_pars \
+        return parms.float_pars \
                (self.handle, 'acquisition', 'patient_table_position', 3)
     def info(self, method):
         return eval('self.' + method + '()')
@@ -801,11 +740,11 @@ class AcquisitionData(DataContainer):
         self.sorted = True
     def is_sorted(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisitions', 'sorted')
+        return parms.int_par(self.handle, 'acquisitions', 'sorted')
         #return self.sorted
     def is_undersampled(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisitions', 'undersampled')
+        return parms.int_par(self.handle, 'acquisitions', 'undersampled')
     def process(self, list):
         '''
         Returns processed self with an acquisition processor specified by
@@ -1061,7 +1000,7 @@ class Gadget:
         Returns the string representation of the value of specified property.
         prop: property name (string)
         '''
-        return _char_par(self.handle, 'gadget', prop)
+        return parms.char_par(self.handle, 'gadget', prop)
 
 class GadgetChain:
     '''
@@ -1110,7 +1049,7 @@ class GadgetChain:
             v = value
         else:
             v = repr(value).lower()
-        hg = _parameterHandle(self.handle, 'gadget_chain', id)
+        hg = parms.parameter_handle(self.handle, 'gadget_chain', id)
         try_calling(pygadgetron.cGT_setGadgetProperty(hg, prop, v))
         pyiutil.deleteDataHandle(hg)
     def value_of_gadget_property(self, id, prop):
@@ -1119,8 +1058,8 @@ class GadgetChain:
         id  : gadget id
         prop: property name (string)
         '''
-        hg = _parameterHandle(self.handle, 'gadget_chain', id)
-        hv = _parameterHandle(hg, 'gadget', prop)
+        hg = parms.parameter_handle(self.handle, 'gadget_chain', id)
+        hv = parms.parameter_handle(hg, 'gadget', prop)
         value = pyiutil.charDataFromHandle(hv)
         pyiutil.deleteDataHandle(hg)
         pyiutil.deleteDataHandle(hv)

@@ -35,7 +35,13 @@ limitations under the License.
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
-EXPORTED_FUNCTION  void* mGT_newObject(const char* name) {
+EXPORTED_FUNCTION  void* mParameter(void* ptr, const char* obj, const char* name) {
+	return parameter(ptr, obj, name);
+}
+EXPORTED_FUNCTION 	void* mSetParameter (void* ptr, const char* obj, const char* par, const void* val) {
+	return setParameter (ptr, obj, par, val);
+}
+EXPORTED_FUNCTION 	void* mGT_newObject(const char* name) {
 	return cGT_newObject(name);
 }
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name) {
