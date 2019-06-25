@@ -67,20 +67,21 @@ g.flo_aladin                                 = sirf.Reg.NiftiImageData3D( g.flo_
 g.ref_f3d                                    = sirf.Reg.NiftiImageData3D(   g.ref_f3d_filename  );
 g.flo_f3d                                    = sirf.Reg.NiftiImageData3D(   g.flo_f3d_filename  );
 
-try_niftiimage(g);
-try_niftiimage3d(g);
-try_niftiimage3dtensor(g);
-try_niftiimage3ddisplacement(g);
-try_niftiimage3ddeformation(g);
-na = try_niftyaladin(g);
-try_niftyf3d(g);
-try_transformations(g,na);
-try_resample(g,na);
-try_weighted_mean(g,na);
-try_affinetransformation(g,na);
-try_quaternion();
+% You can change these when debugging
+try_niftiimage = true;
+try_niftiimage3d = true;
+try_niftiimage3dtensor = true;
+try_niftiimage3ddisplacement = true;
+try_niftiimage3ddeformation = true;
+try_niftyaladin = true;
+try_niftyf3d = true;
+try_transformations = true;
+try_resample = true;
+try_weighted_mean = true;
+try_affinetransformation = true;
+try_quaternion = true;
 
-function try_niftiimage(g)
+if try_niftiimage
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting NiftiImageData test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -203,7 +204,7 @@ function try_niftiimage(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3d(g)
+if try_niftiimage3d
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3D test...')
     disp('%------------------------------------------------------------------------ %')
@@ -261,7 +262,7 @@ function try_niftiimage3d(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3dtensor(g)
+if try_niftiimage3dtensor
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DTensor test...')
     disp('%------------------------------------------------------------------------ %')
@@ -332,7 +333,7 @@ function try_niftiimage3dtensor(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3ddisplacement(g)
+if try_niftiimage3ddisplacement
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DDisplacement test...')
     disp('%------------------------------------------------------------------------ %')
@@ -412,7 +413,7 @@ function try_niftiimage3ddisplacement(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3ddeformation(g)
+if try_niftiimage3ddeformation
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DDeformation test...')
     disp('%------------------------------------------------------------------------ %')
@@ -471,7 +472,7 @@ function try_niftiimage3ddeformation(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function na =try_niftyaladin(g)
+if try_niftyaladin
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Nifty aladin test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -531,7 +532,7 @@ function na =try_niftyaladin(g)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftyf3d(g)
+if try_niftyf3d
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Nifty f3d test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -570,7 +571,7 @@ function try_niftyf3d(g)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_transformations(g,na)
+if try_transformations
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Transformation test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -604,7 +605,7 @@ function try_transformations(g,na)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_resample(g,na)
+if try_resample
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting Nifty resample test...')
     disp('%------------------------------------------------------------------------ %')
@@ -660,7 +661,7 @@ function try_resample(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_weighted_mean(g,na)
+if try_weighted_mean
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting weighted mean test...')
     disp('%------------------------------------------------------------------------ %')
@@ -714,7 +715,7 @@ function try_weighted_mean(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_affinetransformation(g,na)
+if try_affinetransformation
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting AffineTransformation test...')
     disp('%------------------------------------------------------------------------ %')
@@ -776,7 +777,7 @@ function try_affinetransformation(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_quaternion()
+if try_quaternion
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting Quaternion test...')
     disp('%------------------------------------------------------------------------ %')
