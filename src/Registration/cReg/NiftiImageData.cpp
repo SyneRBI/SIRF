@@ -747,7 +747,7 @@ bool NiftiImageData<dataType>::is_same_size(const NiftiImageData &im) const
 template<typename T>
 static bool do_nifti_image_metadata_elements_match(const std::string &name, const T &elem1, const T &elem2, bool verbose)
 {
-    if(float(fabs(elem1-elem2)) < 1.e-7F)
+    if(float(fabs(float(elem1-elem2))) < 1.e-7F)
         return true;
     if (verbose)
         std::cout << "mismatch in " << name << " , (values: " <<  elem1 << " and " << elem2 << ")\n";
