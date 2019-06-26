@@ -47,7 +47,7 @@ classdef ImageWeightedMean < handle
             elseif ischar(image)
                 h = calllib('mreg', 'mReg_ImageWeightedMean_add_image_filename', self.handle_, image, weight);
             else
-                error("sirf.Reg.ImageWeightedMean.add_image: image must be sirf.SIRF.ImageData or filename.")
+                error('sirf.Reg.ImageWeightedMean.add_image: image must be sirf.SIRF.ImageData or filename.')
             end
             sirf.Utilities.check_status([self.name ':add_image'], h);
             sirf.Utilities.delete(h)
