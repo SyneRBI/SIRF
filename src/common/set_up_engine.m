@@ -28,7 +28,7 @@ function alias = set_up_engine(engine)
         libload_sirf();
         eval(['libload_' lower(engine)])
     catch me
-        fprintf(me.message)
+        fprintf('%s\n', me.message)
         error('package %s failed to load\n', engine)
     end
     
