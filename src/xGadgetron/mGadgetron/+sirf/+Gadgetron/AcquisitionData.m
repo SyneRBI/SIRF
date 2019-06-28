@@ -170,11 +170,19 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
                 ns, nc, na);
         end
-        function fill(self, data)
+        function fill(self, data, select)
 %***SIRF*** Changes acquisition data to that in 3D complex array argument.
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
+            end
+            if nargin < 3
+                select = 'all';
+            end
+            if strcmp(select, 'all')
+                all = 1;
+            else
+                all = 0;
             end
             z = [real(data(:))'; imag(data(:))'];
             if isa(z, 'single')
@@ -183,7 +191,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                 ptr_z = libpointer('singlePtr', single(z));
             end
             h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
-                self.handle_, ptr_z, 1);
+                self.handle_, ptr_z, all);
             sirf.Utilities.check_status('AcquisitionData', h);
             sirf.Utilities.delete(h)
         end
