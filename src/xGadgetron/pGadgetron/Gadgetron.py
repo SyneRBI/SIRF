@@ -794,14 +794,18 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
-    def fill(self, data):
+    def fill(self, data, select = 'image'):
         '''
         Fills self's acquisitions with specified values.
         data: Python Numpy array
         '''
         assert self.handle is not None
+        if select == 'all': # return all
+            fill_all = 1
+        else: # return only image-related
+            fill_all = 0
         try_calling(pygadgetron.cGT_fillAcquisitionsData\
-            (self.handle, data.ctypes.data, 1))
+            (self.handle, data.ctypes.data, fill_all))
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
