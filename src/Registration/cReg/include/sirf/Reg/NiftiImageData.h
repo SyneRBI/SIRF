@@ -271,6 +271,9 @@ public:
     /// Get sum
     float get_sum() const;
 
+    /// Get nan count
+    unsigned get_nan_count() const;
+
     /// Fill
     void fill(const float v);
 
@@ -332,7 +335,7 @@ public:
     void kernel_convolution(const float sigma, NREG_CONV_KERNEL_TYPE conv_type = GAUSSIAN_KERNEL);
 
     /// Does the image contain any NaNs?
-    bool get_contains_nans() const;
+    bool get_contains_nans() const { return (this->get_nan_count() > 0); }
 
 protected:
 
