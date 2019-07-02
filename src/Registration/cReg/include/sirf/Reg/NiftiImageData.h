@@ -228,6 +228,9 @@ public:
     /// Multiply image
     NiftiImageData operator*(const float&) const;
 
+    /// Divide image
+    NiftiImageData operator/(const float&) const;
+
     /// Access data element via 1D index (const)
     float operator()(const int index) const;
 
