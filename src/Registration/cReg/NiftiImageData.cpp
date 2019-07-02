@@ -325,16 +325,9 @@ float NiftiImageData<dataType>::get_mean() const
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::get_min(): Image not initialised.");
 
-    float sum = 0.F;
-    int nan_count = 0;
-    for (unsigned i=0; i<_nifti_image->nvox; ++i)
-        if (!std::isnan(_data[i])) {
-            sum += _data[i];
-            ++nan_count;
-        }
-
-    // Get data
-    return sum / float(nan_count);
+    float sum = this->get_sum();
+    unsigned non_nan_count = unsigned(this->get_num_voxels()) - this->get_nan_count();
+    return sum / float(non_nan_count);
 }
 
 template<class dataType>
@@ -343,10 +336,24 @@ float NiftiImageData<dataType>::get_sum() const
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::get_sum(): Image not initialised.");
 
-    float sum = 0.F;
+    double sum = 0;
     for (unsigned i=0; i<_nifti_image->nvox; ++i)
-        sum += float(_data[i]);
-    return sum;
+        sum += double(_data[i]);
+    return float(sum);
+}
+
+template<class dataType>
+unsigned NiftiImageData<dataType>::get_nan_count() const
+{
+    if(!this->is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::get_sum(): Image not initialised.");
+
+    unsigned nan_count = 0;
+    for (unsigned i=0; i<_nifti_image->nvox; ++i)
+        if (std::isnan(_data[i]))
+            ++nan_count;
+
+    return nan_count;
 }
 
 template<class dataType>
@@ -1150,16 +1157,6 @@ void NiftiImageData<dataType>::kernel_convolution(const float sigma, NREG_CONV_K
     for(int i=0; i<_nifti_image->nt; ++i) sigma_t[i]=sigma; //-0.7355f?
     reg_tools_kernelConvolution(_nifti_image.get(),sigma_t,conv_type);
     delete []sigma_t;
-}
-
-template<class dataType>
-bool NiftiImageData<dataType>::get_contains_nans() const
-{
-    if (is_initialised())
-        for (unsigned i=0; i<this->get_num_voxels(); ++i)
-            if (std::isnan(_data[i]))
-                return true;
-    return false;
 }
 
 template<class dataType>
