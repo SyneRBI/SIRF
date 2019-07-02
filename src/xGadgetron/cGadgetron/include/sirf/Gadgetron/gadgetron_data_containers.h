@@ -383,8 +383,6 @@ namespace sirf {
 		
 
 		virtual unsigned int number() const = 0;
-		virtual int types() = 0;
-		virtual void count(int i) = 0;
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
 			(unsigned int im_num) = 0;
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
@@ -497,13 +495,11 @@ namespace sirf {
 			}
 			virtual bool operator==(const BaseIter& ai) const
 			{
-				//const Iterator& i = (const Iterator&)ai;
 				DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ == i.iter_;
 			}
 			virtual bool operator!=(const BaseIter& ai) const
 			{
-				//const Iterator& i = (const Iterator&)ai;
 				DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ != i.iter_;
 			}
@@ -573,13 +569,11 @@ namespace sirf {
 			}
 			bool operator==(const BaseIter_const& ai) const
 			{
-				//const Iterator_const& i = (const Iterator_const&)ai;
 				DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ == i.iter_;
 			}
 			bool operator!=(const BaseIter_const& ai) const
 			{
-				//const Iterator_const& i = (const Iterator_const&)ai;
 				DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ != i.iter_;
 			}
@@ -631,7 +625,7 @@ namespace sirf {
 			gadgetron::shared_ptr<Iterator_const> sptr_iter_;
 		};
 
-		GadgetronImagesVector() : images_(), nimages_(0)
+		GadgetronImagesVector() : images_()
 		{}
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
@@ -643,18 +637,6 @@ namespace sirf {
 		virtual unsigned int number() const 
 		{ 
 			return (unsigned int)images_.size(); 
-		}
-		virtual int types()
-		{
-			if (nimages_ > 0)
-				return (int)(images_.size() / nimages_);
-			else
-				return 1;
-		}
-		virtual void count(int i)
-		{
-			if (i > nimages_)
-				nimages_ = i;
 		}
 		virtual void append(int image_data_type, void* ptr_image)
 		{
@@ -764,7 +746,6 @@ namespace sirf {
         }
 
 		std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
-		int nimages_;
 		mutable gadgetron::shared_ptr<Iterator> begin_;
 		mutable gadgetron::shared_ptr<Iterator> end_;
 		mutable gadgetron::shared_ptr<Iterator_const> begin_const_;
