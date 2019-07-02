@@ -988,6 +988,18 @@ class GadgetChain:
 ##        '''
 ##        assert isinstance(writer, Gadget)
 ##        try_calling(pygadgetron.cGT_addWriter(self.handle, id, writer.handle))
+    def set_host(self, host):
+        '''
+        Sets Gadgetron server host.
+        host : host name (string)
+        '''
+        try_calling(pygadgetron.cGT_setHost(self.handle, host))
+    def set_port(self, port):
+        '''
+        Sets Gadgetron server port.
+        port : port number (as a string)
+        '''
+        try_calling(pygadgetron.cGT_setPort(self.handle, port))
     def add_gadget(self, id, gadget):
         '''
         Adds a gadget to the chain.
