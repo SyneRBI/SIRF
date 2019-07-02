@@ -289,6 +289,10 @@ void* cReg_NiftiImageData_as_array(const void* ptr, size_t ptr_data)
         const float *im_data = static_cast<float*>(im.get_raw_nifti_sptr()->data);
         float *data = (float*)ptr_data;
 
+        // We'll need to take slope and intercept into account
+        float slope = im.get_raw_nifti_sptr()->scl_slope;
+        float inter = im.get_raw_nifti_sptr()->scl_inter;
+
         // nifti_image data are stored as u,x,y,z, whereas python and matlab need x,y,z,u
         int nifti_idx, wrap_idx;
         for (int u=0; u<dim_u; ++u) {
@@ -297,7 +301,8 @@ void* cReg_NiftiImageData_as_array(const void* ptr, size_t ptr_data)
                     for (int z=0; z<dim_z; ++z) {
                         wrap_idx  = u + dim_u*(x + dim_x*(y + dim_y*(z)));
                         nifti_idx = x + dim_x*(y + dim_y*(z + dim_z*(u)));
-                        data[wrap_idx] = im_data[nifti_idx];
+                        // Need to take slope and intercept into account
+                        data[wrap_idx] = slope * im_data[nifti_idx] + inter;
                     }
                 }
             }

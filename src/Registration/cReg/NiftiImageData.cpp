@@ -227,6 +227,12 @@ NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float& val) c
 }
 
 template<class dataType>
+NiftiImageData<dataType> NiftiImageData<dataType>::operator/(const float& val) const
+{
+    return maths(1.F/val,mul);
+}
+
+template<class dataType>
 float NiftiImageData<dataType>::operator()(const int index) const
 {
     assert(this->is_in_bounds(index));
@@ -305,8 +311,13 @@ float NiftiImageData<dataType>::get_max() const
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::get_max(): Image not initialised.");
 
-    // Get data
-    return *std::max_element(_data, _data + _nifti_image->nvox);
+    // If the slope is positive, get max. if negative, get min
+    float max;
+    if (_nifti_image->scl_slope > 0)
+        max = *std::max_element(_data, _data + _nifti_image->nvox);
+    else
+        max = *std::min_element(_data, _data + _nifti_image->nvox);
+    return _nifti_image->scl_slope * max + _nifti_image->scl_inter;
 }
 
 template<class dataType>
@@ -315,8 +326,13 @@ float NiftiImageData<dataType>::get_min() const
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::get_min(): Image not initialised.");
 
-    // Get data
-    return *std::min_element(_data, _data + _nifti_image->nvox);
+    // If the slope is positive, get min. if negative, get max
+    float min;
+    if (_nifti_image->scl_slope > 0)
+        min = *std::min_element(_data, _data + _nifti_image->nvox);
+    else
+        min = *std::max_element(_data, _data + _nifti_image->nvox);
+    return _nifti_image->scl_slope * min + _nifti_image->scl_inter;
 }
 
 template<class dataType>
@@ -325,6 +341,7 @@ float NiftiImageData<dataType>::get_mean() const
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::get_min(): Image not initialised.");
 
+    // Get sum will already take slope and intercept into account, so no need to do that
     float sum = this->get_sum();
     unsigned non_nan_count = unsigned(this->get_num_voxels()) - this->get_nan_count();
     return sum / float(non_nan_count);
@@ -339,7 +356,8 @@ float NiftiImageData<dataType>::get_sum() const
     double sum = 0;
     for (unsigned i=0; i<_nifti_image->nvox; ++i)
         sum += double(_data[i]);
-    return float(sum);
+    // Take slope and intercept into account
+    return _nifti_image->scl_slope * float(sum) + _nifti_image->scl_inter;
 }
 
 template<class dataType>
@@ -362,8 +380,9 @@ void NiftiImageData<dataType>::fill(const float v)
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::fill(): Image not initialised.");
 
+    // Take slope and intercept into account
     for (unsigned i=0; i<_nifti_image->nvox; ++i)
-        _data[i] = v;
+        _data[i] = (v - _nifti_image->scl_inter) / _nifti_image->scl_slope;
 }
 
 template<class dataType>
@@ -379,11 +398,15 @@ float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) 
 
     // Use double precision to minimise rounding errors
     double result(0);
+    double real_first, real_second;
     size_t num_vox = _nifti_image->nvox;
     for (size_t i=0; i<num_vox; ++i)
         // If either value is nan, skip
-        if (!std::isnan(this->operator()(i)+other(i)))
-            result += double(pow( this->operator()(i) - other(i), 2));
+        if (!std::isnan(this->operator()(i)+other(i))) {
+            real_first  = double(this->_nifti_image->scl_slope * this->_data[i] + this->_nifti_image->scl_slope);
+            real_second = double(other._nifti_image->scl_slope * other._data[i] + other._nifti_image->scl_slope);
+            result += double(pow( real_first - real_second, 2));
+        }
 
     return float(sqrt(result));
 }
@@ -458,9 +481,12 @@ NiftiImageData<dataType> NiftiImageData<dataType>::maths(const NiftiImageData<da
 
     NiftiImageData<dataType> res = *this;
 
+    // We'll need to take the slope and intercept of c into account.
+    float c_real;
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
-        if (type == add) res(i) += c(i);
-        else             res(i) -= c(i);
+        c_real = c.get_raw_nifti_sptr()->scl_slope * c(i) + c.get_raw_nifti_sptr()->scl_inter;
+        if (type == add) res(i) += c_real;
+        else             res(i) -= c_real;
     }
 
     return res;
@@ -475,10 +501,15 @@ NiftiImageData<dataType> NiftiImageData<dataType>::maths(const float val, const 
         throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: only implemented for add, subtract and multiply.");
 
     NiftiImageData res = *this;
-    for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
-        if      (type == add) res(i) += val;
-        else if (type == sub) res(i) -= val;
-        else                  res(i) *= val;
+
+    // y = mx+c where m is slope, c is intercept, x is stored data and y is real value.
+    // For addition: y+val = mx+c+val. We can simply absorb val into c (the intercept)
+    // For multiplication val*y = val*(mx+c) = (val*m)x + val*c. need to multiply both m and c by val.
+    if      (type == add) res._nifti_image->scl_inter += val;
+    else if (type == sub) res._nifti_image->scl_inter -= val;
+    else {
+        res._nifti_image->scl_slope *= val;
+        res._nifti_image->scl_inter *= val;
     }
     return res;
 }
@@ -1218,8 +1249,14 @@ void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr) const
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     double s = 0.0;
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        s += double(_data[i] * x._data[i]);
+
+    // Take the slope and intercept into account
+    double real_first, real_second;
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i) {
+        real_first  = double(this->_nifti_image->scl_slope * this->_data[i] + this->_nifti_image->scl_inter);
+        real_second = double(x._nifti_image->scl_slope * x._data[i] + x._nifti_image->scl_inter);
+        s += real_first * real_second;
+    }
     float* ptr_s = static_cast<float*>(ptr);
     *ptr_s = float(s);
 }
@@ -1241,17 +1278,23 @@ void NiftiImageData<dataType>::axpby(
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     assert(_nifti_image->nvox == y._nifti_image->nvox);
 
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        _data[i] = a * x._data[i] + b * y._data[i];
+    // Take the slope and intercept into account
+    float slope = _nifti_image->scl_slope;
+    float inter = _nifti_image->scl_inter;
+    float real_first, real_second, real_result;
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i) {
+        real_first  = x._nifti_image->scl_slope * x._data[i] + x._nifti_image->scl_inter;
+        real_second = y._nifti_image->scl_slope * y._data[i] + y._nifti_image->scl_inter;
+        real_result = a * real_first + b * real_second;
+
+        _data[i] = (real_result - inter) / slope;
+    }
 }
 
 template<class dataType>
 float NiftiImageData<dataType>::norm() const
 {
-    double s = 0.0;
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        s += double(_data[i]*_data[i]);
-    return float(sqrt(s));
+    return this->get_norm(*this);
 }
 
 template<class dataType>
@@ -1268,8 +1311,13 @@ void NiftiImageData<dataType>::multiply
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     assert(_nifti_image->nvox == y._nifti_image->nvox);
 
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        _data[i] = x._data[i] * y._data[i];
+    float real_first, real_second, real_result;
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i) {
+        real_first  = x._nifti_image->scl_slope * x._data[i] + x._nifti_image->scl_inter;
+        real_second = y._nifti_image->scl_slope * y._data[i] + y._nifti_image->scl_inter;
+        real_result = real_first * real_second;
+        _data[i] = (real_result - _nifti_image->scl_inter) / _nifti_image->scl_slope;
+    }
 }
 
 template<class dataType>
@@ -1289,8 +1337,13 @@ void NiftiImageData<dataType>::divide
     if (y.get_max() < 1.e-12F)
         THROW("division by zero in NiftiImageData::divide");
 
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        _data[i] = x._data[i] / abs(y._data[i]);
+    float real_first, real_second, real_result;
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i) {
+        real_first  = x._nifti_image->scl_slope * x._data[i] + x._nifti_image->scl_inter;
+        real_second = y._nifti_image->scl_slope * y._data[i] + y._nifti_image->scl_inter;
+        real_result = real_first / abs(real_second);
+        _data[i] = (real_result - _nifti_image->scl_inter) / _nifti_image->scl_slope;
+    }
 }
 
 template<class dataType>
