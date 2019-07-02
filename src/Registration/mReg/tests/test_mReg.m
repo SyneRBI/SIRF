@@ -161,7 +161,6 @@ if try_niftiimage
         max_(i) = f(i+1) - 1;
     end
     max_(3) = 62;
-    e = e;
     s.crop(min_,max_);
     assert(all(size(s.as_array()) == [64, 64, 63]), 'NiftiImageData crop() failed.')
 
