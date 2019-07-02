@@ -956,6 +956,34 @@ cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
 
 extern "C"
 void*
+cGT_setHost(void* ptr_gc, const char* host)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		gc.set_host(host);
+	}
+	CATCH;
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_setPort(void* ptr_gc, const char* port)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		gc.set_port(port);
+	}
+	CATCH;
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
 cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
 {
 	try {
