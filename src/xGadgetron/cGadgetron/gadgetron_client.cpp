@@ -75,7 +75,6 @@ GadgetronClientImageMessageCollector::read(boost::asio::ip::tcp::socket* stream)
 		(h.data_type, read_data_attributes, ptr, h, &ptr, stream);
 	if (ptr) {
 		ptr_images_->append(h.data_type, ptr);
-		ptr_images_->count(h.image_index);
 	}
 	else {
 		throw GadgetronClientException("Invalid image data type");
