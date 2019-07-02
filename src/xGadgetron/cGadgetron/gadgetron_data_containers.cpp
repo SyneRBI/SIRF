@@ -1124,6 +1124,9 @@ GadgetronImagesVector::set_up_geom_info()
     std::cout << "\nSetting up geometrical info for GadgetronImagesVector...\n";
 #endif
 
+    if (number() < 1)
+        return;
+
     if (!this->sorted())
         this->sort();
 
