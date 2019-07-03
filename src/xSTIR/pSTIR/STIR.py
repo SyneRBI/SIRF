@@ -380,6 +380,25 @@ class ImageData(SIRF.ImageData):
                                 label = 'slice', xlabel = 'x', ylabel = 'y', \
                                 suptitle = title, show = (t == ni))
             f = t
+    def allocate(self, value=0, **kwargs):
+        '''Alias to get_uniform_copy
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.get_uniform_copy()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.get_uniform_copy(value)
+        return out
 ##        print('Please enter slice numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
@@ -717,6 +736,25 @@ class AcquisitionData(DataContainer):
                                 xlabel = 'tang.pos', ylabel = 'view', \
                                 suptitle = title, show = (t == ns))
             f = t
+    def allocate(self, value=0, **kwargs):
+        '''Alias to get_uniform_copy
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.get_uniform_copy()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.get_uniform_copy(value)
+        return out
 ##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))

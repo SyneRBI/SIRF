@@ -569,6 +569,27 @@ class ImageData(SIRF.ImageData):
                                 suptitle = title, \
                                 show = (t == ni) and not postpone)
             f = t
+    def allocate(self, value=0, **kwargs):
+        '''Method to allocate an ImageData and set its values
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.clone()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.clone()
+            #tmp = value * numpy.ones(out.as_array().shape)
+            out.fill(value)
+        return out
 
 DataContainer.register(ImageData)
 
@@ -872,6 +893,28 @@ class AcquisitionData(DataContainer):
                                 suptitle = title, cmap = cmap, power = power, \
                                 show = (t == ns) and not postpone)
             f = t
+    
+    def allocate(self, value=0, **kwargs):
+        '''Method to allocate an AcquisitionData and set its values
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.clone()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.clone()
+            #tmp = value * numpy.ones(out.as_array().shape)
+            out.fill(value)
+        return out
 
 DataContainer.register(AcquisitionData)
 
