@@ -61,7 +61,9 @@ template<class dataType>
 NiftiImageData<dataType>::NiftiImageData(const NiftiImageData<dataType>& to_copy)
 {
     copy_nifti_image(_nifti_image,to_copy._nifti_image);
-    set_up_data(to_copy._original_datatype);
+    this->_data = static_cast<float*>(_nifti_image->data);
+    this->_original_datatype = to_copy._original_datatype;
+    set_up_geom_info();
 }
 
 template<class dataType>
@@ -74,7 +76,9 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const NiftiImageDa
             throw std::runtime_error("Trying to copy an uninitialised image.");
         // Copy
         copy_nifti_image(_nifti_image,to_copy._nifti_image);
-        set_up_data(to_copy._original_datatype);
+        this->_data = static_cast<float*>(_nifti_image->data);
+        this->_original_datatype = to_copy._original_datatype;
+        set_up_geom_info();
     }
     return *this;
 }
