@@ -223,6 +223,12 @@ NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float& val) c
 }
 
 template<class dataType>
+NiftiImageData<dataType> NiftiImageData<dataType>::operator/(const float& val) const
+{
+    return maths(1.f/val,mul);
+}
+
+template<class dataType>
 float NiftiImageData<dataType>::operator()(const int index) const
 {
     assert(this->is_in_bounds(index));
