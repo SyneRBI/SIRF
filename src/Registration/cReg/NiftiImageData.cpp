@@ -733,6 +733,15 @@ void NiftiImageData<dataType>::set_up_data(const int original_datatype)
     _nifti_image->nbyper = sizeof(float);
     this->_data = static_cast<float*>(_nifti_image->data);
 
+    // Take slope and intercept into account
+    if (std::abs(_nifti_image->scl_slope-1) > 1e-4f || std::abs(_nifti_image->scl_inter) > 1e-4f) {
+        for (unsigned i=0; i<this->get_num_voxels(); ++i)
+            _data[i] = _nifti_image->scl_slope * _data[i] + _nifti_image->scl_inter;
+        _nifti_image->scl_slope = 1.f;
+        _nifti_image->scl_inter = 0.f;
+
+    }
+
     // Lastly, initialise the geometrical info
     set_up_geom_info();
 }
