@@ -209,21 +209,27 @@ NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const NiftiImageDat
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator+(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator+(const float val) const
 {
     return maths(val,add);
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const float val) const
 {
     return maths(val,sub);
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float val) const
 {
     return maths(val,mul);
+}
+
+template<class dataType>
+NiftiImageData<dataType> NiftiImageData<dataType>::operator/(const float val) const
+{
+    return maths(1.f/val,mul);
 }
 
 template<class dataType>
