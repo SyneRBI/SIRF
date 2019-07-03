@@ -306,6 +306,25 @@ class DataContainer(ABC):
                numpy.maximum(self.as_array(), other.as_array())
         )
         return z
+    def minimum(self, other, out=None):
+        '''Element-wise minimum of DataContainer elements.
+
+        Compare two DataContainers and returns a new array containing the element-wise minima. Output can be pre-allocated in variable out.
+
+        uses NumPy
+        SIRF/CIL compatibility
+        '''
+
+        assert_validities(self, other)
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.fill(
+               numpy.minimum(self.as_array(), other.as_array())
+        )
+        return z
     # inline algebra
     def __iadd__(self, other):
         '''Not quite in-place add'''
