@@ -483,6 +483,9 @@ class ImageData(SIRF.ImageData):
         Fills self's image data with specified values.
         data: Python Numpy array
         '''
+        if not isinstance(data, numpy.ndarray ):
+            # CIL/SIRF compatibility
+            data = data.as_array()
         assert self.handle is not None
         if self.is_real():
             if data.dtype != numpy.float32:
@@ -587,8 +590,8 @@ class ImageData(SIRF.ImageData):
                 out.fill(numpy.random.randint(max_value,size=shape))
         else:
             out = self.clone()
-            #tmp = value * numpy.ones(out.as_array().shape)
-            out.fill(value)
+            tmp = value * numpy.ones(out.as_array().shape)
+            out.fill(tmp)
         return out
 
 DataContainer.register(ImageData)
@@ -912,8 +915,8 @@ class AcquisitionData(DataContainer):
                 out.fill(numpy.random.randint(max_value,size=shape))
         else:
             out = self.clone()
-            #tmp = value * numpy.ones(out.as_array().shape)
-            out.fill(value)
+            tmp = value * numpy.ones(out.as_array().shape)
+            out.fill(tmp)
         return out
 
 DataContainer.register(AcquisitionData)
@@ -984,7 +987,10 @@ class AcquisitionModel:
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if not out is None:
-            raise error('out is not supported')
+            #raise error('out is not supported')
+            tmp = self.forward(image)
+            out.fill(tmp.as_array())
+            return
         return self.forward(image)
     def adjoint(self, ad , out = None):
         '''Alias of backward
@@ -993,7 +999,10 @@ class AcquisitionModel:
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if not out is None:
-            raise error('out is not supported')
+            #raise error('out is not supported')
+            tmp = self.backward(ad)
+            out.fill(tmp.as_array())
+            return
         return self.backward(ad)
     def is_affine(self):
         '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''

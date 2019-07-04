@@ -110,6 +110,10 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
+        if isinstance(other , ( Number, numpy.float32 )):
+            tmp = other + numpy.zeros(self.as_array().shape)
+            other = self.copy()
+            other.fill(tmp)
         assert_validities(self, other)
         if out is None:
             z = self.same_object()
@@ -126,6 +130,10 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
+        if isinstance(other , ( Number, numpy.float32 )):
+            tmp = other + numpy.zeros(self.as_array().shape)
+            other = self.copy()
+            other.fill(tmp)
         assert_validities(self, other)
         if out is None:
             z = self.same_object()
@@ -144,6 +152,10 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
+        if isinstance(other , ( Number, numpy.float32 )):
+            tmp = other + numpy.zeros(self.as_array().shape)
+            other = self.copy()
+            other.fill(tmp)
         assert_validities(self, other)
         one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
         if out is None:
@@ -178,6 +190,10 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
+        if isinstance(other , ( Number, numpy.float32 )):
+            tmp = other + numpy.zeros(self.as_array().shape)
+            other = self.copy()
+            other.fill(tmp)
         assert_validities(self, other)
         pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
         mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)

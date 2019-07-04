@@ -280,6 +280,8 @@ class ImageData(SIRF.ImageData):
         have the same size as an array returned by `as_array`.
         '''
         assert self.handle is not None
+        if isinstance(value, ImageData):
+            value = value.as_array()
         if isinstance(value, numpy.ndarray):
             if value.dtype is numpy.dtype('float32'):
                 #print('keeping dtype float32')
