@@ -965,7 +965,7 @@ GadgetronImageData::set_real_data(const float* z)
 
 GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
-images_(), nimages_(0)
+images_()
 {
 	for (unsigned int i = 0; i < images.number(); i++) {
 		const ImageWrap& u = images.image_wrap(i);
@@ -976,7 +976,7 @@ images_(), nimages_(0)
 
 GadgetronImagesVector::GadgetronImagesVector
 (GadgetronImagesVector& images, const char* attr, const char* target) : 
-images_(), nimages_(0)
+images_()
 {
 	for (unsigned int i = 0; i < images.number(); i++) {
 		const ImageWrap& u = images.image_wrap(i);
@@ -1022,8 +1022,6 @@ GadgetronImagesVector::set_data(const complex_float_t* data)
 	//std::cout << "trying new image wrap iterator...\n";
 	GadgetronImagesVector::Iterator stop = end();
 	GadgetronImagesVector::Iterator iter = begin();
-	//GadgetronImagesVectorIterator stop = end();
-	//GadgetronImagesVectorIterator iter = begin();
 	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
 }
@@ -1034,8 +1032,6 @@ GadgetronImagesVector::get_real_data(float* data) const
 	//std::cout << "in get_real_data...\n";
 	GadgetronImagesVector::Iterator_const stop = end();
 	GadgetronImagesVector::Iterator_const iter = begin();
-	//GadgetronImagesVectorIterator_const stop = end();
-	//GadgetronImagesVectorIterator_const iter = begin();
 	for (; iter != stop; ++iter, ++data)
 		*data = *iter;
 }
@@ -1045,8 +1041,6 @@ GadgetronImagesVector::set_real_data(const float* data)
 {
 	GadgetronImagesVector::Iterator stop = end();
 	GadgetronImagesVector::Iterator iter = begin();
-	//GadgetronImagesVectorIterator stop = end();
-	//GadgetronImagesVectorIterator iter = begin();
 	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
 }
@@ -1129,6 +1123,9 @@ GadgetronImagesVector::set_up_geom_info()
 #ifndef NDEBUG
     std::cout << "\nSetting up geometrical info for GadgetronImagesVector...\n";
 #endif
+
+    if (number() < 1)
+        return;
 
     if (!this->sorted())
         this->sort();

@@ -37,6 +37,7 @@ limitations under the License.
 #include <sstream>
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/ImageData.h"
+#include <_reg_tools.h>
 
 namespace sirf {
 
@@ -71,14 +72,6 @@ of sform_code; for example, for the Talairach coordinate system,
 \author Richard Brown
 \author CCP PETMR
 */
-
-typedef enum
-{
-   MEAN_KERNEL,
-   LINEAR_KERNEL,
-   GAUSSIAN_KERNEL,
-   CUBIC_SPLINE_KERNEL
-} NREG_CONV_KERNEL_TYPE;
 
 template<class dataType>
 class NiftiImageData : public ImageData
@@ -227,13 +220,16 @@ public:
     NiftiImageData operator-(const NiftiImageData&) const;
 
     /// Addition operator
-    NiftiImageData operator+(const float&) const;
+    NiftiImageData operator+(const float) const;
 
     /// Subtraction operator
-    NiftiImageData operator-(const float&) const;
+    NiftiImageData operator-(const float) const;
 
     /// Multiply image
-    NiftiImageData operator*(const float&) const;
+    NiftiImageData operator*(const float) const;
+
+    /// Divide image
+    NiftiImageData operator/(const float) const;
 
     /// Access data element via 1D index (const)
     float operator()(const int index) const;
@@ -277,6 +273,9 @@ public:
 
     /// Get sum
     float get_sum() const;
+
+    /// Get nan count
+    unsigned get_nan_count() const;
 
     /// Fill
     void fill(const float v);
@@ -337,6 +336,9 @@ public:
 
     /// Kernel convolution
     void kernel_convolution(const float sigma, NREG_CONV_KERNEL_TYPE conv_type = GAUSSIAN_KERNEL);
+
+    /// Does the image contain any NaNs?
+    bool get_contains_nans() const { return (this->get_nan_count() > 0); }
 
 protected:
 

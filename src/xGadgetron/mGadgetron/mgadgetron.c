@@ -35,7 +35,13 @@ limitations under the License.
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
-EXPORTED_FUNCTION  void* mGT_newObject(const char* name) {
+EXPORTED_FUNCTION  void* mParameter(void* ptr, const char* obj, const char* name) {
+	return parameter(ptr, obj, name);
+}
+EXPORTED_FUNCTION 	void* mSetParameter (void* ptr, const char* obj, const char* par, const void* val) {
+	return setParameter (ptr, obj, par, val);
+}
+EXPORTED_FUNCTION 	void* mGT_newObject(const char* name) {
 	return cGT_newObject(name);
 }
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name) {
@@ -160,6 +166,12 @@ EXPORTED_FUNCTION 	void* mGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT
 }
 EXPORTED_FUNCTION 	void* mGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
 	return cGT_setImagesDataAsCmplxArray(ptr_imgs, ptr_z);
+}
+EXPORTED_FUNCTION 	void* mGT_setHost(void* ptr_gc, const char* host) {
+	return cGT_setHost(ptr_gc, host);
+}
+EXPORTED_FUNCTION 	void* mGT_setPort(void* ptr_gc, const char* port) {
+	return cGT_setPort(ptr_gc, port);
 }
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r) {
 	return cGT_addReader(ptr_gc, id, ptr_r);

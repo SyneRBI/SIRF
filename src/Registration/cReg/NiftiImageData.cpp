@@ -29,7 +29,6 @@ limitations under the License.
 
 #include "sirf/Reg/NiftiImageData.h"
 #include <nifti1_io.h>
-#include <_reg_tools.h>
 #include "_reg_resampling.h"
 #include <boost/filesystem.hpp>
 #include "sirf/Reg/NiftiImageData3D.h"
@@ -41,6 +40,8 @@ limitations under the License.
 #include <iomanip>
 #include <cmath>
 
+// Remove NiftyReg's definition of isnan
+#undef isnan
 
 using namespace sirf;
 
@@ -60,7 +61,9 @@ template<class dataType>
 NiftiImageData<dataType>::NiftiImageData(const NiftiImageData<dataType>& to_copy)
 {
     copy_nifti_image(_nifti_image,to_copy._nifti_image);
-    set_up_data(to_copy._original_datatype);
+    this->_data = static_cast<float*>(_nifti_image->data);
+    this->_original_datatype = to_copy._original_datatype;
+    set_up_geom_info();
 }
 
 template<class dataType>
@@ -73,7 +76,9 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const NiftiImageDa
             throw std::runtime_error("Trying to copy an uninitialised image.");
         // Copy
         copy_nifti_image(_nifti_image,to_copy._nifti_image);
-        set_up_data(to_copy._original_datatype);
+        this->_data = static_cast<float*>(_nifti_image->data);
+        this->_original_datatype = to_copy._original_datatype;
+        set_up_geom_info();
     }
     return *this;
 }
@@ -204,21 +209,27 @@ NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const NiftiImageDat
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator+(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator+(const float val) const
 {
     return maths(val,add);
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const float val) const
 {
     return maths(val,sub);
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float val) const
 {
     return maths(val,mul);
+}
+
+template<class dataType>
+NiftiImageData<dataType> NiftiImageData<dataType>::operator/(const float val) const
+{
+    return maths(1.f/val,mul);
 }
 
 template<class dataType>
@@ -320,16 +331,9 @@ float NiftiImageData<dataType>::get_mean() const
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::get_min(): Image not initialised.");
 
-    float sum = 0.F;
-    int nan_count = 0;
-    for (unsigned i=0; i<_nifti_image->nvox; ++i)
-        if (!std::isnan(_data[i])) {
-            sum += _data[i];
-            ++nan_count;
-        }
-
-    // Get data
-    return sum / float(nan_count);
+    float sum = this->get_sum();
+    unsigned non_nan_count = unsigned(this->get_num_voxels()) - this->get_nan_count();
+    return sum / float(non_nan_count);
 }
 
 template<class dataType>
@@ -338,10 +342,24 @@ float NiftiImageData<dataType>::get_sum() const
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::get_sum(): Image not initialised.");
 
-    float sum = 0.F;
+    double sum = 0;
     for (unsigned i=0; i<_nifti_image->nvox; ++i)
-        sum += float(_data[i]);
-    return sum;
+        sum += double(_data[i]);
+    return float(sum);
+}
+
+template<class dataType>
+unsigned NiftiImageData<dataType>::get_nan_count() const
+{
+    if(!this->is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::get_sum(): Image not initialised.");
+
+    unsigned nan_count = 0;
+    for (unsigned i=0; i<_nifti_image->nvox; ++i)
+        if (std::isnan(_data[i]))
+            ++nan_count;
+
+    return nan_count;
 }
 
 template<class dataType>
@@ -715,6 +733,15 @@ void NiftiImageData<dataType>::set_up_data(const int original_datatype)
     _nifti_image->nbyper = sizeof(float);
     this->_data = static_cast<float*>(_nifti_image->data);
 
+    // Take slope and intercept into account
+    if (std::abs(_nifti_image->scl_slope-1) > 1e-4f || std::abs(_nifti_image->scl_inter) > 1e-4f) {
+        for (unsigned i=0; i<this->get_num_voxels(); ++i)
+            _data[i] = _nifti_image->scl_slope * _data[i] + _nifti_image->scl_inter;
+        _nifti_image->scl_slope = 1.f;
+        _nifti_image->scl_inter = 0.f;
+
+    }
+
     // Lastly, initialise the geometrical info
     set_up_geom_info();
 }
@@ -746,7 +773,7 @@ bool NiftiImageData<dataType>::is_same_size(const NiftiImageData &im) const
 template<typename T>
 static bool do_nifti_image_metadata_elements_match(const std::string &name, const T &elem1, const T &elem2, bool verbose)
 {
-    if(float(fabs(elem1-elem2)) < 1.e-7F)
+    if(float(fabs(float(elem1-elem2))) < 1.e-7F)
         return true;
     if (verbose)
         std::cout << "mismatch in " << name << " , (values: " <<  elem1 << " and " << elem2 << ")\n";
@@ -949,6 +976,11 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
     std::cout << "\n\t" << std::left << std::setw(19) << "mean: ";
     for(unsigned i=0; i<ims.size(); i++)
         std::cout << std::setw(19) << ims[i]->get_mean();
+
+    // Print if image contains nans
+    std::cout << "\n\t" << std::left << std::setw(19) << "contains nans?: ";
+    for(unsigned i=0; i<ims.size(); i++)
+        std::cout << std::setw(19) << ims[i]->get_contains_nans();
 
     std::cout << "\n\n";
 }
@@ -1216,6 +1248,11 @@ void NiftiImageData<dataType>::axpby(
     const float b = *static_cast<const float*>(ptr_b);
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     assert(_nifti_image->nvox == y._nifti_image->nvox);
 
@@ -1238,6 +1275,11 @@ void NiftiImageData<dataType>::multiply
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     assert(_nifti_image->nvox == y._nifti_image->nvox);
 
@@ -1251,6 +1293,11 @@ void NiftiImageData<dataType>::divide
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
     assert(_nifti_image->nvox == x._nifti_image->nvox);
     assert(_nifti_image->nvox == y._nifti_image->nvox);
 

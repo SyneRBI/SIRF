@@ -136,13 +136,21 @@ namespace sirf {
 
 	class GadgetChain { //: public anObject {
 	public:
-		//GadgetChain()
-		//{
-		//	class_ = "GadgetChain";
-		//}
+		GadgetChain() : host_("localhost"), port_("9002")
+		{
+			//class_ = "GadgetChain";
+		}
 		static const char* class_name()
 		{
 			return "GadgetChain";
+		}
+		void set_host(const std::string host)
+		{
+			host_ = host;
+		}
+		void set_port(const std::string port)
+		{
+			port_ = port;
 		}
 		// apparently caused crash in linux
 		//virtual ~GadgetChain() {}
@@ -172,6 +180,9 @@ namespace sirf {
 		gadgetron::shared_ptr<aGadget> gadget_sptr(std::string id);
 		// returns string containing the definition of the chain in xml format
 		std::string xml() const;
+	protected:
+		std::string host_;
+		std::string port_;
 	private:
 		std::list<gadgetron::shared_ptr<GadgetHandle> > readers_;
 		std::list<gadgetron::shared_ptr<GadgetHandle> > writers_;
@@ -189,7 +200,6 @@ namespace sirf {
 	class AcquisitionsProcessor : public GadgetChain {
 	public:
 		AcquisitionsProcessor() :
-			host_("localhost"), port_("9002"),
 			reader_(new IsmrmrdAcqMsgReader),
 			writer_(new IsmrmrdAcqMsgWriter)
 		{
@@ -215,8 +225,6 @@ namespace sirf {
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
@@ -233,7 +241,6 @@ namespace sirf {
 	public:
 
 		ImagesReconstructor() :
-			host_("localhost"), port_("9002"),
 			reader_(new IsmrmrdAcqMsgReader),
 			writer_(new IsmrmrdImgMsgWriter)
 		{
@@ -256,8 +263,6 @@ namespace sirf {
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
@@ -273,7 +278,6 @@ namespace sirf {
 	class ImagesProcessor : public GadgetChain {
 	public:
 		ImagesProcessor() :
-			host_("localhost"), port_("9002"),
 			reader_(new IsmrmrdImgMsgReader),
 			writer_(new IsmrmrdImgMsgWriter)
 		{
@@ -296,8 +300,6 @@ namespace sirf {
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;

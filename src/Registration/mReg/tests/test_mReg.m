@@ -67,20 +67,21 @@ g.flo_aladin                                 = sirf.Reg.NiftiImageData3D( g.flo_
 g.ref_f3d                                    = sirf.Reg.NiftiImageData3D(   g.ref_f3d_filename  );
 g.flo_f3d                                    = sirf.Reg.NiftiImageData3D(   g.flo_f3d_filename  );
 
-try_niftiimage(g);
-try_niftiimage3d(g);
-try_niftiimage3dtensor(g);
-try_niftiimage3ddisplacement(g);
-try_niftiimage3ddeformation(g);
-na = try_niftyaladin(g);
-try_niftyf3d(g);
-try_transformations(g,na);
-try_resample(g,na);
-try_weighted_mean(g,na);
-try_affinetransformation(g,na);
-try_quaternion();
+% You can change these when debugging
+try_niftiimage = true;
+try_niftiimage3d = true;
+try_niftiimage3dtensor = true;
+try_niftiimage3ddisplacement = true;
+try_niftiimage3ddeformation = true;
+try_niftyaladin = true;
+try_niftyf3d = true;
+try_transformations = true;
+try_resample = true;
+try_weighted_mean = true;
+try_affinetransformation = true;
+try_quaternion = true;
 
-function try_niftiimage(g)
+if try_niftiimage
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting NiftiImageData test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -188,13 +189,22 @@ function try_niftiimage(g)
     sirf.Reg.NiftiImageData.print_headers([u v w x]);
     assert(x == u, 'NiftiImageData::upsample()/downsample() failed.')
 
+    % Check get_contains_nans
+    x_arr = x.as_array();
+    x_arr(:)=0;
+    x.fill(x_arr);
+    assert(~x.get_contains_nans(),'NiftiImageData::get_contains_nans() 1 failed.')
+    x_arr(1) = nan;
+    x.fill(x_arr);
+    assert(x.get_contains_nans(),'NiftiImageData::get_contains_nans() 2 failed.')
+
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3d(g)
+if try_niftiimage3d
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3D test...')
     disp('%------------------------------------------------------------------------ %')
@@ -243,12 +253,16 @@ function try_niftiimage3d(g)
     assert(ndims(arr) == 3, 'NiftiImageData3D as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64]), 'NiftiImageData3D as_array().shape failed.')
 
+    % try linear algebra
+    h = d/10000;
+    assert(abs(h.get_max()-d.get_max()/10000) < 1e-4,'NiftiImageData3D linear algebra failed.')
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData3D test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3dtensor(g)
+if try_niftiimage3dtensor
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DTensor test...')
     disp('%------------------------------------------------------------------------ %')
@@ -319,7 +333,7 @@ function try_niftiimage3dtensor(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3ddisplacement(g)
+if try_niftiimage3ddisplacement
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DDisplacement test...')
     disp('%------------------------------------------------------------------------ %')
@@ -399,7 +413,7 @@ function try_niftiimage3ddisplacement(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3ddeformation(g)
+if try_niftiimage3ddeformation
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DDeformation test...')
     disp('%------------------------------------------------------------------------ %')
@@ -458,7 +472,7 @@ function try_niftiimage3ddeformation(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function na =try_niftyaladin(g)
+if try_niftyaladin
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Nifty aladin test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -518,7 +532,7 @@ function na =try_niftyaladin(g)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftyf3d(g)
+if try_niftyf3d
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Nifty f3d test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -557,7 +571,7 @@ function try_niftyf3d(g)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_transformations(g,na)
+if try_transformations
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Transformation test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -591,7 +605,7 @@ function try_transformations(g,na)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_resample(g,na)
+if try_resample
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting Nifty resample test...')
     disp('%------------------------------------------------------------------------ %')
@@ -600,6 +614,7 @@ function try_resample(g,na)
     tm      = na.get_transformation_matrix_forward();
     displ   = na.get_displacement_field_forward();
     deff    = na.get_deformation_field_forward();
+    padding_value = -20;
 
     disp('Testing rigid resample...')
     nr1 = sirf.Reg.NiftyResample();
@@ -619,8 +634,11 @@ function try_resample(g,na)
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
     nr2.set_interpolation_type_to_linear();  % try different interpolations
     nr2.add_transformation(displ);
+    nr2.set_padding_value(padding_value);
     nr2.process();
     nr2.get_output().write(g.nonrigid_resample_disp);
+
+    assert(nr2.get_output().get_min() == padding_value, 'NiftyResample:set_padding_value failed.')
 
     disp('Testing non-rigid deformation...')
     nr3 = sirf.Reg.NiftyResample();
@@ -643,7 +661,7 @@ function try_resample(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_weighted_mean(g,na)
+if try_weighted_mean
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting weighted mean test...')
     disp('%------------------------------------------------------------------------ %')
@@ -697,7 +715,7 @@ function try_weighted_mean(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_affinetransformation(g,na)
+if try_affinetransformation
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting AffineTransformation test...')
     disp('%------------------------------------------------------------------------ %')
@@ -759,7 +777,7 @@ function try_affinetransformation(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_quaternion()
+if try_quaternion
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting Quaternion test...')
     disp('%------------------------------------------------------------------------ %')

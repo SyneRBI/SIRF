@@ -23,7 +23,10 @@ if (CMAKE_VERSION VERSION_LESS "3.1")
 else ()
    set (CMAKE_CXX_STANDARD 11)
 endif ()
-  
+
+# include explicit search for HDF5 for older ISMRMRD versions.
+find_package(HDF5 1.8 COMPONENTS C REQUIRED)
+
 find_package(ISMRMRD)
 if (ISMRMRD_FOUND)
   set(CMAKE_MODULE_PATH "${ISMRMRD_DIR}")
@@ -41,9 +44,6 @@ if (ISMRMRD_FOUND)
 	file(GLOB FFTW_DLLS "${FFTW3_DLL_DIR}/*.dll")
     install( FILES ${FFTW_DLLS} DESTINATION bin )
 endif()
-	
-    
-  find_package(HDF5 1.8 COMPONENTS C REQUIRED)
 
   include_directories("${ISMRMRD_INCLUDE_DIR}")
   # need to add this as ISMRMRD_LIBRARIES doesn't set the path to the library

@@ -1,0 +1,22 @@
+{ "metadata": {
+  "title": "CCPPETMR SIRF",
+  "keywords": [
+    "image-reconstruction", "pet-mr", "medical-imaging"],
+  "creators": [
+    {"name": "Ovtchinnikov, Evgueni"},
+    {"name": "Brown, Richard"},
+    {"name": "Thielemans, Kris", "affiliation": "UCL"},
+    {"name": "Pasca, Edoardo"},
+    {"name": "da Costa-Luis, Casper O.",
+     "affiliation": "KCL",
+     "orcid": "0000-0002-7211-1557"},
+    {"name": "Thomas, Ben", "orcid": "0000-0002-9784-1177"},
+    {"name": "Atkinson, David"},
+    {"name": "Mayer, Johannes",
+     "affiliation": "Physikalisch-Technische Bundesanstalt"},
+    {"name": "Gillman, Ashley",
+     "affiliation": "CSIRO, University of Queensland"},
+    {"name": "Kolbitsch, Christoph"},
+    {"name": "Ehrhardt, Matthias J.", "affiliation": "University of Bath"},
+    {"name": "Whitehead, Alexander", "affiliation": "UCL"}]
+}}

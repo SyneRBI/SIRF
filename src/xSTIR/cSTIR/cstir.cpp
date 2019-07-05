@@ -1066,3 +1066,16 @@ void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
 	}
 	CATCH;
 }
+
+extern "C"
+void* setParameter
+(void* ptr_s, const char* obj, const char* name, const void* ptr_v)
+{
+	return cSTIR_setParameter(ptr_s, obj, name, ptr_v);
+}
+
+extern "C"
+void* parameter(const void* ptr, const char* obj, const char* name)
+{
+	return cSTIR_parameter(ptr, obj, name);
+}

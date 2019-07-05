@@ -30,6 +30,11 @@ extern "C" {
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
+
+	// Unified parameter exchange methods
+	void* parameter(void* ptr, const char* obj, const char* name);
+	void* setParameter
+		(void* ptr, const char* obj, const char* par, const void* val);
 	// common Object methods
 	void* cGT_newObject(const char* name);
 	void* cGT_parameter(void* ptr, const char* obj, const char* name);
@@ -92,6 +97,8 @@ extern "C" {
 	void* cGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 
 	// gadget chain methods
+	void* cGT_setHost(void* ptr_gc, const char* host);
+	void* cGT_setPort(void* ptr_gc, const char* port);
 	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);

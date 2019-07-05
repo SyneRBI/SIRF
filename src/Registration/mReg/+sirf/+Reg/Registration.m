@@ -69,7 +69,7 @@ classdef (Abstract = true) Registration < handle
             assert(~isempty(self.reference_image) && ~isempty(self.reference_image.handle_))
             output = self.reference_image.same_object();
             sirf.Utilities.delete(output.handle_)
-            output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, 'Registration', 'output');
+            output.handle_ = calllib('mreg', 'mParameter', self.handle_, 'Registration', 'output');
             sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
         end
         function process(self)

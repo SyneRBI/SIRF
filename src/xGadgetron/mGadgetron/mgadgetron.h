@@ -34,7 +34,9 @@ limitations under the License.
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
-EXPORTED_FUNCTION  void* mGT_newObject(const char* name);
+EXPORTED_FUNCTION  void* mParameter(void* ptr, const char* obj, const char* name);
+EXPORTED_FUNCTION 	void* mSetParameter (void* ptr, const char* obj, const char* par, const void* val);
+EXPORTED_FUNCTION 	void* mGT_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION 	void* mGT_setParameter (void* ptr, const char* obj, const char* par, const void* val);
 EXPORTED_FUNCTION 	void*	mGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);
@@ -76,6 +78,8 @@ EXPORTED_FUNCTION 	void* mGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT
 EXPORTED_FUNCTION 	void* mGT_setImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION 	void* mGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 EXPORTED_FUNCTION 	void* mGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
+EXPORTED_FUNCTION 	void* mGT_setHost(void* ptr_gc, const char* host);
+EXPORTED_FUNCTION 	void* mGT_setPort(void* ptr_gc, const char* port);
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION 	void* mGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION 	void* mGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);

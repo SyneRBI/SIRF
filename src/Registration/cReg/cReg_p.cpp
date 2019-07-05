@@ -34,6 +34,8 @@ extern "C"
 char* charDataFromHandle(const void* ptr);
 extern "C"
 int intDataFromHandle(const void* ptr);
+extern "C"
+float floatDataFromHandle(const void* ptr);
 
 static void*
 parameterNotFound(const char* name, const char* file, int line) 
@@ -93,8 +95,9 @@ sirf::cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
         return dataHandle<float>(s.get_min());
     if (strcmp(name, "sum") == 0)
         return dataHandle<float>(s.get_sum());
-    else
-        return parameterNotFound(name, __FILE__, __LINE__);
+    if (strcmp(name, "contains_nans") == 0)
+        return dataHandle<bool>(s.get_contains_nans());
+    return parameterNotFound(name, __FILE__, __LINE__);
 }
 // ------------------------------------------------------------------------------------ //
 //   Registration
@@ -180,6 +183,8 @@ sirf::cReg_setNiftyResampleParameter(void* hp, const char* name, const void* hv)
     }
     else if (strcmp(name, "interpolation_type") == 0)
         s.set_interpolation_type(static_cast<NiftyResample<float>::InterpolationType>(intDataFromHandle(hv)));
+    else if (strcmp(name, "padding") == 0)
+        s.set_padding_value(floatDataFromHandle(hv));
     else
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;

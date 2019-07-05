@@ -34,6 +34,7 @@ EXPORTED_FUNCTION 	void* mIntDataHandle(int i);
 EXPORTED_FUNCTION 	void* mFloatDataHandle(float i);
 EXPORTED_FUNCTION 	void* mDoubleDataHandle(double i);
 EXPORTED_FUNCTION 	char* mCharDataFromHandle(const void* ptr);
+EXPORTED_FUNCTION     bool mBoolDataFromHandle(const void* ptr);
 EXPORTED_FUNCTION 	int mIntDataFromHandle(const void* ptr);
 EXPORTED_FUNCTION 	int mIntDataItemFromHandle(const void* ptr, int i);
 EXPORTED_FUNCTION 	int mUint16DataItemFromHandle(const void* ptr, int i);

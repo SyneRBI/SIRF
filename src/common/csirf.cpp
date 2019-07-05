@@ -25,9 +25,6 @@ limitations under the License.
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
 
-//using std::shared_ptr;
-//#include "sirf/common/object_handle.inl"
-
 using namespace sirf;
 
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))

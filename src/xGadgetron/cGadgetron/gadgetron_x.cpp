@@ -52,6 +52,8 @@ static void
 check_gadgetron_connection(std::string host, std::string port)
 {
 	ImagesProcessor ip;
+	ip.set_host(host);
+	ip.set_port(port);
 	//std::cout << "checking connection...\n";
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
@@ -157,6 +159,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	ISMRMRD::Acquisition acq_tmp;
 
 	GTConnector conn;
+	//std::cout << "connecting to port " << port_ << "...\n";
 	sptr_images_.reset(new GadgetronImagesVector);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>

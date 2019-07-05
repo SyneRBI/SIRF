@@ -40,6 +40,10 @@ from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
+import sirf.select_module as select_module
+select_module.module = 'pystir'
+import sirf.parameters as parms
+
 try:
     input = raw_input
 except NameError:
@@ -57,61 +61,6 @@ ALL_CHANNELS = -1
 
 MAX_ACQ_DIMS = 10
 MAX_IMG_DIMS = 10
-
-###########################################################
-############ Utilities for internal use only ##############
-def _setParameter(hs, set, par, hv, stack = None):
-##    try_calling(pystir.cSTIR_setParameter(hs, set, par, hv))
-    if stack is None:
-        stack = inspect.stack()[1]
-    h = pystir.cSTIR_setParameter(hs, set, par, hv)
-    check_status(h, stack)
-    pyiutil.deleteDataHandle(h)
-def _set_char_par(handle, set, par, value):
-    h = pyiutil.charDataHandle(value)
-    _setParameter(handle, set, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-def _set_int_par(handle, set, par, value):
-    h = pyiutil.intDataHandle(value)
-    _setParameter(handle, set, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-def _set_float_par(handle, set, par, value):
-    h = pyiutil.floatDataHandle(value)
-    _setParameter(handle, set, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-def _char_par(handle, set, par):
-    h = pystir.cSTIR_parameter(handle, set, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.charDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _int_par(handle, set, par):
-    h = pystir.cSTIR_parameter(handle, set, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.intDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _float_par(handle, set, par):
-    h = pystir.cSTIR_parameter(handle, set, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.floatDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _float_pars(handle, set, par, n):
-    h = pystir.cSTIR_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.floatDataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _getParameterHandle(hs, set, par):
-    handle = pystir.cSTIR_parameter(hs, set, par)
-    check_status(handle, inspect.stack()[1])
-    return handle
-def _tmp_filename():
-    return repr(int(1000*time.time()))
-###########################################################
 
 class MessageRedirector:
     '''
@@ -193,16 +142,16 @@ class Shape:
         '''
         Sets the (discrete) coordinates of the shape centre on a voxel grid.
         '''
-        _set_float_par(self.handle, 'Shape', 'x', origin[2])
-        _set_float_par(self.handle, 'Shape', 'y', origin[1])
-        _set_float_par(self.handle, 'Shape', 'z', origin[0])
+        parms.set_float_par(self.handle, 'Shape', 'x', origin[2])
+        parms.set_float_par(self.handle, 'Shape', 'y', origin[1])
+        parms.set_float_par(self.handle, 'Shape', 'z', origin[0])
     def get_origin(self):
         '''
         Returns the coordinates of the shape centre on a voxel grid.
         '''
-        x = _float_par(self.handle, 'Shape', 'x')
-        y = _float_par(self.handle, 'Shape', 'y')
-        z = _float_par(self.handle, 'Shape', 'z')
+        x = parms.float_par(self.handle, 'Shape', 'x')
+        y = parms.float_par(self.handle, 'Shape', 'y')
+        z = parms.float_par(self.handle, 'Shape', 'z')
         return (x, y, z)
 
 class EllipticCylinder(Shape):
@@ -218,23 +167,23 @@ class EllipticCylinder(Shape):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_length(self, value):
-        _set_float_par(self.handle, self.name, 'length', value)
+        parms.set_float_par(self.handle, self.name, 'length', value)
     def get_length(self):
-        return _float_par(self.handle, self.name, 'length')
+        return parms.float_par(self.handle, self.name, 'length')
     def set_radius_x(self, value):
-        _set_float_par(self.handle, self.name, 'radius_x', value)
+        parms.set_float_par(self.handle, self.name, 'radius_x', value)
     def get_radius_x(self):
-        return _float_par(self.handle, self.name, 'radius_x')
+        return parms.float_par(self.handle, self.name, 'radius_x')
     def set_radius_y(self, value):
-        _set_float_par(self.handle, self.name, 'radius_y', value)
+        parms.set_float_par(self.handle, self.name, 'radius_y', value)
     def get_radius_y(self):
-        return _float_par(self.handle, self.name, 'radius_y')
+        return parms.float_par(self.handle, self.name, 'radius_y')
     def set_radii(self, radii):
-        _set_float_par(self.handle, self.name, 'radius_x', radii[1])
-        _set_float_par(self.handle, self.name, 'radius_y', radii[0])
+        parms.set_float_par(self.handle, self.name, 'radius_x', radii[1])
+        parms.set_float_par(self.handle, self.name, 'radius_y', radii[0])
     def get_radii(self):
-        rx = _float_par(self.handle, self.name, 'radius_x')
-        ry = _float_par(self.handle, self.name, 'radius_y')
+        rx = parms.float_par(self.handle, self.name, 'radius_x')
+        ry = parms.float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
 
 #class ImageData(DataContainer):
@@ -508,7 +457,7 @@ class TruncateToCylinderProcessor(ImageDataProcessor):
         Specifies whether the area not affected by filtering is strictly
         inside the cylinder (flag = True) or not (flag = False).
         '''
-        _set_char_par\
+        parms.set_char_par\
             (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
              'strictly_less_than_radius', repr(flag))
     def get_strictly_less_than_radius(self):
@@ -516,7 +465,7 @@ class TruncateToCylinderProcessor(ImageDataProcessor):
         Returns the answer to the question: Is the area not affected by 
         filtering strictly inside the cylinder?
         '''
-        return _int_par\
+        return parms.int_par\
                (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
                 'strictly_less_than_radius') != 0
 
@@ -530,7 +479,7 @@ class RayTracingMatrix:
     def __init__(self):
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
-        _set_int_par(self.handle, self.name, 'num_tangential_LORs', 2)
+        parms.set_int_par(self.handle, self.name, 'num_tangential_LORs', 2)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -540,13 +489,14 @@ class RayTracingMatrix:
         They are currently (approximately) parallel and spaced in the
         tangential direction (i.e. orthogonal to the axial direction).
         '''
-        _set_int_par(self.handle, self.name, 'num_tangential_LORs', value)
+        parms.set_int_par(self.handle, self.name, 'num_tangential_LORs', value)
         return self
     def get_num_tangential_LORs(self):
         '''
         Returns the number of LORs for each bin in the sinogram.
         '''
-        return _int_par(self.handle, self.name, 'num_tangential_LORs')
+        return parms.int_par(self.handle, self.name, 'num_tangential_LORs')
+        #return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
 class AcquisitionData(DataContainer):
     '''Class for PET acquisition data.'''
@@ -851,15 +801,15 @@ class ListmodeToSinograms:
     def set_input(self, lm_file):
         '''Sets the listmode file name.
         '''
-        _set_char_par(self.handle, self.name, 'input', lm_file)
+        parms.set_char_par(self.handle, self.name, 'input', lm_file)
     def set_output_prefix(self, sino_file):
         '''Sets the sinograms file names prefix.
         '''
-        _set_char_par(self.handle, self.name, 'output', sino_file)
+        parms.set_char_par(self.handle, self.name, 'output', sino_file)
     def set_template(self, templ):
         '''Sets the sinograms template.
         '''
-        _set_char_par(self.handle, self.name, 'template', templ)
+        parms.set_char_par(self.handle, self.name, 'template', templ)
     def set_time_interval(self, start, stop):
         '''Sets time interval.
 
@@ -1048,7 +998,7 @@ class AcquisitionModel:
         at:  an AcquisitionData object containing a.
         '''
         assert_validity(at, AcquisitionData)
-        _setParameter\
+        parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
     def set_background_term(self, bt):
         ''' 
@@ -1056,7 +1006,7 @@ class AcquisitionModel:
         bt:  an AcquisitionData object containing b.
         '''
         assert_validity(bt, AcquisitionData)
-        _setParameter\
+        parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
     def set_acquisition_sensitivity(self, asm):
         ''' 
@@ -1064,7 +1014,7 @@ class AcquisitionModel:
         norm:  an AcquisitionSensitivityModel object containing normalisation n.
         '''
         assert_validity(asm, AcquisitionSensitivityModel)
-        _setParameter\
+        parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
     def forward(self, image, subset_num = 0, num_subsets = 1, ad = None):
         ''' 
@@ -1111,7 +1061,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
-        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1122,7 +1072,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         '''
         # TODO will need to allow for different matrices here
         assert_validity(matrix, RayTracingMatrix)
-        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
 ##    def get_matrix(self):
 ##        ''' 
 ##        Returns the ray tracing matrix used for projecting;
@@ -1151,7 +1101,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
-        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1162,7 +1112,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         '''
         # only allow RayTracingMatrix
         assert_validity(matrix, RayTracingMatrix)
-        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
     def get_matrix(self):
         '''
         Returns the ray tracing matrix used for projecting;
@@ -1199,14 +1149,14 @@ class Prior:
         Sets the factor by which the penalty term (prior) is to be multiplied
         before adding to the objective function.
         '''
-        _set_float_par\
+        parms.set_float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor', value)
         return self
     def get_penalisation_factor(self):
         '''
         Returns the penalty factor in front of the prior.
         '''
-        return _float_par\
+        return parms.float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor')
     def get_gradient(self, image):
         '''
@@ -1251,21 +1201,21 @@ class PLSPrior(Prior):
             v = 1
         else:
             v = 0
-        _set_int_par(self.handle, 'PLSPrior', 'only_2D', v)
+        parms.set_int_par(self.handle, 'PLSPrior', 'only_2D', v)
     def get_only_2D(self):
-        v = _int_par(self.handle, 'PLSPrior', 'only_2D')
+        v = parms.int_par(self.handle, 'PLSPrior', 'only_2D')
         return v != 0
     def set_alpha(self, v):
-        _set_float_par(self.handle, 'PLSPrior', 'alpha', v)
+        parms.set_float_par(self.handle, 'PLSPrior', 'alpha', v)
     def get_alpha(self):
-        return _float_par(self.handle, 'PLSPrior', 'alpha')
+        return parms.float_par(self.handle, 'PLSPrior', 'alpha')
     def set_eta(self, v):
-        _set_float_par(self.handle, 'PLSPrior', 'eta', v)
+        parms.set_float_par(self.handle, 'PLSPrior', 'eta', v)
     def get_eta(self):
-        return _float_par(self.handle, 'PLSPrior', 'eta')
+        return parms.float_par(self.handle, 'PLSPrior', 'eta')
     def set_anatomical_image(self, image):
         assert isinstance(image, ImageData)
-        _setParameter(self.handle, 'PLSPrior', 'anatomical_image', image.handle)
+        parms.set_parameter(self.handle, 'PLSPrior', 'anatomical_image', image.handle)
     def get_anatomical_image(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter\
@@ -1278,17 +1228,17 @@ class PLSPrior(Prior):
         check_status(image.handle)
         return image
     def set_anatomical_filename(self, filename):
-        _set_char_par(self.handle, 'PLSPrior', 'anatomical_filename', filename)
+        parms.set_char_par(self.handle, 'PLSPrior', 'anatomical_filename', filename)
     def set_kappa(self, image):
         assert isinstance(image, ImageData)
-        _setParameter(self.handle, 'PLSPrior', 'kappa', image.handle)
+        parms.set_parameter(self.handle, 'PLSPrior', 'kappa', image.handle)
     def get_kappa(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'kappa')
         check_status(image.handle)
         return image
     def set_kappa_filename(self, filename):
-        _set_char_par(self.handle, 'PLSPrior', 'kappa_filename', filename)
+        parms.set_char_par(self.handle, 'PLSPrior', 'kappa_filename', filename)
     def get_norm(self):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'norm')
@@ -1310,7 +1260,7 @@ class ObjectiveFunction:
         Sets the prior (penalty term to be added to the objective function).
         '''
         assert_validity(prior, Prior)
-        _setParameter(self.handle, 'GeneralisedObjectiveFunction',\
+        parms.set_parameter(self.handle, 'GeneralisedObjectiveFunction',\
             'prior', prior.handle)
         self.prior = prior
     def get_prior(self):
@@ -1331,7 +1281,8 @@ class ObjectiveFunction:
         subsets of its rows.
         n: number of subsets, Python integer scalar
         '''
-        _set_int_par\
+        #_set_int_par\
+        parms.set_int_par\
             (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
     def set_up(self, image):
         '''
@@ -1401,15 +1352,15 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 ##    def set_sensitivity_filename(self, name):
-##        _set_char_par\
+##        parms.set_char_par\
 ##            (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
 ##             'sensitivity_filename', name)
 ##    def set_use_subset_sensitivities(self, flag):
-##        _set_char_par\
+##        parms.set_char_par\
 ##            (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
 ##             'use_subset_sensitivities', repr(flag))
     def set_recompute_sensitivity(self, flag):
-        _set_char_par\
+        parms.set_char_par\
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
              'recompute_sensitivity', repr(flag))
     def get_subset_sensitivity(self, subset):
@@ -1451,19 +1402,19 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
     def set_input_filename(self, name):
         '''Sets the name of the file containing acquisition data.
         '''
-        _set_char_par\
+        parms.set_char_par\
             (self.handle, self.name, 'input_filename', name)
 ##    def set_zero_seg0_end_planes(self, flag):
-##        _set_char_par\
+##        parms.set_char_par\
 ##            (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
 ##    def set_max_segment_num_to_process(self, n):
-##        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
+##        parms.set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
         '''
         Sets the acquisition model to be used by this objective function.
         '''
         assert_validity(am, AcquisitionModel)
-        _setParameter\
+        parms.set_parameter\
             (self.handle, self.name, 'acquisition_model', am.handle)
 ##    def get_acquisition_model(self):
 ##        '''
@@ -1481,7 +1432,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         Sets the acquisition data to be used by this objective function.
         '''
         assert_validity(ad, AcquisitionData)
-        _setParameter\
+        parms.set_parameter\
             (self.handle, self.name, 'acquisition_data', ad.handle)
 
 class Reconstructor:
@@ -1502,12 +1453,12 @@ class Reconstructor:
         '''
         # TODO: move to C++
         assert_validity(input_data, AcquisitionData)
-        _setParameter(self.handle, 'Reconstruction', \
+        parms.set_parameter(self.handle, 'Reconstruction', \
                       'input_data', input_data.handle)
     def set_output_filename_prefix(self, prefix):
         '''Sets the output file name prefix.
         '''
-        _set_char_par\
+        parms.set_char_par\
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
     def reconstruct(self, image):
         '''Performs reconstruction.
@@ -1544,9 +1495,9 @@ class FBP2DReconstructor:
         '''Sets the acquisition data to use for reconstruction.
         '''
         assert_validity(input_data, AcquisitionData)
-        _setParameter(self.handle, 'FBP2D', 'input', input_data.handle)
+        parms.set_parameter(self.handle, 'FBP2D', 'input', input_data.handle)
     def set_zoom(self, v):
-        _set_float_par(self.handle, 'FBP2D', 'zoom', v)
+        parms.set_float_par(self.handle, 'FBP2D', 'zoom', v)
     def set_alpha_cosine_window(self, v):
         '''
         Set alpha in the apodizing filter.
@@ -1554,16 +1505,16 @@ class FBP2DReconstructor:
         be between 0.5 and 1. alpha=0.5 corresponds to the Hann filter, while
         0.54 corresponds to the Hamming filter.
         '''
-        _set_float_par(self.handle, 'FBP2D', 'alpha', v)
+        parms.set_float_par(self.handle, 'FBP2D', 'alpha', v)
     def set_frequency_cut_off(self, v):
         '''
         Set the cut-off frequency for the apodizing filter.
         See the class documentation for the filter. The value of fc should be
         between 0 and 0.5.
         '''
-        _set_float_par(self.handle, 'FBP2D', 'fc', v)
+        parms.set_float_par(self.handle, 'FBP2D', 'fc', v)
     def set_output_image_size_xy(self, xy):
-        _set_int_par(self.handle, 'FBP2D', 'xy', xy)
+        parms.set_int_par(self.handle, 'FBP2D', 'xy', xy)
     def set_up(self, image):
         '''Sets up the reconstructor.
         '''
@@ -1577,7 +1528,8 @@ class FBP2DReconstructor:
         '''Returns the reconstructed image.
         '''
         image = ImageData()
-        image.handle = _getParameterHandle(self.handle, 'FBP2D', 'output')
+        image.handle = parms.parameter_handle(self.handle, 'FBP2D', 'output')
+        #image.handle = _getParameterHandle(self.handle, 'FBP2D', 'output')
         check_status(image.handle)
         return image
 
@@ -1595,16 +1547,17 @@ class IterativeReconstructor(Reconstructor):
     def set_num_subsets(self, n):
         '''Same as in ObjectiveFunction.
         '''
-        _set_int_par\
+        #_set_int_par\
+        parms.set_int_par\
             (self.handle, 'IterativeReconstruction', 'num_subsets', n)
     def get_num_subsets(self):
-        return _int_par\
+        return parms.int_par\
             (self.handle, 'IterativeReconstruction', 'num_subsets')
 ##    def set_start_subset_num(self, n):
-##        _set_int_par\
+##        parms.set_int_par\
 ##            (self.handle, 'IterativeReconstruction', 'start_subset_num', n)
 ##    def get_start_subset_num(self):
-##        return _int_par\
+##        return parms.int_par\
 ##            (self.handle, 'IterativeReconstruction', 'start_subset_num')
     def set_num_subiterations(self, n):
         '''Sets number of iterations.
@@ -1612,42 +1565,42 @@ class IterativeReconstructor(Reconstructor):
         Each iteration works with a subset, and is therefore referred to as
         subiteration.
         '''
-        _set_int_par\
+        parms.set_int_par\
             (self.handle, 'IterativeReconstruction', 'num_subiterations', n)
     def get_num_subiterations(self):
         '''Returns the number of subiterations.
         '''
-        return _int_par\
+        return parms.int_par\
             (self.handle, 'IterativeReconstruction', 'num_subiterations')
 ##    def set_start_subiteration_num(self, n):
-##        _set_int_par\
+##        parms.set_int_par\
 ##            (self.handle, 'IterativeReconstruction', 'start_subiteration_num', n)
 ##    def get_start_subiteration_num(self):
-##        return _int_par\
+##        return parms.int_par\
 ##            (self.handle, 'IterativeReconstruction', 'start_subiteration_num')
 ##    def set_subiteration_num(self, iter):
-##        _set_int_par\
+##        parms.set_int_par\
 ##            (self.handle, 'IterativeReconstruction', 'subiteration_num', iter)
     def get_subiteration_num(self):
         '''Returns the number of current subiteration.
         '''
-        return _int_par\
+        return parms.int_par\
             (self.handle, 'IterativeReconstruction', 'subiteration_num')
     def set_save_interval(self, n):
         '''Defines how often to save image iterates (n = 1: on each subiteration
         etc.)
         '''
-        _set_int_par\
+        parms.set_int_par\
             (self.handle, 'IterativeReconstruction', 'save_interval', n)
 ##    def set_inter_iteration_filter_interval(self, n):
-##        _set_int_par\
+##        parms.set_int_par\
 ##            (self.handle, 'IterativeReconstruction',\
 ##             'inter_iteration_filter_interval', n)
     def set_objective_function(self, obj):
         '''Specifies the objective function to be maximized.
         '''
         assert_validity(obj, ObjectiveFunction)
-        _setParameter\
+        parms.set_parameter\
             (self.handle, 'IterativeReconstruction',\
              'objective_function', obj.handle)
 ##    def get_objective_function(self):
@@ -1735,7 +1688,7 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 ##    def set_MAP_model(self, model):
-##        _set_char_par\
+##        parms.set_char_par\
 ##            (self.handle, self.name, 'MAP_model', model)
 ##    def get_objective_function(self):
 ##        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
@@ -1761,7 +1714,7 @@ class OSSPSReconstructor(IterativeReconstructor):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_relaxation_parameter(self, value):
-        _set_float_par\
+        parms.set_float_par\
             (self.handle, self.name, 'relaxation_parameter', value)
 
 def make_Poisson_loglikelihood(acq_data, model = 'LinearModelForMean'):

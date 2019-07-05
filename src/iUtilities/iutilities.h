@@ -30,6 +30,7 @@ extern "C" {
 	void* floatDataHandle(float i);
 	void* doubleDataHandle(double i);
 	char* charDataFromHandle(const void* ptr);
+    bool boolDataFromHandle(const void* ptr);
 	int intDataFromHandle(const void* ptr);
 	int intDataItemFromHandle(const void* ptr, int i);
 	int uint16DataItemFromHandle(const void* ptr, int i);

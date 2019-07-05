@@ -148,6 +148,10 @@ protected:
     /// Get argument - unsigned long
     void get_argument(const std::string &line, const int arg_num, unsigned long &arg) const { arg = std::stoul(get_arg_as_string(line, arg_num)); }
 
+#ifdef _WIN32
+    /// Get argument - size_t
+    void get_argument(const std::string &line, const int arg_num, std::size_t &arg) const { arg = std::stoul(get_arg_as_string(line, arg_num)); }
+#endif
     /// Object to call the function on
     std::shared_ptr<Z> _object;
 };
