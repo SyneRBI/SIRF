@@ -311,16 +311,20 @@ class DataContainer(ABC):
         uses NumPy
         SIRF/CIL compatibility
         '''
-
-        assert_validities(self, other)
         if out is None:
             z = self.clone()
         else:
             assert_validities(self, out)
             z = out
-        z.fill(
+        if isinstance(other, Number):
+            z.fill(
+               numpy.maximum(self.as_array(), other)
+            )
+        else:
+            assert_validities(self, other)
+            z.fill(
                numpy.maximum(self.as_array(), other.as_array())
-        )
+            )
         return z
     def minimum(self, other, out=None):
         '''Element-wise minimum of DataContainer elements.
@@ -331,15 +335,20 @@ class DataContainer(ABC):
         SIRF/CIL compatibility
         '''
 
-        assert_validities(self, other)
         if out is None:
             z = self.clone()
         else:
             assert_validities(self, out)
             z = out
-        z.fill(
+        if isinstance(other, Number):
+            z.fill(
+               numpy.minimum(self.as_array(), other)
+            )
+        else:
+            assert_validities(self, other)
+            z.fill(
                numpy.minimum(self.as_array(), other.as_array())
-        )
+            )
         return z
     # inline algebra
     def __iadd__(self, other):
