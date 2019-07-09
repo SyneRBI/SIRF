@@ -839,8 +839,11 @@ class AcquisitionData(DataContainer):
             fill_all = 1
         else: # return only image-related
             fill_all = 0
-        try_calling(pygadgetron.cGT_fillAcquisitionsData\
-            (self.handle, data.ctypes.data, fill_all))
+        if isinstance(data, numpy.ndarray):
+            try_calling(pygadgetron.cGT_fillAcquisitionsData\
+                (self.handle, data.ctypes.data, fill_all))
+        elif isinstance(data, AcquisitionData):
+            return self.fill(data.as_array())
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
