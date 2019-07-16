@@ -31,8 +31,8 @@ limitations under the License.
 #include "sirf/Reg/NiftyF3dSym.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/STIR/stir_data_containers.h"
 
 
 using namespace sirf;
