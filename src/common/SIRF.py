@@ -442,6 +442,13 @@ class DataContainer(ABC):
         Same as __div__ but for Python 3.*
         '''
         return self.__div__(other)
+    @property
+    def shape(self):
+        '''returns the shape of the data array
+        
+        CIL/SIRF compatibility
+        '''
+        return self.as_array().shape
 
 class ImageData(DataContainer):
     pass
