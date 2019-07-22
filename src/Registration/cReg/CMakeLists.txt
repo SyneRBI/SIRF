@@ -58,6 +58,15 @@ if (NIFTYREG_BUILT_WITH_OPENMP)
   endif()
 endif()
 
+# If niftyreg was bulit with OpenCL
+if (NIFTYREG_BUILT_WITH_OPENCL)
+  find_package(OpenCL REQUIRED)
+  if (OpenCL_FOUND)
+    TARGET_LINK_LIBRARIES(Reg PUBLIC ${OpenCL_LIBRARIES})
+    INCLUDE_DIRECTORIES(${OpenCL_INCLUDE_DIRS})
+  endif()
+endif()
+
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
