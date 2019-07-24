@@ -1341,7 +1341,7 @@ void NiftiImageData<dataType>::set_up_geom_info()
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
     for (unsigned i=0; i<3; ++i)
         for (unsigned j=0; j<3; ++j)
-            direction[i][j] = tm_final[i][j] / spacing[i];
+            direction[i][j] = tm_final[i][j] / spacing[j];
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
