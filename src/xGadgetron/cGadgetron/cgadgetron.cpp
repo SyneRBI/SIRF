@@ -124,6 +124,8 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(IsmrmrdImgMsgReader);
 		NEW_GADGET(IsmrmrdImgMsgWriter);
 		NEW_GADGET(NoiseAdjustGadget);
+		NEW_GADGET(PCACoilGadget);
+		NEW_GADGET(CoilReductionGadget);
 		NEW_GADGET(AsymmetricEchoAdjustROGadget);
 		NEW_GADGET(RemoveROOversamplingGadget);
 		NEW_GADGET(AcquisitionAccumulateTriggerGadget);
@@ -136,8 +138,12 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(FatWaterGadget);
 		NEW_GADGET(ImageArraySplitGadget);
 		NEW_GADGET(PhysioInterpolationGadget);
+		NEW_GADGET(GPURadialSensePrepGadget);
+		NEW_GADGET(GPUCGSenseGadget);
 		NEW_GADGET(ExtractGadget);
+		NEW_GADGET(AutoScaleGadget);
 		NEW_GADGET(ComplexToFloatGadget);
+		NEW_GADGET(FloatToUShortGadget);
 		NEW_GADGET(FloatToShortGadget);
 		NEW_GADGET(ImageFinishGadget);
 		NEW_GADGET(AcquisitionFinishGadget);
