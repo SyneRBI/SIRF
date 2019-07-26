@@ -59,7 +59,7 @@ namespace sirf {
 			gadget_(name), dll_(dll)
 		{
 			class_ = cl;
-			add_property("pass_on_undesired_data", "true");
+			//add_property("pass_on_undesired_data", "true");
 		}
 		virtual void set_property(const char* prop, const char* value)
 		{
