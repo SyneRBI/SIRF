@@ -43,7 +43,11 @@ namespace sirf {
 	public:
 		virtual void set_property(const char* prop, const char* value) = 0;
 		virtual std::string value_of(const char* prop) = 0;
-		virtual std::string xml() const = 0;
+		virtual std::string vxml(const std::string& label) const = 0;
+		std::string xml(const std::string& label = "") const
+		{
+			return vxml(label);
+		}
 	};
 
 	/**
@@ -69,10 +73,13 @@ namespace sirf {
 		{
 			par_[prop] = value;
 		}
-		virtual std::string xml() const
+		virtual std::string vxml(const std::string& label) const
 		{
 			std::string xml_script("<gadget>\n");
-			xml_script += " <name>" + gadget_ + "</name>\n";
+			if (label.size() > 1)
+				xml_script += " <name>" + label + ':' + gadget_ + "</name>\n";
+			else
+				xml_script += " <name>" + gadget_ + "</name>\n";
 			xml_script += " <dll>" + dll_ + "</dll>\n";
 			xml_script += " <classname>" + class_ + "</classname>\n";
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -111,7 +118,7 @@ namespace sirf {
 		{
 			return std::string("");
 		}
-		virtual std::string xml() const {
+		virtual std::string vxml(const std::string& label) const {
 			std::string xml_script("<reader>\n");
 			xml_script += " <slot>1008</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -137,7 +144,7 @@ namespace sirf {
 		{
 			return std::string("");
 		}
-		virtual std::string xml() const {
+		virtual std::string vxml(const std::string& label) const {
 			std::string xml_script("<writer>\n");
 			xml_script += " <slot>1008</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -162,7 +169,7 @@ namespace sirf {
 		{
 			return std::string("");
 		}
-		virtual std::string xml() const {
+		virtual std::string vxml(const std::string& label) const {
 			std::string xml_script("<reader>\n");
 			xml_script += " <slot>1022</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -187,7 +194,7 @@ namespace sirf {
 		{
 			return std::string("");
 		}
-		virtual std::string xml() const {
+		virtual std::string vxml(const std::string& label) const {
 			std::string xml_script("<writer>\n");
 			xml_script += " <slot>1022</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -644,7 +651,7 @@ namespace sirf {
 				return bb_.value_of(prop);
 			THROW("unknown gadget parameter");
 		}
-		virtual std::string xml() const
+		virtual std::string vxml(const std::string& label) const
 		{
 			std::string xml_script;
 			xml_script += aat_.xml();
