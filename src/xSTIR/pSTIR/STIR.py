@@ -345,6 +345,9 @@ class ImageData(SIRF.ImageData):
         array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
+    def write(self,filename,par):
+        '''Write with parameter file'''
+        try_calling(pystir.cSTIR_writeImage_par(self.handle, filename, par))
     def show(self, slice = None, title = None):
         '''Displays xy-cross-section(s) of this image.'''
         assert self.handle is not None

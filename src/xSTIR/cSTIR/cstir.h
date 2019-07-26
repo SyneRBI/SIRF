@@ -133,6 +133,7 @@ extern "C" {
 	void* cSTIR_fillImage(void* ptr_i, float v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
+    void* cSTIR_writeImage_par(void* ptr_i, const char* filename, const char* par);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);

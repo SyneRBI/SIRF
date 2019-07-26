@@ -926,6 +926,17 @@ void* cSTIR_writeImage(void* ptr_i, const char* filename)
 }
 
 extern "C"
+void* cSTIR_writeImage_par(void* ptr_i, const char* filename, const char* par)
+{
+    try {
+        STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+        id.write(filename,par);
+        return (void*) new DataHandle;
+	}
+    CATCH;
+}
+
+extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
