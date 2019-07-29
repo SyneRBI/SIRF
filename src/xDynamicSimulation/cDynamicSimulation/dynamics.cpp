@@ -584,7 +584,7 @@ void MotionDynamic::prep_displacement_fields()
 
 void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points)
 {
-	bool const correct_for_offset = true;
+	bool const correct_for_offset = false;
 
 
 	this->make_ground_truth_folder();
