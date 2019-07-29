@@ -369,17 +369,138 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 
 }
 
+bool tests_mr_dynsim::test_5d_mri_acquisition( void )
+{
+try
+	{	
+	bool const simulate_data = false;
+	bool const store_gt_mvfs = true;
+
+	int const num_simul_motion_states = 8;
+
+	float const test_SNR = 25;
+	size_t const noise_label = 13;
+
+	std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
+	std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/5DMotion/";
+
+	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( std::string(SHARED_FOLDER_PATH) + "/XCATSegmentations/xcat208Cube/xcat_phantom_incl_geomertry_208.h5" );
+	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+
+	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+	mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5");
+		
+	auto data_dims = segmentation_labels.get_dimensions();
+		
+	std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
+		
+	size_t num_coils = 4;
+	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+	mr_dyn_sim.set_coilmaps( csm );
+
+	RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
+	auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
+	mr_dyn_sim.set_trajectory( sptr_traj );
+
+	AcquisitionsVector all_acquis;
+	all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
+	mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+
+				
+	mr_dyn_sim.set_SNR(test_SNR);
+	mr_dyn_sim.set_noise_label( noise_label );
+		
+	// SETTING UP MOTION DYNAMICS ########################################################################
+
+	if( num_simul_motion_states > 1)
+	{
+		MRMotionDynamic card_dyn(num_simul_motion_states), resp_dyn(num_simul_motion_states);
+
+		std::string const signal_path = input_path + "/SurrogateSignals/";
+
+		std::string fname_timepts, fname_signalpts;
+
+		// add card motion
+		fname_timepts = signal_path + "card_time";
+		fname_signalpts = signal_path + "card_signal";
+		SignalContainer card_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
+	 	card_dyn.set_dyn_signal( card_signal );
+
+		// add resp motion
+		fname_timepts  = signal_path + "resp_time";
+		fname_signalpts = signal_path + "resp_signal";
+		SignalContainer resp_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
+		resp_dyn.set_dyn_signal( resp_signal );
+
+		card_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_card");
+		resp_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_resp");
+
+	 	card_dyn.bin_mr_acquisitions( all_acquis );
+	 	resp_dyn.bin_mr_acquisitions( all_acquis );
+
+	 	auto binned_resp_acq = resp_dyn.get_binned_mr_acquisitions();
+	 	auto binned_card_acq = card_dyn.get_binned_mr_acquisitions();
+	 	for( int i=0; i<binned_resp_acq.size(); ++i)
+	 		std::cout<< "In this resp bin " << i << " we have " << binned_resp_acq[i].number() << " acquisitions." << std::endl;
+	 	for( int i=0; i<binned_resp_acq.size(); ++i)
+	 		std::cout<< "In this card bin " << i << " we have " << binned_card_acq[i].number() << " acquisitions." << std::endl;;
+		
+		auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		card_dyn.set_displacement_fields( cardiac_motion_fields, true );
+		
+		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		resp_dyn.set_displacement_fields( resp_motion_fields, false );
+
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( card_dyn ));
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
+	}
+	// ####################################################################################################
+
+
+
+	if( simulate_data )
+	{
+		clock_t t;
+		t = clock();
+		mr_dyn_sim.simulate_dynamics();
+		t = clock() - t;
+
+		std::cout << " TIME FOR 5D MRI SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+		
+		std::stringstream outname_stream;
+		outname_stream << "output_grpe_mri_simulation_" << "motion_type_cardiorespiratory_"<< "_num_motion_states_" << num_simul_motion_states << "_x_"<< num_simul_motion_states;
+		
+		std::string const filename_mri_output = output_path + outname_stream.str() + ".h5";
+		mr_dyn_sim.write_simulation_results( filename_mri_output );
+
+		}
+	if( store_gt_mvfs )
+	{
+		std::cout << "Storing ground truth motion information" << std::endl;
+		mr_dyn_sim.save_ground_truth_displacements();
+	}
+
+   	return true;
+
+}
+catch( std::runtime_error const &e)
+{
+	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << e.what() << std::endl;
+	throw e;
+}
+}
 
 
 bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 {
-try
+	try
 	{	
 		bool const do_cardiac_sim = true;
 		bool const simulate_data = true;
 		bool const store_gt_mvfs = true;
 
-		int const num_simul_motion_dyn = 24;
+		int const num_simul_motion_dyn = 16;
 
 		float const test_SNR = 25;
 		size_t const noise_label = 13;
@@ -459,7 +580,6 @@ try
 			{
 				auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 				motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
-				// motion_dyn.set_displacement_fields( cardiac_motion_fields, false ); //try to have non cyclic motion info for better weights
 			}
 	 		else
 	 		{
@@ -922,14 +1042,13 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 		
 		int const num_sim_motion_states = 16;
 
-		float tot_time_ms = 30 * 60 * 1000; // 20 Minute Exam
+		float tot_time_ms = 30 * 60 * 1000; // in case there is no motion simulation use this acqu time
 
 		if( num_sim_motion_states > 1 )
-
 		{
 			PETMotionDynamic motion_dyn( num_sim_motion_states );
 
-			SignalContainer motion_signal;
+			
 
 			stringstream path_time_pts, path_sig_pts;
 
@@ -947,13 +1066,12 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 				path_sig_pts  << "resp_signal";
 			}
 
-			motion_signal = data_io::read_surrogate_signal( path_time_pts.str(), path_sig_pts.str());
+			SignalContainer motion_signal = data_io::read_surrogate_signal( path_time_pts.str(), path_sig_pts.str());
 
 			auto first_card_pt = motion_signal[0];
 			auto last_card_pt = motion_signal[ motion_signal.size()-1 ];
 
 			float min_time_card_ms = first_card_pt.first;
-			tot_time_ms = last_card_pt.first - first_card_pt.first;
 
 
 			for( size_t i=0; i<motion_signal.size(); i++)
@@ -965,8 +1083,8 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 
 		 	motion_dyn.set_dyn_signal( motion_signal );
 
+			tot_time_ms = last_card_pt.first - first_card_pt.first;
 		 	TimeBin total_time(0, tot_time_ms);
-
 		 	motion_dyn.bin_total_time_interval( total_time );
 			
 		 	if( do_cardiac_sim )
@@ -996,6 +1114,116 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 			pet_dyn_sim.save_ground_truth_displacements();
 			std::cout << "Finished Storing GT MVFs" << std::endl;
 		}
+
+		return true;
+
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
+
+}
+
+
+
+bool test_pet_dynsim::test_5d_pet_acquisition()
+{
+
+	try
+	{
+		bool const simulate_data = true;
+		bool const store_gt_mvfs = false;
+
+		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
+		std::string const signal_path = input_path + "/SurrogateSignals/";
+
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		PETContrastGenerator pet_cont_gen( segmentation_labels, XML_XCAT_PATH);
+
+		pet_cont_gen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
+
+		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
+
+		// fix name of output
+		stringstream prefix_stream;
+		prefix_stream << "pet_dyn_5D_"<< "cardiorespiratory";
+		
+		pet_dyn_sim.set_output_filename_prefix(prefix_stream.str());
+		
+		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
+		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
+		
+		int const num_sim_card_states = 8;
+		int const num_sim_resp_states = 8;
+
+
+		float tot_time_ms = 30*60*1000;
+
+		if( num_sim_card_states*num_sim_resp_states > 1 )
+		{
+			PETMotionDynamic card_dyn( num_sim_card_states ), resp_dyn( num_sim_resp_states );
+
+			std::string fname_timepts, fname_signalpts;
+
+	// read cardiac signal
+			fname_timepts = signal_path + "card_time";
+			fname_signalpts = signal_path + "card_signal";
+			SignalContainer card_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
+			card_dyn.set_dyn_signal( card_signal );
+	
+			float tot_time_card_ms = aux_test::prep_pet_motion_dyn(card_dyn, card_signal);
+
+			// read cardiac signal
+			fname_timepts  = signal_path + "resp_time";
+			fname_signalpts = signal_path + "resp_signal";
+			SignalContainer resp_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
+			
+			float tot_time_resp_ms = aux_test::prep_pet_motion_dyn(resp_dyn, resp_signal);
+
+			std::cout << epiph(tot_time_card_ms) << std::endl;
+			std::cout << epiph(tot_time_resp_ms) << std::endl;
+
+			tot_time_ms = 0.5*(tot_time_card_ms+tot_time_resp_ms); // replace total time 
+
+
+			// read motion fields
+			auto card_mvfs = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			card_dyn.set_displacement_fields( card_mvfs, true );
+			
+			auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			resp_dyn.set_displacement_fields( resp_mvfs, false );
+			
+			// add the dynamics
+			pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (card_dyn) );
+			pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (resp_dyn) );
+
+		}
+		if( simulate_data )
+		{
+
+			clock_t t;
+			t = clock();
+		
+			std::cout << "Simulating Data" << std::endl;
+			pet_dyn_sim.simulate_dynamics( tot_time_ms );
+			std::cout << "Finished Simulating Data" << std::endl;
+
+			t = clock() - t;
+			std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+		}
+
+		if( store_gt_mvfs )
+		{
+			std::cout << "Storing GT MVFs" << std::endl;
+			pet_dyn_sim.save_ground_truth_displacements();
+			std::cout << "Finished Storing GT MVFs" << std::endl;
+		}
+
+
+
 
 		return true;
 

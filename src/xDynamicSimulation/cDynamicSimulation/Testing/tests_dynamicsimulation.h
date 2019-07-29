@@ -32,6 +32,8 @@ bool test_simulate_rpe_acquisition( void );
 
 bool test_4d_mri_acquisition( void );
 
+bool test_5d_mri_acquisition( void );
+
 bool test_dce_acquisition( void );
 
 }
@@ -44,4 +46,6 @@ bool set_template_acquisition_data( void );
 bool test_simulate_statics( void );
 bool test_simulate_motion_dynamics( void );
 bool test_4d_pet_acquisition( void );
+bool test_5d_pet_acquisition(void);
+
 }
