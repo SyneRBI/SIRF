@@ -107,4 +107,6 @@ namespace aux_test
 	MRContrastDynamic get_constant_contrast( LabelType const which_tissue_label, TissueParameter template_param, float const T1_ms);
 
 	void store_roi( LabelVolume& label_vol, std::vector<float> const labels, std::string const output_prefix);
+	float prep_pet_motion_dyn(PETMotionDynamic& motion_dyn, SignalContainer const motion_signal);
+
 }// namespace aux_test

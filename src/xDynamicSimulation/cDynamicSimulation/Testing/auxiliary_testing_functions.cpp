@@ -940,3 +940,34 @@ void aux_test::store_roi( LabelVolume& label_vol, std::vector<float> const label
 		temp_vol.write(curr_fname.str()); 
 	}
 }
+
+float aux_test::prep_pet_motion_dyn( PETMotionDynamic& motion_dyn, SignalContainer const motion_signal)
+{
+
+
+	if(motion_signal.size() == 0)
+		throw std::runtime_error("Please set a signal first. Otherwise you cannot bin your data, you dummy!");
+
+	auto first_sig_pt = motion_signal[0];
+	auto last_sig_pt = motion_signal[motion_signal.size()-1];
+
+	float min_time_card_ms = first_sig_pt.first;
+
+	SignalContainer shifted_motion_signal;
+
+	for( size_t i=0; i<motion_signal.size(); i++)
+	{
+		auto curr_sig_pt = motion_signal[i];	
+		curr_sig_pt.first = curr_sig_pt.first - min_time_card_ms;
+		shifted_motion_signal.push_back(curr_sig_pt);
+	}
+
+ 	motion_dyn.set_dyn_signal( shifted_motion_signal );
+
+	float tot_time_ms = last_sig_pt.first - min_time_card_ms;
+	TimeBin total_time(0, tot_time_ms);
+
+ 	motion_dyn.bin_total_time_interval( total_time );
+
+ 	return tot_time_ms;
+}
