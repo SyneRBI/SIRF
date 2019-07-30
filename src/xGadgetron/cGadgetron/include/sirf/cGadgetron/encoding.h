@@ -63,7 +63,7 @@ public:
 	{
 		this->traj_.resize( std::vector<size_t>{0} );	
 	}
-	
+	 
 	void set_header(ISMRMRD::IsmrmrdHeader hdr);
 	void set_trajectory( TrajVessel trajectory );
 	
@@ -129,6 +129,22 @@ class RPEInterleavedGoldenCutTrajectoryContainer: public RPETrajectoryContainer{
 public:
 	void compute_trajectory( void );
 };
+
+typedef std::pair<size_t, size_t> PermutIdxContainer;
+
+class RPESuperInterleavedGoldenCutTrajectoryContainer: public RPETrajectoryContainer{
+	
+
+
+public:
+	void compute_trajectory( void );
+private:
+	static bool comparefun(PermutIdxContainer &a, PermutIdxContainer &b)
+	{
+		return a.first > b.first;
+	}
+};
+
 
 
 
