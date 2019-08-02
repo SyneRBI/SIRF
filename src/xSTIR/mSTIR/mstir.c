@@ -186,8 +186,11 @@ EXPORTED_FUNCTION 	void* mSTIR_getImageTransformMatrix(const void* ptr_im, PTR_F
 EXPORTED_FUNCTION 	void* mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data) {
 	return cSTIR_getImageData(ptr, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data) {
+EXPORTED_FUNCTION 	void* mSTIR_setImageData(void* ptr_im, PTR_FLOAT ptr_data) {
 	return cSTIR_setImageData(ptr_im, ptr_data);
+}
+EXPORTED_FUNCTION 	void* mSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src) {
+	return cSTIR_setImageDataFromImage(ptr_im, ptr_src);
 }
 EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float sy, float sz, float x, float y, float z) {
 	return cSTIR_voxels3DF(nx, ny, nz, sx, sy, sz, x, y, z);

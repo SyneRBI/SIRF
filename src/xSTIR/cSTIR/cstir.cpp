@@ -1052,12 +1052,25 @@ void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 }
 
 extern "C"
-void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
+void* cSTIR_setImageData(void* ptr_im, size_t ptr_data)
 {
 	try {
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		float* data = (float*)ptr_data;
 		id.set_data(data);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src)
+{
+	try {
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+		STIRImageData& id_src = objectFromHandle<STIRImageData>(ptr_src);
+		Image3DF& data = id.data();
+		data = id_src.data();
 		return new DataHandle;
 	}
 	CATCH;

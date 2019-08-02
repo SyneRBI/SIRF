@@ -280,7 +280,11 @@ class ImageData(SIRF.ImageData):
         have the same size as an array returned by `as_array`.
         '''
         assert self.handle is not None
-        if isinstance(value, numpy.ndarray):
+        if isinstance(value, ImageData):
+            super(ImageData, self).fill(value)
+##            try_calling(pystir.cSTIR_setImageDataFromImage \
+##                        (self.handle, value.handle))
+        elif isinstance(value, numpy.ndarray):
             if value.dtype is numpy.dtype('float32'):
                 #print('keeping dtype float32')
                 v = value

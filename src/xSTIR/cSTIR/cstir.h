@@ -122,7 +122,8 @@ extern "C" {
 	void* cSTIR_getImageVoxelSizes(const void* ptr_im, PTR_FLOAT ptr_vs);
 	void* cSTIR_getImageTransformMatrix(const void* ptr_im, PTR_FLOAT ptr_md);
 	void* cSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
-	void* cSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
+	void* cSTIR_setImageData(void* ptr_im, PTR_FLOAT ptr_data);
+	void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src);
 	void* cSTIR_voxels3DF(int nx, int ny, int nz,
 		float sx, float sy, float sz, float x, float y, float z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);

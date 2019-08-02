@@ -484,6 +484,9 @@ class ImageData(SIRF.ImageData):
         data: Python Numpy array
         '''
         assert self.handle is not None
+        if isinstance(data, ImageData):
+            super(ImageData, self).fill(data)
+            return
         if self.is_real():
             if data.dtype != numpy.float32:
                 data = data.astype(numpy.float32)
