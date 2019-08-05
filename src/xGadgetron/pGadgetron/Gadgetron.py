@@ -800,15 +800,26 @@ class AcquisitionData(DataContainer):
     def fill(self, data, select = 'image'):
         '''
         Fills self's acquisitions with specified values.
-        data: Python Numpy array
+        data: Python Numpy array or AcquisitionData
         '''
         assert self.handle is not None
-        if select == 'all': # return all
-            fill_all = 1
-        else: # return only image-related
-            fill_all = 0
-        try_calling(pygadgetron.cGT_fillAcquisitionsData\
-            (self.handle, data.ctypes.data, fill_all))
+        if isinstance(data, AcquisitionData):
+            try_calling(pygadgetron.cGT_fillAcquisitionsDataFromAcquisitionsData\
+                (self.handle, data.handle))
+            return
+        elif isinstance(data, numpy.ndarray):
+            if data.dtype is not numpy.float32:
+                data = data.astype(numpy.float32)
+            if select == 'all': # return all
+                fill_all = 1
+            else: # return only image-related
+                fill_all = 0
+            try_calling(pygadgetron.cGT_fillAcquisitionsData\
+                (self.handle, data.ctypes.data, fill_all))
+        else:
+            raise error('wrong fill value.' + \
+                        ' Should be AcquisitionData or numpy.ndarray')
+        return self
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.

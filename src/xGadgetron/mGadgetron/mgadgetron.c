@@ -122,6 +122,9 @@ EXPORTED_FUNCTION 	void* mGT_writeAcquisitions(void* ptr_acqs, const char* filen
 EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {
 	return cGT_fillAcquisitionsData(ptr_acqs, ptr_z, all);
 }
+EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsDataFromAcquisitionsData(void* ptr_dst, void* ptr_src) {
+	return cGT_fillAcquisitionsDataFromAcquisitionsData(ptr_dst, ptr_src);
+}
 EXPORTED_FUNCTION 	void* mGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {
 	return cGT_acquisitionsDataAsArray(ptr_acqs, ptr_z, all);
 }

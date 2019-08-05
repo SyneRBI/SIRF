@@ -63,6 +63,7 @@ EXPORTED_FUNCTION 	void* mGT_sortAcquisitions(void* ptr_acqs);
 EXPORTED_FUNCTION 	void* mGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim);
 EXPORTED_FUNCTION 	void* mGT_writeAcquisitions(void* ptr_acqs, const char* filename);
 EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
+EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsDataFromAcquisitionsData(void* ptr_dst, void* ptr_src);
 EXPORTED_FUNCTION 	void* mGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon);

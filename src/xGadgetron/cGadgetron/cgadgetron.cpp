@@ -601,6 +601,20 @@ cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
 
 extern "C"
 void*
+cGT_fillAcquisitionsDataFromAcquisitionsData(void* ptr_dst, void* ptr_src)
+{
+	CAST_PTR(DataHandle, h_dst, ptr_dst);
+	CAST_PTR(DataHandle, h_src, ptr_src);
+	MRAcquisitionData& dst =
+		objectFromHandle<MRAcquisitionData>(h_dst);
+	MRAcquisitionData& src =
+		objectFromHandle<MRAcquisitionData>(h_src);
+	dst.copy_acquisitions_data(src);
+	return new DataHandle;
+}
+
+extern "C"
+void*
 cGT_writeAcquisitions(void* ptr_acqs, const char* filename)
 {
 	try {

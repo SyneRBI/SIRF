@@ -275,9 +275,9 @@ class ImageData(SIRF.ImageData):
     def fill(self, value):
         '''Sets the voxel-values.
 
-        The argument is either 3D Numpy ndarray of values or a scalar to be
-        assigned at each voxel. When using an ndarray, the array size has to
-        have the same size as an array returned by `as_array`.
+        The argument is either ImageData or 3D Numpy ndarray of values or a
+        scalar to be assigned at each voxel. When using an ndarray, the array
+        must have the same size as an array returned by `as_array`.
         '''
         assert self.handle is not None
         if isinstance(value, ImageData):
@@ -298,7 +298,7 @@ class ImageData(SIRF.ImageData):
             try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
             raise error('wrong fill value.' + \
-                        ' Should be numpy.ndarray, float or int')
+                        ' Should be ImageData, numpy.ndarray, float or int')
         return self
     def get_uniform_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
