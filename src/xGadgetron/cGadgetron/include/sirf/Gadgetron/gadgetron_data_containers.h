@@ -248,7 +248,7 @@ namespace sirf {
 
 		// implements 'overwriting' of an acquisition file data with new values:
 		// in reality, creates new file with new data and deletes the old one
-		void take_over(MRAcquisitionData& ac);
+		void take_over(AcquisitionsFile& ac);
 
 		void write_acquisitions_info();
 
