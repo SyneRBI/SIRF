@@ -490,12 +490,12 @@ class ImageData(SIRF.ImageData):
         if self.is_real():
             if data.dtype != numpy.float32:
                 data = data.astype(numpy.float32)
-            try_calling(pygadgetron.cGT_setImagesDataAsFloatArray\
+            try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
                 (self.handle, data.ctypes.data))
         else:
             if data.dtype != numpy.complex64:
                 data = data.astype(numpy.complex64)
-            try_calling(pygadgetron.cGT_setImagesDataAsCmplxArray\
+            try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
                 (self.handle, data.ctypes.data))
     def as_array(self):
         '''
@@ -514,12 +514,12 @@ class ImageData(SIRF.ImageData):
         nz = nz*nc*self.number()
         if self.is_real():
             array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            try_calling(pygadgetron.cGT_getImagesDataAsFloatArray\
+            try_calling(pygadgetron.cGT_getImageDataAsFloatArray\
                 (self.handle, array.ctypes.data))
             return array
         else:
             z = numpy.ndarray((nz, ny, nx), dtype = numpy.complex64)
-            try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
+            try_calling(pygadgetron.cGT_getImageDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
     def show(self, slice = None, title = None, cmap = 'gray', postpone = False):
@@ -701,12 +701,12 @@ class AcquisitionData(DataContainer):
             all acquisition data generated from now on will be kept in RAM
             (avoid if data is very large)
         '''
-        try_calling(pygadgetron.cGT_setAcquisitionsStorageScheme(scheme))
+        try_calling(pygadgetron.cGT_setAcquisitionDataStorageScheme(scheme))
     @staticmethod
     def get_storage_scheme():
         '''Returns acquisition data storage scheme.
         '''
-        handle = pygadgetron.cGT_getAcquisitionsStorageScheme()
+        handle = pygadgetron.cGT_getAcquisitionDataStorageScheme()
         check_status(handle)
         scheme = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -768,7 +768,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
-        hv = pygadgetron.cGT_getAcquisitionsDimensions\
+        hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
         #nr = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
@@ -804,17 +804,17 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         if isinstance(data, AcquisitionData):
-            try_calling(pygadgetron.cGT_fillAcquisitionsDataFromAcquisitionsData\
+            try_calling(pygadgetron.cGT_fillAcquisitionDataFromAcquisitionData\
                 (self.handle, data.handle))
             return
         elif isinstance(data, numpy.ndarray):
             if data.dtype is not numpy.float32:
                 data = data.astype(numpy.float32)
-            if select == 'all': # return all
+            if select == 'all': # fill all
                 fill_all = 1
-            else: # return only image-related
+            else: # fill only image-related
                 fill_all = 0
-            try_calling(pygadgetron.cGT_fillAcquisitionsData\
+            try_calling(pygadgetron.cGT_fillAcquisitionData\
                 (self.handle, data.ctypes.data, fill_all))
         else:
             raise error('wrong fill value.' + \
@@ -832,7 +832,7 @@ class AcquisitionData(DataContainer):
         else: # return only image-related
             return_all = 0
         z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
-        try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
+        try_calling(pygadgetron.cGT_acquisitionDataAsArray\
             (self.handle, z.ctypes.data, return_all))
         return z
     def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \

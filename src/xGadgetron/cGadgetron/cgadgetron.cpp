@@ -448,7 +448,7 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 
 extern "C"
 void*
-cGT_setAcquisitionsStorageScheme(const char* scheme)
+cGT_setAcquisitionDataStorageScheme(const char* scheme)
 {
 	try{
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
@@ -462,7 +462,7 @@ cGT_setAcquisitionsStorageScheme(const char* scheme)
 
 extern "C"
 void*
-cGT_getAcquisitionsStorageScheme()
+cGT_getAcquisitionDataStorageScheme()
 {
 	return charDataHandleFromCharData
 		(MRAcquisitionData::storage_scheme().c_str());
@@ -558,7 +558,7 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 
 extern "C"
 void*
-cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
+cGT_getAcquisitionDataDimensions(void* ptr_acqs, size_t ptr_dim)
 {
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
@@ -574,7 +574,7 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 
 extern "C"
 void*
-cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
+cGT_acquisitionDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
@@ -589,7 +589,7 @@ cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 
 extern "C"
 void*
-cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
+cGT_fillAcquisitionData(void* ptr_acqs, size_t ptr_z, int all)
 {
 	complex_float_t* z = (complex_float_t*)ptr_z;
 	CAST_PTR(DataHandle, h_acqs, ptr_acqs);
@@ -601,7 +601,7 @@ cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
 
 extern "C"
 void*
-cGT_fillAcquisitionsDataFromAcquisitionsData(void* ptr_dst, void* ptr_src)
+cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src)
 {
 	CAST_PTR(DataHandle, h_dst, ptr_dst);
 	CAST_PTR(DataHandle, h_src, ptr_src);
@@ -893,7 +893,7 @@ cGT_imageType(const void* ptr_img)
 
 extern "C"
 void*
-cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
+cGT_getImageDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
@@ -907,7 +907,7 @@ cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 
 extern "C"
 void*
-cGT_setImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
+cGT_setImageDataFromFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
@@ -921,7 +921,7 @@ cGT_setImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 
 extern "C"
 void*
-cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+cGT_getImageDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
@@ -935,7 +935,7 @@ cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 
 extern "C"
 void*
-cGT_setImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+cGT_setImageDataFromCmplxArray(void* ptr_imgs, size_t ptr_z)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;

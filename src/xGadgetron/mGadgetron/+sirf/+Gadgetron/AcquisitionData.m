@@ -42,14 +42,14 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
 %               all acquisition data generated from now on will be kept in
 %               RAM (avoid if data is very large)
             h = calllib...
-                ('mgadgetron', 'mGT_setAcquisitionsStorageScheme', scheme);
+                ('mgadgetron', 'mGT_setAcquisitionDataStorageScheme', scheme);
             sirf.Utilities.check_status('AcquisitionData', h);
             sirf.Utilities.delete(h)
         end
         function scheme = get_storage_scheme()
 %***SIRF*** Returns current acquisition storage scheme name
             h = calllib...
-                ('mgadgetron', 'mGT_getAcquisitionsStorageScheme');
+                ('mgadgetron', 'mGT_getAcquisitionDataStorageScheme');
             sirf.Utilities.check_status('AcquisitionData', h);
             scheme = calllib('miutilities', 'mCharDataFromHandle', h);
             sirf.Utilities.delete(h)
@@ -124,7 +124,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             end
             ptr_i = libpointer('int32Ptr', ones(16, 1));
             calllib...
-                ('mgadgetron', 'mGT_getAcquisitionsDimensions', ...
+                ('mgadgetron', 'mGT_getAcquisitionDataDimensions', ...
                 self.handle_, ptr_i);
             dim = ptr_i.Value;
             all = true;
@@ -165,7 +165,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             n = ns*nc*na;
             ptr_z = libpointer('singlePtr', zeros(2, n));
             calllib...
-                ('mgadgetron', 'mGT_acquisitionsDataAsArray', ...
+                ('mgadgetron', 'mGT_acquisitionDataAsArray', ...
                 self.handle_, ptr_z, all);
             data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
                 ns, nc, na);
@@ -190,7 +190,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             else
                 ptr_z = libpointer('singlePtr', single(z));
             end
-            h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
+            h = calllib('mgadgetron', 'mGT_fillAcquisitionData', ...
                 self.handle_, ptr_z, all);
             sirf.Utilities.check_status('AcquisitionData', h);
             sirf.Utilities.delete(h)
