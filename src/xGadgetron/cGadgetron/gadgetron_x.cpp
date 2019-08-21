@@ -351,7 +351,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
-	fft3c(ci);
+	fft2c(ci);
 
 	int y = 0;
 	for (;;){
@@ -433,7 +433,7 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 			break;
 	}
 	off += y;
-	ifft3c(ci);
+	ifft2c(ci);
 
 	T* ptr = im.getDataPtr();
 	T s;
