@@ -1023,11 +1023,11 @@ namespace sirf {
 		float max_(int nx, int ny, float* u);
 		void mask_noise_
 			(int nx, int ny, float* u, float noise, int* mask);
-		void cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
+		int cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
 		void smoothen_
-			(int nx, int ny, int nz,
+			(int nx, int ny, int nc,
 			complex_float_t* u, complex_float_t* v,
-			int* obj_mask);
+			int* obj_mask, int w);
 	};
 
 	/*!
