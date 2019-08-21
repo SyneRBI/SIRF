@@ -323,31 +323,35 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	//int readout = e.encodedSpace.matrixSize.x;
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	unsigned int ny = e.reconSpace.matrixSize.y;
+	unsigned int nz = e.reconSpace.matrixSize.z;
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
 
 	std::vector<size_t> dims;
 	dims.push_back(readout);
 	dims.push_back(ny);
+	dims.push_back(nz);
 	dims.push_back(nc);
 
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
 
 	for (unsigned int c = 0; c < nc; c++) {
-		for (unsigned int y = 0; y < ny; y++) {
-			for (unsigned int x = 0; x < nx; x++) {
-				uint16_t xout = x + (readout - nx) / 2;
-				complex_float_t zi = (complex_float_t)img(x, y);
-				complex_float_t zc = csm(x, y, 0, c);
-				ci(xout, y, c) = zi * zc;
+		for (unsigned int z = 0; z < nz; z++) {
+			for (unsigned int y = 0; y < ny; y++) {
+				for (unsigned int x = 0; x < nx; x++) {
+					uint16_t xout = x + (readout - nx) / 2;
+					complex_float_t zi = (complex_float_t)img(x, y, z);
+					complex_float_t zc = csm(x, y, z, c);
+					ci(xout, y, z, c) = zi * zc;
+				}
 			}
 		}
 	}
 
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
-	fft2c(ci);
+	fft3c(ci);
 
 	int y = 0;
 	for (;;){
@@ -359,9 +363,10 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	for (;;) {
 		sptr_acqs_->get_acquisition(off + y, acq);
 		int yy = acq.idx().kspace_encode_step_1;
+		int zz = acq.idx().kspace_encode_step_2;
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < readout; s++) {
-				acq.data(s, c) = ci(s, yy, c);
+				acq.data(s, c) = ci(s, yy, zz, c);
 			}
 		}
 		ac.append_acquisition(acq);
@@ -395,12 +400,14 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	unsigned int ny = e.reconSpace.matrixSize.y;
+	unsigned int nz = e.reconSpace.matrixSize.z;
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
 
 	std::vector<size_t> dims;
 	dims.push_back(readout);
 	dims.push_back(ny);
+	dims.push_back(nz);
 	dims.push_back(nc);
 
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
@@ -415,9 +422,10 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	for (;;) {
 		ac.get_acquisition(off + y, acq);
 		int yy = acq.idx().kspace_encode_step_1;
+		int zz = acq.idx().kspace_encode_step_2;
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < readout; s++) {
-				ci(s, yy, c) = acq.data(s, c);
+				ci(s, yy, zz, c) = acq.data(s, c);
 			}
 		}
 		y++;
@@ -425,7 +433,7 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 			break;
 	}
 	off += y;
-	ifft2c(ci);
+	ifft3c(ci);
 
 	T* ptr = im.getDataPtr();
 	T s;
@@ -433,13 +441,15 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	long long int i = 0;
 	for (unsigned int c = 0; c < nc; c++) {
 		i = 0;
-		for (unsigned int y = 0; y < ny; y++) {
-			for (unsigned int x = 0; x < nx; x++, i++) {
-				uint16_t xout = x + (readout - nx) / 2;
-				complex_float_t z = ci(xout, y, c);
-				complex_float_t zc = csm(x, y, 0, c);
-				xGadgetronUtilities::convert_complex(std::conj(zc) * z, s);
-				ptr[i] += s;
+		for (unsigned int z = 0; z < nz; z++) {
+			for (unsigned int y = 0; y < ny; y++) {
+				for (unsigned int x = 0; x < nx; x++, i++) {
+					uint16_t xout = x + (readout - nx) / 2;
+					complex_float_t zi = ci(xout, y, z, c);
+					complex_float_t zc = csm(x, y, z, c);
+					xGadgetronUtilities::convert_complex(std::conj(zc) * zi, s);
+					ptr[i] += s;
+				}
 			}
 		}
 	}
