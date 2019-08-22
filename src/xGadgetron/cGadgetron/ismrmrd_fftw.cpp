@@ -302,16 +302,15 @@ namespace ISMRMRD {
 				r.begin() + n*n0*n1*n2);
 		}
 
-	{
-		std::lock_guard<std::mutex> guard(mutex_);
-		fftw_destroy_plan_(p);
-	}
+		{
+			std::lock_guard<std::mutex> guard(mutex_);
+			fftw_destroy_plan_(p);
+		}
 
-	//std::cout << fftRatio << '\n';
-	for (size_t n = 0; n < a.getNumberOfElements(); n++) {
-		a.getDataPtr()[n] *= fftRatio;
-	}
-	//	r *= fftRatio;
+		for (size_t n = 0; n < a.getNumberOfElements(); n++) {
+			r.getDataPtr()[n] *= fftRatio;
+		}
+		//	r *= fftRatio;
 
 	}
 
