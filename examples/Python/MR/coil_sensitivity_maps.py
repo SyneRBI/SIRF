@@ -84,9 +84,9 @@ def main():
     CSMs.calculate(processed_data)
     #
     # display coil sensitivity maps
-    coil_images = numpy.squeeze(CSMs.as_array(0))
+    csms_array = numpy.squeeze(CSMs.as_array(CSMs.number()//4))
     title = 'SRSS from raw data (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, \
+    show_3D_array(abs(csms_array), suptitle = title, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'coil',
                   show = False)
 
@@ -109,10 +109,9 @@ def main():
     CSMs.calculate(CIs, method = 'SRSS(niter = %d)' % nit)
     #
     # display coil sensitivity maps (must be identical to previously computed)
-    coil_images = numpy.squeeze(CSMs.as_array(0))
-    maxv = numpy.amax(abs(coil_images))
+    csms_array = numpy.squeeze(CSMs.as_array(CSMs.number()//4))
     title = 'SRSS from coil images (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, \
+    show_3D_array(abs(csms_array), suptitle = title, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'coil',
                   show = False)
 ##    title = 'Coil sensitivity maps (phase)'
@@ -129,9 +128,9 @@ def main():
     CSMs.calculate(CIs, method = 'Inati()')
     #
     # display coil sensitivity maps
-    coil_images = numpy.squeeze(CSMs.as_array(0))
+    csms_array = numpy.squeeze(CSMs.as_array(CSMs.number()//4))
     title = 'Inati (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, \
+    show_3D_array(abs(csms_array), suptitle = title, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'coil')
 
 try:
