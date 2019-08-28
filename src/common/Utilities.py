@@ -234,7 +234,7 @@ def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
     Throws an error if abs(expected - actual) > abstol + reltol*abs(expected)
     '''
     if abs(expected - actual) > abstol + reltol*abs(expected):
-        raise ValueError("|%.3g - %.3g| > %.3g" %
+        raise ValueError("|%.4g - %.4g| > %.3g" %
                          (expected, actual, abstol + reltol*abs(expected)))
 
 
@@ -265,7 +265,7 @@ class pTest(object):
         if self.record:
             self.file.close()
 
-    def check(self, value, abs_tol=0, rel_tol=1e-3):
+    def check(self, value, abs_tol=0, rel_tol=2e-3):
         '''
         Tests if value is equal to the recorded one (or record it)
         value        : the value that was computed
