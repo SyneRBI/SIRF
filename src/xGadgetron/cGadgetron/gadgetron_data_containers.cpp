@@ -483,8 +483,8 @@ MRAcquisitionData::sort()
 		if (t[0] > max_rep)
 			max_rep = t[0];
 	}
-	if (last > -1)
-		vt[last][0] = max_rep + 1;
+	//if (last > -1)
+	//	vt[last][0] = max_rep + 1;
 
 	index_.resize(na);
 
@@ -1279,10 +1279,14 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	bool parallel = e.parallelImaging.is_present() &&
 		e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
 	unsigned int nx = e.reconSpace.matrixSize.x;
-	unsigned int ny = e.reconSpace.matrixSize.y;
-	unsigned int nz = e.reconSpace.matrixSize.z;
+	//unsigned int ny = e.reconSpace.matrixSize.y;
+	//unsigned int nz = e.reconSpace.matrixSize.z;
+	unsigned int ny = e.encodedSpace.matrixSize.y;
+	unsigned int nz = e.encodedSpace.matrixSize.z;
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
+	std::cout << readout << '\n';
+	std::cout << nx << ' ' << ny << ' ' << nz << ' ' << nc << '\n';
 
 	int nmap = 0;
 	std::cout << "map ";
@@ -1343,8 +1347,10 @@ CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
 
 	ISMRMRD::Encoding e = cis.encoding();
 	unsigned int nx = e.reconSpace.matrixSize.x;
-	unsigned int ny = e.reconSpace.matrixSize.y;
-	unsigned int nz = e.reconSpace.matrixSize.z;
+	//unsigned int ny = e.reconSpace.matrixSize.y;
+	//unsigned int nz = e.reconSpace.matrixSize.z;
+	unsigned int ny = e.encodedSpace.matrixSize.y;
+	unsigned int nz = e.encodedSpace.matrixSize.z;
 	int dim[4];
 	cis(0).get_dim(dim);
 	unsigned int readout = dim[0];

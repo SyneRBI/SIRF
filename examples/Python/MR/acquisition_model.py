@@ -98,6 +98,9 @@ def main():
     #    - kspace encode step 1
     print('---\n sorting acquisition data...')
     processed_data.sort()
+    if output_file is not None:
+        processed_data.write(output_file)
+        exit()
 
     # compute coil sensitivity maps
     print('---\n computing coil sensitivity maps...')
@@ -118,11 +121,11 @@ def main():
     simulated_acq_data = acq_model.forward(complex_images)
     print('---\n reconstructed images forward projection norm %e'\
           % simulated_acq_data.norm())
-    if output_file is not None:
-        simulated_acq_data.write(output_file)
+##    if output_file is not None:
+##        simulated_acq_data.write(output_file)
 
     # display simulated acquisition data
-    simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
+    #simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
 
     # backproject simulated acquisition data
     backprojected_data = acq_model.backward(simulated_acq_data)
