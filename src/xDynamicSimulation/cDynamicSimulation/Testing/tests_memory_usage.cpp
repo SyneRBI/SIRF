@@ -30,6 +30,67 @@ void wait_for_time ( int const wait_time_s)
 
 
 
+bool tests_memory::test_sirf_free_acquisition( void )
+{
+
+	try
+	{
+		size_t num_iterations = 1000;
+
+		size_t num_acquis = 256*128;
+		uint16_t num_samples = 192;
+		uint16_t num_channels = 32;
+		
+		ISMRMRD::Acquisition acq(num_samples, num_channels);
+
+		std::vector< std::shared_ptr<ISMRMRD::Acquisition> > acq_vec;
+		for (int i = 0; i < num_acquis; ++i)
+		{
+			acq_vec.push_back(std::make_shared<ISMRMRD::Acquisition>(acq));	
+		}
+
+		bool construct_inside_loop = false;
+
+		
+		if( construct_inside_loop )
+		{
+			for(size_t i=0; i<num_iterations; i++)
+			{
+				std::cout << "loopindex i " << i <<std::endl;
+		
+				for(size_t i_acq=0; i_acq<acq_vec.size(); i_acq++)
+				{	
+					ISMRMRD::Acquisition temp_acq;
+				    temp_acq = *acq_vec[i_acq]; 
+				}
+			}
+		} 
+		else
+		{
+			for(size_t i=0; i<num_iterations; i++)
+			{
+				std::cout << "loopindex i " << i <<std::endl;
+
+				ISMRMRD::Acquisition temp_acq;
+				for(size_t i_acq=0; i_acq<acq_vec.size(); i_acq++)
+				{	
+				    temp_acq = *acq_vec[i_acq]; 
+				} 
+			}
+		}
+
+		return true;
+
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+
+
 bool tests_memory::test_acquisition_memory( void )
 {
 	try
@@ -128,14 +189,6 @@ bool tests_memory::test_downsizing_acquisition_memory( void )
 
 
 
-
-
-
-
-
-
-
-
 bool tests_memory::test_acquisition_vector_ordering_memory( void )
 {
 	try
@@ -162,9 +215,6 @@ bool tests_memory::test_acquisition_vector_ordering_memory( void )
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
-
-
-
 }
 
 bool tests_memory::test_acquisition_vector_memory( void )
