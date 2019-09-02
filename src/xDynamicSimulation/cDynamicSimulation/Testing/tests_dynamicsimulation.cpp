@@ -373,22 +373,26 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 {
 try
 	{	
-	bool const simulate_data = false;
-	bool const store_gt_mvfs = true;
+	bool const simulate_data = true;
+	bool const store_gt_mvfs = false;
 
-	int const num_simul_motion_states = 8;
+	int const num_simul_motion_states = 2;
 
 	float const test_SNR = 25;
 	size_t const noise_label = 13;
 
-	std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
-	std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/5DMotion/";
+	// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
+	// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/5DMotion/";
+
+	std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/CardiacFatWaterSep/Input/";
+	std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/CardiacFatWaterSep/Output/MR/5DMotion/";
 
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( std::string(SHARED_FOLDER_PATH) + "/XCATSegmentations/xcat208Cube/xcat_phantom_incl_geomertry_208.h5" );
 	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-	mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5");
+	// mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"); // PETMR
+	mr_dyn_sim.set_filename_rawdata( input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"); //CARDIAC FWSEP
 		
 	auto data_dims = segmentation_labels.get_dimensions();
 		
@@ -398,8 +402,11 @@ try
 	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 	mr_dyn_sim.set_coilmaps( csm );
 
-	RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
-	auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
+
+	typedef RPESuperInterleavedGoldenCutTrajectoryContainer TrajType;
+	// RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
+	TrajType rpe_traj;
+	auto sptr_traj = std::make_shared< TrajType >( rpe_traj );
 	mr_dyn_sim.set_trajectory( sptr_traj );
 
 	AcquisitionsVector all_acquis;
@@ -416,7 +423,7 @@ try
 	{
 		MRMotionDynamic card_dyn(num_simul_motion_states), resp_dyn(num_simul_motion_states);
 
-		std::string const signal_path = input_path + "/SurrogateSignals/";
+ 		std::string const signal_path = input_path + "/SurrogateSignals/";
 
 		std::string fname_timepts, fname_signalpts;
 
