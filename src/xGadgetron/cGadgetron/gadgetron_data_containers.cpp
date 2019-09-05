@@ -1285,8 +1285,8 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	unsigned int nz = e.encodedSpace.matrixSize.z;
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
-	std::cout << readout << '\n';
-	std::cout << nx << ' ' << ny << ' ' << nz << ' ' << nc << '\n';
+	//std::cout << readout << '\n';
+	//std::cout << nx << ' ' << ny << ' ' << nz << ' ' << nc << '\n';
 
 	int nmap = 0;
 	std::cout << "map ";
