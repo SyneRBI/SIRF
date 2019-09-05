@@ -43,7 +43,11 @@ namespace sirf {
 	public:
 		virtual void set_property(const char* prop, const char* value) = 0;
 		virtual std::string value_of(const char* prop) = 0;
-		virtual std::string xml() const = 0;
+		virtual std::string vxml(const std::string& label) const = 0;
+		std::string xml(const std::string& label = "") const
+		{
+			return vxml(label);
+		}
 	};
 
 	/**
@@ -55,6 +59,7 @@ namespace sirf {
 			gadget_(name), dll_(dll)
 		{
 			class_ = cl;
+			//add_property("pass_on_undesired_data", "true");
 		}
 		virtual void set_property(const char* prop, const char* value)
 		{
@@ -68,10 +73,13 @@ namespace sirf {
 		{
 			par_[prop] = value;
 		}
-		virtual std::string xml() const
+		virtual std::string vxml(const std::string& label) const
 		{
 			std::string xml_script("<gadget>\n");
-			xml_script += " <name>" + gadget_ + "</name>\n";
+			if (label.size() > 1)
+				xml_script += " <name>" + label + ':' + gadget_ + "</name>\n";
+			else
+				xml_script += " <name>" + gadget_ + "</name>\n";
 			xml_script += " <dll>" + dll_ + "</dll>\n";
 			xml_script += " <classname>" + class_ + "</classname>\n";
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -110,7 +118,7 @@ namespace sirf {
 		{
 			return std::string("");
 		}
-		virtual std::string xml() const {
+		virtual std::string vxml(const std::string& label) const {
 			std::string xml_script("<reader>\n");
 			xml_script += " <slot>1008</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -136,7 +144,7 @@ namespace sirf {
 		{
 			return std::string("");
 		}
-		virtual std::string xml() const {
+		virtual std::string vxml(const std::string& label) const {
 			std::string xml_script("<writer>\n");
 			xml_script += " <slot>1008</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -161,7 +169,7 @@ namespace sirf {
 		{
 			return std::string("");
 		}
-		virtual std::string xml() const {
+		virtual std::string vxml(const std::string& label) const {
 			std::string xml_script("<reader>\n");
 			xml_script += " <slot>1022</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -186,7 +194,7 @@ namespace sirf {
 		{
 			return std::string("");
 		}
-		virtual std::string xml() const {
+		virtual std::string vxml(const std::string& label) const {
 			std::string xml_script("<writer>\n");
 			xml_script += " <slot>1022</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -204,6 +212,31 @@ namespace sirf {
 		static const char* class_name()
 		{
 			return "NoiseAdjustGadget";
+		}
+	};
+
+	class PCACoilGadget : public Gadget {
+	public:
+		PCACoilGadget() :
+			Gadget("PCACoil", "gadgetron_mricore", "PCACoilGadget")
+		{}
+		static const char* class_name()
+		{
+			return "PCACoilGadget";
+		}
+	};
+
+	class CoilReductionGadget : public Gadget {
+	public:
+		CoilReductionGadget() :
+			Gadget("CoilReduction", "gadgetron_mricore", "CoilReductionGadget")
+		{
+			add_property("coil_mask", "");
+			add_property("coils_out", "128");
+		}
+		static const char* class_name()
+		{
+			return "CoilReductionGadget";
 		}
 	};
 
@@ -389,6 +422,82 @@ namespace sirf {
 		}
 	};
 
+	class GPURadialPrepGadget : public Gadget {
+	public:
+		GPURadialPrepGadget(std::string name, std::string dll, std::string cl) :
+			Gadget(name, dll, cl)
+		{
+			add_property("mode", "0");
+			add_property("deviceno", "0");
+			add_property("profiles_per_frame", "0");
+			add_property("rotations_per_reconstruction", "0");
+			add_property("frames_per_rotation", "0");
+			add_property("buffer_frames_per_rotation", "0");
+			add_property("buffer_length_in_rotations", "1");
+			add_property("buffer_using_solver", "false");
+			add_property("buffer_convolution_kernel_width", "5.5");
+			add_property("buffer_convolution_oversampling_factor", "1.25");
+			add_property("reconstruction_os_factor_x", "1.0");
+			add_property("reconstruction_os_factor_y", "1.0");
+			add_property("output_timing", "false");
+		}
+/*
+		static const char* class_name()
+		{
+			return "GPUSenseGadget";
+		}
+*/
+	};
+
+	class GPURadialSensePrepGadget : public GPURadialPrepGadget {
+	public:
+		GPURadialSensePrepGadget() :
+			GPURadialPrepGadget("gpuRadialSensePrepGadget", "gadgetron_gpuradial", "gpuRadialSensePrepGadget")
+		{}
+		static const char* class_name()
+		{
+			return "GPURadialSensePrepGadget";
+		}
+	};
+
+	class GPUSenseGadget : public Gadget {
+	public:
+		GPUSenseGadget(std::string name, std::string dll, std::string cl) :
+			Gadget(name, dll, cl)
+		{
+			add_property("deviceno", "0");
+			add_property("setno", "0");
+			add_property("sliceno", "0");
+			add_property("oversampling_factor", "1.5");
+			add_property("kernel_width", "5.5");
+			add_property("save_individual_frames", "true");
+			add_property("output_convergence", "false");
+			add_property("rotations_to_discard", "0");
+			add_property("output_timing", "false");
+		}
+/*
+		static const char* class_name()
+		{
+			return "GPUSenseGadget";
+		}
+*/
+	};
+
+	class GPUCGSenseGadget : public GPUSenseGadget {
+	public:
+		GPUCGSenseGadget() : 
+			GPUSenseGadget("gpuCgSenseGadget", "gadgetron_gpuparallelmri", "gpuCgSenseGadget")
+		{
+			add_property("kappa", "0.3");
+			add_property("number_of_iterations", "5");
+			add_property("cg_limit", "1e-6");
+		}
+		static const char* class_name()
+		{
+			return "GPUCGSenseGadget";
+		}
+	};
+
 	class ExtractGadget : public Gadget {
 	public:
 		ExtractGadget() :
@@ -406,6 +515,17 @@ namespace sirf {
 		}
 	};
 
+	class AutoScaleGadget : public Gadget {
+	public:
+		AutoScaleGadget() :
+			Gadget("AutoScale", "gadgetron_mricore", "AutoScaleGadget")
+		{}
+		static const char* class_name()
+		{
+			return "AutoScaleGadget";
+		}
+	};
+
 	class ComplexToFloatGadget : public Gadget {
 	public:
 		ComplexToFloatGadget() :
@@ -417,6 +537,49 @@ namespace sirf {
 		}
 	};
 
+	class FloatToFixPointGadget : public Gadget {
+	public:
+		FloatToFixPointGadget(std::string name, // = "FloatToFixPoint", 
+			std::string dll, // = "gadgetron_mricore", 
+			std::string cl, // = "FloatToFixPointGadget",
+			std::string max_int) : // = "32767") :
+				Gadget(name, dll, cl)
+		{
+			add_property("min_intensity", "0");
+			add_property("max_intensity", max_int.c_str());
+			add_property("intensity_offset", "0");
+		}
+/*
+		static const char* class_name()
+		{
+			return "FloatToFixPointGadget";
+		}
+*/
+	};
+
+	class FloatToUShortGadget : public FloatToFixPointGadget {
+	public:
+		FloatToUShortGadget() :
+			FloatToFixPointGadget("FloatToShort", "gadgetron_mricore", "FloatToUShortGadget", "65535")
+		{}
+		static const char* class_name()
+		{
+			return "FloatToUShortGadget";
+		}
+	};
+
+	class FloatToShortGadget : public FloatToFixPointGadget {
+	public:
+		FloatToShortGadget() :
+			FloatToFixPointGadget("FloatToShortAttrib", "gadgetron_mricore",
+			"FloatToShortGadget", "32767")
+		{}
+		static const char* class_name()
+		{
+			return "FloatToShortGadget";
+		}
+	};
+/*
 	class FloatToShortGadget : public Gadget {
 	public:
 		FloatToShortGadget() :
@@ -432,7 +595,7 @@ namespace sirf {
 			return "FloatToShortGadget";
 		}
 	};
-
+*/
 	class ImageFinishGadget : public Gadget {
 	public:
 		ImageFinishGadget() :
@@ -488,7 +651,7 @@ namespace sirf {
 				return bb_.value_of(prop);
 			THROW("unknown gadget parameter");
 		}
-		virtual std::string xml() const
+		virtual std::string vxml(const std::string& label) const
 		{
 			std::string xml_script;
 			xml_script += aat_.xml();

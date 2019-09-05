@@ -451,7 +451,8 @@ class DataContainer(ABC):
         return self.as_array().shape
 
 class ImageData(DataContainer):
-    pass
+    def fill(self, image):
+        try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))
 
 class DataHandleVector:
     """

@@ -334,8 +334,8 @@ AffineTransformation<dataType> AffineTransformation<dataType>::get_average(const
     // loop over all matrices
     for (size_t i=0; i<mats.size(); ++i) {
         // sum translations
-        for (unsigned i=0; i<3; ++i)
-            avg_trans[i] += mats[i][i][3];
+        for (unsigned j=0; j<3; ++j)
+            avg_trans[j] += mats[i][j][3];
 
         // For quaternions, need to extract them from TM
         quaternions.push_back(Quaternion<dataType>(mats[i]));

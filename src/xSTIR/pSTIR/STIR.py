@@ -275,14 +275,16 @@ class ImageData(SIRF.ImageData):
     def fill(self, value):
         '''Sets the voxel-values.
 
-        The argument is either 3D Numpy ndarray of values or a scalar to be
-        assigned at each voxel. When using an ndarray, the array size has to
-        have the same size as an array returned by `as_array`.
+        The argument is either ImageData or 3D Numpy ndarray of values or a
+        scalar to be assigned at each voxel. When using an ndarray, the array
+        must have the same size as an array returned by `as_array`.
         '''
         assert self.handle is not None
         if isinstance(value, ImageData):
-            value = value.as_array()
-        if isinstance(value, numpy.ndarray):
+            super(ImageData, self).fill(value)
+##            try_calling(pystir.cSTIR_setImageDataFromImage \
+##                        (self.handle, value.handle))
+        elif isinstance(value, numpy.ndarray):
             if value.dtype is numpy.dtype('float32'):
                 #print('keeping dtype float32')
                 v = value
@@ -296,7 +298,7 @@ class ImageData(SIRF.ImageData):
             try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
             raise error('wrong fill value.' + \
-                        ' Should be numpy.ndarray, float or int')
+                        ' Should be ImageData, numpy.ndarray, float or int')
         return self
     def get_uniform_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
@@ -544,7 +546,7 @@ class AcquisitionData(DataContainer):
                 self.src = 'file'
             else:
                 # src is a scanner name
-                self.handle = pystir.cSTIR_acquisitionsDataFromScannerInfo\
+                self.handle = pystir.cSTIR_acquisitionDataFromScannerInfo\
                     (src, span, max_ring_diff, view_mash_factor)
                 if pyiutil.executionStatus(self.handle) != 0:
                     msg = pyiutil.executionError(self.handle)
@@ -556,7 +558,7 @@ class AcquisitionData(DataContainer):
         elif isinstance(src, AcquisitionData):
             # src is AcquisitionData
             assert src.handle is not None
-            self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
+            self.handle = pystir.cSTIR_acquisitionDataFromTemplate\
                 (src.handle)
             self.src = 'template'
         else:
@@ -577,12 +579,12 @@ class AcquisitionData(DataContainer):
             all acquisition data generated from now on will be kept in RAM
             (avoid if data is very large)
         '''
-        try_calling(pystir.cSTIR_setAcquisitionsStorageScheme(scheme))
+        try_calling(pystir.cSTIR_setAcquisitionDataStorageScheme(scheme))
     @staticmethod
     def get_storage_scheme():
         '''Returns acquisition data storage scheme.
         '''
-        handle = pystir.cSTIR_getAcquisitionsStorageScheme()
+        handle = pystir.cSTIR_getAcquisitionDataStorageScheme()
         check_status(handle)
         scheme = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -634,7 +636,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         dim = numpy.ndarray((MAX_IMG_DIMS,), dtype = numpy.int32)
-        try_calling(pystir.cSTIR_getAcquisitionsDimensions\
+        try_calling(pystir.cSTIR_getAcquisitionDataDimensions\
             (self.handle, dim.ctypes.data))
         dim = dim[:4]
         return tuple(dim[::-1])
@@ -649,7 +651,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
-        try_calling(pystir.cSTIR_getAcquisitionsData\
+        try_calling(pystir.cSTIR_getAcquisitionData\
             (self.handle, array.ctypes.data))
         return array
     def fill(self, value):
@@ -668,16 +670,16 @@ class AcquisitionData(DataContainer):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
-            try_calling(pystir.cSTIR_setAcquisitionsData\
+            try_calling(pystir.cSTIR_setAcquisitionData\
                         (self.handle, v.ctypes.data))
         elif isinstance(value, AcquisitionData):
             assert value.handle is not None
-            try_calling(pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
+            try_calling(pystir.cSTIR_fillAcquisitionDataFromAcquisitionData\
                 (self.handle, value.handle))
         elif isinstance(value, float):
-            try_calling(pystir.cSTIR_fillAcquisitionsData(self.handle, value))
+            try_calling(pystir.cSTIR_fillAcquisitionData(self.handle, value))
         elif isinstance(value, int):
-            try_calling(pystir.cSTIR_fillAcquisitionsData\
+            try_calling(pystir.cSTIR_fillAcquisitionData\
                         (self.handle, float(value)))
         else:
             raise error('Wrong fill value.' + \

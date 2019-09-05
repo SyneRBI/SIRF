@@ -61,7 +61,9 @@ template<class dataType>
 NiftiImageData<dataType>::NiftiImageData(const NiftiImageData<dataType>& to_copy)
 {
     copy_nifti_image(_nifti_image,to_copy._nifti_image);
-    set_up_data(to_copy._original_datatype);
+    this->_data = static_cast<float*>(_nifti_image->data);
+    this->_original_datatype = to_copy._original_datatype;
+    set_up_geom_info();
 }
 
 template<class dataType>
@@ -74,7 +76,9 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const NiftiImageDa
             throw std::runtime_error("Trying to copy an uninitialised image.");
         // Copy
         copy_nifti_image(_nifti_image,to_copy._nifti_image);
-        set_up_data(to_copy._original_datatype);
+        this->_data = static_cast<float*>(_nifti_image->data);
+        this->_original_datatype = to_copy._original_datatype;
+        set_up_geom_info();
     }
     return *this;
 }
@@ -205,21 +209,27 @@ NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const NiftiImageDat
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator+(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator+(const float val) const
 {
     return maths(val,add);
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const float val) const
 {
     return maths(val,sub);
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float& val) const
+NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float val) const
 {
     return maths(val,mul);
+}
+
+template<class dataType>
+NiftiImageData<dataType> NiftiImageData<dataType>::operator/(const float val) const
+{
+    return maths(1.f/val,mul);
 }
 
 template<class dataType>
@@ -722,6 +732,15 @@ void NiftiImageData<dataType>::set_up_data(const int original_datatype)
 
     _nifti_image->nbyper = sizeof(float);
     this->_data = static_cast<float*>(_nifti_image->data);
+
+    // Take slope and intercept into account
+    if (std::abs(_nifti_image->scl_slope-1) > 1e-4f || std::abs(_nifti_image->scl_inter) > 1e-4f) {
+        for (unsigned i=0; i<this->get_num_voxels(); ++i)
+            _data[i] = _nifti_image->scl_slope * _data[i] + _nifti_image->scl_inter;
+        _nifti_image->scl_slope = 1.f;
+        _nifti_image->scl_inter = 0.f;
+
+    }
 
     // Lastly, initialise the geometrical info
     set_up_geom_info();
@@ -1322,7 +1341,7 @@ void NiftiImageData<dataType>::set_up_geom_info()
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
     for (unsigned i=0; i<3; ++i)
         for (unsigned j=0; j<3; ++j)
-            direction[i][j] = tm_final[i][j] / spacing[i];
+            direction[i][j] = tm_final[i][j] / spacing[j];
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(

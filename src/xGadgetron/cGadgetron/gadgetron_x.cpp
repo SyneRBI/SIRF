@@ -101,8 +101,11 @@ GadgetChain::xml() const
 		xml_script += gh->get()->gadget().xml() + '\n';
 	for (gh = writers_.begin(); gh != writers_.end(); gh++)
 		xml_script += gh->get()->gadget().xml() + '\n';
-	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++)
-		xml_script += gh->get()->gadget().xml() + '\n';
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
+		const GadgetHandle* ptr_gh = gh->get();
+		xml_script += ptr_gh->gadget().xml(ptr_gh->id()) + '\n';
+//		xml_script += gh->get()->gadget().xml() + '\n';
+	}
 	xml_script += endgadget_->xml() + '\n';
 	xml_script += "</gadgetronStreamConfiguration>\n";
 

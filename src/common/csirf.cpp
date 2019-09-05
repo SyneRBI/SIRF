@@ -24,6 +24,7 @@ limitations under the License.
 
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
+#include "sirf/common/ImageData.h"
 
 using namespace sirf;
 
@@ -197,4 +198,14 @@ cSIRF_DataHandleVector_push_back(void* self, void* to_append)
     DataHandleVector& vec = objectFromHandle<DataHandleVector>(self);
     vec.push_back(to_append);
     return new DataHandle;
+}
+
+extern "C"
+void*
+cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src)
+{
+	ImageData& id = objectFromHandle<ImageData>(ptr_im);
+	ImageData& id_src = objectFromHandle<ImageData>(ptr_src);
+	id.fill(id_src);
+	return new DataHandle;
 }

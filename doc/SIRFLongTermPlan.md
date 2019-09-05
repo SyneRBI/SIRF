@@ -41,9 +41,7 @@ changes between 0.9 and 1.0.
     
       - Docker images with pre-installed software
 
-# SIRF 2.0
-
-Target date : Q1 2019
+# SIRF 2.0 (released 14 May 2019)
 
   - Software
 
@@ -59,8 +57,6 @@ Target date : Q1 2019
 
       - PET reconstruction with MR anatomical priors.
       
-      - Integration with the [Core Imaging Library (CIL)](https://github.com/vais-ral/CCPi-Framework) (Python-only) for access to general optimisers and regularisation.
-
   - Improved documentation
 
 
@@ -79,6 +75,9 @@ Target date : Q3 2019
       - MR acquisition modelling of 3D Cartesian sequences (with undersampling)
       
       - LPS coordinate system that coincides with the vendor's, including handling of bed position.
+      
+      - Integration with the [Core Imaging Library (CIL)](https://github.com/vais-ral/CCPi-Framework) (Python-only) for access to general optimisers and regularisation.
+
 
   - CMake SuperBuild of SIRF on Windows (Gadgetron not yet on Windows)
 
@@ -131,8 +130,6 @@ Target date: Q1 2020
       - Support for measured data
         
           - MR sequences: (list TBD)
-        
-          - GE TOF
         
           - Philips?
 

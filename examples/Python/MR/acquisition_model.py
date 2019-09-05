@@ -129,6 +129,13 @@ def main():
     # display backprojected data
     backprojected_data.show(title = 'Backprojected data (magnitude)')
 
+    # testing fill
+    diff = backprojected_data - complex_images
+    print('norm of backprojected_data - complex_images: %f' % diff.norm())
+    complex_images.fill(backprojected_data)
+    diff = backprojected_data - complex_images
+    print('norm of backprojected_data - complex_images: %f' % diff.norm())
+
 try:
     main()
     print('done')

@@ -566,16 +566,11 @@ AcquisitionsFile::~AcquisitionsFile()
 }
 
 void 
-AcquisitionsFile::take_over(MRAcquisitionData& ac)
+AcquisitionsFile::take_over(AcquisitionsFile& af)
 {
-	//AcquisitionsFile& af = (AcquisitionsFile&)ac;
-	DYNAMIC_CAST(AcquisitionsFile, af, ac);
-	acqs_info_ = ac.acquisitions_info();
-	
-	
-	sorted_ = ac.sorted();
-	index_ = ac.index();
-
+	acqs_info_ = af.acquisitions_info();
+	sorted_ = af.sorted();
+	index_ = af.index();
 	dataset_ = af.dataset_;
 	if (own_file_) {
 		Mutex mtx;
@@ -640,12 +635,7 @@ AcquisitionsFile::write_acquisitions_info()
 void
 AcquisitionsFile::set_data(const complex_float_t* z, int all)
 {
-	shared_ptr<MRAcquisitionData> sptr_ac =
-		this->new_acquisitions_container();
-	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
-	ptr_ac->set_acquisitions_info(acqs_info_);
-	ptr_ac->write_acquisitions_info();
-	ptr_ac->set_sorted(true);
+	AcquisitionsFile ac(acqs_info_);
 	ISMRMRD::Acquisition acq;
 	int na = number();
 	for (int a = 0, i = 0; a < na; a++) {
@@ -659,9 +649,23 @@ AcquisitionsFile::set_data(const complex_float_t* z, int all)
 		for (int c = 0; c < nc; c++)
 			for (int s = 0; s < ns; s++, i++)
 				acq.data(s, c) = z[i];
-		sptr_ac->append_acquisition(acq);
+		ac.append_acquisition(acq);
 	}
-	take_over(*sptr_ac);
+	take_over(ac);
+}
+
+void
+AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
+{
+	AcquisitionsFile af(acqs_info_);
+	ISMRMRD::Acquisition acq;
+	int na = number();
+	assert(na == ac.number);
+	for (int a = 0, i = 0; a < na; a++) {
+		ac.get_acquisition(a, acq);
+		af.append_acquisition(acq);
+	}
+	take_over(af);
 }
 
 void
@@ -679,6 +683,26 @@ AcquisitionsVector::set_data(const complex_float_t* z, int all)
 		for (int c = 0; c < nc; c++)
 			for (int s = 0; s < ns; s++, i++)
 				acq.data(s, c) = z[i];
+	}
+}
+
+void
+AcquisitionsVector::copy_acquisitions_data(const MRAcquisitionData& ac)
+{
+	ISMRMRD::Acquisition acq_dst;
+	ISMRMRD::Acquisition acq_src;
+	int na = number();
+	assert(na == ac.number);
+	for (int a = 0, i = 0; a < na; a++) {
+		ac.get_acquisition(a, acq_src);
+		ISMRMRD::Acquisition& acq_dst = *acqs_[a];
+		unsigned int nc = acq_dst.active_channels();
+		unsigned int ns = acq_dst.number_of_samples();
+		assert(nc == acq_src.active_channels());
+		assert(ns == acq_src.number_of_samples());
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq_dst.data(s, c) = acq_src.data(s, c);
 	}
 }
 

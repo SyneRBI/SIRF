@@ -459,7 +459,7 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 
 extern "C"
 void*
-cSTIR_setAcquisitionsStorageScheme(const char* scheme)
+cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 { 
 	try {
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
@@ -473,14 +473,14 @@ cSTIR_setAcquisitionsStorageScheme(const char* scheme)
 
 extern "C"
 void*
-cSTIR_getAcquisitionsStorageScheme()
+cSTIR_getAcquisitionDataStorageScheme()
 {
 	return charDataHandleFromCharData
 		(PETAcquisitionData::storage_scheme().c_str());
 }
 
 extern "C"
-void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
+void* cSTIR_acquisitionDataFromTemplate(void* ptr_t)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
@@ -526,7 +526,7 @@ const int max_in_segment_num_to_process
 }
 
 extern "C"
-void* cSTIR_acquisitionsDataFromScannerInfo
+void* cSTIR_acquisitionDataFromScannerInfo
 (const char* scanner, int span, int max_ring_diff, int view_mash_factor)
 {
 	try{
@@ -547,7 +547,7 @@ void* cSTIR_acquisitionsDataFromScannerInfo
 }
 
 extern "C"
-void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
+void* cSTIR_getAcquisitionDataDimensions(const void* ptr_acq, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
@@ -562,7 +562,7 @@ void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
 }
 
 extern "C"
-void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
+void* cSTIR_getAcquisitionData(const void* ptr_acq, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
@@ -574,7 +574,7 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 }
 
 extern "C"
-void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v)
+void* cSTIR_fillAcquisitionData(void* ptr_acq, float v)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
@@ -585,7 +585,7 @@ void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v)
 }
 
 extern "C"
-void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
+void* cSTIR_fillAcquisitionDataFromAcquisitionData
 (void* ptr_acq, const void* ptr_from)
 {
 	try {
@@ -598,7 +598,7 @@ void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
 }
 
 extern "C"
-void* cSTIR_setAcquisitionsData(void* ptr_acq, size_t ptr_data)
+void* cSTIR_setAcquisitionData(void* ptr_acq, size_t ptr_data)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
@@ -1052,12 +1052,25 @@ void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 }
 
 extern "C"
-void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
+void* cSTIR_setImageData(void* ptr_im, size_t ptr_data)
 {
 	try {
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		float* data = (float*)ptr_data;
 		id.set_data(data);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src)
+{
+	try {
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+		STIRImageData& id_src = objectFromHandle<STIRImageData>(ptr_src);
+		Image3DF& data = id.data();
+		data = id_src.data();
 		return new DataHandle;
 	}
 	CATCH;
