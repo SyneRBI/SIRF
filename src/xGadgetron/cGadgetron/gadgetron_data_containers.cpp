@@ -1601,14 +1601,6 @@ CoilSensitivitiesContainer::compute_csm_(
 	for (int i = 0; i < csm_smoothness_; i++)
 		smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), object_mask, 1);
 
-//<<<<<<< HEAD
-//	for (unsigned int y = 0; y < ny; y++) {
-//		for (unsigned int x = 0; x < nx; x++) {
-//			float r = 0.0;
-//			for (unsigned int c = 0; c < nc; c++) {
-//				float s = std::abs(cm0(x, y, c));
-//				r += s*s;
-//=======
 	for (unsigned int z = 0; z < nz; z++) {
 		for (unsigned int y = 0; y < ny; y++) {
 			for (unsigned int x = 0; x < nx; x++) {
@@ -1618,7 +1610,6 @@ CoilSensitivitiesContainer::compute_csm_(
 					r += s*s;
 				}
 				img(x, y, z) = (float)std::sqrt(r);
-//>>>>>>> e72e3a4c4c6486373d488bb238fb7e5f5abc0602
 			}
 		}
 	}

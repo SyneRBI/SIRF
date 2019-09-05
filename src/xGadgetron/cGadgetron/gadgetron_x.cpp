@@ -322,15 +322,10 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	//int readout = e.encodedSpace.matrixSize.x;
 	unsigned int nx = e.reconSpace.matrixSize.x;
-//<<<<<<< HEAD
-//	unsigned int ny = e.reconSpace.matrixSize.y;
-//	unsigned int nz = e.reconSpace.matrixSize.z;
-//=======
 	//unsigned int ny = e.reconSpace.matrixSize.y;
 	//unsigned int nz = e.reconSpace.matrixSize.z;
 	unsigned int ny = e.encodedSpace.matrixSize.y;
 	unsigned int nz = e.encodedSpace.matrixSize.z;
-//>>>>>>> e72e3a4c4c6486373d488bb238fb7e5f5abc0602
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
 
@@ -406,15 +401,10 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	}
 
 	unsigned int nx = e.reconSpace.matrixSize.x;
-//<<<<<<< HEAD
-//	unsigned int ny = e.reconSpace.matrixSize.y;
-//	unsigned int nz = e.reconSpace.matrixSize.z;
-//=======
 	//unsigned int ny = e.reconSpace.matrixSize.y;
 	//unsigned int nz = e.reconSpace.matrixSize.z;
 	unsigned int ny = e.encodedSpace.matrixSize.y;
 	unsigned int nz = e.encodedSpace.matrixSize.z;
-//>>>>>>> e72e3a4c4c6486373d488bb238fb7e5f5abc0602
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
 
