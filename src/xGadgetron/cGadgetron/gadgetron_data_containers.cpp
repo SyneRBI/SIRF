@@ -467,7 +467,7 @@ MRAcquisitionData::sort()
 	typedef std::array<int, 4> tuple;
 	int na = number();
 	int last = -1;
-	int max_rep = 0;
+	int max_phase = 0;
 	tuple t;
 	std::vector<tuple> vt;
 	for (int i = 0; i < na; i++) {
@@ -480,11 +480,11 @@ MRAcquisitionData::sort()
 		t[2] = acq.idx().slice;
 		t[3] = acq.idx().kspace_encode_step_1;
 		vt.push_back(t);
-		if (t[0] > max_rep)
-			max_rep = t[0];
+		if (t[1] > max_phase)
+			max_phase = t[1];
 	}
-	//if (last > -1)
-	//	vt[last][0] = max_rep + 1;
+	if (last > -1)
+		vt[last][1] = max_phase;
 
 	index_.resize(na);
 
