@@ -69,7 +69,7 @@ def main():
     complex_images = recon.get_output()
     print('---\n reconstructed images norm: %e' % complex_images.norm())
 
-    for i in range(complex_images.number()):
+    for i in range(0*complex_images.number()):
         complex_image = complex_images.image(i)
         print('--- image %d' % i)
         for p in [ \
@@ -84,12 +84,12 @@ def main():
         print('patient_table_position:'),
         print(complex_image.patient_table_position())
 
-    ind = complex_images.get_info('image_index')
-    print('image indices:')
-    print(ind)
-    ptp = complex_images.get_info('patient_table_position')
-    print('patient table positions:')
-    print(ptp)
+##    ind = complex_images.get_info('image_index')
+##    print('image indices:')
+##    print(ind)
+##    ptp = complex_images.get_info('patient_table_position')
+##    print('patient table positions:')
+##    print(ptp)
     
     # sort processed acquisition data;
     # sorting currently performed with respect to (in this order):
@@ -118,6 +118,7 @@ def main():
 
     # use the acquisition model (forward projection) to produce simulated
     # acquisition data
+    print('---\n forward-projecting...')
     simulated_acq_data = acq_model.forward(complex_images)
     print('---\n reconstructed images forward projection norm %e'\
           % simulated_acq_data.norm())
@@ -128,10 +129,17 @@ def main():
     #simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
 
     # backproject simulated acquisition data
+    print('---\n backprojecting...')
     backprojected_data = acq_model.backward(simulated_acq_data)
     # display backprojected data
     backprojected_data.show(title = 'Backprojected data (magnitude)')
 
+    ind = complex_images.get_info('slice')
+    print('image slices:')
+    print(ind)
+    ind = backprojected_data.get_info('slice')
+    print('image slices:')
+    print(ind)
     # testing fill
     diff = backprojected_data - complex_images
     print('norm of backprojected_data - complex_images: %f' % diff.norm())
