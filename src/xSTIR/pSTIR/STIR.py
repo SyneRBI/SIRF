@@ -1170,9 +1170,12 @@ class AcquisitionModel(object):
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
-	    if not out is None:
-		error('out parameter currently not supported')
-            return self.backward(ad, subset_num = subset_num, 
+	    if out is not None:
+                out.fill(self.backward(ad, subset_num = subset_num, 
+                             num_subsets = num_subsets)
+                             )
+            else:
+                return self.backward(ad, subset_num = subset_num, 
                              num_subsets = num_subsets)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
@@ -1196,12 +1199,12 @@ class AcquisitionModel(object):
                 return self.bt.norm() == 0 and self.at.norm() == 0
 
     def range_geometry(self):
-        '''Returns the template of ImageData'''
-        return self.img_templ
-
-    def domain_geometry(self):
         '''Returns the template of AcquisitionData'''
         return self.acq_templ
+
+    def domain_geometry(self):
+        '''Returns the template of ImageData'''
+        return self.img_templ
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
