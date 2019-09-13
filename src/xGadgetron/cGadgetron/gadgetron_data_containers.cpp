@@ -790,7 +790,7 @@ GadgetronImageData::norm() const
 }
 
 void
-GadgetronImageData::sort()
+GadgetronImagesVector::sort()
 {
 	typedef std::array<float, 3> tuple;
 	int ni = number();
@@ -814,6 +814,13 @@ GadgetronImageData::sort()
 	index_.resize(ni);
 	Multisort::sort(vt, &index_[0] );
 	sorted_ = true;
+
+	// quick fix for the problem of compatibility with image data iterators
+	std::vector<gadgetron::shared_ptr<ImageWrap> > sorted_images;
+	for (int i = 0; i < ni; i++)
+		sorted_images.push_back(sptr_image_wrap(i));
+	images_ = sorted_images;
+	index_.resize(0);
 
 #ifndef NDEBUG
     std::cout << "After sorting...\n";

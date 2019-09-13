@@ -291,9 +291,9 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 	if (cc.items() < 1)
 		throw LocalisedException
 		("coil sensitivity maps not found", __FILE__, __LINE__);
-	ImageWrap iw(sptr_imgs_->image_wrap(0));
 	for (unsigned int i = 0, a = 0; a < ac.number(); i++) {
 		CoilData& csm = cc(i%cc.items());
+		ImageWrap iw(sptr_imgs_->image_wrap(i));
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
 	}
