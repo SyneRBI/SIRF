@@ -39,7 +39,6 @@ limitations under the License.
 #include <thread>
 
 #include <boost/asio.hpp>
-#include <boost/thread/thread.hpp>
 
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/ismrmrd.h>
@@ -260,7 +259,7 @@ namespace sirf {
 
 		boost::asio::io_service io_service;
 		boost::asio::ip::tcp::socket* socket_;
-		boost::thread reader_thread_;
+		std::thread reader_thread_;
 		maptype readers_;
 		unsigned int timeout_ms_;
 	};

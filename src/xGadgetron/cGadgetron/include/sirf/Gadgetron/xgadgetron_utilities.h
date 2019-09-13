@@ -33,7 +33,7 @@ limitations under the License.
 #include <chrono>
 #include <complex>
 
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 
@@ -106,11 +106,11 @@ namespace sirf {
 		{
 			init_();
 		}
-		boost::mutex& operator()()
+		std::mutex& operator()()
 		{
 			return *sptr_mutex_.get();
 		}
-		gadgetron::shared_ptr<boost::mutex> sptr()
+		gadgetron::shared_ptr<std::mutex> sptr()
 		{
 			return sptr_mutex_;
 		}
@@ -123,12 +123,12 @@ namespace sirf {
 			sptr_mutex_->unlock();
 		}
 	private:
-		static gadgetron::shared_ptr<boost::mutex> sptr_mutex_;
+		static gadgetron::shared_ptr<std::mutex> sptr_mutex_;
 		static void init_()
 		{
 			static bool initialized = false;
 			if (!initialized) {
-				sptr_mutex_ = gadgetron::shared_ptr<boost::mutex>(new boost::mutex);
+				sptr_mutex_ = gadgetron::shared_ptr<std::mutex>(new std::mutex);
 				initialized = true;
 			}
 		}

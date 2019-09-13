@@ -18,7 +18,7 @@
 
 if(BUILD_MATLAB)
   #commented out as done at top-level
-  #find_package(Boost COMPONENTS system thread filesystem REQUIRED)
+  #find_package(Boost COMPONENTS system filesystem REQUIRED)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 

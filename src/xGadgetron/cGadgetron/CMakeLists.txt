@@ -17,7 +17,7 @@
 #
 #=========================================================================
 # Commented out, as this is now done at the top-level
-#find_package(Boost COMPONENTS system filesystem thread date_time chrono REQUIRED)
+#find_package(Boost COMPONENTS system filesystem REQUIRED)
 # For Visual Studio we have to disable the auto-linking feature of boost
 # where just including a boost file automatically adds it to the linker path.
 # Although this sounds great, it sadly breaks because of conflicting file-paths when linking etc etc.
@@ -28,7 +28,7 @@
 if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
     set(Boost_DLL_DIR ${Boost_LIBRARY_DIR_RELEASE})
     message(STATUS "Install boost shared libraries from ${Boost_DLL_DIR} ")
-	foreach (__boost_lib system filesystem thread date_time chrono)
+	foreach (__boost_lib system filesystem)
 	   file(GLOB Boost_DLL "${Boost_DLL_DIR}/boost_${__boost_lib}*.dll")
        install( FILES ${Boost_DLL} DESTINATION bin )
 	endforeach()
@@ -50,13 +50,13 @@ target_link_libraries(cgadgetron iutilities csirf)
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
   # spaces in filenames.
-  foreach(C SYSTEM FILESYSTEM THREAD DATE_TIME CHRONO)
+  foreach(C SYSTEM FILESYSTEM)
     target_link_libraries(cgadgetron optimized "${Boost_${C}_LIBRARY_RELEASE}")
     target_link_libraries(cgadgetron debug  "${Boost_${C}_LIBRARY_DEBUG}")
   endforeach()
 else()
   # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(cgadgetron Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+  target_link_libraries(cgadgetron Boost::system Boost::filesystem)
 endif()
 
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 

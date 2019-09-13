@@ -47,7 +47,7 @@ return NEW_OBJECT_HANDLE(G)
 #define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
 return NEW_OBJECT_HANDLE(C)
 
-shared_ptr<boost::mutex> Mutex::sptr_mutex_;
+shared_ptr<std::mutex> Mutex::sptr_mutex_;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -1237,7 +1237,7 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		std::mutex& mtx = mutex();
 		ISMRMRD::Dataset& ismrmrd_dataset = 
 			objectFromHandle<ISMRMRD::Dataset>(h_dat);
 	
@@ -1253,7 +1253,7 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		ISMRMRD::Acquisition acq_tmp;
 		for (uint32_t i = 0; i < acquisitions; i++) {
 			{
-				boost::mutex::scoped_lock scoped_lock(mtx);
+				std::unique_lock<std::mutex> scoped_lock(mtx);
 				ismrmrd_dataset.readAcquisition(i, acq_tmp);
 			}
 			con.send_ismrmrd_acquisition(acq_tmp);
