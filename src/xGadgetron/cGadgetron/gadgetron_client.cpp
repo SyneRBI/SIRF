@@ -159,8 +159,7 @@ GadgetronClientConnector::connect(std::string hostname, std::string port)
 	if (error)
 		throw GadgetronClientException("Error connecting using socket.");
 
-	reader_thread_ =
-		std::thread(&GadgetronClientConnector::read_task, this);
+	reader_thread_ = std::thread([&](){this->read_task();});
 }
 
 void 
