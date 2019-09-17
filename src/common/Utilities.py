@@ -243,6 +243,7 @@ class pTest(object):
         self.record = record
         self.data = []
         self.ntest = 0
+        self.nrec = 0
         self.failed = 0
         self.verbose = True
         self.throw = throw
@@ -275,10 +276,10 @@ class pTest(object):
         if self.record:
             self.file.write('%e\n' % value)
         else:
-            if self.ntest >= self.size:
+            if self.nrec >= self.size:
                 raise IndexError('no data available for test %d' % self.ntest)
             else:
-                expected = self.data[self.ntest]
+                expected = self.data[self.nrec]
                 try:
                     check_tolerance(expected, value, abs_tol, rel_tol)
                 except ValueError as e:
@@ -292,21 +293,26 @@ class pTest(object):
                     if self.verbose:
                         print('+++ test %d passed' % self.ntest)
         self.ntest += 1
+        self.nrec += 1
 
-    def check_if_equal(self, expected, value, abs_tol=0, rel_tol=1e-3):
+    def check_if_equal(self, expected, value):
         '''
-        Tests if value is equal to the expected one (or record the expected value).
+        Tests if value is equal to the expected one.
         expected     : the true value
         value        : the value that was computed
-        abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
         '''
-        if self.record:
-            self.file.write('%e\n' % expected)
-            self.ntest += 1
+        if value != expected:
+            self.failed += 1
+            msg = ('+++ test %d failed: ' % self.ntest) + \
+                  repr(value) + ' != ' + repr(expected)
+            if self.throw:
+                raise ValueError(msg)
+            if self.verbose:
+                print(msg)
         else:
-            # run normal test (as `expected' will have been written to file)
-            # Note that this will increment ntest
-            self.check(value, abs_tol, rel_tol)
+            if self.verbose:
+                print('+++ test %d passed' % self.ntest)
+        self.ntest += 1
 
 class CheckRaise(pTest):
     def __init__(self, *a, **k):

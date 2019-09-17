@@ -843,8 +843,8 @@ class AcquisitionData(DataContainer):
                 (self.handle, data.handle))
             return
         elif isinstance(data, numpy.ndarray):
-            if data.dtype is not numpy.float32:
-                data = data.astype(numpy.float32)
+            if data.dtype is not numpy.complex64:
+                data = data.astype(numpy.complex64)
             if select == 'all': # fill all
                 fill_all = 1
             else: # fill only image-related

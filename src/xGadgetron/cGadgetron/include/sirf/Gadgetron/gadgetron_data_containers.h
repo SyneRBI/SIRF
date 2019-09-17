@@ -446,7 +446,7 @@ namespace sirf {
 			const DataContainer& a_x,
 			const DataContainer& a_y);
 
-		void sort();
+		virtual void sort() = 0;
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 		std::vector<int> index() { return index_; }
@@ -654,6 +654,7 @@ namespace sirf {
 		{
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 		}
+		virtual void sort();
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
 			(unsigned int im_num)
 		{
@@ -1023,11 +1024,11 @@ namespace sirf {
 		float max_(int nx, int ny, float* u);
 		void mask_noise_
 			(int nx, int ny, float* u, float noise, int* mask);
-		void cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
+		int cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
 		void smoothen_
-			(int nx, int ny, int nz,
+			(int nx, int ny, int nc,
 			complex_float_t* u, complex_float_t* v,
-			int* obj_mask);
+			int* obj_mask, int w);
 	};
 
 	/*!
