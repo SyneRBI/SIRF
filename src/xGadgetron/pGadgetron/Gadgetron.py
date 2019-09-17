@@ -483,13 +483,13 @@ class ImageData(SIRF.ImageData):
         Fills self's image data with specified values.
         data: Python Numpy array
         '''
+        if isinstance(data, ImageData):
+            super(ImageData, self).fill(data)
+            return
         if not isinstance(data, numpy.ndarray ):
             # CIL/SIRF compatibility
             data = data.as_array()
         assert self.handle is not None
-        if isinstance(data, ImageData):
-            super(ImageData, self).fill(data)
-            return
         if self.is_real():
             if data.dtype != numpy.float32:
                 data = data.astype(numpy.float32)
@@ -1003,7 +1003,7 @@ class AcquisitionModel:
         if out is not None:
             #raise error('out is not supported')
             tmp = self.forward(image)
-            out.fill(tmp.as_array())
+            out.fill(tmp)
             return
         return self.forward(image)
     def adjoint(self, ad , out = None):
@@ -1015,7 +1015,7 @@ class AcquisitionModel:
         if out is not None:
             #raise error('out is not supported')
             tmp = self.backward(ad)
-            out.fill(tmp.as_array())
+            out.fill(tmp)
             return
         return self.backward(ad)
     def is_affine(self):

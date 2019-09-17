@@ -131,7 +131,7 @@ class DataContainer(ABC):
         out:   DataContainer to store the result to.
         '''
         if isinstance(other , ( Number, numpy.float32 )):
-            tmp = other + numpy.zeros(self.as_array().shape)
+            tmp = other + numpy.zeros_like(self.as_array().shape)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -435,7 +435,7 @@ class DataContainer(ABC):
         '''Returns the squared norm of a DataContainer viewed as a vector
         
         CIL/SIRF compatibility'''
-        return self.dot(self)
+        return self.norm() ** 2
 
     def __truediv__(self, other):
         '''
