@@ -35,7 +35,7 @@ bool tests_memory::test_sirf_free_acquisition( void )
 
 	try
 	{
-		size_t num_iterations = 1000;
+		size_t num_iterations = 10000;
 
 		size_t num_acquis = 256*128;
 		uint16_t num_samples = 192;
@@ -43,38 +43,33 @@ bool tests_memory::test_sirf_free_acquisition( void )
 		
 		ISMRMRD::Acquisition acq(num_samples, num_channels);
 
-		std::vector< std::shared_ptr<ISMRMRD::Acquisition> > acq_vec;
-		for (int i = 0; i < num_acquis; ++i)
-		{
-			acq_vec.push_back(std::make_shared<ISMRMRD::Acquisition>(acq));	
-		}
+		bool construct_inside_loop = true;
 
-		bool construct_inside_loop = false;
-
-		
 		if( construct_inside_loop )
 		{
-			for(size_t i=0; i<num_iterations; i++)
+			for(size_t i=0; i<
+
+				; i++)
 			{
 				std::cout << "loopindex i " << i <<std::endl;
 		
-				for(size_t i_acq=0; i_acq<acq_vec.size(); i_acq++)
+				for(size_t i_acq=0; i_acq<num_acquis; i_acq++)
 				{	
 					ISMRMRD::Acquisition temp_acq;
-				    temp_acq = *acq_vec[i_acq]; 
+				    temp_acq = acq;
 				}
 			}
 		} 
-		else
+		else if(!construct_inside_loop)
 		{
 			for(size_t i=0; i<num_iterations; i++)
 			{
 				std::cout << "loopindex i " << i <<std::endl;
 
 				ISMRMRD::Acquisition temp_acq;
-				for(size_t i_acq=0; i_acq<acq_vec.size(); i_acq++)
-				{	
-				    temp_acq = *acq_vec[i_acq]; 
+				for(size_t i_acq=0; i_acq<num_acquis; i_acq++)
+				{
+				    temp_acq = acq;
 				} 
 			}
 		}
