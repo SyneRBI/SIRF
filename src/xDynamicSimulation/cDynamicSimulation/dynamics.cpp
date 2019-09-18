@@ -869,7 +869,9 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 
 		TimeBin curr_time_interval;
 		bool new_bin = true;
+		bool no_intersection = true;
 		TimeAxisType time_in_bin = 0;
+
 		for(size_t j=0; j<upsampled_signal.size(); ++j)
 		{
 			SignalAxisType curr_sig = upsampled_signal[j];
@@ -877,18 +879,29 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 			if( curr_sig>= bin_min && curr_sig< bin_max)
 			{
 				if(new_bin)
+				{
 					curr_time_interval.min_ = upsampled_time_pts[j];
+					new_bin = false;
+				}
 
 				time_in_bin += delta_time_ms;
 			}
 			else
 			{
+				no_intersection = false;
 				curr_time_interval.max_ = curr_time_interval.min_ + time_in_bin;
 				time_intervals_for_bin.push_back( curr_time_interval );
 				time_in_bin = 0;
 				new_bin = true;
 			}
 		}
+
+		if( no_intersection )
+		{
+			curr_time_interval.max_ = curr_time_interval.min_ + time_in_bin;
+			time_intervals_for_bin.push_back( curr_time_interval );
+		}
+		
 		this->binned_time_intervals_.push_back( time_intervals_for_bin );
 		
 	}
