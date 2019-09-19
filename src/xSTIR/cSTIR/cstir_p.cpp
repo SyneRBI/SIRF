@@ -544,10 +544,10 @@ sirf::cSTIR_setOSMAPOSLParameter
 		objectFromHandle<OSMAPOSLReconstruction<Image3DF> >(hp);
 	if (boost::iequals(name, "MAP_model"))
 		recon.set_MAP_model(charDataFromDataHandle(hv));
-        else if (boost::iequals(name, "set_maximum_relative_change"))
-                recon.set_maximum_relative_change(value);
-        else if (boost::iequals(name, "set_minimum_relative_change"))
-                recon.set_minimum_relative_change(value);
+        if (boost::iequals(name, "set_maximum_relative_change"))
+                recon.set_maximum_relative_change(dataFromHandle<double>((void*)hv));
+        if (boost::iequals(name, "set_minimum_relative_change"))
+                recon.set_minimum_relative_change(dataFromHandle<double>((void*)hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;

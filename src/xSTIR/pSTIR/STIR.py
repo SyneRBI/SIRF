@@ -1691,10 +1691,10 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
         parms.set_char_par\
             (self.handle, self.name, 'MAP_model', model)
     def set_maximum_relative_change(self, value):
-        parms.set_char_par\
+        parms.set_float_par\
             (self.handle, self.name, 'set_maximum_relative_change', value)
     def set_minimum_relative_change(self, value):
-        parms.set_char_par\
+        parms.set_float_par\
             (self.handle, self.name, 'set_minimum_relative_change', value)
     def get_objective_function(self):
         obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
