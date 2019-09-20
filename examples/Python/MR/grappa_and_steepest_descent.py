@@ -12,6 +12,8 @@ Options:
                               subfolder of SIRF root folder
   -i <iter>, --iter=<iter>    the number of steepest descent iterations
                               [default: 5]
+  -z <zdim>, --zdim=<zdim>    dimension of 3D image data array to be used as z
+                              when displaying [default: 0]
   -s <slce>, --slice=<slce>   image slice to display [default: 0]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
@@ -48,6 +50,15 @@ if data_path is None:
     data_path = examples_data_path('MR')
 niter = int(args['--iter'])
 slc = int(args['--slice'])
+if slc < 0:
+    slc = None
+zdim = args['--zdim']
+if zdim == 1:
+    zyx = (1, 0, 2)
+elif zdim == 2:
+    zyx = (2, 1, 0)
+else:
+    zyx = None
 
 def main():
 
@@ -71,7 +82,8 @@ def main():
     # for undersampled acquisition data GRAPPA computes Gfactor images
     # in addition to reconstructed ones
     image_data = recon.get_output()
-    image_data.show(slice=slc, title = 'Reconstructed image data (magnitude)', \
+    title = 'Reconstructed image data (magnitude)'
+    image_data.show(zyx=zyx, slice=slc, title=title, \
                     postpone=(niter > 0), cmap=None)
     if niter < 1:
         return
@@ -111,15 +123,16 @@ def main():
         if i%10 == 0 or i == niter - 1:
             it = i + 1
             title = 'Steepest-descent-refined image data, iteration %d' % it
-            image_data.show(slice=slc, title=title, cmap=None, \
+            image_data.show(zyx=zyx, slice=slc, title=title, cmap=None, \
                             postpone=(i < niter - 1))
 
-    import pylab
-    pylab.figure()
-    pylab.plot(numpy.arange(1, niter + 1, 1), res)
-    pylab.grid()
-    pylab.title('residual norm')
-    pylab.show()
+    if niter > 1:
+        import pylab
+        pylab.figure()
+        pylab.plot(numpy.arange(1, niter + 1, 1), res)
+        pylab.grid()
+        pylab.title('residual norm')
+        pylab.show()
 
 try:
     main()
