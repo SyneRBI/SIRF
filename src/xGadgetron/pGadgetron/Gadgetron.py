@@ -533,7 +533,7 @@ class ImageData(SIRF.ImageData):
         if type(slice) == type(1):
             if slice < 0 or slice >= nz:
                 return
-            ns = 1
+            ni = 1
             slice = [slice]
 ##            show_2D_array('slice %d' % slice, data[slice,:,:])
 ##            return
