@@ -539,6 +539,16 @@ void NiftiImageData<dataType>::copy_nifti_image(std::shared_ptr<nifti_image> &ou
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::normalise_zero_and_one()
+{
+    dataType max = this->get_max();
+    dataType min = this->get_min();
+    // im = (im-min) / (max-min)
+    for (size_t i=0; i<this->get_num_voxels(); ++i)
+        (*this)(i) = ((*this)(i)-min) / (max-min);
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::change_datatype(const int datatype)
 {
     if      (datatype == DT_BINARY)   change_datatype<bool>(*this);

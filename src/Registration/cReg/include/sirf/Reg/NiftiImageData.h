@@ -340,6 +340,9 @@ public:
     /// Does the image contain any NaNs?
     bool get_contains_nans() const { return (this->get_nan_count() > 0); }
 
+    /// Normalise image between 0 and 1
+    void normalise_zero_and_one();
+
 protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
