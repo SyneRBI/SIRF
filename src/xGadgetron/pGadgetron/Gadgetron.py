@@ -560,6 +560,10 @@ class ImageData(SIRF.ImageData):
                                 show=(t == ni) and not postpone)
             f = t
 
+    def print_header(self, im_num):
+        """Print the header of one of the images. zero based."""
+        try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
+
 DataContainer.register(ImageData)
 
 class Acquisition:
