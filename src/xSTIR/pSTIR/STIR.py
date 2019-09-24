@@ -40,9 +40,7 @@ from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
-import sirf.select_module as select_module
-select_module.module = 'pystir'
-import sirf.parameters as parms
+import sirf.params.STIR as parms
 
 try:
     input = raw_input

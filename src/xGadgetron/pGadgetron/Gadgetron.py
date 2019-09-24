@@ -41,9 +41,7 @@ import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
 
-import sirf.select_module as select_module
-select_module.module = 'pygadgetron'
-import sirf.parameters as parms
+import sirf.params.Gadgetron as parms
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC

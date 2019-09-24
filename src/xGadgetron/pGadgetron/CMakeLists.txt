@@ -45,6 +45,10 @@ if(BUILD_PYTHON)
   INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pygadgetron.py" Gadgetron.py DESTINATION "${PYTHON_DEST}/sirf")
 
+  SET(LOWERCASE_PACKAGE_NAME "pygadgetron")
+  CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/src/common/parameters.py.in" "${CMAKE_CURRENT_BINARY_DIR}/params/Gadgetron.py")
+  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/params/Gadgetron.py" DESTINATION "${PYTHON_DEST}/sirf/params")
+
 ADD_SUBDIRECTORY(tests)
 endif(BUILD_PYTHON)
 
