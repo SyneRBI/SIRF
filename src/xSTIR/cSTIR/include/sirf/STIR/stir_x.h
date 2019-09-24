@@ -542,17 +542,27 @@ The actual algorithm is described in
 		public stir::IterativeReconstruction < Image3DF > {
 	public:
 		bool post_process() {
+			//std::cout << "in xSTIR_IterativeReconstruction3DF.post_process...\n";
 			if (this->output_filename_prefix.length() < 1)
 				this->set_output_filename_prefix("reconstructed_image");
 			return post_processing();
 		}
 		stir::Succeeded setup(sptrImage3DF const& image) {
+			//std::cout << "in xSTIR_IterativeReconstruction3DF.setup...\n";
 			return set_up(image);
 		}
 		void update(Image3DF &image) {
 			update_estimate(image);
 			end_of_iteration_processing(image);
 			subiteration_num++;
+		}
+		void update(STIRImageData& id)
+		{
+			update(id.data());
+		}
+		void update(stir::shared_ptr<STIRImageData> sptr_id)
+		{
+			update(*sptr_id);
 		}
 		int& subiteration() {
 			return subiteration_num;
@@ -564,39 +574,6 @@ The actual algorithm is described in
 			initial_data_filename = filename;
 		}
 	};
-
-	class xSTIR_OSMAPOSLReconstruction3DF :
-		public stir::OSMAPOSLReconstruction < Image3DF > {
-	public:
-		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
-		{
-			stir::Succeeded s = stir::Succeeded::no;
-			DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, *this);
-			if (xrecon.post_process()) {
-				s = xrecon.setup(sptr_id->data_sptr());
-				xrecon.subiteration() = xrecon.get_start_subiteration_num();
-			}
-			//xSTIR_IterativeReconstruction3DF* ptr_r =
-			//	(xSTIR_IterativeReconstruction3DF*)this;
-			//if (!ptr_r->post_process()) {
-			//	s = ptr_r->setup(sptr_id->data_sptr());
-			//	ptr_r->subiteration() = ptr_r->get_start_subiteration_num();
-			//}
-			return s;
-		}
-		void update(STIRImageData& id)
-		{
-			DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, *this);
-			xrecon.update(id.data());
-			//((xSTIR_IterativeReconstruction3DF*)this)->update(id.data());
-		}
-		void update(stir::shared_ptr<STIRImageData> sptr_id)
-		{
-			update(*sptr_id);
-		}
-	};
-
-	typedef xSTIR_OSMAPOSLReconstruction3DF OSMAPOSLReconstruction3DF;
 
 	class xSTIR_OSSPSReconstruction3DF : public stir::OSSPSReconstruction < Image3DF > {
 	public:
