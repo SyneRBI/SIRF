@@ -38,6 +38,7 @@ limitations under the License.
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
+#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 namespace sirf {
 
@@ -570,17 +571,24 @@ The actual algorithm is described in
 		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
 		{
 			stir::Succeeded s = stir::Succeeded::no;
-			xSTIR_IterativeReconstruction3DF* ptr_r =
-				(xSTIR_IterativeReconstruction3DF*)this;
-			if (!ptr_r->post_process()) {
-				s = ptr_r->setup(sptr_id->data_sptr());
-				ptr_r->subiteration() = ptr_r->get_start_subiteration_num();
+			DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, *this);
+			if (xrecon.post_process()) {
+				s = xrecon.setup(sptr_id->data_sptr());
+				xrecon.subiteration() = xrecon.get_start_subiteration_num();
 			}
+			//xSTIR_IterativeReconstruction3DF* ptr_r =
+			//	(xSTIR_IterativeReconstruction3DF*)this;
+			//if (!ptr_r->post_process()) {
+			//	s = ptr_r->setup(sptr_id->data_sptr());
+			//	ptr_r->subiteration() = ptr_r->get_start_subiteration_num();
+			//}
 			return s;
 		}
 		void update(STIRImageData& id)
 		{
-			((xSTIR_IterativeReconstruction3DF*)this)->update(id.data());
+			DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, *this);
+			xrecon.update(id.data());
+			//((xSTIR_IterativeReconstruction3DF*)this)->update(id.data());
 		}
 		void update(stir::shared_ptr<STIRImageData> sptr_id)
 		{
