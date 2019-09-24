@@ -29,9 +29,7 @@ from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
 
-import sirf.select_module as select_module
-select_module.module = 'pyreg'
-import sirf.parameters as parms
+import sirf.Reg_params as parms
 
 
 try:
