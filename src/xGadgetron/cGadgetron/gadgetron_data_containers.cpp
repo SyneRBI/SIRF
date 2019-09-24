@@ -660,7 +660,7 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 	AcquisitionsFile af(acqs_info_);
 	ISMRMRD::Acquisition acq;
 	int na = number();
-	assert(na == ac.number);
+	assert(na == ac.number());
 	for (int a = 0, i = 0; a < na; a++) {
 		ac.get_acquisition(a, acq);
 		af.append_acquisition(acq);
@@ -692,7 +692,7 @@ AcquisitionsVector::copy_acquisitions_data(const MRAcquisitionData& ac)
 	ISMRMRD::Acquisition acq_dst;
 	ISMRMRD::Acquisition acq_src;
 	int na = number();
-	assert(na == ac.number);
+	assert(na == ac.number());
 	for (int a = 0, i = 0; a < na; a++) {
 		ac.get_acquisition(a, acq_src);
 		ISMRMRD::Acquisition& acq_dst = *acqs_[a];
