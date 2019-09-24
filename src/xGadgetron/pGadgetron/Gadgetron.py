@@ -41,7 +41,7 @@ import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
 
-import sirf.params.Gadgetron as parms
+import sirf.Gadgetron_params as parms
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC

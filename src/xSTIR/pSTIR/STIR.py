@@ -40,7 +40,7 @@ from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
-import sirf.params.STIR as parms
+import sirf.STIR_params as parms
 
 try:
     input = raw_input
