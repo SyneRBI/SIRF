@@ -1232,10 +1232,20 @@ GadgetronImagesVector::set_up_geom_info()
         }
     }
 
+    // Make sure we're looking at the first image
+    ih1 = image_wrap( 0 ).head();
+
     // Offset
     VoxelisedGeometricalInfo3D::Offset offset;
-    for (int i=0; i<3; ++i)
-        offset[i] = ih1.position[i];
+    offset[0] = ih1.position[0] -
+        (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[0] -
+        (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[0];
+    offset[1] = ih1.position[1] -
+        (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[1] -
+        (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[1];
+    offset[2] = ih1.position[2] -
+        (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[2] -
+        (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[2];
 
     // Direction
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;

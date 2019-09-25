@@ -27,6 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftyResample.h"
@@ -81,7 +82,46 @@ int main(int argc, char* argv[])
         }
 
         // Test Gadgetron -> Nifti
-        // TODO
+        {
+            std::string folder = "/Users/rich/Documents/Data/Synergistic/SpatialCalibration/";
+//            folder += "1_sagittal/";
+//            folder += "2_axial/";
+            folder += "3_coronal/";
+            std::string ismrmrd_filename = folder + "output.h5";
+            std::string nifti_from_dicom_filename = folder + "dicom_as_nifti.nii";
+
+            // Read ISMRMRD image
+            GadgetronImagesVector ismrmrd_im;
+            ismrmrd_im.read(ismrmrd_filename);
+
+            // Convert ISMRMRD image to nifti
+            NiftiImageData<float> nifti_from_ismrmrd(ismrmrd_im);
+            nifti_from_ismrmrd.write(folder + "ismrmrd_to_nifti.nii",nifti_from_ismrmrd.get_original_datatype());
+
+            // Read vendor-reconstructed image
+            NiftiImageData<float> dicom_im(nifti_from_dicom_filename);
+
+            // Normalise to remove scaling problems
+            nifti_from_ismrmrd.normalise_zero_and_one();
+            dicom_im.normalise_zero_and_one();
+
+            std::cout << "\ndicom offset:\n";
+            for(size_t i=0; i<3; ++i)
+            std::cout << dicom_im.get_geom_info_sptr()->get_offset()[i] << " ";
+
+            std::cout << "\ndicom direction:\n";
+            for(size_t i=0; i<3; ++i) {
+                for(size_t j=0; j<3; ++j) {
+                    std::cout << dicom_im.get_geom_info_sptr()->get_direction()[i][j] << " ";
+                }
+                std::cout << "\n";
+            }
+
+            // Compare the two
+            if (dicom_im != nifti_from_ismrmrd)
+                throw std::runtime_error("Conversion from ISMRMRD to Nifti failed");
+        }
+
 
     // Error handling
     } catch(const std::exception &error) {
