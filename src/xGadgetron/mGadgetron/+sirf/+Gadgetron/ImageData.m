@@ -169,5 +169,9 @@ classdef ImageData < sirf.SIRF.ImageData
                 title(['image ' num2str(z)])
             end
         end
+        function print_header(self, im_num)
+            % print the header of one of the images. zero based.
+            calllib('mgadgetron', 'mGT_print_header', img.handle_, im_num);
+        end
     end
 end

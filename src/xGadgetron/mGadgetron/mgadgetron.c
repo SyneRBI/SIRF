@@ -170,6 +170,9 @@ EXPORTED_FUNCTION 	void* mGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT 
 EXPORTED_FUNCTION 	void* mGT_setImageDataFromCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
 	return cGT_setImageDataFromCmplxArray(ptr_imgs, ptr_z);
 }
+EXPORTED_FUNCTION 	void* mGT_print_header(const void* ptr_imgs, const int im_idx) {
+	return cGT_print_header(ptr_imgs, im_idx);
+}
 EXPORTED_FUNCTION 	void* mGT_setHost(void* ptr_gc, const char* host) {
 	return cGT_setHost(ptr_gc, host);
 }
