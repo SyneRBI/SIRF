@@ -907,6 +907,10 @@ GadgetronImageData::read(std::string filename)
 		ismrmrd_cleanup_image(&im);
 		ismrmrd_close_dataset(&dataset);
 
+        // Read XML meta data
+        ISMRMRD::Dataset d(filename.c_str(),group, false);
+		d.readHeader(this->acqs_info_);
+
 		shared_ptr<ISMRMRD::Dataset> sptr_dataset
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
 
@@ -939,6 +943,7 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
 	Mutex mtx;
 	mtx.lock();
 	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
+    dataset.writeHeader(acqs_info_);
 	mtx.unlock();
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);
@@ -1146,6 +1151,9 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     std::cout << "field_of_view:          "; for (int i=0;i<3;++i) std::cout << ih.field_of_view[i]          << " "; std::cout << "\n";
     std::cout << "physiology_time_stamp:  "; for (int i=0;i<3;++i) std::cout << ih.physiology_time_stamp[i]  << " "; std::cout << "\n";
     std::cout << "patient_table_position: "; for (int i=0;i<3;++i) std::cout << ih.patient_table_position[i] << " "; std::cout << "\n";
+
+    std::cout << "XML data:\n";
+    std::cout << acqs_info_.c_str() << "\n";
 }
 
 void

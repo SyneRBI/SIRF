@@ -458,10 +458,16 @@ namespace sirf {
 			else
 				return i;
 		}
+        /// Set the meta data
+        void set_meta_data(const AcquisitionsInfo &acqs_info) { acqs_info_ = acqs_info; }
+        /// Get the meta data
+        const AcquisitionsInfo &get_meta_data() { return acqs_info_; }
+
 
 	protected:
 		bool sorted_=false;
 		std::vector<int> index_;
+        AcquisitionsInfo acqs_info_;
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;
