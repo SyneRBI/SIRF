@@ -229,6 +229,8 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	}
 	check_gadgetron_connection(host_, port_);
 	sptr_images_->sort();
+    // Add meta data to the image
+    sptr_images_->set_meta_data(acquisitions.acquisitions_info());
 }
 
 void 
