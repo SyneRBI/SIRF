@@ -752,7 +752,7 @@ class ImageWeightedMean:
         elif isinstance(image, str):
             try_calling(pyreg.cReg_ImageWeightedMean_add_image_filename(self.handle, image, weight))
         else:
-            raise error("pReg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
+            raise error("sirf.Reg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
 
     def process(self):
         """Process."""
