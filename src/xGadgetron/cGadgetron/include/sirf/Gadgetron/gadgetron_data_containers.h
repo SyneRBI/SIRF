@@ -84,6 +84,7 @@ namespace sirf {
 		const char* c_str() const { return data_.c_str(); }
 		operator std::string&() { return data_; }
 		operator const std::string&() const { return data_; }
+        bool emtpty() const { return data_.empty(); }
 
 	private:
 		std::string data_;

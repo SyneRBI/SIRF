@@ -899,6 +899,8 @@ GadgetronImageData::read(std::string filename)
 		ISMRMRD::ISMRMRD_Image im;
 		ismrmrd_init_dataset(&dataset, filename.c_str(), group);
 		ismrmrd_open_dataset(&dataset, false);
+        // Read XML meta data. Can't use readHeader as this throws error if no XML present
+        this->acqs_info_ = ismrmrd_read_header(&dataset);
 		int num_im = ismrmrd_get_number_of_images(&dataset, var);
 		std::cout << "number of images: " << num_im << '\n';
 		ismrmrd_init_image(&im);
@@ -907,9 +909,6 @@ GadgetronImageData::read(std::string filename)
 		ismrmrd_cleanup_image(&im);
 		ismrmrd_close_dataset(&dataset);
 
-        // Read XML meta data
-        ISMRMRD::Dataset d(filename.c_str(),group, false);
-		d.readHeader(this->acqs_info_);
 
 		shared_ptr<ISMRMRD::Dataset> sptr_dataset
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
@@ -1152,8 +1151,10 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     std::cout << "physiology_time_stamp:  "; for (int i=0;i<3;++i) std::cout << ih.physiology_time_stamp[i]  << " "; std::cout << "\n";
     std::cout << "patient_table_position: "; for (int i=0;i<3;++i) std::cout << ih.patient_table_position[i] << " "; std::cout << "\n";
 
-    std::cout << "XML data:\n";
-    std::cout << acqs_info_.c_str() << "\n";
+    if (!acqs_info_.emtpty()) {
+        std::cout << "XML data:\n";
+        std::cout << acqs_info_.c_str() << "\n";
+    }
 }
 
 void
