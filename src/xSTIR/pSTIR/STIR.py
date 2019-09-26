@@ -1170,7 +1170,7 @@ class AcquisitionModel(object):
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
-	    if out is not None:
+            if out is not None:
                 out.fill(self.backward(ad, subset_num = subset_num, 
                              num_subsets = num_subsets)
                              )
