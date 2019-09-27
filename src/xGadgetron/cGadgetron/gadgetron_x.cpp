@@ -205,7 +205,6 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	GTConnector conn;
 	//std::cout << "connecting to port " << port_ << "...\n";
 	sptr_images_.reset(new GadgetronImagesVector);
-	sptr_images_->set_meta_data(acquisitions.acquisitions_info());
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
