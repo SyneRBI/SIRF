@@ -157,7 +157,6 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 void 
 AcquisitionsProcessor::process(MRAcquisitionData& acquisitions) 
 {
-
 	std::string config = xml();
 	GTConnector conn;
 	uint32_t nacq = 0;
@@ -206,6 +205,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	GTConnector conn;
 	//std::cout << "connecting to port " << port_ << "...\n";
 	sptr_images_.reset(new GadgetronImagesVector);
+	sptr_images_->set_meta_data(acquisitions.acquisitions_info());
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
@@ -332,6 +332,7 @@ void
 MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
 	MRAcquisitionData& ac)
 {
+	ic.set_meta_data(ac.acquisitions_info());
 	if (cc.items() < 1)
 		throw LocalisedException
 		("coil sensitivity maps not found", __FILE__, __LINE__);

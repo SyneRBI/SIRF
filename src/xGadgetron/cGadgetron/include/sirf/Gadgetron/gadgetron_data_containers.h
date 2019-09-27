@@ -427,7 +427,7 @@ namespace sirf {
 			iw.get_dim(dim);
 		}
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
-			new_images_container() = 0;
+			new_images_container() const = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
@@ -462,7 +462,7 @@ namespace sirf {
         /// Set the meta data
         void set_meta_data(const AcquisitionsInfo &acqs_info) { acqs_info_ = acqs_info; }
         /// Get the meta data
-        const AcquisitionsInfo &get_meta_data() { return acqs_info_; }
+        const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
 
 
 	protected:
@@ -689,12 +689,14 @@ namespace sirf {
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new GadgetronImagesVector()));
+				(gadgetron::shared_ptr<DataContainer>(new_images_container()));
 		}
-		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
+		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() const
 		{
-			return gadgetron::shared_ptr<GadgetronImageData>
+			gadgetron::shared_ptr<GadgetronImageData> sptr_img
 				((GadgetronImageData*)new GadgetronImagesVector());
+			sptr_img->set_meta_data(get_meta_data());
+			return sptr_img;
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target)
