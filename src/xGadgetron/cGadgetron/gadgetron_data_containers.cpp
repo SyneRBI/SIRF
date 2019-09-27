@@ -125,8 +125,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 bool
 MRAcquisitionData::undersampled() const
 {
-	ISMRMRD::IsmrmrdHeader header;
-	ISMRMRD::deserialize(acqs_info_.c_str(), header);
+	ISMRMRD::IsmrmrdHeader header = acqs_info_.get_IsmrmrdHeader();
 	ISMRMRD::Encoding e = header.encoding[0];
 	return e.parallelImaging.is_present() &&
 		e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
@@ -1158,7 +1157,7 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     std::cout << "physiology_time_stamp:  "; for (int i=0;i<3;++i) std::cout << ih.physiology_time_stamp[i]  << " "; std::cout << "\n";
     std::cout << "patient_table_position: "; for (int i=0;i<3;++i) std::cout << ih.patient_table_position[i] << " "; std::cout << "\n";
 
-    if (!acqs_info_.emtpty()) {
+    if (!acqs_info_.empty()) {
         std::cout << "XML data:\n";
         std::cout << acqs_info_.c_str() << "\n";
     }
@@ -1176,6 +1175,12 @@ GadgetronImagesVector::set_up_geom_info()
 
     if (!this->sorted())
         this->sort();
+
+    ISMRMRD::IsmrmrdHeader image_header = this->acqs_info_.get_IsmrmrdHeader();
+    if (!image_header.measurementInformation.is_present())
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info: Patient position not present. Assuming HFS\n";
+    else if (!image_header.measurementInformation.get().patientPosition.compare("HFS"))
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info: Currently only implemented for HFS. TODO (easy fix)\n";
 
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
