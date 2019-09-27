@@ -562,7 +562,7 @@ sirf::cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 		return newObjectHandle(recon.get_objective_function_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
-
+#ifdef USE_HKEM
 void*
 sirf::cSTIR_setKOSMAPOSLParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
@@ -595,7 +595,7 @@ sirf::cSTIR_setKOSMAPOSLParameter
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
 }
-
+#endif
 void*
 sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
