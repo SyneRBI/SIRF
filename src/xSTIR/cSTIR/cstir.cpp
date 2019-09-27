@@ -136,8 +136,10 @@ void* cSTIR_setParameter
 			return cSTIR_setIterativeReconstructionParameter(hs, name, hv);
 		else if (boost::iequals(obj, "OSMAPOSL"))
 			return cSTIR_setOSMAPOSLParameter(hs, name, hv);
+#ifdef USE_HKEM
 		else if (boost::iequals(obj, "KOSMAPOSL"))
 			return cSTIR_setKOSMAPOSLParameter(hs, name, hv);
+#endif
 		else if (boost::iequals(obj, "OSSPS"))
 			return cSTIR_setOSSPSParameter(hs, name, hv);
 		else if (boost::iequals(obj, "FBP2D"))
@@ -196,10 +198,12 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			return cSTIR_newReconstructionMethod
 			<OSMAPOSLReconstruction<Image3DF> >
 			(filename);
+#ifdef USE_HKEM
 		if (boost::iequals(name, "KOSMAPOSLReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<KOSMAPOSLReconstruction<Image3DF> >
 			(filename);
+#endif
 		if (boost::iequals(name, "OSSPSReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSSPSReconstruction<Image3DF> >
