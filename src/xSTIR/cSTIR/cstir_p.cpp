@@ -524,9 +524,9 @@ sirf::cSTIR_iterativeReconstructionParameter
 	if (boost::iequals(name, "start_subiteration_num"))
 		return dataHandle<int>(recon.get_start_subiteration_num());
 	if (boost::iequals(name, "subiteration_num")) {
-		xSTIR_IterativeReconstruction3DF& xrecon =
-			(xSTIR_IterativeReconstruction3DF&)(recon);
-		//DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+		//xSTIR_IterativeReconstruction3DF& xrecon =
+		//	(xSTIR_IterativeReconstruction3DF&)(recon);
+		DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
 		return dataHandle<int>(xrecon.subiteration());
 	}
 	if (boost::iequals(name, "objective_function"))
@@ -557,6 +557,39 @@ sirf::cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 	if (boost::iequals(name, "objective_function"))
 		return newObjectHandle(recon.get_objective_function_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+sirf::cSTIR_setKOSMAPOSLParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	KOSMAPOSLReconstruction<Image3DF>& recon =
+		objectFromHandle<KOSMAPOSLReconstruction<Image3DF> >(hp);
+	if (boost::iequals(name, "anatomical_prior")) {
+		SPTR_FROM_HANDLE(STIRImageData, sptr_ap, hv);
+		recon.set_anatomical_prior_sptr(sptr_ap->data_sptr());
+	}
+	else if (boost::iequals(name, "num_neighbours")) {
+		int value = dataFromHandle<int>((void*)hv);
+		recon.set_num_neighbours(value);
+	}
+	else if (boost::iequals(name, "num_non_zero_features"))
+		recon.set_num_non_zero_feat(dataFromHandle<int>((void*)hv));
+	else if (boost::iequals(name, "sigma_m"))
+		recon.set_sigma_m(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "sigma_p"))
+		recon.set_sigma_p(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "sigma_dp"))
+		recon.set_sigma_dp(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "sigma_dm"))
+		recon.set_sigma_dm(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "only_2D"))
+		recon.set_only_2D(dataFromHandle<int>((void*)hv));
+	else if (boost::iequals(name, "hybrid"))
+		recon.set_hybrid(dataFromHandle<int>((void*)hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
 }
 
 void*
