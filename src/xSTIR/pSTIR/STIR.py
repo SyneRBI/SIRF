@@ -1683,6 +1683,58 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
 ##        check_status(obj_fun.handle)
 ##        return obj_fun
 
+class KOSMAPOSLReconstructor(IterativeReconstructor):
+    '''
+    Class for reconstructor objects using Kernel Ordered Subsets Maximum
+    A Posteriori One Step Late reconstruction algorithm
+    '''
+    def __init__(self, filename = ''):
+        self.handle = None
+        self.image = None
+        self.name = 'KOSMAPOSL'
+        self.handle = pystir.cSTIR_objectFromFile\
+            ('KOSMAPOSLReconstruction', filename)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_anatomical_prior(self, ap):
+        '''Sets anatomical prior.
+        '''
+        assert_validity(ap, ImageData)
+        parms.set_parameter(self.handle, 'KOSMAPOSL', \
+                      'anatomical_prior', ap.handle)
+    def set_num_neighbours(self, n):
+        '''Sets number of neighbours.
+        '''
+        parms.set_int_par\
+            (self.handle, 'KOSMAPOSL', 'num_neighbours', n)
+    def set_num_non_zero_features(self, n):
+        '''Sets number of neighbours.
+        '''
+        parms.set_int_par\
+            (self.handle, 'KOSMAPOSL', 'num_non_zero_features', n)
+    def set_sigma_m(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_m', v)
+    def set_sigma_p(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_p', v)
+    def set_sigma_dm(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_dm', v)
+    def set_sigma_dp(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_dp', v)
+    def set_only_2D(self, tf):
+        if tf:
+            v = 1
+        else:
+            v = 0
+        parms.set_int_par(self.handle, 'KOSMAPOSL', 'only_2D', v)
+    def set_hybrid(self, tf):
+        if tf:
+            v = 1
+        else:
+            v = 0
+        parms.set_int_par(self.handle, 'KOSMAPOSL', 'hybrid', v)
+
 class OSSPSReconstructor(IterativeReconstructor):
     '''
     Class for reconstructor objects using Ordered Subsets Separable 

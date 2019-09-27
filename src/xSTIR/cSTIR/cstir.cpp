@@ -136,6 +136,8 @@ void* cSTIR_setParameter
 			return cSTIR_setIterativeReconstructionParameter(hs, name, hv);
 		else if (boost::iequals(obj, "OSMAPOSL"))
 			return cSTIR_setOSMAPOSLParameter(hs, name, hv);
+		else if (boost::iequals(obj, "KOSMAPOSL"))
+			return cSTIR_setKOSMAPOSLParameter(hs, name, hv);
 		else if (boost::iequals(obj, "OSSPS"))
 			return cSTIR_setOSSPSParameter(hs, name, hv);
 		else if (boost::iequals(obj, "FBP2D"))
@@ -193,6 +195,10 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 		if (boost::iequals(name, "OSMAPOSLReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSMAPOSLReconstruction<Image3DF> >
+			(filename);
+		if (boost::iequals(name, "KOSMAPOSLReconstruction"))
+			return cSTIR_newReconstructionMethod
+			<KOSMAPOSLReconstruction<Image3DF> >
 			(filename);
 		if (boost::iequals(name, "OSSPSReconstruction"))
 			return cSTIR_newReconstructionMethod
@@ -659,6 +665,7 @@ extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
+		//std::cout << "in cSTIR_setupReconstruction...\n";
 		DataHandle* handle = new DataHandle;
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		sptrImage3DF sptr_image = id.data_sptr();
