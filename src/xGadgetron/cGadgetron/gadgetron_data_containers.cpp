@@ -899,8 +899,6 @@ GadgetronImageData::read(std::string filename)
 		ISMRMRD::ISMRMRD_Image im;
 		ismrmrd_init_dataset(&dataset, filename.c_str(), group);
 		ismrmrd_open_dataset(&dataset, false);
-        // Read XML meta data. Can't use readHeader as this throws error if no XML present
-        this->acqs_info_ = ismrmrd_read_header(&dataset);
 		int num_im = ismrmrd_get_number_of_images(&dataset, var);
 		std::cout << "number of images: " << num_im << '\n';
 		ismrmrd_init_image(&im);
@@ -912,6 +910,11 @@ GadgetronImageData::read(std::string filename)
 
 		shared_ptr<ISMRMRD::Dataset> sptr_dataset
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
+
+        // ISMRMRD throws an error if no XML is present.
+        try {
+            sptr_dataset->readHeader(this->acqs_info_);
+        } catch (const std::exception &error) {}
 
 		for (int i = 0; i < num_im; i++) {
 			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type, *sptr_dataset, var, i));
