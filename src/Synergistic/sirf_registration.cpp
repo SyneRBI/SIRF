@@ -31,8 +31,8 @@ limitations under the License.
 #include "sirf/Reg/NiftyF3dSym.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/STIR/stir_data_containers.h"
 
 
 using namespace sirf;
@@ -58,7 +58,7 @@ static std::shared_ptr<Registration<float> > algo_as_sptr(const std::string &alg
     if      (strcmp(algorithm.c_str(), "aladin") == 0)
         return std::make_shared<NiftyAladinSym<float> >();
     else if (strcmp(algorithm.c_str(), "f3d") == 0)
-        return std::make_shared<NiftyAladinSym<float> >();
+        return std::make_shared<NiftyF3dSym<float> >();
     else
         throw std::runtime_error("Synergistic_registration: unknown algorithm - " + algorithm + ".\n");
 }

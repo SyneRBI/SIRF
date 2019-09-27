@@ -32,11 +32,11 @@ If multiple transformations are given, they will be applied in the order they we
 
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
+#include "sirf/STIR/stir_data_containers.h"
 
 
 using namespace sirf;

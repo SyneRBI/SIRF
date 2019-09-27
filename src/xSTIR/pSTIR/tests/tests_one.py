@@ -71,6 +71,7 @@ def test_main(rec=False, verb=False, throw=True):
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
+    test.check_if_equal(voxel_size, image.voxel_sizes())
 
     filter.apply(image)
     image_arr = image.as_array()

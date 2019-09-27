@@ -45,7 +45,7 @@ EXPORTED_FUNCTION void* mSIRF_dataItems(const void* ptr_x) {
 EXPORTED_FUNCTION void* mSIRF_norm(const void* ptr_x) {
 	return cSIRF_norm(ptr_x);
 }
-EXPORTED_FUNCTION void*	mSIRF_dot(const void* ptr_x, const void* ptr_y) {
+EXPORTED_FUNCTION void* mSIRF_dot(const void* ptr_x, const void* ptr_y) {
 	return cSIRF_dot(ptr_x, ptr_y);
 }
 EXPORTED_FUNCTION void* mSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x, const PTR_FLOAT ptr_b, const void* ptr_y) {
@@ -62,6 +62,9 @@ EXPORTED_FUNCTION void* mSIRF_write(const void* ptr, const char* filename) {
 }
 EXPORTED_FUNCTION void* mSIRF_clone(void* ptr_x) {
 	return cSIRF_clone(ptr_x);
+}
+EXPORTED_FUNCTION void* mSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src) {
+	return cSIRF_fillImageFromImage(ptr_im, ptr_src);
 }
 EXPORTED_FUNCTION void* mSIRF_DataHandleVector_push_back(void* self, void* to_append) {
 	return cSIRF_DataHandleVector_push_back(self, to_append);

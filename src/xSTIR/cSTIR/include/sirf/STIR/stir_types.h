@@ -40,6 +40,7 @@ limitations under the License.
 #include "stir/listmode/LmToProjData.h"
 #include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
+#include "stir/KOSMAPOSL/KOSMAPOSLReconstruction.h"
 #include "stir/OSSPS/OSSPSReconstruction.h"
 #include "stir/ProjDataInfoCylindrical.h"
 #include "stir/ProjDataInMemory.h"

@@ -1314,6 +1314,12 @@ void NiftiImageData<dataType>::set_up_geom_info()
 #ifndef NDEBUG
     if (_nifti_image->qform_code != 1)
         std::cout << "\nWarning: NiftiImageData<dataType>::set_up_geom_info will not be accurate, as qform != 1.\n";
+    // TODO: Take care of xyz_units
+    if (_nifti_image->xyz_units != 2)
+        std::cout << "\nWarning: NiftiImageData<dataType>::set_up_geom_info "
+                     "Only implemented for xyz_units==2 (mm). "
+                     "This should be easy to add (adjust spacing "
+                     "and offset by 10^).\n";
 #endif
 
     // Number of voxels
@@ -1341,7 +1347,7 @@ void NiftiImageData<dataType>::set_up_geom_info()
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
     for (unsigned i=0; i<3; ++i)
         for (unsigned j=0; j<3; ++j)
-            direction[i][j] = tm_final[i][j] / spacing[i];
+            direction[i][j] = tm_final[i][j] / spacing[j];
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(

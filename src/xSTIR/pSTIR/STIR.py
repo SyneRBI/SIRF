@@ -40,9 +40,7 @@ from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
-import sirf.select_module as select_module
-select_module.module = 'pystir'
-import sirf.parameters as parms
+import sirf.STIR_params as parms
 
 try:
     input = raw_input
@@ -275,12 +273,16 @@ class ImageData(SIRF.ImageData):
     def fill(self, value):
         '''Sets the voxel-values.
 
-        The argument is either 3D Numpy ndarray of values or a scalar to be
-        assigned at each voxel. When using an ndarray, the array size has to
-        have the same size as an array returned by `as_array`.
+        The argument is either ImageData or 3D Numpy ndarray of values or a
+        scalar to be assigned at each voxel. When using an ndarray, the array
+        must have the same size as an array returned by `as_array`.
         '''
         assert self.handle is not None
-        if isinstance(value, numpy.ndarray):
+        if isinstance(value, ImageData):
+            super(ImageData, self).fill(value)
+##            try_calling(pystir.cSTIR_setImageDataFromImage \
+##                        (self.handle, value.handle))
+        elif isinstance(value, numpy.ndarray):
             if value.dtype is numpy.dtype('float32'):
                 #print('keeping dtype float32')
                 v = value
@@ -294,7 +296,7 @@ class ImageData(SIRF.ImageData):
             try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
             raise error('wrong fill value.' + \
-                        ' Should be numpy.ndarray, float or int')
+                        ' Should be ImageData, numpy.ndarray, float or int')
         return self
     def get_uniform_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
@@ -523,7 +525,7 @@ class AcquisitionData(DataContainer):
                 self.src = 'file'
             else:
                 # src is a scanner name
-                self.handle = pystir.cSTIR_acquisitionsDataFromScannerInfo\
+                self.handle = pystir.cSTIR_acquisitionDataFromScannerInfo\
                     (src, span, max_ring_diff, view_mash_factor)
                 if pyiutil.executionStatus(self.handle) != 0:
                     msg = pyiutil.executionError(self.handle)
@@ -535,7 +537,7 @@ class AcquisitionData(DataContainer):
         elif isinstance(src, AcquisitionData):
             # src is AcquisitionData
             assert src.handle is not None
-            self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
+            self.handle = pystir.cSTIR_acquisitionDataFromTemplate\
                 (src.handle)
             self.src = 'template'
         else:
@@ -556,12 +558,12 @@ class AcquisitionData(DataContainer):
             all acquisition data generated from now on will be kept in RAM
             (avoid if data is very large)
         '''
-        try_calling(pystir.cSTIR_setAcquisitionsStorageScheme(scheme))
+        try_calling(pystir.cSTIR_setAcquisitionDataStorageScheme(scheme))
     @staticmethod
     def get_storage_scheme():
         '''Returns acquisition data storage scheme.
         '''
-        handle = pystir.cSTIR_getAcquisitionsStorageScheme()
+        handle = pystir.cSTIR_getAcquisitionDataStorageScheme()
         check_status(handle)
         scheme = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -613,7 +615,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         dim = numpy.ndarray((MAX_IMG_DIMS,), dtype = numpy.int32)
-        try_calling(pystir.cSTIR_getAcquisitionsDimensions\
+        try_calling(pystir.cSTIR_getAcquisitionDataDimensions\
             (self.handle, dim.ctypes.data))
         dim = dim[:4]
         return tuple(dim[::-1])
@@ -628,7 +630,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
-        try_calling(pystir.cSTIR_getAcquisitionsData\
+        try_calling(pystir.cSTIR_getAcquisitionData\
             (self.handle, array.ctypes.data))
         return array
     def fill(self, value):
@@ -647,16 +649,16 @@ class AcquisitionData(DataContainer):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
-            try_calling(pystir.cSTIR_setAcquisitionsData\
+            try_calling(pystir.cSTIR_setAcquisitionData\
                         (self.handle, v.ctypes.data))
         elif isinstance(value, AcquisitionData):
             assert value.handle is not None
-            try_calling(pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
+            try_calling(pystir.cSTIR_fillAcquisitionDataFromAcquisitionData\
                 (self.handle, value.handle))
         elif isinstance(value, float):
-            try_calling(pystir.cSTIR_fillAcquisitionsData(self.handle, value))
+            try_calling(pystir.cSTIR_fillAcquisitionData(self.handle, value))
         elif isinstance(value, int):
-            try_calling(pystir.cSTIR_fillAcquisitionsData\
+            try_calling(pystir.cSTIR_fillAcquisitionData\
                         (self.handle, float(value)))
         else:
             raise error('Wrong fill value.' + \
@@ -1702,6 +1704,58 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
             (self.handle, self.name, 'objective_function')
         check_status(obj_fun.handle)
         return obj_fun
+
+class KOSMAPOSLReconstructor(IterativeReconstructor):
+    '''
+    Class for reconstructor objects using Kernel Ordered Subsets Maximum
+    A Posteriori One Step Late reconstruction algorithm
+    '''
+    def __init__(self, filename = ''):
+        self.handle = None
+        self.image = None
+        self.name = 'KOSMAPOSL'
+        self.handle = pystir.cSTIR_objectFromFile\
+            ('KOSMAPOSLReconstruction', filename)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_anatomical_prior(self, ap):
+        '''Sets anatomical prior.
+        '''
+        assert_validity(ap, ImageData)
+        parms.set_parameter(self.handle, 'KOSMAPOSL', \
+                      'anatomical_prior', ap.handle)
+    def set_num_neighbours(self, n):
+        '''Sets number of neighbours.
+        '''
+        parms.set_int_par\
+            (self.handle, 'KOSMAPOSL', 'num_neighbours', n)
+    def set_num_non_zero_features(self, n):
+        '''Sets number of neighbours.
+        '''
+        parms.set_int_par\
+            (self.handle, 'KOSMAPOSL', 'num_non_zero_features', n)
+    def set_sigma_m(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_m', v)
+    def set_sigma_p(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_p', v)
+    def set_sigma_dm(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_dm', v)
+    def set_sigma_dp(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_dp', v)
+    def set_only_2D(self, tf):
+        if tf:
+            v = 1
+        else:
+            v = 0
+        parms.set_int_par(self.handle, 'KOSMAPOSL', 'only_2D', v)
+    def set_hybrid(self, tf):
+        if tf:
+            v = 1
+        else:
+            v = 0
+        parms.set_int_par(self.handle, 'KOSMAPOSL', 'hybrid', v)
 
 class OSSPSReconstructor(IterativeReconstructor):
     '''

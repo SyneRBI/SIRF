@@ -82,30 +82,21 @@ def main():
     print('data dimensions: %d x %d x %d x %d' % dim)
     acq_data.show(range(dim[1]//4))
     acq_array = acq_data.as_array()
-    # print('data dimensions: %d x %d x %d' % acq_array.shape)
-    # acq_dim = acq_array.shape
-    # z = acq_dim[0]//2
-    # show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # rebin the acquisition data
     new_acq_data = acq_data.rebin(3)
     rdim = new_acq_data.dimensions()
     print('rebinned data dimensions: %d x %d x %d x %d' % rdim)
-    new_acq_data.show(range(rdim[0]//3), title = 'Rebinned acquisition data')
-    #acq_array = new_acq_data.as_array()
-    #print('rebinned data dimensions: %d x %d x %d' % acq_array.shape)
+    new_acq_data.show(range(rdim[1]//3), title = 'Rebinned acquisition data')
 
     # clone the acquisition data
     new_acq_data = acq_data.clone()
     # display the cloned data
     new_acq_data.show(range(dim[1]//4), title = 'Cloned acquisition data')
-    # acq_array = new_acq_data.as_array()
-    # show_2D_array('Cloned acquisition data', acq_array[z,:,:])
 
     print('Checking acquisition data algebra:')
     s = acq_data.norm()
     t = acq_data.dot(acq_data)
-##    t = acq_data * acq_data
     print('norm of acq_data.as_array(): %f' % numpy.linalg.norm(acq_array))
     print('acq_data.norm(): %f' % s)
     print('sqrt(acq_data.dot(acq_data)): %f' % math.sqrt(t))
@@ -113,13 +104,14 @@ def main():
     print('norm of acq_data.clone() - acq_data: %f' % diff.norm())
     acq_factor = acq_data.get_uniform_copy(0.1)
     new_acq_data = acq_data / acq_factor
-##    new_acq_data = acq_data * 10.0
     print('norm of acq_data*10: %f' % new_acq_data.norm())
+    acq_copy = acq_data.get_uniform_copy()
+    acq_copy.fill(acq_data)
+    diff = acq_copy - acq_data
+    print('norm of acq_copy - acq_data: %f' % diff.norm())
 
     # display the scaled data
     new_acq_data.show(range(dim[1]//4), title = 'Scaled acquisition data')
-    # acq_array = new_acq_data.as_array()
-    # show_2D_array('Scaled acquisition data', acq_array[z,:,:])
 
     print('Checking images algebra:')
     image = acq_data.create_uniform_image(10.0)
@@ -127,16 +119,18 @@ def main():
     print('image dimensions: %d x %d x %d' % image_array.shape)
     s = image.norm()
     t = image.dot(image)
-##    t = image * image
     print('norm of image.as_array(): %f' % numpy.linalg.norm(image_array))
     print('image.norm(): %f' % s)
     print('sqrt(image.dot(image)): %f' % math.sqrt(t))
     image_factor = image.get_uniform_copy(0.1)
     image = image / image_factor
-##    image = image*10
     print('norm of image*10: %f' % image.norm())
     diff = image.clone() - image
     print('norm of image.clone() - image: %f' % diff.norm())
+    image_copy = image.get_uniform_copy()
+    image_copy.fill(image)
+    diff = image_copy - image
+    print('norm of image_copy - image: %f' % diff.norm())
 
     print('image voxel sizes:')
     print(image.voxel_sizes())

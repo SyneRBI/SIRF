@@ -41,9 +41,7 @@ import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
 
-import sirf.select_module as select_module
-select_module.module = 'pygadgetron'
-import sirf.parameters as parms
+import sirf.Gadgetron_params as parms
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -484,15 +482,18 @@ class ImageData(SIRF.ImageData):
         data: Python Numpy array
         '''
         assert self.handle is not None
+        if isinstance(data, ImageData):
+            super(ImageData, self).fill(data)
+            return
         if self.is_real():
             if data.dtype != numpy.float32:
                 data = data.astype(numpy.float32)
-            try_calling(pygadgetron.cGT_setImagesDataAsFloatArray\
+            try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
                 (self.handle, data.ctypes.data))
         else:
             if data.dtype != numpy.complex64:
                 data = data.astype(numpy.complex64)
-            try_calling(pygadgetron.cGT_setImagesDataAsCmplxArray\
+            try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
                 (self.handle, data.ctypes.data))
     def as_array(self):
         '''
@@ -511,15 +512,15 @@ class ImageData(SIRF.ImageData):
         nz = nz*nc*self.number()
         if self.is_real():
             array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            try_calling(pygadgetron.cGT_getImagesDataAsFloatArray\
+            try_calling(pygadgetron.cGT_getImageDataAsFloatArray\
                 (self.handle, array.ctypes.data))
             return array
         else:
             z = numpy.ndarray((nz, ny, nx), dtype = numpy.complex64)
-            try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
+            try_calling(pygadgetron.cGT_getImageDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
-    def show(self, slice = None, title = None, cmap = 'gray', postpone = False):
+    def show(self, zyx=None, slice=None, title=None, cmap='gray', postpone=False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -530,10 +531,8 @@ class ImageData(SIRF.ImageData):
         if type(slice) == type(1):
             if slice < 0 or slice >= nz:
                 return
-            ns = 1
+            ni = 1
             slice = [slice]
-##            show_2D_array('slice %d' % slice, data[slice,:,:])
-##            return
         elif slice is None:
             ni = nz
             slice = range(nz)
@@ -551,13 +550,17 @@ class ImageData(SIRF.ImageData):
         f = 0
         while f < ni:
             t = min(f + 16, ni)
-            err = show_3D_array(abs(data), index = slice[f : t], \
-                                tile_shape = tiles, cmap = cmap, \
-                                label = 'image', xlabel = 'samples', \
-                                ylabel = 'readouts', \
-                                suptitle = title, \
-                                show = (t == ni) and not postpone)
+            err = show_3D_array(abs(data), index=slice[f : t], \
+                                tile_shape=tiles, cmap=cmap, \
+                                zyx=zyx, label='image', \
+                                xlabel='samples', ylabel='readouts', \
+                                suptitle=title, \
+                                show=(t == ni) and not postpone)
             f = t
+
+    def print_header(self, im_num):
+        """Print the header of one of the images. zero based."""
+        try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
 
 DataContainer.register(ImageData)
 
@@ -698,12 +701,12 @@ class AcquisitionData(DataContainer):
             all acquisition data generated from now on will be kept in RAM
             (avoid if data is very large)
         '''
-        try_calling(pygadgetron.cGT_setAcquisitionsStorageScheme(scheme))
+        try_calling(pygadgetron.cGT_setAcquisitionDataStorageScheme(scheme))
     @staticmethod
     def get_storage_scheme():
         '''Returns acquisition data storage scheme.
         '''
-        handle = pygadgetron.cGT_getAcquisitionsStorageScheme()
+        handle = pygadgetron.cGT_getAcquisitionDataStorageScheme()
         check_status(handle)
         scheme = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -765,7 +768,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
-        hv = pygadgetron.cGT_getAcquisitionsDimensions\
+        hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
         #nr = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
@@ -797,15 +800,26 @@ class AcquisitionData(DataContainer):
     def fill(self, data, select = 'image'):
         '''
         Fills self's acquisitions with specified values.
-        data: Python Numpy array
+        data: Python Numpy array or AcquisitionData
         '''
         assert self.handle is not None
-        if select == 'all': # return all
-            fill_all = 1
-        else: # return only image-related
-            fill_all = 0
-        try_calling(pygadgetron.cGT_fillAcquisitionsData\
-            (self.handle, data.ctypes.data, fill_all))
+        if isinstance(data, AcquisitionData):
+            try_calling(pygadgetron.cGT_fillAcquisitionDataFromAcquisitionData\
+                (self.handle, data.handle))
+            return
+        elif isinstance(data, numpy.ndarray):
+            if data.dtype is not numpy.complex64:
+                data = data.astype(numpy.complex64)
+            if select == 'all': # fill all
+                fill_all = 1
+            else: # fill only image-related
+                fill_all = 0
+            try_calling(pygadgetron.cGT_fillAcquisitionData\
+                (self.handle, data.ctypes.data, fill_all))
+        else:
+            raise error('wrong fill value.' + \
+                        ' Should be AcquisitionData or numpy.ndarray')
+        return self
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
@@ -818,7 +832,7 @@ class AcquisitionData(DataContainer):
         else: # return only image-related
             return_all = 0
         z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
-        try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
+        try_calling(pygadgetron.cGT_acquisitionDataAsArray\
             (self.handle, z.ctypes.data, return_all))
         return z
     def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \

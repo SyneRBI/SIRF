@@ -38,14 +38,14 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
 %               all acquisition data generated from now on will be kept in
 %               RAM (avoid if data is very large)
             h = calllib...
-                ('mstir', 'mSTIR_setAcquisitionsStorageScheme', scheme);
+                ('mstir', 'mSTIR_setAcquisitionDataStorageScheme', scheme);
             sirf.Utilities.check_status('AcquisitionData', h);
             sirf.Utilities.delete(h)
         end
         function scheme = get_storage_scheme()
 %***SIRF*** Returns current acquisition storage scheme name
             h = calllib...
-                ('mstir', 'mSTIR_getAcquisitionsStorageScheme');
+                ('mstir', 'mSTIR_getAcquisitionDataStorageScheme');
             sirf.Utilities.check_status('AcquisitionData', h);
             scheme = calllib('miutilities', 'mCharDataFromHandle', h);
             sirf.Utilities.delete(h)
@@ -80,7 +80,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                         span = 1;
                     end
                     self.handle_ = calllib...
-                        ('mstir', 'mSTIR_acquisitionsDataFromScannerInfo',...
+                        ('mstir', 'mSTIR_acquisitionDataFromScannerInfo',...
                         arg, span, max_ring_diff, view_mash_factor);
                     status = calllib('miutilities', 'mExecutionStatus', ...
                         self.handle_);
@@ -101,7 +101,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                 end
             elseif isa(arg, 'sirf.STIR.AcquisitionData')
                 self.handle_ = calllib...
-                    ('mstir', 'mSTIR_acquisitionsDataFromTemplate',...
+                    ('mstir', 'mSTIR_acquisitionDataFromTemplate',...
                     arg.handle_);
             else
                 error('AcquisitionData:wrong_ctor_source', ...
@@ -155,7 +155,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
 %           - number of sinograms
 %           - number of TOF bins
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
-            calllib('mstir', 'mSTIR_getAcquisitionsDimensions', ...
+            calllib('mstir', 'mSTIR_getAcquisitionDataDimensions', ...
                 self.handle_, ptr_i);
             dim = ptr_i.Value;
         end
@@ -169,7 +169,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             dim = self.dimensions();
             n = dim(1)*dim(2)*dim(3)*dim(4);
             ptr_v = libpointer('singlePtr', zeros(n, 1));
-            calllib('mstir', 'mSTIR_getAcquisitionsData', self.handle_, ptr_v);
+            calllib('mstir', 'mSTIR_getAcquisitionData', self.handle_, ptr_v);
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3), dim(4));
         end
         function fill(self, value)
@@ -186,10 +186,10 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             elseif isa(value, 'single')
                 if numel(value) > 1
                     ptr_v = libpointer('singlePtr', value);
-                    h = calllib('mstir', 'mSTIR_setAcquisitionsData', ...
+                    h = calllib('mstir', 'mSTIR_setAcquisitionData', ...
                         self.handle_, ptr_v);
                 else
-                    h = calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
+                    h = calllib('mstir', 'mSTIR_fillAcquisitionData', ...
                         self.handle_, value);
                 end
                 sirf.Utilities.check_status...
@@ -198,10 +198,10 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             elseif isa(value, 'double')
                 if numel(value) > 1
                     ptr_v = libpointer('singlePtr', single(value));
-                    h = calllib('mstir', 'mSTIR_setAcquisitionsData', ...
+                    h = calllib('mstir', 'mSTIR_setAcquisitionData', ...
                         self.handle_, ptr_v);
                 else
-                    h = calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
+                    h = calllib('mstir', 'mSTIR_fillAcquisitionData', ...
                         self.handle_, single(value));
                 end
                 sirf.Utilities.check_status...
@@ -209,7 +209,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                 sirf.Utilities.delete(h)
             elseif isa(value, 'sirf.STIR.AcquisitionData')
                 h = calllib('mstir', ...
-                    'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
+                    'mSTIR_fillAcquisitionDataFromAcquisitionData', ...
                     self.handle_, value.handle_);
                 sirf.Utilities.check_status([self.name ':fill'], h);
                 sirf.Utilities.delete(h)
