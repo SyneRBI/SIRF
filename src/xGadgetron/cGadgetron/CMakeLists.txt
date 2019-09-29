@@ -46,18 +46,6 @@ target_include_directories(cgadgetron PUBLIC "${cGadgetron_INCLUDE_DIR}")
 target_include_directories(cgadgetron PRIVATE "${FFTW3_INCLUDE_DIR}")
 
 target_link_libraries(cgadgetron iutilities csirf)
-# Add boost library dependencies
-if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
-  # This is harder than it should be on older CMake versions to be able to cope with
-  # spaces in filenames.
-  foreach(C SYSTEM FILESYSTEM)
-    target_link_libraries(cgadgetron optimized "${Boost_${C}_LIBRARY_RELEASE}")
-    target_link_libraries(cgadgetron debug  "${Boost_${C}_LIBRARY_DEBUG}")
-  endforeach()
-else()
-  # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(cgadgetron Boost::system Boost::filesystem)
-endif()
 
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
 # a list of filenames with spaces. There doesn't seem to be a way to pass this through (strange).
