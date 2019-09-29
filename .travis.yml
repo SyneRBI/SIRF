@@ -113,8 +113,8 @@ addons:
 
 # cache C/C++/pip
 cache:
-  - ccache
-  - pip
+ - ccache
+ - pip
 
 before_install:
  # Set C and C++ compiler etc using trick from
@@ -224,6 +224,8 @@ before_install:
 
  - export PATH="$PWD:$PATH"
  - popd
+ # ensure a branch exists (for e.g. PRs)
+ - git symbolic-ref -q HEAD || git checkout -b local_$TRAVIS_COMMIT
  # Use Travis' currently checked-out SIRF commit ID to build.
  # Also no point re-downloading SIRF - just use local URL.
  # N.B.: don't put into build matrix to allow caching.
