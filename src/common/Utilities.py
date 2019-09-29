@@ -88,21 +88,20 @@ def show_2D_array(title, array, scale = None, colorbar = True):
     plt.figure()
     plt.title(title)
     if colorbar:
-        plt.imshow(array, vmin = vmin, vmax = vmax)
+        plt.imshow(array, vmin=vmin, vmax=vmax)
         plt.colorbar()
     else:
-        plt.imshow(array, cmap = 'gray', vmin = vmin, vmax = vmax)
+        plt.imshow(array, cmap='gray', vmin=vmin, vmax=vmax)
     fignums = plt.get_fignums()
     print('You may need to close Figure %d window to continue...' % fignums[-1])
     plt.show()
 
 
 def show_3D_array\
-    (array, index = None, tile_shape = None, scale = None, power = None, \
-     suptitle = None, titles = None, \
-     xlabel = None, ylabel = None, label = None, \
-     title_size = None, \
-     cmap = None, show = True):
+    (array, index=None, tile_shape=None, scale=None, power=None, \
+     suptitle=None, titles=None, title_size=None, \
+     zyx=None, xlabel=None, ylabel=None, label=None, \
+     cmap=None, show=True):
     '''
     Displays a 3D array as a set of z-slice tiles.
     On successful completion returns 0.
@@ -120,6 +119,9 @@ def show_3D_array\
     suptitle  : figure title; defaults to None
     titles    : array of tile titles; if not present, each tile title is
                 label + tile_number
+    zyx       : tuple (z, y, x), where x, y, anad z are the dimensions of array
+                corresponding to the spatial dimensions x, y and z; zyx=None is
+                interpreted as (0, 1, 2)
     xlabel    : label for x axis
     ylabel    : label for y axis
     label     : tile title prefix
@@ -128,6 +130,7 @@ def show_3D_array\
     '''
     import math
     import numpy
+
     current_title_size = mpl.rcParams['axes.titlesize']
     current_label_size = mpl.rcParams['axes.labelsize']
     current_xlabel_size = mpl.rcParams['xtick.labelsize']
@@ -136,22 +139,23 @@ def show_3D_array\
     mpl.rcParams['axes.labelsize'] = 'small'
     mpl.rcParams['xtick.labelsize'] = 'small'
     mpl.rcParams['ytick.labelsize'] = 'small'
+
+    if zyx is not None:
+        array = numpy.transpose(array, zyx)
+
     nz = array.shape[0]
     if index is None:
         n = nz
         index = range(n)
-#        index = range(1, n + 1)
     else:
         if type(index) == type(' '):
             try:
                 index = str_to_int_list(index)
             except:
-#                print('incorrect input')
                 return 1
         n = len(index)
         for k in range(n):
             z = index[k]
-#            if z < 1 or z > nz:
             if z < 0 or z >= nz:
                 return k + 1
     ny = array.shape[1]
@@ -183,14 +187,13 @@ def show_3D_array\
         if title_size is None:
             fig.suptitle(suptitle)
         else:
-            fig.suptitle(suptitle, fontsize = title_size)
+            fig.suptitle(suptitle, fontsize=title_size)
     for k in range(n):
         z = index[k] #- 1
         ax = fig.add_subplot(rows, cols, k + 1)
         if titles is None:
             if label is not None and nz > 1:
                 ax.set_title(label + (' %d' % z))
-                # ax.set_title(label + (' %d' % (z + 1)))
         else:
             ax.set_title(titles[k])
         row = k//cols
@@ -202,16 +205,14 @@ def show_3D_array\
             if xlabel is not None:
                 plt.xlabel(xlabel)
                 plt.xticks([0, nx - 1], [0, nx - 1])
-#                plt.xticks([0, nx - 1], [1, nx])
             if ylabel is not None:
                 plt.ylabel(ylabel)
                 plt.yticks([0, ny - 1], [0, ny - 1])
-#                plt.yticks([0, ny - 1], [1, ny])
         if power is None:
-            imgplot = ax.imshow(array[z,:,:], cmap, vmin = vmin, vmax = vmax)
+            imgplot = ax.imshow(array[z,:,:], cmap, vmin=vmin, vmax=vmax)
         else:
             imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), cmap, \
-                                vmin = vmin, vmax = vmax)
+                                vmin=vmin, vmax=vmax)
     if show:
         fignums = plt.get_fignums()
         last = fignums[-1]
@@ -221,10 +222,12 @@ def show_3D_array\
         else:
             print('You may need to close Figure 1 window to continue...')
         plt.show()
+
     mpl.rcParams['axes.titlesize'] = current_title_size
     mpl.rcParams['axes.labelsize'] = current_label_size
     mpl.rcParams['xtick.labelsize'] = current_xlabel_size
     mpl.rcParams['ytick.labelsize'] = current_ylabel_size
+
     return 0
 
 
@@ -354,7 +357,7 @@ class error(Exception):
         return '??? ' + repr(self.value)
 
 
-def check_status(handle, stack = None):
+def check_status(handle, stack=None):
     if pyiutil.executionStatus(handle) != 0:
         if stack is None:
             stack = inspect.stack()[1]

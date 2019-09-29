@@ -171,7 +171,7 @@ calculate_index_to_physical_point_matrix() const
 	for (unsigned int dim = 0; dim<num_dimensions; dim++) {
 		for (unsigned int axis = 0; axis<num_dimensions; axis++) {
 			index_to_physical_point_matrix[dim][axis] =
-				direction[dim][axis] * spacing[dim];
+				direction[dim][axis] * spacing[axis];
 		}
 		index_to_physical_point_matrix[dim][num_dimensions] = offset[dim];
 		index_to_physical_point_matrix[num_dimensions][dim] = 0;

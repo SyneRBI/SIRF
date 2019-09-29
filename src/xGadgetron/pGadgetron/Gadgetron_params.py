@@ -4,7 +4,7 @@ import sirf.select_module as select_module
 import sirf.pyiutilities as pyiutil
 from sirf.Utilities import check_status
 
-exec('from sirf.' + select_module.module + ' import setParameter, parameter')
+from sirf.pygadgetron import setParameter, parameter
 
 
 def set_parameter(hs, group, par, hv, stack = None):

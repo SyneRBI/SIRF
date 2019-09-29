@@ -948,6 +948,18 @@ cGT_setImageDataFromCmplxArray(void* ptr_imgs, size_t ptr_z)
 }
 
 extern "C"
+void* cGT_print_header(const void* ptr_imgs, const int im_idx)
+{
+    try {
+        CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImagesVector& imgs = objectFromHandle<GadgetronImagesVector>(h_imgs);
+        imgs.print_header(im_idx);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void*
 cGT_imageDataType(const void* ptr_x, int im_num)
 {

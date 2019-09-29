@@ -660,7 +660,7 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 	AcquisitionsFile af(acqs_info_);
 	ISMRMRD::Acquisition acq;
 	int na = number();
-	assert(na == ac.number);
+	assert(na == ac.number());
 	for (int a = 0, i = 0; a < na; a++) {
 		ac.get_acquisition(a, acq);
 		af.append_acquisition(acq);
@@ -692,7 +692,7 @@ AcquisitionsVector::copy_acquisitions_data(const MRAcquisitionData& ac)
 	ISMRMRD::Acquisition acq_dst;
 	ISMRMRD::Acquisition acq_src;
 	int na = number();
-	assert(na == ac.number);
+	assert(na == ac.number());
 	for (int a = 0, i = 0; a < na; a++) {
 		ac.get_acquisition(a, acq_src);
 		ISMRMRD::Acquisition& acq_dst = *acqs_[a];
@@ -1178,10 +1178,15 @@ GadgetronImagesVector::set_up_geom_info()
     }
 
     // Size
+    // For the z-direction.
+    // If it's a 3d image, matrix_size[2] == num voxels
+    // If it's a 2d image, matrix_size[2] == 1, and number of slices is given by this->number()
     VoxelisedGeometricalInfo3D::Size size;
-    for(unsigned i=0; i<2; ++i)
+    for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
-    size[2] = this->number();
+    // If it's a stack of 2d images.
+    if (size[2] == 1)
+        size[2] = this->number();
 
     // The following will only work if the 0th index is read direction,
     // 1st is phase direction and 2nd is slice direction. This should be the case if sort has been called.

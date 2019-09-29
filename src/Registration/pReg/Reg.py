@@ -29,9 +29,7 @@ from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
 
-import sirf.select_module as select_module
-select_module.module = 'pyreg'
-import sirf.parameters as parms
+import sirf.Reg_params as parms
 
 
 try:
@@ -754,7 +752,7 @@ class ImageWeightedMean:
         elif isinstance(image, str):
             try_calling(pyreg.cReg_ImageWeightedMean_add_image_filename(self.handle, image, weight))
         else:
-            raise error("pReg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
+            raise error("sirf.Reg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
 
     def process(self):
         """Process."""

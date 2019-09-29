@@ -79,6 +79,7 @@ EXPORTED_FUNCTION 	void* mGT_getImageDataAsFloatArray(void* ptr_imgs, PTR_FLOAT 
 EXPORTED_FUNCTION 	void* mGT_setImageDataFromFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION 	void* mGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 EXPORTED_FUNCTION 	void* mGT_setImageDataFromCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
+EXPORTED_FUNCTION   void* mGT_print_header(const void* ptr_imgs, const int im_idx);
 EXPORTED_FUNCTION 	void* mGT_setHost(void* ptr_gc, const char* host);
 EXPORTED_FUNCTION 	void* mGT_setPort(void* ptr_gc, const char* port);
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
