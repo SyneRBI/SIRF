@@ -1687,6 +1687,50 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
     '''
     Class for reconstructor objects using Kernel Ordered Subsets Maximum
     A Posteriori One Step Late reconstruction algorithm
+
+    
+    This class implements the iterative algorithm obtained using the Kernel method (KEM) and Hybrid kernel method (HKEM).
+    This implementation corresponds to the one presented by Deidda D et al, ``Hybrid PET-MR list-mode kernelized expectation maximization  reconstruction",
+    Inverse Problems, 2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
+    also sinogram-based reconstruction. Each voxel value of the image, \f$ \boldsymbol{\lambda}\f$, can be represented as a
+   linear combination using the kernel method.  If we have an image with prior information, we can construct for each voxel
+   \f$ j \f$ of the emission image a feature vector, $\f \boldsymbol{v}_j \f$, using the prior information. The voxel value,
+   \f$\lambda_j\f$, can then be described using the kernel matrix
+
+
+
+   \f[
+    \lambda_j=  \sum_{l=1}^L \alpha_l k_{jl}
+   \f]
+
+   where \f$k_{jl}\f$ is the \f$jl^{th}\f$ kernel element of the matrix, \f$\boldsymbol{K}\f$.
+   The resulting algorithm with OSEM, for example, is the following:
+
+   \f[
+   \alpha^{(n+1)}_j =  \frac{ \alpha^{(n)}_j }{\sum_{m} k^{(n)}_{jm} \sum_i p_{mi}} \sum_{m}k^{(n)}_{jm}\sum_i p_{mi}\frac{ y_i }{\sum_{q}  p_{iq} \sum_l k^{(n)}_{ql}\alpha^{(n)}_l  + s_i}
+   \f[
+
+   where the  element, $\f jl \f$, of the kernel can be written as:
+
+   \f[
+     k^{(n)}_{jl} = k_m(\boldsymbol{v}_j,\boldsymbol{v}_l) \cdot k_p(\boldsymbol{z}^{(n)}_j,\boldsymbol{z}^{(n)}_l);
+   \f]
+
+   with
+
+   \f[
+    k_m(\boldsymbol{v}_j,\boldsymbol{v}_l) = \exp \left(\tiny - \frac{\|  \boldsymbol{v}_j-\boldsymbol{v}_l \|^2}{2 \sigma_m^2} \right) \exp \left(- \frac{\tiny \|  \boldsymbol{x}_j-\boldsymbol{x}_l \|^2}{ \tiny 2 \sigma_{dm}^2} \right)
+   \f]
+
+   being the MR component of the kernel and
+
+   \f[
+    k_p(\boldsymbol{z}^{(n)}_j,\boldsymbol{z}^{(n)}_l) = \exp \left(\tiny - \frac{\|  \boldsymbol{z}^{(n)}_j-\boldsymbol{z}^{(n)}_l \|^2}{2 \sigma_p^2} \right) \exp \left(\tiny - \frac{\|  \boldsymbol{x}_j-\boldsymbol{x}_l \|^2}{ \tiny{2 \sigma_{dp}^2}} \right)
+   \f]
+
+   is the part coming from the emission iterative update. Here, the Gaussian kernel functions have been modulated by the distance between voxels in the image space.
+
+
     '''
     def __init__(self, filename = ''):
         self.handle = None
