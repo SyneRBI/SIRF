@@ -1692,41 +1692,33 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
     This class implements the iterative algorithm obtained using the Kernel method (KEM) and Hybrid kernel method (HKEM).
     This implementation corresponds to the one presented by Deidda D et al, ``Hybrid PET-MR list-mode kernelized expectation maximization  reconstruction",
     Inverse Problems, 2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
-    also sinogram-based reconstruction. Each voxel value of the image, \f$ \boldsymbol{\lambda}\f$, can be represented as a
+    also sinogram-based reconstruction. Each voxel value of the image, X, can be represented as a
    linear combination using the kernel method.  If we have an image with prior information, we can construct for each voxel
-   \f$ j \f$ of the emission image a feature vector, $\f \boldsymbol{v}_j \f$, using the prior information. The voxel value,
-   \f$\lambda_j\f$, can then be described using the kernel matrix
+   j of the emission image a feature vector, v, using the prior information. The image, X, can then be described using the kernel matrix
 
 
 
-   \f[
-    \lambda_j=  \sum_{l=1}^L \alpha_l k_{jl}
-   \f]
+   
+    X=  A*K
+   
 
-   where \f$k_{jl}\f$ is the \f$jl^{th}\f$ kernel element of the matrix, \f$\boldsymbol{K}\f$.
+   where K is the kernel matrix.
    The resulting algorithm with OSEM, for example, is the following:
 
-   \f[
-   \alpha^{(n+1)}_j =  \frac{ \alpha^{(n)}_j }{\sum_{m} k^{(n)}_{jm} \sum_i p_{mi}} \sum_{m}k^{(n)}_{jm}\sum_i p_{mi}\frac{ y_i }{\sum_{q}  p_{iq} \sum_l k^{(n)}_{ql}\alpha^{(n)}_l  + s_i}
-   \f[
+   
+   A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
+  
+   where kernel can be written as:
 
-   where the  element, $\f jl \f$, of the kernel can be written as:
-
-   \f[
-     k^{(n)}_{jl} = k_m(\boldsymbol{v}_j,\boldsymbol{v}_l) \cdot k_p(\boldsymbol{z}^{(n)}_j,\boldsymbol{z}^{(n)}_l);
-   \f]
-
+     K^n = K_m * K_p;
+  
    with
 
-   \f[
-    k_m(\boldsymbol{v}_j,\boldsymbol{v}_l) = \exp \left(\tiny - \frac{\|  \boldsymbol{v}_j-\boldsymbol{v}_l \|^2}{2 \sigma_m^2} \right) \exp \left(- \frac{\tiny \|  \boldsymbol{x}_j-\boldsymbol{x}_l \|^2}{ \tiny 2 \sigma_{dm}^2} \right)
-   \f]
+    K_m = exp (-(v_j-v_l)^2/(2*sigma_m^2)) * exp(- (x_j-x_l)^2 /(2*sigma_dm^2} )
 
    being the MR component of the kernel and
 
-   \f[
-    k_p(\boldsymbol{z}^{(n)}_j,\boldsymbol{z}^{(n)}_l) = \exp \left(\tiny - \frac{\|  \boldsymbol{z}^{(n)}_j-\boldsymbol{z}^{(n)}_l \|^2}{2 \sigma_p^2} \right) \exp \left(\tiny - \frac{\|  \boldsymbol{x}_j-\boldsymbol{x}_l \|^2}{ \tiny{2 \sigma_{dp}^2}} \right)
-   \f]
+    (K_p) = exp (-((z_j) - (z_l))^2/(2*sigma_p^2)) * exp(-(x_j-x_l)^2 /(2*sigma_dp^2) )
 
    is the part coming from the emission iterative update. Here, the Gaussian kernel functions have been modulated by the distance between voxels in the image space.
 
