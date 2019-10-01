@@ -245,11 +245,11 @@ class NiftiImageData(SIRF.ImageData):
             raise AssertionError()
         if isinstance(val, numpy.ndarray):
             if val.dtype is numpy.dtype('float32'):
-                # print('keeping dtype float32')
                 v = val
             else:
-                # print('changing dtype to float32')
                 v = val.astype(numpy.float32)
+            if not v.flags['F_CONTIGUOUS']:
+                v = numpy.asfortranarray(v)
             try_calling(pyreg.cReg_NiftiImageData_fill_arr(self.handle, v.ctypes.data))
         elif isinstance(val, float):
             try_calling(pyreg.cReg_NiftiImageData_fill(self.handle, val))
@@ -281,7 +281,7 @@ class NiftiImageData(SIRF.ImageData):
             raise AssertionError()
         dim = self.get_dimensions()
         dim = dim[1:dim[0]+1]
-        array = numpy.ndarray(dim, dtype=numpy.float32)
+        array = numpy.ndarray(dim, dtype=numpy.float32, order='F')
         try_calling(pyreg.cReg_NiftiImageData_as_array(self.handle, array.ctypes.data))
         return array
 
