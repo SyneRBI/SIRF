@@ -47,9 +47,7 @@ bool tests_memory::test_sirf_free_acquisition( void )
 
 		if( construct_inside_loop )
 		{
-			for(size_t i=0; i<
-
-				; i++)
+			for(size_t i=0; i<num_iterations; i++)
 			{
 				std::cout << "loopindex i " << i <<std::endl;
 		
