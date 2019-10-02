@@ -119,7 +119,10 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
     auto deformed_img_as_nifti = deformed_img->get_raw_nifti_sptr();
 	
 	if( deformed_img_as_nifti->nvox != img.getNumberOfDataElements() )
+	{
+		std::cout << "nvox nifti: " << deformed_img_as_nifti->nvox  <<" nvox img " << img.getNumberOfDataElements() << std::endl;
 		throw std::runtime_error("Something went wrong during the resampling. The output image and input image have different number of voxels.");
+	}
 
 	memcpy(img.begin(), deformed_img_as_nifti->data, sizeof(float) * deformed_img_as_nifti->nvox);
 }
