@@ -23,6 +23,7 @@ SET(SYN_executables
     sirf_registration
     sirf_do_images_match
     sirf_resample
+    sirf_convert_image_type
     )
 
 FOREACH(elem ${SYN_executables})
