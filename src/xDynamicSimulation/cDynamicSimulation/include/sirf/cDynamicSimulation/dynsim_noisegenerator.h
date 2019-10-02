@@ -35,6 +35,8 @@ public:
 
 protected:
 	SeedType random_seed_ = 1;
+	unsigned int generate_pseudo_seed();
+
 
 };
 
@@ -64,7 +66,6 @@ public:
 
 private:
 	stir::GeneralisedPoissonNoiseGenerator stir_noise_gen_;	
-	unsigned int generate_pseudo_seed();
 
 };
 

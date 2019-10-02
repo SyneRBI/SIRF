@@ -7,6 +7,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 #include <math.h>
+#include <time.h>
 #include <random>
 #include <stdexcept>
 #include <stdlib.h>
@@ -16,6 +17,15 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using namespace sirf;
 
+unsigned int aNoiseGenerator::generate_pseudo_seed( void )
+{
+	srand( time(NULL) );
+	unsigned int seed = 0;
+	while(seed == 0)
+		seed = rand();
+
+	return seed;
+}
 
 void PoissonNoiseGenerator::add_noise( PETAcquisitionData& noisy_acq, PETAcquisitionData& noise_free_acq)
 {
@@ -33,15 +43,6 @@ void PoissonNoiseGenerator::add_noise( PETAcquisitionData& noisy_acq, PETAcquisi
 	}
 }
 
-unsigned int PoissonNoiseGenerator::generate_pseudo_seed( void )
-{
-	srand (this->random_seed_);
-	unsigned int seed = 0;
-	while(seed == 0)
-		seed = rand();
-
-	return seed;
-}
 
 void GaussianNoiseGenerator::add_noise( AcquisitionsVector& acquisition_vector ) 
 {
@@ -80,7 +81,10 @@ void GaussianNoiseGenerator::add_noise_to_data( AcquisitionsVector& acquisition_
 	acquisition_vector.set_as_template();
 
 	std::default_random_engine generator;
-	generator.seed( this->random_seed_ ); 
+	
+	generator.seed(this->generate_pseudo_seed());
+
+
 	std::normal_distribution< float > gaussian_distribution( this->mean_noise_ , this->noise_width_kspace_ );
 
 	for( size_t i_acq=0; i_acq<acquisition_vector.number(); i_acq++)

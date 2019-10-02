@@ -30,6 +30,60 @@ void wait_for_time ( int const wait_time_s)
 
 
 
+bool tests_memory::test_sirf_free_acquisition( void )
+{
+
+	try
+	{
+		size_t num_iterations = 10000;
+
+		size_t num_acquis = 256*128;
+		uint16_t num_samples = 192;
+		uint16_t num_channels = 32;
+		
+		ISMRMRD::Acquisition acq(num_samples, num_channels);
+
+		bool construct_inside_loop = true;
+
+		if( construct_inside_loop )
+		{
+			for(size_t i=0; i<num_iterations; i++)
+			{
+				std::cout << "loopindex i " << i <<std::endl;
+		
+				for(size_t i_acq=0; i_acq<num_acquis; i_acq++)
+				{	
+					ISMRMRD::Acquisition temp_acq;
+				    temp_acq = acq;
+				}
+			}
+		} 
+		else if(!construct_inside_loop)
+		{
+			for(size_t i=0; i<num_iterations; i++)
+			{
+				std::cout << "loopindex i " << i <<std::endl;
+
+				ISMRMRD::Acquisition temp_acq;
+				for(size_t i_acq=0; i_acq<num_acquis; i_acq++)
+				{
+				    temp_acq = acq;
+				} 
+			}
+		}
+
+		return true;
+
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+
+
 bool tests_memory::test_acquisition_memory( void )
 {
 	try
@@ -128,14 +182,6 @@ bool tests_memory::test_downsizing_acquisition_memory( void )
 
 
 
-
-
-
-
-
-
-
-
 bool tests_memory::test_acquisition_vector_ordering_memory( void )
 {
 	try
@@ -162,9 +208,6 @@ bool tests_memory::test_acquisition_vector_ordering_memory( void )
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
-
-
-
 }
 
 bool tests_memory::test_acquisition_vector_memory( void )

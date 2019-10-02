@@ -161,10 +161,10 @@ void run_tests_dynamic_simulation( void )
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 
 	std::cout << "MR 7 ----------------------------------------------------" <<std::endl;
-	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
+	mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
 
 	std::cout << "MR 8 ----------------------------------------------------" <<std::endl;
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
 
 	
 	std::cout << "mr dynamic simulation test results = ";
@@ -540,7 +540,8 @@ void run_tests_memory_usage( void )
 {
 	bool tests_successful = true;
 
-	tests_memory::test_acquisition_memory();
+ 	tests_memory::test_sirf_free_acquisition();	
+	// tests_memory::test_acquisition_memory();
 	// tests_memory::test_downsizing_acquisition_memory();
 	// tests_successful *= tests_memory::test_acquisition_vector_memory();
 	// tests_successful *=tests_memory::test_acquisition_vector_ordering_memory();

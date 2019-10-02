@@ -25,6 +25,7 @@ void wait_for_time ( int const wait_time_s);
 namespace tests_memory{
 
 
+bool test_sirf_free_acquisition( void );
 bool test_acquisition_memory( void );
 bool test_acquisition_vector_memory( void );
 bool test_downsizing_acquisition_memory( void );
