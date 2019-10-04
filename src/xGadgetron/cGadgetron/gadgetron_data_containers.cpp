@@ -125,8 +125,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 bool
 MRAcquisitionData::undersampled() const
 {
-	ISMRMRD::IsmrmrdHeader header;
-	ISMRMRD::deserialize(acqs_info_.c_str(), header);
+	ISMRMRD::IsmrmrdHeader header = acqs_info_.get_IsmrmrdHeader();
 	ISMRMRD::Encoding e = header.encoding[0];
 	return e.parallelImaging.is_present() &&
 		e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
@@ -881,20 +880,30 @@ group_names_sptr(const char* filename)
 }
 
 int
-GadgetronImageData::read(std::string filename) 
+GadgetronImageData::read(std::string filename, std::string variable, int iv) 
 {
+	int vsize = variable.size();
 	std::shared_ptr<std::vector<std::string> > sptr_names;
 	sptr_names = group_names_sptr(filename.c_str());
 	std::vector<std::string>& names = *sptr_names;
 	int ng = names.size();
 	const char* group = names[0].c_str();
 	printf("group %s\n", group);
-	for (int i = 0; i < ng; i++) {
-		const char* var = names[i].c_str();
-		if (!i)
+	for (int ig = 0; ig < ng; ig++) {
+		const char* var = names[ig].c_str();
+		if (!ig)
 			continue;
 
 		printf("variable %s\n", var);
+		if (vsize > 0)
+			if (strcmp(var, variable.c_str()))
+				continue;
+		if (iv > 0)
+			if (ig != iv)
+				continue;
+		if (strcmp(var, "xml") == 0)
+			continue;
+
 		ISMRMRD::ISMRMRD_Dataset dataset;
 		ISMRMRD::ISMRMRD_Image im;
 		ismrmrd_init_dataset(&dataset, filename.c_str(), group);
@@ -907,14 +916,15 @@ GadgetronImageData::read(std::string filename)
 		ismrmrd_cleanup_image(&im);
 		ismrmrd_close_dataset(&dataset);
 
-
 		shared_ptr<ISMRMRD::Dataset> sptr_dataset
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
 
         // ISMRMRD throws an error if no XML is present.
         try {
             sptr_dataset->readHeader(this->acqs_info_);
-        } catch (const std::exception &error) {}
+		}
+		catch (const std::exception &error) {
+		}
 
 		for (int i = 0; i < num_im; i++) {
 			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type, *sptr_dataset, var, i));
@@ -926,6 +936,10 @@ GadgetronImageData::read(std::string filename)
 		//sptr_iw->get_dim(dim);
 		//std::cout << "image dimensions: "
 		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		if (vsize > 0 && strcmp(var, variable.c_str()) == 0)
+			break;
+		if (iv > 0 && ig == iv)
+			break;
 	}
 
     this->set_up_geom_info();
@@ -1158,7 +1172,7 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     std::cout << "physiology_time_stamp:  "; for (int i=0;i<3;++i) std::cout << ih.physiology_time_stamp[i]  << " "; std::cout << "\n";
     std::cout << "patient_table_position: "; for (int i=0;i<3;++i) std::cout << ih.patient_table_position[i] << " "; std::cout << "\n";
 
-    if (!acqs_info_.emtpty()) {
+    if (!acqs_info_.empty()) {
         std::cout << "XML data:\n";
         std::cout << acqs_info_.c_str() << "\n";
     }
@@ -1176,6 +1190,12 @@ GadgetronImagesVector::set_up_geom_info()
 
     if (!this->sorted())
         this->sort();
+
+    ISMRMRD::IsmrmrdHeader image_header = this->acqs_info_.get_IsmrmrdHeader();
+    if (!image_header.measurementInformation.is_present())
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info: Patient position not present. Assuming HFS\n";
+    else if (!image_header.measurementInformation.get().patientPosition.compare("HFS"))
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info: Currently only implemented for HFS. TODO (easy fix)\n";
 
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();

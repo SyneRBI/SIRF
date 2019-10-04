@@ -75,19 +75,37 @@ namespace sirf {
 
 	class AcquisitionsInfo {
 	public:
-		AcquisitionsInfo(std::string data = "") : data_(data) {}
+		AcquisitionsInfo(std::string data = "") : data_(data)
+        {
+            deserialize();
+        }
 		AcquisitionsInfo& operator=(std::string data)
 		{
 			data_ = data;
+            deserialize();
 			return *this;
 		}
 		const char* c_str() const { return data_.c_str(); }
 		operator std::string&() { return data_; }
 		operator const std::string&() const { return data_; }
-        bool emtpty() const { return data_.empty(); }
+        bool empty() const { return data_.empty(); }
+        const ISMRMRD::IsmrmrdHeader & get_IsmrmrdHeader() const { return header_; }
 
 	private:
+        void deserialize()
+        {
+            // Only deserialise for non-empty strings
+            if (!this->empty()) {
+                // Don't care about errors here
+                try {
+                    ISMRMRD::deserialize(data_.c_str(), header_);
+				}
+				catch (const std::exception &error) {
+				}
+            }
+        }
 		std::string data_;
+        ISMRMRD::IsmrmrdHeader header_;
 	};
 
 	/*!
@@ -166,7 +184,7 @@ namespace sirf {
 
 		// regular methods
 
-		std::string acquisitions_info() const { return acqs_info_; }
+		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
 
 		gadgetron::unique_ptr<MRAcquisitionData> clone() const
@@ -403,7 +421,7 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
-		virtual int read(std::string filename);
+		virtual int read(std::string filename, std::string variable = "", int iv = -1);
 		virtual void write(const std::string &filename, const std::string &groupname) const;
         virtual void write(const std::string &filename) const { this->write(filename,""); }
 		virtual Dimensions dimensions() const 

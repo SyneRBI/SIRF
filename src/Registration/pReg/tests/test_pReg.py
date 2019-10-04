@@ -215,6 +215,18 @@ def try_niftiimage():
     if not x.get_contains_nans():
         raise AssertionError('NiftiImageData::get_contains_nans() 2 failed.')
 
+    # Test that fill works regardless of C- or F-style numpy arrays
+    im = sirf.Reg.NiftiImageData(ref_aladin_filename)
+    arr = im.as_array()
+    arr_C = numpy.ascontiguousarray(arr)
+    arr_F = numpy.asfortranarray(arr)
+    im.fill(arr_C)
+    arr_C2 = im.as_array()
+    im.fill(arr_F)
+    arr_F2 = im.as_array()
+    if not np.array_equal(arr_C2, arr_F2):
+        raise AssertionError('NiftiImageData::fill() failed for C- or F-style numpy arrays.')
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData test.\n')
