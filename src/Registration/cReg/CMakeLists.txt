@@ -58,6 +58,16 @@ if (NIFTYREG_BUILT_WITH_OPENMP)
   endif()
 endif()
 
+# Not sure which CUDA libs NiftyReg requires, so find and link against all.
+if (NIFTYREG_BUILT_WITH_CUDA)
+  find_package(CUDA REQUIRED)
+  get_cmake_property(_vars VARIABLES)
+  string (REGEX MATCHALL "(^|;)CUDA_[A-Za-z0-9_]*_LIBRARY" ALL_CUDA_LIBS "${_vars}")
+  foreach (CUDA_LIB ${ALL_CUDA_LIBS})
+    TARGET_LINK_LIBRARIES(Reg PUBLIC ${${CUDA_LIB}})
+  endforeach()
+endif()
+
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
