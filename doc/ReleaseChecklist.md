@@ -12,7 +12,7 @@ VER=1.0.0-rc.1
     + `cd .. && git add data/ && git commit -m "update data submodule to v$VER"`
   - [ ] update data (manager)
     + `git submodule update`
-    + `cd data && git tag -a v$VER -m "version $VER" && cd ..`
+    + `cd data && git tag -a v$VER -m "version $VER" && git push --tags && cd ..`
     + `git add data/`  # **should do nothing!**
     + `git commit -m "update data submodule to v$VER"`  # **should do nothing!**
 2. SIRF
