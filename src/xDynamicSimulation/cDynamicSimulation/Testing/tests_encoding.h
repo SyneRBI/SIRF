@@ -43,3 +43,11 @@ public:
 	static bool test_get_result_container();	
 	
 };
+
+
+class RPESuperInterleavedGoldenCutTester
+{
+public:
+	static bool test_compute_trajectory();
+
+};

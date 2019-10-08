@@ -182,3 +182,40 @@ try
 		throw e;
 	}
 }	
+
+
+
+bool RPESuperInterleavedGoldenCutTester::test_compute_trajectory()
+{
+try
+{
+	std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Input/";
+	std::string const fname_rawdata =  input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"; 
+
+	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(fname_rawdata);
+
+	sirf::RPESuperInterleavedGoldenCutTrajectoryContainer sfl_traj;
+	sfl_traj.set_header(hdr);
+	sfl_traj.compute_trajectory();
+
+	auto traj = sfl_traj.get_trajectory();
+
+	
+	auto traj_dims = traj.getDims();
+
+	for(int i=0; i<ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; ++i)
+		std::cout << traj_dims[i] << std::endl;
+
+	std::string const fname_output = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/5DMotion/sfl_traj";
+	data_io::write_raw<float>(fname_output, traj.begin(), traj.getNumberOfElements());
+
+	return true;
+
+}
+catch( std::runtime_error const &e)
+{
+	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << e.what() << std::endl;
+	throw e;
+}
+}

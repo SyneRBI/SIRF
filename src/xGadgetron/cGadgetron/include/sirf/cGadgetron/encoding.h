@@ -108,7 +108,7 @@ public:
 	RPETrajectoryContainer():aTrajectoryContainer()
 	{	
 	    traj_type_ = ISMRMRD::TrajectoryType::OTHER;
-	}
+	} 
 	
 	void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu);
 	virtual void compute_trajectory( void );
@@ -130,7 +130,7 @@ public:
 	void compute_trajectory( void );
 };
 
-typedef std::pair<size_t, size_t> PermutIdxContainer;
+typedef std::pair<float, size_t> PermutIdxContainer;
 
 class RPESuperInterleavedGoldenCutTrajectoryContainer: public RPETrajectoryContainer{
 	
@@ -141,7 +141,7 @@ public:
 private:
 	static bool comparefun(PermutIdxContainer &a, PermutIdxContainer &b)
 	{
-		return a.first > b.first;
+		return a.first < b.first;
 	}
 };
 
