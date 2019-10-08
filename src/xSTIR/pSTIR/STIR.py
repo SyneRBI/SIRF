@@ -289,6 +289,8 @@ class ImageData(SIRF.ImageData):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
+            if not v.flags['C_CONTIGUOUS']:
+                v = numpy.ascontiguousarray(v)
             try_calling(pystir.cSTIR_setImageData(self.handle, v.ctypes.data))
         elif isinstance(value, float):
             try_calling(pystir.cSTIR_fillImage(self.handle, value))
@@ -649,6 +651,8 @@ class AcquisitionData(DataContainer):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
+            if not v.flags['C_CONTIGUOUS']:
+                v = numpy.ascontiguousarray(v)
             try_calling(pystir.cSTIR_setAcquisitionData\
                         (self.handle, v.ctypes.data))
         elif isinstance(value, AcquisitionData):
