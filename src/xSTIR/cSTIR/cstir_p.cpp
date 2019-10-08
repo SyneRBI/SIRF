@@ -381,6 +381,8 @@ sirf::cSTIR_generalisedObjectiveFunctionParameter
 		objectFromHandle< ObjectiveFunction3DF >(handle);
 	if (boost::iequals(name, "prior"))
 		return newObjectHandle(obj_fun.get_prior_sptr());
+	else if (boost::iequals(name, "num_subsets"))
+		return dataHandle<int>(obj_fun.get_num_subsets());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -526,8 +528,10 @@ sirf::cSTIR_iterativeReconstructionParameter
 	if (boost::iequals(name, "subiteration_num")) {
 		//xSTIR_IterativeReconstruction3DF& xrecon =
 		//	(xSTIR_IterativeReconstruction3DF&)(recon);
-		DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
-		return dataHandle<int>(xrecon.subiteration());
+		//DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+		int iter = recon.get_subiteration_num();
+		return dataHandle<int>(iter);
+		//return dataHandle<int>(xrecon.subiteration());
 	}
 	if (boost::iequals(name, "objective_function"))
 		return newObjectHandle(recon.get_objective_function_sptr());

@@ -1274,6 +1274,9 @@ class ObjectiveFunction:
         #_set_int_par\
         parms.set_int_par\
             (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
+    def get_num_subsets(self):
+        return parms.int_par\
+            (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets')
     def set_up(self, image):
         '''
         Prepares this object for use.
