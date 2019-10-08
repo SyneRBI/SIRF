@@ -14,6 +14,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <iostream>
 #include <stdexcept>
 
+#include "test_input_filenames.h"
+
+#include "app_mracquisitiondata.h"
 #include "tests_auxiliary_testing_functions.h"
 #include "tests_auxiliary_input_output.h"
 #include "tests_tissueparameters.h"
@@ -29,6 +32,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_memory_usage.h" 
 
 #include "all_simulation_tests.h"
+
+
+void run_apps(void)
+{
+	std::string const fname_ismrmrd = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/5DMotion/output_grpe_mri_simulation_motion_type_cardiorespiratory__num_motion_states_1_x_1.h5";
+	apps_johannesmayer::omitt_first_acquisition(fname_ismrmrd);
+}
 
 
 void run_tests_auxiliary_testing_functions( void )
@@ -161,10 +171,10 @@ void run_tests_dynamic_simulation( void )
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 
 	std::cout << "MR 7 ----------------------------------------------------" <<std::endl;
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
 
 	std::cout << "MR 8 ----------------------------------------------------" <<std::endl;
-	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
+	mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
 
 	
 	std::cout << "mr dynamic simulation test results = ";
@@ -457,14 +467,16 @@ void run_tests_encoding( void )
 
 	bool tests_successful = true;
 
-	tests_successful *= test_enc::test_cube_input();
+	// tests_successful *= test_enc::test_cube_input();
 	// tests_successful *= CartesianEncodingTester::test_sample_fourier_space();
 	
 
 	// tests_successful *= RPETrajectoryPreparationTester::test_get_set_trajectory();
 	// tests_successful *= RPETrajectoryPreparationTester::test_get_result_container();
 
-	tests_successful *= RPETester::test_sample_fourier_space();
+	// tests_successful *= RPETester::test_sample_fourier_space();
+
+	tests_successful *= RPESuperInterleavedGoldenCutTester::test_compute_trajectory();
 
 	if ( !tests_successful )
 	{

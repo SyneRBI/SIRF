@@ -443,7 +443,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	
 		auto sptr_curr_acq = this->sptr_acqs_->get_acquisition_sptr( i_acq );
 		unsigned int num_sampled_readout_pts = readout_size - ( readout_size/2 - sptr_curr_acq->center_sample() );
-
+		
 		if( readout_size < num_sampled_readout_pts )			
 			throw LocalisedException("The number of samples you try to acquire is larger than the volume dimension in readout direction.", __FILE__, __LINE__);
 			

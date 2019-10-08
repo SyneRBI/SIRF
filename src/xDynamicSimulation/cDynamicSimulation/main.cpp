@@ -27,6 +27,7 @@ int main( int argc, char *argv[] )
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 		}
 
+		
 		// run_tests_auxiliary_testing_functions();
 		// run_tests_auxiliary_input_output();
 		// run_tests_tissueparameters();
@@ -40,6 +41,10 @@ int main( int argc, char *argv[] )
 		// run_tests_dynsim_deformer();
 		// run_tests_volume_orientator();
 		// run_tests_memory_usage();
+		
+
+		run_apps();		
+
 		
 		return 0;
 	}
