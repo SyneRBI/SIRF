@@ -486,29 +486,30 @@ class ImageData(SIRF.ImageData):
             super(ImageData, self).fill(data)
             return
         if isinstance(data, numpy.ndarray):
-            convert = not data.flags['C_CONTIGUOS']
+            old = None
+            if self.is_real():
+                if data.dtype != numpy.float32:
+                    old = data.copy()
+                    data = data.astype(numpy.float32)
+            else:
+                if data.dtype != numpy.complex64:
+                    old = data.copy()
+                    data = data.astype(numpy.complex64)
+            convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if data.flags['F_CONTIGUOS']:
-                    origin = 'F'
-                else:
-                    origin = None
+                if not data.flags['F_CONTIGUOUS'] and old is None:
                     old = data.copy()
                 data = numpy.ascontiguousarray(data)
             if self.is_real():
-                if data.dtype != numpy.float32:
-                    data = data.astype(numpy.float32)
                 try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
                     (self.handle, data.ctypes.data))
             else:
-                if data.dtype != numpy.complex64:
-                    data = data.astype(numpy.complex64)
                 try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
                     (self.handle, data.ctypes.data))
-            if convert:
-                if origin == 'F':
-                    data = numpy.asfortranarray(data)
-                else:
-                    data[:] = old
+            if old is not None:
+                data[:] = old
+            elif convert:
+                data = numpy.asfortranarray(data)
         else:
             raise error('wrong fill value.' + \
                         ' Should be ImageData or numpy.ndarray')
@@ -825,27 +826,26 @@ class AcquisitionData(DataContainer):
                 (self.handle, data.handle))
             return
         elif isinstance(data, numpy.ndarray):
-            convert = not data.flags['C_CONTIGUOS']
+            if data.dtype is not numpy.complex64:
+                old = data.copy()
+                data = data.astype(numpy.complex64)
+            else:
+                old = None
+            convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if data.flags['F_CONTIGUOS']:
-                    origin = 'F'
-                else:
-                    origin = None
+                if not data.flags['F_CONTIGUOUS'] and old is None:
                     old = data.copy()
                 data = numpy.ascontiguousarray(data)
-            if data.dtype is not numpy.complex64:
-                data = data.astype(numpy.complex64)
             if select == 'all': # fill all
                 fill_all = 1
             else: # fill only image-related
                 fill_all = 0
             try_calling(pygadgetron.cGT_fillAcquisitionData\
                 (self.handle, data.ctypes.data, fill_all))
-            if convert:
-                if origin == 'F':
-                    data = numpy.asfortranarray(data)
-                else:
-                    data[:] = old
+            if old is not None:
+                data[:] = old
+            elif convert:
+                data = numpy.asfortranarray(data)
         else:
             raise error('wrong fill value.' + \
                         ' Should be AcquisitionData or numpy.ndarray')
