@@ -379,7 +379,7 @@ try
 	bool const simulate_data = true;
 	bool const store_gt_mvfs = false;
 
-	int const num_simul_motion_states = 2;
+	int const num_simul_motion_states = 10;
 
 	float const test_SNR = 25;
 	size_t const noise_label = 13;
@@ -387,10 +387,10 @@ try
 	// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
 	// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/5DMotion/";
 
-	std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/CardiacFatWaterSep/Input/";
-	std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/CardiacFatWaterSep/Output/MR/5DMotion/";
+	std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Input/";
+	std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/5DMotion/";
 
-	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( std::string(SHARED_FOLDER_PATH) + "/XCATSegmentations/xcat208Cube/xcat_phantom_incl_geomertry_208.h5" );
+	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
