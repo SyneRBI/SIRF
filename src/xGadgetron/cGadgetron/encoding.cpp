@@ -230,7 +230,8 @@ void RPEInterleavedTrajectoryContainer::compute_trajectory()
 
 
 #define GOLDENRATIO (1 + sqrt(5.f))/2.f
-#define GOLDENANGLE M_PI*(3 - sqrt(5))
+// #define GOLDENANGLE M_PI*(3 - sqrt(5))
+#define GOLDENANGLE M_PI*(GOLDENRATIO-1)
 
 
 void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
@@ -296,44 +297,35 @@ void RPESuperInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 
    	this->traj_.resize(traj_dims);
 
-   	
-	std::vector<PermutIdxContainer> sigma, inverse_sigma;
-	std::vector<float> angdep_shifts;// std::vector<AngdepRadshift,AngdepRadshift> radial_shifts;
+	std::vector<PermutIdxContainer> sigma;
 
 	for( unsigned na=0; na<NAngles; na++)
 	{
 		PermutIdxContainer angle_with_index;
-		angle_with_index.first = na * GOLDENANGLE;
+		angle_with_index.first = fmod(na * GOLDENANGLE, M_PI);
 		angle_with_index.second = na;
 
 		sigma.push_back(angle_with_index);
-
-		float shift = 0.5 * (2*fmod(na*GOLDENRATIO, 1) -1);
-		angdep_shifts.push_back(shift);
 	}
 
 	std::sort(sigma.begin(), sigma.end(), this->comparefun);
 
+	std::vector<size_t> gc_sorted_lut(NAngles);
 	for( unsigned na=0; na<NAngles; na++)
-	{
-		PermutIdxContainer permut_elem;
-		permut_elem.first = sigma[na].second;
-		permut_elem.second = na;
-		inverse_sigma.push_back(permut_elem);
-	}
+		gc_sorted_lut[ sigma[na].second ] = na;
 
-	std::sort(inverse_sigma.begin(), inverse_sigma.end(), this->comparefun);
+	float const angle_increment = GOLDENANGLE;
 
 	for( unsigned na=0; na<NAngles; na++)
 	{
-		float const curr_shift = angdep_shifts[inverse_sigma[na].second] ;
-
+		float const ang_pos =  fmod(na*angle_increment,M_PI); 
+		float const curr_shift = 0.5 * (2*fmod((gc_sorted_lut[na])*GOLDENRATIO, 1) -1);
+		
 		for( unsigned nr=0; nr<NRadial; nr++)
 		{
 
 			float r_pos = (float)nr - (float)NRadial/2.f; 
-			r_pos = (r_pos == 0) ? r_pos : r_pos + curr_shift;
-			float const ang_pos =  na*GOLDENANGLE;
+			r_pos = (nr == 0) ? 0 : r_pos + curr_shift;
 					
 			float const nx = r_pos * cos( ang_pos );
 			float const ny = r_pos * sin( ang_pos );
@@ -343,8 +335,7 @@ void RPESuperInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 		}
 	}
 
-
-
+	this->norm_trajectory();
 }
 
 
