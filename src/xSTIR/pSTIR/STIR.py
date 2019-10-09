@@ -60,7 +60,7 @@ ALL_CHANNELS = -1
 MAX_ACQ_DIMS = 10
 MAX_IMG_DIMS = 10
 
-class MessageRedirector:
+class MessageRedirector(object):
     '''
     Class for STIR printing redirection to files/stdout/stderr.
     '''
@@ -126,7 +126,7 @@ class MessageRedirector:
             try_calling(pystir.deleteTextWriter(self.errr))
         pystir.closeChannel(2, self.errr)
 
-class Shape:
+class Shape(object):
     '''
     Class for an abstract geometric shape used as a building block for
     creating phantom images.
@@ -402,7 +402,7 @@ class ImageData(SIRF.ImageData):
 
 DataContainer.register(ImageData)
 
-class ImageDataProcessor:
+class ImageDataProcessor(object):
     '''Class for image processors.
 
     An ImageDataProcessor changes an image in some way, e.g. by filtering.'''
@@ -473,7 +473,7 @@ class TruncateToCylinderProcessor(ImageDataProcessor):
                (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
                 'strictly_less_than_radius') != 0
 
-class RayTracingMatrix:
+class RayTracingMatrix(object):
     '''
     Class for objects holding sparse matrix representation of the ray
     tracing projector G (see AcquisitionModel class).
@@ -742,7 +742,7 @@ class AcquisitionData(DataContainer):
 
 DataContainer.register(AcquisitionData)
 
-class ListmodeToSinograms:
+class ListmodeToSinograms(object):
     '''
     Class for listmode-to-sinogram converter.
 
@@ -847,7 +847,7 @@ class ListmodeToSinograms:
         check_status(randoms.handle)
         return randoms
 
-class AcquisitionSensitivityModel:
+class AcquisitionSensitivityModel(object):
     '''
     Class that handles PET scanner detector efficiencies and attenuation.
 
@@ -947,7 +947,7 @@ class AcquisitionSensitivityModel:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-class AcquisitionModel:
+class AcquisitionModel(object):
     ''' 
     Class for a PET acquisition model that relates an image x to the
     acquisition data y as
@@ -1124,7 +1124,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         '''
         return self.get_matrix().get_num_tangential_LORs()
 
-class Prior:
+class Prior(object):
     '''
     Class for objects handling the prior: a penalty term to be added to the
     objective function maximized by iterative reconstruction algorithms.
@@ -1235,7 +1235,7 @@ class PLSPrior(Prior):
         check_status(image.handle)
         return image
 
-class ObjectiveFunction:
+class ObjectiveFunction(object):
     '''
     Class for the objective function maximized by the iterative reconstruction
     algorithms.
@@ -1428,7 +1428,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         parms.set_parameter\
             (self.handle, self.name, 'acquisition_data', ad.handle)
 
-class Reconstructor:
+class Reconstructor(object):
     '''
     Class for a generic PET reconstructor.
     '''
@@ -1464,7 +1464,7 @@ class Reconstructor:
         # TODO: move to C++
         return self.image
 
-class FBP2DReconstructor:
+class FBP2DReconstructor(object):
     '''
     Class for 2D Filtered Back Projection reconstructor.
     This is an implementation of the 2D FBP algorithm. 

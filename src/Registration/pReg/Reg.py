@@ -47,7 +47,7 @@ WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
 
-class MessageRedirector:
+class MessageRedirector(object):
     """
     Class for registration printing redirection to files/stdout/stderr.
     """
@@ -655,7 +655,7 @@ class NiftyF3dSym(_Registration):
         try_calling(pyreg.cReg_Registration_print_all_wrapped_methods('NiftyF3dSym'))
 
 
-class NiftyResample:
+class NiftyResample(object):
     """
     Resample using NiftyReg.
     """
@@ -731,7 +731,7 @@ class NiftyResample:
         return image
 
 
-class ImageWeightedMean:
+class ImageWeightedMean(object):
     """
     Class for performing weighted mean of images.
     """
@@ -892,7 +892,7 @@ class AffineTransformation(_Transformation):
         return tm
 
 
-class Quaternion:
+class Quaternion(object):
     """
     Class for quaternions.
     """
