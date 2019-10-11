@@ -303,7 +303,7 @@ class CoilSensitivityData(DataContainer):
 
 DataContainer.register(CoilSensitivityData)
 
-class Image:
+class Image(object):
     '''
     Class for an MR image.
     '''
@@ -582,7 +582,7 @@ class ImageData(SIRF.ImageData):
 
 DataContainer.register(ImageData)
 
-class Acquisition:
+class Acquisition(object):
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
@@ -908,7 +908,7 @@ class AcquisitionData(DataContainer):
 
 DataContainer.register(AcquisitionData)
 
-class AcquisitionModel:
+class AcquisitionModel(object):
     '''
     Class for MR acquisition model, an operator that maps images into
     simulated acquisitions.
@@ -965,7 +965,7 @@ class AcquisitionModel:
         check_status(image.handle)
         return image
 
-class Gadget:
+class Gadget(object):
     '''
     Class for Gadgetron gadgets.
     '''
@@ -1004,7 +1004,7 @@ class Gadget:
         '''
         return parms.char_par(self.handle, 'gadget', prop)
 
-class GadgetChain:
+class GadgetChain(object):
     '''
     Class for Gadgetron chains.
     '''

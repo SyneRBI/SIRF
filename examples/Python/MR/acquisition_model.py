@@ -63,7 +63,8 @@ def main():
 
     # perform reconstruction to obtain a meaningful ImageData object
     # (cannot be obtained in any other way at present)
-    if processed_data.is_undersampled():
+#    if processed_data.is_undersampled():
+    if acq_data.is_undersampled():
         recon = CartesianGRAPPAReconstructor();
         recon.compute_gfactors(False)
     else:
