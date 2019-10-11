@@ -63,7 +63,7 @@ MRAcquisitionData::write(const std::string &filename) const
 	mtx.lock();
 	shared_ptr<ISMRMRD::Dataset> dataset
 		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", true));
-	dataset->writeHeader(acqs_info_);
+	dataset->writeHeader(acqs_info_.c_str());
 	mtx.unlock();
 	int n = number();
 	ISMRMRD::Acquisition a;
@@ -959,7 +959,7 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
 	Mutex mtx;
 	mtx.lock();
 	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
-    dataset.writeHeader(acqs_info_);
+    dataset.writeHeader(acqs_info_.c_str());
 	mtx.unlock();
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);

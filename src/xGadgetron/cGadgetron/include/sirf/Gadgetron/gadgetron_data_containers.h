@@ -77,35 +77,54 @@ namespace sirf {
 	public:
 		AcquisitionsInfo(std::string data = "") : data_(data)
         {
-            deserialize();
+			if (data.empty())
+				have_header_ = false;
+			else {
+				deserialize();
+				have_header_ = true;
+			}
         }
 		AcquisitionsInfo& operator=(std::string data)
 		{
 			data_ = data;
-            deserialize();
+			if (data.empty())
+				have_header_ = false;
+			else {
+				deserialize();
+				have_header_ = true;
+			}
+			//deserialize();
 			return *this;
 		}
 		const char* c_str() const { return data_.c_str(); }
 		operator std::string&() { return data_; }
 		operator const std::string&() const { return data_; }
         bool empty() const { return data_.empty(); }
-        const ISMRMRD::IsmrmrdHeader & get_IsmrmrdHeader() const { return header_; }
+        const ISMRMRD::IsmrmrdHeader & get_IsmrmrdHeader() const 
+		{
+			if (!have_header_)
+				deserialize();
+			return header_; 
+		}
 
 	private:
-        void deserialize()
-        {
-            // Only deserialise for non-empty strings
-            if (!this->empty()) {
-                // Don't care about errors here
-                try {
-                    ISMRMRD::deserialize(data_.c_str(), header_);
-				}
-				catch (const std::exception &error) {
-				}
-            }
-        }
+		void deserialize() const
+		{
+			ISMRMRD::deserialize(data_.c_str(), header_);
+		}
+			//// Only deserialise for non-empty strings
+   //         if (!this->empty()) {
+   //             // Don't care about errors here
+   //             try {
+   //                 ISMRMRD::deserialize(data_.c_str(), header_);
+			//	}
+			//	catch (const std::exception &error) {
+			//	}
+   //         }
+   //     }
 		std::string data_;
-        ISMRMRD::IsmrmrdHeader header_;
+        mutable ISMRMRD::IsmrmrdHeader header_;
+		bool have_header_;
 	};
 
 	/*!
