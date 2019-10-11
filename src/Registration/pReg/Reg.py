@@ -283,7 +283,7 @@ class NiftiImageData(SIRF.ImageData):
         dim = dim[1:dim[0]+1]
         array = numpy.ndarray(dim, dtype=numpy.float32, order='F')
         try_calling(pyreg.cReg_NiftiImageData_as_array(self.handle, array.ctypes.data))
-        return array
+        return numpy.ascontiguousarray(array)
 
     def get_original_datatype(self):
         """Get original image datatype (internally everything is converted to float)."""
