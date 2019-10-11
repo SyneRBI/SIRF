@@ -93,14 +93,13 @@ namespace sirf {
 				deserialize();
 				have_header_ = true;
 			}
-			//deserialize();
 			return *this;
 		}
 		const char* c_str() const { return data_.c_str(); }
 		operator std::string&() { return data_; }
 		operator const std::string&() const { return data_; }
         bool empty() const { return data_.empty(); }
-        const ISMRMRD::IsmrmrdHeader & get_IsmrmrdHeader() const 
+        const ISMRMRD::IsmrmrdHeader& get_IsmrmrdHeader() const 
 		{
 			if (!have_header_)
 				deserialize();
@@ -110,18 +109,9 @@ namespace sirf {
 	private:
 		void deserialize() const
 		{
-			ISMRMRD::deserialize(data_.c_str(), header_);
+			if (!this->empty())
+				ISMRMRD::deserialize(data_.c_str(), header_);
 		}
-			//// Only deserialise for non-empty strings
-   //         if (!this->empty()) {
-   //             // Don't care about errors here
-   //             try {
-   //                 ISMRMRD::deserialize(data_.c_str(), header_);
-			//	}
-			//	catch (const std::exception &error) {
-			//	}
-   //         }
-   //     }
 		std::string data_;
         mutable ISMRMRD::IsmrmrdHeader header_;
 		bool have_header_;
