@@ -5,16 +5,10 @@ VER=1.0.0-rc.1
 ```
 
 1. Submodules (within SIRF)
-  - [ ] update `data` (dev)
-    + `cd data && git checkout master && git pull`
-    + `git commit -am "update to v$VER" && git tag -a v$VER -m "version $VER"`
-    + `git push && git push --tags`
-    + `cd .. && git add data/ && git commit -m "update data submodule to v$VER"`
-  - [ ] update data (manager)
-    + `git submodule update`
+  - [ ] tag data
+    + `git submodule update` # **should not complain**
     + `cd data && git tag -a v$VER -m "version $VER" && git push --tags && cd ..`
-    + `git add data/`  # **should do nothing!**
-    + `git commit -m "update data submodule to v$VER"`  # **should do nothing!**
+    + `git status`  # **should not list `data` as modified**
 2. SIRF
   - [ ] update `CHANGES.md`
   - [ ] update `NOTICE.txt`
