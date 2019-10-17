@@ -45,7 +45,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-import pReg
+import sirf.Reg
 exec('import p' + args['--eng_ref'] + ' as eng_ref')
 exec('import p' + args['--eng_flo'] + ' as eng_flo')
 
@@ -93,7 +93,7 @@ def main():
     flo = eng_flo.ImageData(flo_file)
 
     # Dynamically create registration algorithm
-    algorithm = getattr(pReg, algo)
+    algorithm = getattr(sirf.Reg, algo)
     reg = algorithm()
     reg.set_reference_image(ref)
     reg.set_floating_image(flo)

@@ -12,6 +12,8 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  images output file
+  --type_to_save=<string>     type to save ('mag', 'imag', 'all') [default: all]
+  --show                      show plots
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -51,6 +53,11 @@ if data_path is None:
     data_path = examples_data_path('MR')
 output_file = args['--output']
 
+type_to_save = args['--type_to_save']
+show_plot = False
+if args['--show']:
+    show_plot = True
+
 def main():
 
     # locate the input data
@@ -88,8 +95,10 @@ def main():
     # in this example '5' returns both magnitude and imaginary part
 ##    recon.set_gadget_property('ex', 'extract_mask', 5)
     # === THE ABOVE IS OBSOLETE, NOW SHOULD USE ===>
-    recon.set_gadget_property('ex', 'extract_magnitude', True)
-    recon.set_gadget_property('ex', 'extract_imag', True)
+    if type_to_save=='mag' or type_to_save=='all':
+        recon.set_gadget_property('ex', 'extract_magnitude', True)
+    if type_to_save=='imag' or type_to_save=='all':
+        recon.set_gadget_property('ex', 'extract_imag', True)
     
     # provide raw k-space data as input
     recon.set_input(acq_data)
@@ -117,17 +126,18 @@ def main():
     image_data = recon.get_output()
 
     # show reconstructed image data
-    for im in range(image_data.number()):
-        image = image_data.image(im)
-        # image types   series
-        # magnitude 1       0
-        # phase     2    3000
-        # real      3    1000
-        # imag      4    2000
-        im_type = image.image_type()
-        im_series = image.image_series_index()
-        print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
-    image_data.show(title = 'Images magnitude and imaginary part')
+    if show_plot:
+        for im in range(image_data.number()):
+            image = image_data.image(im)
+            # image types   series
+            # magnitude 1       0
+            # phase     2    3000
+            # real      3    1000
+            # imag      4    2000
+            im_type = image.image_type()
+            im_series = image.image_series_index()
+            print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
+        image_data.show(title = 'Images magnitude and imaginary part')
 
     if output_file is not None:
         # write images to a new group in args.output

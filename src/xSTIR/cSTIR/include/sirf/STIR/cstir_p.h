@@ -123,7 +123,10 @@ namespace sirf {
 
 	void*
 		cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name);
-
+#ifdef USE_HKEM
+	void*
+		cSTIR_setKOSMAPOSLParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+#endif
 	void*
 		cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 
