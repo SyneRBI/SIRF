@@ -41,9 +41,7 @@ import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
 
-import sirf.select_module as select_module
-select_module.module = 'pygadgetron'
-import sirf.parameters as parms
+import sirf.Gadgetron_params as parms
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -305,7 +303,7 @@ class CoilSensitivityData(DataContainer):
 
 DataContainer.register(CoilSensitivityData)
 
-class Image:
+class Image(object):
     '''
     Class for an MR image.
     '''
@@ -481,25 +479,39 @@ class ImageData(SIRF.ImageData):
     def fill(self, data):
         '''
         Fills self's image data with specified values.
-        data: Python Numpy array
+        data: Python Numpy array or ImageData
         '''
         if isinstance(data, ImageData):
             super(ImageData, self).fill(data)
             return
-        if not isinstance(data, numpy.ndarray ):
-            # CIL/SIRF compatibility
-            data = data.as_array()
-        assert self.handle is not None
-        if self.is_real():
-            if data.dtype != numpy.float32:
-                data = data.astype(numpy.float32)
-            try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
-                (self.handle, data.ctypes.data))
+        if isinstance(data, numpy.ndarray):
+            old = None
+            if self.is_real():
+                if data.dtype != numpy.float32:
+                    old = data.copy()
+                    data = data.astype(numpy.float32)
+            else:
+                if data.dtype != numpy.complex64:
+                    old = data.copy()
+                    data = data.astype(numpy.complex64)
+            convert = not data.flags['C_CONTIGUOUS']
+            if convert:
+                if not data.flags['F_CONTIGUOUS'] and old is None:
+                    old = data.copy()
+                data = numpy.ascontiguousarray(data)
+            if self.is_real():
+                try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
+                    (self.handle, data.ctypes.data))
+            else:
+                try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
+                    (self.handle, data.ctypes.data))
+            if old is not None:
+                data[:] = old
+            elif convert:
+                data = numpy.asfortranarray(data)
         else:
-            if data.dtype != numpy.complex64:
-                data = data.astype(numpy.complex64)
-            try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
-                (self.handle, data.ctypes.data))
+            raise error('wrong fill value.' + \
+                        ' Should be ImageData or numpy.ndarray')
     def as_array(self):
         '''
         Returns all self's images as a 3D Numpy ndarray.
@@ -536,7 +548,7 @@ class ImageData(SIRF.ImageData):
             return out
         else:
             raise error("Empty object cannot be conjugated")
-    def show(self, slice = None, title = None, cmap = 'gray', postpone = False):
+    def show(self, zyx=None, slice=None, title=None, cmap='gray', postpone=False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -547,10 +559,8 @@ class ImageData(SIRF.ImageData):
         if type(slice) == type(1):
             if slice < 0 or slice >= nz:
                 return
-            ns = 1
+            ni = 1
             slice = [slice]
-##            show_2D_array('slice %d' % slice, data[slice,:,:])
-##            return
         elif slice is None:
             ni = nz
             slice = range(nz)
@@ -568,12 +578,12 @@ class ImageData(SIRF.ImageData):
         f = 0
         while f < ni:
             t = min(f + 16, ni)
-            err = show_3D_array(abs(data), index = slice[f : t], \
-                                tile_shape = tiles, cmap = cmap, \
-                                label = 'image', xlabel = 'samples', \
-                                ylabel = 'readouts', \
-                                suptitle = title, \
-                                show = (t == ni) and not postpone)
+            err = show_3D_array(abs(data), index=slice[f : t], \
+                                tile_shape=tiles, cmap=cmap, \
+                                zyx=zyx, label='image', \
+                                xlabel='samples', ylabel='readouts', \
+                                suptitle=title, \
+                                show=(t == ni) and not postpone)
             f = t
     def allocate(self, value=0, **kwargs):
         '''Method to allocate an ImageData and set its values
@@ -597,9 +607,13 @@ class ImageData(SIRF.ImageData):
             out.fill(tmp)
         return out
 
+    def print_header(self, im_num):
+        """Print the header of one of the images. zero based."""
+        try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
+
 DataContainer.register(ImageData)
 
-class Acquisition:
+class Acquisition(object):
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
@@ -844,13 +858,25 @@ class AcquisitionData(DataContainer):
             return
         elif isinstance(data, numpy.ndarray):
             if data.dtype is not numpy.complex64:
+                old = data.copy()
                 data = data.astype(numpy.complex64)
+            else:
+                old = None
+            convert = not data.flags['C_CONTIGUOUS']
+            if convert:
+                if not data.flags['F_CONTIGUOUS'] and old is None:
+                    old = data.copy()
+                data = numpy.ascontiguousarray(data)
             if select == 'all': # fill all
                 fill_all = 1
             else: # fill only image-related
                 fill_all = 0
             try_calling(pygadgetron.cGT_fillAcquisitionData\
                 (self.handle, data.ctypes.data, fill_all))
+            if old is not None:
+                data[:] = old
+            elif convert:
+                data = numpy.asfortranarray(data)
         else:
             raise error('wrong fill value.' + \
                         ' Should be AcquisitionData or numpy.ndarray')
@@ -935,7 +961,7 @@ class AcquisitionData(DataContainer):
 
 DataContainer.register(AcquisitionData)
 
-class AcquisitionModel:
+class AcquisitionModel(object):
     '''
     Class for MR acquisition model, an operator that maps images into
     simulated acquisitions.
@@ -1033,7 +1059,7 @@ class AcquisitionModel:
         '''Returns the template of AcquisitionData'''
         return self.img_templ
 
-class Gadget:
+class Gadget(object):
     '''
     Class for Gadgetron gadgets.
     '''
@@ -1072,7 +1098,7 @@ class Gadget:
         '''
         return parms.char_par(self.handle, 'gadget', prop)
 
-class GadgetChain:
+class GadgetChain(object):
     '''
     Class for Gadgetron chains.
     '''

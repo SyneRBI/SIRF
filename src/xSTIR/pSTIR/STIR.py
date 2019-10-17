@@ -40,9 +40,7 @@ from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
-import sirf.select_module as select_module
-select_module.module = 'pystir'
-import sirf.parameters as parms
+import sirf.STIR_params as parms
 
 try:
     input = raw_input
@@ -62,7 +60,7 @@ ALL_CHANNELS = -1
 MAX_ACQ_DIMS = 10
 MAX_IMG_DIMS = 10
 
-class MessageRedirector:
+class MessageRedirector(object):
     '''
     Class for STIR printing redirection to files/stdout/stderr.
     '''
@@ -128,7 +126,7 @@ class MessageRedirector:
             try_calling(pystir.deleteTextWriter(self.errr))
         pystir.closeChannel(2, self.errr)
 
-class Shape:
+class Shape(object):
     '''
     Class for an abstract geometric shape used as a building block for
     creating phantom images.
@@ -291,6 +289,8 @@ class ImageData(SIRF.ImageData):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
+            if not v.flags['C_CONTIGUOUS']:
+                v = numpy.ascontiguousarray(v)
             try_calling(pystir.cSTIR_setImageData(self.handle, v.ctypes.data))
         elif isinstance(value, float):
             try_calling(pystir.cSTIR_fillImage(self.handle, value))
@@ -421,7 +421,7 @@ class ImageData(SIRF.ImageData):
 
 DataContainer.register(ImageData)
 
-class ImageDataProcessor:
+class ImageDataProcessor(object):
     '''Class for image processors.
 
     An ImageDataProcessor changes an image in some way, e.g. by filtering.'''
@@ -492,7 +492,7 @@ class TruncateToCylinderProcessor(ImageDataProcessor):
                (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
                 'strictly_less_than_radius') != 0
 
-class RayTracingMatrix:
+class RayTracingMatrix(object):
     '''
     Class for objects holding sparse matrix representation of the ray
     tracing projector G (see AcquisitionModel class).
@@ -670,6 +670,8 @@ class AcquisitionData(DataContainer):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
+            if not v.flags['C_CONTIGUOUS']:
+                v = numpy.ascontiguousarray(v)
             try_calling(pystir.cSTIR_setAcquisitionData\
                         (self.handle, v.ctypes.data))
         elif isinstance(value, AcquisitionData):
@@ -778,7 +780,7 @@ class AcquisitionData(DataContainer):
 
 DataContainer.register(AcquisitionData)
 
-class ListmodeToSinograms:
+class ListmodeToSinograms(object):
     '''
     Class for listmode-to-sinogram converter.
 
@@ -883,7 +885,7 @@ class ListmodeToSinograms:
         check_status(randoms.handle)
         return randoms
 
-class AcquisitionSensitivityModel:
+class AcquisitionSensitivityModel(object):
     '''
     Class that handles PET scanner detector efficiencies and attenuation.
 
@@ -1299,7 +1301,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         '''
         return self.get_matrix().get_num_tangential_LORs()
 
-class Prior:
+class Prior(object):
     '''
     Class for objects handling the prior: a penalty term to be added to the
     objective function maximized by iterative reconstruction algorithms.
@@ -1410,7 +1412,7 @@ class PLSPrior(Prior):
         check_status(image.handle)
         return image
 
-class ObjectiveFunction:
+class ObjectiveFunction(object):
     '''
     Class for the objective function maximized by the iterative reconstruction
     algorithms.
@@ -1449,6 +1451,9 @@ class ObjectiveFunction:
         #_set_int_par\
         parms.set_int_par\
             (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
+    def get_num_subsets(self):
+        return parms.int_par\
+            (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets')
     def set_up(self, image):
         '''
         Prepares this object for use.
@@ -1600,7 +1605,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         parms.set_parameter\
             (self.handle, self.name, 'acquisition_data', ad.handle)
 
-class Reconstructor:
+class Reconstructor(object):
     '''
     Class for a generic PET reconstructor.
     '''
@@ -1636,7 +1641,7 @@ class Reconstructor:
         # TODO: move to C++
         return self.image
 
-class FBP2DReconstructor:
+class FBP2DReconstructor(object):
     '''
     Class for 2D Filtered Back Projection reconstructor.
     This is an implementation of the 2D FBP algorithm. 
@@ -1861,6 +1866,94 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
 ##            (self.handle, self.name, 'objective_function')
 ##        check_status(obj_fun.handle)
 ##        return obj_fun
+
+class KOSMAPOSLReconstructor(IterativeReconstructor):
+    '''
+    Class for reconstructor objects using Kernel Ordered Subsets Maximum
+    A Posteriori One Step Late reconstruction algorithm
+
+    
+    This class implements the iterative algorithm obtained using the Kernel method (KEM) and Hybrid kernel method (HKEM).
+    This implementation corresponds to the one presented by Deidda D et al, ``Hybrid PET-MR list-mode kernelized expectation maximization  reconstruction",
+    Inverse Problems, 2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
+    also sinogram-based reconstruction. Each voxel value of the image, X, can be represented as a
+   linear combination using the kernel method.  If we have an image with prior information, we can construct for each voxel
+   j of the emission image a feature vector, v, using the prior information. The image, X, can then be described using the kernel matrix
+
+
+
+   
+    X=  A*K
+   
+
+   where K is the kernel matrix.
+   The resulting algorithm with OSEM, for example, is the following:
+
+   
+   A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
+  
+   where kernel can be written as:
+
+     K^n = K_m * K_p;
+  
+   with
+
+    K_m = exp (-(v_j-v_l)^2/(2*sigma_m^2)) * exp(- (x_j-x_l)^2 /(2*sigma_dm^2} )
+
+   being the MR component of the kernel and
+
+    (K_p) = exp (-((z_j) - (z_l))^2/(2*sigma_p^2)) * exp(-(x_j-x_l)^2 /(2*sigma_dp^2) )
+
+   is the part coming from the emission iterative update. Here, the Gaussian kernel functions have been modulated by the distance between voxels in the image space.
+
+
+    '''
+    def __init__(self, filename = ''):
+        self.handle = None
+        self.image = None
+        self.name = 'KOSMAPOSL'
+        self.handle = pystir.cSTIR_objectFromFile\
+            ('KOSMAPOSLReconstruction', filename)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_anatomical_prior(self, ap):
+        '''Sets anatomical prior.
+        '''
+        assert_validity(ap, ImageData)
+        parms.set_parameter(self.handle, 'KOSMAPOSL', \
+                      'anatomical_prior', ap.handle)
+    def set_num_neighbours(self, n):
+        '''Sets number of neighbours.
+        '''
+        parms.set_int_par\
+            (self.handle, 'KOSMAPOSL', 'num_neighbours', n)
+    def set_num_non_zero_features(self, n):
+        '''Sets number of neighbours.
+        '''
+        parms.set_int_par\
+            (self.handle, 'KOSMAPOSL', 'num_non_zero_features', n)
+    def set_sigma_m(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_m', v)
+    def set_sigma_p(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_p', v)
+    def set_sigma_dm(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_dm', v)
+    def set_sigma_dp(self, v):
+        parms.set_float_par(self.handle, 'KOSMAPOSL', 'sigma_dp', v)
+    def set_only_2D(self, tf):
+        if tf:
+            v = 1
+        else:
+            v = 0
+        parms.set_int_par(self.handle, 'KOSMAPOSL', 'only_2D', v)
+    def set_hybrid(self, tf):
+        if tf:
+            v = 1
+        else:
+            v = 0
+        parms.set_int_par(self.handle, 'KOSMAPOSL', 'hybrid', v)
 
 class OSSPSReconstructor(IterativeReconstructor):
     '''
