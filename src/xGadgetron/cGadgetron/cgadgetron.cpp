@@ -123,6 +123,7 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(IsmrmrdAcqMsgWriter);
 		NEW_GADGET(IsmrmrdImgMsgReader);
 		NEW_GADGET(IsmrmrdImgMsgWriter);
+		NEW_GADGET(DicomImageMessageWriter);
 		NEW_GADGET(NoiseAdjustGadget);
 		NEW_GADGET(PCACoilGadget);
 		NEW_GADGET(CoilReductionGadget);
@@ -146,6 +147,7 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(FloatToUShortGadget);
 		NEW_GADGET(FloatToShortGadget);
 		NEW_GADGET(ImageFinishGadget);
+		NEW_GADGET(DicomFinishGadget);
 		NEW_GADGET(AcquisitionFinishGadget);
 		NEW_GADGET(SimpleReconGadgetSet);
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -850,12 +852,22 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 
 extern "C"
 void*
-cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
+cGT_writeImages(void* ptr_imgs, const char* filename, const char* ext)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
-		imgs.write(out_file, out_group);
+		if (strcmp(ext, "dcm")) {
+			std::string fullname(filename);
+			fullname += ".";
+			fullname += ext;
+			imgs.write(fullname);
+		}
+		else {
+//			std::cout << "in cGT_writeImages\n";
+			ImagesProcessor ip(true, filename);
+			ip.process(imgs);
+		}
 	}
 	CATCH;
 

@@ -233,20 +233,25 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 }
 
 void 
-ImagesProcessor::process(GadgetronImageData& images)
+ImagesProcessor::process(const GadgetronImageData& images)
 {
 	std::string config = xml();
 	GTConnector conn;
 	sptr_images_ = images.new_images_container();
-	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-		shared_ptr<GadgetronClientMessageReader>
-		(new GadgetronClientImageMessageCollector(sptr_images_)));
+	if (dicom_)
+		conn().register_reader(GADGET_MESSAGE_DICOM_WITHNAME,
+			shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientBlobMessageReader(prefix_, "dcm")));
+	else
+		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+			shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientImageMessageCollector(sptr_images_)));
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
 			for (unsigned int i = 0; i < images.number(); i++) {
-				ImageWrap& iw = images.image_wrap(i);
+				const ImageWrap& iw = images.image_wrap(i);
 				conn().send_wrapped_image(iw);
 			}
 			conn().send_gadgetron_close();

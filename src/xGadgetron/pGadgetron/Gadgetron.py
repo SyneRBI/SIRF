@@ -422,6 +422,8 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pygadgetron.cGT_readImages(file)
         check_status(self.handle)
+    def write(self, file, ext='h5'):
+        try_calling(pygadgetron.cGT_writeImages(self.handle, file, ext))
     def data_type(self, im_num):
         '''
         Returns the data type for a specified image (see 8 data types above).
