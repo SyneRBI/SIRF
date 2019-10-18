@@ -1694,6 +1694,42 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
     '''
     Class for reconstructor objects using Kernel Ordered Subsets Maximum
     A Posteriori One Step Late reconstruction algorithm
+
+    
+    This class implements the iterative algorithm obtained using the Kernel method (KEM) and Hybrid kernel method (HKEM).
+    This implementation corresponds to the one presented by Deidda D et al, ``Hybrid PET-MR list-mode kernelized expectation maximization  reconstruction",
+    Inverse Problems, 2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
+    also sinogram-based reconstruction. Each voxel value of the image, X, can be represented as a
+   linear combination using the kernel method.  If we have an image with prior information, we can construct for each voxel
+   j of the emission image a feature vector, v, using the prior information. The image, X, can then be described using the kernel matrix
+
+
+
+   
+    X=  A*K
+   
+
+   where K is the kernel matrix.
+   The resulting algorithm with OSEM, for example, is the following:
+
+   
+   A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
+  
+   where kernel can be written as:
+
+     K^n = K_m * K_p;
+  
+   with
+
+    K_m = exp (-(v_j-v_l)^2/(2*sigma_m^2)) * exp(- (x_j-x_l)^2 /(2*sigma_dm^2} )
+
+   being the MR component of the kernel and
+
+    (K_p) = exp (-((z_j) - (z_l))^2/(2*sigma_p^2)) * exp(-(x_j-x_l)^2 /(2*sigma_dp^2) )
+
+   is the part coming from the emission iterative update. Here, the Gaussian kernel functions have been modulated by the distance between voxels in the image space.
+
+
     '''
     def __init__(self, filename = ''):
         self.handle = None
