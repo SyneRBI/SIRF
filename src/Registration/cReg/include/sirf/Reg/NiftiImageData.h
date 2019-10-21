@@ -340,6 +340,12 @@ public:
     /// Does the image contain any NaNs?
     bool get_contains_nans() const { return (this->get_nan_count() > 0); }
 
+    /// Flip the image along a given axis (Rotation of 180 degrees about axis)
+    void flip_along_axis(const unsigned axis);
+
+    /// Mirror the image along a given axis (This will change handedness of image)
+    void mirror_along_axis(const unsigned axis);
+
 protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
