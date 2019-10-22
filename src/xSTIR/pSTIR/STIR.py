@@ -443,6 +443,34 @@ class ImageDataProcessor(object):
         '''
         return self.output
 
+class SeparableGaussianImageFilter(ImageDataProcessor):
+    def __init__(self):
+        self.handle = None
+        self.name = 'SeparableGaussianImageFilter'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_up(self, image):
+        assert_validity(image, ImageData)
+        try_calling(pystir.cSTIR_setupImageDataProcessor\
+                 (self.handle, image.handle))
+    def set_fwhms(self, fwhms):
+        parms.set_float_par(self.handle, self.name, 'fwhms_x', fwhms[2])
+        parms.set_float_par(self.handle, self.name, 'fwhms_y', fwhms[1])
+        parms.set_float_par(self.handle, self.name, 'fwhms_z', fwhms[0])
+    def set_max_kernel_sizes(self, mks):
+        parms.set_int_par(self.handle, self.name, 'max_kernel_size_x', mks[2])
+        parms.set_int_par(self.handle, self.name, 'max_kernel_size_y', mks[1])
+        parms.set_int_par(self.handle, self.name, 'max_kernel_size_z', mks[0])
+    def set_normalise(self, norm=True):
+        if norm:
+            v = 1
+        else:
+            v = 0;
+        parms.set_int_par(self.handle, self.name, 'normalise', v)
+
 class TruncateToCylinderProcessor(ImageDataProcessor):
     '''
     Class for the image filter that zeroes the image outside the cylinder

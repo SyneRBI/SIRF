@@ -54,6 +54,7 @@ extern "C" {
 	void* cSTIR_computeRandoms(void* ptr);
 
 	// Data processor methods
+	void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
 	void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);
 
 	// Acquisition model methods
