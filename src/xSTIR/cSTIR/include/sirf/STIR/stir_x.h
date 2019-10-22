@@ -637,6 +637,14 @@ The actual algorithm is described in
 		stir::shared_ptr<STIRImageData> _sptr_image_data;
 	};
 
+	class SeparableGaussianImageFilter : 
+		public stir::SeparableGaussianImageFilter<float> {
+	public:
+		stir::Succeeded set_up(const STIRImageData& id)
+		{
+			return virtual_set_up(id.data());
+		}
+	};
 }
 
 #endif
