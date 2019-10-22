@@ -97,6 +97,45 @@ sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const vo
 }
 
 void*
+sirf::cSTIR_setSeparableGaussianImageFilterParameter
+(void* hp, const char* name, const void* hv)
+{
+	xSTIR_SeparableGaussianImageFilter& f = 
+		objectFromHandle<xSTIR_SeparableGaussianImageFilter>(hp);
+	if (boost::iequals(name, "fwhms_x")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('x', v);
+	}
+	else if (boost::iequals(name, "fwhms_y")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('y', v);
+	}
+	else if (boost::iequals(name, "fwhms_z")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('z', v);
+	}
+	else if (boost::iequals(name, "max_kernel_size_x")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('x', mks);
+	}
+	else if (boost::iequals(name, "max_kernel_size_y")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('y', mks);
+	}
+	else if (boost::iequals(name, "max_kernel_size_z")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('z', mks);
+	}
+	else if (boost::iequals(name, "normalise")) {
+		bool normalise = dataFromHandle<int>(hv);
+		f.set_normalise(normalise);
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
 sirf::cSTIR_setShapeParameter(void* hp, const char* name, const void* hv)
 {
 	Shape3D& s = objectFromHandle<Shape3D>(hp);
