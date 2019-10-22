@@ -21,7 +21,7 @@ VER=1.0.0-rc.1
   - [ ] run doxygen, check, send files for uploading and update the doxygen link on Wiki
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
-  - [ ] Add release title and description including everything since the last release
+  - [ ] create release on https://github.com/CCPPETMR/SIRF/releases/new linked to the tag and copying all CHANGES.md since last release (as listed on https://github.com/CCPPETMR/SIRF/releases)
 3. SuperBuild
   - [ ] update `CHANGES.md`
   - [ ] update `NOTICE.txt`
@@ -42,11 +42,11 @@ VER=1.0.0-rc.1
   - [ ] check that the serial port is [deselected](https://github.com/CCPPETMR/CCPPETMR_VM/blob/master/vagrant/README.md#notes-about-ubuntu-box-for-version-100).
   - [ ] export the VM
   - [ ] ctest on VM
+  - [ ] run all exercises (download data first)
   - [ ] upload to website
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
-5. SIRF-Exercises
-  - [ ] run all exercises
+5. SIRF-Exercises (already checked in VM)
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
 6. Website
@@ -55,7 +55,7 @@ VER=1.0.0-rc.1
   - [ ] update link for doxygen in [Wiki](https://github.com/CCPPETMR/SIRF/wiki/Software-Documentation)
   - [ ] add news flash
 7. Announce
-  - [ ] Send email
+  - [ ] Send email to CCP-PETMR-DEVEL@JISCMAIL.AC.UK; CCP-PETMR-USERS@JISCMAIL.AC.UK; add CCP-PETMR@JISCMAIL.AC.UK for final release
 8. Tag wikis
   - [ ] `git clone https://github.com/CCPPETMR/SIRF.wiki.git; cd SIRF.wiki` (or pull)
   - [ ] `git tag -a v$VER -m "version $VER"`
