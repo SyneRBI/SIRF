@@ -192,15 +192,37 @@ In the rest of the document we give basic information on the SIRF classes, inclu
 
 #### Data Containers 
 
-Reconstructed data are represented by `ImageData` objects. Currently they represent 3D volumes discretised using voxels.  
+Reconstructed data are represented by `ImageData` objects. Currently they represent 3D volumes discretised using voxels.
 
-Measured data (either raw or after some pre-processing) are represented by `AcquisitionData` objects. These contain everything what is needed to be able to reconstruct the data (including scanner information and geometry). 
+Measured data (either raw or after some pre-processing) are represented by `AcquisitionData` objects. These contain everything what is needed to be able to reconstruct the data (including scanner information and geometry).
+
+Both classes of data objects inherit from an abstract data class `DataContainer`.
+
+##### DataContainer
+
+An abstract base class for data containers.
+
+###### Methods:
+
+    clone      Returns a copy of this object.
+    write      Writes the object data to a file.
+    norm       Returns 2-norm of the object data viewed as a vector.
+    dot        Returns the dot product of the container data with another 
+               container data viewed as vectors.
+    multiply   Returns the element-wise product of this and another container 
+               data viewed as vectors.
+    divide     Returns the element-wise product of this and another container 
+               data viewed as vectors.
+
+The element-wise addition, subtraction, multiplication and division can be
+performed using overloaded `+`, `-`, `*` and `/`. Either of the operands of `*` and
+the second operand of `/` can be a scalar.
 
 ##### AcquisitionData
 
-Class for acquisition data.
+Class for acquisition data. Inherits from `DataContainer`.
 
-###### Methods:
+###### Methods (in addition to those of DataContainer):
 
     AcquisitionData  
                (PET/MR) Constructor. If no arguments are present, creates an
@@ -221,34 +243,30 @@ Class for acquisition data.
                   (PET) Returns new compatible ImageData object. 
     as_array   (PET/MR) Returns the object data as an array. 
     fill       (PET/MR) Replaces the object data with user-supplied data. 
-    clone      (PET/MR) Returns a copy of this object. 
-    write      (PET/MR) Writes the object data to a file. 
     sort           (MR) Sorts the acquisition data. 
     is_sorted      (MR) Returns true if and only if the acquisition data is sorted. 
     get_info       (MR) Returns information on the acquisition data. 
     process        (MR) Processes the acquisition data by a chain of gadgets. 
-    dimensions     (MR) Returns the acquisition data dimensions
+    dimensions    (PET) Returns the acquisition data dimensions
     show       (PET/MR) Displays the acquisition data as a set of 2D sinograms (PET)
                         or xy-slices (MR)
 
 ##### ImageData
 
-Class for data representing 3D objects.
+Class for data representing 3D objects. Inherits from `DataContainer`.
 
-###### Methods:
+###### Methods (in addition to those of DataContainer):
 
     ImageData (PET/MR)  Constructor. Reads data from a file or creates empty object. 
     initialise   (PET)  Sets the image size in voxels, voxel sizes and the origin. 
     fill      (PET/MR)  Replaces the object data with user-supplied data. 
     as_array  (PET/MR)  Returns the object data as an array. 
-    clone     (PET/MR)  Returns a copy of this object. 
     read_from_file
               (PET/MR)  Reads the image data from file.
     get_uniform_copy   
                  (PET)  Returns a copy of this image filled with a constant value. 
     add_shape    (PET)  Adds a shape to the image. 
     show      (PET/MR)  Displays the image as a set of 2D xy-slices. 
-    write     (PET/MR)  Writes the object data to a file. 
     dimensions   (PET)  Returns the object data dimensions
     voxel_sizes  (PET)  Returns the voxel sizes
 	
@@ -290,9 +308,9 @@ Class for objects that process `ImageData` objects.
                (PET/MR) Constructor. Creates new ImageDataProcessor object 
                         (PET: empty, MR: defined by the argument). 
     set_input  (PET/MR) Sets the processor input. 
-    process    (PET/MR) Processes image data on input. 
-    get_output (PET/MR) Retrieves the processed image data. 
-    apply         (PET) Processes the ImageData argument. 
+    process    (PET/MR) Computes processed image data, leaving the input intact. 
+    get_output (PET/MR) Returns the processed image data. 
+    apply         (PET) Processes the ImageData argument.
 
 ##### TruncateToCylinderProcessor (PET)
 
@@ -300,8 +318,8 @@ Class for the image processor that zeroes the image outside a cylinder. Inherits
 
 ###### Methods (in addition to those of ImageDataProcessor): 
 
-    set_strictly_less_than_radius  Defines the behaviour on the cylinder boundary. 
-    get_strictly_less_than_radius  Exposes the behaviour on the cylinder boundary. 
+    set_strictly_less_than_radius  Defines the behaviour on the cylinder boundary.
+    get_strictly_less_than_radius  Exposes the behaviour on the cylinder boundary.
 
 ##### AcquisitionDataProcessor
 
@@ -552,6 +570,7 @@ where
 <!---
 n, bin normalization, is the inverse of bin efficiencies. 
 --->
+
 
 Accordingly, the backprojection `B` is the right-hand side of
 
@@ -836,6 +855,7 @@ Selects the reference data used to calculate the GRAPPA kernel
 
 #### GenericReconCartesianGrappaGadget
 
+
 | input | output | parameters | default values |
 | - | - | - | - |
 | internal4 | internal5 | debug_folder | ""
@@ -896,6 +916,7 @@ Extracts a certain type of image data from the reconstructed image stream, i.e. 
 | input | output | parameters |
 | - | - | - |
 | ImageData | ImageData | none |
+
 
 Depending on the image type, the magnitude, real, imaginary or phase of the complex image is returned.
 
