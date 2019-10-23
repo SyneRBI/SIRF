@@ -110,7 +110,7 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, numpy.float32 )):
+        if isinstance(other , ( Number, int, float, numpy.float32 )):
             tmp = other + numpy.zeros(self.as_array().shape)
             other = self.copy()
             other.fill(tmp)
@@ -130,7 +130,7 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, numpy.float32 )):
+        if isinstance(other , ( Number, int, float, numpy.float32 )):
             tmp = other + numpy.zeros_like(self.as_array().shape)
             other = self.copy()
             other.fill(tmp)
@@ -152,7 +152,7 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, numpy.float32 )):
+        if isinstance(other , ( Number, int, float, numpy.float32 )):
             tmp = other + numpy.zeros(self.as_array().shape)
             other = self.copy()
             other.fill(tmp)
@@ -190,7 +190,7 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        if isinstance(other , ( Number, numpy.float32 )):
+        if isinstance(other , ( Number, int, float, numpy.float32 )):
             tmp = other + numpy.zeros(self.as_array().shape)
             other = self.copy()
             other.fill(tmp)
@@ -353,7 +353,7 @@ class DataContainer(ABC):
     # inline algebra
     def __iadd__(self, other):
         '''Not quite in-place add'''
-        self.fill(self.add(other).as_array())
+        self.fill(self.add(other))
         return self
     def __imul__(self, other):
         '''Not quite in-place multiplication'''
