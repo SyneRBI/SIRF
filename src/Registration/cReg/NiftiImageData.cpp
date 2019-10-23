@@ -717,6 +717,11 @@ int NiftiImageData<dataType>::get_1D_index(const int idx[7]) const
 template<class dataType>
 void NiftiImageData<dataType>::set_up_data(const int original_datatype)
 {
+	// TODO: allow slopes and intercepts != 1 and 0
+	if (std::abs( _nifti_image->scl_slope - 1.f ) > 1.e-4f ||
+		std::abs( _nifti_image->scl_inter       ) > 1.e-4f )
+		throw std::runtime_error("NiftiImageData::set_up_data: Currently only allow slope=1, intercept=0");
+
     // Save the original datatype, we'll convert it back to this just before saving
     _original_datatype = original_datatype;
 
