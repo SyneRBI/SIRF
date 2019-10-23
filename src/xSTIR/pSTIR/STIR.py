@@ -444,6 +444,11 @@ class ImageDataProcessor(object):
         return self.output
 
 class SeparableGaussianImageFilter(ImageDataProcessor):
+    '''Implements Gaussian filtering.
+
+    The filtering operation is performed as 3 separate one-dimensional filters
+    in each spacial direction.
+    '''
     def __init__(self):
         self.handle = None
         self.name = 'SeparableGaussianImageFilter'
@@ -1192,6 +1197,25 @@ class Prior(object):
 class QuadraticPrior(Prior):
     '''
     Class for the prior that is a quadratic functions of the image values.
+
+    Implements a quadratic Gibbs prior. The gradient of the prior is computed
+    as follows:
+
+    \f[
+    g_r = \sum_dr w_{dr} (\lambda_r - \lambda_{r+dr}) * \kappa_r * \kappa_{r+dr}
+    \f]
+
+    where \f$\lambda\f$ is the image and \f$r\f$ and \f$dr\f$ are indices and
+    the sum is over the neighbourhood where the weights \f$w_{dr}\f$ are
+    non-zero.
+
+    The \f$\kappa\f$ image can be used to have spatially-varying penalties such
+    as in Jeff Fessler's papers. It should have identical dimensions to the
+    image for which the penalty is computed. If \f$\kappa\f$ is not set, this
+    class will effectively use 1 for all \f$\kappa\f$'s.
+
+    By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+    to x-voxel_size divided by the Euclidean distance between the points.
     '''
     def __init__(self):
         self.handle = None
@@ -1203,8 +1227,39 @@ class QuadraticPrior(Prior):
             pyiutil.deleteDataHandle(self.handle)
 
 class PLSPrior(Prior):
-    '''
-    Class for Parallel Level Sets prior.
+    '''Class for Parallel Level Sets prior.
+
+    Implements the anatomical penalty function, Parallel Level Sets (PLS),
+    proposed by Matthias J. Ehrhardt et. al in "PET Reconstruction With an
+    Anatomical MRI Prior Using Parallel Level Sets", IEEE Trans. med. Imag.,
+    vol. 35, no. 9, Sep 2016 (https://doi.org/10.1109/TMI.2016.2549601).
+    Note that PLS becomes smoothed TV when a uniform anatomical image is
+    provided.
+
+    The prior has 2 parameters alpha and eta. It is computed for an image \f$
+    f f$ as
+
+    \f[
+    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {\langle\nabla f,\xi\rangle}^2}
+    \f]
+
+    where \f$ f \f$ is the PET image,
+    \f$ \xi \f$ is the normalised gradient of the anatomical image calculated
+    as follows:
+
+    \f[
+    \xi = \frac{\nabla v}{\sqrt{|\nabla v|^2 + \eta^2}}
+    \f]
+
+    with \f$ v f$ the anatomical image, \f$ \alpha \f$ controls
+    the edge-preservation property of PLS, and depends on the scale
+    of the emission image,  and \f$ \eta \f$ avoids division by zero, and
+    depends on the scale of the anatomical image.
+
+    A \f$\kappa\f$ image can be used to have spatially-varying penalties
+    such as in Jeff Fessler's papers. It should have identical dimensions to the
+    image for which the penalty is computed. If \f$\kappa\f$ is not set, this
+    class will effectively use 1 for all \f$\kappa\f$'s.
     '''
     def __init__(self):
         self.handle = None
@@ -1721,43 +1776,42 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
 class KOSMAPOSLReconstructor(IterativeReconstructor):
     '''
     Class for reconstructor objects using Kernel Ordered Subsets Maximum
-    A Posteriori One Step Late reconstruction algorithm
+    A Posteriori One Step Late reconstruction algorithm.
 
-    
-    This class implements the iterative algorithm obtained using the Kernel method (KEM) and Hybrid kernel method (HKEM).
-    This implementation corresponds to the one presented by Deidda D et al, ``Hybrid PET-MR list-mode kernelized expectation maximization  reconstruction",
-    Inverse Problems, 2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
-    also sinogram-based reconstruction. Each voxel value of the image, X, can be represented as a
-   linear combination using the kernel method.  If we have an image with prior information, we can construct for each voxel
-   j of the emission image a feature vector, v, using the prior information. The image, X, can then be described using the kernel matrix
-
-
-
+    This class implements the iterative algorithm obtained using the Kernel
+    method (KEM) and Hybrid kernel method (HKEM). This implementation
+    corresponds to the one presented by Deidda D et al, "Hybrid PET-MR list-mode
+    kernelized expectation maximization  reconstruction", Inverse Problems,
+    2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
+    also sinogram-based reconstruction. Each voxel value of the image X can be
+    represented as a linear combination using the kernel method.  If we have an
+    image with prior information, we can construct for each voxel j of the
+    emission image a feature vector, v, using the prior information. The image
+    X can then be described using the kernel matrix
    
-    X=  A*K
-   
+    X = A*K
 
-   where K is the kernel matrix.
-   The resulting algorithm with OSEM, for example, is the following:
+    where K is the kernel matrix. The resulting algorithm with OSEM, for example,
+    is the following:
 
-   
-   A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
+    A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
   
-   where kernel can be written as:
+    where kernel can be written as:
 
-     K^n = K_m * K_p;
+    K^n = K_m * K_p;
   
-   with
+    with
 
-    K_m = exp (-(v_j-v_l)^2/(2*sigma_m^2)) * exp(- (x_j-x_l)^2 /(2*sigma_dm^2} )
+    K_m = exp(-(v_j - v_l)^2/(2*sigma_m^2)) * exp(-(x_j - x_l)^2 /(2*sigma_dm^2))
 
-   being the MR component of the kernel and
+    being the MR component of the kernel and
 
-    (K_p) = exp (-((z_j) - (z_l))^2/(2*sigma_p^2)) * exp(-(x_j-x_l)^2 /(2*sigma_dp^2) )
+    K_p = exp(-(z_j - z_l)^2/(2*sigma_p^2)) *
+          exp(-(x_j - x_l)^2 /(2*sigma_dp^2))
 
-   is the part coming from the emission iterative update. Here, the Gaussian kernel functions have been modulated by the distance between voxels in the image space.
-
-
+    is the part coming from the emission iterative update. Here, the Gaussian
+    kernel functions have been modulated by the distance between voxels in the
+    image space.
     '''
     def __init__(self, filename = ''):
         self.handle = None
@@ -1781,7 +1835,7 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         parms.set_int_par\
             (self.handle, 'KOSMAPOSL', 'num_neighbours', n)
     def set_num_non_zero_features(self, n):
-        '''Sets number of neighbours.
+        '''Sets number of non-zero features.
         '''
         parms.set_int_par\
             (self.handle, 'KOSMAPOSL', 'num_non_zero_features', n)
