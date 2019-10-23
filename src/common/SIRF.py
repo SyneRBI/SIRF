@@ -454,7 +454,7 @@ class ImageData(DataContainer):
     def fill(self, image):
         try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))
 
-class DataHandleVector:
+class DataHandleVector(object):
     """
     DataHandle vector.
     """

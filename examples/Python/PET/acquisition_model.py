@@ -89,6 +89,14 @@ def main():
     shape.set_origin((10, -30, -60))
     image.add_shape(shape, scale = 0.75)
 
+    # apply Gaussian filter
+    filter = SeparableGaussianImageFilter()
+    filter.set_fwhms((10, 20, 30))
+    filter.set_max_kernel_sizes((10, 10, 2))
+    filter.set_normalise()
+    filter.set_up(image)
+    filter.apply(image)
+
     # z-pixel coordinate of the xy-crossection to show
     z = int(image_size[0]/2)
 

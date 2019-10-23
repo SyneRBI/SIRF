@@ -58,7 +58,7 @@ static std::shared_ptr<Registration<float> > algo_as_sptr(const std::string &alg
     if      (strcmp(algorithm.c_str(), "aladin") == 0)
         return std::make_shared<NiftyAladinSym<float> >();
     else if (strcmp(algorithm.c_str(), "f3d") == 0)
-        return std::make_shared<NiftyAladinSym<float> >();
+        return std::make_shared<NiftyF3dSym<float> >();
     else
         throw std::runtime_error("Synergistic_registration: unknown algorithm - " + algorithm + ".\n");
 }

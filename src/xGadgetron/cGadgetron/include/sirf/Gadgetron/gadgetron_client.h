@@ -66,6 +66,8 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <chrono>
 #include <condition_variable>
 #include <exception>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -99,6 +101,8 @@ enum GadgetronMessageID {
 	GADGET_MESSAGE_RECONDATA = 1023,
 	GADGET_MESSAGE_EXT_ID_MAX = 4096
 };
+
+#define MAX_BLOBS_LOG_10    6
 
 namespace sirf {
 
@@ -155,7 +159,7 @@ namespace sirf {
 	};
 
 	/**
-	\brief Class for accumulating images sent by Gadgetron server.
+	\brief Class for accumulating ISMRMRD images sent by Gadgetron server.
 	*/
 	class GadgetronClientImageMessageCollector :
 		public GadgetronClientMessageReader {
@@ -195,6 +199,87 @@ namespace sirf {
 
 	private:
 		gadgetron::shared_ptr<GadgetronImageData> ptr_images_;
+	};
+
+	class GadgetronClientBlobMessageReader
+		: public GadgetronClientMessageReader {
+	public:
+		GadgetronClientBlobMessageReader(std::string fileprefix, std::string filesuffix)
+			: number_of_calls_(0)
+			, file_prefix(fileprefix)
+			, file_suffix(filesuffix)
+		{
+		}
+
+		virtual ~GadgetronClientBlobMessageReader() {}
+
+		virtual void read(boost::asio::ip::tcp::socket* socket)
+		{
+			// MUST READ 32-bits
+			uint32_t nbytes;
+			boost::asio::read(*socket, boost::asio::buffer(&nbytes, sizeof(uint32_t)));
+
+			std::vector<char> data(nbytes, 0);
+			boost::asio::read(*socket, boost::asio::buffer(&data[0], nbytes));
+
+			unsigned long long fileNameLen;
+			boost::asio::read(*socket, boost::asio::buffer(&fileNameLen, sizeof(unsigned long long)));
+
+			std::string filenameBuf(fileNameLen, 0);
+			boost::asio::read(*socket, boost::asio::buffer(const_cast<char*>
+				(filenameBuf.c_str()), fileNameLen));
+
+			typedef unsigned long long size_t_type;
+
+			size_t_type meta_attrib_length;
+			boost::asio::read(*socket, boost::asio::buffer(&meta_attrib_length, sizeof(size_t_type)));
+
+			std::string meta_attrib;
+			if (meta_attrib_length > 0) {
+				std::string meta_attrib_socket(meta_attrib_length, 0);
+				boost::asio::read(*socket, boost::asio::buffer(const_cast<char*>(meta_attrib_socket.c_str()), meta_attrib_length));
+				meta_attrib = meta_attrib_socket;
+			}
+
+			std::stringstream filename;
+			std::string filename_attrib;
+
+			// Create the filename: (prefix_%06.suffix)
+			filename << file_prefix << "_";
+			filename << std::setfill('0') << std::setw(MAX_BLOBS_LOG_10) << number_of_calls_;
+			filename_attrib = filename.str();
+			filename << "." << file_suffix;
+			filename_attrib.append("_attrib.xml");
+
+			std::cout << "Writing image " << filename.str() << std::endl;
+
+			std::ofstream outfile;
+			outfile.open(filename.str().c_str(), std::ios::out | std::ios::binary);
+
+			std::ofstream outfile_attrib;
+			if (meta_attrib_length > 0) {
+				outfile_attrib.open(filename_attrib.c_str(), std::ios::out | std::ios::binary);
+			}
+
+			if (outfile.good()) {
+				/* write 'size' bytes starting at 'data's pointer */
+				outfile.write(&data[0], nbytes);
+				outfile.close();
+				if (meta_attrib_length > 0) {
+					outfile_attrib.write(meta_attrib.c_str(), meta_attrib.length());
+					outfile_attrib.close();
+				}
+				number_of_calls_++;
+			}
+			else {
+				throw GadgetronClientException("Unable to write blob to output file\n");
+			}
+		}
+
+	protected:
+		size_t number_of_calls_;
+		std::string file_prefix;
+		std::string file_suffix;
 	};
 
 	/**
@@ -273,7 +358,7 @@ namespace sirf {
 				(*socket_, boost::asio::buffer(im.getDataPtr(), im.getDataSize()));
 		}
 
-		void send_wrapped_image(ImageWrap& iw)
+		void send_wrapped_image(const ImageWrap& iw)
 		{
 			IMAGE_PROCESSING_SWITCH(iw.type(), send_ismrmrd_image, iw.ptr_image());
 		}

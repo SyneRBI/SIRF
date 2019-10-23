@@ -1,5 +1,18 @@
 # ChangeLog
 
+## v2.1.0
+
+* PET/STIR
+	* Interfaced HKEM into SIRF
+	* Interfaced SeparableGaussianImageFilter into SIRF
+* MR/Gadgetron
+	* Added DICOM-writing gadgets for MR images output
+	* Added few Gadgetron GPU gadgets to SIRF gadget library
+	* Enabled handling of 3D slices of MR images by switching to 3D FFT
+* Python
+	* Switched to new class style
+	* Introduced contiguity checks of filled data
+
 ## v2.0.0
 
 * Set CMake policy CMP0079.

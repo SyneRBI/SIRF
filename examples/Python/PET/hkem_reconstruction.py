@@ -1,11 +1,9 @@
-'''OSEM reconstruction demo.
-We actually use the OSMAPOSL reconstructor in this demo. This reconstructor
-implements an Ordered Subsets (OS) version of the One Step Late algorithm (OSL)
-from Green et al for Maximum a Posteriori (MAP) maximisation. Here we use it
-for Maximum Likelihood (ML) in which case it is equivalent to OSEM.
+'''Hybrid Kernelized Expectation Maximization reconstruction demo.
+Implements a Kernelized Ordered Subsets (OS) version of the One Step Late
+algorithm (OSL) from Green et al for Maximum a Posteriori (MAP) maximisation.
 
 Usage:
-  osem_reconstruction [--help | options]
+  hkem_reconstruction [--help | options]
 
 Options:
   -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
@@ -13,7 +11,7 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -s <subs>, --subs=<subs>     number of subsets [default: 12]
-  -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
+  -i <iter>, --subiter=<iter>  number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
 '''
 
@@ -93,15 +91,34 @@ def main():
     obj_fun = make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
 
-    # select Ordered Subsets Maximum A-Posteriori One Step Late as the
-    # reconstruction algorithm (since we are not using a penalty, or prior, in
-    # this example, we actually run OSEM);
-    # this algorithm does not converge to the maximum of the objective function
-    # but is used in practice to speed-up calculations
-    recon = OSMAPOSLReconstructor()
+    # create anatomical image using 2D Filtered Back Projection
+    # create reconstructor object
+    recon = FBP2DReconstructor()
+    # specify the acquisition data
+    recon.set_input(acq_data)
+    # reconstruct with default settings
+    recon.reconstruct()
+    anatomical_image = recon.get_output()
+    anatomical_image.show(title='Image used as anatomical prior')
+    image_array = anatomical_image.as_array()
+    image_array[image_array < 0] = 0
+    anatomical_image.fill(image_array)
+
+    # select Kernelized Ordered Subsets Maximum A-Posteriori One Step Late
+    # as the reconstruction algorithm
+    recon = KOSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_input(acq_data)
+    recon.set_anatomical_prior(anatomical_image)
+    recon.set_num_neighbours(5)
+    recon.set_num_non_zero_features(3)
+    recon.set_sigma_m(2.0)
+    recon.set_sigma_p(3.0)
+    recon.set_sigma_dm(4.0)
+    recon.set_sigma_dp(5.0)
+    recon.set_only_2D(True)
+    recon.set_hybrid(True)
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function
@@ -110,9 +127,7 @@ def main():
     print('setting up, please wait...')
     recon.set_up(image)
 
-    # set the initial image estimate
     recon.set_current_estimate(image)
-
     # in order to see the reconstructed image evolution
     # open up the user's access to the iterative process
     # rather than allow recon.reconstruct to do all job at once
