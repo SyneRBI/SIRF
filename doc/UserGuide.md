@@ -334,7 +334,7 @@ in each spacial direction.
 
 	set_fwhms            Sets Full Widths at Half Maximum in each spacial direction
 	set_max_kernel_sizes Sets max kernel size in each spacial direction.
-	set_normalise        ???
+	set_normalise        Normalise the kernel to 1 or not (default is on)
 
 ##### AcquisitionDataProcessor
 
@@ -393,7 +393,7 @@ The apodizing filter in frequency space has the form
 ###### Methods: 
 
     set_input                Sets the input (AquisitionData object).
-    set_zoom                 ???
+    set_zoom                 Allows to change voxel size.
     set_alpha_cosine_window  Sets alpha.
     set_frequency_cut_off    Sets fc.
     set_output_image_size_xy Sets x and y sizes of output image.
@@ -445,7 +445,7 @@ linear combination using the kernel method. If we have an image with prior infor
    
     X = A*K 
 
-where `K` is the kernel matrix and `A` is ???. The resulting algorithm with OSEM, for example, is the following:
+where `K` is the kernel matrix and `A` are the kernel coefficients. The resulting algorithm with OSEM, for example, is the following:
    
     A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
   
@@ -474,8 +474,8 @@ is the part coming from the emission iterative update. Here, the Gaussian kernel
     set_sigma_p               Sets sigma_p.
     set_sigma_dm              Sets sigma_dm.
     set_sigma_dp              Sets sigma_dp.
-    set_only_2D               ???
-    set_hybrid                ???
+    set_only_2D               Use 2D kernels.
+    set_hybrid                Enable the hybrid kernel method (i.e. K_m*K_p) vs only the MR kernel.
 
 
 ##### OSSPSReconstructor (PET) 
@@ -813,21 +813,21 @@ provided.
 The prior has 2 parameters alpha and eta. It is computed for an image
 f as
 
-    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {\langle\nabla f,\xi\rangle}^2}
+    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {(\nabla f,\xi)}^2}
 
 where \xi is the normalised gradient of the anatomical image v calculated
 as follows:
 
-    \xi = \frac{\nabla v}{\sqrt{|\nabla v|^2 + \eta^2}}
+    \xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2)
 
-The parameter \alpha controls the edge-preservation property 
-of PLS, and depends on the scale of the emission image, and \eta avoids 
+The parameter alpha controls the edge-preservation property 
+of PLS, and depends on the scale of the emission image, and eta avoids 
 division by zero, and depends on the scale of the anatomical image.
 
-An image \kappa ??? can be used to have spatially-varying penalties
+An image kappa can be used to have spatially-varying penalties
 such as in Jeff Fessler's papers. It should have identical dimensions to the
-image for which the penalty is computed. If \kappa is not set, this
-class will effectively use 1 for all \kappa values.
+image for which the penalty is computed. If kappa is not set, this
+class will effectively use 1 for all kappa values.
 
 ###### Methods (in addition to those of Prior):
 
@@ -839,13 +839,13 @@ class will effectively use 1 for all \kappa values.
     set_anatomical_filename Specifies the name of the file containing 
                             anatomical image
     get_anatomical_image    Returns anatomical image
-    get_anatomical_grad     Returns the gradient (xi???) of anatomical image
+    get_anatomical_grad     Returns the gradient of the anatomical image (internal)
     set_kappa               Sets kappa
     set_kappa_filename      Specifies the name of the file containing kappa
     get_kappa               Returns kappa
-    get_norm                ???
-    set_only_2D             ???
-    get_only_2D             ???
+    get_norm                (internal)
+    set_only_2D             Use the penalty in 2D only.
+    get_only_2D             Get the value of only_2D
 
 ### Functions <a name="Functions"></a>
 
