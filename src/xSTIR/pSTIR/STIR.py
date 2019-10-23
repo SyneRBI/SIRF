@@ -1240,15 +1240,15 @@ class PLSPrior(Prior):
     f f$ as
 
     \f[
-    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {\langle\nabla f,\xi\rangle}^2}
+    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {\langle\nabla f, xi\rangle}^2}
     \f]
 
     where \f$ f \f$ is the PET image,
-    \f$ \xi \f$ is the normalised gradient of the anatomical image calculated
+    \f$ xi \f$ is the normalised gradient of the anatomical image calculated
     as follows:
 
     \f[
-    \xi = \frac{\nabla v}{\sqrt{|\nabla v|^2 + \eta^2}}
+    xi = \frac{\nabla v}{\sqrt{|\nabla v|^2 + \eta^2}}
     \f]
 
     with \f$ v f$ the anatomical image, \f$ \alpha \f$ controls
