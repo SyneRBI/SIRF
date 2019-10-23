@@ -1179,6 +1179,84 @@ void NiftiImageData<dataType>::kernel_convolution(const float sigma, NREG_CONV_K
     delete []sigma_t;
 }
 
+enum FlipOrMirror {
+    Flip,
+    Mirror
+};
+
+template<class dataType>
+void
+flip_or_mirror(const FlipOrMirror flip_or_mirror, const unsigned axis, NiftiImageData<dataType> &im)
+{
+    if(!im.is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::flip_or_mirror: Image not initialised.");
+
+    // copy original
+    std::unique_ptr<NiftiImageData<dataType> > original_sptr = im.clone();
+
+    // Get dims
+    int dims[7];
+    for (int i=0; i<7; ++i)
+        dims[i] = im.get_dimensions()[i+1];
+    int old_index[7], new_index[7];
+
+    // Loop over
+    for (old_index[0]=0; old_index[0]<dims[0]; ++old_index[0]) {
+        for (old_index[1]=0; old_index[1]<dims[1]; ++old_index[1]) {
+            for (old_index[2]=0; old_index[2]<dims[2]; ++old_index[2]) {
+                for (old_index[3]=0; old_index[3]<dims[3]; ++old_index[3]) {
+                    for (old_index[4]=0; old_index[4]<dims[4]; ++old_index[4]) {
+                        for (old_index[5]=0; old_index[5]<dims[5]; ++old_index[5]) {
+                            for (old_index[6]=0; old_index[6]<dims[6]; ++old_index[6]) {
+
+                                // Copy old index
+                                for (unsigned i=0; i<7; ++i)
+                                    new_index[i] = old_index[i];
+
+                                // If flipping, we switch the two indices not being flipped (i.e., x=-x, y=-y for flip about z)
+                                if (flip_or_mirror == Flip) {
+                                    for (unsigned i=0; i<3; ++i)
+                                        new_index[i] = axis == i ? old_index[i] : dims[i] - old_index[i] - 1;
+                                }
+
+                                // If mirroring, flip the axis i.e., x=-x for mirror of x
+                                else {
+                                    new_index[axis] = dims[axis] - old_index[axis] - 1;
+                                }
+
+                                // Copy data
+                                im(new_index) = (*original_sptr)(old_index);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<class dataType>
+void
+NiftiImageData<dataType>::
+flip_along_axis(const unsigned axis)
+{
+    if (axis > 2)
+        throw std::runtime_error("NiftiImageData<dataType>::flip_along_axis: Axis to flip should be between 0 and 2.");
+
+    flip_or_mirror(Flip,axis,*this);
+}
+
+template<class dataType>
+void
+NiftiImageData<dataType>::
+mirror_along_axis(const unsigned axis)
+{
+    if (axis > 6)
+        throw std::runtime_error("NiftiImageData<dataType>::mirror_along_axis: Axis to mirror should be between 0 and 6.");
+
+    flip_or_mirror(Mirror,axis,*this);
+}
+
 template<class dataType>
 bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
 {

@@ -80,6 +80,7 @@ SET(REG_executables
     sirf_tensor_split_join
     sirf_change_datatype
     sirf_crop_image
+    sirf_flip_or_mirror_image
     )
 
 FOREACH(elem ${REG_executables})
