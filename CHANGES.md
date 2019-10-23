@@ -12,6 +12,9 @@
 * Python
 	* Switched to new class style
 	* Introduced contiguity checks of filled data
+* CIL/SIRF Compatibility
+     * added methods to AcquisitionData, ImageData and AcquisitionModel to be compatible with
+       CCPi's Core Imaging Library (CIL)
 
 ## v2.0.0
 

@@ -688,8 +688,9 @@ a number of methods and properties were added to SIRF Python classes for compati
 
 ### `AcquisitionModel`
 
-PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](https://github.com/vais-ral/CCPi-Framework/blob/master/Wrappers/Python/ccpi/optimisation/ops.py#L32). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
-In all what follows the parameter `out` must be set to `None` and it is added to the signature of the methods for compatibility. 
+PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](http://edosil.net/stfc/cil/html/optimisation.html). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+In all what follows the parameter `out` can be passed when user wants to use a specific instance to retrieve the result.
+
 The methods that have been added both in MR and PET :
 1. `direct(img, out=None)` Projects an image into the (simulated) acquisition space, alias of `forward`.
 2. `adjoint(data, out=None)` Back-projects acquisition data to image space, alias of `backward`.
@@ -698,8 +699,8 @@ The methods that have been added both in MR and PET :
 `True` for MR and PET without accidental coincidences/scatter term.
 
 PET Specific:
-1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of `forward`. On this method the parameter `out` is available and can be used to pass an `AcquisitionData` instance to store the result of `direct` into.
-2. `adjoint(ad, subset_num = 0, num_subsets = 1, out = None)` Back-projects acquisition data into image space, if the `AcquisitionModel` is linear. `out` is not currently available, must be set to `None`
+1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of `forward`. The parameter `out` can be used to pass an `AcquisitionData` instance to store the result of `direct` into.
+2. `adjoint(ad, subset_num = 0, num_subsets = 1, out = None)` Back-projects acquisition data into image space, if the `AcquisitionModel` is linear. 
 
 The PET acquisition model relates an image `x` to the acquisition data `y` as
 ```
@@ -725,13 +726,18 @@ Below the list of methods currently implemented on CCPi that have been added to 
     1. `divide(self, other , out=None)` 
     1. `power(self, other , out=None)`
     1. `maximum(self, other , out=None)`
-1. all inline algebra
+    1. `minimum(self, other , out=None)`
+1. all in-place algebra operations
 1. (Pixelwise) unary operations:
     1. `abs(self, out=None)`
     1. `sign(self, out=None)`
     1. `sqrt(self, out=None)`
+    1. `exp(self, out=None)`
+    1. `log(self, out=None)`
 1. reductions
     1. `sum(self)`
+    1. `norm(self)`
+    1. `squared_norm(self)`, returns the square of the call of `norm()`
 # Appendix <a name="Appendix"></a>
 
 ## Acquisition data storage scheme management <a name="storage_management"></a>

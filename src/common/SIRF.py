@@ -417,6 +417,34 @@ class DataContainer(ABC):
                numpy.sqrt(self.as_array())
         )
         return z
+    def exp(self, out=None):
+        '''Returns the element-wise exp of the DataContainer data
+
+           uses NumPy
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.fill(
+               numpy.exp(self.as_array())
+        )
+        return z
+    def log(self, out=None):
+        '''Returns the element-wise log of the DataContainer data
+
+           uses NumPy
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.fill(
+               numpy.log(self.as_array())
+        )
+        return z
     def sum(self):
         '''Returns the sum of DataContainer elements.
 
