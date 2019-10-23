@@ -484,9 +484,18 @@ class ImageData(SIRF.ImageData):
         data: Python Numpy array or ImageData
         '''
         assert self.handle is not None
+        
         if isinstance(data, ImageData):
             super(ImageData, self).fill(data)
             return
+        
+        if not isinstance(data, numpy.ndarray ):
+            # CIL/SIRF compatibility
+            try:
+                data = data.as_array()
+            except:
+                raise TypeError('Input should be numpy.ndarray or ImageData. Got {}'.format(type(data)))
+        
         if isinstance(data, numpy.ndarray):
             old = None
             if self.is_real():
@@ -540,6 +549,17 @@ class ImageData(SIRF.ImageData):
             try_calling(pygadgetron.cGT_getImageDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
+    def copy(self):
+        '''alias of clone'''
+        return self.clone()
+    def conjugate(self):
+        '''Returns the complex conjugate of the data '''
+        if self.handle is not None:
+            out = self.clone()
+            out.fill(self.as_array().conjugate())
+            return out
+        else:
+            raise error("Empty object cannot be conjugated")
     def show(self, zyx=None, slice=None, title=None, cmap='gray', postpone=False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
@@ -577,6 +597,27 @@ class ImageData(SIRF.ImageData):
                                 suptitle=title, \
                                 show=(t == ni) and not postpone)
             f = t
+    def allocate(self, value=0, **kwargs):
+        '''Method to allocate an ImageData and set its values
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.clone()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.clone()
+            tmp = value * numpy.ones(out.as_array().shape)
+            out.fill(tmp)
+        return out
 
     def print_header(self, im_num):
         """Print the header of one of the images. zero based."""
@@ -907,6 +948,28 @@ class AcquisitionData(DataContainer):
                                 suptitle = title, cmap = cmap, power = power, \
                                 show = (t == ns) and not postpone)
             f = t
+    
+    def allocate(self, value=0, **kwargs):
+        '''Method to allocate an AcquisitionData and set its values
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.clone()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.clone()
+            tmp = value * numpy.ones(out.as_array().shape)
+            out.fill(tmp)
+        return out
 
 DataContainer.register(AcquisitionData)
 
@@ -925,6 +988,9 @@ class AcquisitionModel(object):
             self.handle = \
                 pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         check_status(self.handle)
+        # saves reference to template of AcquisitionData and ImageData
+        self.acq_templ = acqs
+        self.img_templ = imgs
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -966,6 +1032,44 @@ class AcquisitionModel(object):
             (self.handle, ad.handle)
         check_status(image.handle)
         return image
+    def direct(self, image, out = None):
+        '''Alias of forward
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if out is not None:
+            #raise error('out is not supported')
+            tmp = self.forward(image)
+            out.fill(tmp)
+            return
+        return self.forward(image)
+    def adjoint(self, ad , out = None):
+        '''Alias of backward
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if out is not None:
+            #raise error('out is not supported')
+            tmp = self.backward(ad)
+            out.fill(tmp)
+            return
+        return self.backward(ad)
+    def is_affine(self):
+        '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''
+        return True
+    def is_linear(self):
+        '''Returns whether the acquisition model is linear (i.e. corresponding to A*x, with zero background term)'''
+        return True
+
+    def range_geometry(self):
+        '''Returns the template of ImageData'''
+        return self.acq_templ
+
+    def domain_geometry(self):
+        '''Returns the template of AcquisitionData'''
+        return self.img_templ
 
 class Gadget(object):
     '''

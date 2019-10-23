@@ -384,6 +384,25 @@ class ImageData(SIRF.ImageData):
                                 label = 'slice', xlabel = 'x', ylabel = 'y', \
                                 suptitle = title, show = (t == ni))
             f = t
+    def allocate(self, value=0, **kwargs):
+        '''Alias to get_uniform_copy
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.get_uniform_copy()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.get_uniform_copy(value)
+        return out
 ##        print('Please enter slice numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
@@ -751,6 +770,25 @@ class AcquisitionData(DataContainer):
                                 xlabel = 'tang.pos', ylabel = 'view', \
                                 suptitle = title, show = (t == ns))
             f = t
+    def allocate(self, value=0, **kwargs):
+        '''Alias to get_uniform_copy
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.get_uniform_copy()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.get_uniform_copy(value)
+        return out
 ##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
@@ -984,7 +1022,7 @@ class AcquisitionModel(object):
     G is the geometric (ray tracing) projector from the image voxels
     to the scanner's pairs of detectors (bins);
     a and b are otional additive and background terms representing
-    the effects of noise and scattering; assumed to be 0 if not present;
+    the effects of accidental coincidences and scattering; assumed to be 0 if not present;
     n is an optional bin normalization term representing the inverse of
     detector (bin) efficiencies; assumed to be 1 if not present.
     The computation of y for a given x by the above formula (F) is
@@ -996,6 +1034,12 @@ class AcquisitionModel(object):
     def __init__(self):
         self.handle = None
         self.name = 'AcquisitionModel'
+        # reference to the background term
+        self.bt = None
+        # reference to the additive term
+        self.at = None
+        # reference to the acquisition sensitivity model
+        self.asm = None
     def set_up(self, acq_templ, img_templ):
         ''' 
         Prepares this object for performing forward and backward
@@ -1008,6 +1052,11 @@ class AcquisitionModel(object):
         '''
         assert_validity(acq_templ, AcquisitionData)
         assert_validity(img_templ, ImageData)
+
+        # temporarily save the templates in the class
+        self.acq_templ = acq_templ
+        self.img_templ = img_templ
+
         try_calling(pystir.cSTIR_setupAcquisitionModel\
             (self.handle, acq_templ.handle, img_templ.handle))
     def set_additive_term(self, at):
@@ -1018,6 +1067,8 @@ class AcquisitionModel(object):
         assert_validity(at, AcquisitionData)
         parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
+        # save reference to the additive term
+        self.at = at
     def set_background_term(self, bt):
         ''' 
         Sets the background term b in the acquisition model;
@@ -1026,6 +1077,66 @@ class AcquisitionModel(object):
         assert_validity(bt, AcquisitionData)
         parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
+        # save reference to the background term
+        self.bt = bt
+    def get_background_term(self):
+        '''Returns the background term of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of accidental coincidences and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns [b]
+        '''
+        if self.bt is None:
+            self.bt = AcquisitionData(self.acq_templ)
+            self.bt.fill(0)
+        return self.bt
+    def get_additive_term(self):
+        '''Returns the additive term of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of accidental coincidences and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns [a]
+        '''
+        if self.at is None:
+            self.at = AcquisitionData(self.acq_templ)
+            self.at.fill(0)
+        return self.at
+    def get_constant_term(self):
+        '''Returns the sum of the additive and background terms of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of accidental coincidences and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns S ( [a] )+ [b]
+        '''
+        if not self.asm is None:
+            return self.asm.forward( self.get_additive_term() ) + \
+                   self.get_background_term()
+        else:
+            return self.get_additive_term() + self.get_background_term()
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in the acquisition model;
@@ -1034,6 +1145,8 @@ class AcquisitionModel(object):
         assert_validity(asm, AcquisitionSensitivityModel)
         parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
+        # save reference to the Acquisition Sensitivity Model
+        self.asm = asm
     def forward(self, image, subset_num = 0, num_subsets = 1, ad = None):
         ''' 
         Returns the forward projection of image;
@@ -1060,6 +1173,68 @@ class AcquisitionModel(object):
             (self.handle, ad.handle, subset_num, num_subsets)
         check_status(image.handle)
         return image
+    def get_linear_acquisition_model(self):
+        '''
+        Returns a new AcquisitionModel corresponding to the linear part of the current one.
+        '''
+        am = type(self)()
+        am.set_up( self.acq_templ, self.img_templ )
+        return am
+    def direct(self, image, subset_num = 0, num_subsets = 1, out = None):
+        '''Projects an image into the (simulated) acquisition space,
+           alias of forward.
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        return self.forward(image, \
+                            subset_num=subset_num, \
+                            num_subsets = num_subsets, \
+                            ad = out)
+        
+    def adjoint(self, ad, subset_num = 0, num_subsets = 1, out = None):
+        '''Back-projects acquisition data into image space, if the
+           AcquisitionModel is linear
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if self.is_linear():
+            if out is not None:
+                out.fill(self.backward(ad, subset_num = subset_num, 
+                             num_subsets = num_subsets)
+                             )
+            else:
+                return self.backward(ad, subset_num = subset_num, 
+                             num_subsets = num_subsets)
+        else:
+            raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
+
+    def is_affine(self):
+        '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''
+        return True
+
+    def is_linear(self):
+        '''Returns whether the acquisition model is linear (i.e. corresponding to A*x, with zero background term)'''
+        if self.bt is None and self.at is None:
+            return True
+        else:
+            if     self.bt is None and \
+               not self.at is None:
+                return self.at.norm() == 0
+            elif not self.bt is None and \
+                     self.at is None:
+                return self.bt.norm() == 0
+            else:
+                return self.bt.norm() == 0 and self.at.norm() == 0
+
+    def range_geometry(self):
+        '''Returns the template of AcquisitionData'''
+        return self.acq_templ
+
+    def domain_geometry(self):
+        '''Returns the template of ImageData'''
+        return self.img_templ
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
@@ -1072,6 +1247,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
+        super(AcquisitionModelUsingMatrix, self).__init__()
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
@@ -1112,6 +1288,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
+        super(AcquisitionModelUsingRayTracingMatrix, self).__init__(matrix)
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)

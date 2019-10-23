@@ -20,7 +20,8 @@
         3. [Basic classes](#Basic_classes)
         4. [Other classes](#Other_classes)
         5. [Functions](#Functions)
-5. [Appendix](#Appendix)
+5. [Compatibility with CCPi CIL](#CIL_compatibility)
+6. [Appendix](#Appendix)
     1. [Acquisition data storage scheme management](#storage_management)
     2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
         1. [Creating and running gadget chains by SIRF script](#creating_and_running_gadget_chains)
@@ -698,6 +699,64 @@ Class for a penalty term to be added to the objective function.
 
     make_Poisson_loglikelihood (PET)  Returns Poisson objective function.
 
+## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
+The CCPi [`CIL Python Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel
+reconstruction algorithms can be used with SIRF classes such as
+`DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal,
+a number of methods and properties were added to SIRF Python classes for compatibility.
+
+### `AcquisitionModel`
+
+PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](http://edosil.net/stfc/cil/html/optimisation.html). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+In all what follows the parameter `out` can be passed when user wants to use a specific instance to retrieve the result.
+
+The methods that have been added both in MR and PET :
+1. `direct(img, out=None)` Projects an image into the (simulated) acquisition space, alias of `forward`.
+2. `adjoint(data, out=None)` Back-projects acquisition data to image space, alias of `backward`.
+3. `is_affine()` Returns if the acquisition model is affine (i.e. corresponding to `A*x+b`), currently `True`
+4. `is_linear()` Returns whether the acquisition model is linear (i.e. corresponding to `A*x`, with zero background term).
+`True` for MR and PET without accidental coincidences/scatter term.
+
+PET Specific:
+1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of `forward`. The parameter `out` can be used to pass an `AcquisitionData` instance to store the result of `direct` into.
+2. `adjoint(ad, subset_num = 0, num_subsets = 1, out = None)` Back-projects acquisition data into image space, if the `AcquisitionModel` is linear. 
+
+The PET acquisition model relates an image `x` to the acquisition data `y` as
+```
+(F)    y = S (G x + [a]) + [b]
+```
+where `G` is the geometric (ray tracing) projector from the image voxels to the scanner's pairs of detectors (bins);
+`a` and `b` are optional additive and background terms representing the effects of accidental coincidendes and scattering;
+`S` is the Acquisition Sensitivity Map. 
+The following additional methods are added to the PET `AcquisitionModel`:
+1. `get_linear_acquisition_model()` Returns a new `AcquisitionModel` corresponding to the linear part of the current one.
+1. `get_background_term()` Returns the background term of the `AcquisitionModel`
+1. `get_additive_term()` Returns the additive term of the `AcquisitionModel`
+1. `get_constant_term()` Returns the sum of the additive and background terms of the `AcquisitionModel`
+           
+### `DataContainer`
+
+`sirf.DataContainer` has been added the method `copy` as an alias to `clone`. 
+Below the list of methods currently implemented on CCPi that have been added to SIRF `DataContainers`. In all what follows the parameter `out` allows the user to pass a `DataContainer` to store the result of the operation to. 
+1. (Pixelwise) binary operations, notice that the CCPi implementation allows optional `*args, **kwargs` input parameters:
+    1. `add(self, other , out=None)`
+    1. `subtract(self, other, out=None):`
+    1. `multiply(self, other , out=None)` 
+    1. `divide(self, other , out=None)` 
+    1. `power(self, other , out=None)`
+    1. `maximum(self, other , out=None)`
+    1. `minimum(self, other , out=None)`
+1. all in-place algebra operations
+1. (Pixelwise) unary operations:
+    1. `abs(self, out=None)`
+    1. `sign(self, out=None)`
+    1. `sqrt(self, out=None)`
+    1. `exp(self, out=None)`
+    1. `log(self, out=None)`
+1. reductions
+    1. `sum(self)`
+    1. `norm(self)`
+    1. `squared_norm(self)`, returns the square of the call of `norm()`
 # Appendix <a name="Appendix"></a>
 
 ## Acquisition data storage scheme management <a name="storage_management"></a>
