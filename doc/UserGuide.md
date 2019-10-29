@@ -31,7 +31,7 @@
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
-This User’s Guide describes version 2.0 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
+This User’s Guide describes version 2.1 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
 
 ## General architecture <a name="General_architecture"></a>
 
@@ -74,6 +74,7 @@ Please note that with the installation set-up, you will normally have two copies
 The MR module and the demos create temporary files during operation. They are normally created in the same folder as the input data, but are cleaned up afterwards. Therefore,  the data cannot reside in a read-only folder. 
 	
 # Framework basic functionality <a name="Basic_functionality"></a>
+
 
 ## General conventions <a name="General_conventions"></a> 
 
