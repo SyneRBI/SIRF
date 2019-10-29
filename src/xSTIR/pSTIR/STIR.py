@@ -1724,6 +1724,10 @@ class Reconstructor(object):
         # TODO: move to C++
         return self.image
 
+    def set_verbosity(self, verbosity):
+        """Set STIR's verbosity"""
+        parms.set_int_par(self.handle, 'Reconstruction', 'verbosity', verbosity)
+
 class FBP2DReconstructor(object):
     '''
     Class for 2D Filtered Back Projection reconstructor.

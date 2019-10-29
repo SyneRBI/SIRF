@@ -80,5 +80,9 @@ classdef Reconstructor < handle
             sirf.STIR.setParameter(self.handle_, self.R, 'output_filename_prefix',...
                 prefix, 'c')
         end
+        function set_verbosity(self, verbosity)
+%***SIRF*** Set STIR's verbosity           
+            sirf.STIR.setParameter(self.handle_, self.R, 'verbosity', verbosity, 'i')
+        end
     end
 end
