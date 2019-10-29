@@ -60,6 +60,12 @@ ALL_CHANNELS = -1
 MAX_ACQ_DIMS = 10
 MAX_IMG_DIMS = 10
 
+def set_verbosity(verbosity):
+    """Set the verbosity of all STIR output"""
+    handle = pystir.cSTIR_setVerbosity(verbosity)
+    check_status(handle)
+
+
 class MessageRedirector(object):
     '''
     Class for STIR printing redirection to files/stdout/stderr.

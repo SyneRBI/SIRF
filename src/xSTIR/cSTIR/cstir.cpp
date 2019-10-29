@@ -24,6 +24,7 @@ limitations under the License.
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 #include "stir/ImagingModality.h"
+#include "stir/Verbosity.h"
 
 using namespace stir;
 using namespace sirf;
@@ -61,6 +62,13 @@ cSTIR_newReconstructionMethod(const char* par_file)
 		}
 	}
 	CATCH;
+}
+
+extern "C"
+void* cSTIR_setVerbosity(const int verbosity)
+{
+    stir::Verbosity::set(verbosity);
+    return new DataHandle;
 }
 
 extern "C"
