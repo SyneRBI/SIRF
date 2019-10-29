@@ -316,12 +316,27 @@ Class for objects that process `ImageData` objects.
 
 ##### TruncateToCylinderProcessor (PET)
 
-Class for the image processor that zeroes the image outside a cylinder. Inherits the methods of `ImageDataProcessor`. 
+Class for the image processor that zeroes the image outside a cylinder. 
+Inherits the methods of `ImageDataProcessor`.
 
 ###### Methods (in addition to those of ImageDataProcessor): 
 
     set_strictly_less_than_radius  Defines the behaviour on the cylinder boundary.
     get_strictly_less_than_radius  Exposes the behaviour on the cylinder boundary.
+
+##### SeparableGaussianImageFilter (PET)
+
+Class for the image processor that implements Gaussian filtering. 
+Inherits the methods of `ImageDataProcessor`.
+
+The filtering operation is performed as 3 separate one-dimensional filters 
+in each spacial direction.
+
+###### Methods (in addition to those of ImageDataProcessor):
+
+	set_fwhms            Sets Full Widths at Half Maximum in each spacial direction
+	set_max_kernel_sizes Sets max kernel size in each spacial direction.
+	set_normalise        Normalise the kernel to 1 or not (default is on)
 
 ##### AcquisitionDataProcessor
 
@@ -363,6 +378,32 @@ Class for a generic image reconstructor.
     set_output_filename_prefix  
                (PET/MR) Specifies the naming for the output files.  
 
+##### FBP2DReconstructor (PET)
+
+Class for 2D Filtered Back Projection reconstructor. 
+
+This is an implementation of the 2D FBP algorithm. 
+Oblique angles in data will be ignored. The exception is the span=1 case,
+where the ring differences +1 and -1 are first combined to give indirect
+sinograms.
+By default, the algorithm uses the ramp filter. An apodizing filter can be
+added by using `set_alpha_cosine_window` and/or `set_frequency_cut_off`.
+The apodizing filter in frequency space has the form
+
+    (alpha + (1 - alpha) * cos(pi * f / fc))
+
+###### Methods: 
+
+    set_input                Sets the input (AquisitionData object).
+    set_zoom                 Allows to change voxel size.
+    set_alpha_cosine_window  Sets alpha.
+    set_frequency_cut_off    Sets fc.
+    set_output_image_size_xy Sets x and y sizes of output image.
+    set_up                   Sets up the reconstructor.
+    reconstruct              Performs reconstruction.
+    get_output               Returns the output (ImageData object). 
+
+
 ##### IterativeReconstructor (PET) 
 
 Class for PET reconstruction algorithms that use Ordered Subsets technique whereby the acquisition data is split into subsets, and the objective function and its gradient are represented as the sums of components corresponding to subsets. Typically, one iteration of such algorithm would deal with one subset, and is therefore referred to as sub-iteration. Inherits the methods of `Reconstructor`. 
@@ -394,13 +435,59 @@ Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One S
 
     OSMAPOSLReconstructor  Constructor. Creates new OSMAPOSL reconstructor object.  
 
+##### KOSMAPOSLReconstructor (PET) 
+
+Class for reconstructor objects using Kernel Ordered Subsets Maximum
+A Posteriori One Step Late reconstruction algorithm.
+
+This class implements the iterative algorithm obtained using the Kernel method (KEM) and Hybrid kernel method (HKEM).This implementation corresponds to the one presented by Deidda D. et al, "Hybrid PET-MR list-mode kernelized expectation maximization  reconstruction",
+Inverse Problems, 2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
+also sinogram-based reconstruction. Each voxel value of the image `X` can be represented as a
+linear combination using the kernel method. If we have an image with prior information, we can construct for each voxel `j` of the emission image a feature vector `v` using the prior information. The image `X` can then be described using the kernel matrix
+   
+    X = A*K 
+
+where `K` is the kernel matrix and `A` are the kernel coefficients. The resulting algorithm with OSEM, for example, is the following:
+   
+    A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
+  
+where kernel can be written as:
+
+     K^n = K_m * K_p
+  
+with
+
+    K_m = exp(-(v_j - v_l)^2/(2*sigma_m^2)) * exp(-(x_j - x_l)^2 /(2*sigma_dm^2))
+
+being the MR component of the kernel and
+
+    K_p = exp(-(z_j - z_l)^2/(2*sigma_p^2)) * exp(-(x_j - x_l)^2 /(2*sigma_dp^2))
+
+is the part coming from the emission iterative update. Here, the Gaussian kernel functions have been modulated by the distance between voxels in the image space.
+
+
+###### Methods (in addition to those of IterativeReconstructor): 
+
+    KOSMAPOSLReconstructor    Constructor. Creates new KOSMAPOSL reconstructor object.
+    set_anatomical_prior      Sets anatomical prior.
+    set_num_neighbours        Sets number of neighbours.
+    set_num_non_zero_features Sets number of non-zero features.
+    set_sigma_m               Sets sigma_m.
+    set_sigma_p               Sets sigma_p.
+    set_sigma_dm              Sets sigma_dm.
+    set_sigma_dp              Sets sigma_dp.
+    set_only_2D               Use 2D kernels.
+    set_hybrid                Enable the hybrid kernel method (i.e. K_m*K_p) vs only the MR kernel.
+
+
 ##### OSSPSReconstructor (PET) 
 
 Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Surrogate reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html). Inherits the methods of `IterativeReconstructor`.  
 
 ###### Methods (in addition to those of IterativeReconstructor): 
 
-    OSSPSReconstructor   Constructor. Creates new OSSPS reconstructor object. 
+    OSSPSReconstructor       Constructor. Creates new OSSPS reconstructor object.
+    set_relaxation_parameter Sets relaxation parameter.
 
 ##### FullySampledReconstructor (MR) 
 
@@ -686,13 +773,81 @@ The user have an option of adding a penalty term (referred to as prior) to the o
 
 ##### Prior (PET)
 
-Class for a penalty term to be added to the objective function. 
+An abstract base class for a penalty term to be added to the objective function. 
 
 ###### Methods: 
 
     Prior                    Constructor. Creates a new empty object.
     set_penalisation_factor  Specifies the prior's scaling factor. 
     get_gradient             Returns the prior gradient.  
+
+##### QuadraticPrior (PET)
+
+Class for the prior that is a quadratic functions of the image values.
+
+Implements a quadratic Gibbs prior. The gradient of the prior is computed
+as follows:
+
+    g_r = \sum_dr w_{dr} (\lambda_r - \lambda_{r+dr}) * \kappa_r * \kappa_{r+dr}
+
+where \lambda is the image and r and dr are indices and the sum is over 
+the neighbourhood where the weights w_{dr} are non-zero.
+
+The \kappa image can be used to have spatially-varying penalties such
+as in Jeff Fessler's papers. It should have identical dimensions to the
+image for which the penalty is computed. If \kappa is not set, this
+class will effectively use 1 for all \kappa's.
+
+By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+to x-voxel_size divided by the Euclidean distance between the points.
+
+##### PLSPrior (PET)
+
+Class for Parallel Level Sets prior. Inherits from Prior.
+
+Implements the anatomical penalty function, Parallel Level Sets (PLS),
+proposed by Matthias J. Ehrhardt et. al in "PET Reconstruction With an 
+Anatomical MRI Prior Using Parallel Level Sets", IEEE Trans. med. Imag., 
+vol. 35, no. 9, Sep 2016 (https://doi.org/10.1109/TMI.2016.2549601).
+Note that PLS becomes smoothed TV when a uniform anatomical image is
+provided.
+
+The prior has 2 parameters alpha and eta. It is computed for an image
+f as
+
+    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {(\nabla f,\xi)}^2}
+
+where \xi is the normalised gradient of the anatomical image v calculated
+as follows:
+
+    \xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2)
+
+The parameter alpha controls the edge-preservation property 
+of PLS, and depends on the scale of the emission image, and eta avoids 
+division by zero, and depends on the scale of the anatomical image.
+
+An image kappa can be used to have spatially-varying penalties
+such as in Jeff Fessler's papers. It should have identical dimensions to the
+image for which the penalty is computed. If kappa is not set, this
+class will effectively use 1 for all kappa values.
+
+###### Methods (in addition to those of Prior):
+
+    set_alpha               Sets alpha
+    get_alpha               Returns alpha
+    set_eta                 Sets eta
+    get_eta                 Returns eta
+    set_anatomical_image    Sets anatomical image
+    set_anatomical_filename Specifies the name of the file containing 
+                            anatomical image
+    get_anatomical_image    Returns anatomical image
+    get_anatomical_grad     Returns the gradient of the anatomical image (internal)
+    set_kappa               Sets kappa
+    set_kappa_filename      Specifies the name of the file containing kappa
+    get_kappa               Returns kappa
+    get_norm                (internal)
+    set_only_2D             Use the penalty in 2D only.
+    get_only_2D             Get the value of only_2D
 
 ### Functions <a name="Functions"></a>
 
