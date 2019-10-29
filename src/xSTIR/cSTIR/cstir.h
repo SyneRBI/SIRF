@@ -37,6 +37,9 @@ extern "C" {
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* parameter(const void* ptr, const char* obj, const char* name);
 
+    // Global
+    void* cSTIR_setVerbosity(const int verbosity_ptr);
+
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);
 	void* cSTIR_objectFromFile(const char* name, const char* filename);
