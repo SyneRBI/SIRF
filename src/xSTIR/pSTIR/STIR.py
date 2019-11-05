@@ -1724,6 +1724,7 @@ class Reconstructor(object):
         '''
         assert_validity(image, ImageData)
         try_calling(pystir.cSTIR_runReconstruction(self.handle, image.handle))
+        self.image = image
     def get_output(self):
         '''Returns the reconstructed image.
         '''
