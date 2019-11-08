@@ -13,6 +13,7 @@ Options:
   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
   --trans_filenames ...        transformation filenames, (with quotations): "filename1,filename2,filename3"
   --trans_types ...            transformation types, e.g. (with quotations): "AffineTransformation,NiftiImageData3DDeformation,NiftiImageData3DDisplacement"
+  --pad <pad>                  Padding value
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -39,7 +40,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-import pReg
+import sirf.Reg
 exec('import p' + args['--eng_ref'] + ' as eng_ref')
 exec('import p' + args['--eng_flo'] + ' as eng_flo')
 
@@ -47,6 +48,7 @@ exec('import p' + args['--eng_flo'] + ' as eng_flo')
 ref_file = args['--ref']
 flo_file = args['--flo']
 algo = args['--algo']
+pad = args['--pad']
 
 # if using the default for any, need to get the examples folder
 if (ref_file or flo_file) is None: 
@@ -89,7 +91,7 @@ def main():
     flo = eng_flo.ImageData(flo_file)
 
     # Dynamically create resample algorithm
-    algorithm = getattr(pReg, algo)
+    algorithm = getattr(sirf.Reg, algo)
     res = algorithm()
     res.set_reference_image(ref)
     res.set_floating_image(flo)
@@ -99,9 +101,13 @@ def main():
     for i in range(len(trans_filenames)):
       print('Transformation ' + str(i) + ' filename: ' + trans_filenames[i])
       print('Transformation ' + str(i) + ' type: ' + trans_types[i] + '\n')
-      trans_class = getattr(pReg, trans_types[i])
+      trans_class = getattr(sirf.Reg, trans_types[i])
       trans = trans_class(trans_filenames[i])
       res.add_transformation(trans)
+
+    # If padding value has been set
+    if pad is not None:
+      res.set_padding_value(pad)
 
     # Resample
     res.process()

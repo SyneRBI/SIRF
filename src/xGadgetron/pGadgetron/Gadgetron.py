@@ -33,13 +33,15 @@ import time
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, label_and_name, \
      name_and_parameters, parse_arglist, \
-     examples_data_path, petmr_data_path, existing_filepath, \
+     examples_data_path, existing_filepath, \
      pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
+
+import sirf.Gadgetron_params as parms
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -68,83 +70,14 @@ ISMRMRD_DOUBLE   = 6 ##, /**< corresponds to double */
 ISMRMRD_CXFLOAT  = 7 ##, /**< corresponds to complex float */
 ISMRMRD_CXDOUBLE = 8 ##  /**< corresponds to complex double */
 
-###########################################################
-############ Utilities for internal use only ##############
-def _setParameter(hs, set, par, hv):
-    try_calling(pygadgetron.cGT_setParameter(hs, set, par, hv))
-def _set_int_par(handle, set, par, value):
-    h = pyiutil.intDataHandle(value)
-    _setParameter(handle, set, par, h)
-    pyiutil.deleteDataHandle(h)
-def _int_par(handle, set, par):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = pyiutil.intDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _int_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    for i in range(n):
-        value += (pyiutil.intDataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _uint16_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.uint16DataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _uint32_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.uint32DataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _uint64_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.uint64DataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _char_par(handle, set, par):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = pyiutil.charDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _float_par(handle, set, par):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    v = pyiutil.floatDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return v
-def _float_pars(handle, set, par, n):
-    h = pygadgetron.cGT_parameter(handle, set, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.floatDataItemFromHandle(h, i),)
-    pyiutil.deleteDataHandle(h)
-    return value
-def _parameterHandle(hs, set, par):
-    handle = pygadgetron.cGT_parameter(hs, set, par)
-    check_status(handle)
-    return handle
-###########################################################
-
 # data path finding helper functions
 def mr_data_path():
     '''
     Returns default path to MR raw data files.
+
+    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
     '''
-    return petmr_data_path('mr')
+    return petmr_data_path('MR')
 
 ### low-level client functionality
 ### likely to be obsolete - not used for a long time
@@ -287,7 +220,8 @@ class CoilSensitivityData(DataContainer):
             parm = {}
         if isinstance(data, AcquisitionData):
             assert data.handle is not None
-            _set_int_par\
+            #_set_int_par\
+            parms.set_int_par\
                 (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
             try_calling(pygadgetron.cGT_computeCoilSensitivities\
                 (self.handle, data.handle))
@@ -307,7 +241,8 @@ class CoilSensitivityData(DataContainer):
             elif method_name == 'SRSS':
                 if 'niter' in parm:
                     nit = int(parm['niter'])
-                    _set_int_par\
+                    #_set_int_par\
+                    parms.set_int_par\
                         (self.handle, 'coil_sensitivity', 'smoothness', nit)
                 try_calling(pygadgetron.cGT_computeCSMsFromCIs\
                     (self.handle, data.handle))
@@ -368,7 +303,7 @@ class CoilSensitivityData(DataContainer):
 
 DataContainer.register(CoilSensitivityData)
 
-class Image:
+class Image(object):
     '''
     Class for an MR image.
     '''
@@ -387,76 +322,79 @@ class Image:
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
     def version(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'version')
+        return parms.int_par(self.handle, 'image', 'version')
     def flags(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'flags')
+        return parms.int_par(self.handle, 'image', 'flags')
+        #return _int_par(self.handle, 'image', 'flags')
     def data_type(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'data_type')
+        return parms.int_par(self.handle, 'image', 'data_type')
     def measurement_uid(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'measurement_uid')
+        return parms.int_par(self.handle, 'image', 'measurement_uid')
     def channels(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'channels')
+        return parms.int_par(self.handle, 'image', 'channels')
     def average(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'average')
+        return parms.int_par(self.handle, 'image', 'average')
     def slice(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'slice')
+        return parms.int_par(self.handle, 'image', 'slice')
     def contrast(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'contrast')
+        return parms.int_par(self.handle, 'image', 'contrast')
     def phase(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'phase')
+        return parms.int_par(self.handle, 'image', 'phase')
     def repetition(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'repetition')
+        return parms.int_par(self.handle, 'image', 'repetition')
     def set(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'set')
+        return parms.int_par(self.handle, 'image', 'set')
     def acquisition_time_stamp(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'acquisition_time_stamp')
+        return parms.int_par(self.handle, 'image', 'acquisition_time_stamp')
     def image_type(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'image_type')
+        return parms.int_par(self.handle, 'image', 'image_type')
     def image_index(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'image_index')
+        return parms.int_par(self.handle, 'image', 'image_index')
     def image_series_index(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'image_series_index')
+        return parms.int_par(self.handle, 'image', 'image_series_index')
     def attribute_string_len(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'image', 'attribute_string_len')
+        return parms.int_par(self.handle, 'image', 'attribute_string_len')
     def matrix_size(self):
         assert self.handle is not None
-        return _uint16_pars(self.handle, 'image', 'matrix_size', 3)[::-1]
+        return parms.uint16_pars(self.handle, 'image', 'matrix_size', 3)[::-1]
+        #return _uint16_pars(self.handle, 'image', 'matrix_size', 3)[::-1]
     def physiology_time_stamp(self):
         assert self.handle is not None
-        return _uint32_pars(self.handle, 'image', 'physiology_time_stamp', 3)
+        return parms.uint32_pars(self.handle, 'image', 'physiology_time_stamp', 3)
     def field_of_view(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'field_of_view', 3)
+        return parms.float_pars(self.handle, 'image', 'field_of_view', 3)
     def position(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'position', 3)
+        return parms.float_pars(self.handle, 'image', 'position', 3)
     def read_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'read_dir', 3)
+        return parms.float_pars(self.handle, 'image', 'read_dir', 3)
     def phase_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'phase_dir', 3)
+        return parms.float_pars(self.handle, 'image', 'phase_dir', 3)
     def slice_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'image', 'slice_dir', 3)
+        return parms.float_pars(self.handle, 'image', 'slice_dir', 3)
     def patient_table_position(self):
         assert self.handle is not None
-        return _float_pars \
+        #return parms.float_pars \
+        return parms.float_pars \
                (self.handle, 'image', 'patient_table_position', 3)
     def info(self, method):
         return eval('self.' + method + '()')
@@ -484,6 +422,8 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pygadgetron.cGT_readImages(file)
         check_status(self.handle)
+    def write(self, file, ext='h5'):
+        try_calling(pygadgetron.cGT_writeImages(self.handle, file, ext))
     def data_type(self, im_num):
         '''
         Returns the data type for a specified image (see 8 data types above).
@@ -541,19 +481,49 @@ class ImageData(SIRF.ImageData):
     def fill(self, data):
         '''
         Fills self's image data with specified values.
-        data: Python Numpy array
+        data: Python Numpy array or ImageData
         '''
         assert self.handle is not None
-        if self.is_real():
-            if data.dtype != numpy.float32:
-                data = data.astype(numpy.float32)
-            try_calling(pygadgetron.cGT_setImagesDataAsFloatArray\
-                (self.handle, data.ctypes.data))
+        
+        if isinstance(data, ImageData):
+            super(ImageData, self).fill(data)
+            return
+        
+        if not isinstance(data, numpy.ndarray ):
+            # CIL/SIRF compatibility
+            try:
+                data = data.as_array()
+            except:
+                raise TypeError('Input should be numpy.ndarray or ImageData. Got {}'.format(type(data)))
+        
+        if isinstance(data, numpy.ndarray):
+            old = None
+            if self.is_real():
+                if data.dtype != numpy.float32:
+                    old = data.copy()
+                    data = data.astype(numpy.float32)
+            else:
+                if data.dtype != numpy.complex64:
+                    old = data.copy()
+                    data = data.astype(numpy.complex64)
+            convert = not data.flags['C_CONTIGUOUS']
+            if convert:
+                if not data.flags['F_CONTIGUOUS'] and old is None:
+                    old = data.copy()
+                data = numpy.ascontiguousarray(data)
+            if self.is_real():
+                try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
+                    (self.handle, data.ctypes.data))
+            else:
+                try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
+                    (self.handle, data.ctypes.data))
+            if old is not None:
+                data[:] = old
+            elif convert:
+                data = numpy.asfortranarray(data)
         else:
-            if data.dtype != numpy.complex64:
-                data = data.astype(numpy.complex64)
-            try_calling(pygadgetron.cGT_setImagesDataAsCmplxArray\
-                (self.handle, data.ctypes.data))
+            raise error('wrong fill value.' + \
+                        ' Should be ImageData or numpy.ndarray')
     def as_array(self):
         '''
         Returns all self's images as a 3D Numpy ndarray.
@@ -571,15 +541,26 @@ class ImageData(SIRF.ImageData):
         nz = nz*nc*self.number()
         if self.is_real():
             array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            try_calling(pygadgetron.cGT_getImagesDataAsFloatArray\
+            try_calling(pygadgetron.cGT_getImageDataAsFloatArray\
                 (self.handle, array.ctypes.data))
             return array
         else:
             z = numpy.ndarray((nz, ny, nx), dtype = numpy.complex64)
-            try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
+            try_calling(pygadgetron.cGT_getImageDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
-    def show(self, slice = None, title = None, cmap = 'gray', postpone = False):
+    def copy(self):
+        '''alias of clone'''
+        return self.clone()
+    def conjugate(self):
+        '''Returns the complex conjugate of the data '''
+        if self.handle is not None:
+            out = self.clone()
+            out.fill(self.as_array().conjugate())
+            return out
+        else:
+            raise error("Empty object cannot be conjugated")
+    def show(self, zyx=None, slice=None, title=None, cmap='gray', postpone=False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -590,10 +571,8 @@ class ImageData(SIRF.ImageData):
         if type(slice) == type(1):
             if slice < 0 or slice >= nz:
                 return
-            ns = 1
+            ni = 1
             slice = [slice]
-##            show_2D_array('slice %d' % slice, data[slice,:,:])
-##            return
         elif slice is None:
             ni = nz
             slice = range(nz)
@@ -611,17 +590,42 @@ class ImageData(SIRF.ImageData):
         f = 0
         while f < ni:
             t = min(f + 16, ni)
-            err = show_3D_array(abs(data), index = slice[f : t], \
-                                tile_shape = tiles, cmap = cmap, \
-                                label = 'image', xlabel = 'samples', \
-                                ylabel = 'readouts', \
-                                suptitle = title, \
-                                show = (t == ni) and not postpone)
+            err = show_3D_array(abs(data), index=slice[f : t], \
+                                tile_shape=tiles, cmap=cmap, \
+                                zyx=zyx, label='image', \
+                                xlabel='samples', ylabel='readouts', \
+                                suptitle=title, \
+                                show=(t == ni) and not postpone)
             f = t
+    def allocate(self, value=0, **kwargs):
+        '''Method to allocate an ImageData and set its values
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.clone()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.clone()
+            tmp = value * numpy.ones(out.as_array().shape)
+            out.fill(tmp)
+        return out
+
+    def print_header(self, im_num):
+        """Print the header of one of the images. zero based."""
+        try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
 
 DataContainer.register(ImageData)
 
-class Acquisition:
+class Acquisition(object):
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
@@ -629,104 +633,105 @@ class Acquisition:
             pyiutil.deleteDataHandle(self.handle)
     def version(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'version')
+        return parms.int_par(self.handle, 'acquisition', 'version')
     def flags(self):
         '''
         Returns acquisition flags as an integer (each bit corresponding to a 
         flag).
         '''
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'flags')
+        return parms.int_par(self.handle, 'acquisition', 'flags')
+        #return _int_par(self.handle, 'acquisition', 'flags')
     def measurement_uid(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'measurement_uid')
+        return parms.int_par(self.handle, 'acquisition', 'measurement_uid')
     def scan_counter(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'scan_counter')
+        return parms.int_par(self.handle, 'acquisition', 'scan_counter')
     def acquisition_time_stamp(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'acquisition_time_stamp')
+        return parms.int_par(self.handle, 'acquisition', 'acquisition_time_stamp')
     def number_of_samples(self):
         '''
         returns the number of samples in the readout direction.
         '''
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'number_of_samples')
+        return parms.int_par(self.handle, 'acquisition', 'number_of_samples')
     def available_channels(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'available_channels')
+        return parms.int_par(self.handle, 'acquisition', 'available_channels')
     def active_channels(self):
         '''
         Returns the number of active channels (coils).
         '''
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'active_channels')
+        return parms.int_par(self.handle, 'acquisition', 'active_channels')
     def discard_pre(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'discard_pre')
+        return parms.int_par(self.handle, 'acquisition', 'discard_pre')
     def discard_post(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'discard_post')
+        return parms.int_par(self.handle, 'acquisition', 'discard_post')
     def center_sample(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'center_sample')
+        return parms.int_par(self.handle, 'acquisition', 'center_sample')
     def encoding_space_ref(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'encoding_space_ref')
+        return parms.int_par(self.handle, 'acquisition', 'encoding_space_ref')
     def trajectory_dimensions(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'trajectory_dimensions')
+        return parms.int_par(self.handle, 'acquisition', 'trajectory_dimensions')
     def kspace_encode_step_1(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
+        return parms.int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
     def kspace_encode_step_2(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2')
+        return parms.int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2')
     def average(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_average')
+        return parms.int_par(self.handle, 'acquisition', 'idx_average')
     def slice(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_slice')
+        return parms.int_par(self.handle, 'acquisition', 'idx_slice')
     def contrast(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_contrast')
+        return parms.int_par(self.handle, 'acquisition', 'idx_contrast')
     def phase(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_phase')
+        return parms.int_par(self.handle, 'acquisition', 'idx_phase')
     def repetition(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_repetition')
+        return parms.int_par(self.handle, 'acquisition', 'idx_repetition')
     def set(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_set')
+        return parms.int_par(self.handle, 'acquisition', 'idx_set')
     def segment(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_segment')
+        return parms.int_par(self.handle, 'acquisition', 'idx_segment')
     def physiology_time_stamp(self):
         assert self.handle is not None
-        return _uint32_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
+        return parms.uint32_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
     def channel_mask(self):
         assert self.handle is not None
-        return _uint64_pars(self.handle, 'acquisition', 'channel_mask', 16)
+        return parms.uint64_pars(self.handle, 'acquisition', 'channel_mask', 16)
     def sample_time_us(self):
         assert self.handle is not None
-        return _float_par(self.handle, 'acquisition', 'sample_time_us')
+        return parms.float_par(self.handle, 'acquisition', 'sample_time_us')
     def position(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'acquisition', 'position', 3)
+        return parms.float_pars(self.handle, 'acquisition', 'position', 3)
     def read_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'acquisition', 'read_dir', 3)
+        return parms.float_pars(self.handle, 'acquisition', 'read_dir', 3)
     def phase_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'acquisition', 'phase_dir', 3)
+        return parms.float_pars(self.handle, 'acquisition', 'phase_dir', 3)
     def slice_dir(self):
         assert self.handle is not None
-        return _float_pars(self.handle, 'acquisition', 'slice_dir', 3)
+        return parms.float_pars(self.handle, 'acquisition', 'slice_dir', 3)
     def patient_table_position(self):
         assert self.handle is not None
-        return _float_pars \
+        return parms.float_pars \
                (self.handle, 'acquisition', 'patient_table_position', 3)
     def info(self, method):
         return eval('self.' + method + '()')
@@ -757,12 +762,12 @@ class AcquisitionData(DataContainer):
             all acquisition data generated from now on will be kept in RAM
             (avoid if data is very large)
         '''
-        try_calling(pygadgetron.cGT_setAcquisitionsStorageScheme(scheme))
+        try_calling(pygadgetron.cGT_setAcquisitionDataStorageScheme(scheme))
     @staticmethod
     def get_storage_scheme():
         '''Returns acquisition data storage scheme.
         '''
-        handle = pygadgetron.cGT_getAcquisitionsStorageScheme()
+        handle = pygadgetron.cGT_getAcquisitionDataStorageScheme()
         check_status(handle)
         scheme = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -788,11 +793,11 @@ class AcquisitionData(DataContainer):
         self.sorted = True
     def is_sorted(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisitions', 'sorted')
+        return parms.int_par(self.handle, 'acquisitions', 'sorted')
         #return self.sorted
     def is_undersampled(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisitions', 'undersampled')
+        return parms.int_par(self.handle, 'acquisitions', 'undersampled')
     def process(self, list):
         '''
         Returns processed self with an acquisition processor specified by
@@ -824,7 +829,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
-        hv = pygadgetron.cGT_getAcquisitionsDimensions\
+        hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
         #nr = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
@@ -853,14 +858,41 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
-    def fill(self, data):
+    def fill(self, data, select = 'image'):
         '''
         Fills self's acquisitions with specified values.
-        data: Python Numpy array
+        data: Python Numpy array or AcquisitionData
         '''
         assert self.handle is not None
-        try_calling(pygadgetron.cGT_fillAcquisitionsData\
-            (self.handle, data.ctypes.data, 1))
+        if isinstance(data, AcquisitionData):
+            try_calling(pygadgetron.cGT_fillAcquisitionDataFromAcquisitionData\
+                (self.handle, data.handle))
+            return
+        elif isinstance(data, numpy.ndarray):
+            if data.dtype is not numpy.complex64:
+                old = data.copy()
+                data = data.astype(numpy.complex64)
+            else:
+                old = None
+            convert = not data.flags['C_CONTIGUOUS']
+            if convert:
+                if not data.flags['F_CONTIGUOUS'] and old is None:
+                    old = data.copy()
+                data = numpy.ascontiguousarray(data)
+            if select == 'all': # fill all
+                fill_all = 1
+            else: # fill only image-related
+                fill_all = 0
+            try_calling(pygadgetron.cGT_fillAcquisitionData\
+                (self.handle, data.ctypes.data, fill_all))
+            if old is not None:
+                data[:] = old
+            elif convert:
+                data = numpy.asfortranarray(data)
+        else:
+            raise error('wrong fill value.' + \
+                        ' Should be AcquisitionData or numpy.ndarray')
+        return self
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
@@ -873,7 +905,7 @@ class AcquisitionData(DataContainer):
         else: # return only image-related
             return_all = 0
         z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
-        try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
+        try_calling(pygadgetron.cGT_acquisitionDataAsArray\
             (self.handle, z.ctypes.data, return_all))
         return z
     def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \
@@ -916,10 +948,32 @@ class AcquisitionData(DataContainer):
                                 suptitle = title, cmap = cmap, power = power, \
                                 show = (t == ns) and not postpone)
             f = t
+    
+    def allocate(self, value=0, **kwargs):
+        '''Method to allocate an AcquisitionData and set its values
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.clone()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.clone()
+            tmp = value * numpy.ones(out.as_array().shape)
+            out.fill(tmp)
+        return out
 
 DataContainer.register(AcquisitionData)
 
-class AcquisitionModel:
+class AcquisitionModel(object):
     '''
     Class for MR acquisition model, an operator that maps images into
     simulated acquisitions.
@@ -934,6 +988,9 @@ class AcquisitionModel:
             self.handle = \
                 pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         check_status(self.handle)
+        # saves reference to template of AcquisitionData and ImageData
+        self.acq_templ = acqs
+        self.img_templ = imgs
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -975,8 +1032,46 @@ class AcquisitionModel:
             (self.handle, ad.handle)
         check_status(image.handle)
         return image
+    def direct(self, image, out = None):
+        '''Alias of forward
 
-class Gadget:
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if out is not None:
+            #raise error('out is not supported')
+            tmp = self.forward(image)
+            out.fill(tmp)
+            return
+        return self.forward(image)
+    def adjoint(self, ad , out = None):
+        '''Alias of backward
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if out is not None:
+            #raise error('out is not supported')
+            tmp = self.backward(ad)
+            out.fill(tmp)
+            return
+        return self.backward(ad)
+    def is_affine(self):
+        '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''
+        return True
+    def is_linear(self):
+        '''Returns whether the acquisition model is linear (i.e. corresponding to A*x, with zero background term)'''
+        return True
+
+    def range_geometry(self):
+        '''Returns the template of ImageData'''
+        return self.acq_templ
+
+    def domain_geometry(self):
+        '''Returns the template of AcquisitionData'''
+        return self.img_templ
+
+class Gadget(object):
     '''
     Class for Gadgetron gadgets.
     '''
@@ -1013,9 +1108,9 @@ class Gadget:
         Returns the string representation of the value of specified property.
         prop: property name (string)
         '''
-        return _char_par(self.handle, 'gadget', prop)
+        return parms.char_par(self.handle, 'gadget', prop)
 
-class GadgetChain:
+class GadgetChain(object):
     '''
     Class for Gadgetron chains.
     '''
@@ -1043,6 +1138,18 @@ class GadgetChain:
 ##        '''
 ##        assert isinstance(writer, Gadget)
 ##        try_calling(pygadgetron.cGT_addWriter(self.handle, id, writer.handle))
+    def set_host(self, host):
+        '''
+        Sets Gadgetron server host.
+        host : host name (string)
+        '''
+        try_calling(pygadgetron.cGT_setHost(self.handle, host))
+    def set_port(self, port):
+        '''
+        Sets Gadgetron server port.
+        port : port number (as a string)
+        '''
+        try_calling(pygadgetron.cGT_setPort(self.handle, port))
     def add_gadget(self, id, gadget):
         '''
         Adds a gadget to the chain.
@@ -1062,7 +1169,7 @@ class GadgetChain:
             v = value
         else:
             v = repr(value).lower()
-        hg = _parameterHandle(self.handle, 'gadget_chain', id)
+        hg = parms.parameter_handle(self.handle, 'gadget_chain', id)
         try_calling(pygadgetron.cGT_setGadgetProperty(hg, prop, v))
         pyiutil.deleteDataHandle(hg)
     def value_of_gadget_property(self, id, prop):
@@ -1071,8 +1178,8 @@ class GadgetChain:
         id  : gadget id
         prop: property name (string)
         '''
-        hg = _parameterHandle(self.handle, 'gadget_chain', id)
-        hv = _parameterHandle(hg, 'gadget', prop)
+        hg = parms.parameter_handle(self.handle, 'gadget_chain', id)
+        hv = parms.parameter_handle(hg, 'gadget', prop)
         value = pyiutil.charDataFromHandle(hv)
         pyiutil.deleteDataHandle(hg)
         pyiutil.deleteDataHandle(hv)

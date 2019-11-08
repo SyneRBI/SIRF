@@ -46,9 +46,10 @@ exec('from p' + args['--engine'] + ' import *')
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
 slcs = int(args['--slices'])
 
+#AcquisitionData.set_storage_scheme('memory')
 scheme = AcquisitionData.get_storage_scheme()
 print('storage scheme: %s' % repr(scheme))
 
@@ -126,6 +127,7 @@ def main():
     cloned_acq_data = acq_data.clone()
     cloned_dim = cloned_acq_data.dimensions()
     print('cloned data dimensions: %dx%dx%d' % cloned_dim)
+    cloned_acq_data.fill(acq_data)
     title = 'Cloned acquisition data (magnitude)'
     cloned_acq_data.show(title = title, postpone = True)
 

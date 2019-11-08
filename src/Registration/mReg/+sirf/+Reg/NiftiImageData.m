@@ -165,7 +165,7 @@ classdef NiftiImageData < sirf.SIRF.ImageData
             dim = self.get_dimensions();
             dim = dim(2:dim(1)+1);
             ptr_v = libpointer('singlePtr', zeros(dim));
-            calllib('mreg', 'mReg_NiftiImageData_get_data', self.handle_, ptr_v);
+            calllib('mreg', 'mReg_NiftiImageData_as_array', self.handle_, ptr_v);
             array = reshape(ptr_v.Value,dim);
         end
         function datatype = get_original_datatype(self)
@@ -185,28 +185,32 @@ classdef NiftiImageData < sirf.SIRF.ImageData
         end
         function print_header(self)
             %Print metadata of nifti image.
-            h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 1, self.handle_, [], [], [], []);
+            vec = sirf.SIRF.DataHandleVector();
+            vec.push_back(self.handle_)
+            h = calllib('mreg', 'mReg_NiftiImageData_print_headers', vec.handle_);
             sirf.Utilities.check_status('parameter', h)
+        end
+        function set_voxel_spacing(self,spacing,interpolation_order)
+            % Set the voxel spacing. Requires resampling image, and so interpolation order is required.
+            % As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation.
+            assert(isnumeric(spacing) && length(spacing)==3, 'New spacing should be array of 3 numbers')
+            h = calllib('mreg', 'mReg_NiftiImageData_set_voxel_spacing', self.handle_, spacing(1), spacing(2), spacing(3), interpolation_order);
+            sirf.Utilities.check_status('parameter', h)
+        end
+        function value = get_contains_nans(self)
+            % Returns true if the image contains any nans.
+            value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'contains_nans', 'b');
         end
     end
     methods(Static)
         function print_headers(to_print)
-            %Print metadata of one or multiple (up to 5) nifti images.
+            %Print metadata of one or multiple nifti images.
             assert(ismatrix(to_print) && isa(to_print, 'sirf.Reg.NiftiImageData'), 'NiftiImageData.print_headers: give list of NiftiImageData.')
-            num_ims = size(to_print,2);
-            if num_ims == 1
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 1, to_print(1).handle_, [], [], [], []);
-            elseif num_ims == 2
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 2, to_print(1).handle_, to_print(2).handle_, [], [], []);
-            elseif num_ims == 3
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 3, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, [], []);
-            elseif num_ims == 4
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 4, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, to_print(4).handle_, []);
-            elseif num_ims == 5
-                h = calllib('mreg', 'mReg_NiftiImageData_print_headers', 5, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, to_print(4).handle_, to_print(5).handle_);
-            else
-                error('print_headers only implemented for up to 5 images.')
+            vec = sirf.SIRF.DataHandleVector();
+            for n = 1:length(to_print)
+                vec.push_back(to_print(n).handle_);
             end
+            h = calllib('mreg', 'mReg_NiftiImageData_print_headers', vec.handle_);
             sirf.Utilities.check_status('parameter', h)
         end
     end

@@ -36,7 +36,13 @@ limitations under the License.
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
-EXPORTED_FUNCTION  void* mSTIR_newObject(const char* name) {
+EXPORTED_FUNCTION  void* mSetParameter (void* ptr, const char* obj, const char* name, const void* value) {
+	return setParameter (ptr, obj, name, value);
+}
+EXPORTED_FUNCTION 	void* mParameter(const void* ptr, const char* obj, const char* name) {
+	return parameter(ptr, obj, name);
+}
+EXPORTED_FUNCTION 	void* mSTIR_newObject(const char* name) {
 	return cSTIR_newObject(name);
 }
 EXPORTED_FUNCTION 	void* mSTIR_objectFromFile(const char* name, const char* filename) {
@@ -93,14 +99,14 @@ EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwdReplace (void* ptr_am, void* p
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, int subset_num, int num_subsets) {
 	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad, subset_num, num_subsets);
 }
-EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsStorageScheme() {
-	return cSTIR_getAcquisitionsStorageScheme();
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionDataStorageScheme() {
+	return cSTIR_getAcquisitionDataStorageScheme();
 }
-EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme) {
-	return cSTIR_setAcquisitionsStorageScheme(scheme);
+EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionDataStorageScheme(const char* scheme) {
+	return cSTIR_setAcquisitionDataStorageScheme(scheme);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
-	return cSTIR_acquisitionsDataFromTemplate(ptr_t);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionDataFromTemplate(void* ptr_t) {
+	return cSTIR_acquisitionDataFromTemplate(ptr_t);
 }
 EXPORTED_FUNCTION 	void* mSTIR_cloneAcquisitionData(void* ptr_ad) {
 	return cSTIR_cloneAcquisitionData(ptr_ad);
@@ -108,23 +114,23 @@ EXPORTED_FUNCTION 	void* mSTIR_cloneAcquisitionData(void* ptr_ad) {
 EXPORTED_FUNCTION 	void* mSTIR_rebinnedAcquisitionData(void* ptr_t, const int num_segments_to_combine, const int num_views_to_combine, const int num_tang_poss_to_trim, const bool do_normalisation, const int max_in_segment_num_to_process ) {
 	return cSTIR_rebinnedAcquisitionData(ptr_t, num_segments_to_combine, num_views_to_combine, num_tang_poss_to_trim, do_normalisation, max_in_segment_num_to_process);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromScannerInfo (const char* scanner, int span, int max_ring_diff, int view_mash_factor) {
-	return cSTIR_acquisitionsDataFromScannerInfo (scanner, span, max_ring_diff, view_mash_factor);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionDataFromScannerInfo (const char* scanner, int span, int max_ring_diff, int view_mash_factor) {
+	return cSTIR_acquisitionDataFromScannerInfo (scanner, span, max_ring_diff, view_mash_factor);
 }
-EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim) {
-	return cSTIR_getAcquisitionsDimensions(ptr_acq, ptr_dim);
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionDataDimensions(const void* ptr_acq, PTR_INT ptr_dim) {
+	return cSTIR_getAcquisitionDataDimensions(ptr_acq, ptr_dim);
 }
-EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_FLOAT ptr_data) {
-	return cSTIR_getAcquisitionsData(ptr_acq, ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionData(const void* ptr_acq, PTR_FLOAT ptr_data) {
+	return cSTIR_getAcquisitionData(ptr_acq, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsData(void* ptr_acq, PTR_FLOAT ptr_data) {
-	return cSTIR_setAcquisitionsData(ptr_acq, ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionData(void* ptr_acq, PTR_FLOAT ptr_data) {
+	return cSTIR_setAcquisitionData(ptr_acq, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsData(void* ptr_acq, float v) {
-	return cSTIR_fillAcquisitionsData(ptr_acq, v);
+EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionData(void* ptr_acq, float v) {
+	return cSTIR_fillAcquisitionData(ptr_acq, v);
 }
-EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from) {
-	return cSTIR_fillAcquisitionsDataFromAcquisitionsData (ptr_acq, ptr_from);
+EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionDataFromAcquisitionData (void* ptr_acq, const void * ptr_from) {
+	return cSTIR_fillAcquisitionDataFromAcquisitionData (ptr_acq, ptr_from);
 }
 EXPORTED_FUNCTION 	void* mSTIR_writeAcquisitionData(void* ptr_acq, const char* filename) {
 	return cSTIR_writeAcquisitionData(ptr_acq, filename);
@@ -180,8 +186,11 @@ EXPORTED_FUNCTION 	void* mSTIR_getImageTransformMatrix(const void* ptr_im, PTR_F
 EXPORTED_FUNCTION 	void* mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data) {
 	return cSTIR_getImageData(ptr, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data) {
+EXPORTED_FUNCTION 	void* mSTIR_setImageData(void* ptr_im, PTR_FLOAT ptr_data) {
 	return cSTIR_setImageData(ptr_im, ptr_data);
+}
+EXPORTED_FUNCTION 	void* mSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src) {
+	return cSTIR_setImageDataFromImage(ptr_im, ptr_src);
 }
 EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float sy, float sz, float x, float y, float z) {
 	return cSTIR_voxels3DF(nx, ny, nz, sx, sy, sz, x, y, z);

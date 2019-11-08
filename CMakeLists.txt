@@ -20,6 +20,12 @@
 
 # cmake file for building SIRF. See the SIRF User's Guide and http://www.cmake.org.
 
+# Set the CMake policy for SWIG
+# https://cmake.org/cmake/help/v3.14/policy/CMP0078.html#policy:CMP0078
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+  # policy introduced in CMake 3.13
+  cmake_policy(SET CMP0078 OLD)
+endif()
 # avoid warning about WIN32 no longer defined in CYGWIN
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
 
@@ -41,9 +47,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 ####### Set Version number etc
-set(VERSION_MAJOR   1 )
+set(VERSION_MAJOR   2 )
 set(VERSION_MINOR   1 )
-set(VERSION_PATCH   1 )
+set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 set(SIRF_VERSION
@@ -78,78 +84,115 @@ add_definitions(-DBOOST_ALL_NO_LIB)
 include_directories(${Boost_INCLUDE_DIRS})
 
 #### optional back-ends
-# find Python interpreter. Needed for tests, and best to enforce consistency anyway.
-find_package(PythonInterp QUIET)
-find_package(PythonLibs QUIET)
-option(BUILD_PYTHON "Build SIRF with python" ${PYTHONLIBS_FOUND})
-if (BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
-  message(FATAL_ERROR "Python enabled but not found")
-endif(BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
-if (BUILD_PYTHON)
-
-  # PYTHON_DEST_DIR allows the user to select the install destination of the 
-  # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
-  # updated on the GUI.
-  # If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python 
-  set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
-  if (PYTHON_DEST_DIR)
-   set(PYTHON_DEST "${PYTHON_DEST_DIR}")
-  else() 
-    set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
-  endif()
-  message(STATUS "Python libraries found")
-  message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
-  set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
+option(DISABLE_PYTHON "Disable building SIRF python support" OFF)
+if (DISABLE_PYTHON)
+  message(STATUS "Python support disabled")
+else(DISABLE_PYTHON)
+  # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
+  find_package(PythonInterp QUIET)
+  find_package(PythonLibs)
+  if (PYTHONLIBS_FOUND)
+    set(BUILD_PYTHON ON)
+    # PYTHON_DEST_DIR allows the user to select the install destination of the
+    # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be
+    # updated on the GUI.
+    # If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python
+    set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
+    if (PYTHON_DEST_DIR)
+      set(PYTHON_DEST "${PYTHON_DEST_DIR}")
+    else()
+      set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
+    endif()
+    message(STATUS "Python libraries found")
+    message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
+    set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
     PYTHONPATH: prefix PYTHONPATH \n\
     SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
     CONDA:      do nothing")
-endif(BUILD_PYTHON)
+
+  else(PYTHONLIBS_FOUND)
+    message(WARNING "Pythonlibs not found. Best to set PYTHON_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
+  endif(PYTHONLIBS_FOUND)
+
+endif(DISABLE_PYTHON)
 
 
-FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
-option(BUILD_MATLAB "Build SIRF with matlab" ${Matlab_FOUND})
-if (BUILD_MATLAB AND NOT ${Matlab_FOUND})
-  message(FATAL_ERROR "Matlab enabled but not found")
-endif()
-if (BUILD_MATLAB)
-  message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
-  matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
-  # MATLAB_DEST_DIR allows the user to select the install destination of the 
-  # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
-  # updated on the GUI. 
-  # If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab 
-  set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
-  if (MATLAB_DEST_DIR)
-   set(MATLAB_DEST "${MATLAB_DEST_DIR}")
-  else() 
-    set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
+option(DISABLE_Matlab "Disable building SIRF matlab support" OFF)
+if (DISABLE_Matlab)
+  message(STATUS "Matlab support disabled")
+else(DISABLE_Matlab)
+
+  FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
+  if (NOT Matlab_FOUND)
+    message(WARNING "MATLAB not found. Set Matlab_ROOT_DIR if you want it. Set DISABLE_Matlab to ON to silence this warning.")
+  else()
+    set(BUILD_MATLAB ON)
+    message(STATUS "Attempting to find MATLAB Mex extension (This might launch MATLAB so might take a while)")
+    matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
+    # MATLAB_DEST_DIR allows the user to select the install destination of the
+    # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be
+    # updated on the GUI.
+    # If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab
+    set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
+    if (MATLAB_DEST_DIR)
+      set(MATLAB_DEST "${MATLAB_DEST_DIR}")
+    else()
+      set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
+    endif()
+    message(STATUS "Matlab libraries found")
+    message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
   endif()
-  message(STATUS "Matlab libraries found")
-  message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
-endif(BUILD_MATLAB)
 
-if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
-  message(FATAL_ERROR "SIRF needs either MATLAB or Python")
-endif()
+endif(DISABLE_Matlab)
 
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/common)
-ADD_SUBDIRECTORY(src/xSTIR)
-ADD_SUBDIRECTORY(src/xGadgetron)
+
+option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
+if (DISABLE_STIR)
+  message(STATUS "STIR support disabled.")
+else()
+  ADD_SUBDIRECTORY(src/xSTIR)
+endif()
+option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
+if (DISABLE_Gadgetron)
+  message(STATUS "Gadgetron support disabled.")
+else()
+  ADD_SUBDIRECTORY(src/xGadgetron)
+endif()
+option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
+if (DISABLE_Registration)
+  message(STATUS "Registration support disabled.")
+else()
+  ADD_SUBDIRECTORY(src/Registration)
+  # will set BUILD_Registration if it's actually built
+endif()
+#mark_as_advanced(DISABLE_STIR DISABLE_Gadgetron DISABLE_Registration)
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
-# Optional registration
-option(REG_ENABLE "Build the SIRF registration package" ON)
-if (REG_ENABLE)
-  ADD_SUBDIRECTORY(src/Registration)
-endif()
-
-# Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built
-if (REG_ENABLE AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
-  MESSAGE(STATUS "Registration, Gadgetron and STIR (with ITK) have been built. Building synergistic code.")
-  ADD_SUBDIRECTORY(src/Synergistic)
+# Synergistic code currently only works if STIR (with ITK), ISMRMRD and Registration are built
+option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
+if (DISABLE_Synergistic)
+  message(STATUS "Synergistic code disabled.")
 else()
-  MESSAGE(STATUS "One or more of the following components are missing: Registration, Gadgetron and STIR (with ITK). Synergistic code will not be built.")
+  if (BUILD_Registration AND cGadgetron_LIBRARY_DIRS AND STIR_REGISTRIES AND "${STIR_BUILT_WITH_ITK}")
+    MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built. Building synergistic code.")
+    ADD_SUBDIRECTORY(src/Synergistic)
+  else()
+    MESSAGE(STATUS "One or more of the following components are missing: Registration, ISMRMRD and STIR (with ITK). Synergistic code will not be built.")
+    if (NOT BUILD_Registration)
+      MESSAGE(STATUS "Registration missing.")
+    endif()
+    if (NOT cGadgetron_LIBRARY_DIRS)
+      MESSAGE(STATUS "ISMRMRD missing.")
+    endif()
+    if (NOT STIR_REGISTRIES)
+      MESSAGE(STATUS "STIR missing.")
+    elseif(NOT STIR_BUILT_WITH_ITK)
+      MESSAGE(STATUS "STIR not built with ITK.")
+    endif()
+  endif()
 endif()

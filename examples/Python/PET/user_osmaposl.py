@@ -38,7 +38,7 @@ args = docopt(__doc__, version=__version__)
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 num_subsets = int(args['--subs'])
@@ -46,7 +46,7 @@ num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 
 # user implementation of Ordered Subset Maximum A Posteriori One Step Late
@@ -122,7 +122,7 @@ def main():
     image_array = image.as_array()
     show_2D_array('Reconstructed image at z = 20', image_array[20,:,:])
 
-    image.write('my_image.hv')
+#    image.write('my_image.hv')
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

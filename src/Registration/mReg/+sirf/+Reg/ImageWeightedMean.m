@@ -47,7 +47,7 @@ classdef ImageWeightedMean < handle
             elseif ischar(image)
                 h = calllib('mreg', 'mReg_ImageWeightedMean_add_image_filename', self.handle_, image, weight);
             else
-                error("sirf.Reg.ImageWeightedMean.add_image: image must be sirf.SIRF.ImageData or filename.")
+                error('sirf.Reg.ImageWeightedMean.add_image: image must be sirf.SIRF.ImageData or filename.')
             end
             sirf.Utilities.check_status([self.name ':add_image'], h);
             sirf.Utilities.delete(h)
@@ -62,7 +62,7 @@ classdef ImageWeightedMean < handle
             %Get output.
             output = sirf.Reg.NiftiImageData();
             sirf.Utilities.delete(output.handle_)
-            output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, self.name, 'output');
+            output.handle_ = calllib('mreg', 'mParameter', self.handle_, self.name, 'output');
             sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
         end
     end

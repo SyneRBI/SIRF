@@ -17,27 +17,28 @@
 #=========================================================================
 
 # ------------------------------------------------------------------------
-# NiftyReg
+# NIFTYREG
 # ------------------------------------------------------------------------
-FIND_PACKAGE(NiftyReg)
-if (NiftyReg_FOUND)
-	if(NOT ("${NR_VERSION}" MATCHES "1.5.59" OR "${NR_VERSION}" MATCHES "1.5.61"))
-		MESSAGE(STATUS "\n\nSIRF's registration was developed with NiftyReg 1.5.59 and 1.5.61, and cannot be guaranteed for other version numbers.\n"
-	    "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
-	    "If there is a version mismatch, the keys in the parser may need to be altered.\n")
-	endif()
+FIND_PACKAGE(NIFTYREG 1.5.61)
+if (NIFTYREG_FOUND)
+
+        set(BUILD_Registration ON PARENT_SCOPE)
+
+	# Add in the NIFTYREG stuff
+	INCLUDE_DIRECTORIES("${NIFTYREG_INCLUDE_DIRS}")
+  	LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
+  	SET(NIFTYREG_LIBRARY_DIRS "${NIFTYREG_LIBRARY_DIRS}" PARENT_SCOPE) # need elsewhere
+  	SET(NIFTYREG_INCLUDE_DIRS "${NIFTYREG_INCLUDE_DIRS}" PARENT_SCOPE) # need elsewhere
+	
+	SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
+	INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
+	
+	ADD_SUBDIRECTORY(cReg)
+	ADD_SUBDIRECTORY(pReg)
+	ADD_SUBDIRECTORY(mReg)
+
 else()
-	MESSAGE(FATAL_ERROR "Registration has been enabled, but there are no registration packages available.")
+	message(WARNING "NIFTYREG not found. This is probably not what you want. If you need it, set NIFTYREG_DIR. Set DISABLE_Registration to OFF to silence this warning.")
+        set(BUILD_Registration OFF PARENT_SCOPE)
+
 endif()
-
-# Include a preprocessor to compile code depenging on version number.
-add_definitions(-DNR_VERSION="${NR_VERSION}")
-
-# ------------------------------------------------------------------------
-# Add c++, python, matlab components (if desired)
-# ------------------------------------------------------------------------
-SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
-INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
-ADD_SUBDIRECTORY(cReg)
-ADD_SUBDIRECTORY(pReg)
-ADD_SUBDIRECTORY(mReg)

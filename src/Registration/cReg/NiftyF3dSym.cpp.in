@@ -113,6 +113,12 @@ void NiftyF3dSym<dataType>::process()
 }
 
 template<class dataType>
+void NiftyF3dSym<dataType>::print_all_wrapped_methods()
+{
+    std::cout << ${NR_f3d_list_methods};
+}
+
+template<class dataType>
 void NiftyF3dSym<dataType>::check_parameters() const
 {
     Registration<dataType>::check_parameters();

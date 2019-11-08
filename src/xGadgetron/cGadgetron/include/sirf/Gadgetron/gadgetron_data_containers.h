@@ -75,18 +75,46 @@ namespace sirf {
 
 	class AcquisitionsInfo {
 	public:
-		AcquisitionsInfo(std::string data = "") : data_(data) {}
+		AcquisitionsInfo(std::string data = "") : data_(data)
+        {
+			if (data.empty())
+				have_header_ = false;
+			else {
+				deserialize();
+				have_header_ = true;
+			}
+        }
 		AcquisitionsInfo& operator=(std::string data)
 		{
 			data_ = data;
+			if (data.empty())
+				have_header_ = false;
+			else {
+				deserialize();
+				have_header_ = true;
+			}
 			return *this;
 		}
 		const char* c_str() const { return data_.c_str(); }
 		operator std::string&() { return data_; }
 		operator const std::string&() const { return data_; }
+        bool empty() const { return data_.empty(); }
+        const ISMRMRD::IsmrmrdHeader& get_IsmrmrdHeader() const 
+		{
+			if (!have_header_)
+				deserialize();
+			return header_; 
+		}
 
 	private:
+		void deserialize() const
+		{
+			if (!this->empty())
+				ISMRMRD::deserialize(data_.c_str(), header_);
+		}
 		std::string data_;
+        mutable ISMRMRD::IsmrmrdHeader header_;
+		bool have_header_;
 	};
 
 	/*!
@@ -138,6 +166,7 @@ namespace sirf {
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
+		virtual void copy_acquisitions_data(const MRAcquisitionData& ac) = 0;
 
 		// 'export' constructors: workaround for creating 'ABC' objects
 		virtual gadgetron::unique_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
@@ -164,7 +193,7 @@ namespace sirf {
 
 		// regular methods
 
-		std::string acquisitions_info() const { return acqs_info_; }
+		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
 
 		gadgetron::unique_ptr<MRAcquisitionData> clone() const
@@ -236,6 +265,8 @@ namespace sirf {
 			static bool initialized = false;
 			if (!initialized) {
 				acqs_templ_.reset(new AcquisitionsFile());
+				_storage_scheme = "file";
+				MRAcquisitionData::storage_scheme();
 				initialized = true;
 			}
 		}
@@ -244,11 +275,12 @@ namespace sirf {
 		{
 			init();
 			acqs_templ_.reset(new AcquisitionsFile);
+			_storage_scheme = "file";
 		}
 
 		// implements 'overwriting' of an acquisition file data with new values:
 		// in reality, creates new file with new data and deletes the old one
-		void take_over(MRAcquisitionData& ac);
+		void take_over(AcquisitionsFile& ac);
 
 		void write_acquisitions_info();
 
@@ -264,6 +296,7 @@ namespace sirf {
 		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
+		virtual void copy_acquisitions_data(const MRAcquisitionData& ac);
 
 		virtual AcquisitionsFile*
 			same_acquisitions_container(const AcquisitionsInfo& info) const
@@ -317,6 +350,7 @@ namespace sirf {
 		{
 			init();
 			acqs_templ_.reset(new AcquisitionsVector);
+			_storage_scheme = "memory";
 		}
 		virtual unsigned int number() const { return (unsigned int)acqs_.size(); }
 		virtual unsigned int items() const { return (unsigned int)acqs_.size(); }
@@ -339,6 +373,7 @@ namespace sirf {
 		{
 			acqs_info_ = ac.acquisitions_info();
 		}
+		virtual void copy_acquisitions_data(const MRAcquisitionData& ac);
 		virtual void set_data(const complex_float_t* z, int all = 1);
 
 		virtual AcquisitionsVector* same_acquisitions_container
@@ -383,8 +418,6 @@ namespace sirf {
 		
 
 		virtual unsigned int number() const = 0;
-		virtual int types() = 0;
-		virtual void count(int i) = 0;
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
 			(unsigned int im_num) = 0;
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
@@ -397,10 +430,13 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
-		virtual int read(std::string filename);
+		virtual int read(std::string filename, std::string variable = "", int iv = -1);
 		virtual void write(const std::string &filename, const std::string &groupname) const;
-        virtual void write(const std::string &filename) const { this->write(filename,""); }
-		virtual Dimensions dimensions() const 
+		virtual void write(const std::string &filename) const { this->write(filename, ""); }
+		virtual void write_dicom(const std::string &filename) const 
+		{
+		}
+		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;
 			const ImageWrap& iw = image_wrap(0);
@@ -421,7 +457,7 @@ namespace sirf {
 			iw.get_dim(dim);
 		}
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
-			new_images_container() = 0;
+			new_images_container() const = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
@@ -441,7 +477,7 @@ namespace sirf {
 			const DataContainer& a_x,
 			const DataContainer& a_y);
 
-		void sort();
+		virtual void sort() = 0;
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 		std::vector<int> index() { return index_; }
@@ -453,10 +489,16 @@ namespace sirf {
 			else
 				return i;
 		}
+        /// Set the meta data
+        void set_meta_data(const AcquisitionsInfo &acqs_info) { acqs_info_ = acqs_info; }
+        /// Get the meta data
+        const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
+
 
 	protected:
 		bool sorted_=false;
 		std::vector<int> index_;
+        AcquisitionsInfo acqs_info_;
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;
@@ -497,19 +539,17 @@ namespace sirf {
 			}
 			virtual bool operator==(const BaseIter& ai) const
 			{
-				//const Iterator& i = (const Iterator&)ai;
 				DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ == i.iter_;
 			}
 			virtual bool operator!=(const BaseIter& ai) const
 			{
-				//const Iterator& i = (const Iterator&)ai;
 				DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator& operator++()
 			{
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range("cannot advance out-of-range iterator");
 				++iter_;
 				if (iter_ == end_ && i_ < n_ - 1) {
@@ -523,7 +563,7 @@ namespace sirf {
 			Iterator& operator++(int)
 			{
 				sptr_iter_.reset(new Iterator(*this));
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range("cannot advance out-of-range iterator");
 				++iter_;
 				if (iter_ == end_ && i_ < n_ - 1) {
@@ -536,7 +576,7 @@ namespace sirf {
 			}
 			NumRef& operator*()
 			{
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range
 					("cannot dereference out-of-range iterator");
 				return *iter_;
@@ -569,22 +609,21 @@ namespace sirf {
 				iter_ = iter.iter_;
 				end_ = iter.end_;
 				sptr_iter_ = iter.sptr_iter_;
+                return *this;
 			}
 			bool operator==(const BaseIter_const& ai) const
 			{
-				//const Iterator_const& i = (const Iterator_const&)ai;
 				DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ == i.iter_;
 			}
 			bool operator!=(const BaseIter_const& ai) const
 			{
-				//const Iterator_const& i = (const Iterator_const&)ai;
 				DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator_const& operator++()
 			{
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range("cannot advance out-of-range iterator");
 				++iter_;
 				if (iter_ == end_ && i_ < n_ - 1) {
@@ -599,7 +638,7 @@ namespace sirf {
 			//Iterator_const& operator++(int)
 			//{
 			//	sptr_iter_.reset(new Iterator_const(*this));
-			//	if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+			//	if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 			//		throw std::out_of_range("cannot advance out-of-range iterator");
 			//	++iter_;
 			//	if (iter_ == end_ && i_ < n_ - 1) {
@@ -612,7 +651,7 @@ namespace sirf {
 			//}
 			const NumRef& operator*() const
 			{
-				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				if (i_ >= n_ || (i_ == n_ - 1 && iter_ == end_))
 					throw std::out_of_range
 					("cannot dereference out-of-range iterator");
 				ref_.copy(*iter_);
@@ -630,7 +669,7 @@ namespace sirf {
 			gadgetron::shared_ptr<Iterator_const> sptr_iter_;
 		};
 
-		GadgetronImagesVector() : images_(), nimages_(0)
+		GadgetronImagesVector() : images_()
 		{}
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
@@ -643,18 +682,6 @@ namespace sirf {
 		{ 
 			return (unsigned int)images_.size(); 
 		}
-		virtual int types()
-		{
-			if (nimages_ > 0)
-				return (int)(images_.size() / nimages_);
-			else
-				return 1;
-		}
-		virtual void count(int i)
-		{
-			if (i > nimages_)
-				nimages_ = i;
-		}
 		virtual void append(int image_data_type, void* ptr_image)
 		{
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>
@@ -664,6 +691,7 @@ namespace sirf {
 		{
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 		}
+		virtual void sort();
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
 			(unsigned int im_num)
 		{
@@ -691,12 +719,14 @@ namespace sirf {
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new GadgetronImagesVector()));
+				(gadgetron::shared_ptr<DataContainer>(new_images_container()));
 		}
-		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
+		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() const
 		{
-			return gadgetron::shared_ptr<GadgetronImageData>
+			gadgetron::shared_ptr<GadgetronImageData> sptr_img
 				((GadgetronImageData*)new GadgetronImagesVector());
+			sptr_img->set_meta_data(get_meta_data());
+			return sptr_img;
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target)
@@ -748,6 +778,9 @@ namespace sirf {
             return std::unique_ptr<GadgetronImagesVector>(this->clone_impl());
         }
 
+        /// Print header info
+        void print_header(const unsigned im_num);
+
     protected:
         /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info();
@@ -760,7 +793,6 @@ namespace sirf {
         }
 
 		std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
-		int nimages_;
 		mutable gadgetron::shared_ptr<Iterator> begin_;
 		mutable gadgetron::shared_ptr<Iterator> end_;
 		mutable gadgetron::shared_ptr<Iterator_const> begin_const_;
@@ -1031,11 +1063,11 @@ namespace sirf {
 		float max_(int nx, int ny, float* u);
 		void mask_noise_
 			(int nx, int ny, float* u, float noise, int* mask);
-		void cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
+		int cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
 		void smoothen_
-			(int nx, int ny, int nz,
+			(int nx, int ny, int nc,
 			complex_float_t* u, complex_float_t* v,
-			int* obj_mask);
+			int* obj_mask, int w);
 	};
 
 	/*!

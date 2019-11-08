@@ -54,7 +54,7 @@ def test_main(rec=False, verb=False, throw=True):
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 
     raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
     ad = AcquisitionData(raw_data_file)
@@ -71,6 +71,7 @@ def test_main(rec=False, verb=False, throw=True):
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
+    test.check_if_equal(voxel_size, image.voxel_sizes())
 
     filter.apply(image)
     image_arr = image.as_array()

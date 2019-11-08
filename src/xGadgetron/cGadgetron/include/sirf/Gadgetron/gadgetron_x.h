@@ -136,13 +136,21 @@ namespace sirf {
 
 	class GadgetChain { //: public anObject {
 	public:
-		//GadgetChain()
-		//{
-		//	class_ = "GadgetChain";
-		//}
+		GadgetChain() : host_("localhost"), port_("9002")
+		{
+			//class_ = "GadgetChain";
+		}
 		static const char* class_name()
 		{
 			return "GadgetChain";
+		}
+		void set_host(const std::string host)
+		{
+			host_ = host;
+		}
+		void set_port(const std::string port)
+		{
+			port_ = port;
 		}
 		// apparently caused crash in linux
 		//virtual ~GadgetChain() {}
@@ -172,6 +180,9 @@ namespace sirf {
 		gadgetron::shared_ptr<aGadget> gadget_sptr(std::string id);
 		// returns string containing the definition of the chain in xml format
 		std::string xml() const;
+	protected:
+		std::string host_;
+		std::string port_;
 	private:
 		std::list<gadgetron::shared_ptr<GadgetHandle> > readers_;
 		std::list<gadgetron::shared_ptr<GadgetHandle> > writers_;
@@ -189,7 +200,6 @@ namespace sirf {
 	class AcquisitionsProcessor : public GadgetChain {
 	public:
 		AcquisitionsProcessor() :
-			host_("localhost"), port_("9002"),
 			reader_(new IsmrmrdAcqMsgReader),
 			writer_(new IsmrmrdAcqMsgWriter)
 		{
@@ -215,8 +225,6 @@ namespace sirf {
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
@@ -233,7 +241,6 @@ namespace sirf {
 	public:
 
 		ImagesReconstructor() :
-			host_("localhost"), port_("9002"),
 			reader_(new IsmrmrdAcqMsgReader),
 			writer_(new IsmrmrdImgMsgWriter)
 		{
@@ -256,8 +263,6 @@ namespace sirf {
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
@@ -272,15 +277,23 @@ namespace sirf {
 
 	class ImagesProcessor : public GadgetChain {
 	public:
-		ImagesProcessor() :
-			host_("localhost"), port_("9002"),
-			reader_(new IsmrmrdImgMsgReader),
-			writer_(new IsmrmrdImgMsgWriter)
+		ImagesProcessor(bool dicom = false, std::string prefix = "image") :
+			dicom_(dicom), prefix_(prefix),
+			reader_(new IsmrmrdImgMsgReader)
 		{
 			//class_ = "ImagesProcessor";
+			//gadgetron::shared_ptr<ImageFinishGadget> endgadget;
+			gadgetron::shared_ptr<aGadget> endgadget;
+			if (dicom) {
+				writer_.reset(new DicomImageMessageWriter);
+				endgadget.reset(new DicomFinishGadget);
+			}
+			else {
+				writer_.reset(new IsmrmrdImgMsgWriter);
+				endgadget.reset(new ImageFinishGadget);
+			}
 			add_reader("reader", reader_);
 			add_writer("writer", writer_);
-			gadgetron::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 			set_endgadget(endgadget);
 		}
 		static const char* class_name()
@@ -289,17 +302,18 @@ namespace sirf {
 		}
 
 		void check_connection();
-		void process(GadgetronImageData& images);
+		void process(const GadgetronImageData& images);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
 			return sptr_images_;
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
+		bool dicom_;
+		std::string prefix_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgReader> reader_;
-		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
+		gadgetron::shared_ptr<ImageMessageWriter> writer_;
+//		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
 	};
 
@@ -342,9 +356,13 @@ namespace sirf {
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic
-			) : sptr_acqs_(sptr_ac), sptr_imgs_(sptr_ic)
+			) : sptr_acqs_(sptr_ac) //, sptr_imgs_(sptr_ic)
 		{
+			set_image_template(sptr_ic);
 		}
+		
+		// make sure ic contains "true" images (and not e.g. G-factors)
+		void check_data_role(const GadgetronImageData& ic);
 
 		// Records the acquisition template to be used. 
 		void set_acquisition_template
@@ -356,6 +374,7 @@ namespace sirf {
 		void set_image_template
 			(gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
+			check_data_role(*sptr_ic);
 			sptr_imgs_ = sptr_ic;
 		}
 		// Records the coil sensitivities maps to be used. 
@@ -370,7 +389,8 @@ namespace sirf {
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
 			sptr_acqs_ = sptr_ac;
-			sptr_imgs_ = sptr_ic;
+			set_image_template(sptr_ic);
+			//sptr_imgs_ = sptr_ic;
 		}
 
 		// Forward projects one image item (typically xy-slice) into
@@ -414,6 +434,7 @@ namespace sirf {
 			if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 				throw LocalisedException
 				("coil sensitivity maps not found", __FILE__, __LINE__);
+			check_data_role(ic);
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs =
 				sptr_acqs_->new_acquisitions_container();
 			sptr_acqs->copy_acquisitions_info(*sptr_acqs_);

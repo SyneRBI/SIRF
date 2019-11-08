@@ -65,13 +65,13 @@ void ImageWeightedMean<dataType>::process()
         if (NiftiImageData<dataType>::do_nifti_image_metadata_match(*_input_image_sptrs[0],*_input_image_sptrs[i], false))
             images_sptr.push_back(_input_image_sptrs[i]);
         else {
-            std::cout << "\nImageWeightedMean: Mismatch in image metadata, so resampling taking first image as reference...\n";
+            std::cout << "\nImageWeightedMean: Mismatch in metadata between images 0 and " << i << ", so resampling taking first image as reference...\n";
             NiftyResample<float> resample;
             resample.set_interpolation_type_to_nearest_neighbour();
             resample.set_reference_image(_input_image_sptrs[0]);
             resample.set_floating_image(_input_image_sptrs[i]);
             resample.process();
-            images_sptr.push_back(resample.get_output_sptr());
+            images_sptr.push_back(resample.get_output_as_niftiImageData_sptr());
         }
     }
 

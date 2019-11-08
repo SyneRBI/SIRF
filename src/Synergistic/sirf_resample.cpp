@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2019 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -32,11 +32,11 @@ If multiple transformations are given, they will be applied in the order they we
 
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
+#include "sirf/STIR/stir_data_containers.h"
 
 
 using namespace sirf;
@@ -105,6 +105,8 @@ int main(int argc, char* argv[])
         std::vector<std::shared_ptr<const Transformation<float> > > trans;
         std::string algo = "niftyreg";
         Resample<float>::InterpolationType interp = Resample<float>::NEARESTNEIGHBOUR;
+        float pad = 0;
+        bool pad_set = false;
 
         // Loop over all input arguments (ignore first argument (name of executable))
         argc--; argv++;
@@ -186,6 +188,14 @@ int main(int argc, char* argv[])
                 trans.push_back(std::make_shared<const NiftiImageData3DDisplacement<float> >(argv[1]));
                 argc-=2; argv+=2;
             }
+            // padding
+            else if (strcmp(argv[0], "-pad") == 0) {
+                if (argc<2)
+                    err("Option '-pad' expects a (numerical) argument.");
+                pad = atof(argv[1]);
+                pad_set = true;
+                argc-=2; argv+=2;
+            }
 
             // Unknown argument
             else
@@ -209,6 +219,8 @@ int main(int argc, char* argv[])
         for (size_t i=0; i<trans.size(); ++i)
             res->add_transformation(trans[i]);
         res->set_interpolation_type(interp);
+        if (pad_set)
+            res->set_padding_value(pad);
         res->process();
         res->get_output_sptr()->write(output);
     }

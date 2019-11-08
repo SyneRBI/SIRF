@@ -9,6 +9,7 @@ function resample(varargin)
 %   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
 %   --trans_filenames ...        transformation filenames, (with quotations): "filename1,filename2,filename3"
 %   --trans_types ...            transformation types, e.g. (with quotations): "AffineTransformation,NiftiImageData3DDeformation,NiftiImageData3DDisplacement"
+%   --pad <pad>                  Padding value
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018 - 2019 University College London.
@@ -33,31 +34,34 @@ trans_types={};
 %% Parse the input
 i=1;
 while i <= length(varargin)
-    if     strcmp(varargin{i},'eng_ref')
+    if     strcmp(varargin{i},'--eng_ref')
         eng_ref = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'eng_flo')
+    elseif strcmp(varargin{i},'--eng_flo')
         eng_flo = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'ref')
+    elseif strcmp(varargin{i},'--ref')
         ref_file = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'flo')
+    elseif strcmp(varargin{i},'--flo')
         flo_file = get_arg(varargin,i,1);
         i=i+2;
-   elseif strcmp(varargin{i},'algo')
+   elseif strcmp(varargin{i},'--algo')
         algo = get_arg(varargin,i,1);
         i=i+2;
-   elseif strcmp(varargin{i},'output')
+   elseif strcmp(varargin{i},'--output')
         output = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'intrp')
+    elseif strcmp(varargin{i},'--intrp')
         intrp = str2num(get_arg(varargin,i,1));
         i=i+2;
-    elseif strcmp(varargin{i},'trans')
+    elseif strcmp(varargin{i},'--trans')
         trans_filenames = [trans_filenames; get_arg(varargin,i,1)];
         trans_types     = [trans_types;     get_arg(varargin,i,2)];
         i=i+3;
+    elseif strcmp(varargin{i},'--pad')
+        pad = get_arg(varargin,i,1)
+        i=i+2;
     else
         error(['Unknown argument: ' varargin{i} '. Use help(function) for help.']);  
     end
@@ -105,6 +109,11 @@ for i=1:size(trans_filenames)
   disp(['Transformation ' i ' type: ' trans_types(i)])
   trans = eval(['sirf.Reg.' trans_types(i) '(' trans_filenames(i) ');']);
   res.add_transformation(trans);
+end
+ 
+% If padding value has been set
+if exist('pad','var')
+    res.set_padding_value(pad);
 end
  
 % Resample

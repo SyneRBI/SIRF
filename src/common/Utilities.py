@@ -33,7 +33,9 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 def petmr_data_path(petmr):
     '''
     Returns the path to PET or MR data.
-    petmr: either 'pet' or 'mr' (case-insensitive)
+    petmr: either 'PET' or 'MR'
+
+    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
     '''
     data_path = '/data/examples/' + petmr.upper()
     SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -86,21 +88,20 @@ def show_2D_array(title, array, scale = None, colorbar = True):
     plt.figure()
     plt.title(title)
     if colorbar:
-        plt.imshow(array, vmin = vmin, vmax = vmax)
+        plt.imshow(array, vmin=vmin, vmax=vmax)
         plt.colorbar()
     else:
-        plt.imshow(array, cmap = 'gray', vmin = vmin, vmax = vmax)
+        plt.imshow(array, cmap='gray', vmin=vmin, vmax=vmax)
     fignums = plt.get_fignums()
     print('You may need to close Figure %d window to continue...' % fignums[-1])
     plt.show()
 
 
 def show_3D_array\
-    (array, index = None, tile_shape = None, scale = None, power = None, \
-     suptitle = None, titles = None, \
-     xlabel = None, ylabel = None, label = None, \
-     title_size = None, \
-     cmap = None, show = True):
+    (array, index=None, tile_shape=None, scale=None, power=None, \
+     suptitle=None, titles=None, title_size=None, \
+     zyx=None, xlabel=None, ylabel=None, label=None, \
+     cmap=None, show=True):
     '''
     Displays a 3D array as a set of z-slice tiles.
     On successful completion returns 0.
@@ -118,6 +119,9 @@ def show_3D_array\
     suptitle  : figure title; defaults to None
     titles    : array of tile titles; if not present, each tile title is
                 label + tile_number
+    zyx       : tuple (z, y, x), where x, y, anad z are the dimensions of array
+                corresponding to the spatial dimensions x, y and z; zyx=None is
+                interpreted as (0, 1, 2)
     xlabel    : label for x axis
     ylabel    : label for y axis
     label     : tile title prefix
@@ -126,6 +130,7 @@ def show_3D_array\
     '''
     import math
     import numpy
+
     current_title_size = mpl.rcParams['axes.titlesize']
     current_label_size = mpl.rcParams['axes.labelsize']
     current_xlabel_size = mpl.rcParams['xtick.labelsize']
@@ -134,22 +139,23 @@ def show_3D_array\
     mpl.rcParams['axes.labelsize'] = 'small'
     mpl.rcParams['xtick.labelsize'] = 'small'
     mpl.rcParams['ytick.labelsize'] = 'small'
+
+    if zyx is not None:
+        array = numpy.transpose(array, zyx)
+
     nz = array.shape[0]
     if index is None:
         n = nz
         index = range(n)
-#        index = range(1, n + 1)
     else:
         if type(index) == type(' '):
             try:
                 index = str_to_int_list(index)
             except:
-#                print('incorrect input')
                 return 1
         n = len(index)
         for k in range(n):
             z = index[k]
-#            if z < 1 or z > nz:
             if z < 0 or z >= nz:
                 return k + 1
     ny = array.shape[1]
@@ -181,14 +187,13 @@ def show_3D_array\
         if title_size is None:
             fig.suptitle(suptitle)
         else:
-            fig.suptitle(suptitle, fontsize = title_size)
+            fig.suptitle(suptitle, fontsize=title_size)
     for k in range(n):
         z = index[k] #- 1
         ax = fig.add_subplot(rows, cols, k + 1)
         if titles is None:
             if label is not None and nz > 1:
                 ax.set_title(label + (' %d' % z))
-                # ax.set_title(label + (' %d' % (z + 1)))
         else:
             ax.set_title(titles[k])
         row = k//cols
@@ -200,16 +205,14 @@ def show_3D_array\
             if xlabel is not None:
                 plt.xlabel(xlabel)
                 plt.xticks([0, nx - 1], [0, nx - 1])
-#                plt.xticks([0, nx - 1], [1, nx])
             if ylabel is not None:
                 plt.ylabel(ylabel)
                 plt.yticks([0, ny - 1], [0, ny - 1])
-#                plt.yticks([0, ny - 1], [1, ny])
         if power is None:
-            imgplot = ax.imshow(array[z,:,:], cmap, vmin = vmin, vmax = vmax)
+            imgplot = ax.imshow(array[z,:,:], cmap, vmin=vmin, vmax=vmax)
         else:
             imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), cmap, \
-                                vmin = vmin, vmax = vmax)
+                                vmin=vmin, vmax=vmax)
     if show:
         fignums = plt.get_fignums()
         last = fignums[-1]
@@ -219,10 +222,12 @@ def show_3D_array\
         else:
             print('You may need to close Figure 1 window to continue...')
         plt.show()
+
     mpl.rcParams['axes.titlesize'] = current_title_size
     mpl.rcParams['axes.labelsize'] = current_label_size
     mpl.rcParams['xtick.labelsize'] = current_xlabel_size
     mpl.rcParams['ytick.labelsize'] = current_ylabel_size
+
     return 0
 
 
@@ -232,7 +237,7 @@ def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
     Throws an error if abs(expected - actual) > abstol + reltol*abs(expected)
     '''
     if abs(expected - actual) > abstol + reltol*abs(expected):
-        raise ValueError("|%.3g - %.3g| > %.3g" %
+        raise ValueError("|%.4g - %.4g| > %.3g" %
                          (expected, actual, abstol + reltol*abs(expected)))
 
 
@@ -241,6 +246,7 @@ class pTest(object):
         self.record = record
         self.data = []
         self.ntest = 0
+        self.nrec = 0
         self.failed = 0
         self.verbose = True
         self.throw = throw
@@ -263,7 +269,7 @@ class pTest(object):
         if self.record:
             self.file.close()
 
-    def check(self, value, abs_tol=0, rel_tol=1e-3):
+    def check(self, value, abs_tol=0, rel_tol=2e-3):
         '''
         Tests if value is equal to the recorded one (or record it)
         value        : the value that was computed
@@ -273,10 +279,10 @@ class pTest(object):
         if self.record:
             self.file.write('%e\n' % value)
         else:
-            if self.ntest >= self.size:
+            if self.nrec >= self.size:
                 raise IndexError('no data available for test %d' % self.ntest)
             else:
-                expected = self.data[self.ntest]
+                expected = self.data[self.nrec]
                 try:
                     check_tolerance(expected, value, abs_tol, rel_tol)
                 except ValueError as e:
@@ -290,21 +296,26 @@ class pTest(object):
                     if self.verbose:
                         print('+++ test %d passed' % self.ntest)
         self.ntest += 1
+        self.nrec += 1
 
-    def check_if_equal(self, expected, value, abs_tol=0, rel_tol=1e-3):
+    def check_if_equal(self, expected, value):
         '''
-        Tests if value is equal to the expected one (or record the expected value).
+        Tests if value is equal to the expected one.
         expected     : the true value
         value        : the value that was computed
-        abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
         '''
-        if self.record:
-            self.file.write('%e\n' % expected)
-            self.ntest += 1
+        if value != expected:
+            self.failed += 1
+            msg = ('+++ test %d failed: ' % self.ntest) + \
+                  repr(value) + ' != ' + repr(expected)
+            if self.throw:
+                raise ValueError(msg)
+            if self.verbose:
+                print(msg)
         else:
-            # run normal test (as `expected' will have been written to file)
-            # Note that this will increment ntest
-            self.check(value, abs_tol, rel_tol)
+            if self.verbose:
+                print('+++ test %d passed' % self.ntest)
+        self.ntest += 1
 
 class CheckRaise(pTest):
     def __init__(self, *a, **k):
@@ -346,7 +357,7 @@ class error(Exception):
         return '??? ' + repr(self.value)
 
 
-def check_status(handle, stack = None):
+def check_status(handle, stack=None):
     if pyiutil.executionStatus(handle) != 0:
         if stack is None:
             stack = inspect.stack()[1]
@@ -358,7 +369,7 @@ def check_status(handle, stack = None):
         line = pyiutil.executionErrorLine(handle)
         errorMsg = \
             repr(msg) + ' exception caught at line ' + \
-            repr(line) + ' of ' + file + '\n' + \
+            repr(line) + ' of ' + file + '; ' + \
             'the reconstruction engine output may provide more information'
         raise error(errorMsg)
 

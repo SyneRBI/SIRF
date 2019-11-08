@@ -20,16 +20,17 @@ Object-Oriented wrap for the cReg-to-Python interface pyreg.py
 #   limitations under the License.
 
 import abc
-import inspect
-import numpy
 import sys
 import time
+import numbers
 
 from pUtilities import *
 from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
-import pSTIR
+
+import sirf.Reg_params as parms
+
 
 try:
     input_ = raw_input
@@ -46,83 +47,7 @@ WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
 
-###########################################################
-############ Utilities for internal use only ##############
-
-
-def _setParameter_sirf(hs, set_, par, hv, stack=None):
-    # try_calling(pyreg.cReg_setParameter(hs, set, par, hv))
-    if stack is None:
-        stack = inspect.stack()[1]
-    h = pyreg.cReg_setParameter(hs, set_, par, hv)
-    check_status(h, stack)
-    pyiutil.deleteDataHandle(h)
-
-
-def _set_char_par_sirf(handle, set_, par, value):
-    h = pyiutil.charDataHandle(value)
-    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-
-
-def _set_int_par_sirf(handle, set_, par, value):
-    h = pyiutil.intDataHandle(value)
-    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-
-
-def _set_float_par_sirf(handle, set_, par, value):
-    h = pyiutil.floatDataHandle(value)
-    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
-    pyiutil.deleteDataHandle(h)
-
-
-def _char_par_sirf(handle, set_, par):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.charDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def _int_par_sirf(handle, set_, par):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.intDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def _float_par_sirf(handle, set_, par):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.floatDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def _float_pars_sirf(handle, set_, par, n):
-    h = pyreg.cReg_parameter(handle, set_, par)
-    check_status(h)
-    value = ()
-    for i in range(n):
-        value += (pyiutil.floatDataItemFromHandle(h, i), )
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def _getParameterHandle_sirf(hs, set_, par):
-    handle = pyreg.cReg_parameter(hs, set_, par)
-    check_status(handle, inspect.stack()[1])
-    return handle
-
-
-def _tmp_filename():
-    return repr(int(1000*time.time()))
-###########################################################
-
-
-class MessageRedirector:
+class MessageRedirector(object):
     """
     Class for registration printing redirection to files/stdout/stderr.
     """
@@ -287,15 +212,15 @@ class NiftiImageData(SIRF.ImageData):
 
     def get_max(self):
         """Get max."""
-        return _float_par_sirf(self.handle, 'NiftiImageData', 'max')
+        return parms.float_par(self.handle, 'NiftiImageData', 'max')
 
     def get_min(self):
         """Get min."""
-        return _float_par_sirf(self.handle, 'NiftiImageData', 'min')
+        return parms.float_par(self.handle, 'NiftiImageData', 'min')
 
     def get_sum(self):
         """Get sum."""
-        return _float_par_sirf(self.handle, 'NiftiImageData', 'sum')
+        return parms.float_par(self.handle, 'NiftiImageData', 'sum')
 
     def get_dimensions(self):
         """Get dimensions. Returns nifti format.
@@ -315,10 +240,23 @@ class NiftiImageData(SIRF.ImageData):
         return out
 
     def fill(self, val):
-        """Fill image with single value."""
+        """Fill image with single value or numpy array."""
         if self.handle is None:
             raise AssertionError()
-        try_calling(pyreg.cReg_NiftiImageData_fill(self.handle, val))
+        if isinstance(val, numpy.ndarray):
+            if val.dtype is numpy.dtype('float32'):
+                v = val
+            else:
+                v = val.astype(numpy.float32)
+            if not v.flags['F_CONTIGUOUS']:
+                v = numpy.asfortranarray(v)
+            try_calling(pyreg.cReg_NiftiImageData_fill_arr(self.handle, v.ctypes.data))
+        elif isinstance(val, float):
+            try_calling(pyreg.cReg_NiftiImageData_fill(self.handle, val))
+        elif isinstance(val, int):
+            try_calling(pyreg.cReg_NiftiImageData_fill(self.handle, float(val)))
+        else:
+            raise error('wrong fill value. Should be numpy.ndarray, float or int')
 
     def deep_copy(self):
         """Deep copy image."""
@@ -343,9 +281,9 @@ class NiftiImageData(SIRF.ImageData):
             raise AssertionError()
         dim = self.get_dimensions()
         dim = dim[1:dim[0]+1]
-        array = numpy.ndarray(dim, dtype=numpy.float32)
-        try_calling(pyreg.cReg_NiftiImageData_get_data(self.handle, array.ctypes.data))
-        return array
+        array = numpy.ndarray(dim, dtype=numpy.float32, order='F')
+        try_calling(pyreg.cReg_NiftiImageData_as_array(self.handle, array.ctypes.data))
+        return numpy.ascontiguousarray(array)
 
     def get_original_datatype(self):
         """Get original image datatype (internally everything is converted to float)."""
@@ -369,34 +307,35 @@ class NiftiImageData(SIRF.ImageData):
 
     def print_header(self):
         """Print nifti header metadata."""
-        try_calling(pyreg.cReg_NiftiImageData_print_headers(1, self.handle, None, None, None, None))
+        vec = SIRF.DataHandleVector()
+        vec.push_back(self.handle)
+        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
     def same_object(self):
         """See DataContainer.same_object()."""
         return NiftiImageData()
 
+    def set_voxel_spacing(self, spacing, interpolation_order):
+        """Set the voxel spacing. Requires resampling image, and so interpolation order is required. 
+        As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation."""
+        if len(spacing) != 3:
+            raise AssertionError("New spacing should be array of 3 numbers.")
+            type(interpolation_order)
+        try_calling(pyreg.cReg_NiftiImageData_set_voxel_spacing(self.handle, float(spacing[0]), float(spacing[1]), float(spacing[2]), int(interpolation_order)))
+
+    def get_contains_nans(self):
+        """Returns true if image contains any voxels with NaNs."""
+        return parms.bool_par(self.handle, 'NiftiImageData', 'contains_nans')
+
     @staticmethod
     def print_headers(to_print):
-        """Print nifti header metadata of one or multiple (up to 5) nifti images."""
+        """Print nifti header metadata of one or multiple nifti images."""
         if not all(isinstance(n, NiftiImageData) for n in to_print):
             raise AssertionError()
-        if len(to_print) == 1:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                1, to_print[0].handle, None, None, None, None))
-        elif len(to_print) == 2:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                2, to_print[0].handle, to_print[1].handle, None, None, None))
-        elif len(to_print) == 3:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                3, to_print[0].handle, to_print[1].handle, to_print[2].handle, None, None))
-        elif len(to_print) == 4:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                4, to_print[0].handle, to_print[1].handle, to_print[2].handle, to_print[3].handle, None))
-        elif len(to_print) == 5:
-            try_calling(pyreg.cReg_NiftiImageData_print_headers(
-                5, to_print[0].handle, to_print[1].handle, to_print[2].handle, to_print[3].handle, to_print[4].handle))
-        else:
-            raise error('print_headers only implemented for up to 5 images.')
+        vec = SIRF.DataHandleVector()
+        for n in to_print:
+            vec.push_back(n.handle)
+        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
 
 class NiftiImageData3D(NiftiImageData):
@@ -527,7 +466,7 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
 
     @staticmethod
     def compose_single_deformation(trans, ref):
-        """Compose up to transformations into single deformation."""
+        """Compose transformations into single deformation."""
         if not isinstance(ref, NiftiImageData3D):
             raise AssertionError()
         if not all(isinstance(n, _Transformation) for n in trans):
@@ -545,21 +484,13 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
                 types += '2'
             elif isinstance(n, NiftiImageData3DDeformation):
                 types += '3'
+        # Convert transformations into SIRF vector
+        vec = SIRF.DataHandleVector()
+        for n in trans:
+            vec.push_back(n.handle)
         z = NiftiImageData3DDeformation()
-        if len(trans) == 2:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, None, None, None)
-        elif len(trans) == 3:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, None, None)
-        elif len(trans) == 4:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, None)
-        elif len(trans) == 5:
-            z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
-                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, trans[4].handle)
-        else:
-            raise error('compose_single_deformation only implemented for up to 5 transformations.')
+        z.handle = pyreg.cReg_NiftiImageData3DDeformation_compose_single_deformation(
+            ref.handle, types, vec.handle)
         check_status(z.handle)
         return z
 
@@ -579,38 +510,37 @@ class _Registration(ABC):
 
     def set_parameter_file(self, filename):
         """Sets the parameter filename."""
-        _set_char_par_sirf(self.handle, 'Registration', 'parameter_file', filename)
+        parms.set_char_par(self.handle, 'Registration', 'parameter_file', filename)
 
     def set_reference_image(self, reference_image):
         """Sets the reference image."""
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        _setParameter_sirf(self.handle, 'Registration', 'reference_image', reference_image.handle)
+        parms.set_parameter(self.handle, 'Registration', 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Sets the floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'Registration', 'floating_image', floating_image.handle)
+        parms.set_parameter(self.handle, 'Registration', 'floating_image', floating_image.handle)
 
     def set_reference_mask(self, reference_mask):
         """Sets the reference mask."""
         if not isinstance(reference_mask, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
+        parms.set_parameter(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
 
     def set_floating_mask(self, floating_mask):
         """Sets the floating mask."""
         if not isinstance(floating_mask, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
+        parms.set_parameter(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
 
     def get_output(self):
         """Gets the registered image."""
         output = self.reference_image.same_object()
-        output.handle = pyreg.cReg_parameter(self.handle, 'Registration', 'output')
-        check_status(output.handle)
+        output.handle = parms.parameter_handle(self.handle, 'Registration', 'output')
         return output
 
     def process(self):
@@ -683,6 +613,12 @@ class NiftyAladinSym(_Registration):
         tm.handle = pyreg.cReg_NiftyAladin_get_TM(self.handle, 'inverse')
         return tm
 
+    @staticmethod
+    def print_all_wrapped_methods():
+        """Print all wrapped methods."""
+        print("In C++, this class is templated. \"dataType\" corresponds to \"float\" for Matlab and python.")
+        try_calling(pyreg.cReg_Registration_print_all_wrapped_methods('NiftyAladinSym'))
+
 
 class NiftyF3dSym(_Registration):
     """
@@ -700,20 +636,26 @@ class NiftyF3dSym(_Registration):
 
     def set_floating_time_point(self, floating_time_point):
         """Set floating time point."""
-        _set_int_par_sirf(self.handle, self.name, 'floating_time_point', floating_time_point)
+        parms.set_int_par(self.handle, self.name, 'floating_time_point', floating_time_point)
 
     def set_reference_time_point(self, reference_time_point):
         """Set reference time point."""
-        _set_int_par_sirf(self.handle, self.name, 'reference_time_point', reference_time_point)
+        parms.set_int_par(self.handle, self.name, 'reference_time_point', reference_time_point)
 
     def set_initial_affine_transformation(self, src):
         """Set initial affine transformation."""
         if not isinstance(src, AffineTransformation):
             raise AssertionError()
-        _setParameter_sirf(self.handle, self.name, 'initial_affine_transformation', src.handle)
+        parms.set_parameter(self.handle, self.name, 'initial_affine_transformation', src.handle)
+
+    @staticmethod
+    def print_all_wrapped_methods():
+        """Print all wrapped methods."""
+        print("In C++, this class is templated. \"dataType\" corresponds to \"float\" for Matlab and python.")
+        try_calling(pyreg.cReg_Registration_print_all_wrapped_methods('NiftyF3dSym'))
 
 
-class NiftyResample:
+class NiftyResample(object):
     """
     Resample using NiftyReg.
     """
@@ -732,13 +674,13 @@ class NiftyResample:
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        _setParameter_sirf(self.handle, self.name, 'reference_image', reference_image.handle)
+        parms.set_parameter(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Set floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, self.name, 'floating_image', floating_image.handle)
+        parms.set_parameter(self.handle, self.name, 'floating_image', floating_image.handle)
 
     def add_transformation(self, src):
         """Add transformation."""
@@ -755,23 +697,27 @@ class NiftyResample:
         """Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""
         if not isinstance(interp_type, int):
             raise AssertionError()
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', interp_type)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', interp_type)
 
     def set_interpolation_type_to_nearest_neighbour(self):
         """Set interpolation type to nearest neighbour."""
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 0)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', 0)
 
     def set_interpolation_type_to_linear(self):
         """Set interpolation type to linear."""
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 1)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', 1)
 
     def set_interpolation_type_to_cubic_spline(self):
         """Set interpolation type to cubic spline."""
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 3)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', 3)
 
     def set_interpolation_type_to_sinc(self):
         """Set interpolation type to sinc."""
-        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 4)
+        parms.set_int_par(self.handle, self.name, 'interpolation_type', 4)
+
+    def set_padding_value(self, val):
+        """Set padding value."""
+        parms.set_float_par(self.handle, self.name, 'padding', val)
 
     def process(self):
         """Process."""
@@ -780,12 +726,12 @@ class NiftyResample:
     def get_output(self):
         """Get output."""
         image = self.reference_image.same_object()
-        image.handle = _getParameterHandle_sirf(self.handle, self.name, 'output')
+        image.handle = parms.parameter_handle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 
 
-class ImageWeightedMean:
+class ImageWeightedMean(object):
     """
     Class for performing weighted mean of images.
     """
@@ -806,7 +752,7 @@ class ImageWeightedMean:
         elif isinstance(image, str):
             try_calling(pyreg.cReg_ImageWeightedMean_add_image_filename(self.handle, image, weight))
         else:
-            raise error("pReg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
+            raise error("sirf.Reg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
 
     def process(self):
         """Process."""
@@ -815,7 +761,7 @@ class ImageWeightedMean:
     def get_output(self):
         """Get output."""
         image = NiftiImageData()
-        image.handle = _getParameterHandle_sirf(self.handle, self.name, 'output')
+        image.handle = parms.parameter_handle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 
@@ -824,14 +770,14 @@ class AffineTransformation(_Transformation):
     """
     Class for affine transformations.
     """
-    def __init__(self, src=None):
+    def __init__(self, src=None, quat=None):
         self.handle = None
         self.name = 'AffineTransformation'
         if src is None:
             self.handle = pyreg.cReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pyreg.cReg_objectFromFile(self.name, src)
-        elif isinstance(src, numpy.ndarray):
+        elif isinstance(src, numpy.ndarray) and quat is None:
             if src.shape != (4, 4):
                 raise AssertionError()
             # Need to transpose relative to MATLAB
@@ -839,9 +785,11 @@ class AffineTransformation(_Transformation):
             for i in range(4):
                 for j in range(4):
                     trans[i,j] = src[j,i]
-            self.handle = pyreg.cReg_AffineTransformation_construct_from_TM(trans.ctypes.data)
+                self.handle = pyreg.cReg_AffineTransformation_construct_from_TM(trans.ctypes.data)
+        elif isinstance(src, numpy.ndarray) and quat is not None and isinstance(quat, Quaternion):
+            self.handle = pyreg.cReg_AffineTransformation_construct_from_trans_and_quaternion(src.ctypes.data, quat.handle)
         else:
-            raise error('Wrong source in affine transformation constructor')
+            raise error('AffineTransformation accepts no args, filename, 4x4 array or translation with quaternion.')
         check_status(self.handle)
 
     def __del__(self):
@@ -888,7 +836,7 @@ class AffineTransformation(_Transformation):
 
     def get_determinant(self):
         """Get determinant."""
-        return _float_par_sirf(self.handle, self.name, 'determinant')
+        return parms.float_par(self.handle, self.name, 'determinant')
 
     def as_array(self):
         """Get forward transformation matrix."""
@@ -913,9 +861,77 @@ class AffineTransformation(_Transformation):
         try_calling(pyreg.cReg_AffineTransformation_get_Euler_angles(self.handle, eul.ctypes.data))
         return eul
 
+    def get_quaternion(self):
+        """Get quaternion."""
+        if self.handle is None:
+            raise AssertionError()
+        quat_zeros = numpy.array([0., 0., 0., 0.],dtype=numpy.float32)
+        quat = Quaternion(quat_zeros)
+        quat.handle = pyreg.cReg_AffineTransformation_get_quaternion(self.handle)
+        check_status(quat.handle)
+        return quat
+
     @staticmethod
     def get_identity():
         """Get identity matrix."""
         mat = AffineTransformation()
         mat.handle = pyreg.cReg_AffineTransformation_get_identity()
         return mat
+
+    @staticmethod
+    def get_average(to_average):
+        """Get average of transformations."""
+        if not all(isinstance(n, AffineTransformation) for n in to_average):
+            raise AssertionError("AffineTransformation:get_average() input list should only contain AffineTransformations.")
+        tm = AffineTransformation()
+        vec = SIRF.DataHandleVector()
+        for n in to_average:
+            vec.push_back(n.handle)
+        tm.handle = pyreg.cReg_AffineTransformation_get_average(vec.handle)
+        check_status(tm.handle)
+        return tm
+
+
+class Quaternion(object):
+    """
+    Class for quaternions.
+    """
+    def __init__(self, src=None):
+        self.handle = None
+        self.name = 'Quaternion'
+        if isinstance(src, numpy.ndarray):
+            if src.size != 4:
+                raise AssertionError('Quaternion constructor from numpy array is wrong size.')
+            self.handle = pyreg.cReg_Quaternion_construct_from_array(src.ctypes.data)
+        elif isinstance(src, AffineTransformation):
+            self.handle = pyreg.cReg_Quaternion_construct_from_AffineTransformation(src.handle)
+        else:
+            raise error('Wrong source in quaternion constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def as_array(self):
+        """Get quaternion as array."""
+        if self.handle is None:
+            raise AssertionError()
+        arr = numpy.ndarray(4, dtype=numpy.float32)
+        try_calling(pyreg.cReg_Quaternion_as_array(self.handle, arr.ctypes.data))
+        return arr
+
+    @staticmethod
+    def get_average(to_average):
+        """Get average of quaternions."""
+        if not all(isinstance(n, Quaternion) for n in to_average):
+            raise AssertionError()
+        quat_zeros = numpy.array([0., 0., 0., 0.],dtype=numpy.float32)
+        quat = Quaternion(quat_zeros)
+        if not all(isinstance(n, Quaternion) for n in to_average):
+            raise AssertionError()
+        vec = SIRF.DataHandleVector()
+        for n in to_average:
+            vec.push_back(n.handle)
+        quat.handle = pyreg.cReg_Quaternion_get_average(vec.handle)
+        return quat

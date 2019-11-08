@@ -10,15 +10,15 @@ Options:
   --flo <file>                 floating image (default: test2.nii.gz)
   --par <file>                 parameter file (default: niftyreg_aladin.par)
   --algo <algo>                registration algorithm [default: NiftyAladinSym]
-  --rmask                      mask of reference image
-  --fmask                      mask of floating image
+  --rmask <file>               mask of reference image
+  --fmask <file>               mask of floating image
   --warped <file>              warped image filename [default: output]
-  --TM_forward                 forward transformation matrix (if rigid/affine)
-  --TM_inverse                 inverse transformation matrix (if rigid/affine)
-  --disp_fwd_4D                4D forward displacement field image
-  --def_fwd_4D                 4D forward deformation field image
-  --disp_inv_4D                4D inverse displacement field image
-  --def_inv_4D                 4D inverse deformation field image
+  --TM_forward <file>          forward transformation matrix (if rigid/affine)
+  --TM_inverse <file>          inverse transformation matrix (if rigid/affine)
+  --disp_fwd_4D <file>         4D forward displacement field image
+  --def_fwd_4D <file>          4D forward deformation field image
+  --disp_inv_4D <file>         4D inverse displacement field image
+  --def_inv_4D <file>          4D inverse deformation field image
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -45,7 +45,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-import pReg
+import sirf.Reg
 exec('import p' + args['--eng_ref'] + ' as eng_ref')
 exec('import p' + args['--eng_flo'] + ' as eng_flo')
 
@@ -58,7 +58,7 @@ rmask_file = args['--rmask']
 fmask_file = args['--fmask']
 
 # if using the default for any, need to get the examples folder
-if (ref_file or flo_file or par_file) is None: 
+if (ref_file is None or flo_file is None or par_file is None): 
   SIRF_PATH = os.environ.get('SIRF_PATH')
   if SIRF_PATH is not None:
     examples_path = SIRF_PATH + '/data/examples/Registration'
@@ -93,7 +93,7 @@ def main():
     flo = eng_flo.ImageData(flo_file)
 
     # Dynamically create registration algorithm
-    algorithm = getattr(pReg, algo)
+    algorithm = getattr(sirf.Reg, algo)
     reg = algorithm()
     reg.set_reference_image(ref)
     reg.set_floating_image(flo)
@@ -114,21 +114,21 @@ def main():
     reg.get_output().write(args['--warped'])
 
     # TMs
-    if args['--TM_forward'] is not False:
+    if args['--TM_forward'] is not None:
         reg.get_transformation_matrix_forward().write(args['--TM_forward'])
-    if args['--TM_inverse'] is not False:
+    if args['--TM_inverse'] is not None:
         reg.get_transformation_matrix_inverse().write(args['--TM_inverse'])
 
     # Disp fields
-    if args['--disp_fwd_4D'] is not False:
+    if args['--disp_fwd_4D'] is not None:
         reg.get_displacement_field_forward().write(args['--disp_fwd_4D'])
-    if args['--disp_inv_4D'] is not False:
+    if args['--disp_inv_4D'] is not None:
         reg.get_displacement_field_inverse().write(args['--disp_inv_4D'])
 
     # Def fields
-    if args['--def_fwd_4D'] is not False:
+    if args['--def_fwd_4D'] is not None:
         reg.get_deformation_field_forward().write(args['--def_fwd_4D'])
-    if args['--def_inv_4D'] is not False:
+    if args['--def_inv_4D'] is not None:
         reg.get_deformation_field_inverse().write(args['--def_inv_4D'])
 
 

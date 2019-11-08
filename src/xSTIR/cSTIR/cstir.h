@@ -32,6 +32,14 @@ extern "C" {
 #define PTR_DOUBLE double*
 #endif
 
+	// Unified parameter exchange methods
+	void* setParameter
+		(void* ptr, const char* obj, const char* name, const void* value);
+	void* parameter(const void* ptr, const char* obj, const char* name);
+
+    // Global
+    void* cSTIR_setVerbosity(const int verbosity_ptr);
+
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);
 	void* cSTIR_objectFromFile(const char* name, const char* filename);
@@ -49,6 +57,7 @@ extern "C" {
 	void* cSTIR_computeRandoms(void* ptr);
 
 	// Data processor methods
+	void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
 	void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);
 
 	// Acquisition model methods
@@ -74,10 +83,10 @@ extern "C" {
                  (const void* ptr_acq_matrix,
                   const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D);
 
-        // Acquisition data methods
-	void* cSTIR_getAcquisitionsStorageScheme();
-	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
-	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
+	// Acquisition data methods
+	void* cSTIR_getAcquisitionDataStorageScheme();
+	void* cSTIR_setAcquisitionDataStorageScheme(const char* scheme);
+	void* cSTIR_acquisitionDataFromTemplate(void* ptr_t);
 	void* cSTIR_cloneAcquisitionData(void* ptr_ad);
 	void* cSTIR_rebinnedAcquisitionData(void* ptr_t,
 		const int num_segments_to_combine,
@@ -86,13 +95,13 @@ extern "C" {
 		const bool do_normalisation,
 		const int max_in_segment_num_to_process
 		);
-	void* cSTIR_acquisitionsDataFromScannerInfo
+	void* cSTIR_acquisitionDataFromScannerInfo
 		(const char* scanner, int span, int max_ring_diff, int view_mash_factor);
-	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
-	void* cSTIR_getAcquisitionsData(const void* ptr_acq, PTR_FLOAT ptr_data);
-	void* cSTIR_setAcquisitionsData(void* ptr_acq, PTR_FLOAT ptr_data);
-	void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v);
-	void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
+	void* cSTIR_getAcquisitionDataDimensions(const void* ptr_acq, PTR_INT ptr_dim);
+	void* cSTIR_getAcquisitionData(const void* ptr_acq, PTR_FLOAT ptr_data);
+	void* cSTIR_setAcquisitionData(void* ptr_acq, PTR_FLOAT ptr_data);
+	void* cSTIR_fillAcquisitionData(void* ptr_acq, float v);
+	void* cSTIR_fillAcquisitionDataFromAcquisitionData
 		(void* ptr_acq, const void * ptr_from);
 	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
 
@@ -122,7 +131,8 @@ extern "C" {
 	void* cSTIR_getImageVoxelSizes(const void* ptr_im, PTR_FLOAT ptr_vs);
 	void* cSTIR_getImageTransformMatrix(const void* ptr_im, PTR_FLOAT ptr_md);
 	void* cSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
-	void* cSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
+	void* cSTIR_setImageData(void* ptr_im, PTR_FLOAT ptr_data);
+	void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src);
 	void* cSTIR_voxels3DF(int nx, int ny, int nz,
 		float sx, float sy, float sz, float x, float y, float z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);

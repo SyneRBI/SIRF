@@ -49,6 +49,9 @@ EXPORTED_FUNCTION 	void* mDoubleDataHandle(double i) {
 EXPORTED_FUNCTION 	char* mCharDataFromHandle(const void* ptr) {
 	return charDataFromHandle(ptr);
 }
+EXPORTED_FUNCTION     bool mBoolDataFromHandle(const void* ptr) {
+	return boolDataFromHandle(ptr);
+}
 EXPORTED_FUNCTION 	int mIntDataFromHandle(const void* ptr) {
 	return intDataFromHandle(ptr);
 }

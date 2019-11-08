@@ -30,6 +30,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  -o <file>, --output=<file>  images output file
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -62,7 +63,8 @@ exec('from p' + args['--engine'] + ' import *')
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
+output_file = args['--output']
 
 
 def main():
@@ -103,6 +105,13 @@ def main():
     gfact_data = recon.get_output('gfactor')
     image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
     gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
+
+    if output_file is not None:
+      # write images to a new group in args.output
+      # named after the current date and time
+      time_str = time.asctime()
+      print('writing to %s' % output_file)
+      image_data.write(output_file) #, time_str)
 
 try:
     main()

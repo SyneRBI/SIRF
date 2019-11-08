@@ -49,15 +49,15 @@ from ast import literal_eval
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_path = args['--path']
 if data_path is None:
     # default to data/examples/PET/mMR
     # Note: seem to need / even on Windows
-    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
-    data_path = petmr_data_path('pet') + '/mMR'
+    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+    data_path = examples_data_path('PET') + '/mMR'
 print('Finding files in %s' % data_path)
 
 list_file = args['--list']
@@ -114,11 +114,11 @@ def main():
     # copy the acquisition data into a Python array
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+    print('acquisition data dimensions: %dx%dx%dx%d' % acq_dim)
     # select a slice appropriate for the NEMA acquisition data
     z = 71
     #z = acq_dim[0]//2
-    show_2D_array('Acquisition data', acq_array[z,:,:])
+    show_2D_array('Acquisition data', acq_array[0,z,:,:])
 
     # read attenuation image
     attn_image = ImageData(attn_file)

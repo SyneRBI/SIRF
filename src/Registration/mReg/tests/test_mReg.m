@@ -39,6 +39,9 @@ g.save_nifti_image_3d_deformation_not_split  = fullfile(output_prefix, 'matlab_s
 g.save_nifti_image_3d_deformation_split      = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDeformation_split_%s.nii');
 g.save_nifti_image_3d_displacement_not_split = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDisplacement_not_split.nii');
 g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDisplacement_split_%s.nii');
+g.save_nifti_image_upsample                  = fullfile(output_prefix, 'matlab_save_NiftiImageData_upsample.nii');
+g.save_nifti_image_downsample                = fullfile(output_prefix, 'matlab_save_NiftiImageData_downsample.nii');
+g.save_nifti_image_up_downsample             = fullfile(output_prefix, 'matlab_save_NiftiImageData_upsample_downsample.nii');
 g.aladin_warped                              = fullfile(output_prefix, 'matlab_aladin_warped.nii');
 g.f3d_warped                                 = fullfile(output_prefix, 'matlab_f3d_warped.nii');
 g.TM_forward		                     = fullfile(output_prefix, 'matlab_TM_forward.txt');
@@ -64,19 +67,21 @@ g.flo_aladin                                 = sirf.Reg.NiftiImageData3D( g.flo_
 g.ref_f3d                                    = sirf.Reg.NiftiImageData3D(   g.ref_f3d_filename  );
 g.flo_f3d                                    = sirf.Reg.NiftiImageData3D(   g.flo_f3d_filename  );
 
-try_niftiimage(g);
-try_niftiimage3d(g);
-try_niftiimage3dtensor(g);
-try_niftiimage3ddisplacement(g);
-try_niftiimage3ddeformation(g);
-na = try_niftyaladin(g);
-try_niftyf3d(g);
-try_transformations(g,na);
-try_resample(g,na);
-try_weighted_mean(g,na);
-try_affinetransformation(g,na);
+% You can change these when debugging
+try_niftiimage = true;
+try_niftiimage3d = true;
+try_niftiimage3dtensor = true;
+try_niftiimage3ddisplacement = true;
+try_niftiimage3ddeformation = true;
+try_niftyaladin = true;
+try_niftyf3d = true;
+try_transformations = true;
+try_resample = true;
+try_weighted_mean = true;
+try_affinetransformation = true;
+try_quaternion = true;
 
-function try_niftiimage(g)
+if try_niftiimage
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting NiftiImageData test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -164,12 +169,42 @@ function try_niftiimage(g)
     s = b.get_voxel_sizes();
     assert(all(s == [0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]), 'NiftiImageData get_voxel_sizes() failed.')
 
+    % Check upsampling/downsampling
+    u = sirf.Reg.NiftiImageData(g.ref_aladin_filename);
+    original_spacing    = u.get_voxel_sizes();
+    original_spacing    = original_spacing(2:4);
+    upsampled_spacing   = [original_spacing(1)/2, original_spacing(2)/4, original_spacing(3)];
+    downsampled_spacing = [original_spacing(1)*2, original_spacing(2)*4, original_spacing(3)];
+    % Downsample
+    v = u.deep_copy();
+    v.set_voxel_spacing(downsampled_spacing,3);
+    v.write(g.save_nifti_image_downsample);
+    % Upsample then downsample, check nothing has changed
+    w = u.deep_copy();
+    w.set_voxel_spacing(upsampled_spacing,0);
+    w.write(g.save_nifti_image_upsample);
+    x = w.deep_copy();
+    x.set_voxel_spacing(original_spacing,0);
+    x.write(g.save_nifti_image_up_downsample);
+    sirf.Reg.NiftiImageData.print_headers([u v w x]);
+    assert(x == u, 'NiftiImageData::upsample()/downsample() failed.')
+
+    % Check get_contains_nans
+    x_arr = x.as_array();
+    x_arr(:)=0;
+    x.fill(x_arr);
+    assert(~x.get_contains_nans(),'NiftiImageData::get_contains_nans() 1 failed.')
+    x_arr(1) = nan;
+    x.fill(x_arr);
+    assert(x.get_contains_nans(),'NiftiImageData::get_contains_nans() 2 failed.')
+
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3d(g)
+if try_niftiimage3d
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3D test...')
     disp('%------------------------------------------------------------------------ %')
@@ -218,12 +253,16 @@ function try_niftiimage3d(g)
     assert(ndims(arr) == 3, 'NiftiImageData3D as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64]), 'NiftiImageData3D as_array().shape failed.')
 
+    % try linear algebra
+    h = d/10000;
+    assert(abs(h.get_max()-d.get_max()/10000) < 1e-4,'NiftiImageData3D linear algebra failed.')
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData3D test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3dtensor(g)
+if try_niftiimage3dtensor
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DTensor test...')
     disp('%------------------------------------------------------------------------ %')
@@ -294,7 +333,7 @@ function try_niftiimage3dtensor(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3ddisplacement(g)
+if try_niftiimage3ddisplacement
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DDisplacement test...')
     disp('%------------------------------------------------------------------------ %')
@@ -348,12 +387,33 @@ function try_niftiimage3ddisplacement(g)
     assert(ndims(arr) == 5, 'NiftiImageData3DDisplacement as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImageData3DDisplacement as_array().shape failed.')
 
+    % Check upsampling/downsampling
+    u = sirf.Reg.NiftiImageData3DDisplacement(g.save_nifti_image_3d_displacement_not_split);
+    original_spacing    = u.get_voxel_sizes();
+    original_spacing    = original_spacing(2:4);
+    upsampled_spacing   = [original_spacing(1)/2, original_spacing(2)/4, original_spacing(3)];
+    downsampled_spacing = [original_spacing(1)*2, original_spacing(2)*4, original_spacing(3)];
+    % Downsample
+    v = u.deep_copy();
+    v.set_voxel_spacing(downsampled_spacing,3);
+    v.write(g.save_nifti_image_downsample);
+    % Upsample then downsample, check nothing has changed
+    w = u.deep_copy();
+    w.set_voxel_spacing(upsampled_spacing,0);
+    w.write(g.save_nifti_image_upsample);
+    x = w.deep_copy();
+    x.set_voxel_spacing(original_spacing,0);
+    x.write(g.save_nifti_image_up_downsample);
+    sirf.Reg.NiftiImageData.print_headers([u v w x]);
+    assert(x == u, 'NiftiImageData3DDisplacement::upsample()/downsample() failed.')
+
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData3DDisplacement test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftiimage3ddeformation(g)
+if try_niftiimage3ddeformation
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting NiftiImageData3DDeformation test...')
     disp('%------------------------------------------------------------------------ %')
@@ -412,10 +472,13 @@ function try_niftiimage3ddeformation(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function na =try_niftyaladin(g)
+if try_niftyaladin
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Nifty aladin test...')
 	disp('%------------------------------------------------------------------------ %')
+
+    % Print all wrapped methods.
+    sirf.Reg.NiftyAladinSym.print_all_wrapped_methods();
 
     % First set up some masks
     ref_mask = g.ref_aladin.deep_copy();
@@ -469,10 +532,13 @@ function na =try_niftyaladin(g)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_niftyf3d(g)
+if try_niftyf3d
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Nifty f3d test...')
 	disp('%------------------------------------------------------------------------ %')
+
+	% Print all wrapped methods.
+	sirf.Reg.NiftyF3dSym.print_all_wrapped_methods();
 
     % Get initial transformation
     tm_init = sirf.Reg.AffineTransformation(g.TM_forward);
@@ -505,7 +571,7 @@ function try_niftyf3d(g)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_transformations(g,na)
+if try_transformations
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Starting Transformation test...')
 	disp('%------------------------------------------------------------------------ %')
@@ -539,7 +605,7 @@ function try_transformations(g,na)
 	disp('%------------------------------------------------------------------------ %')
 end
 
-function try_resample(g,na)
+if try_resample
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting Nifty resample test...')
     disp('%------------------------------------------------------------------------ %')
@@ -548,6 +614,7 @@ function try_resample(g,na)
     tm      = na.get_transformation_matrix_forward();
     displ   = na.get_displacement_field_forward();
     deff    = na.get_deformation_field_forward();
+    padding_value = -20;
 
     disp('Testing rigid resample...')
     nr1 = sirf.Reg.NiftyResample();
@@ -567,8 +634,11 @@ function try_resample(g,na)
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
     nr2.set_interpolation_type_to_linear();  % try different interpolations
     nr2.add_transformation(displ);
+    nr2.set_padding_value(padding_value);
     nr2.process();
     nr2.get_output().write(g.nonrigid_resample_disp);
+
+    assert(nr2.get_output().get_min() == padding_value, 'NiftyResample:set_padding_value failed.')
 
     disp('Testing non-rigid deformation...')
     nr3 = sirf.Reg.NiftyResample();
@@ -591,7 +661,7 @@ function try_resample(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_weighted_mean(g,na)
+if try_weighted_mean
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting weighted mean test...')
     disp('%------------------------------------------------------------------------ %')
@@ -645,7 +715,7 @@ function try_weighted_mean(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_affinetransformation(g,na)
+if try_affinetransformation
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting AffineTransformation test...')
     disp('%------------------------------------------------------------------------ %')
@@ -680,7 +750,84 @@ function try_affinetransformation(g,na)
     h = g.as_array()
     assert(all(all(abs(f-h) < 1e-4)), 'AffineTransformation as_array() failed.')
 
+    % Average!
+    trans = [0., 0., 0.];
+    quat_1_array = [0.92707,  0.02149,   0.19191,  0.32132];
+    quat_2_array = [0.90361,  0.0025836, 0.097279, 0.41716];
+    quat_3_array = [0.75868, -0.21289,   0.53263,  0.30884];
+    quat_1 = sirf.Reg.Quaternion(quat_1_array);
+    quat_2 = sirf.Reg.Quaternion(quat_2_array);
+    quat_3 = sirf.Reg.Quaternion(quat_3_array);
+    tm_1   = sirf.Reg.AffineTransformation(trans,quat_1);
+    tm_2   = sirf.Reg.AffineTransformation(trans,quat_2);
+    tm_3   = sirf.Reg.AffineTransformation(trans,quat_3);
+    average = sirf.Reg.AffineTransformation.get_average([tm_1, tm_2, tm_3]);
+    exptd_avg_array = [ 0.5836, -0.6736, 0.4535, 0;,...
+                        0.6007,  0.7339, 0.3171, 0;,...
+                       -0.5464,  0.0874, 0.8329, 0;,...
+                        0,       0,      0,      1];
+    exptd_average = sirf.Reg.AffineTransformation(exptd_avg_array);
+    average_array = average.as_array();
+    assert(all(all(abs(exptd_avg_array-average_array) < 1e-4)), 'AffineTransformation average failed.')
+    disp(average_array)
+
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished AffineTransformation test.')
+    disp('%------------------------------------------------------------------------ %')
+end
+
+if try_quaternion
+    disp('% ----------------------------------------------------------------------- %')
+    disp('%                  Starting Quaternion test...')
+    disp('%------------------------------------------------------------------------ %')
+
+    % Construct TM
+    array(4,4) =  0;
+    array(1,3) =  1;
+    array(2,2) =  1;
+    array(3,1) = -1;
+    array(4,4) =  1;
+    rotm = sirf.Reg.AffineTransformation(array);
+
+    % Convert to quaternion
+    quat = sirf.Reg.Quaternion(rotm);
+    a = quat.as_array();
+
+    % Construct from numpy array
+    expt_array = [0.707107, 0., 0.707107, 0.];
+    expt = sirf.Reg.Quaternion(expt_array);
+
+    % Compare to expected values
+    quat_array = quat.as_array();
+    assert(all(abs(quat_array-expt_array)) < 1e-4, 'Quaternion from TM failed.')
+    
+    % Convert back to TM
+    trans_array = [0., 0., 0.];
+    affine = sirf.Reg.AffineTransformation(trans_array,quat);
+    assert(affine == rotm, 'TM to quaternion failed.');
+
+    % Convert TM to quaternion
+    quat2 = affine.get_quaternion();
+    quat2_array = quat2.as_array();
+    assert(all(abs(quat_array-quat2_array)) < 1e-4, 'AffineTransformation:get_quaternion() failed.')
+
+    % Average!
+    quat_1_array = [0.92707,  0.02149,   0.19191,  0.32132];
+    quat_2_array = [0.90361,  0.0025836, 0.097279, 0.41716];
+    quat_3_array = [0.75868, -0.21289,   0.53263,  0.30884];
+    quat_1 = sirf.Reg.Quaternion(quat_1_array);
+    quat_2 = sirf.Reg.Quaternion(quat_2_array);
+    quat_3 = sirf.Reg.Quaternion(quat_3_array);
+    exptd_avg_array = [0.88748, -0.0647152, 0.281671, 0.35896];
+    exptd_average = sirf.Reg.Quaternion(exptd_avg_array);
+    average = sirf.Reg.Quaternion.get_average([quat_1, quat_2, quat_3]);
+    average_array = average.as_array();
+    assert(all(abs(exptd_avg_array-average_array) < 1e-4), 'Quaternion average failed.')
+    disp(average_array)
+
+
+    disp('% ----------------------------------------------------------------------- %')
+    disp('%                  Finished Quaternion test.')
     disp('%------------------------------------------------------------------------ %')
 end

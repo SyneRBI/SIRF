@@ -1,5 +1,5 @@
 '''
-GRAPPA reconstruction with the steepest descent step: illustrates
+GRAPPA reconstruction with the steepest descent refinement: illustrates
 the use of Acquisition Model projections
 
 Usage:
@@ -10,6 +10,11 @@ Options:
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
+  -i <iter>, --iter=<iter>    the number of steepest descent iterations
+                              [default: 5]
+  -z <zdim>, --zdim=<zdim>    dimension of 3D image data array to be used as z
+                              when displaying [default: 0]
+  -s <slce>, --slice=<slce>   image slice to display [default: 0]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
@@ -42,7 +47,18 @@ exec('from p' + args['--engine'] + ' import *')
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
+niter = int(args['--iter'])
+slc = int(args['--slice'])
+if slc < 0:
+    slc = None
+zdim = args['--zdim']
+if zdim == 1:
+    zyx = (1, 0, 2)
+elif zdim == 2:
+    zyx = (2, 1, 0)
+else:
+    zyx = None
 
 def main():
 
@@ -55,6 +71,7 @@ def main():
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
     preprocessed_data = preprocess_acquisition_data(acq_data)
+    preprocessed_data_norm = preprocessed_data.norm()
 
     # perform reconstruction
     recon = CartesianGRAPPAReconstructor()
@@ -65,6 +82,11 @@ def main():
     # for undersampled acquisition data GRAPPA computes Gfactor images
     # in addition to reconstructed ones
     image_data = recon.get_output()
+    title = 'Reconstructed image data (magnitude)'
+    image_data.show(zyx=zyx, slice=slc, title=title, \
+                    postpone=(niter > 0), cmap=None)
+    if niter < 1:
+        return
 
     # compute coil sensitivity maps
     csms = CoilSensitivityData()
@@ -79,26 +101,38 @@ def main():
     acq_model = AcquisitionModel(preprocessed_data, image_data)
     acq_model.set_coil_sensitivity_maps(csms)
 
-    # use the acquisition model (forward projection) to simulate acquisition data
-    simulated_data = acq_model.forward(image_data)
+    res = numpy.ndarray((niter,))
+    scale = 1 # reconstructed image and phantom may have different scale,
+              # and so would forward projection and pre-processed raw data
+              # hence a proper scaling of raw data is needed
+    for i in range(niter):
+        it = i + 1
+        simulated_data = acq_model.forward(image_data)
+        simulated_data_norm = simulated_data.norm()
+        if i == 0:
+            scale = preprocessed_data_norm/simulated_data_norm
+        residual = simulated_data - preprocessed_data/scale
+        res[i] = residual.norm()/preprocessed_data_norm
+        print('---- iteration %d, residual norm: %.3e' % (it, res[i]))
+        # compute gradient
+        grad = acq_model.backward(residual)
+        # compute locally optimal steepest descent step
+        w = acq_model.forward(grad)
+        tau = (grad.dot(grad))/(w.dot(w))
+        image_data = image_data - grad * tau
+        if i%10 == 0 or i == niter - 1:
+            it = i + 1
+            title = 'Steepest-descent-refined image data, iteration %d' % it
+            image_data.show(zyx=zyx, slice=slc, title=title, cmap=None, \
+                            postpone=(i < niter - 1))
 
-    # compute the difference between real and simulated acquisition data
-    preprocessed_data_norm = preprocessed_data.norm()
-    simulated_data_norm = simulated_data.norm()
-    residual = simulated_data - preprocessed_data * \
-          (simulated_data_norm/preprocessed_data_norm)
-    rel_residual = residual.norm()/simulated_data_norm
-    print('---\n reconstruction residual norm (rel): %e' % rel_residual)
-
-    # try to improve the reconstruction by the steepest descent step
-    grad = acq_model.backward(residual)
-    w = acq_model.forward(grad)
-    tau = (grad.dot(grad))/(w.dot(w)) # locally optimal steepest descent step
-    refined_image_data = image_data - grad * tau # refined image
-
-    image_data.show(title = 'Reconstructed image data (magnitude)', \
-                    postpone = True)
-    refined_image_data.show(title = 'Refined image data (magnitude)')
+    if niter > 1:
+        import pylab
+        pylab.figure()
+        pylab.plot(numpy.arange(1, niter + 1, 1), res)
+        pylab.grid()
+        pylab.title('residual norm')
+        pylab.show()
 
 try:
     main()

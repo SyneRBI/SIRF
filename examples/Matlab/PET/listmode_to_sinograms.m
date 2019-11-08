@@ -77,8 +77,9 @@ try
     acq_data = lm2sino.get_output();
     % copy the acquisition data into a Python array
     acq_array = acq_data.as_array();
-    acq_dim = size(acq_array);
-    fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
+    %acq_dim = size(acq_array);
+    acq_dim = acq_data.dimensions();
+    fprintf('acquisition data dimensions: %d x %d x %d x %d\n', acq_dim)
     z = uint16(acq_dim(3)/2);
     sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');

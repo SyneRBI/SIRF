@@ -75,6 +75,10 @@ namespace sirf {
 		(const DataHandle* handle, const char* name);
 
 	void*
+		cSTIR_setSeparableGaussianImageFilterParameter
+		(void* hp, const char* name, const void* hv);
+
+	void*
 		cSTIR_setGeneralisedPriorParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 
@@ -130,7 +134,10 @@ namespace sirf {
 
 	void*
 		cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name);
-
+#ifdef USE_HKEM
+	void*
+		cSTIR_setKOSMAPOSLParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+#endif
 	void*
 		cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 

@@ -69,11 +69,11 @@ void NiftyResample<dataType>::process()
                       transformation.get_raw_nifti_sptr().get(),
                       NULL,
                       this->_interpolation_type,
-                      0);
+                      this->_padding_value);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
     this->_output_image_sptr = this->_reference_image_sptr->clone();
-    this->_output_image_sptr->ImageData::fill(*this->_output_image_nifti_sptr);
+    this->_output_image_sptr->fill(*this->_output_image_nifti_sptr);
 
     std::cout << "\n\nResampling finished!\n\n";
 }

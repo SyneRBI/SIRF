@@ -48,7 +48,7 @@ from pGadgetron import *
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
 sigma = float(args['--sigma'])
 
 def gaussian(x, mu, sigma):
@@ -97,25 +97,27 @@ def main():
     recon = Reconstructor\
         (['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', 
-        'SimpleReconGadget', 'ImageArraySplitGadget'])
+        'SimpleReconGadget', 'ImageArraySplitGadget', 'ExtractGadget'])
     
     # provide pre-processed k-space data
     recon.set_input(preprocessed_data)
     
     # perform reconstruction
     recon.process()
-    
-    # retrieve reconstructed images
-    complex_image_data = recon.get_output()
 
-    # post-process reconstructed images by a one-work-gadget chain
-    # that recieves a complex image on input and sends back its magnitude
-    # (default setting - see fully_sampled_single_chain.py for general case)
-    img_proc = ImageDataProcessor(['ExtractGadget'])
-    # standard usage of a data processor object
-    img_proc.set_input(complex_image_data)
-    img_proc.process()
-    real_image_data = img_proc.get_output()
+##    # temporarily removed because of a bug in ExtractGadget    
+##    # retrieve reconstructed images
+##    complex_image_data = recon.get_output()
+##
+##    # post-process reconstructed images by a one-work-gadget chain
+##    # that recieves a complex image on input and sends back its magnitude
+##    # (default setting - see fully_sampled_single_chain.py for general case)
+##    img_proc = ImageDataProcessor(['ExtractGadget'])
+##    # standard usage of a data processor object
+##    img_proc.set_input(complex_image_data)
+##    img_proc.process()
+##    real_image_data = img_proc.get_output()
+    real_image_data = recon.get_output()
     # shortcut for the above 3 lines
 ##    real_image_data = img_proc.process(complex_image_data)
 

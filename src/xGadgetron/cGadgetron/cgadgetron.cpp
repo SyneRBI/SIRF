@@ -123,7 +123,10 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(IsmrmrdAcqMsgWriter);
 		NEW_GADGET(IsmrmrdImgMsgReader);
 		NEW_GADGET(IsmrmrdImgMsgWriter);
+		NEW_GADGET(DicomImageMessageWriter);
 		NEW_GADGET(NoiseAdjustGadget);
+		NEW_GADGET(PCACoilGadget);
+		NEW_GADGET(CoilReductionGadget);
 		NEW_GADGET(AsymmetricEchoAdjustROGadget);
 		NEW_GADGET(RemoveROOversamplingGadget);
 		NEW_GADGET(AcquisitionAccumulateTriggerGadget);
@@ -136,10 +139,15 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(FatWaterGadget);
 		NEW_GADGET(ImageArraySplitGadget);
 		NEW_GADGET(PhysioInterpolationGadget);
+		NEW_GADGET(GPURadialSensePrepGadget);
+		NEW_GADGET(GPUCGSenseGadget);
 		NEW_GADGET(ExtractGadget);
+		NEW_GADGET(AutoScaleGadget);
 		NEW_GADGET(ComplexToFloatGadget);
+		NEW_GADGET(FloatToUShortGadget);
 		NEW_GADGET(FloatToShortGadget);
 		NEW_GADGET(ImageFinishGadget);
+		NEW_GADGET(DicomFinishGadget);
 		NEW_GADGET(AcquisitionFinishGadget);
 		NEW_GADGET(SimpleReconGadgetSet);
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -442,7 +450,7 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 
 extern "C"
 void*
-cGT_setAcquisitionsStorageScheme(const char* scheme)
+cGT_setAcquisitionDataStorageScheme(const char* scheme)
 {
 	try{
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
@@ -456,7 +464,7 @@ cGT_setAcquisitionsStorageScheme(const char* scheme)
 
 extern "C"
 void*
-cGT_getAcquisitionsStorageScheme()
+cGT_getAcquisitionDataStorageScheme()
 {
 	return charDataHandleFromCharData
 		(MRAcquisitionData::storage_scheme().c_str());
@@ -552,7 +560,7 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 
 extern "C"
 void*
-cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
+cGT_getAcquisitionDataDimensions(void* ptr_acqs, size_t ptr_dim)
 {
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
@@ -568,7 +576,7 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 
 extern "C"
 void*
-cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
+cGT_acquisitionDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
@@ -583,13 +591,27 @@ cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 
 extern "C"
 void*
-cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
+cGT_fillAcquisitionData(void* ptr_acqs, size_t ptr_z, int all)
 {
 	complex_float_t* z = (complex_float_t*)ptr_z;
 	CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 	MRAcquisitionData& acqs =
 		objectFromHandle<MRAcquisitionData>(h_acqs);
 	acqs.set_data(z, all);
+	return new DataHandle;
+}
+
+extern "C"
+void*
+cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src)
+{
+	CAST_PTR(DataHandle, h_dst, ptr_dst);
+	CAST_PTR(DataHandle, h_src, ptr_src);
+	MRAcquisitionData& dst =
+		objectFromHandle<MRAcquisitionData>(h_dst);
+	MRAcquisitionData& src =
+		objectFromHandle<MRAcquisitionData>(h_src);
+	dst.copy_acquisitions_data(src);
 	return new DataHandle;
 }
 
@@ -830,12 +852,22 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 
 extern "C"
 void*
-cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
+cGT_writeImages(void* ptr_imgs, const char* filename, const char* ext)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
-		imgs.write(out_file, out_group);
+		if (strcmp(ext, "dcm")) {
+			std::string fullname(filename);
+			fullname += ".";
+			fullname += ext;
+			imgs.write(fullname);
+		}
+		else {
+//			std::cout << "in cGT_writeImages\n";
+			ImagesProcessor ip(true, filename);
+			ip.process(imgs);
+		}
 	}
 	CATCH;
 
@@ -873,7 +905,7 @@ cGT_imageType(const void* ptr_img)
 
 extern "C"
 void*
-cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
+cGT_getImageDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
@@ -887,7 +919,7 @@ cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 
 extern "C"
 void*
-cGT_setImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
+cGT_setImageDataFromFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
@@ -901,7 +933,7 @@ cGT_setImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 
 extern "C"
 void*
-cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+cGT_getImageDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
@@ -915,13 +947,25 @@ cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 
 extern "C"
 void*
-cGT_setImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+cGT_setImageDataFromCmplxArray(void* ptr_imgs, size_t ptr_z)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		imgs.set_data(z);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cGT_print_header(const void* ptr_imgs, const int im_idx)
+{
+    try {
+        CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImagesVector& imgs = objectFromHandle<GadgetronImagesVector>(h_imgs);
+        imgs.print_header(im_idx);
 		return new DataHandle;
 	}
 	CATCH;
@@ -948,6 +992,34 @@ cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		con.set_timeout(timeout_ms);
+	}
+	CATCH;
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_setHost(void* ptr_gc, const char* host)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		gc.set_host(host);
+	}
+	CATCH;
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_setPort(void* ptr_gc, const char* port)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		gc.set_port(port);
 	}
 	CATCH;
 
@@ -1253,3 +1325,16 @@ cGT_disconnect(void* ptr_con)
 	return (void*)new DataHandle;
 }
 
+extern "C"
+void*
+parameter(void* ptr, const char* obj, const char* name)
+{
+	return cGT_parameter(ptr, obj, name);
+}
+
+extern "C"
+void*
+setParameter(void* ptr, const char* obj, const char* par, const void* val)
+{
+	return cGT_setParameter(ptr, obj, par, val);
+}

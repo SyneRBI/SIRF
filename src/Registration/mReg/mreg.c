@@ -42,14 +42,14 @@ EXPORTED_FUNCTION  void* mReg_newObject(const char* name) {
 EXPORTED_FUNCTION     void* mReg_objectFromFile(const char* name, const char* filename) {
 	return cReg_objectFromFile(name, filename);
 }
-EXPORTED_FUNCTION     void* mReg_setParameter(void* ptr, const char* obj, const char* name, const void* value) {
-	return cReg_setParameter(ptr, obj, name, value);
+EXPORTED_FUNCTION     void* mSetParameter(void* ptr, const char* obj, const char* name, const void* value) {
+	return setParameter(ptr, obj, name, value);
 }
-EXPORTED_FUNCTION     void* mReg_parameter(const void* ptr, const char* obj, const char* name) {
-	return cReg_parameter(ptr, obj, name);
+EXPORTED_FUNCTION     void* mParameter(const void* ptr, const char* obj, const char* name) {
+	return parameter(ptr, obj, name);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
-	return cReg_NiftiImageData_print_headers(num_ims, im1, im2, im3, im4, im5);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_print_headers(const void *handle_vector_ptr) {
+	return cReg_NiftiImageData_print_headers(handle_vector_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype) {
 	return cReg_NiftiImageData_write(ptr, filename, datatype);
@@ -69,8 +69,8 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_dimensions(const void* ptr, 
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_voxel_sizes(const void* ptr, PTR_FLOAT ptr_out) {
 	return cReg_NiftiImageData_get_voxel_sizes(ptr, ptr_out);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data) {
-	return cReg_NiftiImageData_get_data(ptr, ptr_data);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_as_array(const void* ptr, PTR_FLOAT ptr_data) {
+	return cReg_NiftiImageData_as_array(ptr, ptr_data);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type) {
 	return cReg_NiftiImageData_maths_im(res_ptr, im1_ptr, im2_ptr, maths_type);
@@ -90,6 +90,9 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_original_datatype(const void
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr) {
 	return cReg_NiftiImageData_crop(im_ptr, min_index_ptr, max_index_ptr);
 }
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order) {
+	return cReg_NiftiImageData_set_voxel_spacing(im_ptr, x, y, z, interpolation_order);
+}
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3D_from_SIRFImageData(void* ptr) {
 	return cReg_NiftiImageData3D_from_SIRFImageData(ptr);
 }
@@ -105,8 +108,8 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_compone
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim) {
 	return cReg_NiftiImageData3DTensor_flip_component(ptr, dim);
 }
-EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5) {
-	return cReg_NiftiImageData3DDeformation_compose_single_deformation(im, num_elements, types, trans1, trans2, trans3, trans4, trans5);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr) {
+	return cReg_NiftiImageData3DDeformation_compose_single_deformation(im, types, trans_vector_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr) {
 	return cReg_NiftiImageData3DDeformation_create_from_disp(disp_ptr);
@@ -122,6 +125,9 @@ EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image
 }
 EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2) {
 	return cReg_Registration_set_parameter(ptr, par, arg1, arg2);
+}
+EXPORTED_FUNCTION     void* mReg_Registration_print_all_wrapped_methods(const char* name) {
+	return cReg_Registration_print_all_wrapped_methods(name);
 }
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir) {
 	return cReg_NiftyAladin_get_TM(ptr, dir);
@@ -147,6 +153,9 @@ EXPORTED_FUNCTION     void* mReg_Transformation_get_as_deformation_field(const v
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM) {
 	return cReg_AffineTransformation_construct_from_TM(ptr_TM);
 }
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr) {
+	return cReg_AffineTransformation_construct_from_trans_and_quaternion(trans_ptr, quat_ptr);
+}
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_deep_copy(const void* ptr) {
 	return cReg_AffineTransformation_deep_copy(ptr);
 }
@@ -165,11 +174,29 @@ EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_inverse(const void* pt
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_Euler_angles(const void* ptr, PTR_FLOAT Euler) {
 	return cReg_AffineTransformation_get_Euler_angles(ptr, Euler);
 }
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_quaternion(const void* ptr) {
+	return cReg_AffineTransformation_get_quaternion(ptr);
+}
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr) {
 	return cReg_AffineTransformation_mul(mat1_ptr, mat2_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr) {
 	return cReg_AffineTransformation_equal(mat1_ptr, mat2_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_average(const void *handle_vector_ptr) {
+	return cReg_AffineTransformation_get_average(handle_vector_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_Quaternion_construct_from_array(PTR_FLOAT arr) {
+	return cReg_Quaternion_construct_from_array(arr);
+}
+EXPORTED_FUNCTION     void* mReg_Quaternion_construct_from_AffineTransformation(const void* ptr) {
+	return cReg_Quaternion_construct_from_AffineTransformation(ptr);
+}
+EXPORTED_FUNCTION     void* mReg_Quaternion_get_average(const void *handle_vector_ptr) {
+	return cReg_Quaternion_get_average(handle_vector_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_Quaternion_as_array(const void* ptr, PTR_FLOAT arr) {
+	return cReg_Quaternion_as_array(ptr, arr);
 }
 #ifndef CREG_FOR_MATLAB
 }

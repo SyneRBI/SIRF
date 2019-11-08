@@ -1,23 +1,63 @@
 # ChangeLog
 
-## v2.0.0-rc.1
+## v2.x
 
-* removed `using` statements from the header files
-* created namespace `sirf`
-* added default constructor and set_up to MRAcquisitionModel
-* implemented sorting of MR images
-* implemented reading of MR acquisition data from ISMRMRD file
-* Matlab: in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
 * added SPECTUBMatrix for (simple) usage in SPECT
-* Update minimum required version of CMake to 3.9.0.
+
+## v2.1.0
+
+* PET/STIR
+	* Interfaced HKEM into SIRF
+	* Interfaced SeparableGaussianImageFilter into SIRF
+* MR/Gadgetron
+	* Added DICOM-writing gadgets for MR images output
+	* Added few Gadgetron GPU gadgets to SIRF gadget library
+	* Enabled handling of 3D slices of MR images by switching to 3D FFT
+* Python
+	* Switched to new class style
+	* Introduced contiguity checks of filled data
+* CIL/SIRF Compatibility
+     * added methods to AcquisitionData, ImageData and AcquisitionModel to be compatible with
+       CCPi's Core Imaging Library (CIL)
+
+## v2.0.0
+
+* Set CMake policy CMP0079.
+* Use `swig_add_library` instead of `swig_add_module`.
+* Averaging of rigid transformation matrices via quaternions (and therefore a quaternion class).
+* Arrays of SIRF objects can be passed from the Python and Matlab interfaces to the C++ level (e.g., averaging a large number of matrices) via the DataHandleVector class. This is an internal class that should not be used. Simply pass a native array of objects and SIRF will convert to the DataHandleVector class if necessary.
+* Image data role checks in MRAcquisitionModel introduced.
+* Corrected ISMRMRD acquisition sorting.
+* Added PhysioInterpolationGadget and FatWaterGadget to SIRF gadgets library.
+* Wrapping of NiftyReg to allow registration/resampling in SIRF.
+* Implemented new `ImageData` hierarchy common to PET and MR. `ImageData` contain geometrical info.
+* MR/Gadgetron
+  * Added default constructor and set_up to MRAcquisitionModel
+  * Implemented sorting of MR images
+  * Implemented reading of MR acquisition data from ISMRMRD file
+* PET/STIR
+  * projectors can now handle subsets (although with a somewhat ugly work-around)
+  * added FBP2D, SSRB and the Parallel Level Sets prior
+  * added TOF bins dimension to `PETAcquisitionData` (still fixed to have size 1)
+* C++ changes
+  * Removed `using` statements from the C++ header files
+  * Created namespace `sirf`
+  * include files are now moved to subdirectories (such as `include/sirf/common`).
+  * Modified ObjectHandle type so that it can handle both `std::shared_ptr` and `boost::shared_ptr`.
+* Python/MATLAB:
+  * `petmr_data_path` is now obsolete. Use `examples_data_path` instead.
+* Python:
+  * everything is now in a `sirf` module. Use for instance `import sirf.Gadgetron`
+* Matlab:
+  * in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
+* CMake:
+  * Updated minimum required version of CMake to 3.9.0.
+>>>>>>> master
 
 ## v1.1.0
 
 * Various bug fixes and corrections
 * `BUILD_STIR_WITH_OPENMP` is now `ON` by default
-* Virtual Machine amendments:
-  * UK English keyboard
-  * Password protection removed from screen lock
 * Gadgetron data processors check for Gadgetron server crash
 * More data files in `SIRF/data/examples/MR`
 * Grayscale plotting enabled

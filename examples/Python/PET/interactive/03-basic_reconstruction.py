@@ -69,13 +69,14 @@ recon.reconstruct(reconstructed_image)
 
 #%% display of image
 reconstructed_array=reconstructed_image.as_array()
-slice=reconstructed_array.shape[0]/3;
-show_2D_array('reconstructed image after 5 sub-iterations',reconstructed_array[slice,:,:,]);
+# slice=reconstructed_array.shape[0]//3;
+slice_num = 9
+show_2D_array('reconstructed image after 5 sub-iterations',reconstructed_array[slice_num,:,:,]);
 
 #%% do a another set of iterations
 recon.reconstruct(reconstructed_image)
 reconstructed_array=reconstructed_image.as_array()
-show_2D_array('reconstructed image after 10 sub-iterations',reconstructed_array[slice,:,:,]);
+show_2D_array('reconstructed image after 10 sub-iterations',reconstructed_array[slice_num,:,:,]);
 
 #%% We now add a multiplicative term to the acquisition model
 # In PET, detector-pairs have different efficiencies. We want to include
@@ -96,7 +97,7 @@ bin_efficiencies = acquired_data.clone()
 bin_efficiencies.fill(1.)
 # set a portion of bin efficiencies to zero;
 bin_efficiencies_array = bin_efficiencies.as_array()
-bin_efficiencies_array[:,5:20,:] = 0
+bin_efficiencies_array[0,:,5:20,:] = 0
 bin_efficiencies.fill(bin_efficiencies_array)
 #%% Create a new acquisition model
 am2 = pet.AcquisitionModelUsingRayTracingMatrix()
@@ -109,7 +110,7 @@ am2.set_up(templ,image);
 #%% forward project the image again with this acquisition model and display
 acquired_data = am2.forward(image)
 acquisition_array = acquired_data.as_array()
-show_3D_array(acquisition_array);
+show_3D_array(acquisition_array[0,:,:,:]);
 
 #%% Let us reconstruct this data with the original acquisition model (without bin efficiencies)
 obj_fun.set_acquisition_data(acquired_data)
@@ -123,7 +124,7 @@ recon.reconstruct(reconstructed_image)
 cmax = image.as_array().max()*1.2;
 reconstructed_array=reconstructed_image.as_array()
 plt.figure()
-imshow(reconstructed_array[slice,:,:,], [0,cmax],'reconstructed image with original acquisition model');
+imshow(reconstructed_array[slice_num,:,:,], [0,cmax],'reconstructed image with original acquisition model');
 #%% Now we use the correct acquisition model
 obj_fun.set_acquisition_model(am2)
 reconstructed_image.fill(1)
@@ -132,4 +133,4 @@ recon.reconstruct(reconstructed_image)
 #%% display
 reconstructed_array=reconstructed_image.as_array()
 plt.figure()
-imshow(reconstructed_array[slice,:,:,], [0,cmax],'reconstructed image with correct acquisition model');
+imshow(reconstructed_array[slice_num,:,:,], [0,cmax],'reconstructed image with correct acquisition model');

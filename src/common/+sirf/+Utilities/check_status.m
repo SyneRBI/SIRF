@@ -25,7 +25,7 @@ function check_status(f, handle)
         errId = [f ':error'];
         msg = calllib(lib, 'mExecutionError', handle);
         file = calllib(lib, 'mExecutionErrorFile', handle);
-        line = calllib(lib', 'mExecutionErrorLine', handle);
+        line = calllib(lib, 'mExecutionErrorLine', handle);
 		msg2 = 'the reconstruction engine output may provide more information'
         error(errId, '??? %s exception thrown at line %d of %s, \n%s', ...
             msg, line, file, msg2)

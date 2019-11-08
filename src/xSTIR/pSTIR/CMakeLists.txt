@@ -17,6 +17,10 @@
 #=========================================================================
 
 if(BUILD_PYTHON)
+  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+    # policy introduced in CMake 3.13
+    cmake_policy(SET CMP0078 OLD)
+  endif()
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
   FIND_PACKAGE(SWIG REQUIRED)
@@ -33,11 +37,12 @@ if(BUILD_PYTHON)
   #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
   # Tell CMake it needs to re-run SWIG when .h file changes
   set(SWIG_MODULE_pystir_EXTRA_DEPS "${cSTIR_INCLUDE_DIR}/cstir.h")
-  SWIG_ADD_MODULE(pystir python pystir.i  ${STIR_REGISTRIES})
+  SWIG_ADD_LIBRARY(pystir LANGUAGE python TYPE MODULE SOURCES pystir.i  ${STIR_REGISTRIES})
   SWIG_LINK_LIBRARIES(pystir csirf cstir iutilities ${STIR_LIBRARIES} ${PYTHON_LIBRARIES})
 
   INSTALL(TARGETS ${SWIG_MODULE_pystir_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pystir.py" STIR.py DESTINATION "${PYTHON_DEST}/sirf")
+  INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/STIR_params.py" DESTINATION "${PYTHON_DEST}/sirf")
 
 ADD_SUBDIRECTORY(tests)
 endif(BUILD_PYTHON)

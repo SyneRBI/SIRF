@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2018-2019 Rutherford Appleton Laboratory STFC
+Copyright 2018-2019 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -31,8 +31,8 @@ limitations under the License.
 #include "sirf/Reg/NiftyF3dSym.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/STIR/stir_data_containers.h"
 
 
 using namespace sirf;
@@ -49,7 +49,7 @@ static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filenam
         return sptr_img;
     }
     else
-        throw std::runtime_error("Synergistic_aladin: unknown engine - " + engine + ".\n");
+        throw std::runtime_error("Synergistic_aladin: unknown image engine - " + engine + ".\n");
 }
 
 static std::shared_ptr<Registration<float> > algo_as_sptr(const std::string &algorithm)
@@ -58,7 +58,7 @@ static std::shared_ptr<Registration<float> > algo_as_sptr(const std::string &alg
     if      (strcmp(algorithm.c_str(), "aladin") == 0)
         return std::make_shared<NiftyAladinSym<float> >();
     else if (strcmp(algorithm.c_str(), "f3d") == 0)
-        return std::make_shared<NiftyAladinSym<float> >();
+        return std::make_shared<NiftyF3dSym<float> >();
     else
         throw std::runtime_error("Synergistic_registration: unknown algorithm - " + algorithm + ".\n");
 }
@@ -135,11 +135,23 @@ int main(int argc, char* argv[])
         // Get images
         int flag_ref = find_flag(unused_flags,argv,"-ref",true);
         int flag_eng_ref = find_flag(unused_flags,argv,"-eng_ref");
-        std::shared_ptr<const ImageData> ref = image_as_sptr(argv[flag_ref+1],argv[flag_eng_ref+1]);
+        std::shared_ptr<const ImageData> ref;
+        if (flag_eng_ref==-1) {
+            std::cout << "\nNo engine supplied for reference image, assuming Nifti.\n";
+            ref = image_as_sptr(argv[flag_ref+1]);
+        }
+        else
+            ref = image_as_sptr(argv[flag_ref+1],argv[flag_eng_ref+1]);
 
         int flag_flo = find_flag(unused_flags,argv,"-flo",true);
         int flag_eng_flo = find_flag(unused_flags,argv,"-eng_flo");
-        std::shared_ptr<const ImageData> flo = image_as_sptr(argv[flag_flo+1],argv[flag_eng_flo+1]);
+        std::shared_ptr<const ImageData> flo;
+        if (flag_eng_flo==-1) {
+            std::cout << "\nNo engine supplied for floating image, assuming Nifti.\n";
+            flo = image_as_sptr(argv[flag_flo+1]);
+        }
+        else
+            flo = image_as_sptr(argv[flag_flo+1],argv[flag_eng_flo+1]);
 
         // Set images
         reg->set_reference_image(ref);

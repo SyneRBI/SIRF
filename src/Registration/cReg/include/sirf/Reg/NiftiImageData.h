@@ -37,6 +37,7 @@ limitations under the License.
 #include <sstream>
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/ImageData.h"
+#include <_reg_tools.h>
 
 namespace sirf {
 
@@ -71,6 +72,7 @@ of sform_code; for example, for the Talairach coordinate system,
 \author Richard Brown
 \author CCP PETMR
 */
+
 template<class dataType>
 class NiftiImageData : public ImageData
 {
@@ -218,13 +220,16 @@ public:
     NiftiImageData operator-(const NiftiImageData&) const;
 
     /// Addition operator
-    NiftiImageData operator+(const float&) const;
+    NiftiImageData operator+(const float) const;
 
     /// Subtraction operator
-    NiftiImageData operator-(const float&) const;
+    NiftiImageData operator-(const float) const;
 
     /// Multiply image
-    NiftiImageData operator*(const float&) const;
+    NiftiImageData operator*(const float) const;
+
+    /// Divide image
+    NiftiImageData operator/(const float) const;
 
     /// Access data element via 1D index (const)
     float operator()(const int index) const;
@@ -268,6 +273,9 @@ public:
 
     /// Get sum
     float get_sum() const;
+
+    /// Get nan count
+    unsigned get_nan_count() const;
 
     /// Fill
     void fill(const float v);
@@ -321,6 +329,22 @@ public:
     /// Dump nifti element
     template<typename T>
     static void dump_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
+
+    /// Set the voxel spacing. Requires resampling image, and so interpolation order is required.
+    /// As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation.
+    void set_voxel_spacing(const float factors[3], const int interpolation_order);
+
+    /// Kernel convolution
+    void kernel_convolution(const float sigma, NREG_CONV_KERNEL_TYPE conv_type = GAUSSIAN_KERNEL);
+
+    /// Does the image contain any NaNs?
+    bool get_contains_nans() const { return (this->get_nan_count() > 0); }
+
+    /// Flip the image along a given axis (Rotation of 180 degrees about axis)
+    void flip_along_axis(const unsigned axis);
+
+    /// Mirror the image along a given axis (This will change handedness of image)
+    void mirror_along_axis(const unsigned axis);
 
 protected:
 

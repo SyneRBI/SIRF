@@ -23,6 +23,10 @@ SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 LINK_DIRECTORIES(${cGadgetron_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES(${cGadgetron_INCLUDE_DIR})
 
+# NIFTYREG libraries
+LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
+INCLUDE_DIRECTORIES(${NIFTYREG_INCLUDE_DIRS})
+
 # Executables
 SET(SYN_executables
     sirf_registration
@@ -31,7 +35,7 @@ SET(SYN_executables
     )
 
 FOREACH(elem ${SYN_executables})
-    ADD_EXECUTABLE(${elem} ${elem}.cpp)
+    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
     TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${SYN_executables})

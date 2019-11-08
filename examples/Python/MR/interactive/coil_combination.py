@@ -43,7 +43,7 @@ import numpy
 import matplotlib.pyplot as plt
 
 # %% GO TO MR FOLDER
-os.chdir(pMR.petmr_data_path('mr'))
+os.chdir(pMR.examples_data_path('MR'))
 
 # %% LOAD AND PREPROCESS RAW MR DATA
 acq_data = pMR.AcquisitionData('simulated_MR_2D_cartesian.h5')
