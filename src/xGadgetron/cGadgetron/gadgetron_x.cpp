@@ -157,7 +157,6 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 void 
 AcquisitionsProcessor::process(MRAcquisitionData& acquisitions) 
 {
-
 	std::string config = xml();
 	GTConnector conn;
 	uint32_t nacq = 0;
@@ -229,23 +228,30 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	}
 	check_gadgetron_connection(host_, port_);
 	sptr_images_->sort();
+    // Add meta data to the image
+    sptr_images_->set_meta_data(acquisitions.acquisitions_info());
 }
 
 void 
-ImagesProcessor::process(GadgetronImageData& images)
+ImagesProcessor::process(const GadgetronImageData& images)
 {
 	std::string config = xml();
 	GTConnector conn;
 	sptr_images_ = images.new_images_container();
-	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-		shared_ptr<GadgetronClientMessageReader>
-		(new GadgetronClientImageMessageCollector(sptr_images_)));
+	if (dicom_)
+		conn().register_reader(GADGET_MESSAGE_DICOM_WITHNAME,
+			shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientBlobMessageReader(prefix_, "dcm")));
+	else
+		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+			shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientImageMessageCollector(sptr_images_)));
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
 			for (unsigned int i = 0; i < images.number(); i++) {
-				ImageWrap& iw = images.image_wrap(i);
+				const ImageWrap& iw = images.image_wrap(i);
 				conn().send_wrapped_image(iw);
 			}
 			conn().send_gadgetron_close();
@@ -330,6 +336,7 @@ void
 MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
 	MRAcquisitionData& ac)
 {
+	ic.set_meta_data(ac.acquisitions_info());
 	if (cc.items() < 1)
 		throw LocalisedException
 		("coil sensitivity maps not found", __FILE__, __LINE__);

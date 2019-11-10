@@ -60,7 +60,13 @@ ALL_CHANNELS = -1
 MAX_ACQ_DIMS = 10
 MAX_IMG_DIMS = 10
 
-class MessageRedirector:
+def set_verbosity(verbosity):
+    """Set the verbosity of all STIR output"""
+    handle = pystir.cSTIR_setVerbosity(verbosity)
+    check_status(handle)
+
+
+class MessageRedirector(object):
     '''
     Class for STIR printing redirection to files/stdout/stderr.
     '''
@@ -126,7 +132,7 @@ class MessageRedirector:
             try_calling(pystir.deleteTextWriter(self.errr))
         pystir.closeChannel(2, self.errr)
 
-class Shape:
+class Shape(object):
     '''
     Class for an abstract geometric shape used as a building block for
     creating phantom images.
@@ -289,6 +295,8 @@ class ImageData(SIRF.ImageData):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
+            if not v.flags['C_CONTIGUOUS']:
+                v = numpy.ascontiguousarray(v)
             try_calling(pystir.cSTIR_setImageData(self.handle, v.ctypes.data))
         elif isinstance(value, float):
             try_calling(pystir.cSTIR_fillImage(self.handle, value))
@@ -382,6 +390,25 @@ class ImageData(SIRF.ImageData):
                                 label = 'slice', xlabel = 'x', ylabel = 'y', \
                                 suptitle = title, show = (t == ni))
             f = t
+    def allocate(self, value=0, **kwargs):
+        '''Alias to get_uniform_copy
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.get_uniform_copy()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.get_uniform_copy(value)
+        return out
 ##        print('Please enter slice numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
@@ -400,7 +427,7 @@ class ImageData(SIRF.ImageData):
 
 DataContainer.register(ImageData)
 
-class ImageDataProcessor:
+class ImageDataProcessor(object):
     '''Class for image processors.
 
     An ImageDataProcessor changes an image in some way, e.g. by filtering.'''
@@ -441,6 +468,39 @@ class ImageDataProcessor:
         '''
         return self.output
 
+class SeparableGaussianImageFilter(ImageDataProcessor):
+    '''Implements Gaussian filtering.
+
+    The filtering operation is performed as 3 separate one-dimensional filters
+    in each spacial direction.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.name = 'SeparableGaussianImageFilter'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_up(self, image):
+        assert_validity(image, ImageData)
+        try_calling(pystir.cSTIR_setupImageDataProcessor\
+                 (self.handle, image.handle))
+    def set_fwhms(self, fwhms):
+        parms.set_float_par(self.handle, self.name, 'fwhms_x', fwhms[2])
+        parms.set_float_par(self.handle, self.name, 'fwhms_y', fwhms[1])
+        parms.set_float_par(self.handle, self.name, 'fwhms_z', fwhms[0])
+    def set_max_kernel_sizes(self, mks):
+        parms.set_int_par(self.handle, self.name, 'max_kernel_size_x', mks[2])
+        parms.set_int_par(self.handle, self.name, 'max_kernel_size_y', mks[1])
+        parms.set_int_par(self.handle, self.name, 'max_kernel_size_z', mks[0])
+    def set_normalise(self, norm=True):
+        if norm:
+            v = 1
+        else:
+            v = 0;
+        parms.set_int_par(self.handle, self.name, 'normalise', v)
+
 class TruncateToCylinderProcessor(ImageDataProcessor):
     '''
     Class for the image filter that zeroes the image outside the cylinder
@@ -471,7 +531,7 @@ class TruncateToCylinderProcessor(ImageDataProcessor):
                (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
                 'strictly_less_than_radius') != 0
 
-class RayTracingMatrix:
+class RayTracingMatrix(object):
     '''
     Class for objects holding sparse matrix representation of the ray
     tracing projector G (see AcquisitionModel class).
@@ -649,6 +709,8 @@ class AcquisitionData(DataContainer):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
+            if not v.flags['C_CONTIGUOUS']:
+                v = numpy.ascontiguousarray(v)
             try_calling(pystir.cSTIR_setAcquisitionData\
                         (self.handle, v.ctypes.data))
         elif isinstance(value, AcquisitionData):
@@ -734,6 +796,26 @@ class AcquisitionData(DataContainer):
             
             f = t
 
+    def allocate(self, value=0, **kwargs):
+        '''Alias to get_uniform_copy
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.get_uniform_copy()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.get_uniform_copy(value)
+        return out
+
 ##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
@@ -754,7 +836,7 @@ class AcquisitionData(DataContainer):
 
 DataContainer.register(AcquisitionData)
 
-class ListmodeToSinograms:
+class ListmodeToSinograms(object):
     '''
     Class for listmode-to-sinogram converter.
 
@@ -859,7 +941,7 @@ class ListmodeToSinograms:
         check_status(randoms.handle)
         return randoms
 
-class AcquisitionSensitivityModel:
+class AcquisitionSensitivityModel(object):
     '''
     Class that handles PET scanner detector efficiencies and attenuation.
 
@@ -959,7 +1041,7 @@ class AcquisitionSensitivityModel:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-class AcquisitionModel:
+class AcquisitionModel(object):
     ''' 
     Class for a PET acquisition model that relates an image x to the
     acquisition data y as
@@ -968,7 +1050,7 @@ class AcquisitionModel:
     G is the geometric (ray tracing) projector from the image voxels
     to the scanner's pairs of detectors (bins);
     a and b are otional additive and background terms representing
-    the effects of noise and scattering; assumed to be 0 if not present;
+    the effects of accidental coincidences and scattering; assumed to be 0 if not present;
     n is an optional bin normalization term representing the inverse of
     detector (bin) efficiencies; assumed to be 1 if not present.
     The computation of y for a given x by the above formula (F) is
@@ -980,6 +1062,12 @@ class AcquisitionModel:
     def __init__(self):
         self.handle = None
         self.name = 'AcquisitionModel'
+        # reference to the background term
+        self.bt = None
+        # reference to the additive term
+        self.at = None
+        # reference to the acquisition sensitivity model
+        self.asm = None
     def set_up(self, acq_templ, img_templ):
         ''' 
         Prepares this object for performing forward and backward
@@ -992,6 +1080,11 @@ class AcquisitionModel:
         '''
         assert_validity(acq_templ, AcquisitionData)
         assert_validity(img_templ, ImageData)
+
+        # temporarily save the templates in the class
+        self.acq_templ = acq_templ
+        self.img_templ = img_templ
+
         try_calling(pystir.cSTIR_setupAcquisitionModel\
             (self.handle, acq_templ.handle, img_templ.handle))
     def set_additive_term(self, at):
@@ -1002,6 +1095,8 @@ class AcquisitionModel:
         assert_validity(at, AcquisitionData)
         parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
+        # save reference to the additive term
+        self.at = at
     def set_background_term(self, bt):
         ''' 
         Sets the background term b in the acquisition model;
@@ -1010,6 +1105,66 @@ class AcquisitionModel:
         assert_validity(bt, AcquisitionData)
         parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
+        # save reference to the background term
+        self.bt = bt
+    def get_background_term(self):
+        '''Returns the background term of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of accidental coincidences and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns [b]
+        '''
+        if self.bt is None:
+            self.bt = AcquisitionData(self.acq_templ)
+            self.bt.fill(0)
+        return self.bt
+    def get_additive_term(self):
+        '''Returns the additive term of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of accidental coincidences and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns [a]
+        '''
+        if self.at is None:
+            self.at = AcquisitionData(self.acq_templ)
+            self.at.fill(0)
+        return self.at
+    def get_constant_term(self):
+        '''Returns the sum of the additive and background terms of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of accidental coincidences and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns S ( [a] )+ [b]
+        '''
+        if not self.asm is None:
+            return self.asm.forward( self.get_additive_term() ) + \
+                   self.get_background_term()
+        else:
+            return self.get_additive_term() + self.get_background_term()
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in the acquisition model;
@@ -1018,6 +1173,8 @@ class AcquisitionModel:
         assert_validity(asm, AcquisitionSensitivityModel)
         parms.set_parameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
+        # save reference to the Acquisition Sensitivity Model
+        self.asm = asm
     def forward(self, image, subset_num = 0, num_subsets = 1, ad = None):
         ''' 
         Returns the forward projection of image;
@@ -1044,6 +1201,68 @@ class AcquisitionModel:
             (self.handle, ad.handle, subset_num, num_subsets)
         check_status(image.handle)
         return image
+    def get_linear_acquisition_model(self):
+        '''
+        Returns a new AcquisitionModel corresponding to the linear part of the current one.
+        '''
+        am = type(self)()
+        am.set_up( self.acq_templ, self.img_templ )
+        return am
+    def direct(self, image, subset_num = 0, num_subsets = 1, out = None):
+        '''Projects an image into the (simulated) acquisition space,
+           alias of forward.
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        return self.forward(image, \
+                            subset_num=subset_num, \
+                            num_subsets = num_subsets, \
+                            ad = out)
+        
+    def adjoint(self, ad, subset_num = 0, num_subsets = 1, out = None):
+        '''Back-projects acquisition data into image space, if the
+           AcquisitionModel is linear
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if self.is_linear():
+            if out is not None:
+                out.fill(self.backward(ad, subset_num = subset_num, 
+                             num_subsets = num_subsets)
+                             )
+            else:
+                return self.backward(ad, subset_num = subset_num, 
+                             num_subsets = num_subsets)
+        else:
+            raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
+
+    def is_affine(self):
+        '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''
+        return True
+
+    def is_linear(self):
+        '''Returns whether the acquisition model is linear (i.e. corresponding to A*x, with zero background term)'''
+        if self.bt is None and self.at is None:
+            return True
+        else:
+            if     self.bt is None and \
+               not self.at is None:
+                return self.at.norm() == 0
+            elif not self.bt is None and \
+                     self.at is None:
+                return self.bt.norm() == 0
+            else:
+                return self.bt.norm() == 0 and self.at.norm() == 0
+
+    def range_geometry(self):
+        '''Returns the template of AcquisitionData'''
+        return self.acq_templ
+
+    def domain_geometry(self):
+        '''Returns the template of ImageData'''
+        return self.img_templ
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
@@ -1056,6 +1275,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
+        super(AcquisitionModelUsingMatrix, self).__init__()
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
@@ -1096,6 +1316,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
+        super(AcquisitionModelUsingRayTracingMatrix, self).__init__(matrix)
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
@@ -1136,7 +1357,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         '''
         return self.get_matrix().get_num_tangential_LORs()
 
-class Prior:
+class Prior(object):
     '''
     Class for objects handling the prior: a penalty term to be added to the
     objective function maximized by iterative reconstruction algorithms.
@@ -1176,6 +1397,25 @@ class Prior:
 class QuadraticPrior(Prior):
     '''
     Class for the prior that is a quadratic functions of the image values.
+
+    Implements a quadratic Gibbs prior. The gradient of the prior is computed
+    as follows:
+
+    \f[
+    g_r = \sum_dr w_{dr} (\lambda_r - \lambda_{r+dr}) * \kappa_r * \kappa_{r+dr}
+    \f]
+
+    where \f$\lambda\f$ is the image and \f$r\f$ and \f$dr\f$ are indices and
+    the sum is over the neighbourhood where the weights \f$w_{dr}\f$ are
+    non-zero.
+
+    The \f$\kappa\f$ image can be used to have spatially-varying penalties such
+    as in Jeff Fessler's papers. It should have identical dimensions to the
+    image for which the penalty is computed. If \f$\kappa\f$ is not set, this
+    class will effectively use 1 for all \f$\kappa\f$'s.
+
+    By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+    to x-voxel_size divided by the Euclidean distance between the points.
     '''
     def __init__(self):
         self.handle = None
@@ -1187,8 +1427,39 @@ class QuadraticPrior(Prior):
             pyiutil.deleteDataHandle(self.handle)
 
 class PLSPrior(Prior):
-    '''
-    Class for Parallel Level Sets prior.
+    '''Class for Parallel Level Sets prior.
+
+    Implements the anatomical penalty function, Parallel Level Sets (PLS),
+    proposed by Matthias J. Ehrhardt et. al in "PET Reconstruction With an
+    Anatomical MRI Prior Using Parallel Level Sets", IEEE Trans. med. Imag.,
+    vol. 35, no. 9, Sep 2016 (https://doi.org/10.1109/TMI.2016.2549601).
+    Note that PLS becomes smoothed TV when a uniform anatomical image is
+    provided.
+
+    The prior has 2 parameters alpha and eta. It is computed for an image \f$
+    f f$ as
+
+    \f[
+    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {\langle\nabla f, xi\rangle}^2}
+    \f]
+
+    where \f$ f \f$ is the PET image,
+    \f$ xi \f$ is the normalised gradient of the anatomical image calculated
+    as follows:
+
+    \f[
+    xi = \frac{\nabla v}{\sqrt{|\nabla v|^2 + \eta^2}}
+    \f]
+
+    with \f$ v f$ the anatomical image, \f$ \alpha \f$ controls
+    the edge-preservation property of PLS, and depends on the scale
+    of the emission image,  and \f$ \eta \f$ avoids division by zero, and
+    depends on the scale of the anatomical image.
+
+    A \f$\kappa\f$ image can be used to have spatially-varying penalties
+    such as in Jeff Fessler's papers. It should have identical dimensions to the
+    image for which the penalty is computed. If \f$\kappa\f$ is not set, this
+    class will effectively use 1 for all \f$\kappa\f$'s.
     '''
     def __init__(self):
         self.handle = None
@@ -1247,7 +1518,7 @@ class PLSPrior(Prior):
         check_status(image.handle)
         return image
 
-class ObjectiveFunction:
+class ObjectiveFunction(object):
     '''
     Class for the objective function maximized by the iterative reconstruction
     algorithms.
@@ -1286,6 +1557,9 @@ class ObjectiveFunction:
         #_set_int_par\
         parms.set_int_par\
             (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
+    def get_num_subsets(self):
+        return parms.int_par\
+            (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets')
     def set_up(self, image):
         '''
         Prepares this object for use.
@@ -1437,7 +1711,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         parms.set_parameter\
             (self.handle, self.name, 'acquisition_data', ad.handle)
 
-class Reconstructor:
+class Reconstructor(object):
     '''
     Class for a generic PET reconstructor.
     '''
@@ -1467,13 +1741,14 @@ class Reconstructor:
         '''
         assert_validity(image, ImageData)
         try_calling(pystir.cSTIR_runReconstruction(self.handle, image.handle))
+        self.image = image
     def get_output(self):
         '''Returns the reconstructed image.
         '''
         # TODO: move to C++
         return self.image
 
-class FBP2DReconstructor:
+class FBP2DReconstructor(object):
     '''
     Class for 2D Filtered Back Projection reconstructor.
     This is an implementation of the 2D FBP algorithm. 
@@ -1708,7 +1983,42 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
 class KOSMAPOSLReconstructor(IterativeReconstructor):
     '''
     Class for reconstructor objects using Kernel Ordered Subsets Maximum
-    A Posteriori One Step Late reconstruction algorithm
+    A Posteriori One Step Late reconstruction algorithm.
+
+    This class implements the iterative algorithm obtained using the Kernel
+    method (KEM) and Hybrid kernel method (HKEM). This implementation
+    corresponds to the one presented by Deidda D et al, "Hybrid PET-MR list-mode
+    kernelized expectation maximization  reconstruction", Inverse Problems,
+    2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
+    also sinogram-based reconstruction. Each voxel value of the image X can be
+    represented as a linear combination using the kernel method.  If we have an
+    image with prior information, we can construct for each voxel j of the
+    emission image a feature vector, v, using the prior information. The image
+    X can then be described using the kernel matrix
+   
+    X = A*K
+
+    where K is the kernel matrix. The resulting algorithm with OSEM, for example,
+    is the following:
+
+    A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
+  
+    where kernel can be written as:
+
+    K^n = K_m * K_p;
+  
+    with
+
+    K_m = exp(-(v_j - v_l)^2/(2*sigma_m^2)) * exp(-(x_j - x_l)^2 /(2*sigma_dm^2))
+
+    being the MR component of the kernel and
+
+    K_p = exp(-(z_j - z_l)^2/(2*sigma_p^2)) *
+          exp(-(x_j - x_l)^2 /(2*sigma_dp^2))
+
+    is the part coming from the emission iterative update. Here, the Gaussian
+    kernel functions have been modulated by the distance between voxels in the
+    image space.
     '''
     def __init__(self, filename = ''):
         self.handle = None
@@ -1732,7 +2042,7 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         parms.set_int_par\
             (self.handle, 'KOSMAPOSL', 'num_neighbours', n)
     def set_num_non_zero_features(self, n):
-        '''Sets number of neighbours.
+        '''Sets number of non-zero features.
         '''
         parms.set_int_par\
             (self.handle, 'KOSMAPOSL', 'num_non_zero_features', n)

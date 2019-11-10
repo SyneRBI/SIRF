@@ -24,6 +24,7 @@ limitations under the License.
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 #include "stir/ImagingModality.h"
+#include "stir/Verbosity.h"
 
 using namespace stir;
 using namespace sirf;
@@ -64,6 +65,13 @@ cSTIR_newReconstructionMethod(const char* par_file)
 }
 
 extern "C"
+void* cSTIR_setVerbosity(const int verbosity)
+{
+    stir::Verbosity::set(verbosity);
+    return new DataHandle;
+}
+
+extern "C"
 void* cSTIR_newObject(const char* name)
 {
 	try {
@@ -87,6 +95,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (boost::iequals(name, "EllipsoidalCylinder"))
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
+		if (boost::iequals(name, "SeparableGaussianImageFilter"))
+			return NEW_OBJECT_HANDLE(xSTIR_SeparableGaussianImageFilter);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -101,6 +111,8 @@ void* cSTIR_setParameter
 		CAST_PTR(DataHandle, hv, ptr_v);
 		if (boost::iequals(obj, "ListmodeToSinograms"))
 			return cSTIR_setListmodeToSinogramsParameter(ptr_s, name, ptr_v);
+		else if (boost::iequals(obj, "SeparableGaussianImageFilter"))
+			return cSTIR_setSeparableGaussianImageFilterParameter(ptr_s, name, ptr_v);
 		else if (boost::iequals(obj, "Shape"))
 			return cSTIR_setShapeParameter(ptr_s, name, ptr_v);
 		else if (boost::iequals(obj, "EllipsoidalCylinder"))
@@ -301,6 +313,20 @@ void* cSTIR_computeRandoms(void* ptr)
 			return handle;
 		}
 		return newObjectHandle(lm2s.get_randoms_sptr());
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i)
+{
+	try {
+		DataProcessor<Image3DF>& processor =
+			objectFromHandle<DataProcessor<Image3DF> >(ptr_p);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		Image3DF& image = id.data();
+		processor.set_up(image);
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }

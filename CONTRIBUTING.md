@@ -109,7 +109,7 @@ SIRF$ git pull --recurse-submodules
 SIRF$ cd data
 SIRF/data$ # create/change some files
 SIRF/data$ git commit -m "add some data" && git push && cd ..
-SIRF$ git add --force data  # force required for safety (see 4 below)
+SIRF$ git add --force data  # force required for safety (see 3 below)
 SIRF$ git commit -m "update submodule" && git push
 ```
 3. What happens when switching branches

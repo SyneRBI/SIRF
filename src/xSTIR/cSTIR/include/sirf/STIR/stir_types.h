@@ -23,22 +23,23 @@ limitations under the License.
 
 #include <boost/algorithm/string.hpp>
 
+#include "stir/DataProcessor.h"
 #include "stir/DiscretisedDensity.h"
 #include "stir/CartesianCoordinate3D.h"
-#include "stir/DataProcessor.h"
 #include "stir/IndexRange3D.h"
 #include "stir/is_null_ptr.h"
 #include "stir/ML_norm.h"
 #include "stir/recon_array_functions.h"
+#include "stir/SeparableGaussianImageFilter.h"
 #include "stir/Succeeded.h"
 #include "stir/utilities.h"
 #include "stir/VoxelsOnCartesianGrid.h"
+#include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/IO/OutputFileFormat.h"
 #include "stir/IO/read_from_file.h"
 #include "stir/listmode/CListRecord.h"
 #include "stir/listmode/CListEventCylindricalScannerWithDiscreteDetectors.h"
 #include "stir/listmode/LmToProjData.h"
-#include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
 #ifdef USE_HKEM
 #include "stir/KOSMAPOSL/KOSMAPOSLReconstruction.h"

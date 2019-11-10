@@ -68,6 +68,10 @@ namespace sirf {
 		(const DataHandle* handle, const char* name);
 
 	void*
+		cSTIR_setSeparableGaussianImageFilterParameter
+		(void* hp, const char* name, const void* hv);
+
+	void*
 		cSTIR_setGeneralisedPriorParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 

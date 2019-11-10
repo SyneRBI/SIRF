@@ -637,6 +637,48 @@ The actual algorithm is described in
 		stir::shared_ptr<STIRImageData> _sptr_image_data;
 	};
 
+	class xSTIR_SeparableGaussianImageFilter : 
+		public stir::SeparableGaussianImageFilter<float> {
+	public:
+		//stir::Succeeded set_up(const STIRImageData& id)
+		//{
+		//	return virtual_set_up(id.data());
+		//}
+		//void apply(STIRImageData& id)
+		//{
+		//	virtual_apply(id.data());
+		//}
+		void set_fwhms_xyz(char xyz, float f)
+		{
+			stir::BasicCoordinate<3, float> v = get_fwhms();
+			switch (xyz) {
+			case 'z':
+				v[1] = f;
+				break;
+			case 'y':
+				v[2] = f;
+				break;
+			case 'x':
+				v[3] = f;
+			}
+			set_fwhms(v);
+		}
+		void set_max_kernel_sizes_xyz(char xyz, int s)
+		{
+			stir::BasicCoordinate<3, int> v = get_max_kernel_sizes();
+			switch (xyz) {
+			case 'z':
+				v[1] = s;
+				break;
+			case 'y':
+				v[2] = s;
+				break;
+			case 'x':
+				v[3] = s;
+			}
+			set_max_kernel_sizes(v);
+		}
+	};
 }
 
 #endif
