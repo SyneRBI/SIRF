@@ -16,8 +16,8 @@
 #
 #=========================================================================
 
-find_package(STIR 3.1.0)
-#find_package(STIR 4.0.0 REQUIRED)
+#find_package(STIR 3.1.0)
+find_package(STIR 4.0.0 REQUIRED)
 if (STIR_FOUND)
 
   set("STIR_BUILT_WITH_ITK" "${STIR_BUILT_WITH_ITK}" PARENT_SCOPE)
