@@ -100,6 +100,9 @@ public:
     /// Set padding value
     void set_padding_value(const float padding_value) { _padding_value = padding_value; }
 
+    /// Set do adjoint
+    void set_do_adjoint(const bool do_adjoint) { _do_adjoint = do_adjoint; }
+
     /// Process
     virtual void process() = 0;
 
@@ -127,5 +130,8 @@ protected:
 
     /// Padding value
     float _padding_value = 0;
+
+    /// Do adjoint
+    bool _do_adjoint = false;
 };
 }

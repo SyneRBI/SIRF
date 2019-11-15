@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
     const std::string rigid_resample           = output_prefix   + "rigid_resample.nii";
     const std::string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
     const std::string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
+    const std::string nonrigid_resample_adj    = output_prefix   + "nonrigid_resample_adj.nii";
     const std::string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
     const std::string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
     const std::string output_float             = output_prefix   + "reg_aladin_float.nii";
@@ -825,6 +826,18 @@ int main(int argc, char* argv[])
         // i.e., reg_aladin != reg_resample when reg_resample uses the transformation matrix from reg_aladin
         /*if (NA.get_output() != nr1.get_output())
             throw std::runtime_error("compose_transformations_into_single_deformation failed.");*/
+
+        // Test adjoint resample
+        std::cout << "Testing non-rigid deformation...\n";
+        NiftyResample<float> nr4;
+        nr4.set_reference_image(ref_aladin);
+        nr4.set_floating_image(flo_aladin);
+        nr4.set_interpolation_type_to_nearest_neighbour(); // try different interpolations
+        nr4.set_do_adjoint(true);
+        nr4.add_transformation(deff);
+        nr4.set_interpolation_type_to_linear();
+        nr4.process();
+        nr4.get_output_sptr()->write(nonrigid_resample_adj);
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty resample test.\n";
