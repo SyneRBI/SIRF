@@ -73,7 +73,7 @@ endif(APPLE)
 
 #### we need the boost library from boost.org
 set(BOOST_ROOT CACHE PATH "root of Boost")
-find_package(Boost 1.36.0 COMPONENTS system filesystem thread date_time chrono detail REQUIRED)
+find_package(Boost 1.36.0 COMPONENTS system filesystem thread date_time chrono REQUIRED)
 # For Visual Studio we have to disable the auto-linking feature of boost
 # where just including a boost file automatically adds it to the linker path.
 # Although this sounds great, it sadly breaks because of conflicting file-paths when linking etc etc.
