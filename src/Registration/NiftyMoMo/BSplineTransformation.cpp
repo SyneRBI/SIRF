@@ -24,6 +24,16 @@
 
 using namespace NiftyMoMo;
 
+inline void nmm_exit(int Val, const char* fileName, int lineNumber)
+{
+  fprintf(stderr, "[niftyMoMo] Exit here. File: %s:%i\n", fileName, lineNumber);
+  exit(Val);
+};
+
+inline void nmm_print_debug(const char* message){ printf("[niftyMoMo DEBUG] Message: %s\n", message); };
+inline void nmm_print_warning(const char* message){ printf("[niftyMoMo WARNING] Message: %s\n", message); };
+inline void nmm_print_error(const char* message){ fprintf(stderr, "[niftyMoMo ERROR] Message: %s\n", message); };
+
 //----------------------------------------------
 // BSplineTransformation::BSplineTransformation
 //----------------------------------------------
@@ -283,7 +293,7 @@ nifti_image* BSplineTransformation::GetDeformationVectorField( nifti_image* targ
                                                              this->deformationVectorFieldImage->nbyper );
   this->deformationVectorFieldImage->intent_code = NIFTI_INTENT_VECTOR;
   memset( this->deformationVectorFieldImage->intent_name, 0, 16 );
-  strcpy_s( this->deformationVectorFieldImage->intent_name, "NREG_TRANS" );
+  strcpy( this->deformationVectorFieldImage->intent_name, "NREG_TRANS" );
   this->deformationVectorFieldImage->intent_p1 = DEF_FIELD;
   this->deformationVectorFieldImage->scl_slope = 1.f;
   this->deformationVectorFieldImage->scl_inter = 0.f;
@@ -1382,7 +1392,7 @@ void BSplineTransformation::SetLinearEnergyWeight( double linearEnergyWeightIn )
   if ( linearEnergyWeightIn < 0.f )
   {
     char msg[200];
-    sprintf_s( msg, "Linear energy weight has to be positive." );
+    sprintf( msg, "Linear energy weight has to be positive." );
     nmm_print_error( msg );
     nmm_exit( 1, __FILE__, __LINE__ );
   }
@@ -1432,7 +1442,7 @@ void BSplineTransformation::SetBendingEnergyWeight( double bendingEnergyWeightIn
   if (bendingEnergyWeightIn < 0.f)
   {
     char msg[200];
-    sprintf_s( msg, "Linear energy weight has to be positive." );
+    sprintf( msg, "Linear energy weight has to be positive." );
     nmm_print_error( msg );
     nmm_exit( 1, __FILE__, __LINE__ );
   }
