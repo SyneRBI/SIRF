@@ -1060,12 +1060,12 @@ namespace sirf {
 			ISMRMRD::NDArray<complex_float_t>& csm
 			);
 
-		float max_(int nx, int ny, float* u);
+		float max_(int nx, int ny, int nz, float* u);
 		void mask_noise_
-			(int nx, int ny, float* u, float noise, int* mask);
-		int cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
+			(int nx, int ny, int nz, float* u, float noise, int* mask);
+		int cleanup_mask_(int nx, int ny, int nz, int* mask, int bg, int minsz, int ex);
 		void smoothen_
-			(int nx, int ny, int nc,
+			(int nx, int ny, int nz, int nc,
 			complex_float_t* u, complex_float_t* v,
 			int* obj_mask, int w);
 	};
