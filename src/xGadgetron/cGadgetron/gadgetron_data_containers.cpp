@@ -1440,12 +1440,13 @@ CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
 }
 
 float 
-CoilSensitivitiesContainer::max_(int nx, int ny, float* u)
+CoilSensitivitiesContainer::max_(int nx, int ny, int nz, float* u)
 {
 	float r = 0.0;
 	int i = 0;
-	for (int iy = 0; iy < ny; iy++)
-		for (int ix = 0; ix < nx; ix++, i++) {
+	for (int iz = 0; iz < nz; iz++)
+		for (int iy = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
 			float t = fabs(u[i]);
 			if (t > r)
 				r = t;
@@ -1455,69 +1456,73 @@ CoilSensitivitiesContainer::max_(int nx, int ny, float* u)
 
 void 
 CoilSensitivitiesContainer::mask_noise_
-(int nx, int ny, float* u, float noise, int* mask)
+(int nx, int ny, int nz, float* u, float noise, int* mask)
 {
 	int i = 0;
-	for (int iy = 0; iy < ny; iy++)
-		for (int ix = 0; ix < nx; ix++, i++) {
+	for (int iz = 0; iz < nz; iz++)
+		for (int iy = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
 			float t = fabs(u[i]);
 			mask[i] = (t > noise);
 		}
 }
 
 int 
-CoilSensitivitiesContainer::cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex)
+CoilSensitivitiesContainer::cleanup_mask_
+(int nx, int ny, int nz, int* mask, int bg, int minsz, int ex)
 {
 	int ll, il;
 	int* listx = new int[nx*ny];
 	int* listy = new int[nx*ny];
-	int* inlist = new int[nx*ny];
+	int* inlist = new int[nx*ny*nz];
 	std::memset(inlist, 0, nx*ny * sizeof(int));
 	int nc = 0;
-	for (int iy = 0, i = 0; iy < ny; iy++) {
-		for (int ix = 0; ix < nx; ix++, i++) {
-			if (mask[i] == bg)
-				continue;
-			bool skip = false;
-			ll = 1;
-			listx[0] = ix;
-			listy[0] = iy;
-			inlist[i] = 1;
-			il = 0;
-			while (il < ll && ll < minsz) {
-				int lx = listx[il];
-				int ly = listy[il];
-				int l = ll + ex;
-				for (int jy = -l; jy <= l; jy++) {
-					for (int jx = -l; jx <= l; jx++) {
-						int kx = lx + jx;
-						int ky = ly + jy;
-						if (kx < 0 || kx >= nx)
-							continue;
-						if (ky < 0 || ky >= ny)
-							continue;
-						int j = kx + ky*nx;
-						if (inlist[j])
-							continue;
-						if (mask[j] != bg) {
-							listx[ll] = kx;
-							listy[ll] = ky;
-							inlist[j] = 1;
-							ll++;
+	for (int iz = 0, i = 0; iz < nz; iz++) {
+		for (int iy = 0; iy < ny; iy++) {
+			for (int ix = 0; ix < nx; ix++, i++) {
+				if (mask[i] == bg)
+					continue;
+				bool skip = false;
+				ll = 1;
+				listx[0] = ix;
+				listy[0] = iy;
+				inlist[i] = 1;
+				il = 0;
+				while (il < ll && ll < minsz) {
+					int lx = listx[il];
+					int ly = listy[il];
+					int l = ll + ex;
+					for (int jy = -l; jy <= l; jy++) {
+						for (int jx = -l; jx <= l; jx++) {
+							int kx = lx + jx;
+							int ky = ly + jy;
+							if (kx < 0 || kx >= nx)
+								continue;
+							if (ky < 0 || ky >= ny)
+								continue;
+							int j = kx + ky*nx;
+							if (inlist[j])
+								continue;
+							if (mask[j] != bg) {
+								listx[ll] = kx;
+								listy[ll] = ky;
+								inlist[j] = 1;
+								ll++;
+							}
 						}
 					}
+					il++;
 				}
-				il++;
-			}
-			if (il == ll) {
-				mask[i] = bg;
-				nc++;
-			}
-			for (il = 0; il < ll; il++) {
-				int lx = listx[il];
-				int ly = listy[il];
-				int j = lx + ly*nx;
-				inlist[j] = 0;
+				if (il == ll) {
+					mask[i] = bg;
+					nc++;
+				}
+				for (il = 0; il < ll; il++) {
+					int lx = listx[il];
+					int ly = listy[il];
+					int j = lx + ly*nx;
+					inlist[j] = 0;
+				}
 			}
 		}
 	}
@@ -1530,15 +1535,16 @@ CoilSensitivitiesContainer::cleanup_mask_(int nx, int ny, int* mask, int bg, int
 
 void 
 CoilSensitivitiesContainer::smoothen_
-(int nx, int ny, int nc,
+(int nx, int ny, int nz, int nc,
 	complex_float_t* u, complex_float_t* v,
 	int* obj_mask, int w)
 {
 	const complex_float_t ONE(1.0, 0.0);
 	const complex_float_t TWO(2.0, 0.0);
 	for (int ic = 0, i = 0; ic < nc; ic++)
-		for (int iy = 0, k = 0; iy < ny; iy++)
-			for (int ix = 0; ix < nx; ix++, i++, k++) {
+		for (int iz = 0, k = 0; iz < nz; iz++)
+			for (int iy = 0; iy < ny; iy++)
+				for (int ix = 0; ix < nx; ix++, i++, k++) {
 				//if (edge_mask[k]) {
 				//	v[i] = u[i];
 				//	continue;
@@ -1570,7 +1576,7 @@ CoilSensitivitiesContainer::smoothen_
 				else
 					v[i] = u[i];
 			}
-	memcpy(u, v, nx*ny*nc * sizeof(complex_float_t));
+	memcpy(u, v, nx*ny*nz*nc * sizeof(complex_float_t));
 }
 
 void 
@@ -1606,8 +1612,8 @@ CoilSensitivitiesContainer::compute_csm_(
 		}
 	}
 
-	int* object_mask = new int[nx*ny*nc];
-	memset(object_mask, 0, nx*ny*nc * sizeof(int));
+	int* object_mask = new int[nx*ny*nz];
+	memset(object_mask, 0, nx*ny*nz * sizeof(int));
 
 	ISMRMRD::NDArray<complex_float_t> w(cm0);
 
@@ -1625,10 +1631,10 @@ CoilSensitivitiesContainer::compute_csm_(
 		}
 	}
 
-	float max_im = max_(nx, ny, ptr_img);
-	float noise = max_(5, 5, ptr_img) + (float)1e-6*max_im;
-	//std::cout << "max_im: " << max_im << ", noise: " << noise << '\n';
-	mask_noise_(nx, ny, ptr_img, noise, object_mask);
+	float max_im = max_(nx, ny, nz, ptr_img);
+	float noise = max_(5, 5, nz, ptr_img) + (float)1e-6*max_im;
+	//std::cout << "\nmax_im: " << max_im << ", noise: " << noise << '\n';
+	mask_noise_(nx, ny, nz, ptr_img, noise, object_mask);
 	//for (int i = 2; i < 20; i++) {
 	//	int cleaned = cleanup_mask_(nx, ny, object_mask, 0, i, 0);
 	//	if (cleaned < 1)
@@ -1639,15 +1645,16 @@ CoilSensitivitiesContainer::compute_csm_(
 	//	if (cleaned < 1)
 	//		break;
 	//}
-	cleanup_mask_(nx, ny, object_mask, 0, 2, 0);
-	cleanup_mask_(nx, ny, object_mask, 0, 3, 0);
-	cleanup_mask_(nx, ny, object_mask, 0, 4, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 2, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 3, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 4, 0);
+	cleanup_mask_(nx, ny, nz, object_mask, 0, 2, 0);
+	cleanup_mask_(nx, ny, nz, object_mask, 0, 3, 0);
+	cleanup_mask_(nx, ny, nz, object_mask, 0, 4, 0);
+	//cleanup_mask_(nx, ny, nz, object_mask, 1, 2, 0);
+	//cleanup_mask_(nx, ny, nz, object_mask, 1, 3, 0);
+	//cleanup_mask_(nx, ny, nz, object_mask, 1, 4, 0);
 
 	for (int i = 0; i < csm_smoothness_; i++)
-		smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), object_mask, 1);
+		smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), 
+			object_mask, 1);
 
 	for (unsigned int z = 0; z < nz; z++) {
 		for (unsigned int y = 0; y < ny; y++) {
