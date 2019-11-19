@@ -38,7 +38,7 @@ matrix:
    python: 2.7
    # +DEVEL -boost -fftw3 -hdf5 -swig +ace
    env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
- osx g{cc,++} py{27,36}
+ # osx g{cc,++} py{27,36}
  - os: osx
    python: 2.7
    # +boost -hdf5 -swig
