@@ -45,6 +45,7 @@ matrix:
  #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
  - os: osx
    # +boost +fftw3 -hdf5 -swig
+   osx_image: xcode11.2
    python: 3
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
  # - os: osx
