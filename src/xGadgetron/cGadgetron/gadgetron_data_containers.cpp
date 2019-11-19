@@ -1467,70 +1467,30 @@ CoilSensitivitiesContainer::mask_noise_
 		}
 }
 
-int 
-CoilSensitivitiesContainer::cleanup_mask_
-(int nx, int ny, int nz, int* mask, int bg, int minsz, int ex)
+float
+CoilSensitivitiesContainer::max_diff_
+(int nx, int ny, int nz, int nc, float small_grad,
+	complex_float_t* u, complex_float_t* v)
 {
-	int ll, il;
-	int* listx = new int[nx*ny];
-	int* listy = new int[nx*ny];
-	int* inlist = new int[nx*ny*nz];
-	std::memset(inlist, 0, nx*ny * sizeof(int));
-	int nc = 0;
-	for (int iz = 0, i = 0; iz < nz; iz++) {
-		for (int iy = 0; iy < ny; iy++) {
-			for (int ix = 0; ix < nx; ix++, i++) {
-				if (mask[i] == bg)
-					continue;
-				bool skip = false;
-				ll = 1;
-				listx[0] = ix;
-				listy[0] = iy;
-				inlist[i] = 1;
-				il = 0;
-				while (il < ll && ll < minsz) {
-					int lx = listx[il];
-					int ly = listy[il];
-					int l = ll + ex;
-					for (int jy = -l; jy <= l; jy++) {
-						for (int jx = -l; jx <= l; jx++) {
-							int kx = lx + jx;
-							int ky = ly + jy;
-							if (kx < 0 || kx >= nx)
-								continue;
-							if (ky < 0 || ky >= ny)
-								continue;
-							int j = kx + ky*nx;
-							if (inlist[j])
-								continue;
-							if (mask[j] != bg) {
-								listx[ll] = kx;
-								listy[ll] = ky;
-								inlist[j] = 1;
-								ll++;
-							}
-						}
-					}
-					il++;
-				}
-				if (il == ll) {
-					mask[i] = bg;
-					nc++;
-				}
-				for (il = 0; il < ll; il++) {
-					int lx = listx[il];
-					int ly = listy[il];
-					int j = lx + ly*nx;
-					inlist[j] = 0;
+	int nxy = nx*ny;
+	int nxyz = nxy*nz;
+	float s = 0.0f;
+	for (int ic = 0; ic < nc; ic++) {
+		for (int iz = 0; iz < nz; iz++) {
+			for (int iy = 1; iy < ny - 1; iy++) {
+				for (int ix = 1; ix < nx - 1; ix++) {
+					int i = ix + nx*iy + nxy*iz + nxyz*ic;
+					float gx = abs(u[i + 1] - u[i - 1]) / 2.0f;
+					float gy = abs(u[i + nx] - u[i - nx]) / 2.0f;
+					float g = (float)std::sqrt(gx*gx + gy*gy);
+					float si = abs(u[i] - v[i]);
+					if (g <= small_grad && si > s)
+						s = si;
 				}
 			}
 		}
 	}
-	//std::cout << nc << " mask pixels cleaned\n";
-	delete[] listx;
-	delete[] listy;
-	delete[] inlist;
-	return nc;
+	return s;
 }
 
 void 
@@ -1610,6 +1570,7 @@ CoilSensitivitiesContainer::compute_csm_(
 	int* object_mask = new int[nx*ny*nz];
 	memset(object_mask, 0, nx*ny*nz * sizeof(int));
 
+	ISMRMRD::NDArray<complex_float_t> v(cm0);
 	ISMRMRD::NDArray<complex_float_t> w(cm0);
 
 	float* ptr_img = img.getDataPtr();
@@ -1627,18 +1588,15 @@ CoilSensitivitiesContainer::compute_csm_(
 	}
 
 	float max_im = max_(nx, ny, nz, ptr_img);
-	float noise = max_(5, 5, nz, ptr_img) + (float)1e-6*max_im;
-	//std::cout << "\nmax_im: " << max_im << ", noise: " << noise << '\n';
+	float small_grad = max_im * 2 / (nx + ny + 0.0f);
+	for (int i = 0; i < 3; i++)
+		smoothen_(nx, ny, nz, nc, v.getDataPtr(), w.getDataPtr(), 0, 1);
+	float noise = max_diff_(nx, ny, nz, nc, small_grad,
+		v.getDataPtr(), cm0.getDataPtr());
 	mask_noise_(nx, ny, nz, ptr_img, noise, object_mask);
-	cleanup_mask_(nx, ny, nz, object_mask, 0, 2, 0);
-	cleanup_mask_(nx, ny, nz, object_mask, 0, 3, 0);
-	cleanup_mask_(nx, ny, nz, object_mask, 0, 4, 0);
-	cleanup_mask_(nx, ny, nz, object_mask, 1, 2, 0);
-	cleanup_mask_(nx, ny, nz, object_mask, 1, 3, 0);
-	cleanup_mask_(nx, ny, nz, object_mask, 1, 4, 0);
 
 	for (int i = 0; i < csm_smoothness_; i++)
-		smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), 
+		smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), //0, 1);
 			object_mask, 1);
 
 	for (unsigned int z = 0; z < nz; z++) {
@@ -1663,7 +1621,6 @@ CoilSensitivitiesContainer::compute_csm_(
 					s = (float)(1.0 / r);
 				else
 					s = 0.0;
-				//s = 1.0*object_mask[i];
 				complex_float_t zs(s, 0.0);
 				for (unsigned int c = 0; c < nc; c++) {
 					csm(x, y, z, c) = zs * cm0(x, y, z, c);

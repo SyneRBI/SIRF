@@ -1060,6 +1060,8 @@ namespace sirf {
 			ISMRMRD::NDArray<complex_float_t>& csm
 			);
 
+		float max_diff_(int nx, int ny, int nz, int nc, float small_grad,
+			complex_float_t* u, complex_float_t* v);
 		float max_(int nx, int ny, int nz, float* u);
 		void mask_noise_
 			(int nx, int ny, int nz, float* u, float noise, int* mask);
