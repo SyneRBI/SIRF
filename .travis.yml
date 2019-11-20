@@ -166,10 +166,6 @@ before_install:
       ( set -ev
         # boost is already installed but 1.65 doesn't work so update
         brew reinstall boost
-        # As of boost 1.69, boost.Process is broken. https://stackoverflow.com/a/54912043
-        # To fix, remove :: from all occurences of ::sigtimedwait, ::sigaddset and ::sigemptyset
-        # Hopefully will be able to remove this at some point...
-        find /usr/local/include/boost/ -name '*.hpp' -exec sed -i -e "s/::sigtimedwait/sigtimedwait/g; s/::sigaddset/sigaddset/g; s/::sigemptyset/sigemptyset/g; " {} \;
         # we currently need boost-python
         # brew install boost-python
         brew install ace
