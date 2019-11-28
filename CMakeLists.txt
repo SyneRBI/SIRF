@@ -94,8 +94,6 @@ find_package(Boost 1.36.0 COMPONENTS system filesystem thread date_time chrono R
 # See http://stackoverflow.com/questions/32252016/cmake-visual-studio-build-looks-for-wrong-library
 add_definitions(-DBOOST_ALL_NO_LIB)
 
-include_directories(${Boost_INCLUDE_DIRS})
-
 #### optional back-ends
 option(DISABLE_PYTHON "Disable building SIRF python support" OFF)
 if (DISABLE_PYTHON)

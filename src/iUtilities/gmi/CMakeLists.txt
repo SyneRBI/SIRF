@@ -20,8 +20,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 if(BUILD_MATLAB)
 
-  include_directories(${Matlab_INCLUDE_DIRS})
-
   add_executable(gmi_iutilities gmi.cpp)
   target_link_libraries(gmi_iutilities csirf mig)
   INSTALL(TARGETS gmi_iutilities DESTINATION bin)

@@ -34,8 +34,6 @@ if(BUILD_PYTHON)
   # TODO would be better to use target_include_directories
 
   FIND_PACKAGE(PythonLibs REQUIRED)
-  #FIND_PACKAGE(Numpy REQUIRED)
-  #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
   # Tell CMake it needs to re-run SWIG when .h file changes
   set(SWIG_MODULE_pystir_EXTRA_DEPS "${cSTIR_INCLUDE_DIR}/sirf/STIR/cstir.h")
   set (UseSWIG_TARGET_NAME_PREFERENCE STANDARD)

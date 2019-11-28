@@ -26,6 +26,8 @@ target_include_directories(iutilities PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
 
+target_include_directories(iutilities PUBLIC ${Boost_INCLUDE_DIRS})
+
 if(BUILD_PYTHON)
   if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
     # policy introduced in CMake 3.13
@@ -42,13 +44,12 @@ if(BUILD_PYTHON)
   # TODO would be better to use target_include_directories
 
   FIND_PACKAGE(PythonLibs REQUIRED)
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-  #FIND_PACKAGE(Numpy REQUIRED)
-  #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
+  set (UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
   set(SWIG_MODULE_pyiutilities_EXTRA_DEPS 
     "${ciUtilities_INCLUDE_DIR}/sirf/iUtilities/DataHandle.h" 
     "${ciUtilities_INCLUDE_DIR}/sirf/iUtilities/iutilities.h")
   SWIG_ADD_LIBRARY(pyiutilities LANGUAGE python TYPE MODULE SOURCES pyiutilities.i)
+  TARGET_INCLUDE_DIRECTORIES(pyiutilities PUBLIC ${PYTHON_INCLUDE_PATH})
   SWIG_LINK_LIBRARIES(pyiutilities iutilities ${PYTHON_LIBRARIES})
 
   INSTALL(TARGETS ${SWIG_MODULE_pyiutilities_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")

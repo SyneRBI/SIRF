@@ -33,8 +33,6 @@ if(BUILD_PYTHON)
   # TODO would be better to use target_include_directories
 
   FIND_PACKAGE(PythonLibs REQUIRED)
-  #FIND_PACKAGE(Numpy REQUIRED)
-  #INCLUDE_DIRECTORIES("${NUMPY_INCLUDE_DIRS}")
   # Tell CMake it needs to re-run SWIG when .h file changes
   set(SWIG_MODULE_pygadgetron_EXTRA_DEPS "${cGadgetron_INCLUDE_DIR}/sirf/Gadgetron/cgadgetron.h")
   set (UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
