@@ -16,8 +16,6 @@
 #
 #=========================================================================
 
-set(cSTIR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cSTIR")
-
 ADD_SUBDIRECTORY(cSTIR)
 ADD_SUBDIRECTORY(pSTIR)
 ADD_SUBDIRECTORY(mSTIR)

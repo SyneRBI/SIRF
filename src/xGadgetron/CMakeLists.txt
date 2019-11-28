@@ -24,15 +24,6 @@ else ()
    set (CMAKE_CXX_STANDARD 11)
 endif ()
 
-set(CMAKE_MODULE_PATH "${ISMRMRD_DIR}")
-# We need the following line because there is a problem with the
-# ISMRMRD config cmake file which means that library location is
-# not part of the target.
-set(cGadgetron_LIBRARY_DIRS "${ISMRMRD_LIBRARY_DIRS}" PARENT_SCOPE)
-set(cGadgetron_INCLUDE_DIR "${ISMRMRD_INCLUDE_DIR}" PARENT_SCOPE)
-
-find_package(FFTW3 COMPONENTS single REQUIRED)
-
 if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
   set(FFTW3_DLL_DIR ${FFTW3_INCLUDE_DIR})
   message(STATUS "Install FFTW3 libraries from ${FFTW3_DLL_DIR} ")
@@ -40,13 +31,6 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
   install( FILES ${FFTW_DLLS} DESTINATION bin )
 endif()
 
-include_directories("${ISMRMRD_INCLUDE_DIR}")
-# need to add this as ISMRMRD_LIBRARIES doesn't set the path to the library
-link_directories("${ISMRMRD_LIBRARY_DIRS}")
-
 ADD_SUBDIRECTORY(cGadgetron)
-
-set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cGadgetron")
-
 ADD_SUBDIRECTORY(pGadgetron)
 ADD_SUBDIRECTORY(mGadgetron)
