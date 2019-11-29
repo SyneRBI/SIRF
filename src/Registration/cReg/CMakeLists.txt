@@ -57,7 +57,7 @@ FOREACH(NR_lib ${NIFTYREG_LIBRARIES})
   SET(NR_libs_full_path "${NR_libs_full_path};${${NR_lib}_full_path}")
 ENDFOREACH()
 TARGET_LINK_LIBRARIES(Reg PUBLIC ${NR_libs_full_path} ${NR_libs_full_path})
-TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC "${NIFTYREG_INCLUDE_DIRS}")
+TARGET_INCLUDE_DIRECTORIES(Reg BEFORE PUBLIC "${NIFTYREG_INCLUDE_DIRS}")
 
 # If niftyreg was bulit with OpenMP
 if (NIFTYREG_BUILT_WITH_OPENMP)
