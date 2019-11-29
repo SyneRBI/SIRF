@@ -21,18 +21,6 @@
 ADD_SUBDIRECTORY(iUtilities)
 ADD_SUBDIRECTORY(common)
 
-##########################################################################
-#                                 STIR                                   #
-##########################################################################
-option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
-if (DISABLE_STIR)
-  message(STATUS "STIR support disabled.")
-else()
-  find_package(STIR 4.0.0 REQUIRED)
-  ADD_SUBDIRECTORY(xSTIR)
-endif()
-
-
 
 ##########################################################################
 #                              Gadgetron                                 #
@@ -63,6 +51,18 @@ else()
   ADD_SUBDIRECTORY(Registration)
 endif()
 
+
+
+##########################################################################
+#                                 STIR                                   #
+##########################################################################
+option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
+if (DISABLE_STIR)
+  message(STATUS "STIR support disabled.")
+else()
+  find_package(STIR 4.0.0 REQUIRED)
+  ADD_SUBDIRECTORY(xSTIR)
+endif()
 
 
 ##########################################################################
