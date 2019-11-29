@@ -89,6 +89,14 @@ def main():
     shape.set_origin((10, -30, -60))
     image.add_shape(shape, scale = 0.75)
 
+    # apply Gaussian filter
+    filter = SeparableGaussianImageFilter()
+    filter.set_fwhms((10, 20, 30))
+    filter.set_max_kernel_sizes((10, 10, 2))
+    filter.set_normalise()
+    filter.set_up(image)
+    filter.apply(image)
+
     # z-pixel coordinate of the xy-crossection to show
     z = int(image_size[0]/2)
 
@@ -147,9 +155,23 @@ def main():
     # backproject the computed forward projection
     # note that the backprojection takes the acquisition sensitivy model asm into account as well
     back_projected_image = acq_model.backward(simulated_data, 0, 4)
-
     back_projected_image_as_array = back_projected_image.as_array()
     show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
+
+    # direct is alias for the forward method for a linear AcquisitionModel
+    # raises error if the AcquisitionModel is not linear.
+    acq_model.direct(image, 0, 4, simulated_data)
+
+    # show simulated acquisition data
+    simulated_data_as_array_direct = simulated_data.as_array()
+    show_2D_array('Direct projection', simulated_data_as_array_direct[0,0,:,:])
+    
+    # adjoint is an alias for the backward method for a linear AcquisitionModel
+    # raises error if the AcquisitionModel is not linear.
+    back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)
+
+    back_projected_image_as_array_adj = back_projected_image_adj.as_array()
+    show_2D_array('Adjoint projection', back_projected_image_as_array_adj[z,:,:])
 
 try:
     main()

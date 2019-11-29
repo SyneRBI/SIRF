@@ -805,7 +805,7 @@ int main(int argc, char* argv[])
         nr2.process();
         nr2.get_output_sptr()->write(nonrigid_resample_disp);
 
-        if (std::abs(nr2.get_output_sptr()->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
+        if (std::abs(nr2.get_output_as_niftiImageData_sptr()->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
             throw std::runtime_error("NiftyResample::set_padding_value failed.");
 
         std::cout << "Testing non-rigid deformation...\n";

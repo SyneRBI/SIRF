@@ -1,11 +1,9 @@
-'''OSEM reconstruction demo.
-We actually use the OSMAPOSL reconstructor in this demo. This reconstructor
-implements an Ordered Subsets (OS) version of the One Step Late algorithm (OSL)
-from Green et al for Maximum a Posteriori (MAP) maximisation. Here we use it
-for Maximum Likelihood (ML) in which case it is equivalent to OSEM.
+'''Hybrid Kernelized Expectation Maximization reconstruction demo.
+Implements a Kernelized Ordered Subsets (OS) version of the One Step Late
+algorithm (OSL) from Green et al for Maximum a Posteriori (MAP) maximisation.
 
 Usage:
-  osem_reconstruction [--help | options]
+  hkem_reconstruction [--help | options]
 
 Options:
   -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
@@ -13,7 +11,7 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -s <subs>, --subs=<subs>     number of subsets [default: 12]
-  -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
+  -i <iter>, --subiter=<iter>  number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
 '''
 
@@ -63,7 +61,7 @@ def image_data_processor(image_array, im_num):
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
     pylab.imshow(image_array[20,:,:])
-    print('You may neet to close Figure %d window to continue' % im_num)
+    print('You may need to close Figure %d window to continue' % im_num)
     # image is not modified in this simplistic example - but might have been
     return image_array
 

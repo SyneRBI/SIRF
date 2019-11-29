@@ -97,6 +97,45 @@ sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const vo
 }
 
 void*
+sirf::cSTIR_setSeparableGaussianImageFilterParameter
+(void* hp, const char* name, const void* hv)
+{
+	xSTIR_SeparableGaussianImageFilter& f = 
+		objectFromHandle<xSTIR_SeparableGaussianImageFilter>(hp);
+	if (boost::iequals(name, "fwhms_x")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('x', v);
+	}
+	else if (boost::iequals(name, "fwhms_y")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('y', v);
+	}
+	else if (boost::iequals(name, "fwhms_z")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('z', v);
+	}
+	else if (boost::iequals(name, "max_kernel_size_x")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('x', mks);
+	}
+	else if (boost::iequals(name, "max_kernel_size_y")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('y', mks);
+	}
+	else if (boost::iequals(name, "max_kernel_size_z")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('z', mks);
+	}
+	else if (boost::iequals(name, "normalise")) {
+		bool normalise = dataFromHandle<int>(hv);
+		f.set_normalise(normalise);
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
 sirf::cSTIR_setShapeParameter(void* hp, const char* name, const void* hv)
 {
 	Shape3D& s = objectFromHandle<Shape3D>(hp);
@@ -381,6 +420,8 @@ sirf::cSTIR_generalisedObjectiveFunctionParameter
 		objectFromHandle< ObjectiveFunction3DF >(handle);
 	if (boost::iequals(name, "prior"))
 		return newObjectHandle(obj_fun.get_prior_sptr());
+	else if (boost::iequals(name, "num_subsets"))
+		return dataHandle<int>(obj_fun.get_num_subsets());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -526,8 +567,10 @@ sirf::cSTIR_iterativeReconstructionParameter
 	if (boost::iequals(name, "subiteration_num")) {
 		//xSTIR_IterativeReconstruction3DF& xrecon =
 		//	(xSTIR_IterativeReconstruction3DF&)(recon);
-		DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
-		return dataHandle<int>(xrecon.subiteration());
+		//DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+		int iter = recon.get_subiteration_num();
+		return dataHandle<int>(iter);
+		//return dataHandle<int>(xrecon.subiteration());
 	}
 	if (boost::iequals(name, "objective_function"))
 		return newObjectHandle(recon.get_objective_function_sptr());
