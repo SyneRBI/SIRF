@@ -76,8 +76,8 @@ env:
   # don't use too many threads - may crash
   - MAKEFLAGS="-j 2"
 
-# Ubuntu 16.04 LTS
-dist: xenial
+# Ubuntu 18.04 LTS
+dist: bionic
 
 # No need for sudo
 sudo: false
