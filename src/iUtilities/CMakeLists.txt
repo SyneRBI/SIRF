@@ -44,12 +44,11 @@ if(BUILD_PYTHON)
   # TODO would be better to use target_include_directories
 
   FIND_PACKAGE(PythonLibs REQUIRED)
-  set (UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
   set(SWIG_MODULE_pyiutilities_EXTRA_DEPS 
     "${ciUtilities_INCLUDE_DIR}/sirf/iUtilities/DataHandle.h" 
     "${ciUtilities_INCLUDE_DIR}/sirf/iUtilities/iutilities.h")
   SWIG_ADD_LIBRARY(pyiutilities LANGUAGE python TYPE MODULE SOURCES pyiutilities.i)
-  TARGET_INCLUDE_DIRECTORIES(pyiutilities PUBLIC ${PYTHON_INCLUDE_PATH})
+  TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pyiutilities_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_PATH})
   SWIG_LINK_LIBRARIES(pyiutilities iutilities ${PYTHON_LIBRARIES})
 
   INSTALL(TARGETS ${SWIG_MODULE_pyiutilities_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
