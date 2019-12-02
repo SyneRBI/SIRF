@@ -77,8 +77,8 @@ void print_usage()
 
     // Optional flags
     std::cout << "\n  Optional flags:\n";
-    std::cout << "    -eng_ref:\t\tengine to open reference image (and reference mask if present)\n";
-    std::cout << "    -eng_flo:\t\tengine to open floating image (and floating mask if present)\n";
+    std::cout << "    -eng_ref:\t\tengine to open reference image (and reference mask if present) [Nifti|STIR|Gadgetron]\n";
+    std::cout << "    -eng_flo:\t\tengine to open floating image (and floating mask if present) [Nifti|STIR|Gadgetron]\n";
     std::cout << "    -rmask:\t\tmask of reference image\n";
     std::cout << "    -fmask:\t\tmask of floating image\n";
     std::cout << "    -warped:\t\twarped image filename\n";
