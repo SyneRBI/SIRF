@@ -632,7 +632,7 @@ if try_resample
     nr2.set_reference_image(g.ref_aladin);
     nr2.set_floating_image(g.flo_aladin);
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
-    nr2.set_interpolation_type_to_linear();  % try different interpolations
+    nr2.set_interpolation_type_to_nearest_neighbour();  % try different interpolations
     nr2.add_transformation(displ);
     nr2.set_padding_value(padding_value);
     nr2.process();
@@ -644,7 +644,7 @@ if try_resample
     nr3 = sirf.Reg.NiftyResample();
     nr3.set_reference_image(g.ref_aladin)
     nr3.set_floating_image(g.flo_aladin)
-    nr3.set_interpolation_type_to_nearest_neighbour()  % try different interpolations
+    nr3.set_interpolation_type_to_linear()  % try different interpolations
     nr3.add_transformation(deff);
     nr3.set_interpolation_type_to_linear()
     nr3.process()
