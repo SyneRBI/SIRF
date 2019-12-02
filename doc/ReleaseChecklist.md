@@ -49,14 +49,17 @@ VER=1.0.0-rc.1
 5. SIRF-Exercises (already checked in VM)
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
-6. Website
+6. SIRF-Contribs
+  - [ ] `git tag -a v$VER -m "version $VER"`
+  - [ ] `git push origin v$VER`
+7. Website
   - [ ] update Software page (version info, VM etc)
   - [ ] upload doxygen
   - [ ] update link for doxygen in [Wiki](https://github.com/CCPPETMR/SIRF/wiki/Software-Documentation)
   - [ ] add news flash
-7. Announce
+8. Announce
   - [ ] Send email to CCP-PETMR-DEVEL@JISCMAIL.AC.UK; CCP-PETMR-USERS@JISCMAIL.AC.UK; add CCP-PETMR@JISCMAIL.AC.UK for final release
-8. Tag wikis
+9. Tag wikis
   - [ ] `git clone https://github.com/CCPPETMR/SIRF.wiki.git; cd SIRF.wiki` (or pull)
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`

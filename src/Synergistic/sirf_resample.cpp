@@ -41,16 +41,16 @@ If multiple transformations are given, they will be applied in the order they we
 
 using namespace sirf;
 
-static std::shared_ptr<const NiftiImageData3D<float> > image_as_sptr(const std::string &filename, const std::string &engine)
+static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
 {
     if (strcmp(engine.c_str(), "Nifti") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(filename);
     else if (strcmp(engine.c_str(), "STIR") == 0)
-        return std::make_shared<const NiftiImageData3D<float> >(STIRImageData(filename));
+        return std::make_shared<const STIRImageData>(filename);
     else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
         std::shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
 		sptr_img->read(filename);
-        return std::make_shared<const NiftiImageData3D<float> >(*sptr_img);
+        return sptr_img;
     }
     else
         throw std::runtime_error("unknown engine - " + engine + ".\n");
@@ -209,8 +209,8 @@ int main(int argc, char* argv[])
             err("Error: -flo required.");
 
         // Get images as NiftiImages
-        std::shared_ptr<const NiftiImageData3D<float> > ref = image_as_sptr(ref_filename,eng_ref);
-        std::shared_ptr<const NiftiImageData3D<float> > flo = image_as_sptr(flo_filename,eng_flo);
+        std::shared_ptr<const ImageData> ref = image_as_sptr(ref_filename,eng_ref);
+        std::shared_ptr<const ImageData> flo = image_as_sptr(flo_filename,eng_flo);
 
         // Resample
         std::shared_ptr<Resample<float> > res = algo_as_sptr(algo);
