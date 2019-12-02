@@ -1200,13 +1200,26 @@ GadgetronImagesVector::set_up_geom_info()
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
 
-    // Check that the read, phase and slice directions are unit vectors and constant
-    for (unsigned im=0; im<number(); ++im) {
+    // Check that read, phase and slice directions are all unit vectors
+    if (!(is_unit_vector(ih1.read_dir) && is_unit_vector(ih1.phase_dir) && is_unit_vector(ih1.slice_dir))) {
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
+        return;
+    }
+
+    // Check that the slice direction is the cross product of the read and phase direction
+    float read_phase_x_prod[3];
+    read_phase_x_prod[0] = ih1.read_dir[1]*ih1.phase_dir[2] - ih1.read_dir[2]*ih1.phase_dir[1];
+    read_phase_x_prod[1] = ih1.read_dir[2]*ih1.phase_dir[0] - ih1.read_dir[0]*ih1.phase_dir[2];
+    read_phase_x_prod[2] = ih1.read_dir[0]*ih1.phase_dir[1] - ih1.read_dir[1]*ih1.phase_dir[0];
+    if (!are_vectors_equal(ih1.read_dir,read_phase_x_prod)) {
+          std::cout << "\nGadgetronImagesVector::set_up_geom_info(): slice_dir is not "
+          "equal to the cross product between read_dir and phase_dir.\n";
+          return;
+    }
+
+    // Check that the read, phase and slice directions are constant
+    for (unsigned im=1; im<number(); ++im) {
         ISMRMRD::ImageHeader &ih = image_wrap(im).head();
-        if (!(is_unit_vector(ih.read_dir) && is_unit_vector(ih.phase_dir) && is_unit_vector(ih.slice_dir))) {
-            std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
-            return;
-        }
         if (!(are_vectors_equal(ih1.read_dir,ih.read_dir) && are_vectors_equal(ih1.phase_dir,ih.phase_dir) && are_vectors_equal(ih1.slice_dir,ih.slice_dir))) {
             std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should be constant over slices.\n";
             return;
