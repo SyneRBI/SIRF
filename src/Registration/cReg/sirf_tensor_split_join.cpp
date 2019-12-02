@@ -35,7 +35,7 @@ using namespace sirf;
 
 void print_usage()
 {
-    std::cout << "\nUsage: sirf_tensor_split_join --join/split filename_4D filename_x filename_y filename z\n";
+    std::cout << "\nUsage: sirf_tensor_split_join --join/split filename_4D filename_x filename_y filename_z\n";
 }
 
 enum JoinOrSplit{join,split};
@@ -44,9 +44,9 @@ enum JoinOrSplit{join,split};
 int main(int argc, char* argv[])
 {
     try {
-        if (argc != 5) {
+        if (argc != 6) {
             print_usage();
-            EXIT_SUCCESS;
+            return EXIT_FAILURE;
         }
 
         // Are we splitting or joining images?
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
             mode = join;
         else {
             print_usage();
-            EXIT_SUCCESS;
+            return EXIT_FAILURE;
         }
 
         // Get filenames
