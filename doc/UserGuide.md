@@ -20,7 +20,8 @@
         3. [Basic classes](#Basic_classes)
         4. [Other classes](#Other_classes)
         5. [Functions](#Functions)
-5. [Appendix](#Appendix)
+5. [Compatibility with CCPi CIL](#CIL_compatibility)
+6. [Appendix](#Appendix)
     1. [Acquisition data storage scheme management](#storage_management)
     2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
         1. [Creating and running gadget chains by SIRF script](#creating_and_running_gadget_chains)
@@ -30,7 +31,7 @@
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
-This User’s Guide describes version 2.0 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
+This User’s Guide describes version 2.1 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
 
 ## General architecture <a name="General_architecture"></a>
 
@@ -73,6 +74,7 @@ Please note that with the installation set-up, you will normally have two copies
 The MR module and the demos create temporary files during operation. They are normally created in the same folder as the input data, but are cleaned up afterwards. Therefore,  the data cannot reside in a read-only folder. 
 	
 # Framework basic functionality <a name="Basic_functionality"></a>
+
 
 ## General conventions <a name="General_conventions"></a> 
 
@@ -192,15 +194,37 @@ In the rest of the document we give basic information on the SIRF classes, inclu
 
 #### Data Containers 
 
-Reconstructed data are represented by `ImageData` objects. Currently they represent 3D volumes discretised using voxels.  
+Reconstructed data are represented by `ImageData` objects. Currently they represent 3D volumes discretised using voxels.
 
-Measured data (either raw or after some pre-processing) are represented by `AcquisitionData` objects. These contain everything what is needed to be able to reconstruct the data (including scanner information and geometry). 
+Measured data (either raw or after some pre-processing) are represented by `AcquisitionData` objects. These contain everything what is needed to be able to reconstruct the data (including scanner information and geometry).
+
+Both classes of data objects inherit from an abstract data class `DataContainer`.
+
+##### DataContainer
+
+An abstract base class for data containers.
+
+###### Methods:
+
+    clone      Returns a copy of this object.
+    write      Writes the object data to a file.
+    norm       Returns 2-norm of the object data viewed as a vector.
+    dot        Returns the dot product of the container data with another 
+               container data viewed as vectors.
+    multiply   Returns the element-wise product of this and another container 
+               data viewed as vectors.
+    divide     Returns the element-wise product of this and another container 
+               data viewed as vectors.
+
+The element-wise addition, subtraction, multiplication and division can be
+performed using overloaded `+`, `-`, `*` and `/`. Either of the operands of `*` and
+the second operand of `/` can be a scalar.
 
 ##### AcquisitionData
 
-Class for acquisition data.
+Class for acquisition data. Inherits from `DataContainer`.
 
-###### Methods:
+###### Methods (in addition to those of DataContainer):
 
     AcquisitionData  
                (PET/MR) Constructor. If no arguments are present, creates an
@@ -221,34 +245,30 @@ Class for acquisition data.
                   (PET) Returns new compatible ImageData object. 
     as_array   (PET/MR) Returns the object data as an array. 
     fill       (PET/MR) Replaces the object data with user-supplied data. 
-    clone      (PET/MR) Returns a copy of this object. 
-    write      (PET/MR) Writes the object data to a file. 
     sort           (MR) Sorts the acquisition data. 
     is_sorted      (MR) Returns true if and only if the acquisition data is sorted. 
     get_info       (MR) Returns information on the acquisition data. 
     process        (MR) Processes the acquisition data by a chain of gadgets. 
-    dimensions     (MR) Returns the acquisition data dimensions
+    dimensions    (PET) Returns the acquisition data dimensions
     show       (PET/MR) Displays the acquisition data as a set of 2D sinograms (PET)
                         or xy-slices (MR)
 
 ##### ImageData
 
-Class for data representing 3D objects.
+Class for data representing 3D objects. Inherits from `DataContainer`.
 
-###### Methods:
+###### Methods (in addition to those of DataContainer):
 
     ImageData (PET/MR)  Constructor. Reads data from a file or creates empty object. 
     initialise   (PET)  Sets the image size in voxels, voxel sizes and the origin. 
     fill      (PET/MR)  Replaces the object data with user-supplied data. 
     as_array  (PET/MR)  Returns the object data as an array. 
-    clone     (PET/MR)  Returns a copy of this object. 
     read_from_file
               (PET/MR)  Reads the image data from file.
     get_uniform_copy   
                  (PET)  Returns a copy of this image filled with a constant value. 
     add_shape    (PET)  Adds a shape to the image. 
     show      (PET/MR)  Displays the image as a set of 2D xy-slices. 
-    write     (PET/MR)  Writes the object data to a file. 
     dimensions   (PET)  Returns the object data dimensions
     voxel_sizes  (PET)  Returns the voxel sizes
 	
@@ -290,18 +310,33 @@ Class for objects that process `ImageData` objects.
                (PET/MR) Constructor. Creates new ImageDataProcessor object 
                         (PET: empty, MR: defined by the argument). 
     set_input  (PET/MR) Sets the processor input. 
-    process    (PET/MR) Processes image data on input. 
-    get_output (PET/MR) Retrieves the processed image data. 
-    apply         (PET) Processes the ImageData argument. 
+    process    (PET/MR) Computes processed image data, leaving the input intact. 
+    get_output (PET/MR) Returns the processed image data. 
+    apply         (PET) Processes the ImageData argument.
 
 ##### TruncateToCylinderProcessor (PET)
 
-Class for the image processor that zeroes the image outside a cylinder. Inherits the methods of `ImageDataProcessor`. 
+Class for the image processor that zeroes the image outside a cylinder. 
+Inherits the methods of `ImageDataProcessor`.
 
 ###### Methods (in addition to those of ImageDataProcessor): 
 
-    set_strictly_less_than_radius  Defines the behaviour on the cylinder boundary. 
-    get_strictly_less_than_radius  Exposes the behaviour on the cylinder boundary. 
+    set_strictly_less_than_radius  Defines the behaviour on the cylinder boundary.
+    get_strictly_less_than_radius  Exposes the behaviour on the cylinder boundary.
+
+##### SeparableGaussianImageFilter (PET)
+
+Class for the image processor that implements Gaussian filtering. 
+Inherits the methods of `ImageDataProcessor`.
+
+The filtering operation is performed as 3 separate one-dimensional filters 
+in each spacial direction.
+
+###### Methods (in addition to those of ImageDataProcessor):
+
+	set_fwhms            Sets Full Widths at Half Maximum in each spacial direction
+	set_max_kernel_sizes Sets max kernel size in each spacial direction.
+	set_normalise        Normalise the kernel to 1 or not (default is on)
 
 ##### AcquisitionDataProcessor
 
@@ -343,6 +378,32 @@ Class for a generic image reconstructor.
     set_output_filename_prefix  
                (PET/MR) Specifies the naming for the output files.  
 
+##### FBP2DReconstructor (PET)
+
+Class for 2D Filtered Back Projection reconstructor. 
+
+This is an implementation of the 2D FBP algorithm. 
+Oblique angles in data will be ignored. The exception is the span=1 case,
+where the ring differences +1 and -1 are first combined to give indirect
+sinograms.
+By default, the algorithm uses the ramp filter. An apodizing filter can be
+added by using `set_alpha_cosine_window` and/or `set_frequency_cut_off`.
+The apodizing filter in frequency space has the form
+
+    (alpha + (1 - alpha) * cos(pi * f / fc))
+
+###### Methods: 
+
+    set_input                Sets the input (AquisitionData object).
+    set_zoom                 Allows to change voxel size.
+    set_alpha_cosine_window  Sets alpha.
+    set_frequency_cut_off    Sets fc.
+    set_output_image_size_xy Sets x and y sizes of output image.
+    set_up                   Sets up the reconstructor.
+    reconstruct              Performs reconstruction.
+    get_output               Returns the output (ImageData object). 
+
+
 ##### IterativeReconstructor (PET) 
 
 Class for PET reconstruction algorithms that use Ordered Subsets technique whereby the acquisition data is split into subsets, and the objective function and its gradient are represented as the sums of components corresponding to subsets. Typically, one iteration of such algorithm would deal with one subset, and is therefore referred to as sub-iteration. Inherits the methods of `Reconstructor`. 
@@ -374,13 +435,59 @@ Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One S
 
     OSMAPOSLReconstructor  Constructor. Creates new OSMAPOSL reconstructor object.  
 
+##### KOSMAPOSLReconstructor (PET) 
+
+Class for reconstructor objects using Kernel Ordered Subsets Maximum
+A Posteriori One Step Late reconstruction algorithm.
+
+This class implements the iterative algorithm obtained using the Kernel method (KEM) and Hybrid kernel method (HKEM).This implementation corresponds to the one presented by Deidda D. et al, "Hybrid PET-MR list-mode kernelized expectation maximization  reconstruction",
+Inverse Problems, 2019, DOI: https://doi.org/10.1088/1361-6420/ab013f. However, this allows
+also sinogram-based reconstruction. Each voxel value of the image `X` can be represented as a
+linear combination using the kernel method. If we have an image with prior information, we can construct for each voxel `j` of the emission image a feature vector `v` using the prior information. The image `X` can then be described using the kernel matrix
+   
+    X = A*K 
+
+where `K` is the kernel matrix and `A` are the kernel coefficients. The resulting algorithm with OSEM, for example, is the following:
+   
+    A^(n+1) =  A^n/(K^n * S) * K^n * P * Y/(P * K^n *A^n + S)
+  
+where kernel can be written as:
+
+     K^n = K_m * K_p
+  
+with
+
+    K_m = exp(-(v_j - v_l)^2/(2*sigma_m^2)) * exp(-(x_j - x_l)^2 /(2*sigma_dm^2))
+
+being the MR component of the kernel and
+
+    K_p = exp(-(z_j - z_l)^2/(2*sigma_p^2)) * exp(-(x_j - x_l)^2 /(2*sigma_dp^2))
+
+is the part coming from the emission iterative update. Here, the Gaussian kernel functions have been modulated by the distance between voxels in the image space.
+
+
+###### Methods (in addition to those of IterativeReconstructor): 
+
+    KOSMAPOSLReconstructor    Constructor. Creates new KOSMAPOSL reconstructor object.
+    set_anatomical_prior      Sets anatomical prior.
+    set_num_neighbours        Sets number of neighbours.
+    set_num_non_zero_features Sets number of non-zero features.
+    set_sigma_m               Sets sigma_m.
+    set_sigma_p               Sets sigma_p.
+    set_sigma_dm              Sets sigma_dm.
+    set_sigma_dp              Sets sigma_dp.
+    set_only_2D               Use 2D kernels.
+    set_hybrid                Enable the hybrid kernel method (i.e. K_m*K_p) vs only the MR kernel.
+
+
 ##### OSSPSReconstructor (PET) 
 
 Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Surrogate reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html). Inherits the methods of `IterativeReconstructor`.  
 
 ###### Methods (in addition to those of IterativeReconstructor): 
 
-    OSSPSReconstructor   Constructor. Creates new OSSPS reconstructor object. 
+    OSSPSReconstructor       Constructor. Creates new OSSPS reconstructor object.
+    set_relaxation_parameter Sets relaxation parameter.
 
 ##### FullySampledReconstructor (MR) 
 
@@ -553,6 +660,7 @@ where
 n, bin normalization, is the inverse of bin efficiencies. 
 --->
 
+
 Accordingly, the backprojection `B` is the right-hand side of
 
     (B)    x = G' S y 
@@ -665,7 +773,7 @@ The user have an option of adding a penalty term (referred to as prior) to the o
 
 ##### Prior (PET)
 
-Class for a penalty term to be added to the objective function. 
+An abstract base class for a penalty term to be added to the objective function. 
 
 ###### Methods: 
 
@@ -673,12 +781,138 @@ Class for a penalty term to be added to the objective function.
     set_penalisation_factor  Specifies the prior's scaling factor. 
     get_gradient             Returns the prior gradient.  
 
+##### QuadraticPrior (PET)
+
+Class for the prior that is a quadratic functions of the image values.
+
+Implements a quadratic Gibbs prior. The gradient of the prior is computed
+as follows:
+
+    g_r = \sum_dr w_{dr} (\lambda_r - \lambda_{r+dr}) * \kappa_r * \kappa_{r+dr}
+
+where \lambda is the image and r and dr are indices and the sum is over 
+the neighbourhood where the weights w_{dr} are non-zero.
+
+The \kappa image can be used to have spatially-varying penalties such
+as in Jeff Fessler's papers. It should have identical dimensions to the
+image for which the penalty is computed. If \kappa is not set, this
+class will effectively use 1 for all \kappa's.
+
+By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+to x-voxel_size divided by the Euclidean distance between the points.
+
+##### PLSPrior (PET)
+
+Class for Parallel Level Sets prior. Inherits from Prior.
+
+Implements the anatomical penalty function, Parallel Level Sets (PLS),
+proposed by Matthias J. Ehrhardt et. al in "PET Reconstruction With an 
+Anatomical MRI Prior Using Parallel Level Sets", IEEE Trans. med. Imag., 
+vol. 35, no. 9, Sep 2016 (https://doi.org/10.1109/TMI.2016.2549601).
+Note that PLS becomes smoothed TV when a uniform anatomical image is
+provided.
+
+The prior has 2 parameters alpha and eta. It is computed for an image
+f as
+
+    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {(\nabla f,\xi)}^2}
+
+where \xi is the normalised gradient of the anatomical image v calculated
+as follows:
+
+    \xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2)
+
+The parameter alpha controls the edge-preservation property 
+of PLS, and depends on the scale of the emission image, and eta avoids 
+division by zero, and depends on the scale of the anatomical image.
+
+An image kappa can be used to have spatially-varying penalties
+such as in Jeff Fessler's papers. It should have identical dimensions to the
+image for which the penalty is computed. If kappa is not set, this
+class will effectively use 1 for all kappa values.
+
+###### Methods (in addition to those of Prior):
+
+    set_alpha               Sets alpha
+    get_alpha               Returns alpha
+    set_eta                 Sets eta
+    get_eta                 Returns eta
+    set_anatomical_image    Sets anatomical image
+    set_anatomical_filename Specifies the name of the file containing 
+                            anatomical image
+    get_anatomical_image    Returns anatomical image
+    get_anatomical_grad     Returns the gradient of the anatomical image (internal)
+    set_kappa               Sets kappa
+    set_kappa_filename      Specifies the name of the file containing kappa
+    get_kappa               Returns kappa
+    get_norm                (internal)
+    set_only_2D             Use the penalty in 2D only.
+    get_only_2D             Get the value of only_2D
+
 ### Functions <a name="Functions"></a>
 
     preprocess_acquisition_data (MR)  Preprocesses the MR acquisition data.  
 
     make_Poisson_loglikelihood (PET)  Returns Poisson objective function.
 
+## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
+The CCPi [`CIL Python Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel
+reconstruction algorithms can be used with SIRF classes such as
+`DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal,
+a number of methods and properties were added to SIRF Python classes for compatibility.
+
+### `AcquisitionModel`
+
+PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](http://edosil.net/stfc/cil/html/optimisation.html). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+In all what follows the parameter `out` can be passed when user wants to use a specific instance to retrieve the result.
+
+The methods that have been added both in MR and PET :
+1. `direct(img, out=None)` Projects an image into the (simulated) acquisition space, alias of `forward`.
+2. `adjoint(data, out=None)` Back-projects acquisition data to image space, alias of `backward`.
+3. `is_affine()` Returns if the acquisition model is affine (i.e. corresponding to `A*x+b`), currently `True`
+4. `is_linear()` Returns whether the acquisition model is linear (i.e. corresponding to `A*x`, with zero background term).
+`True` for MR and PET without accidental coincidences/scatter term.
+
+PET Specific:
+1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of `forward`. The parameter `out` can be used to pass an `AcquisitionData` instance to store the result of `direct` into.
+2. `adjoint(ad, subset_num = 0, num_subsets = 1, out = None)` Back-projects acquisition data into image space, if the `AcquisitionModel` is linear. 
+
+The PET acquisition model relates an image `x` to the acquisition data `y` as
+```
+(F)    y = S (G x + [a]) + [b]
+```
+where `G` is the geometric (ray tracing) projector from the image voxels to the scanner's pairs of detectors (bins);
+`a` and `b` are optional additive and background terms representing the effects of accidental coincidendes and scattering;
+`S` is the Acquisition Sensitivity Map. 
+The following additional methods are added to the PET `AcquisitionModel`:
+1. `get_linear_acquisition_model()` Returns a new `AcquisitionModel` corresponding to the linear part of the current one.
+1. `get_background_term()` Returns the background term of the `AcquisitionModel`
+1. `get_additive_term()` Returns the additive term of the `AcquisitionModel`
+1. `get_constant_term()` Returns the sum of the additive and background terms of the `AcquisitionModel`
+           
+### `DataContainer`
+
+`sirf.DataContainer` has been added the method `copy` as an alias to `clone`. 
+Below the list of methods currently implemented on CCPi that have been added to SIRF `DataContainers`. In all what follows the parameter `out` allows the user to pass a `DataContainer` to store the result of the operation to. 
+1. (Pixelwise) binary operations, notice that the CCPi implementation allows optional `*args, **kwargs` input parameters:
+    1. `add(self, other , out=None)`
+    1. `subtract(self, other, out=None):`
+    1. `multiply(self, other , out=None)` 
+    1. `divide(self, other , out=None)` 
+    1. `power(self, other , out=None)`
+    1. `maximum(self, other , out=None)`
+    1. `minimum(self, other , out=None)`
+1. all in-place algebra operations
+1. (Pixelwise) unary operations:
+    1. `abs(self, out=None)`
+    1. `sign(self, out=None)`
+    1. `sqrt(self, out=None)`
+    1. `exp(self, out=None)`
+    1. `log(self, out=None)`
+1. reductions
+    1. `sum(self)`
+    1. `norm(self)`
+    1. `squared_norm(self)`, returns the square of the call of `norm()`
 # Appendix <a name="Appendix"></a>
 
 ## Acquisition data storage scheme management <a name="storage_management"></a>
@@ -836,6 +1070,7 @@ Selects the reference data used to calculate the GRAPPA kernel
 
 #### GenericReconCartesianGrappaGadget
 
+
 | input | output | parameters | default values |
 | - | - | - | - |
 | internal4 | internal5 | debug_folder | ""
@@ -896,6 +1131,7 @@ Extracts a certain type of image data from the reconstructed image stream, i.e. 
 | input | output | parameters |
 | - | - | - |
 | ImageData | ImageData | none |
+
 
 Depending on the image type, the magnitude, real, imaginary or phase of the complex image is returned.
 

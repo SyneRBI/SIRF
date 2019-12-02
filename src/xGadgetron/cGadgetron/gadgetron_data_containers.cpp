@@ -63,7 +63,7 @@ MRAcquisitionData::write(const std::string &filename) const
 	mtx.lock();
 	shared_ptr<ISMRMRD::Dataset> dataset
 		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", true));
-	dataset->writeHeader(acqs_info_);
+	dataset->writeHeader(acqs_info_.c_str());
 	mtx.unlock();
 	int n = number();
 	ISMRMRD::Acquisition a;
@@ -125,8 +125,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 bool
 MRAcquisitionData::undersampled() const
 {
-	ISMRMRD::IsmrmrdHeader header;
-	ISMRMRD::deserialize(acqs_info_.c_str(), header);
+	ISMRMRD::IsmrmrdHeader header = acqs_info_.get_IsmrmrdHeader();
 	ISMRMRD::Encoding e = header.encoding[0];
 	return e.parallelImaging.is_present() &&
 		e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
@@ -881,20 +880,30 @@ group_names_sptr(const char* filename)
 }
 
 int
-GadgetronImageData::read(std::string filename) 
+GadgetronImageData::read(std::string filename, std::string variable, int iv) 
 {
+	int vsize = variable.size();
 	std::shared_ptr<std::vector<std::string> > sptr_names;
 	sptr_names = group_names_sptr(filename.c_str());
 	std::vector<std::string>& names = *sptr_names;
 	int ng = names.size();
 	const char* group = names[0].c_str();
 	printf("group %s\n", group);
-	for (int i = 0; i < ng; i++) {
-		const char* var = names[i].c_str();
-		if (!i)
+	for (int ig = 0; ig < ng; ig++) {
+		const char* var = names[ig].c_str();
+		if (!ig)
 			continue;
 
 		printf("variable %s\n", var);
+		if (vsize > 0)
+			if (strcmp(var, variable.c_str()))
+				continue;
+		if (iv > 0)
+			if (ig != iv)
+				continue;
+		if (strcmp(var, "xml") == 0)
+			continue;
+
 		ISMRMRD::ISMRMRD_Dataset dataset;
 		ISMRMRD::ISMRMRD_Image im;
 		ismrmrd_init_dataset(&dataset, filename.c_str(), group);
@@ -910,6 +919,13 @@ GadgetronImageData::read(std::string filename)
 		shared_ptr<ISMRMRD::Dataset> sptr_dataset
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
 
+        // ISMRMRD throws an error if no XML is present.
+        try {
+            sptr_dataset->readHeader(this->acqs_info_);
+		}
+		catch (const std::exception &error) {
+		}
+
 		for (int i = 0; i < num_im; i++) {
 			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type, *sptr_dataset, var, i));
 			//sptr_iw->read(*sptr_dataset, var, i);
@@ -920,6 +936,10 @@ GadgetronImageData::read(std::string filename)
 		//sptr_iw->get_dim(dim);
 		//std::cout << "image dimensions: "
 		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		if (vsize > 0 && strcmp(var, variable.c_str()) == 0)
+			break;
+		if (iv > 0 && ig == iv)
+			break;
 	}
 
     this->set_up_geom_info();
@@ -939,6 +959,7 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
 	Mutex mtx;
 	mtx.lock();
 	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
+    dataset.writeHeader(acqs_info_.c_str());
 	mtx.unlock();
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);
@@ -998,6 +1019,8 @@ GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()
 {
+	DYNAMIC_CAST(const GadgetronImageData, imgs, images);
+	set_meta_data(imgs.get_meta_data());
 	for (unsigned int i = 0; i < images.number(); i++) {
 		const ImageWrap& u = images.image_wrap(i);
 		append(u);
@@ -1009,6 +1032,8 @@ GadgetronImagesVector::GadgetronImagesVector
 (GadgetronImagesVector& images, const char* attr, const char* target) : 
 images_()
 {
+	DYNAMIC_CAST(const GadgetronImageData, imgs, images);
+	set_meta_data(imgs.get_meta_data());
 	for (unsigned int i = 0; i < images.number(); i++) {
 		const ImageWrap& u = images.image_wrap(i);
 		std::string atts = u.attributes();
@@ -1146,6 +1171,11 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     std::cout << "field_of_view:          "; for (int i=0;i<3;++i) std::cout << ih.field_of_view[i]          << " "; std::cout << "\n";
     std::cout << "physiology_time_stamp:  "; for (int i=0;i<3;++i) std::cout << ih.physiology_time_stamp[i]  << " "; std::cout << "\n";
     std::cout << "patient_table_position: "; for (int i=0;i<3;++i) std::cout << ih.patient_table_position[i] << " "; std::cout << "\n";
+
+    if (!acqs_info_.empty()) {
+        std::cout << "XML data:\n";
+        std::cout << acqs_info_.c_str() << "\n";
+    }
 }
 
 void
@@ -1163,9 +1193,9 @@ GadgetronImagesVector::set_up_geom_info()
 
     ISMRMRD::IsmrmrdHeader image_header = this->acqs_info_.get_IsmrmrdHeader();
     if (!image_header.measurementInformation.is_present())
-        std::cout << "\nGadgetronImagesVector::set_up_geom_info: Patient position not present. Assuming HFS.\n";
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info: Patient position not present. Assuming HFS\n";
     else if (!image_header.measurementInformation.get().patientPosition.compare("HFS"))
-        std::cout << "\nGadgetronImagesVector::set_up_geom_info: Currently only implemented for HFS. TODO (easy fix).\n";
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info: Currently only implemented for HFS. TODO (easy fix)\n";
 
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
@@ -1420,12 +1450,13 @@ CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
 }
 
 float 
-CoilSensitivitiesContainer::max_(int nx, int ny, float* u)
+CoilSensitivitiesContainer::max_(int nx, int ny, int nz, float* u)
 {
 	float r = 0.0;
 	int i = 0;
-	for (int iy = 0; iy < ny; iy++)
-		for (int ix = 0; ix < nx; ix++, i++) {
+	for (int iz = 0; iz < nz; iz++)
+		for (int iy = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
 			float t = fabs(u[i]);
 			if (t > r)
 				r = t;
@@ -1435,122 +1466,82 @@ CoilSensitivitiesContainer::max_(int nx, int ny, float* u)
 
 void 
 CoilSensitivitiesContainer::mask_noise_
-(int nx, int ny, float* u, float noise, int* mask)
+(int nx, int ny, int nz, float* u, float noise, int* mask)
 {
 	int i = 0;
-	for (int iy = 0; iy < ny; iy++)
-		for (int ix = 0; ix < nx; ix++, i++) {
+	for (int iz = 0; iz < nz; iz++)
+		for (int iy = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
 			float t = fabs(u[i]);
 			mask[i] = (t > noise);
 		}
 }
 
-int 
-CoilSensitivitiesContainer::cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex)
+float
+CoilSensitivitiesContainer::max_diff_
+(int nx, int ny, int nz, int nc, float small_grad,
+	complex_float_t* u, complex_float_t* v)
 {
-	int ll, il;
-	int* listx = new int[nx*ny];
-	int* listy = new int[nx*ny];
-	int* inlist = new int[nx*ny];
-	std::memset(inlist, 0, nx*ny * sizeof(int));
-	int nc = 0;
-	for (int iy = 0, i = 0; iy < ny; iy++) {
-		for (int ix = 0; ix < nx; ix++, i++) {
-			if (mask[i] == bg)
-				continue;
-			bool skip = false;
-			ll = 1;
-			listx[0] = ix;
-			listy[0] = iy;
-			inlist[i] = 1;
-			il = 0;
-			while (il < ll && ll < minsz) {
-				int lx = listx[il];
-				int ly = listy[il];
-				int l = ll + ex;
-				for (int jy = -l; jy <= l; jy++) {
-					for (int jx = -l; jx <= l; jx++) {
-						int kx = lx + jx;
-						int ky = ly + jy;
-						if (kx < 0 || kx >= nx)
-							continue;
-						if (ky < 0 || ky >= ny)
-							continue;
-						int j = kx + ky*nx;
-						if (inlist[j])
-							continue;
-						if (mask[j] != bg) {
-							listx[ll] = kx;
-							listy[ll] = ky;
-							inlist[j] = 1;
-							ll++;
-						}
-					}
+	int nxy = nx*ny;
+	int nxyz = nxy*nz;
+	float s = 0.0f;
+	for (int ic = 0; ic < nc; ic++) {
+		for (int iz = 0; iz < nz; iz++) {
+			for (int iy = 1; iy < ny - 1; iy++) {
+				for (int ix = 1; ix < nx - 1; ix++) {
+					int i = ix + nx*iy + nxy*iz + nxyz*ic;
+					float gx = abs(u[i + 1] - u[i - 1]) / 2.0f;
+					float gy = abs(u[i + nx] - u[i - nx]) / 2.0f;
+					float g = (float)std::sqrt(gx*gx + gy*gy);
+					float si = abs(u[i] - v[i]);
+					if (g <= small_grad && si > s)
+						s = si;
 				}
-				il++;
-			}
-			if (il == ll) {
-				mask[i] = bg;
-				nc++;
-			}
-			for (il = 0; il < ll; il++) {
-				int lx = listx[il];
-				int ly = listy[il];
-				int j = lx + ly*nx;
-				inlist[j] = 0;
 			}
 		}
 	}
-	//std::cout << nc << " mask pixels cleaned\n";
-	delete[] listx;
-	delete[] listy;
-	delete[] inlist;
-	return nc;
+	return s;
 }
 
 void 
 CoilSensitivitiesContainer::smoothen_
-(int nx, int ny, int nc,
+(int nx, int ny, int nz, int nc,
 	complex_float_t* u, complex_float_t* v,
 	int* obj_mask, int w)
 {
 	const complex_float_t ONE(1.0, 0.0);
 	const complex_float_t TWO(2.0, 0.0);
 	for (int ic = 0, i = 0; ic < nc; ic++)
-		for (int iy = 0, k = 0; iy < ny; iy++)
-			for (int ix = 0; ix < nx; ix++, i++, k++) {
-				//if (edge_mask[k]) {
-				//	v[i] = u[i];
-				//	continue;
-				//}
-				//if (!obj_mask[k]) {
-				//	v[i] = 0;
-				//	continue;
-				//}
-				int n = 0;
-				complex_float_t r(0.0, 0.0);
-				complex_float_t s(0.0, 0.0);
-				for (int jy = -w; jy <= w; jy++)
-					for (int jx = -w; jx <= w; jx++) {
-						if (ix + jx < 0 || ix + jx >= nx)
-							continue;
-						if (iy + jy < 0 || iy + jy >= ny)
-							continue;
-						int j = i + jx + jy*nx;
-						int l = k + jx + jy*nx;
-						if (i != j && obj_mask[l]) { // == obj_mask[k]) { // && !edge_mask[l]) {
-							n++;
-							r += ONE;
-							s += u[j];
-						}
+		for (int iz = 0, k = 0; iz < nz; iz++)
+			for (int iy = 0; iy < ny; iy++)
+				for (int ix = 0; ix < nx; ix++, i++, k++) {
+					if (obj_mask && !obj_mask[k]) {
+						v[i] = u[i];
+						continue;
 					}
-				//v[i] = obj_mask[k];
-				if (n > 0)
-					v[i] = (u[i] + s / r) / TWO;
-				else
-					v[i] = u[i];
-			}
-	memcpy(u, v, nx*ny*nc * sizeof(complex_float_t));
+					int n = 0;
+					complex_float_t r(0.0, 0.0);
+					complex_float_t s(0.0, 0.0);
+					for (int jy = -w; jy <= w; jy++)
+						for (int jx = -w; jx <= w; jx++) {
+							if (ix + jx < 0 || ix + jx >= nx)
+								continue;
+							if (iy + jy < 0 || iy + jy >= ny)
+								continue;
+							int j = i + jx + jy*nx;
+							int l = k + jx + jy*nx;
+							if (i != j && (!obj_mask || obj_mask[l])) {
+								n++;
+								r += ONE;
+								s += u[j];
+							}
+						}
+					if (n > 0)
+						v[i] = (u[i] + s / r) / TWO;
+					else
+						v[i] = u[i];
+				}
+	memcpy(u, v, nx*ny*nz*nc * sizeof(complex_float_t));
 }
 
 void 
@@ -1586,9 +1577,10 @@ CoilSensitivitiesContainer::compute_csm_(
 		}
 	}
 
-	int* object_mask = new int[nx*ny*nc];
-	memset(object_mask, 0, nx*ny*nc * sizeof(int));
+	int* object_mask = new int[nx*ny*nz];
+	memset(object_mask, 0, nx*ny*nz * sizeof(int));
 
+	ISMRMRD::NDArray<complex_float_t> v(cm0);
 	ISMRMRD::NDArray<complex_float_t> w(cm0);
 
 	float* ptr_img = img.getDataPtr();
@@ -1605,29 +1597,17 @@ CoilSensitivitiesContainer::compute_csm_(
 		}
 	}
 
-	float max_im = max_(nx, ny, ptr_img);
-	float noise = max_(5, 5, ptr_img) + (float)1e-6*max_im;
-	//std::cout << "max_im: " << max_im << ", noise: " << noise << '\n';
-	mask_noise_(nx, ny, ptr_img, noise, object_mask);
-	//for (int i = 2; i < 20; i++) {
-	//	int cleaned = cleanup_mask_(nx, ny, object_mask, 0, i, 0);
-	//	if (cleaned < 1)
-	//		break;
-	//}
-	//for (int i = 2; i < 20; i++) {
-	//	int cleaned = cleanup_mask_(nx, ny, object_mask, 1, i, 0);
-	//	if (cleaned < 1)
-	//		break;
-	//}
-	cleanup_mask_(nx, ny, object_mask, 0, 2, 0);
-	cleanup_mask_(nx, ny, object_mask, 0, 3, 0);
-	cleanup_mask_(nx, ny, object_mask, 0, 4, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 2, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 3, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 4, 0);
+	float max_im = max_(nx, ny, nz, ptr_img);
+	float small_grad = max_im * 2 / (nx + ny + 0.0f);
+	for (int i = 0; i < 3; i++)
+		smoothen_(nx, ny, nz, nc, v.getDataPtr(), w.getDataPtr(), 0, 1);
+	float noise = max_diff_(nx, ny, nz, nc, small_grad,
+		v.getDataPtr(), cm0.getDataPtr());
+	mask_noise_(nx, ny, nz, ptr_img, noise, object_mask);
 
 	for (int i = 0; i < csm_smoothness_; i++)
-		smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), object_mask, 1);
+		smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), //0, 1);
+			object_mask, 1);
 
 	for (unsigned int z = 0; z < nz; z++) {
 		for (unsigned int y = 0; y < ny; y++) {
@@ -1642,9 +1622,9 @@ CoilSensitivitiesContainer::compute_csm_(
 		}
 	}
 
-	for (unsigned int z = 0; z < nz; z++) {
+	for (unsigned int z = 0, i = 0; z < nz; z++) {
 		for (unsigned int y = 0; y < ny; y++) {
-			for (unsigned int x = 0; x < nx; x++) {
+			for (unsigned int x = 0; x < nx; x++, i++) {
 				float r = img(x, y, z);
 				float s;
 				if (r != 0.0)
@@ -1653,7 +1633,7 @@ CoilSensitivitiesContainer::compute_csm_(
 					s = 0.0;
 				complex_float_t zs(s, 0.0);
 				for (unsigned int c = 0; c < nc; c++) {
-					csm(x, y, z, c) = cm0(x, y, z, c) * zs;
+					csm(x, y, z, c) = zs * cm0(x, y, z, c);
 				}
 			}
 		}

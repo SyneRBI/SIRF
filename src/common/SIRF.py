@@ -33,6 +33,8 @@ from sirf.Utilities import assert_validities, check_status, try_calling
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
+from numbers import Number
+
 try:
     input = raw_input
 except NameError:
@@ -101,28 +103,70 @@ class DataContainer(ABC):
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return r
-    def multiply(self, other):
+    def multiply(self, other, out=None):
         '''
         Returns the elementwise product of this and another container 
         data viewed as vectors.
         other: DataContainer
+        out:   DataContainer to store the result to.
         '''
+        if isinstance(other , ( Number, int, float, numpy.float32 )):
+            tmp = other + numpy.zeros(self.as_array().shape)
+            other = self.copy()
+            other.fill(tmp)
         assert_validities(self, other)
-        z = self.same_object()
+        if out is None:
+            z = self.same_object()
+        else:
+            assert_validities(self, out)
+            z = out
         z.handle = pysirf.cSIRF_multiply(self.handle, other.handle)
         check_status(z.handle)
         return z
-    def divide(self, other):
+    def divide(self, other, out=None):
         '''
         Returns the elementwise ratio of this and another container 
         data viewed as vectors.
         other: DataContainer
+        out:   DataContainer to store the result to.
         '''
+        if isinstance(other , ( Number, int, float, numpy.float32 )):
+            tmp = other + numpy.zeros_like(self.as_array().shape)
+            other = self.copy()
+            other.fill(tmp)
         assert_validities(self, other)
-        z = self.same_object()
+        if out is None:
+            z = self.same_object()
+        else:
+            assert_validities(self, out)
+            z = out
         z.handle = pysirf.cSIRF_divide(self.handle, other.handle)
         check_status(z.handle)
         return z
+    def add(self, other, out=None):
+        '''
+        Addition for data containers.
+
+        Returns the sum of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        out:   DataContainer to store the result to.
+        '''
+        if isinstance(other , ( Number, int, float, numpy.float32 )):
+            tmp = other + numpy.zeros(self.as_array().shape)
+            other = self.copy()
+            other.fill(tmp)
+        assert_validities(self, other)
+        one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
+        if out is None:
+            z = self.same_object()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.handle = pysirf.cSIRF_axpby \
+            (one.ctypes.data, self.handle, one.ctypes.data, other.handle)
+        check_status(z.handle)
+        return z;
     def write(self, filename):
         '''
         Writes to file.
@@ -137,11 +181,29 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
+        return self.add(other)
+    def subtract(self, other, out=None):
+        '''
+        Overloads - for data containers.
+
+        Returns the difference of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        if isinstance(other , ( Number, int, float, numpy.float32 )):
+            tmp = other + numpy.zeros(self.as_array().shape)
+            other = self.copy()
+            other.fill(tmp)
         assert_validities(self, other)
-        one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
-        z = self.same_object()
+        pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
+        mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
+        if out is None:
+            z = self.same_object()
+        else:
+            assert_validities(self, out)
+            z = out
         z.handle = pysirf.cSIRF_axpby \
-            (one.ctypes.data, self.handle, one.ctypes.data, other.handle)
+            (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle)
         check_status(z.handle)
         return z;
     def __sub__(self, other):
@@ -152,14 +214,7 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        assert_validities(self, other)
-        pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
-        mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
-        z = self.same_object()
-        z.handle = pysirf.cSIRF_axpby \
-            (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle)
-        check_status(z.handle)
-        return z;
+        return self.subtract(other)
     def __mul__(self, other):
         '''
         Overloads * for data containers multiplication by a scalar or another
@@ -183,6 +238,7 @@ class DataContainer(ABC):
             return z;
         except:
             raise error('wrong multiplier')
+
     def __rmul__(self, other):
         '''
         Overloads * for data containers multiplication by a scalar from
@@ -202,8 +258,8 @@ class DataContainer(ABC):
             raise error('wrong multiplier')
     def __div__(self, other):
         '''
-        Overloads / for data containers multiplication by a scalar or another
-        data container (Python 2.*)
+        Overloads / for data containers division by a scalar or (elementwise)
+        another data container (Python 2.*)
 
         Returns the product self*other if other is a scalar
         or the elementwise product if it is DataContainer.
@@ -223,17 +279,210 @@ class DataContainer(ABC):
             return z;
         except:
             raise error('wrong multiplier')
+    def copy(self):
+        '''alias of clone'''
+        return self.clone()
+    def power(self, other, out=None):
+        '''Power function for DataContainers
+
+        uses NumPy
+        SIRF/CIL compatibility
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        
+        if isinstance(other, Number):
+            tmp =  numpy.power(self.as_array(), other)
+            z.fill( tmp )
+        else:
+            assert_validities(self, other)
+            z.fill(
+               numpy.power(self.as_array(), other.as_array())
+            )
+        return z
+    def maximum(self, other, out=None):
+        '''Element-wise maximum of DataContainer elements.
+
+        Compare two DataContainers and returns a new array containing the element-wise maxima. Output can be pre-allocated in variable out.
+
+        uses NumPy
+        SIRF/CIL compatibility
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        if isinstance(other, Number):
+            z.fill(
+               numpy.maximum(self.as_array(), other)
+            )
+        else:
+            assert_validities(self, other)
+            z.fill(
+               numpy.maximum(self.as_array(), other.as_array())
+            )
+        return z
+    def minimum(self, other, out=None):
+        '''Element-wise minimum of DataContainer elements.
+
+        Compare two DataContainers and returns a new array containing the element-wise minima. Output can be pre-allocated in variable out.
+
+        uses NumPy
+        SIRF/CIL compatibility
+        '''
+
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        if isinstance(other, Number):
+            z.fill(
+               numpy.minimum(self.as_array(), other)
+            )
+        else:
+            assert_validities(self, other)
+            z.fill(
+               numpy.minimum(self.as_array(), other.as_array())
+            )
+        return z
+    # inline algebra
+    def __iadd__(self, other):
+        '''Not quite in-place add'''
+        self.fill(self.add(other))
+        return self
+    def __imul__(self, other):
+        '''Not quite in-place multiplication'''
+        if isinstance(other, Number):
+            z = other * self
+            self.fill(z.as_array())
+            return self
+        self.fill(self.multiply(other).as_array())
+        return self
+    def __isub__(self, other):
+        '''Not quite in-place subtract'''
+        self.fill(self.subtract(other).as_array())
+        return self
+    def __idiv__(self, other):
+        '''Not quite in-place division'''
+        if isinstance(other, Number):
+            z = (1./other) * self
+            self.fill(z.as_array())
+            return self
+        self.fill(self.divide(other).as_array())
+        return self
+    def abs(self, out=None):
+        '''Returns the element-wise absolute value of the DataContainer data
+        
+           uses NumPy 
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.fill(
+               numpy.abs(self.as_array())
+        )
+        return z
+    def sign(self, out=None):
+        '''Returns the element-wise sign of the DataContainer data
+        
+           uses NumPy 
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.fill(
+               numpy.sign(self.as_array())
+        )
+        return z
+    def sqrt(self, out=None):
+        '''Returns the element-wise sqrt of the DataContainer data
+
+           uses NumPy
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.fill(
+               numpy.sqrt(self.as_array())
+        )
+        return z
+    def exp(self, out=None):
+        '''Returns the element-wise exp of the DataContainer data
+
+           uses NumPy
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.fill(
+               numpy.exp(self.as_array())
+        )
+        return z
+    def log(self, out=None):
+        '''Returns the element-wise log of the DataContainer data
+
+           uses NumPy
+        '''
+        if out is None:
+            z = self.clone()
+        else:
+            assert_validities(self, out)
+            z = out
+        z.fill(
+               numpy.log(self.as_array())
+        )
+        return z
+    def sum(self):
+        '''Returns the sum of DataContainer elements.
+
+           it is a reduction operation
+
+           uses NumPy
+        '''
+        return numpy.sum(self.as_array())
+    def get_uniform_copy(self, value=1.0):
+        '''Initialises an instance of DataContainer based on the template'''
+        y = self.clone()
+        y.fill(value)
+        return y
+
+    def squared_norm(self):
+        '''Returns the squared norm of a DataContainer viewed as a vector
+        
+        CIL/SIRF compatibility'''
+        return self.norm() ** 2
+
     def __truediv__(self, other):
         '''
         Same as __div__ but for Python 3.*
         '''
         return self.__div__(other)
+    @property
+    def shape(self):
+        '''returns the shape of the data array
+        
+        CIL/SIRF compatibility
+        '''
+        return self.as_array().shape
 
 class ImageData(DataContainer):
     def fill(self, image):
         try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))
 
-class DataHandleVector:
+class DataHandleVector(object):
     """
     DataHandle vector.
     """

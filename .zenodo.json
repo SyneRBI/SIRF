@@ -6,10 +6,10 @@
     {"identifier": "10.1109/NSSMIC.2017.8532815", "relation": "documents"}],
   "communities": [{"identifier": "ccp-petmr"}],
   "creators": [
-    {"name": "Ovtchinnikov, Evgueni"},
+    {"name": "Ovtchinnikov, Evgueni", "affiliation":"UK Research & Innovation"},
     {"name": "Brown, Richard", "orcid": "0000-0001-6989-9200", "affiliation": "University College London"},
-    {"name": "Thielemans, Kris", "orcid", "0000-0002-5514-199X", "affiliation": "University College London"},
-    {"name": "Pasca, Edoardo"},
+    {"name": "Thielemans, Kris", "orcid": "0000-0002-5514-199X", "affiliation": "University College London"},
+    {"name": "Pasca, Edoardo", "affiliation":"UK Research & Innovation"},
     {"name": "da Costa-Luis, Casper O.", "orcid": "0000-0002-7211-1557", "affiliation": "King's College London"},
     {"name": "Thomas, Ben", "orcid": "0000-0002-9784-1177", "affiliation": "University College London"},
     {"name": "Atkinson, David", "orcid": "0000-0003-1124-6666", "affiliation": "University College London"},

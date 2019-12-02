@@ -71,7 +71,7 @@ void ImageWeightedMean<dataType>::process()
             resample.set_reference_image(_input_image_sptrs[0]);
             resample.set_floating_image(_input_image_sptrs[i]);
             resample.process();
-            images_sptr.push_back(resample.get_output_sptr());
+            images_sptr.push_back(resample.get_output_as_niftiImageData_sptr());
         }
     }
 

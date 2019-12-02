@@ -48,7 +48,7 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   2 )
-set(VERSION_MINOR   0 )
+set(VERSION_MINOR   1 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -68,6 +68,19 @@ if (APPLE)
     GET_FILENAME_COMPONENT(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib REALPATH)
   endif(SHARED_LIBS_ABS_PATH)
 endif(APPLE)
+
+# If OSX, we might need to assume pthreads. For this, first try to find boost_thread.
+# If that fails, then give a bit of help.
+if (APPLE)
+  find_package(Boost COMPONENTS thread QUIET)
+  if (NOT boost_thread_FOUND)
+    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    set(CMAKE_HAVE_THREADS_LIBRARY 1)
+    set(CMAKE_USE_WIN32_THREADS_INIT 0)
+    set(CMAKE_USE_PTHREADS_INIT 1)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+  endif()
+endif()
 
 ####### External packages
 

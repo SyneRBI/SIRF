@@ -39,31 +39,35 @@ matrix:
    # +DEVEL -boost -fftw3 -hdf5 -swig +ace
    env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
  # osx g{cc,++} py{27,36}
- # - os: osx
- #   python: 2.7
- #   # +boost -hdf5 -swig
- #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
- # - os: osx
- #   # +boost +fftw3 -hdf5 -swig
- #   python: 3
- #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
- # - os: osx
- #   python: 2.7
- #   # +DEVEL +boost -hdf5 +swig
- #   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
- # - os: osx
- #   python: 2.7
- #   # +DEVEL +boost -fftw3 -hdf5 +swig +itk
- #   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_ITK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
- # itk
+ - os: osx
+   osx_image: xcode11.2
+   python: 2.7
+   # +boost -hdf5 -swig
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+ - os: osx
+   # +boost +fftw3 -hdf5 -swig
+   osx_image: xcode11.2
+   python: 3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
+ - os: osx
+   python: 2.7
+   # +DEVEL +boost -hdf5 +swig
+   osx_image: xcode11.2
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+ - os: osx
+   python: 2.7
+   # +DEVEL +boost -fftw3 -hdf5 +swig +itk
+   osx_image: xcode11.2
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_ITK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
  - os: linux
    python: 3
    # -boost +itk +fftw3 +hdf5
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
- # - os: osx
- #   python: 2.7
- #   # +boost +itk -hdf5 +swig
- #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+ - os: osx
+   python: 2.7
+   # +boost +itk -hdf5 +swig
+   osx_image: xcode11.2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
 
 env:
  global:
@@ -162,10 +166,6 @@ before_install:
       ( set -ev
         # boost is already installed but 1.65 doesn't work so update
         brew reinstall boost
-        # As of boost 1.69, boost.Process is broken. https://stackoverflow.com/a/54912043
-        # To fix, remove :: from all occurences of ::sigtimedwait, ::sigaddset and ::sigemptyset
-        # Hopefully will be able to remove this at some point...
-        find /usr/local/include/boost/ -name '*.hpp' -exec sed -i -e "s/::sigtimedwait/sigtimedwait/g; s/::sigaddset/sigaddset/g; s/::sigemptyset/sigemptyset/g; " {} \;
         # we currently need boost-python
         # brew install boost-python
         brew install ace

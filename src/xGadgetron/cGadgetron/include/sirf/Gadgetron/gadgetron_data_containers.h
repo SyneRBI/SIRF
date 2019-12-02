@@ -75,18 +75,46 @@ namespace sirf {
 
 	class AcquisitionsInfo {
 	public:
-		AcquisitionsInfo(std::string data = "") : data_(data) {}
+		AcquisitionsInfo(std::string data = "") : data_(data)
+        {
+			if (data.empty())
+				have_header_ = false;
+			else {
+				deserialize();
+				have_header_ = true;
+			}
+        }
 		AcquisitionsInfo& operator=(std::string data)
 		{
 			data_ = data;
+			if (data.empty())
+				have_header_ = false;
+			else {
+				deserialize();
+				have_header_ = true;
+			}
 			return *this;
 		}
 		const char* c_str() const { return data_.c_str(); }
 		operator std::string&() { return data_; }
 		operator const std::string&() const { return data_; }
+        bool empty() const { return data_.empty(); }
+        const ISMRMRD::IsmrmrdHeader& get_IsmrmrdHeader() const 
+		{
+			if (!have_header_)
+				deserialize();
+			return header_; 
+		}
 
 	private:
+		void deserialize() const
+		{
+			if (!this->empty())
+				ISMRMRD::deserialize(data_.c_str(), header_);
+		}
 		std::string data_;
+        mutable ISMRMRD::IsmrmrdHeader header_;
+		bool have_header_;
 	};
 
 	/*!
@@ -165,7 +193,7 @@ namespace sirf {
 
 		// regular methods
 
-		std::string acquisitions_info() const { return acqs_info_; }
+		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
 
 		gadgetron::unique_ptr<MRAcquisitionData> clone() const
@@ -402,10 +430,13 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
-		virtual int read(std::string filename);
+		virtual int read(std::string filename, std::string variable = "", int iv = -1);
 		virtual void write(const std::string &filename, const std::string &groupname) const;
-        virtual void write(const std::string &filename) const { this->write(filename,""); }
-		virtual Dimensions dimensions() const 
+		virtual void write(const std::string &filename) const { this->write(filename, ""); }
+		virtual void write_dicom(const std::string &filename) const 
+		{
+		}
+		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;
 			const ImageWrap& iw = image_wrap(0);
@@ -426,7 +457,7 @@ namespace sirf {
 			iw.get_dim(dim);
 		}
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
-			new_images_container() = 0;
+			new_images_container() const = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
@@ -458,10 +489,16 @@ namespace sirf {
 			else
 				return i;
 		}
+        /// Set the meta data
+        void set_meta_data(const AcquisitionsInfo &acqs_info) { acqs_info_ = acqs_info; }
+        /// Get the meta data
+        const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
+
 
 	protected:
 		bool sorted_=false;
 		std::vector<int> index_;
+        AcquisitionsInfo acqs_info_;
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;
@@ -682,12 +719,14 @@ namespace sirf {
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new GadgetronImagesVector()));
+				(gadgetron::shared_ptr<DataContainer>(new_images_container()));
 		}
-		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
+		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() const
 		{
-			return gadgetron::shared_ptr<GadgetronImageData>
+			gadgetron::shared_ptr<GadgetronImageData> sptr_img
 				((GadgetronImageData*)new GadgetronImagesVector());
+			sptr_img->set_meta_data(get_meta_data());
+			return sptr_img;
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target)
@@ -1021,12 +1060,14 @@ namespace sirf {
 			ISMRMRD::NDArray<complex_float_t>& csm
 			);
 
-		float max_(int nx, int ny, float* u);
+		float max_diff_(int nx, int ny, int nz, int nc, float small_grad,
+			complex_float_t* u, complex_float_t* v);
+		float max_(int nx, int ny, int nz, float* u);
 		void mask_noise_
-			(int nx, int ny, float* u, float noise, int* mask);
-		int cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
+			(int nx, int ny, int nz, float* u, float noise, int* mask);
+		int cleanup_mask_(int nx, int ny, int nz, int* mask, int bg, int minsz, int ex);
 		void smoothen_
-			(int nx, int ny, int nc,
+			(int nx, int ny, int nz, int nc,
 			complex_float_t* u, complex_float_t* v,
 			int* obj_mask, int w);
 	};

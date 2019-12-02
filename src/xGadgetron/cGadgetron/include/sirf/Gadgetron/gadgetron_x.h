@@ -277,14 +277,23 @@ namespace sirf {
 
 	class ImagesProcessor : public GadgetChain {
 	public:
-		ImagesProcessor() :
-			reader_(new IsmrmrdImgMsgReader),
-			writer_(new IsmrmrdImgMsgWriter)
+		ImagesProcessor(bool dicom = false, std::string prefix = "image") :
+			dicom_(dicom), prefix_(prefix),
+			reader_(new IsmrmrdImgMsgReader)
 		{
 			//class_ = "ImagesProcessor";
+			//gadgetron::shared_ptr<ImageFinishGadget> endgadget;
+			gadgetron::shared_ptr<aGadget> endgadget;
+			if (dicom) {
+				writer_.reset(new DicomImageMessageWriter);
+				endgadget.reset(new DicomFinishGadget);
+			}
+			else {
+				writer_.reset(new IsmrmrdImgMsgWriter);
+				endgadget.reset(new ImageFinishGadget);
+			}
 			add_reader("reader", reader_);
 			add_writer("writer", writer_);
-			gadgetron::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 			set_endgadget(endgadget);
 		}
 		static const char* class_name()
@@ -293,15 +302,18 @@ namespace sirf {
 		}
 
 		void check_connection();
-		void process(GadgetronImageData& images);
+		void process(const GadgetronImageData& images);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
 			return sptr_images_;
 		}
 
 	private:
+		bool dicom_;
+		std::string prefix_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgReader> reader_;
-		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
+		gadgetron::shared_ptr<ImageMessageWriter> writer_;
+//		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
 	};
 
