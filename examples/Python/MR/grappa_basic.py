@@ -31,6 +31,8 @@ Options:
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   -o <file>, --output=<file>  images output file
+  --type_to_save=<string>     type to save ('mag', 'imag', 'all') [default: all]
+  --show                      show plots
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -66,6 +68,10 @@ if data_path is None:
     data_path = examples_data_path('MR')
 output_file = args['--output']
 
+type_to_save = args['--type_to_save']
+show_plot = False
+if args['--show']:
+    show_plot = True
 
 def main():
     
@@ -92,6 +98,11 @@ def main():
     # 1. set the reconstruction to be for Cartesian GRAPPA data.
     recon = CartesianGRAPPAReconstructor();
     
+    if type_to_save=='mag' or type_to_save=='all':
+        recon.set_gadget_property('ex', 'extract_magnitude', True)
+    if type_to_save=='imag' or type_to_save=='all':
+        recon.set_gadget_property('ex', 'extract_imag', True)
+    
     # 2. set the reconstruction input to be the data we just preprocessed.
     recon.set_input(preprocessed_data);
     
@@ -103,8 +114,9 @@ def main():
     # retrieve reconstruced image and G-factor data
     image_data = recon.get_output('image')
     gfact_data = recon.get_output('gfactor')
-    image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
-    gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
+    if show_plot:
+      image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
+      gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
 
     if output_file is not None:
       # write images to a new group in args.output
