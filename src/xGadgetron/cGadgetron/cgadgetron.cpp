@@ -857,17 +857,20 @@ cGT_writeImages(void* ptr_imgs, const char* filename, const char* ext)
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
-		if (strcmp(ext, "dcm")) {
+        // If .h5
+		if (strcmp(ext, "h5") == 0) {
 			std::string fullname(filename);
 			fullname += ".";
 			fullname += ext;
 			imgs.write(fullname);
 		}
-		else {
-//			std::cout << "in cGT_writeImages\n";
+        // Else if dicom
+		else if (strcmp(ext, "dcm") == 0) {
 			ImagesProcessor ip(true, filename);
 			ip.process(imgs);
 		}
+        else
+            throw std::runtime_error("cGT_writeImages: Unknown extension");
 	}
 	CATCH;
 

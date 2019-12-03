@@ -23,6 +23,7 @@ import time
 import sirf.STIR as pet
 import sirf.Gadgetron as mr
 import sirf.Reg as reg
+from sirf.Utilities import error
 
 # Paths
 SIRF_PATH = os.environ.get('SIRF_PATH')

@@ -57,12 +57,14 @@ int main()
 		cout << "SIRF_PATH not defined, cannot find cgadgetron library" << endl;
 		return 1;
 	}
-	path_in = SIRF_path + "/src/xGadgetron/cGadgetron/";
+	path_in = SIRF_path + "/src/xGadgetron/cGadgetron/include/";
 	path_out = SIRF_path + "/src/xGadgetron/mGadgetron/";
 	status = generate_matlab_interface\
 		("CGADGETRON", "cGT", 
-			path_in, "cgadgetron.h", 
+			path_in, "sirf/Gadgetron/cgadgetron.h", 
 			path_out, "mgadgetron.h", "mgadgetron.c");
-	if (status)
+	if (status) {
 		cout << "wrong input file format" << endl;
+		return 1;
+	}
 }

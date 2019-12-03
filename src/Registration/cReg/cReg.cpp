@@ -20,7 +20,7 @@ limitations under the License.
 */
 
 #include "sirf/iUtilities/DataHandle.h"
-#include "cReg.h"
+#include "sirf/Reg/cReg.h"
 #include "sirf/Reg/cReg_p.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftiImageData3DTensor.h"

@@ -25,8 +25,7 @@ if(BUILD_PYTHON)
   FIND_PACKAGE(SWIG REQUIRED)
   INCLUDE("${SWIG_USE_FILE}")
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-  include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron/include)
+  set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cGadgetron/include")
 
   SET_SOURCE_FILES_PROPERTIES(pygadgetron.i PROPERTIES CPLUSPLUS ON)  
   SET_SOURCE_FILES_PROPERTIES(pygadgetron.i PROPERTIES SWIG_FLAGS "-I${cGadgetron_INCLUDE_DIR}")
@@ -34,12 +33,10 @@ if(BUILD_PYTHON)
   # TODO would be better to use target_include_directories
 
   FIND_PACKAGE(PythonLibs REQUIRED)
-  INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
-  #FIND_PACKAGE(Numpy REQUIRED)
-  #INCLUDE_DIRECTORIES("${NUMPY_INCLUDE_DIRS}")
   # Tell CMake it needs to re-run SWIG when .h file changes
-  set(SWIG_MODULE_pygadgetron_EXTRA_DEPS "${cGadgetron_INCLUDE_DIR}/cgadgetron.h")
+  set(SWIG_MODULE_pygadgetron_EXTRA_DEPS "${cGadgetron_INCLUDE_DIR}/sirf/Gadgetron/cgadgetron.h")
   SWIG_ADD_LIBRARY(pygadgetron LANGUAGE python TYPE MODULE SOURCES pygadgetron.i)
+  TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pygadgetron_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_PATH})
   SWIG_LINK_LIBRARIES(pygadgetron cgadgetron iutilities "${PYTHON_LIBRARIES}")
 
   INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
