@@ -20,9 +20,8 @@ if(BUILD_MATLAB)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  include_directories(${Matlab_INCLUDE_DIRS})
-
   add_library(mstir SHARED mstir.c printer.cpp  ${STIR_REGISTRIES})
+  target_include_directories(mstir PUBLIC ${Matlab_INCLUDE_DIRS})
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mstir PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 

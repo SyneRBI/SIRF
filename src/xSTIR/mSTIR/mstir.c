@@ -24,7 +24,7 @@ limitations under the License.
 
 #include <mex.h>
 #include "matrix.h"
-#include "cstir.h"
+#include "sirf/STIR/cstir.h"
 
 #ifndef CSTIR_FOR_MATLAB
 #define PTR_INT size_t
@@ -41,6 +41,9 @@ EXPORTED_FUNCTION  void* mSetParameter (void* ptr, const char* obj, const char* 
 }
 EXPORTED_FUNCTION 	void* mParameter(const void* ptr, const char* obj, const char* name) {
 	return parameter(ptr, obj, name);
+}
+EXPORTED_FUNCTION     void* mSTIR_setVerbosity(const int verbosity_ptr) {
+	return cSTIR_setVerbosity(verbosity_ptr);
 }
 EXPORTED_FUNCTION 	void* mSTIR_newObject(const char* name) {
 	return cSTIR_newObject(name);
@@ -68,6 +71,9 @@ EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
 }
 EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr) {
 	return cSTIR_computeRandoms(ptr);
+}
+EXPORTED_FUNCTION 	void* mSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i) {
+	return cSTIR_setupImageDataProcessor(ptr_p, ptr_i);
 }
 EXPORTED_FUNCTION 	void* mSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d) {
 	return cSTIR_applyImageDataProcessor(ptr_p, ptr_d);

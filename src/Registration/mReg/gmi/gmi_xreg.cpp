@@ -58,12 +58,14 @@ int main()
 		cout << "SIRF_PATH not defined, cannot find reg library" << endl;
 		return 1;
 	}
-	path_in = SIRF_path + "/src/Registration/cReg/";
+	path_in = SIRF_path + "/src/Registration/cReg/include/";
 	path_out = SIRF_path + "/src/Registration/mReg/";
 	status = generate_matlab_interface
 		("CREG", "cReg",
-			path_in, "cReg.h", 
+			path_in, "sirf/Reg/cReg.h", 
 			path_out, "mreg.h", "mreg.c", 1);
-	if (status)
+	if (status) {
 		cout << "wrong input file format" << endl;
+		return 1;
+	}
 }
