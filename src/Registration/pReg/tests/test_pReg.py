@@ -21,6 +21,7 @@ import sys
 import time
 
 import numpy as np
+import nibabel as nib
 import sirf.Reg
 from pUtilities import *
 
@@ -226,6 +227,12 @@ def try_niftiimage():
     arr_F2 = im.as_array()
     if not np.array_equal(arr_C2, arr_F2):
         raise AssertionError('NiftiImageData::fill() failed for C- or F-style numpy arrays.')
+
+    # Compare between sirf.Reg.NiftiImageData::as_array() and nibabel
+    arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
+    arr2 = nib.load(ref_aladin_filename).get_fdata()
+    if not numpy.array_equal(arr1,arr2):
+        raise AssertionError("NiftiImageData as_array() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
