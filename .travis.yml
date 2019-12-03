@@ -237,7 +237,7 @@ before_install:
  - cmake --version
 
 install:
- - $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
+ - $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib nibabel
  - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
  # Job may timeout (>50min) if no ccache, otherwise should be <1min:
  - make

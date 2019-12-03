@@ -42,6 +42,16 @@ function try_stirtonifti(g)
     % Compare the two
     assert(image_nifti == image_nifti_from_stir, 'Conversion from STIR to Nifti failed.');
 
+    % Resample and then check that voxel values match
+    resample = sirf.Reg.NiftyResample();
+    resample.set_floating_image(image_stir);
+    resample.set_reference_image(image_nifti);
+    resample.set_interpolation_type_to_nearest_neighbour();
+    resample.process();
+
+    % as_array() of both original images should match
+    assert(all(all(all(image_nifti.as_array() == resample.get_output().as_array()))), 'as_array() of sirf.Reg.NiftiImageData and resampled sirf.STIR.ImageData are different.')
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished STIR to Nifti test.')
     disp('%------------------------------------------------------------------------ %')
