@@ -44,6 +44,7 @@ target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_
 
 target_include_directories(cgadgetron PUBLIC "${cGadgetron_INCLUDE_DIR}")
 target_include_directories(cgadgetron PRIVATE "${FFTW3_INCLUDE_DIR}")
+target_include_directories(cgadgetron PRIVATE "${ISMRMRD_INCLUDE_DIR}")
 
 target_link_libraries(cgadgetron iutilities csirf)
 # Add boost library dependencies
@@ -62,6 +63,10 @@ endif()
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
 # a list of filenames with spaces. There doesn't seem to be a way to pass this through (strange).
 # Luckily, we know what libraries it uses
-target_link_libraries(cgadgetron ismrmrd)
+find_library(ismrmrd_full_path "ismrmrd" "${ISMRMRD_LIBRARY_DIRS}")
+if(NOT ismrmrd_full_path)
+  message(FATAL_ERROR "ismrmrd not found")
+endif()
+target_link_libraries(cgadgetron ${ismrmrd_full_path})
 target_link_libraries(cgadgetron "${FFTW3_LIBRARIES}")
 target_link_libraries(cgadgetron "${HDF5_LIBRARIES}")

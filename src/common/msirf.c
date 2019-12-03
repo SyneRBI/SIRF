@@ -24,7 +24,7 @@ limitations under the License.
 
 #include <mex.h>
 #include "matrix.h"
-#include "csirf.h"
+#include "sirf/common/csirf.h"
 
 #ifndef CSIRF_FOR_MATLAB
 #define PTR_INT size_t

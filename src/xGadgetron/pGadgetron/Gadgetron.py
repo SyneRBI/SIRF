@@ -430,6 +430,7 @@ class ImageData(SIRF.ImageData):
         self.handle = pygadgetron.cGT_readImages(file)
         check_status(self.handle)
     def write(self, file, ext='h5'):
+        """For extension, use 'dcm' to write as DICOM. Else, image will be written as h5."""
         try_calling(pygadgetron.cGT_writeImages(self.handle, file, ext))
     def data_type(self, im_num):
         '''

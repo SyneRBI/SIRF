@@ -37,6 +37,7 @@ limitations under the License.
 #endif
 EXPORTED_FUNCTION  void* mSetParameter (void* ptr, const char* obj, const char* name, const void* value);
 EXPORTED_FUNCTION 	void* mParameter(const void* ptr, const char* obj, const char* name);
+EXPORTED_FUNCTION     void* mSTIR_setVerbosity(const int verbosity_ptr);
 EXPORTED_FUNCTION 	void* mSTIR_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mSTIR_objectFromFile(const char* name, const char* filename);
 EXPORTED_FUNCTION 	void* mSTIR_setParameter (void* ptr, const char* obj, const char* name, const void* value);
@@ -46,6 +47,7 @@ EXPORTED_FUNCTION 	void* mSTIR_setListmodeToSinogramsFlag (void* ptr_lm2s, const
 EXPORTED_FUNCTION 	void* mSTIR_setupListmodeToSinogramsConverter(void* ptr);
 EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr);
 EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr);
+EXPORTED_FUNCTION 	void* mSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);
 EXPORTED_FUNCTION 	void* mSTIR_createPETAcquisitionSensitivityModel (const void* ptr_src, const char* src);
 EXPORTED_FUNCTION 	void* mSTIR_createPETAttenuationModel (const void* ptr_img, const void* ptr_am);

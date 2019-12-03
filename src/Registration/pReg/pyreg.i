@@ -1,7 +1,7 @@
 %module pyreg
 %{
-#include "cReg.h"
+#include "sirf/Reg/cReg.h"
 #include <cmath>
 %}
-%include "cReg.h"
+%include "sirf/Reg/cReg.h"
 

@@ -137,6 +137,10 @@ void NiftiImageData3DTensor<dataType>::write_split_xyz_components(const std::str
         NiftiImageData<dataType> image = *this;
         image.crop(min_index,max_index);
 
+        // Intent code is no longer vector
+        image.get_raw_nifti_sptr()->intent_code = NIFTI_INTENT_NONE;
+        image.get_raw_nifti_sptr()->intent_p1 = -1;
+
         if      (i == 0) image.write(filename_x,datatype);
         else if (i == 1) image.write(filename_y,datatype);
         else if (i == 2) image.write(filename_z,datatype);

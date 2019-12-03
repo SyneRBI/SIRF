@@ -18,15 +18,6 @@
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Need this because there's a problem in ISMRMRDConfig.cmake. 
-# This has to come before making any executables
-LINK_DIRECTORIES(${cGadgetron_LIBRARY_DIRS})
-INCLUDE_DIRECTORIES(${cGadgetron_INCLUDE_DIR})
-
-# NIFTYREG libraries
-LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
-INCLUDE_DIRECTORIES(${NIFTYREG_INCLUDE_DIRS})
-
 # Executables
 SET(SYN_executables
     sirf_registration
