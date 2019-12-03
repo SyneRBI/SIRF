@@ -21,7 +21,7 @@ language: cpp
 #       i.e. -boost == -DUSE_SYSTEM_Boost=OFF, which means that Boost will be built.
 matrix:
  include:
- linux g{cc,++}-6 py{27,3}
+ # linux g{cc,++}-6 py{27,3}
  - os: linux
    python: 3
    # -boost +fftw3 +hdf5 +ace
