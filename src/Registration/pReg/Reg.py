@@ -296,11 +296,16 @@ class NiftiImageData(SIRF.ImageData):
         return datatype
 
     def crop(self, min_, max_):
-        """Crop image. Give minimum and maximum indices."""
-        if len(min_) != 7:
-            raise AssertionError("Min bounds should be a 1x7 array.")
-        if len(max_) != 7:
-            raise AssertionError("Max bounds should be a 1x7 array.")
+        """Crop image. Give minimum and maximum indices.
+        Min and max indicies can be anywhere between (x,y,z) and (x,y,z,t,u,v,w).
+        Use values of -1 for no change."""
+        if len(min_) < 3 or len(min_) > 7:
+            raise AssertionError("Min bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)")
+        if len(max_) < 3 or len(max_) > 7:
+            raise AssertionError("Max bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)")
+        # Fill in any missing indices with -1's
+        min_.extend([-1] * (7-len(min_)))
+        max_.extend([-1] * (7-len(max_)))
         min_np = numpy.array(min_, dtype=numpy.int32)
         max_np = numpy.array(max_, dtype=numpy.int32)
         try_calling(pyreg.cReg_NiftiImageData_crop(self.handle, min_np.ctypes.data, max_np.ctypes.data))
