@@ -296,7 +296,7 @@ class NiftiImageData(SIRF.ImageData):
         return datatype
 
     def crop(self, min_, max_):
-        """Crop image. Give minimum and maximum indices. 
+        """Crop image. Give minimum and maximum indices.
         Min and max indicies can be anywhere between (x,y,z) and (x,y,z,t,u,v,w).
         Use values of -1 for no change."""
         if len(min_) < 3 or len(min_) > 7:
