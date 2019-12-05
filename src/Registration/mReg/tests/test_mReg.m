@@ -198,6 +198,10 @@ if try_niftiimage
     x.fill(x_arr);
     assert(x.get_contains_nans(),'NiftiImageData::get_contains_nans() 2 failed.')
 
+    arr1 = sirf.Reg.NiftiImageData(g.ref_aladin_filename).as_array();
+    arr2 = niftiread(g.ref_aladin_filename);
+    assert(all(all(all(arr1 == arr2))), 'NiftiImageData as_array() failed.')
+
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')

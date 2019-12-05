@@ -597,12 +597,15 @@ void NiftiImageData<dataType>::crop(const int min_index[7], const int max_index[
     }
 
     // Check the min. and max. indices are in bounds.
-    // Check the max. is less than the min.
+    // Check the max. is less than image dimensions.
+    // Check that min <= max.
     bool bounds_ok = true;
     if (!this->is_in_bounds(min_idx))  bounds_ok = false;
     if (!this->is_in_bounds(max_idx))  bounds_ok = false;
     for (int i=0; i<7; ++i)
         if (max_idx[i] > im->dim[i+1]) bounds_ok = false;
+    for (int i=0; i<7; ++i)
+        if (min_idx[i] > max_idx[i]) bounds_ok = false;
     if (!bounds_ok) {
         std::stringstream ss;
         ss << "crop_image: Bounds not ok.\n";
