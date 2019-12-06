@@ -549,7 +549,7 @@ class GeometricalInfo(object):
         return arr
 
     def get_index_to_physical_point_matrix(self):
-        """Get the 4x4 affine matrix thta converts an index to a point in LPS physical space."""
+        """Get the 4x4 affine matrix that converts an index to a point in LPS physical space."""
         arr = numpy.ndarray((4,4), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_index_to_physical_point_matrix(self.handle, arr.ctypes.data))
         return arr
