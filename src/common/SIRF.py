@@ -520,7 +520,7 @@ class GeometricalInfo(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def print(self):
+    def print_info(self):
         """Print the geom info"""
         try_calling(pysirf.cSIRF_GeomInfo_print(self.handle))
 
