@@ -139,8 +139,8 @@ int main(int argc, char* argv[])
             --argc;
         }
 
-        // Check minimum number of inputs
-        if(argc < 5) {
+        // Check number of inputs
+        if(argc < 5 && argc < 7) {
             print_usage(argv[0]);
             exit(EXIT_FAILURE);
         }
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
         if (strcmp(out_engine.c_str(), "ISMRMRD") == 0 || strcmp(out_engine.c_str(), "h5") == 0)
             out_engine = "Gadgetron";
 
-        // If there's a parameter file, check that the output enging is STIR.
+        // If there's a parameter file, check that the output engine is STIR.
         // Else throw error
         std::string param_file = "";
         if (argc == 6) {
