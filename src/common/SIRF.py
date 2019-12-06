@@ -531,7 +531,7 @@ class GeometricalInfo(object):
         return tuple(arr)
 
     def get_spacing(self):
-        """Spacing is the physical distance between voxels in each dimensions."""
+        """Spacing is the physical distance between voxels in each dimension."""
         arr = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_spacing(self.handle, arr.ctypes.data))
         return tuple(arr)
