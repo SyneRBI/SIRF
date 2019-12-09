@@ -510,7 +510,9 @@ class DataHandleVector(object):
 
 class GeometricalInfo(object):
     """
-    GeometricalInfo
+    Get the geometrical information in LPS space. These are encoded
+    as size (number of voxels), spacing, offset (distance to first voxel)
+    and a direction matrix.
     """
     def __init__(self):
         self.name = 'GeometricalInfo'
@@ -543,7 +545,7 @@ class GeometricalInfo(object):
         return tuple(arr)
 
     def get_direction_matrix(self):
-        """Each vector in Direction tells the direction of the axis in LPS physical space."""
+        """Each row gives a vector dictating the direction of the axis in LPS physical space."""
         arr = numpy.ndarray((3,3), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_direction_matrix(self.handle, arr.ctypes.data))
         return arr

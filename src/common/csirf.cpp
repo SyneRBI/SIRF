@@ -222,7 +222,7 @@ extern "C"
 void*
 cSIRF_GeomInfo_print(const void* ptr_geom)
 {
-    const VoxelisedGeometricalInfo3D geom_info =
+    const VoxelisedGeometricalInfo3D &geom_info =
             objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
     geom_info.print_info();
     return new DataHandle;
@@ -232,7 +232,7 @@ extern "C"
 void*
 cSIRF_GeomInfo_get_offset(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D geom_info =
+    const VoxelisedGeometricalInfo3D &geom_info =
             objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
     const VoxelisedGeometricalInfo3D::Offset offset =
             geom_info.get_offset();
@@ -246,7 +246,7 @@ extern "C"
 void*
 cSIRF_GeomInfo_get_spacing(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D geom_info =
+    const VoxelisedGeometricalInfo3D &geom_info =
             objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
     const VoxelisedGeometricalInfo3D::Spacing spacing =
             geom_info.get_spacing();
@@ -260,7 +260,7 @@ extern "C"
 void*
 cSIRF_GeomInfo_get_size(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D geom_info =
+    const VoxelisedGeometricalInfo3D &geom_info =
             objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
     const VoxelisedGeometricalInfo3D::Size size =
             geom_info.get_size();
@@ -274,7 +274,7 @@ extern "C"
 void*
 cSIRF_GeomInfo_get_direction_matrix(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D geom_info =
+    const VoxelisedGeometricalInfo3D &geom_info =
             objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
     const VoxelisedGeometricalInfo3D::DirectionMatrix dm =
             geom_info.get_direction();
@@ -289,7 +289,7 @@ extern "C"
 void*
 cSIRF_GeomInfo_get_index_to_physical_point_matrix(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D geom_info =
+    const VoxelisedGeometricalInfo3D &geom_info =
             objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
     const VoxelisedGeometricalInfo3D::TransformMatrix tm =
             geom_info.calculate_index_to_physical_point_matrix();
