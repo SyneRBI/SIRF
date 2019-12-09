@@ -106,6 +106,40 @@ calculate_index_to_physical_point_matrix() const
 	return index_to_physical_point_matrix;
 }
 
+template <unsigned long num_dimensions>
+void flip(std::array<float,num_dimensions> &to_flip)
+{
+    for (unsigned i=0; i<num_dimensions; ++i)
+        to_flip[i] *= -1.f;
+}
+
+template <int num_dimensions>
+const typename VoxelisedGeometricalInfo<num_dimensions>::DirectionMatrix
+VoxelisedGeometricalInfo<num_dimensions>::
+swap_axes_based_on_orientation(const DirectionMatrix& tm_in,
+                               const PatientPosition patient_position)
+{
+    DirectionMatrix tm_out = tm_in;
+    for (unsigned i=0; i<3; ++i)
+        for (unsigned j=0; j<3; ++j)
+            tm_out[i][j] = tm_in[i][j];
+
+    switch (patient_position)
+    {
+    case PatientPosition::HFS:              // HFS: Nothing to do
+        break;
+
+    case PatientPosition::FFS:              // FFS: Flip in both LR and IS directions
+        flip(tm_out[0]);
+        flip(tm_out[2]);
+        break;
+
+    default:
+        throw std::runtime_error("Unsupported patient position, can't convert to LPS.");
+    }
+    return tm_out;
+}
+
 namespace sirf {
 template class VoxelisedGeometricalInfo<3>;
 }

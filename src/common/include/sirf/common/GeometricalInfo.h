@@ -21,9 +21,25 @@
 #ifndef SIRF_GEOMETRICAL_INFO_TYPE
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
+#include <iostream>
 #include <array>
 
 namespace sirf {
+
+//! enum using DICOM abreviations
+/*! See Dicom C.7.3.1.1.2 */
+enum PatientPosition
+{
+  HFS, //!< Head First-Supine
+  HFP, //!< Head First-Prone
+  HFDR, //!< Head First-Decubitus Right
+  HFDL, //!< Head First-Decubitus Left
+  FFS, //!< Feet First-Supine
+  FFP, //!< Feet First-Prone
+  FFDR, //!< Feet First-Decubitus Right
+  FFDL, //!< Feet First-Decubitus Left
+  unknown_position
+};
 
 template <int num_physical_dimensions, int num_index_dimensions>
 class GeometricalInfo {
@@ -36,6 +52,9 @@ public:
 
     /// Print info
     virtual void print_info() const = 0;
+
+protected:
+    PatientPosition _patient_position;
 };
 
 
@@ -90,6 +109,10 @@ public:
 
     /// Print info
     virtual void print_info() const;
+
+    static const DirectionMatrix
+    swap_axes_based_on_orientation(const DirectionMatrix& tm_in,
+                                   const PatientPosition patient_position);
 
 private:
 	Offset _offset;
