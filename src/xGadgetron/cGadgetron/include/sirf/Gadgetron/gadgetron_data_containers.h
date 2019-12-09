@@ -431,11 +431,8 @@ namespace sirf {
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
 		virtual int read(std::string filename, std::string variable = "", int iv = -1);
-		virtual void write(const std::string &filename, const std::string &groupname) const;
-		virtual void write(const std::string &filename) const { this->write(filename, ""); }
-		virtual void write_dicom(const std::string &filename) const 
-		{
-		}
+		virtual void write(const std::string &filename, const std::string &groupname, const bool dicom) const;
+		virtual void write(const std::string &filename) const { this->write(filename, "", false); }
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;

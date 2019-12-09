@@ -234,6 +234,15 @@ def try_niftiimage():
     if not numpy.array_equal(arr1,arr2):
         raise AssertionError("NiftiImageData as_array() failed.")
 
+    # Test geom info
+    geom_info = im.get_geometrical_info()
+    geom_info.print_info()
+    # Get voxel sizes
+    if geom_info.get_size() != (64, 64, 64):
+        raise AssertionError("SIRF get_geometrical_info().get_size() failed.")
+    if geom_info.get_spacing() != (4.0625, 4.0625, 4.0625):
+        raise AssertionError("SIRF get_geometrical_info().get_spacing() failed.")
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData test.\n')

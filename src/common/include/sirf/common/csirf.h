@@ -51,6 +51,15 @@ void* cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src);
 // DataHandleVector methods
 void* cSIRF_DataHandleVector_push_back(void* self, void* to_append);
 
+// Geom info
+void* cSIRF_ImageData_get_geom_info(const void* ptr_geom);
+void* cSIRF_GeomInfo_print(const void* ptr_geom);
+void* cSIRF_GeomInfo_get_offset(const void* ptr_geom, PTR_FLOAT ptr_arr);
+void* cSIRF_GeomInfo_get_spacing(const void* ptr_geom, PTR_FLOAT ptr_arr);
+void* cSIRF_GeomInfo_get_size(const void* ptr_geom, PTR_INT ptr_arr);
+void* cSIRF_GeomInfo_get_direction_matrix(const void* ptr_geom, PTR_FLOAT ptr_arr);
+void* cSIRF_GeomInfo_get_index_to_physical_point_matrix(const void* ptr_geom, PTR_FLOAT ptr_arr);
+
 #ifndef CSIRF_FOR_MATLAB
 }
 #endif
