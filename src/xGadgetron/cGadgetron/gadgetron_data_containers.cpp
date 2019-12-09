@@ -1229,17 +1229,17 @@ GadgetronImagesVector::set_up_geom_info()
         std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
         return;
     }
-
+/*
     // Check that the slice direction is the cross product of the read and phase direction
     float read_phase_x_prod[3];
     read_phase_x_prod[0] = ih1.read_dir[1]*ih1.phase_dir[2] - ih1.read_dir[2]*ih1.phase_dir[1];
     read_phase_x_prod[1] = ih1.read_dir[2]*ih1.phase_dir[0] - ih1.read_dir[0]*ih1.phase_dir[2];
     read_phase_x_prod[2] = ih1.read_dir[0]*ih1.phase_dir[1] - ih1.read_dir[1]*ih1.phase_dir[0];
-    if (!are_vectors_equal(ih1.read_dir,read_phase_x_prod)) {
+    if (!are_vectors_equal(ih1.read_dir,-read_phase_x_prod)) {
           std::cout << "\nGadgetronImagesVector::set_up_geom_info(): slice_dir is not "
           "equal to the cross product between read_dir and phase_dir.\n";
           return;
-    }
+    }*/
 
     // Check that the read, phase and slice directions are constant
     for (unsigned im=1; im<number(); ++im) {
@@ -1299,9 +1299,9 @@ GadgetronImagesVector::set_up_geom_info()
     // Direction
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
     for (unsigned axis=0; axis<3; ++axis) {
-        direction[0][axis] = -ih1.read_dir[axis];
-        direction[1][axis] = -ih1.phase_dir[axis];
-        direction[2][axis] =  ih1.slice_dir[axis];
+        direction[axis][0] = -ih1.read_dir[axis];
+        direction[axis][1] = -ih1.phase_dir[axis];
+        direction[axis][2] = -ih1.slice_dir[axis];
     }
 
     // Offset
