@@ -1304,17 +1304,44 @@ GadgetronImagesVector::set_up_geom_info()
         direction[axis][2] = -ih1.slice_dir[axis];
     }
 
+    std::cout << "\n position = " << ih1.position[0] << ", " << ih1.position[1] << ", " << ih1.position[2] << "\n";
+    std::cout << "\n read_dir = " << ih1.read_dir[0] << ", " << ih1.read_dir[1] << ", " << ih1.read_dir[2] << "\n";
+    std::cout << "\n phase_dir = " << ih1.phase_dir[0] << ", " << ih1.phase_dir[1] << ", " << ih1.phase_dir[2] << "\n";
+    std::cout << "\n slice_dir = " << ih1.slice_dir[0] << ", " << ih1.slice_dir[1] << ", " << ih1.slice_dir[2] << "\n";
+    std::cout << "\n field_of_view = " << ih1.field_of_view[0] << ", " << ih1.field_of_view[1] << ", " << ih1.field_of_view[2] << "\n";
+    ISMRMRD::ImageHeader &ih2 = image_wrap(number()-1).head();
+    std::cout << "\n position_end = " << ih2.position[0] << ", " << ih2.position[1] << ", " << ih2.position[2] << "\n";
+    std::cout << "\n FOV_end = " << ih2.field_of_view[0] << ", " << ih2.field_of_view[1] << ", " << ih2.field_of_view[2] << "\n";
+    std::cout << "\n spacing = " << spacing[0] << ", " << spacing[1] << ", " << spacing[2] << "\n";
+
     // Offset
     VoxelisedGeometricalInfo3D::Offset offset;
-    offset[0] = ih1.position[0] -
-        (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[0] -
-        (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[0];
-    offset[1] = ih1.position[1] -
-        (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[1] -
-        (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[1];
-    offset[2] = ih1.position[2] -
-        (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[2] -
-        (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[2];
+    offset[0] = ih1.position[0]
+            + (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[0]
+            + (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[0];
+    offset[1] = ih1.position[1]
+            + (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[1]
+            + (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[1];
+    offset[2] = ih1.position[2]
+            + (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[2]
+            + (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[2];
+
+    // Sagittal
+    if (std::abs(ih1.read_dir[2]*ih1.phase_dir[1]*ih1.slice_dir[0]) > 0.9f) {
+        std::cout << "\nsagittal\n";
+        offset[2] += spacing[0];
+    }
+    else if (std::abs(ih1.read_dir[2]*ih1.phase_dir[0]*ih1.slice_dir[1]) > 0.9f) {
+        std::cout << "\ncoronal\n";
+//        offset[1] += spacing[2];
+//        offset[2] += spacing[0];
+    }
+    else if (std::abs(ih1.read_dir[0]*ih1.phase_dir[1]*ih1.slice_dir[2]) > 0.9f) {
+        std::cout << "\naxial\n";
+        offset[1] += spacing[1];
+    }
+    else
+        throw std::runtime_error("you fucked up.");
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
