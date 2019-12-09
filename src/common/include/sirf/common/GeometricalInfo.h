@@ -77,8 +77,8 @@ public:
 
 
 	VoxelisedGeometricalInfo(
-		const Offset& offset, const Spacing& spacing,
-		const Size& size, const DirectionMatrix& direction);
+		const Offset& _offset, const Spacing& _spacing,
+		const Size& _size, const DirectionMatrix& _direction);
 	virtual ~VoxelisedGeometricalInfo() {};
 
     const Offset get_offset() const;
@@ -89,96 +89,18 @@ public:
     const TransformMatrix calculate_index_to_physical_point_matrix() const;
 
     /// Print info
-    virtual void print_info() const
-    {
-        std::cout << "Offset: (";
-        std::cout << offset[0] << ", " << offset[1] << ", " << offset[2] << ")\n";
-
-        std::cout << "Spacing: (";
-        std::cout << spacing[0] << ", " << spacing[1] << ", " << spacing[2] << ")\n";
-
-        std::cout << "Size: (";
-        std::cout << size[0] << ", " << size[1] << ", " << size[2] << ")\n";
-
-        std::cout << "Dir mat: \n";
-        for( int i=0;i<3; i++) {
-            for( int j=0;j<3; j++) {
-                std::cout << direction[i][j];
-                if (j<2) std::cout << ", ";
-                else     std::cout << "\n";
-            }
-        }
-        std::cout << "\n";
-    }
+    virtual void print_info() const;
 
 private:
-	Offset offset;
-	Spacing spacing;
-	Size size;
-	DirectionMatrix direction;
+	Offset _offset;
+	Spacing _spacing;
+	Size _size;
+	DirectionMatrix _direction;
 };
 
 typedef GeometricalInfo<3, 3> GeometricalInfo3D;
 typedef VoxelisedGeometricalInfo<3> VoxelisedGeometricalInfo3D;
 typedef VoxelisedGeometricalInfo<3>::TransformMatrix TransformMatrix3D;
-
-template <int num_dimensions>
-VoxelisedGeometricalInfo<num_dimensions>::
-VoxelisedGeometricalInfo(
-	const Offset& offset, const Spacing& spacing,
-	const Size& size, const DirectionMatrix& direction)
-	:
-	offset(offset),
-	spacing(spacing),
-	size(size),
-	direction(direction)
-{}
-
-template <int num_dimensions>
-const typename VoxelisedGeometricalInfo<num_dimensions>::Offset
-VoxelisedGeometricalInfo<num_dimensions>::get_offset() const
-{
-	return offset;
-}
-
-template <int num_dimensions>
-const typename VoxelisedGeometricalInfo<num_dimensions>::Spacing
-VoxelisedGeometricalInfo<num_dimensions>::get_spacing() const
-{
-	return spacing;
-}
-
-template <int num_dimensions>
-const typename VoxelisedGeometricalInfo<num_dimensions>::Size
-VoxelisedGeometricalInfo<num_dimensions>::get_size() const
-{
-	return size;
-}
-
-template <int num_dimensions>
-const typename VoxelisedGeometricalInfo<num_dimensions>::DirectionMatrix
-VoxelisedGeometricalInfo<num_dimensions>::get_direction() const
-{
-	return direction;
-}
-
-template <int num_dimensions>
-const typename VoxelisedGeometricalInfo<num_dimensions>::TransformMatrix
-VoxelisedGeometricalInfo<num_dimensions>::
-calculate_index_to_physical_point_matrix() const
-{
-	TransformMatrix index_to_physical_point_matrix;
-	for (unsigned int dim = 0; dim<num_dimensions; dim++) {
-		for (unsigned int axis = 0; axis<num_dimensions; axis++) {
-			index_to_physical_point_matrix[dim][axis] =
-				direction[dim][axis] * spacing[axis];
-		}
-		index_to_physical_point_matrix[dim][num_dimensions] = offset[dim];
-		index_to_physical_point_matrix[num_dimensions][dim] = 0;
-	}
-	index_to_physical_point_matrix[num_dimensions][num_dimensions] = 1;
-	return index_to_physical_point_matrix;
-}
 
 }
 
