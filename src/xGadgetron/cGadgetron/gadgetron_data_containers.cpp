@@ -802,9 +802,9 @@ GadgetronImagesVector::sort()
 		t[0] = head.contrast;
         t[1] = head.repetition;
         // Calculate the projection of the position in the slice direction
-        t[2] = head.position[0] * head.slice_dir[0] +
-               head.position[1] * head.slice_dir[1] +
-               head.position[2] * head.slice_dir[2];
+        t[2] = -( head.position[0] * head.slice_dir[0] +
+                head.position[1] * head.slice_dir[1]   +
+                head.position[2] * head.slice_dir[2]   );
 		vt.push_back(t);
 #ifndef NDEBUG
         std::cout << "Before sorting. Image " << i << "/" << ni <<  ", Contrast: " << t[0] << ", Repetition: " << t[1] << ", Projection: " << t[2] << "\n";
