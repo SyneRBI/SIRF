@@ -60,39 +60,46 @@ int main(int argc, char* argv[])
         else         SIRF_PATH = argv[1];
 
         // Test STIR -> Nifti
-            {
-            // Input filenames
-            const std::string nifti_filename = SIRF_PATH + "/data/examples/Registration/test2.nii.gz";
+//            {
+//            // Input filenames
+//            const std::string nifti_filename = SIRF_PATH + "/data/examples/Registration/test2.nii.gz";
 
-            // Load the image as a NiftiImageData3D
-            NiftiImageData3D<float> image_nifti(nifti_filename);
+//            // Load the image as a NiftiImageData3D
+//            NiftiImageData3D<float> image_nifti(nifti_filename);
 
-            // Read as STIRImageData, convert NiftiImageData3D and save to file
-            STIRImageData image_stir(nifti_filename);
-            NiftiImageData3D<float> image_nifti_from_stir(image_stir);
-            image_nifti_from_stir.write("results/stir_to_nifti.nii",image_nifti.get_original_datatype());
+//            // Read as STIRImageData, convert NiftiImageData3D and save to file
+//            STIRImageData image_stir(nifti_filename);
+//            NiftiImageData3D<float> image_nifti_from_stir(image_stir);
+//            image_nifti_from_stir.write("results/stir_to_nifti.nii",image_nifti.get_original_datatype());
 
-            // Compare the two
-            if (image_nifti != image_nifti_from_stir)
-                throw std::runtime_error("Conversion from STIR to Nifti failed");
+//            // Compare the two
+//            if (image_nifti != image_nifti_from_stir)
+//                throw std::runtime_error("Conversion from STIR to Nifti failed");
 
-            // Also save the STIRImageData to file (might be useful visual for comparison)
-            create_stir_output_file_format("results/stir_output_file_format_nifti.par");
-            image_stir.write("results/stir.nii","results/stir_output_file_format_nifti.par");
-        }
+//            // Also save the STIRImageData to file (might be useful visual for comparison)
+//            create_stir_output_file_format("results/stir_output_file_format_nifti.par");
+//            image_stir.write("results/stir.nii","results/stir_output_file_format_nifti.par");
+//        }
 
         // Test Gadgetron -> Nifti
         {
-            std::string folder = "/Users/rich/Documents/Data/Synergistic/SpatialCalibration/";
+//            std::string folder = "/Users/rich/Documents/Data/Synergistic/SpatialCalibration/";
 //            folder += "1_sagittal/";
 //            folder += "2_axial/";
-            folder += "3_coronal/";
-            std::string ismrmrd_filename = folder + "output.h5";
+//            folder += "3_coronal/";
+//            std::string ismrmrd_filename = folder + "output.h5";
+            std::string folder = "/Users/rich/Documents/Data/Johannes_data/cylinders2/SliceStack/4_coronal3d/";
+//            std::string ismrmrd_filename = folder + "recon_20191001-144004,OrientationPhantom,CV_Sagittal_2D_144,38484,98.h5";
+//            std::string folder = "/Users/rich/Documents/Data/Marilena/1946/sorted/1_t2_sag/";
+            std::string ismrmrd_filename = folder + "recon_20191007-132546,PhantomSetup,CV_Coronal_3D_144,38736,34.h5";
             std::string nifti_from_dicom_filename = folder + "dicom_as_nifti.nii";
 
             // Read ISMRMRD image
             GadgetronImagesVector ismrmrd_im;
             ismrmrd_im.read(ismrmrd_filename);
+//            std::cout << "\n im here1\n";
+//            ismrmrd_im.write_dicom(folder + "temmpp");
+//            std::cout << "\n im here2\n";
 
             // Convert ISMRMRD image to nifti
             NiftiImageData<float> nifti_from_ismrmrd(ismrmrd_im);
