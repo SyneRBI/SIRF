@@ -1218,7 +1218,7 @@ GadgetronImagesVector::set_up_geom_info()
     ISMRMRD::IsmrmrdHeader image_header = this->acqs_info_.get_IsmrmrdHeader();
     if (!image_header.measurementInformation.is_present())
         std::cout << "\nGadgetronImagesVector::set_up_geom_info: Patient position not present. Assuming HFS\n";
-    else if (!image_header.measurementInformation.get().patientPosition.compare("HFS"))
+    else if (image_header.measurementInformation.get().patientPosition.compare("HFS") != 0)
         std::cout << "\nGadgetronImagesVector::set_up_geom_info: Currently only implemented for HFS. TODO (easy fix)\n";
 
     // Get image
