@@ -32,6 +32,7 @@ limitations under the License.
 
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_x.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -947,24 +948,33 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 }
 
 void
-GadgetronImageData::write(const std::string &filename, const std::string &groupname) const
+GadgetronImageData::write(const std::string &filename, const std::string &groupname, const bool dicom) const
 {
 	//if (images_.size() < 1)
 	if (number() < 1)
 		return;
-    // If the groupname hasn't been set, use the current date and time.
-    std::string group = groupname;
-    if (group.empty())
-        group = get_date_time_string();
-	Mutex mtx;
-	mtx.lock();
-	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
-    dataset.writeHeader(acqs_info_.c_str());
-	mtx.unlock();
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		iw.write(dataset);
-	}
+
+    // If not DICOM
+    if (!dicom) {
+        // If the groupname hasn't been set, use the current date and time.
+        std::string group = groupname;
+        if (group.empty())
+            group = get_date_time_string();
+        Mutex mtx;
+        mtx.lock();
+        ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
+        dataset.writeHeader(acqs_info_.c_str());
+        mtx.unlock();
+        for (unsigned int i = 0; i < number(); i++) {
+            const ImageWrap& iw = image_wrap(i);
+            iw.write(dataset);
+        }
+    }
+    // If DICOM
+    else {
+        ImagesProcessor ip(true, filename);
+        ip.process(*this);
+    }
 }
 
 void
