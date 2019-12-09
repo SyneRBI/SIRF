@@ -109,6 +109,18 @@ public:
             }
         }
         std::cout << "\n";
+
+        const TransformMatrix tm = calculate_index_to_physical_point_matrix();
+
+        std::cout << "transformation mat: \n";
+        for( int i=0;i<4; i++) {
+            for( int j=0;j<4; j++) {
+                std::cout << tm[i][j];
+                if (j<3) std::cout << ", ";
+                else     std::cout << "\n";
+            }
+        }
+        std::cout << "\n";
     }
 
 private:

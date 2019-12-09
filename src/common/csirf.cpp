@@ -209,3 +209,93 @@ cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src)
 	id.fill(id_src);
 	return new DataHandle;
 }
+
+extern "C"
+void*
+cSIRF_ImageData_get_geom_info(const void* ptr_im)
+{
+    const ImageData& id = objectFromHandle<const ImageData>(ptr_im);
+    return newObjectHandle(id.get_geom_info_sptr());
+}
+
+extern "C"
+void*
+cSIRF_GeomInfo_print(const void* ptr_geom)
+{
+    const VoxelisedGeometricalInfo3D &geom_info =
+            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+    geom_info.print_info();
+    return new DataHandle;
+}
+
+extern "C"
+void*
+cSIRF_GeomInfo_get_offset(const void* ptr_geom, void* ptr_arr)
+{
+    const VoxelisedGeometricalInfo3D &geom_info =
+            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+    const VoxelisedGeometricalInfo3D::Offset offset =
+            geom_info.get_offset();
+    float *data = (float*)ptr_arr;
+    for (unsigned i=0; i<3; ++i)
+        data[i] = offset[i];
+    return new DataHandle;
+}
+
+extern "C"
+void*
+cSIRF_GeomInfo_get_spacing(const void* ptr_geom, void* ptr_arr)
+{
+    const VoxelisedGeometricalInfo3D &geom_info =
+            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+    const VoxelisedGeometricalInfo3D::Spacing spacing =
+            geom_info.get_spacing();
+    float *data = (float*)ptr_arr;
+    for (unsigned i=0; i<3; ++i)
+        data[i] = spacing[i];
+    return new DataHandle;
+}
+
+extern "C"
+void*
+cSIRF_GeomInfo_get_size(const void* ptr_geom, void* ptr_arr)
+{
+    const VoxelisedGeometricalInfo3D &geom_info =
+            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+    const VoxelisedGeometricalInfo3D::Size size =
+            geom_info.get_size();
+    int *data = (int*)ptr_arr;
+    for (unsigned i=0; i<3; ++i)
+        data[i] = size[i];
+    return new DataHandle;
+}
+
+extern "C"
+void*
+cSIRF_GeomInfo_get_direction_matrix(const void* ptr_geom, void* ptr_arr)
+{
+    const VoxelisedGeometricalInfo3D &geom_info =
+            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+    const VoxelisedGeometricalInfo3D::DirectionMatrix dm =
+            geom_info.get_direction();
+    float *data = (float*)ptr_arr;
+    for (unsigned i=0; i<3; ++i)
+        for (unsigned j=0; j<3; ++j)
+        data[i*3+j] = dm[i][j];
+    return new DataHandle;
+}
+
+extern "C"
+void*
+cSIRF_GeomInfo_get_index_to_physical_point_matrix(const void* ptr_geom, void* ptr_arr)
+{
+    const VoxelisedGeometricalInfo3D &geom_info =
+            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+    const VoxelisedGeometricalInfo3D::TransformMatrix tm =
+            geom_info.calculate_index_to_physical_point_matrix();
+    float *data = (float*)ptr_arr;
+    for (unsigned i=0; i<4; ++i)
+        for (unsigned j=0; j<4; ++j)
+        data[i*3+j] = tm[i][j];
+    return new DataHandle;
+}
