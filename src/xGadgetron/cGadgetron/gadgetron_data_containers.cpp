@@ -1188,6 +1188,18 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     }
 }
 
+float get_projection_of_position_in_slice(const ISMRMRD::ImageHeader &ih)
+{
+    return ih.position[0] * ih.slice_dir[0] +
+            ih.position[1] * ih.slice_dir[1] +
+            ih.position[2] * ih.slice_dir[2];
+}
+
+float get_slice_spacing(const ISMRMRD::ImageHeader &ih1, const ISMRMRD::ImageHeader &ih2)
+{
+    return std::abs(get_projection_of_position_in_slice(ih1) - get_projection_of_position_in_slice(ih2));
+}
+
 void
 GadgetronImagesVector::set_up_geom_info()
 {
@@ -1200,6 +1212,8 @@ GadgetronImagesVector::set_up_geom_info()
 
     if (!this->sorted())
         this->sort();
+
+    bool is_3d = number()>1;
 
     ISMRMRD::IsmrmrdHeader image_header = this->acqs_info_.get_IsmrmrdHeader();
     if (!image_header.measurementInformation.is_present())
@@ -1244,7 +1258,7 @@ GadgetronImagesVector::set_up_geom_info()
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
     // If it's a stack of 2d images.
-    if (size[2] == 1)
+    if (is_3d)
         size[2] = this->number();
 
     // The following will only work if the 0th index is read direction,
@@ -1258,17 +1272,11 @@ GadgetronImagesVector::set_up_geom_info()
     // If there are more than 1 slices, then take the size of the voxel
     // in the z-direction to be the distance between voxel centres (this
     // accounts for under-sampled data (and also over-sampled).
-    if (this->number() > 1) {
+    if (is_3d) {
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
-        float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
-                ih1.position[1] * ih1.slice_dir[1] +
-                ih1.position[2] * ih1.slice_dir[2];
-        float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
-                ih2.position[1] * ih2.slice_dir[1] +
-                ih2.position[2] * ih2.slice_dir[2];
-        spacing[2] = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
+        spacing[2] = get_slice_spacing(ih1, ih2);
 
         // Check: Loop over all images, and check that spacing is more-or-less constant
         for (unsigned im=0; im<number()-1; ++im) {
@@ -1277,13 +1285,7 @@ GadgetronImagesVector::set_up_geom_info()
             ISMRMRD::ImageHeader &ih2 = image_wrap(im+1).head();
 
             // 2. Check that spacing is constant
-            float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
-                    ih1.position[1] * ih1.slice_dir[1] +
-                    ih1.position[2] * ih1.slice_dir[2];
-            float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
-                    ih2.position[1] * ih2.slice_dir[1] +
-                    ih2.position[2] * ih2.slice_dir[2];
-            float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
+            float new_spacing = get_slice_spacing(ih1, ih2);
             if (std::abs(spacing[2]-new_spacing) > 1.e-4F) {
                 print_slice_distances(images_);
                 return;
@@ -1293,6 +1295,14 @@ GadgetronImagesVector::set_up_geom_info()
 
     // Make sure we're looking at the first image
     ih1 = image_wrap( 0 ).head();
+
+    // Direction
+    VoxelisedGeometricalInfo3D::DirectionMatrix direction;
+    for (unsigned axis=0; axis<3; ++axis) {
+        direction[0][axis] = -ih1.read_dir[axis];
+        direction[1][axis] = -ih1.phase_dir[axis];
+        direction[2][axis] =  ih1.slice_dir[axis];
+    }
 
     // Offset
     VoxelisedGeometricalInfo3D::Offset offset;
@@ -1305,14 +1315,6 @@ GadgetronImagesVector::set_up_geom_info()
     offset[2] = ih1.position[2] -
         (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[2] -
         (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[2];
-
-    // Direction
-    VoxelisedGeometricalInfo3D::DirectionMatrix direction;
-    for (int axis=0; axis<3; ++axis) {
-        direction[0][axis] = ih1.read_dir[axis];
-        direction[1][axis] = ih1.phase_dir[axis];
-        direction[2][axis] = ih1.slice_dir[axis];
-    }
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
