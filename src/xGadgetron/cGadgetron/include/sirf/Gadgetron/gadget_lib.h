@@ -353,6 +353,23 @@ namespace sirf {
 		}
 	};
 
+    class GenericReconCartesianFFTGadget : public Gadget {
+	public:
+		GenericReconCartesianFFTGadget() :
+			Gadget("Recon", "gadgetron_mricore", "GenericReconCartesianFFTGadget")
+		{
+            add_property("image_series","0");
+            add_property("coil_map_algorithm","Inati");
+            add_property("debug_folder","");
+            add_property("perform_timing","true");
+            add_property("verbose","true");
+        }
+		static const char* class_name()
+		{
+			return "GenericReconCartesianFFTGadget";
+		}
+	};
+
 	class GenericReconCartesianGrappaGadget : public Gadget {
 	public:
 		GenericReconCartesianGrappaGadget() :
