@@ -7,13 +7,14 @@ Usage:
   fully_sampled_recon_single_chain.py [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file
-                              [default: simulated_MR_2D_cartesian.h5]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
-                              subfolder of SIRF root folder
-  -o <file>, --output=<file>  images output file
-  --type_to_save=<string>     type to save ('mag', 'imag', 'all') [default: all]
-  --show                      show plots
+  -f <file>, --file=<file>           raw data file
+                                     [default: simulated_MR_2D_cartesian.h5]
+  -p <path>, --path=<path>           path to data files, defaults to data/examples/MR
+                                     subfolder of SIRF root folder
+  -o <file>, --output=<file>         images output file
+  -a <string>, --algorithm=<string>  algorithm to use ('SimpleReconGadget', 'GenericReconCartesianFFTGadget') [default: SimpleReconGadget]
+  --type_to_save=<string>            type to save ('mag', 'imag', 'all') [default: all]
+  --show                             show plots
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -40,6 +41,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 import time
+import sys
 
 # import SIRF utilities
 from sirf.Utilities import examples_data_path, existing_filepath, error
@@ -57,6 +59,8 @@ type_to_save = args['--type_to_save']
 show_plot = False
 if args['--show']:
     show_plot = True
+
+algorithm = args['--algorithm']
 
 def main():
 
@@ -76,15 +80,18 @@ def main():
     # and using set_gadget_property(label, propery, value).
     # The gadgets will be concatenated and will be executed as soon as 
     # process() is called.
-    recon = Reconstructor([ \
-        'NoiseAdjustGadget', \
-        'AsymmetricEchoAdjustROGadget', \
-        'RemoveROOversamplingGadget', \
-        'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
-        'BucketToBufferGadget(split_slices=true, verbose=false)', \
-        'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])
-##        'SimpleReconGadget', 'ImageArraySplitGadget', \
-##        'PhysioInterpolationGadget', 'ex:ExtractGadget'])
+    recon_gadgets = ['NoiseAdjustGadget',
+        'AsymmetricEchoAdjustROGadget',
+        'RemoveROOversamplingGadget',
+        'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)',
+        'BucketToBufferGadget(split_slices=true, verbose=false)',
+        algorithm,
+        'GenericReconFieldOfViewAdjustmentGadget',
+        'ImageArraySplitGadget', 
+        'ex:ExtractGadget'
+        ]
+
+    recon = Reconstructor(recon_gadgets)
 
     # ExtractGadget defines which type of image should be returned:
     # none      0
@@ -153,3 +160,4 @@ try:
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    sys.exit(1)
