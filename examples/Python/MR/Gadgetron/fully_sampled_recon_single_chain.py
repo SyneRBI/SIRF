@@ -68,6 +68,11 @@ def main():
     input_file = existing_filepath(data_path, data_file)
     acq_data = AcquisitionData(input_file)
     
+    if algorithm == 'SimpleReconGadget':
+        extra_gadgets = [algorithm]
+    else:
+        extra_gadgets = [algorithm, 'GenericReconFieldOfViewAdjustmentGadget']
+    
     # create reconstruction object
     # Rather than using a predefined image reconstruction object, here a new 
     # image reconstruction object is created by concatinating multiple gadgets 
@@ -84,10 +89,9 @@ def main():
         'AsymmetricEchoAdjustROGadget',
         'RemoveROOversamplingGadget',
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)',
-        'BucketToBufferGadget(split_slices=true, verbose=false)',
-        algorithm,
-        'GenericReconFieldOfViewAdjustmentGadget',
-        'ImageArraySplitGadget', 
+        'BucketToBufferGadget(split_slices=true, verbose=false)'] \
+        + extra_gadgets + \
+        ['ImageArraySplitGadget', 
         'ex:ExtractGadget'
         ]
 
