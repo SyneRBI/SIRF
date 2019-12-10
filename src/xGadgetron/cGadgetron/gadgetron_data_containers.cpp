@@ -1215,12 +1215,15 @@ GadgetronImagesVector::set_up_geom_info()
 
     bool is_3d = number()>1;
 
+    // Patient position not necessary as read, phase and slice directions
+    // are already in patient coordinates
+#if 0
     ISMRMRD::IsmrmrdHeader image_header = this->acqs_info_.get_IsmrmrdHeader();
     if (!image_header.measurementInformation.is_present())
         std::cout << "\nGadgetronImagesVector::set_up_geom_info: Patient position not present. Assuming HFS\n";
     else if (image_header.measurementInformation.get().patientPosition.compare("HFS") != 0)
         std::cout << "\nGadgetronImagesVector::set_up_geom_info: Currently only implemented for HFS. TODO (easy fix)\n";
-
+#endif
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
 
@@ -1229,17 +1232,6 @@ GadgetronImagesVector::set_up_geom_info()
         std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
         return;
     }
-/*
-    // Check that the slice direction is the cross product of the read and phase direction
-    float read_phase_x_prod[3];
-    read_phase_x_prod[0] = ih1.read_dir[1]*ih1.phase_dir[2] - ih1.read_dir[2]*ih1.phase_dir[1];
-    read_phase_x_prod[1] = ih1.read_dir[2]*ih1.phase_dir[0] - ih1.read_dir[0]*ih1.phase_dir[2];
-    read_phase_x_prod[2] = ih1.read_dir[0]*ih1.phase_dir[1] - ih1.read_dir[1]*ih1.phase_dir[0];
-    if (!are_vectors_equal(ih1.read_dir,-read_phase_x_prod)) {
-          std::cout << "\nGadgetronImagesVector::set_up_geom_info(): slice_dir is not "
-          "equal to the cross product between read_dir and phase_dir.\n";
-          return;
-    }*/
 
     // Check that the read, phase and slice directions are constant
     for (unsigned im=1; im<number(); ++im) {
@@ -1260,9 +1252,6 @@ GadgetronImagesVector::set_up_geom_info()
     // If it's a stack of 2d images.
     if (is_3d)
         size[2] = this->number();
-
-    // The following will only work if the 0th index is read direction,
-    // 1st is phase direction and 2nd is slice direction. This should be the case if sort has been called.
 
     // Spacing
     VoxelisedGeometricalInfo3D::Spacing spacing;
@@ -1325,23 +1314,6 @@ GadgetronImagesVector::set_up_geom_info()
     offset[2] = ih1.position[2]
             + (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[2]
             + (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[2];
-
-    // Sagittal
-    if (std::abs(ih1.read_dir[2]*ih1.phase_dir[1]*ih1.slice_dir[0]) > 0.9f) {
-        std::cout << "\nsagittal\n";
-        offset[2] += spacing[0];
-    }
-    else if (std::abs(ih1.read_dir[2]*ih1.phase_dir[0]*ih1.slice_dir[1]) > 0.9f) {
-        std::cout << "\ncoronal\n";
-//        offset[1] += spacing[2];
-//        offset[2] += spacing[0];
-    }
-    else if (std::abs(ih1.read_dir[0]*ih1.phase_dir[1]*ih1.slice_dir[2]) > 0.9f) {
-        std::cout << "\naxial\n";
-        offset[1] += spacing[1];
-    }
-    else
-        throw std::runtime_error("you fucked up.");
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
