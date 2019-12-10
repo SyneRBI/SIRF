@@ -134,6 +134,7 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(GenericReconCartesianReferencePrepGadget);
 		NEW_GADGET(GenericReconCartesianGrappaGadget);
 		NEW_GADGET(SimpleReconGadget);
+        NEW_GADGET(GenericReconCartesianFFTGadget);
 		NEW_GADGET(GenericReconFieldOfViewAdjustmentGadget);
 		NEW_GADGET(GenericReconImageArrayScalingGadget);
 		NEW_GADGET(FatWaterGadget);
