@@ -54,81 +54,57 @@ int main(int argc, char* argv[])
 {
     try {
 
-        // Paths
-        std::string  SIRF_PATH;
-        if (argc==1) SIRF_PATH = getenv("SIRF_PATH");
-        else         SIRF_PATH = argv[1];
+        if (argc < 2) {
+            std::cout << "\ntest_cSynergistic nifti_filename [mr_recon_h5_filename]\n";
+            return EXIT_SUCCESS;
+        }
+
+        const std::string nifti_filename = argv[1];
+        std::string mr_recon_h5_filename = "";
+        if (argc > 2)
+            mr_recon_h5_filename = argv[2];
 
         // Test STIR -> Nifti
-//            {
-//            // Input filenames
-//            const std::string nifti_filename = SIRF_PATH + "/data/examples/Registration/test2.nii.gz";
+        {
+            // Load the image as a NiftiImageData3D
+            NiftiImageData3D<float> image_nifti(nifti_filename);
 
-//            // Load the image as a NiftiImageData3D
-//            NiftiImageData3D<float> image_nifti(nifti_filename);
+            // Read as STIRImageData, convert NiftiImageData3D and save to file
+            STIRImageData image_stir(nifti_filename);
+            NiftiImageData3D<float> image_nifti_from_stir(image_stir);
+            image_nifti_from_stir.write("results/stir_to_nifti.nii",image_nifti.get_original_datatype());
 
-//            // Read as STIRImageData, convert NiftiImageData3D and save to file
-//            STIRImageData image_stir(nifti_filename);
-//            NiftiImageData3D<float> image_nifti_from_stir(image_stir);
-//            image_nifti_from_stir.write("results/stir_to_nifti.nii",image_nifti.get_original_datatype());
+            // Compare the two
+            if (image_nifti != image_nifti_from_stir)
+                throw std::runtime_error("Conversion from STIR to Nifti failed");
 
-//            // Compare the two
-//            if (image_nifti != image_nifti_from_stir)
-//                throw std::runtime_error("Conversion from STIR to Nifti failed");
-
-//            // Also save the STIRImageData to file (might be useful visual for comparison)
-//            create_stir_output_file_format("results/stir_output_file_format_nifti.par");
-//            image_stir.write("results/stir.nii","results/stir_output_file_format_nifti.par");
-//        }
+            // Also save the STIRImageData to file (might be useful visual for comparison)
+            create_stir_output_file_format("results/stir_output_file_format_nifti.par");
+            image_stir.write("results/stir.nii","results/stir_output_file_format_nifti.par");
+        }
 
         // Test Gadgetron -> Nifti
-        {
-//            std::string folder = "/Users/rich/Documents/Data/Synergistic/SpatialCalibration/";
-//            folder += "1_sagittal/";
-//            folder += "2_axial/";
-//            folder += "3_coronal/";
-//            std::string ismrmrd_filename = folder + "output.h5";
-            std::string folder = "/Users/rich/Documents/Data/Johannes_data/cylinders2/SliceStack/4_coronal3d/";
-//            std::string ismrmrd_filename = folder + "recon_20191001-144004,OrientationPhantom,CV_Sagittal_2D_144,38484,98.h5";
-//            std::string folder = "/Users/rich/Documents/Data/Marilena/1946/sorted/1_t2_sag/";
-            std::string ismrmrd_filename = folder + "recon_20191007-132546,PhantomSetup,CV_Coronal_3D_144,38736,34.h5";
-            std::string nifti_from_dicom_filename = folder + "dicom_as_nifti.nii";
+        if (!mr_recon_h5_filename.empty()) {
 
             // Read ISMRMRD image
             GadgetronImagesVector ismrmrd_im;
-            ismrmrd_im.read(ismrmrd_filename);
-//            std::cout << "\n im here1\n";
-//            ismrmrd_im.write_dicom(folder + "temmpp");
-//            std::cout << "\n im here2\n";
+            ismrmrd_im.read(mr_recon_h5_filename);
 
             // Convert ISMRMRD image to nifti
             NiftiImageData<float> nifti_from_ismrmrd(ismrmrd_im);
-            nifti_from_ismrmrd.write(folder + "ismrmrd_to_nifti.nii",nifti_from_ismrmrd.get_original_datatype());
 
             // Read vendor-reconstructed image
-            NiftiImageData<float> dicom_im(nifti_from_dicom_filename);
+            NiftiImageData<float> dicom_im(nifti_filename);
 
-            // Normalise to remove scaling problems
-            nifti_from_ismrmrd.normalise_zero_and_one();
-            dicom_im.normalise_zero_and_one();
+            // Standardise to remove scaling problems
+            dicom_im.standardise();
+            nifti_from_ismrmrd.standardise();
 
-            std::cout << "\ndicom offset:\n";
-            for(size_t i=0; i<3; ++i)
-            std::cout << dicom_im.get_geom_info_sptr()->get_offset()[i] << " ";
-
-            std::cout << "\ndicom direction:\n";
-            for(size_t i=0; i<3; ++i) {
-                for(size_t j=0; j<3; ++j) {
-                    std::cout << dicom_im.get_geom_info_sptr()->get_direction()[i][j] << " ";
-                }
-                std::cout << "\n";
-            }
-
-            // Compare the two
-            if (dicom_im != nifti_from_ismrmrd)
+            // Compare the two. Since the images are being reconstructed independently, there is no
+            // guarantee they will perfectly match. So we need an data-dependent acceptance threshold.
+            if (!NiftiImageData<float>::are_equal_to_given_accuracy(dicom_im, nifti_from_ismrmrd, 165.f))
                 throw std::runtime_error("Conversion from ISMRMRD to Nifti failed");
         }
-
 
     // Error handling
     } catch(const std::exception &error) {
