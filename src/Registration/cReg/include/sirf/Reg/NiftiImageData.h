@@ -268,6 +268,12 @@ public:
     /// Get mean
     float get_mean() const;
 
+    /// Get variance
+    float get_variance() const;
+
+    /// Get standard deviation
+    float get_standard_deviation() const;
+
     /// Get element
     float get_element(const int idx[7]) const;
 
@@ -345,6 +351,12 @@ public:
 
     /// Mirror the image along a given axis (This will change handedness of image)
     void mirror_along_axis(const unsigned axis);
+
+    /// Normalise image between 0 and 1
+    void normalise_zero_and_one();
+
+    /// Standardise (subtract mean and divide by standard deviation).
+    void standardise();
 
 protected:
 

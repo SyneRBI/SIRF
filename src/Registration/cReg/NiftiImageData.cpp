@@ -337,6 +337,23 @@ float NiftiImageData<dataType>::get_mean() const
 }
 
 template<class dataType>
+float NiftiImageData<dataType>::get_variance() const
+{
+    float var  = 0.f;
+    float mean = this->get_mean();
+    for (unsigned i=0; i<this->get_num_voxels(); ++i)
+        var += std::pow(float((*this)(i)) - mean, 2.f);
+    return var / float(this->get_num_voxels());
+}
+
+
+template<class dataType>
+float NiftiImageData<dataType>::get_standard_deviation() const
+{
+    return sqrt(this->get_variance());
+}
+
+template<class dataType>
 float NiftiImageData<dataType>::get_sum() const
 {
     if(!this->is_initialised())
@@ -536,6 +553,25 @@ void NiftiImageData<dataType>::copy_nifti_image(std::shared_ptr<nifti_image> &ou
 #ifndef NDEBUG
     std::cout << "done.\n\n";
 #endif
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::normalise_zero_and_one()
+{
+    dataType max = this->get_max();
+    dataType min = this->get_min();
+    // im = (im-min) / (max-min)
+    for (size_t i=0; i<this->get_num_voxels(); ++i)
+        (*this)(i) = ((*this)(i)-min) / (max-min);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::standardise()
+{
+    dataType mean = this->get_mean();
+    dataType std  = this->get_standard_deviation();
+    for (size_t i=0; i<this->get_num_voxels(); ++i)
+        (*this)(i) = ((*this)(i) - mean) / std;
 }
 
 template<class dataType>
@@ -1298,6 +1334,8 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
     std::cout << "\tmin2                              = " << im2.get_min() << "\n";
     std::cout << "\tmean1                             = " << im1.get_mean() << "\n";
     std::cout << "\tmean2                             = " << im2.get_mean() << "\n";
+    std::cout << "\tstandard deviation1               = " << im1.get_standard_deviation() << "\n";
+    std::cout << "\tstandard deviation2               = " << im2.get_standard_deviation() << "\n";
     std::cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
     std::cout << "\tepsilon                           = " << epsilon << "\n";
     std::cout << "\tnorm                              = " << norm << "\n";

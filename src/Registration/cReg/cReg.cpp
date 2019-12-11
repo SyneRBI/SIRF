@@ -392,6 +392,28 @@ void* cReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, c
     CATCH;
 }
 
+extern "C"
+void* cReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr)
+{
+    try {
+        NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
+        im.normalise_zero_and_one();
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void* cReg_NiftiImageData_standardise(const void* im_ptr)
+{
+    try{
+        NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
+        im.standardise();
+        return new DataHandle;
+    }
+    CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3D
 // -------------------------------------------------------------------------------- //
