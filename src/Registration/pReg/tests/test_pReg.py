@@ -243,6 +243,19 @@ def try_niftiimage():
     if geom_info.get_spacing() != (4.0625, 4.0625, 4.0625):
         raise AssertionError("SIRF get_geometrical_info().get_spacing() failed.")
 
+    im.standardise()
+    if abs(im.get_standard_deviation() - 1) > 0.01:
+        raise AssertionError("NiftiImageData standardise() or get_standard_deviation() failed.")
+    if abs(im.get_variance() - 1) > 0.01:
+        raise AssertionError("NiftiImageData standardise() or get_variance() failed.")
+    if abs(im.get_mean()) > 0.0001:
+        raise AssertionError("NiftiImageData standardise() or get_mean() failed.")
+    
+    # Check normalise 
+    im.normalise_zero_and_one()
+    if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
+        raise AssertionError("NiftiImageData normalise_between_zero_and_one() failed.")
+    
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData test.\n')
