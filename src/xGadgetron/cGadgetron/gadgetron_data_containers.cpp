@@ -1213,7 +1213,7 @@ GadgetronImagesVector::set_up_geom_info()
     if (!this->sorted())
         this->sort();
 
-    bool is_3d = number()>1;
+    bool is_2d_stack = number()>1;
 
     // Patient position not necessary as read, phase and slice directions
     // are already in patient coordinates
@@ -1250,7 +1250,7 @@ GadgetronImagesVector::set_up_geom_info()
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
     // If it's a stack of 2d images.
-    if (is_3d)
+    if (is_2d_stack)
         size[2] = this->number();
 
     // Spacing
@@ -1261,7 +1261,7 @@ GadgetronImagesVector::set_up_geom_info()
     // If there are more than 1 slices, then take the size of the voxel
     // in the z-direction to be the distance between voxel centres (this
     // accounts for under-sampled data (and also over-sampled).
-    if (is_3d) {
+    if (is_2d_stack) {
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
@@ -1293,27 +1293,20 @@ GadgetronImagesVector::set_up_geom_info()
         direction[axis][2] = -ih1.slice_dir[axis];
     }
 
-    std::cout << "\n position = " << ih1.position[0] << ", " << ih1.position[1] << ", " << ih1.position[2] << "\n";
-    std::cout << "\n read_dir = " << ih1.read_dir[0] << ", " << ih1.read_dir[1] << ", " << ih1.read_dir[2] << "\n";
-    std::cout << "\n phase_dir = " << ih1.phase_dir[0] << ", " << ih1.phase_dir[1] << ", " << ih1.phase_dir[2] << "\n";
-    std::cout << "\n slice_dir = " << ih1.slice_dir[0] << ", " << ih1.slice_dir[1] << ", " << ih1.slice_dir[2] << "\n";
-    std::cout << "\n field_of_view = " << ih1.field_of_view[0] << ", " << ih1.field_of_view[1] << ", " << ih1.field_of_view[2] << "\n";
-    ISMRMRD::ImageHeader &ih2 = image_wrap(number()-1).head();
-    std::cout << "\n position_end = " << ih2.position[0] << ", " << ih2.position[1] << ", " << ih2.position[2] << "\n";
-    std::cout << "\n FOV_end = " << ih2.field_of_view[0] << ", " << ih2.field_of_view[1] << ", " << ih2.field_of_view[2] << "\n";
-    std::cout << "\n spacing = " << spacing[0] << ", " << spacing[1] << ", " << spacing[2] << "\n";
-
     // Offset
     VoxelisedGeometricalInfo3D::Offset offset;
-    offset[0] = ih1.position[0]
-            + (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[0]
-            + (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[0];
-    offset[1] = ih1.position[1]
-            + (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[1]
-            + (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[1];
-    offset[2] = ih1.position[2]
-            + (ih1.field_of_view[0] / 2.0f) * ih1.read_dir[2]
-            + (ih1.field_of_view[1] / 2.0f) * ih1.phase_dir[2];
+    for (unsigned i=0; i<3; ++i)
+        offset[i] = ih1.position[i]
+                - direction[i][0] * (ih1.field_of_view[0] / 2.0f)
+                - direction[i][1] * (ih1.field_of_view[1] / 2.0f);
+
+    // TODO this isn't perfect
+    if (!is_2d_stack && size[2]>1) {
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info(). "
+                     "Warning, we think we're ~half a voxel out in the 3D case.\n";
+        for (unsigned i=0; i<3; ++i)
+            offset[i] += ih1.slice_dir[i] * (ih1.field_of_view[2] / 2.0f);
+    }
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
