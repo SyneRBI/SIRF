@@ -27,6 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftyResample.h"
@@ -53,15 +54,19 @@ int main(int argc, char* argv[])
 {
     try {
 
-        // Paths
-        std::string  SIRF_PATH;
-        if (argc==1) SIRF_PATH = getenv("SIRF_PATH");
-        else         SIRF_PATH = argv[1];
+        if (argc < 2) {
+            std::cout << "\ntest_cSynergistic nifti_filename [mr_recon_h5_filename]\n";
+            return EXIT_SUCCESS;
+        }
+
+        const std::string nifti_filename = argv[1];
+        std::string mr_recon_h5_filename = "";
+        if (argc > 2)
+            mr_recon_h5_filename = argv[2];
 
         // Test STIR -> Nifti
-            {
-            // Input filenames
-            const std::string nifti_filename = SIRF_PATH + "/data/examples/Registration/test2.nii.gz";
+        {
+            std::cout << "\nPerforming STIRImageData to NiftiImageData conversion...\n";
 
             // Load the image as a NiftiImageData3D
             NiftiImageData3D<float> image_nifti(nifti_filename);
@@ -81,7 +86,32 @@ int main(int argc, char* argv[])
         }
 
         // Test Gadgetron -> Nifti
-        // TODO
+        if (!mr_recon_h5_filename.empty()) {
+
+            std::cout << "\nPerforming GadgetronImagesVector to NiftiImageData conversion...\n";
+
+            // Read ISMRMRD image
+            GadgetronImagesVector ismrmrd_im;
+            ismrmrd_im.read(mr_recon_h5_filename);
+
+            // Convert ISMRMRD image to nifti
+            NiftiImageData<float> nifti_from_ismrmrd(ismrmrd_im);
+
+            // Read vendor-reconstructed image
+            NiftiImageData<float> dicom_im(nifti_filename);
+
+            // Standardise to remove scaling problems
+            dicom_im.standardise();
+            nifti_from_ismrmrd.standardise();
+
+            // Compare the two. Since the images are being reconstructed independently, there is no
+            // guarantee they will perfectly match. So we need an data-dependent acceptance threshold.
+            if (!NiftiImageData<float>::are_equal_to_given_accuracy(dicom_im, nifti_from_ismrmrd, 165.f))
+                throw std::runtime_error("Conversion from ISMRMRD to Nifti failed");
+        }
+        else {
+            std::cout << "\nNot performing GadgetronImagesVector to NiftiImageData conversion (as .h5 file was not provided).\n";
+        }
 
     // Error handling
     } catch(const std::exception &error) {
