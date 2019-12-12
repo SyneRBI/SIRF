@@ -963,6 +963,37 @@ void* cSTIR_writeImage(void* ptr_i, const char* filename)
 }
 
 extern "C"
+void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const size_t offsets_in_mm_ptr_raw,
+                                 const size_t new_sizes_ptr_raw, const char *zoom_options)
+{
+    try {
+        STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+
+        const float* zooms_ptr         = (const float*)zooms_ptr_raw;
+        const float* offsets_in_mm_ptr = (const float*)offsets_in_mm_ptr_raw;
+        const  int*  new_sizes_ptr     = (const  int* )new_sizes_ptr_raw;
+
+        Coord3DF zooms;
+        zooms.z() = zooms_ptr[0];
+        zooms.y() = zooms_ptr[1];
+        zooms.x() = zooms_ptr[2];
+        Coord3DF offsets_in_mm;
+        offsets_in_mm.z() = offsets_in_mm_ptr[0];
+        offsets_in_mm.y() = offsets_in_mm_ptr[1];
+        offsets_in_mm.x() = offsets_in_mm_ptr[2];
+        Coord3DI new_sizes;
+        new_sizes.z() = new_sizes_ptr[0];
+        new_sizes.y() = new_sizes_ptr[1];
+        new_sizes.x() = new_sizes_ptr[2];
+
+        id.zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+
+		return static_cast<void*>(new DataHandle);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
