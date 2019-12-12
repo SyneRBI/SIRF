@@ -577,6 +577,13 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
 }
 
 void
+STIRImageData::
+move_to_scanner_centre(const PETAcquisitionData &)
+{
+    this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
+}
+
+void
 STIRImageData::set_up_geom_info()
 {
     const Voxels3DF* const vox_image = dynamic_cast<const Voxels3DF*>(&data());

@@ -756,6 +756,10 @@ namespace sirf {
                         const Coord3DI &new_sizes={1,1,1},
                         const stir::ZoomOptions zoom_options=stir::ZoomOptions::preserve_sum);
 
+        /// Move to scanner centre. The acquisition needs to be supplied such that in the future,
+        /// bed offset etc can be taken into account.
+        void move_to_scanner_centre(const PETAcquisitionData &);
+
     private:
         /// Clone helper function. Don't use.
         virtual STIRImageData* clone_impl() const

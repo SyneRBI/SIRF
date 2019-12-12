@@ -994,6 +994,20 @@ void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const
 }
 
 extern "C"
+void* cSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_ptr)
+{
+    try {
+        STIRImageData& im = objectFromHandle<STIRImageData>(im_ptr);
+        PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(acq_data_ptr);
+        im.move_to_scanner_centre(ad);
+
+        return static_cast<void*>(new DataHandle);
+	}
+	CATCH;
+
+}
+
+extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
