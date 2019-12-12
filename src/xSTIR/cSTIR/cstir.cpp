@@ -963,6 +963,22 @@ void* cSTIR_writeImage(void* ptr_i, const char* filename)
 }
 
 extern "C"
+void* cSTIR_ImageData_zoom_image(void* ptr_im, const char *zoom_options, const int sizexy, const float zoomxy,
+                                 const float offset_in_mm_x, const float offset_in_mm_y,
+                                 const int sizez, const float zoomz, const float offset_in_mm_z)
+{
+    try {
+        STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+        id.zoom_image(zoom_options, sizexy, zoomxy,
+                      offset_in_mm_x, offset_in_mm_y,
+                      sizez, zoomz, offset_in_mm_z);
+
+		return static_cast<void*>(new DataHandle);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
