@@ -409,18 +409,6 @@ class ImageData(SIRF.ImageData):
         else:
             out = self.get_uniform_copy(value)
         return out
-
-    def zoom_image(self,sizexy,scaling='preserve_sum',zoomxy=1., offset_in_mm_x=0., offset_in_mm_y=0., sizez=-1, zoomz=1., offset_in_mm_z=0.):
-        """
-        Return a zoomed image (seen STIR's zoom_image executable).
-            Support scaling options are: 'preserve_sum', 'preserve_values' and 'preserve_projections'
-        """
-        zoomed_im = self.clone()
-        try_calling(pystir.cSTIR_ImageData_zoom_image\
-                 (zoomed_im.handle, scaling, int(sizexy) ,zoomxy, offset_in_mm_x,\
-                  offset_in_mm_y, int(sizez), zoomz, offset_in_mm_z))
-        return zoomed_im
-
 ##        print('Please enter slice numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))

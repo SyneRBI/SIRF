@@ -139,11 +139,6 @@ def test_main(rec=False, verb=False, throw=True):
     if geom_info.get_spacing() != (voxel_size[2],voxel_size[1],voxel_size[0]):
         raise AssertionError("SIRF get_geometrical_info().get_spacing() failed.")
 
-    # Test zoom_image
-    zoomed_im = image.zoom_image(image.dimensions()[0]//2)
-    if zoomed_im.dimensions() != (image.dimensions()[0], image.dimensions()[0]//2, image.dimensions()[0]//2):
-        raise AssertionError("STIRImageData zoom_image() failed.")
-
     return test.failed, test.ntest
 
 

@@ -538,51 +538,6 @@ STIRImageData::set_data(const float* data)
 }
 
 void
-STIRImageData::
-zoom_image(const char *zoom_options_str, const int sizexy, const float zoomxy,
-                const float offset_in_mm_x, const float offset_in_mm_y,
-                const int sizez_input, const float zoomz, const float offset_in_mm_z)
-{
-    stir::ZoomOptions zoom_options;
-    if (strcmp(zoom_options_str,"preserve_sum")==0)
-        zoom_options = stir::ZoomOptions::preserve_sum;
-    else if (strcmp(zoom_options_str,"preserve_values")==0)
-        zoom_options = stir::ZoomOptions::preserve_values;
-    else if (strcmp(zoom_options_str,"preserve_projections")==0)
-        zoom_options = stir::ZoomOptions::preserve_projections;
-    else
-        throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
-
-    this->zoom_image(zoom_options, sizexy, zoomxy,
-                  offset_in_mm_x, offset_in_mm_y,
-                  sizez_input, zoomz, offset_in_mm_z);
-}
-
-void
-STIRImageData::
-zoom_image(const stir::ZoomOptions zoom_options, const int sizexy, const float zoomxy,
-                const float offset_in_mm_x, const float offset_in_mm_y,
-                const int sizez_input, const float zoomz, const float offset_in_mm_z)
-{
-    // We need the underyling image as a VoxelsOnCartesianGrid
-    DYNAMIC_CAST(Voxels3DF, voxels, this->data());
-
-    // If sizez is negative, use z-size
-    int sizez = sizez_input<0? voxels.get_z_size() : sizez_input;
-
-    // Calculate new offsets, sizes, etc.
-    const CartesianCoordinate3D<float>
-            zooms(zoomz,zoomxy,zoomxy);
-    const CartesianCoordinate3D<float>
-            offsets_in_mm(offset_in_mm_z,offset_in_mm_y,offset_in_mm_x);
-    const CartesianCoordinate3D<int>
-            new_sizes(sizez, sizexy, sizexy);
-
-    // Zoom the image
-    voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
-}
-
-void
 STIRImageData::set_up_geom_info()
 {
     const Voxels3DF* const vox_image = dynamic_cast<const Voxels3DF*>(&data());

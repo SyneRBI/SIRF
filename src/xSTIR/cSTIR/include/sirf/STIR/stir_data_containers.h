@@ -43,7 +43,6 @@ limitations under the License.
 #include "sirf/common/PETImageData.h"
 #include "sirf/STIR/stir_types.h"
 #include "sirf/common/GeometricalInfo.h"
-#include "stir/zoom.h"
 
 namespace sirf {
 
@@ -742,16 +741,6 @@ namespace sirf {
         {
             return std::unique_ptr<STIRImageData>(this->clone_impl());
         }
-
-        /// Zoom the image (modifies itself)
-        void zoom_image(const char *zoom_options_str, const int sizexy, const float zoomxy,
-                        const float offset_in_mm_x, const float offset_in_mm_y,
-                        const int sizez_input, const float zoomz, const float offset_in_mm_z);
-
-        /// Zoom the image (modifies itself)
-        void zoom_image(const stir::ZoomOptions zoom_options, const int sizexy, const float zoomxy,
-                        const float offset_in_mm_x, const float offset_in_mm_y,
-                        const int sizez_input, const float zoomz, const float offset_in_mm_z);
 
     private:
         /// Clone helper function. Don't use.
