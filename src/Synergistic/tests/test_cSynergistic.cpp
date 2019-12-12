@@ -66,6 +66,8 @@ int main(int argc, char* argv[])
 
         // Test STIR -> Nifti
         {
+            std::cout << "\nPerforming STIRImageData to NiftiImageData conversion...\n";
+
             // Load the image as a NiftiImageData3D
             NiftiImageData3D<float> image_nifti(nifti_filename);
 
@@ -86,6 +88,8 @@ int main(int argc, char* argv[])
         // Test Gadgetron -> Nifti
         if (!mr_recon_h5_filename.empty()) {
 
+            std::cout << "\nPerforming GadgetronImagesVector to NiftiImageData conversion...\n";
+
             // Read ISMRMRD image
             GadgetronImagesVector ismrmrd_im;
             ismrmrd_im.read(mr_recon_h5_filename);
@@ -104,6 +108,9 @@ int main(int argc, char* argv[])
             // guarantee they will perfectly match. So we need an data-dependent acceptance threshold.
             if (!NiftiImageData<float>::are_equal_to_given_accuracy(dicom_im, nifti_from_ismrmrd, 165.f))
                 throw std::runtime_error("Conversion from ISMRMRD to Nifti failed");
+        }
+        else {
+            std::cout << "\nNot performing GadgetronImagesVector to NiftiImageData conversion (as .h5 file was not provided).\n";
         }
 
     // Error handling
