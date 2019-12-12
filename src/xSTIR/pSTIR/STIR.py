@@ -410,15 +410,28 @@ class ImageData(SIRF.ImageData):
             out = self.get_uniform_copy(value)
         return out
 
-    def zoom_image(self,sizexy,scaling='preserve_sum',zoomxy=1., offset_in_mm_x=0., offset_in_mm_y=0., sizez=-1, zoomz=1., offset_in_mm_z=0.):
+    def zoom_image(self,size=(-1,-1,-1),zooms=(1.,1.,1.),offset_in_mm=(0.,0.,0.),scaling='preserve_sum'):
         """
-        Return a zoomed image (seen STIR's zoom_image executable).
+        Return a zoomed image. All coordinates and indices are given as (z,y,x)
+            To leave the size unchanged in any dimension, set the corresponding size to -1
             Support scaling options are: 'preserve_sum', 'preserve_values' and 'preserve_projections'
         """
         zoomed_im = self.clone()
+
+        if not isinstance(size,tuple):
+            raise error('zoom_image: size should be tuple')
+        if not isinstance(zooms,tuple):
+            raise error('zoom_image: zooms should be tuple')
+        if not isinstance(offset_in_mm,tuple):
+            raise error('zoom_image: offset_in_mm should be tuple')
+        np_size = numpy.asarray(size, dtype=numpy.int32)
+        np_zooms = numpy.asarray(zooms, dtype=numpy.float32)
+        np_offset_in_mm = numpy.asarray(offset_in_mm, dtype=numpy.float32)
+
         try_calling(pystir.cSTIR_ImageData_zoom_image\
-                 (zoomed_im.handle, scaling, int(sizexy) ,zoomxy, offset_in_mm_x,\
-                  offset_in_mm_y, int(sizez), zoomz, offset_in_mm_z))
+                 (zoomed_im.handle, np_zooms.ctypes.data,\
+                  np_offset_in_mm.ctypes.data, np_size.ctypes.data, scaling))
+
         return zoomed_im
 
 ##        print('Please enter slice numbers (e.g.: 0, 3-5)')

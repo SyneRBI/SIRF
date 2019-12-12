@@ -743,15 +743,18 @@ namespace sirf {
             return std::unique_ptr<STIRImageData>(this->clone_impl());
         }
 
-        /// Zoom the image (modifies itself)
-        void zoom_image(const char *zoom_options_str, const int sizexy, const float zoomxy,
-                        const float offset_in_mm_x, const float offset_in_mm_y,
-                        const int sizez_input, const float zoomz, const float offset_in_mm_z);
+        /// Zoom the image (modifies itself).
+        /// All indices and coordinates should be (z,y,x) order.
+        /// To leave the size unchanged in any dimension, set the corresponding size to -1.
+        void zoom_image(const Coord3DF &zooms={1.f,1.f,1.f}, const Coord3DF &offsets_in_mm={0.f,0.f,0.f},
+                        const Coord3DI &new_sizes={1,1,1}, const char *zoom_options_str="preserve_sum");
 
-        /// Zoom the image (modifies itself)
-        void zoom_image(const stir::ZoomOptions zoom_options, const int sizexy, const float zoomxy,
-                        const float offset_in_mm_x, const float offset_in_mm_y,
-                        const int sizez_input, const float zoomz, const float offset_in_mm_z);
+        /// Zoom the image (modifies itself).
+        /// All indices and coordinates should be (z,y,x) order.
+        /// To leave the size unchanged in any dimension, set the corresponding size to -1.
+        void zoom_image(const Coord3DF &zooms={1.f,1.f,1.f}, const Coord3DF &offsets_in_mm={0.f,0.f,0.f},
+                        const Coord3DI &new_sizes={1,1,1},
+                        const stir::ZoomOptions zoom_options=stir::ZoomOptions::preserve_sum);
 
     private:
         /// Clone helper function. Don't use.

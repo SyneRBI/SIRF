@@ -325,7 +325,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 
 	double s = 0.0;
 	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all() && iter_x != x.data().end_all(); 
+		iter != data().end_all() && iter_x != x.data().end_all();
 		iter++, iter_x++) {
 		double t = *iter;
 		s += t * (*iter_x);
@@ -539,9 +539,8 @@ STIRImageData::set_data(const float* data)
 
 void
 STIRImageData::
-zoom_image(const char *zoom_options_str, const int sizexy, const float zoomxy,
-                const float offset_in_mm_x, const float offset_in_mm_y,
-                const int sizez_input, const float zoomz, const float offset_in_mm_z)
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes, const char *zoom_options_str)
 {
     stir::ZoomOptions zoom_options;
     if (strcmp(zoom_options_str,"preserve_sum")==0)
@@ -553,30 +552,25 @@ zoom_image(const char *zoom_options_str, const int sizexy, const float zoomxy,
     else
         throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
 
-    this->zoom_image(zoom_options, sizexy, zoomxy,
-                  offset_in_mm_x, offset_in_mm_y,
-                  sizez_input, zoomz, offset_in_mm_z);
+    this->zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
 }
 
 void
 STIRImageData::
-zoom_image(const stir::ZoomOptions zoom_options, const int sizexy, const float zoomxy,
-                const float offset_in_mm_x, const float offset_in_mm_y,
-                const int sizez_input, const float zoomz, const float offset_in_mm_z)
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes_in, const stir::ZoomOptions zoom_options)
 {
     // We need the underyling image as a VoxelsOnCartesianGrid
     DYNAMIC_CAST(Voxels3DF, voxels, this->data());
 
-    // If sizez is negative, use z-size
-    int sizez = sizez_input<0? voxels.get_z_size() : sizez_input;
+    int dim[3];
+    this->get_dimensions(dim);
 
-    // Calculate new offsets, sizes, etc.
-    const CartesianCoordinate3D<float>
-            zooms(zoomz,zoomxy,zoomxy);
-    const CartesianCoordinate3D<float>
-            offsets_in_mm(offset_in_mm_z,offset_in_mm_y,offset_in_mm_x);
-    const CartesianCoordinate3D<int>
-            new_sizes(sizez, sizexy, sizexy);
+    // If any sizes have been set to <= 0, set to image size
+    Coord3DI new_sizes;
+    new_sizes.z() = new_sizes_in.z()>0? new_sizes_in.z() : dim[0];
+    new_sizes.y() = new_sizes_in.y()>0? new_sizes_in.y() : dim[1];
+    new_sizes.x() = new_sizes_in.x()>0? new_sizes_in.x() : dim[2];
 
     // Zoom the image
     voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
