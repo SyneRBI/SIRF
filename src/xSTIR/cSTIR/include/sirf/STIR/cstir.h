@@ -138,6 +138,11 @@ extern "C" {
 	void* cSTIR_fillImage(void* ptr_i, float v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
+    void* cSTIR_ImageData_zoom_image(void* ptr_im,
+                                     const PTR_FLOAT zooms_ptr_raw,
+                                     const PTR_FLOAT offsets_in_mm_ptr_raw,
+                                     const PTR_INT new_sizes_ptr_raw,
+                                     const char * const zoom_options);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);

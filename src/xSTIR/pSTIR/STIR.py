@@ -409,6 +409,31 @@ class ImageData(SIRF.ImageData):
         else:
             out = self.get_uniform_copy(value)
         return out
+
+    def zoom_image(self,zooms=(1.,1.,1.),offsets_in_mm=(0.,0.,0.),size=(-1,-1,-1),scaling='preserve_sum'):
+        """
+        Return a zoomed image. All coordinates and indices are given as (z,y,x)
+            To leave the size unchanged in any dimension, set the corresponding size to -1
+            Support scaling options are: 'preserve_sum', 'preserve_values' and 'preserve_projections'
+        """
+        zoomed_im = self.clone()
+
+        if not isinstance(zooms,tuple):
+            raise error('zoom_image: zooms should be tuple')
+        if not isinstance(offsets_in_mm,tuple):
+            raise error('zoom_image: offsets_in_mm should be tuple')
+        if not isinstance(size,tuple):
+            raise error('zoom_image: size should be tuple')
+        np_zooms = numpy.asarray(zooms, dtype=numpy.float32)
+        np_offsets_in_mm = numpy.asarray(offsets_in_mm, dtype=numpy.float32)
+        np_size = numpy.asarray(size, dtype=numpy.int32)
+
+        try_calling(pystir.cSTIR_ImageData_zoom_image\
+                 (zoomed_im.handle, np_zooms.ctypes.data,\
+                  np_offsets_in_mm.ctypes.data, np_size.ctypes.data, scaling))
+
+        return zoomed_im
+
 ##        print('Please enter slice numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
