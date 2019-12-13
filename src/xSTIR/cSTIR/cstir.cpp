@@ -964,7 +964,7 @@ void* cSTIR_writeImage(void* ptr_i, const char* filename)
 
 extern "C"
 void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const size_t offsets_in_mm_ptr_raw,
-                                 const size_t new_sizes_ptr_raw, const char *zoom_options)
+                                 const size_t new_sizes_ptr_raw, const char *const zoom_options)
 {
     try {
         STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);

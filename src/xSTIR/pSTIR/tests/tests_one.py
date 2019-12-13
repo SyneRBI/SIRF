@@ -141,9 +141,11 @@ def test_main(rec=False, verb=False, throw=True):
 
     # Test zoom_image
     new_size = (3,2,5)
-    zoomed_im = image.zoom_image(new_size)
+    zoomed_im = image.zoom_image(size=new_size)
     if zoomed_im.dimensions() != new_size:
-        raise AssertionError("STIRImageData zoom_image() failed.")
+        raise AssertionError("STIRImageData zoom_image() failed.\n\t" + \
+            "Expected new size: " + str(new_size) + "\n\t" + \
+            "Actual new size: " + str(zoomed_im.dimensions()))
 
     # Test move to scanner centre
     moved_im = image.move_to_scanner_centre(ad)
