@@ -142,7 +142,7 @@ extern "C" {
                                      const PTR_FLOAT zooms_ptr_raw,
                                      const PTR_FLOAT offsets_in_mm_ptr_raw,
                                      const PTR_INT new_sizes_ptr_raw,
-                                     const char *zoom_options);
+                                     const char * const zoom_options);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);
