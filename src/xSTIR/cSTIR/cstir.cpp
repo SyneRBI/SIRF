@@ -973,18 +973,9 @@ void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const
         const float* offsets_in_mm_ptr = (const float*)offsets_in_mm_ptr_raw;
         const  int*  new_sizes_ptr     = (const  int* )new_sizes_ptr_raw;
 
-        Coord3DF zooms;
-        zooms.z() = zooms_ptr[0];
-        zooms.y() = zooms_ptr[1];
-        zooms.x() = zooms_ptr[2];
-        Coord3DF offsets_in_mm;
-        offsets_in_mm.z() = offsets_in_mm_ptr[0];
-        offsets_in_mm.y() = offsets_in_mm_ptr[1];
-        offsets_in_mm.x() = offsets_in_mm_ptr[2];
-        Coord3DI new_sizes;
-        new_sizes.z() = new_sizes_ptr[0];
-        new_sizes.y() = new_sizes_ptr[1];
-        new_sizes.x() = new_sizes_ptr[2];
+        Coord3DF zooms(zooms_ptr[0],zooms_ptr[1],zooms_ptr[2]);
+        Coord3DF offsets_in_mm(offsets_in_mm_ptr[0],offsets_in_mm_ptr[1],offsets_in_mm_ptr[2]);
+        Coord3DI new_sizes(new_sizes_ptr[0],new_sizes_ptr[1],new_sizes_ptr[2]);
 
         id.zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
 

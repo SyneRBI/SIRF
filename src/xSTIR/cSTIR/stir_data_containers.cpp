@@ -568,10 +568,10 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
     this->get_dimensions(dim);
 
     // If any sizes have been set to <= 0, set to image size
-    Coord3DI new_sizes;
-    new_sizes.z() = new_sizes_in.z()>0? new_sizes_in.z() : dim[0];
-    new_sizes.y() = new_sizes_in.y()>0? new_sizes_in.y() : dim[1];
-    new_sizes.x() = new_sizes_in.x()>0? new_sizes_in.x() : dim[2];
+    Coord3DI new_sizes(new_sizes_in);
+    for (unsigned i=0; i<3; ++i)
+        if (new_sizes[int(i)]<=0)
+            new_sizes[int(i)] = dim[i];
 
     // Zoom the image
     voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
