@@ -147,6 +147,9 @@ def test_main(rec=False, verb=False, throw=True):
             "Expected new size: " + str(new_size) + "\n\t" + \
             "Actual new size: " + str(zoomed_im.dimensions()))
 
+    # Test move to scanner centre
+    moved_im = image.move_to_scanner_centre(ad)
+
     return test.failed, test.ntest
 
 

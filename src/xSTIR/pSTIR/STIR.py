@@ -434,6 +434,21 @@ class ImageData(SIRF.ImageData):
 
         return zoomed_im
 
+    def move_to_scanner_centre(self,proj_data):
+        """Move the image to the scanner centre. 
+        AcquisitionData is required as bed shift etc will be taken into account when available"""
+        if not isinstance(proj_data,AcquisitionData):
+            raise error('move_to_scanner_centre: proj_data should be of type AcquisitionData')
+        if proj_data.handle is None:
+            raise error('move_to_scanner_centre: proj_data is not initialised')
+        if self.handle is None:
+            raise error('move_to_scanner_centre: image is not initialised')
+        moved_im = self.clone()
+        try_calling(pystir.cSTIR_ImageData_move_to_scanner_centre\
+                 (moved_im.handle, proj_data.handle))
+
+        return moved_im
+
 ##        print('Please enter slice numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
