@@ -85,9 +85,6 @@ endif()
 
 # Install
 INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-INSTALL (
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
 SET(REG_executables
     sirf_affine_to_disp
