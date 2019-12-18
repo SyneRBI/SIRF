@@ -134,6 +134,7 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(GenericReconCartesianReferencePrepGadget);
 		NEW_GADGET(GenericReconCartesianGrappaGadget);
 		NEW_GADGET(SimpleReconGadget);
+        NEW_GADGET(GenericReconCartesianFFTGadget);
 		NEW_GADGET(GenericReconFieldOfViewAdjustmentGadget);
 		NEW_GADGET(GenericReconImageArrayScalingGadget);
 		NEW_GADGET(FatWaterGadget);
@@ -866,8 +867,7 @@ cGT_writeImages(void* ptr_imgs, const char* filename, const char* ext)
 		}
         // Else if dicom
 		else if (strcmp(ext, "dcm") == 0) {
-			ImagesProcessor ip(true, filename);
-			ip.process(imgs);
+            imgs.write(filename,"",true);
 		}
         else
             throw std::runtime_error("cGT_writeImages: Unknown extension");

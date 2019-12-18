@@ -21,6 +21,7 @@ import sys
 import time
 
 import numpy as np
+import nibabel as nib
 import sirf.Reg
 from pUtilities import *
 
@@ -227,6 +228,34 @@ def try_niftiimage():
     if not np.array_equal(arr_C2, arr_F2):
         raise AssertionError('NiftiImageData::fill() failed for C- or F-style numpy arrays.')
 
+    # Compare between sirf.Reg.NiftiImageData::as_array() and nibabel
+    arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
+    arr2 = nib.load(ref_aladin_filename).get_fdata()
+    if not numpy.array_equal(arr1,arr2):
+        raise AssertionError("NiftiImageData as_array() failed.")
+
+    # Test geom info
+    geom_info = im.get_geometrical_info()
+    geom_info.print_info()
+    # Get voxel sizes
+    if geom_info.get_size() != (64, 64, 64):
+        raise AssertionError("SIRF get_geometrical_info().get_size() failed.")
+    if geom_info.get_spacing() != (4.0625, 4.0625, 4.0625):
+        raise AssertionError("SIRF get_geometrical_info().get_spacing() failed.")
+
+    im.standardise()
+    if abs(im.get_standard_deviation() - 1) > 0.01:
+        raise AssertionError("NiftiImageData standardise() or get_standard_deviation() failed.")
+    if abs(im.get_variance() - 1) > 0.01:
+        raise AssertionError("NiftiImageData standardise() or get_variance() failed.")
+    if abs(im.get_mean()) > 0.0001:
+        raise AssertionError("NiftiImageData standardise() or get_mean() failed.")
+    
+    # Check normalise 
+    im.normalise_zero_and_one()
+    if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
+        raise AssertionError("NiftiImageData normalise_between_zero_and_one() failed.")
+    
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData test.\n')
@@ -757,7 +786,7 @@ def try_resample(na):
     nr2.set_reference_image(ref_aladin)
     nr2.set_floating_image(flo_aladin)
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
-    nr2.set_interpolation_type_to_linear()  # try different interpolations
+    nr2.set_interpolation_type_to_nearest_neighbour()  # try different interpolations
     nr2.add_transformation(disp)
     nr2.set_padding_value(padding_value)
     nr2.process()
@@ -770,7 +799,7 @@ def try_resample(na):
     nr3 = sirf.Reg.NiftyResample()
     nr3.set_reference_image(ref_aladin)
     nr3.set_floating_image(flo_aladin)
-    nr3.set_interpolation_type_to_nearest_neighbour()  # try different interpolations
+    nr3.set_interpolation_type_to_linear()  # try different interpolations
     nr3.add_transformation(deff)
     nr3.set_interpolation_type_to_linear()
     nr3.process()

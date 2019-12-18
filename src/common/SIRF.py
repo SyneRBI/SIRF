@@ -4,7 +4,7 @@ Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London
+## Copyright 2015 - 2019 University College London
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -482,6 +482,14 @@ class ImageData(DataContainer):
     def fill(self, image):
         try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))
 
+    def get_geometrical_info(self):
+        """Get the image's geometrical info."""
+        geom_info = GeometricalInfo()
+        geom_info.handle = pysirf.cSIRF_ImageData_get_geom_info(self.handle)
+        check_status(geom_info.handle)
+        return geom_info
+
+
 class DataHandleVector(object):
     """
     DataHandle vector.
@@ -499,3 +507,51 @@ class DataHandleVector(object):
         """Push back new data handle."""
         try_calling(pysirf.cSIRF_DataHandleVector_push_back(self.handle, handle))
         check_status(self.handle)
+
+class GeometricalInfo(object):
+    """
+    Get the geometrical information in LPS space. These are encoded
+    as size (number of voxels), spacing, offset (distance to first voxel)
+    and a direction matrix.
+    """
+    def __init__(self):
+        self.name = 'GeometricalInfo'
+        self.handle = None
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def print_info(self):
+        """Print the geom info"""
+        try_calling(pysirf.cSIRF_GeomInfo_print(self.handle))
+
+    def get_offset(self):
+        """Offset is the LPS coordinate of the centre of the first voxel."""
+        arr = numpy.ndarray((3,), dtype = numpy.float32)
+        try_calling(pysirf.cSIRF_GeomInfo_get_offset(self.handle, arr.ctypes.data))
+        return tuple(arr)
+
+    def get_spacing(self):
+        """Spacing is the physical distance between voxels in each dimension."""
+        arr = numpy.ndarray((3,), dtype = numpy.float32)
+        try_calling (pysirf.cSIRF_GeomInfo_get_spacing(self.handle, arr.ctypes.data))
+        return tuple(arr)
+    
+    def get_size(self):
+        """Size is the number of voxels in each dimension."""
+        arr = numpy.ndarray((3,), dtype = numpy.int32)
+        try_calling (pysirf.cSIRF_GeomInfo_get_size(self.handle, arr.ctypes.data))
+        return tuple(arr)
+
+    def get_direction_matrix(self):
+        """Each row gives a vector dictating the direction of the axis in LPS physical space."""
+        arr = numpy.ndarray((3,3), dtype = numpy.float32)
+        try_calling (pysirf.cSIRF_GeomInfo_get_direction_matrix(self.handle, arr.ctypes.data))
+        return arr
+
+    def get_index_to_physical_point_matrix(self):
+        """Get the 4x4 affine matrix that converts an index to a point in LPS physical space."""
+        arr = numpy.ndarray((4,4), dtype = numpy.float32)
+        try_calling (pysirf.cSIRF_GeomInfo_get_index_to_physical_point_matrix(self.handle, arr.ctypes.data))
+        return arr

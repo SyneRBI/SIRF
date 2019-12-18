@@ -46,6 +46,13 @@ EXPORTED_FUNCTION void* mSIRF_write(const void* ptr, const char* filename);
 EXPORTED_FUNCTION void* mSIRF_clone(void* ptr_x);
 EXPORTED_FUNCTION void* mSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src);
 EXPORTED_FUNCTION void* mSIRF_DataHandleVector_push_back(void* self, void* to_append);
+EXPORTED_FUNCTION void* mSIRF_ImageData_get_geom_info(const void* ptr_geom);
+EXPORTED_FUNCTION void* mSIRF_GeomInfo_print(const void* ptr_geom);
+EXPORTED_FUNCTION void* mSIRF_GeomInfo_get_offset(const void* ptr_geom, PTR_FLOAT ptr_arr);
+EXPORTED_FUNCTION void* mSIRF_GeomInfo_get_spacing(const void* ptr_geom, PTR_FLOAT ptr_arr);
+EXPORTED_FUNCTION void* mSIRF_GeomInfo_get_size(const void* ptr_geom, PTR_INT ptr_arr);
+EXPORTED_FUNCTION void* mSIRF_GeomInfo_get_direction_matrix(const void* ptr_geom, PTR_FLOAT ptr_arr);
+EXPORTED_FUNCTION void* mSIRF_GeomInfo_get_index_to_physical_point_matrix(const void* ptr_geom, PTR_FLOAT ptr_arr);
 #ifndef CSIRF_FOR_MATLAB
 }
 #endif

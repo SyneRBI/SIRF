@@ -216,14 +216,14 @@ void* cReg_NiftiImageData_fill_arr(const void* ptr, size_t ptr_data)
         float *data = (float*)ptr_data;
 
         // nifti_image data are stored as u,x,y,z, whereas python and matlab need x,y,z,u
-        int nifti_idx, wrap_idx;
+        int wrap_idx;
         for (int u=0; u<dim_u; ++u) {
             for (int x=0; x<dim_x; ++x) {
                 for (int y=0; y<dim_y; ++y) {
                     for (int z=0; z<dim_z; ++z) {
+                        int nifti_idx[7] = { x,y,z,0,u,0,0 };
                         wrap_idx  = u + dim_u*(x + dim_x*(y + dim_y*(z)));
-                        nifti_idx = x + dim_x*(y + dim_y*(z + dim_z*(u)));
-                        im_data[nifti_idx] = data[wrap_idx];
+                        im(nifti_idx) = data[wrap_idx];
                     }
                 }
             }
@@ -290,14 +290,14 @@ void* cReg_NiftiImageData_as_array(const void* ptr, size_t ptr_data)
         float *data = (float*)ptr_data;
 
         // nifti_image data are stored as u,x,y,z, whereas python and matlab need x,y,z,u
-        int nifti_idx, wrap_idx;
+        int wrap_idx;
         for (int u=0; u<dim_u; ++u) {
             for (int x=0; x<dim_x; ++x) {
                 for (int y=0; y<dim_y; ++y) {
                     for (int z=0; z<dim_z; ++z) {
+                        int nifti_idx[7] = { x,y,z,0,u,0,0 };
                         wrap_idx  = u + dim_u*(x + dim_x*(y + dim_y*(z)));
-                        nifti_idx = x + dim_x*(y + dim_y*(z + dim_z*(u)));
-                        data[wrap_idx] = im_data[nifti_idx];
+                        data[wrap_idx] = im(nifti_idx);
                     }
                 }
             }
@@ -392,6 +392,28 @@ void* cReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, c
     CATCH;
 }
 
+extern "C"
+void* cReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr)
+{
+    try {
+        NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
+        im.normalise_zero_and_one();
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void* cReg_NiftiImageData_standardise(const void* im_ptr)
+{
+    try{
+        NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
+        im.standardise();
+        return new DataHandle;
+    }
+    CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3D
 // -------------------------------------------------------------------------------- //
@@ -400,9 +422,9 @@ extern "C"
 void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr)
 {
 	try {
-        ImageData& pet_im = objectFromHandle<ImageData>(ptr);
+        ImageData& sirf_im = objectFromHandle<ImageData>(ptr);
         std::shared_ptr<NiftiImageData3D<float> >
-            sptr(new NiftiImageData3D<float>(pet_im));
+            sptr(new NiftiImageData3D<float>(sirf_im));
         return newObjectHandle(sptr);
     }
 	CATCH;

@@ -93,6 +93,12 @@ sirf::cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
         return dataHandle<float>(s.get_max());
     if (strcmp(name, "min") == 0)
         return dataHandle<float>(s.get_min());
+    if (strcmp(name, "mean") == 0)
+        return dataHandle<float>(s.get_mean());
+    if (strcmp(name, "variance") == 0)
+        return dataHandle<float>(s.get_variance());
+    if (strcmp(name, "std") == 0)
+        return dataHandle<float>(s.get_standard_deviation());
     if (strcmp(name, "sum") == 0)
         return dataHandle<float>(s.get_sum());
     if (strcmp(name, "contains_nans") == 0)
