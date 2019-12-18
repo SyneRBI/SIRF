@@ -352,6 +352,9 @@ public:
     /// Mirror the image along a given axis (This will change handedness of image)
     void mirror_along_axis(const unsigned axis);
 
+    /// Inner product of two images.
+    dataType get_inner_product(const NiftiImageData &other) const;
+
     /// Normalise image between 0 and 1
     void normalise_zero_and_one();
 
