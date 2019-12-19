@@ -65,8 +65,8 @@ public:
     };
 
     enum TransformationDirection {
-        Forward,
-        Adjoint
+        FORWARD,
+        ADJOINT
     };
 
     /// Constructor
@@ -140,6 +140,6 @@ protected:
     float _padding_value = 0;
 
     /// Transformation direction
-    TransformationDirection _transformation_direction = Forward;
+    TransformationDirection _transformation_direction = FORWARD;
 };
 }

@@ -63,7 +63,7 @@ void NiftyResample<dataType>::process()
             NiftiImageData3DDeformation<dataType>::compose_single_deformation(this->_transformations, *this->_reference_image_nifti_sptr);
 
     // If we're resampling with NiftyReg
-    if (_resample_engine == NiftyResample<dataType>::NiftyReg)
+    if (_resample_engine == NiftyResample<dataType>::NIFTYREG)
         transformation_niftyreg(transformation, this->_transformation_direction);
     else
         transformation_niftymomo(transformation, this->_transformation_direction);
@@ -124,9 +124,11 @@ void NiftyResample<dataType>::set_up_output_image()
 
 template<class dataType>
 void NiftyResample<dataType>::transformation_niftyreg(NiftiImageData3DDeformation<dataType> &transformation,
-                                                      const typename Resample<dataType>::TransformationDirection transformation_direction)
+                                                      const typename Resample<dataType>::TransformationDirection dir)
 {
-    if (transformation_direction == Resample<dataType>::Adjoint)
+    typedef typename Resample<dataType>::TransformationDirection TD;
+
+    if (dir == TD::ADJOINT)
         throw std::runtime_error("NiftyResample<dataType>::transformation_niftyreg: NiftyReg can't perform the adjoint transformation");
 
     // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty C-style cast?)
@@ -142,8 +144,10 @@ void NiftyResample<dataType>::transformation_niftyreg(NiftiImageData3DDeformatio
 
 template<class dataType>
 void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformation<dataType> &transformation,
-                                                       const typename Resample<dataType>::TransformationDirection transformation_direction)
+                                                       const typename Resample<dataType>::TransformationDirection dir)
 {
+    typedef typename Resample<dataType>::TransformationDirection TD;
+
     // SINC currently not supported in NiftyMoMo
     if (this->_interpolation_type == Resample<dataType>::SINC)
         throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
@@ -165,7 +169,7 @@ void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformati
 
     NiftyMoMo::BSplineTransformation
             b_spline_transformation(
-                ref_ptr,
+                dir==TD::FORWARD? ref_ptr : flo_ptr,
                 /*num levels to perform*/1U,
                 control_point_grid_spacing);
 
@@ -174,7 +178,7 @@ void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformati
     b_spline_transformation.SetPaddingValue(this->_padding_value);
     b_spline_transformation.setDVF(def_ptr);
 
-    if (transformation_direction == Resample<dataType>::Forward) {
+    if (dir == TD::FORWARD) {
         this->_output_image_nifti_sptr =
                 std::make_shared<NiftiImageData<dataType> >(
                     *b_spline_transformation.TransformImage(flo_ptr,ref_ptr));

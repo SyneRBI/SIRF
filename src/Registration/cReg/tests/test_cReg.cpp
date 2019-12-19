@@ -865,14 +865,14 @@ int main(int argc, char* argv[])
         nr_forward.set_reference_image(x);
         nr_forward.set_floating_image(y);
         nr_forward.set_interpolation_type(Resample<float>::LINEAR);
-        nr_forward.set_transformation_direction(Resample<float>::Forward);
+        nr_forward.set_transformation_direction(Resample<float>::FORWARD);
         nr_forward.add_transformation(A);
 
         // NiftyMoMo
-        nr_forward.set_resample_engine(NiftyResample<float>::NiftyMoMo);
+        nr_forward.set_resample_engine(NiftyResample<float>::NIFTYMOMO);
         nr_forward.process();
         // NiftyReg
-        nr_forward.set_resample_engine(NiftyResample<float>::NiftyReg);
+        nr_forward.set_resample_engine(NiftyResample<float>::NIFTYREG);
         nr_forward.process();
         const std::shared_ptr<const NiftiImageData<float> > Ax_nr =
                 nr_forward.get_output_as_niftiImageData_sptr();
@@ -887,8 +887,8 @@ int main(int argc, char* argv[])
         nr_adjoint.set_reference_image(y);
         nr_adjoint.set_floating_image(x);
         nr_adjoint.set_interpolation_type(nr_forward.get_interpolation_type());
-        nr_adjoint.set_resample_engine(NiftyResample<float>::NiftyMoMo);
-        nr_adjoint.set_transformation_direction(Resample<float>::Adjoint);
+        nr_adjoint.set_resample_engine(NiftyResample<float>::NIFTYMOMO);
+        nr_adjoint.set_transformation_direction(Resample<float>::ADJOINT);
         nr_adjoint.add_transformation(A);
         nr_adjoint.process();
         const std::shared_ptr<const NiftiImageData<float> > By =
@@ -904,7 +904,6 @@ int main(int argc, char* argv[])
         std::cout << "\n adjoint_test = " << adjoint_test << "\n";
         if (adjoint_test > 1e-6F)
             throw std::runtime_error("NiftyResample::adjoint() failed");
-        exit(0);
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished niftyreg/niftymomo test.\n";

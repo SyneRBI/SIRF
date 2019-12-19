@@ -52,8 +52,8 @@ class NiftyResample : public Resample<dataType>
 public:
 
     enum ResampleEngine {
-        NiftyReg,
-        NiftyMoMo
+        NIFTYREG,
+        NIFTYMOMO
     };
 
     /// Constructor
@@ -81,11 +81,11 @@ protected:
 
     /// Do transformation with NiftyReg (only forward)
     void transformation_niftyreg(NiftiImageData3DDeformation<dataType> &transformation,
-                                 const typename Resample<dataType>::TransformationDirection transformation_direction);
+                                 const typename Resample<dataType>::TransformationDirection dir);
 
     /// Do transformation with NiftyMoMo (forward and adjoint).
     void transformation_niftymomo(NiftiImageData3DDeformation<dataType> &transformation,
-                                  const typename Resample<dataType>::TransformationDirection transformation_direction);
+                                  const typename Resample<dataType>::TransformationDirection dir);
 
     /// Reference image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;
@@ -94,6 +94,6 @@ protected:
     /// Floating image as a NiftiImageData
     std::shared_ptr<NiftiImageData<dataType> >       _output_image_nifti_sptr;
     /// Resample engine
-    ResampleEngine _resample_engine = NiftyReg;
+    ResampleEngine _resample_engine = NIFTYREG;
 };
 }
