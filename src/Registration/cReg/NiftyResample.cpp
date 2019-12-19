@@ -155,34 +155,42 @@ void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformati
         transformation.get_raw_nifti_sptr()->dz
     };
 
-    // Annoyingly NiftyReg doesn't mark reference image as const, so need to copy (could do a naughty C-style cast?)
+    // Annoyingly NiftyReg doesn't mark reference or floating image as const,
+    // so need to copy (could do a naughty C-style cast?)
     NiftiImageData<dataType> ref = *this->_reference_image_nifti_sptr;
     nifti_image *ref_ptr = ref.get_raw_nifti_sptr().get();
+    NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
+    nifti_image *flo_ptr = ref.get_raw_nifti_sptr().get();
 
-    // Output image is a copy of the floating image
-    this->_output_image_nifti_sptr = this->_floating_image_nifti_sptr->clone();
+    // Copy the transformation image. Do this manually as NiftyMoMo will want to delete
+    // it at the end and we don't want a shared_ptr with count==0
+    nifti_image *def_ptr = nifti_copy_nim_info(transformation.get_raw_nifti_sptr().get());
+    size_t mem = def_ptr->nvox * unsigned(def_ptr->nbyper);
+    def_ptr->data=static_cast<void *>(malloc(mem));
+    memcpy(def_ptr->data, transformation.get_raw_nifti_sptr()->data, mem);
 
-    // Get the raw data of the transformation
-    nifti_image * def_ptr = transformation.get_raw_nifti_sptr().get();
-
-    NiftyMoMo::BSplineTransformation b_spline_transformation(
+    NiftyMoMo::BSplineTransformation
+            b_spline_transformation(
                 ref_ptr,
                 /*num levels to perform*/1U,
                 control_point_grid_spacing);
 
     b_spline_transformation.set_interpolation(this->_interpolation_type);
     b_spline_transformation.SetParameters(static_cast<dataType*>(def_ptr->data), false);
+    b_spline_transformation.SetPaddingValue(this->_padding_value);
+    b_spline_transformation.setDVF(def_ptr);
 
     if (transformation_direction == Resample<dataType>::Forward) {
         this->_output_image_nifti_sptr =
                 std::make_shared<NiftiImageData<dataType> >(
-                    *b_spline_transformation.TransformImage(this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),ref_ptr));
+                    *b_spline_transformation.TransformImage(flo_ptr,ref_ptr));
     }
     else {
+        *this->_output_image_nifti_sptr = flo;
         // Need some weights. Same as original image but filled with 1's
         NiftiImageData<dataType> ref_weights(ref);
         ref_weights.fill(1.f);
-        NiftiImageData<dataType> warped_weights = *this->_output_image_nifti_sptr;
+        NiftiImageData<dataType> warped_weights(flo);
         warped_weights.fill(1.f);
 
         b_spline_transformation.

@@ -137,6 +137,11 @@ void Transformation::GetImageGradientWRTDVF( nifti_image* sourceImage, nifti_ima
   return;
 }
 
+void Transformation::setDVF( nifti_image * DVF )
+{
+    this->deformationVectorFieldImage = DVF;
+    this->dvfImageUpdateRequired = false;
+}
 
 
 
@@ -180,10 +185,10 @@ bool Transformation::CheckDVFImageUpdateRequired( nifti_image* targetImageIn )
     if ( targetImageIn->sto_ijk.m[1][2] != this->deformationVectorFieldImage->sto_ijk.m[1][2] ) return true;
     if ( targetImageIn->sto_ijk.m[1][3] != this->deformationVectorFieldImage->sto_ijk.m[1][3] ) return true;
 
-    if ( targetImageIn->sto_ijk.m[2][0] != this->deformationVectorFieldImage->sto_ijk.m[1][0] ) return true;
-    if ( targetImageIn->sto_ijk.m[2][1] != this->deformationVectorFieldImage->sto_ijk.m[1][1] ) return true;
-    if ( targetImageIn->sto_ijk.m[2][2] != this->deformationVectorFieldImage->sto_ijk.m[1][2] ) return true;
-    if ( targetImageIn->sto_ijk.m[2][3] != this->deformationVectorFieldImage->sto_ijk.m[1][3] ) return true;
+    if ( targetImageIn->sto_ijk.m[2][0] != this->deformationVectorFieldImage->sto_ijk.m[2][0] ) return true;
+    if ( targetImageIn->sto_ijk.m[2][1] != this->deformationVectorFieldImage->sto_ijk.m[2][1] ) return true;
+    if ( targetImageIn->sto_ijk.m[2][2] != this->deformationVectorFieldImage->sto_ijk.m[2][2] ) return true;
+    if ( targetImageIn->sto_ijk.m[2][3] != this->deformationVectorFieldImage->sto_ijk.m[2][3] ) return true;
   }
   else
   {
@@ -198,10 +203,10 @@ bool Transformation::CheckDVFImageUpdateRequired( nifti_image* targetImageIn )
     if ( targetImageIn->qto_ijk.m[1][2] != this->deformationVectorFieldImage->qto_ijk.m[1][2] ) return true;
     if ( targetImageIn->qto_ijk.m[1][3] != this->deformationVectorFieldImage->qto_ijk.m[1][3] ) return true;
 
-    if ( targetImageIn->qto_ijk.m[2][0] != this->deformationVectorFieldImage->qto_ijk.m[1][0] ) return true;
-    if ( targetImageIn->qto_ijk.m[2][1] != this->deformationVectorFieldImage->qto_ijk.m[1][1] ) return true;
-    if ( targetImageIn->qto_ijk.m[2][2] != this->deformationVectorFieldImage->qto_ijk.m[1][2] ) return true;
-    if ( targetImageIn->qto_ijk.m[2][3] != this->deformationVectorFieldImage->qto_ijk.m[1][3] ) return true;
+    if ( targetImageIn->qto_ijk.m[2][0] != this->deformationVectorFieldImage->qto_ijk.m[2][0] ) return true;
+    if ( targetImageIn->qto_ijk.m[2][1] != this->deformationVectorFieldImage->qto_ijk.m[2][1] ) return true;
+    if ( targetImageIn->qto_ijk.m[2][2] != this->deformationVectorFieldImage->qto_ijk.m[2][2] ) return true;
+    if ( targetImageIn->qto_ijk.m[2][3] != this->deformationVectorFieldImage->qto_ijk.m[2][3] ) return true;
   }
   
   return false;

@@ -164,9 +164,16 @@ public:
    */
   inline PrecisionType GetPaddingValue() { return this->warpedPaddingValue; };
 
+  /** Set the padding value.
+   */
+  void SetPaddingValue(const PrecisionType paddingValue) { this->warpedPaddingValue = paddingValue; };
+
 
   /// Set interpolation
   void set_interpolation(const int interpolation_) { interpolation = interpolation_; }
+
+  /// Set DVF
+  void setDVF(nifti_image *DVF);
 
 protected:
 

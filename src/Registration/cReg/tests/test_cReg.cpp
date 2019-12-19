@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
     const std::string rigid_resample           = output_prefix   + "rigid_resample.nii";
     const std::string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
     const std::string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
-    const std::string nonrigid_resample_adj    = output_prefix   + "nonrigid_resample_adj.nii";
+    const std::string rigid_resample_adj       = output_prefix   + "rigid_resample_adj.nii";
     const std::string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
     const std::string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
     const std::string output_float             = output_prefix   + "reg_aladin_float.nii";
@@ -844,20 +844,70 @@ int main(int argc, char* argv[])
         /*if (NA.get_output() != nr1.get_output())
             throw std::runtime_error("compose_transformations_into_single_deformation failed.");*/
 
-        // Test adjoint resample
-        std::cout << "Testing non-rigid deformation...\n";
-        NiftyResample<float> nr4;
-        nr4.set_reference_image(ref_aladin);
-        nr4.set_floating_image(flo_aladin);
-        nr4.set_interpolation_type_to_nearest_neighbour(); // try different interpolations
-        nr4.set_transformation_direction(Resample<float>::Adjoint);
-        nr4.add_transformation(deff);
-        nr4.set_interpolation_type_to_linear();
-        nr4.process();
-        nr4.get_output_sptr()->write(nonrigid_resample_adj);
-
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty resample test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    {
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting niftyreg/niftymomo test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        const std::shared_ptr<const NiftiImageData<float> > x  = ref_aladin;
+        const std::shared_ptr<const Transformation<float> > A  = NA.get_transformation_matrix_forward_sptr();
+        const std::shared_ptr<const NiftiImageData<float> > y  = flo_aladin;
+
+        // The forward resamplers of NiftyReg and NiftyMoMo should match
+        std::cout << "Testing niftyreg/niftymomo forward resamples...\n";
+        // NiftyReg and NiftyMoMo forward resamples
+        NiftyResample<float> nr_forward;
+        nr_forward.set_reference_image(x);
+        nr_forward.set_floating_image(y);
+        nr_forward.set_interpolation_type(Resample<float>::LINEAR);
+        nr_forward.set_transformation_direction(Resample<float>::Forward);
+        nr_forward.add_transformation(A);
+
+        // NiftyMoMo
+        nr_forward.set_resample_engine(NiftyResample<float>::NiftyMoMo);
+        nr_forward.process();
+        // NiftyReg
+        nr_forward.set_resample_engine(NiftyResample<float>::NiftyReg);
+        nr_forward.process();
+        const std::shared_ptr<const NiftiImageData<float> > Ax_nr =
+                nr_forward.get_output_as_niftiImageData_sptr();
+        const std::shared_ptr<const NiftiImageData<float> > Ax_nm =
+                nr_forward.get_output_as_niftiImageData_sptr();
+        NiftiImageData<float>::print_headers({&*Ax_nr,&*Ax_nm});
+        if (Ax_nr != Ax_nm)
+            throw std::runtime_error("NiftyResample: NiftyReg and NiftyMoMo forward transformations do not match");
+
+        // Test adjoint and NiftyMoMo resample
+        NiftyResample<float> nr_adjoint;
+        nr_adjoint.set_reference_image(y);
+        nr_adjoint.set_floating_image(x);
+        nr_adjoint.set_interpolation_type(nr_forward.get_interpolation_type());
+        nr_adjoint.set_resample_engine(NiftyResample<float>::NiftyMoMo);
+        nr_adjoint.set_transformation_direction(Resample<float>::Adjoint);
+        nr_adjoint.add_transformation(A);
+        nr_adjoint.process();
+        const std::shared_ptr<const NiftiImageData<float> > By =
+                nr_adjoint.get_output_as_niftiImageData_sptr();
+        By->print_header();
+        By->write(rigid_resample_adj);
+        // Check the adjoint is truly the adjoint with: |<Ax, y> - <x, By>| / |<x, By>| < epsilon
+        float inner_x_By = x->get_inner_product(*By);
+        float inner_Ax_y = Ax_nm->get_inner_product(*y);
+        float adjoint_test = std::abs(inner_Ax_y - inner_x_By) / std::abs(inner_x_By);
+        std::cout << "\n inner_Ax_y = " << inner_Ax_y << "\n";
+        std::cout << "\n inner_x_By = " << inner_x_By << "\n";
+        std::cout << "\n adjoint_test = " << adjoint_test << "\n";
+        if (adjoint_test > 1e-6F)
+            throw std::runtime_error("NiftyResample::adjoint() failed");
+        exit(0);
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished niftyreg/niftymomo test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
