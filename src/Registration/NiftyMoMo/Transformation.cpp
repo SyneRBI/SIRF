@@ -58,8 +58,8 @@ nifti_image* Transformation::TransformImage( nifti_image* sourceImgIn, nifti_ima
 //---------------------------------------
 // Transformation::TransformImageAdjoint
 //---------------------------------------
-void Transformation::TransformImageAdjoint( nifti_image * sourceImage, nifti_image * sourceWeightsImage,
-  nifti_image * warpedImage, nifti_image * warpedWeightsImage )
+void Transformation::TransformImageAdjoint( const nifti_image * const sourceImage, const nifti_image * const sourceWeightsImage,
+  const nifti_image * warpedImage, const nifti_image * const warpedWeightsImage )
 {
   // Need to calculate the DVF for each point of the source image
   // note the member variable will be used, so ignore return value
@@ -154,7 +154,7 @@ void Transformation::setDVF( nifti_image * DVF )
 //---------------------------------------------
 // Transformation::CheckDVFImageUpdateRequired
 //---------------------------------------------
-bool Transformation::CheckDVFImageUpdateRequired( nifti_image* targetImageIn )
+bool Transformation::CheckDVFImageUpdateRequired(const nifti_image * const targetImageIn ) const
 {
 #ifdef _DEBUG
   std::cout << "Called Transformation::CheckDVFImageUpdateRequired()" << std::endl;
@@ -225,10 +225,10 @@ bool Transformation::CheckDVFImageUpdateRequired( nifti_image* targetImageIn )
 // Transformation::CubicSplineTransformImageAdjoint3D
 //----------------------------------------------------
 void Transformation::CubicSplineTransformImageAdjoint3D( 
-  nifti_image * sourceImage, 
-  nifti_image * sourceWeightsImage, 
-  nifti_image * warpedImage, 
-  nifti_image * warpedWeightsImage )
+  const nifti_image * const sourceImage,
+  const nifti_image * const sourceWeightsImage,
+  const nifti_image * warpedImage,
+  const nifti_image * const warpedWeightsImage )
 {
   //some useful pointers
   PrecisionType *sourcePtr = static_cast<PrecisionType *>(sourceImage->data);
@@ -241,7 +241,7 @@ void Transformation::CubicSplineTransformImageAdjoint3D(
   PrecisionType *deformationFieldPtrZ = &deformationFieldPtrY[sourceVoxelNumber];
 
   //matrix from real space to warped image space
-  mat44 *warpedIJKMatrix;
+  const mat44 *warpedIJKMatrix;
   if (warpedImage->sform_code > 0)
     warpedIJKMatrix = &(warpedImage->sto_ijk);
   else 
@@ -368,10 +368,10 @@ void Transformation::CubicSplineTransformImageAdjoint3D(
 // Transformation::CubicSplineTransformImageAdjoint2D
 //----------------------------------------------------
 void Transformation::CubicSplineTransformImageAdjoint2D( 
-  nifti_image * sourceImage, 
-  nifti_image * sourceWeightsImage, 
-  nifti_image * warpedImage, 
-  nifti_image * warpedWeightsImage )
+  const nifti_image * const sourceImage,
+  const nifti_image * const sourceWeightsImage,
+  const nifti_image * warpedImage,
+  const nifti_image * const warpedWeightsImage )
 {
   //some useful pointers
   PrecisionType *sourcePtr = static_cast<PrecisionType *>(sourceImage->data);
@@ -383,7 +383,7 @@ void Transformation::CubicSplineTransformImageAdjoint2D(
   PrecisionType *deformationFieldPtrY = &deformationFieldPtrX[sourceVoxelNumber]; //as using push interpolation def field in space of dynamic image not warped image
  
   //matrix from real space to warped image space
-  mat44 *warpedIJKMatrix;
+  const mat44 *warpedIJKMatrix;
   if (warpedImage->sform_code > 0)
     warpedIJKMatrix = &(warpedImage->sto_ijk);
   else 
@@ -489,10 +489,10 @@ void Transformation::CubicSplineTransformImageAdjoint2D(
 // Transformation::NearestNeighbourTransformImageAdjoint3D
 //---------------------------------------------------------
 void Transformation::NearestNeighbourTransformImageAdjoint3D( 
-  nifti_image * sourceImage, 
-  nifti_image * sourceWeightsImage, 
-  nifti_image * warpedImage, 
-  nifti_image * warpedWeightsImage )
+  const nifti_image * const sourceImage,
+  const nifti_image * const sourceWeightsImage,
+  const nifti_image * warpedImage,
+  const nifti_image * const warpedWeightsImage )
 {
   //some useful pointers
   PrecisionType *sourcePtr = static_cast<PrecisionType *>(sourceImage->data);
@@ -505,7 +505,7 @@ void Transformation::NearestNeighbourTransformImageAdjoint3D(
   PrecisionType *deformationFieldPtrZ = &deformationFieldPtrY[sourceVoxelNumber];
 
   //matrix from real space to warped image space
-  mat44 *warpedIJKMatrix;
+  const mat44 *warpedIJKMatrix;
   if (warpedImage->sform_code > 0)
     warpedIJKMatrix = &(warpedImage->sto_ijk);
   else warpedIJKMatrix = &(warpedImage->qto_ijk);
@@ -562,10 +562,10 @@ void Transformation::NearestNeighbourTransformImageAdjoint3D(
 // Transformation::NearestNeighbourTransformImageAdjoint2D
 //---------------------------------------------------------
 void Transformation::NearestNeighbourTransformImageAdjoint2D( 
-  nifti_image * sourceImage, 
-  nifti_image * sourceWeightsImage, 
-  nifti_image * warpedImage, 
-  nifti_image * warpedWeightsImage )
+  const nifti_image * const sourceImage,
+  const nifti_image * sourceWeightsImage,
+  const nifti_image * const warpedImage,
+  const nifti_image * const warpedWeightsImage )
 {
   //some useful pointer definitions
   PrecisionType* sourcePtr = static_cast<PrecisionType *>(sourceImage->data);
@@ -577,7 +577,7 @@ void Transformation::NearestNeighbourTransformImageAdjoint2D(
   PrecisionType* deformationFieldPtrY = &deformationFieldPtrX[sourceVoxelNumber]; //as using push interpolation def field in space of dynamic image not warped image
 
   //matrix from real space to warped image space
-  mat44 *warpedIJKMatrix;
+  const mat44 *warpedIJKMatrix;
   if (warpedImage->sform_code > 0)
     warpedIJKMatrix = &(warpedImage->sto_ijk);
   else 
@@ -635,10 +635,10 @@ void Transformation::NearestNeighbourTransformImageAdjoint2D(
 // Transformation::TrilinearTransformImageAdjoint
 //------------------------------------------------
 void Transformation::TrilinearTransformImageAdjoint( 
-  nifti_image* sourceImage, 
-  nifti_image* sourceWeightsImage, 
-  nifti_image* warpedImage, 
-  nifti_image* warpedWeightsImage )
+  const nifti_image * const sourceImage,
+  const nifti_image * const sourceWeightsImage,
+  const nifti_image* warpedImage,
+  const nifti_image * const warpedWeightsImage )
 {
   //some useful pointer definitions
   PrecisionType* sourcePtr = static_cast<PrecisionType *>(sourceImage->data);
@@ -651,7 +651,7 @@ void Transformation::TrilinearTransformImageAdjoint(
   PrecisionType* deformationFieldPtrZ = &deformationFieldPtrY[sourceVoxelNumber];
   
   //matrix from real space to warped image space
-  mat44 *warpedIJKMatrix;
+  const mat44 * warpedIJKMatrix;
   if (warpedImage->sform_code > 0) 
     warpedIJKMatrix = &(warpedImage->sto_ijk);
   else 
@@ -770,10 +770,10 @@ void Transformation::TrilinearTransformImageAdjoint(
 // Transformation::BilinearTransformImageAdjoint
 //-----------------------------------------------
 void Transformation::BilinearTransformImageAdjoint( 
-  nifti_image* sourceImage, 
-  nifti_image* sourceWeightsImage, 
-  nifti_image* warpedImage, 
-  nifti_image* warpedWeightsImage )
+  const nifti_image* const sourceImage,
+  const nifti_image* const sourceWeightsImage,
+  const nifti_image* warpedImage,
+  const nifti_image* const warpedWeightsImage )
 {
   //some useful pointers
   PrecisionType* sourcePtr = static_cast<PrecisionType *>(sourceImage->data);
@@ -785,7 +785,7 @@ void Transformation::BilinearTransformImageAdjoint(
   PrecisionType* deformationFieldPtrY = &deformationFieldPtrX[sourceVoxelNumber]; //as using push interpolation def field in space of dynamic image not warped image
 
   //matrix from real space to warped image space
-  mat44 *warpedIJKMatrix;
+  const mat44 *warpedIJKMatrix;
   if (warpedImage->sform_code > 0)
     warpedIJKMatrix = &(warpedImage->sto_ijk);
   else 

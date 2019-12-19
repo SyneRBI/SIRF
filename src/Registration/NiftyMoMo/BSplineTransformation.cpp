@@ -249,7 +249,7 @@ void BSplineTransformation::InitialiseLevel( unsigned int levelIn )
 //--------------------------------------------------
 // BSplineTransformation::GetDeformationVectorField
 //--------------------------------------------------
-nifti_image* BSplineTransformation::GetDeformationVectorField( nifti_image* targetImageIn )
+nifti_image* BSplineTransformation::GetDeformationVectorField( const nifti_image * const targetImageIn )
 {
 #ifdef _DEBUG
   std::cout << "Called BSplineTransformation::GetDeformationVectorField()" << std::endl;

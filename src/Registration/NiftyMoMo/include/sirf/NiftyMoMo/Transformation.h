@@ -78,7 +78,7 @@ public:
    *                       part of the transformation class and will be deleted if the 
    *                       transformation is deleted.
    */
-  virtual nifti_image* GetDeformationVectorField( nifti_image* targetImageIn ) = 0;
+  virtual nifti_image* GetDeformationVectorField( const nifti_image * const targetImageIn ) = 0;
   
   /** Compute the gradient of the DVF with respect to the transformation parameters
    *  \f$ \frac{\partial \textbf{DVF}_t}{\partial \mathbf{M_t}} \f$. 
@@ -114,8 +114,8 @@ public:
    *                     intensities will be accumulated.
    *  \param warpedWeightsImage Warped (and accumulated) weights of the source image.
    */
-  void TransformImageAdjoint( nifti_image* sourceImage, nifti_image* sourceWeightsImage,
-    nifti_image* warpedImage, nifti_image* warpedWeightsImage );
+  void TransformImageAdjoint(const nifti_image * const sourceImage, const nifti_image * const sourceWeightsImage,
+    const nifti_image *warpedImage, const nifti_image * const warpedWeightsImage );
 
   /** Generate a deep copy of the transformation and return it.
    */
@@ -180,14 +180,14 @@ protected:
   /** Function to check if the DVF needs to be updated according to the target image
    *  \param targetImageIn The geometry if the DVF is checked against the target image
    */
-  bool CheckDVFImageUpdateRequired( nifti_image* targetImageIn );
+  bool CheckDVFImageUpdateRequired( const nifti_image * const targetImageIn ) const;
 
-  void CubicSplineTransformImageAdjoint3D( nifti_image * sourceImage, nifti_image * sourceWeightsImage, nifti_image * warpedImage, nifti_image * warpedWeightsImage );
-  void CubicSplineTransformImageAdjoint2D( nifti_image * sourceImage, nifti_image * sourceWeightsImage, nifti_image * warpedImage, nifti_image * warpedWeightsImage );
-  void NearestNeighbourTransformImageAdjoint3D( nifti_image * sourceImage, nifti_image * sourceWeightsImage, nifti_image * warpedImage, nifti_image * warpedWeightsImage );
-  void NearestNeighbourTransformImageAdjoint2D( nifti_image * sourceImage, nifti_image * sourceWeightsImage, nifti_image * warpedImage, nifti_image * warpedWeightsImage );
-  void TrilinearTransformImageAdjoint( nifti_image * sourceImage, nifti_image * sourceWeightsImage, nifti_image * warpedImage, nifti_image * warpedWeightsImage );
-  void BilinearTransformImageAdjoint( nifti_image * sourceImage, nifti_image * sourceWeightsImage, nifti_image * warpedImage, nifti_image * warpedWeightsImage );
+  void CubicSplineTransformImageAdjoint3D(const nifti_image * const sourceImage, const nifti_image * const sourceWeightsImage, const nifti_image *warpedImage, const nifti_image * const warpedWeightsImage );
+  void CubicSplineTransformImageAdjoint2D(const nifti_image * const sourceImage, const nifti_image * const sourceWeightsImage, const nifti_image *warpedImage, const nifti_image * const warpedWeightsImage );
+  void NearestNeighbourTransformImageAdjoint3D( const nifti_image * const sourceImage, const nifti_image * const sourceWeightsImage, const nifti_image * warpedImage, const nifti_image * const warpedWeightsImage );
+  void NearestNeighbourTransformImageAdjoint2D(const nifti_image * const sourceImage, const nifti_image *sourceWeightsImage, const nifti_image * const warpedImage, const nifti_image * const warpedWeightsImage );
+  void TrilinearTransformImageAdjoint(const nifti_image * const sourceImage, const nifti_image * const sourceWeightsImage, const nifti_image *warpedImage, const nifti_image * const warpedWeightsImage );
+  void BilinearTransformImageAdjoint(const nifti_image * const sourceImage, const nifti_image * const sourceWeightsImage, const nifti_image *warpedImage, const nifti_image * const warpedWeightsImage );
 
   bool dvfImageUpdateRequired;                 ///< Indicates if the DVF requires re-calculation when it is required
   unsigned int numberOfParameters;             ///< The total number of parameters needed to describe the transformation

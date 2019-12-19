@@ -81,7 +81,7 @@ public:
   /** For a given target image, calculate a deformation field. 
    *  \param targetImageIn The target image defines the geometry of the DVF, or the voxel locations for which deformation vectors are calculated.
    */
-  virtual nifti_image* GetDeformationVectorField( nifti_image* targetImageIn );
+  virtual nifti_image* GetDeformationVectorField(const nifti_image * const targetImageIn );
    
   /** Calculates the gradient of an image for a given deformation vector field.
    *  \param denseDVFIn Deformation vector field 
