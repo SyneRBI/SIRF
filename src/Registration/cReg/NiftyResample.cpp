@@ -62,13 +62,11 @@ void NiftyResample<dataType>::process()
     NiftiImageData3DDeformation<dataType> transformation =
             NiftiImageData3DDeformation<dataType>::compose_single_deformation(this->_transformations, *this->_reference_image_nifti_sptr);
 
-    // If we're not doing the adjoint
-    if (!this->_do_adjoint)
-        this->transformation(transformation);
-
-    // If we are doing the adjoint
+    // If we're resampling with NiftyReg
+    if (_resample_engine == NiftyResample<dataType>::NiftyReg)
+        transformation_niftyreg(transformation, this->_transformation_direction);
     else
-        this->transformation_adjoint(transformation);
+        transformation_niftymomo(transformation, this->_transformation_direction);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
     this->_output_image_sptr = this->_reference_image_sptr->clone();
@@ -125,8 +123,12 @@ void NiftyResample<dataType>::set_up_output_image()
 }
 
 template<class dataType>
-void NiftyResample<dataType>::transformation(NiftiImageData3DDeformation<dataType> &transformation)
+void NiftyResample<dataType>::transformation_niftyreg(NiftiImageData3DDeformation<dataType> &transformation,
+                                                      const typename Resample<dataType>::TransformationDirection transformation_direction)
 {
+    if (transformation_direction == Resample<dataType>::Adjoint)
+        throw std::runtime_error("NiftyResample<dataType>::transformation_niftyreg: NiftyReg can't perform the adjoint transformation");
+
     // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty C-style cast?)
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
 
@@ -139,7 +141,8 @@ void NiftyResample<dataType>::transformation(NiftiImageData3DDeformation<dataTyp
 }
 
 template<class dataType>
-void NiftyResample<dataType>::transformation_adjoint(NiftiImageData3DDeformation<dataType> &transformation)
+void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformation<dataType> &transformation,
+                                                       const typename Resample<dataType>::TransformationDirection transformation_direction)
 {
     // SINC currently not supported in NiftyMoMo
     if (this->_interpolation_type == Resample<dataType>::SINC)
@@ -162,23 +165,32 @@ void NiftyResample<dataType>::transformation_adjoint(NiftiImageData3DDeformation
     // Get the raw data of the transformation
     nifti_image * def_ptr = transformation.get_raw_nifti_sptr().get();
 
-    // Need some weights. Same as original image but filled with 1's
-    NiftiImageData<dataType> ref_weights = ref;
-    ref_weights.fill(1.f);
-    NiftiImageData<dataType> warped_weights = *this->_output_image_nifti_sptr;
-    warped_weights.fill(1.f);
-
-    NiftyMoMo::BSplineTransformation adjoint_transformation(
-                ref.get_raw_nifti_sptr().get(),
+    NiftyMoMo::BSplineTransformation b_spline_transformation(
+                ref_ptr,
                 /*num levels to perform*/1U,
                 control_point_grid_spacing);
 
-    adjoint_transformation.set_interpolation(this->_interpolation_type);
-    adjoint_transformation.SetParameters(static_cast<dataType*>(def_ptr->data), false);
-    adjoint_transformation.TransformImageAdjoint(ref_ptr,
-                                                 ref_weights.get_raw_nifti_sptr().get(),
-                                                 this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
-                                                 warped_weights.get_raw_nifti_sptr().get());
+    b_spline_transformation.set_interpolation(this->_interpolation_type);
+    b_spline_transformation.SetParameters(static_cast<dataType*>(def_ptr->data), false);
+
+    if (transformation_direction == Resample<dataType>::Forward) {
+        this->_output_image_nifti_sptr =
+                std::make_shared<NiftiImageData<dataType> >(
+                    *b_spline_transformation.TransformImage(this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),ref_ptr));
+    }
+    else {
+        // Need some weights. Same as original image but filled with 1's
+        NiftiImageData<dataType> ref_weights(ref);
+        ref_weights.fill(1.f);
+        NiftiImageData<dataType> warped_weights = *this->_output_image_nifti_sptr;
+        warped_weights.fill(1.f);
+
+        b_spline_transformation.
+                TransformImageAdjoint(ref_ptr,
+                                      ref_weights.get_raw_nifti_sptr().get(),
+                                      this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
+                                      warped_weights.get_raw_nifti_sptr().get());
+    }
 }
 
 namespace sirf {

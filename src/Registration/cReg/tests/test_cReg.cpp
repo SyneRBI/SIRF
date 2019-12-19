@@ -833,7 +833,7 @@ int main(int argc, char* argv[])
         nr4.set_reference_image(ref_aladin);
         nr4.set_floating_image(flo_aladin);
         nr4.set_interpolation_type_to_nearest_neighbour(); // try different interpolations
-        nr4.set_do_adjoint(true);
+        nr4.set_transformation_direction(Resample<float>::Adjoint);
         nr4.add_transformation(deff);
         nr4.set_interpolation_type_to_linear();
         nr4.process();

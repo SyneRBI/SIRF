@@ -51,6 +51,11 @@ class NiftyResample : public Resample<dataType>
 {
 public:
 
+    enum ResampleEngine {
+        NiftyReg,
+        NiftyMoMo
+    };
+
     /// Constructor
     NiftyResample() {}
 
@@ -63,6 +68,9 @@ public:
     /// Get output (as NiftiImageData)
     const std::shared_ptr<const NiftiImageData<dataType> > get_output_as_niftiImageData_sptr() const { return _output_image_nifti_sptr; }
 
+    /// Set use NiftyReg or NiftyMoMo for resample
+    void set_resample_engine(const ResampleEngine resample_engine) { _resample_engine = resample_engine; }
+
 protected:
 
     /// Set up the input images (convert from ImageData to NiftiImageData if necessary)
@@ -71,11 +79,13 @@ protected:
     /// Set up the output image
     void set_up_output_image();
 
-    /// Do forward transformation
-    void transformation(NiftiImageData3DDeformation<dataType> &transformation);
+    /// Do transformation with NiftyReg (only forward)
+    void transformation_niftyreg(NiftiImageData3DDeformation<dataType> &transformation,
+                                 const typename Resample<dataType>::TransformationDirection transformation_direction);
 
-    /// Do adjoint transformation
-    void transformation_adjoint(NiftiImageData3DDeformation<dataType> &transformation);
+    /// Do transformation with NiftyMoMo (forward and adjoint).
+    void transformation_niftymomo(NiftiImageData3DDeformation<dataType> &transformation,
+                                  const typename Resample<dataType>::TransformationDirection transformation_direction);
 
     /// Reference image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;
@@ -83,5 +93,7 @@ protected:
     std::shared_ptr<const NiftiImageData<dataType> > _floating_image_nifti_sptr;
     /// Floating image as a NiftiImageData
     std::shared_ptr<NiftiImageData<dataType> >       _output_image_nifti_sptr;
+    /// Resample engine
+    ResampleEngine _resample_engine = NiftyReg;
 };
 }
