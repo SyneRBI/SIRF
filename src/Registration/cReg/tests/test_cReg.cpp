@@ -871,14 +871,13 @@ int main(int argc, char* argv[])
         // NiftyMoMo
         nr_forward.set_resample_engine(NiftyResample<float>::NIFTYMOMO);
         nr_forward.process();
+        const NiftiImageData<float> Ax_nm =
+                *nr_forward.get_output_as_niftiImageData_sptr();
         // NiftyReg
         nr_forward.set_resample_engine(NiftyResample<float>::NIFTYREG);
         nr_forward.process();
-        const std::shared_ptr<const NiftiImageData<float> > Ax_nr =
-                nr_forward.get_output_as_niftiImageData_sptr();
-        const std::shared_ptr<const NiftiImageData<float> > Ax_nm =
-                nr_forward.get_output_as_niftiImageData_sptr();
-        NiftiImageData<float>::print_headers({&*Ax_nr,&*Ax_nm});
+        const NiftiImageData<float> Ax_nr =
+                *nr_forward.get_output_as_niftiImageData_sptr();
         if (Ax_nr != Ax_nm)
             throw std::runtime_error("NiftyResample: NiftyReg and NiftyMoMo forward transformations do not match");
 
@@ -897,7 +896,7 @@ int main(int argc, char* argv[])
         By->write(rigid_resample_adj);
         // Check the adjoint is truly the adjoint with: |<Ax, y> - <x, By>| / |<x, By>| < epsilon
         float inner_x_By = x->get_inner_product(*By);
-        float inner_Ax_y = Ax_nm->get_inner_product(*y);
+        float inner_Ax_y = Ax_nm.get_inner_product(*y);
         float adjoint_test = std::abs(inner_Ax_y - inner_x_By) / std::abs(inner_x_By);
         std::cout << "\n inner_Ax_y = " << inner_Ax_y << "\n";
         std::cout << "\n inner_x_By = " << inner_x_By << "\n";

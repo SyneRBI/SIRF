@@ -164,7 +164,7 @@ void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformati
     NiftiImageData<dataType> ref = *this->_reference_image_nifti_sptr;
     nifti_image *ref_ptr = ref.get_raw_nifti_sptr().get();
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
-    nifti_image *flo_ptr = ref.get_raw_nifti_sptr().get();
+    nifti_image *flo_ptr = flo.get_raw_nifti_sptr().get();
     nifti_image *def_ptr = transformation.get_raw_nifti_sptr().get();
 
     NiftyMoMo::BSplineTransformation
