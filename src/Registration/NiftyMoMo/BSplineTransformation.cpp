@@ -58,6 +58,7 @@ BSplineTransformation::BSplineTransformation( const BSplineTransformation& trans
   // And DVF if it exists
   if ( transformToCopy.deformationVectorFieldImage != nullptr )
   {
+    this->needToDeleteDVF = true; // always true since we're creating a copy
     this->deformationVectorFieldImage = nifti_copy_nim_info( transformToCopy.deformationVectorFieldImage );
 
     this->deformationVectorFieldImage->data = malloc( deformationVectorFieldImage->nvox * deformationVectorFieldImage->nbyper );
@@ -65,6 +66,7 @@ BSplineTransformation::BSplineTransformation( const BSplineTransformation& trans
   }
   else
   {
+    this->needToDeleteDVF = false;
     this->deformationVectorFieldImage = nullptr;
   }
 
@@ -98,6 +100,7 @@ BSplineTransformation::BSplineTransformation( nifti_image* referenceImageIn,
   this->deformationVectorFieldImage = nullptr;
   this->warpedPaddingValue = std::numeric_limits<Transformation::PrecisionType>::quiet_NaN();
   this->dvfImageUpdateRequired = true;
+  this->needToDeleteDVF = true;
 
   // Array needs to be initialised here for compatibility with VS2013
   // otherwise bSplineSpacing{0,0,0} in list above would have worked.
@@ -152,7 +155,7 @@ BSplineTransformation::~BSplineTransformation()
   }
 
   // Clean DVF image
-  if ( this->deformationVectorFieldImage != nullptr )
+  if ( this->deformationVectorFieldImage != nullptr && this->needToDeleteDVF)
   {
     nifti_image_free( this->deformationVectorFieldImage );
     this->deformationVectorFieldImage = nullptr;;
@@ -264,6 +267,9 @@ nifti_image* BSplineTransformation::GetDeformationVectorField( nifti_image* targ
     nifti_image_free( this->deformationVectorFieldImage );
     this->deformationVectorFieldImage = nullptr;;
   }
+
+  // Since we're creating our own DVF, we'll need to remember to delete it
+  this->needToDeleteDVF = true;
 
   // Allocate the DVF
   // and fill it with the correct dimensions

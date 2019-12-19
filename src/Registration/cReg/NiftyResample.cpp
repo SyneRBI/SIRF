@@ -161,13 +161,7 @@ void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformati
     nifti_image *ref_ptr = ref.get_raw_nifti_sptr().get();
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
     nifti_image *flo_ptr = ref.get_raw_nifti_sptr().get();
-
-    // Copy the transformation image. Do this manually as NiftyMoMo will want to delete
-    // it at the end and we don't want a shared_ptr with count==0
-    nifti_image *def_ptr = nifti_copy_nim_info(transformation.get_raw_nifti_sptr().get());
-    size_t mem = def_ptr->nvox * unsigned(def_ptr->nbyper);
-    def_ptr->data=static_cast<void *>(malloc(mem));
-    memcpy(def_ptr->data, transformation.get_raw_nifti_sptr()->data, mem);
+    nifti_image *def_ptr = transformation.get_raw_nifti_sptr().get();
 
     NiftyMoMo::BSplineTransformation
             b_spline_transformation(

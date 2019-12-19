@@ -195,6 +195,7 @@ protected:
   int interpolation;                           ///< Type of interpolation used \todo Change into enumeration.
   nifti_image* deformationVectorFieldImage;    ///< The deformation vector field image
   PrecisionType warpedPaddingValue;            ///< Padding value for the warped image
+  bool needToDeleteDVF;
 };
 
 }

@@ -139,8 +139,14 @@ void Transformation::GetImageGradientWRTDVF( nifti_image* sourceImage, nifti_ima
 
 void Transformation::setDVF( nifti_image * DVF )
 {
+    if (this->deformationVectorFieldImage != nullptr && this->needToDeleteDVF)
+    {
+        nifti_image_free( this->deformationVectorFieldImage );
+    }
     this->deformationVectorFieldImage = DVF;
     this->dvfImageUpdateRequired = false;
+    // no need to delete as the external source should take care of that
+    this->needToDeleteDVF = false;
 }
 
 
