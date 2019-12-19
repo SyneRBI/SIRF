@@ -247,6 +247,23 @@ int main(int argc, char* argv[])
         if (x != u)
             throw std::runtime_error("NiftiImageData::upsample()/downsample() failed.");
 
+        // Test inner product
+        NiftiImageData<float> y = x;
+        for (unsigned i=0; i<x.get_num_voxels(); ++i)
+            x(int(i)) = static_cast<float>(i);
+        for (unsigned i=0; i<x.get_num_voxels(); ++i)
+            y(int(i)) = static_cast<float>(3*x.get_num_voxels()-i);
+        const float inner = x.get_inner_product(y);
+
+        // Do it with vectors to check
+        const float *x_begin = &static_cast<const float*>(x.get_raw_nifti_sptr()->data)[0];
+        const float *y_begin = &static_cast<const float*>(y.get_raw_nifti_sptr()->data)[0];
+        const float *x_end   = &static_cast<const float*>(x.get_raw_nifti_sptr()->data)[0] + x.get_num_voxels() + sizeof(float);
+        const float inner_vec = std::inner_product(x_begin, x_end, y_begin, 0.f);
+
+        if (std::abs(inner-inner_vec) > 1e-4f)
+            throw std::runtime_error("NiftiImageData::get_inner_product() failed.");
+
         // Test contains NaNs
         x.fill(0.f);
         if (x.get_contains_nans())
