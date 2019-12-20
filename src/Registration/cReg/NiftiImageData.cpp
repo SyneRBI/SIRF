@@ -39,6 +39,7 @@ limitations under the License.
 #include "sirf/Reg/NiftyResample.h"
 #include <iomanip>
 #include <cmath>
+#include <numeric>
 
 // Remove NiftyReg's definition of isnan
 #undef isnan
@@ -1288,6 +1289,14 @@ mirror_along_axis(const unsigned axis)
         throw std::runtime_error("NiftiImageData<dataType>::mirror_along_axis: Axis to mirror should be between 0 and 6.");
 
     flip_or_mirror(Mirror,axis,*this);
+}
+
+template<class dataType>
+dataType
+NiftiImageData<dataType>::
+get_inner_product(const NiftiImageData &other) const
+{
+    return std::inner_product(this->begin(),this->end(),other.begin(),dataType(0));
 }
 
 template<class dataType>
