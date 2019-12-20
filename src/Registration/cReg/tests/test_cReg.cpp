@@ -37,6 +37,7 @@ limitations under the License.
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
 #include <memory>
+#include <numeric>
 
 using namespace sirf;
 
