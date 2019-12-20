@@ -13,6 +13,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # Add source files
 SET(SOURCES "BSplineTransformation.cpp" "Transformation.cpp")
 
@@ -24,15 +26,9 @@ TARGET_INCLUDE_DIRECTORIES(NiftyMoMo PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
 )
 
+# NIFTYREG
+TARGET_LINK_LIBRARIES(NiftyMoMo PUBLIC ${NR_libs_full_path} ${NR_libs_full_path})
 TARGET_INCLUDE_DIRECTORIES(NiftyMoMo BEFORE PUBLIC "${NIFTYREG_INCLUDE_DIRS}")
-
-# If niftyreg was bulit with OpenMP
-if (NIFTYREG_BUILT_WITH_OPENMP)
-  find_package(OpenMP REQUIRED)
-  if (OpenMP_CXX_FOUND)
-    TARGET_LINK_LIBRARIES(NiftyMoMo PUBLIC OpenMP::OpenMP_CXX)
-  endif()
-endif()
 
 # Install
 INSTALL(TARGETS NiftyMoMo DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
