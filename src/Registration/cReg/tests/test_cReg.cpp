@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
     const std::shared_ptr<const NiftiImageData3D<float> > flo_aladin(new NiftiImageData3D<float>( flo_aladin_filename ));
     const std::shared_ptr<const NiftiImageData3D<float> > ref_f3d   (new NiftiImageData3D<float>(   ref_f3d_filename  ));
     const std::shared_ptr<const NiftiImageData3D<float> > flo_f3d   (new NiftiImageData3D<float>(   flo_f3d_filename  ));
-
+#if 0
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting NiftiImageData test...\n";
@@ -627,7 +627,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished NiftiImageData3DDeformation test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-
+#endif
     NiftyAladinSym<float> NA;
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -693,7 +693,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished Nifty aladin test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-
+#if 0
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting Nifty f3d test..\n";
@@ -849,7 +849,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished Nifty resample test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-
+#endif
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting niftyreg/niftymomo test...\n";
@@ -909,7 +909,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished niftyreg/niftymomo test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-
+#if 0
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting weighted mean test...\n";
@@ -1105,7 +1105,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished Quaternion test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-
+#endif
     // Error handling
     } catch(const std::exception &error) {
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
