@@ -895,7 +895,6 @@ int main(int argc, char* argv[])
                 *nr_forward.get_output_as_niftiImageData_sptr();
         if (Ty_nr != Ty)
             throw std::runtime_error("NiftyResample: NiftyReg and NiftyMoMo forward transformations do not match");
-        NiftiImageData<float>::print_headers({&Ty_nr,&Ty});
 
         // Test adjoint and NiftyMoMo resample
         NiftyResample<float> nr_adjoint;
@@ -913,6 +912,9 @@ int main(int argc, char* argv[])
         float inner_x_Ty  = x->get_inner_product(Ty);
         float inner_y_Tsx = y->get_inner_product(Tsx);
         float adjoint_test = std::abs(inner_x_Ty - inner_y_Tsx) / (0.5f * (std::abs(inner_x_Ty) +std::abs(inner_y_Tsx)));
+        std::cout << "\n<x, Ty>  = " << inner_x_Ty << "\n";
+        std::cout << "<y, Tsx> = " << inner_y_Tsx << "\n";
+        std::cout << "|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = " << adjoint_test << "\n";
         if (adjoint_test > 1e-4F)
             throw std::runtime_error("NiftyResample::adjoint() failed");
 
