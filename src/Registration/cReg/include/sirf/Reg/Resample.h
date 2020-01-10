@@ -64,6 +64,11 @@ public:
         SINC             =  4
     };
 
+    enum TransformationDirection {
+        FORWARD,
+        ADJOINT
+    };
+
     /// Constructor
     Resample() { _interpolation_type = NOTSET; }
 
@@ -97,8 +102,17 @@ public:
     /// Set interpolation type to sinc
     void set_interpolation_type_to_sinc() { _interpolation_type = SINC; }
 
+    /// Get interpolation type
+    const InterpolationType get_interpolation_type() const { return _interpolation_type; }
+
     /// Set padding value
     void set_padding_value(const float padding_value) { _padding_value = padding_value; }
+
+    /// Set transformation direction (forward or adjoint)
+    void set_transformation_direction(const TransformationDirection transformation_direction) { _transformation_direction = transformation_direction; }
+
+    /// Get transformation direction (forward or adjoint)
+    const TransformationDirection get_transformation_direction() { return _transformation_direction; }
 
     /// Process
     virtual void process() = 0;
@@ -127,5 +141,8 @@ protected:
 
     /// Padding value
     float _padding_value = 0;
+
+    /// Transformation direction
+    TransformationDirection _transformation_direction = FORWARD;
 };
 }

@@ -47,25 +47,12 @@ TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
 )
 
-
 # NIFTYREG
-FOREACH(NR_lib ${NIFTYREG_LIBRARIES})
-  find_library(${NR_lib}_full_path "${NR_lib}" "${NIFTYREG_LIBRARY_DIRS}")
-  if(NOT ${NR_lib}_full_path)
-    message(FATAL_ERROR "${NR_lib} not found")
-  endif()
-  SET(NR_libs_full_path "${NR_libs_full_path};${${NR_lib}_full_path}")
-ENDFOREACH()
 TARGET_LINK_LIBRARIES(Reg PUBLIC ${NR_libs_full_path} ${NR_libs_full_path})
 TARGET_INCLUDE_DIRECTORIES(Reg BEFORE PUBLIC "${NIFTYREG_INCLUDE_DIRS}")
 
-# If niftyreg was bulit with OpenMP
-if (NIFTYREG_BUILT_WITH_OPENMP)
-  find_package(OpenMP REQUIRED)
-  if (OpenMP_CXX_FOUND)
-    TARGET_LINK_LIBRARIES(Reg PUBLIC OpenMP::OpenMP_CXX)
-  endif()
-endif()
+# link against NiftyMoMo
+TARGET_LINK_LIBRARIES(Reg PUBLIC NiftyMoMo)
 
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))

@@ -16,6 +16,7 @@
 #
 #=========================================================================
 
+ADD_SUBDIRECTORY(NiftyMoMo)
 ADD_SUBDIRECTORY(cReg)
 ADD_SUBDIRECTORY(pReg)
 ADD_SUBDIRECTORY(mReg)

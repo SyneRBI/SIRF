@@ -71,6 +71,12 @@ protected:
     /// Set up the output image
     void set_up_output_image();
 
+    /// Do transformation with NiftyReg
+    void transformation_forward(NiftiImageData3DDeformation<dataType> &transformation);
+
+    /// Do adjoint transformation with NiftyMoMo
+    void transformation_adjoint(NiftiImageData3DDeformation<dataType> &transformation);
+
     /// Reference image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;
     /// Floating image as a NiftiImageData
