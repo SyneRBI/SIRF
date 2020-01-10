@@ -860,10 +860,14 @@ int main(int argc, char* argv[])
         // for all images x and y, where T is the transform and Ts is the adjoint.
 
         const std::shared_ptr<const NiftiImageData<float> > x = ref_aladin;
-        const std::shared_ptr<const AffineTransformation<float> > T =
-                NA.get_transformation_matrix_forward_sptr();
+        const std::shared_ptr<AffineTransformation<float> > T =
+                std::make_shared<AffineTransformation<float> >(*
+                NA.get_transformation_matrix_forward_sptr());
         const std::shared_ptr<NiftiImageData<float> > y  =
                 std::make_shared<NiftiImageData3D<float> >(*flo_aladin);
+
+        // Add in a magnification to make things interesting
+        (*T)[0][0] = 1.5f;
 
         // make it slightly unsquare to spice things up
         int min_idx[7] = {0,1,2,-1,-1,-1,-1};

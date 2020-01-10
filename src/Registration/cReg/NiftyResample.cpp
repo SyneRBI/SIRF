@@ -188,14 +188,6 @@ void NiftyResample<dataType>::transformation_adjoint(NiftiImageData3DDeformation
                                   output_ptr,
                                   output_weights_ptr);
 
-    // Divide by non-zero weights
-    for (int i=0; i<int(this->_output_image_nifti_sptr->get_num_voxels()); ++i) {
-        if (std::abs(output_weights(i)) > 1e-4f)
-            (*this->_output_image_nifti_sptr)(i) /= output_weights(i);
-        else
-            (*this->_output_image_nifti_sptr)(i) = 0.f;
-    }
-
 #if 0
         // Forward transformation using NiftyMoMo. Not required
         NiftiImageData<dataType> ref = *this->_reference_image_nifti_sptr;
