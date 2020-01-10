@@ -91,7 +91,6 @@ int main(int argc, char* argv[])
     const std::string rigid_resample           = output_prefix   + "rigid_resample.nii";
     const std::string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
     const std::string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
-    const std::string niftymomo_resample       = output_prefix   + "niftymomo_resample.nii";
     const std::string niftymomo_resample_adj   = output_prefix   + "niftymomo_resample_adj.nii";
     const std::string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
     const std::string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
@@ -853,16 +852,16 @@ int main(int argc, char* argv[])
 
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Starting niftyreg/niftymomo test...\n";
+        std::cout << "//                  Starting NiftyMoMo test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
-        // Forward transformations with NiftyReg and NiftyMoMo should match.
-        // Further, the forward and the adjoing with NiftyMoMo should meet the following criterion
+        // The forward and the adjoint should meet the following criterion:
         //      |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
         // for all images x and y, where T is the transform and Ts is the adjoint.
 
         const std::shared_ptr<const NiftiImageData<float> > x = ref_aladin;
-        const std::shared_ptr<const Transformation<float> > T = NA.get_transformation_matrix_forward_sptr();
+        const std::shared_ptr<const AffineTransformation<float> > T =
+                NA.get_transformation_matrix_forward_sptr();
         const std::shared_ptr<NiftiImageData<float> > y  =
                 std::make_shared<NiftiImageData3D<float> >(*flo_aladin);
 
@@ -872,8 +871,8 @@ int main(int argc, char* argv[])
         int max_idx[7] = {y_dims[1]-3,y_dims[2]-1,y_dims[3]-5-1,-1,-1,-1};
         y->crop(min_idx,max_idx);
 
-        // The forward resamplers of NiftyReg and NiftyMoMo should match
-        std::cout << "Testing niftyreg/niftymomo forward resamples...\n";
+        // Do the forward
+        std::cout << "Testing adjoint resample...\n";
         // NiftyReg and NiftyMoMo forward resamples
         NiftyResample<float> nr_forward;
         nr_forward.set_reference_image(x);
@@ -881,33 +880,22 @@ int main(int argc, char* argv[])
         nr_forward.set_interpolation_type(Resample<float>::LINEAR);
         nr_forward.set_transformation_direction(Resample<float>::FORWARD);
         nr_forward.add_transformation(T);
-
-        // NiftyMoMo
-        nr_forward.set_resample_engine(NiftyResample<float>::NIFTYMOMO);
         nr_forward.process();
         const NiftiImageData<float> Ty =
                 *nr_forward.get_output_as_niftiImageData_sptr();
-        Ty.write(niftymomo_resample);
-        // NiftyReg
-        nr_forward.set_resample_engine(NiftyResample<float>::NIFTYREG);
-        nr_forward.process();
-        const NiftiImageData<float> Ty_nr =
-                *nr_forward.get_output_as_niftiImageData_sptr();
-        if (Ty_nr != Ty)
-            throw std::runtime_error("NiftyResample: NiftyReg and NiftyMoMo forward transformations do not match");
 
-        // Test adjoint and NiftyMoMo resample
+        // Do the adjoint
         NiftyResample<float> nr_adjoint;
         nr_adjoint.set_reference_image(y);
         nr_adjoint.set_floating_image(x);
         nr_adjoint.set_interpolation_type(nr_forward.get_interpolation_type());
-        nr_adjoint.set_resample_engine(NiftyResample<float>::NIFTYMOMO);
         nr_adjoint.set_transformation_direction(Resample<float>::ADJOINT);
         nr_adjoint.add_transformation(T);
         nr_adjoint.process();
         const NiftiImageData<float> Tsx =
                 *nr_adjoint.get_output_as_niftiImageData_sptr();
         Tsx.write(niftymomo_resample_adj);
+
         // Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
         float inner_x_Ty  = x->get_inner_product(Ty);
         float inner_y_Tsx = y->get_inner_product(Tsx);
@@ -919,7 +907,7 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftyResample::adjoint() failed");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Finished niftyreg/niftymomo test.\n";
+        std::cout << "//                  Finished NiftyMoMo test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 

@@ -68,10 +68,10 @@ void NiftyResample<dataType>::process()
                     *this->_floating_image_nifti_sptr);
 
     // If we're resampling with NiftyReg
-    if (_resample_engine == NiftyResample<dataType>::NIFTYREG)
-        transformation_niftyreg(transformation, this->_transformation_direction);
+    if (this->_transformation_direction == Resample<dataType>::FORWARD)
+        transformation_forward(transformation);
     else
-        transformation_niftymomo(transformation, this->_transformation_direction);
+        transformation_adjoint(transformation);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
     this->_output_image_sptr = this->_reference_image_sptr->clone();
@@ -128,14 +128,8 @@ void NiftyResample<dataType>::set_up_output_image()
 }
 
 template<class dataType>
-void NiftyResample<dataType>::transformation_niftyreg(NiftiImageData3DDeformation<dataType> &transformation,
-                                                      const typename Resample<dataType>::TransformationDirection dir)
+void NiftyResample<dataType>::transformation_forward(NiftiImageData3DDeformation<dataType> &transformation)
 {
-    typedef typename Resample<dataType>::TransformationDirection TD;
-
-    if (dir == TD::ADJOINT)
-        throw std::runtime_error("NiftyResample<dataType>::transformation_niftyreg: NiftyReg can't perform the adjoint transformation");
-
     // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty C-style cast?)
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
 
@@ -148,11 +142,8 @@ void NiftyResample<dataType>::transformation_niftyreg(NiftiImageData3DDeformatio
 }
 
 template<class dataType>
-void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformation<dataType> &transformation,
-                                                       const typename Resample<dataType>::TransformationDirection dir)
+void NiftyResample<dataType>::transformation_adjoint(NiftiImageData3DDeformation<dataType> &transformation)
 {
-    typedef typename Resample<dataType>::TransformationDirection TD;
-
     // SINC currently not supported in NiftyMoMo
     if (this->_interpolation_type == Resample<dataType>::SINC)
         throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
@@ -164,13 +155,49 @@ void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformati
         transformation.get_raw_nifti_sptr()->dz
     };
 
+    // Get the deformation field
     nifti_image *def_ptr = transformation.get_raw_nifti_sptr().get();
-    // Copy of floating image is required whether doing forward or adjoint
+    // Copy of floating image
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
     nifti_image *flo_ptr = flo.get_raw_nifti_sptr().get();
+    NiftiImageData<dataType> flo_weights(flo);
+    flo_weights.fill(1.f);
+    nifti_image *flo_weights_ptr = flo_weights.get_raw_nifti_sptr().get();
+    // output and output weights have shape of reference image.
+    // set output to zero
+    *this->_output_image_nifti_sptr = *this->_reference_image_nifti_sptr;
+    this->_output_image_nifti_sptr->fill(0.f);
+    nifti_image *output_ptr = this->_output_image_nifti_sptr->get_raw_nifti_sptr().get();
+    NiftiImageData<dataType> output_weights(*this->_output_image_nifti_sptr);
+    nifti_image *output_weights_ptr = output_weights.get_raw_nifti_sptr().get();
 
-    if (dir == TD::FORWARD) {
+    NiftyMoMo::BSplineTransformation
+            b_spline_transformation(
+                flo_ptr,
+                /*num levels to perform*/1U,
+                control_point_grid_spacing);
 
+    b_spline_transformation.set_interpolation(this->_interpolation_type);
+    b_spline_transformation.SetParameters(static_cast<dataType*>(def_ptr->data), false);
+    b_spline_transformation.SetPaddingValue(this->_padding_value);
+    b_spline_transformation.setDVF(def_ptr);
+
+    b_spline_transformation.
+            TransformImageAdjoint(flo_ptr,
+                                  flo_weights_ptr,
+                                  output_ptr,
+                                  output_weights_ptr);
+
+    // Divide by non-zero weights
+    for (int i=0; i<int(this->_output_image_nifti_sptr->get_num_voxels()); ++i) {
+        if (std::abs(output_weights(i)) > 1e-4f)
+            (*this->_output_image_nifti_sptr)(i) /= output_weights(i);
+        else
+            (*this->_output_image_nifti_sptr)(i) = 0.f;
+    }
+
+#if 0
+        // Forward transformation using NiftyMoMo. Not required
         NiftiImageData<dataType> ref = *this->_reference_image_nifti_sptr;
         nifti_image *ref_ptr = ref.get_raw_nifti_sptr().get();
 
@@ -188,44 +215,7 @@ void NiftyResample<dataType>::transformation_niftymomo(NiftiImageData3DDeformati
         this->_output_image_nifti_sptr =
                 std::make_shared<NiftiImageData<dataType> >(
                     *b_spline_transformation.TransformImage(flo_ptr,ref_ptr));
-    }
-    else {
-        NiftiImageData<dataType> flo_weights(flo);
-        flo_weights.fill(1.f);
-        nifti_image *flo_weights_ptr = flo_weights.get_raw_nifti_sptr().get();
-        // output and output weights have shape of reference image.
-        // set output to zero
-        *this->_output_image_nifti_sptr = *this->_reference_image_nifti_sptr;
-        this->_output_image_nifti_sptr->fill(0.f);
-        nifti_image *output_ptr = this->_output_image_nifti_sptr->get_raw_nifti_sptr().get();
-        NiftiImageData<dataType> output_weights(*this->_output_image_nifti_sptr);
-        nifti_image *output_weights_ptr = output_weights.get_raw_nifti_sptr().get();
-
-        NiftyMoMo::BSplineTransformation
-                b_spline_transformation(
-                    flo_ptr,
-                    /*num levels to perform*/1U,
-                    control_point_grid_spacing);
-
-        b_spline_transformation.set_interpolation(this->_interpolation_type);
-        b_spline_transformation.SetParameters(static_cast<dataType*>(def_ptr->data), false);
-        b_spline_transformation.SetPaddingValue(this->_padding_value);
-        b_spline_transformation.setDVF(def_ptr);
-
-        b_spline_transformation.
-                TransformImageAdjoint(flo_ptr,
-                                      flo_weights_ptr,
-                                      output_ptr,
-                                      output_weights_ptr);
-
-        // Divide by non-zero weights
-        for (int i=0; i<int(this->_output_image_nifti_sptr->get_num_voxels()); ++i) {
-            if (std::abs(output_weights(i)) > 1e-4f)
-                (*this->_output_image_nifti_sptr)(i) /= output_weights(i);
-            else
-                (*this->_output_image_nifti_sptr)(i) = 0.f;
-        }
-    }
+#endif
 }
 
 namespace sirf {
