@@ -262,7 +262,7 @@ nifti_image* BSplineTransformation::GetDeformationVectorField( const nifti_image
   }
 
   // Clear DVF image if it exists
-  if ( nullptr != this->deformationVectorFieldImage )
+  if ( nullptr != this->deformationVectorFieldImage && this->needToDeleteDVF )
   {
     nifti_image_free( this->deformationVectorFieldImage );
     this->deformationVectorFieldImage = nullptr;;
