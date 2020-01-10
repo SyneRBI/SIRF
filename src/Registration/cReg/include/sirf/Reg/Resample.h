@@ -111,6 +111,9 @@ public:
     /// Set transformation direction (forward or adjoint)
     void set_transformation_direction(const TransformationDirection transformation_direction) { _transformation_direction = transformation_direction; }
 
+    /// Get transformation direction (forward or adjoint)
+    const TransformationDirection get_transformation_direction() { return _transformation_direction; }
+
     /// Process
     virtual void process() = 0;
 
