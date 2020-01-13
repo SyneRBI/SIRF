@@ -663,15 +663,27 @@ namespace sirf {
 		}
 	};
 
-	class AcquisitionFinishGadget : public Gadget {
+	class AcquisitionFinishGadget : public aGadget {
+//	class AcquisitionFinishGadget : public Gadget {
 	public:
-		AcquisitionFinishGadget() :
-			Gadget("AcquisitionFinish", "gadgetron_mricore", "AcquisitionFinishGadget")
-		{}
+//		AcquisitionFinishGadget() :
+//			Gadget("AcquisitionFinish", "gadgetron_mricore", "AcquisitionFinishGadget")
+//		{}
 		static const char* class_name()
 		{
 			return "AcquisitionFinishGadget";
 		}
+
+		virtual void set_property(const char* prop, const char* value) {}
+		virtual std::string value_of(const char* prop)
+		{
+			return std::string("");
+		}
+		virtual std::string vxml(const std::string& label) const
+		{
+			return std::string("");
+		}
+
 	};
 
 	/**
