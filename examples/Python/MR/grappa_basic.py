@@ -31,7 +31,6 @@ Options:
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   -o <file>, --output=<file>  images output file
-  --type_to_save=<string>     type to save ('mag', 'imag', 'all') [default: all]
   --show                      show plots
 '''
 
@@ -67,11 +66,8 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 output_file = args['--output']
+show_plot = args['--show']
 
-type_to_save = args['--type_to_save']
-show_plot = False
-if args['--show']:
-    show_plot = True
 
 def main():
     
@@ -86,22 +82,15 @@ def main():
     print('---\n reading in file %s...' % input_file)
     acq_data = AcquisitionData(input_file)
     
-    
     # Pre-process this input data.
     # (Currently this is a Python script that just sets up a 3 chain gadget.
     # In the future it will be independent of the MR recon engine.)
     print('---\n pre-processing acquisition data...')
     preprocessed_data = preprocess_acquisition_data(acq_data)
     
-    
     # Perform reconstruction of the preprocessed data.
     # 1. set the reconstruction to be for Cartesian GRAPPA data.
     recon = CartesianGRAPPAReconstructor();
-    
-    if type_to_save=='mag' or type_to_save=='all':
-        recon.set_gadget_property('ex', 'extract_magnitude', True)
-    if type_to_save=='imag' or type_to_save=='all':
-        recon.set_gadget_property('ex', 'extract_imag', True)
     
     # 2. set the reconstruction input to be the data we just preprocessed.
     recon.set_input(preprocessed_data);
@@ -109,7 +98,6 @@ def main():
     # 3. run (i.e. 'process') the reconstruction.
     print('---\n reconstructing...\n');
     recon.process();
-    
 
     # retrieve reconstruced image and G-factor data
     image_data = recon.get_output('image')
