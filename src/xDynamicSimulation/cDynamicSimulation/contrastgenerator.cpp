@@ -317,12 +317,12 @@ std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParamet
 	float const T1_ms = ptr_to_tiss_par->mr_tissue_.t1_miliseconds_;
 	float const T2_ms = ptr_to_tiss_par->mr_tissue_.t2_miliseconds_;
 	float const cs_ppm = ptr_to_tiss_par->mr_tissue_.cs_ppm_;
-
+ 
 	std::vector< complex_float_t > contrast;
 	contrast.resize( num_echoes );
 
 	complex_float_t const imag_unit(0,1);
-	float const gyro = 42.58;
+	float const gyro = 42.58 * 2*M_PI;
 
 	// signal forumla
 	for( int i_echo = 0; i_echo<num_echoes; i_echo++)
@@ -383,7 +383,7 @@ std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParamet
 	contrast.resize( num_echoes );
 
 	complex_float_t const imag_unit(0,1);
-	float const gyro = 42.58;
+	float const gyro = 42.58*2*M_PI;
 
 	float const E1 = exp( -1.f* TR[0]/T1_ms );
 	float const E2 = exp( -1.f* TR[0]/T2_ms );
