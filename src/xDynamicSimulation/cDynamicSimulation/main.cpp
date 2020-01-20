@@ -24,6 +24,7 @@ int main( int argc, char *argv[] )
 	{
 		if(argc > 1)
 		{
+
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 		}
 
@@ -42,10 +43,9 @@ int main( int argc, char *argv[] )
 		// run_tests_volume_orientator();
 		// run_tests_memory_usage();
 		
+		// run_apps();		
 
-		run_apps();		
 
-		
 		return 0;
 	}
 

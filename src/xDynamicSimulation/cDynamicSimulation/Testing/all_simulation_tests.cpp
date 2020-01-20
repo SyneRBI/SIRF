@@ -36,7 +36,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 void run_apps(void)
 {
-	std::string const fname_ismrmrd = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/5DMotion/output_grpe_mri_simulation_motion_type_cardiorespiratory__num_motion_states_1_x_1.h5";
+	// std::string const fname_ismrmrd = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/5DMotion/output_grpe_mri_simulation_motion_type_cardiorespiratory__num_motion_states_10_x_10.h5";
+	std::string const fname_ismrmrd = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/4DMotion/Cardiac/output_grpe_mri_simulation_motion_type_cardiac_num_motion_states_10.h5";
 	apps_johannesmayer::omitt_first_acquisition(fname_ismrmrd);
 }
 
@@ -174,7 +175,7 @@ void run_tests_dynamic_simulation( void )
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
 
 	std::cout << "MR 8 ----------------------------------------------------" <<std::endl;
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
 
 	
 	std::cout << "mr dynamic simulation test results = ";
@@ -201,7 +202,7 @@ void run_tests_dynamic_simulation( void )
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
 
 	std::cout << "PET 5 ----------------------------------------------------" <<std::endl;
-	// pet_dynsim_tests.push_back(test_pet_dynsim::test_4d_pet_acquisition());
+	pet_dynsim_tests.push_back(test_pet_dynsim::test_4d_pet_acquisition());
 
 	std::cout << "PET 6 ----------------------------------------------------" <<std::endl;
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_5d_pet_acquisition());
