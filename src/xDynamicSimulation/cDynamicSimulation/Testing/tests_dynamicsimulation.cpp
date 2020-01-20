@@ -376,12 +376,12 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 {
 try
 	{	
-	bool const simulate_data = true;
-	bool const store_gt_mvfs = false;
+	bool const simulate_data = false;
+	bool const store_gt_mvfs = true;
 
 	int const num_simul_motion_states = 10;
 
-	float const test_SNR = 25;
+	float const test_SNR = 10;
 	size_t const noise_label = 13;
 
 	// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
@@ -404,7 +404,6 @@ try
 	size_t num_coils = 4;
 	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 	mr_dyn_sim.set_coilmaps( csm );
-
 
 	typedef RPESuperInterleavedGoldenCutTrajectoryContainer TrajType;
 	// RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
@@ -506,30 +505,35 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 {
 	try
 	{	
-		bool const do_cardiac_sim = false;
+		bool const do_cardiac_sim = true;
 		bool const simulate_data = true;
 		bool const store_gt_mvfs = false;
 
 		int const num_simul_motion_dyn = 10;
 
-		float const test_SNR = 15;
+		float const test_SNR = 18;
 		size_t const noise_label = 13;
 
-		std::vector<float> roi_labels{1,2,3,4};
-
 		// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
-		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/";
-		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
-		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "HackathonSimulations/MRI/Inhale/";
-		
-		std::string const output_prefix_roi = std::string(SHARED_FOLDER_PATH);
+		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/5DMotion/";
 
-		// LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( std::string(SHARED_FOLDER_PATH) + "/XCATSegmentations/xcat208Cube/xcat_phantom_incl_geomertry_208.h5" );
+		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Input/";
+		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/4DMotion/Cardiac/";
+
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+		// mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"); // PETMR
+		mr_dyn_sim.set_filename_rawdata( input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"); //CARDIAC FWSEP
+
+
+		std::vector<float> roi_labels{1,2,3,4,50,72,73};
+
+		// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
+		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/";
+				
+		std::string const output_prefix_roi = output_path;
 		
 		auto data_dims = segmentation_labels.get_dimensions();
 		
@@ -543,6 +547,11 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 		// RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
 		// auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
 		// mr_dyn_sim.set_trajectory( sptr_traj );
+
+		typedef RPESuperInterleavedGoldenCutTrajectoryContainer TrajType;
+		TrajType sfl_traj;
+		auto sptr_traj = std::make_shared< TrajType >( sfl_traj );
+		mr_dyn_sim.set_trajectory( sptr_traj );
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
@@ -580,9 +589,9 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 
 			SignalContainer motion_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
 
-			std::cout << "WARNING: CONSTANT SIGNAL: " << std::endl;
-			for( size_t j=0; j< motion_signal.size(); ++j)
-				motion_signal[j].second = 0.99;
+			// std::cout << "WARNING: CONSTANT SIGNAL: " << std::endl;
+			// for( size_t j=0; j< motion_signal.size(); ++j)
+			// 	motion_signal[j].second = 0.99;
 
 		 	motion_dyn.set_dyn_signal( motion_signal );
 		 	motion_dyn.bin_mr_acquisitions( all_acquis );
@@ -1057,7 +1066,9 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 		
 		int const num_sim_motion_states = 10;
 
-		float tot_time_ms = 30 * 60 * 1000; // in case there is no motion simulation use this acqu time
+		std::cout << "WARNING: NOISE IS STRONGLY SUPPRESSED" << std::endl;
+		float const noise_suppression = 1000 * 1000;
+		float tot_time_ms =  noise_suppression * 30 * 60 * 1000; // in case there is no motion simulation use this acqu time
 
 		if( num_sim_motion_states > 1)
 		{
@@ -1084,8 +1095,7 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 			// have constant signal
 			std::cout << "WARNING: CONSTANT SIGNAL ASSUMED" << std::endl;
 			for(int i=0; i<motion_signal.size(); i++)
-				motion_signal[i].second = 0.00; 
-				// motion_signal[i].second = float(i)/motion_signal.size();//0.9 + 0.01 * std::pow(-1.f, );
+				motion_signal[i].second = 0.0; 
 			
 
 			auto first_card_pt = motion_signal[0];
@@ -1182,13 +1192,13 @@ bool test_pet_dynsim::test_5d_pet_acquisition()
 
 		float tot_time_ms = 30*60*1000;
 
-		if( num_sim_card_states*num_sim_resp_states > 1 )
+		if( num_sim_card_states*num_sim_resp_states > 0 )
 		{
 			PETMotionDynamic card_dyn( num_sim_card_states ), resp_dyn( num_sim_resp_states );
 
 			std::string fname_timepts, fname_signalpts;
 
-	// read cardiac signal
+			// read cardiac signal
 			fname_timepts = signal_path + "card_time";
 			fname_signalpts = signal_path + "card_signal";
 			SignalContainer card_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
