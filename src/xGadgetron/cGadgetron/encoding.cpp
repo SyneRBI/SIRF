@@ -489,7 +489,10 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 
 	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 
-	size_t const Nr = traj_dims[0];
+	size_t const usos_factor = 4;
+
+	size_t const Nr = traj_dims[0]*usos_factor ;
+	
 	std::vector<size_t> cropped_slice_dims {Nr, Nr}; 
 	std::vector<size_t> crop_offset_idx{data_dims[1]/2 - Nr/2, data_dims[2]/2 - Nr/2};
 
