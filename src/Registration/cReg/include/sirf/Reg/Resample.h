@@ -122,6 +122,12 @@ protected:
     /// Set up
     virtual void set_up() = 0;
 
+    /// Set up forward
+    virtual void set_up_forward() = 0;
+
+    /// Set up adjoint
+    virtual void set_up_adjoint() = 0;
+
     /// Check parameters
     virtual void check_parameters();
 

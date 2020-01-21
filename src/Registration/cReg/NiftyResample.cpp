@@ -42,6 +42,7 @@ using namespace sirf;
 template<class dataType>
 void NiftyResample<dataType>::set_up()
 {
+    // If set up has already been called, nothing to do.
     if (!this->_need_to_set_up)
         return;
 
@@ -69,6 +70,61 @@ void NiftyResample<dataType>::set_up()
                     *this->_floating_image_nifti_sptr));
 
     this->_need_to_set_up = false;
+}
+
+template<class dataType>
+void NiftyResample<dataType>::set_up_forward()
+{
+    // If set up has already been called, nothing to do.
+    if (!this->_need_to_set_up_forward)
+        return;
+
+    // Call base level
+    set_up();
+
+    this->_need_to_set_up_forward = false;
+}
+
+template<class dataType>
+void NiftyResample<dataType>::set_up_adjoint()
+{
+    // If set up has already been called, nothing to do.
+    if (!this->_need_to_set_up_adjoint)
+        return;
+
+    // Call base level
+    set_up();
+
+
+    // Get deformation spacing
+    float control_point_grid_spacing[3] = {
+        _deformation_sptr->get_raw_nifti_sptr()->dx,
+        _deformation_sptr->get_raw_nifti_sptr()->dy,
+        _deformation_sptr->get_raw_nifti_sptr()->dz
+    };
+
+    // Get the deformation field
+    nifti_image *def_ptr = _deformation_sptr->get_raw_nifti_sptr().get();
+    // Copy of floating image
+    NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
+    nifti_image *flo_ptr = flo.get_raw_nifti_sptr().get();
+
+    _adjoint_transformer_sptr = std::make_shared<NiftyMoMo::BSplineTransformation>(
+                flo_ptr,
+                /*num levels to perform*/1U,
+                control_point_grid_spacing);
+
+    _adjoint_transformer_sptr->set_interpolation(this->_interpolation_type);
+    _adjoint_transformer_sptr->SetParameters(static_cast<dataType*>(def_ptr->data), false);
+    _adjoint_transformer_sptr->SetPaddingValue(this->_padding_value);
+    _adjoint_transformer_sptr->setDVF(def_ptr);
+
+    // Set up the input and output weights
+    _adjoint_input_weights_sptr = this->_floating_image_nifti_sptr->clone();
+    _adjoint_input_weights_sptr->fill(1.f);
+    _adjoint_output_weights_sptr = this->_output_image_nifti_sptr->clone();
+
+    this->_need_to_set_up_adjoint = false;
 }
 
 template<class dataType>
@@ -141,13 +197,16 @@ void NiftyResample<dataType>::set_up_output_image()
 template<class dataType>
 void NiftyResample<dataType>::transformation_forward()
 {
+    // Call the set up
+    set_up_forward();
+
     // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty C-style cast?)
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
 
     reg_resampleImage(flo.get_raw_nifti_sptr().get(),
                       this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
                       _deformation_sptr->get_raw_nifti_sptr().get(),
-                      NULL,
+                      nullptr,
                       this->_interpolation_type,
                       this->_padding_value);
 }
@@ -155,49 +214,25 @@ void NiftyResample<dataType>::transformation_forward()
 template<class dataType>
 void NiftyResample<dataType>::transformation_adjoint()
 {
+    // Call the set up
+    set_up_adjoint();
+
+    // Copy of floating image
+    NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
+    nifti_image *flo_ptr = flo.get_raw_nifti_sptr().get();
+
+    // set output to zero
+    this->_output_image_nifti_sptr->fill(0.f);
+
     // SINC currently not supported in NiftyMoMo
     if (this->_interpolation_type == Resample<dataType>::SINC)
         throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
 
-    // Get deformation spacing
-    float control_point_grid_spacing[3] = {
-        _deformation_sptr->get_raw_nifti_sptr()->dx,
-        _deformation_sptr->get_raw_nifti_sptr()->dy,
-        _deformation_sptr->get_raw_nifti_sptr()->dz
-    };
-
-    // Get the deformation field
-    nifti_image *def_ptr = _deformation_sptr->get_raw_nifti_sptr().get();
-    // Copy of floating image
-    NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
-    nifti_image *flo_ptr = flo.get_raw_nifti_sptr().get();
-    NiftiImageData<dataType> flo_weights(flo);
-    flo_weights.fill(1.f);
-    nifti_image *flo_weights_ptr = flo_weights.get_raw_nifti_sptr().get();
-    // output and output weights have shape of reference image.
-    // set output to zero
-    *this->_output_image_nifti_sptr = *this->_reference_image_nifti_sptr;
-    this->_output_image_nifti_sptr->fill(0.f);
-    nifti_image *output_ptr = this->_output_image_nifti_sptr->get_raw_nifti_sptr().get();
-    NiftiImageData<dataType> output_weights(*this->_output_image_nifti_sptr);
-    nifti_image *output_weights_ptr = output_weights.get_raw_nifti_sptr().get();
-
-    NiftyMoMo::BSplineTransformation
-            b_spline_transformation(
-                flo_ptr,
-                /*num levels to perform*/1U,
-                control_point_grid_spacing);
-
-    b_spline_transformation.set_interpolation(this->_interpolation_type);
-    b_spline_transformation.SetParameters(static_cast<dataType*>(def_ptr->data), false);
-    b_spline_transformation.SetPaddingValue(this->_padding_value);
-    b_spline_transformation.setDVF(def_ptr);
-
-    b_spline_transformation.
+    _adjoint_transformer_sptr->
             TransformImageAdjoint(flo_ptr,
-                                  flo_weights_ptr,
-                                  output_ptr,
-                                  output_weights_ptr);
+                                  _adjoint_input_weights_sptr->get_raw_nifti_sptr().get(),
+                                  this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
+                                  _adjoint_output_weights_sptr->get_raw_nifti_sptr().get());
 
 #if 0
         // Forward transformation using NiftyMoMo. Not required

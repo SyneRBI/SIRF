@@ -35,6 +35,10 @@ limitations under the License.
 #include <iostream>
 #include "sirf/Reg/Resample.h"
 
+namespace NiftyMoMo {
+class BSplineTransformation;
+}
+
 namespace sirf {
 
 /*!
@@ -68,6 +72,12 @@ protected:
     /// Set up
     virtual void set_up();
 
+    /// Set up forward
+    virtual void set_up_forward();
+
+    /// Set up adjoint
+    virtual void set_up_adjoint();
+
     /// Set up the input images (convert from ImageData to NiftiImageData if necessary)
     void set_up_input_images();
 
@@ -89,5 +99,11 @@ protected:
 
     /// Deformation
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > _deformation_sptr;
+    /// Needed for the adjoint transformation
+    std::shared_ptr<NiftyMoMo::BSplineTransformation> _adjoint_transformer_sptr;
+    /// Adjoint reference weights
+    std::shared_ptr<NiftiImageData<dataType> > _adjoint_input_weights_sptr;
+    /// Adjoint output weights
+    std::shared_ptr<NiftiImageData<dataType> > _adjoint_output_weights_sptr;
 };
 }

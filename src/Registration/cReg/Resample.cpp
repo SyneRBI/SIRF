@@ -37,6 +37,8 @@ void Resample<dataType>::set_reference_image(const std::shared_ptr<const ImageDa
 {
     _reference_image_sptr = reference_image_sptr;
     _need_to_set_up = true;
+    _need_to_set_up_forward = true;
+    _need_to_set_up_adjoint = true;
 }
 
 /// Set floating image
@@ -45,6 +47,8 @@ void Resample<dataType>::set_floating_image(const std::shared_ptr<const ImageDat
 {
     _floating_image_sptr = floating_image_sptr;
     _need_to_set_up = true;
+    _need_to_set_up_forward = true;
+    _need_to_set_up_adjoint = true;
 }
 
 template<class dataType>
@@ -52,6 +56,8 @@ void Resample<dataType>::add_transformation(const std::shared_ptr<const Transfor
 {
     _transformations.push_back(transformation_sptr);
     this->_need_to_set_up = true;
+    _need_to_set_up_forward = true;
+    _need_to_set_up_adjoint = true;
 }
 
 template<class dataType>
@@ -59,6 +65,8 @@ void Resample<dataType>::set_interpolation_type(const enum InterpolationType typ
 {
     _interpolation_type = type;
     this->_need_to_set_up = true;
+    _need_to_set_up_forward = true;
+    _need_to_set_up_adjoint = true;
 }
 
 template<class dataType>
