@@ -119,6 +119,12 @@ public:
     /// Do the adjoint transformation
     virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr) = 0;
 
+    /// Backward. Alias for Adjoint
+    virtual std::shared_ptr<ImageData> backward(const std::shared_ptr<const ImageData> input_sptr);
+
+    /// Backward. Alias for Adjoint
+    virtual void backward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
+
 protected:
 
     /// Set up

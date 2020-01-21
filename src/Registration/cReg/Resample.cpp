@@ -81,6 +81,18 @@ void Resample<dataType>::check_parameters()
         throw std::runtime_error("Interpolation type has not been set.");
 }
 
+template<class dataType>
+std::shared_ptr<ImageData> Resample<dataType>::backward(const std::shared_ptr<const ImageData> input_sptr)
+{
+    return adjoint(input_sptr);
+}
+
+template<class dataType>
+void Resample<dataType>::backward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
+{
+    adjoint(output_sptr, input_sptr);
+}
+
 namespace sirf {
 template class Resample<float>;
 }
