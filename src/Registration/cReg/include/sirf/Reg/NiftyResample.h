@@ -64,9 +64,6 @@ public:
     /// Process
     virtual void process();
 
-    /// Get output (as NiftiImageData)
-    const std::shared_ptr<const NiftiImageData<dataType> > get_output_as_niftiImageData_sptr() const { return _output_image_nifti_sptr; }
-
 protected:
 
     /// Set up
@@ -82,7 +79,9 @@ protected:
     void set_up_input_images();
 
     /// Set up the output image
-    void set_up_output_image(const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr, const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr);
+    void set_up_output_image(std::shared_ptr<NiftiImageData<dataType> > &output_sptr,
+                             const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr,
+                             const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr);
 
     /// Do transformation with NiftyReg
     void transformation_forward();
@@ -94,8 +93,10 @@ protected:
     std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;
     /// Floating image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _floating_image_nifti_sptr;
-    /// Floating image as a NiftiImageData
-    std::shared_ptr<NiftiImageData<dataType> >       _output_image_nifti_sptr;
+    /// Forward resampled image as a NiftiImageData
+    std::shared_ptr<NiftiImageData<dataType> >       _output_image_forward_nifti_sptr;
+    /// Adjoint resampled image as a NiftiImageData
+    std::shared_ptr<NiftiImageData<dataType> >       _output_image_adjoint_nifti_sptr;
 
     /// Deformation
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > _deformation_sptr;

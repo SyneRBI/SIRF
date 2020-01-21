@@ -63,9 +63,6 @@ void NiftyResample<dataType>::set_up()
     // Get reference and floating images as NiftiImageData
     set_up_input_images();
 
-    // Setup output image
-    set_up_output_image(_reference_image_nifti_sptr, _floating_image_nifti_sptr);
-
     // If no transformations, use identity.
     if (this->_transformations.size() == 0) {
         std::cout << "\nNo transformations set, using identity.\n";
@@ -94,6 +91,9 @@ void NiftyResample<dataType>::set_up_forward()
     // Call base level
     set_up();
 
+    // Setup output image
+    set_up_output_image(_output_image_forward_nifti_sptr, _reference_image_nifti_sptr, _floating_image_nifti_sptr);
+
     this->_need_to_set_up_forward = false;
 }
 
@@ -107,6 +107,8 @@ void NiftyResample<dataType>::set_up_adjoint()
     // Call base level
     set_up();
 
+    // Setup output image
+    set_up_output_image(_output_image_adjoint_nifti_sptr, _reference_image_nifti_sptr, _floating_image_nifti_sptr);
 
     // Get deformation spacing
     float control_point_grid_spacing[3] = {
@@ -134,7 +136,7 @@ void NiftyResample<dataType>::set_up_adjoint()
     // Set up the input and output weights
     _adjoint_input_weights_sptr = this->_floating_image_nifti_sptr->clone();
     _adjoint_input_weights_sptr->fill(1.f);
-    _adjoint_output_weights_sptr = this->_output_image_nifti_sptr->clone();
+    _adjoint_output_weights_sptr = this->_output_image_adjoint_nifti_sptr->clone();
 
     this->_need_to_set_up_adjoint = false;
 }
@@ -152,10 +154,6 @@ void NiftyResample<dataType>::process()
     else
         transformation_adjoint();
 
-    // The output should be a clone of the reference image, with data filled in from the nifti image
-    this->_output_image_sptr = this->_reference_image_sptr->clone();
-    this->_output_image_sptr->fill(*this->_output_image_nifti_sptr);
-
     std::cout << "\n\nResampling finished!\n\n";
 }
 
@@ -167,7 +165,9 @@ void NiftyResample<dataType>::set_up_input_images()
 }
 
 template<class dataType>
-void NiftyResample<dataType>::set_up_output_image(const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr, const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr)
+void NiftyResample<dataType>::set_up_output_image(std::shared_ptr<NiftiImageData<dataType> > &output_sptr,
+                                                  const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr,
+                                                  const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr)
 {
     // The output is a mixture between the reference and floating images.
     const nifti_image * const im_for_shape_ptr = im_for_shape_sptr->get_raw_nifti_sptr().get();
@@ -195,7 +195,7 @@ void NiftyResample<dataType>::set_up_output_image(const std::shared_ptr<const Ni
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
 
     // Create NiftiImageData from nifti_image
-    this->_output_image_nifti_sptr = std::make_shared<NiftiImageData<dataType> >(*output_ptr);
+    output_sptr = std::make_shared<NiftiImageData<dataType> >(*output_ptr);
 
     // Delete the original pointer
     nifti_image_free(output_ptr);
@@ -211,11 +211,16 @@ void NiftyResample<dataType>::transformation_forward()
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
 
     reg_resampleImage(flo.get_raw_nifti_sptr().get(),
-                      this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
+                      _output_image_forward_nifti_sptr->get_raw_nifti_sptr().get(),
                       _deformation_sptr->get_raw_nifti_sptr().get(),
                       nullptr,
                       this->_interpolation_type,
                       this->_padding_value);
+
+
+    // The output should be a clone of the reference image, with data filled in from the nifti image
+    this->_output_image_sptr = this->_reference_image_sptr->clone();
+    this->_output_image_sptr->fill(*this->_output_image_forward_nifti_sptr);
 }
 
 template<class dataType>
@@ -229,7 +234,7 @@ void NiftyResample<dataType>::transformation_adjoint()
     nifti_image *flo_ptr = flo.get_raw_nifti_sptr().get();
 
     // set output to zero
-    this->_output_image_nifti_sptr->fill(0.f);
+    this->_output_image_adjoint_nifti_sptr->fill(0.f);
 
     // SINC currently not supported in NiftyMoMo
     if (this->_interpolation_type == Resample<dataType>::SINC)
@@ -238,29 +243,12 @@ void NiftyResample<dataType>::transformation_adjoint()
     _adjoint_transformer_sptr->
             TransformImageAdjoint(flo_ptr,
                                   _adjoint_input_weights_sptr->get_raw_nifti_sptr().get(),
-                                  this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
+                                  this->_output_image_adjoint_nifti_sptr->get_raw_nifti_sptr().get(),
                                   _adjoint_output_weights_sptr->get_raw_nifti_sptr().get());
 
-#if 0
-        // Forward transformation using NiftyMoMo. Not required
-        NiftiImageData<dataType> ref = *this->_reference_image_nifti_sptr;
-        nifti_image *ref_ptr = ref.get_raw_nifti_sptr().get();
-
-        NiftyMoMo::BSplineTransformation
-                b_spline_transformation(
-                    ref_ptr,
-                    /*num levels to perform*/1U,
-                    control_point_grid_spacing);
-
-        b_spline_transformation.set_interpolation(this->_interpolation_type);
-        b_spline_transformation.SetParameters(static_cast<dataType*>(def_ptr->data), false);
-        b_spline_transformation.SetPaddingValue(this->_padding_value);
-        b_spline_transformation.setDVF(def_ptr);
-
-        this->_output_image_nifti_sptr =
-                std::make_shared<NiftiImageData<dataType> >(
-                    *b_spline_transformation.TransformImage(flo_ptr,ref_ptr));
-#endif
+    // The output should be a clone of the reference image, with data filled in from the nifti image
+    this->_output_image_sptr = this->_reference_image_sptr->clone();
+    this->_output_image_sptr->fill(*this->_output_image_adjoint_nifti_sptr);
 }
 
 namespace sirf {

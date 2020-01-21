@@ -822,9 +822,12 @@ int main(int argc, char* argv[])
         nr2.add_transformation(disp);
         nr2.set_padding_value(padding_value);
         nr2.process();
-        nr2.get_output_sptr()->write(nonrigid_resample_disp);
+        const std::shared_ptr<const NiftiImageData<float> > nr2_output =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr2.get_output_sptr());
+        nr2_output->write(nonrigid_resample_disp);
 
-        if (std::abs(nr2.get_output_as_niftiImageData_sptr()->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
+        if (std::abs(nr2_output->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
             throw std::runtime_error("NiftyResample::set_padding_value failed.");
 
         std::cout << "Testing non-rigid deformation...\n";
@@ -885,8 +888,9 @@ int main(int argc, char* argv[])
         nr_forward.set_transformation_direction(Resample<float>::FORWARD);
         nr_forward.add_transformation(T);
         nr_forward.process();
-        const NiftiImageData<float> Ty =
-                *nr_forward.get_output_as_niftiImageData_sptr();
+        const std::shared_ptr<const NiftiImageData<float> > Ty =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr_forward.get_output_sptr());
 
         // Do the adjoint
         NiftyResample<float> nr_adjoint;
@@ -896,13 +900,13 @@ int main(int argc, char* argv[])
         nr_adjoint.set_transformation_direction(Resample<float>::ADJOINT);
         nr_adjoint.add_transformation(T);
         nr_adjoint.process();
-        const NiftiImageData<float> Tsx =
-                *nr_adjoint.get_output_as_niftiImageData_sptr();
-        Tsx.write(niftymomo_resample_adj);
+        const std::shared_ptr<const NiftiImageData<float> > Tsx =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr_adjoint.get_output_sptr());
 
         // Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
-        float inner_x_Ty  = x->get_inner_product(Ty);
-        float inner_y_Tsx = y->get_inner_product(Tsx);
+        float inner_x_Ty  = x->get_inner_product(*Ty);
+        float inner_y_Tsx = y->get_inner_product(*Tsx);
         float adjoint_test = std::abs(inner_x_Ty - inner_y_Tsx) / (0.5f * (std::abs(inner_x_Ty) +std::abs(inner_y_Tsx)));
         std::cout << "\n<x, Ty>  = " << inner_x_Ty << "\n";
         std::cout << "<y, Tsx> = " << inner_y_Tsx << "\n";
