@@ -311,6 +311,9 @@ public:
     int get_original_datatype() const { return _original_datatype; }
 
     /// Check if the norms of two images are equal to a given accuracy.
+    static bool are_equal_to_given_accuracy(const std::shared_ptr<const NiftiImageData> &im1_sptr, const std::shared_ptr<const NiftiImageData> &im2_sptr, const float required_accuracy_compared_to_max);
+
+    /// Check if the norms of two images are equal to a given accuracy.
     static bool are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max);
 
     /// Point is in bounds?
