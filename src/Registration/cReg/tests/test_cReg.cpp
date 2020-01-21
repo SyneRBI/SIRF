@@ -894,8 +894,8 @@ int main(int argc, char* argv[])
 
         // Do the adjoint
         NiftyResample<float> nr_adjoint;
-        nr_adjoint.set_reference_image(y);
-        nr_adjoint.set_floating_image(x);
+        nr_adjoint.set_reference_image(x);
+        nr_adjoint.set_floating_image(y);
         nr_adjoint.set_interpolation_type(nr_forward.get_interpolation_type());
         nr_adjoint.set_transformation_direction(Resample<float>::ADJOINT);
         nr_adjoint.add_transformation(T);
