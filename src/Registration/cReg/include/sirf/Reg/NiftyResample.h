@@ -82,7 +82,7 @@ protected:
     void set_up_input_images();
 
     /// Set up the output image
-    void set_up_output_image();
+    void set_up_output_image(const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr, const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr);
 
     /// Do transformation with NiftyReg
     void transformation_forward();

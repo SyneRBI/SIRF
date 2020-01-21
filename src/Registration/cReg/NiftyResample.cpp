@@ -39,6 +39,17 @@ limitations under the License.
 
 using namespace sirf;
 
+template<class outType>
+void convert_to_NiftiImageData_if_not_already(std::shared_ptr<outType> &output_sptr, const std::shared_ptr<const ImageData> &input_sptr)
+{
+    // Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
+    output_sptr = std::dynamic_pointer_cast<outType>(input_sptr);
+    // If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
+    // In this case, construct a NiftiImageData
+    if (!output_sptr)
+        output_sptr = std::make_shared<outType>(*input_sptr);
+}
+
 template<class dataType>
 void NiftyResample<dataType>::set_up()
 {
@@ -53,7 +64,8 @@ void NiftyResample<dataType>::set_up()
     set_up_input_images();
 
     // Setup output image
-    set_up_output_image();
+    set_up_output_image(_reference_image_nifti_sptr, _floating_image_nifti_sptr);
+
     // If no transformations, use identity.
     if (this->_transformations.size() == 0) {
         std::cout << "\nNo transformations set, using identity.\n";
@@ -150,42 +162,34 @@ void NiftyResample<dataType>::process()
 template<class dataType>
 void NiftyResample<dataType>::set_up_input_images()
 {
-    // Try to dynamic cast from ImageData to NiftiImageData. This will only succeed if original type was NiftiImageData
-    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData<dataType> >(this->_reference_image_sptr);
-    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData<dataType> >(this->_floating_image_sptr);
-
-    // If either is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
-    // In this case, construct a NiftiImageData
-    if (!this->_reference_image_nifti_sptr)
-        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData<dataType> >(*this->_reference_image_sptr);
-    if (!this->_floating_image_nifti_sptr)
-        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData<dataType> >(*this->_floating_image_sptr);
+    convert_to_NiftiImageData_if_not_already(this->_reference_image_nifti_sptr, this->_reference_image_sptr);
+    convert_to_NiftiImageData_if_not_already(this->_floating_image_nifti_sptr,  this->_floating_image_sptr );
 }
 
 template<class dataType>
-void NiftyResample<dataType>::set_up_output_image()
+void NiftyResample<dataType>::set_up_output_image(const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr, const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr)
 {
     // The output is a mixture between the reference and floating images.
-    const nifti_image * const ref_ptr = this->_reference_image_nifti_sptr->get_raw_nifti_sptr().get();
-    const nifti_image * const flo_ptr = this->_floating_image_nifti_sptr->get_raw_nifti_sptr().get();
+    const nifti_image * const im_for_shape_ptr = im_for_shape_sptr->get_raw_nifti_sptr().get();
+    const nifti_image * const im_for_metadata_ptr = im_for_metadata_sptr->get_raw_nifti_sptr().get();
 
     // Start creating new output as the header from the reference image
-    nifti_image * output_ptr = nifti_copy_nim_info(ref_ptr);
+    nifti_image * output_ptr = nifti_copy_nim_info(im_for_shape_ptr);
 
     // Put in the required info from the floating image
-    output_ptr->cal_min     = flo_ptr->cal_min;
-    output_ptr->cal_max     = flo_ptr->cal_max;
-    output_ptr->scl_slope   = flo_ptr->scl_slope;
-    output_ptr->scl_inter   = flo_ptr->scl_inter;
-    output_ptr->datatype    = flo_ptr->datatype;
-    output_ptr->intent_code = flo_ptr->intent_code;
-    output_ptr->intent_p1   = flo_ptr->intent_p1;
-    output_ptr->intent_p2   = flo_ptr->intent_p2;
-    output_ptr->datatype    = flo_ptr->datatype;
-    output_ptr->nbyper      = flo_ptr->nbyper;
+    output_ptr->cal_min     = im_for_metadata_ptr->cal_min;
+    output_ptr->cal_max     = im_for_metadata_ptr->cal_max;
+    output_ptr->scl_slope   = im_for_metadata_ptr->scl_slope;
+    output_ptr->scl_inter   = im_for_metadata_ptr->scl_inter;
+    output_ptr->datatype    = im_for_metadata_ptr->datatype;
+    output_ptr->intent_code = im_for_metadata_ptr->intent_code;
+    output_ptr->intent_p1   = im_for_metadata_ptr->intent_p1;
+    output_ptr->intent_p2   = im_for_metadata_ptr->intent_p2;
+    output_ptr->datatype    = im_for_metadata_ptr->datatype;
+    output_ptr->nbyper      = im_for_metadata_ptr->nbyper;
     memset(output_ptr->intent_name, 0, 16);
-    strcpy(output_ptr->intent_name,flo_ptr->intent_name);
-    output_ptr->nvox = this->_reference_image_nifti_sptr->get_num_voxels();
+    strcpy(output_ptr->intent_name,im_for_metadata_ptr->intent_name);
+    output_ptr->nvox = im_for_shape_ptr->nvox;
 
     // Allocate the data
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
