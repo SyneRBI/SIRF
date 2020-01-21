@@ -192,6 +192,9 @@ void NiftyResample<dataType>::set_up_output_image()
 
     // Create NiftiImageData from nifti_image
     this->_output_image_nifti_sptr = std::make_shared<NiftiImageData<dataType> >(*output_ptr);
+
+    // Delete the original pointer
+    nifti_image_free(output_ptr);
 }
 
 template<class dataType>
