@@ -93,6 +93,15 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_crop(const void* im_ptr, PTR_INT
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order) {
 	return cReg_NiftiImageData_set_voxel_spacing(im_ptr, x, y, z, interpolation_order);
 }
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr) {
+	return cReg_NiftiImageData_normalise_zero_and_one(im_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_standardise(const void* im_ptr) {
+	return cReg_NiftiImageData_standardise(im_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr) {
+	return cReg_NiftiImageData_get_inner_product(im1_ptr, im2_ptr);
+}
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3D_from_SIRFImageData(void* ptr) {
 	return cReg_NiftiImageData3D_from_SIRFImageData(ptr);
 }

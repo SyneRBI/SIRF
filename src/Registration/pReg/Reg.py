@@ -354,6 +354,16 @@ class NiftiImageData(SIRF.ImageData):
         try_calling(pyreg.cReg_NiftiImageData_standardise(self.handle))
         check_status(self.handle)
 
+    def get_inner_product(self, other):
+        """Get inner product between two images. Must be same size."""
+        if not isinstance(other, NiftiImageData):
+            raise AssertionError()
+        handle = pyreg.cReg_NiftiImageData_get_inner_product(self.handle, other.handle)
+        check_status(handle)
+        inner_product = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return inner_product
+
     @staticmethod
     def print_headers(to_print):
         """Print nifti header metadata of one or multiple nifti images."""

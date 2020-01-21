@@ -57,6 +57,7 @@ extern "C" {
     void* cReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order);
     void* cReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr);
     void* cReg_NiftiImageData_standardise(const void* im_ptr);
+    void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
 
     // NiftiImageData3D
     void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr);

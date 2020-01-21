@@ -210,6 +210,36 @@ if try_niftiimage
     assert(all(geom_info.get_size() == [64, 64, 64]), 'SIRF get_geometrical_info().get_size() failed.');
     assert(all(geom_info.get_spacing() == [4.0625, 4.0625, 4.0625]), 'SIRF get_geometrical_info().get_spacing() failed.');
 
+    im.standardise();
+    assert(abs(im.get_standard_deviation() - 1) < 0.01, 'NiftiImageData standardise() or get_standard_deviation() failed.')
+    assert(abs(im.get_variance() - 1) < 0.01, 'NiftiImageData standardise() or get_variance() failed.')
+    assert(abs(im.get_mean()) < 0.0001, 'NiftiImageData standardise() or get_mean() failed.')
+
+    % Check normalise 
+    im.normalise_zero_and_one();
+    assert(abs(im.get_min()) < 0.0001 && abs(im.get_max() - 1) < 0.0001, 'NiftiImageData normalise_between_zero_and_one() failed.')
+
+    % Test inner product
+    in1 = x.deep_copy();
+    in2 = x.deep_copy();
+    in1_arr = in1.as_array();
+    in2_arr = in2.as_array();
+    dims = in1.get_dimensions();
+    for idx_x = 1 : dims(2)
+        for idx_y = 1 : dims(3)
+            for idx_z = 1 : dims(4)
+                in1_arr(idx_x, idx_y, idx_z) = single(i-1);
+                in2_arr(idx_x, idx_y, idx_z) = single(3*(i-1)-1);
+            end
+        end
+    end
+    inner_product = sum(in1_arr(:) .* in2_arr(:));
+    in1.fill(in1_arr);
+    in2.fill(in2_arr);
+    disp(inner_product)
+    disp(in1.get_inner_product(in2))
+    assert(abs(inner_product - in1.get_inner_product(in2)) < 1e-4, 'NiftiImageData::get_inner_product() failed.');
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
     disp('%------------------------------------------------------------------------ %')
