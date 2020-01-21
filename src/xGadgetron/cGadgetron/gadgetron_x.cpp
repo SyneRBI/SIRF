@@ -106,7 +106,8 @@ GadgetChain::xml() const
 		xml_script += ptr_gh->gadget().xml(ptr_gh->id()) + '\n';
 //		xml_script += gh->get()->gadget().xml() + '\n';
 	}
-	xml_script += endgadget_->xml() + '\n';
+	if (endgadget_.get())
+		xml_script += endgadget_->xml() + '\n';
 	xml_script += "</gadgetronStreamConfiguration>\n";
 
 	return xml_script;
@@ -157,35 +158,62 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 void 
 AcquisitionsProcessor::process(MRAcquisitionData& acquisitions) 
 {
-	std::string config = xml();
-	GTConnector conn;
-	uint32_t nacq = 0;
-	nacq = acquisitions.number();
+	uint32_t nacq = acquisitions.number();
 	//std::cout << nacq << " acquisitions" << std::endl;
-	ISMRMRD::Acquisition acq_tmp;
 	sptr_acqs_ = acquisitions.new_acquisitions_container();
+	if (nacq < 1)
+		return;
 
+	ISMRMRD::Acquisition acq_tmp;
+	std::string config = xml();
+	// quick fix: checking if AcquisitionFinishGadget is needed (= running old Gadgetron)
+	shared_ptr<MRAcquisitionData> sptr_acqs = acquisitions.new_acquisitions_container();
+	{
+		GTConnector conn;
+		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
+			shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs)));
+		for (int nt = 0; nt < N_TRIALS; nt++) {
+			try {
+				conn().connect(host_, port_);
+				conn().send_gadgetron_configuration_script(config);
+				conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
+				acquisitions.get_acquisition(0, acq_tmp);
+				conn().send_ismrmrd_acquisition(acq_tmp);
+				conn().send_gadgetron_close();
+				conn().wait();
+				break;
+			}
+			catch (...) {
+				if (connection_failed(nt))
+					THROW("Server running Gadgetron not accessible");
+			}
+		}
+	}
+
+	uint32_t na = sptr_acqs->number();
+	//std::cout << na << '\n';
+	if (na < 1) {
+		// old Gadgetron is running, have to append AcquisitionFinishGadget to the chain
+		gadgetron::shared_ptr<AcquisitionFinishGadget>
+			endgadget(new AcquisitionFinishGadget);
+		set_endgadget(endgadget);
+		config = xml();
+	}
+
+	GTConnector conn;
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
-	for (int nt = 0; nt < N_TRIALS; nt++) {
-		try {
-			conn().connect(host_, port_);
-			conn().send_gadgetron_configuration_script(config);
-			conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
-			for (uint32_t i = 0; i < nacq; i++) {
-				acquisitions.get_acquisition(i, acq_tmp);
-				conn().send_ismrmrd_acquisition(acq_tmp);
-			}
-			conn().send_gadgetron_close();
-			conn().wait();
-			break;
-		}
-		catch (...) {
-			if (connection_failed(nt))
-				THROW("Server running Gadgetron not accessible");
-		}
+	conn().connect(host_, port_);
+	conn().send_gadgetron_configuration_script(config);
+	conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
+	for (uint32_t i = 0; i < nacq; i++) {
+		acquisitions.get_acquisition(i, acq_tmp);
+		conn().send_ismrmrd_acquisition(acq_tmp);
 	}
+	conn().send_gadgetron_close();
+	conn().wait();
 	check_gadgetron_connection(host_, port_);
 }
 
