@@ -110,8 +110,14 @@ public:
     /// Do the forward transformation
     virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const ImageData> input_sptr) = 0;
 
+    /// Do the forward transformation
+    virtual void forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr) = 0;
+
     /// Do the adjoint transformation
     virtual std::shared_ptr<ImageData> adjoint(const std::shared_ptr<const ImageData> input_sptr) = 0;
+
+    /// Do the adjoint transformation
+    virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr) = 0;
 
 protected:
 

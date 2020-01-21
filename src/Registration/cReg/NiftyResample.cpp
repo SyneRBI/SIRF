@@ -205,14 +205,29 @@ std::shared_ptr<ImageData> NiftyResample<dataType>::forward(const std::shared_pt
     // Call the set up
     set_up_forward();
 
+    std::shared_ptr<ImageData> output_sptr = this->_reference_image_sptr->clone();
+    forward(output_sptr, input_sptr);
+
+    return output_sptr;
+}
+
+template<class dataType>
+void NiftyResample<dataType>::forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
+{
+    // Call the set up
+    set_up_forward();
+
     // Get the input image as NiftiImageData
     // Unfortunately need to clone input image, as not marked as const in NiftyReg
-    std::shared_ptr<NiftiImageData<dataType> > input_nifti_sptr;
+    std::shared_ptr<NiftiImageData<dataType> > input_nifti_sptr, output_nifti_sptr;
     convert_to_NiftiImageData_if_not_already(input_nifti_sptr,  input_sptr->clone() );
+    convert_to_NiftiImageData_if_not_already(output_nifti_sptr,  output_sptr);
 
     // Check that the metadata match
     if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*input_nifti_sptr,*_floating_image_nifti_sptr,false))
         throw std::runtime_error("NiftyResample::forward: Metadata of input image should match floating image.");
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*output_nifti_sptr,*_reference_image_nifti_sptr,false))
+        throw std::runtime_error("NiftyResample::forward: Metadata of output image should match reference image.");
 
     reg_resampleImage(input_nifti_sptr->get_raw_nifti_sptr().get(),
                       this->_output_image_forward_nifti_sptr->get_raw_nifti_sptr().get(),
@@ -222,14 +237,24 @@ std::shared_ptr<ImageData> NiftyResample<dataType>::forward(const std::shared_pt
                       this->_padding_value);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
-    std::shared_ptr<ImageData> output_sptr = this->_reference_image_sptr->clone();
     output_sptr->fill(*this->_output_image_forward_nifti_sptr);
     this->_output_image_sptr = output_sptr;
-    return output_sptr;
 }
 
 template<class dataType>
 std::shared_ptr<ImageData> NiftyResample<dataType>::adjoint(const std::shared_ptr<const ImageData> input_sptr)
+{
+    // Call the set up
+    set_up_adjoint();
+
+    std::shared_ptr<ImageData> output_sptr = this->_floating_image_sptr->clone();
+    adjoint(output_sptr, input_sptr);
+
+    return output_sptr;
+}
+
+template<class dataType>
+void NiftyResample<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
 {
     // Call the set up
     set_up_adjoint();
@@ -240,12 +265,15 @@ std::shared_ptr<ImageData> NiftyResample<dataType>::adjoint(const std::shared_pt
 
     // Get the input image as NiftiImageData
     // Unfortunately need to clone input image, as not marked as const in NiftyReg
-    std::shared_ptr<NiftiImageData<dataType> > input_nifti_sptr;
+    std::shared_ptr<NiftiImageData<dataType> > input_nifti_sptr, output_nifti_sptr;
     convert_to_NiftiImageData_if_not_already(input_nifti_sptr,  input_sptr->clone() );
+    convert_to_NiftiImageData_if_not_already(output_nifti_sptr, output_sptr         );
 
     // Check that the metadata match
     if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*input_nifti_sptr,*_reference_image_nifti_sptr,false))
         throw std::runtime_error("NiftyResample::adjoint: Metadata of input image should match reference image.");
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*output_nifti_sptr,*_floating_image_nifti_sptr,false))
+        throw std::runtime_error("NiftyResample::adjoint: Metadata of output image should match floating image.");
 
     // set output to zero
     this->_output_image_adjoint_nifti_sptr->fill(0.f);
@@ -257,10 +285,8 @@ std::shared_ptr<ImageData> NiftyResample<dataType>::adjoint(const std::shared_pt
                                   _adjoint_output_weights_sptr->get_raw_nifti_sptr().get());
 
     // The output should be a clone of the floating image, with data filled in from the nifti image
-    std::shared_ptr<ImageData> output_sptr = this->_floating_image_sptr->clone();
     output_sptr->fill(*this->_output_image_adjoint_nifti_sptr);
     this->_output_image_sptr = output_sptr;
-    return output_sptr;
 }
 
 namespace sirf {
