@@ -256,6 +256,24 @@ def try_niftiimage():
     if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
         raise AssertionError("NiftiImageData normalise_between_zero_and_one() failed.")
     
+    # Test inner product
+    in1 = x.deep_copy()
+    in2 = x.deep_copy()
+    in1_arr = in1.as_array()
+    in2_arr = in2.as_array()
+    dims = in1.get_dimensions()
+    inner_product = 0
+    for idx_x in range(dims[1]):
+        for idx_y in range(dims[2]):
+            for idx_z in range(dims[3]):
+                in1_arr[idx_x, idx_y, idx_z] = float(i)
+                in2_arr[idx_x, idx_y, idx_z] = float(3*i-1)
+                inner_product += float(i) * float(3*i-1)
+    in1.fill(in1_arr)
+    in2.fill(in2_arr)
+    if abs(inner_product - in1.get_inner_product(in2)) > 1e-4:
+        raise AssertionError("NiftiImageData::get_inner_product() failed.")
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData test.\n')

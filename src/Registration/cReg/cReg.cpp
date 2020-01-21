@@ -413,6 +413,16 @@ void* cReg_NiftiImageData_standardise(const void* im_ptr)
     }
     CATCH;
 }
+extern "C"
+void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr)
+{
+    try{
+        NiftiImageData<float>& im1 = objectFromHandle<NiftiImageData<float> >(im1_ptr);
+        NiftiImageData<float>& im2 = objectFromHandle<NiftiImageData<float> >(im2_ptr);
+        return dataHandle<float>(im1.get_inner_product(im2));
+    }
+    CATCH;
+}
 
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3D
