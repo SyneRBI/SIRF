@@ -39,15 +39,26 @@ limitations under the License.
 
 using namespace sirf;
 
-template<class outType>
-void convert_to_NiftiImageData_if_not_already(std::shared_ptr<outType> &output_sptr, const std::shared_ptr<const ImageData> &input_sptr)
+template<class dataType>
+void convert_to_NiftiImageData_if_not_already(std::shared_ptr<const NiftiImageData<dataType> > &output_sptr, const std::shared_ptr<const ImageData> &input_sptr)
 {
     // Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
-    output_sptr = std::dynamic_pointer_cast<outType>(input_sptr);
+    output_sptr = std::dynamic_pointer_cast<const NiftiImageData<dataType> >(input_sptr);
     // If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
     // In this case, construct a NiftiImageData
     if (!output_sptr)
-        output_sptr = std::make_shared<outType>(*input_sptr);
+        output_sptr = std::make_shared<const NiftiImageData<dataType> >(*input_sptr);
+}
+
+template<class dataType>
+void convert_to_NiftiImageData_if_not_already(std::shared_ptr<NiftiImageData<dataType> > &output_sptr, const std::shared_ptr<ImageData> &input_sptr)
+{
+    // Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
+    output_sptr = std::dynamic_pointer_cast<NiftiImageData<dataType> >(input_sptr);
+    // If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
+    // In this case, construct a NiftiImageData
+    if (!output_sptr)
+        output_sptr = std::make_shared<NiftiImageData<dataType> >(*input_sptr);
 }
 
 template<class dataType>
@@ -141,17 +152,7 @@ void NiftyResample<dataType>::set_up_adjoint()
 template<class dataType>
 void NiftyResample<dataType>::process()
 {
-    std::cout << "\n\nStarting resampling...\n\n";
-
-    set_up();
-
-    // If we're resampling with NiftyReg
-    if (this->_transformation_direction == Resample<dataType>::FORWARD)
-        transformation_forward();
-    else
-        transformation_adjoint();
-
-    std::cout << "\n\nResampling finished!\n\n";
+    this->_output_image_sptr = forward(this->_floating_image_sptr);
 }
 
 template<class dataType>
@@ -199,53 +200,67 @@ void NiftyResample<dataType>::set_up_output_image(std::shared_ptr<NiftiImageData
 }
 
 template<class dataType>
-void NiftyResample<dataType>::transformation_forward()
+std::shared_ptr<ImageData> NiftyResample<dataType>::forward(const std::shared_ptr<const ImageData> input_sptr)
 {
     // Call the set up
     set_up_forward();
 
-    // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty C-style cast?)
-    NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
+    // Get the input image as NiftiImageData
+    // Unfortunately need to clone input image, as not marked as const in NiftyReg
+    std::shared_ptr<NiftiImageData<dataType> > input_nifti_sptr;
+    convert_to_NiftiImageData_if_not_already(input_nifti_sptr,  input_sptr->clone() );
 
-    reg_resampleImage(flo.get_raw_nifti_sptr().get(),
-                      _output_image_forward_nifti_sptr->get_raw_nifti_sptr().get(),
+    // Check that the metadata match
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*input_nifti_sptr,*_floating_image_nifti_sptr,false))
+        throw std::runtime_error("NiftyResample::forward: Metadata of input image should match floating image.");
+
+    reg_resampleImage(input_nifti_sptr->get_raw_nifti_sptr().get(),
+                      this->_output_image_forward_nifti_sptr->get_raw_nifti_sptr().get(),
                       _deformation_sptr->get_raw_nifti_sptr().get(),
                       nullptr,
                       this->_interpolation_type,
                       this->_padding_value);
 
-
     // The output should be a clone of the reference image, with data filled in from the nifti image
-    this->_output_image_sptr = this->_reference_image_sptr->clone();
-    this->_output_image_sptr->fill(*this->_output_image_forward_nifti_sptr);
+    std::shared_ptr<ImageData> output_sptr = this->_reference_image_sptr->clone();
+    output_sptr->fill(*this->_output_image_forward_nifti_sptr);
+    this->_output_image_sptr = output_sptr;
+    return output_sptr;
 }
 
 template<class dataType>
-void NiftyResample<dataType>::transformation_adjoint()
+std::shared_ptr<ImageData> NiftyResample<dataType>::adjoint(const std::shared_ptr<const ImageData> input_sptr)
 {
     // Call the set up
     set_up_adjoint();
-
-    // Copy of reference image
-    NiftiImageData<dataType> flo = *this->_reference_image_nifti_sptr;
-    nifti_image *ref_ptr = flo.get_raw_nifti_sptr().get();
-
-    // set output to zero
-    this->_output_image_adjoint_nifti_sptr->fill(0.f);
 
     // SINC currently not supported in NiftyMoMo
     if (this->_interpolation_type == Resample<dataType>::SINC)
         throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
 
+    // Get the input image as NiftiImageData
+    // Unfortunately need to clone input image, as not marked as const in NiftyReg
+    std::shared_ptr<NiftiImageData<dataType> > input_nifti_sptr;
+    convert_to_NiftiImageData_if_not_already(input_nifti_sptr,  input_sptr->clone() );
+
+    // Check that the metadata match
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*input_nifti_sptr,*_reference_image_nifti_sptr,false))
+        throw std::runtime_error("NiftyResample::adjoint: Metadata of input image should match reference image.");
+
+    // set output to zero
+    this->_output_image_adjoint_nifti_sptr->fill(0.f);
+
     _adjoint_transformer_sptr->
-            TransformImageAdjoint(ref_ptr,
+            TransformImageAdjoint(input_nifti_sptr->get_raw_nifti_sptr().get(),
                                   _adjoint_input_weights_sptr->get_raw_nifti_sptr().get(),
                                   this->_output_image_adjoint_nifti_sptr->get_raw_nifti_sptr().get(),
                                   _adjoint_output_weights_sptr->get_raw_nifti_sptr().get());
 
     // The output should be a clone of the floating image, with data filled in from the nifti image
-    this->_output_image_sptr = this->_floating_image_sptr->clone();
-    this->_output_image_sptr->fill(*this->_output_image_adjoint_nifti_sptr);
+    std::shared_ptr<ImageData> output_sptr = this->_floating_image_sptr->clone();
+    output_sptr->fill(*this->_output_image_adjoint_nifti_sptr);
+    this->_output_image_sptr = output_sptr;
+    return output_sptr;
 }
 
 namespace sirf {

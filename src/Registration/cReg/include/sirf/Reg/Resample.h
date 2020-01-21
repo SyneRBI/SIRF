@@ -32,6 +32,7 @@ limitations under the License.
 #include <vector>
 #include <memory>
 #include "sirf/Reg/Transformation.h"
+#include "sirf/iUtilities/iutilities.h"
 
 namespace sirf {
 
@@ -62,11 +63,6 @@ public:
         LINEAR           =  1,
         CUBICSPLINE      =  3,
         SINC             =  4
-    };
-
-    enum TransformationDirection {
-        FORWARD,
-        ADJOINT
     };
 
     /// Constructor
@@ -105,17 +101,17 @@ public:
     /// Set padding value
     void set_padding_value(const float padding_value) { _padding_value = padding_value; }
 
-    /// Set transformation direction (forward or adjoint)
-    void set_transformation_direction(const TransformationDirection transformation_direction) { _transformation_direction = transformation_direction; }
-
-    /// Get transformation direction (forward or adjoint)
-    const TransformationDirection get_transformation_direction() { return _transformation_direction; }
-
-    /// Process
-    virtual void process() = 0;
+    /// Process - will call forward
+    DEPRECATED virtual void process() = 0;
 
     /// Get output
     const std::shared_ptr<const ImageData> get_output_sptr() const { return _output_image_sptr; }
+
+    /// Do the forward transformation
+    virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const ImageData> input_sptr) = 0;
+
+    /// Do the adjoint transformation
+    virtual std::shared_ptr<ImageData> adjoint(const std::shared_ptr<const ImageData> input_sptr) = 0;
 
 protected:
 
@@ -147,10 +143,6 @@ protected:
 
     /// Padding value
     float _padding_value = 0;
-
-    /// Transformation direction
-    TransformationDirection _transformation_direction = FORWARD;
-
     bool _need_to_set_up = true;
     bool _need_to_set_up_forward = true;
     bool _need_to_set_up_adjoint = true;

@@ -1329,10 +1329,9 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
         resample.set_interpolation_type_to_nearest_neighbour();
         resample.set_reference_image(im1_sptr);
         resample.set_floating_image(im2_sptr);
-        resample.process();
         const std::shared_ptr<const NiftiImageData<dataType> > resampled_sptr =
                 std::dynamic_pointer_cast<const NiftiImageData<dataType> >(
-                    resample.get_output_sptr());
+                    resample.forward(im2_sptr));
         norm = resampled_sptr->get_norm(*im1_sptr);
     }
 

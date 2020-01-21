@@ -34,6 +34,7 @@ limitations under the License.
 #include <vector>
 #include <iostream>
 #include "sirf/Reg/Resample.h"
+#include "sirf/iUtilities/iutilities.h"
 
 namespace NiftyMoMo {
 class BSplineTransformation;
@@ -62,7 +63,13 @@ public:
     virtual ~NiftyResample() {}
 
     /// Process
-    virtual void process();
+    DEPRECATED virtual void process();
+
+    /// Do the forward transformation
+    virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const ImageData> input_sptr);
+
+    /// Do the adjoint transformation
+    virtual std::shared_ptr<ImageData> adjoint(const std::shared_ptr<const ImageData> input_sptr);
 
 protected:
 
@@ -83,11 +90,6 @@ protected:
                              const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr,
                              const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr);
 
-    /// Do transformation with NiftyReg
-    void transformation_forward();
-
-    /// Do adjoint transformation with NiftyMoMo
-    void transformation_adjoint();
 
     /// Reference image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;

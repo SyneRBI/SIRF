@@ -885,24 +885,20 @@ int main(int argc, char* argv[])
         nr_forward.set_reference_image(x);
         nr_forward.set_floating_image(y);
         nr_forward.set_interpolation_type(Resample<float>::LINEAR);
-        nr_forward.set_transformation_direction(Resample<float>::FORWARD);
         nr_forward.add_transformation(T);
-        nr_forward.process();
         const std::shared_ptr<const NiftiImageData<float> > Ty =
                 std::dynamic_pointer_cast<const NiftiImageData<float> >(
-                    nr_forward.get_output_sptr());
+                    nr_forward.forward(y));
 
         // Do the adjoint
         NiftyResample<float> nr_adjoint;
         nr_adjoint.set_reference_image(x);
         nr_adjoint.set_floating_image(y);
         nr_adjoint.set_interpolation_type(nr_forward.get_interpolation_type());
-        nr_adjoint.set_transformation_direction(Resample<float>::ADJOINT);
         nr_adjoint.add_transformation(T);
-        nr_adjoint.process();
         const std::shared_ptr<const NiftiImageData<float> > Tsx =
                 std::dynamic_pointer_cast<const NiftiImageData<float> >(
-                    nr_adjoint.get_output_sptr());
+                    nr_adjoint.adjoint(x));
 
         // Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
         float inner_x_Ty  = x->get_inner_product(*Ty);
