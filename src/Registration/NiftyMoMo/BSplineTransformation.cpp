@@ -39,7 +39,7 @@ inline void nmm_print_error(const char* message){ fprintf(stderr, "[niftyMoMo ER
 //----------------------------------------------
 BSplineTransformation::BSplineTransformation( const BSplineTransformation& transformToCopy )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::BSplineTransformation( const BSplineTransformation& transformToCopy )" << std::endl;
 #endif
   // Copy all parameters explicitly
@@ -91,7 +91,7 @@ BSplineTransformation::BSplineTransformation( nifti_image* referenceImageIn,
                                               linearEnergyWeight( 0.f ),
                                               lastInitialisedLevel( -1 )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::BSplineTransformation()" << std::endl;
 #endif
 
@@ -143,7 +143,7 @@ BSplineTransformation::BSplineTransformation( nifti_image* referenceImageIn,
 //-----------------------------------------------
 BSplineTransformation::~BSplineTransformation()
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::~BSplineTransformation()" << std::endl;
 #endif
 
@@ -172,7 +172,7 @@ BSplineTransformation::~BSplineTransformation()
 //--------------------------------------
 BSplineTransformation::PrecisionType* BSplineTransformation::GetParameters()
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetParameters()" << std::endl;
 #endif
 
@@ -187,7 +187,7 @@ BSplineTransformation::PrecisionType* BSplineTransformation::GetParameters()
 //----------------------------------------------
 unsigned int BSplineTransformation::GetNumberOfParameters()
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetNumberOfParameters()" << std::endl;
 #endif
 
@@ -202,7 +202,7 @@ unsigned int BSplineTransformation::GetNumberOfParameters()
 //----------------------------------------
 void BSplineTransformation::InitialiseLevel( unsigned int levelIn )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::InitialiseLevel()" << std::endl;
 #endif
   
@@ -251,7 +251,7 @@ void BSplineTransformation::InitialiseLevel( unsigned int levelIn )
 //--------------------------------------------------
 nifti_image* BSplineTransformation::GetDeformationVectorField( const nifti_image * const targetImageIn )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetDeformationVectorField()" << std::endl;
 #endif
 
@@ -1281,7 +1281,7 @@ void BSplineTransformation::DVFToCPG3D( nifti_image *controlPointGridImage,
 //-------------------------------------------------------------------------
 BSplineTransformation::PrecisionType* BSplineTransformation::GetConstraintGradientWRTTransformationParameters()
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetRegularisationGradientWRTTransformationParameters()" << std::endl;
 #endif
   
@@ -1314,7 +1314,7 @@ BSplineTransformation::PrecisionType* BSplineTransformation::GetConstraintGradie
 //-------------------------------------------
 double BSplineTransformation::GetConstraintValue()
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetConstraintValue()" << std::endl;
 #endif
 
@@ -1339,7 +1339,7 @@ double BSplineTransformation::GetConstraintValue()
 //------------------------------------------------------------------
 BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn, nifti_image* sourceImage )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetDVFGradientWRTTransformationParameters()" << std::endl;
 #endif
 
@@ -1391,7 +1391,7 @@ BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTr
 //----------------------------------------------
 void BSplineTransformation::SetLinearEnergyWeight( double linearEnergyWeightIn )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::SetLinearEnergyWeight()" << std::endl;
 #endif
 
@@ -1415,7 +1415,7 @@ void BSplineTransformation::SetLinearEnergyWeight( double linearEnergyWeightIn )
 //--------------------------------------
 void BSplineTransformation::SetParameters( BSplineTransformation::PrecisionType* parametersIn, bool parametersAreDisplacements )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::SetParameters()" << std::endl;
 #endif
   
@@ -1441,7 +1441,7 @@ void BSplineTransformation::SetParameters( BSplineTransformation::PrecisionType*
 //-----------------------------------------------
 void BSplineTransformation::SetBendingEnergyWeight( double bendingEnergyWeightIn )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::SetBendingEnergyWeight()" << std::endl;
 #endif
 
@@ -1465,7 +1465,7 @@ void BSplineTransformation::SetBendingEnergyWeight( double bendingEnergyWeightIn
 //-----------------------------------------------
 BSplineTransformation::PrecisionType BSplineTransformation::GetSumOfPenaltyWeights()
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetSumOfPenaltyWeights()" << std::endl;
 #endif
   
@@ -1545,7 +1545,7 @@ nifti_image * BSplineTransformation::GetTransformationAsImage()
 //---------------------------------
 std::shared_ptr<Transformation> BSplineTransformation::DeepCopy()
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called BSplineTransformation::DeepCopy()" << std::endl;
 #endif
 
@@ -1575,7 +1575,7 @@ void BSplineTransformation::DisplayTransformationParameters()
   printf( "\t* bending energy weight (at current level): %g \n", this->bendingEnergyWeight );
   printf( "\t* linear energy weight (at current level): %g \n", this->linearEnergyWeight );
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   if (this->controlPointGridImage->sform_code > 0)
   {
     reg_mat44_disp( &(this->controlPointGridImage->sto_xyz), (char *)"\t* CPG sform matrix" );

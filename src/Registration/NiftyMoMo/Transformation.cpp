@@ -31,7 +31,7 @@ using namespace NiftyMoMo;
 //--------------------------------
 nifti_image* Transformation::TransformImage( nifti_image* sourceImgIn, nifti_image* targetImgIn )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called Transformation::TransformImage()" << std::endl;
 #endif
   nifti_image* warpedImage;
@@ -118,7 +118,7 @@ void Transformation::TransformImageAdjoint( const nifti_image * const sourceImag
 //----------------------------------------
 void Transformation::GetImageGradientWRTDVF( nifti_image* sourceImage, nifti_image* outWarpedGradientImage )
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called Transformation::GetImageGradientWRTDVF()" << std::endl;
 #endif
 
@@ -156,7 +156,7 @@ void Transformation::setDVF( nifti_image * DVF )
 //---------------------------------------------
 bool Transformation::CheckDVFImageUpdateRequired(const nifti_image * const targetImageIn ) const
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
   std::cout << "Called Transformation::CheckDVFImageUpdateRequired()" << std::endl;
 #endif
 
