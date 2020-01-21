@@ -202,6 +202,13 @@ if try_niftiimage
     arr2 = niftiread(g.ref_aladin_filename);
     assert(all(all(all(arr1 == arr2))), 'NiftiImageData as_array() failed.')
 
+    % Test geom info
+    im = sirf.Reg.NiftiImageData(g.ref_aladin_filename);
+    geom_info = im.get_geometrical_info();
+    geom_info.print_info();
+    % Get voxel sizes
+    assert(all(geom_info.get_size() == [64, 64, 64]), 'SIRF get_geometrical_info().get_size() failed.');
+    assert(all(geom_info.get_spacing() == [4.0625, 4.0625, 4.0625]), 'SIRF get_geometrical_info().get_spacing() failed.');
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
