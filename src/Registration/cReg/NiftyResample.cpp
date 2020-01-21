@@ -115,6 +115,10 @@ void NiftyResample<dataType>::set_up_adjoint()
     // Call base level
     set_up();
 
+    // SINC currently not supported in NiftyMoMo
+    if (this->_interpolation_type == Resample<dataType>::SINC)
+        throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
+
     // Setup output image
     set_up_output_image(_output_image_adjoint_nifti_sptr, _floating_image_nifti_sptr, _reference_image_nifti_sptr);
 
@@ -258,10 +262,6 @@ void NiftyResample<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, co
 {
     // Call the set up
     set_up_adjoint();
-
-    // SINC currently not supported in NiftyMoMo
-    if (this->_interpolation_type == Resample<dataType>::SINC)
-        throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
 
     // Get the input image as NiftiImageData
     // Unfortunately need to clone input image, as not marked as const in NiftyReg
