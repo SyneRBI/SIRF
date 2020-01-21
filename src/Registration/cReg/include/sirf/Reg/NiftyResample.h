@@ -65,6 +65,9 @@ public:
 
 protected:
 
+    /// Set up
+    virtual void set_up();
+
     /// Set up the input images (convert from ImageData to NiftiImageData if necessary)
     void set_up_input_images();
 
@@ -72,10 +75,10 @@ protected:
     void set_up_output_image();
 
     /// Do transformation with NiftyReg
-    void transformation_forward(NiftiImageData3DDeformation<dataType> &transformation);
+    void transformation_forward();
 
     /// Do adjoint transformation with NiftyMoMo
-    void transformation_adjoint(NiftiImageData3DDeformation<dataType> &transformation);
+    void transformation_adjoint();
 
     /// Reference image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;
@@ -83,5 +86,8 @@ protected:
     std::shared_ptr<const NiftiImageData<dataType> > _floating_image_nifti_sptr;
     /// Floating image as a NiftiImageData
     std::shared_ptr<NiftiImageData<dataType> >       _output_image_nifti_sptr;
+
+    /// Deformation
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > _deformation_sptr;
 };
 }

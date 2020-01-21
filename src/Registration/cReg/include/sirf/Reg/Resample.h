@@ -76,31 +76,28 @@ public:
     virtual ~Resample() {}
 
     /// Set reference image
-    virtual void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
+    virtual void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr);
 
     /// Set floating image
-    virtual void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
+    virtual void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
 
     /// Add transformation
     virtual void add_transformation(const std::shared_ptr<const Transformation<dataType> > transformation_sptr);
 
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
-    virtual void set_interpolation_type(const enum InterpolationType type)
-    {
-        _interpolation_type = type;
-    }
+    virtual void set_interpolation_type(const enum InterpolationType type);
 
     /// Set interpolation type to nearest neighbour
-    void set_interpolation_type_to_nearest_neighbour() { _interpolation_type = NEARESTNEIGHBOUR; }
+    void set_interpolation_type_to_nearest_neighbour() { set_interpolation_type(NEARESTNEIGHBOUR); }
 
     /// Set interpolation type to linear
-    void set_interpolation_type_to_linear() { _interpolation_type = LINEAR; }
+    void set_interpolation_type_to_linear() { set_interpolation_type(LINEAR); }
 
     /// Set interpolation type to cubic spline
-    void set_interpolation_type_to_cubic_spline() { _interpolation_type = CUBICSPLINE; }
+    void set_interpolation_type_to_cubic_spline() { set_interpolation_type(CUBICSPLINE); }
 
     /// Set interpolation type to sinc
-    void set_interpolation_type_to_sinc() { _interpolation_type = SINC; }
+    void set_interpolation_type_to_sinc() { set_interpolation_type(SINC); }
 
     /// Get interpolation type
     const InterpolationType get_interpolation_type() const { return _interpolation_type; }
@@ -121,6 +118,9 @@ public:
     const std::shared_ptr<const ImageData> get_output_sptr() const { return _output_image_sptr; }
 
 protected:
+
+    /// Set up
+    virtual void set_up() = 0;
 
     /// Check parameters
     virtual void check_parameters();
@@ -144,5 +144,9 @@ protected:
 
     /// Transformation direction
     TransformationDirection _transformation_direction = FORWARD;
+
+    bool _need_to_set_up = true;
+    bool _need_to_set_up_forward = true;
+    bool _need_to_set_up_adjoint = true;
 };
 }

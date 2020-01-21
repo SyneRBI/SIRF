@@ -40,9 +40,10 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void NiftyResample<dataType>::process()
+void NiftyResample<dataType>::set_up()
 {
-    std::cout << "\n\nStarting resampling...\n\n";
+    if (!this->_need_to_set_up)
+        return;
 
     // Check that all the required information has been entered
     this->check_parameters();
@@ -60,18 +61,28 @@ void NiftyResample<dataType>::process()
 
     // If there are multiple transformations, compose them into single transformation.
     // If forward, use the reference. If adjoint, use the floating
-    NiftiImageData3DDeformation<dataType> transformation =
+    this->_deformation_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >(
             NiftiImageData3DDeformation<dataType>::compose_single_deformation(
                 this->_transformations,
                 (this->_transformation_direction==NiftyResample<dataType>::FORWARD)?
                     *this->_reference_image_nifti_sptr :
-                    *this->_floating_image_nifti_sptr);
+                    *this->_floating_image_nifti_sptr));
+
+    this->_need_to_set_up = false;
+}
+
+template<class dataType>
+void NiftyResample<dataType>::process()
+{
+    std::cout << "\n\nStarting resampling...\n\n";
+
+    set_up();
 
     // If we're resampling with NiftyReg
     if (this->_transformation_direction == Resample<dataType>::FORWARD)
-        transformation_forward(transformation);
+        transformation_forward();
     else
-        transformation_adjoint(transformation);
+        transformation_adjoint();
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
     this->_output_image_sptr = this->_reference_image_sptr->clone();
@@ -128,21 +139,21 @@ void NiftyResample<dataType>::set_up_output_image()
 }
 
 template<class dataType>
-void NiftyResample<dataType>::transformation_forward(NiftiImageData3DDeformation<dataType> &transformation)
+void NiftyResample<dataType>::transformation_forward()
 {
     // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty C-style cast?)
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
 
     reg_resampleImage(flo.get_raw_nifti_sptr().get(),
                       this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
-                      transformation.get_raw_nifti_sptr().get(),
+                      _deformation_sptr->get_raw_nifti_sptr().get(),
                       NULL,
                       this->_interpolation_type,
                       this->_padding_value);
 }
 
 template<class dataType>
-void NiftyResample<dataType>::transformation_adjoint(NiftiImageData3DDeformation<dataType> &transformation)
+void NiftyResample<dataType>::transformation_adjoint()
 {
     // SINC currently not supported in NiftyMoMo
     if (this->_interpolation_type == Resample<dataType>::SINC)
@@ -150,13 +161,13 @@ void NiftyResample<dataType>::transformation_adjoint(NiftiImageData3DDeformation
 
     // Get deformation spacing
     float control_point_grid_spacing[3] = {
-        transformation.get_raw_nifti_sptr()->dx,
-        transformation.get_raw_nifti_sptr()->dy,
-        transformation.get_raw_nifti_sptr()->dz
+        _deformation_sptr->get_raw_nifti_sptr()->dx,
+        _deformation_sptr->get_raw_nifti_sptr()->dy,
+        _deformation_sptr->get_raw_nifti_sptr()->dz
     };
 
     // Get the deformation field
-    nifti_image *def_ptr = transformation.get_raw_nifti_sptr().get();
+    nifti_image *def_ptr = _deformation_sptr->get_raw_nifti_sptr().get();
     // Copy of floating image
     NiftiImageData<dataType> flo = *this->_floating_image_nifti_sptr;
     nifti_image *flo_ptr = flo.get_raw_nifti_sptr().get();
