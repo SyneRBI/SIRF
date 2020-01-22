@@ -840,6 +840,19 @@ int main(int argc, char* argv[])
         nr3.process();
         nr3.get_output_sptr()->write(nonrigid_resample_def);
 
+        // Check that the following give the same result
+        //      out = resample.forward(in)
+        //      resample.forward(out, in)
+        const std::shared_ptr<const NiftiImageData<float> > out1_sptr =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr3.forward(flo_aladin));
+
+        const std::shared_ptr<NiftiImageData<float> > out2_sptr = ref_aladin->clone();
+        nr3.forward(out2_sptr, flo_aladin);
+
+        if (*out1_sptr != *out2_sptr)
+            throw std::runtime_error("out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.");
+
         // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
         // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
         // ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation
@@ -904,6 +917,19 @@ int main(int argc, char* argv[])
         std::cout << "|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = " << adjoint_test << "\n";
         if (adjoint_test > 1e-4F)
             throw std::runtime_error("NiftyResample::adjoint() failed");
+
+        // Check that the following give the same result
+        //      out = resample.adjoint(in)
+        //      resample.adjoint(out, in)
+        const std::shared_ptr<const NiftiImageData<float> > out1_sptr =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr.adjoint(x));
+
+        const std::shared_ptr<NiftiImageData<float> > out2_sptr = y->clone();
+        nr.backward(out2_sptr, x);
+
+        if (*out1_sptr != *out2_sptr)
+            throw std::runtime_error("out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftyMoMo test.\n";
