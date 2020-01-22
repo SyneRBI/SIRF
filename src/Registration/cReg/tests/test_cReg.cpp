@@ -862,12 +862,13 @@ int main(int argc, char* argv[])
         //      |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
         // for all images x and y, where T is the transform and Ts is the adjoint.
 
-        const std::shared_ptr<const NiftiImageData<float> > x = ref_aladin;
+        const std::shared_ptr<const NiftiImageData<float> > x =
+                std::make_shared<const NiftiImageData<float> >(ref_aladin_filename);
         const std::shared_ptr<AffineTransformation<float> > T =
                 std::make_shared<AffineTransformation<float> >(*
                 NA.get_transformation_matrix_forward_sptr());
         const std::shared_ptr<NiftiImageData<float> > y  =
-                std::make_shared<NiftiImageData3D<float> >(*flo_aladin);
+                std::make_shared<NiftiImageData3D<float> >(flo_f3d_filename);
 
         // Add in a magnification to make things interesting
         (*T)[0][0] = 1.5f;
