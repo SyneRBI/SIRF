@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
         // Do it with vectors to check
         const float *x_begin = &static_cast<const float*>(x.get_raw_nifti_sptr()->data)[0];
         const float *y_begin = &static_cast<const float*>(y.get_raw_nifti_sptr()->data)[0];
-        const float *x_end   = &static_cast<const float*>(x.get_raw_nifti_sptr()->data)[0] + x.get_num_voxels() + sizeof(float);
+        const float *x_end   = &static_cast<const float*>(x.get_raw_nifti_sptr()->data)[0] + x.get_num_voxels();
         const float inner_vec = std::inner_product(x_begin, x_end, y_begin, 0.f);
 
         if (std::abs(inner-inner_vec) > 1e-4f)
