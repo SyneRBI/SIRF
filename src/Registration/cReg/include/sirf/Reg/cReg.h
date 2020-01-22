@@ -87,6 +87,8 @@ extern "C" {
     // NiftyResample
     void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
     void* cReg_NiftyResample_process(void* ptr);
+    void* cReg_NiftyResample_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    void* cReg_NiftyResample_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
 
     // ImageWeightedMean
     void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);

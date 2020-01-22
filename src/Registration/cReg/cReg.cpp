@@ -648,7 +648,48 @@ void* cReg_NiftyResample_process(void* ptr)
     }
     CATCH;
 }
+extern "C"
+void* cReg_NiftyResample_forward(const void* output_ptr, const void * const input_ptr, const void * resampler_ptr)
+{
+    try {
+        // Get resampler
+        std::shared_ptr<NiftyResample<float> > resampler_sptr;
+        getObjectSptrFromHandle<NiftyResample<float> >(resampler_ptr, resampler_sptr);
 
+        // Get input and output images
+        std::shared_ptr<const ImageData> input_sptr;
+        getObjectSptrFromHandle<const ImageData>(input_ptr, input_sptr);
+        std::shared_ptr<ImageData> output_sptr;
+        getObjectSptrFromHandle<ImageData>(output_ptr, output_sptr);
+
+        // Forward transformation
+        resampler_sptr->forward(output_sptr,input_sptr);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftyResample_adjoint(const void* output_ptr, const void * const input_ptr, const void * resampler_ptr)
+{
+    try {
+        // Get resampler
+        std::shared_ptr<NiftyResample<float> > resampler_sptr;
+        getObjectSptrFromHandle<NiftyResample<float> >(resampler_ptr, resampler_sptr);
+
+        // Get input and output images
+        std::shared_ptr<const ImageData> input_sptr;
+        getObjectSptrFromHandle<const ImageData>(input_ptr, input_sptr);
+        std::shared_ptr<ImageData> output_sptr;
+        getObjectSptrFromHandle<ImageData>(output_ptr, output_sptr);
+
+        // Forward transformation
+        resampler_sptr->adjoint(output_sptr,input_sptr);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      ImageWeightedMean
 // -------------------------------------------------------------------------------- //
