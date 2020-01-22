@@ -72,6 +72,8 @@ EXPORTED_FUNCTION     void* mReg_Registration_print_all_wrapped_methods(const ch
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr);
+EXPORTED_FUNCTION     void* mReg_NiftyResample_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftyResample_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
 EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
 EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
 EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_process(void* ptr);
