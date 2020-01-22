@@ -85,10 +85,12 @@ void print_usage()
     std::cout << "    -add_affine:\tadd affine transformation\n";
     std::cout << "    -add_def:\t\tadd deformation transformation\n";
     std::cout << "    -add_disp:\t\tadd displacement transformation\n";
+    std::cout << "    -adj:\t\tadjoint transformation. Give ref and flo as you would in the forward case.\n";
+
 }
 
 /// throw error
-void err(const std::string message)
+[[ noreturn ]] void err(const std::string message)
 {
     std::cerr << "\n" << message << "\n";
     exit(EXIT_FAILURE);
@@ -107,6 +109,7 @@ int main(int argc, char* argv[])
         Resample<float>::InterpolationType interp = Resample<float>::NEARESTNEIGHBOUR;
         float pad = 0;
         bool pad_set = false;
+        bool forward = true;
 
         // Loop over all input arguments (ignore first argument (name of executable))
         argc--; argv++;
@@ -196,6 +199,11 @@ int main(int argc, char* argv[])
                 pad_set = true;
                 argc-=2; argv+=2;
             }
+            // direction
+            else if (strcmp(argv[0], "-adj") == 0) {
+                forward = false;
+                argc-=1; argv+=1;
+            }
 
             // Unknown argument
             else
@@ -221,8 +229,13 @@ int main(int argc, char* argv[])
         res->set_interpolation_type(interp);
         if (pad_set)
             res->set_padding_value(pad);
-        res->process();
-        res->get_output_sptr()->write(output);
+
+        std::shared_ptr<ImageData> output_sptr;
+        if (forward)
+            output_sptr = res->forward(flo);
+        else
+            output_sptr = res->adjoint(ref);
+        output_sptr->write(output);
     }
 
     // If there was an error
