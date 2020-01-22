@@ -879,27 +879,21 @@ int main(int argc, char* argv[])
         int max_idx[7] = {y_dims[1]-3,y_dims[2]-1,y_dims[3]-5-1,-1,-1,-1};
         y->crop(min_idx,max_idx);
 
+        NiftyResample<float> nr;
+        nr.set_reference_image(x);
+        nr.set_floating_image(y);
+        nr.set_interpolation_type(Resample<float>::LINEAR);
+        nr.add_transformation(T);
+
         // Do the forward
-        std::cout << "Testing adjoint resample...\n";
-        // NiftyReg and NiftyMoMo forward resamples
-        NiftyResample<float> nr_forward;
-        nr_forward.set_reference_image(x);
-        nr_forward.set_floating_image(y);
-        nr_forward.set_interpolation_type(Resample<float>::LINEAR);
-        nr_forward.add_transformation(T);
         const std::shared_ptr<const NiftiImageData<float> > Ty =
                 std::dynamic_pointer_cast<const NiftiImageData<float> >(
-                    nr_forward.forward(y));
+                    nr.forward(y));
 
         // Do the adjoint
-        NiftyResample<float> nr_adjoint;
-        nr_adjoint.set_reference_image(x);
-        nr_adjoint.set_floating_image(y);
-        nr_adjoint.set_interpolation_type(nr_forward.get_interpolation_type());
-        nr_adjoint.add_transformation(T);
         const std::shared_ptr<const NiftiImageData<float> > Tsx =
                 std::dynamic_pointer_cast<const NiftiImageData<float> >(
-                    nr_adjoint.adjoint(x));
+                    nr.adjoint(x));
 
         // Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
         float inner_x_Ty  = x->get_inner_product(*Ty);
