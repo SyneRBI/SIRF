@@ -1086,7 +1086,7 @@ void NiftiImageData<dataType>::set_voxel_spacing(const float new_spacing[3], con
     NiftiImageData<dataType> old = *this;
     nifti_image *oldImg = old.get_raw_nifti_sptr().get();
     // Create the new image
-    _nifti_image.reset(nifti_make_new_nim(newDim,_nifti_image->datatype,true));
+    _nifti_image.reset(nifti_make_new_nim(newDim,_nifti_image->datatype,true),nifti_image_free);
     nifti_image *newImg = _nifti_image.get();
 
     newImg->pixdim[1]=newImg->dx=new_spacing[0];

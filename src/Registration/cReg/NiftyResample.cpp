@@ -141,7 +141,7 @@ void NiftyResample<dataType>::set_up_adjoint()
                 control_point_grid_spacing);
 
     _adjoint_transformer_sptr->set_interpolation(this->_interpolation_type);
-    _adjoint_transformer_sptr->SetParameters(static_cast<dataType*>(def_ptr->data), false);
+//    _adjoint_transformer_sptr->SetParameters(static_cast<dataType*>(def_ptr->data), false);
     _adjoint_transformer_sptr->SetPaddingValue(this->_padding_value);
     _adjoint_transformer_sptr->setDVF(def_ptr);
 

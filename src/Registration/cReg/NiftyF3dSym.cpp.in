@@ -86,9 +86,17 @@ void NiftyF3dSym<dataType>::process()
     _registration_sptr->Run();
 
     // Get the warped image
-    nifti_image *warped_im = *_registration_sptr->GetWarpedImage();
-    this->_warped_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(*warped_im);
-    nifti_image_free(warped_im);
+    nifti_image **warped_im = _registration_sptr->GetWarpedImage();
+    this->_warped_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(*warped_im[0]);
+    // Free the images created
+    if(warped_im[0]!=NULL)
+        nifti_image_free(warped_im[0]);
+    warped_im[0]=NULL;
+    if(warped_im[1]!=NULL)
+        nifti_image_free(warped_im[1]);
+    warped_im[1]=NULL;
+    free(warped_im);
+    warped_im=NULL;
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
     if (this->_floating_image_nifti_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
@@ -98,8 +106,8 @@ void NiftyF3dSym<dataType>::process()
     // Get the CPP images
     nifti_image * cpp_fwd_ptr = _registration_sptr->GetControlPointPositionImage();
     nifti_image * cpp_inv_ptr = _registration_sptr->GetBackwardControlPointPositionImage();
-    NiftiImageData3DTensor<dataType> cpp_forward(*_registration_sptr->GetControlPointPositionImage());
-    NiftiImageData3DTensor<dataType> cpp_inverse(*_registration_sptr->GetBackwardControlPointPositionImage());
+    NiftiImageData3DTensor<dataType> cpp_forward(*cpp_fwd_ptr);
+    NiftiImageData3DTensor<dataType> cpp_inverse(*cpp_inv_ptr);
     nifti_image_free(cpp_fwd_ptr);
     nifti_image_free(cpp_inv_ptr);
 

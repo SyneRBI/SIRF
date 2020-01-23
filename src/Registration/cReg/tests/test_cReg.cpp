@@ -881,7 +881,7 @@ int main(int argc, char* argv[])
                 std::make_shared<AffineTransformation<float> >(*
                 NA.get_transformation_matrix_forward_sptr());
         const std::shared_ptr<NiftiImageData<float> > y  =
-                std::make_shared<NiftiImageData3D<float> >(flo_f3d_filename);
+                std::make_shared<NiftiImageData3D<float> >(flo_aladin_filename);
 
         // Add in a magnification to make things interesting
         (*T)[0][0] = 1.5f;
