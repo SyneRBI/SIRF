@@ -66,6 +66,7 @@ f3d_disp_inverse = output_prefix + "f3d_disp_inverse_%s.nii"
 rigid_resample = output_prefix + "rigid_resample.nii"
 nonrigid_resample_disp = output_prefix + "nonrigid_resample_disp.nii"
 nonrigid_resample_def = output_prefix + "nonrigid_resample_def.nii"
+niftymomo_resample_adj = output_prefix + "niftymomo_resample_adj.nii"
 output_weighted_mean = output_prefix + "weighted_mean.nii"
 output_weighted_mean_def = output_prefix + "weighted_mean_def.nii"
 output_float = output_prefix + "reg_aladin_float.nii"
@@ -643,6 +644,8 @@ def try_niftyaladin():
     na.set_parameter("SetInterpolationToCubic")
     na.set_parameter("SetLevelsToPerform", "1")
     na.set_parameter("SetMaxIterations", "5")
+    na.set_parameter("SetPerformRigid", "1")
+    na.set_parameter("SetPerformAffine", "0")
     na.set_reference_mask(ref_mask);
     na.set_floating_mask(flo_mask);
     na.process()
@@ -823,6 +826,15 @@ def try_resample(na):
     nr3.process()
     nr3.get_output().write(nonrigid_resample_def)
 
+    # Check that the following give the same result
+    #       out = resample.forward(in)
+    #       resample.forward(out, in)
+    out1 = nr3.forward(flo_aladin)
+    out2 = ref_aladin.deep_copy()
+    nr3.forward(out2, flo_aladin)
+    if out1 != out2:
+        raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
+
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
     # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
     # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation 
@@ -833,6 +845,73 @@ def try_resample(na):
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished Nifty resample test.\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+
+# NiftyMoMo
+def try_niftymomo(na):
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Starting NiftyMomMo test...\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+    # The forward and the adjoint should meet the following criterion:
+    # | < x, Ty > - < y, Tsx > | / 0.5 * (| < x, Ty > | + | < y, Tsx > |) < epsilon
+    # for all images x and y, where T is the transform and Ts is the adjoint.
+
+    x = ref_aladin
+    T = na.get_transformation_matrix_forward()
+    y = flo_aladin
+
+    # Add in a magnification to make things interesting
+    t = T.as_array()
+    t[0][0] = 1.5
+    T = sirf.Reg.AffineTransformation(t)
+
+    # make it slightly unsquare to spice things up
+    min_idx = [0, 1, 2]
+    y_dims = y.get_dimensions()
+    max_idx = [y_dims[1] - 3, y_dims[2] - 1, y_dims[3]-5]
+    y.crop(min_idx, max_idx)
+
+    sys.stderr.write('Testing adjoint resample...\n')
+    nr = sirf.Reg.NiftyResample()
+    nr.set_reference_image(x)
+    nr.set_floating_image(y)
+    nr.set_interpolation_type_to_linear()
+    nr.add_transformation(T)
+
+    # Do the forward
+    Ty = nr.forward(y)
+
+    # Do the adjoint
+    Tsx = nr.adjoint(x)
+
+    # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
+    inner_x_Ty = x.get_inner_product(Ty)
+    inner_y_Tsx = y.get_inner_product(Tsx)
+    adjoint_test = abs(inner_x_Ty - inner_y_Tsx) / (0.5 * (abs(inner_x_Ty) + abs(inner_y_Tsx)))
+    sys.stderr.write('<x, Ty>  = %f\n' % inner_x_Ty)
+    sys.stderr.write('<y, Tsx> = %f\n' % inner_y_Tsx)
+    sys.stderr.write('|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = %f\n' % adjoint_test)
+    if adjoint_test > 1e-4:
+        raise AssertionError("NiftyResample::adjoint() failed")
+
+    # Check that the following give the same result
+    #       out = resample.adjoint(in)
+    #       resample.adjoint(out, in)
+    out1 = nr.adjoint(x)
+    out2 = y.deep_copy()
+    nr.backward(out2, x)
+    if out1 != out2:
+        raise AssertionError(
+            'out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.')
+
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Finished NiftyMoMo test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
@@ -1050,6 +1129,7 @@ def test():
     try_niftyf3d()
     try_transformations(na)
     try_resample(na)
+    try_niftymomo(na)
     try_weighted_mean(na)
     try_affinetransformation(na)
     try_quaternion()

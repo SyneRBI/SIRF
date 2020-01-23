@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
         // Do it with vectors to check
         const float *x_begin = &static_cast<const float*>(x.get_raw_nifti_sptr()->data)[0];
         const float *y_begin = &static_cast<const float*>(y.get_raw_nifti_sptr()->data)[0];
-        const float *x_end   = &static_cast<const float*>(x.get_raw_nifti_sptr()->data)[0] + x.get_num_voxels() + sizeof(float);
+        const float *x_end   = &static_cast<const float*>(x.get_raw_nifti_sptr()->data)[0] + x.get_num_voxels();
         const float inner_vec = std::inner_product(x_begin, x_end, y_begin, 0.f);
 
         if (std::abs(inner-inner_vec) > 1e-4f)
@@ -822,9 +822,12 @@ int main(int argc, char* argv[])
         nr2.add_transformation(disp);
         nr2.set_padding_value(padding_value);
         nr2.process();
-        nr2.get_output_sptr()->write(nonrigid_resample_disp);
+        const std::shared_ptr<const NiftiImageData<float> > nr2_output =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr2.get_output_sptr());
+        nr2_output->write(nonrigid_resample_disp);
 
-        if (std::abs(nr2.get_output_as_niftiImageData_sptr()->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
+        if (std::abs(nr2_output->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
             throw std::runtime_error("NiftyResample::set_padding_value failed.");
 
         std::cout << "Testing non-rigid deformation...\n";
@@ -836,6 +839,19 @@ int main(int argc, char* argv[])
         nr3.set_interpolation_type_to_linear();
         nr3.process();
         nr3.get_output_sptr()->write(nonrigid_resample_def);
+
+        // Check that the following give the same result
+        //      out = resample.forward(in)
+        //      resample.forward(out, in)
+        const std::shared_ptr<const NiftiImageData<float> > out1_sptr =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr3.forward(flo_aladin));
+
+        const std::shared_ptr<NiftiImageData<float> > out2_sptr = ref_aladin->clone();
+        nr3.forward(out2_sptr, flo_aladin);
+
+        if (*out1_sptr != *out2_sptr)
+            throw std::runtime_error("out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.");
 
         // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
         // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
@@ -859,12 +875,13 @@ int main(int argc, char* argv[])
         //      |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
         // for all images x and y, where T is the transform and Ts is the adjoint.
 
-        const std::shared_ptr<const NiftiImageData<float> > x = ref_aladin;
+        const std::shared_ptr<const NiftiImageData<float> > x =
+                std::make_shared<const NiftiImageData<float> >(ref_aladin_filename);
         const std::shared_ptr<AffineTransformation<float> > T =
                 std::make_shared<AffineTransformation<float> >(*
                 NA.get_transformation_matrix_forward_sptr());
         const std::shared_ptr<NiftiImageData<float> > y  =
-                std::make_shared<NiftiImageData3D<float> >(*flo_aladin);
+                std::make_shared<NiftiImageData3D<float> >(flo_aladin_filename);
 
         // Add in a magnification to make things interesting
         (*T)[0][0] = 1.5f;
@@ -875,40 +892,44 @@ int main(int argc, char* argv[])
         int max_idx[7] = {y_dims[1]-3,y_dims[2]-1,y_dims[3]-5-1,-1,-1,-1};
         y->crop(min_idx,max_idx);
 
+        NiftyResample<float> nr;
+        nr.set_reference_image(x);
+        nr.set_floating_image(y);
+        nr.set_interpolation_type(Resample<float>::LINEAR);
+        nr.add_transformation(T);
+
         // Do the forward
-        std::cout << "Testing adjoint resample...\n";
-        // NiftyReg and NiftyMoMo forward resamples
-        NiftyResample<float> nr_forward;
-        nr_forward.set_reference_image(x);
-        nr_forward.set_floating_image(y);
-        nr_forward.set_interpolation_type(Resample<float>::LINEAR);
-        nr_forward.set_transformation_direction(Resample<float>::FORWARD);
-        nr_forward.add_transformation(T);
-        nr_forward.process();
-        const NiftiImageData<float> Ty =
-                *nr_forward.get_output_as_niftiImageData_sptr();
+        const std::shared_ptr<const NiftiImageData<float> > Ty =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr.forward(y));
 
         // Do the adjoint
-        NiftyResample<float> nr_adjoint;
-        nr_adjoint.set_reference_image(y);
-        nr_adjoint.set_floating_image(x);
-        nr_adjoint.set_interpolation_type(nr_forward.get_interpolation_type());
-        nr_adjoint.set_transformation_direction(Resample<float>::ADJOINT);
-        nr_adjoint.add_transformation(T);
-        nr_adjoint.process();
-        const NiftiImageData<float> Tsx =
-                *nr_adjoint.get_output_as_niftiImageData_sptr();
-        Tsx.write(niftymomo_resample_adj);
+        const std::shared_ptr<const NiftiImageData<float> > Tsx =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr.adjoint(x));
 
         // Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
-        float inner_x_Ty  = x->get_inner_product(Ty);
-        float inner_y_Tsx = y->get_inner_product(Tsx);
+        float inner_x_Ty  = x->get_inner_product(*Ty);
+        float inner_y_Tsx = y->get_inner_product(*Tsx);
         float adjoint_test = std::abs(inner_x_Ty - inner_y_Tsx) / (0.5f * (std::abs(inner_x_Ty) +std::abs(inner_y_Tsx)));
         std::cout << "\n<x, Ty>  = " << inner_x_Ty << "\n";
         std::cout << "<y, Tsx> = " << inner_y_Tsx << "\n";
         std::cout << "|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = " << adjoint_test << "\n";
         if (adjoint_test > 1e-4F)
             throw std::runtime_error("NiftyResample::adjoint() failed");
+
+        // Check that the following give the same result
+        //      out = resample.adjoint(in)
+        //      resample.adjoint(out, in)
+        const std::shared_ptr<const NiftiImageData<float> > out1_sptr =
+                std::dynamic_pointer_cast<const NiftiImageData<float> >(
+                    nr.adjoint(x));
+
+        const std::shared_ptr<NiftiImageData<float> > out2_sptr = y->clone();
+        nr.backward(out2_sptr, x);
+
+        if (*out1_sptr != *out2_sptr)
+            throw std::runtime_error("out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftyMoMo test.\n";

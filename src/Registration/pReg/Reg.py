@@ -23,6 +23,7 @@ import abc
 import sys
 import time
 import numbers
+import deprecation
 
 from pUtilities import *
 from sirf import SIRF
@@ -700,6 +701,7 @@ class NiftyResample(object):
         self.name = 'NiftyResample'
         self.handle = pyreg.cReg_newObject(self.name)
         self.reference_image = None
+        self.floating_image = None
         check_status(self.handle)
 
     def __del__(self):
@@ -717,6 +719,7 @@ class NiftyResample(object):
         """Set floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
+        self.floating_image = floating_image
         parms.set_parameter(self.handle, self.name, 'floating_image', floating_image.handle)
 
     def add_transformation(self, src):
@@ -756,6 +759,8 @@ class NiftyResample(object):
         """Set padding value."""
         parms.set_float_par(self.handle, self.name, 'padding', val)
 
+    @deprecation.deprecated(deprecated_in="2.1.0",
+                            details="Use forward(image) instead")
     def process(self):
         """Process."""
         try_calling(pyreg.cReg_NiftyResample_process(self.handle))
@@ -766,6 +771,60 @@ class NiftyResample(object):
         image.handle = parms.parameter_handle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
+
+    def forward(self, im1, im2=None):
+        """Forward transformation.
+        Usage:
+            output = forward(input), OR
+            forward(output,input)
+        """
+        # If usage was 'output = forward(input)'
+        if im2 is None:
+            output_im = self.reference_image.deep_copy()
+            input_im = im1
+        # If usage was 'forward(output, input)'
+        else:
+            output_im = im1
+            input_im = im2
+        # Check image validity
+        if not isinstance(input_im, SIRF.ImageData):
+            raise AssertionError()
+        if not isinstance(output_im, SIRF.ImageData):
+            raise AssertionError()
+        # Forward
+        try_calling(pyreg.cReg_NiftyResample_forward(output_im.handle, input_im.handle, self.handle))
+        # If usage was 'output = forward(input)', we need to return the ouptut
+        if im2 is None:
+            return output_im
+
+    def adjoint(self, im1, im2=None):
+        """Adjoint transformation.
+        Usage:
+            output = adjoint(input), OR
+            adjoint(output,input)
+        """
+        # If usage was 'output = adjoint(input)'
+        if im2 is None:
+            output_im = self.floating_image.deep_copy()
+            input_im = im1
+        # If usage was 'adjoint(output, input)'
+        else:
+            output_im = im1
+            input_im = im2
+        # Check image validity
+        if not isinstance(input_im, SIRF.ImageData):
+            raise AssertionError()
+        if not isinstance(output_im, SIRF.ImageData):
+            raise AssertionError()
+        # Forward
+        try_calling(pyreg.cReg_NiftyResample_adjoint(output_im.handle, input_im.handle, self.handle))
+        # If usage was 'output = adjoint(input)', we need to return the ouptut
+        if im2 is None:
+            return output_im
+
+    def backward(self, im1, im2=None):
+        """Backward transformation. Alias of adjoint to align terms with AcquisitionModel's forward and backward."""
+        return self.adjoint(im1, im2)
 
 
 class ImageWeightedMean(object):

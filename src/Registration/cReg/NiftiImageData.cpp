@@ -1086,7 +1086,7 @@ void NiftiImageData<dataType>::set_voxel_spacing(const float new_spacing[3], con
     NiftiImageData<dataType> old = *this;
     nifti_image *oldImg = old.get_raw_nifti_sptr().get();
     // Create the new image
-    _nifti_image.reset(nifti_make_new_nim(newDim,_nifti_image->datatype,true));
+    _nifti_image.reset(nifti_make_new_nim(newDim,_nifti_image->datatype,true),nifti_image_free);
     nifti_image *newImg = _nifti_image.get();
 
     newImg->pixdim[1]=newImg->dx=new_spacing[0];
@@ -1329,8 +1329,10 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
         resample.set_interpolation_type_to_nearest_neighbour();
         resample.set_reference_image(im1_sptr);
         resample.set_floating_image(im2_sptr);
-        resample.process();
-        norm = resample.get_output_as_niftiImageData_sptr()->get_norm(*im1_sptr);
+        const std::shared_ptr<const NiftiImageData<dataType> > resampled_sptr =
+                std::dynamic_pointer_cast<const NiftiImageData<dataType> >(
+                    resample.forward(im2_sptr));
+        norm = resampled_sptr->get_norm(*im1_sptr);
     }
 
     if (norm <= epsilon)

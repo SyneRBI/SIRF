@@ -147,6 +147,12 @@ EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, co
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr) {
 	return cReg_NiftyResample_process(ptr);
 }
+EXPORTED_FUNCTION     void* mReg_NiftyResample_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr) {
+	return cReg_NiftyResample_forward(output_ptr, input_ptr, resampler_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftyResample_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr) {
+	return cReg_NiftyResample_adjoint(output_ptr, input_ptr, resampler_ptr);
+}
 EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight) {
 	return cReg_ImageWeightedMean_add_image(ptr, obj, weight);
 }
