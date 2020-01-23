@@ -42,13 +42,13 @@ classdef NiftyResample < handle
             end
         end
         function set_reference_image(self, reference_image)
-            %Set reference image.
+            %Set reference image. This is the image that would be the reference if you were doing a forward transformation.
             assert(isa(reference_image, 'sirf.SIRF.ImageData'), 'NiftyResample::set_reference_image expects sirf.SIRF.ImageData')
             self.reference_image = reference_image;
             sirf.Reg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
-            %Set floating image.
+            %Set floating image. This is the image that would be the floating if you were doing a forward transformation.
             assert(isa(floating_image, 'sirf.SIRF.ImageData'), 'NiftyResample::set_floating_image expects sirf.SIRF.ImageData')
             self.floating_image = floating_image;
             sirf.Reg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')

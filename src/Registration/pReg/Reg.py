@@ -709,14 +709,14 @@ class NiftyResample(object):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_reference_image(self, reference_image):
-        """Set reference image."""
+        """Set reference image. This is the image that would be the reference if you were doing a forward transformation."""
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
         parms.set_parameter(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
-        """Set floating image."""
+        """Set floating image. This is the image that would be the floating if you were doing a forward transformation."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
         self.floating_image = floating_image

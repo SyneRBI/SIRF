@@ -71,10 +71,10 @@ public:
     /// Destructor
     virtual ~Resample() {}
 
-    /// Set reference image
+    /// Set reference image. This is the image that would be the reference if you were doing a forward transformation.
     virtual void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr);
 
-    /// Set floating image
+    /// Set floating image. This is the image that would be the floating if you were doing a forward transformation.
     virtual void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
 
     /// Add transformation
