@@ -806,6 +806,9 @@ class AcquisitionData(DataContainer):
     def is_undersampled(self):
         assert self.handle is not None
         return parms.int_par(self.handle, 'acquisitions', 'undersampled')
+    def get_header(self):
+        assert self.handle is not None
+        return params.char_par(self.handle, 'acquisitions', 'info')
     def process(self, list):
         '''
         Returns processed self with an acquisition processor specified by

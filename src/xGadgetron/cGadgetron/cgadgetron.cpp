@@ -134,7 +134,6 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(GenericReconCartesianReferencePrepGadget);
 		NEW_GADGET(GenericReconCartesianGrappaGadget);
 		NEW_GADGET(SimpleReconGadget);
-        NEW_GADGET(GenericReconCartesianFFTGadget);
 		NEW_GADGET(GenericReconFieldOfViewAdjustmentGadget);
 		NEW_GADGET(GenericReconImageArrayScalingGadget);
 		NEW_GADGET(FatWaterGadget);
@@ -485,6 +484,8 @@ cGT_sortAcquisitions(void* ptr_acqs)
 	CATCH;
 }
 
+
+
 extern "C"
 void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
@@ -629,6 +630,9 @@ cGT_writeAcquisitions(void* ptr_acqs, const char* filename)
 	CATCH;
 }
 
+
+
+
 extern "C"
 void*
 cGT_acquisitionParameter(void* ptr_acq, const char* name)
@@ -711,6 +715,8 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 			return dataHandle((int)acqs.undersampled());
 		if (boost::iequals(name, "sorted"))
 			return dataHandle((int)acqs.sorted());
+		if (boost::iequals(name, "info"))
+			return charDataHandleFromCharData(acqs.acquisitions_info().c_str());
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -858,19 +864,17 @@ cGT_writeImages(void* ptr_imgs, const char* filename, const char* ext)
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
-        // If .h5
-		if (strcmp(ext, "h5") == 0) {
+		if (strcmp(ext, "dcm")) {
 			std::string fullname(filename);
 			fullname += ".";
 			fullname += ext;
 			imgs.write(fullname);
 		}
-        // Else if dicom
-		else if (strcmp(ext, "dcm") == 0) {
-            imgs.write(filename,"",true);
+		else {
+//			std::cout << "in cGT_writeImages\n";
+			ImagesProcessor ip(true, filename);
+			ip.process(imgs);
 		}
-        else
-            throw std::runtime_error("cGT_writeImages: Unknown extension");
 	}
 	CATCH;
 
