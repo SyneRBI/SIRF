@@ -484,12 +484,32 @@ cGT_sortAcquisitions(void* ptr_acqs)
 	CATCH;
 }
 
+extern "C"
+void*
+cGT_sortAcquisitionsByTime(void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		acqs.sort_by_time();
+
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
 
 
 extern "C"
 void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
+	if(strlen(file)<1)
+	{
+		shared_ptr<MRAcquisitionData> 
+			acquisitions(new AcquisitionsFile(AcquisitionsInfo()));
+		return newObjectHandle<MRAcquisitionData>(acquisitions);
+	}
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
@@ -556,6 +576,22 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 			sptr_acq(new ISMRMRD::Acquisition);
 		acqs.get_acquisition(acq_num, *sptr_acq);
 		return newObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		ISMRMRD::Acquisition& acq = 
+			objectFromHandle<ISMRMRD::Acquisition>(ptr_acq);
+		acqs.append_acquisition(acq);
+		return new DataHandle;
 	}
 	CATCH;
 }
@@ -720,6 +756,21 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;
+}
+
+extern "C"
+void*
+cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		acqs.set_acquisitions_info(info);
+		return new DataHandle;
+	}
+	CATCH;
+
 }
 
 extern "C"
