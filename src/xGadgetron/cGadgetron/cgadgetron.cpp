@@ -504,12 +504,6 @@ extern "C"
 void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
-	if(strlen(file)<1)
-	{
-		shared_ptr<MRAcquisitionData> 
-			acquisitions(new AcquisitionsFile(AcquisitionsInfo()));
-		return newObjectHandle<MRAcquisitionData>(acquisitions);
-	}
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
@@ -665,22 +659,6 @@ cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src)
 	dst.copy_acquisitions_data(src);
 	return new DataHandle;
 }
-
-extern "C"
-void*
-cGT_writeAcquisitions(void* ptr_acqs, const char* filename)
-{
-	try {
-		MRAcquisitionData& acqs =
-			objectFromHandle<MRAcquisitionData>(ptr_acqs);
-		acqs.write(filename);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-
-
 
 extern "C"
 void*

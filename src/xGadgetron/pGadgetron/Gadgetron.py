@@ -1011,10 +1011,7 @@ class AcquisitionData(DataContainer):
             out.fill(tmp)
         return out
     
-    def write(self, filename):
-        assert self.handle is not None
-        try_calling(pygadgetron.cGT_writeAcquisitions(self.handle, filename))
-
+    
 DataContainer.register(AcquisitionData)
 
 class AcquisitionModel(object):
