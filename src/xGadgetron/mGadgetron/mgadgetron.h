@@ -58,6 +58,7 @@ EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFromFile(const char* file);
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFile(const char* file);
 EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
+EXPORTED_FUNCTION 	void* mGT_createEmptyAcquisitionData(void* ptr_ad);
 EXPORTED_FUNCTION 	void* mGT_cloneAcquisitions(void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_sortAcquisitions(void* ptr_acqs);
 EXPORTED_FUNCTION 	void* mGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);

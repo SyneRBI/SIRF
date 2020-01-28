@@ -71,6 +71,7 @@ extern "C" {
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
+	void* cGT_createEmptyAcquisitionData(void* ptr_ad);
 	void* cGT_cloneAcquisitions(void* ptr_input);
 	void* cGT_sortAcquisitions(void* ptr_acqs);
 	void* cGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);
