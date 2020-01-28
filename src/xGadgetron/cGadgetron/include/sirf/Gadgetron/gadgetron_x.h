@@ -207,9 +207,6 @@ namespace sirf {
 			sptr_acqs_.reset();
 			add_reader("reader", reader_);
 			add_writer("writer", writer_);
-			gadgetron::shared_ptr<AcquisitionFinishGadget>
-				endgadget(new AcquisitionFinishGadget);
-			set_endgadget(endgadget);
 		}
 		// apparently caused crash in linux
 		//virtual ~AcquisitionsProcessor() {}

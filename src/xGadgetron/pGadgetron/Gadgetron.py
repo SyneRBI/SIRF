@@ -783,6 +783,14 @@ class AcquisitionData(DataContainer):
         return scheme
     def same_object(self):
         return AcquisitionData()
+    def new_acquisition_data(self, empty=True):
+        new_ad = AcquisitionData()
+        if empty:
+            new_ad.handle = pygadgetron.cGT_createEmptyAcquisitionData(self.handle)
+        else:
+            new_ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
+        check_status(new_ad.handle)
+        return new_ad
 ##    def number_of_acquisitions(self, select = 'image'):
 ##        assert self.handle is not None
 ##        dim = self.dimensions(select)
@@ -858,6 +866,8 @@ class AcquisitionData(DataContainer):
         is returned.
         '''
         assert self.handle is not None
+        if self.number() < 1:
+            return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
         hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
