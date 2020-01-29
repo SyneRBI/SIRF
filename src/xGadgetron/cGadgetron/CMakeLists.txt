@@ -28,7 +28,7 @@
 if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
     set(Boost_DLL_DIR ${Boost_LIBRARY_DIR_RELEASE})
     message(STATUS "Install boost shared libraries from ${Boost_DLL_DIR} ")
-	foreach (__boost_lib system filesystem thread date_time chrono)
+	foreach (__boost_lib system filesystem thread date_time chrono program_options)
 	   file(GLOB Boost_DLL "${Boost_DLL_DIR}/boost_${__boost_lib}*.dll")
        install( FILES ${Boost_DLL} DESTINATION bin )
 	endforeach()
