@@ -756,6 +756,7 @@ class AcquisitionData(DataContainer):
         if file is not None:
             self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
             check_status(self.handle)
+
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -782,6 +783,14 @@ class AcquisitionData(DataContainer):
         return scheme
     def same_object(self):
         return AcquisitionData()
+    def new_acquisition_data(self, empty=True):
+        new_ad = AcquisitionData()
+        if empty:
+            new_ad.handle = pygadgetron.cGT_createEmptyAcquisitionData(self.handle)
+        else:
+            new_ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
+        check_status(new_ad.handle)
+        return new_ad
 ##    def number_of_acquisitions(self, select = 'image'):
 ##        assert self.handle is not None
 ##        dim = self.dimensions(select)
@@ -799,6 +808,13 @@ class AcquisitionData(DataContainer):
         assert self.handle is not None
         try_calling(pygadgetron.cGT_sortAcquisitions(self.handle))
         self.sorted = True
+    def sort_by_time(self):
+        '''
+        Sorts acquisitions with respect to:
+            - acquisition_time_stamp
+        '''
+        assert self.handle is not None
+        try_calling(pygadgetron.cGT_sortAcquisitionsByTime(self.handle))
     def is_sorted(self):
         assert self.handle is not None
         return parms.int_par(self.handle, 'acquisitions', 'sorted')
@@ -806,6 +822,13 @@ class AcquisitionData(DataContainer):
     def is_undersampled(self):
         assert self.handle is not None
         return parms.int_par(self.handle, 'acquisitions', 'undersampled')
+    def set_header(self, header):
+        assert self.handle is not None
+        try_calling(pygadgetron.cGT_setAcquisitionsInfo(self.handle, header))
+
+    def get_header(self):
+        assert self.handle is not None
+        return parms.char_par(self.handle, 'acquisitions', 'info')
     def process(self, list):
         '''
         Returns processed self with an acquisition processor specified by
@@ -826,6 +849,13 @@ class AcquisitionData(DataContainer):
         acq = Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
+    def append_acquisition(self, acq):
+        '''
+        Appends acquistion to AcquisitionData.
+        '''
+        assert self.handle is not None
+        try_calling( pygadgetron.cGT_appendAcquisition(self.handle, acq.handle))
+
     def dimensions(self, select = 'image'):
         '''
         Returns acquisitions dimensions as a tuple (na, nc, ns), where na is
@@ -836,6 +866,8 @@ class AcquisitionData(DataContainer):
         is returned.
         '''
         assert self.handle is not None
+        if self.number() < 1:
+            return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
         hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
@@ -978,7 +1010,8 @@ class AcquisitionData(DataContainer):
             tmp = value * numpy.ones(out.as_array().shape)
             out.fill(tmp)
         return out
-
+    
+    
 DataContainer.register(AcquisitionData)
 
 class AcquisitionModel(object):

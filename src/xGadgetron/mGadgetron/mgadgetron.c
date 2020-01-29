@@ -107,6 +107,9 @@ EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input
 EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num) {
 	return cGT_acquisitionFromContainer(ptr_acqs, acq_num);
 }
+EXPORTED_FUNCTION 	void* mGT_createEmptyAcquisitionData(void* ptr_ad) {
+	return cGT_createEmptyAcquisitionData(ptr_ad);
+}
 EXPORTED_FUNCTION 	void* mGT_cloneAcquisitions(void* ptr_input) {
 	return cGT_cloneAcquisitions(ptr_input);
 }
