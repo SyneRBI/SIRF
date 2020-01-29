@@ -16,6 +16,11 @@
 #
 #=========================================================================
 
+# Have we got SPM12? (only works with Matlab)
+if (BUILD_MATLAB)
+	find_package(SPM12 QUIET)
+endif()
+
 ADD_SUBDIRECTORY(NiftyMoMo)
 ADD_SUBDIRECTORY(cReg)
 ADD_SUBDIRECTORY(pReg)

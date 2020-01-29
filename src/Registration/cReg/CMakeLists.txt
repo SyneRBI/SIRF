@@ -37,6 +37,11 @@ IF(BUILD_PYTHON OR BUILD_MATLAB)
 	SET(SOURCES ${SOURCES} "cReg.cpp" "cReg_p.cpp")
 ENDIF()
 
+# Add SPM12 source
+IF(SPM12_FOUND)
+  SET(SOURCES ${SOURCES} "SPM12Registration.cpp")
+ENDIF()
+
 # Create library
 ADD_LIBRARY(Reg ${SOURCES})
 
@@ -66,6 +71,15 @@ else()
   # Nice and simple for recent CMake (which knows about your Boost version)
   target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
 endif()
+
+# Link Matlab for SPM12
+IF(SPM12_FOUND)
+  TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC "${Matlab_INCLUDE_DIRS}")
+  TARGET_LINK_LIBRARIES(Reg PUBLIC "${Matlab_LIBRARIES}")
+  ADD_DEFINITIONS(-DSIRF_SPM12)
+ELSE()
+  REMOVE_DEFINITIONS(-DSIRF_SPM12)
+ENDIF()
 
 # Install
 INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
