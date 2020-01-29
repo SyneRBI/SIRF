@@ -163,7 +163,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def __add__(self, other):
         """Overloads + operator."""
-        z = self.deep_copy()
+        z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle, self.handle, other.handle, 0))
         else:
@@ -173,7 +173,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def __sub__(self, other):
         """Overloads - operator."""
-        z = self.deep_copy()
+        z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle, self.handle, other.handle, 1))
         else:
@@ -183,7 +183,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def __mul__(self, other):
         """Overloads * operator."""
-        z = self.deep_copy()
+        z = self.clone()
         try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle, self.handle, float(other), 2))
         check_status(z.handle)
         return z
@@ -780,7 +780,7 @@ class NiftyResample(object):
         """
         # If usage was 'output = forward(input)'
         if im2 is None:
-            output_im = self.reference_image.deep_copy()
+            output_im = self.reference_image.clone()
             input_im = im1
         # If usage was 'forward(output, input)'
         else:
@@ -805,7 +805,7 @@ class NiftyResample(object):
         """
         # If usage was 'output = adjoint(input)'
         if im2 is None:
-            output_im = self.floating_image.deep_copy()
+            output_im = self.floating_image.clone()
             input_im = im1
         # If usage was 'adjoint(output, input)'
         else:
