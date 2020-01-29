@@ -361,12 +361,20 @@ namespace sirf {
 		}
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 		{
-			int ind = index(num);
+            unsigned int ind = num;
+
+            if(index_.size()>0)
+                ind = index_[num];
+
 			acq = *acqs_[ind];
 		}
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
-			int ind = index(num);
+            unsigned int ind = num;
+
+            if(index_.size()>0)
+                ind = index_[num];
+
 			*acqs_[ind] = acq;
 		}
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac)

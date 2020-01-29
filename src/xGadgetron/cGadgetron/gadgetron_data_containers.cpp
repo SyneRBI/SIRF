@@ -596,7 +596,11 @@ AcquisitionsFile::items() const
 void 
 AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 {
-	int ind = index(num);
+    unsigned int ind = num;
+
+    if(index_.size()>0)
+        ind = index_[num];
+
 	Mutex mtx;
 	mtx.lock();
 	dataset_->readAcquisition(ind, acq);
