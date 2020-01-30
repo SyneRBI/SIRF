@@ -84,8 +84,9 @@ void SPM12Registration<dataType>::process()
     ref_nifti_sptr->write(ref_filename);
     flo_nifti_sptr->write(flo_filename);
 
+
     // Start MATLAB engine synchronously
-    std::unique_ptr<MATLABEngine> matlabPtr = startMATLAB();
+    std::unique_ptr<MATLABEngine> matlabPtr = startMATLAB(std::vector<String>({u"-nojvm"}));
     std::cout << "Started MATLAB Engine" << std::endl;
 
     // Create MATLAB data array factory
@@ -100,52 +101,63 @@ void SPM12Registration<dataType>::process()
     // Create struct array for parameters: struct('quality',1,'rtm',1))
     StructArray spm_params = factory.createStructArray({1}, { "quality", "rtm" });
     spm_params[0]["quality"] = factory.createScalar<int>(1);
-    spm_params[0]["rtm"] = factory.createScalar<int>(1);
+    spm_params[0]["rtm"] = factory.createScalar<int>(0);
 
     // Create a vector of input arguments
-    std::vector<Array> args({
+    std::vector<Array> args_realign({
         spm_filenames,
         spm_params
     });
 
     // Call spm_realign
-    const size_t num_returned = 0;
-    matlabPtr->feval(u"spm_realign", num_returned, args);
+    const size_t num_returned_realign = 1;
+    Array result = matlabPtr->feval(u"spm_realign", num_returned_realign, args_realign).at(0);
+    std::cout <<"\nnum elements = " << result.getNumberOfElements() << "\n";
+    ArrayType type = result.type;
+    std::cout << "\nnum type = " << result.type << "\n";
 
-    // Read the transformation matrix back in
-    // Read text file
-    std::string line;
-    std::ifstream myfile(_working_folder + "/rp_flo.txt");
-    if (!myfile.is_open())
-        throw std::runtime_error("SPM12Registration::process() failed to open spm_realign results here: " + _working_folder + "/rp_flo.txt");
-    try {
-        getline (myfile,line);
-    }
-    catch (...) {
-        throw std::runtime_error("SPM12Registration::process() failed to read spm_realign results here: " + _working_folder + "/rp_flo.txt");
-    }
-    myfile.close();
 
-    // Convert text to numbers
-    std::stringstream ss;
-    ss << line;
-    std::string temp;
-    float found;
-    std::vector<float> results;
-    while (!ss.eof()) {
 
-        /* extracting word by word from stream */
-        ss >> temp;
+    // Call spm_reslice
+//    const size_t num_returned_resilce = 0;
+//    matlabPtr->feval(u"spm_reslice", num_returned_resilce, results);
 
-        /* Checking the given word is integer or not */
-        if (std::stringstream(temp) >> found)
-            results.push_back(found);
 
-        /* To save from space at the end of string */
-        temp = "";
-    }
-    for (unsigned i=0; i<results.size(); ++i)
-        std::cout << "restult " << i << ": " << results[i] << "\n";
+
+
+
+//    // Read the transformation matrix back in
+//    // Read text file
+//    std::string line;
+//    std::ifstream myfile(_working_folder + "/rp_flo.txt");
+//    if (!myfile.is_open())
+//        throw std::runtime_error("SPM12Registration::process() failed to open spm_realign results here: " + _working_folder + "/rp_flo.txt");
+//    try {
+//        getline (myfile,line);
+//    }
+//    catch (...) {
+//        throw std::runtime_error("SPM12Registration::process() failed to read spm_realign results here: " + _working_folder + "/rp_flo.txt");
+//    }
+//    myfile.close();
+
+//    // Convert text to numbers
+//    std::stringstream ss;
+//    ss << line;
+//    std::string temp;
+//    float found;
+//    std::vector<float> results;
+//    while (!ss.eof()) {
+
+//        // extract word by word from stream
+//        ss >> temp;
+//        // Check if the given word is float or not
+//        if (std::stringstream(temp) >> found)
+//            results.push_back(found);
+//        // To save from space at end of string
+//        temp = "";
+//    }
+//    for (unsigned i=0; i<results.size(); ++i)
+//        std::cout << "restult " << i << ": " << results[i] << "\n";
 }
 
 template<class dataType>

@@ -1202,9 +1202,17 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting SPM12 test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
+        std::string ref_filename = "/Users/rich/Desktop/ASL_nii_5.nii";
+        std::string flo_filename = "/Users/rich/Desktop/ASL_nii_399.nii";
+
+        const std::shared_ptr<const NiftiImageData3D<float> > ref_spm_sptr =
+                std::make_shared<const NiftiImageData3D<float> >(ref_filename);
+        const std::shared_ptr<const NiftiImageData3D<float> > flo_spm_sptr =
+                std::make_shared<const NiftiImageData3D<float> >(flo_filename);
+
         SPM12Registration<float> spm12_reg;
-        spm12_reg.set_reference_image(ref_f3d);
-        spm12_reg.set_floating_image(flo_f3d);
+        spm12_reg.set_reference_image(ref_spm_sptr);
+        spm12_reg.set_floating_image(flo_spm_sptr);
         spm12_reg.set_working_folder(spm12_working_folder);
         spm12_reg.set_working_folder_file_overwrite(true);
         spm12_reg.process();
