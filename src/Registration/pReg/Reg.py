@@ -797,6 +797,10 @@ class NiftyResample(object):
         if im2 is None:
             return output_im
 
+    def direct(self, im1, im2=None):
+        '''alias to forward'''
+        return self.forward(im1,im2)
+
     def adjoint(self, im1, im2=None):
         """Adjoint transformation.
         Usage:
@@ -825,6 +829,14 @@ class NiftyResample(object):
     def backward(self, im1, im2=None):
         """Backward transformation. Alias of adjoint to align terms with AcquisitionModel's forward and backward."""
         return self.adjoint(im1, im2)
+
+    def is_linear(self):
+        '''Returns whether the transformation is linear'''
+        return True
+    def domain_geometry(self):
+        return self.reference_image
+    def range_geometry(self):
+        return self.floating_image
 
 
 class ImageWeightedMean(object):
