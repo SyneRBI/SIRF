@@ -78,8 +78,8 @@ void print_usage()
 
     // Optional flags
     std::cout << "\n  Optional flags:\n";
-    std::cout << "    -eng_ref:\t\tengine to open reference image\n";
-    std::cout << "    -eng_flo:\t\tengine to open floating image\n";
+    std::cout << "    -eng_ref:\t\tengine to open reference image (Nifti, STIR, Gadgetron)\n";
+    std::cout << "    -eng_flo:\t\tengine to open floating image (Nifti, STIR, Gadgetron)\n";
     std::cout << "    -output:\t\toutput image filename\n";
     std::cout << "    -interp:\t\tinterpolation (0=NN, 1=linear, 3=cubic, 4=spline)\n";
     std::cout << "    -add_affine:\tadd affine transformation\n";
