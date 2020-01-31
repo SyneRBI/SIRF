@@ -167,20 +167,20 @@ class DataContainer(ABC):
             (one.ctypes.data, self.handle, one.ctypes.data, other.handle)
         check_status(z.handle)
         return z;
-    def axpby(self, a,b, other, out=None, **kwargs):
+    def axpby(self, a,b, y, out=None, **kwargs):
         '''
         Addition for data containers.
 
         Returns the sum of the container data with another container 
         data viewed as vectors.
-        other: DataContainer
+        y: DataContainer
         out:   DataContainer to store the result to.
         '''
         # if isinstance(other , ( Number, int, float, numpy.float32 )):
         #     tmp = other + numpy.zeros(self.as_array().shape)
         #     other = self.copy()
         #     other.fill(tmp)
-        assert_validities(self, other)
+        assert_validities(self, y)
         alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
         beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
         
@@ -190,7 +190,7 @@ class DataContainer(ABC):
             assert_validities(self, out)
             z = out
         z.handle = pysirf.cSIRF_axpby \
-            (alpha.ctypes.data, self.handle, beta.ctypes.data, other.handle)
+            (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
         check_status(z.handle)
         return z
 
