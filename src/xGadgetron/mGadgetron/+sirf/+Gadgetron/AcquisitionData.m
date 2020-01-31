@@ -75,6 +75,20 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                 self.handle_ = [];
             end
         end
+        function new_ad = new_acquisition_data(self, empty)
+            new_ad = sirf.Gadgetron.AcquisitionData();
+            if nargin < 2
+                empty = true;
+            end
+            if empty
+                new_ad.handle_ = calllib('mgadgetron', ...
+                    'mGT_createEmptyAcquisitionData', self.handle_);
+            else
+                new_ad.handle_ = calllib('mgadgetron', ...
+                    'mGT_cloneAcquisitions', self.handle_);
+            end
+            sirf.Utilities.check_status(self.name_, new_ad.handle_);
+        end
         function sort(self)
 %***SIRF*** Sorts acquisitions with respect to (in this order):
 %             - repetition
