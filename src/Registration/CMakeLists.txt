@@ -16,29 +16,7 @@
 #
 #=========================================================================
 
-# ------------------------------------------------------------------------
-# NIFTYREG
-# ------------------------------------------------------------------------
-FIND_PACKAGE(NIFTYREG 1.5.61)
-if (NIFTYREG_FOUND)
-
-        set(BUILD_Registration ON PARENT_SCOPE)
-
-	# Add in the NIFTYREG stuff
-	INCLUDE_DIRECTORIES("${NIFTYREG_INCLUDE_DIRS}")
-  	LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
-  	SET(NIFTYREG_LIBRARY_DIRS "${NIFTYREG_LIBRARY_DIRS}" PARENT_SCOPE) # need elsewhere
-  	SET(NIFTYREG_INCLUDE_DIRS "${NIFTYREG_INCLUDE_DIRS}" PARENT_SCOPE) # need elsewhere
-	
-	SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
-	INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
-	
-	ADD_SUBDIRECTORY(cReg)
-	ADD_SUBDIRECTORY(pReg)
-	ADD_SUBDIRECTORY(mReg)
-
-else()
-	message(WARNING "NIFTYREG not found. This is probably not what you want. If you need it, set NIFTYREG_DIR. Set DISABLE_Registration to OFF to silence this warning.")
-        set(BUILD_Registration OFF PARENT_SCOPE)
-
-endif()
+ADD_SUBDIRECTORY(NiftyMoMo)
+ADD_SUBDIRECTORY(cReg)
+ADD_SUBDIRECTORY(pReg)
+ADD_SUBDIRECTORY(mReg)

@@ -58,6 +58,7 @@ g.f3d_disp_inverse                           = fullfile(output_prefix, 'matlab_f
 g.rigid_resample                             = fullfile(output_prefix, 'matlab_rigid_resample.nii');
 g.nonrigid_resample_disp                     = fullfile(output_prefix, 'matlab_nonrigid_resample_disp.nii');
 g.nonrigid_resample_def                      = fullfile(output_prefix, 'matlab_nonrigid_resample_def.nii');
+g.niftymomo_resample_adj                     = fullfile(output_prefix, 'matlab_niftymomo_resample_adj.nii');
 g.output_weighted_mean                       = fullfile(output_prefix, 'matlab_weighted_mean.nii');
 g.output_weighted_mean_def                   = fullfile(output_prefix, 'matlab_weighted_mean_def.nii');
 g.output_float                               = fullfile(output_prefix, 'matlab_reg_aladin_float.nii');
@@ -77,6 +78,7 @@ try_niftyaladin = true;
 try_niftyf3d = true;
 try_transformations = true;
 try_resample = true;
+try_niftymomo = true;
 try_weighted_mean = true;
 try_affinetransformation = true;
 try_quaternion = true;
@@ -198,6 +200,47 @@ if try_niftiimage
     x.fill(x_arr);
     assert(x.get_contains_nans(),'NiftiImageData::get_contains_nans() 2 failed.')
 
+    arr1 = sirf.Reg.NiftiImageData(g.ref_aladin_filename).as_array();
+    arr2 = niftiread(g.ref_aladin_filename);
+    assert(all(all(all(arr1 == arr2))), 'NiftiImageData as_array() failed.')
+
+    % Test geom info
+    im = sirf.Reg.NiftiImageData(g.ref_aladin_filename);
+    geom_info = im.get_geometrical_info();
+    geom_info.print_info();
+    % Get voxel sizes
+    assert(all(geom_info.get_size() == [64, 64, 64]), 'SIRF get_geometrical_info().get_size() failed.');
+    assert(all(geom_info.get_spacing() == [4.0625, 4.0625, 4.0625]), 'SIRF get_geometrical_info().get_spacing() failed.');
+
+    im.standardise();
+    assert(abs(im.get_standard_deviation() - 1) < 0.01, 'NiftiImageData standardise() or get_standard_deviation() failed.')
+    assert(abs(im.get_variance() - 1) < 0.01, 'NiftiImageData standardise() or get_variance() failed.')
+    assert(abs(im.get_mean()) < 0.0001, 'NiftiImageData standardise() or get_mean() failed.')
+
+    % Check normalise 
+    im.normalise_zero_and_one();
+    assert(abs(im.get_min()) < 0.0001 && abs(im.get_max() - 1) < 0.0001, 'NiftiImageData normalise_between_zero_and_one() failed.')
+
+    % Test inner product
+    in1 = x.deep_copy();
+    in2 = x.deep_copy();
+    in1_arr = in1.as_array();
+    in2_arr = in2.as_array();
+    dims = in1.get_dimensions();
+    for idx_x = 1 : dims(2)
+        for idx_y = 1 : dims(3)
+            for idx_z = 1 : dims(4)
+                in1_arr(idx_x, idx_y, idx_z) = single(i-1);
+                in2_arr(idx_x, idx_y, idx_z) = single(3*(i-1)-1);
+            end
+        end
+    end
+    inner_product = sum(in1_arr(:) .* in2_arr(:));
+    in1.fill(in1_arr);
+    in2.fill(in2_arr);
+    disp(inner_product)
+    disp(in1.get_inner_product(in2))
+    assert(abs(inner_product - in1.get_inner_product(in2)) < 1e-4, 'NiftiImageData::get_inner_product() failed.');
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
@@ -494,6 +537,8 @@ if try_niftyaladin
     na.set_parameter('SetInterpolationToCubic');
     na.set_parameter('SetLevelsToPerform', '1');
     na.set_parameter('SetMaxIterations', '5');
+    na.set_parameter('SetPerformRigid', '1');
+    na.set_parameter('SetPerformAffine', '0');
     na.set_reference_mask(ref_mask);
     na.set_floating_mask(flo_mask);
     na.process();
@@ -632,7 +677,7 @@ if try_resample
     nr2.set_reference_image(g.ref_aladin);
     nr2.set_floating_image(g.flo_aladin);
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
-    nr2.set_interpolation_type_to_linear();  % try different interpolations
+    nr2.set_interpolation_type_to_nearest_neighbour();  % try different interpolations
     nr2.add_transformation(displ);
     nr2.set_padding_value(padding_value);
     nr2.process();
@@ -644,11 +689,19 @@ if try_resample
     nr3 = sirf.Reg.NiftyResample();
     nr3.set_reference_image(g.ref_aladin)
     nr3.set_floating_image(g.flo_aladin)
-    nr3.set_interpolation_type_to_nearest_neighbour()  % try different interpolations
+    nr3.set_interpolation_type_to_linear()  % try different interpolations
     nr3.add_transformation(deff);
     nr3.set_interpolation_type_to_linear()
     nr3.process()
     nr3.get_output().write(g.nonrigid_resample_def)
+
+    % Check that the following give the same result
+    %       out = resample.forward(in)
+    %       resample.forward(out, in)
+    out1 = nr3.forward(g.flo_aladin);
+    out2 = g.ref_aladin.deep_copy();
+    nr3.forward(out2, g.flo_aladin);
+    assert(out1 == out2, 'out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
 
     % TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
     % doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
@@ -658,6 +711,65 @@ if try_resample
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished Nifty resample test.')
+    disp('%------------------------------------------------------------------------ %')
+end
+
+if try_niftymomo
+    disp('% ----------------------------------------------------------------------- %')
+    disp('%                  Starting NiftyMomMo test...')
+    disp('%------------------------------------------------------------------------ %')
+
+    % The forward and the adjoint should meet the following criterion:
+    % | < x, Ty > - < y, Tsx > | / 0.5 * (| < x, Ty > | + | < y, Tsx > |) < epsilon
+    % for all images x and y, where T is the transform and Ts is the adjoint.
+
+    x = g.ref_aladin;
+    T = na.get_transformation_matrix_forward();
+    y = g.flo_aladin;
+
+    % Add in a magnification to make things interesting
+    t = T.as_array();
+    t(1,1) = 1.5;
+    T = sirf.Reg.AffineTransformation(t);
+
+    % make it slightly unsquare to spice things up
+    min_idx = [1,2,3];
+    y_dims = y.get_dimensions();
+    max_idx = [y_dims(2) - 3, y_dims(3) - 1, y_dims(4) - 5];
+    y.crop(min_idx, max_idx);
+
+    disp('Testing adjoint resample..')
+    nr = sirf.Reg.NiftyResample();
+    nr.set_reference_image(x);
+    nr.set_floating_image(y);
+    nr.set_interpolation_type_to_linear();
+    nr.add_transformation(T);
+
+    % Do the forward
+    Ty = nr.forward(y);
+
+    % Do the adjoint
+    Tsx = nr.adjoint(x);
+
+    % Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
+    inner_x_Ty = x.get_inner_product(Ty);
+    inner_y_Tsx = y.get_inner_product(Tsx);
+    adjoint_test = abs(inner_x_Ty - inner_y_Tsx) / (0.5 * (abs(inner_x_Ty) + abs(inner_y_Tsx)));
+    disp(['<x, Ty>  = ' num2str(inner_x_Ty)])
+    disp(['<y, Tsx> = ' num2str(inner_y_Tsx)])
+    disp(['|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = ' num2str(adjoint_test)])
+    assert(adjoint_test < 1e-4, 'NiftyResample::adjoint() failed')
+
+    % Check that the following give the same result
+    %       out = resample.adjoint(in)
+    %       resample.adjoint(out, in)
+    out1 = nr.adjoint(x);
+    out2 = y.deep_copy();
+    nr.backward(out2, x);
+    assert(out1 == out2, 'out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.')
+
+    disp('% ----------------------------------------------------------------------- %')
+    disp('%                  Finished NiftyMomMo test.')
     disp('%------------------------------------------------------------------------ %')
 end
 

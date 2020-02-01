@@ -19,10 +19,12 @@
 import os
 import sys
 import time
+import numpy
 
 import sirf.STIR as pet
 import sirf.Gadgetron as mr
 import sirf.Reg as reg
+from sirf.Utilities import error
 
 # Paths
 SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -50,6 +52,17 @@ def try_stirtonifti():
     # Compare the two
     if image_nifti != image_nifti_from_stir:
         raise AssertionError("Conversion from STIR to Nifti failed.")
+
+    # Resample and then check that voxel values match
+    resample = reg.NiftyResample()
+    resample.set_floating_image(image_stir) 
+    resample.set_reference_image(image_nifti) 
+    resample.set_interpolation_type_to_nearest_neighbour()
+    resample.process()
+
+    # as_array() of both original images should match
+    if not numpy.array_equal(image_nifti.as_array(),resample.get_output().as_array()):
+        raise AssertionError("as_array() of sirf.Reg.NiftiImageData and resampled sirf.STIR.ImageData are different.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

@@ -19,9 +19,9 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-add_library(csirf csirf.cpp)
+add_library(csirf csirf.cpp GeometricalInfo.cpp)
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
@@ -41,9 +41,9 @@ if (BUILD_PYTHON)
   SET_SOURCE_FILES_PROPERTIES(pysirf.i PROPERTIES CPLUSPLUS ON)
   SET_SOURCE_FILES_PROPERTIES(pysirf.i PROPERTIES SWIG_FLAGS "-I${cSIRF_INCLUDE_DIR}")
   FIND_PACKAGE(PythonLibs REQUIRED)
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-  set(SWIG_MODULE_pysirf_EXTRA_DEPS "csirf.h")
+  set(SWIG_MODULE_pysirf_EXTRA_DEPS "${cSIRF_INCLUDE_DIR}/sirf/common/csirf.h")
   SWIG_ADD_LIBRARY(pysirf LANGUAGE python TYPE MODULE SOURCES pysirf.i)
+  TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pysirf_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_PATH})
   SWIG_LINK_LIBRARIES(pysirf csirf iutilities ${PYTHON_LIBRARIES})
   INSTALL(TARGETS ${SWIG_MODULE_pysirf_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirf.py" DESTINATION "${PYTHON_DEST}/sirf")
@@ -54,10 +54,10 @@ endif (BUILD_PYTHON)
 
 if (BUILD_MATLAB)
 
-  include_directories(${Matlab_INCLUDE_DIRS})
-
   add_library(mig mig.cpp)
+  target_include_directories(mig PUBLIC ${Matlab_INCLUDE_DIRS})
   add_library(msirf SHARED msirf.c)
+  target_include_directories(msirf PUBLIC ${Matlab_INCLUDE_DIRS})
   SET_TARGET_PROPERTIES(msirf PROPERTIES SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
   target_link_libraries(msirf csirf iutilities ${Matlab_LIBRARIES})
 

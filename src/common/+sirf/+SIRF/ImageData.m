@@ -19,4 +19,11 @@ classdef ImageData < sirf.SIRF.DataContainer
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
+	methods
+		function geom_info = get_geometrical_info(self)
+			% Get the image's geometrical info.
+			geom_info = sirf.SIRF.GeometricalInfo();
+			geom_info.handle_ = calllib('msirf', 'mSIRF_ImageData_get_geom_info', self.handle_);
+		end
+	end
 end

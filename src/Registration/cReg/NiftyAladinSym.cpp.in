@@ -55,6 +55,9 @@ void NiftyAladinSym<dataType>::process()
     _registration_sptr->SetInputReference(ref.get_raw_nifti_sptr().get());
     _registration_sptr->SetInputFloating(flo.get_raw_nifti_sptr().get());
 
+    // By default, use a padding value of 0
+    _registration_sptr->SetWarpedPaddingValue(0.f);
+
     // Set masks (if present). Again, need to copy to get rid of const
     NiftiImageData3D<dataType> ref_mask, flo_mask;
     if (this->_reference_mask_nifti_sptr && this->_reference_mask_nifti_sptr->is_initialised()) {
@@ -63,7 +66,7 @@ void NiftyAladinSym<dataType>::process()
     }
     if (this->_floating_mask_nifti_sptr && this->_floating_mask_nifti_sptr->is_initialised()) {
         flo_mask = *this->_floating_mask_nifti_sptr;
-        _registration_sptr->SetInputMask(flo_mask.get_raw_nifti_sptr().get());
+        _registration_sptr->SetInputFloatingMask(flo_mask.get_raw_nifti_sptr().get());
     }
 
     // Parse parameter file

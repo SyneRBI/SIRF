@@ -22,6 +22,7 @@ classdef NiftyResample < handle
         name
         handle_
         reference_image
+        floating_image
     end
     methods(Static)
         function name = class_name()
@@ -41,14 +42,15 @@ classdef NiftyResample < handle
             end
         end
         function set_reference_image(self, reference_image)
-            %Set reference image.
+            %Set reference image. This is the image that would be the reference if you were doing a forward transformation.
             assert(isa(reference_image, 'sirf.SIRF.ImageData'), 'NiftyResample::set_reference_image expects sirf.SIRF.ImageData')
             self.reference_image = reference_image;
             sirf.Reg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
-            %Set floating image.
+            %Set floating image. This is the image that would be the floating if you were doing a forward transformation.
             assert(isa(floating_image, 'sirf.SIRF.ImageData'), 'NiftyResample::set_floating_image expects sirf.SIRF.ImageData')
+            self.floating_image = floating_image;
             sirf.Reg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
         function add_transformation(self, src)
@@ -100,6 +102,66 @@ classdef NiftyResample < handle
             sirf.Utilities.delete(output.handle_)
             output.handle_ = calllib('mreg', 'mParameter', self.handle_, self.name, 'output');
             sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
+        end
+        function output_im = forward(self, im1, im2)
+            %Forward transformation.
+            %Usage:
+            %   output = forward(input), OR
+            %   forward(output,input)
+            narginchk(2,3)
+
+            % If usage was 'output = forward(input)'
+            if nargin == 2
+                output_im = self.reference_image.deep_copy();
+                input_im = im1;
+            % If usage was 'forward(output, input)'
+            else
+                assert(nargout == 0, 'NiftyResample::forward too many output arguments')
+                output_im = im1;
+                input_im = im2;
+            end
+            % Check image validity
+            assert(isa(output_im, 'sirf.SIRF.ImageData'), 'NiftyResample::forward expects sirf.SIRF.ImageData')
+            assert(isa(input_im,  'sirf.SIRF.ImageData'), 'NiftyResample::forward expects sirf.SIRF.ImageData')
+            % Forward
+            h = calllib('mreg', 'mReg_NiftyResample_forward', output_im.handle_, input_im.handle_, self.handle_);
+            sirf.Utilities.check_status([self.name ':forward'], h);
+            sirf.Utilities.delete(h)
+        end
+        function output_im = adjoint(self, im1, im2)
+            %Adjoint transformation.
+            %Usage:
+            %   output = adjoint(input), OR
+            %   adjoint(output,input)
+            narginchk(2,3)
+
+            % If usage was 'output = adjoint(input)'
+            if nargin == 2
+                output_im = self.floating_image.deep_copy();
+                input_im = im1;
+            % If usage was 'adjoint(output, input)'
+            else
+                assert(nargout == 0, 'NiftyResample::adjoint too many output arguments')
+                output_im = im1;
+                input_im = im2;
+            end
+            % Check image validity
+            assert(isa(output_im, 'sirf.SIRF.ImageData'), 'NiftyResample::forward expects sirf.SIRF.ImageData')
+            assert(isa(input_im,  'sirf.SIRF.ImageData'), 'NiftyResample::forward expects sirf.SIRF.ImageData')
+            % Adjoint
+            h = calllib('mreg', 'mReg_NiftyResample_adjoint', output_im.handle_, input_im.handle_, self.handle_);
+            sirf.Utilities.check_status([self.name ':adjoint'], h);
+            sirf.Utilities.delete(h)
+        end
+        function output_im = backward(self, im1, im2)
+            % Alias for adjoint.
+            narginchk(2,3)
+            if nargin == 2
+                output_im = self.adjoint(im1);
+            else %nargin == 3
+                assert(nargout == 0, 'NiftyResample::backward too many output arguments')
+                self.adjoint(im1,im2);
+            end
         end
     end
 end

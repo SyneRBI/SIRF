@@ -134,6 +134,7 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(GenericReconCartesianReferencePrepGadget);
 		NEW_GADGET(GenericReconCartesianGrappaGadget);
 		NEW_GADGET(SimpleReconGadget);
+        NEW_GADGET(GenericReconCartesianFFTGadget);
 		NEW_GADGET(GenericReconFieldOfViewAdjustmentGadget);
 		NEW_GADGET(GenericReconImageArrayScalingGadget);
 		NEW_GADGET(FatWaterGadget);
@@ -486,6 +487,22 @@ cGT_sortAcquisitions(void* ptr_acqs)
 
 extern "C"
 void*
+cGT_sortAcquisitionsByTime(void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		acqs.sort_by_time();
+
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+
+extern "C"
+void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
 	if (!file_exists(file))
@@ -530,6 +547,19 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 
 extern "C"
 void*
+cGT_createEmptyAcquisitionData(void* ptr_ad)
+{
+	try {
+		MRAcquisitionData& ad =
+			objectFromHandle<MRAcquisitionData>(ptr_ad);
+		shared_ptr<MRAcquisitionData> sptr_ac = ad.new_acquisitions_container();
+		return newObjectHandle<MRAcquisitionData>(sptr_ac);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_cloneAcquisitions(void* ptr_input)
 {
 	try {
@@ -554,6 +584,22 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 			sptr_acq(new ISMRMRD::Acquisition);
 		acqs.get_acquisition(acq_num, *sptr_acq);
 		return newObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		ISMRMRD::Acquisition& acq = 
+			objectFromHandle<ISMRMRD::Acquisition>(ptr_acq);
+		acqs.append_acquisition(acq);
+		return new DataHandle;
 	}
 	CATCH;
 }
@@ -613,19 +659,6 @@ cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src)
 		objectFromHandle<MRAcquisitionData>(h_src);
 	dst.copy_acquisitions_data(src);
 	return new DataHandle;
-}
-
-extern "C"
-void*
-cGT_writeAcquisitions(void* ptr_acqs, const char* filename)
-{
-	try {
-		MRAcquisitionData& acqs =
-			objectFromHandle<MRAcquisitionData>(ptr_acqs);
-		acqs.write(filename);
-		return new DataHandle;
-	}
-	CATCH;
 }
 
 extern "C"
@@ -710,9 +743,26 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 			return dataHandle((int)acqs.undersampled());
 		if (boost::iequals(name, "sorted"))
 			return dataHandle((int)acqs.sorted());
+		if (boost::iequals(name, "info"))
+			return charDataHandleFromCharData(acqs.acquisitions_info().c_str());
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;
+}
+
+extern "C"
+void*
+cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		acqs.set_acquisitions_info(info);
+		return new DataHandle;
+	}
+	CATCH;
+
 }
 
 extern "C"
@@ -857,17 +907,19 @@ cGT_writeImages(void* ptr_imgs, const char* filename, const char* ext)
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
-		if (strcmp(ext, "dcm")) {
+        // If .h5
+		if (strcmp(ext, "h5") == 0) {
 			std::string fullname(filename);
 			fullname += ".";
 			fullname += ext;
 			imgs.write(fullname);
 		}
-		else {
-//			std::cout << "in cGT_writeImages\n";
-			ImagesProcessor ip(true, filename);
-			ip.process(imgs);
+        // Else if dicom
+		else if (strcmp(ext, "dcm") == 0) {
+            imgs.write(filename,"",true);
 		}
+        else
+            throw std::runtime_error("cGT_writeImages: Unknown extension");
 	}
 	CATCH;
 

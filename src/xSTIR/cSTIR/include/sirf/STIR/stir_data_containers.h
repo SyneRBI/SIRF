@@ -43,6 +43,7 @@ limitations under the License.
 #include "sirf/common/PETImageData.h"
 #include "sirf/STIR/stir_types.h"
 #include "sirf/common/GeometricalInfo.h"
+#include "stir/ZoomOptions.h"
 
 namespace sirf {
 
@@ -741,6 +742,23 @@ namespace sirf {
         {
             return std::unique_ptr<STIRImageData>(this->clone_impl());
         }
+
+        /// Zoom the image (modifies itself).
+        /// All indices and coordinates should be (z,y,x) order.
+        /// To leave the size unchanged in any dimension, set the corresponding size to -1.
+        void zoom_image(const Coord3DF &zooms={1.f,1.f,1.f}, const Coord3DF &offsets_in_mm={0.f,0.f,0.f},
+                        const Coord3DI &new_sizes={-1,-1,-1}, const char * const zoom_options_str="preserve_sum");
+
+        /// Zoom the image (modifies itself).
+        /// All indices and coordinates should be (z,y,x) order.
+        /// To leave the size unchanged in any dimension, set the corresponding size to -1.
+        void zoom_image(const Coord3DF &zooms={1.f,1.f,1.f}, const Coord3DF &offsets_in_mm={0.f,0.f,0.f},
+                        const Coord3DI &new_sizes={-1,-1,-1},
+                        const stir::ZoomOptions zoom_options=stir::ZoomOptions::preserve_sum);
+
+        /// Move to scanner centre. The acquisition needs to be supplied such that in the future,
+        /// bed offset etc can be taken into account.
+        void move_to_scanner_centre(const PETAcquisitionData &);
 
     private:
         /// Clone helper function. Don't use.

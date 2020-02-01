@@ -25,11 +25,11 @@ matrix:
  - os: linux
    python: 3
    # -boost +fftw3 +hdf5 +ace
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
+   env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
  - os: linux
    python: 2.7
    # -boost +fftw3 +hdf5 +siemens_to_ismrmrd +swig +ace
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
  - os: linux
    python: 3
    # +DEVEL -boost -hdf5 -fftw3 +ace +siemens_to_ismrmrd
@@ -37,33 +37,37 @@ matrix:
  - os: linux
    python: 2.7
    # +DEVEL -boost -fftw3 -hdf5 -swig +ace
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
  # osx g{cc,++} py{27,36}
- # - os: osx
- #   python: 2.7
- #   # +boost -hdf5 -swig
- #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
- # - os: osx
- #   # +boost +fftw3 -hdf5 -swig
- #   python: 3
- #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
- # - os: osx
- #   python: 2.7
- #   # +DEVEL +boost -hdf5 +swig
- #   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
- # - os: osx
- #   python: 2.7
- #   # +DEVEL +boost -fftw3 -hdf5 +swig +itk
- #   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_ITK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
- # itk
+ - os: osx
+   osx_image: xcode11.2
+   python: 2.7
+   # +boost -hdf5 -swig
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+ - os: osx
+   # +boost +fftw3 -hdf5 -swig
+   osx_image: xcode11.2
+   python: 3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
+ - os: osx
+   python: 2.7
+   # +DEVEL +boost -hdf5 +swig
+   osx_image: xcode11.2
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+ - os: osx
+   python: 2.7
+   # +DEVEL +boost -fftw3 -hdf5 +swig +itk
+   osx_image: xcode11.2
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_ITK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
  - os: linux
    python: 3
    # -boost +itk +fftw3 +hdf5
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
- # - os: osx
- #   python: 2.7
- #   # +boost +itk -hdf5 +swig
- #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+ - os: osx
+   python: 2.7
+   # +boost +itk -hdf5 +swig
+   osx_image: xcode11.2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
 
 env:
  global:
@@ -73,7 +77,7 @@ env:
   - MAKEFLAGS="-j 2"
 
 # Ubuntu 14.04 LTS
-dist: trusty
+dist: xenial
 
 # No need for sudo
 sudo: false
@@ -104,12 +108,11 @@ addons:
    - libplplot-dev
    - swig
    - ccache
-   # for building ACE (note: Trusty only)
-   - realpath
    # not in whitelist
    - libxslt-dev
    - libace-dev
    # - root-system-bin
+   - libinsighttoolkit4-dev
 
 # cache C/C++/pip
 cache:
@@ -162,10 +165,6 @@ before_install:
       ( set -ev
         # boost is already installed but 1.65 doesn't work so update
         brew reinstall boost
-        # As of boost 1.69, boost.Process is broken. https://stackoverflow.com/a/54912043
-        # To fix, remove :: from all occurences of ::sigtimedwait, ::sigaddset and ::sigemptyset
-        # Hopefully will be able to remove this at some point...
-        find /usr/local/include/boost/ -name '*.hpp' -exec sed -i -e "s/::sigtimedwait/sigtimedwait/g; s/::sigaddset/sigaddset/g; s/::sigemptyset/sigemptyset/g; " {} \;
         # we currently need boost-python
         # brew install boost-python
         brew install ace
@@ -200,7 +199,7 @@ before_install:
  # setuptools may be out of date on osx
  - $PY_EXE -m pip install --user -U pip setuptools wheel
  # ensure python bin dir exists (and coverage dependencies installed)
- - $PY_EXE -m pip install --user -U nose codecov coveralls requests
+ - $PY_EXE -m pip install --user -U nose codecov coveralls requests deprecation
  # for counting clones, excluding ours
  - |
     if [[ -n "$GITHUB_API_TOKEN" ]]; then
@@ -239,7 +238,7 @@ before_install:
  - cmake --version
 
 install:
- - $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
+ - $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib nibabel
  - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
  # Job may timeout (>50min) if no ccache, otherwise should be <1min:
  - make

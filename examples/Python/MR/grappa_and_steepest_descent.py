@@ -16,6 +16,7 @@ Options:
                               when displaying [default: 0]
   -s <slce>, --slice=<slce>   image slice to display [default: 0]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  -o <file>, --output=<file>  images output file
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -50,6 +51,7 @@ if data_path is None:
     data_path = examples_data_path('MR')
 niter = int(args['--iter'])
 slc = int(args['--slice'])
+output_file = args['--output']
 if slc < 0:
     slc = None
 zdim = args['--zdim']
@@ -133,6 +135,13 @@ def main():
         pylab.grid()
         pylab.title('residual norm')
         pylab.show()
+
+    if output_file is not None:
+      # write images to a new group in args.output
+      # named after the current date and time
+      time_str = time.asctime()
+      print('writing to %s' % output_file)
+      image_data.write(output_file) #, time_str)
 
 try:
     main()

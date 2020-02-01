@@ -22,6 +22,7 @@ limitations under the License.
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
+#include "stir/zoom.h"
 
 using namespace stir;
 using namespace sirf;
@@ -332,7 +333,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 
 	double s = 0.0;
 	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all() && iter_x != x.data().end_all(); 
+		iter != data().end_all() && iter_x != x.data().end_all();
 		iter++, iter_x++) {
 		double t = *iter;
 		s += t * (*iter_x);
@@ -542,6 +543,52 @@ STIRImageData::set_data(const float* data)
 	//	}
 	//}
 	//return 0;
+}
+
+void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes, const char *zoom_options_str)
+{
+    stir::ZoomOptions zoom_options;
+    if (strcmp(zoom_options_str,"preserve_sum")==0)
+        zoom_options = stir::ZoomOptions::preserve_sum;
+    else if (strcmp(zoom_options_str,"preserve_values")==0)
+        zoom_options = stir::ZoomOptions::preserve_values;
+    else if (strcmp(zoom_options_str,"preserve_projections")==0)
+        zoom_options = stir::ZoomOptions::preserve_projections;
+    else
+        throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
+
+    this->zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+}
+
+void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes_in, const stir::ZoomOptions zoom_options)
+{
+    // We need the underyling image as a VoxelsOnCartesianGrid
+    DYNAMIC_CAST(Voxels3DF, voxels, this->data());
+
+    int dim[3];
+    this->get_dimensions(dim);
+
+    // If any sizes have been set to <= 0, set to image size
+    Coord3DI new_sizes(new_sizes_in);
+    for (unsigned i=0; i<3; ++i)
+        if (new_sizes[int(i)]<=0)
+            new_sizes[int(i)] = dim[i];
+
+    // Zoom the image
+    voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
+}
+
+void
+STIRImageData::
+move_to_scanner_centre(const PETAcquisitionData &)
+{
+    this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
 }
 
 void

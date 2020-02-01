@@ -32,6 +32,7 @@ limitations under the License.
 
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_x.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -801,9 +802,9 @@ GadgetronImagesVector::sort()
 		t[0] = head.contrast;
         t[1] = head.repetition;
         // Calculate the projection of the position in the slice direction
-        t[2] = head.position[0] * head.slice_dir[0] +
-               head.position[1] * head.slice_dir[1] +
-               head.position[2] * head.slice_dir[2];
+        t[2] = -( head.position[0] * head.slice_dir[0] +
+                head.position[1] * head.slice_dir[1]   +
+                head.position[2] * head.slice_dir[2]   );
 		vt.push_back(t);
 #ifndef NDEBUG
         std::cout << "Before sorting. Image " << i << "/" << ni <<  ", Contrast: " << t[0] << ", Repetition: " << t[1] << ", Projection: " << t[2] << "\n";
@@ -947,24 +948,33 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 }
 
 void
-GadgetronImageData::write(const std::string &filename, const std::string &groupname) const
+GadgetronImageData::write(const std::string &filename, const std::string &groupname, const bool dicom) const
 {
 	//if (images_.size() < 1)
 	if (number() < 1)
 		return;
-    // If the groupname hasn't been set, use the current date and time.
-    std::string group = groupname;
-    if (group.empty())
-        group = get_date_time_string();
-	Mutex mtx;
-	mtx.lock();
-	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
-    dataset.writeHeader(acqs_info_.c_str());
-	mtx.unlock();
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		iw.write(dataset);
-	}
+
+    // If not DICOM
+    if (!dicom) {
+        // If the groupname hasn't been set, use the current date and time.
+        std::string group = groupname;
+        if (group.empty())
+            group = get_date_time_string();
+        Mutex mtx;
+        mtx.lock();
+        ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
+        dataset.writeHeader(acqs_info_.c_str());
+        mtx.unlock();
+        for (unsigned int i = 0; i < number(); i++) {
+            const ImageWrap& iw = image_wrap(i);
+            iw.write(dataset);
+        }
+    }
+    // If DICOM
+    else {
+        ImagesProcessor ip(true, filename);
+        ip.process(*this);
+    }
 }
 
 void
@@ -1178,6 +1188,18 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     }
 }
 
+float get_projection_of_position_in_slice(const ISMRMRD::ImageHeader &ih)
+{
+    return ih.position[0] * ih.slice_dir[0] +
+            ih.position[1] * ih.slice_dir[1] +
+            ih.position[2] * ih.slice_dir[2];
+}
+
+float get_slice_spacing(const ISMRMRD::ImageHeader &ih1, const ISMRMRD::ImageHeader &ih2)
+{
+    return std::abs(get_projection_of_position_in_slice(ih1) - get_projection_of_position_in_slice(ih2));
+}
+
 void
 GadgetronImagesVector::set_up_geom_info()
 {
@@ -1191,22 +1213,29 @@ GadgetronImagesVector::set_up_geom_info()
     if (!this->sorted())
         this->sort();
 
+    bool is_2d_stack = number()>1;
+
+    // Patient position not necessary as read, phase and slice directions
+    // are already in patient coordinates
+#if 0
     ISMRMRD::IsmrmrdHeader image_header = this->acqs_info_.get_IsmrmrdHeader();
     if (!image_header.measurementInformation.is_present())
         std::cout << "\nGadgetronImagesVector::set_up_geom_info: Patient position not present. Assuming HFS\n";
-    else if (!image_header.measurementInformation.get().patientPosition.compare("HFS"))
+    else if (image_header.measurementInformation.get().patientPosition.compare("HFS") != 0)
         std::cout << "\nGadgetronImagesVector::set_up_geom_info: Currently only implemented for HFS. TODO (easy fix)\n";
-
+#endif
     // Get image
     ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
 
-    // Check that the read, phase and slice directions are unit vectors and constant
-    for (unsigned im=0; im<number(); ++im) {
+    // Check that read, phase and slice directions are all unit vectors
+    if (!(is_unit_vector(ih1.read_dir) && is_unit_vector(ih1.phase_dir) && is_unit_vector(ih1.slice_dir))) {
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
+        return;
+    }
+
+    // Check that the read, phase and slice directions are constant
+    for (unsigned im=1; im<number(); ++im) {
         ISMRMRD::ImageHeader &ih = image_wrap(im).head();
-        if (!(is_unit_vector(ih.read_dir) && is_unit_vector(ih.phase_dir) && is_unit_vector(ih.slice_dir))) {
-            std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
-            return;
-        }
         if (!(are_vectors_equal(ih1.read_dir,ih.read_dir) && are_vectors_equal(ih1.phase_dir,ih.phase_dir) && are_vectors_equal(ih1.slice_dir,ih.slice_dir))) {
             std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should be constant over slices.\n";
             return;
@@ -1221,11 +1250,8 @@ GadgetronImagesVector::set_up_geom_info()
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
     // If it's a stack of 2d images.
-    if (size[2] == 1)
+    if (is_2d_stack)
         size[2] = this->number();
-
-    // The following will only work if the 0th index is read direction,
-    // 1st is phase direction and 2nd is slice direction. This should be the case if sort has been called.
 
     // Spacing
     VoxelisedGeometricalInfo3D::Spacing spacing;
@@ -1235,17 +1261,11 @@ GadgetronImagesVector::set_up_geom_info()
     // If there are more than 1 slices, then take the size of the voxel
     // in the z-direction to be the distance between voxel centres (this
     // accounts for under-sampled data (and also over-sampled).
-    if (this->number() > 1) {
+    if (is_2d_stack) {
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
-        float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
-                ih1.position[1] * ih1.slice_dir[1] +
-                ih1.position[2] * ih1.slice_dir[2];
-        float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
-                ih2.position[1] * ih2.slice_dir[1] +
-                ih2.position[2] * ih2.slice_dir[2];
-        spacing[2] = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
+        spacing[2] = get_slice_spacing(ih1, ih2);
 
         // Check: Loop over all images, and check that spacing is more-or-less constant
         for (unsigned im=0; im<number()-1; ++im) {
@@ -1254,13 +1274,7 @@ GadgetronImagesVector::set_up_geom_info()
             ISMRMRD::ImageHeader &ih2 = image_wrap(im+1).head();
 
             // 2. Check that spacing is constant
-            float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
-                    ih1.position[1] * ih1.slice_dir[1] +
-                    ih1.position[2] * ih1.slice_dir[2];
-            float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
-                    ih2.position[1] * ih2.slice_dir[1] +
-                    ih2.position[2] * ih2.slice_dir[2];
-            float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
+            float new_spacing = get_slice_spacing(ih1, ih2);
             if (std::abs(spacing[2]-new_spacing) > 1.e-4F) {
                 print_slice_distances(images_);
                 return;
@@ -1268,17 +1282,30 @@ GadgetronImagesVector::set_up_geom_info()
         }
     }
 
-    // Offset
-    VoxelisedGeometricalInfo3D::Offset offset;
-    for (int i=0; i<3; ++i)
-        offset[i] = ih1.position[i];
+    // Make sure we're looking at the first image
+    ih1 = image_wrap( 0 ).head();
 
     // Direction
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
-    for (int axis=0; axis<3; ++axis) {
-        direction[0][axis] = ih1.read_dir[axis];
-        direction[1][axis] = ih1.phase_dir[axis];
-        direction[2][axis] = ih1.slice_dir[axis];
+    for (unsigned axis=0; axis<3; ++axis) {
+        direction[axis][0] = -ih1.read_dir[axis];
+        direction[axis][1] = -ih1.phase_dir[axis];
+        direction[axis][2] = -ih1.slice_dir[axis];
+    }
+
+    // Offset
+    VoxelisedGeometricalInfo3D::Offset offset;
+    for (unsigned i=0; i<3; ++i)
+        offset[i] = ih1.position[i]
+                - direction[i][0] * (ih1.field_of_view[0] / 2.0f)
+                - direction[i][1] * (ih1.field_of_view[1] / 2.0f);
+
+    // TODO this isn't perfect
+    if (!is_2d_stack && size[2]>1) {
+        std::cout << "\nGadgetronImagesVector::set_up_geom_info(). "
+                     "Warning, we think we're ~half a voxel out in the 3D case.\n";
+        for (unsigned i=0; i<3; ++i)
+            offset[i] += ih1.slice_dir[i] * (ih1.field_of_view[2] / 2.0f);
     }
 
     // Initialise the geom info shared pointer
@@ -1440,12 +1467,13 @@ CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
 }
 
 float 
-CoilSensitivitiesContainer::max_(int nx, int ny, float* u)
+CoilSensitivitiesContainer::max_(int nx, int ny, int nz, float* u)
 {
 	float r = 0.0;
 	int i = 0;
-	for (int iy = 0; iy < ny; iy++)
-		for (int ix = 0; ix < nx; ix++, i++) {
+	for (int iz = 0; iz < nz; iz++)
+		for (int iy = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
 			float t = fabs(u[i]);
 			if (t > r)
 				r = t;
@@ -1455,122 +1483,82 @@ CoilSensitivitiesContainer::max_(int nx, int ny, float* u)
 
 void 
 CoilSensitivitiesContainer::mask_noise_
-(int nx, int ny, float* u, float noise, int* mask)
+(int nx, int ny, int nz, float* u, float noise, int* mask)
 {
 	int i = 0;
-	for (int iy = 0; iy < ny; iy++)
-		for (int ix = 0; ix < nx; ix++, i++) {
+	for (int iz = 0; iz < nz; iz++)
+		for (int iy = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
 			float t = fabs(u[i]);
 			mask[i] = (t > noise);
 		}
 }
 
-int 
-CoilSensitivitiesContainer::cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex)
+float
+CoilSensitivitiesContainer::max_diff_
+(int nx, int ny, int nz, int nc, float small_grad,
+	complex_float_t* u, complex_float_t* v)
 {
-	int ll, il;
-	int* listx = new int[nx*ny];
-	int* listy = new int[nx*ny];
-	int* inlist = new int[nx*ny];
-	std::memset(inlist, 0, nx*ny * sizeof(int));
-	int nc = 0;
-	for (int iy = 0, i = 0; iy < ny; iy++) {
-		for (int ix = 0; ix < nx; ix++, i++) {
-			if (mask[i] == bg)
-				continue;
-			bool skip = false;
-			ll = 1;
-			listx[0] = ix;
-			listy[0] = iy;
-			inlist[i] = 1;
-			il = 0;
-			while (il < ll && ll < minsz) {
-				int lx = listx[il];
-				int ly = listy[il];
-				int l = ll + ex;
-				for (int jy = -l; jy <= l; jy++) {
-					for (int jx = -l; jx <= l; jx++) {
-						int kx = lx + jx;
-						int ky = ly + jy;
-						if (kx < 0 || kx >= nx)
-							continue;
-						if (ky < 0 || ky >= ny)
-							continue;
-						int j = kx + ky*nx;
-						if (inlist[j])
-							continue;
-						if (mask[j] != bg) {
-							listx[ll] = kx;
-							listy[ll] = ky;
-							inlist[j] = 1;
-							ll++;
-						}
-					}
+	int nxy = nx*ny;
+	int nxyz = nxy*nz;
+	float s = 0.0f;
+	for (int ic = 0; ic < nc; ic++) {
+		for (int iz = 0; iz < nz; iz++) {
+			for (int iy = 1; iy < ny - 1; iy++) {
+				for (int ix = 1; ix < nx - 1; ix++) {
+					int i = ix + nx*iy + nxy*iz + nxyz*ic;
+					float gx = abs(u[i + 1] - u[i - 1]) / 2.0f;
+					float gy = abs(u[i + nx] - u[i - nx]) / 2.0f;
+					float g = (float)std::sqrt(gx*gx + gy*gy);
+					float si = abs(u[i] - v[i]);
+					if (g <= small_grad && si > s)
+						s = si;
 				}
-				il++;
-			}
-			if (il == ll) {
-				mask[i] = bg;
-				nc++;
-			}
-			for (il = 0; il < ll; il++) {
-				int lx = listx[il];
-				int ly = listy[il];
-				int j = lx + ly*nx;
-				inlist[j] = 0;
 			}
 		}
 	}
-	//std::cout << nc << " mask pixels cleaned\n";
-	delete[] listx;
-	delete[] listy;
-	delete[] inlist;
-	return nc;
+	return s;
 }
 
 void 
 CoilSensitivitiesContainer::smoothen_
-(int nx, int ny, int nc,
+(int nx, int ny, int nz, int nc,
 	complex_float_t* u, complex_float_t* v,
 	int* obj_mask, int w)
 {
 	const complex_float_t ONE(1.0, 0.0);
 	const complex_float_t TWO(2.0, 0.0);
 	for (int ic = 0, i = 0; ic < nc; ic++)
-		for (int iy = 0, k = 0; iy < ny; iy++)
-			for (int ix = 0; ix < nx; ix++, i++, k++) {
-				//if (edge_mask[k]) {
-				//	v[i] = u[i];
-				//	continue;
-				//}
-				//if (!obj_mask[k]) {
-				//	v[i] = 0;
-				//	continue;
-				//}
-				int n = 0;
-				complex_float_t r(0.0, 0.0);
-				complex_float_t s(0.0, 0.0);
-				for (int jy = -w; jy <= w; jy++)
-					for (int jx = -w; jx <= w; jx++) {
-						if (ix + jx < 0 || ix + jx >= nx)
-							continue;
-						if (iy + jy < 0 || iy + jy >= ny)
-							continue;
-						int j = i + jx + jy*nx;
-						int l = k + jx + jy*nx;
-						if (i != j && obj_mask[l]) { // == obj_mask[k]) { // && !edge_mask[l]) {
-							n++;
-							r += ONE;
-							s += u[j];
-						}
+		for (int iz = 0, k = 0; iz < nz; iz++)
+			for (int iy = 0; iy < ny; iy++)
+				for (int ix = 0; ix < nx; ix++, i++, k++) {
+					if (obj_mask && !obj_mask[k]) {
+						v[i] = u[i];
+						continue;
 					}
-				//v[i] = obj_mask[k];
-				if (n > 0)
-					v[i] = (u[i] + s / r) / TWO;
-				else
-					v[i] = u[i];
-			}
-	memcpy(u, v, nx*ny*nc * sizeof(complex_float_t));
+					int n = 0;
+					complex_float_t r(0.0, 0.0);
+					complex_float_t s(0.0, 0.0);
+					for (int jy = -w; jy <= w; jy++)
+						for (int jx = -w; jx <= w; jx++) {
+							if (ix + jx < 0 || ix + jx >= nx)
+								continue;
+							if (iy + jy < 0 || iy + jy >= ny)
+								continue;
+							int j = i + jx + jy*nx;
+							int l = k + jx + jy*nx;
+							if (i != j && (!obj_mask || obj_mask[l])) {
+								n++;
+								r += ONE;
+								s += u[j];
+							}
+						}
+					if (n > 0)
+						v[i] = (u[i] + s / r) / TWO;
+					else
+						v[i] = u[i];
+				}
+	memcpy(u, v, nx*ny*nz*nc * sizeof(complex_float_t));
 }
 
 void 
@@ -1606,9 +1594,10 @@ CoilSensitivitiesContainer::compute_csm_(
 		}
 	}
 
-	int* object_mask = new int[nx*ny*nc];
-	memset(object_mask, 0, nx*ny*nc * sizeof(int));
+	int* object_mask = new int[nx*ny*nz];
+	memset(object_mask, 0, nx*ny*nz * sizeof(int));
 
+	ISMRMRD::NDArray<complex_float_t> v(cm0);
 	ISMRMRD::NDArray<complex_float_t> w(cm0);
 
 	float* ptr_img = img.getDataPtr();
@@ -1625,29 +1614,17 @@ CoilSensitivitiesContainer::compute_csm_(
 		}
 	}
 
-	float max_im = max_(nx, ny, ptr_img);
-	float noise = max_(5, 5, ptr_img) + (float)1e-6*max_im;
-	//std::cout << "max_im: " << max_im << ", noise: " << noise << '\n';
-	mask_noise_(nx, ny, ptr_img, noise, object_mask);
-	//for (int i = 2; i < 20; i++) {
-	//	int cleaned = cleanup_mask_(nx, ny, object_mask, 0, i, 0);
-	//	if (cleaned < 1)
-	//		break;
-	//}
-	//for (int i = 2; i < 20; i++) {
-	//	int cleaned = cleanup_mask_(nx, ny, object_mask, 1, i, 0);
-	//	if (cleaned < 1)
-	//		break;
-	//}
-	cleanup_mask_(nx, ny, object_mask, 0, 2, 0);
-	cleanup_mask_(nx, ny, object_mask, 0, 3, 0);
-	cleanup_mask_(nx, ny, object_mask, 0, 4, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 2, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 3, 0);
-	//cleanup_mask_(nx, ny, object_mask, 1, 4, 0);
+	float max_im = max_(nx, ny, nz, ptr_img);
+	float small_grad = max_im * 2 / (nx + ny + 0.0f);
+	for (int i = 0; i < 3; i++)
+		smoothen_(nx, ny, nz, nc, v.getDataPtr(), w.getDataPtr(), 0, 1);
+	float noise = max_diff_(nx, ny, nz, nc, small_grad,
+		v.getDataPtr(), cm0.getDataPtr());
+	mask_noise_(nx, ny, nz, ptr_img, noise, object_mask);
 
 	for (int i = 0; i < csm_smoothness_; i++)
-		smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), object_mask, 1);
+		smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), //0, 1);
+			object_mask, 1);
 
 	for (unsigned int z = 0; z < nz; z++) {
 		for (unsigned int y = 0; y < ny; y++) {
@@ -1662,9 +1639,9 @@ CoilSensitivitiesContainer::compute_csm_(
 		}
 	}
 
-	for (unsigned int z = 0; z < nz; z++) {
+	for (unsigned int z = 0, i = 0; z < nz; z++) {
 		for (unsigned int y = 0; y < ny; y++) {
-			for (unsigned int x = 0; x < nx; x++) {
+			for (unsigned int x = 0; x < nx; x++, i++) {
 				float r = img(x, y, z);
 				float s;
 				if (r != 0.0)
@@ -1673,7 +1650,7 @@ CoilSensitivitiesContainer::compute_csm_(
 					s = 0.0;
 				complex_float_t zs(s, 0.0);
 				for (unsigned int c = 0; c < nc; c++) {
-					csm(x, y, z, c) = cm0(x, y, z, c) * zs;
+					csm(x, y, z, c) = zs * cm0(x, y, z, c);
 				}
 			}
 		}

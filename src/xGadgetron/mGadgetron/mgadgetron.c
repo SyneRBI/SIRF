@@ -23,7 +23,7 @@ limitations under the License.
 
 #include <mex.h>
 #include "matrix.h"
-#include "cgadgetron.h"
+#include "sirf/Gadgetron/cgadgetron.h"
 
 #ifndef CGADGETRON_FOR_MATLAB
 #define PTR_INT size_t
@@ -107,17 +107,26 @@ EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input
 EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num) {
 	return cGT_acquisitionFromContainer(ptr_acqs, acq_num);
 }
+EXPORTED_FUNCTION 	void* mGT_appendAcquisition(void* ptr_acqs, void* ptr_acq) {
+	return cGT_appendAcquisition(ptr_acqs, ptr_acq);
+}
+EXPORTED_FUNCTION 	void* mGT_createEmptyAcquisitionData(void* ptr_ad) {
+	return cGT_createEmptyAcquisitionData(ptr_ad);
+}
 EXPORTED_FUNCTION 	void* mGT_cloneAcquisitions(void* ptr_input) {
 	return cGT_cloneAcquisitions(ptr_input);
 }
 EXPORTED_FUNCTION 	void* mGT_sortAcquisitions(void* ptr_acqs) {
 	return cGT_sortAcquisitions(ptr_acqs);
 }
+EXPORTED_FUNCTION 	void* mGT_sortAcquisitionsByTime(void* ptr_acqs) {
+	return cGT_sortAcquisitionsByTime(ptr_acqs);
+}
+EXPORTED_FUNCTION 	void* mGT_setAcquisitionsInfo(void* ptr_acqs, const char* info) {
+	return cGT_setAcquisitionsInfo(ptr_acqs, info);
+}
 EXPORTED_FUNCTION 	void* mGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim) {
 	return cGT_getAcquisitionDataDimensions(ptr_acqs, ptr_dim);
-}
-EXPORTED_FUNCTION 	void* mGT_writeAcquisitions(void* ptr_acqs, const char* filename) {
-	return cGT_writeAcquisitions(ptr_acqs, filename);
 }
 EXPORTED_FUNCTION 	void* mGT_fillAcquisitionData(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {
 	return cGT_fillAcquisitionData(ptr_acqs, ptr_z, all);
@@ -170,7 +179,7 @@ EXPORTED_FUNCTION 	void* mGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT 
 EXPORTED_FUNCTION 	void* mGT_setImageDataFromCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
 	return cGT_setImageDataFromCmplxArray(ptr_imgs, ptr_z);
 }
-EXPORTED_FUNCTION 	void* mGT_print_header(const void* ptr_imgs, const int im_idx) {
+EXPORTED_FUNCTION     void* mGT_print_header(const void* ptr_imgs, const int im_idx) {
 	return cGT_print_header(ptr_imgs, im_idx);
 }
 EXPORTED_FUNCTION 	void* mGT_setHost(void* ptr_gc, const char* host) {

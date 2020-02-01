@@ -24,7 +24,7 @@ limitations under the License.
 
 #include <mex.h>
 #include "matrix.h"
-#include "cReg.h"
+#include "sirf/Reg/cReg.h"
 
 #ifndef CREG_FOR_MATLAB
 #define PTR_INT size_t
@@ -93,6 +93,15 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_crop(const void* im_ptr, PTR_INT
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order) {
 	return cReg_NiftiImageData_set_voxel_spacing(im_ptr, x, y, z, interpolation_order);
 }
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr) {
+	return cReg_NiftiImageData_normalise_zero_and_one(im_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_standardise(const void* im_ptr) {
+	return cReg_NiftiImageData_standardise(im_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr) {
+	return cReg_NiftiImageData_get_inner_product(im1_ptr, im2_ptr);
+}
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3D_from_SIRFImageData(void* ptr) {
 	return cReg_NiftiImageData3D_from_SIRFImageData(ptr);
 }
@@ -137,6 +146,12 @@ EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, co
 }
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr) {
 	return cReg_NiftyResample_process(ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftyResample_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr) {
+	return cReg_NiftyResample_forward(output_ptr, input_ptr, resampler_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftyResample_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr) {
+	return cReg_NiftyResample_adjoint(output_ptr, input_ptr, resampler_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight) {
 	return cReg_ImageWeightedMean_add_image(ptr, obj, weight);

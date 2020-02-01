@@ -41,16 +41,16 @@ If multiple transformations are given, they will be applied in the order they we
 
 using namespace sirf;
 
-static std::shared_ptr<const NiftiImageData3D<float> > image_as_sptr(const std::string &filename, const std::string &engine)
+static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
 {
     if (strcmp(engine.c_str(), "Nifti") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(filename);
     else if (strcmp(engine.c_str(), "STIR") == 0)
-        return std::make_shared<const NiftiImageData3D<float> >(STIRImageData(filename));
+        return std::make_shared<const STIRImageData>(filename);
     else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
         std::shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
 		sptr_img->read(filename);
-        return std::make_shared<const NiftiImageData3D<float> >(*sptr_img);
+        return sptr_img;
     }
     else
         throw std::runtime_error("unknown engine - " + engine + ".\n");
@@ -78,17 +78,19 @@ void print_usage()
 
     // Optional flags
     std::cout << "\n  Optional flags:\n";
-    std::cout << "    -eng_ref:\t\tengine to open reference image\n";
-    std::cout << "    -eng_flo:\t\tengine to open floating image\n";
+    std::cout << "    -eng_ref:\t\tengine to open reference image (Nifti, STIR, Gadgetron)\n";
+    std::cout << "    -eng_flo:\t\tengine to open floating image (Nifti, STIR, Gadgetron)\n";
     std::cout << "    -output:\t\toutput image filename\n";
     std::cout << "    -interp:\t\tinterpolation (0=NN, 1=linear, 3=cubic, 4=spline)\n";
     std::cout << "    -add_affine:\tadd affine transformation\n";
     std::cout << "    -add_def:\t\tadd deformation transformation\n";
     std::cout << "    -add_disp:\t\tadd displacement transformation\n";
+    std::cout << "    -adj:\t\tadjoint transformation. Give ref and flo as you would in the forward case.\n";
+
 }
 
 /// throw error
-void err(const std::string message)
+[[ noreturn ]] void err(const std::string message)
 {
     std::cerr << "\n" << message << "\n";
     exit(EXIT_FAILURE);
@@ -107,6 +109,7 @@ int main(int argc, char* argv[])
         Resample<float>::InterpolationType interp = Resample<float>::NEARESTNEIGHBOUR;
         float pad = 0;
         bool pad_set = false;
+        bool forward = true;
 
         // Loop over all input arguments (ignore first argument (name of executable))
         argc--; argv++;
@@ -196,6 +199,11 @@ int main(int argc, char* argv[])
                 pad_set = true;
                 argc-=2; argv+=2;
             }
+            // direction
+            else if (strcmp(argv[0], "-adj") == 0) {
+                forward = false;
+                argc-=1; argv+=1;
+            }
 
             // Unknown argument
             else
@@ -209,8 +217,8 @@ int main(int argc, char* argv[])
             err("Error: -flo required.");
 
         // Get images as NiftiImages
-        std::shared_ptr<const NiftiImageData3D<float> > ref = image_as_sptr(ref_filename,eng_ref);
-        std::shared_ptr<const NiftiImageData3D<float> > flo = image_as_sptr(flo_filename,eng_flo);
+        std::shared_ptr<const ImageData> ref = image_as_sptr(ref_filename,eng_ref);
+        std::shared_ptr<const ImageData> flo = image_as_sptr(flo_filename,eng_flo);
 
         // Resample
         std::shared_ptr<Resample<float> > res = algo_as_sptr(algo);
@@ -221,8 +229,13 @@ int main(int argc, char* argv[])
         res->set_interpolation_type(interp);
         if (pad_set)
             res->set_padding_value(pad);
-        res->process();
-        res->get_output_sptr()->write(output);
+
+        std::shared_ptr<ImageData> output_sptr;
+        if (forward)
+            output_sptr = res->forward(flo);
+        else
+            output_sptr = res->adjoint(ref);
+        output_sptr->write(output);
     }
 
     // If there was an error

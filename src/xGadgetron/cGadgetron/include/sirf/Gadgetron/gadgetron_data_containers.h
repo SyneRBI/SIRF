@@ -431,11 +431,8 @@ namespace sirf {
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
 		virtual int read(std::string filename, std::string variable = "", int iv = -1);
-		virtual void write(const std::string &filename, const std::string &groupname) const;
-		virtual void write(const std::string &filename) const { this->write(filename, ""); }
-		virtual void write_dicom(const std::string &filename) const 
-		{
-		}
+		virtual void write(const std::string &filename, const std::string &groupname, const bool dicom) const;
+		virtual void write(const std::string &filename) const { this->write(filename, "", false); }
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;
@@ -1060,12 +1057,14 @@ namespace sirf {
 			ISMRMRD::NDArray<complex_float_t>& csm
 			);
 
-		float max_(int nx, int ny, float* u);
+		float max_diff_(int nx, int ny, int nz, int nc, float small_grad,
+			complex_float_t* u, complex_float_t* v);
+		float max_(int nx, int ny, int nz, float* u);
 		void mask_noise_
-			(int nx, int ny, float* u, float noise, int* mask);
-		int cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex);
+			(int nx, int ny, int nz, float* u, float noise, int* mask);
+		int cleanup_mask_(int nx, int ny, int nz, int* mask, int bg, int minsz, int ex);
 		void smoothen_
-			(int nx, int ny, int nc,
+			(int nx, int ny, int nz, int nc,
 			complex_float_t* u, complex_float_t* v,
 			int* obj_mask, int w);
 	};

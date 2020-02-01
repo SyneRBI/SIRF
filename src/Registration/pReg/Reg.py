@@ -23,6 +23,7 @@ import abc
 import sys
 import time
 import numbers
+import deprecation
 
 from pUtilities import *
 from sirf import SIRF
@@ -162,7 +163,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def __add__(self, other):
         """Overloads + operator."""
-        z = self.deep_copy()
+        z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle, self.handle, other.handle, 0))
         else:
@@ -172,7 +173,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def __sub__(self, other):
         """Overloads - operator."""
-        z = self.deep_copy()
+        z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle, self.handle, other.handle, 1))
         else:
@@ -182,7 +183,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def __mul__(self, other):
         """Overloads * operator."""
-        z = self.deep_copy()
+        z = self.clone()
         try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle, self.handle, float(other), 2))
         check_status(z.handle)
         return z
@@ -217,6 +218,18 @@ class NiftiImageData(SIRF.ImageData):
     def get_min(self):
         """Get min."""
         return parms.float_par(self.handle, 'NiftiImageData', 'min')
+
+    def get_mean(self):
+        """Get mean."""
+        return parms.float_par(self.handle, 'NiftiImageData', 'mean')
+
+    def get_variance(self):
+        """Get variance."""
+        return parms.float_par(self.handle, 'NiftiImageData', 'variance')
+
+    def get_standard_deviation(self):
+        """Get standard deviation."""
+        return parms.float_par(self.handle, 'NiftiImageData', 'std')
 
     def get_sum(self):
         """Get sum."""
@@ -296,11 +309,16 @@ class NiftiImageData(SIRF.ImageData):
         return datatype
 
     def crop(self, min_, max_):
-        """Crop image. Give minimum and maximum indices."""
-        if len(min_) != 7:
-            raise AssertionError("Min bounds should be a 1x7 array.")
-        if len(max_) != 7:
-            raise AssertionError("Max bounds should be a 1x7 array.")
+        """Crop image. Give minimum and maximum indices.
+        Min and max indicies can be anywhere between (x,y,z) and (x,y,z,t,u,v,w).
+        Use values of -1 for no change."""
+        if len(min_) < 3 or len(min_) > 7:
+            raise AssertionError("Min bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)")
+        if len(max_) < 3 or len(max_) > 7:
+            raise AssertionError("Max bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)")
+        # Fill in any missing indices with -1's
+        min_.extend([-1] * (7-len(min_)))
+        max_.extend([-1] * (7-len(max_)))
         min_np = numpy.array(min_, dtype=numpy.int32)
         max_np = numpy.array(max_, dtype=numpy.int32)
         try_calling(pyreg.cReg_NiftiImageData_crop(self.handle, min_np.ctypes.data, max_np.ctypes.data))
@@ -326,6 +344,26 @@ class NiftiImageData(SIRF.ImageData):
     def get_contains_nans(self):
         """Returns true if image contains any voxels with NaNs."""
         return parms.bool_par(self.handle, 'NiftiImageData', 'contains_nans')
+
+    def normalise_zero_and_one(self):
+        """Normalise image between 0 and 1."""
+        try_calling(pyreg.cReg_NiftiImageData_normalise_zero_and_one(self.handle))
+        check_status(self.handle)
+    
+    def standardise(self):
+        """Standardise (subtract mean and divide by standard deviation)."""
+        try_calling(pyreg.cReg_NiftiImageData_standardise(self.handle))
+        check_status(self.handle)
+
+    def get_inner_product(self, other):
+        """Get inner product between two images. Must be same size."""
+        if not isinstance(other, NiftiImageData):
+            raise AssertionError()
+        handle = pyreg.cReg_NiftiImageData_get_inner_product(self.handle, other.handle)
+        check_status(handle)
+        inner_product = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return inner_product
 
     @staticmethod
     def print_headers(to_print):
@@ -663,6 +701,7 @@ class NiftyResample(object):
         self.name = 'NiftyResample'
         self.handle = pyreg.cReg_newObject(self.name)
         self.reference_image = None
+        self.floating_image = None
         check_status(self.handle)
 
     def __del__(self):
@@ -670,16 +709,17 @@ class NiftyResample(object):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_reference_image(self, reference_image):
-        """Set reference image."""
+        """Set reference image. This is the image that would be the reference if you were doing a forward transformation."""
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
         parms.set_parameter(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
-        """Set floating image."""
+        """Set floating image. This is the image that would be the floating if you were doing a forward transformation."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
+        self.floating_image = floating_image
         parms.set_parameter(self.handle, self.name, 'floating_image', floating_image.handle)
 
     def add_transformation(self, src):
@@ -719,6 +759,8 @@ class NiftyResample(object):
         """Set padding value."""
         parms.set_float_par(self.handle, self.name, 'padding', val)
 
+    @deprecation.deprecated(deprecated_in="2.1.0",
+                            details="Use forward(image) instead")
     def process(self):
         """Process."""
         try_calling(pyreg.cReg_NiftyResample_process(self.handle))
@@ -729,6 +771,60 @@ class NiftyResample(object):
         image.handle = parms.parameter_handle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
+
+    def forward(self, im1, im2=None):
+        """Forward transformation.
+        Usage:
+            output = forward(input), OR
+            forward(output,input)
+        """
+        # If usage was 'output = forward(input)'
+        if im2 is None:
+            output_im = self.reference_image.clone()
+            input_im = im1
+        # If usage was 'forward(output, input)'
+        else:
+            output_im = im1
+            input_im = im2
+        # Check image validity
+        if not isinstance(input_im, SIRF.ImageData):
+            raise AssertionError()
+        if not isinstance(output_im, SIRF.ImageData):
+            raise AssertionError()
+        # Forward
+        try_calling(pyreg.cReg_NiftyResample_forward(output_im.handle, input_im.handle, self.handle))
+        # If usage was 'output = forward(input)', we need to return the ouptut
+        if im2 is None:
+            return output_im
+
+    def adjoint(self, im1, im2=None):
+        """Adjoint transformation.
+        Usage:
+            output = adjoint(input), OR
+            adjoint(output,input)
+        """
+        # If usage was 'output = adjoint(input)'
+        if im2 is None:
+            output_im = self.floating_image.clone()
+            input_im = im1
+        # If usage was 'adjoint(output, input)'
+        else:
+            output_im = im1
+            input_im = im2
+        # Check image validity
+        if not isinstance(input_im, SIRF.ImageData):
+            raise AssertionError()
+        if not isinstance(output_im, SIRF.ImageData):
+            raise AssertionError()
+        # Forward
+        try_calling(pyreg.cReg_NiftyResample_adjoint(output_im.handle, input_im.handle, self.handle))
+        # If usage was 'output = adjoint(input)', we need to return the ouptut
+        if im2 is None:
+            return output_im
+
+    def backward(self, im1, im2=None):
+        """Backward transformation. Alias of adjoint to align terms with AcquisitionModel's forward and backward."""
+        return self.adjoint(im1, im2)
 
 
 class ImageWeightedMean(object):

@@ -21,6 +21,7 @@ import sys
 import time
 
 import numpy as np
+import nibabel as nib
 import sirf.Reg
 from pUtilities import *
 
@@ -65,6 +66,7 @@ f3d_disp_inverse = output_prefix + "f3d_disp_inverse_%s.nii"
 rigid_resample = output_prefix + "rigid_resample.nii"
 nonrigid_resample_disp = output_prefix + "nonrigid_resample_disp.nii"
 nonrigid_resample_def = output_prefix + "nonrigid_resample_def.nii"
+niftymomo_resample_adj = output_prefix + "niftymomo_resample_adj.nii"
 output_weighted_mean = output_prefix + "weighted_mean.nii"
 output_weighted_mean_def = output_prefix + "weighted_mean_def.nii"
 output_float = output_prefix + "reg_aladin_float.nii"
@@ -226,6 +228,52 @@ def try_niftiimage():
     arr_F2 = im.as_array()
     if not np.array_equal(arr_C2, arr_F2):
         raise AssertionError('NiftiImageData::fill() failed for C- or F-style numpy arrays.')
+
+    # Compare between sirf.Reg.NiftiImageData::as_array() and nibabel
+    arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
+    arr2 = nib.load(ref_aladin_filename).get_fdata()
+    if not numpy.array_equal(arr1,arr2):
+        raise AssertionError("NiftiImageData as_array() failed.")
+
+    # Test geom info
+    geom_info = im.get_geometrical_info()
+    geom_info.print_info()
+    # Get voxel sizes
+    if geom_info.get_size() != (64, 64, 64):
+        raise AssertionError("SIRF get_geometrical_info().get_size() failed.")
+    if geom_info.get_spacing() != (4.0625, 4.0625, 4.0625):
+        raise AssertionError("SIRF get_geometrical_info().get_spacing() failed.")
+
+    im.standardise()
+    if abs(im.get_standard_deviation() - 1) > 0.01:
+        raise AssertionError("NiftiImageData standardise() or get_standard_deviation() failed.")
+    if abs(im.get_variance() - 1) > 0.01:
+        raise AssertionError("NiftiImageData standardise() or get_variance() failed.")
+    if abs(im.get_mean()) > 0.0001:
+        raise AssertionError("NiftiImageData standardise() or get_mean() failed.")
+    
+    # Check normalise 
+    im.normalise_zero_and_one()
+    if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
+        raise AssertionError("NiftiImageData normalise_between_zero_and_one() failed.")
+    
+    # Test inner product
+    in1 = x.deep_copy()
+    in2 = x.deep_copy()
+    in1_arr = in1.as_array()
+    in2_arr = in2.as_array()
+    dims = in1.get_dimensions()
+    inner_product = 0
+    for idx_x in range(dims[1]):
+        for idx_y in range(dims[2]):
+            for idx_z in range(dims[3]):
+                in1_arr[idx_x, idx_y, idx_z] = float(i)
+                in2_arr[idx_x, idx_y, idx_z] = float(3*i-1)
+                inner_product += float(i) * float(3*i-1)
+    in1.fill(in1_arr)
+    in2.fill(in2_arr)
+    if abs(inner_product - in1.get_inner_product(in2)) > 1e-4:
+        raise AssertionError("NiftiImageData::get_inner_product() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -596,6 +644,8 @@ def try_niftyaladin():
     na.set_parameter("SetInterpolationToCubic")
     na.set_parameter("SetLevelsToPerform", "1")
     na.set_parameter("SetMaxIterations", "5")
+    na.set_parameter("SetPerformRigid", "1")
+    na.set_parameter("SetPerformAffine", "0")
     na.set_reference_mask(ref_mask);
     na.set_floating_mask(flo_mask);
     na.process()
@@ -757,7 +807,7 @@ def try_resample(na):
     nr2.set_reference_image(ref_aladin)
     nr2.set_floating_image(flo_aladin)
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
-    nr2.set_interpolation_type_to_linear()  # try different interpolations
+    nr2.set_interpolation_type_to_nearest_neighbour()  # try different interpolations
     nr2.add_transformation(disp)
     nr2.set_padding_value(padding_value)
     nr2.process()
@@ -770,11 +820,20 @@ def try_resample(na):
     nr3 = sirf.Reg.NiftyResample()
     nr3.set_reference_image(ref_aladin)
     nr3.set_floating_image(flo_aladin)
-    nr3.set_interpolation_type_to_nearest_neighbour()  # try different interpolations
+    nr3.set_interpolation_type_to_linear()  # try different interpolations
     nr3.add_transformation(deff)
     nr3.set_interpolation_type_to_linear()
     nr3.process()
     nr3.get_output().write(nonrigid_resample_def)
+
+    # Check that the following give the same result
+    #       out = resample.forward(in)
+    #       resample.forward(out, in)
+    out1 = nr3.forward(flo_aladin)
+    out2 = ref_aladin.deep_copy()
+    nr3.forward(out2, flo_aladin)
+    if out1 != out2:
+        raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
 
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
     # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
@@ -786,6 +845,73 @@ def try_resample(na):
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished Nifty resample test.\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+
+# NiftyMoMo
+def try_niftymomo(na):
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Starting NiftyMomMo test...\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+    # The forward and the adjoint should meet the following criterion:
+    # | < x, Ty > - < y, Tsx > | / 0.5 * (| < x, Ty > | + | < y, Tsx > |) < epsilon
+    # for all images x and y, where T is the transform and Ts is the adjoint.
+
+    x = ref_aladin
+    T = na.get_transformation_matrix_forward()
+    y = flo_aladin
+
+    # Add in a magnification to make things interesting
+    t = T.as_array()
+    t[0][0] = 1.5
+    T = sirf.Reg.AffineTransformation(t)
+
+    # make it slightly unsquare to spice things up
+    min_idx = [0, 1, 2]
+    y_dims = y.get_dimensions()
+    max_idx = [y_dims[1] - 3, y_dims[2] - 1, y_dims[3]-5]
+    y.crop(min_idx, max_idx)
+
+    sys.stderr.write('Testing adjoint resample...\n')
+    nr = sirf.Reg.NiftyResample()
+    nr.set_reference_image(x)
+    nr.set_floating_image(y)
+    nr.set_interpolation_type_to_linear()
+    nr.add_transformation(T)
+
+    # Do the forward
+    Ty = nr.forward(y)
+
+    # Do the adjoint
+    Tsx = nr.adjoint(x)
+
+    # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
+    inner_x_Ty = x.get_inner_product(Ty)
+    inner_y_Tsx = y.get_inner_product(Tsx)
+    adjoint_test = abs(inner_x_Ty - inner_y_Tsx) / (0.5 * (abs(inner_x_Ty) + abs(inner_y_Tsx)))
+    sys.stderr.write('<x, Ty>  = %f\n' % inner_x_Ty)
+    sys.stderr.write('<y, Tsx> = %f\n' % inner_y_Tsx)
+    sys.stderr.write('|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = %f\n' % adjoint_test)
+    if adjoint_test > 1e-4:
+        raise AssertionError("NiftyResample::adjoint() failed")
+
+    # Check that the following give the same result
+    #       out = resample.adjoint(in)
+    #       resample.adjoint(out, in)
+    out1 = nr.adjoint(x)
+    out2 = y.deep_copy()
+    nr.backward(out2, x)
+    if out1 != out2:
+        raise AssertionError(
+            'out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.')
+
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Finished NiftyMoMo test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
@@ -1003,6 +1129,7 @@ def test():
     try_niftyf3d()
     try_transformations(na)
     try_resample(na)
+    try_niftymomo(na)
     try_weighted_mean(na)
     try_affinetransformation(na)
     try_quaternion()

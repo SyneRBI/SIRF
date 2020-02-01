@@ -34,6 +34,11 @@ limitations under the License.
 #include <vector>
 #include <iostream>
 #include "sirf/Reg/Resample.h"
+#include "sirf/iUtilities/iutilities.h"
+
+namespace NiftyMoMo {
+class BSplineTransformation;
+}
 
 namespace sirf {
 
@@ -58,24 +63,56 @@ public:
     virtual ~NiftyResample() {}
 
     /// Process
-    virtual void process();
+    DEPRECATED virtual void process();
 
-    /// Get output (as NiftiImageData)
-    const std::shared_ptr<const NiftiImageData<dataType> > get_output_as_niftiImageData_sptr() const { return _output_image_nifti_sptr; }
+    /// Do the forward transformation
+    virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const ImageData> input_sptr);
+
+    /// Do the forward transformation
+    virtual void forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
+
+    /// Do the adjoint transformation
+    virtual std::shared_ptr<ImageData> adjoint(const std::shared_ptr<const ImageData> input_sptr);
+
+    /// Do the adjoint transformation
+    virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
 
 protected:
+
+    /// Set up
+    virtual void set_up();
+
+    /// Set up forward
+    virtual void set_up_forward();
+
+    /// Set up adjoint
+    virtual void set_up_adjoint();
 
     /// Set up the input images (convert from ImageData to NiftiImageData if necessary)
     void set_up_input_images();
 
     /// Set up the output image
-    void set_up_output_image();
+    void set_up_output_image(std::shared_ptr<NiftiImageData<dataType> > &output_sptr,
+                             const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr,
+                             const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr);
+
 
     /// Reference image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;
     /// Floating image as a NiftiImageData
     std::shared_ptr<const NiftiImageData<dataType> > _floating_image_nifti_sptr;
-    /// Floating image as a NiftiImageData
-    std::shared_ptr<NiftiImageData<dataType> >       _output_image_nifti_sptr;
+    /// Forward resampled image as a NiftiImageData
+    std::shared_ptr<NiftiImageData<dataType> >       _output_image_forward_nifti_sptr;
+    /// Adjoint resampled image as a NiftiImageData
+    std::shared_ptr<NiftiImageData<dataType> >       _output_image_adjoint_nifti_sptr;
+
+    /// Deformation
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > _deformation_sptr;
+    /// Needed for the adjoint transformation
+    std::shared_ptr<NiftyMoMo::BSplineTransformation> _adjoint_transformer_sptr;
+    /// Adjoint reference weights
+    std::shared_ptr<NiftiImageData<dataType> > _adjoint_input_weights_sptr;
+    /// Adjoint output weights
+    std::shared_ptr<NiftiImageData<dataType> > _adjoint_output_weights_sptr;
 };
 }

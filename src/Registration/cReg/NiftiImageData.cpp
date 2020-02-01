@@ -39,6 +39,7 @@ limitations under the License.
 #include "sirf/Reg/NiftyResample.h"
 #include <iomanip>
 #include <cmath>
+#include <numeric>
 
 // Remove NiftyReg's definition of isnan
 #undef isnan
@@ -337,6 +338,23 @@ float NiftiImageData<dataType>::get_mean() const
 }
 
 template<class dataType>
+float NiftiImageData<dataType>::get_variance() const
+{
+    float var  = 0.f;
+    float mean = this->get_mean();
+    for (unsigned i=0; i<this->get_num_voxels(); ++i)
+        var += std::pow(float((*this)(i)) - mean, 2.f);
+    return var / float(this->get_num_voxels());
+}
+
+
+template<class dataType>
+float NiftiImageData<dataType>::get_standard_deviation() const
+{
+    return sqrt(this->get_variance());
+}
+
+template<class dataType>
 float NiftiImageData<dataType>::get_sum() const
 {
     if(!this->is_initialised())
@@ -539,6 +557,25 @@ void NiftiImageData<dataType>::copy_nifti_image(std::shared_ptr<nifti_image> &ou
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::normalise_zero_and_one()
+{
+    dataType max = this->get_max();
+    dataType min = this->get_min();
+    // im = (im-min) / (max-min)
+    for (size_t i=0; i<this->get_num_voxels(); ++i)
+        (*this)(i) = ((*this)(i)-min) / (max-min);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::standardise()
+{
+    dataType mean = this->get_mean();
+    dataType std  = this->get_standard_deviation();
+    for (size_t i=0; i<this->get_num_voxels(); ++i)
+        (*this)(i) = ((*this)(i) - mean) / std;
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::change_datatype(const int datatype)
 {
     if      (datatype == DT_BINARY)   change_datatype<bool>(*this);
@@ -587,12 +624,15 @@ void NiftiImageData<dataType>::crop(const int min_index[7], const int max_index[
     }
 
     // Check the min. and max. indices are in bounds.
-    // Check the max. is less than the min.
+    // Check the max. is less than image dimensions.
+    // Check that min <= max.
     bool bounds_ok = true;
     if (!this->is_in_bounds(min_idx))  bounds_ok = false;
     if (!this->is_in_bounds(max_idx))  bounds_ok = false;
     for (int i=0; i<7; ++i)
         if (max_idx[i] > im->dim[i+1]) bounds_ok = false;
+    for (int i=0; i<7; ++i)
+        if (min_idx[i] > max_idx[i]) bounds_ok = false;
     if (!bounds_ok) {
         std::stringstream ss;
         ss << "crop_image: Bounds not ok.\n";
@@ -717,11 +757,6 @@ int NiftiImageData<dataType>::get_1D_index(const int idx[7]) const
 template<class dataType>
 void NiftiImageData<dataType>::set_up_data(const int original_datatype)
 {
-	// TODO: allow slopes and intercepts != 1 and 0
-	if (std::abs( _nifti_image->scl_slope - 1.f ) > 1.e-4f ||
-		std::abs( _nifti_image->scl_inter       ) > 1.e-4f )
-		throw std::runtime_error("NiftiImageData::set_up_data: Currently only allow slope=1, intercept=0");
-
     // Save the original datatype, we'll convert it back to this just before saving
     _original_datatype = original_datatype;
 
@@ -744,7 +779,6 @@ void NiftiImageData<dataType>::set_up_data(const int original_datatype)
             _data[i] = _nifti_image->scl_slope * _data[i] + _nifti_image->scl_inter;
         _nifti_image->scl_slope = 1.f;
         _nifti_image->scl_inter = 0.f;
-
     }
 
     // Lastly, initialise the geometrical info
@@ -1052,7 +1086,7 @@ void NiftiImageData<dataType>::set_voxel_spacing(const float new_spacing[3], con
     NiftiImageData<dataType> old = *this;
     nifti_image *oldImg = old.get_raw_nifti_sptr().get();
     // Create the new image
-    _nifti_image.reset(nifti_make_new_nim(newDim,_nifti_image->datatype,true));
+    _nifti_image.reset(nifti_make_new_nim(newDim,_nifti_image->datatype,true),nifti_image_free);
     nifti_image *newImg = _nifti_image.get();
 
     newImg->pixdim[1]=newImg->dx=new_spacing[0];
@@ -1258,53 +1292,71 @@ mirror_along_axis(const unsigned axis)
 }
 
 template<class dataType>
-bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
+dataType
+NiftiImageData<dataType>::
+get_inner_product(const NiftiImageData &other) const
 {
-    if(!im1.is_initialised())
+    return std::inner_product(this->begin(),this->end(),other.begin(),dataType(0));
+}
+
+template<class dataType>
+bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr<const NiftiImageData> &im1_sptr, const std::shared_ptr<const NiftiImageData> &im2_sptr, const float required_accuracy_compared_to_max)
+{
+    if(!im1_sptr->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 1 not initialised.");
-    if(!im2.is_initialised())
+    if(!im2_sptr->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 2 not initialised.");
 
     // Check the number of dimensions match
-    if(im1.get_dimensions()[0] != im2.get_dimensions()[0]) {
-        std::cout << "\nImage comparison: different number of dimensions (" << im1.get_dimensions()[0] << " versus " << im2.get_dimensions()[0] << ").\n";
+    if(im1_sptr->get_dimensions()[0] != im2_sptr->get_dimensions()[0]) {
+        std::cout << "\nImage comparison: different number of dimensions (" << im1_sptr->get_dimensions()[0] << " versus " << im2_sptr->get_dimensions()[0] << ").\n";
         return false;
     }
 
     // Get required accuracy compared to the image maxes
     float norm;
-    float epsilon = (im1.get_max()+im2.get_max())/2.F;
+    float epsilon = (im1_sptr->get_max()+im2_sptr->get_max())/2.F;
     epsilon *= required_accuracy_compared_to_max;
 
     // If metadata match, get the norm
-    if (do_nifti_image_metadata_match(im1,im2, false))
-        norm = im1.get_norm(im2);
+    if (do_nifti_image_metadata_match(*im1_sptr,*im2_sptr, false))
+        norm = im1_sptr->get_norm(*im2_sptr);
 
     // If not, we'll have to resample
     else {
         std::cout << "\nImage comparison: metadata do not match, doing resampling...\n";
         NiftyResample<float> resample;
         resample.set_interpolation_type_to_nearest_neighbour();
-        resample.set_reference_image(im1.clone());
-        resample.set_floating_image(im2.clone());
-        resample.process();
-        norm = resample.get_output_as_niftiImageData_sptr()->get_norm(im1);
+        resample.set_reference_image(im1_sptr);
+        resample.set_floating_image(im2_sptr);
+        const std::shared_ptr<const NiftiImageData<dataType> > resampled_sptr =
+                std::dynamic_pointer_cast<const NiftiImageData<dataType> >(
+                    resample.forward(im2_sptr));
+        norm = resampled_sptr->get_norm(*im1_sptr);
     }
 
     if (norm <= epsilon)
         return true;
 
     std::cout << "\nImages are not equal (norm > epsilon).\n";
-    std::cout << "\tmax1                              = " << im1.get_max() << "\n";
-    std::cout << "\tmax2                              = " << im2.get_max() << "\n";
-    std::cout << "\tmin1                              = " << im1.get_min() << "\n";
-    std::cout << "\tmin2                              = " << im2.get_min() << "\n";
-    std::cout << "\tmean1                             = " << im1.get_mean() << "\n";
-    std::cout << "\tmean2                             = " << im2.get_mean() << "\n";
+    std::cout << "\tmax1                              = " << im1_sptr->get_max() << "\n";
+    std::cout << "\tmax2                              = " << im2_sptr->get_max() << "\n";
+    std::cout << "\tmin1                              = " << im1_sptr->get_min() << "\n";
+    std::cout << "\tmin2                              = " << im2_sptr->get_min() << "\n";
+    std::cout << "\tmean1                             = " << im1_sptr->get_mean() << "\n";
+    std::cout << "\tmean2                             = " << im2_sptr->get_mean() << "\n";
+    std::cout << "\tstandard deviation1               = " << im1_sptr->get_standard_deviation() << "\n";
+    std::cout << "\tstandard deviation2               = " << im2_sptr->get_standard_deviation() << "\n";
     std::cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
     std::cout << "\tepsilon                           = " << epsilon << "\n";
     std::cout << "\tnorm                              = " << norm << "\n";
     return false;
+}
+
+template<class dataType>
+bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
+{
+    return are_equal_to_given_accuracy(im1.clone(), im2.clone(), required_accuracy_compared_to_max);
 }
 
 // ------------------------------------------------------------------------------ //

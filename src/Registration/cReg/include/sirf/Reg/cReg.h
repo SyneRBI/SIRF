@@ -55,6 +55,9 @@ extern "C" {
     void* cReg_NiftiImageData_get_original_datatype(const void* im_ptr);
     void* cReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr);
     void* cReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order);
+    void* cReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr);
+    void* cReg_NiftiImageData_standardise(const void* im_ptr);
+    void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
 
     // NiftiImageData3D
     void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr);
@@ -84,6 +87,8 @@ extern "C" {
     // NiftyResample
     void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
     void* cReg_NiftyResample_process(void* ptr);
+    void* cReg_NiftyResample_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    void* cReg_NiftyResample_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
 
     // ImageWeightedMean
     void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
