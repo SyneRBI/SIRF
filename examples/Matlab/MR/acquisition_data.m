@@ -56,7 +56,7 @@ acq_data.sort()
 % dimensions method returns size of all (i.e. including noise data) if 
 % argument is passed in or if 'all' is passed in. Passing in anything else
 % means not all !!
-[ns, nc, na] = acq_data.dimensions('not all');
+[ns, nc, na] = acq_data.dimensions();
 
 % clone acquisition data
 cloned_acq_data = acq_data.clone();
@@ -88,9 +88,9 @@ end
 
 % Data returned as complex array
 acq_array0 = acq_data.as_array();
-is = ns/2;
-ic = nc/2;
-ia = na/2;
+is = int32(ns/3);
+ic = 1;
+ia = int32(na/5);
 fprintf('Value of one array element: %f\n', acq_array0(is, ic, ia))
 
 acq_array0(is, ic, ia) = acq_array0(is, ic, ia)*10;
