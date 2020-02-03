@@ -65,6 +65,13 @@ classdef NiftyResample < handle
                 error('Transformation should be affine, deformation or displacement.')
             end
         end
+        function clear_transformations(self)
+            %Clear transformations.
+            if ~isempty(self.handle_)
+                h = calllib('mreg', 'mReg_NiftyResample_clear_transformations', self.handle_);
+                sirf.Utilities.check_status([self.name ':clear_transformations'], self.handle_)
+            end
+        end
         function set_interpolation_type(self, type)
             %Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc.
             sirf.Reg.setParameter(self.handle_, self.name, 'interpolation_type', type, 'i')

@@ -89,7 +89,7 @@ void NiftiImageData3DTensor<dataType>::create_from_3D_image(const NiftiImageData
 
     this->_nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 
-    this->set_up_data(image.get_original_datatype());
+    this->set_up_data(DT_FLOAT32);
 }
 
 template<class dataType>
