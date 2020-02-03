@@ -1026,6 +1026,13 @@ GadgetronImageData::set_real_data(const float* z)
 	}
 }
 
+void
+GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
+{
+    acqs_info_ = acqs_info;
+    this->set_up_geom_info();
+}
+
 GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()

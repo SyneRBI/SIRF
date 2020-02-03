@@ -493,7 +493,7 @@ namespace sirf {
 				return i;
 		}
         /// Set the meta data
-        void set_meta_data(const AcquisitionsInfo &acqs_info) { acqs_info_ = acqs_info; }
+        void set_meta_data(const AcquisitionsInfo &acqs_info);
         /// Get the meta data
         const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
 
