@@ -733,6 +733,11 @@ class NiftyResample(object):
         else:
             raise AssertionError()
 
+    def clear_transformations(self):
+        """Clear transformations."""
+        if self.handle is not None:
+            try_calling(pyreg.cReg_NiftyResample_clear_transformations(self.handle))
+
     def set_interpolation_type(self, interp_type):
         """Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""
         if not isinstance(interp_type, int):

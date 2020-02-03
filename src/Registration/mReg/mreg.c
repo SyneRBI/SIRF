@@ -144,6 +144,9 @@ EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char*
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type) {
 	return cReg_NiftyResample_add_transformation(self, trans, type);
 }
+EXPORTED_FUNCTION     void* mReg_NiftyResample_clear_transformations(void* self) {
+	return cReg_NiftyResample_clear_transformations(self);
+}
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr) {
 	return cReg_NiftyResample_process(ptr);
 }

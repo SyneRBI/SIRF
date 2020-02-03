@@ -668,6 +668,8 @@ if try_resample
     nr1.set_interpolation_type_to_cubic_spline();  % try different interpolations
     nr1.set_interpolation_type(3);  % try different interpolations (cubic)
     nr1.add_transformation(tm_iden);
+    nr1.clear_transformations();
+    nr1.add_transformation(tm_iden);
     nr1.add_transformation(tm);
     nr1.process();
     nr1.get_output().write(g.rigid_resample);

@@ -639,6 +639,17 @@ void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const
     CATCH;
 }
 extern "C"
+void* cReg_NiftyResample_clear_transformations(void* self)
+{
+    try {
+        NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(self);
+        res.clear_transformations();
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
 void* cReg_NiftyResample_process(void* ptr)
 {
     try {
