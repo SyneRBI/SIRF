@@ -214,22 +214,64 @@ public:
     bool operator!=(const NiftiImageData &other) const;
 
     /// Addition operator
-    NiftiImageData operator+(const NiftiImageData&) const;
-
-    /// Subtraction operator
-    NiftiImageData operator-(const NiftiImageData&) const;
+    NiftiImageData& operator+=(const NiftiImageData &rhs);
 
     /// Addition operator
-    NiftiImageData operator+(const float) const;
+    friend NiftiImageData operator+(NiftiImageData lhs, const NiftiImageData& rhs)
+    {
+        lhs += rhs;
+        return lhs;
+    }
 
     /// Subtraction operator
-    NiftiImageData operator-(const float) const;
+    NiftiImageData& operator-=(const NiftiImageData &rhs);
 
-    /// Multiply image
-    NiftiImageData operator*(const float) const;
+    /// Subtraction operator
+    friend NiftiImageData operator-(NiftiImageData lhs, const NiftiImageData& rhs)
+    {
+        lhs -= rhs;
+        return lhs;
+    }
 
-    /// Divide image
-    NiftiImageData operator/(const float) const;
+    /// Addition operator
+    NiftiImageData& operator+=(const float);
+
+    /// Addition operator
+    friend NiftiImageData operator+(NiftiImageData lhs, const float val)
+    {
+        lhs += val;
+        return lhs;
+    }
+
+    /// Subtraction operator
+    NiftiImageData& operator-=(const float);
+
+    /// Subtraction operator
+    friend NiftiImageData operator-(NiftiImageData lhs, const float val)
+    {
+        lhs -= val;
+        return lhs;
+    }
+
+    /// Multiplication operator
+    NiftiImageData& operator*=(const float);
+
+    /// Multiplication operator
+    friend NiftiImageData operator*(NiftiImageData lhs, const float val)
+    {
+        lhs *= val;
+        return lhs;
+    }
+
+    /// Division operator
+    NiftiImageData& operator/=(const float);
+
+    /// Division operator
+    friend NiftiImageData operator/(NiftiImageData lhs, const float val)
+    {
+        lhs /= val;
+        return lhs;
+    }
 
     /// Access data element via 1D index (const)
     float operator()(const int index) const;
@@ -386,10 +428,10 @@ protected:
     void set_up_data(const int original_datatype);
 
     /// Add, subract image from another
-    NiftiImageData maths(const NiftiImageData& c, const MathsType type) const;
+    void maths(const NiftiImageData& c, const MathsType type);
 
     /// Add, subract, multiply value to image
-    NiftiImageData maths(const float val, const MathsType type) const;
+    void maths(const float val, const MathsType type);
 
     /// Open nifti image
     static void open_nifti_image(std::shared_ptr<nifti_image> &image, const std::string &filename);
