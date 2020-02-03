@@ -849,12 +849,6 @@ bool NiftiImageData<dataType>::do_nifti_image_metadata_match(const NiftiImageDat
             do_nifti_image_metadata_elements_match("cal_max",         im1_sptr->cal_max,         im2_sptr->cal_max,          verbose) &&
             do_nifti_image_metadata_elements_match("cal_min",         im1_sptr->cal_min,         im2_sptr->cal_min,          verbose) &&
             do_nifti_image_metadata_elements_match("datatype",        im1_sptr->datatype,        im2_sptr->datatype,         verbose) &&
-            do_nifti_image_metadata_elements_match("du",              im1_sptr->du,              im2_sptr->du,               verbose) &&
-            do_nifti_image_metadata_elements_match("dv",              im1_sptr->dv,              im2_sptr->dv,               verbose) &&
-            do_nifti_image_metadata_elements_match("dw",              im1_sptr->dw,              im2_sptr->dw,               verbose) &&
-            do_nifti_image_metadata_elements_match("dx",              im1_sptr->dx,              im2_sptr->dx,               verbose) &&
-            do_nifti_image_metadata_elements_match("dy",              im1_sptr->dy,              im2_sptr->dy,               verbose) &&
-            do_nifti_image_metadata_elements_match("dz",              im1_sptr->dz,              im2_sptr->dz,               verbose) &&
             //do_nifti_image_metadata_elements_match("ext_list",        im1_sptr->ext_list,        im2_sptr->ext_list,         verbose) &&
             do_nifti_image_metadata_elements_match("freq_dim",        im1_sptr->freq_dim,        im2_sptr->freq_dim,         verbose) &&
             do_nifti_image_metadata_elements_match("iname_offset",    im1_sptr->iname_offset,    im2_sptr->iname_offset,     verbose) &&
@@ -902,7 +896,9 @@ bool NiftiImageData<dataType>::do_nifti_image_metadata_match(const NiftiImageDat
 
     for (int i=0; i<8; i++) {
         if (!do_nifti_image_metadata_elements_match("dim["+std::to_string(i)+"]",    im1_sptr->dim[i],    im2_sptr->dim[i],    verbose)) images_match = false;
-        if (!do_nifti_image_metadata_elements_match("pixdim["+std::to_string(i)+"]", im1_sptr->pixdim[i], im2_sptr->pixdim[i], verbose)) images_match = false;
+        // only check the dimensions of non singleton dimensions
+        if (i<=im1_sptr->ndim)
+            if (!do_nifti_image_metadata_elements_match("pixdim["+std::to_string(i)+"]", im1_sptr->pixdim[i], im2_sptr->pixdim[i], verbose)) images_match = false;
     }
 
 #ifndef NDEBUG
