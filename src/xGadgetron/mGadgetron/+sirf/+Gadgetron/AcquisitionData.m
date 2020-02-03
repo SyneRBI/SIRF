@@ -154,9 +154,18 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             end
         end
         function a = acquisition(self, num)
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            if num < 1 || num > self.number()
+                error('AcquisitionData:value_error', ...
+                    'Acquisition number out of range')
+            end
             a = sirf.Gadgetron.Acquisition();
             a.handle_ = calllib('mgadgetron', ...
                 'mGT_acquisitionFromContainer', self.handle_, num - 1);
+            sirf.Utilities.check_status('AcquisitionData', a.handle_);
         end
         function data = as_array(self, select)
 %***SIRF*** as_array(select) returns a 3D complex array of dimensions 
