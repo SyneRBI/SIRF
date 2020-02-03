@@ -101,7 +101,7 @@ void NiftyAladinSym<dataType>::process()
 
     // Get as deformation and displacement
     NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(ref);
-    NiftiImageData3DDeformation<dataType> def_inv = _TM_inverse_sptr->get_as_deformation_field(ref);
+    NiftiImageData3DDeformation<dataType> def_inv = *def_fwd.get_inverse(this->_floating_image_nifti_sptr);
     this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
     this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
 
