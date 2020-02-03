@@ -1485,8 +1485,8 @@ void NiftiImageData<dataType>::set_up_geom_info()
             direction[i][j] = tm_final[i][j] / spacing[j];
 
     // Initialise the geom info shared pointer
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
-                VoxelisedGeometricalInfo3D(offset,spacing,size,direction));
+    this->set_geom_info(std::make_shared<VoxelisedGeometricalInfo3D>(
+                            VoxelisedGeometricalInfo3D(offset,spacing,size,direction)));
 }
 
 namespace sirf {
