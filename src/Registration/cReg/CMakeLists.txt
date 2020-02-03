@@ -78,6 +78,7 @@ SET(REG_executables
     sirf_crop_image
     sirf_flip_or_mirror_image
     sirf_nifti_maths
+    sirf_inverse_transform
     )
 
 FOREACH(elem ${REG_executables})
