@@ -198,39 +198,45 @@ bool NiftiImageData<dataType>::operator!=(const NiftiImageData<dataType> &other)
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator+(const NiftiImageData<dataType>& c) const
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator+=(const NiftiImageData<dataType>& rhs)
 {
-    return maths(c, add);
+    maths(rhs, add);
+    return *this;
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const NiftiImageData<dataType>& c) const
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator-=(const NiftiImageData<dataType>& rhs)
 {
-    return maths(c, sub);
+    maths(rhs, sub);
+    return *this;
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator+(const float val) const
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator+=(const float val)
 {
-    return maths(val,add);
+    maths(val, add);
+    return *this;
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator-(const float val) const
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator-=(const float val)
 {
-    return maths(val,sub);
+    maths(val, sub);
+    return *this;
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator*(const float val) const
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator*=(const float val)
 {
-    return maths(val,mul);
+    maths(val, mul);
+    return *this;
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::operator/(const float val) const
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator/=(const float val)
 {
-    return maths(1.f/val,mul);
+    maths(1.f/val, add);
+    return *this;
 }
 
 template<class dataType>
@@ -471,7 +477,7 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::maths(const NiftiImageData<dataType>& c, const MathsType type) const
+void NiftiImageData<dataType>::maths(const NiftiImageData<dataType>& c, const MathsType type)
 {
     if (!this->is_initialised() || !c.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: at least one image is not initialised.");
@@ -480,31 +486,25 @@ NiftiImageData<dataType> NiftiImageData<dataType>::maths(const NiftiImageData<da
     if (type != add && type != sub)
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: only implemented for add and subtract.");
 
-    NiftiImageData<dataType> res = *this;
-
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
-        if (type == add) res(i) += c(i);
-        else             res(i) -= c(i);
+        if (type == add) (*this)(i) += c(i);
+        else             (*this)(i) -= c(i);
     }
-
-    return res;
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::maths(const float val, const MathsType type) const
+void NiftiImageData<dataType>::maths(const float val, const MathsType type)
 {
     if (!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: image is not initialised.");
     if (type != add && type != sub && type != mul)
         throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: only implemented for add, subtract and multiply.");
 
-    NiftiImageData res = *this;
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
-        if      (type == add) res(i) += val;
-        else if (type == sub) res(i) -= val;
-        else                  res(i) *= val;
+        if      (type == add) (*this)(i) += val;
+        else if (type == sub) (*this)(i) -= val;
+        else                  (*this)(i) *= val;
     }
-    return res;
 }
 
 /// Open nifti image
