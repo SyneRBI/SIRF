@@ -673,9 +673,10 @@ AcquisitionsVector::set_data(const complex_float_t* z, int all)
 {
 	int na = number();
 	for (int a = 0, i = 0; a < na; a++) {
-		ISMRMRD::Acquisition& acq = *acqs_[a];
+		int ia = index(a);
+		ISMRMRD::Acquisition& acq = *acqs_[ia];
 		if (!all && TO_BE_IGNORED(acq)) {
-			std::cout << "ignoring acquisition " << a << '\n';
+			std::cout << "ignoring acquisition " << ia << '\n';
 			continue;
 		}
 		unsigned int nc = acq.active_channels();

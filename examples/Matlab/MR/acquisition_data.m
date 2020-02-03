@@ -45,7 +45,7 @@ AD.set_storage_scheme('memory');
 % read acquisitions from an HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
 acq_data = MR.AcquisitionData(fullfile(pathname, filename));
-acq_data = acq_data.clone(); % R2014b doesn't allow .clone() in the previous line
+%acq_data = acq_data.clone(); % R2014b doesn't allow .clone() in the previous line
 
 na = acq_data.number();
 fprintf('%d acquisitions (readouts) found\n', na)
