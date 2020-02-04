@@ -64,25 +64,22 @@ int main(int argc, char* argv[])
         if (argc > 2)
             mr_recon_h5_filename = argv[2];
 
-        // Test STIR -> Nifti
+        // Test Nifti -> STIR -> Nifti
         {
             std::cout << "\nPerforming STIRImageData to NiftiImageData conversion...\n";
 
             // Load the image as a NiftiImageData3D
             NiftiImageData3D<float> image_nifti(nifti_filename);
 
-            // Read as STIRImageData, convert NiftiImageData3D and save to file
-            STIRImageData image_stir(nifti_filename);
-            NiftiImageData3D<float> image_nifti_from_stir(image_stir);
-            image_nifti_from_stir.write("results/stir_to_nifti.nii",image_nifti.get_original_datatype());
+            // Convert to STIR
+            STIRImageData image_stir_from_nifti(image_nifti);
 
-            // Compare the two
-            if (image_nifti != image_nifti_from_stir)
-                throw std::runtime_error("Conversion from STIR to Nifti failed");
+            // Convert back to NiftiImageData3D
+            NiftiImageData3D<float> image_nifti_from_stir_from_nifti(image_stir_from_nifti);
 
-            // Also save the STIRImageData to file (might be useful visual for comparison)
-            create_stir_output_file_format("results/stir_output_file_format_nifti.par");
-            image_stir.write("results/stir.nii","results/stir_output_file_format_nifti.par");
+            // Compare Nifti's
+            if (image_nifti != image_nifti_from_stir_from_nifti)
+                throw std::runtime_error("Conversion Nifti->STIR->Nifti failed");
         }
 
         // Test Gadgetron -> Nifti

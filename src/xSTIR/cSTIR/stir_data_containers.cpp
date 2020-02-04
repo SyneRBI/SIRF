@@ -260,27 +260,121 @@ const DataContainer& a_y
 
 STIRImageData::STIRImageData(const ImageData& id)
 {
-    throw std::runtime_error("TODO - create STIRImageData from general SIRFImageData.");
-    /* The following is incorrect.
-    Dimensions dim = id.dimensions();
-    int nx = dim["x"];
-    int ny = dim["y"];
-    int nz = 1;
-    Dimensions::iterator it = dim.begin();
-    while (it != dim.end()) {
-        if (it->first != "x" && it->first != "y")
-            nz *= it->second;
-        ++it;
+    typedef VoxelisedGeometricalInfo3D GeomInfo;
+    typedef GeomInfo::Size SIRFSize;
+    typedef GeomInfo::Spacing SIRFSpacing;
+    typedef GeomInfo::Offset SIRFOffset;
+    typedef GeomInfo::DirectionMatrix SIRFDM;
+    typedef GeomInfo::Index SIRFIndex;
+
+    // Get geometrical info
+    const std::shared_ptr<const GeomInfo> geom_info_sptr =
+            id.get_geom_info_sptr();
+
+    // Construct a temporary STIR ImageData and construct a temporary SIRF ImageData based on this
+    Voxels3DF temp_stir_image(
+                stir::IndexRange3D(0,1,  0,1,  0,1),
+                Coord3DF(0.f, 0.f, 0.f), // offset
+                Coord3DF(1.f, 1.f, 1.f)); // spacing
+    STIRImageData temp_sirf_image(temp_stir_image);
+
+    // Get the temporary and input direction matrices, multiply them
+    const SIRFDM &temp_dm = temp_sirf_image.get_geom_info_sptr()->get_direction();
+    const SIRFDM &temp_dm_inv = GeomInfo::inverse_direction_matrix(temp_dm);
+    const SIRFDM &id_dm = geom_info_sptr->get_direction();
+    const SIRFDM composed_tm = GeomInfo::multiply_direction_matrices(temp_dm_inv,id_dm);
+
+    std::cout << "\n temp_dm\n";
+    for (unsigned i=0;i<3;++i) {
+        for (unsigned j=0;j<3;++j) {
+            std::cout << temp_dm[i][j] << " ";
+        }
+        std::cout << "\n";
     }
-    Voxels3DF voxels(stir::IndexRange3D(0, nz - 1,
-        -(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
-        Coord3DF(0, 0, 0),
-        Coord3DF(3, 3, 3.375));
-    _data.reset(voxels.clone());
-    copy(id.begin(), begin(), end());
+
+    std::cout << "\n temp_dm_inv\n";
+    for (unsigned i=0;i<3;++i) {
+        for (unsigned j=0;j<3;++j) {
+            std::cout << temp_dm_inv[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "\n id_dm\n";
+    for (unsigned i=0;i<3;++i) {
+        for (unsigned j=0;j<3;++j) {
+            std::cout << id_dm[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "\n composed_tm\n";
+    for (unsigned i=0;i<3;++i) {
+        for (unsigned j=0;j<3;++j) {
+            std::cout << composed_tm[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+
+    const SIRFDM abs_composed_tm = GeomInfo::absolute_direction_matrix(composed_tm);
+
+    std::cout << "\n composed_tm\n";
+    for (unsigned i=0;i<3;++i) {
+        for (unsigned j=0;j<3;++j) {
+            std::cout << abs_composed_tm[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+
+    // Get the input size and spacing, and apply the transformation matrix
+    const SIRFSize &id_size = geom_info_sptr->get_size();
+    const SIRFSpacing &id_spacing = geom_info_sptr->get_spacing();
+    const SIRFSize stir_size = GeomInfo::multiply_by_direction_matrix(abs_composed_tm, id_size);
+    const SIRFSpacing stir_spacing = GeomInfo::multiply_by_direction_matrix(abs_composed_tm, id_spacing);
+
+    Coord3DI size = {int(stir_size[2]),int(stir_size[1]),int(stir_size[0])};
+    Coord3DF spacing = {stir_spacing[2], stir_spacing[1], stir_spacing[0]};
+
+    const Coord3DI stir_min_index = { 0, -(size.y() / 2), -(size.x() / 2) };
+    const Coord3DI stir_max_index = stir_min_index + size - 1;
+
+    // From the correct size, get the correct index range
+    stir::IndexRange<3> index_range(stir_min_index,stir_max_index);
+
+    // Create the actual STIR image
+    _data = std::make_shared<Voxels3DF>(
+                index_range,
+                Coord3DF(0.f, 0.f, 0.f), // offset, will calculate
+                spacing);
+
+    // Get SIRF offset (as this will be first voxel)
+    const SIRFOffset &offset = geom_info_sptr->get_offset();
+
+    const Coord3DF C1 = _data->get_physical_coordinates_for_LPS_coordinates(
+                _data->get_LPS_coordinates_for_indices(stir_min_index));
+    const Coord3DF C2 = _data->get_physical_coordinates_for_LPS_coordinates(
+                Coord3DF(offset[0],offset[1],offset[2]));
+
+    _data->set_origin(_data->get_origin()-(C1-C2));
+
+    // Fill the data
+    GeomInfo::Index idx_id, idx_stir;
+    for (idx_id[0]=0; idx_id[0]<id_size[0]; ++idx_id[0]) {
+        for (idx_id[1]=0; idx_id[1]<id_size[1]; ++idx_id[1]) {
+            for (idx_id[2]=0; idx_id[2]<id_size[2]; ++idx_id[2]) {
+
+                // Convert input index to stir index
+                idx_stir = GeomInfo::multiply_by_direction_matrix(abs_composed_tm, idx_id);
+
+                // PROBLEM, YOU CAN'T ACCESS IMAGEDATA ELEMENT FROM INDEX.
+                // HOW ABOUT USING FILL AND THEN REORIENTING SOMEHOW?
+                // FUNCTIONALITY MUST ALREADY EXIST IN STIR.
+            }
+        }
+    }
 
     // Set up the geom info
-    this->set_up_geom_info();*/
+    this->set_up_geom_info();
 }
 
 void

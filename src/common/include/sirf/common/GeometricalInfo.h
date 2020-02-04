@@ -91,6 +91,17 @@ public:
     /// Print info
     virtual void print_info() const;
 
+    /// Multiply coordinate by direction matrix
+    static Coordinate multiply_by_direction_matrix(const DirectionMatrix &matrix, const Coordinate &input);
+    /// Multiply index by direction matrix
+    static Index multiply_by_direction_matrix(const DirectionMatrix &matrix, const Index &input);
+    /// Multiply direction matrix by direction matrix
+    static DirectionMatrix multiply_direction_matrices(const DirectionMatrix &input1, const DirectionMatrix &input2);
+    /// Get inverse of direction matrix
+    static DirectionMatrix inverse_direction_matrix(const DirectionMatrix &dm);
+    /// Get absolute of direction matrix
+    static DirectionMatrix absolute_direction_matrix(const DirectionMatrix &dm);
+
 private:
 	Offset _offset;
 	Spacing _spacing;

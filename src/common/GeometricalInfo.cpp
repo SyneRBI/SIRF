@@ -20,6 +20,7 @@ limitations under the License.
 
 #include "sirf/common/GeometricalInfo.h"
 #include <iostream>
+#include <math.h>
 
 using namespace sirf;
 
@@ -46,6 +47,87 @@ print_info() const
         }
     }
     std::cout << "\n";
+}
+
+template <int num_dimensions>
+typename VoxelisedGeometricalInfo<num_dimensions>::Coordinate
+VoxelisedGeometricalInfo<num_dimensions>::
+multiply_by_direction_matrix(const DirectionMatrix &matrix, const Coordinate &input)
+{
+    Coordinate output = {0.f, 0.f, 0.f};
+    for (unsigned i=0; i<3; ++i)
+        for (unsigned j=0; j<3; ++j)
+            output[i] += matrix[i][j] * input[j];
+    return output;
+}
+
+template <int num_dimensions>
+typename VoxelisedGeometricalInfo<num_dimensions>::Index
+VoxelisedGeometricalInfo<num_dimensions>::
+multiply_by_direction_matrix(const DirectionMatrix &matrix, const Index &input)
+{
+    Coordinate temp = {0.f, 0.f, 0.f};
+    for (unsigned i=0; i<3; ++i)
+        for (unsigned j=0; j<3; ++j)
+            temp[i] += matrix[i][j] * input[j];
+    Index output = { unsigned(temp[0]),unsigned(temp[1]),unsigned(temp[2]) };
+    return output;
+}
+
+template <int num_dimensions>
+typename VoxelisedGeometricalInfo<num_dimensions>::DirectionMatrix
+VoxelisedGeometricalInfo<num_dimensions>::
+multiply_direction_matrices(const DirectionMatrix &input1, const DirectionMatrix &input2)
+{
+    DirectionMatrix output;
+    for (unsigned i=0; i<3; ++i)
+        for (unsigned j=0; j<3; ++j)
+            output[i][j] = 0.f;
+    for (unsigned i=0; i<3; ++i)
+        for (unsigned j=0; j<3; ++j)
+            for (unsigned k=0; k<3; ++k)
+                output[i][j] += input1[i][k] * input2[k][j];
+
+    return output;
+}
+
+template <int num_dimensions>
+typename VoxelisedGeometricalInfo<num_dimensions>::DirectionMatrix
+VoxelisedGeometricalInfo<num_dimensions>::
+inverse_direction_matrix(const DirectionMatrix &dm)
+{
+    DirectionMatrix output;
+
+    // computes the inverse of a matrix m
+    float det = dm[0][0] * (dm[1][1] * dm[2][2] - dm[2][1] * dm[1][2]) -
+                dm[0][1] * (dm[1][0] * dm[2][2] - dm[1][2] * dm[2][0]) +
+                dm[0][2] * (dm[1][0] * dm[2][1] - dm[1][1] * dm[2][0]);
+
+    float invdet = 1.f / det;
+
+    output[0][0] = (dm[1][1] * dm[2][2] - dm[2][1] * dm[1][2]) * invdet;
+    output[0][1] = (dm[0][2] * dm[2][1] - dm[0][1] * dm[2][2]) * invdet;
+    output[0][2] = (dm[0][1] * dm[1][2] - dm[0][2] * dm[1][1]) * invdet;
+    output[1][0] = (dm[1][2] * dm[2][0] - dm[1][0] * dm[2][2]) * invdet;
+    output[1][1] = (dm[0][0] * dm[2][2] - dm[0][2] * dm[2][0]) * invdet;
+    output[1][2] = (dm[1][0] * dm[0][2] - dm[0][0] * dm[1][2]) * invdet;
+    output[2][0] = (dm[1][0] * dm[2][1] - dm[2][0] * dm[1][1]) * invdet;
+    output[2][1] = (dm[2][0] * dm[0][1] - dm[0][0] * dm[2][1]) * invdet;
+    output[2][2] = (dm[0][0] * dm[1][1] - dm[1][0] * dm[0][1]) * invdet;
+
+    return output;
+}
+
+template <int num_dimensions>
+typename VoxelisedGeometricalInfo<num_dimensions>::DirectionMatrix
+VoxelisedGeometricalInfo<num_dimensions>::
+absolute_direction_matrix(const DirectionMatrix &dm)
+{
+    DirectionMatrix output;
+    for (unsigned i=0; i<4; ++i)
+        for (unsigned j=0; j<4; ++j)
+            output[i][j] = fabs(dm[i][j]);
+    return output;
 }
 
 template <int num_dimensions>
