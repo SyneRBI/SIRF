@@ -38,7 +38,7 @@ classdef NiftiImageData < sirf.SIRF.ImageData
             elseif ischar(src)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
             elseif isa(src, 'sirf.SIRF.ImageData')
-                self.handle_ = calllib('mreg', 'mReg_NiftiImageData3D_from_SIRFImageData', src.handle_);
+                self.handle_ = calllib('mreg', 'mReg_NiftiImageData_from_SIRFImageData', src.handle_);
             else
                 error('NiftiImageData accepts no args, filename or sirf.SIRF.ImageData.')
             end

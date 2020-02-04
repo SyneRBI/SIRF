@@ -423,18 +423,13 @@ void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2
     }
     CATCH;
 }
-
-// -------------------------------------------------------------------------------- //
-//      NiftiImageData3D
-// -------------------------------------------------------------------------------- //
-
 extern "C"
-void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr)
+void* cReg_NiftiImageData_from_SIRFImageData(void* ptr)
 {
 	try {
         ImageData& sirf_im = objectFromHandle<ImageData>(ptr);
-        std::shared_ptr<NiftiImageData3D<float> >
-            sptr(new NiftiImageData3D<float>(sirf_im));
+        std::shared_ptr<NiftiImageData<float> >
+            sptr(new NiftiImageData<float>(sirf_im));
         return newObjectHandle(sptr);
     }
 	CATCH;
