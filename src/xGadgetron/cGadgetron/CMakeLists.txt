@@ -44,7 +44,7 @@ target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_
 
 target_include_directories(cgadgetron PUBLIC "${cGadgetron_INCLUDE_DIR}")
 target_include_directories(cgadgetron PRIVATE "${FFTW3_INCLUDE_DIR}")
-target_include_directories(cgadgetron PRIVATE "${ISMRMRD_INCLUDE_DIR}")
+target_include_directories(cgadgetron PUBLIC "${ISMRMRD_INCLUDE_DIR}")
 
 target_link_libraries(cgadgetron iutilities csirf)
 # Add boost library dependencies
@@ -70,3 +70,5 @@ endif()
 target_link_libraries(cgadgetron ${ismrmrd_full_path})
 target_link_libraries(cgadgetron "${FFTW3_LIBRARIES}")
 target_link_libraries(cgadgetron "${HDF5_LIBRARIES}")
+
+ADD_SUBDIRECTORY(tests)
