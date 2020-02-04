@@ -1040,6 +1040,79 @@ images_()
 }
 
 GadgetronImagesVector::GadgetronImagesVector
+(const ImageData& id) :
+images_()
+{
+    typedef VoxelisedGeometricalInfo3D GeomInfo;
+    typedef GeomInfo::Size SIRFSize;
+    typedef GeomInfo::Spacing SIRFSpacing;
+    typedef GeomInfo::Offset SIRFOffset;
+    typedef GeomInfo::DirectionMatrix SIRFDM;
+    typedef GeomInfo::Index SIRFIndex;
+
+    // Get geometrical info
+    const std::shared_ptr<const GeomInfo> geom_info_sptr =
+            id.get_geom_info_sptr();
+    const SIRFDM dm = geom_info_sptr->get_direction();
+    const SIRFSize size = geom_info_sptr->get_size();
+    const SIRFSpacing spacing = geom_info_sptr->get_spacing();
+    const SIRFOffset offset = geom_info_sptr->get_offset();
+
+    // Create image header
+    ISMRMRD::ImageHeader header;
+
+    // Fill read, phase and slice direction from the geometrical info
+    for (unsigned axis=0; axis<3; ++axis) {
+        header.read_dir[axis]  = -dm[axis][0];
+        header.phase_dir[axis] = -dm[axis][1];
+        header.slice_dir[axis] = -dm[axis][2];
+    }
+
+    // Matrix size is simply image size
+    for(unsigned i=0; i<3; ++i)
+        header.matrix_size[i] = uint16_t(size[i]);
+
+    // Calculate FOV = spacing * size
+    for(unsigned i=0; i<3; ++i)
+        header.field_of_view[i] = spacing[i] * float(size[i]);
+
+    // Calculate position
+    for(unsigned i=0; i<3; ++i)
+        header.position[i] = offset[i] +
+                (header.field_of_view[0] / 2.f) * dm[i][0] +
+                (header.field_of_view[1] / 2.f) * dm[i][1] -
+                (header.field_of_view[2] / 2.f) * header.slice_dir[i];
+
+
+
+
+
+
+
+    // NOT SURE HOW TO CREATE IMAGEWRAP. TWO ATTEMPTS
+
+    // 1. Can create ISMRMRD image, how to convert to ImageWrap?
+    ISMRMRD::Image<float> image;
+    image.setHead(header);
+
+    // 2. Create ImageWrap directly, what are the arguments?
+    ImageWrap image(ISMRMRD::ISMRMRD_FLOAT,...);
+
+
+
+
+
+    // Add image
+    images_.push_back(/*result goes here*/);
+
+    // Fill
+    this->ImageData::fill(id);
+
+    // Set up geom info
+    this->set_up_geom_info();
+}
+
+GadgetronImagesVector::GadgetronImagesVector
 (GadgetronImagesVector& images, const char* attr, const char* target) : 
 images_()
 {

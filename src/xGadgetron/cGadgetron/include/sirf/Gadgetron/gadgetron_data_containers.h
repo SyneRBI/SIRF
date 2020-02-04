@@ -675,6 +675,7 @@ namespace sirf {
 		GadgetronImagesVector() : images_()
 		{}
         GadgetronImagesVector(const GadgetronImagesVector& images);
+        GadgetronImagesVector(const ImageData& id);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
 		virtual unsigned int items() const
