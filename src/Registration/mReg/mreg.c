@@ -123,6 +123,9 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_defo
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr) {
 	return cReg_NiftiImageData3DDeformation_create_from_disp(disp_ptr);
 }
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const void* floating_ptr) {
+	return cReg_NiftiImageData3DDeformation_get_inverse(def_ptr, floating_ptr);
+}
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr) {
 	return cReg_NiftiImageData3DDisplacement_create_from_def(def_ptr);
 }

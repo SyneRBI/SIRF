@@ -64,6 +64,7 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_compone
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const void* floating_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);

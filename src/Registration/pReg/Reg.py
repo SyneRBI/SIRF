@@ -505,6 +505,26 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def get_inverse(self, floating=None):
+        """Get inverse (potentially based on another image).
+
+        Why would you want to base it on another image? Well, we might have a deformation
+        that takes us from image A to B. We'll probably want the inverse to take us from
+        image B back to A. In this case, use get_inverse(A). This is because the the deformation
+        field is defined for the reference image. In the second case, A is the reference,
+        and B is the floating image.
+        """
+        if floating is None:
+            floating = self
+        if not isinstance(floating, SIRF.ImageData):
+            raise AssertionError()
+        if self is None:
+            raise AssertionError()
+        output = NiftiImageData3DDeformation()
+        output.handle = pyreg.cReg_NiftiImageData3DDeformation_get_inverse(self.handle, floating.handle)
+        check_status(output.handle)
+        return output
+
     @staticmethod
     def compose_single_deformation(trans, ref):
         """Compose transformations into single deformation."""
