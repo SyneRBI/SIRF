@@ -58,9 +58,9 @@ extern "C" {
     void* cReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr);
     void* cReg_NiftiImageData_standardise(const void* im_ptr);
     void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
+    void* cReg_NiftiImageData_from_SIRFImageData(void* ptr);
 
     // NiftiImageData3D
-    void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr);
 
     // NiftiImageData3DTensor
     void* cReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype);

@@ -57,7 +57,7 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_standardise(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
-EXPORTED_FUNCTION     void* mReg_NiftiImageData3D_from_SIRFImageData(void* ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_SIRFImageData(void* ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
