@@ -36,7 +36,7 @@ using namespace sirf;
 /// Print usage
 void print_usage(const std::vector<std::string> &datatypes)
 {
-    std::cout << "\n\n\n*** Usage: sirf_change_datatype output_filename input_filename desired_datatype ***\n\n";
+    std::cout << "\n\n\n*** Usage: sirf_change_datatype [-h/--help] output_filename input_filename desired_datatype ***\n\n";
     std::cout << "Supported datatypes:\n";
     for (unsigned i=0; i<datatypes.size(); ++i)
         std::cout << "\t" << datatypes[i] << "\n";
@@ -63,9 +63,16 @@ int main(int argc, char* argv[])
         datatypes.push_back("unsigned long long");
         datatypes.push_back("long double");
 
-        if (argc != 3) {
+        for (int i=1; i<argc; ++i) {
+            if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+                print_usage(datatypes);
+                return EXIT_SUCCESS;
+            }
+        }
+
+        if (argc != 4) {
             print_usage(datatypes);
-            return EXIT_SUCCESS;
+            return EXIT_FAILURE;
         }
 
         // Read image

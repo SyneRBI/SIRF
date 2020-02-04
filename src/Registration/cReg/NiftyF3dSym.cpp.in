@@ -105,16 +105,13 @@ void NiftyF3dSym<dataType>::process()
 
     // Get the CPP images
     nifti_image * cpp_fwd_ptr = _registration_sptr->GetControlPointPositionImage();
-    nifti_image * cpp_inv_ptr = _registration_sptr->GetBackwardControlPointPositionImage();
     NiftiImageData3DTensor<dataType> cpp_forward(*cpp_fwd_ptr);
-    NiftiImageData3DTensor<dataType> cpp_inverse(*cpp_inv_ptr);
     nifti_image_free(cpp_fwd_ptr);
-    nifti_image_free(cpp_inv_ptr);
 
     // Get deformation fields from cpp
     NiftiImageData3DDeformation<dataType> def_fwd, def_inv;
     def_fwd.create_from_cpp(cpp_forward, ref);
-    def_inv.create_from_cpp(cpp_inverse, ref);
+    def_inv = *def_fwd.get_inverse(this->_floating_image_nifti_sptr);
 
     // Get the displacement fields from the def
     this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);

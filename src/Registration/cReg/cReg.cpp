@@ -423,18 +423,13 @@ void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2
     }
     CATCH;
 }
-
-// -------------------------------------------------------------------------------- //
-//      NiftiImageData3D
-// -------------------------------------------------------------------------------- //
-
 extern "C"
-void* cReg_NiftiImageData3D_from_SIRFImageData(void* ptr)
+void* cReg_NiftiImageData_from_SIRFImageData(void* ptr)
 {
 	try {
         ImageData& sirf_im = objectFromHandle<ImageData>(ptr);
-        std::shared_ptr<NiftiImageData3D<float> >
-            sptr(new NiftiImageData3D<float>(sirf_im));
+        std::shared_ptr<NiftiImageData<float> >
+            sptr(new NiftiImageData<float>(sirf_im));
         return newObjectHandle(sptr);
     }
 	CATCH;
@@ -528,6 +523,17 @@ void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr)
     try {
         NiftiImageData3DDisplacement<float>& disp = objectFromHandle<NiftiImageData3DDisplacement<float> >(disp_ptr);
         return newObjectHandle(std::make_shared<NiftiImageData3DDeformation<float> >(disp));
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const void* floating_ptr)
+{
+    try {
+        NiftiImageData3DDeformation<float>& def = objectFromHandle<NiftiImageData3DDeformation<float> >(def_ptr);
+        std::shared_ptr<const NiftiImageData<float> > flo_sptr;
+        getObjectSptrFromHandle<const NiftiImageData<float> >(floating_ptr, flo_sptr);
+        return newObjectHandle(def.get_inverse(flo_sptr));
     }
     CATCH;
 }
@@ -638,6 +644,17 @@ void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const
     }
     CATCH;
 }
+extern "C"
+void* cReg_NiftyResample_clear_transformations(void* self)
+{
+    try {
+        NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(self);
+        res.clear_transformations();
+        return new DataHandle;
+    }
+    CATCH;
+}
+
 extern "C"
 void* cReg_NiftyResample_process(void* ptr)
 {
