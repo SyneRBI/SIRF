@@ -1,7 +1,7 @@
 #========================================================================
 # Author: Johannes Mayer
 # Copyright 2016 University College London
-# Copyright 2020 Physikalisch Technische Bundesantalt
+# Copyright 2020 Physikalisch-Technische Bundesanstalt Berlin
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
