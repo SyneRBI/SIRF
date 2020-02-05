@@ -936,6 +936,16 @@ namespace sirf {
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_csm) = 0;
 		virtual CoilData& operator()(int slice) = 0;
 		//virtual const CoilData& operator()(int slice) const = 0;
+		void set_meta_data(const AcquisitionsInfo &acqs_info) 
+		{ 
+			acqs_info_ = acqs_info; 
+		}
+		const AcquisitionsInfo &get_meta_data() const 
+		{ 
+			return acqs_info_; 
+		}
+	protected:
+		AcquisitionsInfo acqs_info_;
 	};
 
 	/*!
