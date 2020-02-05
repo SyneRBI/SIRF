@@ -33,6 +33,9 @@ limitations under the License.
 
 namespace sirf {
 
+/// Forward declarations
+template<class dataType> class AffineTransformation;
+
 /*!
 \ingroup Registration
 \brief Wrapper around SPM12's registration class.
@@ -59,6 +62,8 @@ public:
     /// Get inverse deformation field image
     virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr() const {}
 
+    bool set_delete_temp_files(const bool delete_temp_files) { _delete_temp_files = delete_temp_files; }
+
 protected:
 
     /// Parse parameter file
@@ -74,5 +79,12 @@ protected:
     std::string _working_folder = "";
     /// Overwrite files already in working folder
     bool _working_folder_overwrite = false;
+    /// Delete temp files
+    bool _delete_temp_files = false;
+
+    /// Forwards transformation matrix
+    std::shared_ptr<AffineTransformation<float> > _TM_forward_sptr;
+    /// Inverse transformation matrix
+    std::shared_ptr<AffineTransformation<float> > _TM_inverse_sptr;
 };
 }

@@ -32,6 +32,8 @@ limitations under the License.
 #include <sys/stat.h>
 #include <MatlabEngine.hpp>
 #include <boost/filesystem.hpp>
+#include "sirf/Reg/AffineTransformation.h"
+#include <codecvt>
 
 using namespace sirf;
 using namespace matlab::engine;
@@ -84,80 +86,40 @@ void SPM12Registration<dataType>::process()
     ref_nifti_sptr->write(ref_filename);
     flo_nifti_sptr->write(flo_filename);
 
-
     // Start MATLAB engine synchronously
     std::unique_ptr<MATLABEngine> matlabPtr = startMATLAB(std::vector<String>({u"-nojvm"}));
     std::cout << "Started MATLAB Engine" << std::endl;
 
-    // Create MATLAB data array factory
-    ArrayFactory factory;
-
-    // Create cell array for filenames {'ref.nii','flo.nii'}
-    const unsigned num_images = 2;
-    CellArray spm_filenames = factory.createCellArray({num_images},
-        factory.createCharArray(ref_filename),
-        factory.createCharArray(flo_filename));
-
-    // Create struct array for parameters: struct('quality',1,'rtm',1))
-    StructArray spm_params = factory.createStructArray({1}, { "quality", "rtm" });
-    spm_params[0]["quality"] = factory.createScalar<int>(1);
-    spm_params[0]["rtm"] = factory.createScalar<int>(0);
-
-    // Create a vector of input arguments
-    std::vector<Array> args_realign({
-        spm_filenames,
-        spm_params
-    });
+    // We'll need to be able to convert commands from std::string to std::u16string
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convertor;
 
     // Call spm_realign
-    const size_t num_returned_realign = 1;
-    Array result = matlabPtr->feval(u"spm_realign", num_returned_realign, args_realign).at(0);
-    std::cout <<"\nnum elements = " << result.getNumberOfElements() << "\n";
-    ArrayType type = result.type;
-    std::cout << "\nnum type = " << result.type << "\n";
-
-
+    const std::string spm_realign_command = "spm_output = spm_realign(char('" + ref_filename + "','" + flo_filename + "'),struct('quality',1,'rtm',0));";
+    matlabPtr->eval(convertor.from_bytes(spm_realign_command));
 
     // Call spm_reslice
-//    const size_t num_returned_resilce = 0;
-//    matlabPtr->feval(u"spm_reslice", num_returned_resilce, results);
+    const std::string spm_reslice_command = "spm_reslice(spm_output(2),struct('which',[2,0]));";
+    matlabPtr->eval(convertor.from_bytes(spm_reslice_command));
 
+    const std::string resliced_filename = _working_folder + "/rflo.nii";
+    this->_warped_image_sptr = std::make_shared<NiftiImageData<dataType> >(resliced_filename);
 
+    // Clean up
+    if (_delete_temp_files) {
+        remove( ref_filename.c_str() );
+        remove( flo_filename.c_str() );
+        remove( resliced_filename.c_str() );
+    }
 
-
-
-//    // Read the transformation matrix back in
-//    // Read text file
-//    std::string line;
-//    std::ifstream myfile(_working_folder + "/rp_flo.txt");
-//    if (!myfile.is_open())
-//        throw std::runtime_error("SPM12Registration::process() failed to open spm_realign results here: " + _working_folder + "/rp_flo.txt");
-//    try {
-//        getline (myfile,line);
-//    }
-//    catch (...) {
-//        throw std::runtime_error("SPM12Registration::process() failed to read spm_realign results here: " + _working_folder + "/rp_flo.txt");
-//    }
-//    myfile.close();
-
-//    // Convert text to numbers
-//    std::stringstream ss;
-//    ss << line;
-//    std::string temp;
-//    float found;
-//    std::vector<float> results;
-//    while (!ss.eof()) {
-
-//        // extract word by word from stream
-//        ss >> temp;
-//        // Check if the given word is float or not
-//        if (std::stringstream(temp) >> found)
-//            results.push_back(found);
-//        // To save from space at end of string
-//        temp = "";
-//    }
-//    for (unsigned i=0; i<results.size(); ++i)
-//        std::cout << "restult " << i << ": " << results[i] << "\n";
+    // Get the transformation matrix
+    const std::string tm_in_nr_space_command = "tm_in_nr_space = inv(spm_output(2).mat / spm_output(2).private.mat0);";
+    matlabPtr->eval(convertor.from_bytes(tm_in_nr_space_command));
+    TypedArray<double> tm = matlabPtr->getVariable(u"tm_in_nr_space");
+    
+    _TM_forward_sptr = std::make_shared<AffineTransformation<dataType> >();
+    for (unsigned i=0; i<4; ++i)
+        for (unsigned j=0; j<4; ++j)
+            (*_TM_forward_sptr)[i][j] = float(tm[i][j]);
 }
 
 template<class dataType>
