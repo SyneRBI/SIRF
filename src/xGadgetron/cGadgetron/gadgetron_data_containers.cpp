@@ -1406,6 +1406,7 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	ISMRMRD::IsmrmrdHeader header;
 	ISMRMRD::Acquisition acq;
 	par = ac.acquisitions_info();
+	set_meta_data(par);
 	ISMRMRD::deserialize(par.c_str(), header);
 	//ac.get_acquisition(0, acq);
 	for (unsigned int i = 0; i < ac.number(); i++) {
@@ -1484,7 +1485,7 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 void 
 CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
 {
-
+	set_meta_data(cis.get_meta_data());
 	ISMRMRD::Encoding e = cis.encoding();
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	//unsigned int ny = e.reconSpace.matrixSize.y;
