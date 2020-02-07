@@ -55,10 +55,14 @@ processed_data.sort()
 % perform reconstruction to obtain a meaningful ImageData object
 % (cannot be obtained in any other way at present):
 % 1. Create a reconstruction object using 2D inverse Fourier transform and
+if acq_data.is_undersampled()
+%    CartesianGRAPPAReconstructor() sets up a default gadget chain.
+    recon = MR.CartesianGRAPPAReconstructor();
+    recon.compute_gfactors(false)
+else
 %    FullySampledCartesianReconstructor() sets up a default gadget chain.
-%recon = MR.FullySampledCartesianReconstructor();
-recon = MR.CartesianGRAPPAReconstructor();
-
+    recon = MR.FullySampledCartesianReconstructor();
+end
 % 2. Provide pre-processed k-space data as input
 recon.set_input(processed_data)
 
@@ -67,7 +71,7 @@ fprintf('reconstructing...\n')
 recon.process()
 
 % retrieve reconstruction as ImageData object
-image_data = recon.get_output('image');
+image_data = recon.get_output();
 
 par = {'flags', 'channels', 'slice', 'repetition'};
 for i = 1 : image_data.number()
