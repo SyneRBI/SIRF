@@ -228,7 +228,9 @@ before_install:
  # Use Travis' currently checked-out SIRF commit ID to build.
  # Also no point re-downloading SIRF - just use local URL.
  # N.B.: don't put into build matrix to allow caching.
- - BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_URL=$PWD -DSIRF_TAG=$TRAVIS_COMMIT"
+ #- BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_URL=$PWD -DSIRF_TAG=$TRAVIS_COMMIT"
+ # Force TOF PR branch
+ - BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_URL=https://github.com/ALEXJAZZ008008/SIRF.git -DSIRF_TAG=tof_clean"
  # get SuperBuild
  - cd ..
  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master

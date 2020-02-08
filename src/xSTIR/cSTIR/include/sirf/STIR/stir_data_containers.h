@@ -241,7 +241,7 @@ namespace sirf {
 		}
 		int get_num_TOF_bins()
 		{
-			return 1;
+			return data()->get_num_tof_poss();
 		}
 		int get_max_segment_num() const
 		{
