@@ -590,7 +590,7 @@ void* cSTIR_getAcquisitionDataDimensions(const void* ptr_acq, size_t ptr_dim)
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		dim[0] = sptr_ad->get_num_tangential_poss();
 		dim[1] = sptr_ad->get_num_views();
-		dim[2] = sptr_ad->get_num_non_tof_sinograms();
+		dim[2] = sptr_ad->get_num_non_TOF_sinograms();
 		dim[3] = sptr_ad->get_num_TOF_bins();
 		return (void*)new DataHandle;
 	}

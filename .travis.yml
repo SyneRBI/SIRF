@@ -72,7 +72,9 @@ matrix:
 env:
  global:
   # Need STIR_TAG=master at present, see https://github.com/CCPPETMR/SIRF/issues/366
-  - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSTIR_TAG=master"
+  #- BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSTIR_TAG=master"
+  # Force TOF PR branch
+  - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSTIR_URL=https://github.com/NikEfth/STIR.git -DSTIR_TAG=tof_sino_UCL"
   # don't use too many threads - may crash
   - MAKEFLAGS="-j 2"
 

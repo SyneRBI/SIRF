@@ -152,7 +152,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
 %           Dimensions are:
 %           - number of tangential positions
 %           - number of views
-%           - number of sinograms
+%           - number of (non-TOF) sinograms
 %           - number of TOF bins
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib('mstir', 'mSTIR_getAcquisitionDataDimensions', ...

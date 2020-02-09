@@ -65,7 +65,7 @@ def main():
 ##    acq_template = acq_template.rebin(15)
     acq_dim = acq_template.dimensions()
     print('acquisition data dimensions: ' + \
-          '%d TOF bins %d sinograms, %d views, %d tang. pos.' \
+          '%d TOF bins %d (non-TOF) sinograms, %d views, %d tang. pos.' \
           % acq_dim)
 
     # create image of dimensions and voxel sizes compatible with the scanner
