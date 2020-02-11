@@ -489,6 +489,7 @@ class ImageData(DataContainer):
         check_status(geom_info.handle)
         return geom_info
 
+DataContainer.register(ImageData)
 
 class DataHandleVector(object):
     """

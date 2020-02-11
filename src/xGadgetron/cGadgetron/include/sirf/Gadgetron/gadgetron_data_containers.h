@@ -493,7 +493,7 @@ namespace sirf {
 				return i;
 		}
         /// Set the meta data
-        void set_meta_data(const AcquisitionsInfo &acqs_info) { acqs_info_ = acqs_info; }
+        void set_meta_data(const AcquisitionsInfo &acqs_info);
         /// Get the meta data
         const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
 
@@ -817,6 +817,8 @@ namespace sirf {
 		virtual void get_data(complex_float_t* data) const = 0;
 		virtual void set_data(const complex_float_t* data) = 0;
 		virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
+		virtual void write(const ISMRMRD::Image<complex_float_t>* ptr_im, 
+			ISMRMRD::Dataset& dataset) const = 0;
 	};
 
 	/*!
@@ -861,6 +863,8 @@ namespace sirf {
 		{
 			memcpy(img_.getDataPtr(), data, img_.getDataSize());
 		}
+		virtual void write(const ISMRMRD::Image<complex_float_t>* ptr_im, 
+		ISMRMRD::Dataset& dataset) const;
 	private:
 		ISMRMRD::Image < complex_float_t > img_;
 	};
