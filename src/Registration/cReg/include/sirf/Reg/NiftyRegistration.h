@@ -29,7 +29,7 @@ limitations under the License.
 
 #pragma once
 
-#include "sirf/Reg/Registration.h"
+#include "sirf/Reg/NiftiBasedRegistration.h"
 
 namespace sirf {
 
@@ -44,7 +44,7 @@ template<class dataType> class NiftiImageData3D;
 \author CCP PETMR
 */
 template<class dataType>
-class NiftyRegistration : public Registration<dataType>
+class NiftyRegistration : public NiftiBasedRegistration<dataType>
 {
 public:
 
@@ -54,29 +54,14 @@ public:
     /// Destructor
     virtual ~NiftyRegistration() {}
 
-    /// Get forward deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr() const;
-
-    /// Get inverse deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr() const;
-
-    /// Get registered image as NiftiImageData3D
-    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output_sptr() const { return _warped_image_nifti_sptr; }
-
 protected:
 
     /// Set up inputs
     void set_up_inputs();
 
-    /// Reference image (as NiftiImageData3D)
-    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_nifti_sptr;
-    /// Floating image (as NiftiImageData3D)
-    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_image_nifti_sptr;
     /// Floating mask (as NiftiImageData3D)
     std::shared_ptr<const NiftiImageData3D<dataType> > _floating_mask_nifti_sptr;
     /// Reference mask (as NiftiImageData3D)
     std::shared_ptr<const NiftiImageData3D<dataType> > _reference_mask_nifti_sptr;
-    /// Output (as NiftiImageData3D)
-    std::shared_ptr<NiftiImageData3D<dataType> >       _warped_image_nifti_sptr;
 };
 }

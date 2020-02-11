@@ -28,11 +28,13 @@ limitations under the License.
 */
 
 #include "sirf/Reg/SPM12Registration.h"
-#include "sirf/Reg/NiftiImageData.h"
+#include "sirf/Reg/NiftiImageData3D.h"
 #include <sys/stat.h>
 #include <MatlabEngine.hpp>
 #include <boost/filesystem.hpp>
 #include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include <codecvt>
 
 using namespace sirf;
@@ -45,17 +47,6 @@ inline bool check_file_exists(const std::string& filename, const bool existance_
     if (file_exists && !existance_allowed)
         throw std::runtime_error("SPM12Registration<dataType>::process(): file exists: " + filename);
     return file_exists;
-}
-
-template<class dataType>
-void convert_to_NiftiImageData_if_not_already(std::shared_ptr<const NiftiImageData<dataType> > &output_sptr, const std::shared_ptr<const ImageData> &input_sptr)
-{
-    // Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
-    output_sptr = std::dynamic_pointer_cast<const NiftiImageData<dataType> >(input_sptr);
-    // If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
-    // In this case, construct a NiftiImageData
-    if (!output_sptr)
-        output_sptr = std::make_shared<const NiftiImageData<dataType> >(*input_sptr);
 }
 
 template<class dataType>
@@ -74,17 +65,18 @@ void SPM12Registration<dataType>::process()
     // Filenames
     const std::string ref_filename = _working_folder + "/ref.nii";
     const std::string flo_filename = _working_folder + "/flo.nii";
+    const std::string resliced_filename = _working_folder + "/rflo.nii";
     check_file_exists(ref_filename, _working_folder_overwrite);
     check_file_exists(flo_filename, _working_folder_overwrite);
+    check_file_exists(resliced_filename, _working_folder_overwrite);
 
     // Convert images to matlab::data::StructArray with structure expected by SPM
-    std::shared_ptr<const NiftiImageData<dataType> > ref_nifti_sptr, flo_nifti_sptr;
-    convert_to_NiftiImageData_if_not_already(ref_nifti_sptr, this->_reference_image_sptr);
-    convert_to_NiftiImageData_if_not_already(flo_nifti_sptr, this->_floating_image_sptr);
+    NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_reference_image_nifti_sptr, this->_reference_image_sptr);
+    NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_floating_image_nifti_sptr, this->_floating_image_sptr);
 
     // Save to file
-    ref_nifti_sptr->write(ref_filename);
-    flo_nifti_sptr->write(flo_filename);
+    this->_reference_image_nifti_sptr->write(ref_filename);
+    this->_floating_image_nifti_sptr->write(flo_filename);
 
     // Start MATLAB engine synchronously
     std::unique_ptr<MATLABEngine> matlabPtr = startMATLAB(std::vector<String>({u"-nojvm"}));
@@ -94,15 +86,15 @@ void SPM12Registration<dataType>::process()
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convertor;
 
     // Call spm_realign
-    const std::string spm_realign_command = "spm_output = spm_realign(char('" + ref_filename + "','" + flo_filename + "'),struct('quality',1,'rtm',0));";
+    const std::string spm_realign_command = "spm_output = spm_realign(char('" + ref_filename + "','" + flo_filename + "'),struct('quality',1));";
     matlabPtr->eval(convertor.from_bytes(spm_realign_command));
 
     // Call spm_reslice
-    const std::string spm_reslice_command = "spm_reslice(spm_output(2),struct('which',[2,0]));";
+    const std::string spm_reslice_command = "spm_reslice(spm_output,struct('which',[1,0]));";
     matlabPtr->eval(convertor.from_bytes(spm_reslice_command));
 
-    const std::string resliced_filename = _working_folder + "/rflo.nii";
-    this->_warped_image_sptr = std::make_shared<NiftiImageData<dataType> >(resliced_filename);
+    // Read warped image back in
+    this->_warped_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(resliced_filename);
 
     // Clean up
     if (_delete_temp_files) {
@@ -120,6 +112,18 @@ void SPM12Registration<dataType>::process()
     for (unsigned i=0; i<4; ++i)
         for (unsigned j=0; j<4; ++j)
             (*_TM_forward_sptr)[i][j] = float(tm[i][j]);
+
+    _TM_inverse_sptr = std::make_shared<AffineTransformation<dataType> >(_TM_forward_sptr->get_inverse());
+
+    // Get as deformation and displacement
+    NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(*this->_reference_image_nifti_sptr);
+    NiftiImageData3DDeformation<dataType> def_inv = *def_fwd.get_inverse(this->_floating_image_nifti_sptr);
+    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
+    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
+
+    // The output should be a clone of the reference image, with data filled in from the nifti image
+    this->_warped_image_sptr = this->_reference_image_sptr->clone();
+    this->_warped_image_sptr->fill(*this->_warped_image_nifti_sptr);
 }
 
 template<class dataType>

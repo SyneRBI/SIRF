@@ -27,7 +27,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURR
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp.in"    "${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp"   )
 
 # Add in the common files
-SET(SOURCES "Registration.cpp" "NiftyRegistration.cpp" "NiftyAladinSym.cpp" "NiftyF3dSym.cpp" "ImageWeightedMean.cpp" "Resample.cpp" "NiftyResample.cpp" "Transformation.cpp" "AffineTransformation.cpp" "Quaternion.cpp")
+SET(SOURCES "Registration.cpp" "NiftiBasedRegistration.cpp" "NiftyRegistration.cpp" "NiftyAladinSym.cpp" "NiftyF3dSym.cpp" "ImageWeightedMean.cpp" "Resample.cpp" "NiftyResample.cpp" "Transformation.cpp" "AffineTransformation.cpp" "Quaternion.cpp")
 
 # Add in nifti_image wrappers
 SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")

@@ -28,29 +28,8 @@ limitations under the License.
 */
 
 #include "sirf/Reg/NiftyRegistration.h"
-#include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/Reg/NiftiImageData3DDisplacement.h"
-#include "sirf/Reg/NiftiImageData3DDeformation.h"
 
 using namespace sirf;
-
-template<class dataType>
-const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataType>::get_deformation_field_forward_sptr() const
-{
-    // Get displacement as NiftiImageData3DDisplacement (from Transformation)
-    std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_fwd = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_forward_sptr);
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_fwd = std::make_shared<NiftiImageData3DDeformation<dataType> >(*disp_fwd);
-    return def_fwd;
-}
-
-template<class dataType>
-const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataType>::get_deformation_field_inverse_sptr() const
-{
-    // Get displacement as NiftiImageData3DDisplacement (from Transformation)
-    std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_inv= std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_inverse_sptr);
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_inv = std::make_shared<NiftiImageData3DDeformation<dataType> >(*disp_inv);
-    return def_inv;
-}
 
 template<class dataType>
 void NiftyRegistration<dataType>::set_up_inputs()
@@ -59,29 +38,15 @@ void NiftyRegistration<dataType>::set_up_inputs()
     // If the result is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
     // In this case, construct a NiftiImageData3D
 
-    // Reference image
-    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_reference_image_sptr);
-    if (!this->_reference_image_nifti_sptr)
-        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_reference_image_sptr);
+    // Reference and floating images
+    NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_reference_image_nifti_sptr, this->_reference_image_sptr);
+    NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_floating_image_nifti_sptr, this->_floating_image_sptr);
 
-    // Floating image
-    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_floating_image_sptr);
-    if (!this->_floating_image_nifti_sptr)
-        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_floating_image_sptr);
-
-    // Reference mask (if supplied)
-    if (this->_reference_mask_sptr) {
-        this->_reference_mask_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_reference_mask_sptr);
-        if (!this->_reference_mask_nifti_sptr)
-            this->_reference_mask_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_reference_mask_sptr);
-    }
-
-    // Floating mask (if supplied)
-    if (this->_floating_mask_sptr) {
-        this->_floating_mask_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_floating_mask_sptr);
-        if (!this->_floating_mask_nifti_sptr)
-            this->_floating_mask_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_floating_mask_sptr);
-    }
+    // Reference and floating masks (if supplied)
+    if (this->_reference_mask_sptr)
+        NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_reference_mask_nifti_sptr, this->_reference_mask_sptr);
+    if (this->_floating_mask_sptr)
+        NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_floating_mask_nifti_sptr, this->_floating_mask_sptr);
 }
 
 namespace sirf {

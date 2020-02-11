@@ -29,7 +29,7 @@ limitations under the License.
 
 #pragma once
 
-#include "sirf/Reg/Registration.h"
+#include "sirf/Reg/NiftiBasedRegistration.h"
 
 namespace sirf {
 
@@ -43,7 +43,7 @@ template<class dataType> class AffineTransformation;
 \author Richard Brown
 \author CCP PETMR
 */
-template<class dataType> class SPM12Registration : public Registration<dataType>
+template<class dataType> class SPM12Registration : public NiftiBasedRegistration<dataType>
 {
 public:
 
@@ -56,13 +56,14 @@ public:
     /// Set file overwrite in working folder
     void set_working_folder_file_overwrite(const bool working_folder_overwrite) { _working_folder_overwrite = working_folder_overwrite; }
 
-    /// Get forward deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr() const {}
+    /// Delete temporary files
+    void set_delete_temp_files(const bool delete_temp_files) { _delete_temp_files = delete_temp_files; }
 
-    /// Get inverse deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr() const {}
+    /// Get forwards transformation matrix
+    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_forward_sptr() const { return _TM_forward_sptr; }
 
-    bool set_delete_temp_files(const bool delete_temp_files) { _delete_temp_files = delete_temp_files; }
+    /// Get inverse transformation matrix
+    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr() const { return _TM_inverse_sptr; }
 
 protected:
 

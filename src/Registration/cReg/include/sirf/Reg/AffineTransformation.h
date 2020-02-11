@@ -68,6 +68,9 @@ public:
     /// Code from here: https://uk.mathworks.com/help/robotics/ref/quaternion.rotmat.html
     AffineTransformation(const std::array<dataType,3> &trans, const Quaternion<dataType> &quat);
 
+    /// Construct from translation and euler angles (XYZ order)
+    AffineTransformation(const std::array<dataType,3> &trans, const std::array<dataType,3> &euler, const bool degrees = true);
+
     /// Copy constructor
     AffineTransformation(const AffineTransformation& to_copy);
 
