@@ -158,6 +158,8 @@ class NiftiImageData(SIRF.ImageData):
         check_status(self.handle)
 
     def __del__(self):
+        print("Reg.NiftiImageData __del__ with handle {}.".format(self.handle))
+        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -395,6 +397,8 @@ class NiftiImageData3D(NiftiImageData):
         check_status(self.handle)
 
     def __del__(self):
+        print("Reg.NiftiImageDat3D __del__ with handle {}.".format(self.handle))
+        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -423,6 +427,8 @@ class NiftiImageData3DTensor(NiftiImageData):
         check_status(self.handle)
 
     def __del__(self):
+        print("Reg.NiftiImageData3DTensor __del__ with handle {}.".format(self.handle))
+        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -473,6 +479,8 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
         check_status(self.handle)
 
     def __del__(self):
+        print("Reg.NiftiImageData3DDisplacement __del__ with handle {}.".format(self.handle))
+        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -499,6 +507,8 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         check_status(self.handle)
 
     def __del__(self):
+        print("Reg.NiftiImageData3DDeformation __del__ with handle {}.".format(self.handle))
+        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -705,6 +715,7 @@ class NiftyResample(object):
         check_status(self.handle)
 
     def __del__(self):
+        print ("NiftyResample __del__ handle {}".format(self.handle))
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -772,63 +783,70 @@ class NiftyResample(object):
         check_status(image.handle)
         return image
 
-    def forward(self, im1, im2=None):
+    def forward(self, x, out=None):
         """Forward transformation.
         Usage:
             output = forward(input), OR
-            forward(output,input)
+            forward(input,output)
         """
         # If usage was 'output = forward(input)'
-        if im2 is None:
+        if out is None:
             output_im = self.reference_image.clone()
-            input_im = im1
+            input_im = x
         # If usage was 'forward(output, input)'
         else:
-            output_im = im1
-            input_im = im2
+            output_im = out
+            input_im = x
         # Check image validity
         if not isinstance(input_im, SIRF.ImageData):
-            raise AssertionError()
+            raise TypeError('{} expecting input as SIRF.ImageData, got {}'.format(
+                self.__class__.__name__, type(input_im)))
+            
         if not isinstance(output_im, SIRF.ImageData):
-            raise AssertionError()
+            raise TypeError('{} expecting output as SIRF.ImageData, got {}'.format(
+                self.__class__.__name__, type(output_im)))
+            
         # Forward
         try_calling(pyreg.cReg_NiftyResample_forward(output_im.handle, input_im.handle, self.handle))
         # If usage was 'output = forward(input)', we need to return the ouptut
-        if im2 is None:
+        if out is None:
             return output_im
 
-    def direct(self, im1, im2=None):
+    def direct(self, x, out=None):
         '''alias to forward'''
-        return self.forward(im1,im2)
+        return self.forward(x,out)
 
-    def adjoint(self, im1, im2=None):
+    def adjoint(self, x, out=None):
         """Adjoint transformation.
         Usage:
             output = adjoint(input), OR
-            adjoint(output,input)
+            adjoint(input, output)
         """
         # If usage was 'output = adjoint(input)'
-        if im2 is None:
+        if out is None:
             output_im = self.floating_image.clone()
-            input_im = im1
+            input_im = x
         # If usage was 'adjoint(output, input)'
         else:
-            output_im = im1
-            input_im = im2
+            output_im = out
+            input_im = x
         # Check image validity
         if not isinstance(input_im, SIRF.ImageData):
-            raise AssertionError()
+            raise TypeError('{} expecting input as subclass of SIRF.ImageData, got {}'.format(
+                self.__class__.__name__, type(input_im)))
+            
         if not isinstance(output_im, SIRF.ImageData):
-            raise AssertionError()
+            raise TypeError('{} expecting output as SIRF.ImageData, got {}'.format(
+                self.__class__.__name__, type(output_im)))
         # Forward
         try_calling(pyreg.cReg_NiftyResample_adjoint(output_im.handle, input_im.handle, self.handle))
         # If usage was 'output = adjoint(input)', we need to return the ouptut
-        if im2 is None:
+        if out is None:
             return output_im
 
-    def backward(self, im1, im2=None):
+    def backward(self, x, out=None):
         """Backward transformation. Alias of adjoint to align terms with AcquisitionModel's forward and backward."""
-        return self.adjoint(im1, im2)
+        return self.adjoint(x, out)
 
     def is_linear(self):
         '''Returns whether the transformation is linear'''
@@ -901,6 +919,7 @@ class AffineTransformation(_Transformation):
         check_status(self.handle)
 
     def __del__(self):
+        print ("AffineTransformation __del__ handle {}".format(self.handle))
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
