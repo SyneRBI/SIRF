@@ -12,6 +12,7 @@
 	* `out = backward(in)` <- alias for adjoint
 	* `backward(out, in)` <- alias for adjoint
 * Inverse deformation images. Inverse displacements are also possible by converting to and from deformations.
+* SPM12 registration wrapping. If `Matlab` and `SPM12` are present, the SPM12 wrapper is available from `C++`, `Matlab` and `Python`.
 
 ## v2.1.0
 
