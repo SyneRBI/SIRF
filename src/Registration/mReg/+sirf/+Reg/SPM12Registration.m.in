@@ -1,5 +1,5 @@
-classdef NiftyAladinSym < sirf.Reg.NiftyRegistration
-% Registration class using NiftyReg's symmetric aladin.
+classdef SPM12Registration < sirf.Reg.NiftyRegistration
+% Registration class using SPM12.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018-2019 University College London
@@ -20,12 +20,12 @@ classdef NiftyAladinSym < sirf.Reg.NiftyRegistration
 
     methods(Static)
         function name = class_name()
-            name = 'NiftyAladinSym';
+            name = 'SPM12Registration';
         end
     end
     methods
-        function self = NiftyAladinSym()
-            self.name = 'NiftyAladinSym';
+        function self = SPM12Registration()
+            self.name = 'SPM12Registration';
             self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             sirf.Utilities.check_status(self.name, self.handle_)
         end
@@ -38,22 +38,36 @@ classdef NiftyAladinSym < sirf.Reg.NiftyRegistration
         function tm = get_transformation_matrix_forward(self)
             %Get forward transformation matrix.
             tm = sirf.Reg.AffineTransformation();
-            tm.handle_ = calllib('mreg', 'mReg_NiftyAladin_get_TM', self.handle_, 'forward');
+            tm.handle_ = calllib('mreg', 'mReg_SPM12Registration_get_TM', self.handle_, 'forward');
             sirf.Utilities.check_status([self.name ':get_transformation_matrix_forward'], tm.handle_);
         end
         function tm = get_transformation_matrix_inverse(self)
             %Get inverse transformation matrix.
             tm = sirf.Reg.AffineTransformation();
-            tm.handle_ = calllib('mreg', 'mReg_NiftyAladin_get_TM', self.handle_, 'inverse');
+            tm.handle_ = calllib('mreg', 'mReg_SPM12Registration_get_TM', self.handle_, 'inverse');
             sirf.Utilities.check_status([self.name ':get_transformation_matrix_inverse'], tm.handle_);
         end
-    end
-    methods(Static)
-	function print_all_wrapped_methods()
-	    %Print list of all wrapped methods.
-	    disp('In C++, this class is templated. "dataType" corresponds to "float" for Matlab and python.')
-	    h = calllib('mreg', 'mReg_NiftyRegistration_print_all_wrapped_methods', 'NiftyAladinSym');
-	    sirf.Utilities.check_status('parameter', h)
-	end
+        function set_working_folder(self, working_folder)
+            %Set working folder.
+            sirf.Reg.setParameter(self.handle_, 'SPM12Registration', 'working_folder', working_folder, [])
+        end
+        function set_working_folder_file_overwrite(self, working_folder_file_overwrite)
+            %Set file overwrite in working folder.
+            if working_folder_file_overwrite
+                working_folder_file_overwrite = 1;
+            else
+                working_folder_file_overwrite = 0;
+            end
+            sirf.Reg.setParameter(self.handle_, 'SPM12Registration', 'working_folder_file_overwrite', working_folder_file_overwrite, 'i')
+        end
+        function set_delete_temp_files(self, delete_temp_files)
+            %Set delete temp files.
+            if delete_temp_files
+                delete_temp_files = 1;
+            else
+                delete_temp_files = 0;
+            end
+            sirf.Reg.setParameter(self.handle_, 'SPM12Registration', 'delete_temp_files', delete_temp_files, 'i')
+        end
     end
 end

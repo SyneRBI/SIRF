@@ -19,12 +19,11 @@
 # Have we got SPM12? (only works with Matlab)
 if (BUILD_MATLAB)
 	find_package(SPM12 QUIET)
-	# Link Matlab for SPM12
-	IF(SPM12_FOUND)
-  		ADD_DEFINITIONS(-DSIRF_SPM12)
-	ELSE()
-		REMOVE_DEFINITIONS(-DSIRF_SPM12)
-	ENDIF()
+	if(SPM12_FOUND)
+		set(SPM12_BOOL_STR "1")
+	else()
+		set(SPM12_BOOL_STR "0")
+	endif()
 endif()
 
 ADD_SUBDIRECTORY(NiftyMoMo)

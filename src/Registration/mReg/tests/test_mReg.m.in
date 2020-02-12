@@ -72,20 +72,20 @@ g.ref_f3d                                    = sirf.Reg.NiftiImageData3D(   g.re
 g.flo_f3d                                    = sirf.Reg.NiftiImageData3D(   g.flo_f3d_filename  );
 
 % You can change these when debugging
-try_niftiimage = false;
-try_niftiimage3d = false;
-try_niftiimage3dtensor = false;
-try_niftiimage3ddisplacement = false;
-try_niftiimage3ddeformation = false;
-try_niftyaladin = false;
-try_niftyf3d = false;
-try_transformations = false;
-try_resample = false;
-try_niftymomo = false;
-try_weighted_mean = false;
-try_affinetransformation = false;
-try_quaternion = false;
-try_spm12 = true;
+try_niftiimage = true;
+try_niftiimage3d = true;
+try_niftiimage3dtensor = true;
+try_niftiimage3ddisplacement = true;
+try_niftiimage3ddeformation = true;
+try_niftyaladin = true;
+try_niftyf3d = true;
+try_transformations = true;
+try_resample = true;
+try_niftymomo = true;
+try_weighted_mean = true;
+try_affinetransformation = true;
+try_quaternion = true;
+try_spm12 = @SPM12_BOOL_STR@;
 
 if try_niftiimage
 	disp('% ----------------------------------------------------------------------- %')
@@ -886,9 +886,9 @@ if try_affinetransformation
     assert(all(abs(Eul-Eul_expected) < 1e-4), 'AffineTransformation get_Euler_angles() failed.')
 
     % Check as_array
-    f = b.as_array()
-    g = sirf.Reg.AffineTransformation(f);
-    h = g.as_array()
+    f = b.as_array();
+    gg = sirf.Reg.AffineTransformation(f);
+    h = gg.as_array();
     assert(all(all(abs(f-h) < 1e-4)), 'AffineTransformation as_array() failed.')
 
     % Average!

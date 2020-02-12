@@ -279,8 +279,10 @@ coverage.xml
 # Dont track files that are generated with CMake's configure_file
 NiftyAladinSym.cpp
 NiftyF3dSym.cpp
-src/Registration/pReg/Reg.py
-src/Registration/pReg/tests/test_pReg.py
+Reg.py
+test_pReg.py
+SPM12Registration.m
+test_mReg.m
 
 # Ignore files created by Pycharm
 \.idea/

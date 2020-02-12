@@ -644,10 +644,10 @@ void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir)
 // -------------------------------------------------------------------------------- //
 //      SPM12
 // -------------------------------------------------------------------------------- //
-#ifdef SIRF_SPM12
 extern "C"
 void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir)
 {
+#ifdef SIRF_SPM12
     try {
         SPM12Registration<float>& reg = objectFromHandle<SPM12Registration<float> >(ptr);
         std::shared_ptr<const AffineTransformation<float> > sptr;
@@ -660,8 +660,10 @@ void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir)
         return newObjectHandle(sptr);
     }
     CATCH;
-}
+#else
+    throw std::runtime_error("cReg_SPM12Registration_get_TM: SPM not present, you shouldn't be here.");
 #endif
+}
 // -------------------------------------------------------------------------------- //
 //      NiftyResample
 // -------------------------------------------------------------------------------- //

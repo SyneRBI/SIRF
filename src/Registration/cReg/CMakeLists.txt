@@ -76,6 +76,7 @@ endif()
 IF(SPM12_FOUND)
   TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC "${Matlab_INCLUDE_DIRS}")
   TARGET_LINK_LIBRARIES(Reg PUBLIC "${Matlab_LIBRARIES}")
+  target_compile_definitions(Reg PUBLIC SIRF_SPM12)
 ENDIF()
 
 # Install

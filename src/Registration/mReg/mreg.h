@@ -71,9 +71,7 @@ EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image
 EXPORTED_FUNCTION     void* mReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
 EXPORTED_FUNCTION     void* mReg_NiftyRegistration_print_all_wrapped_methods(const char* name);
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
-#ifdef SIRF_SPM12
 EXPORTED_FUNCTION     void* mReg_SPM12Registration_get_TM(const void* ptr, const char* dir);
-#endif
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_clear_transformations(void* self);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr);

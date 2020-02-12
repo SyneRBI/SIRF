@@ -16,6 +16,8 @@
 #
 #=========================================================================
 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/test_mReg.m.in" "${CMAKE_CURRENT_SOURCE_DIR}/test_mReg.m")
+
 MATLAB_ADD_UNIT_TEST(NAME REG_TEST_MATLAB
 UNITTEST_FILE   test_mReg.m
 ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}

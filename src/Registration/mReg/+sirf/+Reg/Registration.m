@@ -21,7 +21,6 @@ classdef (Abstract = true) Registration < handle
     properties
         name
         handle_
-        reference_image
     end
     methods(Static)
         function name = class_name()
@@ -39,10 +38,6 @@ classdef (Abstract = true) Registration < handle
                 self.handle_ = [];
             end
         end
-        function set_parameter_file(self, filename)
-            %Sets the parameter filename.
-            sirf.Reg.setParameter(self.handle_, 'Registration', 'parameter_file', filename, 's')
-        end
         function set_reference_image(self, input)
             %Sets the reference image.
             assert(isa(input, 'sirf.SIRF.ImageData'))
@@ -53,16 +48,6 @@ classdef (Abstract = true) Registration < handle
             %Sets the floating image.
             assert(isa(input, 'sirf.SIRF.ImageData'))
             sirf.Reg.setParameter(self.handle_, 'Registration', 'floating_image', input, 'h')
-        end
-        function set_reference_mask(self, input)
-            %Sets the reference mask.
-            assert(isa(input, 'sirf.SIRF.ImageData'))
-            sirf.Reg.setParameter(self.handle_, 'Registration', 'reference_mask', input, 'h')
-        end
-        function set_floating_mask(self, input)
-            %Sets the floating mask.
-            assert(isa(input, 'sirf.SIRF.ImageData'))
-            sirf.Reg.setParameter(self.handle_, 'Registration', 'floating_mask', input, 'h')
         end
         function output = get_output(self)
             %Gets the registered image.
@@ -102,15 +87,6 @@ classdef (Abstract = true) Registration < handle
             output = sirf.Reg.NiftiImageData3DDisplacement();
             output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_displacement');
             sirf.Utilities.check_status([self.name ':get_displacement_field_inverse'], output.handle_);
-        end
-        function set_parameter(self, par, arg1, arg2)
-            %Set string parameter. Check if any set methods match the method given by par.
-            %If so, set the value given by arg. Convert to float/int etc., as necessary.
-            %Up to 2 arguments, leave blank if unneeded. These are applied after parsing
-            %the parameter file.
-            if nargin < 3; arg1 = ''; end
-            if nargin < 4; arg2 = ''; end
-            h = calllib('mreg', 'mReg_Registration_set_parameter', self.handle_, par, arg1, arg2);
         end
     end
 end

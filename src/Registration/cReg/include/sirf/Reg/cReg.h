@@ -86,10 +86,10 @@ extern "C" {
 
     // Aladin methods
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
-#ifdef SIRF_SPM12
+
     // SPM methods
     void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir);
-#endif
+
     // NiftyResample
     void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
     void* cReg_NiftyResample_clear_transformations(void* self);
