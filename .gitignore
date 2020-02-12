@@ -276,9 +276,11 @@ coverage.xml
 # submodules which should be explicitly force-pushed
 /data
 
-# Dont track NiftyAladinSym.cpp/NiftyF3dSym.cpp as they are generated with CMake's configure_file
+# Dont track files that are generated with CMake's configure_file
 NiftyAladinSym.cpp
 NiftyF3dSym.cpp
+src/Registration/pReg/Reg.py
+src/Registration/pReg/tests/test_pReg.py
 
 # Ignore files created by Pycharm
 \.idea/
