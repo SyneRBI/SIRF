@@ -79,12 +79,17 @@ extern "C" {
     // Registration
     void* cReg_Registration_process(void* ptr);
     void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
-    void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
-    void* cReg_Registration_print_all_wrapped_methods(const char* name);
+
+    // NiftyReg-based registration
+    void* cReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+    void* cReg_NiftyRegistration_print_all_wrapped_methods(const char* name);
 
     // Aladin methods
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
-
+#ifdef SIRF_SPM12
+    // SPM methods
+    void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir);
+#endif
     // NiftyResample
     void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
     void* cReg_NiftyResample_clear_transformations(void* self);
@@ -103,6 +108,7 @@ extern "C" {
     // AffineTransformation
     void* cReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
     void* cReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr);
+    void* cReg_AffineTransformation_construct_from_trans_and_euler(PTR_FLOAT trans_ptr, PTR_FLOAT euler_ptr);
     void* cReg_AffineTransformation_deep_copy(const void* ptr);
     void* cReg_AffineTransformation_write(const void* ptr, const char* filename);
     void* cReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);

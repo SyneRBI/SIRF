@@ -68,9 +68,12 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_get_inverse(const v
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
-EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
-EXPORTED_FUNCTION     void* mReg_Registration_print_all_wrapped_methods(const char* name);
+EXPORTED_FUNCTION     void* mReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+EXPORTED_FUNCTION     void* mReg_NiftyRegistration_print_all_wrapped_methods(const char* name);
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
+#ifdef SIRF_SPM12
+EXPORTED_FUNCTION     void* mReg_SPM12Registration_get_TM(const void* ptr, const char* dir);
+#endif
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_clear_transformations(void* self);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr);
@@ -82,6 +85,7 @@ EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_process(void* ptr);
 EXPORTED_FUNCTION     void* mReg_Transformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_trans_and_euler(PTR_FLOAT trans_ptr, PTR_FLOAT euler_ptr);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_deep_copy(const void* ptr);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_write(const void* ptr, const char* filename);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);

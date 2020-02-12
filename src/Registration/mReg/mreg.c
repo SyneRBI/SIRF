@@ -135,15 +135,20 @@ EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr) {
 EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type) {
 	return cReg_Registration_get_deformation_displacement_image(ptr, transform_type);
 }
-EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2) {
-	return cReg_Registration_set_parameter(ptr, par, arg1, arg2);
+EXPORTED_FUNCTION     void* mReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2) {
+	return cReg_NiftyRegistration_set_parameter(ptr, par, arg1, arg2);
 }
-EXPORTED_FUNCTION     void* mReg_Registration_print_all_wrapped_methods(const char* name) {
-	return cReg_Registration_print_all_wrapped_methods(name);
+EXPORTED_FUNCTION     void* mReg_NiftyRegistration_print_all_wrapped_methods(const char* name) {
+	return cReg_NiftyRegistration_print_all_wrapped_methods(name);
 }
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir) {
 	return cReg_NiftyAladin_get_TM(ptr, dir);
 }
+#ifdef SIRF_SPM12
+EXPORTED_FUNCTION     void* mReg_SPM12Registration_get_TM(const void* ptr, const char* dir) {
+	return cReg_SPM12Registration_get_TM(ptr, dir);
+}
+#endif
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type) {
 	return cReg_NiftyResample_add_transformation(self, trans, type);
 }
@@ -176,6 +181,9 @@ EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_TM(PTR_FLOA
 }
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr) {
 	return cReg_AffineTransformation_construct_from_trans_and_quaternion(trans_ptr, quat_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_trans_and_euler(PTR_FLOAT trans_ptr, PTR_FLOAT euler_ptr) {
+	return cReg_AffineTransformation_construct_from_trans_and_euler(trans_ptr, euler_ptr);
 }
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_deep_copy(const void* ptr) {
 	return cReg_AffineTransformation_deep_copy(ptr);

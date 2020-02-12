@@ -27,6 +27,9 @@ limitations under the License.
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/AffineTransformation.h"
+#ifdef SIRF_SPM12
+#include "sirf/Reg/SPM12Registration.h"
+#endif
 
 using namespace sirf;
 
@@ -115,23 +118,13 @@ sirf::cReg_setRegistrationParameter(void* hp, const char* name, const void* hv)
     std::shared_ptr<const ImageData> im_sptr;
 
     Registration<float>& s = objectFromHandle<Registration<float> >(hp);
-    if (strcmp(name, "parameter_file") == 0)
-        s.set_parameter_file(charDataFromHandle(hv));
-    else if (strcmp(name, "reference_image") == 0) {
+    if (strcmp(name, "reference_image") == 0) {
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
         s.set_reference_image(im_sptr);
     }
     else if (strcmp(name, "floating_image") == 0) {
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
         s.set_floating_image(im_sptr);
-    }
-    else if (strcmp(name, "reference_mask") == 0) {
-        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
-        s.set_reference_mask(im_sptr);
-    }
-    else if (strcmp(name, "floating_mask") == 0) {
-        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
-        s.set_floating_mask(im_sptr);
     }
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
@@ -147,6 +140,31 @@ sirf::cReg_RegistrationParameter(const DataHandle* handle, const char* name)
 	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+// ------------------------------------------------------------------------------------ //
+//   NiftyRegistration
+// ------------------------------------------------------------------------------------ //
+// set
+void*
+sirf::cReg_setNiftyRegistrationParameter(void* hp, const char* name, const void* hv)
+{
+    std::shared_ptr<const ImageData> im_sptr;
+
+    NiftyRegistration<float>& s = objectFromHandle<NiftyRegistration<float> >(hp);
+    if (strcmp(name, "parameter_file") == 0)
+        s.set_parameter_file(charDataFromHandle(hv));
+    else if (strcmp(name, "reference_mask") == 0) {
+        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        s.set_reference_mask(im_sptr);
+    }
+    else if (strcmp(name, "floating_mask") == 0) {
+        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        s.set_floating_mask(im_sptr);
+    }
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
 }
 // ------------------------------------------------------------------------------------ //
 //   NiftyF3dSym
@@ -169,6 +187,26 @@ sirf::cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv)
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;
 }
+#ifdef SIRF_SPM12
+// ------------------------------------------------------------------------------------ //
+//   SPM12Registration
+// ------------------------------------------------------------------------------------ //
+// set
+void*
+sirf::cReg_setSPM12RegistrationParameter(void* hp, const char* name, const void* hv)
+{
+    SPM12Registration<float>& s = objectFromHandle<SPM12Registration<float> >(hp);
+    if (strcmp(name, "working_folder") == 0)
+        s.set_working_folder(charDataFromHandle(hv));
+    else if (strcmp(name, "working_folder_file_overwrite") == 0)
+        s.set_working_folder_file_overwrite(boolDataFromHandle(hv));
+    else if (strcmp(name, "delete_temp_files") == 0)
+        s.set_delete_temp_files(boolDataFromHandle(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+#endif
 // ------------------------------------------------------------------------------------ //
 //   NiftyResample
 // ------------------------------------------------------------------------------------ //

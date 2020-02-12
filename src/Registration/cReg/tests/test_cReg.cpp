@@ -1209,8 +1209,6 @@ int main(int argc, char* argv[])
         std::array<float,3> euler_angles = {5.f, -2.f,  3.f};
         const std::shared_ptr<const AffineTransformation<float> > tm_sptr =
                 std::make_shared<const AffineTransformation<float> >(translations,euler_angles,true);
-        tm_sptr->print();
-        const AffineTransformation<float> tm_inv = tm_sptr->get_inverse();
 
         NiftyResample<float> niftyreg_resampler;
         niftyreg_resampler.set_padding_value(0.f);

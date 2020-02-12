@@ -72,6 +72,7 @@ niftymomo_resample_adj = output_prefix + "niftymomo_resample_adj.nii"
 output_weighted_mean = output_prefix + "weighted_mean.nii"
 output_weighted_mean_def = output_prefix + "weighted_mean_def.nii"
 output_float = output_prefix + "reg_aladin_float.nii"
+spm12_working_folder = output_prefix + "spm12_working_folder"
 
 ref_aladin = sirf.Reg.NiftiImageData3D(ref_aladin_filename)
 flo_aladin = sirf.Reg.NiftiImageData3D(flo_aladin_filename)
@@ -1146,6 +1147,73 @@ def try_quaternion():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
+# SPM12
+def try_spm12():
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Starting SPM12 test...\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+    # Resample an image with NiftyResample. Register SPM12, check the result
+
+    # TM
+    translations = np.array([5.,  4., -5.], dtype=np.float32)
+    euler_angles = np.array([5., -2., -3.], dtype=np.float32)
+
+    tm = sirf.Reg.AffineTransformation(translations, euler_angles)
+
+    niftyreg_resampler = sirf.Reg.NiftyResample()
+    niftyreg_resampler.set_padding_value(0.)
+    niftyreg_resampler.set_reference_image(ref_aladin)
+    niftyreg_resampler.set_floating_image(ref_aladin)
+    niftyreg_resampler.add_transformation(tm)
+    niftyreg_resampler.set_interpolation_type_to_linear()
+    floating = niftyreg_resampler.forward(ref_aladin)
+
+    # Register with SPM12
+    spm12_reg = sirf.Reg.SPM12Registration()
+    spm12_reg.set_reference_image(ref_aladin)
+    spm12_reg.set_floating_image(floating)
+    spm12_reg.set_working_folder(spm12_working_folder)
+    spm12_reg.set_working_folder_file_overwrite(True)
+    spm12_reg.set_delete_temp_files(False)
+    spm12_reg.process()
+    spm_tm = spm12_reg.get_transformation_matrix_forward()
+    spm_inv_tm = spm_tm.get_inverse()
+
+    # Check tm roughly equals inverse TM of the resampler
+    estimated_euler_angles = spm_inv_tm.get_Euler_angles()
+    estimated_translations = spm_inv_tm.as_array()[:3, 3]
+
+    input_euler_angles = tm.get_Euler_angles()
+    input_translations = translations
+
+    diff_euler_angles = 100. * (input_euler_angles - estimated_euler_angles) / input_euler_angles
+    diff_translations = 100. * (input_translations - estimated_translations) / input_translations
+
+    print("Input Euler angles:              " + np.array2string(input_euler_angles))
+    print("Estimated Euler angles:          " + np.array2string(estimated_euler_angles))
+    print("Percentage diff in Euler angles: " + np.array2string(diff_euler_angles))
+    print("Input translations:              " + np.array2string(input_translations))
+    print("Estimated translations:          " + np.array2string(estimated_translations))
+    print("Percentage diff in translations: " + np.array2string(diff_translations))
+
+    # Check differences are less than 1%
+    if any(diff_euler_angles > 1):
+        raise AssertionError("SPM12 registration failed (angles).")
+    if any(diff_translations > 1):
+        raise AssertionError("SPM12 registration failed (translations).")
+
+    if spm12_reg.get_output() != ref_aladin:
+        raise AssertionError("SPM12 registration failed (image difference).")
+
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Finished SPM12 test.\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
 
 def test():
     try_niftiimage()
@@ -1161,6 +1229,8 @@ def test():
     try_weighted_mean(na)
     try_affinetransformation(na)
     try_quaternion()
+    if @SPM12_BOOL_STR@:
+        try_spm12()
 
 
 if __name__ == "__main__":

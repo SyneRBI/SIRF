@@ -33,6 +33,9 @@ limitations under the License.
 #include "sirf/Reg/Transformation.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
+#ifdef SIRF_SPM12
+#include "sirf/Reg/SPM12Registration.h"
+#endif
 
 using namespace sirf;
 
@@ -75,6 +78,10 @@ void* cReg_newObject(const char* name)
             return newObjectHandle(std::shared_ptr<ImageWeightedMean<float> >(new ImageWeightedMean<float>));
         if (strcmp(name, "AffineTransformation") == 0)
             return newObjectHandle(std::shared_ptr<AffineTransformation<float> >(new AffineTransformation<float>));
+#ifdef SIRF_SPM12
+        if (strcmp(name, "SPM12Registration") == 0)
+            return newObjectHandle(std::shared_ptr<SPM12Registration<float> >(new SPM12Registration<float>));
+#endif
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -88,6 +95,12 @@ void* setParameter
 	try {
         if (strcmp(obj, "Registration") == 0)
             return cReg_setRegistrationParameter(ptr_s, name, ptr_v);
+        if (strcmp(obj, "NiftyRegistration") == 0)
+            return cReg_setNiftyRegistrationParameter(ptr_s, name, ptr_v);
+#ifdef SIRF_SPM12
+        if (strcmp(obj, "SPM12Registration") == 0)
+            return cReg_setSPM12RegistrationParameter(ptr_s, name, ptr_v);
+#endif
         if (strcmp(obj, "NiftyF3dSym") == 0)
             return cReg_setNiftyF3dSymParameter(ptr_s, name, ptr_v);
         if (strcmp(obj, "NiftyResample") == 0)
@@ -581,8 +594,12 @@ void* cReg_Registration_get_deformation_displacement_image(const void* ptr, cons
     }
     CATCH;
 }
+
+// -------------------------------------------------------------------------------- //
+//      NiftyRegistration
+// -------------------------------------------------------------------------------- //
 extern "C"
-void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
+void* cReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
 {
     try {
         Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
@@ -592,7 +609,7 @@ void* cReg_Registration_set_parameter(const void* ptr, const char* par, const ch
     CATCH;
 }
 extern "C"
-void* cReg_Registration_print_all_wrapped_methods(const char* name)
+void* cReg_NiftyRegistration_print_all_wrapped_methods(const char* name)
 {
     try {
         if (strcmp(name, "NiftyAladinSym") == 0)
@@ -624,6 +641,27 @@ void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir)
     }
     CATCH;
 }
+// -------------------------------------------------------------------------------- //
+//      SPM12
+// -------------------------------------------------------------------------------- //
+#ifdef SIRF_SPM12
+extern "C"
+void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir)
+{
+    try {
+        SPM12Registration<float>& reg = objectFromHandle<SPM12Registration<float> >(ptr);
+        std::shared_ptr<const AffineTransformation<float> > sptr;
+        if (strcmp(dir, "forward") == 0)
+            sptr = reg.get_transformation_matrix_forward_sptr();
+        else if (strcmp(dir, "inverse") == 0)
+            sptr = reg.get_transformation_matrix_inverse_sptr();
+        else
+            throw std::runtime_error("only accept forward or inverse as argument to dir for saving transformation matrix");
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
+#endif
 // -------------------------------------------------------------------------------- //
 //      NiftyResample
 // -------------------------------------------------------------------------------- //
@@ -796,6 +834,20 @@ void* cReg_AffineTransformation_construct_from_trans_and_quaternion(size_t trans
             trans[i] = ((float*)trans_ptr)[i];
         return newObjectHandle(
                     std::make_shared<AffineTransformation<float> >(trans,quat));
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_AffineTransformation_construct_from_trans_and_euler(size_t trans_ptr, size_t euler_ptr)
+{
+    try {
+        std::array<float,3> trans, euler;
+        for (unsigned i=0; i<3; ++i) {
+            trans[i] = ((float*)trans_ptr)[i];
+            euler[i] = ((float*)euler_ptr)[i];
+        }
+        return newObjectHandle(
+                    std::make_shared<AffineTransformation<float> >(trans,euler));
     }
     CATCH;
 }

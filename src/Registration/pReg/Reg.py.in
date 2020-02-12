@@ -569,10 +569,6 @@ class _Registration(ABC):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def set_parameter_file(self, filename):
-        """Sets the parameter filename."""
-        parms.set_char_par(self.handle, 'Registration', 'parameter_file', filename)
-
     def set_reference_image(self, reference_image):
         """Sets the reference image."""
         if not isinstance(reference_image, SIRF.ImageData):
@@ -585,18 +581,6 @@ class _Registration(ABC):
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
         parms.set_parameter(self.handle, 'Registration', 'floating_image', floating_image.handle)
-
-    def set_reference_mask(self, reference_mask):
-        """Sets the reference mask."""
-        if not isinstance(reference_mask, SIRF.ImageData):
-            raise AssertionError()
-        parms.set_parameter(self.handle, 'Registration', 'reference_mask', reference_mask.handle)
-
-    def set_floating_mask(self, floating_mask):
-        """Sets the floating mask."""
-        if not isinstance(floating_mask, SIRF.ImageData):
-            raise AssertionError()
-        parms.set_parameter(self.handle, 'Registration', 'floating_mask', floating_mask.handle)
 
     def get_output(self):
         """Gets the registered image."""
@@ -636,15 +620,44 @@ class _Registration(ABC):
         check_status(output.handle)
         return output
 
+
+class _NiftyRegistration(_Registration):
+    """
+    Abstract base class for NiftyReg registration.
+    """
+    def __init__(self):
+        self.handle = None
+        self.name = 'NiftyRegistration'
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_parameter_file(self, filename):
+        """Sets the parameter filename."""
+        parms.set_char_par(self.handle, 'NiftyRegistration', 'parameter_file', filename)
+
+    def set_reference_mask(self, reference_mask):
+        """Sets the reference mask."""
+        if not isinstance(reference_mask, SIRF.ImageData):
+            raise AssertionError()
+        parms.set_parameter(self.handle, 'NiftyRegistration', 'reference_mask', reference_mask.handle)
+
+    def set_floating_mask(self, floating_mask):
+        """Sets the floating mask."""
+        if not isinstance(floating_mask, SIRF.ImageData):
+            raise AssertionError()
+        parms.set_parameter(self.handle, 'NiftyRegistration', 'floating_mask', floating_mask.handle)
+
     def set_parameter(self, par, arg1="", arg2=""):
         """Set string parameter. Check if any set methods match the method given by par.
         If so, set the value given by arg. Convert to float/int etc., as necessary.
         Up to 2 arguments, leave blank if unneeded. These are applied after parsing
         the parameter file."""
-        try_calling(pyreg.cReg_Registration_set_parameter(self.handle, par, arg1, arg2))
+        try_calling(pyreg.cReg_NiftyRegistration_set_parameter(self.handle, par, arg1, arg2))
 
 
-class NiftyAladinSym(_Registration):
+class NiftyAladinSym(_NiftyRegistration):
     """
     Registration using NiftyReg aladin.
     """
@@ -678,10 +691,10 @@ class NiftyAladinSym(_Registration):
     def print_all_wrapped_methods():
         """Print all wrapped methods."""
         print("In C++, this class is templated. \"dataType\" corresponds to \"float\" for Matlab and python.")
-        try_calling(pyreg.cReg_Registration_print_all_wrapped_methods('NiftyAladinSym'))
+        try_calling(pyreg.cReg_NiftyRegistration_print_all_wrapped_methods('NiftyAladinSym'))
 
 
-class NiftyF3dSym(_Registration):
+class NiftyF3dSym(_NiftyRegistration):
     """
     Registration using NiftyReg f3d.
     """
@@ -713,7 +726,58 @@ class NiftyF3dSym(_Registration):
     def print_all_wrapped_methods():
         """Print all wrapped methods."""
         print("In C++, this class is templated. \"dataType\" corresponds to \"float\" for Matlab and python.")
-        try_calling(pyreg.cReg_Registration_print_all_wrapped_methods('NiftyF3dSym'))
+        try_calling(pyreg.cReg_NiftyRegistration_print_all_wrapped_methods('NiftyF3dSym'))
+
+if @SPM12_BOOL_STR@:
+    class SPM12Registration(_Registration):
+        """
+        Registration using SPM12.
+        """
+        def __init__(self):
+            _Registration.__init__(self)
+            self.name = 'SPM12Registration'
+            self.handle = pyreg.cReg_newObject(self.name)
+            check_status(self.handle)
+
+        def __del__(self):
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+
+        def get_transformation_matrix_forward(self):
+            """Get forward transformation matrix."""
+            if self.handle is None:
+                raise AssertionError()
+            tm = AffineTransformation()
+            tm.handle = pyreg.cReg_SPM12Registration_get_TM(self.handle, 'forward')
+            return tm
+
+        def get_transformation_matrix_inverse(self):
+            """Get inverse transformation matrix."""
+            if self.handle is None:
+                raise AssertionError()
+            tm = AffineTransformation()
+            tm.handle = pyreg.cReg_SPM12Registration_get_TM(self.handle, 'inverse')
+            return tm
+
+        def set_working_folder(self, working_folder):
+            """Set working folder."""
+            parms.set_char_par(self.handle, self.name, 'working_folder', working_folder)
+
+        def set_working_folder_file_overwrite(self, working_folder_file_overwrite=True):
+            """Set file overwrite in working folder."""
+            if working_folder_file_overwrite:
+                working_folder_file_overwrite = 1
+            else:
+                working_folder_file_overwrite = 0
+            parms.set_int_par(self.handle, self.name, 'working_folder_file_overwrite', working_folder_file_overwrite)
+
+        def set_delete_temp_files(self, delete_temp_files=True):
+            """Delete temporary files."""
+            if delete_temp_files:
+                delete_temp_files = 1
+            else:
+                delete_temp_files = 0
+            parms.set_int_par(self.handle, self.name, 'delete_temp_files', delete_temp_files)
 
 
 class NiftyResample(object):
@@ -894,24 +958,26 @@ class AffineTransformation(_Transformation):
     """
     Class for affine transformations.
     """
-    def __init__(self, src=None, quat=None):
+    def __init__(self, src1=None, src2=None):
         self.handle = None
         self.name = 'AffineTransformation'
-        if src is None:
+        if src1 is None:
             self.handle = pyreg.cReg_newObject(self.name)
-        elif isinstance(src, str):
-            self.handle = pyreg.cReg_objectFromFile(self.name, src)
-        elif isinstance(src, numpy.ndarray) and quat is None:
-            if src.shape != (4, 4):
+        elif isinstance(src1, str):
+            self.handle = pyreg.cReg_objectFromFile(self.name, src1)
+        elif isinstance(src1, numpy.ndarray) and src2 is None:
+            if src1.shape != (4, 4):
                 raise AssertionError()
             # Need to transpose relative to MATLAB
             trans = numpy.zeros((4, 4), dtype=numpy.float32)
             for i in range(4):
                 for j in range(4):
-                    trans[i,j] = src[j,i]
+                    trans[i,j] = src1[j, i]
                 self.handle = pyreg.cReg_AffineTransformation_construct_from_TM(trans.ctypes.data)
-        elif isinstance(src, numpy.ndarray) and quat is not None and isinstance(quat, Quaternion):
-            self.handle = pyreg.cReg_AffineTransformation_construct_from_trans_and_quaternion(src.ctypes.data, quat.handle)
+        elif isinstance(src1, numpy.ndarray) and src2 is not None and isinstance(src2, Quaternion):
+            self.handle = pyreg.cReg_AffineTransformation_construct_from_trans_and_quaternion(src1.ctypes.data, src2.handle)
+        elif isinstance(src1, numpy.ndarray) and isinstance(src2, numpy.ndarray):
+            self.handle = pyreg.cReg_AffineTransformation_construct_from_trans_and_euler(src1.ctypes.data, src1.ctypes.data)
         else:
             raise error('AffineTransformation accepts no args, filename, 4x4 array or translation with quaternion.')
         check_status(self.handle)

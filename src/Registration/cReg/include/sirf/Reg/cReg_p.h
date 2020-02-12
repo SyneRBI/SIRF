@@ -37,9 +37,21 @@ namespace sirf {
     void* cReg_RegistrationParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
+    // NiftyRegistration
+    // ---------------------------------------------------------------------------- //
+    void* cReg_setNiftyRegistrationParameter(void* hp, const char* name, const void* hv);
+
+    // ---------------------------------------------------------------------------- //
     // NiftyF3dSym
     // ---------------------------------------------------------------------------- //
     void* cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv);
+
+#ifdef SIRF_SPM12
+    // ---------------------------------------------------------------------------- //
+    // SPM12Registration
+    // ---------------------------------------------------------------------------- //
+    void* cReg_setSPM12RegistrationParameter(void* hp, const char* name, const void* hv);
+#endif
 
     // ---------------------------------------------------------------------------- //
     // NiftyResample
