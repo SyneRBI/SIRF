@@ -55,7 +55,9 @@ f3d_warped = output_prefix + "f3d_warped.nii"
 TM_forward = output_prefix + "TM_forward.txt"
 TM_inverse = output_prefix + "TM_inverse.txt"
 aladin_def_forward = output_prefix + "aladin_def_forward.nii"
-aladin_def_inverse = output_prefix + "aladin_def_inverse_%s.nii"
+aladin_def_inverse_xyz = output_prefix + "aladin_def_inverse_%s.nii"
+aladin_def_inverse = output_prefix + "aladin_def_inverse.nii"
+aladin_def_fwd_inv = output_prefix + "aladin_def_fwd_then_inv.nii"
 aladin_disp_forward = output_prefix + "aladin_disp_forward.nii"
 aladin_disp_inverse = output_prefix + "aladin_disp_inverse_%s.nii"
 f3d_def_forward = output_prefix + "f3d_disp_forward.nii"
@@ -661,7 +663,8 @@ def try_niftyaladin():
     na.get_transformation_matrix_forward().write(TM_forward)
     na.get_transformation_matrix_inverse().write(TM_inverse)
     def_forward.write(aladin_def_forward)
-    def_inverse.write_split_xyz_components(aladin_def_inverse)
+    def_inverse.write_split_xyz_components(aladin_def_inverse_xyz)
+    def_inverse.write(aladin_def_inverse)
     disp_forward.write(aladin_disp_forward)
     disp_inverse.write_split_xyz_components(aladin_disp_inverse)
 
@@ -682,6 +685,29 @@ def try_niftyaladin():
     b = sirf.Reg.NiftiImageData3DDisplacement(def_forward)
     if b != disp_forward:
         raise AssertionError("NiftiImageData3DDisplacement::create_from_def() failed.")
+
+    # Check NiftiImageData3DDeformation::get_inverse()
+    def_fwd_then_inv = def_forward.get_inverse(flo_aladin)
+    def_fwd_then_inv.write(aladin_def_fwd_inv)
+    sirf.Reg.NiftiImageData.print_headers([ref_aladin, flo_aladin, def_inverse, def_fwd_then_inv])
+
+    # Reference forward with def_inv
+    resample = sirf.Reg.NiftyResample()
+    resample.set_reference_image(flo_aladin)
+    resample.set_floating_image(ref_aladin)
+    resample.set_padding_value(0.)
+    resample.set_interpolation_type_to_linear()
+    resample.add_transformation(def_inverse)
+    out1 = resample.forward(ref_aladin)
+
+    # Reference forward with def_fwd_then_inv
+    resample.clear_transformations()
+    resample.add_transformation(def_fwd_then_inv)
+    out2 = resample.forward(ref_aladin)
+
+    sirf.Reg.NiftiImageData.print_headers([out1, out2])
+    if out1 != out2:
+        raise AssertionError("NiftiImageData3DDeformation::get_inverse() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -797,6 +823,8 @@ def try_resample(na):
     nr1.set_floating_image(flo_aladin)
     nr1.set_interpolation_type_to_cubic_spline()  # try different interpolations
     nr1.set_interpolation_type(3)  # try different interpolations (cubic)
+    nr1.add_transformation(tm_iden)
+    nr1.clear_transformations()
     nr1.add_transformation(tm_iden)
     nr1.add_transformation(tm)
     nr1.process()

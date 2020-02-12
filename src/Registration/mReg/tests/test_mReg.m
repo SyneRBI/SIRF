@@ -47,7 +47,9 @@ g.f3d_warped                                 = fullfile(output_prefix, 'matlab_f
 g.TM_forward		                     = fullfile(output_prefix, 'matlab_TM_forward.txt');
 g.TM_inverse		                     = fullfile(output_prefix, 'matlab_TM_inverse.txt');
 g.aladin_def_forward                         = fullfile(output_prefix, 'matlab_aladin_def_forward.nii');
-g.aladin_def_inverse                         = fullfile(output_prefix, 'matlab_aladin_def_inverse_%s.nii');
+g.aladin_def_inverse_xyz                     = fullfile(output_prefix, 'matlab_aladin_def_inverse_%s.nii');
+g.aladin_def_inverse                         = fullfile(output_prefix, 'matlab_aladin_def_inverse.nii');
+g.aladin_def_fwd_inv                         = fullfile(output_prefix, 'matlab_aladin_def_fwd_then_inv.nii');
 g.aladin_disp_forward                        = fullfile(output_prefix, 'matlab_aladin_disp_forward.nii');
 g.aladin_disp_inverse                        = fullfile(output_prefix, 'matlab_aladin_disp_inverse_%s.nii');
 g.f3d_def_forward                            = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
@@ -554,7 +556,8 @@ if try_niftyaladin
     na.get_transformation_matrix_forward().write(g.TM_forward);
     na.get_transformation_matrix_inverse().write(g.TM_inverse);
     def_forward.write(g.aladin_def_forward);
-    def_inverse.write_split_xyz_components(g.aladin_def_inverse);
+    def_inverse.write_split_xyz_components(g.aladin_def_inverse_xyz);
+    def_inverse.write(g.aladin_def_inverse);
     disp_forward.write(g.aladin_disp_forward);
     disp_inverse.write_split_xyz_components(g.aladin_disp_inverse);
 
@@ -571,6 +574,28 @@ if try_niftyaladin
     % Test converting def to disp
     b = sirf.Reg.NiftiImageData3DDisplacement(def_forward);
     assert(b == disp_forward, 'NiftiImageData3DDisplacement::create_from_def() failed.');
+
+    % Check NiftiImageData3DDeformation::get_inverse()
+    def_fwd_then_inv = def_forward.get_inverse(g.flo_aladin);
+    def_fwd_then_inv.write(g.aladin_def_fwd_inv);
+    sirf.Reg.NiftiImageData.print_headers([g.ref_aladin, g.flo_aladin, def_inverse, def_fwd_then_inv]);
+
+    % Reference forward with def_inv
+    resample = sirf.Reg.NiftyResample();
+    resample.set_reference_image(g.flo_aladin);
+    resample.set_floating_image(g.ref_aladin);
+    resample.set_padding_value(0.);
+    resample.set_interpolation_type_to_linear();
+    resample.add_transformation(def_inverse);
+    out1 = resample.forward(g.ref_aladin);
+
+    % Reference forward with def_fwd_then_inv
+    resample.clear_transformations();
+    resample.add_transformation(def_fwd_then_inv);
+    out2 = resample.forward(g.ref_aladin);
+
+    sirf.Reg.NiftiImageData.print_headers([out1, out2]);
+    assert(out1 == out2, 'NiftiImageData3DDeformation::get_inverse() failed.')
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty aladin test.')
@@ -667,6 +692,8 @@ if try_resample
     nr1.set_floating_image(g.flo_aladin);
     nr1.set_interpolation_type_to_cubic_spline();  % try different interpolations
     nr1.set_interpolation_type(3);  % try different interpolations (cubic)
+    nr1.add_transformation(tm_iden);
+    nr1.clear_transformations();
     nr1.add_transformation(tm_iden);
     nr1.add_transformation(tm);
     nr1.process();

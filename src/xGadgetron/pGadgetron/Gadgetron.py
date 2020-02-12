@@ -631,7 +631,7 @@ class ImageData(SIRF.ImageData):
         """Print the header of one of the images. zero based."""
         try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
 
-DataContainer.register(ImageData)
+SIRF.ImageData.register(ImageData)
 
 class Acquisition(object):
     def __init__(self, file = None):
@@ -848,6 +848,7 @@ class AcquisitionData(DataContainer):
         assert self.handle is not None
         acq = Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
+        check_status(acq.handle)
         return acq
     def append_acquisition(self, acq):
         '''

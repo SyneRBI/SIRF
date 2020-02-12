@@ -485,10 +485,9 @@ STIRImageData::get_voxel_sizes(float* vsize) const
 void
 STIRImageData::get_data(float* data) const
 {
-	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	if (!image.get_regular_range(min_indices, max_indices))
+	if (!_data->get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
 		//return -1;
 	//std::cout << "trying new const iterator...\n";
@@ -570,8 +569,8 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
     // If any sizes have been set to <= 0, set to image size
     Coord3DI new_sizes(new_sizes_in);
     for (unsigned i=0; i<3; ++i)
-        if (new_sizes[int(i)]<=0)
-            new_sizes[int(i)] = dim[i];
+        if (new_sizes.at(int(i+1))<=0)
+            new_sizes.at(int(i+1)) = dim[i];
 
     // Zoom the image
     voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
@@ -631,6 +630,6 @@ STIRImageData::set_up_geom_info()
     }
 
     // Initialise the geom info shared pointer
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
-                (offset,spacing,size,direction);
+    this->set_geom_info(std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction));
 }

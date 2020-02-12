@@ -57,13 +57,14 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_standardise(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
-EXPORTED_FUNCTION     void* mReg_NiftiImageData3D_from_SIRFImageData(void* ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_SIRFImageData(void* ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const void* floating_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
@@ -71,6 +72,7 @@ EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, con
 EXPORTED_FUNCTION     void* mReg_Registration_print_all_wrapped_methods(const char* name);
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
+EXPORTED_FUNCTION     void* mReg_NiftyResample_clear_transformations(void* self);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);

@@ -153,6 +153,9 @@ class NiftiImageData(SIRF.ImageData):
             self.handle = pyreg.cReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pyreg.cReg_objectFromFile(self.name, src)
+        elif isinstance(src, SIRF.ImageData):
+            # src is ImageData
+            self.handle = pyreg.cReg_NiftiImageData_from_SIRFImageData(src.handle)
         else:
             raise error('Wrong source in NiftiImageData constructor')
         check_status(self.handle)
@@ -391,7 +394,7 @@ class NiftiImageData3D(NiftiImageData):
             self.handle = pyreg.cReg_objectFromFile(self.name, src)
         elif isinstance(src, SIRF.ImageData):
             # src is ImageData
-            self.handle = pyreg.cReg_NiftiImageData3D_from_SIRFImageData(src.handle)
+            self.handle = pyreg.cReg_NiftiImageData_from_SIRFImageData(src.handle)
         else:
             raise error('Wrong source in NiftiImageData3D constructor')
         check_status(self.handle)
@@ -511,6 +514,26 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+
+    def get_inverse(self, floating=None):
+        """Get inverse (potentially based on another image).
+
+        Why would you want to base it on another image? Well, we might have a deformation
+        that takes us from image A to B. We'll probably want the inverse to take us from
+        image B back to A. In this case, use get_inverse(A). This is because the the deformation
+        field is defined for the reference image. In the second case, A is the reference,
+        and B is the floating image.
+        """
+        if floating is None:
+            floating = self
+        if not isinstance(floating, SIRF.ImageData):
+            raise AssertionError()
+        if self is None:
+            raise AssertionError()
+        output = NiftiImageData3DDeformation()
+        output.handle = pyreg.cReg_NiftiImageData3DDeformation_get_inverse(self.handle, floating.handle)
+        check_status(output.handle)
+        return output
 
     @staticmethod
     def compose_single_deformation(trans, ref):
@@ -743,6 +766,11 @@ class NiftyResample(object):
             try_calling(pyreg.cReg_NiftyResample_add_transformation(self.handle, src.handle, 'deformation'))
         else:
             raise AssertionError()
+
+    def clear_transformations(self):
+        """Clear transformations."""
+        if self.handle is not None:
+            try_calling(pyreg.cReg_NiftyResample_clear_transformations(self.handle))
 
     def set_interpolation_type(self, interp_type):
         """Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""

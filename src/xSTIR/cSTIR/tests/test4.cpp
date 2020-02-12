@@ -34,6 +34,32 @@ int test4()
 		converter.set_time_interval(0, 10);
 		converter.set_up();
 		converter.estimate_randoms();
+
+        // Construct STIRImageData from VoxelsOnCartesianGrid
+        Coord3DI image_size = {31, 111, 111};
+        Coord3DF voxel_size = {3.375, 3, 3};
+        IndexRange3D index_range(0, image_size.z() - 1,
+                               -(image_size.y() / 2), -(image_size.y() / 2) + image_size.y() - 1,
+                               -(image_size.x() / 2), -(image_size.x() / 2) + image_size.x() - 1);
+        Coord3DF offset = {0.f, 0.f, 0.f};
+
+        shared_ptr<Voxels3DF> im_sptr(new Voxels3DF(
+            index_range,
+			offset,
+			voxel_size));
+		im_sptr->fill(0.0);
+        STIRImageData stir_im(im_sptr);
+
+        // Test crop
+        Coord3DI new_size = {3,2,5};
+        Coord3DF zooms = {1.f,1.f,1.f};
+        stir_im.zoom_image(zooms, offset, new_size, stir::ZoomOptions::preserve_sum);
+
+        if (stir_im.dimensions()["z"] != new_size.at(1) ||
+                stir_im.dimensions()["y"] != new_size.at(2) ||
+                stir_im.dimensions()["x"] != new_size.at(3))
+            throw std::runtime_error("STIRImageData::zoom_image failed");
+
 		return 0;
 	}
 	catch (...)

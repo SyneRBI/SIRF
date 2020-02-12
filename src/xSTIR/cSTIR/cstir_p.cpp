@@ -499,6 +499,12 @@ sirf::cSTIR_setReconstructionParameter
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
 		recon.set_input_data(sptr_ad->data()); // objectSptrFromHandle<PETAcquisitionData>(hv)->data());
 	}
+	else if (boost::iequals(name, "disable_output")) {
+		recon.set_disable_output(true);
+	}
+	else if (boost::iequals(name, "enable_output")) {
+		recon.set_disable_output(false);
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;

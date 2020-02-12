@@ -47,6 +47,22 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
                 self.handle_ = [];
             end
         end
+        function output = get_inverse(self, floating)
+            % Get inverse (potentially based on another image).
+            %
+            % Why would you want to base it on another image? Well, we might have a deformation
+            % that takes us from image A to B. We'll probably want the inverse to take us from
+            % image B back to A. In this case, use get_inverse(A). This is because the the deformation
+            % field is defined for the reference image. In the second case, A is the reference,
+            % and B is the floating image.
+            if nargin == 1
+                floating = self;
+            end
+            assert(isa(floating, 'sirf.SIRF.ImageData'))
+            output = sirf.Reg.NiftiImageData3DDeformation();
+            output.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_get_inverse',self.handle_, floating.handle_);
+            sirf.Utilities.check_status([self.name ':get_inverse'], output.handle_);
+        end
     end
     methods(Static)
         function z = compose_single_deformation(trans, ref)

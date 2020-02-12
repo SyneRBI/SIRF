@@ -467,7 +467,7 @@ class ImageData(SIRF.ImageData):
 ##                print('out-of-range slice numbers selected, quitting the loop')
 ##                break
 
-DataContainer.register(ImageData)
+SIRF.ImageData.register(ImageData)
 
 class ImageDataProcessor(object):
     '''Class for image processors.
@@ -1761,6 +1761,10 @@ class Reconstructor(object):
         '''
         parms.set_char_par\
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
+    def disable_output(self):
+        parms.set_int_par(self.handle, 'Reconstruction', 'disable_output', 1)
+    def enable_output(self):
+        parms.set_int_par(self.handle, 'Reconstruction', 'enable_output', 1)
     def reconstruct(self, image):
         '''Performs reconstruction.
         '''
@@ -1986,6 +1990,7 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
         self.handle = pystir.cSTIR_objectFromFile\
             ('OSMAPOSLReconstruction', filename)
         check_status(self.handle)
+        self.disable_output()
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -2046,6 +2051,7 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         self.handle = pystir.cSTIR_objectFromFile\
             ('KOSMAPOSLReconstruction', filename)
         check_status(self.handle)
+        self.disable_output()
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -2099,6 +2105,7 @@ class OSSPSReconstructor(IterativeReconstructor):
         self.handle = pystir.cSTIR_objectFromFile\
                       ('OSSPSReconstruction', filename)
         check_status(self.handle)
+        self.disable_output()
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)

@@ -101,6 +101,9 @@ namespace sirf {
         virtual ImageData* clone_impl() const = 0;
         /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info() = 0;
+        /// Set geom info
+        void set_geom_info(const std::shared_ptr<VoxelisedGeometricalInfo3D> geom_info_sptr) { _geom_info_sptr = geom_info_sptr; }
+    private:
         std::shared_ptr<VoxelisedGeometricalInfo3D> _geom_info_sptr;
 	};
 }

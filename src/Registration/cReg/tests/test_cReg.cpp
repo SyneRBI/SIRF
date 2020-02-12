@@ -81,7 +81,9 @@ int main(int argc, char* argv[])
     const std::string TM_forward               = output_prefix   + "TM_forward.txt";
     const std::string TM_inverse               = output_prefix   + "TM_inverse.txt";
     const std::string aladin_def_forward       = output_prefix   + "aladin_def_forward.nii";
-    const std::string aladin_def_inverse       = output_prefix   + "aladin_def_inverse_%s.nii";
+    const std::string aladin_def_inverse_xyz   = output_prefix   + "aladin_def_inverse_%s.nii";
+    const std::string aladin_def_inverse       = output_prefix   + "aladin_def_inverse.nii";
+    const std::string aladin_def_fwd_inv       = output_prefix   + "aladin_def_fwd_then_inv.nii";
     const std::string aladin_disp_forward      = output_prefix   + "aladin_disp_forward.nii";
     const std::string aladin_disp_inverse      = output_prefix   + "aladin_disp_inverse_%s.nii";
     const std::string f3d_disp_forward         = output_prefix   + "f3d_disp_forward.nii";
@@ -272,6 +274,37 @@ int main(int argc, char* argv[])
         x(0) = NAN;
         if (!x.get_contains_nans())
             throw std::runtime_error("NiftiImageData::get_contains_nans() 2 failed.");
+
+        // Test that eg im += 5 gives same as im = im + 5
+        NiftiImageData<float> aa = *flo_aladin->clone();
+        NiftiImageData<float> bb = *flo_aladin->clone();
+        aa = aa + 5;
+        bb += 5;
+        if (bb != aa)
+            throw std::runtime_error("NiftiImageData::+= (scalar) failed");
+        aa = aa - 5;
+        bb -= 5;
+        if (bb != aa)
+            throw std::runtime_error("NiftiImageData::-= (scalar) failed");
+        aa = aa * 5;
+        bb *= 5;
+        if (bb != aa)
+            throw std::runtime_error("NiftiImageData::*= failed");
+        aa = aa / 5;
+        bb /= 5;
+        if (bb != aa)
+            throw std::runtime_error("NiftiImageData::/= failed");
+
+        aa = aa + aa;
+        bb += bb;
+        if (bb != aa)
+            throw std::runtime_error("NiftiImageData::+= failed");
+        aa = aa - aa;
+        bb -= bb;
+        if (bb != aa)
+            throw std::runtime_error("NiftiImageData::-= failed");
+
+
 
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -656,13 +689,13 @@ int main(int argc, char* argv[])
         NA.process();
 
         // Get outputs
-        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NA.get_output_sptr();
-        std::shared_ptr<const AffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
-        std::shared_ptr<const AffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
-        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward_sptr());
-        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_inverse_sptr());
-        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward_sptr());
-        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_inverse_sptr());
+        const std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NA.get_output_sptr();
+        const std::shared_ptr<const AffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
+        const std::shared_ptr<const AffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
+        const std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward_sptr());
+        const std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_inverse_sptr());
+        const std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward_sptr());
+        const std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_inverse_sptr());
 
         warped_sptr->write    (      aladin_warped    );
         TM_forward_sptr->write(       TM_forward      );
@@ -670,7 +703,8 @@ int main(int argc, char* argv[])
         disp_forward_sptr->write(aladin_disp_forward);
         disp_inverse_sptr->write_split_xyz_components(aladin_disp_inverse);
         def_forward_sptr->write(aladin_def_forward);
-        def_inverse_sptr->write_split_xyz_components(aladin_def_inverse);
+        def_inverse_sptr->write_split_xyz_components(aladin_def_inverse_xyz);
+        def_inverse_sptr->write(aladin_def_inverse);
 
         // forward TM
         TM_forward_sptr->print();
@@ -688,6 +722,31 @@ int main(int argc, char* argv[])
         NiftiImageData3DDisplacement<float> b(*def_forward_sptr);
         if (b != *disp_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDisplacement::create_from_def() failed.");
+
+        // Check NiftiImageData3DDeformation::get_inverse()
+        const std::shared_ptr<const NiftiImageData3DDeformation<float> > def_fwd_then_inv_sptr =
+                def_forward_sptr->get_inverse(flo_aladin);
+        def_fwd_then_inv_sptr->write(aladin_def_fwd_inv);
+        NiftiImageData<float>::print_headers({&*ref_aladin, &*flo_aladin, &*def_inverse_sptr, &*def_fwd_then_inv_sptr});
+
+        // Reference forward with def_inv
+        NiftyResample<float> resample;
+        resample.set_reference_image(flo_aladin);
+        resample.set_floating_image(ref_aladin);
+        resample.set_padding_value(0.f);
+        resample.set_interpolation_type_to_linear();
+        resample.add_transformation(def_inverse_sptr);
+        const std::shared_ptr<const NiftiImageData<float> > out1_sptr = std::dynamic_pointer_cast<const NiftiImageData<float> >(resample.forward(ref_aladin));
+
+        // Reference forward with def_fwd_then_inv_sptr
+        resample.clear_transformations();
+        resample.add_transformation(def_fwd_then_inv_sptr);
+        const std::shared_ptr<const NiftiImageData<float> > out2_sptr = std::dynamic_pointer_cast<const NiftiImageData<float> >(resample.forward(ref_aladin));
+
+        NiftiImageData<float>::print_headers({&*out1_sptr, &*out2_sptr});
+
+        if (*out1_sptr != *out2_sptr)
+            throw std::runtime_error("NiftiImageData3DDeformation::get_inverse() failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty aladin test.\n";
@@ -808,6 +867,8 @@ int main(int argc, char* argv[])
         nr1.set_floating_image(flo_aladin);
         nr1.set_interpolation_type_to_cubic_spline(); // try different interpolations
         nr1.set_interpolation_type(NiftyResample<float>::CUBICSPLINE); // try different interpolations (cubic)
+        nr1.add_transformation(tm_iden);
+        nr1.clear_transformations();
         nr1.add_transformation(tm_iden);
         nr1.add_transformation(tm);
         nr1.process();

@@ -80,6 +80,9 @@ public:
     /// Add transformation
     virtual void add_transformation(const std::shared_ptr<const Transformation<dataType> > transformation_sptr);
 
+    /// Clear transformations
+    void clear_transformations() { _transformations.clear(); }
+
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
     virtual void set_interpolation_type(const enum InterpolationType type);
 
