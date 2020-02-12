@@ -52,6 +52,7 @@ class DataContainer(ABC):
     def __init__(self):
         self.handle = None
     def __del__(self):
+        print("SIRF.DataContainer __del__ with handle {}.".format(self.handle))
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     @abc.abstractmethod
