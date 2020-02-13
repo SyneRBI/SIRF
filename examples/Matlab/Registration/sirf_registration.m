@@ -176,8 +176,6 @@ if exist('print','var')
 end
 
 %% Input images
-assert(exist('ref_file','var')==1, '--ref missing')
-assert(~isempty(flo_files), '--flo missing')
 reg.set_reference_image(get_im(ref_file,eng_ref));
 for i=1:numel(flo_files)
     reg.add_floating_image(get_im(flo_files{i},flo_engs{i}));
@@ -210,6 +208,8 @@ for i=1:numel(pars)
         reg.set_parameter(pars_split{1},pars_split{2});
     elseif numel(pars_split)==3
         reg.set_parameter(pars_split{1},pars_split{2},pars_split{3});
+    else
+        error('Max number of NiftyReg args is 2.')
     end
 end
 
