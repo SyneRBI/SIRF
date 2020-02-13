@@ -32,6 +32,14 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
+void NiftyRegistration<dataType>::set_parameter(const std::string &par, const std::string &arg1, const std::string &arg2)
+{
+    _extra_params.push_back(par);
+    _extra_params.push_back(arg1);
+    _extra_params.push_back(arg2);
+}
+
+template<class dataType>
 void NiftyRegistration<dataType>::set_up_inputs()
 {
     // Try to dynamic cast from ImageData to NiftiImageData3D. This will only succeed if original type was NiftiImageData3D

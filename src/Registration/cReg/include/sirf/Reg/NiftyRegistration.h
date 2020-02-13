@@ -54,10 +54,42 @@ public:
     /// Destructor
     virtual ~NiftyRegistration() {}
 
+    /// Set parameter file
+    void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
+
+    /// Set string parameter. Check if any set methods match the method given by par.
+    /// If so, set the value given by arg. Convert to float/int etc., as necessary.
+    /// Up to 2 arguments, leave blank if unneeded. These are applied after parsing
+    /// the parameter file.
+    void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
+
+    /// Set reference mask
+    void set_reference_mask(const std::shared_ptr<const ImageData> reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
+
+    /// Set floating mask
+    void set_floating_mask(const std::shared_ptr<const ImageData> floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
+
 protected:
+
+    /// Parse parameter file
+    virtual void parse_parameter_file() = 0;
 
     /// Set up inputs
     void set_up_inputs();
+
+    /// Set any extra parameters
+    virtual void set_parameters() = 0;
+
+    /// Store extra parameters. Only apply them after parsing.
+    std::vector<std::string> _extra_params;
+
+    /// Parameter filename
+    std::string _parameter_filename;
+
+    /// Floating mask
+    std::shared_ptr<const ImageData> _floating_mask_sptr;
+    /// Reference mask
+    std::shared_ptr<const ImageData> _reference_mask_sptr;
 
     /// Floating mask (as NiftiImageData3D)
     std::shared_ptr<const NiftiImageData3D<dataType> > _floating_mask_nifti_sptr;

@@ -70,6 +70,11 @@ void SPM12Registration<dataType>::process()
     check_file_exists(flo_filename, _working_folder_overwrite);
     check_file_exists(resliced_filename, _working_folder_overwrite);
 
+    // If the working folder doesn't already exist, and delete is desired, remember to delete it
+    bool need_to_delete_working_folder = false;
+    if (_delete_temp_files && !check_file_exists(_working_folder,true))
+        need_to_delete_working_folder = true;
+
     // Convert images to matlab::data::StructArray with structure expected by SPM
     NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_reference_image_nifti_sptr, this->_reference_image_sptr);
     NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_floating_image_nifti_sptr, this->_floating_image_sptr);
@@ -101,6 +106,8 @@ void SPM12Registration<dataType>::process()
         remove( ref_filename.c_str() );
         remove( flo_filename.c_str() );
         remove( resliced_filename.c_str() );
+        if (need_to_delete_working_folder)
+            remove( _working_folder.c_str() );
     }
 
     // Get the transformation matrix

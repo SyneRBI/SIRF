@@ -602,7 +602,7 @@ extern "C"
 void* cReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
 {
     try {
-        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+        NiftyRegistration<float>& reg = objectFromHandle<NiftyRegistration<float> >(ptr);
         reg.set_parameter(par, arg1, arg2);
         return new DataHandle;
     }

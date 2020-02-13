@@ -78,9 +78,6 @@ public:
     /// Destructor
     virtual ~Registration() {}
 
-    /// Set parameter file
-    void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
-
     /// Set reference image
     void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
 
@@ -105,34 +102,10 @@ public:
     /// Get inverse displacement field image
     const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr() const { return _disp_image_inverse_sptr; }
 
-    /// Set string parameter. Check if any set methods match the method given by par.
-    /// If so, set the value given by arg. Convert to float/int etc., as necessary.
-    /// Up to 2 arguments, leave blank if unneeded. These are applied after parsing
-    /// the parameter file.
-    void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
-
-    /// Set reference mask
-    void set_reference_mask(const std::shared_ptr<const ImageData> reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
-
-    /// Set floating mask
-    void set_floating_mask(const std::shared_ptr<const ImageData> floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
-
 protected:
-
-    /// Parse parameter file
-    virtual void parse_parameter_file() = 0;
 
     /// Check parameters
     virtual void check_parameters() const;
-
-    /// Set any extra parameters
-    virtual void set_parameters() = 0;
-
-    /// Store extra parameters. Only apply them after parsing.
-    std::vector<std::string> _extra_params;
-
-    /// Parameter filename
-    std::string _parameter_filename;
 
     /// Reference image
     std::shared_ptr<const ImageData> _reference_image_sptr;
@@ -145,10 +118,5 @@ protected:
     std::shared_ptr<Transformation<dataType> > _disp_image_forward_sptr;
     /// Inverse displacement field image
     std::shared_ptr<Transformation<dataType> > _disp_image_inverse_sptr;
-
-    /// Floating mask
-    std::shared_ptr<const ImageData> _floating_mask_sptr;
-    /// Reference mask
-    std::shared_ptr<const ImageData> _reference_mask_sptr;
 };
 }

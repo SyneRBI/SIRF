@@ -42,14 +42,6 @@ void Registration<dataType>::check_parameters() const
         throw std::runtime_error("Reference image has not been set.");
 }
 
-template<class dataType>
-void Registration<dataType>::set_parameter(const std::string &par, const std::string &arg1, const std::string &arg2)
-{
-    _extra_params.push_back(par);
-    _extra_params.push_back(arg1);
-    _extra_params.push_back(arg2);
-}
-
 namespace sirf {
 template class Registration<float>;
 }
