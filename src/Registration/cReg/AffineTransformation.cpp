@@ -298,11 +298,16 @@ void AffineTransformation<dataType>::write(const std::string &filename) const
     if (filename.empty())
         throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
+    std::string filename_w_ext = filename;
+    boost::filesystem::path filename_boost(filename_w_ext);
+    if (!filename_boost.has_extension())
+        filename_w_ext += ".txt";
+
     // If the folder doesn't exist, create it
-    check_folder_exists_if_not_create(filename);
+    check_folder_exists_if_not_create(filename_w_ext);
 
     FILE *file;
-    file=fopen(filename.c_str(), "w");
+    file=fopen(filename_w_ext.c_str(), "w");
     for(int i=0; i<4; ++i)
         fprintf(file, "%e %e %e %e\n", _tm[i][0], _tm[i][1], _tm[i][2], _tm[i][3]);
     fclose(file);

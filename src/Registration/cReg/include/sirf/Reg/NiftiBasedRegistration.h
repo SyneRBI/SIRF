@@ -55,13 +55,13 @@ public:
     virtual ~NiftiBasedRegistration() {}
 
     /// Get forward deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr() const;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr(const unsigned idx = 0) const;
 
     /// Get inverse deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr() const;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const;
 
     /// Get registered image as NiftiImageData3D
-    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output_sptr() const { return _warped_image_nifti_sptr; }
+    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output_sptr(const unsigned idx = 0) const { return _warped_images_nifti.at(idx); }
 
     /// Convert an ImageData to NiftiImageData. Try to dynamic pointer cast, else create new image.
     static void convert_to_NiftiImageData_if_not_already(std::shared_ptr<const NiftiImageData3D<dataType> > &output_sptr, const std::shared_ptr<const ImageData> &input_sptr);
@@ -71,8 +71,8 @@ protected:
     /// Reference image (as NiftiImageData3D)
     std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_nifti_sptr;
     /// Floating image (as NiftiImageData3D)
-    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_image_nifti_sptr;
+    std::vector<std::shared_ptr<const NiftiImageData3D<dataType> > > _floating_images_nifti;
     /// Output (as NiftiImageData3D)
-    std::shared_ptr<NiftiImageData3D<dataType> >       _warped_image_nifti_sptr;
+    std::vector<std::shared_ptr<NiftiImageData3D<dataType> > > _warped_images_nifti;
 };
 }

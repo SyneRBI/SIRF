@@ -49,7 +49,7 @@ class NiftyRegistration : public NiftiBasedRegistration<dataType>
 public:
 
     /// Constructor
-    NiftyRegistration() {}
+    NiftyRegistration();
 
     /// Destructor
     virtual ~NiftyRegistration() {}

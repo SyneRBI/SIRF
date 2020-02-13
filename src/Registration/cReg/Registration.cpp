@@ -33,10 +33,29 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
+void Registration<dataType>::set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
+{
+    _floating_images.resize(1);
+    _floating_images.at(0) = floating_image_sptr;
+}
+
+template<class dataType>
+void Registration<dataType>::add_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
+{
+    _floating_images.push_back(floating_image_sptr);
+}
+
+template<class dataType>
+void Registration<dataType>::clear_floating_images()
+{
+    _floating_images.clear();
+}
+
+template<class dataType>
 void Registration<dataType>::check_parameters() const
 {
     // If anything is missing
-    if (!_floating_image_sptr)
+    if (_floating_images.size()==0)
         throw std::runtime_error("Floating image has not been set.");
     if (!_reference_image_sptr)
         throw std::runtime_error("Reference image has not been set.");

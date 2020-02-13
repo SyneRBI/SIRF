@@ -60,10 +60,10 @@ public:
     void set_delete_temp_files(const bool delete_temp_files) { _delete_temp_files = delete_temp_files; }
 
     /// Get forwards transformation matrix
-    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_forward_sptr() const { return _TM_forward_sptr; }
+    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_forward_sptr(const unsigned idx = 0) const { return _TMs_fwd.at(idx); }
 
     /// Get inverse transformation matrix
-    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr() const { return _TM_inverse_sptr; }
+    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr(const unsigned idx = 0) const { return _TMs_inv.at(idx); }
 
 protected:
 
@@ -84,8 +84,8 @@ protected:
     bool _delete_temp_files = false;
 
     /// Forwards transformation matrix
-    std::shared_ptr<AffineTransformation<float> > _TM_forward_sptr;
+    std::vector<std::shared_ptr<AffineTransformation<float> > > _TMs_fwd;
     /// Inverse transformation matrix
-    std::shared_ptr<AffineTransformation<float> > _TM_inverse_sptr;
+    std::vector<std::shared_ptr<AffineTransformation<float> > > _TMs_inv;
 };
 }

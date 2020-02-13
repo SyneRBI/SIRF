@@ -92,22 +92,22 @@ void print_usage()
 
     // Required flags
     std::cout << "\n  Required flags:\n";
-    std::cout << "    --algo <algo>:\t\tRegistration algorithm (aladin/f3d/spm12)\n";
+    std::cout << "    --algo <algo>:\t\tregistration algorithm (aladin/f3d/spm12)\n";
     std::cout << "    --ref <fname> <eng>:\treference image (eng: Reg|STIR|Gadgetron)\n";
-    std::cout << "    --flo <fname> <eng>:\tfloating image (eng: Reg|STIR|Gadgetron)\n";
+    std::cout << "    --flo <fname> <eng>:\tfloating image (eng: Reg|STIR|Gadgetron). (Can be used mulitple times for spm12.)\n";
 
     // Optional flags
     std::cout << "\n  Optional flags:\n";
-    std::cout << "    --warped <fname>:\t\twarped image filename\n";
-    std::cout << "    --disp_fwd <fname>:\t\tforward displacement field image\n";
-    std::cout << "    --disp_inv <fname>:\t\tinverse displacement field image\n";
-    std::cout << "    --def_fwd <fname>:\t\tforward deformation field image\n";
-    std::cout << "    --def_inv <fname>:\t\tinverse deformation field image\n";
+    std::cout << "    --warped_prefix <fname>:\twarped image filename\n";
+    std::cout << "    --disp_fwd_prefix <fname>:\tforward displacement field image\n";
+    std::cout << "    --disp_inv_prefix <fname>:\tinverse displacement field image\n";
+    std::cout << "    --def_fwd_prefix <fname>:\tforward deformation field image\n";
+    std::cout << "    --def_inv_prefix <fname>:\tinverse deformation field image\n";
 
     // Optional rigid/affine flags
     std::cout << "\n  Optional flags for rigid/affine algorithms (aladin/spm12):\n";
-    std::cout << "    --TM_fwd <fname>:\t\tforward transformation matrix\n";
-    std::cout << "    --TM_inv <fname>:\t\tinverse transformation matrix\n";
+    std::cout << "    --TM_fwd_prefix <fname>:\tforward transformation matrix\n";
+    std::cout << "    --TM_inv_prefix <fname>:\tinverse transformation matrix\n";
 
     // Optional NiftyReg flags
     std::cout << "\n  Optional flags for NiftyReg (aladin/f3d):\n";
@@ -145,12 +145,13 @@ int main(int argc, char* argv[])
         }
 
         // Parse
-        std::string algo_str, ref_str, flo_str, ref_eng_str, flo_eng_str,
+        std::string algo_str, ref_str, ref_eng_str,
                 warped_str, disp_fwd_str, def_fwd_str, disp_inv_str, def_inv_str,
-                TM_fwd_str, TM_inv_str, // rigid/affine
-                rmask_str, fmask_str, rmask_eng_str, fmask_eng_str,par_file_str, // niftyreg
-                working_folder_str; // spm12
-        std::vector<std::string> pars; // niftyreg
+                TM_fwd_str, TM_inv_str,
+                rmask_str, fmask_str, rmask_eng_str, fmask_eng_str,par_file_str,
+                working_folder_str;
+        std::vector<std::string> pars;
+        std::vector<std::pair<std::string,std::string> > flo_strs;
         int overwrite(-1), delete_temp_file(-1);
         bool print(false);
 
@@ -171,8 +172,7 @@ int main(int argc, char* argv[])
             // flo
             else if (strcmp(argv[0],"--flo")==0) {
                 if (argc<3) throw std::runtime_error("--flo requires two arguments");
-                flo_str = argv[1];
-                flo_eng_str = argv[2];
+                flo_strs.push_back(std::make_pair(argv[1],argv[2]));
                 argc-=3; argv+=3;
             }
             // warped
@@ -284,8 +284,9 @@ int main(int argc, char* argv[])
         if (ref_str.empty()) throw std::runtime_error("--ref not set");
         reg->set_reference_image(image_as_sptr(ref_str,ref_eng_str));
         // Flo
-        if (flo_str.empty()) throw std::runtime_error("--flo not set");
-        reg->set_floating_image(image_as_sptr(flo_str,flo_eng_str));
+        if (flo_strs.empty()) throw std::runtime_error("--flo not set");
+        for (unsigned i=0; i<flo_strs.size(); ++i)
+            reg->add_floating_image(image_as_sptr(flo_strs.at(i).first,flo_strs.at(i).second));
 
         // rmask
         if (!rmask_str.empty()) {
@@ -371,43 +372,45 @@ int main(int argc, char* argv[])
         // Save results
         // ------------------------------------------------ //
 
-        // warped
-        if (!warped_str.empty())
-            reg->get_output_sptr()->write(warped_str);
+        for (unsigned i=0; i<flo_strs.size(); ++i) {
+            // warped
+            if (!warped_str.empty())
+                reg->get_output_sptr(i)->write(warped_str + std::to_string(i));
 
-        // disp fwd
-        if (!disp_fwd_str.empty())
-            reg->get_displacement_field_forward_sptr()->write(disp_fwd_str);
-        // disp inv
-        if (!disp_inv_str.empty())
-            reg->get_displacement_field_forward_sptr()->write(disp_inv_str);
+            // disp fwd
+            if (!disp_fwd_str.empty())
+                reg->get_displacement_field_forward_sptr(i)->write(disp_fwd_str + std::to_string(i));
+            // disp inv
+            if (!disp_inv_str.empty())
+                reg->get_displacement_field_forward_sptr(i)->write(disp_inv_str + std::to_string(i));
 
-        // def fwd
-        if (!def_fwd_str.empty())
-            reg->get_deformation_field_forward_sptr()->write(def_fwd_str);
-        // def inv
-        if (!def_inv_str.empty())
-            reg->get_deformation_field_forward_sptr()->write(def_inv_str);
+            // def fwd
+            if (!def_fwd_str.empty())
+                reg->get_deformation_field_forward_sptr(i)->write(def_fwd_str + std::to_string(i));
+            // def inv
+            if (!def_inv_str.empty())
+                reg->get_deformation_field_forward_sptr(i)->write(def_inv_str + std::to_string(i));
 
-        // TM_fwd
-        if (!TM_fwd_str.empty()) {
-            if (algo == Aladin)
-                std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_forward_sptr()->write(TM_fwd_str);
+            // TM_fwd
+            if (!TM_fwd_str.empty()) {
+                if (algo == Aladin)
+                    std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_forward_sptr()->write(TM_fwd_str + std::to_string(i));
 #ifdef SIRF_SPM12
-            else if (algo == SPM12)
-                std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->get_transformation_matrix_forward_sptr()->write(TM_fwd_str);
+                else if (algo == SPM12)
+                    std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->get_transformation_matrix_forward_sptr(i)->write(TM_fwd_str + std::to_string(i));
 #endif
-            else throw std::runtime_error("--TM_fwd only available for rigid/affine");
-        }
-        // TM_inv
-        if (!TM_inv_str.empty()) {
-            if (algo == Aladin)
-                std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_inverse_sptr()->write(TM_inv_str);
+                else throw std::runtime_error("--TM_fwd only available for rigid/affine");
+            }
+            // TM_inv
+            if (!TM_inv_str.empty()) {
+                if (algo == Aladin)
+                    std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_inverse_sptr()->write(TM_inv_str + std::to_string(i));
 #ifdef SIRF_SPM12
-            else if (algo == SPM12)
-                std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->get_transformation_matrix_inverse_sptr()->write(TM_inv_str);
+                else if (algo == SPM12)
+                    std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->get_transformation_matrix_inverse_sptr(i)->write(TM_inv_str + std::to_string(i));
 #endif
-            else throw std::runtime_error("--TM_inv only available for rigid/affine");
+                else throw std::runtime_error("--TM_inv only available for rigid/affine");
+            }
         }
     }
 

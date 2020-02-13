@@ -1221,12 +1221,13 @@ int main(int argc, char* argv[])
         // Register with SPM12
         SPM12Registration<float> spm12_reg;
         spm12_reg.set_reference_image(ref_aladin);
-        spm12_reg.set_floating_image(floating_sptr);
+        spm12_reg.add_floating_image(floating_sptr);
+        spm12_reg.add_floating_image(floating_sptr);
         spm12_reg.set_working_folder(spm12_working_folder);
         spm12_reg.set_working_folder_file_overwrite(true);
         spm12_reg.set_delete_temp_files(false);
         spm12_reg.process();
-        const std::shared_ptr<const AffineTransformation<float> > spm_tm_sptr = spm12_reg.get_transformation_matrix_forward_sptr();
+        const std::shared_ptr<const AffineTransformation<float> > spm_tm_sptr = spm12_reg.get_transformation_matrix_forward_sptr(1);
         const AffineTransformation<float> spm_inv_tm = spm_tm_sptr->get_inverse();
 
         // Check tm roughly equals inverse TM of the resampler
@@ -1257,7 +1258,7 @@ int main(int argc, char* argv[])
                 throw std::runtime_error("SPM12 registration failed (translations).");
         }
 
-        if (spm12_reg.get_output_sptr()->operator!=(*ref_aladin))
+        if (spm12_reg.get_output_sptr(1)->operator!=(*ref_aladin))
             throw std::runtime_error("SPM12 registration failed (image difference).");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
