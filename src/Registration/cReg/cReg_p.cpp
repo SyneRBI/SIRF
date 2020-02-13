@@ -130,18 +130,6 @@ sirf::cReg_setRegistrationParameter(void* hp, const char* name, const void* hv)
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
 }
-// get
-void*
-sirf::cReg_RegistrationParameter(const DataHandle* handle, const char* name)
-{
-    Registration<float>& s = objectFromHandle<Registration<float> >(handle);
-    if (strcmp(name, "output") == 0) {
-        return newObjectHandle(s.get_output_sptr());
-	}
-	else
-		return parameterNotFound(name, __FILE__, __LINE__);
-}
-
 // ------------------------------------------------------------------------------------ //
 //   NiftyRegistration
 // ------------------------------------------------------------------------------------ //

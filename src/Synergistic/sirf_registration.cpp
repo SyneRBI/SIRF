@@ -58,7 +58,7 @@ static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filenam
         return std::move(sptr_img);
     }
     else
-        throw std::runtime_error("Synergistic_aladin: unknown image engine - " + engine + ".\n");
+        throw std::runtime_error("sirf_registration: unknown image engine - " + engine + ".\n");
 }
 //reg,algo,is_affine_or_rigid,algo_str
 static void algo_as_sptr(std::shared_ptr<Registration<float> > &algo_sptr, Algorithm &algo, const std::string &algorithm)
@@ -77,10 +77,10 @@ static void algo_as_sptr(std::shared_ptr<Registration<float> > &algo_sptr, Algor
         algo = SPM12;
     }
 #else
-    throw std::runtime_error("Synergistic_registration: SIRF not built with spm12\n");
+    throw std::runtime_error("sirf_registration: SIRF not built with spm12\n");
 #endif
     else
-        throw std::runtime_error("Synergistic_registration: unknown algorithm - " + algorithm + ".\n");
+        throw std::runtime_error("sirf_registration: unknown algorithm - " + algorithm + ".\n");
 
     std::cout << "\nUsing " << algorithm << " registration algorithm...\n";
 }
@@ -136,6 +136,11 @@ int main(int argc, char* argv[])
         // Ignore executable name
         argc--; argv++;
 
+        if (argc < 2) {
+            print_usage();
+            exit(EXIT_FAILURE);
+        }
+
         // Check for help
         for (unsigned i=0; i<unsigned(argc); ++i) {
             if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
@@ -176,43 +181,43 @@ int main(int argc, char* argv[])
                 argc-=3; argv+=3;
             }
             // warped
-            else if (strcmp(argv[0],"--warped")==0) {
+            else if (strcmp(argv[0],"--warped_prefix")==0) {
                 if (argc<2) throw std::runtime_error("--warped requires an argument");
                 warped_str = argv[1];
                 argc-=2; argv+=2;
             }
             // disp_fwd
-            else if (strcmp(argv[0],"--disp_fwd")==0) {
+            else if (strcmp(argv[0],"--disp_fwd_prefix")==0) {
                 if (argc<2) throw std::runtime_error("--disp_fwd requires an argument");
                 disp_fwd_str = argv[1];
                 argc-=2; argv+=2;
             }
             // disp_inv
-            else if (strcmp(argv[0],"--disp_inv")==0) {
+            else if (strcmp(argv[0],"--disp_inv_prefix")==0) {
                 if (argc<2) throw std::runtime_error("--disp_inv requires an argument");
                 disp_inv_str = argv[1];
                 argc-=2; argv+=2;
             }
             // def_fwd
-            else if (strcmp(argv[0],"--def_fwd")==0) {
+            else if (strcmp(argv[0],"--def_fwd_prefix")==0) {
                 if (argc<2) throw std::runtime_error("--def_fwd requires an argument");
                 def_fwd_str = argv[1];
                 argc-=2; argv+=2;
             }
             // def_inv
-            else if (strcmp(argv[0],"--def_inv")==0) {
+            else if (strcmp(argv[0],"--def_inv_prefix")==0) {
                 if (argc<2) throw std::runtime_error("--def_inv requires an argument");
                 def_inv_str = argv[1];
                 argc-=2; argv+=2;
             }
             // TM_fwd
-            else if (strcmp(argv[0],"--TM_fwd")==0) {
+            else if (strcmp(argv[0],"--TM_fwd_prefix")==0) {
                 if (argc<2) throw std::runtime_error("--TM_fwd requires an argument");
                 TM_fwd_str = argv[1];
                 argc-=2; argv+=2;
             }
             // TM_inv
-            else if (strcmp(argv[0],"--TM_inv")==0) {
+            else if (strcmp(argv[0],"--TM_inv_prefix")==0) {
                 if (argc<2) throw std::runtime_error("--TM_inv requires an argument");
                 TM_inv_str = argv[1];
                 argc-=2; argv+=2;

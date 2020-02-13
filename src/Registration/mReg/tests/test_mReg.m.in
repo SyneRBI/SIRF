@@ -997,12 +997,13 @@ if try_spm12
     % Register with SPM12
     spm12_reg = sirf.Reg.SPM12Registration();
     spm12_reg.set_reference_image(g.ref_aladin);
-    spm12_reg.set_floating_image(floating);
+    spm12_reg.add_floating_image(floating);
+    spm12_reg.add_floating_image(floating);
     spm12_reg.set_working_folder(g.spm12_working_folder);
     spm12_reg.set_working_folder_file_overwrite(true);
     spm12_reg.set_delete_temp_files(false);
     spm12_reg.process();
-    spm_tm = spm12_reg.get_transformation_matrix_forward();
+    spm_tm = spm12_reg.get_transformation_matrix_forward(2);
     spm_inv_tm = spm_tm.get_inverse();
 
     % Check tm roughly equals inverse TM of the resampler
@@ -1026,7 +1027,7 @@ if try_spm12
     % Check differences are less than 1%
     assert(all(diff_euler_angles <= 1), 'SPM12 registration failed (angles).')
     assert(all(diff_translations <= 1), 'SPM12 registration failed (translations).')
-    assert(spm12_reg.get_output() == g.ref_aladin, 'SPM12 registration failed (image difference).')
+    assert(spm12_reg.get_output(2) == g.ref_aladin, 'SPM12 registration failed (image difference).')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished SPM12 test.')

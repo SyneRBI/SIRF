@@ -34,7 +34,6 @@ namespace sirf {
     // Registration
     // ---------------------------------------------------------------------------- //
     void* cReg_setRegistrationParameter(void* hp, const char* name, const void* hv);
-    void* cReg_RegistrationParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // NiftyRegistration

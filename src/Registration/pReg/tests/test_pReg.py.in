@@ -1174,12 +1174,13 @@ def try_spm12():
     # Register with SPM12
     spm12_reg = sirf.Reg.SPM12Registration()
     spm12_reg.set_reference_image(ref_aladin)
-    spm12_reg.set_floating_image(floating)
+    spm12_reg.add_floating_image(floating)
+    spm12_reg.add_floating_image(floating)
     spm12_reg.set_working_folder(spm12_working_folder)
     spm12_reg.set_working_folder_file_overwrite(True)
     spm12_reg.set_delete_temp_files(False)
     spm12_reg.process()
-    spm_tm = spm12_reg.get_transformation_matrix_forward()
+    spm_tm = spm12_reg.get_transformation_matrix_forward(1)
     spm_inv_tm = spm_tm.get_inverse()
 
     # Check tm roughly equals inverse TM of the resampler
@@ -1205,7 +1206,7 @@ def try_spm12():
     if any(diff_translations > 1):
         raise AssertionError("SPM12 registration failed (translations).")
 
-    if spm12_reg.get_output() != ref_aladin:
+    if spm12_reg.get_output(1) != ref_aladin:
         raise AssertionError("SPM12 registration failed (image difference).")
 
     time.sleep(0.5)

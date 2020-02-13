@@ -78,7 +78,10 @@ extern "C" {
 
     // Registration
     void* cReg_Registration_process(void* ptr);
-    void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
+    void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type, const int idx);
+    void* cReg_Registration_add_floating(const void* ptr, const void *im_ptr);
+    void* cReg_Registration_clear_floatings(const void* ptr);
+    void* cReg_Registration_get_output(const void* ptr,const int idx);
 
     // NiftyReg-based registration
     void* cReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
@@ -88,7 +91,7 @@ extern "C" {
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
 
     // SPM methods
-    void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir);
+    void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir, const int idx);
 
     // NiftyResample
     void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);

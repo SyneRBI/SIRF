@@ -45,16 +45,30 @@ classdef (Abstract = true) Registration < handle
             sirf.Reg.setParameter(self.handle_, 'Registration', 'reference_image', input, 'h')
         end
         function set_floating_image(self, input)
-            %Sets the floating image.
+            %Sets the floating image. Will clear any previous floating images.
             assert(isa(input, 'sirf.SIRF.ImageData'))
             sirf.Reg.setParameter(self.handle_, 'Registration', 'floating_image', input, 'h')
         end
-        function output = get_output(self)
-            %Gets the registered image.
+        function add_floating_image(self, input)
+            %Add floating image.
+            assert(isa(input, 'sirf.SIRF.ImageData'))
+            h = calllib('mreg', 'mReg_Registration_add_floating', self.handle_, input.handle_);
+            sirf.Utilities.check_status([self.name ':add_floating_image'], h);
+            sirf.Utilities.delete(h)
+        end
+        function clear_floating_images(self)
+            %Clear floating images.
+            h = calllib('mreg', 'mReg_Registration_clear_floatings', self.handle_);
+            sirf.Utilities.check_status([self.name ':clear_floating_images'], h);
+            sirf.Utilities.delete(h)
+        end
+        function output = get_output(self, idx)
+            %Gets the registered image. 1-based.
             assert(~isempty(self.reference_image) && ~isempty(self.reference_image.handle_))
+            if nargin < 2; idx=1; end
             output = self.reference_image.same_object();
             sirf.Utilities.delete(output.handle_)
-            output.handle_ = calllib('mreg', 'mParameter', self.handle_, 'Registration', 'output');
+            output.handle_ = calllib('mreg', 'mReg_Registration_get_output', self.handle_, round(idx-1));
             sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
         end
         function process(self)
@@ -64,28 +78,32 @@ classdef (Abstract = true) Registration < handle
             sirf.Utilities.check_status([self.name ':process'], h);
             sirf.Utilities.delete(h)
         end
-        function output = get_deformation_field_forward(self)
-            %Gets the forward deformation field image.
+        function output = get_deformation_field_forward(self, idx)
+            %Gets the forward deformation field image. 1-based.
+            if nargin < 2; idx=1; end
             output = sirf.Reg.NiftiImageData3DDeformation();
-            output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'forward_deformation');
+            output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'forward_deformation', round(idx-1));
             sirf.Utilities.check_status([self.name ':get_deformation_field_forward'], output.handle_);
         end
-        function output = get_deformation_field_inverse(self)
-            %Gets the inverse deformation field image.
+        function output = get_deformation_field_inverse(self, idx)
+            %Gets the inverse deformation field image. 1-based.
+            if nargin < 2; idx=1; end
             output = sirf.Reg.NiftiImageData3DDeformation();
-            output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_deformation');
+            output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_deformation', round(idx-1));
             sirf.Utilities.check_status([self.name ':get_deformation_field_inverse'], output.handle_);
         end
-        function output = get_displacement_field_forward(self)
-            %Gets the forward displacement field image.
+        function output = get_displacement_field_forward(self, idx)
+            %Gets the forward displacement field image. 1-based.
+            if nargin < 2; idx=1; end
             output = sirf.Reg.NiftiImageData3DDisplacement();
-            output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'forward_displacement');
+            output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'forward_displacement', round(idx-1));
             sirf.Utilities.check_status([self.name ':get_displacement_field_forward'], output.handle_);
         end
-        function output = get_displacement_field_inverse(self)
-            %Gets the inverse displacement field image.
+        function output = get_displacement_field_inverse(self, idx)
+            %Gets the inverse displacement field image. 1-based.
+            if nargin < 2; idx=1; end
             output = sirf.Reg.NiftiImageData3DDisplacement();
-            output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_displacement');
+            output.handle_ = calllib('mreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_displacement', round(idx-1));
             sirf.Utilities.check_status([self.name ':get_displacement_field_inverse'], output.handle_);
         end
     end

@@ -577,46 +577,57 @@ class _Registration(ABC):
         parms.set_parameter(self.handle, 'Registration', 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
-        """Sets the floating image."""
+        """Sets the floating image. Will clear any previous floating images."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
         parms.set_parameter(self.handle, 'Registration', 'floating_image', floating_image.handle)
 
-    def get_output(self):
+    def add_floating_image(self, floating_image):
+        """Add floating image."""
+        if not isinstance(floating_image, SIRF.ImageData):
+            raise AssertionError()
+        try_calling(pyreg.cReg_Registration_add_floating(self.handle, floating_image.handle))
+
+    def clear_floating_images(self):
+        """Clear floating images."""
+        try_calling(pyreg.cReg_Registration_clear_floatings(self.handle))
+
+    def get_output(self, idx=0):
         """Gets the registered image."""
         output = self.reference_image.same_object()
-        output.handle = parms.parameter_handle(self.handle, 'Registration', 'output')
+        output.handle = pyreg.cReg_Registration_get_output(self.handle, int(idx))
+        check_status(output.handle)
         return output
 
     def process(self):
         """Run the registration"""
         try_calling(pyreg.cReg_Registration_process(self.handle))
 
-    def get_deformation_field_forward(self):
+    def get_deformation_field_forward(self, idx=0):
         """Gets the forward deformation field image."""
         output = NiftiImageData3DDeformation()
-        output.handle = pyreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'forward_deformation')
+        output.handle = pyreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'forward_deformation', int(idx))
         check_status(output.handle)
         return output
 
-    def get_deformation_field_inverse(self):
+    def get_deformation_field_inverse(self, idx=0):
         """Gets the inverse deformation field image."""
         output = NiftiImageData3DDeformation()
-        output.handle = pyreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'inverse_deformation')
+        output.handle = pyreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'inverse_deformation', int(idx))
         check_status(output.handle)
         return output
 
-    def get_displacement_field_forward(self):
+    def get_displacement_field_forward(self, idx=0):
         """Gets the forward displacement field image."""
         output = NiftiImageData3DDisplacement()
-        output.handle = pyreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'forward_displacement')
+        output.handle = pyreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'forward_displacement', int(idx))
         check_status(output.handle)
         return output
 
-    def get_displacement_field_inverse(self):
+    def get_displacement_field_inverse(self, idx=0):
         """Gets the inverse displacement field image."""
         output = NiftiImageData3DDisplacement()
-        output.handle = pyreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'inverse_displacement')
+        output.handle = pyreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'inverse_displacement', int(idx))
         check_status(output.handle)
         return output
 
@@ -743,20 +754,20 @@ if @SPM12_BOOL_STR@:
             if self.handle is not None:
                 pyiutil.deleteDataHandle(self.handle)
 
-        def get_transformation_matrix_forward(self):
+        def get_transformation_matrix_forward(self, idx=0):
             """Get forward transformation matrix."""
             if self.handle is None:
                 raise AssertionError()
             tm = AffineTransformation()
-            tm.handle = pyreg.cReg_SPM12Registration_get_TM(self.handle, 'forward')
+            tm.handle = pyreg.cReg_SPM12Registration_get_TM(self.handle, 'forward', int(idx))
             return tm
 
-        def get_transformation_matrix_inverse(self):
+        def get_transformation_matrix_inverse(self, idx=0):
             """Get inverse transformation matrix."""
             if self.handle is None:
                 raise AssertionError()
             tm = AffineTransformation()
-            tm.handle = pyreg.cReg_SPM12Registration_get_TM(self.handle, 'inverse')
+            tm.handle = pyreg.cReg_SPM12Registration_get_TM(self.handle, 'inverse', int(idx))
             return tm
 
         def set_working_folder(self, working_folder):

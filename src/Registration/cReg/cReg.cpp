@@ -118,8 +118,6 @@ void* parameter(const void* ptr, const char* obj, const char* name)
 		CAST_PTR(DataHandle, handle, ptr);
         if (strcmp(obj, "NiftiImageData") == 0)
             return cReg_NiftiImageDataParameter(handle, name);
-        if (strcmp(obj, "Registration") == 0)
-            return cReg_RegistrationParameter(handle, name);
         if (strcmp(obj, "NiftyResample") == 0)
             return cReg_NiftyResampleParameter(handle, name);
         if (strcmp(obj, "ImageWeightedMean") == 0)
@@ -577,24 +575,45 @@ void* cReg_Registration_process(void* ptr)
     CATCH;
 }
 extern "C"
-void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type)
+void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type, const int idx)
 {
     try {
         Registration<float>& reg = objectFromHandle<Registration<float>>(ptr);
         if (strcmp(transform_type, "forward_deformation") == 0)
-            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_forward_sptr()));
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_forward_sptr(unsigned(idx))));
         else if (strcmp(transform_type, "inverse_deformation") == 0)
-            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_inverse_sptr()));
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_inverse_sptr(unsigned(idx))));
         else if (strcmp(transform_type, "forward_displacement") == 0)
-            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_forward_sptr()));
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_forward_sptr(unsigned(idx))));
         else if (strcmp(transform_type, "inverse_displacement") == 0)
-            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_inverse_sptr()));
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_inverse_sptr(unsigned(idx))));
         else
             throw std::runtime_error("cReg_Registration_get_deformation_displacement_image: Bad return type.");
     }
     CATCH;
 }
-
+extern "C"
+void* cReg_Registration_add_floating(const void* ptr, const void* im_ptr)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    std::shared_ptr<const ImageData> im_sptr;
+    getObjectSptrFromHandle<const ImageData>(im_ptr, im_sptr);
+    reg.add_floating_image(im_sptr);
+    return new DataHandle;
+}
+extern "C"
+void* cReg_Registration_clear_floatings(const void* ptr)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    reg.clear_floating_images();
+    return new DataHandle;
+}
+extern "C"
+void* cReg_Registration_get_output(const void* ptr,const int idx)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    return newObjectHandle(reg.get_output_sptr(unsigned(idx)));
+}
 // -------------------------------------------------------------------------------- //
 //      NiftyRegistration
 // -------------------------------------------------------------------------------- //
@@ -645,16 +664,16 @@ void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir)
 //      SPM12
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir)
+void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir, const int idx)
 {
 #ifdef SIRF_SPM12
     try {
         SPM12Registration<float>& reg = objectFromHandle<SPM12Registration<float> >(ptr);
         std::shared_ptr<const AffineTransformation<float> > sptr;
         if (strcmp(dir, "forward") == 0)
-            sptr = reg.get_transformation_matrix_forward_sptr();
+            sptr = reg.get_transformation_matrix_forward_sptr(unsigned(idx));
         else if (strcmp(dir, "inverse") == 0)
-            sptr = reg.get_transformation_matrix_inverse_sptr();
+            sptr = reg.get_transformation_matrix_inverse_sptr(unsigned(idx));
         else
             throw std::runtime_error("only accept forward or inverse as argument to dir for saving transformation matrix");
         return newObjectHandle(sptr);

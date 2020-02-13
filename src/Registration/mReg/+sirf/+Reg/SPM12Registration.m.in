@@ -35,16 +35,18 @@ classdef SPM12Registration < sirf.Reg.NiftyRegistration
                 self.handle_ = [];
             end
         end
-        function tm = get_transformation_matrix_forward(self)
-            %Get forward transformation matrix.
+        function tm = get_transformation_matrix_forward(self, idx)
+            %Get forward transformation matrix. 1-based.
+            if nargin < 2; idx=1; end
             tm = sirf.Reg.AffineTransformation();
-            tm.handle_ = calllib('mreg', 'mReg_SPM12Registration_get_TM', self.handle_, 'forward');
+            tm.handle_ = calllib('mreg', 'mReg_SPM12Registration_get_TM', self.handle_, 'forward', round(idx-1));
             sirf.Utilities.check_status([self.name ':get_transformation_matrix_forward'], tm.handle_);
         end
-        function tm = get_transformation_matrix_inverse(self)
-            %Get inverse transformation matrix.
+        function tm = get_transformation_matrix_inverse(self, idx)
+            %Get inverse transformation matrix. 1-based.
+            if nargin < 2; idx=1; end
             tm = sirf.Reg.AffineTransformation();
-            tm.handle_ = calllib('mreg', 'mReg_SPM12Registration_get_TM', self.handle_, 'inverse');
+            tm.handle_ = calllib('mreg', 'mReg_SPM12Registration_get_TM', self.handle_, 'inverse', round(idx-1));
             sirf.Utilities.check_status([self.name ':get_transformation_matrix_inverse'], tm.handle_);
         end
         function set_working_folder(self, working_folder)
