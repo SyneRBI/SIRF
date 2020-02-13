@@ -1407,19 +1407,34 @@ CoilDataAsCFImage::set_data(const float* re, const float* im)
 }
 
 void
-CoilDataAsCFImage::write(const ISMRMRD::Image<complex_float_t>* ptr_im, 
-ISMRMRD::Dataset& dataset) const
+CoilDataAsCFImage::write(ISMRMRD::Dataset& dataset) const
 {
 	//std::cout << "appending image..." << std::endl;
-	const ISMRMRD::Image<complex_float_t>& im = *ptr_im;
 	std::stringstream ss;
-	ss << "image_" << im.getHead().image_series_index;
+	ss << "image_" << img_.getHead().image_series_index;
 	std::string image_varname = ss.str();
 	{
 		Mutex mtx;
 		mtx.lock();
-		dataset.appendImage(image_varname, im);
+		dataset.appendImage(image_varname, img_);
 		mtx.unlock();
+	}
+}
+
+void
+CoilDataContainer::write(const std::string &filename) const
+{
+	if (items() < 1)
+		return;
+
+	Mutex mtx;
+	mtx.lock();
+	ISMRMRD::Dataset dataset(filename.c_str(), "dataset");
+	dataset.writeHeader(acqs_info_.c_str());
+	mtx.unlock();
+	for (unsigned int i = 0; i < items(); i++) {
+		DYNAMIC_CAST(const CoilData, ci, (*this)(i));
+		ci.write(dataset);
 	}
 }
 
