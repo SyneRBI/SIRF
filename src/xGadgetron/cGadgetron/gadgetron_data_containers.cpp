@@ -1090,6 +1090,13 @@ GadgetronImageData::set_real_data(const float* z)
 	}
 }
 
+void
+GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
+{
+    acqs_info_ = acqs_info;
+    this->set_up_geom_info();
+}
+
 GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()
@@ -1397,6 +1404,38 @@ CoilDataAsCFImage::set_data(const float* re, const float* im)
 	complex_float_t* ptr = img_.getDataPtr();
 	for (size_t i = 0; i < n; i++)
 		ptr[i] = complex_float_t((float)re[i], (float)im[i]);
+}
+
+void
+CoilDataAsCFImage::write(ISMRMRD::Dataset& dataset) const
+{
+	//std::cout << "appending image..." << std::endl;
+	std::stringstream ss;
+	ss << "image_" << img_.getHead().image_series_index;
+	std::string image_varname = ss.str();
+	{
+		Mutex mtx;
+		mtx.lock();
+		dataset.appendImage(image_varname, img_);
+		mtx.unlock();
+	}
+}
+
+void
+CoilDataContainer::write(const std::string &filename) const
+{
+	if (items() < 1)
+		return;
+
+	Mutex mtx;
+	mtx.lock();
+	ISMRMRD::Dataset dataset(filename.c_str(), "dataset");
+	dataset.writeHeader(acqs_info_.c_str());
+	mtx.unlock();
+	for (unsigned int i = 0; i < items(); i++) {
+		DYNAMIC_CAST(const CoilData, ci, (*this)(i));
+		ci.write(dataset);
+	}
 }
 
 void 

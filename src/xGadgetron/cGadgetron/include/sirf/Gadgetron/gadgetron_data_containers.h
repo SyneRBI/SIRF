@@ -493,7 +493,7 @@ namespace sirf {
 				return i;
 		}
         /// Set the meta data
-        void set_meta_data(const AcquisitionsInfo &acqs_info) { acqs_info_ = acqs_info; }
+        void set_meta_data(const AcquisitionsInfo &acqs_info);
         /// Get the meta data
         const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
 
@@ -817,6 +817,7 @@ namespace sirf {
 		virtual void get_data(complex_float_t* data) const = 0;
 		virtual void set_data(const complex_float_t* data) = 0;
 		virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
+		virtual void write(ISMRMRD::Dataset& dataset) const = 0;
 	};
 
 	/*!
@@ -861,6 +862,7 @@ namespace sirf {
 		{
 			memcpy(img_.getDataPtr(), data, img_.getDataSize());
 		}
+		virtual void write(ISMRMRD::Dataset& dataset) const;
 	private:
 		ISMRMRD::Image < complex_float_t > img_;
 	};
@@ -899,43 +901,38 @@ namespace sirf {
 		{
 			THROW("CoilDataContainer algebra not yet implemented, sorry!");
 		}
-		virtual void write(const std::string &filename) const 
+		virtual void write(const std::string &filename) const;
+//		{
+//			THROW("CoilDataContainer::write not yet implemented, sorry!");
+//		}
+		void get_dim(int slice, int* dim) const
 		{
-			THROW("CoilDataContainer::write not yet implemented, sorry!");
-		}
-		void get_dim(int slice, int* dim) //const
-		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
-			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
+			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
 			ci.get_dim(dim);
 		}
-		void get_data(int slice, float* re, float* im) //const
+		void get_data(int slice, float* re, float* im) const
 		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
-			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
+			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
 			ci.get_data(re, im);
 		}
 		void set_data(int slice, float* re, float* im)
 		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
 			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.set_data(re, im);
 		}
-		void get_data(int slice, complex_float_t* data) //const
+		void get_data(int slice, complex_float_t* data) const
 		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
-			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
+			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
 			ci.get_data(data);
 		}
 		void set_data(int slice, complex_float_t* data)
 		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
 			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.set_data(data);
 		}
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_csm) = 0;
 		virtual CoilData& operator()(int slice) = 0;
-		//virtual const CoilData& operator()(int slice) const = 0;
+		virtual const CoilData& operator()(int slice) const = 0;
 		void set_meta_data(const AcquisitionsInfo &acqs_info) 
 		{ 
 			acqs_info_ = acqs_info; 
@@ -963,6 +960,9 @@ namespace sirf {
 		CoilData& data(int slice) {
 			return *coil_data_[slice];
 		}
+		const CoilData& data(int slice) const {
+			return *coil_data_[slice];
+		}
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
 		{
 			coil_data_.push_back(sptr_cd);
@@ -982,8 +982,6 @@ namespace sirf {
 	*/
 	class CoilImagesContainer : public CoilDataContainer {
 	public:
-		virtual CoilData& operator()(int slice) = 0;
-		virtual unsigned int items() const = 0;
 		virtual void compute(MRAcquisitionData& ac);
 		ISMRMRD::Encoding encoding() const
 		{
@@ -1018,6 +1016,10 @@ namespace sirf {
 		{
 			return data(slice);
 		}
+		virtual const CoilData& operator()(int slice) const
+		{
+			return data(slice);
+		}
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
 		{
 			CoilDataVector::append(sptr_cd);
@@ -1040,8 +1042,6 @@ namespace sirf {
 		{
 			csm_smoothness_ = s;
 		}
-		virtual CoilData& operator()(int slice) = 0;
-		virtual unsigned int items() const = 0;
 
 		virtual void compute(MRAcquisitionData& ac)
 		{
@@ -1116,6 +1116,10 @@ namespace sirf {
 			return CoilDataVector::items();
 		}
 		virtual CoilData& operator()(int slice)
+		{
+			return data(slice);
+		}
+		virtual const CoilData& operator()(int slice) const
 		{
 			return data(slice);
 		}
