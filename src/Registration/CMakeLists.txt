@@ -18,6 +18,13 @@
 
 # Have we got SPM12? (only works with Matlab)
 if (BUILD_MATLAB)
+	# if on linux, engine is in funny place
+	if("${CMAKE_SYSTEM}" MATCHES "Linux")
+		list(APPEND Matlab_LIBRARIES 
+			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so" 
+			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so")
+	endif()
+
 	find_package(SPM12 QUIET)
 	if(SPM12_FOUND)
 		MESSAGE(STATUS "SPM12 found")
