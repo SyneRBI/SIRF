@@ -764,7 +764,7 @@ namespace sirf {
         /// Clone helper function. Don't use.
         virtual STIRImageData* clone_impl() const
         {
-            return new STIRImageData(*this->data().clone());
+            return new STIRImageData(*this);
         }
 
 	protected:
