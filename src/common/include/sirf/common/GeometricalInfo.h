@@ -83,7 +83,7 @@ public:
 		const Size& _size, const DirectionMatrix& _direction);
 	virtual ~VoxelisedGeometricalInfo() {};
 
-	virtual bool operator==(const GeometricalInfo& gi)
+	virtual bool operator==(const GeometricalInfo<num_dimensions, num_dimensions>& gi)
 	{
 		const VoxelisedGeometricalInfo& vgi = (const VoxelisedGeometricalInfo&)gi;
 		return
@@ -92,8 +92,9 @@ public:
 			_size == vgi.get_size() &&
 			_direction == vgi.get_direction();
 	}
-	virtual bool operator!=(const GeometricalInfo& vgi)
+	virtual bool operator!=(const GeometricalInfo<num_dimensions, num_dimensions>& gi)
 	{
+		const VoxelisedGeometricalInfo& vgi = (const VoxelisedGeometricalInfo&)gi;
 		return !(*this == vgi);
 	}
     const Offset get_offset() const;
