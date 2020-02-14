@@ -34,7 +34,9 @@ public:
 	// Coordinate transform_index_to_physical_point(Index)
 	// Index transform_physical_point_to_index(Coordinate)
 
-    /// Print info
+	virtual bool operator==(const GeometricalInfo& vgi) = 0;
+	virtual bool operator!=(const GeometricalInfo& vgi) = 0;
+	/// Print info
     virtual void print_info() const = 0;
 };
 
@@ -81,6 +83,19 @@ public:
 		const Size& _size, const DirectionMatrix& _direction);
 	virtual ~VoxelisedGeometricalInfo() {};
 
+	virtual bool operator==(const GeometricalInfo& gi)
+	{
+		const VoxelisedGeometricalInfo& vgi = (const VoxelisedGeometricalInfo&)gi;
+		return
+			_offset == vgi.get_offset() &&
+			_spacing == vgi.get_spacing() &&
+			_size == vgi.get_size() &&
+			_direction == vgi.get_direction();
+	}
+	virtual bool operator!=(const GeometricalInfo& vgi)
+	{
+		return !(*this == vgi);
+	}
     const Offset get_offset() const;
     const Spacing get_spacing() const;
     const Size get_size() const;
