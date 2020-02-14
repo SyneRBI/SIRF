@@ -71,14 +71,14 @@ static void algo_as_sptr(std::shared_ptr<Registration<float> > &algo_sptr, Algor
         algo_sptr = std::make_shared<NiftyF3dSym<float> >();
         algo = F3d;
     }
-#ifdef SIRF_SPM12
     else if (strcmp(algorithm.c_str(), "spm12") == 0) {
+#ifdef SIRF_SPM12
         algo_sptr = std::make_shared<SPM12Registration<float> >();
         algo = SPM12;
-    }
 #else
-    throw std::runtime_error("sirf_registration: SIRF not built with spm12\n");
+        throw std::runtime_error("sirf_registration: SIRF not built with spm12\n");
 #endif
+    }
     else
         throw std::runtime_error("sirf_registration: unknown algorithm - " + algorithm + ".\n");
 
