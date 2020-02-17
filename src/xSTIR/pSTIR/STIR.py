@@ -229,8 +229,6 @@ class ImageData(SIRF.ImageData):
         self.rimsize = -1
     def __del__(self):
         '''Deallocates this ImageData object.'''
-        print(" STIR.ImageData __del__ with handle {}.".format(self.handle))
-        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def same_object(self):
