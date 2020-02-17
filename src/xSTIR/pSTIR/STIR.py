@@ -1826,7 +1826,7 @@ class FBP2DReconstructor(object):
         '''
         try_calling(pystir.cSTIR_setupFBP2DReconstruction \
                     (self.handle, image.handle))
-    def reconstruct(self):
+    def process(self):
         '''Performs reconstruction.
         '''
         try_calling(pystir.cSTIR_runFBP2DReconstruction(self.handle))
