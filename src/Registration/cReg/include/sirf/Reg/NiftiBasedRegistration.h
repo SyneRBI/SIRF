@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Base class for all NiftyReg registrations.
+\brief Base class for all NIfTI-based registrations.
 
 \author Richard Brown
 \author CCP PETMR
@@ -38,7 +38,7 @@ template<class dataType> class NiftiImageData3D;
 
 /*!
 \ingroup Registration
-\brief Base class for all NiftyReg registrations.
+\brief Base class for all NIfTI-based registrations.
 
 \author Richard Brown
 \author CCP PETMR
