@@ -161,8 +161,6 @@ class NiftiImageData(SIRF.ImageData):
         check_status(self.handle)
 
     def __del__(self):
-        print("Reg.NiftiImageData __del__ with handle {}.".format(self.handle))
-        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -400,8 +398,6 @@ class NiftiImageData3D(NiftiImageData):
         check_status(self.handle)
 
     def __del__(self):
-        print("Reg.NiftiImageDat3D __del__ with handle {}.".format(self.handle))
-        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -430,8 +426,6 @@ class NiftiImageData3DTensor(NiftiImageData):
         check_status(self.handle)
 
     def __del__(self):
-        print("Reg.NiftiImageData3DTensor __del__ with handle {}.".format(self.handle))
-        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -482,8 +476,6 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
         check_status(self.handle)
 
     def __del__(self):
-        print("Reg.NiftiImageData3DDisplacement __del__ with handle {}.".format(self.handle))
-        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -510,8 +502,6 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         check_status(self.handle)
 
     def __del__(self):
-        print("Reg.NiftiImageData3DDeformation __del__ with handle {}.".format(self.handle))
-        
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -702,7 +692,6 @@ class NiftyF3dSym(_Registration):
         check_status(self.handle)
 
     def __del__(self):
-        print ("NiftyResample __del__ handle {}".format(self.handle))
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -896,7 +885,6 @@ class ImageWeightedMean(object):
         check_status(self.handle)
 
     def __del__(self):
-        print ("AffineTransformation __del__ handle {}".format(self.handle))
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
