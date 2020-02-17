@@ -2,7 +2,7 @@ classdef NiftyF3dSym < sirf.Reg.NiftyRegistration
 % Registration class using NiftyReg's symmetric f3d.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018-2019 University College London
+% Copyright 2018-2020 University College London
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging

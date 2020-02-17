@@ -1,4 +1,4 @@
-# Copyright 2019 University College London
+# Copyright 2020 University College London
 
 # This file is part of SIRF.
 #
