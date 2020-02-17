@@ -79,8 +79,31 @@ namespace sirf {
 				*dst = *src;
         }
         /// Write image to file
-        virtual void write(const std::string &filename) const = 0;
-        /// Get geometrical info
+        //virtual void write(const std::string &filename) const = 0;
+		bool operator==(const ImageData& id)
+		{
+			GeometricalInfo<3, 3>& gi_self = (GeometricalInfo<3, 3>&)*get_geom_info_sptr();
+			GeometricalInfo<3, 3>& gi_other = (GeometricalInfo<3, 3>&)*id.get_geom_info_sptr();
+			if (gi_self != gi_other)
+				return false;
+			complex_float_t a(1.0, 0.0);
+			complex_float_t b(-1.0, 0.0);
+			DataContainer& x = (DataContainer&)*this;
+			DataContainer& y = (DataContainer&)id;
+			ObjectHandle<DataContainer>* ptr_diff = new_data_container_handle();
+			DataContainer& diff = objectFromHandle<DataContainer>(ptr_diff);
+			diff.axpby(&a, x, &b, y);
+			float s = diff.norm();
+			float t = x.norm();
+			bool same = (s <= 1e-3*t);
+			delete ptr_diff;
+			return same;
+		}
+		bool operator!=(const ImageData& id)
+		{
+			return !(*this == id);
+		}
+		/// Get geometrical info
         std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info_sptr() const
         {
             // If the geometrical info has not been created yet, throw an error
