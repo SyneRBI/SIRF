@@ -21,8 +21,8 @@ limitations under the License.
 
 /*!
 \file
-\ingroup SIRF C++ Utilities
-\brief C++ utilities.
+\ingroup SIRF C++ Synergistic Utilities
+\brief C++ synergistic utilities.
 
 \author Richard Brown
 \author Evgueni Ovtchinnikov
@@ -57,5 +57,10 @@ ImageDataWrap::ImageDataWrap(const std::string &filename, const std::string &eng
         throw std::runtime_error("unknown engine - " + engine + ".\n");
 
     // If verbose print geom info
-    if (verbose) img_sptr_->get_geom_info_sptr()->print_info();
+	if (verbose) {
+		std::shared_ptr<const VoxelisedGeometricalInfo3D > gi_sptr =
+			img_sptr_->get_geom_info_sptr();
+		if (gi_sptr.get())
+			gi_sptr->print_info();
+	}
 }

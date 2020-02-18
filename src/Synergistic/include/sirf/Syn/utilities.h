@@ -21,8 +21,8 @@ limitations under the License.
 
 /*!
 \file
-\ingroup SIRF C++ Utilities
-\brief C++ utilities.
+\ingroup SIRF C++ Synergistic Utilities
+\brief C++ synergistic utilities.
 
 \author Evgueni Ovtchinnikov
 \author CCP PETMR
