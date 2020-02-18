@@ -63,6 +63,11 @@ else()
       SET(NR_libs_full_path "${NR_libs_full_path};OpenMP::OpenMP_CXX")
     endif()
   endif()
+  # If niftyreg was bulit with CUDA
+  if (NIFTYREG_BUILT_WITH_CUDA)
+    find_package(CUDA REQUIRED)
+    SET(NR_libs_full_path "${NR_libs_full_path};${CUDA_CUDA_LIBRARY};${CUDA_CUDART_LIBRARY}")
+  endif()
   ADD_SUBDIRECTORY(Registration)
 endif()
 
