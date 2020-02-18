@@ -102,7 +102,7 @@ namespace sirf {
 				s += std::abs(zx*zx);
 			}
 			float t = std::max(sx, sy);
-			bool same = (s <= 1e-3*t);
+			bool same = (s <= 1e-6*t);
 			return same;
 		}
 		bool operator!=(const ImageData& id) const
