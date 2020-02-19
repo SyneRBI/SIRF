@@ -52,4 +52,10 @@ int main(int argc, char* argv[])
 	std::cout << "converting " << eng_in.c_str() << " image to "
 		<< eng_out.c_str() << " image...\n";
 	ImageDataWrap imw(filename, eng_in, true);
+	const ImageData& im_in = imw.data();
+	std::cout << "ok\n";
+	if (eng_out == std::string("Reg")) {
+		NiftiImageData3D<float> im(im_in);
+		std::cout << (im == im_in) << '\n';
+	}
 }
