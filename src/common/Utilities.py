@@ -379,15 +379,25 @@ def try_calling(returned_handle):
     pyiutil.deleteDataHandle(returned_handle)
 
 
-def assert_validity(object, type):
-    assert isinstance(object, type)
-    assert object.handle is not None
+def assert_validity(obj, dtype):
+    try:
+        assert isinstance(obj, dtype)
+    except AssertionError as ae:
+        raise AssertionError('Expecting object of type {}, got {}'.format(type(obj), dtype))
+    if obj.handle is None:
+        raise AssertionError('object handle is None.')
 
 
 def assert_validities(x, y):
-    assert type(x) == type(y)
-    assert x.handle is not None
-    assert y.handle is not None
+    try:
+        assert type(x) == type(y)
+    except AssertionError as ae:
+        raise AssertionError('Expecting same type input, got {} and {}'.format(type(x), 
+                                                                               type(y)))
+    if x.handle is None:
+        raise AssertionError('handle for first parameter is None')
+    if y.handle is None:
+        raise AssertionError('handle for second parameter is None')
 
 
 def label_and_name(g):
