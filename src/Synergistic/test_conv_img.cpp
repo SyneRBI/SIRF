@@ -31,31 +31,23 @@ using namespace sirf;
 
 int main(int argc, char* argv[])
 {
-	if (argc < 3) {
-		std::cout << "usage: test_conv_img <filename> <engine>\n";
+	if (argc < 4) {
+		std::cout << "usage: test_conv_img <filename> <engine_in> <engine_out>\n";
 		return 1;
 	}
 	std::string filename(argv[1]);
-	std::string eng_out(argv[2]);
-	std::string eng_in;
-	int len = filename.size();
-	if (filename.substr(len - 3, 3) == std::string(".h5"))
-		eng_in = "Gadgetron";
-	else if (filename.substr(len - 3, 3) == std::string(".hv"))
-		eng_in = "STIR";
-	else if (filename.substr(len - 4, 4) == std::string(".nii"))
-		eng_in = "Reg";
-	else {
-		std::cout << "unknown file format\n";
-		return 1;
-	}
+	std::string eng_in(argv[2]);
+	std::string eng_out(argv[3]);
+	std::cout << "creating " << eng_in.c_str() << " image\n";
+	ImageDataWrap imw(filename, eng_in, true);
 	std::cout << "converting " << eng_in.c_str() << " image to "
 		<< eng_out.c_str() << " image...\n";
-	ImageDataWrap imw(filename, eng_in, true);
 	const ImageData& im_in = imw.data();
-	std::cout << "ok\n";
 	if (eng_out == std::string("Reg")) {
-		NiftiImageData3D<float> im(im_in);
-		std::cout << (im == im_in) << '\n';
+		NiftiImageData3D<float> im_out(im_in);
+		if (im_out == im_in)
+			std::cout << "images are identical\n";
+		else
+			std::cout << "images are not identical\n";
 	}
 }
