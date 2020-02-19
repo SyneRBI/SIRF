@@ -18,21 +18,6 @@
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Executables
-SET(SYN_executables
-    sirf_registration
-    sirf_do_images_match
-    sirf_resample
-    sirf_convert_image_type
-    )
-
-FOREACH(elem ${SYN_executables})
-    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
-    TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron Reg utilities)
-    INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-ENDFOREACH(elem ${SYN_executables})
-
-ADD_SUBDIRECTORY(cSyn)
-
-# Tests
-ADD_SUBDIRECTORY(tests)
+ADD_EXECUTABLE(test_conv_img test_conv_img.cpp ${STIR_REGISTRIES})
+TARGET_LINK_LIBRARIES(test_conv_img LINK_PUBLIC csirf iutilities cstir cgadgetron Reg utilities)
+INSTALL(TARGETS test_conv_img DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
