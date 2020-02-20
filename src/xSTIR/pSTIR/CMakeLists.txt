@@ -23,6 +23,14 @@ if(BUILD_PYTHON)
   endif()
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
+  # Modify STR.py depending on presence of NiftyPET
+  if(STIR_WITH_NIFTYPET_PROJECTOR)
+    set(STIR_WITH_NIFTYPET_PROJECTOR_PY "True")
+  else()
+    set(STIR_WITH_NIFTYPET_PROJECTOR_PY "False")
+  endif()
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/STIR.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/STIR.py")
+
   FIND_PACKAGE(SWIG REQUIRED)
   INCLUDE("${SWIG_USE_FILE}")
 

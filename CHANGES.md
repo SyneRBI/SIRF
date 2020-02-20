@@ -12,6 +12,7 @@
 	* `out = backward(in)` <- alias for adjoint
 	* `backward(out, in)` <- alias for adjoint
 * Inverse deformation images. Inverse displacements are also possible by converting to and from deformations.
+* NiftyPET projector wrapped (if STIR is built with NiftyPET)
 
 ## v2.1.0
 

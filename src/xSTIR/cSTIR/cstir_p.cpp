@@ -286,6 +286,20 @@ sirf::cSTIR_setAcqModUsingMatrixParameter
 	return new DataHandle;
 }
 
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+void*
+sirf::cSTIR_setAcqModUsingNiftyPETParameter
+(DataHandle* hm, const char* name, const DataHandle* hv)
+{
+    AcqModUsingNiftyPET3DF& am = objectFromHandle<AcqModUsingNiftyPET3DF>(hm);
+    if (boost::iequals(name, "cuda_verbosity"))
+        am.set_cuda_verbosity(dataFromHandle<int>((void*)hv));
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+    return new DataHandle;
+}
+#endif
+
 void*
 sirf::cSTIR_acqModUsingMatrixParameter
 (DataHandle* hm, const char* name)

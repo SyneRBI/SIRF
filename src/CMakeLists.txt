@@ -82,6 +82,10 @@ if (DISABLE_STIR)
 else()
   find_package(STIR 4.0.0 REQUIRED)
   ADD_SUBDIRECTORY(xSTIR)
+  if (STIR_WITH_NIFTYPET_PROJECTOR)
+  	message(STATUS "STIR was built with NiftyPET, GPU projectors will be enabled.")
+    add_compile_definitions(STIR_WITH_NIFTYPET_PROJECTOR)
+  endif()
 endif()
 
 
