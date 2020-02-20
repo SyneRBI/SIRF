@@ -448,6 +448,29 @@ The actual algorithm is described in
 	typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
 	typedef stir::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
 
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+    /*!
+    \ingroup STIR Extensions
+    \brief NiftyPET implementation of the PET acquisition model.
+    */
+
+    class PETAcquisitionModelUsingNiftyPET : public PETAcquisitionModel {
+    public:
+        PETAcquisitionModelUsingNiftyPET()
+        {
+            _niftypet_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
+            this->sptr_projectors_ = _niftypet_projector_pair_sptr;
+        }
+        void set_cuda_verbosity(const bool verbosity) const
+        {
+            _niftypet_projector_pair_sptr->set_verbosity(verbosity);
+        }
+    protected:
+        stir::shared_ptr<ProjectorPairUsingNiftyPET> _niftypet_projector_pair_sptr;
+    };
+    typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
+#endif
+
 	/*!
 	\ingroup STIR Extensions
 	\brief Attenuation model.

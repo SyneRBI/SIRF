@@ -1380,6 +1380,35 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         '''
         return self.get_matrix().get_num_tangential_LORs()
 
+
+if @STIR_WITH_NIFTYPET_PROJECTOR_PY@:
+    class AcquisitionModelUsingNiftyPET(AcquisitionModel):
+        """
+        Class for a PET acquisition model that uses (implicitly) the NiftyPET projector
+        for G in (F) - see AcquisitionModel class.
+        """
+        def __init__(self):
+            """
+            Creates an AcquisitionModelUsingNiftyPET object
+            """
+            self.handle = None
+            self.name = 'AcqModUsingNiftyPET'
+            self.handle = pystir.cSTIR_newObject(self.name)
+            check_status(self.handle)
+
+        def __del__(self):
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+
+        def set_cuda_verbosity(self, verbosity):
+            """Set the verbosity of the CUDA code"""
+            if verbosity:
+                v = 1
+            else:
+                v = 0
+            parms.set_int_par(self.handle, self.name, 'cuda_verbosity', v)
+
+
 class Prior(object):
     '''
     Class for objects handling the prior: a penalty term to be added to the
