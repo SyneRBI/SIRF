@@ -20,6 +20,16 @@ if(BUILD_MATLAB)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
+  if (STIR_WITH_NIFTYPET_PROJECTOR)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+STIR/AcquisitionModelUsingNiftyPET.m.in" 
+      "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+STIR/AcquisitionModelUsingNiftyPET.m"
+      COPYONLY)
+  else()
+  	FILE(REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+STIR/AcquisitionModelUsingNiftyPET.m")
+  	IF (EXISTS "${MATLAB_DEST}/+sirf/+STIR/AcquisitionModelUsingNiftyPET.m")
+  		FILE(REMOVE "${MATLAB_DEST}/+sirf/+STIR/AcquisitionModelUsingNiftyPET.m")
+  endif()
+
   add_library(mstir SHARED mstir.c printer.cpp  ${STIR_REGISTRIES})
   target_include_directories(mstir PUBLIC ${Matlab_INCLUDE_DIRS})
   # fix output name and link flags

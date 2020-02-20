@@ -279,6 +279,7 @@ coverage.xml
 # Dont track NiftyAladinSym.cpp/NiftyF3dSym.cpp as they are generated with CMake's configure_file
 NiftyAladinSym.cpp
 NiftyF3dSym.cpp
+src/xSTIR/mSTIR/\+sirf/\+STIR/AcquisitionModelUsingNiftyPET.m
 
 # Ignore files created by Pycharm
 \.idea/

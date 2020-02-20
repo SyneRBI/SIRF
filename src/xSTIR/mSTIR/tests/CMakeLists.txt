@@ -31,3 +31,11 @@ matlab_add_unit_test(NAME PET_TESTS_MATLAB
     UNITTEST_FILE test_all.m
     ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
     NO_UNITTEST_FRAMEWORK)
+
+# Only test the NiftyPET python wrapper if STIR has been built with NiftyPET
+if (STIR_WITH_NIFTYPET_PROJECTOR)
+	matlab_add_unit_test(NAME PET_TESTS_MATLAB_NIFTYPET
+	    UNITTEST_FILE test_niftypet.m
+	    ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
+	    NO_UNITTEST_FRAMEWORK)
+endif()
