@@ -279,7 +279,7 @@ coverage.xml
 # Dont track automatically generated files
 NiftyAladinSym.cpp
 NiftyF3dSym.cpp
-src/xSTIR/pSTIR/STIR.py.in
+src/xSTIR/pSTIR/STIR.py
 src/xSTIR/pSTIR/tests/tests_niftypet.py
 
 # Ignore files created by Pycharm
