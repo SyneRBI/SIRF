@@ -61,25 +61,46 @@ static void check_folder_exists_if_not_create(const std::string &path)
 template<class dataType>
 NiftiImageData<dataType>::NiftiImageData(const NiftiImageData<dataType>& to_copy)
 {
-    copy_nifti_image(_nifti_image,to_copy._nifti_image);
-    this->_data = static_cast<float*>(_nifti_image->data);
-    this->_original_datatype = to_copy._original_datatype;
-    set_up_geom_info();
+    *this = dynamic_cast<const ImageData&>(to_copy);
 }
 
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const NiftiImageData<dataType>& to_copy)
 {
+    *this = dynamic_cast<const ImageData&>(to_copy);
+    return *this;
+}
+
+template<class dataType>
+NiftiImageData<dataType>::NiftiImageData(const ImageData& to_copy)
+{
+    *this = to_copy;
+}
+
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData& to_copy)
+{
     // Check for self-assignment
     if (this != &to_copy) {
-        // Check the image is copyable
-        if (!to_copy.is_initialised())
-            throw std::runtime_error("Trying to copy an uninitialised image.");
-        // Copy
-        copy_nifti_image(_nifti_image,to_copy._nifti_image);
-        this->_data = static_cast<float*>(_nifti_image->data);
-        this->_original_datatype = to_copy._original_datatype;
-        set_up_geom_info();
+        // Try to cast to NiftiImageData.
+        const NiftiImageData<dataType> * const nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
+        if (nii_ptr) {
+            // Check the image is copyable
+            if (!nii_ptr->is_initialised())
+                throw std::runtime_error("Trying to copy an uninitialised image.");
+
+            copy_nifti_image(_nifti_image,nii_ptr->_nifti_image);
+            this->_data = static_cast<float*>(_nifti_image->data);
+            this->_original_datatype = nii_ptr->_original_datatype;
+            set_up_geom_info();
+        }
+        else {
+            this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*to_copy.get_geom_info_sptr());
+            // Always float
+            this->set_up_data(NIFTI_TYPE_FLOAT32);
+            // Finally, copy the data
+            this->copy(to_copy.begin(), this->begin(), this->end());
+        }
     }
     return *this;
 }
@@ -97,18 +118,6 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
     copy_nifti_image(_nifti_image,std::make_shared<nifti_image>(image_nifti));
     reg_checkAndCorrectDimension(_nifti_image.get());
     set_up_data(_nifti_image->datatype);
-}
-
-template<class dataType>
-NiftiImageData<dataType>::NiftiImageData(const ImageData& id)
-{
-    this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*id.get_geom_info_sptr());
-
-    // Always float
-    this->set_up_data(NIFTI_TYPE_FLOAT32);
-
-    // Finally, copy the data
-    this->copy(id.begin(), this->begin(), this->end());
 }
 
 template<class dataType>

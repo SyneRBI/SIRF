@@ -163,6 +163,12 @@ public:
     /// Assignment
     NiftiImageData& operator=(const NiftiImageData& to_copy);
 
+    /// Copy constructor
+    NiftiImageData(const ImageData& to_copy);
+
+    /// Assignment
+    NiftiImageData& operator=(const ImageData& to_copy);
+
     /// Filename constructor
     NiftiImageData(const std::string &filename);
 
@@ -200,9 +206,6 @@ public:
         for (unsigned i=0; i<_nifti_image->nvox; ++i)
             this->_data[i] = dataType(data[i]);
     }
-
-    /// Construct from any other image data (e.g., STIRImageData)
-    NiftiImageData(const ImageData& id);
 
     /// Create NiftiImageData from geometrical info
     static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
