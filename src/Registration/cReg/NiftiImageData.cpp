@@ -193,23 +193,37 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr)
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr)
+{
+    // Create image from input
+    out_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
+
+    ImageData::Iterator_const &it_in = in_sptr->begin();
+    typename NiftiImageData<dataType>::Iterator it_out = out_sptr->begin();
+    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+        *it_out = (*it_in).complex_float().real();
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr)
 {
     if (!in_sptr->is_complex())
         std::cout << "\nNiftiImageData<dataType>::construct_NiftiImageData_from_complex_im. Warning, input image is not complex. Complex component will be empty\n";
 
     // Create image from input
-    out_real_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
-    out_imag_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
+    out_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
 
     ImageData::Iterator_const &it_in = in_sptr->begin();
-    typename NiftiImageData<dataType>::Iterator it_real = out_real_sptr->begin();
-    typename NiftiImageData<dataType>::Iterator it_imag = out_imag_sptr->begin();
+    typename NiftiImageData<dataType>::Iterator it_out = out_sptr->begin();
+    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+        *it_out = (*it_in).complex_float().imag();
+}
 
-    for (; it_in!=in_sptr->end(); ++it_in, ++it_real, ++it_imag) {
-        *it_real = (*it_in).complex_float().real();
-        *it_imag = (*it_in).complex_float().imag();
-    }
+template<class dataType>
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr)
+{
+    construct_NiftiImageData_from_complex_im_real_component(out_real_sptr,in_sptr);
+    construct_NiftiImageData_from_complex_im_imag_component(out_imag_sptr,in_sptr);
 }
 
 template<class dataType>

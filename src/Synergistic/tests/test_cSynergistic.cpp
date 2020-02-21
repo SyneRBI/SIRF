@@ -184,14 +184,18 @@ int main(int argc, char* argv[])
             res_complex.set_floating_image(ismrmrd_im_sptr);
             res_complex.set_interpolation_type_to_linear();
             res_complex.add_transformation(tm_sptr);
-            std::shared_ptr<ImageData> resampled_cplx_sptr = res_complex.forward(ismrmrd_im_sptr);
+            std::shared_ptr<ImageData> forward_cplx_sptr = res_complex.forward(ismrmrd_im_sptr);
+            std::shared_ptr<ImageData> adjoint_cplx_sptr = res_complex.adjoint(ismrmrd_im_sptr);
 
             // Get the output
-            std::shared_ptr<NiftiImageData<float> > resampled_cplx_real_sptr, resampled_cplx_imag_sptr;
-            NiftiImageData<float>::construct_NiftiImageData_from_complex_im(resampled_cplx_real_sptr,resampled_cplx_imag_sptr,resampled_cplx_sptr);
+            std::shared_ptr<NiftiImageData<float> > forward_cplx_real_sptr, forward_cplx_imag_sptr, adjoint_cplx_real_sptr, adjoint_cplx_imag_sptr;
+            NiftiImageData<float>::construct_NiftiImageData_from_complex_im(forward_cplx_real_sptr,forward_cplx_imag_sptr,forward_cplx_sptr);
+            NiftiImageData<float>::construct_NiftiImageData_from_complex_im(adjoint_cplx_real_sptr,adjoint_cplx_imag_sptr,adjoint_cplx_sptr);
 
-            resampled_cplx_real_sptr->write("results/res_cplx_real");
-            resampled_cplx_imag_sptr->write("results/res_cplx_imag");
+            forward_cplx_real_sptr->write("results/forward_cplx_real");
+            forward_cplx_imag_sptr->write("results/forward_cplx_imag");
+            adjoint_cplx_real_sptr->write("results/adjoint_cplx_real");
+            adjoint_cplx_imag_sptr->write("results/adjoint_cplx_imag");
 
             // Now resample each of the components individually
             NiftyResample<float> res_real;
@@ -199,25 +203,29 @@ int main(int argc, char* argv[])
             res_real.set_floating_image(real_sptr);
             res_real.set_interpolation_type_to_linear();
             res_real.add_transformation(tm_sptr);
-            std::shared_ptr<NiftiImageData<float> > resampled_real_sptr =
+            std::shared_ptr<NiftiImageData<float> > forward_real_sptr =
                     std::dynamic_pointer_cast<NiftiImageData<float> >(res_real.forward(real_sptr));
+            std::shared_ptr<NiftiImageData<float> > adjoint_real_sptr =
+                    std::dynamic_pointer_cast<NiftiImageData<float> >(res_real.adjoint(real_sptr));
 
             NiftyResample<float> res_imag;
             res_imag.set_reference_image(imag_sptr);
             res_imag.set_floating_image(imag_sptr);
             res_imag.set_interpolation_type_to_linear();
             res_imag.add_transformation(tm_sptr);
-            std::shared_ptr<NiftiImageData<float> > resampled_imag_sptr =
+            std::shared_ptr<NiftiImageData<float> > forward_imag_sptr =
                     std::dynamic_pointer_cast<NiftiImageData<float> >(res_imag.forward(imag_sptr));
-
-            resampled_real_sptr->write("results/res_real");
-            resampled_imag_sptr->write("results/res_imag");
+            std::shared_ptr<NiftiImageData<float> > adjoint_imag_sptr =
+                    std::dynamic_pointer_cast<NiftiImageData<float> >(res_imag.adjoint(imag_sptr));
 
             // Compare that the real and imaginary parts match regardless
             // of whether they were resampled separately or together.
-            if (*resampled_real_sptr != *resampled_cplx_real_sptr
-                    || *resampled_imag_sptr != *resampled_cplx_imag_sptr)
-                throw std::runtime_error("NiftyResample failed for complex data");
+            if (*forward_real_sptr != *forward_cplx_real_sptr
+                    || *forward_imag_sptr != *forward_cplx_imag_sptr)
+                throw std::runtime_error("NiftyResample forward failed for complex data");
+            if (*adjoint_real_sptr != *adjoint_cplx_real_sptr
+                    || *adjoint_imag_sptr != *adjoint_cplx_imag_sptr)
+                throw std::runtime_error("NiftyResample adjoint failed for complex data");
 
             std::cout << "// ----------------------------------------------------------------------- //\n";
             std::cout << "//                  Finished complex resampler test.\n";

@@ -21,8 +21,6 @@ Object-Oriented wrap for the cReg-to-Python interface pyreg.py
 
 import abc
 import sys
-import time
-import numbers
 import deprecation
 
 from pUtilities import *
@@ -31,12 +29,6 @@ import pyiutilities as pyiutil
 import pyreg
 
 import sirf.Reg_params as parms
-
-
-try:
-    input_ = raw_input
-except NameError:
-    pass
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -385,7 +377,8 @@ class NiftiImageData(SIRF.ImageData):
             raise AssertionError()
         im_real = NiftiImageData()
         im_imag = NiftiImageData()
-        try_calling(pyreg.cReg_NiftiImageData_2_from_complex_ImageData(im_real.handle, im_imag.handle, complex_im.handle))
+        im_real.handle = pyreg.cReg_NiftiImageData_from_complex_ImageData_real_component(complex_im.handle)
+        im_imag.handle = pyreg.cReg_NiftiImageData_from_complex_ImageData_imag_component(complex_im.handle)
         return [im_real, im_imag]
 
     @staticmethod
@@ -396,7 +389,7 @@ class NiftiImageData(SIRF.ImageData):
         if im1.handle is None or im2.handle is None:
             error('Cannot compare images as at least one is uninitialised')
         h = pyreg.cReg_NiftiImageData_are_equal_to_given_accuracy(im1.handle, im2.handle, float(accuracy))
-        check_status(h)
+        check_status(h, inspect.stack()[1])
         value = pyiutil.intDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
         return value

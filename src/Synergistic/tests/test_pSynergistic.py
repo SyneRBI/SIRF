@@ -140,7 +140,7 @@ def try_complex_resample(raw_mr_filename):
     tm = reg.AffineTransformation()
     tm_ = tm.as_array()
     tm_[0][3] = 2.
-    tm = reg.AffineTransformation(tm)
+    tm = reg.AffineTransformation(tm_)
 
     # Resample the complex data
     res_complex = reg.NiftyResample()
@@ -148,13 +148,19 @@ def try_complex_resample(raw_mr_filename):
     res_complex.set_floating_image(ismrmrd_im)
     res_complex.set_interpolation_type_to_linear()
     res_complex.add_transformation(tm)
-    resampled_cplx_sptr = res_complex.forward(ismrmrd_im)
+    forward_cplx_sptr = res_complex.forward(ismrmrd_im)
+    adjoint_cplx_sptr = res_complex.adjoint(ismrmrd_im)
 
     # Get the output
-    [resampled_cplx_real, resampled_cplx_imag] = reg.ImageData.construct_NiftiImageData_from_complex_im(resampled_cplx_sptr)
+    [forward_cplx_real, forward_cplx_imag] = \
+        reg.ImageData.construct_from_complex_image(forward_cplx_sptr)
+    [adjoint_cplx_real, adjoint_cplx_imag] = \
+        reg.ImageData.construct_from_complex_image(adjoint_cplx_sptr)
 
-    resampled_cplx_real.write("results/res_cplx_real")
-    resampled_cplx_imag.write("results/res_cplx_imag")
+    forward_cplx_real.write("results/forward_cplx_real")
+    forward_cplx_imag.write("results/forward_cplx_imag")
+    adjoint_cplx_real.write("results/adjoint_cplx_real")
+    adjoint_cplx_imag.write("results/adjoint_cplx_imag")
 
     # Now resample each of the components individually
     res_real = reg.NiftyResample()
@@ -162,23 +168,28 @@ def try_complex_resample(raw_mr_filename):
     res_real.set_floating_image(real)
     res_real.set_interpolation_type_to_linear()
     res_real.add_transformation(tm)
-    resampled_real = res_real.forward(real)
+    forward_real = res_real.forward(real)
+    adjoint_real = res_real.adjoint(real)
 
     res_imag = reg.NiftyResample()
     res_imag.set_reference_image(imag)
     res_imag.set_floating_image(imag)
     res_imag.set_interpolation_type_to_linear()
     res_imag.add_transformation(tm)
-    resampled_imag = res_imag.forward(imag)
+    forward_imag = res_imag.forward(imag)
+    adjoint_imag = res_imag.adjoint(imag)
 
-    resampled_real.write("results/res_real")
-    resampled_imag.write("results/res_imag")
+    forward_real.write("results/forward_real")
+    forward_imag.write("results/forward_imag")
+    adjoint_real.write("results/adjoint_real")
+    adjoint_imag.write("results/adjoint_imag")
 
     # Compare that the real and imaginary parts match regardless
     # of whether they were resampled separately or together.
-    if resampled_real != resampled_cplx_real or resampled_imag != resampled_cplx_imag:
-        raise AssertionError("NiftyResample failed for complex data")
-
+    if forward_real != forward_cplx_real or forward_imag != forward_cplx_imag:
+        raise AssertionError("NiftyResample::forward failed for complex data")
+    if adjoint_real != adjoint_cplx_real or adjoint_imag != adjoint_cplx_imag:
+        raise AssertionError("NiftyResample::adjoint failed for complex data")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -197,7 +208,7 @@ def test():
 
     try_stirtonifti(nifti_filename)
     if mr_recon_h5_filename:
-        try_gadgetrontonifti(nifti_filename,mr_recon_h5_filename)
+        try_gadgetrontonifti(nifti_filename, mr_recon_h5_filename)
     try_complex_resample(raw_mr_filename)
 
 
