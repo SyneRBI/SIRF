@@ -274,6 +274,15 @@ The actual algorithm is described in
 		//shared_ptr<stir::ChainedBinNormalisation> norm_;
 	};
 
+	
+        /*!
+	\ingroup STIR Extensions
+	\brief A typedef to use SIRF terminology for DataProcessors
+
+        \todo We should have a sirf::ImageDataProcessor which takes a sirf::ImageData, but that's too much work for now...
+	*/
+	typedef DataProcessor3DF ImageDataProcessor;
+
 	/*!
 	\ingroup STIR Extensions
 	\brief Class for a PET acquisition model.
@@ -306,6 +315,13 @@ The actual algorithm is described in
 
 	where \e G' is the transpose of \e G and \f$ m = 1/n \f$, is referred to as
 	backward projection.
+
+	There is a possibility to add an ImageDataProcessor to the acquisition model. Calling this
+	\e P it extends the model to
+
+	\f[ y = 1/n(G P x + a) + b \f]
+
+	This can be used for instance to model resolution effects by first blurring the image.
 
 	At present we use quick-fix implementation of forward projection for
 	the computation of a subset of y. A more proper implementation will be done
@@ -361,6 +377,10 @@ The actual algorithm is described in
 			sptr_asm_ = sptr_asm;
 		}
 
+		//! sets data processor to use on the image before forward projection and after back projection
+		/*! \warning This assumes that the data processor is its own adjoint.
+		 */
+		void set_image_data_processor(stir::shared_ptr<ImageDataProcessor> sptr_processor);
 		void cancel_background_term()
 		{
 			sptr_background_.reset();
