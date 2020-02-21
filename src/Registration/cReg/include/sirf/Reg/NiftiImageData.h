@@ -207,6 +207,9 @@ public:
     /// Create NiftiImageData from geometrical info
     static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
 
+    /// Construct two NiftiImageData from a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr);
+
     /// Equality operator
     bool operator==(const NiftiImageData &other) const;
 
@@ -529,6 +532,26 @@ public:
     {
 	return std::unique_ptr<NiftiImageData>(this->clone_impl());
     }
+    virtual Iterator& begin()
+    {
+        _begin.reset(new Iterator(_data));
+        return *_begin;
+    }
+    virtual Iterator_const& begin() const
+    {
+        _begin_const.reset(new Iterator_const(_data));
+        return *_begin_const;
+    }
+    virtual Iterator& end()
+    {
+        _end.reset(new Iterator(_data+_nifti_image->nvox));
+        return *_end;
+    }
+    virtual Iterator_const& end() const
+    {
+        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
+        return *_end_const;
+    }
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData* clone_impl() const
@@ -558,26 +581,6 @@ protected:
         dim["v"] = d[6];
         dim["w"] = d[7];
         return dim;
-    }
-    virtual Iterator& begin()
-    {
-        _begin.reset(new Iterator(_data));
-        return *_begin;
-    }
-    virtual Iterator_const& begin() const
-    {
-        _begin_const.reset(new Iterator_const(_data));
-        return *_begin_const;
-    }
-    virtual Iterator& end()
-    {
-        _end.reset(new Iterator(_data+_nifti_image->nvox));
-        return *_end;
-    }
-    virtual Iterator_const& end() const
-    {
-        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
-        return *_end_const;
     }
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();

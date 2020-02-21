@@ -184,6 +184,26 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr)
+{
+    if (!in_sptr->is_complex())
+        std::cout << "\nNiftiImageData<dataType>::construct_NiftiImageData_from_complex_im. Warning, input image is not complex. Complex component will be empty\n";
+
+    // Create image from input
+    out_real_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
+    out_imag_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
+
+    ImageData::Iterator_const &it_in = in_sptr->begin();
+    typename NiftiImageData<dataType>::Iterator it_real = out_real_sptr->begin();
+    typename NiftiImageData<dataType>::Iterator it_imag = out_imag_sptr->begin();
+
+    for (; it_in!=in_sptr->end(); ++it_in, ++it_real, ++it_imag) {
+        *it_real = (*it_in).complex_float().real();
+        *it_imag = (*it_in).complex_float().imag();
+    }
+}
+
+template<class dataType>
 bool NiftiImageData<dataType>::operator==(const NiftiImageData<dataType> &other) const
 {
     if (this == &other)
