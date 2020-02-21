@@ -123,6 +123,10 @@ int test1()
 		//am.set_bin_efficiency(sptr_e);
 		am.set_up(sptr_ad, sptr_id);
 
+		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, procesor, sptr_processor,);
+		processor.set_fwhms(stir:make_coords(3.F,4.F,3.F));
+		am.set_image_data_processor(sptr_processor);
+
 		// create quadratic prior
 		CREATE_OBJECT(Prior3DF, QuadPrior3DF, prior, sptr_prior,);
 		prior.set_penalisation_factor(0.00f);

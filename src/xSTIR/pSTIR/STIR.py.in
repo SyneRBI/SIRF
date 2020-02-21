@@ -1130,6 +1130,14 @@ class AcquisitionModel(object):
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
         # save reference to the background term
         self.bt = bt
+    def set_image_data_processor(self, processor):
+        '''
+        Sets the image processor P in the acquisition model;
+        processor:  an ImageDataProcessor object.
+        '''
+        assert_validity(processor, ImageDataProcessor)
+        parms.set_parameter\
+            (self.handle, 'AcquisitionModel', 'image_data_processor', processor.handle)
     def get_background_term(self):
         '''Returns the background term of the AcquisitionModel
            

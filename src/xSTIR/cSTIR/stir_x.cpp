@@ -484,6 +484,16 @@ PETAcquisitionModel::set_up(
 }
 
 void 
+PETAcquisitionModel::set_image_data_processor(stir::shared_ptr<ImageDataProcessor> sptr_processor)
+{
+	if (!sptr_projectors_)
+		throw std::runtime_error("projectors need to be set before calling set_image_data_processor");
+
+	sptr_projectors_->get_forward_projector_sptr()->set_pre_data_processor(sptr_processor);
+	sptr_projectors_->get_back_projector_sptr()->set_post_data_processor(sptr_processor);
+}
+
+void 
 PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 	int subset_num, int num_subsets, bool zero)
 {
