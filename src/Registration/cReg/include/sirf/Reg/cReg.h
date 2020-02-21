@@ -59,6 +59,8 @@ extern "C" {
     void* cReg_NiftiImageData_standardise(const void* im_ptr);
     void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
     void* cReg_NiftiImageData_from_SIRFImageData(void* ptr);
+    void* cReg_NiftiImageData_2_from_complex_ImageData(void* ptr_real, void* ptr_imag, void* ptr_complex);
+    void* cReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_ptr, const float accuracy);
 
     // NiftiImageData3D
 

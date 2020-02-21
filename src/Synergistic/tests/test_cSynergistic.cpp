@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 {
     try {
 
-        if (argc < 3) {
+        if (argc < 3 || argc > 5) {
             std::cout << "\ntest_cSynergistic raw_mr_data nifti_filename [mr_recon_h5_filename]\n";
             return EXIT_SUCCESS;
         }
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
         const std::string raw_mr_filename = argv[1];
         const std::string nifti_filename = argv[2];
         std::string mr_recon_h5_filename = "";
-        if (argc > 2)
+        if (argc > 3)
             mr_recon_h5_filename = argv[3];
 
         // Test STIR -> Nifti

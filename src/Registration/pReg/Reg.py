@@ -378,6 +378,29 @@ class NiftiImageData(SIRF.ImageData):
             vec.push_back(n.handle)
         try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
+    @staticmethod
+    def construct_from_complex_image(complex_im):
+        """Construct two NiftiImageData from a complex image"""
+        if not isinstance(complex_im, SIRF.ImageData):
+            raise AssertionError()
+        im_real = NiftiImageData()
+        im_imag = NiftiImageData()
+        try_calling(pyreg.cReg_NiftiImageData_2_from_complex_ImageData(im_real.handle, im_imag.handle, complex_im.handle))
+        return [im_real, im_imag]
+
+    @staticmethod
+    def are_equal_to_given_accuracy(im1, im2, accuracy):
+        """Check if two images match to a given accuracy"""
+        if not isinstance(im1, NiftiImageData) or not isinstance(im2, NiftiImageData):
+            raise AssertionError()
+        if im1.handle is None or im2.handle is None:
+            error('Cannot compare images as at least one is uninitialised')
+        h = pyreg.cReg_NiftiImageData_are_equal_to_given_accuracy(im1.handle, im2.handle, float(accuracy))
+        check_status(h)
+        value = pyiutil.intDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return value
+
 
 class NiftiImageData3D(NiftiImageData):
     """
