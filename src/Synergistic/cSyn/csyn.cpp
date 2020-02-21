@@ -19,39 +19,27 @@ limitations under the License.
 
 */
 
+#include <exception>
+#include <fstream>
 #include <iostream>
 #include <string>
 
-#include "sirf/Gadgetron/gadgetron_data_containers.h"
-#include "sirf/STIR/stir_data_containers.h"
-#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/iUtilities/DataHandle.h"
+#include "sirf/common/ImageData.h"
 #include "sirf/Syn/utilities.h"
 
 using namespace sirf;
 
-int main(int argc, char* argv[])
+#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T>(shared_ptr<T>(new T))
+
+extern "C"
+void*
+cSyn_readImageData(const char* file, const char* eng, int verb)
 {
-	if (argc < 4) {
-		std::cout << "usage: test_conv_img <filename> <engine_in> <engine_out>\n";
-		return 1;
+	try {
+		ImageDataWrap idw(file, eng, verb);
+		std::shared_ptr<ImageData> sptr_id = idw.data_sptr();
+		return newObjectHandle<ImageData>(sptr_id);
 	}
-	std::string filename(argv[1]);
-	std::string eng_in(argv[2]);
-	std::string eng_out(argv[3]);
-	std::cout << "creating " << eng_in.c_str() << " image\n";
-	ImageDataWrap imw(filename, eng_in, true);
-	std::cout << "converting " << eng_in.c_str() << " image to "
-		<< eng_out.c_str() << " image...\n";
-	const ImageData& im_in = imw.data();
-	if (eng_out == std::string("Reg")) {
-		NiftiImageData3D<float> im_out(im_in);
-		if (im_out == im_in) {
-			std::cout << "images are identical\n";
-			return 0;
-		}
-		else {
-			std::cout << "images are not identical\n";
-			return 1;
-		}
-	}
+	CATCH;
 }

@@ -18,15 +18,14 @@
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-add_library(utilities utilities.cpp)
-target_include_directories(utilities PUBLIC
+add_library(csyn csyn.cpp utilities.cpp)
+target_include_directories(csyn PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
-target_include_directories(utilities PUBLIC
+target_include_directories(csyn PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(utilities PUBLIC cgadgetron cstir Reg)
-INSTALL(TARGETS utilities DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+target_link_libraries(csyn PUBLIC cgadgetron cstir Reg)
+INSTALL(TARGETS csyn DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
-# Tests
 ADD_SUBDIRECTORY(tests)
