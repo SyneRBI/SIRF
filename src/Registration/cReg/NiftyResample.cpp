@@ -38,6 +38,7 @@ limitations under the License.
 #include <memory>
 
 using namespace sirf;
+using namespace detail;
 
 template<class dataType>
 static void convert_ImageData_to_ComplexNiftiImageData(ComplexNiftiImageData<dataType> &output, const std::shared_ptr<const ImageData> input_sptr)

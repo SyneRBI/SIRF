@@ -42,6 +42,14 @@ class BSplineTransformation;
 
 namespace sirf {
 
+namespace detail {
+/*! \ingroup Registration
+  \brief This is an internal class requied by NiftyResample to handle complex images.
+
+NiftyReg doesn't currently handle complex nifti images. So we split complex (e.g., MR)
+images into two images, a real and imaginary component. We can then resample them and
+then join the two parts back together.
+ */
 template<class dataType>
 class ComplexNiftiImageData
 {
@@ -78,6 +86,7 @@ private:
     std::shared_ptr<NiftiImageData<dataType> > _real_sptr;
     std::shared_ptr<NiftiImageData<dataType> > _imag_sptr;
 };
+}
 
 /*!
 \ingroup Registration
@@ -129,13 +138,13 @@ protected:
     void set_up_input_images();
 
     /// Reference image as a NiftiImageData
-    ComplexNiftiImageData<dataType> _reference_image_niftis;
+    detail::ComplexNiftiImageData<dataType> _reference_image_niftis;
     /// Floating image as a NiftiImageData
-    ComplexNiftiImageData<dataType> _floating_image_niftis;
+    detail::ComplexNiftiImageData<dataType> _floating_image_niftis;
     /// Forward resampled image as a NiftiImageData
-    ComplexNiftiImageData<dataType> _output_image_forward_niftis;
+    detail::ComplexNiftiImageData<dataType> _output_image_forward_niftis;
     /// Adjoint resampled image as a NiftiImageData
-    ComplexNiftiImageData<dataType> _output_image_adjoint_niftis;
+    detail::ComplexNiftiImageData<dataType> _output_image_adjoint_niftis;
 
     /// Deformation
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > _deformation_sptr;
