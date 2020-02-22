@@ -85,6 +85,10 @@ void* cSTIR_newObject(const char* name)
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+        if (boost::iequals(name, "AcqModUsingNiftyPET"))
+            return NEW_OBJECT_HANDLE(AcqModUsingNiftyPET3DF);
+#endif
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (boost::iequals(name, "QuadraticPrior"))
@@ -124,6 +128,10 @@ void* cSTIR_setParameter
 			return cSTIR_setAcquisitionModelParameter(hs, name, hv);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_setAcqModUsingMatrixParameter(hs, name, hv);
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+        else if (boost::iequals(obj, "AcqModUsingNiftyPET"))
+            return cSTIR_setAcqModUsingNiftyPETParameter(hs, name, hv);
+#endif
 		else if (boost::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
 		else if (boost::iequals(obj, "GeneralisedPrior"))

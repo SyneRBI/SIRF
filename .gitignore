@@ -276,9 +276,11 @@ coverage.xml
 # submodules which should be explicitly force-pushed
 /data
 
-# Dont track files that are generated with CMake's configure_file
+# Dont track automatically generated files
 NiftyAladinSym.cpp
 NiftyF3dSym.cpp
+src/xSTIR/pSTIR/STIR.py
+src/xSTIR/pSTIR/tests/tests_niftypet.py
 Reg.py
 test_pReg.py
 SPM12Registration.m

@@ -80,26 +80,32 @@ namespace sirf {
         }
         /// Write image to file
         //virtual void write(const std::string &filename) const = 0;
-		bool operator==(const ImageData& id)
+		bool operator==(const ImageData& id) const
 		{
 			GeometricalInfo<3, 3>& gi_self = (GeometricalInfo<3, 3>&)*get_geom_info_sptr();
 			GeometricalInfo<3, 3>& gi_other = (GeometricalInfo<3, 3>&)*id.get_geom_info_sptr();
 			if (gi_self != gi_other)
 				return false;
-			complex_float_t a(1.0, 0.0);
-			complex_float_t b(-1.0, 0.0);
-			DataContainer& x = (DataContainer&)*this;
-			DataContainer& y = (DataContainer&)id;
-			ObjectHandle<DataContainer>* ptr_diff = new_data_container_handle();
-			DataContainer& diff = objectFromHandle<DataContainer>(ptr_diff);
-			diff.axpby(&a, x, &b, y);
-			float s = diff.norm();
-			float t = x.norm();
-			bool same = (s <= 1e-3*t);
-			delete ptr_diff;
+			float s = 0.0f;
+			float sx = 0.0f;
+			float sy = 0.0f;
+			complex_float_t zx;
+			complex_float_t zy;
+			Iterator_const& x = this->begin();
+			Iterator_const& y = id.begin();
+			for (; x != this->end(); ++x, ++y) {
+				zx = (*x).complex_float();
+				zy = (*y).complex_float();
+				sx += std::abs(zx*zx);
+				sy += std::abs(zy*zy);
+				zx -= zy;
+				s += std::abs(zx*zx);
+			}
+			float t = std::max(sx, sy);
+			bool same = (s <= 1e-6*t);
 			return same;
 		}
-		bool operator!=(const ImageData& id)
+		bool operator!=(const ImageData& id) const
 		{
 			return !(*this == id);
 		}
