@@ -88,8 +88,10 @@ void SPMRegistration<dataType>::process()
     }
 
     // Start MATLAB engine synchronously
-    std::unique_ptr<MATLABEngine> matlabPtr = startMATLAB(std::vector<String>({u"-nojvm"}));
-    std::cout << "Started MATLAB Engine" << std::endl;
+    if (!_matlab_uptr) {
+        _matlab_uptr = startMATLAB(std::vector<String>({u"-nojvm"}));
+        std::cout << "Started MATLAB Engine" << std::endl;
+    }
 
     // We'll need to be able to convert commands from std::string to std::u16string
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convertor;
@@ -99,11 +101,11 @@ void SPMRegistration<dataType>::process()
     for (unsigned i=0; i<num_flo_ims; ++i)
         spm_realign_command +=  + "','" + flo_filenames.at(i);
     spm_realign_command += "'),struct('quality',1));";
-    matlabPtr->eval(convertor.from_bytes(spm_realign_command));
+    _matlab_uptr->eval(convertor.from_bytes(spm_realign_command));
 
     // Call spm_reslice
     const std::string spm_reslice_command = "spm_reslice(spm_output,struct('which',[1,0]));";
-    matlabPtr->eval(convertor.from_bytes(spm_reslice_command));
+    _matlab_uptr->eval(convertor.from_bytes(spm_reslice_command));
 
     // Read warped image back in
     this->_warped_images_nifti.resize(num_flo_ims);
@@ -126,8 +128,8 @@ void SPMRegistration<dataType>::process()
     _TMs_inv.resize(num_flo_ims);
     for (unsigned a=0; a<num_flo_ims; ++a) {
         const std::string tm_in_nr_space_command = "tm_in_nr_space = inv(spm_output(" + std::to_string(a+2) + ").mat / spm_output(" + std::to_string(a+2) + ").private.mat0);";
-        matlabPtr->eval(convertor.from_bytes(tm_in_nr_space_command));
-        TypedArray<double> tm = matlabPtr->getVariable(u"tm_in_nr_space");
+        _matlab_uptr->eval(convertor.from_bytes(tm_in_nr_space_command));
+        TypedArray<double> tm = _matlab_uptr->getVariable(u"tm_in_nr_space");
 
         _TMs_fwd.at(a) = std::make_shared<AffineTransformation<dataType> >();
         for (unsigned i=0; i<4; ++i)

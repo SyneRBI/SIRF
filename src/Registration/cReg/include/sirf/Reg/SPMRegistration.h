@@ -30,6 +30,7 @@ limitations under the License.
 #pragma once
 
 #include "sirf/Reg/NiftiBasedRegistration.h"
+#include <MatlabEngine.hpp>
 
 namespace sirf {
 
@@ -87,5 +88,7 @@ protected:
     std::vector<std::shared_ptr<AffineTransformation<float> > > _TMs_fwd;
     /// Inverse transformation matrix
     std::vector<std::shared_ptr<AffineTransformation<float> > > _TMs_inv;
+    /// Matlab instance
+    std::unique_ptr<matlab::engine::MATLABEngine> _matlab_uptr;
 };
 }
