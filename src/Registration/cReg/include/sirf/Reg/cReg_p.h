@@ -45,11 +45,11 @@ namespace sirf {
     // ---------------------------------------------------------------------------- //
     void* cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv);
 
-#ifdef SIRF_SPM12
+#ifdef SIRF_SPM
     // ---------------------------------------------------------------------------- //
-    // SPM12Registration
+    // SPMRegistration
     // ---------------------------------------------------------------------------- //
-    void* cReg_setSPM12RegistrationParameter(void* hp, const char* name, const void* hv);
+    void* cReg_setSPMRegistrationParameter(void* hp, const char* name, const void* hv);
 #endif
 
     // ---------------------------------------------------------------------------- //

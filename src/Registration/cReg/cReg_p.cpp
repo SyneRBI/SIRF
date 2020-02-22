@@ -27,8 +27,8 @@ limitations under the License.
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/AffineTransformation.h"
-#ifdef SIRF_SPM12
-#include "sirf/Reg/SPM12Registration.h"
+#ifdef SIRF_SPM
+#include "sirf/Reg/SPMRegistration.h"
 #endif
 
 using namespace sirf;
@@ -175,15 +175,15 @@ sirf::cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv)
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;
 }
-#ifdef SIRF_SPM12
+#ifdef SIRF_SPM
 // ------------------------------------------------------------------------------------ //
-//   SPM12Registration
+//   SPMRegistration
 // ------------------------------------------------------------------------------------ //
 // set
 void*
-sirf::cReg_setSPM12RegistrationParameter(void* hp, const char* name, const void* hv)
+sirf::cReg_setSPMRegistrationParameter(void* hp, const char* name, const void* hv)
 {
-    SPM12Registration<float>& s = objectFromHandle<SPM12Registration<float> >(hp);
+    SPMRegistration<float>& s = objectFromHandle<SPMRegistration<float> >(hp);
     if (strcmp(name, "working_folder") == 0)
         s.set_working_folder(charDataFromHandle(hv));
     else if (strcmp(name, "working_folder_file_overwrite") == 0)

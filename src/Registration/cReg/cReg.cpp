@@ -33,8 +33,8 @@ limitations under the License.
 #include "sirf/Reg/Transformation.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
-#ifdef SIRF_SPM12
-#include "sirf/Reg/SPM12Registration.h"
+#ifdef SIRF_SPM
+#include "sirf/Reg/SPMRegistration.h"
 #endif
 
 using namespace sirf;
@@ -78,9 +78,9 @@ void* cReg_newObject(const char* name)
             return newObjectHandle(std::shared_ptr<ImageWeightedMean<float> >(new ImageWeightedMean<float>));
         if (strcmp(name, "AffineTransformation") == 0)
             return newObjectHandle(std::shared_ptr<AffineTransformation<float> >(new AffineTransformation<float>));
-#ifdef SIRF_SPM12
-        if (strcmp(name, "SPM12Registration") == 0)
-            return newObjectHandle(std::shared_ptr<SPM12Registration<float> >(new SPM12Registration<float>));
+#ifdef SIRF_SPM
+        if (strcmp(name, "SPMRegistration") == 0)
+            return newObjectHandle(std::shared_ptr<SPMRegistration<float> >(new SPMRegistration<float>));
 #endif
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
@@ -97,9 +97,9 @@ void* setParameter
             return cReg_setRegistrationParameter(ptr_s, name, ptr_v);
         if (strcmp(obj, "NiftyRegistration") == 0)
             return cReg_setNiftyRegistrationParameter(ptr_s, name, ptr_v);
-#ifdef SIRF_SPM12
-        if (strcmp(obj, "SPM12Registration") == 0)
-            return cReg_setSPM12RegistrationParameter(ptr_s, name, ptr_v);
+#ifdef SIRF_SPM
+        if (strcmp(obj, "SPMRegistration") == 0)
+            return cReg_setSPMRegistrationParameter(ptr_s, name, ptr_v);
 #endif
         if (strcmp(obj, "NiftyF3dSym") == 0)
             return cReg_setNiftyF3dSymParameter(ptr_s, name, ptr_v);
@@ -661,14 +661,14 @@ void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir)
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      SPM12
+//      SPM
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir, const int idx)
+void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx)
 {
-#ifdef SIRF_SPM12
+#ifdef SIRF_SPM
     try {
-        SPM12Registration<float>& reg = objectFromHandle<SPM12Registration<float> >(ptr);
+        SPMRegistration<float>& reg = objectFromHandle<SPMRegistration<float> >(ptr);
         std::shared_ptr<const AffineTransformation<float> > sptr;
         if (strcmp(dir, "forward") == 0)
             sptr = reg.get_transformation_matrix_forward_sptr(unsigned(idx));
@@ -680,7 +680,7 @@ void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir, const int 
     }
     CATCH;
 #else
-    throw std::runtime_error("cReg_SPM12Registration_get_TM: SPM not present, you shouldn't be here.");
+    throw std::runtime_error("cReg_SPMRegistration_get_TM: SPM not present, you shouldn't be here.");
 #endif
 }
 // -------------------------------------------------------------------------------- //

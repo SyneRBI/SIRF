@@ -34,8 +34,8 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/STIR/stir_data_containers.h"
 #include <boost/filesystem.hpp>
-#ifdef SIRF_SPM12
-#include "sirf/Reg/SPM12Registration.h"
+#ifdef SIRF_SPM
+#include "sirf/Reg/SPMRegistration.h"
 #endif
 
 using namespace sirf;
@@ -43,7 +43,7 @@ using namespace sirf;
 enum Algorithm {
     Aladin,
     F3d,
-    SPM12
+    SPM
 };
 
 static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
@@ -71,12 +71,12 @@ static void algo_as_sptr(std::shared_ptr<Registration<float> > &algo_sptr, Algor
         algo_sptr = std::make_shared<NiftyF3dSym<float> >();
         algo = F3d;
     }
-    else if (strcmp(algorithm.c_str(), "spm12") == 0) {
-#ifdef SIRF_SPM12
-        algo_sptr = std::make_shared<SPM12Registration<float> >();
-        algo = SPM12;
+    else if (strcmp(algorithm.c_str(), "spm") == 0) {
+#ifdef SIRF_SPM
+        algo_sptr = std::make_shared<SPMRegistration<float> >();
+        algo = SPM;
 #else
-        throw std::runtime_error("sirf_registration: SIRF not built with spm12\n");
+        throw std::runtime_error("sirf_registration: SIRF not built with spm\n");
 #endif
     }
     else
@@ -92,9 +92,9 @@ void print_usage()
 
     // Required flags
     std::cout << "\n  Required flags:\n";
-    std::cout << "    --algo <algo>:\t\tregistration algorithm (aladin/f3d/spm12)\n";
+    std::cout << "    --algo <algo>:\t\tregistration algorithm (aladin/f3d/spm)\n";
     std::cout << "    --ref <fname> <eng>:\treference image (eng: Reg|STIR|Gadgetron)\n";
-    std::cout << "    --flo <fname> <eng>:\tfloating image (eng: Reg|STIR|Gadgetron). (Can be used mulitple times for spm12.)\n";
+    std::cout << "    --flo <fname> <eng>:\tfloating image (eng: Reg|STIR|Gadgetron). (Can be used mulitple times for spm.)\n";
 
     // Optional flags
     std::cout << "\n  Optional flags:\n";
@@ -105,7 +105,7 @@ void print_usage()
     std::cout << "    --def_inv_prefix <fname>:\tinverse deformation field image\n";
 
     // Optional rigid/affine flags
-    std::cout << "\n  Optional flags for rigid/affine algorithms (aladin/spm12):\n";
+    std::cout << "\n  Optional flags for rigid/affine algorithms (aladin/spm):\n";
     std::cout << "    --TM_fwd_prefix <fname>:\tforward transformation matrix\n";
     std::cout << "    --TM_inv_prefix <fname>:\tinverse transformation matrix\n";
 
@@ -121,8 +121,8 @@ void print_usage()
     std::cout << "            --par \"SetInterpolationToCubic\"\n";
     std::cout << "            --par \"SetFloatingThresholdUp 1 2\"\n";
 
-    // Optional SPM12 flags
-    std::cout << "\n  Optional flags for spm12:\n";
+    // Optional SPM flags
+    std::cout << "\n  Optional flags for spm:\n";
     std::cout << "    --working_folder <fname>:\tfolder in which to save temporary files (default: cwd/spm_working_folder)\n";
     std::cout << "    --overwrite <bool>:\t\tshould I overwrite files if already present? (default: 1)\n";
     std::cout << "    --delete <bool>:\t\tshould I delete temporary files? (default: 1)\n";
@@ -295,12 +295,12 @@ int main(int argc, char* argv[])
 
         // rmask
         if (!rmask_str.empty()) {
-            if (algo == SPM12) throw std::runtime_error("--rmask not available for spm12");
+            if (algo == SPM) throw std::runtime_error("--rmask not available for spm");
             std::dynamic_pointer_cast<NiftyRegistration<float> >(reg)->set_reference_mask(image_as_sptr(rmask_str,rmask_eng_str));
         }
         // fmask
         if (!fmask_str.empty()) {
-            if (algo == SPM12) throw std::runtime_error("--fmask not available for spm12");
+            if (algo == SPM) throw std::runtime_error("--fmask not available for spm");
             std::dynamic_pointer_cast<NiftyRegistration<float> >(reg)->set_reference_mask(image_as_sptr(fmask_str,fmask_eng_str));
         }
         // print
@@ -309,17 +309,17 @@ int main(int argc, char* argv[])
                 std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->print_all_wrapped_methods();
             else if (algo == F3d)
                 std::dynamic_pointer_cast<NiftyF3dSym<float> >(reg)->print_all_wrapped_methods();
-            else throw std::runtime_error("--print not available for spm12");
+            else throw std::runtime_error("--print not available for spm");
             exit(EXIT_SUCCESS);
         }
         // par_file
         if (!par_file_str.empty()) {
-            if (algo == SPM12) throw std::runtime_error("--par_file not available for spm12");
+            if (algo == SPM) throw std::runtime_error("--par_file not available for spm");
             std::dynamic_pointer_cast<NiftyRegistration<float> >(reg)->set_parameter_file(par_file_str);
         }
         // pars
         if (pars.size()>0) {
-            if (algo == SPM12) throw std::runtime_error("--par not available for spm12");
+            if (algo == SPM) throw std::runtime_error("--par not available for spm");
 
             for (unsigned i=0; i<pars.size(); ++i) {
                 std::istringstream iss(pars[i]);
@@ -338,30 +338,30 @@ int main(int argc, char* argv[])
             }
         }
         // working folder
-        if (algo == SPM12 && working_folder_str.empty())
+        if (algo == SPM && working_folder_str.empty())
             working_folder_str = boost::filesystem::current_path().append("spm_working_folder").string();
         if (!working_folder_str.empty()) {
-            if (algo != SPM12) throw std::runtime_error("--working_folder only available for spm12");
-#ifdef SIRF_SPM12
-            std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->set_working_folder(working_folder_str);
+            if (algo != SPM) throw std::runtime_error("--working_folder only available for spm");
+#ifdef SIRF_SPM
+            std::dynamic_pointer_cast<SPMRegistration<float> >(reg)->set_working_folder(working_folder_str);
 #endif
         }
         // overwrite
-        if (algo == SPM12 && overwrite == -1)
+        if (algo == SPM && overwrite == -1)
             overwrite = 1;
         if (overwrite!=-1) {
-            if (algo != SPM12) throw std::runtime_error("--overwrite only available for spm12");
-#ifdef SIRF_SPM12
-            std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->set_working_folder_file_overwrite(bool(overwrite));
+            if (algo != SPM) throw std::runtime_error("--overwrite only available for spm");
+#ifdef SIRF_SPM
+            std::dynamic_pointer_cast<SPMRegistration<float> >(reg)->set_working_folder_file_overwrite(bool(overwrite));
 #endif
         }
         // delete temp files
-        if (algo == SPM12 && delete_temp_file == -1)
+        if (algo == SPM && delete_temp_file == -1)
             delete_temp_file = 1;
         if (delete_temp_file!=-1) {
-            if (algo != SPM12) throw std::runtime_error("--delete only available for spm12");
-#ifdef SIRF_SPM12
-            std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->set_delete_temp_files(bool(delete_temp_file));
+            if (algo != SPM) throw std::runtime_error("--delete only available for spm");
+#ifdef SIRF_SPM
+            std::dynamic_pointer_cast<SPMRegistration<float> >(reg)->set_delete_temp_files(bool(delete_temp_file));
 #endif
         }
 
@@ -400,9 +400,9 @@ int main(int argc, char* argv[])
             if (!TM_fwd_str.empty()) {
                 if (algo == Aladin)
                     std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_forward_sptr()->write(TM_fwd_str + std::to_string(i));
-#ifdef SIRF_SPM12
-                else if (algo == SPM12)
-                    std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->get_transformation_matrix_forward_sptr(i)->write(TM_fwd_str + std::to_string(i));
+#ifdef SIRF_SPM
+                else if (algo == SPM)
+                    std::dynamic_pointer_cast<SPMRegistration<float> >(reg)->get_transformation_matrix_forward_sptr(i)->write(TM_fwd_str + std::to_string(i));
 #endif
                 else throw std::runtime_error("--TM_fwd only available for rigid/affine");
             }
@@ -410,9 +410,9 @@ int main(int argc, char* argv[])
             if (!TM_inv_str.empty()) {
                 if (algo == Aladin)
                     std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_inverse_sptr()->write(TM_inv_str + std::to_string(i));
-#ifdef SIRF_SPM12
-                else if (algo == SPM12)
-                    std::dynamic_pointer_cast<SPM12Registration<float> >(reg)->get_transformation_matrix_inverse_sptr(i)->write(TM_inv_str + std::to_string(i));
+#ifdef SIRF_SPM
+                else if (algo == SPM)
+                    std::dynamic_pointer_cast<SPMRegistration<float> >(reg)->get_transformation_matrix_inverse_sptr(i)->write(TM_inv_str + std::to_string(i));
 #endif
                 else throw std::runtime_error("--TM_inv only available for rigid/affine");
             }

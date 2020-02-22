@@ -16,7 +16,7 @@
 #
 #=========================================================================
 
-# Have we got SPM12? (only works with Matlab)
+# Have we got SPM? (only works with Matlab)
 if (BUILD_MATLAB)
 	# if on linux, engine is in funny place
 	if("${CMAKE_SYSTEM}" MATCHES "Linux")
@@ -25,13 +25,13 @@ if (BUILD_MATLAB)
 			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so")
 	endif()
 
-	find_package(SPM12 QUIET)
-	if(SPM12_FOUND)
-		MESSAGE(STATUS "SPM12 found")
-		set(SPM12_BOOL_STR "1")
+	find_package(SPM QUIET)
+	if(SPM_FOUND)
+		MESSAGE(STATUS "SPM found")
+		set(SPM_BOOL_STR "1")
 	else()
-		MESSAGE(STATUS "SPM12 not found")
-		set(SPM12_BOOL_STR "0")
+		MESSAGE(STATUS "SPM not found")
+		set(SPM_BOOL_STR "0")
 	endif()
 endif()
 

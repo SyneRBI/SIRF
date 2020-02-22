@@ -18,8 +18,8 @@
 
 if(BUILD_MATLAB)
 
-  if (SPM12_FOUND)
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPM12Registration.m.in" "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPM12Registration.m" COPYONLY)
+  if (SPM_FOUND)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPMRegistration.m.in" "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPMRegistration.m" COPYONLY)
   endif()
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)

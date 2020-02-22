@@ -10,7 +10,7 @@ Usage:
 Options:
   --ref <file>,<eng>           reference image (default: test.nii.gz,Reg)
   --flo <file>,<eng>           floating image (default: test2.nii.gz,Reg)
-  --algo <algo>                registration algorithm (aladin,f3d,spm12) [default: aladin]
+  --algo <algo>                registration algorithm (aladin,f3d,spm) [default: aladin]
 
   --warped_prefix <file>       warped image filename prefix
   --disp_fwd_prefix <file>     forward displacement field image
@@ -27,9 +27,9 @@ Options:
   --par_file <file>            parameter file (NiftyReg only)
   --par <string>               set wrapped parameter (NiftyReg only). Examples: '--par SetPerformAffine,0', '--par SetInterpolationToCubic', '--par SetFloatingThresholdUp,1,2')
 
-  --working_folder <fname>     folder in which to save temporary files (SPM12 only) (default: cwd/spm_working_folder)
-  --overwrite <bool>           should I overwrite files if already present? (SPM12 only) (default: true)
-  --delete <bool>              should I delete temporary files? (SPM12 only) (default: True)
+  --working_folder <fname>     folder in which to save temporary files (SPM only) (default: cwd/spm_working_folder)
+  --overwrite <bool>           should I overwrite files if already present? (SPM only) (default: true)
+  --delete <bool>              should I delete temporary files? (SPM only) (default: True)
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -106,8 +106,8 @@ def get_algorithm(algo):
         reg = sirf.Reg.NiftyAladinSym()
     elif algo == "f3d":
         reg = sirf.Reg.NiftyF3dSym()
-    elif algo == "spm12":
-        reg = sirf.Reg.SPM12Registration()
+    elif algo == "spm":
+        reg = sirf.Reg.SPMRegistration()
     else:
         raise error('unknown algorithm')
     return reg
@@ -145,7 +145,7 @@ def main():
     reg = get_algorithm(algo)
 
     if args['--print']:
-        if algo == 'spm12':
+        if algo == 'spm':
             raise error('--print only available for NiftyReg')
         reg.print_all_wrapped_methods()
         exit(0)
@@ -157,28 +157,28 @@ def main():
 
     # rmask
     if args['--rmask']:
-        if algo == 'spm12':
+        if algo == 'spm':
             raise error('--rmask only available for NiftyReg')
         reg.set_reference_mask(get_image(args['--rmask']))
     # fmask
     if args['--fmask']:
-        if algo == 'spm12':
+        if algo == 'spm':
             raise error('--fmask only available for NiftyReg')
         reg.set_floating_mask(get_image(args['--fmask']))
     # par_file
     if args['--par_file']:
-        if algo == 'spm12':
+        if algo == 'spm':
             raise error('--par_file only available for NiftyReg')
         reg.set_parameter_file(args['--par_file'])
     # pars
     if args['--par_file']:
-        if algo == 'spm12':
+        if algo == 'spm':
             raise error('--par_file only available for NiftyReg')
         reg.set_parameter_file(args['--par_file'])
 
     pars = args['--par']
     if len(pars) > 0:
-        if algo == 'spm12':
+        if algo == 'spm':
             raise error('--par only available for NiftyReg')
         for par in pars:
             par_split = par.split(',')
@@ -193,29 +193,29 @@ def main():
 
     # working folder
     working_folder = args['--working_folder']
-    if algo == 'spm12' and working_folder is None:
+    if algo == 'spm' and working_folder is None:
         working_folder = os.getcwd() + '/spm_working_folder'
     if working_folder is not None:
-        if algo != 'spm12':
-            raise error('--working_folder only available for spm12')
+        if algo != 'spm':
+            raise error('--working_folder only available for spm')
         reg.set_working_folder(working_folder)
 
     # overwrite
     overwrite = args['--overwrite']
-    if algo == 'spm12' and overwrite is None:
+    if algo == 'spm' and overwrite is None:
         overwrite = True
     if overwrite:
-        if algo != 'spm12':
-            raise error('--overwrite only available for spm12')
+        if algo != 'spm':
+            raise error('--overwrite only available for spm')
         reg.set_working_folder_file_overwrite(overwrite)
 
     # delete temp files
     delete_temp_files = args['--delete']
-    if algo == 'spm12' and delete_temp_files is None:
+    if algo == 'spm' and delete_temp_files is None:
         delete_temp_files = True
     if delete_temp_files:
-        if algo != 'spm12':
-            raise error('--delete only available for spm12')
+        if algo != 'spm':
+            raise error('--delete only available for spm')
         reg.set_delete_temp_files(delete_temp_files)
 
     # Register

@@ -14,15 +14,15 @@
 #
 # See STIR/LICENSE.txt for details
 
-if (NOT SPM12_DIR)
-  set(SPM12_DIR "" CACHE PATH "Path to SPM12")
+if (NOT SPM_DIR)
+  set(SPM_DIR "" CACHE PATH "Path to SPM")
 endif()
 
-find_file(spm_realign "spm_realign.m" PATHS "${SPM12_DIR}" NO_DEFAULT_PATH)
+find_file(spm_realign "spm_realign.m" PATHS "${SPM_DIR}" NO_DEFAULT_PATH)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(SPM12
-  FOUND_VAR SPM12_FOUND
+find_package_handle_standard_args(SPM
+  FOUND_VAR SPM_FOUND
   REQUIRED_VARS spm_realign
 )
 

@@ -37,9 +37,9 @@ IF(BUILD_PYTHON OR BUILD_MATLAB)
 	SET(SOURCES ${SOURCES} "cReg.cpp" "cReg_p.cpp")
 ENDIF()
 
-# Add SPM12 source
-IF(SPM12_FOUND)
-  SET(SOURCES ${SOURCES} "SPM12Registration.cpp")
+# Add SPM source
+IF(SPM_FOUND)
+  SET(SOURCES ${SOURCES} "SPMRegistration.cpp")
 ENDIF()
 
 # Create library
@@ -72,11 +72,11 @@ else()
   target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
 endif()
 
-# Link Matlab for SPM12
-IF(SPM12_FOUND)
+# Link Matlab for SPM
+IF(SPM_FOUND)
   TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC "${Matlab_INCLUDE_DIRS}")
   TARGET_LINK_LIBRARIES(Reg PUBLIC "${Matlab_LIBRARIES}")
-  target_compile_definitions(Reg PUBLIC SIRF_SPM12)
+  target_compile_definitions(Reg PUBLIC SIRF_SPM)
 ENDIF()
 
 # Install

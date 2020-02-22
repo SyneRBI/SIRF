@@ -91,7 +91,7 @@ extern "C" {
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
 
     // SPM methods
-    void* cReg_SPM12Registration_get_TM(const void* ptr, const char* dir, const int idx);
+    void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx);
 
     // NiftyResample
     void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);

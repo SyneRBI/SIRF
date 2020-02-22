@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "sirf/Reg/SPM12Registration.h"
+#include "sirf/Reg/SPMRegistration.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include <sys/stat.h>
 #include <MatlabEngine.hpp>
@@ -45,19 +45,19 @@ inline bool check_file_exists(const std::string& filename, const bool existance_
     struct stat buffer;
     const bool file_exists (stat (filename.c_str(), &buffer) == 0);
     if (file_exists && !existance_allowed)
-        throw std::runtime_error("SPM12Registration<dataType>::process(): file exists: " + filename);
+        throw std::runtime_error("SPMRegistration<dataType>::process(): file exists: " + filename);
     return file_exists;
 }
 
 template<class dataType>
-void SPM12Registration<dataType>::set_working_folder(const std::string &working_folder)
+void SPMRegistration<dataType>::set_working_folder(const std::string &working_folder)
 {
     // Make sure it's absolute
     _working_folder = boost::filesystem::absolute(working_folder).string();
 }
 
 template<class dataType>
-void SPM12Registration<dataType>::process()
+void SPMRegistration<dataType>::process()
 {
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
@@ -154,15 +154,15 @@ void SPM12Registration<dataType>::process()
 }
 
 template<class dataType>
-void SPM12Registration<dataType>::check_parameters() const
+void SPMRegistration<dataType>::check_parameters() const
 {
     // Call base class
     Registration<dataType>::check_parameters();
 
     if (_working_folder.empty())
-        throw std::runtime_error("SPM12Registration<dataType>::check_parameters(): Missing working folder.");
+        throw std::runtime_error("SPMRegistration<dataType>::check_parameters(): Missing working folder.");
 }
 
 namespace sirf {
-template class SPM12Registration<float>;
+template class SPMRegistration<float>;
 }

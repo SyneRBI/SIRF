@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Wrapper around SPM12's registration class.
+\brief Wrapper around SPM's registration class.
 
 \author Richard Brown
 \author CCP PETMR
@@ -38,12 +38,12 @@ template<class dataType> class AffineTransformation;
 
 /*!
 \ingroup Registration
-\brief Wrapper around SPM12's registration class.
+\brief Wrapper around SPM's registration class.
 
 \author Richard Brown
 \author CCP PETMR
 */
-template<class dataType> class SPM12Registration : public NiftiBasedRegistration<dataType>
+template<class dataType> class SPMRegistration : public NiftiBasedRegistration<dataType>
 {
 public:
 

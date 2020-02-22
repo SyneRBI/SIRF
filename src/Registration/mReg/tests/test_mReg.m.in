@@ -64,7 +64,7 @@ g.niftymomo_resample_adj                     = fullfile(output_prefix, 'matlab_n
 g.output_weighted_mean                       = fullfile(output_prefix, 'matlab_weighted_mean.nii');
 g.output_weighted_mean_def                   = fullfile(output_prefix, 'matlab_weighted_mean_def.nii');
 g.output_float                               = fullfile(output_prefix, 'matlab_reg_aladin_float.nii');
-g.spm12_working_folder                       = fullfile(output_prefix, 'spm12_working_folder');
+g.spm_working_folder                       = fullfile(output_prefix, 'spm_working_folder');
 
 g.ref_aladin                                 = sirf.Reg.NiftiImageData3D( g.ref_aladin_filename );
 g.flo_aladin                                 = sirf.Reg.NiftiImageData3D( g.flo_aladin_filename );
@@ -85,7 +85,7 @@ try_niftymomo = true;
 try_weighted_mean = true;
 try_affinetransformation = true;
 try_quaternion = true;
-try_spm12 = @SPM12_BOOL_STR@;
+try_spm = @SPM_BOOL_STR@;
 
 if try_niftiimage
 	disp('% ----------------------------------------------------------------------- %')
@@ -973,12 +973,12 @@ if try_quaternion
     disp('%------------------------------------------------------------------------ %')
 end
 
-if try_spm12
+if try_spm
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting SPM12 test...')
+    disp('%                  Starting SPM test...')
     disp('%------------------------------------------------------------------------ %')
 
-    % Resample an image with NiftyResample. Register SPM12, check the result
+    % Resample an image with NiftyResample. Register SPM, check the result
 
     % TM
     translations = [5,  4, -5];
@@ -994,16 +994,16 @@ if try_spm12
     niftyreg_resampler.set_interpolation_type_to_linear();
     floating = niftyreg_resampler.forward(g.ref_aladin);
 
-    % Register with SPM12
-    spm12_reg = sirf.Reg.SPM12Registration();
-    spm12_reg.set_reference_image(g.ref_aladin);
-    spm12_reg.add_floating_image(floating);
-    spm12_reg.add_floating_image(floating);
-    spm12_reg.set_working_folder(g.spm12_working_folder);
-    spm12_reg.set_working_folder_file_overwrite(true);
-    spm12_reg.set_delete_temp_files(false);
-    spm12_reg.process();
-    spm_tm = spm12_reg.get_transformation_matrix_forward(2);
+    % Register with SPM
+    spm_reg = sirf.Reg.SPMRegistration();
+    spm_reg.set_reference_image(g.ref_aladin);
+    spm_reg.add_floating_image(floating);
+    spm_reg.add_floating_image(floating);
+    spm_reg.set_working_folder(g.spm_working_folder);
+    spm_reg.set_working_folder_file_overwrite(true);
+    spm_reg.set_delete_temp_files(false);
+    spm_reg.process();
+    spm_tm = spm_reg.get_transformation_matrix_forward(2);
     spm_inv_tm = spm_tm.get_inverse();
 
     % Check tm roughly equals inverse TM of the resampler
@@ -1025,11 +1025,11 @@ if try_spm12
     disp(['Percentage diff in translations: ' num2str(diff_translations(:)')])
     
     % Check differences are less than 1%
-    assert(all(diff_euler_angles <= 1), 'SPM12 registration failed (angles).')
-    assert(all(diff_translations <= 1), 'SPM12 registration failed (translations).')
-    assert(spm12_reg.get_output(2) == g.ref_aladin, 'SPM12 registration failed (image difference).')
+    assert(all(diff_euler_angles <= 1), 'SPM registration failed (angles).')
+    assert(all(diff_translations <= 1), 'SPM registration failed (translations).')
+    assert(spm_reg.get_output(2) == g.ref_aladin, 'SPM registration failed (image difference).')
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished SPM12 test.')
+    disp('%                  Finished SPM test.')
     disp('%------------------------------------------------------------------------ %')
 end

@@ -153,8 +153,8 @@ EXPORTED_FUNCTION     void* mReg_NiftyRegistration_print_all_wrapped_methods(con
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir) {
 	return cReg_NiftyAladin_get_TM(ptr, dir);
 }
-EXPORTED_FUNCTION     void* mReg_SPM12Registration_get_TM(const void* ptr, const char* dir, const int idx) {
-	return cReg_SPM12Registration_get_TM(ptr, dir, idx);
+EXPORTED_FUNCTION     void* mReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx) {
+	return cReg_SPMRegistration_get_TM(ptr, dir, idx);
 }
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type) {
 	return cReg_NiftyResample_add_transformation(self, trans, type);

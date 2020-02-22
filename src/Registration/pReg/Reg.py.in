@@ -739,14 +739,14 @@ class NiftyF3dSym(_NiftyRegistration):
         print("In C++, this class is templated. \"dataType\" corresponds to \"float\" for Matlab and python.")
         try_calling(pyreg.cReg_NiftyRegistration_print_all_wrapped_methods('NiftyF3dSym'))
 
-if @SPM12_BOOL_STR@:
-    class SPM12Registration(_Registration):
+if @SPM_BOOL_STR@:
+    class SPMRegistration(_Registration):
         """
-        Registration using SPM12.
+        Registration using SPM.
         """
         def __init__(self):
             _Registration.__init__(self)
-            self.name = 'SPM12Registration'
+            self.name = 'SPMRegistration'
             self.handle = pyreg.cReg_newObject(self.name)
             check_status(self.handle)
 
@@ -759,7 +759,7 @@ if @SPM12_BOOL_STR@:
             if self.handle is None:
                 raise AssertionError()
             tm = AffineTransformation()
-            tm.handle = pyreg.cReg_SPM12Registration_get_TM(self.handle, 'forward', int(idx))
+            tm.handle = pyreg.cReg_SPMRegistration_get_TM(self.handle, 'forward', int(idx))
             return tm
 
         def get_transformation_matrix_inverse(self, idx=0):
@@ -767,7 +767,7 @@ if @SPM12_BOOL_STR@:
             if self.handle is None:
                 raise AssertionError()
             tm = AffineTransformation()
-            tm.handle = pyreg.cReg_SPM12Registration_get_TM(self.handle, 'inverse', int(idx))
+            tm.handle = pyreg.cReg_SPMRegistration_get_TM(self.handle, 'inverse', int(idx))
             return tm
 
         def set_working_folder(self, working_folder):

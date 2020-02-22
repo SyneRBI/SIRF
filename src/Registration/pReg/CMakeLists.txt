@@ -26,7 +26,7 @@ if(BUILD_PYTHON)
   FIND_PACKAGE(SWIG REQUIRED)
   INCLUDE("${SWIG_USE_FILE}")
 
-  # Modify pReg.py depending on presence of SPM12
+  # Modify pReg.py depending on presence of SPM
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Reg.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/Reg.py")
 
   SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cReg/include")

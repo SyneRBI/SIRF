@@ -10,7 +10,7 @@ function sirf_registration(varargin)
 %       default: --ref test.nii.gz Reg
 %   --flo <file> <eng>           floating image (eng: Reg|STIR|Gadgetron)
 %       default: --flo test2.nii.gz Reg
-%   --algo <algo>                registration algorithm (aladin/f3d/spm12)
+%   --algo <algo>                registration algorithm (aladin/f3d/spm)
 %       default: --algo aladin
 %
 %   Optional arguments
@@ -22,7 +22,7 @@ function sirf_registration(varargin)
 %   --def_fwd_prefix <fname>     forward deformation field image
 %   --def_inv_prefix <fname>     inverse deformation field image
 %
-%   Optional arguments for rigid/affine algorithms (aladin/spm12)
+%   Optional arguments for rigid/affine algorithms (aladin/spm)
 %   -------------------------------------------------------------
 %
 %   --TM_fwd_prefix <fname>      forward transformation matrix
@@ -40,7 +40,7 @@ function sirf_registration(varargin)
 %           '--par', 'SetInterpolationToCubic'
 %           '--par', 'SetFloatingThresholdUp 1 2'
 %
-%   Optional flags for spm12
+%   Optional flags for spm
 %   -------------------------------------------------------------
 
 %   --working_folder <fname>     folder in which to save temporary files (default: cwd/spm_working_folder)
@@ -133,7 +133,7 @@ while i <= length(varargin)
         TM_inv = get_arg(varargin,i,1);
         i=i+2; 
         
-    % Optional spm12
+    % Optional spm
     elseif strcmp(varargin{i},'--working_folder')
         working_folder = get_arg(varargin,i,1);
         i=i+2;
@@ -170,7 +170,7 @@ reg = get_algorithm(algo);
 
 %% Print wrapped methods
 if exist('print','var')
-    assert(strcmp(algo,'spm12')~=1, '--print not available for spm12')
+    assert(strcmp(algo,'spm')~=1, '--print not available for spm')
     reg.print_all_wrapped_methods();
     return;
 end
@@ -184,21 +184,21 @@ end
 %% Set parameters
 % rmask
 if exist('rmask','var')
-    assert(strcmp(algo,'spm12')~=1, '--rmask not available for spm12')
+    assert(strcmp(algo,'spm')~=1, '--rmask not available for spm')
     reg.set_reference_mask(get_im(rmask,rmask_eng));
 end
 % fmask
 if exist('fmask','var')
-    assert(strcmp(algo,'spm12')~=1, '--fmask not available for spm12')
+    assert(strcmp(algo,'spm')~=1, '--fmask not available for spm')
     reg.set_floating_mask(get_im(fmask,fmask_eng));
 end
 % par_file
 if exist('par_file','var')
-    assert(strcmp(algo,'spm12')~=1, '--par_file not available for spm12')
+    assert(strcmp(algo,'spm')~=1, '--par_file not available for spm')
     reg.set_parameter_file(par_file);
 end
 % pars
-if (strcmp(algo,'spm12')); assert(isempty(pars), '--pars not available for spm12'); end
+if (strcmp(algo,'spm')); assert(isempty(pars), '--pars not available for spm'); end
 for i=1:numel(pars)
     disp(pars)
     pars_split = split(pars);
@@ -214,27 +214,27 @@ for i=1:numel(pars)
 end
 
 % working_folder
-if strcmp(algo,'spm12') && ~exist('working_folder','var')
+if strcmp(algo,'spm') && ~exist('working_folder','var')
     working_folder = [pwd filesep 'spm_working_folder'];
 end
 if exist('working_folder','var')
-    assert(strcmp(algo,'spm12'), '--working_folder only available for spm12')
+    assert(strcmp(algo,'spm'), '--working_folder only available for spm')
     reg.set_working_folder(working_folder);
 end
 % overwrite
-if strcmp(algo,'spm12') && ~exist('overwrite','var')
+if strcmp(algo,'spm') && ~exist('overwrite','var')
     overwrite = true;
 end
 if exist('overwrite','var')
-    assert(strcmp(algo,'spm12'), '--overwrite only available for spm12')
+    assert(strcmp(algo,'spm'), '--overwrite only available for spm')
     reg.set_working_folder_file_overwrite(overwrite);
 end
 % delete_temp_files
-if strcmp(algo,'spm12') && ~exist('delete_temp_files','var')
+if strcmp(algo,'spm') && ~exist('delete_temp_files','var')
     delete_temp_files = true;
 end
 if exist('delete_temp_files','var')
-    assert(strcmp(algo,'spm12'), '--delete only available for spm12')
+    assert(strcmp(algo,'spm'), '--delete only available for spm')
     reg.set_delete_temp_files(delete_temp_files);
 end
 
@@ -287,8 +287,8 @@ function reg = get_algorithm(algo_str)
         reg = sirf.Reg.NiftyAladinSym();
     elseif strcmp(algo_str,'f3d')
         reg = sirf.Reg.NiftyF3DSym();
-    elseif strcmp(algo_str,'spm12')
-        reg = sirf.Reg.SPM12Registration();
+    elseif strcmp(algo_str,'spm')
+        reg = sirf.Reg.SPMRegistration();
     else
         error(['Unknown algorithm: ' algo_str]);
     end
