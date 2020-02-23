@@ -223,12 +223,9 @@ before_install:
 
  - export PATH="$PWD:$PATH"
  - popd
- # ensure a branch exists (for e.g. PRs)
- - git symbolic-ref -q HEAD || git checkout -b local_$TRAVIS_COMMIT
- # Use Travis' currently checked-out SIRF commit ID to build.
- # Also no point re-downloading SIRF - just use local URL.
+ # no point re-downloading SIRF - just use local version
  # N.B.: don't put into build matrix to allow caching.
- - BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_URL=$PWD -DSIRF_TAG=$TRAVIS_COMMIT"
+ - BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_SOURCE_DIR:PATH=$PWD -DDISABLE_GIT_CHECKOUT_SIRF=ON"
  # get SuperBuild
  - cd ..
  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
