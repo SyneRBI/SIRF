@@ -58,6 +58,9 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_normalise_zero_and_one(const voi
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_standardise(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_SIRFImageData(void* ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_ptr, const float accuracy);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);

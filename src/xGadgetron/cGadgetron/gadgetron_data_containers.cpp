@@ -1260,6 +1260,14 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     }
 }
 
+bool GadgetronImagesVector::is_complex() const {
+    // If any of the wraps are complex, return true.
+    for (unsigned i=0; i<number(); ++i)
+        if (image_wrap(i).is_complex())
+            return true;
+    return false;
+}
+
 float get_projection_of_position_in_slice(const ISMRMRD::ImageHeader &ih)
 {
     return ih.position[0] * ih.slice_dir[0] +
