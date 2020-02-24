@@ -240,7 +240,7 @@ class ImageData(SIRF.ImageData):
         """Change image size and geometric information
 
         Dimemsions (number of voxels) are required, spacing and offset are optional.
-        Spacing and offset are to be given in mm. All should be given as (x,y,z).
+        Spacing and offset are to be given in mm. All should be given as (z,y,x).
         """
         if not isinstance(dim, tuple):
             raise error("sirf.STIR.Imagedata.initialise: dim should be a tuple")
