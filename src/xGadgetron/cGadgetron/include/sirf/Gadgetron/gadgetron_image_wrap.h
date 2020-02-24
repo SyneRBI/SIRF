@@ -376,6 +376,24 @@ namespace sirf {
 			}
 			//IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
 		}
+        /// Get data type
+        ISMRMRD::ISMRMRD_DataTypes get_data_type() const
+        {
+            ISMRMRD::ISMRMRD_DataTypes data_type;
+            IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_type_, ptr_, &data_type);
+            return data_type;
+        }
+        /// Is the image wrap complex?
+        bool is_complex() const
+        {
+            ISMRMRD::ISMRMRD_DataTypes data_type = this->get_data_type();
+            if (data_type == ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT ||
+                    data_type == ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXDOUBLE) {
+                return true;
+            }
+            else
+                return false;
+        }
 		void write(ISMRMRD::Dataset& dataset) const
 		{
 			IMAGE_PROCESSING_SWITCH_CONST(type_, write_, ptr_, dataset);
@@ -519,6 +537,12 @@ namespace sirf {
 			dim[1] = im.getMatrixSizeY();
 			dim[2] = im.getMatrixSizeZ();
 			dim[3] = im.getNumberOfChannels();
+		}
+        template<typename T>
+		void get_data_type_(const ISMRMRD::Image<T>* ptr_im, ISMRMRD::ISMRMRD_DataTypes* data_type_ptr) const
+		{
+			const ISMRMRD::Image<T>& im = *static_cast<const ISMRMRD::Image<T>*>(ptr_im);
+			*data_type_ptr = im.getDataType();
 		}
 
 		template<typename T>

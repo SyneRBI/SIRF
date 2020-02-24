@@ -1,6 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2020 UCL
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -267,6 +268,10 @@ sirf::cSTIR_setAcquisitionModelParameter
 		SPTR_FROM_HANDLE(PETAcquisitionSensitivityModel, sptr_asm, hv);
 		am.set_asm(sptr_asm);
 	}
+	else if (boost::iequals(name, "image_data_processor")) {
+		SPTR_FROM_HANDLE(ImageDataProcessor, sptr_proc, hv);
+		am.set_image_data_processor(sptr_proc);
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -285,6 +290,20 @@ sirf::cSTIR_setAcqModUsingMatrixParameter
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
 }
+
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+void*
+sirf::cSTIR_setAcqModUsingNiftyPETParameter
+(DataHandle* hm, const char* name, const DataHandle* hv)
+{
+    AcqModUsingNiftyPET3DF& am = objectFromHandle<AcqModUsingNiftyPET3DF>(hm);
+    if (boost::iequals(name, "cuda_verbosity"))
+        am.set_cuda_verbosity(dataFromHandle<int>((void*)hv));
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+    return new DataHandle;
+}
+#endif
 
 void*
 sirf::cSTIR_acqModUsingMatrixParameter
