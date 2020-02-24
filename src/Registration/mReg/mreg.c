@@ -105,6 +105,15 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_inner_product(const void* im
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_SIRFImageData(void* ptr) {
 	return cReg_NiftiImageData_from_SIRFImageData(ptr);
 }
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr) {
+	return cReg_NiftiImageData_from_complex_ImageData_real_component(in_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr) {
+	return cReg_NiftiImageData_from_complex_ImageData_imag_component(in_ptr);
+}
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_ptr, const float accuracy) {
+	return cReg_NiftiImageData_are_equal_to_given_accuracy(im1_ptr, im2_ptr, accuracy);
+}
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
 	return cReg_NiftiImageData3DTensor_write_split_xyz_components(ptr, filename, datatype);
 }

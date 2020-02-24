@@ -247,15 +247,6 @@ AffineTransformation<dataType> AffineTransformation<dataType>::operator* (const 
             for (int k=0;k<4;k++)
                 res[i][j] += (*this)[i][k] * other[k][j];
 
-#ifndef NDEBUG
-    std::cout << "\nMultiplying two matrices...\n";
-    std::cout << "Matrix 1:\n";
-    this->print();
-    std::cout << "Matrix 2:\n";
-    other.print();
-    std::cout << "Result:\n";
-    res.print();
-#endif
     return res;
 }
 

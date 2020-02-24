@@ -446,6 +446,43 @@ void* cReg_NiftiImageData_from_SIRFImageData(void* ptr)
 	CATCH;
 }
 
+extern "C"
+void* cReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr)
+{
+    try {
+        std::shared_ptr<ImageData> in_sptr;
+        getObjectSptrFromHandle<ImageData>(in_ptr, in_sptr);
+        std::shared_ptr<NiftiImageData<float> > out_sptr;
+        NiftiImageData<float>::construct_NiftiImageData_from_complex_im_real_component(out_sptr, in_sptr);
+        return newObjectHandle(out_sptr);
+    }
+	CATCH;
+}
+
+extern "C"
+void* cReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr)
+{
+    try {
+        std::shared_ptr<ImageData> in_sptr;
+        getObjectSptrFromHandle<ImageData>(in_ptr, in_sptr);
+        std::shared_ptr<NiftiImageData<float> > out_sptr;
+        NiftiImageData<float>::construct_NiftiImageData_from_complex_im_imag_component(out_sptr, in_sptr);
+        return newObjectHandle(out_sptr);
+    }
+	CATCH;
+}
+
+extern "C"
+void* cReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_ptr, const float accuracy)
+{
+    try {
+        std::shared_ptr<NiftiImageData<float> > im1_sptr, im2_sptr;
+        getObjectSptrFromHandle<NiftiImageData<float> >(im1_ptr, im1_sptr);
+        getObjectSptrFromHandle<NiftiImageData<float> >(im2_ptr, im2_sptr);
+        return dataHandle<int>(NiftiImageData<float>::are_equal_to_given_accuracy(im1_sptr, im2_sptr, accuracy));
+    }
+	CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DTensor
 // -------------------------------------------------------------------------------- //

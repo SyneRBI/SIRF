@@ -125,6 +125,9 @@ namespace sirf {
         {
             return std::unique_ptr<ImageData>(this->clone_impl());
         }
+        /// Is complex? Unless overwridden (Gadgetron), assume not complex.
+        virtual bool is_complex() const { return false; }
+
     protected:
         /// Clone helper function. Don't use.
         virtual ImageData* clone_impl() const = 0;

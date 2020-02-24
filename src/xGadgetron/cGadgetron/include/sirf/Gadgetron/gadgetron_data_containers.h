@@ -784,6 +784,9 @@ namespace sirf {
         /// Print header info
         void print_header(const unsigned im_num);
 
+        /// Is complex?
+        virtual bool is_complex() const;
+
     protected:
         /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info();
