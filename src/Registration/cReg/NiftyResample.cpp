@@ -217,7 +217,7 @@ template<class dataType>
 static bool check_images_match(
         const ComplexNiftiImageData<dataType> im1,
         const ComplexNiftiImageData<dataType> im2,
-        const std::string explanation)
+        const std::string &explanation)
 {
     if (im1.is_complex() != im2.is_complex())
         throw std::runtime_error(explanation);
