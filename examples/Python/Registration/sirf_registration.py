@@ -50,13 +50,12 @@ Options:
 ##   limitations under the License.
 
 import os
+import sirf.Reg
 from sirf.Utilities import *
 
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
-
-import sirf.Reg
 
 # process command-line options
 # ref_file = args['--ref']
@@ -88,17 +87,17 @@ def get_image(arg):
     filename = arg[0]
     engine = arg[1]
     if engine == 'Reg':
-        import sirf.Reg
-        return sirf.Reg.ImageData(filename)
+        global sirf
+        im = sirf.Reg.ImageData(filename)
     elif engine == 'STIR':
         import sirf.STIR
-        return sirf.STIR.ImageData(filename)
+        im = sirf.STIR.ImageData(filename)
     elif engine == 'Gadgetron':
         import sirf.Gadgetron
-        return sirf.Gadgetron.ImageData(filename)
+        im = sirf.Gadgetron.ImageData(filename)
     else:
         raise error('unknown engine: ' + engine)
-
+    return im
 
 def get_algorithm(algo):
     """Get algorithm based on string"""
@@ -128,16 +127,13 @@ def main():
             raise error(errorMsg)
     # Ref
     if ref_args is None:
-        ref_file = examples_path + '/test.nii.gz'
-        ref_eng = 'Reg'
-    else:
-        ref = get_image(ref_args)
+        ref_args = examples_path + '/test.nii.gz,Reg'
+    ref = get_image(ref_args)
     # Flo
-    flos = []
     if len(flo_args) == 0:
-        flos.append(get_image(examples_path + '/test2.nii.gz,Reg'))
-    else:
-        for flo_arg in flo_args:
+        flo_args = [examples_path + '/test2.nii.gz,Reg']
+    flos = []
+    for flo_arg in flo_args:
             flos.append(get_image(flo_arg))
 
     # Algorithm
@@ -246,9 +242,4 @@ def main():
         if TM_inv_prefix is not None:
             reg.get_transformation_matrix_inverse(i).write(TM_inv_prefix + str(i))
 
-
-try:
-    main()
-    print('done')
-except error as err:
-    print('%s' % err.value)
+main()
