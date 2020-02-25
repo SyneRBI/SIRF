@@ -30,6 +30,51 @@ using namespace stir;
 using namespace ecat;
 using namespace sirf;
 
+float ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold(const float threshold) const
+{
+    if (input_filename.empty())
+        throw std::runtime_error("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold: Filename missing");
+
+    shared_ptr<CListModeData> lm_data_ptr
+      (read_from_file<CListModeData>(input_filename));
+
+    shared_ptr <CListRecord> record_sptr = lm_data_ptr->get_empty_record_sptr();
+    CListRecord& record = *record_sptr;
+
+    double current_time = -1;
+    unsigned long num_prompts = 0UL;
+
+    /// Time resolution is 1s
+    const double time_resolution = 1;
+
+    while (true) {
+        // no more events in file for some reason
+        if (lm_data_ptr->get_next_record(record) == Succeeded::no)
+            return -1.f;
+
+        if (record.is_time()) {
+
+            const double new_time = record.time().get_time_in_secs();
+            // For the very first time
+            if (current_time < 0) {
+                current_time = new_time;
+                num_prompts=0UL;
+            }
+            // Otherwise, increment the time
+            else if (new_time >= current_time+time_resolution) {
+                current_time += time_resolution;
+                num_prompts=0UL;
+            }
+        }
+        // If we found a prompt, increment!
+        if (record.is_event() && record.event().is_prompt())
+            ++num_prompts;
+        // If the threshold is exceeded, return the time.
+        if (num_prompts > threshold)
+            return float(current_time);
+    }
+}
+
 void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 {

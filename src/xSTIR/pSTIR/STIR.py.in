@@ -948,6 +948,16 @@ class ListmodeToSinograms(object):
         check_status(randoms.handle)
         return randoms
 
+    def get_time_at_which_prompt_rate_exceeds_threshold(self, threshold):
+        """Get the time in the list mode data at which the number
+         of prompts per second exceeds a given threshold.
+         Returns -1 if no corresponding time is found."""
+        h = pystir.cSTIR_lm_prompt_rate_exceeds_threshold(self.handle, float(threshold))
+        check_status(h, inspect.stack()[1])
+        v = pyiutil.floatDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return v
+
 class AcquisitionSensitivityModel(object):
     '''
     Class that handles PET scanner detector efficiencies and attenuation.
