@@ -55,6 +55,7 @@ extern "C" {
 	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
 	void* cSTIR_computeRandoms(void* ptr);
+    void* cSTIR_lm_prompt_rate_exceeds_threshold(void* ptr, const float threshold);
 
 	// Data processor methods
 	void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);

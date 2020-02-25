@@ -326,6 +326,15 @@ void* cSTIR_computeRandoms(void* ptr)
 }
 
 extern "C"
+void* cSTIR_lm_prompt_rate_exceeds_threshold(const void * ptr, const float threshold)
+{
+    try {
+        ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
+        return dataHandle<float>(lm2s.get_time_at_which_prompt_rate_exceeds_threshold(threshold));
+    }
+    CATCH
+}
+extern "C"
 void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	try {
