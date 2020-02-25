@@ -20,6 +20,7 @@ Options:
   -o <outp>, --outp=<outp>     output file prefix [default: recon]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  -C <cnts>, --counts=<cnts>   account for delay between injection and acquisition start by shifting interval to start when counts exceed given threshold.
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -71,10 +72,12 @@ tmpl_file = existing_filepath(data_path, tmpl_file)
 norm_file = existing_filepath(data_path, norm_file)
 attn_file = existing_filepath(data_path, attn_file)
 nxny = literal_eval(args['--nxny'])
-interval = literal_eval(args['--interval'])
+input_interval = literal_eval(args['--interval'])
 num_subsets = int(args['--subs'])
 num_subiterations = int(args['--subiter'])
 storage = args['--storage']
+count_threshold = args['--counts']
+
 
 def main():
 
@@ -96,6 +99,17 @@ def main():
     lm2sino.set_input(list_file)
     lm2sino.set_output_prefix(sino_file)
     lm2sino.set_template(tmpl_file)
+
+    if count_threshold is None:
+        interval = input_interval
+    else:
+        time_shift = lm2sino.get_time_at_which_prompt_rate_exceeds_threshold(count_threshold)
+        if time_shift < 0:
+            print("No time found at which count rate exceeds " + str(time_shift) + ", not modifying interval")
+        interval = (input_interval[0]+time_shift, input_interval[1]+time_shift)
+        print("Time at which count rate exceeds " + str(count_threshold) + " = " + str(time_shift) + " s.")
+        print("Input intervals: " + str(input_interval[0]) + ", " + str(input_interval[1]))
+        print("Modified intervals: " + str(interval[0]) + ", " + str(interval[1]))
 
     # set interval
     lm2sino.set_time_interval(interval[0], interval[1])
