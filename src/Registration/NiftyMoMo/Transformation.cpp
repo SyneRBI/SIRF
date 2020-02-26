@@ -181,36 +181,36 @@ bool Transformation::CheckDVFImageUpdateRequired(const nifti_image * const targe
   if ( targetImageIn->sform_code > 0 )
   {
     // Assuming consistency between sto_ijk and sto_xyz
-    if ( std::abs(targetImageIn->sto_ijk.m[0][0] - this->deformationVectorFieldImage->sto_ijk.m[0][0]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[0][1] - this->deformationVectorFieldImage->sto_ijk.m[0][1]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[0][2] - this->deformationVectorFieldImage->sto_ijk.m[0][2]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[0][3] - this->deformationVectorFieldImage->sto_ijk.m[0][3]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[0][0] - this->deformationVectorFieldImage->sto_ijk.m[0][0]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[0][1] - this->deformationVectorFieldImage->sto_ijk.m[0][1]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[0][2] - this->deformationVectorFieldImage->sto_ijk.m[0][2]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[0][3] - this->deformationVectorFieldImage->sto_ijk.m[0][3]) > 1.e-4f) return true;
 
-    if ( std::abs(targetImageIn->sto_ijk.m[1][0] - this->deformationVectorFieldImage->sto_ijk.m[1][0]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[1][1] - this->deformationVectorFieldImage->sto_ijk.m[1][1]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[1][2] - this->deformationVectorFieldImage->sto_ijk.m[1][2]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[1][3] - this->deformationVectorFieldImage->sto_ijk.m[1][3]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[1][0] - this->deformationVectorFieldImage->sto_ijk.m[1][0]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[1][1] - this->deformationVectorFieldImage->sto_ijk.m[1][1]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[1][2] - this->deformationVectorFieldImage->sto_ijk.m[1][2]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[1][3] - this->deformationVectorFieldImage->sto_ijk.m[1][3]) > 1.e-4f) return true;
 
-    if ( std::abs(targetImageIn->sto_ijk.m[2][0] - this->deformationVectorFieldImage->sto_ijk.m[2][0]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[2][1] - this->deformationVectorFieldImage->sto_ijk.m[2][1]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[2][2] - this->deformationVectorFieldImage->sto_ijk.m[2][2]) > 1.e-4f) return true;
-    if ( std::abs(targetImageIn->sto_ijk.m[2][3] - this->deformationVectorFieldImage->sto_ijk.m[2][3]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[2][0] - this->deformationVectorFieldImage->sto_ijk.m[2][0]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[2][1] - this->deformationVectorFieldImage->sto_ijk.m[2][1]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[2][2] - this->deformationVectorFieldImage->sto_ijk.m[2][2]) > 1.e-4f) return true;
+    if ( fabs(targetImageIn->sto_ijk.m[2][3] - this->deformationVectorFieldImage->sto_ijk.m[2][3]) > 1.e-4f) return true;
   }
   else
   {
     // Assuming consistency between qto_ijk and qto_xyz
-    if ( std::abs(targetImageIn->qto_ijk.m[0][0] - this->deformationVectorFieldImage->qto_ijk.m[0][0]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[0][1] - this->deformationVectorFieldImage->qto_ijk.m[0][1]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[0][2] - this->deformationVectorFieldImage->qto_ijk.m[0][2]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[0][3] - this->deformationVectorFieldImage->qto_ijk.m[0][3]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[1][0] - this->deformationVectorFieldImage->qto_ijk.m[1][0]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[1][1] - this->deformationVectorFieldImage->qto_ijk.m[1][1]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[1][2] - this->deformationVectorFieldImage->qto_ijk.m[1][2]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[1][3] - this->deformationVectorFieldImage->qto_ijk.m[1][3]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[2][0] - this->deformationVectorFieldImage->qto_ijk.m[2][0]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[2][1] - this->deformationVectorFieldImage->qto_ijk.m[2][1]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[2][2] - this->deformationVectorFieldImage->qto_ijk.m[2][2]) > 1.e-4f ) return true;
-    if ( std::abs(targetImageIn->qto_ijk.m[2][3] - this->deformationVectorFieldImage->qto_ijk.m[2][3]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[0][0] - this->deformationVectorFieldImage->qto_ijk.m[0][0]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[0][1] - this->deformationVectorFieldImage->qto_ijk.m[0][1]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[0][2] - this->deformationVectorFieldImage->qto_ijk.m[0][2]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[0][3] - this->deformationVectorFieldImage->qto_ijk.m[0][3]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[1][0] - this->deformationVectorFieldImage->qto_ijk.m[1][0]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[1][1] - this->deformationVectorFieldImage->qto_ijk.m[1][1]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[1][2] - this->deformationVectorFieldImage->qto_ijk.m[1][2]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[1][3] - this->deformationVectorFieldImage->qto_ijk.m[1][3]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[2][0] - this->deformationVectorFieldImage->qto_ijk.m[2][0]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[2][1] - this->deformationVectorFieldImage->qto_ijk.m[2][1]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[2][2] - this->deformationVectorFieldImage->qto_ijk.m[2][2]) > 1.e-4f ) return true;
+    if ( fabs(targetImageIn->qto_ijk.m[2][3] - this->deformationVectorFieldImage->qto_ijk.m[2][3]) > 1.e-4f ) return true;
   }
   
   return false;
