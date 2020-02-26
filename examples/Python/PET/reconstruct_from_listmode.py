@@ -46,6 +46,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
+import os
 
 from pUtilities import show_2D_array
 
@@ -67,10 +68,15 @@ tmpl_file = args['--tmpl']
 norm_file = args['--norm']
 attn_file = args['--attn']
 outp_file = args['--outp']
-list_file = existing_filepath(data_path, list_file)
-tmpl_file = existing_filepath(data_path, tmpl_file)
-norm_file = existing_filepath(data_path, norm_file)
-attn_file = existing_filepath(data_path, attn_file)
+# Check file exists (e.g., absolute path). Else prepend data_path
+if not os.path.isfile(list_file):
+    list_file = existing_filepath(data_path, list_file)
+if not os.path.isfile(tmpl_file):
+    tmpl_file = existing_filepath(data_path, tmpl_file)
+if not os.path.isfile(norm_file):
+    norm_file = existing_filepath(data_path, norm_file)
+if not os.path.isfile(attn_file):
+    attn_file = existing_filepath(data_path, attn_file)
 nxny = literal_eval(args['--nxny'])
 input_interval = literal_eval(args['--interval'])
 num_subsets = int(args['--subs'])
