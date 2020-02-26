@@ -1,28 +1,39 @@
 '''Regsitration of SIRF images.
 
 Usage:
-  registration [--help | options]
+  registration [--algo=<algo>] [--ref=<file>,<eng>] [--flo=<file>,<eng>]... [--warped_prefix=<file>]
+  [--disp_fwd_prefix=<file>] [--def_fwd_prefix=<file>] [--disp_inv_prefix=<file>] [--def_inv_prefix=<file>]
+  [--TM_fwd_prefix=<file>] [--TM_inv_prefix=<file>] [--rmask=<file>,<eng>] [--fmask=<file>,<eng>] [--print]
+  [--par_file=<file>] [--par=<arg>]... [--working_folder=<file>] [--overwrite=<bool>] [--delete=<bool>]
+  [--help | options]
 
 Options:
-  --eng_ref <eng>              engine for reference image [default: Reg]
-  --eng_flo <eng>              engine for floating image [default: Reg]
-  --ref <file>                 reference image (default: test.nii.gz)
-  --flo <file>                 floating image (default: test2.nii.gz)
-  --par <file>                 parameter file (default: niftyreg_aladin.par)
-  --algo <algo>                registration algorithm [default: NiftyAladinSym]
-  --rmask <file>               mask of reference image
-  --fmask <file>               mask of floating image
-  --warped <file>              warped image filename [default: output]
-  --TM_forward <file>          forward transformation matrix (if rigid/affine)
-  --TM_inverse <file>          inverse transformation matrix (if rigid/affine)
-  --disp_fwd_4D <file>         4D forward displacement field image
-  --def_fwd_4D <file>          4D forward deformation field image
-  --disp_inv_4D <file>         4D inverse displacement field image
-  --def_inv_4D <file>          4D inverse deformation field image
+  --ref <file>,<eng>           reference image (default: test.nii.gz,Reg)
+  --flo <file>,<eng>           floating image (default: test2.nii.gz,Reg)
+  --algo <algo>                registration algorithm (aladin,f3d,spm) [default: aladin]
+
+  --warped_prefix <file>       warped image filename prefix
+  --disp_fwd_prefix <file>     forward displacement field image
+  --def_fwd_prefix <file>      forward deformation field image
+  --disp_inv_prefix <file>     inverse displacement field image
+  --def_inv_prefix <file>      inverse deformation field image
+
+  --TM_fwd_prefix <file>       forward transformation matrix (rigid/affine only)
+  --TM_inv_prefix <file>       inverse transformation matrix (rigid/affine only)
+
+  --rmask <file,eng>           mask of reference image (NiftyReg only)
+  --fmask <file,eng>           mask of floating image (NiftyReg only)
+  --print                      print wrapped methods (NiftyReg only)
+  --par_file <file>            parameter file (NiftyReg only)
+  --par <string>               set wrapped parameter (NiftyReg only). Examples: '--par SetPerformAffine,0', '--par SetInterpolationToCubic', '--par SetFloatingThresholdUp,1,2')
+
+  --working_folder <fname>     folder in which to save temporary files (SPM only) (default: cwd/spm_working_folder)
+  --overwrite <bool>           should I overwrite files if already present? (SPM only) (default: true)
+  --delete <bool>              should I delete temporary files? (SPM only) (default: True)
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 - 2019 University College London.
+## Copyright 2018 - 2020 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -39,101 +50,196 @@ Options:
 ##   limitations under the License.
 
 import os
+import sirf.Reg
+from sirf.Utilities import *
 
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-# import engine module
-import sirf.Reg
-exec('import p' + args['--eng_ref'] + ' as eng_ref')
-exec('import p' + args['--eng_flo'] + ' as eng_flo')
-
 # process command-line options
-ref_file = args['--ref']
-flo_file = args['--flo']
-par_file = args['--par']
-algo = args['--algo']
-rmask_file = args['--rmask']
-fmask_file = args['--fmask']
+# ref_file = args['--ref']
+# flo_file = args['--flo']
+# par_file = args['--par']
+# algo = args['--algo']
+# rmask_file = args['--rmask']
+# fmask_file = args['--fmask']
+#
+# # reference
+# if ref_file is None:
+#     ref_file = examples_path + "/test.nii.gz"
+#
+# # floating
+# if flo_file is None:
+#     flo_file = examples_path + "/test2.nii.gz"
+#
+# # parameter file
+# if par_file is None:
+#     par_file = examples_path + "/paramFiles/niftyreg_aladin.par"
+#
 
-# if using the default for any, need to get the examples folder
-if (ref_file is None or flo_file is None or par_file is None): 
-  SIRF_PATH = os.environ.get('SIRF_PATH')
-  if SIRF_PATH is not None:
-    examples_path = SIRF_PATH + '/data/examples/Registration'
-  else:
-    errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
-    raise error(errorMsg)
 
-# reference
-if ref_file is None:
-    ref_file = examples_path + "/test.nii.gz"
+def get_image(arg):
+    """Get an image filename and its engine"""
+    arg = arg.split(',')
+    if len(arg) != 2:
+        raise error('image argument expects filename and engine')
+    filename = arg[0]
+    engine = arg[1]
+    if engine == 'Reg':
+        global sirf
+        im = sirf.Reg.ImageData(filename)
+    elif engine == 'STIR':
+        import sirf.STIR
+        im = sirf.STIR.ImageData(filename)
+    elif engine == 'Gadgetron':
+        import sirf.Gadgetron
+        im = sirf.Gadgetron.ImageData(filename)
+    else:
+        raise error('unknown engine: ' + engine)
+    return im
 
-# floating
-if flo_file is None:
-    flo_file = examples_path + "/test2.nii.gz"
-
-# parameter file
-if par_file is None:
-    par_file = examples_path + "/paramFiles/niftyreg_aladin.par"
+def get_algorithm(algo):
+    """Get algorithm based on string"""
+    if algo == "aladin":
+        reg = sirf.Reg.NiftyAladinSym()
+    elif algo == "f3d":
+        reg = sirf.Reg.NiftyF3dSym()
+    elif algo == "spm":
+        reg = sirf.Reg.SPMRegistration()
+    else:
+        raise error('unknown algorithm')
+    return reg
 
 
 def main():
 
-    # Open reference and floating images
-    print('Engine for reference image: ' + args['--eng_ref'])
-    print('Engine for floating image: ' + args['--eng_flo'])
-    print('Reference image: ' + ref_file)
-    print('Floating image: ' + flo_file)
-    print('Parameter file: ' + par_file)
-    print('Registration algorithm: ' + algo)
+    # files
+    ref_args = args['--ref']
+    flo_args = args['--flo']
+    # if using the default for any, need to get the examples folder
+    if ref_args is None or flo_args is None:
+        SIRF_PATH = os.environ.get('SIRF_PATH')
+        if SIRF_PATH is not None:
+            examples_path = SIRF_PATH + '/data/examples/Registration'
+        else:
+            errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
+            raise error(errorMsg)
+    # Ref
+    if ref_args is None:
+        ref_args = examples_path + '/test.nii.gz,Reg'
+    ref = get_image(ref_args)
+    # Flo
+    if len(flo_args) == 0:
+        flo_args = [examples_path + '/test2.nii.gz,Reg']
+    flos = []
+    for flo_arg in flo_args:
+            flos.append(get_image(flo_arg))
 
-    ref = eng_ref.ImageData(ref_file)
-    flo = eng_flo.ImageData(flo_file)
+    # Algorithm
+    algo = args['--algo']
+    reg = get_algorithm(algo)
 
-    # Dynamically create registration algorithm
-    algorithm = getattr(sirf.Reg, algo)
-    reg = algorithm()
+    if args['--print']:
+        if algo == 'spm':
+            raise error('--print only available for NiftyReg')
+        reg.print_all_wrapped_methods()
+        exit(0)
+
+    # Set images
     reg.set_reference_image(ref)
-    reg.set_floating_image(flo)
-    reg.set_parameter_file(par_file)
+    for flo in flos:
+        reg.add_floating_image(flo)
 
-    # If masks have been requested, enter them
-    if rmask_file:
-      rmask = eng_ref.ImageData(rmask_file)
-      reg.set_reference_mask(rmask)
-    if fmask_file:
-      fmask = eng_flo.ImageData(fmask_file)
-      reg.set_floating_mask(fmask)
+    # rmask
+    if args['--rmask']:
+        if algo == 'spm':
+            raise error('--rmask only available for NiftyReg')
+        reg.set_reference_mask(get_image(args['--rmask']))
+    # fmask
+    if args['--fmask']:
+        if algo == 'spm':
+            raise error('--fmask only available for NiftyReg')
+        reg.set_floating_mask(get_image(args['--fmask']))
+    # par_file
+    if args['--par_file']:
+        if algo == 'spm':
+            raise error('--par_file only available for NiftyReg')
+        reg.set_parameter_file(args['--par_file'])
+    # pars
+    if args['--par_file']:
+        if algo == 'spm':
+            raise error('--par_file only available for NiftyReg')
+        reg.set_parameter_file(args['--par_file'])
 
+    pars = args['--par']
+    if len(pars) > 0:
+        if algo == 'spm':
+            raise error('--par only available for NiftyReg')
+        for par in pars:
+            par_split = par.split(',')
+            if len(par_split) == 1:
+                reg.set_parameter(par_split[0])
+            elif len(par_split) == 2:
+                reg.set_parameter(par_split[0], par_split[1])
+            elif len(par_split) == 3:
+                reg.set_parameter(par_split[0], par_split[1], par_split[2])
+            else:
+                raise error('Max number of NiftyReg args is 2.')
+
+    # working folder
+    working_folder = args['--working_folder']
+    if algo == 'spm' and working_folder is None:
+        working_folder = os.getcwd() + '/spm_working_folder'
+    if working_folder is not None:
+        if algo != 'spm':
+            raise error('--working_folder only available for spm')
+        reg.set_working_folder(working_folder)
+
+    # overwrite
+    overwrite = args['--overwrite']
+    if algo == 'spm' and overwrite is None:
+        overwrite = True
+    if overwrite:
+        if algo != 'spm':
+            raise error('--overwrite only available for spm')
+        reg.set_working_folder_file_overwrite(overwrite)
+
+    # delete temp files
+    delete_temp_files = args['--delete']
+    if algo == 'spm' and delete_temp_files is None:
+        delete_temp_files = True
+    if delete_temp_files:
+        if algo != 'spm':
+            raise error('--delete only available for spm')
+        reg.set_delete_temp_files(delete_temp_files)
+
+    # Register
     reg.process()
 
-    # Output
-    print("saving to file: " + args['--warped'])
-    reg.get_output().write(args['--warped'])
+    # Save results
+    warped_prefix = args['--warped_prefix']
+    disp_fwd_prefix = args['--disp_fwd_prefix']
+    disp_inv_prefix = args['--disp_inv_prefix']
+    def_fwd_prefix = args['--def_fwd_prefix']
+    def_inv_prefix = args['--def_inv_prefix']
+    TM_fwd_prefix = args['--TM_fwd_prefix']
+    TM_inv_prefix = args['--TM_inv_prefix']
+    for i in range(len(flos)):
 
-    # TMs
-    if args['--TM_forward'] is not None:
-        reg.get_transformation_matrix_forward().write(args['--TM_forward'])
-    if args['--TM_inverse'] is not None:
-        reg.get_transformation_matrix_inverse().write(args['--TM_inverse'])
+        if warped_prefix is not None:
+            reg.get_output(i).write(warped_prefix + str(i))
+        if disp_fwd_prefix is not None:
+            reg.get_displacement_field_forward(i).write(disp_fwd_prefix + str(i))
+        if disp_inv_prefix is not None:
+            reg.get_displacement_field_inverse(i).write(disp_inv_prefix + str(i))
+        if def_fwd_prefix is not None:
+            reg.get_deformation_field_forward(i).write(def_fwd_prefix + str(i))
+        if def_inv_prefix is not None:
+            reg.get_deformation_field_inverse(i).write(def_inv_prefix + str(i))
+        if TM_fwd_prefix is not None:
+            reg.get_transformation_matrix_forward(i).write(TM_fwd_prefix + str(i))
+        if TM_inv_prefix is not None:
+            reg.get_transformation_matrix_inverse(i).write(TM_inv_prefix + str(i))
 
-    # Disp fields
-    if args['--disp_fwd_4D'] is not None:
-        reg.get_displacement_field_forward().write(args['--disp_fwd_4D'])
-    if args['--disp_inv_4D'] is not None:
-        reg.get_displacement_field_inverse().write(args['--disp_inv_4D'])
-
-    # Def fields
-    if args['--def_fwd_4D'] is not None:
-        reg.get_deformation_field_forward().write(args['--def_fwd_4D'])
-    if args['--def_inv_4D'] is not None:
-        reg.get_deformation_field_inverse().write(args['--def_inv_4D'])
-
-
-try:
-    main()
-    print('done')
-except error as err:
-    print('%s' % err.value)
+main()

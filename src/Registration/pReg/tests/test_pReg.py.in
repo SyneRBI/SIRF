@@ -1,5 +1,5 @@
 # CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 # This is software developed for the Collaborative Computational
 # Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -72,6 +72,7 @@ niftymomo_resample_adj = output_prefix + "niftymomo_resample_adj.nii"
 output_weighted_mean = output_prefix + "weighted_mean.nii"
 output_weighted_mean_def = output_prefix + "weighted_mean_def.nii"
 output_float = output_prefix + "reg_aladin_float.nii"
+spm_working_folder = output_prefix + "spm_working_folder"
 
 ref_aladin = sirf.Reg.NiftiImageData3D(ref_aladin_filename)
 flo_aladin = sirf.Reg.NiftiImageData3D(flo_aladin_filename)
@@ -1146,6 +1147,74 @@ def try_quaternion():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
+# SPM
+def try_spm():
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Starting SPM test...\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+    # Resample an image with NiftyResample. Register SPM, check the result
+
+    # TM
+    translations = np.array([5.,  4., -5.], dtype=np.float32)
+    euler_angles = np.array([5., -2., -3.], dtype=np.float32)
+
+    tm = sirf.Reg.AffineTransformation(translations, euler_angles)
+
+    niftyreg_resampler = sirf.Reg.NiftyResample()
+    niftyreg_resampler.set_padding_value(0.)
+    niftyreg_resampler.set_reference_image(ref_aladin)
+    niftyreg_resampler.set_floating_image(ref_aladin)
+    niftyreg_resampler.add_transformation(tm)
+    niftyreg_resampler.set_interpolation_type_to_linear()
+    floating = niftyreg_resampler.forward(ref_aladin)
+
+    # Register with SPM
+    spm_reg = sirf.Reg.SPMRegistration()
+    spm_reg.set_reference_image(ref_aladin)
+    spm_reg.add_floating_image(floating)
+    spm_reg.add_floating_image(floating)
+    spm_reg.set_working_folder(spm_working_folder)
+    spm_reg.set_working_folder_file_overwrite(True)
+    spm_reg.set_delete_temp_files(False)
+    spm_reg.process()
+    spm_tm = spm_reg.get_transformation_matrix_forward(1)
+    spm_inv_tm = spm_tm.get_inverse()
+
+    # Check tm roughly equals inverse TM of the resampler
+    estimated_euler_angles = spm_inv_tm.get_Euler_angles()
+    estimated_translations = spm_inv_tm.as_array()[:3, 3]
+
+    input_euler_angles = tm.get_Euler_angles()
+    input_translations = translations
+
+    diff_euler_angles = 100. * (input_euler_angles - estimated_euler_angles) / input_euler_angles
+    diff_translations = 100. * (input_translations - estimated_translations) / input_translations
+
+    print("Input Euler angles:              " + np.array2string(input_euler_angles))
+    print("Estimated Euler angles:          " + np.array2string(estimated_euler_angles))
+    print("Percentage diff in Euler angles: " + np.array2string(diff_euler_angles))
+    print("Input translations:              " + np.array2string(input_translations))
+    print("Estimated translations:          " + np.array2string(estimated_translations))
+    print("Percentage diff in translations: " + np.array2string(diff_translations))
+
+    # Check differences are less than 1%
+    if any(diff_euler_angles > 1):
+        raise AssertionError("SPM registration failed (angles).")
+    if any(diff_translations > 1):
+        raise AssertionError("SPM registration failed (translations).")
+
+    if spm_reg.get_output(1) != ref_aladin:
+        raise AssertionError("SPM registration failed (image difference).")
+
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Finished SPM test.\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
 
 def test():
     try_niftiimage()
@@ -1161,6 +1230,8 @@ def test():
     try_weighted_mean(na)
     try_affinetransformation(na)
     try_quaternion()
+    if @SPM_BOOL_STR@:
+        try_spm()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -81,12 +81,20 @@ extern "C" {
 
     // Registration
     void* cReg_Registration_process(void* ptr);
-    void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
-    void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
-    void* cReg_Registration_print_all_wrapped_methods(const char* name);
+    void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type, const int idx);
+    void* cReg_Registration_add_floating(const void* ptr, const void *im_ptr);
+    void* cReg_Registration_clear_floatings(const void* ptr);
+    void* cReg_Registration_get_output(const void* ptr,const int idx);
+
+    // NiftyReg-based registration
+    void* cReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+    void* cReg_NiftyRegistration_print_all_wrapped_methods(const char* name);
 
     // Aladin methods
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
+
+    // SPM methods
+    void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx);
 
     // NiftyResample
     void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
@@ -106,6 +114,7 @@ extern "C" {
     // AffineTransformation
     void* cReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
     void* cReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr);
+    void* cReg_AffineTransformation_construct_from_trans_and_euler(PTR_FLOAT trans_ptr, PTR_FLOAT euler_ptr);
     void* cReg_AffineTransformation_deep_copy(const void* ptr);
     void* cReg_AffineTransformation_write(const void* ptr, const char* filename);
     void* cReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);

@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURR
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp.in"    "${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp"   )
 
 # Add in the common files
-SET(SOURCES "Registration.cpp" "NiftyRegistration.cpp" "NiftyAladinSym.cpp" "NiftyF3dSym.cpp" "ImageWeightedMean.cpp" "Resample.cpp" "NiftyResample.cpp" "Transformation.cpp" "AffineTransformation.cpp" "Quaternion.cpp")
+SET(SOURCES "Registration.cpp" "NiftiBasedRegistration.cpp" "NiftyRegistration.cpp" "NiftyAladinSym.cpp" "NiftyF3dSym.cpp" "ImageWeightedMean.cpp" "Resample.cpp" "NiftyResample.cpp" "Transformation.cpp" "AffineTransformation.cpp" "Quaternion.cpp")
 
 # Add in nifti_image wrappers
 SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")
@@ -35,6 +35,11 @@ SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageDa
 # If we're also wrapping to python or matlab, include the c-files
 IF(BUILD_PYTHON OR BUILD_MATLAB)
 	SET(SOURCES ${SOURCES} "cReg.cpp" "cReg_p.cpp")
+ENDIF()
+
+# Add SPM source
+IF(SPM_FOUND)
+  SET(SOURCES ${SOURCES} "SPMRegistration.cpp")
 ENDIF()
 
 # Create library
@@ -66,6 +71,13 @@ else()
   # Nice and simple for recent CMake (which knows about your Boost version)
   target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
 endif()
+
+# Link Matlab for SPM
+IF(SPM_FOUND)
+  TARGET_INCLUDE_DIRECTORIES(Reg PUBLIC "${Matlab_INCLUDE_DIRS}")
+  TARGET_LINK_LIBRARIES(Reg PUBLIC "${Matlab_LIBRARIES}")
+  target_compile_definitions(Reg PUBLIC SIRF_SPM)
+ENDIF()
 
 # Install
 INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

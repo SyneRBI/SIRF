@@ -1374,6 +1374,8 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
         norm = resampled_sptr->get_norm(*im1_sptr);
     }
 
+    norm /= float(im1_sptr->get_num_voxels());
+
     if (norm <= epsilon)
         return true;
 
@@ -1388,7 +1390,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
     std::cout << "\tstandard deviation2               = " << im2_sptr->get_standard_deviation() << "\n";
     std::cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
     std::cout << "\tepsilon                           = " << epsilon << "\n";
-    std::cout << "\tnorm                              = " << norm << "\n";
+    std::cout << "\tnorm/num_vox                      = " << norm << "\n";
     return false;
 }
 

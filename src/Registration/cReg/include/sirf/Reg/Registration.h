@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -78,77 +78,51 @@ public:
     /// Destructor
     virtual ~Registration() {}
 
-    /// Set parameter file
-    void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
-
     /// Set reference image
     void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
 
-    /// Set floating image
-    void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
+    /// Set floating image. Will clear any previous floating images.
+    void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
+
+    /// Add floating image
+    void add_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
+
+    /// Clear floating images
+    void clear_floating_images();
 
     /// Process
     virtual void process() = 0;
 
     /// Get registered image
-    const std::shared_ptr<const ImageData> get_output_sptr() const { return _warped_image_sptr; }
+    const std::shared_ptr<const ImageData> get_output_sptr(const unsigned idx = 0) const { return _warped_images.at(idx); }
 
     /// Get forward deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr() const = 0;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr(const unsigned idx = 0) const = 0;
 
     /// Get inverse deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr() const = 0;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const = 0;
 
     /// Get forward displacement field image
-    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr() const { return _disp_image_forward_sptr; }
+    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr(const unsigned idx = 0) const { return _disp_fwd_images.at(idx); }
 
     /// Get inverse displacement field image
-    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr() const { return _disp_image_inverse_sptr; }
-
-    /// Set string parameter. Check if any set methods match the method given by par.
-    /// If so, set the value given by arg. Convert to float/int etc., as necessary.
-    /// Up to 2 arguments, leave blank if unneeded. These are applied after parsing
-    /// the parameter file.
-    void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
-
-    /// Set reference mask
-    void set_reference_mask(const std::shared_ptr<const ImageData> reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
-
-    /// Set floating mask
-    void set_floating_mask(const std::shared_ptr<const ImageData> floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
+    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const { return _disp_inv_images.at(idx); }
 
 protected:
-
-    /// Parse parameter file
-    virtual void parse_parameter_file() = 0;
 
     /// Check parameters
     virtual void check_parameters() const;
 
-    /// Set any extra parameters
-    virtual void set_parameters() = 0;
-
-    /// Store extra parameters. Only apply them after parsing.
-    std::vector<std::string> _extra_params;
-
-    /// Parameter filename
-    std::string _parameter_filename;
-
     /// Reference image
     std::shared_ptr<const ImageData> _reference_image_sptr;
     /// Floating image
-    std::shared_ptr<const ImageData> _floating_image_sptr;
+    std::vector<std::shared_ptr<const ImageData> > _floating_images;
     /// Warped image
-    std::shared_ptr<ImageData> _warped_image_sptr;
+    std::vector<std::shared_ptr<ImageData> > _warped_images;
 
     /// Forward displacement field image
-    std::shared_ptr<Transformation<dataType> > _disp_image_forward_sptr;
+    std::vector<std::shared_ptr<Transformation<dataType> > > _disp_fwd_images;
     /// Inverse displacement field image
-    std::shared_ptr<Transformation<dataType> > _disp_image_inverse_sptr;
-
-    /// Floating mask
-    std::shared_ptr<const ImageData> _floating_mask_sptr;
-    /// Reference mask
-    std::shared_ptr<const ImageData> _reference_mask_sptr;
+    std::vector<std::shared_ptr<Transformation<dataType> > > _disp_inv_images;
 };
 }

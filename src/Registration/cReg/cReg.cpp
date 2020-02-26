@@ -1,7 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -33,6 +33,9 @@ limitations under the License.
 #include "sirf/Reg/Transformation.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
+#ifdef SIRF_SPM
+#include "sirf/Reg/SPMRegistration.h"
+#endif
 
 using namespace sirf;
 
@@ -75,6 +78,10 @@ void* cReg_newObject(const char* name)
             return newObjectHandle(std::shared_ptr<ImageWeightedMean<float> >(new ImageWeightedMean<float>));
         if (strcmp(name, "AffineTransformation") == 0)
             return newObjectHandle(std::shared_ptr<AffineTransformation<float> >(new AffineTransformation<float>));
+#ifdef SIRF_SPM
+        if (strcmp(name, "SPMRegistration") == 0)
+            return newObjectHandle(std::shared_ptr<SPMRegistration<float> >(new SPMRegistration<float>));
+#endif
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -88,6 +95,12 @@ void* setParameter
 	try {
         if (strcmp(obj, "Registration") == 0)
             return cReg_setRegistrationParameter(ptr_s, name, ptr_v);
+        if (strcmp(obj, "NiftyRegistration") == 0)
+            return cReg_setNiftyRegistrationParameter(ptr_s, name, ptr_v);
+#ifdef SIRF_SPM
+        if (strcmp(obj, "SPMRegistration") == 0)
+            return cReg_setSPMRegistrationParameter(ptr_s, name, ptr_v);
+#endif
         if (strcmp(obj, "NiftyF3dSym") == 0)
             return cReg_setNiftyF3dSymParameter(ptr_s, name, ptr_v);
         if (strcmp(obj, "NiftyResample") == 0)
@@ -105,8 +118,6 @@ void* parameter(const void* ptr, const char* obj, const char* name)
 		CAST_PTR(DataHandle, handle, ptr);
         if (strcmp(obj, "NiftiImageData") == 0)
             return cReg_NiftiImageDataParameter(handle, name);
-        if (strcmp(obj, "Registration") == 0)
-            return cReg_RegistrationParameter(handle, name);
         if (strcmp(obj, "NiftyResample") == 0)
             return cReg_NiftyResampleParameter(handle, name);
         if (strcmp(obj, "ImageWeightedMean") == 0)
@@ -601,35 +612,60 @@ void* cReg_Registration_process(void* ptr)
     CATCH;
 }
 extern "C"
-void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type)
+void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type, const int idx)
 {
     try {
         Registration<float>& reg = objectFromHandle<Registration<float>>(ptr);
         if (strcmp(transform_type, "forward_deformation") == 0)
-            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_forward_sptr()));
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_forward_sptr(unsigned(idx))));
         else if (strcmp(transform_type, "inverse_deformation") == 0)
-            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_inverse_sptr()));
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_inverse_sptr(unsigned(idx))));
         else if (strcmp(transform_type, "forward_displacement") == 0)
-            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_forward_sptr()));
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_forward_sptr(unsigned(idx))));
         else if (strcmp(transform_type, "inverse_displacement") == 0)
-            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_inverse_sptr()));
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_inverse_sptr(unsigned(idx))));
         else
             throw std::runtime_error("cReg_Registration_get_deformation_displacement_image: Bad return type.");
     }
     CATCH;
 }
 extern "C"
-void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
+void* cReg_Registration_add_floating(const void* ptr, const void* im_ptr)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    std::shared_ptr<const ImageData> im_sptr;
+    getObjectSptrFromHandle<const ImageData>(im_ptr, im_sptr);
+    reg.add_floating_image(im_sptr);
+    return new DataHandle;
+}
+extern "C"
+void* cReg_Registration_clear_floatings(const void* ptr)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    reg.clear_floating_images();
+    return new DataHandle;
+}
+extern "C"
+void* cReg_Registration_get_output(const void* ptr,const int idx)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    return newObjectHandle(reg.get_output_sptr(unsigned(idx)));
+}
+// -------------------------------------------------------------------------------- //
+//      NiftyRegistration
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
 {
     try {
-        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+        NiftyRegistration<float>& reg = objectFromHandle<NiftyRegistration<float> >(ptr);
         reg.set_parameter(par, arg1, arg2);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cReg_Registration_print_all_wrapped_methods(const char* name)
+void* cReg_NiftyRegistration_print_all_wrapped_methods(const char* name)
 {
     try {
         if (strcmp(name, "NiftyAladinSym") == 0)
@@ -660,6 +696,29 @@ void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir)
         return newObjectHandle(sptr);
     }
     CATCH;
+}
+// -------------------------------------------------------------------------------- //
+//      SPM
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx)
+{
+#ifdef SIRF_SPM
+    try {
+        SPMRegistration<float>& reg = objectFromHandle<SPMRegistration<float> >(ptr);
+        std::shared_ptr<const AffineTransformation<float> > sptr;
+        if (strcmp(dir, "forward") == 0)
+            sptr = reg.get_transformation_matrix_forward_sptr(unsigned(idx));
+        else if (strcmp(dir, "inverse") == 0)
+            sptr = reg.get_transformation_matrix_inverse_sptr(unsigned(idx));
+        else
+            throw std::runtime_error("only accept forward or inverse as argument to dir for saving transformation matrix");
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+#else
+    throw std::runtime_error("cReg_SPMRegistration_get_TM: SPM not present, you shouldn't be here.");
+#endif
 }
 // -------------------------------------------------------------------------------- //
 //      NiftyResample
@@ -833,6 +892,20 @@ void* cReg_AffineTransformation_construct_from_trans_and_quaternion(size_t trans
             trans[i] = ((float*)trans_ptr)[i];
         return newObjectHandle(
                     std::make_shared<AffineTransformation<float> >(trans,quat));
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_AffineTransformation_construct_from_trans_and_euler(size_t trans_ptr, size_t euler_ptr)
+{
+    try {
+        std::array<float,3> trans, euler;
+        for (unsigned i=0; i<3; ++i) {
+            trans[i] = ((float*)trans_ptr)[i];
+            euler[i] = ((float*)euler_ptr)[i];
+        }
+        return newObjectHandle(
+                    std::make_shared<AffineTransformation<float> >(trans,euler));
     }
     CATCH;
 }

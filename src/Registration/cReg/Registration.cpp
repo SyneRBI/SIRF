@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -33,21 +33,32 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void Registration<dataType>::check_parameters() const
+void Registration<dataType>::set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
 {
-    // If anything is missing
-    if (!_floating_image_sptr)
-        throw std::runtime_error("Floating image has not been set.");
-    if (!_reference_image_sptr)
-        throw std::runtime_error("Reference image has not been set.");
+    _floating_images.resize(1);
+    _floating_images.at(0) = floating_image_sptr;
 }
 
 template<class dataType>
-void Registration<dataType>::set_parameter(const std::string &par, const std::string &arg1, const std::string &arg2)
+void Registration<dataType>::add_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
 {
-    _extra_params.push_back(par);
-    _extra_params.push_back(arg1);
-    _extra_params.push_back(arg2);
+    _floating_images.push_back(floating_image_sptr);
+}
+
+template<class dataType>
+void Registration<dataType>::clear_floating_images()
+{
+    _floating_images.clear();
+}
+
+template<class dataType>
+void Registration<dataType>::check_parameters() const
+{
+    // If anything is missing
+    if (_floating_images.size()==0)
+        throw std::runtime_error("Floating image has not been set.");
+    if (!_reference_image_sptr)
+        throw std::runtime_error("Reference image has not been set.");
 }
 
 namespace sirf {

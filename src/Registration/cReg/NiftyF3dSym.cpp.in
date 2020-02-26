@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -47,7 +47,7 @@ void NiftyF3dSym<dataType>::process()
 
     // Annoyingly NiftyReg doesn't mark ref and floating images as const, so need to copy (could do a naughty cast, but not going to do that!)
     NiftiImageData3D<dataType> ref = *this->_reference_image_nifti_sptr;
-    NiftiImageData3D<dataType> flo = *this->_floating_image_nifti_sptr;
+    NiftiImageData3D<dataType> flo = *this->_floating_images_nifti.at(0);
 
     // Create the registration object
     _registration_sptr = std::shared_ptr<reg_f3d_sym<dataType> >(new reg_f3d_sym<dataType>(_reference_time_point, _floating_time_point));
@@ -87,7 +87,7 @@ void NiftyF3dSym<dataType>::process()
 
     // Get the warped image
     nifti_image **warped_im = _registration_sptr->GetWarpedImage();
-    this->_warped_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(*warped_im[0]);
+    this->_warped_images_nifti.at(0) = std::make_shared<NiftiImageData3D<dataType> >(*warped_im[0]);
     // Free the images created
     if(warped_im[0]!=NULL)
         nifti_image_free(warped_im[0]);
@@ -99,9 +99,9 @@ void NiftyF3dSym<dataType>::process()
     warped_im=NULL;
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
-    if (this->_floating_image_nifti_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
+    if (this->_floating_images_nifti.at(0)->get_raw_nifti_sptr()->dt < 1.e-7F &&
             this->_reference_image_nifti_sptr->get_raw_nifti_sptr()->dt < 1.e-7F)
-        this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->dt = 0.F;
+        this->_warped_images_nifti.at(0)->get_raw_nifti_sptr()->pixdim[4] = this->_warped_images_nifti.at(0)->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the CPP images
     nifti_image * cpp_fwd_ptr = _registration_sptr->GetControlPointPositionImage();
@@ -111,15 +111,15 @@ void NiftyF3dSym<dataType>::process()
     // Get deformation fields from cpp
     NiftiImageData3DDeformation<dataType> def_fwd, def_inv;
     def_fwd.create_from_cpp(cpp_forward, ref);
-    def_inv = *def_fwd.get_inverse(this->_floating_image_nifti_sptr);
+    def_inv = *def_fwd.get_inverse(this->_floating_images_nifti.at(0));
 
     // Get the displacement fields from the def
-    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
-    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
+    this->_disp_fwd_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
+    this->_disp_inv_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
-    this->_warped_image_sptr = this->_reference_image_sptr->clone();
-    this->_warped_image_sptr->fill(*this->_warped_image_nifti_sptr);
+    this->_warped_images.at(0) = this->_reference_image_sptr->clone();
+    this->_warped_images.at(0)->fill(*this->_warped_images_nifti.at(0));
 
     std::cout << "\n\nRegistration finished!\n\n";
 }

@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,6 +17,10 @@
 #=========================================================================
 
 if(BUILD_MATLAB)
+
+  if (SPM_FOUND)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPMRegistration.m.in" "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPMRegistration.m" COPYONLY)
+  endif()
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 

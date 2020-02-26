@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -38,6 +38,9 @@ limitations under the License.
 #include "sirf/Reg/Quaternion.h"
 #include <memory>
 #include <numeric>
+#ifdef SIRF_SPM
+#include "sirf/Reg/SPMRegistration.h"
+#endif
 
 using namespace sirf;
 
@@ -97,6 +100,7 @@ int main(int argc, char* argv[])
     const std::string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
     const std::string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
     const std::string output_float             = output_prefix   + "reg_aladin_float.nii";
+    const std::string spm_working_folder     = output_prefix   + "spm_working_folder";
 
     const std::shared_ptr<const NiftiImageData3D<float> > ref_aladin(new NiftiImageData3D<float>( ref_aladin_filename ));
     const std::shared_ptr<const NiftiImageData3D<float> > flo_aladin(new NiftiImageData3D<float>( flo_aladin_filename ));
@@ -1192,6 +1196,76 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished Quaternion test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
+#ifdef SIRF_SPM
+    {
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting SPM test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Resample an image with NiftyResample. Register SPM, check the result
+
+        // TM
+        std::array<float,3> translations = {5.f, 4.f, -5.f};
+        std::array<float,3> euler_angles = {5.f, -2.f,  3.f};
+        const std::shared_ptr<const AffineTransformation<float> > tm_sptr =
+                std::make_shared<const AffineTransformation<float> >(translations,euler_angles,true);
+
+        NiftyResample<float> niftyreg_resampler;
+        niftyreg_resampler.set_padding_value(0.f);
+        niftyreg_resampler.set_reference_image(ref_aladin);
+        niftyreg_resampler.set_floating_image(ref_aladin);
+        niftyreg_resampler.add_transformation(tm_sptr);
+        niftyreg_resampler.set_interpolation_type_to_linear();
+        const std::shared_ptr<const ImageData> floating_sptr = niftyreg_resampler.forward(ref_aladin);
+
+        // Register with SPM
+        SPMRegistration<float> spm_reg;
+        spm_reg.set_reference_image(ref_aladin);
+        spm_reg.add_floating_image(floating_sptr);
+        spm_reg.add_floating_image(floating_sptr);
+        spm_reg.set_working_folder(spm_working_folder);
+        spm_reg.set_working_folder_file_overwrite(true);
+        spm_reg.set_delete_temp_files(false);
+        spm_reg.process();
+        const std::shared_ptr<const AffineTransformation<float> > spm_tm_sptr = spm_reg.get_transformation_matrix_forward_sptr(1);
+        const AffineTransformation<float> spm_inv_tm = spm_tm_sptr->get_inverse();
+
+        // Check tm roughly equals inverse TM of the resampler
+        const std::array<float,3> estimated_euler_angles = spm_inv_tm.get_Euler_angles();
+        const std::array<float,3> estimated_translations = { spm_inv_tm[0][3], spm_inv_tm[1][3], spm_inv_tm[2][3] };
+
+        const std::array<float,3> input_euler_angles = tm_sptr->get_Euler_angles();
+        const std::array<float,3> input_translations = { (*tm_sptr)[0][3], (*tm_sptr)[1][3], (*tm_sptr)[2][3] };
+
+        std::array<float,3> diff_euler_angles, diff_translations;
+        for (unsigned i=0; i<3; ++i) {
+            diff_euler_angles[i] = 100.f * (input_euler_angles[i] - estimated_euler_angles[i]) / input_euler_angles[i];
+            diff_translations[i] = 100.f * (input_translations[i] - estimated_translations[i]) / input_translations[i];
+        }
+
+        std::cout << "Input Euler angles:              " << input_euler_angles[0]     << " " << input_euler_angles[1]     << " " << input_euler_angles[2]     << "\n";
+        std::cout << "Estimated Euler angles:          " << estimated_euler_angles[0] << " " << estimated_euler_angles[1] << " " << estimated_euler_angles[2] << "\n";
+        std::cout << "Percentage diff in Euler angles: " << diff_euler_angles[0]      << " " << diff_euler_angles[1]      << " " << diff_euler_angles[2]      << "\n";
+        std::cout << "Input translations:              " << input_translations[0]     << " " << input_translations[1]     << " " << input_translations[2]     << "\n";
+        std::cout << "Estimated translations:          " << estimated_translations[0] << " " << estimated_translations[1] << " " << estimated_translations[2] << "\n";
+        std::cout << "Percentage diff in translations: " << diff_translations[0]      << " " << diff_translations[1]      << " " << diff_translations[2]      << "\n";
+
+        // Check differences are less than 1%
+        for (unsigned i=0; i<3; ++i) {
+            if (std::abs(diff_euler_angles[i]) > 1.f)
+                throw std::runtime_error("SPM registration failed (angles).");
+            if (std::abs(diff_translations[i]) > 1.f)
+                throw std::runtime_error("SPM registration failed (translations).");
+        }
+
+        if (spm_reg.get_output_sptr(1)->operator!=(*ref_aladin))
+            throw std::runtime_error("SPM registration failed (image difference).");
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished SPM test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+#endif
 
     // Error handling
     } catch(const std::exception &error) {

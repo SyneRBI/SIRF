@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -174,6 +174,46 @@ AffineTransformation<dataType>::AffineTransformation(const std::array<dataType,3
 }
 
 template<class dataType>
+AffineTransformation<dataType>::AffineTransformation(const std::array<dataType,3> &trans, const std::array<dataType,3> &euler, const bool degrees)
+{
+    // Set bottom row to [0,0,0,1]
+    for (unsigned i=0; i<3; ++i)
+        _tm[3][i] = 0.f;
+    _tm[3][3] = 1.f;
+
+    // Set translations
+    for (unsigned i=0; i<3; ++i)
+        _tm[i][3] = trans[i];
+
+    std::array<dataType,3> euler_rad = euler;
+
+    // if in degrees, convert to radian
+    if (degrees)
+        for (unsigned i=0; i<3; ++i)
+            euler_rad[i] *= dataType(M_PI) / 180.f;
+
+    // Convert euler angles to rotation matrix
+    float cu = cos(euler_rad[0]);
+    float su = sin(euler_rad[0]);
+    float cv = cos(euler_rad[1]);
+    float sv = sin(euler_rad[1]);
+    float cw = cos(euler_rad[2]);
+    float sw = sin(euler_rad[2]);
+
+    _tm[0][0] = cv*cw;
+    _tm[0][1] = su*sv*cw - cu*sw;
+    _tm[0][2] = su*sw + cu*sv*cw;
+
+    _tm[1][0] = cv*sw;
+    _tm[1][1] = cu*cw + su*sv*sw;
+    _tm[1][2] = cu*sv*sw - su*cw;
+
+    _tm[2][0] = -sv;
+    _tm[2][1] = su*cv;
+    _tm[2][2] = cu*cv;
+}
+
+template<class dataType>
 bool AffineTransformation<dataType>::operator==(const AffineTransformation &other) const
 {
     if (this == &other)
@@ -249,11 +289,16 @@ void AffineTransformation<dataType>::write(const std::string &filename) const
     if (filename.empty())
         throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
+    std::string filename_w_ext = filename;
+    boost::filesystem::path filename_boost(filename_w_ext);
+    if (!filename_boost.has_extension())
+        filename_w_ext += ".txt";
+
     // If the folder doesn't exist, create it
-    check_folder_exists_if_not_create(filename);
+    check_folder_exists_if_not_create(filename_w_ext);
 
     FILE *file;
-    file=fopen(filename.c_str(), "w");
+    file=fopen(filename_w_ext.c_str(), "w");
     for(int i=0; i<4; ++i)
         fprintf(file, "%e %e %e %e\n", _tm[i][0], _tm[i][1], _tm[i][2], _tm[i][3]);
     fclose(file);
