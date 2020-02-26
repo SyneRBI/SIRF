@@ -21,6 +21,7 @@ Options:
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
   -C <cnts>, --counts=<cnts>   account for delay between injection and acquisition start by shifting interval to start when counts exceed given threshold.
+  --visualisations             show visualisations
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -84,6 +85,11 @@ num_subiterations = int(args['--subiter'])
 storage = args['--storage']
 count_threshold = args['--counts']
 
+if args['--visualisations']:
+    visualisations = True
+else:
+    visualisations = False
+
 
 def main():
 
@@ -135,15 +141,17 @@ def main():
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
     print('acquisition data dimensions: %dx%dx%dx%d' % acq_dim)
-    # select a slice appropriate for the NEMA acquisition data
-    z = 71
-    #z = acq_dim[0]//2
-    show_2D_array('Acquisition data', acq_array[0,z,:,:])
+    if visualisations:
+        # select a slice appropriate for the NEMA acquisition data
+        z = 71
+        #z = acq_dim[0]//2
+        show_2D_array('Acquisition data', acq_array[0,z,:,:])
 
     # read attenuation image
     attn_image = ImageData(attn_file)
-    attn_image_as_array = attn_image.as_array()
-    show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
+    if visualisations:
+        attn_image_as_array = attn_image.as_array()
+        show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
 
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
@@ -203,11 +211,13 @@ def main():
     # reconstruct
     print('reconstructing, please wait...')
     recon.process()
+    recon.get_output().write(outp_file)
 
-    # show reconstructed image
-    image_array = recon.get_current_estimate().as_array()
-    show_2D_array('Reconstructed image', image_array[z,:,:])
-    pylab.show()
+    if visualisations:
+        # show reconstructed image
+        image_array = recon.get_current_estimate().as_array()
+        show_2D_array('Reconstructed image', image_array[z,:,:])
+        pylab.show()
 
 try:
     main()
