@@ -29,6 +29,7 @@ import pyiutilities as pyiutil
 import pyreg
 
 import sirf.Reg_params as parms
+import numpy
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -282,6 +283,28 @@ class NiftiImageData(SIRF.ImageData):
             image = NiftiImageData3DDisplacement()
         try_calling(pyreg.cReg_NiftiImageData_deep_copy(image.handle, self.handle))
         return image
+    
+    def allocate(self, value=0, **kwargs):
+        '''Alias to get_uniform_copy
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.deep_copy()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.deep_copy()
+            out *= 0
+            out.fill( value * numpy.ones_like(out.as_array()) )
+        return out
 
     def as_array(self):
         """Get data as numpy array."""
@@ -416,6 +439,7 @@ class NiftiImageData3D(NiftiImageData):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+            
 
 
 class ImageData(NiftiImageData3D):
