@@ -308,7 +308,25 @@ int main(int argc, char* argv[])
         if (bb != aa)
             throw std::runtime_error("NiftiImageData::-= failed");
 
-
+        // Pad then crop, should be the same
+        NiftiImageData<float> cc = aa;
+        const int * const original_dims = aa.get_dimensions();
+        int pad_in_min_dir[7] = { 1, 2, 3, 0, 0, 0, 0 };
+        int pad_in_max_dir[7] = { 4, 5, 6, 0, 0, 0, 0 };
+        cc.pad(pad_in_min_dir,pad_in_max_dir, 100.f);
+        const int * const padded_dims = cc.get_dimensions();
+        for (unsigned i=0; i<7; ++i)
+            if (padded_dims[i+1] != original_dims[i+1] + pad_in_min_dir[i] + pad_in_max_dir[i])
+                throw std::runtime_error("NiftiImageData::pad failed");
+        // Crop back to beginning
+        int cropped_min_dir[7], cropped_max_dir[7];
+        for (unsigned i=0; i<7; ++i) {
+            cropped_min_dir[i] = pad_in_min_dir[i];
+            cropped_max_dir[i] = original_dims[i+1] + cropped_min_dir[i] - 1;
+        }
+        cc.crop(cropped_min_dir, cropped_max_dir);
+        if (aa != cc)
+            throw std::runtime_error("NiftiImageData::pad/crop failed");
 
 
         std::cout << "// ----------------------------------------------------------------------- //\n";

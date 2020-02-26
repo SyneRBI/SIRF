@@ -278,6 +278,30 @@ def try_niftiimage():
     if abs(inner_product - in1.get_inner_product(in2)) > 1e-4:
         raise AssertionError("NiftiImageData::get_inner_product() failed.")
 
+    # Pad then crop, should be the same
+    aa = ref_aladin
+    cc = aa.clone()
+    original_dims = aa.get_dimensions()
+
+    pad_in_min_dir = [1, 2, 3, 0, 0, 0, 0]
+    pad_in_max_dir = [4, 5, 6, 0, 0, 0, 0]
+    cc.pad(pad_in_min_dir, pad_in_max_dir, 100.)
+
+    padded_dims = cc.get_dimensions()
+    for i in range(7):
+        if padded_dims[i+1] != original_dims[i+1] + pad_in_min_dir[i] + pad_in_max_dir[i]:
+            raise AssertionError("NiftiImageData::pad failed")
+
+    # Crop back to beginning
+    cropped_min_dir = pad_in_min_dir
+    cropped_max_dir = cropped_min_dir.copy()
+    for i in range(7):
+        cropped_max_dir[i] = original_dims[i+1] + cropped_min_dir[i] - 1
+
+    cc.crop(cropped_min_dir, cropped_max_dir)
+    if aa != cc:
+        raise AssertionError("NiftiImageData::pad/crop failed")
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished NiftiImageData test.\n')

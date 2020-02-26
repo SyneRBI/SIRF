@@ -200,6 +200,23 @@ classdef NiftiImageData < sirf.SIRF.ImageData
             h = calllib('mreg', 'mReg_NiftiImageData_crop', self.handle_, min_ptr, max_ptr);
             sirf.Utilities.check_status([self.name ':crop'], h)
         end
+        function pad(self, min_, max_, val)
+            % Crop image. Give minimum and maximum indices.
+            % Min and max indicies can be anywhere between (x,y,z) and (x,y,z,t,u,v,w).
+            % Use values of -1 for no change.
+            narginchk(3,4)
+            if nargin < 4
+                val = 0;
+            end
+            assert(all(size(min_) >= [1 3]) && all(size(min_) <= [1 7]), 'Min bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)')
+            assert(all(size(max_) >= [1 3]) && all(size(max_) <= [1 7]), 'Max bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)')
+            min_(end+1:7)=0;
+            max_(end+1:7)=0;
+            min_ptr = libpointer('int32Ptr', single(min_));
+            max_ptr = libpointer('int32Ptr', single(max_));
+            h = calllib('mreg', 'mReg_NiftiImageData_pad', self.handle_, min_ptr, max_ptr, val);
+            sirf.Utilities.check_status([self.name ':pad'], h)
+        end
         function print_header(self)
             %Print metadata of nifti image.
             vec = sirf.SIRF.DataHandleVector();

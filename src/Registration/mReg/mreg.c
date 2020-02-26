@@ -90,6 +90,9 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_original_datatype(const void
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr) {
 	return cReg_NiftiImageData_crop(im_ptr, min_index_ptr, max_index_ptr);
 }
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_pad(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr, const float val) {
+	return cReg_NiftiImageData_pad(im_ptr, min_index_ptr, max_index_ptr, val);
+}
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order) {
 	return cReg_NiftiImageData_set_voxel_spacing(im_ptr, x, y, z, interpolation_order);
 }
