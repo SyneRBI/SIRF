@@ -254,11 +254,11 @@ def try_niftiimage():
     if abs(im.get_mean()) > 0.0001:
         raise AssertionError("NiftiImageData standardise() or get_mean() failed.")
     
-    # Check normalise 
+    # Check normalise
     im.normalise_zero_and_one()
     if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
         raise AssertionError("NiftiImageData normalise_between_zero_and_one() failed.")
-    
+
     # Test inner product
     in1 = x.deep_copy()
     in2 = x.deep_copy()
@@ -795,6 +795,8 @@ def try_transformations(na):
 
     # Test get_inverse
     tm_inv = tm_iden.get_inverse()
+    if not tm_inv:
+        raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -864,8 +866,8 @@ def try_resample(na):
         raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
 
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
-    # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
-    # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation 
+    # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
+    # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation
     # is not used to generate final image. You would hope it's used throughout the registration process, otherwise why is it there?
     # if na.get_output() != nr1.get_output():
     #     raise AssertionError()
@@ -1105,10 +1107,14 @@ def try_quaternion():
     # Convert to quaternion
     quat = sirf.Reg.Quaternion(rotm)
     a = quat.as_array()
+    if not a:
+        raise AssertionError()
 
     # Construct from numpy array
     expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=numpy.float32)
     expt = sirf.Reg.Quaternion(expt_array)
+    if not a:
+        raise AssertionError()
 
     # Compare to expected values
     if not np.allclose(quat.as_array(), expt_array, atol=1e-4):

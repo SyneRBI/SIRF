@@ -13,16 +13,13 @@ Options:
 
 {licence}
 """
-import math
 from sirf.STIR import *
-from sirf.Utilities import runner, RE_PYEXT, __license__
+from sirf.Utilities import runner, __license__
 import numpy as np
 
 __version__ = "0.2.3"
 __author__ = "Richard Brown"
 
-
-import sirf.Reg
 
 def get_elliptical_cylinder(radius_x, radius_y, length, origin=None):
     cyl = EllipticCylinder()
@@ -39,7 +36,7 @@ def get_image():
     image = ImageData()
     image.initialise(im_size, im_spacing)
     image.fill(0)
-    
+
     cyl = get_elliptical_cylinder(200,100,1000)
     image.add_shape(cyl, scale=0.75)
     cyl = get_elliptical_cylinder(100,50,300,(20,30,10))
@@ -59,7 +56,6 @@ def add_noise(proj_data,noise_factor = 1):
     return noisy_proj_data
 
 def test_main(rec=False, verb=False, throw=True):
-    msg_red = MessageRedirector()
 
     data_path = examples_data_path('PET')
     raw_data_file = existing_filepath(data_path, 'mMR/mMR_template_span11.hs')
@@ -95,6 +91,8 @@ def test_main(rec=False, verb=False, throw=True):
     recon.set_current_estimate(initial_estimate)
     recon.process()
     reconstructed_im = recon.get_output()
+    if not reconstructed_im:
+        raise AssertionError()
 
 if __name__ == "__main__":
     runner(test_main, __doc__, __version__, __author__)
