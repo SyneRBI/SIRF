@@ -18,11 +18,30 @@
 
 if(BUILD_MATLAB)
 
-  if (SPM_FOUND)
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPMRegistration.m.in" "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPMRegistration.m" COPYONLY)
-  endif()
-
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
+
+  SET(SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Transformation.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Registration.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/setParameter.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftyResample.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/parameter.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Quaternion.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftiImageData3DTensor.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftyAladinSym.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftyF3dSym.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftyRegistration.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftiImageData3DDeformation.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftiImageData3DDisplacement.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/ImageWeightedMean.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftiImageData.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftiImageData3D.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/AffineTransformation.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/ImageData.m")
+
+  if (SPM_FOUND)
+    set(SOURCES "${SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPMRegistration.m")
+  endif()
 
   add_library(mreg SHARED mreg.c printer.cpp)
   target_include_directories(mreg PUBLIC ${Matlab_INCLUDE_DIRS})
@@ -32,7 +51,7 @@ if(BUILD_MATLAB)
   target_link_libraries(mreg Reg iutilities csirf cstir ${Matlab_LIBRARIES})
   INSTALL(TARGETS mreg DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mreg.h DESTINATION "${MATLAB_DEST}")
-  INSTALL(DIRECTORY +sirf DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES ${SOURCES} DESTINATION "${MATLAB_DEST}/+sirf/+Reg")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
 
