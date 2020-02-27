@@ -25,8 +25,6 @@
 if (NOT STIR_WITH_NIFTYPET_PROJECTOR)
 	set(exclude_test "--exclude=tests_niftypet.py")
 endif()
-# 	set (test_files ${test_files} "test_pReg_spm.py")
-# endif()
 
 add_test(NAME PET_TESTS_PYTHON
   COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_test}
