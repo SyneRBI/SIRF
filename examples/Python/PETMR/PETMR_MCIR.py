@@ -195,7 +195,7 @@ if True:
 # compose the resampler with the acquisition models
 C = [ CompositionOperator(am, res) for am, res in zip (*(ams, resamplers)) ]
 # C = [ am for am in ams ]
-# C = [ ams[0] for i in range(len(ams))]
+C = [ CompositionOperator(am, resamplers[0]) for am in ams ]
 print ("number of motion states", len(resamplers))
 
 
