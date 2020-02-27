@@ -179,19 +179,23 @@ for ms in range(n_ms):
         get_acquisition_model(uMap, templ_sino)
     )
 
-if False:
+if True:
     # plot the solutions to see that with the resampler we get the same orientation
     implot = []
     for ms in range(n_ms):
         img = read_2D_STIR_nii(os.path.basename(FDG_files[ms]))
         implot.append(img.as_array()[0])
-        implot.append(resamplers[ms].direct(img).as_array()[0])
+        implot.append(resamplers[ms].adjoint(img).as_array()[0])
 
-    plotter2D( implot )
+    plotter2D( implot , titles=['MS0', 'Resampled to MS0', 
+    'MS1', 'Resampled to MS0',
+    'MS2', 'Resampled to MS0',
+    'MS3', 'Resampled to MS0'])
 
 # compose the resampler with the acquisition models
 C = [ CompositionOperator(am, res) for am, res in zip (*(ams, resamplers)) ]
-C = [ am for am in ams ]
+# C = [ am for am in ams ]
+# C = [ ams[0] for i in range(len(ams))]
 print ("number of motion states", len(resamplers))
 
 
@@ -204,12 +208,12 @@ K = BlockOperator(*C)
 #f = kl[0]
 #K = ams[0]
 
-#normK = K.norm(iterations=10)
-normK = LinearOperator.PowerMethod(K, iterations=10)[0]
+normK = K.norm(iterations=10)
+#normK = LinearOperator.PowerMethod(K, iterations=10)[0]
 #default values
 sigma = 1/normK
 tau = 1/normK 
-sigma = 0.1
+sigma = 0.001
 tau = 1/(sigma*normK**2)
 print ("Norm of the BlockOperator ", normK)
 
@@ -218,7 +222,7 @@ print ("Norm of the BlockOperator ", normK)
 #regularisation parameters for TV
 # 
 r_alpha = 5e-2
-r_iterations = 500
+r_iterations = 100
 r_tolerance = 1e-7
 r_iso = 0
 r_nonneg = 1
@@ -240,12 +244,13 @@ img = read_2D_STIR_nii(os.path.basename(FDG_files[0]))
 solution = resamplers[0].direct(img)
 
 
-res = reg.NiftyResample()
-res.set_reference_image(pdhg.get_output())
-res.set_floating_image(solution)
-res.set_interpolation_type_to_linear()
+# res = reg.NiftyResample()
+# res.set_reference_image(pdhg.get_output())
+# res.set_floating_image(solution)
+# res.set_interpolation_type_to_linear()
 
-solution2 = res.direct(solution)
+# solution2 = res.direct(solution)
 
-plotter2D([solution.as_array()[0], pdhg.get_output().as_array()[0], solution2.as_array()[0]] )
+plotter2D([solution.as_array()[0], pdhg.get_output().as_array()[0]],
+          titles = ['Ground Truth (MS0)' , 'PDHG output with TV'] )
 # %%
