@@ -57,28 +57,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-# process command-line options
-# ref_file = args['--ref']
-# flo_file = args['--flo']
-# par_file = args['--par']
-# algo = args['--algo']
-# rmask_file = args['--rmask']
-# fmask_file = args['--fmask']
-#
-# # reference
-# if ref_file is None:
-#     ref_file = examples_path + "/test.nii.gz"
-#
-# # floating
-# if flo_file is None:
-#     flo_file = examples_path + "/test2.nii.gz"
-#
-# # parameter file
-# if par_file is None:
-#     par_file = examples_path + "/paramFiles/niftyreg_aladin.par"
-#
-
-
 def get_image(arg):
     """Get an image filename and its engine"""
     arg = arg.split(',')
