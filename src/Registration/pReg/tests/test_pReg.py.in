@@ -294,7 +294,7 @@ def try_niftiimage():
 
     # Crop back to beginning
     cropped_min_dir = pad_in_min_dir
-    cropped_max_dir = cropped_min_dir.copy()
+    cropped_max_dir = list(cropped_min_dir)
     for i in range(7):
         cropped_max_dir[i] = original_dims[i+1] + cropped_min_dir[i] - 1
 
