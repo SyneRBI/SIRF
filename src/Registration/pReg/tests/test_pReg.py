@@ -254,7 +254,7 @@ def try_niftiimage():
     if abs(im.get_mean()) > 0.0001:
         raise AssertionError("NiftiImageData standardise() or get_mean() failed.")
 
-    # Check normalise
+    # Check normalise 
     im.normalise_zero_and_one()
     if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
         raise AssertionError("NiftiImageData normalise_between_zero_and_one() failed.")
@@ -276,6 +276,30 @@ def try_niftiimage():
     in2.fill(in2_arr)
     if abs(inner_product - in1.get_inner_product(in2)) > 1e-4:
         raise AssertionError("NiftiImageData::get_inner_product() failed.")
+
+    # Pad then crop, should be the same
+    aa = ref_aladin
+    cc = aa.clone()
+    original_dims = aa.get_dimensions()
+
+    pad_in_min_dir = [1, 2, 3, 0, 0, 0, 0]
+    pad_in_max_dir = [4, 5, 6, 0, 0, 0, 0]
+    cc.pad(pad_in_min_dir, pad_in_max_dir, 100.)
+
+    padded_dims = cc.get_dimensions()
+    for i in range(7):
+        if padded_dims[i+1] != original_dims[i+1] + pad_in_min_dir[i] + pad_in_max_dir[i]:
+            raise AssertionError("NiftiImageData::pad failed")
+
+    # Crop back to beginning
+    cropped_min_dir = pad_in_min_dir
+    cropped_max_dir = list(cropped_min_dir)
+    for i in range(7):
+        cropped_max_dir[i] = original_dims[i+1] + cropped_min_dir[i] - 1
+
+    cc.crop(cropped_min_dir, cropped_max_dir)
+    if aa != cc:
+        raise AssertionError("NiftiImageData::pad/crop failed")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -1113,7 +1137,7 @@ def try_quaternion():
     # Construct from numpy array
     expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=numpy.float32)
     expt = sirf.Reg.Quaternion(expt_array)
-    if not expt:
+    if expt is None:
         raise AssertionError()
 
     # Compare to expected values

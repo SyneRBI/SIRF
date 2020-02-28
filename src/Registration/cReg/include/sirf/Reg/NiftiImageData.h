@@ -358,6 +358,9 @@ public:
     /// Crop. Set to -1 to leave unchanged
     void crop(const int min_index[7], const int max_index[7]);
 
+    /// Pad image with value. Give number of voxels to increase in min and max directions. Set values to -1 to leave unchanged
+    void pad(const int min_index[7], const int max_index[7], const dataType val = 0);
+
     /// get 1D index from ND index
     int get_1D_index(const int idx[7]) const;
 

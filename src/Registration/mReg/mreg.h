@@ -53,6 +53,7 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_equal(const void* im1_ptr, const
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_original_datatype(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_pad(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr, const float val);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_standardise(const void* im_ptr);

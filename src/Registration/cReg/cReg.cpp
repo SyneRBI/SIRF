@@ -390,7 +390,18 @@ void* cReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, size_t 
     }
     CATCH;
 }
-
+extern "C"
+void* cReg_NiftiImageData_pad(const void* im_ptr, size_t min_index_ptr, size_t max_index_ptr, const float val)
+{
+    try {
+        NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(im_ptr);
+        int* min_index = (int*)min_index_ptr;
+        int* max_index = (int*)max_index_ptr;
+        im.pad(min_index,max_index,val);
+        return new DataHandle;
+    }
+    CATCH
+}
 extern "C"
 void* cReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order)
 {
