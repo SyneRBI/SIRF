@@ -37,12 +37,12 @@ using namespace sirf;
 template<class dataType>
 void NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(std::shared_ptr<const NiftiImageData3D<dataType> > &output_sptr, const std::shared_ptr<const ImageData> &input_sptr)
 {
-// Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
-output_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(input_sptr);
-// If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
-// In this case, construct a NiftiImageData
-if (!output_sptr)
-    output_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*input_sptr);
+    // Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
+    output_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(input_sptr);
+    // If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
+    // In this case, construct a NiftiImageData
+    if (!output_sptr)
+        output_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*input_sptr);
 }
 
 template<class dataType>
