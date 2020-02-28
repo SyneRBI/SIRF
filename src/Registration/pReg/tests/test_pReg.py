@@ -253,7 +253,7 @@ def try_niftiimage():
         raise AssertionError("NiftiImageData standardise() or get_variance() failed.")
     if abs(im.get_mean()) > 0.0001:
         raise AssertionError("NiftiImageData standardise() or get_mean() failed.")
-    
+
     # Check normalise
     im.normalise_zero_and_one()
     if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
@@ -1113,7 +1113,7 @@ def try_quaternion():
     # Construct from numpy array
     expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=numpy.float32)
     expt = sirf.Reg.Quaternion(expt_array)
-    if not a:
+    if not expt:
         raise AssertionError()
 
     # Compare to expected values
