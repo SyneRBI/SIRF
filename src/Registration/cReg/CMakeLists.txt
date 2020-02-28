@@ -59,6 +59,12 @@ TARGET_INCLUDE_DIRECTORIES(Reg BEFORE PUBLIC "${NIFTYREG_INCLUDE_DIRS}")
 # link against NiftyMoMo
 TARGET_LINK_LIBRARIES(Reg PUBLIC NiftyMoMo)
 
+# Temporary fix for linking CUDA libraries if necessary
+if (NIFTYREG_BUILT_WITH_CUDA)
+  find_package(CUDA REQUIRED)
+  target_link_libraries(Reg PUBLIC ${CUDA_CUDART_LIBRARY})
+endif()
+
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
