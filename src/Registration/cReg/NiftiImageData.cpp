@@ -763,6 +763,106 @@ void NiftiImageData<dataType>::crop(const int min_index[7], const int max_index[
                             nullptr,
                             &_nifti_image->qfac );
     _nifti_image->pixdim[0]=_nifti_image->qfac;
+
+    this->set_up_data(DT_FLOAT32);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::pad(const int min_index[7], const int max_index[7], const dataType val)
+{
+    if(!this->is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::crop: Image not initialised.");
+
+    std::shared_ptr<nifti_image> im = _nifti_image;
+
+    // If any min or max values are -ve, set them to 0
+    int min_idx[7], max_idx[7];
+    for (int i=0; i<7; ++i) {
+        (min_index[i] > -1) ? min_idx[i] = min_index[i] : min_idx[i] = 0;
+        (max_index[i] > -1) ? max_idx[i] = max_index[i] : max_idx[i] = 0;
+    }
+
+    // Keep track of the old max (min is 0's)
+    int old_max_idx[7];
+    for (unsigned i=0; i<7; ++i)
+        old_max_idx[i] = im->dim[i+1];
+
+    // Copy the original array
+    const NiftiImageData copy = *this;
+
+    // Set the new number of voxels
+    im->dim[1] = im->nx = im->dim[1] + max_idx[0] + min_idx[0];
+    im->dim[2] = im->ny = im->dim[2] + max_idx[1] + min_idx[1];
+    im->dim[3] = im->nz = im->dim[3] + max_idx[2] + min_idx[2];
+    im->dim[4] = im->nt = im->dim[4] + max_idx[3] + min_idx[3];
+    im->dim[5] = im->nu = im->dim[5] + max_idx[4] + min_idx[4];
+    im->dim[6] = im->nv = im->dim[6] + max_idx[5] + min_idx[5];
+    im->dim[7] = im->nw = im->dim[7] + max_idx[6] + min_idx[6];
+    im->nvox = unsigned(im->nx * im->ny * im->nz * im->nt * im->nu * im->nv * im->nw);
+
+    // Set the number of dimensions - largest non singleton
+    im->dim[0] = im->ndim = 1;
+    for (unsigned i=1; i<8; ++i)
+        if (im->dim[i] > 1)
+            im->dim[0] = im->ndim = int(i);
+
+    // Reset the data to the correct num of voxels
+    free(im->data);
+    im->data = static_cast<void*>(calloc(im->nvox,size_t(im->nbyper)));
+    _data    = static_cast<float*>(im->data);
+
+    // Get the data
+    float *old_data = static_cast<float*>(copy.get_raw_nifti_sptr()->data);
+    float *new_data = _data;
+
+    // Fill with the desired value
+    for (unsigned i=0; i<im->nvox; ++i)
+        _data[i] = val;
+
+    // Replace the central part with the original image
+    int old_index[7], new_index[7];
+    int new_1d_idx, old_1d_idx;
+    for (old_index[0]=0; old_index[0]<old_max_idx[0]; ++old_index[0]) {
+        for (old_index[1]=0; old_index[1]<old_max_idx[1]; ++old_index[1]) {
+            for (old_index[2]=0; old_index[2]<old_max_idx[2]; ++old_index[2]) {
+                for (old_index[3]=0; old_index[3]<old_max_idx[3]; ++old_index[3]) {
+                    for (old_index[4]=0; old_index[4]<old_max_idx[4]; ++old_index[4]) {
+                        for (old_index[5]=0; old_index[5]<old_max_idx[5]; ++old_index[5]) {
+                            for (old_index[6]=0; old_index[6]<old_max_idx[6]; ++old_index[6]) {
+
+                                for (int i=0; i<7; ++i)
+                                    new_index[i] = old_index[i] + min_idx[i];
+
+                                new_1d_idx = this->get_1D_index(new_index);
+                                old_1d_idx = copy.get_1D_index(old_index);
+                                new_data[new_1d_idx] = old_data[old_1d_idx];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // If the minimum has been changed, need to alter the origin.
+    for (int i=0; i<3; ++i)
+        _nifti_image->qto_ijk.m[i][3] += min_idx[i];
+    _nifti_image->qto_xyz =
+            nifti_mat44_inverse(_nifti_image->qto_ijk);
+    nifti_mat44_to_quatern( _nifti_image->qto_xyz,
+                            &_nifti_image->quatern_b,
+                            &_nifti_image->quatern_c,
+                            &_nifti_image->quatern_d,
+                            &_nifti_image->qoffset_x,
+                            &_nifti_image->qoffset_y,
+                            &_nifti_image->qoffset_z,
+                            nullptr,
+                            nullptr,
+                            nullptr,
+                            &_nifti_image->qfac );
+    _nifti_image->pixdim[0]=_nifti_image->qfac;
+
+    this->set_up_data(DT_FLOAT32);
 }
 
 template<class dataType>

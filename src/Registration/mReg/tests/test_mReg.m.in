@@ -246,6 +246,29 @@ if try_niftiimage
     disp(in1.get_inner_product(in2))
     assert(abs(inner_product - in1.get_inner_product(in2)) < 1e-4, 'NiftiImageData::get_inner_product() failed.');
 
+    % Pad then crop, should be the same
+    aa = g.ref_aladin;
+    cc = aa.clone();
+    original_dims = aa.get_dimensions();
+
+    pad_in_min_dir = [1, 2, 3, 0, 0, 0, 0];
+    pad_in_max_dir = [4, 5, 6, 0, 0, 0, 0];
+    cc.pad(pad_in_min_dir, pad_in_max_dir, 100.);
+
+    padded_dims = cc.get_dimensions();
+    for i = 1:7
+        assert(padded_dims(i+1) == original_dims(i+1) + pad_in_min_dir(i) + pad_in_max_dir(i), ...
+            'NiftiImageData::pad failed')
+    end
+
+    % Crop back to beginning
+    cropped_min_dir = pad_in_min_dir;
+    for i = 1:7
+        cropped_max_dir(i) = original_dims(i+1) + cropped_min_dir(i) - 1;
+    end
+    cc.crop(cropped_min_dir, cropped_max_dir);
+    assert(aa == cc, 'NiftiImageData::pad/crop failed')
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
     disp('%------------------------------------------------------------------------ %')
