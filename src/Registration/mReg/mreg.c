@@ -156,6 +156,15 @@ EXPORTED_FUNCTION     void* mReg_Registration_clear_floatings(const void* ptr) {
 EXPORTED_FUNCTION     void* mReg_Registration_get_output(const void* ptr,const int idx) {
 	return cReg_Registration_get_output(ptr, idx);
 }
+EXPORTED_FUNCTION     void* mReg_Registration_set_reference_image_filename(const void* ptr, const char* filename) {
+	return cReg_Registration_set_reference_image_filename(ptr, filename);
+}
+EXPORTED_FUNCTION     void* mReg_Registration_set_floating_image_filename(const void* ptr, const char* filename) {
+	return cReg_Registration_set_floating_image_filename(ptr, filename);
+}
+EXPORTED_FUNCTION     void* mReg_Registration_add_floating_image_filename(const void* ptr, const char* filename) {
+	return cReg_Registration_add_floating_image_filename(ptr, filename);
+}
 EXPORTED_FUNCTION     void* mReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2) {
 	return cReg_NiftyRegistration_set_parameter(ptr, par, arg1, arg2);
 }

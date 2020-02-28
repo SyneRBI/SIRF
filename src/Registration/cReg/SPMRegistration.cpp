@@ -198,12 +198,12 @@ void SPMRegistration<dataType>::process()
         const std::string tm_in_nr_space_command = "tm_in_nr_space = inv(spm_output(" + std::to_string(a+2) + ").mat / spm_output(" + std::to_string(a+2) + ").private.mat0);";
         _matlab_uptr->eval(convertor.from_bytes(tm_in_nr_space_command));
         _matlab_uptr->eval(u"disp(tm_in_nr_space)");
-//        TypedArray<double> tm = _matlab_uptr->getVariable(u"tm_in_nr_space");
+        TypedArray<double> tm = _matlab_uptr->getVariable(u"tm_in_nr_space");
 
         _TMs_fwd.at(a) = std::make_shared<AffineTransformation<dataType> >();
-//        for (unsigned i=0; i<4; ++i)
-//            for (unsigned j=0; j<4; ++j)
-//                (*_TMs_fwd.at(a))[i][j] = float(tm[i][j]);
+        for (unsigned i=0; i<4; ++i)
+            for (unsigned j=0; j<4; ++j)
+                (*_TMs_fwd.at(a))[i][j] = float(tm[i][j]);
         _TMs_inv.at(a) = std::make_shared<AffineTransformation<dataType> >(_TMs_fwd.at(a)->get_inverse());
     }
 

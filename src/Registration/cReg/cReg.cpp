@@ -662,6 +662,27 @@ void* cReg_Registration_get_output(const void* ptr,const int idx)
     Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
     return newObjectHandle(reg.get_output_sptr(unsigned(idx)));
 }
+extern "C"
+void* cReg_Registration_set_reference_image_filename(const void* ptr, const char* filename)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    reg.set_reference_image_filename(filename);
+    return new DataHandle;
+}
+extern "C"
+void* cReg_Registration_set_floating_image_filename(const void* ptr, const char* filename)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    reg.set_floating_image_filename(filename);
+    return new DataHandle;
+}
+extern "C"
+void* cReg_Registration_add_floating_image_filename(const void* ptr, const char* filename)
+{
+    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+    reg.add_floating_image_filename(filename);
+    return new DataHandle;
+}
 // -------------------------------------------------------------------------------- //
 //      NiftyRegistration
 // -------------------------------------------------------------------------------- //

@@ -56,6 +56,28 @@ classdef (Abstract = true) Registration < handle
             sirf.Utilities.check_status([self.name ':add_floating_image'], h);
             sirf.Utilities.delete(h)
         end
+        function set_reference_image_filename(self, filename)
+            %Sets the reference image filename.
+            assert(ischar(filename))
+            self.reference_image = sirf.Reg.NiftiImageData(filename);
+            h = calllib('mreg', 'mReg_Registration_set_reference_image_filename', self.handle_, filename);
+            sirf.Utilities.check_status([self.name ':set_reference_image_filename'], h);
+            sirf.Utilities.delete(h)
+        end
+        function set_floating_image_filename(self, filename)
+            %Sets the floating image filename.
+            assert(ischar(filename))
+            h = calllib('mreg', 'mReg_Registration_set_floating_image_filename', self.handle_, filename);
+            sirf.Utilities.check_status([self.name ':set_floating_image_filename'], h);
+            sirf.Utilities.delete(h)
+        end
+        function add_floating_image_filename(self, filename)
+            %Add floating image filename.
+            assert(ischar(filename))
+            h = calllib('mreg', 'mReg_Registration_add_floating_image_filename', self.handle_, filename);
+            sirf.Utilities.check_status([self.name ':add_floating_image_filename'], h);
+            sirf.Utilities.delete(h)
+        end
         function clear_floating_images(self)
             %Clear floating images.
             h = calllib('mreg', 'mReg_Registration_clear_floatings', self.handle_);

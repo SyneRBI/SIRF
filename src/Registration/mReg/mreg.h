@@ -75,6 +75,9 @@ EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image
 EXPORTED_FUNCTION     void* mReg_Registration_add_floating(const void* ptr, const void *im_ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_clear_floatings(const void* ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_get_output(const void* ptr,const int idx);
+EXPORTED_FUNCTION     void* mReg_Registration_set_reference_image_filename(const void* ptr, const char* filename);
+EXPORTED_FUNCTION     void* mReg_Registration_set_floating_image_filename(const void* ptr, const char* filename);
+EXPORTED_FUNCTION     void* mReg_Registration_add_floating_image_filename(const void* ptr, const char* filename);
 EXPORTED_FUNCTION     void* mReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
 EXPORTED_FUNCTION     void* mReg_NiftyRegistration_print_all_wrapped_methods(const char* name);
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
