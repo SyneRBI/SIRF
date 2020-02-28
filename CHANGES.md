@@ -17,6 +17,7 @@
 * Resampling of complex images.
 * SPM registration wrapping (only SPM12 tested). If `Matlab` and `SPM` are present, the SPM wrapper is available from `C++`, `Matlab` and `Python`.
 * Support for registering multiple floating images has been added. This is only available for certain algorithms (currently only `SPM`). There are therefore new methods `add_floating_image` and `clear_floating_images` on top of the original `set_floating_image`. Methods extracting the results of registrations can now be called with an index (`get_output(idx = 0)`, `get_transformation_matrix_forward(idx = 0)`, etc.). This index defaults to the first to maintain backwards compatibility.
+* Ability to pad `NiftiImageData`, e.g., `a.pad([10,10,0],[10,10,0])` to add 10 voxels to the minimum and maximum of the x- and y-directions.
 
 ## v2.1.0
 
