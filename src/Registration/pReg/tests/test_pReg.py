@@ -1131,7 +1131,7 @@ def try_quaternion():
     # Convert to quaternion
     quat = sirf.Reg.Quaternion(rotm)
     a = quat.as_array()
-    if not a:
+    if a is None:
         raise AssertionError()
 
     # Construct from numpy array
