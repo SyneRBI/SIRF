@@ -1064,13 +1064,13 @@ if try_spm
     spm_reg2.process();
 
     for i=1:2
-        spm_reg2.get_output(i).write([output_prefix + "spm_out_" + num2str(i)]);
-        spm_reg2.get_displacement_field_forward(i).write([output_prefix + "spm_disp_fwd_" + num2str(i)]);
-        spm_reg2.get_displacement_field_inverse(i).write([output_prefix + "spm_disp_inv_" + num2str(i)]);
-        spm_reg2.get_deformation_field_forward(i).write([output_prefix + "spm_def_fwd_" + num2str(i)]);
-        spm_reg2.get_deformation_field_inverse(i).write([output_prefix + "spm_def_inv_" + num2str(i)]);
-        spm_reg2.get_transformation_matrix_forward(i).write([output_prefix + "spm_tm_fwd_" + num2str(i)]);
-        spm_reg2.get_transformation_matrix_inverse(i).write([output_prefix + "spm_tm_inv_" + num2str(i)]);
+        spm_reg2.get_output(i).write([output_prefix 'spm_out_' num2str(i)]);
+        spm_reg2.get_displacement_field_forward(i).write([output_prefix 'spm_disp_fwd_' num2str(i)]);
+        spm_reg2.get_displacement_field_inverse(i).write([output_prefix 'spm_disp_inv_' num2str(i)]);
+        spm_reg2.get_deformation_field_forward(i).write([output_prefix 'spm_def_fwd_' num2str(i)]);
+        spm_reg2.get_deformation_field_inverse(i).write([output_prefix 'spm_def_inv_' num2str(i)]);
+        spm_reg2.get_transformation_matrix_forward(i).write([output_prefix 'spm_tm_fwd_' num2str(i)]);
+        spm_reg2.get_transformation_matrix_inverse(i).write([output_prefix 'spm_tm_inv_' num2str(i)]);
     end
 
     disp('% ----------------------------------------------------------------------- %')
