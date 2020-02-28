@@ -28,6 +28,7 @@ limitations under the License.
 */
 
 #include "sirf/Reg/NiftyRegistration.h"
+#include "sirf/Reg/NiftiImageData3D.h"
 
 using namespace sirf;
 
@@ -51,17 +52,27 @@ void NiftyRegistration<dataType>::set_parameter(const std::string &par, const st
 template<class dataType>
 void NiftyRegistration<dataType>::set_up_inputs()
 {
-    if (this->_floating_images.size()!=1)
+    if (this->_floating_images.size()+this->_floating_image_filenames.size() != 1)
         throw std::runtime_error("NiftyReg only accepts one floating image.");
     this->_floating_images_nifti.resize(1);
 
-    // Try to dynamic cast from ImageData to NiftiImageData3D. This will only succeed if original type was NiftiImageData3D
-    // If the result is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
-    // In this case, construct a NiftiImageData3D
+    // For reference and floating image.
+    // If filename has been set, read the image.
+    // But if it's been set as an ImageData, convert it
 
-    // Reference and floating images
-    NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_reference_image_nifti_sptr, this->_reference_image_sptr);
-    NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_floating_images_nifti.at(0), this->_floating_images.at(0));
+    // If image has been read via filename, read it.
+    if (!this->_reference_image_filename.empty())
+        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(this->_reference_image_filename);
+    // Else, convert it
+    else
+        NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_reference_image_nifti_sptr, this->_reference_image_sptr);
+
+    // If image has been read via filename, read it.
+    if (this->_floating_image_filenames.size() == 1)
+        this->_floating_images_nifti.at(0) = std::make_shared<const NiftiImageData3D<dataType> >(this->_floating_image_filenames.at(0));
+    // Else, convert it
+    else
+        NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(this->_floating_images_nifti.at(0), this->_floating_images.at(0));
 
     // Reference and floating masks (if supplied)
     if (this->_reference_mask_sptr)

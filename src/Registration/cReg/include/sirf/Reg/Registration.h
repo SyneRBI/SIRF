@@ -79,13 +79,22 @@ public:
     virtual ~Registration() {}
 
     /// Set reference image
-    void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
+    void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr);
 
     /// Set floating image. Will clear any previous floating images.
     void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
 
     /// Add floating image
     void add_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
+
+    /// Set reference image filename. Will be read as NiftiImageData.
+    void set_reference_image_filename(const std::string &filename);
+
+    /// Set floating image filename. Will be read as NiftiImageData.
+    void set_floating_image_filename(const std::string &filename);
+
+    /// Add floating image filename. Will be read as NiftiImageData.
+    void add_floating_image_filename(const std::string &filename);
 
     /// Clear floating images
     void clear_floating_images();
@@ -94,7 +103,7 @@ public:
     virtual void process() = 0;
 
     /// Get registered image
-    const std::shared_ptr<const ImageData> get_output_sptr(const unsigned idx = 0) const { return _warped_images.at(idx); }
+    virtual const std::shared_ptr<const ImageData> get_output_sptr(const unsigned idx = 0) const { return _warped_images.at(idx); }
 
     /// Get forward deformation field image
     virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr(const unsigned idx = 0) const = 0;
@@ -103,10 +112,10 @@ public:
     virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const = 0;
 
     /// Get forward displacement field image
-    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr(const unsigned idx = 0) const { return _disp_fwd_images.at(idx); }
+    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr(const unsigned idx = 0) const { return _disp_fwd_images.at(idx); }
 
     /// Get inverse displacement field image
-    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const { return _disp_inv_images.at(idx); }
+    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const { return _disp_inv_images.at(idx); }
 
 protected:
 
@@ -124,5 +133,10 @@ protected:
     std::vector<std::shared_ptr<Transformation<dataType> > > _disp_fwd_images;
     /// Inverse displacement field image
     std::vector<std::shared_ptr<Transformation<dataType> > > _disp_inv_images;
+
+    /// Reference image filename
+    std::string _reference_image_filename = "";
+    /// Floating image filenames
+    std::vector<std::string> _floating_image_filenames;
 };
 }

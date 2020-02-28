@@ -214,7 +214,7 @@ void NiftyResample<dataType>::set_up_input_images()
 }
 
 template<class dataType>
-static bool check_images_match(
+static void check_images_match(
         const ComplexNiftiImageData<dataType> im1,
         const ComplexNiftiImageData<dataType> im2,
         const std::string &explanation)
