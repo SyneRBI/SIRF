@@ -25,6 +25,7 @@ output_prefix = fullfile(pwd, '/results/');
 % Input filenames
 g.ref_aladin_filename = fullfile(examples_path, '/test.nii.gz');
 g.spm_working_folder  = fullfile(output_prefix, 'spm_working_folder');
+g.spm_working_folder2 = fullfile(output_prefix, 'spm_working_folder2');
 g.ref_aladin          = sirf.Reg.NiftiImageData3D( g.ref_aladin_filename );
 
 % You can change these when debugging
@@ -85,6 +86,26 @@ if try_spm
     assert(all(diff_euler_angles <= 1), 'SPM registration failed (angles).')
     assert(all(diff_translations <= 1), 'SPM registration failed (translations).')
     assert(spm_reg.get_output(2) == g.ref_aladin, 'SPM registration failed (image difference).')
+
+        % Try to register via filename
+    spm_reg2 = sirf.Reg.SPMRegistration();
+    spm_reg2.set_reference_image_filename(g.ref_aladin);
+    spm_reg2.add_floating_image_filename(g.ref_aladin);
+    spm_reg2.add_floating_image_filename(g.ref_aladin);
+    spm_reg2.set_working_folder(g.spm_working_folder2);
+    spm_reg2.set_working_folder_file_overwrite(true);
+    spm_reg2.set_delete_temp_files(false);
+    spm_reg2.process();
+
+    for i=1:2
+        spm_reg2.get_output(i).write([output_prefix + "spm_out_" + num2str(i)]);
+        spm_reg2.get_displacement_field_forward(i).write([output_prefix + "spm_disp_fwd_" + num2str(i)]);
+        spm_reg2.get_displacement_field_inverse(i).write([output_prefix + "spm_disp_inv_" + num2str(i)]);
+        spm_reg2.get_deformation_field_forward(i).write([output_prefix + "spm_def_fwd_" + num2str(i)]);
+        spm_reg2.get_deformation_field_inverse(i).write([output_prefix + "spm_def_inv_" + num2str(i)]);
+        spm_reg2.get_transformation_matrix_forward(i).write([output_prefix + "spm_tm_fwd_" + num2str(i)]);
+        spm_reg2.get_transformation_matrix_inverse(i).write([output_prefix + "spm_tm_inv_" + num2str(i)]);
+    end
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished SPM test.')

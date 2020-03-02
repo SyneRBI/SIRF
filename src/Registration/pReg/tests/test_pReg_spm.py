@@ -40,6 +40,7 @@ output_prefix = os.getcwd() + '/results/python_'
 # Input filenames
 ref_aladin_filename = examples_path + "/test.nii.gz"
 spm_working_folder = output_prefix + "spm_working_folder"
+spm_working_folder2 = output_prefix + "spm_working_folder2"
 ref_aladin = sirf.Reg.NiftiImageData3D(ref_aladin_filename)
 
 
@@ -104,6 +105,25 @@ def try_spm():
 
     if spm_reg.get_output(1) != ref_aladin:
         raise AssertionError("SPM registration failed (image difference).")
+
+    # Try to register via filename
+    spm_reg2 = sirf.Reg.SPMRegistration()
+    spm_reg2.set_reference_image_filename(ref_aladin)
+    spm_reg2.add_floating_image_filename(ref_aladin)
+    spm_reg2.add_floating_image_filename(ref_aladin)
+    spm_reg2.set_working_folder(spm_working_folder2)
+    spm_reg2.set_working_folder_file_overwrite(True)
+    spm_reg2.set_delete_temp_files(False)
+    spm_reg2.process()
+
+    for i in range(0, 2):
+        spm_reg2.get_output(i).write(output_prefix + "spm_out_" + str(i))
+        spm_reg2.get_displacement_field_forward(i).write(output_prefix + "spm_disp_fwd_" + str(i))
+        spm_reg2.get_displacement_field_inverse(i).write(output_prefix + "spm_disp_inv_" + str(i))
+        spm_reg2.get_deformation_field_forward(i).write(output_prefix + "spm_def_fwd_" + str(i))
+        spm_reg2.get_deformation_field_inverse(i).write(output_prefix + "spm_def_inv_" + str(i))
+        spm_reg2.get_transformation_matrix_forward(i).write(output_prefix + "spm_tm_fwd_" + str(i))
+        spm_reg2.get_transformation_matrix_inverse(i).write(output_prefix + "spm_tm_inv_" + str(i))
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
