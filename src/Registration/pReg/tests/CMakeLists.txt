@@ -16,9 +16,11 @@
 #
 #=========================================================================
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/test_pReg.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/test_pReg.py")
+if (NOT SPM_FOUND)
+	set(exclude_test "--exclude=test_pReg_spm.py")
+endif()
 
 # Make into test
 ADD_TEST(NAME REG_TEST_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Reg --cover-erase -d -v ${CMAKE_SOURCE_DIR}/src/Registration/pReg/
+  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Reg --cover-erase -d -v ${CMAKE_SOURCE_DIR}/src/Registration/pReg ${exclude_test}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

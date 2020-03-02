@@ -72,8 +72,6 @@ niftymomo_resample_adj = output_prefix + "niftymomo_resample_adj.nii"
 output_weighted_mean = output_prefix + "weighted_mean.nii"
 output_weighted_mean_def = output_prefix + "weighted_mean_def.nii"
 output_float = output_prefix + "reg_aladin_float.nii"
-spm_working_folder = output_prefix + "spm_working_folder"
-spm_working_folder2 = output_prefix + "spm_working_folder2"
 
 ref_aladin = sirf.Reg.NiftiImageData3D(ref_aladin_filename)
 flo_aladin = sirf.Reg.NiftiImageData3D(flo_aladin_filename)
@@ -848,6 +846,8 @@ def try_transformations(na):
 
     # Test get_inverse
     tm_inv = tm_iden.get_inverse()
+    if not tm_inv:
+        raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -917,8 +917,8 @@ def try_resample(na):
         raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
 
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
-    # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
-    # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation 
+    # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
+    # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation
     # is not used to generate final image. You would hope it's used throughout the registration process, otherwise why is it there?
     # if na.get_output() != nr1.get_output():
     #     raise AssertionError()
@@ -1158,6 +1158,8 @@ def try_quaternion():
     # Convert to quaternion
     quat = sirf.Reg.Quaternion(rotm)
     a = quat.as_array()
+    if a is None:
+        raise AssertionError()
 
     # Construct from numpy array
     expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=numpy.float32)
@@ -1201,93 +1203,6 @@ def try_quaternion():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-# SPM
-def try_spm():
-    time.sleep(0.5)
-    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting SPM test...\n')
-    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
-    time.sleep(0.5)
-
-    # Resample an image with NiftyResample. Register SPM, check the result
-
-    # TM
-    translations = np.array([5.,  4., -5.], dtype=np.float32)
-    euler_angles = np.array([5., -2., -3.], dtype=np.float32)
-
-    tm = sirf.Reg.AffineTransformation(translations, euler_angles)
-
-    niftyreg_resampler = sirf.Reg.NiftyResample()
-    niftyreg_resampler.set_padding_value(0.)
-    niftyreg_resampler.set_reference_image(ref_aladin)
-    niftyreg_resampler.set_floating_image(ref_aladin)
-    niftyreg_resampler.add_transformation(tm)
-    niftyreg_resampler.set_interpolation_type_to_linear()
-    floating = niftyreg_resampler.forward(ref_aladin)
-
-    # Register with SPM
-    spm_reg = sirf.Reg.SPMRegistration()
-    spm_reg.set_reference_image(ref_aladin)
-    spm_reg.add_floating_image(floating)
-    spm_reg.add_floating_image(floating)
-    spm_reg.set_working_folder(spm_working_folder)
-    spm_reg.set_working_folder_file_overwrite(True)
-    spm_reg.set_delete_temp_files(False)
-    spm_reg.process()
-    spm_tm = spm_reg.get_transformation_matrix_forward(1)
-    spm_inv_tm = spm_tm.get_inverse()
-
-    # Check tm roughly equals inverse TM of the resampler
-    estimated_euler_angles = spm_inv_tm.get_Euler_angles()
-    estimated_translations = spm_inv_tm.as_array()[:3, 3]
-
-    input_euler_angles = tm.get_Euler_angles()
-    input_translations = translations
-
-    diff_euler_angles = 100. * (input_euler_angles - estimated_euler_angles) / input_euler_angles
-    diff_translations = 100. * (input_translations - estimated_translations) / input_translations
-
-    print("Input Euler angles:              " + np.array2string(input_euler_angles))
-    print("Estimated Euler angles:          " + np.array2string(estimated_euler_angles))
-    print("Percentage diff in Euler angles: " + np.array2string(diff_euler_angles))
-    print("Input translations:              " + np.array2string(input_translations))
-    print("Estimated translations:          " + np.array2string(estimated_translations))
-    print("Percentage diff in translations: " + np.array2string(diff_translations))
-
-    # Check differences are less than 1%
-    if any(diff_euler_angles > 1):
-        raise AssertionError("SPM registration failed (angles).")
-    if any(diff_translations > 1):
-        raise AssertionError("SPM registration failed (translations).")
-
-    if spm_reg.get_output(1) != ref_aladin:
-        raise AssertionError("SPM registration failed (image difference).")
-
-    # Try to register via filename
-    spm_reg2 = sirf.Reg.SPMRegistration()
-    spm_reg2.set_reference_image_filename(save_nifti_image)
-    spm_reg2.add_floating_image_filename(save_nifti_image)
-    spm_reg2.add_floating_image_filename(save_nifti_image)
-    spm_reg2.set_working_folder(spm_working_folder2)
-    spm_reg2.set_working_folder_file_overwrite(True)
-    spm_reg2.set_delete_temp_files(False)
-    spm_reg2.process()
-
-    for i in range(0, 2):
-        spm_reg2.get_output(i).write(output_prefix + "spm_out_" + str(i))
-        spm_reg2.get_displacement_field_forward(i).write(output_prefix + "spm_disp_fwd_" + str(i))
-        spm_reg2.get_displacement_field_inverse(i).write(output_prefix + "spm_disp_inv_" + str(i))
-        spm_reg2.get_deformation_field_forward(i).write(output_prefix + "spm_def_fwd_" + str(i))
-        spm_reg2.get_deformation_field_inverse(i).write(output_prefix + "spm_def_inv_" + str(i))
-        spm_reg2.get_transformation_matrix_forward(i).write(output_prefix + "spm_tm_fwd_" + str(i))
-        spm_reg2.get_transformation_matrix_inverse(i).write(output_prefix + "spm_tm_inv_" + str(i))
-
-    time.sleep(0.5)
-    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished SPM test.\n')
-    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
-    time.sleep(0.5)
-
 
 def test():
     try_niftiimage()
@@ -1303,8 +1218,6 @@ def test():
     try_weighted_mean(na)
     try_affinetransformation(na)
     try_quaternion()
-    if @SPM_BOOL_STR@:
-        try_spm()
 
 
 if __name__ == "__main__":

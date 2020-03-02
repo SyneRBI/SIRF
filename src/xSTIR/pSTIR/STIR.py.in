@@ -1383,7 +1383,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         return self.get_matrix().get_num_tangential_LORs()
 
 
-if @STIR_WITH_NIFTYPET_PROJECTOR_PY@:
+if @NIFTYPET_BOOL_STR@:
     class AcquisitionModelUsingNiftyPET(AcquisitionModel):
         """
         Class for a PET acquisition model that uses (implicitly) the NiftyPET projector

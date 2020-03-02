@@ -21,13 +21,11 @@
 #
 #=========================================================================
 
-# Only test the NiftyPET python wrapper if STIR has been built with NiftyPET
-if (STIR_WITH_NIFTYPET_PROJECTOR)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tests_niftypet.py.in ${CMAKE_CURRENT_SOURCE_DIR}/tests_niftypet.py COPYONLY)
-else()
-	FILE(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/tests_niftypet.py)
+# If not niftypet projector, dont test that
+if (NOT STIR_WITH_NIFTYPET_PROJECTOR)
+	set(exclude_test "--exclude=tests_niftypet.py")
 endif()
 
 add_test(NAME PET_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR/
+  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_test}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
