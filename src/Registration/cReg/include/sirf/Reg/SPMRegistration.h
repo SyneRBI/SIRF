@@ -48,6 +48,9 @@ template<class dataType> class SPMRegistration : public NiftiBasedRegistration<d
 {
 public:
 
+    /// Destructor
+    virtual ~SPMRegistration();
+
     /// Process
     void process();
 
@@ -60,11 +63,20 @@ public:
     /// Delete temporary files
     void set_delete_temp_files(const bool delete_temp_files) { _delete_temp_files = delete_temp_files; }
 
+    /// Get registered image
+    virtual const std::shared_ptr<const ImageData> get_output_sptr(const unsigned idx = 0) const;
+
     /// Get forwards transformation matrix
-    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_forward_sptr(const unsigned idx = 0) const { return _TMs_fwd.at(idx); }
+    virtual const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_forward_sptr(const unsigned idx = 0) const { return _TMs_fwd.at(idx); }
 
     /// Get inverse transformation matrix
-    const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr(const unsigned idx = 0) const { return _TMs_inv.at(idx); }
+    virtual const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr(const unsigned idx = 0) const { return _TMs_inv.at(idx); }
+
+    /// Get forward displacement field image
+    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr(const unsigned idx = 0) const;
+
+    /// Get inverse displacement field image
+    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const;
 
 protected:
 
@@ -90,5 +102,13 @@ protected:
     std::vector<std::shared_ptr<AffineTransformation<float> > > _TMs_inv;
     /// Matlab instance
     std::unique_ptr<matlab::engine::MATLABEngine> _matlab_uptr;
+
+    /// Filenames to potentially delete
+    std::vector<std::string> _filenames_to_delete;
+    /// Folders to potentially delete
+    std::vector<std::string> _folders_to_delete;
+    /// Resliced images
+    std::vector<std::string> _resliced_filenames;
+
 };
 }

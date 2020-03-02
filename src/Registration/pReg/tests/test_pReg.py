@@ -672,20 +672,36 @@ def try_niftyaladin():
     na.set_parameter("SetMaxIterations", "5")
     na.set_parameter("SetPerformRigid", "1")
     na.set_parameter("SetPerformAffine", "0")
-    na.set_reference_mask(ref_mask);
-    na.set_floating_mask(flo_mask);
+    na.set_reference_mask(ref_mask)
+    na.set_floating_mask(flo_mask)
     na.process()
 
     # Get outputs
-    warped = na.get_output()
-    def_forward = na.get_deformation_field_forward()
-    def_inverse = na.get_deformation_field_inverse()
-    disp_forward = na.get_displacement_field_forward()
-    disp_inverse = na.get_displacement_field_inverse()
+    warped = na.get_output().deep_copy()
+    def_forward = na.get_deformation_field_forward().deep_copy()
+    def_inverse = na.get_deformation_field_inverse().deep_copy()
+    disp_forward = na.get_displacement_field_forward().deep_copy()
+    disp_inverse = na.get_displacement_field_inverse().deep_copy()
+    TM_forward_ = na.get_transformation_matrix_forward().deep_copy()
+    TM_inverse_ = na.get_transformation_matrix_inverse().deep_copy()
+
+    # Test via filenames
+    na.set_reference_image_filename(ref_aladin_filename)
+    na.set_floating_image_filename(flo_aladin_filename)
+    na.process()
+
+    if warped != na.get_output() or \
+        def_forward != na.get_deformation_field_forward() or \
+        def_inverse != na.get_deformation_field_inverse() or \
+        disp_forward != na.get_displacement_field_forward() or \
+        disp_inverse != na.get_displacement_field_inverse() or \
+        TM_forward_ != na.get_transformation_matrix_forward() or \
+        TM_inverse_ != na.get_transformation_matrix_inverse():
+        raise AssertionError()
 
     warped.write(aladin_warped)
-    na.get_transformation_matrix_forward().write(TM_forward)
-    na.get_transformation_matrix_inverse().write(TM_inverse)
+    TM_forward_.write(TM_forward)
+    TM_inverse_.write(TM_inverse)
     def_forward.write(aladin_def_forward)
     def_inverse.write_split_xyz_components(aladin_def_inverse_xyz)
     def_inverse.write(aladin_def_inverse)
@@ -1168,7 +1184,6 @@ def try_quaternion():
     if not np.allclose(exptd_average.as_array(), average.as_array(), atol=1e-4):
         raise AssertionError('Quaternion average failed.')
     print(average.as_array())
-
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

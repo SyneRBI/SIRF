@@ -86,6 +86,9 @@ extern "C" {
     void* cReg_Registration_add_floating(const void* ptr, const void *im_ptr);
     void* cReg_Registration_clear_floatings(const void* ptr);
     void* cReg_Registration_get_output(const void* ptr,const int idx);
+    void* cReg_Registration_set_reference_image_filename(const void* ptr, const char* filename);
+    void* cReg_Registration_set_floating_image_filename(const void* ptr, const char* filename);
+    void* cReg_Registration_add_floating_image_filename(const void* ptr, const char* filename);
 
     // NiftyReg-based registration
     void* cReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);

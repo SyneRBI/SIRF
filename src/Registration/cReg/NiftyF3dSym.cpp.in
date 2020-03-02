@@ -117,9 +117,14 @@ void NiftyF3dSym<dataType>::process()
     this->_disp_fwd_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
     this->_disp_inv_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
 
-    // The output should be a clone of the reference image, with data filled in from the nifti image
-    this->_warped_images.at(0) = this->_reference_image_sptr->clone();
-    this->_warped_images.at(0)->fill(*this->_warped_images_nifti.at(0));
+    // Output different dependent on whether image was set as object or via filename
+    if (this->_reference_image_sptr) {
+        // The output should be a clone of the reference image, with data filled in from the nifti image
+        this->_warped_images.at(0) = this->_reference_image_sptr->clone();
+        this->_warped_images.at(0)->fill(*this->_warped_images_nifti.at(0));
+    }
+    else
+        this->_warped_images.at(0) = this->_warped_images_nifti.at(0);
 
     std::cout << "\n\nRegistration finished!\n\n";
 }

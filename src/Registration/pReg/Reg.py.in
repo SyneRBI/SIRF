@@ -619,6 +619,26 @@ class _Registration(ABC):
             raise AssertionError()
         try_calling(pyreg.cReg_Registration_add_floating(self.handle, floating_image.handle))
 
+    def set_reference_image_filename(self, filename):
+        """Set reference image filename"""
+        if not isinstance(filename, str):
+            raise AssertionError()
+        self.reference_image = NiftiImageData(filename)
+        try_calling(pyreg.cReg_Registration_set_reference_image_filename(self.handle, filename))
+
+    def set_floating_image_filename(self, filename):
+        """Set floating image filename"""
+        if not isinstance(filename, str):
+            raise AssertionError()
+        try_calling(pyreg.cReg_Registration_set_floating_image_filename(self.handle, filename))
+
+    def add_floating_image_filename(self, filename):
+        """Add floating image filename"""
+        if not isinstance(filename, str):
+            raise AssertionError()
+        try_calling(pyreg.cReg_Registration_add_floating_image_filename(self.handle, filename))
+
+
     def clear_floating_images(self):
         """Clear floating images."""
         try_calling(pyreg.cReg_Registration_clear_floatings(self.handle))

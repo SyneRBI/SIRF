@@ -569,11 +569,27 @@ if try_niftyaladin
     na.process();
 
     % Get outputs
-    warped = na.get_output();
-    def_forward = na.get_deformation_field_forward();
-    def_inverse = na.get_deformation_field_inverse();
-    disp_forward = na.get_displacement_field_forward();
-    disp_inverse = na.get_displacement_field_inverse();
+    warped = na.get_output().deep_copy();
+    def_forward = na.get_deformation_field_forward().deep_copy();
+    def_inverse = na.get_deformation_field_inverse().deep_copy();
+    disp_forward = na.get_displacement_field_forward().deep_copy();
+    disp_inverse = na.get_displacement_field_inverse().deep_copy();
+    TM_forward_ = na.get_transformation_matrix_forward().deep_copy();
+    TM_inverse_ = na.get_transformation_matrix_inverse().deep_copy();
+
+    % Test via filenames
+    na.set_reference_image_filename(g.ref_aladin_filename);
+    na.set_floating_image_filename(g.flo_aladin_filename);
+    na.process();
+
+    assert(warped == na.get_output() && ...
+        def_forward == na.get_deformation_field_forward() && ...
+        def_inverse == na.get_deformation_field_inverse() && ...
+        disp_forward == na.get_displacement_field_forward() && ...
+        disp_inverse == na.get_displacement_field_inverse() && ...
+        TM_forward_ == na.get_transformation_matrix_forward() && ...
+        TM_inverse_ == na.get_transformation_matrix_inverse(),...
+        'Registration via filenames failed')
 
     warped.write(g.aladin_warped);
     na.get_transformation_matrix_forward().write(g.TM_forward);

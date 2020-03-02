@@ -29,12 +29,25 @@ limitations under the License.
 
 #include "sirf/Reg/Registration.h"
 #include <stdexcept>
+#include <iostream>
 
 using namespace sirf;
 
 template<class dataType>
+void Registration<dataType>::set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr)
+{
+    _reference_image_sptr = reference_image_sptr;
+    _reference_image_filename = "";
+}
+
+template<class dataType>
 void Registration<dataType>::set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
 {
+    if (!_floating_image_filenames.empty()) {
+        std::cout << "\nClearing floating images set via filename";
+        _floating_image_filenames.clear();
+    }
+
     _floating_images.resize(1);
     _floating_images.at(0) = floating_image_sptr;
 }
@@ -42,7 +55,42 @@ void Registration<dataType>::set_floating_image(const std::shared_ptr<const Imag
 template<class dataType>
 void Registration<dataType>::add_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
 {
+    if (!_floating_image_filenames.empty()) {
+        std::cout << "\nClearing floating images set via filename";
+        _floating_image_filenames.clear();
+    }
+
     _floating_images.push_back(floating_image_sptr);
+}
+
+template<class dataType>
+void Registration<dataType>::set_reference_image_filename(const std::string &filename)
+{
+    _reference_image_filename = filename;
+    _reference_image_sptr.reset();
+}
+
+template<class dataType>
+void Registration<dataType>::set_floating_image_filename(const std::string &filename)
+{
+    if (!_floating_images.empty()) {
+        std::cout << "\nClearing floating images set via object (not filename)";
+        _floating_images.clear();
+    }
+
+    _floating_image_filenames.resize(1);
+    _floating_image_filenames.at(0) = filename;
+}
+
+template<class dataType>
+void Registration<dataType>::add_floating_image_filename(const std::string &filename)
+{
+    if (!_floating_images.empty()) {
+        std::cout << "\nClearing floating images set via object (not filename)";
+        _floating_images.clear();
+    }
+
+    _floating_image_filenames.push_back(filename);
 }
 
 template<class dataType>
@@ -55,9 +103,9 @@ template<class dataType>
 void Registration<dataType>::check_parameters() const
 {
     // If anything is missing
-    if (_floating_images.size()==0)
+    if (_floating_images.size()+_floating_image_filenames.size()==0)
         throw std::runtime_error("Floating image has not been set.");
-    if (!_reference_image_sptr)
+    if (!_reference_image_sptr && _reference_image_filename.empty())
         throw std::runtime_error("Reference image has not been set.");
 }
 
