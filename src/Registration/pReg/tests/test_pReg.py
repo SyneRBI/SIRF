@@ -677,24 +677,18 @@ def try_niftyaladin():
     na.process()
 
     # Get outputs
-    warped = na.get_output().copy()
-    def_forward = na.get_deformation_field_forward().copy()
-    def_inverse = na.get_deformation_field_inverse().copy()
-    disp_forward = na.get_displacement_field_forward().copy()
-    disp_inverse = na.get_displacement_field_inverse().copy()
+    warped = na.get_output().deep_copy()
+    def_forward = na.get_deformation_field_forward().deep_copy()
+    def_inverse = na.get_deformation_field_inverse().deep_copy()
+    disp_forward = na.get_displacement_field_forward().deep_copy()
+    disp_inverse = na.get_displacement_field_inverse().deep_copy()
     TM_forward_ = na.get_transformation_matrix_forward().deep_copy()
     TM_inverse_ = na.get_transformation_matrix_inverse().deep_copy()
 
     # Test via filenames
     na.set_reference_image_filename(ref_aladin_filename)
-    time.sleep(0.5)
-    raise AssertionError("im here9")
     na.set_floating_image_filename(flo_aladin_filename)
-    time.sleep(0.5)
-    raise AssertionError("im here10")
     na.process()
-    time.sleep(0.5)
-    raise AssertionError("im here11")
 
     if warped != na.get_output() or \
         def_forward != na.get_deformation_field_forward() or \
@@ -705,8 +699,6 @@ def try_niftyaladin():
         TM_inverse_ != na.get_transformation_matrix_inverse():
         raise AssertionError()
 
-    time.sleep(0.5)
-    raise AssertionError("im here12")
     warped.write(aladin_warped)
     TM_forward_.write(TM_forward)
     TM_inverse_.write(TM_inverse)
@@ -715,9 +707,6 @@ def try_niftyaladin():
     def_inverse.write(aladin_def_inverse)
     disp_forward.write(aladin_disp_forward)
     disp_inverse.write_split_xyz_components(aladin_disp_inverse)
-
-    time.sleep(0.5)
-    raise AssertionError("im here13")
 
     # forward TM
     forward_tm = na.get_transformation_matrix_forward()
@@ -1195,7 +1184,6 @@ def try_quaternion():
     if not np.allclose(exptd_average.as_array(), average.as_array(), atol=1e-4):
         raise AssertionError('Quaternion average failed.')
     print(average.as_array())
-
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

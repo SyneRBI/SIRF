@@ -42,6 +42,8 @@ ref_aladin_filename = examples_path + "/test.nii.gz"
 spm_working_folder = output_prefix + "spm_working_folder"
 spm_working_folder2 = output_prefix + "spm_working_folder2"
 ref_aladin = sirf.Reg.NiftiImageData3D(ref_aladin_filename)
+spm_to_register_ref = output_prefix + "spm_to_register_ref.nii"
+spm_to_register_flo = output_prefix + "spm_to_register_flo.nii"
 
 
 # SPM
@@ -106,11 +108,14 @@ def try_spm():
     if spm_reg.get_output(1) != ref_aladin:
         raise AssertionError("SPM registration failed (image difference).")
 
+    ref_aladin.write(spm_to_register_ref)
+    floating.write(spm_to_register_flo)
+
     # Try to register via filename
     spm_reg2 = sirf.Reg.SPMRegistration()
-    spm_reg2.set_reference_image_filename(ref_aladin)
-    spm_reg2.add_floating_image_filename(ref_aladin)
-    spm_reg2.add_floating_image_filename(ref_aladin)
+    spm_reg2.set_reference_image_filename(spm_to_register_ref)
+    spm_reg2.add_floating_image_filename(spm_to_register_flo)
+    spm_reg2.add_floating_image_filename(spm_to_register_flo)
     spm_reg2.set_working_folder(spm_working_folder2)
     spm_reg2.set_working_folder_file_overwrite(True)
     spm_reg2.set_delete_temp_files(False)
