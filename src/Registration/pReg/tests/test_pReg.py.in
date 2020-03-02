@@ -674,25 +674,52 @@ def try_niftyaladin():
     na.set_parameter("SetMaxIterations", "5")
     na.set_parameter("SetPerformRigid", "1")
     na.set_parameter("SetPerformAffine", "0")
-    na.set_reference_mask(ref_mask);
-    na.set_floating_mask(flo_mask);
+    na.set_reference_mask(ref_mask)
+    na.set_floating_mask(flo_mask)
     na.process()
 
     # Get outputs
-    warped = na.get_output()
-    def_forward = na.get_deformation_field_forward()
-    def_inverse = na.get_deformation_field_inverse()
-    disp_forward = na.get_displacement_field_forward()
-    disp_inverse = na.get_displacement_field_inverse()
+    warped = na.get_output().copy()
+    def_forward = na.get_deformation_field_forward().copy()
+    def_inverse = na.get_deformation_field_inverse().copy()
+    disp_forward = na.get_displacement_field_forward().copy()
+    disp_inverse = na.get_displacement_field_inverse().copy()
+    TM_forward_ = na.get_transformation_matrix_forward().deep_copy()
+    TM_inverse_ = na.get_transformation_matrix_inverse().deep_copy()
 
+    # Test via filenames
+    na.set_reference_image_filename(ref_aladin_filename)
+    time.sleep(0.5)
+    raise AssertionError("im here9")
+    na.set_floating_image_filename(flo_aladin_filename)
+    time.sleep(0.5)
+    raise AssertionError("im here10")
+    na.process()
+    time.sleep(0.5)
+    raise AssertionError("im here11")
+
+    if warped != na.get_output() or \
+        def_forward != na.get_deformation_field_forward() or \
+        def_inverse != na.get_deformation_field_inverse() or \
+        disp_forward != na.get_displacement_field_forward() or \
+        disp_inverse != na.get_displacement_field_inverse() or \
+        TM_forward_ != na.get_transformation_matrix_forward() or \
+        TM_inverse_ != na.get_transformation_matrix_inverse():
+        raise AssertionError()
+
+    time.sleep(0.5)
+    raise AssertionError("im here12")
     warped.write(aladin_warped)
-    na.get_transformation_matrix_forward().write(TM_forward)
-    na.get_transformation_matrix_inverse().write(TM_inverse)
+    TM_forward_.write(TM_forward)
+    TM_inverse_.write(TM_inverse)
     def_forward.write(aladin_def_forward)
     def_inverse.write_split_xyz_components(aladin_def_inverse_xyz)
     def_inverse.write(aladin_def_inverse)
     disp_forward.write(aladin_disp_forward)
     disp_inverse.write_split_xyz_components(aladin_disp_inverse)
+
+    time.sleep(0.5)
+    raise AssertionError("im here13")
 
     # forward TM
     forward_tm = na.get_transformation_matrix_forward()

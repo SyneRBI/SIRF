@@ -712,13 +712,35 @@ int main(int argc, char* argv[])
         NA.process();
 
         // Get outputs
+        const NiftiImageData3D<float>               warped_     = dynamic_cast<const NiftiImageData3D<float>&>(*NA.get_output_sptr());
+        const AffineTransformation<float>         TM_forward_   = dynamic_cast<const AffineTransformation<float>&> (*NA.get_transformation_matrix_forward_sptr());
+        const AffineTransformation<float>         TM_inverse_   = dynamic_cast<const AffineTransformation<float>&> (*NA.get_transformation_matrix_forward_sptr());
+        const NiftiImageData3DDeformation<float>  def_forward_  = dynamic_cast<const NiftiImageData3DDeformation<float>&> (*NA.get_deformation_field_forward_sptr());
+        const NiftiImageData3DDeformation<float>  def_inverse_  = dynamic_cast<const NiftiImageData3DDeformation<float>&> (*NA.get_deformation_field_inverse_sptr());
+        const NiftiImageData3DDisplacement<float> disp_forward_ = dynamic_cast<const NiftiImageData3DDisplacement<float>&>(*NA.get_displacement_field_forward_sptr());
+        const NiftiImageData3DDisplacement<float> disp_inverse_ = dynamic_cast<const NiftiImageData3DDisplacement<float>&>(*NA.get_displacement_field_inverse_sptr());
+
+        // Check registration with filenames
+        NA.set_reference_image_filename(ref_aladin_filename);
+        NA.set_floating_image_filename(flo_aladin_filename);
+        NA.process();
+
         const std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(NA.get_output_sptr());
-        const std::shared_ptr<const AffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
-        const std::shared_ptr<const AffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
+        const std::shared_ptr<const AffineTransformation<float> >         TM_forward_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
+        const std::shared_ptr<const AffineTransformation<float> >         TM_inverse_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward_sptr());
         const std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward_sptr());
         const std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_inverse_sptr());
         const std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward_sptr());
         const std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_inverse_sptr());
+
+        if (*warped_sptr           != warped_       ||
+                *TM_forward_sptr   != TM_forward_   ||
+                *TM_inverse_sptr   != TM_inverse_   ||
+                *def_forward_sptr  != def_forward_  ||
+                *def_inverse_sptr  != def_inverse_  ||
+                *disp_inverse_sptr != disp_inverse_ ||
+                *disp_inverse_sptr != disp_inverse_)
+            throw std::runtime_error("Error doing registration via filename");
 
         warped_sptr->write    (      aladin_warped    );
         TM_forward_sptr->write(       TM_forward      );
