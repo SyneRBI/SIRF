@@ -22,6 +22,9 @@ Options:
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
   -C <cnts>, --counts=<cnts>   account for delay between injection and acquisition start by shifting interval to start when counts exceed given threshold.
   --visualisations             show visualisations
+  --nifti                      save output as nifti
+  --gpu                        use gpu
+  --no_gaps                    set use gaps to off
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -50,6 +53,7 @@ from ast import literal_eval
 import os
 
 from pUtilities import show_2D_array
+import sirf.Reg
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
@@ -158,13 +162,20 @@ def main():
     # object acq_data) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0, nxny)
 
-    # select acquisition model that implements the geometric
-    # forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
-    acq_model.set_num_tangential_LORs(10)
+    if not args['--gpu']:
+        # select acquisition model that implements the geometric
+        # forward projection by a ray tracing matrix multiplication
+        acq_model = AcquisitionModelUsingRayTracingMatrix()
+        acq_model.set_num_tangential_LORs(10)
+    else:
+        acq_model = AcquisitionModelUsingNiftyPET()
 
     # create acquisition sensitivity model from ECAT8 normalisation data
     asm_norm = AcquisitionSensitivityModel(norm_file)
+    if args['--no_gaps']:
+        asm_norm.set_use_gaps(False)
+    else:
+        asm_norm.set_use_gaps(True)
 
     asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
     # temporary fix pending attenuation offset fix in STIR:
@@ -211,7 +222,11 @@ def main():
     # reconstruct
     print('reconstructing, please wait...')
     recon.process()
-    recon.get_output().write(outp_file)
+    out = recon.get_output()
+    if not args['--nifti']:
+        out.write(outp_file)
+    else:
+        sirf.Reg.NiftiImageData(out).write(outp_file)
 
     if visualisations:
         # show reconstructed image
