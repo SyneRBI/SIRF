@@ -76,6 +76,10 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             end
         end
         function new_ad = new_acquisition_data(self, empty)
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
             new_ad = sirf.Gadgetron.AcquisitionData();
             if nargin < 2
                 empty = true;
@@ -92,7 +96,10 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
         function sort(self)
 %***SIRF*** Sorts acquisitions with respect to (in this order):
 %             - repetition
+%             - phase
+%             - contrast
 %             - slice
+%             - kspace_encode_step_2
 %             - kspace_encode_step_1
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
@@ -107,7 +114,24 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
         function sorted = is_sorted(self)
 %***SIRF*** Returns true if acquisitions of this object are sorted
 %         and false otherwise.
-            sorted = self.sorted_;
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            sorted = (sirf.Gadgetron.parameter(self.handle_, ...
+                'acquisitions', 'sorted', 'i') ~= 0);
+%            sorted = self.sorted_;
+        end
+        function undersampled = is_undersampled(self)
+%***SIRF*** Returns true if acquisitions of this object are undersampled
+%         and false otherwise.
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            undersampled = (sirf.Gadgetron.parameter(self.handle_, ...
+                'acquisitions', 'undersampled', 'i') ~= 0);
+%            sorted = self.sorted_;
         end
         function a = process(self, list)
 %***SIRF*** Returns acquisitions processed by a chain of gadgets.

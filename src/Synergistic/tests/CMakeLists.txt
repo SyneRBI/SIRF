@@ -46,9 +46,9 @@ SET_TARGET_PROPERTIES (SYN_TEST_CPLUSPLUS
 TARGET_LINK_LIBRARIES(SYN_TEST_CPLUSPLUS PUBLIC csirf iutilities cstir cgadgetron Reg)
 
 if (DOWNLOAD_ZENODO_TEST_DATA)
-	set(test_data "${MR_vendor_dicom_as_nifti}" "${MR_SIRF_recon}")
+	set(test_data "${CMAKE_SOURCE_DIR}/data/examples/MR/grappa2_1rep.h5" "${MR_vendor_dicom_as_nifti}" "${MR_SIRF_recon}")
 else()
-	set(test_data "${CMAKE_SOURCE_DIR}/data/examples/Registration/test2.nii.gz")
+	set(test_data "${CMAKE_SOURCE_DIR}/data/examples/MR/grappa2_1rep.h5" "${CMAKE_SOURCE_DIR}/data/examples/Registration/test2.nii.gz")
 endif()
 
 # Make into test

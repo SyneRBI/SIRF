@@ -56,6 +56,12 @@ namespace sirf {
 		cSTIR_setAcqModUsingMatrixParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+    void*
+        cSTIR_setAcqModUsingNiftyPETParameter
+        (DataHandle* hp, const char* name, const DataHandle* hv);
+#endif
+
 	void*
 		cSTIR_acqModUsingMatrixParameter(DataHandle* hp, const char* name);
 

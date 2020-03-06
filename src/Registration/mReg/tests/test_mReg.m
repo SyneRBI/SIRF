@@ -1,5 +1,5 @@
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018 - 2019 University College London
+% Copyright 2018 - 2020 University College London
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -47,7 +47,9 @@ g.f3d_warped                                 = fullfile(output_prefix, 'matlab_f
 g.TM_forward		                     = fullfile(output_prefix, 'matlab_TM_forward.txt');
 g.TM_inverse		                     = fullfile(output_prefix, 'matlab_TM_inverse.txt');
 g.aladin_def_forward                         = fullfile(output_prefix, 'matlab_aladin_def_forward.nii');
-g.aladin_def_inverse                         = fullfile(output_prefix, 'matlab_aladin_def_inverse_%s.nii');
+g.aladin_def_inverse_xyz                     = fullfile(output_prefix, 'matlab_aladin_def_inverse_%s.nii');
+g.aladin_def_inverse                         = fullfile(output_prefix, 'matlab_aladin_def_inverse.nii');
+g.aladin_def_fwd_inv                         = fullfile(output_prefix, 'matlab_aladin_def_fwd_then_inv.nii');
 g.aladin_disp_forward                        = fullfile(output_prefix, 'matlab_aladin_disp_forward.nii');
 g.aladin_disp_inverse                        = fullfile(output_prefix, 'matlab_aladin_disp_inverse_%s.nii');
 g.f3d_def_forward                            = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
@@ -241,6 +243,29 @@ if try_niftiimage
     disp(inner_product)
     disp(in1.get_inner_product(in2))
     assert(abs(inner_product - in1.get_inner_product(in2)) < 1e-4, 'NiftiImageData::get_inner_product() failed.');
+
+    % Pad then crop, should be the same
+    aa = g.ref_aladin;
+    cc = aa.clone();
+    original_dims = aa.get_dimensions();
+
+    pad_in_min_dir = [1, 2, 3, 0, 0, 0, 0];
+    pad_in_max_dir = [4, 5, 6, 0, 0, 0, 0];
+    cc.pad(pad_in_min_dir, pad_in_max_dir, 100.);
+
+    padded_dims = cc.get_dimensions();
+    for i = 1:7
+        assert(padded_dims(i+1) == original_dims(i+1) + pad_in_min_dir(i) + pad_in_max_dir(i), ...
+            'NiftiImageData::pad failed')
+    end
+
+    % Crop back to beginning
+    cropped_min_dir = pad_in_min_dir;
+    for i = 1:7
+        cropped_max_dir(i) = original_dims(i+1) + cropped_min_dir(i) - 1;
+    end
+    cc.crop(cropped_min_dir, cropped_max_dir);
+    assert(aa == cc, 'NiftiImageData::pad/crop failed')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
@@ -544,17 +569,34 @@ if try_niftyaladin
     na.process();
 
     % Get outputs
-    warped = na.get_output();
-    def_forward = na.get_deformation_field_forward();
-    def_inverse = na.get_deformation_field_inverse();
-    disp_forward = na.get_displacement_field_forward();
-    disp_inverse = na.get_displacement_field_inverse();
+    warped = na.get_output().deep_copy();
+    def_forward = na.get_deformation_field_forward().deep_copy();
+    def_inverse = na.get_deformation_field_inverse().deep_copy();
+    disp_forward = na.get_displacement_field_forward().deep_copy();
+    disp_inverse = na.get_displacement_field_inverse().deep_copy();
+    TM_forward_ = na.get_transformation_matrix_forward().deep_copy();
+    TM_inverse_ = na.get_transformation_matrix_inverse().deep_copy();
+
+    % Test via filenames
+    na.set_reference_image_filename(g.ref_aladin_filename);
+    na.set_floating_image_filename(g.flo_aladin_filename);
+    na.process();
+
+    assert(warped == na.get_output() && ...
+        def_forward == na.get_deformation_field_forward() && ...
+        def_inverse == na.get_deformation_field_inverse() && ...
+        disp_forward == na.get_displacement_field_forward() && ...
+        disp_inverse == na.get_displacement_field_inverse() && ...
+        TM_forward_ == na.get_transformation_matrix_forward() && ...
+        TM_inverse_ == na.get_transformation_matrix_inverse(),...
+        'Registration via filenames failed')
 
     warped.write(g.aladin_warped);
     na.get_transformation_matrix_forward().write(g.TM_forward);
     na.get_transformation_matrix_inverse().write(g.TM_inverse);
     def_forward.write(g.aladin_def_forward);
-    def_inverse.write_split_xyz_components(g.aladin_def_inverse);
+    def_inverse.write_split_xyz_components(g.aladin_def_inverse_xyz);
+    def_inverse.write(g.aladin_def_inverse);
     disp_forward.write(g.aladin_disp_forward);
     disp_inverse.write_split_xyz_components(g.aladin_disp_inverse);
 
@@ -571,6 +613,28 @@ if try_niftyaladin
     % Test converting def to disp
     b = sirf.Reg.NiftiImageData3DDisplacement(def_forward);
     assert(b == disp_forward, 'NiftiImageData3DDisplacement::create_from_def() failed.');
+
+    % Check NiftiImageData3DDeformation::get_inverse()
+    def_fwd_then_inv = def_forward.get_inverse(g.flo_aladin);
+    def_fwd_then_inv.write(g.aladin_def_fwd_inv);
+    sirf.Reg.NiftiImageData.print_headers([g.ref_aladin, g.flo_aladin, def_inverse, def_fwd_then_inv]);
+
+    % Reference forward with def_inv
+    resample = sirf.Reg.NiftyResample();
+    resample.set_reference_image(g.flo_aladin);
+    resample.set_floating_image(g.ref_aladin);
+    resample.set_padding_value(0.);
+    resample.set_interpolation_type_to_linear();
+    resample.add_transformation(def_inverse);
+    out1 = resample.forward(g.ref_aladin);
+
+    % Reference forward with def_fwd_then_inv
+    resample.clear_transformations();
+    resample.add_transformation(def_fwd_then_inv);
+    out2 = resample.forward(g.ref_aladin);
+
+    sirf.Reg.NiftiImageData.print_headers([out1, out2]);
+    assert(out1 == out2, 'NiftiImageData3DDeformation::get_inverse() failed.')
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty aladin test.')
@@ -859,9 +923,9 @@ if try_affinetransformation
     assert(all(abs(Eul-Eul_expected) < 1e-4), 'AffineTransformation get_Euler_angles() failed.')
 
     % Check as_array
-    f = b.as_array()
-    g = sirf.Reg.AffineTransformation(f);
-    h = g.as_array()
+    f = b.as_array();
+    gg = sirf.Reg.AffineTransformation(f);
+    h = gg.as_array();
     assert(all(all(abs(f-h) < 1e-4)), 'AffineTransformation as_array() failed.')
 
     % Average!

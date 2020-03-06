@@ -66,6 +66,7 @@ if (APPLE)
   if (SHARED_LIBS_ABS_PATH)
     # Set install_name_dir as the absolute path to install_prefix/lib
     GET_FILENAME_COMPONENT(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib REALPATH)
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
   endif(SHARED_LIBS_ABS_PATH)
 endif(APPLE)
 

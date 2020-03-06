@@ -464,6 +464,7 @@ MRAcquisitionData::clone_base() const
 void
 MRAcquisitionData::sort()
 {
+/*
 	typedef std::array<int, 4> tuple;
 	int na = number();
 	int last = -1;
@@ -493,6 +494,69 @@ MRAcquisitionData::sort()
 	else
 		Multisort::sort( vt, &index_[0] );
 
+	sorted_ = true;
+*/
+	const int NUMVAL = 6;
+	typedef std::array<int, NUMVAL> tuple;
+	int na = number();
+	if (na < 1) {
+		index_.resize(0);
+		return;
+	}
+
+	int last = -1;
+	tuple t;
+	tuple tmax;
+	for (int i = 0; i < NUMVAL; i++)
+		tmax[i] = 0;
+	for (int a = 0; a < na; a++) {
+		ISMRMRD::Acquisition acq;
+		get_acquisition(a, acq);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
+			last = a;
+		t[0] = acq.idx().repetition;
+		t[1] = acq.idx().phase;
+		t[2] = acq.idx().contrast;
+		t[3] = acq.idx().slice;
+		t[4] = acq.idx().kspace_encode_step_2;
+		t[5] = acq.idx().kspace_encode_step_1;
+		for (int i = 0; i < NUMVAL; i++)
+			if (t[i] > tmax[i])
+				tmax[i] = t[i];
+	}
+
+//	for (int i = 0; i < NUMVAL; i++)
+//		std::cout << tmax[i] << ' ';
+//	std::cout << '\n';
+
+	typedef std::vector<int> tuple_to_sort;
+	tuple_to_sort tsind;
+	std::vector<tuple_to_sort> vt;
+	for (int i = 0; i < NUMVAL; i++)
+		if (tmax[i] > 0)
+			tsind.push_back(i);
+//	for (int i = 0; i < tsind.size(); i++)
+//		std::cout << tsind[i] << ' ';
+//	std::cout << '\n';
+	for (int a = 0; a < na; a++) {
+		ISMRMRD::Acquisition acq;
+		get_acquisition(a, acq);
+		t[0] = acq.idx().repetition;
+		t[1] = acq.idx().phase;
+		t[2] = acq.idx().contrast;
+		t[3] = acq.idx().slice;
+		t[4] = acq.idx().kspace_encode_step_2;
+		t[5] = acq.idx().kspace_encode_step_1;
+		tuple_to_sort tsort;
+		for (int i = 0; i < tsind.size(); i++)
+			tsort.push_back(t[tsind[i]]);
+		vt.push_back(tsort);
+	}
+	if (last > -1)
+		vt[last][0] = tmax[tsind[0]];
+
+	index_.resize(na);
+	NewMultisort::sort( vt, &index_[0] );
 	sorted_ = true;
 }
 
@@ -1026,6 +1090,13 @@ GadgetronImageData::set_real_data(const float* z)
 	}
 }
 
+void
+GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
+{
+    acqs_info_ = acqs_info;
+    this->set_up_geom_info();
+}
+
 GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()
@@ -1262,6 +1333,14 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     }
 }
 
+bool GadgetronImagesVector::is_complex() const {
+    // If any of the wraps are complex, return true.
+    for (unsigned i=0; i<number(); ++i)
+        if (image_wrap(i).is_complex())
+            return true;
+    return false;
+}
+
 float get_projection_of_position_in_slice(const ISMRMRD::ImageHeader &ih)
 {
     return ih.position[0] * ih.slice_dir[0] +
@@ -1408,6 +1487,38 @@ CoilDataAsCFImage::set_data(const float* re, const float* im)
 		ptr[i] = complex_float_t((float)re[i], (float)im[i]);
 }
 
+void
+CoilDataAsCFImage::write(ISMRMRD::Dataset& dataset) const
+{
+	//std::cout << "appending image..." << std::endl;
+	std::stringstream ss;
+	ss << "image_" << img_.getHead().image_series_index;
+	std::string image_varname = ss.str();
+	{
+		Mutex mtx;
+		mtx.lock();
+		dataset.appendImage(image_varname, img_);
+		mtx.unlock();
+	}
+}
+
+void
+CoilDataContainer::write(const std::string &filename) const
+{
+	if (items() < 1)
+		return;
+
+	Mutex mtx;
+	mtx.lock();
+	ISMRMRD::Dataset dataset(filename.c_str(), "dataset");
+	dataset.writeHeader(acqs_info_.c_str());
+	mtx.unlock();
+	for (unsigned int i = 0; i < items(); i++) {
+		DYNAMIC_CAST(const CoilData, ci, (*this)(i));
+		ci.write(dataset);
+	}
+}
+
 void 
 CoilImagesContainer::compute(MRAcquisitionData& ac)
 {
@@ -1415,6 +1526,7 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	ISMRMRD::IsmrmrdHeader header;
 	ISMRMRD::Acquisition acq;
 	par = ac.acquisitions_info();
+	set_meta_data(par);
 	ISMRMRD::deserialize(par.c_str(), header);
 	//ac.get_acquisition(0, acq);
 	for (unsigned int i = 0; i < ac.number(); i++) {
@@ -1493,7 +1605,7 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 void 
 CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
 {
-
+	set_meta_data(cis.get_meta_data());
 	ISMRMRD::Encoding e = cis.encoding();
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	//unsigned int ny = e.reconSpace.matrixSize.y;

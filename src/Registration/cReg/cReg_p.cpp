@@ -1,7 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -27,6 +27,9 @@ limitations under the License.
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/AffineTransformation.h"
+#ifdef SIRF_SPM
+#include "sirf/Reg/SPMRegistration.h"
+#endif
 
 using namespace sirf;
 
@@ -115,9 +118,7 @@ sirf::cReg_setRegistrationParameter(void* hp, const char* name, const void* hv)
     std::shared_ptr<const ImageData> im_sptr;
 
     Registration<float>& s = objectFromHandle<Registration<float> >(hp);
-    if (strcmp(name, "parameter_file") == 0)
-        s.set_parameter_file(charDataFromHandle(hv));
-    else if (strcmp(name, "reference_image") == 0) {
+    if (strcmp(name, "reference_image") == 0) {
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
         s.set_reference_image(im_sptr);
     }
@@ -125,6 +126,22 @@ sirf::cReg_setRegistrationParameter(void* hp, const char* name, const void* hv)
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
         s.set_floating_image(im_sptr);
     }
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+// ------------------------------------------------------------------------------------ //
+//   NiftyRegistration
+// ------------------------------------------------------------------------------------ //
+// set
+void*
+sirf::cReg_setNiftyRegistrationParameter(void* hp, const char* name, const void* hv)
+{
+    std::shared_ptr<const ImageData> im_sptr;
+
+    NiftyRegistration<float>& s = objectFromHandle<NiftyRegistration<float> >(hp);
+    if (strcmp(name, "parameter_file") == 0)
+        s.set_parameter_file(charDataFromHandle(hv));
     else if (strcmp(name, "reference_mask") == 0) {
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
         s.set_reference_mask(im_sptr);
@@ -136,17 +153,6 @@ sirf::cReg_setRegistrationParameter(void* hp, const char* name, const void* hv)
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
-}
-// get
-void*
-sirf::cReg_RegistrationParameter(const DataHandle* handle, const char* name)
-{
-    Registration<float>& s = objectFromHandle<Registration<float> >(handle);
-    if (strcmp(name, "output") == 0) {
-        return newObjectHandle(s.get_output_sptr());
-	}
-	else
-		return parameterNotFound(name, __FILE__, __LINE__);
 }
 // ------------------------------------------------------------------------------------ //
 //   NiftyF3dSym
@@ -169,6 +175,26 @@ sirf::cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv)
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;
 }
+#ifdef SIRF_SPM
+// ------------------------------------------------------------------------------------ //
+//   SPMRegistration
+// ------------------------------------------------------------------------------------ //
+// set
+void*
+sirf::cReg_setSPMRegistrationParameter(void* hp, const char* name, const void* hv)
+{
+    SPMRegistration<float>& s = objectFromHandle<SPMRegistration<float> >(hp);
+    if (strcmp(name, "working_folder") == 0)
+        s.set_working_folder(charDataFromHandle(hv));
+    else if (strcmp(name, "working_folder_file_overwrite") == 0)
+        s.set_working_folder_file_overwrite(boolDataFromHandle(hv));
+    else if (strcmp(name, "delete_temp_files") == 0)
+        s.set_delete_temp_files(boolDataFromHandle(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+#endif
 // ------------------------------------------------------------------------------------ //
 //   NiftyResample
 // ------------------------------------------------------------------------------------ //

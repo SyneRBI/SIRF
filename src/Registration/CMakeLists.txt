@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,6 +15,28 @@
 #  limitations under the License.
 #
 #=========================================================================
+
+# Have we got SPM? (only works with Matlab)
+if (BUILD_MATLAB)
+	# if on linux, engine is in funny place
+	if("${CMAKE_SYSTEM}" MATCHES "Linux")
+		list(APPEND Matlab_LIBRARIES 
+			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so" 
+			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so")
+	endif()
+
+	find_package(SPM QUIET)
+	if(SPM_FOUND)
+		MESSAGE(STATUS "SPM found")
+		set(SPM_BOOL_STR "1")
+	else()
+		MESSAGE(STATUS "SPM not found")
+		set(SPM_BOOL_STR "0")
+	endif()
+else()
+	MESSAGE(STATUS "Matlab not enabled, so SPM cannot be enabled")
+	set(SPM_BOOL_STR "0")
+endif()
 
 ADD_SUBDIRECTORY(NiftyMoMo)
 ADD_SUBDIRECTORY(cReg)

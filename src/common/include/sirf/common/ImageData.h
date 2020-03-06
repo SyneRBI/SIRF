@@ -79,8 +79,37 @@ namespace sirf {
 				*dst = *src;
         }
         /// Write image to file
-        virtual void write(const std::string &filename) const = 0;
-        /// Get geometrical info
+        //virtual void write(const std::string &filename) const = 0;
+		bool operator==(const ImageData& id) const
+		{
+			GeometricalInfo<3, 3>& gi_self = (GeometricalInfo<3, 3>&)*get_geom_info_sptr();
+			GeometricalInfo<3, 3>& gi_other = (GeometricalInfo<3, 3>&)*id.get_geom_info_sptr();
+			if (gi_self != gi_other)
+				return false;
+			float s = 0.0f;
+			float sx = 0.0f;
+			float sy = 0.0f;
+			complex_float_t zx;
+			complex_float_t zy;
+			Iterator_const& x = this->begin();
+			Iterator_const& y = id.begin();
+			for (; x != this->end(); ++x, ++y) {
+				zx = (*x).complex_float();
+				zy = (*y).complex_float();
+				sx += std::abs(zx*zx);
+				sy += std::abs(zy*zy);
+				zx -= zy;
+				s += std::abs(zx*zx);
+			}
+			float t = std::max(sx, sy);
+			bool same = (s <= 1e-6*t);
+			return same;
+		}
+		bool operator!=(const ImageData& id) const
+		{
+			return !(*this == id);
+		}
+		/// Get geometrical info
         std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info_sptr() const
         {
             // If the geometrical info has not been created yet, throw an error
@@ -96,6 +125,9 @@ namespace sirf {
         {
             return std::unique_ptr<ImageData>(this->clone_impl());
         }
+        /// Is complex? Unless overwridden (Gadgetron), assume not complex.
+        virtual bool is_complex() const { return false; }
+
     protected:
         /// Clone helper function. Don't use.
         virtual ImageData* clone_impl() const = 0;

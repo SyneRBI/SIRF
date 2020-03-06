@@ -42,6 +42,52 @@ class BSplineTransformation;
 
 namespace sirf {
 
+namespace detail {
+/*! \ingroup Registration
+  \brief This is an internal class requied by NiftyResample to handle complex images.
+
+NiftyReg doesn't currently handle complex nifti images. So we split complex (e.g., MR)
+images into two images, a real and imaginary component. We can then resample them and
+then join the two parts back together.
+ */
+template<class dataType>
+class ComplexNiftiImageData
+{
+public:
+    /// Constructor
+    ComplexNiftiImageData() {}
+    /// Destructor
+    virtual ~ComplexNiftiImageData() {}
+    /// is complex
+    bool is_complex() const { return _imag_sptr != nullptr; }
+    /// Get real component
+    const std::shared_ptr<const NiftiImageData<dataType> > real() const { return _real_sptr; }
+    /// Get real component
+    std::shared_ptr<NiftiImageData<dataType> > &real() { return _real_sptr; }
+    /// Get imaginary component
+    const std::shared_ptr<const NiftiImageData<dataType> > imag() const { return _imag_sptr; }
+    /// Get imaginary component
+    std::shared_ptr<NiftiImageData<dataType> > &imag() { return _imag_sptr; }
+    /// size
+    size_t size() const { return is_complex() ? 2 : 1; }
+    /// at
+    const std::shared_ptr<const NiftiImageData<dataType> > at(const unsigned idx) const { check_bounds(idx); return idx == 0 ? real() : imag(); }
+    /// at
+    std::shared_ptr<NiftiImageData<dataType> > at(const unsigned idx) { check_bounds(idx); return idx == 0 ? real() : imag(); }
+
+private:
+    void check_bounds(const unsigned idx) const
+    {
+        if (idx > 1)
+            throw std::runtime_error("ComplexNiftiImageData::at(): Exceeds index range");
+        if (idx == 1 && !is_complex())
+            throw std::runtime_error("ComplexNiftiImageData::at(): Trying to access imaginary part of non-complex image");
+    }
+    std::shared_ptr<NiftiImageData<dataType> > _real_sptr;
+    std::shared_ptr<NiftiImageData<dataType> > _imag_sptr;
+};
+}
+
 /*!
 \ingroup Registration
 \brief Resampling class based on nifty resample
@@ -91,28 +137,22 @@ protected:
     /// Set up the input images (convert from ImageData to NiftiImageData if necessary)
     void set_up_input_images();
 
-    /// Set up the output image
-    void set_up_output_image(std::shared_ptr<NiftiImageData<dataType> > &output_sptr,
-                             const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr,
-                             const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr);
-
-
     /// Reference image as a NiftiImageData
-    std::shared_ptr<const NiftiImageData<dataType> > _reference_image_nifti_sptr;
+    detail::ComplexNiftiImageData<dataType> _reference_image_niftis;
     /// Floating image as a NiftiImageData
-    std::shared_ptr<const NiftiImageData<dataType> > _floating_image_nifti_sptr;
+    detail::ComplexNiftiImageData<dataType> _floating_image_niftis;
     /// Forward resampled image as a NiftiImageData
-    std::shared_ptr<NiftiImageData<dataType> >       _output_image_forward_nifti_sptr;
+    detail::ComplexNiftiImageData<dataType> _output_image_forward_niftis;
     /// Adjoint resampled image as a NiftiImageData
-    std::shared_ptr<NiftiImageData<dataType> >       _output_image_adjoint_nifti_sptr;
+    detail::ComplexNiftiImageData<dataType> _output_image_adjoint_niftis;
 
     /// Deformation
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > _deformation_sptr;
     /// Needed for the adjoint transformation
     std::shared_ptr<NiftyMoMo::BSplineTransformation> _adjoint_transformer_sptr;
-    /// Adjoint reference weights
+    /// Adjoint reference weights. Vector as may be complex
     std::shared_ptr<NiftiImageData<dataType> > _adjoint_input_weights_sptr;
-    /// Adjoint output weights
+    /// Adjoint output weights. Vector as may be complex
     std::shared_ptr<NiftiImageData<dataType> > _adjoint_output_weights_sptr;
 };
 }
