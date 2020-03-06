@@ -116,10 +116,12 @@ def main():
     msg_red = MessageRedirector('info.txt', 'warn.txt')
 
     if not use_gpu:
+        print("Using CPU projector...")
         # select acquisition model that implements the geometric
         # forward projection by a ray tracing matrix multiplication
         acq_model = AcquisitionModelUsingRayTracingMatrix()
     else:
+        print("Using GPU projector...")
         # If using GPU, use the niftypet projector
         acq_model = AcquisitionModelUsingNiftyPET()
 
@@ -131,10 +133,9 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
-    if not use_gpu:
-        image = acq_data.create_uniform_image(1.0, nxny)
+    image = acq_data.create_uniform_image(1.0, nxny)
     # If using GPU, need to make sure that image is right size.
-    else:
+    if use_gpu:
         image.initialise(dim=(127,320,320), vsize=(2.03125,2.08626,2.08626))
         image.fill(1.0)
 
@@ -152,8 +153,8 @@ def main():
             resampler.set_reference_image(image)
             resampler.set_floating_image(attn_image)
             resampler.set_interpolation_type_to_linear()
-            set_padding_value(0.0)
-            resampler.forward(attn_image, image)
+            resampler.set_padding_value(0.0)
+            attn_image = resampler.forward(attn_image)
         asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
         # temporary fix pending attenuation offset fix in STIR:
         # converting attenuation into 'bin efficiency'
@@ -166,16 +167,21 @@ def main():
 
     # Get ASM dependent on attn and/or norm
     if norm_file and attn_file:
+        print("AcquisitionSensitivityModel contains norm and attenuation...")
         asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
     elif norm_file:
+        print("AcquisitionSensitivityModel contains norm...")
         asm = asm_norm
     elif attn_file:
+        print("AcquisitionSensitivityModel contains attenuation...")
         asm = asm_attn
     if asm:
+        print("Setting AcquisitionSensitivityModel...")
         acq_model.set_acquisition_sensitivity(asm)
 
     # If randoms are present
     if rand_file:
+        print("Adding randoms...")
         randoms = AcquisitionData(rand_file)
         acq_model.set_background_term(randoms)
 
