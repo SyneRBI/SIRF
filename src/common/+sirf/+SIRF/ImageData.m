@@ -25,5 +25,12 @@ classdef ImageData < sirf.SIRF.DataContainer
 			geom_info = sirf.SIRF.GeometricalInfo();
 			geom_info.handle_ = calllib('msirf', 'mSIRF_ImageData_get_geom_info', self.handle_);
 		end
+		function reorient(self, geom_info)
+            % Reorient image. Requires that dimensions and spacing match.
+            assert(isa(geom_info, 'sirf.SIRF.GeometricalInfo'));
+            h = calllib('msirf', 'mSIRF_ImageData_reorient', self.handle_, geom_info.handle_);
+            sirf.Utilities.check_status([self.name ':reorient'], h);
+            sirf.Utilities.delete(h)
+        end
 	end
 end

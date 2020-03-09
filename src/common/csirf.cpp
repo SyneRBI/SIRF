@@ -211,6 +211,19 @@ cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src)
 }
 
 extern "C"
+void* cSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr)
+{
+    try {
+        ImageData& id = objectFromHandle<ImageData>(im_ptr);
+        VoxelisedGeometricalInfo3D geom_info =
+                objectFromHandle<VoxelisedGeometricalInfo3D>(geom_info_ptr);
+        id.reorient(geom_info);
+        return new DataHandle;
+    }
+    CATCH
+}
+
+extern "C"
 void*
 cSIRF_ImageData_get_geom_info(const void* ptr_im)
 {

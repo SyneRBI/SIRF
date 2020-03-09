@@ -232,6 +232,84 @@ int main(int argc, char* argv[])
             std::cout << "//------------------------------------------------------------------------ //\n";
         }
 
+        // Test MR reorient
+        {
+            std::cout << "// ----------------------------------------------------------------------- //\n";
+            std::cout << "//                  Starting GadgetronImageData reorient test...\n";
+            std::cout << "//------------------------------------------------------------------------ //\n";
+
+            // Read ISMRMRD image
+            std::shared_ptr<GadgetronImagesVector> G1_sptr = std::make_shared<GadgetronImagesVector>();
+            G1_sptr->read(mr_recon_h5_filename);
+
+            // Convert ISMRMRD image to nifti
+            std::shared_ptr<NiftiImageData<float> > G1_nii_sptr =
+                    std::make_shared<NiftiImageData<float> >(*G1_sptr);
+            std::shared_ptr<nifti_image> raw_nii_sptr = G1_nii_sptr->get_raw_nifti_sptr();
+
+            // Affine transformation as translation by integer num voxels (so no interpolation)
+            std::array<float,3> trans = {  G1_sptr->get_geom_info_sptr()->get_spacing()[0] * 2.f,
+                                           G1_sptr->get_geom_info_sptr()->get_spacing()[1] * 5.f,
+                                           G1_sptr->get_geom_info_sptr()->get_spacing()[2] * 3.f };
+
+            // Create matching transformation matrix
+            std::shared_ptr<AffineTransformation<float> > trans_sptr =
+                    std::make_shared<AffineTransformation<float> >();
+            for (unsigned i=0; i<3; ++i)
+                (*trans_sptr)[i][3] = trans[i];
+
+            // Shift nifti
+            for (unsigned i=0; i<3; ++i)
+                raw_nii_sptr->qto_xyz.m[i][3] += trans[i];
+            raw_nii_sptr->qto_ijk =
+                    nifti_mat44_inverse(raw_nii_sptr->qto_xyz);
+            nifti_mat44_to_quatern( raw_nii_sptr->qto_xyz,
+                                    &raw_nii_sptr->quatern_b,
+                                    &raw_nii_sptr->quatern_c,
+                                    &raw_nii_sptr->quatern_d,
+                                    &raw_nii_sptr->qoffset_x,
+                                    &raw_nii_sptr->qoffset_y,
+                                    &raw_nii_sptr->qoffset_z,
+                                    nullptr,
+                                    nullptr,
+                                    nullptr,
+                                    &raw_nii_sptr->qfac );
+            raw_nii_sptr->pixdim[0]=raw_nii_sptr->qfac;
+            // Check everything is ok
+            reg_checkAndCorrectDimension(raw_nii_sptr.get());
+            // Re-set up geom info
+            G1_nii_sptr->set_up_geom_info();
+
+            // Reorient gadgetron image with modified G1_nii_sptr's geom info
+            std::shared_ptr<GadgetronImagesVector> G2_sptr = G1_sptr->clone();
+            G2_sptr->reorient(*G1_nii_sptr->get_geom_info_sptr());
+
+            std::cout << "\n original:\n";
+            G1_sptr->get_geom_info_sptr()->print_info();
+            std::cout << "\n resampled:\n";
+            G2_sptr->get_geom_info_sptr()->print_info();
+
+            // Now resampled G2 back to G1 using inverse TM, should be the same
+            NiftyResample<float> res;
+            res.set_reference_image(G1_sptr);
+            res.set_floating_image(G2_sptr);
+            res.set_padding_value(0.f);
+            res.set_interpolation_type_to_linear();
+            res.add_transformation(std::make_shared<const AffineTransformation<float> >(trans_sptr->get_inverse()));
+            std::shared_ptr<ImageData> resampled_G2_sptr = res.forward(G2_sptr);
+
+            std::cout << "\n reoriented back to original space:\n";
+            resampled_G2_sptr->get_geom_info_sptr()->print_info();
+
+            if (NiftiImageData<float>(*G1_sptr) != NiftiImageData<float>(*resampled_G2_sptr))
+                throw std::runtime_error("GadgetronImagesVector::reorient test failed");
+
+
+            std::cout << "// ----------------------------------------------------------------------- //\n";
+            std::cout << "//                  Finished GadgetronImageData reorient test.\n";
+            std::cout << "//------------------------------------------------------------------------ //\n";
+        }
+
     // Error handling
     } catch(const std::exception &error) {
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";

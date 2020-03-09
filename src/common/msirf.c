@@ -66,6 +66,9 @@ EXPORTED_FUNCTION void* mSIRF_clone(void* ptr_x) {
 EXPORTED_FUNCTION void* mSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src) {
 	return cSIRF_fillImageFromImage(ptr_im, ptr_src);
 }
+EXPORTED_FUNCTION void* mSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr) {
+	return cSIRF_ImageData_reorient(im_ptr, geom_info_ptr);
+}
 EXPORTED_FUNCTION void* mSIRF_DataHandleVector_push_back(void* self, void* to_append) {
 	return cSIRF_DataHandleVector_push_back(self, to_append);
 }

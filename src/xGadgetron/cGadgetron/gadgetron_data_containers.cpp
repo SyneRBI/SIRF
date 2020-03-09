@@ -1268,6 +1268,57 @@ bool GadgetronImagesVector::is_complex() const {
     return false;
 }
 
+void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info_out)
+{
+    const VoxelisedGeometricalInfo3D &geom_info_in = *this->get_geom_info_sptr();
+
+    // if input geom info matches output, nothing to do
+    if (geom_info_in == geom_info_out)
+        return;
+
+    // Check can do reorient
+    ImageData::can_reorient(geom_info_in, geom_info_out, true);
+
+    // ------------------------------------------------------ //
+    // Do the reorienting!
+    // ------------------------------------------------------ //
+
+    if (number() < 1)
+        return;
+
+    if (!this->sorted())
+        this->sort();
+
+    // loop over all images in stack
+    for (unsigned im=0; im<number(); ++im) {
+        // Get image header
+        ISMRMRD::ImageHeader &ih = image_wrap(im).head();
+
+        // Read, phase and slice directions
+        auto direction = geom_info_out.get_direction();
+        for (unsigned axis=0; axis<3; ++axis) {
+            ih.read_dir[axis]  = -direction[axis][0];
+            ih.phase_dir[axis] = -direction[axis][1];
+            ih.slice_dir[axis] = -direction[axis][2];
+        }
+
+        // Position
+        auto offset = geom_info_out.get_offset();
+        for (unsigned i=0; i<3; ++i)
+            ih.position[i] = offset[i]
+                    + direction[i][0] * (ih.field_of_view[0] / 2.0f)
+                    + direction[i][1] * (ih.field_of_view[1] / 2.0f)
+                    + direction[i][2] * float(im) * geom_info_out.get_spacing()[2];
+    }
+
+    // set up geom info
+    this->set_up_geom_info();
+
+    // Check reorient success
+    if (*this->get_geom_info_sptr() != geom_info_out)
+        throw std::runtime_error("GadgetronImagesVector::reorient failed");
+}
+
 float get_projection_of_position_in_slice(const ISMRMRD::ImageHeader &ih)
 {
     return ih.position[0] * ih.slice_dir[0] +

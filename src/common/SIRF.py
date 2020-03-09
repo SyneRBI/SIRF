@@ -489,6 +489,12 @@ class ImageData(DataContainer):
         check_status(geom_info.handle)
         return geom_info
 
+    def reorient(self, geom_info):
+        """Reorient image. Requires that dimensions and spacing match."""
+        if not isinstance(geom_info, GeometricalInfo):
+            raise AssertionError()
+        try_calling(pysirf.cSIRF_ImageData_reorient(self.handle, geom_info.handle))
+
 DataContainer.register(ImageData)
 
 class DataHandleVector(object):

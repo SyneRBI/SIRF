@@ -127,12 +127,15 @@ namespace sirf {
         }
         /// Is complex? Unless overwridden (Gadgetron), assume not complex.
         virtual bool is_complex() const { return false; }
-
+        /// Reorient image. Requires that dimesions and spacing match
+        virtual void reorient(const VoxelisedGeometricalInfo3D &);
+        /// Can reorient? (check dimensions and spacing)
+        static bool can_reorient(const VoxelisedGeometricalInfo3D &geom_1, const VoxelisedGeometricalInfo3D &geom_2, const bool throw_error);
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info() = 0;
     protected:
         /// Clone helper function. Don't use.
         virtual ImageData* clone_impl() const = 0;
-        /// Populate the geometrical info metadata (from the image's own metadata)
-        virtual void set_up_geom_info() = 0;
         /// Set geom info
         void set_geom_info(const std::shared_ptr<VoxelisedGeometricalInfo3D> geom_info_sptr) { _geom_info_sptr = geom_info_sptr; }
     private:
