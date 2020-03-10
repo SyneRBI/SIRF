@@ -1302,6 +1302,12 @@ void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info
             ih.slice_dir[axis] = -direction[axis][2];
         }
 
+        // FOV
+        auto spacing = geom_info_out.get_spacing();
+        auto size = geom_info_out.get_size();
+        for(unsigned i=0; i<3; ++i)
+            ih.field_of_view[i] = spacing[i] * size[i];
+
         // Position
         auto offset = geom_info_out.get_offset();
         for (unsigned i=0; i<3; ++i)

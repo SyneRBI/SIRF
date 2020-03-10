@@ -787,7 +787,7 @@ namespace sirf {
         /// Is complex?
         virtual bool is_complex() const;
 
-        /// Reorient image. Requires that dimensions and spacing match
+        /// Reorient image. Requires that dimensions match
         virtual void reorient(const VoxelisedGeometricalInfo3D &geom_info_out);
 
         /// Populate the geometrical info metadata (from the image's own metadata)

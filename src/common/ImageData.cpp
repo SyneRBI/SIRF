@@ -30,11 +30,11 @@ void ImageData::reorient(const VoxelisedGeometricalInfo3D &)
 bool ImageData::can_reorient(const VoxelisedGeometricalInfo3D &geom_1, const VoxelisedGeometricalInfo3D &geom_2, const bool throw_error)
 {
     // If size and spacing match, return true
-    if (geom_1.get_size() == geom_2.get_size() && geom_1.get_spacing() == geom_2.get_spacing())
+    if (geom_1.get_size() == geom_2.get_size())
         return true;
     // Else (and error desired), print error
     if (throw_error)
-        throw std::runtime_error("ImageData::can_reorient: num voxels or spacing do not match.");
+        throw std::runtime_error("ImageData::can_reorient: num voxels do not match.");
     // Else, return false
     return false;
 }
