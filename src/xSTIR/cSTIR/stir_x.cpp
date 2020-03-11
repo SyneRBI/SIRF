@@ -30,16 +30,24 @@ using namespace stir;
 using namespace ecat;
 using namespace sirf;
 
+#ifdef STIR_USE_LISTMODEDATA
+    typedef ListModeData LMD;
+    typedef ListRecord LMR;
+#else
+    typedef CListModeData LMD;
+    typedef CListRecord LMR;
+#endif
+
 float ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold(const float threshold) const
 {
     if (input_filename.empty())
         throw std::runtime_error("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold: Filename missing");
 
-    shared_ptr<CListModeData> lm_data_ptr
-      (read_from_file<CListModeData>(input_filename));
+    shared_ptr<LMD> lm_data_ptr
+      (read_from_file<LMD>(input_filename));
 
-    shared_ptr <CListRecord> record_sptr = lm_data_ptr->get_empty_record_sptr();
-    CListRecord& record = *record_sptr;
+    shared_ptr <LMR> record_sptr = lm_data_ptr->get_empty_record_sptr();
+    LMR& record = *record_sptr;
 
     double current_time = -1;
     unsigned long num_prompts = 0UL;
@@ -108,9 +116,9 @@ ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 	unsigned int current_frame_num = 1;
 	{
 		// loop over all events in the listmode file
-		shared_ptr<CListRecord> record_sptr =
+		shared_ptr<LMR> record_sptr =
 			lm_data_ptr->get_empty_record_sptr();
-		CListRecord& record = *record_sptr;
+		LMR& record = *record_sptr;
 
 		bool first_event = true;
 
