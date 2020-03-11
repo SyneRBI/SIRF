@@ -17,10 +17,10 @@
 #
 #=========================================================================
 
-add_executable(MR_TEST_CPLUSPLUS ${CMAKE_CURRENT_SOURCE_DIR}/mrtests.cpp)
-target_link_libraries(MR_TEST_CPLUSPLUS PUBLIC csirf cgadgetron)
-INSTALL(TARGETS MR_TEST_CPLUSPLUS DESTINATION bin)
+add_executable(MR_TESTS_CPLUSPLUS ${CMAKE_CURRENT_SOURCE_DIR}/mrtests.cpp)
+target_link_libraries(MR_TESTS_CPLUSPLUS PUBLIC csirf cgadgetron)
+INSTALL(TARGETS MR_TESTS_CPLUSPLUS DESTINATION bin)
 
-ADD_TEST(NAME MR_TEST_CPLUSPLUS
-         COMMAND MR_TEST_CPLUSPLUS
+ADD_TEST(NAME MR_TESTS_CPLUSPLUS
+         COMMAND MR_TESTS_CPLUSPLUS
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

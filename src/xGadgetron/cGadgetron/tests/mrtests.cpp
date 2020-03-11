@@ -1,40 +1,16 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "mrtest_auxiliary_funs.h"
-
-#include "sirf/Gadgetron/encoding.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
-#include "sirf/Gadgetron/gadget_lib.h"
 
 using namespace sirf;
 
-bool test_get_kspace_order(void)
+bool test_get_kspace_order(const std::string& fname_input)
 {
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
-
-        std::string const fpath_input = "/media/sf_CCPPETMR/TestData/Input/xGadgetron/cGadgetron/";
-        std::string fname_input = fpath_input + "CV_SR_64Cube_1Echo_10Dyn.h5";
-
-        sirf::AcquisitionsVector av;
-        av.read(fname_input);
-        av.sort();
-
-        auto kspace_sorting = av.get_kspace_order();
-
-        fname_input = fpath_input + "CV_SR_128Cube_1Echo_3Dyn.h5";
-
-        sirf::AcquisitionsVector av_contrast;
-        av_contrast.read(fname_input);
-        av_contrast.sort();
-
-        auto kspace_sorting_contrast = av_contrast.get_kspace_order();
-
-
-        fname_input = fpath_input + "CV_2D_Stack_144.h5";
 
         sirf::AcquisitionsVector av_slice;
         av_slice.read(fname_input);
@@ -53,14 +29,11 @@ bool test_get_kspace_order(void)
     }
 }
 
-bool test_get_subset()
+bool test_get_subset(const std::string& fname_input)
 {
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
-
-        std::string const fpath_input = "/media/sf_CCPPETMR/TestData/Input/xGadgetron/cGadgetron/";
-        std::string fname_input = fpath_input + "CV_SR_64Cube_1Echo_10Dyn.h5";
 
         sirf::AcquisitionsVector av;
         av.read(fname_input);
@@ -83,12 +56,21 @@ bool test_get_subset()
     }
 }
 
-int main ()
+int main ( int argc, char* argv[])
 {
+
 	try{
 
-       test_get_kspace_order();
-       test_get_subset();
+        std::string SIRF_PATH;
+        if (argc==1)
+            SIRF_PATH = getenv("SIRF_PATH");
+        else
+            SIRF_PATH = argv[1];
+
+        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
+
+        test_get_kspace_order(data_path);
+        test_get_subset(data_path);
         return 0;
 	}
     catch(const std::exception &error) {
