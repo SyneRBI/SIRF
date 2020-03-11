@@ -70,3 +70,5 @@ endif()
 target_link_libraries(cgadgetron ${ismrmrd_full_path})
 target_link_libraries(cgadgetron "${FFTW3_LIBRARIES}")
 target_link_libraries(cgadgetron "${HDF5_LIBRARIES}")
+
+ADD_SUBDIRECTORY(tests)
