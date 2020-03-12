@@ -117,6 +117,69 @@ namespace sirf {
 		bool have_header_;
 	};
 
+    class KSpaceSorting
+    {
+        static int const num_kspace_dims_ = 7 + ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS;
+
+    public:
+
+        typedef std::array<int, num_kspace_dims_> TagType;
+        typedef std::vector<int> SetType;
+
+        KSpaceSorting(){
+            for(int i=0; i<num_kspace_dims_; ++i)
+                this->tag_[i] = -1;
+        }
+
+        KSpaceSorting(TagType tag){
+            this->tag_ = tag;
+            this->idx_set_ = {};
+        }
+
+        KSpaceSorting(TagType tag, SetType idx_set){
+            this->tag_ = tag;
+            this->idx_set_ = idx_set;
+        }
+
+        TagType get_tag(void) const {return tag_;}
+        SetType get_idx_set(void) const {return idx_set_;}
+        void add_idx_to_set(size_t const idx){this->idx_set_.push_back(idx);}
+
+        static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq)
+        {
+            TagType tag;
+            tag[0] = acq.idx().average;
+            tag[1] = acq.idx().slice;
+            tag[2] = acq.idx().contrast;
+            tag[3] = acq.idx().phase;
+            tag[4] = acq.idx().repetition;
+            tag[5] = acq.idx().set;
+            tag[6] = 0; //acq.idx().segment;
+
+            for(int i=7; i<tag.size(); ++i)
+                tag[i]=acq.idx().user[i];
+
+            return tag;
+        }
+
+        bool is_first_set() const {
+            bool is_first= (tag_[0] == 0);
+            if(is_first)
+            {
+               for(int dim=2; dim<num_kspace_dims_; ++dim)
+                   is_first *= (tag_[dim] == 0);
+            }
+            return is_first;
+        }
+
+    private:
+
+        // order is [average, slice, contrast, phase, repetition, set, segment, user_ (0,...,ISMRMRD_USER_INTS-1)]
+        TagType tag_;
+        SetType idx_set_;
+
+    };
+
 	/*!
 	\ingroup Gadgetron Data Containers
 	\brief Abstract MR acquisition data container class.
@@ -209,6 +272,12 @@ namespace sirf {
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 
+        std::vector<std::vector<int> > get_kspace_order(const bool get_first_subset_order=false) const;
+        void organise_kspace();
+
+        virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
+        virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
+
 		std::vector<int> index() { return index_; }
 		const std::vector<int>& index() const { return index_; }
 
@@ -237,6 +306,7 @@ namespace sirf {
 	protected:
 		bool sorted_=false;
 		std::vector<int> index_;
+        std::vector<KSpaceSorting> sorting_;
 		AcquisitionsInfo acqs_info_;
 
 		static std::string _storage_scheme;
@@ -449,11 +519,11 @@ namespace sirf {
 			dim["n"] = number();
 			return dim;
 		}
-		virtual void get_image_dimensions(unsigned int im_num, int* dim)
+        virtual void get_image_dimensions(unsigned int im_num, int* dim) const
 		{
 			if (im_num >= number())
 				dim[0] = dim[1] = dim[2] = dim[3] = 0;
-			ImageWrap& iw = image_wrap(im_num);
+            const ImageWrap&  iw = image_wrap(im_num);
 			iw.get_dim(dim);
 		}
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> 

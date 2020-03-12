@@ -557,6 +557,7 @@ MRAcquisitionData::sort()
 
 	index_.resize(na);
 	NewMultisort::sort( vt, &index_[0] );
+    this->organise_kspace();
 	sorted_ = true;
 }
 
@@ -582,7 +583,117 @@ MRAcquisitionData::sort_by_time()
 		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
 	else
 		Multisort::sort( vt, &index_[0] );
+    this->organise_kspace();
 
+}
+
+std::vector<std::vector<int> > MRAcquisitionData::get_kspace_order(const bool get_first_subset_order) const
+{
+    if(this->sorting_.size() == 0)
+        throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
+
+    std::vector<std::vector<int> > output;
+    for(unsigned i = 0; i<sorting_.size(); ++i)
+    {
+        if(!get_first_subset_order)
+        {
+            if(!sorting_.at(i).get_idx_set().empty())
+               output.push_back(sorting_.at(i).get_idx_set());
+        }
+        else
+            if(sorting_.at(i).is_first_set() && !sorting_.at(i).get_idx_set().empty())
+                output.push_back(sorting_.at(i).get_idx_set());
+    }
+    return output;
+}
+
+static int get_num_enc_states( const ISMRMRD::Optional<ISMRMRD::Limit>& enc_lim)
+{
+	int num_states =1;
+
+	if(enc_lim.is_present())
+	{
+	    ISMRMRD::Limit lim = enc_lim.get();
+		num_states = lim.maximum - lim.minimum +1;
+	}
+
+	return num_states;
+}
+
+void MRAcquisitionData::organise_kspace()
+{
+    ISMRMRD::IsmrmrdHeader header;
+    ISMRMRD::deserialize(this->acqs_info_.c_str(), header);
+
+    auto encoding_vector = header.encoding;
+
+    if(encoding_vector.size()>1)
+        throw LocalisedException("Curerntly only one encoding is supported. You supplied multiple in one ismrmrd file.", __FUNCTION__, __LINE__);
+
+    ISMRMRD::Encoding encoding = encoding_vector[0];
+    ISMRMRD::EncodingLimits enc_lims = encoding.encodingLimits;
+
+    int NAvg    = get_num_enc_states(enc_lims.average); 
+    int NSlice  = get_num_enc_states(enc_lims.slice); 
+    int NCont   = get_num_enc_states(enc_lims.contrast);
+    int NPhase  = get_num_enc_states(enc_lims.phase); 
+    int NRep    = get_num_enc_states(enc_lims.repetition);
+    int NSet    = get_num_enc_states(enc_lims.set);
+    int NSegm = 1; // lim_segm.maximum    - lim_segm.minimum +1; // this has no correspondence in the header of the image of course. currently no sorting wrt to this
+
+    for(int ia= 0; ia <NAvg; ia++)
+    for(int is= 0; is <NSlice; is++)
+    for(int ic= 0; ic <NCont; ic++)
+    for(int ip= 0; ip <NPhase; ip++)
+    for(int ir= 0; ir <NRep; ir++)
+    for(int iset= 0; iset <NSet; iset++)
+    for(int iseg=0;   iseg<NSegm; ++iseg)
+    {
+        KSpaceSorting::TagType tag{ia, is, ic, ip, ir, iset, iseg};
+        for(int i=7; i<tag.size(); ++i)
+            tag[i]=0; // ignore user ints so far
+
+        KSpaceSorting sorting(tag);
+        this->sorting_.push_back(sorting);
+    }
+
+    ISMRMRD::Acquisition acq;
+    for(int i=0; i<this->number(); ++i)
+    {
+        this->get_acquisition(i, acq);
+
+        KSpaceSorting::TagType tag = KSpaceSorting::get_tag_from_acquisition(acq);
+        int access_idx = (((((tag[0] * NSlice + tag[1])*NCont + tag[2])*NPhase + tag[3])*NRep + tag[4])*NSet + tag[5])*NSegm + tag[6];
+        this->sorting_.at(access_idx).add_idx_to_set(i);
+    }
+}
+
+void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
+{
+    subset.set_acquisitions_info(this->acquisitions_info());
+
+    if(subset.number()>0)
+        throw LocalisedException("Please pass an empty MRAcquisitionnData container to store the subset in", __FUNCTION__, __LINE__);
+
+    ISMRMRD::Acquisition acq;
+    for(int i=0; i<subset_idx.size(); ++i)
+    {
+        this->get_acquisition(subset_idx[i], acq);
+        subset.append_acquisition(acq);
+    }
+}
+
+void MRAcquisitionData::set_subset(const MRAcquisitionData& subset, const std::vector<int> subset_idx)
+{
+    if(subset.number() != subset_idx.size())
+        throw LocalisedException("Number of subset positions and number of acquisitions in subset don't match.", __FILE__, __LINE__);
+
+    ISMRMRD::Acquisition acq;
+    for(int i=0; i<subset_idx.size(); ++i)
+    {
+        subset.get_acquisition(i, acq);
+        this->set_acquisition(subset_idx[i], acq);
+    }
 }
 
 AcquisitionsFile::AcquisitionsFile
