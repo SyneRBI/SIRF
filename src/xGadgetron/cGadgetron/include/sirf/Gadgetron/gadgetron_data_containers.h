@@ -142,7 +142,7 @@ namespace sirf {
         }
 
         TagType get_tag(void) const {return tag_;}
-        SetType get_set(void) const {return idx_set_;}
+        SetType get_idx_set(void) const {return idx_set_;}
         void add_idx_to_set(size_t const idx){this->idx_set_.push_back(idx);}
 
         static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq)
@@ -272,11 +272,11 @@ namespace sirf {
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 
-        std::vector<std::vector<int> > get_kspace_order(bool const get_first_subset_order=false);
+        std::vector<std::vector<int> > get_kspace_order(const bool get_first_subset_order=false) const;
         void organise_kspace();
 
-        virtual void get_subset(MRAcquisitionData& subset, std::vector<int> subset_idx);
-        virtual void set_subset(MRAcquisitionData& subset, std::vector<int> subset_idx);
+        virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
+        virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
 
 		std::vector<int> index() { return index_; }
 		const std::vector<int>& index() const { return index_; }

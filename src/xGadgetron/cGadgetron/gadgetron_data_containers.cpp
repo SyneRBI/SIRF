@@ -587,22 +587,22 @@ MRAcquisitionData::sort_by_time()
 
 }
 
-std::vector<std::vector<int> > MRAcquisitionData::get_kspace_order(bool get_first_subset_order)
+std::vector<std::vector<int> > MRAcquisitionData::get_kspace_order(const bool get_first_subset_order) const
 {
     if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
 
-    std::vector<std::vector<int>> output;
-    for(int i = 0; i<sorting_.size(); ++i)
+    std::vector<std::vector<int> > output;
+    for(unsigned i = 0; i<sorting_.size(); ++i)
     {
         if(!get_first_subset_order)
         {
-            if(sorting_.at(i).get_set().size()>0)
-               output.push_back(sorting_.at(i).get_set());
+            if(!sorting_.at(i).get_idx_set().empty())
+               output.push_back(sorting_.at(i).get_idx_set());
         }
         else
-            if(sorting_.at(i).is_first_set() && sorting_.at(i).get_set().size()>0)
-                output.push_back(sorting_.at(i).get_set());
+            if(sorting_.at(i).is_first_set() && !sorting_.at(i).get_idx_set().empty())
+                output.push_back(sorting_.at(i).get_idx_set());
     }
     return output;
 }
@@ -657,9 +657,6 @@ void MRAcquisitionData::organise_kspace()
         this->sorting_.push_back(sorting);
     }
 
-    int num_total_sets = NAvg*NSlice*NCont*NPhase*NRep*NSet*NSegm;
-    std::vector<std::vector<int> > sorted_idx;
-
     ISMRMRD::Acquisition acq;
     for(int i=0; i<this->number(); ++i)
     {
@@ -671,7 +668,7 @@ void MRAcquisitionData::organise_kspace()
     }
 }
 
-void MRAcquisitionData::get_subset(MRAcquisitionData& subset, std::vector<int> subset_idx)
+void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
 {
     subset.set_acquisitions_info(this->acquisitions_info());
 
@@ -686,7 +683,7 @@ void MRAcquisitionData::get_subset(MRAcquisitionData& subset, std::vector<int> s
     }
 }
 
-void MRAcquisitionData::set_subset(MRAcquisitionData& subset, std::vector<int> subset_idx)
+void MRAcquisitionData::set_subset(const MRAcquisitionData& subset, const std::vector<int> subset_idx)
 {
     if(subset.number() != subset_idx.size())
         throw LocalisedException("Number of subset positions and number of acquisitions in subset don't match.", __FILE__, __LINE__);
