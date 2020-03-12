@@ -1454,7 +1454,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
 
     // Get required accuracy compared to the image maxes
     float norm;
-    float epsilon = (im1_sptr->get_max()+im2_sptr->get_max())/2.F;
+    float epsilon = (std::abs(im1_sptr->get_max())+std::abs(im2_sptr->get_max()))/2.F;
     epsilon *= required_accuracy_compared_to_max;
 
     // If metadata match, get the norm
