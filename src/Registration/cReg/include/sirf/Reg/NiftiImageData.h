@@ -594,6 +594,7 @@ protected:
         dim["w"] = d[7];
         return dim;
     }
+public:
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
 protected:

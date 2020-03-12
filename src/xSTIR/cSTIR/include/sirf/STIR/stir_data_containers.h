@@ -760,6 +760,9 @@ namespace sirf {
         /// bed offset etc can be taken into account.
         void move_to_scanner_centre(const PETAcquisitionData &);
 
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info();
+
     private:
         /// Clone helper function. Don't use.
         virtual STIRImageData* clone_impl() const
@@ -768,9 +771,6 @@ namespace sirf {
         }
 
 	protected:
-
-        /// Populate the geometrical info metadata (from the image's own metadata)
-        virtual void set_up_geom_info();
 
 		stir::shared_ptr<Image3DF> _data;
 		mutable stir::shared_ptr<Iterator> _begin;

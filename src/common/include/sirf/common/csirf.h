@@ -46,7 +46,9 @@ void* cSIRF_divide(const void* ptr_x, const void* ptr_y);
 void* cSIRF_write(const void* ptr, const char* filename);
 void* cSIRF_clone(void* ptr_x);
 
+// ImageData
 void* cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src);
+void* cSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr);
 
 // DataHandleVector methods
 void* cSIRF_DataHandleVector_push_back(void* self, void* to_append);
