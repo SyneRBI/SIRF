@@ -447,6 +447,19 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         t = self.data_type(0)
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
+    def dot(self, other):
+        '''
+        Returns the dot product of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert_validities(self, other)
+        handle = pysirf.cSIRF_dot(self.handle, other.handle)
+        check_status(handle)
+        re = pyiutil.floatReDataFromHandle(handle)
+        im = pyiutil.floatImDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return re + 1j * im
     def process(self, list):
         '''
         Returns processed self with an image processor specified by
@@ -798,6 +811,19 @@ class AcquisitionData(DataContainer):
     def number_of_readouts(self, select = 'image'):
         dim = self.dimensions(select)
         return dim[0]
+    def dot(self, other):
+        '''
+        Returns the dot product of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert_validities(self, other)
+        handle = pysirf.cSIRF_dot(self.handle, other.handle)
+        check_status(handle)
+        re = pyiutil.floatReDataFromHandle(handle)
+        im = pyiutil.floatImDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return re + 1j * im
     def sort(self):
         '''
         Sorts acquisitions with respect to (in this order):
@@ -825,7 +851,6 @@ class AcquisitionData(DataContainer):
     def set_header(self, header):
         assert self.handle is not None
         try_calling(pygadgetron.cGT_setAcquisitionsInfo(self.handle, header))
-
     def get_header(self):
         assert self.handle is not None
         return parms.char_par(self.handle, 'acquisitions', 'info')
