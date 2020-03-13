@@ -473,7 +473,11 @@ int main(int argc, char* argv[])
         im1.fill(30.F);
         im2.fill(20.F);
         im3.fill(-10.F);
+        std::vector<NiftiImageData3D<float> > ims = {im1, im2, im3};
         NiftiImageData3DTensor<float> h(im1, im2, im3);
+        for (int i=0; i<3; ++i)
+            if (*h.get_tensor_component(i) != ims.at(i))
+                throw std::runtime_error("NiftiImageData3DTensor 3ims->tensor->3ims failed on idx " + std::to_string(i) + ".");
 
         // Test flip components
         h.flip_component(0);
@@ -525,6 +529,9 @@ int main(int argc, char* argv[])
 
         // Constructor from single components
         NiftiImageData3DDisplacement<float> h(*ref_aladin,*ref_aladin,*ref_aladin);
+        for (int i=0; i<3; ++i)
+            if (*h.get_tensor_component(i) != *ref_aladin)
+                throw std::runtime_error("NiftiImageData3DDisplacement 3ims->tensor->3ims failed on idx " + std::to_string(i) + ".");
 
         // Fill
         c.fill(100);
@@ -627,6 +634,9 @@ int main(int argc, char* argv[])
 
         // Constructor from single components
         NiftiImageData3DDeformation<float> h(*ref_aladin,*ref_aladin,*ref_aladin);
+        for (int i=0; i<3; ++i)
+            if (*h.get_tensor_component(i) != *ref_aladin)
+                throw std::runtime_error("NiftiImageData3DDeformation 3ims->tensor->3ims failed on idx " + std::to_string(i) + ".");
 
         // Fill
         c.fill(100);

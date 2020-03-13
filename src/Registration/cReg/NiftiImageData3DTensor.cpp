@@ -56,7 +56,7 @@ NiftiImageData3DTensor<dataType>::NiftiImageData3DTensor(const NiftiImageData3D<
     for (size_t i=0; i<3; ++i) {
         size_t index = mem*i;
         float *src  = static_cast<float*>(ims[i].get_raw_nifti_sptr()->data);
-        memcpy(this->_data+index, src, mem);
+        memcpy(this->_data+index, src, mem*size_t(ims[i].get_raw_nifti_sptr()->nbyper));
     }
 }
 
@@ -90,6 +90,25 @@ void NiftiImageData3DTensor<dataType>::create_from_3D_image(const NiftiImageData
     this->_nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 
     this->set_up_data(DT_FLOAT32);
+}
+
+template<class dataType>
+std::shared_ptr<NiftiImageData<dataType> > NiftiImageData3DTensor<dataType>::get_tensor_component(const int component) const
+{
+    // Check in range
+    if (component < 0 || component >= this->_nifti_image->nu)
+        throw std::runtime_error("NiftiImageData3DTensor<dataType>::get_tensor_component: requested component out of range.");
+
+    // Crop image
+    std::shared_ptr<NiftiImageData<dataType> > image_sptr = this->clone();
+    int index[7] = {-1, -1, -1, -1, component, -1, -1};
+    image_sptr->crop(index,index);
+
+    // Intent code is no longer vector
+    image_sptr->get_raw_nifti_sptr()->intent_code = NIFTI_INTENT_NONE;
+    image_sptr->get_raw_nifti_sptr()->intent_p1 = -1;
+
+    return image_sptr;
 }
 
 template<class dataType>
@@ -130,20 +149,12 @@ void NiftiImageData3DTensor<dataType>::write_split_xyz_components(const std::str
 
     for (int i=0; i<3; ++i) {
 
-        // Index 4 is nu (tensor component)
-        min_index[4] = max_index[4] = i;
+        std::shared_ptr<NiftiImageData<dataType> > image_sptr =
+                this->get_tensor_component(i);
 
-        // Crop image
-        NiftiImageData<dataType> image = *this;
-        image.crop(min_index,max_index);
-
-        // Intent code is no longer vector
-        image.get_raw_nifti_sptr()->intent_code = NIFTI_INTENT_NONE;
-        image.get_raw_nifti_sptr()->intent_p1 = -1;
-
-        if      (i == 0) image.write(filename_x,datatype);
-        else if (i == 1) image.write(filename_y,datatype);
-        else if (i == 2) image.write(filename_z,datatype);
+        if      (i == 0) image_sptr->write(filename_x,datatype);
+        else if (i == 1) image_sptr->write(filename_y,datatype);
+        else if (i == 2) image_sptr->write(filename_z,datatype);
     }
 }
 
