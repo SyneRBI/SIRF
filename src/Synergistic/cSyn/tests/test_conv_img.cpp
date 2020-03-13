@@ -54,4 +54,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 	}
+	else
+		std::cout << "engine " << eng_out << " not supported yet\n";
+	return 1;
 }
