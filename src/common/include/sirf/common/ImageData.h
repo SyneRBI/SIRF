@@ -82,6 +82,8 @@ namespace sirf {
         //virtual void write(const std::string &filename) const = 0;
 		bool operator==(const ImageData& id) const
 		{
+			if (&id == this)
+				return true;
 			GeometricalInfo<3, 3>& gi_self = (GeometricalInfo<3, 3>&)*get_geom_info_sptr();
 			GeometricalInfo<3, 3>& gi_other = (GeometricalInfo<3, 3>&)*id.get_geom_info_sptr();
 			if (gi_self != gi_other)

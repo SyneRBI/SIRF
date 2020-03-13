@@ -479,6 +479,22 @@ class DataContainer(ABC):
         return self.as_array().shape
 
 class ImageData(DataContainer):
+    '''
+    Image data ABC
+    '''
+    def __eq__(self, other):
+        '''
+        Overloads == for ImageData.
+
+        other: ImageData
+        '''
+        assert_validities(self, other)
+        handle = pysirf.cSIRF_equalImages(self.handle, other.handle)
+        check_status(handle)
+        same = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return same
+
     def fill(self, image):
         try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))
 

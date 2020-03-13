@@ -47,6 +47,7 @@ void* cSIRF_write(const void* ptr, const char* filename);
 void* cSIRF_clone(void* ptr_x);
 
 void* cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src);
+void* cSIRF_equalImages(const void* ptr_im_a, const void* ptr_im_b);
 
 // DataHandleVector methods
 void* cSIRF_DataHandleVector_push_back(void* self, void* to_append);

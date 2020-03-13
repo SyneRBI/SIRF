@@ -210,6 +210,16 @@ cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src)
 }
 
 extern "C"
+void* 
+cSIRF_equalImages(const void* ptr_im_a, const void* ptr_im_b)
+{
+	ImageData& id_a = objectFromHandle<ImageData>(ptr_im_a);
+	ImageData& id_b = objectFromHandle<ImageData>(ptr_im_b);
+	int same = (id_a == id_b);
+	return dataHandle(same);
+}
+
+extern "C"
 void*
 cSIRF_ImageData_get_geom_info(const void* ptr_im)
 {
