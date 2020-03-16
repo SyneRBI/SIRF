@@ -375,6 +375,7 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
 	}
+	ic.set_meta_data(ac.acquisitions_info());
 }
 
 /*
