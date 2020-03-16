@@ -30,6 +30,59 @@ using namespace stir;
 using namespace ecat;
 using namespace sirf;
 
+#ifdef STIR_USE_LISTMODEDATA
+    typedef ListModeData LMD;
+    typedef ListRecord LMR;
+#else
+    typedef CListModeData LMD;
+    typedef CListRecord LMR;
+#endif
+
+float ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold(const float threshold) const
+{
+    if (input_filename.empty())
+        throw std::runtime_error("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold: Filename missing");
+
+    shared_ptr<LMD> lm_data_ptr
+      (read_from_file<LMD>(input_filename));
+
+    shared_ptr <LMR> record_sptr = lm_data_ptr->get_empty_record_sptr();
+    LMR& record = *record_sptr;
+
+    double current_time = -1;
+    unsigned long num_prompts = 0UL;
+
+    /// Time resolution is 1s
+    const double time_resolution = 1;
+
+    while (true) {
+        // no more events in file for some reason
+        if (lm_data_ptr->get_next_record(record) == Succeeded::no)
+            return -1.f;
+
+        if (record.is_time()) {
+
+            const double new_time = record.time().get_time_in_secs();
+            // For the very first time
+            if (current_time < 0) {
+                current_time = new_time;
+                num_prompts=0UL;
+            }
+            // Otherwise, increment the time
+            else if (new_time >= current_time+time_resolution) {
+                current_time += time_resolution;
+                num_prompts=0UL;
+            }
+        }
+        // If we found a prompt, increment!
+        if (record.is_event() && record.event().is_prompt())
+            ++num_prompts;
+        // If the threshold is exceeded, return the time.
+        if (num_prompts > threshold)
+            return float(current_time);
+    }
+}
+
 void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 {
@@ -63,9 +116,9 @@ ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 	unsigned int current_frame_num = 1;
 	{
 		// loop over all events in the listmode file
-		shared_ptr<CListRecord> record_sptr =
+		shared_ptr<LMR> record_sptr =
 			lm_data_ptr->get_empty_record_sptr();
-		CListRecord& record = *record_sptr;
+		LMR& record = *record_sptr;
 
 		bool first_event = true;
 
@@ -481,6 +534,16 @@ PETAcquisitionModel::set_up(
 			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
 	}
 	return s;
+}
+
+void 
+PETAcquisitionModel::set_image_data_processor(stir::shared_ptr<ImageDataProcessor> sptr_processor)
+{
+	if (!sptr_projectors_)
+		throw std::runtime_error("projectors need to be set before calling set_image_data_processor");
+
+	sptr_projectors_->get_forward_projector_sptr()->set_pre_data_processor(sptr_processor);
+	sptr_projectors_->get_back_projector_sptr()->set_post_data_processor(sptr_processor);
 }
 
 void 

@@ -45,6 +45,7 @@ EXPORTED_FUNCTION void* mSIRF_divide(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION void* mSIRF_write(const void* ptr, const char* filename);
 EXPORTED_FUNCTION void* mSIRF_clone(void* ptr_x);
 EXPORTED_FUNCTION void* mSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src);
+EXPORTED_FUNCTION void* mSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr);
 EXPORTED_FUNCTION void* mSIRF_DataHandleVector_push_back(void* self, void* to_append);
 EXPORTED_FUNCTION void* mSIRF_ImageData_get_geom_info(const void* ptr_geom);
 EXPORTED_FUNCTION void* mSIRF_GeomInfo_print(const void* ptr_geom);

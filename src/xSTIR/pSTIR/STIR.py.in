@@ -235,47 +235,31 @@ class ImageData(SIRF.ImageData):
         '''See DataContainer.same_object().
         '''
         return ImageData()
-    def initialise\
-        (self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1, \
-         arg7 = 0, arg8 = 0, arg9 = 0):
-        '''Change image size and geometric information
 
-        Sets this image size in voxels, voxel sizes in mm and the origin.
-        All arguments except the first one are optional.
-        Present arguments are either all scalars or all tuples.
-        The first tuple argument or three scalar arguments set the image
-        sizes in voxels.
-        The second tuple argument or three scalar arguments set the voxel
-        sizes in mm (if absent, sizes default to (1,1,1)).
-        The third tuple argument or three scalar arguments set the origin
-        (if absent, defaults to (0,0,0)).
-        '''
-        if type(arg1) == type((0,0,0)):
-            dim = arg1
-            if arg2 == 0:
-                vsize = (1, 1, 1)
-                origin = (0, 0, 0)
-            else:
-                vsize = arg2
-                if arg3 == 0:
-                    origin = (0.0, 0.0, 0.0)
-                else:
-                    origin = arg3
-        else:
-            dim = (arg1, arg2, arg3)
-            vsize = (arg4, arg5, arg6)
-            origin = (arg7, arg8, arg9)
+    def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
+        """Change image size and geometric information
+
+        Dimemsions (number of voxels) are required, spacing and offset are optional.
+        Spacing and offset are to be given in mm. All should be given as (z,y,x).
+        """
+        if not isinstance(dim, tuple):
+            raise error("sirf.STIR.Imagedata.initialise: dim should be a tuple")
+        if not isinstance(vsize, tuple):
+            raise error("sirf.STIR.Imagedata.initialise: vsize should be a tuple")
+        if not isinstance(origin, tuple):
+            raise error("sirf.STIR.Imagedata.initialise: origin should be a tuple")
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
         self.handle = None
         voxels = pystir.cSTIR_voxels3DF\
-                      (int(dim[2]), int(dim[1]), int(dim[0]), \
-                       float(vsize[2]), float(vsize[1]), float(vsize[0]), \
-                       float(origin[2]), float(origin[1]), float(origin[0]))
+            (int(dim[2]), int(dim[1]), int(dim[0]),
+             float(vsize[2]), float(vsize[1]), float(vsize[0]),
+             float(origin[2]), float(origin[1]), float(origin[0]))
         check_status(voxels)
         self.handle = pystir.cSTIR_imageFromVoxels(voxels)
         check_status(self.handle)
         pyiutil.deleteDataHandle(voxels)
+
     def fill(self, value):
         '''Sets the voxel-values.
 
@@ -964,6 +948,16 @@ class ListmodeToSinograms(object):
         check_status(randoms.handle)
         return randoms
 
+    def get_time_at_which_prompt_rate_exceeds_threshold(self, threshold):
+        """Get the time in the list mode data at which the number
+         of prompts per second exceeds a given threshold.
+         Returns -1 if no corresponding time is found."""
+        h = pystir.cSTIR_lm_prompt_rate_exceeds_threshold(self.handle, float(threshold))
+        check_status(h, inspect.stack()[1])
+        v = pyiutil.floatDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return v
+
 class AcquisitionSensitivityModel(object):
     '''
     Class that handles PET scanner detector efficiencies and attenuation.
@@ -1130,6 +1124,14 @@ class AcquisitionModel(object):
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
         # save reference to the background term
         self.bt = bt
+    def set_image_data_processor(self, processor):
+        '''
+        Sets the image processor P in the acquisition model;
+        processor:  an ImageDataProcessor object.
+        '''
+        assert_validity(processor, ImageDataProcessor)
+        parms.set_parameter\
+            (self.handle, 'AcquisitionModel', 'image_data_processor', processor.handle)
     def get_background_term(self):
         '''Returns the background term of the AcquisitionModel
            
@@ -1379,6 +1381,35 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         See :func:`~sirf.STIR.RayTracingMatrix.get_num_tangential_LORs`
         '''
         return self.get_matrix().get_num_tangential_LORs()
+
+
+if @NIFTYPET_BOOL_STR@:
+    class AcquisitionModelUsingNiftyPET(AcquisitionModel):
+        """
+        Class for a PET acquisition model that uses (implicitly) the NiftyPET projector
+        for G in (F) - see AcquisitionModel class.
+        """
+        def __init__(self):
+            """
+            Creates an AcquisitionModelUsingNiftyPET object
+            """
+            self.handle = None
+            self.name = 'AcqModUsingNiftyPET'
+            self.handle = pystir.cSTIR_newObject(self.name)
+            check_status(self.handle)
+
+        def __del__(self):
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+
+        def set_cuda_verbosity(self, verbosity):
+            """Set the verbosity of the CUDA code"""
+            if verbosity:
+                v = 1
+            else:
+                v = 0
+            parms.set_int_par(self.handle, self.name, 'cuda_verbosity', v)
+
 
 class Prior(object):
     '''

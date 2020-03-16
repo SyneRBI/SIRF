@@ -61,25 +61,46 @@ static void check_folder_exists_if_not_create(const std::string &path)
 template<class dataType>
 NiftiImageData<dataType>::NiftiImageData(const NiftiImageData<dataType>& to_copy)
 {
-    copy_nifti_image(_nifti_image,to_copy._nifti_image);
-    this->_data = static_cast<float*>(_nifti_image->data);
-    this->_original_datatype = to_copy._original_datatype;
-    set_up_geom_info();
+    *this = dynamic_cast<const ImageData&>(to_copy);
 }
 
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const NiftiImageData<dataType>& to_copy)
 {
+    *this = dynamic_cast<const ImageData&>(to_copy);
+    return *this;
+}
+
+template<class dataType>
+NiftiImageData<dataType>::NiftiImageData(const ImageData& to_copy)
+{
+    *this = to_copy;
+}
+
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData& to_copy)
+{
     // Check for self-assignment
     if (this != &to_copy) {
-        // Check the image is copyable
-        if (!to_copy.is_initialised())
-            throw std::runtime_error("Trying to copy an uninitialised image.");
-        // Copy
-        copy_nifti_image(_nifti_image,to_copy._nifti_image);
-        this->_data = static_cast<float*>(_nifti_image->data);
-        this->_original_datatype = to_copy._original_datatype;
-        set_up_geom_info();
+        // Try to cast to NiftiImageData.
+        const NiftiImageData<dataType> * const nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
+        if (nii_ptr) {
+            // Check the image is copyable
+            if (!nii_ptr->is_initialised())
+                throw std::runtime_error("Trying to copy an uninitialised image.");
+
+            copy_nifti_image(_nifti_image,nii_ptr->_nifti_image);
+            this->_data = static_cast<float*>(_nifti_image->data);
+            this->_original_datatype = nii_ptr->_original_datatype;
+            set_up_geom_info();
+        }
+        else {
+            this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*to_copy.get_geom_info_sptr());
+            // Always float
+            this->set_up_data(NIFTI_TYPE_FLOAT32);
+            // Finally, copy the data
+            this->copy(to_copy.begin(), this->begin(), this->end());
+        }
     }
     return *this;
 }
@@ -97,18 +118,6 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
     copy_nifti_image(_nifti_image,std::make_shared<nifti_image>(image_nifti));
     reg_checkAndCorrectDimension(_nifti_image.get());
     set_up_data(_nifti_image->datatype);
-}
-
-template<class dataType>
-NiftiImageData<dataType>::NiftiImageData(const ImageData& id)
-{
-    this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*id.get_geom_info_sptr());
-
-    // Always float
-    this->set_up_data(NIFTI_TYPE_FLOAT32);
-
-    // Finally, copy the data
-    this->copy(id.begin(), this->begin(), this->end());
 }
 
 template<class dataType>
@@ -181,6 +190,40 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
     reg_checkAndCorrectDimension(_nifti_image.get());
 
     return _nifti_image;
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr)
+{
+    // Create image from input
+    out_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
+
+    auto &it_in = in_sptr->begin();
+    auto &it_out = out_sptr->begin();
+    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+        *it_out = (*it_in).complex_float().real();
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr)
+{
+    if (!in_sptr->is_complex())
+        std::cout << "\nNiftiImageData<dataType>::construct_NiftiImageData_from_complex_im. Warning, input image is not complex. Complex component will be empty\n";
+
+    // Create image from input
+    out_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
+
+    auto &it_in = in_sptr->begin();
+    auto &it_out = out_sptr->begin();
+    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+        *it_out = (*it_in).complex_float().imag();
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr)
+{
+    construct_NiftiImageData_from_complex_im_real_component(out_real_sptr,in_sptr);
+    construct_NiftiImageData_from_complex_im_imag_component(out_imag_sptr,in_sptr);
 }
 
 template<class dataType>
@@ -720,6 +763,106 @@ void NiftiImageData<dataType>::crop(const int min_index[7], const int max_index[
                             nullptr,
                             &_nifti_image->qfac );
     _nifti_image->pixdim[0]=_nifti_image->qfac;
+
+    this->set_up_data(DT_FLOAT32);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::pad(const int min_index[7], const int max_index[7], const dataType val)
+{
+    if(!this->is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::crop: Image not initialised.");
+
+    std::shared_ptr<nifti_image> im = _nifti_image;
+
+    // If any min or max values are -ve, set them to 0
+    int min_idx[7], max_idx[7];
+    for (int i=0; i<7; ++i) {
+        (min_index[i] > -1) ? min_idx[i] = min_index[i] : min_idx[i] = 0;
+        (max_index[i] > -1) ? max_idx[i] = max_index[i] : max_idx[i] = 0;
+    }
+
+    // Keep track of the old max (min is 0's)
+    int old_max_idx[7];
+    for (unsigned i=0; i<7; ++i)
+        old_max_idx[i] = im->dim[i+1];
+
+    // Copy the original array
+    const NiftiImageData copy = *this;
+
+    // Set the new number of voxels
+    im->dim[1] = im->nx = im->dim[1] + max_idx[0] + min_idx[0];
+    im->dim[2] = im->ny = im->dim[2] + max_idx[1] + min_idx[1];
+    im->dim[3] = im->nz = im->dim[3] + max_idx[2] + min_idx[2];
+    im->dim[4] = im->nt = im->dim[4] + max_idx[3] + min_idx[3];
+    im->dim[5] = im->nu = im->dim[5] + max_idx[4] + min_idx[4];
+    im->dim[6] = im->nv = im->dim[6] + max_idx[5] + min_idx[5];
+    im->dim[7] = im->nw = im->dim[7] + max_idx[6] + min_idx[6];
+    im->nvox = unsigned(im->nx * im->ny * im->nz * im->nt * im->nu * im->nv * im->nw);
+
+    // Set the number of dimensions - largest non singleton
+    im->dim[0] = im->ndim = 1;
+    for (unsigned i=1; i<8; ++i)
+        if (im->dim[i] > 1)
+            im->dim[0] = im->ndim = int(i);
+
+    // Reset the data to the correct num of voxels
+    free(im->data);
+    im->data = static_cast<void*>(calloc(im->nvox,size_t(im->nbyper)));
+    _data    = static_cast<float*>(im->data);
+
+    // Get the data
+    float *old_data = static_cast<float*>(copy.get_raw_nifti_sptr()->data);
+    float *new_data = _data;
+
+    // Fill with the desired value
+    for (unsigned i=0; i<im->nvox; ++i)
+        _data[i] = val;
+
+    // Replace the central part with the original image
+    int old_index[7], new_index[7];
+    int new_1d_idx, old_1d_idx;
+    for (old_index[0]=0; old_index[0]<old_max_idx[0]; ++old_index[0]) {
+        for (old_index[1]=0; old_index[1]<old_max_idx[1]; ++old_index[1]) {
+            for (old_index[2]=0; old_index[2]<old_max_idx[2]; ++old_index[2]) {
+                for (old_index[3]=0; old_index[3]<old_max_idx[3]; ++old_index[3]) {
+                    for (old_index[4]=0; old_index[4]<old_max_idx[4]; ++old_index[4]) {
+                        for (old_index[5]=0; old_index[5]<old_max_idx[5]; ++old_index[5]) {
+                            for (old_index[6]=0; old_index[6]<old_max_idx[6]; ++old_index[6]) {
+
+                                for (int i=0; i<7; ++i)
+                                    new_index[i] = old_index[i] + min_idx[i];
+
+                                new_1d_idx = this->get_1D_index(new_index);
+                                old_1d_idx = copy.get_1D_index(old_index);
+                                new_data[new_1d_idx] = old_data[old_1d_idx];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // If the minimum has been changed, need to alter the origin.
+    for (int i=0; i<3; ++i)
+        _nifti_image->qto_ijk.m[i][3] += min_idx[i];
+    _nifti_image->qto_xyz =
+            nifti_mat44_inverse(_nifti_image->qto_ijk);
+    nifti_mat44_to_quatern( _nifti_image->qto_xyz,
+                            &_nifti_image->quatern_b,
+                            &_nifti_image->quatern_c,
+                            &_nifti_image->quatern_d,
+                            &_nifti_image->qoffset_x,
+                            &_nifti_image->qoffset_y,
+                            &_nifti_image->qoffset_z,
+                            nullptr,
+                            nullptr,
+                            nullptr,
+                            &_nifti_image->qfac );
+    _nifti_image->pixdim[0]=_nifti_image->qfac;
+
+    this->set_up_data(DT_FLOAT32);
 }
 
 template<class dataType>
@@ -1311,7 +1454,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
 
     // Get required accuracy compared to the image maxes
     float norm;
-    float epsilon = (im1_sptr->get_max()+im2_sptr->get_max())/2.F;
+    float epsilon = (std::abs(im1_sptr->get_max())+std::abs(im2_sptr->get_max()))/2.F;
     epsilon *= required_accuracy_compared_to_max;
 
     // If metadata match, get the norm
@@ -1331,6 +1474,8 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
         norm = resampled_sptr->get_norm(*im1_sptr);
     }
 
+    norm /= float(im1_sptr->get_num_voxels());
+
     if (norm <= epsilon)
         return true;
 
@@ -1345,7 +1490,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
     std::cout << "\tstandard deviation2               = " << im2_sptr->get_standard_deviation() << "\n";
     std::cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
     std::cout << "\tepsilon                           = " << epsilon << "\n";
-    std::cout << "\tnorm                              = " << norm << "\n";
+    std::cout << "\tnorm/num_vox                      = " << norm << "\n";
     return false;
 }
 

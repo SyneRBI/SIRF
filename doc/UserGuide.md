@@ -646,11 +646,13 @@ Class for the acquisition process modelling. Main component is the forward proje
 
 For PET, `F(x)` is the right-hand side of the following equation:
 
-    (F)    y = S(G x + a) + b 
+    (F)    y = S(G P x + a) + b 
 
 where  
 
-`G` is *ray tracing matrix*, (conceptually) a matrix whose columns correspond to the image voxels and rows to pairs of scanner's detectors (bins), each column simulating the impact of this voxel's radiation on the data acquired by the bins (this matrix is never actually computed);
+`P` is `ImageDataProcessor`, allowing for instance smoothing the image first to model some resolution effects.
+
+`G` is a *ray tracing matrix*, (conceptually) a matrix whose columns correspond to the image voxels and rows to pairs of scanner's detectors (bins), each column simulating the impact of this voxel's radiation on the data acquired by the bins (this matrix is never actually computed);
 
 `a` and `b` are *additive* and *background* terms representing the effects of accidental coincidences and scattering; 
 
@@ -663,9 +665,10 @@ n, bin normalization, is the inverse of bin efficiencies.
 
 Accordingly, the backprojection `B` is the right-hand side of
 
-    (B)    x = G' S y 
+    (B)    x = P G' S y 
 
-where `G'` is the transpose of `G`. 
+where `G'` is the transpose of `G`. *Warning*  at present, this assumes that the image data processor `P` is
+a linear operator and `P' = P`.
 
 ###### Methods: 
 
@@ -682,6 +685,8 @@ where `G'` is the transpose of `G`.
     set_additive_term   (PET) Sets term a in (F). 
     set_acquisition_sensitivity   
                         (PET) Defines AcquisitionSensitivityModel S (see below). 
+    set_image_data_processor
+                        (PET) Defines the ImageDataProcessor P
     set_coil_sensitivity_maps  
                          (MR) Sets coil sensitivity maps to be used.  
 
@@ -702,7 +707,10 @@ Class for the PET acquisition process model that uses (implicitly) a sparse matr
 
 ###### Examples: 
 
-    acq_model = AcquisitionModelUsingRayTracingMatrix(); 
+    acq_model = AcquisitionModelUsingRayTracingMatrix();
+    smoother = SeparableGaussianImageFilter()
+    smoother.set_fwhms((6,5,5))
+    acq_model.set_image_data_processor(smoother)
     acq_model.set_up(acq_template, image_template) 
     sim_data = acq_model.forward(image); 
 

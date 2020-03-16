@@ -1,5 +1,5 @@
 # CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 # This is software developed for the Collaborative Computational
 # Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -253,12 +253,12 @@ def try_niftiimage():
         raise AssertionError("NiftiImageData standardise() or get_variance() failed.")
     if abs(im.get_mean()) > 0.0001:
         raise AssertionError("NiftiImageData standardise() or get_mean() failed.")
-    
+
     # Check normalise 
     im.normalise_zero_and_one()
     if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
         raise AssertionError("NiftiImageData normalise_between_zero_and_one() failed.")
-    
+
     # Test inner product
     in1 = x.deep_copy()
     in2 = x.deep_copy()
@@ -276,6 +276,30 @@ def try_niftiimage():
     in2.fill(in2_arr)
     if abs(inner_product - in1.get_inner_product(in2)) > 1e-4:
         raise AssertionError("NiftiImageData::get_inner_product() failed.")
+
+    # Pad then crop, should be the same
+    aa = ref_aladin
+    cc = aa.clone()
+    original_dims = aa.get_dimensions()
+
+    pad_in_min_dir = [1, 2, 3, 0, 0, 0, 0]
+    pad_in_max_dir = [4, 5, 6, 0, 0, 0, 0]
+    cc.pad(pad_in_min_dir, pad_in_max_dir, 100.)
+
+    padded_dims = cc.get_dimensions()
+    for i in range(7):
+        if padded_dims[i+1] != original_dims[i+1] + pad_in_min_dir[i] + pad_in_max_dir[i]:
+            raise AssertionError("NiftiImageData::pad failed")
+
+    # Crop back to beginning
+    cropped_min_dir = pad_in_min_dir
+    cropped_max_dir = list(cropped_min_dir)
+    for i in range(7):
+        cropped_max_dir[i] = original_dims[i+1] + cropped_min_dir[i] - 1
+
+    cc.crop(cropped_min_dir, cropped_max_dir)
+    if aa != cc:
+        raise AssertionError("NiftiImageData::pad/crop failed")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -648,20 +672,36 @@ def try_niftyaladin():
     na.set_parameter("SetMaxIterations", "5")
     na.set_parameter("SetPerformRigid", "1")
     na.set_parameter("SetPerformAffine", "0")
-    na.set_reference_mask(ref_mask);
-    na.set_floating_mask(flo_mask);
+    na.set_reference_mask(ref_mask)
+    na.set_floating_mask(flo_mask)
     na.process()
 
     # Get outputs
-    warped = na.get_output()
-    def_forward = na.get_deformation_field_forward()
-    def_inverse = na.get_deformation_field_inverse()
-    disp_forward = na.get_displacement_field_forward()
-    disp_inverse = na.get_displacement_field_inverse()
+    warped = na.get_output().deep_copy()
+    def_forward = na.get_deformation_field_forward().deep_copy()
+    def_inverse = na.get_deformation_field_inverse().deep_copy()
+    disp_forward = na.get_displacement_field_forward().deep_copy()
+    disp_inverse = na.get_displacement_field_inverse().deep_copy()
+    TM_forward_ = na.get_transformation_matrix_forward().deep_copy()
+    TM_inverse_ = na.get_transformation_matrix_inverse().deep_copy()
+
+    # Test via filenames
+    na.set_reference_image_filename(ref_aladin_filename)
+    na.set_floating_image_filename(flo_aladin_filename)
+    na.process()
+
+    if warped != na.get_output() or \
+        def_forward != na.get_deformation_field_forward() or \
+        def_inverse != na.get_deformation_field_inverse() or \
+        disp_forward != na.get_displacement_field_forward() or \
+        disp_inverse != na.get_displacement_field_inverse() or \
+        TM_forward_ != na.get_transformation_matrix_forward() or \
+        TM_inverse_ != na.get_transformation_matrix_inverse():
+        raise AssertionError()
 
     warped.write(aladin_warped)
-    na.get_transformation_matrix_forward().write(TM_forward)
-    na.get_transformation_matrix_inverse().write(TM_inverse)
+    TM_forward_.write(TM_forward)
+    TM_inverse_.write(TM_inverse)
     def_forward.write(aladin_def_forward)
     def_inverse.write_split_xyz_components(aladin_def_inverse_xyz)
     def_inverse.write(aladin_def_inverse)
@@ -795,6 +835,8 @@ def try_transformations(na):
 
     # Test get_inverse
     tm_inv = tm_iden.get_inverse()
+    if not tm_inv:
+        raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -864,8 +906,8 @@ def try_resample(na):
         raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
 
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
-    # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
-    # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation 
+    # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
+    # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation
     # is not used to generate final image. You would hope it's used throughout the registration process, otherwise why is it there?
     # if na.get_output() != nr1.get_output():
     #     raise AssertionError()
@@ -1105,10 +1147,14 @@ def try_quaternion():
     # Convert to quaternion
     quat = sirf.Reg.Quaternion(rotm)
     a = quat.as_array()
+    if a is None:
+        raise AssertionError()
 
     # Construct from numpy array
     expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=numpy.float32)
     expt = sirf.Reg.Quaternion(expt_array)
+    if expt is None:
+        raise AssertionError()
 
     # Compare to expected values
     if not np.allclose(quat.as_array(), expt_array, atol=1e-4):
@@ -1138,7 +1184,6 @@ def try_quaternion():
     if not np.allclose(exptd_average.as_array(), average.as_array(), atol=1e-4):
         raise AssertionError('Quaternion average failed.')
     print(average.as_array())
-
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

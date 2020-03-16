@@ -1,13 +1,50 @@
-# Language selection
 # Note: with `language: cpp`, `cache: ccache` works
 # but `cache: pip` and `python:` is ignored
 language: cpp
+dist: xenial  # Ubuntu 14.04 LTS
+cache:  # cache C/C++/pip (shared between builds)
+- ccache
+- pip
+# No need for sudo
+sudo: false
 
 # Currently commented out as set with environment flags
 # Both clang and gcc can be tested. More is the better.
 #compiler:
 # - clang
 # - gcc
+
+# Compilation dependencies
+addons:
+ apt:
+  sources:
+  - ubuntu-toolchain-r-test
+  packages:
+  - git-core
+  - build-essential
+  - g++-6
+  - g++-7
+  - libboost-all-dev
+  - libhdf5-serial-dev
+  - libfftw3-dev
+  - python-dev
+  - python3-dev
+  - python-tk
+  - python3-tk
+  - libopenblas-dev
+  - libatlas-base-dev
+  - liblapack-dev
+  - libxml2-dev
+  - libarmadillo-dev
+  - libgtest-dev
+  - libplplot-dev
+  - swig
+  - ccache
+  # not in whitelist
+  - libxslt-dev
+  - libace-dev
+  # - root-system-bin
+  - libinsighttoolkit4-dev
 
 # Environment variables
 # Note: On trusty we need to build Armadillo and boost ourselves (the system versions are too old)
@@ -19,6 +56,12 @@ language: cpp
 # Note: the line above each `env` contains a resume of the parameters passed to cmake.
 #       + or - refer to the value of the parameter affecting the specific package is passed to cmake:
 #       i.e. -boost == -DUSE_SYSTEM_Boost=OFF, which means that Boost will be built.
+env:
+ global:
+ # Need STIR_TAG=master at present, see https://github.com/CCPPETMR/SIRF/issues/366
+ - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSTIR_TAG=master"
+ # don't use too many threads - may crash
+ - MAKEFLAGS="-j 2"
 matrix:
  include:
  # linux g{cc,++}-6 py{27,3}
@@ -69,193 +112,148 @@ matrix:
    osx_image: xcode11.2
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
 
-env:
- global:
-  # Need STIR_TAG=master at present, see https://github.com/CCPPETMR/SIRF/issues/366
-  - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSTIR_TAG=master"
-  # don't use too many threads - may crash
-  - MAKEFLAGS="-j 2"
-
-# Ubuntu 14.04 LTS
-dist: xenial
-
-# No need for sudo
-sudo: false
-
-# Compilation dependencies
-addons:
- apt:
-  sources:
-   - ubuntu-toolchain-r-test
-  packages:
-   - git-core
-   - build-essential
-   - g++-6
-   - g++-7
-   - libboost-all-dev
-   - libhdf5-serial-dev
-   - libfftw3-dev
-   - python-dev
-   - python3-dev
-   - python-tk
-   - python3-tk
-   - libopenblas-dev
-   - libatlas-base-dev
-   - liblapack-dev
-   - libxml2-dev
-   - libarmadillo-dev
-   - libgtest-dev
-   - libplplot-dev
-   - swig
-   - ccache
-   # not in whitelist
-   - libxslt-dev
-   - libace-dev
-   # - root-system-bin
-   - libinsighttoolkit4-dev
-
-# cache C/C++/pip
-cache:
- - ccache
- - pip
-
 before_install:
- # Set C and C++ compiler etc using trick from
- # https://docs.travis-ci.com/user/languages/cpp/#c11c11-and-beyond-and-toolchain-versioning
- - eval "${MATRIX_EVAL}"
- - $CC --version
- - $CXX --version
- - mkdir -p ~/.local/bin
- - pushd ~/.local/bin
- # Note: use ( set -ev; ... ) to echo commands and exit immediately on failure
- # in compounds statements (note that export/cd etc won't persist).
- - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update
-      BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
-      brew install openblas
-      # Get openblas version
-      blas_ver=$(brew list --versions openblas)
-      blas_ver=${blas_ver#"openblas "}
-      EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DCBLAS_INCLUDE_DIR=/usr/local/Cellar/openblas/${blas_ver}/include -DCBLAS_LIBRARY=/usr/local/Cellar/openblas/${blas_ver}/lib/libblas.dylib"
-      if [ $PYMVER == 2 ]; then
-        PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
-        PY_EXE=$PYINST/bin/python2.7
-        # Next lines are not necessary if we give the actual path for the executable to cmake
-        #BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/lib/libpython2.7.dylib"
-        #BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/include/python2.7"
-      else
-        brew upgrade python || true # don't fail if upgrading doesn't do anything
-        # find exact location of Python executable to pass to CMake
-        # we attempt to find the last one if there are multiple Python 3 versions installed
-        PY_INST=$(ls -d1 /usr/local/Cellar/python/$PYMVER.*/Frameworks/Python.framework/Versions/$PYMVER.*|tail -n 1)
-        PYMVER=$(basename ${PY_INST})
-        PY_EXE=$PY_INST/bin/python$PYMVER
-        if [ ! -x "$PY_EXE" ]; then
-          echo "Something wrong with finding Python executable for OSX"
-          echo "PY_EXE = $PY_EXE"
-          travis_terminate 1
-        fi
-        # Next lines are not necessary if we give the actual path for the executable to cmake
-        #PY_LIB=$PY_INST/Python
-        #PY_INC=$PY_INST/Headers
-        # BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PY_LIB -DPYTHON_INCLUDE_DIR=$PY_INC"
-      fi
-      BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$PY_EXE"
-      ( set -ev
-        # boost is already installed but 1.65 doesn't work so update
-        brew reinstall boost
-        # we currently need boost-python
-        # brew install boost-python
-        brew install ace
-        brew install swig
-        brew install ccache
-        if [[ $EXTRA_BUILD_FLAGS == *"SYSTEM_FFTW3=ON"* ]]; then
-            brew install fftw
-        else
-            echo "Not installing FFTW as we are building it"
-        fi
-        # need curl to get pip and more recent cmake
-        brew install curl
-        #brew install cmake # already present
-        # alternative: get our own
-        #curl -L -O https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz
-        #tar xzf cmake-*.tar.gz
-        #mv cmake-*/CMake.app/Contents/* cmake
-        #export PATH="$PWD/cmake/bin:$PATH"
-      )
-    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      PY_EXE=python$PYMVER
-      curl -L -O https://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1-Linux-x86_64.tar.gz
-      ls -l cmake-*
-      tar xzf cmake-*.tar.gz
-      mv cmake-*x86_64 cmake
-      export PATH="$PWD/cmake/bin:$PATH"
-    fi
- - echo "Using Python executable $PY_EXE"
- # get pip
- - curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
- - $PY_EXE get-pip.py --user
- # setuptools may be out of date on osx
- - $PY_EXE -m pip install --user -U pip setuptools wheel
- # ensure python bin dir exists (and coverage dependencies installed)
- - $PY_EXE -m pip install --user -U nose codecov coveralls requests deprecation
- # for counting clones, excluding ours
- - |
-    if [[ -n "$GITHUB_API_TOKEN" ]]; then
-      git clone https://$GITHUB_API_TOKEN@github.com/ccp-petmr-codebot/github-stats --branch CCPPETMR/SIRF-SuperBuild
-      # update with last fortnight's clones from GitHub API
-      TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
-      # count unique clones, excluding travis, and print total
-      TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
-    fi
- - $PY_EXE --version
- - $PY_EXE -m pip --version
- - $PY_EXE -m pip freeze
- # ccache compiler override
- - ln -s "$(which ccache)" g++
- - ln -s "$(which ccache)" g++-6
- - ln -s "$(which ccache)" g++-7
-
- - ln -s "$(which ccache)" gcc
- - ln -s "$(which ccache)" gcc-6
- - ln -s "$(which ccache)" gcc-7
-
- - export PATH="$PWD:$PATH"
- - popd
- # ensure a branch exists (for e.g. PRs)
- - git symbolic-ref -q HEAD || git checkout -b local_$TRAVIS_COMMIT
- # Use Travis' currently checked-out SIRF commit ID to build.
- # Also no point re-downloading SIRF - just use local URL.
- # N.B.: don't put into build matrix to allow caching.
- - BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_URL=$PWD -DSIRF_TAG=$TRAVIS_COMMIT"
- # get SuperBuild
- - cd ..
- - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
- - cd SIRF-SuperBuild
- - cmake --version
+# Set C and C++ compiler etc using trick from
+# https://docs.travis-ci.com/user/languages/cpp/#c11c11-and-beyond-and-toolchain-versioning
+- eval "${MATRIX_EVAL}"
+- export CC="${CC:-gcc}"
+- export CXX="${CXX:-g++}"
+- $CC --version
+- $CXX --version
+- mkdir -p ~/.local/bin
+- pushd ~/.local/bin
+# Note: use ( set -ev; ... ) to echo commands and exit immediately on failure
+# in compounds statements (note that export/cd etc won't persist).
+- |
+   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+     brew update
+     BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
+     brew install openblas
+     # Get openblas version
+     blas_ver=$(brew list --versions openblas)
+     blas_ver=${blas_ver#"openblas "}
+     EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DCBLAS_INCLUDE_DIR=/usr/local/Cellar/openblas/${blas_ver}/include -DCBLAS_LIBRARY=/usr/local/Cellar/openblas/${blas_ver}/lib/libblas.dylib"
+     if [ $PYMVER == 2 ]; then
+       PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
+       PY_EXE=$PYINST/bin/python2.7
+       # Next lines are not necessary if we give the actual path for the executable to cmake
+       #BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/lib/libpython2.7.dylib"
+       #BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/include/python2.7"
+     else
+       brew upgrade python || true # don't fail if upgrading doesn't do anything
+       # find exact location of Python executable to pass to CMake
+       # we attempt to find the last one if there are multiple Python 3 versions installed
+       PY_INST=$(ls -d1 /usr/local/Cellar/python/$PYMVER.*/Frameworks/Python.framework/Versions/$PYMVER.*|tail -n 1)
+       PYMVER=$(basename ${PY_INST})
+       PY_EXE=$PY_INST/bin/python$PYMVER
+       if [ ! -x "$PY_EXE" ]; then
+         echo "Something wrong with finding Python executable for OSX"
+         echo "PY_EXE = $PY_EXE"
+         travis_terminate 1
+       fi
+       # Next lines are not necessary if we give the actual path for the executable to cmake
+       #PY_LIB=$PY_INST/Python
+       #PY_INC=$PY_INST/Headers
+       # BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PY_LIB -DPYTHON_INCLUDE_DIR=$PY_INC"
+     fi
+     BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$PY_EXE"
+     ( set -ev
+       # boost is already installed but 1.65 doesn't work so update
+       brew reinstall boost
+       # we currently need boost-python
+       # brew install boost-python
+       brew install ace
+       brew install swig
+       brew install ccache
+       if [[ $EXTRA_BUILD_FLAGS == *"SYSTEM_FFTW3=ON"* ]]; then
+           brew install fftw
+       else
+           echo "Not installing FFTW as we are building it"
+       fi
+       # need curl to get pip and more recent cmake
+       brew install curl
+       #brew install cmake # already present
+       # alternative: get our own
+       #curl -L -O https://github.com/Kitware/CMake/releases/download/v3.13.4/cmake-3.13.4-Darwin-x86_64.tar.gz
+       #tar xzf cmake-*.tar.gz
+       #mv cmake-*/CMake.app/Contents/* cmake
+       #export PATH="$PWD/cmake/bin:$PATH"
+     )
+   elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+     PY_EXE=python$PYMVER
+     curl -o cmake.tgz -L https://github.com/Kitware/CMake/releases/download/v3.13.4/cmake-3.13.4-Linux-x86_64.tar.gz
+     tar xzf cmake.tgz && rm cmake.tgz
+     ln -s cmake-*x86_64 cmake
+     export PATH="$PWD/cmake/bin:$PATH"
+   fi
+# get pip
+- curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+- $PY_EXE get-pip.py --user
+- echo "Using Python executable $PY_EXE"
+- $PY_EXE --version
+- $PY_EXE -m pip --version
+# setuptools may be out of date on osx
+- $PY_EXE -m pip install --user -U pip setuptools wheel
+# ensure python bin dir exists (and coverage dependencies installed)
+- $PY_EXE -m pip install --user -U nose codecov coveralls requests
+# for counting clones, excluding ours
+- |
+   if [[ -n "$GITHUB_API_TOKEN" ]]; then
+     git clone https://$GITHUB_API_TOKEN@github.com/ccp-petmr-codebot/github-stats --branch CCPPETMR/SIRF-SuperBuild
+     # update with last fortnight's clones from GitHub API
+     TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
+     # count unique clones, excluding travis, and print total
+     TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
+   fi
+- $PY_EXE -m pip freeze
+# ccache compiler override
+- ln -s "$(which ccache)" g++
+- ln -s "$(which ccache)" g++-6
+- ln -s "$(which ccache)" g++-7
+- ln -s "$(which ccache)" gcc
+- ln -s "$(which ccache)" gcc-6
+- ln -s "$(which ccache)" gcc-7
+- export PATH="$PWD:$PATH"
+- popd
+# no point re-downloading SIRF - just use local version
+# N.B.: don't put into build matrix to allow caching.
+- BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_SOURCE_DIR:PATH=$PWD -DDISABLE_GIT_CHECKOUT_SIRF=ON"
+# get SuperBuild
+- cd ..
+- git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
+- cd SIRF-SuperBuild
+- cmake --version
 
 install:
- - $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib nibabel
- - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
- # Job may timeout (>50min) if no ccache, otherwise should be <1min:
- - make
- - mv INSTALL/share/gadgetron/config/gadgetron.xml.example INSTALL/share/gadgetron/config/gadgetron.xml
- - source $PWD/INSTALL/bin/env_ccppetmr.sh
+- $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib deprecation nibabel
+- cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
+# Job may timeout (>50min) if no ccache, otherwise should be <1min:
+- make
+- |
+   if [[ -f INSTALL/share/gadgetron/config/gadgetron.xml.example ]]; then
+     mv INSTALL/share/gadgetron/config/gadgetron.xml.example INSTALL/share/gadgetron/config/gadgetron.xml
+   fi
+- source $PWD/INSTALL/bin/env_ccppetmr.sh
 
 script:
- - ./INSTALL/bin/gadgetron >& gadgetron.log&
- # print for debugging
- - cat builds/SIRF/build/CMakeCache.txt
- - ctest -VV
- # print for debugging
- - cat builds/SIRF/build/Testing/Temporary/LastTest.log
- - echo "----------- Last 200 lines of gadgetron.log"
- - tail -n 200 gadgetron.log
+- ./INSTALL/bin/gadgetron >& gadgetron.log&
+# print for debugging
+- cat builds/SIRF/build/CMakeCache.txt
+- |
+   ctest --output-on-failure; test_fail=$?
+   # echo "----------- Killing gadgetron server"
+   # killall gadgetron
+   if [[ $test_fail -ne 0 ]]; then
+     #echo "----------- Test output"
+     # cat builds/SIRF/build/Testing/Temporary/LastTest.log
+     echo "----------- Last 70 lines of gadgetron.log"
+     tail -n 70 gadgetron.log
+     travis_terminate $test_fail
+   fi
 
 after_success:
- - pushd ../SIRF
- - sed -r 's/SIRF-SuperBuild\/INSTALL\/python\/sirf\/(\w*)\.py/SIRF\/src\/x\1\/p\1\/\1.py/g' ../SIRF-SuperBuild/sources/SIRF/.coverage > .coverage
- - codecov
- - coveralls
- - popd
+- pushd ../SIRF
+- sed -r 's/SIRF-SuperBuild\/INSTALL\/python\/sirf\/(\w*)\.py/SIRF\/src\/x\1\/p\1\/\1.py/g' ../SIRF-SuperBuild/sources/SIRF/.coverage > .coverage
+- codecov
+- coveralls
+- popd

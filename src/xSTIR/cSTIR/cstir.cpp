@@ -85,6 +85,10 @@ void* cSTIR_newObject(const char* name)
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+        if (boost::iequals(name, "AcqModUsingNiftyPET"))
+            return NEW_OBJECT_HANDLE(AcqModUsingNiftyPET3DF);
+#endif
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (boost::iequals(name, "QuadraticPrior"))
@@ -124,6 +128,10 @@ void* cSTIR_setParameter
 			return cSTIR_setAcquisitionModelParameter(hs, name, hv);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_setAcqModUsingMatrixParameter(hs, name, hv);
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+        else if (boost::iequals(obj, "AcqModUsingNiftyPET"))
+            return cSTIR_setAcqModUsingNiftyPETParameter(hs, name, hv);
+#endif
 		else if (boost::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
 		else if (boost::iequals(obj, "GeneralisedPrior"))
@@ -317,6 +325,15 @@ void* cSTIR_computeRandoms(void* ptr)
 	CATCH;
 }
 
+extern "C"
+void* cSTIR_lm_prompt_rate_exceeds_threshold(const void * ptr, const float threshold)
+{
+    try {
+        ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
+        return dataHandle<float>(lm2s.get_time_at_which_prompt_rate_exceeds_threshold(threshold));
+    }
+    CATCH
+}
 extern "C"
 void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i)
 {

@@ -78,6 +78,9 @@ public:
     /// Create from 3D image.
     virtual void create_from_3D_image(const NiftiImageData<dataType> &image);
 
+    /// Get tensor component (x, y or z)
+    std::shared_ptr<NiftiImageData<dataType> > get_tensor_component(const int component) const;
+
     /// Save to file as x-, y-, z-components
     void write_split_xyz_components(const std::string &filename_pattern, const int datatype=-1) const;
 
