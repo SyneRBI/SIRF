@@ -607,7 +607,7 @@ std::vector<std::vector<int> > MRAcquisitionData::get_kspace_order(const bool ge
     return output;
 }
 
-static int get_num_enc_states( const ISMRMRD::Optional<ISMRMRD::Limit>& enc_lim)
+static int get_num_enc_states(ISMRMRD::Optional<ISMRMRD::Limit>& enc_lim)
 {
 	int num_states =1;
 
