@@ -29,6 +29,7 @@ import pyiutilities as pyiutil
 import pyreg
 
 import sirf.Reg_params as parms
+import numpy
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -282,6 +283,28 @@ class NiftiImageData(SIRF.ImageData):
             image = NiftiImageData3DDisplacement()
         try_calling(pyreg.cReg_NiftiImageData_deep_copy(image.handle, self.handle))
         return image
+
+    def allocate(self, value=0, **kwargs):
+        '''Alias to get_uniform_copy
+        
+        CIL/SIRF compatibility
+        '''
+        if value in ['random', 'random_int']:
+            out = self.deep_copy()
+            shape = out.as_array().shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed) 
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.deep_copy()
+            out *= 0
+            out.fill( value * numpy.ones_like(out.as_array()) )
+        return out
 
     def as_array(self):
         """Get data as numpy array."""
@@ -942,14 +965,22 @@ class NiftyResample(object):
             input_im = im2
         # Check image validity
         if not isinstance(input_im, SIRF.ImageData):
-            raise AssertionError()
+            raise TypeError('{} expecting input as SIRF.ImageData, got {}'.format(
+                self.__class__.__name__, type(input_im)))
+            
         if not isinstance(output_im, SIRF.ImageData):
-            raise AssertionError()
+            raise TypeError('{} expecting output as SIRF.ImageData, got {}'.format(
+                self.__class__.__name__, type(output_im)))
+            
         # Forward
         try_calling(pyreg.cReg_NiftyResample_forward(output_im.handle, input_im.handle, self.handle))
         # If usage was 'output = forward(input)', we need to return the ouptut
         if im2 is None:
             return output_im
+
+    def direct(self, im1, im2=None):
+        """alias to forward"""
+        return self.forward(im1, im2)
 
     def adjoint(self, im1, im2=None):
         """Adjoint transformation.
@@ -967,9 +998,12 @@ class NiftyResample(object):
             input_im = im2
         # Check image validity
         if not isinstance(input_im, SIRF.ImageData):
-            raise AssertionError()
+            raise TypeError('{} expecting input as subclass of SIRF.ImageData, got {}'.format(
+                self.__class__.__name__, type(input_im)))
+            
         if not isinstance(output_im, SIRF.ImageData):
-            raise AssertionError()
+            raise TypeError('{} expecting output as SIRF.ImageData, got {}'.format(
+                self.__class__.__name__, type(output_im)))
         # Forward
         try_calling(pyreg.cReg_NiftyResample_adjoint(output_im.handle, input_im.handle, self.handle))
         # If usage was 'output = adjoint(input)', we need to return the ouptut
@@ -979,6 +1013,14 @@ class NiftyResample(object):
     def backward(self, im1, im2=None):
         """Backward transformation. Alias of adjoint to align terms with AcquisitionModel's forward and backward."""
         return self.adjoint(im1, im2)
+
+    def is_linear(self):
+        '''Returns whether the transformation is linear'''
+        return True
+    def domain_geometry(self):
+        return self.reference_image
+    def range_geometry(self):
+        return self.floating_image
 
 
 class ImageWeightedMean(object):
