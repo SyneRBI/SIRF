@@ -383,7 +383,7 @@ def assert_validity(obj, dtype):
     try:
         assert isinstance(obj, dtype)
     except AssertionError as ae:
-        raise AssertionError('Expecting object of type {}, got {}'.format(type(obj), dtype))
+        raise AssertionError('Expecting object of type {}, got {}'.format(dtype, type(obj)))
     if obj.handle is None:
         raise AssertionError('object handle is None.')
 
