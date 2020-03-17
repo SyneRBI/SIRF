@@ -1,6 +1,8 @@
 #========================================================================
 # Author: Richard Brown
+# Author: Evgueni Ovtchinnikov
 # Copyright 2018 - 2019 University College London
+# Copyright 2020 UKRI-STFC
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -18,7 +20,8 @@
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-add_library(csyn csyn.cpp utilities.cpp)
+#add_library(csyn csyn.cpp utilities.cpp)
+add_library(csyn utilities.cpp)
 target_include_directories(csyn PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )

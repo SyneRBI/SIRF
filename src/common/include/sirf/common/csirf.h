@@ -48,6 +48,7 @@ void* cSIRF_clone(void* ptr_x);
 
 // ImageData
 void* cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src);
+void* cSIRF_readImageData(const char* file, const char* eng, int verb);
 void* cSIRF_equalImages(const void* ptr_im_a, const void* ptr_im_b);
 void* cSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr);
 

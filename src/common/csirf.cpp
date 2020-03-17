@@ -25,6 +25,7 @@ limitations under the License.
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ImageData.h"
+#include "sirf/Syn/utilities.h"
 
 using namespace sirf;
 
@@ -210,6 +211,18 @@ cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src)
 	return new DataHandle;
     }
     CATCH;
+}
+
+extern "C"
+void*
+cSIRF_readImageData(const char* file, const char* eng, int verb)
+{
+	try {
+		ImageDataWrap idw(file, eng, verb);
+		std::shared_ptr<ImageData> sptr_id = idw.data_sptr();
+		return newObjectHandle<ImageData>(sptr_id);
+	}
+	CATCH;
 }
 
 extern "C"

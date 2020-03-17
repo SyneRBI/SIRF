@@ -19,7 +19,7 @@
 #=========================================================================
 
 ADD_SUBDIRECTORY(iUtilities)
-ADD_SUBDIRECTORY(common)
+#ADD_SUBDIRECTORY(common)
 
 
 ##########################################################################
@@ -119,3 +119,5 @@ else()
     endif()
   endif()
 endif()
+
+ADD_SUBDIRECTORY(common)

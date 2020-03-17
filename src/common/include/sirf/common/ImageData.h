@@ -80,7 +80,7 @@ namespace sirf {
         }
         /// Write image to file
         //virtual void write(const std::string &filename) const = 0;
-		bool operator==(const ImageData& id) const
+		virtual bool operator==(const ImageData& id) const
 		{
 			if (&id == this)
 				return true;
@@ -107,7 +107,7 @@ namespace sirf {
 			bool same = (s <= 1e-6*t);
 			return same;
 		}
-		bool operator!=(const ImageData& id) const
+		virtual bool operator!=(const ImageData& id) const
 		{
 			return !(*this == id);
 		}

@@ -54,7 +54,7 @@ class DataContainer(ABC):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-    @abc.abstractmethod
+#    @abc.abstractmethod
     def same_object(self):
         '''
         Returns an object of the same type as self.
@@ -488,12 +488,28 @@ class ImageData(DataContainer):
 
         other: ImageData
         '''
-        assert_validities(self, other)
+#        assert_validities(self, other)
+        assert(isinstance(self, ImageData))
+        assert(isinstance(other, ImageData))
+        assert(self.handle is not None)
+        assert(other.handle is not None)
         handle = pysirf.cSIRF_equalImages(self.handle, other.handle)
         check_status(handle)
         same = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return same
+
+    def __ne__(self, other):
+        '''
+        Overloads != for ImageData.
+
+        other: ImageData
+        '''
+        return not (self == other)
+
+    def read(self, file, engine, verb):
+        self.handle = pysirf.cSIRF_readImageData(file, engine, verb)
+        check_status(self.handle)
 
     def fill(self, image):
         try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))

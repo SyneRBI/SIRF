@@ -16,7 +16,6 @@
 #
 #=========================================================================
 
-
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -28,7 +27,7 @@ target_include_directories(csirf PUBLIC
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(csirf PUBLIC iutilities)
+target_link_libraries(csirf PUBLIC iutilities csyn)
 INSTALL(TARGETS csirf DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 if (BUILD_PYTHON)
@@ -42,7 +41,7 @@ if (BUILD_PYTHON)
   SET_SOURCE_FILES_PROPERTIES(pysirf.i PROPERTIES SWIG_FLAGS "-I${cSIRF_INCLUDE_DIR}")
   FIND_PACKAGE(PythonLibs REQUIRED)
   set(SWIG_MODULE_pysirf_EXTRA_DEPS "${cSIRF_INCLUDE_DIR}/sirf/common/csirf.h")
-  SWIG_ADD_LIBRARY(pysirf LANGUAGE python TYPE MODULE SOURCES pysirf.i)
+  SWIG_ADD_LIBRARY(pysirf LANGUAGE python TYPE MODULE SOURCES pysirf.i ${STIR_REGISTRIES})
   TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pysirf_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_PATH})
   SWIG_LINK_LIBRARIES(pysirf csirf iutilities ${PYTHON_LIBRARIES})
   INSTALL(TARGETS ${SWIG_MODULE_pysirf_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
