@@ -482,7 +482,7 @@ class ImageData(DataContainer):
     '''
     Image data ABC
     '''
-    def __eq__(self, other):
+    def equal(self, other):
         '''
         Overloads == for ImageData.
 
@@ -498,6 +498,9 @@ class ImageData(DataContainer):
         same = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return same
+
+    def __eq__(self, other):
+        return self.equal(other)
 
     def __ne__(self, other):
         '''

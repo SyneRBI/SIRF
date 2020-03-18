@@ -183,7 +183,7 @@ class NiftiImageData(SIRF.ImageData):
         check_status(z.handle)
         return z
 
-    def __eq__(self, other):
+    def equal(self, other):
         """Overload comparison operator."""
         if not isinstance(other, NiftiImageData):
             raise AssertionError()
@@ -194,6 +194,12 @@ class NiftiImageData(SIRF.ImageData):
         value = pyiutil.intDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
         return value
+
+    def __eq__(self, other):
+        try:
+            return self.equal(other)
+        except:
+            return super(NiftiImageData, self).equal(other)
 
     def __ne__(self, other):
         """Overload comparison operator."""
