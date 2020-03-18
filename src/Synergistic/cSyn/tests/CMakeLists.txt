@@ -19,7 +19,7 @@
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 ADD_EXECUTABLE(test_conv_img test_conv_img.cpp ${STIR_REGISTRIES})
-TARGET_LINK_LIBRARIES(test_conv_img LINK_PUBLIC csirf iutilities cstir cgadgetron Reg)
+TARGET_LINK_LIBRARIES(test_conv_img LINK_PUBLIC csirf iutilities cstir cgadgetron Reg csyn)
 INSTALL(TARGETS test_conv_img DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 set(MR_vendor_dicom_as_nifti "${CMAKE_SOURCE_DIR}/data/examples/MR/zenodo/dicom_as_nifti.nii")

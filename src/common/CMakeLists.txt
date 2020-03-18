@@ -27,7 +27,21 @@ target_include_directories(csirf PUBLIC
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(csirf PUBLIC iutilities csyn)
+if ((NOT DISABLE_STIR) AND (NOT DISABLE_Gadgetron) AND (NOT DISABLE_Registration) AND "${STIR_BUILT_WITH_ITK}")
+  MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built.")
+  add_library(Syn syn_utilities.cpp)
+  target_include_directories(Syn PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
+  )
+  target_include_directories(Syn PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
+  )
+  target_link_libraries(Syn PUBLIC cgadgetron cstir Reg)
+  INSTALL(TARGETS Syn DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+  target_link_libraries(csirf PUBLIC iutilities Syn)
+else()
+  target_link_libraries(csirf PUBLIC iutilities csyn)
+endif()
 INSTALL(TARGETS csirf DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 if (BUILD_PYTHON)
