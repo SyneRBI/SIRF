@@ -173,7 +173,7 @@ def main():
 
     # Download the data
     print("downloading brainweb data...")
-    [FDG_arr, uMap_arr, T1_arr] = download_data(data_path)
+    [FDG_arr, uMap_arr, T1_arr] = download_data()
 
     # Get template PET image from template raw
     template_PET_raw = pet.AcquisitionData(template_PET_raw_path)
