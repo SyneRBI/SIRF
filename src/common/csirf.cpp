@@ -25,7 +25,7 @@ limitations under the License.
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ImageData.h"
-#include "sirf/Syn/utilities.h"
+#include "../../Synergistic/cSyn/include/sirf/Syn/utilities.h"
 
 using namespace sirf;
 
