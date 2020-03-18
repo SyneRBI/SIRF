@@ -350,6 +350,13 @@ void NiftiImageData<dataType>::write(const std::string &filename, const int data
     else
         copy.change_datatype(_original_datatype);
 
+    // If ndim==1,but pixdim[2] != 1, set image to 2D (could be 2D image with 1 voxel in 2nd dimension)
+    // Similarly, if ndim==2,but pixdim[3] != 1, set image to 3D (could be 3D image with 1 voxel in 3rd dimension)
+    for (int i=1; i<=2; ++i)
+        if (copy.get_raw_nifti_sptr()->ndim==i && std::abs(copy.get_raw_nifti_sptr()->pixdim[i+1]-1.f) > 1e-4f)
+            copy.get_raw_nifti_sptr()->ndim=i+1;
+    copy.get_raw_nifti_sptr()->dim[0]=copy.get_raw_nifti_sptr()->ndim;
+
     nifti_set_filenames(copy._nifti_image.get(), filename.c_str(), 0, 0);
     nifti_image_write(copy._nifti_image.get());
     std::cout << "done.\n\n";
