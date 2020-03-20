@@ -17,6 +17,9 @@ from sirf.STIR import *
 from sirf.Utilities import runner, __license__
 import numpy as np
 
+# Set STIR verbosity to off
+set_verbosity(0)
+
 __version__ = "0.2.3"
 __author__ = "Richard Brown"
 
@@ -56,6 +59,10 @@ def add_noise(proj_data,noise_factor = 1):
     return noisy_proj_data
 
 def test_main(rec=False, verb=False, throw=True):
+
+    time.sleep(0.5)
+    sys.stderr.write("Testing NiftyPET projector...")
+    time.sleep(0.5)
 
     data_path = examples_data_path('PET')
     raw_data_file = existing_filepath(data_path, 'mMR/mMR_template_span11.hs')
