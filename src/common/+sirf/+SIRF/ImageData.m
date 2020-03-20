@@ -20,6 +20,12 @@ classdef ImageData < sirf.SIRF.DataContainer
 % limitations under the License.
 
 	methods
+        function delete(self)
+            if ~isempty(self.handle_)
+                sirf.Utilities.delete(self.handle_)
+                self.handle_ = [];
+            end
+        end
         function same = eq(self, other)
             assert(isa(other, 'sirf.SIRF.ImageData'));
             h = calllib('msirf', 'mSIRF_equalImages', self.handle_, other.handle_);
@@ -29,6 +35,10 @@ classdef ImageData < sirf.SIRF.DataContainer
         end
         function diff = ne(self, other)
         	diff = ~(self == other);
+        end
+        function read(self, filename, engine, verb)
+            self.handle_ = calllib('msirf', 'mSIRF_readImageData', filename, engine, verb);
+            sirf.Utilities.check_status([self.name ':read'], self.handle_);
         end
 		function geom_info = get_geometrical_info(self)
 			% Get the image's geometrical info.
