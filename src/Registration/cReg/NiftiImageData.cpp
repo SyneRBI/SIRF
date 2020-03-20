@@ -1435,7 +1435,10 @@ dataType
 NiftiImageData<dataType>::
 get_inner_product(const NiftiImageData &other) const
 {
-    return std::inner_product(this->begin(),this->end(),other.begin(),dataType(0));
+	dataType s;
+	this->dot(other, &s);
+	return s;
+//    return std::inner_product(this->begin(),this->end(),other.begin(),dataType(0));
 }
 
 template<class dataType>
