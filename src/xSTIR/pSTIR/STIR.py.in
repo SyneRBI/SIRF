@@ -1393,7 +1393,7 @@ if @NIFTYPET_BOOL_STR@:
             """
             Creates an AcquisitionModelUsingNiftyPET object
             """
-            self.handle = None
+            super(AcquisitionModelUsingNiftyPET, self).__init__()
             self.name = 'AcqModUsingNiftyPET'
             self.handle = pystir.cSTIR_newObject(self.name)
             check_status(self.handle)
