@@ -261,7 +261,7 @@ def main():
     print("Setting up reconstructor...")
 
     # Create composition operators containing acquisition models and resamplers
-    C = [ CompositionOperator(am, res) for am, res in zip (*(acq_models, resamplers)) ]
+    C = [ CompositionOperator(am, res, preallocate=True) for am, res in zip (*(acq_models, resamplers)) ]
 
     # Configure the PDHG algorithm
     kl = [ KullbackLeibler(b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos ] 
