@@ -29,7 +29,7 @@ classdef ImageData < sirf.SIRF.DataContainer
         function same = eq(self, other)
             assert(isa(other, 'sirf.SIRF.ImageData'));
             h = calllib('msirf', 'mSIRF_equalImages', self.handle_, other.handle_);
-            sirf.Utilities.check_status([self.name ':eq'], h);
+            sirf.Utilities.check_status('ImageData:eq', h);
             same = logical(calllib('miutilities', 'mIntDataFromHandle', h));
             sirf.Utilities.delete(h)
         end
@@ -38,7 +38,7 @@ classdef ImageData < sirf.SIRF.DataContainer
         end
         function read(self, filename, engine, verb)
             self.handle_ = calllib('msirf', 'mSIRF_readImageData', filename, engine, verb);
-            sirf.Utilities.check_status([self.name ':read'], self.handle_);
+            sirf.Utilities.check_status('ImageData:read', self.handle_);
         end
 		function geom_info = get_geometrical_info(self)
 			% Get the image's geometrical info.
