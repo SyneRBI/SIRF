@@ -69,16 +69,19 @@ if not file_exists(sino_file):
     check_file_exists(sino_file)
 
 # Randoms
+rand_file = None
 if args['--rand']:
     rand_file = args['--rand']
     check_file_exists(rand_file)
 
 # Attenuation
+attn_file = None
 if args['--attn']:
     attn_file = args['--attn']
     check_file_exists(attn_file)
 
 # Norm
+norm_file = None
 if args['--norm']:
     norm_file = args['--norm']
     check_file_exists(norm_file)
@@ -166,6 +169,7 @@ def main():
         asm_attn = AcquisitionSensitivityModel(bin_eff)
 
     # Get ASM dependent on attn and/or norm
+    asm = None
     if norm_file and attn_file:
         print("AcquisitionSensitivityModel contains norm and attenuation...")
         asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
