@@ -1,3 +1,4 @@
+%function stir_to_nifti()
 set_up_Reg();
 set_up_PET();
 file = fullfile(getenv('SIRF_PATH'), 'data', 'examples', 'MR', 'zenodo', 'dicom_as_nifti.nii');

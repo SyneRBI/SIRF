@@ -33,6 +33,7 @@ FOREACH(elem ${SYN_executables})
 ENDFOREACH(elem ${SYN_executables})
 
 ADD_SUBDIRECTORY(cSyn)
+ADD_SUBDIRECTORY(mSyn)
 ADD_SUBDIRECTORY(pSyn)
 
 # Tests
