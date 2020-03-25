@@ -62,8 +62,7 @@ MAX_IMG_DIMS = 10
 
 def set_verbosity(verbosity):
     """Set the verbosity of all STIR output"""
-    handle = pystir.cSTIR_setVerbosity(verbosity)
-    check_status(handle)
+    try_calling(pystir.cSTIR_setVerbosity(verbosity))
 
 
 class MessageRedirector(object):
@@ -1959,9 +1958,7 @@ class IterativeReconstructor(Reconstructor):
         '''Sets up the object.
         '''
         assert_validity(image, ImageData)
-        handle = pystir.cSTIR_setupReconstruction(self.handle, image.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_setupReconstruction(self.handle, image.handle))
     def set_current_estimate(self, image):
         '''Sets image estimate.
         '''
