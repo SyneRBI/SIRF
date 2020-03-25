@@ -19,12 +19,14 @@
 #
 #=========================================================================
 
-matlab_add_unit_test(NAME SYN_TEST_GADGETRON_TO_NIFTI_MATLAB
+if(BUILD_MATLAB)
+    matlab_add_unit_test(NAME SYN_TEST_GADGETRON_TO_NIFTI_MATLAB
     UNITTEST_FILE gadgetron_to_nifti.m
     ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
     NO_UNITTEST_FRAMEWORK)
 
-matlab_add_unit_test(NAME SYN_TEST_STIR_TO_NIFTI_MATLAB
+    matlab_add_unit_test(NAME SYN_TEST_STIR_TO_NIFTI_MATLAB
     UNITTEST_FILE stir_to_nifti.m
     ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
     NO_UNITTEST_FRAMEWORK)
+endif(BUILD_MATLAB)
