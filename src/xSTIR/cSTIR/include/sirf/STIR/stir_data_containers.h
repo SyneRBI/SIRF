@@ -154,7 +154,7 @@ namespace sirf {
 			)
 		{
 			stir::shared_ptr<stir::ProjDataInfo> out_proj_data_info_sptr(
-				stir::SSRB(*data()->get_proj_data_info_ptr(),
+				stir::SSRB(*data()->get_proj_data_info_sptr(),
 				num_segments_to_combine,
 				num_views_to_combine,
 				num_tang_poss_to_trim,
