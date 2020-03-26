@@ -872,7 +872,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         acq = Acquisition()
-        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
+        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, int(num))
         check_status(acq.handle)
         return acq
     def append_acquisition(self, acq):

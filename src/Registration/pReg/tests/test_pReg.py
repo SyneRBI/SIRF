@@ -901,7 +901,7 @@ def try_resample(na):
     #       resample.forward(out, in)
     out1 = nr3.forward(flo_aladin)
     out2 = ref_aladin.deep_copy()
-    nr3.forward(out2, flo_aladin)
+    nr3.forward(out=out2, x=flo_aladin)
     if out1 != out2:
         raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
 
@@ -974,7 +974,7 @@ def try_niftymomo(na):
     #       resample.adjoint(out, in)
     out1 = nr.adjoint(x)
     out2 = y.deep_copy()
-    nr.backward(out2, x)
+    nr.backward(out=out2, x=x)
     if out1 != out2:
         raise AssertionError(
             'out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.')

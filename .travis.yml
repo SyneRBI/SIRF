@@ -129,10 +129,8 @@ before_install:
      brew update
      BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
      brew install openblas
-     # Get openblas version
-     blas_ver=$(brew list --versions openblas)
-     blas_ver=${blas_ver#"openblas "}
-     EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DCBLAS_INCLUDE_DIR=/usr/local/Cellar/openblas/${blas_ver}/include -DCBLAS_LIBRARY=/usr/local/Cellar/openblas/${blas_ver}/lib/libblas.dylib"
+     # Let CMake find this blas version (note: we use /usr/local/opt/openblas symlink to get the most recent brew version)
+     EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DCBLAS_INCLUDE_DIR=/usr/local/opt/openblas/include -DCBLAS_LIBRARY=/usr/local/opt/openblas/lib/libblas.dylib"
      if [ $PYMVER == 2 ]; then
        PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
        PY_EXE=$PYINST/bin/python2.7
@@ -223,6 +221,7 @@ before_install:
 - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
 - cd SIRF-SuperBuild
 - cmake --version
+- echo "cmake flags $BUILD_FLAGS $EXTRA_BUILD_FLAGS"
 
 install:
 - $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib deprecation nibabel
