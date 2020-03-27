@@ -813,7 +813,7 @@ class AcquisitionData(DataContainer):
         return dim[0]
     def dot(self, other):
         '''
-        Returns the dot product of the container data with another container 
+        Returns the dot product of the container data with another container
         data viewed as vectors.
         other: DataContainer
         '''
