@@ -29,7 +29,7 @@ except:
     HAVE_PYLAB = False
 import sys
 
-from sirf.Utilities import assert_validities, check_status, try_calling
+from sirf.Utilities import assert_validity, assert_validities, check_status, try_calling
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
@@ -516,11 +516,8 @@ class ImageData(DataContainer):
 
         other: ImageData
         '''
-#        assert_validities(self, other)
-        assert(isinstance(self, ImageData))
-        assert(isinstance(other, ImageData))
-        assert(self.handle is not None)
-        assert(other.handle is not None)
+        assert_validity(self, ImageData)
+        assert_validity(other, ImageData)
         handle = pysirf.cSIRF_equalImages(self.handle, other.handle)
         check_status(handle)
         same = pyiutil.intDataFromHandle(handle)
