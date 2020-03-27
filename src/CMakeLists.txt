@@ -29,8 +29,6 @@ option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
 if (DISABLE_Gadgetron)
   message(STATUS "Gadgetron support disabled.")
 else()
-  # include explicit search for HDF5 for older ISMRMRD versions.
-  find_package(HDF5 1.8 COMPONENTS C REQUIRED)
   find_package(ISMRMRD REQUIRED)
   # Add ISMRMRD to search path for FFTW3
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
