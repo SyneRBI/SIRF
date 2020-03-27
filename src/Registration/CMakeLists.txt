@@ -23,6 +23,8 @@ if (BUILD_MATLAB)
 		list(APPEND Matlab_LIBRARIES 
 			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so" 
 			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so")
+		# Account for potential mismatch between libstdc++ for compilation and Matlab's
+		set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -static-libstdc++)
 	endif()
 
 	find_package(SPM QUIET)
