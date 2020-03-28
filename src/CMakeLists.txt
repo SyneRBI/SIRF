@@ -29,7 +29,7 @@ option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
 if (DISABLE_Gadgetron)
   message(STATUS "Gadgetron support disabled.")
 else()
-  find_package(ISMRMRD 1.4.1 REQUIRED)
+  find_package(ISMRMRD 1.4 REQUIRED)
   # Add ISMRMRD to search path for FFTW3
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
   find_package(FFTW3 COMPONENTS single REQUIRED)
