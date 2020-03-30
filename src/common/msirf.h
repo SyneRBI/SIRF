@@ -39,7 +39,7 @@ EXPORTED_FUNCTION  void* mSIRF_newObject(const char* name);
 EXPORTED_FUNCTION void* mSIRF_dataItems(const void* ptr_x);
 EXPORTED_FUNCTION void* mSIRF_norm(const void* ptr_x);
 EXPORTED_FUNCTION void* mSIRF_dot(const void* ptr_x, const void* ptr_y);
-EXPORTED_FUNCTION void* mSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x, const PTR_FLOAT ptr_b, const void* ptr_y);
+EXPORTED_FUNCTION void* mSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x, const PTR_FLOAT ptr_b, const void* ptr_y, const void* ptr_z);
 EXPORTED_FUNCTION void* mSIRF_multiply(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION void* mSIRF_divide(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION void* mSIRF_write(const void* ptr, const char* filename);

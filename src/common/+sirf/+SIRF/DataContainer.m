@@ -142,23 +142,26 @@ classdef DataContainer < handle
 		end
     end
     methods(Static)
-        function z = axpby(a, x, b, y)
+        function z = axpby(a, x, b, y, z)
 %***SIRF*** axpby(a, x, b, y) returns a linear combination a*x + b*y 
 %         of two data containers x and y;
 %         a and b: complex scalars
 %         x and y: DataContainers
+%         z: Optional DataContainer output
             %assert(strcmp(class(x), class(y)))
             sirf.Utilities.assert_validities(x, y)
-            z = x.same_object();
+            if nargin < 5
+                z = x.copy();
+            end
             a = single(a);
             b = single(b);
             za = [real(a); imag(a)];
             zb = [real(b); imag(b)];
             ptr_za = libpointer('singlePtr', za);
             ptr_zb = libpointer('singlePtr', zb);
-            z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
-                ptr_za, x.handle_, ptr_zb, y.handle_);
-            sirf.Utilities.check_status('DataContainer:axpby', z.handle_);
+            handle = calllib('msirf', 'mSIRF_axpby', ...
+                ptr_za, x.handle_, ptr_zb, y.handle_, z.handle_);
+            sirf.Utilities.check_status('DataContainer:axpby', handle);
         end
     end
 end
