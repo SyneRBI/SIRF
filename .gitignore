@@ -278,3 +278,6 @@ coverage.xml
 
 # Ignore files created by Pycharm
 \.idea/
+
+# Ignore files created by VS Code
+.vscode/
