@@ -8,7 +8,7 @@ Usage:
   osem_reconstruction [--help | options]
 
 Options:
-  -S <file>, --sino=<file>     sinogram [default: data/examples/PET/mMR/my_forward_projection.hs]
+  -S <file>, --sino=<file>     sinogram (default: data/examples/PET/my_forward_projection.hs)
   -R <file>, --rand=<file>     randoms
   -a <attn>, --attn=<attn>     attenuation image file
   -n <norm>, --norm=<norm>     ECAT8 bin normalization file
@@ -64,9 +64,11 @@ exec('from sirf.' + args['--engine'] + ' import *')
 
 # Sinogram. if sino not found, get the one in the example data
 sino_file = args['--sino']
+if not sino_file:
+    print("Sinogram not given, using data/examples/PET/my_forward_projection.hs")
+    sino_file = examples_data_path('PET') + "/my_forward_projection.hs"
 if not file_exists(sino_file):
-    sino_file = examples_data_path('PET') + '/mMR/' + sino_file
-    check_file_exists(sino_file)
+    raise error("Sinogram not found: " + sino_file)
 
 # Randoms
 rand_file = None
