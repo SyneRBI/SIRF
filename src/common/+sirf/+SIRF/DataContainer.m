@@ -86,25 +86,31 @@ classdef DataContainer < handle
             z = self.axpby(1, self, 1, other);
             sirf.Utilities.check_status('DataContainer:plus', z.handle_);
         end
-        function z = times(self, other)
+        function out = times(self, other, out)
 %***SIRF*** Overloads .* for data containers.
 %         Returns the elementwise product of this data container with another one
 %         viewed as vectors.
             sirf.Utilities.assert_validities(self, other)
-            z = self.same_object();
-            z.handle_ = calllib('msirf', 'mSIRF_multiply', ...
-                self.handle_, other.handle_);
-            sirf.Utilities.check_status('DataContainer:times', z.handle_);
+            if nargin==2
+                out = self.copy();
+            end
+            h = calllib('msirf', 'mSIRF_multiply', ...
+                self.handle_, other.handle_, out.handle_);
+            sirf.Utilities.check_status('DataContainer:times', h);
+            sirf.Utilities.delete(h)
         end
         function z = rdivide(self, other)
 %***SIRF*** Overloads ./ for data containers.
 %         Returns the elementwise ratio of this data container with another one
 %         viewed as vectors.
             sirf.Utilities.assert_validities(self, other)
-            z = self.same_object();
-            z.handle_ = calllib('msirf', 'mSIRF_divide', ...
-                self.handle_, other.handle_);
-            sirf.Utilities.check_status('DataContainer:rdivide', z.handle_);
+            if nargin==2
+                out = self.copy();
+            end
+            h = calllib('msirf', 'mSIRF_divide', ...
+                self.handle_, other.handle_, out.handle_);
+            sirf.Utilities.check_status('DataContainer:divide', h);
+            sirf.Utilities.delete(h)
         end
         function z = mtimes(self, other)
 %***SIRF*** mtimes(other) overloads * for data containers multiplication 
