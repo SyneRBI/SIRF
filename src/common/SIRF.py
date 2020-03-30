@@ -117,13 +117,11 @@ class DataContainer(ABC):
             other.fill(tmp)
         assert_validities(self, other)
         if out is None:
-            z = self.same_object()
+            out = self.copy()
         else:
             assert_validities(self, out)
-            z = out
-        z.handle = pysirf.cSIRF_multiply(self.handle, other.handle)
-        check_status(z.handle)
-        return z
+        try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, out.handle))
+        return out
     def divide(self, other, out=None):
         '''
         Returns the elementwise ratio of this and another container 
@@ -137,13 +135,11 @@ class DataContainer(ABC):
             other.fill(tmp)
         assert_validities(self, other)
         if out is None:
-            z = self.same_object()
+            out = self.copy()
         else:
             assert_validities(self, out)
-            z = out
-        z.handle = pysirf.cSIRF_divide(self.handle, other.handle)
-        check_status(z.handle)
-        return z
+        try_calling(pysirf.cSIRF_divide(self.handle, other.handle, out.handle))
+        return out
     def add(self, other, out=None):
         '''
         Addition for data containers.
