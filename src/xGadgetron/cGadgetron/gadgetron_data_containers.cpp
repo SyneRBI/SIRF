@@ -370,16 +370,15 @@ MRAcquisitionData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
-	if (number() > 0)
+	if (number() > 0) {
 		empty();
+	}
 	for (int i = 0, j = 0; i < n && j < m;) {
 		y.get_acquisition(i, ay);
 		x.get_acquisition(j, ax);
@@ -954,8 +953,6 @@ GadgetronImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();

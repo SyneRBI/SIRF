@@ -144,6 +144,23 @@ cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 
 extern "C"
 void*
+cSIRF_product(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.multiply(x, y);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 {
 	try {

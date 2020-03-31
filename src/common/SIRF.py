@@ -117,10 +117,13 @@ class DataContainer(ABC):
             other.fill(tmp)
         assert_validities(self, other)
         if out is None:
-            out = self.copy()
+            out = self.same_object()
+            out.handle = pysirf.cSIRF_product(self.handle, other.handle)
+            check_status(out.handle)
+            #out = self.copy()
         else:
             assert_validities(self, out)
-        try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, out.handle))
+            try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, out.handle))
         return out
     def divide(self, other, out=None):
         '''
