@@ -378,6 +378,8 @@ const DataContainer& a_y)
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
+	if (number() > 0)
+		empty();
 	for (int i = 0, j = 0; i < n && j < m;) {
 		y.get_acquisition(i, ay);
 		x.get_acquisition(j, ax);
@@ -740,6 +742,26 @@ AcquisitionsFile::~AcquisitionsFile()
 	}
 }
 
+void
+AcquisitionsFile::empty()
+{
+	dataset_.reset();
+	if (own_file_) {
+		Mutex mtx;
+		mtx.lock();
+		std::remove(filename_.c_str());
+		mtx.unlock();
+	}
+	own_file_ = true;
+	filename_ = xGadgetronUtilities::scratch_file_name();
+	Mutex mtx;
+	mtx.lock();
+	dataset_ = shared_ptr<ISMRMRD::Dataset>
+		(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
+	dataset_->writeHeader(acqs_info_);
+	mtx.unlock();
+}
+
 void 
 AcquisitionsFile::take_over(AcquisitionsFile& af)
 {
@@ -844,6 +866,12 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 }
 
 void
+AcquisitionsVector::empty()
+{
+	acqs_.clear();
+}
+
+void
 AcquisitionsVector::set_data(const complex_float_t* z, int all)
 {
 	int na = number();
@@ -930,6 +958,8 @@ const DataContainer& a_y)
 	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+	if (number() > 0)
+		empty();
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.multiply(y.image_wrap(i));

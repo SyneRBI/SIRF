@@ -221,6 +221,8 @@ namespace sirf {
 
 		// abstract methods
 
+		virtual void empty() = 0;
+
 		// the number of acquisitions in the container
 		virtual unsigned int number() const = 0;
 
@@ -359,6 +361,7 @@ namespace sirf {
 
 		// implementations of abstract methods
 
+		virtual void empty();
 		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual unsigned int items() const;
 		virtual unsigned int number() const { return items(); }
@@ -425,6 +428,7 @@ namespace sirf {
 			acqs_templ_.reset(new AcquisitionsVector);
 			_storage_scheme = "memory";
 		}
+		virtual void empty();
 		virtual unsigned int number() const { return (unsigned int)acqs_.size(); }
 		virtual unsigned int items() const { return (unsigned int)acqs_.size(); }
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq)
@@ -489,7 +493,7 @@ namespace sirf {
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
 		
-
+		virtual void empty() = 0;
 		virtual unsigned int number() const = 0;
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
 			(unsigned int im_num) = 0;
@@ -747,6 +751,10 @@ namespace sirf {
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
+		virtual void empty()
+		{
+			images_.clear();
+		}
 		virtual unsigned int items() const
 		{ 
 			return (unsigned int)images_.size(); 
