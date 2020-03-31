@@ -410,6 +410,10 @@ namespace sirf {
 		{
 			IMAGE_PROCESSING_SWITCH(type_, multiply_, x.ptr_image());
 		}
+		void multiply(const ImageWrap& x, const ImageWrap& y)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, multiply__, x.ptr_image(), y.ptr_image());
+		}
 		void divide(const ImageWrap& x)
 		{
 			IMAGE_PROCESSING_SWITCH(type_, divide_, x.ptr_image());
@@ -629,6 +633,27 @@ namespace sirf {
 				complex_float_t u = (complex_float_t)*i;
 				complex_float_t v = (complex_float_t)*j;
 				xGadgetronUtilities::convert_complex(u*v, *j);
+			}
+		}
+
+		template<typename T>
+		void multiply__(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y)
+		{
+			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;
+			ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)vptr_y;
+			size_t nx = ptr_x->getNumberOfDataElements();
+			size_t ny = ptr_y->getNumberOfDataElements();
+			size_t n = ptr->getNumberOfDataElements();
+			if (!(n == nx && n == ny))
+				THROW("sizes mismatch in ImageWrap multiply");
+			const T* i = ptr_x->getDataPtr();
+			const T* j = ptr_y->getDataPtr();
+			T* k = ptr->getDataPtr();
+			size_t ii = 0;
+			for (; ii < n; i++, j++, k++, ii++) {
+				complex_float_t u = (complex_float_t)*i;
+				complex_float_t v = (complex_float_t)*j;
+				xGadgetronUtilities::convert_complex(u*v, *k);
 			}
 		}
 

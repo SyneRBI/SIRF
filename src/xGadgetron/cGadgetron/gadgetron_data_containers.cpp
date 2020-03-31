@@ -958,12 +958,23 @@ const DataContainer& a_y)
 	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	if (number() > 0)
-		empty();
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		ImageWrap w(x.image_wrap(i));
-		w.multiply(y.image_wrap(i));
-		append(w);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in multiply");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx && i < ny; i++)
+			image_wrap(i).multiply(x.image_wrap(i), y.image_wrap(i));
+	}
+	else {
+		for (unsigned int i = 0; i < nx && i < ny; i++) {
+			ImageWrap w(x.image_wrap(i));
+			w.multiply(y.image_wrap(i));
+			append(w);
+		}
 	}
 	this->set_meta_data(x.get_meta_data());
 }
