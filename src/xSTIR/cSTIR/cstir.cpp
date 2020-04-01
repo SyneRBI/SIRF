@@ -585,7 +585,7 @@ void* cSTIR_acquisitionDataFromScannerInfo
 	try{
 		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
         sptr_ei->imaging_modality = ImagingModality::PT;
-		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
+		const stir::shared_ptr<const stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
 		PETAcquisitionDataInFile::init();

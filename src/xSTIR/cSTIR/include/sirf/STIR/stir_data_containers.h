@@ -85,7 +85,7 @@ namespace sirf {
 			_owns_file(owns_file)
 		{}
 		ProjDataFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info,
+			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info,
 			const std::string& filename, bool owns_file = true) :
 			stir::ProjDataInterfile(sptr_exam_info, sptr_proj_data_info,
 			filename, std::ios::in | std::ios::out | std::ios::trunc),
@@ -142,7 +142,7 @@ namespace sirf {
 		// virtual constructors
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
+			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info) const = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
 
 		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
@@ -153,7 +153,7 @@ namespace sirf {
 			const int max_in_segment_num_to_process = -1
 			)
 		{
-			stir::shared_ptr<stir::ProjDataInfo> out_proj_data_info_sptr(
+			const stir::shared_ptr<const stir::ProjDataInfo> out_proj_data_info_sptr(
 				stir::SSRB(*data()->get_proj_data_info_sptr(),
 				num_segments_to_combine,
 				num_views_to_combine,
@@ -265,7 +265,7 @@ namespace sirf {
 		{
 			return data()->get_exam_info_sptr();
 		}
-		stir::shared_ptr<stir::ProjDataInfo> get_proj_data_info_sptr() const
+		stir::shared_ptr<const stir::ProjDataInfo> get_proj_data_info_sptr() const
 		{
 			return data()->get_proj_data_info_sptr();
 		}
@@ -275,7 +275,7 @@ namespace sirf {
 		operator const stir::ProjData&() const { return *data(); }
 		operator stir::shared_ptr<stir::ProjData>() { return data(); }
 
-		static stir::shared_ptr<stir::ProjDataInfo>
+		static stir::shared_ptr<const stir::ProjDataInfo>
 			proj_data_info_from_scanner(std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 		{
@@ -301,7 +301,7 @@ namespace sirf {
 		PETAcquisitionData* clone_base() const
 		{
 			stir::shared_ptr<stir::ExamInfo> sptr_ei = get_exam_info_sptr();
-			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = get_proj_data_info_sptr();
+			const stir::shared_ptr<const stir::ProjDataInfo> sptr_pdi = get_proj_data_info_sptr();
 			PETAcquisitionData* ptr = 
 				_template->same_acquisition_data(sptr_ei, sptr_pdi);
 			ptr->fill(*this);
@@ -324,7 +324,7 @@ namespace sirf {
 			_data = stir::ProjData::read_from_file(filename);
 		}
 		PETAcquisitionDataInFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
+			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data.reset(new ProjDataFile
 				(sptr_exam_info, sptr_proj_data_info,
@@ -339,7 +339,7 @@ namespace sirf {
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 		{
-			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
+			const stir::shared_ptr<const stir::ProjDataInfo> sptr_pdi =
 				PETAcquisitionData::proj_data_info_from_scanner
 				(scanner_name, span, max_ring_diff, view_mash_factor);
 			ProjDataFile* ptr = new ProjDataFile(sptr_ei, sptr_pdi,
@@ -372,7 +372,7 @@ namespace sirf {
 
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const
+			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info) const
 		{
 			PETAcquisitionData* ptr_ad =
 				new PETAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
@@ -414,7 +414,7 @@ namespace sirf {
 	public:
 		PETAcquisitionDataInMemory() {}
 		PETAcquisitionDataInMemory(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
+			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data = stir::shared_ptr<stir::ProjData>
 				(new stir::ProjDataInMemory(sptr_exam_info, sptr_proj_data_info));
@@ -429,7 +429,7 @@ namespace sirf {
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 		{
-			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
+			const stir::shared_ptr<const stir::ProjDataInfo> sptr_pdi =
 				PETAcquisitionData::proj_data_info_from_scanner
 				(scanner_name, span, max_ring_diff, view_mash_factor);
 			stir::ProjDataInMemory* ptr = new stir::ProjDataInMemory(sptr_ei, sptr_pdi);
@@ -450,7 +450,7 @@ namespace sirf {
 
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const
+			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info) const
 		{
 			PETAcquisitionData* ptr_ad =
 				new PETAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info);

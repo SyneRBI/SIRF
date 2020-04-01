@@ -455,7 +455,7 @@ PETAcquisitionSensitivityModel(std::string filename)
 }
 
 Succeeded 
-PETAcquisitionSensitivityModel::set_up(const shared_ptr<ProjDataInfo>& sptr_pdi)
+PETAcquisitionSensitivityModel::set_up(const shared_ptr<const ProjDataInfo>& sptr_pdi)
 {
 	return norm_->set_up(sptr_pdi);
 }
