@@ -412,6 +412,9 @@ const DataContainer& a_y)
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
+	if (number() > 0) {
+		empty();
+	}
 	for (int i = 0, j = 0; i < n && j < m;) {
 		y.get_acquisition(i, ay);
 		x.get_acquisition(j, ax);
@@ -981,8 +984,35 @@ GadgetronImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
+	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in multiply");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx && i < ny; i++)
+			image_wrap(i).divide(x.image_wrap(i), y.image_wrap(i));
+	}
+	else {
+		for (unsigned int i = 0; i < nx && i < ny; i++) {
+			ImageWrap w(x.image_wrap(i));
+			w.divide(y.image_wrap(i));
+			append(w);
+		}
+	}
+	this->set_meta_data(x.get_meta_data());
+}
+
+/*
+void
+GadgetronImageData::divide(
+const DataContainer& a_x,
+const DataContainer& a_y)
+{
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
@@ -992,7 +1022,7 @@ const DataContainer& a_y)
 	}
 	this->set_meta_data(x.get_meta_data());
 }
-
+*/
 float 
 GadgetronImageData::norm() const
 {

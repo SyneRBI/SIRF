@@ -178,6 +178,23 @@ cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 
 extern "C"
 void*
+cSIRF_ratio(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.divide(x, y);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_write(const void* ptr, const char* filename)
 {
 	try {
@@ -231,7 +248,7 @@ void* cSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr)
         id.reorient(geom_info);
         return new DataHandle;
     }
-    CATCH
+    CATCH;
 }
 
 extern "C"
