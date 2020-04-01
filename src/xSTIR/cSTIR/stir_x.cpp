@@ -525,13 +525,13 @@ PETAcquisitionModel::set_up(
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
 		s = sptr_projectors_->set_up
-			(sptr_acq->get_proj_data_info_sptr(), sptr_image->data_sptr());
+			(sptr_acq->get_proj_data_info_sptr()->create_shared_clone(), sptr_image->data_sptr());
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
 	if (s == Succeeded(Succeeded::yes)) {
 		if (sptr_asm_ && sptr_asm_->data())
-			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
+			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr()->create_shared_clone());
 	}
 	return s;
 }

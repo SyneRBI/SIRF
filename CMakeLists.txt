@@ -20,6 +20,12 @@
 
 # cmake file for building SIRF. See the SIRF User's Guide and http://www.cmake.org.
 
+cmake_minimum_required(VERSION 3.9.0)
+# require 2.8.3 to get FOLDER properties support
+# require 3.3 for descent FindMatlab.cmake
+# require 3.9 for compatible FindOPENMP.cmake
+
+
 # Set the CMake policy for SWIG
 # https://cmake.org/cmake/help/v3.14/policy/CMP0078.html#policy:CMP0078
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
@@ -36,10 +42,7 @@ UseCXX(11)
 PROJECT(SIRF)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
-# require 2.8.3 to get FOLDER properties support
-# require 3.3 for descent FindMatlab.cmake
-# require 3.9 for compatible FindOPENMP.cmake
-cmake_minimum_required(VERSION 3.9.0)
+
 
 # set default build-type to Release
 if(NOT CMAKE_BUILD_TYPE)
