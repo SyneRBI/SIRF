@@ -339,37 +339,29 @@ const void* ptr_b, const DataContainer& a_y)
 	complex_float_t b = *(complex_float_t*)ptr_b;
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	int m = x.number();
-	int n = y.number();
-	ISMRMRD::Acquisition ax;
-	ISMRMRD::Acquisition ay;
-	if (number() > 0) { // quick fix
-		empty();
-	}
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
-			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
-			j++;
-			continue;
-		}
-		MRAcquisitionData::axpby(a, ax, b, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
-	}
+	binary_op_(1, x, y, a, b);
 }
 
 void
-MRAcquisitionData::multiply(
-const DataContainer& a_x,
-const DataContainer& a_y)
+MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
+{
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	binary_op_(2, x, y);
+}
+
+void
+MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
+{
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	binary_op_(3, x, y);
+}
+
+void 
+MRAcquisitionData::binary_op_(int op, 
+const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
+complex_float_t a, complex_float_t b)
 {
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
@@ -377,60 +369,75 @@ const DataContainer& a_y)
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
-	if (number() > 0) { // quick fix
-		empty();
-	}
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
+	bool isempty = (number() < 1);
+	try {
+		for (int i = 0, j = 0, k = 0; i < n && j < m;) {
+			y.get_acquisition(i, ay);
+			x.get_acquisition(j, ax);
+			if (TO_BE_IGNORED(ay)) {
+				std::cout << i << " ignored (ay)\n";
+				i++;
+				continue;
+			}
+			if (TO_BE_IGNORED(ax)) {
+				std::cout << j << " ignored (ax)\n";
+				j++;
+				continue;
+			}
+			switch (op) {
+			case 1:
+				MRAcquisitionData::axpby(a, ax, b, ay);
+				break;
+			case 2:
+				MRAcquisitionData::multiply(ax, ay);
+				break;
+			case 3:
+				MRAcquisitionData::divide(ax, ay);
+				break;
+			default:
+				THROW("wrong operation in MRAcquisitionData::binary_op_");
+			}
+			if (isempty)
+				append_acquisition(ay);
+			else
+				set_acquisition(k, ay);
 			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
 			j++;
-			continue;
+			k++;
 		}
-		MRAcquisitionData::multiply(ax, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
 	}
-}
-
-void
-MRAcquisitionData::divide(
-const DataContainer& a_x,
-const DataContainer& a_y)
-{
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	int m = x.number();
-	int n = y.number();
-	ISMRMRD::Acquisition ax;
-	ISMRMRD::Acquisition ay;
-	if (number() > 0) { // quick fix
+	catch (...) {
 		empty();
-	}
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
+		for (int i = 0, j = 0; i < n && j < m;) {
+			y.get_acquisition(i, ay);
+			x.get_acquisition(j, ax);
+			if (TO_BE_IGNORED(ay)) {
+				std::cout << i << " ignored (ay)\n";
+				i++;
+				continue;
+			}
+			if (TO_BE_IGNORED(ax)) {
+				std::cout << j << " ignored (ax)\n";
+				j++;
+				continue;
+			}
+			switch (op) {
+			case 1:
+				MRAcquisitionData::axpby(a, ax, b, ay);
+				break;
+			case 2:
+				MRAcquisitionData::multiply(ax, ay);
+				break;
+			case 3:
+				MRAcquisitionData::divide(ax, ay);
+				break;
+			default:
+				THROW("wrong operation in MRAcquisitionData::binary_op_");
+			}
+			append_acquisition(ay);
 			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
 			j++;
-			continue;
 		}
-		MRAcquisitionData::divide(ax, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
 	}
 }
 

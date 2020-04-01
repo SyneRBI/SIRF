@@ -318,6 +318,12 @@ namespace sirf {
 
 		virtual MRAcquisitionData* clone_impl() const = 0;
 		MRAcquisitionData* clone_base() const;
+
+	private:
+		void binary_op_(int op, 
+			const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
+			complex_float_t a = 0, complex_float_t b = 0);
+
 	};
 
 	/*!
@@ -368,7 +374,8 @@ namespace sirf {
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
-			std::cerr << "AcquisitionsFile::set_acquisition not implemented yet, sorry\n";
+			//std::cerr << 
+			THROW("AcquisitionsFile::set_acquisition not implemented yet, sorry\n");
 		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
