@@ -339,12 +339,13 @@ const void* ptr_b, const DataContainer& a_y)
 	complex_float_t b = *(complex_float_t*)ptr_b;
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
+	if (number() > 0) { // quick fix
+		empty();
+	}
 	for (int i = 0, j = 0; i < n && j < m;) {
 		y.get_acquisition(i, ay);
 		x.get_acquisition(j, ax);
@@ -376,7 +377,7 @@ const DataContainer& a_y)
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
-	if (number() > 0) {
+	if (number() > 0) { // quick fix
 		empty();
 	}
 	for (int i = 0, j = 0; i < n && j < m;) {
@@ -404,15 +405,13 @@ MRAcquisitionData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
-	if (number() > 0) {
+	if (number() > 0) { // quick fix
 		empty();
 	}
 	for (int i = 0, j = 0; i < n && j < m;) {
@@ -468,38 +467,6 @@ MRAcquisitionData::clone_base() const
 void
 MRAcquisitionData::sort()
 {
-/*
-	typedef std::array<int, 4> tuple;
-	int na = number();
-	int last = -1;
-	int max_phase = 0;
-	tuple t;
-	std::vector<tuple> vt;
-	for (int i = 0; i < na; i++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
-			last = i;
-		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().phase;
-		t[2] = acq.idx().slice;
-		t[3] = acq.idx().kspace_encode_step_1;
-		vt.push_back(t);
-		if (t[1] > max_phase)
-			max_phase = t[1];
-	}
-	if (last > -1)
-		vt[last][1] = max_phase;
-
-	index_.resize(na);
-
-	if( na <= 0 )
-		std::cerr << "WARNING: You try to sort an empty container of acquisition data." << std::endl;
-	else
-		Multisort::sort( vt, &index_[0] );
-
-	sorted_ = true;
-*/
 	const int NUMVAL = 6;
 	typedef std::array<int, NUMVAL> tuple;
 	int na = number();
@@ -936,17 +903,25 @@ const void* ptr_b, const DataContainer& a_y)
 	complex_float_t b = *(complex_float_t*)ptr_b;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
-	ImageWrap w(x.image_wrap(0));
-	complex_float_t zero(0.0, 0.0);
-	complex_float_t one(1.0, 0.0);
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		const ImageWrap& u = x.image_wrap(i);
-		const ImageWrap& v = y.image_wrap(i);
-		w.axpby(a, u, zero);
-		w.axpby(b, v, one);
-		append(w);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in axpby");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx; i++)
+			image_wrap(i).axpby(a, x.image_wrap(i), b, y.image_wrap(i));
+	}
+	else {
+		for (unsigned int i = 0; i < nx; i++) {
+			const ImageWrap& u = x.image_wrap(i);
+			const ImageWrap& v = y.image_wrap(i);
+			ImageWrap w(u);
+			w.axpby(a, u, b, v);
+			append(w);
+		}
 	}
 	this->set_meta_data(x.get_meta_data());
 }
@@ -989,7 +964,7 @@ const DataContainer& a_y)
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
 	if (nx != ny)
-		THROW("ImageData sizes mismatch in multiply");
+		THROW("ImageData sizes mismatch in divide");
 	unsigned int n = number();
 	if (n > 0) {
 		if (n != nx)
@@ -1007,22 +982,6 @@ const DataContainer& a_y)
 	this->set_meta_data(x.get_meta_data());
 }
 
-/*
-void
-GadgetronImageData::divide(
-const DataContainer& a_x,
-const DataContainer& a_y)
-{
-	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		ImageWrap w(x.image_wrap(i));
-		w.divide(y.image_wrap(i));
-		append(w);
-	}
-	this->set_meta_data(x.get_meta_data());
-}
-*/
 float 
 GadgetronImageData::norm() const
 {

@@ -118,9 +118,26 @@ const void* ptr_b, const void* ptr_y
 		DataContainer& z = objectFromHandle<DataContainer>(h);
 		z.axpby(ptr_a, x, ptr_b, y);
 		return h;
-		//shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		//sptr_z->axpby(ptr_a, x, ptr_b, y);
-		//return newObjectHandle<DataContainer >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_axpbyAlt(
+const void* ptr_a, const void* ptr_x,
+const void* ptr_b, const void* ptr_y,
+void* ptr_z
+) {
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		DataContainer& z =
+			objectFromHandle<DataContainer >(ptr_z);
+		z.axpby(ptr_a, x, ptr_b, y);
+		return new DataHandle;
 	}
 	CATCH;
 }

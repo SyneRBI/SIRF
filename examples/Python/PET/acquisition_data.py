@@ -109,6 +109,14 @@ def main():
     acq_copy.fill(acq_data)
     diff = acq_copy - acq_data
     print('norm of acq_copy - acq_data: %f' % diff.norm())
+    pad2 = acq_data - acq_copy
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr)
+    print('acquisitions subtraction error: %.1e' % d)
+    acq_data.subtract(acq_copy, out=pad2)
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr)
+    print('acquisitions subtraction (with out=) error: %.1e' % d)
     pad2 = acq_data * acq_data
     pad_arr = acq_data.as_array()
     pad2_arr = pad2.as_array()
@@ -150,6 +158,14 @@ def main():
     image_copy.fill(image)
     diff = image_copy - image
     print('norm of image_copy - image: %f' % diff.norm())
+    im2 = image - image_copy
+    im2_arr = im2.as_array()
+    d = numpy.linalg.norm(im2_arr)
+    print('images subtraction error: %.1e' % d)
+    image.subtract(image_copy, out=im2)
+    im2_arr = im2.as_array()
+    d = numpy.linalg.norm(im2_arr)
+    print('images subtraction (with out=) error: %.1e' % d)
     im2 = image * image
     im_arr = image.as_array()
     im2_arr = im2.as_array()
