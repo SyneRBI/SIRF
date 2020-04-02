@@ -60,34 +60,6 @@ def main():
     print('---\n pre-processing acquisition data...')
     processed_data = preprocess_acquisition_data(acq_data)
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
-    pad2 = processed_data - processed_data
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr)
-    print('acquisitions subtraction error: %.1e' % d)
-    processed_data.subtract(processed_data, out=pad2)
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr)
-    print('acquisitions subtraction (with out=) error: %.1e' % d)
-    pad2 = processed_data * processed_data
-    pad_arr = processed_data.as_array()
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
-    print('acquisitions multiplication error: %.1e' % d)
-    processed_data.multiply(processed_data, out=pad2)
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
-    print('acquisitions multiplication (with out=) error: %.1e' % d)
-    acq = processed_data.copy()
-    pad2_arr[:] = 2.0
-    acq.fill(pad2_arr)
-    pad2 = processed_data / acq
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr - pad_arr/2)
-    print('acquisitions division error: %.1e' % d)
-    processed_data.divide(acq, out=pad2)
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr - pad_arr/2)
-    print('acquisitions division (with out=) error: %.1e' % d)
 
     # perform reconstruction to obtain a meaningful ImageData object
     # (cannot be obtained in any other way at present)
@@ -103,34 +75,6 @@ def main():
     reconstructed_images = recon.get_output()
     r_norm = reconstructed_images.norm()
     print('---\n reconstructed images norm: %e' % r_norm)
-    ri2 = reconstructed_images - reconstructed_images
-    ri2_arr = ri2.as_array()
-    d = numpy.linalg.norm(ri2_arr)
-    print('images subtraction error: %.1e' % d)
-    reconstructed_images.subtract(reconstructed_images, out=ri2)
-    ri2_arr = ri2.as_array()
-    d = numpy.linalg.norm(ri2_arr)
-    print('images subtraction (with out=) error: %.1e' % d)
-    ri2 = reconstructed_images * reconstructed_images
-    ri_arr = reconstructed_images.as_array()
-    ri2_arr = ri2.as_array()
-    d = numpy.linalg.norm(ri2_arr - ri_arr*ri_arr)
-    print('images multiplication error: %.1e' % d)
-    reconstructed_images.multiply(reconstructed_images, out=ri2)
-    ri2_arr = ri2.as_array()
-    d = numpy.linalg.norm(ri2_arr - ri_arr*ri_arr)
-    print('images multiplication (with out=) error: %.1e' % d)
-    img = reconstructed_images.copy()
-    ri2_arr[:] = 2.0
-    img.fill(ri2_arr)
-    ri2 = reconstructed_images / img
-    ri2_arr = ri2.as_array()
-    d = numpy.linalg.norm(ri2_arr - ri_arr/2)
-    print('images division error: %.1e' % d)
-    reconstructed_images.divide(img, out=ri2)
-    ri2_arr = ri2.as_array()
-    d = numpy.linalg.norm(ri2_arr - ri_arr/2)
-    print('images division (with out=) error: %.1e' % d)
 
     for i in range(min(8, reconstructed_images.number())):
         reconstructed_image = reconstructed_images.image(i)

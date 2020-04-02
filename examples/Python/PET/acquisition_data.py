@@ -109,33 +109,6 @@ def main():
     acq_copy.fill(acq_data)
     diff = acq_copy - acq_data
     print('norm of acq_copy - acq_data: %f' % diff.norm())
-    pad2 = acq_data - acq_copy
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr)
-    print('acquisitions subtraction error: %.1e' % d)
-    acq_data.subtract(acq_copy, out=pad2)
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr)
-    print('acquisitions subtraction (with out=) error: %.1e' % d)
-    pad2 = acq_data * acq_data
-    pad_arr = acq_data.as_array()
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
-    print('acquisitions multiplication error: %.1e' % d)
-    acq_data.multiply(acq_data, out=pad2)
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
-    print('acquisitions multiplication (with out=) error: %.1e' % d)
-    pad2_arr[:] = 2.0
-    acq_copy.fill(pad2_arr)
-    pad2 = acq_data / acq_copy
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr - pad_arr/2)
-    print('acquisitions division error: %.1e' % d)
-    acq_data.divide(acq_copy, out=pad2)
-    pad2_arr = pad2.as_array()
-    d = numpy.linalg.norm(pad2_arr - pad_arr/2)
-    print('acquisitions division (with out=) error: %.1e' % d)
 
     # display the scaled data
     new_acq_data.show(range(dim[1]//4), title = 'Scaled acquisition data')
@@ -158,33 +131,6 @@ def main():
     image_copy.fill(image)
     diff = image_copy - image
     print('norm of image_copy - image: %f' % diff.norm())
-    im2 = image - image_copy
-    im2_arr = im2.as_array()
-    d = numpy.linalg.norm(im2_arr)
-    print('images subtraction error: %.1e' % d)
-    image.subtract(image_copy, out=im2)
-    im2_arr = im2.as_array()
-    d = numpy.linalg.norm(im2_arr)
-    print('images subtraction (with out=) error: %.1e' % d)
-    im2 = image * image
-    im_arr = image.as_array()
-    im2_arr = im2.as_array()
-    d = numpy.linalg.norm(im2_arr - im_arr * im_arr)
-    print('images multiplication error: %.1e' % d)
-    image.multiply(image, out=im2)
-    im2_arr = im2.as_array()
-    d = numpy.linalg.norm(im2_arr - im_arr * im_arr)
-    print('images multiplication (with out=) error: %.1e' % d)
-    im2_arr[:] = 2.0
-    image_copy.fill(im2_arr)
-    im2 = image / image_copy
-    im2_arr = im2.as_array()
-    d = numpy.linalg.norm(im2_arr - im_arr/2)
-    print('images division error: %.1e' % d)
-    image.divide(image_copy, out=im2)
-    im2_arr = im2.as_array()
-    d = numpy.linalg.norm(im2_arr - im_arr/2)
-    print('images division (with out=) error: %.1e' % d)
 
     print('image voxel sizes:')
     print(image.voxel_sizes())
