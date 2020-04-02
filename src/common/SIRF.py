@@ -117,10 +117,13 @@ class DataContainer(ABC):
             other.fill(tmp)
         assert_validities(self, other)
         if out is None:
-            out = self.copy()
+            out = self.same_object()
+            out.handle = pysirf.cSIRF_product(self.handle, other.handle)
+            check_status(out.handle)
+            #out = self.copy()
         else:
             assert_validities(self, out)
-        try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, out.handle))
+            try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, out.handle))
         return out
     def divide(self, other, out=None):
         '''
@@ -135,10 +138,13 @@ class DataContainer(ABC):
             other.fill(tmp)
         assert_validities(self, other)
         if out is None:
-            out = self.copy()
+            out = self.same_object()
+            out.handle = pysirf.cSIRF_ratio(self.handle, other.handle)
+            check_status(out.handle)
+            #out = self.copy()
         else:
             assert_validities(self, out)
-        try_calling(pysirf.cSIRF_divide(self.handle, other.handle, out.handle))
+            try_calling(pysirf.cSIRF_divide(self.handle, other.handle, out.handle))
         return out
     def add(self, other, out=None):
         '''
@@ -157,12 +163,14 @@ class DataContainer(ABC):
         one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
         if out is None:
             z = self.same_object()
+            z.handle = pysirf.cSIRF_axpby \
+                (one.ctypes.data, self.handle, one.ctypes.data, other.handle)
+            check_status(z.handle)
         else:
             assert_validities(self, out)
             z = out
-        z.handle = pysirf.cSIRF_axpby \
-            (one.ctypes.data, self.handle, one.ctypes.data, other.handle)
-        check_status(z.handle)
+            try_calling(pysirf.cSIRF_axpbyAlt \
+                (one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
         return z
     def axpby(self, a,b, y, out=None, **kwargs):
         '''
@@ -223,12 +231,14 @@ class DataContainer(ABC):
         mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
         if out is None:
             z = self.same_object()
+            z.handle = pysirf.cSIRF_axpby \
+                (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle)
+            check_status(z.handle)
         else:
             assert_validities(self, out)
             z = out
-        z.handle = pysirf.cSIRF_axpby \
-            (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle)
-        check_status(z.handle)
+            try_calling(pysirf.cSIRF_axpbyAlt \
+                (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle, z.handle))
         return z
     def __sub__(self, other):
         '''
