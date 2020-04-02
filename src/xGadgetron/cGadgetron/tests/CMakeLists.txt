@@ -18,7 +18,7 @@
 #=========================================================================
 
 add_executable(MR_TESTS_CPLUSPLUS ${CMAKE_CURRENT_SOURCE_DIR}/mrtests.cpp)
-target_link_libraries(MR_TESTS_CPLUSPLUS PUBLIC csirf cgadgetron)
+target_link_libraries(MR_TESTS_CPLUSPLUS PUBLIC cgadgetron)
 INSTALL(TARGETS MR_TESTS_CPLUSPLUS DESTINATION bin)
 
 ADD_TEST(NAME MR_TESTS_CPLUSPLUS

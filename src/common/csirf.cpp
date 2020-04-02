@@ -127,40 +127,34 @@ const void* ptr_b, const void* ptr_y
 
 extern "C"
 void*
-cSIRF_multiply(const void* ptr_x, const void* ptr_y)
+cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 {
 	try {
 		DataContainer& x =
 			objectFromHandle<DataContainer >(ptr_x);
 		DataContainer& y =
 			objectFromHandle<DataContainer >(ptr_y);
-		void* h = x.new_data_container_handle();
-		DataContainer& z = objectFromHandle<DataContainer>(h);
+		DataContainer& z =
+			objectFromHandle<DataContainer >(ptr_z);
 		z.multiply(x, y);
-		return h;
-		//shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		//sptr_z->multiply(x, y);
-		//return newObjectHandle<DataContainer >(sptr_z);
+		return new DataHandle;
 	}
 	CATCH;
 }
 
 extern "C"
 void*
-cSIRF_divide(const void* ptr_x, const void* ptr_y)
+cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 {
 	try {
 		DataContainer& x =
 			objectFromHandle<DataContainer >(ptr_x);
 		DataContainer& y =
 			objectFromHandle<DataContainer >(ptr_y);
-		void* h = x.new_data_container_handle();
-		DataContainer& z = objectFromHandle<DataContainer>(h);
+		DataContainer& z =
+			objectFromHandle<DataContainer >(ptr_z);
 		z.divide(x, y);
-		return h;
-		//shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		//sptr_z->divide(x, y);
-		//return newObjectHandle<DataContainer >(sptr_z);
+		return new DataHandle;
 	}
 	CATCH;
 }

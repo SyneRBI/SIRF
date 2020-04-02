@@ -51,11 +51,11 @@ EXPORTED_FUNCTION void* mSIRF_dot(const void* ptr_x, const void* ptr_y) {
 EXPORTED_FUNCTION void* mSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x, const PTR_FLOAT ptr_b, const void* ptr_y) {
 	return cSIRF_axpby(ptr_a, ptr_x, ptr_b, ptr_y);
 }
-EXPORTED_FUNCTION void* mSIRF_multiply(const void* ptr_x, const void* ptr_y) {
-	return cSIRF_multiply(ptr_x, ptr_y);
+EXPORTED_FUNCTION void* mSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z) {
+	return cSIRF_multiply(ptr_x, ptr_y, ptr_z);
 }
-EXPORTED_FUNCTION void* mSIRF_divide(const void* ptr_x, const void* ptr_y) {
-	return cSIRF_divide(ptr_x, ptr_y);
+EXPORTED_FUNCTION void* mSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z) {
+	return cSIRF_divide(ptr_x, ptr_y, ptr_z);
 }
 EXPORTED_FUNCTION void* mSIRF_write(const void* ptr, const char* filename) {
 	return cSIRF_write(ptr, filename);

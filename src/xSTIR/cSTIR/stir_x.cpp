@@ -320,36 +320,36 @@ ListmodeToSinograms::estimate_randoms_()
 	ProjData& proj_data = *randoms_sptr->data();
 
 	const int num_rings =
-		template_projdata_ptr->get_proj_data_info_ptr()->get_scanner_ptr()->
+		template_projdata_ptr->get_proj_data_info_sptr()->get_scanner_ptr()->
 		get_num_rings();
 	const int num_detectors_per_ring =
-		template_projdata_ptr->get_proj_data_info_ptr()->get_scanner_ptr()->
+		template_projdata_ptr->get_proj_data_info_sptr()->get_scanner_ptr()->
 		get_num_detectors_per_ring();
 	DetectorEfficiencies& efficiencies = *det_eff_sptr;
 
 	{
-		const ProjDataInfoCylindricalNoArcCorr * const proj_data_info_ptr =
-			dynamic_cast<const ProjDataInfoCylindricalNoArcCorr * const>
-			(proj_data.get_proj_data_info_ptr());
-		if (proj_data_info_ptr == 0)
+		const shared_ptr<const ProjDataInfoCylindricalNoArcCorr> proj_data_info_sptr =
+			stir::dynamic_pointer_cast<const ProjDataInfoCylindricalNoArcCorr>
+			(proj_data.get_proj_data_info_sptr());
+		if (proj_data_info_sptr == 0)
 		{
 			error("Can only process not arc-corrected data\n");
 		}
 
 		const int mashing_factor =
-			proj_data_info_ptr->get_view_mashing_factor();
+			proj_data_info_sptr->get_view_mashing_factor();
 
 		shared_ptr<Scanner>
-			scanner_sptr(new Scanner(*proj_data_info_ptr->get_scanner_ptr()));
+			scanner_sptr(new Scanner(*proj_data_info_sptr->get_scanner_ptr()));
 		unique_ptr<ProjDataInfo> uncompressed_proj_data_info_uptr
 			(ProjDataInfo::construct_proj_data_info(scanner_sptr,
 				/*span=*/1, max_ring_diff_for_fansums,
 				/*num_views=*/num_detectors_per_ring / 2,
 				scanner_sptr->get_max_num_non_arccorrected_bins(),
 				/*arccorrection=*/false));
-		const ProjDataInfoCylindricalNoArcCorr * const uncompressed_proj_data_info_ptr =
-			dynamic_cast<const ProjDataInfoCylindricalNoArcCorr * const>
-			(uncompressed_proj_data_info_uptr.get());
+		const ProjDataInfoCylindricalNoArcCorr &uncompressed_proj_data_info =
+			dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>
+			(*uncompressed_proj_data_info_uptr);
 		Bin bin;
 		Bin uncompressed_bin;
 
@@ -364,13 +364,13 @@ ListmodeToSinograms::estimate_randoms_()
 				(bin.segment_num());
 			++bin.axial_pos_num())
 			{
-				Sinogram<float> sinogram = proj_data_info_ptr->get_empty_sinogram
+				Sinogram<float> sinogram = proj_data_info_sptr->get_empty_sinogram
 					(bin.axial_pos_num(), bin.segment_num());
-				const float out_m = proj_data_info_ptr->get_m(bin);
+				const float out_m = proj_data_info_sptr->get_m(bin);
 				const int in_min_segment_num =
-					proj_data_info_ptr->get_min_ring_difference(bin.segment_num());
+					proj_data_info_sptr->get_min_ring_difference(bin.segment_num());
 				const int in_max_segment_num =
-					proj_data_info_ptr->get_max_ring_difference(bin.segment_num());
+					proj_data_info_sptr->get_max_ring_difference(bin.segment_num());
 
 				// now loop over uncompressed detector-pairs
 				{
@@ -378,15 +378,15 @@ ListmodeToSinograms::estimate_randoms_()
 						uncompressed_bin.segment_num() <= in_max_segment_num;
 						++uncompressed_bin.segment_num())
 						for (uncompressed_bin.axial_pos_num() =
-							uncompressed_proj_data_info_ptr->get_min_axial_pos_num
+							uncompressed_proj_data_info.get_min_axial_pos_num
 							(uncompressed_bin.segment_num());
 					uncompressed_bin.axial_pos_num() <=
-						uncompressed_proj_data_info_ptr->get_max_axial_pos_num
+						uncompressed_proj_data_info.get_max_axial_pos_num
 						(uncompressed_bin.segment_num());
 					++uncompressed_bin.axial_pos_num())
 						{
 							const float in_m =
-								uncompressed_proj_data_info_ptr->get_m(uncompressed_bin);
+								uncompressed_proj_data_info.get_m(uncompressed_bin);
 							if (fabs(out_m - in_m) > 1E-4)
 								continue;
 
@@ -398,8 +398,8 @@ ListmodeToSinograms::estimate_randoms_()
 								++bin.view_num())
 							{
 
-								for (bin.tangential_pos_num() = proj_data_info_ptr->get_min_tangential_pos_num();
-									bin.tangential_pos_num() <= proj_data_info_ptr->get_max_tangential_pos_num();
+								for (bin.tangential_pos_num() = proj_data_info_sptr->get_min_tangential_pos_num();
+									bin.tangential_pos_num() <= proj_data_info_sptr->get_max_tangential_pos_num();
 									++bin.tangential_pos_num())
 								{
 									uncompressed_bin.tangential_pos_num() =
@@ -412,7 +412,7 @@ ListmodeToSinograms::estimate_randoms_()
 									{
 										int ra = 0, a = 0;
 										int rb = 0, b = 0;
-										uncompressed_proj_data_info_ptr->get_det_pair_for_bin(a, ra, b, rb,
+										uncompressed_proj_data_info.get_det_pair_for_bin(a, ra, b, rb,
 											uncompressed_bin);
 										/*(*segment_ptr)[bin.axial_pos_num()]*/
 										sinogram[bin.view_num()][bin.tangential_pos_num()] +=
@@ -525,13 +525,13 @@ PETAcquisitionModel::set_up(
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
 		s = sptr_projectors_->set_up
-			(sptr_acq->get_proj_data_info_sptr(), sptr_image->data_sptr());
+			(sptr_acq->get_proj_data_info_sptr()->create_shared_clone(), sptr_image->data_sptr());
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
 	if (s == Succeeded(Succeeded::yes)) {
 		if (sptr_asm_ && sptr_asm_->data())
-			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
+			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr()->create_shared_clone());
 	}
 	return s;
 }
