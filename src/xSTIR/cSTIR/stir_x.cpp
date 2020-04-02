@@ -588,6 +588,8 @@ shared_ptr<PETAcquisitionData>
 PETAcquisitionModel::forward(const STIRImageData& image, 
 	int subset_num, int num_subsets)
 {
+	if (!sptr_acq_template_.get())
+		THROW("Fatal error in PETAcquisitionModel::forward: acquisition template not set");
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
@@ -633,6 +635,8 @@ shared_ptr<STIRImageData>
 PETAcquisitionModel::backward(PETAcquisitionData& ad, 
 	int subset_num, int num_subsets)
 {
+	if (!sptr_image_template_.get())
+		THROW("Fatal error in PETAcquisitionModel::backward: image template not set");
 	shared_ptr<STIRImageData> sptr_id;
 	sptr_id = sptr_image_template_->new_image_data();
 	shared_ptr<Image3DF> sptr_im = sptr_id->data_sptr();
