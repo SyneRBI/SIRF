@@ -395,18 +395,18 @@ sirf::cSTIR_PLSPriorParameter
 	else if (boost::iequals(name, "eta"))
 		return dataHandle<float>(prior.get_eta());
 	else if (boost::iequals(name, "anatomical_image")) {
-		sptrImage3DF sptr_im = prior.get_anatomical_image_sptr();
-		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		auto sptr_im = prior.get_anatomical_image_sptr();
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	else if (boost::iequals(name, "kappa")) {
-		sptrImage3DF sptr_im = prior.get_kappa_sptr();
-		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		auto sptr_im = prior.get_kappa_sptr();
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	else if (boost::iequals(name, "norm")) {
-		sptrImage3DF sptr_im = prior.get_norm_sptr();
-		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		auto sptr_im = prior.get_norm_sptr();
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	else
