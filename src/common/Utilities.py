@@ -463,14 +463,14 @@ def str_to_int_list(str_list):
             int_item = list(range(strt, stop + 1))
         int_list = int_list + int_item
     return int_list
-    
+
 def dot_product_test(operator, num_tests = 20, max_err = 10e-5):
     '''
-    Test if a given operator is adjoint. 
+    Test if a given operator is adjoint.
     The operator needs to have been already set_up() with valid AcquisitionModel and ImageData objects.
     The operator needs to have methods direct() and adjoint() implemented
     '''
-    # Get image and data to know the sizes of each operation. 
+    # Get image and data to know the sizes of each operation.
     image=operator.domain_geometry()
     image.fill(1.0)
     data=operator.direct(image) # Is there a better way than this? Similar to .domain_geomerty() ?
@@ -486,5 +486,6 @@ def dot_product_test(operator, num_tests = 20, max_err = 10e-5):
         x_hat = operator.adjoint(data)
         # Check dot product identity
         norm_err = abs(y_hat.dot(data) - x_hat.dot(image))/(y_hat.dot(data)*0.5 + x_hat.dot(image)*0.5)
-        
-        assert norm_err<max_err, type(operator).__name__ + " is not adjoint, with normalized error of " +str(norm_err)
+        if norm_err > max_err:
+            errorMsg =  type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err)
+        raise error(errorMsg)
