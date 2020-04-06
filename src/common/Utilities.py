@@ -488,4 +488,4 @@ def dot_product_test(operator, num_tests = 20, max_err = 10e-5):
         norm_err = abs(y_hat.dot(data) - x_hat.dot(image))/(y_hat.dot(data)*0.5 + x_hat.dot(image)*0.5)
         if norm_err > max_err:
             errorMsg =  type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err)
-        raise error(errorMsg)
+            raise error(errorMsg)
