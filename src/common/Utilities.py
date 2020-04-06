@@ -464,28 +464,41 @@ def str_to_int_list(str_list):
         int_list = int_list + int_item
     return int_list
 
-def dot_product_test(operator, num_tests = 20, max_err = 10e-5):
+def test_operator_adjoint(operator, num_tests = 20, max_err = 10e-5):
     '''
     Test if a given operator is adjoint.
-    The operator needs to have been already set_up() with valid AcquisitionModel and ImageData objects.
+    The operator needs to have been already set_up() with valid objects.
     The operator needs to have methods direct() and adjoint() implemented
+
+    Parameters
+    ----------
+    operator  : 
+        Any SIRF operator that implements direct() and adjoint()
+    num_tests : int, optional
+        Number of tests with random data that will be executed. Default 20
+    max_err   : double, optional
+        Maximum allowed normalized error, tolerance. Change not recommended. Default 10e-5
     '''
-    # Get image and data to know the sizes of each operation.
-    image=operator.domain_geometry()
-    image.fill(1.0)
-    data=operator.direct(image) # Is there a better way than this? Similar to .domain_geomerty() ?
+    # Get x to know the size of each operation (we can not currently get y, so it will be obtained in the loop)
+    x=operator.domain_geometry()
     for __ in range(num_tests):
-        # generate random data
-        x0 = numpy.random.rand(*image.shape) * 10**numpy.random.randint(-2, 3)
-        y0 = numpy.random.rand(*data.shape ) * 10**numpy.random.randint(-2, 3)
-        # fill image and data
-        image.fill(x0)
-        data.fill(y0)
-        # compute direct and adjoint
-        y_hat = operator.direct(image)
-        x_hat = operator.adjoint(data)
+        ## generate random data and direct()
+        x0 = numpy.random.rand(*x.shape) * 10**numpy.random.randint(-2, 3)
+        # add a complex part if necessary
+        if numpy.any(numpy.iscomplex(x.as_array())):
+            x0=x0+1j*numpy.random.rand(*x.shape) * 10**numpy.random.randint(-2, 3)
+        x.fill(x0)
+        y_hat = operator.direct(x)
+        ## generate random data and adjoint()
+        y0 = numpy.random.rand(*y_hat.shape) * 10**numpy.random.randint(-2, 3)    
+        # add a complex part if necessary
+        if numpy.any(numpy.iscomplex(y_hat.as_array())):
+            y0=y0+1j*numpy.random.rand(*y_hat.shape) * 10**numpy.random.randint(-2, 3)
+        y=y_hat.copy()
+        y.fill(y0)        
+        x_hat = operator.adjoint(y)
         # Check dot product identity
-        norm_err = abs(y_hat.dot(data) - x_hat.dot(image))/(y_hat.dot(data)*0.5 + x_hat.dot(image)*0.5)
+        norm_err = abs(y_hat.dot(y) - x_hat.dot(x))/(y_hat.dot(y)*0.5 + x_hat.dot(x)*0.5)
         if norm_err > max_err:
             errorMsg =  type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err)
             raise error(errorMsg)
