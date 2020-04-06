@@ -472,7 +472,7 @@ def test_operator_adjoint(operator, num_tests = 20, max_err = 10e-5):
 
     Parameters
     ----------
-    operator  : 
+    operator  :
         Any SIRF operator that implements direct() and adjoint()
     num_tests : int, optional
         Number of tests with random data that will be executed. Default 20
@@ -490,12 +490,12 @@ def test_operator_adjoint(operator, num_tests = 20, max_err = 10e-5):
         x.fill(x0)
         y_hat = operator.direct(x)
         ## generate random data and adjoint()
-        y0 = numpy.random.rand(*y_hat.shape) * 10**numpy.random.randint(-2, 3)    
+        y0 = numpy.random.rand(*y_hat.shape) * 10**numpy.random.randint(-2, 3)
         # add a complex part if necessary
         if numpy.any(numpy.iscomplex(y_hat.as_array())):
             y0=y0+1j*numpy.random.rand(*y_hat.shape) * 10**numpy.random.randint(-2, 3)
         y=y_hat.copy()
-        y.fill(y0)        
+        y.fill(y0)
         x_hat = operator.adjoint(y)
         # Check dot product identity
         norm_err = abs(y_hat.dot(y) - x_hat.dot(x))/(y_hat.dot(y)*0.5 + x_hat.dot(x)*0.5)
