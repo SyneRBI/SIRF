@@ -59,6 +59,9 @@ def main():
     acq_dim = acq_array.shape
     print('acquisition data dimensions (span 11, view mashing 2): %dx%dx%dx%d' % acq_dim)
 
+    # By default, the Siemens mMR uses acquisition settings corresponding to the following constructor
+    acq_data = AcquisitionData('Siemens_mMR',span=11, max_ring_diff=60, view_mash_factor=1)
+
     # write the acquisition data to a file (commented out for this demo)
     # acq_data.write('example_mMR_ones.hs')
 try:
