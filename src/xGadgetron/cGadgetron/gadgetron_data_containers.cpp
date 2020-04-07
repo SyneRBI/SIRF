@@ -339,95 +339,105 @@ const void* ptr_b, const DataContainer& a_y)
 	complex_float_t b = *(complex_float_t*)ptr_b;
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
-	int m = x.number();
-	int n = y.number();
-	ISMRMRD::Acquisition ax;
-	ISMRMRD::Acquisition ay;
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
-			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
-			j++;
-			continue;
-		}
-		MRAcquisitionData::axpby(a, ax, b, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
-	}
+	binary_op_(1, x, y, a, b);
 }
 
 void
-MRAcquisitionData::multiply(
-const DataContainer& a_x,
-const DataContainer& a_y)
+MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	binary_op_(2, x, y);
+}
+
+void
+MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
+{
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	binary_op_(3, x, y);
+}
+
+void 
+MRAcquisitionData::binary_op_(int op, 
+const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
+complex_float_t a, complex_float_t b)
+{
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
+	bool isempty = (number() < 1);
+	try {
+		for (int i = 0, j = 0, k = 0; i < n && j < m;) {
+			y.get_acquisition(i, ay);
+			x.get_acquisition(j, ax);
+			if (TO_BE_IGNORED(ay)) {
+				std::cout << i << " ignored (ay)\n";
+				i++;
+				continue;
+			}
+			if (TO_BE_IGNORED(ax)) {
+				std::cout << j << " ignored (ax)\n";
+				j++;
+				continue;
+			}
+			switch (op) {
+			case 1:
+				MRAcquisitionData::axpby(a, ax, b, ay);
+				break;
+			case 2:
+				MRAcquisitionData::multiply(ax, ay);
+				break;
+			case 3:
+				MRAcquisitionData::divide(ax, ay);
+				break;
+			default:
+				THROW("wrong operation in MRAcquisitionData::binary_op_");
+			}
+			if (isempty)
+				append_acquisition(ay);
+			else
+				set_acquisition(k, ay);
 			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
 			j++;
-			continue;
+			k++;
 		}
-		MRAcquisitionData::multiply(ax, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
 	}
-}
-
-void
-MRAcquisitionData::divide(
-const DataContainer& a_x,
-const DataContainer& a_y)
-{
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	int m = x.number();
-	int n = y.number();
-	ISMRMRD::Acquisition ax;
-	ISMRMRD::Acquisition ay;
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
+	catch (...) {
+		empty();
+		for (int i = 0, j = 0; i < n && j < m;) {
+			y.get_acquisition(i, ay);
+			x.get_acquisition(j, ax);
+			if (TO_BE_IGNORED(ay)) {
+				std::cout << i << " ignored (ay)\n";
+				i++;
+				continue;
+			}
+			if (TO_BE_IGNORED(ax)) {
+				std::cout << j << " ignored (ax)\n";
+				j++;
+				continue;
+			}
+			switch (op) {
+			case 1:
+				MRAcquisitionData::axpby(a, ax, b, ay);
+				break;
+			case 2:
+				MRAcquisitionData::multiply(ax, ay);
+				break;
+			case 3:
+				MRAcquisitionData::divide(ax, ay);
+				break;
+			default:
+				THROW("wrong operation in MRAcquisitionData::binary_op_");
+			}
+			append_acquisition(ay);
 			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
 			j++;
-			continue;
 		}
-		MRAcquisitionData::divide(ax, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
 	}
 }
 
@@ -464,38 +474,6 @@ MRAcquisitionData::clone_base() const
 void
 MRAcquisitionData::sort()
 {
-/*
-	typedef std::array<int, 4> tuple;
-	int na = number();
-	int last = -1;
-	int max_phase = 0;
-	tuple t;
-	std::vector<tuple> vt;
-	for (int i = 0; i < na; i++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
-			last = i;
-		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().phase;
-		t[2] = acq.idx().slice;
-		t[3] = acq.idx().kspace_encode_step_1;
-		vt.push_back(t);
-		if (t[1] > max_phase)
-			max_phase = t[1];
-	}
-	if (last > -1)
-		vt[last][1] = max_phase;
-
-	index_.resize(na);
-
-	if( na <= 0 )
-		std::cerr << "WARNING: You try to sort an empty container of acquisition data." << std::endl;
-	else
-		Multisort::sort( vt, &index_[0] );
-
-	sorted_ = true;
-*/
 	const int NUMVAL = 6;
 	typedef std::array<int, NUMVAL> tuple;
 	int na = number();
@@ -740,6 +718,26 @@ AcquisitionsFile::~AcquisitionsFile()
 	}
 }
 
+void
+AcquisitionsFile::empty()
+{
+	dataset_.reset();
+	if (own_file_) {
+		Mutex mtx;
+		mtx.lock();
+		std::remove(filename_.c_str());
+		mtx.unlock();
+	}
+	own_file_ = true;
+	filename_ = xGadgetronUtilities::scratch_file_name();
+	Mutex mtx;
+	mtx.lock();
+	dataset_ = shared_ptr<ISMRMRD::Dataset>
+		(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
+	dataset_->writeHeader(acqs_info_);
+	mtx.unlock();
+}
+
 void 
 AcquisitionsFile::take_over(AcquisitionsFile& af)
 {
@@ -844,6 +842,12 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 }
 
 void
+AcquisitionsVector::empty()
+{
+	acqs_.clear();
+}
+
+void
 AcquisitionsVector::set_data(const complex_float_t* z, int all)
 {
 	int na = number();
@@ -906,17 +910,25 @@ const void* ptr_b, const DataContainer& a_y)
 	complex_float_t b = *(complex_float_t*)ptr_b;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
-	ImageWrap w(x.image_wrap(0));
-	complex_float_t zero(0.0, 0.0);
-	complex_float_t one(1.0, 0.0);
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		const ImageWrap& u = x.image_wrap(i);
-		const ImageWrap& v = y.image_wrap(i);
-		w.axpby(a, u, zero);
-		w.axpby(b, v, one);
-		append(w);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in axpby");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx; i++)
+			image_wrap(i).axpby(a, x.image_wrap(i), b, y.image_wrap(i));
+	}
+	else {
+		for (unsigned int i = 0; i < nx; i++) {
+			const ImageWrap& u = x.image_wrap(i);
+			const ImageWrap& v = y.image_wrap(i);
+			ImageWrap w(u);
+			w.axpby(a, u, b, v);
+			append(w);
+		}
 	}
 	this->set_meta_data(x.get_meta_data());
 }
@@ -926,14 +938,25 @@ GadgetronImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		ImageWrap w(x.image_wrap(i));
-		w.multiply(y.image_wrap(i));
-		append(w);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in multiply");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx && i < ny; i++)
+			image_wrap(i).multiply(x.image_wrap(i), y.image_wrap(i));
+	}
+	else {
+		for (unsigned int i = 0; i < nx && i < ny; i++) {
+			ImageWrap w(x.image_wrap(i));
+			w.multiply(y.image_wrap(i));
+			append(w);
+		}
 	}
 	this->set_meta_data(x.get_meta_data());
 }
@@ -943,14 +966,25 @@ GadgetronImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		ImageWrap w(x.image_wrap(i));
-		w.divide(y.image_wrap(i));
-		append(w);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in divide");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx && i < ny; i++)
+			image_wrap(i).divide(x.image_wrap(i), y.image_wrap(i));
+	}
+	else {
+		for (unsigned int i = 0; i < nx && i < ny; i++) {
+			ImageWrap w(x.image_wrap(i));
+			w.divide(y.image_wrap(i));
+			append(w);
+		}
 	}
 	this->set_meta_data(x.get_meta_data());
 }

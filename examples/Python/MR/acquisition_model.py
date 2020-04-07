@@ -78,7 +78,7 @@ def main():
 
     for i in range(min(8, reconstructed_images.number())):
         reconstructed_image = reconstructed_images.image(i)
-        print('--- image %d' % i)
+        print('\n--- image %d' % i)
         for p in [ \
             'version', 'flags', 'data_type', 'channels', \
             'slice', 'repetition', \
@@ -92,7 +92,7 @@ def main():
         print(reconstructed_image.patient_table_position())
 
     ind = reconstructed_images.get_info('image_index')
-    print('image indices:')
+    print('\nimage indices:')
     print(ind)
     ind = reconstructed_images.get_info('slice')
     print('image slices:')
