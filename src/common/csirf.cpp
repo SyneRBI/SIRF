@@ -25,6 +25,7 @@ limitations under the License.
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ImageData.h"
+#include "sirf/Syn/utilities.h"
 
 using namespace sirf;
 
@@ -97,7 +98,6 @@ cSIRF_dot(const void* ptr_x, const void* ptr_y)
 		float s;
 		std::complex<float> z(0.0, 0.0);
 		x.dot(y, &z);
-		//s = z.real();
 		return dataHandle(z);
 	}
 	CATCH;
@@ -249,14 +249,43 @@ extern "C"
 void*
 cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src)
 {
+    try {
 	ImageData& id = objectFromHandle<ImageData>(ptr_im);
 	ImageData& id_src = objectFromHandle<ImageData>(ptr_src);
 	id.fill(id_src);
 	return new DataHandle;
+    }
+    CATCH;
 }
 
 extern "C"
-void* cSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr)
+void*
+cSIRF_readImageData(const char* file, const char* eng, int verb)
+{
+	try {
+		ImageDataWrap idw(file, eng, verb);
+		std::shared_ptr<ImageData> sptr_id = idw.data_sptr();
+		return newObjectHandle<ImageData>(sptr_id);
+	}
+	CATCH;
+}
+
+extern "C"
+void* 
+cSIRF_equalImages(const void* ptr_im_a, const void* ptr_im_b)
+{
+    try {
+	ImageData& id_a = objectFromHandle<ImageData>(ptr_im_a);
+	ImageData& id_b = objectFromHandle<ImageData>(ptr_im_b);
+	int same = (id_a == id_b);
+	return dataHandle(same);
+    }
+    CATCH;
+}
+
+extern "C"
+void* 
+cSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr)
 {
     try {
         ImageData& id = objectFromHandle<ImageData>(im_ptr);

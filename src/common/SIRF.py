@@ -29,7 +29,7 @@ except:
     HAVE_PYLAB = False
 import sys
 
-from sirf.Utilities import assert_validities, check_status, try_calling
+from sirf.Utilities import assert_validity, assert_validities, check_status, try_calling
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
@@ -55,7 +55,7 @@ class DataContainer(ABC):
         print("SIRF.DataContainer __del__ with handle {}.".format(self.handle))
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-    @abc.abstractmethod
+#    @abc.abstractmethod
     def same_object(self):
         '''
         Returns an object of the same type as self.
@@ -513,6 +513,38 @@ class DataContainer(ABC):
         return self.as_array().shape
 
 class ImageData(DataContainer):
+    '''
+    Image data ABC
+    '''
+    def equal(self, other):
+        '''
+        Overloads == for ImageData.
+
+        other: ImageData
+        '''
+        assert_validity(self, ImageData)
+        assert_validity(other, ImageData)
+        handle = pysirf.cSIRF_equalImages(self.handle, other.handle)
+        check_status(handle)
+        same = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return same
+
+    def __eq__(self, other):
+        return self.equal(other)
+
+    def __ne__(self, other):
+        '''
+        Overloads != for ImageData.
+
+        other: ImageData
+        '''
+        return not (self == other)
+
+    def read(self, file, engine, verb):
+        self.handle = pysirf.cSIRF_readImageData(file, engine, verb)
+        check_status(self.handle)
+
     def fill(self, image):
         try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))
 

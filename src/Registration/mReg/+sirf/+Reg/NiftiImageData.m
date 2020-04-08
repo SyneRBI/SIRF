@@ -86,10 +86,13 @@ classdef NiftiImageData < sirf.SIRF.ImageData
         end
         function value = eq(self, other)
         	% Overload equality operator
-        	assert(isa(other, 'sirf.Reg.NiftiImageData'));
-    	    hv = calllib('mreg', 'mReg_NiftiImageData_equal', self.handle_, other.handle_);
-			sirf.Utilities.check_status('parameter', hv);
-    		value = logical(calllib('miutilities', 'mIntDataFromHandle', hv));
+            if isa(other, 'sirf.Reg.NiftiImageData')
+        	    hv = calllib('mreg', 'mReg_NiftiImageData_equal', self.handle_, other.handle_);
+        		sirf.Utilities.check_status('parameter', hv);
+            	value = logical(calllib('miutilities', 'mIntDataFromHandle', hv));
+            else
+                value = eq@sirf.SIRF.ImageData(self, other);
+            end
         end
         function value = ne(self, other)
         	% Overload inequality operator

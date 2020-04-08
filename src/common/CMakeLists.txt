@@ -16,7 +16,6 @@
 #
 #=========================================================================
 
-
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -28,7 +27,22 @@ target_include_directories(csirf PUBLIC
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(csirf PUBLIC iutilities)
+if ((NOT DISABLE_STIR) AND (NOT DISABLE_Gadgetron) AND (NOT DISABLE_Registration) AND "${STIR_BUILT_WITH_ITK}")
+  MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built.")
+  target_link_libraries(csirf PUBLIC iutilities csyn)
+else()
+  MESSAGE(STATUS "Either Registration or ISMRMRD or STIR (with ITK) have not been built.")
+  add_library(Syn syn_utilities.cpp)
+  target_include_directories(Syn PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
+  )
+  target_include_directories(Syn PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
+  )
+  target_link_libraries(Syn PUBLIC cgadgetron cstir Reg)
+  INSTALL(TARGETS Syn DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+  target_link_libraries(csirf PUBLIC iutilities Syn)
+endif()
 INSTALL(TARGETS csirf DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 if (BUILD_PYTHON)
@@ -42,7 +56,7 @@ if (BUILD_PYTHON)
   SET_SOURCE_FILES_PROPERTIES(pysirf.i PROPERTIES SWIG_FLAGS "-I${cSIRF_INCLUDE_DIR}")
   FIND_PACKAGE(PythonLibs REQUIRED)
   set(SWIG_MODULE_pysirf_EXTRA_DEPS "${cSIRF_INCLUDE_DIR}/sirf/common/csirf.h")
-  SWIG_ADD_LIBRARY(pysirf LANGUAGE python TYPE MODULE SOURCES pysirf.i)
+  SWIG_ADD_LIBRARY(pysirf LANGUAGE python TYPE MODULE SOURCES pysirf.i ${STIR_REGISTRIES})
   TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pysirf_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_PATH})
   SWIG_LINK_LIBRARIES(pysirf csirf iutilities ${PYTHON_LIBRARIES})
   INSTALL(TARGETS ${SWIG_MODULE_pysirf_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")

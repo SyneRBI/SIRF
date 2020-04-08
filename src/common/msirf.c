@@ -66,6 +66,12 @@ EXPORTED_FUNCTION void* mSIRF_clone(void* ptr_x) {
 EXPORTED_FUNCTION void* mSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src) {
 	return cSIRF_fillImageFromImage(ptr_im, ptr_src);
 }
+EXPORTED_FUNCTION void* mSIRF_readImageData(const char* file, const char* eng, int verb) {
+	return cSIRF_readImageData(file, eng, verb);
+}
+EXPORTED_FUNCTION void* mSIRF_equalImages(const void* ptr_im_a, const void* ptr_im_b) {
+	return cSIRF_equalImages(ptr_im_a, ptr_im_b);
+}
 EXPORTED_FUNCTION void* mSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr) {
 	return cSIRF_ImageData_reorient(im_ptr, geom_info_ptr);
 }

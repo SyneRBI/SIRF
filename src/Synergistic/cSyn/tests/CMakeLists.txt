@@ -18,23 +18,16 @@
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Executables
-SET(SYN_executables
-    sirf_registration
-    sirf_do_images_match
-    sirf_resample
-    sirf_convert_image_type
-    )
+ADD_EXECUTABLE(test_conv_img test_conv_img.cpp ${STIR_REGISTRIES})
+TARGET_LINK_LIBRARIES(test_conv_img LINK_PUBLIC csirf iutilities cstir cgadgetron Reg csyn)
+INSTALL(TARGETS test_conv_img DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
-FOREACH(elem ${SYN_executables})
-    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
-    TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron Reg)
-    INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-ENDFOREACH(elem ${SYN_executables})
+set(MR_vendor_dicom_as_nifti "${CMAKE_SOURCE_DIR}/data/examples/MR/zenodo/dicom_as_nifti.nii")
+set(MR_SIRF_recon "${CMAKE_SOURCE_DIR}/data/examples/MR/zenodo/SIRF_recon.h5")
 
-ADD_SUBDIRECTORY(cSyn)
-ADD_SUBDIRECTORY(mSyn)
-ADD_SUBDIRECTORY(pSyn)
-
-# Tests
-ADD_SUBDIRECTORY(tests)
+ADD_TEST(NAME SYN_TEST_STIR_TO_NIFTI_CPLUSPLUS 
+	COMMAND test_conv_img ${MR_vendor_dicom_as_nifti} "STIR" "Reg"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+ADD_TEST(NAME SYN_TEST_GADGETRON_TO_NIFTI_CPLUSPLUS 
+	COMMAND test_conv_img ${MR_SIRF_recon} "Gadgetron" "Reg"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
