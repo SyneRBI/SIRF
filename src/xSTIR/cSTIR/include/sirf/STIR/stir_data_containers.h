@@ -162,7 +162,7 @@ namespace sirf {
 				));
 			stir::shared_ptr<PETAcquisitionData> 
 				sptr(same_acquisition_data
-				(data()->get_exam_info_sptr(), out_proj_data_info_sptr));
+				(data()->get_exam_info_sptr()->create_shared_clone(), out_proj_data_info_sptr));
 			SSRB(*sptr, *data(), do_normalisation);
 			return sptr;
 		}
@@ -261,7 +261,7 @@ namespace sirf {
 		{
 			return data()->set_segment(s);
 		}
-		stir::shared_ptr<stir::ExamInfo> get_exam_info_sptr() const
+		stir::shared_ptr<const stir::ExamInfo> get_exam_info_sptr() const
 		{
 			return data()->get_exam_info_sptr();
 		}
@@ -300,7 +300,7 @@ namespace sirf {
 		virtual PETAcquisitionData* clone_impl() const = 0;
 		PETAcquisitionData* clone_base() const
 		{
-			stir::shared_ptr<stir::ExamInfo> sptr_ei = get_exam_info_sptr();
+			stir::shared_ptr<stir::ExamInfo> sptr_ei = get_exam_info_sptr()->create_shared_clone();
 			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = get_proj_data_info_sptr()->create_shared_clone();
 			PETAcquisitionData* ptr = 
 				_template->same_acquisition_data(sptr_ei, sptr_pdi);
@@ -381,7 +381,7 @@ namespace sirf {
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			init();
-			DataContainer* ptr = _template->same_acquisition_data(this->get_exam_info_sptr(),
+			DataContainer* ptr = _template->same_acquisition_data(this->get_exam_info_sptr()->create_shared_clone(),
 				this->get_proj_data_info_sptr()->create_shared_clone());
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(ptr));
@@ -390,7 +390,7 @@ namespace sirf {
 		{
 			init();
 			return stir::shared_ptr < PETAcquisitionData >
-				(_template->same_acquisition_data(this->get_exam_info_sptr(),
+				(_template->same_acquisition_data(this->get_exam_info_sptr()->create_shared_clone(),
 				this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
 
@@ -460,7 +460,8 @@ namespace sirf {
 		{
 			init();
 			DataContainer* ptr = _template->same_acquisition_data
-				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr()->create_shared_clone());
+				(this->get_exam_info_sptr()->create_shared_clone(),
+                 this->get_proj_data_info_sptr()->create_shared_clone());
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(ptr));
 		}
@@ -469,7 +470,8 @@ namespace sirf {
 			init();
 			return stir::shared_ptr < PETAcquisitionData >
 				(_template->same_acquisition_data
-				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr()->create_shared_clone()));
+				(this->get_exam_info_sptr()->create_shared_clone(),
+                 this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
 	private:
 		virtual PETAcquisitionDataInMemory* clone_impl() const
