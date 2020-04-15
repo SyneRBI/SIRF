@@ -468,6 +468,7 @@ MRAcquisitionData::clone_base() const
 		get_acquisition(i, acq);
 		ptr_ad->append_acquisition(acq);
 	}
+	ptr_ad->set_sorted(sorted());
 	return ptr_ad;
 }
 
@@ -838,6 +839,7 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 		ac.get_acquisition(a, acq);
 		af.append_acquisition(acq);
 	}
+	af.set_sorted(ac.sorted());
 	take_over(af);
 }
 
