@@ -79,8 +79,8 @@ def test_main(rec=False, verb=False, throw=True):
     # Test operator adjointness
     if verb:
         print('testing adjointness')
-    if not is_operator_adjoint(acq_model, verbose = verb):
-        AssertionError('NiftyPet AcquisitionModel is not adjoint')
+    if not is_operator_adjoint(acq_model):
+        raise AssertionError('NiftyPet AcquisitionModel is not adjoint')
 
     # Generate test data
     simulated_acq_data = acq_model.forward(image)
