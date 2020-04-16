@@ -501,4 +501,4 @@ def test_operator_adjoint(operator, num_tests = 20, max_err = 10e-5):
         norm_err = abs(y_hat.dot(y) - x_hat.dot(x))/(y_hat.dot(y)*0.5 + x_hat.dot(x)*0.5)
         if norm_err > max_err:
             errorMsg =  type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err)
-            raise error(errorMsg)
+            raise AssertionError(errorMsg)
