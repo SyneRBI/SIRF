@@ -1,6 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright (C) 2018 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -24,6 +25,7 @@ limitations under the License.
 \brief Specification file for data handling types not present in STIR.
 
 \author Evgueni Ovtchinnikov
+\author Richard Brown
 \author CCP PETMR
 */
 
@@ -141,7 +143,7 @@ namespace sirf {
 
 		// virtual constructors
 		virtual PETAcquisitionData* same_acquisition_data
-			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
 
@@ -162,7 +164,7 @@ namespace sirf {
 				));
 			stir::shared_ptr<PETAcquisitionData> 
 				sptr(same_acquisition_data
-				(stir::shared_ptr<stir::ExamInfo>(new stir::ExamInfo(*get_exam_info_sptr())), out_proj_data_info_sptr));
+                                     (this->get_exam_info_sptr(), out_proj_data_info_sptr));
 			SSRB(*sptr, *data(), do_normalisation);
 			return sptr;
 		}
@@ -300,11 +302,9 @@ namespace sirf {
 		virtual PETAcquisitionData* clone_impl() const = 0;
 		PETAcquisitionData* clone_base() const
 		{
-			stir::shared_ptr<stir::ExamInfo> sptr_ei =
-                    stir::shared_ptr<stir::ExamInfo>(new stir::ExamInfo(*get_exam_info_sptr()));
 			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = get_proj_data_info_sptr()->create_shared_clone();
 			PETAcquisitionData* ptr = 
-				_template->same_acquisition_data(sptr_ei, sptr_pdi);
+				_template->same_acquisition_data(this->get_exam_info_sptr(), sptr_pdi);
 			ptr->fill(*this);
 			return ptr;
 		}
@@ -324,12 +324,12 @@ namespace sirf {
 		{
 			_data = stir::ProjData::read_from_file(filename);
 		}
-		PETAcquisitionDataInFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		PETAcquisitionDataInFile(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data.reset(new ProjDataFile
-				(sptr_exam_info, sptr_proj_data_info,
-				_filename = SIRFUtilities::scratch_file_name()));
+                                    (MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info,
+                                     _filename = SIRFUtilities::scratch_file_name()));
 		}
 		PETAcquisitionDataInFile(const stir::ProjData& pd) : _owns_file(true)
 		{
@@ -372,7 +372,7 @@ namespace sirf {
 		}
 
 		virtual PETAcquisitionData* same_acquisition_data
-			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const
 		{
 			PETAcquisitionData* ptr_ad =
@@ -383,7 +383,7 @@ namespace sirf {
 		{
 			init();
 			DataContainer* ptr = _template->same_acquisition_data(
-                        stir::shared_ptr<stir::ExamInfo>(new stir::ExamInfo(*get_exam_info_sptr())),
+                                this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone());
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(ptr));
@@ -392,7 +392,7 @@ namespace sirf {
 		{
 			init();
 			return stir::shared_ptr < PETAcquisitionData >
-				(_template->same_acquisition_data(stir::shared_ptr<stir::ExamInfo>(new stir::ExamInfo(*get_exam_info_sptr())),
+				(_template->same_acquisition_data(this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
 
@@ -415,11 +415,11 @@ namespace sirf {
 	class PETAcquisitionDataInMemory : public PETAcquisitionData {
 	public:
 		PETAcquisitionDataInMemory() {}
-		PETAcquisitionDataInMemory(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		PETAcquisitionDataInMemory(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data = stir::shared_ptr<stir::ProjData>
-				(new stir::ProjDataInMemory(sptr_exam_info, sptr_proj_data_info));
+                          (new stir::ProjDataInMemory(MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info));
 		}
 		PETAcquisitionDataInMemory(const stir::ProjData& pd)
 		{
@@ -451,7 +451,7 @@ namespace sirf {
 		}
 
 		virtual PETAcquisitionData* same_acquisition_data
-			(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const
 		{
 			PETAcquisitionData* ptr_ad =
@@ -462,8 +462,8 @@ namespace sirf {
 		{
 			init();
 			DataContainer* ptr = _template->same_acquisition_data
-				(stir::shared_ptr<stir::ExamInfo>(new stir::ExamInfo(*get_exam_info_sptr())),
-                 this->get_proj_data_info_sptr()->create_shared_clone());
+				(this->get_exam_info_sptr(),
+                                 this->get_proj_data_info_sptr()->create_shared_clone());
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(ptr));
 		}
@@ -472,8 +472,8 @@ namespace sirf {
 			init();
 			return stir::shared_ptr < PETAcquisitionData >
 				(_template->same_acquisition_data
-				(stir::shared_ptr<stir::ExamInfo>(new stir::ExamInfo(*get_exam_info_sptr())),
-                 this->get_proj_data_info_sptr()->create_shared_clone()));
+				(this->get_exam_info_sptr(),
+                                 this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
 	private:
 		virtual PETAcquisitionDataInMemory* clone_impl() const
@@ -597,7 +597,7 @@ namespace sirf {
 		}
 		STIRImageData(const PETAcquisitionData& ad)
 		{
-			_data.reset(new Voxels3DF(ad.get_exam_info_sptr(),*ad.get_proj_data_info_sptr()));
+                  _data.reset(new Voxels3DF(MAKE_SHARED<stir::ExamInfo>(*ad.get_exam_info_sptr()),*ad.get_proj_data_info_sptr()));
             this->set_up_geom_info();
 		}
 		STIRImageData(const Image3DF& image)
