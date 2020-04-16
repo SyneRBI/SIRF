@@ -464,7 +464,7 @@ def str_to_int_list(str_list):
         int_list = int_list + int_item
     return int_list
 
-def test_operator_adjoint(operator, num_tests = 20, max_err = 10e-5):
+def is_operator_adjoint(operator, num_tests = 20, max_err = 10e-5, verbose = True):
     '''
     Test if a given operator is adjoint.
     The operator needs to have been already set_up() with valid objects.
@@ -478,6 +478,8 @@ def test_operator_adjoint(operator, num_tests = 20, max_err = 10e-5):
         Number of tests with random data that will be executed. Default 20
     max_err   : double, optional
         Maximum allowed normalized error, tolerance. Change not recommended. Default 10e-5
+    verbose   : bool
+        Verbose option
     '''
     # Get x to know the size of each operation (we can not currently get y, so it will be obtained in the loop)
     x=operator.domain_geometry()
@@ -500,5 +502,7 @@ def test_operator_adjoint(operator, num_tests = 20, max_err = 10e-5):
         # Check dot product identity
         norm_err = abs(y_hat.dot(y) - x_hat.dot(x))/(y_hat.dot(y)*0.5 + x_hat.dot(x)*0.5)
         if norm_err > max_err:
-            errorMsg =  type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err)
-            raise AssertionError(errorMsg)
+            if verbose:
+                print(type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err))
+            return False
+    return True
