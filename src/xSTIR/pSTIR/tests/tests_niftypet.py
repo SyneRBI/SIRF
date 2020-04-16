@@ -14,7 +14,7 @@ Options:
 {licence}
 """
 from sirf.STIR import *
-from sirf.Utilities import runner, __license__
+from sirf.Utilities import is_operator_adjoint, runner, __license__
 import numpy as np
 
 # Set STIR verbosity to off
@@ -75,6 +75,12 @@ def test_main(rec=False, verb=False, throw=True):
     acq_model = AcquisitionModelUsingNiftyPET()
     acq_model.set_cuda_verbosity(verb)
     acq_model.set_up(template_acq_data, image)
+
+    # Test operator adjointness
+    if verb:
+        print('testing adjointness')
+    if not is_operator_adjoint(acq_model, verbose = verb):
+        AssertionError('NiftyPet AcquisitionModel is not adjoint')
 
     # Generate test data
     simulated_acq_data = acq_model.forward(image)
