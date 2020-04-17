@@ -57,12 +57,14 @@ int main()
 		cout << "SIRF_PATH not defined, cannot find csirf library" << endl;
 		return 1;
 	}
-	path_in = SIRF_path + "/src/common/";
+	path_in = SIRF_path + "/src/common/include/";
 	path_out = SIRF_path + "/src/common/";
 	status = generate_matlab_interface\
 		("CSIRF", "cSIRF", 
-			path_in, "csirf.h", 
+			path_in, "sirf/common/csirf.h", 
 			path_out, "msirf.h", "msirf.c");
-	if (status)
+	if (status) {
 		cout << "wrong input file format" << endl;
+		return 1;
+	}
 }

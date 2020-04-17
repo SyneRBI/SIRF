@@ -106,6 +106,16 @@ public:
     {
 	return std::unique_ptr<NiftiImageData3DDeformation>(this->clone_impl());
     }
+
+    /*! \brief Get inverse (potentially based on another image).
+     *
+     * Why would you want to base it on another image? Well, we might have a deformation
+     * that takes us from image A to B. We'll probably want the inverse to take us from
+     * image B back to A. In this case, use get_inverse(A). This is because the the deformation
+     * field is defined for the reference image. In the second case, A is the reference,
+     * and B is the floating image.*/
+    std::shared_ptr<const NiftiImageData3DDeformation<dataType> > get_inverse(const std::shared_ptr<const NiftiImageData<dataType> > image_sptr = nullptr) const;
+
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData3DDeformation* clone_impl() const

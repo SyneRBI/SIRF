@@ -45,8 +45,6 @@ def test_main(rec=False, verb=False, throw=True):
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_input(acq_data)
-    if verb:
-        print('setting up, please wait...')
     recon.set_up(image)
 
     recon.set_current_estimate(image)
@@ -66,6 +64,78 @@ def test_main(rec=False, verb=False, throw=True):
     if verb:
         print('relative residual norm: %e' % (diff.norm() / acq_data.norm()))
     test.check(diff.norm())
+
+    acq_copy = acq_data.get_uniform_copy()
+    acq_copy.fill(acq_data)
+    pad2 = acq_data - acq_data
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr)
+    print('acquisitions subtraction error: %.1e' % d)
+    test.check_if_equal(0, d)
+    acq_data.subtract(acq_data, out=pad2)
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr)
+    print('acquisitions subtraction (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    pad2 = acq_data * acq_data
+    pad_arr = acq_data.as_array()
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
+    print('acquisitions multiplication error: %.1e' % d)
+    test.check_if_equal(0, d)
+    acq_data.multiply(acq_data, out=pad2)
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
+    print('acquisitions multiplication (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    pad2_arr[:] = 2.0
+    acq_copy.fill(pad2_arr)
+    pad2 = acq_data / acq_copy
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr - pad_arr/2)
+    print('acquisitions division error: %.1e' % d)
+    test.check_if_equal(0, d)
+    acq_data.divide(acq_copy, out=pad2)
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr - pad_arr/2)
+    print('acquisitions division (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+
+    image_copy = image.get_uniform_copy()
+    image_copy.fill(image)
+    im2 = image - image_copy
+    im2_arr = im2.as_array()
+    d = numpy.linalg.norm(im2_arr)
+    print('images subtraction error: %.1e' % d)
+    test.check_if_equal(0, d)
+    image.subtract(image_copy, out=im2)
+    im2_arr = im2.as_array()
+    d = numpy.linalg.norm(im2_arr)
+    print('images subtraction (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    im2 = image * image
+    im_arr = image.as_array()
+    im2_arr = im2.as_array()
+    d = numpy.linalg.norm(im2_arr - im_arr * im_arr)
+    print('images multiplication error: %.1e' % d)
+    test.check_if_equal(0, d)
+    image.multiply(image, out=im2)
+    im2_arr = im2.as_array()
+    d = numpy.linalg.norm(im2_arr - im_arr * im_arr)
+    print('images multiplication (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    im2_arr[:] = 2.0
+    image_copy.fill(im2_arr)
+    im2 = image / image_copy
+    im2_arr = im2.as_array()
+    d = numpy.linalg.norm(im2_arr - im_arr/2)
+    print('images division error: %.1e' % d)
+    test.check_if_equal(0, d)
+    image.divide(image_copy, out=im2)
+    im2_arr = im2.as_array()
+    d = numpy.linalg.norm(im2_arr - im_arr/2)
+    print('images division (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
 
     return test.failed, test.ntest
 

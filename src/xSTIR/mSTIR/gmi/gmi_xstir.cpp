@@ -57,12 +57,14 @@ int main()
 		cout << "SIRF_PATH not defined, cannot find cstir library" << endl;
 		return 1;
 	}
-	path_in = SIRF_path + "/src/xSTIR/cSTIR/";
+	path_in = SIRF_path + "/src/xSTIR/cSTIR/include/";
 	path_out = SIRF_path + "/src/xSTIR/mSTIR/";
 	status = generate_matlab_interface
 		("CSTIR", "cSTIR", 
-			path_in, "cstir.h", 
+			path_in, "sirf/STIR/cstir.h", 
 			path_out, "mstir.h", "mstir.c", 1);
-	if (status)
+	if (status) {
 		cout << "wrong input file format" << endl;
+		return 1;
+	}
 }

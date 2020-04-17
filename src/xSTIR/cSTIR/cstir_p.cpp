@@ -1,6 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2020 UCL
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -91,6 +92,45 @@ sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const vo
 		lm2s.set_output(charDataFromHandle(hv));
 	else if (boost::iequals(name, "template"))
 		lm2s.set_template(charDataFromHandle(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_setSeparableGaussianImageFilterParameter
+(void* hp, const char* name, const void* hv)
+{
+	xSTIR_SeparableGaussianImageFilter& f = 
+		objectFromHandle<xSTIR_SeparableGaussianImageFilter>(hp);
+	if (boost::iequals(name, "fwhms_x")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('x', v);
+	}
+	else if (boost::iequals(name, "fwhms_y")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('y', v);
+	}
+	else if (boost::iequals(name, "fwhms_z")) {
+		float v = dataFromHandle<float>(hv);
+		f.set_fwhms_xyz('z', v);
+	}
+	else if (boost::iequals(name, "max_kernel_size_x")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('x', mks);
+	}
+	else if (boost::iequals(name, "max_kernel_size_y")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('y', mks);
+	}
+	else if (boost::iequals(name, "max_kernel_size_z")) {
+		int mks = dataFromHandle<int>(hv);
+		f.set_max_kernel_sizes_xyz('z', mks);
+	}
+	else if (boost::iequals(name, "normalise")) {
+		bool normalise = dataFromHandle<int>(hv);
+		f.set_normalise(normalise);
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -228,6 +268,10 @@ sirf::cSTIR_setAcquisitionModelParameter
 		SPTR_FROM_HANDLE(PETAcquisitionSensitivityModel, sptr_asm, hv);
 		am.set_asm(sptr_asm);
 	}
+	else if (boost::iequals(name, "image_data_processor")) {
+		SPTR_FROM_HANDLE(ImageDataProcessor, sptr_proc, hv);
+		am.set_image_data_processor(sptr_proc);
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -246,6 +290,20 @@ sirf::cSTIR_setAcqModUsingMatrixParameter
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
 }
+
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+void*
+sirf::cSTIR_setAcqModUsingNiftyPETParameter
+(DataHandle* hm, const char* name, const DataHandle* hv)
+{
+    AcqModUsingNiftyPET3DF& am = objectFromHandle<AcqModUsingNiftyPET3DF>(hm);
+    if (boost::iequals(name, "cuda_verbosity"))
+        am.set_cuda_verbosity(dataFromHandle<int>((void*)hv));
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+    return new DataHandle;
+}
+#endif
 
 void*
 sirf::cSTIR_acqModUsingMatrixParameter
@@ -337,18 +395,18 @@ sirf::cSTIR_PLSPriorParameter
 	else if (boost::iequals(name, "eta"))
 		return dataHandle<float>(prior.get_eta());
 	else if (boost::iequals(name, "anatomical_image")) {
-		sptrImage3DF sptr_im = prior.get_anatomical_image_sptr();
-		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		auto sptr_im = prior.get_anatomical_image_sptr();
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	else if (boost::iequals(name, "kappa")) {
-		sptrImage3DF sptr_im = prior.get_kappa_sptr();
-		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		auto sptr_im = prior.get_kappa_sptr();
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	else if (boost::iequals(name, "norm")) {
-		sptrImage3DF sptr_im = prior.get_norm_sptr();
-		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		auto sptr_im = prior.get_norm_sptr();
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	else
@@ -381,6 +439,8 @@ sirf::cSTIR_generalisedObjectiveFunctionParameter
 		objectFromHandle< ObjectiveFunction3DF >(handle);
 	if (boost::iequals(name, "prior"))
 		return newObjectHandle(obj_fun.get_prior_sptr());
+	else if (boost::iequals(name, "num_subsets"))
+		return dataHandle<int>(obj_fun.get_num_subsets());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -458,6 +518,12 @@ sirf::cSTIR_setReconstructionParameter
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
 		recon.set_input_data(sptr_ad->data()); // objectSptrFromHandle<PETAcquisitionData>(hv)->data());
 	}
+	else if (boost::iequals(name, "disable_output")) {
+		recon.set_disable_output(true);
+	}
+	else if (boost::iequals(name, "enable_output")) {
+		recon.set_disable_output(false);
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -524,10 +590,12 @@ sirf::cSTIR_iterativeReconstructionParameter
 	if (boost::iequals(name, "start_subiteration_num"))
 		return dataHandle<int>(recon.get_start_subiteration_num());
 	if (boost::iequals(name, "subiteration_num")) {
-		xSTIR_IterativeReconstruction3DF& xrecon =
-			(xSTIR_IterativeReconstruction3DF&)(recon);
+		//xSTIR_IterativeReconstruction3DF& xrecon =
+		//	(xSTIR_IterativeReconstruction3DF&)(recon);
 		//DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
-		return dataHandle<int>(xrecon.subiteration());
+		int iter = recon.get_subiteration_num();
+		return dataHandle<int>(iter);
+		//return dataHandle<int>(xrecon.subiteration());
 	}
 	if (boost::iequals(name, "objective_function"))
 		return newObjectHandle(recon.get_objective_function_sptr());
@@ -558,7 +626,40 @@ sirf::cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 		return newObjectHandle(recon.get_objective_function_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
-
+#ifdef USE_HKEM
+void*
+sirf::cSTIR_setKOSMAPOSLParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	KOSMAPOSLReconstruction<Image3DF>& recon =
+		objectFromHandle<KOSMAPOSLReconstruction<Image3DF> >(hp);
+	if (boost::iequals(name, "anatomical_prior")) {
+		SPTR_FROM_HANDLE(STIRImageData, sptr_ap, hv);
+		recon.set_anatomical_prior_sptr(sptr_ap->data_sptr());
+	}
+	else if (boost::iequals(name, "num_neighbours")) {
+		int value = dataFromHandle<int>((void*)hv);
+		recon.set_num_neighbours(value);
+	}
+	else if (boost::iequals(name, "num_non_zero_features"))
+		recon.set_num_non_zero_feat(dataFromHandle<int>((void*)hv));
+	else if (boost::iequals(name, "sigma_m"))
+		recon.set_sigma_m(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "sigma_p"))
+		recon.set_sigma_p(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "sigma_dp"))
+		recon.set_sigma_dp(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "sigma_dm"))
+		recon.set_sigma_dm(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "only_2D"))
+		recon.set_only_2D(dataFromHandle<int>((void*)hv));
+	else if (boost::iequals(name, "hybrid"))
+		recon.set_hybrid(dataFromHandle<int>((void*)hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+#endif
 void*
 sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {

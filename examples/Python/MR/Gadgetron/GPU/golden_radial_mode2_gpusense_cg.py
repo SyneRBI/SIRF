@@ -1,14 +1,15 @@
 '''gpuCgSense demo
 
+Tested on https://sourceforge.net/projects/gadgetron/files/testdata/ismrmrd/golden_angle.h5
+
 Usage:
-  fully_sampled_recon_single_chain.py [--help | options]
+  golden_radial_mode2_gpusense_cg.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
-  -o <file>, --output=<file>  images output file
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -46,7 +47,6 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
-output_file = args['--output']
 
 def main():
 
@@ -58,32 +58,32 @@ def main():
     recon = Reconstructor([ \
         'NoiseAdjustGadget', \
         'PCACoilGadget', \
-        'CoilReductionGadget', \
+        'CoilReductionGadget(coils_out=16)', \
         'gpuRadialSensePrepGadget(' + \
             'mode=2,' + \
             'profiles_per_frame=16,' + \
             'rotations_per_reconstruction=16,' + \
-            'buffer_frames_per_rotation=16' + \
-            'buffer_length_in_rotations=2' + \
-            'reconstruction_os_factor_x=1.5' + \
+            'buffer_frames_per_rotation=16,' + \
+            'buffer_length_in_rotations=2,' + \
+            'reconstruction_os_factor_x=1.5,' + \
             'reconstruction_os_factor_y=1.5' + \
         ')', \
         'slice0:gpuCgSenseGadget(' + \
             'number_of_iterations=10,' + \
             'oversampling_factor=1.25,' + \
-            'output_convergence=true,' + \
+            'output_convergence=true' + \
         ')', \
         'slice1:gpuCgSenseGadget(' + \
-            'sliceno=1' + \
+            'sliceno=1,' + \
             'number_of_iterations=10,' + \
             'oversampling_factor=1.25,' + \
-            'output_convergence=true,' + \
+            'output_convergence=true' + \
         ')', \
         'slice2:gpuCgSenseGadget(' + \
-            'sliceno=2' + \
+            'sliceno=2,' + \
             'number_of_iterations=10,' + \
             'oversampling_factor=1.25,' + \
-            'output_convergence=true,' + \
+            'output_convergence=true' + \
         ')', \
         'ExtractGadget', 'AutoScaleGadget'])
 

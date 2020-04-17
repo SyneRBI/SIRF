@@ -42,14 +42,14 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
 %               all acquisition data generated from now on will be kept in
 %               RAM (avoid if data is very large)
             h = calllib...
-                ('mgadgetron', 'mGT_setAcquisitionsStorageScheme', scheme);
+                ('mgadgetron', 'mGT_setAcquisitionDataStorageScheme', scheme);
             sirf.Utilities.check_status('AcquisitionData', h);
             sirf.Utilities.delete(h)
         end
         function scheme = get_storage_scheme()
 %***SIRF*** Returns current acquisition storage scheme name
             h = calllib...
-                ('mgadgetron', 'mGT_getAcquisitionsStorageScheme');
+                ('mgadgetron', 'mGT_getAcquisitionDataStorageScheme');
             sirf.Utilities.check_status('AcquisitionData', h);
             scheme = calllib('miutilities', 'mCharDataFromHandle', h);
             sirf.Utilities.delete(h)
@@ -75,10 +75,31 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                 self.handle_ = [];
             end
         end
+        function new_ad = new_acquisition_data(self, empty)
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            new_ad = sirf.Gadgetron.AcquisitionData();
+            if nargin < 2
+                empty = true;
+            end
+            if empty
+                new_ad.handle_ = calllib('mgadgetron', ...
+                    'mGT_createEmptyAcquisitionData', self.handle_);
+            else
+                new_ad.handle_ = calllib('mgadgetron', ...
+                    'mGT_cloneAcquisitions', self.handle_);
+            end
+            sirf.Utilities.check_status(self.name_, new_ad.handle_);
+        end
         function sort(self)
 %***SIRF*** Sorts acquisitions with respect to (in this order):
 %             - repetition
+%             - phase
+%             - contrast
 %             - slice
+%             - kspace_encode_step_2
 %             - kspace_encode_step_1
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
@@ -93,7 +114,24 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
         function sorted = is_sorted(self)
 %***SIRF*** Returns true if acquisitions of this object are sorted
 %         and false otherwise.
-            sorted = self.sorted_;
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            sorted = (sirf.Gadgetron.parameter(self.handle_, ...
+                'acquisitions', 'sorted', 'i') ~= 0);
+%            sorted = self.sorted_;
+        end
+        function undersampled = is_undersampled(self)
+%***SIRF*** Returns true if acquisitions of this object are undersampled
+%         and false otherwise.
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            undersampled = (sirf.Gadgetron.parameter(self.handle_, ...
+                'acquisitions', 'undersampled', 'i') ~= 0);
+%            sorted = self.sorted_;
         end
         function a = process(self, list)
 %***SIRF*** Returns acquisitions processed by a chain of gadgets.
@@ -116,7 +154,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
         function [ns, nc, na] = dimensions(self, select)
 %***SIRF*** Returns the numbers of samples, coils and acquisitions 
 %         in this AcquisitionData object.
-%         If the argument is supplied that is not 'all', then non-image 
+%         If select is not present or is not 'all', then non-image 
 %         related acquisitions (noise calibration etc.) are ignored.
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
@@ -124,10 +162,10 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             end
             ptr_i = libpointer('int32Ptr', ones(16, 1));
             calllib...
-                ('mgadgetron', 'mGT_getAcquisitionsDimensions', ...
+                ('mgadgetron', 'mGT_getAcquisitionDataDimensions', ...
                 self.handle_, ptr_i);
             dim = ptr_i.Value;
-            all = true;
+            all = false;
             if nargin > 1
                 all = strcmp(select, 'all');
             end
@@ -140,20 +178,29 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             end
         end
         function a = acquisition(self, num)
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            if num < 1 || num > self.number()
+                error('AcquisitionData:value_error', ...
+                    'Acquisition number out of range')
+            end
             a = sirf.Gadgetron.Acquisition();
             a.handle_ = calllib('mgadgetron', ...
                 'mGT_acquisitionFromContainer', self.handle_, num - 1);
+            sirf.Utilities.check_status('AcquisitionData', a.handle_);
         end
         function data = as_array(self, select)
-%***SIRF*** as_array(select) returns an array with this object's data 
-%         (a 3D complex array).
-%         The dimensions are those returned by dimensions(select).
+%***SIRF*** as_array(select) returns a 3D complex array of dimensions 
+%          returned by dimensions(select) containing acquisitions.
+%          The meaning of select is the same as in dimensions().
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
             end
             if nargin < 2
-                select = 'all';
+                select = 'not all';
             end
             [ns, nc, na] = self.dimensions(select);
             %na = self.number();
@@ -165,19 +212,20 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             n = ns*nc*na;
             ptr_z = libpointer('singlePtr', zeros(2, n));
             calllib...
-                ('mgadgetron', 'mGT_acquisitionsDataAsArray', ...
+                ('mgadgetron', 'mGT_acquisitionDataAsArray', ...
                 self.handle_, ptr_z, all);
             data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
                 ns, nc, na);
         end
         function fill(self, data, select)
 %***SIRF*** Changes acquisition data to that in 3D complex array argument.
+%          The meaning of select is the same as in dimensions().
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
             end
             if nargin < 3
-                select = 'all';
+                select = 'not all';
             end
             if strcmp(select, 'all')
                 all = 1;
@@ -190,7 +238,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             else
                 ptr_z = libpointer('singlePtr', single(z));
             end
-            h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
+            h = calllib('mgadgetron', 'mGT_fillAcquisitionData', ...
                 self.handle_, ptr_z, all);
             sirf.Utilities.check_status('AcquisitionData', h);
             sirf.Utilities.delete(h)

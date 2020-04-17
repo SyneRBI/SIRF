@@ -18,10 +18,6 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-include_directories(${Matlab_INCLUDE_DIRS})
-include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-include_directories(${PROJECT_SOURCE_DIR}/src/cReg/include)
-
 add_executable(gmi_xreg gmi_xreg.cpp)
-target_link_libraries(gmi_xreg mig)
+target_link_libraries(gmi_xreg mig csirf)
 INSTALL(TARGETS gmi_xreg DESTINATION bin)

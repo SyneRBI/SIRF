@@ -63,7 +63,7 @@ def image_data_processor(image_array, im_num):
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
     pylab.imshow(image_array[20,:,:])
-    print('You may neet to close Figure %d window to continue' % im_num)
+    print('You may need to close Figure %d window to continue' % im_num)
     # image is not modified in this simplistic example - but might have been
     return image_array
 

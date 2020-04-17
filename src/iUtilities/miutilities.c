@@ -23,7 +23,7 @@ limitations under the License.
 
 #include <mex.h>
 #include "matrix.h"
-#include "iutilities.h"
+#include "sirf/iUtilities/iutilities.h"
 
 #ifndef IUTILITIES_FOR_MATLAB
  extern "C" {

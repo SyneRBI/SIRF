@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,29 +16,35 @@
 #
 #=========================================================================
 
-# ------------------------------------------------------------------------
-# NIFTYREG
-# ------------------------------------------------------------------------
-FIND_PACKAGE(NIFTYREG 1.5.61)
-if (NIFTYREG_FOUND)
+# Have we got SPM? (only works with Matlab)
+if (BUILD_MATLAB)
+	# if on linux, engine is in funny place
+	if("${CMAKE_SYSTEM}" MATCHES "Linux")
+		list(APPEND Matlab_LIBRARIES 
+			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabEngine.so" 
+			"${Matlab_ROOT_DIR}/extern/bin/glnxa64/libMatlabDataArray.so")
+	endif()
 
-        set(BUILD_Registration ON PARENT_SCOPE)
-
-	# Add in the NIFTYREG stuff
-	INCLUDE_DIRECTORIES("${NIFTYREG_INCLUDE_DIRS}")
-  	LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
-  	SET(NIFTYREG_LIBRARY_DIRS "${NIFTYREG_LIBRARY_DIRS}" PARENT_SCOPE) # need elsewhere
-  	SET(NIFTYREG_INCLUDE_DIRS "${NIFTYREG_INCLUDE_DIRS}" PARENT_SCOPE) # need elsewhere
-	
-	SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
-	INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
-	
-	ADD_SUBDIRECTORY(cReg)
-	ADD_SUBDIRECTORY(pReg)
-	ADD_SUBDIRECTORY(mReg)
-
+	OPTION(DISABLE_SPM "disable SPM" OFF)
+	if (NOT DISABLE_SPM)
+		find_package(SPM QUIET)
+		if(SPM_FOUND)
+			MESSAGE(STATUS "SPM found")
+			set(SPM_BOOL_STR "1")
+		else()
+			MESSAGE(STATUS "SPM not found")
+			set(SPM_BOOL_STR "0")
+		endif()
+	else()
+		SET(SPM_FOUND OFF)
+		set(SPM_BOOL_STR "0")
+	endif()
 else()
-	message(WARNING "NIFTYREG not found. This is probably not what you want. If you need it, set NIFTYREG_DIR. Set DISABLE_Registration to OFF to silence this warning.")
-        set(BUILD_Registration OFF PARENT_SCOPE)
-
+	MESSAGE(STATUS "Matlab not enabled, so SPM cannot be enabled")
+	set(SPM_BOOL_STR "0")
 endif()
+
+ADD_SUBDIRECTORY(NiftyMoMo)
+ADD_SUBDIRECTORY(cReg)
+ADD_SUBDIRECTORY(pReg)
+ADD_SUBDIRECTORY(mReg)

@@ -38,7 +38,7 @@ classdef NiftiImageData < sirf.SIRF.ImageData
             elseif ischar(src)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
             elseif isa(src, 'sirf.SIRF.ImageData')
-                self.handle_ = calllib('mreg', 'mReg_NiftiImageData3D_from_SIRFImageData', src.handle_);
+                self.handle_ = calllib('mreg', 'mReg_NiftiImageData_from_SIRFImageData', src.handle_);
             else
                 error('NiftiImageData accepts no args, filename or sirf.SIRF.ImageData.')
             end
@@ -86,10 +86,13 @@ classdef NiftiImageData < sirf.SIRF.ImageData
         end
         function value = eq(self, other)
         	% Overload equality operator
-        	assert(isa(other, 'sirf.Reg.NiftiImageData'));
-    	    hv = calllib('mreg', 'mReg_NiftiImageData_equal', self.handle_, other.handle_);
-			sirf.Utilities.check_status('parameter', hv);
-    		value = logical(calllib('miutilities', 'mIntDataFromHandle', hv));
+            if isa(other, 'sirf.Reg.NiftiImageData')
+        	    hv = calllib('mreg', 'mReg_NiftiImageData_equal', self.handle_, other.handle_);
+        		sirf.Utilities.check_status('parameter', hv);
+            	value = logical(calllib('miutilities', 'mIntDataFromHandle', hv));
+            else
+                value = eq@sirf.SIRF.ImageData(self, other);
+            end
         end
         function value = ne(self, other)
         	% Overload inequality operator
@@ -112,6 +115,18 @@ classdef NiftiImageData < sirf.SIRF.ImageData
         function value = get_min(self)
             %Get min.
             value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'min', 'f');
+        end
+        function value = get_mean(self)
+            % Get mean.
+            value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'mean', 'f');
+        end
+        function value = get_variance(self)
+            % Get mean.
+            value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'variance', 'f');
+        end
+        function value = get_standard_deviation(self)
+            % Get mean.
+            value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'std', 'f');
         end
         function value = get_sum(self)
             %Get sum.
@@ -176,12 +191,34 @@ classdef NiftiImageData < sirf.SIRF.ImageData
             sirf.Utilities.delete(h)
         end
         function crop(self, min_, max_)
-            assert(all(size(min_) == [1 7]), 'Min bounds should be a 1x7 array')
-            assert(all(size(max_) == [1 7]), 'Max bounds should be a 1x7 array')
+            % Crop image. Give minimum and maximum indices.
+            % Min and max indicies can be anywhere between (x,y,z) and (x,y,z,t,u,v,w).
+            % Use values of -1 for no change.
+            assert(all(size(min_) >= [1 3]) && all(size(min_) <= [1 7]), 'Min bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)')
+            assert(all(size(max_) >= [1 3]) && all(size(max_) <= [1 7]), 'Max bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)')
+            min_(end+1:7)=0;
+            max_(end+1:7)=0;
             min_ptr = libpointer('int32Ptr', single(min_));
             max_ptr = libpointer('int32Ptr', single(max_));
             h = calllib('mreg', 'mReg_NiftiImageData_crop', self.handle_, min_ptr, max_ptr);
-            sirf.Utilities.check_status('parameter', h)
+            sirf.Utilities.check_status([self.name ':crop'], h)
+        end
+        function pad(self, min_, max_, val)
+            % Crop image. Give minimum and maximum indices.
+            % Min and max indicies can be anywhere between (x,y,z) and (x,y,z,t,u,v,w).
+            % Use values of -1 for no change.
+            narginchk(3,4)
+            if nargin < 4
+                val = 0;
+            end
+            assert(all(size(min_) >= [1 3]) && all(size(min_) <= [1 7]), 'Min bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)')
+            assert(all(size(max_) >= [1 3]) && all(size(max_) <= [1 7]), 'Max bounds should be at least (x,y,z), and up to (x,y,z,t,u,v,w)')
+            min_(end+1:7)=0;
+            max_(end+1:7)=0;
+            min_ptr = libpointer('int32Ptr', single(min_));
+            max_ptr = libpointer('int32Ptr', single(max_));
+            h = calllib('mreg', 'mReg_NiftiImageData_pad', self.handle_, min_ptr, max_ptr, val);
+            sirf.Utilities.check_status([self.name ':pad'], h)
         end
         function print_header(self)
             %Print metadata of nifti image.
@@ -200,6 +237,24 @@ classdef NiftiImageData < sirf.SIRF.ImageData
         function value = get_contains_nans(self)
             % Returns true if the image contains any nans.
             value = sirf.Reg.parameter(self.handle_, 'NiftiImageData', 'contains_nans', 'b');
+        end
+        function normalise_zero_and_one(self)
+            % Normalise image between 0 and 1.
+            h = calllib('mreg', 'mReg_NiftiImageData_normalise_zero_and_one', self.handle_);
+            sirf.Utilities.check_status('parameter', h)
+        end
+        function standardise(self)
+            % Standardise (subtract mean and divide by standard deviation).
+            h = calllib('mreg', 'mReg_NiftiImageData_standardise', self.handle_);
+            sirf.Utilities.check_status('parameter', h)
+        end
+        function inner_product = get_inner_product(self, other)
+            % Print nifti header metadata of one or multiple nifti images.
+            assert(isa(other, 'sirf.Reg.NiftiImageData'));
+            h = calllib('mreg', 'mReg_NiftiImageData_get_inner_product', self.handle_, other.handle_);
+            sirf.Utilities.check_status('NiftiImageData', h);
+            inner_product = calllib('miutilities', 'mFloatDataFromHandle', h);
+            sirf.Utilities.delete(h)
         end
     end
     methods(Static)

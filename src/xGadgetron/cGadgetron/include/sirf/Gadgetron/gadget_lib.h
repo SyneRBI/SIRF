@@ -59,7 +59,7 @@ namespace sirf {
 			gadget_(name), dll_(dll)
 		{
 			class_ = cl;
-			add_property("pass_on_undesired_data", "true");
+			//add_property("pass_on_undesired_data", "true");
 		}
 		virtual void set_property(const char* prop, const char* value)
 		{
@@ -180,10 +180,14 @@ namespace sirf {
 		}
 	};
 
+	class ImageMessageWriter : public aGadget {
+
+	};
 	/**
 	\brief Class for MRIImageWriter gadget xml-definition generator.
 	*/
-	class IsmrmrdImgMsgWriter : public aGadget {
+	//class IsmrmrdImgMsgWriter : public aGadget {
+	class IsmrmrdImgMsgWriter : public ImageMessageWriter {
 	public:
 		static const char* class_name()
 		{
@@ -199,6 +203,30 @@ namespace sirf {
 			xml_script += " <slot>1022</slot>\n";
 			xml_script += " <dll>gadgetron_mricore</dll>\n";
 			xml_script += " <classname>MRIImageWriter</classname>\n";
+			xml_script += "</writer>\n";
+			return xml_script;
+		}
+	};
+
+	/**
+	\brief Class for DicomImageWriter gadget xml-definition generator.
+	*/
+	class DicomImageMessageWriter : public ImageMessageWriter {
+	public:
+		static const char* class_name()
+		{
+			return "DicomImageWriter";
+		}
+		virtual void set_property(const char* prop, const char* value) {}
+		virtual std::string value_of(const char* prop)
+		{
+			return std::string("");
+		}
+		virtual std::string vxml(const std::string& label) const {
+			std::string xml_script("<writer>\n");
+			xml_script += " <slot>1018</slot>\n";
+			xml_script += " <dll>gadgetron_dicom</dll>\n";
+			xml_script += " <classname>DicomImageWriter</classname>\n";
 			xml_script += "</writer>\n";
 			return xml_script;
 		}
@@ -322,6 +350,23 @@ namespace sirf {
 		static const char* class_name()
 		{
 			return "SimpleReconGadget";
+		}
+	};
+
+    class GenericReconCartesianFFTGadget : public Gadget {
+	public:
+		GenericReconCartesianFFTGadget() :
+			Gadget("Recon", "gadgetron_mricore", "GenericReconCartesianFFTGadget")
+		{
+            add_property("image_series","0");
+            add_property("coil_map_algorithm","Inati");
+            add_property("debug_folder","");
+            add_property("perform_timing","true");
+            add_property("verbose","true");
+        }
+		static const char* class_name()
+		{
+			return "GenericReconCartesianFFTGadget";
 		}
 	};
 
@@ -604,6 +649,17 @@ namespace sirf {
 		static const char* class_name()
 		{
 			return "ImageFinishGadget";
+		}
+	};
+
+	class DicomFinishGadget : public Gadget {
+	public:
+		DicomFinishGadget() :
+			Gadget("DicomFinish", "gadgetron_dicom", "DicomFinishGadget")
+		{}
+		static const char* class_name()
+		{
+			return "DicomFinishGadget";
 		}
 	};
 

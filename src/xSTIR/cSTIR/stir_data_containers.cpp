@@ -22,6 +22,7 @@ limitations under the License.
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
+#include "stir/zoom.h"
 
 using namespace stir;
 using namespace sirf;
@@ -325,7 +326,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 
 	double s = 0.0;
 	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all() && iter_x != x.data().end_all(); 
+		iter != data().end_all() && iter_x != x.data().end_all();
 		iter++, iter_x++) {
 		double t = *iter;
 		s += t * (*iter_x);
@@ -484,10 +485,9 @@ STIRImageData::get_voxel_sizes(float* vsize) const
 void
 STIRImageData::get_data(float* data) const
 {
-	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	if (!image.get_regular_range(min_indices, max_indices))
+	if (!_data->get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
 		//return -1;
 	//std::cout << "trying new const iterator...\n";
@@ -538,6 +538,52 @@ STIRImageData::set_data(const float* data)
 }
 
 void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes, const char *zoom_options_str)
+{
+    stir::ZoomOptions zoom_options;
+    if (strcmp(zoom_options_str,"preserve_sum")==0)
+        zoom_options = stir::ZoomOptions::preserve_sum;
+    else if (strcmp(zoom_options_str,"preserve_values")==0)
+        zoom_options = stir::ZoomOptions::preserve_values;
+    else if (strcmp(zoom_options_str,"preserve_projections")==0)
+        zoom_options = stir::ZoomOptions::preserve_projections;
+    else
+        throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
+
+    this->zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+}
+
+void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes_in, const stir::ZoomOptions zoom_options)
+{
+    // We need the underyling image as a VoxelsOnCartesianGrid
+    DYNAMIC_CAST(Voxels3DF, voxels, this->data());
+
+    int dim[3];
+    this->get_dimensions(dim);
+
+    // If any sizes have been set to <= 0, set to image size
+    Coord3DI new_sizes(new_sizes_in);
+    for (unsigned i=0; i<3; ++i)
+        if (new_sizes.at(int(i+1))<=0)
+            new_sizes.at(int(i+1)) = dim[i];
+
+    // Zoom the image
+    voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
+}
+
+void
+STIRImageData::
+move_to_scanner_centre(const PETAcquisitionData &)
+{
+    this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
+}
+
+void
 STIRImageData::set_up_geom_info()
 {
     const Voxels3DF* const vox_image = dynamic_cast<const Voxels3DF*>(&data());
@@ -584,6 +630,6 @@ STIRImageData::set_up_geom_info()
     }
 
     // Initialise the geom info shared pointer
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
-                (offset,spacing,size,direction);
+    this->set_geom_info(std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction));
 }
