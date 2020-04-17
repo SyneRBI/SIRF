@@ -536,6 +536,8 @@ MRAcquisitionData::sort()
 		t[4] = acq.idx().kspace_encode_step_2;
 		t[5] = acq.idx().kspace_encode_step_1;
 		tuple_to_sort tsort;
+		if (TO_BE_IGNORED(acq)) // put first to avoid interference with the rest
+			t[tsind[0]] = -1;
 		for (int i = 0; i < tsind.size(); i++)
 			tsort.push_back(t[tsind[i]]);
 		vt.push_back(tsort);
