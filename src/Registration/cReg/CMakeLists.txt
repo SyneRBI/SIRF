@@ -81,10 +81,7 @@ endif()
 # If niftyreg was bulit with OpenCL
 if (NIFTYREG_BUILT_WITH_OPENCL)
   find_package(OpenCL REQUIRED)
-  if (OpenCL_FOUND)
-    TARGET_LINK_LIBRARIES(Reg PUBLIC ${OpenCL_LIBRARIES})
-    INCLUDE_DIRECTORIES(${OpenCL_INCLUDE_DIRS})
-  endif()
+  target_link_libraries(REG PUBLIC OpenCL::OpenCL)
 endif()
 
 # Add boost library dependencies
