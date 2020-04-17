@@ -22,41 +22,42 @@ function acquisition_sensitivity_from_attenuation(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
-pet_data_path = [mUtilities.examples_data_path('PET') '/mMR'];
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = [sirf.Utilities.examples_data_path('PET') '/mMR'];
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt', 'warn.txt');
+    PET.MessageRedirector('info.txt', 'warn.txt');
 
     % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
-    template = AcquisitionData(fullfile(pathname, filename));
+    template = PET.AcquisitionData(fullfile(pathname, filename));
 
     % create uniform acquisition data from template
-    acq_data = AcquisitionData(template);
+    acq_data = PET.AcquisitionData(template);
     acq_data.fill(1.0)
 
     % read attenuation image
     [filename, pathname] = uigetfile...
         ('*.hv', 'Select attenuation data file', pet_data_path);
-    attn_image = ImageData(fullfile(pathname, filename));
+    attn_image = PET.ImageData(fullfile(pathname, filename));
     attn_image_as_array = attn_image.as_array();
     ai_dim = size(attn_image_as_array);
     z = uint16(ai_dim(3)/2);
-    mUtilities.show_2D_array(attn_image_as_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(attn_image_as_array(:,:,z), ...
         'Attenuation image', 'x', 'y');
 
     % create acquisition model
-    am = AcquisitionModelUsingRayTracingMatrix();
+    am = PET.AcquisitionModelUsingRayTracingMatrix();
     am.set_up(template, attn_image);
 
     % create acquisition sensitivity model from attenuation image
     fprintf('creating acquisition sensitivity model...\n')
-    asm = AcquisitionSensitivityModel(attn_image, am);
+    asm = PET.AcquisitionSensitivityModel(attn_image, am);
     asm.set_up(template);
     am.set_acquisition_sensitivity(asm);
 
@@ -69,7 +70,7 @@ try
     acq_array = acq_data.as_array();    
     acq_dim = size(acq_array);
     z = uint16(acq_dim(3)/2);
-    mUtilities.show_2D_array(acq_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'Bin efficiencies', 'tang. pos.', 'views');
 
 catch err

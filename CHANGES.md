@@ -1,20 +1,77 @@
 # ChangeLog
 
-## v2.0.0-rc.1
+## vX.X.X
 
-* removed `using` statements from the header files
-* created namespace `sirf`
-* added default constructor and set_up to MRAcquisitionModel
-* implemented sorting of MR images
-* implemented reading of MR acquisition data from ISMRMRD file
+* We have now corrected the geometrical information of `.h5` images (coming from ISMRMRD and Gadgetron). This means we can now convert them to other SIRF image types (e.g., `NiftiImageData` and `STIRImageData`). This is necessary for any kind of synergistic reconstruction. Further, to the best of our knowledge, this is the first ISMRMRD to NIfTI converter out there!
+* The adjoint transformation has now been implemented for `NiftyResample` through the wrapping of NiftyMoMo.
+* `Resample::process()` has been marked as deprecated. Instead, the following methods have been added to C++, python and matlab NiftyResample:
+	* `out = forward(in)`
+	* `forward(out, in)`
+	* `out = adjoint(in)`
+	* `adjoint(out, in)`
+	* `out = backward(in)` <- alias for adjoint
+	* `backward(out, in)` <- alias for adjoint
+* Inverse deformation images. Inverse displacements are also possible by converting to and from deformations.
+* NiftyPET projector wrapped (if STIR is built with NiftyPET)
+* Added `set_image_data_processor` to `PETAcquisitionModel`.  This allows for instance image-based PSF modelling.
+* Resampling of complex images.
+* SPM registration wrapping (only SPM12 tested). If `Matlab` and `SPM` are present, the SPM wrapper is available from `C++`, `Matlab` and `Python`.
+* Support for registering multiple floating images has been added. This is only available for certain algorithms (currently only `SPM`). There are therefore new methods `add_floating_image` and `clear_floating_images` on top of the original `set_floating_image`. Methods extracting the results of registrations can now be called with an index (`get_output(idx = 0)`, `get_transformation_matrix_forward(idx = 0)`, etc.). This index defaults to the first to maintain backwards compatibility.
+* Ability to pad `NiftiImageData`, e.g., `a.pad([10,10,0],[10,10,0])` to add 10 voxels to the minimum and maximum of the x- and y-directions.
+
+## v2.1.0
+
+* PET/STIR
+	* Interfaced HKEM into SIRF
+	* Interfaced SeparableGaussianImageFilter into SIRF
+* MR/Gadgetron
+	* Added DICOM-writing gadgets for MR images output
+	* Added few Gadgetron GPU gadgets to SIRF gadget library
+	* Enabled handling of 3D slices of MR images by switching to 3D FFT
+* Python
+	* Switched to new class style
+	* Introduced contiguity checks of filled data
+* CIL/SIRF Compatibility
+     * added methods to AcquisitionData, ImageData and AcquisitionModel to be compatible with
+       CCPi's Core Imaging Library (CIL)
+
+## v2.0.0
+
+* Set CMake policy CMP0079.
+* Use `swig_add_library` instead of `swig_add_module`.
+* Averaging of rigid transformation matrices via quaternions (and therefore a quaternion class).
+* Arrays of SIRF objects can be passed from the Python and Matlab interfaces to the C++ level (e.g., averaging a large number of matrices) via the DataHandleVector class. This is an internal class that should not be used. Simply pass a native array of objects and SIRF will convert to the DataHandleVector class if necessary.
+* Image data role checks in MRAcquisitionModel introduced.
+* Corrected ISMRMRD acquisition sorting.
+* Added PhysioInterpolationGadget and FatWaterGadget to SIRF gadgets library.
+* Wrapping of NiftyReg to allow registration/resampling in SIRF.
+* Implemented new `ImageData` hierarchy common to PET and MR. `ImageData` contain geometrical info.
+* MR/Gadgetron
+  * Added default constructor and set_up to MRAcquisitionModel
+  * Implemented sorting of MR images
+  * Implemented reading of MR acquisition data from ISMRMRD file
+* PET/STIR
+  * projectors can now handle subsets (although with a somewhat ugly work-around)
+  * added FBP2D, SSRB and the Parallel Level Sets prior
+  * added TOF bins dimension to `PETAcquisitionData` (still fixed to have size 1)
+* C++ changes
+  * Removed `using` statements from the C++ header files
+  * Created namespace `sirf`
+  * include files are now moved to subdirectories (such as `include/sirf/common`).
+  * Modified ObjectHandle type so that it can handle both `std::shared_ptr` and `boost::shared_ptr`.
+* Python/MATLAB:
+  * `petmr_data_path` is now obsolete. Use `examples_data_path` instead.
+* Python:
+  * everything is now in a `sirf` module. Use for instance `import sirf.Gadgetron`
+* Matlab:
+  * in keeping with changes to c++ and python, classes are now called with e.g., `sirf.STIR.obj` instead of `mSTIR.obj`. Aliases can be used to shorten this (e.g., `PET=set_up_PET()` and then `PET.obj`).
+* CMake:
+  * Updated minimum required version of CMake to 3.9.0.
 
 ## v1.1.0
 
 * Various bug fixes and corrections
 * `BUILD_STIR_WITH_OPENMP` is now `ON` by default
-* Virtual Machine amendments:
-  * UK English keyboard
-  * Password protection removed from screen lock
 * Gadgetron data processors check for Gadgetron server crash
 * More data files in `SIRF/data/examples/MR`
 * Grayscale plotting enabled

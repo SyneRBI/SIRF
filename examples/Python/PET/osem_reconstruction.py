@@ -40,7 +40,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 num_subsets = int(args['--subs'])
@@ -48,7 +48,7 @@ num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 if args['--anim'] is not None:
     ai_file = existing_filepath(data_path, args['--anim'])
@@ -63,7 +63,7 @@ def image_data_processor(image_array, im_num):
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
     pylab.imshow(image_array[20,:,:])
-    print('You may neet to close Figure %d window to continue' % im_num)
+    print('You may need to close Figure %d window to continue' % im_num)
     # image is not modified in this simplistic example - but might have been
     return image_array
 

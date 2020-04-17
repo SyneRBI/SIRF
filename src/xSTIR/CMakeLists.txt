@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Copyright 2016 University College London
+# Author: Kris Thielemans, Richard Brown
+# Copyright 2016-2019 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,23 +16,6 @@
 #
 #=========================================================================
 
-find_package(STIR 3.1.0)
-if (STIR_FOUND)
-
-  # need to add this explicitly to get the STIR_REGISTRIES to compile
-  include_directories("${STIR_INCLUDE_DIRS}")
-
-  set(cSTIR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cSTIR")
-
-  ADD_SUBDIRECTORY(cSTIR)
-  ADD_SUBDIRECTORY(pSTIR)
-  ADD_SUBDIRECTORY(mSTIR)
-
-  # Going to need this elsewhere
-  SET(STIR_REGISTRIES ${STIR_REGISTRIES} PARENT_SCOPE)
-
-else()
-
-  message(WARNING "STIR not found. This is probably not what you want. If you need it, set STIR_DIR.")
-
-endif()
+ADD_SUBDIRECTORY(cSTIR)
+ADD_SUBDIRECTORY(pSTIR)
+ADD_SUBDIRECTORY(mSTIR)

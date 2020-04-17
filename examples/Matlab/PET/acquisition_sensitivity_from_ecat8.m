@@ -22,28 +22,29 @@ function acquisition_sensitivity_from_ecat8(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
-pet_data_path = [mUtilities.examples_data_path('PET') '/mMR'];
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = [sirf.Utilities.examples_data_path('PET') '/mMR'];
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt', 'warn.txt');
+    PET.MessageRedirector('info.txt', 'warn.txt');
 
     % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
-    template = AcquisitionData(fullfile(pathname, filename));
+    template = PET.AcquisitionData(fullfile(pathname, filename));
 
     % create acquisition sensitivity model from ECAT8 normalization data
     [filename, pathname] = uigetfile...
         ('*.n.hdr', 'Select ECAT8 normalization file', pet_data_path);
-    asm = AcquisitionSensitivityModel(fullfile(pathname, filename));
+    asm = PET.AcquisitionSensitivityModel(fullfile(pathname, filename));
     asm.set_up(template);
 
     % create a uniform acquisition data from template
-    acq_data = AcquisitionData(template);
+    acq_data = PET.AcquisitionData(template);
     acq_data.fill(1.0)
 
     % apply normalization to the uniform acquisition data to obtain
@@ -54,7 +55,7 @@ try
     acq_array = fwd_data.as_array();    
     acq_dim = size(acq_array);
     z = uint16(acq_dim(3)/2);
-    mUtilities.show_2D_array(acq_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'Bin efficiencies', 'tang. pos.', 'views');
 
 catch err

@@ -47,7 +47,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 num_subsets = int(args['--subs'])
@@ -56,7 +56,7 @@ pen_factor = args['--penf']
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 if args['--anim'] is not None:
     ai_file = existing_filepath(data_path, args['--anim'])
@@ -99,9 +99,6 @@ def main():
         # compatible with the scanner geometry (included in the AcquisitionData
         # object ad) and initialize each voxel to 1.0
         image = acq_data.create_uniform_image(1.0)
-##        image = ImageData()
-##        image.initialise((111, 111, 31), (3.0, 3.0, 3.375))
-##        image.fill(1.0)
 
     prior.set_up(image)
     prior.set_penalisation_factor(float(pen_factor))
@@ -133,12 +130,7 @@ def main():
     # (check the OSEM demo to learn how to display results during sub-iterations)
     print('reconstructing...')
     recon.reconstruct(image)
-    image.show()
-
-##    v = image.as_array()
-##    nz, ny, nx = v.shape
-##    for z in range(nz):
-##        print(numpy.amin(v[z,:,:]), numpy.amax(v[z,:,:]))
+    image.show(title = 'Reconstructed images')
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

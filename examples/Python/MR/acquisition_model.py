@@ -37,8 +37,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtilities import show_3D_array
-
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -46,7 +44,7 @@ exec('from p' + args['--engine'] + ' import *')
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
 output_file = args['--output']
 
 def main():
@@ -65,31 +63,41 @@ def main():
 
     # perform reconstruction to obtain a meaningful ImageData object
     # (cannot be obtained in any other way at present)
-    recon = FullySampledReconstructor()
+#    if processed_data.is_undersampled():
+    if acq_data.is_undersampled():
+        recon = CartesianGRAPPAReconstructor();
+        recon.compute_gfactors(False)
+    else:
+        recon = FullySampledReconstructor()
     recon.set_input(processed_data)
+    print('---\n reconstructing...')
     recon.process()
-    complex_images = recon.get_output()
-    print('---\n reconstructed images norm: %e' % complex_images.norm())
+    reconstructed_images = recon.get_output()
+    r_norm = reconstructed_images.norm()
+    print('---\n reconstructed images norm: %e' % r_norm)
 
-    for i in range(complex_images.number()):
-        complex_image = complex_images.image(i)
-        print('--- image %d' % i)
+    for i in range(min(8, reconstructed_images.number())):
+        reconstructed_image = reconstructed_images.image(i)
+        print('\n--- image %d' % i)
         for p in [ \
             'version', 'flags', 'data_type', 'channels', \
             'slice', 'repetition', \
             'image_type', 'image_index', 'image_series_index' \
             ]:
             form = p + ' %d'
-            print(form % complex_image.info(p))
+            print(form % reconstructed_image.info(p))
         print('matrix size:'),
-        print(complex_image.matrix_size())
+        print(reconstructed_image.matrix_size())
         print('patient_table_position:'),
-        print(complex_image.patient_table_position())
+        print(reconstructed_image.patient_table_position())
 
-    ind = complex_images.get_info('image_index')
-    print('image indices:')
+    ind = reconstructed_images.get_info('image_index')
+    print('\nimage indices:')
     print(ind)
-    ptp = complex_images.get_info('patient_table_position')
+    ind = reconstructed_images.get_info('slice')
+    print('image slices:')
+    print(ind)
+    ptp = reconstructed_images.get_info('patient_table_position')
     print('patient table positions:')
     print(ptp)
     
@@ -100,6 +108,8 @@ def main():
     #    - kspace encode step 1
     print('---\n sorting acquisition data...')
     processed_data.sort()
+    if output_file is not None:
+        processed_data.write(output_file)
 
     # compute coil sensitivity maps
     print('---\n computing coil sensitivity maps...')
@@ -109,36 +119,41 @@ def main():
     # CoilImageData - see coil_sensitivity_maps.py
 
     # create acquisition model based on the acquisition parameters
-    # stored in processed_data and image parameters stored in complex_images
-##    acq_model = AcquisitionModel(processed_data, complex_images)
+    # stored in processed_data and image parameters stored in reconstructed_images
+##    acq_model = AcquisitionModel(processed_data, reconstructed_images)
     acq_model = AcquisitionModel()
-    acq_model.set_up(processed_data, complex_images)
+    acq_model.set_up(processed_data, reconstructed_images)
     acq_model.set_coil_sensitivity_maps(csms)
 
     # use the acquisition model (forward projection) to produce simulated
     # acquisition data
-    simulated_acq_data = acq_model.forward(complex_images)
+    print('---\n forward-projecting...')
+    simulated_acq_data = acq_model.forward(reconstructed_images)
     print('---\n reconstructed images forward projection norm %e'\
           % simulated_acq_data.norm())
     if output_file is not None:
         simulated_acq_data.write(output_file)
 
-    # get simulated acquisition data as a Python ndarray
-    simulated_acq_array = simulated_acq_data.as_array();
     # display simulated acquisition data
-#    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,2,0))
-    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,0,2))
-    title = 'Simulated acquisition data (magnitude)'
-    show_3D_array(simulated_acq_array, power = 0.2, suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
+    #simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
 
     # backproject simulated acquisition data
+    print('---\n backprojecting...')
     backprojected_data = acq_model.backward(simulated_acq_data)
-    # show backprojected data
-    backprojected_array = backprojected_data.as_array()
-    title = 'Backprojected data (magnitude)'
-    show_3D_array(abs(backprojected_array), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
+    b_norm = backprojected_data.norm()
+    print('norm of backprojected images: %f' % b_norm)
+    # display backprojected data
+    backprojected_data.show(title = 'Backprojected data (magnitude)')
+    # display reconstructed images
+    reconstructed_images.show(title = 'Reconstructed images (magnitude)')
+
+    diff = backprojected_data/b_norm - reconstructed_images/r_norm
+    print('norm of backprojected - reconstructed images: %f' % diff.norm())
+    # testing fill
+    reconstructed_images.fill(backprojected_data)
+    diff = (backprojected_data - reconstructed_images).norm()
+    if diff > 0:
+        print('fill error: %f' % diff)
 
 try:
     main()

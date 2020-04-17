@@ -12,8 +12,8 @@ Options:
                                [default: test_image_PM_QP_6.hv]
   -f <fact>, --penf=<fact>     penalty factor [default: 1000]
   -s <subs>, --subs=<subs>     number of subsets [default: 4]
-  -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
-  -e <engn>, --engn=<engn>     reconstruction engine [default: STIR]
+  -i <sitr>, --subiter=<sitr>  number of sub-iterations [default: 2]
+  -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -39,7 +39,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engn'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 pen_factor = args['--penf']
@@ -48,7 +48,7 @@ num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 init_file = args['--init']
 
@@ -107,8 +107,12 @@ def main():
         print('You may neet to close Figure %d window to continue' % (iter + 1))
     pylab.show()
 
-    # interactively display the reconstructed image
-    image.show()
+    # display the reconstructed image
+    #image.show(15) # show one
+    #image.show([1, 10, 11, 12]) # show list
+    #image.show((1, 10, 11, 12))
+    #image.show(range(2, 30, 3)) # show range
+    image.show(title = 'Reconstructed images') # show all
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

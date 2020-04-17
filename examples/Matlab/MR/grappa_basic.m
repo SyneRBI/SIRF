@@ -56,25 +56,26 @@ function grappa_basic(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
-mr_data_path = mUtilities.examples_data_path('MR');
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % Get the filename of the input ISMRMRD h5 file
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
 filein = fullfile(pn,fn) ;
 
 % Load this ISMRMRD h5 file, creating an input Container
-acq_data = AcquisitionData(filein);
+acq_data = MR.AcquisitionData(filein);
 
 % Pre-process this input data. (Currently this is a MATLAB script that just
 % sets up a 3 chain gadget. In the future it will be independent of the MR
 % recon engine.)
-preprocessed_data = preprocess_acquisition_data(acq_data);
+preprocessed_data = MR.preprocess_acquisition_data(acq_data);
 
 % Perform reconstruction of the preprocessed data.
 % 1. set the reconstruction to be for Cartesian GRAPPA data.
-recon = CartesianGRAPPAReconstructor();
+recon = MR.CartesianGRAPPAReconstructor();
 
 % 2. set the reconstruction input to be the data we just preprocessed.
 recon.set_input(preprocessed_data);
@@ -97,6 +98,3 @@ end
 figure('Name',['idata, slice: ',num2str(sl)])
 subplot(1,2,1), imshow(abs(image_array(:,:,sl)),[]), title('Abs')
 subplot(1,2,2), imshow(angle(image_array(:,:,sl)),[-pi pi]), title('Phase')
-
-
-

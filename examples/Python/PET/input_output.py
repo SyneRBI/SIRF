@@ -38,11 +38,11 @@ args = docopt(__doc__, version=__version__)
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 templ_file = args['--tfile']
 templ_file = existing_filepath(data_path, templ_file)
 acq_file = args['--afile']
@@ -64,7 +64,8 @@ def main():
 ##    print('rebinning...')
 ##    acq_template = acq_template.rebin(15)
     acq_dim = acq_template.dimensions()
-    print('acquisition data dimensions: %d sinograms, %d views, %d tang. pos.' \
+    print('acquisition data dimensions: ' + \
+          '%d TOF bins %d sinograms, %d views, %d tang. pos.' \
           % acq_dim)
 
     # create image of dimensions and voxel sizes compatible with the scanner
@@ -73,31 +74,31 @@ def main():
     print('creating compatible phantom')
     image = acq_template.create_uniform_image()
     # show the image
-    nx, ny, nz = image.dimensions()
-    vx, vy, vz = image.voxel_sizes()
-##    print('phantom dimensions: %dx%dx%d' % (nx, ny, nz))
-##    print('phantom voxel sizes: %fx%fx%f' % (vx, vy, vz))
-    image_size = (111, 111, int(nz))
-    voxel_size = (3.0, 3.0, float(vz))
+    nz, ny, nx = image.dimensions()
+    vz, vy, vx = image.voxel_sizes()
+    print('phantom dimensions: %dx%dx%d' % (nz, ny, nx))
+    print('phantom voxel sizes: %fx%fx%f' % (vz, vy, vx))
+    image_size = (int(nz), 111, 111)
+    voxel_size = (float(vz), 3.0, 3.0)
     image = ImageData()
     image.initialise(image_size, voxel_size)
 
     # create a shape
     shape = EllipticCylinder()
     shape.set_length(400)
-    shape.set_radii((100, 40))
-    shape.set_origin((0, 60, 10))
+    shape.set_radii((40, 100))
+    shape.set_origin((10, 60, 0))
 
     # add the shape to the image
     image.add_shape(shape, scale = 1)
 
     # add another shape
     shape.set_radii((30, 30))
-    shape.set_origin((60, -30, 10))
+    shape.set_origin((10, -30, 60))
     image.add_shape(shape, scale = 1.5)
 
     # add another shape
-    shape.set_origin((-60, -30, 10))
+    shape.set_origin((10, -30, -60))
     image.add_shape(shape, scale = 0.75)
 
     image_array = image.as_array()
@@ -117,8 +118,8 @@ def main():
     acq_array = simulated_data.as_array()
     acq_dim = acq_array.shape
 ##    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
-    z = acq_dim[0]//2
-    show_2D_array('Simulated acquisition data', acq_array[z,:,:])
+    z = acq_dim[1]//2
+    show_2D_array('Simulated acquisition data', acq_array[0,z,:,:])
 
     # write acquisition data and image to files
     print('writing acquisition data...')
@@ -131,8 +132,8 @@ def main():
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
 ##    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
-    z = acq_dim[0]//2
-    show_2D_array('Simulated acquisition data', acq_array[z,:,:])
+    z = acq_dim[1]//2
+    show_2D_array('Simulated acquisition data', acq_array[0,z,:,:])
 
     # show the image again
     img = ImageData()

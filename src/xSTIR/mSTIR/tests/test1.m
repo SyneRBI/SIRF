@@ -27,45 +27,46 @@ end
 if nargin < 1
     record = false;
 end
-import_str = set_up_PET(engine);
-eval(import_str)
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
 
-test = mUtilities.mTest('test1.txt', record);
+test = sirf.Utilities.mTest('test1.txt', record);
 
 % define raw data source
 filename = 'Utahscat600k_ca_seg4.hs';
-pathname = mUtilities.examples_data_path('PET');
-acq_data = AcquisitionData(fullfile(pathname, filename));
+pathname = sirf.Utilities.examples_data_path('PET');
+acq_data = PET.AcquisitionData(fullfile(pathname, filename));
 s = acq_data.norm();
 v = variance(acq_data);
 test.check(s)
 test.check(v)
 
-image = ImageData();
+image = PET.ImageData();
 image_size = [111, 111, 31];
 voxel_size = [3, 3, 3.375];
 image.initialise(image_size, voxel_size)
 image.fill(1.0)
-filter = TruncateToCylinderProcessor();
+filter = PET.TruncateToCylinderProcessor();
 filter.apply(image)
 s = image.norm();
 v = variance(image);
 test.check(s)
 test.check(v)
 
-prior = QuadraticPrior();
+prior = PET.QuadraticPrior();
 prior.set_penalisation_factor(0.5)
 prior.set_up(image);
 
-matrix = RayTracingMatrix();
+matrix = PET.RayTracingMatrix();
 matrix.set_num_tangential_LORs(2)
 
-am = AcquisitionModelUsingMatrix();
+am = PET.AcquisitionModelUsingMatrix();
 am.set_matrix(matrix)
 
 num_subsets = 12;
 
-obj_fun = make_Poisson_loglikelihood(acq_data);
+obj_fun = PET.make_Poisson_loglikelihood(acq_data);
 obj_fun.set_acquisition_model(am)
 obj_fun.set_num_subsets(num_subsets)
 obj_fun.set_up(image)

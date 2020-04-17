@@ -24,11 +24,64 @@ limitations under the License.
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
 
-#include "sirf/cSTIR/stir_x.h"
+#include "sirf/STIR/stir_x.h"
 
 using namespace stir;
 using namespace ecat;
 using namespace sirf;
+
+#ifdef STIR_USE_LISTMODEDATA
+    typedef ListModeData LMD;
+    typedef ListRecord LMR;
+#else
+    typedef CListModeData LMD;
+    typedef CListRecord LMR;
+#endif
+
+float ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold(const float threshold) const
+{
+    if (input_filename.empty())
+        throw std::runtime_error("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold: Filename missing");
+
+    shared_ptr<LMD> lm_data_ptr
+      (read_from_file<LMD>(input_filename));
+
+    shared_ptr <LMR> record_sptr = lm_data_ptr->get_empty_record_sptr();
+    LMR& record = *record_sptr;
+
+    double current_time = -1;
+    unsigned long num_prompts = 0UL;
+
+    /// Time resolution is 1s
+    const double time_resolution = 1;
+
+    while (true) {
+        // no more events in file for some reason
+        if (lm_data_ptr->get_next_record(record) == Succeeded::no)
+            return -1.f;
+
+        if (record.is_time()) {
+
+            const double new_time = record.time().get_time_in_secs();
+            // For the very first time
+            if (current_time < 0) {
+                current_time = new_time;
+                num_prompts=0UL;
+            }
+            // Otherwise, increment the time
+            else if (new_time >= current_time+time_resolution) {
+                current_time += time_resolution;
+                num_prompts=0UL;
+            }
+        }
+        // If we found a prompt, increment!
+        if (record.is_event() && record.event().is_prompt())
+            ++num_prompts;
+        // If the threshold is exceeded, return the time.
+        if (num_prompts > threshold)
+            return float(current_time);
+    }
+}
 
 void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
@@ -63,9 +116,9 @@ ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 	unsigned int current_frame_num = 1;
 	{
 		// loop over all events in the listmode file
-		shared_ptr<CListRecord> record_sptr =
+		shared_ptr<LMR> record_sptr =
 			lm_data_ptr->get_empty_record_sptr();
-		CListRecord& record = *record_sptr;
+		LMR& record = *record_sptr;
 
 		bool first_event = true;
 
@@ -267,36 +320,36 @@ ListmodeToSinograms::estimate_randoms_()
 	ProjData& proj_data = *randoms_sptr->data();
 
 	const int num_rings =
-		template_projdata_ptr->get_proj_data_info_ptr()->get_scanner_ptr()->
+		template_projdata_ptr->get_proj_data_info_sptr()->get_scanner_ptr()->
 		get_num_rings();
 	const int num_detectors_per_ring =
-		template_projdata_ptr->get_proj_data_info_ptr()->get_scanner_ptr()->
+		template_projdata_ptr->get_proj_data_info_sptr()->get_scanner_ptr()->
 		get_num_detectors_per_ring();
 	DetectorEfficiencies& efficiencies = *det_eff_sptr;
 
 	{
-		const ProjDataInfoCylindricalNoArcCorr * const proj_data_info_ptr =
-			dynamic_cast<const ProjDataInfoCylindricalNoArcCorr * const>
-			(proj_data.get_proj_data_info_ptr());
-		if (proj_data_info_ptr == 0)
+		const shared_ptr<const ProjDataInfoCylindricalNoArcCorr> proj_data_info_sptr =
+			stir::dynamic_pointer_cast<const ProjDataInfoCylindricalNoArcCorr>
+			(proj_data.get_proj_data_info_sptr());
+		if (proj_data_info_sptr == 0)
 		{
 			error("Can only process not arc-corrected data\n");
 		}
 
 		const int mashing_factor =
-			proj_data_info_ptr->get_view_mashing_factor();
+			proj_data_info_sptr->get_view_mashing_factor();
 
 		shared_ptr<Scanner>
-			scanner_sptr(new Scanner(*proj_data_info_ptr->get_scanner_ptr()));
+			scanner_sptr(new Scanner(*proj_data_info_sptr->get_scanner_ptr()));
 		unique_ptr<ProjDataInfo> uncompressed_proj_data_info_uptr
 			(ProjDataInfo::construct_proj_data_info(scanner_sptr,
 				/*span=*/1, max_ring_diff_for_fansums,
 				/*num_views=*/num_detectors_per_ring / 2,
 				scanner_sptr->get_max_num_non_arccorrected_bins(),
 				/*arccorrection=*/false));
-		const ProjDataInfoCylindricalNoArcCorr * const uncompressed_proj_data_info_ptr =
-			dynamic_cast<const ProjDataInfoCylindricalNoArcCorr * const>
-			(uncompressed_proj_data_info_uptr.get());
+		const ProjDataInfoCylindricalNoArcCorr &uncompressed_proj_data_info =
+			dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>
+			(*uncompressed_proj_data_info_uptr);
 		Bin bin;
 		Bin uncompressed_bin;
 
@@ -311,13 +364,13 @@ ListmodeToSinograms::estimate_randoms_()
 				(bin.segment_num());
 			++bin.axial_pos_num())
 			{
-				Sinogram<float> sinogram = proj_data_info_ptr->get_empty_sinogram
+				Sinogram<float> sinogram = proj_data_info_sptr->get_empty_sinogram
 					(bin.axial_pos_num(), bin.segment_num());
-				const float out_m = proj_data_info_ptr->get_m(bin);
+				const float out_m = proj_data_info_sptr->get_m(bin);
 				const int in_min_segment_num =
-					proj_data_info_ptr->get_min_ring_difference(bin.segment_num());
+					proj_data_info_sptr->get_min_ring_difference(bin.segment_num());
 				const int in_max_segment_num =
-					proj_data_info_ptr->get_max_ring_difference(bin.segment_num());
+					proj_data_info_sptr->get_max_ring_difference(bin.segment_num());
 
 				// now loop over uncompressed detector-pairs
 				{
@@ -325,15 +378,15 @@ ListmodeToSinograms::estimate_randoms_()
 						uncompressed_bin.segment_num() <= in_max_segment_num;
 						++uncompressed_bin.segment_num())
 						for (uncompressed_bin.axial_pos_num() =
-							uncompressed_proj_data_info_ptr->get_min_axial_pos_num
+							uncompressed_proj_data_info.get_min_axial_pos_num
 							(uncompressed_bin.segment_num());
 					uncompressed_bin.axial_pos_num() <=
-						uncompressed_proj_data_info_ptr->get_max_axial_pos_num
+						uncompressed_proj_data_info.get_max_axial_pos_num
 						(uncompressed_bin.segment_num());
 					++uncompressed_bin.axial_pos_num())
 						{
 							const float in_m =
-								uncompressed_proj_data_info_ptr->get_m(uncompressed_bin);
+								uncompressed_proj_data_info.get_m(uncompressed_bin);
 							if (fabs(out_m - in_m) > 1E-4)
 								continue;
 
@@ -345,8 +398,8 @@ ListmodeToSinograms::estimate_randoms_()
 								++bin.view_num())
 							{
 
-								for (bin.tangential_pos_num() = proj_data_info_ptr->get_min_tangential_pos_num();
-									bin.tangential_pos_num() <= proj_data_info_ptr->get_max_tangential_pos_num();
+								for (bin.tangential_pos_num() = proj_data_info_sptr->get_min_tangential_pos_num();
+									bin.tangential_pos_num() <= proj_data_info_sptr->get_max_tangential_pos_num();
 									++bin.tangential_pos_num())
 								{
 									uncompressed_bin.tangential_pos_num() =
@@ -359,7 +412,7 @@ ListmodeToSinograms::estimate_randoms_()
 									{
 										int ra = 0, a = 0;
 										int rb = 0, b = 0;
-										uncompressed_proj_data_info_ptr->get_det_pair_for_bin(a, ra, b, rb,
+										uncompressed_proj_data_info.get_det_pair_for_bin(a, ra, b, rb,
 											uncompressed_bin);
 										/*(*segment_ptr)[bin.axial_pos_num()]*/
 										sinogram[bin.view_num()][bin.tangential_pos_num()] +=
@@ -472,15 +525,25 @@ PETAcquisitionModel::set_up(
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
 		s = sptr_projectors_->set_up
-			(sptr_acq->get_proj_data_info_sptr(), sptr_image->data_sptr());
+			(sptr_acq->get_proj_data_info_sptr()->create_shared_clone(), sptr_image->data_sptr());
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
 	if (s == Succeeded(Succeeded::yes)) {
 		if (sptr_asm_ && sptr_asm_->data())
-			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
+			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr()->create_shared_clone());
 	}
 	return s;
+}
+
+void 
+PETAcquisitionModel::set_image_data_processor(stir::shared_ptr<ImageDataProcessor> sptr_processor)
+{
+	if (!sptr_projectors_)
+		throw std::runtime_error("projectors need to be set before calling set_image_data_processor");
+
+	sptr_projectors_->get_forward_projector_sptr()->set_pre_data_processor(sptr_processor);
+	sptr_projectors_->get_back_projector_sptr()->set_post_data_processor(sptr_processor);
 }
 
 void 
@@ -525,6 +588,8 @@ shared_ptr<PETAcquisitionData>
 PETAcquisitionModel::forward(const STIRImageData& image, 
 	int subset_num, int num_subsets)
 {
+	if (!sptr_acq_template_.get())
+		THROW("Fatal error in PETAcquisitionModel::forward: acquisition template not set");
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
@@ -570,6 +635,8 @@ shared_ptr<STIRImageData>
 PETAcquisitionModel::backward(PETAcquisitionData& ad, 
 	int subset_num, int num_subsets)
 {
+	if (!sptr_image_template_.get())
+		THROW("Fatal error in PETAcquisitionModel::backward: image template not set");
 	shared_ptr<STIRImageData> sptr_id;
 	sptr_id = sptr_image_template_->new_image_data();
 	shared_ptr<Image3DF> sptr_im = sptr_id->data_sptr();

@@ -34,17 +34,22 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 import math
+import numpy
 
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+#exec('from sirf.' + args['--engine'] + ' import *')
+pet_engine = 'sirf.' + args['--engine']
+for obj in ['error', 'examples_data_path', 'existing_filepath', \
+            'AcquisitionData', 'MessageRedirector']:
+    exec('from ' + pet_engine + ' import ' + obj)
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 storage = args['--storage']
 
 # select acquisition data storage scheme
@@ -73,32 +78,25 @@ def main():
     acq_data = AcquisitionData(raw_data_file)
 
     # copy the acquisition data into a Python array and display
-    print('data dimensions: %d x %d x %d' % acq_data.dimensions())
-    acq_data.show()
+    dim = acq_data.dimensions()
+    print('data dimensions: %d x %d x %d x %d' % dim)
+    acq_data.show(range(dim[1]//4))
     acq_array = acq_data.as_array()
-    # print('data dimensions: %d x %d x %d' % acq_array.shape)
-    # acq_dim = acq_array.shape
-    # z = acq_dim[0]//2
-    # show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # rebin the acquisition data
     new_acq_data = acq_data.rebin(3)
-    print('rebinned data dimensions: %d x %d x %d' % new_acq_data.dimensions())
-    new_acq_data.show(title = 'Rebinned acquisition data')
-    #acq_array = new_acq_data.as_array()
-    #print('rebinned data dimensions: %d x %d x %d' % acq_array.shape)
+    rdim = new_acq_data.dimensions()
+    print('rebinned data dimensions: %d x %d x %d x %d' % rdim)
+    new_acq_data.show(range(rdim[1]//3), title = 'Rebinned acquisition data')
 
     # clone the acquisition data
     new_acq_data = acq_data.clone()
     # display the cloned data
-    new_acq_data.show(title = 'Cloned acquisition data')
-    # acq_array = new_acq_data.as_array()
-    # show_2D_array('Cloned acquisition data', acq_array[z,:,:])
+    new_acq_data.show(range(dim[1]//4), title = 'Cloned acquisition data')
 
     print('Checking acquisition data algebra:')
     s = acq_data.norm()
     t = acq_data.dot(acq_data)
-##    t = acq_data * acq_data
     print('norm of acq_data.as_array(): %f' % numpy.linalg.norm(acq_array))
     print('acq_data.norm(): %f' % s)
     print('sqrt(acq_data.dot(acq_data)): %f' % math.sqrt(t))
@@ -106,13 +104,14 @@ def main():
     print('norm of acq_data.clone() - acq_data: %f' % diff.norm())
     acq_factor = acq_data.get_uniform_copy(0.1)
     new_acq_data = acq_data / acq_factor
-##    new_acq_data = acq_data * 10.0
     print('norm of acq_data*10: %f' % new_acq_data.norm())
+    acq_copy = acq_data.get_uniform_copy()
+    acq_copy.fill(acq_data)
+    diff = acq_copy - acq_data
+    print('norm of acq_copy - acq_data: %f' % diff.norm())
 
     # display the scaled data
-    new_acq_data.show(title = 'Scaled acquisition data')
-    # acq_array = new_acq_data.as_array()
-    # show_2D_array('Scaled acquisition data', acq_array[z,:,:])
+    new_acq_data.show(range(dim[1]//4), title = 'Scaled acquisition data')
 
     print('Checking images algebra:')
     image = acq_data.create_uniform_image(10.0)
@@ -120,16 +119,18 @@ def main():
     print('image dimensions: %d x %d x %d' % image_array.shape)
     s = image.norm()
     t = image.dot(image)
-##    t = image * image
     print('norm of image.as_array(): %f' % numpy.linalg.norm(image_array))
     print('image.norm(): %f' % s)
     print('sqrt(image.dot(image)): %f' % math.sqrt(t))
     image_factor = image.get_uniform_copy(0.1)
     image = image / image_factor
-##    image = image*10
     print('norm of image*10: %f' % image.norm())
     diff = image.clone() - image
     print('norm of image.clone() - image: %f' % diff.norm())
+    image_copy = image.get_uniform_copy()
+    image_copy.fill(image)
+    diff = image_copy - image
+    print('norm of image_copy - image: %f' % diff.norm())
 
     print('image voxel sizes:')
     print(image.voxel_sizes())
@@ -145,3 +146,6 @@ except error as err:
 
 if scheme != storage:
     AcquisitionData.set_storage_scheme(scheme)
+    
+
+

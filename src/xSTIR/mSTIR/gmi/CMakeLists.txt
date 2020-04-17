@@ -20,8 +20,6 @@ if(BUILD_MATLAB)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  include_directories(${Matlab_INCLUDE_DIRS})
-
   add_executable(gmi_xstir gmi_xstir.cpp)
   target_link_libraries(gmi_xstir csirf mig)
   INSTALL(TARGETS gmi_xstir DESTINATION bin)

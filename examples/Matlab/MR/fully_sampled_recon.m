@@ -51,16 +51,17 @@ function fully_sampled_recon(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
-mr_data_path = mUtilities.examples_data_path('MR');
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % MR raw data formats from different vendors can be transformed to 
 % HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
 % bruker_to_ismrmrd on https://github.com/ismrmrd/.
 % acquisitions will be read from this HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-input_data = AcquisitionData(fullfile(pathname, filename));
+input_data = MR.AcquisitionData(fullfile(pathname, filename));
 
 % pre-process acquisition data
 % Prior to image reconstruction several pre-processing steps such as 
@@ -69,12 +70,12 @@ input_data = AcquisitionData(fullfile(pathname, filename));
 % direction. So far only the removal of readout oversampling and noise and
 % asymmetric echo adjusting is implemented
 fprintf('processing acquisitions...\n')
-processed_data = preprocess_acquisition_data(input_data);
+processed_data = MR.preprocess_acquisition_data(input_data);
 
 % perform reconstruction:
 % 1. Create a reconstruction object using 2D inverse Fourier transform and
 %    FullySampledCartesianReconstructor() sets up a default gadget chain.
-recon = FullySampledCartesianReconstructor();
+recon = MR.FullySampledCartesianReconstructor();
 % 2. Provide pre-processed k-space data as input
 recon.set_input(processed_data)
 
@@ -91,7 +92,7 @@ if exist('montage','file') && exist('mat2gray','file')
     idisp = mat2gray(abs(image_data.as_array()));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    mUtilities.show_3D_array...
+    sirf.Utilities.show_3D_array...
         (abs(image_data.as_array()), 'Reconstructed image data (magnitude)', ...
         'samples', 'readouts', 'slice');
 end
@@ -100,6 +101,6 @@ end
 image_array = image_data.as_array();
 image_array(abs(image_array) < 0.2*max(image_array(:))) = 0;
 image_data.fill(image_array);
-mUtilities.show_3D_array...
+sirf.Utilities.show_3D_array...
     (abs(image_data.as_array()), 'Filtered image data (magnitude)', ...
     'samples', 'readouts', 'slice');

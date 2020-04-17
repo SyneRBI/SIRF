@@ -32,7 +32,7 @@ limitations under the License.
 
 #include <stdlib.h>
 #include <string>
-#include <stdexcept>
+#include <vector>
 
 #include "sirf/iUtilities/LocalisedException.h"
 
@@ -64,6 +64,9 @@ limitations under the License.
 		handle->set(0, &status);\
 		return (void*)handle;\
 				}\
+
+/// Typedef of vector of void pointers for a vector of handles
+typedef std::vector<void const *> DataHandleVector;
 
 /*!
 \ingroup C Interface to C++ Objects

@@ -20,9 +20,11 @@ limitations under the License.
 */
 
 #include "sirf/iUtilities/DataHandle.h"
-#include "sirf/cSTIR/stir_types.h"
-#include "sirf/cSTIR/cstir_p.h"
-#include "sirf/cSTIR/stir_x.h"
+#include "sirf/STIR/stir_types.h"
+#include "sirf/STIR/cstir_p.h"
+#include "sirf/STIR/stir_x.h"
+#include "stir/ImagingModality.h"
+#include "stir/Verbosity.h"
 
 using namespace stir;
 using namespace sirf;
@@ -63,6 +65,13 @@ cSTIR_newReconstructionMethod(const char* par_file)
 }
 
 extern "C"
+void* cSTIR_setVerbosity(const int verbosity)
+{
+    stir::Verbosity::set(verbosity);
+    return new DataHandle;
+}
+
+extern "C"
 void* cSTIR_newObject(const char* name)
 {
 	try {
@@ -76,6 +85,10 @@ void* cSTIR_newObject(const char* name)
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+        if (boost::iequals(name, "AcqModUsingNiftyPET"))
+            return NEW_OBJECT_HANDLE(AcqModUsingNiftyPET3DF);
+#endif
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (boost::iequals(name, "QuadraticPrior"))
@@ -86,6 +99,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (boost::iequals(name, "EllipsoidalCylinder"))
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
+		if (boost::iequals(name, "SeparableGaussianImageFilter"))
+			return NEW_OBJECT_HANDLE(xSTIR_SeparableGaussianImageFilter);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -100,6 +115,8 @@ void* cSTIR_setParameter
 		CAST_PTR(DataHandle, hv, ptr_v);
 		if (boost::iequals(obj, "ListmodeToSinograms"))
 			return cSTIR_setListmodeToSinogramsParameter(ptr_s, name, ptr_v);
+		else if (boost::iequals(obj, "SeparableGaussianImageFilter"))
+			return cSTIR_setSeparableGaussianImageFilterParameter(ptr_s, name, ptr_v);
 		else if (boost::iequals(obj, "Shape"))
 			return cSTIR_setShapeParameter(ptr_s, name, ptr_v);
 		else if (boost::iequals(obj, "EllipsoidalCylinder"))
@@ -111,6 +128,10 @@ void* cSTIR_setParameter
 			return cSTIR_setAcquisitionModelParameter(hs, name, hv);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_setAcqModUsingMatrixParameter(hs, name, hv);
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+        else if (boost::iequals(obj, "AcqModUsingNiftyPET"))
+            return cSTIR_setAcqModUsingNiftyPETParameter(hs, name, hv);
+#endif
 		else if (boost::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
 		else if (boost::iequals(obj, "GeneralisedPrior"))
@@ -135,6 +156,10 @@ void* cSTIR_setParameter
 			return cSTIR_setIterativeReconstructionParameter(hs, name, hv);
 		else if (boost::iequals(obj, "OSMAPOSL"))
 			return cSTIR_setOSMAPOSLParameter(hs, name, hv);
+#ifdef USE_HKEM
+		else if (boost::iequals(obj, "KOSMAPOSL"))
+			return cSTIR_setKOSMAPOSLParameter(hs, name, hv);
+#endif
 		else if (boost::iequals(obj, "OSSPS"))
 			return cSTIR_setOSSPSParameter(hs, name, hv);
 		else if (boost::iequals(obj, "FBP2D"))
@@ -193,6 +218,12 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			return cSTIR_newReconstructionMethod
 			<OSMAPOSLReconstruction<Image3DF> >
 			(filename);
+#ifdef USE_HKEM
+		if (boost::iequals(name, "KOSMAPOSLReconstruction"))
+			return cSTIR_newReconstructionMethod
+			<KOSMAPOSLReconstruction<Image3DF> >
+			(filename);
+#endif
 		if (boost::iequals(name, "OSSPSReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSSPSReconstruction<Image3DF> >
@@ -295,6 +326,29 @@ void* cSTIR_computeRandoms(void* ptr)
 }
 
 extern "C"
+void* cSTIR_lm_prompt_rate_exceeds_threshold(const void * ptr, const float threshold)
+{
+    try {
+        ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
+        return dataHandle<float>(lm2s.get_time_at_which_prompt_rate_exceeds_threshold(threshold));
+    }
+    CATCH
+}
+extern "C"
+void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i)
+{
+	try {
+		DataProcessor<Image3DF>& processor =
+			objectFromHandle<DataProcessor<Image3DF> >(ptr_p);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		Image3DF& image = id.data();
+		processor.set_up(image);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	try {
@@ -363,7 +417,7 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 		PETAcquisitionSensitivityModel& sm = 
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-		Succeeded s = sm.set_up(sptr_ad->data()->get_proj_data_info_sptr());
+		Succeeded s = sm.set_up(sptr_ad->data()->get_proj_data_info_sptr()->create_shared_clone());
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
@@ -458,7 +512,7 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 
 extern "C"
 void*
-cSTIR_setAcquisitionsStorageScheme(const char* scheme)
+cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 { 
 	try {
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
@@ -472,14 +526,14 @@ cSTIR_setAcquisitionsStorageScheme(const char* scheme)
 
 extern "C"
 void*
-cSTIR_getAcquisitionsStorageScheme()
+cSTIR_getAcquisitionDataStorageScheme()
 {
 	return charDataHandleFromCharData
 		(PETAcquisitionData::storage_scheme().c_str());
 }
 
 extern "C"
-void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
+void* cSTIR_acquisitionDataFromTemplate(void* ptr_t)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
@@ -525,17 +579,19 @@ const int max_in_segment_num_to_process
 }
 
 extern "C"
-void* cSTIR_acquisitionsDataFromScannerInfo
+void* cSTIR_acquisitionDataFromScannerInfo
 (const char* scanner, int span, int max_ring_diff, int view_mash_factor)
 {
 	try{
 		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
+        sptr_ei->imaging_modality = ImagingModality::PT;
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
+		PETAcquisitionDataInFile::init();
 		stir::shared_ptr<PETAcquisitionData> sptr_t =
 			PETAcquisitionData::storage_template();
-		shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
+		stir::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
 			(sptr_ei, sptr_pdi));
 		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
@@ -544,7 +600,7 @@ void* cSTIR_acquisitionsDataFromScannerInfo
 }
 
 extern "C"
-void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
+void* cSTIR_getAcquisitionDataDimensions(const void* ptr_acq, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
@@ -552,13 +608,14 @@ void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
 		dim[0] = sptr_ad->get_num_tangential_poss();
 		dim[1] = sptr_ad->get_num_views();
 		dim[2] = sptr_ad->get_num_sinograms();
+		dim[3] = sptr_ad->get_num_TOF_bins();
 		return (void*)new DataHandle;
 	}
 	CATCH;
 }
 
 extern "C"
-void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
+void* cSTIR_getAcquisitionData(const void* ptr_acq, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
@@ -570,7 +627,7 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 }
 
 extern "C"
-void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v)
+void* cSTIR_fillAcquisitionData(void* ptr_acq, float v)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
@@ -581,7 +638,7 @@ void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v)
 }
 
 extern "C"
-void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
+void* cSTIR_fillAcquisitionDataFromAcquisitionData
 (void* ptr_acq, const void* ptr_from)
 {
 	try {
@@ -594,7 +651,7 @@ void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
 }
 
 extern "C"
-void* cSTIR_setAcquisitionsData(void* ptr_acq, size_t ptr_data)
+void* cSTIR_setAcquisitionData(void* ptr_acq, size_t ptr_data)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
@@ -655,6 +712,7 @@ extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
+		//std::cout << "in cSTIR_setupReconstruction...\n";
 		DataHandle* handle = new DataHandle;
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		sptrImage3DF sptr_image = id.data_sptr();
@@ -847,6 +905,19 @@ cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 }
 
 extern "C"
+void*
+cSTIR_PLSPriorGradient(void* ptr_p, int dir)
+{
+	try {
+		PLSPrior<float>& prior = objectFromHandle<PLSPrior<float> >(ptr_p);
+		auto sptr_im = prior.get_anatomical_grad_sptr(dir);
+        auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
+		return newObjectHandle(sptr_id);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_voxels3DF
 (int nx, int ny, int nz,
 float sx, float sy, float sz,
@@ -906,6 +977,42 @@ void* cSTIR_writeImage(void* ptr_i, const char* filename)
 		return (void*) new DataHandle;
 	}
 	CATCH;
+}
+
+extern "C"
+void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const size_t offsets_in_mm_ptr_raw,
+                                 const size_t new_sizes_ptr_raw, const char *const zoom_options)
+{
+    try {
+        STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+
+        const float* zooms_ptr         = (const float*)zooms_ptr_raw;
+        const float* offsets_in_mm_ptr = (const float*)offsets_in_mm_ptr_raw;
+        const  int*  new_sizes_ptr     = (const  int* )new_sizes_ptr_raw;
+
+        Coord3DF zooms(zooms_ptr[0],zooms_ptr[1],zooms_ptr[2]);
+        Coord3DF offsets_in_mm(offsets_in_mm_ptr[0],offsets_in_mm_ptr[1],offsets_in_mm_ptr[2]);
+        Coord3DI new_sizes(new_sizes_ptr[0],new_sizes_ptr[1],new_sizes_ptr[2]);
+
+        id.zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+
+		return static_cast<void*>(new DataHandle);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_ptr)
+{
+    try {
+        STIRImageData& im = objectFromHandle<STIRImageData>(im_ptr);
+        PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(acq_data_ptr);
+        im.move_to_scanner_centre(ad);
+
+        return static_cast<void*>(new DataHandle);
+	}
+	CATCH;
+
 }
 
 extern "C"
@@ -1035,7 +1142,7 @@ void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 }
 
 extern "C"
-void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
+void* cSTIR_setImageData(void* ptr_im, size_t ptr_data)
 {
 	try {
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
@@ -1044,4 +1151,30 @@ void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+extern "C"
+void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src)
+{
+	try {
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+		STIRImageData& id_src = objectFromHandle<STIRImageData>(ptr_src);
+		Image3DF& data = id.data();
+		data = id_src.data();
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* setParameter
+(void* ptr_s, const char* obj, const char* name, const void* ptr_v)
+{
+	return cSTIR_setParameter(ptr_s, obj, name, ptr_v);
+}
+
+extern "C"
+void* parameter(const void* ptr, const char* obj, const char* name)
+{
+	return cSTIR_parameter(ptr, obj, name);
 }

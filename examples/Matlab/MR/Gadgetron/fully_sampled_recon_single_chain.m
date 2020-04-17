@@ -26,9 +26,10 @@ function fully_sampled_recon_single_chain(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
-mr_data_path = mUtilities.examples_data_path('MR');
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % In this demo, rather than using a predefined image reconstruction 
 % object, here an image reconstruction object is created by concatinating 
@@ -53,7 +54,7 @@ gadgets = [...
     ];
 
 % create reconstructor
-recon = Reconstructor(gadgets);
+recon = MR.Reconstructor(gadgets);
 
 % change a property of the gadget labelled 'ex'
 % ExtractGadget defines which type of image should be returned:
@@ -64,12 +65,30 @@ recon = Reconstructor(gadgets);
 % phase     8
 % max       16  
 % in this example '5' returns both magnitude and imag 
-recon.set_gadget_property('ex', 'extract_mask', 5);
+%recon.set_gadget_property('ex', 'extract_mask', 5);
+recon.set_gadget_property('ex', 'extract_magnitude', true);
+recon.set_gadget_property('ex', 'extract_imag', true);
 
 % define raw data source
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-acq_data = AcquisitionData(fullfile(pathname, filename));
+acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 recon.set_input(acq_data)
+
+% optionally set Gadgetron server host and port
+recon.set_host('localhost')
+% On VM you can try a port other than the default 9002, e.g. 9003, by taking
+% the following steps:
+% 1) in ~/devel/install/share/gadgetron/config/gadgetron.xml replace
+%    <port>9002</port> with <port>9003</port>
+% 2) go to Settings->Network->Advanced->Port Forwarding and add new rule
+%    (click on green + in the upper right corner) with Host and Guest ports
+%    set to 9003
+% 3) uncomment the next line
+%recon.set_port('9003')
+% Note: each gadget chain can run on a different VM - to try, start two VMs
+% and do the above steps 1 and 2 on one of them, then add recon.set_port('9003')
+% before recon.process in grappa_detail.py (where preprocessing runs on
+% port 9002).
 
 % perform reconstruction
 recon.process()
@@ -85,9 +104,9 @@ if exist('montage','file') && exist('mat2gray','file')
 else
     image_array = image_data.as_array();
     title = 'Reconstructed image data (magnitude)';
-    mUtilities.show_3D_array(abs(image_array(:,:,1:2:end)), title, ...
+    sirf.Utilities.show_3D_array(abs(image_array(:,:,1:2:end)), title, ...
         'samples', 'readouts', 'slice');
     title = 'Reconstructed image data (imaginary part)';
-    mUtilities.show_3D_array(imag(image_array(:,:,2:2:end)), title, ...
+    sirf.Utilities.show_3D_array(imag(image_array(:,:,2:2:end)), title, ...
         'samples', 'readouts', 'slice');
 end

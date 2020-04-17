@@ -42,17 +42,11 @@ from pUtilities import *
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
-try:
-    from ismrmrdtools import coils
-except:
-    print('This demo requires ismrmrd-python-tools.')
-    sys.exit()
-
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
 nit = int(args['--iter'])
 
 def main():
@@ -83,12 +77,13 @@ def main():
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS)
     CSMs.calculate(processed_data)
     #
+    CSMs.write('csm.h5')
     # display coil sensitivity maps
-    coil_images = numpy.squeeze(CSMs.as_array(0))
+    csms_array = CSMs.as_array()
+    nz = csms_array.shape[1]
     title = 'SRSS from raw data (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil',
-                  show = False)
+    show_3D_array(abs(csms_array[:, nz//2, :, :]), suptitle=title, \
+                  xlabel='samples', ylabel='readouts', label='coil', show=False)
 
     # 3. Now compute coil sensitivity maps from coil images in order to compare
     # SSRS and Inati methods:
@@ -98,6 +93,7 @@ def main():
     #
     # calculate coil images from raw data
     CIs.calculate(processed_data)
+    CIs.write('ci.h5')
     #
     # create coil sensitivity object
     CSMs = CoilSensitivityData()
@@ -106,33 +102,34 @@ def main():
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS);
     # (niter = nit) sets the number of smoothing iterations applied
     # to the image data prior to the calculation of the coil sensitivity maps
-    CSMs.calculate(CIs, method = 'SRSS(niter = %d)' % nit)
+    CSMs.calculate(CIs, method='SRSS(niter = %d)' % nit)
     #
     # display coil sensitivity maps (must be identical to previously computed)
-    coil_images = numpy.squeeze(CSMs.as_array(0))
-    maxv = numpy.amax(abs(coil_images))
+    csms_array = CSMs.as_array()
+    nz = csms_array.shape[1]
     title = 'SRSS from coil images (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil',
-                  show = False)
-##    title = 'Coil sensitivity maps (phase)'
-##    show_3D_array(numpy.angle(coil_images), suptitle = title, \
-##                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
+    show_3D_array(abs(csms_array[:, nz//2, :, :]), suptitle=title, \
+                  xlabel='samples', ylabel='readouts', label='coil', \
+                  show=False)
 
-    # calculate coil sensitivity maps using an approach suggested by 
-    #   Inati SJ, Hansen MS, Kellman P.
-    #   A solution to the phase problem in adaptive coil combination.
-    #   In: ISMRM proceeding; April; Salt Lake City, Utah, USA; 2013. 2672.  
-    # for more details please see 
-    # gadgetron/toolboxes/mri_core/mri_core_coil_map_estimation.h  
-    CSMs = CoilSensitivityData()
-    CSMs.calculate(CIs, method = 'Inati()')
-    #
-    # display coil sensitivity maps
-    coil_images = numpy.squeeze(CSMs.as_array(0))
-    title = 'Inati (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
+    try:
+        from ismrmrdtools import coils
+        # calculate coil sensitivity maps using an approach suggested by 
+        #   Inati SJ, Hansen MS, Kellman P.
+        #   A solution to the phase problem in adaptive coil combination.
+        #   In: ISMRM proceeding; April; Salt Lake City, Utah, USA; 2013. 2672.  
+        # for more details please see 
+        # gadgetron/toolboxes/mri_core/mri_core_coil_map_estimation.h  
+        CSMs = CoilSensitivityData()
+        CSMs.calculate(CIs, method='Inati()')
+        csms_array = CSMs.as_array()
+        #
+        # display coil sensitivity maps
+        title = 'Inati (magnitude)'
+        show_3D_array(abs(csms_array[:, nz//2, :, :]), suptitle=title, \
+                      xlabel='samples', ylabel='readouts', label='coil')
+    except:
+        print('ismrmrd-python-tools not found, skipping Inati method')
 
 try:
     main()

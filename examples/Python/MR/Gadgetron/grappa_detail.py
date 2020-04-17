@@ -59,9 +59,7 @@ from pGadgetron import *
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
-
-from pUtilities import show_3D_array
+    data_path = examples_data_path('MR')
 
 
 def main():
@@ -88,16 +86,8 @@ def main():
     # specified in prep_gadgets, returning an instance
     # of an mGadgetron.AcquisitionsContainer
     preprocessed_data = acq_data.process(prep_gadgets)
+    preprocessed_data.show(title = 'Acquisition data (magnitude)')
     
-    # Extract sorted k-space, permute dimensions and display
-    acq_array = preprocessed_data.as_array(0)
-    [ns,nc,nro] = preprocessed_data.dimensions() # [nx ncoil ny]
-    acq_array = numpy.transpose(acq_array,(1,0,2))
-    title = 'Acquisition data (magnitude)'
-    show_3D_array(acq_array, power = 0.2, \
-                  suptitle = title, title_size = 16, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
-            
     
     # Perform reconstruction of the preprocessed data.
     
@@ -150,26 +140,9 @@ def main():
     #  method '.get_gfactor'.)
     image_data = recon.get_output('image')
     gfact_data = recon.get_output('gfactor')
+    image_data.show(title = 'Reconstructed image data (magnitude)')
+    gfact_data.show(title = 'G-factor data (magnitude)')
     
-    # Return as Python matrices the data pointed to by the containers.
-    # Note the image data is complex.
-    image_as_3D_array = image_data.as_array()
-    maxv = numpy.amax(abs(image_as_3D_array))
-    title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_as_3D_array), \
-                  suptitle = title, title_size = 16, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                  scale = (0, maxv))
-            
-            
-    gfactor_as_3D_array = gfact_data.as_array();
-    maxv = numpy.amax(abs(gfactor_as_3D_array))
-    title = 'G-factor data (magnitude)'
-    show_3D_array(abs(gfactor_as_3D_array),
-                  suptitle = title, title_size = 16, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                  scale = (0, maxv))
-
 try:
     main()
     print('done')

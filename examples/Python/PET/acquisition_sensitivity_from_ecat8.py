@@ -39,7 +39,7 @@ import math
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 temp_file = args['--temp']
@@ -48,8 +48,8 @@ data_path = args['--path']
 if data_path is None:
     # default to data/examples/PET/mMR
     # Note: seem to need / even on Windows
-    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
-    data_path = petmr_data_path('pet') + '/mMR'
+    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+    data_path = examples_data_path('PET') + '/mMR'
 temp_file = existing_filepath(data_path, temp_file)
 norm_file = existing_filepath(data_path, norm_file)
 storage = args['--storage']
@@ -80,8 +80,8 @@ def main():
     # show bin efficiencies
     acq_array = fwd_data.as_array()
     acq_dim = acq_array.shape
-    z = acq_dim[0]//2
-    show_2D_array('Bin efficiencies', acq_array[z,:,:])
+    z = acq_dim[1]//2
+    show_2D_array('Bin efficiencies', acq_array[0,z,:,:])
 
 try:
     main()

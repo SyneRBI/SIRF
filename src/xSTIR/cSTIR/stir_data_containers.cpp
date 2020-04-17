@@ -19,12 +19,16 @@ limitations under the License.
 
 */
 
-#include "sirf/cSTIR/stir_data_containers.h"
+#include "sirf/STIR/stir_data_containers.h"
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
+#include "stir/zoom.h"
 
 using namespace stir;
 using namespace sirf;
+
+//#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 std::string PETAcquisitionData::_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
@@ -55,7 +59,8 @@ PETAcquisitionData::norm() const
 void
 PETAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	double t = 0;
@@ -91,8 +96,10 @@ const void* ptr_b, const DataContainer& a_y
 {
 	float a = *(float*)ptr_a;
 	float b = *(float*)ptr_b;
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -131,7 +138,8 @@ const void* ptr_b, const DataContainer& a_y
 void
 PETAcquisitionData::inv(float amin, const DataContainer& a_x)
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	for (int s = 0; s <= n && s <= nx; ++s)
@@ -166,8 +174,10 @@ const DataContainer& a_x,
 const DataContainer& a_y
 )
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -209,8 +219,10 @@ const DataContainer& a_x,
 const DataContainer& a_y
 )
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -302,7 +314,8 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
 void
 STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
-	STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -313,7 +326,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 
 	double s = 0.0;
 	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all() && iter_x != x.data().end_all(); 
+		iter != data().end_all() && iter_x != x.data().end_all();
 		iter++, iter_x++) {
 		double t = *iter;
 		s += t * (*iter_x);
@@ -329,8 +342,10 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	float a = *(float*)ptr_a;
 	float b = *(float*)ptr_b;
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	DYNAMIC_CAST(const STIRImageData, y, a_y);
+	//STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& y = (STIRImageData&)a_y;
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -373,8 +388,10 @@ STIRImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -398,8 +415,10 @@ STIRImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -456,7 +475,8 @@ STIRImageData::get_dimensions(int* dim) const
 void
 STIRImageData::get_voxel_sizes(float* vsize) const
 {
-	const Voxels3DF& voxels = (const Voxels3DF&)*_data;
+	//const Voxels3DF& voxels = (const Voxels3DF&)*_data;
+	DYNAMIC_CAST(const Voxels3DF, voxels, *_data);
 	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
 	for (int i = 0; i < 3; i++)
 		vsize[i] = vs[i + 1];
@@ -465,13 +485,12 @@ STIRImageData::get_voxel_sizes(float* vsize) const
 void
 STIRImageData::get_data(float* data) const
 {
-	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	if (!image.get_regular_range(min_indices, max_indices))
+	if (!_data->get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
 		//return -1;
-	std::cout << "trying new const iterator...\n";
+	//std::cout << "trying new const iterator...\n";
 	STIRImageData::Iterator_const iter(begin());
 	for (int i = 0; iter != end(); ++i, ++iter)
 		data[i] = *iter;
@@ -502,7 +521,7 @@ STIRImageData::set_data(const float* data)
 	size_t n = 1;
 	for (int i = 0; i < 3; i++)
 		n *= (max_indices[i + 1] - min_indices[i + 1] + 1);
-	std::cout << "trying new iterator...\n";
+	//std::cout << "trying new iterator...\n";
 	STIRImageData::Iterator iter(begin());
 	for (int i = 0; iter != end(); ++i, ++iter)
 		*iter = data[i];
@@ -516,6 +535,52 @@ STIRImageData::set_data(const float* data)
 	//	}
 	//}
 	//return 0;
+}
+
+void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes, const char *zoom_options_str)
+{
+    stir::ZoomOptions zoom_options;
+    if (strcmp(zoom_options_str,"preserve_sum")==0)
+        zoom_options = stir::ZoomOptions::preserve_sum;
+    else if (strcmp(zoom_options_str,"preserve_values")==0)
+        zoom_options = stir::ZoomOptions::preserve_values;
+    else if (strcmp(zoom_options_str,"preserve_projections")==0)
+        zoom_options = stir::ZoomOptions::preserve_projections;
+    else
+        throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
+
+    this->zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+}
+
+void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes_in, const stir::ZoomOptions zoom_options)
+{
+    // We need the underyling image as a VoxelsOnCartesianGrid
+    DYNAMIC_CAST(Voxels3DF, voxels, this->data());
+
+    int dim[3];
+    this->get_dimensions(dim);
+
+    // If any sizes have been set to <= 0, set to image size
+    Coord3DI new_sizes(new_sizes_in);
+    for (unsigned i=0; i<3; ++i)
+        if (new_sizes.at(int(i+1))<=0)
+            new_sizes.at(int(i+1)) = dim[i];
+
+    // Zoom the image
+    voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
+}
+
+void
+STIRImageData::
+move_to_scanner_centre(const PETAcquisitionData &)
+{
+    this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
 }
 
 void
@@ -565,6 +630,6 @@ STIRImageData::set_up_geom_info()
     }
 
     // Initialise the geom info shared pointer
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
-                (offset,spacing,size,direction);
+    this->set_geom_info(std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction));
 }

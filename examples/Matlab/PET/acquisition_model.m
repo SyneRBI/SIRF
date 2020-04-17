@@ -26,23 +26,24 @@ function acquisition_model(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
-pet_data_path = mUtilities.examples_data_path('PET');
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt');
+    PET.MessageRedirector('info.txt');
 
     % create uniform image
-    image = ImageData();
+    image = PET.ImageData();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)
 
     % create a shape
-    shape = EllipticCylinder();
+    shape = PET.EllipticCylinder();
 
     % add a shape to the image
     shape.set_length(400);
@@ -64,36 +65,36 @@ try
 
     % display the created phantom image
     image_array = image.as_array();
-    mUtilities.show_2D_array(image_array(:,:,z), 'phantom', 'x', 'y');
+    sirf.Utilities.show_2D_array(image_array(:,:,z), 'phantom', 'x', 'y');
 
     % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
-    template = AcquisitionData(fullfile(pathname, filename));
+    template = PET.AcquisitionData(fullfile(pathname, filename));
     
     % create example bin efficiencies
     bin_eff = template.clone();
     bin_eff.fill(2.0);
     bin_eff_arr = bin_eff.as_array();
     bin_eff_arr(:, 10:50, :) = 0;
-    mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
+    sirf.Utilities.show_2D_array(bin_eff_arr(:,:,z), ...
         'bin efficiencies', 'tang. pos.', 'views');
     bin_eff.fill(bin_eff_arr);
     
     % create acquisition sensitivity model based on bin efficiencies
-    as_mod1 = AcquisitionSensitivityModel(bin_eff);
+    as_mod1 = PET.AcquisitionSensitivityModel(bin_eff);
 
     % create acquisition sensitivity model based on other bin efficiencies
     % to illustrate that AcquisitionSensitivityModel can be combined
     bin_eff_arr(:, 10:50, :) = 2.0;
     bin_eff_arr(:, 60:80, :) = 0;
-    mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
+    sirf.Utilities.show_2D_array(bin_eff_arr(:,:,z), ...
         'other bin efficiencies', 'tang. pos.', 'views');
     bin_eff.fill(bin_eff_arr);
-    as_mod2 = AcquisitionSensitivityModel(bin_eff);
+    as_mod2 = PET.AcquisitionSensitivityModel(bin_eff);
 
     % chain the two sensitivity models
-    as_model = AcquisitionSensitivityModel(as_mod1, as_mod2);
+    as_model = PET.AcquisitionSensitivityModel(as_mod1, as_mod2);
     as_model.set_up(template)
 
     % create acquisition data where every bin is set to 1
@@ -102,12 +103,12 @@ try
     % apply the chained model to view combined bin efficiencies
     as_model.unnormalise(ones)
     ones_arr = ones.as_array();
-    mUtilities.show_2D_array(ones_arr(:,:,z), ...
+    sirf.Utilities.show_2D_array(ones_arr(:,:,z), ...
         'combined bin efficiencies', 'tang. pos.', 'views');
 
     % select the acquisition model that implements the geometric
     % forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_model = PET.AcquisitionModelUsingRayTracingMatrix();
 
     % set acquisition model normalisation
     acq_model.set_acquisition_sensitivity(as_model);
@@ -121,7 +122,7 @@ try
     % display simulated data
     acq_array = simulated_data.as_array();
     acq_dim = size(acq_array);
-    mUtilities.show_2D_array(acq_array(:,:,uint16(acq_dim(3)/2)), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,uint16(acq_dim(3)/2)), ...
         'simulated acquisition data', 'tang. pos.', 'views');
 
     % backproject the simulated data
@@ -130,7 +131,7 @@ try
     backprojected_image = acq_model.backward(simulated_data);
     % display backprojected data
     image_array = backprojected_image.as_array();
-    mUtilities.show_2D_array(image_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(image_array(:,:,z), ...
         'backprojection of simulated data', 'x', 'y');
 
 catch err

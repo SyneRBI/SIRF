@@ -33,7 +33,8 @@ args = docopt(__doc__, version=__version__)
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+#exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 storage = args['--storage']
 
@@ -47,7 +48,7 @@ def main():
     # copy the acquisition data into a Python array
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
-    print('acquisition data dimensions (maximum resolution): %dx%dx%d' % acq_dim)
+    print('acquisition data dimensions (maximum resolution): %dx%dx%dx%d' % acq_dim)
 
     # create acquisition data from scanner parameters but with axial compression etc
     acq_data = AcquisitionData('Siemens_mMR',span=11, view_mash_factor=2)
@@ -56,7 +57,10 @@ def main():
     # copy the acquisition data into a Python array
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
-    print('acquisition data dimensions (span 11, view mashing 2): %dx%dx%d' % acq_dim)
+    print('acquisition data dimensions (span 11, view mashing 2): %dx%dx%dx%d' % acq_dim)
+
+    # By default, the Siemens mMR uses acquisition settings corresponding to the following constructor
+    acq_data = AcquisitionData('Siemens_mMR',span=11, max_ring_diff=60, view_mash_factor=1)
 
     # write the acquisition data to a file (commented out for this demo)
     # acq_data.write('example_mMR_ones.hs')

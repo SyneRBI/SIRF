@@ -8,7 +8,7 @@ Options:
                               [default: my_forward_projection.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
-  -e <engn>, --engn=<engn>    reconstruction engine [default: STIR]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -34,13 +34,13 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engn'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
@@ -58,7 +58,7 @@ def main():
     recon.set_input(acq_data)
 
     # reconstruct with default settings
-    recon.reconstruct()
+    recon.process()
     image = recon.get_output()
     image_array = image.as_array()
     z = int(image_array.shape[0]*2/3)
@@ -67,7 +67,7 @@ def main():
 
     # change image size
     recon.set_output_image_size_xy(image_array.shape[1]*2)
-    recon.reconstruct()
+    recon.process()
     image = recon.get_output()
     image_array = image.as_array()
     print('--------\n xy-size %d' % image_array.shape[1])
@@ -76,7 +76,7 @@ def main():
     # zoom in
     zoom = 2.5
     recon.set_zoom(zoom)
-    recon.reconstruct()
+    recon.process()
     image = recon.get_output()
     print('--------\n zoom %f' % zoom)
     image.show(z)
@@ -84,7 +84,7 @@ def main():
     # use a Hann filter
     alpha = 0.5
     recon.set_alpha_cosine_window(alpha)
-    recon.reconstruct()
+    recon.process()
     image = recon.get_output()
     print('--------\n alpha %f' % alpha)
     image.show(z)
@@ -92,7 +92,7 @@ def main():
     # a Hann filter with lower cut-off (0.5 is no cut-off)
     fc = 0.2
     recon.set_frequency_cut_off(fc)
-    recon.reconstruct()
+    recon.process()
     image = recon.get_output()
     print('--------\n frequency cut-off %f' % fc)
     image.show(z)
@@ -100,7 +100,7 @@ def main():
     # alternative way to set the output image parameters (via image template)
     image1 = acq_data.create_uniform_image() # image template
     recon.set_up(image1) # use image template to create the output image
-    recon.reconstruct()
+    recon.process()
     image = recon.get_output()
     print('--------\n alternative setup')
     image.show(z)

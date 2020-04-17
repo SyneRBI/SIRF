@@ -33,14 +33,17 @@ if nargin < 1
     mr_engine = [];
     pet_engine = [];
 end
-% emulate Python's import <module> as <alias>
-import_mr_str = set_up_MR(mr_engine, 'MR');
-eval(import_mr_str)
-import_pet_str = set_up_PET(pet_engine, 'PET');
-eval(import_pet_str)
-% note that this will create copies of the engines module folders
-% named +MR and +PET, so you must have sufficient privileges to write 
-% to installation folder
+% % emulate Python's import <module> as <alias>
+% import_mr_str = set_up_MR(mr_engine, 'MR');
+% eval(import_mr_str)
+% import_pet_str = set_up_PET(pet_engine, 'PET');
+% eval(import_pet_str)
+% % note that this will create copies of the engines module folders
+% % named +MR and +PET, so you must have sufficient privileges to write 
+% % to installation folder
+MR = set_up_MR(mr_engine);
+PET = set_up_PET(pet_engine);
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % acquisitions will be read from an HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
@@ -63,7 +66,7 @@ recon.process()
 mr_image = recon.get_output();
 
 % display MR image
-mUtilities.show_3D_array(abs(mr_image.as_array()), 'MR image data', ...
+sirf.Utilities.show_3D_array(abs(mr_image.as_array()), 'MR image data', ...
     'x (FE)', 'y (PE)', 'slice');
 
 % convert MR image to PET image
@@ -87,6 +90,6 @@ pet_image = filter.get_output();
 %filter.apply(pet_image);
 
 % display filtered PET image
-mUtilities.show_3D_array(pet_image.as_array(), 'PET image data', 'x', 'y', 'slice');
+sirf.Utilities.show_3D_array(pet_image.as_array(), 'PET image data', 'x', 'y', 'slice');
 
 end

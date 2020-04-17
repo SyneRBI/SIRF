@@ -44,7 +44,7 @@ exec('from p' + args['--engine'] + ' import *')
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
 
 def main():
 
@@ -86,19 +86,14 @@ def main():
     image_data.write(args['--output'])
 
     # show reconstructed image data
-    image_array = image_data.as_array()
-    title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+    image_data.show(title = 'Reconstructed image data (magnitude)')
 
     # filter the image
+    image_array = image_data.as_array()
     select = image_array.real < 0.2*numpy.amax(image_array.real)
     image_array[select] = 0
-    image_data.fill(image_array)
-    image_array = image_data.as_array()
-    title = 'Filtered image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
-                  xlabel = 'samples', ylabel = 'readouts')
+    image_data.fill(abs(image_array))
+    image_data.show(title = 'Filtered image data (magnitude)')
 
 try:
     main()

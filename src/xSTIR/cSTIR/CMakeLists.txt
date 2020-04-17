@@ -19,7 +19,20 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-find_package(STIR REQUIRED)
+# Check for existence of HKEM code
+# TODO: replace if (EXISTS) with if (STIR version >= 3.2)
+if(EXISTS "${STIR_INCLUDE_DIRS}/stir/KOSMAPOSL/KOSMAPOSLReconstruction.h")
+  add_definitions(-DUSE_HKEM)
+else()
+  remove_definitions(-DUSE_HKEM)
+endif()
+
+# Check for existence of ListModeData.h
+if (EXISTS "${STIR_INCLUDE_DIRS}/stir/listmode/ListModeData.h")
+  add_definitions(-DSTIR_USE_LISTMODEDATA)
+else()
+  remove_definitions(-DSTIR_USE_LISTMODEDATA)
+endif()
 
 add_library(cstir 
     cstir_p.cpp cstir_tw.cpp stir_data_containers.cpp stir_x.cpp cstir.cpp)
@@ -27,6 +40,7 @@ target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
 target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
+target_include_directories(cstir PUBLIC "${STIR_INCLUDE_DIRS}")
 
 target_link_libraries(cstir csirf iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")

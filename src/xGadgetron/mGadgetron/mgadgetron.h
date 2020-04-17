@@ -34,7 +34,9 @@ limitations under the License.
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
-EXPORTED_FUNCTION  void* mGT_newObject(const char* name);
+EXPORTED_FUNCTION  void* mParameter(void* ptr, const char* obj, const char* name);
+EXPORTED_FUNCTION 	void* mSetParameter (void* ptr, const char* obj, const char* par, const void* val);
+EXPORTED_FUNCTION 	void* mGT_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION 	void* mGT_setParameter (void* ptr, const char* obj, const char* par, const void* val);
 EXPORTED_FUNCTION 	void*	mGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);
@@ -50,18 +52,22 @@ EXPORTED_FUNCTION 	void* mGT_setAcquisitionModelParameter (void* ptr_am, const c
 EXPORTED_FUNCTION 	void* mGT_setCSMs(void* ptr_am, const void* ptr_csms);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
-EXPORTED_FUNCTION 	void* mGT_setAcquisitionsStorageScheme(const char* scheme);
-EXPORTED_FUNCTION 	void* mGT_getAcquisitionsStorageScheme();
+EXPORTED_FUNCTION 	void* mGT_setAcquisitionDataStorageScheme(const char* scheme);
+EXPORTED_FUNCTION 	void* mGT_getAcquisitionDataStorageScheme();
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFromFile(const char* file);
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFile(const char* file);
 EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
+EXPORTED_FUNCTION 	void* mGT_appendAcquisition(void* ptr_acqs, void* ptr_acq);
+EXPORTED_FUNCTION 	void* mGT_createEmptyAcquisitionData(void* ptr_ad);
 EXPORTED_FUNCTION 	void* mGT_cloneAcquisitions(void* ptr_input);
-EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs);
-EXPORTED_FUNCTION 	void* mGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim);
-EXPORTED_FUNCTION 	void*	mGT_writeAcquisitions(void* ptr_acqs, const char* filename);
-EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
-EXPORTED_FUNCTION 	void* mGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
+EXPORTED_FUNCTION 	void* mGT_sortAcquisitions(void* ptr_acqs);
+EXPORTED_FUNCTION 	void* mGT_sortAcquisitionsByTime(void* ptr_acqs);
+EXPORTED_FUNCTION 	void* mGT_setAcquisitionsInfo(void* ptr_acqs, const char* info);
+EXPORTED_FUNCTION 	void* mGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);
+EXPORTED_FUNCTION 	void* mGT_fillAcquisitionData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
+EXPORTED_FUNCTION 	void* mGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src);
+EXPORTED_FUNCTION 	void* mGT_acquisitionDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon);
 EXPORTED_FUNCTION 	void*	mGT_readImages(const char* file);
@@ -72,10 +78,13 @@ EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int
 EXPORTED_FUNCTION 	void* mGT_imageDataType(const void* ptr_x, int im_num);
 EXPORTED_FUNCTION 	void mGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
 EXPORTED_FUNCTION 	void* mGT_imageType(const void* ptr_img);
-EXPORTED_FUNCTION 	void* mGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
-EXPORTED_FUNCTION 	void* mGT_setImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
-EXPORTED_FUNCTION 	void* mGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
-EXPORTED_FUNCTION 	void* mGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
+EXPORTED_FUNCTION 	void* mGT_getImageDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
+EXPORTED_FUNCTION 	void* mGT_setImageDataFromFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
+EXPORTED_FUNCTION 	void* mGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
+EXPORTED_FUNCTION 	void* mGT_setImageDataFromCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
+EXPORTED_FUNCTION     void* mGT_print_header(const void* ptr_imgs, const int im_idx);
+EXPORTED_FUNCTION 	void* mGT_setHost(void* ptr_gc, const char* host);
+EXPORTED_FUNCTION 	void* mGT_setPort(void* ptr_gc, const char* port);
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION 	void* mGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION 	void* mGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);

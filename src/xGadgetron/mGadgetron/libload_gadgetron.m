@@ -7,18 +7,10 @@ function libload_gadgetron
 % end
 if ~libisloaded('miutilities')
     fprintf('loading miutilities library...\n')
-    try
-        [notfound, warnings] = loadlibrary('miutilities');
-    catch
-        error('mutilities library failed to load\n')
-    end
+    loadlibrary('miutilities');
 end
 if ~libisloaded('mgadgetron')
     fprintf('loading mgadgetron library...\n')
-    try
-        [notfound, warnings] = loadlibrary('mgadgetron');
-    catch
-        error('mgadgetron library failed to load\n')
-    end
+    loadlibrary('mgadgetron');
 end
 end

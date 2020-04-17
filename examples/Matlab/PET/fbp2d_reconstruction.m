@@ -22,21 +22,22 @@ function fbp2d_reconstruction(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
-pet_data_path = mUtilities.examples_data_path('PET');
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt');
+    PET.MessageRedirector('info.txt');
 
     % PET acquisition data to be read from this file
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
-    acq_data = AcquisitionData(fullfile(pathname, filename));
+    acq_data = PET.AcquisitionData(fullfile(pathname, filename));
     
     % create reconstructor object
-    recon = FBP2DReconstructor();
+    recon = PET.FBP2DReconstructor();
     % specify the acquisition data
 
     % reconstruct with default settings

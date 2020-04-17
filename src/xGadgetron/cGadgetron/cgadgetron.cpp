@@ -27,14 +27,14 @@ limitations under the License.
 #include <ismrmrd/dataset.h>
 
 #include "sirf/iUtilities/DataHandle.h"
-#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
-#include "sirf/cGadgetron/gadgetron_client.h"
+#include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_client.h"
 //#include "iutilities.h" // causes problems with Matlab (cf. the same message below)
-#include "sirf/cGadgetron/cgadgetron_p.h"
-#include "sirf/cGadgetron/gadgetron_x.h"
-#include "sirf/cGadgetron/gadget_lib.h"
-#include "sirf/cGadgetron/chain_lib.h"
+#include "sirf/Gadgetron/cgadgetron_p.h"
+#include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/gadget_lib.h"
+#include "sirf/Gadgetron/chain_lib.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -123,7 +123,10 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(IsmrmrdAcqMsgWriter);
 		NEW_GADGET(IsmrmrdImgMsgReader);
 		NEW_GADGET(IsmrmrdImgMsgWriter);
+		NEW_GADGET(DicomImageMessageWriter);
 		NEW_GADGET(NoiseAdjustGadget);
+		NEW_GADGET(PCACoilGadget);
+		NEW_GADGET(CoilReductionGadget);
 		NEW_GADGET(AsymmetricEchoAdjustROGadget);
 		NEW_GADGET(RemoveROOversamplingGadget);
 		NEW_GADGET(AcquisitionAccumulateTriggerGadget);
@@ -131,13 +134,21 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(GenericReconCartesianReferencePrepGadget);
 		NEW_GADGET(GenericReconCartesianGrappaGadget);
 		NEW_GADGET(SimpleReconGadget);
+        NEW_GADGET(GenericReconCartesianFFTGadget);
 		NEW_GADGET(GenericReconFieldOfViewAdjustmentGadget);
 		NEW_GADGET(GenericReconImageArrayScalingGadget);
+		NEW_GADGET(FatWaterGadget);
 		NEW_GADGET(ImageArraySplitGadget);
+		NEW_GADGET(PhysioInterpolationGadget);
+		NEW_GADGET(GPURadialSensePrepGadget);
+		NEW_GADGET(GPUCGSenseGadget);
 		NEW_GADGET(ExtractGadget);
+		NEW_GADGET(AutoScaleGadget);
 		NEW_GADGET(ComplexToFloatGadget);
+		NEW_GADGET(FloatToUShortGadget);
 		NEW_GADGET(FloatToShortGadget);
 		NEW_GADGET(ImageFinishGadget);
+		NEW_GADGET(DicomFinishGadget);
 		NEW_GADGET(AcquisitionFinishGadget);
 		NEW_GADGET(SimpleReconGadgetSet);
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -440,7 +451,7 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 
 extern "C"
 void*
-cGT_setAcquisitionsStorageScheme(const char* scheme)
+cGT_setAcquisitionDataStorageScheme(const char* scheme)
 {
 	try{
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
@@ -454,7 +465,7 @@ cGT_setAcquisitionsStorageScheme(const char* scheme)
 
 extern "C"
 void*
-cGT_getAcquisitionsStorageScheme()
+cGT_getAcquisitionDataStorageScheme()
 {
 	return charDataHandleFromCharData
 		(MRAcquisitionData::storage_scheme().c_str());
@@ -462,17 +473,33 @@ cGT_getAcquisitionsStorageScheme()
 
 extern "C"
 void*
-cGT_orderAcquisitions(void* ptr_acqs)
+cGT_sortAcquisitions(void* ptr_acqs)
 {
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		acqs.order();
+		acqs.sort();
 		return (void*)new DataHandle;
 	}
 	CATCH;
 }
+
+extern "C"
+void*
+cGT_sortAcquisitionsByTime(void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		acqs.sort_by_time();
+
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
 
 extern "C"
 void*
@@ -520,6 +547,19 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 
 extern "C"
 void*
+cGT_createEmptyAcquisitionData(void* ptr_ad)
+{
+	try {
+		MRAcquisitionData& ad =
+			objectFromHandle<MRAcquisitionData>(ptr_ad);
+		shared_ptr<MRAcquisitionData> sptr_ac = ad.new_acquisitions_container();
+		return newObjectHandle<MRAcquisitionData>(sptr_ac);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_cloneAcquisitions(void* ptr_input)
 {
 	try {
@@ -550,7 +590,23 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 
 extern "C"
 void*
-cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
+cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		ISMRMRD::Acquisition& acq = 
+			objectFromHandle<ISMRMRD::Acquisition>(ptr_acq);
+		acqs.append_acquisition(acq);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_getAcquisitionDataDimensions(void* ptr_acqs, size_t ptr_dim)
 {
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
@@ -566,7 +622,7 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 
 extern "C"
 void*
-cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
+cGT_acquisitionDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
@@ -581,7 +637,7 @@ cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 
 extern "C"
 void*
-cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
+cGT_fillAcquisitionData(void* ptr_acqs, size_t ptr_z, int all)
 {
 	complex_float_t* z = (complex_float_t*)ptr_z;
 	CAST_PTR(DataHandle, h_acqs, ptr_acqs);
@@ -593,15 +649,16 @@ cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
 
 extern "C"
 void*
-cGT_writeAcquisitions(void* ptr_acqs, const char* filename)
+cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src)
 {
-	try {
-		MRAcquisitionData& acqs =
-			objectFromHandle<MRAcquisitionData>(ptr_acqs);
-		acqs.write(filename);
-		return new DataHandle;
-	}
-	CATCH;
+	CAST_PTR(DataHandle, h_dst, ptr_dst);
+	CAST_PTR(DataHandle, h_src, ptr_src);
+	MRAcquisitionData& dst =
+		objectFromHandle<MRAcquisitionData>(h_dst);
+	MRAcquisitionData& src =
+		objectFromHandle<MRAcquisitionData>(h_src);
+	dst.copy_acquisitions_data(src);
+	return new DataHandle;
 }
 
 extern "C"
@@ -684,9 +741,28 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 			objectFromHandle<MRAcquisitionData>(h_acqs);
 		if (boost::iequals(name, "undersampled"))
 			return dataHandle((int)acqs.undersampled());
+		if (boost::iequals(name, "sorted"))
+			return dataHandle((int)acqs.sorted());
+		if (boost::iequals(name, "info"))
+			return charDataHandleFromCharData(acqs.acquisitions_info().c_str());
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;
+}
+
+extern "C"
+void*
+cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		acqs.set_acquisitions_info(info);
+		return new DataHandle;
+	}
+	CATCH;
+
 }
 
 extern "C"
@@ -826,12 +902,24 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 
 extern "C"
 void*
-cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
+cGT_writeImages(void* ptr_imgs, const char* filename, const char* ext)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
-		imgs.write(out_file, out_group);
+        // If .h5
+		if (strcmp(ext, "h5") == 0) {
+			std::string fullname(filename);
+			fullname += ".";
+			fullname += ext;
+			imgs.write(fullname);
+		}
+        // Else if dicom
+		else if (strcmp(ext, "dcm") == 0) {
+            imgs.write(filename,"",true);
+		}
+        else
+            throw std::runtime_error("cGT_writeImages: Unknown extension");
 	}
 	CATCH;
 
@@ -869,7 +957,7 @@ cGT_imageType(const void* ptr_img)
 
 extern "C"
 void*
-cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
+cGT_getImageDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
@@ -883,7 +971,7 @@ cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 
 extern "C"
 void*
-cGT_setImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
+cGT_setImageDataFromFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
@@ -897,7 +985,7 @@ cGT_setImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 
 extern "C"
 void*
-cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+cGT_getImageDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
@@ -911,13 +999,25 @@ cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 
 extern "C"
 void*
-cGT_setImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+cGT_setImageDataFromCmplxArray(void* ptr_imgs, size_t ptr_z)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		imgs.set_data(z);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cGT_print_header(const void* ptr_imgs, const int im_idx)
+{
+    try {
+        CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImagesVector& imgs = objectFromHandle<GadgetronImagesVector>(h_imgs);
+        imgs.print_header(im_idx);
 		return new DataHandle;
 	}
 	CATCH;
@@ -944,6 +1044,34 @@ cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		con.set_timeout(timeout_ms);
+	}
+	CATCH;
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_setHost(void* ptr_gc, const char* host)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		gc.set_host(host);
+	}
+	CATCH;
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_setPort(void* ptr_gc, const char* port)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		gc.set_port(port);
 	}
 	CATCH;
 
@@ -1249,3 +1377,16 @@ cGT_disconnect(void* ptr_con)
 	return (void*)new DataHandle;
 }
 
+extern "C"
+void*
+parameter(void* ptr, const char* obj, const char* name)
+{
+	return cGT_parameter(ptr, obj, name);
+}
+
+extern "C"
+void*
+setParameter(void* ptr, const char* obj, const char* par, const void* val)
+{
+	return cGT_setParameter(ptr, obj, par, val);
+}

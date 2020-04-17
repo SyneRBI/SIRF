@@ -25,16 +25,19 @@ function reconstruct_from_listmode(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
-pet_data_path = mUtilities.examples_data_path('PET');
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+AD = PET.AcquisitionData();
+AD.set_storage_scheme('memory');
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
-AcquisitionData.set_storage_scheme('memory');
+%AcquisitionData.set_storage_scheme('memory');
 
 try
     % direct all information printing to info.txt; warnings to warn.txt
     % error messages to go to Matlab Command Window
-    MessageRedirector('info.txt', 'warn.txt');
+    PET.MessageRedirector('info.txt', 'warn.txt');
 
     % First step is to create AcquisitionData ("sinograms") from the
     % listmode file.
@@ -42,7 +45,7 @@ try
     % step.
 
     % create listmode-to-sinograms converter object
-    lm2sino = ListmodeToSinograms();
+    lm2sino = PET.ListmodeToSinograms();
 
     default_path = fullfile(pet_data_path, 'mMR');
 
@@ -82,19 +85,20 @@ try
     acq_data = lm2sino.get_output();
     % copy the acquisition data into a Matlab array
     acq_array = acq_data.as_array();
-    acq_dim = size(acq_array);
-    fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
+    %acq_dim = size(acq_array);
+    acq_dim = acq_data.dimensions();
+    fprintf('acquisition data dimensions: %d x %d x %d x %d\n', acq_dim)
     z = round(acq_dim(3)/2);
-    mUtilities.show_2D_array(acq_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
 
     % read attenuation image
-    attn_image = ImageData(attn_file);
+    attn_image = PET.ImageData(attn_file);
     attn_image_as_array = attn_image.as_array();
     % select a slice appropriate for the NEMA acquistion data
     z = 72;
     % z = round(size(attn_image_as_array, 3)/2);
-    mUtilities.show_2D_array(attn_image_as_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(attn_image_as_array(:,:,z), ...
         'attenuation image', 'tang. pos.', 'views');
 
     % create initial image estimate of dimensions and voxel sizes
@@ -106,31 +110,31 @@ try
 
     % select acquisition model that implements the geometric
     % forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_model = PET.AcquisitionModelUsingRayTracingMatrix();
     acq_model.set_num_tangential_LORs(10)
 
     % create acquisition sensitivity model from ECAT8 normalization data
-    asm_norm = AcquisitionSensitivityModel(norm_file);
+    asm_norm = PET.AcquisitionSensitivityModel(norm_file);
     % create acquisition sensitivity model for attenuation
-    asm_attn = AcquisitionSensitivityModel(attn_image, acq_model);
+    asm_attn = PET.AcquisitionSensitivityModel(attn_image, acq_model);
     asm_attn.set_up(acq_data);
     % compute attenuation factors
-    bin_eff = AcquisitionData(acq_data);
+    bin_eff = PET.AcquisitionData(acq_data);
     bin_eff.fill(1.0);
     fprintf('applying attenuation (please wait, may take a while)...\n')
     asm_attn.unnormalise(bin_eff);
     %store these in a new acquisition sensitivity model
-    asm_beff = AcquisitionSensitivityModel(bin_eff);
+    asm_beff = PET.AcquisitionSensitivityModel(bin_eff);
 
     % chain attenuation and ECAT8 normalisation
-    asm = AcquisitionSensitivityModel(asm_norm, asm_beff);
+    asm = PET.AcquisitionSensitivityModel(asm_norm, asm_beff);
 
     acq_model.set_acquisition_sensitivity(asm);
     acq_model.set_background_term(randoms);
 
     % define objective function to be maximized as a
     % log of the Poisson likelihood
-    obj_fun = make_Poisson_loglikelihood(acq_data);
+    obj_fun = PET.make_Poisson_loglikelihood(acq_data);
     obj_fun.set_acquisition_model(acq_model)
 
     % select Ordered Subsets Maximum A-Posteriori One Step Late as the
@@ -141,7 +145,7 @@ try
     % See the reconstruction demos for more complicated examples     
     num_subsets = 7;
     num_subiterations = 2;
-    recon = OSMAPOSLReconstructor();
+    recon = PET.OSMAPOSLReconstructor();
     recon.set_objective_function(obj_fun);
     recon.set_num_subsets(num_subsets);
     recon.set_num_subiterations(num_subiterations);
@@ -163,12 +167,10 @@ try
     % display the reconstructed image
     image_array = recon.get_current_estimate().as_array();
     the_title = sprintf('Reconstructed image');
-    mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+    sirf.Utilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
 
 catch err
     % display error information
     fprintf('??? %s\n', err.message)
     fprintf('error id is %s\n', err.identifier)
 end
-
-

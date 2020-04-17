@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""pSTIR tests
+"""sirf.STIR tests
 v{version}
 
 Usage:
@@ -14,9 +14,10 @@ Options:
 {licence}
 """
 import math
-from pSTIR import *
-__version__ = "0.2.2"
-__author__ = "Casper da Costa-Luis"
+from sirf.STIR import *
+from sirf.Utilities import runner, RE_PYEXT, __license__
+__version__ = "0.2.3"
+__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
 def norm(v):
@@ -40,13 +41,20 @@ def test_main(rec=False, verb=False, throw=True):
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
+    # create an acq_model that is explicitly a RayTracingMatrix and test it a tiny bit
+    am = AcquisitionModelUsingRayTracingMatrix()
+    am.set_num_tangential_LORs(3);
+    test.check_if_equal(3, am.get_num_tangential_LORs());
+
+    # create the matrix on its own, and use that for later tests
     matrix = RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
+    test.check_if_equal(2, matrix.get_num_tangential_LORs());
 
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 
     raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
     ad = AcquisitionData(raw_data_file)
@@ -58,11 +66,12 @@ def test_main(rec=False, verb=False, throw=True):
 
     filter = TruncateToCylinderProcessor()
 
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375)
+    image_size = (31, 111, 111)
+    voxel_size = (3.375, 3, 3)
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
+    test.check_if_equal(voxel_size, image.voxel_sizes())
 
     filter.apply(image)
     image_arr = image.as_array()
@@ -121,6 +130,25 @@ def test_main(rec=False, verb=False, throw=True):
     v = var(pgrad_arr)
     test.check(s)
     test.check(v)
+
+    # Test geom info
+    geom_info = image.get_geometrical_info()
+    geom_info.print_info()
+    if geom_info.get_size() != (image_size[2],image_size[1],image_size[0]):
+        raise AssertionError("SIRF get_geometrical_info().get_size() failed.")
+    if geom_info.get_spacing() != (voxel_size[2],voxel_size[1],voxel_size[0]):
+        raise AssertionError("SIRF get_geometrical_info().get_spacing() failed.")
+
+    # Test zoom_image
+    new_size = (3,2,5)
+    zoomed_im = image.zoom_image(size=new_size)
+    if zoomed_im.dimensions() != new_size:
+        raise AssertionError("STIRImageData zoom_image() failed.\n\t" + \
+            "Expected new size: " + str(new_size) + "\n\t" + \
+            "Actual new size: " + str(zoomed_im.dimensions()))
+
+    # Test move to scanner centre
+    moved_im = image.move_to_scanner_centre(ad)
 
     return test.failed, test.ntest
 

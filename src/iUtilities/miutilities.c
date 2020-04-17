@@ -23,7 +23,7 @@ limitations under the License.
 
 #include <mex.h>
 #include "matrix.h"
-#include "iutilities.h"
+#include "sirf/iUtilities/iutilities.h"
 
 #ifndef IUTILITIES_FOR_MATLAB
  extern "C" {
@@ -48,6 +48,9 @@ EXPORTED_FUNCTION 	void* mDoubleDataHandle(double i) {
 }
 EXPORTED_FUNCTION 	char* mCharDataFromHandle(const void* ptr) {
 	return charDataFromHandle(ptr);
+}
+EXPORTED_FUNCTION     bool mBoolDataFromHandle(const void* ptr) {
+	return boolDataFromHandle(ptr);
 }
 EXPORTED_FUNCTION 	int mIntDataFromHandle(const void* ptr) {
 	return intDataFromHandle(ptr);

@@ -41,45 +41,59 @@ changes between 0.9 and 1.0.
     
       - Docker images with pre-installed software
 
-# SIRF 1.x
-These updates will be split over a few intermediate releases.
-
-Target date: Q2 2018
+# SIRF 2.0 (released 14 May 2019)
 
   - Software
+
+      - Improved C++ interface with growing similarity with the Python/MATLAB classes.
+      
+      - Common `ImageData` objects for PET and MR.
+
+      - Geometric information encoded in `ImageData` objects (coregistered PET
+        and MR). Reinterpolating to a different grid size, transforming
+        using rigid transformations.
     
+      - Interface to motion estimation software (via [NiftyReg](http://cmictig.cs.ucl.ac.uk/wiki/index.php/NiftyReg)) (Flagship)
+
+      - PET reconstruction with MR anatomical priors.
+      
+  - Improved documentation
+
+
+# SIRF 2.1 etc
+
+Target date : Q3 2019
+
+  - Software
+
       - Addition of non-TOF scatter
     
       - Partial support for GE Signa PET/MR (PET data only).
 
-  - Improved documentation
+      - MR iterative reconstruction via Gadgetron gadgets
+      
+      - MR acquisition modelling of 3D Cartesian sequences (with undersampling)
+      
+      - LPS coordinate system that coincides with the vendor's, including handling of bed position.
+      
+      - Integration with the [Core Imaging Library (CIL)](https://github.com/vais-ral/CCPi-Framework) (Python-only) for access to general optimisers and regularisation.
 
-  - CMake SuperBuild of SIRF and Windows (Gadgetron not yet on Windows)
 
-  - Small database with phantom data for testing
+  - CMake SuperBuild of SIRF on Windows (Gadgetron not yet on Windows)
 
-# SIRF 2.0
+# SIRF 3.0
 
-Target date: Q4 2018
+Target date: Q4 2019
 
-  - Add major features that didn’t make it into SIRF 1.x
+  - Add major features that didn’t make it into SIRF 2.x
 
   - Software
     
-      - C++ Interface. (enabling a possible move to SWIG for supporting
+      - Further additions to C++ Interface. (enabling a possible move to SWIG for supporting
         other languages)
-    
-      - Geometric information encoded in Image objects (coregistered PET
-        and MR). Reinterpolating to a different grid size, transforming
-        using rigid transformations.
-    
-      - Common Image objects for PET and MR. Therefore the Shape classes
-        will work for PET and MR
-    
-      - PET reconstruction with MR anatomical priors
-    
-      - MR iterative reconstruction via Gadgetron
-    
+
+      - Functions to compute gradients and values of MR objective function (SIRF 1.1 already provides this for PET).
+         
       - Full support for measured data (Siemens, GE non-TOF). MR only if
         ismrmrd converter available
         
@@ -91,23 +105,19 @@ Target date: Q4 2018
     
       - Create subsets of acquisition and image data
       
-      - Interface to motion estimation software (NiftyReg?) (Flagship)
-
   - Expanded Testing framework
 
   - Installers with precompiled software
 
-# SIRF 3.0
+# SIRF 4.0
 
-Target date: Q2 2019
+Target date: Q1 2020
 
   - Software:
     
       - Motion-guided reconstruction (Flagship)  
         Spatial only at first, time sync later
-    
-      - Functions to compute gradients and values of objective functions
-    
+        
       - MR reconstruction with PET prior
     
       - Joint PET-MR reconstruction using MATLAB or Python
@@ -120,8 +130,6 @@ Target date: Q2 2019
       - Support for measured data
         
           - MR sequences: (list TBD)
-        
-          - GE TOF
         
           - Philips?
 
