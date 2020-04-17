@@ -59,7 +59,7 @@ addons:
 env:
  global:
  # Need STIR_TAG=master at present, see https://github.com/CCPPETMR/SIRF/issues/366
- - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSTIR_TAG=master"
+ - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
  # don't use too many threads - may crash
  - MAKEFLAGS="-j 2"
 matrix:
