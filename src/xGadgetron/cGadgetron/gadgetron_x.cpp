@@ -29,6 +29,7 @@ limitations under the License.
 
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
 
 using namespace gadgetron;
@@ -374,6 +375,7 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
 	}
+	ic.set_meta_data(ac.acquisitions_info());
 }
 
 /*
@@ -490,7 +492,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		}
 		ac.append_acquisition(acq);
 		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) ||
+			off + y >= sptr_acqs_->number())
 			break;
 	}
 	off += y;
@@ -510,11 +513,12 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	ISMRMRD::deserialize(par.c_str(), header);
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq;
-	//sptr_acqs_->get_acquisition(0, acq);
 	for (unsigned int i = 0; i < ac.number(); i++) {
 		ac.get_acquisition(i, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+		if (!TO_BE_IGNORED(acq))
 			break;
+//		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+//			break;
 	}
 
 	unsigned int nx = e.reconSpace.matrixSize.x;
@@ -533,6 +537,40 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
+	const int NUMVAL = 4;
+	typedef std::array<int, NUMVAL> tuple;
+	tuple t_first;
+	bool first = true;
+	unsigned int& a = off;
+	for (; a < ac.number(); a++) {
+		ac.get_acquisition(a, acq);
+		if (TO_BE_IGNORED(acq))
+			continue;
+		tuple t;
+		t[0] = acq.idx().repetition;
+		t[1] = acq.idx().phase;
+		t[2] = acq.idx().contrast;
+		t[3] = acq.idx().slice;
+		if (first) {
+			t_first = t;
+			first = false;
+			std::cout << "new slice: ";
+			for (int i = 0; i < NUMVAL; i++)
+				std::cout << t[i] << ' ';
+		}
+		else if (t != t_first && 
+			!acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
+			break;
+		int yy = acq.idx().kspace_encode_step_1;
+		int zz = acq.idx().kspace_encode_step_2;
+		for (unsigned int c = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < readout; s++) {
+				ci(s, yy, zz, c) = acq.data(s, c);
+			}
+		}
+	}
+	std::cout << "done\n";
+	/*
 	int y = 0;
 	for (;;){
 		ac.get_acquisition(off + y, acq);
@@ -554,6 +592,8 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 			break;
 	}
 	off += y;
+	*/
+
 	ifft3c(ci);
 
 	T* ptr = im.getDataPtr();

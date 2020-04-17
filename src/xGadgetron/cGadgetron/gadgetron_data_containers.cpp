@@ -211,18 +211,27 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 }
 
 void
-MRAcquisitionData::get_data(complex_float_t* z, int all)
+MRAcquisitionData::get_data(complex_float_t* z, int a)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
-	unsigned int n = 0;
+	if (a >= 0 && a < na) {
+		get_acquisition(a, acq);
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (unsigned int c = 0, i = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < ns; s++, i++) {
+				z[i] = acq.data(s, c);
+			}
+		}
+		return;
+	}
 	for (unsigned int a = 0, i = 0; a < na; a++) {
 		get_acquisition(a, acq);
-		if (!all && TO_BE_IGNORED(acq)) {
+		if (TO_BE_IGNORED(acq)) {
 			std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
-		n++;
 		unsigned int nc = acq.active_channels();
 		unsigned int ns = acq.number_of_samples();
 		for (unsigned int c = 0; c < nc; c++) {
@@ -339,95 +348,105 @@ const void* ptr_b, const DataContainer& a_y)
 	complex_float_t b = *(complex_float_t*)ptr_b;
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
-	int m = x.number();
-	int n = y.number();
-	ISMRMRD::Acquisition ax;
-	ISMRMRD::Acquisition ay;
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
-			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
-			j++;
-			continue;
-		}
-		MRAcquisitionData::axpby(a, ax, b, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
-	}
+	binary_op_(1, x, y, a, b);
 }
 
 void
-MRAcquisitionData::multiply(
-const DataContainer& a_x,
-const DataContainer& a_y)
+MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	binary_op_(2, x, y);
+}
+
+void
+MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
+{
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	binary_op_(3, x, y);
+}
+
+void 
+MRAcquisitionData::binary_op_(int op, 
+const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
+complex_float_t a, complex_float_t b)
+{
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
+	bool isempty = (number() < 1);
+	try {
+		for (int i = 0, j = 0, k = 0; i < n && j < m;) {
+			y.get_acquisition(i, ay);
+			x.get_acquisition(j, ax);
+			if (TO_BE_IGNORED(ay)) {
+				std::cout << i << " ignored (ay)\n";
+				i++;
+				continue;
+			}
+			if (TO_BE_IGNORED(ax)) {
+				std::cout << j << " ignored (ax)\n";
+				j++;
+				continue;
+			}
+			switch (op) {
+			case 1:
+				MRAcquisitionData::axpby(a, ax, b, ay);
+				break;
+			case 2:
+				MRAcquisitionData::multiply(ax, ay);
+				break;
+			case 3:
+				MRAcquisitionData::divide(ax, ay);
+				break;
+			default:
+				THROW("wrong operation in MRAcquisitionData::binary_op_");
+			}
+			if (isempty)
+				append_acquisition(ay);
+			else
+				set_acquisition(k, ay);
 			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
 			j++;
-			continue;
+			k++;
 		}
-		MRAcquisitionData::multiply(ax, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
 	}
-}
-
-void
-MRAcquisitionData::divide(
-const DataContainer& a_x,
-const DataContainer& a_y)
-{
-	//MRAcquisitionData& x = (MRAcquisitionData&)a_x;
-	//MRAcquisitionData& y = (MRAcquisitionData&)a_y;
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	int m = x.number();
-	int n = y.number();
-	ISMRMRD::Acquisition ax;
-	ISMRMRD::Acquisition ay;
-	for (int i = 0, j = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
+	catch (...) {
+		empty();
+		for (int i = 0, j = 0; i < n && j < m;) {
+			y.get_acquisition(i, ay);
+			x.get_acquisition(j, ax);
+			if (TO_BE_IGNORED(ay)) {
+				std::cout << i << " ignored (ay)\n";
+				i++;
+				continue;
+			}
+			if (TO_BE_IGNORED(ax)) {
+				std::cout << j << " ignored (ax)\n";
+				j++;
+				continue;
+			}
+			switch (op) {
+			case 1:
+				MRAcquisitionData::axpby(a, ax, b, ay);
+				break;
+			case 2:
+				MRAcquisitionData::multiply(ax, ay);
+				break;
+			case 3:
+				MRAcquisitionData::divide(ax, ay);
+				break;
+			default:
+				THROW("wrong operation in MRAcquisitionData::binary_op_");
+			}
+			append_acquisition(ay);
 			i++;
-			continue;
-		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
 			j++;
-			continue;
 		}
-		MRAcquisitionData::divide(ax, ay);
-		append_acquisition(ay);
-		i++;
-		j++;
 	}
 }
 
@@ -458,44 +477,13 @@ MRAcquisitionData::clone_base() const
 		get_acquisition(i, acq);
 		ptr_ad->append_acquisition(acq);
 	}
+	ptr_ad->set_sorted(sorted());
 	return ptr_ad;
 }
 
 void
 MRAcquisitionData::sort()
 {
-/*
-	typedef std::array<int, 4> tuple;
-	int na = number();
-	int last = -1;
-	int max_phase = 0;
-	tuple t;
-	std::vector<tuple> vt;
-	for (int i = 0; i < na; i++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
-			last = i;
-		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().phase;
-		t[2] = acq.idx().slice;
-		t[3] = acq.idx().kspace_encode_step_1;
-		vt.push_back(t);
-		if (t[1] > max_phase)
-			max_phase = t[1];
-	}
-	if (last > -1)
-		vt[last][1] = max_phase;
-
-	index_.resize(na);
-
-	if( na <= 0 )
-		std::cerr << "WARNING: You try to sort an empty container of acquisition data." << std::endl;
-	else
-		Multisort::sort( vt, &index_[0] );
-
-	sorted_ = true;
-*/
 	const int NUMVAL = 6;
 	typedef std::array<int, NUMVAL> tuple;
 	int na = number();
@@ -548,6 +536,8 @@ MRAcquisitionData::sort()
 		t[4] = acq.idx().kspace_encode_step_2;
 		t[5] = acq.idx().kspace_encode_step_1;
 		tuple_to_sort tsort;
+		if (TO_BE_IGNORED(acq)) // put first to avoid interference with the rest
+			t[tsind[0]] = -1;
 		for (int i = 0; i < tsind.size(); i++)
 			tsort.push_back(t[tsind[i]]);
 		vt.push_back(tsort);
@@ -557,6 +547,7 @@ MRAcquisitionData::sort()
 
 	index_.resize(na);
 	NewMultisort::sort( vt, &index_[0] );
+	this->organise_kspace();
 	sorted_ = true;
 }
 
@@ -582,7 +573,117 @@ MRAcquisitionData::sort_by_time()
 		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
 	else
 		Multisort::sort( vt, &index_[0] );
+    this->organise_kspace();
 
+}
+
+std::vector<std::vector<int> > MRAcquisitionData::get_kspace_order(const bool get_first_subset_order) const
+{
+    if(this->sorting_.size() == 0)
+        throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
+
+    std::vector<std::vector<int> > output;
+    for(unsigned i = 0; i<sorting_.size(); ++i)
+    {
+        if(!get_first_subset_order)
+        {
+            if(!sorting_.at(i).get_idx_set().empty())
+               output.push_back(sorting_.at(i).get_idx_set());
+        }
+        else
+            if(sorting_.at(i).is_first_set() && !sorting_.at(i).get_idx_set().empty())
+                output.push_back(sorting_.at(i).get_idx_set());
+    }
+    return output;
+}
+
+static int get_num_enc_states( const ISMRMRD::Optional<ISMRMRD::Limit>& enc_lim)
+{
+	int num_states =1;
+
+	if(enc_lim.is_present())
+	{
+	    ISMRMRD::Limit lim = enc_lim.get();
+		num_states = lim.maximum - lim.minimum +1;
+	}
+
+	return num_states;
+}
+
+void MRAcquisitionData::organise_kspace()
+{
+    ISMRMRD::IsmrmrdHeader header;
+    ISMRMRD::deserialize(this->acqs_info_.c_str(), header);
+
+    auto encoding_vector = header.encoding;
+
+    if(encoding_vector.size()>1)
+        throw LocalisedException("Curerntly only one encoding is supported. You supplied multiple in one ismrmrd file.", __FUNCTION__, __LINE__);
+
+    ISMRMRD::Encoding encoding = encoding_vector[0];
+    ISMRMRD::EncodingLimits enc_lims = encoding.encodingLimits;
+
+    int NAvg    = get_num_enc_states(enc_lims.average); 
+    int NSlice  = get_num_enc_states(enc_lims.slice); 
+    int NCont   = get_num_enc_states(enc_lims.contrast);
+    int NPhase  = get_num_enc_states(enc_lims.phase); 
+    int NRep    = get_num_enc_states(enc_lims.repetition);
+    int NSet    = get_num_enc_states(enc_lims.set);
+    int NSegm = 1; // lim_segm.maximum    - lim_segm.minimum +1; // this has no correspondence in the header of the image of course. currently no sorting wrt to this
+
+    for(int ia= 0; ia <NAvg; ia++)
+    for(int is= 0; is <NSlice; is++)
+    for(int ic= 0; ic <NCont; ic++)
+    for(int ip= 0; ip <NPhase; ip++)
+    for(int ir= 0; ir <NRep; ir++)
+    for(int iset= 0; iset <NSet; iset++)
+    for(int iseg=0;   iseg<NSegm; ++iseg)
+    {
+        KSpaceSorting::TagType tag{ia, is, ic, ip, ir, iset, iseg};
+        for(int i=7; i<tag.size(); ++i)
+            tag[i]=0; // ignore user ints so far
+
+        KSpaceSorting sorting(tag);
+        this->sorting_.push_back(sorting);
+    }
+
+    ISMRMRD::Acquisition acq;
+    for(int i=0; i<this->number(); ++i)
+    {
+        this->get_acquisition(i, acq);
+
+        KSpaceSorting::TagType tag = KSpaceSorting::get_tag_from_acquisition(acq);
+        int access_idx = (((((tag[0] * NSlice + tag[1])*NCont + tag[2])*NPhase + tag[3])*NRep + tag[4])*NSet + tag[5])*NSegm + tag[6];
+        this->sorting_.at(access_idx).add_idx_to_set(i);
+    }
+}
+
+void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
+{
+    subset.set_acquisitions_info(this->acquisitions_info());
+
+    if(subset.number()>0)
+        throw LocalisedException("Please pass an empty MRAcquisitionnData container to store the subset in", __FUNCTION__, __LINE__);
+
+    ISMRMRD::Acquisition acq;
+    for(int i=0; i<subset_idx.size(); ++i)
+    {
+        this->get_acquisition(subset_idx[i], acq);
+        subset.append_acquisition(acq);
+    }
+}
+
+void MRAcquisitionData::set_subset(const MRAcquisitionData& subset, const std::vector<int> subset_idx)
+{
+    if(subset.number() != subset_idx.size())
+        throw LocalisedException("Number of subset positions and number of acquisitions in subset don't match.", __FILE__, __LINE__);
+
+    ISMRMRD::Acquisition acq;
+    for(int i=0; i<subset_idx.size(); ++i)
+    {
+        subset.get_acquisition(i, acq);
+        this->set_acquisition(subset_idx[i], acq);
+    }
 }
 
 AcquisitionsFile::AcquisitionsFile
@@ -627,6 +728,26 @@ AcquisitionsFile::~AcquisitionsFile()
 		std::remove(filename_.c_str());
 		mtx.unlock();
 	}
+}
+
+void
+AcquisitionsFile::empty()
+{
+	dataset_.reset();
+	if (own_file_) {
+		Mutex mtx;
+		mtx.lock();
+		std::remove(filename_.c_str());
+		mtx.unlock();
+	}
+	own_file_ = true;
+	filename_ = xGadgetronUtilities::scratch_file_name();
+	Mutex mtx;
+	mtx.lock();
+	dataset_ = shared_ptr<ISMRMRD::Dataset>
+		(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
+	dataset_->writeHeader(acqs_info_);
+	mtx.unlock();
 }
 
 void 
@@ -729,7 +850,14 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 		ac.get_acquisition(a, acq);
 		af.append_acquisition(acq);
 	}
+	af.set_sorted(ac.sorted());
 	take_over(af);
+}
+
+void
+AcquisitionsVector::empty()
+{
+	acqs_.clear();
 }
 
 void
@@ -795,18 +923,27 @@ const void* ptr_b, const DataContainer& a_y)
 	complex_float_t b = *(complex_float_t*)ptr_b;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
-	ImageWrap w(x.image_wrap(0));
-	complex_float_t zero(0.0, 0.0);
-	complex_float_t one(1.0, 0.0);
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		const ImageWrap& u = x.image_wrap(i);
-		const ImageWrap& v = y.image_wrap(i);
-		w.axpby(a, u, zero);
-		w.axpby(b, v, one);
-		append(w);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in axpby");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx; i++)
+			image_wrap(i).axpby(a, x.image_wrap(i), b, y.image_wrap(i));
 	}
+	else {
+		for (unsigned int i = 0; i < nx; i++) {
+			const ImageWrap& u = x.image_wrap(i);
+			const ImageWrap& v = y.image_wrap(i);
+			ImageWrap w(u);
+			w.axpby(a, u, b, v);
+			append(w);
+		}
+	}
+	this->set_meta_data(x.get_meta_data());
 }
 
 void
@@ -814,15 +951,27 @@ GadgetronImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		ImageWrap w(x.image_wrap(i));
-		w.multiply(y.image_wrap(i));
-		append(w);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in multiply");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx && i < ny; i++)
+			image_wrap(i).multiply(x.image_wrap(i), y.image_wrap(i));
 	}
+	else {
+		for (unsigned int i = 0; i < nx && i < ny; i++) {
+			ImageWrap w(x.image_wrap(i));
+			w.multiply(y.image_wrap(i));
+			append(w);
+		}
+	}
+	this->set_meta_data(x.get_meta_data());
 }
 
 void
@@ -830,15 +979,27 @@ GadgetronImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	//GadgetronImageData& x = (GadgetronImageData&)a_x;
-	//GadgetronImageData& y = (GadgetronImageData&)a_y;
 	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
-		ImageWrap w(x.image_wrap(i));
-		w.divide(y.image_wrap(i));
-		append(w);
+	unsigned int nx = x.number();
+	unsigned int ny = y.number();
+	if (nx != ny)
+		THROW("ImageData sizes mismatch in divide");
+	unsigned int n = number();
+	if (n > 0) {
+		if (n != nx)
+			THROW("ImageData sizes mismatch in multiply");
+		for (unsigned int i = 0; i < nx && i < ny; i++)
+			image_wrap(i).divide(x.image_wrap(i), y.image_wrap(i));
 	}
+	else {
+		for (unsigned int i = 0; i < nx && i < ny; i++) {
+			ImageWrap w(x.image_wrap(i));
+			w.divide(y.image_wrap(i));
+			append(w);
+		}
+	}
+	this->set_meta_data(x.get_meta_data());
 }
 
 float 
@@ -1090,6 +1251,13 @@ GadgetronImageData::set_real_data(const float* z)
 	}
 }
 
+void
+GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
+{
+    acqs_info_ = acqs_info;
+    this->set_up_geom_info();
+}
+
 GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()
@@ -1253,6 +1421,71 @@ GadgetronImagesVector::print_header(const unsigned im_num)
     }
 }
 
+bool GadgetronImagesVector::is_complex() const {
+    // If any of the wraps are complex, return true.
+    for (unsigned i=0; i<number(); ++i)
+        if (image_wrap(i).is_complex())
+            return true;
+    return false;
+}
+
+void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info_out)
+{
+    const VoxelisedGeometricalInfo3D &geom_info_in = *this->get_geom_info_sptr();
+
+    // if input geom info matches output, nothing to do
+    if (geom_info_in == geom_info_out)
+        return;
+
+    // Check can do reorient
+    ImageData::can_reorient(geom_info_in, geom_info_out, true);
+
+    // ------------------------------------------------------ //
+    // Do the reorienting!
+    // ------------------------------------------------------ //
+
+    if (number() < 1)
+        return;
+
+    if (!this->sorted())
+        this->sort();
+
+    // loop over all images in stack
+    for (unsigned im=0; im<number(); ++im) {
+        // Get image header
+        ISMRMRD::ImageHeader &ih = image_wrap(im).head();
+
+        // Read, phase and slice directions
+        auto direction = geom_info_out.get_direction();
+        for (unsigned axis=0; axis<3; ++axis) {
+            ih.read_dir[axis]  = -direction[axis][0];
+            ih.phase_dir[axis] = -direction[axis][1];
+            ih.slice_dir[axis] = -direction[axis][2];
+        }
+
+        // FOV
+        auto spacing = geom_info_out.get_spacing();
+        auto size = geom_info_out.get_size();
+        for(unsigned i=0; i<3; ++i)
+            ih.field_of_view[i] = spacing[i] * size[i];
+
+        // Position
+        auto offset = geom_info_out.get_offset();
+        for (unsigned i=0; i<3; ++i)
+            ih.position[i] = offset[i]
+                    + direction[i][0] * (ih.field_of_view[0] / 2.0f)
+                    + direction[i][1] * (ih.field_of_view[1] / 2.0f)
+                    + direction[i][2] * float(im) * geom_info_out.get_spacing()[2];
+    }
+
+    // set up geom info
+    this->set_up_geom_info();
+
+    // Check reorient success
+    if (*this->get_geom_info_sptr() != geom_info_out)
+        throw std::runtime_error("GadgetronImagesVector::reorient failed");
+}
+
 float get_projection_of_position_in_slice(const ISMRMRD::ImageHeader &ih)
 {
     return ih.position[0] * ih.slice_dir[0] +
@@ -1399,6 +1632,38 @@ CoilDataAsCFImage::set_data(const float* re, const float* im)
 		ptr[i] = complex_float_t((float)re[i], (float)im[i]);
 }
 
+void
+CoilDataAsCFImage::write(ISMRMRD::Dataset& dataset) const
+{
+	//std::cout << "appending image..." << std::endl;
+	std::stringstream ss;
+	ss << "image_" << img_.getHead().image_series_index;
+	std::string image_varname = ss.str();
+	{
+		Mutex mtx;
+		mtx.lock();
+		dataset.appendImage(image_varname, img_);
+		mtx.unlock();
+	}
+}
+
+void
+CoilDataContainer::write(const std::string &filename) const
+{
+	if (items() < 1)
+		return;
+
+	Mutex mtx;
+	mtx.lock();
+	ISMRMRD::Dataset dataset(filename.c_str(), "dataset");
+	dataset.writeHeader(acqs_info_.c_str());
+	mtx.unlock();
+	for (unsigned int i = 0; i < items(); i++) {
+		DYNAMIC_CAST(const CoilData, ci, (*this)(i));
+		ci.write(dataset);
+	}
+}
+
 void 
 CoilImagesContainer::compute(MRAcquisitionData& ac)
 {
@@ -1406,6 +1671,7 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	ISMRMRD::IsmrmrdHeader header;
 	ISMRMRD::Acquisition acq;
 	par = ac.acquisitions_info();
+	set_meta_data(par);
 	ISMRMRD::deserialize(par.c_str(), header);
 	//ac.get_acquisition(0, acq);
 	for (unsigned int i = 0; i < ac.number(); i++) {
@@ -1484,7 +1750,7 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 void 
 CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
 {
-
+	set_meta_data(cis.get_meta_data());
 	ISMRMRD::Encoding e = cis.encoding();
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	//unsigned int ny = e.reconSpace.matrixSize.y;

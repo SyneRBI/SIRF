@@ -132,5 +132,16 @@ classdef ListmodeToSinograms < handle
             sirf.Utilities.check_status...
                 ([self.name_ ':estimate_randoms'], randoms.handle_);
         end
+        function v = get_time_at_which_prompt_rate_exceeds_threshold(self, threshold)
+            %Get the time in the list mode data at which the number
+            %of prompts per second exceeds a given threshold.
+            %Returns -1 if no corresponding time is found.
+            h = calllib('mstir', 'mSTIR_lm_prompt_rate_exceeds_threshold',...
+                            self.handle_, threshold);
+            sirf.Utilities.check_status...
+                ([self.name_ '::get_time_at_which_prompt_rate_exceeds_threshold'], h)
+            v = calllib('miutilities', 'mFloatDataFromHandle', h);
+            sirf.Utilities.delete(h)
+        end
     end
 end

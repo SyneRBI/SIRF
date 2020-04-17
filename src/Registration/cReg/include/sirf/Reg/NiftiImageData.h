@@ -163,6 +163,12 @@ public:
     /// Assignment
     NiftiImageData& operator=(const NiftiImageData& to_copy);
 
+    /// Copy constructor
+    NiftiImageData(const ImageData& to_copy);
+
+    /// Assignment
+    NiftiImageData& operator=(const ImageData& to_copy);
+
     /// Filename constructor
     NiftiImageData(const std::string &filename);
 
@@ -201,11 +207,17 @@ public:
             this->_data[i] = dataType(data[i]);
     }
 
-    /// Construct from any other image data (e.g., STIRImageData)
-    NiftiImageData(const ImageData& id);
-
     /// Create NiftiImageData from geometrical info
     static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
+
+    /// Construct NiftiImageData from the real component of a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);
+
+    /// Construct NiftiImageData from the imaginary component of a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);
+
+    /// Construct two NiftiImageData from a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr);
 
     /// Equality operator
     bool operator==(const NiftiImageData &other) const;
@@ -345,6 +357,9 @@ public:
 
     /// Crop. Set to -1 to leave unchanged
     void crop(const int min_index[7], const int max_index[7]);
+
+    /// Pad image with value. Give number of voxels to increase in min and max directions. Set values to -1 to leave unchanged
+    void pad(const int min_index[7], const int max_index[7], const dataType val = 0);
 
     /// get 1D index from ND index
     int get_1D_index(const int idx[7]) const;
@@ -529,6 +544,26 @@ public:
     {
 	return std::unique_ptr<NiftiImageData>(this->clone_impl());
     }
+    virtual Iterator& begin()
+    {
+        _begin.reset(new Iterator(_data));
+        return *_begin;
+    }
+    virtual Iterator_const& begin() const
+    {
+        _begin_const.reset(new Iterator_const(_data));
+        return *_begin_const;
+    }
+    virtual Iterator& end()
+    {
+        _end.reset(new Iterator(_data+_nifti_image->nvox));
+        return *_end;
+    }
+    virtual Iterator_const& end() const
+    {
+        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
+        return *_end_const;
+    }
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData* clone_impl() const
@@ -559,26 +594,7 @@ protected:
         dim["w"] = d[7];
         return dim;
     }
-    virtual Iterator& begin()
-    {
-        _begin.reset(new Iterator(_data));
-        return *_begin;
-    }
-    virtual Iterator_const& begin() const
-    {
-        _begin_const.reset(new Iterator_const(_data));
-        return *_begin_const;
-    }
-    virtual Iterator& end()
-    {
-        _end.reset(new Iterator(_data+_nifti_image->nvox));
-        return *_end;
-    }
-    virtual Iterator_const& end() const
-    {
-        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
-        return *_end_const;
-    }
+public:
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
 protected:

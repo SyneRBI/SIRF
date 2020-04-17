@@ -47,6 +47,7 @@ EXPORTED_FUNCTION 	void* mSTIR_setListmodeToSinogramsFlag (void* ptr_lm2s, const
 EXPORTED_FUNCTION 	void* mSTIR_setupListmodeToSinogramsConverter(void* ptr);
 EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr);
 EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr);
+EXPORTED_FUNCTION     void* mSTIR_lm_prompt_rate_exceeds_threshold(void* ptr, const float threshold);
 EXPORTED_FUNCTION 	void* mSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);
 EXPORTED_FUNCTION 	void* mSTIR_createPETAcquisitionSensitivityModel (const void* ptr_src, const char* src);
@@ -98,6 +99,8 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int
 EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v);
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename); 
+EXPORTED_FUNCTION     void* mSTIR_ImageData_zoom_image(void* ptr_im, const PTR_FLOAT zooms_ptr_raw, const PTR_FLOAT offsets_in_mm_ptr_raw, const PTR_INT new_sizes_ptr_raw, const char * const zoom_options);
+EXPORTED_FUNCTION     void* mSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_ptr);
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION 	void* mNewTextWriter(const char* stream);
 EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w);

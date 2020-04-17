@@ -20,6 +20,12 @@
 # limitations under the License.
 #
 #=========================================================================
+
+# If not niftypet projector, dont test that
+if (NOT STIR_WITH_NIFTYPET_PROJECTOR)
+	set(exclude_test "--exclude=tests_niftypet.py")
+endif()
+
 add_test(NAME PET_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR/
+  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_test}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

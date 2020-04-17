@@ -151,11 +151,15 @@ def main():
         image_data.show(title = 'Images magnitude and imaginary part')
 
     if output_file is not None:
-        # write images to a new group in args.output
-        # named after the current date and time
-        time_str = time.asctime()
-        print('writing to %s' % output_file)
-        image_data.write(output_file) #, time_str)
+        filename = output_file
+        i = filename.find('.')
+        if i < 0:
+            ext = 'h5'
+        else:
+            ext = filename[i + 1:]
+            filename = filename[:i]
+        print('writing to %s' % (filename + '.' + ext))
+        image_data.write(filename, ext=ext)
 
 try:
     main()

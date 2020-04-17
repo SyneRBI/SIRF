@@ -27,6 +27,13 @@ else()
   remove_definitions(-DUSE_HKEM)
 endif()
 
+# Check for existence of ListModeData.h
+if (EXISTS "${STIR_INCLUDE_DIRS}/stir/listmode/ListModeData.h")
+  add_definitions(-DSTIR_USE_LISTMODEDATA)
+else()
+  remove_definitions(-DSTIR_USE_LISTMODEDATA)
+endif()
+
 add_library(cstir 
     cstir_p.cpp cstir_tw.cpp stir_data_containers.cpp stir_x.cpp cstir.cpp)
 target_include_directories(cstir PUBLIC

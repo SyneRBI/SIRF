@@ -85,6 +85,10 @@ void* cSTIR_newObject(const char* name)
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+        if (boost::iequals(name, "AcqModUsingNiftyPET"))
+            return NEW_OBJECT_HANDLE(AcqModUsingNiftyPET3DF);
+#endif
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (boost::iequals(name, "QuadraticPrior"))
@@ -124,6 +128,10 @@ void* cSTIR_setParameter
 			return cSTIR_setAcquisitionModelParameter(hs, name, hv);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_setAcqModUsingMatrixParameter(hs, name, hv);
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+        else if (boost::iequals(obj, "AcqModUsingNiftyPET"))
+            return cSTIR_setAcqModUsingNiftyPETParameter(hs, name, hv);
+#endif
 		else if (boost::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
 		else if (boost::iequals(obj, "GeneralisedPrior"))
@@ -318,6 +326,15 @@ void* cSTIR_computeRandoms(void* ptr)
 }
 
 extern "C"
+void* cSTIR_lm_prompt_rate_exceeds_threshold(const void * ptr, const float threshold)
+{
+    try {
+        ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
+        return dataHandle<float>(lm2s.get_time_at_which_prompt_rate_exceeds_threshold(threshold));
+    }
+    CATCH
+}
+extern "C"
 void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	try {
@@ -400,7 +417,7 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 		PETAcquisitionSensitivityModel& sm = 
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-		Succeeded s = sm.set_up(sptr_ad->data()->get_proj_data_info_sptr());
+		Succeeded s = sm.set_up(sptr_ad->data()->get_proj_data_info_sptr()->create_shared_clone());
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
@@ -893,8 +910,8 @@ cSTIR_PLSPriorGradient(void* ptr_p, int dir)
 {
 	try {
 		PLSPrior<float>& prior = objectFromHandle<PLSPrior<float> >(ptr_p);
-		sptrImage3DF sptr_im = prior.get_anatomical_grad_sptr(dir);
-		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+		auto sptr_im = prior.get_anatomical_grad_sptr(dir);
+        auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	CATCH;

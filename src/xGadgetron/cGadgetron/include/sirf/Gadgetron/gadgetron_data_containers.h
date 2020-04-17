@@ -117,6 +117,69 @@ namespace sirf {
 		bool have_header_;
 	};
 
+    class KSpaceSorting
+    {
+        static int const num_kspace_dims_ = 7 + ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS;
+
+    public:
+
+        typedef std::array<int, num_kspace_dims_> TagType;
+        typedef std::vector<int> SetType;
+
+        KSpaceSorting(){
+            for(int i=0; i<num_kspace_dims_; ++i)
+                this->tag_[i] = -1;
+        }
+
+        KSpaceSorting(TagType tag){
+            this->tag_ = tag;
+            this->idx_set_ = {};
+        }
+
+        KSpaceSorting(TagType tag, SetType idx_set){
+            this->tag_ = tag;
+            this->idx_set_ = idx_set;
+        }
+
+        TagType get_tag(void) const {return tag_;}
+        SetType get_idx_set(void) const {return idx_set_;}
+        void add_idx_to_set(size_t const idx){this->idx_set_.push_back(idx);}
+
+        static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq)
+        {
+            TagType tag;
+            tag[0] = acq.idx().average;
+            tag[1] = acq.idx().slice;
+            tag[2] = acq.idx().contrast;
+            tag[3] = acq.idx().phase;
+            tag[4] = acq.idx().repetition;
+            tag[5] = acq.idx().set;
+            tag[6] = 0; //acq.idx().segment;
+
+            for(int i=7; i<tag.size(); ++i)
+                tag[i]=acq.idx().user[i];
+
+            return tag;
+        }
+
+        bool is_first_set() const {
+            bool is_first= (tag_[0] == 0);
+            if(is_first)
+            {
+               for(int dim=2; dim<num_kspace_dims_; ++dim)
+                   is_first *= (tag_[dim] == 0);
+            }
+            return is_first;
+        }
+
+    private:
+
+        // order is [average, slice, contrast, phase, repetition, set, segment, user_ (0,...,ISMRMRD_USER_INTS-1)]
+        TagType tag_;
+        SetType idx_set_;
+
+    };
+
 	/*!
 	\ingroup Gadgetron Data Containers
 	\brief Abstract MR acquisition data container class.
@@ -157,6 +220,8 @@ namespace sirf {
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
 		// abstract methods
+
+		virtual void empty() = 0;
 
 		// the number of acquisitions in the container
 		virtual unsigned int number() const = 0;
@@ -209,6 +274,12 @@ namespace sirf {
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 
+        std::vector<std::vector<int> > get_kspace_order(const bool get_first_subset_order=false) const;
+        void organise_kspace();
+
+        virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
+        virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
+
 		std::vector<int> index() { return index_; }
 		const std::vector<int>& index() const { return index_; }
 
@@ -235,8 +306,9 @@ namespace sirf {
 		void read( const std::string& filename_ismrmrd_with_ext );
 
 	protected:
-		bool sorted_=false;
+		bool sorted_ = false;
 		std::vector<int> index_;
+        std::vector<KSpaceSorting> sorting_;
 		AcquisitionsInfo acqs_info_;
 
 		static std::string _storage_scheme;
@@ -246,6 +318,12 @@ namespace sirf {
 
 		virtual MRAcquisitionData* clone_impl() const = 0;
 		MRAcquisitionData* clone_base() const;
+
+	private:
+		void binary_op_(int op, 
+			const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
+			complex_float_t a = 0, complex_float_t b = 0);
+
 	};
 
 	/*!
@@ -289,13 +367,15 @@ namespace sirf {
 
 		// implementations of abstract methods
 
+		virtual void empty();
 		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual unsigned int items() const;
 		virtual unsigned int number() const { return items(); }
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
-			std::cerr << "AcquisitionsFile::set_acquisition not implemented yet, sorry\n";
+			//std::cerr << 
+			THROW("AcquisitionsFile::set_acquisition not implemented yet, sorry\n");
 		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
@@ -355,6 +435,7 @@ namespace sirf {
 			acqs_templ_.reset(new AcquisitionsVector);
 			_storage_scheme = "memory";
 		}
+		virtual void empty();
 		virtual unsigned int number() const { return (unsigned int)acqs_.size(); }
 		virtual unsigned int items() const { return (unsigned int)acqs_.size(); }
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq)
@@ -419,7 +500,7 @@ namespace sirf {
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
 		
-
+		virtual void empty() = 0;
 		virtual unsigned int number() const = 0;
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
 			(unsigned int im_num) = 0;
@@ -449,11 +530,11 @@ namespace sirf {
 			dim["n"] = number();
 			return dim;
 		}
-		virtual void get_image_dimensions(unsigned int im_num, int* dim)
+        virtual void get_image_dimensions(unsigned int im_num, int* dim) const
 		{
 			if (im_num >= number())
 				dim[0] = dim[1] = dim[2] = dim[3] = 0;
-			ImageWrap& iw = image_wrap(im_num);
+            const ImageWrap&  iw = image_wrap(im_num);
 			iw.get_dim(dim);
 		}
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
@@ -493,7 +574,7 @@ namespace sirf {
 				return i;
 		}
         /// Set the meta data
-        void set_meta_data(const AcquisitionsInfo &acqs_info) { acqs_info_ = acqs_info; }
+        void set_meta_data(const AcquisitionsInfo &acqs_info);
         /// Get the meta data
         const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
 
@@ -677,6 +758,10 @@ namespace sirf {
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
+		virtual void empty()
+		{
+			images_.clear();
+		}
 		virtual unsigned int items() const
 		{ 
 			return (unsigned int)images_.size(); 
@@ -784,7 +869,12 @@ namespace sirf {
         /// Print header info
         void print_header(const unsigned im_num);
 
-    protected:
+        /// Is complex?
+        virtual bool is_complex() const;
+
+        /// Reorient image. Requires that dimensions match
+        virtual void reorient(const VoxelisedGeometricalInfo3D &geom_info_out);
+
         /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info();
 
@@ -817,6 +907,7 @@ namespace sirf {
 		virtual void get_data(complex_float_t* data) const = 0;
 		virtual void set_data(const complex_float_t* data) = 0;
 		virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
+		virtual void write(ISMRMRD::Dataset& dataset) const = 0;
 	};
 
 	/*!
@@ -861,6 +952,7 @@ namespace sirf {
 		{
 			memcpy(img_.getDataPtr(), data, img_.getDataSize());
 		}
+		virtual void write(ISMRMRD::Dataset& dataset) const;
 	private:
 		ISMRMRD::Image < complex_float_t > img_;
 	};
@@ -899,43 +991,48 @@ namespace sirf {
 		{
 			THROW("CoilDataContainer algebra not yet implemented, sorry!");
 		}
-		virtual void write(const std::string &filename) const 
+		virtual void write(const std::string &filename) const;
+//		{
+//			THROW("CoilDataContainer::write not yet implemented, sorry!");
+//		}
+		void get_dim(int slice, int* dim) const
 		{
-			THROW("CoilDataContainer::write not yet implemented, sorry!");
-		}
-		void get_dim(int slice, int* dim) //const
-		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
-			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
+			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
 			ci.get_dim(dim);
 		}
-		void get_data(int slice, float* re, float* im) //const
+		void get_data(int slice, float* re, float* im) const
 		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
-			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
+			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
 			ci.get_data(re, im);
 		}
 		void set_data(int slice, float* re, float* im)
 		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
 			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.set_data(re, im);
 		}
-		void get_data(int slice, complex_float_t* data) //const
+		void get_data(int slice, complex_float_t* data) const
 		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
-			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
+			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
 			ci.get_data(data);
 		}
 		void set_data(int slice, complex_float_t* data)
 		{
-			//CoilData& ci = (CoilData&)(*this)(slice);
 			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
 			ci.set_data(data);
 		}
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_csm) = 0;
 		virtual CoilData& operator()(int slice) = 0;
-		//virtual const CoilData& operator()(int slice) const = 0;
+		virtual const CoilData& operator()(int slice) const = 0;
+		void set_meta_data(const AcquisitionsInfo &acqs_info) 
+		{ 
+			acqs_info_ = acqs_info; 
+		}
+		const AcquisitionsInfo &get_meta_data() const 
+		{ 
+			return acqs_info_; 
+		}
+	protected:
+		AcquisitionsInfo acqs_info_;
 	};
 
 	/*!
@@ -951,6 +1048,9 @@ namespace sirf {
 			return (unsigned int)coil_data_.size();
 		}
 		CoilData& data(int slice) {
+			return *coil_data_[slice];
+		}
+		const CoilData& data(int slice) const {
 			return *coil_data_[slice];
 		}
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
@@ -972,8 +1072,6 @@ namespace sirf {
 	*/
 	class CoilImagesContainer : public CoilDataContainer {
 	public:
-		virtual CoilData& operator()(int slice) = 0;
-		virtual unsigned int items() const = 0;
 		virtual void compute(MRAcquisitionData& ac);
 		ISMRMRD::Encoding encoding() const
 		{
@@ -1008,6 +1106,10 @@ namespace sirf {
 		{
 			return data(slice);
 		}
+		virtual const CoilData& operator()(int slice) const
+		{
+			return data(slice);
+		}
 		virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
 		{
 			CoilDataVector::append(sptr_cd);
@@ -1030,8 +1132,6 @@ namespace sirf {
 		{
 			csm_smoothness_ = s;
 		}
-		virtual CoilData& operator()(int slice) = 0;
-		virtual unsigned int items() const = 0;
 
 		virtual void compute(MRAcquisitionData& ac)
 		{
@@ -1106,6 +1206,10 @@ namespace sirf {
 			return CoilDataVector::items();
 		}
 		virtual CoilData& operator()(int slice)
+		{
+			return data(slice);
+		}
+		virtual const CoilData& operator()(int slice) const
 		{
 			return data(slice);
 		}
