@@ -2,7 +2,7 @@ classdef AffineTransformation < sirf.Reg.Transformation
 % Class for affine transformations.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018-2019 University College London
+% Copyright 2018-2020 University College London
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -28,20 +28,24 @@ classdef AffineTransformation < sirf.Reg.Transformation
         end
     end
     methods
-        function self = AffineTransformation(src,quat)
+        function self = AffineTransformation(src1,src2)
             narginchk(0,2)
             self.name = 'AffineTransformation';
             if nargin < 1
                 self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
-            elseif ischar(src)
-                self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
-            elseif isnumeric(src) && nargin==1
-                assert(all(size(src)==[4, 4]))
-                ptr_v = libpointer('singlePtr', single(src));
+            elseif ischar(src1)
+                self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src1);
+            elseif isnumeric(src1) && nargin==1
+                assert(all(size(src1)==[4, 4]))
+                ptr_v = libpointer('singlePtr', single(src1));
                 self.handle_ = calllib('mreg', 'mReg_AffineTransformation_construct_from_TM', ptr_v);
-            elseif isnumeric(src) && isa(quat, 'sirf.Reg.Quaternion')
-                ptr_v = libpointer('singlePtr', single(src));
-                self.handle_ = calllib('mreg', 'mReg_AffineTransformation_construct_from_trans_and_quaternion', ptr_v, quat.handle_);
+            elseif isnumeric(src1) && isa(src2, 'sirf.Reg.Quaternion')
+                ptr_v = libpointer('singlePtr', single(src1));
+                self.handle_ = calllib('mreg', 'mReg_AffineTransformation_construct_from_trans_and_quaternion', ptr_v, src2.handle_);
+            elseif isnumeric(src1) && isnumeric(src2)
+                ptr1_v = libpointer('singlePtr', single(src1));
+                ptr2_v = libpointer('singlePtr', single(src2));
+                self.handle_ = calllib('mreg', 'mReg_AffineTransformation_construct_from_trans_and_euler', ptr1_v, ptr2_v);
             else
                 error('AffineTransformation accepts no args, filename, 4x4 array or translation with quaternion.')
             end

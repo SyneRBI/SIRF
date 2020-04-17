@@ -56,6 +56,12 @@ namespace sirf {
 		cSTIR_setAcqModUsingMatrixParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+    void*
+        cSTIR_setAcqModUsingNiftyPETParameter
+        (DataHandle* hp, const char* name, const DataHandle* hv);
+#endif
+
 	void*
 		cSTIR_acqModUsingMatrixParameter(DataHandle* hp, const char* name);
 
@@ -66,6 +72,10 @@ namespace sirf {
 	void*
 		cSTIR_truncateToCylindricalFOVImageProcessorParameter
 		(const DataHandle* handle, const char* name);
+
+	void*
+		cSTIR_setSeparableGaussianImageFilterParameter
+		(void* hp, const char* name, const void* hv);
 
 	void*
 		cSTIR_setGeneralisedPriorParameter
@@ -123,7 +133,10 @@ namespace sirf {
 
 	void*
 		cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name);
-
+#ifdef USE_HKEM
+	void*
+		cSTIR_setKOSMAPOSLParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+#endif
 	void*
 		cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 

@@ -57,12 +57,14 @@ int main()
 		cout << "SIRF_PATH not defined, cannot find iutilities library" << endl;
 		return 1;
 	}
-	path_in = SIRF_path + "/src/iUtilities/";
-	path_out = path_in;
+	path_in = SIRF_path + "/src/iUtilities/include/";
+	path_out = SIRF_path + "/src/iUtilities/";
 	status = generate_matlab_interface\
 		("IUTILITIES", "---", 
-			path_in, "iutilities.h", 
+			path_in, "sirf/iUtilities/iutilities.h", 
 			path_out, "miutilities.h", "miutilities.c");
-	if (status)
+	if (status) {
 		cout << "wrong input file format" << endl;
+		return 1;
+	}
 }

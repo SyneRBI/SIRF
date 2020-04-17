@@ -18,27 +18,23 @@
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Need this because there's a problem in ISMRMRDConfig.cmake. 
-# This has to come before making any executables
-LINK_DIRECTORIES(${cGadgetron_LIBRARY_DIRS})
-INCLUDE_DIRECTORIES(${cGadgetron_INCLUDE_DIR})
-
-# NIFTYREG libraries
-LINK_DIRECTORIES("${NIFTYREG_LIBRARY_DIRS}")
-INCLUDE_DIRECTORIES(${NIFTYREG_INCLUDE_DIRS})
-
 # Executables
 SET(SYN_executables
     sirf_registration
     sirf_do_images_match
     sirf_resample
+    sirf_convert_image_type
     )
 
 FOREACH(elem ${SYN_executables})
-    ADD_EXECUTABLE(${elem} ${elem}.cpp)
+    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
     TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${SYN_executables})
+
+ADD_SUBDIRECTORY(cSyn)
+ADD_SUBDIRECTORY(mSyn)
+ADD_SUBDIRECTORY(pSyn)
 
 # Tests
 ADD_SUBDIRECTORY(tests)

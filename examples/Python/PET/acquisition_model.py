@@ -41,6 +41,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 from pUtilities import show_2D_array
+import matplotlib.pyplot as plt
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
@@ -88,6 +89,14 @@ def main():
     # add another shape
     shape.set_origin((10, -30, -60))
     image.add_shape(shape, scale = 0.75)
+
+    # apply Gaussian filter
+    filter = SeparableGaussianImageFilter()
+    filter.set_fwhms((10, 20, 30))
+    filter.set_max_kernel_sizes((10, 10, 2))
+    filter.set_normalise()
+    filter.set_up(image)
+    filter.apply(image)
 
     # z-pixel coordinate of the xy-crossection to show
     z = int(image_size[0]/2)
@@ -141,15 +150,53 @@ def main():
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
-    show_2D_array('Forward projection', simulated_data_as_array[0,0,:,:])
+    show_2D_array('Forward projection (subset 0/4)', simulated_data_as_array[0,0,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
     # note that the backprojection takes the acquisition sensitivy model asm into account as well
     back_projected_image = acq_model.backward(simulated_data, 0, 4)
-
     back_projected_image_as_array = back_projected_image.as_array()
     show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
+
+    # do same with pre-smoothing (often used for resolution modelling)
+    print('Using some PSF modelling for comparison')
+    smoother = SeparableGaussianImageFilter()
+    smoother.set_fwhms((6,11,12))
+    acq_model.set_image_data_processor(smoother)
+    acq_model.set_up(acq_template, image)
+    simulated_data_PSF = acq_template.get_uniform_copy()
+    acq_model.forward(image, 0, 4, simulated_data_PSF)
+    simulated_data_PSF_as_array = simulated_data_PSF.as_array()
+    plt.figure()
+    plt.plot(simulated_data_as_array[0,0,0,:], label="no PSF")
+    plt.plot(simulated_data_PSF_as_array[0,0,0,:], label="PSF")
+    plt.title('Diff Forward projection without/ with smoothing (first view)')
+    plt.legend()
+    # backprojection
+    back_projected_image_PSF = acq_model.backward(simulated_data, 0, 4)
+    back_projected_image_PSF_as_array = back_projected_image_PSF.as_array()
+    y = back_projected_image_as_array.shape[1]//2;
+    plt.figure()
+    plt.plot(back_projected_image_as_array[z,y,:], label="no PSF")
+    plt.plot(back_projected_image_PSF_as_array[z,y,:], label="PSF")
+    plt.title('Diff Back projection without/ with smoothing (central horizontal line)')
+    plt.legend()
+
+    # direct is alias for the forward method for a linear AcquisitionModel
+    # raises error if the AcquisitionModel is not linear.
+    acq_model.direct(image, 0, 4, simulated_data)
+
+    # show simulated acquisition data
+    simulated_data_as_array_direct = simulated_data.as_array()
+    show_2D_array('Direct projection', simulated_data_as_array_direct[0,0,:,:])
+    
+    # adjoint is an alias for the backward method for a linear AcquisitionModel
+    # raises error if the AcquisitionModel is not linear.
+    back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)
+
+    back_projected_image_as_array_adj = back_projected_image_adj.as_array()
+    show_2D_array('Adjoint projection', back_projected_image_as_array_adj[z,:,:])
 
 try:
     main()

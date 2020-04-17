@@ -23,7 +23,7 @@ limitations under the License.
 
 #include <mex.h>
 #include "matrix.h"
-#include "cgadgetron.h"
+#include "sirf/Gadgetron/cgadgetron.h"
 
 #ifndef CGADGETRON_FOR_MATLAB
 #define PTR_INT size_t
@@ -89,11 +89,11 @@ EXPORTED_FUNCTION 	void* mGT_AcquisitionModelForward(void* ptr_am, const void* p
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs) {
 	return cGT_AcquisitionModelBackward(ptr_am, ptr_acqs);
 }
-EXPORTED_FUNCTION 	void* mGT_setAcquisitionsStorageScheme(const char* scheme) {
-	return cGT_setAcquisitionsStorageScheme(scheme);
+EXPORTED_FUNCTION 	void* mGT_setAcquisitionDataStorageScheme(const char* scheme) {
+	return cGT_setAcquisitionDataStorageScheme(scheme);
 }
-EXPORTED_FUNCTION 	void* mGT_getAcquisitionsStorageScheme() {
-	return cGT_getAcquisitionsStorageScheme();
+EXPORTED_FUNCTION 	void* mGT_getAcquisitionDataStorageScheme() {
+	return cGT_getAcquisitionDataStorageScheme();
 }
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFromFile(const char* file) {
 	return cGT_ISMRMRDAcquisitionsFromFile(file);
@@ -107,23 +107,35 @@ EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input
 EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num) {
 	return cGT_acquisitionFromContainer(ptr_acqs, acq_num);
 }
+EXPORTED_FUNCTION 	void* mGT_appendAcquisition(void* ptr_acqs, void* ptr_acq) {
+	return cGT_appendAcquisition(ptr_acqs, ptr_acq);
+}
+EXPORTED_FUNCTION 	void* mGT_createEmptyAcquisitionData(void* ptr_ad) {
+	return cGT_createEmptyAcquisitionData(ptr_ad);
+}
 EXPORTED_FUNCTION 	void* mGT_cloneAcquisitions(void* ptr_input) {
 	return cGT_cloneAcquisitions(ptr_input);
 }
 EXPORTED_FUNCTION 	void* mGT_sortAcquisitions(void* ptr_acqs) {
 	return cGT_sortAcquisitions(ptr_acqs);
 }
-EXPORTED_FUNCTION 	void* mGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim) {
-	return cGT_getAcquisitionsDimensions(ptr_acqs, ptr_dim);
+EXPORTED_FUNCTION 	void* mGT_sortAcquisitionsByTime(void* ptr_acqs) {
+	return cGT_sortAcquisitionsByTime(ptr_acqs);
 }
-EXPORTED_FUNCTION 	void* mGT_writeAcquisitions(void* ptr_acqs, const char* filename) {
-	return cGT_writeAcquisitions(ptr_acqs, filename);
+EXPORTED_FUNCTION 	void* mGT_setAcquisitionsInfo(void* ptr_acqs, const char* info) {
+	return cGT_setAcquisitionsInfo(ptr_acqs, info);
 }
-EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {
-	return cGT_fillAcquisitionsData(ptr_acqs, ptr_z, all);
+EXPORTED_FUNCTION 	void* mGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim) {
+	return cGT_getAcquisitionDataDimensions(ptr_acqs, ptr_dim);
 }
-EXPORTED_FUNCTION 	void* mGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {
-	return cGT_acquisitionsDataAsArray(ptr_acqs, ptr_z, all);
+EXPORTED_FUNCTION 	void* mGT_fillAcquisitionData(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {
+	return cGT_fillAcquisitionData(ptr_acqs, ptr_z, all);
+}
+EXPORTED_FUNCTION 	void* mGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src) {
+	return cGT_fillAcquisitionDataFromAcquisitionData(ptr_dst, ptr_src);
+}
+EXPORTED_FUNCTION 	void* mGT_acquisitionDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all) {
+	return cGT_acquisitionDataAsArray(ptr_acqs, ptr_z, all);
 }
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
 	return cGT_reconstructImages(ptr_recon, ptr_input);
@@ -155,17 +167,20 @@ EXPORTED_FUNCTION 	void mGT_getImageDim(void* ptr_img, PTR_INT ptr_dim) {
 EXPORTED_FUNCTION 	void* mGT_imageType(const void* ptr_img) {
 	return cGT_imageType(ptr_img);
 }
-EXPORTED_FUNCTION 	void* mGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data) {
-	return cGT_getImagesDataAsFloatArray(ptr_imgs, ptr_data);
+EXPORTED_FUNCTION 	void* mGT_getImageDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data) {
+	return cGT_getImageDataAsFloatArray(ptr_imgs, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mGT_setImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data) {
-	return cGT_setImagesDataAsFloatArray(ptr_imgs, ptr_data);
+EXPORTED_FUNCTION 	void* mGT_setImageDataFromFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data) {
+	return cGT_setImageDataFromFloatArray(ptr_imgs, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
-	return cGT_getImagesDataAsCmplxArray(ptr_imgs, ptr_z);
+EXPORTED_FUNCTION 	void* mGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
+	return cGT_getImageDataAsCmplxArray(ptr_imgs, ptr_z);
 }
-EXPORTED_FUNCTION 	void* mGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
-	return cGT_setImagesDataAsCmplxArray(ptr_imgs, ptr_z);
+EXPORTED_FUNCTION 	void* mGT_setImageDataFromCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
+	return cGT_setImageDataFromCmplxArray(ptr_imgs, ptr_z);
+}
+EXPORTED_FUNCTION     void* mGT_print_header(const void* ptr_imgs, const int im_idx) {
+	return cGT_print_header(ptr_imgs, im_idx);
 }
 EXPORTED_FUNCTION 	void* mGT_setHost(void* ptr_gc, const char* host) {
 	return cGT_setHost(ptr_gc, host);

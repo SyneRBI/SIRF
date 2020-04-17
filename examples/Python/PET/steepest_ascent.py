@@ -1,6 +1,6 @@
 '''Steepest ascent demo.
-Applies few steps of steepest ascent for the minimization of Poisson logarithmic
-likelihood objective function using subset gradients.
+Applies few steps of steepest ascent for the maximization of Poisson log-likelihood
+objective function using subset gradients.
 
 Usage:
   steepest_ascent [--help | options]

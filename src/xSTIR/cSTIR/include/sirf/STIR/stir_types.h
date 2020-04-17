@@ -23,23 +23,27 @@ limitations under the License.
 
 #include <boost/algorithm/string.hpp>
 
+#include "stir/DataProcessor.h"
 #include "stir/DiscretisedDensity.h"
 #include "stir/CartesianCoordinate3D.h"
-#include "stir/DataProcessor.h"
 #include "stir/IndexRange3D.h"
 #include "stir/is_null_ptr.h"
 #include "stir/ML_norm.h"
 #include "stir/recon_array_functions.h"
+#include "stir/SeparableGaussianImageFilter.h"
 #include "stir/Succeeded.h"
 #include "stir/utilities.h"
 #include "stir/VoxelsOnCartesianGrid.h"
+#include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/IO/OutputFileFormat.h"
 #include "stir/IO/read_from_file.h"
 #include "stir/listmode/CListRecord.h"
 #include "stir/listmode/CListEventCylindricalScannerWithDiscreteDetectors.h"
 #include "stir/listmode/LmToProjData.h"
-#include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
+#ifdef USE_HKEM
+#include "stir/KOSMAPOSL/KOSMAPOSLReconstruction.h"
+#endif
 #include "stir/OSSPS/OSSPSReconstruction.h"
 #include "stir/ProjDataInfoCylindrical.h"
 #include "stir/ProjDataInMemory.h"
@@ -58,6 +62,10 @@ limitations under the License.
 #include "stir/shared_ptr.h"
 #include "stir/SSRB.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
+
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#include "stir/recon_buildblock/niftypet_projector/ProjectorByBinPairUsingNiftyPET.h"
+#endif
 
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"
@@ -81,6 +89,9 @@ namespace sirf {
 		PoissonLogLhLinModMean3DF;
 	//PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
 	typedef stir::ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
+#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+    typedef stir::ProjectorByBinPairUsingNiftyPET ProjectorPairUsingNiftyPET;
+#endif
 	typedef stir::ProjMatrixByBinUsingRayTracing RayTracingMatrix;
 	typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;

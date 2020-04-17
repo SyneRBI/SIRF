@@ -61,6 +61,7 @@ namespace sirf {
 			return *this;
 		}
 		virtual void set_ptr(void* ptr) = 0;
+        virtual NumberType::Type get_typeID() const = 0;
 	};
 
 	class FloatRef : public ANumRef {
@@ -103,6 +104,10 @@ namespace sirf {
 		{
 			ptr_ = ref.ptr_;
 		}
+        virtual NumberType::Type get_typeID() const
+        {
+            return NumberType::FLOAT;
+        }
 	private:
 		float* ptr_;
 	};
@@ -341,6 +346,10 @@ namespace sirf {
 			}
 			return *this;
 		}
+        virtual NumberType::Type get_typeID() const
+        {
+            return NumberType::Type(type_);
+        }
 
 	private:
 		bool abs_;

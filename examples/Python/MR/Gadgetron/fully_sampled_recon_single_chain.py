@@ -7,11 +7,14 @@ Usage:
   fully_sampled_recon_single_chain.py [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file
-                              [default: simulated_MR_2D_cartesian.h5]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
-                              subfolder of SIRF root folder
-  -o <file>, --output=<file>  images output file
+  -f <file>, --file=<file>           raw data file
+                                     [default: simulated_MR_2D_cartesian.h5]
+  -p <path>, --path=<path>           path to data files, defaults to data/examples/MR
+                                     subfolder of SIRF root folder
+  -o <file>, --output=<file>         images output file
+  -a <string>, --algorithm=<string>  algorithm to use ('SimpleReconGadget', 'GenericReconCartesianFFTGadget') [default: SimpleReconGadget]
+  --type_to_save=<string>            type to save ('mag', 'imag', 'all') [default: all]
+  --show                             show plots
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -38,6 +41,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 import time
+import sys
 
 # import SIRF utilities
 from sirf.Utilities import examples_data_path, existing_filepath, error
@@ -51,11 +55,23 @@ if data_path is None:
     data_path = examples_data_path('MR')
 output_file = args['--output']
 
+type_to_save = args['--type_to_save']
+show_plot = False
+if args['--show']:
+    show_plot = True
+
+algorithm = args['--algorithm']
+
 def main():
 
     # locate the input data
     input_file = existing_filepath(data_path, data_file)
     acq_data = AcquisitionData(input_file)
+    
+    if algorithm == 'SimpleReconGadget':
+        extra_gadgets = [algorithm]
+    else:
+        extra_gadgets = [algorithm, 'GenericReconFieldOfViewAdjustmentGadget']
     
     # create reconstruction object
     # Rather than using a predefined image reconstruction object, here a new 
@@ -69,15 +85,17 @@ def main():
     # and using set_gadget_property(label, propery, value).
     # The gadgets will be concatenated and will be executed as soon as 
     # process() is called.
-    recon = Reconstructor([ \
-        'NoiseAdjustGadget', \
-        'AsymmetricEchoAdjustROGadget', \
-        'RemoveROOversamplingGadget', \
-        'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
-        'BucketToBufferGadget(split_slices=true, verbose=false)', \
-        'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])
-##        'SimpleReconGadget', 'ImageArraySplitGadget', \
-##        'PhysioInterpolationGadget', 'ex:ExtractGadget'])
+    recon_gadgets = ['NoiseAdjustGadget',
+        'AsymmetricEchoAdjustROGadget',
+        'RemoveROOversamplingGadget',
+        'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)',
+        'BucketToBufferGadget(split_slices=true, verbose=false)'] \
+        + extra_gadgets + \
+        ['ImageArraySplitGadget', 
+        'ex:ExtractGadget'
+        ]
+
+    recon = Reconstructor(recon_gadgets)
 
     # ExtractGadget defines which type of image should be returned:
     # none      0
@@ -88,8 +106,10 @@ def main():
     # in this example '5' returns both magnitude and imaginary part
 ##    recon.set_gadget_property('ex', 'extract_mask', 5)
     # === THE ABOVE IS OBSOLETE, NOW SHOULD USE ===>
-    recon.set_gadget_property('ex', 'extract_magnitude', True)
-    recon.set_gadget_property('ex', 'extract_imag', True)
+    if type_to_save=='mag' or type_to_save=='all':
+        recon.set_gadget_property('ex', 'extract_magnitude', True)
+    if type_to_save=='imag' or type_to_save=='all':
+        recon.set_gadget_property('ex', 'extract_imag', True)
     
     # provide raw k-space data as input
     recon.set_input(acq_data)
@@ -117,24 +137,29 @@ def main():
     image_data = recon.get_output()
 
     # show reconstructed image data
-    for im in range(image_data.number()):
-        image = image_data.image(im)
-        # image types   series
-        # magnitude 1       0
-        # phase     2    3000
-        # real      3    1000
-        # imag      4    2000
-        im_type = image.image_type()
-        im_series = image.image_series_index()
-        print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
-    image_data.show(title = 'Images magnitude and imaginary part')
+    if show_plot:
+        for im in range(image_data.number()):
+            image = image_data.image(im)
+            # image types   series
+            # magnitude 1       0
+            # phase     2    3000
+            # real      3    1000
+            # imag      4    2000
+            im_type = image.image_type()
+            im_series = image.image_series_index()
+            print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
+        image_data.show(title = 'Images magnitude and imaginary part')
 
     if output_file is not None:
-        # write images to a new group in args.output
-        # named after the current date and time
-        time_str = time.asctime()
-        print('writing to %s' % output_file)
-        image_data.write(output_file) #, time_str)
+        filename = output_file
+        i = filename.find('.')
+        if i < 0:
+            ext = 'h5'
+        else:
+            ext = filename[i + 1:]
+            filename = filename[:i]
+        print('writing to %s' % (filename + '.' + ext))
+        image_data.write(filename, ext=ext)
 
 try:
     main()
@@ -143,3 +168,4 @@ try:
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    sys.exit(1)

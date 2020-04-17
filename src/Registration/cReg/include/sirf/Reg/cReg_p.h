@@ -1,7 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -34,12 +34,23 @@ namespace sirf {
     // Registration
     // ---------------------------------------------------------------------------- //
     void* cReg_setRegistrationParameter(void* hp, const char* name, const void* hv);
-    void* cReg_RegistrationParameter(const DataHandle* handle, const char* name);
+
+    // ---------------------------------------------------------------------------- //
+    // NiftyRegistration
+    // ---------------------------------------------------------------------------- //
+    void* cReg_setNiftyRegistrationParameter(void* hp, const char* name, const void* hv);
 
     // ---------------------------------------------------------------------------- //
     // NiftyF3dSym
     // ---------------------------------------------------------------------------- //
     void* cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv);
+
+#ifdef SIRF_SPM
+    // ---------------------------------------------------------------------------- //
+    // SPMRegistration
+    // ---------------------------------------------------------------------------- //
+    void* cReg_setSPMRegistrationParameter(void* hp, const char* name, const void* hv);
+#endif
 
     // ---------------------------------------------------------------------------- //
     // NiftyResample

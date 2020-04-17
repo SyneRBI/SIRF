@@ -163,6 +163,12 @@ public:
     /// Assignment
     NiftiImageData& operator=(const NiftiImageData& to_copy);
 
+    /// Copy constructor
+    NiftiImageData(const ImageData& to_copy);
+
+    /// Assignment
+    NiftiImageData& operator=(const ImageData& to_copy);
+
     /// Filename constructor
     NiftiImageData(const std::string &filename);
 
@@ -201,11 +207,17 @@ public:
             this->_data[i] = dataType(data[i]);
     }
 
-    /// Construct from any other image data (e.g., STIRImageData)
-    NiftiImageData(const ImageData& id);
-
     /// Create NiftiImageData from geometrical info
     static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
+
+    /// Construct NiftiImageData from the real component of a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);
+
+    /// Construct NiftiImageData from the imaginary component of a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);
+
+    /// Construct two NiftiImageData from a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr);
 
     /// Equality operator
     bool operator==(const NiftiImageData &other) const;
@@ -214,22 +226,64 @@ public:
     bool operator!=(const NiftiImageData &other) const;
 
     /// Addition operator
-    NiftiImageData operator+(const NiftiImageData&) const;
-
-    /// Subtraction operator
-    NiftiImageData operator-(const NiftiImageData&) const;
+    NiftiImageData& operator+=(const NiftiImageData &rhs);
 
     /// Addition operator
-    NiftiImageData operator+(const float) const;
+    friend NiftiImageData operator+(NiftiImageData lhs, const NiftiImageData& rhs)
+    {
+        lhs += rhs;
+        return lhs;
+    }
 
     /// Subtraction operator
-    NiftiImageData operator-(const float) const;
+    NiftiImageData& operator-=(const NiftiImageData &rhs);
 
-    /// Multiply image
-    NiftiImageData operator*(const float) const;
+    /// Subtraction operator
+    friend NiftiImageData operator-(NiftiImageData lhs, const NiftiImageData& rhs)
+    {
+        lhs -= rhs;
+        return lhs;
+    }
 
-    /// Divide image
-    NiftiImageData operator/(const float) const;
+    /// Addition operator
+    NiftiImageData& operator+=(const float);
+
+    /// Addition operator
+    friend NiftiImageData operator+(NiftiImageData lhs, const float val)
+    {
+        lhs += val;
+        return lhs;
+    }
+
+    /// Subtraction operator
+    NiftiImageData& operator-=(const float);
+
+    /// Subtraction operator
+    friend NiftiImageData operator-(NiftiImageData lhs, const float val)
+    {
+        lhs -= val;
+        return lhs;
+    }
+
+    /// Multiplication operator
+    NiftiImageData& operator*=(const float);
+
+    /// Multiplication operator
+    friend NiftiImageData operator*(NiftiImageData lhs, const float val)
+    {
+        lhs *= val;
+        return lhs;
+    }
+
+    /// Division operator
+    NiftiImageData& operator/=(const float);
+
+    /// Division operator
+    friend NiftiImageData operator/(NiftiImageData lhs, const float val)
+    {
+        lhs /= val;
+        return lhs;
+    }
 
     /// Access data element via 1D index (const)
     float operator()(const int index) const;
@@ -268,6 +322,12 @@ public:
     /// Get mean
     float get_mean() const;
 
+    /// Get variance
+    float get_variance() const;
+
+    /// Get standard deviation
+    float get_standard_deviation() const;
+
     /// Get element
     float get_element(const int idx[7]) const;
 
@@ -298,11 +358,17 @@ public:
     /// Crop. Set to -1 to leave unchanged
     void crop(const int min_index[7], const int max_index[7]);
 
+    /// Pad image with value. Give number of voxels to increase in min and max directions. Set values to -1 to leave unchanged
+    void pad(const int min_index[7], const int max_index[7], const dataType val = 0);
+
     /// get 1D index from ND index
     int get_1D_index(const int idx[7]) const;
 
     /// Get original datatype
     int get_original_datatype() const { return _original_datatype; }
+
+    /// Check if the norms of two images are equal to a given accuracy.
+    static bool are_equal_to_given_accuracy(const std::shared_ptr<const NiftiImageData> &im1_sptr, const std::shared_ptr<const NiftiImageData> &im2_sptr, const float required_accuracy_compared_to_max);
 
     /// Check if the norms of two images are equal to a given accuracy.
     static bool are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max);
@@ -340,6 +406,21 @@ public:
     /// Does the image contain any NaNs?
     bool get_contains_nans() const { return (this->get_nan_count() > 0); }
 
+    /// Flip the image along a given axis (Rotation of 180 degrees about axis)
+    void flip_along_axis(const unsigned axis);
+
+    /// Mirror the image along a given axis (This will change handedness of image)
+    void mirror_along_axis(const unsigned axis);
+
+    /// Inner product of two images.
+    dataType get_inner_product(const NiftiImageData &other) const;
+
+    /// Normalise image between 0 and 1
+    void normalise_zero_and_one();
+
+    /// Standardise (subtract mean and divide by standard deviation).
+    void standardise();
+
 protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
@@ -362,10 +443,10 @@ protected:
     void set_up_data(const int original_datatype);
 
     /// Add, subract image from another
-    NiftiImageData maths(const NiftiImageData& c, const MathsType type) const;
+    void maths(const NiftiImageData& c, const MathsType type);
 
     /// Add, subract, multiply value to image
-    NiftiImageData maths(const float val, const MathsType type) const;
+    void maths(const float val, const MathsType type);
 
     /// Open nifti image
     static void open_nifti_image(std::shared_ptr<nifti_image> &image, const std::string &filename);
@@ -463,6 +544,26 @@ public:
     {
 	return std::unique_ptr<NiftiImageData>(this->clone_impl());
     }
+    virtual Iterator& begin()
+    {
+        _begin.reset(new Iterator(_data));
+        return *_begin;
+    }
+    virtual Iterator_const& begin() const
+    {
+        _begin_const.reset(new Iterator_const(_data));
+        return *_begin_const;
+    }
+    virtual Iterator& end()
+    {
+        _end.reset(new Iterator(_data+_nifti_image->nvox));
+        return *_end;
+    }
+    virtual Iterator_const& end() const
+    {
+        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
+        return *_end_const;
+    }
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData* clone_impl() const
@@ -493,26 +594,7 @@ protected:
         dim["w"] = d[7];
         return dim;
     }
-    virtual Iterator& begin()
-    {
-        _begin.reset(new Iterator(_data));
-        return *_begin;
-    }
-    virtual Iterator_const& begin() const
-    {
-        _begin_const.reset(new Iterator_const(_data));
-        return *_begin_const;
-    }
-    virtual Iterator& end()
-    {
-        _end.reset(new Iterator(_data+_nifti_image->nvox));
-        return *_end;
-    }
-    virtual Iterator_const& end() const
-    {
-        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
-        return *_end_const;
-    }
+public:
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
 protected:

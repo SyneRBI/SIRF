@@ -70,8 +70,9 @@ void ImageWeightedMean<dataType>::process()
             resample.set_interpolation_type_to_nearest_neighbour();
             resample.set_reference_image(_input_image_sptrs[0]);
             resample.set_floating_image(_input_image_sptrs[i]);
-            resample.process();
-            images_sptr.push_back(resample.get_output_sptr());
+            images_sptr.push_back(
+                        std::dynamic_pointer_cast<const NiftiImageData<dataType> >(
+                            resample.forward(_input_image_sptrs[i])));
         }
     }
 

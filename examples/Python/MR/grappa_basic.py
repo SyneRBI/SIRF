@@ -30,6 +30,8 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  -o <file>, --output=<file>  images output file
+  --show                      show plots
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -63,6 +65,8 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
+output_file = args['--output']
+show_plot = args['--show']
 
 
 def main():
@@ -78,13 +82,11 @@ def main():
     print('---\n reading in file %s...' % input_file)
     acq_data = AcquisitionData(input_file)
     
-    
     # Pre-process this input data.
     # (Currently this is a Python script that just sets up a 3 chain gadget.
     # In the future it will be independent of the MR recon engine.)
     print('---\n pre-processing acquisition data...')
     preprocessed_data = preprocess_acquisition_data(acq_data)
-    
     
     # Perform reconstruction of the preprocessed data.
     # 1. set the reconstruction to be for Cartesian GRAPPA data.
@@ -96,13 +98,20 @@ def main():
     # 3. run (i.e. 'process') the reconstruction.
     print('---\n reconstructing...\n');
     recon.process();
-    
 
     # retrieve reconstruced image and G-factor data
     image_data = recon.get_output('image')
     gfact_data = recon.get_output('gfactor')
-    image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
-    gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
+    if show_plot:
+      image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
+      gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
+
+    if output_file is not None:
+      # write images to a new group in args.output
+      # named after the current date and time
+      time_str = time.asctime()
+      print('writing to %s' % output_file)
+      image_data.write(output_file) #, time_str)
 
 try:
     main()
