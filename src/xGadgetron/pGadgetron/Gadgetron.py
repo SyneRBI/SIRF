@@ -518,30 +518,23 @@ class ImageData(SIRF.ImageData):
                 raise TypeError('Input should be numpy.ndarray or ImageData. Got {}'.format(type(data)))
         
         if isinstance(data, numpy.ndarray):
-            old = None
+            the_data = data
             if self.is_real():
                 if data.dtype != numpy.float32:
-                    old = data.copy()
-                    data = data.astype(numpy.float32)
+                    the_data = data.astype(numpy.float32)
             else:
                 if data.dtype != numpy.complex64:
-                    old = data.copy()
-                    data = data.astype(numpy.complex64)
+                    the_data = data.astype(numpy.complex64)
             convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if not data.flags['F_CONTIGUOUS'] and old is None:
-                    old = data.copy()
-                data = numpy.ascontiguousarray(data)
+                if not data.flags['F_CONTIGUOUS']:
+                    the_data = numpy.ascontiguousarray(the_data)
             if self.is_real():
                 try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
-                    (self.handle, data.ctypes.data))
+                    (self.handle, the_data.ctypes.data))
             else:
                 try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
-                    (self.handle, data.ctypes.data))
-            if old is not None:
-                data[:] = old
-            elif convert:
-                data = numpy.asfortranarray(data)
+                    (self.handle, the_data.ctypes.data))
         else:
             raise error('wrong fill value.' + \
                         ' Should be ImageData or numpy.ndarray')
@@ -919,7 +912,7 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
-    def fill(self, data, select = 'image'):
+    def fill(self, data, select='image'):
         '''
         Fills self's acquisitions with specified values.
         data: Python Numpy array or AcquisitionData
@@ -931,25 +924,19 @@ class AcquisitionData(DataContainer):
             return
         elif isinstance(data, numpy.ndarray):
             if data.dtype is not numpy.complex64:
-                old = data.copy()
-                data = data.astype(numpy.complex64)
+                the_data = data.astype(numpy.complex64)
             else:
-                old = None
+                the_data = data
             convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if not data.flags['F_CONTIGUOUS'] and old is None:
-                    old = data.copy()
-                data = numpy.ascontiguousarray(data)
-            if select == 'all': # fill all
+                if not data.flags['F_CONTIGUOUS']:
+                    the_data = numpy.ascontiguousarray(the_data)
+            if select == 'all':
                 fill_all = 1
             else: # fill only image-related
                 fill_all = 0
             try_calling(pygadgetron.cGT_fillAcquisitionData\
-                (self.handle, data.ctypes.data, fill_all))
-            if old is not None:
-                data[:] = old
-            elif convert:
-                data = numpy.asfortranarray(data)
+                (self.handle, the_data.ctypes.data, fill_all))
         else:
             raise error('wrong fill value.' + \
                         ' Should be AcquisitionData or numpy.ndarray')
