@@ -78,6 +78,12 @@ if (NIFTYREG_BUILT_WITH_CUDA)
   target_link_libraries(Reg PUBLIC ${CUDA_CUDART_LIBRARY})
 endif()
 
+# If niftyreg was bulit with OpenCL
+if (NIFTYREG_BUILT_WITH_OPENCL)
+  find_package(OpenCL REQUIRED)
+  target_link_libraries(REG PUBLIC OpenCL::OpenCL)
+endif()
+
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
