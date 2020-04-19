@@ -481,16 +481,13 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = Fals
     verbose   : bool
         Verbose option
     '''
-    # Get x to know the size of each operation (we can not currently get y, so it will be obtained in the loop)
-    x = operator.domain_geometry()
-    y = operator.range_geometry()
     for iter1 in range(num_tests):
         ## generate random data for x and direct()
-        x.allocate(value = 'random')
+        x = operator.domain_geometry().allocate(value = 'random')
         y_hat = operator.direct(x)
         for iter2 in range(num_tests):
             ## generate random data and adjoint()
-            y.allocate( value = 'random')
+            y = operator.range_geometry().allocate( value = 'random')
             x_hat = operator.adjoint(y)
             # Check dot product identity
             norm_err = abs(y_hat.dot(y) - x_hat.dot(x))/(abs(y_hat.dot(y))*0.5 + abs(x_hat.dot(x))*0.5)            
