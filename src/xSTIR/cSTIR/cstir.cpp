@@ -980,6 +980,17 @@ void* cSTIR_writeImage(void* ptr_i, const char* filename)
 }
 
 extern "C"
+void* cSTIR_writeImage_par(void* ptr_i, const char* filename, const char* par)
+{
+    try {
+        STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+        id.write(filename,par);
+        return (void*) new DataHandle;
+	}
+    CATCH;
+}
+
+extern "C"
 void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const size_t offsets_in_mm_ptr_raw,
                                  const size_t new_sizes_ptr_raw, const char *const zoom_options)
 {

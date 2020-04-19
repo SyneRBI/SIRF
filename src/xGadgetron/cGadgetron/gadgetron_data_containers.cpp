@@ -211,18 +211,27 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 }
 
 void
-MRAcquisitionData::get_data(complex_float_t* z, int all)
+MRAcquisitionData::get_data(complex_float_t* z, int a)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
-	unsigned int n = 0;
+	if (a >= 0 && a < na) {
+		get_acquisition(a, acq);
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (unsigned int c = 0, i = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < ns; s++, i++) {
+				z[i] = acq.data(s, c);
+			}
+		}
+		return;
+	}
 	for (unsigned int a = 0, i = 0; a < na; a++) {
 		get_acquisition(a, acq);
-		if (!all && TO_BE_IGNORED(acq)) {
+		if (TO_BE_IGNORED(acq)) {
 			std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
-		n++;
 		unsigned int nc = acq.active_channels();
 		unsigned int ns = acq.number_of_samples();
 		for (unsigned int c = 0; c < nc; c++) {
@@ -468,6 +477,7 @@ MRAcquisitionData::clone_base() const
 		get_acquisition(i, acq);
 		ptr_ad->append_acquisition(acq);
 	}
+	ptr_ad->set_sorted(sorted());
 	return ptr_ad;
 }
 
@@ -526,6 +536,8 @@ MRAcquisitionData::sort()
 		t[4] = acq.idx().kspace_encode_step_2;
 		t[5] = acq.idx().kspace_encode_step_1;
 		tuple_to_sort tsort;
+		if (TO_BE_IGNORED(acq)) // put first to avoid interference with the rest
+			t[tsind[0]] = -1;
 		for (int i = 0; i < tsind.size(); i++)
 			tsort.push_back(t[tsind[i]]);
 		vt.push_back(tsort);
@@ -838,6 +850,7 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 		ac.get_acquisition(a, acq);
 		af.append_acquisition(acq);
 	}
+	af.set_sorted(ac.sorted());
 	take_over(af);
 }
 

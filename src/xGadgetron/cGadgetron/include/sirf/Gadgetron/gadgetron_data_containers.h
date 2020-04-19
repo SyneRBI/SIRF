@@ -306,7 +306,7 @@ namespace sirf {
 		void read( const std::string& filename_ismrmrd_with_ext );
 
 	protected:
-		bool sorted_=false;
+		bool sorted_ = false;
 		std::vector<int> index_;
         std::vector<KSpaceSorting> sorting_;
 		AcquisitionsInfo acqs_info_;

@@ -518,30 +518,23 @@ class ImageData(SIRF.ImageData):
                 raise TypeError('Input should be numpy.ndarray or ImageData. Got {}'.format(type(data)))
         
         if isinstance(data, numpy.ndarray):
-            old = None
+            the_data = data
             if self.is_real():
                 if data.dtype != numpy.float32:
-                    old = data.copy()
-                    data = data.astype(numpy.float32)
+                    the_data = data.astype(numpy.float32)
             else:
                 if data.dtype != numpy.complex64:
-                    old = data.copy()
-                    data = data.astype(numpy.complex64)
+                    the_data = data.astype(numpy.complex64)
             convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if not data.flags['F_CONTIGUOUS'] and old is None:
-                    old = data.copy()
-                data = numpy.ascontiguousarray(data)
+                if not data.flags['F_CONTIGUOUS']:
+                    the_data = numpy.ascontiguousarray(the_data)
             if self.is_real():
                 try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
-                    (self.handle, data.ctypes.data))
+                    (self.handle, the_data.ctypes.data))
             else:
                 try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
-                    (self.handle, data.ctypes.data))
-            if old is not None:
-                data[:] = old
-            elif convert:
-                data = numpy.asfortranarray(data)
+                    (self.handle, the_data.ctypes.data))
         else:
             raise error('wrong fill value.' + \
                         ' Should be ImageData or numpy.ndarray')
@@ -804,13 +797,14 @@ class AcquisitionData(DataContainer):
             new_ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
         check_status(new_ad.handle)
         return new_ad
-##    def number_of_acquisitions(self, select = 'image'):
-##        assert self.handle is not None
-##        dim = self.dimensions(select)
-##        return dim[0]
-    def number_of_readouts(self, select = 'image'):
-        dim = self.dimensions(select)
-        return dim[0]
+    def number_of_readouts(self, select='image'):
+        if select == 'image':
+            dim = self.dimensions()
+            return dim[0]
+        else:
+            return self.number()
+    def number_of_acquisitions(self, select='image'):
+        return self.number_of_readouts
     def dot(self, other):
         '''
         Returns the dot product of the container data with another container
@@ -882,14 +876,11 @@ class AcquisitionData(DataContainer):
         assert self.handle is not None
         try_calling( pygadgetron.cGT_appendAcquisition(self.handle, acq.handle))
 
-    def dimensions(self, select = 'image'):
+    def dimensions(self):
         '''
         Returns acquisitions dimensions as a tuple (na, nc, ns), where na is
         the number of acquisitions, nc the number of coils and ns the number of
         samples.
-        If select is set to 'all', the total number of acquisitions is returned.
-        Otherwise, the number of acquisitions directly related to imaging data
-        is returned.
         '''
         assert self.handle is not None
         if self.number() < 1:
@@ -899,10 +890,7 @@ class AcquisitionData(DataContainer):
              (self.handle, dim.ctypes.data)
         #nr = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
-        if select == 'all':
-            dim[2] = self.number()
-        else:
-            dim[2] = numpy.prod(dim[2:])
+        dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
     def get_info(self, par, which = 'all'):
         '''
@@ -924,7 +912,7 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
-    def fill(self, data, select = 'image'):
+    def fill(self, data, select='image'):
         '''
         Fills self's acquisitions with specified values.
         data: Python Numpy array or AcquisitionData
@@ -936,43 +924,39 @@ class AcquisitionData(DataContainer):
             return
         elif isinstance(data, numpy.ndarray):
             if data.dtype is not numpy.complex64:
-                old = data.copy()
-                data = data.astype(numpy.complex64)
+                the_data = data.astype(numpy.complex64)
             else:
-                old = None
+                the_data = data
             convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if not data.flags['F_CONTIGUOUS'] and old is None:
-                    old = data.copy()
-                data = numpy.ascontiguousarray(data)
-            if select == 'all': # fill all
+                if not data.flags['F_CONTIGUOUS']:
+                    the_data = numpy.ascontiguousarray(the_data)
+            if select == 'all':
                 fill_all = 1
             else: # fill only image-related
                 fill_all = 0
             try_calling(pygadgetron.cGT_fillAcquisitionData\
-                (self.handle, data.ctypes.data, fill_all))
-            if old is not None:
-                data[:] = old
-            elif convert:
-                data = numpy.asfortranarray(data)
+                (self.handle, the_data.ctypes.data, fill_all))
         else:
             raise error('wrong fill value.' + \
                         ' Should be AcquisitionData or numpy.ndarray')
         return self
-    def as_array(self, select = 'image'):
+    def as_array(self, acq=None):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
         '''
         assert self.handle is not None
-        na = self.number()
-        ny, nc, ns = self.dimensions(select)
-        if select == 'all': # return all
-            return_all = 1
-        else: # return only image-related
-            return_all = 0
-        z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+        if acq is None:
+            ny, nc, ns = self.dimensions()
+            z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+            acq = -1
+        else:
+            a = self.acquisition(acq)
+            nc = a.active_channels()
+            ns = a.number_of_samples()
+            z = numpy.ndarray((nc, ns), dtype = numpy.complex64)            
         try_calling(pygadgetron.cGT_acquisitionDataAsArray\
-            (self.handle, z.ctypes.data, return_all))
+            (self.handle, z.ctypes.data, acq))
         return z
     def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \
              postpone = False):
