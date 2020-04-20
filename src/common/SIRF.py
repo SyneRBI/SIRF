@@ -101,8 +101,8 @@ class DataContainer(ABC):
         '''
         assert_validities(self,other)
         # Check if input are the same size
-        if (self.size == other.size):
-            raise ValueError("Input sizes are expected to be equal, got " + str(self.size) + " and " + str(other.size) + " instead.") 
+        if (numpy.prod(self.dimensions()) == numpy.prod((other.dimensions())):
+            raise ValueError("Input sizes are expected to be equal, got " + numpy.prod(self.dimensions()) + " and " + numpy.prod((other.dimensions()) + " instead.")
         handle = pysirf.cSIRF_dot(self.handle, other.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
