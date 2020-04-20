@@ -237,6 +237,11 @@ class NiftiImageData(SIRF.ImageData):
         """Get sum."""
         return parms.float_par(self.handle, 'NiftiImageData', 'sum')
 
+    def dimensions(self):
+        """Returns image dimensions as a tuple (nz, ny, nx)."""
+        dim  = self.get_dimensions()
+        return tuple(dim[1:1+dim[0]]) # dim[0] tells us how many dimensions
+
     def get_dimensions(self):
         """Get dimensions. Returns nifti format.
         i.e., dim[0]=ndims, dim[1]=nx, dim[2]=ny,..."""

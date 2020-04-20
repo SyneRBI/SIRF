@@ -390,7 +390,7 @@ def assert_validity(obj, dtype):
 
 def assert_validities(x, y):
     try:
-        assert type(x) == type(y)
+        assert issubclass(type(x),type(y)) or issubclass(type(y),type(x)) # returns true if both are the same class
     except AssertionError as ae:
         raise AssertionError('Expecting same type input, got {} and {}'.format(type(x), 
                                                                                type(y)))
