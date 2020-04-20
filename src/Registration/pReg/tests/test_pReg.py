@@ -953,6 +953,9 @@ def try_niftymomo(na):
     nr.set_interpolation_type_to_linear()
     nr.add_transformation(T)
 
+    if is_operator_adjoint(nr):
+        raise AssertionError("NiftyResample::adjoint() failed, Ander")
+
     # Do the forward
     Ty = nr.forward(y)
 
