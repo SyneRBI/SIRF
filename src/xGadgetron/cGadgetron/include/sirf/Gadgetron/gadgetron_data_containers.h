@@ -306,7 +306,7 @@ namespace sirf {
 		void read( const std::string& filename_ismrmrd_with_ext );
 
 	protected:
-		bool sorted_=false;
+		bool sorted_ = false;
 		std::vector<int> index_;
         std::vector<KSpaceSorting> sorting_;
 		AcquisitionsInfo acqs_info_;
@@ -506,8 +506,8 @@ namespace sirf {
 			(unsigned int im_num) = 0;
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 			(unsigned int im_num) const = 0;
-		virtual ImageWrap& image_wrap(unsigned int im_num) = 0;
-		virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
+//		virtual ImageWrap& image_wrap(unsigned int im_num) = 0;
+//		virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
 		virtual void get_data(complex_float_t* data) const;
@@ -572,6 +572,17 @@ namespace sirf {
 				return index_[i];
 			else
 				return i;
+		}
+		ImageWrap& image_wrap(unsigned int im_num)
+		{
+			gadgetron::shared_ptr<ImageWrap> sptr_iw = sptr_image_wrap(im_num);
+			return *sptr_iw;
+		}
+		const ImageWrap& image_wrap(unsigned int im_num) const
+		{
+			const gadgetron::shared_ptr<const ImageWrap>& sptr_iw = 
+				sptr_image_wrap(im_num);
+			return *sptr_iw;
 		}
         /// Set the meta data
         void set_meta_data(const AcquisitionsInfo &acqs_info);
@@ -792,7 +803,7 @@ namespace sirf {
 			int i = index(im_num);
 			return images_[i];
 		}
-		virtual ImageWrap& image_wrap(unsigned int im_num)
+/*		virtual ImageWrap& image_wrap(unsigned int im_num)
 		{
 			gadgetron::shared_ptr<ImageWrap> sptr_iw = sptr_image_wrap(im_num);
 			return *sptr_iw;
@@ -803,7 +814,7 @@ namespace sirf {
 				sptr_image_wrap(im_num);
 			return *sptr_iw;
 		}
-
+*/
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
