@@ -98,7 +98,10 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        assert_validities(self, other)
+        if isinstance(self, NiftiImageData):
+            assert isinstance(other, NiftiImageData)
+        else:
+            assert_validities(self, other)
         handle = pysirf.cSIRF_dot(self.handle, other.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
