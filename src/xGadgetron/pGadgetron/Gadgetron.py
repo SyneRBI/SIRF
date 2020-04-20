@@ -151,7 +151,7 @@ class CoilImageData(DataContainer):
         if acqs.is_sorted() is False:
             print('WARNING: acquisitions may be in a wrong order')
         try_calling(pygadgetron.cGT_computeCoilImages(self.handle, acqs.handle))
-    def image_dimensions(self):
+    def dimensions(self):
         '''
         Returns each coil images array dimensions as a tuple (nc, nz, ny, nx),
         where nc is the number of active coils and nx, ny, nz are slice
@@ -167,7 +167,7 @@ class CoilImageData(DataContainer):
         '''
         assert self.handle is not None
         nm = self.number()
-        nc, nz, ny, nx = self.image_dimensions()
+        nc, nz, ny, nx = self.dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         array = numpy.ndarray((nc, nm*nz, ny, nx), dtype=numpy.complex64)
@@ -276,7 +276,7 @@ class CoilSensitivityData(DataContainer):
             (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
-    def map_dimensions(self):
+    def dimensions(self):
         '''
         Returns each csm dimensions as a tuple (nc, nz, ny, nx),
         where nc is the number of active coils and nx, ny, nz are slice
@@ -293,7 +293,7 @@ class CoilSensitivityData(DataContainer):
         '''
         assert self.handle is not None
         nm = self.number()
-        nc, nz, ny, nx = self.map_dimensions()
+        nc, nz, ny, nx = self.dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         array = numpy.ndarray((nc, nm*nz, ny, nx), dtype=numpy.complex64)
