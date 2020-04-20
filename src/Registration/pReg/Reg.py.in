@@ -240,7 +240,7 @@ class NiftiImageData(SIRF.ImageData):
     def dimensions(self):
         """Returns image dimensions as a tuple (nz, ny, nx)."""
         dim  = self.get_dimensions()
-        return tuple(dim[2:]) #first one is ndims
+        return tuple(dim[1:1+dim[0]]) # dim[0] tells us how many dimensions
 
     def get_dimensions(self):
         """Get dimensions. Returns nifti format.
