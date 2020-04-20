@@ -32,7 +32,6 @@ import sys
 from sirf.Utilities import assert_validity, assert_validities, check_status, try_calling
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
-import sirf.Reg as pyreg
 
 
 from numbers import Number
@@ -100,10 +99,7 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        if isinstance(self, pyreg.NiftiImageData):
-            assert isinstance(other, pyreg.NiftiImageData)
-        else:
-            assert_validities(self, other)
+        assert_validities(self,other)
         handle = pysirf.cSIRF_dot(self.handle, other.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
