@@ -953,23 +953,8 @@ def try_niftymomo(na):
     nr.set_interpolation_type_to_linear()
     nr.add_transformation(T)
 
-    if is_operator_adjoint(nr):
-        raise AssertionError("NiftyResample::adjoint() failed, Ander")
-
-    # Do the forward
-    Ty = nr.forward(y)
-
-    # Do the adjoint
-    Tsx = nr.adjoint(x)
-
     # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
-    inner_x_Ty = x.get_inner_product(Ty)
-    inner_y_Tsx = y.get_inner_product(Tsx)
-    adjoint_test = abs(inner_x_Ty - inner_y_Tsx) / (0.5 * (abs(inner_x_Ty) + abs(inner_y_Tsx)))
-    sys.stderr.write('<x, Ty>  = %f\n' % inner_x_Ty)
-    sys.stderr.write('<y, Tsx> = %f\n' % inner_y_Tsx)
-    sys.stderr.write('|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = %f\n' % adjoint_test)
-    if adjoint_test > 1e-4:
+    if not is_operator_adjoint(nr):
         raise AssertionError("NiftyResample::adjoint() failed")
 
     # Check that the following give the same result
