@@ -100,6 +100,9 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert_validities(self,other)
+        # Check if input are the same size
+        if (self.size == other.size):
+            raise ValueError("Input sizes are expected to be equal, got " + str(self.size) + " and " + str(other.size) + " instead.") 
         handle = pysirf.cSIRF_dot(self.handle, other.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
@@ -512,6 +515,10 @@ class DataContainer(ABC):
         CIL/SIRF compatibility
         '''
         return self.as_array().shape
+    @property
+    def size(self):
+        ''' returns the size of the data array'''
+        return self.as_array().size
 
 class ImageData(DataContainer):
     '''
