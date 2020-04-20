@@ -1012,11 +1012,11 @@ class NiftyResample(object):
 
     def domain_geometry(self):
         """Get domain geometry"""
-        return self.reference_image
+        return self.floating_image
 
     def range_geometry(self):
         """Get range geometry"""
-        return self.floating_image
+        return self.reference_image
 
 
 class ImageWeightedMean(object):
