@@ -492,7 +492,7 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = Fals
             y = operator.range_geometry().allocate( value = 'random')
             x_hat = operator.adjoint(y)
             # Check dot product identity
-            norm_err = abs(y_hat.dot(y) - x_hat.dot(x))/(abs(y_hat.dot(y))*0.5 + abs(x_hat.dot(x))*0.5)            
+            norm_err = abs(numpy.conj(y_hat.dot(y)) - x_hat.dot(x))/(numpy.conj(abs(y_hat.dot(y)))*0.5 + abs(x_hat.dot(x))*0.5)            
             if norm_err > max_err:
                 if verbose:
                     print(type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
