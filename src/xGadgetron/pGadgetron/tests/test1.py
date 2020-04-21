@@ -17,7 +17,8 @@ Options:
 """
 # Created on Tue Nov 21 10:17:28 2017
 from sirf.Gadgetron import *
-from sirf.Utilities import runner, RE_PYEXT, __license__
+from sirf.Utilities import is_operator_adjoint, runner, RE_PYEXT, __license__
+import sys
 __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
@@ -51,6 +52,10 @@ def test_main(rec=False, verb=False, throw=True):
 
     am = AcquisitionModel(processed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
+
+    if not is_operator_adjoint(am):
+      raise AssertionError("Gadgetron operator is not adjoint")
+
     fwd_acqs = am.forward(complex_images)
     fwd_acqs_norm = fwd_acqs.norm()
     test.check(fwd_acqs_norm)

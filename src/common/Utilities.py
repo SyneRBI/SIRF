@@ -495,8 +495,8 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = Fals
             norm_err = abs(y_hat.dot(y) - x_hat.dot(x))/(abs(y_hat.dot(y))*0.5 + abs(x_hat.dot(x))*0.5)            
             if norm_err > max_err:
                 if verbose:
-                    print(type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err) + " (max: " + str(max_err))
+                    print(type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
                 return False
             elif verbose:
-                print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err))
+                print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
     return True
