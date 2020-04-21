@@ -538,13 +538,13 @@ class ImageData(SIRF.ImageData):
         else:
             raise error('wrong fill value.' + \
                         ' Should be ImageData or numpy.ndarray')
-    def as_array(self):
+    def dimensions(self):
         '''
-        Returns all self's images as a 3D Numpy ndarray.
+        Returns the dimensions of 3D Numpy ndarray of all self's images.
         '''
-        assert self.handle is not None
         if self.number() < 1:
-            return numpy.ndarray((0,0,0), dtype = numpy.float32)
+            return 0, 0, 0
+        assert self.handle is not None
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         image = Image(self)
         pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
@@ -553,6 +553,15 @@ class ImageData(SIRF.ImageData):
         nz = dim[2]
         nc = dim[3]
         nz = nz*nc*self.number()
+        return nz, ny, nx
+    def as_array(self):
+        '''
+        Returns all self's images as a 3D Numpy ndarray.
+        '''
+        assert self.handle is not None
+        if self.number() < 1:
+            return numpy.ndarray((0,0,0), dtype = numpy.float32)
+        nz, ny, nx = self.dimensions()
         if self.is_real():
             array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
             try_calling(pygadgetron.cGT_getImageDataAsFloatArray\

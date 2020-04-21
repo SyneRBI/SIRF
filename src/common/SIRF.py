@@ -191,7 +191,6 @@ class DataContainer(ABC):
         beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
         
         if out is None:
-#            z = self.copy()
             z = self.same_object()
             z.handle = pysirf.cSIRF_axpby \
                 (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
@@ -199,9 +198,7 @@ class DataContainer(ABC):
             assert_validities(self, out)
             z = out
             try_calling(pysirf.cSIRF_axpbyAlt \
-                (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle, z.handle)
-#        z.handle = pysirf.cSIRF_axpby \
-#            (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
+                (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle, z.handle))
         check_status(z.handle)
         return z
 
