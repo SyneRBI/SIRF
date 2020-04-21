@@ -172,7 +172,7 @@ class DataContainer(ABC):
             try_calling(pysirf.cSIRF_axpbyAlt \
                 (one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
         return z
-    def axpby(self, a,b, y, out=None, **kwargs):
+    def axpby(self, a, b, y, out=None, **kwargs):
         '''
         Addition for data containers.
 
@@ -185,17 +185,23 @@ class DataContainer(ABC):
         #     tmp = other + numpy.zeros(self.as_array().shape)
         #     other = self.copy()
         #     other.fill(tmp)
+
         assert_validities(self, y)
         alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
         beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
         
         if out is None:
-            z = self.copy()
+#            z = self.copy()
+            z = self.same_object()
+            z.handle = pysirf.cSIRF_axpby \
+                (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
         else:
             assert_validities(self, out)
             z = out
-        z.handle = pysirf.cSIRF_axpby \
-            (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
+            try_calling(pysirf.cSIRF_axpbyAlt \
+                (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle, z.handle)
+#        z.handle = pysirf.cSIRF_axpby \
+#            (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
         check_status(z.handle)
         return z
 
