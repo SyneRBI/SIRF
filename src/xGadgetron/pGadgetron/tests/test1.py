@@ -17,7 +17,7 @@ Options:
 """
 # Created on Tue Nov 21 10:17:28 2017
 from sirf.Gadgetron import *
-from sirf.Utilities import is_operator_adjoint, runner, RE_PYEXT, __license__
+from sirf.Utilities import runner, RE_PYEXT, __license__
 import sys
 __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
