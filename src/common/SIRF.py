@@ -101,9 +101,13 @@ class DataContainer(ABC):
         assert_validities(self, other)
         handle = pysirf.cSIRF_dot(self.handle, other.handle)
         check_status(handle)
-        r = pyiutil.floatDataFromHandle(handle)
+        re = pyiutil.floatReDataFromHandle(handle)
+        im = pyiutil.floatImDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
-        return r
+        if im == 0:
+            return re
+        else:
+            return re + 1j*im
     def multiply(self, other, out=None):
         '''
         Returns the elementwise product of this and another container 
