@@ -52,6 +52,10 @@ def test_main(rec=False, verb=False, throw=True):
 
     am = AcquisitionModel(processed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
+
+    if not is_operator_adjoint(am):
+      raise AssertionError("Gadgetron operator is not adjoint")
+
     fwd_acqs = am.forward(complex_images)
     fwd_acqs_norm = fwd_acqs.norm()
     test.check(fwd_acqs_norm)
