@@ -486,6 +486,8 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = Fals
         x = operator.domain_geometry().allocate(value = 'random')
         y_hat = operator.direct(x)
         for iter2 in range(num_tests):
+            if verbose:
+                print("Testing " + type(operator).__name__ + ": Iteration " + str(iter1*num_tests+iter2+1) + "/" + str(num_tests**2))
             ## generate random data and adjoint()
             y = operator.range_geometry().allocate( value = 'random')
             x_hat = operator.adjoint(y)
@@ -493,8 +495,8 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = Fals
             norm_err = abs(y_hat.dot(y) - x_hat.dot(x))/(abs(y_hat.dot(y))*0.5 + abs(x_hat.dot(x))*0.5)            
             if norm_err > max_err:
                 if verbose:
-                    print(type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err))
+                    print(type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err) + " (max: " + str(max_err))
                 return False
             elif verbose:
-                print("Testing " + type(operator).__name__ + ": Iteration " + str(iter1*num_tests+iter2+1) + "/" + str(num_tests**2))
+                print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err))
     return True
