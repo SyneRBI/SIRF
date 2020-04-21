@@ -14,10 +14,11 @@ Options:
 {licence}
 """
 import math
+import os
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
 __version__ = "0.2.3"
-__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
+__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis, Richard Brown"
 
 
 def norm(v):
@@ -149,6 +150,18 @@ def test_main(rec=False, verb=False, throw=True):
 
     # Test move to scanner centre
     moved_im = image.move_to_scanner_centre(ad)
+
+    # Test saving with parameter file
+    SIRF_PATH = os.environ.get('SIRF_PATH')
+    if SIRF_PATH is None: raise error('SIRF path missing')
+    paramfile = SIRF_PATH + '/examples/parameter_files/STIR_output_file_format_nifti.par'
+    for i in range(100):
+        temp_filename = 'tmp_' + str(i);
+        if not os.path.isfile(temp_filename):
+            image.write(temp_filename, paramfile)
+            break
+        if i==99: raise error('failed to save file to disk')
+    os.remove(temp_filename + '.nii')
 
     return test.failed, test.ntest
 

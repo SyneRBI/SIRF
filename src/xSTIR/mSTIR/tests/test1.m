@@ -104,6 +104,20 @@ delta = max(image_array(:))*eps;
 test.check(s)
 test.check(v, delta)
 
+% Check writing with parameter file
+SIRF_PATH = getenv('SIRF_PATH');
+assert(~isempty(SIRF_PATH),'SIRF path missing')
+paramfile = fullfile(SIRF_PATH, 'examples', 'parameter_files', 'STIR_output_file_format_nifti.par');
+for i=1:100
+	temp_filename = ['tmp_' num2str(i)];
+	if exist(temp_filename, 'file') ~= 2
+		image.write(temp_filename, paramfile);
+		break
+	end
+	if i==100; error('failed to save file to disk'); end
+end
+delete([temp_filename '.nii'])
+
 failed = test.failed;
 ntests = test.ntest;
 
