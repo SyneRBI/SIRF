@@ -378,11 +378,13 @@ complex_float_t a, complex_float_t b)
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
+	ISMRMRD::Acquisition acq;
 	bool isempty = (number() < 1);
 	try {
 		for (int i = 0, j = 0, k = 0; i < n && j < m;) {
 			y.get_acquisition(i, ay);
 			x.get_acquisition(j, ax);
+			get_acquisition(k, acq);
 			if (TO_BE_IGNORED(ay)) {
 				std::cout << i << " ignored (ay)\n";
 				i++;
@@ -391,6 +393,11 @@ complex_float_t a, complex_float_t b)
 			if (TO_BE_IGNORED(ax)) {
 				std::cout << j << " ignored (ax)\n";
 				j++;
+				continue;
+			}
+			if (TO_BE_IGNORED(acq)) {
+				std::cout << k << " ignored (acq)\n";
+				k++;
 				continue;
 			}
 			switch (op) {
@@ -416,7 +423,8 @@ complex_float_t a, complex_float_t b)
 		}
 	}
 	catch (...) {
-		empty();
+		AcquisitionsFile ac(acqs_info_);
+//		empty();
 		for (int i = 0, j = 0; i < n && j < m;) {
 			y.get_acquisition(i, ay);
 			x.get_acquisition(j, ax);
@@ -443,10 +451,12 @@ complex_float_t a, complex_float_t b)
 			default:
 				THROW("wrong operation in MRAcquisitionData::binary_op_");
 			}
-			append_acquisition(ay);
+//			append_acquisition(ay);
+			ac.append_acquisition(ay);
 			i++;
 			j++;
 		}
+		take_over(ac);
 	}
 }
 
@@ -751,7 +761,7 @@ AcquisitionsFile::empty()
 }
 
 void 
-AcquisitionsFile::take_over(AcquisitionsFile& af)
+AcquisitionsFile::take_over_impl(AcquisitionsFile& af)
 {
 	acqs_info_ = af.acquisitions_info();
 	sorted_ = af.sorted();
