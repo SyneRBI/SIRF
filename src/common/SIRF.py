@@ -105,9 +105,13 @@ class DataContainer(ABC):
             raise ValueError("Input sizes are expected to be equal, got " + numpy.prod(self.dimensions()) + " and " + numpy.prod(other.dimensions()) + " instead.")
         handle = pysirf.cSIRF_dot(self.handle, other.handle)
         check_status(handle)
-        r = pyiutil.floatDataFromHandle(handle)
+        re = pyiutil.floatReDataFromHandle(handle)
+        im = pyiutil.floatImDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
-        return r
+        if im == 0:
+            return re
+        else:
+            return re + 1j*im
     def multiply(self, other, out=None):
         '''
         Returns the elementwise product of this and another container 
@@ -176,7 +180,7 @@ class DataContainer(ABC):
             try_calling(pysirf.cSIRF_axpbyAlt \
                 (one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
         return z
-    def axpby(self, a,b, y, out=None, **kwargs):
+    def axpby(self, a, b, y, out=None, **kwargs):
         '''
         Addition for data containers.
 
@@ -189,17 +193,20 @@ class DataContainer(ABC):
         #     tmp = other + numpy.zeros(self.as_array().shape)
         #     other = self.copy()
         #     other.fill(tmp)
+
         assert_validities(self, y)
         alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
         beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
         
         if out is None:
-            z = self.copy()
+            z = self.same_object()
+            z.handle = pysirf.cSIRF_axpby \
+                (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
         else:
             assert_validities(self, out)
             z = out
-        z.handle = pysirf.cSIRF_axpby \
-            (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
+            try_calling(pysirf.cSIRF_axpbyAlt \
+                (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle, z.handle))
         check_status(z.handle)
         return z
 
@@ -517,7 +524,7 @@ class DataContainer(ABC):
         return self.as_array().shape
     @property
     def size(self):
-        '''Returns the size of the data array'''
+        '''Returns the (total) size of the data array.'''
         return self.as_array().size
 
 class ImageData(DataContainer):

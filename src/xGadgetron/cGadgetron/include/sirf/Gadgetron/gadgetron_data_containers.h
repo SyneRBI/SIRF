@@ -286,7 +286,7 @@ namespace sirf {
 		int index(int i) const
 		{
 			int ni = index_.size();
-			if (ni > 0 && i >= ni || i < 0)
+			if (ni > 0 && i >= ni || i < 0 || i >= number())
 				THROW("Aquisition number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -566,7 +566,7 @@ namespace sirf {
 		int index(int i) const
 		{
 			int ni = index_.size();
-			if (ni > 0 && i >= ni || i < 0)
+			if (ni > 0 && i >= ni || i < 0 || i >= number())
 				THROW("Image number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -795,13 +795,13 @@ namespace sirf {
 			(unsigned int im_num)
 		{
 			int i = index(im_num);
-			return images_[i];
+			return images_.at(i);
 		}
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 			(unsigned int im_num) const
 		{
 			int i = index(im_num);
-			return images_[i];
+			return images_.at(i);
 		}
 /*		virtual ImageWrap& image_wrap(unsigned int im_num)
 		{

@@ -398,6 +398,8 @@ def assert_validities(x, y):
         raise AssertionError('handle for first parameter is None')
     if y.handle is None:
         raise AssertionError('handle for second parameter is None')
+    if x.dimensions() != y.dimensions():
+        raise ValueError("Input shapes are expected to be equal, got " + str(x.dimensions()) + " and " + str(y.dimensions()) + " instead.")
 
 
 def label_and_name(g):

@@ -447,19 +447,6 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         t = self.data_type(0)
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        handle = pysirf.cSIRF_dot(self.handle, other.handle)
-        check_status(handle)
-        re = pyiutil.floatReDataFromHandle(handle)
-        im = pyiutil.floatImDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return re + 1j * im
     def process(self, list):
         '''
         Returns processed self with an image processor specified by
@@ -538,13 +525,13 @@ class ImageData(SIRF.ImageData):
         else:
             raise error('wrong fill value.' + \
                         ' Should be ImageData or numpy.ndarray')
-    def as_array(self):
+    def dimensions(self):
         '''
-        Returns all self's images as a 3D Numpy ndarray.
+        Returns the dimensions of 3D Numpy ndarray of all self's images.
         '''
-        assert self.handle is not None
         if self.number() < 1:
-            return numpy.ndarray((0,0,0), dtype = numpy.float32)
+            return 0, 0, 0
+        assert self.handle is not None
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         image = Image(self)
         pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
@@ -553,6 +540,15 @@ class ImageData(SIRF.ImageData):
         nz = dim[2]
         nc = dim[3]
         nz = nz*nc*self.number()
+        return nz, ny, nx
+    def as_array(self):
+        '''
+        Returns all self's images as a 3D Numpy ndarray.
+        '''
+        assert self.handle is not None
+        if self.number() < 1:
+            return numpy.ndarray((0,0,0), dtype = numpy.float32)
+        nz, ny, nx = self.dimensions()
         if self.is_real():
             array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
             try_calling(pygadgetron.cGT_getImageDataAsFloatArray\
@@ -805,19 +801,6 @@ class AcquisitionData(DataContainer):
             return self.number()
     def number_of_acquisitions(self, select='image'):
         return self.number_of_readouts
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        handle = pysirf.cSIRF_dot(self.handle, other.handle)
-        check_status(handle)
-        re = pyiutil.floatReDataFromHandle(handle)
-        im = pyiutil.floatImDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return re + 1j * im
     def sort(self):
         '''
         Sorts acquisitions with respect to (in this order):
