@@ -506,11 +506,15 @@ class DataContainer(ABC):
         return self.__div__(other)
     @property
     def shape(self):
-        '''returns the shape of the data array
+        '''Returns the shape of the data array
         
         CIL/SIRF compatibility
         '''
         return self.as_array().shape
+    @property
+    def size(self):
+        '''Returns the (total) size of the data array.'''
+        return self.as_array().size
 
 class ImageData(DataContainer):
     '''
