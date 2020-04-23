@@ -3,7 +3,7 @@
 v{version}
 
 Usage:
-  tests_four [--help | options]
+  test_six_adjoint.py [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them
