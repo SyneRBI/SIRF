@@ -133,6 +133,10 @@ def main():
           % simulated_acq_data.norm())
     if output_file is not None:
         simulated_acq_data.write(output_file)
+    acq = simulated_acq_data
+    acq_clone = acq.clone()
+    acq_clone += acq*(-1)
+    print(acq_clone.norm()/acq.norm())
 
     # display simulated acquisition data
     #simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
@@ -151,9 +155,11 @@ def main():
     print('norm of backprojected - reconstructed images: %f' % diff.norm())
     # testing fill
     reconstructed_images.fill(backprojected_data)
-    diff = (backprojected_data - reconstructed_images).norm()
-    if diff > 0:
-        print('fill error: %f' % diff)
+    backprojected_data += reconstructed_images*(-1)
+    print(backprojected_data.norm())
+    #diff = (backprojected_data - reconstructed_images).norm()
+    #if diff > 0:
+    #    print('fill error: %f' % diff)
 
 try:
     main()

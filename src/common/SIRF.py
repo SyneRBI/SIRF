@@ -394,7 +394,8 @@ class DataContainer(ABC):
     # inline algebra
     def __iadd__(self, other):
         '''Not quite in-place add'''
-        self.fill(self.add(other))
+        #self.fill(self.add(other))
+        self.subtract(other, out=self)
         return self
     def __imul__(self, other):
         '''Not quite in-place multiplication'''
@@ -406,7 +407,8 @@ class DataContainer(ABC):
         return self
     def __isub__(self, other):
         '''Not quite in-place subtract'''
-        self.fill(self.subtract(other).as_array())
+        #self.fill(self.subtract(other).as_array())
+        self.subtract(other, out=self)
         return self
     def __idiv__(self, other):
         '''Not quite in-place division'''
