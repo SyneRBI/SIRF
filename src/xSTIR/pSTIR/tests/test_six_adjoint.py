@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""sirf.STIR AcquisitionsModel tests
+"""sirf.STIR.AcquisitionModel tests
 v{version}
 
 Usage:
