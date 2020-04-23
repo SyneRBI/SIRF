@@ -465,3 +465,40 @@ def str_to_int_list(str_list):
             int_item = list(range(strt, stop + 1))
         int_list = int_list + int_item
     return int_list
+
+def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = False):
+    '''
+    Test if a given operator is adjoint.
+    The operator needs to have been already set_up() with valid objects.
+    The operator needs to have methods direct() and adjoint() implemented
+
+    Parameters
+    ----------
+    operator  :
+        Any SIRF operator that implements direct() and adjoint()
+    num_tests : int, optional
+        Square root of the number of tests with random data that will be executed. Default 5
+    max_err   : double, optional
+        Maximum allowed normalized error, tolerance. Change not recommended. Default 10e-5
+    verbose   : bool
+        Verbose option
+    '''
+    for iter1 in range(num_tests):
+        ## generate random data for x and direct()
+        x = operator.domain_geometry().allocate(value = 'random')
+        y_hat = operator.direct(x)
+        for iter2 in range(num_tests):
+            if verbose:
+                print("Testing " + type(operator).__name__ + ": Iteration " + str(iter1*num_tests+iter2+1) + "/" + str(num_tests**2))
+            ## generate random data and adjoint()
+            y = operator.range_geometry().allocate( value = 'random')
+            x_hat = operator.adjoint(y)
+            # Check dot product identity
+            norm_err = abs(numpy.conj(y_hat.dot(y)) - x_hat.dot(x))/(numpy.conj(abs(y_hat.dot(y)))*0.5 + abs(x_hat.dot(x))*0.5)
+            if norm_err > max_err:
+                if verbose:
+                    print(type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
+                return False
+            elif verbose:
+                print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
+    return True
