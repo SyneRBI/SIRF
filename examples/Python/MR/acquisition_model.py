@@ -133,10 +133,13 @@ def main():
           % simulated_acq_data.norm())
     if output_file is not None:
         simulated_acq_data.write(output_file)
+    # testing in-place algebra
     acq = simulated_acq_data
     acq_clone = acq.clone()
-    acq_clone += acq*(-1)
-    print(acq_clone.norm()/acq.norm())
+    acq_clone /= acq_clone
+    acq_clone *= acq
+    acq_clone -= acq
+    print('%f is 0.0' % (acq_clone.norm()/acq.norm()))
 
     # display simulated acquisition data
     #simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
@@ -155,11 +158,18 @@ def main():
     print('norm of backprojected - reconstructed images: %f' % diff.norm())
     # testing fill
     reconstructed_images.fill(backprojected_data)
+    # testing +=
     backprojected_data += reconstructed_images*(-1)
-    print(backprojected_data.norm())
+    print('%f is 0.0' % (backprojected_data.norm()))
     #diff = (backprojected_data - reconstructed_images).norm()
     #if diff > 0:
     #    print('fill error: %f' % diff)
+    images_copy = reconstructed_images.copy()
+    # testing /=, *= and -=
+    images_copy /= images_copy
+    images_copy *= reconstructed_images
+    images_copy -= reconstructed_images
+    print('%f is 0.0' % (images_copy.norm()))
 
 try:
     main()

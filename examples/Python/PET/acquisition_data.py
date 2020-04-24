@@ -106,7 +106,10 @@ def main():
     acq_factor = acq_data.get_uniform_copy(0.1)
     new_acq_data = acq_data / acq_factor
     print('norm of acq_data*10: %f' % new_acq_data.norm())
-    acq_copy = acq_data.get_uniform_copy()
+    acq_copy = acq_data.get_uniform_copy(1.0)
+    acq_copy *= acq_data
+    diff = acq_copy - acq_data
+    print('norm of acq_copy - acq_data: %f' % diff.norm())
     acq_copy.fill(acq_data)
     diff = acq_copy - acq_data
     print('norm of acq_copy - acq_data: %f' % diff.norm())
@@ -130,6 +133,9 @@ def main():
     diff -= image
     print('norm of image.clone() - image: %f' % diff.norm())
     image_copy = image.get_uniform_copy()
+    image_copy *= image
+    diff = image_copy - image
+    print('norm of image_copy - image: %f' % diff.norm())
     image_copy.fill(image)
     diff = image_copy - image
     print('norm of image_copy - image: %f' % diff.norm())
