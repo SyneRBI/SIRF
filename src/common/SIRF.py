@@ -395,7 +395,7 @@ class DataContainer(ABC):
     def __iadd__(self, other):
         '''Not quite in-place add'''
         #self.fill(self.add(other))
-        self.subtract(other, out=self)
+        self.add(other, out=self)
         return self
     def __imul__(self, other):
         '''Not quite in-place multiplication'''
