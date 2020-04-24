@@ -62,6 +62,15 @@ option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" WIN32)
 ####### CMake path
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+# Define the pre-commit hook for developer
+find_package(Git)
+if(GIT_FOUND)
+  message(STATUS "Found Git")
+  file(COPY "${CMAKE_SOURCE_DIR}/update_copyright_hook" DESTINATION "${CMAKE_SOURCE_DIR}/.git/hooks" USE_SOURCE_PERMISSIONS)
+  file(RENAME "${CMAKE_SOURCE_DIR}/.git/hooks/update_copyright_hook" "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit")
+  execute_process(COMMAND chmod +x "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit")
+endif(GIT_FOUND)
+
 # If OSX give the advanced option to use absolute paths for shared libraries
 if (APPLE)
   option(SHARED_LIBS_ABS_PATH "Force shared libraries to be installed with absolute paths (as opposed to rpaths)" ON)
