@@ -238,7 +238,7 @@ class NiftiImageData(SIRF.ImageData):
         return parms.float_par(self.handle, 'NiftiImageData', 'sum')
 
     def dimensions(self):
-        """Returns image dimensions as a tuple (nz, ny, nx)."""
+        """Returns image dimensions as a tuple."""
         dim  = self.get_dimensions()
         return tuple(dim[1:1+dim[0]]) # dim[0] tells us how many dimensions
 
@@ -250,9 +250,6 @@ class NiftiImageData(SIRF.ImageData):
         dim = numpy.ndarray((8,), dtype=numpy.int32)
         try_calling(pyreg.cReg_NiftiImageData_get_dimensions(self.handle, dim.ctypes.data))
         return dim
-
-    def dimensions(self):
-        return self.get_dimensions()
 
     def get_voxel_sizes(self):
         """%Get voxel sizes. Returns nifti format.
