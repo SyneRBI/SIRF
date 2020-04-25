@@ -466,7 +466,7 @@ def str_to_int_list(str_list):
         int_list = int_list + int_item
     return int_list
 
-def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = False):
+def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True):
     '''
     Test if a given operator is adjoint.
     The operator needs to have been already set_up() with valid objects.
