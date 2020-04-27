@@ -10,8 +10,10 @@ Usage:
 Options:
   -S <file>, --sino=<file>     sinogram (default: data/examples/PET/my_forward_projection.hs)
   -R <file>, --rand=<file>     randoms
-  -a <attn>, --attn=<attn>     attenuation image file
-  -n <norm>, --norm=<norm>     ECAT8 bin normalization file
+  -a <attn>, --attn_im=<attn>  attenuation image file
+  -A <attn>, --attn_sn=<attn>  attenuation sinogram
+  -n <norm>, --norm_e8=<norm>  ECAT8 bin normalization file
+  -N <norm>, --norm_sn=<norm>  Normalisation sinogram
   -s <subs>, --subs=<subs>     number of subsets [default: 12]
   -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
@@ -76,17 +78,29 @@ if args['--rand']:
     rand_file = args['--rand']
     check_file_exists(rand_file)
 
-# Attenuation
-attn_file = None
-if args['--attn']:
-    attn_file = args['--attn']
-    check_file_exists(attn_file)
+# Attenuation - image
+attn_im_file = None
+if args['--attn_im']:
+    attn_file = args['--attn_im']
+    check_file_exists(attn_im_file)
 
-# Norm
-norm_file = None
-if args['--norm']:
-    norm_file = args['--norm']
-    check_file_exists(norm_file)
+# Attenuation - sinogram
+attn_sn_file = None
+if args['--attn_sn']:
+    attn_file = args['--attn_sn']
+    check_file_exists(attn_sn_file)
+
+# Norm - ECAT8
+norm_e8_file = None
+if args['--norm_e8']:
+    norm_e8_file = args['--norm_e8']
+    check_file_exists(norm_e8_file)
+
+# Norm - sinogram
+norm_sn_file = None
+if args['--norm_sn']:
+    norm_sn_file = args['--norm_sn']
+    check_file_exists(norm_sn_file)
 
 # Number of voxels
 nxny = literal_eval(args['--nxny'])
@@ -145,13 +159,22 @@ def main():
         image.fill(1.0)
 
     # If norm is present
-    if norm_file:
+    asm_norm = None
+    if norm_e8_file and norm_sn_file:
+        raise error("For normalisation, only give ECAT8 or sinogram.")
+    if norm_e8_file:
         # create acquisition sensitivity model from ECAT8 normalisation data
-        asm_norm = AcquisitionSensitivityModel(norm_file)
+        asm_norm = AcquisitionSensitivityModel(norm_e8_file)
+    if norm_sn_file:
+        norm_sino = AcquisitionData(norm_sn_file)
+        asm_norm = AcquisitionSensitivityModel(norm_sino)
     
     # If attenuation is present
-    if attn_file:
-        attn_image = ImageData(attn_file)
+    asm_attn = None
+    if attn_im_file and attn_sn_file:
+        raise error("For attenuation, only give image or sinogram.")
+    if attn_im_file:
+        attn_image = ImageData(attn_im_file)
         # If gpu, make sure that the attn. image is same dimensions as image to recon
         if use_gpu:
             resampler = sirf.Reg.NiftyResample()
@@ -169,16 +192,19 @@ def main():
         print('applying attenuation (please wait, may take a while)...')
         asm_attn.unnormalise(bin_eff)
         asm_attn = AcquisitionSensitivityModel(bin_eff)
+    if attn_sn_file:
+        attn_sino = AcquisitionData(attn_sn_file)
+        asm_attn = AcquisitionSensitivityModel(attn_sino)
 
     # Get ASM dependent on attn and/or norm
     asm = None
-    if norm_file and attn_file:
+    if asm_norm and asm_attn:
         print("AcquisitionSensitivityModel contains norm and attenuation...")
         asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
-    elif norm_file:
+    elif asm_norm:
         print("AcquisitionSensitivityModel contains norm...")
         asm = asm_norm
-    elif attn_file:
+    elif asm_attn:
         print("AcquisitionSensitivityModel contains attenuation...")
         asm = asm_attn
     if asm:
