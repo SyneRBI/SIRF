@@ -100,8 +100,7 @@ def main():
     print('norm of acq_data.as_array(): %f' % numpy.linalg.norm(acq_array))
     print('acq_data.norm(): %f' % s)
     print('sqrt(acq_data.dot(acq_data)): %f' % math.sqrt(t))
-    diff = new_acq_data
-    diff -= acq_data
+    diff = new_acq_data - acq_data
     print('norm of acq_data.clone() - acq_data: %f' % diff.norm())
     acq_factor = acq_data.get_uniform_copy(0.1)
     new_acq_data = acq_data / acq_factor
@@ -129,8 +128,7 @@ def main():
     image_factor = image.get_uniform_copy(0.1)
     image = image / image_factor
     print('norm of image*10: %f' % image.norm())
-    diff = image.clone()
-    diff -= image
+    diff = image.clone() - image
     print('norm of image.clone() - image: %f' % diff.norm())
     image_copy = image.get_uniform_copy()
     image_copy *= image

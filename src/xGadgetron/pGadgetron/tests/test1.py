@@ -106,6 +106,19 @@ def test_main(rec=False, verb=False, throw=True):
     d = numpy.linalg.norm(pad2_arr - pad_arr/2)
     print('acquisitions division (with out=) error: %.1e' % d)
     test.check_if_equal(0, d)
+    # testing in-place algebra
+    acq = processed_data
+    acq_clone = acq.clone()
+    acq_clone /= acq_clone
+    acq_clone *= acq
+    acq_clone -= acq
+    d = acq_clone.norm()/acq.norm()
+    print('%f is 0.0' % d)
+    test.check_if_equal(1, d < 1e-6)
+    acq_clone += acq
+    d = (acq_clone.norm() - acq.norm())/acq.norm()
+    print('%f is 0.0' % d)
+    test.check_if_equal(1, d < 1e-6)
 
     ci2 = complex_images - complex_images
     ci2_arr = ci2.as_array()
@@ -141,6 +154,18 @@ def test_main(rec=False, verb=False, throw=True):
     d = numpy.linalg.norm(ci2_arr - ci_arr/2)
     print('images division (with out=) error: %.1e' % d)
     test.check_if_equal(0, d)
+    images_copy = complex_images.copy()
+    # testing /=, *= and -=
+    images_copy /= images_copy
+    images_copy *= complex_images
+    images_copy -= complex_images
+    d = images_copy.norm()/complex_images.norm()
+    print('%f is 0.0' % d)
+    test.check_if_equal(1, d < 1e-6)
+    images_copy += complex_images
+    d = (images_copy.norm() - complex_images.norm())/complex_images.norm()
+    print('%f is 0.0' % d)
+    test.check_if_equal(1, d < 1e-6)
 
     return test.failed, test.ntest
 
