@@ -1992,6 +1992,12 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def set_maximum_relative_change(self, value):
+        parms.set_float_par\
+            (self.handle, self.name, 'set_maximum_relative_change', value)
+    def set_minimum_relative_change(self, value):
+        parms.set_float_par\
+            (self.handle, self.name, 'set_minimum_relative_change', value)
 ##    def set_MAP_model(self, model):
 ##        parms.set_char_par\
 ##            (self.handle, self.name, 'MAP_model', model)
