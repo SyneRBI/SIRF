@@ -35,6 +35,16 @@ int test4()
 		converter.set_up();
 		converter.estimate_randoms();
 
+        // Check count rates - for the particular dataset,
+        // we know that 73036 is exceeded at 22s. You can
+        // see this with STIR's list_lm_countrates
+        const float prompt_rate_threshold = 73036.f;
+        const float known_time = 22.f;
+        const float time_at_which_prompt_rate_exceeds_threshold =
+                converter.get_time_at_which_prompt_rate_exceeds_threshold(prompt_rate_threshold);
+        if (std::abs(time_at_which_prompt_rate_exceeds_threshold-known_time) > 1e-4f)
+            throw std::runtime_error("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold failed");
+
         // Construct STIRImageData from VoxelsOnCartesianGrid
         Coord3DI image_size = {31, 111, 111};
         Coord3DF voxel_size = {3.375, 3, 3};

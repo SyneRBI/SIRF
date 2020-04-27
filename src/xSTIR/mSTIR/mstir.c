@@ -72,6 +72,9 @@ EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
 EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr) {
 	return cSTIR_computeRandoms(ptr);
 }
+EXPORTED_FUNCTION     void* mSTIR_lm_prompt_rate_exceeds_threshold(void* ptr, const float threshold) {
+	return cSTIR_lm_prompt_rate_exceeds_threshold(ptr, threshold);
+}
 EXPORTED_FUNCTION 	void* mSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i) {
 	return cSTIR_setupImageDataProcessor(ptr_p, ptr_i);
 }
@@ -224,6 +227,12 @@ EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 }
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename) {
 	return cSTIR_writeImage(ptr_i, filename);
+}
+EXPORTED_FUNCTION     void* mSTIR_ImageData_zoom_image(void* ptr_im, const PTR_FLOAT zooms_ptr_raw, const PTR_FLOAT offsets_in_mm_ptr_raw, const PTR_INT new_sizes_ptr_raw, const char * const zoom_options) {
+	return cSTIR_ImageData_zoom_image(ptr_im, zooms_ptr_raw, offsets_in_mm_ptr_raw, new_sizes_ptr_raw, zoom_options);
+}
+EXPORTED_FUNCTION     void* mSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_ptr) {
+	return cSTIR_ImageData_move_to_scanner_centre(im_ptr, acq_data_ptr);
 }
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream) {
 	return newTextPrinter(stream);

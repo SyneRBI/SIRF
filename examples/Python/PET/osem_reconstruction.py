@@ -90,8 +90,8 @@ def main():
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data)
-    obj_fun.set_acquisition_model(acq_model)
+    obj_fun = make_Poisson_loglikelihood(acq_data, acq_model=acq_model)
+    #obj_fun.set_acquisition_model(acq_model)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm (since we are not using a penalty, or prior, in

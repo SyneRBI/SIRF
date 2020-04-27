@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -67,6 +67,9 @@ public:
     /// Construct from translation and quaternion
     /// Code from here: https://uk.mathworks.com/help/robotics/ref/quaternion.rotmat.html
     AffineTransformation(const std::array<dataType,3> &trans, const Quaternion<dataType> &quat);
+
+    /// Construct from translation and euler angles (XYZ order)
+    AffineTransformation(const std::array<dataType,3> &trans, const std::array<dataType,3> &euler, const bool degrees = true);
 
     /// Copy constructor
     AffineTransformation(const AffineTransformation& to_copy);

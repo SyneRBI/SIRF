@@ -377,7 +377,7 @@ void BSplineTransformation::CPGToDVF2D( nifti_image *denseVectorFieldImage )
 
 
   //use openmp if available and not debug build
-#if defined (NDEBUG) && defined (_OPENMP)
+#if defined (NDEBUG) && defined (_OPENMP) && _OPENMP>201012
 #pragma omp parallel for default(none) \
 	shared(controlPointGridImage, denseVectorFieldImage, DVFSpacingInCPG, \
 	DVFOriginInCPG, CPGPtrX, CPGPtrY, DVFPtrX, DVFPtrY) \
@@ -523,7 +523,7 @@ void BSplineTransformation::CPGToDVF3D( nifti_image *denseVectorFieldImage )
 
 
   //use openmp if available and not debug build
-#if defined (NDEBUG) && defined (_OPENMP)
+#if defined (NDEBUG) && defined (_OPENMP) && _OPENMP>201012
 #pragma omp parallel for default(none) \
 	shared(controlPointGridImage, denseVectorFieldImage, DVFSpacingInCPG, \
 	DVFOriginInCPG, CPGPtrX, CPGPtrY, CPGPtrZ, DVFPtrX, DVFPtrY, DVFPtrZ) \

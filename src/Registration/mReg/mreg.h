@@ -1,7 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
 (http://www.ccppetmr.ac.uk/).
@@ -53,11 +53,15 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData_equal(const void* im1_ptr, const
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_original_datatype(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_pad(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr, const float val);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_set_voxel_spacing(const void* im_ptr, const float x, const float y, const float z, const int interpolation_order);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_standardise(const void* im_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_SIRFImageData(void* ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr);
+EXPORTED_FUNCTION     void* mReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_ptr, const float accuracy);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
@@ -67,10 +71,17 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(co
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const void* floating_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr);
-EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
-EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
-EXPORTED_FUNCTION     void* mReg_Registration_print_all_wrapped_methods(const char* name);
+EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type, const int idx);
+EXPORTED_FUNCTION     void* mReg_Registration_add_floating(const void* ptr, const void *im_ptr);
+EXPORTED_FUNCTION     void* mReg_Registration_clear_floatings(const void* ptr);
+EXPORTED_FUNCTION     void* mReg_Registration_get_output(const void* ptr,const int idx);
+EXPORTED_FUNCTION     void* mReg_Registration_set_reference_image_filename(const void* ptr, const char* filename);
+EXPORTED_FUNCTION     void* mReg_Registration_set_floating_image_filename(const void* ptr, const char* filename);
+EXPORTED_FUNCTION     void* mReg_Registration_add_floating_image_filename(const void* ptr, const char* filename);
+EXPORTED_FUNCTION     void* mReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+EXPORTED_FUNCTION     void* mReg_NiftyRegistration_print_all_wrapped_methods(const char* name);
 EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
+EXPORTED_FUNCTION     void* mReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_clear_transformations(void* self);
 EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr);
@@ -82,6 +93,7 @@ EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_process(void* ptr);
 EXPORTED_FUNCTION     void* mReg_Transformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_trans_and_quaternion(PTR_FLOAT trans_ptr, const void* quat_ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_trans_and_euler(PTR_FLOAT trans_ptr, PTR_FLOAT euler_ptr);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_deep_copy(const void* ptr);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_write(const void* ptr, const char* filename);
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);

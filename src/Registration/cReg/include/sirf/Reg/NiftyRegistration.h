@@ -1,6 +1,6 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -29,7 +29,7 @@ limitations under the License.
 
 #pragma once
 
-#include "sirf/Reg/Registration.h"
+#include "sirf/Reg/NiftiBasedRegistration.h"
 
 namespace sirf {
 
@@ -44,39 +44,56 @@ template<class dataType> class NiftiImageData3D;
 \author CCP PETMR
 */
 template<class dataType>
-class NiftyRegistration : public Registration<dataType>
+class NiftyRegistration : public NiftiBasedRegistration<dataType>
 {
 public:
 
     /// Constructor
-    NiftyRegistration() {}
+    NiftyRegistration();
 
     /// Destructor
     virtual ~NiftyRegistration() {}
 
-    /// Get forward deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr() const;
+    /// Set parameter file
+    void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
 
-    /// Get inverse deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr() const;
+    /// Set string parameter. Check if any set methods match the method given by par.
+    /// If so, set the value given by arg. Convert to float/int etc., as necessary.
+    /// Up to 2 arguments, leave blank if unneeded. These are applied after parsing
+    /// the parameter file.
+    void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
 
-    /// Get registered image as NiftiImageData3D
-    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output_sptr() const { return _warped_image_nifti_sptr; }
+    /// Set reference mask
+    void set_reference_mask(const std::shared_ptr<const ImageData> reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
+
+    /// Set floating mask
+    void set_floating_mask(const std::shared_ptr<const ImageData> floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
 
 protected:
+
+    /// Parse parameter file
+    virtual void parse_parameter_file() = 0;
 
     /// Set up inputs
     void set_up_inputs();
 
-    /// Reference image (as NiftiImageData3D)
-    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_nifti_sptr;
-    /// Floating image (as NiftiImageData3D)
-    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_image_nifti_sptr;
+    /// Set any extra parameters
+    virtual void set_parameters() = 0;
+
+    /// Store extra parameters. Only apply them after parsing.
+    std::vector<std::string> _extra_params;
+
+    /// Parameter filename
+    std::string _parameter_filename;
+
+    /// Floating mask
+    std::shared_ptr<const ImageData> _floating_mask_sptr;
+    /// Reference mask
+    std::shared_ptr<const ImageData> _reference_mask_sptr;
+
     /// Floating mask (as NiftiImageData3D)
     std::shared_ptr<const NiftiImageData3D<dataType> > _floating_mask_nifti_sptr;
     /// Reference mask (as NiftiImageData3D)
     std::shared_ptr<const NiftiImageData3D<dataType> > _reference_mask_nifti_sptr;
-    /// Output (as NiftiImageData3D)
-    std::shared_ptr<NiftiImageData3D<dataType> >       _warped_image_nifti_sptr;
 };
 }
