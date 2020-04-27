@@ -33,6 +33,7 @@ from sirf.Utilities import assert_validity, assert_validities, check_status, try
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
+
 from numbers import Number
 
 try:
@@ -98,7 +99,10 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        assert_validities(self, other)
+        assert_validities(self,other)
+        # Check if input are the same size
+        if numpy.prod(self.dimensions()) != numpy.prod(other.dimensions()):
+            raise ValueError("Input sizes are expected to be equal, got " + numpy.prod(self.dimensions()) + " and " + numpy.prod(other.dimensions()) + " instead.")
         handle = pysirf.cSIRF_dot(self.handle, other.handle)
         check_status(handle)
         re = pyiutil.floatReDataFromHandle(handle)
@@ -517,11 +521,15 @@ class DataContainer(ABC):
         return self.__div__(other)
     @property
     def shape(self):
-        '''returns the shape of the data array
+        '''Returns the shape of the data array
         
         CIL/SIRF compatibility
         '''
         return self.as_array().shape
+    @property
+    def size(self):
+        '''Returns the (total) size of the data array.'''
+        return self.as_array().size
 
 class ImageData(DataContainer):
     '''
