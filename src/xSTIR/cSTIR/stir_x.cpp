@@ -253,10 +253,13 @@ ListmodeToSinograms::compute_singles_()
 	Array<2, float> data_fan_sums = (*fan_sums_sptr)[0];
 
 	num_rings = data_fan_sums.get_length();
-	assert(num_rings > 0);
-	assert(data_fan_sums.get_min_index() == 0);
+	ASSERT(num_rings > 0, "num_rings must be positive");
+	ASSERT(data_fan_sums.get_min_index() == 0, "data_fan_sums.get_min_index() must be 0");
+//	assert(num_rings > 0);
+//	assert(data_fan_sums.get_min_index() == 0);
 	num_detectors_per_ring = data_fan_sums[0].get_length();
-	assert(num_detectors_per_ring > 0);
+	ASSERT(num_detectors_per_ring > 0, "num_detectors_per_ring must be positive");
+//	assert(num_detectors_per_ring > 0);
 	if (num_rings < max_ring_diff || num_detectors_per_ring < fan_size)
 	{
 		warning("fan sums matrix has sizes %dx%d, but this is "

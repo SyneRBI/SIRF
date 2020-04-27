@@ -75,6 +75,7 @@ def main():
     #    - repetition
     #    - slice
     #    - kspace encode step 1
+    print('sorting...')
     acq_data.sort()
 
     first = int(round(max(0, (na - 1)/2 - 1)))
@@ -91,6 +92,8 @@ def main():
     else:
         # should see this if input data file is test_2D_2x.h5
         print('first readout is not image data')
+        a0 = acq_data.as_array(0)
+        print('first readout shape: %dx%d' % a0.shape)
         
     # display flags
     print('Flags'),
@@ -124,9 +127,11 @@ def main():
     title = 'Acquisition data (magnitude)'
     acq_data.show(title = title, postpone = True)
 
+    print('cloning acquisition data...')
     cloned_acq_data = acq_data.clone()
     cloned_dim = cloned_acq_data.dimensions()
     print('cloned data dimensions: %dx%dx%d' % cloned_dim)
+    print('filling acquisition data...')
     cloned_acq_data.fill(acq_data)
     title = 'Cloned acquisition data (magnitude)'
     cloned_acq_data.show(title = title, postpone = True)
@@ -137,7 +142,7 @@ def main():
     # removal of oversampling along frequency encoding (i.e. readout or kx)
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
-    print('---\n pre-processing acquisition data...')
+    print('pre-processing acquisition data...')
     processed_acq_data = preprocess_acquisition_data(acq_data)
 
     # by removing the oversampling factor of 2 along the readout direction, the

@@ -338,6 +338,9 @@ class ImageData(SIRF.ImageData):
         array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
+    def write(self,filename,par):
+        '''Write with parameter file'''
+        try_calling(pystir.cSTIR_writeImage_par(self.handle, filename, par))
     def show(self, slice = None, title = None):
         '''Displays xy-cross-section(s) of this image.'''
         assert self.handle is not None
@@ -2139,12 +2142,19 @@ class OSSPSReconstructor(IterativeReconstructor):
         parms.set_float_par\
             (self.handle, self.name, 'relaxation_parameter', value)
 
-def make_Poisson_loglikelihood(acq_data, model = 'LinearModelForMean'):
+def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean', \
+                               acq_model=None):
     '''
-    Selects the objective function based on the acquisition data and acquisition
+    Selects the objective function based on the acquisition data and likelihood
     model types.
     '''
     # only this objective function is implemented for now
-    obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
-    obj_fun.set_acquisition_data(acq_data)
+    if likelihood_type == 'LinearModelForMean':
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
+        obj_fun.set_acquisition_data(acq_data)
+    else:
+        raise error('only PoissonLogLikelihoodWithLinearModelForMeanAndProjData '
+                  + 'is currently implemented in SIRF')
+    if acq_model is not None:
+        obj_fun.set_acquisition_model(acq_model)
     return obj_fun

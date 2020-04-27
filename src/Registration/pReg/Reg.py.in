@@ -237,6 +237,11 @@ class NiftiImageData(SIRF.ImageData):
         """Get sum."""
         return parms.float_par(self.handle, 'NiftiImageData', 'sum')
 
+    def dimensions(self):
+        """Returns image dimensions as a tuple."""
+        dim  = self.get_dimensions()
+        return tuple(dim[1:1+dim[0]]) # dim[0] tells us how many dimensions
+
     def get_dimensions(self):
         """Get dimensions. Returns nifti format.
         i.e., dim[0]=ndims, dim[1]=nx, dim[2]=ny,..."""
@@ -245,6 +250,7 @@ class NiftiImageData(SIRF.ImageData):
         dim = numpy.ndarray((8,), dtype=numpy.int32)
         try_calling(pyreg.cReg_NiftiImageData_get_dimensions(self.handle, dim.ctypes.data))
         return dim
+
     def get_voxel_sizes(self):
         """%Get voxel sizes. Returns nifti format.
         i.e., dim[0]=?, dim[1]=dx, dim[2]=dy,..."""
@@ -1008,11 +1014,11 @@ class NiftyResample(object):
 
     def domain_geometry(self):
         """Get domain geometry"""
-        return self.reference_image
+        return self.floating_image
 
     def range_geometry(self):
         """Get range geometry"""
-        return self.floating_image
+        return self.reference_image
 
 
 class ImageWeightedMean(object):
