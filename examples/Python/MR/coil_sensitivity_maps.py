@@ -77,6 +77,7 @@ def main():
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS)
     CSMs.calculate(processed_data)
     #
+    CSMs.write('csm.h5')
     # display coil sensitivity maps
     csms_array = CSMs.as_array()
     nz = csms_array.shape[1]
@@ -92,6 +93,7 @@ def main():
     #
     # calculate coil images from raw data
     CIs.calculate(processed_data)
+    CIs.write('ci.h5')
     #
     # create coil sensitivity object
     CSMs = CoilSensitivityData()

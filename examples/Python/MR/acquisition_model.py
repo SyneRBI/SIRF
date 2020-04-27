@@ -78,7 +78,7 @@ def main():
 
     for i in range(min(8, reconstructed_images.number())):
         reconstructed_image = reconstructed_images.image(i)
-        print('--- image %d' % i)
+        print('\n--- image %d' % i)
         for p in [ \
             'version', 'flags', 'data_type', 'channels', \
             'slice', 'repetition', \
@@ -92,7 +92,7 @@ def main():
         print(reconstructed_image.patient_table_position())
 
     ind = reconstructed_images.get_info('image_index')
-    print('image indices:')
+    print('\nimage indices:')
     print(ind)
     ind = reconstructed_images.get_info('slice')
     print('image slices:')
@@ -149,11 +149,6 @@ def main():
 
     diff = backprojected_data/b_norm - reconstructed_images/r_norm
     print('norm of backprojected - reconstructed images: %f' % diff.norm())
-    # testing fill
-    reconstructed_images.fill(backprojected_data)
-    diff = (backprojected_data - reconstructed_images).norm()
-    if diff > 0:
-        print('fill error: %f' % diff)
 
 try:
     main()

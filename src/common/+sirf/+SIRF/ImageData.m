@@ -20,10 +20,37 @@ classdef ImageData < sirf.SIRF.DataContainer
 % limitations under the License.
 
 	methods
+        function delete(self)
+            if ~isempty(self.handle_)
+                sirf.Utilities.delete(self.handle_)
+                self.handle_ = [];
+            end
+        end
+        function same = eq(self, other)
+            assert(isa(other, 'sirf.SIRF.ImageData'));
+            h = calllib('msirf', 'mSIRF_equalImages', self.handle_, other.handle_);
+            sirf.Utilities.check_status('ImageData:eq', h);
+            same = logical(calllib('miutilities', 'mIntDataFromHandle', h));
+            sirf.Utilities.delete(h)
+        end
+        function diff = ne(self, other)
+        	diff = ~(self == other);
+        end
+        function read(self, filename, engine, verb)
+            self.handle_ = calllib('msirf', 'mSIRF_readImageData', filename, engine, verb);
+            sirf.Utilities.check_status('ImageData:read', self.handle_);
+        end
 		function geom_info = get_geometrical_info(self)
 			% Get the image's geometrical info.
 			geom_info = sirf.SIRF.GeometricalInfo();
 			geom_info.handle_ = calllib('msirf', 'mSIRF_ImageData_get_geom_info', self.handle_);
 		end
+		function reorient(self, geom_info)
+            % Reorient image. Requires that dimensions match.
+            assert(isa(geom_info, 'sirf.SIRF.GeometricalInfo'));
+            h = calllib('msirf', 'mSIRF_ImageData_reorient', self.handle_, geom_info.handle_);
+            sirf.Utilities.check_status([self.name ':reorient'], h);
+            sirf.Utilities.delete(h)
+        end
 	end
 end

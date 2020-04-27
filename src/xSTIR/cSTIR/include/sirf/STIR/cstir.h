@@ -55,6 +55,7 @@ extern "C" {
 	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
 	void* cSTIR_computeRandoms(void* ptr);
+    void* cSTIR_lm_prompt_rate_exceeds_threshold(void* ptr, const float threshold);
 
 	// Data processor methods
 	void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
@@ -138,6 +139,7 @@ extern "C" {
 	void* cSTIR_fillImage(void* ptr_i, float v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
+    void* cSTIR_writeImage_par(void* ptr_i, const char* filename, const char* par);
     void* cSTIR_ImageData_zoom_image(void* ptr_im,
                                      const PTR_FLOAT zooms_ptr_raw,
                                      const PTR_FLOAT offsets_in_mm_ptr_raw,

@@ -1,23 +1,60 @@
-function registration(varargin)
-% Registration of SIRF images. 
-%   --eng_ref <eng>              engine for reference image [default: Reg]
-%   --eng_flo <eng>              engine for floating image [default: Reg]
-%   --ref <file>                 reference image (default: test.nii.gz)
-%   --flo <file>                 floating image (default: test2.nii.gz)
-%   --par <file>                 parameter file (default: niftyreg_aladin.par)
-%   --algo <algo>                registration algorithm [default: NiftyAladinSym]
-%   --rmask                      mask of reference image
-%   --fmask                      mask of floating image
-%   --warped <file>              warped image filename [default: warped]
-%   --TM_forward                 forward transformation matrix (if rigid/affine)
-%   --TM_inverse                 inverse transformation matrix (if rigid/affine)
-%   --disp_fwd_4D                4D forward displacement field image
-%   --def_fwd_4D                 4D forward deformation field image
-%   --disp_inv_4D                4D inverse displacement field image
-%   --def_inv_4D                 4D inverse deformation field image
+function sirf_registration(varargin)
+%SIRF_REGISTRATION Registration of SIRF images.
+%
+%   Use name-pair values to set required and optional arguments
+%
+%   Required arguments
+%   -------------------------------------------------------------
+%
+%   --ref <file> <eng>           reference image (eng: Reg|STIR|Gadgetron)
+%       default: --ref test.nii.gz Reg
+%   --flo <file> <eng>           floating image (eng: Reg|STIR|Gadgetron)
+%       default: --flo test2.nii.gz Reg
+%   --algo <algo>                registration algorithm (aladin/f3d/spm)
+%       default: --algo aladin
+%
+%   Optional arguments
+%   -------------------------------------------------------------
+%
+%   --warped_prefix <fname>      warped image filename
+%   --disp_fwd_prefix <fname>    forward displacement field image
+%   --disp_inv_prefix <fname>    inverse displacement field image
+%   --def_fwd_prefix <fname>     forward deformation field image
+%   --def_inv_prefix <fname>     inverse deformation field image
+%
+%   Optional arguments for rigid/affine algorithms (aladin/spm)
+%   -------------------------------------------------------------
+%
+%   --TM_fwd_prefix <fname>      forward transformation matrix
+%   --TM_inv_prefix <fname>      inverse transformation matrix
+%
+%   Optional flags for NiftyReg (aladin/f3d)
+%   -------------------------------------------------------------
+%   --rmask <fname> <eng>        mask of reference image (eng: Reg|STIR|Gadgetron)
+%   --fmask <fname> <eng>        mask of floating image (eng: Reg|STIR|Gadgetron)
+%   --print                      print all possible wrapped parameters and exit.
+%   --par_file <fname>           set parameter file
+%   --par <string>               set wrapped parameter. Some examples (and note quotation marks):
+%           '--par', 'SetPerformRigid 1'
+%           '--par', 'SetPerformAffine 0'
+%           '--par', 'SetInterpolationToCubic'
+%           '--par', 'SetFloatingThresholdUp 1 2'
+%
+%   Optional flags for spm
+%   -------------------------------------------------------------
+
+%   --working_folder <fname>     folder in which to save temporary files (default: cwd/spm_working_folder)
+%   --overwrite <bool>           should I overwrite files if already present? (default: true)
+%   --delete <bool>              should I delete temporary files? (default: true)
+%
+%   If any are missing, these defaults are used
+%   ------------------------------------------------------------- 
+%   --ref test.nii.gz Reg
+%   --flo test2.nii.gz Reg
+%   --algo aladin
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018 - 2019 University College London.
+% Copyright 2018 - 2020 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -35,134 +72,226 @@ function registration(varargin)
 
 %% Parse the input
 i=1;
+flo_files={};
+flo_engs={};
+pars={};
 while i <= length(varargin)
-    if     strcmp(varargin{i},'--eng_ref')
-        eng_ref = get_arg(varargin,i,1);
-        i=i+2;
-    elseif strcmp(varargin{i},'--eng_flo')
-        eng_flo = get_arg(varargin,i,1);
-        i=i+2;
-    elseif strcmp(varargin{i},'--ref')
+    % Required
+    if strcmp(varargin{i},'--ref')
         ref_file = get_arg(varargin,i,1);
-        i=i+2;
+        eng_ref = get_arg(varargin,i,2);
+        i=i+3;
     elseif strcmp(varargin{i},'--flo')
-        flo_file = get_arg(varargin,i,1);
-        i=i+2;
-   elseif strcmp(varargin{i},'--algo')
+        flo_files{end+1} = get_arg(varargin,i,1);
+        flo_engs{end+1} = get_arg(varargin,i,2);
+        i=i+3;
+    elseif strcmp(varargin{i},'--algo')
         algo = get_arg(varargin,i,1);
         i=i+2;
-   elseif strcmp(varargin{i},'--warped')
+        
+    % Optional
+    elseif strcmp(varargin{i},'--warped_prefix')
         warped = get_arg(varargin,i,1);
         i=i+2;
-    elseif strcmp(varargin{i},'--par')
-        par_file = get_arg(varargin,i,1);
+    elseif strcmp(varargin{i},'--disp_fwd_prefix')
+        disp_fwd = get_arg(varargin,i,1);
+        i=i+2;        
+    elseif strcmp(varargin{i},'--disp_inv_prefix')
+        disp_inv = get_arg(varargin,i,1);
+        i=i+2;        
+    elseif strcmp(varargin{i},'--def_fwd_prefix')
+        def_fwd = get_arg(varargin,i,1);
+        i=i+2;        
+    elseif strcmp(varargin{i},'--def_inv_prefix')
+        def_inv = get_arg(varargin,i,1);
         i=i+2;
         
+    % Optional NiftyReg
     elseif strcmp(varargin{i},'--rmask')
         rmask = get_arg(varargin,i,1);
-        i=i+2;        
+        rmask_eng = get_arg(varargin,i,2);
+        i=i+3;
     elseif strcmp(varargin{i},'--fmask')
         fmask = get_arg(varargin,i,1);
-        i=i+2;        
-        
-    elseif strcmp(varargin{i},'--TM_forward')
-        TM_forward = get_arg(varargin,i,1);
-        i=i+2;        
-    elseif strcmp(varargin{i},'--TM_inverse')
-        TM_inverse = get_arg(varargin,i,1);
-        i=i+2;        
-    elseif strcmp(varargin{i},'--disp_fwd_4D')
-        disp_fwd_4D = get_arg(varargin,i,1);
-        i=i+2;        
-    elseif strcmp(varargin{i},'--disp_inv_4D')
-        disp_inv_4D = get_arg(varargin,i,1);
-        i=i+2;        
-    elseif strcmp(varargin{i},'--def_fwd_4D')
-        def_fwd_4D = get_arg(varargin,i,1);
-        i=i+2;        
-    elseif strcmp(varargin{i},'--def_inv_4D')
-        def_inv_4D = get_arg(varargin,i,1);
+        fmask_eng = get_arg(varargin,i,2);
+        i=i+3;
+    elseif strcmp(varargin{i},'--print')
+        print = true;
+        i=i+1;
+    elseif strcmp(varargin{i},'--par_file')
+        par_file = get_arg(varargin,i,1);
         i=i+2;
+    elseif strcmp(varargin{i},'--par')
+        pars{end+1} = get_arg(varargin,i,1);
+        i=i+2;
+        
+    % Optional rigid/affine
+    elseif strcmp(varargin{i},'--TM_fwd_prefix')
+        TM_fwd = get_arg(varargin,i,1);
+        i=i+2;        
+    elseif strcmp(varargin{i},'--TM_inv_prefix')
+        TM_inv = get_arg(varargin,i,1);
+        i=i+2; 
+        
+    % Optional spm
+    elseif strcmp(varargin{i},'--working_folder')
+        working_folder = get_arg(varargin,i,1);
+        i=i+2;
+    elseif strcmp(varargin{i},'--overwrite')
+        overwrite = get_arg(varargin,i,1);
+        i=i+2;
+    elseif strcmp(varargin{i},'--delete')
+        delete_temp_files = get_arg(varargin,i,1);
+        i=i+2;
+
     else
         error(['Unknown argument: ' varargin{i} '. Use help(function) for help.']);  
     end    
 end
 
-%% Default values
-% If using default ref or flo images, need SIRF data
+%% Get defaults
+if ~exist('algo','var'); algo='aladin'; end
 if ~exist('ref_file','var') || ~exist('flo_file','var')
     SIRF_PATH     = getenv('SIRF_PATH');
-    examples_path = fullfile(SIRF_PATH, '/data/examples/Registration');
+    examples_path = fullfile(SIRF_PATH,'/data/examples/Registration');
+end
+if ~exist('ref_file','var')
+    ref_file=fullfile(examples_path,'test.nii.gz');
+    eng_ref = 'Reg';
+end
+if isempty(flo_files)
+    flo_files{1} = fullfile(examples_path,'test2.nii.gz');
+    flo_engs{1}  = 'Reg';
 end
 
-if ~exist('eng_ref','var')  eng_ref  = 'Reg'; end
-if ~exist('eng_flo','var')  eng_flo  = 'Reg'; end
-if ~exist('ref_file','var') ref_file = fullfile(examples_path, 'test.nii.gz');  end
-if ~exist('flo_file','var') flo_file = fullfile(examples_path, 'test2.nii.gz'); end
-if ~exist('algo','var')     algo     = 'NiftyAladinSym'; end
-if ~exist('warped','var')   warped   = 'warped'; end
-if ~exist('par_file','var') par_file = fullfile(examples_path, 'paramFiles/niftyreg_aladin.par'); end
-
-%% Registration
-% Open reference and floating images
-disp(['Engine for reference image: ', eng_ref])
-disp(['Engine for floating image: ', eng_flo])
-disp(['Reference image: ', ref_file])
-disp(['Floating image: ', flo_file])
-
-% Dynamically set up the engines required
+%% Get algorithm
 set_up_Reg();
-eng_ref = set_up_engine(eng_ref);
-eng_flo = set_up_engine(eng_flo);
+reg = get_algorithm(algo);
 
-ref = eng_ref.ImageData(ref_file);
-flo = eng_flo.ImageData(flo_file);
+%% Print wrapped methods
+if exist('print','var')
+    assert(strcmp(algo,'spm')~=1, '--print not available for spm')
+    reg.print_all_wrapped_methods();
+    return;
+end
 
-% Dynamically create resample algorithm
-reg = eval(['sirf.Reg.' algo]);
-reg.set_reference_image(ref)
-reg.set_floating_image(flo)
+%% Input images
+reg.set_reference_image(get_im(ref_file,eng_ref));
+for i=1:numel(flo_files)
+    reg.add_floating_image(get_im(flo_files{i},flo_engs{i}));
+end
+
+%% Set parameters
+% rmask
+if exist('rmask','var')
+    assert(strcmp(algo,'spm')~=1, '--rmask not available for spm')
+    reg.set_reference_mask(get_im(rmask,rmask_eng));
+end
+% fmask
+if exist('fmask','var')
+    assert(strcmp(algo,'spm')~=1, '--fmask not available for spm')
+    reg.set_floating_mask(get_im(fmask,fmask_eng));
+end
+% par_file
 if exist('par_file','var')
+    assert(strcmp(algo,'spm')~=1, '--par_file not available for spm')
     reg.set_parameter_file(par_file);
 end
-if exist('rmask_file','var')
-    rmask = eng_ref.ImageData(rmask_file);
-    reg.set_reference_mask(rmask)
-end
-if exist('fmask_file','var')
-    fmask = eng_ref.ImageData(fmask_file);
-    reg.set_floating_mask(fmask)
+% pars
+if (strcmp(algo,'spm')); assert(isempty(pars), '--pars not available for spm'); end
+for i=1:numel(pars)
+    disp(pars)
+    pars_split = split(pars);
+    if numel(pars_split)==1
+        reg.set_parameter(pars_split{1});
+    elseif numel(pars_split)==2
+        reg.set_parameter(pars_split{1},pars_split{2});
+    elseif numel(pars_split)==3
+        reg.set_parameter(pars_split{1},pars_split{2},pars_split{3});
+    else
+        error('Max number of NiftyReg args is 2.')
+    end
 end
 
+% working_folder
+if strcmp(algo,'spm') && ~exist('working_folder','var')
+    working_folder = [pwd filesep 'spm_working_folder'];
+end
+if exist('working_folder','var')
+    assert(strcmp(algo,'spm'), '--working_folder only available for spm')
+    reg.set_working_folder(working_folder);
+end
+% overwrite
+if strcmp(algo,'spm') && ~exist('overwrite','var')
+    overwrite = true;
+end
+if exist('overwrite','var')
+    assert(strcmp(algo,'spm'), '--overwrite only available for spm')
+    reg.set_working_folder_file_overwrite(overwrite);
+end
+% delete_temp_files
+if strcmp(algo,'spm') && ~exist('delete_temp_files','var')
+    delete_temp_files = true;
+end
+if exist('delete_temp_files','var')
+    assert(strcmp(algo,'spm'), '--delete only available for spm')
+    reg.set_delete_temp_files(delete_temp_files);
+end
+
+%% Register
 reg.process();
 
-%% Output 
-reg.get_output().write(warped);
+%% Save results
+for i = 1 : numel(flo_files)
+    
+    if exist('warped','var')
+        reg.get_output(i).write([warped num2str(i)]);
+    end
+    if exist('disp_fwd','var')
+        reg.get_displacement_field_forward(i).write([disp_fwd num2str(i)]);
+    end
+    if exist('disp_inv','var')
+        reg.get_displacement_field_inverse(i).write([disp_inv num2str(i)]);
+    end
+    if exist('def_fwd','var')
+        reg.get_deformation_field_forward(i).write([def_fwd num2str(i)]);
+    end
+    if exist('def_inv','var')
+        reg.get_deformation_field_inverse(i).write([def_inv num2str(i)]);
+    end
+    if exist('TM_fwd','var')
+        assert(strcmp(algo,'f3d'), '--TM_fwd only available for rigid/affine algorithms')
+        reg.get_transformation_matrix_forward(i).write([TM_fwd num2str(i)]);
+    end
+    if exist('TM_inv','var')
+        assert(strcmp(algo,'f3d'), '--TM_inv only available for rigid/affine algorithms')
+        reg.get_transformation_matrix_inverse(i).write([TM_inv num2str(i)]);
+    end
+end
+end
 
-% TMs
-if exist('TM_forward','var')
-    reg.get_transformation_matrix_forward().write(TM_forward)
-end
-if exist('TM_inverse','var')
-    reg.get_transformation_matrix_forward().write(TM_inverse)
-end
- 
-% Disp fields
-if exist('disp_fwd_4D','var')
-    reg.get_displacement_field_forward().write(disp_fwd_4D)
-end
-if exist('disp_inv_4D','var')
-    reg.get_displacement_field_inverse().write(disp_inv_4D)
+function im = get_im(filename, eng)
+    if strcmp(eng, 'Reg')
+        im = sirf.Reg.ImageData(filename);
+    elseif strcmp(eng, 'STIR')
+        im = sirf.STIR.ImageData(filename);
+    elseif strcmp(eng, 'Gadgetron')
+        im = sirf.Gadgetron.ImageData(filename);
+    else
+        error(['Unknown engine: ' engine]);
+    end
 end
 
-% Def fields
-if exist('def_fwd_4D','var')
-    reg.get_deformation_field_forward().write(def_fwd_4D)
-end
-if exist('disp_inv_4D','var')
-    reg.get_deformation_field_inverse().write(def_inv_4D)
-end
-
+function reg = get_algorithm(algo_str)
+    if strcmp(algo_str,'aladin')
+        reg = sirf.Reg.NiftyAladinSym();
+    elseif strcmp(algo_str,'f3d')
+        reg = sirf.Reg.NiftyF3DSym();
+    elseif strcmp(algo_str,'spm')
+        reg = sirf.Reg.SPMRegistration();
+    else
+        error(['Unknown algorithm: ' algo_str]);
+    end
 end
 
 function arg = get_arg(list,index,increment)

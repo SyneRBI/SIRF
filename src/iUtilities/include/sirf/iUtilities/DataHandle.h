@@ -38,7 +38,7 @@ limitations under the License.
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
+//#define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
 #define CATCH \
 	catch (LocalisedException& se) {\
 		ExecutionStatus status(se);\

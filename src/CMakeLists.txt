@@ -19,7 +19,7 @@
 #=========================================================================
 
 ADD_SUBDIRECTORY(iUtilities)
-ADD_SUBDIRECTORY(common)
+#ADD_SUBDIRECTORY(common)
 
 
 ##########################################################################
@@ -29,9 +29,7 @@ option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
 if (DISABLE_Gadgetron)
   message(STATUS "Gadgetron support disabled.")
 else()
-  # include explicit search for HDF5 for older ISMRMRD versions.
-  find_package(HDF5 1.8 COMPONENTS C REQUIRED)
-  find_package(ISMRMRD REQUIRED)
+  find_package(ISMRMRD 1.4 REQUIRED)
   # Add ISMRMRD to search path for FFTW3
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
   find_package(FFTW3 COMPONENTS single REQUIRED)
@@ -63,6 +61,11 @@ else()
       SET(NR_libs_full_path "${NR_libs_full_path};OpenMP::OpenMP_CXX")
     endif()
   endif()
+  # If niftyreg was bulit with CUDA
+  if (NIFTYREG_BUILT_WITH_CUDA)
+    find_package(CUDA REQUIRED)
+    SET(NR_libs_full_path "${NR_libs_full_path};${CUDA_CUDA_LIBRARY};${CUDA_CUDART_LIBRARY}")
+  endif()
   ADD_SUBDIRECTORY(Registration)
 endif()
 
@@ -76,6 +79,18 @@ if (DISABLE_STIR)
   message(STATUS "STIR support disabled.")
 else()
   find_package(STIR 4.0.0 REQUIRED)
+  if (STIR_WITH_NIFTYPET_PROJECTOR)
+    set(NIFTYPET_BOOL_STR "1")
+  	message(STATUS "STIR was built with NiftyPET, GPU projectors will be enabled.")
+    if(${CMAKE_VERSION} VERSION_LESS "3.12.0") 
+      add_definitions(-DSTIR_WITH_NIFTYPET_PROJECTOR)
+    else()
+      add_compile_definitions(STIR_WITH_NIFTYPET_PROJECTOR)
+    endif()
+  else()
+    MESSAGE(STATUS "STIR not built with NiftyPET.")
+    set(NIFTYPET_BOOL_STR "0")
+  endif()
   ADD_SUBDIRECTORY(xSTIR)
 endif()
 
@@ -106,3 +121,5 @@ else()
     endif()
   endif()
 endif()
+
+ADD_SUBDIRECTORY(common)

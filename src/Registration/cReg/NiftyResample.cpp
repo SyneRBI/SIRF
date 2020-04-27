@@ -38,142 +38,32 @@ limitations under the License.
 #include <memory>
 
 using namespace sirf;
+using namespace detail;
 
 template<class dataType>
-void convert_to_NiftiImageData_if_not_already(std::shared_ptr<const NiftiImageData<dataType> > &output_sptr, const std::shared_ptr<const ImageData> &input_sptr)
+static void convert_ImageData_to_ComplexNiftiImageData(ComplexNiftiImageData<dataType> &output, const std::shared_ptr<const ImageData> input_sptr)
 {
-    // Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
-    output_sptr = std::dynamic_pointer_cast<const NiftiImageData<dataType> >(input_sptr);
-    // If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
-    // In this case, construct a NiftiImageData
-    if (!output_sptr)
-        output_sptr = std::make_shared<const NiftiImageData<dataType> >(*input_sptr);
-}
-
-template<class dataType>
-void convert_to_NiftiImageData_if_not_already(std::shared_ptr<NiftiImageData<dataType> > &output_sptr, const std::shared_ptr<ImageData> &input_sptr)
-{
-    // Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
-    output_sptr = std::dynamic_pointer_cast<NiftiImageData<dataType> >(input_sptr);
-    // If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
-    // In this case, construct a NiftiImageData
-    if (!output_sptr)
-        output_sptr = std::make_shared<NiftiImageData<dataType> >(*input_sptr);
-}
-
-template<class dataType>
-void NiftyResample<dataType>::set_up()
-{
-    // If set up has already been called, nothing to do.
-    if (!this->_need_to_set_up)
-        return;
-
-    // Check that all the required information has been entered
-    this->check_parameters();
-
-    // Get reference and floating images as NiftiImageData
-    set_up_input_images();
-
-    // If no transformations, use identity.
-    if (this->_transformations.size() == 0) {
-        std::cout << "\nNo transformations set, using identity.\n";
-        this->_transformations.push_back(std::make_shared<AffineTransformation<float> >());
+    // if input is real, only convert first bit
+    if (!input_sptr->is_complex()) {
+        output.real() = std::make_shared<NiftiImageData<dataType> >(*input_sptr);
+        output.imag().reset();
     }
-
-    // If there are multiple transformations, compose them into single transformation.
-    // If forward, use the reference. If adjoint, use the floating
-    this->_deformation_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >(
-            NiftiImageData3DDeformation<dataType>::compose_single_deformation(
-                this->_transformations,*this->_reference_image_nifti_sptr));
-
-    this->_need_to_set_up = false;
+    // if input is complex, only set both
+    else {
+        std::shared_ptr<NiftiImageData<dataType> > &output_real = output.real();
+        std::shared_ptr<NiftiImageData<dataType> > &output_imag = output.imag();
+        NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(output_real,output_imag,input_sptr);
+    }
 }
 
 template<class dataType>
-void NiftyResample<dataType>::set_up_forward()
-{
-    // If set up has already been called, nothing to do.
-    if (!this->_need_to_set_up_forward)
-        return;
-
-    // Call base level
-    set_up();
-
-    // Setup output image
-    set_up_output_image(_output_image_forward_nifti_sptr, _reference_image_nifti_sptr, _floating_image_nifti_sptr);
-
-    this->_need_to_set_up_forward = false;
-}
-
-template<class dataType>
-void NiftyResample<dataType>::set_up_adjoint()
-{
-    // If set up has already been called, nothing to do.
-    if (!this->_need_to_set_up_adjoint)
-        return;
-
-    // Call base level
-    set_up();
-
-    // SINC currently not supported in NiftyMoMo
-    if (this->_interpolation_type == Resample<dataType>::SINC)
-        throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
-
-    // Setup output image
-    set_up_output_image(_output_image_adjoint_nifti_sptr, _floating_image_nifti_sptr, _reference_image_nifti_sptr);
-
-    // Get deformation spacing
-    float control_point_grid_spacing[3] = {
-        _deformation_sptr->get_raw_nifti_sptr()->dx,
-        _deformation_sptr->get_raw_nifti_sptr()->dy,
-        _deformation_sptr->get_raw_nifti_sptr()->dz
-    };
-
-    // Get the deformation field
-    nifti_image *def_ptr = _deformation_sptr->get_raw_nifti_sptr().get();
-    // Copy of reference image
-    NiftiImageData<dataType> ref = *this->_reference_image_nifti_sptr;
-    nifti_image *ref_ptr = ref.get_raw_nifti_sptr().get();
-
-    _adjoint_transformer_sptr = std::make_shared<NiftyMoMo::BSplineTransformation>(
-                ref_ptr,
-                /*num levels to perform*/1U,
-                control_point_grid_spacing);
-
-    _adjoint_transformer_sptr->set_interpolation(this->_interpolation_type);
-//    _adjoint_transformer_sptr->SetParameters(static_cast<dataType*>(def_ptr->data), false);
-    _adjoint_transformer_sptr->SetPaddingValue(this->_padding_value);
-    _adjoint_transformer_sptr->setDVF(def_ptr);
-
-    // Set up the input and output weights
-    _adjoint_input_weights_sptr = this->_reference_image_nifti_sptr->clone();
-    _adjoint_input_weights_sptr->fill(1.f);
-    _adjoint_output_weights_sptr = this->_output_image_adjoint_nifti_sptr->clone();
-
-    this->_need_to_set_up_adjoint = false;
-}
-
-template<class dataType>
-void NiftyResample<dataType>::process()
-{
-    this->_output_image_sptr = forward(this->_floating_image_sptr);
-}
-
-template<class dataType>
-void NiftyResample<dataType>::set_up_input_images()
-{
-    convert_to_NiftiImageData_if_not_already(this->_reference_image_nifti_sptr, this->_reference_image_sptr);
-    convert_to_NiftiImageData_if_not_already(this->_floating_image_nifti_sptr,  this->_floating_image_sptr );
-}
-
-template<class dataType>
-void NiftyResample<dataType>::set_up_output_image(std::shared_ptr<NiftiImageData<dataType> > &output_sptr,
-                                                  const std::shared_ptr<const NiftiImageData<dataType> > im_for_shape_sptr,
-                                                  const std::shared_ptr<const NiftiImageData<dataType> > im_for_metadata_sptr)
+static void set_up_output_image(ComplexNiftiImageData<dataType> &output,
+                                const ComplexNiftiImageData<dataType> im_for_shape,
+                                const ComplexNiftiImageData<dataType> im_for_metadata)
 {
     // The output is a mixture between the reference and floating images.
-    const nifti_image * const im_for_shape_ptr = im_for_shape_sptr->get_raw_nifti_sptr().get();
-    const nifti_image * const im_for_metadata_ptr = im_for_metadata_sptr->get_raw_nifti_sptr().get();
+    const nifti_image * const im_for_shape_ptr = im_for_shape.real()->get_raw_nifti_sptr().get();
+    const nifti_image * const im_for_metadata_ptr = im_for_metadata.real()->get_raw_nifti_sptr().get();
 
     // Start creating new output as the header from the reference image
     nifti_image * output_ptr = nifti_copy_nim_info(im_for_shape_ptr);
@@ -197,10 +87,167 @@ void NiftyResample<dataType>::set_up_output_image(std::shared_ptr<NiftiImageData
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
 
     // Create NiftiImageData from nifti_image
-    output_sptr = std::make_shared<NiftiImageData<dataType> >(*output_ptr);
+    // If the im_for_shape is complex (i.e., has two components), then output should be the same
+    output.real() = std::make_shared<NiftiImageData<dataType> >(*output_ptr);
+    if (im_for_shape.is_complex())
+        output.imag() = std::make_shared<NiftiImageData<dataType> >(*output_ptr);
 
     // Delete the original pointer
     nifti_image_free(output_ptr);
+}
+
+template<class dataType>
+void NiftyResample<dataType>::set_up()
+{
+    // If set up has already been called, nothing to do.
+    if (!this->_need_to_set_up)
+        return;
+
+    // Check that all the required information has been entered
+    this->check_parameters();
+
+    // Get reference and floating images as NiftiImageData
+    set_up_input_images();
+
+    // If no transformations, use identity.
+    if (this->_transformations.size() == 0) {
+        std::cout << "\nNo transformations set, using identity.\n";
+        this->_transformations.push_back(std::make_shared<AffineTransformation<float> >());
+    }
+
+    // If there are multiple transformations, compose them into single transformation.
+    // Use the reference regardless of forward/adjoint.
+    this->_deformation_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >(
+            NiftiImageData3DDeformation<dataType>::compose_single_deformation(
+                this->_transformations,*this->_reference_image_niftis.real()));
+
+    this->_need_to_set_up = false;
+}
+
+template<class dataType>
+void NiftyResample<dataType>::set_up_forward()
+{
+    // If set up has already been called, nothing to do.
+    if (!this->_need_to_set_up_forward)
+        return;
+
+    // Call base level
+    set_up();
+
+    // Setup output image
+    set_up_output_image(_output_image_forward_niftis, _reference_image_niftis, _floating_image_niftis);
+
+    this->_need_to_set_up_forward = false;
+}
+
+template<class dataType>
+void NiftyResample<dataType>::set_up_adjoint()
+{
+    // If set up has already been called, nothing to do.
+    if (!this->_need_to_set_up_adjoint)
+        return;
+
+    // Call base level
+    set_up();
+
+    // SINC currently not supported in NiftyMoMo
+    if (this->_interpolation_type == Resample<dataType>::SINC)
+        throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
+
+    // Setup output image
+    set_up_output_image(_output_image_adjoint_niftis, _floating_image_niftis, _reference_image_niftis);
+
+    // Get deformation spacing
+    float control_point_grid_spacing[3] = {
+        _deformation_sptr->get_raw_nifti_sptr()->dx,
+        _deformation_sptr->get_raw_nifti_sptr()->dy,
+        _deformation_sptr->get_raw_nifti_sptr()->dz
+    };
+
+    // Get the deformation field
+    nifti_image *def_ptr = _deformation_sptr->get_raw_nifti_sptr().get();
+    // Copy of reference image
+    NiftiImageData<dataType> ref = *this->_reference_image_niftis.real();
+    nifti_image *ref_ptr = ref.get_raw_nifti_sptr().get();
+
+    _adjoint_transformer_sptr = std::make_shared<NiftyMoMo::BSplineTransformation>(
+                ref_ptr,
+                /*num levels to perform*/1U,
+                control_point_grid_spacing);
+
+    _adjoint_transformer_sptr->set_interpolation(this->_interpolation_type);
+    _adjoint_transformer_sptr->SetPaddingValue(this->_padding_value);
+    _adjoint_transformer_sptr->setDVF(def_ptr);
+
+    // Set up the input and output weights
+    _adjoint_input_weights_sptr = this->_reference_image_niftis.real()->clone();
+    _adjoint_input_weights_sptr->fill(1.f);
+    _adjoint_output_weights_sptr = this->_output_image_adjoint_niftis.real()->clone();
+
+    this->_need_to_set_up_adjoint = false;
+}
+
+template<class dataType>
+void NiftyResample<dataType>::process()
+{
+    this->_output_image_sptr = forward(this->_floating_image_sptr);
+}
+
+template<class dataType>
+void NiftyResample<dataType>::set_up_input_images()
+{
+    convert_ImageData_to_ComplexNiftiImageData(this->_reference_image_niftis, this->_reference_image_sptr);
+    convert_ImageData_to_ComplexNiftiImageData(this->_floating_image_niftis,  this->_floating_image_sptr);
+
+#ifndef NDEBUG
+    if (!_reference_image_niftis.is_complex() && !_floating_image_niftis.is_complex())
+        std::cout << "\nNiftyResample: Reference = real, floating = real. Output forward will = real, output adjoint will = real.\n";
+    else if (_reference_image_niftis.is_complex() && _floating_image_niftis.is_complex())
+        std::cout << "\nNiftyResample: Reference = complex, floating = complex. Output forward will = complex, output adjoint will = complex.\n";
+    else if (_reference_image_niftis.is_complex())
+        std::cout << "\nNiftyResample: Reference = complex, floating = real. Output forward will = complex (with 0 imaginary), output adjoint will = real (only real component of reference will be resampled).\n";
+    else if (_floating_image_niftis.is_complex())
+        std::cout << "\nNiftyResample: Reference = real, floating = complex. Output forward will = real (only real component of floating will be resampled), output adjoint will = complex (with 0 imaginary).\n";
+    else
+        throw std::runtime_error("Shouldn't be here");
+#endif
+}
+
+template<class dataType>
+static void check_images_match(
+        const ComplexNiftiImageData<dataType> im1,
+        const ComplexNiftiImageData<dataType> im2,
+        const std::string &explanation)
+{
+    if (im1.is_complex() != im2.is_complex())
+        throw std::runtime_error(explanation);
+    for (unsigned i=0; i<im1.size(); ++i)
+        if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*im1.at(i),*im2.at(i),false))
+            throw std::runtime_error(explanation);
+}
+
+template<class dataType>
+static void set_post_resample_outputs(std::shared_ptr<ImageData> &output_to_return_sptr, std::shared_ptr<ImageData> &output_as_member_sptr, const ComplexNiftiImageData<dataType> resampled_niftis)
+{
+    // If output is only real, set that
+    if (!output_to_return_sptr->is_complex())
+        output_to_return_sptr->fill(*resampled_niftis.real());
+    // Else, set the complex bit
+    else {
+        NumberType::Type output_num_type = (*output_to_return_sptr->begin()).get_typeID();
+        if (output_num_type != NumberType::CXFLOAT)
+            throw std::runtime_error("NiftyResample: Only complex type currently supported is complex float");
+        ImageData::Iterator &it_out = output_to_return_sptr->begin();
+        auto &it_real = resampled_niftis.real()->begin();
+        auto &it_imag = resampled_niftis.imag()->begin();
+        for (; it_out!=output_to_return_sptr->end(); ++it_real, ++it_imag, ++it_out) {
+            complex_float_t cmplx_flt(*it_real,*it_imag);
+            *it_out = NumRef((void *)&cmplx_flt, output_num_type);
+        }
+    }
+
+    // Copy the output so that backwards compatibility of get_output() is preserved.
+    output_as_member_sptr = output_to_return_sptr;
 }
 
 template<class dataType>
@@ -222,27 +269,28 @@ void NiftyResample<dataType>::forward(std::shared_ptr<ImageData> output_sptr, co
     set_up_forward();
 
     // Get the input image as NiftiImageData
-    // Unfortunately need to clone input image, as not marked as const in NiftyReg
-    std::shared_ptr<NiftiImageData<dataType> > input_nifti_sptr, output_nifti_sptr;
-    convert_to_NiftiImageData_if_not_already(input_nifti_sptr,  input_sptr->clone() );
-    convert_to_NiftiImageData_if_not_already(output_nifti_sptr,  output_sptr);
+    ComplexNiftiImageData<dataType> input_niftis, output_niftis;
+    convert_ImageData_to_ComplexNiftiImageData(input_niftis, input_sptr);
+    convert_ImageData_to_ComplexNiftiImageData(output_niftis, output_sptr);
 
     // Check that the metadata match
-    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*input_nifti_sptr,*_floating_image_nifti_sptr,false))
-        throw std::runtime_error("NiftyResample::forward: Metadata of input image should match floating image.");
-    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*output_nifti_sptr,*_reference_image_nifti_sptr,false))
-        throw std::runtime_error("NiftyResample::forward: Metadata of output image should match reference image.");
+    check_images_match(input_niftis, this->_floating_image_niftis,
+                       "NiftyResample::forward: Metadata of input image should match floating image.");
+    check_images_match(output_niftis, this->_reference_image_niftis,
+                       "NiftyResample::forward: Metadata of output image should match reference image.");
 
-    reg_resampleImage(input_nifti_sptr->get_raw_nifti_sptr().get(),
-                      this->_output_image_forward_nifti_sptr->get_raw_nifti_sptr().get(),
-                      _deformation_sptr->get_raw_nifti_sptr().get(),
-                      nullptr,
-                      this->_interpolation_type,
-                      this->_padding_value);
+    // Loop over as many output images
+    for (unsigned i=0; i<_output_image_forward_niftis.size(); ++i) {
 
-    // The output should be a clone of the reference image, with data filled in from the nifti image
-    output_sptr->fill(*this->_output_image_forward_nifti_sptr);
-    this->_output_image_sptr = output_sptr;
+        reg_resampleImage(input_niftis.at(i)->get_raw_nifti_sptr().get(),
+                          _output_image_forward_niftis.at(i)->get_raw_nifti_sptr().get(),
+                          _deformation_sptr->get_raw_nifti_sptr().get(),
+                          nullptr,
+                          this->_interpolation_type,
+                          this->_padding_value);
+    }
+
+    set_post_resample_outputs(output_sptr, this->_output_image_sptr, _output_image_forward_niftis);
 }
 
 template<class dataType>
@@ -264,29 +312,30 @@ void NiftyResample<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, co
     set_up_adjoint();
 
     // Get the input image as NiftiImageData
-    // Unfortunately need to clone input image, as not marked as const in NiftyReg
-    std::shared_ptr<NiftiImageData<dataType> > input_nifti_sptr, output_nifti_sptr;
-    convert_to_NiftiImageData_if_not_already(input_nifti_sptr,  input_sptr->clone() );
-    convert_to_NiftiImageData_if_not_already(output_nifti_sptr, output_sptr         );
+    ComplexNiftiImageData<dataType> input_niftis, output_niftis;
+    convert_ImageData_to_ComplexNiftiImageData(input_niftis, input_sptr);
+    convert_ImageData_to_ComplexNiftiImageData(output_niftis, output_sptr);
 
     // Check that the metadata match
-    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*input_nifti_sptr,*_reference_image_nifti_sptr,false))
-        throw std::runtime_error("NiftyResample::adjoint: Metadata of input image should match reference image.");
-    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*output_nifti_sptr,*_floating_image_nifti_sptr,false))
-        throw std::runtime_error("NiftyResample::adjoint: Metadata of output image should match floating image.");
+    check_images_match(input_niftis, this->_reference_image_niftis,
+                       "NiftyResample::adjoint: Metadata of input image should match reference image.");
+    check_images_match(output_niftis, this->_floating_image_niftis,
+                       "NiftyResample::adjoint: Metadata of output image should match floating image.");
 
-    // set output to zero
-    this->_output_image_adjoint_nifti_sptr->fill(0.f);
+    // Loop over the real and potentially imaginary parts
+    for (unsigned i=0; i<output_niftis.size(); ++i) {
 
-    _adjoint_transformer_sptr->
-            TransformImageAdjoint(input_nifti_sptr->get_raw_nifti_sptr().get(),
-                                  _adjoint_input_weights_sptr->get_raw_nifti_sptr().get(),
-                                  this->_output_image_adjoint_nifti_sptr->get_raw_nifti_sptr().get(),
-                                  _adjoint_output_weights_sptr->get_raw_nifti_sptr().get());
+        // set output to zero
+        this->_output_image_adjoint_niftis.at(i)->fill(0.f);
 
-    // The output should be a clone of the floating image, with data filled in from the nifti image
-    output_sptr->fill(*this->_output_image_adjoint_nifti_sptr);
-    this->_output_image_sptr = output_sptr;
+        _adjoint_transformer_sptr->
+                TransformImageAdjoint(input_niftis.at(i)->get_raw_nifti_sptr().get(),
+                                      _adjoint_input_weights_sptr->get_raw_nifti_sptr().get(),
+                                      this->_output_image_adjoint_niftis.at(i)->get_raw_nifti_sptr().get(),
+                                      _adjoint_output_weights_sptr->get_raw_nifti_sptr().get());
+    }
+
+    set_post_resample_outputs(output_sptr, this->_output_image_sptr, _output_image_adjoint_niftis);
 }
 
 namespace sirf {

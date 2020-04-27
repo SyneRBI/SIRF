@@ -375,6 +375,7 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
 	}
+	ic.set_meta_data(ac.acquisitions_info());
 }
 
 /*
@@ -491,7 +492,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		}
 		ac.append_acquisition(acq);
 		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) ||
+			off + y >= sptr_acqs_->number())
 			break;
 	}
 	off += y;

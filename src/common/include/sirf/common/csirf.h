@@ -41,12 +41,20 @@ void* cSIRF_norm(const void* ptr_x);
 void* cSIRF_dot(const void* ptr_x, const void* ptr_y);
 void* cSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x,
 	const PTR_FLOAT ptr_b, const void* ptr_y);
-void* cSIRF_multiply(const void* ptr_x, const void* ptr_y);
-void* cSIRF_divide(const void* ptr_x, const void* ptr_y);
+void* cSIRF_axpbyAlt(const PTR_FLOAT ptr_a, const void* ptr_x,
+	const PTR_FLOAT ptr_b, const void* ptr_y, void* ptr_z);
+void* cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z);
+void* cSIRF_product(const void* ptr_x, const void* ptr_y);
+void* cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z);
+void* cSIRF_ratio(const void* ptr_x, const void* ptr_y);
 void* cSIRF_write(const void* ptr, const char* filename);
 void* cSIRF_clone(void* ptr_x);
 
+// ImageData
 void* cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src);
+void* cSIRF_readImageData(const char* file, const char* eng, int verb);
+void* cSIRF_equalImages(const void* ptr_im_a, const void* ptr_im_b);
+void* cSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr);
 
 // DataHandleVector methods
 void* cSIRF_DataHandleVector_push_back(void* self, void* to_append);
