@@ -2142,16 +2142,19 @@ class OSSPSReconstructor(IterativeReconstructor):
         parms.set_float_par\
             (self.handle, self.name, 'relaxation_parameter', value)
 
-def make_Poisson_loglikelihood(acq_data, likelihood_model='LinearModelForMean'):
+def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean', \
+                               acq_model=None):
     '''
     Selects the objective function based on the acquisition data and likelihood
     model types.
     '''
     # only this objective function is implemented for now
-    if likelihood_model == 'LinearModelForMean':
+    if likelihood_type == 'LinearModelForMean':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
         obj_fun.set_acquisition_data(acq_data)
     else:
         raise error('only PoissonLogLikelihoodWithLinearModelForMeanAndProjData '
                   + 'is currently implemented in SIRF')
+    if acq_model is not None:
+        obj_fun.set_acquisition_model(acq_model)
     return obj_fun
