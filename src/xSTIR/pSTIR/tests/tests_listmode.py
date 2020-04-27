@@ -36,6 +36,8 @@ def test_main(rec=False, verb=False, throw=True):
     if abs(time_at_which_prompt_rate_exceeds_threshold-known_time) > 1.e-4:
         raise AssertionError("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold failed")
 
+    return 0, 1
+
 
 if __name__ == "__main__":
     runner(test_main, __doc__, __version__, __author__)

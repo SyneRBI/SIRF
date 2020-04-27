@@ -72,7 +72,10 @@ def test_main(rec=False, verb=False, throw=True):
     image = get_image()
 
     # Get AM
-    acq_model = AcquisitionModelUsingNiftyPET()
+    try:
+        acq_model = AcquisitionModelUsingNiftyPET()
+    except:
+        return 1, 1
     acq_model.set_cuda_verbosity(verb)
     acq_model.set_up(template_acq_data, image)
 
@@ -106,6 +109,8 @@ def test_main(rec=False, verb=False, throw=True):
     reconstructed_im = recon.get_output()
     if not reconstructed_im:
         raise AssertionError()
+
+    return 0, 1
 
 if __name__ == "__main__":
     runner(test_main, __doc__, __version__, __author__)

@@ -398,7 +398,8 @@ class DataContainer(ABC):
     # inline algebra
     def __iadd__(self, other):
         '''Not quite in-place add'''
-        self.fill(self.add(other))
+        #self.fill(self.add(other))
+        self.add(other, out=self)
         return self
     def __imul__(self, other):
         '''Not quite in-place multiplication'''
@@ -406,11 +407,13 @@ class DataContainer(ABC):
             z = other * self
             self.fill(z.as_array())
             return self
-        self.fill(self.multiply(other).as_array())
+        #self.fill(self.multiply(other).as_array())
+        self.multiply(other, out=self)
         return self
     def __isub__(self, other):
         '''Not quite in-place subtract'''
-        self.fill(self.subtract(other).as_array())
+        #self.fill(self.subtract(other).as_array())
+        self.subtract(other, out=self)
         return self
     def __idiv__(self, other):
         '''Not quite in-place division'''
@@ -418,7 +421,8 @@ class DataContainer(ABC):
             z = (1./other) * self
             self.fill(z.as_array())
             return self
-        self.fill(self.divide(other).as_array())
+        #self.fill(self.divide(other).as_array())
+        self.divide(other, out=self)
         return self
     def abs(self, out=None):
         '''Returns the element-wise absolute value of the DataContainer data

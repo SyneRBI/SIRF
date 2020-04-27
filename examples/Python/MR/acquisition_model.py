@@ -149,11 +149,6 @@ def main():
 
     diff = backprojected_data/b_norm - reconstructed_images/r_norm
     print('norm of backprojected - reconstructed images: %f' % diff.norm())
-    # testing fill
-    reconstructed_images.fill(backprojected_data)
-    diff = (backprojected_data - reconstructed_images).norm()
-    if diff > 0:
-        print('fill error: %f' % diff)
 
 try:
     main()
