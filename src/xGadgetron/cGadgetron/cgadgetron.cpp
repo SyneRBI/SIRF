@@ -107,8 +107,6 @@ void* cGT_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(Mutex);
 		if (boost::iequals(name, "GTConnector"))
 			return NEW_OBJECT_HANDLE(GTConnector);
-//        if (boost::iequals(name, "CoilImages"))
-//            return NEW_OBJECT_HANDLE(CoilImagesVector);
         if (boost::iequals(name, "AcquisitionModel"))
 			return NEW_OBJECT_HANDLE(MRAcquisitionModel);
 		NEW_GADGET_CHAIN(GadgetChain);
