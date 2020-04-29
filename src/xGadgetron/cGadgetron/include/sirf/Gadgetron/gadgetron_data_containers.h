@@ -896,351 +896,101 @@ namespace sirf {
         /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info();
 
-	private:
+    private:
         /// Clone helper function. Don't use.
         virtual GadgetronImagesVector* clone_impl() const
         {
             return new GadgetronImagesVector(*this);
         }
 
-		std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
-		mutable gadgetron::shared_ptr<Iterator> begin_;
-		mutable gadgetron::shared_ptr<Iterator> end_;
-		mutable gadgetron::shared_ptr<Iterator_const> begin_const_;
-		mutable gadgetron::shared_ptr<Iterator_const> end_const_;
-	};
+        std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
+        mutable gadgetron::shared_ptr<Iterator> begin_;
+        mutable gadgetron::shared_ptr<Iterator> end_;
+        mutable gadgetron::shared_ptr<Iterator_const> begin_const_;
+        mutable gadgetron::shared_ptr<Iterator_const> end_const_;
+    };
 
-	/*!
-	\ingroup Gadgetron Data Containers
-	\brief Abstract coil data class.
+    /*!
+    \ingroup Gadgetron Data Containers
+    \brief A coil sensitivities container based on the GadgetronImagesVector class.
 
-	Abstract 4-dimensional (x, y, z, coil) single precision complex array.
-	*/
-	class CoilData {
-	public:
-		virtual ~CoilData() {}
-		virtual void get_dim(int* dim) const = 0;
-		virtual void get_data(float* re, float* im) const = 0;
-		virtual void set_data(const float* re, const float* im) = 0;
-		virtual void get_data(complex_float_t* data) const = 0;
-		virtual void set_data(const complex_float_t* data) = 0;
-		virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
-		virtual void write(ISMRMRD::Dataset& dataset) const = 0;
-	};
+    Coil sensitivities can be computed directly form Acquisition data where in the first
+    step the vector of the GadgetronImagesVector is used to store the individual channels.
 
-	/*!
-	\ingroup Gadgetron Data Containers
-	\brief The ISMRMRD::Image< complex_float_t > implementation
-	of the abstract coil data container class.
+    Then these images are stored in memory, used to compute the coilmaps themselves, the
+    individual channel reconstructions are discareded and the coilmaps are stored in their stead.
 
-	*/
-	class CoilDataAsCFImage : public CoilData {
-	public:
-		CoilDataAsCFImage
-			(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
-			img_(nx, ny, nz, nc)
-		{
-		}
-		virtual complex_float_t& operator()(int x, int y, int z, int c)
-		{
-			return img_(x, y, z, c);
-		}
-		ISMRMRD::Image < complex_float_t >& image()
-		{
-			return img_;
-		}
-		const ISMRMRD::Image < complex_float_t >& image() const
-		{
-			return img_;
-		}
-		virtual void get_dim(int* dim) const
-		{
-			dim[0] = img_.getMatrixSizeX();
-			dim[1] = img_.getMatrixSizeY();
-			dim[2] = img_.getMatrixSizeZ();
-			dim[3] = img_.getNumberOfChannels();
-		}
-		virtual void get_data(float* re, float* im) const;
-		virtual void set_data(const float* re, const float* im);
-		virtual void get_data(complex_float_t* data) const
-		{
-			memcpy(data, img_.getDataPtr(), img_.getDataSize());
-		}
-		virtual void set_data(const complex_float_t* data)
-		{
-			memcpy(img_.getDataPtr(), data, img_.getDataSize());
-		}
-		virtual void write(ISMRMRD::Dataset& dataset) const;
-	private:
-		ISMRMRD::Image < complex_float_t > img_;
-	};
+    This leaves the possibility to compute coilmaps directly based on readily available indi-
+    vidual channel reconstructions.
+    */
 
-	/*!
-	\ingroup Gadgetron Data Containers
-	\brief Abstract coil data container class.
+    class CoilSensitivitiesVector : public GadgetronImagesVector
+    {
 
-	*/
-	class CoilDataContainer : public DataContainer {
-	public:
-		virtual float norm() const
-		{
-			THROW("CoilDataContainer algebra not yet implemented, sorry!");
-			return 0.0;
-		}
-		virtual void dot(const DataContainer& dc, void* ptr) const
-		{
-			THROW("CoilDataContainer algebra not yet implemented, sorry!");
-		}
-		virtual void axpby(
-			const void* ptr_a, const DataContainer& a_x,
-			const void* ptr_b, const DataContainer& a_y)
-		{
-			THROW("CoilDataContainer algebra not yet implemented, sorry!");
-		}
-		virtual void multiply(
-			const DataContainer& a_x,
-			const DataContainer& a_y)
-		{
-			THROW("CoilDataContainer algebra not yet implemented, sorry!");
-		}
-		virtual void divide(
-			const DataContainer& a_x,
-			const DataContainer& a_y)
-		{
-			THROW("CoilDataContainer algebra not yet implemented, sorry!");
-		}
-		virtual void write(const std::string &filename) const;
-//		{
-//			THROW("CoilDataContainer::write not yet implemented, sorry!");
-//		}
-		void get_dim(int slice, int* dim) const
-		{
-			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
-			ci.get_dim(dim);
-		}
-		void get_data(int slice, float* re, float* im) const
-		{
-			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
-			ci.get_data(re, im);
-		}
-		void set_data(int slice, float* re, float* im)
-		{
-			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
-			ci.set_data(re, im);
-		}
-		void get_data(int slice, complex_float_t* data) const
-		{
-			DYNAMIC_CAST(const CoilData, ci, (*this)(slice));
-			ci.get_data(data);
-		}
-		void set_data(int slice, complex_float_t* data)
-		{
-			DYNAMIC_CAST(CoilData, ci, (*this)(slice));
-			ci.set_data(data);
-		}
-		virtual void append(gadgetron::shared_ptr<CoilData> sptr_csm) = 0;
-		virtual CoilData& operator()(int slice) = 0;
-		virtual const CoilData& operator()(int slice) const = 0;
-		void set_meta_data(const AcquisitionsInfo &acqs_info) 
-		{ 
-			acqs_info_ = acqs_info; 
-		}
-		const AcquisitionsInfo &get_meta_data() const 
-		{ 
-			return acqs_info_; 
-		}
-	protected:
-		AcquisitionsInfo acqs_info_;
-	};
+    public:
 
-	/*!
-	\ingroup Gadgetron Data Containers
-	\brief A vector implementation of the abstract coil data container class.
+        CoilSensitivitiesVector() : GadgetronImagesVector(){}
+        CoilSensitivitiesVector(const char * file)
+        {
+            throw std::runtime_error("This has not been implemented yet.");
+        }
 
-	CoilData stored in an std::vector<shared_ptr<CoilData> > object.
-	*/
-	class CoilDataVector {
-	public:
-		unsigned int items() const
-		{
-			return (unsigned int)coil_data_.size();
-		}
-		CoilData& data(int slice) {
-			return *coil_data_[slice];
-		}
-		const CoilData& data(int slice) const {
-			return *coil_data_[slice];
-		}
-		virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
-		{
-			coil_data_.push_back(sptr_cd);
-		}
-	private:
-		virtual CoilDataVector* clone_impl() const
-		{
-			return new CoilDataVector(*this);
-		}
-		std::vector< gadgetron::shared_ptr<CoilData> > coil_data_;
-	};
+        void set_csm_smoothness(int s){csm_smoothness_ = s;}
+        void append_csm(int nx, int ny, int nz, int nc, const float* re, const float* im);
 
-	/*!
-	\ingroup Gadgetron Data Containers
-	\brief Abstract coil images container class.
+        void calculate(const MRAcquisitionData& acq)
+        {
+            this->calculate_images(acq);
+            this->calculate_csm();
+        }
 
-	*/
-	class CoilImagesContainer : public CoilDataContainer {
-	public:
-		virtual void compute(MRAcquisitionData& ac);
-		ISMRMRD::Encoding encoding() const
-		{
-			return encoding_;
-		}
-	protected:
-		ISMRMRD::Encoding encoding_;
-	};
+        void calculate_csm(GadgetronImagesVector iv);
 
-	/*!
-	\ingroup Gadgetron Data Containers
-	\brief A vector implementation of the abstract coil images container class.
+        CFImage get_csm_as_cfimage(size_t const i) const;
 
-	Coil images stored in an std::vector<shared_ptr<CoilData> > object.
-	*/
-	class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
-	public:
-		virtual DataContainer* new_data_container() const
-		{
-			return (DataContainer*)new CoilImagesVector();
-		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
-		{
-			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
-		}
-		virtual unsigned int items() const
-		{
-			return CoilDataVector::items();
-		}
-		virtual CoilData& operator()(int slice)
-		{
-			return data(slice);
-		}
-		virtual const CoilData& operator()(int slice) const
-		{
-			return data(slice);
-		}
-		virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
-		{
-			CoilDataVector::append(sptr_cd);
-		}
-	private:
-		virtual CoilImagesVector* clone_impl() const
-		{
-			return new CoilImagesVector(*this);
-		}
-	};
+        void get_dim(size_t const num_csm, int* dim) const
+        {
+            GadgetronImagesVector::get_image_dimensions(num_csm, dim);
 
-	/*!
-	\ingroup Gadgetron Data Containers
-	\brief Abstract coil sensitivities container class.
+        }
+        void get_data(size_t const num_csm, float* re, float* im) const
+        {
+            void* vptr_coil_img = new CFImage(this->get_csm_as_cfimage(num_csm));
+            sirf::ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, vptr_coil_img);
+            iw.get_complex_data(re,im);
+        }
 
-	*/
-	class CoilSensitivitiesContainer : public CoilDataContainer {
-	public:
-		void set_csm_smoothness(int s)
-		{
-			csm_smoothness_ = s;
-		}
+    protected:
 
-		virtual void compute(MRAcquisitionData& ac)
-		{
-			//if (!ac.sorted())
-			//	ac.sort();
-			CoilImagesVector cis;
-			cis.compute(ac);
-			compute(cis);
-		}
+        bool flag_imgs_suitable_for_csm_computation_=false;
 
-		virtual void compute(CoilImagesContainer& cis);
+        void calculate_images(const MRAcquisitionData& acq);
+        void calculate_csm(void);
 
-		void append_csm
-			(int nx, int ny, int nz, int nc, const float* re, const float* im)
-		{
-			CoilData* ptr_img = new CoilDataAsCFImage(nx, ny, nz, nc);
-			gadgetron::shared_ptr<CoilData> sptr_img(ptr_img);
-			ptr_img->set_data(re, im);
-			append(sptr_img);
-		}
+        void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);
 
-	protected:
-		int csm_smoothness_;
+        void forward(){
+            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
+        }
+        void backward(){
+            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
+        }
 
-	private:
-		void compute_csm_(
-			ISMRMRD::NDArray<complex_float_t>& cm,
-			ISMRMRD::NDArray<float>& img,
-			ISMRMRD::NDArray<complex_float_t>& csm
-			);
 
-		float max_diff_(int nx, int ny, int nz, int nc, float small_grad,
-			complex_float_t* u, complex_float_t* v);
-		float max_(int nx, int ny, int nz, float* u);
-		void mask_noise_
-			(int nx, int ny, int nz, float* u, float noise, int* mask);
-		int cleanup_mask_(int nx, int ny, int nz, int* mask, int bg, int minsz, int ex);
-		void smoothen_
-			(int nx, int ny, int nz, int nc,
-			complex_float_t* u, complex_float_t* v,
-			int* obj_mask, int w);
-	};
+    private:
+        int csm_smoothness_=0;
+        void smoothen_(int nx, int ny, int nz, int nc, complex_float_t* u, complex_float_t* v, int* obj_mask, int w);
+        void mask_noise_(int nx, int ny, int nz, float* u, float noise, int* mask);
+        float max_diff_(int nx, int ny, int nz, int nc, float small_grad, complex_float_t* u, complex_float_t* v);
+        float max_(int nx, int ny, int nz, float* u);
 
-	/*!
-	\ingroup Gadgetron Data Containers
-	\brief A vector implementation of the abstract coil sensitivities container
-	class.
+    };
 
-	Coil sensitivities stored in an std::vector<shared_ptr<CoilData> > object.
-	*/
-	class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer,
-		public CoilDataVector {
-	public:
-		CoilSensitivitiesAsImages()
-		{
-			csm_smoothness_ = 0;
-		}
-		CoilSensitivitiesAsImages(const char* file);
-
-		virtual DataContainer* new_data_container() const
-		{
-			return (DataContainer*)new CoilSensitivitiesAsImages();
-		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
-		{
-			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
-		}
-
-		virtual unsigned int items() const
-		{
-			return CoilDataVector::items();
-		}
-		virtual CoilData& operator()(int slice)
-		{
-			return data(slice);
-		}
-		virtual const CoilData& operator()(int slice) const
-		{
-			return data(slice);
-		}
-		virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
-		{
-			CoilDataVector::append(sptr_cd);
-		}
-	private:
-		virtual CoilSensitivitiesAsImages* clone_impl() const
-		{
-			return new CoilSensitivitiesAsImages(*this);
-		}
-	};
 }
 
 #endif
+
+
+
+
+
