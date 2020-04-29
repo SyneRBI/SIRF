@@ -150,7 +150,7 @@ The actual algorithm is described in
 		{
 			return store_delayeds;
 		}
-        virtual bool set_up()
+        virtual stir::Succeeded set_up()
 		{
 			// always reset here, in case somebody set a new listmode or template file
 			max_segment_num_to_process = -1;
@@ -158,7 +158,7 @@ The actual algorithm is described in
 
 			bool failed = post_processing();
 			if (failed)
-				return true;
+				return stir::Succeeded::no;
 			const int num_rings =
 				lm_data_ptr->get_scanner_ptr()->get_num_rings();
 			// code below is a copy of STIR for more generic cases
@@ -177,7 +177,7 @@ The actual algorithm is described in
 			half_fan_size = fan_size / 2;
 			fan_size = 2 * half_fan_size + 1;
 
-			return false;
+			return stir::Succeeded::yes;
 		}
 		stir::shared_ptr<PETAcquisitionData> get_output()
 		{

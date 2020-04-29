@@ -286,7 +286,7 @@ void* cSTIR_setupListmodeToSinogramsConverter(void* ptr)
 	try {
 		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
 		DataHandle* handle = new DataHandle;
-		if (lm2s.set_up()) {
+		if (lm2s.set_up() == stir::Succeeded::no) {
 			ExecutionStatus status
 				("cSTIR_setupListmodeToSinogramConverter failed", 
 					__FILE__, __LINE__);
