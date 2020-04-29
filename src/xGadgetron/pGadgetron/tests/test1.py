@@ -45,7 +45,6 @@ def test_main(rec=False, verb=False, throw=True):
 
     processed_data.sort()
     csms.calculate(processed_data)
-    
     am = AcquisitionModel(processed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
     fwd_acqs = am.forward(complex_images)

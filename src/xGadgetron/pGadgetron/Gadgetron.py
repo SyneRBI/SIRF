@@ -130,7 +130,7 @@ def mr_data_path():
 #class CoilImageData(DataContainer):
 #    '''
 #    Class for a coil images container.
-#    Each item in the container is a 4D complex array of coil images values 
+#    Each item in the container is a 4D complex array of coil images values
 #    on an xyz-slice (z-dimension is normally 1).
 #    '''
 #    def __init__(self):

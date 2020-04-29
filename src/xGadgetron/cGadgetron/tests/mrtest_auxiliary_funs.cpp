@@ -35,7 +35,7 @@ void sirf::preprocess_acquisition_data(MRAcquisitionData& ad)
 
 }
 
-void sirf::write_cfimage_to_raw(std::string const fname_prefix, CFImage& img)
+void sirf::write_cfimage_to_raw(const std::string& fname_prefix, const CFImage& img)
 {
 
 
@@ -60,10 +60,10 @@ void sirf::write_cfimage_to_raw(std::string const fname_prefix, CFImage& img)
 }
 
 
-void sirf::write_cfimage_to_raw(std::string const fname_prefix, ImageWrap& iw)
+void sirf::write_cfimage_to_raw(const std::string& fname_prefix, const ImageWrap& iw)
 {
-    void* vptr_img = iw.ptr_image();
-    CFImage* ptr_img = static_cast<CFImage*>(vptr_img);
+    const void* vptr_img = iw.ptr_image();
+    const CFImage* ptr_img = static_cast<const CFImage*>(vptr_img);
 
     sirf::write_cfimage_to_raw(fname_prefix, *ptr_img);
 }

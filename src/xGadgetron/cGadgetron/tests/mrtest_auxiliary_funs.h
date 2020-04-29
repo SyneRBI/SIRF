@@ -14,7 +14,7 @@ namespace sirf{
 
 void preprocess_acquisition_data(MRAcquisitionData& ad);
 
-void write_cfimage_to_raw(std::string const fname_prefix, CFImage& img);
-void write_cfimage_to_raw(std::string const fname_prefix, ImageWrap& iw);
+void write_cfimage_to_raw(const std::string& fname_prefix, const CFImage& img);
+void write_cfimage_to_raw(const std::string& fname_prefix, const ImageWrap& iw);
 
 } // END NAMESPACE
