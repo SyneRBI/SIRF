@@ -150,7 +150,7 @@ The actual algorithm is described in
 		{
 			return store_delayeds;
 		}
-		bool set_up()
+        virtual bool set_up()
 		{
 			// always reset here, in case somebody set a new listmode or template file
 			max_segment_num_to_process = -1;
@@ -471,7 +471,7 @@ The actual algorithm is described in
 	typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
 	typedef stir::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
 
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
     /*!
     \ingroup STIR Extensions
     \brief NiftyPET implementation of the PET acquisition model.
@@ -481,15 +481,15 @@ The actual algorithm is described in
     public:
         PETAcquisitionModelUsingNiftyPET()
         {
-            _niftypet_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
-            this->sptr_projectors_ = _niftypet_projector_pair_sptr;
+            _NiftyPET_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
+            this->sptr_projectors_ = _NiftyPET_projector_pair_sptr;
         }
         void set_cuda_verbosity(const bool verbosity) const
         {
-            _niftypet_projector_pair_sptr->set_verbosity(verbosity);
+            _NiftyPET_projector_pair_sptr->set_verbosity(verbosity);
         }
     protected:
-        stir::shared_ptr<ProjectorPairUsingNiftyPET> _niftypet_projector_pair_sptr;
+        stir::shared_ptr<ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
     };
     typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
 #endif

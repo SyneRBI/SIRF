@@ -3,7 +3,7 @@
 v{version}
 
 Usage:
-  tests_niftypet [--help | options]
+  tests_NiftyPET [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them
