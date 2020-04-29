@@ -42,10 +42,9 @@ extern "C" {
 		(void* ptr, const char* obj, const char* par, const void* val);
 
 	// coil data methods
-	void*	cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);
-	void*	cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis);
-	void* cGT_CoilSensitivities(const char* file);
+    void* cGT_CoilSensitivities(const char* file);
 	void* cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
+    void* cGT_computeCoilSensitivitiesFromGadgetronImages(void* ptr_csms, void* ptr_imgs);
 	void* cGT_appendCSM
 		(void* ptr_csms, int nx, int ny, int nz, int nc, 
 		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);

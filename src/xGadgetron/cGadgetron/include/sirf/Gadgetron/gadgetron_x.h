@@ -375,7 +375,7 @@ namespace sirf {
 			sptr_imgs_ = sptr_ic;
 		}
 		// Records the coil sensitivities maps to be used. 
-		void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms)
+        void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms)
 		{
 			sptr_csms_ = sptr_csms;
 		}
@@ -393,7 +393,7 @@ namespace sirf {
 		// Forward projects one image item (typically xy-slice) into
 		// respective readouts, and appends them to the AcquisitionContainer
 		// passed as the last argument.
-		void fwd(ImageWrap& iw, CoilData& csm, MRAcquisitionData& ac,
+        void fwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
 			unsigned int& off)
 		{
 			int type = iw.type();
@@ -403,7 +403,7 @@ namespace sirf {
 
 		// Backprojects a set of readouts corresponding to one image item
 		// (typically xy-slice).
-		void bwd(ImageWrap& iw, CoilData& csm, MRAcquisitionData& ac,
+        void bwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
 			unsigned int& off)
 		{
 			int type = iw.type();
@@ -413,12 +413,12 @@ namespace sirf {
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
-		void fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
+        void fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 			MRAcquisitionData& ac);
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps in the second argument.
-		void bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
+        void bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 			MRAcquisitionData& ac);
 
 		// Forward projects the whole ImageContainer using
@@ -459,13 +459,13 @@ namespace sirf {
 		std::string acqs_info_;
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_imgs_;
-		gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
+        gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms_;
 
 		template< typename T>
-		void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
+        void fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
 			MRAcquisitionData& ac, unsigned int& off);
 		template< typename T>
-		void bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
+        void bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
 			MRAcquisitionData& ac, unsigned int& off);
 	};
 
