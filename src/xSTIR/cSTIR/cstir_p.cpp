@@ -291,7 +291,7 @@ sirf::cSTIR_setAcqModUsingMatrixParameter
 	return new DataHandle;
 }
 
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
 void*
 sirf::cSTIR_setAcqModUsingNiftyPETParameter
 (DataHandle* hm, const char* name, const DataHandle* hv)

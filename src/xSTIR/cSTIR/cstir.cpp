@@ -85,7 +85,7 @@ void* cSTIR_newObject(const char* name)
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
         if (boost::iequals(name, "AcqModUsingNiftyPET"))
             return NEW_OBJECT_HANDLE(AcqModUsingNiftyPET3DF);
 #endif
@@ -128,7 +128,7 @@ void* cSTIR_setParameter
 			return cSTIR_setAcquisitionModelParameter(hs, name, hv);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_setAcqModUsingMatrixParameter(hs, name, hv);
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
         else if (boost::iequals(obj, "AcqModUsingNiftyPET"))
             return cSTIR_setAcqModUsingNiftyPETParameter(hs, name, hv);
 #endif
@@ -286,7 +286,7 @@ void* cSTIR_setupListmodeToSinogramsConverter(void* ptr)
 	try {
 		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
 		DataHandle* handle = new DataHandle;
-		if (lm2s.set_up()) {
+		if (lm2s.set_up() == stir::Succeeded::no) {
 			ExecutionStatus status
 				("cSTIR_setupListmodeToSinogramConverter failed", 
 					__FILE__, __LINE__);
