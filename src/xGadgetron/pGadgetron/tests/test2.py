@@ -66,7 +66,7 @@ def test_main(rec=False, verb=False, throw=True):
     rd = imgs_diff.norm()/complex_images.norm()
     test.check(rd, abs_tol = 1e-4)
 
-    if not is_operator_adjoint(am):
+    if not is_operator_adjoint(am, max_err = 20e-5):
       raise AssertionError("Gadgetron operator is not adjoint")
 
     return test.failed, test.ntest
