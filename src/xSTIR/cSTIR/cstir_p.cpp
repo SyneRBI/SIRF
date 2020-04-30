@@ -299,6 +299,8 @@ sirf::cSTIR_setAcqModUsingNiftyPETParameter
     AcqModUsingNiftyPET3DF& am = objectFromHandle<AcqModUsingNiftyPET3DF>(hm);
     if (boost::iequals(name, "cuda_verbosity"))
         am.set_cuda_verbosity(dataFromHandle<int>((void*)hv));
+    else if (boost::iequals(name, "use_truncation"))
+        am.set_use_truncation(dataFromHandle<int>((void*)hv));
     else
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;
