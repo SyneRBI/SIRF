@@ -1412,6 +1412,14 @@ if @NiftyPET_BOOL_STR@:
                 v = 0
             parms.set_int_par(self.handle, self.name, 'cuda_verbosity', v)
 
+        def set_use_truncation(self, use_truncation):
+            """Set whether or not to truncate FOV before forward- and after back-projection"""
+            if use_truncation:
+                v = 1
+            else:
+                v = 0
+            parms.set_int_par(self.handle, self.name, 'use_truncation', v)
+
 
 class Prior(object):
     '''
