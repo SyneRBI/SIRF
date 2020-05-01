@@ -434,6 +434,14 @@ Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One S
 ###### Methods (in addition to those of IterativeReconstructor): 
 
     OSMAPOSLReconstructor  Constructor. Creates new OSMAPOSL reconstructor object.  
+    set_maximum_relative_change         The multiplicative update image will be thresholded from above
+                                        with this value (at every subiteration except the first)
+                                        i.e., before multiplying it with the old image to get the new
+                                        one. The default value does not impose any thresholding (as in
+                                        strict OSMAPOSL). However, we find that when subsets are used,
+                                        a value of about 10 is beneficial.
+    set_minimum_relative_change         The multiplicative update image will be thresholded from below
+                                        with this value (at every subiteration except the first).
 
 ##### KOSMAPOSLReconstructor (PET) 
 

@@ -81,13 +81,13 @@ if args['--rand']:
 # Attenuation - image
 attn_im_file = None
 if args['--attn_im']:
-    attn_file = args['--attn_im']
+    attn_im_file = args['--attn_im']
     check_file_exists(attn_im_file)
 
 # Attenuation - sinogram
 attn_sn_file = None
 if args['--attn_sn']:
-    attn_file = args['--attn_sn']
+    attn_sn_file = args['--attn_sn']
     check_file_exists(attn_sn_file)
 
 # Norm - ECAT8
