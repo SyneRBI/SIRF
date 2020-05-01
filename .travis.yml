@@ -136,7 +136,7 @@ before_install:
         hash -r
         $HOME/miniconda/bin/conda config --set always_yes yes --set changeps1 no
         $HOME/miniconda/bin/conda update -q conda
-        $HOME/miniconda/bin/conda install -c conda-forge libitk=4.13.1
+        $HOME/miniconda/bin/conda install -c conda-forge libitk
         EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DITK_DIR=$HOME/miniconda/lib/cmake/ITK-4.13"
       fi
      brew install openblas
