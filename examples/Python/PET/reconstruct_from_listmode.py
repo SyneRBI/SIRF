@@ -123,7 +123,7 @@ def main():
     if count_threshold is None:
         interval = input_interval
     else:
-        time_shift = lm2sino.get_time_at_which_prompt_rate_exceeds_threshold(count_threshold)
+        time_shift = lm2sino.get_time_at_which_num_prompts_exceeds_threshold(count_threshold)
         if time_shift < 0:
             print("No time found at which count rate exceeds " + str(time_shift) + ", not modifying interval")
         interval = (input_interval[0]+time_shift, input_interval[1]+time_shift)

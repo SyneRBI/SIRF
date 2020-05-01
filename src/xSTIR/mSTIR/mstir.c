@@ -72,8 +72,8 @@ EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
 EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr) {
 	return cSTIR_computeRandoms(ptr);
 }
-EXPORTED_FUNCTION     void* mSTIR_lm_prompt_rate_exceeds_threshold(void* ptr, const float threshold) {
-	return cSTIR_lm_prompt_rate_exceeds_threshold(ptr, threshold);
+EXPORTED_FUNCTION     void* mSTIR_lm_num_prompts_rate_exceeds_threshold(void* ptr, const float threshold) {
+	return cSTIR_lm_num_prompts_exceeds_threshold(ptr, threshold);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i) {
 	return cSTIR_setupImageDataProcessor(ptr_p, ptr_i);
