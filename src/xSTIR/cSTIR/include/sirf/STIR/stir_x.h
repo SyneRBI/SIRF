@@ -488,6 +488,10 @@ The actual algorithm is described in
         {
             _NiftyPET_projector_pair_sptr->set_verbosity(verbosity);
         }
+        void set_use_truncation(const bool use_truncation) const
+        {
+            _NiftyPET_projector_pair_sptr->set_use_truncation(use_truncation);
+        }
     protected:
         stir::shared_ptr<ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
     };

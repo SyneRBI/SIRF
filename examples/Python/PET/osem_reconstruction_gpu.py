@@ -143,6 +143,8 @@ def main():
         print("Using GPU projector...")
         # If using GPU, use the niftypet projector
         acq_model = AcquisitionModelUsingNiftyPET()
+        # Truncate to FOV
+        acq_model.set_use_truncation(True)
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
