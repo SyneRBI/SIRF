@@ -870,6 +870,8 @@ class will effectively use 1 for all kappa values.
     preprocess_acquisition_data (MR)  Preprocesses the MR acquisition data.  
 
     make_Poisson_loglikelihood (PET)  Returns Poisson objective function.
+    set_verbosity (STIR)              Set output verbosity
+    get_verbosity (STIR)              Get output verbosity
 
 ## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
 The CCPi [`CIL Python Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel

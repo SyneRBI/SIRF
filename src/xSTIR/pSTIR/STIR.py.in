@@ -64,7 +64,7 @@ def set_verbosity(verbosity):
     """Set the verbosity of all STIR output"""
     try_calling(pystir.cSTIR_setVerbosity(verbosity))
 
-def get_verbosity(verbosity):
+def get_verbosity():
     """Get the verbosity of all STIR output"""
     h = pystir.cSTIR_getVerbosity()
     check_status(h, inspect.stack()[1])
