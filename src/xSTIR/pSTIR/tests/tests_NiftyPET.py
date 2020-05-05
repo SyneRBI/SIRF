@@ -17,9 +17,6 @@ from sirf.STIR import *
 from sirf.Utilities import is_operator_adjoint, runner, __license__
 import numpy as np
 
-# Set STIR verbosity to off
-set_verbosity(0)
-
 __version__ = "0.2.3"
 __author__ = "Richard Brown"
 
@@ -59,6 +56,10 @@ def add_noise(proj_data,noise_factor = 1):
     return noisy_proj_data
 
 def test_main(rec=False, verb=False, throw=True):
+
+    # Set STIR verbosity to off
+    original_verb = get_verbosity()
+    set_verbosity(0)
 
     time.sleep(0.5)
     sys.stderr.write("Testing NiftyPET projector...")
@@ -109,6 +110,9 @@ def test_main(rec=False, verb=False, throw=True):
     reconstructed_im = recon.get_output()
     if not reconstructed_im:
         raise AssertionError()
+
+    # Reset original verbose-ness
+    set_verbosity(original_verb)
 
     return 0, 1
 

@@ -38,6 +38,7 @@ limitations under the License.
 EXPORTED_FUNCTION  void* mSetParameter (void* ptr, const char* obj, const char* name, const void* value);
 EXPORTED_FUNCTION 	void* mParameter(const void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION     void* mSTIR_setVerbosity(const int verbosity_ptr);
+EXPORTED_FUNCTION     void* mSTIR_getVerbosity();
 EXPORTED_FUNCTION 	void* mSTIR_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mSTIR_objectFromFile(const char* name, const char* filename);
 EXPORTED_FUNCTION 	void* mSTIR_setParameter (void* ptr, const char* obj, const char* name, const void* value);
@@ -99,6 +100,7 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int
 EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v);
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename); 
+EXPORTED_FUNCTION     void* mSTIR_writeImage_par(void* ptr_i, const char* filename, const char* par);
 EXPORTED_FUNCTION     void* mSTIR_ImageData_zoom_image(void* ptr_im, const PTR_FLOAT zooms_ptr_raw, const PTR_FLOAT offsets_in_mm_ptr_raw, const PTR_INT new_sizes_ptr_raw, const char * const zoom_options);
 EXPORTED_FUNCTION     void* mSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_ptr);
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream);
