@@ -47,7 +47,7 @@ EXPORTED_FUNCTION 	void* mSTIR_setListmodeToSinogramsFlag (void* ptr_lm2s, const
 EXPORTED_FUNCTION 	void* mSTIR_setupListmodeToSinogramsConverter(void* ptr);
 EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr);
 EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr);
-EXPORTED_FUNCTION     void* mSTIR_lm_prompt_rate_exceeds_threshold(void* ptr, const float threshold);
+EXPORTED_FUNCTION     void* mSTIR_lm_num_prompts_exceeds_threshold(void* ptr, const float threshold);
 EXPORTED_FUNCTION 	void* mSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);
 EXPORTED_FUNCTION 	void* mSTIR_createPETAcquisitionSensitivityModel (const void* ptr_src, const char* src);

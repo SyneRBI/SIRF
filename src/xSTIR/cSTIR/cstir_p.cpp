@@ -291,7 +291,7 @@ sirf::cSTIR_setAcqModUsingMatrixParameter
 	return new DataHandle;
 }
 
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
 void*
 sirf::cSTIR_setAcqModUsingNiftyPETParameter
 (DataHandle* hm, const char* name, const DataHandle* hv)
@@ -299,6 +299,8 @@ sirf::cSTIR_setAcqModUsingNiftyPETParameter
     AcqModUsingNiftyPET3DF& am = objectFromHandle<AcqModUsingNiftyPET3DF>(hm);
     if (boost::iequals(name, "cuda_verbosity"))
         am.set_cuda_verbosity(dataFromHandle<int>((void*)hv));
+    else if (boost::iequals(name, "use_truncation"))
+        am.set_use_truncation(dataFromHandle<int>((void*)hv));
     else
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;
@@ -610,6 +612,10 @@ sirf::cSTIR_setOSMAPOSLParameter
 {
 	OSMAPOSLReconstruction<Image3DF>& recon =
 		objectFromHandle<OSMAPOSLReconstruction<Image3DF> >(hp);
+    if (boost::iequals(name, "set_maximum_relative_change"))
+            recon.set_maximum_relative_change(dataFromHandle<double>((void*)hv));
+    if (boost::iequals(name, "set_minimum_relative_change"))
+            recon.set_minimum_relative_change(dataFromHandle<double>((void*)hv));
 	if (boost::iequals(name, "MAP_model"))
 		recon.set_MAP_model(charDataFromDataHandle(hv));
 	else

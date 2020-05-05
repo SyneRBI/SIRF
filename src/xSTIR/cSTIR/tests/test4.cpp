@@ -3,6 +3,7 @@
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
+#include "stir/Verbosity.h"
 
 #include "sirf/STIR/stir_x.h"
 #include "sirf/common/getenv.h"
@@ -38,12 +39,12 @@ int test4()
         // Check count rates - for the particular dataset,
         // we know that 73036 is exceeded at 22s. You can
         // see this with STIR's list_lm_countrates
-        const float prompt_rate_threshold = 73036.f;
+        const unsigned long num_prompt_threshold = 73036.f;
         const float known_time = 22.f;
-        const float time_at_which_prompt_rate_exceeds_threshold =
-                converter.get_time_at_which_prompt_rate_exceeds_threshold(prompt_rate_threshold);
-        if (std::abs(time_at_which_prompt_rate_exceeds_threshold-known_time) > 1e-4f)
-            throw std::runtime_error("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold failed");
+        const float time_at_which_num_prompts_exceeds_threshold =
+                converter.get_time_at_which_num_prompts_exceeds_threshold(num_prompt_threshold);
+        if (std::abs(time_at_which_num_prompts_exceeds_threshold-known_time) > 1e-4f)
+            throw std::runtime_error("ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold failed");
 
         // Construct STIRImageData from VoxelsOnCartesianGrid
         Coord3DI image_size = {31, 111, 111};
@@ -69,6 +70,39 @@ int test4()
                 stir_im.dimensions()["y"] != new_size.at(2) ||
                 stir_im.dimensions()["x"] != new_size.at(3))
             throw std::runtime_error("STIRImageData::zoom_image failed");
+
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
+        std::cout << "\nTesting NiftyPET projection...\n";
+        // Load mMR sinogram
+        const std::string f_mMR_template = f_template = path + "mMR_template_span11.hs";
+        PETAcquisitionDataInFile mMR_template(f_mMR_template.c_str());
+        std::shared_ptr<PETAcquisitionDataInMemory> acq_data_mMR_sptr(
+                    new PETAcquisitionDataInMemory(mMR_template));
+        acq_data_mMR_sptr->fill(1.f);
+
+        // Create mMR image
+        BasicCoordinate<3, int> min_image_indices(make_coordinate(0,  -160, -160));
+        BasicCoordinate<3, int> max_image_indices(make_coordinate(126, 159,  159));
+        IndexRange<3> range = IndexRange<3>(min_image_indices,max_image_indices);
+        std::shared_ptr<STIRImageData> im_mMR_sptr(
+                    new STIRImageData(Voxels3DF(
+                                          acq_data_mMR_sptr->get_exam_info_sptr()->create_shared_clone(),
+                                          range,
+                                          CartesianCoordinate3D<float>(0.f,0.f,0.f),
+                                          CartesianCoordinate3D<float>(2.03125f, 2.08626f, 2.08626f))));
+
+        im_mMR_sptr->fill(1.f);
+        PETAcquisitionModelUsingNiftyPET acq_model;
+        stir::Verbosity::set(0);
+        std::cout << "\nSetting up NiftyPET acquisition model...\n";
+        acq_model.set_up(acq_data_mMR_sptr, im_mMR_sptr);
+        std::cout << "\nForward projecting with NiftyPET acquisition model...\n";
+
+        std::shared_ptr<PETAcquisitionData> prj_sptr = acq_model.forward(*im_mMR_sptr);
+        std::cout << "\nBack projecting with NiftyPET acquisition model...\n";
+        im_mMR_sptr = acq_model.backward(*prj_sptr);
+        std::cout << "\nNiftyPET test succeeded.\n";
+#endif
 
 		return 0;
 	}

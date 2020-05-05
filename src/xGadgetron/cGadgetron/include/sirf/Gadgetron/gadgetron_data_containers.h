@@ -222,6 +222,7 @@ namespace sirf {
 		// abstract methods
 
 		virtual void empty() = 0;
+		virtual void take_over(MRAcquisitionData&) = 0;
 
 		// the number of acquisitions in the container
 		virtual unsigned int number() const = 0;
@@ -286,7 +287,7 @@ namespace sirf {
 		int index(int i) const
 		{
 			int ni = index_.size();
-			if (ni > 0 && i >= ni || i < 0)
+			if (ni > 0 && i >= ni || i < 0 || i >= number())
 				THROW("Aquisition number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -361,13 +362,18 @@ namespace sirf {
 
 		// implements 'overwriting' of an acquisition file data with new values:
 		// in reality, creates new file with new data and deletes the old one
-		void take_over(AcquisitionsFile& ac);
+		void take_over_impl(AcquisitionsFile& ac);
 
 		void write_acquisitions_info();
 
 		// implementations of abstract methods
 
 		virtual void empty();
+		virtual void take_over(MRAcquisitionData& ad)
+		{
+			AcquisitionsFile& af = dynamic_cast<AcquisitionsFile&>(ad);
+			take_over_impl(af);
+		}
 		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual unsigned int items() const;
 		virtual unsigned int number() const { return items(); }
@@ -436,6 +442,7 @@ namespace sirf {
 			_storage_scheme = "memory";
 		}
 		virtual void empty();
+		virtual void take_over(MRAcquisitionData& ad) {}
 		virtual unsigned int number() const { return (unsigned int)acqs_.size(); }
 		virtual unsigned int items() const { return (unsigned int)acqs_.size(); }
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq)
@@ -566,7 +573,7 @@ namespace sirf {
 		int index(int i) const
 		{
 			int ni = index_.size();
-			if (ni > 0 && i >= ni || i < 0)
+			if (ni > 0 && i >= ni || i < 0 || i >= number())
 				THROW("Image number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -795,13 +802,13 @@ namespace sirf {
 			(unsigned int im_num)
 		{
 			int i = index(im_num);
-			return images_[i];
+			return images_.at(i);
 		}
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 			(unsigned int im_num) const
 		{
 			int i = index(im_num);
-			return images_[i];
+			return images_.at(i);
 		}
 /*		virtual ImageWrap& image_wrap(unsigned int im_num)
 		{

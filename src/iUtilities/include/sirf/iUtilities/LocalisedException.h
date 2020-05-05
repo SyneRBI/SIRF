@@ -26,6 +26,9 @@ limitations under the License.
 #include <exception>
 #include <iostream>
 
+#define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
+#define ASSERT(condition, msg) if (!(condition)) THROW(msg)
+
 class LocalisedException : public std::exception {
 public:
 	LocalisedException(const char* reason, const char* file, int line) {

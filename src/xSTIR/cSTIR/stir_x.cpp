@@ -38,10 +38,10 @@ using namespace sirf;
     typedef CListRecord LMR;
 #endif
 
-float ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold(const float threshold) const
+float ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const
 {
     if (input_filename.empty())
-        throw std::runtime_error("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold: Filename missing");
+        throw std::runtime_error("ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold: Filename missing");
 
     shared_ptr<LMD> lm_data_ptr
       (read_from_file<LMD>(input_filename));
@@ -253,10 +253,13 @@ ListmodeToSinograms::compute_singles_()
 	Array<2, float> data_fan_sums = (*fan_sums_sptr)[0];
 
 	num_rings = data_fan_sums.get_length();
-	assert(num_rings > 0);
-	assert(data_fan_sums.get_min_index() == 0);
+	ASSERT(num_rings > 0, "num_rings must be positive");
+	ASSERT(data_fan_sums.get_min_index() == 0, "data_fan_sums.get_min_index() must be 0");
+//	assert(num_rings > 0);
+//	assert(data_fan_sums.get_min_index() == 0);
 	num_detectors_per_ring = data_fan_sums[0].get_length();
-	assert(num_detectors_per_ring > 0);
+	ASSERT(num_detectors_per_ring > 0, "num_detectors_per_ring must be positive");
+//	assert(num_detectors_per_ring > 0);
 	if (num_rings < max_ring_diff || num_detectors_per_ring < fan_size)
 	{
 		warning("fan sums matrix has sizes %dx%d, but this is "
