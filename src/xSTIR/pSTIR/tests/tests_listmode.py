@@ -28,13 +28,13 @@ def test_main(rec=False, verb=False, throw=True):
     lm2sino = pet.ListmodeToSinograms()
     lm2sino.set_input(raw_data_file)
     
-    prompt_rate_threshold = 73036.
+    num_prompts_threshold = 73036.
     known_time = 22.
-    time_at_which_prompt_rate_exceeds_threshold = \
-        lm2sino.get_time_at_which_prompt_rate_exceeds_threshold(prompt_rate_threshold)
+    time_at_which_num_prompts_exceeds_threshold = \
+        lm2sino.get_time_at_which_num_prompts_exceeds_threshold(num_prompts_threshold)
 
-    if abs(time_at_which_prompt_rate_exceeds_threshold-known_time) > 1.e-4:
-        raise AssertionError("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold failed")
+    if abs(time_at_which_num_prompts_exceeds_threshold-known_time) > 1.e-4:
+        raise AssertionError("ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold failed")
 
     return 0, 1
 

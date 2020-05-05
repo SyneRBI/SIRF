@@ -199,9 +199,9 @@ The actual algorithm is described in
 		{
 			return randoms_sptr;
 		}
-        /// Get the time at which the prompt rate exceeds a certain threshold.
+        /// Get the time at which the number of prompts exceeds a certain threshold.
         /// Returns -1 if not found.
-        float get_time_at_which_prompt_rate_exceeds_threshold(const float threshold) const;
+        float get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const;
 
 	protected:
 		// variables for ML estimation of singles/randoms
