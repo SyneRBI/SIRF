@@ -72,6 +72,12 @@ void* cSTIR_setVerbosity(const int verbosity)
 }
 
 extern "C"
+void* cSTIR_getVerbosity(const int verbosity)
+{
+    return dataHandle<int>(stir::Verbosity::get());
+}
+
+extern "C"
 void* cSTIR_newObject(const char* name)
 {
 	try {
