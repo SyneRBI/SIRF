@@ -50,17 +50,14 @@ EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* n
 EXPORTED_FUNCTION 	void* mGT_setParameter (void* ptr, const char* obj, const char* par, const void* val) {
 	return cGT_setParameter (ptr, obj, par, val);
 }
-EXPORTED_FUNCTION 	void*	mGT_computeCoilImages(void* ptr_cis, void* ptr_acqs) {
-	return cGT_computeCoilImages(ptr_cis, ptr_acqs);
-}
-EXPORTED_FUNCTION 	void*	mGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis) {
-	return cGT_computeCSMsFromCIs(ptr_csms, ptr_cis);
-}
-EXPORTED_FUNCTION 	void* mGT_CoilSensitivities(const char* file) {
+EXPORTED_FUNCTION     void* mGT_CoilSensitivities(const char* file) {
 	return cGT_CoilSensitivities(file);
 }
 EXPORTED_FUNCTION 	void* mGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs) {
 	return cGT_computeCoilSensitivities(ptr_csms, ptr_acqs);
+}
+EXPORTED_FUNCTION     void* mGT_computeCoilSensitivitiesFromGadgetronImages(void* ptr_csms, void* ptr_imgs) {
+	return cGT_computeCoilSensitivitiesFromGadgetronImages(ptr_csms, ptr_imgs);
 }
 EXPORTED_FUNCTION 	void* mGT_appendCSM (void* ptr_csms, int nx, int ny, int nz, int nc,  PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
 	return cGT_appendCSM (ptr_csms, nx, ny, nz, nc, ptr_re, ptr_im);
