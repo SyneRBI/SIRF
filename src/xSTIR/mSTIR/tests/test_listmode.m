@@ -37,14 +37,14 @@ raw_data_file = fullfile(data_path, 'mMR', 'list.l.hdr');
 lm2sino = pet.ListmodeToSinograms();
 lm2sino.set_input(raw_data_file);
 
-prompt_rate_threshold = 73036.;
+num_prompts_threshold = 73036.;
 known_time = 22.;
 
-time_at_which_prompt_rate_exceeds_threshold = ...
-    lm2sino.get_time_at_which_prompt_rate_exceeds_threshold(prompt_rate_threshold);
+time_at_which_num_prompts_exceeds_threshold = ...
+    lm2sino.get_time_at_which_num_prompts_exceeds_threshold(num_prompts_threshold);
 
-assert(abs(time_at_which_prompt_rate_exceeds_threshold-known_time) <= 1e-4, ...
-	'ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold failed')
+assert(abs(time_at_which_num_prompts_exceeds_threshold-known_time) <= 1e-4, ...
+	'ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold failed')
 
 failed = 0;
 ntests = 1;

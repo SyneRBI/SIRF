@@ -81,13 +81,13 @@ if args['--rand']:
 # Attenuation - image
 attn_im_file = None
 if args['--attn_im']:
-    attn_file = args['--attn_im']
+    attn_im_file = args['--attn_im']
     check_file_exists(attn_im_file)
 
 # Attenuation - sinogram
 attn_sn_file = None
 if args['--attn_sn']:
-    attn_file = args['--attn_sn']
+    attn_sn_file = args['--attn_sn']
     check_file_exists(attn_sn_file)
 
 # Norm - ECAT8
@@ -143,6 +143,8 @@ def main():
         print("Using GPU projector...")
         # If using GPU, use the niftypet projector
         acq_model = AcquisitionModelUsingNiftyPET()
+        # Truncate to FOV
+        acq_model.set_use_truncation(True)
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)

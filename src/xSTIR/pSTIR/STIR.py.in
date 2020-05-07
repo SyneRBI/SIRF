@@ -64,6 +64,13 @@ def set_verbosity(verbosity):
     """Set the verbosity of all STIR output"""
     try_calling(pystir.cSTIR_setVerbosity(verbosity))
 
+def get_verbosity():
+    """Get the verbosity of all STIR output"""
+    h = pystir.cSTIR_getVerbosity()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.intDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
 
 class MessageRedirector(object):
     '''
@@ -950,11 +957,11 @@ class ListmodeToSinograms(object):
         check_status(randoms.handle)
         return randoms
 
-    def get_time_at_which_prompt_rate_exceeds_threshold(self, threshold):
+    def get_time_at_which_num_prompts_exceeds_threshold(self, threshold):
         """Get the time in the list mode data at which the number
-         of prompts per second exceeds a given threshold.
+         of prompts exceeds a given threshold.
          Returns -1 if no corresponding time is found."""
-        h = pystir.cSTIR_lm_prompt_rate_exceeds_threshold(self.handle, float(threshold))
+        h = pystir.cSTIR_lm_num_prompts_exceeds_threshold(self.handle, float(threshold))
         check_status(h, inspect.stack()[1])
         v = pyiutil.floatDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
@@ -1385,7 +1392,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         return self.get_matrix().get_num_tangential_LORs()
 
 
-if @NIFTYPET_BOOL_STR@:
+if @NiftyPET_BOOL_STR@:
     class AcquisitionModelUsingNiftyPET(AcquisitionModel):
         """
         Class for a PET acquisition model that uses (implicitly) the NiftyPET projector
@@ -1411,6 +1418,14 @@ if @NIFTYPET_BOOL_STR@:
             else:
                 v = 0
             parms.set_int_par(self.handle, self.name, 'cuda_verbosity', v)
+
+        def set_use_truncation(self, use_truncation):
+            """Set whether or not to truncate FOV before forward- and after back-projection"""
+            if use_truncation:
+                v = 1
+            else:
+                v = 0
+            parms.set_int_par(self.handle, self.name, 'use_truncation', v)
 
 
 class Prior(object):

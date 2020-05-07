@@ -150,7 +150,7 @@ The actual algorithm is described in
 		{
 			return store_delayeds;
 		}
-		bool set_up()
+        virtual stir::Succeeded set_up()
 		{
 			// always reset here, in case somebody set a new listmode or template file
 			max_segment_num_to_process = -1;
@@ -158,7 +158,7 @@ The actual algorithm is described in
 
 			bool failed = post_processing();
 			if (failed)
-				return true;
+				return stir::Succeeded::no;
 			const int num_rings =
 				lm_data_ptr->get_scanner_ptr()->get_num_rings();
 			// code below is a copy of STIR for more generic cases
@@ -177,7 +177,7 @@ The actual algorithm is described in
 			half_fan_size = fan_size / 2;
 			fan_size = 2 * half_fan_size + 1;
 
-			return false;
+			return stir::Succeeded::yes;
 		}
 		stir::shared_ptr<PETAcquisitionData> get_output()
 		{
@@ -199,9 +199,9 @@ The actual algorithm is described in
 		{
 			return randoms_sptr;
 		}
-        /// Get the time at which the prompt rate exceeds a certain threshold.
+        /// Get the time at which the number of prompts exceeds a certain threshold.
         /// Returns -1 if not found.
-        float get_time_at_which_prompt_rate_exceeds_threshold(const float threshold) const;
+        float get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const;
 
 	protected:
 		// variables for ML estimation of singles/randoms
@@ -471,7 +471,7 @@ The actual algorithm is described in
 	typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
 	typedef stir::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
 
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
     /*!
     \ingroup STIR Extensions
     \brief NiftyPET implementation of the PET acquisition model.
@@ -481,15 +481,19 @@ The actual algorithm is described in
     public:
         PETAcquisitionModelUsingNiftyPET()
         {
-            _niftypet_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
-            this->sptr_projectors_ = _niftypet_projector_pair_sptr;
+            _NiftyPET_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
+            this->sptr_projectors_ = _NiftyPET_projector_pair_sptr;
         }
         void set_cuda_verbosity(const bool verbosity) const
         {
-            _niftypet_projector_pair_sptr->set_verbosity(verbosity);
+            _NiftyPET_projector_pair_sptr->set_verbosity(verbosity);
+        }
+        void set_use_truncation(const bool use_truncation) const
+        {
+            _NiftyPET_projector_pair_sptr->set_use_truncation(use_truncation);
         }
     protected:
-        stir::shared_ptr<ProjectorPairUsingNiftyPET> _niftypet_projector_pair_sptr;
+        stir::shared_ptr<ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
     };
     typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
 #endif

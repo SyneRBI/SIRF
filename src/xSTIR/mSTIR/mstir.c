@@ -45,6 +45,9 @@ EXPORTED_FUNCTION 	void* mParameter(const void* ptr, const char* obj, const char
 EXPORTED_FUNCTION     void* mSTIR_setVerbosity(const int verbosity_ptr) {
 	return cSTIR_setVerbosity(verbosity_ptr);
 }
+EXPORTED_FUNCTION     void* mSTIR_getVerbosity() {
+	return cSTIR_getVerbosity();
+}
 EXPORTED_FUNCTION 	void* mSTIR_newObject(const char* name) {
 	return cSTIR_newObject(name);
 }
@@ -72,8 +75,8 @@ EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
 EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr) {
 	return cSTIR_computeRandoms(ptr);
 }
-EXPORTED_FUNCTION     void* mSTIR_lm_prompt_rate_exceeds_threshold(void* ptr, const float threshold) {
-	return cSTIR_lm_prompt_rate_exceeds_threshold(ptr, threshold);
+EXPORTED_FUNCTION     void* mSTIR_lm_num_prompts_exceeds_threshold(void* ptr, const float threshold) {
+	return cSTIR_lm_num_prompts_exceeds_threshold(ptr, threshold);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i) {
 	return cSTIR_setupImageDataProcessor(ptr_p, ptr_i);
@@ -227,6 +230,9 @@ EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 }
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename) {
 	return cSTIR_writeImage(ptr_i, filename);
+}
+EXPORTED_FUNCTION     void* mSTIR_writeImage_par(void* ptr_i, const char* filename, const char* par) {
+	return cSTIR_writeImage_par(ptr_i, filename, par);
 }
 EXPORTED_FUNCTION     void* mSTIR_ImageData_zoom_image(void* ptr_im, const PTR_FLOAT zooms_ptr_raw, const PTR_FLOAT offsets_in_mm_ptr_raw, const PTR_INT new_sizes_ptr_raw, const char * const zoom_options) {
 	return cSTIR_ImageData_zoom_image(ptr_im, zooms_ptr_raw, offsets_in_mm_ptr_raw, new_sizes_ptr_raw, zoom_options);

@@ -21,9 +21,9 @@
 #
 #=========================================================================
 
-# If not niftypet projector, dont test that
-if (NOT STIR_WITH_NIFTYPET_PROJECTOR)
-	set(exclude_test "--exclude=tests_niftypet.py")
+# If not NiftyPET projector, dont test that
+if (NOT STIR_WITH_NiftyPET_PROJECTOR)
+	set(exclude_test "--exclude=tests_NiftyPET.py")
 endif()
 
 add_test(NAME PET_TESTS_PYTHON

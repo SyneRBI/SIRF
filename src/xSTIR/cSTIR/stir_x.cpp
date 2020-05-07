@@ -38,10 +38,10 @@ using namespace sirf;
     typedef CListRecord LMR;
 #endif
 
-float ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold(const float threshold) const
+float ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const
 {
     if (input_filename.empty())
-        throw std::runtime_error("ListmodeToSinograms::get_time_at_which_prompt_rate_exceeds_threshold: Filename missing");
+        throw std::runtime_error("ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold: Filename missing");
 
     shared_ptr<LMD> lm_data_ptr
       (read_from_file<LMD>(input_filename));

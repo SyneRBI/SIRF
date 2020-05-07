@@ -63,8 +63,8 @@ limitations under the License.
 #include "stir/SSRB.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
 
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
-#include "stir/recon_buildblock/niftypet_projector/ProjectorByBinPairUsingNiftyPET.h"
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
+#include "stir/recon_buildblock/NiftyPET_projector/ProjectorByBinPairUsingNiftyPET.h"
 #endif
 
 #include "stir/StirException.h"
@@ -89,7 +89,7 @@ namespace sirf {
 		PoissonLogLhLinModMean3DF;
 	//PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
 	typedef stir::ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
     typedef stir::ProjectorByBinPairUsingNiftyPET ProjectorPairUsingNiftyPET;
 #endif
 	typedef stir::ProjMatrixByBinUsingRayTracing RayTracingMatrix;
