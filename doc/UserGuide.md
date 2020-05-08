@@ -98,7 +98,7 @@ Parameters of objects are modified/accessed via set/get methods (mutators and ac
 
 The mutators are also responsible for basic error checking. 
 
-Some classes are derived from other classes, which means that they have all the methods of the classes they are derived from: we say that these methods are _inherited_. For example, class `AcquisitionModelUsingRayTracingMatrix` is derived from `AcquisitionModelUsingMatrix`, which in turn is derived from `AcquisitionModel`, and so it inherits all the methods of the latter two.
+Some classes are _derived_ from other classes, which means that they have (_inherit_) all the methods of the classes they are derived from. If class B derives from class A, then A is called its _base_ class. <!-- we say that these _derived_ class methods are _inherited_ from the _base_ class.--> For example, class `AcquisitionModelUsingRayTracingMatrix` is derived from `AcquisitionModelUsingMatrix`, which in turn is derived from `AcquisitionModel`, and so it inherits all the methods of the latter two base classes.
 
 ### Error handling <a name="Error_handling"></a>
 
@@ -136,7 +136,8 @@ In order to have a true (i.e. independent) copy of a SIRF object, the user must 
 	
 ## Library components <a name="Library_components"></a>
 
-At present, the SIRF library provides two Python interface modules `sirf.STIR` and `sirf.Gadgetron` for STIR and Gadgetron respectively, and two respective Matlab modules `sirf.STIR` and `sirf.Gadgetron`. 
+At present, the SIRF library provides Python package `sirf` containing modules `sirf.STIR` and `sirf.Gadgetron` implementing Python interfaces to STIR and Gadgetron respectively and module `sirf.SIRF` containing base classes specifying functionality that is common to all reconstruction engines. Respective Matlab interface package and modules have the same names.
+<!--`sirf.STIR` and `sirf.Gadgetron`.--> 
 
 ### Getting help on SIRF library modules <a name="Getting_help_on_SIRF_library_modules"></a>
 
@@ -198,11 +199,11 @@ Reconstructed data are represented by `ImageData` objects. Currently they repres
 
 Measured data (either raw or after some pre-processing) are represented by `AcquisitionData` objects. These contain everything what is needed to be able to reconstruct the data (including scanner information and geometry).
 
-Both classes of data objects inherit from an abstract data class `DataContainer`.
+Both classes of data objects inherit from a base class `DataContainer` defined in module `sirf.SIRF`.
 
 ##### DataContainer
 
-An abstract base class for data containers.
+A base class for data containers.
 
 ###### Methods:
 
@@ -220,14 +221,31 @@ The element-wise addition, subtraction, multiplication and division can be
 performed using overloaded `+`, `-`, `*` and `/`. Either of the operands of `*` and
 the second operand of `/` can be a scalar.
 
+##### ImageData (base class)
+
+A base class, from which engine-specific image data classes are derived.
+
+###### Methods:
+
+    read                  Reads the image data from a file.
+    fill                  Fills the image with data from another image.
+    get_geometrical info  Returns an object containing information describing the
+                          geometry of the image (sizes, orientation etc.)
+    reorient              Chenges the orientation of the image
+
+This class also defines operations `==` and `!=` on `ImageData` objects.
+
+In what follows, we mark by `PET` classes defined in `sirf.STIR` only and by `MR` those defined in `sirf.Gadgetron` only, and we use the same marking for methods of classes defined in both interface modules.
+
+We remind that every derived class inherits all methods of its base class.
+
 ##### AcquisitionData
 
-Class for acquisition data. Inherits from `DataContainer`.
+An engine-specific acquisition data container class for acquisition data objects. Inherits from `sirf.SIRF.DataContainer`. 
 
-###### Methods (in addition to those of DataContainer):
+###### Methods:
 
-    AcquisitionData  
-               (PET/MR) Constructor. If no arguments are present, creates an
+    AcquisitionData     Constructor. If no arguments are present, creates an
                         empty object, otherwise:
                         PET: Specifies the file containing raw data or
                         creates new AcquisitionData based on scanner information 
@@ -235,40 +253,37 @@ Class for acquisition data. Inherits from `DataContainer`.
                         or discerned from the scanner name and parameters given
                         in the arguments; 
                         MR: Specifies the file containing raw data. 
-    set_storage_scheme
-               (PET/MR) Specifies whether the intermediate data should be kept in 
+    set_storage_scheme  Specifies whether the intermediate data should be kept in 
                         files or in RAM (see Acquisition data storage scheme 
                         management in Appendix).
-    get_storage_scheme
-               (PET/MR) Returns currently used storage scheme. 
+    get_storage_scheme  Returns currently used storage scheme. 
     create_uniform_image  
                   (PET) Returns new compatible ImageData object. 
-    as_array   (PET/MR) Returns the object data as an array. 
-    fill       (PET/MR) Replaces the object data with user-supplied data. 
+    as_array            Returns the object data as an array. 
+    fill                Replaces the object data with user-supplied data. 
     sort           (MR) Sorts the acquisition data. 
     is_sorted      (MR) Returns true if and only if the acquisition data is sorted. 
     get_info       (MR) Returns information on the acquisition data. 
     process        (MR) Processes the acquisition data by a chain of gadgets. 
     dimensions    (PET) Returns the acquisition data dimensions
-    show       (PET/MR) Displays the acquisition data as a set of 2D sinograms (PET)
+    show                Displays the acquisition data as a set of 2D sinograms (PET)
                         or xy-slices (MR)
 
 ##### ImageData
 
-Class for data representing 3D objects. Inherits from `DataContainer`.
+An engine-specific image data container class for data representing 3D objects. Inherits from `sirf.SIRF.ImageData`.
 
-###### Methods (in addition to those of DataContainer):
+###### Methods:
 
-    ImageData (PET/MR)  Constructor. Reads data from a file or creates empty object. 
+    ImageData           Constructor. Reads data from a file or creates empty object. 
     initialise   (PET)  Sets the image size in voxels, voxel sizes and the origin. 
-    fill      (PET/MR)  Replaces the object data with user-supplied data. 
-    as_array  (PET/MR)  Returns the object data as an array. 
-    read_from_file
-              (PET/MR)  Reads the image data from file.
+    fill                Replaces the object data with user-supplied data. 
+    as_array            Returns the object data as an array. 
+    read_from_file      Reads the image data from file.
     get_uniform_copy   
                  (PET)  Returns a copy of this image filled with a constant value. 
     add_shape    (PET)  Adds a shape to the image. 
-    show      (PET/MR)  Displays the image as a set of 2D xy-slices. 
+    show                Displays the image as a set of 2D xy-slices. 
     dimensions   (PET)  Returns the object data dimensions
     voxel_sizes  (PET)  Returns the voxel sizes
 	
@@ -306,12 +321,11 @@ Class for objects that process `ImageData` objects.
 
 ###### Methods:
 
-    ImageDataProcessor  
-               (PET/MR) Constructor. Creates new ImageDataProcessor object 
+    ImageDataProcessor  Constructor. Creates new ImageDataProcessor object 
                         (PET: empty, MR: defined by the argument). 
-    set_input  (PET/MR) Sets the processor input. 
-    process    (PET/MR) Computes processed image data, leaving the input intact. 
-    get_output (PET/MR) Returns the processed image data. 
+    set_input           Sets the processor input. 
+    process             Computes processed image data, leaving the input intact. 
+    get_output          Returns the processed image data. 
     apply         (PET) Processes the ImageData argument.
 
 ##### TruncateToCylinderProcessor (PET)
@@ -319,7 +333,7 @@ Class for objects that process `ImageData` objects.
 Class for the image processor that zeroes the image outside a cylinder. 
 Inherits the methods of `ImageDataProcessor`.
 
-###### Methods (in addition to those of ImageDataProcessor): 
+###### Methods: 
 
     set_strictly_less_than_radius  Defines the behaviour on the cylinder boundary.
     get_strictly_less_than_radius  Exposes the behaviour on the cylinder boundary.
@@ -338,19 +352,19 @@ in each spacial direction.
 	set_max_kernel_sizes Sets max kernel size in each spacial direction.
 	set_normalise        Normalise the kernel to 1 or not (default is on)
 
-##### AcquisitionDataProcessor
+##### AcquisitionDataProcessor (MR)
 
 Class for objects that process `AcquisitionData` objects. 
 
 ###### Methods:
 
     AcquisitionDataProcessor  
-               (MR) Constructor. Creates new processor object (a chain of gadgets,
+                    Constructor. Creates new processor object (a chain of gadgets,
                     see section Programming chains of Gadgetron gadgets) defined by 
                     the argument. 
-    set_input  (MR) Sets the processor input. 
-    process    (MR) Processes the image data on input. 
-    get_output (MR) Retrieves the processed image data. 
+    set_input       Sets the processor input. 
+    process         Processes the image data on input. 
+    get_output      Retrieves the processed image data. 
 
 ###### Examples: 
 
@@ -368,15 +382,15 @@ Class for objects that process `AcquisitionData` objects.
 
 ##### Reconstructor 
 
-Class for a generic image reconstructor. 
+A base class for a generic image reconstructor. 
 
 ###### Methods: 
 
-    set_input  (PET/MR) Sets the input (AquisitionData object). 
-    process    (PET/MR) Runs the reconstruction. 
-    get_output (PET/MR) Returns the output (ImageData object). 
+    set_input           Sets the input (AquisitionData object). 
+    process             Runs the reconstruction. 
+    get_output          Returns the output (ImageData object). 
     set_output_filename_prefix  
-               (PET/MR) Specifies the naming for the output files.  
+                 (PET)  Specifies the naming for the output files.  
 
 ##### FBP2DReconstructor (PET)
 
@@ -408,7 +422,7 @@ The apodizing filter in frequency space has the form
 
 Class for PET reconstruction algorithms that use Ordered Subsets technique whereby the acquisition data is split into subsets, and the objective function and its gradient are represented as the sums of components corresponding to subsets. Typically, one iteration of such algorithm would deal with one subset, and is therefore referred to as sub-iteration. Inherits the methods of `Reconstructor`. 
 
-###### Methods (in addition to those of Reconstructor): 
+###### Methods: 
 
     set_num_subsets            Sets the number of subsets, 
     get_num_subsets            Returns the number of subsets. 
@@ -431,7 +445,7 @@ Class for PET reconstruction algorithms that use Ordered Subsets technique where
 
 Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One Step Late reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html). Inherits the methods of `IterativeReconstructor`. 
 
-###### Methods (in addition to those of IterativeReconstructor): 
+###### Methods: 
 
     OSMAPOSLReconstructor  Constructor. Creates new OSMAPOSL reconstructor object.  
     set_maximum_relative_change         The multiplicative update image will be thresholded from above
@@ -474,7 +488,7 @@ being the MR component of the kernel and
 is the part coming from the emission iterative update. Here, the Gaussian kernel functions have been modulated by the distance between voxels in the image space.
 
 
-###### Methods (in addition to those of IterativeReconstructor): 
+###### Methods: 
 
     KOSMAPOSLReconstructor    Constructor. Creates new KOSMAPOSL reconstructor object.
     set_anatomical_prior      Sets anatomical prior.
@@ -492,7 +506,7 @@ is the part coming from the emission iterative update. Here, the Gaussian kernel
 
 Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Surrogate reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html). Inherits the methods of `IterativeReconstructor`.  
 
-###### Methods (in addition to those of IterativeReconstructor): 
+###### Methods: 
 
     OSSPSReconstructor       Constructor. Creates new OSSPS reconstructor object.
     set_relaxation_parameter Sets relaxation parameter.
@@ -501,7 +515,7 @@ Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Sur
 
 Class for a reconstructor from fully sampled Cartesian raw data. Inherits the methods of `Reconstructor`. 
 
-###### Methods (in addition to those of Reconstructor): 
+###### Methods: 
 
     FullySampledReconstructor  Constructor. Creates new reconstructor object.  
 
@@ -509,7 +523,7 @@ Class for a reconstructor from fully sampled Cartesian raw data. Inherits the me
 
 Class for a reconstructor from undersampled Cartesian raw data. Inherits the methods of `Reconstructor`. 
 
-###### Methods (in addition to those of Reconstructor): 
+###### Methods: 
 
     CartesianGRAPPAReconstructor  Constructor. Creates new reconstructor object. 
 
@@ -680,15 +694,15 @@ a linear operator and `P' = P`.
 
 ###### Methods: 
 
-    AcquisitionModel (PET/MR) Constructor. Creates an acquisition model 
+    AcquisitionModel          Constructor. Creates an acquisition model 
                               (PET: empty, MR: empty or based on the image and 
                               acquisition data templates specified by the 
                               arguments). 
-    forward          (PET/MR) Returns F(x) for the image data x specified 
+    forward                   Returns F(x) for the image data x specified 
                               by the argument. 
-    backward         (PET/MR) Returns B(y) for the acquisition data y specified 
+    backward                  Returns B(y) for the acquisition data y specified 
                               by the argument. 
-    set_up           (PET/MR) Sets up the model based on acquisition and image data  
+    set_up                    Sets up the model based on acquisition and image data  
                               templates provided by the arguments. 
     set_additive_term   (PET) Sets term a in (F). 
     set_acquisition_sensitivity   
@@ -708,7 +722,7 @@ a linear operator and `P' = P`.
 
 Class for the PET acquisition process model that uses (implicitly) a sparse matrix for `G` in (F). This class inherits the methods of PET AcquisitionModel class, with forward projection defined by (F) and backprojection by (B).
 
-###### Methods (in addition to those of AcquisitionModel): 
+###### Methods: 
 
     AcquisitionModelUsingRayTracingMatrix  
                           Constructor. Creates an acquisition model. 
@@ -874,6 +888,7 @@ class will effectively use 1 for all kappa values.
     get_verbosity (STIR)              Get output verbosity
 
 ## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
+
 The CCPi [`CIL Python Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel
 reconstruction algorithms can be used with SIRF classes such as
 `DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal,
@@ -931,6 +946,7 @@ Below the list of methods currently implemented on CCPi that have been added to 
     1. `sum(self)`
     1. `norm(self)`
     1. `squared_norm(self)`, returns the square of the call of `norm()`
+
 # Appendix <a name="Appendix"></a>
 
 ## Acquisition data storage scheme management <a name="storage_management"></a>
