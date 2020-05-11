@@ -668,7 +668,7 @@ Class for the acquisition process modelling. Main component is the forward proje
 
 For PET, `F(x)` is the right-hand side of the following equation:
 
-    (F)    y = S(G P x + a) + b 
+    (F_pet)    y = S(G P x + a) + b
 
 where  
 
@@ -687,10 +687,20 @@ n, bin normalization, is the inverse of bin efficiencies.
 
 Accordingly, the backprojection `B` is the right-hand side of
 
-    (B)    x = P G' S y 
+    (B_pet)    x = P G' S y
 
 where `G'` is the transpose of `G`. *Warning*  at present, this assumes that the image data processor `P` is
 a linear operator and `P' = P`.
+
+For MR, the forward projection is given by
+
+    (F_mr)    F(x) = U T S x
+
+where S represents coil sensitivity maps, T represents the Fourier transform and U undersampling. If the image data `x` is represented by a vector of dimension `n` and the number of coils is `m`, then `S` is an `mn` by `n` block matrix composed by `m` diagonal blocks with coil sensitivity values at voxels on the diagonals. If the model uses 3D Fourier transform, then `T` is a block diagonal matrix with `m` identical blocks, and if 2D transforms are applied to `xy` slices, then the number of blocks is `m` times the number of slices. Finally, `U` is another block diagonal matrix with `m` identical diagonal blocks, in which a diagonal element is either 0 or 1 depending on whether corresponding voxel is on the readout. The backprojection is given by
+
+    (B_mr)    B(y) = S T' U y
+
+where `T'` is the complex transpose of `T`, i.e. the inverse Fourier transform.
 
 ###### Methods: 
 
