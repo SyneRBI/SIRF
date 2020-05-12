@@ -31,7 +31,7 @@
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
-This User’s Guide describes version 2.1 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
+This User’s Guide describes version 2.2 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
 
 ## General architecture <a name="General_architecture"></a>
 
@@ -43,29 +43,30 @@ At present, you should only use the C++, MATLAB and Python interfaces. The under
 
 ### MRI <a name="MRI"></a>
 
-SIRF expects raw MR data in the ISMRMRD format. We currently provide a clone of the siemens_to_ismrmrd Git repository. This enables raw data from Siemens mMR Biograph PET-MR scanners to be converted to ISMRMRD format. For more details of how to export the raw MR data from Siemens PET-MR scanners and how to convert the data to ISMRMRD please see the wiki: [https://github.com/CCPPETMR/SIRF/wiki/MR-raw-data](https://github.com/CCPPETMR/SIRF/wiki/MR-raw-data).  
+SIRF expects raw MR data in the ISMRMRD format. We use [siemens_to_ismrmrd](https://github.com/ismrmrd/siemens_to_ismrmrd) for this. This enables raw data from Siemens mMR Biograph PET-MR scanners to be converted to ISMRMRD format. For more details of how to export the raw MR data from Siemens PET-MR scanners and how to convert the data to ISMRMRD please see the wiki: [https://github.com/SyneRBI/SIRF/wiki/MR-raw-data](https://github.com/SyneRBI/SIRF/wiki/MR-raw-data).  
 
 Converters for data from other scanners are available from [https://github.com/ismrmrd](https://github.com/ismrmrd) but we have not tried these yet. 
 
 ### PET <a name="PET"></a>
 
-STIR can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR. However, STIR currently still relies on some bash scripts for file format conversion, estimation of randoms and scatter etc. Therefore, in the current SIRF release, we do not yet support measured data from any scanner. This will be fixed for version 1.0. 
+STIR can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR.
 
 # Where to find further information <a name="Further_information"></a>
 
-- CCPPETMR website [http://www.ccppetmr.ac.uk](http://www.ccppetmr.ac.uk) for links to project overview, meeting notes, design documents etc 
+- SyneRBI website [http://www.SyneRBI.ac.uk](http://www.SyneRBI.ac.uk) for links to project overview, meeting notes, design documents etc 
 
-- CCPPETMR SIRF Wiki [https://github.com/CCPPETMR/SIRF/wiki](https://github.com/CCPPETMR/SIRF/wiki)  for detailed instructions and user-contributed content 
+- SyneRBI SIRF Wiki [https://github.com/SyneRBI/SIRF/wiki](https://github.com/SyneRBI/SIRF/wiki)  for detailed instructions and user-contributed content 
 
-- CCPPETMR Virtual Machine Wiki [https://github.com/CCPPETMR/CCPPETMR_VM/wiki](https://github.com/CCPPETMR/CCPPETMR_VM/wiki) with information on how to use the Virtual Machine that we supply with pre-installed software. 
+- SyneRBI Virtual Machine Wiki [https://github.com/SyneRBI/SyneRBI_VM/wiki](https://github.com/SyneRBI/SyneRBI_VM/wiki) with information on how to use the Virtual Machine that we supply with pre-installed software. 
 
 - Inline documentation within MATLAB and Python functions, see below for examples. 
 
 - Demo functions to demonstrate SIRF features. After installing SIRF, these will be available in SIRF/examples. 
 
-- Our plan for future releases and additional features is available from the Software Documents tab [http://www.ccppetmr.ac.uk/softwareframework.html](http://www.ccppetmr.ac.uk/softwareframework.html)  on our website.
+- Our plan for future releases and additional features is available in the documentation folder, current
+version is on [github](https://github.com/SyneRBI/SIRF/blob/master/doc/SIRFLongTermPlan.md).
 
-- Installation instructions can be found on our Wiki at [https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions](https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions). Note that on the [Virtual machine](https://github.com/CCPPETMR/CCPPETMR_VM/wiki), this has all has been done for you and you can just use SIRF. 
+- Installation instructions can be found on our Wiki at [https://github.com/SyneRBI/SIRF/wiki/Installation-instructions](https://github.com/SyneRBI/SIRF/wiki/Installation-instructions). Note that on the [Virtual machine](https://github.com/SyneRBI/SyneRBI_VM/wiki), this has all has been done for you and you can just use SIRF. 
 
 # General notes of usage <a name="General_notes"></a>
 
