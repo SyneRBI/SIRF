@@ -44,13 +44,17 @@ int generate_matlab_interface(
 	const string& path_out,
 	const string& mhfile,
 	const string& mcfile,
-	int wp = 0);
+	int wp = 0, bool to_cout = false);
 
-int main()
+int main(int argc, char *argv[])
 {
+	if (argc != 2) {
+		cout << "Give output folder as input argument" << endl;
+		return 1;
+	}
 	int status;
 	string path_in;
-	string path_out;
+	const string path_out = argv[1];
 	string SIRF_path;
 	SIRF_path = sirf::getenv("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
@@ -58,11 +62,10 @@ int main()
 		return 1;
 	}
 	path_in = SIRF_path + "/src/iUtilities/include/";
-	path_out = SIRF_path + "/src/iUtilities/";
 	status = generate_matlab_interface\
 		("IUTILITIES", "---", 
 			path_in, "sirf/iUtilities/iutilities.h", 
-			path_out, "miutilities.h", "miutilities.c");
+			path_out, "/miutilities.h", "/miutilities.c");
 	if (status) {
 		cout << "wrong input file format" << endl;
 		return 1;
