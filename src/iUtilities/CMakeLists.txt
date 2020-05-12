@@ -58,16 +58,28 @@ endif(BUILD_PYTHON)
 
 if(BUILD_MATLAB)
 
-  include_directories(${Matlab_INCLUDE_DIRS})
+  set(mutilities_c ${CMAKE_CURRENT_BINARY_DIR}/miutilities.c)
+  set(mutilities_h ${CMAKE_CURRENT_BINARY_DIR}/miutilities.h)
 
-  add_library(miutilities SHARED miutilities.c)
+  add_executable(gmi_iutilities gmi/gmi.cpp)
+  target_link_libraries(gmi_iutilities csirf mig)
+  # Generate m-files on the fly
+  add_custom_command(
+    OUTPUT ${mutilities_c} ${mutilities_h}
+    COMMAND gmi_iutilities ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/iUtilities/include/sirf/iUtilities/iutilities.h
+    COMMENT "Generating mutilities.c/.h"
+    VERBATIM
+  )
+
+  add_library(miutilities SHARED ${mutilities_c})
   # fix output name and link flags
   SET_TARGET_PROPERTIES(miutilities PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
   target_link_libraries(miutilities iutilities ${Matlab_LIBRARIES} )
+  target_include_directories(miutilities PUBLIC ${Matlab_INCLUDE_DIRS})
 
   INSTALL(TARGETS miutilities DESTINATION "${MATLAB_DEST}")
-  INSTALL(FILES miutilities.h DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES ${mutilities_h} DESTINATION "${MATLAB_DEST}")
 
-  ADD_SUBDIRECTORY(gmi)
 endif(BUILD_MATLAB)

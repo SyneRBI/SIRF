@@ -20,6 +20,20 @@ if(BUILD_MATLAB)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
+  set(mreg_c ${CMAKE_CURRENT_BINARY_DIR}/mreg.c)
+  set(mreg_h ${CMAKE_CURRENT_BINARY_DIR}/mreg.h)
+
+  add_executable(gmi_xreg gmi/gmi_xreg.cpp)
+  target_link_libraries(gmi_xreg mig csirf)
+  # Generate m-files on the fly
+  add_custom_command(
+    OUTPUT ${mreg_c} ${mreg_h}
+    COMMAND gmi_xreg ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/Registration/cReg/include/sirf/Reg/cReg.h
+    COMMENT "Generating mreg.c/.h"
+    VERBATIM
+  )
+
   SET(SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Transformation.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Registration.m"
@@ -43,18 +57,17 @@ if(BUILD_MATLAB)
     set(SOURCES "${SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/SPMRegistration.m")
   endif()
 
-  add_library(mreg SHARED mreg.c printer.cpp)
+  add_library(mreg SHARED ${mreg_c} printer.cpp)
   target_include_directories(mreg PUBLIC ${Matlab_INCLUDE_DIRS})
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mreg PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
   target_link_libraries(mreg Reg iutilities csirf cstir ${Matlab_LIBRARIES})
   INSTALL(TARGETS mreg DESTINATION "${MATLAB_DEST}")
-  INSTALL(FILES mreg.h DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES ${mreg_h} DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES ${SOURCES} DESTINATION "${MATLAB_DEST}/+sirf/+Reg")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
 
-  ADD_SUBDIRECTORY(gmi)
   ADD_SUBDIRECTORY(tests)
 endif(BUILD_MATLAB)

@@ -22,7 +22,21 @@ if(BUILD_MATLAB)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  add_library(mgadgetron SHARED mgadgetron.c)
+  set(mgadgetron_c ${CMAKE_CURRENT_BINARY_DIR}/mgadgetron.c)
+  set(mgadgetron_h ${CMAKE_CURRENT_BINARY_DIR}/mgadgetron.h)
+
+  add_executable(gmi_xgadgetron gmi/gmi_xgadgetron.cpp)
+  target_link_libraries(gmi_xgadgetron mig csirf)
+  # Generate m-files on the fly
+  add_custom_command(
+    OUTPUT ${mgadgetron_c} ${mgadgetron_h}
+    COMMAND gmi_xgadgetron ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/xGadgetron/cGadgetron/include/sirf/Gadgetron/cgadgetron.h
+    COMMENT "Generating mgadgetron.c/.h"
+    VERBATIM
+  )
+
+  add_library(mgadgetron SHARED ${mgadgetron_c})
   target_include_directories(mgadgetron PUBLIC ${Matlab_INCLUDE_DIRS})
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mgadgetron PROPERTIES
@@ -30,11 +44,10 @@ if(BUILD_MATLAB)
   target_link_libraries(mgadgetron csirf cgadgetron iutilities ${Matlab_LIBRARIES} )
 
   INSTALL(TARGETS mgadgetron DESTINATION "${MATLAB_DEST}")
-  INSTALL(FILES mgadgetron.h DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES ${mgadgetron_h} DESTINATION "${MATLAB_DEST}")
   INSTALL(DIRECTORY +sirf DESTINATION "${MATLAB_DEST}")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
 
-  ADD_SUBDIRECTORY(gmi)
   ADD_SUBDIRECTORY(tests)
 endif(BUILD_MATLAB)
