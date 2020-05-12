@@ -97,7 +97,7 @@ def main():
     # specify the acquisition data
     recon.set_input(acq_data)
     # reconstruct with default settings
-    recon.reconstruct()
+    recon.process()
     anatomical_image = recon.get_output()
     anatomical_image.show(title='Image used as anatomical prior')
     image_array = anatomical_image.as_array()
