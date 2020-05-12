@@ -7,11 +7,12 @@ are backwards compatibility issues).
 
 Detailed (short-term) issues are at
 
-<https://github.com/CCPPETMR/SIRF-SuperBuild/milestones>
+- <https://github.com/CCPPETMR/SIRF-SuperBuild/milestones>
+- <https://github.com/CCPPETMR/SIRF/milestones>
+- <https://github.com/CCPPETMR/CCPPETMR_VM/milestones>
 
-<https://github.com/CCPPETMR/SIRF/milestones>
-
-<https://github.com/CCPPETMR/CCPPETMR_VM/milestones>
+Descriptions on past releases are not necessarily complete. Check our
+[CHANGES.md](CHANGES.md) for more information.
 
 # SIRF 0.9
 
@@ -60,9 +61,28 @@ changes between 0.9 and 1.0.
   - Improved documentation
 
 
-# SIRF 2.1 etc
+# SIRF 2.1 (released 20 Nov 2019)
 
-Target date : Q3 2019
+  - Software
+
+      - Incorporation of the Hybrid Kernel EM method for PET reconstruction with MR info.
+      - MR acquisition modelling of 3D Cartesian sequences (with undersampling)
+      - Possibility to add DICOM output to an MR reconstruction chain
+      - Integration with the [Core Imaging Library (CIL)](https://github.com/vais-ral/CCPi-Framework) (Python-only) for access to general optimisers and regularisation.
+
+# SIRF 2.2 (released May 2020)
+
+  - Software
+
+      - MR acquisition modelling of 3D Cartesian sequences (with undersampling)
+      - Improvements to resampling, including adjoint operation
+      - Ability to interface to SPM registration
+      - Improvements in image file format conversion, including LPS information in MR reconstructed images
+      - Further integration with the [Core Imaging Library (CIL)](https://github.com/vais-ral/CCPi-Framework) (Python-only) for access to general optimisers and regularisation.
+
+# SIRF 2.3
+
+Target date : Q3 2020
 
   - Software
 
@@ -71,19 +91,15 @@ Target date : Q3 2019
       - Partial support for GE Signa PET/MR (PET data only).
 
       - MR iterative reconstruction via Gadgetron gadgets
-      
-      - MR acquisition modelling of 3D Cartesian sequences (with undersampling)
-      
+            
       - LPS coordinate system that coincides with the vendor's, including handling of bed position.
       
-      - Integration with the [Core Imaging Library (CIL)](https://github.com/vais-ral/CCPi-Framework) (Python-only) for access to general optimisers and regularisation.
-
 
   - CMake SuperBuild of SIRF on Windows (Gadgetron not yet on Windows)
 
 # SIRF 3.0
 
-Target date: Q4 2019
+Target date: Q4 2020
 
   - Add major features that didn’t make it into SIRF 2.x
 
@@ -111,7 +127,7 @@ Target date: Q4 2019
 
 # SIRF 4.0
 
-Target date: Q1 2020
+Target date: Q1 2021
 
   - Software:
     
