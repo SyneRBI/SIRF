@@ -1,6 +1,6 @@
 # ChangeLog
 
-## vX.X.X
+## v2.2.0-rc.1
 
 * A passthrough for both the maximum and minimum relative change during OSMAPOSL reconstruction has been added.
 * We have now corrected the geometrical information of `.h5` images (coming from ISMRMRD and Gadgetron). This means we can now convert them to other SIRF image types (e.g., `NiftiImageData` and `STIRImageData`). This is necessary for any kind of synergistic reconstruction. Further, to the best of our knowledge, this is the first ISMRMRD to NIfTI converter out there!
