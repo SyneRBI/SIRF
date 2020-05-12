@@ -935,12 +935,13 @@ const void* ptr_b, const DataContainer& a_y)
 	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
+	//std::cout << nx << ' ' << ny << '\n';
 	if (nx != ny)
 		THROW("ImageData sizes mismatch in axpby");
 	unsigned int n = number();
 	if (n > 0) {
 		if (n != nx)
-			THROW("ImageData sizes mismatch in multiply");
+			THROW("ImageData sizes mismatch in axpby");
 		for (unsigned int i = 0; i < nx; i++)
 			image_wrap(i).axpby(a, x.image_wrap(i), b, y.image_wrap(i));
 	}
