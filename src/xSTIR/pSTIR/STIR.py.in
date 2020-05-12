@@ -64,6 +64,13 @@ def set_verbosity(verbosity):
     """Set the verbosity of all STIR output"""
     try_calling(pystir.cSTIR_setVerbosity(verbosity))
 
+def get_verbosity():
+    """Get the verbosity of all STIR output"""
+    h = pystir.cSTIR_getVerbosity()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.intDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
 
 class MessageRedirector(object):
     '''
@@ -338,7 +345,7 @@ class ImageData(SIRF.ImageData):
         array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
-    def write(self,filename,par):
+    def write_par(self,filename,par):
         '''Write with parameter file'''
         try_calling(pystir.cSTIR_writeImage_par(self.handle, filename, par))
     def show(self, slice = None, title = None):

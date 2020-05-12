@@ -21,6 +21,7 @@ __author__ = "Ander Biguri"
 def test_main(rec=False, verb=False, throw=True):
 
     pet.MessageRedirector()
+    original_verb = pet.get_verbosity()
     pet.set_verbosity(False)
     # create an acq_model that is explicitly a RayTracingMatrix
     am = pet.AcquisitionModelUsingRayTracingMatrix()
@@ -36,6 +37,10 @@ def test_main(rec=False, verb=False, throw=True):
     # test for adjointnesss
     if not is_operator_adjoint(am, verbose = verb):
       raise AssertionError('AcquisitionModelUsingRayTracingMatrix is not adjoint')
+
+    # Reset original verbose-ness
+    pet.set_verbosity(original_verb)
+    return 0, 1
 
 
 if __name__ == "__main__":

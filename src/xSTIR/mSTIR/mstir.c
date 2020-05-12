@@ -45,6 +45,9 @@ EXPORTED_FUNCTION 	void* mParameter(const void* ptr, const char* obj, const char
 EXPORTED_FUNCTION     void* mSTIR_setVerbosity(const int verbosity_ptr) {
 	return cSTIR_setVerbosity(verbosity_ptr);
 }
+EXPORTED_FUNCTION     void* mSTIR_getVerbosity() {
+	return cSTIR_getVerbosity();
+}
 EXPORTED_FUNCTION 	void* mSTIR_newObject(const char* name) {
 	return cSTIR_newObject(name);
 }
@@ -72,7 +75,7 @@ EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
 EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr) {
 	return cSTIR_computeRandoms(ptr);
 }
-EXPORTED_FUNCTION     void* mSTIR_lm_num_prompts_rate_exceeds_threshold(void* ptr, const float threshold) {
+EXPORTED_FUNCTION     void* mSTIR_lm_num_prompts_exceeds_threshold(void* ptr, const float threshold) {
 	return cSTIR_lm_num_prompts_exceeds_threshold(ptr, threshold);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i) {

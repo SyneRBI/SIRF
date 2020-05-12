@@ -8,7 +8,6 @@
   "creators": [
     {"name": "Ovtchinnikov, Evgueni", "affiliation":"UK Research & Innovation"},
     {"name": "Brown, Richard", "orcid": "0000-0001-6989-9200", "affiliation": "University College London"},
-    {"name": "Thielemans, Kris", "orcid": "0000-0002-5514-199X", "affiliation": "University College London"},
     {"name": "Pasca, Edoardo", "affiliation":"UK Research & Innovation"},
     {"name": "da Costa-Luis, Casper O.", "orcid": "0000-0002-7211-1557", "affiliation": "King's College London"},
     {"name": "Thomas, Ben", "orcid": "0000-0002-9784-1177", "affiliation": "University College London"},
@@ -17,5 +16,6 @@
     {"name": "Gillman, Ashley", "orcid": "0000-0001-9130-1092", "affiliation": "Commonwealth Scientific and Industrial Research Organisation, and University of Queensland"},
     {"name": "Kolbitsch, Christoph", "orcid": "0000-0002-4355-8368", "affiliation": "Physikalisch-Technische Bundesanstalt (PTB)"},
     {"name": "Ehrhardt, Matthias J.", "affiliation": "University of Bath"},
-    {"name": "Whitehead, Alexander C.", "orcid": "0000-0002-9151-3295", "affiliation": "University College London"}]
+    {"name": "Whitehead, Alexander C.", "orcid": "0000-0002-9151-3295", "affiliation": "University College London"},
+    {"name": "Thielemans, Kris", "orcid": "0000-0002-5514-199X", "affiliation": "University College London"}]
 }
