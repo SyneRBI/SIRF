@@ -53,9 +53,6 @@ fprintf('%d acquisitions (readouts) found\n', na)
 fprintf('sorting acquisitions...\n')
 acq_data.sort()
 
-% dimensions method returns size of all (i.e. including noise data) if 
-% argument is passed in or if 'all' is passed in. Passing in anything else
-% means not all !!
 [ns, nc, na] = acq_data.dimensions();
 
 % clone acquisition data
@@ -126,5 +123,3 @@ sirf.Utilities.set_window(0.1, 0.1, 0.8, 0.8)
 AD.set_storage_scheme(scheme);
 
 end
-
-
