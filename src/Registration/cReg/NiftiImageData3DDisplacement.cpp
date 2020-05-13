@@ -29,6 +29,11 @@ limitations under the License.
 
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include <_reg_localTrans.h>
+#ifdef SIRF_VTK
+#include "vtkSmartPointer.h"
+#include "vtkGridTransform.h"
+#include "vtkImageData.h"
+#endif
 
 using namespace sirf;
 
@@ -71,6 +76,50 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::ge
                          nullptr);
     return output_def;
 }
+
+#ifdef SIRF_VTK
+template<class dataType>
+NiftiImageData3DDisplacement<dataType>
+NiftiImageData3DDisplacement<dataType>::get_inverse_vtk() const
+{
+    const int *dims = this->get_dimensions();
+    const float *spacing = this->get_raw_nifti_sptr()->pixdim;
+
+    using vtkImage = vtkSmartPointer<vtkImageData>;
+    using vtkTransform = vtkSmartPointer<vtkGridTransform>;
+
+    vtkImage image_data_sptr = vtkImage::New();
+    image_data_sptr->SetDimensions(dims[1],dims[2],dims[3]);
+    image_data_sptr->SetSpacing(spacing[1],spacing[2],spacing[3]);
+    image_data_sptr->AllocateScalars(VTK_FLOAT,dims[5]);
+
+    int idx[7] = {0, 0, 0, 0, 0, 0, 0};
+    for (idx[0]=0; idx[0]<dims[1]; ++idx[0])
+        for (idx[1]=0; idx[1]<dims[2]; ++idx[1])
+            for (idx[2]=0; idx[2]<dims[3]; ++idx[2])
+                for (idx[4]=0; idx[4]<dims[5]; ++idx[4]) // t is 3, skip to 4 for tensor component
+                    image_data_sptr->SetScalarComponentFromFloat(
+                                idx[0],idx[1],idx[2],idx[4],(*this)(idx));
+
+    vtkTransform transform_sptr = vtkTransform::New();
+    transform_sptr->SetDisplacementGridData(image_data_sptr);
+    transform_sptr->Update();
+    vtkTransform inverse_transform_sptr =
+            vtkGridTransform::SafeDownCast(transform_sptr->GetInverse());
+
+    vtkImage inverse_image = inverse_transform_sptr->GetDisplacementGrid();
+
+    NiftiImageData3DDisplacement<float> output = *this->clone();
+    for (idx[0]=0; idx[0]<dims[1]; ++idx[0])
+        for (idx[1]=0; idx[1]<dims[2]; ++idx[1])
+            for (idx[2]=0; idx[2]<dims[3]; ++idx[2])
+                for (idx[4]=0; idx[4]<dims[5]; ++idx[4]) {// t is 3, skip to 4 for tensor component
+                    output(idx) = inverse_image->GetScalarComponentAsFloat(idx[0],idx[1],idx[2],idx[4]);
+                }
+
+    return output;
+}
+#endif
 
 namespace sirf {
 template class NiftiImageData3DDisplacement<float>;

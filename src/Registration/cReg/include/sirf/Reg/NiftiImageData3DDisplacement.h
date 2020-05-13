@@ -95,6 +95,9 @@ public:
     {
 	return std::unique_ptr<NiftiImageData3DDisplacement>(this->clone_impl());
     }
+#ifdef SIRF_VTK
+    NiftiImageData3DDisplacement get_inverse_vtk() const;
+#endif
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData3DDisplacement* clone_impl() const
