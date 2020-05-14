@@ -106,7 +106,12 @@ ENDIF()
 
 # Link VTK
 IF(VTK_FOUND)
-  TARGET_LINK_LIBRARIES(Reg INTERFACE VTK::IOImage VTK::FiltersHybrid)
+  if(TARGET VTK::IOImage AND TARGET VTK::FiltersHybrid)
+    TARGET_LINK_LIBRARIES(Reg INTERFACE VTK::IOImage VTK::FiltersHybrid)
+  else()
+    target_link_libraries(Reg INTERFACE ${VTK_LIBRARIES})
+    target_include_directories(Reg INTERFACE ${vtkFiltersHybrid_INCLUDE_DIRS})
+  endif()
   target_compile_definitions(Reg PUBLIC SIRF_VTK)
 ENDIF()
 
