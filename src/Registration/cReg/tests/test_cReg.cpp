@@ -1358,9 +1358,6 @@ int main(int argc, char* argv[])
         // Get inverse using VTK
         auto vtk_disp_inv = *nr_disp_fwd.get_inverse(nullptr,true);
 
-        nr_disp_inv.write("/Users/rich/Desktop/nr_disp_inv");
-        vtk_disp_inv.write("/Users/rich/Desktop/vtk_disp_inv");
-
         if (nr_disp_inv != vtk_disp_inv)
             throw std::runtime_error("get_inverse_vtk failed.");
 
