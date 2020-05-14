@@ -68,10 +68,6 @@ int main(int argc, char* argv[])
         const std::string input_filename  = argv[2];
         const std::string type            = argv[3];
 
-        std::cout << "output filename = " << output_filename << "\n";
-        std::cout << "input filename = " << input_filename << "\n";
-        std::cout << "type = " << type << "\n";
-
         // skip past compulsory arguments
         argc-=4;
         argv+=4;
@@ -88,7 +84,6 @@ int main(int argc, char* argv[])
                 argc-=2; argv+=2;
             }
             else if (strcmp(argv[0], "--use_vtk")==0) {
-                std::cout << "using vtk\n";
                 use_vtk = true;
                 argc-=1; argv+=1;
             }
