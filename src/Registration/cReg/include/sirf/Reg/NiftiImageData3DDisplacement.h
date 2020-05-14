@@ -31,7 +31,7 @@ limitations under the License.
 
 #include "sirf/Reg/NiftiImageData3DTensor.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
-#include "sirf/Reg/Transformation.h"
+#include "sirf/Reg/NonRigidTransformation.h"
 
 namespace sirf {
 template<class dataType> class NiftiImageData3D;
@@ -47,7 +47,7 @@ Also require intent_p1 == DISP_FIELD.
 \author CCP PETMR
 */
 template<class dataType>
-class NiftiImageData3DDisplacement : public NiftiImageData3DTensor<dataType>, public Transformation<dataType>
+class NiftiImageData3DDisplacement : public NiftiImageData3DTensor<dataType>, public NonRigidTransformation<dataType>
 {
 public:
     /// Constructor
@@ -95,14 +95,33 @@ public:
     {
 	return std::unique_ptr<NiftiImageData3DDisplacement>(this->clone_impl());
     }
-#ifdef SIRF_VTK
-    NiftiImageData3DDisplacement get_inverse_vtk() const;
-#endif
+
+    /*! \brief Get inverse as unique pointer (potentially based on another image).
+     *
+     * Why would you want to base it on another image? Well, we might have a deformation
+     * that takes us from image A to B. We'll probably want the inverse to take us from
+     * image B back to A. In this case, use get_inverse(A). This is because the the deformation
+     * field is defined for the reference image. In the second case, A is the reference,
+     * and B is the floating image.*/
+    std::unique_ptr<NiftiImageData3DDisplacement> get_inverse(const std::shared_ptr<const NiftiImageData<dataType> > image_sptr = nullptr, const bool use_vtk=false) const
+    {
+        if (!use_vtk)
+            return std::unique_ptr<NiftiImageData3DDisplacement>(this->get_inverse_impl_nr(image_sptr));
+        else
+            return std::unique_ptr<NiftiImageData3DDisplacement>(this->get_inverse_impl_vtk(image_sptr));
+    }
+
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData3DDisplacement* clone_impl() const
     {
 	return new NiftiImageData3DDisplacement<dataType>(*this);
     }
+
+    /// Helper function for get_inverse (NiftyReg). Don't use.
+    virtual NiftiImageData3DDisplacement* get_inverse_impl_nr(const std::shared_ptr<const NiftiImageData<dataType> > image_sptr = nullptr) const;
+
+    /// Helper function for get_inverse (VTK). Don't use.
+    virtual NiftiImageData3DDisplacement* get_inverse_impl_vtk(const std::shared_ptr<const NiftiImageData<dataType> > image_sptr = nullptr) const;
 };
 }

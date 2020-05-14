@@ -1356,7 +1356,7 @@ int main(int argc, char* argv[])
         const auto nr_disp_inv = NiftiImageData3DDisplacement<float>(*nr_def_inv);
 
         // Get inverse using VTK
-        auto vtk_disp_inv = nr_disp_fwd.get_inverse_vtk();
+        auto vtk_disp_inv = *nr_disp_fwd.get_inverse(nullptr,true);
 
         nr_disp_inv.write("/Users/rich/Desktop/nr_disp_inv");
         vtk_disp_inv.write("/Users/rich/Desktop/vtk_disp_inv");

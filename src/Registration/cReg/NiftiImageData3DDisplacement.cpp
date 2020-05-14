@@ -31,8 +31,10 @@ limitations under the License.
 #include <_reg_localTrans.h>
 #ifdef SIRF_VTK
 #include "vtkSmartPointer.h"
-#include "vtkGridTransform.h"
 #include "vtkImageData.h"
+#include "vtkImageBSplineCoefficients.h"
+#include "vtkBSplineTransform.h"
+#include "vtkTransformToGrid.h"
 #endif
 
 using namespace sirf;
@@ -77,22 +79,43 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::ge
     return output_def;
 }
 
-#ifdef SIRF_VTK
 template<class dataType>
-NiftiImageData3DDisplacement<dataType>
-NiftiImageData3DDisplacement<dataType>::get_inverse_vtk() const
+NiftiImageData3DDisplacement<dataType>*
+NiftiImageData3DDisplacement<dataType>::get_inverse_impl_nr(const std::shared_ptr<const NiftiImageData<dataType> > image_sptr) const
 {
+    // Convert to deformation
+    NiftiImageData3DDeformation<dataType> def(*this);
+
+    // Inverse with NR
+    auto def_inv = def.get_inverse(image_sptr, false);
+
+    // Convert back to disp
+    return new NiftiImageData3DDisplacement<dataType>(*def_inv);
+}
+
+template<class dataType>
+NiftiImageData3DDisplacement<dataType>*
+NiftiImageData3DDisplacement<dataType>::get_inverse_impl_vtk(const std::shared_ptr<const NiftiImageData<dataType> > image_sptr) const
+{
+#ifndef SIRF_VTK
+    throw std::runtime_error("Build SIRF with VTK support for this functionality");
+#else
+    if (image_sptr != nullptr)
+        throw std::runtime_error("VTK inversion not yet implemented for change of grid. You should simply be able to resample.");
+    if (typeid(dataType) != typeid(float))
+        throw std::runtime_error("VTK inversion not yet implemented for dataTypes other than float.");
+
+    // Get image info
     const int *dims = this->get_dimensions();
     const float *spacing = this->get_raw_nifti_sptr()->pixdim;
 
-    using vtkImage = vtkSmartPointer<vtkImageData>;
-    using vtkTransform = vtkSmartPointer<vtkGridTransform>;
-
-    vtkImage image_data_sptr = vtkImage::New();
+    // Initialise a vtkImageData
+    auto image_data_sptr = vtkSmartPointer<vtkImageData>::New();
     image_data_sptr->SetDimensions(dims[1],dims[2],dims[3]);
     image_data_sptr->SetSpacing(spacing[1],spacing[2],spacing[3]);
     image_data_sptr->AllocateScalars(VTK_FLOAT,dims[5]);
 
+    // Copy NiftiImageData to vtkImageData
     int idx[7] = {0, 0, 0, 0, 0, 0, 0};
     for (idx[0]=0; idx[0]<dims[1]; ++idx[0])
         for (idx[1]=0; idx[1]<dims[2]; ++idx[1])
@@ -101,25 +124,38 @@ NiftiImageData3DDisplacement<dataType>::get_inverse_vtk() const
                     image_data_sptr->SetScalarComponentFromFloat(
                                 idx[0],idx[1],idx[2],idx[4],(*this)(idx));
 
-    vtkTransform transform_sptr = vtkTransform::New();
-    transform_sptr->SetDisplacementGridData(image_data_sptr);
-    transform_sptr->Update();
-    vtkTransform inverse_transform_sptr =
-            vtkGridTransform::SafeDownCast(transform_sptr->GetInverse());
+    // create b-spline coefficients for the displacement grid image_data_sptr
+    auto bspline_filter = vtkSmartPointer<vtkImageBSplineCoefficients>::New();
+    bspline_filter->SetInputData(image_data_sptr);
+    bspline_filter->Update();
 
-    vtkImage inverse_image = inverse_transform_sptr->GetDisplacementGrid();
+    // use these b-spline coefficients to create a transform
+    auto bspline_transform = vtkSmartPointer<vtkBSplineTransform>::New();
+    bspline_transform->SetCoefficientData(bspline_filter->GetOutput());
 
-    NiftiImageData3DDisplacement<float> output = *this->clone();
+    // invert the b-spline transform onto a new grid
+    auto grid_maker = vtkSmartPointer<vtkTransformToGrid>::New();
+    grid_maker->SetInput(bspline_transform->GetInverse());
+    grid_maker->SetGridOrigin(image_data_sptr->GetOrigin());
+    grid_maker->SetGridSpacing(image_data_sptr->GetSpacing());
+    grid_maker->SetGridExtent(image_data_sptr->GetExtent());
+    grid_maker->SetGridScalarTypeToFloat();
+    grid_maker->Update();
+
+    // Get inverse displacement as an image
+    auto inverse_image = grid_maker->GetOutput();
+
+    // Copy vtkImageData back to NiftiImageData
+    auto *output_ptr = new NiftiImageData3DDisplacement<dataType>(*this);
     for (idx[0]=0; idx[0]<dims[1]; ++idx[0])
         for (idx[1]=0; idx[1]<dims[2]; ++idx[1])
             for (idx[2]=0; idx[2]<dims[3]; ++idx[2])
-                for (idx[4]=0; idx[4]<dims[5]; ++idx[4]) {// t is 3, skip to 4 for tensor component
-                    output(idx) = inverse_image->GetScalarComponentAsFloat(idx[0],idx[1],idx[2],idx[4]);
-                }
+                for (idx[4]=0; idx[4]<dims[5]; ++idx[4])// t is 3, skip to 4 for tensor component
+                    (*output_ptr)(idx) = inverse_image->GetScalarComponentAsFloat(idx[0],idx[1],idx[2],idx[4]);
 
-    return output;
-}
+    return output_ptr;
 #endif
+}
 
 namespace sirf {
 template class NiftiImageData3DDisplacement<float>;

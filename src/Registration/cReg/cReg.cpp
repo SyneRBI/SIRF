@@ -592,7 +592,8 @@ void* cReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const vo
         NiftiImageData3DDeformation<float>& def = objectFromHandle<NiftiImageData3DDeformation<float> >(def_ptr);
         std::shared_ptr<const NiftiImageData<float> > flo_sptr;
         getObjectSptrFromHandle<const NiftiImageData<float> >(floating_ptr, flo_sptr);
-        return newObjectHandle(def.get_inverse(flo_sptr));
+        std::shared_ptr<NiftiImageData3DDeformation<float> > out_sptr = def.get_inverse(flo_sptr);
+        return newObjectHandle(out_sptr);
     }
     CATCH;
 }
