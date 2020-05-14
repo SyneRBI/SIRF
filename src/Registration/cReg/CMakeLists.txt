@@ -37,7 +37,6 @@ SET(SOURCES
   "Resample.cpp"
   "NiftyResample.cpp"
   "Transformation.cpp"
-  "NonRigidTransformation.cpp"
   "AffineTransformation.cpp"
   "Quaternion.cpp"
   "NiftiImageData.cpp"
