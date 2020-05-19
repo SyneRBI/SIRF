@@ -1343,6 +1343,32 @@ int main(int argc, char* argv[])
     }
 #endif
 
+#ifdef SIRF_VTK
+    {
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting VTK test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Get inverse using NR functionality
+        const auto nr_disp_fwd = dynamic_cast<const NiftiImageData3DDisplacement<float>&>(*NA.get_displacement_field_forward_sptr());
+        const auto nr_def_fwd  = NiftiImageData3DDeformation<float>(nr_disp_fwd);
+        const auto nr_def_inv  = nr_def_fwd.get_inverse();
+        const auto nr_disp_inv = NiftiImageData3DDisplacement<float>(*nr_def_inv);
+
+        // Get inverse using VTK
+        auto vtk_disp_inv = *nr_disp_fwd.get_inverse(nullptr,true);
+
+        if (nr_disp_inv != vtk_disp_inv)
+            throw std::runtime_error("get_inverse_vtk failed.");
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished VTK test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+#endif
+
+
+
     // Error handling
     } catch(const std::exception &error) {
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
