@@ -185,6 +185,13 @@ classdef ImageData < sirf.SIRF.ImageData
             sirf.Utilities.delete(h)
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
+        function write(self,filename,par)
+        %Write with parameter file
+            h = calllib...
+                ('mstir', 'mSTIR_writeImage_par', self.handle_, filename, par);
+            sirf.Utilities.check_status('ImageData:write_w_param_file', h);
+            sirf.Utilities.delete(h);
+        end
         function show(self, z)
 %***SIRF*** Interactively plots this image data as a set of 2D image slices.
             data = self.as_array();
