@@ -130,9 +130,6 @@ num_subiterations = int(args['--subiter'])
 
 
 def main():
- 
-    # direct all engine's information and warnings printing to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt')
 
     if not use_gpu:
         print("Using CPU projector...")

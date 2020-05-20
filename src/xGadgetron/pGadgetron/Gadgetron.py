@@ -527,10 +527,10 @@ class ImageData(SIRF.ImageData):
                         ' Should be ImageData or numpy.ndarray')
     def dimensions(self):
         '''
-        Returns the dimensions of 3D Numpy ndarray of all self's images.
+        Returns the dimensions of 3D/4D Numpy ndarray of all self's images.
         '''
         if self.number() < 1:
-            return 0, 0, 0
+            return 0
         assert self.handle is not None
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         image = Image(self)
@@ -539,23 +539,26 @@ class ImageData(SIRF.ImageData):
         ny = dim[1]
         nz = dim[2]
         nc = dim[3]
-        nz = nz*nc*self.number()
-        return nz, ny, nx
+        if nc == 1: # for backward compatibility
+            nz = nz*nc*self.number()
+            return nz, ny, nx
+        else:
+            nz = nz*self.number()
+            return nc, nz, ny, nx
     def as_array(self):
         '''
-        Returns all self's images as a 3D Numpy ndarray.
+        Returns all self's images as a 3D or 4D Numpy ndarray.
         '''
         assert self.handle is not None
         if self.number() < 1:
-            return numpy.ndarray((0,0,0), dtype = numpy.float32)
-        nz, ny, nx = self.dimensions()
+            return numpy.ndarray((0,), dtype = numpy.float32)
         if self.is_real():
-            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
             try_calling(pygadgetron.cGT_getImageDataAsFloatArray\
                 (self.handle, array.ctypes.data))
             return array
         else:
-            z = numpy.ndarray((nz, ny, nx), dtype = numpy.complex64)
+            z = numpy.ndarray(self.dimensions(), dtype = numpy.complex64)
             try_calling(pygadgetron.cGT_getImageDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
