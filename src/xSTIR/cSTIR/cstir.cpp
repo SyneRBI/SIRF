@@ -724,11 +724,8 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 		sptrImage3DF sptr_image = id.data_sptr();
 		xSTIR_IterativeReconstruction3DF& recon =
 			objectFromHandle<xSTIR_IterativeReconstruction3DF>(ptr_r);
-		Succeeded s = Succeeded::no;
-		if (!recon.post_process()) {
-			s = recon.set_up(sptr_image);
-			recon.subiteration() = recon.get_start_subiteration_num();
-		}
+		const Succeeded s = recon.set_up(sptr_image);
+                recon.subiteration() = recon.get_start_subiteration_num();
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupReconstruction failed",
 				__FILE__, __LINE__);
