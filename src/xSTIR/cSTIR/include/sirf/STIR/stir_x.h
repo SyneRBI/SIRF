@@ -526,9 +526,9 @@ The actual algorithm is described in
 
 	class xSTIR_GeneralisedPrior3DF : public stir::GeneralisedPrior < Image3DF > {
 	public:
-		bool post_process() {
-			return post_processing();
-		}
+//		bool post_process() {
+//			return post_processing();
+//		}
 	};
 
 	class xSTIR_QuadraticPrior3DF : public stir::QuadraticPrior < float > {
@@ -548,9 +548,9 @@ The actual algorithm is described in
 	class xSTIR_GeneralisedObjectiveFunction3DF :
 		public stir::GeneralisedObjectiveFunction < Image3DF > {
 	public:
-		bool post_process() {
-			return post_processing();
-		}
+//		bool post_process() {
+//			return post_processing();
+//		}
 	};
 
 	//typedef xSTIR_GeneralisedObjectiveFunction3DF ObjectiveFunction3DF;
@@ -591,12 +591,12 @@ The actual algorithm is described in
 	class xSTIR_IterativeReconstruction3DF :
 		public stir::IterativeReconstruction < Image3DF > {
 	public:
-		bool post_process() {
+/*		bool post_process() {
 			//std::cout << "in xSTIR_IterativeReconstruction3DF.post_process...\n";
 			if (this->output_filename_prefix.length() < 1)
 				this->set_output_filename_prefix("reconstructed_image");
 			return post_processing();
-		}
+		}*/
 		void update(Image3DF &image) {
 			update_estimate(image);
 			end_of_iteration_processing(image);
