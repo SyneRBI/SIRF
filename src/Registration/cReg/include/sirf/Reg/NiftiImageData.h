@@ -328,9 +328,6 @@ public:
     /// Get standard deviation
     float get_standard_deviation() const;
 
-    /// Get element
-    float get_element(const int idx[7]) const;
-
     /// Get sum
     float get_sum() const;
 

@@ -70,17 +70,30 @@ if (BUILD_MATLAB)
 
   add_library(mig mig.cpp)
   target_include_directories(mig PUBLIC ${Matlab_INCLUDE_DIRS})
-  add_library(msirf SHARED msirf.c)
+
+  set(msirf_c ${CMAKE_CURRENT_BINARY_DIR}/msirf.c)
+  set(msirf_h ${CMAKE_CURRENT_BINARY_DIR}/msirf.h)
+
+  add_executable(gmi_csirf gmi/gmi_csirf.cpp)
+  target_link_libraries(gmi_csirf mig csirf)
+  # Generate m-files on the fly
+  add_custom_command(
+    OUTPUT ${msirf_c} ${msirf_h}
+    COMMAND gmi_csirf ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/common/include/sirf/common/csirf.h
+    COMMENT "Generating msirf.c/.h"
+    VERBATIM
+  )
+
+  add_library(msirf SHARED ${msirf_c})
   target_include_directories(msirf PUBLIC ${Matlab_INCLUDE_DIRS})
   SET_TARGET_PROPERTIES(msirf PROPERTIES SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
   target_link_libraries(msirf csirf iutilities ${Matlab_LIBRARIES})
 
   INSTALL(TARGETS msirf DESTINATION "${MATLAB_DEST}")
-  INSTALL(FILES msirf.h DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES ${msirf_h} DESTINATION "${MATLAB_DEST}")
   INSTALL(DIRECTORY +sirf DESTINATION "${MATLAB_DEST}")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
-
-  ADD_SUBDIRECTORY(gmi)
 
 endif (BUILD_MATLAB)

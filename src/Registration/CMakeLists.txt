@@ -44,6 +44,15 @@ else()
 	set(SPM_BOOL_STR "0")
 endif()
 
+# Check for VTK
+OPTION(DISABLE_VTK "disable VTK" OFF)
+if(NOT DISABLE_VTK)
+	find_package(VTK QUIET)
+	MESSAGE(STATUS "VTK found: ${VTK_FOUND}")
+else()
+	set(VTK_FOUND OFF)
+endif()
+
 ADD_SUBDIRECTORY(NiftyMoMo)
 ADD_SUBDIRECTORY(cReg)
 ADD_SUBDIRECTORY(pReg)

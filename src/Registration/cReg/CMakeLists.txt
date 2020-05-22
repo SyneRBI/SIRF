@@ -104,6 +104,17 @@ IF(SPM_FOUND)
   target_compile_definitions(Reg PUBLIC SIRF_SPM)
 ENDIF()
 
+# Link VTK
+IF(VTK_FOUND)
+  if(TARGET VTK::IOImage AND TARGET VTK::FiltersHybrid)
+    TARGET_LINK_LIBRARIES(Reg INTERFACE VTK::IOImage VTK::FiltersHybrid)
+  else()
+    target_link_libraries(Reg INTERFACE ${VTK_LIBRARIES})
+    target_include_directories(Reg INTERFACE ${vtkFiltersHybrid_INCLUDE_DIRS})
+  endif()
+  target_compile_definitions(Reg PUBLIC SIRF_VTK)
+ENDIF()
+
 # Install
 INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
