@@ -597,10 +597,6 @@ The actual algorithm is described in
 				this->set_output_filename_prefix("reconstructed_image");
 			return post_processing();
 		}
-		stir::Succeeded setup(sptrImage3DF const& image) {
-			//std::cout << "in xSTIR_IterativeReconstruction3DF.setup...\n";
-			return set_up(image);
-		}
 		void update(Image3DF &image) {
 			update_estimate(image);
 			end_of_iteration_processing(image);

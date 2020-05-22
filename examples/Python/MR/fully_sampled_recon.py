@@ -71,7 +71,7 @@ def main():
     print('---\n pre-processing acquisition data...')
     processed_data = preprocess_acquisition_data(acq_data)
 
-    # setup reconstruction:
+    # set up reconstruction:
     # create a reconstruction object using 2D inverse Fourier transform and
     # provide pre-processed k-space data as input
     recon = FullySampledReconstructor()
