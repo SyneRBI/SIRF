@@ -51,8 +51,8 @@ void NiftyF3dSym<dataType>::process()
 
     // Create the registration object
     _registration_sptr = std::shared_ptr<reg_f3d_sym<dataType> >(new reg_f3d_sym<dataType>(_reference_time_point, _floating_time_point));
-    _registration_sptr->SetFloatingImage(ref.get_raw_nifti_sptr().get());
-    _registration_sptr->SetReferenceImage(flo.get_raw_nifti_sptr().get());
+    _registration_sptr->SetReferenceImage(ref.get_raw_nifti_sptr().get());
+    _registration_sptr->SetFloatingImage(flo.get_raw_nifti_sptr().get());
 
     // By default, use a padding value of 0
     _registration_sptr->SetWarpedPaddingValue(0.f);
