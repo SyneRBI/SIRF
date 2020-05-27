@@ -549,8 +549,19 @@ class CoilSensitivityData(ImageData):
             (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
-    
 
+
+    def as_array(self):
+
+        dims = self.dimensions()
+        arr = ImageData.as_array(self)
+        
+        arr = numpy.reshape(arr, (dims[0]*dims[1],) + dims[2:])
+        arr = numpy.reshape(arr, (dims[1],) + (dims[0],) + dims[2:])
+        arr = numpy.swapaxes(arr,0,1)
+               
+        return arr
+        
 DataContainer.register(CoilSensitivityData)
 
 
