@@ -644,45 +644,63 @@ void* cReg_Registration_get_deformation_displacement_image(const void* ptr, cons
 extern "C"
 void* cReg_Registration_add_floating(const void* ptr, const void* im_ptr)
 {
-    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
-    std::shared_ptr<const ImageData> im_sptr;
-    getObjectSptrFromHandle<const ImageData>(im_ptr, im_sptr);
-    reg.add_floating_image(im_sptr);
-    return new DataHandle;
+    try {
+        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+        std::shared_ptr<const ImageData> im_sptr;
+        getObjectSptrFromHandle<const ImageData>(im_ptr, im_sptr);
+        reg.add_floating_image(im_sptr);
+        return new DataHandle;
+    }
+    CATCH;
 }
 extern "C"
 void* cReg_Registration_clear_floatings(const void* ptr)
 {
-    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
-    reg.clear_floating_images();
-    return new DataHandle;
+    try {
+        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+        reg.clear_floating_images();
+        return new DataHandle;
+    }
+    CATCH;
 }
 extern "C"
 void* cReg_Registration_get_output(const void* ptr,const int idx)
 {
-    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
-    return newObjectHandle(reg.get_output_sptr(unsigned(idx)));
+    try {
+        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+        return newObjectHandle(reg.get_output_sptr(unsigned(idx)));
+    }
+    CATCH;
 }
 extern "C"
 void* cReg_Registration_set_reference_image_filename(const void* ptr, const char* filename)
 {
-    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
-    reg.set_reference_image_filename(filename);
-    return new DataHandle;
+    try {
+        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+        reg.set_reference_image_filename(filename);
+        return new DataHandle;
+    }
+    CATCH;
 }
 extern "C"
 void* cReg_Registration_set_floating_image_filename(const void* ptr, const char* filename)
 {
-    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
-    reg.set_floating_image_filename(filename);
-    return new DataHandle;
+    try {
+        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+        reg.set_floating_image_filename(filename);
+        return new DataHandle;
+    }
+    CATCH;
 }
 extern "C"
 void* cReg_Registration_add_floating_image_filename(const void* ptr, const char* filename)
 {
-    Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
-    reg.add_floating_image_filename(filename);
-    return new DataHandle;
+    try {
+        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
+        reg.add_floating_image_filename(filename);
+        return new DataHandle;
+    }
+    CATCH;
 }
 // -------------------------------------------------------------------------------- //
 //      NiftyRegistration
@@ -736,8 +754,8 @@ void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir)
 extern "C"
 void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx)
 {
-#ifdef SIRF_SPM
     try {
+#ifdef SIRF_SPM
         SPMRegistration<float>& reg = objectFromHandle<SPMRegistration<float> >(ptr);
         std::shared_ptr<const AffineTransformation<float> > sptr;
         if (strcmp(dir, "forward") == 0)
@@ -747,11 +765,11 @@ void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int id
         else
             throw std::runtime_error("only accept forward or inverse as argument to dir for saving transformation matrix");
         return newObjectHandle(sptr);
+#else
+        throw std::runtime_error("cReg_SPMRegistration_get_TM: SPM not present, you shouldn't be here.");
+#endif
     }
     CATCH;
-#else
-    throw std::runtime_error("cReg_SPMRegistration_get_TM: SPM not present, you shouldn't be here.");
-#endif
 }
 // -------------------------------------------------------------------------------- //
 //      NiftyResample
@@ -1042,49 +1060,64 @@ void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr
 extern "C"
 void* cReg_AffineTransformation_get_average(const void* handle_vector_ptr)
 {
-    const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
-    std::vector<AffineTransformation<float> > vec;
-    for (unsigned i=0; i<handle_vector.size(); ++i)
-        vec.push_back(objectFromHandle<AffineTransformation<float> >(handle_vector.at(i)));
+    try {
+        const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+        std::vector<AffineTransformation<float> > vec;
+        for (unsigned i=0; i<handle_vector.size(); ++i)
+            vec.push_back(objectFromHandle<AffineTransformation<float> >(handle_vector.at(i)));
 
-    return newObjectHandle(
-                std::make_shared<AffineTransformation<float> >(AffineTransformation<float>::get_average(vec)));
+        return newObjectHandle(
+                    std::make_shared<AffineTransformation<float> >(AffineTransformation<float>::get_average(vec)));
+    }
+    CATCH;
 }
 extern "C"
 void* cReg_Quaternion_construct_from_array(size_t arr)
 {
-    float* arr_float = (float*)arr;
-    return newObjectHandle(
-                std::make_shared<Quaternion<float> >(arr_float[0],arr_float[1],arr_float[2],arr_float[3]));
+    try {
+        float* arr_float = (float*)arr;
+        return newObjectHandle(
+                    std::make_shared<Quaternion<float> >(arr_float[0],arr_float[1],arr_float[2],arr_float[3]));
+    }
+    CATCH;
 }
 
 extern "C"
 void* cReg_Quaternion_construct_from_AffineTransformation(const void* ptr)
 {
-    AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
-    return newObjectHandle(
-                std::make_shared<Quaternion<float> >(tm.get_quaternion()));
+    try {
+        AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
+        return newObjectHandle(
+                    std::make_shared<Quaternion<float> >(tm.get_quaternion()));
+    }
+    CATCH;
 }
 
 extern "C"
 void* cReg_Quaternion_get_average(const void *handle_vector_ptr)
 {
-    const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
-    std::vector<Quaternion<float> > vec;
-    for (unsigned i=0; i<handle_vector.size(); ++i)
-        vec.push_back(objectFromHandle<Quaternion<float> >(handle_vector.at(i)));
+    try {
+        const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+        std::vector<Quaternion<float> > vec;
+        for (unsigned i=0; i<handle_vector.size(); ++i)
+            vec.push_back(objectFromHandle<Quaternion<float> >(handle_vector.at(i)));
 
-    return newObjectHandle(
-                std::make_shared<Quaternion<float> >(Quaternion<float>::get_average(vec)));
+        return newObjectHandle(
+                    std::make_shared<Quaternion<float> >(Quaternion<float>::get_average(vec)));
+    }
+    CATCH;
 }
 
 extern "C"
 void* cReg_Quaternion_as_array(const void* ptr, size_t arr)
 {
-    Quaternion<float>& quat = objectFromHandle<Quaternion<float> >(ptr);
-    float* arr_float = (float*)arr;
-    std::array<float,4> quat_data = quat.get_data();
-    for (unsigned i=0; i<4; ++i)
-        arr_float[i] = quat_data[i];
-    return new DataHandle;
+    try {
+        Quaternion<float>& quat = objectFromHandle<Quaternion<float> >(ptr);
+        float* arr_float = (float*)arr;
+        std::array<float,4> quat_data = quat.get_data();
+        for (unsigned i=0; i<4; ++i)
+            arr_float[i] = quat_data[i];
+        return new DataHandle;
+    }
+    CATCH;
 }
