@@ -23,6 +23,10 @@ limitations under the License.
 \ingroup Registration
 \brief NiftyReg's f3d class for non-rigid registrations.
 
+The user has the choice to use the symmetric or non-symmetric version of the algorithm. 
+We believe there to be an upstream bug (https://github.com/KCL-BMEIS/niftyreg/issues/71)
+in the symmetric version, and therefore do not recommend using it until that issue is closed.
+
 \author Richard Brown
 \author CCP PETMR
 */
