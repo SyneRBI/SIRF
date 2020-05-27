@@ -46,6 +46,8 @@ public:
     /// Destructor
     virtual ~NonRigidTransformation() {}
 
+#ifndef _MSC_VER // need to disable on Visual Studio for https://github.com/SyneRBI/SIRF/issues/665
+
     /*! \brief Get inverse as unique pointer (potentially based on another image).
      *
      * Why would you want to base it on another image? Well, we might have a deformation
@@ -67,5 +69,7 @@ protected:
 
     /// Helper function for get_inverse (VTK). Don't use.
     virtual NonRigidTransformation* get_inverse_impl_vtk(const std::shared_ptr<const NiftiImageData<dataType> > image_sptr = nullptr) const = 0;
+#endif // _MSC_VER
 };
+
 }
