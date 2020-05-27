@@ -1,7 +1,7 @@
 # Note: with `language: cpp`, `cache: ccache` works
 # but `cache: pip` and `python:` is ignored
 language: cpp
-dist: xenial  # Ubuntu 14.04 LTS
+dist: bionic  # Ubuntu 18.04 LTS
 cache:  # cache C/C++/pip (shared between builds)
 - ccache
 - pip
@@ -66,10 +66,12 @@ matrix:
  include:
  # linux g{cc,++}-6 py{27,3}
  - os: linux
+   dist: xenial
    python: 3
    # -boost +fftw3 +hdf5 +ace
    env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
  - os: linux
+   dist: xenial
    python: 2.7
    # -boost +fftw3 +hdf5 +siemens_to_ismrmrd +swig +ace
    env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
