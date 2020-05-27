@@ -482,12 +482,14 @@ class ImageData(SIRF.ImageData):
         ny = dim[1]
         nz = dim[2]
         nc = dim[3]
+        
+        nz = nz*self.number()
+        
         if nc == 1: # for backward compatibility
-            nz = nz*nc*self.number()
             return nz, ny, nx
         else:
-            nz = nz*self.number()
             return nc, nz, ny, nx
+        
     def as_array(self):
         '''
         Returns all self's images as a 3D or 4D Numpy ndarray.
