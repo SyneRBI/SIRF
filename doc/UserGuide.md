@@ -180,7 +180,7 @@ and a method to create a copy of the object
 “Processing” classes normally use the following pattern 
 
     recon.set_input(acquisition_data); 
-    recon.setup(image_data); 
+    recon.set_up(image_data); 
     recon.process(); 
     output_image_data=recon.get_output(); 
 

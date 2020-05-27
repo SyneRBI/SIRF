@@ -108,7 +108,7 @@ plt.title('Combined image using sum-of-squares')
 csm = pMR.CoilSensitivityData()
 csm.smoothness = 4
 csm.calculate(preprocessed_data)
-csm_array = numpy.squeeze(csm.as_array(0))
+csm_array = numpy.squeeze(csm.as_array())[:, 0, :, :]
 
 # csm_array has orientation [coil, im_x, im_y]
 csm_array = csm_array.transpose([1, 0, 2])

@@ -725,10 +725,8 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 		xSTIR_IterativeReconstruction3DF& recon =
 			objectFromHandle<xSTIR_IterativeReconstruction3DF>(ptr_r);
 		Succeeded s = Succeeded::no;
-		if (!recon.post_process()) {
-			s = recon.setup(sptr_image);
-			recon.subiteration() = recon.get_start_subiteration_num();
-		}
+		s = recon.set_up(sptr_image);
+		recon.subiteration() = recon.get_start_subiteration_num();
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupReconstruction failed",
 				__FILE__, __LINE__);
@@ -782,8 +780,7 @@ void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i)
 		xSTIR_GeneralisedObjectiveFunction3DF& obj_fun =
 			objectFromHandle<xSTIR_GeneralisedObjectiveFunction3DF>(ptr_r);
 		Succeeded s = Succeeded::no;
-		if (!obj_fun.post_process())
-			s = obj_fun.set_up(sptr_image);
+		s = obj_fun.set_up(sptr_image);
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupObjectiveFunction failed",
 				__FILE__, __LINE__);
@@ -884,11 +881,6 @@ cSTIR_setupPrior(void* ptr_p, void* ptr_i)
 		// (valid for as long as the argument of prior.set_up() is not used)
 		//sptrImage3DF sptr_img(new Voxels3DF);
 		prior.set_up(sptr_img);
-		if (prior.post_process()){
-			ExecutionStatus status("cSTIR_setupPrior failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
 		return handle;
 	}
 	CATCH;
