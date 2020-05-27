@@ -127,132 +127,6 @@ def mr_data_path():
 ##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
 
-class CoilSensitivityData(DataContainer):
-    '''
-    Class for a coil sensitivity maps (csm) container.
-    Each item in the container is a 4D complex array of csm values on an 
-    xyz-slice (z-dimension is normally 1).
-    '''
-    def __init__(self):
-        self.handle = None
-        self.smoothness = 0
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    def same_object(self):
-        return CoilSensitivityData()
-    def read(self, file):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-        self.handle = pygadgetron.cGT_CoilSensitivities(file)
-        check_status(self.handle)
-    def calculate(self, data, method=None):
-        '''
-        Calculates coil sensitivity maps from coil images or sorted 
-        acquisitions.
-        data  : either AcquisitionData or CoilImages
-        method: either SRSS (Square Root of the Sum of Squares, default) or 
-                Inati
-        '''
-        if isinstance(data, AcquisitionData):
-            if data.is_sorted() is False:
-                print('WARNING: acquisitions may be in a wrong order')
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-        self.handle = pygadgetron.cGT_CoilSensitivities('')
-        check_status(self.handle)
-        if method is not None:
-            method_name, parm_list = name_and_parameters(method)
-            parm = parse_arglist(parm_list)
-        else:
-            method_name = 'SRSS'
-            parm = {}
-        if isinstance(data, AcquisitionData):
-            assert data.handle is not None
-            parms.set_int_par\
-                (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
-            try_calling(pygadgetron.cGT_computeCoilSensitivities \
-                (self.handle, data.handle))
-        elif isinstance(data, ImageData):
-            assert data.handle is not None
-            if method_name == 'Inati':
-                try:
-                    from ismrmrdtools import coils
-                except:
-                    raise error('Inati method requires ismrmrd-python-tools')
-                cis_array = data.as_array()
-                csm, _ = coils.calculate_csm_inati_iter(cis_array)
-                self.append(csm.astype(numpy.complex64))
-            elif method_name == 'SRSS':
-                if 'niter' in parm:
-                    nit = int(parm['niter'])
-                    parms.set_int_par \
-                        (self.handle, 'coil_sensitivity', 'smoothness', nit)
-                try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromGadgetronImages \
-                    (self.handle, data.handle))
-            else:
-                raise error('Unknown method %s' % method_name)
-        else:
-            raise error('Cannot calculate coil sensitivities from %s' % \
-                        repr(type(data)))
-    def append(self, csm):
-        '''
-        Appends a coil sensitivity map to self.
-        csm: Numpy ndarray with csm values
-        '''
-        if self.handle is None:
-            self.handle = pygadgetron.cGT_CoilSensitivities('')
-            check_status(self.handle)
-        shape = csm.shape
-        nc = shape[0]
-        if csm.ndim == 4:
-            nz = shape[1]
-            iy = 2
-        else:
-            nz = 1
-            iy = 1
-        ny = shape[iy]
-        nx = shape[iy + 1]
-        re = csm.real.copy()
-        im = csm.imag.copy()
-        handle = pygadgetron.cGT_appendCSM \
-            (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def dimensions(self):
-        '''
-        Returns each csm dimensions as a tuple (nc, nz, ny, nx),
-        where nc is the number of active coils and nx, ny, nz are slice
-        dimensions.
-        '''
-        assert self.handle is not None
-        dim = numpy.ndarray((4,), dtype=numpy.int32)
-        pygadgetron.cGT_getCoilDataDimensions(self.handle, 0, dim.ctypes.data)
-        return tuple(dim[::-1])
-    def as_array(self):
-        '''
-        Returns specified csm as Numpy ndarray.
-        csm_num: csm (slice) number
-        '''
-        assert self.handle is not None
-        nm = self.number()
-        nc, nz, ny, nx = self.dimensions()
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nm*nz, ny, nx), dtype=numpy.complex64)
-        re = numpy.ndarray((nc, nz, ny, nx), dtype=numpy.float32)
-        im = numpy.ndarray((nc, nz, ny, nx), dtype=numpy.float32)
-        i = 0
-        for m in range(nm):
-            pygadgetron.cGT_getCoilData \
-                (self.handle, m, re.ctypes.data, im.ctypes.data)
-            j = i + nz
-            array[:, i : j, :, :] = re + 1j * im
-            i = j
-        return array
-
-DataContainer.register(CoilSensitivityData)
-
 class Image(object):
     '''
     Class for an MR image.
@@ -582,6 +456,104 @@ class ImageData(SIRF.ImageData):
         try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
 
 SIRF.ImageData.register(ImageData)
+
+class CoilSensitivityData(ImageData):
+    '''
+    Class for a coil sensitivity maps (csm) container.
+    Each item in the container is a 4D complex array of csm values on an 
+    xyz-slice (z-dimension is normally 1).
+    '''
+    def __init__(self):
+        self.handle = None
+        self.smoothness = 0
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def same_object(self):
+        return CoilSensitivityData()
+    def read(self, file):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pygadgetron.cGT_CoilSensitivities(file)
+        check_status(self.handle)
+    def calculate(self, data, method=None):
+        '''
+        Calculates coil sensitivity maps from coil images or sorted 
+        acquisitions.
+        data  : either AcquisitionData or CoilImages
+        method: either SRSS (Square Root of the Sum of Squares, default) or 
+                Inati
+        '''
+        if isinstance(data, AcquisitionData):
+            if data.is_sorted() is False:
+                print('WARNING: acquisitions may be in a wrong order')
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pygadgetron.cGT_CoilSensitivities('')
+        check_status(self.handle)
+        if method is not None:
+            method_name, parm_list = name_and_parameters(method)
+            parm = parse_arglist(parm_list)
+        else:
+            method_name = 'SRSS'
+            parm = {}
+        if isinstance(data, AcquisitionData):
+            assert data.handle is not None
+            parms.set_int_par\
+                (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
+            try_calling(pygadgetron.cGT_computeCoilSensitivities \
+                (self.handle, data.handle))
+        elif isinstance(data, ImageData):
+            assert data.handle is not None
+            if method_name == 'Inati':
+                try:
+                    from ismrmrdtools import coils
+                except:
+                    raise error('Inati method requires ismrmrd-python-tools')
+                cis_array = data.as_array()
+                csm, _ = coils.calculate_csm_inati_iter(cis_array)
+                self.append(csm.astype(numpy.complex64))
+            elif method_name == 'SRSS':
+                if 'niter' in parm:
+                    nit = int(parm['niter'])
+                    parms.set_int_par \
+                        (self.handle, 'coil_sensitivity', 'smoothness', nit)
+                try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromGadgetronImages \
+                    (self.handle, data.handle))
+            else:
+                raise error('Unknown method %s' % method_name)
+        else:
+            raise error('Cannot calculate coil sensitivities from %s' % \
+                        repr(type(data)))
+    def append(self, csm):
+        '''
+        Appends a coil sensitivity map to self.
+        csm: Numpy ndarray with csm values
+        '''
+        if self.handle is None:
+            self.handle = pygadgetron.cGT_CoilSensitivities('')
+            check_status(self.handle)
+        shape = csm.shape
+        nc = shape[0]
+        if csm.ndim == 4:
+            nz = shape[1]
+            iy = 2
+        else:
+            nz = 1
+            iy = 1
+        ny = shape[iy]
+        nx = shape[iy + 1]
+        re = csm.real.copy()
+        im = csm.imag.copy()
+        handle = pygadgetron.cGT_appendCSM \
+            (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
+        check_status(handle)
+        pyiutil.deleteDataHandle(handle)
+    
+
+DataContainer.register(CoilSensitivityData)
+
+
 
 class Acquisition(object):
     def __init__(self, file = None):
