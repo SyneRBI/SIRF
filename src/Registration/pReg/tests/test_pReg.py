@@ -184,7 +184,7 @@ def try_niftiimage():
 
     # Get voxel sizes
     s = b.get_voxel_sizes()
-    if not all(numpy.equal(s,numpy.array([0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]))):
+    if not all(np.equal(s,np.array([0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]))):
         raise AssertionError("NiftiImageData get_voxel_sizes() failed.")
 
     # Check upsampling/downsampling
@@ -222,8 +222,8 @@ def try_niftiimage():
     # Test that fill works regardless of C- or F-style numpy arrays
     im = sirf.Reg.NiftiImageData(ref_aladin_filename)
     arr = im.as_array()
-    arr_C = numpy.ascontiguousarray(arr)
-    arr_F = numpy.asfortranarray(arr)
+    arr_C = np.ascontiguousarray(arr)
+    arr_F = np.asfortranarray(arr)
     im.fill(arr_C)
     arr_C2 = im.as_array()
     im.fill(arr_F)
@@ -234,7 +234,7 @@ def try_niftiimage():
     # Compare between sirf.Reg.NiftiImageData::as_array() and nibabel
     arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
     arr2 = nib.load(ref_aladin_filename).get_fdata()
-    if not numpy.array_equal(arr1,arr2):
+    if not np.array_equal(arr1,arr2):
         raise AssertionError("NiftiImageData as_array() failed.")
 
     # Test geom info
@@ -815,7 +815,7 @@ def try_niftyf3d():
     # Compare between sirf.Reg.NiftiImageData3DDefofmation::as_array() and nibabel
     deff_arr = def_forward.as_array()
     deff_nib_arr = nib.load(f3d_def_forward).get_fdata()
-    if not numpy.array_equal(deff_arr, deff_nib_arr):
+    if not np.array_equal(deff_arr, deff_nib_arr):
         raise AssertionError("NiftiImageData3DDeformation as_array() failed.")
 
     # Check as_array and fill for deformation fields
@@ -1088,7 +1088,7 @@ def try_affinetransformation(na):
         raise AssertionError('AffineTransformation::get_determinant failed.')
 
     # Test get_Euler_angles
-    array = np.zeros((4, 4), dtype=numpy.float32)
+    array = np.zeros((4, 4), dtype=np.float32)
 
     array[0,2] =  1
     array[1,1] = -1
@@ -1111,10 +1111,10 @@ def try_affinetransformation(na):
         raise AssertionError('AffineTransformation as_array() failed.')
 
     # Average!
-    trans = np.array([0., 0., 0.],dtype=numpy.float32)
-    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=numpy.float32)
-    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=numpy.float32)
-    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=numpy.float32)
+    trans = np.array([0., 0., 0.],dtype=np.float32)
+    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=np.float32)
+    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=np.float32)
+    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=np.float32)
     quat_1 = sirf.Reg.Quaternion(quat_1_array)
     quat_2 = sirf.Reg.Quaternion(quat_2_array)
     quat_3 = sirf.Reg.Quaternion(quat_3_array)
@@ -1122,7 +1122,7 @@ def try_affinetransformation(na):
     tm_2 = sirf.Reg.AffineTransformation(trans,quat_2)
     tm_3 = sirf.Reg.AffineTransformation(trans,quat_3)
     average = sirf.Reg.AffineTransformation.get_average([tm_1, tm_2, tm_3])
-    exptd_avg_array = np.zeros((4, 4), dtype=numpy.float32)
+    exptd_avg_array = np.zeros((4, 4), dtype=np.float32)
     exptd_avg_array[0][0] =  0.5836;
     exptd_avg_array[0][1] = -0.6736;
     exptd_avg_array[0][2] =  0.4535;
@@ -1154,7 +1154,7 @@ def try_quaternion():
     time.sleep(0.5)
 
     # Construct TM
-    array = np.zeros((4, 4), dtype=numpy.float32)
+    array = np.zeros((4, 4), dtype=np.float32)
     array[0,2] = 1
     array[1,1] = 1
     array[2,0] = -1
@@ -1168,7 +1168,7 @@ def try_quaternion():
         raise AssertionError()
 
     # Construct from numpy array
-    expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=numpy.float32)
+    expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=np.float32)
     expt = sirf.Reg.Quaternion(expt_array)
     if expt is None:
         raise AssertionError()
@@ -1178,7 +1178,7 @@ def try_quaternion():
         raise AssertionError('Quaternion from TM failed.')
 
     # Convert back to TM
-    trans_array = np.array([0., 0., 0.],dtype=numpy.float32)
+    trans_array = np.array([0., 0., 0.],dtype=np.float32)
     affine = sirf.Reg.AffineTransformation(trans_array,quat)
     if affine != rotm:
         raise AssertionError('TM to quaternion failed.')
@@ -1189,13 +1189,13 @@ def try_quaternion():
         raise AssertionError('AffineTransformation:get_quaternion() failed.')
 
     # Average!
-    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=numpy.float32)
-    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=numpy.float32)
-    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=numpy.float32)
+    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=np.float32)
+    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=np.float32)
+    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=np.float32)
     quat_1 = sirf.Reg.Quaternion(quat_1_array)
     quat_2 = sirf.Reg.Quaternion(quat_2_array)
     quat_3 = sirf.Reg.Quaternion(quat_3_array)
-    exptd_avg_array = np.array([0.88748, -0.0647152, 0.281671, 0.35896],dtype=numpy.float32)
+    exptd_avg_array = np.array([0.88748, -0.0647152, 0.281671, 0.35896],dtype=np.float32)
     exptd_average = sirf.Reg.Quaternion(exptd_avg_array)
     average = sirf.Reg.Quaternion.get_average([quat_1, quat_2, quat_3])
     if not np.allclose(exptd_average.as_array(), average.as_array(), atol=1e-4):
