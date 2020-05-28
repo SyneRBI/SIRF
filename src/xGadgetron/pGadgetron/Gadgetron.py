@@ -368,19 +368,34 @@ class ImageData(SIRF.ImageData):
         '''
         Returns all self's images as a 3D or 4D Numpy ndarray.
         '''
+        dims = self.dimensions()
+        
         assert self.handle is not None
         if self.number() < 1:
             return numpy.ndarray((0,), dtype = numpy.float32)
         if self.is_real():
-            array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
+            array = numpy.ndarray(dims, dtype = numpy.float32)
             try_calling(pygadgetron.cGT_getImageDataAsFloatArray\
                 (self.handle, array.ctypes.data))
-            return array
         else:
-            z = numpy.ndarray(self.dimensions(), dtype = numpy.complex64)
+            array = numpy.ndarray(dims, dtype = numpy.complex64)
             try_calling(pygadgetron.cGT_getImageDataAsCmplxArray\
-                (self.handle, z.ctypes.data))
-            return z
+                (self.handle, array.ctypes.data))
+                
+        if len(dims) != 4:
+            return array
+
+        nc, nz, ny, nx = dims
+        ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+        nz = nz//ns        # z-dimension of a slice
+
+        # hope numpy is clever enough to do all this in-place:
+        array = numpy.reshape(array, (ns, nc, nz, ny, nx))
+        array = numpy.swapaxes(array,0,1)
+        array = numpy.reshape(array, (nc, ns*nz, ny, nx))
+
+        return array
+                
     def copy(self):
         '''alias of clone'''
         return self.clone()
@@ -549,22 +564,8 @@ class CoilSensitivityData(ImageData):
             (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
-
-
-    def as_array(self):
-
-        dims = self.dimensions()
-        arr = ImageData.as_array(self)
-        
-        arr = numpy.reshape(arr, (dims[0]*dims[1],) + dims[2:])
-        arr = numpy.reshape(arr, (dims[1],) + (dims[0],) + dims[2:])
-        arr = numpy.swapaxes(arr,0,1)
-               
-        return arr
         
 DataContainer.register(CoilSensitivityData)
-
-
 
 class Acquisition(object):
     def __init__(self, file = None):
