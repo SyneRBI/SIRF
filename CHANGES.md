@@ -21,6 +21,7 @@
 * Ability to pad `NiftiImageData`, e.g., `a.pad([10,10,0],[10,10,0])` to add 10 voxels to the minimum and maximum of the x- and y-directions.
 * Ability to set and get STIR verbosity from python.
 * Save STIR images using a parameter file (e.g., for saving as `.nii`)
+* Default F3d to using non-symmetric version (previously, symmetric was used). Option to use the symmetric in C++, but currently exposed to python and matlab as we suspect there is an upstream bug there.
 
 ## v2.1.0
 

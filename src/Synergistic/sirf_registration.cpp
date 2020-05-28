@@ -48,7 +48,7 @@ enum Algorithm {
 
 static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
 {
-    if      (strcmp(engine.c_str(), "Nifti") == 0)
+    if      (strcmp(engine.c_str(), "Reg") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(filename);
     else if (strcmp(engine.c_str(), "STIR") == 0)
         return std::make_shared<const STIRImageData>(filename);
