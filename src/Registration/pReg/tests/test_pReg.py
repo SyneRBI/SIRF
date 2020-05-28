@@ -60,8 +60,8 @@ aladin_def_inverse = output_prefix + "aladin_def_inverse.nii"
 aladin_def_fwd_inv = output_prefix + "aladin_def_fwd_then_inv.nii"
 aladin_disp_forward = output_prefix + "aladin_disp_forward.nii"
 aladin_disp_inverse = output_prefix + "aladin_disp_inverse_%s.nii"
-f3d_def_forward = output_prefix + "f3d_disp_forward.nii"
-f3d_def_inverse = output_prefix + "f3d_disp_inverse_%s.nii"
+f3d_def_forward = output_prefix + "f3d_def_forward.nii"
+f3d_def_inverse = output_prefix + "f3d_def_inverse_%s.nii"
 f3d_disp_forward = output_prefix + "f3d_disp_forward.nii"
 f3d_disp_inverse = output_prefix + "f3d_disp_inverse_%s.nii"
 
@@ -377,6 +377,13 @@ def try_niftiimage3d():
     h = d/10000;
     if abs(h.get_max()-d.get_max()/10000) > 1e-4:
         raise AssertionError('NiftiImageData3D linear algebra failed.')
+
+    # Check as_array and fill is symmetric
+    ref_aladin_arr = ref_aladin.as_array()
+    ref_aladin2 = ref_aladin.clone()
+    ref_aladin2.fill(ref_aladin_arr)
+    if ref_aladin2 != ref_aladin:
+        raise AssertionError("NiftiImageData3D::as_array()/fill() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -766,6 +773,16 @@ def try_niftyf3d():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
+    # Crop input to increase speed
+    dim = ref_f3d.get_dimensions()
+    mid = dim[1:4]//2
+    min_idx = [ mid[0]-5,mid[1]-5,mid[2]-5,0,0,0,0 ]
+    max_idx = [ mid[0]+5,mid[1]+4,mid[2]+3,0,0,0,0 ]
+    ref_f3d_crop = ref_f3d.clone()
+    ref_f3d_crop.crop(min_idx, max_idx)
+    flo_f3d_crop = flo_f3d.clone()
+    flo_f3d_crop.crop(min_idx, max_idx)
+
     # Get initial transformation
     tm_init = sirf.Reg.AffineTransformation(TM_forward)
 
@@ -774,8 +791,8 @@ def try_niftyf3d():
 
     # default constructor
     nf = sirf.Reg.NiftyF3dSym()
-    nf.set_reference_image(ref_f3d)
-    nf.set_floating_image(flo_f3d)
+    nf.set_reference_image(ref_f3d_crop)
+    nf.set_floating_image(flo_f3d_crop)
     nf.set_parameter_file(parameter_file_f3d)
     nf.set_reference_time_point(1)
     nf.set_floating_time_point(1)
@@ -794,6 +811,18 @@ def try_niftyf3d():
     def_inverse.write_split_xyz_components(f3d_def_inverse)
     disp_forward.write(f3d_disp_forward)
     disp_inverse.write_split_xyz_components(f3d_disp_inverse)
+
+    # Compare between sirf.Reg.NiftiImageData3DDefofmation::as_array() and nibabel
+    deff_arr = def_forward.as_array()
+    deff_nib_arr = nib.load(f3d_def_forward).get_fdata()
+    if not numpy.array_equal(deff_arr, deff_nib_arr):
+        raise AssertionError("NiftiImageData3DDeformation as_array() failed.")
+
+    # Check as_array and fill for deformation fields
+    deff2 = def_forward.clone()
+    deff2.fill(deff_arr)
+    if deff2 != def_forward:
+        raise AssertionError("NiftiImageData3DDeformation::as_array()/fill() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
