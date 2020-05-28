@@ -233,7 +233,7 @@ void* cReg_NiftiImageData_fill_arr(const void* ptr, size_t ptr_data)
                 for (int y=0; y<dim_y; ++y) {
                     for (int z=0; z<dim_z; ++z) {
                         int nifti_idx[7] = { x,y,z,0,u,0,0 };
-                        wrap_idx  = u + dim_u*(x + dim_x*(y + dim_y*(z)));
+                        wrap_idx  = x + dim_x*(y + dim_y*(z + dim_z*(u)));
                         im(nifti_idx) = data[wrap_idx];
                     }
                 }
