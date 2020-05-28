@@ -57,13 +57,13 @@ classdef GadgetChain < handle
 %         end
         function set_host(self, host)
             handle = calllib('mgadgetron', 'mGT_setHost', self.handle_, host);
-            mUtilities.check_status(self.name_, handle);
-            mUtilities.delete(handle)
+            sirf.Utilities.check_status(self.name_, handle);
+            sirf.Utilities.delete(handle)
         end
         function set_port(self, port)
             handle = calllib('mgadgetron', 'mGT_setPort', self.handle_, port);
-            mUtilities.check_status(self.name_, handle);
-            mUtilities.delete(handle)
+            sirf.Utilities.check_status(self.name_, handle);
+            sirf.Utilities.delete(handle)
         end
         function add_gadget(self, id, gadget)
 %***SIRF*** add_gadget(id, gadget) adds a gadget to the chain.

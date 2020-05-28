@@ -83,18 +83,19 @@ complex_image_data = recon.get_output();
 % extract real images using Images processing chain
 % Note this still returns an sirf.Gadgetron.ImageData object that requires use
 % of as_array() or show() to visulaise.
-img_proc = MR.ImageDataProcessor({'ExtractGadget'});
-fprintf('processing images...\n')
-img_proc.set_input(complex_image_data)
-img_proc.process();
-real_image_data = img_proc.get_output();
-% a shortcut for the above 3 lines
-% real_image_data = img_proc.process(complex_image_data);
+% Third chain removed because of Gadgetron bug in ExtractGadget.
+% img_proc = MR.ImageDataProcessor({'ExtractGadget'});
+% fprintf('processing images...\n')
+% img_proc.set_input(complex_image_data)
+% img_proc.process();
+% real_image_data = img_proc.get_output();
+% % a shortcut for the above 3 lines
+% % real_image_data = img_proc.process(complex_image_data);
 
 % show obtained images
 % See other demos for use of as_array() to extract a MATLAB array and then
 % plot
 title = 'Reconstructed image data (magnitude)';
-sirf.Utilities.show_3D_array(abs(real_image_data.as_array()), title, ...
+sirf.Utilities.show_3D_array(abs(complex_image_data.as_array()), title, ...
     'samples', 'readouts', 'slice');
 
