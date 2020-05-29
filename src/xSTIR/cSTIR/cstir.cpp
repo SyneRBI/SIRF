@@ -239,8 +239,9 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			return newObjectHandle(sptr);
 		}
 		if (boost::iequals(name, "AcquisitionData")) {
-			shared_ptr<PETAcquisitionData> 
-				sptr(new PETAcquisitionDataInFile(filename));
+            shared_ptr<PETAcquisitionData> sptr(new PETAcquisitionDataInFile(filename));
+            if (PETAcquisitionData::storage_scheme().compare("memory") == 0)
+                sptr.reset(new PETAcquisitionDataInMemory(*sptr));
 			return newObjectHandle(sptr);
 		}
 		if (boost::iequals(name, "ListmodeToSinograms")) {
