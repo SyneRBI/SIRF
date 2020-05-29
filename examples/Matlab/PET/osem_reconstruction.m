@@ -50,6 +50,9 @@ try
     % object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0);
 
+    fprintf('setting up acquisition model...\n')
+    acq_model.set_up(acq_data, image);
+
     % create objective function of Poisson logarithmic likelihood type
     % compatible with the acquisition data type
     obj_fun = PET.make_Poisson_loglikelihood(acq_data);
