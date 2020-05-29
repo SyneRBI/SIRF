@@ -1,5 +1,9 @@
 # ChangeLog
 
+## vX.X.X
+
+* if `storage_scheme` is set to `memory`, then `PETAcquisitionData` will now contain `ProjDataInMemory`, instead of `ProjDataFromStream`. As such, if storage scheme is set to memory, it will now be possible to open a PET acquisition data and modify it directly, whereas before a copy would need to be created first.
+
 ## v2.2.0-rc.1
 
 * A passthrough for both the maximum and minimum relative change during OSMAPOSL reconstruction has been added.
