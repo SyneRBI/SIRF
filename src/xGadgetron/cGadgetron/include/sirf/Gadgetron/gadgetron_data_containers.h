@@ -24,6 +24,7 @@ limitations under the License.
 \brief Specification file for data container classes for Gadgetron data.
 
 \author Evgueni Ovtchinnikov
+\author Johannes Mayer
 \author CCP PETMR
 */
 

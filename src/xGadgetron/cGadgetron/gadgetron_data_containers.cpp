@@ -25,6 +25,7 @@ limitations under the License.
 \brief Implementation file for SIRF data container classes for Gadgetron data.
 
 \author Evgueni Ovtchinnikov
+\author Johannes Mayer
 \author CCP PETMR
 */
 #include <cmath>
