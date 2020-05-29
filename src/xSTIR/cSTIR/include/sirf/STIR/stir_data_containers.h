@@ -438,9 +438,11 @@ namespace sirf {
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
-        PETAcquisitionDataInMemory(const char* filename)
+        /// Constructor that reads as PETAcquisitionDataInFile then converts to PETAcquisitionDataInMemory
+        PETAcquisitionDataInMemory(const char* filename) :
+            PETAcquisitionDataInMemory(PETAcquisitionDataInFile(filename))
         {
-            PETAcquisitionDataInMemory(PETAcquisitionDataInFile(filename));
+
         }
 
 		static void init() 
