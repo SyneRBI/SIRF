@@ -524,6 +524,9 @@ class NiftiImageData3DTensor(NiftiImageData):
 class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
     """
     Class for 3D displacement nifti image data.
+
+    Displacement fields (as opposed to Deformation fields) describe the change (in real world units) of the pixel locations between images.
+    A displacement field of an identity transformation will be of zero value.
     """
     def __init__(self, src1=None, src2=None, src3=None):
         self.handle = None
@@ -549,6 +552,9 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
 class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
     """
     Class for 3D deformation nifti image data.
+
+    Deformation fields (as opposed to Displacement fields) describe the absolute position (in real world units) of the pixel locations on the reference image.
+    A deformation field of an identity transformation will contain the location of each of the pixels centroids in the world coordinates.
     """
 
     def __init__(self, src1=None, src2=None, src3=None):

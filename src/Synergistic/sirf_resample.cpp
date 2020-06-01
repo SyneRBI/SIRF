@@ -83,8 +83,8 @@ void print_usage()
     std::cout << "    -output:\t\toutput image filename\n";
     std::cout << "    -interp:\t\tinterpolation (0=NN, 1=linear, 3=cubic, 4=spline)\n";
     std::cout << "    -add_affine:\tadd affine transformation\n";
-    std::cout << "    -add_def:\t\tadd deformation transformation\n";
-    std::cout << "    -add_disp:\t\tadd displacement transformation\n";
+    std::cout << "    -add_def:\t\tadd deformation transformation (Deformation fields encode absolute locations)\n";
+    std::cout << "    -add_disp:\t\tadd displacement transformation (Displacement fields encode relative change)\n";
     std::cout << "    -adj:\t\tadjoint transformation. Give ref and flo as you would in the forward case.\n";
 
 }
