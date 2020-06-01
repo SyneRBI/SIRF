@@ -1,5 +1,8 @@
 classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Reg.Transformation
 % Class for deformation image data.
+%
+% Deformation fields (as opposed to Displacement fields) describe the absolute position (in real world units) of the pixel locations on the reference image.
+% A deformation field of an identity transformation will contain the location of each of the pixels centroids in the world coordinates.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018-2019 University College London
