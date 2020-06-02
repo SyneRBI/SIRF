@@ -553,6 +553,8 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
         throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
 
     this->zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
 }
 
 void
@@ -574,6 +576,9 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
 
     // Zoom the image
     voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
+
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
 }
 
 void
@@ -581,6 +586,9 @@ STIRImageData::
 move_to_scanner_centre(const PETAcquisitionData &)
 {
     this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
+
+    // Need to modify the geom info after mod
+    set_up_geom_info();
 }
 
 void
