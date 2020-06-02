@@ -40,8 +40,10 @@ template<class dataType> class NiftiImageData3D;
 \ingroup Registration
 \brief Class for displacement SIRF image data.
 
+Displacement fields (as opposed to Deformation fields) describe the change (in real world units) of the pixel locations between images.
+A displacement field of an identity transformation will be of zero value.
 Here, we require ndim == 5, nt == 1 (so contains x,y,z dimensions as well as u==3 for the tensor component).
-Also require intent_p1 == DISP_FIELD.
+Also require intent_p1 == DISP_FIELD. 
 
 \author Richard Brown
 \author CCP PETMR

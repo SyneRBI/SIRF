@@ -13,8 +13,8 @@ Options:
   --algo <algo>                registration algorithm (aladin,f3d,spm) [default: aladin]
 
   --warped_prefix <file>       warped image filename prefix
-  --disp_fwd_prefix <file>     forward displacement field image
-  --def_fwd_prefix <file>      forward deformation field image
+  --disp_fwd_prefix <file>     forward displacement field image, Displacement fields encode relative change
+  --def_fwd_prefix <file>      forward deformation field image,  Deformation fields encode absolute locations
   --disp_inv_prefix <file>     inverse displacement field image
   --def_inv_prefix <file>      inverse deformation field image
 

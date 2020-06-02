@@ -42,6 +42,8 @@ template<class dataType> class NiftiImageData3DDisplacement;
 \ingroup Registration
 \brief Class for deformation SIRF image data.
 
+Deformation fields (as opposed to Displacement fields) describe the absolute position (in real world units) of the pixel locations on the reference image.
+A deformation field of an identity transformation will contain the location of each of the pixels centroids in the world coordinates.
 Here, we require ndim == 5, nt == 1 (so contains x,y,z dimensions as well as u==3 for the tensor component).
 Also require intent_p1 == DEF_FIELD.
 

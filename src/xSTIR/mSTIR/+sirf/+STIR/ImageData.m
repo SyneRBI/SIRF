@@ -186,6 +186,10 @@ classdef ImageData < sirf.SIRF.ImageData
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
         function write(self,filename,par)
+            if nargin < 3
+                write@sirf.SIRF.ImageData(self, filename)
+                return
+            end
         %Write with parameter file
             h = calllib...
                 ('mstir', 'mSTIR_writeImage_par', self.handle_, filename, par);

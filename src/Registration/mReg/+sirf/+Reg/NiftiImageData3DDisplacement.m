@@ -1,5 +1,8 @@
 classdef NiftiImageData3DDisplacement < sirf.Reg.NiftiImageData3DTensor & sirf.Reg.Transformation
 % Class for displacement image data.
+%
+% Displacement fields (as opposed to Deformation fields) describe the change (in real world units) of the pixel locations between images
+% A displacement field of an identity transformation will be of zero value.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018-2019 University College London
