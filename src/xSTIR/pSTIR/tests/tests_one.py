@@ -64,7 +64,7 @@ def test_main(rec=False, verb=False, throw=True):
     test.check(s)
     test.check(v)
     print("Printing AcqData info")
-    ad.print_info()
+    print(ad.get_info())
 
     filter = TruncateToCylinderProcessor()
 
