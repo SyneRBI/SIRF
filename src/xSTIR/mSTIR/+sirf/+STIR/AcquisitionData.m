@@ -227,5 +227,14 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             ad = sirf.STIR.AcquisitionData(self);
             ad.fill(value)
         end
+        function print_info(self)
+            %Print the AcquisitionData's metadata.
+            h = calllib...
+                ('mstir', 'mSTIR_get_ProjDataInfo', self.handle_);
+            sirf.Utilities.check_status([self.name ':print_info'], h);
+            Info = calllib('miutilities', 'mCharDataFromHandle', h);
+            sirf.Utilities.delete(h)
+            disp(Info)
+        end
     end
 end

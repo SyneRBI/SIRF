@@ -63,6 +63,8 @@ def test_main(rec=False, verb=False, throw=True):
     v = var(adata)
     test.check(s)
     test.check(v)
+    print("Printing AcqData info")
+    ad.print_info()
 
     filter = TruncateToCylinderProcessor()
 

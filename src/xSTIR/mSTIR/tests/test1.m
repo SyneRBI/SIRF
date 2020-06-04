@@ -41,6 +41,8 @@ s = acq_data.norm();
 v = variance(acq_data);
 test.check(s)
 test.check(v)
+disp("Printing AcqData info")
+acq_data.print_info();
 
 image = PET.ImageData();
 image_size = [111, 111, 31];

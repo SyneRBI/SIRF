@@ -833,6 +833,13 @@ class AcquisitionData(DataContainer):
         else:
             out = self.get_uniform_copy(value)
         return out
+    def print_info(self):
+        """Print the AcquisitionData's metadata."""
+        handle = pystir.cSTIR_get_ProjDataInfo(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        print(info)
 ##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
