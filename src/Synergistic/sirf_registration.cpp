@@ -99,9 +99,9 @@ void print_usage()
     // Optional flags
     std::cout << "\n  Optional flags:\n";
     std::cout << "    --warped_prefix <fname>:\twarped image filename\n";
-    std::cout << "    --disp_fwd_prefix <fname>:\tforward displacement field image\n";
+    std::cout << "    --disp_fwd_prefix <fname>:\tforward displacement field image (Displacement fields encode relative change)\n";
     std::cout << "    --disp_inv_prefix <fname>:\tinverse displacement field image\n";
-    std::cout << "    --def_fwd_prefix <fname>:\tforward deformation field image\n";
+    std::cout << "    --def_fwd_prefix <fname>:\tforward deformation field image (Deformation fields encode absolute locations)\n";
     std::cout << "    --def_inv_prefix <fname>:\tinverse deformation field image\n";
 
     // Optional rigid/affine flags

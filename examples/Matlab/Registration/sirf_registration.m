@@ -17,9 +17,9 @@ function sirf_registration(varargin)
 %   -------------------------------------------------------------
 %
 %   --warped_prefix <fname>      warped image filename
-%   --disp_fwd_prefix <fname>    forward displacement field image
+%   --disp_fwd_prefix <fname>    forward displacement field image, Displacement fields encode relative change
 %   --disp_inv_prefix <fname>    inverse displacement field image
-%   --def_fwd_prefix <fname>     forward deformation field image
+%   --def_fwd_prefix <fname>     forward deformation field image,  Deformation fields encode absolute locations
 %   --def_inv_prefix <fname>     inverse deformation field image
 %
 %   Optional arguments for rigid/affine algorithms (aladin/spm)

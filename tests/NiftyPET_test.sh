@@ -62,7 +62,7 @@ compare_sinos_stir_space() {
 	sino_stir=$1
 	sino_np=$2
 	sino_np_2_stir=STIR_${sino_np%.*}.hs
-	conv_niftypet_stir $sino_np_2_stir $sino_np sinogram toSTIR
+	conv_NiftyPET_stir $sino_np_2_stir $sino_np sinogram toSTIR
 	res=$?; if [ $res -ne 0 ]; then echo "Exiting at line $LINENO"; exit $res; fi
 	$SIRF_PY_EXE -c \
 "import sys
@@ -87,7 +87,7 @@ compare_sinos_np_space() {
 	sino_np=$1
 	sino_stir=$2
 	sino_stir_2_np=NP_${sino_stir%.*}.dat
-	conv_niftypet_stir $sino_stir_2_np $sino_stir sinogram toNP
+	conv_NiftyPET_stir $sino_stir_2_np $sino_stir sinogram toNP
 	res=$?; if [ $res -ne 0 ]; then echo "Exiting at line $LINENO"; exit $res; fi
 	$SIRF_PY_EXE -c \
 "import sys
@@ -120,7 +120,7 @@ compare_ims_stir_space() {
 	im_np=$2
 	im_np_2_stir_base=STIR_${im_np%.*}
 	im_np_2_stir=STIR_${im_np%.*}.nii
-	conv_niftypet_stir $im_np_2_stir_base $im_np image toSTIR && \
+	conv_NiftyPET_stir $im_np_2_stir_base $im_np image toSTIR && \
 		sirf_convert_image_type $im_np_2_stir nii ${im_np_2_stir_base}.hv STIR && \
 		rm ${im_np_2_stir_base}.*v
 	res=$?; if [ $res -ne 0 ]; then echo "Exiting at line $LINENO"; exit $res; fi
@@ -149,7 +149,7 @@ compare_ims_np_space() {
 	im_np=$1
 	im_stir=$2
 	im_stir_2_np=NP_${im_stir%.*}.dat
-	conv_niftypet_stir $im_stir_2_np $im_stir image toNP
+	conv_NiftyPET_stir $im_stir_2_np $im_stir image toNP
 	res=$?; if [ $res -ne 0 ]; then echo "Exiting at line $LINENO"; exit $res; fi
 	$SIRF_PY_EXE -c \
 "import sys
@@ -385,7 +385,7 @@ shutil.rmtree('mumap-obj')
 " \
 	$NTYP_RAW_DATA_FOLDER $SINO_TSTART $SINO_TSTOP
 	res=$?; if [ $res -ne 0 ]; then echo "Exiting at line $LINENO"; exit $res; fi
-	conv_niftypet_stir NP_attn_as_STIR NP_attn.dat sinogram toSTIR 
+	conv_NiftyPET_stir NP_attn_as_STIR NP_attn.dat sinogram toSTIR
 	res=$?; if [ $res -ne 0 ]; then echo "Exiting at line $LINENO"; exit $res; fi
 fi
 
@@ -418,7 +418,7 @@ fi
 # Extract with STIR's NiftyPET wrapper
 if [ ! -f STIR_sino2.hs ]; then
 	echo "Extracting sinogram with STIR's NiftyPET wrapper..."
-	lm_to_projdata_niftypet $LM_BF $SINO_TSTART $SINO_TSTOP -N $NORM_BF -p STIR_sino2 -r STIR_rands2 -n STIR_norm2
+	lm_to_projdata_NiftyPET $LM_BF $SINO_TSTART $SINO_TSTOP -N $NORM_BF -p STIR_sino2 -r STIR_rands2 -n STIR_norm2
 	res=$?; if [ $res -ne 0 ]; then echo "Exiting at line $LINENO"; exit $res; fi
 fi
 
@@ -469,7 +469,7 @@ echo "#    COMPARE BACK PROJECTION (NO CORRECTIONS)                             
 echo "#                                                                                      #"
 echo "########################################################################################"
 
-conv_niftypet_stir NP_sino_as_STIR NP_sino.dat sinogram toSTIR
+conv_NiftyPET_stir NP_sino_as_STIR NP_sino.dat sinogram toSTIR
 
 project_np NP_im.dat NP_sino.dat bck "" "" ""
 project_stir STIR_im NP_sino_as_STIR.hs bck "" "" ""
