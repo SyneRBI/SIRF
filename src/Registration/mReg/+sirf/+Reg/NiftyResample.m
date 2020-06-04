@@ -97,7 +97,7 @@ classdef NiftyResample < handle
             sirf.Reg.setParameter(self.handle_, self.name, 'padding', val, 'f')
         end
         function process(self)
-            %Process.
+            %Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image.
             h = calllib('mreg', 'mReg_NiftyResample_process', self.handle_);
             sirf.Utilities.check_status([self.name ':process'], h);
             sirf.Utilities.delete(h)

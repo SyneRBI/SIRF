@@ -104,8 +104,8 @@ public:
     /// Set padding value
     void set_padding_value(const float padding_value) { _padding_value = padding_value; }
 
-    /// Process - will call forward
-    DEPRECATED virtual void process() = 0;
+    /// Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image.
+    virtual void process() = 0;
 
     /// Get output
     const std::shared_ptr<const ImageData> get_output_sptr() const { return _output_image_sptr; }
