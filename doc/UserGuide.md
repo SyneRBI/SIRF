@@ -85,11 +85,11 @@ SIRF library modules are interfaces to object-oriented C++, which makes it reaso
 
     image = ImageData('my_image.h5'); 
 
-We note that an MR `ImageData` object contains not only the voxel values, but also a number of parameters specified by the ISMRMRD format of MR image data. The object data is encapsulated, i.e. is not directly accessible from the user's code (being handled mostly by the underpinning C++ code) and is processed by the object methods. For example, to display the data encapsulated by image, one needs to call its method `show()`: 
+We note that an `ImageData` object contains not only the voxel values, but also a number of parameters specified by the file format, such as geometric info, but also extra information in the ISMRMRD header in the MR example above. The object data is encapsulated, i.e. is not directly accessible from the user's code (being handled mostly by the underpinning C++ code) and is processed by the object methods. For example, to display the data encapsulated by image, one needs to call its method `show()`: 
 
     image.show(); 
 
-and to copy the data into a Matlab array one uses method `as_array()`: 
+and to copy the data into a Python/Matlab array one uses method `as_array()`: 
 
     image_data_array = image.as_array(); 
 
@@ -127,7 +127,8 @@ For arrays in the target language, we use “native” ordering of indices in Py
 
     image_array(x,y,z) % Matlab 
 
-For images, the meaning of `x`, `y` and `z` is currently acquisition dependent. Geometric information will be added later. 
+For images, the meaning of `x`, `y` and `z` is currently acquisition dependent. You *cannot* rely that this order is related
+to the patient orientation in a fixed manner. Use the methods for getting geometrical information to know how these indices are related to LPS coordinates.
 
 ### Handles <a name="Handles"></a>
 
