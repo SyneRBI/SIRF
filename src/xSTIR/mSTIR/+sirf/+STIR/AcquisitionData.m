@@ -2,7 +2,8 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
 % Class for PET acquisition data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 - 2020 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging

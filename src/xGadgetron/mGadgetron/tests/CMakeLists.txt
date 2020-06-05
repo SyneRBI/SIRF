@@ -1,7 +1,7 @@
 #========================================================================
 # Author: Evgueni Ovtchinnikov
 # Copyright 2017 University College London
-# Copyright 2017 Science Technology Facilities Council
+# Copyright 2017 - 2018 Science Technology Facilities Council
 #
 # This file is part of the CCP PETMR Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #

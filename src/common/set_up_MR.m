@@ -6,7 +6,7 @@ function alias = set_up_MR(engine)
 % See also set_up_engine and set_up_PET and set_up_Reg
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
 % Copyright 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational

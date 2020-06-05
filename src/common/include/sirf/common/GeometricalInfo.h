@@ -2,6 +2,8 @@
   CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
   Copyright 2018 Commonwealth Scientific and Industrial Research Organisation's
   Australian eHealth Research Organisation
+  Copyright 2020 Rutherford Appleton Laboratory STFC
+  Copyright 2019 - 2020 University College London
 
   This is software developed for the Collaborative Computational
   Project in Positron Emission Tomography and Magnetic Resonance imaging

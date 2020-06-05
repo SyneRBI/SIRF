@@ -5,7 +5,7 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
 % A deformation field of an identity transformation will contain the location of each of the pixels centroids in the world coordinates.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018-2019 University College London
+% Copyright 2018-2020 University College London
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
