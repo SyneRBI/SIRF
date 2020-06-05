@@ -44,7 +44,7 @@ VER=2.2.0-rc.1
   - [ ] export the VM
   - [ ] ctest on VM
   - [ ] run all exercises (download data first)
-  - [ ] upload to website
+  - [ ] upload to Zenodo
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
 5. SIRF-Exercises (already checked in VM)
@@ -53,7 +53,7 @@ VER=2.2.0-rc.1
 6. SIRF-Contribs
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
-7. Website
+7. Website (if final release)
   - [ ] update Software page (version info, VM etc)
   - [ ] upload doxygen
   - [ ] update link for doxygen in [Wiki](https://github.com/SyneRBI/SIRF/wiki/Software-Documentation)
