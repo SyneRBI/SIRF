@@ -22,7 +22,7 @@ VER=2.2.0-rc.1
   - [ ] run doxygen, check, send files for uploading and update the doxygen link on Wiki
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
-  - [ ] create release on https://github.com/SyneRBI/SIRF/releases/new linked to the tag and copying all CHANGES.md since last release (as listed on https://github.com/SyneRBI/SIRF/releases)
+  - [ ] if final release only: create release on https://github.com/SyneRBI/SIRF/releases/new linked to the tag and copying all CHANGES.md since last release (as listed on https://github.com/SyneRBI/SIRF/releases)
 3. SuperBuild
   - [ ] update `CHANGES.md`
   - [ ] update `NOTICE.txt`
