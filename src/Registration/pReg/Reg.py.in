@@ -21,7 +21,6 @@ Object-Oriented wrap for the cReg-to-Python interface pyreg.py
 
 import abc
 import sys
-import deprecation
 
 from pUtilities import *
 from sirf import SIRF
@@ -954,10 +953,8 @@ class NiftyResample(object):
         """Set padding value."""
         parms.set_float_par(self.handle, self.name, 'padding', val)
 
-    @deprecation.deprecated(deprecated_in="2.1.0",
-                            details="Use forward(image) instead")
     def process(self):
-        """Process."""
+        """Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image."""
         try_calling(pyreg.cReg_NiftyResample_process(self.handle))
 
     def get_output(self):

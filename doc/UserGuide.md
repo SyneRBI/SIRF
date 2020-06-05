@@ -595,12 +595,22 @@ Below examples are given for rigid/affine and non-rigid registrations, as well a
 ##### Resampling (NiftyResample)
 ###### Methods
 
-	set_reference_image						Set the reference image
-	set_floating_image						Set the floating
-	process									Start the registration process
-	get_output								Get the registered image
-	add_transformation						Add transformation (any type)
-	set_interpolation_type					Set interpolation type
+	set_reference_image		Set the reference image
+	set_floating_image		Set the floating
+	process					Start the resampling process. 
+								This is the equivalent of 
+								forward(floating_image).
+	get_output				Get the registered image
+	add_transformation		Add transformation (any type)
+	clear_transformations	Remove all transformations
+	set_interpolation_type	Set interpolation type
+	forward(im, out=None)	Resample image in forward direction.
+								Image should have same properties as
+								floating image used in set_up.
+	backward(im, out=None)	Resample image in backward/adjoint direction. 
+								Image should have same properties as
+								reference image used in set_up.
+	adjoint(im, out=None)	Alias of backward.
 
 ###### Example
 	res = NiftyResample()
@@ -609,8 +619,11 @@ Below examples are given for rigid/affine and non-rigid registrations, as well a
 	res.set_interpolation_type(1)
 	res.add_transformation(trans1)
 	res.add_transformation(trans2)
-	res.process()
-	output = res.get_output()
+	out = res.forward(flo)
+	# No allocation, faster
+	res.forward(flo, out=out)
+	# Backwards/adjoint
+	out2 = res.adjoint(ref)
 
 ### Other classes <a name="Other_classes"></a>
 

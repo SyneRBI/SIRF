@@ -680,6 +680,17 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 }
 
 extern "C"
+void* cSTIR_get_ProjDataInfo(void* ptr_acq)
+{
+	try {
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		return charDataHandleFromCharData(
+			sptr_ad->get_proj_data_info_sptr()->parameter_info().c_str());
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
