@@ -131,34 +131,29 @@ def main():
             # is given by
             lmd_max = 2*grad.norm()/image.norm()
             tau = 1/lmd_max
-            maxstep = 2*tau
+            maxstep = tau
         else:
             di = image - image0
             dg = grad - grad0 
             # dg = H di, hence a rough idea about lmd_max is given by
             lmd_max = 2*dg.norm()/di.norm()
-            # if lmd_max is underestimated significantly, tau is too
-            # large; this will increase large eigenvalue components
-            # of image, and on the next iteration lmd_max will be 
-            # overestimated, and the next line will reduce tau
-            tau = min(tau, 1/lmd_max)
-            # alternative smaller estimate for lmd_max
+            # alternative smaller estimate for lmd_max is
             #lmd_max = -2*dg.dot(di)/di.dot(di)
-            #print(lmd_max)
-            #tau = min(tau, 1/lmd_max)
-            #print(tau)
+            tau = min(maxstep, 1/lmd_max)
 
         if opt:
             # find the optimal step size tau
             fun = lambda x: -obj_fun.value(image + x*grad)
             tau = scipy.optimize.fminbound \
-                (fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = disp)
+                (fun, 0, 2*maxstep, xtol = 1e-4, maxfun = 4, disp = disp)
+
         print('using step size %f' % tau)
 
         # perform truncated steepest descent step
         new_image = trunc(image + tau*grad)
         diff = new_image - image
-        print('step %d, change in image %e' % (iter, diff.norm()))
+        rc = diff.norm()/image.norm()
+        print('step %d, change in image %e' % (iter, rc))
         image = new_image
         # filter the new image
         filter.apply(image)
