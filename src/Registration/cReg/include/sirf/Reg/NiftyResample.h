@@ -108,8 +108,8 @@ public:
     /// Destructor
     virtual ~NiftyResample() {}
 
-    /// Process
-    DEPRECATED virtual void process();
+    /// Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image.
+    virtual void process();
 
     /// Do the forward transformation
     virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const ImageData> input_sptr);
