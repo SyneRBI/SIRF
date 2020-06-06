@@ -1,5 +1,11 @@
 # ChangeLog
 
+## v2.2.0
+* Changed CCP PETMR to SyneRBI
+* updates to steepest ascent demo
+* STIR.AcquisitionData.get_info() returns a string that describes the scanner etc
+* documentation fixes/additions
+
 ## v2.2.0-rc.1
 
 * A passthrough for both the maximum and minimum relative change during OSMAPOSL reconstruction has been added.
