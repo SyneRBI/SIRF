@@ -223,7 +223,8 @@ before_install:
 - popd
 # no point re-downloading SIRF - just use local version
 # N.B.: don't put into build matrix to allow caching.
-- BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_SOURCE_DIR:PATH=$PWD -DDISABLE_GIT_CHECKOUT_SIRF=ON"
+- SIRF_SOURCE_DIR=$PWD
+- BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_SOURCE_DIR:PATH=$SIRF_SOURCE_DIR -DDISABLE_GIT_CHECKOUT_SIRF=ON"
 # get SuperBuild
 - cd ..
 - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
@@ -259,8 +260,10 @@ script:
    fi
 
 after_success:
-- pushd ../SIRF
-- sed -r 's/SIRF-SuperBuild\/INSTALL\/python\/sirf\/(\w*)\.py/SIRF\/src\/x\1\/p\1\/\1.py/g' ../SIRF-SuperBuild/sources/SIRF/.coverage > .coverage
-- codecov
-- coveralls
+- pushd $SIRF_SOURCE_DIR
+# replace name of installed .py files in .coverage (as OSX sed is tricky with sed -i, first write to tmp file, then move to .coverage)
+- sed -E 's/SIRF-SuperBuild\/INSTALL\/python\/sirf\/(\w*)\.py/SIRF\/src\/x\1\/p\1\/\1.py/g' $SIRF_SOURCE_DIR/.coverage > .coverage.tmp
+- mv .coverage.tmp .coverage
+- $PY_EXE -m codecov
+- $PY_EXE -m coveralls
 - popd
