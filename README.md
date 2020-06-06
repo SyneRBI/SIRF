@@ -3,8 +3,8 @@
 [![travis-badge]][travis]
 [![coveralls-badge]][coveralls] [![codecov-badge]][codecov]
 
-This software is the main output of [CCP PETMR](https://www.ccppetmr.ac.uk), the Collaborative Computational 
-Platform for Synergistic Reconstruction for PET/MR.
+This software is the main output of [SyneRBI](https://www.ccpsynerbi.ac.uk), the Collaborative Computational 
+Platform for Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR).
 
 Please start with our latest [User's Guide](doc/UserGuide.md).
 See [our Wiki page for installation instructions](https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions). 
