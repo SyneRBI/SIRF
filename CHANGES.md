@@ -105,7 +105,7 @@
   * Build with OpenMP delivers stable and substantially accelerated performance
 * More documentation
   * Developer's Guide
-  * Doxygen inline documentation (available on CCP PETMR website)
+  * Doxygen inline documentation (available on SyneRBI website)
 * More tests (now run via CTest), for Python, Matlab and C++.
 * Coverage reporting for Python tests done by ctest
 

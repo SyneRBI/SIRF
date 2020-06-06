@@ -5,13 +5,13 @@ function user_osmaposl(engine)
 % from Green et al for Maximum a Posteriori (MAP) maximisation. Here we use it
 % for Maximum Likelihood (ML) in which case it is equivalent to OSEM.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.

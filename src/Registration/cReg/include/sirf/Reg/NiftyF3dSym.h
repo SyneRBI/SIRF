@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ We believe there to be an upstream bug (https://github.com/KCL-BMEIS/niftyreg/is
 in the symmetric version, and therefore do not recommend using it until that issue is closed.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -52,7 +52,7 @@ In theory, multiple time points can be used, but thus far has only been tested f
 t == 1 for both reference and floating images.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class dataType> class NiftyF3dSym : public NiftyRegistration<dataType>
 {
