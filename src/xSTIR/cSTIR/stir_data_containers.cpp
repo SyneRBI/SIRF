@@ -1,11 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2018 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -553,6 +553,8 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
         throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
 
     this->zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
 }
 
 void
@@ -574,6 +576,9 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
 
     // Zoom the image
     voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
+
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
 }
 
 void
@@ -581,6 +586,9 @@ STIRImageData::
 move_to_scanner_centre(const PETAcquisitionData &)
 {
     this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
+
+    // Need to modify the geom info after mod
+    set_up_geom_info();
 }
 
 void

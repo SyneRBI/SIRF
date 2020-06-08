@@ -1,12 +1,13 @@
 classdef AcquisitionData < sirf.SIRF.DataContainer
 % Class for PET acquisition data objects.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 - 2020 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -226,6 +227,14 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             end
             ad = sirf.STIR.AcquisitionData(self);
             ad.fill(value)
+        end
+        function ad_info = get_info(self)
+            %Get the AcquisitionData's metadata.
+            h = calllib...
+                ('mstir', 'mSTIR_get_ProjDataInfo', self.handle_);
+            sirf.Utilities.check_status([self.name ':print_info'], h);
+            ad_info = calllib('miutilities', 'mCharDataFromHandle', h);
+            sirf.Utilities.delete(h)
         end
     end
 end

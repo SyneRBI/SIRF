@@ -1,7 +1,7 @@
 #========================================================================
 # Author: Richard Brown
 # Author: Evgueni Ovtchinnikov
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 # Copyright 2020 UKRI-STFC
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");

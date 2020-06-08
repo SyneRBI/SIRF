@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Class for displacement SIRF image data.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -46,7 +46,7 @@ Here, we require ndim == 5, nt == 1 (so contains x,y,z dimensions as well as u==
 Also require intent_p1 == DISP_FIELD. 
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class dataType>
 class NiftiImageData3DDisplacement : public NiftiImageData3DTensor<dataType>, public NonRigidTransformation<dataType>

@@ -16,7 +16,7 @@ function grappa_basic(engine)
 % 2) An input data file from a GRAPPA MRI acquisition in the ISMRMRD format.
 %    Example GRAPPA datasets:
 %    a) 'meas_MID00108_FID57249_test_2D_2x.dat' is 
-%       available from https://www.ccppetmr.ac.uk/downloads
+%       available from https://www.ccpsynerbi.ac.uk/downloads
 %       This is in the manufacturer's raw data format and needs to be
 %       converted to ISMRMRD format using 'siemens_to_ismrmrd'.
 %       This executable is installed on the Virtual Machine.
@@ -35,13 +35,13 @@ function grappa_basic(engine)
 %
 % See also GRAPPA_DETAIL GEN_US_DATA
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
