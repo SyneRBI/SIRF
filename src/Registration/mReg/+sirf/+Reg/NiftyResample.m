@@ -1,12 +1,12 @@
 classdef NiftyResample < handle
 % Class for resampling using NiftyReg.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018-2019 University College London
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2018-2020 University College London
 %
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ classdef NiftyResample < handle
             sirf.Reg.setParameter(self.handle_, self.name, 'padding', val, 'f')
         end
         function process(self)
-            %Process.
+            %Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image.
             h = calllib('mreg', 'mReg_NiftyResample_process', self.handle_);
             sirf.Utilities.check_status([self.name ':process'], h);
             sirf.Utilities.delete(h)

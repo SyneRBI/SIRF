@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Abstract resampling base class
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -49,7 +49,7 @@ If multiple transformations are set, they will be used in the order that they ha
 i.e., Trans3(Trans2(Trans1(x))).
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class dataType>
 class Resample
@@ -104,8 +104,8 @@ public:
     /// Set padding value
     void set_padding_value(const float padding_value) { _padding_value = padding_value; }
 
-    /// Process - will call forward
-    DEPRECATED virtual void process() = 0;
+    /// Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image.
+    virtual void process() = 0;
 
     /// Get output
     const std::shared_ptr<const ImageData> get_output_sptr() const { return _output_image_sptr; }
