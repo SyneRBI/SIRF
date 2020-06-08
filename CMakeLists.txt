@@ -1,8 +1,8 @@
 
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 - 2019 University College London
-# Copyright 2016 - 2018 Science Technology Facilities Council
+# Copyright 2016 - 2020 University College London
+# Copyright 2016 - 2020 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.

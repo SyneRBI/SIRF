@@ -1,11 +1,17 @@
 # ChangeLog
 
+## v2.2.0
+* Changed CCP PETMR to SyneRBI
+* updates to steepest ascent demo
+* STIR.AcquisitionData.get_info() returns a string that describes the scanner etc
+* documentation fixes/additions
+
 ## v2.2.0-rc.1
 
 * A passthrough for both the maximum and minimum relative change during OSMAPOSL reconstruction has been added.
 * We have now corrected the geometrical information of `.h5` images (coming from ISMRMRD and Gadgetron). This means we can now convert them to other SIRF image types (e.g., `NiftiImageData` and `STIRImageData`). This is necessary for any kind of synergistic reconstruction. Further, to the best of our knowledge, this is the first ISMRMRD to NIfTI converter out there!
 * The adjoint transformation has now been implemented for `NiftyResample` through the wrapping of NiftyMoMo.
-* `Resample::process()` has been marked as deprecated. Instead, the following methods have been added to C++, python and matlab NiftyResample:
+* The following methods have been added to C++, python and matlab NiftyResample:
 	* `out = forward(in)`
 	* `forward(out, in)`
 	* `out = adjoint(in)`
@@ -105,7 +111,7 @@
   * Build with OpenMP delivers stable and substantially accelerated performance
 * More documentation
   * Developer's Guide
-  * Doxygen inline documentation (available on CCP PETMR website)
+  * Doxygen inline documentation (available on SyneRBI website)
 * More tests (now run via CTest), for Python, Matlab and C++.
 * Coverage reporting for Python tests done by ctest
 
