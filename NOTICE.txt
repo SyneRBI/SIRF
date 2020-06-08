@@ -5,7 +5,7 @@ Copyright 2017-2020 Physikalisch-Technische Bundesanstalt (PTB)
 
 This software product is developed for the Collaborative Computational 
 Project in Synergistic Reconstruction for Biomedical Imaging,
-formerly SyneRBI, (http://www.ccpsynerbi.ac.uk/)
+formerly CCP PETMR, (http://www.ccpsynerbi.ac.uk/)
 at RAL STFC (http://www.stfc.ac.uk), UCL (http://www.ucl.ac.uk/)
 and other contributing institutions.
 
