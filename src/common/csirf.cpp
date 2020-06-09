@@ -383,6 +383,6 @@ cSIRF_GeomInfo_get_index_to_physical_point_matrix(const void* ptr_geom, void* pt
     float *data = (float*)ptr_arr;
     for (unsigned i=0; i<4; ++i)
         for (unsigned j=0; j<4; ++j)
-        data[i*3+j] = tm[i][j];
+        data[i*4+j] = tm[i][j];
     return new DataHandle;
 }
