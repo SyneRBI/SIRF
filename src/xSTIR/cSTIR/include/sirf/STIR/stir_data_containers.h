@@ -197,14 +197,14 @@ namespace sirf {
 		}
 
 		// data import/export
-		void fill(float v) { data()->fill(v); }
-		void fill(const PETAcquisitionData& ad)
+		virtual void fill(const float v) { data()->fill(v); }
+		virtual void fill(const PETAcquisitionData& ad)
 		{
 			stir::shared_ptr<stir::ProjData> sptr = ad.data();
 			data()->fill(*sptr);
 		}
-		void fill_from(const float* d) { data()->fill_from(d); }
-		void copy_to(float* d) { data()->copy_to(d); }
+		virtual void fill_from(const float* d) { data()->fill_from(d); }
+		virtual void copy_to(float* d) const { data()->copy_to(d); }
 		std::unique_ptr<PETAcquisitionData> clone() const
 		{
 			return std::unique_ptr<PETAcquisitionData>(clone_impl());
@@ -481,6 +481,142 @@ namespace sirf {
 				(this->get_exam_info_sptr(),
                                  this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
+        /// fill with single value
+        virtual void fill(const float v)
+        {
+            stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+            // If cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr))
+                return this->PETAcquisitionData::fill(v);
+
+            // do it
+            auto iter = pd_ptr->begin();
+            while (iter != pd_ptr->end())
+                *iter++ = v;
+        }
+        /// fill from another PETAcquisitionData
+        virtual void fill(const PETAcquisitionData& ad)
+        {
+            // Can only do this if both are PETAcquisitionDataInMemory
+            stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+            const stir::ProjDataInMemory *pd2_ptr = dynamic_cast<const stir::ProjDataInMemory*>(ad.data().get());
+            // If either cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr) || is_null_ptr(pd2_ptr))
+                return this->PETAcquisitionData::fill(ad);
+
+            // do it
+            auto iter = pd_ptr->begin();
+            auto iter_other = pd2_ptr->begin();
+            while (iter != pd_ptr->end())
+                *iter++ = *iter_other++;
+        }
+        /// Fill from float array
+        virtual void fill_from(const float* d)
+        {
+            stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+            // If cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr))
+                return this->PETAcquisitionData::fill_from(d);
+
+            // do it
+            auto iter = pd_ptr->begin();
+            while (iter != pd_ptr->end())
+                *iter++ = *d++;
+        }
+        /// Copy to float array
+        virtual void copy_to(float* d) const
+        {
+            const stir::ProjDataInMemory *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
+            // If cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr))
+                return this->PETAcquisitionData::copy_to(d);
+
+            // do it
+            auto iter = pd_ptr->begin();
+            while (iter != pd_ptr->end())
+                *d++ = *iter++;
+        }
+        /// Calculate the norm
+        virtual float norm() const
+        {
+            const stir::ProjDataInMemory *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
+            // If cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr))
+                return this->PETAcquisitionData::norm();
+
+            // do it
+            double t = 0.0;
+            auto iter = pd_ptr->begin();
+            while (iter != pd_ptr->end())
+                t += (*iter) * (*iter++);
+            return sqrt((float)t);
+        }
+        /// Dot between "this" and "other"
+        virtual void dot(const DataContainer& a_x, void* ptr) const
+        {
+            auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
+            // Can only do this if both are PETAcquisitionDataInMemory
+            stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+            const stir::ProjDataInMemory *pd2_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x->data().get());
+            // If either cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr) || is_null_ptr(pd2_ptr))
+                return this->PETAcquisitionData::dot(a_x,ptr);
+
+            // do it
+            double t = 0.0;
+            auto iter = pd_ptr->begin();
+            auto iter_other = pd2_ptr->begin();
+            while (iter != pd_ptr->end())
+                t += (*iter++) * (*iter_other++);
+
+            float* ptr_t = (float*)ptr;
+            *ptr_t = (float)t;
+        }
+        /// Element-wise multiplication of x and y. Store result in "this"
+        virtual void multiply(const DataContainer& x, const DataContainer& y)
+        {
+            auto a_x = dynamic_cast<const PETAcquisitionData*>(&x);
+            auto a_y = dynamic_cast<const PETAcquisitionData*>(&y);
+
+            // Can only do this if all are PETAcquisitionDataInMemory
+            auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+            auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
+            auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());
+
+            // If either cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_x_ptr))
+                return this->PETAcquisitionData::multiply(x,y);
+
+            // do it
+            auto iter = pd_ptr->begin();
+            auto iter_x = pd_x_ptr->begin();
+            auto iter_y = pd_y_ptr->begin();
+            while (iter != pd_ptr->end())
+                *iter++ = (*iter_x++) * (*iter_y++);
+        }
+        /// Element-wise division of x and y. Store result in "this"
+        virtual void divide(const DataContainer& x, const DataContainer& y)
+        {
+            auto a_x = dynamic_cast<const PETAcquisitionData*>(&x);
+            auto a_y = dynamic_cast<const PETAcquisitionData*>(&y);
+
+            // Can only do this if all are PETAcquisitionDataInMemory
+            auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+            auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
+            auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());
+
+            // If either cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_x_ptr))
+                return this->PETAcquisitionData::divide(x,y);
+
+            // do it
+            auto iter = pd_ptr->begin();
+            auto iter_x = pd_x_ptr->begin();
+            auto iter_y = pd_y_ptr->begin();
+            while (iter != pd_ptr->end())
+                *iter++ = (*iter_x++) / (*iter_y++);
+        }
+
 	private:
 		virtual PETAcquisitionDataInMemory* clone_impl() const
 		{
