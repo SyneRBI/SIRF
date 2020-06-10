@@ -4,21 +4,28 @@ Usage:
   PET_MCIR [--help | options]
 
 Options:
-  -T <pattern>, --trans=<pattern>     transformation pattern (e.g., tm_ms*.txt). Enclose in quotations.
+  -T <pattern>, --trans=<pattern>     transformation pattern, * or % wildcard (e.g., tm_ms*.txt). Enclose in quotations.
   -t <str>, --trans_type=<str>        transformation type (tm, disp, def) [default: tm]
-  -S <pattern>, --sino=<pattern>      sinogram pattern (e.g., sino_ms*.hs). Enclose in quotations.
-  -a <pattern>, --attn=<pattern>      attenuation pattern (e.g., attn_ms*.hv). Enclose in quotations.
-  -R <pattern>, --rand=<pattern>      randoms pattern (e.g., rand_ms*.hs). Enclose in quotations.
+  -S <pattern>, --sino=<pattern>      sinogram pattern, * or % wildcard (e.g., sino_ms*.hs). Enclose in quotations.
+  -a <pattern>, --attn=<pattern>      attenuation pattern, * or % wildcard (e.g., attn_ms*.hv). Enclose in quotations.
+  -R <pattern>, --rand=<pattern>      randoms pattern, * or % wildcard (e.g., rand_ms*.hs). Enclose in quotations.
   -n <norm>, --norm=<norm>            ECAT8 bin normalization file
   -i <int>, --iter=<int>              num iterations [default: 10]
   -r <string>, --reg=<string>         regularisation ("none","FGP_TV", ...) [default: none]
   -o <outp>, --outp=<outp>            output file prefix [default: recon]
   -d <nxny>, --nxny=<nxny>            image x and y dimensions as string '(nx,ny)'
                                       (no space after comma) [default: (127,127)]
+  -I <str>, --initial=<str>           Initial estimate
   --visualisations                    show visualisations
   --nifti                             save output as nifti
+  --gpu                               use GPU projector
   -v <int>, --verbosity=<int>         STIR verbosity [default: 0]
   -s <int>, --save_interval=<int>     save every x iterations [default: 10]
+  --descriptive_fname                 option to have descriptive filenames
+  --update_obj_fn_interval=<int>      frequency to update objective function [default: 1]
+  --sigma=<val>                       set PDHG sigma [default: 0.001]
+  --tau=<val>                         set PDHG tau (default: 1/(sigma*normK**2) -- calculating this takes time)
+  --alpha=<val>                       regularisation strength (if used) [default: 0.5]
 """
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -69,10 +76,10 @@ def check_file_exists(filename):
 
 
 # Multiple files
-trans_pattern = str(args['--trans'])
-sino_pattern = str(args['--sino'])
-attn_pattern = str(args['--attn'])
-rand_pattern = str(args['--rand'])
+trans_pattern = str(args['--trans']).replace('%','*')
+sino_pattern = str(args['--sino']).replace('%','*')
+attn_pattern = str(args['--attn']).replace('%','*')
+rand_pattern = str(args['--rand']).replace('%','*')
 num_iters = int(args['--iter'])
 regularisation = str(args['--reg'])
 trans_type = str(args['--trans_type'])
@@ -95,31 +102,38 @@ nxny = literal_eval(args['--nxny'])
 # Output file
 outp_prefix = str(args['--outp'])
 
-if args['--visualisations']:
-    visualisations = True
-else:
-    visualisations = False
+# Initial estimate
+initial_estimate = None
+if args['--initial']:
+    initial_estimate = str(args['--initial'])
 
-if args['--nifti']:
-    nifti = True
-else:
-    nifti = False
+visualisations = True if args['--visualisations'] else False
+nifti = True if args['--nifti'] else False
+use_gpu = True if args['--gpu'] else False
+descriptive_fname = True if args['--descriptive_fname'] else False
+update_obj_fn_interval = int(args['--update_obj_fn_interval'])
 
 # Verbosity
 pet.set_verbosity(int(args['--verbosity']))
 
-# Verbosity
+# Save interval
 save_interval = int(args['--save_interval'])
 
+# Convergence variables
+sigma = float(args['--sigma'])
+r_alpha = float(args['--alpha'])
 
-def get_resampler_from_trans(trans, image):
+def get_resampler(image, ref=None, trans=None):
     """returns a NiftyResample object for the specified transform and image"""
+    if ref is None:
+        ref = image
     resampler = reg.NiftyResample()
-    resampler.set_reference_image(image)
+    resampler.set_reference_image(ref)
     resampler.set_floating_image(image)
-    resampler.add_transformation(trans)
     resampler.set_padding_value(0)
     resampler.set_interpolation_type_to_linear()
+    if trans is not None:
+        resampler.add_transformation(trans)
     return resampler
 
 
@@ -201,7 +215,14 @@ def main():
     # Initialise recon image
     ############################################################################################
 
-    image = sinos[0].create_uniform_image(1.0, nxny)
+    if initial_estimate:
+        image = pet.ImageData(initial_estimate)
+    else:
+        image = sinos[0].create_uniform_image(0.0, nxny)
+        # If using GPU, need to make sure that image is right size.
+        if use_gpu:
+            image.initialise(dim=(127,320,320), vsize=(2.03125,2.08626,2.08626))
+            image.fill(0.0)
 
     ############################################################################################
     # Set up resamplers
@@ -210,11 +231,23 @@ def main():
     resamplers = [get_resampler_from_trans(tran, image) for tran in trans]
 
     ############################################################################################
+    # Resample attenuation images (if necessary)
+    ############################################################################################
+
+    if use_gpu:
+        for i in range(len(attns)):
+            resam = get_resampler(attns[i], ref=image)
+            attns[i] = resam.forward(attns[i])
+
+    ############################################################################################
     # Set up acquisition models
     ############################################################################################
 
     print("Setting up acquisition models...")
-    acq_models = num_ms * [pet.AcquisitionModelUsingRayTracingMatrix()]
+    if not use_gpu:
+        acq_models = num_ms * [pet.AcquisitionModelUsingRayTracingMatrix()]
+    else:
+        acq_models = num_ms * [pet.AcquisitionModelUsingNiftyPET()]
 
     # If present, create ASM from ECAT8 normalisation data
     asm_norm = None
@@ -229,7 +262,7 @@ def main():
             asm_attn = get_asm_attn(sinos[ind], attns[ind], acq_models[ind])
         elif len(attns) == 1:
             print("Resampling attn im " + str(ind) + " into required motion state...")
-            resampler = get_resampler_from_trans(trans[ind], attns[0])
+            resampler = get_resampler(attns[0], trans=trans[ind])
             resampled_attn = resampler.forward(attns[0])
             asm_attn = get_asm_attn(sinos[ind], resampled_attn, acq_models[ind])
 
@@ -267,52 +300,59 @@ def main():
     kl = [ KullbackLeibler(b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos ] 
     f = BlockFunction(*kl)
     K = BlockOperator(*C)
-    normK = K.norm(iterations=10)
 
-    # normK = LinearOperator.PowerMethod(K, iterations=10)[0]
-    # default values
-    sigma = 1/normK
-    tau = 1/normK 
-    sigma = 0.001
-    tau = 1/(sigma*normK**2)
-    print("Norm of the BlockOperator ", normK)
+    # If we need to calculate default tau
+    if args['--tau']:
+        tau = float(args['--tau'])
+    else:
+        normK = K.norm(iterations=10)
+        print("Norm of the BlockOperator ", normK)
+        tau = 1/(sigma*normK**2)
 
     if regularisation == 'none':
         G = IndicatorBox(lower=0)
     elif regularisation == 'FGP_TV':
-        r_alpha = 5e-1
         r_iterations = 100
         r_tolerance = 1e-7
         r_iso = 0
         r_nonneg = 1
         r_printing = 0
-        G = FGP_TV(r_alpha, r_iterations, r_tolerance, r_iso, r_nonneg, r_printing, 'gpu')
+        device='gpu' if use_gpu else 'cpu'
+        G = FGP_TV(r_alpha, r_iterations, r_tolerance, r_iso, r_nonneg, r_printing, device)
     else:
         raise error("Unknown regularisation")
 
     pdhg = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
-                max_iteration=1000,
-                update_objective_interval=1)
+                max_iteration=num_iters,
+                update_objective_interval=update_obj_fn_interval,
+                x_init=image)
 
     # Get filename
     outp_file = outp_prefix
-    if len(attn_files) > 0:
-        outp_file += "_wAC"
-    if norm_file:
-        outp_file += "_wNorm"
-    outp_file += "_Reg-" + regularisation
-    outp_file += "_nGates" + str(len(sino_files))
+    if descriptive_fname:
+        if len(attn_files) > 0:
+            outp_file += "_wAC"
+        if norm_file:
+            outp_file += "_wNorm"
+        outp_file += "_Reg-" + regularisation
+        if regularisation == 'FGP_TV':
+            outp_file += "-alpha" + str(r_alpha)
+        outp_file += "_sigma" + str(sigma)
+        outp_file += "_tau" + str(tau)
+        outp_file += "_nGates" + str(len(sino_files))
+        if resamplers == None:
+            outp_file += "_noMotion"
 
-    for i in range(1, num_iters+1, save_interval):
-        pdhg.run(save_interval, verbose=True)
-        out = pdhg.get_output()    
-        if not nifti:
-            out.write(outp_file + "_iters" + str(i))
-        else:
-            reg.NiftiImageData(out).write(outp_file + "_iters" + str(i))
+    def callback_save(iteration, objective_value, solution):
+        if iteration % save_interval == 0:
+            out = solution if not nifti else reg.NiftiImageData(solution)
+            out.write(outp_file + "_iters" + str(iteration))
+
+    pdhg.run(iterations=num_iters, very_verbose=True, callback=callback_save)
 
     if visualisations:
         # show reconstructed image
+        out = pdhg.get_output()   
         out_arr = out.as_array()
         z = out_arr.shape[0]//2
         show_2D_array('Reconstructed image', out.as_array()[z, :, :])
