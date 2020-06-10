@@ -10,6 +10,7 @@ Options:
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  -o <file>, --output=<file>   output attenuation factors sinogram
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -92,6 +93,10 @@ def main():
     # 'bin efficiencies'
     print('applying attenuation (please wait, may take a while)...')
     asm.unnormalise(acq_data)
+
+    # If desired, save attenuation factors
+    if args['--output']:
+        acq_data.write(args['--output'])
 
     # show 'bin efficiencies'
     acq_array = acq_data.as_array()
