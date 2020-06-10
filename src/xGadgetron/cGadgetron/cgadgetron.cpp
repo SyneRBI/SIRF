@@ -1297,8 +1297,10 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		GadgetronClientConnector& con = conn();
 		Mutex mutex;
 		boost::mutex& mtx = mutex();
+		mtx.lock();
 		ISMRMRD::Dataset& ismrmrd_dataset = 
 			objectFromHandle<ISMRMRD::Dataset>(h_dat);
+		mtx.unlock();
 	
 		uint32_t acquisitions = 0;
 		{

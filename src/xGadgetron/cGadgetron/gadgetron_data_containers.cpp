@@ -92,12 +92,13 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	try
 	{
-
+		Mutex mtx;
+		mtx.lock();
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
-
 		d.readHeader(this->acqs_info_);
-
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
+		mtx.unlock();
+
 		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
 		{
 			if( verbose )
@@ -107,7 +108,9 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			}
 
 			ISMRMRD::Acquisition acq;
+			mtx.lock();
 			d.readAcquisition( i_acqu, acq);
+			mtx.unlock();
 
 			if( TO_BE_IGNORED(acq) )
 				continue;
@@ -1129,6 +1132,7 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 	int ng = names.size();
 	const char* group = names[0].c_str();
 	printf("group %s\n", group);
+        Mutex mtx;
 	for (int ig = 0; ig < ng; ig++) {
 		const char* var = names[ig].c_str();
 		if (!ig)
@@ -1143,6 +1147,8 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 				continue;
 		if (strcmp(var, "xml") == 0)
 			continue;
+
+		mtx.lock();
 
 		ISMRMRD::ISMRMRD_Dataset dataset;
 		ISMRMRD::ISMRMRD_Image im;
@@ -1159,12 +1165,14 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 		shared_ptr<ISMRMRD::Dataset> sptr_dataset
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
 
-        // ISMRMRD throws an error if no XML is present.
-        try {
-            sptr_dataset->readHeader(this->acqs_info_);
+		// ISMRMRD throws an error if no XML is present.
+		try {
+			sptr_dataset->readHeader(this->acqs_info_);
 		}
 		catch (const std::exception &error) {
 		}
+
+		mtx.unlock();
 
 		for (int i = 0; i < num_im; i++) {
 			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type, *sptr_dataset, var, i));
@@ -1182,7 +1190,7 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 			break;
 	}
 
-    this->set_up_geom_info();
+	this->set_up_geom_info();
 	return 0;
 }
 
