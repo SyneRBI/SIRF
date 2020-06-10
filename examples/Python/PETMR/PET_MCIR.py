@@ -4,46 +4,57 @@ Usage:
   PET_MCIR [--help | options]
 
 Options:
-  -T <pattern>, --trans=<pattern>     transformation pattern, * or % wildcard (e.g., tm_ms*.txt). Enclose in quotations.
-  -t <str>, --trans_type=<str>        transformation type (tm, disp, def) [default: tm]
-  -S <pattern>, --sino=<pattern>      sinogram pattern, * or % wildcard (e.g., sino_ms*.hs). Enclose in quotations.
-  -a <pattern>, --attn=<pattern>      attenuation pattern, * or % wildcard (e.g., attn_ms*.hv). Enclose in quotations.
-  -R <pattern>, --rand=<pattern>      randoms pattern, * or % wildcard (e.g., rand_ms*.hs). Enclose in quotations.
-  -n <norm>, --norm=<norm>            ECAT8 bin normalization file
-  -i <int>, --iter=<int>              num iterations [default: 10]
-  -r <string>, --reg=<string>         regularisation ("none","FGP_TV", ...) [default: none]
-  -o <outp>, --outp=<outp>            output file prefix [default: recon]
-  -d <nxny>, --nxny=<nxny>            image x and y dimensions as string '(nx,ny)'
-                                      (no space after comma) [default: (127,127)]
-  -I <str>, --initial=<str>           Initial estimate
-  --visualisations                    show visualisations
-  --nifti                             save output as nifti
-  --gpu                               use GPU projector
-  -v <int>, --verbosity=<int>         STIR verbosity [default: 0]
-  -s <int>, --save_interval=<int>     save every x iterations [default: 10]
-  --descriptive_fname                 option to have descriptive filenames
-  --update_obj_fn_interval=<int>      frequency to update objective function [default: 1]
-  --sigma=<val>                       set PDHG sigma [default: 0.001]
-  --tau=<val>                         set PDHG tau (default: 1/(sigma*normK**2) -- calculating this takes time)
-  --alpha=<val>                       regularisation strength (if used) [default: 0.5]
+  -T <pattern>, --trans=<pattern>   transformation pattern, * or % wildcard
+                                    (e.g., tm_ms*.txt). Enclose in quotations.
+  -t <str>, --trans_type=<str>      transformation type (tm, disp, def)
+                                    [default: tm]
+  -S <pattern>, --sino=<pattern>    sinogram pattern, * or % wildcard
+                                    (e.g., sino_ms*.hs). Enclose in quotations.
+  -a <pattern>, --attn=<pattern>    attenuation pattern, * or % wildcard
+                                    (e.g., attn_ms*.hv). Enclose in quotations.
+  -R <pattern>, --rand=<pattern>    randoms pattern, * or % wildcard
+                                    (e.g., rand_ms*.hs). Enclose in quotations.
+  -n <norm>, --norm=<norm>          ECAT8 bin normalization file
+  -i <int>, --iter=<int>            num iterations [default: 10]
+  -r <string>, --reg=<string>       regularisation ("none","FGP_TV", ...)
+                                    [default: none]
+  -o <outp>, --outp=<outp>          output file prefix [default: recon]
+  -d <nxny>, --nxny=<nxny>          image x and y dimensions as string
+                                    '(nx,ny)'. Enclose in quotations.
+                                    (no space after comma) [default: (127,127)]
+  -I <str>, --initial=<str>         Initial estimate
+  --visualisations                  show visualisations
+  --nifti                           save output as nifti
+  --gpu                             use GPU projector
+  -v <int>, --verbosity=<int>       STIR verbosity [default: 0]
+  -s <int>, --save_interval=<int>   save every x iterations [default: 10]
+  --descriptive_fname               option to have descriptive filenames
+  --update_obj_fn_interval=<int>    frequency to update objective function
+                                    [default: 1]
+  --sigma=<val>                     set PDHG sigma [default: 0.001]
+  --tau=<val>                       set PDHG tau (default: 1/(sigma*normK**2)
+                                    Calculating this takes time.
+  --alpha=<val>                     regularisation strength (if used)
+                                    [default: 0.5]
 """
 
-## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2020 University College London.
-##
-## This is software developed for the Collaborative Computational
-## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
-## (http://www.ccpsynerbi.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
+# SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+# Copyright 2020 University College London.
+#
+# This is software developed for the Collaborative Computational
+# Project in Synergistic Reconstruction for Biomedical Imaging
+# (formerly CCP PETMR)
+# (http://www.ccpsynerbi.ac.uk/).
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#       http://www.apache.org/licenses/LICENSE-2.0
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 
 import os
 from ast import literal_eval
@@ -54,7 +65,8 @@ import pylab
 import sirf.Reg as reg
 import sirf.STIR as pet
 from ccpi.optimisation.algorithms import PDHG
-from ccpi.optimisation.functions import KullbackLeibler, BlockFunction, IndicatorBox
+from ccpi.optimisation.functions import KullbackLeibler, BlockFunction
+from ccpi.optimisation.functions import IndicatorBox
 from ccpi.optimisation.operators import CompositionOperator, BlockOperator
 from ccpi.plugins.regularisers import FGP_TV
 
@@ -76,10 +88,10 @@ def check_file_exists(filename):
 
 
 # Multiple files
-trans_pattern = str(args['--trans']).replace('%','*')
-sino_pattern = str(args['--sino']).replace('%','*')
-attn_pattern = str(args['--attn']).replace('%','*')
-rand_pattern = str(args['--rand']).replace('%','*')
+trans_pattern = str(args['--trans']).replace('%', '*')
+sino_pattern = str(args['--sino']).replace('%', '*')
+attn_pattern = str(args['--attn']).replace('%', '*')
+rand_pattern = str(args['--rand']).replace('%', '*')
 num_iters = int(args['--iter'])
 regularisation = str(args['--reg'])
 trans_type = str(args['--trans_type'])
@@ -123,6 +135,7 @@ save_interval = int(args['--save_interval'])
 sigma = float(args['--sigma'])
 r_alpha = float(args['--alpha'])
 
+
 def get_resampler(image, ref=None, trans=None):
     """returns a NiftyResample object for the specified transform and image"""
     if ref is None:
@@ -152,9 +165,9 @@ def get_asm_attn(sino, attn, acq_model):
 
 def main():
 
-    ############################################################################################
+    ###########################################################################
     # Parse input files
-    ############################################################################################
+    ###########################################################################
 
     if trans_pattern is None:
         raise AssertionError("--trans missing")
@@ -172,24 +185,27 @@ def main():
     # Should have as many trans as sinos
     if num_ms != len(trans_files):
         raise AssertionError("#trans should match #sinos. "
-                             "#sinos = " + str(num_ms) + ", #trans = " + str(len(trans_files)))
+                             "#sinos = " + str(num_ms) +
+                             ", #trans = " + str(len(trans_files)))
     # If any rand, check num == num_ms
     if len(rand_files) > 0 and len(rand_files) != num_ms:
         raise AssertionError("#rand should match #sinos. "
-                             "#sinos = " + str(num_ms) + ", #rand = " + str(len(rand_files)))
+                             "#sinos = " + str(num_ms) +
+                             ", #rand = " + str(len(rand_files)))
 
     # For attn, there should be 0, 1 or num_ms images
-    if len(attn_files) != 0 and len(attn_files) != 1 and len(attn_files) != num_ms:
+    if len(attn_files) > 1 and len(attn_files) != num_ms:
         raise AssertionError("#attn should be 0, 1 or #sinos")
-    
-    ############################################################################################
+
+    ###########################################################################
     # Read input
-    ############################################################################################
+    ###########################################################################
 
     if trans_type == "tm":
         trans = [reg.AffineTransformation(file) for file in trans_files]
     elif trans_type == "disp":
-        trans = [reg.NiftiImageData3DDisplacement(file) for file in trans_files]
+        trans = [reg.NiftiImageData3DDisplacement(file)
+                 for file in trans_files]
     elif trans_type == "def":
         trans = [reg.NiftiImageData3DDeformation(file) for file in trans_files]
     else:
@@ -199,11 +215,13 @@ def main():
     attns = [pet.ImageData(file) for file in attn_files]
     rands = [pet.AcquisitionData(file) for file in rand_files]
 
-    # If any sinograms contain negative values (shouldn't be the case), set them to 0
+    # If any sinograms contain negative values
+    # (shouldn't be the case), set them to 0
     sinos = [0]*num_ms
     for ind in range(num_ms):
         if (sinos_raw[ind].as_array() < 0).any():
-            print("Input sinogram " + str(ind) + " contains -ve elements. Setting to 0...")
+            print("Input sinogram " + str(ind) +
+                  " contains -ve elements. Setting to 0...")
             sinos[ind] = sinos_raw[ind].clone()
             sino_arr = sinos[ind].as_array()
             sino_arr[sino_arr < 0] = 0
@@ -211,9 +229,9 @@ def main():
         else:
             sinos[ind] = sinos_raw[ind]
 
-    ############################################################################################
+    ###########################################################################
     # Initialise recon image
-    ############################################################################################
+    ###########################################################################
 
     if initial_estimate:
         image = pet.ImageData(initial_estimate)
@@ -221,27 +239,28 @@ def main():
         image = sinos[0].create_uniform_image(0.0, nxny)
         # If using GPU, need to make sure that image is right size.
         if use_gpu:
-            image.initialise(dim=(127,320,320), vsize=(2.03125,2.08626,2.08626))
+            image.initialise(dim=(127, 320, 320),
+                             vsize=(2.03125, 2.08626, 2.08626))
             image.fill(0.0)
 
-    ############################################################################################
+    ###########################################################################
     # Set up resamplers
-    ############################################################################################
+    ###########################################################################
 
     resamplers = [get_resampler_from_trans(tran, image) for tran in trans]
 
-    ############################################################################################
+    ###########################################################################
     # Resample attenuation images (if necessary)
-    ############################################################################################
+    ###########################################################################
 
     if use_gpu:
         for i in range(len(attns)):
             resam = get_resampler(attns[i], ref=image)
             attns[i] = resam.forward(attns[i])
 
-    ############################################################################################
+    ###########################################################################
     # Set up acquisition models
-    ############################################################################################
+    ###########################################################################
 
     print("Setting up acquisition models...")
     if not use_gpu:
@@ -261,24 +280,26 @@ def main():
         if len(attns) == num_ms:
             asm_attn = get_asm_attn(sinos[ind], attns[ind], acq_models[ind])
         elif len(attns) == 1:
-            print("Resampling attn im " + str(ind) + " into required motion state...")
+            print("Resampling attn im " + str(ind) +
+                  " into required motion state...")
             resampler = get_resampler(attns[0], trans=trans[ind])
             resampled_attn = resampler.forward(attns[0])
-            asm_attn = get_asm_attn(sinos[ind], resampled_attn, acq_models[ind])
+            asm_attn = get_asm_attn(sinos[ind], resampled_attn,
+                                    acq_models[ind])
 
         # Get ASM dependent on attn and/or norm
         asm = None
         if asm_norm and asm_attn:
-            print("AcquisitionSensitivityModel contains norm and attenuation...")
+            print("ASM contains norm and attenuation...")
             asm = pet.AcquisitionSensitivityModel(asm_norm, asm_attn)
         elif asm_norm:
-            print("AcquisitionSensitivityModel contains norm...")
+            print("ASM contains norm...")
             asm = asm_norm
         elif asm_attn:
-            print("AcquisitionSensitivityModel contains attenuation...")
+            print("ASM contains attenuation...")
             asm = asm_attn
         if asm:
-            print("Setting AcquisitionSensitivityModel...")
+            print("Setting ASM...")
             acq_models[ind].set_acquisition_sensitivity(asm)
 
         if len(rands) > 0:
@@ -287,17 +308,18 @@ def main():
         # Set up
         acq_models[ind].set_up(sinos[ind], image)
 
-    ############################################################################################
+    ###########################################################################
     # Set up reconstructor
-    ############################################################################################
+    ###########################################################################
 
     print("Setting up reconstructor...")
 
     # Create composition operators containing acquisition models and resamplers
-    C = [ CompositionOperator(am, res, preallocate=True) for am, res in zip (*(acq_models, resamplers)) ]
+    C = [CompositionOperator(am, res, preallocate=True)
+         for am, res in zip(*(acq_models, resamplers))]
 
     # Configure the PDHG algorithm
-    kl = [ KullbackLeibler(b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos ] 
+    kl = [KullbackLeibler(b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos]
     f = BlockFunction(*kl)
     K = BlockOperator(*C)
 
@@ -317,8 +339,9 @@ def main():
         r_iso = 0
         r_nonneg = 1
         r_printing = 0
-        device='gpu' if use_gpu else 'cpu'
-        G = FGP_TV(r_alpha, r_iterations, r_tolerance, r_iso, r_nonneg, r_printing, device)
+        device = 'gpu' if use_gpu else 'cpu'
+        G = FGP_TV(r_alpha, r_iterations, r_tolerance,
+                   r_iso, r_nonneg, r_printing, device)
     else:
         raise error("Unknown regularisation")
 
@@ -340,7 +363,7 @@ def main():
         outp_file += "_sigma" + str(sigma)
         outp_file += "_tau" + str(tau)
         outp_file += "_nGates" + str(len(sino_files))
-        if resamplers == None:
+        if resamplers is None:
             outp_file += "_noMotion"
 
     def callback_save(iteration, objective_value, solution):
@@ -352,14 +375,14 @@ def main():
 
     if visualisations:
         # show reconstructed image
-        out = pdhg.get_output()   
+        out = pdhg.get_output()
         out_arr = out.as_array()
         z = out_arr.shape[0]//2
         show_2D_array('Reconstructed image', out.as_array()[z, :, :])
         pylab.show()
 
 
-# if anything goes wrong, an exception will be thrown 
+# if anything goes wrong, an exception will be thrown
 # (cf. Error Handling section in the spec)
 try:
     main()
