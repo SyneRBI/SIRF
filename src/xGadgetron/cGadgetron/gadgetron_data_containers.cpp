@@ -31,6 +31,7 @@ limitations under the License.
 #include <cmath>
 #include <iomanip>
 
+#include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
@@ -859,7 +860,7 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 	AcquisitionsFile af(acqs_info_);
 	ISMRMRD::Acquisition acq;
 	int na = number();
-	assert(na == ac.number());
+	ASSERT(na == ac.number(), "copy source and destination sizes differ");
 	for (int a = 0, i = 0; a < na; a++) {
 		ac.get_acquisition(a, acq);
 		af.append_acquisition(acq);
@@ -899,14 +900,16 @@ AcquisitionsVector::copy_acquisitions_data(const MRAcquisitionData& ac)
 	ISMRMRD::Acquisition acq_dst;
 	ISMRMRD::Acquisition acq_src;
 	int na = number();
-	assert(na == ac.number());
+	ASSERT(na == ac.number(), "copy source and destination sizes differ");
 	for (int a = 0, i = 0; a < na; a++) {
 		ac.get_acquisition(a, acq_src);
 		ISMRMRD::Acquisition& acq_dst = *acqs_[a];
 		unsigned int nc = acq_dst.active_channels();
 		unsigned int ns = acq_dst.number_of_samples();
-		assert(nc == acq_src.active_channels());
-		assert(ns == acq_src.number_of_samples());
+		ASSERT(nc == acq_src.active_channels(), 
+			"copy source and destination coil numbers differ");
+		ASSERT(ns == acq_src.number_of_samples(), 
+			"copy source and destination samples numbers differ");
 		for (int c = 0; c < nc; c++)
 			for (int s = 0; s < ns; s++, i++)
 				acq_dst.data(s, c) = acq_src.data(s, c);
