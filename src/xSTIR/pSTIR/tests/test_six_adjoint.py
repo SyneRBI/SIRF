@@ -21,22 +21,26 @@ __author__ = "Ander Biguri"
 def test_main(rec=False, verb=False, throw=True):
 
     pet.MessageRedirector()
-    original_verb = pet.get_verbosity()
-    pet.set_verbosity(False)
-    # create an acq_model that is explicitly a RayTracingMatrix
-    am = pet.AcquisitionModelUsingRayTracingMatrix()
-    # load sample data
-    data_path = pet.examples_data_path('PET')
-    raw_data_file = pet.existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
-    ad = pet.AcquisitionData(raw_data_file)
-     # create sample image
-    image = pet.ImageData()
-    image.initialise(dim=(31, 111, 111), vsize=(2.25, 2.25, 2.25))
-    # set up Acquisition Model
-    am.set_up(ad,image)
-    # test for adjointnesss
-    if not is_operator_adjoint(am, verbose = verb):
-      raise AssertionError('AcquisitionModelUsingRayTracingMatrix is not adjoint')
+
+    for scheme in ("file", "memory"):
+        pet.AcquisitionData.set_storage_scheme(scheme)
+
+        original_verb = pet.get_verbosity()
+        pet.set_verbosity(False)
+        # create an acq_model that is explicitly a RayTracingMatrix
+        am = pet.AcquisitionModelUsingRayTracingMatrix()
+        # load sample data
+        data_path = pet.examples_data_path('PET')
+        raw_data_file = pet.existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
+        ad = pet.AcquisitionData(raw_data_file)
+        # create sample image
+        image = pet.ImageData()
+        image.initialise(dim=(31, 111, 111), vsize=(2.25, 2.25, 2.25))
+        # set up Acquisition Model
+        am.set_up(ad,image)
+        # test for adjointnesss
+        if not is_operator_adjoint(am, verbose = verb):
+          raise AssertionError('AcquisitionModelUsingRayTracingMatrix is not adjoint')
 
     # Reset original verbose-ness
     pet.set_verbosity(original_verb)

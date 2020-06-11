@@ -438,11 +438,12 @@ namespace sirf {
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
-        /// Constructor that reads as PETAcquisitionDataInFile then converts to PETAcquisitionDataInMemory
-        PETAcquisitionDataInMemory(const char* filename) :
-            PETAcquisitionDataInMemory(PETAcquisitionDataInFile(filename))
+        /// Constructor for PETAcquisitionDataInMemory from filename
+        PETAcquisitionDataInMemory(const char* filename)
         {
-
+            auto pd_sptr = stir::ProjData::read_from_file(filename);
+			_data = stir::shared_ptr<stir::ProjData>
+                (new stir::ProjDataInMemory(*pd_sptr));
         }
 
 		static void init() 
