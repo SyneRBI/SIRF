@@ -43,14 +43,6 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             sirf.Utilities.check_status('AcquisitionData', h);
             sirf.Utilities.delete(h)
         end
-        function scheme = get_storage_scheme()
-%***SIRF*** Returns current acquisition storage scheme name
-            h = calllib...
-                ('mstir', 'mSTIR_getAcquisitionDataStorageScheme');
-            sirf.Utilities.check_status('AcquisitionData', h);
-            scheme = calllib('miutilities', 'mCharDataFromHandle', h);
-            sirf.Utilities.delete(h)
-        end
     end
     methods
         function self = AcquisitionData...
@@ -115,6 +107,19 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                 sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
+        end
+        function scheme = get_storage_scheme(self)
+%***SIRF*** Returns current acquisition storage scheme name
+            if isempty(self.handle_)
+                h = calllib...
+                    ('mstir', 'mSTIR_getAcquisitionDataStorageScheme_default');
+            else
+                h = calllib...
+                    ('mstir', 'mSTIR_getAcquisitionDataStorageScheme', self.handle_);
+            end
+            sirf.Utilities.check_status('AcquisitionData', h);
+            scheme = calllib('miutilities', 'mCharDataFromHandle', h);
+            sirf.Utilities.delete(h)
         end
         function read_from_file(self, filename)
 %***SIRF*** Reads acquisition data from a file.

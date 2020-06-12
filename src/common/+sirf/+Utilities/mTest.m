@@ -81,5 +81,20 @@ classdef mTest < handle
                 end
             end
         end
+        function check_if_equal(self, expected, value)
+            if value ~= expected
+                self.failed = self.failed + 1;
+                if self.verbose
+                    fprintf...
+                        ('+++ test %d failed: expected %e, got %e\n', ...
+                        self.ntest, expected, value);
+                end
+            else
+                if self.verbose
+                    fprintf('+++ test %d passed\n', self.ntest);
+                end
+            end
+            self.ntest = self.ntest + 1;
+        end
     end
 end

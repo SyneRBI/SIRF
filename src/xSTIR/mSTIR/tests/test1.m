@@ -106,6 +106,14 @@ delta = max(image_array(:))*eps;
 test.check(s)
 test.check(v, delta)
 
+% Check that the storage scheme for a pre-initialised object
+% doesn't change just because the default has changed.
+temp = PET.AcquisitionData();
+temp.set_storage_scheme('memory');
+ad = PET.AcquisitionData(fullfile(pathname, filename));
+temp.set_storage_scheme('file');
+test.check_if_equal('memory', ad.get_storage_scheme());
+
 failed = test.failed;
 ntests = test.ntest;
 
