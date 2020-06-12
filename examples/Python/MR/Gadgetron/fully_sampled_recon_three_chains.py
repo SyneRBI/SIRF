@@ -16,6 +16,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -s=<sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
+  --non-interactive           do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
@@ -50,6 +51,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 sigma = float(args['--sigma'])
+show_plot = not args['--non-interactive']
 
 def gaussian(x, mu, sigma):
     return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sigma, 2.)))
@@ -122,11 +124,12 @@ def main():
 ##    real_image_data = img_proc.process(complex_image_data)
 
     # show obtained images
-    real_image_data.show(title = 'Reconstructed image data (magnitude)')
+    if show_plot:
+        real_image_data.show(title = 'Reconstructed image data (magnitude)')
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

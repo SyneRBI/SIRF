@@ -14,8 +14,9 @@ Options:
   -o <file>, --output=<file>         images output file
   -a <string>, --algorithm=<string>  algorithm to use ('SimpleReconGadget', 'GenericReconCartesianFFTGadget') [default: SimpleReconGadget]
   --type_to_save=<string>            type to save ('mag', 'imag', 'all') [default: all]
-  --show                             show plots
+  --non-interactive                  do not show plots
 '''
+##  --show                             show plots
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
@@ -56,9 +57,7 @@ if data_path is None:
 output_file = args['--output']
 
 type_to_save = args['--type_to_save']
-show_plot = False
-if args['--show']:
-    show_plot = True
+show_plot = not args['--non-interactive']
 
 algorithm = args['--algorithm']
 
@@ -163,7 +162,7 @@ def main():
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information
