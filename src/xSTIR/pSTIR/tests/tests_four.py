@@ -27,29 +27,32 @@ def test_main(rec=False, verb=False, throw=True):
 
     msg_red = MessageRedirector()
 
-    data_path = examples_data_path('PET')
-    raw_data_file = existing_filepath(data_path, 'my_forward_projection.hs')
-    acq_data = AcquisitionData(raw_data_file)
+    for scheme in ("file", "memory"):
+        AcquisitionData.set_storage_scheme(scheme)
 
-    if verb:
-        print('Checking acquisition data algebra:')
-    new_acq_data = acq_data.clone()
-    diff = new_acq_data - acq_data
-    test.check(diff.norm())
-    test.check(1 - math.sqrt(acq_data.dot(acq_data)) / acq_data.norm())
-#    test.check(1 - math.sqrt(acq_data * acq_data) / acq_data.norm())
-    new_acq_data = acq_data * 10.0
-    test.check(1 - 10 * acq_data.norm() / new_acq_data.norm())
+        data_path = examples_data_path('PET')
+        raw_data_file = existing_filepath(data_path, 'my_forward_projection.hs')
+        acq_data = AcquisitionData(raw_data_file)
 
-    if verb:
-        print('Checking images algebra:')
-    image_data = acq_data.create_uniform_image(10.0)
-    diff = image_data.clone() - image_data
-    test.check(diff.norm())
-    test.check(1 - math.sqrt(image_data.dot(image_data)) / image_data.norm())
-#    test.check(1 - math.sqrt(image_data * image_data) / image_data.norm())
-    new_image_data = image_data * 10
-    test.check(1 - 10 * image_data.norm() / new_image_data.norm())
+        if verb:
+            print('Checking acquisition data algebra:')
+        new_acq_data = acq_data.clone()
+        diff = new_acq_data - acq_data
+        test.check(diff.norm())
+        test.check(1 - math.sqrt(acq_data.dot(acq_data)) / acq_data.norm())
+    #    test.check(1 - math.sqrt(acq_data * acq_data) / acq_data.norm())
+        new_acq_data = acq_data * 10.0
+        test.check(1 - 10 * acq_data.norm() / new_acq_data.norm())
+
+        if verb:
+            print('Checking images algebra:')
+        image_data = acq_data.create_uniform_image(10.0)
+        diff = image_data.clone() - image_data
+        test.check(diff.norm())
+        test.check(1 - math.sqrt(image_data.dot(image_data)) / image_data.norm())
+    #    test.check(1 - math.sqrt(image_data * image_data) / image_data.norm())
+        new_image_data = image_data * 10
+        test.check(1 - 10 * image_data.norm() / new_image_data.norm())
 
     return test.failed, test.ntest
 
