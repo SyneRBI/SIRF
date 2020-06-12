@@ -30,7 +30,7 @@ using namespace sirf;
 //#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
 #define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
-std::string PETAcquisitionData::_storage_scheme;
+std::string PETAcquisitionData::_default_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
 float

@@ -155,6 +155,11 @@ def test_main(rec=False, verb=False, throw=True):
     # Test move to scanner centre
     moved_im = image.move_to_scanner_centre(ad)
 
+    AcquisitionData.set_storage_scheme("memory")
+    ad = AcquisitionData(raw_data_file)
+    AcquisitionData.set_storage_scheme("file")
+    test.check_if_equal("memory", ad.get_storage_scheme())
+
     return test.failed, test.ntest
 
 

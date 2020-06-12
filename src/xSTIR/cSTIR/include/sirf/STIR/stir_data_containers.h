@@ -169,15 +169,16 @@ namespace sirf {
 			return sptr;
 		}
 
-		static std::string storage_scheme()
+		static std::string default_storage_scheme()
 		{
 			static bool initialized = false;
 			if (!initialized) {
-				_storage_scheme = "file";
+				_default_storage_scheme = "file";
 				initialized = true;
 			}
-			return _storage_scheme;
+			return _default_storage_scheme;
 		}
+		virtual std::string storage_scheme() const = 0;
 		static stir::shared_ptr<PETAcquisitionData> storage_template()
 		{
 			return _template;
@@ -296,7 +297,7 @@ namespace sirf {
 		}
 
 	protected:
-		static std::string _storage_scheme;
+		static std::string _default_storage_scheme;
 		static stir::shared_ptr<PETAcquisitionData> _template;
 		stir::shared_ptr<stir::ProjData> _data;
 		virtual PETAcquisitionData* clone_impl() const = 0;
@@ -358,16 +359,18 @@ namespace sirf {
 		static void init() {
 			static bool initialized = false;
 			if (!initialized) {
-				_storage_scheme = "file";
+				_default_storage_scheme = "file";
 				_template.reset(new PETAcquisitionDataInFile());
 				initialized = true;
-				PETAcquisitionData::storage_scheme();
+				PETAcquisitionData::default_storage_scheme();
 			}
 		}
+		virtual std::string storage_scheme() const 
+		{ return "file"; }
 		static void set_as_template()
 		{
 			init();
-			_storage_scheme = "file";
+			_default_storage_scheme = "file";
 			_template.reset(new PETAcquisitionDataInFile);
 		}
 
@@ -450,10 +453,12 @@ namespace sirf {
 		{ 
 			PETAcquisitionDataInFile::init(); 
 		}
+		virtual std::string storage_scheme() const 
+		{ return "memory"; }
 		static void set_as_template()
 		{
 			init();
-			_storage_scheme = "memory";
+			_default_storage_scheme = "memory";
 			_template.reset(new PETAcquisitionDataInMemory);
 		}
 

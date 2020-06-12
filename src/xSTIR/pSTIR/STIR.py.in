@@ -652,11 +652,13 @@ class AcquisitionData(DataContainer):
             (avoid if data is very large)
         '''
         try_calling(pystir.cSTIR_setAcquisitionDataStorageScheme(scheme))
-    @staticmethod
-    def get_storage_scheme():
+    def get_storage_scheme(self=None):
         '''Returns acquisition data storage scheme.
         '''
-        handle = pystir.cSTIR_getAcquisitionDataStorageScheme()
+        if not self:
+            handle = pystir.cSTIR_getAcquisitionDataStorageScheme_default()
+        else:
+            handle = pystir.cSTIR_getAcquisitionDataStorageScheme(self.handle)
         check_status(handle)
         scheme = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)

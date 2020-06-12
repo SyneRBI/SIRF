@@ -241,7 +241,7 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 		if (boost::iequals(name, "AcquisitionData")) {
 
             shared_ptr<PETAcquisitionData> sptr;
-            if (PETAcquisitionData::storage_scheme().compare("file") == 0)
+            if (PETAcquisitionData::default_storage_scheme().compare("file") == 0)
                 sptr.reset(new PETAcquisitionDataInFile(filename));
             else
                 sptr.reset(new PETAcquisitionDataInMemory(filename));
@@ -536,10 +536,18 @@ cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 
 extern "C"
 void*
-cSTIR_getAcquisitionDataStorageScheme()
+cSTIR_getAcquisitionDataStorageScheme_default()
 {
 	return charDataHandleFromCharData
-		(PETAcquisitionData::storage_scheme().c_str());
+		(PETAcquisitionData::default_storage_scheme().c_str());
+}
+
+extern "C"
+void*
+cSTIR_getAcquisitionDataStorageScheme(const void* ptr_ad)
+{
+    SPTR_FROM_HANDLE(const PETAcquisitionData, ad_sptr, ptr_ad);
+    return charDataHandleFromCharData(ad_sptr->storage_scheme().c_str());
 }
 
 extern "C"

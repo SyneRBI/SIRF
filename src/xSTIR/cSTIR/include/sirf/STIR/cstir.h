@@ -81,7 +81,8 @@ extern "C" {
 		int subset_num, int num_subsets);
 
 	// Acquisition data methods
-	void* cSTIR_getAcquisitionDataStorageScheme();
+	void* cSTIR_getAcquisitionDataStorageScheme_default();
+	void* cSTIR_getAcquisitionDataStorageScheme(const void* ptr_ad);
 	void* cSTIR_setAcquisitionDataStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionDataFromTemplate(void* ptr_t);
 	void* cSTIR_cloneAcquisitionData(void* ptr_ad);
