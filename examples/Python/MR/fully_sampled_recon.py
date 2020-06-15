@@ -11,7 +11,8 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -o <outp>, --output=<path>  output file name [default: output.h5]
+  -o <outp>, --output=<path>  output file name (no ext.) [default: output]
+  --non-interactive           do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
@@ -38,13 +39,14 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
+show_plot = not args['--non-interactive']
 
 def main():
 
@@ -85,19 +87,21 @@ def main():
     image_data = recon.get_output()
     image_data.write(args['--output'])
 
-    # show reconstructed image data
-    image_data.show(title = 'Reconstructed image data (magnitude)')
+    if show_plot:
+        # show reconstructed image data
+        image_data.show(title = 'Reconstructed image data (magnitude)')
 
     # filter the image
     image_array = image_data.as_array()
     select = image_array.real < 0.2*numpy.amax(image_array.real)
     image_array[select] = 0
     image_data.fill(abs(image_array))
-    image_data.show(title = 'Filtered image data (magnitude)')
+    if show_plot:
+        image_data.show(title = 'Filtered image data (magnitude)')
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information
