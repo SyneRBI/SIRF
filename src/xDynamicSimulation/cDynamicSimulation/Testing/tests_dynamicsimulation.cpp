@@ -509,23 +509,25 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 		bool const simulate_data = true;
 		bool const store_gt_mvfs = false;
 
-		int const num_simul_motion_dyn = 10;
+		int const num_simul_motion_dyn = 4;
 
 		float const test_SNR = 18;
 		size_t const noise_label = 13;
 
-		// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
+		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
+        std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/ComputTimeMeasurement/";
+
 		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/5DMotion/";
 
-		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Input/";
-		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/4DMotion/Cardiac/";
+		// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Input/";
+		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/4DMotion/Cardiac/";
 
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-		// mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"); // PETMR
-		mr_dyn_sim.set_filename_rawdata( input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"); //CARDIAC FWSEP
+		mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"); // PETMR
+		// mr_dyn_sim.set_filename_rawdata( input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"); //CARDIAC FWSEP
 
 
 		std::vector<float> roi_labels{1,2,3,4,50,72,73};
@@ -544,14 +546,14 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 		mr_dyn_sim.set_coilmaps( csm );
 
 
-		// RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
-		// auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
-		// mr_dyn_sim.set_trajectory( sptr_traj );
-
-		typedef RPESuperInterleavedGoldenCutTrajectoryContainer TrajType;
-		TrajType sfl_traj;
-		auto sptr_traj = std::make_shared< TrajType >( sfl_traj );
+		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
+		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
 		mr_dyn_sim.set_trajectory( sptr_traj );
+
+		// typedef RPESuperInterleavedGoldenCutTrajectoryContainer TrajType;
+		// TrajType sfl_traj;
+		// auto sptr_traj = std::make_shared< TrajType >( sfl_traj );
+		// mr_dyn_sim.set_trajectory( sptr_traj );
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
@@ -1064,7 +1066,7 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
 		
-		int const num_sim_motion_states = 10;
+		int const num_sim_motion_states = 4;
 
 		std::cout << "WARNING: NOISE IS STRONGLY SUPPRESSED" << std::endl;
 		float const noise_suppression = 1000 * 1000;
@@ -1093,9 +1095,9 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 			SignalContainer motion_signal = data_io::read_surrogate_signal( path_time_pts.str(), path_sig_pts.str());
 
 			// have constant signal
-			std::cout << "WARNING: CONSTANT SIGNAL ASSUMED" << std::endl;
-			for(int i=0; i<motion_signal.size(); i++)
-				motion_signal[i].second = 0.0; 
+			// std::cout << "WARNING: CONSTANT SIGNAL ASSUMED" << std::endl;
+			// for(int i=0; i<motion_signal.size(); i++)
+			// 	motion_signal[i].second = 0.0; 
 			
 
 			auto first_card_pt = motion_signal[0];
@@ -1133,9 +1135,16 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 		}
 		if( simulate_data )
 		{
+			clock_t t;
+			t = clock();
+		
 			std::cout << "Simulating Data" << std::endl;
 			pet_dyn_sim.simulate_dynamics( tot_time_ms );
 			std::cout << "Finished Simulating Data" << std::endl;
+
+			t = clock() - t;
+			std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+
 		}
 
 		if( store_gt_mvfs )

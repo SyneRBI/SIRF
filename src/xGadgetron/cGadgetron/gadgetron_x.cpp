@@ -363,7 +363,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	unsigned int nz =img.getMatrixSizeZ();//e.reconSpace.matrixSize.z;
 
 
-
+	std::cout << nx << std::endl;
+	std::cout << readout_size << std::endl;
 	if(  2 * nx != readout_size ) 
 		throw LocalisedException("The image dimensions passed to the simulation are not half the size of the encoded space in the header. Readout os 2 is assumed.", __FILE__, __LINE__);
 

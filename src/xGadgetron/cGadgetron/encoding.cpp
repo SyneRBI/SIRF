@@ -489,7 +489,7 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 
 	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 
-	size_t const usos_factor = 4;
+	size_t const usos_factor = 1;
 
 	size_t const Nr = traj_dims[0]*usos_factor ;
 	
