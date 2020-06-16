@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ limitations under the License.
 \brief Specification file for extended STIR functionality classes.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include <stdlib.h>
@@ -526,9 +527,9 @@ The actual algorithm is described in
 
 	class xSTIR_GeneralisedPrior3DF : public stir::GeneralisedPrior < Image3DF > {
 	public:
-		bool post_process() {
-			return post_processing();
-		}
+//		bool post_process() {
+//			return post_processing();
+//		}
 	};
 
 	class xSTIR_QuadraticPrior3DF : public stir::QuadraticPrior < float > {
@@ -548,9 +549,9 @@ The actual algorithm is described in
 	class xSTIR_GeneralisedObjectiveFunction3DF :
 		public stir::GeneralisedObjectiveFunction < Image3DF > {
 	public:
-		bool post_process() {
-			return post_processing();
-		}
+//		bool post_process() {
+//			return post_processing();
+//		}
 	};
 
 	//typedef xSTIR_GeneralisedObjectiveFunction3DF ObjectiveFunction3DF;
@@ -591,16 +592,12 @@ The actual algorithm is described in
 	class xSTIR_IterativeReconstruction3DF :
 		public stir::IterativeReconstruction < Image3DF > {
 	public:
-		bool post_process() {
+/*		bool post_process() {
 			//std::cout << "in xSTIR_IterativeReconstruction3DF.post_process...\n";
 			if (this->output_filename_prefix.length() < 1)
 				this->set_output_filename_prefix("reconstructed_image");
 			return post_processing();
-		}
-		stir::Succeeded setup(sptrImage3DF const& image) {
-			//std::cout << "in xSTIR_IterativeReconstruction3DF.setup...\n";
-			return set_up(image);
-		}
+		}*/
 		void update(Image3DF &image) {
 			update_estimate(image);
 			end_of_iteration_processing(image);

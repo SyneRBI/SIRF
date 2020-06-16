@@ -1,11 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2015 - 2017 University College London.
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2020 University College London.
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -239,8 +239,12 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			return newObjectHandle(sptr);
 		}
 		if (boost::iequals(name, "AcquisitionData")) {
-			shared_ptr<PETAcquisitionData> 
-				sptr(new PETAcquisitionDataInFile(filename));
+
+            shared_ptr<PETAcquisitionData> sptr;
+            if (PETAcquisitionData::storage_scheme().compare("file") == 0)
+                sptr.reset(new PETAcquisitionDataInFile(filename));
+            else
+                sptr.reset(new PETAcquisitionDataInMemory(filename));
 			return newObjectHandle(sptr);
 		}
 		if (boost::iequals(name, "ListmodeToSinograms")) {
@@ -680,6 +684,17 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 }
 
 extern "C"
+void* cSTIR_get_ProjDataInfo(void* ptr_acq)
+{
+	try {
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		return charDataHandleFromCharData(
+			sptr_ad->get_proj_data_info_sptr()->parameter_info().c_str());
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
@@ -725,10 +740,8 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 		xSTIR_IterativeReconstruction3DF& recon =
 			objectFromHandle<xSTIR_IterativeReconstruction3DF>(ptr_r);
 		Succeeded s = Succeeded::no;
-		if (!recon.post_process()) {
-			s = recon.setup(sptr_image);
-			recon.subiteration() = recon.get_start_subiteration_num();
-		}
+		s = recon.set_up(sptr_image);
+		recon.subiteration() = recon.get_start_subiteration_num();
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupReconstruction failed",
 				__FILE__, __LINE__);
@@ -782,8 +795,7 @@ void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i)
 		xSTIR_GeneralisedObjectiveFunction3DF& obj_fun =
 			objectFromHandle<xSTIR_GeneralisedObjectiveFunction3DF>(ptr_r);
 		Succeeded s = Succeeded::no;
-		if (!obj_fun.post_process())
-			s = obj_fun.set_up(sptr_image);
+		s = obj_fun.set_up(sptr_image);
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupObjectiveFunction failed",
 				__FILE__, __LINE__);
@@ -884,11 +896,6 @@ cSTIR_setupPrior(void* ptr_p, void* ptr_i)
 		// (valid for as long as the argument of prior.set_up() is not used)
 		//sptrImage3DF sptr_img(new Voxels3DF);
 		prior.set_up(sptr_img);
-		if (prior.post_process()){
-			ExecutionStatus status("cSTIR_setupPrior failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
 		return handle;
 	}
 	CATCH;

@@ -41,95 +41,100 @@ def test_main(rec=False, verb=False, throw=True):
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
-    # create an acq_model that is explicitly a RayTracingMatrix and test it a tiny bit
-    am = AcquisitionModelUsingRayTracingMatrix()
-    am.set_num_tangential_LORs(3);
-    test.check_if_equal(3, am.get_num_tangential_LORs());
+    for scheme in ("file", "memory"):
+        AcquisitionData.set_storage_scheme(scheme)
 
-    # create the matrix on its own, and use that for later tests
-    matrix = RayTracingMatrix()
-    matrix.set_num_tangential_LORs(2)
-    test.check_if_equal(2, matrix.get_num_tangential_LORs());
+        # create an acq_model that is explicitly a RayTracingMatrix and test it a tiny bit
+        am = AcquisitionModelUsingRayTracingMatrix()
+        am.set_num_tangential_LORs(3);
+        test.check_if_equal(3, am.get_num_tangential_LORs());
 
-    am = AcquisitionModelUsingMatrix()
-    am.set_matrix(matrix)
+        # create the matrix on its own, and use that for later tests
+        matrix = RayTracingMatrix()
+        matrix.set_num_tangential_LORs(2)
+        test.check_if_equal(2, matrix.get_num_tangential_LORs());
 
-    data_path = examples_data_path('PET')
+        am = AcquisitionModelUsingMatrix()
+        am.set_matrix(matrix)
 
-    raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
-    ad = AcquisitionData(raw_data_file)
-    adata = ad.as_array()
-    s = norm(adata)
-    v = var(adata)
-    test.check(s)
-    test.check(v)
+        data_path = examples_data_path('PET')
 
-    filter = TruncateToCylinderProcessor()
+        raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
+        ad = AcquisitionData(raw_data_file)
+        adata = ad.as_array()
+        s = norm(adata)
+        v = var(adata)
+        test.check(s)
+        test.check(v)
+        print("Printing AcqData info")
+        print(ad.get_info())
 
-    image_size = (31, 111, 111)
-    voxel_size = (3.375, 3, 3)
-    image = ImageData()
-    image.initialise(image_size, voxel_size)
-    image.fill(1.0)
-    test.check_if_equal(voxel_size, image.voxel_sizes())
+        filter = TruncateToCylinderProcessor()
 
-    filter.apply(image)
-    image_arr = image.as_array()
-    s = norm(image_arr)
-    v = var(image_arr)
-    test.check(s)
-    test.check(v)
+        image_size = (31, 111, 111)
+        voxel_size = (3.375, 3, 3)
+        image = ImageData()
+        image.initialise(image_size, voxel_size)
+        image.fill(1.0)
+        test.check_if_equal(voxel_size, image.voxel_sizes())
 
-    prior = QuadraticPrior()
-    prior.set_penalisation_factor(0.5)
-    prior.set_up(image)
+        filter.apply(image)
+        image_arr = image.as_array()
+        s = norm(image_arr)
+        v = var(image_arr)
+        test.check(s)
+        test.check(v)
 
-    num_subsets = 12
+        prior = QuadraticPrior()
+        prior.set_penalisation_factor(0.5)
+        prior.set_up(image)
 
-    obj_fun = make_Poisson_loglikelihood(ad)
-    obj_fun.set_acquisition_model(am)
-    obj_fun.set_num_subsets(num_subsets)
-    if verb:
-        print('setting up objective function, please wait...')
-    obj_fun.set_up(image)
+        num_subsets = 12
 
-    subset = 0
+        obj_fun = make_Poisson_loglikelihood(ad)
+        obj_fun.set_acquisition_model(am)
+        obj_fun.set_num_subsets(num_subsets)
+        if verb:
+            print('setting up objective function, please wait...')
+        obj_fun.set_up(image)
 
-    ss_img = obj_fun.get_subset_sensitivity(subset)
+        subset = 0
 
-    grad_img = obj_fun.get_backprojection_of_acquisition_ratio(image, subset)
+        ss_img = obj_fun.get_subset_sensitivity(subset)
 
-    pgrad_img = prior.get_gradient(image)
+        grad_img = obj_fun.get_backprojection_of_acquisition_ratio(image, subset)
 
-    image_arr = image.as_array()
-    ss_arr = ss_img.as_array()
-    grad_arr = grad_img.as_array()
-    pgrad_arr = pgrad_img.as_array()
+        pgrad_img = prior.get_gradient(image)
 
-    ss_arr[ss_arr < 1e-6] = 1e-6
-    update = grad_arr / (ss_arr + pgrad_arr / num_subsets)
-    image_arr = image_arr * update
+        image_arr = image.as_array()
+        ss_arr = ss_img.as_array()
+        grad_arr = grad_img.as_array()
+        pgrad_arr = pgrad_img.as_array()
 
-    s = norm(image_arr)
-    v = var(image_arr)
-    test.check(s)
-    test.check(v)
-    s = norm(update)
-    v = var(update)
-    test.check(s)
-    test.check(v)
-    s = norm(ss_arr)
-    v = var(ss_arr)
-    test.check(s)
-    test.check(v)
-    s = norm(grad_arr)
-    v = var(grad_arr)
-    test.check(s)
-    test.check(v)
-    s = norm(pgrad_arr)
-    v = var(pgrad_arr)
-    test.check(s)
-    test.check(v)
+        ss_arr[ss_arr < 1e-6] = 1e-6
+        update = grad_arr / (ss_arr + pgrad_arr / num_subsets)
+        image_arr = image_arr * update
+
+        s = norm(image_arr)
+        v = var(image_arr)
+        test.check(s)
+        test.check(v)
+        s = norm(update)
+        v = var(update)
+        test.check(s)
+        test.check(v)
+        s = norm(ss_arr)
+        v = var(ss_arr)
+        test.check(s)
+        test.check(v)
+        s = norm(grad_arr)
+        v = var(grad_arr)
+        test.check(s)
+        test.check(v)
+        s = norm(pgrad_arr)
+        v = var(pgrad_arr)
+        test.check(s)
+        test.check(v)
 
     # Test geom info
     geom_info = image.get_geometrical_info()

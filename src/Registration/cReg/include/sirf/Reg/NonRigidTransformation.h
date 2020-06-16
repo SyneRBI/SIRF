@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ limitations under the License.
 \ingroup Registration
 \brief Base class for transformations.
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -37,7 +37,7 @@ namespace sirf {
 \brief Base class for non-rigid transformations.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */template<class dataType>
 class NonRigidTransformation : public Transformation<dataType>
 {
@@ -45,6 +45,8 @@ public:
 
     /// Destructor
     virtual ~NonRigidTransformation() {}
+
+#ifndef _MSC_VER // need to disable on Visual Studio for https://github.com/SyneRBI/SIRF/issues/665
 
     /*! \brief Get inverse as unique pointer (potentially based on another image).
      *
@@ -67,5 +69,7 @@ protected:
 
     /// Helper function for get_inverse (VTK). Don't use.
     virtual NonRigidTransformation* get_inverse_impl_vtk(const std::shared_ptr<const NiftiImageData<dataType> > image_sptr = nullptr) const = 0;
+#endif // _MSC_VER
 };
+
 }

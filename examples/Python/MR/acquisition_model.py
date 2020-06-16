@@ -13,15 +13,16 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -38,7 +39,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
@@ -46,6 +47,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 output_file = args['--output']
+show_plot = not args['--non-interactive']
 
 def main():
 
@@ -142,17 +144,18 @@ def main():
     backprojected_data = acq_model.backward(simulated_acq_data)
     b_norm = backprojected_data.norm()
     print('norm of backprojected images: %f' % b_norm)
-    # display backprojected data
-    backprojected_data.show(title = 'Backprojected data (magnitude)')
-    # display reconstructed images
-    reconstructed_images.show(title = 'Reconstructed images (magnitude)')
+    if show_plot:
+        # display backprojected data
+        backprojected_data.show(title = 'Backprojected data (magnitude)')
+        # display reconstructed images
+        reconstructed_images.show(title = 'Reconstructed images (magnitude)')
 
     diff = backprojected_data/b_norm - reconstructed_images/r_norm
     print('norm of backprojected - reconstructed images: %f' % diff.norm())
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

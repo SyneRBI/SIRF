@@ -17,15 +17,16 @@ Options:
   -s <slce>, --slice=<slce>   image slice to display [default: 0]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   -o <file>, --output=<file>  images output file
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-## Copyright 2015 - 2017 University College London.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+## Copyright 2015 - 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -42,7 +43,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
@@ -61,6 +62,7 @@ elif zdim == 2:
     zyx = (2, 1, 0)
 else:
     zyx = None
+show_plot = not args['--non-interactive']
 
 def main():
 
@@ -84,8 +86,9 @@ def main():
     # for undersampled acquisition data GRAPPA computes Gfactor images
     # in addition to reconstructed ones
     image_data = recon.get_output()
-    title = 'Reconstructed image data (magnitude)'
-    image_data.show(zyx=zyx, slice=slc, title=title, \
+    if show_plot:
+        title = 'Reconstructed image data (magnitude)'
+        image_data.show(zyx=zyx, slice=slc, title=title, \
                     postpone=(niter > 0), cmap=None)
     if niter < 1:
         return
@@ -122,13 +125,13 @@ def main():
         w = acq_model.forward(grad)
         tau = (grad.dot(grad))/(w.dot(w))
         image_data = image_data - grad * tau
-        if i%10 == 0 or i == niter - 1:
+        if (i%10 == 0 or i == niter - 1) and show_plot:
             it = i + 1
             title = 'Steepest-descent-refined image data, iteration %d' % it
             image_data.show(zyx=zyx, slice=slc, title=title, cmap=None, \
                             postpone=(i < niter - 1))
 
-    if niter > 1:
+    if niter > 1 and show_plot:
         import pylab
         pylab.figure()
         pylab.plot(numpy.arange(1, niter + 1, 1), res)
@@ -145,7 +148,7 @@ def main():
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

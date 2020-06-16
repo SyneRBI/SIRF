@@ -85,11 +85,11 @@ SIRF library modules are interfaces to object-oriented C++, which makes it reaso
 
     image = ImageData('my_image.h5'); 
 
-We note that an MR `ImageData` object contains not only the voxel values, but also a number of parameters specified by the ISMRMRD format of MR image data. The object data is encapsulated, i.e. is not directly accessible from the user's code (being handled mostly by the underpinning C++ code) and is processed by the object methods. For example, to display the data encapsulated by image, one needs to call its method `show()`: 
+We note that an `ImageData` object contains not only the voxel values, but also a number of parameters specified by the file format, such as geometric info, but also extra information in the ISMRMRD header in the MR example above. The object data is encapsulated, i.e. is not directly accessible from the user's code (being handled mostly by the underpinning C++ code) and is processed by the object methods. For example, to display the data encapsulated by image, one needs to call its method `show()`: 
 
     image.show(); 
 
-and to copy the data into a Matlab array one uses method `as_array()`: 
+and to copy the data into a Python/Matlab array one uses method `as_array()`: 
 
     image_data_array = image.as_array(); 
 
@@ -127,7 +127,8 @@ For arrays in the target language, we use “native” ordering of indices in Py
 
     image_array(x,y,z) % Matlab 
 
-For images, the meaning of `x`, `y` and `z` is currently acquisition dependent. Geometric information will be added later. 
+For images, the meaning of `x`, `y` and `z` is currently acquisition dependent. You *cannot* rely that this order is related
+to the patient orientation in a fixed manner. Use the methods for getting geometrical information to know how these indices are related to LPS coordinates.
 
 ### Handles <a name="Handles"></a>
 
@@ -180,7 +181,7 @@ and a method to create a copy of the object
 “Processing” classes normally use the following pattern 
 
     recon.set_input(acquisition_data); 
-    recon.setup(image_data); 
+    recon.set_up(image_data); 
     recon.process(); 
     output_image_data=recon.get_output(); 
 
@@ -594,12 +595,22 @@ Below examples are given for rigid/affine and non-rigid registrations, as well a
 ##### Resampling (NiftyResample)
 ###### Methods
 
-	set_reference_image						Set the reference image
-	set_floating_image						Set the floating
-	process									Start the registration process
-	get_output								Get the registered image
-	add_transformation						Add transformation (any type)
-	set_interpolation_type					Set interpolation type
+	set_reference_image		Set the reference image
+	set_floating_image		Set the floating
+	process					Start the resampling process. 
+								This is the equivalent of 
+								forward(floating_image).
+	get_output				Get the registered image
+	add_transformation		Add transformation (any type)
+	clear_transformations	Remove all transformations
+	set_interpolation_type	Set interpolation type
+	forward(im, out=None)	Resample image in forward direction.
+								Image should have same properties as
+								floating image used in set_up.
+	backward(im, out=None)	Resample image in backward/adjoint direction. 
+								Image should have same properties as
+								reference image used in set_up.
+	adjoint(im, out=None)	Alias of backward.
 
 ###### Example
 	res = NiftyResample()
@@ -608,8 +619,11 @@ Below examples are given for rigid/affine and non-rigid registrations, as well a
 	res.set_interpolation_type(1)
 	res.add_transformation(trans1)
 	res.add_transformation(trans2)
-	res.process()
-	output = res.get_output()
+	out = res.forward(flo)
+	# No allocation, faster
+	res.forward(flo, out=out)
+	# Backwards/adjoint
+	out2 = res.adjoint(ref)
 
 ### Other classes <a name="Other_classes"></a>
 
@@ -1078,7 +1092,7 @@ Pads each readout with zeros to compensate for partial echo acquisitions.
 | AcquisitionData | internal1 | trigger_dimension | "repetition" |
 | | | sorting_dimension | "slice" |
 
-Collects lines of k-space until a certain trigger condition is encountered, i.e., when there is enough data to reconstruct an image.
+Collects lines of k-space until a certain trigger condition is encountered, i.e., when there is enough data to reconstruct an image. Internally, this data is put into a "bucket" which can be thought of as a collection of unsorted k-sace readouts. 
 
 #### BucketToBufferGadget
 
@@ -1090,7 +1104,7 @@ Collects lines of k-space until a certain trigger condition is encountered, i.e.
 | | | ignore_segment | "true" |
 | | | verbose | "true" |
 
-Inserts the collected data into a buffer more suitable for the reconstruction processing.
+Inserts the data collected in a bucket into a buffer. A buffer is more suitable for the reconstruction processing.
 
 #### SimpleReconGadget
 

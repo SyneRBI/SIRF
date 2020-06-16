@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2018-2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Perform registration with any types of SIRF image and any SIRF registration algorithm.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include "sirf/Reg/NiftyAladinSym.h"
@@ -48,7 +48,7 @@ enum Algorithm {
 
 static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
 {
-    if      (strcmp(engine.c_str(), "Nifti") == 0)
+    if      (strcmp(engine.c_str(), "Reg") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(filename);
     else if (strcmp(engine.c_str(), "STIR") == 0)
         return std::make_shared<const STIRImageData>(filename);
@@ -99,9 +99,9 @@ void print_usage()
     // Optional flags
     std::cout << "\n  Optional flags:\n";
     std::cout << "    --warped_prefix <fname>:\twarped image filename\n";
-    std::cout << "    --disp_fwd_prefix <fname>:\tforward displacement field image\n";
+    std::cout << "    --disp_fwd_prefix <fname>:\tforward displacement field image (Displacement fields encode relative change)\n";
     std::cout << "    --disp_inv_prefix <fname>:\tinverse displacement field image\n";
-    std::cout << "    --def_fwd_prefix <fname>:\tforward deformation field image\n";
+    std::cout << "    --def_fwd_prefix <fname>:\tforward deformation field image (Deformation fields encode absolute locations)\n";
     std::cout << "    --def_inv_prefix <fname>:\tinverse deformation field image\n";
 
     // Optional rigid/affine flags

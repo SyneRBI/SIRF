@@ -5,13 +5,13 @@ function osem_reconstruction(engine)
 % from Green et al for Maximum a Posteriori (MAP) maximisation. Here we use it
 % for Maximum Likelihood (ML) in which case it is equivalent to OSEM.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -49,6 +49,9 @@ try
     % compatible with the scanner geometry (included in the AcquisitionData
     % object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0);
+
+    fprintf('setting up acquisition model...\n')
+    acq_model.set_up(acq_data, image);
 
     % create objective function of Poisson logarithmic likelihood type
     % compatible with the acquisition data type

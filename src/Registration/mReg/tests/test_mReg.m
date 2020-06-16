@@ -1,9 +1,9 @@
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018 - 2020 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -52,8 +52,8 @@ g.aladin_def_inverse                         = fullfile(output_prefix, 'matlab_a
 g.aladin_def_fwd_inv                         = fullfile(output_prefix, 'matlab_aladin_def_fwd_then_inv.nii');
 g.aladin_disp_forward                        = fullfile(output_prefix, 'matlab_aladin_disp_forward.nii');
 g.aladin_disp_inverse                        = fullfile(output_prefix, 'matlab_aladin_disp_inverse_%s.nii');
-g.f3d_def_forward                            = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
-g.f3d_def_inverse                            = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
+g.f3d_def_forward                            = fullfile(output_prefix, 'matlab_f3d_def_forward.nii');
+g.f3d_def_inverse                            = fullfile(output_prefix, 'matlab_f3d_def_inverse_%s.nii');
 g.f3d_disp_forward                           = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
 g.f3d_disp_inverse                           = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
 
@@ -69,6 +69,10 @@ g.ref_aladin                                 = sirf.Reg.NiftiImageData3D( g.ref_
 g.flo_aladin                                 = sirf.Reg.NiftiImageData3D( g.flo_aladin_filename );
 g.ref_f3d                                    = sirf.Reg.NiftiImageData3D(   g.ref_f3d_filename  );
 g.flo_f3d                                    = sirf.Reg.NiftiImageData3D(   g.flo_f3d_filename  );
+
+% Check if we have niftiread
+toolkits=ver;
+have_niftiread = any(strcmp({toolkits.Name},'Image Processing Toolbox'));
 
 % You can change these when debugging
 try_niftiimage = true;
@@ -202,8 +206,6 @@ if try_niftiimage
     x.fill(x_arr);
     assert(x.get_contains_nans(),'NiftiImageData::get_contains_nans() 2 failed.')
 
-    toolkits=ver;
-    have_niftiread = any(strcmp({toolkits.Name},'Image Processing Toolbox'));
     if have_niftiread
         arr1 = sirf.Reg.NiftiImageData(g.ref_aladin_filename).as_array();
         arr2 = niftiread(g.ref_aladin_filename);
@@ -328,6 +330,12 @@ if try_niftiimage3d
     % try linear algebra
     h = d/10000;
     assert(abs(h.get_max()-d.get_max()/10000) < 1e-4,'NiftiImageData3D linear algebra failed.')
+
+    % Check as_array and fill is symmetric
+    ref_aladin_arr = g.ref_aladin.as_array();
+    ref_aladin2 = g.ref_aladin.clone();
+    ref_aladin2.fill(ref_aladin_arr);
+    assert(ref_aladin2 == g.ref_aladin, 'NiftiImageData3D::as_array()/fill() failed.')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData3D test.')
@@ -650,6 +658,16 @@ if try_niftyf3d
 	disp('%                  Starting Nifty f3d test...')
 	disp('%------------------------------------------------------------------------ %')
 
+    % Crop input to increase speed
+    dim = g.ref_f3d.get_dimensions();
+    mid = dim(2:4)/2;
+    min_idx = [ mid(1)-5,mid(2)-5,mid(3)-5,0,0,0,0 ];
+    max_idx = [ mid(1)+5,mid(2)+4,mid(3)+3,0,0,0,0 ];
+    ref_f3d_crop = g.ref_f3d.clone();
+    ref_f3d_crop.crop(min_idx, max_idx);
+    flo_f3d_crop = g.flo_f3d.clone();
+    flo_f3d_crop.crop(min_idx, max_idx);
+
 	% Print all wrapped methods.
 	sirf.Reg.NiftyF3dSym.print_all_wrapped_methods();
 
@@ -658,8 +676,8 @@ if try_niftyf3d
 
 	% default constructor
     nf = sirf.Reg.NiftyF3dSym();
-    nf.set_reference_image(g.ref_f3d);
-    nf.set_floating_image(g.flo_f3d);
+    nf.set_reference_image(ref_f3d_crop);
+    nf.set_floating_image(flo_f3d_crop);
     nf.set_parameter_file(g.parameter_file_f3d);
     % nf.set_reference_time_point(1);
     % nf.set_floating_time_point(1);
@@ -678,6 +696,18 @@ if try_niftyf3d
     def_inverse.write_split_xyz_components(g.f3d_def_inverse);
     disp_forward.write(g.f3d_disp_forward);
     disp_inverse.write_split_xyz_components(g.f3d_disp_inverse);
+
+    % Compare between sirf.Reg.NiftiImageData3DDefofmation::as_array() and niftiread
+    if have_niftiread
+        deff_arr = def_forward.as_array()
+        deff_matlab_arr = niftiread(g.f3d_def_forward)
+        assert(all(deff_arr(:) == deff_matlab_arr(:)), 'NiftiImageData3DDeformation as_array() failed.')
+    end
+
+    % Check as_array and fill for deformation fields
+    deff2 = def_forward.clone()
+    deff2.fill(deff_arr)
+    assert(def_forward == deff2, 'NiftiImageData3DDeformation::as_array()/fill() failed.')
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty f3d test.')

@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Class for deformation SIRF image data.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -42,11 +42,13 @@ template<class dataType> class NiftiImageData3DDisplacement;
 \ingroup Registration
 \brief Class for deformation SIRF image data.
 
+Deformation fields (as opposed to Displacement fields) describe the absolute position (in real world units) of the pixel locations on the reference image.
+A deformation field of an identity transformation will contain the location of each of the pixels centroids in the world coordinates.
 Here, we require ndim == 5, nt == 1 (so contains x,y,z dimensions as well as u==3 for the tensor component).
 Also require intent_p1 == DEF_FIELD.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class dataType>
 class NiftiImageData3DDeformation : public NiftiImageData3DTensor<dataType>, public NonRigidTransformation<dataType>

@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2018 - 2019 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ If no transformations are given, identity will be used.
 If multiple transformations are given, they will be applied in the order they were given.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include "sirf/Reg/NiftyResample.h"
@@ -83,8 +83,8 @@ void print_usage()
     std::cout << "    -output:\t\toutput image filename\n";
     std::cout << "    -interp:\t\tinterpolation (0=NN, 1=linear, 3=cubic, 4=spline)\n";
     std::cout << "    -add_affine:\tadd affine transformation\n";
-    std::cout << "    -add_def:\t\tadd deformation transformation\n";
-    std::cout << "    -add_disp:\t\tadd displacement transformation\n";
+    std::cout << "    -add_def:\t\tadd deformation transformation (Deformation fields encode absolute locations)\n";
+    std::cout << "    -add_disp:\t\tadd displacement transformation (Displacement fields encode relative change)\n";
     std::cout << "    -adj:\t\tadjoint transformation. Give ref and flo as you would in the forward case.\n";
 
 }

@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief NiftyReg's f3d class for non-rigid registrations.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include "sirf/Reg/NiftyF3dSym.h"
@@ -50,9 +50,14 @@ void NiftyF3dSym<dataType>::process()
     NiftiImageData3D<dataType> flo = *this->_floating_images_nifti.at(0);
 
     // Create the registration object
-    _registration_sptr = std::shared_ptr<reg_f3d_sym<dataType> >(new reg_f3d_sym<dataType>(_reference_time_point, _floating_time_point));
-    _registration_sptr->SetFloatingImage(ref.get_raw_nifti_sptr().get());
-    _registration_sptr->SetReferenceImage(flo.get_raw_nifti_sptr().get());
+    if (_use_symmetric)
+        _registration_sptr = std::make_shared<reg_f3d_sym<dataType> >(_reference_time_point, _floating_time_point);
+    else
+        _registration_sptr = std::make_shared<reg_f3d<dataType> >(_reference_time_point, _floating_time_point);
+
+    // Set reference and floating images
+    _registration_sptr->SetReferenceImage(ref.get_raw_nifti_sptr().get());
+    _registration_sptr->SetFloatingImage(flo.get_raw_nifti_sptr().get());
 
     // By default, use a padding value of 0
     _registration_sptr->SetWarpedPaddingValue(0.f);
@@ -153,7 +158,7 @@ void NiftyF3dSym<dataType>::parse_parameter_file()
     if (this->_parameter_filename.empty())
         return;
 
-    Parser<reg_f3d_sym<dataType> > parser;
+    Parser<reg_f3d<dataType> > parser;
     parser.set_object   (    _registration_sptr     );
     parser.set_filename ( this->_parameter_filename );
 

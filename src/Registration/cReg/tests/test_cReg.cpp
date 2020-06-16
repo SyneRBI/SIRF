@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2017 - 2020 University College London
+Copyright 2020 Rutherford Appleton Laboratory STFC
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +25,7 @@ limitations under the License.
 \brief Test for creation of a weighted-mean image
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include <iostream>
@@ -813,18 +814,29 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty f3d test..\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
+
+        // Crop input to increase speed
+        const int *dim = ref_f3d->get_dimensions();
+        int mid[3] = { int(dim[1]/2), int(dim[2]/2), int(dim[3]/2) };
+        int min_idx[7] = { mid[0]-5,mid[1]-5,mid[2]-5,0,0,0,0};
+        int max_idx[7] = { mid[0]+5,mid[1]+4,mid[2]+3,0,0,0,0};
+        std::shared_ptr<NiftiImageData3D<float> > ref_f3d_crop = ref_f3d->clone();
+        ref_f3d_crop->crop(min_idx, max_idx);
+        std::shared_ptr<NiftiImageData3D<float> > flo_f3d_crop = flo_f3d->clone();
+        flo_f3d_crop->crop(min_idx, max_idx);
+
         // Print all available methods
         NiftyF3dSym<float>::print_all_wrapped_methods();
 
         // First set up some masks
-        std::shared_ptr<NiftiImageData3D<float> > ref_mask = ref_f3d->clone();
-        std::shared_ptr<NiftiImageData3D<float> > flo_mask = flo_f3d->clone();
+        std::shared_ptr<NiftiImageData3D<float> > ref_mask = ref_f3d_crop->clone();
+        std::shared_ptr<NiftiImageData3D<float> > flo_mask = flo_f3d_crop->clone();
         ref_mask->fill(1.F);
         flo_mask->fill(1.F);
 
         NiftyF3dSym<float> NF;
-        NF.set_reference_image               (           ref_f3d          );
-        NF.set_floating_image                (           flo_f3d          );
+        NF.set_reference_image               (        ref_f3d_crop        );
+        NF.set_floating_image                (        flo_f3d_crop        );
         NF.set_parameter_file                (     parameter_file_f3d     );
         NF.set_reference_time_point          (             1              );
         NF.set_floating_time_point           (             1              );
@@ -845,6 +857,18 @@ int main(int argc, char* argv[])
         disp_forward_sptr->write(f3d_disp_forward);
         disp_inverse_sptr->write_split_xyz_components(f3d_disp_inverse);
 
+        // Check that if ref==flo, out is very similar
+        NiftyF3dSym<float> NF2;
+        NF2.set_reference_image               (    ref_f3d_crop    );
+        NF2.set_floating_image                (    ref_f3d_crop    );
+        NF2.set_parameter_file                ( parameter_file_f3d );
+        NF2.set_reference_time_point          (          1         );
+        NF2.set_floating_time_point           (          1         );
+        NF2.set_reference_mask(ref_mask);
+        NF2.set_floating_mask(flo_mask);
+        NF2.process();
+        if (*NF2.get_output_sptr() != *ref_f3d_crop)
+            throw std::runtime_error("NiftyF3dSym failed: ref==flo, but registered image != ref");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty f3d test.\n";

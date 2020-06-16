@@ -1,11 +1,12 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2018 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2020 University College London
+Copyright 2020 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,11 +26,12 @@ limitations under the License.
 \brief Implementation file for SIRF data container classes for Gadgetron data.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 #include <cmath>
 #include <iomanip>
 
+#include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
@@ -90,12 +92,13 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	try
 	{
-
+		Mutex mtx;
+		mtx.lock();
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
-
 		d.readHeader(this->acqs_info_);
-
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
+		mtx.unlock();
+
 		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
 		{
 			if( verbose )
@@ -105,7 +108,9 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			}
 
 			ISMRMRD::Acquisition acq;
+			mtx.lock();
 			d.readAcquisition( i_acqu, acq);
+			mtx.unlock();
 
 			if( TO_BE_IGNORED(acq) )
 				continue;
@@ -855,7 +860,7 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 	AcquisitionsFile af(acqs_info_);
 	ISMRMRD::Acquisition acq;
 	int na = number();
-	assert(na == ac.number());
+	ASSERT(na == ac.number(), "copy source and destination sizes differ");
 	for (int a = 0, i = 0; a < na; a++) {
 		ac.get_acquisition(a, acq);
 		af.append_acquisition(acq);
@@ -895,14 +900,16 @@ AcquisitionsVector::copy_acquisitions_data(const MRAcquisitionData& ac)
 	ISMRMRD::Acquisition acq_dst;
 	ISMRMRD::Acquisition acq_src;
 	int na = number();
-	assert(na == ac.number());
+	ASSERT(na == ac.number(), "copy source and destination sizes differ");
 	for (int a = 0, i = 0; a < na; a++) {
 		ac.get_acquisition(a, acq_src);
 		ISMRMRD::Acquisition& acq_dst = *acqs_[a];
 		unsigned int nc = acq_dst.active_channels();
 		unsigned int ns = acq_dst.number_of_samples();
-		assert(nc == acq_src.active_channels());
-		assert(ns == acq_src.number_of_samples());
+		ASSERT(nc == acq_src.active_channels(), 
+			"copy source and destination coil numbers differ");
+		ASSERT(ns == acq_src.number_of_samples(), 
+			"copy source and destination samples numbers differ");
 		for (int c = 0; c < nc; c++)
 			for (int s = 0; s < ns; s++, i++)
 				acq_dst.data(s, c) = acq_src.data(s, c);
@@ -1127,6 +1134,7 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 	int ng = names.size();
 	const char* group = names[0].c_str();
 	printf("group %s\n", group);
+        Mutex mtx;
 	for (int ig = 0; ig < ng; ig++) {
 		const char* var = names[ig].c_str();
 		if (!ig)
@@ -1141,6 +1149,8 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 				continue;
 		if (strcmp(var, "xml") == 0)
 			continue;
+
+		mtx.lock();
 
 		ISMRMRD::ISMRMRD_Dataset dataset;
 		ISMRMRD::ISMRMRD_Image im;
@@ -1157,12 +1167,14 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 		shared_ptr<ISMRMRD::Dataset> sptr_dataset
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
 
-        // ISMRMRD throws an error if no XML is present.
-        try {
-            sptr_dataset->readHeader(this->acqs_info_);
+		// ISMRMRD throws an error if no XML is present.
+		try {
+			sptr_dataset->readHeader(this->acqs_info_);
 		}
 		catch (const std::exception &error) {
 		}
+
+		mtx.unlock();
 
 		for (int i = 0; i < num_im; i++) {
 			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type, *sptr_dataset, var, i));
@@ -1180,7 +1192,7 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 			break;
 	}
 
-    this->set_up_geom_info();
+	this->set_up_geom_info();
 	return 0;
 }
 
