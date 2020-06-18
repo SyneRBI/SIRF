@@ -135,11 +135,8 @@ def get_asm_attn(sino, attn, acq_model):
     return asm_attn
 
 
-def main():
-
-    ###########################################################################
-    # Parse input files
-    ###########################################################################
+def parse_input_files():
+    """Parse input files."""
 
     if trans_pattern is None:
         raise AssertionError("--trans missing")
@@ -169,10 +166,11 @@ def main():
     if len(attn_files) > 1 and len(attn_files) != num_ms:
         raise AssertionError("#attn should be 0, 1 or #sinos")
 
-    ###########################################################################
-    # Read input
-    ###########################################################################
+    return num_ms, trans_files, sino_files, attn_files, rand_files
 
+
+def read_trans(num_ms, trans_files):
+    """Read transformations."""
     trans = num_ms*[None]
     for i in range(num_ms):
         if trans_type == "disp":
@@ -186,28 +184,36 @@ def main():
         else:
             raise pet.error("Unknown transformation type")
 
-    sinos = [pet.AcquisitionData(file) for file in sino_files]
-    attns = [pet.ImageData(file) for file in attn_files]
-    rands = [pet.AcquisitionData(file) for file in rand_files]
 
-    ###########################################################################
-    # Initialise recon image
-    ###########################################################################
-
+def get_initial_estimate():
+    """Get initial estimate."""
     if initial_estimate:
         image = pet.ImageData(initial_estimate)
     else:
-        image = sinos[0].create_uniform_image(0.0, nxny)
+        # Create image based on ProjData
+        image = sinos[0].create_uniform_image(0.0, (nxny, nxny))
         # If using GPU, need to make sure that image is right size.
         if use_gpu:
-            image.initialise(dim=(127, 320, 320),
-                             vsize=(2.03125, 2.08626, 2.08626))
-            image.fill(0.0)
+            dim = (127, 320, 320)
+            spacing = (2.03125, 2.08626, 2.08626)
+        # elif non-default spacing desired
+        elif args['--dxdy']:
+            dim = image.dimensions()
+            dxdy = float(args['--dxdy'])
+            spacing = (image.voxel_sizes()[0], dxdy, dxdy)
+        if use_gpu or args['--dxdy']:
+            image.initialise(dim=dim,
+                             vsize=spacing)
+    return image
 
-    ###########################################################################
-    # Resample attenuation images (if necessary)
-    ###########################################################################
 
+def get_attn_images(num_ms, attns, trans, image):
+    """Get attn images.
+    If none supplied, return None.
+    If 1 supplied, resample to each motion state.
+    If num_ms supplied return them.
+    If GPU projector, resample attn images for correct dimensions.
+    """
     resampled_attns = None
     if len(attns) > 0:
         resampled_attns = [0]*num_ms
@@ -224,11 +230,11 @@ def main():
             attn = attns[0] if len(attns) == 1 else attns[i]
             resam = get_resampler(attn, ref=ref, trans=tran)
             resampled_attns[i] = resam.forward(attn)
+    return resampled_attns
 
-    ###########################################################################
-    # Set up acquisition models
-    ###########################################################################
 
+def get_acq_models(num_ms, resampled_attns, sinos, rands):
+    """Get acquisition models."""
     print("Setting up acquisition models...")
     if not use_gpu:
         acq_models = num_ms * [pet.AcquisitionModelUsingRayTracingMatrix()]
@@ -273,11 +279,11 @@ def main():
 
         # Set up
         acq_models[ind].set_up(sinos[ind], image)
+        return acq_models
 
-    ###########################################################################
-    # Set up reconstructor
-    ###########################################################################
 
+def set_up_reconstructor(sinos, acq_models, trans, image):
+    """Set up reconstructor."""
     print("Setting up reconstructor...")
 
     # define objective function to be maximized as
@@ -307,8 +313,55 @@ def main():
 
     # set the initial image estimate
     recon.set_current_estimate(image)
+    return recon
 
-    # reconstruct
+
+def main():
+
+    ###########################################################################
+    # Parse input files
+    ###########################################################################
+
+    num_ms, trans_files, sino_files, attn_files, rand_files = \
+        parse_input_files()
+
+    ###########################################################################
+    # Read input
+    ###########################################################################
+
+    trans = read_trans(num_ms, trans_files)
+    sinos = [pet.AcquisitionData(file) for file in sino_files]
+    attns = [pet.ImageData(file) for file in attn_files]
+    rands = [pet.AcquisitionData(file) for file in rand_files]
+
+    ###########################################################################
+    # Initialise recon image
+    ###########################################################################
+
+    image = get_initial_estimate()
+
+    ###########################################################################
+    # Resample attenuation images (if necessary)
+    ###########################################################################
+
+    resampled_attns = get_attn_images(num_ms, attns, trans, image)
+
+    ###########################################################################
+    # Set up acquisition models
+    ###########################################################################
+
+    acq_models = get_acq_models(num_ms, resampled_attns, sinos, rands)
+
+    ###########################################################################
+    # Set up reconstructor
+    ###########################################################################
+
+    recon = set_up_reconstructor(sinos, acq_models, trans, image)
+
+    ###########################################################################
+    # Reconstruct
+    ###########################################################################
+
     print('reconstructing, please wait...')
     recon.process()
     out = recon.get_output()
