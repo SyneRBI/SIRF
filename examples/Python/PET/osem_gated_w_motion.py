@@ -1,4 +1,5 @@
-"""OSEM reconstruction demo for gated data with motion.
+"""
+OSEM reconstruction demo for gated data with motion.
 
 We actually use the OSMAPOSL reconstructor in this demo. This reconstructor
 implements an Ordered Subsets (OS) version of the One Step Late algorithm (OSL)
@@ -137,7 +138,6 @@ def get_asm_attn(sino, attn, acq_model):
 
 def parse_input_files():
     """Parse input files."""
-
     if trans_pattern is None:
         raise AssertionError("--trans missing")
     if sino_pattern is None:
@@ -209,7 +209,8 @@ def get_initial_estimate(sinos):
 
 
 def get_attn_images(num_ms, attns, trans, image):
-    """Get attn images.
+    """
+    Get attn images.
 
     If none supplied, return None.
     If 1 supplied, resample to each motion state.
