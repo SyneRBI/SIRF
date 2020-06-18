@@ -697,13 +697,14 @@ add_gate(
 static stir::shared_ptr<GatedProjData>
 vec_AcqData_to_GatedProjData(const std::vector<stir::shared_ptr<PETAcquisitionData> > &vec_ad)
 {
+    if (vec_ad.empty() || vec_ad.at(0) == nullptr)
+        return nullptr;
+
     auto sino_sptr = MAKE_SHARED<stir::GatedProjData>();
-    if (!vec_ad.empty()) {
-        sino_sptr->set_exam_info(*vec_ad.at(0)->get_exam_info_sptr());
-        sino_sptr->resize(vec_ad.size());
-        for (unsigned i=0; i<vec_ad.size(); ++i)
-            sino_sptr->set_proj_data_sptr(vec_ad.at(i)->data(), i+1);
-    }
+    sino_sptr->set_exam_info(*vec_ad.at(0)->get_exam_info_sptr());
+    sino_sptr->resize(vec_ad.size());
+    for (unsigned i=0; i<vec_ad.size(); ++i)
+        sino_sptr->set_proj_data_sptr(vec_ad.at(i)->data(), i+1);
     return sino_sptr;
 }
 
