@@ -907,6 +907,7 @@ cSTIR_PoissonGatedWMotion_add_gate(
 #else
 		throw std::runtime_error("cSTIR_PoissonGatedWMotion_add_gate: shouldn't be here");
 #endif
+		return new DataHandle;
 	}
 	CATCH;
 }
@@ -923,6 +924,7 @@ cSTIR_PoissonGatedWMotion_clear_gates(void* poisson_ptr)
 #else
 		throw std::runtime_error("cSTIR_PoissonGatedWMotion_clear_gates: shouldn't be here");
 #endif
+		return new DataHandle;
 	}
 	CATCH;
 }
