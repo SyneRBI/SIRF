@@ -1,4 +1,4 @@
-'''OSEM reconstruction demo for gated data with motion.
+"""OSEM reconstruction demo for gated data with motion.
 
 We actually use the OSMAPOSL reconstructor in this demo. This reconstructor
 implements an Ordered Subsets (OS) version of the One Step Late algorithm (OSL)
@@ -32,7 +32,7 @@ Options:
   --verbosity=<int>                 Verbosity [default: 0]
   --nifti                           save output as nifti
   --gpu                             use gpu
-'''
+"""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
@@ -109,7 +109,7 @@ use_gpu = True if args['--gpu'] else False
 
 
 def get_resampler(image, ref=None, trans=None):
-    """returns a NiftyResample object for the specified transform and image."""
+    """Returns a NiftyResample object for the specified transform and image."""
     if ref is None:
         ref = image
     resampler = reg.NiftyResample()
@@ -213,7 +213,7 @@ def main():
         resampled_attns = [0]*num_ms
         # if using GPU, dimensions of attn and recon images have to match
         ref = image if use_gpu else None
-        for i in range(len(attns)):
+        for i in range(num_ms):
             # if we only have 1 attn image, then we need to resample into
             # space of each gate. However, if we have num_ms attn images, then
             # assume they are already in the correct position, so use None as
@@ -293,7 +293,7 @@ def main():
     # this example, we actually run OSEM);
     # this algorithm does not converge to the maximum of the objective function
     # but is used in practice to speed-up calculations
-    recon = OSMAPOSLReconstructor()
+    recon = pet.OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)

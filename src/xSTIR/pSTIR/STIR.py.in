@@ -42,6 +42,10 @@ import sirf.pystir as pystir
 
 import sirf.STIR_params as parms
 
+if @STIR_GATED_MOTION@:
+    import sirf.Reg as reg
+    import uuid
+
 try:
     input = raw_input
 except NameError:
@@ -1812,7 +1816,7 @@ if @STIR_GATED_MOTION@:
             displacement filename, and optionally b-spline order."""
             assert_validity(acq_data, AcquisitionData)
             assert_validity(acq_model, AcquisitionModel)
-            assert_validity(disp, sirf.Reg.NiftiImageData3DDisplacement)
+            assert_validity(disp, reg.NiftiImageData3DDisplacement)
             disp_fname = "temp_disp_" + uuid.uuid4().hex + ".nii"
             disp.write(disp_fname)
             try_calling(pystir.cSTIR_PoissonGatedWMotion_add_gate(
