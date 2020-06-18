@@ -56,6 +56,13 @@ ADD_TEST(NAME SYN_TEST_CPLUSPLUS
 	COMMAND SYN_TEST_CPLUSPLUS ${test_data}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+# Poisson likelihood with gated proj data and motion
+if (STIR_WITH_EXPERIMENTAL AND STIR_BUILT_WITH_ITK)
+	ADD_EXECUTABLE (test_PoissonGatedMotion test_PoissonGatedMotion.cpp ${STIR_REGISTRIES})
+	TARGET_LINK_LIBRARIES(test_PoissonGatedMotion PUBLIC cstir Reg)
+	ADD_TEST(NAME SYN_TEST_CPLUSPLUS_POISSONWMOTION COMMAND test_PoissonGatedMotion WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 # If python
 if (BUILD_PYTHON)
 	# Make into test

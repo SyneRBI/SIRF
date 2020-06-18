@@ -89,6 +89,10 @@ void* cSTIR_newObject(const char* name)
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return NEW_OBJECT_HANDLE
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
+        if (boost::iequals(name,
+			"PoissonLogLhLinModMeanGatedProjDataWMotion3DF"))
+			return NEW_OBJECT_HANDLE
+			(PoissonLogLhLinModMeanGatedProjDataWMotion3DF);
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
@@ -883,6 +887,37 @@ cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 	}
 	CATCH;
 }
+
+#ifdef STIR_GATED_MOTION
+extern "C"
+void*
+cSTIR_PoissonGatedWMotion_add_gate(
+        void* poisson_ptr, void* ad_ptr, void* am_ptr,
+        const char* disp_fname, const int b_spline_order)
+{
+	try {
+        SPTR_FROM_HANDLE(PoissonLogLhLinModMeanGatedProjDataWMotion3DF,
+                         poisson_sptr, poisson_ptr);
+        SPTR_FROM_HANDLE(PETAcquisitionData, ad_sptr, ad_ptr);
+        SPTR_FROM_HANDLE(PETAcquisitionModel, am_sptr, am_ptr);
+        // set it
+        poisson_sptr->add_gate(ad_sptr, am_sptr, disp_fname, b_spline_order);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_PoissonGatedWMotion_clear_gates(void* poisson_ptr)
+{
+	try {
+        SPTR_FROM_HANDLE(PoissonLogLhLinModMeanGatedProjDataWMotion3DF,
+                         poisson_sptr, poisson_ptr);
+        poisson_sptr->clear_gates();
+	}
+	CATCH;
+}
+#endif
 
 extern "C"
 void*

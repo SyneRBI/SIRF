@@ -400,8 +400,8 @@ The actual algorithm is described in
 		}
 
 		virtual stir::Succeeded set_up(
-			stir::shared_ptr<PETAcquisitionData> sptr_acq,
-			stir::shared_ptr<STIRImageData> sptr_image);
+			const stir::shared_ptr<PETAcquisitionData> sptr_acq,
+			const stir::shared_ptr<STIRImageData> sptr_image);
 
 		// computes and returns a subset of forward-projected data 
 		stir::shared_ptr<PETAcquisitionData>
@@ -456,8 +456,8 @@ The actual algorithm is described in
 				get_proj_matrix_sptr();
 		}
 		virtual stir::Succeeded set_up(
-			stir::shared_ptr<PETAcquisitionData> sptr_acq,
-			stir::shared_ptr<STIRImageData> sptr_image)
+			const stir::shared_ptr<PETAcquisitionData> sptr_acq,
+			const stir::shared_ptr<STIRImageData> sptr_image)
 		{
 			if (!sptr_matrix_.get())
 				return stir::Succeeded::no;
@@ -591,6 +591,43 @@ The actual algorithm is described in
 	typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
 		PoissonLogLhLinModMeanProjData3DF;
 
+#ifdef STIR_GATED_MOTION
+    class xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndGatedProjDataWithMotion3DF :
+		public stirPoissonLogLhLinModMeanGatedWMotion3DF {
+    private:
+        typedef stirPoissonLogLhLinModMeanGatedWMotion3DF base_type;
+	public:
+
+        /// Add a motion gate. Required: acq data, acq model and disp field
+        void add_gate(
+                stir::shared_ptr<PETAcquisitionData> ad_sptr,
+                stir::shared_ptr<AcqMod3DF> am_sptr,
+                stir::shared_ptr<STIRTrans3DF> trans_sptr);
+
+        /// Add a motion gate. Required: acq data, acq model,
+        /// disp field (as string) and the b-spline order
+        void add_gate(
+                stir::shared_ptr<PETAcquisitionData> ad_sptr,
+                stir::shared_ptr<AcqMod3DF> am_sptr,
+                const std::string &disp_fname,
+                const int b_spline_order);
+
+        /// Set up
+        virtual stir::Succeeded set_up(stir::shared_ptr<Image3DF> const& target_sptr);
+
+        /// Clear all gates
+        void clear_gates();
+
+	private:
+		std::vector<stir::shared_ptr<PETAcquisitionData> > _ad_vec;
+		std::vector<stir::shared_ptr<AcqMod3DF> > _am_vec;
+        std::vector<stir::shared_ptr<STIRTrans3DF> > _trans_vec;
+	};
+
+	typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndGatedProjDataWithMotion3DF
+		PoissonLogLhLinModMeanGatedProjDataWMotion3DF;
+#endif
+
 	class xSTIR_IterativeReconstruction3DF :
 		public stir::IterativeReconstruction < Image3DF > {
 	public:
@@ -661,7 +698,7 @@ The actual algorithm is described in
 				("wrong frequency cut-off", __FILE__, __LINE__);
 			fc_ramp = fc;
 		}
-		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
+		stir::Succeeded set_up(const stir::shared_ptr<STIRImageData> sptr_id)
 		{
 			_sptr_image_data.reset(new STIRImageData(*sptr_id));
 			_is_set_up = true;

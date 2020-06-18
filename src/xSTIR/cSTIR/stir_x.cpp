@@ -523,8 +523,8 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 
 Succeeded 
 PETAcquisitionModel::set_up(
-	shared_ptr<PETAcquisitionData> sptr_acq,
-	shared_ptr<STIRImageData> sptr_image)
+	const shared_ptr<PETAcquisitionData> sptr_acq,
+	const shared_ptr<STIRImageData> sptr_image)
 {
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
@@ -667,4 +667,111 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad,
 	}
 
 	return sptr_id;
+}
+
+void
+PoissonLogLhLinModMeanGatedProjDataWMotion3DF::
+add_gate(
+        stir::shared_ptr<PETAcquisitionData> ad_sptr,
+        stir::shared_ptr<AcqMod3DF> am_sptr,
+        stir::shared_ptr<STIRTrans3DF> trans_sptr)
+{
+    _ad_vec.push_back(ad_sptr);
+    _am_vec.push_back(am_sptr);
+    _trans_vec.push_back(trans_sptr);
+}
+
+void
+PoissonLogLhLinModMeanGatedProjDataWMotion3DF::
+add_gate(
+        stir::shared_ptr<PETAcquisitionData> ad_sptr,
+        stir::shared_ptr<AcqMod3DF> am_sptr,
+        const std::string &disp_fname,
+        const int b_spline_order)
+{
+    auto disp_sptr = MAKE_SHARED<STIRDisp3DF>(disp_fname, b_spline_order);
+    add_gate(ad_sptr, am_sptr, disp_sptr);
+}
+
+static stir::shared_ptr<GatedProjData>
+vec_AcqData_to_GatedProjData(const std::vector<stir::shared_ptr<PETAcquisitionData> > &vec_ad)
+{
+    auto sino_sptr = MAKE_SHARED<stir::GatedProjData>();
+    if (!vec_ad.empty()) {
+        sino_sptr->set_exam_info(*vec_ad.at(0)->get_exam_info_sptr());
+        sino_sptr->resize(vec_ad.size());
+        for (unsigned i=0; i<vec_ad.size(); ++i)
+            sino_sptr->set_proj_data_sptr(vec_ad.at(i)->data(), i+1);
+    }
+    return sino_sptr;
+}
+
+template<class Type>
+void check_all_or_none(const std::vector<stir::shared_ptr<Type> > &vec, const std::string &explanation)
+{
+    const bool first_is_null_ptr = vec.at(0) == nullptr;
+    for (unsigned i=1; i<vec.size(); ++i)
+        if ((vec.at(i) == nullptr) != first_is_null_ptr)
+            throw std::runtime_error("PoissonLogLhLinModMeanGatedProjDataWMotion3DF::set_up "
+                                     + explanation + ": expected all or none");
+}
+
+Succeeded
+PoissonLogLhLinModMeanGatedProjDataWMotion3DF::
+set_up(const stir::shared_ptr<Image3DF> &target_sptr)
+{
+    const unsigned num_gates = _ad_vec.size();
+    if (num_gates==0)
+        throw std::runtime_error("PoissonLogLhLinModMeanGatedProjDataWMotion3DF::set_up: no gates added.");
+
+    // Projector pair
+    set_projector_pair_sptr(_am_vec.at(0)->projectors_sptr());
+
+    // Raw data: vector<sinograms> -> GatedProjData
+    auto sino_sptr = vec_AcqData_to_GatedProjData(_ad_vec);
+    set_proj_data_sptr(sino_sptr);
+
+    // Additives
+    std::vector<stir::shared_ptr<PETAcquisitionData> > add_vec;
+    for (unsigned i=0; i<num_gates; ++i)
+        add_vec.push_back(_am_vec.at(i)->additive_term_sptr());
+    check_all_or_none(add_vec, "additive");
+    auto add_sptr = vec_AcqData_to_GatedProjData(add_vec);
+    set_additive_proj_data_sptr(add_sptr);
+
+    // Norms
+    std::vector<stir::shared_ptr<stir::BinNormalisation> > norm_vec;
+    for (unsigned i=0; i<num_gates; ++i)
+        norm_vec.push_back(_am_vec.at(i)->normalisation_sptr());
+    check_all_or_none(norm_vec, "norms");
+    if (norm_vec.at(0)) {
+        stir::VectorWithOffset<stir::shared_ptr<stir::BinNormalisation> > norm_stir_vec(1, num_gates);
+        for (unsigned i=1; i<=num_gates; ++i)
+            norm_stir_vec.at(i) = norm_vec.at(i-1);
+        set_normalisations(norm_stir_vec);
+    }
+
+    // Transformations
+    stir::VectorWithOffset<stir::shared_ptr<DataProcessor3DF> > trans_stir_vec(1,num_gates);
+    for (unsigned i=0; i<num_gates; ++i)
+        trans_stir_vec.at(i+1) = MAKE_SHARED<stir::Transform3DObjectImageProcessor<float> >(_trans_vec.at(i));
+    set_forward_transformations(trans_stir_vec);
+
+    // Blank TimeFrameDefinitions
+    std::vector<std::pair<double, double> > frame_times(num_gates);
+    for (unsigned i=0; i<num_gates; ++i)
+        frame_times[i] = std::pair<double,double>(i,i+1);
+    set_frame_definitions(frame_times);
+
+    // Call the base type set up
+    return base_type::set_up(target_sptr);
+}
+
+void
+PoissonLogLhLinModMeanGatedProjDataWMotion3DF::
+clear_gates()
+{
+    _ad_vec.clear();
+    _am_vec.clear();
+    _trans_vec.clear();
 }
