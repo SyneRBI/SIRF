@@ -183,9 +183,10 @@ def read_trans(num_ms, trans_files):
                 reg.NiftiImageData3DDeformation(trans_files[i]))
         else:
             raise pet.error("Unknown transformation type")
+    return trans
 
 
-def get_initial_estimate():
+def get_initial_estimate(sinos):
     """Get initial estimate."""
     if initial_estimate:
         image = pet.ImageData(initial_estimate)
@@ -209,6 +210,7 @@ def get_initial_estimate():
 
 def get_attn_images(num_ms, attns, trans, image):
     """Get attn images.
+
     If none supplied, return None.
     If 1 supplied, resample to each motion state.
     If num_ms supplied return them.
@@ -233,7 +235,7 @@ def get_attn_images(num_ms, attns, trans, image):
     return resampled_attns
 
 
-def get_acq_models(num_ms, resampled_attns, sinos, rands):
+def get_acq_models(num_ms, resampled_attns, sinos, rands, image):
     """Get acquisition models."""
     print("Setting up acquisition models...")
     if not use_gpu:
@@ -254,7 +256,7 @@ def get_acq_models(num_ms, resampled_attns, sinos, rands):
         # Create attn ASM if necessary
         asm_attn = None
         if resampled_attns:
-            asm_attn = get_asm_attn(sinos[ind], resampled_attns[i],
+            asm_attn = get_asm_attn(sinos[ind], resampled_attns[ind],
                                     acq_models[ind])
 
         # Get ASM dependent on attn and/or norm
@@ -282,7 +284,7 @@ def get_acq_models(num_ms, resampled_attns, sinos, rands):
         return acq_models
 
 
-def set_up_reconstructor(sinos, acq_models, trans, image):
+def set_up_reconstructor(num_ms, sinos, acq_models, trans, image):
     """Set up reconstructor."""
     print("Setting up reconstructor...")
 
@@ -338,7 +340,7 @@ def main():
     # Initialise recon image
     ###########################################################################
 
-    image = get_initial_estimate()
+    image = get_initial_estimate(sinos)
 
     ###########################################################################
     # Resample attenuation images (if necessary)
@@ -350,13 +352,13 @@ def main():
     # Set up acquisition models
     ###########################################################################
 
-    acq_models = get_acq_models(num_ms, resampled_attns, sinos, rands)
+    acq_models = get_acq_models(num_ms, resampled_attns, sinos, rands, image)
 
     ###########################################################################
     # Set up reconstructor
     ###########################################################################
 
-    recon = set_up_reconstructor(sinos, acq_models, trans, image)
+    recon = set_up_reconstructor(num_ms, sinos, acq_models, trans, image)
 
     ###########################################################################
     # Reconstruct
