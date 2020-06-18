@@ -1,4 +1,5 @@
 '''OSEM reconstruction demo for gated data with motion.
+
 We actually use the OSMAPOSL reconstructor in this demo. This reconstructor
 implements an Ordered Subsets (OS) version of the One Step Late algorithm (OSL)
 from Green et al for Maximum a Posteriori (MAP) maximisation. Here we use it
@@ -29,7 +30,6 @@ Options:
                                     (default: determined by scanner)
   --b_spline_order=<val>            b-spline order for resampler [default: 1]
   --verbosity=<int>                 Verbosity [default: 0]
-  --visualisations                  show visualisations
   --nifti                           save output as nifti
   --gpu                             use gpu
 '''
@@ -85,7 +85,7 @@ norm_file = None
 if args['--norm']:
     norm_file = str(args['--norm'])
     if not os.path.isfile(norm_file):
-        raise error("Norm file not found: " + norm_file)
+        raise pet.error("Norm file not found: " + norm_file)
 
 # Initial estimate
 initial_estimate = None
@@ -104,13 +104,12 @@ num_subiterations = int(args['--subiter'])
 nxny = int(args['--nxny'])
 outp_file = args['--outp']
 b_spline_order = args['--b_spline_order']
-visualisations = True if args['--visualisations'] else False
 nifti = True if args['--nifti'] else False
 use_gpu = True if args['--gpu'] else False
 
 
 def get_resampler(image, ref=None, trans=None):
-    """returns a NiftyResample object for the specified transform and image"""
+    """returns a NiftyResample object for the specified transform and image."""
     if ref is None:
         ref = image
     resampler = reg.NiftyResample()
@@ -124,7 +123,7 @@ def get_resampler(image, ref=None, trans=None):
 
 
 def get_asm_attn(sino, attn, acq_model):
-    """Get attn ASM from sino, attn image and acq model"""
+    """Get attn ASM from sino, attn image and acq model."""
     asm_attn = pet.AcquisitionSensitivityModel(attn, acq_model)
     # temporary fix pending attenuation offset fix in STIR:
     # converting attenuation into 'bin efficiency'
@@ -185,7 +184,7 @@ def main():
             trans[i] = reg.NiftiImageData3DDisplacement(
                 reg.NiftiImageData3DDeformation(trans_files[i]))
         else:
-            raise error("Unknown transformation type")
+            raise pet.error("Unknown transformation type")
 
     sinos = [pet.AcquisitionData(file) for file in sino_files]
     attns = [pet.ImageData(file) for file in attn_files]
@@ -286,7 +285,7 @@ def main():
     obj_fun = pet.PoissonLogLhLinModMeanGatedProjDataWMotion()
 
     # Loop over each motion state and set
-    for ms in num_ms:
+    for i in range(num_ms):
         obj_fun.add_gate(sinos[i], acq_models[i], trans[i])
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
@@ -298,7 +297,6 @@ def main():
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)
-    recon.set_input(acq_data)
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function
@@ -317,13 +315,7 @@ def main():
     if not args['--nifti']:
         out.write(outp_file)
     else:
-        sirf.Reg.NiftiImageData(out).write(outp_file)
-
-    if visualisations:
-        # show reconstructed image
-        image_array = out.as_array()
-        show_2D_array('Reconstructed image', image_array[z, :, :])
-        pylab.show()
+        reg.NiftiImageData(out).write(outp_file)
 
 
 # if anything goes wrong, an exception will be thrown
