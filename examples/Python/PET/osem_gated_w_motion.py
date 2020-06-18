@@ -1,4 +1,5 @@
-"""OSEM reconstruction demo for gated data with motion.
+"""
+OSEM reconstruction demo for gated data with motion.
 
 We actually use the OSMAPOSL reconstructor in this demo. This reconstructor
 implements an Ordered Subsets (OS) version of the One Step Late algorithm (OSL)
