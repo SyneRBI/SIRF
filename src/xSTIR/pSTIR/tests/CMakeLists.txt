@@ -29,6 +29,6 @@ endif()
 add_test(NAME PET_TESTS_PYTHON
   COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_test}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-add_test(NAME PET_DEMOS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/PET")
+#add_test(NAME PET_DEMOS_PYTHON
+#  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
+#  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/PET")
