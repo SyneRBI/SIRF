@@ -669,6 +669,7 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad,
 	return sptr_id;
 }
 
+#ifdef STIR_GATED_MOTION
 void
 PoissonLogLhLinModMeanGatedProjDataWMotion3DF::
 add_gate(
@@ -775,3 +776,4 @@ clear_gates()
     _am_vec.clear();
     _trans_vec.clear();
 }
+#endif

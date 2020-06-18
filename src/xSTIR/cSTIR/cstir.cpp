@@ -89,10 +89,12 @@ void* cSTIR_newObject(const char* name)
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return NEW_OBJECT_HANDLE
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
+#ifdef STIR_GATED_MOTION
         if (boost::iequals(name,
 			"PoissonLogLhLinModMeanGatedProjDataWMotion3DF"))
 			return NEW_OBJECT_HANDLE
 			(PoissonLogLhLinModMeanGatedProjDataWMotion3DF);
+#endif
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
