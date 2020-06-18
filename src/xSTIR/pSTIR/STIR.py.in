@@ -1789,6 +1789,40 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         parms.set_parameter\
             (self.handle, self.name, 'acquisition_data', ad.handle)
 
+
+if @STIR_GATED_MOTION@:
+    class PoissonLogLhLinModMeanGatedProjDataWMotion(ObjectiveFunction):
+        """
+        Class for STIR PoissonLogLikelihoodWithLinearModelForMeanAndGatedProjDataWithMotion object.
+        There are two versions of this class in the STIR code base. The one used here lives in the
+        experimental part, and was chosen becase it uses the adjoint for the motion, as opposed to the
+        version in the main code base, which uses the inverse.
+        """
+        def __init__(self):
+            """Init"""
+            self.handle = None
+            self.name = 'PoissonLogLhLinModMeanGatedProjDataWMotion3DF'
+            self.handle = pystir.cSTIR_newObject(self.name)
+            check_status(self.handle)
+        def __del__(self):
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+        def add_gate(self, acq_data, acq_model, disp, b_spline_order=1):
+            """Add a gate by giving an acquisition data, acquisition model, 
+            displacement filename, and optionally b-spline order."""
+            assert_validity(acq_data, AcquisitionData)
+            assert_validity(acq_model, AcquisitionModel)
+            assert_validity(disp, sirf.Reg.NiftiImageData3DDisplacement)
+            disp_fname = "temp_disp_" + uuid.uuid4().hex + ".nii"
+            disp.write(disp_fname)
+            try_calling(pystir.cSTIR_PoissonGatedWMotion_add_gate(
+                self.handle, acq_data.handle, acq_model.handle, disp_fname, b_spline_order))
+            os.remove(disp_fname)
+        def add_gate(self):
+            """Clear all gates."""
+            try_calling(pystir.cSTIR_PoissonGatedWMotion_clear_gates(self.handle))
+    
+
 class Reconstructor(object):
     '''
     Class for a generic PET reconstructor.
