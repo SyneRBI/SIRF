@@ -95,7 +95,7 @@ def main():
     res = algorithm()
     # Set the image we want to resample
     res.set_reference_image(ref)
-    # the floating image is set so we know the domain of the resampled image. This can be ref. 
+    # the floating image is set so we know the domain of the resampled image. This can be ref.
     res.set_floating_image(flo)
     # 0 is nearest neighbour, 1 is linear, 3 is cobic, 4 is sinc
     res.set_interpolation_type(int(args['--intrp']))
