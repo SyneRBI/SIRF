@@ -840,6 +840,19 @@ class AcquisitionData(DataContainer):
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
+    def add_poisson_noise(fraction_of_counts):
+        """Return a new AcquisitionData with added noise.
+        For this, supply the fraction of counts desired,
+        with: 0 < x < 1."""
+        sino_arr = self.as_array()
+        if 0 <= fraction_of_counts >= 1:
+            raise error("Fraction of counts should be: 0 < x < 1")
+        minmax = (sino_arr.min(), sino_arr.max())
+        counts = fraction_of_counts * (minmax[1] - minmax[0])
+        sino_arr = counts * ((sino_arr - minmax[0]) / (minmax[1] - minmax[0]))
+        noisy_counts = self * 0.
+        noisy_counts.fill(np.random.poisson(sino_arr))
+        return noisy_counts
 ##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))

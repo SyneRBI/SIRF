@@ -109,6 +109,8 @@ def test_main(rec=False, verb=False, throw=True):
         d = numpy.linalg.norm(ad2_arr - ad_arr/2)
         print('acquisitions division (with out=) error: %.1e' % d)
         test.check_if_equal(0, d)
+        # Check adding poisson noise to acquisition data doesn't throw error
+        noisy_acq_data = acq_data.add_poisson_noise(0.5)
 
         image_copy = image.get_uniform_copy(1.0)
         image_copy *= image
