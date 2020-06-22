@@ -840,6 +840,16 @@ class AcquisitionData(DataContainer):
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
+    def convert_to_image(self):
+        """Convert sinogram to image. This might be useful
+        for visualising with an external viewer. Geometrical
+        information is set arbitrarily."""
+        sino_arr = self.as_array()[1:]
+        dims = sino.dimensions()
+        image = ImageData()
+        image.initialise(dim=dims[1:])
+        image.fill(sino_arr)
+        return image
 ##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \
 ##			(nz - 1))
