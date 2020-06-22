@@ -1,7 +1,7 @@
-"""Save a sinogram as a Nifti image. This might
-be useful for observing with an external viewer.
-Geometrical information, such as spacing, is set
-arbitrarily.
+"""Save a sinogram as a Nifti image.
+
+This might be useful for observing with an external viewer.
+Geometrical information, such as spacing, is set arbitrarily.
 
 
 Usage:
@@ -32,7 +32,6 @@ Options:
 from sirf.Utilities import error
 import sirf.STIR as pet
 import sirf.Reg as reg
-import numpy as np
 from docopt import docopt
 
 __version__ = '0.1.0'
