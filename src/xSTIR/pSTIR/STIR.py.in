@@ -851,7 +851,7 @@ class AcquisitionData(DataContainer):
         counts = fraction_of_counts * (minmax[1] - minmax[0])
         sino_arr = counts * ((sino_arr - minmax[0]) / (minmax[1] - minmax[0]))
         noisy_counts = self * 0.
-        noisy_counts.fill(np.random.poisson(sino_arr))
+        noisy_counts.fill(numpy.random.poisson(sino_arr))
         return noisy_counts
 ##        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
 ##        print('(a value outside the range 0 to %d will stop this loop)' % \

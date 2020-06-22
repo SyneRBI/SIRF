@@ -17,8 +17,8 @@
 
 from sirf.Utilities import error
 import sirf.STIR as pet
-import numpy as np
 import argparse
+
 
 class Range(object):
     def __init__(self, start, end):
@@ -37,11 +37,15 @@ class Range(object):
     def __str__(self):
         return '[{0},{1}]'.format(self.start, self.end)
 
+
 parser = argparse.ArgumentParser(description='Add noise to a sinogram.')
-parser.add_argument('percentage', type=float, help='Percentage of counts', metavar='percentage', choices=[Range(0.0, 100.0)])
+parser.add_argument('percentage', type=float, help='Percentage of counts',
+                    metavar='percentage', choices=[Range(0.0, 100.0)])
 parser.add_argument('sino_in', type=str, help='Input sinogram')
-parser.add_argument('sino_out', type=str, nargs='?', help='Output sinogram prefix')
+parser.add_argument('sino_out', type=str, nargs='?',
+                    help='Output sinogram prefix')
 args = parser.parse_args()
+
 
 def main():
     sino = pet.AcquisitionData(args.sino_in)
@@ -50,11 +54,12 @@ def main():
     if args.sino_out:
         f_out = args.sino_out
     else:
-        f_out = args.sino_in + "-" + args.percentage.replace('.','_') + '-percent'
+        f_out = args.sino_in + "-" + \
+                args.percentage.replace('.', '_') + '-percent'
     sino.write(f_out)
 
 
-# if anything goes wrong, an exception will be thrown 
+# if anything goes wrong, an exception will be thrown
 # (cf. Error Handling section in the spec)
 try:
     main()
