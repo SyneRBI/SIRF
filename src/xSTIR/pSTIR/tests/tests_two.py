@@ -110,7 +110,7 @@ def test_main(rec=False, verb=False, throw=True):
         print('acquisitions division (with out=) error: %.1e' % d)
         test.check_if_equal(0, d)
         # Convert sinogram to image (no checks, just ensure no errors thrown)
-        im = acq_data.convert_to_image()
+        acq_data.convert_to_image()
 
         image_copy = image.get_uniform_copy(1.0)
         image_copy *= image
