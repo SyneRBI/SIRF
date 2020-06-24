@@ -1,5 +1,7 @@
 # Synergistic Image Reconstruction Framework
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/69aa7acd02ed498a97831c05763c9997)](https://app.codacy.com/gh/SyneRBI/SIRF?utm_source=github.com&utm_medium=referral&utm_content=SyneRBI/SIRF&utm_campaign=Badge_Grade_Dashboard)
+
 [![travis-badge]][travis]
 [![coveralls-badge]][coveralls] [![codecov-badge]][codecov]
 
