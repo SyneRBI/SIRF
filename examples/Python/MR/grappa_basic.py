@@ -31,7 +31,7 @@ Options:
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   -o <file>, --output=<file>  images output file
-  --show                      show plots
+  --non-interactive           do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -58,7 +58,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
@@ -66,7 +66,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 output_file = args['--output']
-show_plot = args['--show']
+show_plot = not args['--non-interactive']
 
 
 def main():
@@ -115,7 +115,7 @@ def main():
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

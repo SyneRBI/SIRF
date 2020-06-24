@@ -24,6 +24,7 @@ Options:
   --visualisations             show visualisations
   --nifti                      save output as nifti
   --gpu                        use gpu
+  --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -55,6 +56,7 @@ from pUtilities import show_2D_array
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 data_path = args['--path']
@@ -90,6 +92,8 @@ count_threshold = args['--counts']
 if args['--visualisations']:
     visualisations = True
 else:
+    visualisations = False
+if args['--non-interactive']:
     visualisations = False
 
 if args['--gpu']:
@@ -247,8 +251,10 @@ def main():
         show_2D_array('Reconstructed image', image_array[z,:,:])
         pylab.show()
 
+
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

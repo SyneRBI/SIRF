@@ -23,6 +23,7 @@ Options:
   --visualisations             show visualisations
   --nifti                      save output as nifti
   --gpu                        use gpu
+  --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -63,6 +64,7 @@ def check_file_exists(filename):
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # Sinogram. if sino not found, get the one in the example data
 sino_file = args['--sino']
@@ -111,6 +113,8 @@ outp_file = args['--outp']
 if args['--visualisations']:
     visualisations = True
 else:
+    visualisations = False
+if args['--non-interactive']:
     visualisations = False
 
 if args['--nifti']:
@@ -254,14 +258,17 @@ def main():
     if visualisations:
         # show reconstructed image
         image_array = out.as_array()
+        z = image_array.shape[0]//3
         show_2D_array('Reconstructed image', image_array[z,:,:])
         pylab.show()
+
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     # display error information
     print('%s' % err.value)

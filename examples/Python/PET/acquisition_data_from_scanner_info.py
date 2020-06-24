@@ -6,6 +6,7 @@ Usage:
 Options:
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -29,14 +30,15 @@ Options:
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
+storage = args['--storage']
 
-from pUtilities import show_2D_array
+from sirf.Utilities import show_2D_array
 
 # import engine module
 #exec('from p' + args['--engine'] + ' import *')
 exec('from sirf.' + args['--engine'] + ' import *')
 
-storage = args['--storage']
+
 
 def main():
 
@@ -64,8 +66,12 @@ def main():
 
     # write the acquisition data to a file (commented out for this demo)
     # acq_data.write('example_mMR_ones.hs')
+
+
+
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

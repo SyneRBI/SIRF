@@ -484,6 +484,8 @@ The actual algorithm is described in
         {
             _NiftyPET_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
             this->sptr_projectors_ = _NiftyPET_projector_pair_sptr;
+			// Set verbosity to 0 by default
+            _NiftyPET_projector_pair_sptr->set_verbosity(0);
         }
         void set_cuda_verbosity(const bool verbosity) const
         {

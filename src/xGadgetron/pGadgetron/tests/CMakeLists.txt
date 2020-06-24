@@ -23,3 +23,9 @@
 add_test(NAME MR_TESTS_PYTHON
   COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Gadgetron src/xGadgetron/pGadgetron/
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME MR_DEMOS_PYTHON
+  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/MR")
+add_test(NAME MR_GADGETRON_DEMOS_PYTHON
+  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/MR/Gadgetron")
