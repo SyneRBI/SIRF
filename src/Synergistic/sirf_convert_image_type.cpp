@@ -112,7 +112,7 @@ void print_usage(const std::string &app_name)
 }
 
 /// throw error
-void err(const std::string message)
+void err(const std::string &message)
 {
     std::cerr << "\n" << message << "\n";
     exit(EXIT_FAILURE);
