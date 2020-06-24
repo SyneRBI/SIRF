@@ -546,25 +546,7 @@ class CoilSensitivityData(ImageData):
         Appends a coil sensitivity map to self.
         csm: Numpy ndarray with csm values
         '''
-        if self.handle is None:
-            self.handle = pygadgetron.cGT_CoilSensitivities('')
-            check_status(self.handle)
-        shape = csm.shape
-        nc = shape[0]
-        if csm.ndim == 4:
-            nz = shape[1]
-            iy = 2
-        else:
-            nz = 1
-            iy = 1
-        ny = shape[iy]
-        nx = shape[iy + 1]
-        re = csm.real.copy()
-        im = csm.imag.copy()
-        handle = pygadgetron.cGT_appendCSM \
-            (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        self.fill(csm)
         
 DataContainer.register(CoilSensitivityData)
 
