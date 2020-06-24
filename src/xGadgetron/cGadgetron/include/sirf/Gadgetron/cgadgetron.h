@@ -49,10 +49,6 @@ extern "C" {
 	void* cGT_appendCSM
 		(void* ptr_csms, int nx, int ny, int nz, int nc, 
 		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void cGT_getCoilDataDimensions
-		(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
-	void cGT_getCoilData
-		(void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 
 	// acquisition model methods
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);

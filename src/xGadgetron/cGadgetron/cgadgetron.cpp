@@ -290,29 +290,6 @@ cGT_appendCSM
 }
 
 extern "C"
-void
-cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
-{
-	int* dim = (int*)ptr_dim;
-	CAST_PTR(DataHandle, h_csms, ptr_csms);
-    CoilSensitivitiesVector& csms =
-        objectFromHandle<CoilSensitivitiesVector>(h_csms);
-	csms.get_dim(csm_num, dim);
-}
-
-extern "C"
-void
-cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
-{
-	float* re = (float*)ptr_re;
-	float* im = (float*)ptr_im;
-	CAST_PTR(DataHandle, h_csms, ptr_csms);
-    CoilSensitivitiesVector& csms =
-        objectFromHandle<CoilSensitivitiesVector>(h_csms);
-	csms.get_data(csm_num, re, im);
-}
-
-extern "C"
 void*
 cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 {
