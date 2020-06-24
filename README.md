@@ -1,7 +1,7 @@
 # Synergistic Image Reconstruction Framework
 
 [![travis-badge]][travis]
-[![coveralls-badge]][coveralls] [![codecov-badge]][codecov]
+[![coveralls-badge]][coveralls] [![codecov-badge]][codecov] [![style-badge]][style-link]
 
 This software is the main output of [SyneRBI](https://www.ccpsynerbi.ac.uk), the Collaborative Computational 
 Platform for Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR).
@@ -15,3 +15,5 @@ See [our Wiki page for installation instructions](https://github.com/SyneRBI/SIR
 [codecov]: https://codecov.io/gh/SyneRBI/SIRF
 [travis-badge]: https://travis-ci.org/SyneRBI/SIRF.svg?branch=master
 [travis]: https://travis-ci.org/SyneRBI/SIRF
+[style-badge]: https://api.codacy.com/project/badge/Grade/eefea1a2f11148fabd9a4ec9b822701f
+[style-link]: https://www.codacy.com/gh/SyneRBI/SIRF-SuperBuild?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=SyneRBI/SIRF-SuperBuild&amp;utm_campaign=Badge_Grade
