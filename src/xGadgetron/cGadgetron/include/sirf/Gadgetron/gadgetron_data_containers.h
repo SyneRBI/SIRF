@@ -939,7 +939,6 @@ namespace sirf {
         }
 
         void set_csm_smoothness(int s){csm_smoothness_ = s;}
-        void append_csm(int nx, int ny, int nz, int nc, const float* re, const float* im);
 
         void calculate(const MRAcquisitionData& acq)
         {
@@ -955,12 +954,6 @@ namespace sirf {
         {
             GadgetronImagesVector::get_image_dimensions(num_csm, dim);
 
-        }
-        void get_data(size_t const num_csm, float* re, float* im) const
-        {
-            void* vptr_coil_img = new CFImage(this->get_csm_as_cfimage(num_csm));
-            sirf::ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, vptr_coil_img);
-            iw.get_complex_data(re,im);
         }
 
     protected:

@@ -1635,15 +1635,6 @@ GadgetronImagesVector::set_up_geom_info()
                 (offset,spacing,size,direction));
 }
 
-void CoilSensitivitiesVector::append_csm(int nx, int ny, int nz, int nc, const float* re, const float* im)
-{
-    CFImage coil_img(nx, ny, nz, nc);
-    void* vptr_coil_img = new CFImage(coil_img);
-    sirf::ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, vptr_coil_img);
-    iw.set_complex_data(re, im);
-    this->append(iw);
-}
-
 CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
 {
     auto sptr_iw = this->sptr_image_wrap(i);
