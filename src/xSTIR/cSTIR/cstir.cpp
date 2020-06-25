@@ -444,18 +444,20 @@ void* cSTIR_applyAcquisitionSensitivityModel
 (void* ptr_sm, void* ptr_ad, const char* job)
 {
 	try {
-		void* handle = new DataHandle;
 		PETAcquisitionSensitivityModel& sm =
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+
+		if (boost::iequals(job, "fwd"))
+			return newObjectHandle(sm.forward(*sptr_ad));
+		else if (boost::iequals(job, "inv"))
+			return newObjectHandle(sm.invert(*sptr_ad));
+
+		void* handle = new DataHandle;
 		if (boost::iequals(job, "unnormalise"))
 			sm.unnormalise(*sptr_ad);
 		else if (boost::iequals(job, "normalise"))
 			sm.normalise(*sptr_ad);
-		else if (boost::iequals(job, "fwd"))
-			handle = newObjectHandle(sm.forward(*sptr_ad));
-		else if (boost::iequals(job, "inv"))
-			handle = newObjectHandle(sm.invert(*sptr_ad));
 		return handle;
 	}
 	CATCH;
