@@ -68,7 +68,7 @@ limitations under the License.
 #include "stir/recon_buildblock/NiftyPET_projector/ProjectorByBinPairUsingNiftyPET.h"
 #endif
 #ifdef STIR_GATED_MOTION
-#include "stir_experimental/motion/PoissonLogLikelihoodWithLinearModelForMeanAndGatedProjDataWithMotion.h"
+#include "stir_experimental/motion/PoissonLogLikelihoodWithLinearModelForMeanAndGatedProjDataWithMotionUsingAdjoint.h"
 #include "stir_experimental/motion/NonRigidObjectTransformationUsingBSplines.h"
 #include "stir_experimental/motion/Transform3DObjectImageProcessor.h"
 #endif
@@ -106,7 +106,7 @@ namespace sirf {
 #ifdef STIR_GATED_MOTION
     typedef stir::ObjectTransformation<3,float> STIRTrans3DF;
     typedef stir::NonRigidObjectTransformationUsingBSplines<3,float> STIRDisp3DF;
-    typedef stir::PoissonLogLikelihoodWithLinearModelForMeanAndGatedProjDataWithMotionNew < Image3DF >
+    typedef stir::PoissonLogLikelihoodWithLinearModelForMeanAndGatedProjDataWithMotionUsingAdjoint < Image3DF >
         stirPoissonLogLhLinModMeanGatedWMotion3DF;
 #endif
 
