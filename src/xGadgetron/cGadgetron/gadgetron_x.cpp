@@ -78,7 +78,7 @@ GadgetChain::gadget_sptr(std::string id)
 #else
 	typename std::list<shared_ptr<GadgetHandle> >::iterator gh;
 #endif
-	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); ++gh) {
 		if (boost::iequals(gh->get()->id(), id))
 			return gh->get()->gadget_sptr();
 	}
@@ -99,11 +99,11 @@ GadgetChain::xml() const
 #else
 	typename std::list<shared_ptr<GadgetHandle> >::const_iterator gh;
 #endif
-	for (gh = readers_.begin(); gh != readers_.end(); gh++)
+	for (gh = readers_.begin(); gh != readers_.end(); ++gh)
 		xml_script += gh->get()->gadget().xml() + '\n';
-	for (gh = writers_.begin(); gh != writers_.end(); gh++)
+	for (gh = writers_.begin(); gh != writers_.end(); ++gh)
 		xml_script += gh->get()->gadget().xml() + '\n';
-	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); ++gh) {
 		const GadgetHandle* ptr_gh = gh->get();
 		xml_script += ptr_gh->gadget().xml(ptr_gh->id()) + '\n';
 //		xml_script += gh->get()->gadget().xml() + '\n';
