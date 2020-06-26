@@ -51,7 +51,7 @@ namespace ISMRMRD {
 		std::vector<size_t> dims(2, matrix_size);
 		shared_ptr<NDArray<complex_float_t> > out(new NDArray<complex_float_t>(dims));
 		memset(out->getDataPtr(), 0, out->getDataSize());
-		for (std::vector<PhantomEllipse>::iterator it = ellipses.begin(); it != ellipses.end(); it++) {
+		for (std::vector<PhantomEllipse>::iterator it = ellipses.begin(); it != ellipses.end(); ++it) {
 			for (unsigned int y = 0; y < matrix_size; y++) {
 				float y_co = (1.0*y - (matrix_size >> 1)) / (matrix_size >> 1);
 				for (unsigned int x = 0; x < matrix_size; x++) {
