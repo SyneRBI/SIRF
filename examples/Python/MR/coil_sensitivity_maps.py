@@ -74,6 +74,7 @@ def main():
     #
     # set number of smoothing iterations to suppress noise
     CSMs.smoothness = nit
+    
     #
     # calculate coil sensitivity maps directly from the raw k-space data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS)
@@ -91,21 +92,14 @@ def main():
     # 3. Now compute coil sensitivity maps from coil images in order to compare
     # SSRS and Inati methods:
 
-    # create object containing images for each coil
-    CIs = CoilImageData()
-    #
-    # calculate coil images from raw data
-    CIs.calculate(processed_data)
-    CIs.write('ci.h5')
-    #
     # create coil sensitivity object
     CSMs = CoilSensitivityData()
-    #
+    #CSMs.smoothness = nit
     # calculate coil sensitivity maps by dividing each coil image data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS);
     # (niter = nit) sets the number of smoothing iterations applied
     # to the image data prior to the calculation of the coil sensitivity maps
-    CSMs.calculate(CIs, method='SRSS(niter = %d)' % nit)
+    CSMs.calculate(processed_data, method='SRSS(niter = %d)' % nit)
     #
     if show_plot:
     # display coil sensitivity maps (must be identical to previously computed)
@@ -116,26 +110,24 @@ def main():
                   xlabel='samples', ylabel='readouts', label='coil', \
                   show=False)
 
-    try:
-        from ismrmrdtools import coils
-        # calculate coil sensitivity maps using an approach suggested by 
-        #   Inati SJ, Hansen MS, Kellman P.
-        #   A solution to the phase problem in adaptive coil combination.
-        #   In: ISMRM proceeding; April; Salt Lake City, Utah, USA; 2013. 2672.  
-        # for more details please see 
-        # gadgetron/toolboxes/mri_core/mri_core_coil_map_estimation.h  
-        CSMs = CoilSensitivityData()
-        CSMs.calculate(CIs, method='Inati()')
-        if show_plot:
-            csms_array = CSMs.as_array()
-            nz = csms_array.shape[1]
-            #
-            # display coil sensitivity maps
-            title = 'Inati (magnitude)'
-            show_3D_array(abs(csms_array[:, nz//2, :, :]), suptitle=title, \
-                      xlabel='samples', ylabel='readouts', label='coil')
-    except:
-        print('ismrmrd-python-tools not found, skipping Inati method')
+    
+    # calculate coil sensitivity maps using an approach suggested by 
+    #   Inati SJ, Hansen MS, Kellman P.
+    #   A solution to the phase problem in adaptive coil combination.
+    #   In: ISMRM proceeding; April; Salt Lake City, Utah, USA; 2013. 2672.  
+    # for more details please see 
+    # gadgetron/toolboxes/mri_core/mri_core_coil_map_estimation.h  
+    #CSMs = CoilSensitivityData()
+    CSMs.calculate(processed_data, method='Inati()')
+    if show_plot:
+        csms_array = CSMs.as_array()
+        nz = csms_array.shape[1]
+        #
+        # display coil sensitivity maps
+        title = 'Inati (magnitude)'
+        show_3D_array(abs(csms_array[:, nz//2, :, :]), suptitle=title, \
+                  xlabel='samples', ylabel='readouts', label='coil')
+
 
 try:
     main()
