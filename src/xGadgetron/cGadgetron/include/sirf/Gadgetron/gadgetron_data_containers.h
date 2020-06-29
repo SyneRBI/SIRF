@@ -946,6 +946,7 @@ namespace sirf {
             this->calculate_csm();
         }
 
+        void calculate_images(const MRAcquisitionData& acq);
         void calculate_csm(GadgetronImagesVector iv);
 
         CFImage get_csm_as_cfimage(size_t const i) const;
@@ -960,7 +961,7 @@ namespace sirf {
 
         bool flag_imgs_suitable_for_csm_computation_=false;
 
-        void calculate_images(const MRAcquisitionData& acq);
+
         void calculate_csm(void);
 
         void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);

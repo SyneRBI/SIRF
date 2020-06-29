@@ -1657,6 +1657,8 @@ void CoilSensitivitiesVector::calculate_csm(void)
 
 void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
 {
+    this->empty();
+
     std::string par;
     ISMRMRD::IsmrmrdHeader header;
     ISMRMRD::Acquisition acq;

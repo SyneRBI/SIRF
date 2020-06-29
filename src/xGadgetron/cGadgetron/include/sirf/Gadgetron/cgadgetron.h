@@ -45,6 +45,7 @@ extern "C" {
 	// coil data methods
     void* cGT_CoilSensitivities(const char* file);
 	void* cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
+    void* cGT_computeCoilImages(void* ptr_imgs, void* ptr_acqs);
     void* cGT_computeCoilSensitivitiesFromGadgetronImages(void* ptr_csms, void* ptr_imgs);
 
 	// acquisition model methods
@@ -78,7 +79,7 @@ extern "C" {
 	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);
-	void*	cGT_readImages(const char* file);
+    void* cGT_readImages(const char* file);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
 	void* cGT_selectImages
 		(void* ptr_input, const char* attr, const char* target);

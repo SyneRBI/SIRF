@@ -257,6 +257,23 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 
 extern "C"
 void*
+cGT_computeCoilImages(void* ptr_imgs, void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        CoilSensitivitiesVector& csms =
+            objectFromHandle<CoilSensitivitiesVector>(h_imgs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+        csms.calculate_images(acqs);
+        return (void*)new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void*
 cGT_computeCoilSensitivitiesFromGadgetronImages(void* ptr_csms, void* ptr_imgs)
 {
     try {

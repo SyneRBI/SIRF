@@ -514,11 +514,29 @@ class CoilSensitivityData(ImageData):
             method_name = 'SRSS'
             parm = {}
         if isinstance(data, AcquisitionData):
+            
             assert data.handle is not None
-            parms.set_int_par\
+            
+            if method_name == 'Inati':
+                try:
+                    from ismrmrdtools import coils
+                except:
+                    raise error('Inati method requires ismrmrd-python-tools')
+                
+                try_calling(pygadgetron.cGT_computeCoilImages(self.handle, data.handle))
+                    
+                cis_array = self.as_array()
+                csm, _ = coils.calculate_csm_inati_iter(cis_array)
+                self.append(csm.astype(numpy.complex64))
+            
+            elif method_name == 'SRSS':
+            
+                parms.set_int_par\
                 (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
-            try_calling(pygadgetron.cGT_computeCoilSensitivities \
-                (self.handle, data.handle))
+                try_calling(pygadgetron.cGT_computeCoilSensitivities \
+                    (self.handle, data.handle))
+            
+            
         elif isinstance(data, ImageData):
             assert data.handle is not None
             if method_name == 'Inati':
@@ -526,6 +544,7 @@ class CoilSensitivityData(ImageData):
                     from ismrmrdtools import coils
                 except:
                     raise error('Inati method requires ismrmrd-python-tools')
+                    
                 cis_array = data.as_array()
                 csm, _ = coils.calculate_csm_inati_iter(cis_array)
                 self.append(csm.astype(numpy.complex64))
