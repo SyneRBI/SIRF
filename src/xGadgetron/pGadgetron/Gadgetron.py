@@ -527,6 +527,15 @@ class CoilSensitivityData(ImageData):
                     
                 cis_array = self.as_array()
                 csm, _ = coils.calculate_csm_inati_iter(cis_array)
+                
+                nc, nz, ny, nx = self.dimensions()
+                ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+                nz = nz//ns        # z-dimension of a slice
+
+                csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
+                csm = numpy.swapaxes(csm,0,1)
+                csm = numpy.reshape(csm, (nc, ns*nz, ny, nx))
+                
                 self.append(csm.astype(numpy.complex64))
             
             elif method_name == 'SRSS':
