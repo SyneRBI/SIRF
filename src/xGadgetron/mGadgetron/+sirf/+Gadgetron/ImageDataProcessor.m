@@ -55,7 +55,8 @@ classdef ImageDataProcessor < sirf.Gadgetron.GadgetChain
         function set_input(self, input)
 %***SIRF*** Sets the input data.
             %assert(isa(input, 'sirf.Gadgetron.ImageData'))
-            assert(strcmp(input.class_name(), 'ImageData'))
+            %assert(strcmp(input.class_name(), 'ImageData'))
+            sirf.Utilities.assert_validity(input, 'ImageData')
             self.input_ = input;
         end
         function image = process(self, input_data)
