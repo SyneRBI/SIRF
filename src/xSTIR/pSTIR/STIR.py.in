@@ -722,9 +722,18 @@ class AcquisitionData(DataContainer):
         - number of tangential positions.
         '''
         assert self.handle is not None
-        array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
-        try_calling(pystir.cSTIR_getAcquisitionData\
-            (self.handle, array.ctypes.data))
+        # If using file storage scheme, create numpy array and copy data
+        if self.get_storage_scheme() == "file":
+            array = numpy.ndarray(self.dimensions(), dtype = numpy.float32)
+            try_calling(pystir.cSTIR_getAcquisitionData\
+                (self.handle, array.ctypes.data))
+        # If using memory, use a buffer and have a shared object
+        else:
+            buffer = ?
+            try_calling(pystir.cSTIR_AcquisitionDataInMemory_get_buffer\
+                (self.handle, buffer))
+            array = numpy.frombuffer(buffer, dtype=numpy.float32)
+            array.shape = self.dimensions()
         return array
     def fill(self, value):
         ''' 
@@ -744,6 +753,12 @@ class AcquisitionData(DataContainer):
                 v = value.astype(numpy.float32)
             if not v.flags['C_CONTIGUOUS']:
                 v = numpy.ascontiguousarray(v)
+            # If storage_scheme==memory AND numpy array has same address as
+            # C++ buffer, nothing to do!
+            # if self.get_storage_scheme() == 'memory' and :
+                # return
+            
+            # Else, copy from numpy to c++
             try_calling(pystir.cSTIR_setAcquisitionData\
                         (self.handle, v.ctypes.data))
         elif isinstance(value, AcquisitionData):

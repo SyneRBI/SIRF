@@ -697,6 +697,20 @@ void* cSTIR_get_ProjDataInfo(void* ptr_acq)
 }
 
 extern "C"
+void* cSTIR_AcquisitionDataInMemory_get_buffer(void* adim_ptr, size_t out_ptr)
+{
+	try {
+		SPTR_FROM_HANDLE(PETAcquisitionDataInMemory, adim_sptr, adim_ptr);
+        stir::ProjDataInMemory &pdim =
+                dynamic_cast<stir::ProjDataInMemory&>(*adim_sptr->data());
+        float* out_float_ptr = (float*)out_ptr;
+        out_float_ptr = pdim.begin().base();
+        return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
