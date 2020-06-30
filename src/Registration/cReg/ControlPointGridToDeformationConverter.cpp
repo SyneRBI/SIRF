@@ -61,7 +61,8 @@ backward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &dv
          const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr,
          float *spacingMillimeter)
 {
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > cpg_sptr;
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > cpg_sptr =
+            std::make_shared<NiftiImageData3DDeformation<dataType> >();
     dvf_sptr->create_cpp(*cpg_sptr,*ref_sptr,spacingMillimeter);
     return cpg_sptr;
 }
