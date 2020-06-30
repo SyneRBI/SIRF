@@ -85,7 +85,10 @@ public:
     void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Create from control point grid image
-    void create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData<dataType> &ref);
+    void create_from_cpp(const NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData<dataType> &ref);
+
+    /// Create control point grid from dense deformation field (in place)
+    void create_cpp(NiftiImageData<dataType> &cpg, const NiftiImageData<dataType> &ref, float *spacingMillimeter) const;
 
     /// Get as deformation field
     virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData<dataType> &ref) const;

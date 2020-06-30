@@ -54,16 +54,27 @@ void NiftiImageData3DDeformation<dataType>::create_from_3D_image(const NiftiImag
 }
 
 template<class dataType>
-void NiftiImageData3DDeformation<dataType>::create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData<dataType> &ref)
+void NiftiImageData3DDeformation<dataType>::create_from_cpp(const NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData<dataType> &ref)
 {
     this->create_from_3D_image(ref);
 
-    reg_spline_getDeformationField(cpp.get_raw_nifti_sptr().get(),
+    reg_spline_getDeformationField(cpp.clone()->get_raw_nifti_sptr().get(),
                                    this->_nifti_image.get(),
                                    NULL,
                                    false, //composition
                                    true // bspline
                                    );
+}
+
+template<class dataType>
+void NiftiImageData3DDeformation<dataType>::create_cpp(NiftiImageData<dataType> &cpg, const NiftiImageData<dataType> &ref, float *spacingMillimeter) const
+{
+    // Need to copy because of const-ness
+    NiftiImageData<dataType> ref_copy = ref;
+    nifti_image *cpp_ptr = cpg.get_raw_nifti_sptr().get();
+    reg_createControlPointGrid<dataType>(&cpp_ptr,
+                                         ref_copy.get_raw_nifti_sptr().get(),
+                                         spacingMillimeter);
 }
 
 template<class dataType>
