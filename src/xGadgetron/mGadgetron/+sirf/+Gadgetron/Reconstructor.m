@@ -62,7 +62,8 @@ classdef Reconstructor < sirf.Gadgetron.GadgetChain
 %***SIRF*** Sets the specified AcquisitionData argument as the input.
 %         See also PROCESS
             %assert(isa(input_data, 'sirf.Gadgetron.AcquisitionData'))
-            assert(strcmp(input_data.class_name(), 'AcquisitionData'))
+            %assert(strcmp(input_data.class_name(), 'AcquisitionData'))
+            sirf.Utilities.assert_validity(input_data, 'AcquisitionData')
             self.input_ = input_data;
         end
         function process(self)
