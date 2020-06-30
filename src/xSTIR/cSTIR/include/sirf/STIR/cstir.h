@@ -119,6 +119,12 @@ extern "C" {
 	void* cSTIR_objectiveFunctionGradientNotDivided
 		(void* ptr_f, void* ptr_i, int subset);
 
+    // Poisson gated proj data w motion
+	void* cSTIR_PoissonGatedWMotion_add_gate(
+            void* poisson_ptr, void* ad_ptr, void* am_ptr,
+            const char* disp_fname, const int b_spline_order);
+    void* cSTIR_PoissonGatedWMotion_clear_gates(void* poisson_ptr);
+
 	// Prior methods
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
