@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
     const std::string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImageData3DDeformation_split_%s.nii";
     const std::string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImageData3DDisplacement_not_split.nii";
     const std::string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImageData3DDisplacement_split_%s.nii";
+    const std::string save_nifti_image_2d                        = output_prefix   + "save_NiftiImageData2D.nii";
     const std::string save_nifti_image_upsample                  = output_prefix   + "save_NiftiImageData_upsample.nii";
     const std::string save_nifti_image_downsample                = output_prefix   + "save_NiftiImageData_downsample.nii";
     const std::string save_nifti_image_up_downsample             = output_prefix   + "save_NiftiImageData_upsample_downsample.nii";
@@ -405,6 +406,15 @@ int main(int argc, char* argv[])
         // image was already of type NIFTI_TYPE_UINT8 (unsigned char).
         if (b != t)
             throw std::runtime_error("NiftiImageData3D constructor from array.");
+
+        // Check that 2D images are ok for the 3D class
+        int pad_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        int pad_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        b.crop(pad_for_2D_min,pad_for_2D_max);
+        b.write(save_nifti_image_2d);
+        NiftiImageData3D<float> im_2d(save_nifti_image_2d);
+        if (im_2d.get_dimensions()[0] != 2)
+            throw std::runtime_error("NiftiImageData3D crop to 2D.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData3D test.\n";
