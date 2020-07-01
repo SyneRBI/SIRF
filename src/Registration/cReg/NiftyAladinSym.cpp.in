@@ -101,7 +101,29 @@ void NiftyAladinSym<dataType>::process()
 
     // Get as deformation and displacement
     NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(ref);
-    NiftiImageData3DDeformation<dataType> def_inv = *def_fwd.get_inverse(this->_floating_images_nifti.at(0));
+    NiftiImageData3DDeformation<dataType> def_inv;
+
+    // Get inverse deformation.
+    bool vtk_available = false;
+#ifdef SIRF_VTK
+    vtk_available = true;
+#endif
+
+    // NiftyReg can only do inverse for 3D images.
+    if (def_fwd.get_raw_nifti_sptr()->nu == 3)
+        def_inv = *def_fwd.get_inverse(this->_floating_images_nifti.at(0));
+    else {
+#ifdef SIRF_VTK
+        // if not 3d but VTK is present, use that.
+        def_inv = *def_fwd.get_inverse(nullptr, true);
+#else
+        // else, throw an error
+        throw std::runtime_error("F3D: Inversion not currently implemented for 2D images with NiftyReg. "
+                                 "This means that you won't be able to get the inverse displacement or "
+                                 "deformation fields. To have these, use a 3D image or install VTK");
+#endif
+    }
+
     this->_disp_fwd_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
     this->_disp_inv_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
 

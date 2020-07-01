@@ -814,6 +814,26 @@ int main(int argc, char* argv[])
         if (*out1_sptr != *out2_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::get_inverse() failed.");
 
+        // Check 2D registration
+        {
+            // Create 2D images
+            int mid_z = int(ref_aladin->get_dimensions()[3]/2);
+            int crop_for_2D_min[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_aladin->clone();
+            ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            NiftyAladinSym<float> NA_2D;
+            NA_2D.set_reference_image(ref_2d_sptr);
+            NA_2D.set_floating_image (ref_2d_sptr);
+            NA_2D.set_parameter_file (      parameter_file_aladin    );
+            NA_2D.set_parameter("SetInterpolationToCubic");
+            NA_2D.set_parameter("SetLevelsToPerform","1");
+            NA_2D.set_parameter("SetMaxIterations","5");
+            NA_2D.set_parameter("SetPerformRigid","1");
+            NA_2D.set_parameter("SetPerformAffine","0");
+            NA_2D.process();
+        }
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty aladin test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
@@ -883,8 +903,9 @@ int main(int argc, char* argv[])
         // Check 2D registration
         {
             // Create 2D images
-            int crop_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
-            int crop_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
+            int mid_z = int(ref_f3d->get_dimensions()[3]/2);
+            int crop_for_2D_min[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
             std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_f3d->clone();
             std::shared_ptr<NiftiImageData3D<float> > flo_2d_sptr = flo_f3d->clone();
             ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
