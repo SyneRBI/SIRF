@@ -507,12 +507,19 @@ class CoilSensitivityData(ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         check_status(self.handle)
+        nit = self.smoothness
+        
         if method is not None:
             method_name, parm_list = name_and_parameters(method)
             parm = parse_arglist(parm_list)
+            if 'niter' in parm:
+                nit = int(parm['niter'])
         else:
             method_name = 'SRSS'
             parm = {}
+        
+        parms.set_int_par(self.handle, 'coil_sensitivity', 'smoothness', nit)
+
         if isinstance(data, AcquisitionData):
             
             assert data.handle is not None
@@ -539,11 +546,7 @@ class CoilSensitivityData(ImageData):
                 self.append(csm.astype(numpy.complex64))
             
             elif method_name == 'SRSS':
-            
-                parms.set_int_par\
-                (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
-                try_calling(pygadgetron.cGT_computeCoilSensitivities \
-                    (self.handle, data.handle))
+                try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
             
             
         elif isinstance(data, ImageData):
@@ -558,10 +561,6 @@ class CoilSensitivityData(ImageData):
                 csm, _ = coils.calculate_csm_inati_iter(cis_array)
                 self.append(csm.astype(numpy.complex64))
             elif method_name == 'SRSS':
-                if 'niter' in parm:
-                    nit = int(parm['niter'])
-                    parms.set_int_par \
-                        (self.handle, 'coil_sensitivity', 'smoothness', nit)
                 try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromGadgetronImages \
                     (self.handle, data.handle))
             else:
@@ -569,6 +568,7 @@ class CoilSensitivityData(ImageData):
         else:
             raise error('Cannot calculate coil sensitivities from %s' % \
                         repr(type(data)))
+
     def append(self, csm):
         '''
         Appends a coil sensitivity map to self.
