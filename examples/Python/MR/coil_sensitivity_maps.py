@@ -94,7 +94,6 @@ def main():
 
     # create coil sensitivity object
     CSMs = CoilSensitivityData()
-    CSMs.smoothness = nit
     # calculate coil sensitivity maps by dividing each coil image data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS);
     # (niter = nit) sets the number of smoothing iterations applied
