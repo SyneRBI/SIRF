@@ -497,7 +497,9 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     // Check everthing is as it should be. -1 means we don't care about it
     // (e.g., NiftiImageData3D doesn't care about intent_p1, which is used by NiftyReg for Disp/Def fields)
     bool everything_ok = true;
-    if (ndim         != -1 && ndim        != _nifti_image->ndim)        everything_ok = false;
+    // if 3D check that _nifti_image->ndim <= ndim). else check _nifti_image->ndim == ndim
+    if (image_type == _3D  && _nifti_image->ndim > ndim        )        everything_ok = false;
+    else if (ndim    != -1 && _nifti_image->ndim != ndim       )        everything_ok = false;
     if ( nu          != -1 && nu          != _nifti_image->nu  )        everything_ok = false;
     if ( nt          != -1 && nt          != _nifti_image->nt  )        everything_ok = false;
     if ( intent_code != -1 && intent_code != _nifti_image->intent_code) everything_ok = false;

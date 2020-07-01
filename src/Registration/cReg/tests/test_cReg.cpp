@@ -406,6 +406,14 @@ int main(int argc, char* argv[])
         if (b != t)
             throw std::runtime_error("NiftiImageData3D constructor from array.");
 
+        // Check that 2D images are ok for the 3D class
+        int pad_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        int pad_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        b.crop(pad_for_2D_min,pad_for_2D_max);
+        NiftiImageData3D<float> im_2d(b);
+        if (im_2d.get_dimensions()[0] != 2)
+            throw std::runtime_error("NiftiImageData3D crop to 2D.");
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData3D test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
