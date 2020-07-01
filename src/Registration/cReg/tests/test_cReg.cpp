@@ -408,9 +408,9 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData3D constructor from array.");
 
         // Check that 2D images are ok for the 3D class
-        int pad_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
-        int pad_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
-        b.crop(pad_for_2D_min,pad_for_2D_max);
+        int crop_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        int crop_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        b.crop(crop_for_2D_min,crop_for_2D_max);
         b.write(save_nifti_image_2d);
         NiftiImageData3D<float> im_2d(save_nifti_image_2d);
         if (im_2d.get_dimensions()[0] != 2)
