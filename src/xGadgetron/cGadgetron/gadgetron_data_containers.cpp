@@ -1646,15 +1646,6 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
 
 }
 
-
-void CoilSensitivitiesVector::calculate_csm(void)
-{
-    if(!this->flag_imgs_suitable_for_csm_computation_)
-        throw LocalisedException("The images in container are not suitable for coilmap computation. Maybe you already computed them." , __FILE__, __LINE__);
-
-    calculate_csm(*this);
-}
-
 void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
 {
     this->empty();
@@ -1732,7 +1723,6 @@ void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
         sirf::ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, vptr_coil_img);
         append(iw);
     }
-    this->flag_imgs_suitable_for_csm_computation_ = true;
     std::cout << '\n';
 }
 
@@ -1763,8 +1753,6 @@ void CoilSensitivitiesVector::calculate_csm(GadgetronImagesVector iv)
         iw_output.set_complex_data(csm.getDataPtr());
         this->append(iw_output);
     }
-
-    this->flag_imgs_suitable_for_csm_computation_ = false;
 }
 
 void CoilSensitivitiesVector::calculate_csm

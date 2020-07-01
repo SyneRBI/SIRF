@@ -249,7 +249,7 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 			objectFromHandle<CoilSensitivitiesVector>(h_csms);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-        csms.calculate(acqs);
+        csms.calculate_csm(acqs);
 		return (void*)new DataHandle;
 	}
 	CATCH;

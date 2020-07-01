@@ -101,7 +101,7 @@ bool test_CoilSensitivitiesVector_calculate(const std::string& fname_input)
 
         CoilSensitivitiesVector csv;
         csv.set_csm_smoothness(50);
-        csv.calculate(av);
+        csv.calculate_csm(av);
 
         std::cout << "We have " << csv.items() << " coilmaps" << std::endl;
 
@@ -138,7 +138,7 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const std::string& fname_in
         sirf::preprocess_acquisition_data(av);
 
         CoilSensitivitiesVector csv;
-        csv.calculate(av);
+        csv.calculate_csm(av);
 
         std::cout << "We have " << csv.items() << " coilmaps" << std::endl;
 
