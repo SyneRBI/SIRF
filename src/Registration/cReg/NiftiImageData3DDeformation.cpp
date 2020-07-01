@@ -71,10 +71,14 @@ void NiftiImageData3DDeformation<dataType>::create_cpp(NiftiImageData<dataType> 
 {
     // Need to copy because of const-ness
     NiftiImageData<dataType> ref_copy = ref;
-    nifti_image *cpp_ptr = cpg.get_raw_nifti_sptr().get();
-    reg_createControlPointGrid<dataType>(&cpp_ptr,
+//    nifti_image *cpg_ptr = cpg.get_raw_nifti_sptr().get();
+    nifti_image *cpg_ptr = nullptr;
+    reg_createControlPointGrid<dataType>(&cpg_ptr,
                                          ref_copy.get_raw_nifti_sptr().get(),
                                          spacingMillimeter);
+    cpg_ptr->intent_code = NIFTI_INTENT_VECTOR;
+    cpg_ptr->intent_p1 = DEF_FIELD;
+    cpg = NiftiImageData3DDeformation<dataType>(*cpg_ptr);
 }
 
 template<class dataType>

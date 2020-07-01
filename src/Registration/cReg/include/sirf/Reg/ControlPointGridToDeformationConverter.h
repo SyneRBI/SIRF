@@ -51,24 +51,24 @@ public:
 
     /// CPG to DVF
     static std::shared_ptr<NiftiImageData3DDeformation<dataType> >
-    forward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &cpg_sptr,
-            const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr);
+    forward(const NiftiImageData3DDeformation<dataType> &cpg_sptr,
+            const NiftiImageData<dataType> &ref_sptr);
 
     /// CPG to DVF (in place)
-    static void forward(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &dvf_sptr,
-                        const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &cpg_sptr,
-                        const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr);
+    static void forward(NiftiImageData3DDeformation<dataType> &dvf,
+                        const NiftiImageData3DDeformation<dataType> &cpg,
+                        const NiftiImageData<dataType> &ref);
 
     /// DVF to CPG
     static std::shared_ptr<NiftiImageData3DDeformation<dataType> >
-    backward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &dvf_sptr,
-             const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr,
+    backward(const NiftiImageData3DDeformation<dataType> &dvf,
+             const NiftiImageData<dataType> &ref,
              float *spacingMillimeter);
 
     /// DVF to CPG (in place)
-    static void backward(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &cpg_sptr,
-                         const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &dvf_sptr,
-                         const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr,
+    static void backward(NiftiImageData3DDeformation<dataType> &cpg,
+                         const NiftiImageData3DDeformation<dataType> &dvf,
+                         const NiftiImageData<dataType> &ref,
                          float *spacingMillimeter);
 };
 }

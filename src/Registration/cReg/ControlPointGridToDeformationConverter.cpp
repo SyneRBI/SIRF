@@ -35,47 +35,48 @@ using namespace sirf;
 template<class dataType>
 std::shared_ptr<NiftiImageData3DDeformation<dataType> >
 ControlPointGridToDeformationConverter<dataType>::
-forward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &cpg_sptr,
-        const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr)
+forward(const NiftiImageData3DDeformation<dataType> &cpg,
+        const NiftiImageData<dataType> &ref)
 {
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > dvf_sptr;
-    forward(dvf_sptr, cpg_sptr, ref_sptr);
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > dvf_sptr =
+            std::make_shared<NiftiImageData3DDeformation<dataType> >();
+    forward(*dvf_sptr, cpg, ref);
     return dvf_sptr;
 }
 
 template<class dataType>
 void
 ControlPointGridToDeformationConverter<dataType>::
-forward(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &dvf_sptr,
-        const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &cpg_sptr,
-        const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr
+forward(NiftiImageData3DDeformation<dataType> &dvf,
+        const NiftiImageData3DDeformation<dataType> &cpg,
+        const NiftiImageData<dataType> &ref
         )
 {
-    dvf_sptr->create_from_cpp(*cpg_sptr, *ref_sptr);
+    dvf.create_from_cpp(cpg, ref);
 }
 
 template<class dataType>
 std::shared_ptr<NiftiImageData3DDeformation<dataType> >
 ControlPointGridToDeformationConverter<dataType>::
-backward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &dvf_sptr,
-         const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr,
+backward(const NiftiImageData3DDeformation<dataType> &dvf,
+         const NiftiImageData<dataType> &ref,
          float *spacingMillimeter)
 {
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > cpg_sptr =
             std::make_shared<NiftiImageData3DDeformation<dataType> >();
-    dvf_sptr->create_cpp(*cpg_sptr,*ref_sptr,spacingMillimeter);
+    dvf.create_cpp(*cpg_sptr, ref, spacingMillimeter);
     return cpg_sptr;
 }
 
 template<class dataType>
 void
 ControlPointGridToDeformationConverter<dataType>::
-backward(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &cpg_sptr,
-         const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &dvf_sptr,
-         const std::shared_ptr<const NiftiImageData<dataType> > &ref_sptr,
+backward(NiftiImageData3DDeformation<dataType> &cpg,
+         const NiftiImageData3DDeformation<dataType> &dvf,
+         const NiftiImageData<dataType> &ref,
          float *spacingMillimeter)
 {
-    dvf_sptr->create_cpp(*cpg_sptr, *ref_sptr,spacingMillimeter);
+    dvf.create_cpp(cpg, ref, spacingMillimeter);
 }
 
 namespace sirf {

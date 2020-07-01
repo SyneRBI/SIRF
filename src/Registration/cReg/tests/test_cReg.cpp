@@ -37,6 +37,7 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
+#include "sirf/Reg/ControlPointGridToDeformationConverter.h"
 #include <memory>
 #include <numeric>
 #ifdef SIRF_SPM
@@ -1132,6 +1133,56 @@ int main(int argc, char* argv[])
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished weighted mean test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+    {
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting CGP->DVF test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        auto dvf_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(
+                    NA.get_deformation_field_forward_sptr());
+
+        ControlPointGridToDeformationConverter<float> cpg_dvf_converter;
+        float spacing[3];
+        for (unsigned i=0; i<3; ++i)
+            spacing[i] = 2 * dvf_sptr->get_raw_nifti_sptr()->pixdim[i+1];
+
+        // Test backward
+        auto dvf_to_cpg_sptr = cpg_dvf_converter.backward(*dvf_sptr, *ref_aladin, spacing);
+        // Check contains non-zero elements
+        if (std::abs(dvf_to_cpg_sptr->get_max()) < 1.e-4f)
+            throw std::runtime_error("ControlPointGridToDeformationConverter: backward contains only zeroes.");
+
+        // Test backward in place
+        NiftiImageData3DDeformation<float> dvf_to_cpg_inplace;
+        cpg_dvf_converter.backward(dvf_to_cpg_inplace, *dvf_sptr, *ref_aladin, spacing);
+
+        // Compare
+        if (*dvf_to_cpg_sptr != dvf_to_cpg_inplace)
+            throw std::runtime_error("ControlPointGridToDeformationConverter: backward");
+
+        // Test forward
+        auto dvf_to_cpg_to_dvf_sptr = cpg_dvf_converter.forward(*dvf_to_cpg_sptr, *ref_aladin);
+
+        // Test forward in place
+        NiftiImageData3DDeformation<float> dvf_to_cpg_to_dvf_inplace;
+        cpg_dvf_converter.forward(dvf_to_cpg_to_dvf_inplace, *dvf_to_cpg_sptr, *ref_aladin);
+
+        NiftiImageData<float>::print_headers({ref_aladin.get(), dvf_sptr.get(),
+                                              dvf_to_cpg_sptr.get(), &dvf_to_cpg_inplace,
+                                              dvf_to_cpg_to_dvf_sptr.get(),
+                                              &dvf_to_cpg_to_dvf_inplace});
+
+        // Compare
+        if (*dvf_to_cpg_to_dvf_sptr != dvf_to_cpg_to_dvf_inplace)
+            throw std::runtime_error("ControlPointGridToDeformationConverter: forward");
+
+exit(0);
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished CGP->DVF test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 /* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
