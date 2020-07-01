@@ -420,7 +420,7 @@ public:
 
 protected:
 
-    enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
+    enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef, _3DBSpl};
 
     enum MathsType { add, sub, mul };
 
