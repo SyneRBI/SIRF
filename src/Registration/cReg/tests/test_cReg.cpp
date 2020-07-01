@@ -880,6 +880,24 @@ int main(int argc, char* argv[])
         if (*NF2.get_output_sptr() != *ref_f3d_crop)
             throw std::runtime_error("NiftyF3dSym failed: ref==flo, but registered image != ref");
 
+        // Check 2D registration
+        {
+            // Create 2D images
+            int crop_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
+            std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_f3d->clone();
+            std::shared_ptr<NiftiImageData3D<float> > flo_2d_sptr = flo_f3d->clone();
+            ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            flo_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            NiftyF3dSym<float> NF_2D;
+            NF_2D.set_reference_image(ref_2d_sptr);
+            NF_2D.set_floating_image (flo_2d_sptr);
+            NF_2D.set_parameter_file( parameter_file_f3d );
+            NF_2D.set_reference_time_point(1);
+            NF_2D.set_floating_time_point(1);
+            NF_2D.process();
+        }
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty f3d test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
