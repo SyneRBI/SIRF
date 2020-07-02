@@ -1098,6 +1098,11 @@ def try_cgp_dvf_conversion(na):
     if dvf_to_cpg_to_dvf != dvf_to_cpg_to_dvf_w_converter:
         raise AssertionError("ControlPointGridToDeformationConverter DVF->CPG->DVF failed.")
 
+    # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
+    cpg_2_dvf_converter._set_up_for_adjoint_test(dvf, dvf_to_cpg)
+    if not is_operator_adjoint(cpg_2_dvf_converter):
+        raise AssertionError("ControlPointGridToDeformationConverter::adjoint() failed")
+
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
     sys.stderr.write('#                             Finished CGP<->DVF test.\n')

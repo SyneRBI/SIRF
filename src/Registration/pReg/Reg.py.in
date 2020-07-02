@@ -293,6 +293,10 @@ class NiftiImageData(SIRF.ImageData):
             image = NiftiImageData3DDeformation()
         elif self.name == 'NiftiImageData3DDisplacement':
             image = NiftiImageData3DDisplacement()
+        elif self.name == 'NiftiImageData3DBSpline':
+            image = NiftiImageData3DBSpline()
+        else:
+            raise error("unknown object name: " + self.name)
         try_calling(pyreg.cReg_NiftiImageData_deep_copy(image.handle, self.handle))
         return image
 
@@ -683,6 +687,8 @@ class ControlPointGridToDeformationConverter(object):
     """
     def __init__(self):
         self.handle = None
+        self.dvf_template = None  # only used for testing
+        self.cpg_template = None  # only used for testing
         self.name = 'ControlPointGridToDeformationConverter'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
@@ -718,6 +724,33 @@ class ControlPointGridToDeformationConverter(object):
         output.handle = pyreg.cReg_CPG2DVF_backward(self.handle, dvf.handle)
         check_status(output.handle)
         return output
+
+    def _set_up_for_adjoint_test(self, dvf_template, cpg_template):
+        """Set template dvf and cpg to be used for testing."""
+        assert_validity(dvf_template, NiftiImageData3DDeformation)
+        assert_validity(cpg_template, NiftiImageData3DBSpline)
+        self.dvf_template = dvf_template
+        self.cpg_template = cpg_template
+
+    def direct(self, cpg):
+        """Alias of forward."""
+        return self.forward(cpg)
+
+    def adjoint(self, dvf):
+        """Alias of backward."""
+        return self.backward(dvf)
+
+    def is_linear(self):
+        """Returns whether the transformation is linear"""
+        return True
+
+    def domain_geometry(self):
+        """Get domain geometry (only used for testing)."""
+        return self.cpg_template
+
+    def range_geometry(self):
+        """Get range geometry (only used for testing)."""
+        return self.dvf_template
 
 
 class _Registration(ABC):
