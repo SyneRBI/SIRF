@@ -1159,8 +1159,6 @@ int main(int argc, char* argv[])
         for (unsigned i=0; i<3; ++i)
             spacing[i] = dvf_sptr->get_raw_nifti_sptr()->pixdim[i+1] * 2.f;
         NiftiImageData3DBSpline<float> dvf_to_cpg(*dvf_sptr, spacing);
-        NiftiImageData<float>::print_headers({dvf_sptr.get(), &dvf_to_cpg});
-        exit(0);
         if (std::abs(dvf_to_cpg.get_max()) < 1.e-4f || std::abs(dvf_to_cpg.get_min()) < 1.e-4f)
             throw std::runtime_error("NiftiImageData3DBSpline::NiftiImageData3DBSpline(DVF): contains only zeroes.");
 
@@ -1173,8 +1171,6 @@ int main(int argc, char* argv[])
         // Compare
         if (*dvf_sptr != dvf_to_cpg_to_dvf)
             throw std::runtime_error("DVF->CPG->DVF != DVF.");
-
-exit(0);
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished CGP<->DVF test.\n";
