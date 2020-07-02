@@ -1101,6 +1101,27 @@ class AcquisitionModel(object):
         self.at = None
         # reference to the acquisition sensitivity model
         self.asm = None
+        # number of subsets
+        self._num_subsets = 1
+        # current subset if
+        self._subset_num = 0
+    
+    @property
+    def subset_num(self):
+        return self._subset_num
+    @subset_num.setter
+    def subset_num(self, value):
+        if value < self._num_subset:
+            self._subset_num = value
+        else:
+            raise ValueError('Invalid value')
+    @property
+    def num_subset(self):
+        return self._num_subset
+    @num_subset.setter
+    def num_subset(self, value):
+        self._num_subset = value
+
     def set_up(self, acq_templ, img_templ):
         ''' 
         Prepares this object for performing forward and backward
@@ -1249,33 +1270,34 @@ class AcquisitionModel(object):
         am = type(self)()
         am.set_up( self.acq_templ, self.img_templ )
         return am
-    def direct(self, image, subset_num = 0, num_subsets = 1, out = None):
+    def direct(self, image, out = None):
         '''Projects an image into the (simulated) acquisition space,
-           alias of forward.
+           calls forward with subset_num and num_subset parsed from internal properties.
 
            Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         return self.forward(image, \
-                            subset_num=subset_num, \
-                            num_subsets = num_subsets, \
+                            subset_num = self.subset_num, \
+                            num_subsets = self.num_subsets, \
                             ad = out)
         
     def adjoint(self, ad, subset_num = 0, num_subsets = 1, out = None):
         '''Back-projects acquisition data into image space, if the
            AcquisitionModel is linear
+           calls backward with subset_num and num_subset parsed from internal properties.
 
            Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
             if out is not None:
-                out.fill(self.backward(ad, subset_num = subset_num, 
-                             num_subsets = num_subsets)
+                out.fill(self.backward(ad, subset_num = self.subset_num, 
+                             num_subsets = self.num_subsets)
                              )
             else:
-                return self.backward(ad, subset_num = subset_num, 
-                             num_subsets = num_subsets)
+                return self.backward(ad, subset_num = self.subset_num, 
+                             num_subsets = self.num_subsets)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
 
