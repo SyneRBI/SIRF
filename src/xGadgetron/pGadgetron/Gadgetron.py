@@ -1045,11 +1045,11 @@ class AcquisitionModel(object):
         return True
 
     def range_geometry(self):
-        '''Returns the template of ImageData'''
+        '''Returns the template of AcquisitionData'''
         return self.acq_templ
 
     def domain_geometry(self):
-        '''Returns the template of AcquisitionData'''
+        '''Returns the template of ImageData'''
         return self.img_templ
 
 class Gadget(object):
