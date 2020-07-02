@@ -44,7 +44,7 @@ SET(SOURCES
   "NiftiImageData3DTensor.cpp"
   "NiftiImageData3DDeformation.cpp"
   "NiftiImageData3DDisplacement.cpp"
-  "NiftiImageData3DBSPline.cpp"
+  "NiftiImageData3DBSpline.cpp"
   "ControlPointGridToDeformationConverter.cpp"
   )
 
