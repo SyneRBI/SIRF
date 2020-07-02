@@ -38,6 +38,7 @@ limitations under the License.
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
 #include "sirf/Reg/NiftiImageData3DBSpline.h"
+#include "sirf/Reg/ControlPointGridToDeformationConverter.h"
 #include <memory>
 #include <numeric>
 #ifdef SIRF_SPM
@@ -1171,6 +1172,17 @@ int main(int argc, char* argv[])
         // Compare
         if (*dvf_sptr != dvf_to_cpg_to_dvf)
             throw std::runtime_error("DVF->CPG->DVF != DVF.");
+
+        // Do the same, using the converter
+        ControlPointGridToDeformationConverter<float> cpg_2_dvf_converter;
+        cpg_2_dvf_converter.set_cpg_spacing(spacing);
+        cpg_2_dvf_converter.set_reference_image(*dvf_sptr->get_tensor_component(0));
+        auto dvf_to_cpg_w_converter = cpg_2_dvf_converter.backward(*dvf_sptr);
+        auto dvf_to_cpg_to_dvf_w_converter = cpg_2_dvf_converter.forward(dvf_to_cpg_w_converter);
+
+        // Compare
+        if (dvf_to_cpg_to_dvf != dvf_to_cpg_to_dvf_w_converter)
+            throw std::runtime_error("ControlPointGridToDeformationConverter DVF->CPG->DVF failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished CGP<->DVF test.\n";
