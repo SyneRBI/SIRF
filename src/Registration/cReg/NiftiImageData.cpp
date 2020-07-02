@@ -517,7 +517,7 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     else if (typeid(*this) == typeid(NiftiImageData3DTensor<dataType>))       ss << "NiftiImageData3DTensor";
     else if (typeid(*this) == typeid(NiftiImageData3DDisplacement<dataType>)) ss << "NiftiImageData3DDisplacement";
     else if (typeid(*this) == typeid(NiftiImageData3DDeformation<dataType>))  ss << "NiftiImageData3DDeformation";
-    else if (typeid(*this) == typeid(NiftiImageData3DBSpline<dataType>))  ss << "NiftiImageData3DDeformation";
+    else if (typeid(*this) == typeid(NiftiImageData3DBSpline<dataType>))      ss << "NiftiImageData3DBSpline";
     ss << ".\n\t\tExpected params: ndim = " << ndim << ", nu = " << nu << ", nt = " << nt;
     if      (intent_code == NIFTI_INTENT_NONE)   ss << ", intent_code = None";
     else if (intent_code == NIFTI_INTENT_VECTOR) ss << ", intent_code = Vector";

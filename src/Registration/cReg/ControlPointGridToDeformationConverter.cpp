@@ -73,7 +73,7 @@ ControlPointGridToDeformationConverter<dataType>::
 backward(const NiftiImageData3DDeformation<dataType> &dvf)
 {
     check_is_set_up();
-    return NiftiImageData3DBSpline<dataType>(dvf);
+    return NiftiImageData3DBSpline<dataType>(dvf, _spacing);
 }
 
 template<class dataType>
