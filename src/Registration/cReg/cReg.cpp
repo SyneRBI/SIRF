@@ -26,6 +26,8 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DTensor.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftiImageData3DBSpline.h"
+#include "sirf/Reg/ControlPointGridToDeformationConverter.h"
 #include "sirf/Reg/NiftyAladinSym.h"
 #include "sirf/Reg/NiftyF3dSym.h"
 #include "sirf/Reg/NiftyResample.h"
@@ -68,6 +70,10 @@ void* cReg_newObject(const char* name)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>));
         if (strcmp(name, "NiftiImageData3DDeformation") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>));
+        if (strcmp(name, "NiftiImageData3DBSpline") == 0)
+            return newObjectHandle(std::shared_ptr<NiftiImageData3DBSpline<float> >(new NiftiImageData3DBSpline<float>));
+        if (strcmp(name, "ControlPointGridToDeformationConverter") == 0)
+            return newObjectHandle(std::shared_ptr<ControlPointGridToDeformationConverter<float> >(new ControlPointGridToDeformationConverter<float>));
         if (strcmp(name, "NiftyAladinSym") == 0)
             return newObjectHandle(std::shared_ptr<NiftyAladinSym<float> >(new NiftyAladinSym<float>));
         if (strcmp(name, "NiftyF3dSym") == 0)
@@ -157,6 +163,11 @@ void* cReg_objectFromFile(const char* name, const char* filename)
         if (strcmp(name, "NiftiImageData3DDeformation") == 0) {
             std::shared_ptr<NiftiImageData3DDeformation<float> >
                 sptr(new NiftiImageData3DDeformation<float>(filename));
+            return newObjectHandle(sptr);
+        }
+        if (strcmp(name, "NiftiImageData3DBSpline") == 0) {
+            std::shared_ptr<NiftiImageData3DBSpline<float> >
+                sptr(new NiftiImageData3DBSpline<float>(filename));
             return newObjectHandle(sptr);
         }
         if (strcmp(name, "AffineTransformation") == 0) {
@@ -533,6 +544,12 @@ void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, c
             sptr.reset(new NiftiImageData3DDisplacement<float>(x,y,z));
         else if (strcmp(obj,"NiftiImageData3DDeformation") == 0)
             sptr.reset(new NiftiImageData3DDeformation<float>(x,y,z));
+        else if (strcmp(obj,"NiftiImageData3DBSpline") == 0)
+            sptr.reset(new NiftiImageData3DBSpline<float>(x,y,z));
+        else
+            throw std::runtime_error(
+                    "cReg_NiftiImageData3DTensor_construct_from_3_components, unknown type:" +
+                    std::string(obj));
         return newObjectHandle(sptr);
     }
     CATCH;
@@ -544,6 +561,17 @@ void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim)
         NiftiImageData3DTensor<float>& im = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
         im.flip_component(dim);
         return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftiImageData3DTensor_get_tensor_component(const void *ptr, const int dim)
+{
+    try {
+        NiftiImageData3DTensor<float>& im = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
+        std::shared_ptr<NiftiImageData<float> > im_sptr = im.get_tensor_component(dim);
+        std::shared_ptr<NiftiImageData3D<float> > im3D_sptr = std::make_shared<NiftiImageData3D<float> >(*im_sptr);
+        return newObjectHandle(im3D_sptr);
     }
     CATCH;
 }
@@ -606,6 +634,75 @@ void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr)
     try {
         NiftiImageData3DDeformation<float>& def = objectFromHandle<NiftiImageData3DDeformation<float> >(def_ptr);
         return newObjectHandle(std::make_shared<NiftiImageData3DDisplacement<float> >(def));
+    }
+    CATCH;
+}
+
+// -------------------------------------------------------------------------------- //
+//      NiftiImageData3DBSpline
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cReg_NiftiImageData3DBSpline_create_from_def(const void* def_ptr, const float spacing_x, const float spacing_y, const float spacing_z)
+{
+    try {
+        NiftiImageData3DDeformation<float>& def = objectFromHandle<NiftiImageData3DDeformation<float> >(def_ptr);
+        const float spacing[3] = {spacing_x, spacing_y, spacing_z};
+        return newObjectHandle(std::make_shared<NiftiImageData3DBSpline<float> >(def, spacing));
+    }
+    CATCH;
+}
+
+// -------------------------------------------------------------------------------- //
+//      ControlPointGridToDeformationConverter
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cReg_CPG2DVF_set_cpg_spacing(const void* converter_ptr, const float spacing_x, const float spacing_y, const float spacing_z)
+{
+    try {
+        ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
+                objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
+        const float spacing[3] = {spacing_x, spacing_y, spacing_z};
+        cpg_2_dvf_converter.set_cpg_spacing(spacing);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_CPG2DVF_set_ref_im(const void* converter_ptr, const void* ref_im_ptr)
+{
+    try {
+        ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
+                objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
+        NiftiImageData<float>& ref_im =
+                objectFromHandle<NiftiImageData<float> >(ref_im_ptr);
+        cpg_2_dvf_converter.set_reference_image(ref_im);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_CPG2DVF_forward(const void* converter_ptr, const void* cpg_ptr)
+{
+    try {
+        ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
+                objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
+        NiftiImageData3DBSpline<float>& cpg =
+                objectFromHandle<NiftiImageData3DBSpline<float> >(cpg_ptr);
+        NiftiImageData3DDeformation<float> def = cpg_2_dvf_converter.forward(cpg);
+        return newObjectHandle(std::make_shared<NiftiImageData3DDeformation<float> >(def));
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_CPG2DVF_backward(const void* converter_ptr, const void* dvf_ptr)
+{
+    try {
+        ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
+                objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
+        NiftiImageData3DDeformation<float>& dvf =
+                objectFromHandle<NiftiImageData3DDeformation<float> >(dvf_ptr);
+        NiftiImageData3DBSpline<float> cpg = cpg_2_dvf_converter.backward(dvf);
+        return newObjectHandle(std::make_shared<NiftiImageData3DBSpline<float> >(cpg));
     }
     CATCH;
 }
@@ -903,6 +1000,8 @@ void* cReg_Transformation_get_as_deformation_field(const void* ptr, const char* 
             trans = &objectFromHandle<NiftiImageData3DDisplacement<float> >(ptr);
         else if (strcmp(name,"NiftiImageData3DDeformation") == 0)
             trans = &objectFromHandle<NiftiImageData3DDeformation<float> >(ptr);
+        else if (strcmp(name,"NiftiImageData3DBSpline") == 0)
+            trans = &objectFromHandle<NiftiImageData3DBSpline<float> >(ptr);
         else
             throw std::runtime_error("cReg_Transformation_get_as_deformation_field: type should be affine, disp or def.");
 

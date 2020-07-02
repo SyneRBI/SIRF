@@ -70,7 +70,7 @@ public:
         : NiftiImageData3DTensor<dataType>(x,y,z) { this->check_dimensions(this->_3DBSpl); }
 
     /// Create from deformation field image
-    NiftiImageData3DBSpline(const NiftiImageData3DDeformation<dataType> &def, float spacing[]);
+    NiftiImageData3DBSpline(const NiftiImageData3DDeformation<dataType> &def, const float spacing[]);
 
     /// Create from 3D image
     void create_from_3D_image(const NiftiImageData<dataType> &image);

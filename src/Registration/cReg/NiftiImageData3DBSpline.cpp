@@ -34,13 +34,15 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-NiftiImageData3DBSpline<dataType>::NiftiImageData3DBSpline(const NiftiImageData3DDeformation<dataType> &def, float spacing[])
+NiftiImageData3DBSpline<dataType>::NiftiImageData3DBSpline(const NiftiImageData3DDeformation<dataType> &def, const float spacing[])
 {
+    // not marked const, so copy
+    float spacing_nonconst[3] = {spacing[0], spacing[1], spacing[2]};
     // Get any of the tensor components as a 3d image
     auto ref_sptr = def.get_tensor_component(0);
     nifti_image *ref_ptr = ref_sptr->get_raw_nifti_sptr().get();
     // Create the NiftyMoMo bspline transformation class
-    NiftyMoMo::BSplineTransformation bspline(ref_ptr, 1, spacing);
+    NiftyMoMo::BSplineTransformation bspline(ref_ptr, 1, spacing_nonconst);
     // Get cpg_ptr
     nifti_image *cpg_ptr = bspline.GetTransformationAsImage();
     // Convert DVF to CPG
