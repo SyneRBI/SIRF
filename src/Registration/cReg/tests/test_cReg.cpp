@@ -37,6 +37,7 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
+#include "sirf/Reg/NiftiImageData3DBSpline.h"
 #include <memory>
 #include <numeric>
 #ifdef SIRF_SPM
@@ -1142,6 +1143,41 @@ int main(int argc, char* argv[])
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished weighted mean test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+    {
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting CGP<->DVF test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        auto dvf_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(
+                    NA.get_deformation_field_forward_sptr());
+
+        // DVF->CPG
+        float spacing[3];
+        for (unsigned i=0; i<3; ++i)
+            spacing[i] = dvf_sptr->get_raw_nifti_sptr()->pixdim[i+1] * 2.f;
+        NiftiImageData3DBSpline<float> dvf_to_cpg(*dvf_sptr, spacing);
+        NiftiImageData<float>::print_headers({dvf_sptr.get(), &dvf_to_cpg});
+        exit(0);
+        if (std::abs(dvf_to_cpg.get_max()) < 1.e-4f || std::abs(dvf_to_cpg.get_min()) < 1.e-4f)
+            throw std::runtime_error("NiftiImageData3DBSpline::NiftiImageData3DBSpline(DVF): contains only zeroes.");
+
+        // DVF->CPG->DVF
+        auto dvf_to_cpg_to_dvf = dvf_to_cpg.get_as_deformation_field(*dvf_sptr->get_tensor_component(0));
+
+        NiftiImageData<float>::print_headers({ref_aladin.get(), dvf_sptr.get(),
+                                              &dvf_to_cpg, &dvf_to_cpg_to_dvf});
+
+        // Compare
+        if (*dvf_sptr != dvf_to_cpg_to_dvf)
+            throw std::runtime_error("DVF->CPG->DVF != DVF.");
+
+exit(0);
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished CGP<->DVF test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 /* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED

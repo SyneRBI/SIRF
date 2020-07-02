@@ -44,7 +44,9 @@ NiftiImageData3DBSpline<dataType>::NiftiImageData3DBSpline(const NiftiImageData3
     bspline.GetDVFGradientWRTTransformationParameters(def.clone()->get_raw_nifti_sptr().get(), ref_ptr);
     // Get output
     nifti_image *cpg_ptr = bspline.GetTransformationAsImage();
+    cpg_ptr->intent_p1 = SPLINE_VEL_GRID;
     *this = NiftiImageData3DBSpline<dataType>(*cpg_ptr);
+    this->check_dimensions(NiftiImageData<dataType>::_3DBSpl);
 }
 
 template<class dataType>
