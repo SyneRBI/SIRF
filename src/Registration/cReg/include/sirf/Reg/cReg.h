@@ -81,9 +81,6 @@ extern "C" {
     // NiftiImageData3DDisplacement
     void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 
-    // NiftiImageData3DBSpline
-    void* cReg_NiftiImageData3DBSpline_create_from_def(const void* def_ptr, const float spacing_x, const float spacing_y, const float spacing_z);
-
     // ControlPointGridToDeformationConverter
     void* cReg_CPG2DVF_set_cpg_spacing(const void* converter_ptr, const float spacing_x, const float spacing_y, const float spacing_z);
     void* cReg_CPG2DVF_set_ref_im(const void* converter_ptr, const void* ref_im_ptr);

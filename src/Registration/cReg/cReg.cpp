@@ -639,20 +639,6 @@ void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr)
 }
 
 // -------------------------------------------------------------------------------- //
-//      NiftiImageData3DBSpline
-// -------------------------------------------------------------------------------- //
-extern "C"
-void* cReg_NiftiImageData3DBSpline_create_from_def(const void* def_ptr, const float spacing_x, const float spacing_y, const float spacing_z)
-{
-    try {
-        NiftiImageData3DDeformation<float>& def = objectFromHandle<NiftiImageData3DDeformation<float> >(def_ptr);
-        const float spacing[3] = {spacing_x, spacing_y, spacing_z};
-        return newObjectHandle(std::make_shared<NiftiImageData3DBSpline<float> >(def, spacing));
-    }
-    CATCH;
-}
-
-// -------------------------------------------------------------------------------- //
 //      ControlPointGridToDeformationConverter
 // -------------------------------------------------------------------------------- //
 extern "C"

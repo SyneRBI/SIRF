@@ -663,14 +663,6 @@ class NiftiImageData3DBSpline(NiftiImageData3DTensor, _Transformation):
             self.handle = pyreg.\
                 cReg_NiftiImageData3DTensor_construct_from_3_components(
                     self.name, src1.handle, src2.handle, src3.handle)
-        # from deformation
-        elif isinstance(src1, NiftiImageData3DDeformation) and len(src2) == 3:
-            spacing = src2
-            self.handle = pyreg.\
-                cReg_NiftiImageData3DBSpline_create_from_def(src1.handle,
-                                                             float(spacing[0]),
-                                                             float(spacing[1]),
-                                                             float(spacing[2]))
         else:
             raise error('Wrong source in NiftiImageData3DBSpline constructor')
         check_status(self.handle)

@@ -1159,29 +1159,18 @@ int main(int argc, char* argv[])
         float spacing[3];
         for (unsigned i=0; i<3; ++i)
             spacing[i] = dvf_sptr->get_raw_nifti_sptr()->pixdim[i+1] * 2.f;
-        NiftiImageData3DBSpline<float> dvf_to_cpg(*dvf_sptr, spacing);
-        if (std::abs(dvf_to_cpg.get_max()) < 1.e-4f || std::abs(dvf_to_cpg.get_min()) < 1.e-4f)
-            throw std::runtime_error("NiftiImageData3DBSpline::NiftiImageData3DBSpline(DVF): contains only zeroes.");
 
-        // DVF->CPG->DVF
-        auto dvf_to_cpg_to_dvf = dvf_to_cpg.get_as_deformation_field(*dvf_sptr->get_tensor_component(0));
-
-        NiftiImageData<float>::print_headers({ref_aladin.get(), dvf_sptr.get(),
-                                              &dvf_to_cpg, &dvf_to_cpg_to_dvf});
-
-        // Compare
-        if (*dvf_sptr != dvf_to_cpg_to_dvf)
-            throw std::runtime_error("DVF->CPG->DVF != DVF.");
-
-        // Do the same, using the converter
+        // DVF->CPG with converter
         ControlPointGridToDeformationConverter<float> cpg_2_dvf_converter;
         cpg_2_dvf_converter.set_cpg_spacing(spacing);
         cpg_2_dvf_converter.set_reference_image(*dvf_sptr->get_tensor_component(0));
+        // DVF->CPG
         auto dvf_to_cpg_w_converter = cpg_2_dvf_converter.backward(*dvf_sptr);
+        // DVF->CPG->DVF
         auto dvf_to_cpg_to_dvf_w_converter = cpg_2_dvf_converter.forward(dvf_to_cpg_w_converter);
 
         // Compare
-        if (dvf_to_cpg_to_dvf != dvf_to_cpg_to_dvf_w_converter)
+        if (*dvf_sptr != dvf_to_cpg_to_dvf_w_converter)
             throw std::runtime_error("ControlPointGridToDeformationConverter DVF->CPG->DVF failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";

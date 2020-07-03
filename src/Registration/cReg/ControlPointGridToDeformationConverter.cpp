@@ -30,6 +30,7 @@ limitations under the License.
 #include "sirf/Reg/ControlPointGridToDeformationConverter.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DBSpline.h"
+#include "sirf/NiftyMoMo/BSplineTransformation.h"
 
 using namespace sirf;
 
@@ -73,7 +74,19 @@ ControlPointGridToDeformationConverter<dataType>::
 backward(const NiftiImageData3DDeformation<dataType> &dvf)
 {
     check_is_set_up();
-    return NiftiImageData3DBSpline<dataType>(dvf, _spacing);
+    // not marked const, so copy
+    float spacing_nonconst[3] = {_spacing[0], _spacing[1], _spacing[2]};
+    // Get any of the tensor components as a 3d image
+    auto ref_sptr = dvf.get_tensor_component(0);
+    nifti_image *ref_ptr = ref_sptr->get_raw_nifti_sptr().get();
+    // Create the NiftyMoMo bspline transformation class
+    NiftyMoMo::BSplineTransformation bspline(ref_ptr, 1, spacing_nonconst);
+    // Get cpg_ptr
+    nifti_image *cpg_ptr = bspline.GetTransformationAsImage();
+    // Convert DVF to CPG
+    cpg_ptr->data = bspline.GetDVFGradientWRTTransformationParameters(dvf.clone()->get_raw_nifti_sptr().get(), ref_ptr);
+    cpg_ptr->intent_p1 = SPLINE_VEL_GRID;
+    return NiftiImageData3DBSpline<dataType>(*cpg_ptr);
 }
 
 template<class dataType>

@@ -1072,30 +1072,19 @@ def try_cgp_dvf_conversion(na):
     time.sleep(0.5)
 
     dvf = na.get_deformation_field_forward()
-
-    # DVF->CPG
     spacing = dvf.get_voxel_sizes()[1:4] * 2.0
-    dvf_to_cpg = sirf.Reg.NiftiImageData3DBSpline(dvf, spacing)
 
-    if abs(dvf_to_cpg.get_max()) < 1.e-4 or abs(dvf_to_cpg.get_min()) < 1.e-4:
-        raise AssertionError("NiftiImageData3DBSpline::NiftiImageData3DBSpline(DVF): contains only zeroes.")
-
-    # DVF->CPG->DVF
-    dvf_to_cpg_to_dvf = dvf_to_cpg.get_as_deformation_field(dvf.get_tensor_component(0))
-
-    # Compare
-    if dvf != dvf_to_cpg_to_dvf:
-        raise AssertionError("DVF->CPG->DVF != DVF.")
-
-    # Do the same, using the converter
+    # DVF->CPG with converter
     cpg_2_dvf_converter = sirf.Reg.ControlPointGridToDeformationConverter()
     cpg_2_dvf_converter.set_cpg_spacing(spacing)
     cpg_2_dvf_converter.set_reference_image(dvf.get_tensor_component(0))
+    # DVF->CPG
     dvf_to_cpg_w_converter = cpg_2_dvf_converter.backward(dvf)
+    # DVF->CPG->DVF
     dvf_to_cpg_to_dvf_w_converter = cpg_2_dvf_converter.forward(dvf_to_cpg_w_converter)
 
     # Compare
-    if dvf_to_cpg_to_dvf != dvf_to_cpg_to_dvf_w_converter:
+    if dvf != dvf_to_cpg_to_dvf_w_converter:
         raise AssertionError("ControlPointGridToDeformationConverter DVF->CPG->DVF failed.")
 
     # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
