@@ -389,7 +389,6 @@ complex_float_t a, complex_float_t b)
 		for (int i = 0, j = 0, k = 0; i < n && j < m;) {
 			y.get_acquisition(i, ay);
 			x.get_acquisition(j, ax);
-			get_acquisition(k, acq);
 			if (TO_BE_IGNORED(ay)) {
 				std::cout << i << " ignored (ay)\n";
 				i++;
@@ -400,10 +399,13 @@ complex_float_t a, complex_float_t b)
 				j++;
 				continue;
 			}
-			if (TO_BE_IGNORED(acq)) {
-				std::cout << k << " ignored (acq)\n";
-				k++;
-				continue;
+			if (!isempty) {
+				get_acquisition(k, acq);
+				if (TO_BE_IGNORED(acq)) {
+					std::cout << k << " ignored (acq)\n";
+					k++;
+					continue;
+				}
 			}
 			switch (op) {
 			case 1:
