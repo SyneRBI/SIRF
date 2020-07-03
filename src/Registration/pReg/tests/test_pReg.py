@@ -1079,17 +1079,32 @@ def try_cgp_dvf_conversion(na):
     cpg_2_dvf_converter.set_cpg_spacing(spacing)
     cpg_2_dvf_converter.set_reference_image(dvf.get_tensor_component(0))
     # DVF->CPG
-    dvf_to_cpg_w_converter = cpg_2_dvf_converter.backward(dvf)
+    dvf_to_cpg = cpg_2_dvf_converter.backward(dvf)
     # DVF->CPG->DVF
-    dvf_to_cpg_to_dvf_w_converter = cpg_2_dvf_converter.forward(dvf_to_cpg_w_converter)
+    dvf_to_cpg_to_dvf = cpg_2_dvf_converter.forward(dvf_to_cpg)
 
     # Compare
-    if dvf != dvf_to_cpg_to_dvf_w_converter:
+    if dvf != dvf_to_cpg_to_dvf:
         raise AssertionError("ControlPointGridToDeformationConverter DVF->CPG->DVF failed.")
 
     # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
     cpg_2_dvf_converter._set_up_for_adjoint_test(dvf, dvf_to_cpg)
     if not is_operator_adjoint(cpg_2_dvf_converter):
+        raise AssertionError("ControlPointGridToDeformationConverter::adjoint() failed")
+
+    x = dvf_to_cpg
+    # y = na.get_deformation_field_inverse()
+    y = sirf.Reg.NiftiImageData3DDeformation(aladin_def_inverse)
+    y_hat = cpg_2_dvf_converter.forward(x)
+    x_hat = cpg_2_dvf_converter.backward(y)
+    y_dot = y_hat.dot(y)
+    x_dot = x_hat.dot(x)
+    diff = abs(y_dot - x_dot)
+    avg = 0.5 * (abs(y_dot) + abs(x_dot))
+
+    norm_err = diff/avg
+    max_err = 10e-5
+    if norm_err > max_err:
         raise AssertionError("ControlPointGridToDeformationConverter::adjoint() failed")
 
     time.sleep(0.5)

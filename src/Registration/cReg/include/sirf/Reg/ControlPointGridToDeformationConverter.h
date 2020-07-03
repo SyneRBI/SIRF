@@ -71,6 +71,6 @@ private:
     void check_is_set_up() const;
 
     float _spacing[3];
-    std::shared_ptr<const NiftiImageData<dataType> > _template_ref_sptr;
+    std::shared_ptr<NiftiImageData<dataType> > _template_ref_sptr;
 };
 }
