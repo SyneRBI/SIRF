@@ -122,11 +122,17 @@ public:
     /// Do the adjoint transformation
     virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr) = 0;
 
-    /// Backward. Alias for Adjoint
+    /// Backward resampling  (i.e. multiply with the Jacobian determinant w.r.t. the reference image): dR/dlambda. Alias for Adjoint
     virtual std::shared_ptr<ImageData> backward(const std::shared_ptr<const ImageData> input_sptr);
 
     /// Backward. Alias for Adjoint
     virtual void backward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
+
+    /// Backward transformation (i.e. multiply with the Jacobian determinant w.r.t. transformation parameters): dR/dalpha
+    virtual std::shared_ptr<Transformation> backward_wrt_transformation(const std::shared_ptr<const ImageData> input_sptr);
+
+    /// Backward of the transformation
+    virtual void backward_wrt_transformation(std::shared_ptr<Transformation> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
 
 protected:
 
