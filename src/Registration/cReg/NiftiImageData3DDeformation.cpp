@@ -54,11 +54,13 @@ void NiftiImageData3DDeformation<dataType>::create_from_3D_image(const NiftiImag
 }
 
 template<class dataType>
-void NiftiImageData3DDeformation<dataType>::create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData<dataType> &ref)
+void NiftiImageData3DDeformation<dataType>::create_from_cpp(const NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData<dataType> &ref)
 {
     this->create_from_3D_image(ref);
 
-    reg_spline_getDeformationField(cpp.get_raw_nifti_sptr().get(),
+    auto cpp_clone = cpp.clone();
+
+    reg_spline_getDeformationField(cpp_clone->get_raw_nifti_sptr().get(),
                                    this->_nifti_image.get(),
                                    NULL,
                                    false, //composition
