@@ -349,7 +349,7 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 }
 
 void
-MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
 	if (cc.items() < 1)
@@ -357,13 +357,13 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	for (unsigned int i = 0, a = 0; i < ic.number(); i++) {
 		ImageWrap& iw = ic.image_wrap(i);
-		CoilData& csm = cc(i%cc.items());
+        CFImage csm = cc.get_csm_as_cfimage(i%cc.items());
 		fwd(iw, csm, ac, a);
 	}
 }
 
 void 
-MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
 	ic.set_meta_data(ac.acquisitions_info());
@@ -371,7 +371,7 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 		throw LocalisedException
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	for (unsigned int i = 0, a = 0; a < ac.number(); i++) {
-		CoilData& csm = cc(i%cc.items());
+        CFImage csm = cc.get_csm_as_cfimage(i%cc.items());
 		ImageWrap iw(sptr_imgs_->image_wrap(i));
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
@@ -421,7 +421,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 template< typename T>
 void 
-MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
+MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
 	MRAcquisitionData& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& img = *ptr_img;
@@ -503,7 +503,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 template< typename T>
 void 
-MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
+MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
 	MRAcquisitionData& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& im = *ptr_im;

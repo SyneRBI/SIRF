@@ -109,9 +109,7 @@ void* cGT_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(Mutex);
 		if (boost::iequals(name, "GTConnector"))
 			return NEW_OBJECT_HANDLE(GTConnector);
-		if (boost::iequals(name, "CoilImages"))
-			return NEW_OBJECT_HANDLE(CoilImagesVector);
-		if (boost::iequals(name, "AcquisitionModel"))
+        if (boost::iequals(name, "AcquisitionModel"))
 			return NEW_OBJECT_HANDLE(MRAcquisitionModel);
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
@@ -212,14 +210,14 @@ cGT_CoilSensitivities(const char* file)
 {
 	try {
 		if (std::strlen(file) > 0) {
-			shared_ptr<CoilSensitivitiesContainer>
-				csms(new CoilSensitivitiesAsImages(file));
-			return newObjectHandle<CoilSensitivitiesContainer>(csms);
+			shared_ptr<CoilSensitivitiesVector>
+                csms(new CoilSensitivitiesVector(file));
+			return newObjectHandle<CoilSensitivitiesVector>(csms);
 		}
 		else {
-			shared_ptr<CoilSensitivitiesContainer>
-				csms(new CoilSensitivitiesAsImages());
-			return newObjectHandle<CoilSensitivitiesContainer>(csms);
+			shared_ptr<CoilSensitivitiesVector>
+                csms(new CoilSensitivitiesVector());
+			return newObjectHandle<CoilSensitivitiesVector>(csms);
 		}
 	}
 	CATCH;
@@ -230,8 +228,8 @@ void*
 cGT_setCSParameter(void* ptr, const char* par, const void* val)
 {
 	CAST_PTR(DataHandle, h_csms, ptr);
-	CoilSensitivitiesContainer& csms =
-		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+	CoilSensitivitiesVector& csms =
+		objectFromHandle<CoilSensitivitiesVector>(h_csms);
 	if (boost::iequals(par, "smoothness"))
 		csms.set_csm_smoothness(dataFromHandle<int>(val));
 	//csms.set_csm_smoothness(intDataFromHandle(val)); // causes problems with Matlab
@@ -242,50 +240,16 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 
 extern "C"
 void*
-cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs)
-{
-	try {
-		CAST_PTR(DataHandle, h_csms, ptr_cis);
-		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		CoilImagesContainer& cis =
-			objectFromHandle<CoilImagesContainer>(h_csms);
-		MRAcquisitionData& acqs =
-			objectFromHandle<MRAcquisitionData>(h_acqs);
-		cis.compute(acqs);
-		return (void*)new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis)
-{
-	try {
-		CAST_PTR(DataHandle, h_csms, ptr_csms);
-		CAST_PTR(DataHandle, h_cis, ptr_cis);
-		CoilSensitivitiesContainer& csms =
-			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
-		CoilImagesContainer& cis =
-			objectFromHandle<CoilImagesContainer>(h_cis);
-		csms.compute(cis);
-		return (void*)new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
 cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 {
 	try {
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		CoilSensitivitiesContainer& csms =
-			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+		CoilSensitivitiesVector& csms =
+			objectFromHandle<CoilSensitivitiesVector>(h_csms);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		csms.compute(acqs);
+        csms.calculate_csm(acqs);
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -293,42 +257,36 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 
 extern "C"
 void*
-cGT_appendCSM
-(void* ptr_csms, int nx, int ny, int nz, int nc, size_t ptr_re, size_t ptr_im)
+cGT_computeCoilImages(void* ptr_imgs, void* ptr_acqs)
 {
-	try {
-		CAST_PTR(DataHandle, h_csms, ptr_csms);
-		float* re = (float*)ptr_re;
-		float* im = (float*)ptr_im;
-		CoilSensitivitiesContainer& csms =
-			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
-		csms.append_csm(nx, ny, nz, nc, re, im);
-		return (void*)new DataHandle;
-	}
-	CATCH;
+    try {
+        CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        CoilSensitivitiesVector& csms =
+            objectFromHandle<CoilSensitivitiesVector>(h_imgs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+        csms.calculate_images(acqs);
+        return (void*)new DataHandle;
+    }
+    CATCH;
 }
 
 extern "C"
-void
-cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
+void*
+cGT_computeCoilSensitivitiesFromGadgetronImages(void* ptr_csms, void* ptr_imgs)
 {
-	int* dim = (int*)ptr_dim;
-	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& csms =
-		objectFromHandle<CoilDataContainer>(h_csms);
-	csms.get_dim(csm_num, dim);
-}
-
-extern "C"
-void
-cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
-{
-	float* re = (float*)ptr_re;
-	float* im = (float*)ptr_im;
-	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& csms =
-		objectFromHandle<CoilDataContainer>(h_csms);
-	csms.get_data(csm_num, re, im);
+    try {
+        CAST_PTR(DataHandle, h_csms, ptr_csms);
+        CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+        CoilSensitivitiesVector& csms =
+            objectFromHandle<CoilSensitivitiesVector>(h_csms);
+        GadgetronImagesVector& imgs =
+            objectFromHandle<GadgetronImagesVector>(h_imgs);
+        csms.calculate_csm(imgs);
+        return (void*)new DataHandle;
+    }
+    CATCH;
 }
 
 extern "C"
@@ -393,8 +351,8 @@ cGT_setAcquisitionModelParameter
 		else if (boost::iequals(name, "coil_sensitivity_maps")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-			shared_ptr<CoilSensitivitiesContainer> sptr_csc;
-			getObjectSptrFromHandle<CoilSensitivitiesContainer>(handle, sptr_csc);
+			shared_ptr<CoilSensitivitiesVector> sptr_csc;
+			getObjectSptrFromHandle<CoilSensitivitiesVector>(handle, sptr_csc);
 			am.setCSMs(sptr_csc);
 		}
 		else
@@ -412,8 +370,8 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 		CAST_PTR(DataHandle, h_am, ptr_am);
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-		shared_ptr<CoilSensitivitiesContainer> sptr_csms;
-		getObjectSptrFromHandle<CoilSensitivitiesContainer>(h_csms, sptr_csms);
+		shared_ptr<CoilSensitivitiesVector> sptr_csms;
+		getObjectSptrFromHandle<CoilSensitivitiesVector>(h_csms, sptr_csms);
 		am.setCSMs(sptr_csms);
 		return (void*)new DataHandle;
 	}

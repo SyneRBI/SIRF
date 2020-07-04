@@ -117,9 +117,7 @@ def main():
     print('---\n computing coil sensitivity maps...')
     csms = CoilSensitivityData()
     csms.calculate(processed_data)
-    # alternatively, coil sensitivity maps can be computed from
-    # CoilImageData - see coil_sensitivity_maps.py
-
+    
     # create acquisition model based on the acquisition parameters
     # stored in processed_data and image parameters stored in reconstructed_images
 ##    acq_model = AcquisitionModel(processed_data, reconstructed_images)
