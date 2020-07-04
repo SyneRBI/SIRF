@@ -62,21 +62,24 @@ set_reference_image(const NiftiImageData<dataType> &ref)
 template<class dataType>
 NiftiImageData3DDeformation<dataType>
 ControlPointGridToDeformationConverter<dataType>::
-forward(const NiftiImageData3DBSpline<dataType> &cpg)
+forward(const NiftiImageData3DBSpline<dataType> &cpg) const
 {
     check_is_set_up();
+//    NiftiImageData3DDeformation<float> dvf;
+//    dvf.create_from_cpp(cpg, *_template_ref_sptr);
+//    return dvf;
     return cpg.get_as_deformation_field(*_template_ref_sptr);
 }
 
 template<class dataType>
 NiftiImageData3DBSpline<dataType>
 ControlPointGridToDeformationConverter<dataType>::
-backward(const NiftiImageData3DDeformation<dataType> &dvf)
+backward(const NiftiImageData3DDeformation<dataType> &dvf) const
 {
     check_is_set_up();
     // not marked const, so copy
     float spacing_nonconst[3] = {_spacing[0], _spacing[1], _spacing[2]};
-    // Get any of the tensor components as a 3d image
+    // Get raw nifti_image from reference image
     nifti_image *ref_ptr = _template_ref_sptr->get_raw_nifti_sptr().get();
     // Create the NiftyMoMo bspline transformation class
     NiftyMoMo::BSplineTransformation bspline(ref_ptr, 1, spacing_nonconst);

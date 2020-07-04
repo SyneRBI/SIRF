@@ -523,11 +523,13 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     else if (intent_code == NIFTI_INTENT_VECTOR) ss << ", intent_code = Vector";
     if      (intent_p1 == 0) ss << ", intent_p1 = Deformation";
     else if (intent_p1 == 1) ss << ", intent_p1 = Displacement";
+    else if (intent_p1 == SPLINE_VEL_GRID) ss << ", intent_p1 = Control point grid";
     ss << "\n\t\tActual params:   ndim = " << _nifti_image->ndim << ", nu = " << _nifti_image->nu << ", nt = " << _nifti_image->nt;
     if      (_nifti_image->intent_code == NIFTI_INTENT_NONE)   ss << ", intent_code = None";
     else if (_nifti_image->intent_code == NIFTI_INTENT_VECTOR) ss << ", intent_code = Vector";
     if      (intent_p1 != -1 && _nifti_image->intent_p1 == 0)  ss << ", intent_p1 = Deformation";
     else if (intent_p1 != -1 && _nifti_image->intent_p1 == 1)  ss << ", intent_p1 = Displacement";
+    else if (intent_p1 != -1 && _nifti_image->intent_p1 == SPLINE_VEL_GRID)  ss << ", intent_p1 = Control point grid";
     //std::cout << ss.str() << "\n";
     throw std::runtime_error(ss.str());
 }

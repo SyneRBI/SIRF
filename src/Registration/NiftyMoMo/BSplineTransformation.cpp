@@ -1373,7 +1373,7 @@ BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTr
   // Note: Performing the reorientation here is way more efficient, since
   //       only the transformation parameters need to be touched (and not)
   //       the complete DVF
-  this->ReorientateVectorImage( outDVFGradWRTTrafoParams, sourceImage->sto_ijk );
+//  this->ReorientateVectorImage( outDVFGradWRTTrafoParams, sourceImage->sto_ijk );
 
   // Copy over the data pointer from the the image and detach it. Then delete the image.
   PrecisionType* outDVFGradWRTTrafoParamData = (PrecisionType*) outDVFGradWRTTrafoParams->data;

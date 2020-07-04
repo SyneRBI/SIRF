@@ -60,10 +60,10 @@ public:
     void set_reference_image(const NiftiImageData<dataType> &ref);
 
     /// CPG to DVF
-    NiftiImageData3DDeformation<dataType> forward(const NiftiImageData3DBSpline<dataType> &cpg);
+    NiftiImageData3DDeformation<dataType> forward(const NiftiImageData3DBSpline<dataType> &cpg) const;
 
     /// DVF to CPG
-    NiftiImageData3DBSpline<dataType> backward(const NiftiImageData3DDeformation<dataType> &dvf);
+    NiftiImageData3DBSpline<dataType> backward(const NiftiImageData3DDeformation<dataType> &dvf) const;
 
 private:
 
