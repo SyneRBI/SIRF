@@ -515,9 +515,11 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     if (!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::check_dimensions(): Image not initialised.");
 
+    // Nothing to check for this one. return
+    if (image_type == _general) return;
+
     int ndim, nt, nu, intent_code, intent_p1;
-    if        (image_type == _general)  { ndim=-1; nt=-1; nu=-1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
-    else   if (image_type == _3D)       { ndim= 3; nt= 1; nu= 1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
+    if        (image_type == _3D)       { ndim= 3; nt= 1; nu= 1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
     else   if (image_type == _3DTensor) { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=-1;         }
     else   if (image_type == _3DDisp)   { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DISP_FIELD; }
     else   if (image_type == _3DDef)    { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DEF_FIELD;  }
@@ -528,8 +530,9 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     // Check everthing is as it should be. -1 means we don't care about it
     // (e.g., NiftiImageData3D doesn't care about intent_p1, which is used by NiftyReg for Disp/Def fields)
     bool everything_ok = true;
-    if ( ndim        != -1 && ndim        <  _nifti_image->ndim)        everything_ok = false;
-    if ( nu          != -1 && nu          <  _nifti_image->nu  )        everything_ok = false;
+    if ( _3D               && ndim        <  _nifti_image->ndim)        everything_ok = false; // allow for 1D and 2D images
+    if (!_3D               && ndim        != _nifti_image->ndim)        everything_ok = false;
+    if ( nu          != -1 && nu          <  _nifti_image->nu  )        everything_ok = false; // allow for 2D tensors
     if ( nt          != -1 && nt          != _nifti_image->nt  )        everything_ok = false;
     if ( intent_code != -1 && intent_code != _nifti_image->intent_code) everything_ok = false;
     if ( intent_p1   != -1 && intent_p1   != _nifti_image->intent_p1)   everything_ok = false;
