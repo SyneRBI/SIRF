@@ -208,7 +208,7 @@ public:
     }
 
     /// Create NiftiImageData from geometrical info
-    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
+    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false, const NREG_TRANS_TYPE tensor_type=NREG_TRANS_TYPE::DEF_FIELD);
 
     /// Construct NiftiImageData from the real component of a complex SIRF ImageData
     static void construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);

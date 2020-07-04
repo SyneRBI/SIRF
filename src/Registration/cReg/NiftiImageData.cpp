@@ -122,15 +122,16 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
 }
 
 template<class dataType>
-std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor)
+std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor, const NREG_TRANS_TYPE tensor_type)
 {
     typedef VoxelisedGeometricalInfo3D Info;
     Info::Size            size    = geom.get_size();
     Info::Spacing         spacing = geom.get_spacing();
     Info::TransformMatrix tm      = geom.calculate_index_to_physical_point_matrix();
 
+    const bool has_z_component = (size[2] > 1);
+
     int dims[8];
-    dims[0] = 3;
     dims[1] = int(size[0]);
     dims[2] = int(size[1]);
     dims[3] = int(size[2]);
@@ -139,10 +140,14 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
     dims[6] = 1;
     dims[7] = 1;
 
-    // If tensor image, dims[0] and dims[5] should be 5 and 3, respectively
-    if (is_tensor) {
+    // If not tensor, then ndim is 2 or 3, depending on has_z_component
+    if (!is_tensor)
+        dims[0] = has_z_component ? 3 : 2;
+
+    // If tensor image, dims[0] is 5. nu is 2 or 3, depending on has_z_component
+    else {
         dims[0] = 5;
-        dims[5] = 3;
+        dims[5] = has_z_component ? 3 : 2;
     }
 
     nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
@@ -187,8 +192,20 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
                             &_nifti_image->qfac );
     _nifti_image->pixdim[0]=_nifti_image->qfac;
 
+    for (unsigned i=0; i<4; ++i) {
+        for (unsigned j=0; j<4; ++j) {
+            _nifti_image->sto_ijk.m[i][j] = _nifti_image->qto_ijk.m[i][j];
+            _nifti_image->sto_xyz.m[i][j] = _nifti_image->qto_xyz.m[i][j];
+        }
+    }
+
     // Check everything is ok
     reg_checkAndCorrectDimension(_nifti_image.get());
+
+    if (is_tensor) {
+        _nifti_image->intent_code = NIFTI_INTENT_VECTOR;
+        _nifti_image->intent_p1 = tensor_type;
+    }
 
     return _nifti_image;
 }
