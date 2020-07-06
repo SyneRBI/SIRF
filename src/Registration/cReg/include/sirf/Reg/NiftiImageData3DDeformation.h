@@ -81,7 +81,7 @@ public:
     /// Create from displacement field image
     NiftiImageData3DDeformation(const NiftiImageData3DDisplacement<dataType> &disp);
 
-    /// Create from 3D image
+    /// Create from 3D image (fill with zeroes)
     void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Create from control point grid image
