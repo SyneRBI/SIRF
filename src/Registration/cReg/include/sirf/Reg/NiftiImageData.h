@@ -337,6 +337,9 @@ public:
     /// Fill
     void fill(const float v);
 
+    /// Fill from array
+    void fill(const dataType *v);
+
     /// Get norm
     float get_norm(const NiftiImageData&) const;
 
