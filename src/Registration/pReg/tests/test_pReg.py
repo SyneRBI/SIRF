@@ -23,7 +23,7 @@ import time
 import numpy as np
 import nibabel as nib
 import sirf.Reg
-from pUtilities import *
+from sirf.Utilities import is_operator_adjoint
 
 # Paths
 SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -1081,7 +1081,7 @@ def try_cgp_dvf_conversion(na):
     # DVF->CPG
     dvf_to_cpg = cpg_2_dvf_converter.backward(dvf)
     # DVF->CPG->DVF
-    dvf_to_cpg_to_dvf = cpg_2_dvf_converter.forward(dvf_to_cpg)
+    _ = cpg_2_dvf_converter.forward(dvf_to_cpg)
 
     # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
     cpg_2_dvf_converter._set_up_for_adjoint_test(dvf, dvf_to_cpg)
