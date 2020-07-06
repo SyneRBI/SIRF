@@ -501,7 +501,7 @@ void* cReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_p
         std::shared_ptr<NiftiImageData<float> > im1_sptr, im2_sptr;
         getObjectSptrFromHandle<NiftiImageData<float> >(im1_ptr, im1_sptr);
         getObjectSptrFromHandle<NiftiImageData<float> >(im2_ptr, im2_sptr);
-        return dataHandle<int>(NiftiImageData<float>::are_equal_to_given_accuracy(im1_sptr, im2_sptr, accuracy));
+        return dataHandle<int>(NiftiImageData<float>::are_equal_to_given_accuracy(*im1_sptr, *im2_sptr, accuracy));
     }
 	CATCH;
 }
