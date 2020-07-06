@@ -281,3 +281,5 @@ coverage.xml
 
 # Ignore files created by VS Code
 .vscode/
+
+results/
