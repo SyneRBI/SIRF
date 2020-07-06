@@ -366,7 +366,8 @@ namespace sirf {
 			}
 			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
 		}
-		void set_complex_data(const complex_float_t* data)
+
+        void set_complex_data(const complex_float_t* data)
 		{
 			//std::cout << "in set_complex_data\n";
 			//std::cout << "trying new image wrap iterator...\n";
@@ -377,6 +378,7 @@ namespace sirf {
 			}
 			//IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
 		}
+
         /// Get data type
         ISMRMRD::ISMRMRD_DataTypes get_data_type() const
         {

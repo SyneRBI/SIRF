@@ -46,9 +46,7 @@ def test_main(rec=False, verb=False, throw=True):
     csms = CoilSensitivityData()
 
     processed_data.sort()
-    cis = CoilImageData()
-    cis.calculate(processed_data)
-    csms.calculate(cis)
+    csms.calculate(processed_data)
 
     am = AcquisitionModel(processed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)

@@ -75,7 +75,7 @@ public:
     /// Create from 3 individual components
     NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z);
 
-    /// Create from 3D image.
+    /// Create from 3D image (fill with zeroes).
     virtual void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Get tensor component (x, y or z)

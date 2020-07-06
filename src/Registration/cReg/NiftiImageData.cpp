@@ -122,15 +122,16 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
 }
 
 template<class dataType>
-std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor)
+std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor, const NREG_TRANS_TYPE tensor_type)
 {
     typedef VoxelisedGeometricalInfo3D Info;
     Info::Size            size    = geom.get_size();
     Info::Spacing         spacing = geom.get_spacing();
     Info::TransformMatrix tm      = geom.calculate_index_to_physical_point_matrix();
 
+    const bool has_z_component = (size[2] > 1);
+
     int dims[8];
-    dims[0] = 3;
     dims[1] = int(size[0]);
     dims[2] = int(size[1]);
     dims[3] = int(size[2]);
@@ -139,10 +140,14 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
     dims[6] = 1;
     dims[7] = 1;
 
-    // If tensor image, dims[0] and dims[5] should be 5 and 3, respectively
-    if (is_tensor) {
+    // If not tensor, then ndim is 2 or 3, depending on has_z_component
+    if (!is_tensor)
+        dims[0] = has_z_component ? 3 : 2;
+
+    // If tensor image, dims[0] is 5. nu is 2 or 3, depending on has_z_component
+    else {
         dims[0] = 5;
-        dims[5] = 3;
+        dims[5] = has_z_component ? 3 : 2;
     }
 
     nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
@@ -187,8 +192,20 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
                             &_nifti_image->qfac );
     _nifti_image->pixdim[0]=_nifti_image->qfac;
 
+    for (unsigned i=0; i<4; ++i) {
+        for (unsigned j=0; j<4; ++j) {
+            _nifti_image->sto_ijk.m[i][j] = _nifti_image->qto_ijk.m[i][j];
+            _nifti_image->sto_xyz.m[i][j] = _nifti_image->qto_xyz.m[i][j];
+        }
+    }
+
     // Check everything is ok
     reg_checkAndCorrectDimension(_nifti_image.get());
+
+    if (is_tensor) {
+        _nifti_image->intent_code = NIFTI_INTENT_VECTOR;
+        _nifti_image->intent_p1 = tensor_type;
+    }
 
     return _nifti_image;
 }
@@ -448,6 +465,16 @@ void NiftiImageData<dataType>::fill(const float v)
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::fill(const dataType *v)
+{
+    if(!this->is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::fill(): Image not initialised.");
+
+    for (unsigned i=0; i<_nifti_image->nvox; ++i)
+        _data[i] = v[i];
+}
+
+template<class dataType>
 float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) const
 {
     if (!this->is_initialised())
@@ -487,9 +514,11 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     if (!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::check_dimensions(): Image not initialised.");
 
+    // Nothing to check for this one. return
+    if (image_type == _general) return;
+
     int ndim, nt, nu, intent_code, intent_p1;
-    if        (image_type == _general)  { ndim=-1; nt=-1; nu=-1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
-    else   if (image_type == _3D)       { ndim= 3; nt= 1; nu= 1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
+    if        (image_type == _3D)       { ndim= 3; nt= 1; nu= 1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
     else   if (image_type == _3DTensor) { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=-1;         }
     else   if (image_type == _3DDisp)   { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DISP_FIELD; }
     else /*if (image_type == _3DDef)*/  { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DEF_FIELD;  }
@@ -497,8 +526,9 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     // Check everthing is as it should be. -1 means we don't care about it
     // (e.g., NiftiImageData3D doesn't care about intent_p1, which is used by NiftyReg for Disp/Def fields)
     bool everything_ok = true;
-    if ( ndim        != -1 && ndim        <  _nifti_image->ndim)        everything_ok = false;
-    if ( nu          != -1 && nu          <  _nifti_image->nu  )        everything_ok = false;
+    if ( _3D               && ndim        <  _nifti_image->ndim)        everything_ok = false; // allow for 1D and 2D images
+    if (!_3D               && ndim        != _nifti_image->ndim)        everything_ok = false;
+    if ( nu          != -1 && nu          <  _nifti_image->nu  )        everything_ok = false; // allow for 2D tensors
     if ( nt          != -1 && nt          != _nifti_image->nt  )        everything_ok = false;
     if ( intent_code != -1 && intent_code != _nifti_image->intent_code) everything_ok = false;
     if ( intent_p1   != -1 && intent_p1   != _nifti_image->intent_p1)   everything_ok = false;
@@ -1450,31 +1480,33 @@ get_inner_product(const NiftiImageData &other) const
 }
 
 template<class dataType>
-bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr<const NiftiImageData> &im1_sptr, const std::shared_ptr<const NiftiImageData> &im2_sptr, const float required_accuracy_compared_to_max)
+bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
 {
-    if(!im1_sptr->is_initialised())
+    if(!im1.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 1 not initialised.");
-    if(!im2_sptr->is_initialised())
+    if(!im2.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 2 not initialised.");
 
     // Check the number of dimensions match
-    if(im1_sptr->get_dimensions()[0] != im2_sptr->get_dimensions()[0]) {
-        std::cout << "\nImage comparison: different number of dimensions (" << im1_sptr->get_dimensions()[0] << " versus " << im2_sptr->get_dimensions()[0] << ").\n";
+    if(im1.get_dimensions()[0] != im2.get_dimensions()[0]) {
+        std::cout << "\nImage comparison: different number of dimensions (" << im1.get_dimensions()[0] << " versus " << im2.get_dimensions()[0] << ").\n";
         return false;
     }
 
     // Get required accuracy compared to the image maxes
     float norm;
-    float epsilon = (std::abs(im1_sptr->get_max())+std::abs(im2_sptr->get_max()))/2.F;
+    float epsilon = (std::abs(im1.get_max())+std::abs(im2.get_max()))/2.F;
     epsilon *= required_accuracy_compared_to_max;
 
     // If metadata match, get the norm
-    if (do_nifti_image_metadata_match(*im1_sptr,*im2_sptr, false))
-        norm = im1_sptr->get_norm(*im2_sptr);
+    if (do_nifti_image_metadata_match(im1,im2, false))
+        norm = im1.get_norm(im2);
 
     // If not, we'll have to resample
     else {
         std::cout << "\nImage comparison: metadata do not match, doing resampling...\n";
+        std::shared_ptr<NiftiImageData> im1_sptr = im1.clone();
+        std::shared_ptr<NiftiImageData> im2_sptr = im2.clone();
         NiftyResample<float> resample;
         resample.set_interpolation_type_to_nearest_neighbour();
         resample.set_reference_image(im1_sptr);
@@ -1485,30 +1517,24 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
         norm = resampled_sptr->get_norm(*im1_sptr);
     }
 
-    norm /= float(im1_sptr->get_num_voxels());
+    norm /= float(im1.get_num_voxels());
 
     if (norm <= epsilon)
         return true;
 
     std::cout << "\nImages are not equal (norm > epsilon).\n";
-    std::cout << "\tmax1                              = " << im1_sptr->get_max() << "\n";
-    std::cout << "\tmax2                              = " << im2_sptr->get_max() << "\n";
-    std::cout << "\tmin1                              = " << im1_sptr->get_min() << "\n";
-    std::cout << "\tmin2                              = " << im2_sptr->get_min() << "\n";
-    std::cout << "\tmean1                             = " << im1_sptr->get_mean() << "\n";
-    std::cout << "\tmean2                             = " << im2_sptr->get_mean() << "\n";
-    std::cout << "\tstandard deviation1               = " << im1_sptr->get_standard_deviation() << "\n";
-    std::cout << "\tstandard deviation2               = " << im2_sptr->get_standard_deviation() << "\n";
+    std::cout << "\tmax1                              = " << im1.get_max() << "\n";
+    std::cout << "\tmax2                              = " << im2.get_max() << "\n";
+    std::cout << "\tmin1                              = " << im1.get_min() << "\n";
+    std::cout << "\tmin2                              = " << im2.get_min() << "\n";
+    std::cout << "\tmean1                             = " << im1.get_mean() << "\n";
+    std::cout << "\tmean2                             = " << im2.get_mean() << "\n";
+    std::cout << "\tstandard deviation1               = " << im1.get_standard_deviation() << "\n";
+    std::cout << "\tstandard deviation2               = " << im2.get_standard_deviation() << "\n";
     std::cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
     std::cout << "\tepsilon                           = " << epsilon << "\n";
     std::cout << "\tnorm/num_vox                      = " << norm << "\n";
     return false;
-}
-
-template<class dataType>
-bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
-{
-    return are_equal_to_given_accuracy(im1.clone(), im2.clone(), required_accuracy_compared_to_max);
 }
 
 // ------------------------------------------------------------------------------ //
