@@ -114,8 +114,37 @@ void NiftyF3dSym<dataType>::process()
     nifti_image_free(cpp_fwd_ptr);
 
     // Get deformation fields from cpp
-    NiftiImageData3DDeformation<dataType> def_fwd, def_inv;
+    NiftiImageData3DDeformation<dataType> def_fwd;
     def_fwd.create_from_cpp(cpp_forward, ref);
+
+    // Get the displacement fields from the def
+    this->_disp_fwd_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
+
+    // Output different dependent on whether image was set as object or via filename
+    if (this->_reference_image_sptr) {
+        // The output should be a clone of the reference image, with data filled in from the nifti image
+        this->_warped_images.at(0) = this->_reference_image_sptr->clone();
+        this->_warped_images.at(0)->fill(*this->_warped_images_nifti.at(0));
+    }
+    else
+        this->_warped_images.at(0) = this->_warped_images_nifti.at(0);
+
+    std::cout << "\n\nRegistration finished!\n\n";
+}
+
+template<class dataType>
+const std::shared_ptr<const Transformation<dataType> >
+NiftyF3dSym<dataType>::
+get_displacement_field_inverse_sptr(const unsigned idx) const
+{
+    if (idx>0)
+        throw std::runtime_error("NiftyF3dSym::get_displacement_field_inverse_sptr: idx out of range");
+
+    NiftiImageData3DDeformation<dataType> def_inv;
+    std::shared_ptr<Transformation<dataType> > trans_fwd = this->_disp_fwd_images.at(0);
+    std::shared_ptr<NiftiImageData3DDisplacement<dataType> > disp_fwd = std::dynamic_pointer_cast<NiftiImageData3DDisplacement<dataType> >(trans_fwd);
+
+    NiftiImageData3DDeformation<dataType> def_fwd(*disp_fwd);
 
     // Get inverse deformation.
     bool vtk_available = false;
@@ -137,21 +166,7 @@ void NiftyF3dSym<dataType>::process()
                                  "deformation fields. To have these, use a 3D image or install VTK");
 #endif
     }
-
-    // Get the displacement fields from the def
-    this->_disp_fwd_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
-    this->_disp_inv_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
-
-    // Output different dependent on whether image was set as object or via filename
-    if (this->_reference_image_sptr) {
-        // The output should be a clone of the reference image, with data filled in from the nifti image
-        this->_warped_images.at(0) = this->_reference_image_sptr->clone();
-        this->_warped_images.at(0)->fill(*this->_warped_images_nifti.at(0));
-    }
-    else
-        this->_warped_images.at(0) = this->_warped_images_nifti.at(0);
-
-    std::cout << "\n\nRegistration finished!\n\n";
+    return std::make_shared<NiftiImageData3DDisplacement<float> >(def_inv);
 }
 
 template<class dataType>

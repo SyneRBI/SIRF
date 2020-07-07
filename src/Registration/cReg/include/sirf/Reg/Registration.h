@@ -115,7 +115,7 @@ public:
     virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr(const unsigned idx = 0) const { return _disp_fwd_images.at(idx); }
 
     /// Get inverse displacement field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const { return _disp_inv_images.at(idx); }
+    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const = 0;
 
 protected:
 
@@ -131,8 +131,6 @@ protected:
 
     /// Forward displacement field image
     std::vector<std::shared_ptr<Transformation<dataType> > > _disp_fwd_images;
-    /// Inverse displacement field image
-    std::vector<std::shared_ptr<Transformation<dataType> > > _disp_inv_images;
 
     /// Reference image filename
     std::string _reference_image_filename = "";

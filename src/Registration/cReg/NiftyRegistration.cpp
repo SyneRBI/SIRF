@@ -38,7 +38,6 @@ NiftyRegistration<dataType>::NiftyRegistration()
     this->_warped_images.resize(1);
     this->_warped_images_nifti.resize(1);
     this->_disp_fwd_images.resize(1);
-    this->_disp_inv_images.resize(1);
 }
 
 template<class dataType>
