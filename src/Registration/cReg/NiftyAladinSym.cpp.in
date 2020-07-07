@@ -99,11 +99,7 @@ void NiftyAladinSym<dataType>::process()
     std::cout << "\nPrinting inverse tranformation matrix:\n";
     std::dynamic_pointer_cast<const AffineTransformation<float> >(_TM_inverse_sptr)->print();
 
-    // Get as deformation and displacement
-    NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(ref);
-    NiftiImageData3DDeformation<dataType> def_inv = _TM_inverse_sptr->get_as_deformation_field(*this->_floating_images_nifti.at(0));
-
-    this->_disp_fwd_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
+    this->_def_fwd_images.at(0) = std::make_shared<NiftiImageData3DDeformation<dataType> >(_TM_forward_sptr->get_as_deformation_field(ref));
 
     // Output different dependent on whether image was set as object or via filename
     if (this->_reference_image_sptr) {
@@ -120,13 +116,13 @@ void NiftyAladinSym<dataType>::process()
 template<class dataType>
 const std::shared_ptr<const Transformation<dataType> >
 NiftyAladinSym<dataType>::
-get_displacement_field_inverse_sptr(const unsigned idx) const
+get_deformation_field_inverse_sptr(const unsigned idx) const
 {
     if (idx>0)
-        throw std::runtime_error("NiftyAladinSym::get_displacement_field_inverse_sptr: idx out of range");
+        throw std::runtime_error("NiftyAladinSym::get_deformation_field_inverse_sptr: idx out of range");
 
-    const NiftiImageData3DDeformation<dataType> def_inv = _TM_inverse_sptr->get_as_deformation_field(*this->_floating_images_nifti.at(0));
-    return std::make_shared<NiftiImageData3DDisplacement<float> >(def_inv);
+    return std::make_shared<NiftiImageData3DDeformation<dataType> >(
+                _TM_inverse_sptr->get_as_deformation_field(*this->_floating_images_nifti.at(0)));
 }
 
 template<class dataType>
