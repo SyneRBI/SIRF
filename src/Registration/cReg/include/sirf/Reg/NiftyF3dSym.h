@@ -81,6 +81,9 @@ public:
     /// Set initial affine transformation
     void set_initial_affine_transformation(const std::shared_ptr<const AffineTransformation<float> > mat) { _initial_transformation_sptr = mat; }
 
+    /// Get inverse deformation field image
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const;
+
     /// Print all wrapped methods
     static void print_all_wrapped_methods();
 

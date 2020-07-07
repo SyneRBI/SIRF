@@ -114,13 +114,9 @@ void NiftyF3dSym<dataType>::process()
     nifti_image_free(cpp_fwd_ptr);
 
     // Get deformation fields from cpp
-    NiftiImageData3DDeformation<dataType> def_fwd, def_inv;
-    def_fwd.create_from_cpp(cpp_forward, ref);
-    def_inv = *def_fwd.get_inverse(this->_floating_images_nifti.at(0));
-
-    // Get the displacement fields from the def
-    this->_disp_fwd_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
-    this->_disp_inv_images.at(0) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_fwd_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >();
+    def_fwd_sptr->create_from_cpp(cpp_forward, ref);
+    this->_def_fwd_images.at(0) = def_fwd_sptr;
 
     // Output different dependent on whether image was set as object or via filename
     if (this->_reference_image_sptr) {
@@ -132,6 +128,42 @@ void NiftyF3dSym<dataType>::process()
         this->_warped_images.at(0) = this->_warped_images_nifti.at(0);
 
     std::cout << "\n\nRegistration finished!\n\n";
+}
+
+template<class dataType>
+const std::shared_ptr<const Transformation<dataType> >
+NiftyF3dSym<dataType>::
+get_deformation_field_inverse_sptr(const unsigned idx) const
+{
+    if (idx>0)
+        throw std::runtime_error("NiftyF3dSym::get_displacement_field_inverse_sptr: idx out of range");
+
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_inv_sptr;
+    std::shared_ptr<Transformation<dataType> > trans_fwd = this->_def_fwd_images.at(0);
+    const NiftiImageData3DDeformation<dataType> &def_fwd =
+            *std::dynamic_pointer_cast<NiftiImageData3DDeformation<dataType> >(trans_fwd);
+
+    // Get inverse deformation.
+    bool vtk_available = false;
+#ifdef SIRF_VTK
+    vtk_available = true;
+#endif
+
+    // NiftyReg can only do inverse for 3D images.
+    if (def_fwd.get_raw_nifti_sptr()->nu == 3)
+        def_inv_sptr = def_fwd.get_inverse(this->_floating_images_nifti.at(0));
+    else {
+#ifdef SIRF_VTK
+        // if not 3d but VTK is present, use that.
+        def_inv_sptr = def_fwd.get_inverse(nullptr, true);
+#else
+        // else, throw an error
+        throw std::runtime_error("F3D: Inversion not currently implemented for 2D images with NiftyReg. "
+                                 "This means that you won't be able to get the inverse displacement or "
+                                 "deformation fields. To have these, use a 3D image or install VTK");
+#endif
+    }
+    return def_inv_sptr;
 }
 
 template<class dataType>

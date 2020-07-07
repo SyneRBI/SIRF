@@ -5,6 +5,8 @@
 * Iterators are now used in `AcquisitionDataInMemory` to improve speed of `as_array`, `fill`, `dot`, `norm`, etc.
 * Bug fix in `get_index_to_physical_point_matrix`
 * if `storage_scheme` is set to `memory`, then `PETAcquisitionData` will now contain `ProjDataInMemory`, instead of `ProjDataFromStream`. As such, if storage scheme is set to memory, it will now be possible to open a PET acquisition data and modify it directly, whereas before a copy would need to be created first.
+* Registration of 2d images with aladin and f3d. 
+* When registering, internally the forward displacement is no loner stored, replaced by the forward deformation. The inverse is no longer stored, and is calculated as needed.
 
 ## v2.2.0
 * Changed CCP PETMR to SyneRBI

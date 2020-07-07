@@ -408,9 +408,9 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData3D constructor from array.");
 
         // Check that 2D images are ok for the 3D class
-        int pad_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
-        int pad_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
-        b.crop(pad_for_2D_min,pad_for_2D_max);
+        int crop_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        int crop_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        b.crop(crop_for_2D_min,crop_for_2D_max);
         b.write(save_nifti_image_2d);
         NiftiImageData3D<float> im_2d(save_nifti_image_2d);
         if (im_2d.get_dimensions()[0] != 2)
@@ -814,6 +814,26 @@ int main(int argc, char* argv[])
         if (*out1_sptr != *out2_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::get_inverse() failed.");
 
+        // Check 2D registration
+        {
+            // Create 2D images
+            int mid_z = int(ref_aladin->get_dimensions()[3]/2);
+            int crop_for_2D_min[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_aladin->clone();
+            ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            NiftyAladinSym<float> NA_2D;
+            NA_2D.set_reference_image(ref_2d_sptr);
+            NA_2D.set_floating_image (ref_2d_sptr);
+            NA_2D.set_parameter_file (      parameter_file_aladin    );
+            NA_2D.set_parameter("SetInterpolationToCubic");
+            NA_2D.set_parameter("SetLevelsToPerform","1");
+            NA_2D.set_parameter("SetMaxIterations","5");
+            NA_2D.set_parameter("SetPerformRigid","1");
+            NA_2D.set_parameter("SetPerformAffine","0");
+            NA_2D.process();
+        }
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty aladin test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
@@ -879,6 +899,25 @@ int main(int argc, char* argv[])
         NF2.process();
         if (*NF2.get_output_sptr() != *ref_f3d_crop)
             throw std::runtime_error("NiftyF3dSym failed: ref==flo, but registered image != ref");
+
+        // Check 2D registration
+        {
+            // Create 2D images
+            int mid_z = int(ref_f3d->get_dimensions()[3]/2);
+            int crop_for_2D_min[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_f3d->clone();
+            std::shared_ptr<NiftiImageData3D<float> > flo_2d_sptr = flo_f3d->clone();
+            ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            flo_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            NiftyF3dSym<float> NF_2D;
+            NF_2D.set_reference_image(ref_2d_sptr);
+            NF_2D.set_floating_image (flo_2d_sptr);
+            NF_2D.set_parameter_file( parameter_file_f3d );
+            NF_2D.set_reference_time_point(1);
+            NF_2D.set_floating_time_point(1);
+            NF_2D.process();
+        }
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty f3d test.\n";
