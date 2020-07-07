@@ -1295,33 +1295,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished CGP<->DVF test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-    {
-        std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Starting STIR to Nifti test...\n";
-        std::cout << "//------------------------------------------------------------------------ //\n";
 
-            // Open stir image
-            sirf::PETImageData pet_image_data(ref_aladin_filename);
-            NiftiImageData3D<float> image_data_from_stir(pet_image_data);
-
-            // Now fill the stir and nifti images with 1 and 100, respectively
-            pet_image_data.fill(1.F);
-            image_data_from_stir.fill(100.F);
-
-            if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) < 1.e-5F)
-                throw std::runtime_error("STIR & Nifti seem to share the same data pointers (their values should be different, but they're the same).");
-
-            // Fill the stir image with the Nifti
-            image_data_from_stir.copy_data_to(pet_image_data);
-            if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) > 1.e-5F)
-                throw std::runtime_error("NiftiImageData3D::copy_data_to failed.");
-
-        std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Finished STIR to Nifti test.\n";
-        std::cout << "//------------------------------------------------------------------------ //\n";
-    }
-*/
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting AffineTransformation test...\n";
