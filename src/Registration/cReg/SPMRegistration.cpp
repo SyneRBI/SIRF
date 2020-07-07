@@ -88,31 +88,28 @@ get_output_sptr(const unsigned idx) const
 template<class dataType>
 const std::shared_ptr<const Transformation<dataType> >
 SPMRegistration<dataType>::
-get_displacement_field_forward_sptr(const unsigned idx) const
+get_deformation_field_forward_sptr(const unsigned idx) const
 {
     if (this->_floating_image_filenames.empty())
-        return this->_disp_fwd_images.at(idx);
+        return this->_def_fwd_images.at(idx);
     else {
         auto warped_sptr   = std::make_shared<NiftiImageData3D<dataType> >(this->_resliced_filenames.at(idx));
-        auto def_fwd_sptr  = std::make_shared<NiftiImageData3DDeformation<dataType> >(_TMs_fwd.at(idx)->get_as_deformation_field(*warped_sptr));
-        return std::make_shared<NiftiImageData3DDisplacement<dataType> >(*def_fwd_sptr);
+        return std::make_shared<NiftiImageData3DDeformation<dataType> >(_TMs_fwd.at(idx)->get_as_deformation_field(*warped_sptr));
     }
 }
 
 template<class dataType>
 const std::shared_ptr<const Transformation<dataType> >
 SPMRegistration<dataType>::
-get_displacement_field_inverse_sptr(const unsigned idx) const
+get_deformation_field_inverse_sptr(const unsigned idx) const
 {
+    std::shared_ptr<const NiftiImageData3D<dataType> > floating_sptr;
     if (this->_floating_image_filenames.empty())
-        return this->_disp_inv_images.at(idx);
-    else {
-        auto warped_sptr   = get_output_sptr(idx);
-        auto floating_sptr = std::make_shared<NiftiImageData3D<dataType> >(this->_floating_image_filenames.at(idx));
-        auto def_fwd_sptr  = std::make_shared<NiftiImageData3DDeformation<dataType> >(_TMs_fwd.at(idx)->get_as_deformation_field(*warped_sptr));
-        auto def_inv_sptr  = def_fwd_sptr->get_inverse(floating_sptr);
-        return std::make_shared<NiftiImageData3DDisplacement<dataType> >(*def_inv_sptr);
-    }
+        floating_sptr = this->_floating_images_nifti.at(idx);
+    else
+        floating_sptr = std::make_shared<NiftiImageData3D<dataType> >(this->_floating_image_filenames.at(idx));
+
+    return std::make_shared<NiftiImageData3DDeformation<dataType> >(_TMs_inv.at(idx)->get_as_deformation_field(*floating_sptr));
 }
 
 template<class dataType>
@@ -215,14 +212,12 @@ void SPMRegistration<dataType>::process()
             this->_warped_images_nifti.at(i) = std::make_shared<NiftiImageData3D<dataType> >(_resliced_filenames.at(i));
 
         // Get as deformation and displacement
-        this->_disp_fwd_images.resize(num_flo_ims);
-        this->_disp_inv_images.resize(num_flo_ims);
-        for (unsigned i=0; i<num_flo_ims; ++i) {
-            NiftiImageData3DDeformation<dataType> def_fwd = _TMs_fwd.at(i)->get_as_deformation_field(*this->_reference_image_nifti_sptr);
-            NiftiImageData3DDeformation<dataType> def_inv = *def_fwd.get_inverse(this->_floating_images_nifti.at(i));
-            this->_disp_fwd_images.at(i) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
-            this->_disp_inv_images.at(i) = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
-        }
+        this->_def_fwd_images.resize(num_flo_ims);
+        for (unsigned i=0; i<num_flo_ims; ++i)
+            this->_def_fwd_images.at(i) =
+                std::make_shared<NiftiImageData3DDisplacement<dataType> >(
+                    _TMs_fwd.at(i)->get_as_deformation_field(*this->_reference_image_nifti_sptr));
+
         // The output should be a clone of the reference image, with data filled in from the nifti image
         this->_warped_images.resize(num_flo_ims);
         for (unsigned i=0; i<num_flo_ims; ++i) {

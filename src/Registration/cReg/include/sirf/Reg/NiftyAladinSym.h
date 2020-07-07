@@ -60,6 +60,9 @@ public:
     /// Get inverse transformation matrix
     const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr() const { return _TM_inverse_sptr; }
 
+    /// Get inverse deformation field image
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const;
+
     /// Print all wrapped methods
     static void print_all_wrapped_methods();
 
