@@ -123,6 +123,12 @@ public:
     /// Do the adjoint transformation
     virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
 
+    /// Get image gradient wrt transformation in place
+    virtual void get_image_gradient_wrt_transformation(std::shared_ptr<Transformation<dataType> > &output_transformation_sptr, const std::shared_ptr<const ImageData> source_im_sptr);
+
+    /// Get image gradient wrt transformation
+    virtual std::shared_ptr<const Transformation<dataType> > get_image_gradient_wrt_transformation(const std::shared_ptr<const ImageData> source_im_sptr);
+
 protected:
 
     /// Set up

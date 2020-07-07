@@ -46,6 +46,7 @@ SET(SOURCES
   "NiftiImageData3DDisplacement.cpp"
   "NiftiImageData3DBSpline.cpp"
   "ControlPointGridToDeformationConverter.cpp"
+  "ImageGradientWRTTransformation.cpp"
   )
 
 # If we're also wrapping to python or matlab, include the c-files
