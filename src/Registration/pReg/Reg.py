@@ -29,6 +29,7 @@ import pyreg
 
 import sirf.Reg_params as parms
 import numpy
+from sirf.config import SIRF_HAS_SPM
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -830,7 +831,7 @@ class NiftyF3dSym(_NiftyRegistration):
         print("In C++, this class is templated. \"dataType\" corresponds to \"float\" for Matlab and python.")
         try_calling(pyreg.cReg_NiftyRegistration_print_all_wrapped_methods('NiftyF3dSym'))
 
-if @SPM_BOOL_STR@:
+if SIRF_HAS_SPM:
     class SPMRegistration(_Registration):
         """
         Registration using SPM.

@@ -41,6 +41,7 @@ import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
 import sirf.STIR_params as parms
+from sirf.config import SIRF_HAS_NiftyPET
 
 try:
     input = raw_input
@@ -1399,7 +1400,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         return self.get_matrix().get_num_tangential_LORs()
 
 
-if @NiftyPET_BOOL_STR@:
+if SIRF_HAS_NiftyPET:
     class AcquisitionModelUsingNiftyPET(AcquisitionModel):
         """
         Class for a PET acquisition model that uses (implicitly) the NiftyPET projector
