@@ -1,6 +1,4 @@
-"""
-Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
-"""
+"""Object-Oriented wrap for the cSTIR-to-Python interface pystir.py."""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
@@ -24,18 +22,16 @@ Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
 import abc
 import inspect
 import numpy
-import os
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
 import sys
-import time
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, assert_validities, \
-     examples_data_path, existing_filepath, pTest, RE_PYEXT
+     try_calling, assert_validity, \
+     examples_data_path, existing_filepath, pTest
 from sirf import SIRF
 from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
@@ -64,12 +60,12 @@ MAX_IMG_DIMS = 10
 
 
 def set_verbosity(verbosity):
-    """Set the verbosity of all STIR output"""
+    """Set the verbosity of all STIR output."""
     try_calling(pystir.cSTIR_setVerbosity(verbosity))
 
 
 def get_verbosity():
-    """Get the verbosity of all STIR output"""
+    """Get the verbosity of all STIR output."""
     h = pystir.cSTIR_getVerbosity()
     check_status(h, inspect.stack()[1])
     value = pyiutil.intDataFromHandle(h)
@@ -130,6 +126,7 @@ class MessageRedirector(object):
         pystir.openChannel(2, self.errr)
 
     def __del__(self):
+        """del."""
         if self.info_case == 0:
             try_calling(pystir.deleteTextPrinter(self.info))
         else:
@@ -153,9 +150,11 @@ class Shape(object):
     creating phantom images.
     """
     def __init__(self):
+        """"init."""
         self.handle = None
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -182,38 +181,48 @@ class EllipticCylinder(Shape):
     Class for elliptic cylinder shape.
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.name = 'EllipsoidalCylinder'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
     def set_length(self, value):
+        """set length."""
         parms.set_float_par(self.handle, self.name, 'length', value)
 
     def get_length(self):
+        """get length."""
         return parms.float_par(self.handle, self.name, 'length')
 
     def set_radius_x(self, value):
+        """set x radius."""
         parms.set_float_par(self.handle, self.name, 'radius_x', value)
 
     def get_radius_x(self):
+        """get x radius."""
         return parms.float_par(self.handle, self.name, 'radius_x')
 
     def set_radius_y(self, value):
+        """set y radius."""
         parms.set_float_par(self.handle, self.name, 'radius_y', value)
 
     def get_radius_y(self):
+        """get y radius."""
         return parms.float_par(self.handle, self.name, 'radius_y')
 
     def set_radii(self, radii):
+        """set radii."""
         parms.set_float_par(self.handle, self.name, 'radius_x', radii[1])
         parms.set_float_par(self.handle, self.name, 'radius_y', radii[0])
 
     def get_radii(self):
+        """get radii."""
         rx = parms.float_par(self.handle, self.name, 'radius_x')
         ry = parms.float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
@@ -221,14 +230,16 @@ class EllipticCylinder(Shape):
 
 # class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
-    """Class for PET image data objects.
+    """
+    Class for PET image data objects.
 
     ImageData objects contains both geometric data and the actual voxel
     values. You have to use the `as_array` method to get an array with
     the voxel values, and use the `fill` function to change the voxel values.
     """
     def __init__(self, arg=None):
-        """Create an ImageData object
+        """
+        Create an ImageData object
 
         Arguments:
         str            : read the object from a file specified by <arg>
@@ -264,13 +275,15 @@ class ImageData(SIRF.ImageData):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def same_object(self):
+    @staticmethod
+    def same_object():
         """See DataContainer.same_object().
         """
         return ImageData()
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
-        """Change image size and geometric information
+        """
+        Change image size and geometric information
 
         Dimemsions (number of voxels) are required,
         spacing and offset are optional.
@@ -299,7 +312,8 @@ class ImageData(SIRF.ImageData):
         pyiutil.deleteDataHandle(voxels)
 
     def fill(self, value):
-        """Sets the voxel-values.
+        """
+        Sets the voxel-values.
 
         The argument is either ImageData or 3D Numpy ndarray of values or a
         scalar to be assigned at each voxel. When using an ndarray, the array
@@ -341,7 +355,8 @@ class ImageData(SIRF.ImageData):
         return image
 
     def add_shape(self, shape, scale):
-        """Adds a shape to self - see Shape above.
+        """
+        Adds a shape to self - see Shape above.
         """
         if self.handle is None:
             raise AssertionError()
@@ -349,7 +364,8 @@ class ImageData(SIRF.ImageData):
         try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
 
     def read_from_file(self, filename):
-        """Read data from file.
+        """
+        Read data from file.
 
         Replaces the current content of the object.
         """
@@ -393,7 +409,7 @@ class ImageData(SIRF.ImageData):
         return array
 
     def write_par(self, filename, par):
-        """Write with parameter file"""
+        """Write with parameter file."""
         try_calling(pystir.cSTIR_writeImage_par(self.handle, filename, par))
 
     def show(self, slice=None, title=None):
@@ -428,16 +444,13 @@ class ImageData(SIRF.ImageData):
         f = 0
         while f < ni:
             t = min(f + 16, ni)
-            err = show_3D_array(data, index=slice[f: t], tile_shape=tiles,
-                                label='slice', xlabel='x', ylabel='y',
-                                suptitle=title, show=(t == ni))
+            show_3D_array(data, index=slice[f: t], tile_shape=tiles,
+                          label='slice', xlabel='x', ylabel='y',
+                          suptitle=title, show=(t == ni))
             f = t
 
     def allocate(self, value=0, **kwargs):
-        """Alias to get_uniform_copy
-
-        CIL/SIRF compatibility
-        """
+        """Alias to get_uniform_copy for CIL/SIRF compatibility."""
         if value in ['random', 'random_int']:
             out = self.get_uniform_copy()
             shape = out.as_array().shape
@@ -482,7 +495,9 @@ class ImageData(SIRF.ImageData):
         return zoomed_im
 
     def move_to_scanner_centre(self, proj_data):
-        """Move the image to the scanner centre.
+        """
+        Move the image to the scanner centre.
+
         AcquisitionData is required as bed shift etc will be taken into
         account when available"""
         if not isinstance(proj_data, AcquisitionData):
@@ -503,16 +518,19 @@ SIRF.ImageData.register(ImageData)
 
 
 class ImageDataProcessor(object):
-    """Class for image processors.
+    """
+    Class for image processors.
 
     An ImageDataProcessor changes an image in some way, e.g. by filtering."""
     def __init__(self):
+        """init."""
         self.handle = None
         # TODO: handle input and output in cSTIR
         self.input = None
         self.output = None
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -550,18 +568,21 @@ class ImageDataProcessor(object):
 
 
 class SeparableGaussianImageFilter(ImageDataProcessor):
-    """Implements Gaussian filtering.
+    """
+    Implements Gaussian filtering.
 
     The filtering operation is performed as 3 separate one-dimensional filters
     in each spacial direction.
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.name = 'SeparableGaussianImageFilter'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -591,12 +612,14 @@ class TruncateToCylinderProcessor(ImageDataProcessor):
     of the same xy-diameter and z-size as those of the image.
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.name = 'TruncateToCylindricalFOVImageProcessor'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -627,11 +650,13 @@ class RayTracingMatrix(object):
     name = 'RayTracingMatrix'
 
     def __init__(self):
+        """init."""
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
         parms.set_int_par(self.handle, self.name, 'num_tangential_LORs', 2)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -696,13 +721,15 @@ class AcquisitionData(DataContainer):
         check_status(self.handle)
 
     def __del__(self):
+        """del."""
         # print('deleting AcquisitionData object originated from ', self.src)
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
     @staticmethod
     def set_storage_scheme(scheme):
-        """Sets acquisition data storage scheme.
+        """
+        Sets acquisition data storage scheme.
 
         scheme = 'file' (default):
             all acquisition data generated from now on will be kept in
@@ -715,8 +742,7 @@ class AcquisitionData(DataContainer):
 
     @staticmethod
     def get_storage_scheme():
-        """Returns acquisition data storage scheme.
-        """
+        """Returns acquisition data storage scheme."""
         handle = pystir.cSTIR_getAcquisitionDataStorageScheme()
         check_status(handle)
         scheme = pyiutil.charDataFromHandle(handle)
@@ -724,12 +750,12 @@ class AcquisitionData(DataContainer):
         return scheme
 
     def same_object(self):
-        """See DataContainer.same_object().
-        """
+        """See DataContainer.same_object()."""
         return AcquisitionData()
 
     def read_from_file(self, filename):  # 'read_from_file' is misleading
-        """Read data from file.
+        """
+        Read data from file.
 
         Replaces the current content of the object.
         """
@@ -887,7 +913,7 @@ class AcquisitionData(DataContainer):
         f = 0
         while f < ns:
             t = min(f + 16, ns)
-            err = show_3D_array(
+            show_3D_array(
                 data[0, :, :, :],
                 index=sino[f: t], tile_shape=tiles,
                 label='sinogram',
@@ -966,6 +992,7 @@ class ListmodeToSinograms(object):
     Nov. 2002, pp. 1519-1523 (http://dx.doi.org/10.1109/nssmic.2002.1239610).
     """
     def __init__(self, file=None):
+        """init."""
         self.handle = None
         self.name = 'ListmodeToSinograms'
         if file is None:
@@ -975,6 +1002,7 @@ class ListmodeToSinograms(object):
         self.output = None
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1171,6 +1199,7 @@ class AcquisitionSensitivityModel(object):
         return fd
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1195,6 +1224,7 @@ class AcquisitionModel(object):
     backward projection.
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.name = 'AcquisitionModel'
         # reference to the background term
@@ -1450,6 +1480,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1495,6 +1526,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1549,6 +1581,7 @@ if SIRF_HAS_NiftyPET:
             check_status(self.handle)
 
         def __del__(self):
+            """del."""
             if self.handle is not None:
                 pyiutil.deleteDataHandle(self.handle)
 
@@ -1576,9 +1609,11 @@ class Prior(object):
     objective function maximized by iterative reconstruction algorithms.
     """
     def __init__(self):
+        """init."""
         self.handle = None
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1638,12 +1673,14 @@ class QuadraticPrior(Prior):
     to x-voxel_size divided by the Euclidean distance between the points.
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.name = 'QuadraticPrior'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1684,12 +1721,14 @@ class PLSPrior(Prior):
     this class will effectively use 1 for all \f$\kappa\f$'s.
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.name = 'PLSPrior'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1761,9 +1800,11 @@ class ObjectiveFunction(object):
     algorithms.
     """
     def __init__(self):
+        """init."""
         self.handle = None
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1872,9 +1913,11 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
     http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMean.html
     """
     def __init__(self):
+        """init."""
         self.handle = None
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 #    def set_sensitivity_filename(self, name):
@@ -1922,12 +1965,14 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
     http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMeanAndProjData.html
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1976,11 +2021,13 @@ class Reconstructor(object):
     Class for a generic PET reconstructor.
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.input = None
         self.image = None
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 #    def set_input(self, input_data):
@@ -2035,11 +2082,13 @@ class FBP2DReconstructor(object):
         (alpha + (1 - alpha) * cos(pi * f / fc))
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.handle = pystir.cSTIR_newObject('FBP2D')
         check_status(self.handle)
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -2098,11 +2147,13 @@ class IterativeReconstructor(Reconstructor):
     Class for a generic iterative PET reconstructor.
     """
     def __init__(self):
+        """init."""
         self.handle = None
         self.image = None
         self.subset = 0
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -2255,6 +2306,7 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
     http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html
     """
     def __init__(self, filename=''):
+        """init."""
         self.handle = None
         self.image = None
         self.name = 'OSMAPOSL'
@@ -2264,6 +2316,7 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
         self.disable_output()
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -2327,6 +2380,7 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
     image space.
     """
     def __init__(self, filename=''):
+        """init."""
         self.handle = None
         self.image = None
         self.name = 'KOSMAPOSL'
@@ -2336,6 +2390,7 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         self.disable_output()
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -2386,6 +2441,7 @@ class OSSPSReconstructor(IterativeReconstructor):
     http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html
     """
     def __init__(self, filename=''):
+        """init."""
         self.handle = None
         self.image = None
         self.name = 'OSSPS'
@@ -2395,6 +2451,7 @@ class OSSPSReconstructor(IterativeReconstructor):
         self.disable_output()
 
     def __del__(self):
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 

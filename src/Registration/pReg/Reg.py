@@ -43,9 +43,7 @@ ALL_CHANNELS = -1
 
 
 class MessageRedirector(object):
-    """
-    Class for registration printing redirection to files/stdout/stderr.
-    """
+    """Class for registration printing redirection to files/stdout/stderr."""
     def __init__(self, info=None, warn='stdout', errr='stdout'):
         """
         Creates MessageRedirector object that redirects Reg's ouput
@@ -95,7 +93,7 @@ class MessageRedirector(object):
         pyreg.openChannel(2, self.errr)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.info_case == 0:
             try_calling(pyreg.deleteTextPrinter(self.info))
         else:
@@ -119,12 +117,12 @@ class _Transformation(ABC):
     Abstract base class for transformations.
     """
     def __init__(self):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'Transformation'
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -149,7 +147,7 @@ class NiftiImageData(SIRF.ImageData):
     General class for nifti image data.
     """
     def __init__(self, src=None):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'NiftiImageData'
         if src is None:
@@ -165,7 +163,7 @@ class NiftiImageData(SIRF.ImageData):
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -214,7 +212,7 @@ class NiftiImageData(SIRF.ImageData):
         return value
 
     def __eq__(self, other):
-        """Overload == operator"""
+        """Overload == operator."""
         try:
             return self.equal(other)
         except:
@@ -225,7 +223,8 @@ class NiftiImageData(SIRF.ImageData):
         return not self == other
 
     def write(self, filename, datatype=-1):
-        """Save to file.
+        """
+        Save to file.
 
         See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16).
         Image's original datatpye is used by default."""
@@ -326,8 +325,7 @@ class NiftiImageData(SIRF.ImageData):
         return image
 
     def allocate(self, value=0, **kwargs):
-        """Alias to get_uniform_copy for CIL/SIRF compatibility
-        """
+        """Alias to get_uniform_copy for CIL/SIRF compatibility."""
         if value in ['random', 'random_int']:
             out = self.deep_copy()
             shape = out.as_array().shape
@@ -357,7 +355,8 @@ class NiftiImageData(SIRF.ImageData):
         return numpy.ascontiguousarray(array)
 
     def get_original_datatype(self):
-        """Get original image datatype
+        """
+        Get original image datatype
 
         (internally everything is converted to float)."""
         if self.handle is None:
@@ -371,7 +370,7 @@ class NiftiImageData(SIRF.ImageData):
     def crop(self, min_, max_):
         """
         Crop image.
-        
+
         Give minimum and maximum indices.
         Min and max indicies can be anywhere between
         (x,y,z) and (x,y,z,t,u,v,w).
@@ -509,7 +508,7 @@ class NiftiImageData3D(NiftiImageData):
     Class for 3D nifti image data.
     """
     def __init__(self, src=None):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'NiftiImageData3D'
         if src is None:
@@ -525,7 +524,7 @@ class NiftiImageData3D(NiftiImageData):
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -541,7 +540,7 @@ class NiftiImageData3DTensor(NiftiImageData):
     Class for 3D tensor nifti image data.
     """
     def __init__(self, src1=None, src2=None, src3=None):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'NiftiImageData3DTensor'
         if src1 is None:
@@ -559,12 +558,15 @@ class NiftiImageData3DTensor(NiftiImageData):
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
     def write_split_xyz_components(self, filename, datatype=-1):
-        """Save to file. See nifti1.h for datatypes
+        """
+        Save to file. 
+
+        See nifti1.h for datatypes
         (e.g., float (NIFTI_TYPE_FLOAT32) = 16).
         Image's original datatpye is used by default."""
         if self.handle is None:
@@ -604,7 +606,7 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
     A displacement field of an identity transformation will be of zero value.
     """
     def __init__(self, src1=None, src2=None, src3=None):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'NiftiImageData3DDisplacement'
         if src1 is None:
@@ -626,7 +628,7 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -643,7 +645,7 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
     """
 
     def __init__(self, src1=None, src2=None, src3=None):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'NiftiImageData3DDeformation'
         if src1 is None:
@@ -665,7 +667,7 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -729,13 +731,13 @@ class _Registration(ABC):
     Abstract base class for registration.
     """
     def __init__(self):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'Registration'
         self.reference_image = None
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -841,12 +843,12 @@ class _NiftyRegistration(_Registration):
     Abstract base class for NiftyReg registration.
     """
     def __init__(self):
-        """init"""
+        """init.""""
         super(_NiftyRegistration, self).__init__()
         self.name = 'NiftyRegistration'
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -872,7 +874,7 @@ class _NiftyRegistration(_Registration):
     def set_parameter(self, par, arg1="", arg2=""):
         """
         Set string parameter.
-        
+
         Check if any set methods match the method
         given by par. If so, set the value given by arg. Convert to float/int
         etc., as necessary. Up to 2 arguments, leave blank if unneeded.
@@ -886,14 +888,14 @@ class NiftyAladinSym(_NiftyRegistration):
     Registration using NiftyReg aladin.
     """
     def __init__(self):
-        """init"""
+        """init.""""
         super(NiftyAladinSym, self).__init__()
         self.name = 'NiftyAladinSym'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -927,14 +929,14 @@ class NiftyF3dSym(_NiftyRegistration):
     Registration using NiftyReg f3d.
     """
     def __init__(self):
-        """init"""
+        """init.""""
         super(NiftyF3dSym, self).__init__()
         self.name = 'NiftyF3dSym'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -970,14 +972,14 @@ if SIRF_HAS_SPM:
         Registration using SPM.
         """
         def __init__(self):
-            """init"""
+            """init.""""
             super(SPMRegistration, self).__init__()
             self.name = 'SPMRegistration'
             self.handle = pyreg.cReg_newObject(self.name)
             check_status(self.handle)
 
         def __del__(self):
-            """del"""
+            """del."""
             if self.handle is not None:
                 pyiutil.deleteDataHandle(self.handle)
 
@@ -1030,7 +1032,7 @@ class NiftyResample(object):
     Resample using NiftyReg.
     """
     def __init__(self):
-        """init"""
+        """init.""""
         self.name = 'NiftyResample'
         self.handle = pyreg.cReg_newObject(self.name)
         self.reference_image = None
@@ -1038,7 +1040,7 @@ class NiftyResample(object):
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1055,7 +1057,8 @@ class NiftyResample(object):
             self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
-        """Set floating image.
+        """
+        Set floating image.
 
         This is the image that would be the floating if
         you were doing a forward transformation."""
@@ -1088,7 +1091,7 @@ class NiftyResample(object):
     def set_interpolation_type(self, interp_type):
         """
         Set interpolation type.
-        
+
         0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""
         if not isinstance(interp_type, int):
             raise AssertionError()
@@ -1116,7 +1119,8 @@ class NiftyResample(object):
         parms.set_float_par(self.handle, self.name, 'padding', val)
 
     def process(self):
-        """Process.
+        """
+        Process.
 
         Equivalent of calling forward(floating_image).
         Use get_output to get resampled image."""
@@ -1159,7 +1163,7 @@ class NiftyResample(object):
     def adjoint(self, x, out=None):
         """
         Adjoint transformation.
-        
+
         Usage:
             output = adjoint(x), OR
             adjoint(x=input,out=output)
@@ -1182,7 +1186,7 @@ class NiftyResample(object):
     def backward(self, x, out=None):
         """
         Backward transformation.
-        
+
         Alias of adjoint to align terms with
         AcquisitionModel's forward and backward."""
         return self.adjoint(x=x, out=out)
@@ -1207,20 +1211,20 @@ class ImageWeightedMean(object):
     """
 
     def __init__(self):
-        """init"""
+        """init.""""
         self.name = 'ImageWeightedMean'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
     def add_image(self, image, weight):
         """
         Add an image (filename or NiftiImageData)
-        
+
         and its corresponding weight."""
         if isinstance(image, NiftiImageData):
             try_calling(pyreg.cReg_ImageWeightedMean_add_image(
@@ -1249,7 +1253,7 @@ class AffineTransformation(_Transformation):
     Class for affine transformations.
     """
     def __init__(self, src1=None, src2=None):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'AffineTransformation'
         if src1 is None:
@@ -1283,7 +1287,7 @@ class AffineTransformation(_Transformation):
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
@@ -1395,7 +1399,7 @@ class Quaternion(object):
     Class for quaternions.
     """
     def __init__(self, src=None):
-        """init"""
+        """init.""""
         self.handle = None
         self.name = 'Quaternion'
         if isinstance(src, numpy.ndarray):
@@ -1412,7 +1416,7 @@ class Quaternion(object):
         check_status(self.handle)
 
     def __del__(self):
-        """del"""
+        """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
