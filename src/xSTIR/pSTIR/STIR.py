@@ -244,11 +244,13 @@ class ImageData(SIRF.ImageData):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             check_status(self.handle)
         elif isinstance(arg, AcquisitionData):
-            assert arg.handle is not None
+            if is not arg.handle:
+                raise AssertionError()
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
             check_status(self.handle)
         elif isinstance(arg, SIRF.ImageData):
-            assert arg.handle is not None
+            if is not arg.handle:
+                raise AssertionError()
             self.handle = pystir.cSTIR_imageFromImageData(arg.handle)
             check_status(self.handle)
         elif arg is not None:
@@ -303,7 +305,8 @@ class ImageData(SIRF.ImageData):
         scalar to be assigned at each voxel. When using an ndarray, the array
         must have the same size as an array returned by `as_array`.
         """
-        assert self.handle is not None
+        if is not self.handle:
+            raise AssertionError()
         if isinstance(value, ImageData):
             super(ImageData, self).fill(value)
 #            try_calling(pystir.cSTIR_setImageDataFromImage \
@@ -329,7 +332,8 @@ class ImageData(SIRF.ImageData):
 
     def get_uniform_copy(self, value=1.0):
         """Creates a copy of this image filled with <value>."""
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
@@ -339,7 +343,8 @@ class ImageData(SIRF.ImageData):
     def add_shape(self, shape, scale):
         """Adds a shape to self - see Shape above.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         assert_validity(shape, Shape)
         try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
 
@@ -355,7 +360,8 @@ class ImageData(SIRF.ImageData):
 
     def dimensions(self):
         """Returns image dimensions as a tuple (nz, ny, nx)."""
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
         try_calling(
             pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
@@ -363,14 +369,16 @@ class ImageData(SIRF.ImageData):
 
     def voxel_sizes(self):
         """Returns image voxel sizes as a tuple (vz, vy, vx)."""
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         vs = numpy.ndarray((3,), dtype=numpy.float32)
         try_calling(
             pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
         return tuple(vs)  # [::-1])
 
     def transf_matrix(self):
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         tm = numpy.ndarray((4, 4), dtype=numpy.float32)
         try_calling(
             pystir.cSTIR_getImageTransformMatrix(self.handle, tm.ctypes.data))
@@ -378,7 +386,8 @@ class ImageData(SIRF.ImageData):
 
     def as_array(self):
         """Returns 3D Numpy ndarray with values at the voxels."""
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         array = numpy.ndarray(self.dimensions(), dtype=numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
@@ -389,7 +398,8 @@ class ImageData(SIRF.ImageData):
 
     def show(self, slice=None, title=None):
         """Displays xy-cross-section(s) of this image."""
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         if not HAVE_PYLAB:
             print('pylab not found')
             return
@@ -516,7 +526,7 @@ class ImageDataProcessor(object):
         """
         Sets the input data.
         """
-        assert isinstance(input, ImageData)
+        assert_validity(input, ImageData)
         self.input = input
 
     def process(self, input=None):
@@ -527,7 +537,7 @@ class ImageDataProcessor(object):
             self.input = input
         if self.input is None:
             raise error('input image not set')
-        assert isinstance(self.input, ImageData)
+        assert_validity(self.input, ImageData)
         self.output = self.input.clone()
         self.apply(self.output)
         return self.output
@@ -677,7 +687,8 @@ class AcquisitionData(DataContainer):
                 self.src = 'scanner'
         elif isinstance(src, AcquisitionData):
             # src is AcquisitionData
-            assert src.handle is not None
+            if is not src.handle:
+                raise AssertionError()
             self.handle = pystir.cSTIR_acquisitionDataFromTemplate(src.handle)
             self.src = 'template'
         else:
@@ -737,7 +748,8 @@ class AcquisitionData(DataContainer):
         value:  a Python float.
         xy: y and x dimensions tuple
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         image = ImageData()
         if xy is None:
             image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
@@ -760,7 +772,8 @@ class AcquisitionData(DataContainer):
         - number of views
         - number of tangential positions.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
         try_calling(pystir.cSTIR_getAcquisitionDataDimensions(
             self.handle, dim.ctypes.data))
@@ -776,7 +789,8 @@ class AcquisitionData(DataContainer):
         - number of views
         - number of tangential positions.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         array = numpy.ndarray(self.dimensions(), dtype=numpy.float32)
         try_calling(pystir.cSTIR_getAcquisitionData(
             self.handle, array.ctypes.data))
@@ -788,7 +802,8 @@ class AcquisitionData(DataContainer):
         value:  either NumPy ndarray or another AcquisitionData object
                 or Python float.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         if self.read_only:
             raise error(
                 'Cannot fill read-only object, consider filling a clone')
@@ -804,7 +819,8 @@ class AcquisitionData(DataContainer):
             try_calling(pystir.cSTIR_setAcquisitionData(
                 self.handle, v.ctypes.data))
         elif isinstance(value, AcquisitionData):
-            assert value.handle is not None
+            if is not value.handle:
+                raise AssertionError()
             try_calling(pystir.cSTIR_fillAcquisitionDataFromAcquisitionData(
                 self.handle, value.handle))
         elif isinstance(value, float):
@@ -842,7 +858,8 @@ class AcquisitionData(DataContainer):
 
     def show(self, sino=None, title=None):
         """Displays interactively selected sinograms."""
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         if not HAVE_PYLAB:
             print('pylab not found')
             return
@@ -1069,20 +1086,24 @@ class AcquisitionSensitivityModel(object):
                 handle, 'n')
         elif isinstance(src, ImageData):
             # create from attenuation image
-            assert src.handle is not None
-            assert isinstance(other_src, AcquisitionModel)
+            if is not src.handle:
+                raise AssertionError()
+            assert_validity(other_src, AcquisitionModel)
             self.handle = pystir.cSTIR_createPETAttenuationModel(
                 src.handle, other_src.handle)
         elif isinstance(src, AcquisitionData):
             # create from bin efficiencies (cf. AcquisitionModel)
-            assert src.handle is not None
+            if is not src.handle:
+                raise AssertionError()
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel(
                 src.handle, 's')
         elif isinstance(src, AcquisitionSensitivityModel) and \
                 isinstance(other_src, AcquisitionSensitivityModel):
             # chain two acquisition sensitivity models
-            assert src.handle is not None
-            assert other_src.handle is not None
+            if is not src.handle:
+                raise AssertionError()
+            if is not other_src.handle:
+                raise AssertionError()
             self.handle = pystir.cSTIR_chainPETAcquisitionSensitivityModels(
                 src.handle, other_src.handle)
         else:
@@ -1093,7 +1114,8 @@ class AcquisitionSensitivityModel(object):
     def set_up(self, ad):
         """Sets up the object.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_setupAcquisitionSensitivityModel(
             self.handle, ad.handle))
@@ -1103,7 +1125,8 @@ class AcquisitionSensitivityModel(object):
            If self is a chain of two AcquisitionSensitivityModels, then n is
            a product of two normalisations.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'normalise'))
@@ -1113,7 +1136,8 @@ class AcquisitionSensitivityModel(object):
            If self is a chain of two AcquisitionSensitivityModels, then n is
            a product of two normalisations.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'unnormalise'))
@@ -1123,7 +1147,8 @@ class AcquisitionSensitivityModel(object):
            and  a new AcquisitionData equal to the argument multiplied
            by 1/n is returned.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         assert_validity(ad, AcquisitionData)
         fd = AcquisitionData()
         fd.handle = pystir.cSTIR_applyAcquisitionSensitivityModel(
@@ -1136,7 +1161,8 @@ class AcquisitionSensitivityModel(object):
            and  a new AcquisitionData equal to the argument multiplied
            by n is returned.
         """
-        assert self.handle is not None
+        if is not arg.handle:
+            raise AssertionError()
         assert_validity(ad, AcquisitionData)
         fd = AcquisitionData()
         fd.handle = pystir.cSTIR_applyAcquisitionSensitivityModel(
@@ -1577,7 +1603,7 @@ class Prior(object):
         Returns the value of the gradient of the prior for the specified image.
         image: ImageData object
         """
-        assert isinstance(image, ImageData)
+        assert_validity(image, ImageData)
         grad = ImageData()
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
@@ -1688,7 +1714,7 @@ class PLSPrior(Prior):
         return parms.float_par(self.handle, 'PLSPrior', 'eta')
 
     def set_anatomical_image(self, image):
-        assert isinstance(image, ImageData)
+        assert_validity(image, ImageData)
         parms.set_parameter(
             self.handle, 'PLSPrior', 'anatomical_image', image.handle)
 
@@ -1710,7 +1736,7 @@ class PLSPrior(Prior):
             self.handle, 'PLSPrior', 'anatomical_filename', filename)
 
     def set_kappa(self, image):
-        assert isinstance(image, ImageData)
+        assert_validity(image, ImageData)
         parms.set_parameter(self.handle, 'PLSPrior', 'kappa', image.handle)
 
     def get_kappa(self):

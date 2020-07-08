@@ -403,6 +403,7 @@ class NiftiImageData(SIRF.ImageData):
         vec.push_back(self.handle)
         try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
+    @staticmethod
     def same_object(self):
         """See DataContainer.same_object()."""
         return NiftiImageData()
@@ -414,7 +415,6 @@ class NiftiImageData(SIRF.ImageData):
         meaning nearest neighbor, linear or cubic spline interpolation."""
         if len(spacing) != 3:
             raise AssertionError("New spacing should be array of 3 numbers.")
-            type(interpolation_order)
         try_calling(pyreg.cReg_NiftiImageData_set_voxel_spacing(
             self.handle, float(spacing[0]), float(spacing[1]),
             float(spacing[2]), int(interpolation_order)))
@@ -812,7 +812,7 @@ class _NiftyRegistration(_Registration):
     Abstract base class for NiftyReg registration.
     """
     def __init__(self):
-        self.handle = None
+        super(_NiftyRegistration, self).__init__(*args, **kwargs)
         self.name = 'NiftyRegistration'
 
     def __del__(self):
@@ -852,7 +852,7 @@ class NiftyAladinSym(_NiftyRegistration):
     Registration using NiftyReg aladin.
     """
     def __init__(self):
-        _Registration.__init__(self)
+        super(NiftyAladinSym, self).__init__(*args, **kwargs)
         self.name = 'NiftyAladinSym'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
@@ -891,7 +891,7 @@ class NiftyF3dSym(_NiftyRegistration):
     Registration using NiftyReg f3d.
     """
     def __init__(self):
-        _Registration.__init__(self)
+        super(NiftyF3dSym, self).__init__(*args, **kwargs)
         self.name = 'NiftyF3dSym'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
@@ -932,7 +932,7 @@ if SIRF_HAS_SPM:
         Registration using SPM.
         """
         def __init__(self):
-            _Registration.__init__(self)
+            super(SPMRegistration, self).__init__(*args, **kwargs)
             self.name = 'SPMRegistration'
             self.handle = pyreg.cReg_newObject(self.name)
             check_status(self.handle)
@@ -1129,6 +1129,7 @@ class NiftyResample(object):
         AcquisitionModel's forward and backward."""
         return self.adjoint(x=x, out=out)
 
+    @staticmethod
     def is_linear(self):
         """Returns whether the transformation is linear"""
         return True
