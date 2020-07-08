@@ -332,7 +332,7 @@ class ImageData(SIRF.ImageData):
 
     def get_uniform_copy(self, value=1.0):
         """Creates a copy of this image filled with <value>."""
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
@@ -343,7 +343,7 @@ class ImageData(SIRF.ImageData):
     def add_shape(self, shape, scale):
         """Adds a shape to self - see Shape above.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         assert_validity(shape, Shape)
         try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
@@ -360,7 +360,7 @@ class ImageData(SIRF.ImageData):
 
     def dimensions(self):
         """Returns image dimensions as a tuple (nz, ny, nx)."""
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
         try_calling(
@@ -369,7 +369,7 @@ class ImageData(SIRF.ImageData):
 
     def voxel_sizes(self):
         """Returns image voxel sizes as a tuple (vz, vy, vx)."""
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         vs = numpy.ndarray((3,), dtype=numpy.float32)
         try_calling(
@@ -377,7 +377,7 @@ class ImageData(SIRF.ImageData):
         return tuple(vs)  # [::-1])
 
     def transf_matrix(self):
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         tm = numpy.ndarray((4, 4), dtype=numpy.float32)
         try_calling(
@@ -386,7 +386,7 @@ class ImageData(SIRF.ImageData):
 
     def as_array(self):
         """Returns 3D Numpy ndarray with values at the voxels."""
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         array = numpy.ndarray(self.dimensions(), dtype=numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
@@ -398,7 +398,7 @@ class ImageData(SIRF.ImageData):
 
     def show(self, slice=None, title=None):
         """Displays xy-cross-section(s) of this image."""
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         if not HAVE_PYLAB:
             print('pylab not found')
@@ -748,7 +748,7 @@ class AcquisitionData(DataContainer):
         value:  a Python float.
         xy: y and x dimensions tuple
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         image = ImageData()
         if xy is None:
@@ -772,7 +772,7 @@ class AcquisitionData(DataContainer):
         - number of views
         - number of tangential positions.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
         try_calling(pystir.cSTIR_getAcquisitionDataDimensions(
@@ -789,7 +789,7 @@ class AcquisitionData(DataContainer):
         - number of views
         - number of tangential positions.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         array = numpy.ndarray(self.dimensions(), dtype=numpy.float32)
         try_calling(pystir.cSTIR_getAcquisitionData(
@@ -802,7 +802,7 @@ class AcquisitionData(DataContainer):
         value:  either NumPy ndarray or another AcquisitionData object
                 or Python float.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         if self.read_only:
             raise error(
@@ -858,7 +858,7 @@ class AcquisitionData(DataContainer):
 
     def show(self, sino=None, title=None):
         """Displays interactively selected sinograms."""
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         if not HAVE_PYLAB:
             print('pylab not found')
@@ -1114,7 +1114,7 @@ class AcquisitionSensitivityModel(object):
     def set_up(self, ad):
         """Sets up the object.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_setupAcquisitionSensitivityModel(
@@ -1125,7 +1125,7 @@ class AcquisitionSensitivityModel(object):
            If self is a chain of two AcquisitionSensitivityModels, then n is
            a product of two normalisations.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
@@ -1136,7 +1136,7 @@ class AcquisitionSensitivityModel(object):
            If self is a chain of two AcquisitionSensitivityModels, then n is
            a product of two normalisations.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
@@ -1147,7 +1147,7 @@ class AcquisitionSensitivityModel(object):
            and  a new AcquisitionData equal to the argument multiplied
            by 1/n is returned.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
         fd = AcquisitionData()
@@ -1161,7 +1161,7 @@ class AcquisitionSensitivityModel(object):
            and  a new AcquisitionData equal to the argument multiplied
            by n is returned.
         """
-        if arg.handle is None:
+        if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
         fd = AcquisitionData()
@@ -1414,7 +1414,7 @@ class AcquisitionModel(object):
         else:
             if self.bt is None and self.at is not None:
                 return self.at.norm() == 0
-            elif is not self.bt and self.at is None:
+            elif self.bt is not None and self.at is None:
                 return self.bt.norm() == 0
             else:
                 return self.bt.norm() == 0 and self.at.norm() == 0

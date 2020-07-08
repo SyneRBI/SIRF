@@ -419,7 +419,7 @@ class NiftiImageData(SIRF.ImageData):
         try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
     @staticmethod
-    def same_object(self):
+    def same_object():
         """See DataContainer.same_object()."""
         return NiftiImageData()
 
