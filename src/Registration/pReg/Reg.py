@@ -22,6 +22,7 @@ Object-Oriented wrap for the cReg-to-Python interface pyreg.py
 
 import abc
 import sys
+import inspect
 
 from sirf.Utilities import error, check_status, try_calling
 from sirf import SIRF
@@ -812,7 +813,7 @@ class _NiftyRegistration(_Registration):
     Abstract base class for NiftyReg registration.
     """
     def __init__(self):
-        super(_NiftyRegistration, self).__init__(*args, **kwargs)
+        super(_NiftyRegistration, self).__init__()
         self.name = 'NiftyRegistration'
 
     def __del__(self):
@@ -852,7 +853,7 @@ class NiftyAladinSym(_NiftyRegistration):
     Registration using NiftyReg aladin.
     """
     def __init__(self):
-        super(NiftyAladinSym, self).__init__(*args, **kwargs)
+        super(NiftyAladinSym, self).__init__()
         self.name = 'NiftyAladinSym'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
@@ -891,7 +892,7 @@ class NiftyF3dSym(_NiftyRegistration):
     Registration using NiftyReg f3d.
     """
     def __init__(self):
-        super(NiftyF3dSym, self).__init__(*args, **kwargs)
+        super(NiftyF3dSym, self).__init__()
         self.name = 'NiftyF3dSym'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
@@ -932,7 +933,7 @@ if SIRF_HAS_SPM:
         Registration using SPM.
         """
         def __init__(self):
-            super(SPMRegistration, self).__init__(*args, **kwargs)
+            super(SPMRegistration, self).__init__()
             self.name = 'SPMRegistration'
             self.handle = pyreg.cReg_newObject(self.name)
             check_status(self.handle)
