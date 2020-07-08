@@ -144,11 +144,6 @@ get_deformation_field_inverse_sptr(const unsigned idx) const
             *std::dynamic_pointer_cast<NiftiImageData3DDeformation<dataType> >(trans_fwd);
 
     // Get inverse deformation.
-    bool vtk_available = false;
-#ifdef SIRF_VTK
-    vtk_available = true;
-#endif
-
     // NiftyReg can only do inverse for 3D images.
     if (def_fwd.get_raw_nifti_sptr()->nu == 3)
         def_inv_sptr = def_fwd.get_inverse(this->_floating_images_nifti.at(0));

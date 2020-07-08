@@ -153,7 +153,6 @@ void NiftyAladinSym<dataType>::print_all_wrapped_methods()
                  "SetReferenceLowerThreshold(float)\n"
                  "SetReferenceUpperThreshold(float)\n"
                  "SetWarpedPaddingValue(float)\n"
-                 "SetInputTransform(str)\n"
                  "SetAlignCentreMass(int)\n";
 }
 
@@ -193,7 +192,6 @@ void NiftyAladinSym<dataType>::parse_parameter_file()
     parser.add_key("SetReferenceLowerThreshold",&reg_aladin_sym<dataType>::SetReferenceLowerThreshold);
     parser.add_key("SetReferenceUpperThreshold",&reg_aladin_sym<dataType>::SetReferenceUpperThreshold);
     parser.add_key("SetWarpedPaddingValue",&reg_aladin_sym<dataType>::SetWarpedPaddingValue);
-    parser.add_key("SetInputTransform",&reg_aladin_sym<dataType>::SetInputTransform);
     parser.add_key("SetAlignCentreMass",&reg_aladin_sym<dataType>::SetAlignCentreMass);
 
     parser.parse();
@@ -233,7 +231,6 @@ void NiftyAladinSym<dataType>::set_parameters()
         else if (strcmp(par.c_str(),"SetReferenceLowerThreshold")== 0) _registration_sptr->SetReferenceLowerThreshold(stof(arg1));
         else if (strcmp(par.c_str(),"SetReferenceUpperThreshold")== 0) _registration_sptr->SetReferenceUpperThreshold(stof(arg1));
         else if (strcmp(par.c_str(),"SetWarpedPaddingValue")== 0) _registration_sptr->SetWarpedPaddingValue(stof(arg1));
-        else if (strcmp(par.c_str(),"SetInputTransform")== 0) _registration_sptr->SetInputTransform(arg1.c_str());
         else if (strcmp(par.c_str(),"SetAlignCentreMass")== 0) _registration_sptr->SetAlignCentreMass(stoi(arg1));
         else
             throw std::runtime_error("\nUnknown argument: " + par);
