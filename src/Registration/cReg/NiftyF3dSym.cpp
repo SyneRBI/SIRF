@@ -144,11 +144,6 @@ get_deformation_field_inverse_sptr(const unsigned idx) const
             *std::dynamic_pointer_cast<NiftiImageData3DDeformation<dataType> >(trans_fwd);
 
     // Get inverse deformation.
-    bool vtk_available = false;
-#ifdef SIRF_VTK
-    vtk_available = true;
-#endif
-
     // NiftyReg can only do inverse for 3D images.
     if (def_fwd.get_raw_nifti_sptr()->nu == 3)
         def_inv_sptr = def_fwd.get_inverse(this->_floating_images_nifti.at(0));
@@ -169,7 +164,29 @@ get_deformation_field_inverse_sptr(const unsigned idx) const
 template<class dataType>
 void NiftyF3dSym<dataType>::print_all_wrapped_methods()
 {
-    std::cout << ${NR_f3d_list_methods};
+    std::cout << "SetCompositionStepNumber(int)\n"
+                 "SetInverseConsistencyWeight(dataType)\n"
+                 "SetJacobianLogWeight(dataType)\n"
+                 "SetLinearEnergyWeight(dataType)\n"
+                 "SetWarpedPaddingValue(dataType)\n"
+                 "SetBendingEnergyWeight(dataType)\n"
+                 "SetFloatingSmoothingSigma(dataType)\n"
+                 "SetGradientSmoothingSigma(dataType)\n"
+                 "SetReferenceSmoothingSigma(dataType)\n"
+                 "SetLNCCKernelType(int)\n"
+                 "SetLevelNumber(unsigned)\n"
+                 "SetLevelToPerform(unsigned)\n"
+                 "SetMaximalIterationNumber(unsigned)\n"
+                 "SetPerturbationNumber(unsigned)\n"
+                 "SetSSDWeight(int,int)\n"
+                 "SetLNCCWeight(int,double)\n"
+                 "SetNMIWeight(int,double)\n"
+                 "SetKLDWeight(int,unsigned)\n"
+                 "SetFloatingThresholdUp(unsigned,dataType)\n"
+                 "SetFloatingThresholdLow(unsigned,dataType)\n"
+                 "SetReferenceThresholdUp(unsigned,dataType)\n"
+                 "SetReferenceThresholdLow(unsigned,dataType)\n"
+                 "SetSpacing(unsigned,dataType)\n";
 }
 
 template<class dataType>
@@ -194,7 +211,30 @@ void NiftyF3dSym<dataType>::parse_parameter_file()
     parser.set_object   (    _registration_sptr     );
     parser.set_filename ( this->_parameter_filename );
 
-${NR_f3d_parser_methods}
+    parser.add_key("SetCompositionStepNumber",&reg_f3d<dataType>::SetCompositionStepNumber);
+    parser.add_key("SetInverseConsistencyWeight",&reg_f3d<dataType>::SetInverseConsistencyWeight);
+    parser.add_key("SetJacobianLogWeight",&reg_f3d<dataType>::SetJacobianLogWeight);
+    parser.add_key("SetLinearEnergyWeight",&reg_f3d<dataType>::SetLinearEnergyWeight);
+    parser.add_key("SetWarpedPaddingValue",&reg_f3d<dataType>::SetWarpedPaddingValue);
+    parser.add_key("SetBendingEnergyWeight",&reg_f3d<dataType>::SetBendingEnergyWeight);
+    parser.add_key("SetFloatingSmoothingSigma",&reg_f3d<dataType>::SetFloatingSmoothingSigma);
+    parser.add_key("SetGradientSmoothingSigma",&reg_f3d<dataType>::SetGradientSmoothingSigma);
+    parser.add_key("SetReferenceSmoothingSigma",&reg_f3d<dataType>::SetReferenceSmoothingSigma);
+    parser.add_key("SetLNCCKernelType",&reg_f3d<dataType>::SetLNCCKernelType);
+    parser.add_key("SetLevelNumber",&reg_f3d<dataType>::SetLevelNumber);
+    parser.add_key("SetLevelToPerform",&reg_f3d<dataType>::SetLevelToPerform);
+    parser.add_key("SetMaximalIterationNumber",&reg_f3d<dataType>::SetMaximalIterationNumber);
+    parser.add_key("SetPerturbationNumber",&reg_f3d<dataType>::SetPerturbationNumber);
+    parser.add_key("SetSSDWeight",&reg_f3d<dataType>::SetSSDWeight);
+    parser.add_key("SetLNCCWeight",&reg_f3d<dataType>::SetLNCCWeight);
+    parser.add_key("SetNMIWeight",&reg_f3d<dataType>::SetNMIWeight);
+    parser.add_key("SetKLDWeight",&reg_f3d<dataType>::SetKLDWeight);
+    parser.add_key("SetFloatingThresholdUp",&reg_f3d<dataType>::SetFloatingThresholdUp);
+    parser.add_key("SetFloatingThresholdLow",&reg_f3d<dataType>::SetFloatingThresholdLow);
+    parser.add_key("SetReferenceThresholdUp",&reg_f3d<dataType>::SetReferenceThresholdUp);
+    parser.add_key("SetReferenceThresholdLow",&reg_f3d<dataType>::SetReferenceThresholdLow);
+    parser.add_key("SetSpacing",&reg_f3d<dataType>::SetSpacing);
+
     parser.parse();
 }
 template<class dataType>
@@ -206,7 +246,30 @@ void NiftyF3dSym<dataType>::set_parameters()
         std::string arg1 = this->_extra_params[i+1];
         std::string arg2 = this->_extra_params[i+2];
 
-${NR_f3d_runtime_methods}
+        if      (strcmp(par.c_str(),"SetCompositionStepNumber")== 0) _registration_sptr->SetCompositionStepNumber(stoi(arg1));
+        else if (strcmp(par.c_str(),"SetInverseConsistencyWeight")== 0) _registration_sptr->SetInverseConsistencyWeight(dataType(stod(arg1)));
+        else if (strcmp(par.c_str(),"SetJacobianLogWeight")== 0) _registration_sptr->SetJacobianLogWeight(dataType(stod(arg1)));
+        else if (strcmp(par.c_str(),"SetLinearEnergyWeight")== 0) _registration_sptr->SetLinearEnergyWeight(dataType(stod(arg1)));
+        else if (strcmp(par.c_str(),"SetWarpedPaddingValue")== 0) _registration_sptr->SetWarpedPaddingValue(dataType(stod(arg1)));
+        else if (strcmp(par.c_str(),"SetBendingEnergyWeight")== 0) _registration_sptr->SetBendingEnergyWeight(dataType(stod(arg1)));
+        else if (strcmp(par.c_str(),"SetFloatingSmoothingSigma")== 0) _registration_sptr->SetFloatingSmoothingSigma(dataType(stod(arg1)));
+        else if (strcmp(par.c_str(),"SetGradientSmoothingSigma")== 0) _registration_sptr->SetGradientSmoothingSigma(dataType(stod(arg1)));
+        else if (strcmp(par.c_str(),"SetReferenceSmoothingSigma")== 0) _registration_sptr->SetReferenceSmoothingSigma(dataType(stod(arg1)));
+        else if (strcmp(par.c_str(),"SetLNCCKernelType")== 0) _registration_sptr->SetLNCCKernelType(stoi(arg1));
+        else if (strcmp(par.c_str(),"SetLevelNumber")== 0) _registration_sptr->SetLevelNumber(unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetLevelToPerform")== 0) _registration_sptr->SetLevelToPerform(unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetMaximalIterationNumber")== 0) _registration_sptr->SetMaximalIterationNumber(unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetPerturbationNumber")== 0) _registration_sptr->SetPerturbationNumber(unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetSSDWeight")== 0) _registration_sptr->SetSSDWeight(stoi(arg1), stoi(arg2));
+        else if (strcmp(par.c_str(),"SetLNCCWeight")== 0) _registration_sptr->SetLNCCWeight(stoi(arg1), stod(arg2));
+        else if (strcmp(par.c_str(),"SetNMIWeight")== 0) _registration_sptr->SetNMIWeight(stoi(arg1), stod(arg2));
+        else if (strcmp(par.c_str(),"SetKLDWeight")== 0) _registration_sptr->SetKLDWeight(stoi(arg1), unsigned(stoi(arg2)));
+        else if (strcmp(par.c_str(),"SetFloatingThresholdUp")== 0) _registration_sptr->SetFloatingThresholdUp(unsigned(stoi(arg1)), dataType(stod(arg2)));
+        else if (strcmp(par.c_str(),"SetFloatingThresholdLow")== 0) _registration_sptr->SetFloatingThresholdLow(unsigned(stoi(arg1)), dataType(stod(arg2)));
+        else if (strcmp(par.c_str(),"SetReferenceThresholdUp")== 0) _registration_sptr->SetReferenceThresholdUp(unsigned(stoi(arg1)), dataType(stod(arg2)));
+        else if (strcmp(par.c_str(),"SetReferenceThresholdLow")== 0) _registration_sptr->SetReferenceThresholdLow(unsigned(stoi(arg1)), dataType(stod(arg2)));
+        else if (strcmp(par.c_str(),"SetSpacing")== 0) _registration_sptr->SetSpacing(unsigned(stoi(arg1)), dataType(stod(arg2)));
+
         else
             throw std::runtime_error("\nUnknown argument: " + par);
     }
