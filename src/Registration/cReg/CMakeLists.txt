@@ -15,24 +15,13 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Configure the aladin/f3d files dependent on NIFTYREG version number
-include(${CMAKE_CURRENT_SOURCE_DIR}/../callable_NR_methods.cmake)
-get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin_sym" "${NIFTYREG_VERSION}" NR_aladin_parser_methods)
-get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d"    "${NIFTYREG_VERSION}" NR_f3d_parser_methods   )
-get_runtime_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_runtime_methods)
-get_runtime_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_runtime_methods   )
-get_list_of_wrapped_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_list_methods)
-get_list_of_wrapped_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_list_methods   )
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/NiftyAladinSym.cpp")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp.in"    "${CMAKE_CURRENT_BINARY_DIR}/NiftyF3dSym.cpp"   )
-
 # Add in the common files
 SET(SOURCES
   "Registration.cpp"
   "NiftiBasedRegistration.cpp"
   "NiftyRegistration.cpp"
-  "${CMAKE_CURRENT_BINARY_DIR}/NiftyAladinSym.cpp"
-  "${CMAKE_CURRENT_BINARY_DIR}/NiftyF3dSym.cpp"
+  "NiftyAladinSym.cpp"
+  "NiftyF3dSym.cpp"
   "ImageWeightedMean.cpp"
   "Resample.cpp"
   "NiftyResample.cpp"
