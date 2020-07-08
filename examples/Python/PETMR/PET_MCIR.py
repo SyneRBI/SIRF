@@ -19,6 +19,7 @@ Options:
   --nifti                             save output as nifti
   -v <int>, --verbosity=<int>         STIR verbosity [default: 0]
   -s <int>, --save_interval=<int>     save every x iterations [default: 10]
+  --algorithm=<string>                which algorithm to run [default: "spdhg"]
 """
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -38,7 +39,7 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-import os
+import os, functools
 from ast import literal_eval
 from glob import glob
 from docopt import docopt
@@ -46,7 +47,7 @@ from sirf.Utilities import error, show_2D_array
 import pylab
 import sirf.Reg as reg
 import sirf.STIR as pet
-from ccpi.optimisation.algorithms import PDHG
+from ccpi.optimisation.algorithms import PDHG, SPDHG
 from ccpi.optimisation.functions import KullbackLeibler, BlockFunction, IndicatorBox
 from ccpi.optimisation.operators import CompositionOperator, BlockOperator
 from ccpi.plugins.regularisers import FGP_TV
@@ -76,6 +77,7 @@ rand_pattern = str(args['--rand'])
 num_iters = int(args['--iter'])
 regularisation = str(args['--reg'])
 trans_type = str(args['--trans_type'])
+algorithm = str(args['--algorithm'])
 
 if attn_pattern is None:
     attn_pattern = ""
@@ -267,15 +269,7 @@ def main():
     kl = [ KullbackLeibler(b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos ] 
     f = BlockFunction(*kl)
     K = BlockOperator(*C)
-    normK = K.norm(iterations=10)
-
-    # normK = LinearOperator.PowerMethod(K, iterations=10)[0]
-    # default values
-    sigma = 1/normK
-    tau = 1/normK 
-    sigma = 0.001
-    tau = 1/(sigma*normK**2)
-    print("Norm of the BlockOperator ", normK)
+    
 
     if regularisation == 'none':
         G = IndicatorBox(lower=0)
@@ -289,10 +283,34 @@ def main():
         G = FGP_TV(r_alpha, r_iterations, r_tolerance, r_iso, r_nonneg, r_printing, 'gpu')
     else:
         raise error("Unknown regularisation")
+    
+    if algorithm == 'pdhg':
+        normK = K.norm(iterations=10)
 
-    pdhg = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
-                max_iteration=1000,
-                update_objective_interval=1)
+        # normK = LinearOperator.PowerMethod(K, iterations=10)[0]
+        # default values
+        sigma = 1/normK
+        tau = 1/normK 
+        sigma = 0.001
+        tau = 1/(sigma*normK**2)
+        print("Norm of the BlockOperator ", normK)
+        algo = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
+                    max_iteration=1000,
+                    update_objective_interval=10,
+                    log_file="spdhg.log")
+    elif algorithm == 'spdhg':
+        # let's define the subsets as the motion states
+        num_subsets = len(K)
+        # assign the probabilities implicit form
+        prob = [1/num_subsets]*num_subsets
+        # assign the probabilities explicit form
+        # prob = [(num_subsets-1)*1/(2*num_subsets)] + [1/2]
+
+        algo = SPDHG(f=f, g=G, operator=K, sigma=None, tau=None,
+                    max_iteration=3000,
+                    update_objective_interval=10, 
+                    prob=prob, log_file="spdhg.log"
+                    )
 
     # Get filename
     outp_file = outp_prefix
@@ -303,19 +321,21 @@ def main():
     outp_file += "_Reg-" + regularisation
     outp_file += "_nGates" + str(len(sino_files))
 
-    for i in range(1, num_iters+1, save_interval):
-        pdhg.run(save_interval, verbose=True)
-        out = pdhg.get_output()    
-        if not nifti:
-            out.write(outp_file + "_iters" + str(i))
-        else:
-            reg.NiftiImageData(out).write(outp_file + "_iters" + str(i))
+    def save_callback( save_interval, nifti, outp_file, iteration, last_objective, x ):
+        if iteration > 0 and iteration % save_interval == 0:
+            if not nifti:
+                x.write("{}_iters_{}".format(outp_file, iteration))
+            else:
+                reg.NiftiImageData(x).write("{}_iters_{}".format(outp_file, iteration))
 
+    psave_callback = functools.partial(save_callback, save_interval, nifti, outp_file)
+    algo.run(num_iters, verbose=True, very_verbose=True, callback = psave_callback)
+    
     if visualisations:
         # show reconstructed image
-        out_arr = out.as_array()
+        out_arr = algo.get_output().as_array()
         z = out_arr.shape[0]//2
-        show_2D_array('Reconstructed image', out.as_array()[z, :, :])
+        show_2D_array('Reconstructed image', out_arr[z, :, :])
         pylab.show()
 
 
@@ -327,3 +347,5 @@ try:
 except error as err:
     # display error information
     print('%s' % err.value)
+
+
