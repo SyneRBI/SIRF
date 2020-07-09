@@ -18,7 +18,8 @@ Options:
   --visualisations                    show visualisations
   --nifti                             save output as nifti
   -v <int>, --verbosity=<int>         STIR verbosity [default: 0]
-  -s <int>, --save_interval=<int>     save every x iterations [default: 10]
+  --update_interval=<int>             update log every x iterations [default: 1]
+  -s <int>, --save_interval=<int>     save every x*update_interval iterations [default: 10]
   --algorithm=<string>                which algorithm to run [default: "spdhg"]
 """
 
@@ -77,7 +78,7 @@ rand_pattern = str(args['--rand'])
 num_iters = int(args['--iter'])
 regularisation = str(args['--reg'])
 trans_type = str(args['--trans_type'])
-algorithm = str(args['--algorithm'])
+
 
 if attn_pattern is None:
     attn_pattern = ""
@@ -110,8 +111,12 @@ else:
 # Verbosity
 pet.set_verbosity(int(args['--verbosity']))
 
-# Verbosity
+# Logging and save interval
 save_interval = int(args['--save_interval'])
+update_objective_interval = int(args['--update_interval'])
+
+# algorithm selection
+algorithm = str(args['--algorithm'])
 
 
 def get_resampler_from_trans(trans, image):
@@ -296,7 +301,7 @@ def main():
         print("Norm of the BlockOperator ", normK)
         algo = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
                     max_iteration=1000,
-                    update_objective_interval=10,
+                    update_objective_interval=update_objective_interval,
                     log_file="spdhg.log")
     elif algorithm == 'spdhg':
         # let's define the subsets as the motion states
@@ -305,11 +310,14 @@ def main():
         prob = [1/num_subsets]*num_subsets
         # assign the probabilities explicit form
         # prob = [(num_subsets-1)*1/(2*num_subsets)] + [1/2]
+        
+        sigma = [0.001 for i in range(num_subsets)]
+        sigma = None
 
-        algo = SPDHG(f=f, g=G, operator=K, sigma=None, tau=None,
+        algo = SPDHG(f=f, g=G, operator=K, sigma=sigma, tau=None,
                     max_iteration=3000,
-                    update_objective_interval=10, 
-                    prob=prob, log_file="spdhg.log"
+                    update_objective_interval=update_objective_interval, 
+                    prob=prob, log_file="spdhg.log", 
                     )
 
     # Get filename
