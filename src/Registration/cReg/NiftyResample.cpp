@@ -354,42 +354,44 @@ void convert_to_NiftiImageData_if_not_already(std::shared_ptr<NiftiImageData3D<d
 template<class dataType>
 void
 NiftyResample<dataType>::
-get_image_gradient_wrt_transformation(std::shared_ptr<Transformation<dataType> > &output_transformation_sptr,
-        const std::shared_ptr<const ImageData> source_im_sptr)
+get_image_gradient_wrt_deformation_times_image(
+        std::shared_ptr<NiftiImageData3DDeformation<dataType> > &output_deformation_sptr,
+        const std::shared_ptr<const ImageData> image_to_multiply_sptr)
 {
     // Call the set up
     set_up();
 
-    auto output_deformation_sptr =
-            std::dynamic_pointer_cast<NiftiImageData3DDeformation<dataType> >(output_transformation_sptr);
-
-    // Convert image to NiftiImageData if not already
-    std::shared_ptr<NiftiImageData3D<dataType> > im_nii_sptr;
-    convert_to_NiftiImageData_if_not_already(im_nii_sptr, source_im_sptr->clone());
+    // Not implemented for complex images
+    if (this->_floating_image_niftis.is_complex() || image_to_multiply_sptr->is_complex())
+        throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image not yet implemented for complex images");
 
     // Get raw nifti_image pointer
-    nifti_image * source_nii_ptr = im_nii_sptr->get_raw_nifti_sptr().get();
+    nifti_image * floating_nii_ptr = this->_floating_image_niftis.real()->clone()->get_raw_nifti_sptr().get();
 
     // Get image gradient
-    reg_getImageGradient(source_nii_ptr,
+    reg_getImageGradient(floating_nii_ptr,
                          output_deformation_sptr->get_raw_nifti_sptr().get(),
                          this->_deformation_sptr->get_raw_nifti_sptr().get(),
                          nullptr,
                          this->_interpolation_type,
                          this->_padding_value,
                          0);
+
+    // Now multiply the scalar image to each of the DVF components
+    for (unsigned i=0; i<3; ++i)
+        output_deformation_sptr->multiply_tensor_component(i, image_to_multiply_sptr);
 }
 
 template<class dataType>
-std::shared_ptr<const Transformation<dataType> >
+std::shared_ptr<const NiftiImageData3DDeformation<dataType> >
 NiftyResample<dataType>::
-get_image_gradient_wrt_transformation(const std::shared_ptr<const ImageData> source_im_sptr)
+get_image_gradient_wrt_deformation_times_image(const std::shared_ptr<const ImageData> image_to_multiply_sptr)
 {
     // Call the set up
     set_up();
 
-    std::shared_ptr<Transformation<dataType> > output_deformation_sptr = this->_deformation_sptr->clone();
-    get_image_gradient_wrt_transformation(output_deformation_sptr, source_im_sptr);
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > output_deformation_sptr = this->_deformation_sptr->clone();
+    get_image_gradient_wrt_deformation_times_image(output_deformation_sptr, image_to_multiply_sptr);
     return std::move(output_deformation_sptr);
 }
 

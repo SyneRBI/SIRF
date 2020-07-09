@@ -33,8 +33,8 @@ limitations under the License.
 
 namespace sirf {
 
-template<class dataType> class Resample;
-template<class dataType> class Transformation;
+template<class dataType> class NiftyResample;
+template<class dataType> class NiftiImageData3DDeformation;
 class ImageData;
 
 /*!
@@ -53,17 +53,23 @@ public:
     ImageGradientWRTTransformation();
 
     /// Set the resampler
-    void set_resampler(const std::shared_ptr<Resample<dataType> > resampler_sptr);
+    void set_resampler(const std::shared_ptr<NiftyResample<dataType> > resampler_sptr);
 
-    /// Forward in place (get image gradient wrt transformation)
-    virtual void forward(std::shared_ptr<Transformation<dataType> > &output_transformation_sptr, const std::shared_ptr<const ImageData> source_im_sptr);
+    /// Forward in place (resample image)
+    virtual void forward(std::shared_ptr<ImageData> &im_sptr, const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &deformation_sptr);
 
-    /// Forward (get image gradient wrt transformation)
-    virtual std::shared_ptr<const Transformation<dataType> > forward(const std::shared_ptr<const ImageData> source_im_sptr);
+    /// Forward (resample image)
+    virtual std::shared_ptr<const ImageData> forward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > deformation_sptr);
+
+    /// Backward in place (get image gradient wrt transformation)
+    virtual void backward(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &output_transformation_sptr, const std::shared_ptr<const ImageData> image_to_multiply_sptr);
+
+    /// Backward (get image gradient wrt transformation)
+    virtual std::shared_ptr<const NiftiImageData3DDeformation<dataType> > backward(const std::shared_ptr<const ImageData> image_to_multiply_sptr);
 
 private:
 
     /// Resampler
-    std::shared_ptr<Resample<dataType> > _resampler_sptr;
+    std::shared_ptr<NiftyResample<dataType> > _resampler_sptr;
 };
 }

@@ -28,14 +28,15 @@ limitations under the License.
 */
 
 #include "sirf/Reg/ImageGradientWRTTransformation.h"
-#include "sirf/Reg/Resample.h"
+#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
 
 using namespace sirf;
 
 template<class dataType>
 void
 ImageGradientWRTTransformation<dataType>::
-set_resampler(const std::shared_ptr<Resample<dataType> > resampler_sptr)
+set_resampler(const std::shared_ptr<NiftyResample<dataType> > resampler_sptr)
 {
     _resampler_sptr = resampler_sptr;
 }
@@ -43,17 +44,40 @@ set_resampler(const std::shared_ptr<Resample<dataType> > resampler_sptr)
 template<class dataType>
 void
 ImageGradientWRTTransformation<dataType>::
-forward(std::shared_ptr<Transformation<dataType> > &output_transformation_sptr, const std::shared_ptr<const ImageData> source_im_sptr)
+forward(std::shared_ptr<ImageData> &im_sptr,
+        const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &deformation_sptr)
 {
-    _resampler_sptr->get_image_gradient_wrt_transformation(output_transformation_sptr, source_im_sptr);
+    _resampler_sptr->clear_transformations();
+    _resampler_sptr->add_transformation(deformation_sptr);
+    _resampler_sptr->process();
+    im_sptr->fill(*_resampler_sptr->get_output_sptr());
 }
 
 template<class dataType>
-std::shared_ptr<const Transformation<dataType> >
+std::shared_ptr<const ImageData>
 ImageGradientWRTTransformation<dataType>::
-forward(const std::shared_ptr<const ImageData> source_im_sptr)
+forward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > deformation_sptr)
 {
-    return std::move(_resampler_sptr->get_image_gradient_wrt_transformation(source_im_sptr));
+    _resampler_sptr->clear_transformations();
+    _resampler_sptr->add_transformation(deformation_sptr);
+    _resampler_sptr->process();
+    return _resampler_sptr->get_output_sptr();
+}
+
+template<class dataType>
+void
+ImageGradientWRTTransformation<dataType>::
+backward(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &output_deformation_sptr, const std::shared_ptr<const ImageData> image_to_multiply_sptr)
+{
+    _resampler_sptr->get_image_gradient_wrt_deformation_times_image(output_deformation_sptr, image_to_multiply_sptr);
+}
+
+template<class dataType>
+std::shared_ptr<const NiftiImageData3DDeformation<dataType> >
+ImageGradientWRTTransformation<dataType>::
+backward(const std::shared_ptr<const ImageData> image_to_multiply_sptr)
+{
+    return std::move(_resampler_sptr->get_image_gradient_wrt_deformation_times_image(image_to_multiply_sptr));
 }
 
 namespace sirf {
