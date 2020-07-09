@@ -90,6 +90,9 @@ public:
     /// Flip component of nu
     void flip_component(const int dim);
 
+    /// Multiply tensor component by image
+    void multiply_tensor_component(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr);
+
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {
         return new ObjectHandle<DataContainer>
