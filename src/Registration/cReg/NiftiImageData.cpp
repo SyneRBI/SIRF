@@ -332,6 +332,24 @@ float &NiftiImageData<dataType>::operator()(const int index[7])
 }
 
 template<class dataType>
+float NiftiImageData<dataType>::operator()(const int x, const int y, const int z,
+                                           const int t, const int u, const int v,
+                                           const int w) const
+{
+    const int idx[7] = { x, y, z, t, u, v, w };
+    return (*this)(idx);
+}
+
+template<class dataType>
+float &NiftiImageData<dataType>::operator()(const int x, const int y, const int z,
+                                            const int t, const int u, const int v,
+                                            const int w)
+{
+    const int idx[7] = { x, y, z, t, u, v, w };
+    return (*this)(idx);
+}
+
+template<class dataType>
 std::shared_ptr<const nifti_image> NiftiImageData<dataType>::get_raw_nifti_sptr() const
 {
     if (!_nifti_image)
