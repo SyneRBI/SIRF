@@ -1309,10 +1309,12 @@ int main(int argc, char* argv[])
         lambda_sptr->kernel_convolution(10.f);
 
         std::shared_ptr<NiftiImageData3D<float> > lambda_hat_sptr = lambda_sptr->clone();
+        // Create blank displacement, same size as lambda
         NiftiImageData3DDisplacement<float> disp;
         disp.create_from_3D_image(*lambda_sptr);
         std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr =
                 std::make_shared<NiftiImageData3DDeformation<float> >();
+        // deformation is represented as a random displacement with min and max of -1 and 1, respectively
         *deformation_sptr = rand_dvf(disp,-1.f,1.f);
 
         // We'll need a niftyreg resampler
@@ -1336,10 +1338,10 @@ int main(int argc, char* argv[])
         std::random_device rd; // obtain a random number from hardware
         std::mt19937 gen(rd()); // seed the generator
         const int *dims = lambda_hat_sptr->get_dimensions();
-        int min_idx, max_idx, rand_idx[3];
+        int rand_idx[3];
         for (unsigned i=0; i<3; ++i) {
-            min_idx = int(margin * float(dims[i+1]));
-            max_idx = dims[i+1] - min_idx;
+            const int min_idx = int(margin * float(dims[i+1]));
+            const int max_idx = dims[i+1] - min_idx;
             std::uniform_int_distribution<> distr(min_idx, max_idx);
             rand_idx[i] = distr(gen);
         }
