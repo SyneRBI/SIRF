@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Class for getting image gradient WRT a transformation.
+\brief Class for getting image gradient WRT a transformation and multiplying by image.
 
 \author Richard Brown
 \author SyneRBI
@@ -39,18 +39,18 @@ class ImageData;
 
 /*!
 \ingroup Registration
-\brief Class for converting control point grids to deformation field transformations.
+\brief Class for getting image gradient WRT a transformation and multiplying by image.
 
 \author Richard Brown
 \author SyneRBI
 */
 template<class dataType>
-class ImageGradientWRTTransformation
+class ImageGradientWRTDeformationTimesImage
 {
 public:
 
     /// Constructor
-    ImageGradientWRTTransformation();
+    ImageGradientWRTDeformationTimesImage();
 
     /// Set the resampler
     void set_resampler(const std::shared_ptr<NiftyResample<dataType> > resampler_sptr);
