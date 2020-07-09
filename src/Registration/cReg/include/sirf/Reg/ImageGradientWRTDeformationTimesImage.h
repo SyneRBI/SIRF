@@ -50,22 +50,22 @@ class ImageGradientWRTDeformationTimesImage
 public:
 
     /// Constructor
-    ImageGradientWRTDeformationTimesImage();
+    ImageGradientWRTDeformationTimesImage() {}
 
     /// Set the resampler
     void set_resampler(const std::shared_ptr<NiftyResample<dataType> > resampler_sptr);
 
     /// Forward in place (resample image)
-    virtual void forward(std::shared_ptr<ImageData> &im_sptr, const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &deformation_sptr);
+    virtual void forward(std::shared_ptr<ImageData> im_sptr, const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > deformation_sptr);
 
     /// Forward (resample image)
-    virtual std::shared_ptr<const ImageData> forward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > deformation_sptr);
+    virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > deformation_sptr);
 
     /// Backward in place (get image gradient wrt transformation)
     virtual void backward(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &output_transformation_sptr, const std::shared_ptr<const ImageData> image_to_multiply_sptr);
 
     /// Backward (get image gradient wrt transformation)
-    virtual std::shared_ptr<const NiftiImageData3DDeformation<dataType> > backward(const std::shared_ptr<const ImageData> image_to_multiply_sptr);
+    virtual std::shared_ptr<NiftiImageData3DDeformation<dataType> > backward(const std::shared_ptr<const ImageData> image_to_multiply_sptr);
 
 private:
 

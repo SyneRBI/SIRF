@@ -127,7 +127,7 @@ public:
     virtual void get_image_gradient_wrt_deformation_times_image(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &output_deformation_sptr, const std::shared_ptr<const ImageData> image_to_multiply_sptr);
 
     /// Get image gradient wrt transformation
-    virtual std::shared_ptr<const NiftiImageData3DDeformation<dataType> > get_image_gradient_wrt_deformation_times_image(const std::shared_ptr<const ImageData> image_to_multiply_sptr);
+    virtual std::shared_ptr<NiftiImageData3DDeformation<dataType> > get_image_gradient_wrt_deformation_times_image(const std::shared_ptr<const ImageData> image_to_multiply_sptr);
 
 protected:
 

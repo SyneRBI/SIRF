@@ -365,11 +365,11 @@ get_image_gradient_wrt_deformation_times_image(
     if (this->_floating_image_niftis.is_complex() || image_to_multiply_sptr->is_complex())
         throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image not yet implemented for complex images");
 
-    // Get raw nifti_image pointer
-    nifti_image * floating_nii_ptr = this->_floating_image_niftis.real()->clone()->get_raw_nifti_sptr().get();
+    // Get real part of floating image
+    std::shared_ptr<NiftiImageData<float> > floating_sptr = this->_floating_image_niftis.real()->clone();
 
     // Get image gradient
-    reg_getImageGradient(floating_nii_ptr,
+    reg_getImageGradient(floating_sptr->get_raw_nifti_sptr().get(),
                          output_deformation_sptr->get_raw_nifti_sptr().get(),
                          this->_deformation_sptr->get_raw_nifti_sptr().get(),
                          nullptr,
@@ -377,13 +377,22 @@ get_image_gradient_wrt_deformation_times_image(
                          this->_padding_value,
                          0);
 
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > temp = output_deformation_sptr->clone();
+
     // Now multiply the scalar image to each of the DVF components
     for (unsigned i=0; i<3; ++i)
         output_deformation_sptr->multiply_tensor_component(i, image_to_multiply_sptr);
+
+    NiftiImageData<float>::print_headers({this->_floating_image_niftis.real().get(),
+                                          this->_deformation_sptr.get(),
+                                          temp.get(),
+                                          output_deformation_sptr.get(),
+                                          std::dynamic_pointer_cast<const NiftiImageData<dataType> >(image_to_multiply_sptr).get()});
+//    throw std::runtime_error("hi im here");
 }
 
 template<class dataType>
-std::shared_ptr<const NiftiImageData3DDeformation<dataType> >
+std::shared_ptr<NiftiImageData3DDeformation<dataType> >
 NiftyResample<dataType>::
 get_image_gradient_wrt_deformation_times_image(const std::shared_ptr<const ImageData> image_to_multiply_sptr)
 {

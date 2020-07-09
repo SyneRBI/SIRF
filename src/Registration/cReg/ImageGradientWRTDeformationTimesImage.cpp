@@ -44,8 +44,8 @@ set_resampler(const std::shared_ptr<NiftyResample<dataType> > resampler_sptr)
 template<class dataType>
 void
 ImageGradientWRTDeformationTimesImage<dataType>::
-forward(std::shared_ptr<ImageData> &im_sptr,
-        const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &deformation_sptr)
+forward(std::shared_ptr<ImageData> im_sptr,
+        const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > deformation_sptr)
 {
     _resampler_sptr->clear_transformations();
     _resampler_sptr->add_transformation(deformation_sptr);
@@ -54,14 +54,14 @@ forward(std::shared_ptr<ImageData> &im_sptr,
 }
 
 template<class dataType>
-std::shared_ptr<const ImageData>
+std::shared_ptr<ImageData>
 ImageGradientWRTDeformationTimesImage<dataType>::
 forward(const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > deformation_sptr)
 {
     _resampler_sptr->clear_transformations();
     _resampler_sptr->add_transformation(deformation_sptr);
     _resampler_sptr->process();
-    return _resampler_sptr->get_output_sptr();
+    return _resampler_sptr->get_output_sptr()->clone();
 }
 
 template<class dataType>
@@ -73,7 +73,7 @@ backward(std::shared_ptr<NiftiImageData3DDeformation<dataType> > &output_deforma
 }
 
 template<class dataType>
-std::shared_ptr<const NiftiImageData3DDeformation<dataType> >
+std::shared_ptr<NiftiImageData3DDeformation<dataType> >
 ImageGradientWRTDeformationTimesImage<dataType>::
 backward(const std::shared_ptr<const ImageData> image_to_multiply_sptr)
 {
