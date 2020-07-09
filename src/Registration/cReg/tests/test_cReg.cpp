@@ -39,8 +39,10 @@ limitations under the License.
 #include "sirf/Reg/Quaternion.h"
 #include "sirf/Reg/NiftiImageData3DBSpline.h"
 #include "sirf/Reg/ControlPointGridToDeformationConverter.h"
+#include "sirf/Reg/ImageGradientWRTDeformationTimesImage.h"
 #include <memory>
 #include <numeric>
+#include <random>
 #ifdef SIRF_SPM
 #include "sirf/Reg/SPMRegistration.h"
 #endif
@@ -160,6 +162,8 @@ int main(int argc, char* argv[])
     const std::shared_ptr<const NiftiImageData3D<float> > ref_f3d   (new NiftiImageData3D<float>(   ref_f3d_filename  ));
     const std::shared_ptr<const NiftiImageData3D<float> > flo_f3d   (new NiftiImageData3D<float>(   flo_f3d_filename  ));
 
+    // Need a random seex
+    srand(time(NULL));
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting NiftiImageData test...\n";
@@ -1293,6 +1297,88 @@ int main(int argc, char* argv[])
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished CGP<->DVF test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+    {
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting im grad wrt def (times image) test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Get some images to use as template and Gaussian smooth (to reduce number of non-zero voxels)
+        std::shared_ptr<NiftiImageData3D<float> > lambda_sptr = ref_aladin->clone();
+        lambda_sptr->kernel_convolution(10.f);
+
+        std::shared_ptr<NiftiImageData3D<float> > lambda_hat_sptr = lambda_sptr->clone();
+        NiftiImageData3DDisplacement<float> disp;
+        disp.create_from_3D_image(*lambda_sptr);
+        std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr =
+                std::make_shared<NiftiImageData3DDeformation<float> >();
+        *deformation_sptr = rand_dvf(disp,-1.f,1.f);
+
+        // We'll need a niftyreg resampler
+        std::shared_ptr<NiftyResample<float> > nr_sptr =
+                std::make_shared<NiftyResample<float> >();
+        nr_sptr->set_reference_image(lambda_hat_sptr);
+        nr_sptr->set_floating_image(lambda_sptr);
+        nr_sptr->set_interpolation_type_to_cubic_spline();
+        nr_sptr->set_padding_value(0.f);
+        nr_sptr->add_transformation(deformation_sptr);
+
+        // And we'll need the ImageGradientWRTDeformationTimesImage class (call it a resampler)
+        ImageGradientWRTDeformationTimesImage<float> resampler;
+        resampler.set_resampler(nr_sptr);
+
+        // lambda hat is forward of lambda
+        resampler.forward(lambda_hat_sptr, deformation_sptr);
+
+        // Rand voxel inside of image (let's ignore a 30% margin around the edge in x,y,z directions)
+        const float margin = 0.3;
+        std::random_device rd; // obtain a random number from hardware
+        std::mt19937 gen(rd()); // seed the generator
+        const int *dims = lambda_hat_sptr->get_dimensions();
+        int min_idx, max_idx, rand_idx[3];
+        for (unsigned i=0; i<3; ++i) {
+            min_idx = int(margin * float(dims[i+1]));
+            max_idx = dims[i+1] - min_idx;
+            std::uniform_int_distribution<> distr(min_idx, max_idx);
+            rand_idx[i] = distr(gen);
+        }
+
+        // lambda tilde is copy of lambda hat with all voxels = 0, and 1 voxel = cnst
+        std::shared_ptr<NiftiImageData3D<float> > lambda_tilde_sptr = lambda_hat_sptr->clone();
+        lambda_tilde_sptr->fill(0.f);
+        const float val_range[2] = {1., 10.};
+        const float rand_val = static_cast<float>(rand()) / static_cast<float>(RAND_MAX/(val_range[1]-val_range[0]));
+        (*lambda_tilde_sptr)(rand_idx[0],rand_idx[1],rand_idx[2]) = rand_val;
+
+        // img grad wrt dvf times image
+        auto dvf1_sptr = resampler.backward(lambda_tilde_sptr);
+
+        // dvf2 is a clone of dvf1. initially filled with zeroes
+        auto dvf2_sptr = dvf1_sptr->clone();
+        dvf2_sptr->fill(0.f);
+
+        // Need a small permutation, epsilon
+        const float epsilon_range[2] = {1., 2.};
+        const float epsilon = static_cast<float>(rand()) / static_cast<float>(RAND_MAX/(epsilon_range[1]-epsilon_range[0]));
+
+        // Loop over the 3 tensor components: u=[x,y,z]
+        for (unsigned u=0; u<3; ++u) {
+            std::shared_ptr<NiftiImageData3DDeformation<float> > d_shifted_sptr = deformation_sptr->clone();
+            (*d_shifted_sptr)(rand_idx[0],rand_idx[1],rand_idx[2],0,u) = epsilon;
+            std::shared_ptr<NiftiImageData3D<float> > d_lambda_times_rand_val_sptr = lambda_hat_sptr->clone();
+            *d_lambda_times_rand_val_sptr = (*resampler.forward(d_shifted_sptr) - *lambda_hat_sptr) / epsilon;
+            *d_lambda_times_rand_val_sptr *= rand_val;
+            dvf2_sptr->add_to_tensor_component(u, d_lambda_times_rand_val_sptr);
+        }
+
+        if (*dvf1_sptr != *dvf2_sptr) {
+            NiftiImageData<float>::print_headers({dvf1_sptr.get(), dvf2_sptr.get()});
+            throw std::runtime_error("im grad wrt def (times image) test failed");
+        }
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished im grad wrt def (times image) test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
