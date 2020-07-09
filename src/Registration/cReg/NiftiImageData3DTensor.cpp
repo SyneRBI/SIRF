@@ -179,12 +179,14 @@ void NiftiImageData3DTensor<dataType>::flip_component(const int dim)
 
 template<class dataType>
 void NiftiImageData3DTensor<dataType>::
-multiply_tensor_component
-(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+tensor_component_maths(
+        const int dim,
+        const std::shared_ptr<const ImageData> &scalar_im_sptr,
+        const typename NiftiImageData<dataType>::MathsType maths_type)
 {
     // Check the dimension to multiply, that dims==5 and nu==3
     if (dim < 0 || dim > 2)
-        throw std::runtime_error("\n\tDimension to multiply should be between 0 and 2.");
+        throw std::runtime_error("\n\tDimension to do tensor maths should be between 0 and 2.");
 
     std::shared_ptr<const NiftiImageData3D<dataType> > nii_scalar_im_sptr =
             std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(scalar_im_sptr);
@@ -205,8 +207,29 @@ multiply_tensor_component
     // Start index is therefore = dim_number * num_voxels/3
     const unsigned tensor_index_offset = dim * int(this->_nifti_image->nvox/3);
 
-    for (unsigned i=0; i<nii_scalar_im_sptr->get_num_voxels(); ++i)
-        (*this)(i+tensor_index_offset) *= (*nii_scalar_im_sptr)(i);
+    for (unsigned i=0; i<nii_scalar_im_sptr->get_num_voxels(); ++i) {
+        if (maths_type == NiftiImageData<dataType>::mul)
+            (*this)(i+tensor_index_offset) *= (*nii_scalar_im_sptr)(i);
+        else if (maths_type == NiftiImageData<dataType>::add)
+            (*this)(i+tensor_index_offset) += (*nii_scalar_im_sptr)(i);
+    }
+}
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+multiply_tensor_component
+(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+{
+    this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::mul);
+}
+
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+add_to_tensor_component
+(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+{
+    this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::add);
 }
 
 namespace sirf {
