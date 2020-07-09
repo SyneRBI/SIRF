@@ -1487,7 +1487,7 @@ get_inner_product(const NiftiImageData &other) const
 }
 
 template<class dataType>
-bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
+bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_mean)
 {
     if(!im1.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 1 not initialised.");
@@ -1502,8 +1502,8 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
 
     // Get required accuracy compared to the image maxes
     float norm;
-    float epsilon = (std::abs(im1.get_max())+std::abs(im2.get_max()))/2.F;
-    epsilon *= required_accuracy_compared_to_max;
+    float epsilon = (std::abs(im1.get_mean())+std::abs(im2.get_mean()))/2.F;
+    epsilon *= required_accuracy_compared_to_mean;
 
     // If metadata match, get the norm
     if (do_nifti_image_metadata_match(im1,im2, false))
@@ -1530,17 +1530,17 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
         return true;
 
     std::cout << "\nImages are not equal (norm > epsilon).\n";
-    std::cout << "\tmax1                              = " << im1.get_max() << "\n";
-    std::cout << "\tmax2                              = " << im2.get_max() << "\n";
-    std::cout << "\tmin1                              = " << im1.get_min() << "\n";
-    std::cout << "\tmin2                              = " << im2.get_min() << "\n";
-    std::cout << "\tmean1                             = " << im1.get_mean() << "\n";
-    std::cout << "\tmean2                             = " << im2.get_mean() << "\n";
-    std::cout << "\tstandard deviation1               = " << im1.get_standard_deviation() << "\n";
-    std::cout << "\tstandard deviation2               = " << im2.get_standard_deviation() << "\n";
-    std::cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
-    std::cout << "\tepsilon                           = " << epsilon << "\n";
-    std::cout << "\tnorm/num_vox                      = " << norm << "\n";
+    std::cout << "\tmax1                               = " << im1.get_max() << "\n";
+    std::cout << "\tmax2                               = " << im2.get_max() << "\n";
+    std::cout << "\tmin1                               = " << im1.get_min() << "\n";
+    std::cout << "\tmin2                               = " << im2.get_min() << "\n";
+    std::cout << "\tmean1                              = " << im1.get_mean() << "\n";
+    std::cout << "\tmean2                              = " << im2.get_mean() << "\n";
+    std::cout << "\tstandard deviation1                = " << im1.get_standard_deviation() << "\n";
+    std::cout << "\tstandard deviation2                = " << im2.get_standard_deviation() << "\n";
+    std::cout << "\trequired accuracy compared to mean = " << required_accuracy_compared_to_mean << "\n";
+    std::cout << "\tepsilon                            = " << epsilon << "\n";
+    std::cout << "\tnorm/num_vox                       = " << norm << "\n";
     return false;
 }
 
