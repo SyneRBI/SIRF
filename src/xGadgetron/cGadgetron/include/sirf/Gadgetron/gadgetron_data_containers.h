@@ -913,6 +913,15 @@ namespace sirf {
         mutable gadgetron::shared_ptr<Iterator_const> end_const_;
     };
 
+    class CoilImagesVector : public GadgetronImagesVector
+    {
+    public:
+        CoilImagesVector() : GadgetronImagesVector()
+        {
+        }
+        void calculate(const MRAcquisitionData& acq, int calibration = 0);
+    };
+
     /*!
     \ingroup Gadgetron Data Containers
     \brief A coil sensitivities container based on the GadgetronImagesVector class.
@@ -943,8 +952,11 @@ namespace sirf {
         void calculate_csm(GadgetronImagesVector iv);
         void calculate_csm(const MRAcquisitionData& acq)
         {
-            this->calculate_images(acq);
-            this->calculate_csm(*this);
+            CoilImagesVector ci;
+            ci.calculate(acq, 1);
+            calculate_csm(ci);
+//            this->calculate_images(acq);
+//            this->calculate_csm(*this);
         }
 
         void calculate_images(const MRAcquisitionData& acq);

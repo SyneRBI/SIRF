@@ -1637,6 +1637,86 @@ GadgetronImagesVector::set_up_geom_info()
                 (offset,spacing,size,direction));
 }
 
+void 
+CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
+{
+    this->empty();
+
+    std::string par;
+    ISMRMRD::IsmrmrdHeader header;
+    ISMRMRD::Acquisition acq;
+    par = ac.acquisitions_info();
+    set_meta_data(par);
+    ISMRMRD::deserialize(par.c_str(), header);
+
+    for (unsigned int i = 0; i < ac.number(); i++) {
+        ac.get_acquisition(i, acq);
+        if (!TO_BE_IGNORED(acq))
+            break;
+    }
+
+    ISMRMRD::Encoding e = header.encoding[0];
+    bool parallel = e.parallelImaging.is_present() &&
+        e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
+    unsigned int nx = e.reconSpace.matrixSize.x;
+    unsigned int ny = e.encodedSpace.matrixSize.y;
+    unsigned int nz = e.encodedSpace.matrixSize.z;
+    unsigned int nc = acq.active_channels();
+    unsigned int readout = acq.number_of_samples();
+
+    std::vector<size_t> ci_dims;
+    ci_dims.push_back(readout);
+    ci_dims.push_back(ny);
+    ci_dims.push_back(nz);
+    ci_dims.push_back(nc);
+    ISMRMRD::NDArray<complex_float_t> ci(ci_dims);
+
+    const int NUMVAL = 4;
+    typedef std::array<int, NUMVAL> tuple;
+    tuple t_first;
+    for (unsigned int i = 0; i < NUMVAL; i++)
+        t_first[i] = -1;
+    bool first = true;
+    for (unsigned int a = 0; a < ac.number(); a++) {
+        ac.get_acquisition(a, acq);
+        if (TO_BE_IGNORED(acq))
+            continue;
+        tuple t;
+        t[0] = acq.idx().repetition;
+        t[1] = acq.idx().phase;
+        t[2] = acq.idx().contrast;
+        t[3] = acq.idx().slice;
+        if (t != t_first) {
+            std::cout << "new slice: ";
+            for (int i = 0; i < NUMVAL; i++)
+                std::cout << t[i] << ' ';
+            std::cout << '\n';
+            if (!first) {
+                ifft3c(ci);
+                CFImage* ptr_ci = new CFImage(readout, ny, nz, nc);
+                memcpy(ptr_ci->getDataPtr(), ci.getDataPtr(), ci.getDataSize());
+                ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_ci);
+                append(iw);
+            }
+            else
+                first = false;
+            memset(ci.getDataPtr(), 0, ci.getDataSize());
+            t_first = t;
+        }
+        int yy = acq.idx().kspace_encode_step_1;
+        int zz = acq.idx().kspace_encode_step_2;
+        if (calibration && parallel &&
+            !acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) &&
+            !acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING))
+            continue;
+        for (unsigned int c = 0; c < nc; c++) {
+            for (unsigned int s = 0; s < readout; s++) {
+                ci(s, yy, zz, c) = acq.data(s, c);
+            }
+        }
+    }
+}
+
 CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
 {
     auto sptr_iw = this->sptr_image_wrap(i);
