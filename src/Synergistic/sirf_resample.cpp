@@ -90,7 +90,7 @@ void print_usage()
 }
 
 /// throw error
-[[ noreturn ]] void err(const std::string message)
+[[ noreturn ]] void err(const std::string &message)
 {
     std::cerr << "\n" << message << "\n";
     exit(EXIT_FAILURE);

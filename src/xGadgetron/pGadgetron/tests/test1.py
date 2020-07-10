@@ -41,14 +41,10 @@ def test_main(rec=False, verb=False, throw=True):
     complex_images = recon.get_output()
     test.check(complex_images.norm())
 
-    cis = CoilImageData()
-
     csms = CoilSensitivityData()
 
     processed_data.sort()
-    cis.calculate(processed_data)
-    csms.calculate(cis)
-
+    csms.calculate(processed_data)
     am = AcquisitionModel(processed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
     fwd_acqs = am.forward(complex_images)

@@ -106,16 +106,16 @@ public:
     virtual const std::shared_ptr<const ImageData> get_output_sptr(const unsigned idx = 0) const { return _warped_images.at(idx); }
 
     /// Get forward deformation field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr(const unsigned idx = 0) const = 0;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr(const unsigned idx = 0) const { return _def_fwd_images.at(idx); }
 
     /// Get inverse deformation field image
     virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const = 0;
 
     /// Get forward displacement field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr(const unsigned idx = 0) const { return _disp_fwd_images.at(idx); }
+    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr(const unsigned idx = 0) const = 0;
 
     /// Get inverse displacement field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const { return _disp_inv_images.at(idx); }
+    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const = 0;
 
 protected:
 
@@ -129,10 +129,8 @@ protected:
     /// Warped image
     std::vector<std::shared_ptr<ImageData> > _warped_images;
 
-    /// Forward displacement field image
-    std::vector<std::shared_ptr<Transformation<dataType> > > _disp_fwd_images;
-    /// Inverse displacement field image
-    std::vector<std::shared_ptr<Transformation<dataType> > > _disp_inv_images;
+    /// Forward deformation field image
+    std::vector<std::shared_ptr<Transformation<dataType> > > _def_fwd_images;
 
     /// Reference image filename
     std::string _reference_image_filename = "";

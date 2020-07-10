@@ -614,7 +614,7 @@ class AcquisitionData(DataContainer):
                 # src is a file name
                 self.handle = pystir.cSTIR_objectFromFile\
                             ('AcquisitionData', src)
-                self.read_only = True
+                self.read_only = self.get_storage_scheme() == 'file'
                 self.src = 'file'
             else:
                 # src is a scanner name

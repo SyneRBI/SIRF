@@ -1,67 +1,41 @@
-'''
-Medium-level interface demo that illustrates 2D Cartesian MR image 
-reconstruction using Gadgetron by directly creating and running a chain of 
-gadgets.
+'''sirf.Gadgetron Test set 4.
+v{version}
+
+2D Cartesian MR image reconstruction by direct creating
+and running a chain of Gadgetron gadgets.
 
 Usage:
-  fully_sampled_recon_single_chain.py [--help | options]
+  test4.py [--help | options]
 
 Options:
-  -f <file>, --file=<file>           raw data file
-                                     [default: simulated_MR_2D_cartesian.h5]
-  -p <path>, --path=<path>           path to data files, defaults to data/examples/MR
-                                     subfolder of SIRF root folder
-  -o <file>, --output=<file>         images output file
-  -a <string>, --algorithm=<string>  algorithm to use ('SimpleReconGadget', 'GenericReconCartesianFFTGadget') [default: SimpleReconGadget]
-  --type_to_save=<string>            type to save ('mag', 'imag', 'all') [default: all]
-  --non-interactive                  do not show plots
+  -r, --record   record the measurements rather than check them
+  -v, --verbose  report each test status
+
+{author}
+
+{licence}
 '''
-##  --show                             show plots
 
-## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
-## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
-## Copyright 2015 - 2019 University College London.
-## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
-##
-## This is software developed for the Collaborative Computational
-## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
-## (http://www.ccpsynerbi.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
-
-__version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
+__version__ = "0.2.3"
+__author__ = "Evgueni Ovtchinnikov"
 
 import time
 import sys
 
 # import SIRF utilities
 from sirf.Utilities import examples_data_path, existing_filepath, error
+from sirf.Utilities import runner
 # import MR engine types
 from sirf.Gadgetron import AcquisitionData, Reconstructor
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
+def test_main(rec=False, verb=False, throw=True):
+
+    data_file = 'simulated_MR_2D_cartesian.h5'
     data_path = examples_data_path('MR')
-output_file = args['--output']
-
-type_to_save = args['--type_to_save']
-show_plot = not args['--non-interactive']
-
-algorithm = args['--algorithm']
-
-def main():
+    output_file = None
+    type_to_save = 'all'
+    show_plot = False
+    algorithm = 'SimpleReconGadget'
 
     # locate the input data
     input_file = existing_filepath(data_path, data_file)
@@ -160,11 +134,8 @@ def main():
         print('writing to %s' % (filename + '.' + ext))
         image_data.write(filename, ext=ext)
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
+    return 0, 1
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    sys.exit(1)
+
+if __name__ == "__main__":
+    runner(test_main, __doc__, __version__, __author__)

@@ -27,6 +27,7 @@ Options:
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
+  --non-interactive           do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
@@ -60,6 +61,7 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
+show_plot = not args['--non-interactive']
 
 
 def main():
@@ -86,7 +88,8 @@ def main():
     # specified in prep_gadgets, returning an instance
     # of an mGadgetron.AcquisitionsContainer
     preprocessed_data = acq_data.process(prep_gadgets)
-    preprocessed_data.show(title = 'Acquisition data (magnitude)')
+    if show_plot:
+        preprocessed_data.show(title = 'Acquisition data (magnitude)')
     
     
     # Perform reconstruction of the preprocessed data.
@@ -135,17 +138,18 @@ def main():
     # for both the reconstructed images and g-factors, before extracting the
     # data as Python arrays.
     
-    # Get image and gfactor data as objects of type mGadgetron.ImageData
+    # Get image and gfactor data as objects of type pGadgetron.ImageData
     # (Note this syntax may change in the future with the addition of a
     #  method '.get_gfactor'.)
     image_data = recon.get_output('image')
     gfact_data = recon.get_output('gfactor')
-    image_data.show(title = 'Reconstructed image data (magnitude)')
-    gfact_data.show(title = 'G-factor data (magnitude)')
+    if show_plot:
+        image_data.show(title = 'Reconstructed image data (magnitude)')
+        gfact_data.show(title = 'G-factor data (magnitude)')
     
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

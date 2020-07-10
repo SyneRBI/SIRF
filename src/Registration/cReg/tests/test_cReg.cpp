@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
     const std::string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImageData3DDeformation_split_%s.nii";
     const std::string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImageData3DDisplacement_not_split.nii";
     const std::string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImageData3DDisplacement_split_%s.nii";
+    const std::string save_nifti_image_2d                        = output_prefix   + "save_NiftiImageData2D.nii";
     const std::string save_nifti_image_upsample                  = output_prefix   + "save_NiftiImageData_upsample.nii";
     const std::string save_nifti_image_downsample                = output_prefix   + "save_NiftiImageData_downsample.nii";
     const std::string save_nifti_image_up_downsample             = output_prefix   + "save_NiftiImageData_upsample_downsample.nii";
@@ -405,6 +406,15 @@ int main(int argc, char* argv[])
         // image was already of type NIFTI_TYPE_UINT8 (unsigned char).
         if (b != t)
             throw std::runtime_error("NiftiImageData3D constructor from array.");
+
+        // Check that 2D images are ok for the 3D class
+        int crop_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        int crop_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        b.crop(crop_for_2D_min,crop_for_2D_max);
+        b.write(save_nifti_image_2d);
+        NiftiImageData3D<float> im_2d(save_nifti_image_2d);
+        if (im_2d.get_dimensions()[0] != 2)
+            throw std::runtime_error("NiftiImageData3D crop to 2D.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData3D test.\n";
@@ -804,6 +814,26 @@ int main(int argc, char* argv[])
         if (*out1_sptr != *out2_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::get_inverse() failed.");
 
+        // Check 2D registration
+        {
+            // Create 2D images
+            int mid_z = int(ref_aladin->get_dimensions()[3]/2);
+            int crop_for_2D_min[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_aladin->clone();
+            ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            NiftyAladinSym<float> NA_2D;
+            NA_2D.set_reference_image(ref_2d_sptr);
+            NA_2D.set_floating_image (ref_2d_sptr);
+            NA_2D.set_parameter_file (      parameter_file_aladin    );
+            NA_2D.set_parameter("SetInterpolationToCubic");
+            NA_2D.set_parameter("SetLevelsToPerform","1");
+            NA_2D.set_parameter("SetMaxIterations","5");
+            NA_2D.set_parameter("SetPerformRigid","1");
+            NA_2D.set_parameter("SetPerformAffine","0");
+            NA_2D.process();
+        }
+
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty aladin test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
@@ -869,6 +899,25 @@ int main(int argc, char* argv[])
         NF2.process();
         if (*NF2.get_output_sptr() != *ref_f3d_crop)
             throw std::runtime_error("NiftyF3dSym failed: ref==flo, but registered image != ref");
+
+        // Check 2D registration
+        {
+            // Create 2D images
+            int mid_z = int(ref_f3d->get_dimensions()[3]/2);
+            int crop_for_2D_min[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_f3d->clone();
+            std::shared_ptr<NiftiImageData3D<float> > flo_2d_sptr = flo_f3d->clone();
+            ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            flo_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            NiftyF3dSym<float> NF_2D;
+            NF_2D.set_reference_image(ref_2d_sptr);
+            NF_2D.set_floating_image (flo_2d_sptr);
+            NF_2D.set_parameter_file( parameter_file_f3d );
+            NF_2D.set_reference_time_point(1);
+            NF_2D.set_floating_time_point(1);
+            NF_2D.process();
+        }
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty f3d test.\n";
@@ -1134,33 +1183,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished weighted mean test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-    {
-        std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Starting STIR to Nifti test...\n";
-        std::cout << "//------------------------------------------------------------------------ //\n";
 
-            // Open stir image
-            sirf::PETImageData pet_image_data(ref_aladin_filename);
-            NiftiImageData3D<float> image_data_from_stir(pet_image_data);
-
-            // Now fill the stir and nifti images with 1 and 100, respectively
-            pet_image_data.fill(1.F);
-            image_data_from_stir.fill(100.F);
-
-            if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) < 1.e-5F)
-                throw std::runtime_error("STIR & Nifti seem to share the same data pointers (their values should be different, but they're the same).");
-
-            // Fill the stir image with the Nifti
-            image_data_from_stir.copy_data_to(pet_image_data);
-            if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) > 1.e-5F)
-                throw std::runtime_error("NiftiImageData3D::copy_data_to failed.");
-
-        std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Finished STIR to Nifti test.\n";
-        std::cout << "//------------------------------------------------------------------------ //\n";
-    }
-*/
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting AffineTransformation test...\n";

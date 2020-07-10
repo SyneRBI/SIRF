@@ -94,45 +94,19 @@ const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y
 )
 {
-	float a = *(float*)ptr_a;
-	float b = *(float*)ptr_b;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	int ny = y.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
-	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		SegmentBySinogram<float>::full_iterator sy_iter;
-		for (seg_iter = seg.begin_all(),
-			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all() &&
-			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-		/*empty*/) {
-			*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
-		}
-		set_segment(seg);
-		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(),
-				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all() &&
-				sx_iter != sx.end_all() && sy_iter != sy.end_all();
-			/*empty*/) {
-				*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
-			}
-			set_segment(seg);
-		}
-	}
+    // Cast to correct types
+    float a = *(float*)ptr_a;
+    float b = *(float*)ptr_b;
+    auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const PETAcquisitionData*>(&a_y);
+
+    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
+            is_null_ptr(y) || is_null_ptr(y->data()))
+        throw std::runtime_error("PETAcquisitionData::axpby: At least one argument is not"
+                                 "PETAcquisitionData or is not initialised.");
+
+    // Call STIR's axpby
+    data()->axpby(a, *x->data(), b, *y->data());
 }
 
 void

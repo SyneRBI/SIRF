@@ -181,6 +181,9 @@ before_install:
        #tar xzf cmake-*.tar.gz
        #mv cmake-*/CMake.app/Contents/* cmake
        #export PATH="$PWD/cmake/bin:$PATH"
+
+       #now upgrade the whole thing to avoid problems with outdated packages
+       brew upgrade
      )
    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
      PY_EXE=python$PYMVER

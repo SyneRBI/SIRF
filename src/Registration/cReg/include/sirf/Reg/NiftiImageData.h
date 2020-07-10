@@ -208,7 +208,7 @@ public:
     }
 
     /// Create NiftiImageData from geometrical info
-    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
+    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false, const NREG_TRANS_TYPE tensor_type=NREG_TRANS_TYPE::DEF_FIELD);
 
     /// Construct NiftiImageData from the real component of a complex SIRF ImageData
     static void construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);
@@ -337,6 +337,9 @@ public:
     /// Fill
     void fill(const float v);
 
+    /// Fill from array
+    void fill(const dataType *v);
+
     /// Get norm
     float get_norm(const NiftiImageData&) const;
 
@@ -363,9 +366,6 @@ public:
 
     /// Get original datatype
     int get_original_datatype() const { return _original_datatype; }
-
-    /// Check if the norms of two images are equal to a given accuracy.
-    static bool are_equal_to_given_accuracy(const std::shared_ptr<const NiftiImageData> &im1_sptr, const std::shared_ptr<const NiftiImageData> &im2_sptr, const float required_accuracy_compared_to_max);
 
     /// Check if the norms of two images are equal to a given accuracy.
     static bool are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max);
