@@ -382,13 +382,6 @@ get_image_gradient_wrt_deformation_times_image(
     // Now multiply the scalar image to each of the DVF components
     for (unsigned i=0; i<3; ++i)
         output_deformation_sptr->multiply_tensor_component(i, image_to_multiply_sptr);
-
-    NiftiImageData<float>::print_headers({this->_floating_image_niftis.real().get(),
-                                          this->_deformation_sptr.get(),
-                                          temp.get(),
-                                          output_deformation_sptr.get(),
-                                          std::dynamic_pointer_cast<const NiftiImageData<dataType> >(image_to_multiply_sptr).get()});
-//    throw std::runtime_error("hi im here");
 }
 
 template<class dataType>

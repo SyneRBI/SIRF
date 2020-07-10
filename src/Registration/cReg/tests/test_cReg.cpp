@@ -56,6 +56,16 @@ void check_non_zero(const NiftiImageData<float> &im,
     if (std::abs(im.get_min()) < 1e-4f && std::abs(im.get_max()) < 1e-4f)
         throw std::runtime_error(explanation + ": contains no non-zeroes");
 }
+static float get_rand_val(const float min, const float max) {
+    float random = ((float) rand()) / (float) RAND_MAX;
+    float diff = max - min;
+    float r = random * diff;
+    return min + r;
+}
+
+static float get_rand_val(const float range[]) {
+    return get_rand_val(range[0], range[1]);
+}
 NiftiImageData3DDeformation<float>
 CPG2DVF(const ControlPointGridToDeformationConverter<float> &converter,
         const NiftiImageData3DBSpline<float> &cpg)
@@ -80,7 +90,7 @@ rand_dvf(
         const float min_disp = -10.f, const float max_disp = 10.f)
 {
     for (unsigned i=0; i<disp.get_num_voxels(); ++i)
-        disp(i) = min_disp + static_cast<float>(rand()) /(static_cast<float>(RAND_MAX/(max_disp-min_disp)));
+        disp(i) = get_rand_val(min_disp, max_disp);
     auto dvf = NiftiImageData3DDeformation<float>(disp);
     check_non_zero(dvf, "Rand DVF");
     return dvf;
@@ -1306,16 +1316,20 @@ int main(int argc, char* argv[])
 
         // Get some images to use as template and Gaussian smooth (to reduce number of non-zero voxels)
         std::shared_ptr<NiftiImageData3D<float> > lambda_sptr = ref_aladin->clone();
-        lambda_sptr->kernel_convolution(10.f);
+        const int min[7] = {30,30,30,0,0,0,0};
+        const int max[7] = {35,35,35,0,0,0,0};
+        lambda_sptr->crop(min,max);
+//        lambda_sptr->kernel_convolution(10.f);
 
         std::shared_ptr<NiftiImageData3D<float> > lambda_hat_sptr = lambda_sptr->clone();
         // Create blank displacement, same size as lambda
         NiftiImageData3DDisplacement<float> disp;
         disp.create_from_3D_image(*lambda_sptr);
         std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr =
-                std::make_shared<NiftiImageData3DDeformation<float> >();
+//                std::make_shared<NiftiImageData3DDeformation<float> >();
+                std::make_shared<NiftiImageData3DDeformation<float> >(disp);
         // deformation is represented as a random displacement with min and max of -1 and 1, respectively
-        *deformation_sptr = rand_dvf(disp,-1.f,1.f);
+//        *deformation_sptr = rand_dvf(disp,-1.f,1.f);
 
         // We'll need a niftyreg resampler
         std::shared_ptr<NiftyResample<float> > nr_sptr =
@@ -1344,13 +1358,15 @@ int main(int argc, char* argv[])
             const int max_idx = dims[i+1] - min_idx;
             std::uniform_int_distribution<> distr(min_idx, max_idx);
             rand_idx[i] = distr(gen);
+            rand_idx[i] = 3;
         }
 
         // lambda tilde is copy of lambda hat with all voxels = 0, and 1 voxel = cnst
         std::shared_ptr<NiftiImageData3D<float> > lambda_tilde_sptr = lambda_hat_sptr->clone();
-        lambda_tilde_sptr->fill(0.f);
+        lambda_tilde_sptr->fill(1.f);
         const float val_range[2] = {1., 10.};
-        const float rand_val = static_cast<float>(rand()) / static_cast<float>(RAND_MAX/(val_range[1]-val_range[0]));
+//        const float rand_val = get_rand_val(val_range);
+        const float rand_val = 1.f;
         (*lambda_tilde_sptr)(rand_idx[0],rand_idx[1],rand_idx[2]) = rand_val;
 
         // img grad wrt dvf times image
@@ -1361,23 +1377,43 @@ int main(int argc, char* argv[])
         dvf2_sptr->fill(0.f);
 
         // Need a small permutation, epsilon
-        const float epsilon_range[2] = {1., 2.};
-        const float epsilon = static_cast<float>(rand()) / static_cast<float>(RAND_MAX/(epsilon_range[1]-epsilon_range[0]));
+        const float epsilon_range[2] = {.5f, 1.f};
+        const float epsilon = 3.f;//get_rand_val(epsilon_range);
+
+        std::shared_ptr<NiftiImageData3DDeformation<float> > d_shifted_sptr = deformation_sptr->clone();
+        std::shared_ptr<NiftiImageData3D<float> > d_lambda_times_rand_val_sptr = lambda_hat_sptr->clone();
 
         // Loop over the 3 tensor components: u=[x,y,z]
-        for (unsigned u=0; u<3; ++u) {
-            std::shared_ptr<NiftiImageData3DDeformation<float> > d_shifted_sptr = deformation_sptr->clone();
-            (*d_shifted_sptr)(rand_idx[0],rand_idx[1],rand_idx[2],0,u) = epsilon;
-            std::shared_ptr<NiftiImageData3D<float> > d_lambda_times_rand_val_sptr = lambda_hat_sptr->clone();
-            *d_lambda_times_rand_val_sptr = (*resampler.forward(d_shifted_sptr) - *lambda_hat_sptr) / epsilon;
-            *d_lambda_times_rand_val_sptr *= rand_val;
-            dvf2_sptr->add_to_tensor_component(u, d_lambda_times_rand_val_sptr);
+        for (unsigned i=0; i<lambda_hat_sptr->get_num_voxels(); ++i) {
+            if (i % 100 == 0)
+                std::cout << "\ndoing " << i << " of " << lambda_hat_sptr->get_num_voxels() << "\n" << std::flush;
+            if (std::abs((*lambda_tilde_sptr)(i)) < 1e-4f)
+                continue;
+            for (unsigned u=0; u<3; ++u) {
+                d_shifted_sptr->fill(*deformation_sptr);
+                (*d_shifted_sptr)(u*lambda_hat_sptr->get_num_voxels()+i) += epsilon;
+                d_lambda_times_rand_val_sptr->fill(*lambda_hat_sptr);
+                std::shared_ptr<NiftiImageData3D<float> > res_forward =
+                        std::dynamic_pointer_cast<NiftiImageData3D<float> > (resampler.forward(d_shifted_sptr));
+                *d_lambda_times_rand_val_sptr = (*res_forward - *lambda_hat_sptr);
+                *d_lambda_times_rand_val_sptr /= epsilon;
+                *d_lambda_times_rand_val_sptr *= rand_val;
+                dvf2_sptr->add_to_tensor_component(u, d_lambda_times_rand_val_sptr);
+            }
         }
+
+        lambda_sptr->write("/Users/rich/Desktop/original_im");
+        deformation_sptr->write("/Users/rich/Desktop/original_dvf");
+        dvf1_sptr->write("/Users/rich/Desktop/dvf1");
+        dvf2_sptr->write("/Users/rich/Desktop/dvf2");
+        lambda_tilde_sptr->write("/Users/rich/Desktop/lambda_tilde");
 
         if (*dvf1_sptr != *dvf2_sptr) {
             NiftiImageData<float>::print_headers({dvf1_sptr.get(), dvf2_sptr.get()});
             throw std::runtime_error("im grad wrt def (times image) test failed");
         }
+        std::cout << "\n\n\n\n\n SUCCESS \n\n\n\n";
+        exit(0);
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished im grad wrt def (times image) test.\n";
