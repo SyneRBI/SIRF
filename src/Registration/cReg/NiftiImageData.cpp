@@ -785,10 +785,14 @@ void NiftiImageData<dataType>::crop(const int min_index[7], const int max_index[
     }
 
     // If the minimum has been changed, need to alter the origin.
-    for (int i=0; i<3; ++i)
+    for (int i=0; i<3; ++i) {
         _nifti_image->qto_ijk.m[i][3] -= min_idx[i];
+        _nifti_image->sto_ijk.m[i][3] -= min_idx[i];
+    }
     _nifti_image->qto_xyz =
             nifti_mat44_inverse(_nifti_image->qto_ijk);
+    _nifti_image->sto_xyz =
+            nifti_mat44_inverse(_nifti_image->sto_ijk);
     nifti_mat44_to_quatern( _nifti_image->qto_xyz,
                             &_nifti_image->quatern_b,
                             &_nifti_image->quatern_c,
