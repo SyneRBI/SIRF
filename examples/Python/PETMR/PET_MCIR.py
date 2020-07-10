@@ -71,7 +71,8 @@ Options:
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import os, functools
+import functools
+from os import path
 from glob import glob
 from docopt import docopt
 from sirf.Utilities import error, show_2D_array
@@ -110,7 +111,7 @@ if rand_pattern is None:
 # Norm
 norm_file = args['--norm']
 if norm_file:
-    if not os.path.isfile(norm_file):
+    if not path.isfile(norm_file):
         raise error("Norm file not found: " + norm_file)
 
 # Number of voxels
@@ -360,83 +361,9 @@ def main():
     C = [CompositionOperator(am, res, preallocate=True)
          for am, res in zip(*(acq_models, resamplers))]
 
-    # Configure the PDHG algorithm
-    if args['--normK'] and not args['--onlyNormK']:
-        normK = float(args['--normK'])
-    else:
-        kl = [KullbackLeibler(b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos]
-        f = BlockFunction(*kl)
-        K = BlockOperator(*C)
-        # Calculate normK
-        print("Calculating norm of the block operator...")
-        normK = K.norm(iterations=10)
-        print("Norm of the BlockOperator ", normK)
-        if args['--onlyNormK']:
-            exit(0)
-
-    # Optionally rescale sinograms and BlockOperator using normK
-    scale_factor = 1./normK if args['--normaliseDataAndBlock'] else 1.0
-    kl = [KullbackLeibler(b=sino*scale_factor, eta=(sino * 0 + 1e-5))
-          for sino in sinos]
+    kl = [KullbackLeibler(b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos]
     f = BlockFunction(*kl)
-    K = BlockOperator(*C)*scale_factor
-
-    # If preconditioned
-    if precond:
-
-        def get_nonzero_recip(data):
-            """Get the reciprocal of a datacontainer. Voxels where input == 0
-            will have their reciprocal set to 1 (instead of infinity)"""
-            inv_np = data.as_array()
-            inv_np[inv_np == 0] = 1
-            inv_np = 1./inv_np
-            data.fill(inv_np)
-
-        tau = K.adjoint(K.range_geometry().allocate(1))
-        get_nonzero_recip(tau)
-
-        tmp_sigma = K.direct(K.domain_geometry().allocate(1))
-        sigma = 0.*tmp_sigma
-        get_nonzero_recip(sigma[0])
-
-        def precond_proximal(self, x, tau, out=None):
-            """Modify proximal method to work with preconditioned tau"""
-            pars = {'algorithm': FGP_TV,
-                    'input': np.asarray(x.as_array()/tau.as_array(),
-                                        dtype=np.float32),
-                    'regularization_parameter': self.lambdaReg,
-                    'number_of_iterations': self.iterationsTV,
-                    'tolerance_constant': self.tolerance,
-                    'methodTV': self.methodTV,
-                    'nonneg': self.nonnegativity,
-                    'printingOut': self.printing}
-
-            res, info = regularisers.FGP_TV(pars['input'],
-                                            pars['regularization_parameter'],
-                                            pars['number_of_iterations'],
-                                            pars['tolerance_constant'],
-                                            pars['methodTV'],
-                                            pars['nonneg'],
-                                            self.device)
-            if out is not None:
-                out.fill(res)
-            else:
-                out = x.copy()
-                out.fill(res)
-            out *= tau
-            return out
-
-        FGP_TV.proximal = precond_proximal
-        print("Will run proximal with preconditioned tau...")
-
-    # If not preconditioned
-    else:
-        sigma = float(args['--sigma'])
-        # If we need to calculate default tau
-        if args['--tau']:
-            tau = float(args['--tau'])
-        else:
-            tau = 1/(sigma*normK**2)
+    K = BlockOperator(*C)
 
     if regularisation == 'none':
         G = IndicatorBox(lower=0)
@@ -451,27 +378,125 @@ def main():
                    r_iso, r_nonneg, r_printing, device)
     else:
         raise error("Unknown regularisation")
-    
-    if algorithm == 'pdhg':
-        normK = K.norm(iterations=10)
 
-    if precond:
-        def PDHG_new_update(self):
-            """Modify the PDHG update to allow preconditioning"""
-            # save previous iteration
-            self.x_old.fill(self.x)
-            self.y_old.fill(self.y)
-        # normK = LinearOperator.PowerMethod(K, iterations=10)[0]
-        # default values
-        sigma = 1/normK
-        tau = 1/normK 
-        sigma = 0.001
-        tau = 1/(sigma*normK**2)
-        print("Norm of the BlockOperator ", normK)
-        algo = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
-                    max_iteration=1000,
-                    update_objective_interval=update_objective_interval,
-                    log_file="spdhg.log")
+    if algorithm == 'pdhg':
+
+        # Configure the PDHG algorithm
+        if args['--normK'] and not args['--onlyNormK']:
+            normK = float(args['--normK'])
+        else:
+            kl = [KullbackLeibler(
+                b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos]
+            f = BlockFunction(*kl)
+            K = BlockOperator(*C)
+            # Calculate normK
+            print("Calculating norm of the block operator...")
+            normK = K.norm(iterations=10)
+            print("Norm of the BlockOperator ", normK)
+            if args['--onlyNormK']:
+                exit(0)
+
+        # Optionally rescale sinograms and BlockOperator using normK
+        scale_factor = 1./normK if args['--normaliseDataAndBlock'] else 1.0
+        kl = [KullbackLeibler(b=sino*scale_factor, eta=(sino * 0 + 1e-5))
+              for sino in sinos]
+        f = BlockFunction(*kl)
+        K = BlockOperator(*C)*scale_factor
+
+        # If preconditioned
+        if precond:
+
+            set_up_preconditioned_pdhg()
+
+            def get_nonzero_recip(data):
+                """Get the reciprocal of a datacontainer.
+                Voxels where input == 0
+                will have their reciprocal set to 1 (instead of infinity)"""
+                inv_np = data.as_array()
+                inv_np[inv_np == 0] = 1
+                inv_np = 1./inv_np
+                data.fill(inv_np)
+
+            tau = K.adjoint(K.range_geometry().allocate(1))
+            get_nonzero_recip(tau)
+
+            tmp_sigma = K.direct(K.domain_geometry().allocate(1))
+            sigma = 0.*tmp_sigma
+            get_nonzero_recip(sigma[0])
+
+            def precond_proximal(self, x, tau, out=None):
+                """Modify proximal method to work with preconditioned tau"""
+                pars = {'algorithm': FGP_TV,
+                        'input': np.asarray(x.as_array()/tau.as_array(),
+                                            dtype=np.float32),
+                        'regularization_parameter': self.lambdaReg,
+                        'number_of_iterations': self.iterationsTV,
+                        'tolerance_constant': self.tolerance,
+                        'methodTV': self.methodTV,
+                        'nonneg': self.nonnegativity,
+                        'printingOut': self.printing}
+
+                res, info = \
+                    regularisers.FGP_TV(pars['input'],
+                                        pars['regularization_parameter'],
+                                        pars['number_of_iterations'],
+                                        pars['tolerance_constant'],
+                                        pars['methodTV'],
+                                        pars['nonneg'],
+                                        self.device)
+                if out is not None:
+                    out.fill(res)
+                else:
+                    out = x.copy()
+                    out.fill(res)
+                out *= tau
+                return out
+
+            FGP_TV.proximal = precond_proximal
+            print("Will run proximal with preconditioned tau...")
+
+        # If not preconditioned
+        else:
+            sigma = float(args['--sigma'])
+            # If we need to calculate default tau
+            if args['--tau']:
+                tau = float(args['--tau'])
+            else:
+                tau = 1/(sigma*normK**2)
+
+                def PDHG_new_update(self):
+                    """Modify the PDHG update to allow preconditioning"""
+                    # save previous iteration
+                    self.x_old.fill(self.x)
+                    self.y_old.fill(self.y)
+
+                    # Gradient ascent for the dual variable
+                    self.operator.direct(self.xbar, out=self.y_tmp)
+                    self.y_tmp *= self.sigma
+                    self.y_tmp += self.y_old
+
+                    self.f.proximal_conjugate(
+                        self.y_tmp, self.sigma, out=self.y)
+
+                    # Gradient descent for the primal variable
+                    self.operator.adjoint(self.y, out=self.x_tmp)
+                    self.x_tmp *= -1*self.tau
+                    self.x_tmp += self.x_old
+
+                    self.g.proximal(self.x_tmp, self.tau, out=self.x)
+
+                    # Update
+                    self.x.subtract(self.x_old, out=self.xbar)
+                    self.xbar *= self.theta
+                    self.xbar += self.x
+
+                PDHG.update = PDHG_new_update
+
+            algo = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
+                        max_iteration=1000,
+                        update_objective_interval=update_obj_fn_interval,
+                        log_file=outp_file+".log")
+
     elif algorithm == 'spdhg':
         # let's define the subsets as the motion states
         num_subsets = len(K)
@@ -479,36 +504,17 @@ def main():
         prob = [1/num_subsets]*num_subsets
         # assign the probabilities explicit form
         # prob = [(num_subsets-1)*1/(2*num_subsets)] + [1/2]
-        
+
         sigma = [0.001 for i in range(num_subsets)]
         sigma = None
 
-            # Gradient ascent for the dual variable
-            self.operator.direct(self.xbar, out=self.y_tmp)
-            self.y_tmp *= self.sigma
-            self.y_tmp += self.y_old
-
-            self.f.proximal_conjugate(self.y_tmp, self.sigma, out=self.y)
-
-            # Gradient descent for the primal variable
-            self.operator.adjoint(self.y, out=self.x_tmp)
-            self.x_tmp *= -1*self.tau
-            self.x_tmp += self.x_old
-
-            self.g.proximal(self.x_tmp, self.tau, out=self.x)
-
-            # Update
-            self.x.subtract(self.x_old, out=self.xbar)
-            self.xbar *= self.theta
-            self.xbar += self.x
-
-        PDHG.update = PDHG_new_update
-
         algo = SPDHG(f=f, g=G, operator=K, sigma=sigma, tau=None,
-                    max_iteration=3000,
-                    update_objective_interval=update_objective_interval, 
-                    prob=prob, log_file="spdhg.log", 
-                    )
+                     max_iteration=3000,
+                     update_objective_interval=update_obj_fn_interval,
+                     prob=prob, log_file=outp_file+".log")
+
+    else:
+        raise error("Unknown algorithm: " + algorithm)
 
     # Get filename
     outp_file = outp_prefix
@@ -540,16 +546,20 @@ def main():
         if resamplers is None:
             outp_file += "_noMotion"
 
-    def save_callback( save_interval, nifti, outp_file, iteration, last_objective, x ):
+    def save_callback(save_interval, nifti, outp_file,
+                      iteration, last_objective, x):
         if iteration > 0 and iteration % save_interval == 0:
             if not nifti:
                 x.write("{}_iters_{}".format(outp_file, iteration))
             else:
-                reg.NiftiImageData(x).write("{}_iters_{}".format(outp_file, iteration))
+                reg.NiftiImageData(x).write(
+                    "{}_iters_{}".format(outp_file, iteration))
 
-    psave_callback = functools.partial(save_callback, save_interval, nifti, outp_file)
-    algo.run(num_iters, verbose=True, very_verbose=True, callback = psave_callback)
-    
+    psave_callback = functools.partial(
+        save_callback, save_interval, nifti, outp_file)
+    algo.run(num_iters, verbose=True, very_verbose=True,
+             callback=psave_callback)
+
     if visualisations:
         # show reconstructed image
         out_arr = algo.get_output().as_array()
@@ -568,5 +578,3 @@ except error as err:
     # display error information
     print('%s' % err.value)
     exit(1)
-
-
