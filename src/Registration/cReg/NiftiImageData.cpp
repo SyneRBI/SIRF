@@ -492,6 +492,16 @@ void NiftiImageData<dataType>::fill(const dataType *v)
         _data[i] = v[i];
 }
 
+
+template<class dataType>
+void NiftiImageData<dataType>::fill(const NiftiImageData &im)
+{
+    if(!im.is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::fill(): Argument image not initialised.");
+
+    this->fill(static_cast<const dataType*>(im.get_raw_nifti_sptr()->data));
+}
+
 template<class dataType>
 float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) const
 {
