@@ -1282,7 +1282,7 @@ class AcquisitionModel(object):
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         return self.forward(image, \
-                            subset_num=self.subset_num, \
+                            subset_num = self.subset_num, \
                             num_subsets = self.num_subsets, \
                             ad = out)
         
