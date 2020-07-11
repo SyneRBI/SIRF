@@ -186,13 +186,22 @@ class DataContainer(ABC):
 
         Returns the sum of the container data with another container 
         data viewed as vectors.
+        a: multiplyer to self, can be number of DataContainer
+        b: multiplyer to y, can be number of DataContainer 
         y: DataContainer
         out:   DataContainer to store the result to.
         '''
-        # if isinstance(other , ( Number, int, float, numpy.float32 )):
-        #     tmp = other + numpy.zeros(self.as_array().shape)
-        #     other = self.copy()
-        #     other.fill(tmp)
+        # splits axpby in 3 steps if a and b are not numbers as 
+        # pysirf.cSIRF_axpby requires them as numbers
+        if not ( isinstance(a , ( Number, int, float, numpy.float32 )) and \
+                 isinstance(b , ( Number, int, float, numpy.float32 )) ):
+            if out is None:
+                out = y.multiply(b)
+            else:
+                y.multiply(b, out=out)
+            tmp = self.multiply(a)
+            out.add(tmp, out=out)
+            return out
 
         assert_validities(self, y)
         alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
