@@ -302,7 +302,7 @@ def main():
         algo = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
                     max_iteration=1000,
                     update_objective_interval=update_objective_interval,
-                    log_file="spdhg.log")
+                    log_file="spdhg.log", use_axpby=False)
     elif algorithm == 'spdhg':
         # let's define the subsets as the motion states
         num_subsets = len(K)
@@ -317,7 +317,7 @@ def main():
         algo = SPDHG(f=f, g=G, operator=K, sigma=sigma, tau=None,
                     max_iteration=3000,
                     update_objective_interval=update_objective_interval, 
-                    prob=prob, log_file="spdhg.log", 
+                    prob=prob, log_file="spdhg.log", use_axpby=False
                     )
 
     # Get filename
