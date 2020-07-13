@@ -117,7 +117,7 @@ class _Transformation(ABC):
     Abstract base class for transformations.
     """
     def __init__(self):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'Transformation'
 
@@ -147,7 +147,7 @@ class NiftiImageData(SIRF.ImageData):
     General class for nifti image data.
     """
     def __init__(self, src=None):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'NiftiImageData'
         if src is None:
@@ -508,7 +508,7 @@ class NiftiImageData3D(NiftiImageData):
     Class for 3D nifti image data.
     """
     def __init__(self, src=None):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'NiftiImageData3D'
         if src is None:
@@ -540,7 +540,7 @@ class NiftiImageData3DTensor(NiftiImageData):
     Class for 3D tensor nifti image data.
     """
     def __init__(self, src1=None, src2=None, src3=None):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'NiftiImageData3DTensor'
         if src1 is None:
@@ -606,7 +606,7 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
     A displacement field of an identity transformation will be of zero value.
     """
     def __init__(self, src1=None, src2=None, src3=None):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'NiftiImageData3DDisplacement'
         if src1 is None:
@@ -645,7 +645,7 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
     """
 
     def __init__(self, src1=None, src2=None, src3=None):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'NiftiImageData3DDeformation'
         if src1 is None:
@@ -731,7 +731,7 @@ class _Registration(ABC):
     Abstract base class for registration.
     """
     def __init__(self):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'Registration'
         self.reference_image = None
@@ -843,7 +843,7 @@ class _NiftyRegistration(_Registration):
     Abstract base class for NiftyReg registration.
     """
     def __init__(self):
-        """init.""""
+        """init."""
         super(_NiftyRegistration, self).__init__()
         self.name = 'NiftyRegistration'
 
@@ -888,7 +888,7 @@ class NiftyAladinSym(_NiftyRegistration):
     Registration using NiftyReg aladin.
     """
     def __init__(self):
-        """init.""""
+        """init."""
         super(NiftyAladinSym, self).__init__()
         self.name = 'NiftyAladinSym'
         self.handle = pyreg.cReg_newObject(self.name)
@@ -929,7 +929,7 @@ class NiftyF3dSym(_NiftyRegistration):
     Registration using NiftyReg f3d.
     """
     def __init__(self):
-        """init.""""
+        """init."""
         super(NiftyF3dSym, self).__init__()
         self.name = 'NiftyF3dSym'
         self.handle = pyreg.cReg_newObject(self.name)
@@ -972,7 +972,7 @@ if SIRF_HAS_SPM:
         Registration using SPM.
         """
         def __init__(self):
-            """init.""""
+            """init."""
             super(SPMRegistration, self).__init__()
             self.name = 'SPMRegistration'
             self.handle = pyreg.cReg_newObject(self.name)
@@ -1032,7 +1032,7 @@ class NiftyResample(object):
     Resample using NiftyReg.
     """
     def __init__(self):
-        """init.""""
+        """init."""
         self.name = 'NiftyResample'
         self.handle = pyreg.cReg_newObject(self.name)
         self.reference_image = None
@@ -1211,7 +1211,7 @@ class ImageWeightedMean(object):
     """
 
     def __init__(self):
-        """init.""""
+        """init."""
         self.name = 'ImageWeightedMean'
         self.handle = pyreg.cReg_newObject(self.name)
         check_status(self.handle)
@@ -1253,7 +1253,7 @@ class AffineTransformation(_Transformation):
     Class for affine transformations.
     """
     def __init__(self, src1=None, src2=None):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'AffineTransformation'
         if src1 is None:
@@ -1399,7 +1399,7 @@ class Quaternion(object):
     Class for quaternions.
     """
     def __init__(self, src=None):
-        """init.""""
+        """init."""
         self.handle = None
         self.name = 'Quaternion'
         if isinstance(src, numpy.ndarray):
