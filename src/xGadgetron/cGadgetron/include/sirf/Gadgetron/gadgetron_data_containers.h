@@ -956,8 +956,6 @@ namespace sirf {
             CoilImagesVector ci;
             ci.calculate(acq, 1);
             calculate_csm(ci);
-//            this->calculate_images(acq);
-//            this->calculate_csm(*this);
         }
 
         void calculate_images(const MRAcquisitionData& acq);

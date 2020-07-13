@@ -1687,14 +1687,12 @@ CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
         t[1] = acq.idx().phase;
         t[2] = acq.idx().contrast;
         t[3] = acq.idx().slice;
-        if (t != t_first || last) {
-            if (!last) {
-                std::cout << "new slice: ";
-                for (int i = 0; i < NUMVAL; i++)
-                    std::cout << t[i] << ' ';
-                std::cout << '\n';
-            }
-            if (!first || last) {
+        if (t != t_first) {
+            std::cout << "new slice: ";
+            for (int i = 0; i < NUMVAL; i++)
+                std::cout << t[i] << ' ';
+            std::cout << '\n';
+            if (!first) {
                 ifft3c(ci);
                 CFImage* ptr_ci = new CFImage(readout, ny, nz, nc);
                 memcpy(ptr_ci->getDataPtr(), ci.getDataPtr(), ci.getDataSize());
@@ -1718,6 +1716,11 @@ CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
             }
         }
     }
+    ifft3c(ci);
+    CFImage* ptr_ci = new CFImage(readout, ny, nz, nc);
+    memcpy(ptr_ci->getDataPtr(), ci.getDataPtr(), ci.getDataSize());
+    ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_ci);
+    append(iw);
 }
 
 CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
