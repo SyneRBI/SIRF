@@ -949,7 +949,8 @@ namespace sirf {
 
         void set_csm_smoothness(int s){csm_smoothness_ = s;}
 
-        void calculate_csm(GadgetronImagesVector iv);
+//        void calculate_csm(GadgetronImagesVector iv);
+        void calculate_csm(CoilImagesVector& iv);
         void calculate_csm(const MRAcquisitionData& acq)
         {
             CoilImagesVector ci;
