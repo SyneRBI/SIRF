@@ -48,7 +48,7 @@ int generate_matlab_interface(
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2) {
+	if (argc < 2) {
 		cout << "Give output folder as input argument" << endl;
 		return 1;
 	}
@@ -56,7 +56,10 @@ int main(int argc, char *argv[])
 	string path_in;
 	const string path_out = argv[1];
 	string SIRF_path;
-	SIRF_path = sirf::getenv("SIRF_PATH");
+	if (argc >= 3)
+		SIRF_path = argv[2];
+	else
+		SIRF_path = sirf::getenv("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
 		cout << "SIRF_PATH not defined, cannot find csirf library" << endl;
 		return 1;
