@@ -1681,17 +1681,20 @@ CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
         ac.get_acquisition(a, acq);
         if (TO_BE_IGNORED(acq))
             continue;
+        bool last = (a == ac.number() - 1);
         tuple t;
         t[0] = acq.idx().repetition;
         t[1] = acq.idx().phase;
         t[2] = acq.idx().contrast;
         t[3] = acq.idx().slice;
-        if (t != t_first) {
-            std::cout << "new slice: ";
-            for (int i = 0; i < NUMVAL; i++)
-                std::cout << t[i] << ' ';
-            std::cout << '\n';
-            if (!first) {
+        if (t != t_first || last) {
+            if (!last) {
+                std::cout << "new slice: ";
+                for (int i = 0; i < NUMVAL; i++)
+                    std::cout << t[i] << ' ';
+                std::cout << '\n';
+            }
+            if (!first || last) {
                 ifft3c(ci);
                 CFImage* ptr_ci = new CFImage(readout, ny, nz, nc);
                 memcpy(ptr_ci->getDataPtr(), ci.getDataPtr(), ci.getDataSize());
@@ -1703,12 +1706,12 @@ CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
             memset(ci.getDataPtr(), 0, ci.getDataSize());
             t_first = t;
         }
+        bool par_cal = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION);
+        bool par_cal_img = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING);
+        if (calibration && parallel && !par_cal && !par_cal_img)
+            continue;
         int yy = acq.idx().kspace_encode_step_1;
         int zz = acq.idx().kspace_encode_step_2;
-        if (calibration && parallel &&
-            !acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) &&
-            !acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING))
-            continue;
         for (unsigned int c = 0; c < nc; c++) {
             for (unsigned int s = 0; s < readout; s++) {
                 ci(s, yy, zz, c) = acq.data(s, c);
@@ -1808,8 +1811,9 @@ void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
     std::cout << '\n';
 }
 
-
-void CoilSensitivitiesVector::calculate_csm(GadgetronImagesVector iv)
+//void CoilSensitivitiesVector::calculate_csm(GadgetronImagesVector iv)
+void 
+CoilSensitivitiesVector::calculate_csm(CoilImagesVector& iv)
 {
 
     this->empty();
