@@ -282,7 +282,7 @@ cGT_computeCoilSensitivitiesFromGadgetronImages(void* ptr_csms, void* ptr_imgs)
         CoilSensitivitiesVector& csms =
             objectFromHandle<CoilSensitivitiesVector>(h_csms);
 //        GadgetronImagesVector& imgs =
-  //          objectFromHandle<GadgetronImagesVector>(h_imgs);
+//            objectFromHandle<GadgetronImagesVector>(h_imgs);
         CoilImagesVector& imgs =
             objectFromHandle<CoilImagesVector>(h_imgs);
         csms.calculate_csm(imgs);
