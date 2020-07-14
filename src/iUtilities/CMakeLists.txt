@@ -66,7 +66,7 @@ if(BUILD_MATLAB)
   # Generate m-files on the fly
   add_custom_command(
     OUTPUT ${mutilities_c} ${mutilities_h}
-    COMMAND gmi_iutilities ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND gmi_iutilities ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/iUtilities/include/sirf/iUtilities/iutilities.h
     COMMENT "Generating mutilities.c/.h"
     VERBATIM

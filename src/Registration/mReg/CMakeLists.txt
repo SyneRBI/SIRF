@@ -28,7 +28,7 @@ if(BUILD_MATLAB)
   # Generate m-files on the fly
   add_custom_command(
     OUTPUT ${mreg_c} ${mreg_h}
-    COMMAND gmi_xreg ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND gmi_xreg ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/Registration/cReg/include/sirf/Reg/cReg.h
     COMMENT "Generating mreg.c/.h"
     VERBATIM
