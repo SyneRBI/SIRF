@@ -273,8 +273,7 @@ class ImageData(SIRF.ImageData):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    @staticmethod
-    def same_object():
+    def same_object(self):
         """See DataContainer method."""
         return ImageData()
 

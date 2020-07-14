@@ -424,8 +424,7 @@ class NiftiImageData(SIRF.ImageData):
         vec.push_back(self.handle)
         try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
 
-    @staticmethod
-    def same_object():
+    def same_object(self):
         """See DataContainer method."""
         return NiftiImageData()
 
@@ -1188,7 +1187,6 @@ class NiftyResample(object):
         """
         return self.adjoint(x=x, out=out)
 
-    @staticmethod
     def is_linear(self):
         """Return whether the transformation is linear."""
         return True
