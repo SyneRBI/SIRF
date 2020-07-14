@@ -297,6 +297,12 @@ public:
     /// Access data element via 7D index
     float &operator()(const int index[7]);
 
+    /// Access data element via 7D index (const)
+    float operator()(const int x, const int y, const int z, const int t=0, const int u=0, const int v=0, const int w=0) const;
+
+    /// Access data element via 7D index
+    float &operator()(const int x, const int y, const int z, const int t=0, const int u=0, const int v=0, const int w=0);
+
     /// Is the image initialised? (Should be unless default constructor was used.)
     bool is_initialised() const { return (_nifti_image && _data && _nifti_image->datatype == DT_FLOAT32 ? true : false); }
 
@@ -339,6 +345,9 @@ public:
 
     /// Fill from array
     void fill(const dataType *v);
+
+    /// Fill from array
+    void fill(const NiftiImageData &im);
 
     /// Get norm
     float get_norm(const NiftiImageData&) const;

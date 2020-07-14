@@ -177,6 +177,61 @@ void NiftiImageData3DTensor<dataType>::flip_component(const int dim)
         this->_data[i] = -this->_data[i];
 }
 
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+tensor_component_maths(
+        const int dim,
+        const std::shared_ptr<const ImageData> &scalar_im_sptr,
+        const typename NiftiImageData<dataType>::MathsType maths_type)
+{
+    // Check the dimension to multiply, that dims==5 and nu==3
+    if (dim < 0 || dim > 2)
+        throw std::runtime_error("\n\tDimension to do tensor maths should be between 0 and 2.");
+
+    std::shared_ptr<const NiftiImageData3D<dataType> > nii_scalar_im_sptr =
+            std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(scalar_im_sptr);
+    if (!nii_scalar_im_sptr)
+        nii_scalar_im_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*scalar_im_sptr);
+
+    // Check dimensions match (except the tensor component, obviously)
+    const int *tensor_dims = this->get_dimensions();
+    const int *scalar_dims = nii_scalar_im_sptr->get_dimensions();
+    for (unsigned i=1; i<7; ++i) {
+        // skip tensor component (u, which is 5)
+        if (i!=5 && tensor_dims[i] != scalar_dims[i])
+            throw std::runtime_error("NiftiImageData3DTensor::multiply_tensor_component mismatch in image sizes");
+    }
+
+    // Data is ordered such that the multicomponent info is last.
+    // So, the first third of the data is the x-values, second third is y and last third is z.
+    // Start index is therefore = dim_number * num_voxels/3
+    const unsigned tensor_index_offset = dim * int(this->_nifti_image->nvox/3);
+
+    for (unsigned i=0; i<nii_scalar_im_sptr->get_num_voxels(); ++i) {
+        if (maths_type == NiftiImageData<dataType>::mul)
+            (*this)(i+tensor_index_offset) *= (*nii_scalar_im_sptr)(i);
+        else if (maths_type == NiftiImageData<dataType>::add)
+            (*this)(i+tensor_index_offset) += (*nii_scalar_im_sptr)(i);
+    }
+}
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+multiply_tensor_component
+(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+{
+    this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::mul);
+}
+
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+add_to_tensor_component
+(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+{
+    this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::add);
+}
+
 namespace sirf {
 template class NiftiImageData3DTensor<float>;
 }
