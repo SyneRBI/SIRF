@@ -71,7 +71,7 @@ Options:
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import functools
+from functools import partial
 from os import path
 from glob import glob
 from docopt import docopt
@@ -470,7 +470,7 @@ def set_up_regularisation():
     else:
         raise error("Unknown regularisation")
 
-    return regularisation
+    return G
 
 
 def get_output_filename(attn_files, normK, sigma, tau, sino_files, resamplers):
@@ -508,15 +508,11 @@ def get_output_filename(attn_files, normK, sigma, tau, sino_files, resamplers):
     return outp_file
 
 
-def get_algo(K, f, G, sigma, tau, outp_file):
+def get_algo(f, G, K, sigma, tau, outp_file):
     """Get the reconstruction algorithm."""
     if algorithm == 'pdhg':
 
-        algo = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
-                    max_iteration=num_iters,
-                    update_objective_interval=update_obj_fn_interval,
-                    log_file=outp_file+".log",
-                    use_axpby=False)
+        Algo = partial(PDHG, sigma=sigma, tau=tau)
 
     elif algorithm == 'spdhg':
         # let's define the subsets as the motion states
@@ -526,19 +522,21 @@ def get_algo(K, f, G, sigma, tau, outp_file):
         # assign the probabilities explicit form
         # prob = [(num_subsets-1)*1/(2*num_subsets)] + [1/2]
 
-        algo = SPDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
-                     max_iteration=num_iters,
-                     update_objective_interval=update_obj_fn_interval,
-                     prob=prob, log_file=outp_file+".log",
-                     use_axpby=False)
+        Algo = partial(SPDHG, prob=prob, sigma=None, tau=None)
 
     else:
         raise error("Unknown algorithm: " + algorithm)
 
-    return algorithm
+    algo = Algo(f=f, g=G, operator=K,
+                max_iteration=num_iters,
+                update_objective_interval=update_obj_fn_interval,
+                log_file=outp_file+".log",
+                use_axpby=False)
+
+    return algo
 
 
-def get_save_callback_function():
+def get_save_callback_function(outp_file):
     """Get the save callback function."""
     def save_callback(save_interval, nifti, outp_file,
                       iteration, last_objective, x):
@@ -550,7 +548,7 @@ def get_save_callback_function():
                 reg.NiftiImageData(x).write(
                     "{}_iters_{}".format(outp_file, iteration))
 
-    psave_callback = functools.partial(
+    psave_callback = partial(
         save_callback, save_interval, nifti, outp_file)
     return psave_callback
 
@@ -624,10 +622,10 @@ def main():
         attn_files, normK, sigma, tau, sino_files, resamplers)
 
     # Get algorithm
-    algo = get_algo(K, f, G, sigma, tau, outp_file)
+    algo = get_algo(f, G, K, sigma, tau, outp_file)
 
     # Create save call back function
-    save_callback = get_save_callback_function()
+    save_callback = get_save_callback_function(outp_file)
 
     # Run the reconstruction
     algo.run(num_iters, verbose=True, very_verbose=True,
