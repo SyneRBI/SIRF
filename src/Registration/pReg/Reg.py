@@ -22,7 +22,7 @@ import abc
 import sys
 import inspect
 
-from sirf.Utilities import error, check_status, try_calling,
+from sirf.Utilities import error, check_status, try_calling, \
     assert_validity
 from sirf import SIRF
 import pyiutilities as pyiutil
