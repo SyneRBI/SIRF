@@ -220,15 +220,18 @@ def read_files(trans_files, sino_files, attn_files, rand_files):
 
     sinos_raw = [pet.AcquisitionData(file) for file in sino_files]
     attns = [pet.ImageData(file) for file in attn_files]
-    rands = [pet.AcquisitionData(file) for file in rand_files]
+    rands_raw = [pet.AcquisitionData(file) for file in rand_files]
 
-    return [trans, sinos_raw, attns, rands]
+    return [trans, sinos_raw, attns, rands_raw]
 
 
 def pre_process_sinos(sinos_raw, num_ms):
     """Preprocess raw sinograms.
 
     Make positive if necessary and do any required rebinning."""
+    # If empty (e.g., no randoms), return
+    if not sinos_raw:
+        return sinos_raw
     # Loop over all sinograms
     sinos = [0]*num_ms
     for ind in range(num_ms):
@@ -353,7 +356,7 @@ def set_up_acq_models(num_ms, sinos, rands, resampled_attns, image):
     return acq_models
 
 
-def set_up_reconstructor(acq_models, resamplers, sinos):
+def set_up_reconstructor(acq_models, resamplers, sinos, rands=None):
     """Set up reconstructor."""
     # Create composition operators containing acquisition models and resamplers
     C = [CompositionOperator(am, res, preallocate=True)
@@ -363,8 +366,12 @@ def set_up_reconstructor(acq_models, resamplers, sinos):
     if args['--normK'] and not args['--onlyNormK']:
         normK = float(args['--normK'])
     else:
+        if rands:
+            etas = rands
+        else:
+            etas = [sino * 0 + 1e-5 for sino in sinos]
         kl = [KullbackLeibler(
-            b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos]
+            b=sino, eta=eta) for sino, eta in zip(sinos, etas)]
         f = BlockFunction(*kl)
         K = BlockOperator(*C)
         # Calculate normK
@@ -575,10 +582,11 @@ def main():
     # Read input
     ###########################################################################
 
-    [trans, sinos_raw, attns, rands] = \
+    [trans, sinos_raw, attns, rands_raw] = \
         read_files(trans_files, sino_files, attn_files, rand_files)
 
     sinos = pre_process_sinos(sinos_raw, num_ms)
+    rands = pre_process_sinos(rands_raw, num_ms)
 
     ###########################################################################
     # Initialise recon image
@@ -609,7 +617,7 @@ def main():
     # Set up reconstructor
     ###########################################################################
 
-    [f, K, normK] = set_up_reconstructor(acq_models, resamplers, sinos)
+    [f, K, normK] = set_up_reconstructor(acq_models, resamplers, sinos, rands)
 
     # Get tau and sigma (scalars if no preconditioning, else they'll be arrays)
     [tau, sigma] = get_tau_sigma(normK)
