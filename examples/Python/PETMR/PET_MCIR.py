@@ -293,7 +293,7 @@ def resample_attn_images(num_ms, attns, trans):
         resampled_attns = [0]*num_ms
         # if using GPU, dimensions of attn and recon images have to match
         ref = image if use_gpu else None
-        for i in range(len(attns)):
+        for i in range(num_ms):
             # if we only have 1 attn image, then we need to resample into
             # space of each gate. However, if we have num_ms attn images, then
             # assume they are already in the correct position, so use None as
