@@ -356,37 +356,56 @@ def set_up_acq_models(num_ms, sinos, rands, resampled_attns, image):
     return acq_models
 
 
-def set_up_reconstructor(acq_models, resamplers, sinos, rands=None):
-    """Set up reconstructor."""
-    # Create composition operators containing acquisition models and resamplers
-    C = [CompositionOperator(am, res, preallocate=True)
-         for am, res in zip(*(acq_models, resamplers))]
-
-    # Configure the PDHG algorithm
-    if args['--normK'] and not args['--onlyNormK']:
-        normK = float(args['--normK'])
+def create_kls(sinos, etas, scale_factor=None):
+    """Create list of KullbackLeiblers from list of sinos and etas."""
+    if scale_factor:
+        scaled_sinos = [sino.clone()*scale_factor for sino in sinos]
+        scaled_etas = [eta.clone()*scale_factor for eta in etas]
     else:
-        if rands:
-            etas = rands
+        scaled_sinos = sinos
+        scaled_etas = etas
+    kl = [KullbackLeibler(b=sino, eta=eta)
+          for sino, eta in zip(sinos, etas)]
+    return kl
+
+
+def set_up_reconstructor(acq_models, resamplers, algorithm, sinos, rands=None):
+    """Set up reconstructor."""
+    # Create composition operators containing linear
+    # acquisition models and resamplers
+    C = [CompositionOperator(
+        am.get_linear_acquisition_model(), res, preallocate=True)
+            for am, res in zip(*(acq_models, resamplers))]
+
+    # We'll need an additive term (eta). If randoms are present, use them
+    # Else, use a scaled down version of the sinogram
+    etas = rands if rands else [sino * 0 + 1e-5 for sino in sinos]
+
+    # NormK only needed for PDHG, not SPDHG
+    if algorithm == 'pdhg':
+        # Configure the PDHG algorithm
+        if args['--normK'] and not args['--onlyNormK']:
+            normK = float(args['--normK'])
         else:
-            etas = [sino * 0 + 1e-5 for sino in sinos]
-        kl = [KullbackLeibler(
-            b=sino, eta=eta) for sino, eta in zip(sinos, etas)]
-        f = BlockFunction(*kl)
-        K = BlockOperator(*C)
-        # Calculate normK
-        print("Calculating norm of the block operator...")
-        normK = K.norm(iterations=10)
-        print("Norm of the BlockOperator ", normK)
-        if args['--onlyNormK']:
-            exit(0)
+            kl = create_kls(sinos, etas)
+            f = BlockFunction(*kl)
+            K = BlockOperator(*C)
+            # Calculate normK
+            print("Calculating norm of the block operator...")
+            normK = K.norm(iterations=10)
+            print("Norm of the BlockOperator ", normK)
+            if args['--onlyNormK']:
+                exit(0)
+    else:
+        normK = None
 
     # Optionally rescale sinograms and BlockOperator using normK
-    scale_factor = 1./normK if args['--normaliseDataAndBlock'] else 1.0
-    kl = [KullbackLeibler(b=sino*scale_factor, eta=(sino * 0 + 1e-5))
-          for sino in sinos]
+    scale_factor = 1./normK if args['--normaliseDataAndBlock'] else None
+    kl = create_kls(sinos, etas, scale_factor)
     f = BlockFunction(*kl)
-    K = BlockOperator(*C)*scale_factor
+    K = BlockOperator(*C)
+    if scale_factor:
+        K *= scale_factor
 
     return [f, K, normK]
 
@@ -433,7 +452,12 @@ def precond_proximal(self, x, tau, out=None):
 
 
 def get_tau_sigma(normK):
-    """Get tau and sigma ."""
+    """Get tau and sigma.
+
+    If normK is None (because not required, then return
+    sigma and tau as None, too."""
+    if not normK:
+        return [None, None]
     if precond:
 
         tau = K.adjoint(K.range_geometry().allocate(1))
@@ -497,13 +521,16 @@ def get_output_filename(attn_files, normK, sigma, tau, sino_files, resamplers):
             outp_file += '_wDataScale'
         else:
             outp_file += '_noDataScale'
-        if args['--normK']:
-            outp_file += '_userNormK' + str(normK)
-        if not precond:
-            outp_file += "_sigma" + str(sigma)
-            outp_file += "_tau" + str(tau)
-        else:
-            outp_file += "_wPrecond"
+        if algorithm == 'pdhg':
+            if args['--normK']:
+                outp_file += '_userNormK' + str(normK)
+            else:
+                outp_file += '_computedNormK' + str(normK)
+            if not precond:
+                outp_file += "_sigma" + str(sigma)
+                outp_file += "_tau" + str(tau)
+            else:
+                outp_file += "_wPrecond"
         outp_file += "_Reg-" + regularisation
         if regularisation == 'FGP_TV':
             outp_file += "-alpha" + str(r_alpha)
@@ -546,17 +573,20 @@ def get_algo(f, G, K, sigma, tau, outp_file):
 def get_save_callback_function(outp_file):
     """Get the save callback function."""
     def save_callback(save_interval, nifti, outp_file,
-                      iteration, last_objective, x):
+                      num_iters, iteration,
+                      last_objective, x):
         """Save callback function."""
-        if iteration > 0 and iteration % save_interval == 0:
+        completed_iterations = iteration + 1
+        if completed_iterations % save_interval == 0 or \
+                completed_iterations == num_iters:
             if not nifti:
-                x.write("{}_iters_{}".format(outp_file, iteration))
+                x.write("{}_iters_{}".format(outp_file, completed_iterations))
             else:
                 reg.NiftiImageData(x).write(
-                    "{}_iters_{}".format(outp_file, iteration))
+                    "{}_iters_{}".format(outp_file, completed_iterations))
 
     psave_callback = partial(
-        save_callback, save_interval, nifti, outp_file)
+        save_callback, save_interval, nifti, outp_file, num_iters)
     return psave_callback
 
 
@@ -617,7 +647,8 @@ def main():
     # Set up reconstructor
     ###########################################################################
 
-    [f, K, normK] = set_up_reconstructor(acq_models, resamplers, sinos, rands)
+    [f, K, normK] = set_up_reconstructor(
+        acq_models, resamplers, algorithm, sinos, rands)
 
     # Get tau and sigma (scalars if no preconditioning, else they'll be arrays)
     [tau, sigma] = get_tau_sigma(normK)
