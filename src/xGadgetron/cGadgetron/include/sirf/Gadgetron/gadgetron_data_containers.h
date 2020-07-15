@@ -919,7 +919,7 @@ namespace sirf {
         CoilImagesVector() : GadgetronImagesVector()
         {
         }
-        void calculate(const MRAcquisitionData& acq, int calibration = 0);
+        void calculate(const MRAcquisitionData& acq, int calibration = 1);
     };
 
     /*!
@@ -949,12 +949,11 @@ namespace sirf {
 
         void set_csm_smoothness(int s){csm_smoothness_ = s;}
 
-//        void calculate_csm(GadgetronImagesVector iv);
         void calculate_csm(CoilImagesVector& iv);
         void calculate_csm(const MRAcquisitionData& acq)
         {
             CoilImagesVector ci;
-            ci.calculate(acq, 1);
+            ci.calculate(acq);
             calculate_csm(ci);
         }
 
@@ -984,7 +983,7 @@ namespace sirf {
 
 
     private:
-        int csm_smoothness_=0;
+        int csm_smoothness_ = 0;
         void smoothen_(int nx, int ny, int nz, int nc, complex_float_t* u, complex_float_t* v, int* obj_mask, int w);
         void mask_noise_(int nx, int ny, int nz, float* u, float noise, int* mask);
         float max_diff_(int nx, int ny, int nz, int nc, float small_grad, complex_float_t* u, complex_float_t* v);

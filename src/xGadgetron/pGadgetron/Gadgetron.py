@@ -572,7 +572,6 @@ class CoilSensitivityData(ImageData):
             csm = numpy.reshape(csm, (nc, ns*nz, ny, nx))
             
             self.fill(csm.astype(numpy.complex64))
-#            self.append(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
             try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
@@ -587,22 +586,15 @@ class CoilSensitivityData(ImageData):
                 
             cis_array = data.as_array()
             csm, _ = coils.calculate_csm_inati_iter(cis_array)
-            self.append(csm.astype(numpy.complex64))
+            self.fill(csm.astype(numpy.complex64))
         elif method_name == 'SRSS':
-            try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromGadgetronImages \
+            try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
                 (self.handle, data.handle))
         else:
             raise error('Unknown method %s' % method_name)   
 
-
-    def append(self, csm):
-        '''
-        Appends a coil sensitivity map to self.
-        csm: Numpy ndarray with csm values
-        '''
-        self.fill(csm)
-        
 DataContainer.register(CoilSensitivityData)
+
 
 class Acquisition(object):
     def __init__(self, file = None):
