@@ -377,8 +377,6 @@ get_image_gradient_wrt_deformation_times_image(
                          this->_padding_value,
                          0);
 
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > temp = output_deformation_sptr->clone();
-
     // Now multiply the scalar image to each of the DVF components
     for (unsigned i=0; i<3; ++i)
         output_deformation_sptr->multiply_tensor_component(i, image_to_multiply_sptr);
