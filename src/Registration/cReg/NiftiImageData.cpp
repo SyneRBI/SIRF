@@ -1413,13 +1413,10 @@ void NiftiImageData<dataType>::kernel_convolution(const float sigma, NREG_CONV_K
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::set_voxel_spacing: Image not initialised.");
 
-    // Warning
-    std::cout << "\n\n\n\nNiftiImageData<dataType>::kernel_convolution(): Warning, I haven't tested this at all!\n\n\n\n";
-
     float *sigma_t=new float[_nifti_image->nt];
     for(int i=0; i<_nifti_image->nt; ++i) sigma_t[i]=sigma; //-0.7355f?
     reg_tools_kernelConvolution(_nifti_image.get(),sigma_t,conv_type);
-    delete []sigma_t;
+    delete sigma_t;
 }
 
 enum FlipOrMirror {
