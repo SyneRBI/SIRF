@@ -1786,7 +1786,6 @@ void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
             ac.get_acquisition(na + y, acq);
             int yy = acq.idx().kspace_encode_step_1;
             int zz = acq.idx().kspace_encode_step_2;
-            //if (!e.parallelImaging.is_present() ||
             if (!parallel ||
                 acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) ||
                 acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING)) {
@@ -1814,7 +1813,6 @@ void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
     std::cout << '\n';
 }
 
-//void CoilSensitivitiesVector::calculate_csm(GadgetronImagesVector iv)
 void 
 CoilSensitivitiesVector::calculate_csm(CoilImagesVector& iv)
 {
