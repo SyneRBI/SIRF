@@ -86,7 +86,8 @@ backward(const NiftiImageData3DDeformation<dataType> &dvf) const
     // Get cpg_ptr
     nifti_image *cpg_ptr = bspline.GetTransformationAsImage();
     // Convert DVF to CPG
-    cpg_ptr->data = bspline.GetDVFGradientWRTTransformationParameters(dvf.clone()->get_raw_nifti_sptr().get(), ref_ptr);
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > dvf_sptr = dvf.clone();
+    cpg_ptr->data = bspline.GetDVFGradientWRTTransformationParameters(dvf_sptr->get_raw_nifti_sptr().get());
     cpg_ptr->intent_p1 = SPLINE_VEL_GRID;
     return NiftiImageData3DBSpline<dataType>(*cpg_ptr);
 }
