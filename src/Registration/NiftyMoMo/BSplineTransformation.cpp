@@ -379,7 +379,7 @@ void BSplineTransformation::CPGToDVF2D( nifti_image *denseVectorFieldImage )
   //use openmp if available and not debug build
 #if defined (NDEBUG) && defined (_OPENMP) && _OPENMP>201012
 #pragma omp parallel for default(none) \
-	shared(controlPointGridImage, denseVectorFieldImage, DVFSpacingInCPG, \
+	shared(denseVectorFieldImage, DVFSpacingInCPG, \
 	DVFOriginInCPG, CPGPtrX, CPGPtrY, DVFPtrX, DVFPtrY) \
 	private(yDVF, yCPG, xDVF, xCPG, tmpBasis, bSplineBasis, tmpXValsX, tmpXValsY, \
 	firstYCPG, firstXCPG, indCPG, indDVF, valX, valY)
@@ -525,7 +525,7 @@ void BSplineTransformation::CPGToDVF3D( nifti_image *denseVectorFieldImage )
   //use openmp if available and not debug build
 #if defined (NDEBUG) && defined (_OPENMP) && _OPENMP>201012
 #pragma omp parallel for default(none) \
-	shared(controlPointGridImage, denseVectorFieldImage, DVFSpacingInCPG, \
+	shared(denseVectorFieldImage, DVFSpacingInCPG, \
 	DVFOriginInCPG, CPGPtrX, CPGPtrY, CPGPtrZ, DVFPtrX, DVFPtrY, DVFPtrZ) \
 	private(zDVF, zCPG, yDVF, yCPG, xDVF, xCPG, tmpBasis, bSplineBasis, \
 	tmpXYValsX, tmpXYValsY, tmpXYValsZ, tmpXValsX, tmpXValsY, tmpXValsZ, \
@@ -1337,7 +1337,7 @@ double BSplineTransformation::GetConstraintValue()
 //------------------------------------------------------------------
 // BSplineTransformation::GetDVFGradientWRTTransformationParameters
 //------------------------------------------------------------------
-BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn, nifti_image* sourceImage )
+BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn )
 {
 #ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetDVFGradientWRTTransformationParameters()" << std::endl;
