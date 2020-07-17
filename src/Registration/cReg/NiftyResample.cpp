@@ -361,6 +361,10 @@ get_image_gradient_wrt_deformation_times_image(
     // Call the set up
     set_up();
 
+    // Only tested for linear interpolation
+    if (this->_interpolation_type != Resample<dataType>::LINEAR)
+        throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image only implemented for linear interpolation");
+
     // Not implemented for complex images
     if (this->_floating_image_niftis.is_complex() || image_to_multiply_sptr->is_complex())
         throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image not yet implemented for complex images");

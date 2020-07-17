@@ -1316,27 +1316,24 @@ int main(int argc, char* argv[])
 
         // Get some images to use as template and Gaussian smooth (to reduce number of non-zero voxels)
         std::shared_ptr<NiftiImageData3D<float> > lambda_sptr = ref_aladin->clone();
-        const int min[7] = {30,30,30,0,0,0,0};
+        const int min[7] = {27,27,27,0,0,0,0};
         const int max[7] = {35,35,35,0,0,0,0};
         lambda_sptr->crop(min,max);
-//        lambda_sptr->kernel_convolution(10.f);
 
         std::shared_ptr<NiftiImageData3D<float> > lambda_hat_sptr = lambda_sptr->clone();
         // Create blank displacement, same size as lambda
         NiftiImageData3DDisplacement<float> disp;
         disp.create_from_3D_image(*lambda_sptr);
+        // Convert displacement to identity deformation
         std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr =
-//                std::make_shared<NiftiImageData3DDeformation<float> >();
                 std::make_shared<NiftiImageData3DDeformation<float> >(disp);
-        // deformation is represented as a random displacement with min and max of -1 and 1, respectively
-//        *deformation_sptr = rand_dvf(disp,-1.f,1.f);
 
         // We'll need a niftyreg resampler
         std::shared_ptr<NiftyResample<float> > nr_sptr =
                 std::make_shared<NiftyResample<float> >();
         nr_sptr->set_reference_image(lambda_hat_sptr);
         nr_sptr->set_floating_image(lambda_sptr);
-        nr_sptr->set_interpolation_type_to_cubic_spline();
+        nr_sptr->set_interpolation_type_to_linear();
         nr_sptr->set_padding_value(0.f);
         nr_sptr->add_transformation(deformation_sptr);
 
@@ -1349,25 +1346,11 @@ int main(int argc, char* argv[])
 
         // Rand voxel inside of image (let's ignore a 30% margin around the edge in x,y,z directions)
         const float margin = 0.3;
-        std::random_device rd; // obtain a random number from hardware
-        std::mt19937 gen(rd()); // seed the generator
-        const int *dims = lambda_hat_sptr->get_dimensions();
-        int rand_idx[3];
-        for (unsigned i=0; i<3; ++i) {
-            const int min_idx = int(margin * float(dims[i+1]));
-            const int max_idx = dims[i+1] - min_idx;
-            std::uniform_int_distribution<> distr(min_idx, max_idx);
-            rand_idx[i] = distr(gen);
-            rand_idx[i] = 3;
-        }
 
-        // lambda tilde is copy of lambda hat with all voxels = 0, and 1 voxel = cnst
+        // lambda tilde is copy of lambda hat with all voxels = cnst
         std::shared_ptr<NiftiImageData3D<float> > lambda_tilde_sptr = lambda_hat_sptr->clone();
-        lambda_tilde_sptr->fill(1.f);
-        const float val_range[2] = {1., 10.};
-//        const float rand_val = get_rand_val(val_range);
-        const float rand_val = 1.f;
-        (*lambda_tilde_sptr)(rand_idx[0],rand_idx[1],rand_idx[2]) = rand_val;
+        const float fill_val = 2.f;
+        lambda_tilde_sptr->fill(fill_val);
 
         // img grad wrt dvf times image
         auto dvf1_sptr = resampler.backward(lambda_tilde_sptr);
@@ -1377,16 +1360,14 @@ int main(int argc, char* argv[])
         dvf2_sptr->fill(0.f);
 
         // Need a small permutation, epsilon
-        const float epsilon_range[2] = {.5f, 1.f};
-        const float epsilon = 3.f;//get_rand_val(epsilon_range);
+        const float epsilon = 3.f;
 
         std::shared_ptr<NiftiImageData3DDeformation<float> > d_shifted_sptr = deformation_sptr->clone();
         std::shared_ptr<NiftiImageData3D<float> > d_lambda_times_rand_val_sptr = lambda_hat_sptr->clone();
 
         // Loop over the 3 tensor components: u=[x,y,z]
         for (unsigned i=0; i<lambda_hat_sptr->get_num_voxels(); ++i) {
-            if (i % 100 == 0)
-                std::cout << "\ndoing " << i << " of " << lambda_hat_sptr->get_num_voxels() << "\n" << std::flush;
+            // Skip if there's nothing in that voxel (to be general, but in this case, all voxels are filled)
             if (std::abs((*lambda_tilde_sptr)(i)) < 1e-4f)
                 continue;
             for (unsigned u=0; u<3; ++u) {
@@ -1397,23 +1378,23 @@ int main(int argc, char* argv[])
                         std::dynamic_pointer_cast<NiftiImageData3D<float> > (resampler.forward(d_shifted_sptr));
                 *d_lambda_times_rand_val_sptr = (*res_forward - *lambda_hat_sptr);
                 *d_lambda_times_rand_val_sptr /= epsilon;
-                *d_lambda_times_rand_val_sptr *= rand_val;
+                *d_lambda_times_rand_val_sptr *= fill_val;
                 dvf2_sptr->add_to_tensor_component(u, d_lambda_times_rand_val_sptr);
             }
+            // print progress
+            if ((i+1) % 100 == 0)
+                std::cout << "done " << i+1 << " resamples out of " << lambda_hat_sptr->get_num_voxels() << " for numerical gradient test...\n" << std::flush;
         }
 
-        lambda_sptr->write("/Users/rich/Desktop/original_im");
-        deformation_sptr->write("/Users/rich/Desktop/original_dvf");
-        dvf1_sptr->write("/Users/rich/Desktop/dvf1");
-        dvf2_sptr->write("/Users/rich/Desktop/dvf2");
-        lambda_tilde_sptr->write("/Users/rich/Desktop/lambda_tilde");
+        // Crop by 1 in all directions because we don't want to compare any edge problems
+        const int *dvf_size = dvf1_sptr->get_dimensions();
+        const int dvf_crop_min[7] = {1,1,1,-1,-1,-1,-1};
+        const int dvf_crop_max[7] = {dvf_size[1]-2,dvf_size[2]-2,dvf_size[3]-2,-1,-1,-1,-1};
+        dvf1_sptr->crop(dvf_crop_min, dvf_crop_max);
+        dvf2_sptr->crop(dvf_crop_min, dvf_crop_max);
 
-        if (*dvf1_sptr != *dvf2_sptr) {
-            NiftiImageData<float>::print_headers({dvf1_sptr.get(), dvf2_sptr.get()});
+        if (*dvf1_sptr != *dvf2_sptr)
             throw std::runtime_error("im grad wrt def (times image) test failed");
-        }
-        std::cout << "\n\n\n\n\n SUCCESS \n\n\n\n";
-        exit(0);
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished im grad wrt def (times image) test.\n";
