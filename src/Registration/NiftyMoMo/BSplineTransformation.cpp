@@ -1337,7 +1337,7 @@ double BSplineTransformation::GetConstraintValue()
 //------------------------------------------------------------------
 // BSplineTransformation::GetDVFGradientWRTTransformationParameters
 //------------------------------------------------------------------
-BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn, nifti_image* sourceImage )
+BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn )
 {
 #ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetDVFGradientWRTTransformationParameters()" << std::endl;
