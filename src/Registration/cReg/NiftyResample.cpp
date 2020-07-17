@@ -377,9 +377,16 @@ get_image_gradient_wrt_deformation_times_image(
                          this->_padding_value,
                          0);
 
+
+    const float *im_spacing = output_deformation_sptr->get_raw_nifti_sptr()->pixdim;
+
     // Now multiply the scalar image to each of the DVF components
-    for (unsigned i=0; i<3; ++i)
+    for (unsigned i=0; i<3; ++i) {
         output_deformation_sptr->multiply_tensor_component(i, image_to_multiply_sptr);
+        // divide by spacing to get to mm
+        output_deformation_sptr->multiply_tensor_component(i, 1.f/im_spacing[i+1]);
+
+    }
 }
 
 template<class dataType>

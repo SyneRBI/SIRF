@@ -232,6 +232,47 @@ add_to_tensor_component
     this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::add);
 }
 
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+tensor_component_maths(
+        const int dim,
+        const dataType scalar,
+        const typename NiftiImageData<dataType>::MathsType maths_type)
+{
+    // Check the dimension to multiply, that dims==5 and nu==3
+    if (dim < 0 || dim > 2)
+        throw std::runtime_error("\n\tDimension to do tensor maths should be between 0 and 2.");
+
+    // Data is ordered such that the multicomponent info is last.
+    // So, the first third of the data is the x-values, second third is y and last third is z.
+    // Start index is therefore = dim_number * num_voxels/3
+    const unsigned tensor_index_offset = dim * int(this->_nifti_image->nvox/3);
+
+    for (unsigned i=0; i<this->get_num_voxels()/3; ++i) {
+        if (maths_type == NiftiImageData<dataType>::mul)
+            (*this)(i+tensor_index_offset) *= scalar;
+        else if (maths_type == NiftiImageData<dataType>::add)
+            (*this)(i+tensor_index_offset) += scalar;
+    }
+}
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+multiply_tensor_component
+(const int dim, const dataType scalar)
+{
+    this->tensor_component_maths(dim, scalar, NiftiImageData<dataType>::mul);
+}
+
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+add_to_tensor_component
+(const int dim, const dataType scalar)
+{
+    this->tensor_component_maths(dim, scalar, NiftiImageData<dataType>::add);
+}
+
 namespace sirf {
 template class NiftiImageData3DTensor<float>;
 }
