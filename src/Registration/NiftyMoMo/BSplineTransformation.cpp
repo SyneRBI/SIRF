@@ -1337,7 +1337,7 @@ double BSplineTransformation::GetConstraintValue()
 //------------------------------------------------------------------
 // BSplineTransformation::GetDVFGradientWRTTransformationParameters
 //------------------------------------------------------------------
-BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn, nifti_image* sourceImage )
+BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn )
 {
 #ifndef NDEBUG
   std::cout << "Called BSplineTransformation::GetDVFGradientWRTTransformationParameters()" << std::endl;
@@ -1368,12 +1368,6 @@ BSplineTransformation::PrecisionType* BSplineTransformation::GetDVFGradientWRTTr
     nmm_print_error( "and these must be either 2 (for a 2D transformation) or 3 (for a 3D transformation)" );
     nmm_exit( 1, __FILE__, __LINE__ );
   }
-
-  // Need to reorientate from index gradient to real-world gradient
-  // Note: Performing the reorientation here is way more efficient, since
-  //       only the transformation parameters need to be touched (and not)
-  //       the complete DVF
-  this->ReorientateVectorImage( outDVFGradWRTTrafoParams, sourceImage->sto_ijk );
 
   // Copy over the data pointer from the the image and detach it. Then delete the image.
   PrecisionType* outDVFGradWRTTrafoParamData = (PrecisionType*) outDVFGradWRTTrafoParams->data;
