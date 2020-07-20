@@ -1081,7 +1081,7 @@ void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny)
 }
 
 extern "C"
-void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v)
+void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v, int num_sample)
 {
 	try {
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
@@ -1089,7 +1089,7 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v)
 		sptrVoxels3DF sptr_v((Voxels3DF*)image.clone());
 		Voxels3DF& voxels = *sptr_v;
 		Shape3D& shape = objectFromHandle<Shape3D>(ptr_s);
-		CartesianCoordinate3D<int> num_samples(1, 1, 1);
+		CartesianCoordinate3D<int> num_samples(num_sample,num_sample,num_sample);
 		voxels.fill(0);
 		shape.construct_volume(voxels, num_samples);
 		voxels *= v;

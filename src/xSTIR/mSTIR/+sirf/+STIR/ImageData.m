@@ -135,7 +135,7 @@ classdef ImageData < sirf.SIRF.ImageData
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
             sirf.Utilities.check_status('ImageData:read_from_file', self.handle_);
         end
-        function add_shape(self, shape, add)
+        function add_shape(self, shape, add, num_samples)
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
 %         by the value of the last argument.
@@ -143,9 +143,12 @@ classdef ImageData < sirf.SIRF.ImageData
             if isempty(self.handle_)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
+            if nargin < 4
+                num_samples = 1
+            end
             h = calllib...
                 ('mstir', 'mSTIR_addShape', self.handle_,...
-                shape.handle_, add);
+                shape.handle_, add, num_samples);
             sirf.Utilities.check_status('ImageData:add_shape', h);
             sirf.Utilities.delete(h)
         end
