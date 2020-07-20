@@ -349,12 +349,13 @@ class ImageData(SIRF.ImageData):
         image.fill(value)
         return image
 
-    def add_shape(self, shape, scale):
+    def add_shape(self, shape, scale, num_samples=1):
         """Add a shape to self - see Shape above."""
         if self.handle is None:
             raise AssertionError()
         assert_validity(shape, Shape)
-        try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
+        try_calling(pystir.cSTIR_addShape(
+            self.handle, shape.handle, scale, int(num_samples)))
 
     def read_from_file(self, filename):
         """
