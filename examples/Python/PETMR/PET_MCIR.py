@@ -141,6 +141,7 @@ save_interval = min(save_interval, num_iters)
 
 # Convergence variables
 r_alpha = float(args['--alpha'])
+r_iters = float(args['--reg_iters'])
 precond = True if args['--precond'] else False
 # algorithm selection
 algorithm = str(args['--algorithm'])
@@ -490,13 +491,13 @@ def set_up_regularisation():
     if regularisation == 'none':
         G = IndicatorBox(lower=0)
     elif regularisation == 'FGP_TV':
-        r_iterations = float(args['--reg_iters'])
+        r_iters = float(args['--reg_iters'])
         r_tolerance = 1e-7
         r_iso = 0
         r_nonneg = 1
         r_printing = 0
         device = 'gpu' if use_gpu else 'cpu'
-        G = FGP_TV(r_alpha, r_iterations, r_tolerance,
+        G = FGP_TV(r_alpha, r_iters, r_tolerance,
                    r_iso, r_nonneg, r_printing, device)
     else:
         raise error("Unknown regularisation")
@@ -534,7 +535,7 @@ def get_output_filename(attn_files, normK, sigma, tau, sino_files, resamplers):
         outp_file += "_Reg-" + regularisation
         if regularisation == 'FGP_TV':
             outp_file += "-alpha" + str(r_alpha)
-            outp_file += "-riters" + str(r_iterations)
+            outp_file += "-riters" + str(r_iters)
         outp_file += '_' + algorithm
         outp_file += "_nGates" + str(len(sino_files))
         if resamplers is None:
