@@ -349,13 +349,20 @@ class ImageData(SIRF.ImageData):
         image.fill(value)
         return image
 
-    def add_shape(self, shape, scale, num_samples=1):
-        """Add a shape to self - see Shape above."""
+    def add_shape(self, shape, scale, num_samples_in_each_direction=1):
+        """Add a shape to self - see Shape above.
+
+        If a shape partially fills a voxel, it is possible to choose the
+        number of samples that will be used in each direction to determine the
+        fraction of the voxel that is filled by the shape. For a 3D image,
+        using num_samples_in_each_direction=2 would result in 2^3=8 samples.
+        """
         if self.handle is None:
             raise AssertionError()
         assert_validity(shape, Shape)
         try_calling(pystir.cSTIR_addShape(
-            self.handle, shape.handle, scale, int(num_samples)))
+            self.handle, shape.handle, scale,
+            int(num_samples_in_each_direction)))
 
     def read_from_file(self, filename):
         """
