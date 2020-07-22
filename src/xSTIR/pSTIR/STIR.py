@@ -87,7 +87,7 @@ def get_max_omp_threads():
     return value
 
 
-def set_default_num_threads():
+def set_default_num_omp_threads():
     """Use the default number of OpenMP threads."""
     try_calling(pystir.cSTIR_useDefaultOMPThreads())
 
