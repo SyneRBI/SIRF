@@ -377,7 +377,7 @@ public:
     int get_original_datatype() const { return _original_datatype; }
 
     /// Check if the norms of two images are equal to a given accuracy.
-    static bool are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_mean);
+    static bool are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max);
 
     /// Point is in bounds?
     bool is_in_bounds(const int index[7]) const;
