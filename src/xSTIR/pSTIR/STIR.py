@@ -73,6 +73,34 @@ def get_verbosity():
     return value
 
 
+def set_max_omp_threads(threads):
+    """Set the maximum number of OpenMP threads."""
+    try_calling(pystir.cSTIR_setOMPThreads(int(threads)))
+
+
+def get_max_omp_threads():
+    """Get the maximum number of OpenMP threads."""
+    h = pystir.cSTIR_getOMPThreads()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.intDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
+def set_default_num_threads():
+    """Use the default number of OpenMP threads."""
+    try_calling(pystir.cSTIR_useDefaultOMPThreads())
+
+
+def get_default_num_omp_threads():
+    """Get default num of OpenMP threads."""
+    h = pystir.cSTIR_getDefaultOMPThreads()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.intDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
 class MessageRedirector(object):
     """Class for STIR printing redirection to files/stdout/stderr."""
 
