@@ -1105,8 +1105,8 @@ def try_im_grad_wrt_def_times_im():
 
     # Get image to use as template and crop (to reduce number of non-zero voxels)
     lambda_im = ref_aladin.deep_copy()
-    min_idx = [27, 27, 27]
-    max_idx = [35, 35, 35]
+    min_idx = [28, 28, 28]
+    max_idx = [34, 34, 34]
     lambda_im.crop(min_idx, max_idx)
 
     lambda_hat = lambda_im.deep_copy()
@@ -1151,6 +1151,7 @@ def try_im_grad_wrt_def_times_im():
     d_lambda_times_rand_val = lambda_hat.deep_copy()
     lambda_tilde_arr = lambda_tilde.as_array()
     lambda_tilde_shape = lambda_tilde_arr.shape
+    lambda_tilde_numel = lambda_tilde_arr.size
     deformation_arr = deformation.as_array()
     for ix, iy, iz in np.ndindex(lambda_tilde_shape):
         # Skip if there's nothing in that voxel (to be general, but in this case, all voxels are filled)
@@ -1171,7 +1172,7 @@ def try_im_grad_wrt_def_times_im():
         # print progress
         i = np.ravel_multi_index((ix,iy,iz), lambda_tilde_shape)
         if (i+1) % 100 == 0:
-            print("done " + str(i+1) + " resamples out of " + str(lambda_hat_arr.size) << " for numerical gradient test...")
+            print("done " + str(i+1) + " resamples out of " + str(lambda_tilde_numel) + " for numerical gradient test...")
 
     # Crop by 1 in all directions because we don't want to compare any edge problems
     dvf_size = dvf1.as_array().shape
