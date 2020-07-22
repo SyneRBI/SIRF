@@ -44,6 +44,7 @@ endif()
 option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
 if (DISABLE_Registration)
   message(STATUS "Registration support disabled.")
+  set(SPM_BOOL_STR "0" PARENT_SCOPE)
 else()
   FIND_PACKAGE(NIFTYREG 1.5.61 REQUIRED)
   # NIFTYREG
@@ -67,6 +68,7 @@ else()
     SET(NR_libs_full_path "${NR_libs_full_path};${CUDA_CUDA_LIBRARY};${CUDA_CUDART_LIBRARY}")
   endif()
   ADD_SUBDIRECTORY(Registration)
+  set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
 endif()
 
 
@@ -77,6 +79,7 @@ endif()
 option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
 if (DISABLE_STIR)
   message(STATUS "STIR support disabled.")
+  set(NiftyPET_BOOL_STR "0" PARENT_SCOPE)
 else()
   find_package(STIR REQUIRED)
   if (STIR_VERSION  VERSION_LESS 4.0)
@@ -96,6 +99,7 @@ else()
   endif()
   ADD_SUBDIRECTORY(xSTIR)
 endif()
+set(NiftyPET_BOOL_STR ${NiftyPET_BOOL_STR} PARENT_SCOPE)
 
 
 ##########################################################################

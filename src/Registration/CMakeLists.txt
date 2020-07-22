@@ -43,6 +43,7 @@ else()
 	MESSAGE(STATUS "Matlab not enabled, so SPM cannot be enabled")
 	set(SPM_BOOL_STR "0")
 endif()
+set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
 
 # Check for VTK
 OPTION(DISABLE_VTK "disable VTK" OFF)
