@@ -43,17 +43,10 @@ extern "C" {
 		(void* ptr, const char* obj, const char* par, const void* val);
 
 	// coil data methods
-	void*	cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);
-	void*	cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis);
-	void* cGT_CoilSensitivities(const char* file);
+    void* cGT_CoilSensitivities(const char* file);
 	void* cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
-	void* cGT_appendCSM
-		(void* ptr_csms, int nx, int ny, int nz, int nc, 
-		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void cGT_getCoilDataDimensions
-		(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
-	void cGT_getCoilData
-		(void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
+    void* cGT_computeCoilImages(void* ptr_imgs, void* ptr_acqs);
+    void* cGT_computeCoilSensitivitiesFromGadgetronImages(void* ptr_csms, void* ptr_imgs);
 
 	// acquisition model methods
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
@@ -86,7 +79,7 @@ extern "C" {
 	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);
-	void*	cGT_readImages(const char* file);
+    void* cGT_readImages(const char* file);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
 	void* cGT_selectImages
 		(void* ptr_input, const char* attr, const char* target);

@@ -1092,7 +1092,7 @@ Pads each readout with zeros to compensate for partial echo acquisitions.
 | AcquisitionData | internal1 | trigger_dimension | "repetition" |
 | | | sorting_dimension | "slice" |
 
-Collects lines of k-space until a certain trigger condition is encountered, i.e., when there is enough data to reconstruct an image.
+Collects lines of k-space until a certain trigger condition is encountered, i.e., when there is enough data to reconstruct an image. Internally, this data is put into a "bucket" which can be thought of as a collection of unsorted k-sace readouts. 
 
 #### BucketToBufferGadget
 
@@ -1104,7 +1104,7 @@ Collects lines of k-space until a certain trigger condition is encountered, i.e.
 | | | ignore_segment | "true" |
 | | | verbose | "true" |
 
-Inserts the collected data into a buffer more suitable for the reconstruction processing.
+Inserts the data collected in a bucket into a buffer. A buffer is more suitable for the reconstruction processing.
 
 #### SimpleReconGadget
 

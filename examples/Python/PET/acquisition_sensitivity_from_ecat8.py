@@ -10,6 +10,7 @@ Options:
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -36,10 +37,11 @@ args = docopt(__doc__, version=__version__)
 
 import math
 
-from pUtilities import show_2D_array
+from sirf.Utilities import show_2D_array
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 temp_file = args['--temp']
@@ -53,6 +55,8 @@ if data_path is None:
 temp_file = existing_filepath(data_path, temp_file)
 norm_file = existing_filepath(data_path, norm_file)
 storage = args['--storage']
+show_plot = not args['--non-interactive']
+
 
 def main():
 
@@ -81,10 +85,13 @@ def main():
     acq_array = fwd_data.as_array()
     acq_dim = acq_array.shape
     z = acq_dim[1]//2
-    show_2D_array('Bin efficiencies', acq_array[0,z,:,:])
+    if show_plot:
+        show_2D_array('Bin efficiencies', acq_array[0,z,:,:])
+
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

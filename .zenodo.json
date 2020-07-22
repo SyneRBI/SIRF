@@ -1,10 +1,10 @@
 {
-  "title": "CCPPETMR SIRF",
+  "title": "CCP SyneRBI SIRF",
   "keywords": [
     "image-reconstruction", "pet-mr", "medical-imaging"],
   "related_identifiers": [
     {"identifier": "10.1109/NSSMIC.2017.8532815", "relation": "documents"}],
-  "communities": [{"identifier": "ccp-petmr"}],
+    "communities": [{"identifier": "ccp-petmr"},{"identifier": "synerbi"}],
   "creators": [
     {"name": "Ovtchinnikov, Evgueni", "affiliation":"UK Research & Innovation"},
     {"name": "Brown, Richard", "orcid": "0000-0001-6989-9200", "affiliation": "University College London"},

@@ -79,7 +79,7 @@ public:
     /// Create from deformation field image
     NiftiImageData3DDisplacement(const NiftiImageData3DDeformation<dataType> &def);
 
-    /// Create from 3D image
+    /// Create from 3D image (fill with zeroes)
     void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Get as deformation field

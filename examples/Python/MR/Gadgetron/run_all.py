@@ -25,5 +25,9 @@ import sys
 for i in glob.glob('*.py'):
     if os.path.abspath(__file__) == os.path.abspath(i):
         continue
-    print(i)
-    os.system(sys.executable + ' ' + i)
+    print('\n=== %s\n' % i)
+    narg = len(sys.argv)
+    args = ''
+    for a in range(1, narg):
+        args += ' ' + sys.argv[a]
+    os.system(sys.executable + ' ' + i + args)

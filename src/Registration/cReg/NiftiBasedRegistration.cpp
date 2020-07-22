@@ -46,21 +46,19 @@ void NiftiBasedRegistration<dataType>::convert_to_NiftiImageData_if_not_already(
 }
 
 template<class dataType>
-const std::shared_ptr<const Transformation<dataType> > NiftiBasedRegistration<dataType>::get_deformation_field_forward_sptr(const unsigned idx) const
+const std::shared_ptr<const Transformation<dataType> > NiftiBasedRegistration<dataType>::get_displacement_field_forward_sptr(const unsigned idx) const
 {
-    // Get displacement as NiftiImageData3DDisplacement (from Transformation)
-    std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_fwd = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->get_displacement_field_forward_sptr(idx));
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_fwd = std::make_shared<NiftiImageData3DDeformation<dataType> >(*disp_fwd);
-    return std::move(def_fwd);
+    // Get deformation as NiftiImageData3DDisplacement (from Transformation)
+    std::shared_ptr<const NiftiImageData3DDeformation<dataType> > def_fwd = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<dataType> >(this->get_deformation_field_forward_sptr(idx));
+    return std::move(std::make_shared<NiftiImageData3DDisplacement<dataType> >(*def_fwd));
 }
 
 template<class dataType>
-const std::shared_ptr<const Transformation<dataType> > NiftiBasedRegistration<dataType>::get_deformation_field_inverse_sptr(const unsigned idx) const
+const std::shared_ptr<const Transformation<dataType> > NiftiBasedRegistration<dataType>::get_displacement_field_inverse_sptr(const unsigned idx) const
 {
-    // Get displacement as NiftiImageData3DDisplacement (from Transformation)
-    std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_inv= std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->get_displacement_field_inverse_sptr(idx));
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_inv = std::make_shared<NiftiImageData3DDeformation<dataType> >(*disp_inv);
-    return std::move(def_inv);
+    // Get deformation as NiftiImageData3DDisplacement (from Transformation)
+    std::shared_ptr<const NiftiImageData3DDeformation<dataType> > def_inv = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<dataType> >(this->get_deformation_field_inverse_sptr(idx));
+    return std::move(std::make_shared<NiftiImageData3DDisplacement<dataType> >(*def_inv));
 }
 
 namespace sirf {

@@ -9,6 +9,7 @@ Options:
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -36,8 +37,6 @@ args = docopt(__doc__, version=__version__)
 import math
 import numpy
 
-from pUtilities import show_2D_array
-
 # import engine module
 #exec('from sirf.' + args['--engine'] + ' import *')
 pet_engine = 'sirf.' + args['--engine']
@@ -45,12 +44,14 @@ for obj in ['error', 'examples_data_path', 'existing_filepath', \
             'AcquisitionData', 'MessageRedirector']:
     exec('from ' + pet_engine + ' import ' + obj)
 
+
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('PET')
 storage = args['--storage']
+show_plot = not args['--non-interactive']
 
 # select acquisition data storage scheme
 # storage = 'file' (default):
@@ -67,6 +68,7 @@ if scheme != storage:
 else:
     print('using default storage scheme %s' % repr(scheme))
 
+
 def main():
 
     # direct all engine's messages to files
@@ -80,19 +82,22 @@ def main():
     # copy the acquisition data into a Python array and display
     dim = acq_data.dimensions()
     print('data dimensions: %d x %d x %d x %d' % dim)
-    acq_data.show(range(dim[1]//4))
+    if show_plot:
+        acq_data.show(range(dim[1]//4))
     acq_array = acq_data.as_array()
 
     # rebin the acquisition data
     new_acq_data = acq_data.rebin(3)
     rdim = new_acq_data.dimensions()
     print('rebinned data dimensions: %d x %d x %d x %d' % rdim)
-    new_acq_data.show(range(rdim[1]//3), title = 'Rebinned acquisition data')
+    if show_plot:
+        new_acq_data.show(range(rdim[1]//3), title = 'Rebinned acquisition data')
 
     # clone the acquisition data
     new_acq_data = acq_data.clone()
-    # display the cloned data
-    new_acq_data.show(range(dim[1]//4), title = 'Cloned acquisition data')
+    if show_plot:
+        # display the cloned data
+        new_acq_data.show(range(dim[1]//4), title = 'Cloned acquisition data')
 
     print('Checking acquisition data algebra:')
     s = acq_data.norm()
@@ -113,8 +118,9 @@ def main():
     diff = acq_copy - acq_data
     print('norm of acq_copy - acq_data: %f' % diff.norm())
 
-    # display the scaled data
-    new_acq_data.show(range(dim[1]//4), title = 'Scaled acquisition data')
+    if show_plot:
+        # display the scaled data
+        new_acq_data.show(range(dim[1]//4), title = 'Scaled acquisition data')
 
     print('Checking images algebra:')
     image = acq_data.create_uniform_image(10.0)
@@ -144,14 +150,13 @@ def main():
     tmx = image.transf_matrix()
     print(tmx)
 
+
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)
 
 if scheme != storage:
     AcquisitionData.set_storage_scheme(scheme)
-    
-
-

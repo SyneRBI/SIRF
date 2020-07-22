@@ -14,6 +14,7 @@ Options:
   -s <nstp>, --steps=<nstp>   number of steepest descent steps [default: 3]
   -o, --optimal               use locally optimal steepest ascent
   -v, --verbose               verbose
+  --non-interactive           do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -41,6 +42,7 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
 
+
 # process command-line options
 steps = int(args['--steps'])
 opt = args['--optimal']
@@ -50,6 +52,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
+show_plot = not args['--non-interactive']
 
 
 if opt:
@@ -99,8 +102,9 @@ def main():
     obj_fun.set_num_subsets(12)
     obj_fun.set_up(image)
 
-    # display the initial image
-    image.show(20)
+    if show_plot:
+        # display the initial image
+        image.show(20)
 
     print('computing initial objective function value...')
     print('objective function value: %e' % (obj_fun.value(image)))
@@ -158,18 +162,21 @@ def main():
         # filter the new image
         filter.apply(image)
 
-        # display the current image estimate
-        image.show(20)
+        if show_plot:
+            # display the current image estimate
+            image.show(20)
 
     if not opt or disp == 0:
         print('computing attained objective function value...')
         print('objective function value: %e' % (obj_fun.value(image)))
 
+
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     # display error information
     print('%s' % err.value)

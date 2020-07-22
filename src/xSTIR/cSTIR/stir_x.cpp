@@ -23,6 +23,7 @@ limitations under the License.
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
+#include "stir/Verbosity.h"
 
 #include "sirf/STIR/stir_x.h"
 
@@ -560,31 +561,31 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 	float one = 1.0;
 
 	if (sptr_add_.get()) {
-		std::cout << "additive term added...";
+		if (stir::Verbosity::get() > 1) std::cout << "additive term added...";
 		ad.axpby(&one, ad, &one, *sptr_add_);
 		//ad.axpby(1.0, ad, 1.0, *sptr_add_);
-		std::cout << "ok\n";
+		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 	else
-		std::cout << "no additive term added\n";
+		if (stir::Verbosity::get() > 1) std::cout << "no additive term added\n";
 
 	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
 	if (sm && sm->data() && !sm->data()->is_trivial()) {
-		std::cout << "applying unnormalisation...";
+		if (stir::Verbosity::get() > 1) std::cout << "applying unnormalisation...";
 		sptr_asm_->unnormalise(ad);
-		std::cout << "ok\n";
+		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 	else
-		std::cout << "no unnormalisation applied\n";
+		if (stir::Verbosity::get() > 1) std::cout << "no unnormalisation applied\n";
 
 	if (sptr_background_.get()) {
-		std::cout << "background term added...";
+		if (stir::Verbosity::get() > 1) std::cout << "background term added...";
 		ad.axpby(&one, ad, &one, *sptr_background_);
 		//ad.axpby(1.0, ad, 1.0, *sptr_background_);
-		std::cout << "ok\n";
+		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 	else
-		std::cout << "no background term added\n";
+		if (stir::Verbosity::get() > 1) std::cout << "no background term added\n";
 }
 
 shared_ptr<PETAcquisitionData>
@@ -647,22 +648,22 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad,
 	//if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
 	if (sm && sm->data() && !sm->data()->is_trivial()) {
-		std::cout << "applying unnormalisation...";
+		if (stir::Verbosity::get() > 1) std::cout << "applying unnormalisation...";
 		shared_ptr<PETAcquisitionData> sptr_ad(ad.new_acquisition_data());
 		sptr_ad->fill(ad);
 		sptr_asm_->unnormalise(*sptr_ad);
 		//sptr_normalisation_->undo(*sptr_ad->data(), 0, 1);
-		std::cout << "ok\n";
-		std::cout << "backprojecting...";
+		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
+		if (stir::Verbosity::get() > 1) std::cout << "backprojecting...";
 		sptr_projectors_->get_back_projector_sptr()->back_project
 			(*sptr_im, *sptr_ad, subset_num, num_subsets);
-		std::cout << "ok\n";
+		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 	else {
-		std::cout << "backprojecting...";
+		if (stir::Verbosity::get() > 1) std::cout << "backprojecting...";
 		sptr_projectors_->get_back_projector_sptr()->back_project
 			(*sptr_im, ad, subset_num, num_subsets);
-		std::cout << "ok\n";
+		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 
 	return sptr_id;

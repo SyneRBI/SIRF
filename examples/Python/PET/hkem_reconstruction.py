@@ -13,6 +13,7 @@ Options:
   -s <subs>, --subs=<subs>     number of subsets [default: 12]
   -i <iter>, --subiter=<iter>  number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
+  --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -40,6 +41,7 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
 
+
 # process command-line options
 num_subsets = int(args['--subs'])
 num_subiterations = int(args['--subiter'])
@@ -52,18 +54,25 @@ if args['--anim'] is not None:
     ai_file = existing_filepath(data_path, args['--anim'])
 else:
     ai_file = None
+show_plot = not args['--non-interactive']
+
 
 # Define a function that does something with an image. This function
 # provides a simplistic example of user's involvement in the reconstruction
 def image_data_processor(image_array, im_num):
-    """ Process/display an image"""
+    """ Process/display an image
+
+        image is not modified in this simplistic example - but might have been
+    """
+    if not show_plot:
+        return image_array
     # display the current estimate of the image at z = 20
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
     pylab.imshow(image_array[20,:,:])
     print('You may need to close Figure %d window to continue' % im_num)
-    # image is not modified in this simplistic example - but might have been
     return image_array
+
 
 def main():
  
@@ -99,7 +108,8 @@ def main():
     # reconstruct with default settings
     recon.process()
     anatomical_image = recon.get_output()
-    anatomical_image.show(title='Image used as anatomical prior')
+    if show_plot:
+        anatomical_image.show(title='Image used as anatomical prior')
     image_array = anatomical_image.as_array()
     image_array[image_array < 0] = 0
     anatomical_image.fill(image_array)
@@ -142,7 +152,8 @@ def main():
         # fill the current image estimate with new data
         image.fill(processed_image_array)
         recon.set_current_estimate(image)
-    pylab.show()
+    if show_plot:
+        pylab.show()
 
     # forward projection of the reconstructed image simulates the
     # acquisition of data by the scanner
@@ -152,11 +163,13 @@ def main():
     diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
 
+
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     # display error information
     print('%s' % err.value)
