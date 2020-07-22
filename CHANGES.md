@@ -7,6 +7,7 @@
 * if `storage_scheme` is set to `memory`, then `PETAcquisitionData` will now contain `ProjDataInMemory`, instead of `ProjDataFromStream`. As such, if storage scheme is set to memory, it will now be possible to open a PET acquisition data and modify it directly, whereas before a copy would need to be created first.
 * Registration of 2d images with aladin and f3d. 
 * When registering, internally the forward displacement is no loner stored, replaced by the forward deformation. The inverse is no longer stored, and is calculated as needed.
+* When adding a shape to a `sirf.STIR.ImageData`, optionally give the number of times to sample a voxel. This is useful when the shape partially - but not completely - fills a voxel.
 
 ## v2.2.0
 * Changed CCP PETMR to SyneRBI
