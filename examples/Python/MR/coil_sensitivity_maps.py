@@ -117,9 +117,7 @@ def main():
     #   In: ISMRM proceeding; April; Salt Lake City, Utah, USA; 2013. 2672.  
     # for more details please see 
     # gadgetron/toolboxes/mri_core/mri_core_coil_map_estimation.h  
-    #CSMs = CoilSensitivityData()
-    CSMs.calculate(processed_data, method='Inati()')
-    #CSMs.calculate(CIs, method='Inati()')
+    CSMs.calculate(CIs, method='Inati()')
     if show_plot:
         csms_array = CSMs.as_array()
         nz = csms_array.shape[1]

@@ -586,6 +586,9 @@ class CoilSensitivityData(ImageData):
                 
             cis_array = data.as_array()
             csm, _ = coils.calculate_csm_inati_iter(cis_array)
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+            self.handle = pysirf.cSIRF_clone(data.handle)
             self.fill(csm.astype(numpy.complex64))
         elif method_name == 'SRSS':
             try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
