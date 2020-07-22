@@ -72,6 +72,8 @@ extern "C" {
     void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
     void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
     void* cReg_NiftiImageData3DTensor_get_tensor_component(const void *ptr, const int dim);
+    void* cReg_NiftiImageData3DTensor_tensor_component_maths_im(const void *ptr, const int dim, const void *im_ptr, const int maths_type);
+    void* cReg_NiftiImageData3DTensor_tensor_component_maths_val(const void *ptr, const int dim, const float val, const int maths_type);
 
     // NiftiImageData3DDeformation
     void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);

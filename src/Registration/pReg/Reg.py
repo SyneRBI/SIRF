@@ -613,6 +613,27 @@ class NiftiImageData3DTensor(NiftiImageData):
         check_status(output.handle)
         return output
 
+    def tensor_component_maths(self, dim, arg, maths_type):
+        """Do tensor component maths."""
+        if isinstance(arg, SIRF.ImageData):
+            try_calling(
+                pyreg.cReg_NiftiImageData3DTensor_tensor_component_maths_im(
+                    self.handle, dim, arg.handle, maths_type))
+        elif isnumeric(arg):
+            try_calling(
+                pyreg.cReg_NiftiImageData3DTensor_tensor_component_maths_val(
+                    self.handle, dim, float(arg), maths_type))
+        else:
+            raise error("tensor_component_maths: arg should be image or scalar")
+
+    def multiply_tensor_component(self, dim, arg):
+        """Multiply tensor component with image or value."""
+        self.tensor_component_maths(dim, arg, 2)
+
+    def add_to_tensor_component(self, dim, arg):
+        """Add to tensor component with image or value."""
+        self.tensor_component_maths(dim, arg, 0)
+
 
 class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
     """Class for 3D displacement nifti image data.

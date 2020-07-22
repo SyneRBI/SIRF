@@ -1166,10 +1166,10 @@ def try_im_grad_wrt_def_times_im():
 
             d_lambda_times_rand_val = res_forward - lambda_hat
             d_lambda_times_rand_val *= (fill_val / epsilon)
-            dvf2.add_to_tensor_component(u, d_lambda_times_rand_val)
+            dvf2.add_to_tensor_component(iu, d_lambda_times_rand_val)
 
         # print progress
-        i = numpy.ravel_multi_index((ix,iy,iz), lambda_tilde_shape)
+        i = np.ravel_multi_index((ix,iy,iz), lambda_tilde_shape)
         if (i+1) % 100 == 0:
             print("done " + str(i+1) + " resamples out of " + str(lambda_hat_arr.size) << " for numerical gradient test...")
 

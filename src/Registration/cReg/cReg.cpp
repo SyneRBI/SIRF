@@ -578,6 +578,28 @@ void* cReg_NiftiImageData3DTensor_get_tensor_component(const void *ptr, const in
     }
     CATCH;
 }
+extern "C"
+void* cReg_NiftiImageData3DTensor_tensor_component_maths_im(const void *ptr, const int dim, const void *im_ptr, const int maths_type)
+{
+    try {
+        NiftiImageData3DTensor<float>& tensor = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
+        std::shared_ptr<const ImageData> im_sptr;
+        getObjectSptrFromHandle<const ImageData>(im_ptr, im_sptr);
+        tensor.tensor_component_maths(dim, im_sptr, static_cast<NiftiImageData<float>::MathsType>(maths_type));
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftiImageData3DTensor_tensor_component_maths_val(const void *ptr, const int dim, const float val, const int maths_type)
+{
+    try {
+        NiftiImageData3DTensor<float>& tensor = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
+        tensor.tensor_component_maths(dim, val, static_cast<NiftiImageData<float>::MathsType>(maths_type));
+        return new DataHandle;
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DDeformation
 // -------------------------------------------------------------------------------- //
