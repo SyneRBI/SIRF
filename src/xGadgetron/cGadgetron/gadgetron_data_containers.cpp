@@ -1731,90 +1731,10 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
 
     const void* ptr_cf_img = sptr_iw->ptr_image();
     return *( (CFImage*)ptr_cf_img);
-
-}
-
-void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
-{
-    this->empty();
-
-    std::string par;
-    ISMRMRD::IsmrmrdHeader header;
-    ISMRMRD::Acquisition acq;
-    par = ac.acquisitions_info();
-    set_meta_data(par);
-    ISMRMRD::deserialize(par.c_str(), header);
-
-    for (unsigned int i = 0; i < ac.number(); i++) {
-        ac.get_acquisition(i, acq);
-        if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-            break;
-    }
-
-    ISMRMRD::Encoding e = header.encoding[0];
-    bool parallel = e.parallelImaging.is_present() &&
-        e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
-    unsigned int nx = e.reconSpace.matrixSize.x;
-    unsigned int ny = e.encodedSpace.matrixSize.y;
-    unsigned int nz = e.encodedSpace.matrixSize.z;
-    unsigned int nc = acq.active_channels();
-    unsigned int readout = acq.number_of_samples();
-
-    int nmap = 0;
-    std::cout << "map ";
-
-    for (unsigned int na = 0; na < ac.number();) {
-
-        std::cout << ++nmap << ' ' << std::flush;
-
-        std::vector<size_t> ci_dims;
-        ci_dims.push_back(readout);
-        ci_dims.push_back(ny);
-        ci_dims.push_back(nz);
-        ci_dims.push_back(nc);
-        ISMRMRD::NDArray<complex_float_t> ci(ci_dims);
-        memset(ci.getDataPtr(), 0, ci.getDataSize());
-
-        int y = 0;
-        for (;;) {
-            ac.get_acquisition(na + y, acq);
-            if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-                break;
-            y++;
-        }
-        for (;;) {
-            ac.get_acquisition(na + y, acq);
-            int yy = acq.idx().kspace_encode_step_1;
-            int zz = acq.idx().kspace_encode_step_2;
-            if (!parallel ||
-                acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) ||
-                acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING)) {
-                for (unsigned int c = 0; c < nc; c++) {
-                    for (unsigned int s = 0; s < readout; s++) {
-                        ci(s, yy, zz, c) = acq.data(s, c);
-                    }
-                }
-            }
-            y++;
-            if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-                break;
-        }
-        na += y;
-
-        ifft3c(ci);
-
-        CFImage coil_img(readout,ny,nz,nc);
-        memcpy(coil_img.getDataPtr(), ci.getDataPtr(), ci.getDataSize());
-
-        void* vptr_coil_img = new CFImage(coil_img); //urgh this is so horrible
-        sirf::ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, vptr_coil_img);
-        append(iw);
-    }
-    std::cout << '\n';
 }
 
 void 
-CoilSensitivitiesVector::calculate_csm(CoilImagesVector& iv)
+CoilSensitivitiesVector::calculate(CoilImagesVector& iv)
 {
 
     this->empty();
