@@ -844,6 +844,62 @@ class ControlPointGridToDeformationConverter(object):
         return self.dvf_template
 
 
+class ImageGradientWRTDeformationTimesImage(object):
+    """
+    Class for converting from control points grids to deformations and vice
+    versa.
+    """
+    def __init__(self):
+        self.handle = None
+        self.name = 'ImageGradientWRTDeformationTimesImage'
+        self.handle = pyreg.cReg_newObject(self.name)
+        self.output_of_forward_method = None
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_resampler(self, resampler):
+        """Set resampler."""
+        assert_validity(resampler, NiftyResample)
+        try_calling(pyreg.cReg_ImGradWRTDef_set_resampler(
+            self.handle, resampler.handle))
+        self.output_of_forward_method = resampler.reference_image
+
+    def forward(self, deformation, out=None):
+        """Forward (forward resample with given deformation)."""
+        assert_validity(deformation, NiftiImageData3DDeformation)
+        # If we need to create the output
+        if out is None:
+            out = self.output_of_forward_method.same_object()
+            out.handle = pyreg.cReg_ImGradWRTDef_forward(
+                self.handle, deformation.handle)
+            check_status(out.handle)
+            return out
+        # If in place
+        else:
+            assert_validity(out, SIRF.ImageData)
+            try_calling(pyreg.cReg_ImGradWRTDef_forward_in_place(
+                self.handle, deformation.handle, out.handle))
+
+    def backward(self, image, out=None):
+        """Backward (get im grad wrt deformation times image)."""
+        assert_validity(image, SIRF.ImageData)
+        # If we need to create the output
+        if out is None:
+            out = NiftiImageData3DDeformation()
+            out.handle = pyreg.cReg_ImGradWRTDef_backward(
+                self.handle, image.handle)
+            check_status(out.handle)
+            return out
+        # If in place
+        else:
+            assert_validity(out, NiftiImageData3DDeformation)
+            try_calling(pyreg.cReg_ImGradWRTDef_backward(
+                self.handle, image.handle, out.handle))
+
+
 class _Registration(ABC):
     """Abstract base class for registration."""
 

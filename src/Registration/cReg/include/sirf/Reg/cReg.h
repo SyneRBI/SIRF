@@ -87,6 +87,13 @@ extern "C" {
     void* cReg_CPG2DVF_forward(const void* converter_ptr, const void* cpg_ptr);
     void* cReg_CPG2DVF_backward(const void* converter_ptr, const void* dvf_ptr);
 
+    // ImageGradientWRTDeformationTimesImage
+    void* cReg_ImGradWRTDef_set_resampler(const void* ptr, const void* resampler_ptr);
+    void* cReg_ImGradWRTDef_forward_in_place(const void* ptr, const void* deformation_ptr, const void* out_ptr);
+    void* cReg_ImGradWRTDef_forward(const void* ptr, const void* deformation_ptr);
+    void* cReg_ImGradWRTDef_backward_in_place(const void* ptr, const void* image_ptr, const void* out_ptr);
+    void* cReg_ImGradWRTDef_backward(const void* ptr, const void* image_ptr);
+
     // Registration
     void* cReg_Registration_process(void* ptr);
     void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type, const int idx);

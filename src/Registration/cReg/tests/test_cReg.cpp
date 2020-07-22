@@ -1344,9 +1344,6 @@ int main(int argc, char* argv[])
         // lambda hat is forward of lambda
         resampler.forward(lambda_hat_sptr, deformation_sptr);
 
-        // Rand voxel inside of image (let's ignore a 30% margin around the edge in x,y,z directions)
-        const float margin = 0.3;
-
         // lambda tilde is copy of lambda hat with all voxels = cnst
         std::shared_ptr<NiftiImageData3D<float> > lambda_tilde_sptr = lambda_hat_sptr->clone();
         const float fill_val = 2.f;
@@ -1373,12 +1370,10 @@ int main(int argc, char* argv[])
             for (unsigned u=0; u<3; ++u) {
                 d_shifted_sptr->fill(*deformation_sptr);
                 (*d_shifted_sptr)(u*lambda_hat_sptr->get_num_voxels()+i) += epsilon;
-                d_lambda_times_rand_val_sptr->fill(*lambda_hat_sptr);
                 std::shared_ptr<NiftiImageData3D<float> > res_forward =
                         std::dynamic_pointer_cast<NiftiImageData3D<float> > (resampler.forward(d_shifted_sptr));
                 *d_lambda_times_rand_val_sptr = (*res_forward - *lambda_hat_sptr);
-                *d_lambda_times_rand_val_sptr /= epsilon;
-                *d_lambda_times_rand_val_sptr *= fill_val;
+                *d_lambda_times_rand_val_sptr *= (fill_val/epsilon);
                 dvf2_sptr->add_to_tensor_component(u, d_lambda_times_rand_val_sptr);
             }
             // print progress
