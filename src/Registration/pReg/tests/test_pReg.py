@@ -1338,21 +1338,21 @@ def try_quaternion():
 
 
 def test():
-    # try_niftiimage()
-    # try_niftiimage3d()
-    # try_niftiimage3dtensor()
-    # try_niftiimage3ddisplacement()
-    # try_niftiimage3ddeformation()
+    try_niftiimage()
+    try_niftiimage3d()
+    try_niftiimage3dtensor()
+    try_niftiimage3ddisplacement()
+    try_niftiimage3ddeformation()
     na = try_niftyaladin()
-    # try_niftyf3d()
-    # try_transformations(na)
-    # try_resample(na)
-    # try_niftymomo(na)
-    # try_weighted_mean(na)
+    try_niftyf3d()
+    try_transformations(na)
+    try_resample(na)
+    try_niftymomo(na)
+    try_weighted_mean(na)
     try_cgp_dvf_conversion(na)
     try_im_grad_wrt_def_times_im()
-    # try_affinetransformation(na)
-    # try_quaternion()
+    try_affinetransformation(na)
+    try_quaternion()
 
 
 if __name__ == "__main__":
