@@ -293,8 +293,9 @@ class ImageData(SIRF.ImageData):
         elif isinstance(value, int):
             try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
-            raise error('wrong fill value.' + \
-                        ' Should be ImageData, numpy.ndarray, float or int')
+            raise TypeError('wrong fill value.' + \
+                        ' Should be ImageData, numpy.ndarray, float or int. Got {}'\
+                        .format(type(value)))
         return self
     def get_uniform_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
@@ -399,6 +400,8 @@ class ImageData(SIRF.ImageData):
             elif value == 'random_int':
                 max_value = kwargs.get('max_value', 100)
                 out.fill(numpy.random.randint(max_value,size=shape))
+        elif value is None:
+            out = self.get_uniform_copy(0)
         else:
             out = self.get_uniform_copy(value)
         return out
@@ -756,8 +759,9 @@ class AcquisitionData(DataContainer):
             try_calling(pystir.cSTIR_fillAcquisitionData\
                         (self.handle, float(value)))
         else:
-            raise error('Wrong fill value.' + \
-                ' Should be numpy.ndarray, AcquisitionData, float or int')
+            raise TypeError('Wrong fill value.' + \
+                ' Should be numpy.ndarray, AcquisitionData, float or int, got {}'\
+                .format(type(value)))
         return self
     def get_uniform_copy(self, value = 0):
         ''' 
@@ -830,6 +834,8 @@ class AcquisitionData(DataContainer):
             elif value == 'random_int':
                 max_value = kwargs.get('max_value', 100)
                 out.fill(numpy.random.randint(max_value,size=shape))
+        elif value is None:
+            out = self.get_uniform_copy(0)
         else:
             out = self.get_uniform_copy(value)
         return out
@@ -1113,7 +1119,7 @@ class AcquisitionModel(object):
         if value < self.num_subsets:
             self._subset_num = value
         else:
-            raise ValueError('Cannot set iteration number {}. Expected max {}".format(
+            raise ValueError('Cannot set iteration number {}. Expected max {}'.format(
                 value, self.num_subsets ))
     @property
     def num_subsets(self):
@@ -1123,8 +1129,7 @@ class AcquisitionModel(object):
         if isinstance (value , Integral):
             self._num_subsets = value
         else:
-            raise ValueError('number of subset must be an integer. Got {}".format(
-                type(value) ))
+            raise ValueError('number of subset must be an integer. Got {}'.format( type(value) ))
 
     def set_up(self, acq_templ, img_templ):
         ''' 
