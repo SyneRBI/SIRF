@@ -27,7 +27,7 @@ limitations under the License.
 
 #include <complex>
 #include <typeinfo>
-
+#include <stdexcept>
 /// Number type. Taken from ismrmrd/ismrmrd.h (saves having to include 
 /// it in this file, which should be independent of it)
 /// class NumberType

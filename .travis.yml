@@ -86,33 +86,33 @@ matrix:
  # osx g{cc,++} py{27,36}
  - os: osx
    osx_image: xcode11.2
-   python: 2.7
+   python: 3
    # +boost -hdf5 -swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
  - os: osx
    # +boost +fftw3 -hdf5 -swig
    osx_image: xcode11.2
    python: 3
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
  - os: osx
-   python: 2.7
+   python: 3
    # +DEVEL +boost -hdf5 +swig
    osx_image: xcode11.2
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
  - os: osx
-   python: 2.7
+   python: 3
    # +DEVEL +boost -fftw3 -hdf5 +swig +itk
    osx_image: xcode11.2
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_ITK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_ITK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
  - os: linux
    python: 3
    # -boost +itk +fftw3 +hdf5 +vtk
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DUSE_VTK=ON -DUSE_SYSTEM_VTK=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
  - os: osx
-   python: 2.7
+   python: 3
    # +boost +itk -hdf5 +swig +vtk
    osx_image: xcode11.2
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_VTK=ON -DUSE_SYSTEM_VTK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_VTK=ON -DUSE_SYSTEM_VTK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
 
 before_install:
 # Set C and C++ compiler etc using trick from
@@ -128,34 +128,15 @@ before_install:
 # in compounds statements (note that export/cd etc won't persist).
 - |
    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+     # Update and upgrade brew
      brew update
+     brew upgrade
+
      BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
      brew install openblas
      # Let CMake find this blas version (note: we use /usr/local/opt/openblas symlink to get the most recent brew version)
      EXTRA_BUILD_FLAGS="$EXTRA_BUILD_FLAGS -DCBLAS_INCLUDE_DIR=/usr/local/opt/openblas/include -DCBLAS_LIBRARY=/usr/local/opt/openblas/lib/libblas.dylib"
-     if [ $PYMVER == 2 ]; then
-       PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
-       PY_EXE=$PYINST/bin/python2.7
-       # Next lines are not necessary if we give the actual path for the executable to cmake
-       #BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/lib/libpython2.7.dylib"
-       #BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/include/python2.7"
-     else
-       brew upgrade python || true # don't fail if upgrading doesn't do anything
-       # find exact location of Python executable to pass to CMake
-       # we attempt to find the last one if there are multiple Python 3 versions installed
-       PY_INST=$(ls -d1 /usr/local/Cellar/python/$PYMVER.*/Frameworks/Python.framework/Versions/$PYMVER.*|tail -n 1)
-       PYMVER=$(basename ${PY_INST})
-       PY_EXE=$PY_INST/bin/python$PYMVER
-       if [ ! -x "$PY_EXE" ]; then
-         echo "Something wrong with finding Python executable for OSX"
-         echo "PY_EXE = $PY_EXE"
-         travis_terminate 1
-       fi
-       # Next lines are not necessary if we give the actual path for the executable to cmake
-       #PY_LIB=$PY_INST/Python
-       #PY_INC=$PY_INST/Headers
-       # BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PY_LIB -DPYTHON_INCLUDE_DIR=$PY_INC"
-     fi
+     PY_EXE=$(which python${PYMVER})
      if [[ $EXTRA_BUILD_FLAGS == *"-DUSE_VTK=ON"* ]] && [[ $EXTRA_BUILD_FLAGS == *"-DUSE_SYSTEM_VTK=ON"* ]]; then
        brew install vtk
      fi
@@ -181,9 +162,6 @@ before_install:
        #tar xzf cmake-*.tar.gz
        #mv cmake-*/CMake.app/Contents/* cmake
        #export PATH="$PWD/cmake/bin:$PATH"
-
-       #now upgrade the whole thing to avoid problems with outdated packages
-       brew upgrade
      )
    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
      PY_EXE=python$PYMVER

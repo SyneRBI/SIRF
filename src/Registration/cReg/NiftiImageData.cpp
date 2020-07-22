@@ -296,7 +296,7 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator*=(const float val)
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator/=(const float val)
 {
-    maths(1.f/val, add);
+    maths(1.f/val, mul);
     return *this;
 }
 
@@ -328,6 +328,24 @@ float &NiftiImageData<dataType>::operator()(const int index[7])
     assert(this->is_in_bounds(index));
     const int index_1d = this->get_1D_index(index);
     return _data[index_1d];
+}
+
+template<class dataType>
+float NiftiImageData<dataType>::operator()(const int x, const int y, const int z,
+                                           const int t, const int u, const int v,
+                                           const int w) const
+{
+    const int idx[7] = { x, y, z, t, u, v, w };
+    return (*this)(idx);
+}
+
+template<class dataType>
+float &NiftiImageData<dataType>::operator()(const int x, const int y, const int z,
+                                            const int t, const int u, const int v,
+                                            const int w)
+{
+    const int idx[7] = { x, y, z, t, u, v, w };
+    return (*this)(idx);
 }
 
 template<class dataType>
@@ -472,6 +490,16 @@ void NiftiImageData<dataType>::fill(const dataType *v)
 
     for (unsigned i=0; i<_nifti_image->nvox; ++i)
         _data[i] = v[i];
+}
+
+
+template<class dataType>
+void NiftiImageData<dataType>::fill(const NiftiImageData &im)
+{
+    if(!im.is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::fill(): Argument image not initialised.");
+
+    this->fill(static_cast<const dataType*>(im.get_raw_nifti_sptr()->data));
 }
 
 template<class dataType>
@@ -785,10 +813,14 @@ void NiftiImageData<dataType>::crop(const int min_index[7], const int max_index[
     }
 
     // If the minimum has been changed, need to alter the origin.
-    for (int i=0; i<3; ++i)
+    for (int i=0; i<3; ++i) {
         _nifti_image->qto_ijk.m[i][3] -= min_idx[i];
+        _nifti_image->sto_ijk.m[i][3] -= min_idx[i];
+    }
     _nifti_image->qto_xyz =
             nifti_mat44_inverse(_nifti_image->qto_ijk);
+    _nifti_image->sto_xyz =
+            nifti_mat44_inverse(_nifti_image->sto_ijk);
     nifti_mat44_to_quatern( _nifti_image->qto_xyz,
                             &_nifti_image->quatern_b,
                             &_nifti_image->quatern_c,
@@ -1381,13 +1413,10 @@ void NiftiImageData<dataType>::kernel_convolution(const float sigma, NREG_CONV_K
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::set_voxel_spacing: Image not initialised.");
 
-    // Warning
-    std::cout << "\n\n\n\nNiftiImageData<dataType>::kernel_convolution(): Warning, I haven't tested this at all!\n\n\n\n";
-
     float *sigma_t=new float[_nifti_image->nt];
     for(int i=0; i<_nifti_image->nt; ++i) sigma_t[i]=sigma; //-0.7355f?
     reg_tools_kernelConvolution(_nifti_image.get(),sigma_t,conv_type);
-    delete []sigma_t;
+    delete sigma_t;
 }
 
 enum FlipOrMirror {

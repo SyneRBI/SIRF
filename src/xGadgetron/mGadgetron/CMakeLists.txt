@@ -30,7 +30,7 @@ if(BUILD_MATLAB)
   # Generate m-files on the fly
   add_custom_command(
     OUTPUT ${mgadgetron_c} ${mgadgetron_h}
-    COMMAND gmi_xgadgetron ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND gmi_xgadgetron ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/xGadgetron/cGadgetron/include/sirf/Gadgetron/cgadgetron.h
     COMMENT "Generating mgadgetron.c/.h"
     VERBATIM

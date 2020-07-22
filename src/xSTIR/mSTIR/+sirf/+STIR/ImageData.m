@@ -135,17 +135,25 @@ classdef ImageData < sirf.SIRF.ImageData
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
             sirf.Utilities.check_status('ImageData:read_from_file', self.handle_);
         end
-        function add_shape(self, shape, add)
+        function add_shape(self, shape, add, num_samples_in_each_direction)
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
 %         by the value of the last argument.
+%
+%         If a shape partially fills a voxel, it is possible to choose the
+%         number of samples that will be used in each direction to determine the
+%         fraction of the voxel that is filled by the shape. For a 3D image,
+%         using num_samples_in_each_direction=2 would result in 2^3=8 samples.
             sirf.Utilities.assert_validity(shape, 'Shape')
             if isempty(self.handle_)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
+            if nargin < 4
+                num_samples_in_each_direction = 1
+            end
             h = calllib...
                 ('mstir', 'mSTIR_addShape', self.handle_,...
-                shape.handle_, add);
+                shape.handle_, add, num_samples_in_each_direction);
             sirf.Utilities.check_status('ImageData:add_shape', h);
             sirf.Utilities.delete(h)
         end

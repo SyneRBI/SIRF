@@ -79,7 +79,7 @@ if (BUILD_MATLAB)
   # Generate m-files on the fly
   add_custom_command(
     OUTPUT ${msirf_c} ${msirf_h}
-    COMMAND gmi_csirf ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND gmi_csirf ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/common/include/sirf/common/csirf.h
     COMMENT "Generating msirf.c/.h"
     VERBATIM
