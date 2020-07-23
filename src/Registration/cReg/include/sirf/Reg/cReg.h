@@ -63,6 +63,7 @@ extern "C" {
     void* cReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr);
     void* cReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr);
     void* cReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_ptr, const float accuracy);
+    void* cReg_NiftiImageData_kernel_convolution(void* im_ptr, const float sigma, const int type);
 
     // NiftiImageData3D
 

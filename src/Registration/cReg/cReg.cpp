@@ -36,6 +36,7 @@ limitations under the License.
 #include "sirf/Reg/Transformation.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
+#include <_reg_tools.h>
 #ifdef SIRF_SPM
 #include "sirf/Reg/SPMRegistration.h"
 #endif
@@ -508,6 +509,19 @@ void* cReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_p
     }
 	CATCH;
 }
+
+extern "C"
+void* cReg_NiftiImageData_kernel_convolution(void* im_ptr, const float sigma, const int type)
+{
+    try {
+        std::shared_ptr<NiftiImageData<float> > im_sptr;
+        getObjectSptrFromHandle<NiftiImageData<float> >(im_ptr, im_sptr);
+        im_sptr->kernel_convolution(sigma, static_cast<NREG_CONV_KERNEL_TYPE>(type));
+        return new DataHandle;
+    }
+	CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DTensor
 // -------------------------------------------------------------------------------- //
