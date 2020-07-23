@@ -86,6 +86,7 @@ from ccpi.optimisation.operators import CompositionOperator, BlockOperator
 from ccpi.plugins.regularisers import FGP_TV
 from ccpi.filters import regularisers
 import numpy as np
+from ccpi.utilities import NUM_THREADS
 
 pet.AcquisitionData.set_storage_scheme('memory')
 
@@ -134,6 +135,8 @@ verbosity = int(args['--verbosity'])
 pet.set_verbosity(verbosity)
 if verbosity == 0:
     msg_red = pet.MessageRedirector(None, None, None)
+# OMP THREADS
+pet.set_max_omp_threads(NUM_THREADS)
 
 # Save interval
 save_interval = int(args['--save_interval'])
