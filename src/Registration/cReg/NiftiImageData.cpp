@@ -1416,7 +1416,7 @@ void NiftiImageData<dataType>::kernel_convolution(const float sigma, NREG_CONV_K
     float *sigma_t=new float[_nifti_image->nt];
     for(int i=0; i<_nifti_image->nt; ++i) sigma_t[i]=sigma; //-0.7355f?
     reg_tools_kernelConvolution(_nifti_image.get(),sigma_t,conv_type);
-    delete sigma_t;
+    delete[] sigma_t;
 }
 
 enum FlipOrMirror {
