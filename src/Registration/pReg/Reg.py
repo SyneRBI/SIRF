@@ -468,6 +468,18 @@ class NiftiImageData(SIRF.ImageData):
         pyiutil.deleteDataHandle(handle)
         return inner_product
 
+    def kernel_convolution(self, sigma, convolution_type=2):
+        """Kernel convolution.
+
+        convolution_type:
+            - MEAN_KERNEL         = 0
+            - LINEAR_KERNEL       = 1
+            - GAUSSIAN_KERNEL     = 2
+            - CUBIC_SPLINE_KERNEL = 3
+        """
+        try_calling(pyreg.cReg_NiftiImageData_kernel_convolution(
+            self.handle, float(sigma), int(convolution_type)))
+
     @staticmethod
     def print_headers(to_print):
         """Print nifti header metadata of one or multiple nifti images."""
