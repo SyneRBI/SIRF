@@ -80,9 +80,10 @@ import pylab
 import sirf.Reg as reg
 import sirf.STIR as pet
 from ccpi.optimisation.algorithms import PDHG, SPDHG
-from ccpi.optimisation.functions import KullbackLeibler, BlockFunction
-from ccpi.optimisation.functions import IndicatorBox
-from ccpi.optimisation.operators import CompositionOperator, BlockOperator
+from ccpi.optimisation.functions import \
+    KullbackLeibler, BlockFunction, IndicatorBox
+from ccpi.optimisation.operators import \
+    CompositionOperator, BlockOperator, LinearOperator
 from ccpi.plugins.regularisers import FGP_TV
 from ccpi.filters import regularisers
 import numpy as np
@@ -176,8 +177,6 @@ def get_asm_attn(sino, attn, acq_model):
 
 def get_filenames():
     """Get filenames."""
-    if trans_pattern is None:
-        raise AssertionError("--trans missing")
     if sino_pattern is None:
         raise AssertionError("--sino missing")
     trans_files = sorted(glob(trans_pattern))
@@ -190,7 +189,7 @@ def get_filenames():
     if num_ms == 0:
         raise AssertionError("No sinograms found!")
     # Should have as many trans as sinos
-    if num_ms != len(trans_files):
+    if len(trans_files) > 0 and num_ms != len(trans_files):
         raise AssertionError("#trans should match #sinos. "
                              "#sinos = " + str(num_ms) +
                              ", #trans = " + str(len(trans_files)))
@@ -209,15 +208,19 @@ def get_filenames():
 
 def read_files(trans_files, sino_files, attn_files, rand_files):
     """Read files."""
-    if trans_type == "tm":
-        trans = [reg.AffineTransformation(file) for file in trans_files]
-    elif trans_type == "disp":
-        trans = [reg.NiftiImageData3DDisplacement(file)
-                 for file in trans_files]
-    elif trans_type == "def":
-        trans = [reg.NiftiImageData3DDeformation(file) for file in trans_files]
+    if not trans_files:
+        trans = None
     else:
-        raise error("Unknown transformation type")
+        if trans_type == "tm":
+            trans = [reg.AffineTransformation(file) for file in trans_files]
+        elif trans_type == "disp":
+            trans = [reg.NiftiImageData3DDisplacement(file)
+                     for file in trans_files]
+        elif trans_type == "def":
+            trans = [reg.NiftiImageData3DDeformation(file)
+                     for file in trans_files]
+        else:
+            raise error("Unknown transformation type")
 
     sinos_raw = [pet.AcquisitionData(file) for file in sino_files]
     attns = [pet.ImageData(file) for file in attn_files]
@@ -290,21 +293,24 @@ def get_initial_estimate(sinos):
 def resample_attn_images(num_ms, attns, trans):
     """Resample attenuation images if necessary."""
     resampled_attns = None
-    if len(attns) > 0:
-        resampled_attns = [0]*num_ms
-        # if using GPU, dimensions of attn and recon images have to match
-        ref = image if use_gpu else None
-        for i in range(num_ms):
-            # if we only have 1 attn image, then we need to resample into
-            # space of each gate. However, if we have num_ms attn images, then
-            # assume they are already in the correct position, so use None as
-            # transformation.
-            tran = trans[i] if len(attns) == 1 else None
-            # If only 1 attn image, then resample that. If we have num_ms attn
-            # images, then use each attn image of each frame.
-            attn = attns[0] if len(attns) == 1 else attns[i]
-            resam = get_resampler(attn, ref=ref, trans=tran)
-            resampled_attns[i] = resam.forward(attn)
+    if trans is None:
+        resampled_attns = attns
+    else:
+        if len(attns) > 0:
+            resampled_attns = [0]*num_ms
+            # if using GPU, dimensions of attn and recon images have to match
+            ref = image if use_gpu else None
+            for i in range(num_ms):
+                # if we only have 1 attn image, then we need to resample into
+                # space of each gate. However, if we have num_ms attn images,
+                # then assume they are already in the correct position, so use
+                # None as transformation.
+                tran = trans[i] if len(attns) == 1 else None
+                # If only 1 attn image, then resample that. If we have num_ms
+                # attn images, then use each attn image of each frame.
+                attn = attns[0] if len(attns) == 1 else attns[i]
+                resam = get_resampler(attn, ref=ref, trans=tran)
+                resampled_attns[i] = resam.forward(attn)
     return resampled_attns
 
 
@@ -370,13 +376,23 @@ def create_kls(sinos, etas, scale_factor=None):
     return kl
 
 
+def norm(self):
+    """Norm implementation."""
+    return LinearOperator.PowerMethod(self, 10)[0]
+
+
 def set_up_reconstructor(acq_models, resamplers, algorithm, sinos, rands=None):
     """Set up reconstructor."""
     # Create composition operators containing linear
     # acquisition models and resamplers
-    C = [CompositionOperator(
-        am.get_linear_acquisition_model(), res, preallocate=True)
-            for am, res in zip(*(acq_models, resamplers))]
+    if resamplers is None:
+        C = [am.get_linear_acquisition_model() for am in acq_models]
+        # Need an implementation of the norm
+        setattr(pet.AcquisitionModel, 'norm', norm)
+    else:
+        C = [CompositionOperator(
+            am.get_linear_acquisition_model(), res, preallocate=True)
+                for am, res in zip(*(acq_models, resamplers))]
 
     # We'll need an additive term (eta). If randoms are present, use them
     # Else, use a scaled down version of the sinogram
@@ -629,7 +645,10 @@ def main():
     # Set up resamplers
     ###########################################################################
 
-    resamplers = [get_resampler(image, trans=tran) for tran in trans]
+    if trans is None:
+        resamplers = None
+    else:
+        resamplers = [get_resampler(image, trans=tran) for tran in trans]
 
     ###########################################################################
     # Resample attenuation images (if necessary)
