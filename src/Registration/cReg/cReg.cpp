@@ -684,9 +684,9 @@ void* cReg_CPG2DVF_set_ref_im(const void* converter_ptr, const void* ref_im_ptr)
     try {
         ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
                 objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
-        NiftiImageData<float>& ref_im =
-                objectFromHandle<NiftiImageData<float> >(ref_im_ptr);
-        cpg_2_dvf_converter.set_reference_image(ref_im);
+        std::shared_ptr<const ImageData> ref_im_sptr;
+        getObjectSptrFromHandle<const ImageData>(ref_im_ptr, ref_im_sptr);
+        cpg_2_dvf_converter.set_reference_image(ref_im_sptr);
         return new DataHandle;
     }
     CATCH;

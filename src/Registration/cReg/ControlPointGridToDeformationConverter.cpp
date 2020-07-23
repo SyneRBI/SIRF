@@ -54,9 +54,10 @@ set_cpg_spacing(const float spacing[3])
 template<class dataType>
 void
 ControlPointGridToDeformationConverter<dataType>::
-set_reference_image(const NiftiImageData<dataType> &ref)
+set_reference_image(const std::shared_ptr<const ImageData> &ref_sptr)
 {
-    _template_ref_sptr = ref.clone();
+    // Need a copy as we'll need a non-const version
+    _template_ref_sptr = std::make_shared<NiftiImageData<dataType> >(*ref_sptr);
 }
 
 template<class dataType>
@@ -65,9 +66,6 @@ ControlPointGridToDeformationConverter<dataType>::
 forward(const NiftiImageData3DBSpline<dataType> &cpg) const
 {
     check_is_set_up();
-//    NiftiImageData3DDeformation<float> dvf;
-//    dvf.create_from_cpp(cpg, *_template_ref_sptr);
-//    return dvf;
     return cpg.get_as_deformation_field(*_template_ref_sptr);
 }
 

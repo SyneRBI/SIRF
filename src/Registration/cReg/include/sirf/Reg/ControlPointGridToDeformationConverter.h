@@ -34,6 +34,7 @@ limitations under the License.
 namespace sirf {
 
 // Forward declarations
+class ImageData;
 template<class dataType> class NiftiImageData;
 template<class dataType> class NiftiImageData3DDeformation;
 template<class dataType> class NiftiImageData3DBSpline;
@@ -57,7 +58,7 @@ public:
     void set_cpg_spacing(const float spacing[3]);
 
     /// Set reference image for generating dvfs
-    void set_reference_image(const NiftiImageData<dataType> &ref);
+    void set_reference_image(const std::shared_ptr<const ImageData> &ref_sptr);
 
     /// CPG to DVF
     NiftiImageData3DDeformation<dataType> forward(const NiftiImageData3DBSpline<dataType> &cpg) const;

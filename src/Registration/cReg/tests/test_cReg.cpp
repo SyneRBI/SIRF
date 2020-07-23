@@ -1270,7 +1270,7 @@ int main(int argc, char* argv[])
                         *NiftiImageData<float>::create_from_geom_info(
                             geom_info,true, NREG_TRANS_TYPE::DISP_FIELD));
             NiftiImageData3DDeformation<float> dvf(disp);
-            NiftiImageData<float> ref = *dvf.get_tensor_component(0);
+            std::shared_ptr<NiftiImageData<float> > ref_sptr = dvf.get_tensor_component(0);
 
             // CPG spacing double the dvf spacing
             float cpg_spacing[3] = {4.f * spacing_dvf[0], 4.f * spacing_dvf[1], 4.f * spacing_dvf[2]};
@@ -1278,7 +1278,7 @@ int main(int argc, char* argv[])
             // set up DVF<->CPG converter
             ControlPointGridToDeformationConverter<float> cpg_2_dvf_converter;
             cpg_2_dvf_converter.set_cpg_spacing(cpg_spacing);
-            cpg_2_dvf_converter.set_reference_image(ref);
+            cpg_2_dvf_converter.set_reference_image(ref_sptr);
 
             // ok, now ready to do adjoint test using:
             // |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon

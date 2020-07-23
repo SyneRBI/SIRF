@@ -818,7 +818,7 @@ class ControlPointGridToDeformationConverter(object):
 
     def set_reference_image(self, ref_im):
         """Set reference image for generating dvfs."""
-        assert_validity(ref_im, NiftiImageData3D)
+        assert_validity(ref_im, SIRF.ImageData)
         try_calling(pyreg.cReg_CPG2DVF_set_ref_im(self.handle, ref_im.handle))
 
     def forward(self, cpg):
