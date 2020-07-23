@@ -73,6 +73,34 @@ def get_verbosity():
     return value
 
 
+def set_max_omp_threads(threads):
+    """Set the maximum number of OpenMP threads."""
+    try_calling(pystir.cSTIR_setOMPThreads(int(threads)))
+
+
+def get_max_omp_threads():
+    """Get the maximum number of OpenMP threads."""
+    h = pystir.cSTIR_getOMPThreads()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.intDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
+def set_default_num_omp_threads():
+    """Use the default number of OpenMP threads."""
+    try_calling(pystir.cSTIR_useDefaultOMPThreads())
+
+
+def get_default_num_omp_threads():
+    """Get default num of OpenMP threads."""
+    h = pystir.cSTIR_getDefaultOMPThreads()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.intDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
 class MessageRedirector(object):
     """Class for STIR printing redirection to files/stdout/stderr."""
 
@@ -349,12 +377,20 @@ class ImageData(SIRF.ImageData):
         image.fill(value)
         return image
 
-    def add_shape(self, shape, scale):
-        """Add a shape to self - see Shape above."""
+    def add_shape(self, shape, scale, num_samples_in_each_direction=1):
+        """Add a shape to self - see Shape above.
+
+        If a shape partially fills a voxel, it is possible to choose the
+        number of samples that will be used in each direction to determine the
+        fraction of the voxel that is filled by the shape. For a 3D image,
+        using num_samples_in_each_direction=2 would result in 2^3=8 samples.
+        """
         if self.handle is None:
             raise AssertionError()
         assert_validity(shape, Shape)
-        try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
+        try_calling(pystir.cSTIR_addShape(
+            self.handle, shape.handle, scale,
+            int(num_samples_in_each_direction)))
 
     def read_from_file(self, filename):
         """

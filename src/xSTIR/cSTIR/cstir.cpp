@@ -25,6 +25,7 @@ limitations under the License.
 #include "sirf/STIR/stir_x.h"
 #include "stir/ImagingModality.h"
 #include "stir/Verbosity.h"
+#include "stir/num_threads.h"
 
 using namespace stir;
 using namespace sirf;
@@ -75,6 +76,30 @@ extern "C"
 void* cSTIR_getVerbosity(const int verbosity)
 {
     return dataHandle<int>(stir::Verbosity::get());
+}
+
+extern "C"
+void* cSTIR_setOMPThreads(const int threads)
+{
+	stir::set_num_threads(threads);
+	return new DataHandle;
+}
+
+extern "C"
+void* cSTIR_getOMPThreads()
+{
+	return dataHandle<int>(stir::get_max_num_threads());
+}
+extern "C"
+void* cSTIR_useDefaultOMPThreads()
+{
+	stir::set_default_num_threads();
+	return new DataHandle;
+}
+extern "C"
+void* cSTIR_getDefaultOMPThreads()
+{
+	return dataHandle<int>(stir::get_default_num_threads());
 }
 
 extern "C"
@@ -1081,7 +1106,7 @@ void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny)
 }
 
 extern "C"
-void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v)
+void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v, int num_samples_in_each_direction)
 {
 	try {
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
@@ -1089,7 +1114,10 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v)
 		sptrVoxels3DF sptr_v((Voxels3DF*)image.clone());
 		Voxels3DF& voxels = *sptr_v;
 		Shape3D& shape = objectFromHandle<Shape3D>(ptr_s);
-		CartesianCoordinate3D<int> num_samples(1, 1, 1);
+		CartesianCoordinate3D<int> num_samples(
+			num_samples_in_each_direction,
+			num_samples_in_each_direction,
+			num_samples_in_each_direction);
 		voxels.fill(0);
 		shape.construct_volume(voxels, num_samples);
 		voxels *= v;

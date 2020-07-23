@@ -40,6 +40,10 @@ extern "C" {
     // Global
     void* cSTIR_setVerbosity(const int verbosity_ptr);
     void* cSTIR_getVerbosity();
+    void* cSTIR_setOMPThreads(const int threads);
+    void* cSTIR_getOMPThreads();
+	void* cSTIR_useDefaultOMPThreads();
+	void* cSTIR_getDefaultOMPThreads();
 
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);
@@ -139,7 +143,7 @@ extern "C" {
 	void* cSTIR_imageFromAcquisitionData(void* ptr_ad);
 	void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny);
 	void* cSTIR_fillImage(void* ptr_i, float v);
-	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
+	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v, int num_samples_in_each_direction);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
     void* cSTIR_writeImage_par(void* ptr_i, const char* filename, const char* par);
     void* cSTIR_ImageData_zoom_image(void* ptr_im,
