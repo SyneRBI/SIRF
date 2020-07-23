@@ -1085,7 +1085,7 @@ def try_cgp_dvf_conversion(na):
 
     # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
     cpg_2_dvf_converter._set_up_for_adjoint_test(dvf, dvf_to_cpg)
-    if not is_operator_adjoint(cpg_2_dvf_converter):
+    if not is_operator_adjoint(cpg_2_dvf_converter, verbose=False):
         raise AssertionError("ControlPointGridToDeformationConverter::adjoint() failed")
 
     time.sleep(0.5)
@@ -1129,7 +1129,7 @@ def try_im_grad_wrt_def_times_im():
     resampler.set_resampler(nr)
 
     # lambda hat is forward of lambda
-    resampler.forward(deformation, out=lambda_hat)
+    resampler.forward(deformation, lambda_im, out=lambda_hat)
 
     # lambda tilde is copy of lambda hat with all voxels = cnst
     lambda_tilde = lambda_hat.deep_copy()
@@ -1137,7 +1137,7 @@ def try_im_grad_wrt_def_times_im():
     lambda_tilde.fill(fill_val)
 
     # img grad wrt dvf times image
-    dvf1 = resampler.backward(lambda_tilde)
+    dvf1 = resampler.backward(deformation, lambda_im, lambda_tilde)
 
     # dvf2 is a clone of dvf1. initially filled with zeroes
     dvf2 = dvf1.deep_copy()
@@ -1163,7 +1163,7 @@ def try_im_grad_wrt_def_times_im():
             d_shifted_arr[ix, iy, iz, 0, iu] += epsilon
             d_shifted.fill(d_shifted_arr)
 
-            res_forward = resampler.forward(d_shifted)
+            res_forward = resampler.forward(d_shifted, lambda_im)
 
             d_lambda_times_rand_val = res_forward - lambda_hat
             d_lambda_times_rand_val *= (fill_val / epsilon)

@@ -888,37 +888,44 @@ class ImageGradientWRTDeformationTimesImage(object):
             self.handle, resampler.handle))
         self.output_of_forward_method = resampler.reference_image
 
-    def forward(self, deformation, out=None):
+    def forward(self, deformation, in_image, out=None):
         """Forward (forward resample with given deformation)."""
         assert_validity(deformation, NiftiImageData3DDeformation)
+        assert_validity(in_image, SIRF.ImageData)
         # If we need to create the output
         if out is None:
             out = self.output_of_forward_method.same_object()
             out.handle = pyreg.cReg_ImGradWRTDef_forward(
-                self.handle, deformation.handle)
+                self.handle, deformation.handle, in_image.handle)
             check_status(out.handle)
             return out
         # If in place
         else:
             assert_validity(out, SIRF.ImageData)
             try_calling(pyreg.cReg_ImGradWRTDef_forward_in_place(
-                self.handle, deformation.handle, out.handle))
+                self.handle, deformation.handle, in_image.handle, out.handle))
 
-    def backward(self, image, out=None):
+    def backward(self, deformation, image_for_gradient,
+                 image_for_multiplication, out=None):
         """Backward (get im grad wrt deformation times image)."""
-        assert_validity(image, SIRF.ImageData)
+        assert_validity(deformation, NiftiImageData3DDeformation)
+        assert_validity(image_for_gradient, SIRF.ImageData)
+        assert_validity(image_for_multiplication, SIRF.ImageData)
         # If we need to create the output
         if out is None:
             out = NiftiImageData3DDeformation()
             out.handle = pyreg.cReg_ImGradWRTDef_backward(
-                self.handle, image.handle)
+                self.handle, deformation.handle,
+                image_for_gradient.handle,
+                image_for_multiplication.handle)
             check_status(out.handle)
             return out
         # If in place
         else:
             assert_validity(out, NiftiImageData3DDeformation)
-            try_calling(pyreg.cReg_ImGradWRTDef_backward(
-                self.handle, image.handle, out.handle))
+            try_calling(pyreg.cReg_ImGradWRTDef_forward_in_place(
+                self.handle, deformation.handle, image_for_gradient.handle,
+                image_for_multiplication.handle, out.handle))
 
 
 class _Registration(ABC):

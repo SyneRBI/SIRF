@@ -91,10 +91,10 @@ extern "C" {
 
     // ImageGradientWRTDeformationTimesImage
     void* cReg_ImGradWRTDef_set_resampler(const void* ptr, const void* resampler_ptr);
-    void* cReg_ImGradWRTDef_forward_in_place(const void* ptr, const void* deformation_ptr, const void* out_ptr);
-    void* cReg_ImGradWRTDef_forward(const void* ptr, const void* deformation_ptr);
-    void* cReg_ImGradWRTDef_backward_in_place(const void* ptr, const void* image_ptr, const void* out_ptr);
-    void* cReg_ImGradWRTDef_backward(const void* ptr, const void* image_ptr);
+    void* cReg_ImGradWRTDef_forward_in_place(const void* ptr, const void* deformation_ptr, const void* in_ptr, const void* out_ptr);
+    void* cReg_ImGradWRTDef_forward(const void* ptr, const void* deformation_ptr, const void* in_ptr);
+    void* cReg_ImGradWRTDef_backward_in_place(const void* ptr, const void* input_deformation_ptr, const void* image_for_gradient_ptr, const void* image_to_multiply_ptr, const void* out_ptr);
+    void* cReg_ImGradWRTDef_backward(const void* ptr, const void* input_deformation_ptr, const void* image_for_gradient_ptr, const void* image_to_multiply_ptr);
 
     // Registration
     void* cReg_Registration_process(void* ptr);

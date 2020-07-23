@@ -736,7 +736,7 @@ void* cReg_ImGradWRTDef_set_resampler(const void* ptr, const void* resampler_ptr
 }
 extern "C"
 void* cReg_ImGradWRTDef_forward_in_place(
-    const void* ptr, const void* deformation_ptr, const void* out_ptr)
+    const void* ptr, const void* deformation_ptr, const void* in_ptr, const void* out_ptr)
 {
     try {
         ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
@@ -744,18 +744,21 @@ void* cReg_ImGradWRTDef_forward_in_place(
         // Get deformation
         std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr;
         getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(deformation_ptr, deformation_sptr);
+        // input image
+        std::shared_ptr<ImageData> in_sptr;
+        getObjectSptrFromHandle<ImageData>(in_ptr, in_sptr);
         // Out
         std::shared_ptr<ImageData> out_sptr;
         getObjectSptrFromHandle<ImageData>(out_ptr, out_sptr);
         // Do it.
-        im_grad_wrt_def_time_im.forward(out_sptr, deformation_sptr);
+        im_grad_wrt_def_time_im.forward(out_sptr, deformation_sptr, in_sptr);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
 void* cReg_ImGradWRTDef_forward(
-    const void* ptr, const void* deformation_ptr)
+    const void* ptr, const void* deformation_ptr, const void* in_ptr)
 {
     try {
         ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
@@ -763,43 +766,65 @@ void* cReg_ImGradWRTDef_forward(
         // Get deformation
         std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr;
         getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(deformation_ptr, deformation_sptr);
+        // input image
+        std::shared_ptr<ImageData> in_sptr;
+        getObjectSptrFromHandle<ImageData>(in_ptr, in_sptr);
         // Do it.
-        auto out_sptr = im_grad_wrt_def_time_im.forward(deformation_sptr);
+        auto out_sptr = im_grad_wrt_def_time_im.forward(deformation_sptr, in_sptr);
         return newObjectHandle(out_sptr);
     }
     CATCH;
 }
 extern "C"
 void* cReg_ImGradWRTDef_backward_in_place(
-    const void* ptr, const void* image_ptr, const void* out_ptr)
+    const void* ptr, const void* input_deformation_ptr,
+    const void* image_for_gradient_ptr,
+    const void* image_to_multiply_ptr,
+    const void* out_ptr)
 {
     try {
         ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
             objectFromHandle<ImageGradientWRTDeformationTimesImage<float> >(ptr);
-        // Get image
-        std::shared_ptr<ImageData> image_sptr;
-        getObjectSptrFromHandle<ImageData>(image_ptr, image_sptr);
+        // Get image for multiplication
+        std::shared_ptr<ImageData> image_to_multiply_sptr;
+        getObjectSptrFromHandle<ImageData>(image_to_multiply_ptr, image_to_multiply_sptr);
+        // Get image for gradient
+        std::shared_ptr<ImageData> image_for_gradient_sptr;
+        getObjectSptrFromHandle<ImageData>(image_for_gradient_ptr, image_for_gradient_sptr);
+        // Input dvf
+        std::shared_ptr<NiftiImageData3DDeformation<float> > input_deformation_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(input_deformation_ptr, input_deformation_sptr);
         // Out dvf (might be null pointer)
         std::shared_ptr<NiftiImageData3DDeformation<float> > out_sptr;
         getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(out_ptr, out_sptr);
         // Do it.
-        im_grad_wrt_def_time_im.backward(out_sptr, image_sptr);
+        im_grad_wrt_def_time_im.backward(out_sptr, input_deformation_sptr, 
+                                         image_for_gradient_sptr, image_to_multiply_sptr);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
 void* cReg_ImGradWRTDef_backward(
-    const void* ptr, const void* image_ptr)
+    const void* ptr,
+    const void* input_deformation_ptr,
+    const void* image_for_gradient_ptr,
+    const void* image_to_multiply_ptr)
 {
     try {
         ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
             objectFromHandle<ImageGradientWRTDeformationTimesImage<float> >(ptr);
-        // Get image
-        std::shared_ptr<ImageData> image_sptr;
-        getObjectSptrFromHandle<ImageData>(image_ptr, image_sptr);
+        // Get image for multiplication
+        std::shared_ptr<ImageData> image_to_multiply_sptr;
+        getObjectSptrFromHandle<ImageData>(image_to_multiply_ptr, image_to_multiply_sptr);
+        // Get image for gradient
+        std::shared_ptr<ImageData> image_for_gradient_sptr;
+        getObjectSptrFromHandle<ImageData>(image_for_gradient_ptr, image_for_gradient_sptr);
+        // Input dvf
+        std::shared_ptr<NiftiImageData3DDeformation<float> > input_deformation_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(input_deformation_ptr, input_deformation_sptr);
         // Do it.
-        auto out_sptr = im_grad_wrt_def_time_im.backward(image_sptr);
+        auto out_sptr = im_grad_wrt_def_time_im.backward(input_deformation_sptr, image_for_gradient_sptr, image_to_multiply_sptr);
         return newObjectHandle(out_sptr);
     }
     CATCH;

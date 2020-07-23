@@ -356,26 +356,38 @@ void
 NiftyResample<dataType>::
 get_image_gradient_wrt_deformation_times_image(
         std::shared_ptr<NiftiImageData3DDeformation<dataType> > &output_deformation_sptr,
-        const std::shared_ptr<const ImageData> image_to_multiply_sptr)
+        const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &input_deformation_sptr,
+        const std::shared_ptr<const ImageData> &image_for_gradient_sptr,
+        const std::shared_ptr<const ImageData> &image_to_multiply_sptr)
 {
     // Call the set up
     set_up();
+
+    // Check metadata of input deformation matches that used for set up
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*this->_deformation_sptr,*input_deformation_sptr,false))
+        throw std::runtime_error("NiftyResample::get_image_gradient_wrt_deformation_times_image: Metadata of input deformation should match that used for set up.");
 
     // Only tested for linear interpolation
     if (this->_interpolation_type != Resample<dataType>::LINEAR)
         throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image only implemented for linear interpolation");
 
     // Not implemented for complex images
-    if (this->_floating_image_niftis.is_complex() || image_to_multiply_sptr->is_complex())
+    if (image_for_gradient_sptr->is_complex() || image_to_multiply_sptr->is_complex())
         throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image not yet implemented for complex images");
 
-    // Get real part of floating image
-    std::shared_ptr<NiftiImageData<float> > floating_sptr = this->_floating_image_niftis.real()->clone();
+    // Get image for gradient as nifti and check metadata matches
+    std::shared_ptr<NiftiImageData<float> > image_for_gradient_as_nifti_sptr = 
+        std::make_shared<NiftiImageData3D<dataType> >(*image_for_gradient_sptr);
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*image_for_gradient_as_nifti_sptr,*this->_floating_image_niftis.real(),false))
+        throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image: Metadata of image for gradient should match that used for set up.");
+
+    // Clone input deformation as niftyreg method not marked const
+    auto input_deformation_clone_sptr = input_deformation_sptr->clone();
 
     // Get image gradient
-    reg_getImageGradient(floating_sptr->get_raw_nifti_sptr().get(),
+    reg_getImageGradient(image_for_gradient_as_nifti_sptr->get_raw_nifti_sptr().get(),
                          output_deformation_sptr->get_raw_nifti_sptr().get(),
-                         this->_deformation_sptr->get_raw_nifti_sptr().get(),
+                         input_deformation_clone_sptr->get_raw_nifti_sptr().get(),
                          nullptr,
                          this->_interpolation_type,
                          this->_padding_value,
@@ -389,20 +401,23 @@ get_image_gradient_wrt_deformation_times_image(
         output_deformation_sptr->multiply_tensor_component(i, image_to_multiply_sptr);
         // divide by spacing to get to mm
         output_deformation_sptr->multiply_tensor_component(i, 1.f/im_spacing[i+1]);
-
     }
 }
 
 template<class dataType>
 std::shared_ptr<NiftiImageData3DDeformation<dataType> >
 NiftyResample<dataType>::
-get_image_gradient_wrt_deformation_times_image(const std::shared_ptr<const ImageData> image_to_multiply_sptr)
+get_image_gradient_wrt_deformation_times_image(
+    const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &input_deformation_sptr,
+    const std::shared_ptr<const ImageData> &image_for_gradient_sptr,
+    const std::shared_ptr<const ImageData> &image_to_multiply_sptr)
 {
     // Call the set up
     set_up();
 
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > output_deformation_sptr = this->_deformation_sptr->clone();
-    get_image_gradient_wrt_deformation_times_image(output_deformation_sptr, image_to_multiply_sptr);
+    get_image_gradient_wrt_deformation_times_image(output_deformation_sptr, input_deformation_sptr, 
+                                                   image_for_gradient_sptr, image_to_multiply_sptr);
     return std::move(output_deformation_sptr);
 }
 
