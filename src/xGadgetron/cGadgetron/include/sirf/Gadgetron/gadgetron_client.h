@@ -344,7 +344,7 @@ namespace sirf {
 			//std::cout << "attributes:" << std::endl << meta_attrib << std::endl;
 
 			if (meta_attrib_length > 0) {
-				size_t l = meta_attrib.find("</ismrmrdMeta>") + std::strlen("</ismrmrdMeta>");
+				size_t l = meta_attrib.find("</ismrmrdMeta>") + std::string("</ismrmrdMeta>").size();
 				//std::cout << meta_attrib_length << ' ' << l << '\n';
 				meta_attrib.erase(l);
 			}
