@@ -77,8 +77,8 @@ It stores the exeption's error message and position (file name and line number).
 */
 class ExecutionStatus {
 public:
-	ExecutionStatus() : _error(0), _file(0), _line(0) {}
-	ExecutionStatus(const char* error, const char* file, int line) {
+	ExecutionStatus() : _line(0) {}
+	ExecutionStatus(const std::string& error, const std::string& file, int line) {
 		set(error, file, line);
 	}
 	ExecutionStatus(const ExecutionStatus& s) {
@@ -87,33 +87,17 @@ public:
 	ExecutionStatus(const LocalisedException& ex) {
 		set(ex.what(), ex.file(), ex.line());
 	}
-	~ExecutionStatus() {
-		delete[] _error;
-		delete[] _file;
-	}
-	const char* error() const { return _error; }
-	const char* file() const { return _file; }
+    ~ExecutionStatus() {}
+	const std::string& error() const { return _error; }
+	const std::string& file() const { return _file; }
 	int line() const { return _line; }
 private:
-	char* _error;
-	char* _file;
+	std::string _error;
+	std::string _file;
 	int _line;
-	void set(const char* error, const char* file, int line) {
-		size_t size;
-		if (error) {
-			size = strlen(error) + 1;
-			_error = new char[size];
-			memcpy(_error, error, size);
-		}
-		else
-			_error = 0;
-		if (file) {
-			size = strlen(file) + 1;
-			_file = new char[size];
-			memcpy(_file, file, size);
-		}
-		else
-			_file = 0;
+	void set(const std::string& error, const std::string& file, int line) {
+        _error = error;
+        _file = file;
 		_line = line;
 	}
 };
@@ -145,7 +129,7 @@ public:
 		_data = data;
 		_owns_data = grab != 0;
 	}
-	void set_status(const char* error, const char* file, int line)
+	void set_status(const std::string& error, const std::string& file, int line)
 	{
 		if (_status)
 			delete _status;
