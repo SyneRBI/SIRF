@@ -40,6 +40,7 @@ extern "C" {
     // Global
     void* cSTIR_setVerbosity(const int verbosity_ptr);
     void* cSTIR_getVerbosity();
+	void* cSTIR_scannerNames();
 
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);

@@ -64,6 +64,8 @@ show_plot = not args['--non-interactive']
 
 def main():
 
+    print(scanner_names())
+
 ##    AcquisitionData.set_storage_scheme('mem')
 
     # no info printing from the engine, warnings and errors sent to stdout

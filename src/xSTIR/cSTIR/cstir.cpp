@@ -24,6 +24,7 @@ limitations under the License.
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 #include "stir/ImagingModality.h"
+#include "stir/Scanner.h"
 #include "stir/Verbosity.h"
 
 using namespace stir;
@@ -75,6 +76,16 @@ extern "C"
 void* cSTIR_getVerbosity(const int verbosity)
 {
     return dataHandle<int>(stir::Verbosity::get());
+}
+
+extern "C"
+void* cSTIR_scannerNames()
+{
+	try {
+		std::string scanners = Scanner::list_all_names();
+		return charDataHandleFromCharData(scanners.c_str());
+	}
+	CATCH;
 }
 
 extern "C"
