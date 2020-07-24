@@ -24,6 +24,7 @@ limitations under the License.
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 #include "stir/ImagingModality.h"
+#include "stir/Scanner.h"
 #include "stir/Verbosity.h"
 #include "stir/num_threads.h"
 
@@ -100,6 +101,16 @@ extern "C"
 void* cSTIR_getDefaultOMPThreads()
 {
 	return dataHandle<int>(stir::get_default_num_threads());
+}
+
+extern "C"
+void* cSTIR_scannerNames()
+{
+	try {
+		std::string scanners = Scanner::list_all_names();
+		return charDataHandleFromCharData(scanners.c_str());
+	}
+	CATCH;
 }
 
 extern "C"
