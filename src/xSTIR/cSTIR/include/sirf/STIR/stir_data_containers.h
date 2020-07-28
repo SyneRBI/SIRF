@@ -416,7 +416,7 @@ namespace sirf {
 	public:
 		PETAcquisitionDataInMemory() {}
 		PETAcquisitionDataInMemory(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
+			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data = stir::shared_ptr<stir::ProjData>
                           (new stir::ProjDataInMemory(MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info));
