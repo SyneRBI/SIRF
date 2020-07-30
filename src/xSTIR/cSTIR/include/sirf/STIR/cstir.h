@@ -40,7 +40,6 @@ extern "C" {
     // Global
     void* cSTIR_setVerbosity(const int verbosity_ptr);
     void* cSTIR_getVerbosity();
-	void* cSTIR_scannerNames();
     void* cSTIR_setOMPThreads(const int threads);
     void* cSTIR_getOMPThreads();
 	void* cSTIR_useDefaultOMPThreads();

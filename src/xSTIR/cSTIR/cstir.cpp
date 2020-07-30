@@ -80,15 +80,6 @@ void* cSTIR_getVerbosity(const int verbosity)
 }
 
 extern "C"
-void* cSTIR_scannerNames()
-{
-	try {
-		std::string scanners = Scanner::list_all_names();
-		return charDataHandleFromCharData(scanners.c_str());
-	}
-	CATCH;
-}
-
 void* cSTIR_setOMPThreads(const int threads)
 {
 	stir::set_num_threads(threads);
@@ -100,6 +91,7 @@ void* cSTIR_getOMPThreads()
 {
 	return dataHandle<int>(stir::get_max_num_threads());
 }
+
 extern "C"
 void* cSTIR_useDefaultOMPThreads()
 {
