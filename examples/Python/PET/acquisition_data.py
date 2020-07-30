@@ -114,9 +114,8 @@ def main():
     acq_copy *= acq_data
     diff = acq_copy - acq_data
     print('norm of acq_copy - acq_data: %f' % diff.norm())
-    acq_copy.fill(acq_data)
-    diff = acq_copy - acq_data
-    print('norm of acq_copy - acq_data: %f' % diff.norm())
+    diff = -acq_copy.fill(acq_data) + acq_data
+    print('norm of -acq_copy.fill(acq_data) + acq_data: %f' % diff.norm())
 
     if show_plot:
         # display the scaled data
@@ -140,9 +139,8 @@ def main():
     image_copy *= image
     diff = image_copy - image
     print('norm of image_copy - image: %f' % diff.norm())
-    image_copy.fill(image)
-    diff = image_copy - image
-    print('norm of image_copy - image: %f' % diff.norm())
+    diff = -image_copy.fill(image) + image
+    print('norm of -image_copy.fill(image) + image: %f' % diff.norm())
 
     print('image voxel sizes:')
     print(image.voxel_sizes())

@@ -113,6 +113,16 @@ void* cSTIR_getDefaultOMPThreads()
 }
 
 extern "C"
+void* cSTIR_scannerNames()
+{
+	try {
+		std::string scanners = Scanner::list_all_names();
+		return charDataHandleFromCharData(scanners.c_str());
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_newObject(const char* name)
 {
 	try {

@@ -56,6 +56,14 @@ class DataContainer(ABC):
         print("SIRF.DataContainer __del__ with handle {}.".format(self.handle))
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def __neg__(self):
+        zero = numpy.asarray([0.0, 0.0], dtype = numpy.float32)
+        mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
+        z = self.same_object()
+        z.handle = pysirf.cSIRF_axpby \
+            (mn_one.ctypes.data, self.handle, zero.ctypes.data, self.handle)
+        check_status(z.handle)
+        return z
 #    @abc.abstractmethod
     def same_object(self):
         '''
@@ -566,6 +574,7 @@ class ImageData(DataContainer):
 
     def fill(self, image):
         try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))
+        return self
 
     def get_geometrical_info(self):
         """Get the image's geometrical info."""
