@@ -73,6 +73,14 @@ def get_verbosity():
     return value
 
 
+def scanner_names():
+    h = pystir.cSTIR_scannerNames()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.charDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
 def set_max_omp_threads(threads):
     """Set the maximum number of OpenMP threads."""
     try_calling(pystir.cSTIR_setOMPThreads(int(threads)))

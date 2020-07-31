@@ -91,6 +91,7 @@ void* cSTIR_getOMPThreads()
 {
 	return dataHandle<int>(stir::get_max_num_threads());
 }
+
 extern "C"
 void* cSTIR_useDefaultOMPThreads()
 {
