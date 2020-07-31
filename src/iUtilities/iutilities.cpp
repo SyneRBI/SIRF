@@ -144,7 +144,7 @@ extern "C" {
 	const char* executionError(const void* ptr) {
 		const DataHandle* ptr_h = (const DataHandle*)ptr;
 		if (ptr_h->status())
-			return ptr_h->status()->error();
+			return ptr_h->status()->error().c_str();
 		else
 			return "";
 	}
@@ -152,7 +152,7 @@ extern "C" {
 	const char* executionErrorFile(const void* ptr) {
 		const DataHandle* ptr_h = (const DataHandle*)ptr;
 		if (ptr_h->status())
-			return ptr_h->status()->file();
+			return ptr_h->status()->file().c_str();
 		else
 			return "";
 	}

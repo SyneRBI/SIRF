@@ -24,7 +24,9 @@ limitations under the License.
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 #include "stir/ImagingModality.h"
+#include "stir/Scanner.h"
 #include "stir/Verbosity.h"
+#include "stir/num_threads.h"
 
 using namespace stir;
 using namespace sirf;
@@ -75,6 +77,41 @@ extern "C"
 void* cSTIR_getVerbosity(const int verbosity)
 {
     return dataHandle<int>(stir::Verbosity::get());
+}
+
+extern "C"
+void* cSTIR_setOMPThreads(const int threads)
+{
+	stir::set_num_threads(threads);
+	return new DataHandle;
+}
+
+extern "C"
+void* cSTIR_getOMPThreads()
+{
+	return dataHandle<int>(stir::get_max_num_threads());
+}
+
+extern "C"
+void* cSTIR_useDefaultOMPThreads()
+{
+	stir::set_default_num_threads();
+	return new DataHandle;
+}
+extern "C"
+void* cSTIR_getDefaultOMPThreads()
+{
+	return dataHandle<int>(stir::get_default_num_threads());
+}
+
+extern "C"
+void* cSTIR_scannerNames()
+{
+	try {
+		std::string scanners = Scanner::list_all_names();
+		return charDataHandleFromCharData(scanners.c_str());
+	}
+	CATCH;
 }
 
 extern "C"

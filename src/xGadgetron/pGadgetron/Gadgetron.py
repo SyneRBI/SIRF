@@ -304,6 +304,7 @@ class ImageData(SIRF.ImageData):
             image = self.image(i)
             info[i] = image.info(par)
         return info
+
     def fill(self, data):
         '''
         Fills self's image data with specified values.
@@ -312,8 +313,7 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         
         if isinstance(data, ImageData):
-            super(ImageData, self).fill(data)
-            return
+            return super(ImageData, self).fill(data)
         
         if not isinstance(data, numpy.ndarray ):
             # CIL/SIRF compatibility
@@ -343,6 +343,8 @@ class ImageData(SIRF.ImageData):
         else:
             raise error('wrong fill value.' + \
                         ' Should be ImageData or numpy.ndarray')
+        return self
+
     def dimensions(self):
         '''
         Returns the dimensions of 3D/4D Numpy ndarray of all self's images.
