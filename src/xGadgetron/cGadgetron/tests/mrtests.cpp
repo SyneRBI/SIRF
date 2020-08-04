@@ -88,17 +88,18 @@ bool test_get_subset(const std::string& fname_input)
     }
 }
 
-bool test_CoilSensitivitiesVector_calculate(const std::string& fname_input)
+//bool test_CoilSensitivitiesVector_calculate(const std::string& fname_input)
+bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
 {
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
-
+/*
         sirf::AcquisitionsVector av;
         av.read(fname_input);
 
         sirf::preprocess_acquisition_data(av);
-
+*/
         CoilSensitivitiesVector csv;
         csv.set_csm_smoothness(50);
         csv.calculate(av);
@@ -126,17 +127,18 @@ bool test_CoilSensitivitiesVector_calculate(const std::string& fname_input)
     }
 }
 
-bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const std::string& fname_input)
+//bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const std::string& fname_input)
+bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av)
 {
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
-
+/*
         sirf::AcquisitionsVector av;
         av.read(fname_input);
 
         sirf::preprocess_acquisition_data(av);
-
+*/
         CoilSensitivitiesVector csv;
         csv.calculate(av);
 
@@ -180,8 +182,16 @@ int main ( int argc, char* argv[])
 
 //        test_get_kspace_order(data_path);
 //        test_get_subset(data_path);
-        test_CoilSensitivitiesVector_calculate(data_path);
-        test_CoilSensitivitiesVector_get_csm_as_cfimage(data_path);
+
+        sirf::AcquisitionsVector av;
+        av.read(data_path);
+
+        sirf::preprocess_acquisition_data(av);
+
+        test_CoilSensitivitiesVector_calculate(av);
+        test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+//        test_CoilSensitivitiesVector_calculate(data_path);
+//        test_CoilSensitivitiesVector_get_csm_as_cfimage(data_path);
         return 0;
 	}
     catch(const std::exception &error) {
