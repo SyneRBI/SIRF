@@ -491,7 +491,7 @@ class CoilImagesData(ImageData):
     def same_object(self):
         return CoilImagesData()
     def calculate(self, acq):
-        try_calling(pygadgetron.cGT_computeCoilImages(self.handle, acq.handle))                
+        try_calling(pygadgetron.cGT_computeCoilImages(self.handle, acq.handle))
 
 SIRF.ImageData.register(CoilImagesData)
 
