@@ -915,6 +915,20 @@ namespace sirf {
 
     /*!
     \ingroup Gadgetron Data Containers
+    \brief A coil images container based on the GadgetronImagesVector class.
+    */
+
+    class CoilImagesVector : public GadgetronImagesVector
+    {
+    public:
+        CoilImagesVector() : GadgetronImagesVector()
+        {
+        }
+        void calculate(const MRAcquisitionData& acq, int calibration = 1);
+    };
+
+    /*!
+    \ingroup Gadgetron Data Containers
     \brief A coil sensitivities container based on the GadgetronImagesVector class.
 
     Coil sensitivities can be computed directly form Acquisition data where in the first
@@ -940,15 +954,13 @@ namespace sirf {
 
         void set_csm_smoothness(int s){csm_smoothness_ = s;}
 
-        void calculate_csm(GadgetronImagesVector iv);
-        void calculate_csm(const MRAcquisitionData& acq)
+        void calculate(CoilImagesVector& iv);
+        void calculate(const MRAcquisitionData& acq)
         {
-            this->calculate_images(acq);
-            this->calculate_csm(*this);
+            CoilImagesVector ci;
+            ci.calculate(acq);
+            calculate(ci);
         }
-
-        void calculate_images(const MRAcquisitionData& acq);
-
 
         CFImage get_csm_as_cfimage(size_t const i) const;
 
@@ -960,7 +972,7 @@ namespace sirf {
 
     protected:
 
-        bool flag_imgs_suitable_for_csm_computation_=false;
+        //bool flag_imgs_suitable_for_csm_computation_=false;
 
         void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);
 
@@ -973,7 +985,7 @@ namespace sirf {
 
 
     private:
-        int csm_smoothness_=0;
+        int csm_smoothness_ = 0;
         void smoothen_(int nx, int ny, int nz, int nc, complex_float_t* u, complex_float_t* v, int* obj_mask, int w);
         void mask_noise_(int nx, int ny, int nz, float* u, float noise, int* mask);
         float max_diff_(int nx, int ny, int nz, int nc, float small_grad, complex_float_t* u, complex_float_t* v);
