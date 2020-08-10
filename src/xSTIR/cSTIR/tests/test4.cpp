@@ -141,10 +141,12 @@ int test4()
 	}
 }
 
+int test1();
 //int test5();
 
 int main()
 {
-	return test4();
+	return test1();
+	//return test4();
 	//return test5();
 }
