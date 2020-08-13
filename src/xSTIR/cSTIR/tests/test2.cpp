@@ -29,13 +29,10 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
-//USING_NAMESPACE_STIR
-//USING_NAMESPACE_ECAT
 
-#include "cstir.h"
+#include "sirf/STIR/cstir.h"
 #include "handle.h"
-#include "stir_types.h"
-//#include "SIRF/common/envar.h"
+#include "sirf/STIR/stir_types.h"
 
 using namespace stir;
 using namespace ecat;
@@ -52,7 +49,7 @@ void* TMP_HANDLE;
 int test2()
 {
 	std::string filename;
-	int dim[3];
+	int dim[10];
 	float at_value = 0.05f*0;
 	float bt_value = 0.1f*0;
 	float s, t;
@@ -81,7 +78,7 @@ int test2()
 		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 		return 1;
 	}
-	std::string path = SIRF_path + "/data/examples/PET/";
+	std::string path = SIRF_path + "/data/examples/PET/mMR/";
 
 	TextWriter w;
 	openChannel(0, &w);
@@ -97,12 +94,15 @@ int test2()
 		CALL(cSTIR_setParameter
 			(matrix, "RayTracingMatrix", "num_tangential_LORs", intDataHandle(2)));
 
+		filename = path + "mMR_template_span11_small.hs";
 		//filename = path + "my_forward_projection.hs";
-		filename = "sinograms_f1g1d0b0.hs";
+		//filename = "sinograms_f1g1d0b0.hs";
 		HANDLE(ad, cSTIR_objectFromFile("AcquisitionData", filename.c_str()));
-		cSTIR_getAcquisitionsDimensions(ad, (size_t)&dim[0]);
+		cSTIR_getAcquisitionDataDimensions(ad, (size_t)&dim[0]);
 		std::cout << "acquisition data dimensions: "
 			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+
+		cSTIR_setAcquisitionDataStorageScheme("memory");
 
 		HANDLE(image, cSTIR_imageFromAcquisitionData(ad));
 		cSTIR_getImageDimensions(image, (size_t)&dim[0]);
@@ -163,17 +163,17 @@ int test2()
 			(obj_fun, obj_fun_name.c_str(), "acquisition_model", am));
 		//CALL(cSTIR_setParameter
 		//	(obj_fun, obj_fun_name.c_str(), "acquisition_data", fd));
-		CALL(cSTIR_setParameter
-			(obj_fun, obj_fun_name.c_str(), "acquisition_data", ad));
+		//CALL(cSTIR_setParameter
+		//	(obj_fun, obj_fun_name.c_str(), "acquisition_data", ad));
 		handle = charDataHandle("true");
 		CALL(cSTIR_setParameter
 			(obj_fun, obj_fun_name.c_str(), "zero_seg0_end_planes", handle));
 		deleteDataHandle(handle);
-		int max_seg_num = 4; // causes crash if < 4
-		handle = intDataHandle(max_seg_num);
-		CALL(cSTIR_setParameter
-			(obj_fun, obj_fun_name.c_str(), "max_segment_num_to_process", handle));
-		deleteDataHandle(handle);
+		//int max_seg_num = 4; // causes crash if < 4
+		//handle = intDataHandle(max_seg_num);
+		//CALL(cSTIR_setParameter
+		//	(obj_fun, obj_fun_name.c_str(), "max_segment_num_to_process", handle));
+		//deleteDataHandle(handle);
 		CALL(cSTIR_setParameter
 			(obj_fun, "GeneralisedObjectiveFunction", "prior", prior));
 		//CALL(cSTIR_setupObjectiveFunction(obj_fun, image));
@@ -188,7 +188,8 @@ int test2()
 		CALL(cSTIR_setParameter
 			(recon, "Reconstruction", "output_filename_prefix", handle));
 		deleteDataHandle(handle);
-		handle = intDataHandle(12);
+		int num_subsets = 9;
+		handle = intDataHandle(num_subsets);
 		CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "num_subsets", handle));
 		deleteDataHandle(handle);
@@ -210,8 +211,10 @@ int test2()
 		handle = charDataHandle("multiplicative");
 		CALL(cSTIR_setParameter(recon, "OSMAPOSL", "MAP_model", handle));
 		deleteDataHandle(handle);
-		std::cout << "ok\n";
+		CALL(cSTIR_setParameter(recon, "Reconstruction", "input_data", ad));
+		std::cout << "setting up the reconstructor, please wait...";
 		CALL(cSTIR_setupReconstruction(recon, image));
+		std::cout << "ok\n";
 
 		for (int iter = 0; iter < num_subiterations; iter++) {
 			std::cout << "iteration " << iter << '\n';
