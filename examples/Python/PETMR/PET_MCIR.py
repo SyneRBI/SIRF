@@ -36,6 +36,8 @@ Options:
                                     Calculating this takes time.
   --alpha=<val>                     regularisation strength (if used)
                                     [default: 0.5]
+  --gamma=<val>                     Ratio between the norm of the Acquisition Model and Regularisation.
+                                    if specified prevails on alpha
   --reg_iters=<val>                 Number of iterations for the regularisation
                                     subproblem [default: 100]
   --normK=<val>                     norm of BlockOperator (K). Normally
@@ -286,7 +288,14 @@ def read_files(trans_files, sino_files, attn_files, rand_files):
 
     sinos_raw = [pet.AcquisitionData(file) for file in sino_files]
     attns = [pet.ImageData(file) for file in attn_files]
-    rands_raw = [pet.AcquisitionData(file) for file in rand_files]
+    
+    # fix a problem with the header which doesn't allow
+    # to do algebra with randoms and sinogram
+    rands_arr = [pet.AcquisitionData(file).as_array() for file in rand_files]
+    rands_raw = [ s * 0 for s in sinos_raw ]
+    for r,a in zip(rands_raw, rands_arr):
+        r.fill(a)
+    
 
     return [trans, sinos_raw, attns, rands_raw]
 
@@ -397,8 +406,10 @@ def set_up_acq_models(num_ms, sinos, rands, resampled_attns, image):
         # Create attn ASM if necessary
         asm_attn = None
         if resampled_attns:
-            asm_attn = get_asm_attn(sinos[ind], resampled_attns[ind],
-                                    acq_models[ind])
+            s = sinos[ind]
+            ra = resampled_attns[ind]
+            am = acq_models[ind]
+            asm_attn = get_asm_attn(s,ra,am)
 
         # Get ASM dependent on attn and/or norm
         asm = None
@@ -437,10 +448,51 @@ def create_kls(sinos, etas, scale_factor=None):
           for sino, eta in zip(sinos, etas)]
     return kl
 
+# this from ccpi Operator.py
+def PowerMethod(operator, iterations, x_init=None):
+    '''Power method to calculate iteratively the Lipschitz constant
+    
+    :param operator: input operator
+    :type operator: :code:`LinearOperator`
+    :param iterations: number of iterations to run
+    :type iteration: int
+    :param x_init: starting point for the iteration in the operator domain
+    :returns: tuple with: L, list of L at each iteration, the data the iteration worked on.
+    '''
+    
+    # Initialise random
+    if x_init is None:
+        x0 = operator.domain_geometry().allocate('random')
+    else:
+        x0 = x_init.copy()
+        
+    x1 = operator.domain_geometry().allocate()
+    y_tmp = operator.range_geometry().allocate()
+    s = []
+    # Loop
+    i = 0
+    while i < iterations:
+        operator.direct(x0,out=y_tmp)
+        operator.adjoint(y_tmp,out=x1)
+        x1norm = x1.norm()
+        if hasattr(x0, 'squared_norm'):
+            s.append( x1.dot(x0) / x0.squared_norm() )
+        else:
+            x0norm = x0.norm()
+            s.append( x1.dot(x0) / (x0norm * x0norm) ) 
+        x1.multiply((1.0/x1norm), out=x0)
+        print ("current norm: {}".format(s[-1]))
+        i += 1
+        if i == iterations:
+            cont=input("Continue with {} iterations?[y/n]".format(iterations))
+            if cont == 'y':
+                i = 0
+    return np.sqrt(s[-1]), [np.sqrt(si) for si in s], x0
 
-def norm(self):
+def norm(self, **kwargs):
     """Norm implementation."""
-    return LinearOperator.PowerMethod(self, 10)[0]
+    iterations = kwargs.get("iterations", 10)
+    return LinearOperator.PowerMethod(self, iterations)[0]
 
 
 def set_up_reconstructor(acq_models, resamplers, algorithm, sinos, rands=None):
@@ -450,7 +502,7 @@ def set_up_reconstructor(acq_models, resamplers, algorithm, sinos, rands=None):
     if resamplers is None:
         C = [am.get_linear_acquisition_model() for am in acq_models]
         # Need an implementation of the norm
-        setattr(pet.AcquisitionModel, 'norm', norm)
+        # setattr(pet.AcquisitionModel, 'norm', norm)
     else:
         C = [CompositionOperator(
             am.get_linear_acquisition_model(), res, preallocate=True)
@@ -471,7 +523,8 @@ def set_up_reconstructor(acq_models, resamplers, algorithm, sinos, rands=None):
             K = BlockOperator(*C)
             # Calculate normK
             print("Calculating norm of the block operator...")
-            normK = K.norm(iterations=10)
+            # normK = K.norm(iterations=10)
+            normK = PowerMethod(K, 5)
             print("Norm of the BlockOperator ", normK)
             if args['--onlyNormK']:
                 exit(0)
@@ -553,14 +606,16 @@ def get_tau_sigma(normK):
     else:
         if args['--sigma']:
             sigma = float(args['--sigma'])
+            tau = sigma/(normK*normK)
         else:
             sigma = 1.0/normK
+            tau = 1.0/normK
         # If we need to calculate default tau
         if args['--tau']:
             tau = float(args['--tau'])
-        else:
-            tau = 1.0/normK
-
+        
+    if sigma * tau > 1/(normK*normK):
+        raise ValueError("sigma * tau > 1/||K||^2")
     return [tau, sigma]
 
 
@@ -634,8 +689,25 @@ def get_algo(f, G, K, sigma, tau, outp_file):
         prob = [1/num_subsets]*num_subsets
         # assign the probabilities explicit form
         # prob = [(num_subsets-1)*1/(2*num_subsets)] + [1/2]
+        
+        # need to set up sigma outside as AcquisitionModel does not
+        # have the method norm nor a power method.
+        
+        def norm_of_am(operator):
+            return LinearOperator.PowerMethod(operator, iterations=5)[0]
+        # this is implicit form, hence num_subsets = num dual subsets
+        ndual_subsets = num_subsets
+        norms = [norm_of_am(K.get_item(i,0)) for i in range(ndual_subsets)]
+        print ("norms", norms)
+        gamma = 1
+        rho = 0.99
+        sigma = [gamma * rho / ni for ni in norms] 
 
-        Algo = partial(SPDHG, prob=prob, sigma=None, tau=None)
+        # use default value of tau, which is defined in the SPDHG.py
+        tau = min( [ pi / ( si * ni**2 ) for pi, ni, si in zip(prob, norms, sigma)] ) 
+        tau *= (rho / gamma)
+
+        Algo = partial(SPDHG, prob=prob, sigma=sigma, tau=tau)
 
     else:
         raise error("Unknown algorithm: " + algorithm)
@@ -669,12 +741,15 @@ def get_save_callback_function(outp_file):
     return psave_callback
 
 
-def display_results(out_arr):
+def display_results(out_arr, slice_num=None):
     """Display results if desired."""
     if visualisations:
         # show reconstructed image
-        out_arr = algo.get_output().as_array()
-        z = out_arr.shape[0]//2
+        # out_arr = algo.get_output().as_array()
+        if slice_num is None:
+            z = out_arr.shape[0]//2
+        else:
+            z = slice_num
         show_2D_array('Reconstructed image', out_arr[z, :, :])
         pylab.show()
 
@@ -717,7 +792,7 @@ def main():
     ###########################################################################
 
     resampled_attns = resample_attn_images(num_ms, attns, trans)
-
+    print ("resampled_attns", len (resampled_attns))
     ###########################################################################
     # Set up acquisition models
     ###########################################################################
@@ -749,11 +824,19 @@ def main():
     save_callback = get_save_callback_function(outp_file)
 
     # Run the reconstruction
-    algo.run(num_iters, verbose=True, very_verbose=True,
+    while True:
+        algo.max_iteration += num_iters
+        algo.run(num_iters, verbose=True, very_verbose=True,
              callback=save_callback)
-
+        display_results(algo.get_output().as_array())
+        # stop = input("Shall we stop? [y/n]")
+        stop = 'y'
+        print (stop)
+        if stop == 'y':
+            print ("breaking")
+            break
     # Display results
-    display_results(algo.get_output().as_array())
+    display_results(algo.get_output().as_array(), slice_num=54)
 
 
 if __name__ == "__main__":
