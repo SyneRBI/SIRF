@@ -332,7 +332,7 @@ def pre_process_sinos(sinos_raw, num_ms):
             sinos[ind] = sinos[ind].rebin(segs_to_combine, views_to_combine)
             # only print first time
             if ind == 0:
-                print(f"Rebinned sino dimensions: {sinos[ind].dimensions()}")
+                print("Rebinned sino dimensions: {sinos[ind].dimensions()}")
 
     return sinos
 
@@ -481,7 +481,7 @@ def PowerMethod(operator, iterations, x_init=None):
             x0norm = x0.norm()
             s.append( x1.dot(x0) / (x0norm * x0norm) ) 
         x1.multiply((1.0/x1norm), out=x0)
-        print ("current norm: {}".format(s[-1]))
+        print ("current squared norm: {}".format(s[-1]))
         i += 1
         if i == iterations:
             cont=input("Continue with {} iterations?[y/n]".format(iterations))
@@ -524,7 +524,7 @@ def set_up_reconstructor(acq_models, resamplers, algorithm, sinos, rands=None):
             # Calculate normK
             print("Calculating norm of the block operator...")
             # normK = K.norm(iterations=10)
-            normK = PowerMethod(K, 5)
+            normK = PowerMethod(K, 5)[0]
             print("Norm of the BlockOperator ", normK)
             if args['--onlyNormK']:
                 exit(0)
