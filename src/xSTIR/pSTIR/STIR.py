@@ -1466,10 +1466,14 @@ class AcquisitionModel(object):
     def get_linear_acquisition_model(self):
         """Return a new AcquisitionModel.
 
-        Returns corresponding to
+        Returns a model corresponding to
         the linear part of the current one.
         """
         am = type(self)()
+        # TODO above line is incorrect as it ignores any non-default settings of the acq_model
+        parms.set_parameter(
+            am.handle, 'AcquisitionModel', 'asm', self.asm.handle)
+        am.asm = self.asm
         am.set_up(self.acq_templ, self.img_templ)
         return am
 
