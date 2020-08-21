@@ -30,6 +30,7 @@ limitations under the License.
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
 
+#include "sirf/common/csirf.h"
 #include "sirf/STIR/cstir.h"
 #include "handle.h"
 #include "sirf/STIR/stir_types.h"
@@ -58,6 +59,7 @@ int test2()
 	void* image = 0;
 	void* img = 0;
 	void* am = 0;
+	void* ad0 = 0;
 	void* ad = 0;
 	void* fd = 0;
 	void* at = 0;
@@ -81,7 +83,7 @@ int test2()
 	std::string path = SIRF_path + "/data/examples/PET/mMR/";
 
 	TextWriter w;
-	openChannel(0, &w);
+	//openChannel(0, &w);
 
 	for (;;) {
 		//filename = SIRF_path + "/examples/Python/PET/my_image.hv";
@@ -103,6 +105,7 @@ int test2()
 			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
 		cSTIR_setAcquisitionDataStorageScheme("memory");
+		//HANDLE(ad, cSIRF_clone(ad0));
 
 		HANDLE(image, cSTIR_imageFromAcquisitionData(ad));
 		cSTIR_getImageDimensions(image, (size_t)&dim[0]);

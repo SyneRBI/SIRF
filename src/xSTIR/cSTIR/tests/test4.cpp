@@ -147,8 +147,8 @@ int test2();
 
 int main()
 {
-	return test1();
-	//return test2();
+	//return test1();
+	return test2();
 	//return test4();
 	//return test5();
 }

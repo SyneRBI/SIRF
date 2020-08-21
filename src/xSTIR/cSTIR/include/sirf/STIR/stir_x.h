@@ -601,7 +601,9 @@ The actual algorithm is described in
 			return post_processing();
 		}*/
 		void update(Image3DF &image) {
+			std::cout << "in xSTIR_IterativeReconstruction3DF.update...\n";
 			update_estimate(image);
+			std::cout << "ok\n";
 			end_of_iteration_processing(image);
 			subiteration_num++;
 		}
