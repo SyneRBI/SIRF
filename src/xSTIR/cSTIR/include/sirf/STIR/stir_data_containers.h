@@ -245,6 +245,14 @@ namespace sirf {
 		{
 			return 1;
 		}
+		size_t get_dimensions(int* dim)
+		{
+			dim[0] = get_num_tangential_poss();
+			dim[1] = get_num_views();
+			dim[2] = get_num_sinograms();
+			dim[3] = get_num_TOF_bins();
+			return dim[0] * dim[1] * dim[2] * dim[0];
+		}
 		int get_max_segment_num() const
 		{
 			return data()->get_max_segment_num();
