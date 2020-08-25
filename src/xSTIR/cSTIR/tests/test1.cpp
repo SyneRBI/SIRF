@@ -51,14 +51,18 @@ bool file_exists(std::string filename)
 	return false;
 }
 
+extern "C"
+void openChannel(int channel, void* ptr_w);
+
 int test1()
 {
+	std::cout << "running test1.cpp...\n";
 	try {
-		TextWriter w;
-		TextWriterHandle h;
-		h.set_information_channel(&w);
+		//BUG: now cases segfault in test4!
+		//TextPrinter w("info.txt");
+		//TextWriterHandle h;
+		//h.set_information_channel(&w);
 
-		//std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
 		std::string SIRF_path = std::getenv("SIRF_PATH");
 		if (SIRF_path.length() < 1) {
 			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
@@ -211,9 +215,13 @@ int test1()
 		img_diff.axpby
 			(&alpha, image_data, &beta, back_data);
 		std::cout << "relative images difference: " << img_diff.norm() << std::endl;
+		std::cout << "done with test1.cpp...\n";
+		// restore the default storage scheme
+		PETAcquisitionDataInFile::set_as_template();
 	}
 	catch (...) {
 		std::cout << "exception thrown\n";
+		return 1;
 	}
 	return 0;
 }

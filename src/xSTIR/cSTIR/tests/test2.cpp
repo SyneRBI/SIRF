@@ -51,6 +51,7 @@ void* TMP_HANDLE;
 
 int test2()
 {
+	std::cout << "running test2.cpp...\n";
 	std::string filename;
 	int dim[10];
 	float at_value = 0.05f*0;
@@ -84,9 +85,12 @@ int test2()
 	}
 	std::string path = SIRF_path + "/data/examples/PET/";
 
-	TextWriter w;
-	openChannel(0, &w); // suppress STIR info output
+	//BUG: now cases segfault in test4!
+	//TextWriter w;
+	//openChannel(0, &w); // suppress STIR info output
+	//return 0;
 
+	int status = 1;
 	for (;;) {
 
 		HANDLE(matrix, cSTIR_newObject("RayTracingMatrix"));
@@ -95,7 +99,10 @@ int test2()
 
 		filename = path + "mMR/mMR_template_span11_small.hs";
 		//filename = path + "my_forward_projection.hs";
+		//std::cout << "reading data from " << filename << "...";
+		//BUG: fails if storage scheme is "memory"!
 		HANDLE(ad, cSTIR_objectFromFile("AcquisitionData", filename.c_str()));
+		//std::cout << "ok\n";
 		cSTIR_getAcquisitionDataDimensions(ad, (size_t)&dim[0]);
 		std::cout << "acquisition data dimensions: "
 			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
@@ -201,7 +208,9 @@ int test2()
 			std::cout << "iteration " << iter << '\n';
 			cSTIR_updateReconstruction(recon, image);
 		}
-
+		
+		std::cout << "done with test2.cpp...\n";
+		status = 0;
 		break;
 	}
 
@@ -222,6 +231,6 @@ int test2()
 	deleteDataHandle(prior);
 	deleteDataHandle(obj_fun);
 
-	return 0;
+	return status;
 }
 
