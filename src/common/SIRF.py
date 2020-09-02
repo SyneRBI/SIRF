@@ -275,14 +275,16 @@ class DataContainer(ABC):
         data container.
 
         Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
+        or the elementwise product if other is of the same type as self.
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
+
         if type(self) == type(other):
             return self.multiply(other)
-        z = self.same_object()
-        try:
+
+        if isinstance(other, Number):
+            z = self.same_object()
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
             z.handle = pysirf.cSIRF_axpby \
@@ -290,8 +292,8 @@ class DataContainer(ABC):
             z.src = 'mult'
             check_status(z.handle)
             return z
-        except:
-            return NotImplemented
+
+        return NotImplemented
 
     def __rmul__(self, other):
         '''
@@ -300,31 +302,34 @@ class DataContainer(ABC):
         other: a real or complex scalar
         '''
         assert self.handle is not None
-        z = self.same_object()
-        try:
+
+        if isinstance(other, Number):
+            z = self.same_object()
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
             z.handle = pysirf.cSIRF_axpby \
                 (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
             check_status(z.handle)
             return z;
-        except:
-            return NotImplemented
+
+        return NotImplemented
 
     def __div__(self, other):
         '''
         Overloads / for data containers division by a scalar or (elementwise)
         another data container (Python 2.*)
 
-        Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
+        Returns the ratio self/other if other is a scalar
+        or the elementwise ratio if other is of the same type as self.
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
+
         if type(self) == type(other):
             return self.divide(other)
-        z = self.same_object()
-        try:
+
+        if isinstance(other, Number):
+            z = self.same_object()
             other = 1.0/other
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
@@ -332,8 +337,8 @@ class DataContainer(ABC):
                 (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
             check_status(z.handle)
             return z
-        except:
-            return NotImplemented
+
+        return NotImplemented
 
     def copy(self):
         '''alias of clone'''
