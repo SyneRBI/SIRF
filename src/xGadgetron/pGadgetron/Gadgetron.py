@@ -474,6 +474,8 @@ class ImageData(SIRF.ImageData):
         try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
     @property
     def dtype(self):
+        if self.is_real():
+            return numpy.float32
         return numpy.complex64
     @property
     def shape(self):
