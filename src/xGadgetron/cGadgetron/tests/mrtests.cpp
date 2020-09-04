@@ -30,25 +30,29 @@ limitations under the License.
 
 #include <iostream>
 #include <cstdlib>
+#include <numeric>
+#include <vector>
+
 
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/encoding.h"
 
 #include "mrtest_auxiliary_funs.h"
 
 using namespace sirf;
 
-bool test_get_kspace_order(const std::string& fname_input)
+
+
+
+bool test_TrajectoryPreparation_constructors( void )
 {
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
 
-        sirf::AcquisitionsVector av_slice;
-        av_slice.read(fname_input);
-        av_slice.sort();
-
-        auto kspace_sorting_slice = av_slice.get_kspace_order();
+        sirf::CartesianTrajectoryPrep cart_tp;
+        sirf::GRPETrajectoryPrep rpe_tp;
 
         return true;
 
@@ -61,7 +65,53 @@ bool test_get_kspace_order(const std::string& fname_input)
     }
 }
 
-bool test_get_subset(const std::string& fname_input)
+
+bool test_GRPETrajectoryPrep_set_trajectory(const AcquisitionsVector av)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+        sirf::GRPETrajectoryPrep rpe_tp;
+
+        av.read(fname_input);
+        rpe_tp.set_trajectory(av);
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+
+bool test_get_kspace_order(const MRAcquisitionData& av)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        sirf::AcquisitionsVector av;
+        av.read(fname_input);
+        av.sort();
+
+        auto kspace_sorting_slice = av.get_kspace_order();
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_get_subset(const MRAcquisitionData& av)
 {
     try
     {
@@ -108,6 +158,45 @@ bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
             fname_out << "output_" << __FUNCTION__ << "_" << i;
 
             sirf::write_cfimage_to_raw(fname_out.str(), *sptr_iw);
+        }
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_bwd(const MRAcquisitionData& av)
+{
+    try
+    {
+       std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        av.read(fname_input);
+
+        av.sort();
+
+        sirf::GadgetronImagesVector img_vec;
+        sirf::MRAcquisitionModel acquis_model;
+
+        sirf::CoilSensitivitiesAsImages csm;
+        csm.compute(av);
+
+        auto sptr_encoder = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
+        acquis_model.set_encoder(sptr_encoder);
+
+        acquis_model.bwd(img_vec, csm, av);
+
+        for(int i=0; i<img_vec.items(); ++i)
+        {
+            std::stringstream fname_output;
+            fname_output << "output_" << __FUNCTION__ << "_image_" << i;
+            write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i);
         }
 
         return true;
@@ -168,16 +257,21 @@ int main ( int argc, char* argv[])
 
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
 
-//        test_get_kspace_order(data_path);
-//        test_get_subset(data_path);
-
         sirf::AcquisitionsVector av;
         av.read(data_path);
 
         sirf::preprocess_acquisition_data(av);
 
+        test_get_kspace_order(av);
+        test_get_subset(av);
+
+        test_GRPETrajectoryPrep_set_trajectory(av);
+
         test_CoilSensitivitiesVector_calculate(av);
         test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+
+        test_bwd(av);
+
         return 0;
 	}
     catch(const std::exception &error) {
@@ -186,4 +280,8 @@ int main ( int argc, char* argv[])
     }
     return EXIT_SUCCESS;
 }
+
+
+
+
 

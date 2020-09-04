@@ -148,23 +148,6 @@ namespace sirf {
         SetType get_idx_set(void) const {return idx_set_;}
         void add_idx_to_set(size_t const idx){this->idx_set_.push_back(idx);}
 
-        static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq)
-        {
-            TagType tag;
-            tag[0] = acq.idx().average;
-            tag[1] = acq.idx().slice;
-            tag[2] = acq.idx().contrast;
-            tag[3] = acq.idx().phase;
-            tag[4] = acq.idx().repetition;
-            tag[5] = acq.idx().set;
-            tag[6] = 0; //acq.idx().segment;
-
-            for(int i=7; i<tag.size(); ++i)
-                tag[i]=acq.idx().user[i];
-
-            return tag;
-        }
-
         bool is_first_set() const {
             bool is_first= (tag_[0] == 0);
             if(is_first)
@@ -174,6 +157,11 @@ namespace sirf {
             }
             return is_first;
         }
+
+        static void print_tag(const TagType& tag);
+        static void print_acquisition_tag(ISMRMRD::Acquisition acq);
+        static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq);
+        static TagType get_tag_from_img(const CFImage& img);
 
     private:
 
@@ -265,6 +253,8 @@ namespace sirf {
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
 
+        ISMRMRD::TrajectoryType get_trajectory_type() const;
+
 		gadgetron::unique_ptr<MRAcquisitionData> clone() const
 		{
 			return gadgetron::unique_ptr<MRAcquisitionData>(this->clone_impl());
@@ -279,6 +269,8 @@ namespace sirf {
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 
         std::vector<std::vector<int> > get_kspace_order(const bool get_first_subset_order=false) const;
+        std::vector<KSpaceSorting> get_kspace_sorting() const { return this->sorting_; }
+
         void organise_kspace();
 
         virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
@@ -520,6 +512,7 @@ namespace sirf {
 //		virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
+        virtual void clear_data()=0;
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
@@ -547,6 +540,21 @@ namespace sirf {
             const ImageWrap&  iw = image_wrap(im_num);
 			iw.get_dim(dim);
 		}
+        bool check_dimension_consistency() const
+        {
+            size_t const num_dims = 4;
+            std::vector<int> first_img_dims(num_dims), temp_img_dims(num_dims);
+
+            this->get_image_dimensions(0, &first_img_dims[0]);
+
+            bool dims_match = true;
+            for(int i=1; i<number(); ++i)
+            {
+                this->get_image_dimensions(0, &temp_img_dims[0]);
+                dims_match *= (first_img_dims == temp_img_dims);
+            }
+            return dims_match;
+        }
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
 			new_images_container() const = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData>
@@ -796,10 +804,20 @@ namespace sirf {
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>
 				(new ImageWrap(image_data_type, ptr_image)));
 		}
+        virtual void append(CFImage& img)
+        {
+            void* vptr_img = new CFImage(img);
+            this->append(7, vptr_img);
+        }
 		virtual void append(const ImageWrap& iw)
 		{
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 		}
+        virtual void clear_data()
+        {
+            std::vector<gadgetron::shared_ptr<ImageWrap> > empty_data;
+            images_.swap(empty_data);
+        }
 		virtual void sort();
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
 			(unsigned int im_num)
@@ -970,19 +988,18 @@ namespace sirf {
 
         }
 
+        void forward(GadgetronImageData& img, GadgetronImageData& combined_img){
+            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
+        }
+        void backward(GadgetronImageData& combined_img, GadgetronImageData& img){
+            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
+        }
+
     protected:
 
         //bool flag_imgs_suitable_for_csm_computation_=false;
 
         void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);
-
-        void forward(){
-            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
-        }
-        void backward(){
-            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
-        }
-
 
     private:
         int csm_smoothness_ = 0;
