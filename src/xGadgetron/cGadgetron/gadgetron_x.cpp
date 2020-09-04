@@ -419,7 +419,7 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 
 	}
 
-    cc.combine_coils(ic, iv);
+    cc.backward(ic, iv);
 }
 
 /*
