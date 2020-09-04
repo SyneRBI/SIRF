@@ -148,23 +148,6 @@ namespace sirf {
         SetType get_idx_set(void) const {return idx_set_;}
         void add_idx_to_set(size_t const idx){this->idx_set_.push_back(idx);}
 
-        static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq)
-        {
-            TagType tag;
-            tag[0] = acq.idx().average;
-            tag[1] = acq.idx().slice;
-            tag[2] = acq.idx().contrast;
-            tag[3] = acq.idx().phase;
-            tag[4] = acq.idx().repetition;
-            tag[5] = acq.idx().set;
-            tag[6] = 0; //acq.idx().segment;
-
-            for(int i=7; i<tag.size(); ++i)
-                tag[i]=acq.idx().user[i];
-
-            return tag;
-        }
-
         bool is_first_set() const {
             bool is_first= (tag_[0] == 0);
             if(is_first)
