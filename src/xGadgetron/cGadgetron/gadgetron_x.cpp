@@ -352,31 +352,74 @@ void
 MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
-	if (cc.items() < 1)
-		throw LocalisedException
-		("coil sensitivity maps not found", __FILE__, __LINE__);
-	for (unsigned int i = 0, a = 0; i < ic.number(); i++) {
-		ImageWrap& iw = ic.image_wrap(i);
-        CFImage csm = cc.get_csm_as_cfimage(i%cc.items());
-		fwd(iw, csm, ac, a);
-	}
+
+    GadgetronImagesVector indiv_channels;
+    cc.apply_coil_sensitivities(indiv_channels, ic);
+
+    if(!ac.sorted())
+        ac.sort();
+
+    auto kspace_sorting = ac.get_kspace_sorting();
+
+    if( kspace_sorting.size() != indiv_channels.number() )
+        throw LocalisedException("Number of images does not match number of acquisition data bins.", __FILE__, __LINE__);
+
+    for( unsigned int i=0; i<indiv_channels.number(); ++i)
+    {
+        ImageWrap iw = indiv_channels.image_wrap(i);
+        void* vptr_img = iw.ptr_image();
+        CFImage* ptr_img = static_cast<CFImage*>(vptr_img);
+
+        auto tag_img = KSpaceSorting::get_tag_from_img(*ptr_img);
+
+        sirf::AcquisitionsVector subset;
+        KSpaceSorting::SetType idx_set;
+        for(int j=0; j<kspace_sorting.size(); ++j)
+        {
+            if(tag_img == kspace_sorting[j].get_tag())
+            {
+                idx_set = kspace_sorting[j].get_idx_set();
+                ac.get_subset(subset, idx_set);
+                break;
+            }
+        }
+
+        if(subset.number() == 0)
+            throw LocalisedException("You didn't find rawdata corresponding to your image in the acquisition data.", __FILE__, __LINE__);
+
+        this->sptr_enc_->forward(ptr_img, subset);
+        ac.set_subset(subset, idx_set); //assume forward does not reorder the acquisitions
+    }
 }
 
 void 
 MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
-	ic.set_meta_data(ac.acquisitions_info());
-	if (cc.items() < 1)
-		throw LocalisedException
-		("coil sensitivity maps not found", __FILE__, __LINE__);
-	for (unsigned int i = 0, a = 0; a < ac.number(); i++) {
-        CFImage csm = cc.get_csm_as_cfimage(i%cc.items());
-		ImageWrap iw(sptr_imgs_->image_wrap(i));
-		bwd(iw, csm, ac, a);
-		ic.append(iw);
+    GadgetronImagesVector iv;
+    iv.set_meta_data(ac.acquisitions_info());
+
+    if(!ac.sorted())
+        ac.sort();
+
+    auto sort_idx = ac.get_kspace_order();
+
+    for(int i=0; i<sort_idx.size(); ++i)
+    {
+        sirf::AcquisitionsVector subset;
+        ac.get_subset(subset, sort_idx[i]);
+
+        CFImage img;
+        this->sptr_enc_->backward(&img, subset);
+
+        void* vptr_img = new CFImage(img);// god help me I don't trust this!
+        ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img);
+
+        iv.append(iw);
+
 	}
-	ic.set_meta_data(ac.acquisitions_info());
+
+    cc.combine_coils(ic, iv);
 }
 
 /*
@@ -424,80 +467,79 @@ void
 MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
 	MRAcquisitionData& ac, unsigned int& off)
 {
-	ISMRMRD::Image<T>& img = *ptr_img;
+//	ISMRMRD::Image<T>& img = *ptr_img;
 
-	std::string par;
-	ISMRMRD::IsmrmrdHeader header;
-	//par = ac.acquisitions_info();
-	par = sptr_acqs_->acquisitions_info();
-	ISMRMRD::deserialize(par.c_str(), header);
-	ISMRMRD::Encoding e = header.encoding[0];
-	ISMRMRD::Acquisition acq; // (acq_);
-	//sptr_acqs_->get_acquisition(0, acq);
-	for (unsigned int i = 0; i < sptr_acqs_->number(); i++) {
-		sptr_acqs_->get_acquisition(i, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-	}
+//	std::string par;
+//	ISMRMRD::IsmrmrdHeader header;
+//	//par = ac.acquisitions_info();
+//	par = sptr_acqs_->acquisitions_info();
+//	ISMRMRD::deserialize(par.c_str(), header);
+//	ISMRMRD::Encoding e = header.encoding[0];
+//	ISMRMRD::Acquisition acq; // (acq_);
+//	//sptr_acqs_->get_acquisition(0, acq);
+//	for (unsigned int i = 0; i < sptr_acqs_->number(); i++) {
+//		sptr_acqs_->get_acquisition(i, acq);
+//		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+//			break;
+//	}
 
-	//int readout = e.encodedSpace.matrixSize.x;
-	unsigned int nx = e.reconSpace.matrixSize.x;
-	//unsigned int ny = e.reconSpace.matrixSize.y;
-	//unsigned int nz = e.reconSpace.matrixSize.z;
-	unsigned int ny = e.encodedSpace.matrixSize.y;
-	unsigned int nz = e.encodedSpace.matrixSize.z;
-	unsigned int nc = acq.active_channels();
-	unsigned int readout = acq.number_of_samples();
+//	//int readout = e.encodedSpace.matrixSize.x;
+//	unsigned int nx = e.reconSpace.matrixSize.x;
+//	//unsigned int ny = e.reconSpace.matrixSize.y;
+//	//unsigned int nz = e.reconSpace.matrixSize.z;
+//	unsigned int ny = e.encodedSpace.matrixSize.y;
+//	unsigned int nz = e.encodedSpace.matrixSize.z;
+//	unsigned int nc = acq.active_channels();
+//	unsigned int readout = acq.number_of_samples();
 
-	std::vector<size_t> dims;
-	dims.push_back(readout);
-	dims.push_back(ny);
-	dims.push_back(nz);
-	dims.push_back(nc);
+//	std::vector<size_t> dims;
+//	dims.push_back(readout);
+//	dims.push_back(ny);
+//	dims.push_back(nz);
+//	dims.push_back(nc);
 
-	ISMRMRD::NDArray<complex_float_t> ci(dims);
-	memset(ci.getDataPtr(), 0, ci.getDataSize());
+//	ISMRMRD::NDArray<complex_float_t> ci(dims);
+//	memset(ci.getDataPtr(), 0, ci.getDataSize());
 
-	for (unsigned int c = 0; c < nc; c++) {
-		for (unsigned int z = 0; z < nz; z++) {
-			for (unsigned int y = 0; y < ny; y++) {
-				for (unsigned int x = 0; x < nx; x++) {
-					uint16_t xout = x + (readout - nx) / 2;
-					complex_float_t zi = (complex_float_t)img(x, y, z);
-					complex_float_t zc = csm(x, y, z, c);
-					ci(xout, y, z, c) = zi * zc;
-				}
-			}
-		}
-	}
+//	for (unsigned int c = 0; c < nc; c++) {
+//		for (unsigned int z = 0; z < nz; z++) {
+//			for (unsigned int y = 0; y < ny; y++) {
+//				for (unsigned int x = 0; x < nx; x++) {
+//					uint16_t xout = x + (readout - nx) / 2;
+//					complex_float_t zi = (complex_float_t)img(x, y, z);
+//					complex_float_t zc = csm(x, y, z, c);
+//					ci(xout, y, z, c) = zi * zc;
+//				}
+//			}
+//		}
+//	}
 
-	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
+//	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
-	fft3c(ci);
+//	fft3c(ci);
 
-	int y = 0;
-	for (;;){
-		sptr_acqs_->get_acquisition(off + y, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-		y++;
-	}
-	for (;;) {
-		sptr_acqs_->get_acquisition(off + y, acq);
-		int yy = acq.idx().kspace_encode_step_1;
-		int zz = acq.idx().kspace_encode_step_2;
-		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int s = 0; s < readout; s++) {
-				acq.data(s, c) = ci(s, yy, zz, c);
-			}
-		}
-		ac.append_acquisition(acq);
-		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) ||
-			off + y >= sptr_acqs_->number())
-			break;
-	}
-	off += y;
+//	int y = 0;
+//	for (;;){
+//		sptr_acqs_->get_acquisition(off + y, acq);
+//		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+//			break;
+//		y++;
+//	}
+//	for (;;) {
+//		sptr_acqs_->get_acquisition(off + y, acq);
+//		int yy = acq.idx().kspace_encode_step_1;
+//		int zz = acq.idx().kspace_encode_step_2;
+//		for (unsigned int c = 0; c < nc; c++) {
+//			for (unsigned int s = 0; s < readout; s++) {
+//				acq.data(s, c) = ci(s, yy, zz, c);
+//			}
+//		}
+//		ac.append_acquisition(acq);
+//		y++;
+//		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+//			break;
+//	}
+//	off += y;
 
 }
 
@@ -506,115 +548,115 @@ void
 MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
 	MRAcquisitionData& ac, unsigned int& off)
 {
-	ISMRMRD::Image<T>& im = *ptr_im;
+//	ISMRMRD::Image<T>& im = *ptr_im;
 
-	std::string par;
-	ISMRMRD::IsmrmrdHeader header;
-	par = ac.acquisitions_info();
-	ISMRMRD::deserialize(par.c_str(), header);
-	ISMRMRD::Encoding e = header.encoding[0];
-	ISMRMRD::Acquisition acq;
-	for (unsigned int i = 0; i < ac.number(); i++) {
-		ac.get_acquisition(i, acq);
-		if (!TO_BE_IGNORED(acq))
-			break;
+//	std::string par;
+//	ISMRMRD::IsmrmrdHeader header;
+//	par = ac.acquisitions_info();
+//	ISMRMRD::deserialize(par.c_str(), header);
+//	ISMRMRD::Encoding e = header.encoding[0];
+//	ISMRMRD::Acquisition acq;
+//	for (unsigned int i = 0; i < ac.number(); i++) {
+//		ac.get_acquisition(i, acq);
+//		if (!TO_BE_IGNORED(acq))
+//			break;
 //		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
 //			break;
-	}
+//	}
 
-	unsigned int nx = e.reconSpace.matrixSize.x;
-	//unsigned int ny = e.reconSpace.matrixSize.y;
-	//unsigned int nz = e.reconSpace.matrixSize.z;
-	unsigned int ny = e.encodedSpace.matrixSize.y;
-	unsigned int nz = e.encodedSpace.matrixSize.z;
-	unsigned int nc = acq.active_channels();
-	unsigned int readout = acq.number_of_samples();
+//	unsigned int nx = e.reconSpace.matrixSize.x;
+//	//unsigned int ny = e.reconSpace.matrixSize.y;
+//	//unsigned int nz = e.reconSpace.matrixSize.z;
+//	unsigned int ny = e.encodedSpace.matrixSize.y;
+//	unsigned int nz = e.encodedSpace.matrixSize.z;
+//	unsigned int nc = acq.active_channels();
+//	unsigned int readout = acq.number_of_samples();
 
-	std::vector<size_t> dims;
-	dims.push_back(readout);
-	dims.push_back(ny);
-	dims.push_back(nz);
-	dims.push_back(nc);
+//	std::vector<size_t> dims;
+//	dims.push_back(readout);
+//	dims.push_back(ny);
+//	dims.push_back(nz);
+//	dims.push_back(nc);
 
-	ISMRMRD::NDArray<complex_float_t> ci(dims);
-	memset(ci.getDataPtr(), 0, ci.getDataSize());
-	const int NUMVAL = 4;
-	typedef std::array<int, NUMVAL> tuple;
-	tuple t_first;
-	bool first = true;
-	unsigned int& a = off;
-	for (; a < ac.number(); a++) {
-		ac.get_acquisition(a, acq);
-		if (TO_BE_IGNORED(acq))
-			continue;
-		tuple t;
-		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().phase;
-		t[2] = acq.idx().contrast;
-		t[3] = acq.idx().slice;
-		if (first) {
-			t_first = t;
-			first = false;
-			std::cout << "new slice: ";
-			for (int i = 0; i < NUMVAL; i++)
-				std::cout << t[i] << ' ';
-		}
-		else if (t != t_first && 
-			!acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
-			break;
-		int yy = acq.idx().kspace_encode_step_1;
-		int zz = acq.idx().kspace_encode_step_2;
-		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int s = 0; s < readout; s++) {
-				ci(s, yy, zz, c) = acq.data(s, c);
-			}
-		}
-	}
-	std::cout << "done\n";
-	/*
-	int y = 0;
-	for (;;){
-		ac.get_acquisition(off + y, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-		y++;
-	}
-	for (;;) {
-		ac.get_acquisition(off + y, acq);
-		int yy = acq.idx().kspace_encode_step_1;
-		int zz = acq.idx().kspace_encode_step_2;
-		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int s = 0; s < readout; s++) {
-				ci(s, yy, zz, c) = acq.data(s, c);
-			}
-		}
-		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-			break;
-	}
-	off += y;
-	*/
+//	ISMRMRD::NDArray<complex_float_t> ci(dims);
+//	memset(ci.getDataPtr(), 0, ci.getDataSize());
+//	const int NUMVAL = 4;
+//	typedef std::array<int, NUMVAL> tuple;
+//	tuple t_first;
+//	bool first = true;
+//	unsigned int& a = off;
+//	for (; a < ac.number(); a++) {
+//		ac.get_acquisition(a, acq);
+//		if (TO_BE_IGNORED(acq))
+//			continue;
+//		tuple t;
+//		t[0] = acq.idx().repetition;
+//		t[1] = acq.idx().phase;
+//		t[2] = acq.idx().contrast;
+//		t[3] = acq.idx().slice;
+//		if (first) {
+//			t_first = t;
+//			first = false;
+//			std::cout << "new slice: ";
+//			for (int i = 0; i < NUMVAL; i++)
+//				std::cout << t[i] << ' ';
+//		}
+//		else if (t != t_first &&
+//			!acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
+//			break;
+//		int yy = acq.idx().kspace_encode_step_1;
+//		int zz = acq.idx().kspace_encode_step_2;
+//		for (unsigned int c = 0; c < nc; c++) {
+//			for (unsigned int s = 0; s < readout; s++) {
+//				ci(s, yy, zz, c) = acq.data(s, c);
+//			}
+//		}
+//	}
+//	std::cout << "done\n";
+//	/*
+//	int y = 0;
+//	for (;;){
+//		ac.get_acquisition(off + y, acq);
+//		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+//			break;
+//		y++;
+//	}
+//	for (;;) {
+//		ac.get_acquisition(off + y, acq);
+//		int yy = acq.idx().kspace_encode_step_1;
+//		int zz = acq.idx().kspace_encode_step_2;
+//		for (unsigned int c = 0; c < nc; c++) {
+//			for (unsigned int s = 0; s < readout; s++) {
+//				ci(s, yy, zz, c) = acq.data(s, c);
+//			}
+//		}
+//		y++;
+//		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+//			break;
+//	}
+//	off += y;
+//	*/
 
-	ifft3c(ci);
+//	ifft3c(ci);
 
-	T* ptr = im.getDataPtr();
-	T s;
-	memset(ptr, 0, im.getDataSize());
-	long long int i = 0;
-	for (unsigned int c = 0; c < nc; c++) {
-		i = 0;
-		for (unsigned int z = 0; z < nz; z++) {
-			for (unsigned int y = 0; y < ny; y++) {
-				for (unsigned int x = 0; x < nx; x++, i++) {
-					uint16_t xout = x + (readout - nx) / 2;
-					complex_float_t zi = ci(xout, y, z, c);
-					complex_float_t zc = csm(x, y, z, c);
-					xGadgetronUtilities::convert_complex(std::conj(zc) * zi, s);
-					ptr[i] += s;
-				}
-			}
-		}
-	}
+//	T* ptr = im.getDataPtr();
+//	T s;
+//	memset(ptr, 0, im.getDataSize());
+//	long long int i = 0;
+//	for (unsigned int c = 0; c < nc; c++) {
+//		i = 0;
+//		for (unsigned int z = 0; z < nz; z++) {
+//			for (unsigned int y = 0; y < ny; y++) {
+//				for (unsigned int x = 0; x < nx; x++, i++) {
+//					uint16_t xout = x + (readout - nx) / 2;
+//					complex_float_t zi = ci(xout, y, z, c);
+//					complex_float_t zc = csm(x, y, z, c);
+//					xGadgetronUtilities::convert_complex(std::conj(zc) * zi, s);
+//					ptr[i] += s;
+//				}
+//			}
+//		}
+//	}
 
 }
 

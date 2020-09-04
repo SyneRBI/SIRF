@@ -36,6 +36,7 @@ limitations under the License.
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/encoding.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -120,6 +121,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		}
 		if( verbose )
 			std::cout<< "Finished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
+        this->sort();
 	}
 	catch( std::runtime_error& e)
 	{
@@ -485,6 +487,19 @@ MRAcquisitionData::norm() const
 	return sqrt(r);
 }
 
+
+ISMRMRD::TrajectoryType
+MRAcquisitionData::get_trajectory_type() const
+{
+    AcquisitionsInfo hdr_as_ai = acquisitions_info();
+    ISMRMRD::IsmrmrdHeader hdr = hdr_as_ai.get_IsmrmrdHeader();
+
+    if(hdr.encoding.size()!= 1)
+        throw LocalisedException("Curerntly only one encoding is supported. You supplied multiple in one ismrmrd file.", __FUNCTION__, __LINE__);
+    else
+        return hdr.encoding[0].trajectory;
+}
+
 MRAcquisitionData*
 MRAcquisitionData::clone_base() const
 {
@@ -592,6 +607,7 @@ MRAcquisitionData::sort_by_time()
 	else
 		Multisort::sort( vt, &index_[0] );
     this->organise_kspace();
+    sorted_ = true;
 
 }
 
@@ -630,6 +646,8 @@ static int get_num_enc_states( const ISMRMRD::Optional<ISMRMRD::Limit>& enc_lim)
 
 void MRAcquisitionData::organise_kspace()
 {
+    std::vector<KSpaceSorting>().swap(this->sorting_);
+
     ISMRMRD::IsmrmrdHeader header;
     ISMRMRD::deserialize(this->acqs_info_.c_str(), header);
 
@@ -674,6 +692,9 @@ void MRAcquisitionData::organise_kspace()
         int access_idx = (((((tag[0] * NSlice + tag[1])*NCont + tag[2])*NPhase + tag[3])*NRep + tag[4])*NSet + tag[5])*NSegm + tag[6];
         this->sorting_.at(access_idx).add_idx_to_set(i);
     }
+    this->sorting_.erase(
+                std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSorting& s){ return s.get_idx_set().empty();}),
+                sorting_.end());
 }
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
@@ -917,6 +938,58 @@ AcquisitionsVector::copy_acquisitions_data(const MRAcquisitionData& ac)
 			for (int s = 0; s < ns; s++, i++)
 				acq_dst.data(s, c) = acq_src.data(s, c);
 	}
+}
+
+KSpaceSorting::TagType KSpaceSorting::get_tag_from_img(const CFImage& img)
+{
+    TagType tag;
+
+    tag[0] = img.getAverage();
+    tag[1] = img.getSlice();
+    tag[2] = img.getContrast();
+    tag[3] = img.getPhase();
+    tag[4] = img.getRepetition();
+    tag[5] = img.getSet();
+    tag[6] = 0; //segments area always zero
+
+    for(int i=0; i<ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS; ++i)
+        tag[7+i] = img.getUserInt(i);
+
+    return tag;
+}
+
+
+KSpaceSorting::TagType KSpaceSorting::get_tag_from_acquisition(ISMRMRD::Acquisition acq)
+{
+    TagType tag;
+    tag[0] = acq.idx().average;
+    tag[1] = acq.idx().slice;
+    tag[2] = acq.idx().contrast;
+    tag[3] = acq.idx().phase;
+    tag[4] = acq.idx().repetition;
+    tag[5] = acq.idx().set;
+    tag[6] = 0; //acq.idx().segment;
+
+    for(int i=7; i<tag.size(); ++i)
+        tag[i]=acq.idx().user[i];
+
+    return tag;
+}
+
+void KSpaceSorting::print_tag(const TagType& tag)
+{
+    std::cout << "(";
+
+    for(int i=0; i<tag.size();++i)
+        std::cout << tag[i] <<",";
+
+    std::cout << ")" << std::endl;
+}
+
+void KSpaceSorting::print_acquisition_tag(ISMRMRD::Acquisition acq)
+{
+    TagType tag = get_tag_from_acquisition(acq);
+    print_tag(tag);
 }
 
 void
