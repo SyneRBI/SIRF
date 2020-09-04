@@ -552,10 +552,16 @@ class DataContainer(ABC):
         '''return default type as float32'''
         return numpy.float32
     
+    def max(self):
+        '''returns the max element in the DataContainer'''
+        return numpy.max(self.as_array())
+    
+    
 class ImageData(DataContainer):
     '''
     Image data ABC
     '''
+        
     def equal(self, other):
         '''
         Overloads == for ImageData.
