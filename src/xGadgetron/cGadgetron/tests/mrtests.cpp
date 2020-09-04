@@ -30,13 +30,67 @@ limitations under the License.
 
 #include <iostream>
 #include <cstdlib>
+#include <numeric>
+#include <vector>
+
 
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/encoding.h"
 
 #include "mrtest_auxiliary_funs.h"
 
 using namespace sirf;
+
+
+
+
+bool test_TrajectoryPreparation_constructors( void )
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        sirf::CartesianTrajectoryPrep cart_tp;
+        sirf::GRPETrajectoryPrep rpe_tp;
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+
+bool test_GRPETrajectoryPrep_set_trajectory(const std::string& fname_input)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+        sirf::GRPETrajectoryPrep rpe_tp;
+
+        std::string const fname_output = "res_phant_cv_rpe_itl_gc_ismrmrd.h5";
+
+        sirf::AcquisitionsVector mr_dat;
+        mr_dat.read(fname_input);
+        rpe_tp.set_trajectory(mr_dat);
+        mr_dat.write(fname_output);
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
 
 bool test_get_kspace_order(const std::string& fname_input)
 {
@@ -108,6 +162,47 @@ bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
             fname_out << "output_" << __FUNCTION__ << "_" << i;
 
             sirf::write_cfimage_to_raw(fname_out.str(), *sptr_iw);
+        }
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_bwd(const std::string& fname_input)
+{
+    try
+    {
+       std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        sirf::AcquisitionsVector mr_rawdata;
+        mr_rawdata.read(fname_input);
+
+        preprocess_acquisition_data(mr_rawdata);
+        mr_rawdata.sort();
+
+        sirf::GadgetronImagesVector img_vec;
+        sirf::MRAcquisitionModel acquis_model;
+
+        sirf::CoilSensitivitiesAsImages csm;
+        csm.compute(mr_rawdata);
+
+        auto sptr_encoder = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
+        acquis_model.set_encoder(sptr_encoder);
+
+        acquis_model.bwd(img_vec, csm, mr_rawdata);
+
+        for(int i=0; i<img_vec.items(); ++i)
+        {
+            std::stringstream fname_output;
+            fname_output << "output_" << __FUNCTION__ << "_image_" << i;
+            write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
         }
 
         return true;
