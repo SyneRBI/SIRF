@@ -1005,19 +1005,18 @@ namespace sirf {
 
         }
 
+        void forward(GadgetronImageData& img, GadgetronImageData& combined_img){
+            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
+        }
+        void backward(GadgetronImageData& combined_img, GadgetronImageData& img){
+            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
+        }
+
     protected:
 
         //bool flag_imgs_suitable_for_csm_computation_=false;
 
         void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);
-
-        void forward(){
-            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
-        }
-        void backward(){
-            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
-        }
-
 
     private:
         int csm_smoothness_ = 0;
