@@ -128,7 +128,7 @@ class DataContainer(ABC):
         out:   DataContainer to store the result to.
         '''
         if isinstance(other , ( Number, int, float, numpy.float32 )):
-            tmp = other + numpy.zeros(self.as_array().shape)
+            tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -149,7 +149,7 @@ class DataContainer(ABC):
         out:   DataContainer to store the result to.
         '''
         if isinstance(other , ( Number, int, float, numpy.float32 )):
-            tmp = other + numpy.zeros_like(self.as_array().shape)
+            tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -172,7 +172,7 @@ class DataContainer(ABC):
         out:   DataContainer to store the result to.
         '''
         if isinstance(other , ( Number, int, float, numpy.float32 )):
-            tmp = other + numpy.zeros(self.as_array().shape)
+            tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -242,7 +242,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         if isinstance(other , ( Number, int, float, numpy.float32 )):
-            tmp = other + numpy.zeros(self.as_array().shape)
+            tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -539,6 +539,11 @@ class DataContainer(ABC):
         '''Returns the (total) size of the data array.'''
         return self.as_array().size
 
+    @property
+    def dtype(self):
+        '''return default type as float32'''
+        return numpy.float32
+    
 class ImageData(DataContainer):
     '''
     Image data ABC

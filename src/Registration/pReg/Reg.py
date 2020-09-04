@@ -520,6 +520,13 @@ class NiftiImageData(SIRF.ImageData):
         pyiutil.deleteDataHandle(h)
         return value
 
+    @property
+    def shape(self):
+        return self.dimensions()
+    @property
+    def dtype(self):
+        return numpy.float32
+
 
 class NiftiImageData3D(NiftiImageData):
     """Class for 3D nifti image data."""

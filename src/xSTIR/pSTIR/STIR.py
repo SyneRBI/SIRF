@@ -560,6 +560,12 @@ class ImageData(SIRF.ImageData):
             moved_im.handle, proj_data.handle))
 
         return moved_im
+    @property
+    def shape(self):
+        return self.dimensions()
+    @property
+    def dtype(self):
+        return numpy.float32
 
 
 SIRF.ImageData.register(ImageData)
@@ -1007,6 +1013,13 @@ class AcquisitionData(DataContainer):
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
+
+    @property
+    def shape(self):
+        return self.dimensions()
+    @property
+    def dtype(self):
+        return numpy.float32
 
 
 DataContainer.register(AcquisitionData)
