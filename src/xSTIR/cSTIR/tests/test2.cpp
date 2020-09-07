@@ -85,10 +85,8 @@ int test2()
 	}
 	std::string path = SIRF_path + "/data/examples/PET/";
 
-	//BUG: now cases segfault in test4!
-	//TextWriter w;
-	//openChannel(0, &w); // suppress STIR info output
-	//return 0;
+	TextWriter w;
+	openChannel(0, &w); // suppress STIR info output
 
 	int status = 1;
 	for (;;) {
@@ -230,6 +228,7 @@ int test2()
 	deleteDataHandle(filter);
 	deleteDataHandle(prior);
 	deleteDataHandle(obj_fun);
+	closeChannel(0, &w);
 
 	return status;
 }

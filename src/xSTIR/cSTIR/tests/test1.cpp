@@ -57,17 +57,16 @@ void openChannel(int channel, void* ptr_w);
 int test1()
 {
 	std::cout << "running test1.cpp...\n";
-	try {
-		//BUG: now cases segfault in test4!
-		//TextPrinter w("info.txt");
-		//TextWriterHandle h;
-		//h.set_information_channel(&w);
+	std::string SIRF_path = std::getenv("SIRF_PATH");
+	if (SIRF_path.length() < 1) {
+		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+		return 1;
+	}
 
-		std::string SIRF_path = std::getenv("SIRF_PATH");
-		if (SIRF_path.length() < 1) {
-			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-			return 1;
-		}
+	try {
+		TextWriter w; // create writer with no output
+		TextWriterHandle h;
+		h.set_information_channel(&w); // suppress STIR info output
 
 		std::string filename;
 		int dim[10];
@@ -218,6 +217,8 @@ int test1()
 		std::cout << "done with test1.cpp...\n";
 		// restore the default storage scheme
 		PETAcquisitionDataInFile::set_as_template();
+
+		h.set_information_channel(0);
 	}
 	catch (...) {
 		std::cout << "exception thrown\n";
