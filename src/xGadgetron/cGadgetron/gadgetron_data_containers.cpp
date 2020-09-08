@@ -1811,12 +1811,12 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
     return *( (CFImage*)ptr_cf_img);
 }
 
-CFImage CoilSensitivitiesVector::get_csm_as_CFImage(const KSpaceSorting::TagType tag, const int offset) const
+CFImage CoilSensitivitiesVector::get_csm_as_cfimage(const KSpaceSorting::TagType tag, const int offset) const
 {
     for(int i=0; i<this->items();++i)
     {
-        int const access_idx = ((offset + i) % this->items());
-        CFImage csm_img = get_csm_as_CFImage(access_idx);
+        size_t const access_idx = ((offset + i) % this->items());
+        CFImage csm_img = get_csm_as_cfimage(access_idx);
         KSpaceSorting::TagType tag_csm = KSpaceSorting::get_tag_from_img(csm_img);
 
         if(tag_csm[1] == tag[1]) //for now if the same slice is available then take it!
@@ -1847,7 +1847,7 @@ void CoilSensitivitiesVector::forward(GadgetronImageData& img, GadgetronImageDat
 
         CFImage* ptr_src_img = static_cast<CFImage*>(vptr_src_img);
 
-        CFImage coilmap = get_csm_as_CFImage( KSpaceSorting::get_tag_from_img(*ptr_src_img), i_img);
+        CFImage coilmap = get_csm_as_cfimage( KSpaceSorting::get_tag_from_img(*ptr_src_img), i_img);
 
         CFImage dst_img(coilmap);
         dst_img.setHead((*ptr_src_img).getHead());
@@ -1893,7 +1893,7 @@ void CoilSensitivitiesVector::backward(GadgetronImageData& combined_img, Gadgetr
 
            CFImage* ptr_src_img = static_cast<CFImage*>(vptr_src_img);
 
-           CFImage coilmap= get_csm_as_CFImage(KSpaceSorting::get_tag_from_img(*ptr_src_img), i_img);
+           CFImage coilmap= get_csm_as_cfimage(KSpaceSorting::get_tag_from_img(*ptr_src_img), i_img);
 
            int const Nx = (int)coilmap.getMatrixSizeX();
            int const Ny = (int)coilmap.getMatrixSizeY();

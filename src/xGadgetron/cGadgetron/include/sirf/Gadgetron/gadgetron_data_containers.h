@@ -981,7 +981,7 @@ namespace sirf {
         }
 
         CFImage get_csm_as_cfimage(size_t const i) const;
-        CFImage get_csm_as_CFImage(const KSpaceSorting::TagType tag, const int offset) const;
+        CFImage get_csm_as_cfimage(const KSpaceSorting::TagType tag, const int offset) const;
 
 
         void get_dim(size_t const num_csm, int* dim) const
