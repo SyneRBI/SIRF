@@ -354,7 +354,7 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 {
 
     GadgetronImagesVector indiv_channels;
-    cc.apply_coil_sensitivities(indiv_channels, ic);
+    cc.forward(indiv_channels, ic);
 
     if(!ac.sorted())
         ac.sort();
