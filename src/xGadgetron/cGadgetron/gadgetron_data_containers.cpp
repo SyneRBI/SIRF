@@ -1811,6 +1811,21 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
     return *( (CFImage*)ptr_cf_img);
 }
 
+CFImage CoilSensitivitiesVector::get_csm_as_CFImage(const KSpaceSorting::TagType tag, const int offset) const
+{
+    for(int i=0; i<this->items();++i)
+    {
+        int const access_idx = ((offset + i) % this->items());
+        CFImage csm_img = get_csm_as_CFImage(access_idx);
+        KSpaceSorting::TagType tag_csm = KSpaceSorting::get_tag_from_img(csm_img);
+
+        if(tag_csm[1] == tag[1]) //for now if the same slice is available then take it!
+            return csm_img;
+    }
+
+    throw LocalisedException("No coilmap with this tag was in the coilsensitivity container.",   __FILE__, __LINE__);
+}
+
 void CoilSensitivitiesVector::forward(GadgetronImageData& img, GadgetronImageData& combined_img)
 {
     if(combined_img.items() != this->items() )
