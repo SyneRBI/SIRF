@@ -73,8 +73,8 @@ bool test_GRPETrajectoryPrep_set_trajectory(const AcquisitionsVector av)
         std::cout << "Running test " << __FUNCTION__ << std::endl;
         sirf::GRPETrajectoryPrep rpe_tp;
 
-        av.read(fname_input);
-        rpe_tp.set_trajectory(av);
+        AcquisitionsVector av_temp(av);
+        rpe_tp.set_trajectory(av_temp);
 
         return true;
 
@@ -94,9 +94,6 @@ bool test_get_kspace_order(const MRAcquisitionData& av)
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
 
-        sirf::AcquisitionsVector av;
-        av.read(fname_input);
-        av.sort();
 
         auto kspace_sorting_slice = av.get_kspace_order();
 
@@ -116,9 +113,6 @@ bool test_get_subset(const MRAcquisitionData& av)
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
-
-        sirf::AcquisitionsVector av;
-        av.read(fname_input);
 
         std::vector<int> subset_idx;
         for(int i=0; i<av.number()/10; ++i)
@@ -171,21 +165,17 @@ bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
     }
 }
 
-bool test_bwd(const MRAcquisitionData& av)
+bool test_bwd(MRAcquisitionData& av)
 {
     try
     {
        std::cout << "Running test " << __FUNCTION__ << std::endl;
 
-        av.read(fname_input);
-
-        av.sort();
-
         sirf::GadgetronImagesVector img_vec;
         sirf::MRAcquisitionModel acquis_model;
 
-        sirf::CoilSensitivitiesAsImages csm;
-        csm.compute(av);
+        sirf::CoilSensitivitiesVector csm;
+        csm.calculate(av);
 
         auto sptr_encoder = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
         acquis_model.set_encoder(sptr_encoder);
@@ -196,7 +186,7 @@ bool test_bwd(const MRAcquisitionData& av)
         {
             std::stringstream fname_output;
             fname_output << "output_" << __FUNCTION__ << "_image_" << i;
-            write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i);
+            write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
         }
 
         return true;
@@ -261,6 +251,7 @@ int main ( int argc, char* argv[])
         av.read(data_path);
 
         sirf::preprocess_acquisition_data(av);
+        av.sort();
 
         test_get_kspace_order(av);
         test_get_subset(av);
