@@ -110,6 +110,16 @@ public:
 };
 
 
+class RPEFourierEncoding : public FourierEncoding
+{
+public:
+    RPEFourierEncoding(): FourierEncoding() {}
+
+    virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img);
+    virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac);
+
+};
 
 } // namespace sirf
 #endif // ENCODING_H
+

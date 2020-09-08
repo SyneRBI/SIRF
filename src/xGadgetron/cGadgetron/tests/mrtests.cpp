@@ -165,6 +165,40 @@ bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
     }
 }
 
+bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        CoilSensitivitiesVector csv;
+        csv.calculate(av);
+
+        std::cout << "We have " << csv.items() << " coilmaps" << std::endl;
+
+        for(int i=0; i<csv.items(); ++i)
+        {
+            CFImage img = csv.get_csm_as_cfimage(i);
+
+            std::stringstream fname_out;
+            fname_out << "output_" << __FUNCTION__ << "_" << i;
+
+            sirf::write_cfimage_to_raw(fname_out.str(), img);
+        }
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+
+
 bool test_bwd(MRAcquisitionData& av)
 {
     try
@@ -200,28 +234,21 @@ bool test_bwd(MRAcquisitionData& av)
     }
 }
 
-bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av)
+bool test_rpe_bwd(MRAcquisitionData& av)
 {
     try
     {
-        std::cout << "Running test " << __FUNCTION__ << std::endl;
+       std::cout << "Running test " << __FUNCTION__ << std::endl;
 
-        CoilSensitivitiesVector csv;
-        csv.calculate(av);
 
-        std::cout << "We have " << csv.items() << " coilmaps" << std::endl;
+       std::vector<int> dims;
+       av.get_acquisition_dimensions(dims);
 
-        for(int i=0; i<csv.items(); ++i)
-        {
-            CFImage img = csv.get_csm_as_cfimage(i);
+       for(int i=0; i<dims.size();++i)
+           std::cout << dims[i] << std::endl;
 
-            std::stringstream fname_out;
-            fname_out << "output_" << __FUNCTION__ << "_" << i;
 
-            sirf::write_cfimage_to_raw(fname_out.str(), img);
-        }
-
-        return true;
+       return true;
 
     }
     catch( std::runtime_error const &e)
@@ -231,7 +258,6 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av
         throw;
     }
 }
-
 
 
 int main ( int argc, char* argv[])
@@ -262,6 +288,8 @@ int main ( int argc, char* argv[])
         test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
         test_bwd(av);
+
+        test_rpe_bwd(av);
 
         return 0;
 	}

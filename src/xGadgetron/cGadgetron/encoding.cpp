@@ -269,3 +269,38 @@ void sirf::CartesianFourierEncoding::backward(CFImage* ptr_img, MRAcquisitionDat
     this->match_img_header_to_acquisition(*ptr_img, acq);
 
 }
+
+
+
+
+class RPEFourierEncoding : public FourierEncoding
+{
+public:
+    RPEFourierEncoding(): FourierEncoding() {}
+
+    virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac)
+    {
+        ASSERT( ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
+
+        ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
+        ISMRMRD::Encoding e = hdr.encoding[0];
+
+        EncodingSpace rec_space = e.reconSpace;
+
+        std::vector<int> dims;
+        ac.get_acquisition_dimensions(dims);
+
+
+        ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, dims[3]);
+        ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
+
+
+        throw std::runtime_error("The backward Model Is not implemented yet for RPE.");
+
+    }
+
+    virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img)
+    {
+        throw std::runtime_error("The Forward Model Is not implemented yet for RPE.");
+    }
+};

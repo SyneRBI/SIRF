@@ -261,7 +261,8 @@ namespace sirf {
 		}
 
 		bool undersampled() const;
-		int get_acquisitions_dimensions(size_t ptr_dim) const;
+        int get_acquisitions_dimensions(size_t ptr_dim) const;
+        void get_acquisition_dimensions(std::vector<int>& dims) const;
 	
 		void sort();
 		void sort_by_time();

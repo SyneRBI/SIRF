@@ -218,6 +218,42 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 	return nrd;
 }
 
+void MRAcquisitionData::get_acquisition_dimensions(std::vector<int>& dims) const
+{
+    int na = number();
+    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+
+    ISMRMRD::Acquisition acq;
+    get_acquisition(0,acq);
+
+    int nro = acq.number_of_samples();
+    int nc = acq.active_channels();
+
+    std::vector<int> empty_data;
+    dims.swap(empty_data);
+
+    for(int i=1; i<na; ++i)
+    {
+        get_acquisition(i, acq);
+
+        if(acq.active_channels() !=nc)
+                throw std::runtime_error("The number of channels is not consistent within this container.");
+        if(acq.number_of_samples() != nro)
+            throw std::runtime_error("The number of readout points is not consistent within this container.");
+    }
+
+    ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
+    ISMRMRD::Encoding e = hdr.encoding[0];
+    ISMRMRD::EncodingSpace enc_space = e.encodedSpace;
+
+    dims.push_back(nro);
+    dims.push_back(enc_space.matrixSize.y);
+    dims.push_back(enc_space.matrixSize.z);
+    dims.push_back(nc);
+}
+
+
+
 void
 MRAcquisitionData::get_data(complex_float_t* z, int a)
 {
