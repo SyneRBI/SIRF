@@ -64,7 +64,7 @@ class DataContainer(ABC):
             (mn_one.ctypes.data, self.handle, zero.ctypes.data, self.handle)
         check_status(z.handle)
         return z
-#    @abc.abstractmethod
+
     def same_object(self):
         '''
         Returns an object of the same type as self.
@@ -171,6 +171,8 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
+        if not isinstance (other, ( DataContainer , Number, int, float, numpy.float32 )):
+            return NotImplemented
         if isinstance(other , ( Number, int, float, numpy.float32 )):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
@@ -267,7 +269,11 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        return self.subtract(other)
+        assert self.handle is not None
+
+        if isinstance(other, (Number, int, float, numpy.float32) ):
+            return self.subtract(other)
+        return NotImplemented
 
     def __mul__(self, other):
         '''
