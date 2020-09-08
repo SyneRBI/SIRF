@@ -988,12 +988,8 @@ namespace sirf {
 
         }
 
-        void forward(GadgetronImageData& img, GadgetronImageData& combined_img){
-            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
-        }
-        void backward(GadgetronImageData& combined_img, GadgetronImageData& img){
-            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
-        }
+        void forward(GadgetronImageData& img, GadgetronImageData& combined_img);
+        void backward(GadgetronImageData& combined_img, GadgetronImageData& img);
 
     protected:
 
