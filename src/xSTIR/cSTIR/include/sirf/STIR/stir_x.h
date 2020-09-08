@@ -624,6 +624,16 @@ The actual algorithm is described in
 		}
 	};
 
+	class xSTIR_OSMAPOSLReconstruction3DF : public stir::OSMAPOSLReconstruction< Image3DF > {
+	public:
+		int& subiteration() {
+			return subiteration_num;
+		}
+		int subiteration() const {
+			return subiteration_num;
+		}
+	};
+
 	class xSTIR_OSSPSReconstruction3DF : public stir::OSSPSReconstruction < Image3DF > {
 	public:
 		float& relaxation_parameter_value() {

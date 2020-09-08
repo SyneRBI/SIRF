@@ -43,6 +43,7 @@ using namespace sirf;
 
 int test4()
 {
+	std::cout << "running test4.cpp...\n";
 	try {
 
 		std::string SIRF_path = sirf::getenv("SIRF_PATH");
@@ -133,18 +134,11 @@ int test4()
         std::cout << "\nNiftyPET test succeeded.\n";
 #endif
 
+		std::cout << "done with test4.cpp...\n";
 		return 0;
 	}
 	catch (...)
 	{
 		return 1;
 	}
-}
-
-//int test5();
-
-int main()
-{
-	return test4();
-	//return test5();
 }
