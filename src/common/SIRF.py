@@ -271,7 +271,7 @@ class DataContainer(ABC):
         '''
         assert self.handle is not None
 
-        if isinstance(other, (Number, int, float, numpy.float32) ):
+        if isinstance(other, (DataContainer, Number, int, float, numpy.float32) ):
             return self.subtract(other)
         return NotImplemented
 
