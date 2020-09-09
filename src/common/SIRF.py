@@ -127,7 +127,9 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
@@ -148,7 +150,9 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number ):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
@@ -171,9 +175,9 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if not isinstance (other, ( DataContainer , Number, int, float, numpy.float32 )):
+        if not isinstance (other, ( DataContainer , Number )):
             return NotImplemented
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
+        if isinstance(other , Number):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
@@ -243,7 +247,9 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
@@ -271,7 +277,7 @@ class DataContainer(ABC):
         '''
         assert self.handle is not None
 
-        if isinstance(other, (DataContainer, Number, int, float, numpy.float32) ):
+        if isinstance(other, (DataContainer, Number) ):
             return self.subtract(other)
         return NotImplemented
 
@@ -316,7 +322,7 @@ class DataContainer(ABC):
             z.handle = pysirf.cSIRF_axpby \
                 (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
             check_status(z.handle)
-            return z;
+            return z
 
         return NotImplemented
 
