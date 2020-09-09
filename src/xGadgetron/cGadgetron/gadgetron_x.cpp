@@ -387,7 +387,7 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
         if(subset.number() == 0)
             throw LocalisedException("You didn't find rawdata corresponding to your image in the acquisition data.", __FILE__, __LINE__);
 
-        this->sptr_enc_->forward(ptr_img, subset);
+        this->sptr_enc_->forward(subset, ptr_img);
         ac.set_subset(subset, idx_set); //assume forward does not reorder the acquisitions
     }
 }

@@ -96,6 +96,8 @@ namespace sirf {
 				deserialize();
 				have_header_ = true;
 			}
+            std::cout << "################ WE HAAAAVE " << this->header_.encoding.size() << " encodings now ####################### " << std::endl;
+
 			return *this;
 		}
 		const char* c_str() const { return data_.c_str(); }
@@ -252,6 +254,7 @@ namespace sirf {
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
+        void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
 
         ISMRMRD::TrajectoryType get_trajectory_type() const;
 

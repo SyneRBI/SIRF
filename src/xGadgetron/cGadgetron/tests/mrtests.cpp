@@ -40,9 +40,11 @@ limitations under the License.
 
 #include "mrtest_auxiliary_funs.h"
 
+
+#include <gadgetron/hoNDArray.h>
+#include <gadgetron/vector_td.h>
+
 using namespace sirf;
-
-
 
 
 bool test_TrajectoryPreparation_constructors( void )
@@ -74,8 +76,8 @@ bool test_GRPETrajectoryPrep_set_trajectory(const AcquisitionsVector av)
         sirf::GRPETrajectoryPrep rpe_tp;
 
         AcquisitionsVector av_temp(av);
-        rpe_tp.set_trajectory(av_temp);
 
+        rpe_tp.set_trajectory(av_temp);
         return true;
 
     }
@@ -234,18 +236,36 @@ bool test_bwd(MRAcquisitionData& av)
     }
 }
 
+bool test_get_rpe_trajectory(AcquisitionsVector av)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+        sirf::GRPETrajectoryPrep rpe_tp;
+
+        rpe_tp.set_trajectory(av);
+
+        RPEFourierEncoding rpe_enc;
+
+        Gadgetron::hoNDArray<SirfTrajectoryType2D> traj = rpe_enc.get_trajectory(av);
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
 bool test_rpe_bwd(MRAcquisitionData& av)
 {
     try
     {
        std::cout << "Running test " << __FUNCTION__ << std::endl;
 
-
-       std::vector<int> dims;
-       av.get_acquisition_dimensions(dims);
-
-       for(int i=0; i<dims.size();++i)
-           std::cout << dims[i] << std::endl;
 
 
        return true;
@@ -289,7 +309,17 @@ int main ( int argc, char* argv[])
 
         test_bwd(av);
 
-        test_rpe_bwd(av);
+        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/3D_Rpe_ismrmrd.h5";
+
+        sirf::AcquisitionsVector rpe_av;
+        rpe_av.read(rpe_data_path);
+
+        sirf::preprocess_acquisition_data(rpe_av);
+        rpe_av.sort();
+
+
+        test_get_rpe_trajectory(rpe_av);
+        test_rpe_bwd(rpe_av);
 
         return 0;
 	}

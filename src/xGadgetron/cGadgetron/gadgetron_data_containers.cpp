@@ -531,9 +531,10 @@ MRAcquisitionData::get_trajectory_type() const
     ISMRMRD::IsmrmrdHeader hdr = hdr_as_ai.get_IsmrmrdHeader();
 
     if(hdr.encoding.size()!= 1)
-        throw LocalisedException("Curerntly only one encoding is supported. You supplied multiple in one ismrmrd file.", __FUNCTION__, __LINE__);
-    else
-        return hdr.encoding[0].trajectory;
+        std::cout << "You have a file with " << hdr.encoding.size() << " encodings. Just the first one is picked." << std::endl;
+
+    return hdr.encoding[0].trajectory;
+
 }
 
 MRAcquisitionData*

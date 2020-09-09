@@ -6,7 +6,8 @@
 #include <ismrmrd/xml.h>
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 
-
+#include <gadgetron/hoNDArray.h>
+#include <gadgetron/vector_td.h>
 
 /*!
 \file
@@ -29,6 +30,8 @@ class aTrajectoryPreparation{
 public:
     aTrajectoryPreparation(){}
     virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq)=0;
+
+
 
 protected:
 
@@ -68,6 +71,9 @@ protected:
 \brief Golden Radial Phase Encoding interleaved trajectory preparation class.
 
 */
+
+
+
 class GRPETrajectoryPrep : public aTrajectoryPreparation {
 
 public:
@@ -81,7 +87,7 @@ public:
 protected:
     virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq);
     virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq);
-    std::vector< uint16_t > const rad_shift_ = {0, 2, 1, 3};
+    std::vector< uint16_t > const rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
     uint16_t circ_mod(uint16_t const a, uint16_t const b){ return (((a%b) + b ) % b);}
 };
 
@@ -93,10 +99,10 @@ class FourierEncoding
 public:
     FourierEncoding(){}
 
-    virtual void forward(CFImage* ptr_img, MRAcquisitionData& ac)=0;
-    virtual void backward(CFImage* ptr_img, MRAcquisitionData& ac)=0;
+    virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img)=0;
+    virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac)=0;
 
-    virtual void match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq);
+    void match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq);
 };
 
 class CartesianFourierEncoding : public FourierEncoding
@@ -104,11 +110,12 @@ class CartesianFourierEncoding : public FourierEncoding
 public:
     CartesianFourierEncoding() : FourierEncoding() {}
 
-    virtual void forward(CFImage* ptr_img, MRAcquisitionData& ac);
-    virtual void backward(CFImage* ptr_img, MRAcquisitionData& ac);
+    virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img);
+    virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac);
 
 };
 
+typedef Gadgetron::floatd2 SirfTrajectoryType2D;
 
 class RPEFourierEncoding : public FourierEncoding
 {
@@ -117,6 +124,8 @@ public:
 
     virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img);
     virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac);
+
+    Gadgetron::hoNDArray<SirfTrajectoryType2D> get_trajectory(const MRAcquisitionData& ac) const;
 
 };
 

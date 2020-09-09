@@ -18,7 +18,6 @@ void sirf::aTrajectoryPreparation::update_acquisitions_info(MRAcquisitionData& m
 
     IsmrmrdHeader hdr = mr_acq.acquisitions_info().get_IsmrmrdHeader();
 
-
     if(hdr.encoding.size() != 1)
         throw LocalisedException("Currrently only files with one encoding are supported", __FILE__, __LINE__);
 
@@ -26,10 +25,11 @@ void sirf::aTrajectoryPreparation::update_acquisitions_info(MRAcquisitionData& m
 
     this->kspace_encoding_ = hdr.encoding[0];
 
-    std::stringstream info_stream;
-    serialize(hdr, info_stream);
-    mr_acq.set_acquisitions_info(info_stream.str());
+    std::stringstream hdr_stream;
+    serialize(hdr, hdr_stream);
 
+    AcquisitionsInfo ai(hdr_stream.str());
+    mr_acq.set_acquisitions_info(ai);
 }
 
 void sirf::CartesianTrajectoryPrep::set_trajectory(MRAcquisitionData& mr_acq)
@@ -106,7 +106,7 @@ void sirf::FourierEncoding::match_img_header_to_acquisition(CFImage& img, const 
 
 }
 
-void sirf::CartesianFourierEncoding::forward(CFImage* ptr_img, MRAcquisitionData& ac)
+void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
 {
 
     std::string par;
@@ -183,16 +183,13 @@ void sirf::CartesianFourierEncoding::forward(CFImage* ptr_img, MRAcquisitionData
     }
 }
 
-void sirf::CartesianFourierEncoding::backward(CFImage* ptr_img, MRAcquisitionData& ac)
+void sirf::CartesianFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 {
 
     if(ac.items()<1)
         LocalisedException("No acquisitions in vector. Trying to backward transform empty vector.", __FUNCTION__, __LINE__);
 
-    std::string par;
-    ISMRMRD::IsmrmrdHeader header;
-    par = ac.acquisitions_info();
-    ISMRMRD::deserialize(par.c_str(), header);
+    ISMRMRD::IsmrmrdHeader header = ac.acquisitions_info().get_IsmrmrdHeader();
 
     if( header.encoding.size() > 1)
         LocalisedException("Currently only one encoding is supported per rawdata file.", __FUNCTION__, __LINE__);
@@ -272,35 +269,68 @@ void sirf::CartesianFourierEncoding::backward(CFImage* ptr_img, MRAcquisitionDat
 
 
 
-
-class RPEFourierEncoding : public FourierEncoding
+Gadgetron::hoNDArray<SirfTrajectoryType2D> RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
-public:
-    RPEFourierEncoding(): FourierEncoding() {}
+    if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER)
+        throw std::runtime_error("Please only ask to get the trajectory for acquisition data with an RPE trajectory pre-computed in the acquisitions.");
 
-    virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac)
+    if(ac.number() <= 0)
+        throw std::runtime_error("Please pass a non-empty container.");
+
+    ISMRMRD::Acquisition acq;
+    ac.get_acquisition(0, acq);
+
+    if( acq.trajectory_dimensions() != 3)
+        throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
+
+    std::vector<int> kspace_dims;
+    ac.get_acquisition_dimensions(kspace_dims);
+
+    std::vector<size_t> traj_dims{kspace_dims[1], kspace_dims[2]};
+
+    Gadgetron::hoNDArray<SirfTrajectoryType2D> traj(traj_dims);
+
+    for(int ia=0; ia<ac.number(); ++ia)
     {
-        ASSERT( ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
+        ac.get_acquisition(ia, acq);
 
-        ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
-        ISMRMRD::Encoding e = hdr.encoding[0];
+        size_t ky = acq.idx().kspace_encode_step_1;
+        size_t kz = acq.idx().kspace_encode_step_2;
 
-        EncodingSpace rec_space = e.reconSpace;
-
-        std::vector<int> dims;
-        ac.get_acquisition_dimensions(dims);
-
-
-        ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, dims[3]);
-        ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
-
-
-        throw std::runtime_error("The backward Model Is not implemented yet for RPE.");
-
+        traj(ky,kz)[0] = acq.traj(1, 0);
+        traj(ky,kz)[1] = acq.traj(2, 0);
     }
 
-    virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img)
-    {
-        throw std::runtime_error("The Forward Model Is not implemented yet for RPE.");
-    }
-};
+    return traj;
+}
+
+void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
+{
+    ASSERT( ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
+
+    ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
+    ISMRMRD::Encoding e = hdr.encoding[0];
+
+    std::vector<int> dims;
+    ac.get_acquisition_dimensions(dims);
+
+    // set meta data for reconstructed image
+
+    EncodingSpace rec_space = e.reconSpace;
+
+    ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, dims[3]);
+    ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
+
+    ISMRMRD::Acquisition acq;
+    ac.get_acquisition(0,acq);
+
+    this->match_img_header_to_acquisition(*ptr_img, acq);
+
+    throw std::runtime_error("The backward Model Is not implemented yet for RPE.");
+
+}
+
+void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
+{
+    throw std::runtime_error("The Forward Model Is not implemented yet for RPE.");
+}
