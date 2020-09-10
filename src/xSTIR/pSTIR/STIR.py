@@ -1617,15 +1617,10 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         """
-        super(AcquisitionModelUsingRayTracingMatrix, self).__init__(matrix)
-        self.handle = None
-        self.name = 'AcqModUsingMatrix'
-        self.handle = pystir.cSTIR_newObject(self.name)
-        check_status(self.handle)
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
-        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
+        super(AcquisitionModelUsingRayTracingMatrix, self).__init__(matrix)
 
     def __del__(self):
         """del."""
