@@ -567,13 +567,13 @@ class DataContainer(ABC):
     def max(self):
         '''returns the max element in the DataContainer'''
         return numpy.max(self.as_array())
-    
-    
+
+
 class ImageData(DataContainer):
     '''
     Image data ABC
     '''
-        
+
     def equal(self, other):
         '''
         Overloads == for ImageData.
