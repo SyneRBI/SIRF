@@ -269,7 +269,7 @@ void sirf::CartesianFourierEncoding::backward(CFImage* ptr_img, const MRAcquisit
 
 
 
-Gadgetron::hoNDArray<SirfTrajectoryType2D> RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
+SirfTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
     if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER)
         throw std::runtime_error("Please only ask to get the trajectory for acquisition data with an RPE trajectory pre-computed in the acquisitions.");
@@ -283,12 +283,12 @@ Gadgetron::hoNDArray<SirfTrajectoryType2D> RPEFourierEncoding::get_trajectory(co
     if( acq.trajectory_dimensions() != 3)
         throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
 
-    std::vector<int> kspace_dims;
+    std::vector<size_t> kspace_dims;
     ac.get_acquisition_dimensions(kspace_dims);
 
     std::vector<size_t> traj_dims{kspace_dims[1], kspace_dims[2]};
 
-    Gadgetron::hoNDArray<SirfTrajectoryType2D> traj(traj_dims);
+    SirfTrajectoryType2D traj(traj_dims);
 
     for(int ia=0; ia<ac.number(); ++ia)
     {
@@ -311,10 +311,24 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
     ISMRMRD::Encoding e = hdr.encoding[0];
 
-    std::vector<int> dims;
+    std::vector<size_t> dims;
     ac.get_acquisition_dimensions(dims);
 
-    // set meta data for reconstructed image
+    Gadgetron::hoNDArray< std::complex<float> > kspace_data(dims);
+
+    #pragma omp parallel
+    for(int ia=0; ia<ac.number(); ++ia)
+    {
+        ISMRMRD::Acquisition acq;
+        ac.get_acquisition(ia, acq);
+
+        for(int is=0; is<acq.number_of_samples(); ++is)
+            for(int ic=0; ic<acq.active_channels(); ++ic)
+                kspace_data(is, acq.idx().kspace_encode_step_1, acq.idx().kspace_encode_step_2, ic) = acq.data(is,ic);
+
+    }
+
+    Gadgetron::hoNDFFT< float >::instance()->ifft1c(kspace_data);
 
     EncodingSpace rec_space = e.reconSpace;
 

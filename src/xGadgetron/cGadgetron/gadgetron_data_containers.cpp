@@ -218,7 +218,7 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 	return nrd;
 }
 
-void MRAcquisitionData::get_acquisition_dimensions(std::vector<int>& dims) const
+void MRAcquisitionData::get_acquisition_dimensions(std::vector<size_t>& dims) const
 {
     int na = number();
     ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
@@ -229,7 +229,7 @@ void MRAcquisitionData::get_acquisition_dimensions(std::vector<int>& dims) const
     int nro = acq.number_of_samples();
     int nc = acq.active_channels();
 
-    std::vector<int> empty_data;
+    std::vector<size_t> empty_data;
     dims.swap(empty_data);
 
     for(int i=1; i<na; ++i)

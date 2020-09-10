@@ -205,7 +205,7 @@ bool test_bwd(MRAcquisitionData& av)
 {
     try
     {
-       std::cout << "Running test " << __FUNCTION__ << std::endl;
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
 
         sirf::GadgetronImagesVector img_vec;
         sirf::MRAcquisitionModel acquis_model;
@@ -247,7 +247,7 @@ bool test_get_rpe_trajectory(AcquisitionsVector av)
 
         RPEFourierEncoding rpe_enc;
 
-        Gadgetron::hoNDArray<SirfTrajectoryType2D> traj = rpe_enc.get_trajectory(av);
+        SirfTrajectoryType2D traj = rpe_enc.get_trajectory(av);
 
         return true;
 
@@ -267,6 +267,30 @@ bool test_rpe_bwd(MRAcquisitionData& av)
        std::cout << "Running test " << __FUNCTION__ << std::endl;
 
 
+       sirf::GRPETrajectoryPrep rpe_tp;
+
+       rpe_tp.set_trajectory(av);
+
+
+       sirf::GadgetronImagesVector img_vec;
+       sirf::MRAcquisitionModel acquis_model;
+
+       sirf::CoilSensitivitiesVector csm;
+       csm.calculate(av);
+
+       auto sptr_encoder = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+       acquis_model.set_encoder(sptr_encoder);
+
+       acquis_model.bwd(img_vec, csm, av);
+
+       for(int i=0; i<img_vec.items(); ++i)
+       {
+           std::stringstream fname_output;
+           fname_output << "output_" << __FUNCTION__ << "_image_" << i;
+           write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
+       }
+
+       return true;
 
        return true;
 
