@@ -1429,7 +1429,7 @@ class AcquisitionModel(object):
 
         Returns S ( [a] )+ [b]
         """
-        if self.asm is None:
+        if self.asm is not None:
             return self.asm.forward(self.get_additive_term()) + \
                    self.get_background_term()
         else:
