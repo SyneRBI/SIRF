@@ -64,7 +64,7 @@ class DataContainer(ABC):
             (mn_one.ctypes.data, self.handle, zero.ctypes.data, self.handle)
         check_status(z.handle)
         return z
-#    @abc.abstractmethod
+
     def same_object(self):
         '''
         Returns an object of the same type as self.
@@ -127,7 +127,9 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
@@ -148,7 +150,9 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number ):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
@@ -171,7 +175,9 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
@@ -241,7 +247,9 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number):
             tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
@@ -267,7 +275,11 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        return self.subtract(other)
+        assert self.handle is not None
+
+        if isinstance(other, (DataContainer, Number) ):
+            return self.subtract(other)
+        return NotImplemented
 
     def __mul__(self, other):
         '''
@@ -310,7 +322,7 @@ class DataContainer(ABC):
             z.handle = pysirf.cSIRF_axpby \
                 (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
             check_status(z.handle)
-            return z;
+            return z
 
         return NotImplemented
 
@@ -552,10 +564,16 @@ class DataContainer(ABC):
         '''return default type as float32'''
         return numpy.float32
     
+    def max(self):
+        '''returns the max element in the DataContainer'''
+        return numpy.max(self.as_array())
+
+
 class ImageData(DataContainer):
     '''
     Image data ABC
     '''
+
     def equal(self, other):
         '''
         Overloads == for ImageData.
