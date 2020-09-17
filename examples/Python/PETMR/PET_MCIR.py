@@ -53,6 +53,7 @@ Options:
                                     multiplying by 1./normK.
   --no_log=<str>                    Disable log file.
   --algorithm=<string>              Which algorithm to run [default: spdhg]
+  --numThreads=<int>               number of threads to use [default: NUM_THREADS]
 """
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -139,7 +140,10 @@ pet.set_verbosity(verbosity)
 if verbosity == 0:
     msg_red = pet.MessageRedirector(None, None, None)
 # OMP THREADS
-pet.set_max_omp_threads(NUM_THREADS)
+if args['--numThreads'] == 'NUM_THREADS':
+    pet.set_max_omp_threads(NUM_THREADS)
+else:
+    pet.set_max_omp_threads(int(args['--numThreads']))
 
 # Save interval
 save_interval = int(args['--save_interval'])
@@ -428,8 +432,9 @@ def set_up_acq_models(num_ms, sinos, rands, resampled_attns, image):
         if asm:
             acq_models[ind].set_acquisition_sensitivity(asm)
 
-        if len(rands) > 0:
-            acq_models[ind].set_background_term(rands[ind])
+        #KT we'll set the background in the KL function below
+        #KTif len(rands) > 0:
+        #KT    acq_models[ind].set_background_term(rands[ind])
 
         # Set up
         acq_models[ind].set_up(sinos[ind], image)
@@ -500,12 +505,15 @@ def set_up_reconstructor(acq_models, resamplers, algorithm, sinos, rands=None):
     # Create composition operators containing linear
     # acquisition models and resamplers
     if resamplers is None:
-        C = [am.get_linear_acquisition_model() for am in acq_models]
+        #KT C = [am.get_linear_acquisition_model() for am in acq_models]
+        C = [am for am in acq_models]
         # Need an implementation of the norm
         # setattr(pet.AcquisitionModel, 'norm', norm)
     else:
         C = [CompositionOperator(
-            am.get_linear_acquisition_model(), res, preallocate=True)
+                #KTam.get_linear_acquisition_model(),
+                am,
+                res, preallocate=True)
                 for am, res in zip(*(acq_models, resamplers))]
 
     # We'll need an additive term (eta). If randoms are present, use them
@@ -583,7 +591,7 @@ def precond_proximal(self, x, tau, out=None):
     return out
 
 
-def get_tau_sigma(normK):
+def get_tau_sigma(K, normK):
     """Get tau and sigma.
 
     If normK is None (because not required, then return
@@ -614,8 +622,8 @@ def get_tau_sigma(normK):
         if args['--tau']:
             tau = float(args['--tau'])
         
-    if sigma * tau > 1/(normK*normK):
-        raise ValueError("sigma * tau > 1/||K||^2")
+        if sigma * tau > 1/(normK*normK):
+            raise ValueError("sigma * tau > 1/||K||^2")
     return [tau, sigma]
 
 
@@ -676,7 +684,7 @@ def get_output_filename(attn_files, normK, sigma, tau, sino_files, resamplers):
     return outp_file
 
 
-def get_algo(f, G, K, sigma, tau, outp_file):
+def get_algo(f, G, K, sigma, tau, init_image, outp_file):
     """Get the reconstruction algorithm."""
     if algorithm == 'pdhg':
 
@@ -714,6 +722,7 @@ def get_algo(f, G, K, sigma, tau, outp_file):
 
     algo = Algo(f=f, g=G, operator=K,
                 max_iteration=num_iters,
+                x_init=init_image,
                 update_objective_interval=update_obj_fn_interval,
                 log_file=outp_file+".log",
                 use_axpby=False)
@@ -808,7 +817,7 @@ def main():
         acq_models, resamplers, algorithm, sinos, rands)
 
     # Get tau and sigma (scalars if no preconditioning, else they'll be arrays)
-    [tau, sigma] = get_tau_sigma(normK)
+    [tau, sigma] = get_tau_sigma(K, normK)
 
     # Set up regularisation
     G = set_up_regularisation()
@@ -818,7 +827,7 @@ def main():
         attn_files, normK, sigma, tau, sino_files, resamplers)
 
     # Get algorithm
-    algo = get_algo(f, G, K, sigma, tau, outp_file)
+    algo = get_algo(f, G, K, sigma, tau, image, outp_file)
 
     # Create save call back function
     save_callback = get_save_callback_function(outp_file)
