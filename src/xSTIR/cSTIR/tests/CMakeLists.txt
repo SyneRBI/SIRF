@@ -17,14 +17,8 @@
 #=========================================================================
 
 # Create an executable
-#ADD_EXECUTABLE (test4 ${CMAKE_CURRENT_SOURCE_DIR}/test4.cpp ${STIR_REGISTRIES})
-#SET_TARGET_PROPERTIES (test4
-#    PROPERTIES FOLDER ${CMAKE_INSTALL_PREFIX}/bin
-#    INSTALL_NAME_DIR "${PROJECT_NAME}")
-#TARGET_LINK_LIBRARIES(test4 PUBLIC cstir )
+  add_executable(cstir_tests test1.cpp test2.cpp test4.cpp main.cpp ${STIR_REGISTRIES})
+  target_link_libraries(cstir_tests csirf cstir ${STIR_LIBRARIES})
+  INSTALL(TARGETS cstir_tests DESTINATION bin)
 
-  add_executable(test4 ${CMAKE_CURRENT_SOURCE_DIR}/test4.cpp ${STIR_REGISTRIES})
-  target_link_libraries(test4 csirf cstir ${STIR_LIBRARIES})
-  INSTALL(TARGETS test4 DESTINATION bin)
-
-ADD_TEST(NAME PET_TEST_CPLUSPLUS COMMAND test4 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+ADD_TEST(NAME PET_TESTS_CPLUSPLUS COMMAND cstir_tests WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

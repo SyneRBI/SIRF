@@ -1637,18 +1637,8 @@ GadgetronImagesVector::set_up_geom_info()
                 (offset,spacing,size,direction));
 }
 
-CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
-{
-    auto sptr_iw = this->sptr_image_wrap(i);
-    if(sptr_iw->type() != ISMRMRD::ISMRMRD_CXFLOAT)
-        throw LocalisedException("The coilmaps must be supplied as a complex float ismrmrd image, i.e. type = ISMRMRD::ISMRMRD_CXFLOAT." , __FILE__, __LINE__);
-
-    const void* ptr_cf_img = sptr_iw->ptr_image();
-    return *( (CFImage*)ptr_cf_img);
-
-}
-
-void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
+void 
+CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
 {
     this->empty();
 
@@ -1661,7 +1651,7 @@ void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
 
     for (unsigned int i = 0; i < ac.number(); i++) {
         ac.get_acquisition(i, acq);
-        if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+        if (!TO_BE_IGNORED(acq))
             break;
     }
 
@@ -1674,62 +1664,77 @@ void CoilSensitivitiesVector::calculate_images(const MRAcquisitionData& ac)
     unsigned int nc = acq.active_channels();
     unsigned int readout = acq.number_of_samples();
 
-    int nmap = 0;
-    std::cout << "map ";
+    std::vector<size_t> ci_dims;
+    ci_dims.push_back(readout);
+    ci_dims.push_back(ny);
+    ci_dims.push_back(nz);
+    ci_dims.push_back(nc);
+    ISMRMRD::NDArray<complex_float_t> ci(ci_dims);
 
-    for (unsigned int na = 0; na < ac.number();) {
-
-        std::cout << ++nmap << ' ' << std::flush;
-
-        std::vector<size_t> ci_dims;
-        ci_dims.push_back(readout);
-        ci_dims.push_back(ny);
-        ci_dims.push_back(nz);
-        ci_dims.push_back(nc);
-        ISMRMRD::NDArray<complex_float_t> ci(ci_dims);
-        memset(ci.getDataPtr(), 0, ci.getDataSize());
-
-        int y = 0;
-        for (;;) {
-            ac.get_acquisition(na + y, acq);
-            if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-                break;
-            y++;
-        }
-        for (;;) {
-            ac.get_acquisition(na + y, acq);
-            int yy = acq.idx().kspace_encode_step_1;
-            int zz = acq.idx().kspace_encode_step_2;
-            //if (!e.parallelImaging.is_present() ||
-            if (!parallel ||
-                acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) ||
-                acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING)) {
-                for (unsigned int c = 0; c < nc; c++) {
-                    for (unsigned int s = 0; s < readout; s++) {
-                        ci(s, yy, zz, c) = acq.data(s, c);
-                    }
-                }
+    const int NUMVAL = 4;
+    typedef std::array<int, NUMVAL> tuple;
+    tuple t_first;
+    for (unsigned int i = 0; i < NUMVAL; i++)
+        t_first[i] = -1;
+    bool first = true;
+    for (unsigned int a = 0; a < ac.number(); a++) {
+        ac.get_acquisition(a, acq);
+        if (TO_BE_IGNORED(acq))
+            continue;
+        bool last = (a == ac.number() - 1);
+        tuple t;
+        t[0] = acq.idx().repetition;
+        t[1] = acq.idx().phase;
+        t[2] = acq.idx().contrast;
+        t[3] = acq.idx().slice;
+        if (t != t_first) {
+            std::cout << "new slice: ";
+            for (int i = 0; i < NUMVAL; i++)
+                std::cout << t[i] << ' ';
+            std::cout << '\n';
+            if (!first) {
+                ifft3c(ci);
+                CFImage* ptr_ci = new CFImage(readout, ny, nz, nc);
+                memcpy(ptr_ci->getDataPtr(), ci.getDataPtr(), ci.getDataSize());
+                ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_ci);
+                append(iw);
             }
-            y++;
-            if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-                break;
+            else
+                first = false;
+            memset(ci.getDataPtr(), 0, ci.getDataSize());
+            t_first = t;
         }
-        na += y;
-
-        ifft3c(ci);
-
-        CFImage coil_img(readout,ny,nz,nc);
-        memcpy(coil_img.getDataPtr(), ci.getDataPtr(), ci.getDataSize());
-
-        void* vptr_coil_img = new CFImage(coil_img); //urgh this is so horrible
-        sirf::ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, vptr_coil_img);
-        append(iw);
+        bool par_cal = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION);
+        bool par_cal_img = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING);
+        if (calibration && parallel && !par_cal && !par_cal_img)
+            continue;
+        int yy = acq.idx().kspace_encode_step_1;
+        int zz = acq.idx().kspace_encode_step_2;
+        for (unsigned int c = 0; c < nc; c++) {
+            for (unsigned int s = 0; s < readout; s++) {
+                ci(s, yy, zz, c) = acq.data(s, c);
+            }
+        }
     }
-    std::cout << '\n';
+    ifft3c(ci);
+    CFImage* ptr_ci = new CFImage(readout, ny, nz, nc);
+    memcpy(ptr_ci->getDataPtr(), ci.getDataPtr(), ci.getDataSize());
+    ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_ci);
+    append(iw);
 }
 
+CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
+{
+    auto sptr_iw = this->sptr_image_wrap(i);
+    if(sptr_iw->type() != ISMRMRD::ISMRMRD_CXFLOAT)
+        throw LocalisedException("The coilmaps must be supplied as a complex float ismrmrd image, i.e. type = ISMRMRD::ISMRMRD_CXFLOAT." , __FILE__, __LINE__);
 
-void CoilSensitivitiesVector::calculate_csm(GadgetronImagesVector iv)
+    const void* ptr_cf_img = sptr_iw->ptr_image();
+    return *( (CFImage*)ptr_cf_img);
+}
+
+void 
+CoilSensitivitiesVector::calculate(CoilImagesVector& iv)
 {
 
     this->empty();

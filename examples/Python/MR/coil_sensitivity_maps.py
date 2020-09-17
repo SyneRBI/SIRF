@@ -92,13 +92,14 @@ def main():
     # 3. Now compute coil sensitivity maps from coil images in order to compare
     # SSRS and Inati methods:
 
-    # create coil sensitivity object
-    CSMs = CoilSensitivityData()
+    # create coil images object
+    CIs = CoilImagesData()
     # calculate coil sensitivity maps by dividing each coil image data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS);
     # (niter = nit) sets the number of smoothing iterations applied
     # to the image data prior to the calculation of the coil sensitivity maps
-    CSMs.calculate(processed_data, method='SRSS(niter = %d)' % nit)
+    CIs.calculate(processed_data)
+    CSMs.calculate(CIs, method='SRSS(niter=%d)' % nit)
     #
     if show_plot:
     # display coil sensitivity maps (must be identical to previously computed)
@@ -116,8 +117,7 @@ def main():
     #   In: ISMRM proceeding; April; Salt Lake City, Utah, USA; 2013. 2672.  
     # for more details please see 
     # gadgetron/toolboxes/mri_core/mri_core_coil_map_estimation.h  
-    #CSMs = CoilSensitivityData()
-    CSMs.calculate(processed_data, method='Inati()')
+    CSMs.calculate(CIs, method='Inati()')
     if show_plot:
         csms_array = CSMs.as_array()
         nz = csms_array.shape[1]

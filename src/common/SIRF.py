@@ -56,7 +56,15 @@ class DataContainer(ABC):
         print("SIRF.DataContainer __del__ with handle {}.".format(self.handle))
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-#    @abc.abstractmethod
+    def __neg__(self):
+        zero = numpy.asarray([0.0, 0.0], dtype = numpy.float32)
+        mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
+        z = self.same_object()
+        z.handle = pysirf.cSIRF_axpby \
+            (mn_one.ctypes.data, self.handle, zero.ctypes.data, self.handle)
+        check_status(z.handle)
+        return z
+
     def same_object(self):
         '''
         Returns an object of the same type as self.
@@ -119,8 +127,10 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
-            tmp = other + numpy.zeros(self.as_array().shape)
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number):
+            tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -140,8 +150,10 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
-            tmp = other + numpy.zeros_like(self.as_array().shape)
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number ):
+            tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -163,8 +175,10 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
-            tmp = other + numpy.zeros(self.as_array().shape)
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number):
+            tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -242,8 +256,10 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        if isinstance(other , ( Number, int, float, numpy.float32 )):
-            tmp = other + numpy.zeros(self.as_array().shape)
+        if not isinstance (other, ( DataContainer , Number )):
+            return NotImplemented
+        if isinstance(other , Number):
+            tmp = other + numpy.zeros(self.shape, self.dtype)
             other = self.copy()
             other.fill(tmp)
         assert_validities(self, other)
@@ -268,30 +284,37 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        return self.subtract(other)
+        assert self.handle is not None
+
+        if isinstance(other, (DataContainer, Number) ):
+            return self.subtract(other)
+        return NotImplemented
+
     def __mul__(self, other):
         '''
         Overloads * for data containers multiplication by a scalar or another
         data container.
 
         Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
+        or the elementwise product if other is of the same type as self.
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
+
         if type(self) == type(other):
             return self.multiply(other)
-        z = self.same_object()
-        try:
-            a = numpy.asarray([other.real, other.imag], dtype = numpy.float32)
-            zero = numpy.zeros((2,), dtype = numpy.float32)
+
+        if isinstance(other, Number):
+            z = self.same_object()
+            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            zero = numpy.zeros((2,), dtype=numpy.float32)
             z.handle = pysirf.cSIRF_axpby \
                 (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
             z.src = 'mult'
             check_status(z.handle)
             return z
-        except:
-            raise error('wrong multiplier')
+
+        return NotImplemented
 
     def __rmul__(self, other):
         '''
@@ -300,39 +323,44 @@ class DataContainer(ABC):
         other: a real or complex scalar
         '''
         assert self.handle is not None
-        z = self.same_object()
-        try:
-            a = numpy.asarray([other.real, other.imag], dtype = numpy.float32)
-            zero = numpy.zeros((2,), dtype = numpy.float32)
+
+        if isinstance(other, Number):
+            z = self.same_object()
+            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            zero = numpy.zeros((2,), dtype=numpy.float32)
             z.handle = pysirf.cSIRF_axpby \
                 (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
             check_status(z.handle)
-            return z;
-        except:
-            raise error('wrong multiplier')
+            return z
+
+        return NotImplemented
+
     def __div__(self, other):
         '''
         Overloads / for data containers division by a scalar or (elementwise)
         another data container (Python 2.*)
 
-        Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
+        Returns the ratio self/other if other is a scalar
+        or the elementwise ratio if other is of the same type as self.
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
+
         if type(self) == type(other):
             return self.divide(other)
-        z = self.same_object()
-        try:
+
+        if isinstance(other, Number):
+            z = self.same_object()
             other = 1.0/other
-            a = numpy.asarray([other.real, other.imag], dtype = numpy.float32)
-            zero = numpy.zeros((2,), dtype = numpy.float32)
+            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            zero = numpy.zeros((2,), dtype=numpy.float32)
             z.handle = pysirf.cSIRF_axpby \
                 (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
             check_status(z.handle)
             return z
-        except:
-            raise error('wrong multiplier')
+
+        return NotImplemented
+
     def copy(self):
         '''alias of clone'''
         return self.clone()
@@ -540,10 +568,21 @@ class DataContainer(ABC):
         '''Returns the (total) size of the data array.'''
         return self.as_array().size
 
+    @property
+    def dtype(self):
+        '''return default type as float32'''
+        return numpy.float32
+    
+    def max(self):
+        '''returns the max element in the DataContainer'''
+        return numpy.max(self.as_array())
+
+
 class ImageData(DataContainer):
     '''
     Image data ABC
     '''
+
     def equal(self, other):
         '''
         Overloads == for ImageData.
@@ -575,6 +614,7 @@ class ImageData(DataContainer):
 
     def fill(self, image):
         try_calling(pysirf.cSIRF_fillImageFromImage(self.handle, image.handle))
+        return self
 
     def get_geometrical_info(self):
         """Get the image's geometrical info."""

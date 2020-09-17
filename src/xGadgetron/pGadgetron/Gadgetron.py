@@ -304,6 +304,7 @@ class ImageData(SIRF.ImageData):
             image = self.image(i)
             info[i] = image.info(par)
         return info
+
     def fill(self, data):
         '''
         Fills self's image data with specified values.
@@ -312,8 +313,7 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         
         if isinstance(data, ImageData):
-            super(ImageData, self).fill(data)
-            return
+            return super(ImageData, self).fill(data)
         
         if not isinstance(data, numpy.ndarray ):
             # CIL/SIRF compatibility
@@ -343,6 +343,8 @@ class ImageData(SIRF.ImageData):
         else:
             raise error('wrong fill value.' + \
                         ' Should be ImageData or numpy.ndarray')
+        return self
+
     def dimensions(self):
         '''
         Returns the dimensions of 3D/4D Numpy ndarray of all self's images.
@@ -470,8 +472,37 @@ class ImageData(SIRF.ImageData):
     def print_header(self, im_num):
         """Print the header of one of the images. zero based."""
         try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
-
+    @property
+    def dtype(self):
+        if self.is_real():
+            return numpy.float32
+        return numpy.complex64
+    @property
+    def shape(self):
+        return self.dimensions()
+        
 SIRF.ImageData.register(ImageData)
+
+
+class CoilImagesData(ImageData):
+    '''
+    Class for a coil images (ci) container.
+    Each item in the container is a 4D complex array of coil images values
+    on an xyz-slice.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('CoilImages')
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def same_object(self):
+        return CoilImagesData()
+    def calculate(self, acq):
+        try_calling(pygadgetron.cGT_computeCoilImages(self.handle, acq.handle))
+
+SIRF.ImageData.register(CoilImagesData)
+
 
 class CoilSensitivityData(ImageData):
     '''
@@ -522,7 +553,7 @@ class CoilSensitivityData(ImageData):
 
         if isinstance(data, AcquisitionData):
             self.__calc_from_acquisitions(data, method_name)
-        elif isinstance(data, ImageData):
+        elif isinstance(data, CoilImagesData):
             self.__calc_from_images(data, method_name)
         else:
             raise error('Cannot calculate coil sensitivities from %s' % \
@@ -550,7 +581,7 @@ class CoilSensitivityData(ImageData):
             csm = numpy.swapaxes(csm,0,1)
             csm = numpy.reshape(csm, (nc, ns*nz, ny, nx))
             
-            self.append(csm.astype(numpy.complex64))
+            self.fill(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
             try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
@@ -565,22 +596,18 @@ class CoilSensitivityData(ImageData):
                 
             cis_array = data.as_array()
             csm, _ = coils.calculate_csm_inati_iter(cis_array)
-            self.append(csm.astype(numpy.complex64))
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+            self.handle = pysirf.cSIRF_clone(data.handle)
+            self.fill(csm.astype(numpy.complex64))
         elif method_name == 'SRSS':
-            try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromGadgetronImages \
+            try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
                 (self.handle, data.handle))
         else:
             raise error('Unknown method %s' % method_name)   
 
-
-    def append(self, csm):
-        '''
-        Appends a coil sensitivity map to self.
-        csm: Numpy ndarray with csm values
-        '''
-        self.fill(csm)
-        
 DataContainer.register(CoilSensitivityData)
+
 
 class Acquisition(object):
     def __init__(self, file = None):
@@ -950,6 +977,12 @@ class AcquisitionData(DataContainer):
             tmp = value * numpy.ones(out.as_array().shape)
             out.fill(tmp)
         return out
+    @property
+    def shape(self):
+        return self.dimensions()
+    @property
+    def dtype(self):
+        return numpy.complex64
     
     
 DataContainer.register(AcquisitionData)

@@ -44,6 +44,7 @@ extern "C" {
     void* cSTIR_getOMPThreads();
 	void* cSTIR_useDefaultOMPThreads();
 	void* cSTIR_getDefaultOMPThreads();
+	void* cSTIR_scannerNames();
 
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);

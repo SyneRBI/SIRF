@@ -320,7 +320,15 @@ ListmodeToSinograms::estimate_randoms_()
 	PETAcquisitionDataInFile acq_temp(template_proj_data_name.c_str());
 	shared_ptr<ProjData> template_projdata_ptr = acq_temp.data();
 	std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
-	randoms_sptr = acq_temp.new_acquisition_data(); // filename);
+	shared_ptr<ExamInfo> exam_info_sptr(new ExamInfo(lm_data_ptr->get_exam_info()));
+	const ProjDataInfo& proj_data_info = *lm_data_ptr->get_proj_data_info_sptr();
+	exam_info_sptr->set_time_frame_definitions(frame_defs);
+	shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(acq_temp.get_proj_data_info_sptr()->clone());
+	const float h = proj_data_info.get_bed_position_horizontal();
+	const float v = proj_data_info.get_bed_position_vertical();
+	temp_proj_data_info_sptr->set_bed_position_horizontal(h);
+	temp_proj_data_info_sptr->set_bed_position_vertical(v);
+	randoms_sptr.reset(new PETAcquisitionDataInMemory(exam_info_sptr, temp_proj_data_info_sptr));
 	ProjData& proj_data = *randoms_sptr->data();
 
 	const int num_rings =

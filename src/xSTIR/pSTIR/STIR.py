@@ -73,6 +73,14 @@ def get_verbosity():
     return value
 
 
+def scanner_names():
+    h = pystir.cSTIR_scannerNames()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.charDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
 def set_max_omp_threads(threads):
     """Set the maximum number of OpenMP threads."""
     try_calling(pystir.cSTIR_setOMPThreads(int(threads)))
@@ -97,6 +105,14 @@ def get_default_num_omp_threads():
     h = pystir.cSTIR_getDefaultOMPThreads()
     check_status(h, inspect.stack()[1])
     value = pyiutil.intDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
+def scanner_names():
+    h = pystir.cSTIR_scannerNames()
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.charDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 
@@ -546,6 +562,12 @@ class ImageData(SIRF.ImageData):
             moved_im.handle, proj_data.handle))
 
         return moved_im
+    @property
+    def shape(self):
+        return self.dimensions()
+    @property
+    def dtype(self):
+        return numpy.float32
 
 
 SIRF.ImageData.register(ImageData)
@@ -996,6 +1018,13 @@ class AcquisitionData(DataContainer):
         pyiutil.deleteDataHandle(handle)
         return info
 
+    @property
+    def shape(self):
+        return self.dimensions()
+    @property
+    def dtype(self):
+        return numpy.float32
+
 
 DataContainer.register(AcquisitionData)
 
@@ -1427,7 +1456,7 @@ class AcquisitionModel(object):
 
         Returns S ( [a] )+ [b]
         """
-        if self.asm is None:
+        if self.asm is not None:
             return self.asm.forward(self.get_additive_term()) + \
                    self.get_background_term()
         else:
@@ -1611,15 +1640,10 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in acquisition model.
         """
-        super(AcquisitionModelUsingRayTracingMatrix, self).__init__(matrix)
-        self.handle = None
-        self.name = 'AcqModUsingMatrix'
-        self.handle = pystir.cSTIR_newObject(self.name)
-        check_status(self.handle)
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
-        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
+        super(AcquisitionModelUsingRayTracingMatrix, self).__init__(matrix)
 
     def __del__(self):
         """del."""

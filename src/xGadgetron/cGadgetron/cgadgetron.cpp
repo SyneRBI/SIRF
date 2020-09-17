@@ -109,6 +109,8 @@ void* cGT_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(Mutex);
 		if (boost::iequals(name, "GTConnector"))
 			return NEW_OBJECT_HANDLE(GTConnector);
+		if (boost::iequals(name, "CoilImages"))
+			return NEW_OBJECT_HANDLE(CoilImagesVector);
         if (boost::iequals(name, "AcquisitionModel"))
 			return NEW_OBJECT_HANDLE(MRAcquisitionModel);
 		NEW_GADGET_CHAIN(GadgetChain);
@@ -249,7 +251,7 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 			objectFromHandle<CoilSensitivitiesVector>(h_csms);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-        csms.calculate_csm(acqs);
+		csms.calculate(acqs);
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -262,11 +264,11 @@ cGT_computeCoilImages(void* ptr_imgs, void* ptr_acqs)
     try {
         CAST_PTR(DataHandle, h_imgs, ptr_imgs);
         CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-        CoilSensitivitiesVector& csms =
-            objectFromHandle<CoilSensitivitiesVector>(h_imgs);
+        CoilImagesVector& cis =
+            objectFromHandle<CoilImagesVector>(h_imgs);
         MRAcquisitionData& acqs =
             objectFromHandle<MRAcquisitionData>(h_acqs);
-        csms.calculate_images(acqs);
+        cis.calculate(acqs);
         return (void*)new DataHandle;
     }
     CATCH;
@@ -274,16 +276,16 @@ cGT_computeCoilImages(void* ptr_imgs, void* ptr_acqs)
 
 extern "C"
 void*
-cGT_computeCoilSensitivitiesFromGadgetronImages(void* ptr_csms, void* ptr_imgs)
+cGT_computeCoilSensitivitiesFromCoilImages(void* ptr_csms, void* ptr_imgs)
 {
     try {
         CAST_PTR(DataHandle, h_csms, ptr_csms);
         CAST_PTR(DataHandle, h_imgs, ptr_imgs);
         CoilSensitivitiesVector& csms =
             objectFromHandle<CoilSensitivitiesVector>(h_csms);
-        GadgetronImagesVector& imgs =
-            objectFromHandle<GadgetronImagesVector>(h_imgs);
-        csms.calculate_csm(imgs);
+        CoilImagesVector& imgs =
+            objectFromHandle<CoilImagesVector>(h_imgs);
+        csms.calculate(imgs);
         return (void*)new DataHandle;
     }
     CATCH;
