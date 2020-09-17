@@ -1314,6 +1314,9 @@ class AcquisitionModel(object):
         self.at = None
         # reference to the acquisition sensitivity model
         self.asm = None
+        # default values of subset number and selected subset
+        self._num_subsets = 1
+        self._subset_num = 0
 
     def set_up(self, acq_templ, img_templ):
         """Set up.
@@ -1486,7 +1489,7 @@ class AcquisitionModel(object):
         am.set_up(self.acq_templ, self.img_templ)
         return am
 
-    def direct(self, image, subset_num=0, num_subsets=1, out=None):
+    def direct(self, image, out=None):
         """Project an image into the (simulated) acquisition space.
 
         Alias of forward.
@@ -1496,11 +1499,11 @@ class AcquisitionModel(object):
         """
         return self.forward(
             image,
-            subset_num=subset_num,
-            num_subsets=num_subsets,
+            subset_num=self.subset_num,
+            num_subsets=self.num_subsets,
             ad=out)
 
-    def adjoint(self, ad, subset_num=0, num_subsets=1, out=None):
+    def adjoint(self, ad, out=None):
         """Back-project acquisition data into image space.
 
         Only if the AcquisitionModel is linear
@@ -1508,15 +1511,16 @@ class AcquisitionModel(object):
         Added for CCPi CIL compatibility
         https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         """
+        
         if self.is_linear():
             if out is not None:
                 out.fill(self.backward(
-                    ad, subset_num=subset_num,
-                    num_subsets=num_subsets))
+                    ad, subset_num=self.subset_num,
+                    num_subsets=self.num_subsets))
             else:
                 return self.backward(
-                    ad, subset_num=subset_num,
-                    num_subsets=num_subsets)
+                    ad, subset_num=self.subset_num,
+                    num_subsets=self.num_subsets)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the ' +
                         'linear part of the AcquisitionModel with ' +
@@ -1552,6 +1556,42 @@ class AcquisitionModel(object):
     def domain_geometry(self):
         """Return the template of ImageData."""
         return self.img_templ
+    @property
+    def subset_num(self):
+        return self._subset_num
+    @property
+    def num_subsets(self):
+        return self._num_subsets
+    @subset_num.setter
+    def subset_num(self, value):
+        '''setter for subset_num'''
+        if isinstance (value, Integer):
+            if value < self.num_subsets and value >= 0:
+                self._subset_num = value
+            else:
+                raise ValueError("Expected a subset number below {} and larger or equal than 0. Got {}"\
+                    .format(self.subset_num, value))
+        else:
+            raise ValueError("Expected an integer. Got {}".format(type(value)))
+    @num_subsets.setter
+    def num_subsets(self, value):
+        '''setter for num_subsets
+
+        Allows to set the number of subsets the AcquisitionModel operates on. By default reassigning
+        the number of subsets will set subset_num to 0
+        '''
+        if isinstance (value, Integer):
+            if value > 0:
+                self._num_subsets = value
+                self.subset_num = 0
+                
+            else:
+                raise ValueError("Expected a subset number below {} and larger than 0. Got {}"\
+                    .format(self.subset_num, value))
+        else:
+            raise ValueError("Expected an integer. Got {}".format(type(value)))
+
+
 
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
