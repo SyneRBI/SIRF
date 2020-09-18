@@ -78,4 +78,18 @@ endif()
 target_link_libraries(cgadgetron PUBLIC "${FFTW3_LIBRARIES}")
 
 
+
+set( GT_TOOLBOX_CPUCORE "/home/sirfuser/devel/install/lib/libgadgetron_toolbox_cpucore.so")
+set( GT_TOOLBOX_CPUFFT  "/home/sirfuser/devel/install/lib/libgadgetron_toolbox_cpufft.so")
+set( GT_TOOLBOX_CPUNFFT "/home/sirfuser/devel/install/lib/libgadgetron_toolbox_cpunfft.so")
+set( GT_TOOLBOX_LOG     "/home/sirfuser/devel/install/lib/libgadgetron_toolbox_log.so")
+
+
+set(GT_LIBS ${GT_LIBS} ${GT_TOOLBOX_CPUCORE})
+set(GT_LIBS ${GT_LIBS} ${GT_TOOLBOX_CPUFFT})
+set(GT_LIBS ${GT_LIBS} ${GT_TOOLBOX_CPUNFFT})
+set(GT_LIBS ${GT_LIBS} ${GT_TOOLBOX_LOG})
+
+target_link_libraries(cgadgetron PUBLIC ${GT_LIBS})
+
 ADD_SUBDIRECTORY(tests)
