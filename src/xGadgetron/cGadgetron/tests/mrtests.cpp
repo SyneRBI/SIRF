@@ -333,7 +333,7 @@ int main ( int argc, char* argv[])
 
         test_bwd(av);
 
-        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/3D_Rpe_ismrmrd.h5";
+        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/3D_Rpe.h5";
 
         sirf::AcquisitionsVector rpe_av;
         rpe_av.read(rpe_data_path);
