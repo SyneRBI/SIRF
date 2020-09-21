@@ -541,7 +541,7 @@ void* cSTIR_acquisitionModelFwdReplace
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
-		am.forward(ad, id, subset_num, num_subsets);
+		am.forward(ad, id, subset_num, num_subsets, num_subsets > 1);
 		return new DataHandle;
 	}
 	CATCH;

@@ -406,10 +406,10 @@ The actual algorithm is described in
 		// computes and returns a subset of forward-projected data 
 		stir::shared_ptr<PETAcquisitionData>
 			forward(const STIRImageData& image,
-			int subset_num = 0, int num_subsets = 1);
+			int subset_num = 0, int num_subsets = 1, bool linear = false);
 		// replaces a subset of acquisition data with forward-projected data
 		void forward(PETAcquisitionData& acq_data, const STIRImageData& image,
-			int subset_num, int num_subsets, bool zero = false);
+			int subset_num, int num_subsets, bool zero = false, bool linear = false);
 
 		stir::shared_ptr<STIRImageData> backward(PETAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1);
