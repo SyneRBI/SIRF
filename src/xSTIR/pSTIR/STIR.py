@@ -1455,13 +1455,21 @@ class AcquisitionModel(object):
         assert_validity(image, ImageData)
         if ad is None:
             ad = AcquisitionData()
-            ad.handle = pystir.cSTIR_acquisitionModelFwd(
-                self.handle, image.handle, subset_num, num_subsets)
+            if self.at is None and self.bt is None:
+                ad.handle = pystir.cSTIR_acquisitionModelLinFwd(
+                    self.handle, image.handle, subset_num, num_subsets)
+            else:
+                ad.handle = pystir.cSTIR_acquisitionModelFwd(
+                    self.handle, image.handle, subset_num, num_subsets)
             check_status(ad.handle)
             return ad
         assert_validity(ad, AcquisitionData)
-        try_calling(pystir.cSTIR_acquisitionModelFwdReplace(
-            self.handle, image.handle, subset_num, num_subsets, ad.handle))
+        if self.at is None and self.bt is None:
+            try_calling(pystir.cSTIR_acquisitionModelLinFwdReplace(
+                self.handle, image.handle, subset_num, num_subsets, ad.handle))
+        else:
+            try_calling(pystir.cSTIR_acquisitionModelFwdReplace(
+                self.handle, image.handle, subset_num, num_subsets, ad.handle))
 
     def backward(self, ad, subset_num=0, num_subsets=1):
         """
@@ -1477,13 +1485,11 @@ class AcquisitionModel(object):
         return image
 
     def get_linear_acquisition_model(self):
-        """Return a new AcquisitionModel.
+        """Return the linear part of self.
 
-        Returns corresponding to
-        the linear part of the current one.
         """
-        am = type(self)()
-        am.set_up(self.acq_templ, self.img_templ)
+        am = AcquisitionModel()
+        am.handle = self.handle
         return am
 
     def direct(self, image, subset_num=0, num_subsets=1, out=None):
