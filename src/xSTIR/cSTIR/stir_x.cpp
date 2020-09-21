@@ -605,41 +605,7 @@ PETAcquisitionModel::forward(const STIRImageData& image,
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
-	//if (num_subsets > 1)
-	//	sptr_fd->fill(0.0f);
 	forward(*sptr_ad, image, subset_num, num_subsets, num_subsets > 1);
-
-	//sptr_projectors_->get_forward_projector_sptr()->forward_project
-	//	(*sptr_fd, image.data(), subset_num, num_subsets);
-	////sptr_fd->fill(1.0f);
-
-	//if (sptr_add_.get()) {
-	//	std::cout << "additive term added...";
-	//	sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
-	//	std::cout << "ok\n";
-	//}
-	//else
-	//	std::cout << "no additive term added\n";
-
-	////if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
-	//PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
-	//if (sm && sm->data() && !sm->data()->is_trivial()) {
-	//	std::cout << "applying unnormalisation...";
-	//	sptr_asm_->unnormalise(*sptr_ad);
-	//	//sptr_normalisation_->undo(*sptr_fd, 0, 1);
-	//	std::cout << "ok\n";
-	//}
-	//else
-	//	std::cout << "no unnormalisation applied\n";
-
-	//if (sptr_background_.get()) {
-	//	std::cout << "background term added...";
-	//	sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
-	//	std::cout << "ok\n";
-	//}
-	//else
-	//	std::cout << "no background term added\n";
-
 	return sptr_ad;
 }
 
@@ -653,7 +619,6 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad,
 	sptr_id = sptr_image_template_->new_image_data();
 	shared_ptr<Image3DF> sptr_im = sptr_id->data_sptr();
 
-	//if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
 	if (sm && sm->data() && !sm->data()->is_trivial()) {
 		if (stir::Verbosity::get() > 1) std::cout << "applying unnormalisation...";
