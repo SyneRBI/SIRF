@@ -610,14 +610,22 @@ PETAcquisitionModel::forward(const STIRImageData& image,
 }
 
 shared_ptr<STIRImageData> 
-PETAcquisitionModel::backward(PETAcquisitionData& ad, 
+PETAcquisitionModel::backward(PETAcquisitionData& ad,
 	int subset_num, int num_subsets)
 {
 	if (!sptr_image_template_.get())
 		THROW("Fatal error in PETAcquisitionModel::backward: image template not set");
 	shared_ptr<STIRImageData> sptr_id;
 	sptr_id = sptr_image_template_->new_image_data();
-	shared_ptr<Image3DF> sptr_im = sptr_id->data_sptr();
+	backward(*sptr_id, ad, subset_num, num_subsets);
+	return sptr_id;
+}
+
+void
+PETAcquisitionModel::backward(STIRImageData& id, PETAcquisitionData& ad,
+	int subset_num, int num_subsets)
+{
+	shared_ptr<Image3DF> sptr_im = id.data_sptr();
 
 	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
 	if (sm && sm->data() && !sm->data()->is_trivial()) {
@@ -639,5 +647,4 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad,
 		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 
-	return sptr_id;
 }
