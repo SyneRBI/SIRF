@@ -1487,18 +1487,22 @@ class AcquisitionModel(object):
             try_calling(pystir.cSTIR_acquisitionModelFwdReplace(
                 self.handle, image.handle, subset_num, num_subsets, ad.handle))
 
-    def backward(self, ad, subset_num=0, num_subsets=1):
+    def backward(self, ad, subset_num=0, num_subsets=1, out=None):
         """
         Return the backward projection of ad.
 
         ad:  an AcquisitionData object.
         """
         assert_validity(ad, AcquisitionData)
-        image = ImageData()
-        image.handle = pystir.cSTIR_acquisitionModelBwd(
-            self.handle, ad.handle, subset_num, num_subsets)
-        check_status(image.handle)
-        return image
+        if out is None:
+            image = ImageData()
+            image.handle = pystir.cSTIR_acquisitionModelBwd(
+                self.handle, ad.handle, subset_num, num_subsets)
+            check_status(image.handle)
+            return image
+        assert_validity(out, ImageData)
+        try_calling(pystir.cSTIR_acquisitionModelBwdReplace(
+                self.handle, ad.handle, subset_num, num_subsets, out.handle))
 
     def get_linear_acquisition_model(self):
         """Return the linear part of self.
@@ -1531,19 +1535,15 @@ class AcquisitionModel(object):
         Added for CCPi CIL compatibility
         https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         """
-        if self.is_linear():
-            if out is not None:
-                out.fill(self.backward(
-                    ad, subset_num=subset_num,
-                    num_subsets=num_subsets))
-            else:
-                return self.backward(
-                    ad, subset_num=subset_num,
-                    num_subsets=num_subsets)
-        else:
+        if not self.is_linear():
             raise error('AcquisitionModel is not linear\nYou can get the ' +
                         'linear part of the AcquisitionModel with ' +
                         'get_linear_acquisition_model')
+        return self.backward(
+            ad,
+            subset_num=subset_num,
+            num_subsets=num_subsets,
+            out=out)
 
     def is_affine(self):
         """Return if the acquisition model is affine.

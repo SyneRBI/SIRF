@@ -586,6 +586,20 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 }
 
 extern "C"
+void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
+	int subset_num, int num_subsets, void* ptr_im)
+{
+	try {
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+		am.backward(id, ad, subset_num, num_subsets);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void*
 cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 { 

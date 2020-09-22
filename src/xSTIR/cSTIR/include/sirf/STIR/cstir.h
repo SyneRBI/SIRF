@@ -88,6 +88,8 @@ extern "C" {
 	(void* ptr_am, void* ptr_im, int subset_num, int num_subsets, void* ptr_ad);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 		int subset_num, int num_subsets);
+	void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
+		int subset_num, int num_subsets, void* ptr_im);
 
 	// Acquisition data methods
 	void* cSTIR_getAcquisitionDataStorageScheme();

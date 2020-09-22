@@ -170,6 +170,15 @@ def main():
     if show_plot:
         show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
 
+    # backproject again, this time into pre-allocated image
+    lin_acq_model = acq_model.get_linear_acquisition_model()
+    back_projected_image.fill(0.0)
+    lin_acq_model.adjoint(simulated_data, 0, 4, out=back_projected_image)
+    back_projected_image_as_array = back_projected_image.as_array()
+    if show_plot:
+        msg = 'Backprojection into pre-allocated image'
+        show_2D_array(msg, back_projected_image_as_array[z,:,:])
+
     # do same with pre-smoothing (often used for resolution modelling)
     print('Using some PSF modelling for comparison')
     smoother = SeparableGaussianImageFilter()
