@@ -5,8 +5,10 @@
 
 #include <ismrmrd/xml.h>
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
-
+//#include "sirf/Gadgetron/gadgetron_image_wrap.h"
 #include "sirf/iUtilities/LocalisedException.h"
+
+#include <ismrmrd/ismrmrd.h>
 
 #include <gadgetron/hoNDArray.h>
 #include <gadgetron/vector_td.h>
@@ -29,7 +31,10 @@
 \brief Abstract class for trajectory preparation
 
 */
+
+
 namespace sirf{
+
 
 class aTrajectoryPreparation{
 

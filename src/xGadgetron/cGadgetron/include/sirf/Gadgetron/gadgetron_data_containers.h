@@ -49,6 +49,7 @@ limitations under the License.
 #include "sirf/Gadgetron/ismrmrd_fftw.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_image_wrap.h"
+
 #include "sirf/iUtilities/LocalisedException.h"
 
 //#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
@@ -75,6 +76,10 @@ Some acquisitions do not participate directly in the reconstruction process
 */
 
 namespace sirf {
+
+    class FourierEncoding;
+    class CartesianFourierEncoding;
+    class RPEFourierEncoding;
 
 	class AcquisitionsInfo {
 	public:
@@ -943,10 +948,10 @@ namespace sirf {
     class CoilImagesVector : public GadgetronImagesVector
     {
     public:
-        CoilImagesVector() : GadgetronImagesVector()
-        {
-        }
-        void calculate(const MRAcquisitionData& acq, int calibration = 1);
+        CoilImagesVector() : GadgetronImagesVector(){}
+        void calculate(MRAcquisitionData& acq, int calibration = 1);
+    protected:
+        gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
     };
 
     /*!
@@ -977,7 +982,7 @@ namespace sirf {
         void set_csm_smoothness(int s){csm_smoothness_ = s;}
 
         void calculate(CoilImagesVector& iv);
-        void calculate(const MRAcquisitionData& acq)
+        void calculate(MRAcquisitionData& acq)
         {
             CoilImagesVector ci;
             ci.calculate(acq);

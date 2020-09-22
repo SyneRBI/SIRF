@@ -130,7 +130,7 @@ bool test_get_subset(const MRAcquisitionData& av)
     }
 }
 
-bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
+bool test_CoilSensitivitiesVector_calculate( MRAcquisitionData& av)
 {
     try
     {
@@ -163,7 +163,7 @@ bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
     }
 }
 
-bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av)
+bool test_CoilSensitivitiesVector_get_csm_as_cfimage(MRAcquisitionData& av)
 {
     try
     {
