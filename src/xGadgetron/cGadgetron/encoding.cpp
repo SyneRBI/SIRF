@@ -306,7 +306,7 @@ SirfTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisitionData&
 
 void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 {
-    ASSERT( ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
+    ASSERT( ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
 
     ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
     ISMRMRD::Encoding e = hdr.encoding[0];
@@ -314,7 +314,10 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     std::vector<size_t> dims;
     ac.get_acquisition_dimensions(dims);
 
-    Gadgetron::hoNDArray< std::complex<float> > kspace_data(dims);
+    CFGThoNDArr kspace_data(dims);
+
+    SirfTrajectoryType2D traj(dims[1], dims[2]);
+    traj.fill(Gadgetron::floatd2(0.f,0.f));
 
     #pragma omp parallel
     for(int ia=0; ia<ac.number(); ++ia)
@@ -322,26 +325,55 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
         ISMRMRD::Acquisition acq;
         ac.get_acquisition(ia, acq);
 
+        traj(acq.idx().kspace_encode_step_1, acq.idx().kspace_encode_step_2) = Gadgetron::floatd2(acq.traj(1, 0), acq.traj(2,0));
+
         for(int is=0; is<acq.number_of_samples(); ++is)
             for(int ic=0; ic<acq.active_channels(); ++ic)
                 kspace_data(is, acq.idx().kspace_encode_step_1, acq.idx().kspace_encode_step_2, ic) = acq.data(is,ic);
 
     }
 
+    std::cout << "Perofrming FFT along readout" << std::endl;
     Gadgetron::hoNDFFT< float >::instance()->ifft1c(kspace_data);
 
     EncodingSpace rec_space = e.reconSpace;
 
+    std::vector < size_t > slice_dims{rec_space.matrixSize.y, rec_space.matrixSize.z};
+
+    Gridder_2D nufft(slice_dims, traj);
+
+    CFGThoNDArr kdata_slice;
+
     ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, dims[3]);
+
+    for(size_t ichannel=0; ichannel<dims[3]; ++ichannel)
+    {
+        std::cout << "Performing FFT for channel " << ichannel << std::endl;
+        for(size_t islice=0;islice<dims[0]; ++islice)
+        {
+
+
+            CFGThoNDArr imgdata_slice;
+
+            std::vector<size_t> subslice_start{islice,size_t(0),size_t(0),ichannel};
+            std::vector<size_t> subslice_size{1,slice_dims[0], slice_dims[1], 1};
+
+            kspace_data.get_sub_array( subslice_start, subslice_size, kdata_slice);
+            nufft.ifft(imgdata_slice, kdata_slice);
+
+            for(size_t iz=0; iz<rec_space.matrixSize.z; ++iz)
+            for(size_t iy=0; iy<rec_space.matrixSize.y; ++iy)
+                ptr_img->operator()(islice, iy, iz, ichannel) = imgdata_slice(iy, iz);
+        }
+    }
+    std::cout << "Done with FFTs " << std::endl;
     ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
 
     ISMRMRD::Acquisition acq;
     ac.get_acquisition(0,acq);
 
+    std::cout << "Matching image header to rawdata input." << std::endl;
     this->match_img_header_to_acquisition(*ptr_img, acq);
-
-    throw std::runtime_error("The backward Model Is not implemented yet for RPE.");
-
 }
 
 void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)

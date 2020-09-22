@@ -138,6 +138,7 @@ public:
 
 using namespace Gadgetron;
 
+typedef Gadgetron::hoNDArray<std::complex<float> > CFGThoNDArr;
 class Gridder_2D
 {
 
@@ -166,17 +167,15 @@ public:
         throw LocalisedException("Forward gridding not implemented yet." , __FILE__, __LINE__);
     }
 
-    void ifft(const hoNDArray<std::complex<float> >& kdata)
+    void ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
     {
-
         auto sptr_unit_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
         sptr_unit_dcw ->fill(1.f);
 
-        Gadgetron::hoNDArray<std::complex<float> > result(this->output_dims_);
-        result.fill(std::complex<float>(0.f, 0.f));
+        img.create(this->output_dims_);
+        img.fill(std::complex<float>(0.f, 0.f));
 
-        this->nufft_operator_.compute(kdata, result, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
-
+        this->nufft_operator_.compute(kdata, img, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
     }
 
 protected:

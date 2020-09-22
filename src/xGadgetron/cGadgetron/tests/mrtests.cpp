@@ -40,10 +40,6 @@ limitations under the License.
 
 #include "mrtest_auxiliary_funs.h"
 
-
-//#include <gadgetron/hoNDArray.h>
-//#include <gadgetron/vector_td.h>
-
 using namespace sirf;
 
 
