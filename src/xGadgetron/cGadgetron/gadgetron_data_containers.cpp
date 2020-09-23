@@ -236,7 +236,7 @@ void MRAcquisitionData::get_acquisition_dimensions(std::vector<size_t>& dims) co
         get_acquisition(i, acq);
 
         if(acq.active_channels() !=nc)
-                throw std::runtime_error("The number of channels is not consistent within this container.");
+            throw std::runtime_error("The number of channels is not consistent within this container.");
         if(acq.number_of_samples() != nro)
             throw std::runtime_error("The number of readout points is not consistent within this container.");
     }
