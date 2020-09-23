@@ -157,14 +157,9 @@ public:
 
     void setup_nufft(std::vector<size_t> img_dims_output, const SirfTrajectoryType2D &traj);
 
+
+    void fft(CFGThoNDArr& kdata, const CFGThoNDArr& img);
     void ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata);
-
-    void fft() const
-    {
-        throw LocalisedException("Forward gridding not implemented yet." , __FILE__, __LINE__);
-    }
-
-
 
 protected:
     static const size_t oversampling_factor_ = 2;

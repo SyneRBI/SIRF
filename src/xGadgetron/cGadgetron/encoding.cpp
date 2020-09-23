@@ -287,20 +287,15 @@ SirfTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisitionData&
     std::vector<size_t> kspace_dims;
     ac.get_acquisition_dimensions(kspace_dims);
 
-    SirfTrajectoryType2D traj(kspace_dims[1] * kspace_dims[2]);
+    SirfTrajectoryType2D traj(ac.number());
     traj.fill(Gadgetron::floatd2(0.f, 0.f));
 
     for(int ia=0; ia<ac.number(); ++ia)
     {
         ac.get_acquisition(ia, acq);
 
-        size_t const ky = acq.idx().kspace_encode_step_1;
-        size_t const kz = acq.idx().kspace_encode_step_2;
-
-        size_t access_idx = ky * kspace_dims[2] + kz;
-
-        traj.at(access_idx)[0] = acq.traj(1, 0);
-        traj.at(access_idx)[1] = acq.traj(2, 0);
+        traj.at(ia)[0] = acq.traj(1, 0);
+        traj.at(ia)[1] = acq.traj(2, 0);
     }
 
     return traj;
@@ -317,8 +312,9 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     std::vector<size_t> kspace_dims;
     ac.get_acquisition_dimensions(kspace_dims);
 
-    CFGThoNDArr kspace_data(kspace_dims);
-    kspace_data.fill(std::complex<float>(0.f,0.f));
+    std::vector<size_t> const kdata_dims{kspace_dims[0], ac.number(), kspace_dims[3]};
+
+    CFGThoNDArr kspace_data(kdata_dims);
 
 //    #pragma omp parallel
     for(int ia=0; ia<ac.number(); ++ia)
@@ -326,16 +322,11 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
         ISMRMRD::Acquisition acq;
         ac.get_acquisition(ia, acq);
 
-        size_t const ky = acq.idx().kspace_encode_step_1;
-        size_t const kz = acq.idx().kspace_encode_step_2;
-
         for(int is=0; is<acq.number_of_samples(); ++is)
             for(int ic=0; ic<acq.active_channels(); ++ic)
-                kspace_data(is, ky, kz, ic) = acq.data(is,ic);
-
+                kspace_data(is, ia, ic) =  acq.data(is,ic);
     }
 
-    std::cout << "Perofrming FFT along readout" << std::endl;
     Gadgetron::hoNDFFT< float >::instance()->ifft1c(kspace_data);
 
     EncodingSpace rec_space = e.reconSpace;
@@ -351,15 +342,12 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     {
         for(size_t islice=0;islice<kspace_dims[0]; ++islice)
         {
-            size_t const num_kdata_pts = kspace_dims[1] * kspace_dims[2];
-            CFGThoNDArr k_slice_data_sausage(num_kdata_pts);
+            CFGThoNDArr k_slice_data_sausage(kdata_dims[1]);
             k_slice_data_sausage.fill(complex_float_t(0,0));
 
-            for(int ky=0; ky<kspace_dims[1]; ++ky)
-            for(int kz=0; kz<kspace_dims[2]; ++kz)
+            for(int ik=0;ik<kdata_dims[1];++ik)
             {
-                size_t access_idx = kspace_dims[2]*ky + kz;
-                k_slice_data_sausage.at(access_idx) = kspace_data(islice,ky, kz, ichannel);
+                k_slice_data_sausage.at(ik) = kspace_data(islice,ik,ichannel);
             }
 
             CFGThoNDArr imgdata_slice;
@@ -383,7 +371,78 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 
 void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
 {
-    throw std::runtime_error("The Forward Model Is not implemented yet for RPE.");
+      throw std::runtime_error("fwd not defined yet");
+
+//    ASSERT( ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
+
+//    ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
+//    ISMRMRD::Encoding e = hdr.encoding[0];
+
+//    std::vector<size_t> img_dims;
+//    img_dims.push_back(ptr_img->getMatrixSizeX());
+//    img_dims.push_back(ptr_img->getMatrixSizeY());
+//    img_dims.push_back(ptr_img->getMatrixSizeZ());
+//    img_dims.push_back(ptr_img->getNumberOfChannels());
+
+//    CFGThoNDArr img_data(img_dims);
+
+//    for(int i=0; i<ptr_img->getNumberOfDataElements();++i)
+//        *(img_data.begin+i) = *(ptr_img->getDataPtr());
+
+
+//    SirfTrajectoryType2D traj = this->get_trajectory(ac);
+//    size_t const num_kdata_pts = traj.get_number_of_elements();
+
+//    std::vector < size_t > img_slice_dims{img_dims[1], img_dims[2]};
+//    Gridder_2D nufft(img_slice_dims, traj);
+
+//    std::vector< size_t> output_dims{img_dims[0], num_kdata_pts, img_dims[3]};
+//    CFGThoNDArr kdata(output_dims);
+
+//    for(size_t ichannel=0; ichannel<img_dims[3]; ++ichannel)
+//    {
+//        for(size_t islice=0;islice<img_dims[0]; ++islice)
+//        {
+//            CFGThoNDArr k_slice_data_sausage(num_kdata_pts);
+
+//            CFGThoNDArr img_slice(img_slice_dims);
+
+//            for(int ny=0; ny<img_dims[1]; ++ny)
+//            for(int nz=0; nz<img_dims[2]; ++nz)
+//                img_slice(ny,nz)= img_data(islice,nz,ny,ichannel);
+
+//            nufft.fft(k_slice_data_sausage, img_slice);
+
+//            for( int ik=0; ik<num_kdata_pts; ++ik)
+//                kdata(islice, ik, ichannel) = k_slice_data_sausage.at(ik);
+//        }
+//    }
+
+//    Gadgetron::hoNDFFT< float >::instance()->fft1c(kdata);
+
+//    for(int ia=0; ia<ac.number(); ++ia)
+//    {
+//        ISMRMRD::Acquisition acq;
+//        ac.get_acquisition(ia, acq);
+
+//        acq.resize(img_dims[0],img_dims[3],3);
+
+
+
+
+//    }
+
+
+
+//    EncodingSpace rec_space = e.reconSpace;
+//    std::vector < size_t > img_slice_dims{rec_space.matrixSize.y, rec_space.matrixSize.z};
+
+//    ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
+//    ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
+
+//    ISMRMRD::Acquisition acq;
+//    ac.get_acquisition(0,acq);
+
 }
 
 
@@ -397,7 +456,6 @@ void Gridder_2D::setup_nufft(std::vector<size_t> img_dims_output, const SirfTraj
         throw LocalisedException("The image dimensions of the output should be of size 2." , __FILE__, __LINE__);
 
     traj.get_dimensions(this->trajdims_);
-
 
     this->output_dims_ = img_dims_output;
 
@@ -415,6 +473,18 @@ void Gridder_2D::ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
     img.fill(std::complex<float>(0.f, 0.f));
 
     this->nufft_operator_.compute(kdata, img, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
+
+}
+
+void Gridder_2D::fft(CFGThoNDArr& kdata, const CFGThoNDArr& img)
+{
+    auto sptr_unit_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
+    sptr_unit_dcw ->fill(1.f);
+
+    kdata.create(this->trajdims_);
+    kdata.fill(std::complex<float>(0.f, 0.f));
+
+    this->nufft_operator_.compute(img, kdata, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::FORWARDS_C2NC);
 
 }
 
