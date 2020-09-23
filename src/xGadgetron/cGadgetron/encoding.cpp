@@ -311,12 +311,12 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
     ISMRMRD::Encoding e = hdr.encoding[0];
 
-    std::vector<size_t> dims;
-    ac.get_acquisition_dimensions(dims);
+    std::vector<size_t> kspace_dims;
+    ac.get_acquisition_dimensions(kspace_dims);
 
-    CFGThoNDArr kspace_data(dims);
+    CFGThoNDArr kspace_data(kspace_dims);
 
-    SirfTrajectoryType2D traj(dims[1], dims[2]);
+    SirfTrajectoryType2D traj(kspace_dims[1], kspace_dims[2]);
     traj.fill(Gadgetron::floatd2(0.f,0.f));
 
     #pragma omp parallel
@@ -338,25 +338,24 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 
     EncodingSpace rec_space = e.reconSpace;
 
-    std::vector < size_t > slice_dims{rec_space.matrixSize.y, rec_space.matrixSize.z};
+    std::vector < size_t > img_slice_dims{rec_space.matrixSize.y, rec_space.matrixSize.z};
 
-    Gridder_2D nufft(slice_dims, traj);
+    Gridder_2D nufft(img_slice_dims, traj);
 
     CFGThoNDArr kdata_slice;
 
-    ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, dims[3]);
+    ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
 
-    for(size_t ichannel=0; ichannel<dims[3]; ++ichannel)
+    for(size_t ichannel=0; ichannel<kspace_dims[3]; ++ichannel)
     {
         std::cout << "Performing FFT for channel " << ichannel << std::endl;
-        for(size_t islice=0;islice<dims[0]; ++islice)
+        for(size_t islice=0;islice<kspace_dims[0]; ++islice)
         {
-
 
             CFGThoNDArr imgdata_slice;
 
             std::vector<size_t> subslice_start{islice,size_t(0),size_t(0),ichannel};
-            std::vector<size_t> subslice_size{1,slice_dims[0], slice_dims[1], 1};
+            std::vector<size_t> subslice_size{1,kspace_dims[1], kspace_dims[2], 1};
 
             kspace_data.get_sub_array( subslice_start, subslice_size, kdata_slice);
             nufft.ifft(imgdata_slice, kdata_slice);
