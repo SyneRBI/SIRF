@@ -266,7 +266,6 @@ bool test_rpe_bwd(MRAcquisitionData& av)
 
 
        sirf::GRPETrajectoryPrep rpe_tp;
-
        rpe_tp.set_trajectory(av);
 
 
@@ -315,6 +314,49 @@ bool test_rpe_bwd(MRAcquisitionData& av)
 }
 
 
+
+
+bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
+{
+    try
+        {
+            std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+            sirf::GRPETrajectoryPrep rpe_tp;
+            rpe_tp.set_trajectory(av);
+
+            sirf::GadgetronImagesVector img_vec;
+            sirf::MRAcquisitionModel acquis_model;
+
+            sirf::CoilSensitivitiesVector csm;
+            csm.calculate(av);
+
+            auto sptr_encoder = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+            acquis_model.set_encoder(sptr_encoder);
+
+            acquis_model.bwd(img_vec, csm, av);
+
+            for(int i=0; i<img_vec.items(); ++i)
+            {
+                std::stringstream fname_output;
+                fname_output << "output_" << __FUNCTION__ << "_image_" << i;
+                write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
+            }
+
+            return true;
+
+        }
+        catch( std::runtime_error const &e)
+        {
+            std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+            std::cout << e.what() << std::endl;
+            throw;
+        }
+}
+
+
+
+
 int main ( int argc, char* argv[])
 {
 
@@ -355,6 +397,8 @@ int main ( int argc, char* argv[])
 
         test_get_rpe_trajectory(rpe_av);
         test_rpe_bwd(rpe_av);
+        test_mracquisition_model_rpe_bwd(rpe_av);
+
 
         return 0;
 	}

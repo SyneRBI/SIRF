@@ -351,12 +351,6 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     {
         for(size_t islice=0;islice<kspace_dims[0]; ++islice)
         {
-//            std::vector<size_t> subslice_start{islice,size_t(0),size_t(0),ichannel};
-//            std::vector<size_t> subslice_size{1,kspace_dims[1], kspace_dims[2], 1};
-
-//            CFGThoNDArr kdata_slice;
-//            kspace_data.get_sub_array( subslice_start, subslice_size, kdata_slice);
-
             size_t const num_kdata_pts = kspace_dims[1] * kspace_dims[2];
             CFGThoNDArr k_slice_data_sausage(num_kdata_pts);
             k_slice_data_sausage.fill(complex_float_t(0,0));
@@ -376,6 +370,7 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
                 ptr_img->operator()(islice, iy, iz, ichannel) = imgdata_slice(iy, iz);
         }
     }
+
     std::cout << "Done with FFTs " << std::endl;
     ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
 
