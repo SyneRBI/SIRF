@@ -241,9 +241,11 @@ bool test_get_rpe_trajectory(AcquisitionsVector av)
 
         rpe_tp.set_trajectory(av);
 
-        RPEFourierEncoding rpe_enc;
+        std::stringstream fname_output;
+        fname_output << "output_" << __FUNCTION__ << ".h5";
+        av.write(fname_output.str());
 
-        SirfTrajectoryType2D traj = rpe_enc.get_trajectory(av);
+        std::cout << "wrote file apparently" << std::endl;
 
         return true;
 
@@ -269,15 +271,30 @@ bool test_rpe_bwd(MRAcquisitionData& av)
 
 
        sirf::GadgetronImagesVector img_vec;
-       sirf::MRAcquisitionModel acquis_model;
 
-       sirf::CoilSensitivitiesVector csm;
-       csm.calculate(av);
+       img_vec.set_meta_data(av.acquisitions_info());
 
-       auto sptr_encoder = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
-       acquis_model.set_encoder(sptr_encoder);
+       if(!av.sorted())
+           av.sort();
 
-       acquis_model.bwd(img_vec, csm, av);
+       auto sort_idx = av.get_kspace_order();
+
+       auto sptr_enc = std::make_shared< RPEFourierEncoding > (RPEFourierEncoding());
+
+       for(int i=0; i<sort_idx.size(); ++i)
+       {
+           sirf::AcquisitionsVector subset;
+           av.get_subset(subset, sort_idx[i]);
+
+           CFImage img;
+           sptr_enc->backward(&img, subset);
+
+           void* vptr_img = new CFImage(img);// god help me I don't trust this!
+           ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img);
+
+           img_vec.append(iw);
+
+       }
 
        for(int i=0; i<img_vec.items(); ++i)
        {
@@ -285,8 +302,6 @@ bool test_rpe_bwd(MRAcquisitionData& av)
            fname_output << "output_" << __FUNCTION__ << "_image_" << i;
            write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
        }
-
-       return true;
 
        return true;
 
