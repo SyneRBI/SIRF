@@ -270,7 +270,6 @@ bool test_rpe_bwd(MRAcquisitionData& av)
 
 
        sirf::GadgetronImagesVector img_vec;
-
        img_vec.set_meta_data(av.acquisitions_info());
 
        if(!av.sorted())
@@ -301,6 +300,71 @@ bool test_rpe_bwd(MRAcquisitionData& av)
            fname_output << "output_" << __FUNCTION__ << "_image_" << i;
            write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
        }
+
+       return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+
+bool test_rpe_fwd(MRAcquisitionData& av)
+{
+    try
+    {
+       std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+       sirf::GRPETrajectoryPrep rpe_tp;
+       rpe_tp.set_trajectory(av);
+
+       sirf::GadgetronImagesVector img_vec;
+       img_vec.set_meta_data(av.acquisitions_info());
+
+       if(!av.sorted())
+           av.sort();
+
+       auto sort_idx = av.get_kspace_order();
+       auto sptr_enc = std::make_shared< RPEFourierEncoding > (RPEFourierEncoding());
+
+       for(int i=0; i<sort_idx.size(); ++i)
+       {
+           sirf::AcquisitionsVector subset;
+           av.get_subset(subset, sort_idx[i]);
+
+           CFImage img;
+           sptr_enc->backward(&img, subset);
+
+           void* vptr_img = new CFImage(img);// god help me I don't trust this!
+
+           ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img);
+           img_vec.append(iw);
+
+           sptr_enc->forward(subset, &img);
+
+           sptr_enc->backward(&img, subset);
+
+           void* vptr_img_bfb = new CFImage(img);// god help me I don't trust this!
+           ImageWrap iw_bfb(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img_bfb);
+           img_vec.append(iw_bfb);
+
+           av.set_subset(subset, sort_idx[i]); //assume forward does not reorder the acquisitions
+       }
+
+       for(int i=0; i<img_vec.items(); ++i)
+       {
+           std::stringstream fname_output_img;
+           fname_output_img << "output_" << __FUNCTION__ << "_image_" << i;
+           write_cfimage_to_raw(fname_output_img.str(), img_vec.image_wrap(i));
+       }
+
+       std::stringstream fname_output_raw;
+       fname_output_raw << "output_" << __FUNCTION__ << "_rawdata.h5";
+       av.write(fname_output_raw.str());
 
        return true;
 
@@ -395,9 +459,11 @@ int main ( int argc, char* argv[])
         rpe_av.sort();
 
 
-        test_get_rpe_trajectory(rpe_av);
-        test_rpe_bwd(rpe_av);
-        test_mracquisition_model_rpe_bwd(rpe_av);
+//        test_get_rpe_trajectory(rpe_av);
+//        test_rpe_bwd(rpe_av);
+        test_rpe_fwd(rpe_av);
+
+//        test_mracquisition_model_rpe_bwd(rpe_av);
 
 
         return 0;
