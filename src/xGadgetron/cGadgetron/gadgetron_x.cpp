@@ -352,21 +352,28 @@ void
 MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
+    if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
+    else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+    else
+        throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
-    GadgetronImagesVector indiv_channels;
-    cc.forward(indiv_channels, ic);
+
+    GadgetronImagesVector images_channelresolved;
+    cc.forward(images_channelresolved, ic);
 
     if(!ac.sorted())
         ac.sort();
 
     auto kspace_sorting = ac.get_kspace_sorting();
 
-    if( kspace_sorting.size() != indiv_channels.number() )
+    if( kspace_sorting.size() != images_channelresolved.number() )
         throw LocalisedException("Number of images does not match number of acquisition data bins.", __FILE__, __LINE__);
 
-    for( unsigned int i=0; i<indiv_channels.number(); ++i)
+    for( unsigned int i=0; i<images_channelresolved.number(); ++i)
     {
-        ImageWrap iw = indiv_channels.image_wrap(i);
+        ImageWrap iw = images_channelresolved.image_wrap(i);
         void* vptr_img = iw.ptr_image();
         CFImage* ptr_img = static_cast<CFImage*>(vptr_img);
 
@@ -396,6 +403,14 @@ void
 MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
+
+    if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
+    else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+    else
+        throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
+
     GadgetronImagesVector iv;
     iv.set_meta_data(ac.acquisitions_info());
 
