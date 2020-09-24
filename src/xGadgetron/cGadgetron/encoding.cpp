@@ -359,7 +359,6 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
         }
     }
 
-    std::cout << "Done with FFTs " << std::endl;
     ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
 
     ISMRMRD::Acquisition acq;
@@ -367,82 +366,76 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 
     std::cout << "Matching image header to rawdata input." << std::endl;
     this->match_img_header_to_acquisition(*ptr_img, acq);
+
+    std::cout << "Finished RPE BWD" << std::endl;
+
 }
 
 void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
 {
-      throw std::runtime_error("fwd not defined yet");
 
-//    ASSERT( ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
+    ASSERT( ac.number() >0, "Give a non-empty rawdata container if you want to use the rpe forward.");
+    ASSERT( ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
 
-//    ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
-//    ISMRMRD::Encoding e = hdr.encoding[0];
+    std::vector<size_t> img_dims;
+    img_dims.push_back(ptr_img->getMatrixSizeX());
+    img_dims.push_back(ptr_img->getMatrixSizeY());
+    img_dims.push_back(ptr_img->getMatrixSizeZ());
+    img_dims.push_back(ptr_img->getNumberOfChannels());
 
-//    std::vector<size_t> img_dims;
-//    img_dims.push_back(ptr_img->getMatrixSizeX());
-//    img_dims.push_back(ptr_img->getMatrixSizeY());
-//    img_dims.push_back(ptr_img->getMatrixSizeZ());
-//    img_dims.push_back(ptr_img->getNumberOfChannels());
+    CFGThoNDArr img_data(img_dims);
 
-//    CFGThoNDArr img_data(img_dims);
+    for(int i=0; i<ptr_img->getNumberOfDataElements();++i)
+        *(img_data.begin()+i) = *(ptr_img->getDataPtr()+i);
 
-//    for(int i=0; i<ptr_img->getNumberOfDataElements();++i)
-//        *(img_data.begin+i) = *(ptr_img->getDataPtr());
+    SirfTrajectoryType2D traj = this->get_trajectory(ac);
+    size_t const num_kdata_pts = traj.get_number_of_elements();
 
+    std::vector < size_t > img_slice_dims{img_dims[1], img_dims[2]};
+    Gridder_2D nufft(img_slice_dims, traj);
 
-//    SirfTrajectoryType2D traj = this->get_trajectory(ac);
-//    size_t const num_kdata_pts = traj.get_number_of_elements();
+    std::vector< size_t> output_dims{img_dims[0], num_kdata_pts, img_dims[3]};
+    CFGThoNDArr kdata(output_dims);
 
-//    std::vector < size_t > img_slice_dims{img_dims[1], img_dims[2]};
-//    Gridder_2D nufft(img_slice_dims, traj);
+//    #pragma omp parallel
+    for(size_t ichannel=0; ichannel<img_dims[3]; ++ichannel)
+    for(size_t islice=0;islice<img_dims[0]; ++islice)
+    {
 
-//    std::vector< size_t> output_dims{img_dims[0], num_kdata_pts, img_dims[3]};
-//    CFGThoNDArr kdata(output_dims);
+        CFGThoNDArr img_slice(img_slice_dims);
 
-//    for(size_t ichannel=0; ichannel<img_dims[3]; ++ichannel)
-//    {
-//        for(size_t islice=0;islice<img_dims[0]; ++islice)
-//        {
-//            CFGThoNDArr k_slice_data_sausage(num_kdata_pts);
+        for(int ny=0; ny<img_dims[1]; ++ny)
+        for(int nz=0; nz<img_dims[2]; ++nz)
+             img_slice(ny,nz)= img_data(islice,ny,nz,ichannel);
 
-//            CFGThoNDArr img_slice(img_slice_dims);
+        CFGThoNDArr k_slice_data_sausage;
+        nufft.fft(k_slice_data_sausage, img_slice);
 
-//            for(int ny=0; ny<img_dims[1]; ++ny)
-//            for(int nz=0; nz<img_dims[2]; ++nz)
-//                img_slice(ny,nz)= img_data(islice,nz,ny,ichannel);
+        for( int ik=0; ik<num_kdata_pts; ++ik)
+            kdata(islice, ik, ichannel) = k_slice_data_sausage.at(ik);
+    }
 
-//            nufft.fft(k_slice_data_sausage, img_slice);
+    Gadgetron::hoNDFFT< float >::instance()->fft1c(kdata);
 
-//            for( int ik=0; ik<num_kdata_pts; ++ik)
-//                kdata(islice, ik, ichannel) = k_slice_data_sausage.at(ik);
-//        }
-//    }
+    ISMRMRD::Acquisition acq;
+    ac.get_acquisition(0, acq);
 
-//    Gadgetron::hoNDFFT< float >::instance()->fft1c(kdata);
+    ASSERT( acq.number_of_samples() == img_dims[0],"NUMBER OF SAMPLES OF RAWDATA DONT MATCH IMAGES SLICES");
+    ASSERT( acq.active_channels() == img_dims[3],"NUMBER OF CHANNELS OF RAWDATA DONT MATCH IMAGES CHANNELS");
 
-//    for(int ia=0; ia<ac.number(); ++ia)
-//    {
+    for(int ia=0; ia<num_kdata_pts; ++ia)
+    {
 //        ISMRMRD::Acquisition acq;
-//        ac.get_acquisition(ia, acq);
+        ac.get_acquisition(ia, acq);
 
-//        acq.resize(img_dims[0],img_dims[3],3);
+        for(int is=0; is<acq.number_of_samples(); ++is)
+            for(int ic=0; ic<acq.active_channels(); ++ic)
+                acq.data(is,ic) = kdata(is, ia, ic);
 
+        ac.set_acquisition(ia, acq);
+    }
 
-
-
-//    }
-
-
-
-//    EncodingSpace rec_space = e.reconSpace;
-//    std::vector < size_t > img_slice_dims{rec_space.matrixSize.y, rec_space.matrixSize.z};
-
-//    ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
-//    ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
-
-//    ISMRMRD::Acquisition acq;
-//    ac.get_acquisition(0,acq);
-
+    std::cout << "Finished RPE FWD" << std::endl;
 }
 
 
@@ -482,7 +475,9 @@ void Gridder_2D::fft(CFGThoNDArr& kdata, const CFGThoNDArr& img)
     sptr_unit_dcw ->fill(1.f);
 
     kdata.create(this->trajdims_);
-    kdata.fill(std::complex<float>(0.f, 0.f));
+
+
+//    kdata.fill(std::complex<float>(0.f, 0.f));
 
     this->nufft_operator_.compute(img, kdata, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::FORWARDS_C2NC);
 
