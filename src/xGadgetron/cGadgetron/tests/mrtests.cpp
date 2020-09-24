@@ -459,11 +459,11 @@ int main ( int argc, char* argv[])
         rpe_av.sort();
 
 
-//        test_get_rpe_trajectory(rpe_av);
-//        test_rpe_bwd(rpe_av);
+        test_get_rpe_trajectory(rpe_av);
+        test_rpe_bwd(rpe_av);
         test_rpe_fwd(rpe_av);
 
-//        test_mracquisition_model_rpe_bwd(rpe_av);
+        test_mracquisition_model_rpe_bwd(rpe_av);
 
 
         return 0;
