@@ -258,6 +258,44 @@ bool test_get_rpe_trajectory(AcquisitionsVector av)
     }
 }
 
+
+bool test_rpe_csm(MRAcquisitionData& av)
+{
+    try
+    {
+       std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+
+       sirf::GRPETrajectoryPrep rpe_tp;
+       rpe_tp.set_trajectory(av);
+
+       sirf::CoilSensitivitiesVector csm;
+       csm.set_csm_smoothness(50);
+       csm.calculate(av);
+
+       for(int i=0; i<csm.items(); ++i)
+       {
+           std::stringstream fname_output;
+           fname_output << "output_" << __FUNCTION__ << "_image_" << i;
+           write_cfimage_to_raw(fname_output.str(), csm.image_wrap(i));
+       }
+
+       return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+
+
+
+
+}
+
+
 bool test_rpe_bwd(MRAcquisitionData& av)
 {
     try
@@ -393,6 +431,7 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
             sirf::MRAcquisitionModel acquis_model;
 
             sirf::CoilSensitivitiesVector csm;
+            csm.set_csm_smoothness(50);
             csm.calculate(av);
 
             auto sptr_encoder = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
@@ -462,6 +501,8 @@ int main ( int argc, char* argv[])
         test_get_rpe_trajectory(rpe_av);
         test_rpe_bwd(rpe_av);
         test_rpe_fwd(rpe_av);
+
+        test_rpe_csm(rpe_av);
 
         test_mracquisition_model_rpe_bwd(rpe_av);
 
