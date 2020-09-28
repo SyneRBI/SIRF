@@ -1521,6 +1521,10 @@ class AcquisitionModel(object):
         Added for CCPi CIL compatibility
         https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         """
+        if not self.is_linear():
+            raise error('AcquisitionModel is not linear\nYou can get the ' +
+                        'linear part of the AcquisitionModel with ' +
+                        'get_linear_acquisition_model')
         return self.forward(
             image,
             subset_num=subset_num,
