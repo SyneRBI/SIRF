@@ -37,6 +37,7 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/Gadgetron/gadget_lib.h"
 #include "sirf/Gadgetron/chain_lib.h"
+#include "sirf/Gadgetron/encoding.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -724,6 +725,25 @@ cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
 		return new DataHandle;
 	}
 	CATCH;
+
+}
+
+extern "C"
+void*
+cGT_setGRPETrajecotry(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        GRPETrajectoryPrep rpe_prep;
+        rpe_prep.set_trajectory(acqs);
+
+
+        return new DataHandle;
+    }
+    CATCH;
 
 }
 
