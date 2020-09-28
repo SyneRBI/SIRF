@@ -171,9 +171,8 @@ def main():
         show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
 
     # backproject again, this time into pre-allocated image
-    lin_acq_model = acq_model.get_linear_acquisition_model()
     back_projected_image.fill(0.0)
-    lin_acq_model.adjoint(simulated_data, 0, 4, out=back_projected_image)
+    acq_model.backward(simulated_data, 0, 4, out=back_projected_image)
     back_projected_image_as_array = back_projected_image.as_array()
     if show_plot:
         msg = 'Backprojection into pre-allocated image'
@@ -207,7 +206,13 @@ def main():
 
     # direct is alias for the forward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
-    acq_model.direct(image, 0, 4, simulated_data)
+    try:
+        acq_model.direct(image, 0, 4, simulated_data)
+    except error as err:
+        print('%s' % err.value)
+        print('Extracting the linear acquisition model...')
+        lin_acq_model = acq_model.get_linear_acquisition_model()
+        lin_acq_model.direct(image, 0, 4, simulated_data)
 
     if show_plot:
         # show simulated acquisition data
@@ -216,7 +221,13 @@ def main():
     
     # adjoint is an alias for the backward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
-    back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)
+    try:
+        back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)
+    except error as err:
+        print('%s' % err.value)
+        print('Extracting the linear acquisition model...')
+        lin_acq_model = acq_model.get_linear_acquisition_model()
+        back_projected_image_adj = lin_acq_model.adjoint(simulated_data, 0, 4)
 
     if show_plot:
         back_projected_image_as_array_adj = back_projected_image_adj.as_array()
