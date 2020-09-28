@@ -1762,8 +1762,8 @@ CoilImagesVector::calculate(MRAcquisitionData& ac, int calibration)
 
     this->set_meta_data(ac.acquisitions_info());
 
-    if(!ac.sorted())
-        ac.sort();
+//    if(!ac.sorted())
+    ac.sort();
 
     auto sort_idx = ac.get_kspace_order();
 

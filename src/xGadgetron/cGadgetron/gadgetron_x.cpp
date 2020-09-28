@@ -352,6 +352,9 @@ void
 MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
+    if( ac.number() ==0 )
+        throw LocalisedException("Please dont use an empty acquisition template.", __FILE__, __LINE__);
+
     if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
     else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
@@ -363,13 +366,11 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
     GadgetronImagesVector images_channelresolved;
     cc.forward(images_channelresolved, ic);
 
-    if(!ac.sorted())
-        ac.sort();
-
-    auto kspace_sorting = ac.get_kspace_sorting();
+    ac.sort();
+    std::vector<KSpaceSorting> kspace_sorting = ac.get_kspace_sorting();
 
     if( kspace_sorting.size() != images_channelresolved.number() )
-        throw LocalisedException("Number of images does not match number of acquisition data bins.", __FILE__, __LINE__);
+        throw LocalisedException("Number of images does not match number of acquisition data bins  ", __FILE__, __LINE__);
 
     for( unsigned int i=0; i<images_channelresolved.number(); ++i)
     {
@@ -403,7 +404,6 @@ void
 MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
-
     if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
     else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
@@ -414,9 +414,8 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
     GadgetronImagesVector iv;
     iv.set_meta_data(ac.acquisitions_info());
 
-    if(!ac.sorted())
-        ac.sort();
 
+    ac.sort();
     auto sort_idx = ac.get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
