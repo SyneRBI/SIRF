@@ -431,7 +431,12 @@ namespace sirf {
 	*/
 	class AcquisitionsVector : public MRAcquisitionData {
 	public:
-		AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
+        AcquisitionsVector(const char* filename_with_ext)
+        {
+            this->read( std::string(filename_with_ext) );
+        }
+
+        AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
 		{
 			acqs_info_ = info;
 		}

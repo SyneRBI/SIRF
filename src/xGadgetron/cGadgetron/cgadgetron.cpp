@@ -471,7 +471,7 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
 		shared_ptr<MRAcquisitionData> 
-			acquisitions(new AcquisitionsFile(file));
+            acquisitions(new AcquisitionsVector(file));
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;

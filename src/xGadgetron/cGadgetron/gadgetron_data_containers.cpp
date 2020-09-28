@@ -684,8 +684,7 @@ void MRAcquisitionData::organise_kspace()
 {
     std::vector<KSpaceSorting>().swap(this->sorting_);
 
-    ISMRMRD::IsmrmrdHeader header;
-    ISMRMRD::deserialize(this->acqs_info_.c_str(), header);
+    const ISMRMRD::IsmrmrdHeader header = this->acquisitions_info().get_IsmrmrdHeader();
 
     auto encoding_vector = header.encoding;
 
@@ -729,7 +728,7 @@ void MRAcquisitionData::organise_kspace()
         this->sorting_.at(access_idx).add_idx_to_set(i);
     }
     this->sorting_.erase(
-                std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSorting& s){ return s.get_idx_set().empty();}),
+                std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSorting& s){return s.get_idx_set().empty();}),
                 sorting_.end());
 }
 
