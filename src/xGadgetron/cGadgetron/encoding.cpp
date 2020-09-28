@@ -338,6 +338,8 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 
     ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
 
+    float const fft_normalisation_factor = sqrt(float(rec_space.matrixSize.x));
+
     for(size_t ichannel=0; ichannel<kspace_dims[3]; ++ichannel)
     {
         for(size_t islice=0;islice<kspace_dims[0]; ++islice)
@@ -355,7 +357,7 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 
             for(size_t iz=0; iz<rec_space.matrixSize.z; ++iz)
             for(size_t iy=0; iy<rec_space.matrixSize.y; ++iy)
-                ptr_img->operator()(islice, iy, iz, ichannel) = imgdata_slice(iy, iz);
+                ptr_img->operator()(islice, iy, iz, ichannel) = fft_normalisation_factor * imgdata_slice(iy, iz);
         }
     }
 
@@ -423,6 +425,8 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
     ASSERT( acq.number_of_samples() == img_dims[0],"NUMBER OF SAMPLES OF RAWDATA DONT MATCH IMAGES SLICES");
     ASSERT( acq.active_channels() == img_dims[3],"NUMBER OF CHANNELS OF RAWDATA DONT MATCH IMAGES CHANNELS");
 
+    float const fft_normalisation_factor = sqrt((float)acq.number_of_samples());
+
     for(int ia=0; ia<num_kdata_pts; ++ia)
     {
 //        ISMRMRD::Acquisition acq;
@@ -430,7 +434,7 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
 
         for(int is=0; is<acq.number_of_samples(); ++is)
             for(int ic=0; ic<acq.active_channels(); ++ic)
-                acq.data(is,ic) = kdata(is, ia, ic);
+                acq.data(is,ic) = kdata(is, ia, ic)/fft_normalisation_factor;
 
         ac.set_acquisition(ia, acq);
     }
@@ -460,7 +464,13 @@ void Gridder_2D::setup_nufft(std::vector<size_t> img_dims_output, const SirfTraj
 void Gridder_2D::ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
 {
     auto sptr_unit_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
-    sptr_unit_dcw ->fill(1.f);
+
+    float const num_img_pts = this->output_dims_[0] * this->output_dims_[1];
+    float const num_kspace_pts = kdata.get_number_of_elements();
+    float const area_trajectory = M_PI * 0.5*0.5;
+    float const normed_dcw_value = 1.0 * (float) num_img_pts / (float)num_kspace_pts * area_trajectory;
+
+    sptr_unit_dcw ->fill(normed_dcw_value);
 
     img.create(this->output_dims_);
     img.fill(std::complex<float>(0.f, 0.f));
@@ -475,8 +485,6 @@ void Gridder_2D::fft(CFGThoNDArr& kdata, const CFGThoNDArr& img)
     sptr_unit_dcw ->fill(1.f);
 
     kdata.create(this->trajdims_);
-
-
 //    kdata.fill(std::complex<float>(0.f, 0.f));
 
     this->nufft_operator_.compute(img, kdata, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::FORWARDS_C2NC);

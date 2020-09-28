@@ -27,7 +27,7 @@
 */
 
 /*!
-\ingroup Fourier Encoding
+\ingroup aTrajectoryPreparation
 \brief Abstract class for trajectory preparation
 
 */
@@ -57,7 +57,7 @@ protected:
 };
 
 /*!
-\ingroup Fourier Encoding
+\ingroup CartesianTrajectoryPrep
 \brief Cartesian trajectory preparation class
 
 */
@@ -78,7 +78,7 @@ protected:
 };
 
 /*!
-\ingroup Fourier Encoding
+\ingroup GRPETrajectoryPrep
 \brief Golden Radial Phase Encoding interleaved trajectory preparation class.
 
 */
@@ -102,7 +102,11 @@ protected:
     uint16_t circ_mod(uint16_t const a, uint16_t const b){ return (((a%b) + b ) % b);}
 };
 
+/*!
+\ingroup Fourier Encoding
+\brief Abstract class for doing FFTs for different trajectories for self-consistent k-space data.
 
+*/
 
 
 class FourierEncoding
@@ -116,6 +120,11 @@ public:
     void match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq);
 };
 
+/*!
+\ingroup CartesianFourierEncoding
+\brief FFT between cartesian spaces
+*/
+
 class CartesianFourierEncoding : public FourierEncoding
 {
 public:
@@ -127,6 +136,11 @@ public:
 };
 
 typedef Gadgetron::hoNDArray<Gadgetron::floatd2> SirfTrajectoryType2D;
+
+/*!
+\ingroup CartesianFourierEncoding
+\brief Radial phase encoding FFT
+*/
 
 class RPEFourierEncoding : public FourierEncoding
 {
