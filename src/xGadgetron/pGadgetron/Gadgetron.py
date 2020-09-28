@@ -1410,3 +1410,14 @@ def preprocess_acquisition_data(input_data):
          'AsymmetricEchoAdjustROGadget', \
          'RemoveROOversamplingGadget'])
     
+def set_grpe_trajectory(mr_rawdata):
+    '''
+    Function that fills the trajectory of AcquisitionData with golden angle radial
+    phase encoding trajectory.
+    '''    
+    assert isinstance(mr_rawdata, AcquisitionData)
+
+    try_calling(pygadgetron.cGT_setGRPETrajecotry(mr_rawdata.handle))
+    return mr_rawdata
+    
+    
