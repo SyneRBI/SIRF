@@ -211,7 +211,15 @@ namespace sirf {
 		}
 
 		// data container methods
-		unsigned int items() const { return 1; }
+		unsigned int items() const {
+			try {
+				data()->get_segment_by_sinogram(0);
+			}
+			catch (std::string msg) {
+				return 0;
+			}
+			return 1;
+		}
 		virtual float norm() const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(

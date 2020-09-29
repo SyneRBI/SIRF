@@ -58,6 +58,7 @@ limitations under the License.
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
 #include "stir/recon_buildblock/QuadraticPrior.h"
+#include "stir/SegmentBySinogram.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
 #include "stir/shared_ptr.h"
