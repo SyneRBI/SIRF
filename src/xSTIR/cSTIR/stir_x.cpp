@@ -560,7 +560,7 @@ PETAcquisitionModel::set_image_data_processor(stir::shared_ptr<ImageDataProcesso
 
 void 
 PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
-	int subset_num, int num_subsets, bool zero, bool linear)
+	int subset_num, int num_subsets, bool zero, bool do_linear_only)
 {
 	shared_ptr<ProjData> sptr_fd = ad.data();
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
@@ -568,7 +568,7 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 
 	float one = 1.0;
 
-	if (sptr_add_.get() && !linear) {
+	if (sptr_add_.get() && !do_linear_only) {
 		if (stir::Verbosity::get() > 1) std::cout << "additive term added...";
 		ad.axpby(&one, ad, &one, *sptr_add_);
 		//ad.axpby(1.0, ad, 1.0, *sptr_add_);
@@ -586,7 +586,7 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 	else
 		if (stir::Verbosity::get() > 1) std::cout << "no unnormalisation applied\n";
 
-	if (sptr_background_.get() && !linear) {
+	if (sptr_background_.get() && !do_linear_only) {
 		if (stir::Verbosity::get() > 1) std::cout << "background term added...";
 		ad.axpby(&one, ad, &one, *sptr_background_);
 		//ad.axpby(1.0, ad, 1.0, *sptr_background_);
@@ -598,14 +598,14 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 
 shared_ptr<PETAcquisitionData>
 PETAcquisitionModel::forward(const STIRImageData& image, 
-	int subset_num, int num_subsets, bool linear)
+	int subset_num, int num_subsets, bool do_linear_only)
 {
 	if (!sptr_acq_template_.get())
 		THROW("Fatal error in PETAcquisitionModel::forward: acquisition template not set");
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
-	forward(*sptr_ad, image, subset_num, num_subsets, num_subsets > 1, linear);
+	forward(*sptr_ad, image, subset_num, num_subsets, num_subsets > 1, do_linear_only);
 	return sptr_ad;
 }
 

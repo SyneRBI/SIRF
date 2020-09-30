@@ -1470,7 +1470,7 @@ class AcquisitionModel(object):
         assert_validity(image, ImageData)
         if out is None:
             ad = AcquisitionData()
-            if self.at is None and self.bt is None:
+            if self.is_linear():
                 ad.handle = pystir.cSTIR_acquisitionModelLinFwd(
                     self.handle, image.handle, subset_num, num_subsets)
             else:
@@ -1480,7 +1480,7 @@ class AcquisitionModel(object):
             return ad
         ad = out
         assert_validity(ad, AcquisitionData)
-        if self.at is None and self.bt is None:
+        if self.is_linear():
             try_calling(pystir.cSTIR_acquisitionModelLinFwdReplace(
                 self.handle, image.handle, subset_num, num_subsets, ad.handle))
         else:
@@ -1509,7 +1509,7 @@ class AcquisitionModel(object):
 
         """
         am = AcquisitionModel()
-        am.handle = self.handle
+        am.handle = self.handle # all other properties have default values
         am.const = True # am to be a const reference of self
         return am
 
