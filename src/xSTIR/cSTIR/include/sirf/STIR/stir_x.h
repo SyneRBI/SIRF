@@ -408,7 +408,7 @@ The actual algorithm is described in
 		*/
 		stir::shared_ptr<PETAcquisitionData>
 			forward(const STIRImageData& image,
-			int subset_num = 0, int num_subsets = 1, bool linear = false);
+			int subset_num = 0, int num_subsets = 1, bool do_linear_only = false);
 		/*! \brief replaces a subset of acquisition data with forward-projected data
 		\param[out] acq_data	forward-projected data
 		\param[in] image		image to be forward-projected
@@ -420,7 +420,7 @@ The actual algorithm is described in
 		\param[in] linear		use only linear part of the acquisition model (no constant terms)
 		*/
 		void forward(PETAcquisitionData& acq_data, const STIRImageData& image,
-			int subset_num, int num_subsets, bool zero = false, bool linear = false);
+			int subset_num, int num_subsets, bool zero = false, bool do_linear_only = false);
 
 		// computes and returns back-projected subset of acquisition data 
 		stir::shared_ptr<STIRImageData> backward(PETAcquisitionData& ad,
