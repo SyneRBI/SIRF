@@ -366,11 +366,7 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     ISMRMRD::Acquisition acq;
     ac.get_acquisition(0,acq);
 
-    std::cout << "Matching image header to rawdata input." << std::endl;
     this->match_img_header_to_acquisition(*ptr_img, acq);
-
-    std::cout << "Finished RPE BWD" << std::endl;
-
 }
 
 void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
@@ -429,17 +425,14 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
 
     for(int ia=0; ia<num_kdata_pts; ++ia)
     {
-//        ISMRMRD::Acquisition acq;
         ac.get_acquisition(ia, acq);
 
         for(int is=0; is<acq.number_of_samples(); ++is)
             for(int ic=0; ic<acq.active_channels(); ++ic)
-                acq.data(is,ic) = kdata(is, ia, ic)/fft_normalisation_factor;
+                acq.data(is,ic) = fft_normalisation_factor * kdata(is, ia, ic);
 
         ac.set_acquisition(ia, acq);
     }
-
-    std::cout << "Finished RPE FWD" << std::endl;
 }
 
 
