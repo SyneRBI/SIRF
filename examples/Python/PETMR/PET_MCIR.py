@@ -623,7 +623,7 @@ def get_tau_sigma(K, normK):
             tau = float(args['--tau'])
         
         if sigma * tau > 1/(normK*normK):
-            raise ValueError("sigma * tau > 1/||K||^2")
+            raise ValueError("sigma * tau (%g) > 1/||K||^2 (%g)" % (sigma * tau, 1/(normK*normK)))
     return [tau, sigma]
 
 
