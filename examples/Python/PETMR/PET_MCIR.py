@@ -694,7 +694,8 @@ def get_algo(f, G, K, sigma, tau, init_image, outp_file):
         # let's define the subsets as the motion states
         num_subsets = len(K)
         # assign the probabilities implicit form
-        prob = [1/num_subsets]*num_subsets
+        prob = [1./num_subsets]*num_subsets
+        print("spdhg probabilities ", prob)
         # assign the probabilities explicit form
         # prob = [(num_subsets-1)*1/(2*num_subsets)] + [1/2]
         
