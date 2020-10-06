@@ -64,6 +64,13 @@ void sirf::preprocess_acquisition_data(MRAcquisitionData& ad)
 
 }
 
+void sirf::set_unit_dcf(MRAcquisitionData& ad)
+{
+    std::vector<float> dcw(ad.number());
+    std::fill(dcw.begin(), dcw.end(), 1.f);
+    ad.set_user_floats(&dcw[0], 0);
+}
+
 void sirf::write_cfimage_to_raw(const std::string& fname_prefix, const CFImage& img)
 {
 

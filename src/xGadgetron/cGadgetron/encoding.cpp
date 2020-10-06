@@ -108,7 +108,7 @@ std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& a
 
     const ISMRMRD::EncodingCounters idx = acq.idx();
 
-    float const pe_angle = SIRF_GOLDEN_ANGLE * idx.kspace_encode_step_2;
+    float const pe_angle = SIRF_GOLDEN_ANGLE * (idx.kspace_encode_step_2 + 1);
 
     size_t const num_diff_shifts = this->rad_shift_.size();
     float rad_shift = float( this->rad_shift_.at(this->circ_mod(idx.kspace_encode_step_2 - ang_lims.center,num_diff_shifts))) / float(num_diff_shifts);
@@ -344,9 +344,14 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
         ISMRMRD::Acquisition acq;
         ac.get_acquisition(ia, acq);
 
+        float const dcw = acq.user_float()[0];
+        if(dcw <= 0)
+            throw LocalisedException("The density is smaller or equal to zero. Please use set_user_float() to set it to a value > 0." , __FILE__, __LINE__);
+
+
         for(int is=0; is<acq.number_of_samples(); ++is)
             for(int ic=0; ic<acq.active_channels(); ++ic)
-                kspace_data(is, ia, ic) =  acq.data(is,ic);
+                kspace_data(is, ia, ic) =  acq.data(is,ic) * dcw;
     }
 
     Gadgetron::hoNDFFT< float >::instance()->ifft1c(kspace_data);
@@ -478,19 +483,19 @@ void Gridder_2D::setup_nufft(std::vector<size_t> img_dims_output, const Gadgetro
 
 void Gridder_2D::ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
 {
-    auto sptr_unit_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
+    auto sptr_const_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
 
     float const num_img_pts = this->output_dims_[0] * this->output_dims_[1];
     float const num_kspace_pts = kdata.get_number_of_elements();
     float const area_trajectory = M_PI * 0.5*0.5;
     float const normed_dcw_value = 1.0 * (float) num_img_pts / (float)num_kspace_pts * area_trajectory;
 
-    sptr_unit_dcw ->fill(normed_dcw_value);
+    sptr_const_dcw ->fill(normed_dcw_value);
 
     img.create(this->output_dims_);
     img.fill(std::complex<float>(0.f, 0.f));
 
-    this->nufft_operator_.compute(kdata, img, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
+    this->nufft_operator_.compute(kdata, img, sptr_const_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
 
 }
 

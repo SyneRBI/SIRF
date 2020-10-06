@@ -496,6 +496,7 @@ int main ( int argc, char* argv[])
 
         sirf::preprocess_acquisition_data(rpe_av);
         rpe_av.sort();
+        sirf::set_unit_dcf(rpe_av);
 
 
         test_get_rpe_trajectory(rpe_av);
