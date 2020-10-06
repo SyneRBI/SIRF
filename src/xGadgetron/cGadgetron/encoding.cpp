@@ -52,6 +52,45 @@ void sirf::GRPETrajectoryPrep::set_trajectory(MRAcquisitionData& mr_acq)
     }
 }
 
+SIRFTrajectoryType2D sirf::GRPETrajectoryPrep::get_trajectory(const sirf::MRAcquisitionData& ac)
+{
+    if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER)
+        throw std::runtime_error("Please only ask to get the trajectory for acquisition data with an RPE trajectory pre-computed in the acquisitions.");
+
+    if(ac.number() <= 0)
+        throw std::runtime_error("Please pass a non-empty container.");
+
+    ISMRMRD::Acquisition acq;
+    ac.get_acquisition(0, acq);
+
+    if( acq.trajectory_dimensions() != 3)
+        throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
+
+    std::vector<size_t> kspace_dims;
+    ac.get_acquisition_dimensions(kspace_dims);
+
+    SIRFTrajectoryType2D traj;
+
+    for(int ia=0; ia<ac.number(); ++ia)
+    {
+        std::pair<float, float> curr_point;
+        ac.get_acquisition(ia, acq);
+
+        curr_point.first = acq.traj(1, 0);
+        curr_point.second = acq.traj(2, 0);
+
+        traj.push_back(curr_point);
+    }
+
+    return traj;
+}
+void sirf::GRPETrajectoryPrep::set_2D_density_weights(sirf::MRAcquisitionData& mr_acq)
+{
+
+}
+
+
+
 void sirf::GRPETrajectoryPrep::set_acquisition_trajectory(Acquisition& acq)
 {
     acq.resize(acq.number_of_samples(),acq.active_channels(), this->traj_dim_);
@@ -268,34 +307,17 @@ void sirf::CartesianFourierEncoding::backward(CFImage* ptr_img, const MRAcquisit
 
 }
 
-
-
-SirfTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
+GadgetronTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
-    if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER)
-        throw std::runtime_error("Please only ask to get the trajectory for acquisition data with an RPE trajectory pre-computed in the acquisitions.");
+    SIRFTrajectoryType2D sirftraj = GRPETrajectoryPrep::get_trajectory(ac);
 
-    if(ac.number() <= 0)
-        throw std::runtime_error("Please pass a non-empty container.");
-
-    ISMRMRD::Acquisition acq;
-    ac.get_acquisition(0, acq);
-
-    if( acq.trajectory_dimensions() != 3)
-        throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
-
-    std::vector<size_t> kspace_dims;
-    ac.get_acquisition_dimensions(kspace_dims);
-
-    SirfTrajectoryType2D traj(ac.number());
+    GadgetronTrajectoryType2D traj(sirftraj.size());
     traj.fill(Gadgetron::floatd2(0.f, 0.f));
 
-    for(int ia=0; ia<ac.number(); ++ia)
+    for(int ik=0; ik<traj.get_number_of_elements(); ++ik)
     {
-        ac.get_acquisition(ia, acq);
-
-        traj.at(ia)[0] = acq.traj(1, 0);
-        traj.at(ia)[1] = acq.traj(2, 0);
+        traj.at(ik)[0] = sirftraj[ik].first;
+        traj.at(ik)[1] = sirftraj[ik].second;
     }
 
     return traj;
@@ -332,7 +354,7 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     EncodingSpace rec_space = e.reconSpace;
     std::vector < size_t > img_slice_dims{rec_space.matrixSize.y, rec_space.matrixSize.z};
 
-    SirfTrajectoryType2D traj = this->get_trajectory(ac);
+    GadgetronTrajectoryType2D traj = this->get_trajectory(ac);
 
     Gridder_2D nufft(img_slice_dims, traj);
 
@@ -386,7 +408,7 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
     for(int i=0; i<ptr_img->getNumberOfDataElements();++i)
         *(img_data.begin()+i) = *(ptr_img->getDataPtr()+i);
 
-    SirfTrajectoryType2D traj = this->get_trajectory(ac);
+    GadgetronTrajectoryType2D traj = this->get_trajectory(ac);
     size_t const num_kdata_pts = traj.get_number_of_elements();
 
     std::vector < size_t > img_slice_dims{img_dims[1], img_dims[2]};
@@ -440,7 +462,7 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
 
 
 
-void Gridder_2D::setup_nufft(std::vector<size_t> img_dims_output, const SirfTrajectoryType2D &traj)
+void Gridder_2D::setup_nufft(std::vector<size_t> img_dims_output, const GadgetronTrajectoryType2D &traj)
 {
     if( img_dims_output.size() != 2)
         throw LocalisedException("The image dimensions of the output should be of size 2." , __FILE__, __LINE__);

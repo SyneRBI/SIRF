@@ -83,7 +83,7 @@ protected:
 
 */
 
-
+typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
 
 class GRPETrajectoryPrep : public aTrajectoryPreparation {
 
@@ -94,6 +94,9 @@ public:
     }
 
     virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq);
+    static SIRFTrajectoryType2D get_trajectory(const sirf::MRAcquisitionData& mr_acq);
+    static void set_2D_density_weights(sirf::MRAcquisitionData& mr_acq);
+
 
 protected:
     virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq);
@@ -135,7 +138,7 @@ public:
 
 };
 
-typedef Gadgetron::hoNDArray<Gadgetron::floatd2> SirfTrajectoryType2D;
+typedef Gadgetron::hoNDArray<Gadgetron::floatd2> GadgetronTrajectoryType2D;
 
 /*!
 \ingroup CartesianFourierEncoding
@@ -149,8 +152,8 @@ public:
 
     virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img);
     virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac);
-
-    SirfTrajectoryType2D get_trajectory(const MRAcquisitionData& ac) const;
+protected:
+    GadgetronTrajectoryType2D get_trajectory(const MRAcquisitionData& ac) const;
 
 };
 
@@ -163,13 +166,13 @@ class Gridder_2D
 
 public:
 
-    Gridder_2D(std::vector<size_t> img_dims_output, const SirfTrajectoryType2D &traj) : nufft_operator_(from_std_vector<size_t, 2>(img_dims_output), (float)this->oversampling_factor_, (float)this->kernel_size_)
+    Gridder_2D(std::vector<size_t> img_dims_output, const GadgetronTrajectoryType2D &traj) : nufft_operator_(from_std_vector<size_t, 2>(img_dims_output), (float)this->oversampling_factor_, (float)this->kernel_size_)
 
     {
         setup_nufft(img_dims_output, traj);
     }
 
-    void setup_nufft(std::vector<size_t> img_dims_output, const SirfTrajectoryType2D &traj);
+    void setup_nufft(std::vector<size_t> img_dims_output, const GadgetronTrajectoryType2D &traj);
 
 
     void fft(CFGThoNDArr& kdata, const CFGThoNDArr& img);
