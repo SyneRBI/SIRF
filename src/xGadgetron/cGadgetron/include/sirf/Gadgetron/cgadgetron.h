@@ -72,6 +72,7 @@ extern "C" {
 	void* cGT_sortAcquisitionsByTime(void* ptr_acqs);
 	void* cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info);
     void* cGT_setGRPETrajecotry(void* ptr_acqs);
+    void* cGT_getGRPETrajecotry(void* ptr_acqs, PTR_FLOAT ptr_traj);
 
 	void* cGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);
 	void* cGT_fillAcquisitionData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);

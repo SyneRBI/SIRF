@@ -740,11 +740,28 @@ cGT_setGRPETrajecotry(void* ptr_acqs)
         GRPETrajectoryPrep rpe_prep;
         rpe_prep.set_trajectory(acqs);
 
-
         return new DataHandle;
     }
     CATCH;
 
+}
+
+extern "C"
+void*
+cGT_getGRPETrajecotry(void* ptr_acqs, size_t ptr_traj)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* fltptr_traj = (float*) ptr_traj;
+        const SIRFTrajectoryType2D& traj = GRPETrajectoryPrep::get_trajectory(acqs);
+        memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(std::pair<float, float>));
+
+        return new DataHandle;
+    }
+    CATCH;
 }
 
 extern "C"

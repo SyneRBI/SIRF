@@ -1420,4 +1420,15 @@ def set_grpe_trajectory(mr_rawdata):
     try_calling(pygadgetron.cGT_setGRPETrajecotry(mr_rawdata.handle))
     return mr_rawdata
     
+def get_grpe_trajectory(mr_rawdata):    
+    '''
+    Function that gets the trajectory of AcquisitionData.
+    '''    
+    assert isinstance(mr_rawdata, AcquisitionData)
+
+    dims = (mr_rawdata.number(), 2)
+    traj = numpy.ndarray(dims, dtype = numpy.float32)
     
+    try_calling(pygadgetron.cGT_getGRPETrajecotry(mr_rawdata.handle, traj.ctypes.data))
+    
+    return traj

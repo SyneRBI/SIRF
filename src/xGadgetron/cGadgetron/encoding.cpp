@@ -73,9 +73,9 @@ SIRFTrajectoryType2D sirf::GRPETrajectoryPrep::get_trajectory(const sirf::MRAcqu
 
     for(int ia=0; ia<ac.number(); ++ia)
     {
-        std::pair<float, float> curr_point;
         ac.get_acquisition(ia, acq);
 
+        std::pair<float, float> curr_point;
         curr_point.first = acq.traj(1, 0);
         curr_point.second = acq.traj(2, 0);
 
