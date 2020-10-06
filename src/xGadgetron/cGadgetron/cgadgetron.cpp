@@ -765,6 +765,22 @@ cGT_getGRPETrajecotry(void* ptr_acqs, size_t ptr_traj)
 }
 
 extern "C"
+void* cGT_setAcquisitionUserFloat(void* ptr_acqs, size_t ptr_floats, int idx)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* user_data = (float*) ptr_floats;
+        acqs.set_user_floats(user_data, idx);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
 void*
 cGT_imageParameter(void* ptr_im, const char* name)
 {

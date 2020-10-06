@@ -240,6 +240,8 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
 		virtual void get_data(complex_float_t* z, int all = 1);
 
+        virtual void set_user_floats(float const * const z, int const idx);
+
 		// acquisition data algebra
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(

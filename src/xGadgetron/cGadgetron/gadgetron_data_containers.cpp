@@ -285,6 +285,24 @@ MRAcquisitionData::get_data(complex_float_t* z, int a)
 	}
 }
 
+void
+MRAcquisitionData::set_user_floats(float const * const z, int const idx)
+{
+
+    if(idx >= ISMRMRD::ISMRMRD_USER_FLOATS)
+        throw LocalisedException("You try to set the user floats of an index higher than available in the memory of ISMRMRDAcquisition. Pass a smaller idx." , __FILE__, __LINE__);
+
+    ISMRMRD::Acquisition acq;
+    for(int ia=0;ia<this->number();ia++)
+    {
+        this->get_acquisition(ia, acq);
+        acq.user_float()[idx] = *(z+ia);
+        this->set_acquisition(ia,acq);
+    }
+}
+
+
+
 void 
 MRAcquisitionData::axpby
 (complex_float_t a, const ISMRMRD::Acquisition& acq_x,

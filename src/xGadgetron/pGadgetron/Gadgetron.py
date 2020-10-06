@@ -832,6 +832,12 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         try_calling( pygadgetron.cGT_appendAcquisition(self.handle, acq.handle))
+    
+    def set_user_floats(self, data, idx):
+        assert self.handle is not None
+        assert data.size == self.number(), "Please give as many datapoints as there are acquisitions"
+        try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
+                    (self.handle, data.ctypes.data, idx))
 
     def dimensions(self):
         '''
@@ -1432,3 +1438,12 @@ def get_grpe_trajectory(mr_rawdata):
     try_calling(pygadgetron.cGT_getGRPETrajecotry(mr_rawdata.handle, traj.ctypes.data))
     
     return traj
+
+def set_densitycompensation_as_userfloat(mr_rawdata, dcf):
+    '''
+    Function that gets the trajectory of AcquisitionData.
+    '''    
+   
+    assert isinstance(mr_rawdata, AcquisitionData)
+    user_idx = 0
+    mr_rawdata.set_user_floats(mr_rawdata, dcf, user_idx)
