@@ -1446,4 +1446,5 @@ def set_densitycompensation_as_userfloat(mr_rawdata, dcf):
    
     assert isinstance(mr_rawdata, AcquisitionData)
     user_idx = 0
-    mr_rawdata.set_user_floats(mr_rawdata, dcf, user_idx)
+    mr_rawdata.set_user_floats(dcf, user_idx)
+    return mr_rawdata
