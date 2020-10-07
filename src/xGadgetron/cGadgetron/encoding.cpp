@@ -84,12 +84,6 @@ SIRFTrajectoryType2D sirf::GRPETrajectoryPrep::get_trajectory(const sirf::MRAcqu
 
     return traj;
 }
-void sirf::GRPETrajectoryPrep::set_2D_density_weights(sirf::MRAcquisitionData& mr_acq)
-{
-
-}
-
-
 
 void sirf::GRPETrajectoryPrep::set_acquisition_trajectory(Acquisition& acq)
 {
@@ -108,7 +102,7 @@ std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& a
 
     const ISMRMRD::EncodingCounters idx = acq.idx();
 
-    float const pe_angle = SIRF_GOLDEN_ANGLE * (idx.kspace_encode_step_2 + 1);
+    float const pe_angle = SIRF_GOLDEN_ANGLE * (idx.kspace_encode_step_2 - 1);
 
     size_t const num_diff_shifts = this->rad_shift_.size();
     float rad_shift = float( this->rad_shift_.at(this->circ_mod(idx.kspace_encode_step_2 - ang_lims.center,num_diff_shifts))) / float(num_diff_shifts);

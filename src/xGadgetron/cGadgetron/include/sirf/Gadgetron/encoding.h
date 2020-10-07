@@ -95,8 +95,6 @@ public:
 
     virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq);
     static SIRFTrajectoryType2D get_trajectory(const sirf::MRAcquisitionData& mr_acq);
-    static void set_2D_density_weights(sirf::MRAcquisitionData& mr_acq);
-
 
 protected:
     virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq);
