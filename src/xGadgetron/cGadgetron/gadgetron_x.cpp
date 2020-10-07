@@ -434,6 +434,7 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	}
 
     cc.backward(ic, iv);
+    ic.set_up_geom_info();
 }
 
 /*
