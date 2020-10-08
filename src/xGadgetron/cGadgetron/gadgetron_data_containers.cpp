@@ -1825,7 +1825,7 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(const KSpaceSorting::TagType
     throw LocalisedException("No coilmap with this tag was in the coilsensitivity container.",   __FILE__, __LINE__);
 }
 
-void CoilSensitivitiesVector::forward(GadgetronImageData& img, GadgetronImageData& combined_img)
+void CoilSensitivitiesVector::forward(GadgetronImageData& img, GadgetronImageData& combined_img)const
 {
     if(combined_img.items() != this->items() )
         throw LocalisedException("The number of coilmaps does not equal the number of images to which they should be applied to.",   __FILE__, __LINE__);
@@ -1870,7 +1870,7 @@ void CoilSensitivitiesVector::forward(GadgetronImageData& img, GadgetronImageDat
         img.append(iw_dst);
     }
 }
-void CoilSensitivitiesVector::backward(GadgetronImageData& combined_img, GadgetronImageData& img)
+void CoilSensitivitiesVector::backward(GadgetronImageData& combined_img, GadgetronImageData& img)const
 {
 
     if(img.items() != this->items() )

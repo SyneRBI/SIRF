@@ -410,13 +410,13 @@ namespace sirf {
 
 		// Backprojects a set of readouts corresponding to one image item
 		// (typically xy-slice).
-        void bwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
-			unsigned int& off)
-		{
-			int type = iw.type();
-			void* ptr = iw.ptr_image();
-			IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, csm, ac, off);
-		}
+//        void bwd(ImageWrap& iw, CFImage& csm, const MRAcquisitionData& ac,
+//			unsigned int& off)
+//		{
+//			int type = iw.type();
+//			void* ptr = iw.ptr_image();
+//			IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, csm, ac, off);
+//		}
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
@@ -425,8 +425,8 @@ namespace sirf {
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps in the second argument.
-        void bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
-			MRAcquisitionData& ac);
+        void bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& cc,
+            const MRAcquisitionData& ac);
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps referred to by sptr_csms_.
@@ -452,7 +452,7 @@ namespace sirf {
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps referred to by sptr_csms_.
-		gadgetron::shared_ptr<GadgetronImageData> bwd(MRAcquisitionData& ac)
+        gadgetron::shared_ptr<GadgetronImageData> bwd(const MRAcquisitionData& ac)
 		{
 			if (!sptr_imgs_.get())
 				throw LocalisedException
@@ -476,9 +476,9 @@ namespace sirf {
 		template< typename T>
         void fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
 			MRAcquisitionData& ac, unsigned int& off);
-		template< typename T>
-        void bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
-			MRAcquisitionData& ac, unsigned int& off);
+//		template< typename T>
+//        void bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
+//			MRAcquisitionData& ac, unsigned int& off);
 	};
 
 }

@@ -1006,8 +1006,8 @@ namespace sirf {
 
         }
 
-        void forward(GadgetronImageData& img, GadgetronImageData& combined_img);
-        void backward(GadgetronImageData& combined_img, GadgetronImageData& img);
+        void forward(GadgetronImageData& img, GadgetronImageData& combined_img)const;
+        void backward(GadgetronImageData& combined_img, GadgetronImageData& img)const;
 
     protected:
 

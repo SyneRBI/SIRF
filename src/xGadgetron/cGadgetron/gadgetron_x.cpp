@@ -401,8 +401,8 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 }
 
 void 
-MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
-	MRAcquisitionData& ac)
+MRAcquisitionModel::bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& cc,
+    const MRAcquisitionData& ac)
 {
     if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
@@ -415,7 +415,7 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
     iv.set_meta_data(ac.acquisitions_info());
 
 
-    ac.sort();
+//    ac.sort();
     auto sort_idx = ac.get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
@@ -558,11 +558,11 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
 
 }
 
-template< typename T>
-void 
-MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
-	MRAcquisitionData& ac, unsigned int& off)
-{
+//template< typename T>
+//void
+//MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
+//    const MRAcquisitionData& ac, unsigned int& off)
+//{
 //	ISMRMRD::Image<T>& im = *ptr_im;
 
 //	std::string par;
@@ -673,5 +673,5 @@ MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
 //		}
 //	}
 
-}
+//}
 
