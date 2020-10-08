@@ -28,6 +28,7 @@ def test_main(rec=False, verb=False, throw=True):
     test.verbose = verb
 
     data_path = examples_data_path('MR')
+    AcquisitionData.set_storage_scheme('memory')
     input_data = AcquisitionData(
             data_path + '/simulated_MR_2D_cartesian_Grappa2.h5')
     test.check(input_data.norm())
