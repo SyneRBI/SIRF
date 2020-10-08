@@ -67,7 +67,7 @@ SIRFTrajectoryType2D sirf::GRPETrajectoryPrep::get_trajectory(const sirf::MRAcqu
         throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
 
     std::vector<size_t> kspace_dims;
-    ac.get_acquisition_dimensions(kspace_dims);
+    ac.get_kspace_dimensions(kspace_dims);
 
     SIRFTrajectoryType2D traj;
 
@@ -326,7 +326,7 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
     ISMRMRD::Encoding e = hdr.encoding[0];
 
     std::vector<size_t> kspace_dims;
-    ac.get_acquisition_dimensions(kspace_dims);
+    ac.get_kspace_dimensions(kspace_dims);
 
     std::vector<size_t> const kdata_dims{kspace_dims[0], ac.number(), kspace_dims[3]};
 

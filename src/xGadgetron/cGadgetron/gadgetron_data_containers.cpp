@@ -217,7 +217,7 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 	return nrd;
 }
 
-void MRAcquisitionData::get_acquisition_dimensions(std::vector<size_t>& dims) const
+void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
 {
     int na = number();
     ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
