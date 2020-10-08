@@ -571,69 +571,73 @@ MRAcquisitionData::clone_base() const
 void
 MRAcquisitionData::sort()
 {
-	const int NUMVAL = 6;
-	typedef std::array<int, NUMVAL> tuple;
-	int na = number();
-	if (na < 1) {
-		index_.resize(0);
-		return;
-	}
+//	const int NUMVAL = 6;
+//	typedef std::array<int, NUMVAL> tuple;
+//	int na = number();
+//	if (na < 1) {
+//		index_.resize(0);
+//		return;
+//	}
 
-	int last = -1;
-	tuple t;
-	tuple tmax;
-	for (int i = 0; i < NUMVAL; i++)
-		tmax[i] = 0;
-	for (int a = 0; a < na; a++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(a, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
-			last = a;
-		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().phase;
-		t[2] = acq.idx().contrast;
-		t[3] = acq.idx().slice;
-		t[4] = acq.idx().kspace_encode_step_2;
-		t[5] = acq.idx().kspace_encode_step_1;
-		for (int i = 0; i < NUMVAL; i++)
-			if (t[i] > tmax[i])
-				tmax[i] = t[i];
-	}
-
+//	int last = -1;
+//	tuple t;
+//	tuple tmax;
 //	for (int i = 0; i < NUMVAL; i++)
-//		std::cout << tmax[i] << ' ';
-//	std::cout << '\n';
+//		tmax[i] = 0;
+//	for (int a = 0; a < na; a++) {
+//		ISMRMRD::Acquisition acq;
+//		get_acquisition(a, acq);
+//		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
+//			last = a;
+//		t[0] = acq.idx().repetition;
+//		t[1] = acq.idx().phase;
+//		t[2] = acq.idx().contrast;
+//		t[3] = acq.idx().slice;
+//		t[4] = acq.idx().kspace_encode_step_2;
+//		t[5] = acq.idx().kspace_encode_step_1;
+//		for (int i = 0; i < NUMVAL; i++)
+//			if (t[i] > tmax[i])
+//				tmax[i] = t[i];
+//	}
 
-	typedef std::vector<int> tuple_to_sort;
-	tuple_to_sort tsind;
-	std::vector<tuple_to_sort> vt;
-	for (int i = 0; i < NUMVAL; i++)
-		if (tmax[i] > 0)
-			tsind.push_back(i);
-//	for (int i = 0; i < tsind.size(); i++)
-//		std::cout << tsind[i] << ' ';
-//	std::cout << '\n';
-	for (int a = 0; a < na; a++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(a, acq);
-		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().phase;
-		t[2] = acq.idx().contrast;
-		t[3] = acq.idx().slice;
-		t[4] = acq.idx().kspace_encode_step_2;
-		t[5] = acq.idx().kspace_encode_step_1;
-		tuple_to_sort tsort;
-		if (TO_BE_IGNORED(acq)) // put first to avoid interference with the rest
-			t[tsind[0]] = -1;
-		for (int i = 0; i < tsind.size(); i++)
-			tsort.push_back(t[tsind[i]]);
-		vt.push_back(tsort);
-	}
-	if (last > -1)
-		vt[last][0] = tmax[tsind[0]];
+////	for (int i = 0; i < NUMVAL; i++)
+////		std::cout << tmax[i] << ' ';
+////	std::cout << '\n';
 
-	index_.resize(na);
-	NewMultisort::sort( vt, &index_[0] );
+//	typedef std::vector<int> tuple_to_sort;
+//	tuple_to_sort tsind;
+//	std::vector<tuple_to_sort> vt;
+//	for (int i = 0; i < NUMVAL; i++)
+//		if (tmax[i] > 0)
+//			tsind.push_back(i);
+////	for (int i = 0; i < tsind.size(); i++)
+////		std::cout << tsind[i] << ' ';
+////	std::cout << '\n';
+//	for (int a = 0; a < na; a++) {
+//		ISMRMRD::Acquisition acq;
+//		get_acquisition(a, acq);
+//		t[0] = acq.idx().repetition;
+//		t[1] = acq.idx().phase;
+//		t[2] = acq.idx().contrast;
+//		t[3] = acq.idx().slice;
+//		t[4] = acq.idx().kspace_encode_step_2;
+//		t[5] = acq.idx().kspace_encode_step_1;
+//		tuple_to_sort tsort;
+//		if (TO_BE_IGNORED(acq)) // put first to avoid interference with the rest
+//			t[tsind[0]] = -1;
+//		for (int i = 0; i < tsind.size(); i++)
+//			tsort.push_back(t[tsind[i]]);
+//		vt.push_back(tsort);
+//	}
+//	if (last > -1)
+//		vt[last][0] = tmax[tsind[0]];
+
+//	index_.resize(na);
+//	NewMultisort::sort( vt, &index_[0] );
+    index_.resize(this->number());
+    for(int j=0; j<index_.size(); ++j)
+        index_[j] = j;
+
     this->organise_kspace();
 	sorted_ = true;
 }
