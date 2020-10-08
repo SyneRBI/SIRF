@@ -523,7 +523,7 @@ cGT_createEmptyAcquisitionData(void* ptr_ad)
 
 extern "C"
 void*
-cGT_getAcquisitionsSubset(void* ptr_acqs, size_t ptr_idx, int const num_elem_subset)
+cGT_getAcquisitionsSubset(void* ptr_acqs, size_t ptr_idx, size_t const num_elem_subset)
 {
     try {
         MRAcquisitionData& ad =
@@ -532,9 +532,9 @@ cGT_getAcquisitionsSubset(void* ptr_acqs, size_t ptr_idx, int const num_elem_sub
 
         int* idx = (int*)ptr_idx;
 
-        std::vector<int> vec_idx;
-        for(int i=0; i<num_elem_subset; ++i)
-            vec_idx.push_back(*(idx+i));
+        std::vector<int> vec_idx(num_elem_subset);
+        for(size_t i=0; i<num_elem_subset; ++i)
+            vec_idx.at(i) = *(idx+i);
 
         ad.get_subset(*sptr_subset.get(), vec_idx);
         sptr_subset->sort();
