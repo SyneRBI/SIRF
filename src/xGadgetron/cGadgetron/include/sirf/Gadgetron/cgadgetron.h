@@ -67,6 +67,8 @@ extern "C" {
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq);
 	void* cGT_createEmptyAcquisitionData(void* ptr_ad);
+    void* cGT_getAcquisitionsSubset(void* ptr_acqs, PTR_INT ptr_idx, int const num_elem_subset);
+
 	void* cGT_cloneAcquisitions(void* ptr_input);
 	void* cGT_sortAcquisitions(void* ptr_acqs);
 	void* cGT_sortAcquisitionsByTime(void* ptr_acqs);

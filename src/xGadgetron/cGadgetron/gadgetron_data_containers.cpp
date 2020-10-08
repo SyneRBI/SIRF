@@ -142,79 +142,29 @@ MRAcquisitionData::undersampled() const
 int 
 MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 {
-	ISMRMRD::Acquisition acq;
-	int* dim = (int*)ptr_dim;
+    int na = number();
+    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
 
-	int na = number();
-	int ms, ns;
-	int mc, nc;
-	int my, ny;
-	int slice = 0;
-	int y = 0;
-	// assume all dimensions (samples, coils [, acqs per slice]) regular
-	int nrd = sorted() ? 3 : 2;
-	// number of regular readouts
-	int nrr = 0;
-	//int not_reg = 0;
-	for (; y < na;) {
-		for (; y < na && sorted();) {
-			get_acquisition(y, acq);
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-				break;
-			y++;
-		}
-		if (y >= na)
-			break;
-		ny = 0;
-		for (; y < na; y++) {
-			get_acquisition(y, acq);
-			if (TO_BE_IGNORED(acq)) // not a regular acquisition
-				continue;
-			ns = acq.number_of_samples();
-			nc = acq.active_channels();
-			nrr += ns*nc;
-			if (slice == 0) {
-				ms = ns;
-				mc = nc;
-			}
-			else {
-				if (ms != ns)
-					nrd = 0;
-				else if (mc != nc && nrd > 1)
-					nrd = 1;
-			}
-			ny++;
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) && sorted())
-				break;
-		}
-		if (slice == 0) {
-			my = ny;
-		}
-		else {
-			if (my != ny && nrd > 2) {
-				nrd = 2;
-			}
-			//if (my != ny)
-			//	not_reg = 1;
-		}
-		slice++;
-	}
+    int* dim = (int*)ptr_dim;
+    ISMRMRD::Acquisition acq;
+    get_acquisition(0, acq);
 
-	int reg_size = 1;
-	if (nrd > 0) {
-		dim[0] = ms;
-		reg_size *= ms;
-	}
-	if (nrd > 1) {
-		dim[1] = mc;
-		reg_size *= mc;
-	}
-	if (nrd > 2) {
-		dim[2] = my;
-		reg_size *= my;
-	}
-	dim[nrd] = nrr / reg_size;
-	return nrd;
+    int ns = acq.number_of_samples();
+    int nc = acq.active_channels();
+
+    for(int i=1; i<na; ++i)
+    {
+        get_acquisition(i, acq);
+        ASSERT(acq.number_of_samples() == ns, "One of your acquisitions has a different number of samples. Please make sure the dimensions are consistent.");
+        ASSERT(acq.active_channels() == nc, "One of your acquisitions has a different number of active channels. Please make sure the dimensions are consistent.");
+    }
+
+    int const num_dims = 3;
+    dim[0] = ns;
+    dim[1] = na;
+    dim[2] = nc;
+
+    return num_dims;
 }
 
 void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const

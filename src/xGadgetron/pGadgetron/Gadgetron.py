@@ -833,6 +833,17 @@ class AcquisitionData(DataContainer):
         assert self.handle is not None
         try_calling( pygadgetron.cGT_appendAcquisition(self.handle, acq.handle))
     
+    def get_subset(self, idx):
+        '''
+        Returns AcquisitionData object with subset of acquisitions defined by idx
+        '''
+        assert self.handle is not None
+        subset = AcquisitionData()
+        subset.handle = pygadgetron.cGT_getAcquisitionsSubset(self.handle, idx.astype(numpy.intc).ctypes.data, idx.size)
+        check_status(subset.handle)
+        
+        return subset    
+    
     def set_user_floats(self, data, idx):
         assert self.handle is not None
         assert data.size == self.number(), "Please give as many datapoints as there are acquisitions"
