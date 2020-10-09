@@ -584,12 +584,14 @@ MRAcquisitionData::sort()
 
 //	index_.resize(na);
 //	NewMultisort::sort( vt, &index_[0] );
-    index_.resize(this->number());
-    for(int j=0; j<index_.size(); ++j)
-        index_[j] = j;
+//    index_.resize(this->number());
+//    for(int j=0; j<index_.size(); ++j)
+//        index_[j] = j;
 
-    this->organise_kspace();
-	sorted_ = true;
+//    this->organise_kspace();
+//	sorted_ = true;
+
+    sort_by_time();
 }
 
 void

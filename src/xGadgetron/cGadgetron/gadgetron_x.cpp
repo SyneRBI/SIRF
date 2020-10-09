@@ -398,6 +398,7 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
         this->sptr_enc_->forward(subset, ptr_img);
         ac.set_subset(subset, idx_set); //assume forward does not reorder the acquisitions
     }
+    ac.sort();
 }
 
 void 
