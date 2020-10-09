@@ -161,8 +161,8 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 
     int const num_dims = 3;
     dim[0] = ns;
-    dim[1] = na;
-    dim[2] = nc;
+    dim[1] = nc;
+    dim[2] = na;
 
     return num_dims;
 }
