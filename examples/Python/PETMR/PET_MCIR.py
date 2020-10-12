@@ -1,4 +1,4 @@
-"""MCIR for PET
+"""MCIR for PET.
 
 Usage:
   PET_MCIR [--help | options]
@@ -31,11 +31,13 @@ Options:
   --descriptive_fname               option to have descriptive filenames
   --update_obj_fn_interval=<int>    frequency to update objective function
                                     [default: 1]
-  --sigma=<val>                     set PDHG sigma [default: 0.001]
-  --tau=<val>                       set PDHG tau (default: 1/(sigma*normK**2)
+  --sigma=<val>                     set PDHG sigma (default: 1/normK)
+  --tau=<val>                       set PDHG tau (default: 1/normK)
                                     Calculating this takes time.
   --alpha=<val>                     regularisation strength (if used)
                                     [default: 0.5]
+  --gamma=<val>                     Ratio between the norm of the Acquisition Model and Regularisation.
+                                    if specified prevails on alpha
   --reg_iters=<val>                 Number of iterations for the regularisation
                                     subproblem [default: 100]
   --normK=<val>                     norm of BlockOperator (K). Normally
@@ -50,6 +52,7 @@ Options:
   --normaliseDataAndBlock           Normalise raw data and block operator by
                                     multiplying by 1./normK.
   --no_log=<str>                    Disable log file.
+  --algorithm=<string>              Which algorithm to run [default: spdhg]
 """
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -70,20 +73,23 @@ Options:
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import os
+from functools import partial
+from os import path
 from glob import glob
 from docopt import docopt
 from sirf.Utilities import error, show_2D_array
 import pylab
 import sirf.Reg as reg
 import sirf.STIR as pet
-from ccpi.optimisation.algorithms import PDHG
-from ccpi.optimisation.functions import KullbackLeibler, BlockFunction
-from ccpi.optimisation.functions import IndicatorBox
-from ccpi.optimisation.operators import CompositionOperator, BlockOperator
+from ccpi.optimisation.algorithms import PDHG, SPDHG
+from ccpi.optimisation.functions import \
+    KullbackLeibler, BlockFunction, IndicatorBox
+from ccpi.optimisation.operators import \
+    CompositionOperator, BlockOperator, LinearOperator
 from ccpi.plugins.regularisers import FGP_TV
 from ccpi.filters import regularisers
 import numpy as np
+from ccpi.utilities import NUM_THREADS
 
 pet.AcquisitionData.set_storage_scheme('memory')
 
@@ -100,6 +106,7 @@ num_iters = int(args['--iter'])
 regularisation = args['--reg']
 trans_type = args['--trans_type']
 
+
 if attn_pattern is None:
     attn_pattern = ""
 if rand_pattern is None:
@@ -108,7 +115,7 @@ if rand_pattern is None:
 # Norm
 norm_file = args['--norm']
 if norm_file:
-    if not os.path.isfile(norm_file):
+    if not path.isfile(norm_file):
         raise error("Norm file not found: " + norm_file)
 
 # Number of voxels
@@ -131,6 +138,8 @@ verbosity = int(args['--verbosity'])
 pet.set_verbosity(verbosity)
 if verbosity == 0:
     msg_red = pet.MessageRedirector(None, None, None)
+# OMP THREADS
+pet.set_max_omp_threads(NUM_THREADS)
 
 # Save interval
 save_interval = int(args['--save_interval'])
@@ -138,11 +147,14 @@ save_interval = min(save_interval, num_iters)
 
 # Convergence variables
 r_alpha = float(args['--alpha'])
+r_iters = float(args['--reg_iters'])
 precond = True if args['--precond'] else False
+# algorithm selection
+algorithm = str(args['--algorithm'])
 
 
 def get_resampler(image, ref=None, trans=None):
-    """returns a NiftyResample object for the specified transform and image"""
+    """Return a NiftyResample object for the specified transform and image."""
     if ref is None:
         ref = image
     resampler = reg.NiftyResample()
@@ -156,7 +168,7 @@ def get_resampler(image, ref=None, trans=None):
 
 
 def get_asm_attn(sino, attn, acq_model):
-    """Get attn ASM from sino, attn image and acq model"""
+    """Get attn ASM from sino, attn image and acq model."""
     asm_attn = pet.AcquisitionSensitivityModel(attn, acq_model)
     # temporary fix pending attenuation offset fix in STIR:
     # converting attenuation into 'bin efficiency'
@@ -167,15 +179,68 @@ def get_asm_attn(sino, attn, acq_model):
     asm_attn = pet.AcquisitionSensitivityModel(bin_eff)
     return asm_attn
 
+class RegulariserWithPreconditioner(object):
+    '''Factory to create the Regulariser with preconditioner'''
+    def get_nonzero_recip(data):
+        """Get the reciprocal of a datacontainer.
+        Voxels where input == 0
+        will have their reciprocal set to 1 (instead of infinity)"""
+        inv_np = data.as_array()
+        inv_np[inv_np == 0] = 1
+        inv_np = 1./inv_np
+        data.fill(inv_np)
 
-def main():
+    @staticmethod
+    def get_instance(r_alpha, r_iterations, r_tolerance, r_iso, r_nonneg, r_printing, device):
+        # r_iterations = float(args['--reg_iters'])
+        # r_tolerance = 1e-7
+        # r_iso = 0
+        # r_nonneg = 1
+        # r_printing = 0
+        
+        tau = K.adjoint(K.range_geometry().allocate(1))
+        get_nonzero_recip(tau)
 
-    ###########################################################################
-    # Parse input files
-    ###########################################################################
+        tmp_sigma = K.direct(K.domain_geometry().allocate(1))
+        sigma = 0.*tmp_sigma
+        get_nonzero_recip(sigma[0])
 
-    if trans_pattern is None:
-        raise AssertionError("--trans missing")
+        def precond_proximal(self, x, tau, out=None):
+            """Modify proximal method to work with preconditioned tau"""
+            pars = {'algorithm': FGP_TV,
+                    'input': np.asarray(x.as_array()/tau.as_array(),
+                                        dtype=np.float32),
+                    'regularization_parameter': self.lambdaReg,
+                    'number_of_iterations': self.iterationsTV,
+                    'tolerance_constant': self.tolerance,
+                    'methodTV': self.methodTV,
+                    'nonneg': self.nonnegativity,
+                    'printingOut': self.printing}
+
+            res, info = \
+                regularisers.FGP_TV(pars['input'],
+                                    pars['regularization_parameter'],
+                                    pars['number_of_iterations'],
+                                    pars['tolerance_constant'],
+                                    pars['methodTV'],
+                                    pars['nonneg'],
+                                    self.device)
+            if out is not None:
+                out.fill(res)
+            else:
+                out = x.copy()
+                out.fill(res)
+            out *= tau
+            return out
+
+        FGP_TV.proximal = precond_proximal
+        return FGP_TV(r_alpha, r_iterations, r_tolerance,
+                   r_iso, r_nonneg, r_printing, device)
+
+
+
+def get_filenames():
+    """Get filenames."""
     if sino_pattern is None:
         raise AssertionError("--sino missing")
     trans_files = sorted(glob(trans_pattern))
@@ -188,7 +253,7 @@ def main():
     if num_ms == 0:
         raise AssertionError("No sinograms found!")
     # Should have as many trans as sinos
-    if num_ms != len(trans_files):
+    if len(trans_files) > 0 and num_ms != len(trans_files):
         raise AssertionError("#trans should match #sinos. "
                              "#sinos = " + str(num_ms) +
                              ", #trans = " + str(len(trans_files)))
@@ -202,24 +267,46 @@ def main():
     if len(attn_files) > 1 and len(attn_files) != num_ms:
         raise AssertionError("#attn should be 0, 1 or #sinos")
 
-    ###########################################################################
-    # Read input
-    ###########################################################################
+    return [num_ms, trans_files, sino_files, attn_files, rand_files]
 
-    if trans_type == "tm":
-        trans = [reg.AffineTransformation(file) for file in trans_files]
-    elif trans_type == "disp":
-        trans = [reg.NiftiImageData3DDisplacement(file)
-                 for file in trans_files]
-    elif trans_type == "def":
-        trans = [reg.NiftiImageData3DDeformation(file) for file in trans_files]
+
+def read_files(trans_files, sino_files, attn_files, rand_files):
+    """Read files."""
+    if not trans_files:
+        trans = None
     else:
-        raise error("Unknown transformation type")
+        if trans_type == "tm":
+            trans = [reg.AffineTransformation(file) for file in trans_files]
+        elif trans_type == "disp":
+            trans = [reg.NiftiImageData3DDisplacement(file)
+                     for file in trans_files]
+        elif trans_type == "def":
+            trans = [reg.NiftiImageData3DDeformation(file)
+                     for file in trans_files]
+        else:
+            raise error("Unknown transformation type")
 
     sinos_raw = [pet.AcquisitionData(file) for file in sino_files]
     attns = [pet.ImageData(file) for file in attn_files]
-    rands = [pet.AcquisitionData(file) for file in rand_files]
+    
+    # fix a problem with the header which doesn't allow
+    # to do algebra with randoms and sinogram
+    rands_arr = [pet.AcquisitionData(file).as_array() for file in rand_files]
+    rands_raw = [ s * 0 for s in sinos_raw ]
+    for r,a in zip(rands_raw, rands_arr):
+        r.fill(a)
+    
 
+    return [trans, sinos_raw, attns, rands_raw]
+
+
+def pre_process_sinos(sinos_raw, num_ms):
+    """Preprocess raw sinograms.
+
+    Make positive if necessary and do any required rebinning."""
+    # If empty (e.g., no randoms), return
+    if not sinos_raw:
+        return sinos_raw
     # Loop over all sinograms
     sinos = [0]*num_ms
     for ind in range(num_ms):
@@ -247,10 +334,11 @@ def main():
             if ind == 0:
                 print(f"Rebinned sino dimensions: {sinos[ind].dimensions()}")
 
-    ###########################################################################
-    # Initialise recon image
-    ###########################################################################
+    return sinos
 
+
+def get_initial_estimate(sinos):
+    """Get initial estimate."""
     if initial_estimate:
         image = pet.ImageData(initial_estimate)
     else:
@@ -270,37 +358,35 @@ def main():
                              vsize=spacing)
             image.fill(0.0)
 
-    ###########################################################################
-    # Set up resamplers
-    ###########################################################################
+    return image
 
-    resamplers = [get_resampler(image, trans=tran) for tran in trans]
 
-    ###########################################################################
-    # Resample attenuation images (if necessary)
-    ###########################################################################
-
+def resample_attn_images(num_ms, attns, trans):
+    """Resample attenuation images if necessary."""
     resampled_attns = None
-    if len(attns) > 0:
-        resampled_attns = [0]*num_ms
-        # if using GPU, dimensions of attn and recon images have to match
-        ref = image if use_gpu else None
-        for i in range(len(attns)):
-            # if we only have 1 attn image, then we need to resample into
-            # space of each gate. However, if we have num_ms attn images, then
-            # assume they are already in the correct position, so use None as
-            # transformation.
-            tran = trans[i] if len(attns) == 1 else None
-            # If only 1 attn image, then resample that. If we have num_ms attn
-            # images, then use each attn image of each frame.
-            attn = attns[0] if len(attns) == 1 else attns[i]
-            resam = get_resampler(attn, ref=ref, trans=tran)
-            resampled_attns[i] = resam.forward(attn)
+    if trans is None:
+        resampled_attns = attns
+    else:
+        if len(attns) > 0:
+            resampled_attns = [0]*num_ms
+            # if using GPU, dimensions of attn and recon images have to match
+            ref = image if use_gpu else None
+            for i in range(num_ms):
+                # if we only have 1 attn image, then we need to resample into
+                # space of each gate. However, if we have num_ms attn images,
+                # then assume they are already in the correct position, so use
+                # None as transformation.
+                tran = trans[i] if len(attns) == 1 else None
+                # If only 1 attn image, then resample that. If we have num_ms
+                # attn images, then use each attn image of each frame.
+                attn = attns[0] if len(attns) == 1 else attns[i]
+                resam = get_resampler(attn, ref=ref, trans=tran)
+                resampled_attns[i] = resam.forward(attn)
+    return resampled_attns
 
-    ###########################################################################
-    # Set up acquisition models
-    ###########################################################################
 
+def set_up_acq_models(num_ms, sinos, rands, resampled_attns, image):
+    """Set up acquisition models."""
     print("Setting up acquisition models...")
     if not use_gpu:
         acq_models = num_ms * [pet.AcquisitionModelUsingRayTracingMatrix()]
@@ -320,8 +406,10 @@ def main():
         # Create attn ASM if necessary
         asm_attn = None
         if resampled_attns:
-            asm_attn = get_asm_attn(sinos[ind], resampled_attns[i],
-                                    acq_models[ind])
+            s = sinos[ind]
+            ra = resampled_attns[ind]
+            am = acq_models[ind]
+            asm_attn = get_asm_attn(s,ra,am)
 
         # Get ASM dependent on attn and/or norm
         asm = None
@@ -345,48 +433,164 @@ def main():
 
         # Set up
         acq_models[ind].set_up(sinos[ind], image)
+    return acq_models
 
-    ###########################################################################
-    # Set up reconstructor
-    ###########################################################################
 
-    print("Setting up reconstructor...")
-
-    # Create composition operators containing acquisition models and resamplers
-    C = [CompositionOperator(am, res, preallocate=True)
-         for am, res in zip(*(acq_models, resamplers))]
-
-    # Configure the PDHG algorithm
-    if args['--normK'] and not args['--onlyNormK']:
-        normK = float(args['--normK'])
+def create_kls(sinos, etas, scale_factor=None):
+    """Create list of KullbackLeiblers from list of sinos and etas."""
+    if scale_factor:
+        scaled_sinos = [sino.clone()*scale_factor for sino in sinos]
+        scaled_etas = [eta.clone()*scale_factor for eta in etas]
     else:
-        kl = [KullbackLeibler(b=sino, eta=(sino * 0 + 1e-5)) for sino in sinos]
-        f = BlockFunction(*kl)
-        K = BlockOperator(*C)
-        # Calculate normK
-        print("Calculating norm of the block operator...")
-        normK = K.norm(iterations=10)
-        print("Norm of the BlockOperator ", normK)
-        if args['--onlyNormK']:
-            exit(0)
+        scaled_sinos = sinos
+        scaled_etas = etas
+    kl = [KullbackLeibler(b=sino, eta=eta)
+          for sino, eta in zip(sinos, etas)]
+    return kl
+
+# this from ccpi Operator.py
+def PowerMethod(operator, iterations, x_init=None):
+    '''Power method to calculate iteratively the Lipschitz constant
+    
+    :param operator: input operator
+    :type operator: :code:`LinearOperator`
+    :param iterations: number of iterations to run
+    :type iteration: int
+    :param x_init: starting point for the iteration in the operator domain
+    :returns: tuple with: L, list of L at each iteration, the data the iteration worked on.
+    '''
+    
+    # Initialise random
+    if x_init is None:
+        x0 = operator.domain_geometry().allocate('random')
+    else:
+        x0 = x_init.copy()
+        
+    x1 = operator.domain_geometry().allocate()
+    y_tmp = operator.range_geometry().allocate()
+    s = []
+    # Loop
+    i = 0
+    while i < iterations:
+        operator.direct(x0,out=y_tmp)
+        operator.adjoint(y_tmp,out=x1)
+        x1norm = x1.norm()
+        if hasattr(x0, 'squared_norm'):
+            s.append( x1.dot(x0) / x0.squared_norm() )
+        else:
+            x0norm = x0.norm()
+            s.append( x1.dot(x0) / (x0norm * x0norm) ) 
+        x1.multiply((1.0/x1norm), out=x0)
+        print ("current norm: {}".format(s[-1]))
+        i += 1
+        if i == iterations:
+            cont=input("Continue with {} iterations?[y/n]".format(iterations))
+            if cont == 'y':
+                i = 0
+    return np.sqrt(s[-1]), [np.sqrt(si) for si in s], x0
+
+def norm(self, **kwargs):
+    """Norm implementation."""
+    iterations = kwargs.get("iterations", 10)
+    return LinearOperator.PowerMethod(self, iterations)[0]
+
+
+def set_up_reconstructor(acq_models, resamplers, algorithm, sinos, rands=None):
+    """Set up reconstructor."""
+    # Create composition operators containing linear
+    # acquisition models and resamplers
+    if resamplers is None:
+        C = [am.get_linear_acquisition_model() for am in acq_models]
+        # Need an implementation of the norm
+        # setattr(pet.AcquisitionModel, 'norm', norm)
+    else:
+        C = [CompositionOperator(
+            am.get_linear_acquisition_model(), res, preallocate=True)
+                for am, res in zip(*(acq_models, resamplers))]
+
+    # We'll need an additive term (eta). If randoms are present, use them
+    # Else, use a scaled down version of the sinogram
+    etas = rands if rands else [sino * 0 + 1e-5 for sino in sinos]
+
+    # NormK only needed for PDHG, not SPDHG
+    if algorithm == 'pdhg':
+        # Configure the PDHG algorithm
+        if args['--normK'] and not args['--onlyNormK']:
+            normK = float(args['--normK'])
+        else:
+            kl = create_kls(sinos, etas)
+            f = BlockFunction(*kl)
+            K = BlockOperator(*C)
+            # Calculate normK
+            print("Calculating norm of the block operator...")
+            # normK = K.norm(iterations=10)
+            normK = PowerMethod(K, 5)
+            print("Norm of the BlockOperator ", normK)
+            if args['--onlyNormK']:
+                exit(0)
+    else:
+        normK = None
 
     # Optionally rescale sinograms and BlockOperator using normK
-    scale_factor = 1./normK if args['--normaliseDataAndBlock'] else 1.0
-    kl = [KullbackLeibler(b=sino*scale_factor, eta=(sino * 0 + 1e-5))
-          for sino in sinos]
+    scale_factor = 1./normK if args['--normaliseDataAndBlock'] else None
+    kl = create_kls(sinos, etas, scale_factor)
     f = BlockFunction(*kl)
-    K = BlockOperator(*C)*scale_factor
+    K = BlockOperator(*C)
+    if scale_factor:
+        K *= scale_factor
 
-    # If preconditioned
+    return [f, K, normK]
+
+
+def get_nonzero_recip(data):
+    """Get the reciprocal of a datacontainer.
+
+    Voxels where input == 0
+    will have their reciprocal set to 1 (instead of infinity)
+    """
+    inv_np = data.as_array()
+    inv_np[inv_np == 0] = 1
+    inv_np = 1./inv_np
+    data.fill(inv_np)
+
+
+def precond_proximal(self, x, tau, out=None):
+    """Modify proximal method to work with preconditioned tau."""
+    pars = {'algorithm': FGP_TV,
+            'input': np.asarray(x.as_array()/tau.as_array(),
+                                dtype=np.float32),
+            'regularization_parameter': self.lambdaReg,
+            'number_of_iterations': self.iterationsTV,
+            'tolerance_constant': self.tolerance,
+            'methodTV': self.methodTV,
+            'nonneg': self.nonnegativity,
+            'printingOut': self.printing}
+
+    res, info = \
+        regularisers.FGP_TV(pars['input'],
+                            pars['regularization_parameter'],
+                            pars['number_of_iterations'],
+                            pars['tolerance_constant'],
+                            pars['methodTV'],
+                            pars['nonneg'],
+                            self.device)
+    if out is not None:
+        out.fill(res)
+    else:
+        out = x.copy()
+        out.fill(res)
+    out *= tau
+    return out
+
+
+def get_tau_sigma(normK):
+    """Get tau and sigma.
+
+    If normK is None (because not required, then return
+    sigma and tau as None, too."""
+    if not normK:
+        return [None, None]
     if precond:
-
-        def get_nonzero_recip(data):
-            """Get the reciprocal of a datacontainer. Voxels where input == 0
-            will have their reciprocal set to 1 (instead of infinity)"""
-            inv_np = data.as_array()
-            inv_np[inv_np == 0] = 1
-            inv_np = 1./inv_np
-            data.fill(inv_np)
 
         tau = K.adjoint(K.range_geometry().allocate(1))
         get_nonzero_recip(tau)
@@ -395,147 +599,245 @@ def main():
         sigma = 0.*tmp_sigma
         get_nonzero_recip(sigma[0])
 
-        def precond_proximal(self, x, tau, out=None):
-            """Modify proximal method to work with preconditioned tau"""
-            pars = {'algorithm': FGP_TV,
-                    'input': np.asarray(x.as_array()/tau.as_array(),
-                                        dtype=np.float32),
-                    'regularization_parameter': self.lambdaReg,
-                    'number_of_iterations': self.iterationsTV,
-                    'tolerance_constant': self.tolerance,
-                    'methodTV': self.methodTV,
-                    'nonneg': self.nonnegativity,
-                    'printingOut': self.printing}
-
-            res, info = regularisers.FGP_TV(pars['input'],
-                                            pars['regularization_parameter'],
-                                            pars['number_of_iterations'],
-                                            pars['tolerance_constant'],
-                                            pars['methodTV'],
-                                            pars['nonneg'],
-                                            self.device)
-            if out is not None:
-                out.fill(res)
-            else:
-                out = x.copy()
-                out.fill(res)
-            out *= tau
-            return out
-
         FGP_TV.proximal = precond_proximal
         print("Will run proximal with preconditioned tau...")
 
     # If not preconditioned
     else:
-        sigma = float(args['--sigma'])
+        if args['--sigma']:
+            sigma = float(args['--sigma'])
+            tau = sigma/(normK*normK)
+        else:
+            sigma = 1.0/normK
+            tau = 1.0/normK
         # If we need to calculate default tau
         if args['--tau']:
             tau = float(args['--tau'])
-        else:
-            tau = 1/(sigma*normK**2)
+        
+    if sigma * tau > 1/(normK*normK):
+        raise ValueError("sigma * tau > 1/||K||^2")
+    return [tau, sigma]
 
+
+def set_up_regularisation():
+    """Set up regularisation."""
     if regularisation == 'none':
         G = IndicatorBox(lower=0)
     elif regularisation == 'FGP_TV':
-        r_iterations = float(args['--reg_iters'])
+        r_iters = float(args['--reg_iters'])
         r_tolerance = 1e-7
         r_iso = 0
         r_nonneg = 1
         r_printing = 0
         device = 'gpu' if use_gpu else 'cpu'
-        G = FGP_TV(r_alpha, r_iterations, r_tolerance,
+        G = FGP_TV(r_alpha, r_iters, r_tolerance,
                    r_iso, r_nonneg, r_printing, device)
     else:
         raise error("Unknown regularisation")
 
-    if precond:
-        def PDHG_new_update(self):
-            """Modify the PDHG update to allow preconditioning"""
-            # save previous iteration
-            self.x_old.fill(self.x)
-            self.y_old.fill(self.y)
+    return G
 
-            # Gradient ascent for the dual variable
-            self.operator.direct(self.xbar, out=self.y_tmp)
-            self.y_tmp *= self.sigma
-            self.y_tmp += self.y_old
 
-            self.f.proximal_conjugate(self.y_tmp, self.sigma, out=self.y)
+def get_output_filename(attn_files, normK, sigma, tau, sino_files, resamplers):
+    """Get output filename."""
 
-            # Gradient descent for the primal variable
-            self.operator.adjoint(self.y, out=self.x_tmp)
-            self.x_tmp *= -1*self.tau
-            self.x_tmp += self.x_old
-
-            self.g.proximal(self.x_tmp, self.tau, out=self.x)
-
-            # Update
-            self.x.subtract(self.x_old, out=self.xbar)
-            self.xbar *= self.theta
-            self.xbar += self.x
-
-        PDHG.update = PDHG_new_update
-
-    # Get filename
     outp_file = outp_prefix
     if descriptive_fname:
         if len(attn_files) > 0:
             outp_file += "_wAC"
         if norm_file:
             outp_file += "_wNorm"
+        if args['--rand']:
+            outp_file += "_wRands"
         if use_gpu:
             outp_file += "_wGPU"
-        outp_file += "_Reg-" + regularisation
-        if regularisation == 'FGP_TV':
-            outp_file += "-alpha" + str(r_alpha)
-            outp_file += "-riters" + str(r_iterations)
-        if args['--normK']:
-            outp_file += '_userNormK' + str(normK)
-        else:
-            outp_file += '_calcNormK' + str(normK)
         if args['--normaliseDataAndBlock']:
             outp_file += '_wDataScale'
         else:
             outp_file += '_noDataScale'
-        if not precond:
-            outp_file += "_sigma" + str(sigma)
-            outp_file += "_tau" + str(tau)
-        else:
-            outp_file += "_wPrecond"
+        if algorithm == 'pdhg':
+            if args['--normK']:
+                outp_file += '_userNormK' + str(normK)
+            else:
+                outp_file += '_computedNormK' + str(normK)
+            if not precond:
+                outp_file += "_sigma" + str(sigma)
+                outp_file += "_tau" + str(tau)
+            else:
+                outp_file += "_wPrecond"
+        outp_file += "_Reg-" + regularisation
+        if regularisation == 'FGP_TV':
+            outp_file += "-alpha" + str(r_alpha)
+            outp_file += "-riters" + str(r_iters)
+        outp_file += '_' + algorithm
         outp_file += "_nGates" + str(len(sino_files))
         if resamplers is None:
             outp_file += "_noMotion"
+    return outp_file
 
-    pdhg = PDHG(f=f, g=G, operator=K, sigma=sigma, tau=tau,
+
+def get_algo(f, G, K, sigma, tau, outp_file):
+    """Get the reconstruction algorithm."""
+    if algorithm == 'pdhg':
+
+        Algo = partial(PDHG, sigma=sigma, tau=tau)
+
+    elif algorithm == 'spdhg':
+        # let's define the subsets as the motion states
+        num_subsets = len(K)
+        # assign the probabilities implicit form
+        prob = [1/num_subsets]*num_subsets
+        # assign the probabilities explicit form
+        # prob = [(num_subsets-1)*1/(2*num_subsets)] + [1/2]
+        
+        # need to set up sigma outside as AcquisitionModel does not
+        # have the method norm nor a power method.
+        
+        def norm_of_am(operator):
+            return LinearOperator.PowerMethod(operator, iterations=5)[0]
+        # this is implicit form, hence num_subsets = num dual subsets
+        ndual_subsets = num_subsets
+        norms = [norm_of_am(K.get_item(i,0)) for i in range(ndual_subsets)]
+        print ("norms", norms)
+        gamma = 1
+        rho = 0.99
+        sigma = [gamma * rho / ni for ni in norms] 
+
+        # use default value of tau, which is defined in the SPDHG.py
+        tau = min( [ pi / ( si * ni**2 ) for pi, ni, si in zip(prob, norms, sigma)] ) 
+        tau *= (rho / gamma)
+
+        Algo = partial(SPDHG, prob=prob, sigma=sigma, tau=tau)
+
+    else:
+        raise error("Unknown algorithm: " + algorithm)
+
+    algo = Algo(f=f, g=G, operator=K,
                 max_iteration=num_iters,
                 update_objective_interval=update_obj_fn_interval,
-                x_init=image, log_file=outp_file+".log")
+                log_file=outp_file+".log",
+                use_axpby=False)
 
-    def callback_save(iteration, objective_value, solution):
-        """Callback function to save images"""
-        if (iteration+1) % save_interval == 0:
-            out = solution if not nifti else reg.NiftiImageData(solution)
-            out.write(outp_file + "_iters" + str(iteration+1))
+    return algo
 
-    pdhg.run(iterations=num_iters, callback=callback_save,
-             verbose=True, very_verbose=True)
 
+def get_save_callback_function(outp_file):
+    """Get the save callback function."""
+    def save_callback(save_interval, nifti, outp_file,
+                      num_iters, iteration,
+                      last_objective, x):
+        """Save callback function."""
+        completed_iterations = iteration + 1
+        if completed_iterations % save_interval == 0 or \
+                completed_iterations == num_iters:
+            if not nifti:
+                x.write("{}_iters_{}".format(outp_file, completed_iterations))
+            else:
+                reg.NiftiImageData(x).write(
+                    "{}_iters_{}".format(outp_file, completed_iterations))
+
+    psave_callback = partial(
+        save_callback, save_interval, nifti, outp_file, num_iters)
+    return psave_callback
+
+
+def display_results(out_arr, slice_num=None):
+    """Display results if desired."""
     if visualisations:
         # show reconstructed image
-        out = pdhg.get_output()
-        out_arr = out.as_array()
-        z = out_arr.shape[0]//2
-        show_2D_array('Reconstructed image', out.as_array()[z, :, :])
+        # out_arr = algo.get_output().as_array()
+        if slice_num is None:
+            z = out_arr.shape[0]//2
+        else:
+            z = slice_num
+        show_2D_array('Reconstructed image', out_arr[z, :, :])
         pylab.show()
 
 
-# if anything goes wrong, an exception will be thrown
-# (cf. Error Handling section in the spec)
-try:
+def main():
+    """Run main function."""
+    ###########################################################################
+    # Parse input files
+    ###########################################################################
+
+    [num_ms, trans_files, sino_files, attn_files, rand_files] = get_filenames()
+
+    ###########################################################################
+    # Read input
+    ###########################################################################
+
+    [trans, sinos_raw, attns, rands_raw] = \
+        read_files(trans_files, sino_files, attn_files, rand_files)
+
+    sinos = pre_process_sinos(sinos_raw, num_ms)
+    rands = pre_process_sinos(rands_raw, num_ms)
+
+    ###########################################################################
+    # Initialise recon image
+    ###########################################################################
+
+    image = get_initial_estimate(sinos)
+
+    ###########################################################################
+    # Set up resamplers
+    ###########################################################################
+
+    if trans is None:
+        resamplers = None
+    else:
+        resamplers = [get_resampler(image, trans=tran) for tran in trans]
+
+    ###########################################################################
+    # Resample attenuation images (if necessary)
+    ###########################################################################
+
+    resampled_attns = resample_attn_images(num_ms, attns, trans)
+    print ("resampled_attns", len (resampled_attns))
+    ###########################################################################
+    # Set up acquisition models
+    ###########################################################################
+
+    acq_models = set_up_acq_models(
+        num_ms, sinos, rands, resampled_attns, image)
+
+    ###########################################################################
+    # Set up reconstructor
+    ###########################################################################
+
+    [f, K, normK] = set_up_reconstructor(
+        acq_models, resamplers, algorithm, sinos, rands)
+
+    # Get tau and sigma (scalars if no preconditioning, else they'll be arrays)
+    [tau, sigma] = get_tau_sigma(normK)
+
+    # Set up regularisation
+    G = set_up_regularisation()
+
+    # Get output filename
+    outp_file = get_output_filename(
+        attn_files, normK, sigma, tau, sino_files, resamplers)
+
+    # Get algorithm
+    algo = get_algo(f, G, K, sigma, tau, outp_file)
+
+    # Create save call back function
+    save_callback = get_save_callback_function(outp_file)
+
+    # Run the reconstruction
+    while True:
+        algo.max_iteration += num_iters
+        algo.run(num_iters, verbose=True, very_verbose=True,
+             callback=save_callback)
+        display_results(algo.get_output().as_array())
+        # stop = input("Shall we stop? [y/n]")
+        stop = 'y'
+        print (stop)
+        if stop == 'y':
+            print ("breaking")
+            break
+    # Display results
+    display_results(algo.get_output().as_array(), slice_num=54)
+
+
+if __name__ == "__main__":
     main()
-    print('done')
-    exit(0)
-except error as err:
-    # display error information
-    print('%s' % err.value)
-    exit(1)

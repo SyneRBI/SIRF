@@ -379,8 +379,9 @@ class ImageData(SIRF.ImageData):
         elif isinstance(value, int):
             try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
-            raise error('wrong fill value.' +
-                        ' Should be ImageData, numpy.ndarray, float or int')
+            raise TypeError('wrong fill value.' + \
+                        ' Should be ImageData, numpy.ndarray, float or int. Got {}'\
+                        .format(type(value)))
         return self
 
     def get_uniform_copy(self, value=1.0):
@@ -507,8 +508,9 @@ class ImageData(SIRF.ImageData):
                 out.fill(numpy.random.random_sample(shape))
             elif value == 'random_int':
                 max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(
-                    max_value, size=shape))
+                out.fill(numpy.random.randint(max_value,size=shape))
+        elif value is None:
+            out = self.get_uniform_copy(0)
         else:
             out = self.get_uniform_copy(value)
         return out
@@ -918,9 +920,9 @@ class AcquisitionData(DataContainer):
             try_calling(pystir.cSTIR_fillAcquisitionData(
                 self.handle, float(value)))
         else:
-            raise error('Wrong fill value.' +
-                        'Should be numpy.ndarray,' +
-                        'AcquisitionData, float or int')
+            raise TypeError('Wrong fill value.' + \
+                ' Should be numpy.ndarray, AcquisitionData, float or int, got {}'\
+                .format(type(value)))
         return self
 
     def get_uniform_copy(self, value=0):
@@ -1001,7 +1003,9 @@ class AcquisitionData(DataContainer):
                 out.fill(numpy.random.random_sample(shape))
             elif value == 'random_int':
                 max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(max_value, size=shape))
+                out.fill(numpy.random.randint(max_value,size=shape))
+        elif value is None:
+            out = self.get_uniform_copy(0)
         else:
             out = self.get_uniform_copy(value)
         return out
@@ -1320,6 +1324,26 @@ class AcquisitionModel(object):
         # constness flag for const reference
         self.const = False
 
+    @property
+    def subset_num(self):
+        return self._subset_num
+    @subset_num.setter 
+    def subset_num(self, value):
+        if value < self.num_subsets:
+            self._subset_num = value
+        else:
+            raise ValueError('Cannot set iteration number {}. Expected max {}'.format(
+                value, self.num_subsets ))
+    @property
+    def num_subsets(self):
+        return self._num_subsets
+    @num_subsets.setter 
+    def num_subsets(self, value):
+        if isinstance (value , Integral):
+            self._num_subsets = value
+        else:
+            raise ValueError('number of subset must be an integer. Got {}'.format( type(value) ))
+
     def set_up(self, acq_templ, img_templ):
         """Set up.
 
@@ -1515,52 +1539,39 @@ class AcquisitionModel(object):
         am.handle = self.handle # all other properties have default values
         am.const = True # am to be a const reference of self
         return am
+    def direct(self, image, out = None):
+        '''Projects an image into the (simulated) acquisition space,
+           calls forward with num_subset and on subset_num members
 
-    def direct(self, image, out=None):
-        """Project an image into the (simulated) acquisition space.
-
-        Alias of forward.
-
-        Added for CCPi CIL compatibility
-        https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
-        """
-        if not self.is_linear():
-            raise error('AcquisitionModel is not linear\nYou can get the ' +
-                        'linear part of the AcquisitionModel with ' +
-                        'get_linear_acquisition_model')
-        return self.forward(
-            image,
-            subset_num=self.subset_num,
-            num_subsets=self.num_subsets,
-            ad=out)
-
-    def adjoint(self, ad, out=None):
-        """Back-project acquisition data into image space.
-
-        Only if the AcquisitionModel is linear
-
-        Added for CCPi CIL compatibility
-        https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
-        """
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        return self.forward(image, \
+                            subset_num = self.subset_num, \
+                            num_subsets = self.num_subsets, \
+                            ad = out)
         
+    def adjoint(self, ad, out = None):
+        '''Back-projects acquisition data into image space, if the
+           AcquisitionModel is linear
+
+           calls backward with num_subset and on subset_num members
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
         if self.is_linear():
             if out is not None:
-                out.fill(self.backward(
-                    ad, subset_num=self.subset_num,
-                    num_subsets=self.num_subsets))
+                out.fill(self.backward(ad, subset_num = self.subset_num, 
+                             num_subsets = self.num_subsets)
+                             )
             else:
-                return self.backward(
-                    ad, subset_num=self.subset_num,
-                    num_subsets=self.num_subsets)
+                return self.backward(ad, subset_num = self.subset_num, 
+                             num_subsets = self.num_subsets)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the ' +
                         'linear part of the AcquisitionModel with ' +
                         'get_linear_acquisition_model')
-        return self.backward(
-            ad,
-            subset_num=subset_num,
-            num_subsets=num_subsets,
-            out=out)
+        
 
     def is_affine(self):
         """Return if the acquisition model is affine.
