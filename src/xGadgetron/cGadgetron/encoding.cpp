@@ -138,6 +138,13 @@ void sirf::FourierEncoding::match_img_header_to_acquisition(CFImage& img, const 
     img.setRepetition(idx.repetition);
     img.setSet(idx.set);
 
+    img.setReadDirection(acq_hdr.read_dir[0], acq_hdr.read_dir[1], acq_hdr.read_dir[2]);
+    img.setPhaseDirection(acq_hdr.phase_dir[0], acq_hdr.phase_dir[1], acq_hdr.phase_dir[2]);
+    img.setSliceDirection(acq_hdr.slice_dir[0], acq_hdr.slice_dir[1], acq_hdr.slice_dir[2]);
+
+    img.setPosition(acq_hdr.position[0], acq_hdr.position[1], acq_hdr.position[2]);
+    img.setPatientTablePosition(acq_hdr.patient_table_position[0], acq_hdr.patient_table_position[1], acq_hdr.patient_table_position[2]);
+
 }
 
 void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
