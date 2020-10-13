@@ -78,9 +78,6 @@ def main():
     raw_data_file = existing_filepath(data_path, data_file)
     print('raw data: %s' % raw_data_file)
     acq_data = AcquisitionData(raw_data_file)
-    if acq_data.is_empty():
-        print('raw data file does not have data, quitting')
-        return 1
 
     # copy the acquisition data into a Python array and display
     dim = acq_data.dimensions()
