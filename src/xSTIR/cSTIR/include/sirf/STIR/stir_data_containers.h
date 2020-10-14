@@ -216,9 +216,9 @@ namespace sirf {
 				data()->get_segment_by_sinogram(0);
 			}
 			catch (std::string msg) {
-				return 0;
+				return 0; // no data found - this must be a template
 			}
-			return 1;
+			return 1; // data ok
 		}
 		virtual float norm() const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
