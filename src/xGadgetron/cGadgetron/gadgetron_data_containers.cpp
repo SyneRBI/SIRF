@@ -860,6 +860,7 @@ AcquisitionsFile::set_data(const complex_float_t* z, int all)
 				acq.data(s, c) = z[i];
 		ac.append_acquisition(acq);
 	}
+	ac.set_sorted(sorted());
 	take_over(ac);
 }
 
