@@ -522,6 +522,16 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 }
 
 extern "C"
+void* cSTIR_linearAcquisitionModel(void* ptr_am)
+{
+	try {
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		return newObjectHandle(am.linear_acq_mod_sptr());
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_acquisitionModelFwd
 (void* ptr_am, void* ptr_im, int subset_num, int num_subsets)
 {
@@ -541,7 +551,7 @@ void* cSTIR_acquisitionModelFwdReplace
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
-		am.forward(ad, id, subset_num, num_subsets);
+		am.forward(ad, id, subset_num, num_subsets, num_subsets > 1);
 		return new DataHandle;
 	}
 	CATCH;
@@ -555,6 +565,20 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
 		return newObjectHandle(am.backward(ad, subset_num, num_subsets));
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
+	int subset_num, int num_subsets, void* ptr_im)
+{
+	try {
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
+		am.backward(id, ad, subset_num, num_subsets);
+		return new DataHandle;
 	}
 	CATCH;
 }

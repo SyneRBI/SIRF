@@ -1314,6 +1314,8 @@ class AcquisitionModel(object):
         self.at = None
         # reference to the acquisition sensitivity model
         self.asm = None
+        # constness flag for const reference
+        self.const = False
 
     def set_up(self, acq_templ, img_templ):
         """Set up.
@@ -1326,6 +1328,9 @@ class AcquisitionModel(object):
         img_templ:  an ImageData object used as a template for creating an
                     ImageData object to store backward projection.
         """
+        if self.const:
+            raise RuntimeError('cannot set_up const object')
+
         assert_validity(acq_templ, AcquisitionData)
         assert_validity(img_templ, ImageData)
 
@@ -1342,6 +1347,8 @@ class AcquisitionModel(object):
         Set the additive term a in the acquisition model;
         at:  an AcquisitionData object containing a.
         """
+        if self.const:
+            raise RuntimeError('cannot set_additive_term for a const object')
         assert_validity(at, AcquisitionData)
         parms.set_parameter(
             self.handle, 'AcquisitionModel', 'additive_term', at.handle)
@@ -1354,6 +1361,8 @@ class AcquisitionModel(object):
 
         bt:  an AcquisitionData object containing b.
         """
+        if self.const:
+            raise RuntimeError('cannot set_background_term for a const object')
         assert_validity(bt, AcquisitionData)
         parms.set_parameter(
             self.handle, 'AcquisitionModel', 'background_term', bt.handle)
@@ -1366,6 +1375,9 @@ class AcquisitionModel(object):
 
         processor:  an ImageDataProcessor object.
         """
+        if self.const:
+            msg = 'cannot set_image_data_processor'
+            raise RuntimeError(msg + ' for a const object')
         assert_validity(processor, ImageDataProcessor)
         parms.set_parameter(
             self.handle, 'AcquisitionModel', 'image_data_processor',
@@ -1441,49 +1453,57 @@ class AcquisitionModel(object):
         norm:  an AcquisitionSensitivityModel
         object containing normalisation n.
         """
+        if self.const:
+            msg = 'cannot set_acquisition_sensitivity'
+            raise RuntimeError(msg + ' for a const object')
         assert_validity(asm, AcquisitionSensitivityModel)
         parms.set_parameter(
             self.handle, 'AcquisitionModel', 'asm', asm.handle)
         # save reference to the Acquisition Sensitivity Model
         self.asm = asm
 
-    def forward(self, image, subset_num=0, num_subsets=1, ad=None):
+    def forward(self, image, subset_num=0, num_subsets=1, out=None):
         """Return the forward projection of image.
 
         image   :  an ImageData object.
         """
         assert_validity(image, ImageData)
-        if ad is None:
+        if out is None:
             ad = AcquisitionData()
             ad.handle = pystir.cSTIR_acquisitionModelFwd(
                 self.handle, image.handle, subset_num, num_subsets)
             check_status(ad.handle)
             return ad
+        ad = out
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_acquisitionModelFwdReplace(
             self.handle, image.handle, subset_num, num_subsets, ad.handle))
 
-    def backward(self, ad, subset_num=0, num_subsets=1):
+    def backward(self, ad, subset_num=0, num_subsets=1, out=None):
         """
         Return the backward projection of ad.
 
         ad:  an AcquisitionData object.
         """
         assert_validity(ad, AcquisitionData)
-        image = ImageData()
-        image.handle = pystir.cSTIR_acquisitionModelBwd(
-            self.handle, ad.handle, subset_num, num_subsets)
-        check_status(image.handle)
-        return image
+        if out is None:
+            image = ImageData()
+            image.handle = pystir.cSTIR_acquisitionModelBwd(
+                self.handle, ad.handle, subset_num, num_subsets)
+            check_status(image.handle)
+            return image
+        assert_validity(out, ImageData)
+        try_calling(pystir.cSTIR_acquisitionModelBwdReplace(
+                self.handle, ad.handle, subset_num, num_subsets, out.handle))
 
     def get_linear_acquisition_model(self):
-        """Return a new AcquisitionModel.
+        """Return the linear part of self.
 
-        Returns corresponding to
-        the linear part of the current one.
         """
-        am = type(self)()
-        am.set_up(self.acq_templ, self.img_templ)
+        am = AcquisitionModel()
+        am.handle = pystir.cSTIR_linearAcquisitionModel(self.handle)
+        check_status(am.handle)
+        am.const = True # am to be a const reference of self
         return am
 
     def direct(self, image, subset_num=0, num_subsets=1, out=None):
@@ -1494,11 +1514,15 @@ class AcquisitionModel(object):
         Added for CCPi CIL compatibility
         https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         """
+        if not self.is_linear():
+            raise error('AcquisitionModel is not linear\nYou can get the ' +
+                        'linear part of the AcquisitionModel with ' +
+                        'get_linear_acquisition_model')
         return self.forward(
             image,
             subset_num=subset_num,
             num_subsets=num_subsets,
-            ad=out)
+            out=out)
 
     def adjoint(self, ad, subset_num=0, num_subsets=1, out=None):
         """Back-project acquisition data into image space.
@@ -1508,19 +1532,15 @@ class AcquisitionModel(object):
         Added for CCPi CIL compatibility
         https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         """
-        if self.is_linear():
-            if out is not None:
-                out.fill(self.backward(
-                    ad, subset_num=subset_num,
-                    num_subsets=num_subsets))
-            else:
-                return self.backward(
-                    ad, subset_num=subset_num,
-                    num_subsets=num_subsets)
-        else:
+        if not self.is_linear():
             raise error('AcquisitionModel is not linear\nYou can get the ' +
                         'linear part of the AcquisitionModel with ' +
                         'get_linear_acquisition_model')
+        return self.backward(
+            ad,
+            subset_num=subset_num,
+            num_subsets=num_subsets,
+            out=out)
 
     def is_affine(self):
         """Return if the acquisition model is affine.

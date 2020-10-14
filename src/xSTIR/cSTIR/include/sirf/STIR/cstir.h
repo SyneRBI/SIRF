@@ -78,12 +78,15 @@ extern "C" {
 	void* cSTIR_applyAcquisitionSensitivityModel
 		(void* ptr_sm, void* ptr_ad, const char* job);
 	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
+	void* cSTIR_linearAcquisitionModel(void* ptr_am);
 	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im, 
 		int subset_num, int num_subsets);
 	void* cSTIR_acquisitionModelFwdReplace
 		(void* ptr_am, void* ptr_im, int subset_num, int num_subsets, void* ptr_ad);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 		int subset_num, int num_subsets);
+	void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
+		int subset_num, int num_subsets, void* ptr_im);
 
 	// Acquisition data methods
 	void* cSTIR_getAcquisitionDataStorageScheme();

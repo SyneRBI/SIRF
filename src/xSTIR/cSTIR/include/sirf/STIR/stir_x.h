@@ -338,7 +338,7 @@ The actual algorithm is described in
 		{
 			sptr_projectors_ = sptr_projectors;
 		}
-		stir::shared_ptr<stir::ProjectorByBinPair> projectors_sptr()
+		const stir::shared_ptr<stir::ProjectorByBinPair> projectors_sptr() const
 		{
 			return sptr_projectors_;
 		}
@@ -346,7 +346,7 @@ The actual algorithm is described in
 		{
 			sptr_add_ = sptr;
 		}
-		stir::shared_ptr<PETAcquisitionData> additive_term_sptr()
+		stir::shared_ptr<const PETAcquisitionData> additive_term_sptr() const
 		{
 			return sptr_add_;
 		}
@@ -354,7 +354,7 @@ The actual algorithm is described in
 		{
 			sptr_background_ = sptr;
 		}
-		stir::shared_ptr<PETAcquisitionData> background_term_sptr()
+		stir::shared_ptr<const PETAcquisitionData> background_term_sptr() const
 		{
 			return sptr_background_;
 		}
@@ -362,7 +362,7 @@ The actual algorithm is described in
 		//{
 		//	sptr_normalisation_ = sptr;
 		//}
-		stir::shared_ptr<stir::BinNormalisation> normalisation_sptr()
+		const stir::shared_ptr<stir::BinNormalisation> normalisation_sptr() const
 		{
 			if (sptr_asm_.get())
 				return sptr_asm_->data();
@@ -398,20 +398,44 @@ The actual algorithm is described in
 			sptr_asm_.reset();
 			//sptr_normalisation_.reset();
 		}
+		stir::shared_ptr<const PETAcquisitionModel> linear_acq_mod_sptr() const
+		{
+			stir::shared_ptr<PETAcquisitionModel> sptr_am(new PETAcquisitionModel);
+			sptr_am->set_projectors(sptr_projectors_);
+			sptr_am->set_asm(sptr_asm_);
+			sptr_am->sptr_acq_template_ = sptr_acq_template_;
+			sptr_am->sptr_image_template_ = sptr_image_template_;
+			return sptr_am;
+		}
 
 		virtual stir::Succeeded set_up(
 			stir::shared_ptr<PETAcquisitionData> sptr_acq,
 			stir::shared_ptr<STIRImageData> sptr_image);
 
-		// computes and returns a subset of forward-projected data 
+		/*! \brief computes and returns a subset of forward-projected data
+		\see forward(PETAcquisitionData&, const STIRImageData&,, int, int, bool, bool)
+		*/
 		stir::shared_ptr<PETAcquisitionData>
 			forward(const STIRImageData& image,
-			int subset_num = 0, int num_subsets = 1);
-		// replaces a subset of acquisition data with forward-projected data
+			int subset_num = 0, int num_subsets = 1, bool do_linear_only = false);
+		/*! \brief replaces a subset of acquisition data with forward-projected data
+		\param[out] acq_data	forward-projected data
+		\param[in] image		image to be forward-projected
+		\param[in] subset_num	number of the subset of forward projected data to be computed,
+								the rest of data to remain unchanged or be zeroed (see 5th argument)
+		\param[in] num_subsets	number of subsets the forward-projected data to be divided into
+		\param[in] zero			zero forward-projected data for all subsets except the one
+								specified by subset_num
+		\param[in] linear		use only linear part of the acquisition model (no constant terms)
+		*/
 		void forward(PETAcquisitionData& acq_data, const STIRImageData& image,
-			int subset_num, int num_subsets, bool zero = false);
+			int subset_num, int num_subsets, bool zero = false, bool do_linear_only = false);
 
+		// computes and returns back-projected subset of acquisition data 
 		stir::shared_ptr<STIRImageData> backward(PETAcquisitionData& ad,
+			int subset_num = 0, int num_subsets = 1);
+		// puts back-projected subset of acquisition data into image 
+		void backward(STIRImageData& image, PETAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1);
 
 	protected:

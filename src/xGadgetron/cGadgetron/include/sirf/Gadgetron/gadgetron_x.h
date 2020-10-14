@@ -440,14 +440,12 @@ namespace sirf {
 				throw LocalisedException
 				("coil sensitivity maps not found", __FILE__, __LINE__);
 			check_data_role(ic);
-
             gadgetron::unique_ptr<MRAcquisitionData> uptr_acqs =
                 sptr_acqs_->clone();
 
             fwd(ic, *sptr_csms_, *uptr_acqs);
 
             return std::shared_ptr<MRAcquisitionData>(std::move(uptr_acqs));// something else wouldn't work for some reason...
-
 		}
 
 		// Backprojects the whole AcquisitionContainer using
