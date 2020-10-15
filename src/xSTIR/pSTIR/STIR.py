@@ -28,6 +28,7 @@ try:
 except:
     HAVE_PYLAB = False
 import sys
+from numbers import Integral
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, \
@@ -1549,7 +1550,7 @@ class AcquisitionModel(object):
         return self.forward(image, \
                             subset_num = self.subset_num, \
                             num_subsets = self.num_subsets, \
-                            ad = out)
+                            out = out)
         
     def adjoint(self, ad, out = None):
         '''Back-projects acquisition data into image space, if the
@@ -1560,13 +1561,8 @@ class AcquisitionModel(object):
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
-            if out is not None:
-                out.fill(self.backward(ad, subset_num = self.subset_num, 
-                             num_subsets = self.num_subsets)
-                             )
-            else:
-                return self.backward(ad, subset_num = self.subset_num, 
-                             num_subsets = self.num_subsets)
+            return self.backward(ad, subset_num = self.subset_num, 
+                             num_subsets = self.num_subsets, out=out)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the ' +
                         'linear part of the AcquisitionModel with ' +
@@ -1612,7 +1608,7 @@ class AcquisitionModel(object):
     @subset_num.setter
     def subset_num(self, value):
         '''setter for subset_num'''
-        if isinstance (value, Integer):
+        if isinstance (value, Integral):
             if value < self.num_subsets and value >= 0:
                 self._subset_num = value
             else:
@@ -1627,7 +1623,7 @@ class AcquisitionModel(object):
         Allows to set the number of subsets the AcquisitionModel operates on. By default reassigning
         the number of subsets will set subset_num to 0
         '''
-        if isinstance (value, Integer):
+        if isinstance (value, Integral):
             if value > 0:
                 self._num_subsets = value
                 self.subset_num = 0
