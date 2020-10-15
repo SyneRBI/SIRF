@@ -1325,26 +1325,6 @@ class AcquisitionModel(object):
         # constness flag for const reference
         self.const = False
 
-    @property
-    def subset_num(self):
-        return self._subset_num
-    @subset_num.setter 
-    def subset_num(self, value):
-        if value < self.num_subsets:
-            self._subset_num = value
-        else:
-            raise ValueError('Cannot set iteration number {}. Expected max {}'.format(
-                value, self.num_subsets ))
-    @property
-    def num_subsets(self):
-        return self._num_subsets
-    @num_subsets.setter 
-    def num_subsets(self, value):
-        if isinstance (value , Integral):
-            self._num_subsets = value
-        else:
-            raise ValueError('number of subset must be an integer. Got {}'.format( type(value) ))
-
     def set_up(self, acq_templ, img_templ):
         """Set up.
 
@@ -1599,12 +1579,15 @@ class AcquisitionModel(object):
     def domain_geometry(self):
         """Return the template of ImageData."""
         return self.img_templ
+
     @property
     def subset_num(self):
         return self._subset_num
+    
     @property
     def num_subsets(self):
         return self._num_subsets
+    
     @subset_num.setter
     def subset_num(self, value):
         '''setter for subset_num'''
@@ -1616,6 +1599,7 @@ class AcquisitionModel(object):
                     .format(self.subset_num, value))
         else:
             raise ValueError("Expected an integer. Got {}".format(type(value)))
+    
     @num_subsets.setter
     def num_subsets(self, value):
         '''setter for num_subsets
