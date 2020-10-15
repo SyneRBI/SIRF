@@ -200,6 +200,8 @@ namespace sirf {
 		virtual void fill(const float v) { data()->fill(v); }
 		virtual void fill(const PETAcquisitionData& ad)
 		{
+			if (ad.is_empty())
+				THROW("The source of PETAcquisitionData::fill is empty");
 			stir::shared_ptr<stir::ProjData> sptr = ad.data();
 			data()->fill(*sptr);
 		}
@@ -212,12 +214,16 @@ namespace sirf {
 
 		// data container methods
 		unsigned int items() const {
+			if (_is_empty != -1)
+				return _is_empty ? 0 : 1;
 			try {
 				data()->get_segment_by_sinogram(0);
 			}
 			catch (std::string msg) {
+				_is_empty = 1;
 				return 0; // no data found - this must be a template
 			}
+			_is_empty = 0;
 			return 1; // data ok
 		}
 		virtual float norm() const;
@@ -318,12 +324,17 @@ namespace sirf {
 		virtual PETAcquisitionData* clone_impl() const = 0;
 		PETAcquisitionData* clone_base() const
 		{
-			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = get_proj_data_info_sptr()->create_shared_clone();
+			if (this->is_empty())
+				THROW("Cannot clone empty PETAcquisitionData");
+			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = this->get_proj_data_info_sptr()->create_shared_clone();
 			PETAcquisitionData* ptr = 
 				_template->same_acquisition_data(this->get_exam_info_sptr(), sptr_pdi);
 			ptr->fill(*this);
 			return ptr;
 		}
+
+	private:
+		mutable int _is_empty = -1;
 
 	};
 
