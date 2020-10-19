@@ -693,6 +693,10 @@ void* cSTIR_getAcquisitionData(const void* ptr_acq, size_t ptr_data)
 	try {
 		float* data = (float*)ptr_data;
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		if (sptr_ad->is_empty())
+			return DataHandle::error_handle(
+				"Failed to get acquisition data: dealing with empty template?",
+				__FILE__, __LINE__);
 		sptr_ad->copy_to(data);
 		return (void*)new DataHandle;
 	}
