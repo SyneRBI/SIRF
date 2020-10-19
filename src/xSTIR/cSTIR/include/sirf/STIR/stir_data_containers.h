@@ -217,7 +217,7 @@ namespace sirf {
 			if (_is_empty != -1)
 				return _is_empty ? 0 : 1;
 			try {
-				data()->get_segment_by_sinogram(0);
+				get_segment_by_sinogram(0);
 			}
 			catch (std::string msg) {
 				_is_empty = 1;
@@ -324,12 +324,11 @@ namespace sirf {
 		virtual PETAcquisitionData* clone_impl() const = 0;
 		PETAcquisitionData* clone_base() const
 		{
-			if (this->is_empty())
-				THROW("Cannot clone empty PETAcquisitionData");
 			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = this->get_proj_data_info_sptr()->create_shared_clone();
 			PETAcquisitionData* ptr = 
 				_template->same_acquisition_data(this->get_exam_info_sptr(), sptr_pdi);
-			ptr->fill(*this);
+			if (!this->is_empty())
+				ptr->fill(*this);
 			return ptr;
 		}
 
