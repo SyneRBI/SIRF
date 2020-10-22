@@ -398,7 +398,8 @@ The actual algorithm is described in
 			sptr_asm_.reset();
 			//sptr_normalisation_.reset();
 		}
-		stir::shared_ptr<const PETAcquisitionModel> linear_acq_mod_sptr() const
+//		stir::shared_ptr<const PETAcquisitionModel> linear_acq_mod_sptr() const
+		stir::shared_ptr<PETAcquisitionModel> linear_acq_mod_sptr() const
 		{
 			stir::shared_ptr<PETAcquisitionModel> sptr_am(new PETAcquisitionModel);
 			sptr_am->set_projectors(sptr_projectors_);

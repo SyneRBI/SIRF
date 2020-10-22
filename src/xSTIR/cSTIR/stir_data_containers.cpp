@@ -366,7 +366,7 @@ STIRImageData::scale(float s)
 	typename Array<3, float>::full_iterator iter;
 #endif
 	for (iter = _data->begin_all(); iter != _data->end_all(); iter++)
-		*iter = s;
+		*iter /= s;
 }
 
 void

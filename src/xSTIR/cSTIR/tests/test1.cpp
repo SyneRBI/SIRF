@@ -27,11 +27,15 @@ limitations under the License.
 \author Richard Brown
 \author SyneRBI
 */
+#include <cmath>
 #include <fstream>
 #include <string>
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
+
+#include "sirf/common/jcg.h"
+#include "sirf/common/bf_operator.h"
 #include "sirf/STIR/stir_x.h"
 
 #include "object.h"
@@ -124,6 +128,14 @@ int test1()
 		am.set_additive_term(sptr_a);
 		am.set_background_term(sptr_b);
 		am.set_up(sptr_ad, sptr_id);
+
+		// compute the norm of the linear part of the acquisition model
+		std::cout << "computing the norm of the linear part of the acquisition model...\n";
+		BFOperator bf(sptr_am->linear_acq_mod_sptr());
+		JacobiCG<float> jcg;
+		jcg.set_num_iterations(2);
+		float lmd = jcg.rightmost(bf, image_data);
+		std::cout << "acquisition model operator norm: " << std::sqrt(lmd) << '\n';
 
 		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, processor, sptr_processor,);
 //		processor.set_fwhms(stir::make_coords(3.F, 4.F, 3.F));
