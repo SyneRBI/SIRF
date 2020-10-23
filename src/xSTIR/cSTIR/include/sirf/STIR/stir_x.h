@@ -336,7 +336,7 @@ The actual algorithm is described in
 
 	class PETAcquisitionModel {
 	public:
-		class BFOperator : public anOperator<STIRImageData> {
+		class BFOperator : public Operator<STIRImageData> {
 		public:
 			BFOperator(const PETAcquisitionModel& am) : sptr_am_(am.linear_acq_mod_sptr()) {}
 			void set_subset(int sub_num)

@@ -5,15 +5,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-template<class vector>
-class anOperator {
-public:
-	virtual std::shared_ptr<vector> apply(const vector& v) const = 0;
-	std::shared_ptr<vector> operator()(const vector& v) const
-	{
-		return apply(v);
-	}
-};
+#include "sirf/common/Operator.h"
 
 template<class value>
 class JacobiCG {
@@ -24,7 +16,7 @@ public:
 		nit_ = nit;
 	}
 	template<class vector>
-	value rightmost(const anOperator<vector>& A, vector& x) const
+	value rightmost(const Operator<vector>& A, vector& x) const
 	{
 		value lmd;
 		value a[] = { 0, 0, 0, 0 };
