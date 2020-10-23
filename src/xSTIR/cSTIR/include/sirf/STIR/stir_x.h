@@ -33,9 +33,11 @@ limitations under the License.
 \author SyneRBI
 */
 
+#include <cmath>
 #include <stdlib.h>
 
 #include "sirf/STIR/stir_data_containers.h"
+#include "sirf/common/jcg.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -334,6 +336,43 @@ The actual algorithm is described in
 
 	class PETAcquisitionModel {
 	public:
+		class BFOperator : public anOperator<STIRImageData> {
+		public:
+			BFOperator(const PETAcquisitionModel& am) : sptr_am_(am.linear_acq_mod_sptr()) {}
+			void set_subset(int sub_num)
+			{
+				sub_num_ = sub_num;
+			}
+			void set_num_subsets(int num_sub)
+			{
+				num_sub_ = num_sub;
+			}
+			virtual std::shared_ptr<STIRImageData> apply(const STIRImageData& image_data) const
+			{
+				std::shared_ptr<PETAcquisitionData> sptr_fwd =
+					sptr_am_->forward(image_data, sub_num_, num_sub_); // , true);
+				std::shared_ptr<STIRImageData> sptr_bwd =
+					sptr_am_->backward(*sptr_fwd, sub_num_, num_sub_);
+				return sptr_bwd;
+			}
+		private:
+			std::shared_ptr<PETAcquisitionModel> sptr_am_;
+			int sub_num_ = 0;
+			int num_sub_ = 1;
+		};
+
+		float norm(int subset_num = 0, int num_subsets = 1) const
+		{
+			BFOperator bf(*this);
+			bf.set_subset(subset_num);
+			bf.set_num_subsets(num_subsets);
+			JacobiCG<float> jcg;
+			jcg.set_num_iterations(2);
+			STIRImageData image_data = *sptr_image_template_->clone();
+			float lmd = jcg.rightmost(bf, image_data);
+			return std::sqrt(lmd);
+		}
+
 		void set_projectors(stir::shared_ptr<stir::ProjectorByBinPair> sptr_projectors)
 		{
 			sptr_projectors_ = sptr_projectors;

@@ -34,8 +34,6 @@ limitations under the License.
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
 
-#include "sirf/common/jcg.h"
-#include "sirf/STIR/bf_operator.h"
 #include "sirf/STIR/stir_x.h"
 
 #include "object.h"
@@ -131,11 +129,8 @@ int test1()
 
 		// compute the norm of the linear part of the acquisition model
 		std::cout << "computing the norm of the linear part of the acquisition model...\n";
-		BFOperator bf(am);
-		JacobiCG<float> jcg;
-		jcg.set_num_iterations(2);
-		float lmd = jcg.rightmost(bf, image_data);
-		std::cout << "acquisition model operator norm: " << std::sqrt(lmd) << '\n';
+		float lmd = am.norm();
+		std::cout << "acquisition model operator norm: " << lmd << '\n';
 
 		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, processor, sptr_processor,);
 //		processor.set_fwhms(stir::make_coords(3.F, 4.F, 3.F));
