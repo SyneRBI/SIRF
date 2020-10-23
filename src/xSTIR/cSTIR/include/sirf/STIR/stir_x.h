@@ -336,6 +336,13 @@ The actual algorithm is described in
 
 	class PETAcquisitionModel {
 	public:
+		/*!
+		\ingroup STIR Extensions
+		\brief Class for the product of backward and forward projectors of a PET acquisition model.
+
+		For a given STIRImageData object x, computes B(F(x)), where F(x) is the forward projection of x,
+		and B(y) is the backprojection of PETAcquisitionData object y.
+		*/
 		class BFOperator : public Operator<STIRImageData> {
 		public:
 			BFOperator(const PETAcquisitionModel& am) : sptr_am_(am.linear_acq_mod_sptr()) {}
