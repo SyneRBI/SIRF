@@ -127,11 +127,6 @@ int test1()
 		am.set_background_term(sptr_b);
 		am.set_up(sptr_ad, sptr_id);
 
-		// compute the norm of the linear part of the acquisition model
-		std::cout << "computing the norm of the linear part of the acquisition model...\n";
-		float lmd = am.norm();
-		std::cout << "acquisition model operator norm: " << lmd << '\n';
-
 		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, processor, sptr_processor,);
 //		processor.set_fwhms(stir::make_coords(3.F, 4.F, 3.F));
 		stir::Coordinate3D< float > fwhms(3.F, 4.F, 3.F);
@@ -221,11 +216,31 @@ int test1()
 		img_diff.axpby
 			(&alpha, image_data, &beta, back_data);
 		std::cout << "relative images difference: " << img_diff.norm() << std::endl;
-		std::cout << "done with test1.cpp...\n";
+
+		// compute the norm of the linear part of the acquisition model
+		std::cout << "\ncomputing the norm of the linear part of the acquisition model...\n";
+		float am_norm = am.norm();
+
+		std::cout << "\nchecking the acquisition model norm:\n";
+		std::cout << "acquisition model norm: |A| = " << am_norm << '\n';
+		std::cout << "image data x norm: |x| = " << im_norm << '\n';
+		std::cout << "simulated acquisition data norm: |A(x)| = " << sim_norm << '\n';
+		std::cout << "checking that |A(x)| < |A| |x|: ";
+		bool ok = sim_norm < am_norm*sim_norm;
+		if (ok)
+			std::cout << sim_norm << " < " << am_norm*im_norm << " ok!\n";
+		else
+			std::cout << sim_norm << " > " << am_norm*im_norm << " failure!\n";
+
 		// restore the default storage scheme
 		PETAcquisitionDataInFile::set_as_template();
 
 		h.set_information_channel(0);
+
+		std::cout << "done with test1.cpp...\n";
+
+		if (!ok)
+			return 1;
 	}
 	catch (...) {
 		std::cout << "exception thrown\n";
