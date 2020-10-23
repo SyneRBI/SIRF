@@ -7,7 +7,7 @@
 
 #include "sirf/common/Operator.h"
 
-template<class value>
+template<class value_type>
 class JacobiCG {
 public:
 	JacobiCG() : nit_(10) {}
@@ -15,33 +15,33 @@ public:
 	{
 		nit_ = nit;
 	}
-	template<class vector>
-	value rightmost(const Operator<vector>& A, vector& x) const
+	template<class vector_type>
+	value_type rightmost(const Operator<vector_type>& A, vector_type& x) const
 	{
-		value lmd;
-		value a[] = { 0, 0, 0, 0 };
-		value mu[2];
-		value u[2];
-		value v[2];
+		value_type lmd;
+		value_type a[] = { 0, 0, 0, 0 };
+		value_type mu[2];
+		value_type u[2];
+		value_type v[2];
 
-		std::unique_ptr<vector> uptr_y = x.clone();
-		vector& y = *uptr_y;
-		std::unique_ptr<vector> uptr_z = x.clone();
-		vector& z = *uptr_z;
-		std::unique_ptr<vector> uptr_w = x.clone();
-		vector& w = *uptr_w;
-		std::unique_ptr<vector> uptr_Az = x.clone();
-		vector& Az = *uptr_Az;
+		std::unique_ptr<vector_type> uptr_y = x.clone();
+		vector_type& y = *uptr_y;
+		std::unique_ptr<vector_type> uptr_z = x.clone();
+		vector_type& z = *uptr_z;
+		std::unique_ptr<vector_type> uptr_w = x.clone();
+		vector_type& w = *uptr_w;
+		std::unique_ptr<vector_type> uptr_Az = x.clone();
+		vector_type& Az = *uptr_Az;
 
-		value s = sqrt(x.dot(x));
+		value_type s = sqrt(x.dot(x));
 		x.scale(s);
-		std::shared_ptr<vector> sptr_Ax = A(x);
-		vector& Ax = *sptr_Ax;
+		std::shared_ptr<vector_type> sptr_Ax = A(x);
+		vector_type& Ax = *sptr_Ax;
 
 		for (int it = 0; it < nit_; it++) {
 			lmd = Ax.dot(x);
 			y.axpby(1.0, Ax, -lmd, x);
-			std::cout << it << ": " << lmd << '\n';
+			//std::cout << it << ": " << lmd << '\n';
 			if (it) {
 				s = Az.dot(z);
 				w.axpby(1.0, Az, -s, z);
@@ -58,8 +58,8 @@ public:
 			if (s == 0.0)
 				return lmd;
 			y.scale(s);
-			std::shared_ptr<vector> sptr_Ay = A(y);
-			vector& Ay = *sptr_Ay;
+			std::shared_ptr<vector_type> sptr_Ay = A(y);
+			vector_type& Ay = *sptr_Ay;
 			a[0] = lmd;
 			a[1] = Ay.dot(x);
 			a[2] = x.dot(Ay);
@@ -73,21 +73,17 @@ public:
 		}
 		return lmd;
 	}
-	void try_eigh2(const value a[4], value lmd[2], value x[2], value y[2])
-	{
-		eigh2_(a, lmd, x, y);
-	}
 private:
 	int nit_;
-	void eigh2_(const value a[4], value lmd[2], value x[2], value y[2]) const
+	void eigh2_(const value_type a[4], value_type lmd[2], value_type x[2], value_type y[2]) const
 	{
-		value zero = 0;
-		value one = 1;
-		value c = abs(a[1]);
-		value d = abs(a[0] - a[3]);
+		value_type zero = 0;
+		value_type one = 1;
+		value_type c = abs(a[1]);
+		value_type d = abs(a[0] - a[3]);
 		d = d * d + (c + c) * (c + c);
-		value s = sqrt(d);
-		value t = a[0] + a[3];
+		value_type s = sqrt(d);
+		value_type t = a[0] + a[3];
 		if (s == zero && t == zero) {
 			lmd[0] = 0.0;
 			lmd[1] = 0.0;
@@ -99,10 +95,10 @@ private:
 		}
 		lmd[0] = (t - s) / (one + one);
 		lmd[1] = (t + s) / (one + one);
-		value p = a[1];
-		value q = lmd[0] - a[0];
-		value pc = p == zero ? 0 : abs(p*p) / p;
-		value qc = q == zero ? 0 : abs(q*q) / q;
+		value_type p = a[1];
+		value_type q = lmd[0] - a[0];
+		value_type pc = p == zero ? 0 : abs(p*p) / p;
+		value_type qc = q == zero ? 0 : abs(q*q) / q;
 		x[0] = p;
 		x[1] = q;
 		s = sqrt(abs(pc*x[0] + qc*x[1]));

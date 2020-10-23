@@ -37,7 +37,7 @@ limitations under the License.
 #include <stdlib.h>
 
 #include "sirf/STIR/stir_data_containers.h"
-#include "sirf/common/jcg.h"
+#include "sirf/common/JacobiCG.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
