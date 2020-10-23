@@ -35,7 +35,7 @@ limitations under the License.
 #include "stir/IO/stir_ecat_common.h"
 
 #include "sirf/common/jcg.h"
-#include "sirf/common/bf_operator.h"
+#include "sirf/STIR/bf_operator.h"
 #include "sirf/STIR/stir_x.h"
 
 #include "object.h"
@@ -131,7 +131,7 @@ int test1()
 
 		// compute the norm of the linear part of the acquisition model
 		std::cout << "computing the norm of the linear part of the acquisition model...\n";
-		BFOperator bf(sptr_am->linear_acq_mod_sptr());
+		BFOperator bf(am);
 		JacobiCG<float> jcg;
 		jcg.set_num_iterations(2);
 		float lmd = jcg.rightmost(bf, image_data);

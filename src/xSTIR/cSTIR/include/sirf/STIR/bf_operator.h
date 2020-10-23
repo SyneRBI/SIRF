@@ -5,7 +5,7 @@
 namespace sirf {
 	class BFOperator : public anOperator<STIRImageData> {
 	public:
-		BFOperator(std::shared_ptr<PETAcquisitionModel> sptr_am) : sptr_am_(sptr_am) {}
+		BFOperator(const PETAcquisitionModel& am) : sptr_am_(am.linear_acq_mod_sptr()) {}
 		void set_subset(int sub_num)
 		{
 			sub_num_ = sub_num;
@@ -17,7 +17,7 @@ namespace sirf {
 		virtual std::shared_ptr<STIRImageData> apply(const STIRImageData& image_data) const
 		{
 			std::shared_ptr<PETAcquisitionData> sptr_fwd = 
-				sptr_am_->forward(image_data, sub_num_, num_sub_, true);
+				sptr_am_->forward(image_data, sub_num_, num_sub_); // , true);
 			std::shared_ptr<STIRImageData> sptr_bwd = 
 				sptr_am_->backward(*sptr_fwd, sub_num_, num_sub_);
 			return sptr_bwd;
