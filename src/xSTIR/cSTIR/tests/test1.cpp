@@ -225,10 +225,10 @@ int test1()
 		std::cout << "acquisition model norm: |A| = " << am_norm << '\n';
 		std::cout << "image data x norm: |x| = " << im_norm << '\n';
 		std::cout << "simulated acquisition data norm: |A(x)| = " << sim_norm << '\n';
-		std::cout << "checking that |A(x)| < |A| |x|: ";
-		bool ok = sim_norm < am_norm*sim_norm;
+		std::cout << "checking that |A(x)| <= |A| |x|: ";
+		bool ok = sim_norm <= am_norm*sim_norm;
 		if (ok)
-			std::cout << sim_norm << " < " << am_norm*im_norm << " ok!\n";
+			std::cout << sim_norm << " <= " << am_norm*im_norm << " ok!\n";
 		else
 			std::cout << sim_norm << " > " << am_norm*im_norm << " failure!\n";
 
