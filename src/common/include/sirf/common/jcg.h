@@ -43,7 +43,7 @@ public:
 
 		value s = sqrt(x.dot(x));
 		x.scale(s);
-		shared_ptr<vector> sptr_Ax = A(x);
+		std::shared_ptr<vector> sptr_Ax = A(x);
 		vector& Ax = *sptr_Ax;
 
 		for (int it = 0; it < nit_; it++) {
@@ -66,7 +66,7 @@ public:
 			if (s == 0.0)
 				return lmd;
 			y.scale(s);
-			shared_ptr<vector> sptr_Ay = A(y);
+			std::shared_ptr<vector> sptr_Ay = A(y);
 			vector& Ay = *sptr_Ay;
 			a[0] = lmd;
 			a[1] = Ay.dot(x);
