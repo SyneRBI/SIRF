@@ -560,7 +560,7 @@ PETAcquisitionModel::set_image_data_processor(stir::shared_ptr<ImageDataProcesso
 
 void 
 PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
-	int subset_num, int num_subsets, bool zero, bool do_linear_only)
+	int subset_num, int num_subsets, bool zero, bool do_linear_only) const
 {
 	shared_ptr<ProjData> sptr_fd = ad.data();
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
@@ -598,7 +598,7 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 
 shared_ptr<PETAcquisitionData>
 PETAcquisitionModel::forward(const STIRImageData& image, 
-	int subset_num, int num_subsets, bool do_linear_only)
+	int subset_num, int num_subsets, bool do_linear_only) const
 {
 	if (!sptr_acq_template_.get())
 		THROW("Fatal error in PETAcquisitionModel::forward: acquisition template not set");
@@ -611,7 +611,7 @@ PETAcquisitionModel::forward(const STIRImageData& image,
 
 shared_ptr<STIRImageData> 
 PETAcquisitionModel::backward(PETAcquisitionData& ad,
-	int subset_num, int num_subsets)
+	int subset_num, int num_subsets) const
 {
 	if (!sptr_image_template_.get())
 		THROW("Fatal error in PETAcquisitionModel::backward: image template not set");
@@ -623,7 +623,7 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad,
 
 void
 PETAcquisitionModel::backward(STIRImageData& id, PETAcquisitionData& ad,
-	int subset_num, int num_subsets)
+	int subset_num, int num_subsets) const
 {
 	shared_ptr<Image3DF> sptr_im = id.data_sptr();
 
