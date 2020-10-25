@@ -312,6 +312,7 @@ class ImageData(SIRF.ImageData):
                 'wrong argument ' + repr(arg) + ' for ImageData constructor')
         self.name = 'ImageData'
         self.rimsize = -1
+        self.spacing = (1.,1.,1.)
 
     def __del__(self):
         """Deallocates this ImageData object."""
@@ -351,6 +352,7 @@ class ImageData(SIRF.ImageData):
         self.handle = pystir.cSTIR_imageFromVoxels(voxels)
         check_status(self.handle)
         pyiutil.deleteDataHandle(voxels)
+        self.spacing = vsize
 
     def fill(self, value):
         """Set the voxel-values.
@@ -1613,8 +1615,8 @@ class AcquisitionModel(object):
                 self.subset_num = 0
                 
             else:
-                raise ValueError("Expected a subset number below {} and larger than 0. Got {}"\
-                    .format(self.subset_num, value))
+                raise ValueError("Expected a subset number larger than 0. Got {}"\
+                    .format(value))
         else:
             raise ValueError("Expected an integer. Got {}".format(type(value)))
 

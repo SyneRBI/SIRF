@@ -52,6 +52,20 @@ class DataContainer(ABC):
     '''
     def __init__(self):
         self.handle = None
+        self._mask = None
+
+    @property
+    def mask(self):
+        return self._mask
+    @mask.setter
+    def mask(self, value):
+        if not isinstance (value, numpy.ndarray):
+            raise TypeError('Please provide a mask as numpy array')
+        if self.shape != value.shape:
+            raise ValueError('Mask shape is wrong: expected {} got {}.'\
+                .format(self.shape, value.shape))
+        self._mask = value.copy()
+
     def __del__(self):
         print("SIRF.DataContainer __del__ with handle {}.".format(self.handle))
         if self.handle is not None:
