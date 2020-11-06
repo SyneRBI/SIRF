@@ -162,7 +162,7 @@ class NiftiImageData(SIRF.ImageData):
         elif isinstance(src, SIRF.ImageData):
             # src is ImageData
             self.handle = pyreg.cReg_NiftiImageData_from_SIRFImageData(
-                src.handle)
+                src.handle, 0)
         else:
             raise error('Wrong source in NiftiImageData constructor')
         check_status(self.handle)
@@ -560,7 +560,7 @@ class NiftiImageData3D(NiftiImageData):
         elif isinstance(src, SIRF.ImageData):
             # src is ImageData
             self.handle = pyreg.cReg_NiftiImageData_from_SIRFImageData(
-                src.handle)
+                src.handle, 1)
         else:
             raise error('Wrong source in NiftiImageData3D constructor')
         check_status(self.handle)

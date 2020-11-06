@@ -450,13 +450,16 @@ void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2
     CATCH;
 }
 extern "C"
-void* cReg_NiftiImageData_from_SIRFImageData(void* ptr)
+void* cReg_NiftiImageData_from_SIRFImageData(void* ptr, const int is_3D)
 {
 	try {
         ImageData& sirf_im = objectFromHandle<ImageData>(ptr);
-        std::shared_ptr<NiftiImageData<float> >
-            sptr(new NiftiImageData<float>(sirf_im));
-        return newObjectHandle(sptr);
+
+    	// Use an int as if bool to optionally run 3D checks
+        if (is_3D == 1)
+        	return newObjectHandle(sptr(new NiftiImageData3D<float>(sirf_im)));
+        else
+        	return newObjectHandle(sptr(new NiftiImageData<float>(sirf_im)));
     }
 	CATCH;
 }
