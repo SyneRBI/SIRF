@@ -363,7 +363,7 @@ def try_niftiimage3d():
     try:
         dddd = NiftiImageData3D(ddd)
         raise AssertionError('NiftiImageData3D constructor should have thrown with 4D image')
-    catch:
+    except:
         # ok
 
     # Addition
