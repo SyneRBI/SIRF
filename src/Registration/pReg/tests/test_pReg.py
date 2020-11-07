@@ -348,9 +348,23 @@ def try_niftiimage3d():
     # Deep copy
     d = b.deep_copy()
     if d.handle == b.handle:
-        raise AssertionError('NiftiImageData3D deep_copy failed.')
+        raise AssertionError('NiftiImageData3D deep_copy failed (handle).')
     if d != b:
         raise AssertionError("NiftiImageData3D deep_copy failed.")
+
+    # Constructor
+    dd = NiftiImageData3D(b)
+    if dd.handle == b.handle:
+        raise AssertionError('NiftiImageData3D constructor failed (handle).')
+    if dd != b:
+        raise AssertionError("NiftiImageData3D constructor failed.")
+
+    ddd = sirf.Reg.NiftiDeformationField(ref_f3d_filename)
+    try:
+        dddd = NiftiImageData3D(ddd)
+        raise AssertionError('NiftiImageData3D constructor should have thrown with 4D image')
+    catch:
+        # ok
 
     # Addition
     e = d + d
