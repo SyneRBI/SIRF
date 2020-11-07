@@ -463,10 +463,10 @@ The actual algorithm is described in
         {
             sptr_output_ = arg;
 
-            stir::SingleScatterSimulation::set_template_proj_data_info_sptr(
-                        sptr_output_->get_proj_data_info_sptr());
-            stir::SingleScatterSimulation::set_exam_info_sptr(
-                        sptr_output_->get_exam_info_sptr());
+            stir::SingleScatterSimulation::set_template_proj_data_info(
+                        *sptr_output_->get_proj_data_info_sptr());
+            stir::SingleScatterSimulation::set_exam_info(
+                        *sptr_output_->get_exam_info_sptr());
 
             stir::SingleScatterSimulation::set_output_proj_data_sptr(sptr_output_->data());
         }

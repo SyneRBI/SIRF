@@ -376,7 +376,6 @@ void* cSTIR_runScatterSimulation(void* ptr)
 {
     try {
         PETSingleScatterSimulation& sss = objectFromHandle<PETSingleScatterSimulation>(ptr);
-        sss.default_downsampling();
         sss.set_up();
 
         sss.process_data();
