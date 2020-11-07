@@ -14,15 +14,16 @@ Options:
   -s <subs>, --subs=<subs>     number of subsets [default: 4]
   -i <sitr>, --subiter=<sitr>  number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
+  --non-interactive            do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -41,6 +42,7 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
 
+
 # process command-line options
 pen_factor = args['--penf']
 num_subsets = int(args['--subs'])
@@ -51,6 +53,8 @@ if data_path is None:
     data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 init_file = args['--init']
+show_plot = not args['--non-interactive']
+
 
 def main():
 
@@ -72,7 +76,8 @@ def main():
     init_image_file = existing_filepath(data_path, init_file)
     image = ImageData(init_image_file)
     image_array = image.as_array()
-    show_2D_array('Initial image', image_array[10,:,:])
+    if show_plot:
+        show_2D_array('Initial image', image_array[10,:,:])
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
@@ -100,25 +105,31 @@ def main():
         print('\n------------- Subiteration %d' % recon.get_subiteration_num())
         # perform a sub-iteration
         recon.update(image)
+        if not show_plot:
+            continue
         # display the current image at z = 10
         image_array = image.as_array()
         pylab.figure(iter + 1)
         pylab.imshow(image_array[10,:,:])
         print('You may neet to close Figure %d window to continue' % (iter + 1))
-    pylab.show()
+    if show_plot:
+        pylab.show()
 
-    # display the reconstructed image
-    #image.show(15) # show one
-    #image.show([1, 10, 11, 12]) # show list
-    #image.show((1, 10, 11, 12))
-    #image.show(range(2, 30, 3)) # show range
-    image.show(title = 'Reconstructed images') # show all
+    if show_plot:
+        # display the reconstructed image
+        #image.show(15) # show one
+        #image.show([1, 10, 11, 12]) # show list
+        #image.show((1, 10, 11, 12))
+        #image.show(range(2, 30, 3)) # show range
+        image.show(title='Reconstructed images') # show all
+
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     # display error information
     print('%s' % err.value)

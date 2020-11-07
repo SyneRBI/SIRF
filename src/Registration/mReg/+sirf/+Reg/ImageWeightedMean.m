@@ -1,12 +1,12 @@
 classdef ImageWeightedMean < handle
 % Class for performing weighted mean of images.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018-2019 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ classdef ImageWeightedMean < handle
             elseif ischar(image)
                 h = calllib('mreg', 'mReg_ImageWeightedMean_add_image_filename', self.handle_, image, weight);
             else
-                error("sirf.Reg.ImageWeightedMean.add_image: image must be sirf.SIRF.ImageData or filename.")
+                error('sirf.Reg.ImageWeightedMean.add_image: image must be sirf.SIRF.ImageData or filename.')
             end
             sirf.Utilities.check_status([self.name ':add_image'], h);
             sirf.Utilities.delete(h)
@@ -62,7 +62,7 @@ classdef ImageWeightedMean < handle
             %Get output.
             output = sirf.Reg.NiftiImageData();
             sirf.Utilities.delete(output.handle_)
-            output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, self.name, 'output');
+            output.handle_ = calllib('mreg', 'mParameter', self.handle_, self.name, 'output');
             sirf.Utilities.check_status([self.name ':get_output'], output.handle_)
         end
     end

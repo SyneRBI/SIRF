@@ -12,7 +12,7 @@ Pre-requisites:
  2) An input data file from a GRAPPA MRI acquisition in the ISMRMRD format.
     Example GRAPPA datasets:
     a) 'meas_MID00108_FID57249_test_2D_2x.dat' is 
-       available from https://www.ccppetmr.ac.uk/downloads
+       available from https://www.ccpsynerbi.ac.uk/downloads
        This is in the manufacturer's raw data format and needs to be
        converted to ISMRMRD format using 'siemens_to_ismrmrd'.
        This executable is installed on the Virtual Machine.
@@ -27,16 +27,17 @@ Options:
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
 ## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -60,6 +61,7 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
+show_plot = not args['--non-interactive']
 
 
 def main():
@@ -86,7 +88,8 @@ def main():
     # specified in prep_gadgets, returning an instance
     # of an mGadgetron.AcquisitionsContainer
     preprocessed_data = acq_data.process(prep_gadgets)
-    preprocessed_data.show(title = 'Acquisition data (magnitude)')
+    if show_plot:
+        preprocessed_data.show(title = 'Acquisition data (magnitude)')
     
     
     # Perform reconstruction of the preprocessed data.
@@ -135,17 +138,18 @@ def main():
     # for both the reconstructed images and g-factors, before extracting the
     # data as Python arrays.
     
-    # Get image and gfactor data as objects of type mGadgetron.ImageData
+    # Get image and gfactor data as objects of type pGadgetron.ImageData
     # (Note this syntax may change in the future with the addition of a
     #  method '.get_gfactor'.)
     image_data = recon.get_output('image')
     gfact_data = recon.get_output('gfactor')
-    image_data.show(title = 'Reconstructed image data (magnitude)')
-    gfact_data.show(title = 'G-factor data (magnitude)')
+    if show_plot:
+        image_data.show(title = 'Reconstructed image data (magnitude)')
+        gfact_data.show(title = 'G-factor data (magnitude)')
     
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

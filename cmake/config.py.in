@@ -1,0 +1,5 @@
+"""Config used by all engines"""
+
+SIRF_HAS_NiftyPET = @NiftyPET_BOOL_STR@
+
+SIRF_HAS_SPM = @SPM_BOOL_STR@

@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2017 - 2019 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Parser keys for 0, 1 and 2 arguments
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -52,7 +52,7 @@ std::string get_typename(A)
 \brief Base for parser keys
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class Z>
 class ParserKeyBase
@@ -148,6 +148,10 @@ protected:
     /// Get argument - unsigned long
     void get_argument(const std::string &line, const int arg_num, unsigned long &arg) const { arg = std::stoul(get_arg_as_string(line, arg_num)); }
 
+#ifdef _WIN32
+    /// Get argument - size_t
+    void get_argument(const std::string &line, const int arg_num, std::size_t &arg) const { arg = std::stoul(get_arg_as_string(line, arg_num)); }
+#endif
     /// Object to call the function on
     std::shared_ptr<Z> _object;
 };
@@ -157,7 +161,7 @@ protected:
 \brief Class for parser keys with 0 arguments
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class Z>
 class ParserKey0Arg : public ParserKeyBase<Z>
@@ -202,7 +206,7 @@ protected:
 \brief Class for parser keys with 1 argument
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class Z, class A>
 class ParserKey1Arg : public ParserKeyBase<Z>
@@ -254,7 +258,7 @@ protected:
 \brief Class for parser keys with 2 arguments
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class Z, class A, class B>
 class ParserKey2Arg : public ParserKeyBase<Z>

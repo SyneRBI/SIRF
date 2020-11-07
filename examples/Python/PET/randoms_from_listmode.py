@@ -18,15 +18,16 @@ Options:
                                (no space after comma) [default: (0,100)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  --non-interactive            do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -51,6 +52,7 @@ import numpy as np
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
 
+
 # process command-line options
 data_path = args['--path']
 if data_path is None:
@@ -65,6 +67,8 @@ list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
 interval = literal_eval(args['--interval'])
 storage = args['--storage']
+show_plot = not args['--non-interactive']
+
 
 def main():
 
@@ -115,12 +119,14 @@ def main():
 
     print('A single sinogram (this will look very different for noisy data)')
     z = acq_dim[1]//2
-    show_3D_array(np.stack((delayeds_acq_array[0,z,:,:], randoms_estimate_acq_array[0,z,:,:])), titles=('raw delayeds', ' estimated randoms'))
+    if show_plot:
+        show_3D_array(np.stack((delayeds_acq_array[0,z,:,:], randoms_estimate_acq_array[0,z,:,:])), titles=('raw delayeds', ' estimated randoms'))
+        pylab.show()
 
-    pylab.show()
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

@@ -1,12 +1,13 @@
 classdef ImageData < sirf.SIRF.ImageData
 % Class for MR image data objects.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% 
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2019 University College London
+%
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -110,13 +111,13 @@ classdef ImageData < sirf.SIRF.ImageData
             n = dim(1)*dim(2)*nz;
             if self.is_real()
                 ptr_v = libpointer('singlePtr', zeros(n, 1));
-                h = calllib('mgadgetron', 'mGT_getImagesDataAsFloatArray', ...
+                h = calllib('mgadgetron', 'mGT_getImageDataAsFloatArray', ...
                     self.handle_, ptr_v);
                 data = reshape(ptr_v.Value, dim(1), dim(2), nz);
             else
                 ptr_z = libpointer('singlePtr', zeros(2, n));
                 h = calllib...
-                    ('mgadgetron', 'mGT_getImagesDataAsCmplxArray', ...
+                    ('mgadgetron', 'mGT_getImageDataAsCmplxArray', ...
                     self.handle_, ptr_z);
                 data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
                     dim(1), dim(2), nz);
@@ -130,7 +131,7 @@ classdef ImageData < sirf.SIRF.ImageData
                 error('ImageData:empty_object', 'cannot handle empty object')
             end
             if self.is_real()
-                h = calllib('mgadgetron', 'mGT_setImagesDataAsRealArray', ...
+                h = calllib('mgadgetron', 'mGT_setImageDataFromRealArray', ...
                     self.handle_, data);
             else
                 z = [real(data(:))'; imag(data(:))'];
@@ -139,7 +140,7 @@ classdef ImageData < sirf.SIRF.ImageData
                 else
                     ptr_z = libpointer('singlePtr', single(z));
                 end
-                h = calllib('mgadgetron', 'mGT_setImagesDataAsCmplxArray', ...
+                h = calllib('mgadgetron', 'mGT_setImageDataFromCmplxArray', ...
                     self.handle_, ptr_z);
             end
             sirf.Utilities.check_status('ImageData', h);
@@ -168,6 +169,10 @@ classdef ImageData < sirf.SIRF.ImageData
                 imshow(data(:, :, z))
                 title(['image ' num2str(z)])
             end
+        end
+        function print_header(self, im_num)
+            % print the header of one of the images. zero based.
+            calllib('mgadgetron', 'mGT_print_header', img.handle_, im_num);
         end
     end
 end

@@ -1,12 +1,12 @@
 function assert_validity(object, type)
 % Ensures the object is of a correct type and is not empty.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@ function assert_validity(object, type)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-if ~strcmp(object.class_name(), type)
-    fprintf('??? Argument of a wrong type %s: expected %s.\n', ...
-        object.class_name(), type)
-    error('Object of a wrong type %s\n', object.class_name())
+if ~ismethod(object, 'class_name')
+    error('expected %s, got %s\n', type, class(object))
 end
+
+if ~strcmp(object.class_name(), type)
+    error('expected %s, got %s\n', type, object.class_name())
+end
+
 assert(~isempty(object.handle_), 'empty object')

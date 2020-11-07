@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Specification file for extended Gadgetron functionality classes.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #ifndef GADGETRON_EXTENSIONS
@@ -136,13 +136,21 @@ namespace sirf {
 
 	class GadgetChain { //: public anObject {
 	public:
-		//GadgetChain()
-		//{
-		//	class_ = "GadgetChain";
-		//}
+		GadgetChain() : host_("localhost"), port_("9002")
+		{
+			//class_ = "GadgetChain";
+		}
 		static const char* class_name()
 		{
 			return "GadgetChain";
+		}
+		void set_host(const std::string host)
+		{
+			host_ = host;
+		}
+		void set_port(const std::string port)
+		{
+			port_ = port;
 		}
 		// apparently caused crash in linux
 		//virtual ~GadgetChain() {}
@@ -172,6 +180,9 @@ namespace sirf {
 		gadgetron::shared_ptr<aGadget> gadget_sptr(std::string id);
 		// returns string containing the definition of the chain in xml format
 		std::string xml() const;
+	protected:
+		std::string host_;
+		std::string port_;
 	private:
 		std::list<gadgetron::shared_ptr<GadgetHandle> > readers_;
 		std::list<gadgetron::shared_ptr<GadgetHandle> > writers_;
@@ -189,7 +200,6 @@ namespace sirf {
 	class AcquisitionsProcessor : public GadgetChain {
 	public:
 		AcquisitionsProcessor() :
-			host_("localhost"), port_("9002"),
 			reader_(new IsmrmrdAcqMsgReader),
 			writer_(new IsmrmrdAcqMsgWriter)
 		{
@@ -197,9 +207,6 @@ namespace sirf {
 			sptr_acqs_.reset();
 			add_reader("reader", reader_);
 			add_writer("writer", writer_);
-			gadgetron::shared_ptr<AcquisitionFinishGadget>
-				endgadget(new AcquisitionFinishGadget);
-			set_endgadget(endgadget);
 		}
 		// apparently caused crash in linux
 		//virtual ~AcquisitionsProcessor() {}
@@ -215,8 +222,6 @@ namespace sirf {
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
@@ -233,7 +238,6 @@ namespace sirf {
 	public:
 
 		ImagesReconstructor() :
-			host_("localhost"), port_("9002"),
 			reader_(new IsmrmrdAcqMsgReader),
 			writer_(new IsmrmrdImgMsgWriter)
 		{
@@ -256,8 +260,6 @@ namespace sirf {
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
@@ -272,15 +274,23 @@ namespace sirf {
 
 	class ImagesProcessor : public GadgetChain {
 	public:
-		ImagesProcessor() :
-			host_("localhost"), port_("9002"),
-			reader_(new IsmrmrdImgMsgReader),
-			writer_(new IsmrmrdImgMsgWriter)
+		ImagesProcessor(bool dicom = false, std::string prefix = "image") :
+			dicom_(dicom), prefix_(prefix),
+			reader_(new IsmrmrdImgMsgReader)
 		{
 			//class_ = "ImagesProcessor";
+			//gadgetron::shared_ptr<ImageFinishGadget> endgadget;
+			gadgetron::shared_ptr<aGadget> endgadget;
+			if (dicom) {
+				writer_.reset(new DicomImageMessageWriter);
+				endgadget.reset(new DicomFinishGadget);
+			}
+			else {
+				writer_.reset(new IsmrmrdImgMsgWriter);
+				endgadget.reset(new ImageFinishGadget);
+			}
 			add_reader("reader", reader_);
 			add_writer("writer", writer_);
-			gadgetron::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 			set_endgadget(endgadget);
 		}
 		static const char* class_name()
@@ -289,17 +299,18 @@ namespace sirf {
 		}
 
 		void check_connection();
-		void process(GadgetronImageData& images);
+		void process(const GadgetronImageData& images);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
 			return sptr_images_;
 		}
 
 	private:
-		std::string host_;
-		std::string port_;
+		bool dicom_;
+		std::string prefix_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgReader> reader_;
-		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
+		gadgetron::shared_ptr<ImageMessageWriter> writer_;
+//		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
 	};
 
@@ -364,7 +375,7 @@ namespace sirf {
 			sptr_imgs_ = sptr_ic;
 		}
 		// Records the coil sensitivities maps to be used. 
-		void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms)
+        void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms)
 		{
 			sptr_csms_ = sptr_csms;
 		}
@@ -382,7 +393,7 @@ namespace sirf {
 		// Forward projects one image item (typically xy-slice) into
 		// respective readouts, and appends them to the AcquisitionContainer
 		// passed as the last argument.
-		void fwd(ImageWrap& iw, CoilData& csm, MRAcquisitionData& ac,
+        void fwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
 			unsigned int& off)
 		{
 			int type = iw.type();
@@ -392,7 +403,7 @@ namespace sirf {
 
 		// Backprojects a set of readouts corresponding to one image item
 		// (typically xy-slice).
-		void bwd(ImageWrap& iw, CoilData& csm, MRAcquisitionData& ac,
+        void bwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
 			unsigned int& off)
 		{
 			int type = iw.type();
@@ -402,12 +413,12 @@ namespace sirf {
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
-		void fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
+        void fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 			MRAcquisitionData& ac);
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps in the second argument.
-		void bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
+        void bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 			MRAcquisitionData& ac);
 
 		// Forward projects the whole ImageContainer using
@@ -425,6 +436,8 @@ namespace sirf {
 				sptr_acqs_->new_acquisitions_container();
 			sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
 			fwd(ic, *sptr_csms_, *sptr_acqs);
+			sptr_acqs->set_sorted(true);
+			sptr_acqs->organise_kspace();
 			return sptr_acqs;
 		}
 
@@ -448,13 +461,13 @@ namespace sirf {
 		std::string acqs_info_;
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_imgs_;
-		gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
+        gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms_;
 
 		template< typename T>
-		void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
+        void fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
 			MRAcquisitionData& ac, unsigned int& off);
 		template< typename T>
-		void bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
+        void bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
 			MRAcquisitionData& ac, unsigned int& off);
 	};
 

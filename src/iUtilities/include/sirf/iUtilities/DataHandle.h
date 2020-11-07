@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2019 University College London
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Execution status type and basic wrapper for C++ objects.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #ifndef DATA_HANDLE_TYPES
@@ -38,7 +38,7 @@ limitations under the License.
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
+//#define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
 #define CATCH \
 	catch (LocalisedException& se) {\
 		ExecutionStatus status(se);\
@@ -77,8 +77,8 @@ It stores the exeption's error message and position (file name and line number).
 */
 class ExecutionStatus {
 public:
-	ExecutionStatus() : _error(0), _file(0), _line(0) {}
-	ExecutionStatus(const char* error, const char* file, int line) {
+	ExecutionStatus() : _line(0) {}
+	ExecutionStatus(const std::string& error, const std::string& file, int line) {
 		set(error, file, line);
 	}
 	ExecutionStatus(const ExecutionStatus& s) {
@@ -87,33 +87,17 @@ public:
 	ExecutionStatus(const LocalisedException& ex) {
 		set(ex.what(), ex.file(), ex.line());
 	}
-	~ExecutionStatus() {
-		delete[] _error;
-		delete[] _file;
-	}
-	const char* error() const { return _error; }
-	const char* file() const { return _file; }
+    ~ExecutionStatus() {}
+	const std::string& error() const { return _error; }
+	const std::string& file() const { return _file; }
 	int line() const { return _line; }
 private:
-	char* _error;
-	char* _file;
+	std::string _error;
+	std::string _file;
 	int _line;
-	void set(const char* error, const char* file, int line) {
-		size_t size;
-		if (error) {
-			size = strlen(error) + 1;
-			_error = new char[size];
-			memcpy(_error, error, size);
-		}
-		else
-			_error = 0;
-		if (file) {
-			size = strlen(file) + 1;
-			_file = new char[size];
-			memcpy(_file, file, size);
-		}
-		else
-			_file = 0;
+	void set(const std::string& error, const std::string& file, int line) {
+        _error = error;
+        _file = file;
 		_line = line;
 	}
 };
@@ -135,6 +119,13 @@ public:
 			free(_data);
 		delete _status;
 	}
+	static void* error_handle(const std::string& error, const std::string& file, int line)
+	{
+		DataHandle* handle = new DataHandle;
+		ExecutionStatus status(error, file, line);
+		handle->set(0, &status);
+		return handle;
+	}
 	void set(void* data, const ExecutionStatus* status = 0, int grab = 0) {
 		if (status) {
 			delete _status;
@@ -145,7 +136,7 @@ public:
 		_data = data;
 		_owns_data = grab != 0;
 	}
-	void set_status(const char* error, const char* file, int line)
+	void set_status(const std::string& error, const std::string& file, int line)
 	{
 		if (_status)
 			delete _status;

@@ -52,7 +52,8 @@ namespace ISMRMRD {
 	}
 	int fft2c(NDArray<complex_float_t> &a);
 	int ifft2c(NDArray<complex_float_t> &a);
-
+	void fft3c(NDArray<complex_float_t> &a);
+	void ifft3c(NDArray<complex_float_t> &a);
 };
 
 #endif

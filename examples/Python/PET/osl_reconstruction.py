@@ -22,15 +22,16 @@ Options:
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
   -i <iter>, --subiter=<iter>    number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -49,6 +50,7 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
 
+
 # process command-line options
 num_subsets = int(args['--subs'])
 num_subiterations = int(args['--subiter'])
@@ -62,6 +64,7 @@ if args['--anim'] is not None:
     ai_file = existing_filepath(data_path, args['--anim'])
 else:
     ai_file = None
+show_plot = not args['--non-interactive']
 
 
 def main():
@@ -130,13 +133,16 @@ def main():
     # (check the OSEM demo to learn how to display results during sub-iterations)
     print('reconstructing...')
     recon.reconstruct(image)
-    image.show(title = 'Reconstructed images')
+    if show_plot:
+        image.show(title = 'Reconstructed images')
+
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     # display error information
     print('%s' % err.value)

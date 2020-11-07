@@ -1,12 +1,15 @@
 classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Reg.Transformation
 % Class for deformation image data.
+%
+% Deformation fields (as opposed to Displacement fields) describe the absolute position (in real world units) of the pixel locations on the reference image.
+% A deformation field of an identity transformation will contain the location of each of the pixels centroids in the world coordinates.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018-2019 University College London
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2018-2020 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -46,6 +49,22 @@ classdef NiftiImageData3DDeformation < sirf.Reg.NiftiImageData3DTensor & sirf.Re
                 sirf.Utilities.delete(self.handle_)
                 self.handle_ = [];
             end
+        end
+        function output = get_inverse(self, floating)
+            % Get inverse (potentially based on another image).
+            %
+            % Why would you want to base it on another image? Well, we might have a deformation
+            % that takes us from image A to B. We'll probably want the inverse to take us from
+            % image B back to A. In this case, use get_inverse(A). This is because the the deformation
+            % field is defined for the reference image. In the second case, A is the reference,
+            % and B is the floating image.
+            if nargin == 1
+                floating = self;
+            end
+            assert(isa(floating, 'sirf.SIRF.ImageData'))
+            output = sirf.Reg.NiftiImageData3DDeformation();
+            output.handle_ = calllib('mreg', 'mReg_NiftiImageData3DDeformation_get_inverse',self.handle_, floating.handle_);
+            sirf.Utilities.check_status([self.name ':get_inverse'], output.handle_);
         end
     end
     methods(Static)

@@ -2,12 +2,12 @@ classdef GadgetChain < handle
 % ADVANCED USERS ONLY. 
 % Class for Gadgetron gadget chains.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -55,6 +55,16 @@ classdef GadgetChain < handle
 %             sirf.Utilities.check_status(self.name_, handle);
 %             sirf.Utilities.delete(handle)
 %         end
+        function set_host(self, host)
+            handle = calllib('mgadgetron', 'mGT_setHost', self.handle_, host);
+            sirf.Utilities.check_status(self.name_, handle);
+            sirf.Utilities.delete(handle)
+        end
+        function set_port(self, port)
+            handle = calllib('mgadgetron', 'mGT_setPort', self.handle_, port);
+            sirf.Utilities.check_status(self.name_, handle);
+            sirf.Utilities.delete(handle)
+        end
         function add_gadget(self, id, gadget)
 %***SIRF*** add_gadget(id, gadget) adds a gadget to the chain.
 %         id    : gadget id (Matlab string)

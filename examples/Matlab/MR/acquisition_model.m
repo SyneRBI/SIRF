@@ -6,13 +6,13 @@ function acquisition_model(engine)
 % In MATLAB, there are also ISMRMRD tools available for examining 
 % data before processing.
 %
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -55,10 +55,14 @@ processed_data.sort()
 % perform reconstruction to obtain a meaningful ImageData object
 % (cannot be obtained in any other way at present):
 % 1. Create a reconstruction object using 2D inverse Fourier transform and
+if acq_data.is_undersampled()
+%    CartesianGRAPPAReconstructor() sets up a default gadget chain.
+    recon = MR.CartesianGRAPPAReconstructor();
+    recon.compute_gfactors(false)
+else
 %    FullySampledCartesianReconstructor() sets up a default gadget chain.
-%recon = MR.FullySampledCartesianReconstructor();
-recon = MR.CartesianGRAPPAReconstructor();
-
+    recon = MR.FullySampledCartesianReconstructor();
+end
 % 2. Provide pre-processed k-space data as input
 recon.set_input(processed_data)
 
@@ -67,7 +71,7 @@ fprintf('reconstructing...\n')
 recon.process()
 
 % retrieve reconstruction as ImageData object
-image_data = recon.get_output('image');
+image_data = recon.get_output();
 
 par = {'flags', 'channels', 'slice', 'repetition'};
 for i = 1 : image_data.number()

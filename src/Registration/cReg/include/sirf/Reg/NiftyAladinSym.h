@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2017 - 2019 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief NiftyReg's aladin class for rigid and affine registrations.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -45,7 +45,7 @@ template<class dataType> class AffineTransformation;
 Since this algorithm is affine/rigid, it can also return a transformation matrix if desired.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class dataType> class NiftyAladinSym : public NiftyRegistration<dataType>
 {
@@ -59,6 +59,9 @@ public:
 
     /// Get inverse transformation matrix
     const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr() const { return _TM_inverse_sptr; }
+
+    /// Get inverse deformation field image
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const;
 
     /// Print all wrapped methods
     static void print_all_wrapped_methods();

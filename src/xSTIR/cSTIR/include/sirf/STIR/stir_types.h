@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,23 +24,27 @@ limitations under the License.
 
 #include <boost/algorithm/string.hpp>
 
+#include "stir/DataProcessor.h"
 #include "stir/DiscretisedDensity.h"
 #include "stir/CartesianCoordinate3D.h"
-#include "stir/DataProcessor.h"
 #include "stir/IndexRange3D.h"
 #include "stir/is_null_ptr.h"
 #include "stir/ML_norm.h"
 #include "stir/recon_array_functions.h"
+#include "stir/SeparableGaussianImageFilter.h"
 #include "stir/Succeeded.h"
 #include "stir/utilities.h"
 #include "stir/VoxelsOnCartesianGrid.h"
+#include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/IO/OutputFileFormat.h"
 #include "stir/IO/read_from_file.h"
 #include "stir/listmode/CListRecord.h"
 #include "stir/listmode/CListEventCylindricalScannerWithDiscreteDetectors.h"
 #include "stir/listmode/LmToProjData.h"
-#include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
+#ifdef USE_HKEM
+#include "stir/KOSMAPOSL/KOSMAPOSLReconstruction.h"
+#endif
 #include "stir/OSSPS/OSSPSReconstruction.h"
 #include "stir/ProjDataInfoCylindrical.h"
 #include "stir/ProjDataInMemory.h"
@@ -53,6 +58,7 @@ limitations under the License.
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
 #include "stir/recon_buildblock/QuadraticPrior.h"
+#include "stir/SegmentBySinogram.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
 #include "stir/shared_ptr.h"
@@ -60,6 +66,11 @@ limitations under the License.
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
 #include "stir/scatter/SingleScatterSimulation.h"
 #include "stir/scatter/ScatterEstimation.h"
+
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
+#include "stir/recon_buildblock/NiftyPET_projector/ProjectorByBinPairUsingNiftyPET.h"
+#endif
+
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"
 
@@ -82,6 +93,9 @@ namespace sirf {
 		PoissonLogLhLinModMean3DF;
 	//PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
 	typedef stir::ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
+    typedef stir::ProjectorByBinPairUsingNiftyPET ProjectorPairUsingNiftyPET;
+#endif
 	typedef stir::ProjMatrixByBinUsingRayTracing RayTracingMatrix;
 	typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;

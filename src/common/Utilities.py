@@ -8,13 +8,13 @@ import os
 import sirf.pyiutilities as pyiutil
 import re
 
-__licence__ = """CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+__licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2015 - 2019 University College London
+Copyright 2015 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -88,21 +88,20 @@ def show_2D_array(title, array, scale = None, colorbar = True):
     plt.figure()
     plt.title(title)
     if colorbar:
-        plt.imshow(array, vmin = vmin, vmax = vmax)
+        plt.imshow(array, vmin=vmin, vmax=vmax)
         plt.colorbar()
     else:
-        plt.imshow(array, cmap = 'gray', vmin = vmin, vmax = vmax)
+        plt.imshow(array, cmap='gray', vmin=vmin, vmax=vmax)
     fignums = plt.get_fignums()
     print('You may need to close Figure %d window to continue...' % fignums[-1])
     plt.show()
 
 
 def show_3D_array\
-    (array, index = None, tile_shape = None, scale = None, power = None, \
-     suptitle = None, titles = None, \
-     xlabel = None, ylabel = None, label = None, \
-     title_size = None, \
-     cmap = None, show = True):
+    (array, index=None, tile_shape=None, scale=None, power=None, \
+     suptitle=None, titles=None, title_size=None, \
+     zyx=None, xlabel=None, ylabel=None, label=None, \
+     cmap=None, show=True):
     '''
     Displays a 3D array as a set of z-slice tiles.
     On successful completion returns 0.
@@ -120,6 +119,9 @@ def show_3D_array\
     suptitle  : figure title; defaults to None
     titles    : array of tile titles; if not present, each tile title is
                 label + tile_number
+    zyx       : tuple (z, y, x), where x, y, anad z are the dimensions of array
+                corresponding to the spatial dimensions x, y and z; zyx=None is
+                interpreted as (0, 1, 2)
     xlabel    : label for x axis
     ylabel    : label for y axis
     label     : tile title prefix
@@ -128,6 +130,7 @@ def show_3D_array\
     '''
     import math
     import numpy
+
     current_title_size = mpl.rcParams['axes.titlesize']
     current_label_size = mpl.rcParams['axes.labelsize']
     current_xlabel_size = mpl.rcParams['xtick.labelsize']
@@ -136,22 +139,23 @@ def show_3D_array\
     mpl.rcParams['axes.labelsize'] = 'small'
     mpl.rcParams['xtick.labelsize'] = 'small'
     mpl.rcParams['ytick.labelsize'] = 'small'
+
+    if zyx is not None:
+        array = numpy.transpose(array, zyx)
+
     nz = array.shape[0]
     if index is None:
         n = nz
         index = range(n)
-#        index = range(1, n + 1)
     else:
         if type(index) == type(' '):
             try:
                 index = str_to_int_list(index)
             except:
-#                print('incorrect input')
                 return 1
         n = len(index)
         for k in range(n):
             z = index[k]
-#            if z < 1 or z > nz:
             if z < 0 or z >= nz:
                 return k + 1
     ny = array.shape[1]
@@ -183,14 +187,13 @@ def show_3D_array\
         if title_size is None:
             fig.suptitle(suptitle)
         else:
-            fig.suptitle(suptitle, fontsize = title_size)
+            fig.suptitle(suptitle, fontsize=title_size)
     for k in range(n):
         z = index[k] #- 1
         ax = fig.add_subplot(rows, cols, k + 1)
         if titles is None:
             if label is not None and nz > 1:
                 ax.set_title(label + (' %d' % z))
-                # ax.set_title(label + (' %d' % (z + 1)))
         else:
             ax.set_title(titles[k])
         row = k//cols
@@ -202,16 +205,14 @@ def show_3D_array\
             if xlabel is not None:
                 plt.xlabel(xlabel)
                 plt.xticks([0, nx - 1], [0, nx - 1])
-#                plt.xticks([0, nx - 1], [1, nx])
             if ylabel is not None:
                 plt.ylabel(ylabel)
                 plt.yticks([0, ny - 1], [0, ny - 1])
-#                plt.yticks([0, ny - 1], [1, ny])
         if power is None:
-            imgplot = ax.imshow(array[z,:,:], cmap, vmin = vmin, vmax = vmax)
+            imgplot = ax.imshow(array[z,:,:], cmap, vmin=vmin, vmax=vmax)
         else:
             imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), cmap, \
-                                vmin = vmin, vmax = vmax)
+                                vmin=vmin, vmax=vmax)
     if show:
         fignums = plt.get_fignums()
         last = fignums[-1]
@@ -221,10 +222,12 @@ def show_3D_array\
         else:
             print('You may need to close Figure 1 window to continue...')
         plt.show()
+
     mpl.rcParams['axes.titlesize'] = current_title_size
     mpl.rcParams['axes.labelsize'] = current_label_size
     mpl.rcParams['xtick.labelsize'] = current_xlabel_size
     mpl.rcParams['ytick.labelsize'] = current_ylabel_size
+
     return 0
 
 
@@ -234,7 +237,7 @@ def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
     Throws an error if abs(expected - actual) > abstol + reltol*abs(expected)
     '''
     if abs(expected - actual) > abstol + reltol*abs(expected):
-        raise ValueError("|%.3g - %.3g| > %.3g" %
+        raise ValueError("|%.4g - %.4g| > %.3g" %
                          (expected, actual, abstol + reltol*abs(expected)))
 
 
@@ -243,6 +246,7 @@ class pTest(object):
         self.record = record
         self.data = []
         self.ntest = 0
+        self.nrec = 0
         self.failed = 0
         self.verbose = True
         self.throw = throw
@@ -265,7 +269,7 @@ class pTest(object):
         if self.record:
             self.file.close()
 
-    def check(self, value, abs_tol=0, rel_tol=1e-3):
+    def check(self, value, abs_tol=0, rel_tol=2e-3):
         '''
         Tests if value is equal to the recorded one (or record it)
         value        : the value that was computed
@@ -275,10 +279,10 @@ class pTest(object):
         if self.record:
             self.file.write('%e\n' % value)
         else:
-            if self.ntest >= self.size:
+            if self.nrec >= self.size:
                 raise IndexError('no data available for test %d' % self.ntest)
             else:
-                expected = self.data[self.ntest]
+                expected = self.data[self.nrec]
                 try:
                     check_tolerance(expected, value, abs_tol, rel_tol)
                 except ValueError as e:
@@ -292,21 +296,26 @@ class pTest(object):
                     if self.verbose:
                         print('+++ test %d passed' % self.ntest)
         self.ntest += 1
+        self.nrec += 1
 
-    def check_if_equal(self, expected, value, abs_tol=0, rel_tol=1e-3):
+    def check_if_equal(self, expected, value):
         '''
-        Tests if value is equal to the expected one (or record the expected value).
+        Tests if value is equal to the expected one.
         expected     : the true value
         value        : the value that was computed
-        abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
         '''
-        if self.record:
-            self.file.write('%e\n' % expected)
-            self.ntest += 1
+        if value != expected:
+            self.failed += 1
+            msg = ('+++ test %d failed: ' % self.ntest) + \
+                  repr(value) + ' != ' + repr(expected)
+            if self.throw:
+                raise ValueError(msg)
+            if self.verbose:
+                print(msg)
         else:
-            # run normal test (as `expected' will have been written to file)
-            # Note that this will increment ntest
-            self.check(value, abs_tol, rel_tol)
+            if self.verbose:
+                print('+++ test %d passed' % self.ntest)
+        self.ntest += 1
 
 class CheckRaise(pTest):
     def __init__(self, *a, **k):
@@ -348,7 +357,7 @@ class error(Exception):
         return '??? ' + repr(self.value)
 
 
-def check_status(handle, stack = None):
+def check_status(handle, stack=None):
     if pyiutil.executionStatus(handle) != 0:
         if stack is None:
             stack = inspect.stack()[1]
@@ -370,15 +379,27 @@ def try_calling(returned_handle):
     pyiutil.deleteDataHandle(returned_handle)
 
 
-def assert_validity(object, type):
-    assert isinstance(object, type)
-    assert object.handle is not None
+def assert_validity(obj, dtype):
+    try:
+        assert isinstance(obj, dtype)
+    except AssertionError as ae:
+        raise AssertionError('Expecting object of type {}, got {}'.format(dtype, type(obj)))
+    if obj.handle is None:
+        raise AssertionError('object handle is None.')
 
 
 def assert_validities(x, y):
-    assert type(x) == type(y)
-    assert x.handle is not None
-    assert y.handle is not None
+    try:
+        assert issubclass(type(x),type(y)) or issubclass(type(y),type(x)) # returns true if both are the same class
+    except AssertionError as ae:
+        raise AssertionError('Expecting same type input, got {} and {}'.format(type(x), 
+                                                                               type(y)))
+    if x.handle is None:
+        raise AssertionError('handle for first parameter is None')
+    if y.handle is None:
+        raise AssertionError('handle for second parameter is None')
+    if x.dimensions() != y.dimensions():
+        raise ValueError("Input shapes are expected to be equal, got " + str(x.dimensions()) + " and " + str(y.dimensions()) + " instead.")
 
 
 def label_and_name(g):
@@ -444,3 +465,40 @@ def str_to_int_list(str_list):
             int_item = list(range(strt, stop + 1))
         int_list = int_list + int_item
     return int_list
+
+def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True):
+    '''
+    Test if a given operator is adjoint.
+    The operator needs to have been already set_up() with valid objects.
+    The operator needs to have methods direct() and adjoint() implemented
+
+    Parameters
+    ----------
+    operator  :
+        Any SIRF operator that implements direct() and adjoint()
+    num_tests : int, optional
+        Square root of the number of tests with random data that will be executed. Default 5
+    max_err   : double, optional
+        Maximum allowed normalized error, tolerance. Change not recommended. Default 10e-5
+    verbose   : bool
+        Verbose option
+    '''
+    for iter1 in range(num_tests):
+        ## generate random data for x and direct()
+        x = operator.domain_geometry().allocate(value = 'random')
+        y_hat = operator.direct(x)
+        for iter2 in range(num_tests):
+            if verbose:
+                print("Testing " + type(operator).__name__ + ": Iteration " + str(iter1*num_tests+iter2+1) + "/" + str(num_tests**2))
+            ## generate random data and adjoint()
+            y = operator.range_geometry().allocate( value = 'random')
+            x_hat = operator.adjoint(y)
+            # Check dot product identity
+            norm_err = abs(numpy.conj(y_hat.dot(y)) - x_hat.dot(x))/(numpy.conj(abs(y_hat.dot(y)))*0.5 + abs(x_hat.dot(x))*0.5)
+            if norm_err > max_err:
+                if verbose:
+                    print(type(operator).__name__ + " is not adjoint, with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
+                return False
+            elif verbose:
+                print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
+    return True

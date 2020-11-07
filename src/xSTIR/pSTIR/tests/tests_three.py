@@ -56,6 +56,16 @@ def test_main(rec=False, verb=False, throw=True):
     image_data = recon.get_output()
     test.check(image_data.norm())
 
+    # Check openmp
+    max_num_threads = get_default_num_omp_threads() - 1
+    if max_num_threads > 0:
+        set_max_omp_threads(max_num_threads)
+        if get_max_omp_threads() != max_num_threads:
+            raise AssertionError("Max num omp threads failed (pt. 1)")
+        set_default_num_omp_threads()
+        if get_max_omp_threads() != get_default_num_omp_threads():
+            raise AssertionError("Max num omp threads failed (pt. 2)")
+
     return test.failed, test.ntest
 
 

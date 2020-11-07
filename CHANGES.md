@@ -1,5 +1,59 @@
 # ChangeLog
 
+## vX.X.X
+* STIR projection data now have an implementation of `axpby`, so that duplicate functionality has been removed from SIRF
+* Iterators are now used in `AcquisitionDataInMemory` to improve speed of `as_array`, `fill`, `dot`, `norm`, etc.
+* Bug fix in `get_index_to_physical_point_matrix`
+* if `storage_scheme` is set to `memory`, then `PETAcquisitionData` will now contain `ProjDataInMemory`, instead of `ProjDataFromStream`. As such, if storage scheme is set to memory, it will now be possible to open a PET acquisition data and modify it directly, whereas before a copy would need to be created first.
+* Registration of 2d images with aladin and f3d. 
+* When registering, internally the forward displacement is no loner stored, replaced by the forward deformation. The inverse is no longer stored, and is calculated as needed.
+* When adding a shape to a `sirf.STIR.ImageData`, optionally give the number of times to sample a voxel. This is useful when the shape partially - but not completely - fills a voxel.
+
+## v2.2.0
+* Changed CCP PETMR to SyneRBI
+* updates to steepest ascent demo
+* STIR.AcquisitionData.get_info() returns a string that describes the scanner etc
+* documentation fixes/additions
+
+## v2.2.0-rc.1
+
+* A passthrough for both the maximum and minimum relative change during OSMAPOSL reconstruction has been added.
+* We have now corrected the geometrical information of `.h5` images (coming from ISMRMRD and Gadgetron). This means we can now convert them to other SIRF image types (e.g., `NiftiImageData` and `STIRImageData`). This is necessary for any kind of synergistic reconstruction. Further, to the best of our knowledge, this is the first ISMRMRD to NIfTI converter out there!
+* The adjoint transformation has now been implemented for `NiftyResample` through the wrapping of NiftyMoMo.
+* The following methods have been added to C++, python and matlab NiftyResample:
+	* `out = forward(in)`
+	* `forward(out, in)`
+	* `out = adjoint(in)`
+	* `adjoint(out, in)`
+	* `out = backward(in)` <- alias for adjoint
+	* `backward(out, in)` <- alias for adjoint
+* Inverse deformation images. Inverse displacements are also possible by converting to and from deformations.
+* NiftyPET projector wrapped (if STIR is built with NiftyPET)
+* Added `set_image_data_processor` to `PETAcquisitionModel`.  This allows for instance image-based PSF modelling.
+* Resampling of complex images.
+* SPM registration wrapping (only SPM12 tested). If `Matlab` and `SPM` are present, the SPM wrapper is available from `C++`, `Matlab` and `Python`.
+* Support for registering multiple floating images has been added. This is only available for certain algorithms (currently only `SPM`). There are therefore new methods `add_floating_image` and `clear_floating_images` on top of the original `set_floating_image`. Methods extracting the results of registrations can now be called with an index (`get_output(idx = 0)`, `get_transformation_matrix_forward(idx = 0)`, etc.). This index defaults to the first to maintain backwards compatibility.
+* Ability to pad `NiftiImageData`, e.g., `a.pad([10,10,0],[10,10,0])` to add 10 voxels to the minimum and maximum of the x- and y-directions.
+* Ability to set and get STIR verbosity from python.
+* Save STIR images using a parameter file (e.g., for saving as `.nii`)
+* Default F3d to using non-symmetric version (previously, symmetric was used). Option to use the symmetric in C++, but currently exposed to python and matlab as we suspect there is an upstream bug there.
+
+## v2.1.0
+
+* PET/STIR
+	* Interfaced HKEM into SIRF
+	* Interfaced SeparableGaussianImageFilter into SIRF
+* MR/Gadgetron
+	* Added DICOM-writing gadgets for MR images output
+	* Added few Gadgetron GPU gadgets to SIRF gadget library
+	* Enabled handling of 3D slices of MR images by switching to 3D FFT
+* Python
+	* Switched to new class style
+	* Introduced contiguity checks of filled data
+* CIL/SIRF Compatibility
+     * added methods to AcquisitionData, ImageData and AcquisitionModel to be compatible with
+       CCPi's Core Imaging Library (CIL)
+
 ## v2.0.0
 
 * Set CMake policy CMP0079.
@@ -66,7 +120,7 @@
   * Build with OpenMP delivers stable and substantially accelerated performance
 * More documentation
   * Developer's Guide
-  * Doxygen inline documentation (available on CCP PETMR website)
+  * Doxygen inline documentation (available on SyneRBI website)
 * More tests (now run via CTest), for Python, Matlab and C++.
 * Coverage reporting for Python tests done by ctest
 

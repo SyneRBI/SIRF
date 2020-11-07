@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ limitations under the License.
 \brief Specification file for extended STIR functionality classes.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include <stdlib.h>
@@ -38,6 +39,7 @@ limitations under the License.
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
+#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 namespace sirf {
 
@@ -149,7 +151,7 @@ The actual algorithm is described in
 		{
 			return store_delayeds;
 		}
-		bool set_up()
+        virtual stir::Succeeded set_up()
 		{
 			// always reset here, in case somebody set a new listmode or template file
 			max_segment_num_to_process = -1;
@@ -157,7 +159,7 @@ The actual algorithm is described in
 
 			bool failed = post_processing();
 			if (failed)
-				return true;
+				return stir::Succeeded::no;
 			const int num_rings =
 				lm_data_ptr->get_scanner_ptr()->get_num_rings();
 			// code below is a copy of STIR for more generic cases
@@ -176,7 +178,7 @@ The actual algorithm is described in
 			half_fan_size = fan_size / 2;
 			fan_size = 2 * half_fan_size + 1;
 
-			return false;
+			return stir::Succeeded::yes;
 		}
 		stir::shared_ptr<PETAcquisitionData> get_output()
 		{
@@ -198,6 +200,9 @@ The actual algorithm is described in
 		{
 			return randoms_sptr;
 		}
+        /// Get the time at which the number of prompts exceeds a certain threshold.
+        /// Returns -1 if not found.
+        float get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const;
 
 	protected:
 		// variables for ML estimation of singles/randoms
@@ -273,6 +278,15 @@ The actual algorithm is described in
 		//shared_ptr<stir::ChainedBinNormalisation> norm_;
 	};
 
+	
+        /*!
+	\ingroup STIR Extensions
+	\brief A typedef to use SIRF terminology for DataProcessors
+
+        \todo We should have a sirf::ImageDataProcessor which takes a sirf::ImageData, but that's too much work for now...
+	*/
+	typedef DataProcessor3DF ImageDataProcessor;
+
 	/*!
 	\ingroup STIR Extensions
 	\brief Class for a PET acquisition model.
@@ -306,6 +320,13 @@ The actual algorithm is described in
 	where \e G' is the transpose of \e G and \f$ m = 1/n \f$, is referred to as
 	backward projection.
 
+	There is a possibility to add an ImageDataProcessor to the acquisition model. Calling this
+	\e P it extends the model to
+
+	\f[ y = 1/n(G P x + a) + b \f]
+
+	This can be used for instance to model resolution effects by first blurring the image.
+
 	At present we use quick-fix implementation of forward projection for
 	the computation of a subset of y. A more proper implementation will be done
 	later via AcquisitionData subsets.
@@ -317,7 +338,7 @@ The actual algorithm is described in
 		{
 			sptr_projectors_ = sptr_projectors;
 		}
-		stir::shared_ptr<stir::ProjectorByBinPair> projectors_sptr()
+		const stir::shared_ptr<stir::ProjectorByBinPair> projectors_sptr() const
 		{
 			return sptr_projectors_;
 		}
@@ -325,7 +346,7 @@ The actual algorithm is described in
 		{
 			sptr_add_ = sptr;
 		}
-		stir::shared_ptr<PETAcquisitionData> additive_term_sptr()
+		stir::shared_ptr<const PETAcquisitionData> additive_term_sptr() const
 		{
 			return sptr_add_;
 		}
@@ -333,7 +354,7 @@ The actual algorithm is described in
 		{
 			sptr_background_ = sptr;
 		}
-		stir::shared_ptr<PETAcquisitionData> background_term_sptr()
+		stir::shared_ptr<const PETAcquisitionData> background_term_sptr() const
 		{
 			return sptr_background_;
 		}
@@ -341,7 +362,7 @@ The actual algorithm is described in
 		//{
 		//	sptr_normalisation_ = sptr;
 		//}
-		stir::shared_ptr<stir::BinNormalisation> normalisation_sptr()
+		const stir::shared_ptr<stir::BinNormalisation> normalisation_sptr() const
 		{
 			if (sptr_asm_.get())
 				return sptr_asm_->data();
@@ -360,6 +381,10 @@ The actual algorithm is described in
 			sptr_asm_ = sptr_asm;
 		}
 
+		//! sets data processor to use on the image before forward projection and after back projection
+		/*! \warning This assumes that the data processor is its own adjoint.
+		 */
+		void set_image_data_processor(stir::shared_ptr<ImageDataProcessor> sptr_processor);
 		void cancel_background_term()
 		{
 			sptr_background_.reset();
@@ -373,20 +398,44 @@ The actual algorithm is described in
 			sptr_asm_.reset();
 			//sptr_normalisation_.reset();
 		}
+		stir::shared_ptr<const PETAcquisitionModel> linear_acq_mod_sptr() const
+		{
+			stir::shared_ptr<PETAcquisitionModel> sptr_am(new PETAcquisitionModel);
+			sptr_am->set_projectors(sptr_projectors_);
+			sptr_am->set_asm(sptr_asm_);
+			sptr_am->sptr_acq_template_ = sptr_acq_template_;
+			sptr_am->sptr_image_template_ = sptr_image_template_;
+			return sptr_am;
+		}
 
 		virtual stir::Succeeded set_up(
 			stir::shared_ptr<PETAcquisitionData> sptr_acq,
 			stir::shared_ptr<STIRImageData> sptr_image);
 
-		// computes and returns a subset of forward-projected data 
+		/*! \brief computes and returns a subset of forward-projected data
+		\see forward(PETAcquisitionData&, const STIRImageData&,, int, int, bool, bool)
+		*/
 		stir::shared_ptr<PETAcquisitionData>
 			forward(const STIRImageData& image,
-			int subset_num = 0, int num_subsets = 1);
-		// replaces a subset of acquisition data with forward-projected data
+			int subset_num = 0, int num_subsets = 1, bool do_linear_only = false);
+		/*! \brief replaces a subset of acquisition data with forward-projected data
+		\param[out] acq_data	forward-projected data
+		\param[in] image		image to be forward-projected
+		\param[in] subset_num	number of the subset of forward projected data to be computed,
+								the rest of data to remain unchanged or be zeroed (see 5th argument)
+		\param[in] num_subsets	number of subsets the forward-projected data to be divided into
+		\param[in] zero			zero forward-projected data for all subsets except the one
+								specified by subset_num
+		\param[in] linear		use only linear part of the acquisition model (no constant terms)
+		*/
 		void forward(PETAcquisitionData& acq_data, const STIRImageData& image,
-			int subset_num, int num_subsets, bool zero = false);
+			int subset_num, int num_subsets, bool zero = false, bool do_linear_only = false);
 
+		// computes and returns back-projected subset of acquisition data 
 		stir::shared_ptr<STIRImageData> backward(PETAcquisitionData& ad,
+			int subset_num = 0, int num_subsets = 1);
+		// puts back-projected subset of acquisition data into image 
+		void backward(STIRImageData& image, PETAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1);
 
 	protected:
@@ -514,6 +563,35 @@ The actual algorithm is described in
 	typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
 	typedef stir::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
 
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
+    /*!
+    \ingroup STIR Extensions
+    \brief NiftyPET implementation of the PET acquisition model.
+    */
+
+    class PETAcquisitionModelUsingNiftyPET : public PETAcquisitionModel {
+    public:
+        PETAcquisitionModelUsingNiftyPET()
+        {
+            _NiftyPET_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
+            this->sptr_projectors_ = _NiftyPET_projector_pair_sptr;
+			// Set verbosity to 0 by default
+            _NiftyPET_projector_pair_sptr->set_verbosity(0);
+        }
+        void set_cuda_verbosity(const bool verbosity) const
+        {
+            _NiftyPET_projector_pair_sptr->set_verbosity(verbosity);
+        }
+        void set_use_truncation(const bool use_truncation) const
+        {
+            _NiftyPET_projector_pair_sptr->set_use_truncation(use_truncation);
+        }
+    protected:
+        stir::shared_ptr<ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
+    };
+    typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
+#endif
+
 	/*!
 	\ingroup STIR Extensions
 	\brief Attenuation model.
@@ -542,9 +620,9 @@ The actual algorithm is described in
 
 	class xSTIR_GeneralisedPrior3DF : public stir::GeneralisedPrior < Image3DF > {
 	public:
-		bool post_process() {
-			return post_processing();
-		}
+//		bool post_process() {
+//			return post_processing();
+//		}
 	};
 
 	class xSTIR_QuadraticPrior3DF : public stir::QuadraticPrior < float > {
@@ -564,9 +642,9 @@ The actual algorithm is described in
 	class xSTIR_GeneralisedObjectiveFunction3DF :
 		public stir::GeneralisedObjectiveFunction < Image3DF > {
 	public:
-		bool post_process() {
-			return post_processing();
-		}
+//		bool post_process() {
+//			return post_processing();
+//		}
 	};
 
 	//typedef xSTIR_GeneralisedObjectiveFunction3DF ObjectiveFunction3DF;
@@ -607,18 +685,24 @@ The actual algorithm is described in
 	class xSTIR_IterativeReconstruction3DF :
 		public stir::IterativeReconstruction < Image3DF > {
 	public:
-		bool post_process() {
+/*		bool post_process() {
+			//std::cout << "in xSTIR_IterativeReconstruction3DF.post_process...\n";
 			if (this->output_filename_prefix.length() < 1)
 				this->set_output_filename_prefix("reconstructed_image");
 			return post_processing();
-		}
-		stir::Succeeded setup(sptrImage3DF const& image) {
-			return set_up(image);
-		}
+		}*/
 		void update(Image3DF &image) {
 			update_estimate(image);
 			end_of_iteration_processing(image);
 			subiteration_num++;
+		}
+		void update(STIRImageData& id)
+		{
+			update(id.data());
+		}
+		void update(stir::shared_ptr<STIRImageData> sptr_id)
+		{
+			update(*sptr_id);
 		}
 		int& subiteration() {
 			return subiteration_num;
@@ -631,31 +715,15 @@ The actual algorithm is described in
 		}
 	};
 
-	class xSTIR_OSMAPOSLReconstruction3DF :
-		public stir::OSMAPOSLReconstruction < Image3DF > {
+	class xSTIR_OSMAPOSLReconstruction3DF : public stir::OSMAPOSLReconstruction< Image3DF > {
 	public:
-		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
-		{
-			stir::Succeeded s = stir::Succeeded::no;
-			xSTIR_IterativeReconstruction3DF* ptr_r =
-				(xSTIR_IterativeReconstruction3DF*)this;
-			if (!ptr_r->post_process()) {
-				s = ptr_r->setup(sptr_id->data_sptr());
-				ptr_r->subiteration() = ptr_r->get_start_subiteration_num();
-			}
-			return s;
+		int& subiteration() {
+			return subiteration_num;
 		}
-		void update(STIRImageData& id)
-		{
-			((xSTIR_IterativeReconstruction3DF*)this)->update(id.data());
-		}
-		void update(stir::shared_ptr<STIRImageData> sptr_id)
-		{
-			update(*sptr_id);
+		int subiteration() const {
+			return subiteration_num;
 		}
 	};
-
-	typedef xSTIR_OSMAPOSLReconstruction3DF OSMAPOSLReconstruction3DF;
 
 	class xSTIR_OSSPSReconstruction3DF : public stir::OSSPSReconstruction < Image3DF > {
 	public:
@@ -719,6 +787,48 @@ The actual algorithm is described in
 		stir::shared_ptr<STIRImageData> _sptr_image_data;
 	};
 
+	class xSTIR_SeparableGaussianImageFilter : 
+		public stir::SeparableGaussianImageFilter<float> {
+	public:
+		//stir::Succeeded set_up(const STIRImageData& id)
+		//{
+		//	return virtual_set_up(id.data());
+		//}
+		//void apply(STIRImageData& id)
+		//{
+		//	virtual_apply(id.data());
+		//}
+		void set_fwhms_xyz(char xyz, float f)
+		{
+			stir::BasicCoordinate<3, float> v = get_fwhms();
+			switch (xyz) {
+			case 'z':
+				v[1] = f;
+				break;
+			case 'y':
+				v[2] = f;
+				break;
+			case 'x':
+				v[3] = f;
+			}
+			set_fwhms(v);
+		}
+		void set_max_kernel_sizes_xyz(char xyz, int s)
+		{
+			stir::BasicCoordinate<3, int> v = get_max_kernel_sizes();
+			switch (xyz) {
+			case 'z':
+				v[1] = s;
+				break;
+			case 'y':
+				v[2] = s;
+				break;
+			case 'x':
+				v[3] = s;
+			}
+			set_max_kernel_sizes(v);
+		}
+	};
 }
 
 #endif

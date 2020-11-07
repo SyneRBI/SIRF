@@ -13,18 +13,19 @@ Options:
   -n <norm>, --norm=<norm>    normalization value [default: 1]
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+  --non-interactive           do not show plots
 
 There is an interactive demo with much more documentation on this process.
 You probably want to check that instead.
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2018 University College London.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2020 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -40,10 +41,13 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtilities import show_2D_array
+import matplotlib.pyplot as plt
+
+from sirf.Utilities import show_2D_array
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 data_file = args['--file']
@@ -55,8 +59,12 @@ addv = float(args['--addv'])
 back = float(args['--back'])
 beff = 1/float(args['--norm'])
 output_file = args['--output']
+show_plot = not args['--non-interactive']
+
 
 def main():
+
+    print(scanner_names())
 
 ##    AcquisitionData.set_storage_scheme('mem')
 
@@ -65,11 +73,13 @@ def main():
     # output goes to files
 ##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
+    # raw data to be used as a template for the acquisition model
+    acq_template = AcquisitionData(raw_data_file)
+
     # create an empty image
-    image = ImageData()
-    image_size = (31, 111, 111)
-    voxel_size = (3.375, 3, 3) # voxel sizes are in mm
-    image.initialise(image_size, voxel_size)
+    image = acq_template.create_uniform_image(0.0, xy=111)
+    image_size = image.dimensions()
+    print('image size: %d by %d by %d' % image_size)
 
     # create a shape
     shape = EllipticCylinder()
@@ -89,15 +99,21 @@ def main():
     shape.set_origin((10, -30, -60))
     image.add_shape(shape, scale = 0.75)
 
+    # apply Gaussian filter
+    filter = SeparableGaussianImageFilter()
+    filter.set_fwhms((10, 20, 30))
+    filter.set_max_kernel_sizes((10, 10, 2))
+    filter.set_normalise()
+    filter.set_up(image)
+    filter.apply(image)
+
     # z-pixel coordinate of the xy-crossection to show
     z = int(image_size[0]/2)
 
-    # show the phantom image
-    image_array = image.as_array()
-    show_2D_array('Phantom image', image_array[z,:,:])
-
-    # raw data to be used as a template for the acquisition model
-    acq_template = AcquisitionData(raw_data_file)
+    if show_plot:
+        # show the phantom image
+        image_array = image.as_array()
+        show_2D_array('Phantom image', image_array[z,:,:])
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -113,7 +129,8 @@ def main():
     # actual image
     if beff != 1:
         bin_eff_arr[0,:,10:50,:] = 0
-    show_2D_array('Bin efficiencies', bin_eff_arr[0,0,:,:])
+    if show_plot:
+        show_2D_array('Bin efficiencies', bin_eff_arr[0,0,:,:])
     bin_eff.fill(bin_eff_arr)
 
     asm = AcquisitionSensitivityModel(bin_eff)
@@ -139,20 +156,85 @@ def main():
     if output_file is not None:
         simulated_data.write(output_file)
 
-    # show simulated acquisition data
-    simulated_data_as_array = simulated_data.as_array()
-    show_2D_array('Forward projection', simulated_data_as_array[0,0,:,:])
+    if show_plot:
+        # show simulated acquisition data
+        simulated_data_as_array = simulated_data.as_array()
+        show_2D_array('Forward projection (subset 0/4)', simulated_data_as_array[0,0,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
     # note that the backprojection takes the acquisition sensitivy model asm into account as well
     back_projected_image = acq_model.backward(simulated_data, 0, 4)
-
     back_projected_image_as_array = back_projected_image.as_array()
-    show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
+    if show_plot:
+        show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
+
+    # backproject again, this time into pre-allocated image
+    back_projected_image.fill(0.0)
+    acq_model.backward(simulated_data, 0, 4, out=back_projected_image)
+    back_projected_image_as_array = back_projected_image.as_array()
+    if show_plot:
+        msg = 'Backprojection into pre-allocated image'
+        show_2D_array(msg, back_projected_image_as_array[z,:,:])
+
+    # do same with pre-smoothing (often used for resolution modelling)
+    print('Using some PSF modelling for comparison')
+    smoother = SeparableGaussianImageFilter()
+    smoother.set_fwhms((6,11,12))
+    acq_model.set_image_data_processor(smoother)
+    acq_model.set_up(acq_template, image)
+    simulated_data_PSF = acq_template.get_uniform_copy()
+    acq_model.forward(image, 0, 4, simulated_data_PSF)
+    if show_plot:
+        simulated_data_PSF_as_array = simulated_data_PSF.as_array()
+        plt.figure()
+        plt.plot(simulated_data_as_array[0,0,0,:], label="no PSF")
+        plt.plot(simulated_data_PSF_as_array[0,0,0,:], label="PSF")
+        plt.title('Diff Forward projection without/ with smoothing (first view)')
+        plt.legend()
+    # backprojection
+    back_projected_image_PSF = acq_model.backward(simulated_data, 0, 4)
+    if show_plot:
+        back_projected_image_PSF_as_array = back_projected_image_PSF.as_array()
+        y = back_projected_image_as_array.shape[1]//2;
+        plt.figure()
+        plt.plot(back_projected_image_as_array[z,y,:], label="no PSF")
+        plt.plot(back_projected_image_PSF_as_array[z,y,:], label="PSF")
+        plt.title('Diff Back projection without/ with smoothing (central horizontal line)')
+        plt.legend()
+
+    # direct is alias for the forward method for a linear AcquisitionModel
+    # raises error if the AcquisitionModel is not linear.
+    try:
+        acq_model.direct(image, 0, 4, simulated_data)
+    except error as err:
+        print('%s' % err.value)
+        print('Extracting the linear acquisition model...')
+        lin_acq_model = acq_model.get_linear_acquisition_model()
+        lin_acq_model.direct(image, 0, 4, simulated_data)
+
+    if show_plot:
+        # show simulated acquisition data
+        simulated_data_as_array_direct = simulated_data.as_array()
+        show_2D_array('Direct projection', simulated_data_as_array_direct[0,0,:,:])
+    
+    # adjoint is an alias for the backward method for a linear AcquisitionModel
+    # raises error if the AcquisitionModel is not linear.
+    try:
+        back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)
+    except error as err:
+        print('%s' % err.value)
+        print('Extracting the linear acquisition model...')
+        lin_acq_model = acq_model.get_linear_acquisition_model()
+        back_projected_image_adj = lin_acq_model.adjoint(simulated_data, 0, 4)
+
+    if show_plot:
+        back_projected_image_as_array_adj = back_projected_image_adj.as_array()
+        show_2D_array('Adjoint projection', back_projected_image_as_array_adj[z,:,:])
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

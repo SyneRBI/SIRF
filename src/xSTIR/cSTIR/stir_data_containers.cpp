@@ -1,11 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2018 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ limitations under the License.
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
+#include "stir/zoom.h"
 
 using namespace stir;
 using namespace sirf;
@@ -93,45 +94,19 @@ const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y
 )
 {
-	float a = *(float*)ptr_a;
-	float b = *(float*)ptr_b;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	int ny = y.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
-	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		SegmentBySinogram<float>::full_iterator sy_iter;
-		for (seg_iter = seg.begin_all(),
-			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all() &&
-			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-		/*empty*/) {
-			*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
-		}
-		set_segment(seg);
-		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(),
-				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all() &&
-				sx_iter != sx.end_all() && sy_iter != sy.end_all();
-			/*empty*/) {
-				*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
-			}
-			set_segment(seg);
-		}
-	}
+    // Cast to correct types
+    float a = *(float*)ptr_a;
+    float b = *(float*)ptr_b;
+    auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const PETAcquisitionData*>(&a_y);
+
+    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
+            is_null_ptr(y) || is_null_ptr(y->data()))
+        throw std::runtime_error("PETAcquisitionData::axpby: At least one argument is not"
+                                 "PETAcquisitionData or is not initialised.");
+
+    // Call STIR's axpby
+    data()->axpby(a, *x->data(), b, *y->data());
 }
 
 void
@@ -325,7 +300,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 
 	double s = 0.0;
 	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all() && iter_x != x.data().end_all(); 
+		iter != data().end_all() && iter_x != x.data().end_all();
 		iter++, iter_x++) {
 		double t = *iter;
 		s += t * (*iter_x);
@@ -484,10 +459,9 @@ STIRImageData::get_voxel_sizes(float* vsize) const
 void
 STIRImageData::get_data(float* data) const
 {
-	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	if (!image.get_regular_range(min_indices, max_indices))
+	if (!_data->get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
 		//return -1;
 	//std::cout << "trying new const iterator...\n";
@@ -538,6 +512,60 @@ STIRImageData::set_data(const float* data)
 }
 
 void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes, const char *zoom_options_str)
+{
+    stir::ZoomOptions zoom_options;
+    if (strcmp(zoom_options_str,"preserve_sum")==0)
+        zoom_options = stir::ZoomOptions::preserve_sum;
+    else if (strcmp(zoom_options_str,"preserve_values")==0)
+        zoom_options = stir::ZoomOptions::preserve_values;
+    else if (strcmp(zoom_options_str,"preserve_projections")==0)
+        zoom_options = stir::ZoomOptions::preserve_projections;
+    else
+        throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
+
+    this->zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
+}
+
+void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes_in, const stir::ZoomOptions zoom_options)
+{
+    // We need the underyling image as a VoxelsOnCartesianGrid
+    DYNAMIC_CAST(Voxels3DF, voxels, this->data());
+
+    int dim[3];
+    this->get_dimensions(dim);
+
+    // If any sizes have been set to <= 0, set to image size
+    Coord3DI new_sizes(new_sizes_in);
+    for (unsigned i=0; i<3; ++i)
+        if (new_sizes.at(int(i+1))<=0)
+            new_sizes.at(int(i+1)) = dim[i];
+
+    // Zoom the image
+    voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
+
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
+}
+
+void
+STIRImageData::
+move_to_scanner_centre(const PETAcquisitionData &)
+{
+    this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
+
+    // Need to modify the geom info after mod
+    set_up_geom_info();
+}
+
+void
 STIRImageData::set_up_geom_info()
 {
     const Voxels3DF* const vox_image = dynamic_cast<const Voxels3DF*>(&data());
@@ -584,6 +612,6 @@ STIRImageData::set_up_geom_info()
     }
 
     // Initialise the geom info shared pointer
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
-                (offset,spacing,size,direction);
+    this->set_geom_info(std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction));
 }
