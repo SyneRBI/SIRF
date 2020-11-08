@@ -5,21 +5,20 @@ Usage:
   scatter_simulation [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -f <file>, --file=<file>    raw data file [default: scatter_template.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
-  -a <addv>, --addv=<addv>    additive term value [default: 0]
-  -b <back>, --back=<back>    background term value [default: 0]
-  -n <norm>, --norm=<norm>    normalization value [default: 1]
-  -o <file>, --output=<file>  output file for simulated data
+  -o <file>, --output=<file>  output file for simulated data [default: scatter_output.hs]
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 
-There is an interactive demo with much more documentation on this process.
-You probably want to check that instead.
+WARNING: Currently this computes scatter at the same sampling as the template. If you use
+real projection data as template, this will be very slow (and might run out of memory).
+(The STIR upsampling facility is currently not yet in SIRF. Sorry)
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2019 University of Hull
+## Copyright 2020 University College London
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -37,6 +36,7 @@ You probably want to check that instead.
 
 __version__ = '0.1.0'
 from docopt import docopt
+import matplotlib.pyplot as plt
 
 args = docopt(__doc__, version=__version__)
 
@@ -53,10 +53,7 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('PET')
-raw_data_file = existing_filepath(data_path, data_file)
-addv = float(args['--addv'])
-back = float(args['--back'])
-beff = 1 / float(args['--norm'])
+acq_template_filename = existing_filepath(data_path, data_file)
 output_file = args['--output']
 
 
@@ -65,14 +62,13 @@ def main():
 
     # no info printing from the engine, warnings and errors sent to stdout
     msg_red = MessageRedirector()
-    # output goes to files
-    ##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # Create a template Acquisition Model
-    tmpl_acq_data = AcquisitionData('ECAT 931', 1, 0, 1)
+    #acq_template = AcquisitionData('Siemens mMR', 1, 0, 1)
+    acq_template = AcquisitionData(acq_template_filename)#q.get_uniform_copy()
 
     # create the attenuation image
-    atten_image = ImageData(tmpl_acq_data)
+    atten_image = ImageData(acq_template)
     image_size = atten_image.dimensions()
     voxel_size = atten_image.voxel_sizes()
 
@@ -118,26 +114,38 @@ def main():
     # Create the Single Scatter Simulation model
     sss = SingleScatterSimulator()
 
-    # Input in the Simulator information about the Acquisition
-    sss.set_acquisition_data(tmpl_acq_data)
-
     # Set the attenuation image
     sss.set_attenuation_image(atten_image)
 
-    # Set the activity image
-    sss.set_activity_image(act_image)
-
-    # Run the scatter simulation
-    sss.process()
-
-    # Get the simulated sinogram.
-    # Note: The sinogram has been downscaled.
-    sss_data = sss.get_output()
+    # set-up the scatter simulator
+    sss.set_up(acq_template, act_image)
+    # Simulate!
+    sss_data = sss.forward(act_image)
 
     # show simulated scatter data
     simulated_scatter_as_array = sss_data.as_array()
     show_2D_array('Scatter simulation', simulated_scatter_as_array[0,0,:,:])
 
+    sss_data.write(output_file)
+
+    ## let's also compute the unscattered counts (at the same low resolution) and compare
+
+    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    asm = AcquisitionSensitivityModel(atten_image, acq_model)
+    acq_model.set_acquisition_sensitivity(asm)
+
+    acq_model.set_up(acq_template, act_image)
+    #unscattered_data = acq_template.get_uniform_copy()
+    unscattered_data = acq_model.forward(act_image)
+    simulated_unscatter_as_array = unscattered_data.as_array()
+    show_2D_array('unScatter simulation', simulated_unscatter_as_array[0,0,:,:])
+
+    plt.figure()
+    ax = plt.subplot(111)
+    plt.plot(simulated_unscatter_as_array[0,4,0,:], label='unscattered')
+    plt.plot(simulated_scatter_as_array[0,4,0,:], label='scattered')
+    ax.legend()
+    plt.show()
 try:
     main()
     print('done')

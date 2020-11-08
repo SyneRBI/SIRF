@@ -867,6 +867,10 @@ namespace sirf {
 		{
 			return _data;
 		}
+		stir::shared_ptr<const Image3DF> data_sptr() const
+		{
+			return _data;
+		}
 		void set_data_sptr(stir::shared_ptr<Image3DF> sptr_data)
 		{
 			_data = sptr_data;

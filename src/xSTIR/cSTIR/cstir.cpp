@@ -372,16 +372,43 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 }
 
 extern "C"
-void* cSTIR_runScatterSimulation(void* ptr)
+void* cSTIR_scatterSimulatorFwd
+(void* ptr_am, void* ptr_im)
 {
-    try {
-        PETSingleScatterSimulation& sss = objectFromHandle<PETSingleScatterSimulation>(ptr);
-        sss.set_up();
+	try {
+		auto& am = objectFromHandle<PETSingleScatterSimulation>(ptr_am);
+		auto& id = objectFromHandle<STIRImageData>(ptr_im);
+		return newObjectHandle(am.forward(id));
+	}
+	CATCH;
+}
 
-        sss.process_data();
-        return newObjectHandle(sss.get_scatter_sptr());
-    }
-    CATCH;
+extern "C"
+void* cSTIR_scatterSimulatorFwdReplace
+(void* ptr_am, void* ptr_im, void* ptr_ad)
+{
+	try {
+		auto& am = objectFromHandle<PETSingleScatterSimulation>(ptr_am);
+		auto& id = objectFromHandle<STIRImageData>(ptr_im);
+		auto& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+                am.forward(ad, id);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setupScatterSimulator
+(void* ptr_am, void* ptr_ad, void* ptr_im)
+{
+	try {
+		auto& am = objectFromHandle<PETSingleScatterSimulation>(ptr_am);
+		SPTR_FROM_HANDLE(STIRImageData, id, ptr_im);
+		SPTR_FROM_HANDLE(PETAcquisitionData, ad, ptr_ad);
+                am.set_up(ad, id);
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"

@@ -426,20 +426,13 @@ sirf::cSTIR_setScatterSimulationParameter
 
     if (boost::iequals(name, "setActivityImage"))
     {
-        STIRImageData& id = objectFromHandle<STIRImageData>(hv);
-        shared_ptr<STIRImageData> sptr_id(new STIRImageData(id));
+        SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
         obj.set_activity_image_sptr(sptr_id);
     }
     else if (boost::iequals(name, "setAttenuationImage"))
     {
-        STIRImageData& id = objectFromHandle<STIRImageData>(hv);
-        shared_ptr<STIRImageData> sptr_id(new STIRImageData(id));
+        SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
         obj.set_attenuation_image_sptr(sptr_id);
-    }
-    else if(boost::iequals(name, "setAcquisitionData"))
-    {
-        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
-        obj.set_acquisition_model_sptr(sptr_ad);
     }
     else
         return parameterNotFound(name, __FILE__, __LINE__);

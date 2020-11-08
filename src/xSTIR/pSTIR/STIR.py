@@ -1190,6 +1190,8 @@ class AcquisitionSensitivityModel(object):
             # create from attenuation image
             if src.handle is None:
                 raise AssertionError()
+            if other_src is None:
+                raise AssertionError('AcquisitionSensitivityModel constructor with attenuation image needs an AcquisitionModel as second argument (for ray tracing)')
             assert_validity(other_src, AcquisitionModel)
             self.handle = pystir.cSTIR_createPETAttenuationModel(
                 src.handle, other_src.handle)
@@ -2597,29 +2599,50 @@ class SingleScatterSimulator():
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def process(self):
-        print('ScatterSimulator:: Waiting the scatter simulation to finish ...')
-        self.output = AcquisitionData()
-        self.output.handle = pystir.cSTIR_runScatterSimulation(self.handle)
-        check_status(self.output.handle)
-        print('ScatterSimulator:: Simulation finished.')
+    def set_up(self, acq_templ, img_templ):
+        """Set up.
 
-    def set_acquisition_data(self, acq):
-        assert_validity(acq, AcquisitionData)
-        _setParameter(self.handle, self.name, 'setAcquisitionData', acq.handle)
+        Prepare this object for performing forward operations;
+        acq_templ:  an AcquisitionData object used as a template for
+                    creating an AcquisitionData object to store forward
+                    projection;
+        img_templ:  an ImageData object used as a template for checking geometry etc
+
+        attenuation image has to be set first
+        """
+        assert_validity(acq_templ, AcquisitionData)
+        assert_validity(img_templ, ImageData)
+
+        # temporarily save the templates in the class
+        self.acq_templ = acq_templ
+        #self.img_templ = img_templ
+
+        try_calling(pystir.cSTIR_setupScatterSimulator(
+            self.handle, acq_templ.handle, img_templ.handle))
+
+    def forward(self, image,  out=None):
+        """Return the scatter estimation for the input activity image.
+
+        image   :  an ImageData object.
+
+        set_up() has to be called first.
+        """
+        assert_validity(image, ImageData)
+        if out is None:
+            ad = AcquisitionData()
+            ad.handle = pystir.cSTIR_scatterSimulatorFwd(
+                self.handle, image.handle);
+            check_status(ad.handle)
+            return ad
+        ad = out
+        assert_validity(ad, AcquisitionData)
+        try_calling(pystir.cSTIR_scatterSimulatorFwdReplace(
+            self.handle, image.handle, ad.handle))
 
     def set_attenuation_image(self, image):
         assert_validity(image, ImageData)
-        _setParameter(self.handle, self.name, 'setAttenuationImage', image.handle)
+        parms.set_parameter(self.handle, self.name, 'setAttenuationImage', image.handle)
 
-    def set_activity_image(self, image):
-        assert_validity(image, ImageData)
-        _setParameter(self.handle, self.name, 'setActivityImage', image.handle)
-
-    def get_output(self):
-        if self.output is None:
-            raise error('Simulation of scatter not done.')
-        return self.output
 
 class ScatterEstimator():
     '''

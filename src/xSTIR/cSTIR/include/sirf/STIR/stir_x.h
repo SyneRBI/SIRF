@@ -459,37 +459,72 @@ The actual algorithm is described in
         stir::SingleScatterSimulation(filename)
         {}
 
-        void set_acquisition_model_sptr(stir::shared_ptr<PETAcquisitionData> arg)
-        {
-            sptr_output_ = arg;
+        void set_up(shared_ptr<const PETAcquisitionData> sptr_acq_template,
+                    shared_ptr<const STIRImageData> sptr_act_image_template)
+          {
+            this->sptr_acq_template_ = sptr_acq_template;
 
             stir::SingleScatterSimulation::set_template_proj_data_info(
-                        *sptr_output_->get_proj_data_info_sptr());
+                        *sptr_acq_template_->get_proj_data_info_sptr());
             stir::SingleScatterSimulation::set_exam_info(
-                        *sptr_output_->get_exam_info_sptr());
+                        *sptr_acq_template_->get_exam_info_sptr());
+            // check if attenuation image is set
+            try
+              {
+                auto& tmp = stir::SingleScatterSimulation::get_attenuation_image();
+              }
+            catch (...)
+              {
+                THROW("Fatal error in PETSingleScatterSimulator::set_up: attenuation_image has not been set");
+              }
+            this->set_activity_image_sptr(sptr_act_image_template);
 
-            stir::SingleScatterSimulation::set_output_proj_data_sptr(sptr_output_->data());
-        }
+            if (stir::SingleScatterSimulation::set_up() == Succeeded::no)
+              THROW("Fatal error in PETSingleScatterSimulator::set_up() failed.");
+          }
 
-        stir::shared_ptr<PETAcquisitionData> get_scatter_sptr() const
+        void set_activity_image_sptr(stir::shared_ptr<const STIRImageData> arg)
         {
-            sptr_output_->set_data(stir::SingleScatterSimulation::get_output_proj_data_sptr());
-            return sptr_output_;
-        }
-
-        void set_activity_image_sptr(stir::shared_ptr<STIRImageData> arg)
-        {
+#if STIR_VERSION < 050000
+            // need to make a copy as the function doesn't accept a const
+            stir::shared_ptr<Image3DF> sptr_image_copy(arg->data_sptr()->clone());
+            stir::SingleScatterSimulation::set_activity_image_sptr(sptr_image_copy);
+#else
             stir::SingleScatterSimulation::set_activity_image_sptr(arg->data_sptr());
+#endif
         }
 
-        void set_attenuation_image_sptr(stir::shared_ptr<STIRImageData> arg)
+        void set_attenuation_image_sptr(stir::shared_ptr<const STIRImageData> arg)
         {
+#if STIR_VERSION < 050000
+            // need to make a copy as the function doesn't accept a const
+            stir::shared_ptr<Image3DF> sptr_image_copy(arg->data_sptr()->clone());
+            stir::SingleScatterSimulation::set_density_image_sptr(sptr_image_copy);
+#else
             stir::SingleScatterSimulation::set_density_image_sptr(arg->data_sptr());
-            stir::SingleScatterSimulation::set_density_image_for_scatter_points_sptr(arg->data_sptr());
+#endif
         }
+
+        stir::shared_ptr<PETAcquisitionData> forward(const STIRImageData& activity_img) /*TODO CONST*/
+          {
+            if (!sptr_acq_template_.get())
+              THROW("Fatal error in PETSingleScatterSimulator::forward: acquisition template not set");
+            shared_ptr<PETAcquisitionData> sptr_ad;
+            sptr_ad = sptr_acq_template_->new_acquisition_data();
+            this->forward( *sptr_ad, activity_img);
+            return sptr_ad;
+          }
+
+        void forward(PETAcquisitionData& ad, const STIRImageData& activity_img) /* TODO CONST*/
+          {
+            shared_ptr<ProjData> sptr_fd = ad.data();
+            this->set_output_proj_data_sptr(sptr_fd);
+            // hopefully STIR checks if template consistent with input data
+            this->process_data();
+          }
 
     protected:
-        stir::shared_ptr<PETAcquisitionData> sptr_output_;
+        stir::shared_ptr<const PETAcquisitionData> sptr_acq_template_;
 
     };
 

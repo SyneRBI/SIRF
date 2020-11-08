@@ -116,10 +116,13 @@ extern "C" {
 	void* cSTIR_runFBP2DReconstruction(void* ptr_r);
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);
-    void* cSTIR_runScatterSimulation(void* ptr_r);
 	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
-    void* cSTIR_setupScatterEstimation(void* ptr_r, void* ptr_i);
-    void* cSTIR_runScatterEstimation(void* ptr_r);
+        // Scatter
+        void* cSTIR_scatterSimulatorFwd(void* ptr_am, void* ptr_im);
+        void* cSTIR_scatterSimulatorFwdReplace(void* ptr_am, void* ptr_im, void* ptr_ad);
+        void* cSTIR_setupScatterSimulator(void* ptr_am, void* ptr_ad, void* ptr_im);
+        void* cSTIR_setupScatterEstimation(void* ptr_r, void* ptr_i);
+        void* cSTIR_runScatterEstimation(void* ptr_r);
 
 	// Objective function methods
 	void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i);
