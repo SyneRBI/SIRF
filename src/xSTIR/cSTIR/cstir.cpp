@@ -532,6 +532,16 @@ void* cSTIR_linearAcquisitionModel(void* ptr_am)
 }
 
 extern "C"
+void* cSTIR_acquisitionModelNorm(void* ptr_am, int subset_num, int num_subsets)
+{
+	try {
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		return dataHandle(am.norm(subset_num, num_subsets));
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_acquisitionModelFwd
 (void* ptr_am, void* ptr_im, int subset_num, int num_subsets)
 {

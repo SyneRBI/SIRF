@@ -156,6 +156,21 @@ def main():
     if output_file is not None:
         simulated_data.write(output_file)
 
+    print('\n--- Computing the norm of the linear part A of acquisition model...')
+    acqm_norm = acq_model.norm()
+    image_norm = image.norm()
+    acqd_norm = simulated_data.norm()
+    print('\n--- The computed norm is |A| = %f, checking...' % acqm_norm)
+    print('    image data x norm: |x| = %f' % image_norm)
+    print('    forward projected data A x norm: |A x| = %f' % acqd_norm)
+    acqd_bound = acqm_norm*image_norm
+    msg = '    |A x| must be less than or equal to |A||x| = %f'
+    if acqd_norm <= acqd_bound:
+        msg += ' - ok\n'
+    else:
+        msg += ' - ???\n'
+    print( msg % acqd_bound)
+
     if show_plot:
         # show simulated acquisition data
         simulated_data_as_array = simulated_data.as_array()
