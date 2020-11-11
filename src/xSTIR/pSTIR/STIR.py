@@ -2592,7 +2592,7 @@ class SingleScatterSimulator():
     def __init__(self, filename = ''):
         self.handle = None
         self.image = None
-        self.name = 'PETSingleScatterSimulation'
+        self.name = 'PETSingleScatterSimulator'
         self.filename = filename
 
         if not self.filename:
@@ -2730,7 +2730,18 @@ class ScatterEstimator():
 
     def set_num_iterations(self, v):
         """Set number of iterations of the SSS algorithm to use."""
-        parms.set_int_par(self.handle, 'PETScatterEstimator', 'num_iterations', v)
+        parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_num_iterations', v)
+
+    def set_output_prefix(self, v):
+        """
+        Set prefix for filenames with scatter estimates.
+
+        Actual filenames will append the iteration number and the .hs extension
+        as common for STIR Interfile data.
+
+        Set it to the empty string to prevent any output.
+        """
+        parms.set_char_par(self.handle, 'PETScatterEstimator', 'set_output_prefix', v)
 
 class OSSPSReconstructor(IterativeReconstructor):
     """OSSPS reconstructor class.

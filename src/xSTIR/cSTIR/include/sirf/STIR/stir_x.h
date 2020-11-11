@@ -563,12 +563,14 @@ The actual algorithm is described in
         stir::ScatterEstimation(filename)
         {}
 
+        //! Set the input data
         void set_input_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
         {
             stir::ScatterEstimation::set_input_proj_data_sptr(arg->data());
         }
 
-        void set_background_proj_data_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        //! Set the background data (normally equal to the randoms in PET)
+        void set_background_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
         {
             stir::ScatterEstimation::set_background_proj_data_sptr(arg->data());
         }
@@ -584,6 +586,19 @@ The actual algorithm is described in
 #endif
         }
 
+        //! Set prefix for filenames with scatter estimates.
+        /*!
+          Actual filenames will append the iteration number and the .hs extension
+          as common for STIR Interfile data.
+
+          Set it to the empty string to prevent any output.
+        */
+        void set_output_prefix(std::string prefix)
+        {
+          stir::ScatterEstimation::set_export_scatter_estimates_of_each_iteration(!prefix.empty());
+          stir::ScatterEstimation::set_output_scatter_estimate_prefix(prefix);
+        }
+
         stir::shared_ptr<PETAcquisitionData> get_scatter_estimate(int est_num = -1) const
         {
             if (est_num == -1) // Get the last one
@@ -597,6 +612,7 @@ The actual algorithm is described in
             return std::make_shared<PETAcquisitionDataInFile>(filename.c_str());
         }
 
+        //! get last scatter estimate
         stir::shared_ptr<PETAcquisitionData> get_output() const
           {
             auto stir_proj_data_sptr = stir::ScatterEstimation::get_output();

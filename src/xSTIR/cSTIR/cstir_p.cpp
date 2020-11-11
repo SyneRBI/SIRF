@@ -455,17 +455,21 @@ sirf::cSTIR_setScatterEstimatorParameter
     else if (boost::iequals(name, "setRandoms"))
     {
         SPTR_FROM_HANDLE(PETAcquisitionData, sptr_pd, hv);
-        obj.set_background_proj_data_sptr(sptr_pd);
+        obj.set_background_sptr(sptr_pd);
     }
     else if (boost::iequals(name, "setAttenuationImage"))
     {
         SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
         obj.set_attenuation_image_sptr(sptr_id);
     }
-    else if (boost::iequals(name, "num_iterations"))
+    else if (boost::iequals(name, "set_num_iterations"))
     {
-        int value = dataFromHandle<int>((void*)hv);
+        int value = dataFromHandle<int>(hv);
         obj.set_num_iterations(value);
+    }
+    else if (boost::iequals(name, "set_output_prefix"))
+    {
+        obj.set_output_prefix(charDataFromHandle(hv));
     }
     else
         return parameterNotFound(name, __FILE__, __LINE__);
