@@ -1,29 +1,28 @@
-'''Scatter estimation demo: Executes the ScatterRun example from
-STIR.
+'''
+Scatter estimation demo: Executes the ScatterRun example from STIR.
 
 Usage:
-  scatter_simulation [--help | options]
+  scatter_estimation [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -f <file>, --file=<file>    raw data file [default: sinospan11_f1g1d0b0.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
-  -a <addv>, --addv=<addv>    additive term value [default: 0]
-  -b <back>, --back=<back>    background term value [default: 0]
+  -r <file>, --randoms=<file>  filename with randoms [default: MLrandomsspan11_f1.hs]
   -n <norm>, --norm=<norm>    normalization value [default: 1]
-  -o <file>, --output=<file>  output file for simulated data
-  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+  -o <file>, --output=<file>  output prefix for scatter estimates [default: scatter_estimate]
+                              ("_#.hs" will be appended, with # the iteration number).
+                              Set this to an empty string to prevent output on disk.
 
-There is an interactive demo with much more documentation on this process.
-You probably want to check that instead.
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2019 University of Hull
+## Copyright 2020 University College London
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -41,36 +40,43 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import sirf.STIR as PET
 
-from pUtilities import show_2D_array
-
-# import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+from sirf.Utilities import show_2D_array
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = examples_data_path('PET')
-raw_data_file = existing_filepath(data_path, data_file)
-addv = float(args['--addv'])
-back = float(args['--back'])
+    data_path = PET.examples_data_path('PET')
+raw_data_file = PET.existing_filepath(data_path, data_file)
+randoms_data_file = args['--randoms']
+
+if not(randoms_data_file is None):
+    randoms_data_file = PET.existing_filepath(data_path, randoms_data_file)
 beff = 1 / float(args['--norm'])
-output_file = args['--output']
+output_prefix = args['--output']
 
 
 def main():
+    import os
+    PET.AcquisitionData.set_storage_scheme('memory')
 
     # TODO: properly set the path of Scatter Estimation parameter file.
-    example_path = os.environ.get('STIR_PATH') + "/recon_test_pack/ScatterRun/"
-    os.chdir(example_path)
-
-    # Create the Single Scatter Simulation model
-    se = ScatterEstimator('ScatterEstimation.par')
-
-    scatter_estimate = se.process()
-
+    par_file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'parameter_files')
+    # Create the Scatter Estimator
+    se = PET.ScatterEstimator(PET.existing_filepath(par_file_path, 'scatter_estimation.par'))
+  # set/change some parameters here
+    se.set_input(PET.AcquisitionData(raw_data_file))
+    se.set_attenuation_image(PET.ImageData(PET.existing_filepath(data_path, 'mu_map.hv')))
+    if not(randoms_data_file is None):
+        se.set_randoms(PET.AcquisitionData(randoms_data_file))
+    se.set_num_iterations(2)
+    se.set_output_prefix(output_prefix)
+    print("number of iterations that will be used: %d" % se.get_num_iterations())
+    se.set_up()
+    se.process()
+    scatter_estimate = se.get_output()
     # show simulated scatter data
     scatter_estimate_as_array = scatter_estimate.as_array()
     show_2D_array('Scatter estimation', scatter_estimate_as_array[0, 0, :, :])
@@ -79,5 +85,5 @@ def main():
 try:
     main()
     print('done')
-except error as err:
+except PET.error as err:
     print('%s' % err.value)

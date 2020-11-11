@@ -9,7 +9,6 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data [default: scatter_output.hs]
-  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 
 WARNING: Currently this computes scatter at the same sampling as the template. If you use
 real projection data as template, this will be very slow (and might run out of memory).
@@ -21,8 +20,8 @@ real projection data as template, this will be very slow (and might run out of m
 ## Copyright 2020 University College London
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -41,39 +40,38 @@ import matplotlib.pyplot as plt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
-
-from pUtilities import show_2D_array
-
-# import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import sirf.STIR as PET
+import os
+from sirf.Utilities import show_2D_array
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
+print ("FILE",__file__)
 if data_path is None:
-    data_path = examples_data_path('PET')
-acq_template_filename = existing_filepath(data_path, data_file)
+    data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'parameter_files')
+    print(data_path)
+acq_template_filename = PET.existing_filepath(data_path, data_file)
 output_file = args['--output']
 
 
 def main():
-    ##    AcquisitionData.set_storage_scheme('mem')
+    ##    PET.AcquisitionData.set_storage_scheme('memory')
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = MessageRedirector()
+    msg_red = PET.MessageRedirector()
 
     # Create a template Acquisition Model
     #acq_template = AcquisitionData('Siemens mMR', 1, 0, 1)
-    acq_template = AcquisitionData(acq_template_filename)#q.get_uniform_copy()
+    acq_template = PET.AcquisitionData(acq_template_filename)#q.get_uniform_copy()
 
     # create the attenuation image
-    atten_image = ImageData(acq_template)
+    atten_image = PET.ImageData(acq_template)
     image_size = atten_image.dimensions()
     voxel_size = atten_image.voxel_sizes()
 
     # create a cylindrical water phantom
-    water_cyl = EllipticCylinder()
+    water_cyl = PET.EllipticCylinder()
     water_cyl.set_length(image_size[0]*voxel_size[0])
     water_cyl.set_radii((image_size[1]*voxel_size[1]*0.25, \
                      image_size[2]*voxel_size[2]*0.25))
@@ -90,11 +88,11 @@ def main():
     show_2D_array('Attenuation image', atten_image_array[z,:,:])
 
     # Create the activity image
-    act_image = atten_image.clone();
+    act_image = atten_image.clone()
     act_image.fill(0.0)
 
     # create the activity cylinder
-    act_cyl = EllipticCylinder()
+    act_cyl = PET.EllipticCylinder()
     act_cyl.set_length(image_size[0] * voxel_size[0])
     act_cyl.set_radii((image_size[1] * voxel_size[1] * 0.125, \
                          image_size[2] * voxel_size[2] * 0.125))
@@ -112,7 +110,7 @@ def main():
     show_2D_array('Activity image', act_image_array[z, :, :])
 
     # Create the Single Scatter Simulation model
-    sss = SingleScatterSimulator()
+    sss = PET.SingleScatterSimulator()
 
     # Set the attenuation image
     sss.set_attenuation_image(atten_image)
@@ -124,21 +122,21 @@ def main():
 
     # show simulated scatter data
     simulated_scatter_as_array = sss_data.as_array()
-    show_2D_array('Scatter simulation', simulated_scatter_as_array[0,0,:,:])
+    show_2D_array('scatter simulation', simulated_scatter_as_array[0,0,:,:])
 
     sss_data.write(output_file)
 
     ## let's also compute the unscattered counts (at the same low resolution) and compare
 
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
-    asm = AcquisitionSensitivityModel(atten_image, acq_model)
+    acq_model = PET.AcquisitionModelUsingRayTracingMatrix()
+    asm = PET.AcquisitionSensitivityModel(atten_image, acq_model)
     acq_model.set_acquisition_sensitivity(asm)
 
     acq_model.set_up(acq_template, act_image)
     #unscattered_data = acq_template.get_uniform_copy()
     unscattered_data = acq_model.forward(act_image)
     simulated_unscatter_as_array = unscattered_data.as_array()
-    show_2D_array('unScatter simulation', simulated_unscatter_as_array[0,0,:,:])
+    show_2D_array('unscattered simulation', simulated_unscatter_as_array[0,0,:,:])
 
     plt.figure()
     ax = plt.subplot(111)
@@ -149,5 +147,5 @@ def main():
 try:
     main()
     print('done')
-except error as err:
+except PET.error as err:
     print('%s' % err.value)

@@ -1,0 +1,60 @@
+Scatter Estimation Parameters :=
+
+;Run in debug mode
+;; A new folder called extras will be created, in which many 
+;; extra files will be stored 
+run in debug mode := 0
+
+;; Measured data
+; Is set in the example script
+;input file := sinospan11_f1g1d0b0.hs
+
+;; Attenuation Image
+; Is set in the example script
+;attenuation image filename := mu.hv
+
+; Normalisation coefficients & attenuation data
+; If only one normalisation input is set; 
+; it will be assumed that they are attenuation correction factors. 
+;; The algorithm will assume that the first is normalisation, i.e. the 
+;; efficiency factors and the second the attenuation. You should not 
+;; change this order. 
+Bin Normalisation type := Chained
+	Chained Bin Normalisation Parameters:=
+   Bin Normalisation to apply first:= From ECAT8
+    Bin Normalisation From ecat8 :=
+    normalisation filename:= norm.hdr.fixedEOL
+    End Bin Normalisation From ecat8:=
+   ;from ProjData
+;           Bin Normalisation From ProjData :=
+;            normalisation projdata filename:= output/fullnormfactorsspan11.hs
+;       End Bin Normalisation From ProjData:=
+
+	Bin Normalisation to apply second:= From ProjData
+		Bin Normalisation From ProjData :=
+           normalisation projdata filename:= output/acf.hs
+        End Bin Normalisation From ProjData:=
+		
+END Chained Bin Normalisation Parameters:=
+
+;; Background data (not normalised), normally equal to the randoms
+; Is set in the example script
+;background projdata filename := MLrandomsspan11_f1.hs
+
+; could add parameters below, but reading it from file
+; reconstruction type := ...
+reconstruction parameter filename := /home/sirfuser/devel/build/SIRF-SuperBuild/sources/STIR/examples/samples/scatter_estimation_par_files/run_reconstruction.par 
+
+;
+; This is the number of times which the Scatter Estimation will iterate. Default is 5
+; can be set from Python etc
+; number of scatter iterations := 3
+
+; output filename. Currently disabled here as it is set in the example script
+;output scatter estimate name prefix := SIRF_scatter
+
+; STIR can also output the "additive term", which could be convenient as you then don't have to add randoms
+; it's disabled in this example
+;output additive estimate name prefix:= total_additive_acqdata
+
+End Scatter Estimation Parameters :=
