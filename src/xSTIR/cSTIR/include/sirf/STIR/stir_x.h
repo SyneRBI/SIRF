@@ -354,7 +354,7 @@ The actual algorithm is described in
 			{
 				num_sub_ = num_sub;
 			}
-			virtual std::shared_ptr<STIRImageData> apply(const STIRImageData& image_data) const
+			virtual std::shared_ptr<STIRImageData> apply(STIRImageData& image_data)
 			{
 				std::shared_ptr<PETAcquisitionData> sptr_fwd =
 					sptr_am_->forward(image_data, sub_num_, num_sub_); // , true);

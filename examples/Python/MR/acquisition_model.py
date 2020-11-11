@@ -137,6 +137,21 @@ def main():
     # display simulated acquisition data
     #simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
 
+    print('\n--- Computing the norm of the acquisition model operator...')
+    acqm_norm = acq_model.norm()
+    image_norm = reconstructed_images.norm()
+    acqd_norm = simulated_acq_data.norm()
+    print('\n--- The computed norm is |A| = %f, checking...' % acqm_norm)
+    print('    image data x norm: |x| = %f' % image_norm)
+    print('    forward projected data A x norm: |A x| = %f' % acqd_norm)
+    acqd_bound = acqm_norm*image_norm
+    msg = '    |A x| must be less than or equal to |A||x| = %f'
+    if acqd_norm <= acqd_bound:
+        msg += ' - ok\n'
+    else:
+        msg += ' - ???\n'
+    print( msg % acqd_bound)
+
     # backproject simulated acquisition data
     print('---\n backprojecting...')
     backprojected_data = acq_model.backward(simulated_acq_data)

@@ -40,6 +40,7 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
+#include "sirf/common/JacobiCG.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_client.h"
@@ -343,6 +344,28 @@ namespace sirf {
 
 	class MRAcquisitionModel {
 	public:
+		/*!
+		\ingroup Gadgetron Extensions
+		\brief Class for the product of backward and forward projectors of the MR acquisition model.
+
+		For a given GadgetronImageData object x, computes B(F(x)), where F(x) is the forward projection of x,
+		and B(y) is the backprojection of MRAcquisitionData object y.
+		*/
+		class BFOperator : public Operator<GadgetronImageData> {
+		public:
+			BFOperator(std::shared_ptr<MRAcquisitionModel> sptr_am) : sptr_am_(sptr_am) {}
+			virtual std::shared_ptr<GadgetronImageData> 
+				apply(GadgetronImageData& image_data)
+			{
+				std::shared_ptr<MRAcquisitionData> sptr_fwd =
+					sptr_am_->fwd(image_data);
+				std::shared_ptr<GadgetronImageData> sptr_bwd =
+					sptr_am_->bwd(*sptr_fwd);
+				return sptr_bwd;
+			}
+		private:
+			std::shared_ptr<MRAcquisitionModel> sptr_am_;
+		};
 
 		MRAcquisitionModel() {}
 		/*
@@ -357,7 +380,30 @@ namespace sirf {
 		{
 			set_image_template(sptr_ic);
 		}
+		MRAcquisitionModel(
+			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
+			gadgetron::shared_ptr<GadgetronImageData> sptr_ic,
+			gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms,
+			std::string acqs_info
+			) : sptr_acqs_(sptr_ac), sptr_csms_(sptr_csms), acqs_info_(acqs_info)
+		{
+			set_image_template(sptr_ic);
+		}
 		
+		float norm()
+		{
+			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am
+				(new MRAcquisitionModel(sptr_acqs_, sptr_imgs_, sptr_csms_, acqs_info_));
+			BFOperator bf(sptr_am);
+			JacobiCG<complex_float_t> jcg;
+			jcg.set_num_iterations(2);
+			gadgetron::unique_ptr<GadgetronImageData> sptr_id = sptr_imgs_->clone();
+			GadgetronImageData& image_data = *sptr_id;
+			image_data.fill(1.0);
+			float lmd = jcg.rightmost(bf, image_data);
+			return std::sqrt(lmd);
+		}
+
 		// make sure ic contains "true" images (and not e.g. G-factors)
 		void check_data_role(const GadgetronImageData& ic);
 

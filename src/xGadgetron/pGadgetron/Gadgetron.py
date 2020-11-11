@@ -1021,6 +1021,13 @@ class AcquisitionModel(object):
         assert_validity(csm, CoilSensitivityData)
         try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
             (self.handle, 'coil_sensitivity_maps', csm.handle))
+    def norm(self):
+        assert self.handle is not None
+        handle = pygadgetron.cGT_acquisitionModelNorm(self.handle)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r;
     def forward(self, image):
         '''
         Projects an image into (simulated) acquisitions space.
