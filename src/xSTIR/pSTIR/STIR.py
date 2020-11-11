@@ -2580,8 +2580,14 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
 
 class SingleScatterSimulator():
     '''
-    Class for simulating the scatter contribution in an image.
-    This class
+    Class for simulating the scatter contribution to PET data.
+
+    This class uses the STIR Single Scatter simulation, taking as input an
+    activity and attenuation image, and a acquisition data template.
+
+    WARNING: Currently this class does not use the low-resolution sampling
+    mechanism of STIR. This means that if you give it a full resolution acq_data,
+    you will likely run out of memory and/or time.
     '''
     def __init__(self, filename = ''):
         self.handle = None
@@ -2646,12 +2652,19 @@ class SingleScatterSimulator():
 
 class ScatterEstimator():
     '''
-    Class for estimating the scatter contribution
+    Class for estimating the scatter contribution in PET projection data
+
+    This class implements the SSS iterative algorithm from STIR. It
+    is an iterative loop of reconstruction, single scatter estimation,
+    upsampling, tail-fitting.
+
+    Output is an acquisition_data object with the scatter contribution.
+    This can be added to the randoms to use in PETAcquisitionModel.set_background_term().
     '''
     def __init__(self, filename = ''):
         self.handle = None
         self.image = None
-        self.name = 'PETScatterEstimation'
+        self.name = 'PETScatterEstimator'
         self.filename = filename
 
         if not self.filename:
@@ -2665,16 +2678,59 @@ class ScatterEstimator():
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def set_up(self):
+        """
+        Set up.
+
+        Prepare this object for performing scatter estimation;
+        All input has to be set before calling this function.
+        """
+        # TODO The following fails at run-time
+        #     TypeError: cSTIR_setupScatterEstimator() takes exactly 2 arguments (1 given)
+        # Luckily, at the moment STIR process_data calls set_up()
+        #try_calling(pystir.cSTIR_setupScatterEstimator(
+        #    self.handle))
+
     def process(self):
+        """
+        Runs the scatter estimation
+        """
         print('ScatterEstimator:: Waiting the scatter estimation to finish ...')
         self.output = AcquisitionData()
-        self.output.handle = pystir.cSTIR_runScatterEstimation(self.handle)
+        self.output.handle = pystir.cSTIR_runScatterEstimator(self.handle)
         check_status(self.output.handle)
         print('ScatterSimulator:: Estimation finished.')
 
-    def get_output(self, est_num):
-        print('ScatterEstimator:: doing here')
-        pass
+    def get_output(self):
+        """
+        Return the scatter estimate.
+
+        By default, the final scatter estimate is returned
+        """
+        data = AcquisitionData()
+        data.handle = parms.parameter_handle(self.handle, 'PETScatterEstimator', 'output')
+        check_status(data.handle)
+        return data
+
+    def get_num_iterations(self):
+        """Get number of iterations of the SSS algorithm to use."""
+        return parms.int_par(self.handle, 'PETScatterEstimator', 'num_iterations')
+
+    def set_attenuation_image(self, image):
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, self.name, 'setAttenuationImage', image.handle)
+
+    def set_input(self, acq_data):
+        assert_validity(acq_data, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setInput', acq_data.handle)
+
+    def set_randoms(self, acq_data):
+        assert_validity(acq_data, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setRandoms', acq_data.handle)
+
+    def set_num_iterations(self, v):
+        """Set number of iterations of the SSS algorithm to use."""
+        parms.set_int_par(self.handle, 'PETScatterEstimator', 'num_iterations', v)
 
 class OSSPSReconstructor(IterativeReconstructor):
     """OSSPS reconstructor class.

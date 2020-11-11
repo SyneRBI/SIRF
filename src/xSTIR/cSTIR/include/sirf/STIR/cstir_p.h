@@ -101,9 +101,15 @@ namespace sirf {
 		cSTIR_generalisedObjectiveFunctionParameter
 		(const DataHandle* handle, const char* name);
 
-    void*
-        cSTIR_setScatterSimulationParameter
-        (const DataHandle* hp, const char* name, const DataHandle* hv);
+        void*
+                cSTIR_setScatterSimulatorParameter
+                (const DataHandle* hp, const char* name, const DataHandle* hv);
+        void*
+                cSTIR_setScatterEstimatorParameter
+                (const DataHandle *hp, const char* name, const DataHandle* hv);
+        void*
+                cSTIR_ScatterEstimatorParameter
+                (DataHandle* hp, const char* name);
 
 	void*
 		cSTIR_setGeneralisedObjectiveFunctionParameter

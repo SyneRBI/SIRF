@@ -417,12 +417,11 @@ sirf::cSTIR_PLSPriorParameter
 }
 
 void*
-sirf::cSTIR_setScatterSimulationParameter
+sirf::cSTIR_setScatterSimulatorParameter
 (const DataHandle *hp, const char* name, const DataHandle* hv)
 {
 
-    PETSingleScatterSimulation& obj =
-            objectFromHandle< PETSingleScatterSimulation >(hp);
+    auto& obj = objectFromHandle< PETSingleScatterSimulator >(hp);
 
     if (boost::iequals(name, "setActivityImage"))
     {
@@ -438,6 +437,51 @@ sirf::cSTIR_setScatterSimulationParameter
         return parameterNotFound(name, __FILE__, __LINE__);
 
     return new DataHandle;
+}
+
+void*
+sirf::cSTIR_setScatterEstimatorParameter
+(const DataHandle *hp, const char* name, const DataHandle* hv)
+{
+
+    PETScatterEstimator& obj =
+            objectFromHandle< PETScatterEstimator >(hp);
+
+    if (boost::iequals(name, "setInput"))
+    {
+        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_pd, hv);
+        obj.set_input_sptr(sptr_pd);
+    }
+    else if (boost::iequals(name, "setRandoms"))
+    {
+        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_pd, hv);
+        obj.set_background_proj_data_sptr(sptr_pd);
+    }
+    else if (boost::iequals(name, "setAttenuationImage"))
+    {
+        SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
+        obj.set_attenuation_image_sptr(sptr_id);
+    }
+    else if (boost::iequals(name, "num_iterations"))
+    {
+        int value = dataFromHandle<int>((void*)hv);
+        obj.set_num_iterations(value);
+    }
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+
+    return new DataHandle;
+}
+
+void*
+sirf::cSTIR_ScatterEstimatorParameter(DataHandle* hp, const char* name)
+{
+	auto& processor = objectFromHandle<PETScatterEstimator>(hp);
+	if (boost::iequals(name, "output"))
+		return newObjectHandle(processor.get_output());
+	if (boost::iequals(name, "num_iterations"))
+          return dataHandle<int>(processor.get_num_iterations());
+	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 void*

@@ -448,14 +448,26 @@ The actual algorithm is described in
 		//shared_ptr<stir::BinNormalisation> sptr_normalisation_;
 	};
 
-    class PETSingleScatterSimulation : public stir::SingleScatterSimulation
+        /*!
+          \ingroup STIR Extensions
+
+          \brief Class for simulating the scatter contribution to PET data.
+
+          This class uses the STIR Single Scatter simulation, taking as input an
+          activity and attenuation image, and a acquisition data template.
+
+          WARNING: Currently this class does not use the low-resolution sampling
+          mechanism of STIR. This means that if you give it a full resolution acq_data,
+          you will likely run out of memory and/or time.
+        */
+    class PETSingleScatterSimulator : public stir::SingleScatterSimulation
     {
     public:
         //! Default constructor
-        PETSingleScatterSimulation() : stir::SingleScatterSimulation()
+        PETSingleScatterSimulator() : stir::SingleScatterSimulation()
         {}
         //! Overloaded constructor which takes the parameter file
-        PETSingleScatterSimulation(std::string filename) :
+        PETSingleScatterSimulator(std::string filename) :
         stir::SingleScatterSimulation(filename)
         {}
 
@@ -528,26 +540,80 @@ The actual algorithm is described in
 
     };
 
-    class PETScatterEstimation : public stir::ScatterEstimation
+    /*!
+      \ingroup STIR Extensions
+
+      \brief Class for estimating the scatter contribution in PET projection data
+
+      This class implements the SSS iterative algorithm from STIR. It
+      is an iterative loop of reconstruction, single scatter estimation,
+      upsampling, tail-fitting.
+
+      Output is an acquisition_data object with the scatter contribution.
+      This can be added to the randoms to use in PETAcquisitionModel.set_background_term().
+    */
+    class PETScatterEstimator : public stir::ScatterEstimation
     {
     public:
         //!
-        PETScatterEstimation() : stir::ScatterEstimation()
+        PETScatterEstimator() : stir::ScatterEstimation()
         {}
         //! Overloaded constructor which takes the parameter file
-        PETScatterEstimation(std::string filename) :
+        PETScatterEstimator(std::string filename) :
         stir::ScatterEstimation(filename)
         {}
+
+        void set_input_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        {
+            stir::ScatterEstimation::set_input_proj_data_sptr(arg->data());
+        }
+
+        void set_background_proj_data_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        {
+            stir::ScatterEstimation::set_background_proj_data_sptr(arg->data());
+        }
+
+        void set_attenuation_image_sptr(stir::shared_ptr<const STIRImageData> arg)
+        {
+#if STIR_VERSION < 050000
+            // need to make a copy as the function doesn't accept a const
+            stir::shared_ptr<Image3DF> sptr_image_copy(arg->data_sptr()->clone());
+            stir::ScatterEstimation::set_attenuation_image_sptr(sptr_image_copy);
+#else
+            stir::ScatterEstimation::set_attenuation_image_sptr(arg->data_sptr());
+#endif
+        }
 
         stir::shared_ptr<PETAcquisitionData> get_scatter_estimate(int est_num = -1) const
         {
             if (est_num == -1) // Get the last one
                 est_num = num_scatter_iterations;
-            std::string filename = output_scatter_estimate_prefix + "_" + std::to_string(est_num);
-            return stir::shared_ptr<PETAcquisitionData>
-                (new PETAcquisitionDataInFile(filename.c_str()));
+            if (est_num == num_scatter_iterations)
+              return get_output();
+            // try to read from file
+            if (output_scatter_estimate_prefix.empty())
+              THROW("output_scatter_estimate_prefix not set, so scatter estimates were not saved to file.");
+            const std::string filename = output_scatter_estimate_prefix + "_" + std::to_string(est_num) + ".hs";
+            return std::make_shared<PETAcquisitionDataInFile>(filename.c_str());
         }
 
+        stir::shared_ptr<PETAcquisitionData> get_output() const
+          {
+            auto stir_proj_data_sptr = stir::ScatterEstimation::get_output();
+            if (!stir_proj_data_sptr)
+              THROW("output not yet computed");
+            stir::shared_ptr<PETAcquisitionData> sptr_acq_data
+              (PETAcquisitionData::storage_template()->same_acquisition_data(stir_proj_data_sptr->get_exam_info_sptr(),
+                                                                             stir_proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone()));
+            sptr_acq_data->data()->fill(*stir_proj_data_sptr);
+            return sptr_acq_data;
+          }
+
+        void process()
+        {
+          if (stir::ScatterEstimation::process_data() == Succeeded::no)
+            THROW("scatter estimation failed");
+        }
     };
 
 	/*!
