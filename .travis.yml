@@ -58,8 +58,8 @@ addons:
 #       i.e. -boost == -DUSE_SYSTEM_Boost=OFF, which means that Boost will be built.
 env:
  global:
- # Need STIR_TAG=master at present, see https://github.com/CCPPETMR/SIRF/issues/366
- - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
+ - STIR_BRANCH="-DSTIR_URL:STRING=https://github.com/KrisThielemans/STIR-1 -DSTIR_TAG=scatter_improvements_2"
+ - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release ${STIR_BRANCH}"
  # don't use too many threads - may crash
  - MAKEFLAGS="-j 2"
 matrix:
