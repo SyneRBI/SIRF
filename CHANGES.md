@@ -1,6 +1,7 @@
 # ChangeLog
 
 ## vX.X.X
+* Addition of sirf.STIR.ScatterEstimation and ScatterSimulation
 * STIR projection data now have an implementation of `axpby`, so that duplicate functionality has been removed from SIRF
 * Iterators are now used in `AcquisitionDataInMemory` to improve speed of `as_array`, `fill`, `dot`, `norm`, etc.
 * Bug fix in `get_index_to_physical_point_matrix`
