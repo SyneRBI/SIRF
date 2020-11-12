@@ -36,6 +36,7 @@ limitations under the License.
 #include <stdlib.h>
 
 #include "sirf/STIR/stir_data_containers.h"
+#include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -552,12 +553,26 @@ The actual algorithm is described in
       Output is an acquisition_data object with the scatter contribution.
       This can be added to the randoms to use in PETAcquisitionModel.set_background_term().
     */
-    class PETScatterEstimator : public stir::ScatterEstimation
+    class PETScatterEstimator : private stir::ScatterEstimation
     {
     public:
         //!
         PETScatterEstimator() : stir::ScatterEstimation()
-        {}
+        {
+          stir::shared_ptr<stir::PoissonLogLikelihoodWithLinearModelForMeanAndProjData<DiscretisedDensity<3,float> > >
+            obj_sptr(new PoissonLogLikelihoodWithLinearModelForMeanAndProjData<DiscretisedDensity<3,float> >);
+          stir::shared_ptr<stir::OSMAPOSLReconstruction<DiscretisedDensity<3,float> > >
+            recon_sptr(new stir::OSMAPOSLReconstruction<DiscretisedDensity<3,float> >);
+          recon_sptr->set_num_subiterations(8);
+          recon_sptr->set_num_subsets(7); // this works for the mMR. TODO
+          recon_sptr->set_disable_output(true);
+          recon_sptr->set_objective_function_sptr(obj_sptr);
+          stir::shared_ptr<stir::SeparableGaussianImageFilter<float> >
+            filter_sptr(new stir::SeparableGaussianImageFilter<float>);
+          filter_sptr->set_fwhms(stir::make_coordinate(15.F,15.F,15.F));
+          recon_sptr->set_post_processor_sptr(filter_sptr);
+          stir::ScatterEstimation::set_reconstruction_method_sptr(recon_sptr);
+        }
         //! Overloaded constructor which takes the parameter file
         PETScatterEstimator(std::string filename) :
         stir::ScatterEstimation(filename)
@@ -608,6 +623,16 @@ The actual algorithm is described in
           stir::ScatterEstimation::set_output_scatter_estimate_prefix(prefix);
         }
 
+        void set_num_iterations(int arg)
+        {
+          stir::ScatterEstimation::set_num_iterations(arg);
+        }
+
+        int get_num_iterations() const
+        {
+          return stir::ScatterEstimation::get_num_iterations();
+        }
+
         stir::shared_ptr<PETAcquisitionData> get_scatter_estimate(int est_num = -1) const
         {
             if (est_num == -1) // Get the last one
@@ -634,8 +659,31 @@ The actual algorithm is described in
             return sptr_acq_data;
           }
 
+        //! set up the object and performs checks
+        /*! All input data has been set first. This is different from the reconstruction
+          algorithms.
+
+          Throws if unsuccesful.
+          \todo Return type should be `void` in the future.
+        */
+        Succeeded set_up()
+        {
+          // reconstruct an smooth image with a large voxel size
+          const float zoom = 0.2F;
+          stir::shared_ptr<Voxels3DF>
+            image_sptr(new Voxels3DF(MAKE_SHARED<stir::ExamInfo>(*this->get_input_data()->get_exam_info_sptr()),
+                                     *this->get_input_data()->get_proj_data_info_sptr(),
+                                     zoom));
+          image_sptr->fill(1.F);
+          stir::ScatterEstimation::set_initial_activity_image_sptr(image_sptr);
+          if (stir::ScatterEstimation::set_up() == Succeeded::no)
+            THROW("scatter estimation set_up failed");
+          return Succeeded::yes;
+        }
         void process()
         {
+          if (!stir::ScatterEstimation::already_setup())
+            THROW("scatter estimation needs to be set-up first");
           if (stir::ScatterEstimation::process_data() == Succeeded::no)
             THROW("scatter estimation failed");
         }

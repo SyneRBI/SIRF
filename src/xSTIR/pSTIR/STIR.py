@@ -2659,7 +2659,7 @@ class ScatterEstimator():
     upsampling, tail-fitting.
 
     Output is an acquisition_data object with the scatter contribution.
-    This can be added to the randoms to use in PETAcquisitionModel.set_background_term().
+    This can then be added to the randoms to use in PETAcquisitionModel.set_background_term().
     '''
     def __init__(self, filename = ''):
         self.handle = None
@@ -2685,15 +2685,14 @@ class ScatterEstimator():
         Prepare this object for performing scatter estimation;
         All input has to be set before calling this function.
         """
-        # TODO The following fails at run-time
-        #     TypeError: cSTIR_setupScatterEstimator() takes exactly 2 arguments (1 given)
-        # Luckily, at the moment STIR process_data calls set_up()
-        #try_calling(pystir.cSTIR_setupScatterEstimator(
-        #    self.handle))
+        try_calling(pystir.cSTIR_setupScatterEstimator(
+            self.handle))
 
     def process(self):
         """
-        Runs the scatter estimation
+        Runs the scatter estimation.
+
+        Run set_up() first.
         """
         print('ScatterEstimator:: Waiting the scatter estimation to finish ...')
         self.output = AcquisitionData()
@@ -2703,9 +2702,7 @@ class ScatterEstimator():
 
     def get_output(self):
         """
-        Return the scatter estimate.
-
-        By default, the final scatter estimate is returned
+        Return the final scatter estimate.
         """
         data = AcquisitionData()
         data.handle = parms.parameter_handle(self.handle, 'PETScatterEstimator', 'output')

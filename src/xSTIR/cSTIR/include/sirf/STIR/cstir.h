@@ -121,7 +121,7 @@ extern "C" {
         void* cSTIR_scatterSimulatorFwd(void* ptr_am, void* ptr_im);
         void* cSTIR_scatterSimulatorFwdReplace(void* ptr_am, void* ptr_im, void* ptr_ad);
         void* cSTIR_setupScatterSimulator(void* ptr_am, void* ptr_ad, void* ptr_im);
-        void* cSTIR_setupScatterEstimator(void* ptr_r, void* ptr_i);
+        void* cSTIR_setupScatterEstimator(void* ptr_r);
         void* cSTIR_runScatterEstimator(void* ptr_r);
 
 	// Objective function methods
