@@ -1,13 +1,13 @@
 Scatter Estimation Parameters :=
 ; Example STIR parameter file for running scatter estimation
-; Important parameters are set from within the scatter_estimation demo.
-; Other parameters use the default STIR values.
+; The scatter estimation demo sets important parameters itself, and uses
+; default settings for the rest.
+; This file illustrates how you can set some of the variables via a parameter file.
 ; There are many parameters that STIR supports. You could have a look in
-# the STIR/examples/samples/scatter_estimation_par_files if you want to see those...
-;Run in debug mode
+; the STIR/examples/samples/scatter_estimation_par_files if you want to see more of them...
 
-;; A new folder called extras will be created, in which many 
-;; extra files will be stored 
+;; If enabling the following, a new folder called extras will be created, in which many
+; extra files will be stored which can be used for debugging
 run in debug mode := 0
 
 
@@ -16,6 +16,7 @@ run in debug mode := 0
 ;reconstruction parameter filename := .../STIR/examples/samples/scatter_estimation_par_files/run_reconstruction.par
 
 ; just use OSEM here (not much point in doing anything more sophisticated)
+; reconstruct at large voxel size to save time and add postfiltering
 reconstruction type := OSMAPOSL
 OSMAPOSLParameters :=
 objective function type:= PoissonLogLikelihoodWithLinearModelForMeanAndProjData
@@ -30,12 +31,12 @@ projector pair type := Matrix
 
 ;recompute sensitivity := 0
 ;subset sensitivity filenames := scatter_subset_sens_%d.hv
-; reconstruct at large voxel size to save time
 zoom := 0.2
 
 end PoissonLogLikelihoodWithLinearModelForMeanAndProjData Parameters:=
 number of subsets:= 21
-number of subiterations:=21
+; no need to run too many subiterations per recon, as they will accumulate over scatter iterations
+number of subiterations:=14
 
 ; smooth a bit as we use a down-sampled scanner (during the scatter estimation resolution can be low)
 post-filter type :=  Separable Gaussian
@@ -45,8 +46,7 @@ Separable Gaussian Filter Parameters :=
   z-dir filter FWHM (in mm):= 15
 END Separable Gaussian Filter Parameters :=
 ;
-; Disable output
-;
+; Disable output reconstruction output to disk
 disable output := 1
 End OSMAPOSLParameters:=
 End reconstruction Parameters:=

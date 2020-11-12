@@ -1,13 +1,13 @@
 '''
-Scatter estimation demo: Executes the ScatterRun example from STIR.
+Scatter estimation demo
 
 Usage:
   scatter_estimation [--help | options]
 
-Options:
+Options: (defaults are set to work for mMR data processed in the current directory)
   -f <file>, --file=<file>    raw data file [default: sinospan11_f1g1d0b0.hs]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
-                              subfolder of SIRF root folder
+  -p <path>, --path=<path>    path to data files [default: .]
+                              i.e. current directory
   -r <file>, --randoms=<file>  filename with randoms [default: MLrandomsspan11_f1.hs]
   -n <norm>, --norm=<norm>    normalization file [default: norm.n.hdr]
   -a <file>, --attenuation_image=<file>
@@ -47,12 +47,14 @@ args = docopt(__doc__, version=__version__)
 import sirf.STIR as PET
 
 from sirf.Utilities import show_2D_array
+import numpy as np
+import matplotlib.pyplot as plt
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = PET.examples_data_path('PET')
+    data_path = '.'
 raw_data_file = PET.existing_filepath(data_path, data_file)
 randoms_data_file = args['--randoms']
 if not(randoms_data_file is None):
@@ -73,29 +75,50 @@ def main():
     import os
     PET.AcquisitionData.set_storage_scheme('memory')
 
-    # TODO: properly set the path of Scatter Estimation parameter file.
-    par_file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'parameter_files')
     # Create the Scatter Estimator
-    se = PET.ScatterEstimator(PET.existing_filepath(par_file_path, 'scatter_estimation.par'))
-  # set/change some parameters here
-    se.set_input(PET.AcquisitionData(raw_data_file))
-    se.set_attenuation_image(PET.ImageData(PET.existing_filepath(data_path, mu_map_file)))
-    if not(randoms_data_file is None):
-        se.set_randoms(PET.AcquisitionData(randoms_data_file))
+    par_file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'parameter_files')
+    # We can use a STIR parameter file like this
+    # se = PET.ScatterEstimator(PET.existing_filepath(par_file_path, 'scatter_estimation.par'))
+    # However, we will just use all defaults here, and set variables below.
+    se = PET.ScatterEstimator()
+
+    prompts = PET.AcquisitionData(raw_data_file)
+    se.set_input(prompts)
+    se.set_attenuation_image(PET.ImageData(mu_map_file))
+    if randoms_data_file is None:
+        randoms = None
+    else:
+        randoms = PET.AcquisitionData(randoms_data_file)
+        se.set_randoms(randoms)
     if not(norm_file is None):
         se.set_asm(PET.AcquisitionSensitivityModel(norm_file))
     if not(acf_file is None):
         se.set_attenuation_correction_factors(PET.AcquisitionData(acf_file))
-    se.set_num_iterations(2)
+    # could set number of iterations if you want to
+    se.set_num_iterations(1)
+    print("number of scatter iterations that will be used: %d" % se.get_num_iterations())
     se.set_output_prefix(output_prefix)
-    print("number of iterations that will be used: %d" % se.get_num_iterations())
     se.set_up()
     se.process()
     scatter_estimate = se.get_output()
-    # show simulated scatter data
+
+    ## show estimated scatter data
     scatter_estimate_as_array = scatter_estimate.as_array()
     show_2D_array('Scatter estimation', scatter_estimate_as_array[0, 0, :, :])
 
+    ## let's draw some profiles to check
+    # we will aveage over all sinograms to reduce noise
+    plt.figure()
+    ax = plt.subplot(111)
+    plt.plot(np.sum(prompts.as_array(), axis=(0,1))[0,:], label='prompts')
+    if randoms is None:
+        plt.plot(np.sum(scatter_estimate_as_array, axis=(0,1))[0,:], label='scatter')
+    else:
+        randoms_as_array = randoms.as_array()
+        plt.plot(np.sum(randoms_as_array, axis=(0,1))[0,:], label='randoms')
+        plt.plot(np.sum(scatter_estimate_as_array + randoms_as_array, axis=(0,1))[0,:], label='randoms+scatter')
+    ax.legend()
+    plt.show()
 
 try:
     main()
