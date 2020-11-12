@@ -462,6 +462,16 @@ sirf::cSTIR_setScatterEstimatorParameter
         SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
         obj.set_attenuation_image_sptr(sptr_id);
     }
+    else if (boost::iequals(name, "setAttenuationCorrectionFactors"))
+    {
+        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
+        obj.set_attenuation_correction_factors_sptr(sptr_ad);
+    }
+    else if (boost::iequals(name, "setASM"))
+    {
+      SPTR_FROM_HANDLE(PETAcquisitionSensitivityModel, sptr_asm, hv);
+        obj.set_asm(sptr_asm);
+    }
     else if (boost::iequals(name, "set_num_iterations"))
     {
         int value = dataFromHandle<int>(hv);

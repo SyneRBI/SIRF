@@ -2720,6 +2720,10 @@ class ScatterEstimator():
         assert_validity(image, ImageData)
         parms.set_parameter(self.handle, self.name, 'setAttenuationImage', image.handle)
 
+    def set_attenuation_correction_factors(self, arg):
+        assert_validity(arg, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setAttenuationCorrectionFactors', arg.handle)
+
     def set_input(self, acq_data):
         assert_validity(acq_data, AcquisitionData)
         parms.set_parameter(self.handle, self.name, 'setInput', acq_data.handle)
@@ -2727,6 +2731,11 @@ class ScatterEstimator():
     def set_randoms(self, acq_data):
         assert_validity(acq_data, AcquisitionData)
         parms.set_parameter(self.handle, self.name, 'setRandoms', acq_data.handle)
+
+    def set_asm(self, asm):
+        '''Set acquisition sensitivity model (without attenuation!)'''
+        assert_validity(asm, AcquisitionSensitivityModel)
+        parms.set_parameter(self.handle, self.name, 'setASM', asm.handle)
 
     def set_num_iterations(self, v):
         """Set number of iterations of the SSS algorithm to use."""

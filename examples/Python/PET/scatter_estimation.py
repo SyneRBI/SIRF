@@ -9,7 +9,11 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -r <file>, --randoms=<file>  filename with randoms [default: MLrandomsspan11_f1.hs]
-  -n <norm>, --norm=<norm>    normalization value [default: 1]
+  -n <norm>, --norm=<norm>    normalization file [default: norm.n.hdr]
+  -a <file>, --attenuation_image=<file>
+                              attenuation image file [default: mu.hv]
+  -A <file>, --attenuation_correction_factors=<file>
+                              attenuation correction factors file [default: acf.hs]
   -o <file>, --output=<file>  output prefix for scatter estimates [default: scatter_estimate]
                               ("_#.hs" will be appended, with # the iteration number).
                               Set this to an empty string to prevent output on disk.
@@ -51,10 +55,17 @@ if data_path is None:
     data_path = PET.examples_data_path('PET')
 raw_data_file = PET.existing_filepath(data_path, data_file)
 randoms_data_file = args['--randoms']
-
 if not(randoms_data_file is None):
     randoms_data_file = PET.existing_filepath(data_path, randoms_data_file)
-beff = 1 / float(args['--norm'])
+norm_file = args['--norm']
+if not(norm_file is None):
+    norm_file = PET.existing_filepath(data_path, norm_file)
+acf_file = args['--attenuation_correction_factors']
+if not(acf_file is None):
+    acf_file = PET.existing_filepath(data_path, acf_file)
+mu_map_file = args['--attenuation_image']
+if not(mu_map_file is None):
+    mu_map_file = PET.existing_filepath(data_path, mu_map_file)
 output_prefix = args['--output']
 
 
@@ -68,9 +79,13 @@ def main():
     se = PET.ScatterEstimator(PET.existing_filepath(par_file_path, 'scatter_estimation.par'))
   # set/change some parameters here
     se.set_input(PET.AcquisitionData(raw_data_file))
-    se.set_attenuation_image(PET.ImageData(PET.existing_filepath(data_path, 'mu_map.hv')))
+    se.set_attenuation_image(PET.ImageData(PET.existing_filepath(data_path, mu_map_file)))
     if not(randoms_data_file is None):
         se.set_randoms(PET.AcquisitionData(randoms_data_file))
+    if not(norm_file is None):
+        se.set_asm(PET.AcquisitionSensitivityModel(norm_file))
+    if not(acf_file is None):
+        se.set_attenuation_correction_factors(PET.AcquisitionData(acf_file))
     se.set_num_iterations(2)
     se.set_output_prefix(output_prefix)
     print("number of iterations that will be used: %d" % se.get_num_iterations())

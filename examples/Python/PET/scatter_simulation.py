@@ -1,5 +1,7 @@
-'''Scatter simulation demo: creates an image, projects it to simulate
-acquisition data and runs a scatter simulation
+'''
+Scatter simulation demo.
+
+This creates an image, projects it to simulate acquisition data and runs a scatter simulation
 
 Usage:
   scatter_simulation [--help | options]

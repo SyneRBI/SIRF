@@ -568,7 +568,16 @@ The actual algorithm is described in
         {
             stir::ScatterEstimation::set_input_proj_data_sptr(arg->data());
         }
-
+        //! Set attenuation correction factors as acq_data
+        void set_attenuation_correction_factors_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        {
+          stir::ScatterEstimation::set_attenuation_correction_proj_data_sptr(arg->data());
+        }
+        //! Set acquisition sensitivity model specifying detection efficiencies (without attenuation)
+        void set_asm(stir::shared_ptr<PETAcquisitionSensitivityModel> arg)
+        {
+          stir::ScatterEstimation::set_normalisation_sptr(arg->data());
+        }
         //! Set the background data (normally equal to the randoms in PET)
         void set_background_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
         {
