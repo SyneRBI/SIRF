@@ -377,7 +377,7 @@ The actual algorithm is described in
 			jcg.set_num_iterations(2);
 			STIRImageData image_data = *sptr_image_template_->clone();
 			image_data.fill(1.0);
-			float lmd = jcg.rightmost(bf, image_data);
+			float lmd = jcg.largest(bf, image_data);
 			return std::sqrt(lmd);
 		}
 
