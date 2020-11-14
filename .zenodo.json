@@ -3,12 +3,13 @@
   "keywords": [
     "image-reconstruction", "pet-mr", "medical-imaging"],
   "related_identifiers": [
+    {"identifier": "10.1016/j.cpc.2019.107087", "relation": "documents"},
     {"identifier": "10.1109/NSSMIC.2017.8532815", "relation": "documents"}],
-    "communities": [{"identifier": "ccp-petmr"},{"identifier": "synerbi"}],
+  "communities": [{"identifier": "ccp-petmr"},{"identifier": "synerbi"}],
   "creators": [
     {"name": "Ovtchinnikov, Evgueni", "affiliation":"UK Research & Innovation"},
     {"name": "Brown, Richard", "orcid": "0000-0001-6989-9200", "affiliation": "University College London"},
-    {"name": "Pasca, Edoardo", "affiliation":"UK Research & Innovation"},
+    {"name": "Pasca, Edoardo", "orcid": "0000-0001-6957-2160", "affiliation":"UK Research & Innovation"},
     {"name": "da Costa-Luis, Casper O.", "orcid": "0000-0002-7211-1557", "affiliation": "King's College London"},
     {"name": "Thomas, Ben", "orcid": "0000-0002-9784-1177", "affiliation": "University College London"},
     {"name": "Atkinson, David", "orcid": "0000-0003-1124-6666", "affiliation": "University College London"},
