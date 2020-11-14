@@ -83,36 +83,36 @@ matrix:
    python: 2.7
    # +DEVEL -boost -fftw3 -hdf5 -swig +ace
    env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=2
- # osx g{cc,++} py{27,36}
- - os: osx
-   osx_image: xcode11.2
-   python: 3
-   # +boost -hdf5 -swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
- - os: osx
-   # +boost +fftw3 -hdf5 -swig
-   osx_image: xcode11.2
-   python: 3
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
- - os: osx
-   python: 3
-   # +DEVEL +boost -hdf5 +swig
-   osx_image: xcode11.2
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
- - os: osx
-   python: 3
-   # +DEVEL +boost -fftw3 -hdf5 +swig +itk
-   osx_image: xcode11.2
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_ITK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
+ ## osx g{cc,++} py{27,36}
+ #- os: osx
+ #  osx_image: xcode11.2
+ #  python: 3
+ #  # +boost -hdf5 -swig
+ #  env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
+ #- os: osx
+ #  # +boost +fftw3 -hdf5 -swig
+ #  osx_image: xcode11.2
+ #  python: 3
+ #  env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
+ #- os: osx
+ #  python: 3
+ #  # +DEVEL +boost -hdf5 +swig
+ #  osx_image: xcode11.2
+ #  env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
+ #- os: osx
+ #  python: 3
+ #  # +DEVEL +boost -fftw3 -hdf5 +swig +itk
+ #  osx_image: xcode11.2
+ #  env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_ITK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
  - os: linux
    python: 3
    # -boost +itk +fftw3 +hdf5 +vtk
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DUSE_VTK=ON -DUSE_SYSTEM_VTK=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
- - os: osx
-   python: 3
-   # +boost +itk -hdf5 +swig +vtk
-   osx_image: xcode11.2
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_VTK=ON -DUSE_SYSTEM_VTK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
+ #- os: osx
+ #  python: 3
+ #  # +boost +itk -hdf5 +swig +vtk
+ #  osx_image: xcode11.2
+ #  env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DUSE_VTK=ON -DUSE_SYSTEM_VTK=ON" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
 
 before_install:
 # Set C and C++ compiler etc using trick from
