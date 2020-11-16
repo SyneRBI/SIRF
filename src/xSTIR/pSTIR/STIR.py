@@ -1341,6 +1341,15 @@ class AcquisitionModel(object):
         try_calling(pystir.cSTIR_setupAcquisitionModel(
             self.handle, acq_templ.handle, img_templ.handle))
 
+    def norm(self, subset_num=0, num_subsets=1):
+        assert self.handle is not None
+        handle = pystir.cSTIR_acquisitionModelNorm \
+                 (self.handle, subset_num, num_subsets)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r;
+
     def set_additive_term(self, at):
         """Set additive term.
 

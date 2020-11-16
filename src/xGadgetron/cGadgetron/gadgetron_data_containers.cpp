@@ -1044,6 +1044,24 @@ GadgetronImageData::norm() const
 }
 
 void
+GadgetronImageData::fill(float s)
+{
+	for (unsigned int i = 0; i < number(); i++) {
+		ImageWrap& u = image_wrap(i);
+		u.fill(s);
+	}
+}
+
+void
+GadgetronImageData::scale(float s)
+{
+	for (unsigned int i = 0; i < number(); i++) {
+		ImageWrap& u = image_wrap(i);
+		u.scale(s);
+	}
+}
+
+void
 GadgetronImagesVector::sort()
 {
 	typedef std::array<float, 3> tuple;

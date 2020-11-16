@@ -33,9 +33,11 @@ limitations under the License.
 \author SyneRBI
 */
 
+#include <cmath>
 #include <stdlib.h>
 
 #include "sirf/STIR/stir_data_containers.h"
+#include "sirf/common/JacobiCG.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -334,6 +336,51 @@ The actual algorithm is described in
 
 	class PETAcquisitionModel {
 	public:
+		/*!
+		\ingroup STIR Extensions
+		\brief Class for the product of backward and forward projectors of a PET acquisition model.
+
+		For a given STIRImageData object x, computes B(F(x)), where F(x) is the forward projection of x,
+		and B(y) is the backprojection of PETAcquisitionData object y.
+		*/
+		class BFOperator : public Operator<STIRImageData> {
+		public:
+			BFOperator(const PETAcquisitionModel& am) : sptr_am_(am.linear_acq_mod_sptr()) {}
+			void set_subset(int sub_num)
+			{
+				sub_num_ = sub_num;
+			}
+			void set_num_subsets(int num_sub)
+			{
+				num_sub_ = num_sub;
+			}
+			virtual std::shared_ptr<STIRImageData> apply(STIRImageData& image_data)
+			{
+				std::shared_ptr<PETAcquisitionData> sptr_fwd =
+					sptr_am_->forward(image_data, sub_num_, num_sub_); // , true);
+				std::shared_ptr<STIRImageData> sptr_bwd =
+					sptr_am_->backward(*sptr_fwd, sub_num_, num_sub_);
+				return sptr_bwd;
+			}
+		private:
+			std::shared_ptr<const PETAcquisitionModel> sptr_am_;
+			int sub_num_ = 0;
+			int num_sub_ = 1;
+		};
+
+		float norm(int subset_num = 0, int num_subsets = 1) const
+		{
+			BFOperator bf(*this);
+			bf.set_subset(subset_num);
+			bf.set_num_subsets(num_subsets);
+			JacobiCG<float> jcg;
+			jcg.set_num_iterations(2);
+			STIRImageData image_data = *sptr_image_template_->clone();
+			image_data.fill(1.0);
+			float lmd = jcg.largest(bf, image_data);
+			return std::sqrt(lmd);
+		}
+
 		void set_projectors(stir::shared_ptr<stir::ProjectorByBinPair> sptr_projectors)
 		{
 			sptr_projectors_ = sptr_projectors;
@@ -417,7 +464,7 @@ The actual algorithm is described in
 		*/
 		stir::shared_ptr<PETAcquisitionData>
 			forward(const STIRImageData& image,
-			int subset_num = 0, int num_subsets = 1, bool do_linear_only = false);
+			int subset_num = 0, int num_subsets = 1, bool do_linear_only = false) const;
 		/*! \brief replaces a subset of acquisition data with forward-projected data
 		\param[out] acq_data	forward-projected data
 		\param[in] image		image to be forward-projected
@@ -429,14 +476,14 @@ The actual algorithm is described in
 		\param[in] linear		use only linear part of the acquisition model (no constant terms)
 		*/
 		void forward(PETAcquisitionData& acq_data, const STIRImageData& image,
-			int subset_num, int num_subsets, bool zero = false, bool do_linear_only = false);
+			int subset_num, int num_subsets, bool zero = false, bool do_linear_only = false) const;
 
 		// computes and returns back-projected subset of acquisition data 
 		stir::shared_ptr<STIRImageData> backward(PETAcquisitionData& ad,
-			int subset_num = 0, int num_subsets = 1);
+			int subset_num = 0, int num_subsets = 1) const;
 		// puts back-projected subset of acquisition data into image 
 		void backward(STIRImageData& image, PETAcquisitionData& ad,
-			int subset_num = 0, int num_subsets = 1);
+			int subset_num = 0, int num_subsets = 1) const;
 
 	protected:
 		stir::shared_ptr<stir::ProjectorByBinPair> sptr_projectors_;

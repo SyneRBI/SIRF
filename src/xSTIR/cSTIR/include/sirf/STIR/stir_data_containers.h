@@ -871,10 +871,25 @@ namespace sirf {
 		{
 			_data = sptr_data;
 		}
+
 		void fill(float v)
 		{
 			_data->fill(v);
 		}
+		void scale(float s);
+		float dot(const DataContainer& a_x) const
+		{
+			float s;
+			dot(a_x, &s);
+			return s;
+		}
+		void axpby(
+			float a, const DataContainer& a_x,
+			float b, const DataContainer& a_y)
+		{
+			axpby(&a, a_x, &b, a_y);
+		}
+
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;

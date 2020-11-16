@@ -568,6 +568,25 @@ namespace sirf {
 			const DataContainer& a_x,
 			const DataContainer& a_y);
 
+		void fill(float s);
+		void scale(float s);
+		complex_float_t dot(const DataContainer& a_x)
+		{
+			complex_float_t z;
+			dot(a_x, &z);
+			return z;
+		}
+		void axpby(
+			complex_float_t a, const DataContainer& a_x,
+			complex_float_t b, const DataContainer& a_y)
+		{
+			axpby(&a, a_x, &b, a_y);
+		}
+		gadgetron::unique_ptr<ISMRMRDImageData> clone() const
+		{
+			return gadgetron::unique_ptr<ISMRMRDImageData>(this->clone_impl());
+		}
+
 		virtual void sort() = 0;
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
@@ -599,11 +618,12 @@ namespace sirf {
         /// Get the meta data
         const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
 
-
 	protected:
 		bool sorted_=false;
 		std::vector<int> index_;
         AcquisitionsInfo acqs_info_;
+		/// Clone helper function. Don't use.
+		virtual ISMRMRDImageData* clone_impl() const = 0;
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;
