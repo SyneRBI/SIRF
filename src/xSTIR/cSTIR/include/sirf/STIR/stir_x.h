@@ -338,7 +338,7 @@ The actual algorithm is described in
 		{
 			sptr_projectors_ = sptr_projectors;
 		}
-		stir::shared_ptr<stir::ProjectorByBinPair> projectors_sptr()
+		const stir::shared_ptr<stir::ProjectorByBinPair> projectors_sptr() const
 		{
 			return sptr_projectors_;
 		}
@@ -346,7 +346,7 @@ The actual algorithm is described in
 		{
 			sptr_add_ = sptr;
 		}
-		stir::shared_ptr<PETAcquisitionData> additive_term_sptr()
+		stir::shared_ptr<const PETAcquisitionData> additive_term_sptr() const
 		{
 			return sptr_add_;
 		}
@@ -354,7 +354,7 @@ The actual algorithm is described in
 		{
 			sptr_background_ = sptr;
 		}
-		stir::shared_ptr<PETAcquisitionData> background_term_sptr()
+		stir::shared_ptr<const PETAcquisitionData> background_term_sptr() const
 		{
 			return sptr_background_;
 		}
@@ -362,7 +362,7 @@ The actual algorithm is described in
 		//{
 		//	sptr_normalisation_ = sptr;
 		//}
-		stir::shared_ptr<stir::BinNormalisation> normalisation_sptr()
+		const stir::shared_ptr<stir::BinNormalisation> normalisation_sptr() const
 		{
 			if (sptr_asm_.get())
 				return sptr_asm_->data();
@@ -397,6 +397,15 @@ The actual algorithm is described in
 		{
 			sptr_asm_.reset();
 			//sptr_normalisation_.reset();
+		}
+		stir::shared_ptr<const PETAcquisitionModel> linear_acq_mod_sptr() const
+		{
+			stir::shared_ptr<PETAcquisitionModel> sptr_am(new PETAcquisitionModel);
+			sptr_am->set_projectors(sptr_projectors_);
+			sptr_am->set_asm(sptr_asm_);
+			sptr_am->sptr_acq_template_ = sptr_acq_template_;
+			sptr_am->sptr_image_template_ = sptr_image_template_;
+			return sptr_am;
 		}
 
 		virtual stir::Succeeded set_up(

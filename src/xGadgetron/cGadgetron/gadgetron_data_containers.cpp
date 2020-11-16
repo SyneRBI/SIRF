@@ -380,6 +380,8 @@ complex_float_t a, complex_float_t b)
 {
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	if (!x.sorted() || !y.sorted())
+		THROW("binary algebraic operations cannot be applied to unsorted data");
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
@@ -466,6 +468,8 @@ complex_float_t a, complex_float_t b)
 		}
 		take_over(ac);
 	}
+	this->set_sorted(true);
+	this->organise_kspace();
 }
 
 float 
@@ -496,6 +500,8 @@ MRAcquisitionData::clone_base() const
 		ptr_ad->append_acquisition(acq);
 	}
 	ptr_ad->set_sorted(sorted());
+	if (sorted())
+		ptr_ad->organise_kspace();
 	return ptr_ad;
 }
 
@@ -854,6 +860,7 @@ AcquisitionsFile::set_data(const complex_float_t* z, int all)
 				acq.data(s, c) = z[i];
 		ac.append_acquisition(acq);
 	}
+	ac.set_sorted(sorted());
 	take_over(ac);
 }
 

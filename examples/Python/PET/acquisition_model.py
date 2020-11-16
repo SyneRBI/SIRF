@@ -73,11 +73,13 @@ def main():
     # output goes to files
 ##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
+    # raw data to be used as a template for the acquisition model
+    acq_template = AcquisitionData(raw_data_file)
+
     # create an empty image
-    image = ImageData()
-    image_size = (31, 111, 111)
-    voxel_size = (3.375, 3, 3) # voxel sizes are in mm
-    image.initialise(image_size, voxel_size)
+    image = acq_template.create_uniform_image(0.0, xy=111)
+    image_size = image.dimensions()
+    print('image size: %d by %d by %d' % image_size)
 
     # create a shape
     shape = EllipticCylinder()
@@ -112,9 +114,6 @@ def main():
         # show the phantom image
         image_array = image.as_array()
         show_2D_array('Phantom image', image_array[z,:,:])
-
-    # raw data to be used as a template for the acquisition model
-    acq_template = AcquisitionData(raw_data_file)
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication

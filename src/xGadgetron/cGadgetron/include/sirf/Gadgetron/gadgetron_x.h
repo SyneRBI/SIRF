@@ -436,6 +436,8 @@ namespace sirf {
 				sptr_acqs_->new_acquisitions_container();
 			sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
 			fwd(ic, *sptr_csms_, *sptr_acqs);
+			sptr_acqs->set_sorted(true);
+			sptr_acqs->organise_kspace();
 			return sptr_acqs;
 		}
 

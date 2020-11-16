@@ -53,6 +53,10 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;
+		bool is_empty() const
+		{
+			return items() < 1;
+		}
 		virtual void write(const std::string &filename) const = 0;
 		std::unique_ptr<DataContainer> clone() const
 		{

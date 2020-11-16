@@ -119,6 +119,13 @@ public:
 			free(_data);
 		delete _status;
 	}
+	static void* error_handle(const std::string& error, const std::string& file, int line)
+	{
+		DataHandle* handle = new DataHandle;
+		ExecutionStatus status(error, file, line);
+		handle->set(0, &status);
+		return handle;
+	}
 	void set(void* data, const ExecutionStatus* status = 0, int grab = 0) {
 		if (status) {
 			delete _status;
