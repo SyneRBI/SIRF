@@ -312,7 +312,6 @@ class ImageData(SIRF.ImageData):
                 'wrong argument ' + repr(arg) + ' for ImageData constructor')
         self.name = 'ImageData'
         self.rimsize = -1
-        self.spacing = (1.,1.,1.)
 
     def __del__(self):
         """Deallocates this ImageData object."""
@@ -352,7 +351,6 @@ class ImageData(SIRF.ImageData):
         self.handle = pystir.cSTIR_imageFromVoxels(voxels)
         check_status(self.handle)
         pyiutil.deleteDataHandle(voxels)
-        self.spacing = vsize
 
     def fill(self, value):
         """Set the voxel-values.
@@ -440,6 +438,9 @@ class ImageData(SIRF.ImageData):
         try_calling(
             pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
         return tuple(vs)  # [::-1])
+    @property
+    def spacing(self):
+        return self.voxel_sizes()
 
     def transf_matrix(self):
         """Get transformation matrix."""
