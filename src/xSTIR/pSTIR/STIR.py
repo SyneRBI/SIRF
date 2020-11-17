@@ -626,6 +626,8 @@ class SeparableGaussianImageFilter(ImageDataProcessor):
     def __init__(self):
         """init."""
         self.handle = None
+        self.input = None
+        self.output = None
         self.name = 'SeparableGaussianImageFilter'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
