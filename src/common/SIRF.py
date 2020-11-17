@@ -663,6 +663,14 @@ class GeometricalInfo(object):
         """Print the geom info"""
         try_calling(pysirf.cSIRF_GeomInfo_print(self.handle))
 
+    def get_info(self):
+        """Return the geom info as string"""
+        handle = pysirf.cSIRF_GeomInfo_get(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
     def get_offset(self):
         """Offset is the LPS coordinate of the centre of the first voxel."""
         arr = numpy.ndarray((3,), dtype = numpy.float32)
