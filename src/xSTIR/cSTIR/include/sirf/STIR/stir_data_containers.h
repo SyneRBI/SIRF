@@ -147,6 +147,21 @@ namespace sirf {
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
 
+		//! rebin the data to lower resolution by adding
+		/*!
+		  \param num_segments_to_combine combines multiple oblique 'segments' together. If set to the
+		    total number of segments, this corresponds to SSRB. Another example is if the input data
+			has 'span=1', the output span will be equal to the \c num_segments_to_combine.
+		  \param num_views_to_combine combines neighbouring views. Needs to be a divisor of the total
+		    number of views in the data.
+		  \param num_tang_poss_to_trim removes a number of tangential positions (horizontal direction
+		    in the sinogram) at each end
+		  \param do_normalisation if \c true, averages the data, otherwise it adds the data. Often
+		    the latter is required for emission data (as it preserves Poisson statistics),
+			while the former should be used for corrected data (or for attenuation correction factors).
+		  \param max_in_segment_num_to_process by default all input data are used. If set to a non-negative
+		    number, it will remove the most oblique segments.
+		*/
 		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,
 			const int num_views_to_combine = 1,
