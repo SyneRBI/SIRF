@@ -73,9 +73,9 @@ Target date : Q4 2020
       - MR iterative reconstruction via connection with CIL 
             - improvements on acquisition model (non-Cartesian sequences)
             - selecting of MR aquisition data
-      - Motion Compensate Image Reconstruction (MCIR) via connection with CIL, both PET and MR
+      - Motion Compensated Image Reconstruction (MCIR) via connection with CIL, both PET and MR
       - Initial SPECT support (via STIR)
- - optional: CMake SuperBuild of SIRF on Windows (Gadgetron not yet on Windows)
+ - optional: CMake SuperBuild of SIRF on Windows (Gadgetron not yet on Windows, Gadgetron building support on OSX dropped due to upstream policy)
       
 # SIRF 3.0
 Target date: Q2 2021
@@ -102,9 +102,6 @@ Target date: Q2 2021
   - Installers with precompiled software (conda)
   - Strategy for developing new functionality and interfaces
     (“engines”)
-    
-  Proposed to drop:
-      - MR iterative reconstruction via Gadgetron gadgets (e.g. iterative SENSE). Reason: superseded by CIL functionality and probably a lot of work
 
 # SIRF 4.0
 Target date: Q4 2021
@@ -120,7 +117,7 @@ Target date: Q4 2021
       - Additional support for measured data
          - MR sequences: (list TBD)
          - Philips?
-
+   - Example interfaces to Machine Learning framework(s)
 
 # Future
   - Code optimization (GPU?)
