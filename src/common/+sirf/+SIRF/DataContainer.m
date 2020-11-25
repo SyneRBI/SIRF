@@ -43,6 +43,11 @@ classdef DataContainer < handle
             num = calllib('miutilities', 'mIntDataFromHandle', handle);
             sirf.Utilities.delete(handle)
         end
+        function empty = is_empty(self)
+%***SIRF*** Returns true if this container does not actually store data
+%           (but may store metadata - geometry etc.), e.g. is a template.
+            empty = self.number() < 1;
+        end
         function copy = clone(self)
             if isempty(self.handle_)
                 error('DataContainer:clone:empty_object', ...
@@ -70,6 +75,10 @@ classdef DataContainer < handle
             im = calllib('miutilities', 'mFloatImDataFromHandle', handle);
             z = complex(re, im);
             sirf.Utilities.delete(handle)
+        end
+        function z = uminus(self)
+%***SIRF*** Overloads unary - for data containers.
+            z = self*(-1);
         end
         function z = minus(self, other)
 %***SIRF*** Overloads - for data containers.
