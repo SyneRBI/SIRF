@@ -100,6 +100,10 @@ classdef ImageData < sirf.SIRF.ImageData
 %***SIRF*** Sets this image values at voxels.
 %         The argument is either 3D array of values or a scalar to be
 %         assigned at each voxel.
+            if isa(value, 'sirf.SIRF.ImageData')
+                fill@sirf.SIRF.ImageData(self, value);
+                return
+            end
             if numel(value) == 1
                 h = calllib('mstir', 'mSTIR_fillImage', ...
                     self.handle_, single(value));

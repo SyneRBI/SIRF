@@ -90,6 +90,9 @@ try
     fprintf('norm(new_image - image): %e\n', diff.norm())
     new_image = image*10;
     fprintf('norm(image*10): %e\n', new_image.norm())
+    new_image.fill(image);
+    diff = new_image - image;
+    fprintf('norm(new_image.fill(image) - image): %e\n', diff.norm())
     
 catch err
     % display error information
