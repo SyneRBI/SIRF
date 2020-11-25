@@ -82,6 +82,8 @@ try
     fprintf('acq_data*10 at (%d,%d,%d): %f\n', x, y, z, acq_array(x, y, z))
     
     image = acq_data.create_uniform_image(1.0);
+    geom_info = get_geometrical_info(image);
+    fprintf(geom_info.get_info())
     image_array = image.as_array();
     s = sqrt(image*image);
     fprintf('norm(image): %e = %e = %e\n', norm(image_array(:)), image.norm(), s)
