@@ -389,12 +389,24 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
         }
     }
 
-    ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
+    // original code
+    //ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
+    ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.matrixSize.y * 3.2, rec_space.matrixSize.z * 3.2 );
 
     ISMRMRD::Acquisition acq;
     ac.get_acquisition(0,acq);
 
+    std::cout << "\nFOV " << rec_space.fieldOfView_mm.x << " " << rec_space.fieldOfView_mm.y << " " << rec_space.fieldOfView_mm.z;
+    std::cout << "\nMatrix " << rec_space.matrixSize.x << " " << rec_space.matrixSize.y * 3.2 << " " << rec_space.matrixSize.z * 3.2;
+
     this->match_img_header_to_acquisition(*ptr_img, acq);
+
+    // rotate orientation
+    auto acq_hdr = acq.getHead();
+    ptr_img->setSliceDirection(acq_hdr.phase_dir[0], acq_hdr.phase_dir[1], acq_hdr.phase_dir[2]);
+    ptr_img->setPhaseDirection(-acq_hdr.slice_dir[0], -acq_hdr.slice_dir[1], -acq_hdr.slice_dir[2]);
+
+    std::cout << "FOV " << ptr_img->getFieldOfViewX() << " " << ptr_img->getFieldOfViewY() << " " << ptr_img->getFieldOfViewZ();
 }
 
 void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
