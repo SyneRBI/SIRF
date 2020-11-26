@@ -42,6 +42,7 @@ try
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file', pet_data_path);
     acq_data = PET.AcquisitionData(fullfile(pathname, filename));
+    fprintf('data dimensions: %d x %d x %d x %d\n', acq_data.dimensions())
 
     % copy the acquisition data into a Matlab array
     acq_array = acq_data.as_array();
@@ -58,6 +59,16 @@ try
     % display the acquisition data
     sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
+
+    % rebin the acquisition data
+    new_acq_data = acq_data.rebin(3);
+    fprintf('rebinned data dimensions: %d x %d x %d x %d\n', ...
+        new_acq_data.dimensions())
+
+    % display the rebinned data
+    acq_array = new_acq_data.as_array();
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
+        'acquisition data rebinned', 'tang. pos.', 'views');
 
     % clone the acquisition data
     new_acq_data = acq_data.clone();

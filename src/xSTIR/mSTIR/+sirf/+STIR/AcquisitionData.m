@@ -228,6 +228,30 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             ad = sirf.STIR.AcquisitionData(self);
             ad.fill(value)
         end
+        function ad = rebin(self, num_segments_to_combine, ...
+              num_views_to_combine, num_tang_poss_to_trim, ...
+              do_normalisation, max_in_segment_num_to_process)
+            if nargin < 3
+                num_views_to_combine = 1;
+            end
+            if nargin < 4
+                num_tang_poss_to_trim = 0;
+            end
+            if nargin < 5
+                do_normalisation = true;
+            end
+            if nargin < 6
+                max_in_segment_num_to_process = -1;
+            end
+            ad = sirf.STIR.AcquisitionData();
+            ad.handle_ = calllib('mstir', 'mSTIR_rebinnedAcquisitionData', ...
+                self.handle_, ...
+                num_segments_to_combine, num_views_to_combine, ...
+                num_tang_poss_to_trim, do_normalisation, ...
+                max_in_segment_num_to_process);
+            sirf.Utilities.check_status...
+                ([self.name ':rebin'], ad.handle_);
+        end
         function ad_info = get_info(self)
             %Get the AcquisitionData's metadata.
             h = calllib...
