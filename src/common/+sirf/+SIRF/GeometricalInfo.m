@@ -50,7 +50,7 @@ classdef GeometricalInfo < handle
         end
         function value = get_offset(self)
         	% Offset is the LPS coordinate of the centre of the first voxel.
-        	ptr_i = libpointer('int32Ptr', zeros(1, 3));
+            ptr_i = libpointer('singlePtr', zeros(1, 3));
             calllib('msirf', 'mSIRF_GeomInfo_get_offset', self.handle_, ptr_i);
             value = ptr_i.Value;
         end
