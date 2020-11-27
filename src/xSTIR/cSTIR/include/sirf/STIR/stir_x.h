@@ -724,7 +724,8 @@ The actual algorithm is described in
 		}
 		void set_zoom(float v)
 		{
-                        set_zoom_xy(v);
+			set_zoom_xy(v);
+			_is_set_up = false;
 		}
 		void set_alpha_ramp(double alpha)
 		{
@@ -745,14 +746,20 @@ The actual algorithm is described in
 		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
 		{
 			_sptr_image_data.reset(new STIRImageData(*sptr_id));
+			stir::Reconstruction<Image3DF>::set_up(_sptr_image_data->data_sptr());
 			_is_set_up = true;
 			return stir::Succeeded::yes;
+		}
+		void cancel_setup()
+		{
+			_is_set_up = false;
 		}
 		stir::Succeeded process()
 		{
 			if (!_is_set_up) {
 				stir::shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());
 				_sptr_image_data.reset(new STIRImageData(sptr_image));
+				stir::Reconstruction<Image3DF>::set_up(sptr_image);
 				return reconstruct(sptr_image);
 			}
 			else

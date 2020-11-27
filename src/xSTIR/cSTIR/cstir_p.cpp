@@ -698,10 +698,12 @@ sirf::cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle
 	else if (boost::iequals(name, "zoom")) {
 		double zoom = dataFromHandle<float>(hv);
 		recon.set_zoom(zoom);
+		recon.cancel_setup();
 	}
 	else if (boost::iequals(name, "xy")) {
 		int xy = dataFromHandle<int>(hv);
 		recon.set_output_image_size_xy(xy);
+		recon.cancel_setup();
 	}
 	else if (boost::iequals(name, "alpha")) {
 		double alpha = dataFromHandle<float>(hv);
