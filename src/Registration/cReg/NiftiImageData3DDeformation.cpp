@@ -67,8 +67,14 @@ void NiftiImageData3DDeformation<dataType>::create_from_cpp(NiftiImageData3DTens
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &ref) const
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &) const
 {
+    return *this;
+// The following was put in "to allow resampling with different sized grids to reference"
+// Yet it seemed to give erroneous results when using R^-1 * T * R, where T was the deformation and R was a TM that moved from MR to PET gantry.
+// Returnig *this does give expected results in this case. I'm hoping it doesn't break whatever motivated the code below...
+// I'll have to do the same for the displacement field.
+#if 0
     NiftiImageData3DDeformation<dataType> output_def;
     output_def.create_from_3D_image(ref);
     nifti_image * def_ptr = output_def.get_raw_nifti_sptr().get();
@@ -86,6 +92,7 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::get
                          def_ptr,
                          nullptr);
     return output_def;
+#endif
 }
 
 template<class dataType>
