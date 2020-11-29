@@ -83,7 +83,7 @@ public:
     void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref) const;
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &) const;
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {

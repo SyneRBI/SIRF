@@ -91,7 +91,7 @@ public:
     virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData<dataType> &ref) const;
 
     /// Compose multiple transformations into single deformation field
-    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<const Transformation<dataType> *> &transformations, const NiftiImageData<dataType> &ref);
+    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<const Transformation<dataType> *> &transformations, const NiftiImageData<dataType> &);
 
     /// Compose multiple transformations into single deformation field
     static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<const Transformation<dataType> > > &transformations, const NiftiImageData<dataType> &ref);
