@@ -82,8 +82,12 @@ public:
     /// Create from 3D image (fill with zeroes)
     void create_from_3D_image(const NiftiImageData<dataType> &image);
 
-    /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &) const;
+    /// Get as deformation field.
+    ///
+    /// Reference image **must** be used when converting a transformation matrix to a deformation.
+    /// For displacements and deformations, the reference can be used optionally. It **should** be used when composing transformations to be used for resampling
+    /// But is probably unnecessary for simply concatenating deformations.
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref, const bool use_ref = true) const;
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {

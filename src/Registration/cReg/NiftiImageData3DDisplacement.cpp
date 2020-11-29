@@ -57,34 +57,32 @@ void NiftiImageData3DDisplacement<dataType>::create_from_3D_image(const NiftiIma
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &) const
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &ref, const bool use_ref) const
 {
-    NiftiImageData3DDeformation<dataType> def(*this);
-    return def;
-// The following was put in "to allow resampling with different sized grids to reference"
-// Yet it seemed to give erroneous results when using R^-1 * T * R, where T was the deformation and R was a TM that moved from MR to PET gantry.
-// Returnig *this does give expected results in this case. I'm hoping it doesn't break whatever motivated the code below...
-// I'll have to do the same for the displacement field.
-#if 0
-    NiftiImageData3DDeformation<dataType> output_def;
-    output_def.create_from_3D_image(ref);
-    nifti_image * def_ptr = output_def.get_raw_nifti_sptr().get();
+    if (!use_ref) {
+        NiftiImageData3DDeformation<dataType> def(*this);
+        return def;
+    }
+    else {
+        NiftiImageData3DDeformation<dataType> output_def;
+        output_def.create_from_3D_image(ref);
+        nifti_image * def_ptr = output_def.get_raw_nifti_sptr().get();
 
-    // Initialise the deformation field with an identity transformation
-    reg_tools_multiplyValueToImage(def_ptr,def_ptr,0.f);
-    reg_getDeformationFromDisplacement(def_ptr);
-    def_ptr->intent_p1=DEF_FIELD;
+        // Initialise the deformation field with an identity transformation
+        reg_tools_multiplyValueToImage(def_ptr,def_ptr,0.f);
+        reg_getDeformationFromDisplacement(def_ptr);
+        def_ptr->intent_p1=DEF_FIELD;
 
-    // Not marked const so have to copy unfortunately
-    std::shared_ptr<NiftiImageData3DDisplacement<dataType> > copy_of_input_disp_sptr =
-            this->clone();
-    // Convert displacement to deformation
-    reg_getDeformationFromDisplacement(copy_of_input_disp_sptr->get_raw_nifti_sptr().get());
-    reg_defField_compose(copy_of_input_disp_sptr->get_raw_nifti_sptr().get(),
-                         def_ptr,
-                         nullptr);
-    return output_def;
-#endif
+        // Not marked const so have to copy unfortunately
+        std::shared_ptr<NiftiImageData3DDisplacement<dataType> > copy_of_input_disp_sptr =
+                this->clone();
+        // Convert displacement to deformation
+        reg_getDeformationFromDisplacement(copy_of_input_disp_sptr->get_raw_nifti_sptr().get());
+        reg_defField_compose(copy_of_input_disp_sptr->get_raw_nifti_sptr().get(),
+                            def_ptr,
+                            nullptr);
+        return output_def;
+    }
 }
 
 template<class dataType>
