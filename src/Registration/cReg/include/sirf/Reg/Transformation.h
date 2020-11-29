@@ -58,8 +58,12 @@ public:
     /// Destructor
     virtual ~Transformation() {}
 
-    /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref) const = 0;
+    /// Get as deformation field.
+    ///
+    /// Reference image **must** be used when converting a transformation matrix to a deformation.
+    /// For displacements and deformations, the reference can be used optionally. It **should** be used when composing transformations to be used for resampling
+    /// But is probably unnecessary for simply concatenating deformations.
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref, const bool use_ref = true) const = 0;
 
     /// Write
     virtual void write(const std::string &filename) const = 0;
