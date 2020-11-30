@@ -99,6 +99,15 @@ public:
     /// Add image to tensor component
     void add_to_tensor_component(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr);
 
+    /// Tensor component maths with scalar
+    void tensor_component_maths(const int dim, const dataType scalar, const typename NiftiImageData<dataType>::MathsType maths_type);
+
+    /// Multiply tensor component by scalar
+    void multiply_tensor_component(const int dim, const dataType scalar);
+
+    /// Add image to tensor component
+    void add_to_tensor_component(const int dim, const dataType scalar);
+
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {
         return new ObjectHandle<DataContainer>

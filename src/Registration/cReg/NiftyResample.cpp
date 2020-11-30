@@ -28,6 +28,7 @@ limitations under the License.
 */
 
 #include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftiImageData3DTensor.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/AffineTransformation.h"
@@ -336,6 +337,88 @@ void NiftyResample<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, co
     }
 
     set_post_resample_outputs(output_sptr, this->_output_image_sptr, _output_image_adjoint_niftis);
+}
+
+template<class dataType>
+static
+void convert_to_NiftiImageData_if_not_already(std::shared_ptr<NiftiImageData3D<dataType> > &output_sptr, const std::shared_ptr<ImageData> &input_sptr)
+{
+    // Try to dynamic cast from ImageData to (const) NiftiImageData. This will only succeed if original type was NiftiImageData
+    output_sptr = std::dynamic_pointer_cast<NiftiImageData3D<dataType> >(input_sptr);
+    // If output is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
+    // In this case, construct a NiftiImageData
+    if (!output_sptr)
+        output_sptr = std::make_shared<NiftiImageData3D<dataType> >(*input_sptr);
+}
+
+template<class dataType>
+void
+NiftyResample<dataType>::
+get_image_gradient_wrt_deformation_times_image(
+        std::shared_ptr<NiftiImageData3DDeformation<dataType> > &output_deformation_sptr,
+        const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &input_deformation_sptr,
+        const std::shared_ptr<const ImageData> &image_for_gradient_sptr,
+        const std::shared_ptr<const ImageData> &image_to_multiply_sptr)
+{
+    // Call the set up
+    set_up();
+
+    // Check metadata of input deformation matches that used for set up
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*this->_deformation_sptr,*input_deformation_sptr,false))
+        throw std::runtime_error("NiftyResample::get_image_gradient_wrt_deformation_times_image: Metadata of input deformation should match that used for set up.");
+
+    // Only tested for linear interpolation
+    if (this->_interpolation_type != Resample<dataType>::LINEAR)
+        throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image only implemented for linear interpolation");
+
+    // Not implemented for complex images
+    if (image_for_gradient_sptr->is_complex() || image_to_multiply_sptr->is_complex())
+        throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image not yet implemented for complex images");
+
+    // Get image for gradient as nifti and check metadata matches
+    std::shared_ptr<NiftiImageData<float> > image_for_gradient_as_nifti_sptr = 
+        std::make_shared<NiftiImageData3D<dataType> >(*image_for_gradient_sptr);
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*image_for_gradient_as_nifti_sptr,*this->_floating_image_niftis.real(),false))
+        throw std::runtime_error("NiftyResample<dataType>::get_image_gradient_wrt_deformation_times_image: Metadata of image for gradient should match that used for set up.");
+
+    // Clone input deformation as niftyreg method not marked const
+    auto input_deformation_clone_sptr = input_deformation_sptr->clone();
+
+    // Get image gradient
+    reg_getImageGradient(image_for_gradient_as_nifti_sptr->get_raw_nifti_sptr().get(),
+                         output_deformation_sptr->get_raw_nifti_sptr().get(),
+                         input_deformation_clone_sptr->get_raw_nifti_sptr().get(),
+                         nullptr,
+                         this->_interpolation_type,
+                         this->_padding_value,
+                         0);
+
+
+    const float *im_spacing = output_deformation_sptr->get_raw_nifti_sptr()->pixdim;
+
+    // Now multiply the scalar image to each of the DVF components
+    for (unsigned i=0; i<3; ++i) {
+        output_deformation_sptr->multiply_tensor_component(i, image_to_multiply_sptr);
+        // divide by spacing to get to mm
+        output_deformation_sptr->multiply_tensor_component(i, 1.f/im_spacing[i+1]);
+    }
+}
+
+template<class dataType>
+std::shared_ptr<NiftiImageData3DDeformation<dataType> >
+NiftyResample<dataType>::
+get_image_gradient_wrt_deformation_times_image(
+    const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > &input_deformation_sptr,
+    const std::shared_ptr<const ImageData> &image_for_gradient_sptr,
+    const std::shared_ptr<const ImageData> &image_to_multiply_sptr)
+{
+    // Call the set up
+    set_up();
+
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > output_deformation_sptr = this->_deformation_sptr->clone();
+    get_image_gradient_wrt_deformation_times_image(output_deformation_sptr, input_deformation_sptr, 
+                                                   image_for_gradient_sptr, image_to_multiply_sptr);
+    return std::move(output_deformation_sptr);
 }
 
 namespace sirf {

@@ -26,6 +26,9 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DTensor.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftiImageData3DBSpline.h"
+#include "sirf/Reg/ControlPointGridToDeformationConverter.h"
+#include "sirf/Reg/ImageGradientWRTDeformationTimesImage.h"
 #include "sirf/Reg/NiftyAladinSym.h"
 #include "sirf/Reg/NiftyF3dSym.h"
 #include "sirf/Reg/NiftyResample.h"
@@ -69,6 +72,12 @@ void* cReg_newObject(const char* name)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>));
         if (strcmp(name, "NiftiImageData3DDeformation") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>));
+        if (strcmp(name, "NiftiImageData3DBSpline") == 0)
+            return newObjectHandle(std::shared_ptr<NiftiImageData3DBSpline<float> >(new NiftiImageData3DBSpline<float>));
+        if (strcmp(name, "ControlPointGridToDeformationConverter") == 0)
+            return newObjectHandle(std::shared_ptr<ControlPointGridToDeformationConverter<float> >(new ControlPointGridToDeformationConverter<float>));
+        if (strcmp(name, "ImageGradientWRTDeformationTimesImage") == 0)
+            return newObjectHandle(std::make_shared<ImageGradientWRTDeformationTimesImage<float> >());
         if (strcmp(name, "NiftyAladinSym") == 0)
             return newObjectHandle(std::shared_ptr<NiftyAladinSym<float> >(new NiftyAladinSym<float>));
         if (strcmp(name, "NiftyF3dSym") == 0)
@@ -158,6 +167,11 @@ void* cReg_objectFromFile(const char* name, const char* filename)
         if (strcmp(name, "NiftiImageData3DDeformation") == 0) {
             std::shared_ptr<NiftiImageData3DDeformation<float> >
                 sptr(new NiftiImageData3DDeformation<float>(filename));
+            return newObjectHandle(sptr);
+        }
+        if (strcmp(name, "NiftiImageData3DBSpline") == 0) {
+            std::shared_ptr<NiftiImageData3DBSpline<float> >
+                sptr(new NiftiImageData3DBSpline<float>(filename));
             return newObjectHandle(sptr);
         }
         if (strcmp(name, "AffineTransformation") == 0) {
@@ -547,6 +561,12 @@ void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, c
             sptr.reset(new NiftiImageData3DDisplacement<float>(x,y,z));
         else if (strcmp(obj,"NiftiImageData3DDeformation") == 0)
             sptr.reset(new NiftiImageData3DDeformation<float>(x,y,z));
+        else if (strcmp(obj,"NiftiImageData3DBSpline") == 0)
+            sptr.reset(new NiftiImageData3DBSpline<float>(x,y,z));
+        else
+            throw std::runtime_error(
+                    "cReg_NiftiImageData3DTensor_construct_from_3_components, unknown type:" +
+                    std::string(obj));
         return newObjectHandle(sptr);
     }
     CATCH;
@@ -557,6 +577,39 @@ void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim)
     try {
         NiftiImageData3DTensor<float>& im = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
         im.flip_component(dim);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftiImageData3DTensor_get_tensor_component(const void *ptr, const int dim)
+{
+    try {
+        NiftiImageData3DTensor<float>& im = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
+        std::shared_ptr<NiftiImageData<float> > im_sptr = im.get_tensor_component(dim);
+        std::shared_ptr<NiftiImageData3D<float> > im3D_sptr = std::make_shared<NiftiImageData3D<float> >(*im_sptr);
+        return newObjectHandle(im3D_sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftiImageData3DTensor_tensor_component_maths_im(const void *ptr, const int dim, const void *im_ptr, const int maths_type)
+{
+    try {
+        NiftiImageData3DTensor<float>& tensor = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
+        std::shared_ptr<const ImageData> im_sptr;
+        getObjectSptrFromHandle<const ImageData>(im_ptr, im_sptr);
+        tensor.tensor_component_maths(dim, im_sptr, static_cast<NiftiImageData<float>::MathsType>(maths_type));
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftiImageData3DTensor_tensor_component_maths_val(const void *ptr, const int dim, const float val, const int maths_type)
+{
+    try {
+        NiftiImageData3DTensor<float>& tensor = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
+        tensor.tensor_component_maths(dim, val, static_cast<NiftiImageData<float>::MathsType>(maths_type));
         return new DataHandle;
     }
     CATCH;
@@ -623,6 +676,174 @@ void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr)
     }
     CATCH;
 }
+
+// -------------------------------------------------------------------------------- //
+//      ControlPointGridToDeformationConverter
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cReg_CPG2DVF_set_cpg_spacing(const void* converter_ptr, const float spacing_x, const float spacing_y, const float spacing_z)
+{
+    try {
+        ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
+                objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
+        const float spacing[3] = {spacing_x, spacing_y, spacing_z};
+        cpg_2_dvf_converter.set_cpg_spacing(spacing);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_CPG2DVF_set_ref_im(const void* converter_ptr, const void* ref_im_ptr)
+{
+    try {
+        ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
+                objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
+        std::shared_ptr<const ImageData> ref_im_sptr;
+        getObjectSptrFromHandle<const ImageData>(ref_im_ptr, ref_im_sptr);
+        cpg_2_dvf_converter.set_reference_image(ref_im_sptr);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_CPG2DVF_forward(const void* converter_ptr, const void* cpg_ptr)
+{
+    try {
+        ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
+                objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
+        NiftiImageData3DBSpline<float>& cpg =
+                objectFromHandle<NiftiImageData3DBSpline<float> >(cpg_ptr);
+        NiftiImageData3DDeformation<float> def = cpg_2_dvf_converter.forward(cpg);
+        return newObjectHandle(std::make_shared<NiftiImageData3DDeformation<float> >(def));
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_CPG2DVF_backward(const void* converter_ptr, const void* dvf_ptr)
+{
+    try {
+        ControlPointGridToDeformationConverter<float>& cpg_2_dvf_converter =
+                objectFromHandle<ControlPointGridToDeformationConverter<float> >(converter_ptr);
+        NiftiImageData3DDeformation<float>& dvf =
+                objectFromHandle<NiftiImageData3DDeformation<float> >(dvf_ptr);
+        NiftiImageData3DBSpline<float> cpg = cpg_2_dvf_converter.backward(dvf);
+        return newObjectHandle(std::make_shared<NiftiImageData3DBSpline<float> >(cpg));
+    }
+    CATCH;
+}
+
+// -------------------------------------------------------------------------------- //
+//      ImageGradientWRTDeformationTimesImage
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cReg_ImGradWRTDef_set_resampler(const void* ptr, const void* resampler_ptr)
+{
+    try {
+        ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
+            objectFromHandle<ImageGradientWRTDeformationTimesImage<float> >(ptr);
+        std::shared_ptr<NiftyResample<float> > resampler_sptr;
+        getObjectSptrFromHandle<NiftyResample<float> >(resampler_ptr, resampler_sptr);
+        im_grad_wrt_def_time_im.set_resampler(resampler_sptr);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_ImGradWRTDef_forward_in_place(
+    const void* ptr, const void* deformation_ptr, const void* in_ptr, const void* out_ptr)
+{
+    try {
+        ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
+            objectFromHandle<ImageGradientWRTDeformationTimesImage<float> >(ptr);
+        // Get deformation
+        std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(deformation_ptr, deformation_sptr);
+        // input image
+        std::shared_ptr<ImageData> in_sptr;
+        getObjectSptrFromHandle<ImageData>(in_ptr, in_sptr);
+        // Out
+        std::shared_ptr<ImageData> out_sptr;
+        getObjectSptrFromHandle<ImageData>(out_ptr, out_sptr);
+        // Do it.
+        im_grad_wrt_def_time_im.forward(out_sptr, deformation_sptr, in_sptr);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_ImGradWRTDef_forward(
+    const void* ptr, const void* deformation_ptr, const void* in_ptr)
+{
+    try {
+        ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
+            objectFromHandle<ImageGradientWRTDeformationTimesImage<float> >(ptr);
+        // Get deformation
+        std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(deformation_ptr, deformation_sptr);
+        // input image
+        std::shared_ptr<ImageData> in_sptr;
+        getObjectSptrFromHandle<ImageData>(in_ptr, in_sptr);
+        // Do it.
+        auto out_sptr = im_grad_wrt_def_time_im.forward(deformation_sptr, in_sptr);
+        return newObjectHandle(out_sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_ImGradWRTDef_backward_in_place(
+    const void* ptr, const void* input_deformation_ptr,
+    const void* image_for_gradient_ptr,
+    const void* image_to_multiply_ptr,
+    const void* out_ptr)
+{
+    try {
+        ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
+            objectFromHandle<ImageGradientWRTDeformationTimesImage<float> >(ptr);
+        // Get image for multiplication
+        std::shared_ptr<ImageData> image_to_multiply_sptr;
+        getObjectSptrFromHandle<ImageData>(image_to_multiply_ptr, image_to_multiply_sptr);
+        // Get image for gradient
+        std::shared_ptr<ImageData> image_for_gradient_sptr;
+        getObjectSptrFromHandle<ImageData>(image_for_gradient_ptr, image_for_gradient_sptr);
+        // Input dvf
+        std::shared_ptr<NiftiImageData3DDeformation<float> > input_deformation_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(input_deformation_ptr, input_deformation_sptr);
+        // Out dvf (might be null pointer)
+        std::shared_ptr<NiftiImageData3DDeformation<float> > out_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(out_ptr, out_sptr);
+        // Do it.
+        im_grad_wrt_def_time_im.backward(out_sptr, input_deformation_sptr, 
+                                         image_for_gradient_sptr, image_to_multiply_sptr);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_ImGradWRTDef_backward(
+    const void* ptr,
+    const void* input_deformation_ptr,
+    const void* image_for_gradient_ptr,
+    const void* image_to_multiply_ptr)
+{
+    try {
+        ImageGradientWRTDeformationTimesImage<float>& im_grad_wrt_def_time_im = 
+            objectFromHandle<ImageGradientWRTDeformationTimesImage<float> >(ptr);
+        // Get image for multiplication
+        std::shared_ptr<ImageData> image_to_multiply_sptr;
+        getObjectSptrFromHandle<ImageData>(image_to_multiply_ptr, image_to_multiply_sptr);
+        // Get image for gradient
+        std::shared_ptr<ImageData> image_for_gradient_sptr;
+        getObjectSptrFromHandle<ImageData>(image_for_gradient_ptr, image_for_gradient_sptr);
+        // Input dvf
+        std::shared_ptr<NiftiImageData3DDeformation<float> > input_deformation_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(input_deformation_ptr, input_deformation_sptr);
+        // Do it.
+        auto out_sptr = im_grad_wrt_def_time_im.backward(input_deformation_sptr, image_for_gradient_sptr, image_to_multiply_sptr);
+        return newObjectHandle(out_sptr);
+    }
+    CATCH;
+}
+
 
 // -------------------------------------------------------------------------------- //
 //      Registration
@@ -917,6 +1138,8 @@ void* cReg_Transformation_get_as_deformation_field(const void* ptr, const char* 
             trans = &objectFromHandle<NiftiImageData3DDisplacement<float> >(ptr);
         else if (strcmp(name,"NiftiImageData3DDeformation") == 0)
             trans = &objectFromHandle<NiftiImageData3DDeformation<float> >(ptr);
+        else if (strcmp(name,"NiftiImageData3DBSpline") == 0)
+            trans = &objectFromHandle<NiftiImageData3DBSpline<float> >(ptr);
         else
             throw std::runtime_error("cReg_Transformation_get_as_deformation_field: type should be affine, disp or def.");
 

@@ -37,13 +37,75 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
+#include "sirf/Reg/NiftiImageData3DBSpline.h"
+#include "sirf/Reg/ControlPointGridToDeformationConverter.h"
+#include "sirf/Reg/ImageGradientWRTDeformationTimesImage.h"
 #include <memory>
 #include <numeric>
+#include <random>
 #ifdef SIRF_SPM
 #include "sirf/Reg/SPMRegistration.h"
 #endif
 
 using namespace sirf;
+
+
+void check_non_zero(const NiftiImageData<float> &im,
+                    const std::string &explanation)
+{
+    if (std::abs(im.get_min()) < 1e-4f && std::abs(im.get_max()) < 1e-4f)
+        throw std::runtime_error(explanation + ": contains no non-zeroes");
+}
+static float get_rand_val(const float min, const float max) {
+    float random = ((float) rand()) / (float) RAND_MAX;
+    float diff = max - min;
+    float r = random * diff;
+    return min + r;
+}
+
+static float get_rand_val(const float range[]) {
+    return get_rand_val(range[0], range[1]);
+}
+NiftiImageData3DDeformation<float>
+CPG2DVF(const ControlPointGridToDeformationConverter<float> &converter,
+        const NiftiImageData3DBSpline<float> &cpg)
+{
+    check_non_zero(cpg, "converter::forward (input)");
+    auto dvf = converter.forward(cpg);
+    check_non_zero(dvf, "converter::forward (output)");
+    return dvf;
+}
+NiftiImageData3DBSpline<float>
+DVF2CPG(const ControlPointGridToDeformationConverter<float> &converter,
+         const NiftiImageData3DDeformation<float> &dvf)
+{
+    check_non_zero(dvf, "converter::backward (input)");
+    auto cpg = converter.backward(dvf);
+    check_non_zero(cpg, "converter::backward (output)");
+    return cpg;
+}
+NiftiImageData3DDeformation<float>
+rand_dvf(
+        NiftiImageData3DDisplacement<float> &disp,
+        const float min_disp = -10.f, const float max_disp = 10.f)
+{
+    for (unsigned i=0; i<disp.get_num_voxels(); ++i)
+        disp(i) = get_rand_val(min_disp, max_disp);
+    auto dvf = NiftiImageData3DDeformation<float>(disp);
+    check_non_zero(dvf, "Rand DVF");
+    return dvf;
+}
+NiftiImageData3DBSpline<float>
+rand_cpg(
+        const ControlPointGridToDeformationConverter<float> &converter,
+        NiftiImageData3DDisplacement<float> &disp,
+        const float min_disp = -10.f, const float max_disp = 10.f)
+{
+    auto dvf = rand_dvf(disp, min_disp, max_disp);
+    auto cpg = DVF2CPG(converter,dvf);
+    check_non_zero(cpg, "Rand CPG");
+    return cpg;
+}
 
 int main(int argc, char* argv[])
 {
@@ -110,6 +172,8 @@ int main(int argc, char* argv[])
     const std::shared_ptr<const NiftiImageData3D<float> > ref_f3d   (new NiftiImageData3D<float>(   ref_f3d_filename  ));
     const std::shared_ptr<const NiftiImageData3D<float> > flo_f3d   (new NiftiImageData3D<float>(   flo_f3d_filename  ));
 
+    // Need a random seex
+    srand(time(NULL));
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting NiftiImageData test...\n";
@@ -1181,6 +1245,154 @@ int main(int argc, char* argv[])
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished weighted mean test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+    {
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting CGP<->DVF test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Test both 2D and 3D cases
+        for (unsigned is_3d=0; is_3d<2; ++is_3d) {
+            unsigned int z_size = is_3d ? 32 : 1;
+            // Generate image
+            VoxelisedGeometricalInfo3D::Size size({150,125,z_size});
+            VoxelisedGeometricalInfo3D::Spacing spacing_dvf({2.f,3.f,5.f});
+            VoxelisedGeometricalInfo3D::Offset offset({0.f,0.f,0.f});
+            std::array<float,3> dm_row_1({1.f,0.f,0.f});
+            std::array<float,3> dm_row_2({0.f,1.f,0.f});
+            std::array<float,3> dm_row_3({0.f,0.f,1.f});
+            VoxelisedGeometricalInfo3D::DirectionMatrix dm({dm_row_1,dm_row_2, dm_row_3});
+            VoxelisedGeometricalInfo3D geom_info(offset, spacing_dvf, size, dm);
+            // Create displacement, convert to deformation and reference image
+            NiftiImageData3DDisplacement<float> disp(
+                        *NiftiImageData<float>::create_from_geom_info(
+                            geom_info,true, NREG_TRANS_TYPE::DISP_FIELD));
+            NiftiImageData3DDeformation<float> dvf(disp);
+            std::shared_ptr<NiftiImageData<float> > ref_sptr = dvf.get_tensor_component(0);
+
+            // CPG spacing double the dvf spacing
+            float cpg_spacing[3] = {4.f * spacing_dvf[0], 4.f * spacing_dvf[1], 4.f * spacing_dvf[2]};
+
+            // set up DVF<->CPG converter
+            ControlPointGridToDeformationConverter<float> cpg_2_dvf_converter;
+            cpg_2_dvf_converter.set_cpg_spacing(cpg_spacing);
+            cpg_2_dvf_converter.set_reference_image(ref_sptr);
+
+            // ok, now ready to do adjoint test using:
+            // |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
+
+            for (unsigned i=0; i<10; ++i) {
+                // Get random CPG and DVF
+                auto x = rand_cpg(cpg_2_dvf_converter, disp);
+                auto y = rand_dvf(disp);
+
+                // Convert random CPG to DVF and random DVF to CPG
+                auto Tx = CPG2DVF(cpg_2_dvf_converter,x);
+                auto Tsy = DVF2CPG(cpg_2_dvf_converter,y);
+
+                // Get inner products
+                float x_dot, y_dot;
+                dynamic_cast<const DataContainer&>(x).dot(Tsy, &x_dot);
+                dynamic_cast<const DataContainer&>(y).dot(Tx, &y_dot);
+
+                float adjoint_test = std::abs(x_dot - y_dot) / (0.5f * (std::abs(x_dot) + std::abs(y_dot)));
+                std::cout << "\t|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = " << adjoint_test << "\n";
+                float epsilon = 1e-4f;
+                if (adjoint_test > epsilon)
+                    throw std::runtime_error("adjoint test > " + std::to_string(epsilon));
+            }
+        }
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished CGP<->DVF test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+    {
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting im grad wrt def (times image) test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Get some images to use as template and Gaussian smooth (to reduce number of non-zero voxels)
+        std::shared_ptr<NiftiImageData3D<float> > lambda_sptr = ref_aladin->clone();
+        const int min[7] = {27,27,27,0,0,0,0};
+        const int max[7] = {35,35,35,0,0,0,0};
+        lambda_sptr->crop(min,max);
+
+        std::shared_ptr<NiftiImageData3D<float> > lambda_hat_sptr = lambda_sptr->clone();
+        // Create blank displacement, same size as lambda
+        NiftiImageData3DDisplacement<float> disp;
+        disp.create_from_3D_image(*lambda_sptr);
+        // Convert displacement to identity deformation
+        std::shared_ptr<NiftiImageData3DDeformation<float> > deformation_sptr =
+                std::make_shared<NiftiImageData3DDeformation<float> >(disp);
+
+        // We'll need a niftyreg resampler
+        std::shared_ptr<NiftyResample<float> > nr_sptr =
+                std::make_shared<NiftyResample<float> >();
+        nr_sptr->set_reference_image(lambda_hat_sptr);
+        nr_sptr->set_floating_image(lambda_sptr);
+        nr_sptr->set_interpolation_type_to_linear();
+        nr_sptr->set_padding_value(0.f);
+        nr_sptr->add_transformation(deformation_sptr);
+
+        // And we'll need the ImageGradientWRTDeformationTimesImage class (call it a resampler)
+        ImageGradientWRTDeformationTimesImage<float> resampler;
+        resampler.set_resampler(nr_sptr);
+
+        // lambda hat is forward of lambda
+        resampler.forward(lambda_hat_sptr, deformation_sptr, lambda_sptr);
+
+        // lambda tilde is copy of lambda hat with all voxels = cnst
+        std::shared_ptr<NiftiImageData3D<float> > lambda_tilde_sptr = lambda_hat_sptr->clone();
+        const float fill_val = 2.f;
+        lambda_tilde_sptr->fill(fill_val);
+
+        // img grad wrt dvf times image
+        auto dvf1_sptr = resampler.backward(deformation_sptr, lambda_sptr, lambda_tilde_sptr);
+
+        // dvf2 is a clone of dvf1. initially filled with zeroes
+        auto dvf2_sptr = dvf1_sptr->clone();
+        dvf2_sptr->fill(0.f);
+
+        // Need a small permutation, epsilon
+        const float epsilon = 3.f;
+
+        std::shared_ptr<NiftiImageData3DDeformation<float> > d_shifted_sptr = deformation_sptr->clone();
+        std::shared_ptr<NiftiImageData3D<float> > d_lambda_times_rand_val_sptr = lambda_hat_sptr->clone();
+
+        // Loop over the 3 tensor components: u=[x,y,z]
+        for (unsigned i=0; i<lambda_hat_sptr->get_num_voxels(); ++i) {
+            // Skip if there's nothing in that voxel (to be general, but in this case, all voxels are filled)
+            if (std::abs((*lambda_tilde_sptr)(i)) < 1e-4f)
+                continue;
+            for (unsigned u=0; u<3; ++u) {
+                d_shifted_sptr->fill(*deformation_sptr);
+                (*d_shifted_sptr)(u*lambda_hat_sptr->get_num_voxels()+i) += epsilon;
+                std::shared_ptr<NiftiImageData3D<float> > res_forward =
+                        std::dynamic_pointer_cast<NiftiImageData3D<float> > (resampler.forward(d_shifted_sptr, lambda_sptr));
+                *d_lambda_times_rand_val_sptr = (*res_forward - *lambda_hat_sptr);
+                *d_lambda_times_rand_val_sptr *= (fill_val/epsilon);
+                dvf2_sptr->add_to_tensor_component(u, d_lambda_times_rand_val_sptr);
+            }
+            // print progress
+            if ((i+1) % 100 == 0)
+                std::cout << "done " << i+1 << " resamples out of " << lambda_hat_sptr->get_num_voxels() << " for numerical gradient test...\n" << std::flush;
+        }
+
+        // Crop by 1 in all directions because we don't want to compare any edge problems
+        const int *dvf_size = dvf1_sptr->get_dimensions();
+        const int dvf_crop_min[7] = {1,1,1,-1,-1,-1,-1};
+        const int dvf_crop_max[7] = {dvf_size[1]-2,dvf_size[2]-2,dvf_size[3]-2,-1,-1,-1,-1};
+        dvf1_sptr->crop(dvf_crop_min, dvf_crop_max);
+        dvf2_sptr->crop(dvf_crop_min, dvf_crop_max);
+
+        if (*dvf1_sptr != *dvf2_sptr)
+            throw std::runtime_error("im grad wrt def (times image) test failed");
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished im grad wrt def (times image) test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 

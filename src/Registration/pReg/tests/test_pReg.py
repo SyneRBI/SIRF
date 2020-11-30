@@ -23,7 +23,7 @@ import time
 import numpy as np
 import nibabel as nib
 import sirf.Reg
-from pUtilities import *
+from sirf.Utilities import is_operator_adjoint
 
 # Paths
 SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -1063,6 +1063,134 @@ def try_weighted_mean(na):
     time.sleep(0.5)
 
 
+# CGP<->DVF conversion
+def try_cgp_dvf_conversion(na):
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Starting CGP<->DVF test...\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+    dvf = na.get_deformation_field_forward()
+    spacing = dvf.get_voxel_sizes()[1:4] * 2.0
+
+    # DVF->CPG with converter
+    cpg_2_dvf_converter = sirf.Reg.ControlPointGridToDeformationConverter()
+    cpg_2_dvf_converter.set_cpg_spacing(spacing)
+    cpg_2_dvf_converter.set_reference_image(dvf.get_tensor_component(0))
+    # DVF->CPG
+    dvf_to_cpg = cpg_2_dvf_converter.backward(dvf)
+    # DVF->CPG->DVF
+    _ = cpg_2_dvf_converter.forward(dvf_to_cpg)
+
+    # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
+    cpg_2_dvf_converter._set_up_for_adjoint_test(dvf, dvf_to_cpg)
+    if not is_operator_adjoint(cpg_2_dvf_converter, verbose=False):
+        raise AssertionError("ControlPointGridToDeformationConverter::adjoint() failed")
+
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Finished CGP<->DVF test.\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+
+# Im grad wrt def
+def try_im_grad_wrt_def_times_im():
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Starting im grad wrt def (times image) test...\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+    # Get image to use as template and crop (to reduce number of non-zero voxels)
+    lambda_im = ref_aladin.deep_copy()
+    min_idx = [28, 28, 28]
+    max_idx = [34, 34, 34]
+    lambda_im.crop(min_idx, max_idx)
+
+    lambda_hat = lambda_im.deep_copy()
+    # Create blank displacement, same size as lambda
+    disp = sirf.Reg.NiftiImageData3DDisplacement()
+    disp.create_from_3D_image(lambda_im)
+    # Convert displacement to identity deformation
+    deformation = sirf.Reg.NiftiImageData3DDeformation(disp)
+
+    # We'll need a niftyreg resampler
+    nr = sirf.Reg.NiftyResample()
+    nr.set_reference_image(lambda_hat)
+    nr.set_floating_image(lambda_im)
+    nr.set_interpolation_type_to_linear()
+    nr.set_padding_value(0)
+    nr.add_transformation(deformation)
+
+    # And we'll need the ImageGradientWRTDeformationTimesImage class (call it a resampler)
+    resampler = sirf.Reg.ImageGradientWRTDeformationTimesImage()
+    resampler.set_resampler(nr)
+
+    # lambda hat is forward of lambda
+    resampler.forward(deformation, lambda_im, out=lambda_hat)
+
+    # lambda tilde is copy of lambda hat with all voxels = cnst
+    lambda_tilde = lambda_hat.deep_copy()
+    fill_val = 2.0
+    lambda_tilde.fill(fill_val)
+
+    # img grad wrt dvf times image
+    dvf1 = resampler.backward(deformation, lambda_im, lambda_tilde)
+
+    # dvf2 is a clone of dvf1. initially filled with zeroes
+    dvf2 = dvf1.deep_copy()
+    dvf2.fill(0.0)
+
+    # Need a small permutation, epsilon
+    epsilon = 3.0
+
+    # Loop over the 3 tensor components: u=[x,y,z]
+    d_shifted = deformation.deep_copy()
+    d_lambda_times_rand_val = lambda_hat.deep_copy()
+    lambda_tilde_arr = lambda_tilde.as_array()
+    lambda_tilde_shape = lambda_tilde_arr.shape
+    lambda_tilde_numel = lambda_tilde_arr.size
+    deformation_arr = deformation.as_array()
+    for ix, iy, iz in np.ndindex(lambda_tilde_shape):
+        # Skip if there's nothing in that voxel (to be general, but in this case, all voxels are filled)
+        if abs(lambda_tilde_arr[ix, iy, iz] < 1.0e-4):
+            continue
+        for iu in range(3):
+            # Start with d_shifted = deformation
+            d_shifted_arr = deformation.as_array()
+            d_shifted_arr[ix, iy, iz, 0, iu] += epsilon
+            d_shifted.fill(d_shifted_arr)
+
+            res_forward = resampler.forward(d_shifted, lambda_im)
+
+            d_lambda_times_rand_val = res_forward - lambda_hat
+            d_lambda_times_rand_val *= (fill_val / epsilon)
+            dvf2.add_to_tensor_component(iu, d_lambda_times_rand_val)
+
+        # print progress
+        i = np.ravel_multi_index((ix,iy,iz), lambda_tilde_shape)
+        if (i+1) % 100 == 0:
+            print("done " + str(i+1) + " resamples out of " + str(lambda_tilde_numel) + " for numerical gradient test...")
+
+    # Crop by 1 in all directions because we don't want to compare any edge problems
+    dvf_size = dvf1.as_array().shape
+    dvf_crop_min = [1,1,1]
+    dvf_crop_max = [dvf_size[1]-2,dvf_size[2]-2,dvf_size[3]-2]
+    dvf1.crop(dvf_crop_min, dvf_crop_max)
+    dvf2.crop(dvf_crop_min, dvf_crop_max)
+
+    if (dvf1 != dvf2):
+        raise AssertionError('im grad wrt def (times image) test failed')
+
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Finished im grad wrt def (times image) test.\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+
 # AffineTransformation
 def try_affinetransformation(na):
     time.sleep(0.5)
@@ -1221,12 +1349,11 @@ def test():
     try_resample(na)
     try_niftymomo(na)
     try_weighted_mean(na)
+    try_cgp_dvf_conversion(na)
+    try_im_grad_wrt_def_times_im()
     try_affinetransformation(na)
     try_quaternion()
 
 
 if __name__ == "__main__":
-    try:
-        test()
-    except:
-        raise error("Error encountered.")
+    test()

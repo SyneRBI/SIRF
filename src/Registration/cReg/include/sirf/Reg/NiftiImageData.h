@@ -427,11 +427,11 @@ public:
     /// Standardise (subtract mean and divide by standard deviation).
     void standardise();
 
+    enum MathsType { add, sub, mul };
+
 protected:
 
-    enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
-
-    enum MathsType { add, sub, mul };
+    enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef, _3DBSpl};
 
     /// Image data as a nifti object
     std::shared_ptr<nifti_image>  _nifti_image;
