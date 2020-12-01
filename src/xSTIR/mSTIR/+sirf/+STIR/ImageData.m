@@ -161,7 +161,7 @@ classdef ImageData < sirf.SIRF.ImageData
             sirf.Utilities.check_status('ImageData:add_shape', h);
             sirf.Utilities.delete(h)
         end
-        function dim = size(self)
+        function dim = dimensions(self)
 %***SIRF*** Returns the dimensions of 3D array of this image values at voxels.
             if isempty(self.handle_)
                 dim = [];
