@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +25,7 @@ limitations under the License.
 \brief Implementation file for extended Gadgetron functionality classes.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include "sirf/iUtilities/DataHandle.h"
@@ -77,7 +78,7 @@ GadgetChain::gadget_sptr(std::string id)
 #else
 	typename std::list<shared_ptr<GadgetHandle> >::iterator gh;
 #endif
-	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); ++gh) {
 		if (boost::iequals(gh->get()->id(), id))
 			return gh->get()->gadget_sptr();
 	}
@@ -98,11 +99,11 @@ GadgetChain::xml() const
 #else
 	typename std::list<shared_ptr<GadgetHandle> >::const_iterator gh;
 #endif
-	for (gh = readers_.begin(); gh != readers_.end(); gh++)
+	for (gh = readers_.begin(); gh != readers_.end(); ++gh)
 		xml_script += gh->get()->gadget().xml() + '\n';
-	for (gh = writers_.begin(); gh != writers_.end(); gh++)
+	for (gh = writers_.begin(); gh != writers_.end(); ++gh)
 		xml_script += gh->get()->gadget().xml() + '\n';
-	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); ++gh) {
 		const GadgetHandle* ptr_gh = gh->get();
 		xml_script += ptr_gh->gadget().xml(ptr_gh->id()) + '\n';
 //		xml_script += gh->get()->gadget().xml() + '\n';
@@ -348,7 +349,7 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 }
 
 void
-MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
 	if (cc.items() < 1)
@@ -356,13 +357,13 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	for (unsigned int i = 0, a = 0; i < ic.number(); i++) {
 		ImageWrap& iw = ic.image_wrap(i);
-		CoilData& csm = cc(i%cc.items());
+        CFImage csm = cc.get_csm_as_cfimage(i%cc.items());
 		fwd(iw, csm, ac, a);
 	}
 }
 
 void 
-MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
 	ic.set_meta_data(ac.acquisitions_info());
@@ -370,11 +371,12 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 		throw LocalisedException
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	for (unsigned int i = 0, a = 0; a < ac.number(); i++) {
-		CoilData& csm = cc(i%cc.items());
+        CFImage csm = cc.get_csm_as_cfimage(i%cc.items());
 		ImageWrap iw(sptr_imgs_->image_wrap(i));
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
 	}
+	ic.set_meta_data(ac.acquisitions_info());
 }
 
 /*
@@ -419,7 +421,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 template< typename T>
 void 
-MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
+MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
 	MRAcquisitionData& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& img = *ptr_img;
@@ -491,7 +493,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		}
 		ac.append_acquisition(acq);
 		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) ||
+			off + y >= sptr_acqs_->number())
 			break;
 	}
 	off += y;
@@ -500,7 +503,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 template< typename T>
 void 
-MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
+MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
 	MRAcquisitionData& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& im = *ptr_im;

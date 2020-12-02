@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Base class for SIRF nifti image data.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -70,7 +70,7 @@ of sform_code; for example, for the Talairach coordinate system,
 (0,0,0) corresponds to the Anterior Commissure.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 template<class dataType>
@@ -163,6 +163,12 @@ public:
     /// Assignment
     NiftiImageData& operator=(const NiftiImageData& to_copy);
 
+    /// Copy constructor
+    NiftiImageData(const ImageData& to_copy);
+
+    /// Assignment
+    NiftiImageData& operator=(const ImageData& to_copy);
+
     /// Filename constructor
     NiftiImageData(const std::string &filename);
 
@@ -201,11 +207,17 @@ public:
             this->_data[i] = dataType(data[i]);
     }
 
-    /// Construct from any other image data (e.g., STIRImageData)
-    NiftiImageData(const ImageData& id);
-
     /// Create NiftiImageData from geometrical info
-    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
+    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false, const NREG_TRANS_TYPE tensor_type=NREG_TRANS_TYPE::DEF_FIELD);
+
+    /// Construct NiftiImageData from the real component of a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);
+
+    /// Construct NiftiImageData from the imaginary component of a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);
+
+    /// Construct two NiftiImageData from a complex SIRF ImageData
+    static void construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr);
 
     /// Equality operator
     bool operator==(const NiftiImageData &other) const;
@@ -285,6 +297,12 @@ public:
     /// Access data element via 7D index
     float &operator()(const int index[7]);
 
+    /// Access data element via 7D index (const)
+    float operator()(const int x, const int y, const int z, const int t=0, const int u=0, const int v=0, const int w=0) const;
+
+    /// Access data element via 7D index
+    float &operator()(const int x, const int y, const int z, const int t=0, const int u=0, const int v=0, const int w=0);
+
     /// Is the image initialised? (Should be unless default constructor was used.)
     bool is_initialised() const { return (_nifti_image && _data && _nifti_image->datatype == DT_FLOAT32 ? true : false); }
 
@@ -316,9 +334,6 @@ public:
     /// Get standard deviation
     float get_standard_deviation() const;
 
-    /// Get element
-    float get_element(const int idx[7]) const;
-
     /// Get sum
     float get_sum() const;
 
@@ -327,6 +342,12 @@ public:
 
     /// Fill
     void fill(const float v);
+
+    /// Fill from array
+    void fill(const dataType *v);
+
+    /// Fill from array
+    void fill(const NiftiImageData &im);
 
     /// Get norm
     float get_norm(const NiftiImageData&) const;
@@ -346,14 +367,14 @@ public:
     /// Crop. Set to -1 to leave unchanged
     void crop(const int min_index[7], const int max_index[7]);
 
+    /// Pad image with value. Give number of voxels to increase in min and max directions. Set values to -1 to leave unchanged
+    void pad(const int min_index[7], const int max_index[7], const dataType val = 0);
+
     /// get 1D index from ND index
     int get_1D_index(const int idx[7]) const;
 
     /// Get original datatype
     int get_original_datatype() const { return _original_datatype; }
-
-    /// Check if the norms of two images are equal to a given accuracy.
-    static bool are_equal_to_given_accuracy(const std::shared_ptr<const NiftiImageData> &im1_sptr, const std::shared_ptr<const NiftiImageData> &im2_sptr, const float required_accuracy_compared_to_max);
 
     /// Check if the norms of two images are equal to a given accuracy.
     static bool are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max);
@@ -529,6 +550,26 @@ public:
     {
 	return std::unique_ptr<NiftiImageData>(this->clone_impl());
     }
+    virtual Iterator& begin()
+    {
+        _begin.reset(new Iterator(_data));
+        return *_begin;
+    }
+    virtual Iterator_const& begin() const
+    {
+        _begin_const.reset(new Iterator_const(_data));
+        return *_begin_const;
+    }
+    virtual Iterator& end()
+    {
+        _end.reset(new Iterator(_data+_nifti_image->nvox));
+        return *_end;
+    }
+    virtual Iterator_const& end() const
+    {
+        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
+        return *_end_const;
+    }
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData* clone_impl() const
@@ -559,26 +600,7 @@ protected:
         dim["w"] = d[7];
         return dim;
     }
-    virtual Iterator& begin()
-    {
-        _begin.reset(new Iterator(_data));
-        return *_begin;
-    }
-    virtual Iterator_const& begin() const
-    {
-        _begin_const.reset(new Iterator_const(_data));
-        return *_begin_const;
-    }
-    virtual Iterator& end()
-    {
-        _end.reset(new Iterator(_data+_nifti_image->nvox));
-        return *_end;
-    }
-    virtual Iterator_const& end() const
-    {
-        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
-        return *_end_const;
-    }
+public:
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
 protected:

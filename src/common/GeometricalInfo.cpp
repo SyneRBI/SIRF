@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2019 University College London.
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ limitations under the License.
 
 #include "sirf/common/GeometricalInfo.h"
 #include <iostream>
+#include <sstream>
+#include <string>
 
 using namespace sirf;
 
@@ -28,24 +30,36 @@ void
 VoxelisedGeometricalInfo<num_dimensions>::
 print_info() const
 {
-    std::cout << "Offset: (";
-    std::cout << _offset[0] << ", " << _offset[1] << ", " << _offset[2] << ")\n";
+	std::cout << get_info();
+}
 
-    std::cout << "Spacing: (";
-    std::cout << _spacing[0] << ", " << _spacing[1] << ", " << _spacing[2] << ")\n";
+template <int num_dimensions>
+std::string
+VoxelisedGeometricalInfo<num_dimensions>::
+get_info() const
+{
+	std::stringstream info; 
+	info << "Offset: (";
+	info << _offset[0] << ", " << _offset[1] << ", " << _offset[2] << ")\n";
 
-    std::cout << "Size: (";
-    std::cout << _size[0] << ", " << _size[1] << ", " << _size[2] << ")\n";
+	info << "Spacing: (";
+	info << _spacing[0] << ", " << _spacing[1] << ", " << _spacing[2] << ")\n";
 
-    std::cout << "Dir mat: \n";
-    for( int i=0;i<3; i++) {
-        for( int j=0;j<3; j++) {
-            std::cout << _direction[i][j];
-            if (j<2) std::cout << ", ";
-            else     std::cout << "\n";
-        }
-    }
-    std::cout << "\n";
+	info << "Size: (";
+	info << _size[0] << ", " << _size[1] << ", " << _size[2] << ")\n";
+
+	info << "Dir mat: \n";
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			info << _direction[i][j];
+			if (j < 2) 
+				info << ", ";
+			else
+				info << "\n";
+		}
+	}
+	info << "\n";
+	return info.str();
 }
 
 template <int num_dimensions>

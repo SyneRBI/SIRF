@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Crop a nifti image
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include <sirf/Reg/NiftiImageData.h>
@@ -34,15 +34,18 @@ limitations under the License.
 using namespace sirf;
 
 /// Print usage
-void print_usage()
+static void print_usage_and_exit(const char * const program_name, const int exit_status)
 {
-    std::cout << "\n\n\n*** Usage: sirf_inverse_transform out_filename <type> in_filename <type> [floating_filename][-h/--help]***\n\n";
-    std::cout << "\t<type> can be \"aff\", \"disp\" or \"def\".\n";
-    std::cout << "\tA floating image is required when the output is a non-rigid transformation, and should describe the floating image where the inverted transformation is defined.\n";
+    std::cout << "\n\n\n*** Usage: " << program_name << " out_filename in_filename <type> [--flo <filename>][--use_vtk][-h/--help]***\n\n";
+    std::cout << "\t<type>             can be \"aff\", \"disp\" or \"def\".\n";
+    std::cout << "\t[--flo <filename>] if output type is non-rigid, optionally supply a floating image on which transformation will be resampled.\n";
+    std::cout << "\t[--use_vtk]        if SIRF was built with VTK, --useVTK can be used when inverting a displacement field image.\n";
 
     std::cout << "\nExample usage:\n";
-    std::cout << "1. sirf_inverse_transform out aff input.txt aff\n";
-    std::cout << "2. sirf_inverse_transform out disp input.nii def floating.nii\n";
+    std::cout << "1. sirf_inverse_transform out input.txt aff\n";
+    std::cout << "2. sirf_inverse_transform out input.nii disp --flo floating.nii\n";
+    std::cout << "3. sirf_inverse_transform out input.nii def --useVTK\n";
+    exit(exit_status);
 }
 
 /// main
@@ -50,83 +53,67 @@ int main(int argc, char* argv[])
 {
 
     try {
+        const char * const program_name = argv[0];
 
-        // Check for help
-        for (int i=1; i<argc; ++i) {
-            if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-                print_usage();
-                return EXIT_SUCCESS;
-            }
-        }
+        // Check for help request
+        for (int i=1; i<argc; ++i)
+            if (strcmp(argv[i],"-h")==0 || strcmp(argv[i],"--help")==0)
+                print_usage_and_exit(program_name, EXIT_SUCCESS);
 
-        // arg should be 5 or 6
-        if (argc < 5 || argc > 6) {
-            print_usage();
-            return EXIT_FAILURE;
-        }
-
+        // Check for all compulsory arguments
+        if (argc<5)
+            print_usage_and_exit(program_name, EXIT_FAILURE);
         // Output image
-        const std::string output_filename   = argv[1];
-        const std::string output_type       = argv[2];
-        const std::string input_filename    = argv[3];
-        const std::string input_type        = argv[4];
+        const std::string output_filename = argv[1];
+        const std::string input_filename  = argv[2];
+        const std::string type            = argv[3];
 
-        // Check for existing types
-        if (!(input_type.compare("def") == 0 || input_type.compare("disp") == 0 || input_type.compare("aff") == 0))
-            throw std::runtime_error("Unknown input type.");
-        if (!(output_type.compare("def") == 0 || output_type.compare("disp") == 0 || output_type.compare("aff") == 0))
-            throw std::runtime_error("Unknown output type.");
+        // skip past compulsory arguments
+        argc-=4;
+        argv+=4;
 
-        bool input_is_affine  = input_type.compare("aff") == 0;
-        bool output_is_affine = input_type.compare("aff") == 0;
-
-        // If output is non-rigid, need a floating image
+        // Set default value for optional arguments
         std::shared_ptr<const NiftiImageData<float> > floating_sptr;
-        if (!input_is_affine) {
-            if (argc != 6) {
-                print_usage();
-                return EXIT_FAILURE;
+        bool use_vtk = false;
+
+        // Loop over remaining input
+        while (argc>0 && argv[0][0]=='-') {
+            if (strcmp(argv[0], "--flo")==0) {
+                std::string floating_filename = argv[1];
+                floating_sptr = std::make_shared<const NiftiImageData<float> >(floating_filename);
+                argc-=2; argv+=2;
             }
-            const std::string floating_filename = argv[5];
-            floating_sptr = std::make_shared<const NiftiImageData<float> >(floating_filename);
+            else if (strcmp(argv[0], "--use_vtk")==0) {
+                use_vtk = true;
+                argc-=1; argv+=1;
+            }
+            else {
+                std::cerr << "Unknown option '" << argv[0] <<"'\n";
+                print_usage_and_exit(program_name, EXIT_FAILURE);
+            }
         }
 
-        std::shared_ptr<const NiftiImageData3DDeformation<float> > deformation_sptr;
-
-        // If input is affine
-        if (input_is_affine) {
-            const std::shared_ptr<const AffineTransformation<float> > in_trans_sptr = std::make_shared<const AffineTransformation<float> >(input_filename);
-            // If output is affine
-            if (output_is_affine) {
-                in_trans_sptr->get_inverse().write(output_filename);
-                return EXIT_SUCCESS;
-            }
-            deformation_sptr = std::make_shared<const NiftiImageData3DDeformation<float> >(
-                        in_trans_sptr->get_inverse().get_as_deformation_field(*floating_sptr));
-        }
-        // If non-rigid
-        else {
-
-            // If in transformation is non-rigid, out can't be affine.
-            if (output_is_affine)
-                throw std::runtime_error("Input transformation is non-rigid. Output can't be affine.");
-
-            // If disp, read it and convert to deformation
-            if (input_type.compare("disp") == 0) {
-                const std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_sptr = std::make_shared<const NiftiImageData3DDisplacement<float> >(input_filename);
-                deformation_sptr = std::make_shared<const NiftiImageData3DDeformation<float> >(*disp_sptr);
-            }
-            else
-                deformation_sptr = std::make_shared<const NiftiImageData3DDeformation<float> >(input_filename);
-            // Inverse
-            deformation_sptr = deformation_sptr->get_inverse(floating_sptr);
+        // Affine
+        if (type.compare("aff")==0) {
+            const AffineTransformation<float> in_trans(input_filename);
+            in_trans.get_inverse().write(output_filename);
         }
 
-        // For the output, convert
-        if (output_type.compare("def") == 0)
-            deformation_sptr->write(output_filename);
+        // Deformation
+        else if (type.compare("def")==0) {
+            const NiftiImageData3DDeformation<float> in_trans(input_filename);
+            in_trans.get_inverse(floating_sptr,use_vtk)->write(output_filename);
+        }
+
+        // Displacement
+        else if (type.compare("disp")==0) {
+            const NiftiImageData3DDisplacement<float> in_trans(input_filename);
+            in_trans.get_inverse(floating_sptr,use_vtk)->write(output_filename);
+        }
+
+        // Unknown transformation type
         else
-            std::make_shared<const NiftiImageData3DDisplacement<float> >(*deformation_sptr)->write(output_filename);
+            throw std::runtime_error("Unknown input type.");
 
     // If there was an error
     } catch(const std::exception &error) {

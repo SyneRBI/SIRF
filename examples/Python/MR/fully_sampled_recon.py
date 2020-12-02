@@ -11,17 +11,18 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -o <outp>, --output=<path>  output file name [default: output.h5]
+  -o <outp>, --output=<path>  output file name (no ext.) [default: output]
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-## Copyright 2015 - 2017 University College London.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+## Copyright 2015 - 2019 University College London.
 ## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -38,13 +39,14 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
+show_plot = not args['--non-interactive']
 
 def main():
 
@@ -71,7 +73,7 @@ def main():
     print('---\n pre-processing acquisition data...')
     processed_data = preprocess_acquisition_data(acq_data)
 
-    # setup reconstruction:
+    # set up reconstruction:
     # create a reconstruction object using 2D inverse Fourier transform and
     # provide pre-processed k-space data as input
     recon = FullySampledReconstructor()
@@ -85,19 +87,21 @@ def main():
     image_data = recon.get_output()
     image_data.write(args['--output'])
 
-    # show reconstructed image data
-    image_data.show(title = 'Reconstructed image data (magnitude)')
+    if show_plot:
+        # show reconstructed image data
+        image_data.show(title = 'Reconstructed image data (magnitude)')
 
     # filter the image
     image_array = image_data.as_array()
     select = image_array.real < 0.2*numpy.amax(image_array.real)
     image_array[select] = 0
     image_data.fill(abs(image_array))
-    image_data.show(title = 'Filtered image data (magnitude)')
+    if show_plot:
+        image_data.show(title = 'Filtered image data (magnitude)')
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

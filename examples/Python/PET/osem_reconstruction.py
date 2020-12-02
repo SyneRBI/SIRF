@@ -15,15 +15,16 @@ Options:
   -s <subs>, --subs=<subs>     number of subsets [default: 12]
   -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
+  --non-interactive            do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -42,6 +43,7 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
 
+
 # process command-line options
 num_subsets = int(args['--subs'])
 num_subiterations = int(args['--subiter'])
@@ -54,17 +56,23 @@ if args['--anim'] is not None:
     ai_file = existing_filepath(data_path, args['--anim'])
 else:
     ai_file = None
+show_plot = not args['--non-interactive']
+
 
 # Define a function that does something with an image. This function
 # provides a simplistic example of user's involvement in the reconstruction
 def image_data_processor(image_array, im_num):
-    """ Process/display an image"""
+    """ Process/display an image
+
+        image is not modified in this simplistic example - but might have been
+    """
+    if not show_plot:
+        return image_array
     # display the current estimate of the image at z = 20
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
     pylab.imshow(image_array[20,:,:])
     print('You may need to close Figure %d window to continue' % im_num)
-    # image is not modified in this simplistic example - but might have been
     return image_array
 
 def main():
@@ -90,8 +98,8 @@ def main():
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data)
-    obj_fun.set_acquisition_model(acq_model)
+    obj_fun = make_Poisson_loglikelihood(acq_data, acq_model=acq_model)
+    #obj_fun.set_acquisition_model(acq_model)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm (since we are not using a penalty, or prior, in
@@ -127,7 +135,8 @@ def main():
         # fill the current image estimate with new data
         image.fill(processed_image_array)
         recon.set_current_estimate(image)
-    pylab.show()
+    if show_plot:
+        pylab.show()
 
     # forward projection of the reconstructed image simulates the
     # acquisition of data by the scanner
@@ -137,11 +146,13 @@ def main():
     diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
 
+
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     # display error information
     print('%s' % err.value)

@@ -13,15 +13,16 @@ Options:
                                [default: (0,10)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: memory]
+  --non-interactive            do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -39,10 +40,11 @@ args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
 
-from pUtilities import show_2D_array
+from sirf.Utilities import show_2D_array
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 data_path = args['--path']
@@ -59,6 +61,8 @@ list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
 interval = literal_eval(args['--interval'])
 storage = args['--storage']
+show_plot = not args['--non-interactive']
+
 
 def main():
 
@@ -96,16 +100,20 @@ def main():
     acq_dim = acq_array.shape
     print('acquisition data dimensions: %dx%dx%dx%d' % acq_dim)
     z = acq_dim[1]//2
-    show_2D_array('Acquisition data', acq_array[0,z,:,:])
+    if show_plot:
+        show_2D_array('Acquisition data', acq_array[0,z,:,:])
 
     # compute randoms
     print('estimating randoms, please wait...')
     randoms = lm2sino.estimate_randoms()
     rnd_array = randoms.as_array()
-    show_2D_array('Randoms', rnd_array[0,z,:,:])
+    if show_plot:
+        show_2D_array('Randoms', rnd_array[0,z,:,:])
+
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

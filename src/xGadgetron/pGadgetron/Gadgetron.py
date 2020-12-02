@@ -2,12 +2,13 @@
 Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 '''
 
-# CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+# SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+# Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+# Copyright 2018 - 2020 University College London
 #
 # This is software developed for the Collaborative Computational
-# Project in Positron Emission Tomography and Magnetic Resonance imaging
-# (http://www.ccppetmr.ac.uk/).
+# Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+# (http://www.ccpsynerbi.ac.uk/).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -126,189 +127,6 @@ def mr_data_path():
 ##        handle = pygadgetron.cGT_sendImages(self.handle, img.handle)
 ##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
-
-class CoilImageData(DataContainer):
-    '''
-    Class for a coil images container.
-    Each item in the container is a 4D complex array of coil images values 
-    on an xyz-slice (z-dimension is normally 1).
-    '''
-    def __init__(self):
-        self.handle = None
-        self.handle = pygadgetron.cGT_newObject('CoilImages')
-        check_status(self.handle)
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    def same_object(self):
-        return CoilImageData()
-    def calculate(self, acqs):
-        '''
-        Calculates coil images from a given sorted acquisitions.
-        acqs: AcquisitionData
-        '''
-        assert_validity(acqs, AcquisitionData)
-        if acqs.is_sorted() is False:
-            print('WARNING: acquisitions may be in a wrong order')
-        try_calling(pygadgetron.cGT_computeCoilImages(self.handle, acqs.handle))
-    def image_dimensions(self):
-        '''
-        Returns each coil images array dimensions as a tuple (nc, nz, ny, nx),
-        where nc is the number of active coils and nx, ny, nz are slice
-        dimensions.
-        '''
-        dim = numpy.ndarray((4,), dtype=numpy.int32)
-        pygadgetron.cGT_getCoilDataDimensions(self.handle, 0, dim.ctypes.data)
-        return tuple(dim[::-1])
-    def as_array(self):
-        '''
-        Returns specified csm as Numpy ndarray.
-        csm_num: csm (slice) number
-        '''
-        assert self.handle is not None
-        nm = self.number()
-        nc, nz, ny, nx = self.image_dimensions()
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nm*nz, ny, nx), dtype=numpy.complex64)
-        re = numpy.ndarray((nc, nz, ny, nx), dtype=numpy.float32)
-        im = numpy.ndarray((nc, nz, ny, nx), dtype=numpy.float32)
-        i = 0
-        for m in range(nm):
-            pygadgetron.cGT_getCoilData \
-                (self.handle, m, re.ctypes.data, im.ctypes.data)
-            j = i + nz
-            array[:, i : j, :, :] = re + 1j * im
-            i = j
-        return array
-
-DataContainer.register(CoilImageData)
-
-class CoilSensitivityData(DataContainer):
-    '''
-    Class for a coil sensitivity maps (csm) container.
-    Each item in the container is a 4D complex array of csm values on an 
-    xyz-slice (z-dimension is normally 1).
-    '''
-    def __init__(self):
-        self.handle = None
-        self.smoothness = 0
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    def same_object(self):
-        return CoilSensitivityData()
-    def read(self, file):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-        self.handle = pygadgetron.cGT_CoilSensitivities(file)
-        check_status(self.handle)
-    def calculate(self, data, method=None):
-        '''
-        Calculates coil sensitivity maps from coil images or sorted 
-        acquisitions.
-        data  : either AcquisitionData or CoilImages
-        method: either SRSS (Square Root of the Sum of Squares, default) or 
-                Inati
-        '''
-        if isinstance(data, AcquisitionData):
-            if data.is_sorted() is False:
-                print('WARNING: acquisitions may be in a wrong order')
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-        self.handle = pygadgetron.cGT_CoilSensitivities('')
-        check_status(self.handle)
-        if method is not None:
-            method_name, parm_list = name_and_parameters(method)
-            parm = parse_arglist(parm_list)
-        else:
-            method_name = 'SRSS'
-            parm = {}
-        if isinstance(data, AcquisitionData):
-            assert data.handle is not None
-            parms.set_int_par\
-                (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
-            try_calling(pygadgetron.cGT_computeCoilSensitivities \
-                (self.handle, data.handle))
-        elif isinstance(data, CoilImageData):
-            assert data.handle is not None
-            if method_name == 'Inati':
-                try:
-                    from ismrmrdtools import coils
-                except:
-                    raise error('Inati method requires ismrmrd-python-tools')
-                cis_array = data.as_array()
-                csm, _ = coils.calculate_csm_inati_iter(cis_array)
-                self.append(csm.astype(numpy.complex64))
-            elif method_name == 'SRSS':
-                if 'niter' in parm:
-                    nit = int(parm['niter'])
-                    parms.set_int_par \
-                        (self.handle, 'coil_sensitivity', 'smoothness', nit)
-                try_calling(pygadgetron.cGT_computeCSMsFromCIs \
-                    (self.handle, data.handle))
-            else:
-                raise error('Unknown method %s' % method_name)
-        else:
-            raise error('Cannot calculate coil sensitivities from %s' % \
-                        repr(type(data)))
-    def append(self, csm):
-        '''
-        Appends a coil sensitivity map to self.
-        csm: Numpy ndarray with csm values
-        '''
-        if self.handle is None:
-            self.handle = pygadgetron.cGT_CoilSensitivities('')
-            check_status(self.handle)
-        shape = csm.shape
-        nc = shape[0]
-        if csm.ndim == 4:
-            nz = shape[1]
-            iy = 2
-        else:
-            nz = 1
-            iy = 1
-        ny = shape[iy]
-        nx = shape[iy + 1]
-        re = csm.real.copy()
-        im = csm.imag.copy()
-        handle = pygadgetron.cGT_appendCSM \
-            (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def map_dimensions(self):
-        '''
-        Returns each csm dimensions as a tuple (nc, nz, ny, nx),
-        where nc is the number of active coils and nx, ny, nz are slice
-        dimensions.
-        '''
-        assert self.handle is not None
-        dim = numpy.ndarray((4,), dtype=numpy.int32)
-        pygadgetron.cGT_getCoilDataDimensions(self.handle, 0, dim.ctypes.data)
-        return tuple(dim[::-1])
-    def as_array(self):
-        '''
-        Returns specified csm as Numpy ndarray.
-        csm_num: csm (slice) number
-        '''
-        assert self.handle is not None
-        nm = self.number()
-        nc, nz, ny, nx = self.map_dimensions()
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nm*nz, ny, nx), dtype=numpy.complex64)
-        re = numpy.ndarray((nc, nz, ny, nx), dtype=numpy.float32)
-        im = numpy.ndarray((nc, nz, ny, nx), dtype=numpy.float32)
-        i = 0
-        for m in range(nm):
-            pygadgetron.cGT_getCoilData \
-                (self.handle, m, re.ctypes.data, im.ctypes.data)
-            j = i + nz
-            array[:, i : j, :, :] = re + 1j * im
-            i = j
-        return array
-
-DataContainer.register(CoilSensitivityData)
 
 class Image(object):
     '''
@@ -486,6 +304,7 @@ class ImageData(SIRF.ImageData):
             image = self.image(i)
             info[i] = image.info(par)
         return info
+
     def fill(self, data):
         '''
         Fills self's image data with specified values.
@@ -494,8 +313,7 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         
         if isinstance(data, ImageData):
-            super(ImageData, self).fill(data)
-            return
+            return super(ImageData, self).fill(data)
         
         if not isinstance(data, numpy.ndarray ):
             # CIL/SIRF compatibility
@@ -505,40 +323,34 @@ class ImageData(SIRF.ImageData):
                 raise TypeError('Input should be numpy.ndarray or ImageData. Got {}'.format(type(data)))
         
         if isinstance(data, numpy.ndarray):
-            old = None
+            the_data = data
             if self.is_real():
                 if data.dtype != numpy.float32:
-                    old = data.copy()
-                    data = data.astype(numpy.float32)
+                    the_data = data.astype(numpy.float32)
             else:
                 if data.dtype != numpy.complex64:
-                    old = data.copy()
-                    data = data.astype(numpy.complex64)
+                    the_data = data.astype(numpy.complex64)
             convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if not data.flags['F_CONTIGUOUS'] and old is None:
-                    old = data.copy()
-                data = numpy.ascontiguousarray(data)
+                the_data = numpy.ascontiguousarray(the_data)
             if self.is_real():
                 try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
-                    (self.handle, data.ctypes.data))
+                    (self.handle, the_data.ctypes.data))
             else:
                 try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
-                    (self.handle, data.ctypes.data))
-            if old is not None:
-                data[:] = old
-            elif convert:
-                data = numpy.asfortranarray(data)
+                    (self.handle, the_data.ctypes.data))
         else:
             raise error('wrong fill value.' + \
                         ' Should be ImageData or numpy.ndarray')
-    def as_array(self):
+        return self
+
+    def dimensions(self):
         '''
-        Returns all self's images as a 3D Numpy ndarray.
+        Returns the dimensions of 3D/4D Numpy ndarray of all self's images.
         '''
-        assert self.handle is not None
         if self.number() < 1:
-            return numpy.ndarray((0,0,0), dtype = numpy.float32)
+            return 0
+        assert self.handle is not None
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         image = Image(self)
         pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
@@ -546,17 +358,46 @@ class ImageData(SIRF.ImageData):
         ny = dim[1]
         nz = dim[2]
         nc = dim[3]
-        nz = nz*nc*self.number()
+        
+        nz = nz*self.number()
+        
+        if nc == 1: # for backward compatibility
+            return nz, ny, nx
+        else:
+            return nc, nz, ny, nx
+        
+    def as_array(self):
+        '''
+        Returns all self's images as a 3D or 4D Numpy ndarray.
+        '''
+        dims = self.dimensions()
+        
+        assert self.handle is not None
+        if self.number() < 1:
+            return numpy.ndarray((0,), dtype = numpy.float32)
         if self.is_real():
-            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            array = numpy.ndarray(dims, dtype = numpy.float32)
             try_calling(pygadgetron.cGT_getImageDataAsFloatArray\
                 (self.handle, array.ctypes.data))
-            return array
         else:
-            z = numpy.ndarray((nz, ny, nx), dtype = numpy.complex64)
+            array = numpy.ndarray(dims, dtype = numpy.complex64)
             try_calling(pygadgetron.cGT_getImageDataAsCmplxArray\
-                (self.handle, z.ctypes.data))
-            return z
+                (self.handle, array.ctypes.data))
+                
+        if len(dims) != 4:
+            return array
+
+        nc, nz, ny, nx = dims
+        ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+        nz = nz//ns        # z-dimension of a slice
+
+        # hope numpy is clever enough to do all this in-place:
+        array = numpy.reshape(array, (ns, nc, nz, ny, nx))
+        array = numpy.swapaxes(array, 0, 1)
+        array = numpy.reshape(array, (nc, ns*nz, ny, nx))
+
+        return array
+                
     def copy(self):
         '''alias of clone'''
         return self.clone()
@@ -630,8 +471,148 @@ class ImageData(SIRF.ImageData):
     def print_header(self, im_num):
         """Print the header of one of the images. zero based."""
         try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
-
+    @property
+    def dtype(self):
+        if self.is_real():
+            return numpy.float32
+        return numpy.complex64
+    @property
+    def shape(self):
+        return self.dimensions()
+        
 SIRF.ImageData.register(ImageData)
+
+
+class CoilImagesData(ImageData):
+    '''
+    Class for a coil images (ci) container.
+    Each item in the container is a 4D complex array of coil images values
+    on an xyz-slice.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('CoilImages')
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def same_object(self):
+        return CoilImagesData()
+    def calculate(self, acq):
+        try_calling(pygadgetron.cGT_computeCoilImages(self.handle, acq.handle))
+
+SIRF.ImageData.register(CoilImagesData)
+
+
+class CoilSensitivityData(ImageData):
+    '''
+    Class for a coil sensitivity maps (csm) container.
+    Each item in the container is a 4D complex array of csm values on an 
+    xyz-slice (z-dimension is normally 1).
+    '''
+    def __init__(self):
+        self.handle = None
+        self.smoothness = 0
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def same_object(self):
+        return CoilSensitivityData()
+    def read(self, file):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pygadgetron.cGT_CoilSensitivities(file)
+        check_status(self.handle)
+    def calculate(self, data, method=None):
+        '''
+        Calculates coil sensitivity maps from coil images or sorted 
+        acquisitions.
+        data  : either AcquisitionData or CoilImages
+        method: either SRSS (Square Root of the Sum of Squares, default) or 
+                Inati
+        '''
+        if isinstance(data, AcquisitionData):
+            if data.is_sorted() is False:
+                print('WARNING: acquisitions may be in a wrong order')
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pygadgetron.cGT_CoilSensitivities('')
+        check_status(self.handle)
+        nit = self.smoothness
+        
+        if method is not None:
+            method_name, parm_list = name_and_parameters(method)
+            parm = parse_arglist(parm_list)
+            if 'niter' in parm:
+                nit = int(parm['niter'])
+        else:
+            method_name = 'SRSS'
+            parm = {}
+        
+        parms.set_int_par(self.handle, 'coil_sensitivity', 'smoothness', nit)
+
+        if isinstance(data, AcquisitionData):
+            self.__calc_from_acquisitions(data, method_name)
+        elif isinstance(data, CoilImagesData):
+            self.__calc_from_images(data, method_name)
+        else:
+            raise error('Cannot calculate coil sensitivities from %s' % \
+                        repr(type(data)))
+
+    def __calc_from_acquisitions(self, data, method_name):
+        assert data.handle is not None
+            
+        if method_name == 'Inati':
+            try:
+                from ismrmrdtools import coils
+            except:
+                raise error('Inati method requires ismrmrd-python-tools')
+            
+            try_calling(pygadgetron.cGT_computeCoilImages(self.handle, data.handle))
+                
+            cis_array = self.as_array()
+            csm, _ = coils.calculate_csm_inati_iter(cis_array)
+            
+            nc, nz, ny, nx = self.dimensions()
+            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+            nz = nz//ns        # z-dimension of a slice
+            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
+            csm = numpy.swapaxes(csm, 0,  1)
+            
+            self.fill(csm.astype(numpy.complex64))
+        
+        elif method_name == 'SRSS':
+            try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
+
+    def __calc_from_images(self, data, method_name):
+        assert data.handle is not None
+        if method_name == 'Inati':
+            try:
+                from ismrmrdtools import coils
+            except:
+                raise error('Inati method requires ismrmrd-python-tools')
+                
+            cis_array = data.as_array()
+            csm, _ = coils.calculate_csm_inati_iter(cis_array)
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+            self.handle = pysirf.cSIRF_clone(data.handle)
+
+            nc, nz, ny, nx = self.dimensions()
+            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+            nz = nz//ns        # z-dimension of a slice
+            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
+            csm = numpy.swapaxes(csm, 0,  1)
+
+            self.fill(csm.astype(numpy.complex64))
+
+        elif method_name == 'SRSS':
+            try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
+                (self.handle, data.handle))
+        else:
+            raise error('Unknown method %s' % method_name)   
+
+DataContainer.register(CoilSensitivityData)
+
 
 class Acquisition(object):
     def __init__(self, file = None):
@@ -791,13 +772,14 @@ class AcquisitionData(DataContainer):
             new_ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
         check_status(new_ad.handle)
         return new_ad
-##    def number_of_acquisitions(self, select = 'image'):
-##        assert self.handle is not None
-##        dim = self.dimensions(select)
-##        return dim[0]
-    def number_of_readouts(self, select = 'image'):
-        dim = self.dimensions(select)
-        return dim[0]
+    def number_of_readouts(self, select='image'):
+        if select == 'image':
+            dim = self.dimensions()
+            return dim[0]
+        else:
+            return self.number()
+    def number_of_acquisitions(self, select='image'):
+        return self.number_of_readouts
     def sort(self):
         '''
         Sorts acquisitions with respect to (in this order):
@@ -825,7 +807,6 @@ class AcquisitionData(DataContainer):
     def set_header(self, header):
         assert self.handle is not None
         try_calling(pygadgetron.cGT_setAcquisitionsInfo(self.handle, header))
-
     def get_header(self):
         assert self.handle is not None
         return parms.char_par(self.handle, 'acquisitions', 'info')
@@ -847,7 +828,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         acq = Acquisition()
-        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
+        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, int(num))
         check_status(acq.handle)
         return acq
     def append_acquisition(self, acq):
@@ -857,14 +838,11 @@ class AcquisitionData(DataContainer):
         assert self.handle is not None
         try_calling( pygadgetron.cGT_appendAcquisition(self.handle, acq.handle))
 
-    def dimensions(self, select = 'image'):
+    def dimensions(self):
         '''
         Returns acquisitions dimensions as a tuple (na, nc, ns), where na is
         the number of acquisitions, nc the number of coils and ns the number of
         samples.
-        If select is set to 'all', the total number of acquisitions is returned.
-        Otherwise, the number of acquisitions directly related to imaging data
-        is returned.
         '''
         assert self.handle is not None
         if self.number() < 1:
@@ -874,10 +852,7 @@ class AcquisitionData(DataContainer):
              (self.handle, dim.ctypes.data)
         #nr = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
-        if select == 'all':
-            dim[2] = self.number()
-        else:
-            dim[2] = numpy.prod(dim[2:])
+        dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
     def get_info(self, par, which = 'all'):
         '''
@@ -899,7 +874,7 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
-    def fill(self, data, select = 'image'):
+    def fill(self, data, select='image'):
         '''
         Fills self's acquisitions with specified values.
         data: Python Numpy array or AcquisitionData
@@ -911,43 +886,38 @@ class AcquisitionData(DataContainer):
             return
         elif isinstance(data, numpy.ndarray):
             if data.dtype is not numpy.complex64:
-                old = data.copy()
-                data = data.astype(numpy.complex64)
+                the_data = data.astype(numpy.complex64)
             else:
-                old = None
+                the_data = data
             convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if not data.flags['F_CONTIGUOUS'] and old is None:
-                    old = data.copy()
-                data = numpy.ascontiguousarray(data)
-            if select == 'all': # fill all
+                the_data = numpy.ascontiguousarray(the_data)
+            if select == 'all':
                 fill_all = 1
             else: # fill only image-related
                 fill_all = 0
             try_calling(pygadgetron.cGT_fillAcquisitionData\
-                (self.handle, data.ctypes.data, fill_all))
-            if old is not None:
-                data[:] = old
-            elif convert:
-                data = numpy.asfortranarray(data)
+                (self.handle, the_data.ctypes.data, fill_all))
         else:
             raise error('wrong fill value.' + \
                         ' Should be AcquisitionData or numpy.ndarray')
         return self
-    def as_array(self, select = 'image'):
+    def as_array(self, acq=None):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
         '''
         assert self.handle is not None
-        na = self.number()
-        ny, nc, ns = self.dimensions(select)
-        if select == 'all': # return all
-            return_all = 1
-        else: # return only image-related
-            return_all = 0
-        z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+        if acq is None:
+            ny, nc, ns = self.dimensions()
+            z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+            acq = -1
+        else:
+            a = self.acquisition(acq)
+            nc = a.active_channels()
+            ns = a.number_of_samples()
+            z = numpy.ndarray((nc, ns), dtype = numpy.complex64)            
         try_calling(pygadgetron.cGT_acquisitionDataAsArray\
-            (self.handle, z.ctypes.data, return_all))
+            (self.handle, z.ctypes.data, acq))
         return z
     def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \
              postpone = False):
@@ -1011,6 +981,12 @@ class AcquisitionData(DataContainer):
             tmp = value * numpy.ones(out.as_array().shape)
             out.fill(tmp)
         return out
+    @property
+    def shape(self):
+        return self.dimensions()
+    @property
+    def dtype(self):
+        return numpy.complex64
     
     
 DataContainer.register(AcquisitionData)
@@ -1049,6 +1025,13 @@ class AcquisitionModel(object):
         assert_validity(csm, CoilSensitivityData)
         try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
             (self.handle, 'coil_sensitivity_maps', csm.handle))
+    def norm(self):
+        assert self.handle is not None
+        handle = pygadgetron.cGT_acquisitionModelNorm(self.handle)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r;
     def forward(self, image):
         '''
         Projects an image into (simulated) acquisitions space.
@@ -1106,11 +1089,11 @@ class AcquisitionModel(object):
         return True
 
     def range_geometry(self):
-        '''Returns the template of ImageData'''
+        '''Returns the template of AcquisitionData'''
         return self.acq_templ
 
     def domain_geometry(self):
-        '''Returns the template of AcquisitionData'''
+        '''Returns the template of ImageData'''
         return self.img_templ
 
 class Gadget(object):

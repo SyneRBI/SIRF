@@ -9,15 +9,16 @@ Options:
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  --non-interactive            do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -35,10 +36,11 @@ args = docopt(__doc__, version=__version__)
 
 import math
 
-from pUtilities import show_2D_array
+from sirf.Utilities import show_2D_array
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 data_file = args['--file']
@@ -46,6 +48,8 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('PET')
 storage = args['--storage']
+show_plot = not args['--non-interactive']
+
 
 def main():
 
@@ -64,14 +68,16 @@ def main():
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
     z = acq_dim[1]//2
-    show_2D_array('Acquisition data', acq_array[0,z,:,:])
+    if show_plot:
+        show_2D_array('Acquisition data', acq_array[0,z,:,:])
 
     # create bin efficiencies sinograms
     bin_eff = acq_data.clone()
     bin_eff.fill(2.0)
     bin_eff_arr = bin_eff.as_array()
     bin_eff_arr[0,:,10:50,:] = 0
-    show_2D_array('Bin efficiencies', bin_eff_arr[0,z,:,:])
+    if show_plot:
+        show_2D_array('Bin efficiencies', bin_eff_arr[0,z,:,:])
     bin_eff.fill(bin_eff_arr)
 
     # create acquisition sensitivity model from bin efficiencies
@@ -82,12 +88,14 @@ def main():
     asm.set_up(ad)
     asm.unnormalise(ad)
     ad_array = ad.as_array()
-    show_2D_array('Normalized acquisition data', ad_array[0,z,:,:])
+    if show_plot:
+        show_2D_array('Normalized acquisition data', ad_array[0,z,:,:])
 
     # create another bin efficiencies sinograms
     bin_eff_arr[0,:,10:50,:] = 2.0
     bin_eff_arr[0,:,60:80,:] = 0
-    show_2D_array('Another bin efficiencies', bin_eff_arr[0,z,:,:])
+    if show_plot:
+        show_2D_array('Another bin efficiencies', bin_eff_arr[0,z,:,:])
     bin_eff2 = acq_data.clone()
     bin_eff2.fill(bin_eff_arr)
 
@@ -102,10 +110,13 @@ def main():
     ad = acq_data.clone()
     asm12.unnormalise(ad)
     ad_array = ad.as_array()
-    show_2D_array('Chain-normalized acquisition data', ad_array[0,z,:,:])
+    if show_plot:
+        show_2D_array('Chain-normalized acquisition data', ad_array[0,z,:,:])
+
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

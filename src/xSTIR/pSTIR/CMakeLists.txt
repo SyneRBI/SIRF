@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Copyright 2016 University College London
+# Author: Kris Thielemans, Richard Brown
+# Copyright 2016 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -41,8 +41,11 @@ if(BUILD_PYTHON)
   SWIG_LINK_LIBRARIES(pystir csirf cstir iutilities ${STIR_LIBRARIES} ${PYTHON_LIBRARIES})
 
   INSTALL(TARGETS ${SWIG_MODULE_pystir_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
-  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pystir.py" STIR.py DESTINATION "${PYTHON_DEST}/sirf")
-  INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/STIR_params.py" DESTINATION "${PYTHON_DEST}/sirf")
+  INSTALL(FILES 
+    "${CMAKE_CURRENT_BINARY_DIR}/pystir.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/STIR.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/STIR_params.py"
+    DESTINATION "${PYTHON_DEST}/sirf")
 
 ADD_SUBDIRECTORY(tests)
 endif(BUILD_PYTHON)

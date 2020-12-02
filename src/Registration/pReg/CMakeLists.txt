@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -42,8 +42,11 @@ if(BUILD_PYTHON)
   SWIG_LINK_LIBRARIES(pyreg PUBLIC Reg ${PYTHON_LIBRARIES})
 
   INSTALL(TARGETS ${SWIG_MODULE_pyreg_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
-  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pyreg.py" Reg.py DESTINATION "${PYTHON_DEST}/sirf")
-  INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/Reg_params.py" DESTINATION "${PYTHON_DEST}/sirf")
+  INSTALL(FILES 
+    "${CMAKE_CURRENT_BINARY_DIR}/pyreg.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Reg.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Reg_params.py"
+    DESTINATION "${PYTHON_DEST}/sirf")
 
 ADD_SUBDIRECTORY(tests)
 endif(BUILD_PYTHON)

@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -57,11 +58,16 @@ limitations under the License.
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
 #include "stir/recon_buildblock/QuadraticPrior.h"
+#include "stir/SegmentBySinogram.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
 #include "stir/shared_ptr.h"
 #include "stir/SSRB.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
+
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
+#include "stir/recon_buildblock/NiftyPET_projector/ProjectorByBinPairUsingNiftyPET.h"
+#endif
 
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"
@@ -85,6 +91,9 @@ namespace sirf {
 		PoissonLogLhLinModMean3DF;
 	//PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
 	typedef stir::ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
+    typedef stir::ProjectorByBinPairUsingNiftyPET ProjectorPairUsingNiftyPET;
+#endif
 	typedef stir::ProjMatrixByBinUsingRayTracing RayTracingMatrix;
 	typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;

@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Class for tensor SIRF image data.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include "sirf/Reg/NiftiImageData3DTensor.h"
@@ -56,7 +56,7 @@ NiftiImageData3DTensor<dataType>::NiftiImageData3DTensor(const NiftiImageData3D<
     for (size_t i=0; i<3; ++i) {
         size_t index = mem*i;
         float *src  = static_cast<float*>(ims[i].get_raw_nifti_sptr()->data);
-        memcpy(this->_data+index, src, mem);
+        memcpy(this->_data+index, src, mem*size_t(ims[i].get_raw_nifti_sptr()->nbyper));
     }
 }
 
@@ -90,6 +90,25 @@ void NiftiImageData3DTensor<dataType>::create_from_3D_image(const NiftiImageData
     this->_nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 
     this->set_up_data(DT_FLOAT32);
+}
+
+template<class dataType>
+std::shared_ptr<NiftiImageData<dataType> > NiftiImageData3DTensor<dataType>::get_tensor_component(const int component) const
+{
+    // Check in range
+    if (component < 0 || component >= this->_nifti_image->nu)
+        throw std::runtime_error("NiftiImageData3DTensor<dataType>::get_tensor_component: requested component out of range.");
+
+    // Crop image
+    std::shared_ptr<NiftiImageData<dataType> > image_sptr = this->clone();
+    int index[7] = {-1, -1, -1, -1, component, -1, -1};
+    image_sptr->crop(index,index);
+
+    // Intent code is no longer vector
+    image_sptr->get_raw_nifti_sptr()->intent_code = NIFTI_INTENT_NONE;
+    image_sptr->get_raw_nifti_sptr()->intent_p1 = -1;
+
+    return image_sptr;
 }
 
 template<class dataType>
@@ -130,20 +149,12 @@ void NiftiImageData3DTensor<dataType>::write_split_xyz_components(const std::str
 
     for (int i=0; i<3; ++i) {
 
-        // Index 4 is nu (tensor component)
-        min_index[4] = max_index[4] = i;
+        std::shared_ptr<NiftiImageData<dataType> > image_sptr =
+                this->get_tensor_component(i);
 
-        // Crop image
-        NiftiImageData<dataType> image = *this;
-        image.crop(min_index,max_index);
-
-        // Intent code is no longer vector
-        image.get_raw_nifti_sptr()->intent_code = NIFTI_INTENT_NONE;
-        image.get_raw_nifti_sptr()->intent_p1 = -1;
-
-        if      (i == 0) image.write(filename_x,datatype);
-        else if (i == 1) image.write(filename_y,datatype);
-        else if (i == 2) image.write(filename_z,datatype);
+        if      (i == 0) image_sptr->write(filename_x,datatype);
+        else if (i == 1) image_sptr->write(filename_y,datatype);
+        else if (i == 2) image_sptr->write(filename_z,datatype);
     }
 }
 
@@ -164,6 +175,61 @@ void NiftiImageData3DTensor<dataType>::flip_component(const int dim)
 
     for (int i=start_index; i<=end_index; i++)
         this->_data[i] = -this->_data[i];
+}
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+tensor_component_maths(
+        const int dim,
+        const std::shared_ptr<const ImageData> &scalar_im_sptr,
+        const typename NiftiImageData<dataType>::MathsType maths_type)
+{
+    // Check the dimension to multiply, that dims==5 and nu==3
+    if (dim < 0 || dim > 2)
+        throw std::runtime_error("\n\tDimension to do tensor maths should be between 0 and 2.");
+
+    std::shared_ptr<const NiftiImageData3D<dataType> > nii_scalar_im_sptr =
+            std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(scalar_im_sptr);
+    if (!nii_scalar_im_sptr)
+        nii_scalar_im_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*scalar_im_sptr);
+
+    // Check dimensions match (except the tensor component, obviously)
+    const int *tensor_dims = this->get_dimensions();
+    const int *scalar_dims = nii_scalar_im_sptr->get_dimensions();
+    for (unsigned i=1; i<7; ++i) {
+        // skip tensor component (u, which is 5)
+        if (i!=5 && tensor_dims[i] != scalar_dims[i])
+            throw std::runtime_error("NiftiImageData3DTensor::multiply_tensor_component mismatch in image sizes");
+    }
+
+    // Data is ordered such that the multicomponent info is last.
+    // So, the first third of the data is the x-values, second third is y and last third is z.
+    // Start index is therefore = dim_number * num_voxels/3
+    const unsigned tensor_index_offset = dim * int(this->_nifti_image->nvox/3);
+
+    for (unsigned i=0; i<nii_scalar_im_sptr->get_num_voxels(); ++i) {
+        if (maths_type == NiftiImageData<dataType>::mul)
+            (*this)(i+tensor_index_offset) *= (*nii_scalar_im_sptr)(i);
+        else if (maths_type == NiftiImageData<dataType>::add)
+            (*this)(i+tensor_index_offset) += (*nii_scalar_im_sptr)(i);
+    }
+}
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+multiply_tensor_component
+(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+{
+    this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::mul);
+}
+
+
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::
+add_to_tensor_component
+(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+{
+    this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::add);
 }
 
 namespace sirf {

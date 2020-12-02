@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -25,5 +25,9 @@ import sys
 for i in glob.glob('*.py'):
     if os.path.abspath(__file__) == os.path.abspath(i):
         continue
-    print(i)
-    os.system(sys.executable + ' ' + i)
+    print('\n=== %s\n' % i)
+    narg = len(sys.argv)
+    args = ''
+    for a in range(1, narg):
+        args += ' ' + sys.argv[a]
+    os.system(sys.executable + ' ' + i + args)

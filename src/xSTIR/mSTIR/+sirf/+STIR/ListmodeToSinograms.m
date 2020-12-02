@@ -28,12 +28,12 @@ classdef ListmodeToSinograms < handle
 % in 2002 IEEE Nuclear Science Symposium Conference Record, vol. 3. IEEE,
 % Nov. 2002, pp. 1519-1523 (http://dx.doi.org/10.1109/nssmic.2002.1239610).
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -131,6 +131,17 @@ classdef ListmodeToSinograms < handle
                 self.handle_);
             sirf.Utilities.check_status...
                 ([self.name_ ':estimate_randoms'], randoms.handle_);
+        end
+        function v = get_time_at_which_num_prompts_exceeds_threshold(self, threshold)
+            %Get the time in the list mode data at which the number
+            %of prompts per second exceeds a given threshold.
+            %Returns -1 if no corresponding time is found.
+            h = calllib('mstir', 'mSTIR_lm_num_prompts_exceeds_threshold',...
+                            self.handle_, threshold);
+            sirf.Utilities.check_status...
+                ([self.name_ '::get_time_at_which_num_prompts_exceeds_threshold'], h)
+            v = calllib('miutilities', 'mFloatDataFromHandle', h);
+            sirf.Utilities.delete(h)
         end
     end
 end

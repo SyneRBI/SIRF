@@ -9,17 +9,18 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
-  -i <siter>, --subiter=<siter>    number of sub-iterations [default: 2]
+  -i <sit>, --subiter=<sit>   number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -35,10 +36,11 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtilities import show_2D_array
+from sirf.Utilities import show_2D_array
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 num_subsets = int(args['--subs'])
@@ -48,6 +50,8 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
+show_plot = not args['--non-interactive']
+
 
 # user implementation of Ordered Subset Maximum A Posteriori One Step Late
 # reconstruction algorithm
@@ -79,6 +83,7 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
         filter.apply(image)
 
     return image
+
 
 def main():
 
@@ -118,17 +123,20 @@ def main():
     image = my_osmaposl \
         (image, obj_fun, prior, filter, num_subsets, num_subiterations)
 
-    # show reconstructed image at z = 20
-    image_array = image.as_array()
-    show_2D_array('Reconstructed image at z = 20', image_array[20,:,:])
+    if show_plot:
+        # show reconstructed image at z = 20
+        image_array = image.as_array()
+        show_2D_array('Reconstructed image at z = 20', image_array[20,:,:])
 
 #    image.write('my_image.hv')
+
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     # display error information
     print('%s' % err.value)

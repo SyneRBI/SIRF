@@ -1,12 +1,12 @@
 classdef AcquisitionDataProcessor < sirf.Gadgetron.GadgetChain
 % Class for a chain of gadgets that has AcquisitionData on input and output.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@ classdef AcquisitionDataProcessor < sirf.Gadgetron.GadgetChain
         function set_input(self, input)
 %***SIRF*** Sets the input data.
             %assert(isa(input, 'sirf.Gadgetron.AcquisitionData'))
-            assert(strcmp(input.class_name(), 'AcquisitionData'))
+            %assert(strcmp(input.class_name(), 'AcquisitionData'))
+            sirf.Utilities.assert_validity(input, 'AcquisitionData')
             self.input_ = input;
         end
         function acqs = process(self, input_data)

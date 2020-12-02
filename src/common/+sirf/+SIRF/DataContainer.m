@@ -2,12 +2,13 @@ classdef DataContainer < handle
 % INTERNAL USE ONLY.
 % Class for an abstract data container.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2020 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -42,6 +43,11 @@ classdef DataContainer < handle
             num = calllib('miutilities', 'mIntDataFromHandle', handle);
             sirf.Utilities.delete(handle)
         end
+        function empty = is_empty(self)
+%***SIRF*** Returns true if this container does not actually store data
+%           (but may store metadata - geometry etc.), e.g. is a template.
+            empty = self.number() < 1;
+        end
         function copy = clone(self)
             if isempty(self.handle_)
                 error('DataContainer:clone:empty_object', ...
@@ -70,6 +76,10 @@ classdef DataContainer < handle
             z = complex(re, im);
             sirf.Utilities.delete(handle)
         end
+        function z = uminus(self)
+%***SIRF*** Overloads unary - for data containers.
+            z = self*(-1);
+        end
         function z = minus(self, other)
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
@@ -92,7 +102,7 @@ classdef DataContainer < handle
 %         viewed as vectors.
             sirf.Utilities.assert_validities(self, other)
             z = self.same_object();
-            z.handle_ = calllib('msirf', 'mSIRF_multiply', ...
+            z.handle_ = calllib('msirf', 'mSIRF_product', ...
                 self.handle_, other.handle_);
             sirf.Utilities.check_status('DataContainer:times', z.handle_);
         end
@@ -102,7 +112,7 @@ classdef DataContainer < handle
 %         viewed as vectors.
             sirf.Utilities.assert_validities(self, other)
             z = self.same_object();
-            z.handle_ = calllib('msirf', 'mSIRF_divide', ...
+            z.handle_ = calllib('msirf', 'mSIRF_ratio', ...
                 self.handle_, other.handle_);
             sirf.Utilities.check_status('DataContainer:rdivide', z.handle_);
         end

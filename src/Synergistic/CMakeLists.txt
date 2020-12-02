@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -31,6 +31,10 @@ FOREACH(elem ${SYN_executables})
     TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${SYN_executables})
+
+ADD_SUBDIRECTORY(cSyn)
+ADD_SUBDIRECTORY(mSyn)
+ADD_SUBDIRECTORY(pSyn)
 
 # Tests
 ADD_SUBDIRECTORY(tests)

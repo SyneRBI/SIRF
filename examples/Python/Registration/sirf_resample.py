@@ -16,12 +16,12 @@ Options:
   --pad <pad>                  Padding value
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2018 - 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -90,11 +90,14 @@ def main():
     ref = eng_ref.ImageData(ref_file)
     flo = eng_flo.ImageData(flo_file)
 
-    # Dynamically create resample algorithm
+    # Dynamically create resample algorithm. With inline code, you can do e.g. res = sirf.Reg.NiftyResample()
     algorithm = getattr(sirf.Reg, algo)
     res = algorithm()
+    # Set the image we want to resample
     res.set_reference_image(ref)
+    # the floating image is set so we know the domain of the resampled image. This can be ref.
     res.set_floating_image(flo)
+    # 0 is nearest neighbour, 1 is linear, 3 is cubic, 4 is sinc
     res.set_interpolation_type(int(args['--intrp']))
 
     # create and add each transformation

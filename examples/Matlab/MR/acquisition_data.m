@@ -5,13 +5,13 @@ function acquisition_data(engine)
 % In MATLAB, there are also ISMRMRD tools available for examining 
 % data before processing.
 %
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -53,9 +53,6 @@ fprintf('%d acquisitions (readouts) found\n', na)
 fprintf('sorting acquisitions...\n')
 acq_data.sort()
 
-% dimensions method returns size of all (i.e. including noise data) if 
-% argument is passed in or if 'all' is passed in. Passing in anything else
-% means not all !!
 [ns, nc, na] = acq_data.dimensions();
 
 % clone acquisition data
@@ -126,5 +123,3 @@ sirf.Utilities.set_window(0.1, 0.1, 0.8, 0.8)
 AD.set_storage_scheme(scheme);
 
 end
-
-

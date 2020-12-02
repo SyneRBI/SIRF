@@ -12,16 +12,17 @@ Options:
                               subfolder of SIRF root folder
   -s <slcs>, --slices=<slcs>  max number of slices to display [default: 8]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
 ## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -40,7 +41,7 @@ args = docopt(__doc__, version=__version__)
 from ast import literal_eval
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
@@ -48,6 +49,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 slcs = int(args['--slices'])
+show_plot = not args['--non-interactive']
 
 #AcquisitionData.set_storage_scheme('memory')
 scheme = AcquisitionData.get_storage_scheme()
@@ -75,6 +77,7 @@ def main():
     #    - repetition
     #    - slice
     #    - kspace encode step 1
+    print('sorting...')
     acq_data.sort()
 
     first = int(round(max(0, (na - 1)/2 - 1)))
@@ -91,6 +94,8 @@ def main():
     else:
         # should see this if input data file is test_2D_2x.h5
         print('first readout is not image data')
+        a0 = acq_data.as_array(0)
+        print('first readout shape: %dx%d' % a0.shape)
         
     # display flags
     print('Flags'),
@@ -121,15 +126,19 @@ def main():
     # points (frequency encoding dimension)
     dim = acq_data.dimensions()
     print('input data dimensions: %dx%dx%d' % dim)
-    title = 'Acquisition data (magnitude)'
-    acq_data.show(title = title, postpone = True)
+    if show_plot:
+        title = 'Acquisition data (magnitude)'
+        acq_data.show(title = title, postpone = True)
 
+    print('cloning acquisition data...')
     cloned_acq_data = acq_data.clone()
     cloned_dim = cloned_acq_data.dimensions()
     print('cloned data dimensions: %dx%dx%d' % cloned_dim)
+    print('filling acquisition data...')
     cloned_acq_data.fill(acq_data)
-    title = 'Cloned acquisition data (magnitude)'
-    cloned_acq_data.show(title = title, postpone = True)
+    if show_plot:
+        title = 'Cloned acquisition data (magnitude)'
+        cloned_acq_data.show(title = title, postpone = True)
 
     # pre-process acquired k-space data
     # Prior to image reconstruction several pre-processing steps such as 
@@ -137,19 +146,20 @@ def main():
     # removal of oversampling along frequency encoding (i.e. readout or kx)
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
-    print('---\n pre-processing acquisition data...')
+    print('pre-processing acquisition data...')
     processed_acq_data = preprocess_acquisition_data(acq_data)
 
     # by removing the oversampling factor of 2 along the readout direction, the
     # number of readout samples was halfed
     proc_dim = processed_acq_data.dimensions()
     print('processed data dimensions: %dx%dx%d' % proc_dim)
-    title = 'Processed acquisition data (magnitude)'
-    processed_acq_data.show(title = title)
+    if show_plot:
+        title = 'Processed acquisition data (magnitude)'
+        processed_acq_data.show(title = title)
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

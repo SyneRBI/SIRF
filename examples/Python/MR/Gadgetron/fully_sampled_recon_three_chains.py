@@ -16,16 +16,17 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -s=<sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
 ## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -50,6 +51,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 sigma = float(args['--sigma'])
+show_plot = not args['--non-interactive']
 
 def gaussian(x, mu, sigma):
     return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sigma, 2.)))
@@ -122,11 +124,12 @@ def main():
 ##    real_image_data = img_proc.process(complex_image_data)
 
     # show obtained images
-    real_image_data.show(title = 'Reconstructed image data (magnitude)')
+    if show_plot:
+        real_image_data.show(title = 'Reconstructed image data (magnitude)')
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information

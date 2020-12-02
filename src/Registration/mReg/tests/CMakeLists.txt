@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2016, 2017 University College London
+# Copyright 2016-2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -22,3 +22,10 @@ ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
 NO_UNITTEST_FRAMEWORK
 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+IF(SPM_FOUND)
+	MATLAB_ADD_UNIT_TEST(NAME REG_TEST_MATLAB_SPM
+	UNITTEST_FILE   test_mReg_spm.m
+	ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
+	NO_UNITTEST_FRAMEWORK
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+ENDIF()

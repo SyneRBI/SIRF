@@ -6,15 +6,16 @@ Usage:
 Options:
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  --non-interactive            do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 Rutherford Appleton Laboratory STFC
-## Copyright 2018 University College London.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
+## Copyright 2018 - 2020 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -29,14 +30,15 @@ Options:
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
+storage = args['--storage']
 
-from pUtilities import show_2D_array
+from sirf.Utilities import show_2D_array
 
 # import engine module
 #exec('from p' + args['--engine'] + ' import *')
 exec('from sirf.' + args['--engine'] + ' import *')
 
-storage = args['--storage']
+
 
 def main():
 
@@ -59,10 +61,17 @@ def main():
     acq_dim = acq_array.shape
     print('acquisition data dimensions (span 11, view mashing 2): %dx%dx%dx%d' % acq_dim)
 
+    # By default, the Siemens mMR uses acquisition settings corresponding to the following constructor
+    acq_data = AcquisitionData('Siemens_mMR',span=11, max_ring_diff=60, view_mash_factor=1)
+
     # write the acquisition data to a file (commented out for this demo)
     # acq_data.write('example_mMR_ones.hs')
+
+
+
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

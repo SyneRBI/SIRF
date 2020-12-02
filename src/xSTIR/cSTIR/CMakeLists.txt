@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Copyright 2016 - 2018 University College London
+# Author: Kris Thielemans, Richard Brown
+# Copyright 2016 - 2020 University College London
 # Copyright 2017, 2018 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,13 @@ if(EXISTS "${STIR_INCLUDE_DIRS}/stir/KOSMAPOSL/KOSMAPOSLReconstruction.h")
   add_definitions(-DUSE_HKEM)
 else()
   remove_definitions(-DUSE_HKEM)
+endif()
+
+# Check for existence of ListModeData.h
+if (EXISTS "${STIR_INCLUDE_DIRS}/stir/listmode/ListModeData.h")
+  add_definitions(-DSTIR_USE_LISTMODEDATA)
+else()
+  remove_definitions(-DSTIR_USE_LISTMODEDATA)
 endif()
 
 add_library(cstir 

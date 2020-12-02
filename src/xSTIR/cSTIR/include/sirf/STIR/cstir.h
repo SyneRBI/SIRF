@@ -1,11 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 Copyright 2015 - 2017 University College London.
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,6 +39,12 @@ extern "C" {
 
     // Global
     void* cSTIR_setVerbosity(const int verbosity_ptr);
+    void* cSTIR_getVerbosity();
+    void* cSTIR_setOMPThreads(const int threads);
+    void* cSTIR_getOMPThreads();
+	void* cSTIR_useDefaultOMPThreads();
+	void* cSTIR_getDefaultOMPThreads();
+	void* cSTIR_scannerNames();
 
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);
@@ -55,6 +61,7 @@ extern "C" {
 	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
 	void* cSTIR_computeRandoms(void* ptr);
+    void* cSTIR_lm_num_prompts_exceeds_threshold(void* ptr, const float threshold);
 
 	// Data processor methods
 	void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
@@ -71,12 +78,16 @@ extern "C" {
 	void* cSTIR_applyAcquisitionSensitivityModel
 		(void* ptr_sm, void* ptr_ad, const char* job);
 	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
-	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im, 
+	void* cSTIR_linearAcquisitionModel(void* ptr_am);
+	void* cSTIR_acquisitionModelNorm(void* ptr_am, int subset_num, int num_subsets);
+	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im,
 		int subset_num, int num_subsets);
 	void* cSTIR_acquisitionModelFwdReplace
 		(void* ptr_am, void* ptr_im, int subset_num, int num_subsets, void* ptr_ad);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 		int subset_num, int num_subsets);
+	void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
+		int subset_num, int num_subsets, void* ptr_im);
 
 	// Acquisition data methods
 	void* cSTIR_getAcquisitionDataStorageScheme();
@@ -99,6 +110,7 @@ extern "C" {
 	void* cSTIR_fillAcquisitionDataFromAcquisitionData
 		(void* ptr_acq, const void * ptr_from);
 	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
+	void* cSTIR_get_ProjDataInfo(void* ptr_acq);
 
 	// Reconstruction methods
 	void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i);
@@ -136,8 +148,9 @@ extern "C" {
 	void* cSTIR_imageFromAcquisitionData(void* ptr_ad);
 	void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny);
 	void* cSTIR_fillImage(void* ptr_i, float v);
-	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
+	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v, int num_samples_in_each_direction);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
+    void* cSTIR_writeImage_par(void* ptr_i, const char* filename, const char* par);
     void* cSTIR_ImageData_zoom_image(void* ptr_im,
                                      const PTR_FLOAT zooms_ptr_raw,
                                      const PTR_FLOAT offsets_in_mm_ptr_raw,

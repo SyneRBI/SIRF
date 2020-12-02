@@ -1,12 +1,12 @@
-classdef NiftyF3dSym < sirf.Reg.Registration
+classdef NiftyF3dSym < sirf.Reg.NiftyRegistration
 % Registration class using NiftyReg's symmetric f3d.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018-2019 University College London
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2018-2020 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ classdef NiftyF3dSym < sirf.Reg.Registration
 	function print_all_wrapped_methods()
 	    %Print list of all wrapped methods.
 	    disp('In C++, this class is templated. "dataType" corresponds to "float" for Matlab and python.')
-	    h = calllib('mreg', 'mReg_Registration_print_all_wrapped_methods', 'NiftyF3dSym');
+	    h = calllib('mreg', 'mReg_NiftyRegistration_print_all_wrapped_methods', 'NiftyF3dSym');
 	    sirf.Utilities.check_status('parameter', h)
 	end
     end

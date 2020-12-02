@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Specification file for extended Gadgetron functionality classes.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #ifndef GADGETRON_EXTENSIONS
@@ -40,6 +40,7 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
+#include "sirf/common/JacobiCG.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_client.h"
@@ -343,6 +344,28 @@ namespace sirf {
 
 	class MRAcquisitionModel {
 	public:
+		/*!
+		\ingroup Gadgetron Extensions
+		\brief Class for the product of backward and forward projectors of the MR acquisition model.
+
+		For a given GadgetronImageData object x, computes B(F(x)), where F(x) is the forward projection of x,
+		and B(y) is the backprojection of MRAcquisitionData object y.
+		*/
+		class BFOperator : public Operator<GadgetronImageData> {
+		public:
+			BFOperator(std::shared_ptr<MRAcquisitionModel> sptr_am) : sptr_am_(sptr_am) {}
+			virtual std::shared_ptr<GadgetronImageData> 
+				apply(GadgetronImageData& image_data)
+			{
+				std::shared_ptr<MRAcquisitionData> sptr_fwd =
+					sptr_am_->fwd(image_data);
+				std::shared_ptr<GadgetronImageData> sptr_bwd =
+					sptr_am_->bwd(*sptr_fwd);
+				return sptr_bwd;
+			}
+		private:
+			std::shared_ptr<MRAcquisitionModel> sptr_am_;
+		};
 
 		MRAcquisitionModel() {}
 		/*
@@ -357,7 +380,30 @@ namespace sirf {
 		{
 			set_image_template(sptr_ic);
 		}
+		MRAcquisitionModel(
+			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
+			gadgetron::shared_ptr<GadgetronImageData> sptr_ic,
+			gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms,
+			std::string acqs_info
+			) : sptr_acqs_(sptr_ac), sptr_csms_(sptr_csms), acqs_info_(acqs_info)
+		{
+			set_image_template(sptr_ic);
+		}
 		
+		float norm()
+		{
+			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am
+				(new MRAcquisitionModel(sptr_acqs_, sptr_imgs_, sptr_csms_, acqs_info_));
+			BFOperator bf(sptr_am);
+			JacobiCG<complex_float_t> jcg;
+			jcg.set_num_iterations(2);
+			gadgetron::unique_ptr<GadgetronImageData> sptr_id = sptr_imgs_->clone();
+			GadgetronImageData& image_data = *sptr_id;
+			image_data.fill(1.0);
+			float lmd = jcg.largest(bf, image_data);
+			return std::sqrt(lmd);
+		}
+
 		// make sure ic contains "true" images (and not e.g. G-factors)
 		void check_data_role(const GadgetronImageData& ic);
 
@@ -375,7 +421,7 @@ namespace sirf {
 			sptr_imgs_ = sptr_ic;
 		}
 		// Records the coil sensitivities maps to be used. 
-		void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms)
+        void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms)
 		{
 			sptr_csms_ = sptr_csms;
 		}
@@ -393,7 +439,7 @@ namespace sirf {
 		// Forward projects one image item (typically xy-slice) into
 		// respective readouts, and appends them to the AcquisitionContainer
 		// passed as the last argument.
-		void fwd(ImageWrap& iw, CoilData& csm, MRAcquisitionData& ac,
+        void fwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
 			unsigned int& off)
 		{
 			int type = iw.type();
@@ -403,7 +449,7 @@ namespace sirf {
 
 		// Backprojects a set of readouts corresponding to one image item
 		// (typically xy-slice).
-		void bwd(ImageWrap& iw, CoilData& csm, MRAcquisitionData& ac,
+        void bwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
 			unsigned int& off)
 		{
 			int type = iw.type();
@@ -413,12 +459,12 @@ namespace sirf {
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
-		void fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
+        void fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 			MRAcquisitionData& ac);
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps in the second argument.
-		void bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
+        void bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 			MRAcquisitionData& ac);
 
 		// Forward projects the whole ImageContainer using
@@ -436,6 +482,8 @@ namespace sirf {
 				sptr_acqs_->new_acquisitions_container();
 			sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
 			fwd(ic, *sptr_csms_, *sptr_acqs);
+			sptr_acqs->set_sorted(true);
+			sptr_acqs->organise_kspace();
 			return sptr_acqs;
 		}
 
@@ -459,13 +507,13 @@ namespace sirf {
 		std::string acqs_info_;
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_imgs_;
-		gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
+        gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms_;
 
 		template< typename T>
-		void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
+        void fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
 			MRAcquisitionData& ac, unsigned int& off);
 		template< typename T>
-		void bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
+        void bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
 			MRAcquisitionData& ac, unsigned int& off);
 	};
 

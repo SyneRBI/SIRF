@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Class for tensor SIRF image data.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -45,7 +45,7 @@ This is the general tensor class, so we do not care if the image is a deformatio
 Hence, any value of intent_p1 is fine.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class dataType>
 class NiftiImageData3DTensor : public NiftiImageData<dataType>
@@ -75,8 +75,11 @@ public:
     /// Create from 3 individual components
     NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z);
 
-    /// Create from 3D image.
+    /// Create from 3D image (fill with zeroes).
     virtual void create_from_3D_image(const NiftiImageData<dataType> &image);
+
+    /// Get tensor component (x, y or z)
+    std::shared_ptr<NiftiImageData<dataType> > get_tensor_component(const int component) const;
 
     /// Save to file as x-, y-, z-components
     void write_split_xyz_components(const std::string &filename_pattern, const int datatype=-1) const;
@@ -86,6 +89,15 @@ public:
 
     /// Flip component of nu
     void flip_component(const int dim);
+
+    /// Tensor component maths
+    void tensor_component_maths(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr, const typename NiftiImageData<dataType>::MathsType maths_type);
+
+    /// Multiply tensor component by image
+    void multiply_tensor_component(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr);
+
+    /// Add image to tensor component
+    void add_to_tensor_component(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr);
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {
