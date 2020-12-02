@@ -266,10 +266,21 @@ namespace sirf {
 		{
 			return data()->get_num_views();
 		}
-		int get_num_sinograms()
+		//! total number of (2D) sinograms
+		/*! note that for TOF data, this includes the TOF bins.
+		    \see get_num_non_TOF_sinograms()
+	    */
+		int get_num_sinograms() const
 		{
 			return data()->get_num_sinograms();
+        }
+		//! total number of (2D) sinograms ignoring time-of-flight
+		/*! This does include the oblique data as well. */
+		int get_num_non_TOF_sinograms() const
+		{
+			return data()->get_num_non_tof_sinograms();
 		}
+
 		int get_num_TOF_bins()
 		{
 			return data()->get_num_tof_poss();
@@ -278,9 +289,9 @@ namespace sirf {
 		{
 			dim[0] = get_num_tangential_poss();
 			dim[1] = get_num_views();
-			dim[2] = get_num_sinograms();
+			dim[2] = get_num_non_TOF_sinograms();
 			dim[3] = get_num_TOF_bins();
-			return dim[0] * dim[1] * dim[2] * dim[0];
+			return static_cast<size_t>(dim[0] * dim[1] * dim[2] * dim[0]);
 		}
 		int get_max_segment_num() const
 		{
