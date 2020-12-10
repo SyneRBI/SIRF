@@ -52,19 +52,6 @@ class DataContainer(ABC):
     '''
     def __init__(self):
         self.handle = None
-        self._mask = None
-
-    @property
-    def mask(self):
-        return self._mask
-    @mask.setter
-    def mask(self, value):
-        if not isinstance (value, numpy.ndarray):
-            raise TypeError('Please provide a mask as numpy array')
-        if self.shape != value.shape:
-            raise ValueError('Mask shape is wrong: expected {} got {}.'\
-                .format(self.shape, value.shape))
-        self._mask = value.copy()
 
     def __del__(self):
         print("SIRF.DataContainer __del__ with handle {}.".format(self.handle))
@@ -219,15 +206,14 @@ class DataContainer(ABC):
 
         Returns the sum of the container data with another container 
         data viewed as vectors.
-        a: multiplyer to self, can be number of DataContainer
-        b: multiplyer to y, can be number of DataContainer 
+        a: multiplyer to self, can be a number or a DataContainer
+        b: multiplyer to y, can be a number or a DataContainer 
         y: DataContainer
         out:   DataContainer to store the result to.
         '''
         # splits axpby in 3 steps if a and b are not numbers as 
         # pysirf.cSIRF_axpby requires them as numbers
-        if not ( isinstance(a , ( Number, int, float, numpy.float32 )) and \
-                 isinstance(b , ( Number, int, float, numpy.float32 )) ):
+        if not ( isinstance(a , Number) and isinstance(b , Number) ):
             if out is None:
                 out = y.multiply(b)
             else:

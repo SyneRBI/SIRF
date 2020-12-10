@@ -514,7 +514,10 @@ class ImageData(SIRF.ImageData):
                 max_value = kwargs.get('max_value', 100)
                 out.fill(numpy.random.randint(max_value,size=shape))
         elif value is None:
-            out = self.get_uniform_copy(0)
+            if self.is_empty():
+                out = self.get_uniform_copy(0)
+            else:
+                out = self.copy()
         else:
             out = self.get_uniform_copy(value)
         return out
@@ -1516,7 +1519,7 @@ class AcquisitionModel(object):
         check_status(am.handle)
         am.const = True # am to be a const reference of self
         return am
-    def direct(self, image, out = None):
+    def direct(self, image, out=None):
         '''Projects an image into the (simulated) acquisition space,
            calls forward with num_subset and on subset_num members
 
@@ -1524,11 +1527,11 @@ class AcquisitionModel(object):
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         return self.forward(image, \
-                            subset_num = self.subset_num, \
-                            num_subsets = self.num_subsets, \
-                            out = out)
+                            subset_num=self.subset_num, \
+                            num_subsets=self.num_subsets, \
+                            out=out)
         
-    def adjoint(self, ad, out = None):
+    def adjoint(self, ad, out=None):
         '''Back-projects acquisition data into image space, if the
            AcquisitionModel is linear
 
@@ -1537,8 +1540,8 @@ class AcquisitionModel(object):
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
-            return self.backward(ad, subset_num = self.subset_num, 
-                             num_subsets = self.num_subsets, out=out)
+            return self.backward(ad, subset_num=self.subset_num, 
+                             num_subsets=self.num_subsets, out=out)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the ' +
                         'linear part of the AcquisitionModel with ' +
