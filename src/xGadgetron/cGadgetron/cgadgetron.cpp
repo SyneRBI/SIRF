@@ -479,10 +479,17 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
+	std::string scheme = MRAcquisitionData::storage_scheme();
 	try {
 		shared_ptr<MRAcquisitionData> 
 			acquisitions(new AcquisitionsFile(file));
-		return newObjectHandle<MRAcquisitionData>(acquisitions);
+		if (scheme[0] != 'm')
+			return newObjectHandle<MRAcquisitionData>(acquisitions);
+		else {
+			shared_ptr<MRAcquisitionData>
+				acqs(acquisitions->clone());
+			return newObjectHandle<MRAcquisitionData>(acqs);
+		}
 	}
 	CATCH;
 }
