@@ -246,7 +246,8 @@ The actual algorithm is described in
 			norm_.reset(new stir::ChainedBinNormalisation(mod1.data(), mod2.data()));
 		}
 
-		stir::Succeeded set_up(const stir::shared_ptr<stir::ProjDataInfo>&);
+		stir::Succeeded set_up(const stir::shared_ptr<const stir::ExamInfo>& exam_info_sptr,
+			const stir::shared_ptr<stir::ProjDataInfo>&);
 
 		// multiply by bin efficiencies
 		virtual void unnormalise(PETAcquisitionData& ad) const;

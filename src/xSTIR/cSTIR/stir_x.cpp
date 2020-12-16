@@ -467,9 +467,14 @@ PETAcquisitionSensitivityModel(std::string filename)
 }
 
 Succeeded 
-PETAcquisitionSensitivityModel::set_up(const shared_ptr<ProjDataInfo>& sptr_pdi)
+PETAcquisitionSensitivityModel::set_up(const shared_ptr<const ExamInfo>& sptr_ei,
+	const shared_ptr<ProjDataInfo>& sptr_pdi)
 {
+#ifdef STIR_PRE_5
 	return norm_->set_up(sptr_pdi);
+#else
+	return norm_->set_up(sptr_ei, sptr_pdi);
+#endif
 }
 
 void
@@ -483,7 +488,11 @@ void
 PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
+#ifdef STIR_PRE_5
 	norm->apply(*ad.data(), 0, 1);
+#else
+	norm->apply(*ad.data());
+#endif
 }
 
 PETAttenuationModel::PETAttenuationModel
@@ -514,7 +523,11 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 	BinNormalisation* norm = norm_.get();
 	shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
+#ifdef STIR_PRE_5
 	norm->apply(*ad.data(), 0, 1, symmetries_sptr);
+#else
+	norm->apply(*ad.data(), symmetries_sptr);
+#endif
 }
 
 //void
@@ -537,13 +550,15 @@ PETAcquisitionModel::set_up(
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
 		s = sptr_projectors_->set_up
-			(sptr_acq->get_proj_data_info_sptr()->create_shared_clone(), sptr_image->data_sptr());
+			(sptr_acq->get_proj_data_info_sptr()->create_shared_clone(),
+				sptr_image->data_sptr());
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
 	if (s == Succeeded(Succeeded::yes)) {
 		if (sptr_asm_ && sptr_asm_->data())
-			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr()->create_shared_clone());
+			s = sptr_asm_->set_up(sptr_acq->get_exam_info_sptr(),
+				sptr_acq->get_proj_data_info_sptr()->create_shared_clone());
 	}
 	return s;
 }

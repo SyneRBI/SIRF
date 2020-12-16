@@ -464,7 +464,8 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 		PETAcquisitionSensitivityModel& sm = 
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-		Succeeded s = sm.set_up(sptr_ad->data()->get_proj_data_info_sptr()->create_shared_clone());
+		Succeeded s = sm.set_up(sptr_ad->get_exam_info_sptr(), 
+			sptr_ad->get_proj_data_info_sptr()->create_shared_clone());
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
