@@ -20,6 +20,7 @@ limitations under the License.
 */
 
 #include "stir/common.h"
+#include "stir/config.h"
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
@@ -470,7 +471,7 @@ Succeeded
 PETAcquisitionSensitivityModel::set_up(const shared_ptr<const ExamInfo>& sptr_ei,
 	const shared_ptr<ProjDataInfo>& sptr_pdi)
 {
-#ifdef STIR_PRE_5
+#if STIR_VERSION < 050000
 	return norm_->set_up(sptr_pdi);
 #else
 	return norm_->set_up(sptr_ei, sptr_pdi);
@@ -488,7 +489,7 @@ void
 PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
-#ifdef STIR_PRE_5
+#if STIR_VERSION < 050000
 	norm->apply(*ad.data(), 0, 1);
 #else
 	norm->apply(*ad.data());
@@ -523,7 +524,7 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 	BinNormalisation* norm = norm_.get();
 	shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
-#ifdef STIR_PRE_5
+#if STIR_VERSION < 050000
 	norm->apply(*ad.data(), 0, 1, symmetries_sptr);
 #else
 	norm->apply(*ad.data(), symmetries_sptr);
