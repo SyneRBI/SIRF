@@ -22,6 +22,8 @@ limitations under the License.
 #include "stir/common.h"
 #include "stir/config.h"
 #include "stir/IO/stir_ecat_common.h"
+#include "stir/IO/GEHDF5Wrapper.h"
+#include "stir/recon_buildblock/BinNormalisationFromGEHDF5.h"
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
 #include "stir/Verbosity.h"
@@ -31,6 +33,8 @@ limitations under the License.
 using namespace stir;
 using namespace ecat;
 using namespace sirf;
+using namespace GE;
+using namespace RDF_HDF5;
 
 #ifdef STIR_USE_LISTMODEDATA
     typedef ListModeData LMD;
@@ -460,10 +464,16 @@ PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
 PETAcquisitionSensitivityModel::
 PETAcquisitionSensitivityModel(std::string filename)
 {
+#if defined(HAVE_HDF5)
+	if (GEHDF5Wrapper::check_GE_signature(filename)) {
+		shared_ptr<BinNormalisation>
+			sptr_n(new BinNormalisationFromGEHDF5(filename));
+		norm_ = sptr_n;
+		return
+	}
+#endif
 	shared_ptr<BinNormalisation>
 		sptr_n(new BinNormalisationFromECAT8(filename));
-	//shared_ptr<BinNormalisation> sptr_0;
-	//norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
 	norm_ = sptr_n;
 }
 
