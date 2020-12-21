@@ -22,8 +22,6 @@ limitations under the License.
 #include "stir/common.h"
 #include "stir/config.h"
 #include "stir/IO/stir_ecat_common.h"
-#include "stir/IO/GEHDF5Wrapper.h"
-#include "stir/recon_buildblock/BinNormalisationFromGEHDF5.h"
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
 #include "stir/Verbosity.h"
@@ -33,8 +31,13 @@ limitations under the License.
 using namespace stir;
 using namespace ecat;
 using namespace sirf;
+
+#if defined(HAVE_HDF5)
+#include "stir/IO/GEHDF5Wrapper.h"
+#include "stir/recon_buildblock/BinNormalisationFromGEHDF5.h"
 using namespace GE;
 using namespace RDF_HDF5;
+#endif
 
 #ifdef STIR_USE_LISTMODEDATA
     typedef ListModeData LMD;
