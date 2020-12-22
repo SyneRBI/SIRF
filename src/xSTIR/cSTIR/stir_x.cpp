@@ -472,7 +472,7 @@ PETAcquisitionSensitivityModel(std::string filename)
 		shared_ptr<BinNormalisation>
 			sptr_n(new BinNormalisationFromGEHDF5(filename));
 		norm_ = sptr_n;
-		return
+		return;
 	}
 #endif
 	shared_ptr<BinNormalisation>
