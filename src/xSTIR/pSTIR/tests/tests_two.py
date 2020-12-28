@@ -16,7 +16,7 @@ Options:
 import math
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 def test_main(rec=False, verb=False, throw=True):
@@ -66,7 +66,7 @@ def test_main(rec=False, verb=False, throw=True):
                 acq_data.norm() / simulated_data.norm()) - acq_data
         if verb:
             print('relative residual norm: %e' % (diff.norm() / acq_data.norm()))
-        test.check(diff.norm())
+        test.check_if_zero_with_tolerance(diff.norm()/acq_data.norm(), abs_tol=0.28) # only 2 iterations, so low tolerance
 
         acq_copy = acq_data.get_uniform_copy(1.0)
         acq_copy *= acq_data
