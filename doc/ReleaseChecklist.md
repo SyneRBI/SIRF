@@ -31,6 +31,7 @@ VER=2.2.0-rc.1
   - [ ] check Travis
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
+  - [ ] if final release only: create release on https://github.com/SyneRBI/SIRF-SuperBuild/releases/new linked to the tag and copying all CHANGES.md since last release (as listed on https://github.com/SyneRBI/SIRF-SuperBuild/releases)
 4. Virtual Machine
   - [ ] update version number in [VM_version.txt](https://github.com/SyneRBI/SyneRBI_VM/blob/master/VM_version.txt)
   - [ ] update `vb.name` in [vagrant/vagrantfile](https://github.com/SyneRBI/SyneRBI_VM/blob/master/vagrant/Vagrantfile)
