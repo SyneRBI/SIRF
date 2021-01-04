@@ -23,7 +23,7 @@ __author__ = "Casper da Costa-Luis, Edoardo Pasca"
 def test_main(rec=False, verb=False, throw=True):
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
-    test.verbose = True
+    test.verbose = verb
 
     msg_red = MessageRedirector()
         
