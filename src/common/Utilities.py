@@ -231,7 +231,7 @@ def show_3D_array\
     return 0
 
 
-def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
+def check_tolerance0(expected, actual, abstol=0, reltol=1e-4):
     '''
     Check if 2 floats are equal up to a tolerance
     Throws an error if abs(expected - actual) > abstol + reltol*abs(expected)
@@ -239,6 +239,18 @@ def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
     if abs(expected - actual) > abstol + reltol*abs(expected):
         raise ValueError("|%.4g - %.4g| > %.3g" %
                          (expected, actual, abstol + reltol*abs(expected)))
+
+
+def check_tolerance(expected, actual, abstol=0, reltol=2e-3):
+    '''
+    Check if 2 floats are equal within the specified tolerance, i.e.
+    abs(expected - actual) <= abstol + reltol*abs(expected).
+    Returns an error string if they are not and None otherwise.
+    '''
+    tol = abstol + reltol*abs(expected)
+    if abs(expected - actual) > tol:
+        return "expected %.4g, got %.4g (tolerance %.3g)" \
+               % (expected, actual, tol)
 
 
 class pTest(object):
@@ -263,9 +275,9 @@ class pTest(object):
         if self.failed:
             if self.record:
                 self.file.write(msg + '\n')
-            if self.throw:
-                raise ValueError(msg)
-            print(msg)
+##            if self.throw:
+##                raise ValueError(msg)
+##            print(msg)
         if self.record:
             self.file.close()
 
@@ -283,7 +295,7 @@ class pTest(object):
                 raise IndexError('no data available for test %d' % self.ntest)
             else:
                 expected = self.data[self.nrec]
-                self.check_if_equal_with_tolerance(expected, value, abs_tol, rel_tol)
+                self.check_if_equal_within_tolerance(expected, value, abs_tol, rel_tol)
         self.nrec += 1
 
     def check_if_equal(self, expected, value):
@@ -305,18 +317,20 @@ class pTest(object):
                 print('+++ test %d passed' % self.ntest)
         self.ntest += 1
 
-    def check_if_equal_with_tolerance(self, expected, value, abs_tol=0, rel_tol=2e-3):
+    def check_if_equal_within_tolerance(self, expected, value, abs_tol=0, rel_tol=2e-3):
         '''
         Tests if float value is equal to the expected one.
         expected     : the true value
         value        : the value that was computed
         abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
         '''
-        try:
-            check_tolerance(expected, value, abs_tol, rel_tol)
-        except ValueError as e:
+##        try:
+##            check_tolerance(expected, value, abs_tol, rel_tol)
+##        except ValueError as e:
+        err = check_tolerance(expected, value, abs_tol, rel_tol)
+        if err is not None:
             self.failed += 1
-            msg = ('+++ test %d failed:' % self.ntest) + str(e)
+            msg = ('+++ test %d failed: ' % self.ntest) + str(err)
             if self.throw:
                 raise ValueError(msg)
             if self.verbose:
@@ -326,13 +340,13 @@ class pTest(object):
                 print('+++ test %d passed' % self.ntest)
         self.ntest += 1
 
-    def check_if_zero_with_tolerance(self, value, abs_tol=1e-3):
+    def check_if_zero_within_tolerance(self, value, abs_tol=1e-3):
         '''
         Tests if float value is equal to the expected one.
         expected     : the true value
         abs_tol: see :func:`~Utilities.check_tolerance`
         '''
-        self.check_if_equal_with_tolerance(0, value, abs_tol)
+        self.check_if_equal_within_tolerance(0, value, abs_tol)
 
     def check_if_less(self, value, comp):
         '''
@@ -352,6 +366,7 @@ class pTest(object):
             if self.verbose:
                 print('+++ test %d passed' % self.ntest)
         self.ntest += 1
+
 
 class CheckRaise(pTest):
     def __init__(self, *a, **k):

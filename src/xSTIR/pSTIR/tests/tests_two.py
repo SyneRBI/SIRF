@@ -64,9 +64,10 @@ def test_main(rec=False, verb=False, throw=True):
         simulated_data = acq_model.forward(image)
         diff = simulated_data * (
                 acq_data.norm() / simulated_data.norm()) - acq_data
+        res = diff.norm() / acq_data.norm()
         if verb:
-            print('relative residual norm: %e' % (diff.norm() / acq_data.norm()))
-        test.check_if_zero_with_tolerance(diff.norm()/acq_data.norm(), abs_tol=0.28) # only 2 iterations, so low tolerance
+            print('relative residual norm: %e' % res)
+        test.check_if_zero_within_tolerance(res, abs_tol=0.28) # only 2 iterations, so low tolerance
 
         acq_copy = acq_data.get_uniform_copy(1.0)
         acq_copy *= acq_data

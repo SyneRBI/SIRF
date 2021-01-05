@@ -39,22 +39,22 @@ def test_main(rec=False, verb=False, throw=True):
         new_acq_data = acq_data.clone()
         diff = new_acq_data - acq_data
         acq_data_norm = acq_data.norm()
-        test.check_if_zero_with_tolerance(diff.norm() / acq_data_norm)
-        test.check_if_equal_with_tolerance(acq_data_norm, math.sqrt(acq_data.dot(acq_data)))
+        test.check_if_zero_within_tolerance(diff.norm() / acq_data_norm)
+        test.check_if_equal_within_tolerance(acq_data_norm, math.sqrt(acq_data.dot(acq_data)))
     #    test.check(1 - math.sqrt(acq_data * acq_data) / acq_data.norm())
         new_acq_data = acq_data * 10.0
-        test.check_if_equal_with_tolerance(10 * acq_data_norm, new_acq_data.norm())
+        test.check_if_equal_within_tolerance(10 * acq_data_norm, new_acq_data.norm())
 
         if verb:
             print('Checking images algebra:')
         image_data = acq_data.create_uniform_image(10.0)
         diff = image_data.clone() - image_data
         image_data_norm = image_data.norm()
-        test.check_if_zero_with_tolerance(diff.norm()/image_data_norm)
-        test.check_if_equal_with_tolerance(image_data_norm, math.sqrt(image_data.dot(image_data)))
+        test.check_if_zero_within_tolerance(diff.norm()/image_data_norm)
+        test.check_if_equal_within_tolerance(image_data_norm, math.sqrt(image_data.dot(image_data)))
     #    test.check(1 - math.sqrt(image_data * image_data) / image_data.norm())
         new_image_data = image_data * 10
-        test.check_if_equal_with_tolerance(10 * image_data_norm, new_image_data.norm())
+        test.check_if_equal_within_tolerance(10 * image_data_norm, new_image_data.norm())
 
     return test.failed, test.ntest
 
