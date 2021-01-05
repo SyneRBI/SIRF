@@ -293,8 +293,8 @@ class pTest(object):
         '''
         if value != expected:
             self.failed += 1
-            msg = ('+++ test %d failed: ' % self.ntest) + \
-                  repr(value) + ' != ' + repr(expected)
+            msg = '+++ test %d failed: expected %s, got %s' \
+                  % (self.ntest, repr(expected), repr(value))
             if self.throw:
                 raise ValueError(msg)
             if self.verbose:
