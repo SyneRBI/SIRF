@@ -231,14 +231,16 @@ def show_3D_array\
     return 0
 
 
-def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
+def check_tolerance(expected, actual, abstol=0, reltol=2e-3):
     '''
-    Check if 2 floats are equal up to a tolerance
-    Throws an error if abs(expected - actual) > abstol + reltol*abs(expected)
+    Check if 2 floats are equal within the specified tolerance, i.e.
+    abs(expected - actual) <= abstol + reltol*abs(expected).
+    Returns an error string if they are not and None otherwise.
     '''
-    if abs(expected - actual) > abstol + reltol*abs(expected):
-        raise ValueError("|%.4g - %.4g| > %.3g" %
-                         (expected, actual, abstol + reltol*abs(expected)))
+    tol = abstol + reltol*abs(expected)
+    if abs(expected - actual) > tol:
+        return "expected %.4g, got %.4g (tolerance %.3g)" \
+               % (expected, actual, tol)
 
 
 class pTest(object):
@@ -263,9 +265,6 @@ class pTest(object):
         if self.failed:
             if self.record:
                 self.file.write(msg + '\n')
-            if self.throw:
-                raise ValueError(msg)
-            print(msg)
         if self.record:
             self.file.close()
 
@@ -283,11 +282,10 @@ class pTest(object):
                 raise IndexError('no data available for test %d' % self.ntest)
             else:
                 expected = self.data[self.nrec]
-                try:
-                    check_tolerance(expected, value, abs_tol, rel_tol)
-                except ValueError as e:
+                err = check_tolerance(expected, value, abs_tol, rel_tol)
+                if err is not None:
                     self.failed += 1
-                    msg = ('+++ test %d failed:' % self.ntest) + str(e)
+                    msg = ('+++ test %d failed: ' % self.ntest) + str(err)
                     if self.throw:
                         raise ValueError(msg)
                     if self.verbose:
@@ -306,8 +304,8 @@ class pTest(object):
         '''
         if value != expected:
             self.failed += 1
-            msg = ('+++ test %d failed: ' % self.ntest) + \
-                  repr(value) + ' != ' + repr(expected)
+            msg = '+++ test %d failed: expected %s, got %s' \
+                  % (self.ntest, repr(expected), repr(value))
             if self.throw:
                 raise ValueError(msg)
             if self.verbose:
