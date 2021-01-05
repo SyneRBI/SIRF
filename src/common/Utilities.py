@@ -231,16 +231,6 @@ def show_3D_array\
     return 0
 
 
-def check_tolerance0(expected, actual, abstol=0, reltol=1e-4):
-    '''
-    Check if 2 floats are equal up to a tolerance
-    Throws an error if abs(expected - actual) > abstol + reltol*abs(expected)
-    '''
-    if abs(expected - actual) > abstol + reltol*abs(expected):
-        raise ValueError("|%.4g - %.4g| > %.3g" %
-                         (expected, actual, abstol + reltol*abs(expected)))
-
-
 def check_tolerance(expected, actual, abstol=0, reltol=2e-3):
     '''
     Check if 2 floats are equal within the specified tolerance, i.e.
@@ -275,9 +265,6 @@ class pTest(object):
         if self.failed:
             if self.record:
                 self.file.write(msg + '\n')
-##            if self.throw:
-##                raise ValueError(msg)
-##            print(msg)
         if self.record:
             self.file.close()
 
@@ -324,9 +311,6 @@ class pTest(object):
         value        : the value that was computed
         abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
         '''
-##        try:
-##            check_tolerance(expected, value, abs_tol, rel_tol)
-##        except ValueError as e:
         err = check_tolerance(expected, value, abs_tol, rel_tol)
         if err is not None:
             self.failed += 1
