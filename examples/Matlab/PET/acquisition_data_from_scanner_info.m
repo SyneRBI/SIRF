@@ -48,7 +48,7 @@ try
     fprintf('acquisition data dimensions (maximum resolution):\n')
     fprintf('tang. pos: %d\n', acq_dim(1))
     fprintf('views: %d\n', acq_dim(2))
-    fprintf('sinograms: %d\n', acq_dim(3))
+    fprintf('(non-TOF) sinograms: %d\n', acq_dim(3))
     fprintf('TOF bins: %d\n', acq_dim(4))
 
     % create acquisition data from scanner parameters but with axial compression etc

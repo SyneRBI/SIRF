@@ -963,9 +963,8 @@ class AcquisitionData(DataContainer):
             max_in_segment_num_to_process)
         check_status(ad.handle)
         return ad
-
-    def show(self, sino=None, title=None):
-        """Display interactively selected sinograms."""
+    def show(self, sino = None, tof=0, title = None):
+        '''Displays interactively selected sinograms.'''
         if self.handle is None:
             raise AssertionError()
         if not HAVE_PYLAB:
@@ -976,7 +975,7 @@ class AcquisitionData(DataContainer):
         if isinstance(sino, int):
             if sino < 0 or sino >= nz:
                 return
-            show_2D_array('sinogram %d' % sino, data[0, sino, :, :])
+            show_2D_array('sinogram %d' % sino, data[tof, sino, :, :])
             return
         elif sino is None:
             ns = nz
