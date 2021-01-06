@@ -282,18 +282,7 @@ class pTest(object):
                 raise IndexError('no data available for test %d' % self.ntest)
             else:
                 expected = self.data[self.nrec]
-                err = check_tolerance(expected, value, abs_tol, rel_tol)
-                if err is not None:
-                    self.failed += 1
-                    msg = ('+++ test %d failed: ' % self.ntest) + str(err)
-                    if self.throw:
-                        raise ValueError(msg)
-                    if self.verbose:
-                        print(msg)
-                else:
-                    if self.verbose:
-                        print('+++ test %d passed' % self.ntest)
-        self.ntest += 1
+                self.check_if_equal_within_tolerance(expected, value, abs_tol, rel_tol)
         self.nrec += 1
 
     def check_if_equal(self, expected, value):
@@ -314,6 +303,54 @@ class pTest(object):
             if self.verbose:
                 print('+++ test %d passed' % self.ntest)
         self.ntest += 1
+
+    def check_if_equal_within_tolerance(self, expected, value, abs_tol=0, rel_tol=2e-3):
+        '''
+        Tests if float value is equal to the expected one.
+        expected     : the true value
+        value        : the value that was computed
+        abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
+        '''
+        err = check_tolerance(expected, value, abs_tol, rel_tol)
+        if err is not None:
+            self.failed += 1
+            msg = ('+++ test %d failed: ' % self.ntest) + str(err)
+            if self.throw:
+                raise ValueError(msg)
+            if self.verbose:
+                print(msg)
+        else:
+            if self.verbose:
+                print('+++ test %d passed' % self.ntest)
+        self.ntest += 1
+
+    def check_if_zero_within_tolerance(self, value, abs_tol=1e-3):
+        '''
+        Tests if float value is equal to the expected one.
+        expected     : the true value
+        abs_tol: see :func:`~Utilities.check_tolerance`
+        '''
+        self.check_if_equal_within_tolerance(0, value, abs_tol)
+
+    def check_if_less(self, value, comp):
+        '''
+        Tests if value is (strictly) less than comp.
+        value        : the value that was computed
+        comp         : the maximum allowed value
+        '''
+        if value >= comp:
+            self.failed += 1
+            msg = ('+++ test %d failed: ' % self.ntest) + \
+                  repr(value) + ' >= ' + repr(comp)
+            if self.throw:
+                raise ValueError(msg)
+            if self.verbose:
+                print(msg)
+        else:
+            if self.verbose:
+                print('+++ test %d passed' % self.ntest)
+        self.ntest += 1
+
 
 class CheckRaise(pTest):
     def __init__(self, *a, **k):
