@@ -37,9 +37,7 @@ classdef GeometricalInfo < handle
         end
         function print_info(self)
         	% Print geometrical information
-        	h = calllib('msirf', 'mSIRF_GeomInfo_print', self.handle_);
-            sirf.Utilities.check_status([self.name ':print_info'], h);
-            sirf.Utilities.delete(h)
+            fprintf('%s', self.get_info())
         end
         function info = get_info(self)
             % Returns geometrical information as a string

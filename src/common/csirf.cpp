@@ -307,16 +307,6 @@ cSIRF_ImageData_get_geom_info(const void* ptr_im)
 
 extern "C"
 void*
-cSIRF_GeomInfo_print(const void* ptr_geom)
-{
-    const VoxelisedGeometricalInfo3D &geom_info =
-            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
-    geom_info.print_info();
-    return new DataHandle;
-}
-
-extern "C"
-void*
 cSIRF_GeomInfo_get(const void* ptr_geom)
 {
 	const VoxelisedGeometricalInfo3D &geom_info =

@@ -661,7 +661,7 @@ class GeometricalInfo(object):
 
     def print_info(self):
         """Print the geom info"""
-        try_calling(pysirf.cSIRF_GeomInfo_print(self.handle))
+        print(self.get_info())
 
     def get_info(self):
         """Return the geom info as string"""

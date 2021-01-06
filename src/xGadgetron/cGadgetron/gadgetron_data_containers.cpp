@@ -1755,7 +1755,7 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
         throw LocalisedException("The coilmaps must be supplied as a complex float ismrmrd image, i.e. type = ISMRMRD::ISMRMRD_CXFLOAT." , __FILE__, __LINE__);
 
     const void* ptr_cf_img = sptr_iw->ptr_image();
-    return *( (CFImage*)ptr_cf_img);
+    return CFImage(*( (CFImage*)ptr_cf_img));
 }
 
 void 
