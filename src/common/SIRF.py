@@ -206,8 +206,8 @@ class DataContainer(ABC):
 
         Returns the sum of the container data with another container 
         data viewed as vectors.
-        a: multiplyer to self, can be a number or a DataContainer
-        b: multiplyer to y, can be a number or a DataContainer 
+        a: multiplier to self, can be a number or a DataContainer
+        b: multiplier to y, can be a number or a DataContainer 
         y: DataContainer
         out:   DataContainer to store the result to.
         '''
