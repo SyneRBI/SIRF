@@ -1476,12 +1476,25 @@ class AcquisitionModel(object):
         # save reference to the Acquisition Sensitivity Model
         self.asm = asm
 
-    def forward(self, image, subset_num=0, num_subsets=1, out=None):
+    def forward(self, image, subset_num=None, num_subsets=None, out=None):
         """Return the forward projection of image.
 
-        image   :  an ImageData object.
+        image      :  an ImageData object.
+        subset_num : optional (int) subset number to forward project. 
+                     Default None. If None subset_num is the instance 
+                     property subset_num.
+        num_subsets: optional (int) number of subsets the data is divided 
+                     in for the projection. Default None. 
+                     If None num_subsets is the instance property num_subsets.
+        out        : optional AcquisitionData to store the result into. 
+                     Default None, if None a new AcquisitionData will be 
+                     returned.
         """
         assert_validity(image, ImageData)
+        if subset_num is None:
+            subset_num = self.subset_num
+        if num_subsets is None:
+            num_subsets = self.num_subsets
         if out is None:
             ad = AcquisitionData()
             ad.handle = pystir.cSTIR_acquisitionModelFwd(
@@ -1493,13 +1506,26 @@ class AcquisitionModel(object):
         try_calling(pystir.cSTIR_acquisitionModelFwdReplace(
             self.handle, image.handle, subset_num, num_subsets, ad.handle))
 
-    def backward(self, ad, subset_num=0, num_subsets=1, out=None):
+    def backward(self, ad, subset_num=None, num_subsets=None, out=None):
         """
         Return the backward projection of ad.
 
         ad:  an AcquisitionData object.
+        subset_num : optional (int) subset number to forward project. 
+                     Default None. If None subset_num is the instance 
+                     property subset_num.
+        num_subsets: optional (int) number of subsets the data is divided 
+                     in for the projection. Default None. 
+                     If None num_subsets is the instance property num_subsets.
+        out        : optional ImageData to store the result into. 
+                     Default None, if None a new ImageData will be 
+                     returned.
         """
         assert_validity(ad, AcquisitionData)
+        if subset_num is None:
+            subset_num = self.subset_num
+        if num_subsets is None:
+            num_subsets = self.num_subsets
         if out is None:
             image = ImageData()
             image.handle = pystir.cSTIR_acquisitionModelBwd(
@@ -1581,15 +1607,29 @@ class AcquisitionModel(object):
 
     @property
     def subset_num(self):
+        '''selected subset number used for forward and back projection
+        
+        default value is 0 and corresponds to forward/backward projecting
+        the whole dataset.
+        '''
         return self._subset_num
     
     @property
     def num_subsets(self):
+        '''selected number of subset used for forward and back projection
+        
+        default value is 1 and corresponds to forward/backward projecting
+        the whole dataset.
+
+        '''
         return self._num_subsets
     
     @subset_num.setter
     def subset_num(self, value):
-        '''setter for subset_num'''
+        '''setter for subset_num
+        
+        value: int >= 0 and < num_subsets
+        '''
         if isinstance (value, Integral):
             if value < self.num_subsets and value >= 0:
                 self._subset_num = value
@@ -1603,8 +1643,10 @@ class AcquisitionModel(object):
     def num_subsets(self, value):
         '''setter for num_subsets
 
-        Allows to set the number of subsets the AcquisitionModel operates on. By default reassigning
-        the number of subsets will set subset_num to 0
+        value: int > 0.
+        Allows to set the number of subsets the AcquisitionModel operates on. 
+        Notice that reassigning the num_subsets to any number will also set 
+        the property subset_num to 0.
         '''
         if isinstance (value, Integral):
             if value > 0:
