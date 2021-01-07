@@ -1,6 +1,7 @@
 # ChangeLog
 
 ## vX.X.X
+* STIR AcquisitionModel forward and backward signature has changed: default value of `num_subset` and `subset_num` is `None` and the instance properties `num_subset` and `subset_num` will be used in such case. By default these are 0 and 1 respectively, so if the user doesn't change them the behaviour is unchanged.
 * STIR projection data now have an implementation of `axpby`, so that duplicate functionality has been removed from SIRF
 * Iterators are now used in `AcquisitionDataInMemory` to improve speed of `as_array`, `fill`, `dot`, `norm`, etc.
 * Bug fix in `get_index_to_physical_point_matrix`
