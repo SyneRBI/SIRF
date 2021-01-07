@@ -61,7 +61,7 @@ void* cSIRF_DataHandleVector_push_back(void* self, void* to_append);
 
 // Geom info
 void* cSIRF_ImageData_get_geom_info(const void* ptr_geom);
-void* cSIRF_GeomInfo_print(const void* ptr_geom);
+void* cSIRF_GeomInfo_get(const void* ptr_geom);
 void* cSIRF_GeomInfo_get_offset(const void* ptr_geom, PTR_FLOAT ptr_arr);
 void* cSIRF_GeomInfo_get_spacing(const void* ptr_geom, PTR_FLOAT ptr_arr);
 void* cSIRF_GeomInfo_get_size(const void* ptr_geom, PTR_INT ptr_arr);

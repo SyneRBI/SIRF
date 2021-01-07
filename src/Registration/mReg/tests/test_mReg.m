@@ -699,14 +699,14 @@ if try_niftyf3d
 
     % Compare between sirf.Reg.NiftiImageData3DDefofmation::as_array() and niftiread
     if have_niftiread
-        deff_arr = def_forward.as_array()
-        deff_matlab_arr = niftiread(g.f3d_def_forward)
+        deff_arr = def_forward.as_array();
+        deff_matlab_arr = niftiread(g.f3d_def_forward);
         assert(all(deff_arr(:) == deff_matlab_arr(:)), 'NiftiImageData3DDeformation as_array() failed.')
     end
 
     % Check as_array and fill for deformation fields
-    deff2 = def_forward.clone()
-    deff2.fill(deff_arr)
+    deff2 = def_forward.clone();
+    deff2.fill(deff_arr);
     assert(def_forward == deff2, 'NiftiImageData3DDeformation::as_array()/fill() failed.')
 
 	disp('% ----------------------------------------------------------------------- %')

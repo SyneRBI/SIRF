@@ -231,14 +231,16 @@ def show_3D_array\
     return 0
 
 
-def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
+def check_tolerance(expected, actual, abstol=0, reltol=2e-3):
     '''
-    Check if 2 floats are equal up to a tolerance
-    Throws an error if abs(expected - actual) > abstol + reltol*abs(expected)
+    Check if 2 floats are equal within the specified tolerance, i.e.
+    abs(expected - actual) <= abstol + reltol*abs(expected).
+    Returns an error string if they are not and None otherwise.
     '''
-    if abs(expected - actual) > abstol + reltol*abs(expected):
-        raise ValueError("|%.4g - %.4g| > %.3g" %
-                         (expected, actual, abstol + reltol*abs(expected)))
+    tol = abstol + reltol*abs(expected)
+    if abs(expected - actual) > tol:
+        return "expected %.4g, got %.4g (tolerance %.3g)" \
+               % (expected, actual, tol)
 
 
 class pTest(object):
@@ -263,9 +265,6 @@ class pTest(object):
         if self.failed:
             if self.record:
                 self.file.write(msg + '\n')
-            if self.throw:
-                raise ValueError(msg)
-            print(msg)
         if self.record:
             self.file.close()
 
@@ -283,19 +282,7 @@ class pTest(object):
                 raise IndexError('no data available for test %d' % self.ntest)
             else:
                 expected = self.data[self.nrec]
-                try:
-                    check_tolerance(expected, value, abs_tol, rel_tol)
-                except ValueError as e:
-                    self.failed += 1
-                    msg = ('+++ test %d failed:' % self.ntest) + str(e)
-                    if self.throw:
-                        raise ValueError(msg)
-                    if self.verbose:
-                        print(msg)
-                else:
-                    if self.verbose:
-                        print('+++ test %d passed' % self.ntest)
-        self.ntest += 1
+                self.check_if_equal_within_tolerance(expected, value, abs_tol, rel_tol)
         self.nrec += 1
 
     def check_if_equal(self, expected, value):
@@ -306,8 +293,8 @@ class pTest(object):
         '''
         if value != expected:
             self.failed += 1
-            msg = ('+++ test %d failed: ' % self.ntest) + \
-                  repr(value) + ' != ' + repr(expected)
+            msg = '+++ test %d failed: expected %s, got %s' \
+                  % (self.ntest, repr(expected), repr(value))
             if self.throw:
                 raise ValueError(msg)
             if self.verbose:
@@ -316,6 +303,54 @@ class pTest(object):
             if self.verbose:
                 print('+++ test %d passed' % self.ntest)
         self.ntest += 1
+
+    def check_if_equal_within_tolerance(self, expected, value, abs_tol=0, rel_tol=2e-3):
+        '''
+        Tests if float value is equal to the expected one.
+        expected     : the true value
+        value        : the value that was computed
+        abs_tol, rel_tol: see :func:`~Utilities.check_tolerance`
+        '''
+        err = check_tolerance(expected, value, abs_tol, rel_tol)
+        if err is not None:
+            self.failed += 1
+            msg = ('+++ test %d failed: ' % self.ntest) + str(err)
+            if self.throw:
+                raise ValueError(msg)
+            if self.verbose:
+                print(msg)
+        else:
+            if self.verbose:
+                print('+++ test %d passed' % self.ntest)
+        self.ntest += 1
+
+    def check_if_zero_within_tolerance(self, value, abs_tol=1e-3):
+        '''
+        Tests if float value is equal to the expected one.
+        expected     : the true value
+        abs_tol: see :func:`~Utilities.check_tolerance`
+        '''
+        self.check_if_equal_within_tolerance(0, value, abs_tol)
+
+    def check_if_less(self, value, comp):
+        '''
+        Tests if value is (strictly) less than comp.
+        value        : the value that was computed
+        comp         : the maximum allowed value
+        '''
+        if value >= comp:
+            self.failed += 1
+            msg = ('+++ test %d failed: ' % self.ntest) + \
+                  repr(value) + ' >= ' + repr(comp)
+            if self.throw:
+                raise ValueError(msg)
+            if self.verbose:
+                print(msg)
+        else:
+            if self.verbose:
+                print('+++ test %d passed' % self.ntest)
+        self.ntest += 1
+
 
 class CheckRaise(pTest):
     def __init__(self, *a, **k):
@@ -380,26 +415,33 @@ def try_calling(returned_handle):
 
 
 def assert_validity(obj, dtype):
-    try:
-        assert isinstance(obj, dtype)
-    except AssertionError as ae:
-        raise AssertionError('Expecting object of type {}, got {}'.format(dtype, type(obj)))
+    if not isinstance(obj, dtype):
+        msg = 'Expecting object of type {}, got {}'
+        raise AssertionError(msg.format(dtype, type(obj)))
     if obj.handle is None:
         raise AssertionError('object handle is None.')
 
 
 def assert_validities(x, y):
-    try:
-        assert issubclass(type(x),type(y)) or issubclass(type(y),type(x)) # returns true if both are the same class
-    except AssertionError as ae:
-        raise AssertionError('Expecting same type input, got {} and {}'.format(type(x), 
-                                                                               type(y)))
+    if not (issubclass(type(x),type(y)) or issubclass(type(y),type(x))):
+        msg = 'Expecting same type input, got {} and {}'
+        raise AssertionError(msg.format(type(x), type(y)))
     if x.handle is None:
         raise AssertionError('handle for first parameter is None')
     if y.handle is None:
         raise AssertionError('handle for second parameter is None')
-    if x.dimensions() != y.dimensions():
-        raise ValueError("Input shapes are expected to be equal, got " + str(x.dimensions()) + " and " + str(y.dimensions()) + " instead.")
+    if callable(getattr(x, 'dimensions', None)):
+        xdim = x.dimensions()
+    else:
+        xdim = None
+    if callable(getattr(y, 'dimensions', None)):
+        ydim = y.dimensions()
+    else:
+        ydim = None
+    if xdim != ydim:
+        raise ValueError("Input shapes are expected to be equal, got " \
+                         + repr(xdim) + " and " \
+                         + repr(ydim) + " instead.")
 
 
 def label_and_name(g):

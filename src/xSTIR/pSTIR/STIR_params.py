@@ -22,13 +22,13 @@ def set_char_par(handle, group, par, value):
 
 
 def set_int_par(handle, group, par, value):
-    h = pyiutil.intDataHandle(value)
+    h = pyiutil.intDataHandle(int(value))
     set_parameter(handle, group, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 
 
 def set_float_par(handle, group, par, value):
-    h = pyiutil.floatDataHandle(value)
+    h = pyiutil.floatDataHandle(float(value))
     set_parameter(handle, group, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 

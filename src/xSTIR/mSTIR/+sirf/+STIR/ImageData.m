@@ -100,6 +100,10 @@ classdef ImageData < sirf.SIRF.ImageData
 %***SIRF*** Sets this image values at voxels.
 %         The argument is either 3D array of values or a scalar to be
 %         assigned at each voxel.
+            if isa(value, 'sirf.SIRF.ImageData')
+                fill@sirf.SIRF.ImageData(self, value);
+                return
+            end
             if numel(value) == 1
                 h = calllib('mstir', 'mSTIR_fillImage', ...
                     self.handle_, single(value));
@@ -157,7 +161,7 @@ classdef ImageData < sirf.SIRF.ImageData
             sirf.Utilities.check_status('ImageData:add_shape', h);
             sirf.Utilities.delete(h)
         end
-        function dim = size(self)
+        function dim = dimensions(self)
 %***SIRF*** Returns the dimensions of 3D array of this image values at voxels.
             if isempty(self.handle_)
                 dim = [];
@@ -174,25 +178,14 @@ classdef ImageData < sirf.SIRF.ImageData
         end
         function data = as_array(self)
 %***SIRF*** Returns 3D array of this image values at voxels.
-
-%             [ptr, dim] = calllib...
-%                 ('mstir', 'mSTIR_getImageDimensions', self.handle_, zeros(3, 1));
-            ptr_i = libpointer('int32Ptr', zeros(3, 1));
-            h = calllib...
-                ('mstir', 'mSTIR_getImageDimensions', self.handle_, ptr_i);
-            sirf.Utilities.check_status('ImageData:as_array', h);
-            sirf.Utilities.delete(h)
-            dim = ptr_i.Value;
+            dim = self.dimensions();
             n = dim(1)*dim(2)*dim(3);
-%             [ptr, data] = calllib...
-%                 ('mstir', 'mSTIR_getImageData', self.handle_, zeros(n, 1));
-%             data = reshape(data, dim(3), dim(2), dim(1));
             ptr_v = libpointer('singlePtr', zeros(n, 1));
             h = calllib...
                 ('mstir', 'mSTIR_getImageData', self.handle_, ptr_v);
             sirf.Utilities.check_status('ImageData:as_array', h);
             sirf.Utilities.delete(h)
-            data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
+            data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
         end
         function write(self,filename,par)
             if nargin < 3

@@ -21,7 +21,13 @@ import sys
 import time
 
 import numpy as np
-import nibabel as nib
+try:
+    import nibabel as nib
+    have_nibabel = True
+except ImportError:
+    have_nibabel = False
+    print('WARNING: nibabel is not installed, so not running corresponding tests')
+
 import sirf.Reg
 from pUtilities import *
 
@@ -232,10 +238,11 @@ def try_niftiimage():
         raise AssertionError('NiftiImageData::fill() failed for C- or F-style numpy arrays.')
 
     # Compare between sirf.Reg.NiftiImageData::as_array() and nibabel
-    arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
-    arr2 = nib.load(ref_aladin_filename).get_fdata()
-    if not np.array_equal(arr1,arr2):
-        raise AssertionError("NiftiImageData as_array() failed.")
+    if have_nibabel:
+        arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
+        arr2 = nib.load(ref_aladin_filename).get_fdata()
+        if not np.array_equal(arr1,arr2):
+            raise AssertionError("NiftiImageData as_array() failed.")
 
     # Test geom info
     geom_info = im.get_geometrical_info()
@@ -813,16 +820,17 @@ def try_niftyf3d():
     disp_inverse.write_split_xyz_components(f3d_disp_inverse)
 
     # Compare between sirf.Reg.NiftiImageData3DDefofmation::as_array() and nibabel
-    deff_arr = def_forward.as_array()
-    deff_nib_arr = nib.load(f3d_def_forward).get_fdata()
-    if not np.array_equal(deff_arr, deff_nib_arr):
-        raise AssertionError("NiftiImageData3DDeformation as_array() failed.")
+    if have_nibabel:
+        deff_arr = def_forward.as_array()
+        deff_nib_arr = nib.load(f3d_def_forward).get_fdata()
+        if not np.array_equal(deff_arr, deff_nib_arr):
+            raise AssertionError("NiftiImageData3DDeformation as_array() failed.")
 
-    # Check as_array and fill for deformation fields
-    deff2 = def_forward.clone()
-    deff2.fill(deff_arr)
-    if deff2 != def_forward:
-        raise AssertionError("NiftiImageData3DDeformation::as_array()/fill() failed.")
+        # Check as_array and fill for deformation fields
+        deff2 = def_forward.clone()
+        deff2.fill(deff_arr)
+        if deff2 != def_forward:
+            raise AssertionError("NiftiImageData3DDeformation::as_array()/fill() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

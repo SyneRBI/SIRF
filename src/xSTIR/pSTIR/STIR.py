@@ -626,6 +626,8 @@ class SeparableGaussianImageFilter(ImageDataProcessor):
     def __init__(self):
         """init."""
         self.handle = None
+        self.input = None
+        self.output = None
         self.name = 'SeparableGaussianImageFilter'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
@@ -937,7 +939,22 @@ class AcquisitionData(DataContainer):
     def rebin(self, num_segments_to_combine,
               num_views_to_combine=1, num_tang_poss_to_trim=0,
               do_normalisation=True, max_in_segment_num_to_process=-1):
-        """Rebin."""
+        """Rebin the data to lower resolution by adding
+
+        Keyword arguments:
+		num_segments_to_combine -- combines multiple oblique 'segments' together. If set to the
+		    total number of segments, this corresponds to SSRB. Another example is if the input data
+			has 'span=1', the output span will be equal to the \c num_segments_to_combine.
+		num_views_to_combine -- combines neighbouring views. Needs to be a divisor of the total
+		    number of views in the data.
+		num_tang_poss_to_trim -- removes a number of tangential positions (horizontal direction
+		    in the sinogram) at each end
+		do_normalisation -- if True, averages the data, otherwise it adds the data. Often
+		    the latter is required for emission data (as it preserves Poisson statistics),
+			while the former should be used for corrected data (or for attenuation correction factors).
+		max_in_segment_num_to_process -- by default all input data are used. If set to a non-negative
+		    number, it will remove the most oblique segments.
+        """
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_rebinnedAcquisitionData(
             self.handle,
@@ -946,9 +963,8 @@ class AcquisitionData(DataContainer):
             max_in_segment_num_to_process)
         check_status(ad.handle)
         return ad
-
-    def show(self, sino=None, title=None):
-        """Display interactively selected sinograms."""
+    def show(self, sino = None, tof=0, title = None):
+        '''Displays interactively selected sinograms.'''
         if self.handle is None:
             raise AssertionError()
         if not HAVE_PYLAB:
@@ -959,7 +975,7 @@ class AcquisitionData(DataContainer):
         if isinstance(sino, int):
             if sino < 0 or sino >= nz:
                 return
-            show_2D_array('sinogram %d' % sino, data[0, sino, :, :])
+            show_2D_array('sinogram %d' % sino, data[tof, sino, :, :])
             return
         elif sino is None:
             ns = nz
@@ -1340,6 +1356,15 @@ class AcquisitionModel(object):
 
         try_calling(pystir.cSTIR_setupAcquisitionModel(
             self.handle, acq_templ.handle, img_templ.handle))
+
+    def norm(self, subset_num=0, num_subsets=1):
+        assert self.handle is not None
+        handle = pystir.cSTIR_acquisitionModelNorm \
+                 (self.handle, subset_num, num_subsets)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r;
 
     def set_additive_term(self, at):
         """Set additive term.

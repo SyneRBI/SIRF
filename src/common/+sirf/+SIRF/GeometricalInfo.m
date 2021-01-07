@@ -37,13 +37,18 @@ classdef GeometricalInfo < handle
         end
         function print_info(self)
         	% Print geometrical information
-        	h = calllib('msirf', 'mSIRF_GeomInfo_print', self.handle_);
-            sirf.Utilities.check_status([self.name ':print_info'], h);
+            fprintf('%s', self.get_info())
+        end
+        function info = get_info(self)
+            % Returns geometrical information as a string
+            h = calllib('msirf', 'mSIRF_GeomInfo_get', self.handle_);
+            sirf.Utilities.check_status([self.name ':get_info'], h);
+            info = calllib('miutilities', 'mCharDataFromHandle', h);
             sirf.Utilities.delete(h)
         end
         function value = get_offset(self)
         	% Offset is the LPS coordinate of the centre of the first voxel.
-        	ptr_i = libpointer('int32Ptr', zeros(1, 3));
+            ptr_i = libpointer('singlePtr', zeros(1, 3));
             calllib('msirf', 'mSIRF_GeomInfo_get_offset', self.handle_, ptr_i);
             value = ptr_i.Value;
         end

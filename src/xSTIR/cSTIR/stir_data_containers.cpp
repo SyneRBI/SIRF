@@ -358,6 +358,18 @@ STIRImageData::norm() const
 }
 
 void
+STIRImageData::scale(float s)
+{
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+#else
+	typename Array<3, float>::full_iterator iter;
+#endif
+	for (iter = _data->begin_all(); iter != _data->end_all(); iter++)
+		*iter /= s;
+}
+
+void
 STIRImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)

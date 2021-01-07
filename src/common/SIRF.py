@@ -81,6 +81,7 @@ class DataContainer(ABC):
         x.handle = pysirf.cSIRF_clone(self.handle)
         check_status(x.handle)
         return x
+
     def number(self):
         '''
         Returns the number of items in the container.
@@ -91,6 +92,10 @@ class DataContainer(ABC):
         n = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return n
+
+    def is_empty(self):
+        return self.number() < 1
+
     def norm(self):
         '''
         Returns the 2-norm of the container data viewed as a vector.
@@ -656,25 +661,33 @@ class GeometricalInfo(object):
 
     def print_info(self):
         """Print the geom info"""
-        try_calling(pysirf.cSIRF_GeomInfo_print(self.handle))
+        print(self.get_info())
+
+    def get_info(self):
+        """Return the geom info as string"""
+        handle = pysirf.cSIRF_GeomInfo_get(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
 
     def get_offset(self):
         """Offset is the LPS coordinate of the centre of the first voxel."""
         arr = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling(pysirf.cSIRF_GeomInfo_get_offset(self.handle, arr.ctypes.data))
-        return tuple(arr)
+        return tuple(arr[::-1])
 
     def get_spacing(self):
         """Spacing is the physical distance between voxels in each dimension."""
         arr = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_spacing(self.handle, arr.ctypes.data))
-        return tuple(arr)
+        return tuple(arr[::-1])
     
     def get_size(self):
         """Size is the number of voxels in each dimension."""
         arr = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling (pysirf.cSIRF_GeomInfo_get_size(self.handle, arr.ctypes.data))
-        return tuple(arr)
+        return tuple(arr[::-1])
 
     def get_direction_matrix(self):
         """Each row gives a vector dictating the direction of the axis in LPS physical space."""

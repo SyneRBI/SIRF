@@ -73,11 +73,13 @@ def main():
     # output goes to files
 ##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
+    # raw data to be used as a template for the acquisition model
+    acq_template = AcquisitionData(raw_data_file)
+
     # create an empty image
-    image = ImageData()
-    image_size = (31, 111, 111)
-    voxel_size = (3.375, 3, 3) # voxel sizes are in mm
-    image.initialise(image_size, voxel_size)
+    image = acq_template.create_uniform_image(0.0, xy=111)
+    image_size = image.dimensions()
+    print('image size: %d by %d by %d' % image_size)
 
     # create a shape
     shape = EllipticCylinder()
@@ -112,9 +114,6 @@ def main():
         # show the phantom image
         image_array = image.as_array()
         show_2D_array('Phantom image', image_array[z,:,:])
-
-    # raw data to be used as a template for the acquisition model
-    acq_template = AcquisitionData(raw_data_file)
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -156,6 +155,21 @@ def main():
 #    simulated_data = acq_model.forward(image, 0, 4)
     if output_file is not None:
         simulated_data.write(output_file)
+
+    print('\n--- Computing the norm of the linear part A of acquisition model...')
+    acqm_norm = acq_model.norm()
+    image_norm = image.norm()
+    acqd_norm = simulated_data.norm()
+    print('\n--- The computed norm is |A| = %f, checking...' % acqm_norm)
+    print('    image data x norm: |x| = %f' % image_norm)
+    print('    forward projected data A x norm: |A x| = %f' % acqd_norm)
+    acqd_bound = acqm_norm*image_norm
+    msg = '    |A x| must be less than or equal to |A||x| = %f'
+    if acqd_norm <= acqd_bound:
+        msg += ' - ok\n'
+    else:
+        msg += ' - ???\n'
+    print( msg % acqd_bound)
 
     if show_plot:
         # show simulated acquisition data

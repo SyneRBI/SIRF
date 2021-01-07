@@ -147,6 +147,21 @@ namespace sirf {
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
 
+		//! rebin the data to lower resolution by adding
+		/*!
+		  \param num_segments_to_combine combines multiple oblique 'segments' together. If set to the
+		    total number of segments, this corresponds to SSRB. Another example is if the input data
+			has 'span=1', the output span will be equal to the \c num_segments_to_combine.
+		  \param num_views_to_combine combines neighbouring views. Needs to be a divisor of the total
+		    number of views in the data.
+		  \param num_tang_poss_to_trim removes a number of tangential positions (horizontal direction
+		    in the sinogram) at each end
+		  \param do_normalisation if \c true, averages the data, otherwise it adds the data. Often
+		    the latter is required for emission data (as it preserves Poisson statistics),
+			while the former should be used for corrected data (or for attenuation correction factors).
+		  \param max_in_segment_num_to_process by default all input data are used. If set to a non-negative
+		    number, it will remove the most oblique segments.
+		*/
 		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,
 			const int num_views_to_combine = 1,
@@ -200,6 +215,8 @@ namespace sirf {
 		virtual void fill(const float v) { data()->fill(v); }
 		virtual void fill(const PETAcquisitionData& ad)
 		{
+			if (ad.is_empty())
+				THROW("The source of PETAcquisitionData::fill is empty");
 			stir::shared_ptr<stir::ProjData> sptr = ad.data();
 			data()->fill(*sptr);
 		}
@@ -211,7 +228,19 @@ namespace sirf {
 		}
 
 		// data container methods
-		unsigned int items() const { return 1; }
+		unsigned int items() const {
+			if (_is_empty != -1)
+				return _is_empty ? 0 : 1;
+			try {
+				get_segment_by_sinogram(0);
+			}
+			catch (std::string msg) {
+				_is_empty = 1;
+				return 0; // no data found - this must be a template
+			}
+			_is_empty = 0;
+			return 1; // data ok
+		}
 		virtual float norm() const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
@@ -237,21 +266,32 @@ namespace sirf {
 		{
 			return data()->get_num_views();
 		}
-		int get_num_sinograms()
+		//! total number of (2D) sinograms
+		/*! note that for TOF data, this includes the TOF bins.
+		    \see get_num_non_TOF_sinograms()
+	    */
+		int get_num_sinograms() const
 		{
 			return data()->get_num_sinograms();
+        }
+		//! total number of (2D) sinograms ignoring time-of-flight
+		/*! This does include the oblique data as well. */
+		int get_num_non_TOF_sinograms() const
+		{
+			return data()->get_num_non_tof_sinograms();
 		}
+
 		int get_num_TOF_bins()
 		{
-			return 1;
+			return data()->get_num_tof_poss();
 		}
 		size_t get_dimensions(int* dim)
 		{
 			dim[0] = get_num_tangential_poss();
 			dim[1] = get_num_views();
-			dim[2] = get_num_sinograms();
+			dim[2] = get_num_non_TOF_sinograms();
 			dim[3] = get_num_TOF_bins();
-			return dim[0] * dim[1] * dim[2] * dim[0];
+			return static_cast<size_t>(dim[0] * dim[1] * dim[2] * dim[0]);
 		}
 		int get_max_segment_num() const
 		{
@@ -310,12 +350,16 @@ namespace sirf {
 		virtual PETAcquisitionData* clone_impl() const = 0;
 		PETAcquisitionData* clone_base() const
 		{
-			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = get_proj_data_info_sptr()->create_shared_clone();
+			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = this->get_proj_data_info_sptr()->create_shared_clone();
 			PETAcquisitionData* ptr = 
 				_template->same_acquisition_data(this->get_exam_info_sptr(), sptr_pdi);
-			ptr->fill(*this);
+			if (!this->is_empty())
+				ptr->fill(*this);
 			return ptr;
 		}
+
+	private:
+		mutable int _is_empty = -1;
 
 	};
 
@@ -853,10 +897,25 @@ namespace sirf {
 		{
 			_data = sptr_data;
 		}
+
 		void fill(float v)
 		{
 			_data->fill(v);
 		}
+		void scale(float s);
+		float dot(const DataContainer& a_x) const
+		{
+			float s;
+			dot(a_x, &s);
+			return s;
+		}
+		void axpby(
+			float a, const DataContainer& a_x,
+			float b, const DataContainer& a_y)
+		{
+			axpby(&a, a_x, &b, a_y);
+		}
+
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;

@@ -24,6 +24,7 @@
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
 #include <array>
+#include <string>
 
 namespace sirf {
 
@@ -40,6 +41,7 @@ public:
 	virtual bool operator!=(const GeometricalInfo& vgi) const = 0;
 	/// Print info
     virtual void print_info() const = 0;
+	virtual std::string get_info() const = 0;
 };
 
 
@@ -107,7 +109,8 @@ public:
     const TransformMatrix calculate_index_to_physical_point_matrix() const;
 
     /// Print info
-    virtual void print_info() const;
+	virtual void print_info() const;
+	virtual std::string get_info() const;
 
 private:
 	Offset _offset;

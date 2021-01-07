@@ -1,6 +1,9 @@
 # ChangeLog
 
 ## vX.X.X
+* Extraction of the operator representing the linear part of PET acquisition model and computation of its norm implemented.
+* Data validity checks return NotImplemented instead of throwing error, opening the door for future implementations of operations on data.
+* Handling of coil images and sensitivities data simplified.
 * STIR projection data now have an implementation of `axpby`, so that duplicate functionality has been removed from SIRF
 * Iterators are now used in `AcquisitionDataInMemory` to improve speed of `as_array`, `fill`, `dot`, `norm`, etc.
 * Bug fix in `get_index_to_physical_point_matrix`

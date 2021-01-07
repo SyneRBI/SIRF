@@ -64,7 +64,7 @@ changes between 0.9 and 1.0.
       - Further integration with the [Core Imaging Library (CIL)](https://github.com/vais-ral/CCPi-Framework) (Python-only) for access to general optimisers and regularisation.
 
 # SIRF 2.3
-Target date : Q3 2020
+Target date : Q4 2020
 
   - Software
       - Addition of non-TOF scatter
@@ -73,12 +73,12 @@ Target date : Q3 2020
       - MR iterative reconstruction via connection with CIL 
             - improvements on acquisition model (non-Cartesian sequences)
             - selecting of MR aquisition data
-      - Motion Compensate Image Reconstruction (MCIR) via connection with CIL, both PET and MR
+      - Motion Compensated Image Reconstruction (MCIR) via connection with CIL, both PET and MR
       - Initial SPECT support (via STIR)
- - CMake SuperBuild of SIRF on Windows (Gadgetron not yet on Windows)
+ - optional: CMake SuperBuild of SIRF on Windows (Gadgetron not yet on Windows, Gadgetron building support on OSX dropped due to upstream policy)
       
 # SIRF 3.0
-Target date: Q4 2020
+Target date: Q2 2021
 
   - Add major features that didn’t make it into SIRF 2.x
   - Software
@@ -88,21 +88,23 @@ Target date: Q4 2020
       - Functions to compute gradients and values of MR objective function (independent of CIL?).
       - Full support for measured data (Siemens, GE non-TOF). MR only if
         ismrmrd converter available
-      - MR iterative reconstruction via Gadgetron gadgets (e.g. iterative SENSE)
-      - MR sequences: (list of example sequences that we support, TBC)
+      - MR sequences: (list of example sequences that we support, TBC (includes standard 2D radial sequences))
       - creation of gated PET sinograms from listmode
       - PET dynamics and gated (separate reconstructions), needs support on `DataContainers`
-      - PET TOF support (no scatter)
-      - Extended SPECT support (via STIR)
+      - PET TOF support (no scatter) (depends on STIR)
+      - Extended SPECT support, including multiple energy windows and scatter (via STIR)
       - Create subsets of acquisition and image data
       - Motion estimation via image registration in SIRF (via connection with CIL)
-    - Expanded Testing framework
+      - Expanded Testing framework
+  - Sample pipelines for PET and MR reconstruction for static data (based on current scripts)
+      - Add error checking of input
+      - Standardise input and output file structure/location
   - Installers with precompiled software (conda)
   - Strategy for developing new functionality and interfaces
     (“engines”)
 
 # SIRF 4.0
-Target date: Q1 2021
+Target date: Q4 2021
 
   - Software:
       - PET List mode reconstruction
@@ -115,7 +117,7 @@ Target date: Q1 2021
       - Additional support for measured data
          - MR sequences: (list TBD)
          - Philips?
-
+   - Example interfaces to Machine Learning framework(s)
 
 # Future
   - Code optimization (GPU?)

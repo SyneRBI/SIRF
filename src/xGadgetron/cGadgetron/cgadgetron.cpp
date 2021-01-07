@@ -382,6 +382,16 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 }
 
 extern "C"
+void* cGT_acquisitionModelNorm(void* ptr_am)
+{
+	try {
+		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(ptr_am);
+		return dataHandle(am.norm());
+	}
+	CATCH;
+}
+
+extern "C"
 void*
 cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
 {
@@ -470,9 +480,9 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
+	std::string scheme = MRAcquisitionData::storage_scheme();
 	try {
-		shared_ptr<MRAcquisitionData> 
-            acquisitions(new AcquisitionsVector(file));
+        shared_ptr<MRAcquisitionData> acquisitions(new AcquisitionsVector(file));
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;

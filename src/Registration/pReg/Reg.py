@@ -1156,6 +1156,8 @@ class NiftyResample(object):
             forward(x=input,out=output)
         """
         if out is None:
+            if self.reference_image is None:
+                raise RuntimeError('reference_image needs to be set first, or you should specify an out argument')
             out = self.reference_image.clone()
         # Check image validity
         if not isinstance(x, SIRF.ImageData):
