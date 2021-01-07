@@ -355,6 +355,16 @@ namespace sirf {
 				*i = *data;
 			//IMAGE_PROCESSING_SWITCH(type_, set_data_, ptr_, data);
 		}
+		void fill(float s)
+		{
+			for (ImageWrap::Iterator i = begin(); i != end(); ++i)
+				*i = s;
+		}
+		void scale(float s)
+		{
+			for (ImageWrap::Iterator i = begin(); i != end(); ++i)
+				*i = (*i).complex_float() / s;
+		}
 		void get_complex_data(complex_float_t* data) const
 		{
 			//std::cout << "in get_complex_data\n";

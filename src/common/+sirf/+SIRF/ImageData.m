@@ -41,6 +41,9 @@ classdef ImageData < sirf.SIRF.DataContainer
             self.handle_ = calllib('msirf', 'mSIRF_readImageData', filename, engine, verb);
             sirf.Utilities.check_status('ImageData:read', self.handle_);
         end
+        function fill(self, image)
+            calllib('msirf', 'mSIRF_fillImageFromImage', self.handle_, image.handle_);
+        end
 		function geom_info = get_geometrical_info(self)
 			% Get the image's geometrical info.
 			geom_info = sirf.SIRF.GeometricalInfo();

@@ -110,7 +110,13 @@ def main():
                   xlabel='samples', ylabel='readouts', label='coil', \
                   show=False)
 
-    
+    try:
+        from ismrmrdtools0 import coils
+    except:
+        print('Inati method requires ismrmrd-python-tools')
+        import matplotlib.pyplot as plt
+        plt.show()
+        return
     # calculate coil sensitivity maps using an approach suggested by 
     #   Inati SJ, Hansen MS, Kellman P.
     #   A solution to the phase problem in adaptive coil combination.
@@ -135,3 +141,4 @@ try:
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    exit(1)

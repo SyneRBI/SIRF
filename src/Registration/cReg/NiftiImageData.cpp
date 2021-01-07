@@ -28,6 +28,7 @@ limitations under the License.
 \author SyneRBI
 */
 
+#include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Reg/NiftiImageData.h"
 #include <nifti1_io.h>
 #include "_reg_resampling.h"
@@ -1573,7 +1574,7 @@ template<class dataType>
 void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr) const
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    assert(_nifti_image->nvox == x._nifti_image->nvox);
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "dot operands size mismatch");
     double s = 0.0;
     for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
         s += double(_data[i] * x._data[i]);
@@ -1595,8 +1596,8 @@ void NiftiImageData<dataType>::axpby(
     if (!this->is_initialised())
         *this = *x.clone();
 
-    assert(_nifti_image->nvox == x._nifti_image->nvox);
-    assert(_nifti_image->nvox == y._nifti_image->nvox);
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
+	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
 
     for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
         _data[i] = a * x._data[i] + b * y._data[i];
@@ -1622,8 +1623,8 @@ void NiftiImageData<dataType>::multiply
     if (!this->is_initialised())
         *this = *x.clone();
 
-    assert(_nifti_image->nvox == x._nifti_image->nvox);
-    assert(_nifti_image->nvox == y._nifti_image->nvox);
+	ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "multiply operands size mismatch");
+	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "multiply operands size mismatch");
 
     for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
         _data[i] = x._data[i] * y._data[i];
@@ -1640,8 +1641,8 @@ void NiftiImageData<dataType>::divide
     if (!this->is_initialised())
         *this = *x.clone();
 
-    assert(_nifti_image->nvox == x._nifti_image->nvox);
-    assert(_nifti_image->nvox == y._nifti_image->nvox);
+	ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "divide operands size mismatch");
+	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "divide operands size mismatch");
 
     if (y.get_max() < 1.e-12F)
         THROW("division by zero in NiftiImageData::divide");
