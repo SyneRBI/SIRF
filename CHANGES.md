@@ -1,6 +1,8 @@
 # ChangeLog
 
 ## vX.X.X
+* STIR AcquisitionModel `forward`, `direct`, `backward` and `adjoint` signatures have changed in Python. Subset information should now be set via `num_subsets` and `subset_num` members. `The `forward` and `backward` members can still be called with the previous syntax but this will be removed in a later version.
+Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectively, such that default behaviour is default behaviour (i.e. process all data) is unchanged.
 * Extraction of the operator representing the linear part of PET acquisition model and computation of its norm implemented.
 * Data validity checks return NotImplemented instead of throwing error, opening the door for future implementations of operations on data.
 * Handling of coil images and sensitivities data simplified.

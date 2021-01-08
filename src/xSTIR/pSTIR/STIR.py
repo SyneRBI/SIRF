@@ -28,6 +28,7 @@ try:
 except:
     HAVE_PYLAB = False
 import sys
+from numbers import Integral
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, \
@@ -379,8 +380,9 @@ class ImageData(SIRF.ImageData):
         elif isinstance(value, int):
             try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
-            raise error('wrong fill value.' +
-                        ' Should be ImageData, numpy.ndarray, float or int')
+            raise TypeError('wrong fill value.' + \
+                        ' Should be ImageData, numpy.ndarray, float or int. Got {}'\
+                        .format(type(value)))
         return self
 
     def get_uniform_copy(self, value=1.0):
@@ -436,6 +438,9 @@ class ImageData(SIRF.ImageData):
         try_calling(
             pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
         return tuple(vs)  # [::-1])
+    @property
+    def spacing(self):
+        return self.voxel_sizes()
 
     def transf_matrix(self):
         """Get transformation matrix."""
@@ -507,8 +512,12 @@ class ImageData(SIRF.ImageData):
                 out.fill(numpy.random.random_sample(shape))
             elif value == 'random_int':
                 max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(
-                    max_value, size=shape))
+                out.fill(numpy.random.randint(max_value,size=shape))
+        elif value is None:
+            if self.is_empty():
+                out = self.get_uniform_copy(0)
+            else:
+                out = self.copy()
         else:
             out = self.get_uniform_copy(value)
         return out
@@ -920,9 +929,9 @@ class AcquisitionData(DataContainer):
             try_calling(pystir.cSTIR_fillAcquisitionData(
                 self.handle, float(value)))
         else:
-            raise error('Wrong fill value.' +
-                        'Should be numpy.ndarray,' +
-                        'AcquisitionData, float or int')
+            raise TypeError('Wrong fill value.' + \
+                ' Should be numpy.ndarray, AcquisitionData, float or int, got {}'\
+                .format(type(value)))
         return self
 
     def get_uniform_copy(self, value=0):
@@ -1017,7 +1026,9 @@ class AcquisitionData(DataContainer):
                 out.fill(numpy.random.random_sample(shape))
             elif value == 'random_int':
                 max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(max_value, size=shape))
+                out.fill(numpy.random.randint(max_value,size=shape))
+        elif value is None:
+            out = self.get_uniform_copy(0)
         else:
             out = self.get_uniform_copy(value)
         return out
@@ -1330,6 +1341,9 @@ class AcquisitionModel(object):
         self.at = None
         # reference to the acquisition sensitivity model
         self.asm = None
+        # default values of subset number and selected subset
+        self._num_subsets = 1
+        self._subset_num = 0
         # constness flag for const reference
         self.const = False
 
@@ -1487,12 +1501,26 @@ class AcquisitionModel(object):
         # save reference to the Acquisition Sensitivity Model
         self.asm = asm
 
-    def forward(self, image, subset_num=0, num_subsets=1, out=None):
+    def forward(self, image, subset_num=None, num_subsets=None, out=None):
         """Return the forward projection of image.
 
-        image   :  an ImageData object.
+        image      :  an ImageData object.
+        subset_num : optional (int) subset number to forward project. 
+                     Default None. If None, subset_num is the instance 
+                     property (member) subset_num.
+        num_subsets: optional (int) number of subsets the data is divided 
+                     in for the projection. Default None. 
+                     If None, num_subsets is the instance property (member)
+                     num_subsets.
+        out        : optional AcquisitionData to store the result into. 
+                     Default None, if None a new AcquisitionData will be 
+                     returned.
         """
         assert_validity(image, ImageData)
+        if subset_num is None:
+            subset_num = self.subset_num
+        if num_subsets is None:
+            num_subsets = self.num_subsets
         if out is None:
             ad = AcquisitionData()
             ad.handle = pystir.cSTIR_acquisitionModelFwd(
@@ -1504,13 +1532,27 @@ class AcquisitionModel(object):
         try_calling(pystir.cSTIR_acquisitionModelFwdReplace(
             self.handle, image.handle, subset_num, num_subsets, ad.handle))
 
-    def backward(self, ad, subset_num=0, num_subsets=1, out=None):
+    def backward(self, ad, subset_num=None, num_subsets=None, out=None):
         """
         Return the backward projection of ad.
 
         ad:  an AcquisitionData object.
+        subset_num : optional (int) subset number to forward project. 
+                     Default None. If None, subset_num is the instance 
+                     property (member) subset_num.
+        num_subsets: optional (int) number of subsets the data is divided 
+                     in for the projection. Default None. 
+                     If None, num_subsets is the instance property (member)
+                     num_subsets.
+        out        : optional AcquisitionData to store the result into. 
+                     Default None, if None a new AcquisitionData will be 
+                     returned.
         """
         assert_validity(ad, AcquisitionData)
+        if subset_num is None:
+            subset_num = self.subset_num
+        if num_subsets is None:
+            num_subsets = self.num_subsets
         if out is None:
             image = ImageData()
             image.handle = pystir.cSTIR_acquisitionModelBwd(
@@ -1530,42 +1572,34 @@ class AcquisitionModel(object):
         check_status(am.handle)
         am.const = True # am to be a const reference of self
         return am
+    def direct(self, image, out=None):
+        '''Projects an image into the (simulated) acquisition space,
+           calls forward with num_subset and on subset_num members
 
-    def direct(self, image, subset_num=0, num_subsets=1, out=None):
-        """Project an image into the (simulated) acquisition space.
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        return self.forward(image, \
+                            subset_num=self.subset_num, \
+                            num_subsets=self.num_subsets, \
+                            out=out)
+        
+    def adjoint(self, ad, out=None):
+        '''Back-projects acquisition data into image space, if the
+           AcquisitionModel is linear
 
-        Alias of forward.
-
-        Added for CCPi CIL compatibility
-        https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
-        """
-        if not self.is_linear():
+           calls backward with num_subset and on subset_num members
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if self.is_linear():
+            return self.backward(ad, subset_num=self.subset_num, 
+                             num_subsets=self.num_subsets, out=out)
+        else:
             raise error('AcquisitionModel is not linear\nYou can get the ' +
                         'linear part of the AcquisitionModel with ' +
                         'get_linear_acquisition_model')
-        return self.forward(
-            image,
-            subset_num=subset_num,
-            num_subsets=num_subsets,
-            out=out)
-
-    def adjoint(self, ad, subset_num=0, num_subsets=1, out=None):
-        """Back-project acquisition data into image space.
-
-        Only if the AcquisitionModel is linear
-
-        Added for CCPi CIL compatibility
-        https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
-        """
-        if not self.is_linear():
-            raise error('AcquisitionModel is not linear\nYou can get the ' +
-                        'linear part of the AcquisitionModel with ' +
-                        'get_linear_acquisition_model')
-        return self.backward(
-            ad,
-            subset_num=subset_num,
-            num_subsets=num_subsets,
-            out=out)
+        
 
     def is_affine(self):
         """Return if the acquisition model is affine.
@@ -1597,6 +1631,69 @@ class AcquisitionModel(object):
     def domain_geometry(self):
         """Return the template of ImageData."""
         return self.img_templ
+
+    @property
+    def subset_num(self):
+        '''Selected subset number
+ 
+        This value is used by direct and adjoint methods and are the 
+        default values used by forward and back projection for their 
+        parameter subset_num.
+        
+        Default value is 0.
+        '''
+        return self._subset_num
+    
+    @property
+    def num_subsets(self):
+        '''Number of subsets to divide the AcquisitionData during projection
+
+        This value is used by the direct and adjoint methods. Additionally, 
+        this value is the default value used by forward and back projection
+        for the parameter num_subsets.
+        
+        Default value is 1 and corresponds to forward/backward projecting
+        the whole dataset.
+
+        '''
+        return self._num_subsets
+    
+    @subset_num.setter
+    def subset_num(self, value):
+        '''setter for subset_num
+        
+        value: int >= 0 and < num_subsets
+        '''
+        if isinstance (value, Integral):
+            if value < self.num_subsets and value >= 0:
+                self._subset_num = value
+            else:
+                raise ValueError("Expected a subset number below {} and larger or equal than 0. Got {}"\
+                    .format(self.subset_num, value))
+        else:
+            raise ValueError("Expected an integer. Got {}".format(type(value)))
+    
+    @num_subsets.setter
+    def num_subsets(self, value):
+        '''setter for num_subsets
+
+        value: int > 0.
+        Allows to set the number of subsets the AcquisitionModel operates on. 
+        Notice that reassigning the num_subsets to any valid number will also 
+        set the property subset_num to 0.
+        '''
+        if isinstance (value, Integral):
+            if value > 0:
+                self._num_subsets = value
+                self.subset_num = 0
+                
+            else:
+                raise ValueError("Expected a subset number larger than 0. Got {}"\
+                    .format(value))
+        else:
+            raise ValueError("Expected an integer. Got {}".format(type(value)))
+
+
 
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
