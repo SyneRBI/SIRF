@@ -1506,11 +1506,12 @@ class AcquisitionModel(object):
 
         image      :  an ImageData object.
         subset_num : optional (int) subset number to forward project. 
-                     Default None. If None subset_num is the instance 
-                     property subset_num.
+                     Default None. If None, subset_num is the instance 
+                     property (member) subset_num.
         num_subsets: optional (int) number of subsets the data is divided 
                      in for the projection. Default None. 
-                     If None num_subsets is the instance property num_subsets.
+                     If None, num_subsets is the instance property (member)
+                     num_subsets.
         out        : optional AcquisitionData to store the result into. 
                      Default None, if None a new AcquisitionData will be 
                      returned.
@@ -1537,13 +1538,14 @@ class AcquisitionModel(object):
 
         ad:  an AcquisitionData object.
         subset_num : optional (int) subset number to forward project. 
-                     Default None. If None subset_num is the instance 
-                     property subset_num.
+                     Default None. If None, subset_num is the instance 
+                     property (member) subset_num.
         num_subsets: optional (int) number of subsets the data is divided 
                      in for the projection. Default None. 
-                     If None num_subsets is the instance property num_subsets.
-        out        : optional ImageData to store the result into. 
-                     Default None, if None a new ImageData will be 
+                     If None, num_subsets is the instance property (member)
+                     num_subsets.
+        out        : optional AcquisitionData to store the result into. 
+                     Default None, if None a new AcquisitionData will be 
                      returned.
         """
         assert_validity(ad, AcquisitionData)
@@ -1632,18 +1634,26 @@ class AcquisitionModel(object):
 
     @property
     def subset_num(self):
-        '''selected subset number used for forward and back projection
+        '''Selected subset number
+ 
+        This value is used by direct and adjoint methods and are the 
+        default values used by forward and back projection for their 
+        parameter subset_num.
         
-        default value is 0 and corresponds to forward/backward projecting
+        Default value is 0 and corresponds to forward/backward projecting
         the whole dataset.
         '''
         return self._subset_num
     
     @property
     def num_subsets(self):
-        '''selected number of subset used for forward and back projection
+        '''Number of subsets to divide the AcquisitionData during projection
+
+        This value is used by the direct and adjoint methods. Additionally, 
+        this value is the default value used by forward and back projection
+        for the parameter num_subsets.
         
-        default value is 1 and corresponds to forward/backward projecting
+        Default value is 1 and corresponds to forward/backward projecting
         the whole dataset.
 
         '''
@@ -1670,8 +1680,8 @@ class AcquisitionModel(object):
 
         value: int > 0.
         Allows to set the number of subsets the AcquisitionModel operates on. 
-        Notice that reassigning the num_subsets to any number will also set 
-        the property subset_num to 0.
+        Notice that reassigning the num_subsets to any valid number will also 
+        set the property subset_num to 0.
         '''
         if isinstance (value, Integral):
             if value > 0:
