@@ -1640,8 +1640,7 @@ class AcquisitionModel(object):
         default values used by forward and back projection for their 
         parameter subset_num.
         
-        Default value is 0 and corresponds to forward/backward projecting
-        the whole dataset.
+        Default value is 0.
         '''
         return self._subset_num
     
