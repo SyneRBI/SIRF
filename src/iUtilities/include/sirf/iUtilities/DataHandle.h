@@ -342,8 +342,11 @@ inline void* charDataHandleFromCharData(const char* s)
 	DataHandle* h = new DataHandle;
 	size_t len = strlen(s);
 	char* d = (char*)malloc(len + 1);
-	//strcpy_s(d, len + 1, s);
+#ifdef _MSC_VER
+	strcpy_s(d, len + 1, s);
+#else
 	strcpy(d, s);
+#endif
 	h->set((void*)d, 0, GRAB);
 	return (void*)h;
 }

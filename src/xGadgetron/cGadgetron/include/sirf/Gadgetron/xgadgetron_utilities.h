@@ -51,10 +51,14 @@ namespace sirf {
 		static std::string scratch_file_name()
 		{
 			static int calls = 0;
-			char buff[32];
+			char buff[128];
 			long long int ms = xGadgetronUtilities::milliseconds();
 			calls++;
+#ifdef _MSC_VER
+			sprintf_s(buff, 128, "tmp_%d_%lld.h5", calls, ms);
+#else
 			sprintf(buff, "tmp_%d_%lld.h5", calls, ms);
+#endif
 			return std::string(buff);
 		}
 		template<typename T>
