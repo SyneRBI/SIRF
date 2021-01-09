@@ -40,8 +40,6 @@ limitations under the License.
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
-#include <ismrmrd/meta.h>
-#include <ismrmrd/xml.h>
 
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/MRImageData.h"
