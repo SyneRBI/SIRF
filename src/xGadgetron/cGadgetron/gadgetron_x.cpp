@@ -27,14 +27,28 @@ limitations under the License.
 \author Evgueni Ovtchinnikov
 \author SyneRBI
 */
-
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/gadgetron_client.h"
 
 using namespace gadgetron;
 using namespace sirf;
+
+GTConnector::GTConnector()
+{
+	sptr_con_ = gadgetron::shared_ptr < GadgetronClientConnector >
+		(new GadgetronClientConnector);
+}
+GadgetronClientConnector& GTConnector::operator()()
+{
+	return *sptr_con_.get();
+}
+gadgetron::shared_ptr<GadgetronClientConnector> GTConnector::sptr()
+{
+	return sptr_con_;
+}
 
 static bool
 connection_failed(int nt)

@@ -37,41 +37,31 @@ limitations under the License.
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
-#include <ismrmrd/meta.h>
-#include <ismrmrd/xml.h>
+
+#include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 #include "sirf/common/JacobiCG.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
-#include "sirf/Gadgetron/gadgetron_client.h"
 #include "sirf/Gadgetron/gadget_lib.h"
 #include "sirf/Gadgetron/ismrmrd_fftw.h"
 
 #define N_TRIALS 5
 
-/*!
-\ingroup Gadgetron Extensions
-\brief Shared pointer wrap-up for GadgetronClientConnector.
-
-*/
-
 namespace sirf {
 
+  class GadgetronClientConnector;
+
+	/*!
+	\ingroup Gadgetron Extensions
+	\brief Shared pointer wrap-up for GadgetronClientConnector.
+	*/
 	class GTConnector {
 	public:
-		GTConnector()
-		{
-			sptr_con_ = gadgetron::shared_ptr < GadgetronClientConnector >
-				(new GadgetronClientConnector);
-		}
-		GadgetronClientConnector& operator()()
-		{
-			return *sptr_con_.get();
-		}
-		gadgetron::shared_ptr<GadgetronClientConnector> sptr()
-		{
-			return sptr_con_;
-		}
+		GTConnector();
+		GadgetronClientConnector& operator()();
+		gadgetron::shared_ptr<GadgetronClientConnector> sptr();
 	private:
 		gadgetron::shared_ptr<GadgetronClientConnector> sptr_con_;
 	};
