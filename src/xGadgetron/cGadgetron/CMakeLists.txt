@@ -60,21 +60,7 @@ else()
   target_link_libraries(cgadgetron PUBLIC Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 endif()
 
-# Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
-# a list of filenames with spaces. There doesn't seem to be a way to pass this through (strange).
-# Luckily, we know what libraries it uses
-if (WIN32)
-  find_library(ismrmrd_full_path "ismrmrd" "${ISMRMRD_LIBRARY_DIRS}")
-  if(NOT ismrmrd_full_path)
-    message(FATAL_ERROR "ismrmrd not found")
-  endif()
-  find_package(HDF5 COMPONENTS C REQUIRED)
-  target_link_libraries(cgadgetron PUBLIC "${ismrmrd_full_path}")
-  target_link_libraries(cgadgetron PUBLIC "${HDF5_LIBRARIES}")
-else()
-  target_link_libraries(cgadgetron PUBLIC ISMRMRD::ISMRMRD)
-endif()
-
+target_link_libraries(cgadgetron PUBLIC ISMRMRD::ISMRMRD)
 target_link_libraries(cgadgetron PUBLIC "${FFTW3_LIBRARIES}")
 
 
