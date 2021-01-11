@@ -63,6 +63,10 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef GADGETRON_CLIENT
 #define GADGETRON_CLIENT
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <chrono>
 #include <condition_variable>
 #include <exception>
