@@ -197,6 +197,37 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(MRAcquisitionData& av)
     }
 }
 
+bool test_number_of_encodings(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
+{
+    MRAcquisitionData& ad = *sptr_ad;
+    gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csv
+        (new CoilSensitivitiesVector);
+    CoilSensitivitiesVector& csv = *sptr_csv;
+    csv.calculate(ad);
+
+    gadgetron::shared_ptr<GadgetronImageData> sptr_id;
+    gadgetron::shared_ptr<GadgetronImageData> sptr;
+
+    std::cout << "################ Directorly BEFORE calling undersampled(): # encodings: " << ad.acquisitions_info().get_IsmrmrdHeader().encoding.size() << " encodings now ####################### " << std::endl;
+    ad.undersampled();
+
+    if (ad.undersampled()) {
+        std::cout << "found undersampled data\n";
+        SimpleGRAPPAReconstructionProcessor recon;
+        std::cout << "reconstructing...\n";
+        recon.process(ad);
+        sptr_id = recon.get_output();
+        sptr_id = sptr_id->clone("GADGETRON_DataRole", "image");
+    }
+    else {
+        std::cout << "found fully sampled data\n";
+        SimpleReconstructionProcessor recon;
+        std::cout << "reconstructing...\n";
+        recon.process(ad);
+        sptr_id = recon.get_output();
+    }
+}
+
 bool test_acq_mod_norm(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
 {
     MRAcquisitionData& ad = *sptr_ad;
@@ -545,10 +576,8 @@ int main ( int argc, char* argv[])
         else
             SIRF_PATH = argv[1];
 
-        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
-
-//        test_get_kspace_order(data_path);
-//        test_get_subset(data_path);
+//        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
+        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
 //        sirf::AcquisitionsVector av;
         gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
@@ -559,34 +588,35 @@ int main ( int argc, char* argv[])
         sirf::preprocess_acquisition_data(av);
         av.sort();
 
-        test_get_kspace_order(av);
-        test_get_subset(av);
+//        test_get_kspace_order(av);
+//        test_get_subset(av);
 
-        test_GRPETrajectoryPrep_set_trajectory(av);
+//        test_GRPETrajectoryPrep_set_trajectory(av);
 
-        test_CoilSensitivitiesVector_calculate(av);
-        test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+//        test_CoilSensitivitiesVector_calculate(av);
+//        test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
-        test_bwd(av);
+//        test_bwd(av);
 
-        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/3D_Rpe.h5";
+//        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/3D_Rpe.h5";
 
-        sirf::AcquisitionsVector rpe_av;
-        rpe_av.read(rpe_data_path);
+//        sirf::AcquisitionsVector rpe_av;
+//        rpe_av.read(rpe_data_path);
 
-        sirf::preprocess_acquisition_data(rpe_av);
-        rpe_av.sort();
-        sirf::set_unit_dcf(rpe_av);
+//        sirf::preprocess_acquisition_data(rpe_av);
+//        rpe_av.sort();
+//        sirf::set_unit_dcf(rpe_av);
 
 
-        test_get_rpe_trajectory(rpe_av);
-        test_rpe_bwd(rpe_av);
-        test_rpe_fwd(rpe_av);
+//        test_get_rpe_trajectory(rpe_av);
+//        test_rpe_bwd(rpe_av);
+//        test_rpe_fwd(rpe_av);
 
-        test_rpe_csm(rpe_av);
+//        test_rpe_csm(rpe_av);
 
-        test_mracquisition_model_rpe_bwd(rpe_av);
+//        test_mracquisition_model_rpe_bwd(rpe_av);
 
+        test_number_of_encodings(sptr_ad);
         test_acq_mod_norm(sptr_ad);
 
         return 0;
