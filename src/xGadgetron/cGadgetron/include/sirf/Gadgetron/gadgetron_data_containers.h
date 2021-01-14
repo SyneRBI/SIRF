@@ -40,8 +40,6 @@ limitations under the License.
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
-#include <ismrmrd/meta.h>
-#include <ismrmrd/xml.h>
 
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/MRImageData.h"
@@ -121,10 +119,11 @@ namespace sirf {
 		{
 			if (!this->empty())
 				ISMRMRD::deserialize(data_.c_str(), header_);
+            have_header_ = true;
 		}
 		std::string data_;
         mutable ISMRMRD::IsmrmrdHeader header_;
-		bool have_header_;
+        mutable bool have_header_;
 	};
 
     class KSpaceSorting
@@ -292,8 +291,8 @@ namespace sirf {
 
 		int index(int i) const
 		{
-			int ni = index_.size();
-			if (ni > 0 && i >= ni || i < 0 || i >= number())
+			const std::size_t ni = index_.size();
+			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) || static_cast<unsigned>(i) >= number())
 				THROW("Aquisition number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -618,8 +617,8 @@ namespace sirf {
 		const std::vector<int>& index() const { return index_; }
 		int index(int i) const
 		{
-			int ni = index_.size();
-			if (ni > 0 && i >= ni || i < 0 || i >= number())
+			const std::size_t ni = index_.size();
+			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) || static_cast<unsigned>(i) >= number())
 				THROW("Image number is out of range");
 			if (ni > 0)
 				return index_[i];

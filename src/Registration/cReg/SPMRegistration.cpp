@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief NiftyReg's aladin class for rigid and affine registrations.
+\brief Implementation for sirf::SPMRegistration
 
 \author Richard Brown
 \author SyneRBI

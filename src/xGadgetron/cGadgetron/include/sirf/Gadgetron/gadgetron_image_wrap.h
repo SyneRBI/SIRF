@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2020 University College London
+Copyright 2020, 2021 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -83,6 +83,12 @@ limitations under the License.
 
 typedef ISMRMRD::Image<complex_float_t> CFImage;
 typedef ISMRMRD::Image<complex_double_t> CDImage;
+
+#ifdef _MSC_VER
+#pragma warning( push )
+// disable warning about loss of precision. we convert to float in various places
+#pragma warning( disable : 4244 )
+#endif
 
 namespace sirf {
 
@@ -801,5 +807,9 @@ namespace sirf {
 		}
 	};
 }
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif
 
 #endif
