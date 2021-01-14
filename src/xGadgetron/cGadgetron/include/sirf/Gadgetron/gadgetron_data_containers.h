@@ -192,12 +192,7 @@ namespace sirf {
 
 		static std::string storage_scheme()
 		{
-			static bool initialized = false;
-			if (!initialized) {
-				_storage_scheme = "file";
-				initialized = true;
-			}
-			return _storage_scheme;
+            return _storage_scheme;
 		}
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
@@ -313,7 +308,7 @@ namespace sirf {
         std::vector<KSpaceSorting> sorting_;
 		AcquisitionsInfo acqs_info_;
 
-		static std::string _storage_scheme;
+        static std::string _storage_scheme;
 		// new MRAcquisitionData objects will be created from this template
 		// using same_acquisitions_container()
 		static gadgetron::shared_ptr<MRAcquisitionData> acqs_templ_;
@@ -432,14 +427,21 @@ namespace sirf {
 		{
 			acqs_info_ = info;
 		}
-		static void init() 
-		{ 
-			AcquisitionsFile::init(); 
-		}
+        static void init()
+        {
+            static bool initialized = false;
+            if (!initialized) {
+                acqs_templ_.reset(new AcquisitionsVector());
+                _storage_scheme = "memory";
+                MRAcquisitionData::storage_scheme();
+                initialized = true;
+            }
+
+        }
 		static void set_as_template()
 		{
-			init();
-			acqs_templ_.reset(new AcquisitionsVector);
+            init();
+            acqs_templ_.reset(new AcquisitionsVector);
 			_storage_scheme = "memory";
 		}
 		virtual void empty();
