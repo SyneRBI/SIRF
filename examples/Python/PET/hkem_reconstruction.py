@@ -7,7 +7,7 @@ Usage:
 
 Options:
   -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
-  -a <file>, --anim=<file>     anatomical image file
+  -a <file>, --anim=<file>     anatomical image file [default: test_image_PM_QP_6.hv]
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -s <subs>, --subs=<subs>     number of subsets [default: 12]
@@ -88,31 +88,24 @@ def main():
     print('raw data: %s' % raw_data_file)
     acq_data = AcquisitionData(raw_data_file)
 
-    # create initial image estimate of dimensions and voxel sizes
-    # compatible with the scanner geometry (included in the AcquisitionData
-    # object ad) and initialize each voxel to 1.0
-    image = acq_data.create_uniform_image(1.0)
+    # read anatomical image
+    anatomical_image = ImageData(ai_file)
+    if show_plot:
+        anatomical_image.show(title='Image used as anatomical prior')
+    image_array = anatomical_image.as_array()
+    image_array[image_array < 0] = 0
+    anatomical_image.fill(image_array)
 
+    # create initial image estimate
+    image = anatomical_image.get_uniform_copy()
+
+    # set up acquisition model
     acq_model.set_up(acq_data, image)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
     obj_fun = make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
-
-    # create anatomical image using 2D Filtered Back Projection
-    # create reconstructor object
-    recon = FBP2DReconstructor()
-    # specify the acquisition data
-    recon.set_input(acq_data)
-    # reconstruct with default settings
-    recon.process()
-    anatomical_image = recon.get_output()
-    if show_plot:
-        anatomical_image.show(title='Image used as anatomical prior')
-    image_array = anatomical_image.as_array()
-    image_array[image_array < 0] = 0
-    anatomical_image.fill(image_array)
 
     # select Kernelized Ordered Subsets Maximum A-Posteriori One Step Late
     # as the reconstruction algorithm
