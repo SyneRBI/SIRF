@@ -63,5 +63,6 @@ endif()
 target_link_libraries(cgadgetron PUBLIC ISMRMRD::ISMRMRD)
 target_link_libraries(cgadgetron PUBLIC "${FFTW3_LIBRARIES}")
 
+target_compile_definitions(cgadgetron PRIVATE _WIN32_WINNT=0x0501)
 
 ADD_SUBDIRECTORY(tests)
