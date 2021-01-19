@@ -221,12 +221,13 @@ def main():
     # direct is alias for the forward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
     try:
-        acq_model.direct(image, 0, 4, simulated_data)
+        acq_model.num_subsets = 4
+        acq_model.direct(image, simulated_data)
     except error as err:
         print('%s' % err.value)
         print('Extracting the linear acquisition model...')
         lin_acq_model = acq_model.get_linear_acquisition_model()
-        lin_acq_model.direct(image, 0, 4, simulated_data)
+        lin_acq_model.direct(image, simulated_data)
 
     if show_plot:
         # show simulated acquisition data
@@ -236,12 +237,12 @@ def main():
     # adjoint is an alias for the backward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
     try:
-        back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)
+        back_projected_image_adj = acq_model.adjoint(simulated_data)
     except error as err:
         print('%s' % err.value)
         print('Extracting the linear acquisition model...')
         lin_acq_model = acq_model.get_linear_acquisition_model()
-        back_projected_image_adj = lin_acq_model.adjoint(simulated_data, 0, 4)
+        back_projected_image_adj = lin_acq_model.adjoint(simulated_data)
 
     if show_plot:
         back_projected_image_as_array_adj = back_projected_image_adj.as_array()
