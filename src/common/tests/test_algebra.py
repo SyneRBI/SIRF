@@ -46,7 +46,7 @@ class TestSIRFDataContainerAlgebra(unittest.TestCase):
         os.chdir(self.cwd)
         image1 = pet.ImageData('emission.hv')
         image2 = pet.ImageData('emission.hv')
-        # image1.fill(1.)
+        
         image2.fill(2.)
         print (image1.shape, image2.shape)
         
