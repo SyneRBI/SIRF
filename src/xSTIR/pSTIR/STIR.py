@@ -1202,7 +1202,7 @@ class AcquisitionSensitivityModel(object):
         - from AcquisitionData object containing bin efficiencies or
         - by chaining two existing AcquisitionSensitivityModel objects
         src: file name or ImageData object or AcquisitionData object
-        pther_src: AcquisitionSensitivityModel object (optional)
+        other_src: AcquisitionSensitivityModel object (optional)
         """
         self.handle = None
         self.name = 'AcquisitionSensitivityModel'
@@ -1841,22 +1841,18 @@ class Prior(object):
 class QuadraticPrior(Prior):
     r"""Class for the prior that is a quadratic function of the image values.
 
-    Implements a quadratic Gibbs prior. The gradient of the prior is computed
-    as follows:
+    Implements a quadratic Gibbs prior.
 
-    \f[
-    g_r = \sum_dr w_{dr} (\lambda_r - \lambda_{r+dr}) *
-          \kappa_r * \kappa_{r+dr}
-    \f]
+    The gradient of the prior for the image lambda is computed at voxel r as
+    the sum of
 
-    where \f$\lambda\f$ is the image and \f$r\f$ and \f$dr\f$ are indices and
-    the sum is over the neighbourhood where the weights \f$w_{dr}\f$ are
-    non-zero.
+        delta(r, s) = w(s - r)*kappa(r)*kappa(s)*(lambda(r) - lambda(s))
 
-    The \f$\kappa\f$ image can be used to have spatially-varying penalties such
-    as in Jeff Fessler's papers. It should have identical dimensions to the
-    image for which the penalty is computed. If \f$\kappa\f$ is not set, this
-    class will effectively use 1 for all \f$\kappa\f$'s.
+    over all voxels s where the weight w(s - r) is non-zero, kappa being an
+    image used to have spatially-varying penalties such as in Jeff Fessler's
+    papers.It should have identical dimensions to the image for which the
+    penalty is computed. If kappa is not set, this class will
+    effectively use 1 for all kappa's.
 
     By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
     to x-voxel_size divided by the Euclidean distance between the points.
@@ -1888,27 +1884,17 @@ class PLSPrior(Prior):
     The prior has 2 parameters alpha and eta. It is computed for an image \f$
     f f$ as
 
-    \f[
-    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {\langle\nabla f, xi\rangle}^2}
-    \f]
+        phi(f) = sqrt(alpha^2 + |grad f|^2 - <grad f, xi>^2)
 
-    where \f$ f \f$ is the PET image,
-    \f$ xi \f$ is the normalised gradient of the anatomical image calculated
-    as follows:
+    where f is the PET image, alpha controls the edge-preservation property
+    of PLS, and depends on the scale of the emission image, xi is the
+    normalised gradient of the anatomical image calculated as follows:
 
-    \f[
-    xi = \frac{\nabla v}{\sqrt{|\nabla v|^2 + \eta^2}}
-    \f]
+        xi = 1/sqrt(|grad v|^2 + eta^2) grad v
 
-    with \f$ v f$ the anatomical image, \f$ \alpha \f$ controls
-    the edge-preservation property of PLS, and depends on the scale
-    of the emission image,  and \f$ \eta \f$ avoids division by zero, and
-    depends on the scale of the anatomical image.
+    where v is the anatomical image, and eta safeguards against the division
+    by zero and depends on the scale of the anatomical image.
 
-    A \f$\kappa\f$ image can be used to have spatially-varying penalties
-    such as in Jeff Fessler's papers. It should have identical dimensions to
-    the image for which the penalty is computed. If \f$\kappa\f$ is not set,
-    this class will effectively use 1 for all \f$\kappa\f$'s.
     """
 
     def __init__(self):
