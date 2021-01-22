@@ -7,11 +7,11 @@ from sirf.Utilities import  examples_data_path
 
 
 class TestSIRFDataContainerAlgebra(unittest.TestCase):
-    
+
     def setUp(self):
         os.chdir(examples_data_path('PET'))
         # Copy files to a working folder and change directory to where these files are.
-        # We do this to avoid cluttering your SIRF files. This way, you can delete 
+        # We do this to avoid cluttering your SIRF files. This way, you can delete
         # working_folder and start from scratch.
         shutil.rmtree('working_folder/brain',True)
         shutil.copytree('brain','working_folder/brain')
