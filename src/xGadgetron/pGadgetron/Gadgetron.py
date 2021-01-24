@@ -332,8 +332,7 @@ class ImageData(SIRF.ImageData):
                     the_data = data.astype(numpy.complex64)
             convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if not data.flags['F_CONTIGUOUS']:
-                    the_data = numpy.ascontiguousarray(the_data)
+                the_data = numpy.ascontiguousarray(the_data)
             if self.is_real():
                 try_calling(pygadgetron.cGT_setImageDataFromFloatArray\
                     (self.handle, the_data.ctypes.data))
@@ -394,7 +393,7 @@ class ImageData(SIRF.ImageData):
 
         # hope numpy is clever enough to do all this in-place:
         array = numpy.reshape(array, (ns, nc, nz, ny, nx))
-        array = numpy.swapaxes(array,0,1)
+        array = numpy.swapaxes(array, 0, 1)
         array = numpy.reshape(array, (nc, ns*nz, ny, nx))
 
         return array
@@ -576,10 +575,8 @@ class CoilSensitivityData(ImageData):
             nc, nz, ny, nx = self.dimensions()
             ns = self.number() # number of total dynamics (slices, contrasts, etc.)
             nz = nz//ns        # z-dimension of a slice
-
             csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
-            csm = numpy.swapaxes(csm,0,1)
-            csm = numpy.reshape(csm, (nc, ns*nz, ny, nx))
+            csm = numpy.swapaxes(csm, 0,  1)
             
             self.fill(csm.astype(numpy.complex64))
         
@@ -599,7 +596,15 @@ class CoilSensitivityData(ImageData):
             if self.handle is not None:
                 pyiutil.deleteDataHandle(self.handle)
             self.handle = pysirf.cSIRF_clone(data.handle)
+
+            nc, nz, ny, nx = self.dimensions()
+            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+            nz = nz//ns        # z-dimension of a slice
+            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
+            csm = numpy.swapaxes(csm, 0,  1)
+
             self.fill(csm.astype(numpy.complex64))
+
         elif method_name == 'SRSS':
             try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
                 (self.handle, data.handle))
@@ -886,8 +891,7 @@ class AcquisitionData(DataContainer):
                 the_data = data
             convert = not data.flags['C_CONTIGUOUS']
             if convert:
-                if not data.flags['F_CONTIGUOUS']:
-                    the_data = numpy.ascontiguousarray(the_data)
+                the_data = numpy.ascontiguousarray(the_data)
             if select == 'all':
                 fill_all = 1
             else: # fill only image-related
@@ -1021,6 +1025,13 @@ class AcquisitionModel(object):
         assert_validity(csm, CoilSensitivityData)
         try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
             (self.handle, 'coil_sensitivity_maps', csm.handle))
+    def norm(self):
+        assert self.handle is not None
+        handle = pygadgetron.cGT_acquisitionModelNorm(self.handle)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r;
     def forward(self, image):
         '''
         Projects an image into (simulated) acquisitions space.

@@ -134,3 +134,4 @@ try:
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    exit(1)

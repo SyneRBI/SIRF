@@ -16,7 +16,7 @@ Options:
 import math
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 def test_main(rec=False, verb=False, throw=True):
@@ -64,9 +64,10 @@ def test_main(rec=False, verb=False, throw=True):
         simulated_data = acq_model.forward(image)
         diff = simulated_data * (
                 acq_data.norm() / simulated_data.norm()) - acq_data
+        res = diff.norm() / acq_data.norm()
         if verb:
-            print('relative residual norm: %e' % (diff.norm() / acq_data.norm()))
-        test.check(diff.norm())
+            print('relative residual norm: %e' % res)
+        test.check_if_zero_within_tolerance(res, abs_tol=0.28) # only 2 iterations, so low tolerance
 
         acq_copy = acq_data.get_uniform_copy(1.0)
         acq_copy *= acq_data

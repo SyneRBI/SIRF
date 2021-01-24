@@ -29,6 +29,7 @@ target_include_directories(csyn PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
 target_link_libraries(csyn PUBLIC cgadgetron cstir Reg)
+target_compile_definitions(csyn PRIVATE WIN32_LEAN_AND_MEAN)
 INSTALL(TARGETS csyn DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 ADD_SUBDIRECTORY(tests)

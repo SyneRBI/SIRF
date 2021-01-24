@@ -55,6 +55,7 @@ extern "C" {
 	void* cGT_setAcquisitionModelParameter
 		(void* ptr_am, const char* name, const void* ptr);
 	void* cGT_setCSMs(void* ptr_am, const void* ptr_csms);
+	void* cGT_acquisitionModelNorm(void* ptr_am);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 	void* cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 

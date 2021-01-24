@@ -156,6 +156,21 @@ def main():
     if output_file is not None:
         simulated_data.write(output_file)
 
+    print('\n--- Computing the norm of the linear part A of acquisition model...')
+    acqm_norm = acq_model.norm()
+    image_norm = image.norm()
+    acqd_norm = simulated_data.norm()
+    print('\n--- The computed norm is |A| = %f, checking...' % acqm_norm)
+    print('    image data x norm: |x| = %f' % image_norm)
+    print('    forward projected data A x norm: |A x| = %f' % acqd_norm)
+    acqd_bound = acqm_norm*image_norm
+    msg = '    |A x| must be less than or equal to |A||x| = %f'
+    if acqd_norm <= acqd_bound:
+        msg += ' - ok\n'
+    else:
+        msg += ' - ???\n'
+    print( msg % acqd_bound)
+
     if show_plot:
         # show simulated acquisition data
         simulated_data_as_array = simulated_data.as_array()
@@ -206,12 +221,13 @@ def main():
     # direct is alias for the forward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
     try:
-        acq_model.direct(image, 0, 4, simulated_data)
+        acq_model.num_subsets = 4
+        acq_model.direct(image, simulated_data)
     except error as err:
         print('%s' % err.value)
         print('Extracting the linear acquisition model...')
         lin_acq_model = acq_model.get_linear_acquisition_model()
-        lin_acq_model.direct(image, 0, 4, simulated_data)
+        lin_acq_model.direct(image, simulated_data)
 
     if show_plot:
         # show simulated acquisition data
@@ -221,12 +237,12 @@ def main():
     # adjoint is an alias for the backward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
     try:
-        back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)
+        back_projected_image_adj = acq_model.adjoint(simulated_data)
     except error as err:
         print('%s' % err.value)
         print('Extracting the linear acquisition model...')
         lin_acq_model = acq_model.get_linear_acquisition_model()
-        back_projected_image_adj = lin_acq_model.adjoint(simulated_data, 0, 4)
+        back_projected_image_adj = lin_acq_model.adjoint(simulated_data)
 
     if show_plot:
         back_projected_image_as_array_adj = back_projected_image_adj.as_array()

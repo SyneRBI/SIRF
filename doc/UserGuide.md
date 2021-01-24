@@ -736,6 +736,8 @@ where `T'` is the complex transpose of `T`, i.e. the inverse Fourier transform.
                         (PET) Defines the ImageDataProcessor P
     set_coil_sensitivity_maps  
                          (MR) Sets coil sensitivity maps to be used.  
+    norm                      Returns the operator norm of F(x) (in PET case -
+                              its linear part S G P)
 
 ###### Examples: 
 

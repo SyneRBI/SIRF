@@ -548,7 +548,8 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 		PETAcquisitionSensitivityModel& sm = 
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-		Succeeded s = sm.set_up(sptr_ad->data()->get_proj_data_info_sptr()->create_shared_clone());
+		Succeeded s = sm.set_up(sptr_ad->get_exam_info_sptr(), 
+			sptr_ad->get_proj_data_info_sptr()->create_shared_clone());
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
@@ -611,6 +612,16 @@ void* cSTIR_linearAcquisitionModel(void* ptr_am)
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		return newObjectHandle(am.linear_acq_mod_sptr());
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_acquisitionModelNorm(void* ptr_am, int subset_num, int num_subsets)
+{
+	try {
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		return dataHandle(am.norm(subset_num, num_subsets));
 	}
 	CATCH;
 }
@@ -764,7 +775,7 @@ void* cSTIR_getAcquisitionDataDimensions(const void* ptr_acq, size_t ptr_dim)
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		dim[0] = sptr_ad->get_num_tangential_poss();
 		dim[1] = sptr_ad->get_num_views();
-		dim[2] = sptr_ad->get_num_sinograms();
+		dim[2] = sptr_ad->get_num_non_TOF_sinograms();
 		dim[3] = sptr_ad->get_num_TOF_bins();
 		return (void*)new DataHandle;
 	}

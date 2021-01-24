@@ -33,6 +33,7 @@ limitations under the License.
 
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/chain_lib.h"
 
 #include "mrtest_auxiliary_funs.h"
 
@@ -153,7 +154,79 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av
     }
 }
 
+bool test_acq_mod_norm(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
+{
+    MRAcquisitionData& ad = *sptr_ad;
+    int acq_dim[10];
+    ad.get_acquisitions_dimensions((size_t)acq_dim);
+    std::cout << "acquisitions dimensions: "
+              << acq_dim[0] << " by "
+              << acq_dim[1] << " by "
+              << acq_dim[2] << '\n';
 
+    gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csv
+        (new CoilSensitivitiesVector);
+    CoilSensitivitiesVector& csv = *sptr_csv;
+    csv.calculate(ad);
+
+    gadgetron::shared_ptr<GadgetronImageData> sptr_id;
+    gadgetron::shared_ptr<GadgetronImageData> sptr;
+    if (ad.undersampled()) {
+        std::cout << "found undersampled data\n";
+        SimpleGRAPPAReconstructionProcessor recon;
+        std::cout << "reconstructing...\n";
+        recon.process(ad);
+        sptr_id = recon.get_output();
+        sptr_id = sptr_id->clone("GADGETRON_DataRole", "image");
+    }
+    else {
+        std::cout << "found fully sampled data\n";
+        SimpleReconstructionProcessor recon;
+        std::cout << "reconstructing...\n";
+        recon.process(ad);
+        sptr_id = recon.get_output();
+    }
+
+    GadgetronImageData& image = *sptr_id;
+    int img_dim[10];
+    int ni = image.number();
+    image.get_image_dimensions(0, img_dim);
+    std::cout << ni << " images reconstructed\n";
+    std::cout << "image dimensions: "
+              << img_dim[0] << " by "
+              << img_dim[1] << " by "
+              << img_dim[2] << " by "
+              << img_dim[3] << '\n';
+
+    MRAcquisitionModel am;
+    am.set_up(sptr_ad, sptr_id);
+    am.setCSMs(sptr_csv);
+    std::cout << "forward projectiong...\n";
+    gadgetron::shared_ptr<MRAcquisitionData> sptr_sd = am.fwd(image);
+    MRAcquisitionData& sd = *sptr_sd;
+    sd.get_acquisitions_dimensions((size_t)acq_dim);
+    std::cout << "simulated acquisitions dimensions: "
+              << acq_dim[0] << " by "
+              << acq_dim[1] << " by "
+              << acq_dim[2] << '\n';
+
+    float im_norm = image.norm();
+    float sd_norm = sd.norm();
+    float am_norm = am.norm();
+    std::cout << "\nchecking the acquisition model norm:\n";
+    std::cout << "acquisition model norm: |A| = " << am_norm << '\n';
+    std::cout << "image data x norm: |x| = " << im_norm << '\n';
+    std::cout << "simulated acquisition data norm: |A(x)| = " << sd_norm << '\n';
+    std::cout << "checking that |A(x)| <= |A||x|: ";
+    float bound = am_norm*im_norm;
+    bool ok = (sd_norm <= bound);
+    if (ok)
+        std::cout << sd_norm << " <= " << bound << " ok!\n";
+    else
+        std::cout << sd_norm << " > " << bound << " failure!\n";
+
+    return ok;
+}
 
 int main ( int argc, char* argv[])
 {
@@ -171,13 +244,16 @@ int main ( int argc, char* argv[])
 //        test_get_kspace_order(data_path);
 //        test_get_subset(data_path);
 
-        sirf::AcquisitionsVector av;
+//        sirf::AcquisitionsVector av;
+        gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
         av.read(data_path);
 
         sirf::preprocess_acquisition_data(av);
 
         test_CoilSensitivitiesVector_calculate(av);
         test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+        test_acq_mod_norm(sptr_ad);
         return 0;
 	}
     catch(const std::exception &error) {

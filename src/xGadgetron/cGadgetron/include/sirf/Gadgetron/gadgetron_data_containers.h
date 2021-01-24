@@ -40,8 +40,6 @@ limitations under the License.
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
-#include <ismrmrd/meta.h>
-#include <ismrmrd/xml.h>
 
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/MRImageData.h"
@@ -289,8 +287,8 @@ namespace sirf {
 
 		int index(int i) const
 		{
-			int ni = index_.size();
-			if (ni > 0 && i >= ni || i < 0 || i >= number())
+			const std::size_t ni = index_.size();
+			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) || static_cast<unsigned>(i) >= number())
 				THROW("Aquisition number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -568,6 +566,25 @@ namespace sirf {
 			const DataContainer& a_x,
 			const DataContainer& a_y);
 
+		void fill(float s);
+		void scale(float s);
+		complex_float_t dot(const DataContainer& a_x)
+		{
+			complex_float_t z;
+			dot(a_x, &z);
+			return z;
+		}
+		void axpby(
+			complex_float_t a, const DataContainer& a_x,
+			complex_float_t b, const DataContainer& a_y)
+		{
+			axpby(&a, a_x, &b, a_y);
+		}
+		gadgetron::unique_ptr<ISMRMRDImageData> clone() const
+		{
+			return gadgetron::unique_ptr<ISMRMRDImageData>(this->clone_impl());
+		}
+
 		virtual void sort() = 0;
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
@@ -575,8 +592,8 @@ namespace sirf {
 		const std::vector<int>& index() const { return index_; }
 		int index(int i) const
 		{
-			int ni = index_.size();
-			if (ni > 0 && i >= ni || i < 0 || i >= number())
+			const std::size_t ni = index_.size();
+			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) || static_cast<unsigned>(i) >= number())
 				THROW("Image number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -599,11 +616,12 @@ namespace sirf {
         /// Get the meta data
         const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
 
-
 	protected:
 		bool sorted_=false;
 		std::vector<int> index_;
         AcquisitionsInfo acqs_info_;
+		/// Clone helper function. Don't use.
+		virtual ISMRMRDImageData* clone_impl() const = 0;
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;

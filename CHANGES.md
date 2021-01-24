@@ -1,7 +1,12 @@
 # ChangeLog
 
 ## vX.X.X
-* Addition of sirf.STIR.ScatterEstimation and ScatterSimulation
+* Addition of sirf.STIR.ScatterEstimation and ScatterSimulation to allow scatter estimation in PET
+* STIR AcquisitionModel `forward`, `direct`, `backward` and `adjoint` signatures have changed in Python. Subset information should now be set via `num_subsets` and `subset_num` members. `The `forward` and `backward` members can still be called with the previous syntax but this will be removed in a later version.
+Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectively, such that default behaviour is default behaviour (i.e. process all data) is unchanged.
+* Extraction of the operator representing the linear part of PET acquisition model and computation of its norm implemented.
+* Data validity checks return NotImplemented instead of throwing error, opening the door for future implementations of operations on data.
+* Handling of coil images and sensitivities data simplified.
 * STIR projection data now have an implementation of `axpby`, so that duplicate functionality has been removed from SIRF
 * Iterators are now used in `AcquisitionDataInMemory` to improve speed of `as_array`, `fill`, `dot`, `norm`, etc.
 * Bug fix in `get_index_to_physical_point_matrix`

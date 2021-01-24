@@ -18,12 +18,13 @@ function assert_validities(x, y)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-assert(~isempty(x.handle_), 'first object is empty')
-assert(~isempty(y.handle_), 'second object is empty')
+errID = 'SIRF:assert_validities';
+assert(~isempty(x.handle_), errID, 'first object is empty')
+assert(~isempty(y.handle_), errID, 'second object is empty')
 class_x = class(x);
 class_y = class(y);
 if ~isa(x, class_y) && ~isa(y, class_x)
     fprintf('??? Objects types are %s and %s - same type expected.\n', ...
         class_x, class_y)
-    error('Objects must be of the same type')
+    error(errID, 'Objects must be of the same type')
 end

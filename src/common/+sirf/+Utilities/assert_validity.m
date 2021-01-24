@@ -18,12 +18,13 @@ function assert_validity(object, type)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
+errID = 'SIRF:assert_validity';
 if ~ismethod(object, 'class_name')
-    error('expected %s, got %s\n', type, class(object))
+    error(errID, 'expected %s, got %s\n', type, class(object))
 end
 
 if ~strcmp(object.class_name(), type)
-    error('expected %s, got %s\n', type, object.class_name())
+    error(errID, 'expected %s, got %s\n', type, object.class_name())
 end
 
-assert(~isempty(object.handle_), 'empty object')
+assert(~isempty(object.handle_), errID, 'empty object')

@@ -20,6 +20,7 @@ limitations under the License.
 */
 
 #include "stir/common.h"
+#include "stir/config.h"
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
@@ -30,6 +31,13 @@ limitations under the License.
 using namespace stir;
 using namespace ecat;
 using namespace sirf;
+
+#if defined(HAVE_HDF5)
+#include "stir/IO/GEHDF5Wrapper.h"
+#include "stir/recon_buildblock/BinNormalisationFromGEHDF5.h"
+using namespace GE;
+using namespace RDF_HDF5;
+#endif
 
 #ifdef STIR_USE_LISTMODEDATA
     typedef ListModeData LMD;
@@ -459,17 +467,28 @@ PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
 PETAcquisitionSensitivityModel::
 PETAcquisitionSensitivityModel(std::string filename)
 {
+#if defined(HAVE_HDF5)
+	if (GEHDF5Wrapper::check_GE_signature(filename)) {
+		shared_ptr<BinNormalisation>
+			sptr_n(new BinNormalisationFromGEHDF5(filename));
+		norm_ = sptr_n;
+		return;
+	}
+#endif
 	shared_ptr<BinNormalisation>
 		sptr_n(new BinNormalisationFromECAT8(filename));
-	//shared_ptr<BinNormalisation> sptr_0;
-	//norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
 	norm_ = sptr_n;
 }
 
 Succeeded 
-PETAcquisitionSensitivityModel::set_up(const shared_ptr<ProjDataInfo>& sptr_pdi)
+PETAcquisitionSensitivityModel::set_up(const shared_ptr<const ExamInfo>& sptr_ei,
+	const shared_ptr<ProjDataInfo>& sptr_pdi)
 {
+#if STIR_VERSION < 050000
 	return norm_->set_up(sptr_pdi);
+#else
+	return norm_->set_up(sptr_ei, sptr_pdi);
+#endif
 }
 
 void
@@ -483,7 +502,11 @@ void
 PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
+#if STIR_VERSION < 050000
 	norm->apply(*ad.data(), 0, 1);
+#else
+	norm->apply(*ad.data());
+#endif
 }
 
 PETAttenuationModel::PETAttenuationModel
@@ -514,7 +537,11 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 	BinNormalisation* norm = norm_.get();
 	shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
+#if STIR_VERSION < 050000
 	norm->apply(*ad.data(), 0, 1, symmetries_sptr);
+#else
+	norm->apply(*ad.data(), symmetries_sptr);
+#endif
 }
 
 //void
@@ -537,13 +564,15 @@ PETAcquisitionModel::set_up(
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
 		s = sptr_projectors_->set_up
-			(sptr_acq->get_proj_data_info_sptr()->create_shared_clone(), sptr_image->data_sptr());
+			(sptr_acq->get_proj_data_info_sptr()->create_shared_clone(),
+				sptr_image->data_sptr());
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
 	if (s == Succeeded(Succeeded::yes)) {
 		if (sptr_asm_ && sptr_asm_->data())
-			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr()->create_shared_clone());
+			s = sptr_asm_->set_up(sptr_acq->get_exam_info_sptr(),
+				sptr_acq->get_proj_data_info_sptr()->create_shared_clone());
 	}
 	return s;
 }
@@ -560,7 +589,7 @@ PETAcquisitionModel::set_image_data_processor(stir::shared_ptr<ImageDataProcesso
 
 void 
 PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
-	int subset_num, int num_subsets, bool zero, bool do_linear_only)
+	int subset_num, int num_subsets, bool zero, bool do_linear_only) const
 {
 	shared_ptr<ProjData> sptr_fd = ad.data();
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
@@ -598,7 +627,7 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 
 shared_ptr<PETAcquisitionData>
 PETAcquisitionModel::forward(const STIRImageData& image, 
-	int subset_num, int num_subsets, bool do_linear_only)
+	int subset_num, int num_subsets, bool do_linear_only) const
 {
 	if (!sptr_acq_template_.get())
 		THROW("Fatal error in PETAcquisitionModel::forward: acquisition template not set");
@@ -611,7 +640,7 @@ PETAcquisitionModel::forward(const STIRImageData& image,
 
 shared_ptr<STIRImageData> 
 PETAcquisitionModel::backward(PETAcquisitionData& ad,
-	int subset_num, int num_subsets)
+	int subset_num, int num_subsets) const
 {
 	if (!sptr_image_template_.get())
 		THROW("Fatal error in PETAcquisitionModel::backward: image template not set");
@@ -623,7 +652,7 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad,
 
 void
 PETAcquisitionModel::backward(STIRImageData& id, PETAcquisitionData& ad,
-	int subset_num, int num_subsets)
+	int subset_num, int num_subsets) const
 {
 	shared_ptr<Image3DF> sptr_im = id.data_sptr();
 
