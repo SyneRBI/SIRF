@@ -17,7 +17,7 @@ sudo: false
 # Compilation dependencies
 addons:
  apt:
-  sources: &addons_apt_sources
+  sources:
   - ubuntu-toolchain-r-test
   packages: &addons_apt_packages
   - git-core
@@ -65,9 +65,8 @@ matrix:
    addons:
     apt:
      packages:
-      - *addons_apt_packages
-      - g++-8
-      - libinsighttoolkit4-dev
+     - *addons_apt_packages
+     - [g++-8, libinsighttoolkit4-dev]
    name: focal gcc8 -boost +itk +fftw3 +hdf5 +ace
    env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-8 CXX=g++-8" PYMVER=3
  - os: linux
@@ -75,10 +74,8 @@ matrix:
    python: 3
    apt:
      packages:
-      - *addons_apt_packages
-      - g++-8
-      - libboost-all-dev
-      - libinsighttoolkit4-dev
+     - *addons_apt_packages
+     - [g++-8, libboost-all-dev, libinsighttoolkit4-dev]
    name: focal gcc8 +boost +itk +fftw3 +hdf5 +siemens_to_ismrmrd +swig +ace
    env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-8 CXX=g++-8" PYMVER=3
  - os: linux
@@ -86,9 +83,8 @@ matrix:
    addons:
     apt:
      packages:
-      - *addons_apt_packages
-      - g++-6
-      - libboost-all-dev
+     - *addons_apt_packages
+     - [g++-6, libboost-all-dev]
    name: bionic gcc6 +DEVEL -boost -hdf5 -fftw3 +ace +siemens_to_ismrmrd
    env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_ACE=ON -DBUILD_siemens_to_ismrmrd=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
  - os: linux
@@ -96,9 +92,8 @@ matrix:
    addons:
     apt:
      packages:
-      - *addons_apt_packages
-      - g++-7
-      - libinsighttoolkit4-dev
+     - *addons_apt_packages
+     - [g++-7, libinsighttoolkit4-dev]
    name: bionic gcc7 +DEVEL -boost -fftw3 -hdf5 -swig +ace
    env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-7 CXX=g++-7" PYMVER=3
  ## osx g{cc,++} py{27,36}
@@ -127,9 +122,8 @@ matrix:
    addons:
     apt:
      packages:
-      - *addons_apt_packages
-      - g++-6
-      - libboost-all-dev
+     - *addons_apt_packages
+     - [g++-6, libboost-all-dev]
    name: bionic gcc6 +boost +itk +fftw3 +hdf5 +vtk
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DUSE_VTK=ON -DUSE_SYSTEM_VTK=ON" MATRIX_EVAL="CC=gcc-6 CXX=g++-6" PYMVER=3
  #- os: osx
