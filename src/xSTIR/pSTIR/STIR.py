@@ -477,7 +477,7 @@ class ImageData(SIRF.ImageData):
         nz = data.shape[0]
         if isinstance(slice, int):
             if slice < 0 or slice >= nz:
-                print("Warning, sinogram index out of bounds. Returning. ")
+                print("Warning, slice index out of bounds. Returning. ")
                 return
             show_2D_array('slice %d' % slice, data[slice, :, :])
             return
