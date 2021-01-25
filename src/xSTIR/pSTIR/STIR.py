@@ -982,9 +982,10 @@ class AcquisitionData(DataContainer):
             print('pylab not found')
             return
         data = self.as_array()
-        nz = data.shape[0]
+        nz = data.shape[1]
         if isinstance(sino, int):
             if sino < 0 or sino >= nz:
+                print("Warning, sinogram index out of bounds. Returning. ")
                 return
             show_2D_array('sinogram %d' % sino, data[tof, sino, :, :])
             return
