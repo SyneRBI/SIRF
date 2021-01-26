@@ -112,10 +112,11 @@ namespace sirf {
 		{
 			if (!this->empty())
 				ISMRMRD::deserialize(data_.c_str(), header_);
+            have_header_ = true;
 		}
 		std::string data_;
         mutable ISMRMRD::IsmrmrdHeader header_;
-		bool have_header_;
+        mutable bool have_header_;
 	};
 
     class KSpaceSorting
