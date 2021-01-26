@@ -72,10 +72,11 @@ matrix:
  - os: linux
    dist: focal
    python: 3
-   apt:
-     packages:
-     - *addons_apt_packages
-     - [g++-8, libboost-all-dev, libinsighttoolkit4-dev]
+   addons:
+     apt:
+       packages:
+       - *addons_apt_packages
+       - [g++-8, libboost-all-dev, libinsighttoolkit4-dev]
    name: focal gcc8 +boost +itk +fftw3 +hdf5 +siemens_to_ismrmrd +swig +ace
    env: EXTRA_BUILD_FLAGS="-DUSE_ITK:BOOL=ON -DUSE_SYSTEM_ITK:BOOL=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_ACE=ON" MATRIX_EVAL="CC=gcc-8 CXX=g++-8" PYMVER=3
  - os: linux
