@@ -32,7 +32,10 @@ VER=2.2.0-rc.1
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
   - [ ] if final release only: create release on https://github.com/SyneRBI/SIRF-SuperBuild/releases/new linked to the tag and copying all CHANGES.md since last release (as listed on https://github.com/SyneRBI/SIRF-SuperBuild/releases)
-4. Virtual Machine
+4. SIRF-Contribs
+  - [ ] `git tag -a v$VER -m "version $VER"`
+  - [ ] `git push origin v$VER`
+5. Virtual Machine
   - [ ] update version number in [VM_version.txt](https://github.com/SyneRBI/SyneRBI_VM/blob/master/VM_version.txt)
   - [ ] update `vb.name` in [vagrant/vagrantfile](https://github.com/SyneRBI/SyneRBI_VM/blob/master/vagrant/Vagrantfile)
   - [ ] update `CHANGES.md`
@@ -46,12 +49,10 @@ VER=2.2.0-rc.1
   - [ ] ctest on VM
   - [ ] run all exercises (download data first)
   - [ ] upload to Zenodo
+        * use name like `SIRF 2.2.0.ova` (with space) as Zenodo uses alphabetical ordering probably, add `-release-candidate-1` if necessary (as most people will not know what `rc1` means).
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
 5. SIRF-Exercises (already checked in VM)
-  - [ ] `git tag -a v$VER -m "version $VER"`
-  - [ ] `git push origin v$VER`
-6. SIRF-Contribs
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
 7. Website (if final release)
