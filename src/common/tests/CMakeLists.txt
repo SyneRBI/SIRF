@@ -17,7 +17,3 @@
 # limitations under the License.
 #
 #=========================================================================
-
-add_test(NAME ALGEBRA_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.SIRF src/common/ ${exclude_test}
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
