@@ -1,6 +1,5 @@
 #========================================================================
-# Copyright 2017 - 2021 University College London
-# Copyright 2017 - 2021 Science Technology Facilities Council
+# Copyright 2021 Science Technology Facilities Council
 #
 # This file is part of the SyneRBI Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #
