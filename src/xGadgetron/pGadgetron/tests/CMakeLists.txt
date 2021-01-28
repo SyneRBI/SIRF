@@ -1,6 +1,4 @@
 #========================================================================
-# Author: Edoardo Pasca
-# Copyright 2017 University College London
 # Copyright 2017 Science Technology Facilities Council
 # Author: Casper da Costa-Luis
 # Copyright 2017
