@@ -316,13 +316,6 @@ class ImageData(SIRF.ImageData):
         if isinstance(data, ImageData):
             return super(ImageData, self).fill(data)
         
-        if not isinstance(data, numpy.ndarray ):
-            # CIL/SIRF compatibility
-            try:
-                data = data.as_array()
-            except:
-                raise TypeError('Input should be numpy.ndarray or ImageData. Got {}'.format(type(data)))
-        
         if isinstance(data, numpy.ndarray):
             the_data = data
             if self.is_real():
