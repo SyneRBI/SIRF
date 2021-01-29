@@ -147,10 +147,10 @@ class _Transformation(ABC):
 
 class NiftiImageData(SIRF.ImageData):
     """General class for nifti image data."""
-    ADD      = 0
-    SUBTRACT = 1
-    MULTIPLY = 2
-    DIVIDE   = 3
+    _ADD      = 0
+    _SUBTRACT = 1
+    _MULTIPLY = 2
+    _DIVIDE   = 3
     def __init__(self, src=None):
         """init."""
         self.handle = None
@@ -178,11 +178,11 @@ class NiftiImageData(SIRF.ImageData):
         if isinstance(other, NiftiImageData):
             try_calling(
                 pyreg.cReg_NiftiImageData_maths_im(
-                    z.handle, self.handle, other.handle, NiftiImageData.ADD))
+                    z.handle, self.handle, other.handle, NiftiImageData._ADD))
         else:
             try_calling(
                 pyreg.cReg_NiftiImageData_maths_num(
-                    z.handle, self.handle, float(other), NiftiImageData.ADD))
+                    z.handle, self.handle, float(other), NiftiImageData._ADD))
         check_status(z.handle)
         return z
 
@@ -191,10 +191,10 @@ class NiftiImageData(SIRF.ImageData):
         z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData.SUBTRACT))
+                        self.handle, other.handle, NiftiImageData._SUBTRACT))
         else:
             try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData.SUBTRACT))
+                        self.handle, float(other), NiftiImageData._SUBTRACT))
         check_status(z.handle)
         return z
 
@@ -203,10 +203,10 @@ class NiftiImageData(SIRF.ImageData):
         z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData.MULTIPLY))
+                        self.handle, other.handle, NiftiImageData._MULTIPLY))
         else:
             try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData.MULTIPLY))
+                        self.handle, float(other), NiftiImageData._MULTIPLY))
         check_status(z.handle)
         return z
     def __div__(self, other):
@@ -214,10 +214,10 @@ class NiftiImageData(SIRF.ImageData):
         z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData.DIVIDE))
+                        self.handle, other.handle, NiftiImageData._DIVIDE))
         else:
             try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData.DIVIDE))
+                        self.handle, float(other), NiftiImageData._DIVIDE))
         check_status(z.handle)
         return z
     def equal(self, other):
