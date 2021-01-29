@@ -63,8 +63,6 @@ if (BUILD_PYTHON)
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirf.py" DESTINATION "${PYTHON_DEST}/sirf")
   file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
   INSTALL(FILES ${PythonFiles} DESTINATION "${PYTHON_DEST}/sirf")
-  # add tests directory
-  add_subdirectory("tests")
 endif (BUILD_PYTHON)
 
 if (BUILD_MATLAB)
