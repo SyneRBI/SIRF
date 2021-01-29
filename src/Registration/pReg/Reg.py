@@ -1,7 +1,8 @@
 """Object-Oriented wrap for the cReg-to-Python interface pyreg.py."""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2018 - 2020 University College London
+# Copyright 2018 - 2021 University College London
+# Copyright 2018 - 2021 Science Technology Facilities Council
 #
 # This is software developed for the Collaborative Computational
 # Project in Synergistic Reconstruction for Biomedical Imaging

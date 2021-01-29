@@ -1,7 +1,7 @@
 #========================================================================
-# Copyright 2017 - 2021 Science Technology Facilities Council
+# Copyright 2021 Science Technology Facilities Council
 #
-# This file is part of the SyneRBI Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
+# This file is part of the SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
