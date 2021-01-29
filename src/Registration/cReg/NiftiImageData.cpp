@@ -293,11 +293,24 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator*=(const float val)
     maths(val, mul);
     return *this;
 }
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator*=(const NiftiImageData<dataType>& rhs)
+{
+    maths(rhs, mul);
+    return *this;
+}
 
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator/=(const float val)
 {
     maths(1.f/val, mul);
+    return *this;
+}
+
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator/=(const NiftiImageData<dataType>& rhs)
+{
+    maths(rhs, div);
     return *this;
 }
 
@@ -593,12 +606,18 @@ void NiftiImageData<dataType>::maths(const NiftiImageData<dataType>& c, const Ma
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: at least one image is not initialised.");
     if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*this, c, true))
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: metadata do not match.");
-    if (type != add && type != sub)
-        throw std::runtime_error("NiftiImageData<dataType>::maths_image: only implemented for add and subtract.");
+    if (type != add && type != sub && type != mul && type != div)
+        throw std::runtime_error("NiftiImageData<dataType>::maths_image: only implemented for add, subtract, multiply and divide.");
 
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
         if (type == add) (*this)(i) += c(i);
-        else             (*this)(i) -= c(i);
+        else if (type == sub) (*this)(i) -= c(i);
+        else if (type == mul) (*this)(i) *= c(i);
+        else if (type == div) {
+            if (c(i) != 0) (*this)(i) /= c(i);
+            else throw std::runtime_error("NiftiImageData<dataType>::maths_image: division by zero.");
+        }
+        
     }
 }
 
@@ -607,13 +626,17 @@ void NiftiImageData<dataType>::maths(const float val, const MathsType type)
 {
     if (!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: image is not initialised.");
-    if (type != add && type != sub && type != mul)
-        throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: only implemented for add, subtract and multiply.");
+    if (type != add && type != sub && type != mul && type != div)
+        throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: only implemented for add, subtract, multiply and divide.");
 
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
         if      (type == add) (*this)(i) += val;
         else if (type == sub) (*this)(i) -= val;
-        else                  (*this)(i) *= val;
+        else if (type == mul) (*this)(i) *= val;
+        else if (type == div) {
+           if (val != 0) (*this)(i) /= val; 
+           else throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: division by zero.");
+        }
     }
 }
 

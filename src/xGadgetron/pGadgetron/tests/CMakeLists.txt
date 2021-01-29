@@ -1,7 +1,6 @@
 #========================================================================
-# Copyright 2017 Science Technology Facilities Council
-# Author: Casper da Costa-Luis
-# Copyright 2017
+# Copyright 2017 - 2021 Science Technology Facilities Council
+# Copyright 2017 - 2021 University College London
 #
 # This file is part of the SyneRBI Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #
