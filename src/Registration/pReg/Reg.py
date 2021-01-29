@@ -146,7 +146,10 @@ class _Transformation(ABC):
 
 class NiftiImageData(SIRF.ImageData):
     """General class for nifti image data."""
-
+    ADD      = 0
+    SUBTRACT = 1
+    MULTIPLY = 2
+    DIVIDE   = 3
     def __init__(self, src=None):
         """init."""
         self.handle = None
@@ -174,11 +177,11 @@ class NiftiImageData(SIRF.ImageData):
         if isinstance(other, NiftiImageData):
             try_calling(
                 pyreg.cReg_NiftiImageData_maths_im(
-                    z.handle, self.handle, other.handle, 0))
+                    z.handle, self.handle, other.handle, NiftiImageData.ADD))
         else:
             try_calling(
                 pyreg.cReg_NiftiImageData_maths_num(
-                    z.handle, self.handle, float(other), 0))
+                    z.handle, self.handle, float(other), NiftiImageData.ADD))
         check_status(z.handle)
         return z
 
@@ -187,21 +190,44 @@ class NiftiImageData(SIRF.ImageData):
         z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, 1))
+                        self.handle, other.handle, NiftiImageData.SUBTRACT))
         else:
             try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), 1))
+                        self.handle, float(other), NiftiImageData.SUBTRACT))
         check_status(z.handle)
         return z
 
     def __mul__(self, other):
         """Overloads * operator."""
         z = self.clone()
-        try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle, self.handle,
-                    float(other), 2))
+        if isinstance(other, NiftiImageData):
+            # try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
+            #             self.handle, other.handle, NiftiImageData.MULTIPLY))
+            tmp = self.as_array()
+            tmp *= other.as_array()
+            z.fill(tmp)
+        else:
+            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
+                        self.handle, float(other), NiftiImageData.MULTIPLY))
         check_status(z.handle)
         return z
-
+    def __div__(self, other):
+        """Overloads / operator."""
+        z = self.clone()
+        # if isinstance(other, NiftiImageData):
+        #     try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
+        #                 self.handle, other.handle, NiftiImageData.DIVIDE))
+        # else:
+        #     try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
+        #                 self.handle, float(other), NiftiImageData.DIVIDE))
+        # check_status(z.handle)
+        tmp = self.as_array()
+        if isinstance (other, NiftiImageData):
+            tmp /= other.as_array()
+        else:
+            tmp /= other
+        z.fill(tmp)
+        return z
     def equal(self, other):
         """Overload comparison operator."""
         if not isinstance(other, NiftiImageData):
