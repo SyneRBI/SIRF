@@ -7,6 +7,7 @@ import numpy
 import os
 import sirf.pyiutilities as pyiutil
 import re
+import numpy
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
@@ -544,3 +545,169 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True
             elif verbose:
                 print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
     return True
+
+
+class TestDataContainerAlgebra(object):
+    '''A base class for unit test of DataContainer algebra.'''
+    def test_divide_scalar(self):
+        os.chdir(self.cwd)
+        image1 = self.image1
+        image2 = self.image2
+        image1.fill(1.)
+        image2.fill(2.)
+        
+        tmp = image1/1.
+        numpy.testing.assert_array_equal(image1.as_array(), tmp.as_array())
+    
+        tmp1 = image1.divide(1.)
+        numpy.testing.assert_array_equal(tmp.as_array(), tmp1.as_array())
+        
+        image1.divide(1., out=image2)
+        numpy.testing.assert_array_equal(tmp.as_array(), image2.as_array())
+        
+    def test_divide_datacontainer(self):
+        os.chdir(self.cwd)
+        # add 1 because the data contains zeros and divide is not going to be happy
+        image1 = self.image1 + 1
+        image2 = self.image2 + 1
+                
+        tmp = image1/image2
+
+        numpy.testing.assert_array_almost_equal(
+            numpy.ones(image1.shape, dtype=numpy.float32), tmp.as_array()
+            )
+    
+        tmp1 = image1.divide(image2)
+        numpy.testing.assert_array_almost_equal(
+            numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
+            )
+        
+        tmp1.fill(2.)
+        image1.divide(image2, out=tmp1)
+        
+        numpy.testing.assert_array_almost_equal(
+            numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
+            )
+        
+
+    def test_multiply_scalar(self):
+        os.chdir(self.cwd)
+        image1 = self.image1
+        image2 = self.image2
+        image2.fill(2.)
+        
+        tmp = image1 * 1.
+        numpy.testing.assert_array_equal(image1.as_array(), tmp.as_array())
+    
+        tmp1 = image1.multiply(1.)
+        numpy.testing.assert_array_equal(tmp.as_array(), tmp1.as_array())
+        
+        image1.multiply(1., out=image2)
+        numpy.testing.assert_array_equal(tmp.as_array(), image2.as_array())
+        
+    def test_multiply_datacontainer(self):
+        os.chdir(self.cwd)
+        image1 = self.image1
+        image2 = self.image2
+        image2.fill(1.)
+        tmp = image1 * image2
+
+        numpy.testing.assert_array_almost_equal(
+            image1.as_array(), tmp.as_array()
+            )
+    
+        tmp1 = image1.multiply(image2)
+        numpy.testing.assert_array_almost_equal(
+            image1.as_array(), tmp1.as_array()
+            )
+        
+        tmp1.fill(2.)
+        image1.multiply(image2, out=tmp1)
+        
+        numpy.testing.assert_array_almost_equal(
+            image1.as_array(), tmp1.as_array()
+            )
+        
+    def test_add_scalar(self):
+        os.chdir(self.cwd)
+        image1 = self.image1
+        image2 = self.image2
+        image1.fill(0)
+        image2.fill(1)
+        
+        tmp = image1 + 1.
+        numpy.testing.assert_array_equal(image2.as_array(), tmp.as_array())
+    
+        tmp1 = image1.add(1.)
+        numpy.testing.assert_array_equal(tmp.as_array(), tmp1.as_array())
+        
+        tmp1.fill(0)
+        image1.add(1., out=tmp1)
+        numpy.testing.assert_array_equal(tmp1.as_array(), image2.as_array())
+    
+    def test_add_datacontainer(self):
+        os.chdir(self.cwd)
+        image1 = self.image1
+        image2 = self.image2
+        image1.fill(0.)
+        image2.fill(1.)
+        tmp = image1 + image2
+
+        numpy.testing.assert_array_almost_equal(
+            numpy.ones(image1.shape, dtype=numpy.float32), tmp.as_array()
+            )
+    
+        tmp1 = image1.add(image2)
+        
+        numpy.testing.assert_array_almost_equal(
+            numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
+            )
+        
+        tmp1.fill(2.)
+        image1.add(image2, out=tmp1)
+        
+        numpy.testing.assert_array_almost_equal(
+            numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
+            )
+        
+    
+    def test_subtract_scalar(self):
+        os.chdir(self.cwd)
+        image1 = self.image1
+        image2 = self.image2
+        image1.fill(2)
+        image2.fill(1)
+        
+        tmp = image1 - 1.
+        numpy.testing.assert_array_equal(image2.as_array(), tmp.as_array())
+    
+        tmp1 = image1.subtract(1.)
+        numpy.testing.assert_array_equal(tmp.as_array(), tmp1.as_array())
+        
+        tmp1.fill(0)
+        image1.subtract(1., out=tmp1)
+        numpy.testing.assert_array_equal(tmp1.as_array(), image2.as_array())
+    
+    def test_subtract_datacontainer(self):
+        os.chdir(self.cwd)
+        image1 = self.image1
+        image2 = self.image2
+        
+        tmp = image1 - image2
+
+        numpy.testing.assert_array_almost_equal(
+            numpy.zeros(image1.shape, dtype=numpy.float32), tmp.as_array()
+            )
+    
+        tmp1 = image1.subtract(image2)
+        
+        numpy.testing.assert_array_almost_equal(
+            numpy.zeros(image1.shape, dtype=numpy.float32), tmp1.as_array()
+            )
+        
+        tmp1.fill(2.)
+        image1.subtract(image2, out=tmp1)
+        
+        numpy.testing.assert_array_almost_equal(
+            numpy.zeros(image1.shape, dtype=numpy.float32), tmp1.as_array()
+            )
