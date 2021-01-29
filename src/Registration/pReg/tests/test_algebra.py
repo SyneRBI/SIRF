@@ -22,7 +22,8 @@ import os
 import shutil
 import unittest
 import sirf.Reg as reg
-from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra
+from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra, error
+
 
 class TestNiftiImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
 
@@ -39,3 +40,20 @@ class TestNiftiImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
     def tearDown(self):
         #shutil.rmtree(self.cwd)
         pass
+
+    def test_division_by_scalar_zero(self):
+        try:
+            self.image1 / 0.
+            self.assertFalse(True)
+        except error as derror:
+            self.assertTrue(True)
+            print ("Caught error", derror)
+    
+    def test_division_by_datacontainer_zero(self):
+        try:
+            self.image2 *= 0
+            tmp = self.image1 / self.image2
+            self.assertFalse(True)
+        except error as derror:
+            self.assertTrue(True)
+            print ("Caught error", derror)

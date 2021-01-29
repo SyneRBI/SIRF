@@ -303,7 +303,7 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator*=(const NiftiImageD
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator/=(const float val)
 {
-    maths(1.f/val, mul);
+    maths(val, div);
     return *this;
 }
 
