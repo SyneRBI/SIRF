@@ -724,14 +724,15 @@ namespace sirf {
 			size_t nx = ptr_x->getNumberOfDataElements();
 			size_t ny = ptr_y->getNumberOfDataElements();
 			if (nx != ny)
-				THROW("sizes mismatch in ImageWrap multiply");
+				THROW("sizes mismatch in ImageWrap divide 1");
 			const T* i = ptr_x->getDataPtr();
 			T* j = ptr_y->getDataPtr();
 			size_t ii = 0;
 			for (; ii < nx; i++, j++, ii++) {
 				complex_float_t u = (complex_float_t)*i;
 				complex_float_t v = (complex_float_t)*j;
-				// TODO: check for zero denominator
+				if (abs(u) == 0.0)
+					THROW("division by zero in ImageWrap divide 1");
 				xGadgetronUtilities::convert_complex(v / u, *j);
 			}
 		}
@@ -745,7 +746,7 @@ namespace sirf {
 			size_t ny = ptr_y->getNumberOfDataElements();
 			size_t n = ptr->getNumberOfDataElements();
 			if (!(n == nx && n == ny))
-				THROW("sizes mismatch in ImageWrap multiply");
+				THROW("sizes mismatch in ImageWrap divide 2");
 			const T* i = ptr_x->getDataPtr();
 			const T* j = ptr_y->getDataPtr();
 			T* k = ptr->getDataPtr();
@@ -753,7 +754,8 @@ namespace sirf {
 			for (; ii < n; i++, j++, k++, ii++) {
 				complex_float_t u = (complex_float_t)*i;
 				complex_float_t v = (complex_float_t)*j;
-				// TODO: check for zero denominator
+				if (abs(v) == 0.0)
+					THROW("division by zero in ImageWrap divide 2");
 				xGadgetronUtilities::convert_complex(u / v, *k);
 			}
 		}

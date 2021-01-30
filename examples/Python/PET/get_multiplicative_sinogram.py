@@ -4,9 +4,11 @@ Usage:
   osem_reconstruction [--help | options]
 
 Options:
-  -S <file>, --sino=<file>      template sinogram
-  -A <attn>, --attn=<attn>      attenuation image file
-  -N <norm>, --norm=<norm>      ECAT8 bin normalisation file
+  -p <path>, --path=<path>      path to data files, defaults to data/examples/PET/mMR
+                                subfolder of SIRF root folder
+  -S <file>, --sino=<file>      template sinogram [default: mMR_template_span11_small.hs]
+  -A <attn>, --attn=<attn>      attenuation image file [default: mu_map.hv]
+  -N <norm>, --norm=<norm>      ECAT8 bin normalisation file [default: norm.n.hdr]
   -O <outp>, --outp=<outp>      output file [default: multiplicative]
   -T <file>, --trans=<file>     transform for attn image
   -t <str>, --trans_type=<str>  transform type (tm, disp, def) [default: tm]
@@ -34,7 +36,7 @@ from docopt import docopt
 from os import path
 import sirf.STIR as pet
 import sirf.Reg as reg
-from sirf.Utilities import show_3D_array
+from sirf.Utilities import error, show_3D_array, examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
 args = docopt(__doc__, version=__version__)
@@ -46,19 +48,23 @@ def check_file_exists(filename):
         raise error('File not found: %s' % filename)
 
 
+# process command-line options
+data_path = args['--path']
+if data_path is None:
+    # default to data/examples/PET/mMR
+    # Note: seem to need / even on Windows
+    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+    data_path = examples_data_path('PET') + '/mMR'
+print('Finding files in %s' % data_path)
+
 # Sinogram. if sino not found, get the one in the example data
-sino_file = args['--sino']
-check_file_exists(sino_file)
+sino_file = existing_filepath(data_path, args['--sino'])
 
 # Attenuation - image
-attn_im_file = args['--attn']
-if attn_im_file:
-    check_file_exists(attn_im_file)
+attn_im_file = existing_filepath(data_path, args['--attn'])
 
 # Norm - ECAT8
-norm_e8_file = args['--norm']
-if norm_e8_file:
-    check_file_exists(norm_e8_file)
+norm_e8_file = existing_filepath(data_path, args['--norm'])
 
 # Attn transformation
 trans = args['--trans']
