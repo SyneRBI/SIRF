@@ -22,7 +22,7 @@ Options: (defaults are set to work for mMR data processed in the current directo
 
 ## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2019 University of Hull
-## Copyright 2020 University College London
+## Copyright 2020-2021 University College London
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -76,8 +76,8 @@ def main():
     PET.AcquisitionData.set_storage_scheme('memory')
 
     # Create the Scatter Estimator
-    par_file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'parameter_files')
     # We can use a STIR parameter file like this
+    # par_file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'parameter_files')
     # se = PET.ScatterEstimator(PET.existing_filepath(par_file_path, 'scatter_estimation.par'))
     # However, we will just use all defaults here, and set variables below.
     se = PET.ScatterEstimator()
@@ -104,10 +104,10 @@ def main():
 
     ## show estimated scatter data
     scatter_estimate_as_array = scatter_estimate.as_array()
-    show_2D_array('Scatter estimation', scatter_estimate_as_array[0, 0, :, :])
+    show_2D_array('Scatter estimate', scatter_estimate_as_array[0, 0, :, :])
 
     ## let's draw some profiles to check
-    # we will aveage over all sinograms to reduce noise
+    # we will average over all sinograms to reduce noise
     plt.figure()
     ax = plt.subplot(111)
     plt.plot(np.sum(prompts.as_array(), axis=(0,1))[0,:], label='prompts')
