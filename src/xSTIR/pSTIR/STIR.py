@@ -1,8 +1,9 @@
 """Object-Oriented wrap for the cSTIR-to-Python interface pystir.py."""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-# Copyright 2015 - 2020 University College London
+# Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+# Copyright 2015 - 2021 University College London
+# Copyright 2019 University of Hull
 #
 # This is software developed for the Collaborative Computational
 # Project in Synergistic Reconstruction for Biomedical Imaging
@@ -2736,13 +2737,13 @@ class ScatterEstimator():
         """
         Runs the scatter estimation.
 
-        Run set_up() first.
+        You need to run set_up() first.
         """
-        print('ScatterEstimator:: Waiting the scatter estimation to finish ...')
+        print('ScatterEstimator:: Waiting for the scatter estimation to finish ...')
         self.output = AcquisitionData()
         self.output.handle = pystir.cSTIR_runScatterEstimator(self.handle)
         check_status(self.output.handle)
-        print('ScatterSimulator:: Estimation finished.')
+        print('ScatterEstimator:: estimation finished.')
 
     def get_output(self):
         """
