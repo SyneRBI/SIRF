@@ -30,7 +30,7 @@ classdef AcquisitionSensitivityModel < handle
     methods
         function self = AcquisitionSensitivityModel(src, other_src)
 %***SIRF*** Creates new AcquisitionSensitivityModel object
-%         - from an ECAT8 file or
+%         - from a manufacturer normalisation file (supported by STIR) or
 %         - from ImageData object containing attenuation image (units: 1/cm) or
 %         - from AcquisitionData object containing bin efficiencies or
 %         - by chaining two existing AcquisitionSensitivityModel objects
@@ -43,6 +43,8 @@ classdef AcquisitionSensitivityModel < handle
             end
             if nargin < 2
                 if ischar(src)
+                    % create from ECAT8/GE norm file
+                    fprintf(1, 'Reading manufacturer PET normalisation file from %s', src)
                     h = calllib('miutilities', 'mCharDataHandle', src);
                     self.handle_ = calllib('mstir',...
                         'mSTIR_createPETAcquisitionSensitivityModel', h, 'n');

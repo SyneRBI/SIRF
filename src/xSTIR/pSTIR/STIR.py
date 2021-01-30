@@ -1197,7 +1197,7 @@ class AcquisitionSensitivityModel(object):
         Create new AcquisitionSensitivityModel object.
 
         Sources:
-        - from an ECAT8 file or
+        - from a manufacturer normalisation file (supported by STIR) or
         - from ImageData object containing attenuation image (units: 1/cm) or
         - from AcquisitionData object containing bin efficiencies or
         - by chaining two existing AcquisitionSensitivityModel objects
@@ -1209,10 +1209,12 @@ class AcquisitionSensitivityModel(object):
         if src is None:
             return
         if isinstance(src, str):
-            # create from ECAT8 file
+            # create from ECAT8/GE norm file
+            print('Reading manufacturer PET normalisation file from ' + src)
             handle = pyiutil.charDataHandle(src)
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel(
                 handle, 'n')
+            pyiutil.deleteDataHandle(handle)
         elif isinstance(src, ImageData):
             # create from attenuation image
             if src.handle is None:
