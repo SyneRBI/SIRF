@@ -47,10 +47,8 @@ args = docopt(__doc__, version=__version__)
 import sirf.STIR as PET
 
 from sirf.Utilities import show_2D_array
-import numpy as np
-import matplotlib.pyplot as plt
 import PET_plot_functions
-import os
+#import os
 
 # process command-line options
 data_file = args['--file']
