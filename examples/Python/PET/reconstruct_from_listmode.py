@@ -45,7 +45,7 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
@@ -53,6 +53,7 @@ from ast import literal_eval
 import os
 
 from pUtilities import show_2D_array
+import PET_plot_functions
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
@@ -224,12 +225,13 @@ def main():
     if visualisations:
         scatter_estimate_as_array = scatter_estimate.as_array()
         show_2D_array('Scatter estimate (first sinogram)', scatter_estimate_as_array[0, 0, :, :])
+        PET_plot_functions.plot_sinogram_profile(acq_data, randoms=randoms, scatter=scatter_estimate)
 
     # chain attenuation and ECAT8 normalisation
     asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
 
     acq_model.set_acquisition_sensitivity(asm)
-    acq_model.set_background_term(randoms + scatter)
+    acq_model.set_background_term(randoms + scatter_estimate)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)

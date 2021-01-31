@@ -38,7 +38,7 @@ Options: (defaults are set to work for mMR data processed in the current directo
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-__version__ = '0.1.0'
+__version__ = '1.0.0'
 from docopt import docopt
 
 args = docopt(__doc__, version=__version__)
@@ -49,6 +49,8 @@ import sirf.STIR as PET
 from sirf.Utilities import show_2D_array
 import numpy as np
 import matplotlib.pyplot as plt
+import PET_plot_functions
+import os
 
 # process command-line options
 data_file = args['--file']
@@ -72,7 +74,6 @@ output_prefix = args['--output']
 
 
 def main():
-    import os
     PET.AcquisitionData.set_storage_scheme('memory')
 
     # Create the Scatter Estimator
@@ -108,17 +109,7 @@ def main():
 
     ## let's draw some profiles to check
     # we will average over all sinograms to reduce noise
-    plt.figure()
-    ax = plt.subplot(111)
-    plt.plot(np.sum(prompts.as_array(), axis=(0,1))[0,:], label='prompts')
-    if randoms is None:
-        plt.plot(np.sum(scatter_estimate_as_array, axis=(0,1))[0,:], label='scatter')
-    else:
-        randoms_as_array = randoms.as_array()
-        plt.plot(np.sum(randoms_as_array, axis=(0,1))[0,:], label='randoms')
-        plt.plot(np.sum(scatter_estimate_as_array + randoms_as_array, axis=(0,1))[0,:], label='randoms+scatter')
-    ax.legend()
-    plt.show()
+    PET_plot_functions.plot_sinogram_profile(prompts, randoms=randoms, scatter=scatter_estimate)
 
 try:
     main()
