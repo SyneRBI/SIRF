@@ -40,27 +40,3 @@ class TestNiftiImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
     def tearDown(self):
         #shutil.rmtree(self.cwd)
         pass
-
-    def test_division_by_scalar_zero(self):
-        try:
-            self.image1 / 0.
-            self.assertFalse(True)
-        except ZeroDivisionError as derror:
-            self.assertTrue(True)
-            print ("Caught error", derror)
-        except error as derror:
-            self.assertTrue(True)
-            print ("Caught error", derror)
-        
-    
-    def test_division_by_datacontainer_zero(self):
-        try:
-            self.image2 *= 0
-            tmp = self.image1 / self.image2
-            self.assertFalse(True)
-        except ZeroDivisionError as derror:
-            self.assertTrue(True)
-            print ("Caught error", derror)
-        except error as derror:
-            self.assertTrue(True)
-            print ("Caught error", derror)
