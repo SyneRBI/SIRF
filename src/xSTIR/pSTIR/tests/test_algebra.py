@@ -32,40 +32,16 @@ class TestSTIRImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
         # Copy files to a working folder and change directory to where these files are.
         # We do this to avoid cluttering your SIRF files. This way, you can delete
         # working_folder and start from scratch.
-        shutil.rmtree('working_folder/brain',True)
-        shutil.copytree('brain','working_folder/brain')
-        os.chdir('working_folder/brain')
+        shutil.rmtree('working_folder',True)
+        shutil.copytree('thorax_single_slice','working_folder')
+        os.chdir('working_folder')
+        self.cwd = os.getcwd()
         self.image1 = pet.ImageData('emission.hv')
         self.image2 = pet.ImageData('emission.hv')
-
-        self.cwd = os.getcwd()
-    
-    def tearDown(self):
-        shutil.rmtree(self.cwd)
-    
-    def test_division_by_scalar_zero(self):
-        try:
-            self.image1 / 0.
-            self.assertFalse(True)
-        except ZeroDivisionError as derror:
-            self.assertTrue(True)
-            print ("Caught error", derror)
-        except error as derror:
-            self.assertTrue(True)
-            print ("Caught error", derror)
         
-    
-    def test_division_by_datacontainer_zero(self):
-        try:
-            self.image2 *= 0
-            tmp = self.image1 / self.image2
-            self.assertFalse(True)
-        except ZeroDivisionError as derror:
-            self.assertTrue(True)
-            print ("Caught error", derror)
-        except error as derror:
-            self.assertTrue(True)
-            print ("Caught error", derror)
+    def tearDown(self):
+        # shutil.rmtree(self.cwd)
+        pass
 
 class TestSTIRAcquisitionDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
 
@@ -74,13 +50,14 @@ class TestSTIRAcquisitionDataAlgebra(unittest.TestCase, TestDataContainerAlgebra
         # Copy files to a working folder and change directory to where these files are.
         # We do this to avoid cluttering your SIRF files. This way, you can delete
         # working_folder and start from scratch.
-        shutil.rmtree('working_folder/brain',True)
-        shutil.copytree('brain','working_folder/brain')
-        os.chdir('working_folder/brain')
-        self.image1 = pet.ImageData('attenuation.hv')
-        self.image2 = pet.ImageData('attenuation.hv')
-        
+        shutil.rmtree('working_folder',True)
+        shutil.copytree('thorax_single_slice','working_folder')
+        os.chdir('working_folder')
         self.cwd = os.getcwd()
-
+        self.image1 = pet.AcquisitionData('template_sinogram.hs')
+        self.image1 = self.image1.get_uniform_copy(0)
+        self.image2 = pet.AcquisitionData('template_sinogram.hs')
+        self.image2 = self.image2.get_uniform_copy(0)
+        
     def tearDown(self):
         shutil.rmtree(self.cwd)
