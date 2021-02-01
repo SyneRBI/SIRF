@@ -63,18 +63,24 @@ endif()
 target_link_libraries(cgadgetron PUBLIC ISMRMRD::ISMRMRD)
 target_link_libraries(cgadgetron PUBLIC "${FFTW3_LIBRARIES}")
 
+find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore 
+              NAMES_PER_DIR 
+              PATHS ${CMAKE_INSTALL_PREFIX}
+              )
+find_library( GT_FFT NAMES gadgetron_toolbox_cpufft 
+              NAMES_PER_DIR 
+              PATHS ${CMAKE_INSTALL_PREFIX}
+              )
+find_library( GT_NFFT NAMES gadgetron_toolbox_cpunfft 
+              NAMES_PER_DIR 
+              PATHS ${CMAKE_INSTALL_PREFIX}
+              )
+find_library( GT_LOG NAMES gadgetron_toolbox_log 
+              NAMES_PER_DIR 
+              PATHS ${CMAKE_INSTALL_PREFIX}
+              )
 
-
-set( GT_TOOLBOX_CPUCORE "/home/sirfuser/devel/install/lib/libgadgetron_toolbox_cpucore.so")
-set( GT_TOOLBOX_CPUFFT  "/home/sirfuser/devel/install/lib/libgadgetron_toolbox_cpufft.so")
-set( GT_TOOLBOX_CPUNFFT "/home/sirfuser/devel/install/lib/libgadgetron_toolbox_cpunfft.so")
-set( GT_TOOLBOX_LOG     "/home/sirfuser/devel/install/lib/libgadgetron_toolbox_log.so")
-
-
-set(GT_LIBS ${GT_LIBS} ${GT_TOOLBOX_CPUCORE})
-set(GT_LIBS ${GT_LIBS} ${GT_TOOLBOX_CPUFFT})
-set(GT_LIBS ${GT_LIBS} ${GT_TOOLBOX_CPUNFFT})
-set(GT_LIBS ${GT_LIBS} ${GT_TOOLBOX_LOG})
+set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
 
 target_link_libraries(cgadgetron PUBLIC ${GT_LIBS})
 
