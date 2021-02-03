@@ -19,7 +19,7 @@
 if (SPM_FOUND)
   set(exclude_test "--exclude=TestDataContainerAlgebra")
 else()
-  set(exclude_test "--exclude=TestDataContainerAlgebra --ignore-files='test_algebra|test_pReg_spm'")
+  set(exclude_test "--exclude=TestDataContainerAlgebra" "--ignore-files=\"test_algebra|test_pReg_spm\"")
 endif()
 
 # Make into test

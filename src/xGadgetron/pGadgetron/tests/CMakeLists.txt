@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 #=========================================================================
-set (exclude_tests "--ignore-files='test_algebra' --exclude='TestDataContainerAlgebra'")
+set (exclude_tests "--ignore-files=\"test_algebra\"" "--exclude=\"TestDataContainerAlgebra\"")
 add_test(NAME MR_TESTS_PYTHON
   COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Gadgetron src/xGadgetron/pGadgetron/ ${exclude_tests}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

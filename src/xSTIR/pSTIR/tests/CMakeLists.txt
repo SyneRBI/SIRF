@@ -17,10 +17,10 @@
 # limitations under the License.
 #
 #=========================================================================
-set (exclude_tests "--ignore-files='test_algebra|tests_NiftyPET' --exclude='TestDataContainerAlgebra'")
+set (exclude_tests "--ignore-files=\"test_algebra\"" "--exclude=TestDataContainerAlgebra")
 # If not NiftyPET projector, dont test that
 if (NOT STIR_WITH_NiftyPET_PROJECTOR)
-	set(exclude_tests "--ignore-files='test_algebra|tests_NiftyPET' --exclude='TestDataContainerAlgebra'")
+	set(exclude_tests "--ignore-files=\"test_algebra|tests_NiftyPET\"" "--exclude=TestDataContainerAlgebra")
 endif()
 
 add_test(NAME PET_TESTS_PYTHON
