@@ -28,36 +28,49 @@ pet.AcquisitionData.set_storage_scheme('memory')
 
 class TestSTIRImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
     def setUp(self):
-        os.chdir(examples_data_path('PET'))
-        # Copy files to a working folder and change directory to where these files are.
-        # We do this to avoid cluttering your SIRF files. This way, you can delete
-        # working_folder and start from scratch.
-        shutil.rmtree('working_folder',True)
-        shutil.copytree('thorax_single_slice','working_folder')
-        os.chdir('working_folder')
-        self.cwd = os.getcwd()
-        self.image1 = pet.ImageData('emission.hv')
-        self.image2 = pet.ImageData('emission.hv')
+        self.set_storage_scheme()
+        self.image1 = pet.ImageData(os.path.join(
+            examples_data_path('PET'),'thorax_single_slice','emission.hv')
+            )
+        self.image2 = pet.ImageData(os.path.join(
+            examples_data_path('PET'),'thorax_single_slice','emission.hv')
+            )
+        
         
     def tearDown(self):
         # shutil.rmtree(self.cwd)
         pass
 
+    def set_storage_scheme(self):
+        pet.AcquisitionData.set_storage_scheme('memory')
+
 class TestSTIRAcquisitionDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
 
     def setUp(self):
-        os.chdir(examples_data_path('PET'))
-        # Copy files to a working folder and change directory to where these files are.
-        # We do this to avoid cluttering your SIRF files. This way, you can delete
-        # working_folder and start from scratch.
-        shutil.rmtree('working_folder',True)
-        shutil.copytree('thorax_single_slice','working_folder')
-        os.chdir('working_folder')
-        self.cwd = os.getcwd()
-        self.image1 = pet.AcquisitionData('template_sinogram.hs')
+        self.set_storage_scheme()
+        
+        self.image1 = pet.ImageData(os.path.join(
+            examples_data_path('PET'),'thorax_single_slice','emission.hv')
+            )
         self.image1 = self.image1.get_uniform_copy(0)
-        self.image2 = pet.AcquisitionData('template_sinogram.hs')
+        
+        self.image2 = pet.ImageData(os.path.join(
+            examples_data_path('PET'),'thorax_single_slice','emission.hv')
+            )
         self.image2 = self.image2.get_uniform_copy(0)
         
+        
     def tearDown(self):
-        shutil.rmtree(self.cwd)
+        pass
+
+    def set_storage_scheme(self):
+        pet.AcquisitionData.set_storage_scheme('memory')
+
+class TestSTIRImageDataAlgebraFile(TestSTIRImageDataAlgebra):
+    def set_storage_scheme(self):
+        pet.AcquisitionData.set_storage_scheme('file')
+
+class TestSTIRAcquisitionDataAlgebraFile(TestSTIRAcquisitionDataAlgebra):
+
+    def set_storage_scheme(self):
+        pet.AcquisitionData.set_storage_scheme('file')

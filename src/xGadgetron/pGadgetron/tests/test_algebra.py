@@ -29,18 +29,19 @@ from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra
 class TestGadgetronAcquisitionDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
 
     def setUp(self):
-        os.chdir(examples_data_path('MR'))
-        image1 = mr.AcquisitionData('simulated_MR_2D_cartesian.h5')
-        image2 = mr.AcquisitionData('simulated_MR_2D_cartesian.h5')
+        image1 = mr.AcquisitionData(os.path.join
+            (examples_data_path('MR'),'simulated_MR_2D_cartesian.h5')
+        )
+        image2 = mr.AcquisitionData(os.path.join
+            (examples_data_path('MR'),'simulated_MR_2D_cartesian.h5')
+        )
+        
         image1.sort()
         image2.sort()
         self.image1 = image1
         self.image2 = image2
-        self.cwd = os.getcwd()
 
-    
     def tearDown(self):
-        #shutil.rmtree(self.cwd)
         pass
 
 
@@ -49,8 +50,9 @@ class TestGadgetronAcquisitionDataAlgebra(unittest.TestCase, TestDataContainerAl
 class TestGadgetronImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
 
     def setUp(self):
-        os.chdir(examples_data_path('MR'))
-        acq_data = mr.AcquisitionData('simulated_MR_2D_cartesian.h5')
+        acq_data = mr.AcquisitionData(os.path.join
+            (examples_data_path('MR'),'simulated_MR_2D_cartesian.h5')
+        )
         # ad1.sort()
         preprocessed_data = mr.preprocess_acquisition_data(acq_data)
         recon = mr.FullySampledReconstructor()
@@ -60,8 +62,7 @@ class TestGadgetronImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra)
         
         self.image1 = image_data
         self.image2 = image_data * 1
-        self.cwd = os.getcwd()
-
+        
     def tearDown(self):
         #shutil.rmtree(self.cwd)
         pass
