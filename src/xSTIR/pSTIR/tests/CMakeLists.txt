@@ -17,15 +17,18 @@
 # limitations under the License.
 #
 #=========================================================================
-
+set (exclude_tests "--ignore-files='test_algebra|tests_NiftyPET' --exclude='TestDataContainerAlgebra'")
 # If not NiftyPET projector, dont test that
 if (NOT STIR_WITH_NiftyPET_PROJECTOR)
-	set(exclude_test "--exclude=tests_NiftyPET.py")
+	set(exclude_tests "--ignore-files='test_algebra|tests_NiftyPET' --exclude='TestDataContainerAlgebra'")
 endif()
 
 add_test(NAME PET_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_test}
+  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_tests}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 #add_test(NAME PET_DEMOS_PYTHON
 #  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
 #  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/PET")
+add_test(NAME PET_TESTS_PYTHON_ALGEBRA
+  COMMAND ${PYTHON_EXECUTABLE} -m unittest test_algebra
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

@@ -28,14 +28,16 @@ from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra, error
 class TestNiftiImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
 
     def setUp(self):
-        os.chdir(examples_data_path('Registration'))
-        image1 = reg.ImageData('test2.nii.gz')
-        image2 = reg.ImageData('test2.nii.gz')
+        image1 = reg.ImageData(os.path.join(
+            examples_data_path('Registration'),'test2.nii.gz')
+        )
+        image2 = reg.ImageData(os.path.join(
+            examples_data_path('Registration'),'test2.nii.gz')
+        )
         
         self.image1 = image1
         self.image2 = image2
-        self.cwd = os.getcwd()
-
+        
     
     def tearDown(self):
         #shutil.rmtree(self.cwd)

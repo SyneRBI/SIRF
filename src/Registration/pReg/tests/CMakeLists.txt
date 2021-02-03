@@ -16,11 +16,16 @@
 #
 #=========================================================================
 
-if (NOT SPM_FOUND)
-	set(exclude_test "--exclude=test_pReg_spm.py")
+if (SPM_FOUND)
+  set(exclude_test "--exclude=TestDataContainerAlgebra")
+else()
+  set(exclude_test "--exclude=TestDataContainerAlgebra --ignore-files='test_algebra|test_pReg_spm'")
 endif()
 
 # Make into test
 ADD_TEST(NAME REG_TEST_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Reg --cover-erase -d -v ${CMAKE_SOURCE_DIR}/src/Registration/pReg ${exclude_test}
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Reg --cover-erase -d -v ${CMAKE_SOURCE_DIR}/src/Registration/pReg ${exclude_test})
+
+add_test(NAME REG_TESTS_PYTHON_ALGEBRA
+  COMMAND ${PYTHON_EXECUTABLE} -m unittest test_algebra
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

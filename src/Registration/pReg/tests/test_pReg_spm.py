@@ -30,7 +30,6 @@ import sys
 import time
 import numpy as np
 import sirf.Reg
-from pUtilities import *
 
 # Paths
 SIRF_PATH = os.environ.get('SIRF_PATH')

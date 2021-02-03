@@ -728,11 +728,8 @@ class TestDataContainerAlgebra(object):
             self.assertFalse(True)
         except ZeroDivisionError as derror:
             self.assertTrue(True)
-            print ("Caught error", derror)
         except error as derror:
             self.assertTrue(True)
-            print ("Caught error", derror)
-        
     
     def test_division_by_datacontainer_zero(self):
         if hasattr(self, 'cwd'):
@@ -743,7 +740,6 @@ class TestDataContainerAlgebra(object):
             self.assertFalse(True)
         except error as derror:
             self.assertTrue(True)
-            print ("Caught error", derror)
         except ZeroDivisionError as derror:
             self.assertTrue(True)
-            print ("Caught error", derror)
+            

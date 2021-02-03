@@ -17,8 +17,9 @@
 # limitations under the License.
 #
 #=========================================================================
+set (exclude_tests "--ignore-files='test_algebra' --exclude='TestDataContainerAlgebra'")
 add_test(NAME MR_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Gadgetron src/xGadgetron/pGadgetron/
+  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Gadgetron src/xGadgetron/pGadgetron/ ${exclude_tests}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME MR_DEMOS_PYTHON
   COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
@@ -26,3 +27,6 @@ add_test(NAME MR_DEMOS_PYTHON
 add_test(NAME MR_GADGETRON_DEMOS_PYTHON
   COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/MR/Gadgetron")
+add_test(NAME MR_TESTS_PYTHON_ALGEBRA
+  COMMAND ${PYTHON_EXECUTABLE} -m unittest test_algebra
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
