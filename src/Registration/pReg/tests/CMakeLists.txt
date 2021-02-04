@@ -16,7 +16,7 @@
 #
 #=========================================================================
 if (SPM_BOOL_STR EQUAL "0")
-  set (exclude_tests "--ignore-files=\"test_algebra|test_pReg_spm\"" "--exclude=TestDataContainerAlgebra")
+  set (exclude_tests "--ignore-files=\"test_algebra\"" "--exclude=TestDataContainerAlgebra")
 else()
   set (exclude_tests "--ignore-files=\"test_algebra\"" "--exclude=TestDataContainerAlgebra")
 endif()
