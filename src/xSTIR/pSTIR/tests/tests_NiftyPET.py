@@ -84,7 +84,7 @@ def test_main(rec=False, verb=False, throw=True):
         return 1, 1
     acq_model.set_cuda_verbosity(verb)
 
-    data_path = pet.examples_data_path('PET')
+    data_path = examples_data_path('PET')
     # raw_data_file = pet.existing_filepath(data_path, 'mMR/mMR_template_span11.hs')
     raw_data_file = os.path.join(data_path, 'mMR')
     os.chdir(raw_data_file)

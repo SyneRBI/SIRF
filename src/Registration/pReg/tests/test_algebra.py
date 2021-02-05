@@ -17,12 +17,10 @@
 #
 #=========================================================================
 
-import numpy
 import os
-import shutil
 import unittest
 import sirf.Reg as reg
-from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra, error
+from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra
 
 
 class TestNiftiImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
@@ -37,8 +35,7 @@ class TestNiftiImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
         
         self.image1 = image1
         self.image2 = image2
-        
-    
+
     def tearDown(self):
         #shutil.rmtree(self.cwd)
         pass

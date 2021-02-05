@@ -7,7 +7,6 @@ import numpy
 import os
 import sirf.pyiutilities as pyiutil
 import re
-import numpy
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
@@ -548,6 +547,7 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True
 
 
 class TestDataContainerAlgebra(object):
+
     '''A base class for unit test of DataContainer algebra.'''
     def test_divide_scalar(self):
         if hasattr(self, 'cwd'):
@@ -565,14 +565,14 @@ class TestDataContainerAlgebra(object):
         
         image1.divide(1., out=image2)
         numpy.testing.assert_array_equal(tmp.as_array(), image2.as_array())
-        
+
     def test_divide_datacontainer(self):
         if hasattr(self, 'cwd'):
             os.chdir(self.cwd)
         # add 1 because the data contains zeros and divide is not going to be happy
         image1 = self.image1 + 1
         image2 = self.image2 + 1
-                
+        
         tmp = image1/image2
 
         numpy.testing.assert_array_almost_equal(
@@ -590,7 +590,6 @@ class TestDataContainerAlgebra(object):
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
-        
 
     def test_multiply_scalar(self):
         if hasattr(self, 'cwd'):
@@ -607,7 +606,7 @@ class TestDataContainerAlgebra(object):
         
         image1.multiply(1., out=image2)
         numpy.testing.assert_array_equal(tmp.as_array(), image2.as_array())
-        
+
     def test_multiply_datacontainer(self):
         if hasattr(self, 'cwd'):
             os.chdir(self.cwd)
@@ -631,7 +630,7 @@ class TestDataContainerAlgebra(object):
         numpy.testing.assert_array_almost_equal(
             image1.as_array(), tmp1.as_array()
             )
-        
+
     def test_add_scalar(self):
         if hasattr(self, 'cwd'):
             os.chdir(self.cwd)
@@ -694,7 +693,7 @@ class TestDataContainerAlgebra(object):
         tmp1.fill(0)
         image1.subtract(1., out=tmp1)
         numpy.testing.assert_array_equal(tmp1.as_array(), image2.as_array())
-    
+
     def test_subtract_datacontainer(self):
         if hasattr(self, 'cwd'):
             os.chdir(self.cwd)
@@ -726,9 +725,9 @@ class TestDataContainerAlgebra(object):
         try:
             self.image1 / 0.
             self.assertFalse(True)
-        except ZeroDivisionError as derror:
+        except ZeroDivisionError:
             self.assertTrue(True)
-        except error as derror:
+        except error:
             self.assertTrue(True)
     
     def test_division_by_datacontainer_zero(self):
@@ -738,9 +737,7 @@ class TestDataContainerAlgebra(object):
             self.image2 *= 0
             tmp = self.image1 / self.image2
             self.assertFalse(True)
-        except ZeroDivisionError as derror:
+        except ZeroDivisionError:
             self.assertTrue(True)
-        except error as derror:
+        except error:
             self.assertTrue(True)
-        
-            

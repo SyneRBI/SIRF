@@ -341,7 +341,7 @@ class ImageData(SIRF.ImageData):
             return self.fill(arr)
         else:
             raise error('wrong fill value.' + \
-                        ' Should be ImageData, numpy.ndarray or number. Got {}'.format(type(value)))
+                        ' Should be ImageData, numpy.ndarray or number. Got {}'.format(type(data)))
         return self
 
     def dimensions(self):
@@ -906,7 +906,7 @@ class AcquisitionData(DataContainer):
             return self.fill(arr)
         else:
             raise error('wrong fill value.' + \
-                        ' Should be AcquisitionData, numpy.ndarray or number. Got {}'.format(type(value)))
+                        ' Should be AcquisitionData, numpy.ndarray or number. Got {}'.format(type(data)))
         return self
     def as_array(self, acq=None):
         '''

@@ -17,12 +17,10 @@
 #
 #=========================================================================
 
-import numpy
 import os
-import shutil
 import unittest
 import sirf.STIR as pet
-from sirf.Utilities import examples_data_path, TestDataContainerAlgebra, error
+from sirf.Utilities import examples_data_path, TestDataContainerAlgebra
 
 pet.AcquisitionData.set_storage_scheme('file')
 pet.set_verbosity(0)

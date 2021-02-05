@@ -17,9 +17,7 @@
 #
 #=========================================================================
 
-import numpy
 import os
-import shutil
 import unittest
 import sirf.Gadgetron as mr
 from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra
@@ -35,7 +33,7 @@ class TestGadgetronAcquisitionDataAlgebra(unittest.TestCase, TestDataContainerAl
         image2 = mr.AcquisitionData(os.path.join
             (examples_data_path('MR'),'simulated_MR_2D_cartesian.h5')
         )
-        
+
         image1.sort()
         image2.sort()
         self.image1 = image1
