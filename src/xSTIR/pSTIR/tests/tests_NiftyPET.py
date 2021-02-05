@@ -14,14 +14,19 @@ Options:
 {licence}
 """
 import sirf.STIR as pet
-from sirf.Utilities import is_operator_adjoint, runner, __license__
+from sirf.Utilities import is_operator_adjoint, runner, __license__, examples_data_path
 import numpy as np
 import time
 import sys
+import os
+import unittest
+
+has_niftypet = hasattr(pet, 'AcquisitionModelUsingNiftyPET')
 
 __version__ = "0.2.3"
 __author__ = "Richard Brown"
 
+pet.AcquisitionData.set_storage_scheme('file')
 
 def get_elliptical_cylinder(radius_x, radius_y, length, origin=None):
     cyl = pet.EllipticCylinder()
@@ -56,20 +61,18 @@ def add_noise(proj_data,noise_factor = 1):
     noisy_proj_data = proj_data.clone()
     noisy_proj_data.fill(noisy_proj_data_arr);
     return noisy_proj_data
-
+@unittest.skipUnless(has_niftypet, "NiftyPET not installed")
 def test_main(rec=False, verb=False, throw=True):
 
     # Set STIR verbosity to off
     original_verb = pet.get_verbosity()
-    pet.set_verbosity(0)
+    pet.set_verbosity(1)
 
     time.sleep(0.5)
     sys.stderr.write("Testing NiftyPET projector...")
     time.sleep(0.5)
 
-    data_path = pet.examples_data_path('PET')
-    raw_data_file = pet.existing_filepath(data_path, 'mMR/mMR_template_span11.hs')
-    template_acq_data = pet.AcquisitionData(raw_data_file)
+    
 
     # Get image
     image = get_image()
@@ -80,6 +83,13 @@ def test_main(rec=False, verb=False, throw=True):
     except:
         return 1, 1
     acq_model.set_cuda_verbosity(verb)
+
+    data_path = examples_data_path('PET')
+    # raw_data_file = pet.existing_filepath(data_path, 'mMR/mMR_template_span11.hs')
+    raw_data_file = os.path.join(data_path, 'mMR')
+    os.chdir(raw_data_file)
+    template_acq_data = pet.AcquisitionData('mMR_template_span11.hs')
+
     acq_model.set_up(template_acq_data, image)
 
     # Test operator adjointness

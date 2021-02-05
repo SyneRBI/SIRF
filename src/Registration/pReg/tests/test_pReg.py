@@ -29,7 +29,7 @@ except ImportError:
     print('WARNING: nibabel is not installed, so not running corresponding tests')
 
 import sirf.Reg
-from pUtilities import *
+from sirf.Utilities import is_operator_adjoint
 
 # Paths
 SIRF_PATH = os.environ.get('SIRF_PATH')

@@ -328,8 +328,10 @@ void* cReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, con
 
         if      (maths_type == 0) res = im1 + im2;
         else if (maths_type == 1) res = im1 - im2;
+        else if (maths_type == 2) res = im1 * im2;
+        else if (maths_type == 3) res = im1 / im2; 
         else
-            throw std::runtime_error("cReg_NiftiImageData_maths_im: Bad maths type (0=add, 1=subtract).");
+            throw std::runtime_error("cReg_NiftiImageData_maths_im: Bad maths type (0=add, 1=subtract, 2=multiply, 3=divide).");
         return new DataHandle;
     }
     CATCH;
@@ -344,8 +346,9 @@ void* cReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, co
         if      (maths_type == 0) res = im1 + val;
         else if (maths_type == 1) res = im1 - val;
         else if (maths_type == 2) res = im1 * val;
+        else if (maths_type == 3) res = im1 / val; 
         else
-            throw std::runtime_error("cReg_NiftiImageData_maths_val: Bad maths type (0=add, 1=subtract, 2=multiply.");
+            throw std::runtime_error("cReg_NiftiImageData_maths_num: Bad maths type (0=add, 1=subtract, 2=multiply, 3=divide");
         return new DataHandle;
     }
     CATCH;

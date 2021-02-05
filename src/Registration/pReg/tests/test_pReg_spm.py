@@ -30,7 +30,11 @@ import sys
 import time
 import numpy as np
 import sirf.Reg
-from pUtilities import *
+import unittest
+
+has_spm = hasattr(sirf.Reg, 'SPMRegistration')
+
+
 
 # Paths
 SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -136,7 +140,7 @@ def try_spm():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-
+@unittest.skipUnless(has_spm, "SPM not available")
 def test():
     try_spm()
 
