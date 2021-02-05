@@ -248,8 +248,7 @@ script:
 # print for debugging
 - cat builds/SIRF/build/CMakeCache.txt
 - |
-   # ctest --output-on-failure; test_fail=$?
-   cd builds/SIRF/build && ctest --verbose
+   ctest --output-on-failure; test_fail=$?
    # echo "----------- Killing gadgetron server"
    # killall gadgetron
    if [[ $test_fail -ne 0 ]]; then
