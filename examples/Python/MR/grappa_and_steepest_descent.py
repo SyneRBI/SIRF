@@ -140,11 +140,8 @@ def main():
         pylab.show()
 
     if output_file is not None:
-      # write images to a new group in args.output
-      # named after the current date and time
-      time_str = time.asctime()
       print('writing to %s' % output_file)
-      image_data.write(output_file) #, time_str)
+      image_data.write(output_file)
 
 try:
     main()

@@ -11,12 +11,11 @@ Options:
                                      [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>           path to data files, defaults to data/examples/MR
                                      subfolder of SIRF root folder
-  -o <file>, --output=<file>         images output file
+  -o <file>, --output=<file>         images output file [default: output.h5]
   -a <string>, --algorithm=<string>  algorithm to use ('SimpleReconGadget', 'GenericReconCartesianFFTGadget') [default: SimpleReconGadget]
-  --type_to_save=<string>            type to save ('mag', 'imag', 'all') [default: all]
+  --type-to-save=<string>            type to save ('mag', 'imag', 'all') [default: all]
   --non-interactive                  do not show plots
 '''
-##  --show                             show plots
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
@@ -56,7 +55,7 @@ if data_path is None:
     data_path = examples_data_path('MR')
 output_file = args['--output']
 
-type_to_save = args['--type_to_save']
+type_to_save = args['--type-to-save']
 show_plot = not args['--non-interactive']
 
 algorithm = args['--algorithm']
@@ -96,20 +95,11 @@ def main():
 
     recon = Reconstructor(recon_gadgets)
 
-    # ExtractGadget defines which type of image should be returned:
-    # none      0
-    # magnitude 1
-    # real      2
-    # imag      4
-    # phase     8
-    # in this example '5' returns both magnitude and imaginary part
-##    recon.set_gadget_property('ex', 'extract_mask', 5)
-    # === THE ABOVE IS OBSOLETE, NOW SHOULD USE ===>
-    if type_to_save=='mag' or type_to_save=='all':
-        recon.set_gadget_property('ex', 'extract_magnitude', True)
-    if type_to_save=='imag' or type_to_save=='all':
+    if type_to_save == 'imag' or type_to_save == 'all':
         recon.set_gadget_property('ex', 'extract_imag', True)
-    
+        if type_to_save != 'all':
+            recon.set_gadget_property('ex', 'extract_magnitude', False)
+
     # provide raw k-space data as input
     recon.set_input(acq_data)
 
@@ -147,18 +137,16 @@ def main():
             im_type = image.image_type()
             im_series = image.image_series_index()
             print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
-        image_data.show(title = 'Images magnitude and imaginary part')
+        if type_to_save == 'all':
+            title = 'Images magnitude and imaginary part'
+        elif type_to_save == 'imag':
+            title = 'Images imaginary part'
+        else:
+            title = 'Images magnitude'
+        image_data.show(title=title)
 
     if output_file is not None:
-        filename = output_file
-        i = filename.find('.')
-        if i < 0:
-            ext = 'h5'
-        else:
-            ext = filename[i + 1:]
-            filename = filename[:i]
-        print('writing to %s' % (filename + '.' + ext))
-        image_data.write(filename, ext=ext)
+        image_data.write(output_file)
 
 try:
     main()

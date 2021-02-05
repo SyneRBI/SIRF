@@ -529,8 +529,10 @@ namespace sirf {
 		{
 			size_t size = filename.size();
 			std::string suff = filename.substr(size - 4, 4);
-			if (suff == std::string(".dcm"))
-				this->write(filename, "", true);
+			if (suff == std::string(".dcm")) {
+				std::string prefix = filename.substr(0, size - 4);
+				this->write(prefix, "", true);
+			}
 			else {
 				std::string fullname = ensure_ext_(filename, "h5");
 				this->write(fullname, "", false);
