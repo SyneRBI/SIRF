@@ -1,6 +1,7 @@
 # ChangeLog
 
 ## vX.X.X
+* Added common Python DataContainer algebra unit tests for all DataContainer inherited classes.
 * Added implementation of division and multiplication for NiftiImageData.
 * Bug fix: Python fill method in MR DataContainer accepts numpy array, number or DataContainer.
 * Addition of sirf.STIR.ScatterEstimation and ScatterSimulation to allow scatter estimation in PET
