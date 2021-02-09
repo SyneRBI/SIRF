@@ -104,9 +104,28 @@ if (DISABLE_PYTHON)
   message(STATUS "Python support disabled")
 else(DISABLE_PYTHON)
   # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
-  find_package(PythonInterp QUIET)
-  find_package(PythonLibs)
+  if (${CMAKE_VERSION} VERSION_LESS "3.12")
+      find_package(PythonInterp QUIET)
+      find_package(PythonLibs)
+      
+  else()
+    find_package(Python COMPONENTS Interpreter Development)
+    if (Python_FOUND)
+      set (PYTHON_EXECUTABLE ${Python_EXECUTABLE})
+      set (PYTHONLIBS_FOUND ON)
+      set (PYTHON_LIBRARIES ${Python_LIBRARIES})
+      set (PYTHON_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
+      set (PYTHON_VERSION_MAJOR ${Python_VERSION_MAJOR})
+    else()
+      set (PYTHONLIBS_FOUND OFF)
+    endif()
+  endif()
+
+  
   if (PYTHONLIBS_FOUND)
+    if (PYTHON_VERSION_MAJOR VERSION_LESS "3")
+      message(WARNING "The use of Python 2 is deprecated and support will be removed in future versions.")
+    endif()
     set(BUILD_PYTHON ON)
     # PYTHON_DEST_DIR allows the user to select the install destination of the
     # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be
