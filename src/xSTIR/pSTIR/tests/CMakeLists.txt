@@ -24,11 +24,11 @@ if (NiftyPET_BOOL_STR EQUAL "0")
 endif()
 
 add_test(NAME PET_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_tests}
+  COMMAND ${Python_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_tests}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 #add_test(NAME PET_DEMOS_PYTHON
 #  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
 #  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/PET")
 add_test(NAME PET_PYTHON_ALGEBRA
-  COMMAND ${PYTHON_EXECUTABLE} -m unittest test_algebra
+  COMMAND ${Python_EXECUTABLE} -m unittest test_algebra
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

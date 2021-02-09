@@ -22,8 +22,8 @@ else()
 endif()
 # Make into test
 ADD_TEST(NAME REG_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Reg --cover-erase -d -v ${CMAKE_SOURCE_DIR}/src/Registration/pReg ${exclude_tests})
+  COMMAND ${Python_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Reg --cover-erase -d -v ${CMAKE_SOURCE_DIR}/src/Registration/pReg ${exclude_tests})
 
 add_test(NAME REG_PYTHON_ALGEBRA
-  COMMAND ${PYTHON_EXECUTABLE} -m unittest test_algebra
+  COMMAND ${Python_EXECUTABLE} -m unittest test_algebra
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

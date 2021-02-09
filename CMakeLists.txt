@@ -104,9 +104,37 @@ if (DISABLE_PYTHON)
   message(STATUS "Python support disabled")
 else(DISABLE_PYTHON)
   # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
-  find_package(PythonInterp QUIET)
-  find_package(PythonLibs)
+  if (${CMAKE_VERSION} VERSION_LESS "3.12")
+      if (Python_EXECUTABLE)
+        set (PYTHON_EXECUTABLE ${Python_EXECUTABLE})
+      endif()
+      find_package(PythonInterp QUIET)
+      find_package(PythonLibs)
+      if (PYTHON_FOUND)
+        set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+        # set (PYTHONLIBS_FOUND ON)
+        set (Python_LIBRARIES ${PYTHON_LIBRARIES})
+        set (Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+        set (Python_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
+      endif()
+  else()
+    if (PYTHON_EXECUTABLE)
+      message(WARNING "Usage of PYTHON_EXECUTABLE is deprecated. Use Python_EXECUTABLE instead.")
+      set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+    endif()
+    find_package(Python COMPONENTS Interpreter Development)
+    if (Python_FOUND)
+      set (PYTHONLIBS_FOUND ON)
+    else()
+      set (PYTHONLIBS_FOUND OFF)
+    endif()
+  endif()
+
+  
   if (PYTHONLIBS_FOUND)
+    if (Python_VERSION_MAJOR VERSION_LESS "3")
+      message(WARNING "The use of Python 2 is deprecated and support will be removed in future versions.")
+    endif()
     set(BUILD_PYTHON ON)
     # PYTHON_DEST_DIR allows the user to select the install destination of the
     # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be
@@ -122,11 +150,11 @@ else(DISABLE_PYTHON)
     message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
     set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
     PYTHONPATH: prefix PYTHONPATH \n\
-    SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
+    SETUP_PY:   execute ${Python_EXECUTABLE} setup.py install \n\
     CONDA:      do nothing")
 
   else(PYTHONLIBS_FOUND)
-    message(WARNING "Pythonlibs not found. Best to set PYTHON_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
+    message(WARNING "Pythonlibs not found. Best to set Python_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
   endif(PYTHONLIBS_FOUND)
 
 endif(DISABLE_PYTHON)
