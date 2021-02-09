@@ -525,7 +525,19 @@ namespace sirf {
 		virtual void set_real_data(const float* data);
 		virtual int read(std::string filename, std::string variable = "", int iv = -1);
 		virtual void write(const std::string &filename, const std::string &groupname, const bool dicom) const;
-		virtual void write(const std::string &filename) const { this->write(filename, "", false); }
+		virtual void write(const std::string &filename) const 
+		{
+			size_t size = filename.size();
+			std::string suff = filename.substr(size - 4, 4);
+			if (suff == std::string(".dcm")) {
+				std::string prefix = filename.substr(0, size - 4);
+				this->write(prefix, "", true);
+			}
+			else {
+				std::string fullname = ensure_ext_(filename, "h5");
+				this->write(fullname, "", false);
+			}
+		}
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;
@@ -623,6 +635,17 @@ namespace sirf {
         AcquisitionsInfo acqs_info_;
 		/// Clone helper function. Don't use.
 		virtual ISMRMRDImageData* clone_impl() const = 0;
+		std::string ensure_ext_(std::string name, const char* def_ext) const
+		{
+			auto found = name.find_last_of("/\\");
+			if (found == std::string::npos)
+				found = name.find_last_of(".");
+			else
+				found = name.substr(found + 1).find_last_of(".");
+			if (found != std::string::npos)
+				return name;
+			return name + '.' + def_ext;
+		}
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;

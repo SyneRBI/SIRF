@@ -11,7 +11,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -o <outp>, --output=<path>  output file name (no ext.) [default: output]
+  -o <outp>, --output=<path>  output file name [default: output.h5]
   --non-interactive           do not show plots
 '''
 

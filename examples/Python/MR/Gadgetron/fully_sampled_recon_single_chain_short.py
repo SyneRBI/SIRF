@@ -60,16 +60,12 @@ def main():
     image_data = recon.reconstruct(acq_data)
     # show reconstructed images
     if show_plot:
-        image_data.show(title = 'Reconstructed images (magnitude)')
+        image_data.show(title='Reconstructed images (magnitude)')
 
     if output_file is not None:
-        # write images to a new group /dataset in args.output
+        # write images to output_file
         print('writing to %s' % output_file)
-        image_data.write(output_file) #, 'dataset')
-        # demonstrate reading from file
-        test_image = ImageData()
-        test_image.read_from_file(output_file + '.h5')
-        test_image.show('Reconstructed images in file (magnitude)')
+        image_data.write(output_file)
 
 try:
     main()
