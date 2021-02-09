@@ -34,8 +34,8 @@ SET_SOURCE_FILES_PROPERTIES(pygadgetron.i PROPERTIES SWIG_FLAGS "-I${cGadgetron_
 # Tell CMake it needs to re-run SWIG when .h file changes
 set(SWIG_MODULE_pygadgetron_EXTRA_DEPS "${cGadgetron_INCLUDE_DIR}/sirf/Gadgetron/cgadgetron.h")
 SWIG_ADD_LIBRARY(pygadgetron LANGUAGE python TYPE MODULE SOURCES pygadgetron.i)
-TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pygadgetron_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_DIRS})
-SWIG_LINK_LIBRARIES(pygadgetron cgadgetron iutilities "${PYTHON_LIBRARIES}")
+TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pygadgetron_REAL_NAME} PUBLIC ${Python_INCLUDE_DIRS})
+SWIG_LINK_LIBRARIES(pygadgetron cgadgetron iutilities "${Python_LIBRARIES}")
 
 INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
 INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pygadgetron.py" Gadgetron.py DESTINATION "${PYTHON_DEST}/sirf")

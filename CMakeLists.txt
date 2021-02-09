@@ -107,15 +107,17 @@ else(DISABLE_PYTHON)
   if (${CMAKE_VERSION} VERSION_LESS "3.12")
       find_package(PythonInterp QUIET)
       find_package(PythonLibs)
-      
+      if (PYTHON_FOUND)
+        set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+        # set (PYTHONLIBS_FOUND ON)
+        set (Python_LIBRARIES ${PYTHON_LIBRARIES})
+        set (Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+        set (Python_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
+      endif()
   else()
     find_package(Python COMPONENTS Interpreter Development)
     if (Python_FOUND)
-      set (PYTHON_EXECUTABLE ${Python_EXECUTABLE})
       set (PYTHONLIBS_FOUND ON)
-      set (PYTHON_LIBRARIES ${Python_LIBRARIES})
-      set (PYTHON_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
-      set (PYTHON_VERSION_MAJOR ${Python_VERSION_MAJOR})
     else()
       set (PYTHONLIBS_FOUND OFF)
     endif()
@@ -123,7 +125,7 @@ else(DISABLE_PYTHON)
 
   
   if (PYTHONLIBS_FOUND)
-    if (PYTHON_VERSION_MAJOR VERSION_LESS "3")
+    if (Python_VERSION_MAJOR VERSION_LESS "3")
       message(WARNING "The use of Python 2 is deprecated and support will be removed in future versions.")
     endif()
     set(BUILD_PYTHON ON)
@@ -141,11 +143,11 @@ else(DISABLE_PYTHON)
     message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
     set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
     PYTHONPATH: prefix PYTHONPATH \n\
-    SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
+    SETUP_PY:   execute ${Python_EXECUTABLE} setup.py install \n\
     CONDA:      do nothing")
 
   else(PYTHONLIBS_FOUND)
-    message(WARNING "Pythonlibs not found. Best to set PYTHON_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
+    message(WARNING "Pythonlibs not found. Best to set Python_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
   endif(PYTHONLIBS_FOUND)
 
 endif(DISABLE_PYTHON)

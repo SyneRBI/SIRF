@@ -48,8 +48,8 @@ if(BUILD_PYTHON AND PYTHON_FOUND)
     "${ciUtilities_INCLUDE_DIR}/sirf/iUtilities/DataHandle.h" 
     "${ciUtilities_INCLUDE_DIR}/sirf/iUtilities/iutilities.h")
   SWIG_ADD_LIBRARY(pyiutilities LANGUAGE python TYPE MODULE SOURCES pyiutilities.i)
-  TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pyiutilities_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_DIRS})
-  SWIG_LINK_LIBRARIES(pyiutilities iutilities ${PYTHON_LIBRARIES})
+  TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pyiutilities_REAL_NAME} PUBLIC ${Python_INCLUDE_DIRS})
+  SWIG_LINK_LIBRARIES(pyiutilities iutilities ${Python_LIBRARIES})
 
   INSTALL(TARGETS ${SWIG_MODULE_pyiutilities_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pyiutilities.py"  DESTINATION "${PYTHON_DEST}/sirf")
