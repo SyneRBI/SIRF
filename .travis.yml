@@ -248,16 +248,16 @@ script:
 # print for debugging
 - cat builds/SIRF/build/CMakeCache.txt
 - |
-   ctest --verbose V --output-on-failure; test_fail=$?
-   # echo "----------- Killing gadgetron server"
-   # killall gadgetron
-   if [[ $test_fail -ne 0 ]]; then
-     #echo "----------- Test output"
-     # cat builds/SIRF/build/Testing/Temporary/LastTest.log
-     echo "----------- Last 70 lines of gadgetron.log"
-     tail -n 70 gadgetron.log
-     travis_terminate $test_fail
-   fi
+   cd builds/SIRF/build && ctest --verbose
+#   # echo "----------- Killing gadgetron server"
+#   # killall gadgetron
+#   if [[ $test_fail -ne 0 ]]; then
+#     #echo "----------- Test output"
+#     # cat builds/SIRF/build/Testing/Temporary/LastTest.log
+#     echo "----------- Last 70 lines of gadgetron.log"
+#     tail -n 70 gadgetron.log
+#     travis_terminate $test_fail
+#   fi
 
 after_success:
 - pushd ../SIRF
