@@ -1,0 +1,11 @@
+--only-binary=numpy
+--only-binary=scipy
+--only-binary=matplotlib
+docopt
+psutil
+nose
+coverage
+#coveralls?
+#requests?
+#deprecation?
+#nibabel?
