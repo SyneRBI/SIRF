@@ -231,7 +231,7 @@ before_install:
 - echo "cmake flags $BUILD_FLAGS $EXTRA_BUILD_FLAGS"
 
 install:
-- $PY_EXE -m pip install --user requirements.txt
+- $PY_EXE -m pip install --user -r requirements.txt
 - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
 # Job may timeout (>50min) if no ccache, otherwise should be <1min:
 - make
