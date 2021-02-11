@@ -5,6 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy
 import os
+import sirf
 import sirf.pyiutilities as pyiutil
 import re
 
@@ -45,7 +46,8 @@ def examples_data_path(data_type):
     Returns the path to PET/MR/Registration data used by SIRF/examples demos.
     data_type: either 'PET' or 'MR' or 'Registration'
     '''
-    data_path = os.path.join('share', 'SIRF', 'data', 'examples', data_type)
+    data_path = os.path.join('share', 'SIRF-{}'.format(sirf.__version__), 
+                             'data', 'examples', data_type)
     SIRF_INSTALL_PATH = os.environ.get('SIRF_INSTALL_PATH')
     if SIRF_INSTALL_PATH is not None:
         return os.path.join(SIRF_INSTALL_PATH , data_path)
