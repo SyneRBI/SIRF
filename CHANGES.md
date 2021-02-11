@@ -1,6 +1,7 @@
 # ChangeLog
 
 ## vX.X.X
+* STIR version 4.0.2 is now required
 * Use CMake variable names from find_package(Python) which are available with CMake 3.12+. A warning is sent when the python version found is 2. This can be changed to FATAL_ERROR at a later stage. CMake will accept both `Python_EXECUTABLE` or `PYTHON_EXECUTABLE`, for the latter it will send a deprecation warning.
 * Added common Python DataContainer algebra unit tests for all DataContainer inherited classes.
 * Added implementation of division and multiplication for NiftiImageData.
