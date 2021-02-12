@@ -478,8 +478,7 @@ class ImageData(SIRF.ImageData):
         nz = data.shape[0]
         if isinstance(slice, int):
             if slice < 0 or slice >= nz:
-                print("Warning, slice index out of bounds. Returning. ")
-                return
+                raise IndexError('Slice index out of range')
             show_2D_array('slice %d' % slice, data[slice, :, :])
             return
         elif slice is None:
@@ -983,11 +982,12 @@ class AcquisitionData(DataContainer):
             print('pylab not found')
             return
         data = self.as_array()
+        if tof <0 or tof >= data.shape[0]:
+            raise IndexError('TOF bin index out of range')
         nz = data.shape[1]
         if isinstance(sino, int):
             if sino < 0 or sino >= nz:
-                print("Warning, sinogram index out of bounds. Returning. ")
-                return
+                raise IndexError('Slice index out of range')
             show_2D_array('sinogram %d' % sino, data[tof, sino, :, :])
             return
         elif sino is None:
