@@ -3,7 +3,7 @@
 ## vX.X.X
 * If the `SIRF_DATA_PATH` environment variable is set, `examples_data_path` will search for the examples data there, unless it will default to `SIRF_INSTALL_PATH/share/data` directory. In MATLAB, the `example_data_path` function has the version set by CMake at install time.
 * Defines `__version__` in `sirf` python package.
-* Installs `examples`, `data` and `doc` to the install directory, i.e. `${CMAKE_INSTALL_PREFIX}/share/SIRF` directory
+* Installs `examples`, `data` and `doc` to the install directory, i.e. `${CMAKE_INSTALL_PREFIX}/share/SIRF-<version>` directory.
 * bugfix in path manipulation of `examples_data_path`, now should work for any platform, not just linux.
 * STIR version 4.0.2 is now required
 * Use CMake variable names from find_package(Python) which are available with CMake 3.12+. A warning is sent when the python version found is 2. This can be changed to FATAL_ERROR at a later stage. CMake will accept both `Python_EXECUTABLE` or `PYTHON_EXECUTABLE`, for the latter it will send a deprecation warning.
