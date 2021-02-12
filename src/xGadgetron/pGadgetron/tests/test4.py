@@ -32,7 +32,6 @@ def test_main(rec=False, verb=False, throw=True):
 
     data_file = 'simulated_MR_2D_cartesian.h5'
     data_path = examples_data_path('MR')
-    output_file = None
     type_to_save = 'all'
     show_plot = False
     algorithm = 'SimpleReconGadget'
@@ -122,17 +121,6 @@ def test_main(rec=False, verb=False, throw=True):
             im_series = image.image_series_index()
             print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
         image_data.show(title = 'Images magnitude and imaginary part')
-
-    if output_file is not None:
-        filename = output_file
-        i = filename.find('.')
-        if i < 0:
-            ext = 'h5'
-        else:
-            ext = filename[i + 1:]
-            filename = filename[:i]
-        print('writing to %s' % (filename + '.' + ext))
-        image_data.write(filename, ext=ext)
 
     return 0, 1
 

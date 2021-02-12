@@ -1,7 +1,8 @@
 """Object-Oriented wrap for the cReg-to-Python interface pyreg.py."""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2018 - 2020 University College London
+# Copyright 2018 - 2021 University College London
+# Copyright 2018 - 2021 Science Technology Facilities Council
 #
 # This is software developed for the Collaborative Computational
 # Project in Synergistic Reconstruction for Biomedical Imaging
@@ -146,7 +147,10 @@ class _Transformation(ABC):
 
 class NiftiImageData(SIRF.ImageData):
     """General class for nifti image data."""
-
+    _ADD      = 0
+    _SUBTRACT = 1
+    _MULTIPLY = 2
+    _DIVIDE   = 3
     def __init__(self, src=None):
         """init."""
         self.handle = None
@@ -174,11 +178,11 @@ class NiftiImageData(SIRF.ImageData):
         if isinstance(other, NiftiImageData):
             try_calling(
                 pyreg.cReg_NiftiImageData_maths_im(
-                    z.handle, self.handle, other.handle, 0))
+                    z.handle, self.handle, other.handle, NiftiImageData._ADD))
         else:
             try_calling(
                 pyreg.cReg_NiftiImageData_maths_num(
-                    z.handle, self.handle, float(other), 0))
+                    z.handle, self.handle, float(other), NiftiImageData._ADD))
         check_status(z.handle)
         return z
 
@@ -187,21 +191,35 @@ class NiftiImageData(SIRF.ImageData):
         z = self.clone()
         if isinstance(other, NiftiImageData):
             try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, 1))
+                        self.handle, other.handle, NiftiImageData._SUBTRACT))
         else:
             try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), 1))
+                        self.handle, float(other), NiftiImageData._SUBTRACT))
         check_status(z.handle)
         return z
 
     def __mul__(self, other):
         """Overloads * operator."""
         z = self.clone()
-        try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle, self.handle,
-                    float(other), 2))
+        if isinstance(other, NiftiImageData):
+            try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
+                        self.handle, other.handle, NiftiImageData._MULTIPLY))
+        else:
+            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
+                        self.handle, float(other), NiftiImageData._MULTIPLY))
         check_status(z.handle)
         return z
-
+    def __div__(self, other):
+        """Overloads / operator."""
+        z = self.clone()
+        if isinstance(other, NiftiImageData):
+            try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
+                        self.handle, other.handle, NiftiImageData._DIVIDE))
+        else:
+            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
+                        self.handle, float(other), NiftiImageData._DIVIDE))
+        check_status(z.handle)
+        return z
     def equal(self, other):
         """Overload comparison operator."""
         if not isinstance(other, NiftiImageData):

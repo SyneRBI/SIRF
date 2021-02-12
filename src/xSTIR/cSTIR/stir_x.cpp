@@ -468,12 +468,19 @@ PETAcquisitionSensitivityModel::
 PETAcquisitionSensitivityModel(std::string filename)
 {
 #if defined(HAVE_HDF5)
-	if (GEHDF5Wrapper::check_GE_signature(filename)) {
-		shared_ptr<BinNormalisation>
-			sptr_n(new BinNormalisationFromGEHDF5(filename));
-		norm_ = sptr_n;
-		return;
+	std::cout << "trying GEHDF5...\n";
+	try {
+		if (GEHDF5Wrapper::check_GE_signature(filename)) {
+			shared_ptr<BinNormalisation>
+				sptr_n(new BinNormalisationFromGEHDF5(filename));
+			norm_ = sptr_n;
+			std::cout << "created bin normalisation from GE HDF5 file\n";
+			return;
+		}
 	}
+	catch (...) {
+	}
+	std::cout << "not a GE HDF5 file\n";
 #endif
 	shared_ptr<BinNormalisation>
 		sptr_n(new BinNormalisationFromECAT8(filename));

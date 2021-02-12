@@ -284,7 +284,8 @@ MRAcquisitionData::divide
 	complex_float_t* py;
 	for (px = acq_x.data_begin(), py = acq_y.data_begin();
 		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
-		// TODO: check for zero denominator
+		if (abs(complex_float_t(*py)) == 0.0)
+			THROW("division by zero in MRAcquisitionData::divide");
 		*py = complex_float_t(*px) / complex_float_t(*py);
 	}
 }

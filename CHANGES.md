@@ -1,6 +1,12 @@
 # ChangeLog
 
 ## vX.X.X
+* STIR version 4.0.2 is now required
+* Use CMake variable names from find_package(Python) which are available with CMake 3.12+. A warning is sent when the python version found is 2. This can be changed to FATAL_ERROR at a later stage. CMake will accept both `Python_EXECUTABLE` or `PYTHON_EXECUTABLE`, for the latter it will send a deprecation warning.
+* Added common Python DataContainer algebra unit tests for all DataContainer inherited classes.
+* Added implementation of division and multiplication for NiftiImageData.
+* Bug fix: Python fill method in MR DataContainer accepts numpy array, number or DataContainer.
+* Addition of sirf.STIR.ScatterEstimation and ScatterSimulation to allow scatter estimation in PET
 * STIR AcquisitionModel `forward`, `direct`, `backward` and `adjoint` signatures have changed in Python. Subset information should now be set via `num_subsets` and `subset_num` members. `The `forward` and `backward` members can still be called with the previous syntax but this will be removed in a later version.
 Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectively, such that default behaviour is default behaviour (i.e. process all data) is unchanged.
 * Extraction of the operator representing the linear part of PET acquisition model and computation of its norm implemented.

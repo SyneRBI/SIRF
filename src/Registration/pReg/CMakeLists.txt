@@ -16,37 +16,35 @@
 #
 #=========================================================================
 
-if(BUILD_PYTHON)
-  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
-    # policy introduced in CMake 3.13
-    cmake_policy(SET CMP0078 OLD)
-  endif()
-  set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  FIND_PACKAGE(SWIG REQUIRED)
-  INCLUDE("${SWIG_USE_FILE}")
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+  # policy introduced in CMake 3.13
+  cmake_policy(SET CMP0078 OLD)
+endif()
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cReg/include")
+FIND_PACKAGE(SWIG REQUIRED)
+INCLUDE("${SWIG_USE_FILE}")
 
-  SET_SOURCE_FILES_PROPERTIES(pyreg.i PROPERTIES CPLUSPLUS ON)
-  SET_SOURCE_FILES_PROPERTIES(pyreg.i PROPERTIES SWIG_FLAGS "-I${cREG_INCLUDE_DIR}")
-  # find libraries and include files
-  # TODO would be better to use target_include_directories
+SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cReg/include")
 
-  # Tell CMake it needs to re-run SWIG when .h file changes
-  set(SWIG_MODULE_pyreg_EXTRA_DEPS "${cREG_INCLUDE_DIR}/sirf/Reg/cReg.h")
+SET_SOURCE_FILES_PROPERTIES(pyreg.i PROPERTIES CPLUSPLUS ON)
+SET_SOURCE_FILES_PROPERTIES(pyreg.i PROPERTIES SWIG_FLAGS "-I${cREG_INCLUDE_DIR}")
+# find libraries and include files
+# TODO would be better to use target_include_directories
 
-  FIND_PACKAGE(PythonLibs REQUIRED)
-  SWIG_ADD_LIBRARY(pyreg LANGUAGE python TYPE MODULE SOURCES pyreg.i)
-  TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pyreg_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_PATH})
-  SWIG_LINK_LIBRARIES(pyreg PUBLIC Reg ${PYTHON_LIBRARIES})
+# Tell CMake it needs to re-run SWIG when .h file changes
+set(SWIG_MODULE_pyreg_EXTRA_DEPS "${cREG_INCLUDE_DIR}/sirf/Reg/cReg.h")
 
-  INSTALL(TARGETS ${SWIG_MODULE_pyreg_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
-  INSTALL(FILES 
-    "${CMAKE_CURRENT_BINARY_DIR}/pyreg.py"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Reg.py"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Reg_params.py"
-    DESTINATION "${PYTHON_DEST}/sirf")
+SWIG_ADD_LIBRARY(pyreg LANGUAGE python TYPE MODULE SOURCES pyreg.i)
+TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pyreg_REAL_NAME} PUBLIC ${Python_INCLUDE_DIRS})
+SWIG_LINK_LIBRARIES(pyreg PUBLIC Reg ${Python_LIBRARIES})
+
+INSTALL(TARGETS ${SWIG_MODULE_pyreg_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
+INSTALL(FILES 
+  "${CMAKE_CURRENT_BINARY_DIR}/pyreg.py"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Reg.py"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Reg_params.py"
+  DESTINATION "${PYTHON_DEST}/sirf")
 
 ADD_SUBDIRECTORY(tests)
-endif(BUILD_PYTHON)

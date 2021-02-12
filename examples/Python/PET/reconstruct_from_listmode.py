@@ -28,8 +28,8 @@ Options:
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC
-## Copyright 2018 - 2020 University College London.
+## Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
+## Copyright 2018 - 2021 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -45,7 +45,7 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
@@ -53,6 +53,7 @@ from ast import literal_eval
 import os
 
 from pUtilities import show_2D_array
+import PET_plot_functions
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
@@ -194,21 +195,43 @@ def main():
     # create acquisition sensitivity model from ECAT8 normalisation data
     asm_norm = AcquisitionSensitivityModel(norm_file)
 
+    # create attenuation factors
     asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
-    # temporary fix pending attenuation offset fix in STIR:
-    # converting attenuation into 'bin efficiency'
+    # converting attenuation image into attenuation factors (one for every bin)
     asm_attn.set_up(acq_data)
-    bin_eff = AcquisitionData(acq_data)
-    bin_eff.fill(1.0)
+    ac_factors = acq_data.get_uniform_copy(value=1)
     print('applying attenuation (please wait, may take a while)...')
-    asm_attn.unnormalise(bin_eff)
-    asm_attn = AcquisitionSensitivityModel(bin_eff)
+    asm_attn.unnormalise(ac_factors)
+    asm_attn = AcquisitionSensitivityModel(ac_factors)
+
+    # scatter estimation
+    print('estimating scatter (this will take a while!)')
+    scatter_estimator = ScatterEstimator()
+
+    scatter_estimator.set_input(acq_data)
+    scatter_estimator.set_attenuation_image(attn_image)
+    scatter_estimator.set_randoms(randoms)
+    scatter_estimator.set_asm(asm_norm)
+    # invert attenuation factors to get the correction factors,
+    # as this is unfortunately what a ScatterEstimator needs
+    acf_factors=acq_data.get_uniform_copy()
+    acf_factors.fill(1/ac_factors.as_array())
+    scatter_estimator.set_attenuation_correction_factors(acf_factors)
+    scatter_estimator.set_output_prefix(sino_file + '_scatter')
+    scatter_estimator.set_num_iterations(3)
+    scatter_estimator.set_up()
+    scatter_estimator.process()
+    scatter_estimate = scatter_estimator.get_output()
+    if visualisations:
+        scatter_estimate_as_array = scatter_estimate.as_array()
+        show_2D_array('Scatter estimate (first sinogram)', scatter_estimate_as_array[0, 0, :, :])
+        PET_plot_functions.plot_sinogram_profile(acq_data, randoms=randoms, scatter=scatter_estimate)
 
     # chain attenuation and ECAT8 normalisation
     asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
 
     acq_model.set_acquisition_sensitivity(asm)
-    acq_model.set_background_term(randoms)
+    acq_model.set_background_term(randoms + scatter_estimate)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)

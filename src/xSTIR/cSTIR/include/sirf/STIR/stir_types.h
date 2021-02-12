@@ -64,6 +64,8 @@ limitations under the License.
 #include "stir/shared_ptr.h"
 #include "stir/SSRB.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
+#include "stir/scatter/SingleScatterSimulation.h"
+#include "stir/scatter/ScatterEstimation.h"
 
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
 #include "stir/recon_buildblock/NiftyPET_projector/ProjectorByBinPairUsingNiftyPET.h"

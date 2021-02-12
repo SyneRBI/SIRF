@@ -1,9 +1,6 @@
 #========================================================================
-# Author: Edoardo Pasca
-# Copyright 2017 - 2020 University College London
-# Copyright 2017 Science Technology Facilities Council
-# Author: Casper da Costa-Luis
-# Copyright 2017
+# Copyright 2017 - 2021 University College London
+# Copyright 2017 - 2021 Science Technology Facilities Council
 #
 # This file is part of the SyneRBI Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #
@@ -20,15 +17,18 @@
 # limitations under the License.
 #
 #=========================================================================
-
+set (exclude_tests "--ignore-files=\"test_algebra\"" "--exclude=TestDataContainerAlgebra")
 # If not NiftyPET projector, dont test that
-if (NOT STIR_WITH_NiftyPET_PROJECTOR)
-	set(exclude_test "--exclude=tests_NiftyPET.py")
+if (NiftyPET_BOOL_STR EQUAL "0")
+	set(exclude_tests "--ignore-files=\"test_algebra|tests_NiftyPET\"" "--exclude=TestDataContainerAlgebra")
 endif()
 
 add_test(NAME PET_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_test}
+  COMMAND ${Python_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_tests}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 #add_test(NAME PET_DEMOS_PYTHON
 #  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
 #  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/PET")
+add_test(NAME PET_PYTHON_ALGEBRA
+  COMMAND ${Python_EXECUTABLE} -m unittest test_algebra
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

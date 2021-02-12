@@ -1,8 +1,9 @@
 """Object-Oriented wrap for the cSTIR-to-Python interface pystir.py."""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-# Copyright 2015 - 2020 University College London
+# Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+# Copyright 2015 - 2021 University College London
+# Copyright 2019 University of Hull
 #
 # This is software developed for the Collaborative Computational
 # Project in Synergistic Reconstruction for Biomedical Imaging
@@ -1199,7 +1200,7 @@ class AcquisitionSensitivityModel(object):
         Create new AcquisitionSensitivityModel object.
 
         Sources:
-        - from an ECAT8 file or
+        - from a manufacturer normalisation file (supported by STIR) or
         - from ImageData object containing attenuation image (units: 1/cm) or
         - from AcquisitionData object containing bin efficiencies or
         - by chaining two existing AcquisitionSensitivityModel objects
@@ -1211,14 +1212,18 @@ class AcquisitionSensitivityModel(object):
         if src is None:
             return
         if isinstance(src, str):
-            # create from ECAT8 file
+            # create from ECAT8/GE norm file
+            print('Reading manufacturer PET normalisation file from ' + src)
             handle = pyiutil.charDataHandle(src)
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel(
                 handle, 'n')
+            pyiutil.deleteDataHandle(handle)
         elif isinstance(src, ImageData):
             # create from attenuation image
             if src.handle is None:
                 raise AssertionError()
+            if other_src is None:
+                raise AssertionError('AcquisitionSensitivityModel constructor with attenuation image needs an AcquisitionModel as second argument (for ray tracing)')
             assert_validity(other_src, AcquisitionModel)
             self.handle = pystir.cSTIR_createPETAttenuationModel(
                 src.handle, other_src.handle)
@@ -2621,6 +2626,177 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         v = 1 if tf else 0
         parms.set_int_par(self.handle, 'KOSMAPOSL', 'hybrid', v)
 
+
+class SingleScatterSimulator():
+    '''
+    Class for simulating the scatter contribution to PET data.
+
+    This class uses the STIR Single Scatter simulation, taking as input an
+    activity and attenuation image, and a acquisition data template.
+
+    WARNING: Currently this class does not use the low-resolution sampling
+    mechanism of STIR. This means that if you give it a full resolution acq_data,
+    you will likely run out of memory and/or time.
+    '''
+    def __init__(self, filename = ''):
+        self.handle = None
+        self.image = None
+        self.name = 'PETSingleScatterSimulator'
+        self.filename = filename
+
+        if not self.filename:
+            self.handle = pystir.cSTIR_newObject(self.name)
+        else:
+            self.handle = pystir.cSTIR_objectFromFile(self.name, self.filename)
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_up(self, acq_templ, img_templ):
+        """Set up.
+
+        Prepare this object for performing forward operations;
+        acq_templ:  an AcquisitionData object used as a template for
+                    creating an AcquisitionData object to store forward
+                    projection;
+        img_templ:  an ImageData object used as a template for checking geometry etc
+
+        attenuation image has to be set first
+        """
+        assert_validity(acq_templ, AcquisitionData)
+        assert_validity(img_templ, ImageData)
+
+        # temporarily save the templates in the class
+        self.acq_templ = acq_templ
+        #self.img_templ = img_templ
+
+        try_calling(pystir.cSTIR_setupScatterSimulator(
+            self.handle, acq_templ.handle, img_templ.handle))
+
+    def forward(self, image,  out=None):
+        """Return the scatter estimation for the input activity image.
+
+        image   :  an ImageData object.
+
+        set_up() has to be called first.
+        """
+        assert_validity(image, ImageData)
+        if out is None:
+            ad = AcquisitionData()
+            ad.handle = pystir.cSTIR_scatterSimulatorFwd(
+                self.handle, image.handle);
+            check_status(ad.handle)
+            return ad
+        ad = out
+        assert_validity(ad, AcquisitionData)
+        try_calling(pystir.cSTIR_scatterSimulatorFwdReplace(
+            self.handle, image.handle, ad.handle))
+
+    def set_attenuation_image(self, image):
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, self.name, 'setAttenuationImage', image.handle)
+
+
+class ScatterEstimator():
+    '''
+    Class for estimating the scatter contribution in PET projection data
+
+    This class implements the SSS iterative algorithm from STIR. It
+    is an iterative loop of reconstruction, single scatter estimation,
+    upsampling, tail-fitting.
+
+    Output is an acquisition_data object with the scatter contribution.
+    This can then be added to the randoms to use in PETAcquisitionModel.set_background_term().
+    '''
+    def __init__(self, filename = ''):
+        self.handle = None
+        self.image = None
+        self.name = 'PETScatterEstimator'
+        self.filename = filename
+
+        if not self.filename:
+            self.handle = pystir.cSTIR_newObject(self.name)
+        else:
+            self.handle = pystir.cSTIR_objectFromFile(self.name, self.filename)
+
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_up(self):
+        """
+        Set up.
+
+        Prepare this object for performing scatter estimation;
+        All input has to be set before calling this function.
+        """
+        try_calling(pystir.cSTIR_setupScatterEstimator(
+            self.handle))
+
+    def process(self):
+        """
+        Runs the scatter estimation.
+
+        You need to run set_up() first.
+        """
+        print('ScatterEstimator:: Waiting for the scatter estimation to finish ...')
+        self.output = AcquisitionData()
+        self.output.handle = pystir.cSTIR_runScatterEstimator(self.handle)
+        check_status(self.output.handle)
+        print('ScatterEstimator:: estimation finished.')
+
+    def get_output(self):
+        """
+        Return the final scatter estimate.
+        """
+        data = AcquisitionData()
+        data.handle = parms.parameter_handle(self.handle, 'PETScatterEstimator', 'output')
+        check_status(data.handle)
+        return data
+
+    def get_num_iterations(self):
+        """Get number of iterations of the SSS algorithm to use."""
+        return parms.int_par(self.handle, 'PETScatterEstimator', 'num_iterations')
+
+    def set_attenuation_image(self, image):
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, self.name, 'setAttenuationImage', image.handle)
+
+    def set_attenuation_correction_factors(self, arg):
+        assert_validity(arg, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setAttenuationCorrectionFactors', arg.handle)
+
+    def set_input(self, acq_data):
+        assert_validity(acq_data, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setInput', acq_data.handle)
+
+    def set_randoms(self, acq_data):
+        assert_validity(acq_data, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setRandoms', acq_data.handle)
+
+    def set_asm(self, asm):
+        '''Set acquisition sensitivity model (without attenuation!)'''
+        assert_validity(asm, AcquisitionSensitivityModel)
+        parms.set_parameter(self.handle, self.name, 'setASM', asm.handle)
+
+    def set_num_iterations(self, v):
+        """Set number of iterations of the SSS algorithm to use."""
+        parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_num_iterations', v)
+
+    def set_output_prefix(self, v):
+        """
+        Set prefix for filenames with scatter estimates.
+
+        Actual filenames will append the iteration number and the .hs extension
+        as common for STIR Interfile data.
+
+        Set it to the empty string to prevent any output.
+        """
+        parms.set_char_par(self.handle, 'PETScatterEstimator', 'set_output_prefix', v)
 
 class OSSPSReconstructor(IterativeReconstructor):
     """OSSPS reconstructor class.
