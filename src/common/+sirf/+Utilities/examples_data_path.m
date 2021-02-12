@@ -26,7 +26,7 @@ function p = examples_data_path(petmr)
         p = [ SIRF_DATA_PATH filesep 'examples' filesep petmr];
     elseif ~isempty(SIRF_PATH)
         % p = [SIRF_PATH '/data/examples/' petmr];
-        p = [ SIRF_INSTALL_PATH filesep 'share' filesep 'SIRF' filesep 'data' filesep 'examples' filesep petmr ];
+        p = [ SIRF_INSTALL_PATH filesep 'share' filesep 'SIRF-@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@' filesep 'data' filesep 'examples' filesep petmr ];
     else
         p = pwd;
     end
