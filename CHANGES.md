@@ -1,6 +1,7 @@
 # ChangeLog
 
 ## vX.X.X
+* If the `SIRF_DATA_PATH` environment variable is set, `examples_data_path` will search for the examples data there, unless it will default to `SIRF_INSTALL_PATH/share/data` directory. In MATLAB, the `example_data_path` function has the version set by CMake at install time.
 * Defines `__version__` in `sirf` python package.
 * Installs `examples`, `data` and `doc` to the install directory, i.e. `${CMAKE_INSTALL_PREFIX}/share/SIRF` directory
 * bugfix in path manipulation of `examples_data_path`, now should work for any platform, not just linux.
