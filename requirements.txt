@@ -5,7 +5,3 @@ docopt
 psutil
 nose
 coverage
-#coveralls?
-#requests?
-#deprecation?
-#nibabel?

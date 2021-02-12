@@ -1,0 +1,4 @@
+coveralls?
+requests?
+deprecation?
+nibabel?
