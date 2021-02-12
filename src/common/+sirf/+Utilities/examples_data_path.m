@@ -19,10 +19,15 @@ function p = examples_data_path(petmr)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-    SIRF_PATH = getenv('SIRF_PATH');
-    if ~isempty(SIRF_PATH)
-        p = [SIRF_PATH '/data/examples/' petmr];
+    
+    SIRF_INSTALL_PATH = getenv('SIRF_INSTALL_PATH');
+    SIRF_DATA_PATH = getenv('SIRF_DATA_PATH')
+    if ~isempty(SIRF_DATA_PATH)
+        p = [ SIRF_DATA_PATH filesep 'examples' filesep petmr];
+    elseif ~isempty(SIRF_PATH)
+        % p = [SIRF_PATH '/data/examples/' petmr];
+        p = [ SIRF_INSTALL_PATH filesep 'share' filesep 'SIRF' filesep 'data' filesep 'examples' filesep petmr ];
     else
-        p = './';
+        p = pwd;
     end
 end

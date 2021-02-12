@@ -49,10 +49,13 @@ def examples_data_path(data_type):
     data_path = os.path.join('share', 'SIRF-{}'.format(sirf.__version__),
                              'data', 'examples', data_type)
     SIRF_INSTALL_PATH = os.environ.get('SIRF_INSTALL_PATH')
-    if SIRF_INSTALL_PATH is not None:
+    SIRF_DATA_PATH = os.environ.get('SIRF_DATA_PATH', None)
+    if SIRF_DATA_PATH is not None:
+        return os.path.join(SIRF_DATA_PATH , 'examples', data_type)
+    elif SIRF_INSTALL_PATH is not None:
         return os.path.join(SIRF_INSTALL_PATH , data_path)
     else:
-        errorMsg = 'You need to set the SIRF_INSTALL_PATH environment variable to allow finding the raw data.'
+        errorMsg = 'You need to set the SIRF_DATA_PATH or SIRF_INSTALL_PATH environment variable to allow finding the raw data.'
         raise ValueError(errorMsg)
 
 def existing_filepath(data_path, file_name):
