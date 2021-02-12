@@ -192,15 +192,6 @@ before_install:
        sudo apt install libvtk7-dev
      fi
    fi
-- $PY_EXE --version
-# get pip
-- curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-- $PY_EXE get-pip.py --user
-- echo "Using Python executable $PY_EXE"
-- $PY_EXE --version
-- $PY_EXE -m pip --version
-# setuptools may be out of date on osx
-- $PY_EXE -m pip install --user -U pip setuptools wheel
 # for counting clones, excluding ours
 - |
    if [[ -n "$GITHUB_API_TOKEN" ]]; then
@@ -210,7 +201,7 @@ before_install:
      # count unique clones, excluding travis, and print total
      TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
    fi
-- $PY_EXE -m pip freeze
+- $PY_EXE --version
 # ccache compiler override
 - ln -s "$(which ccache)" g++
 - ln -s "$(which ccache)" g++-6
@@ -220,6 +211,16 @@ before_install:
 - ln -s "$(which ccache)" gcc-7
 - export PATH="$PWD:$PATH"
 - popd
+# get pip
+- curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+- $PY_EXE get-pip.py --user
+- echo "Using Python executable $PY_EXE"
+- $PY_EXE --version
+- $PY_EXE -m pip --version
+# setuptools may be out of date on osx
+- $PY_EXE -m pip install --user -U pip setuptools wheel
+- $PY_EXE -m pip freeze
+- $PY_EXE -m pip install --user -r requirements.txt
 # no point re-downloading SIRF - just use local version
 # N.B.: don't put into build matrix to allow caching.
 - BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_SOURCE_DIR:PATH=$PWD -DDISABLE_GIT_CHECKOUT_SIRF=ON"
@@ -231,7 +232,6 @@ before_install:
 - echo "cmake flags $BUILD_FLAGS $EXTRA_BUILD_FLAGS"
 
 install:
-- $PY_EXE -m pip install --user -r requirements.txt
 - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
 # Job may timeout (>50min) if no ccache, otherwise should be <1min:
 - make
