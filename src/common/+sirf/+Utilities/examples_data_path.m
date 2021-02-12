@@ -21,10 +21,10 @@ function p = examples_data_path(petmr)
 
     
     SIRF_INSTALL_PATH = getenv('SIRF_INSTALL_PATH');
-    SIRF_DATA_PATH = getenv('SIRF_DATA_PATH')
+    SIRF_DATA_PATH = getenv('SIRF_DATA_PATH');
     if ~isempty(SIRF_DATA_PATH)
         p = [ SIRF_DATA_PATH filesep 'examples' filesep petmr];
-    elseif ~isempty(SIRF_PATH)
+    elseif ~isempty(SIRF_INSTALL_PATH)
         % p = [SIRF_PATH '/data/examples/' petmr];
         p = [ SIRF_INSTALL_PATH filesep 'share' filesep 'SIRF-@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@' filesep 'data' filesep 'examples' filesep petmr ];
     else
