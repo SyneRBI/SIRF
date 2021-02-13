@@ -93,6 +93,6 @@ if (BUILD_MATLAB)
   INSTALL(DIRECTORY +sirf DESTINATION "${MATLAB_DEST}")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+SIRF/+Utilities/examples_data_path.m.in" ${MATLAB_DEST}/+SIRF/+Utilities/examples_data_path.m)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Utilities/examples_data_path.m.in" ${MATLAB_DEST}/+sirf/+Utilities/examples_data_path.m)
 
 endif (BUILD_MATLAB)
