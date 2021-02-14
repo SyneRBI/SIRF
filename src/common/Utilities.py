@@ -5,6 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy
 import os
+import sirf
 import sirf.pyiutilities as pyiutil
 import re
 
@@ -37,28 +38,25 @@ def petmr_data_path(petmr):
 
     *** DEPRECATED: refrain from use (use examples_data_path instead). ***
     '''
-    data_path = '/data/examples/' + petmr.upper()
-    SIRF_PATH = os.environ.get('SIRF_PATH')
-    if SIRF_PATH is not None:
-        return SIRF_PATH + data_path
-    else:
-        errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
-        raise error(errorMsg)
-
+    return examples_data_path( petmr.upper() )
+    
 
 def examples_data_path(data_type):
     '''
     Returns the path to PET/MR/Registration data used by SIRF/examples demos.
     data_type: either 'PET' or 'MR' or 'Registration'
     '''
-    data_path = '/data/examples/' + data_type
-    SIRF_PATH = os.environ.get('SIRF_PATH')
-    if SIRF_PATH is not None:
-        return SIRF_PATH + data_path
+    data_path = os.path.join('share', 'SIRF-{}.{}'.format(sirf.__version_major__, sirf.__version_minor__),
+                             'data', 'examples', data_type)
+    SIRF_INSTALL_PATH = os.environ.get('SIRF_INSTALL_PATH')
+    SIRF_DATA_PATH = os.environ.get('SIRF_DATA_PATH', None)
+    if SIRF_DATA_PATH is not None:
+        return os.path.join(SIRF_DATA_PATH , 'examples', data_type)
+    elif SIRF_INSTALL_PATH is not None:
+        return os.path.join(SIRF_INSTALL_PATH , data_path)
     else:
-        errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
-        raise error(errorMsg)
-
+        errorMsg = 'You need to set the SIRF_DATA_PATH or SIRF_INSTALL_PATH environment variable to allow finding the raw data.'
+        raise ValueError(errorMsg)
 
 def existing_filepath(data_path, file_name):
     '''
