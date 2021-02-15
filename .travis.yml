@@ -221,6 +221,7 @@ before_install:
 - $PY_EXE -m pip install --user -U pip setuptools wheel
 - $PY_EXE -m pip freeze
 - $PY_EXE -m pip install --user -r requirements.txt
+- $PY_EXE -m pip install --user -r ci-requirements.txt
 # no point re-downloading SIRF - just use local version
 # N.B.: don't put into build matrix to allow caching.
 - BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_SOURCE_DIR:PATH=$PWD -DDISABLE_GIT_CHECKOUT_SIRF=ON"

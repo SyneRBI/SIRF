@@ -1,7 +1,8 @@
---only-binary=numpy
---only-binary=scipy
---only-binary=matplotlib
+numpy --only-binary=numpy
+scipy --only-binary=scipy
+matplotlib --only-binary=matplotlib
 docopt
 psutil
 nose
-coverage
+deprecation
+nibabel  # optional
