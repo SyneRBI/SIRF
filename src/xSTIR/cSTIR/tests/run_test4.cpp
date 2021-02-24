@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2018 - 2021 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -24,20 +24,19 @@ limitations under the License.
 \ingroup STIR Tests
 
 \author Evgueni Ovtchinnikov
-\author Richard Brown
+\author Kris Thielemans
 \author SyneRBI
 */
 
 #include <iostream>
+#include <cstdlib>
 
-int test1();
-int test2();
+int test4();
 
 int main()
 {
-	int failed = 0;
-	failed += test1();
-	failed += test2();
+	const int failed = test4();
 	std::cout << failed << " tests failed\n";
-	return failed;
+        
+	return failed==0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

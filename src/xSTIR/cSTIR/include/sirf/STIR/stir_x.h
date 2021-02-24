@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
+Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2021 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -95,6 +95,7 @@ The actual algorithm is described in
 		ListmodeToSinograms(const char* par) : stir::LmToProjData(par) {}
 		ListmodeToSinograms() : stir::LmToProjData()
 		{
+                        set_defaults();
 			fan_size = -1;
 			store_prompts = true;
 			store_delayeds = false;
@@ -108,6 +109,7 @@ The actual algorithm is described in
 		void set_input(std::string lm_file)
 		{
 			input_filename = lm_file;
+                        lm_data_ptr = stir::read_from_file<ListModeData>(input_filename);
 		}
 		//! Specifies the prefix for the output file(s), 
 		/*! This will be appended by `_g1f1d0b0.hs`.
@@ -118,7 +120,13 @@ The actual algorithm is described in
 		}
 		void set_template(std::string proj_data_file)
 		{
-			template_proj_data_name = proj_data_file;
+                        PETAcquisitionDataInFile acq_data_template(proj_data_file.c_str());
+                        set_template(acq_data_template);
+		}
+		void set_template(const PETAcquisitionData& acq_data_template)
+		{
+                        template_proj_data_info_ptr =
+                          acq_data_template.get_proj_data_info_sptr()->create_shared_clone();
 		}
 		void set_time_interval(double start, double stop)
 		{
@@ -156,21 +164,9 @@ The actual algorithm is described in
 		}
         virtual stir::Succeeded set_up()
 		{
-			// always reset here, in case somebody set a new listmode or template file
-			max_segment_num_to_process = -1;
-			fan_size = -1;
-
-			bool failed = post_processing();
-			if (failed)
+			if (LmToProjData::set_up() == Succeeded::no)
 				return stir::Succeeded::no;
-			const int num_rings =
-				lm_data_ptr->get_scanner_ptr()->get_num_rings();
-			// code below is a copy of STIR for more generic cases
-			if (max_segment_num_to_process == -1)
-				max_segment_num_to_process = num_rings - 1;
-			else
-				max_segment_num_to_process =
-				std::min(max_segment_num_to_process, num_rings - 1);
+			fan_size = -1;
 			const int max_fan_size =
 				lm_data_ptr->get_scanner_ptr()->get_max_num_non_arccorrected_bins();
 			if (fan_size == -1)
@@ -186,8 +182,10 @@ The actual algorithm is described in
 		stir::shared_ptr<PETAcquisitionData> get_output()
 		{
 			std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
-			return stir::shared_ptr<PETAcquisitionData>
-				(new PETAcquisitionDataInFile(filename.c_str()));
+			auto acq_data_sptr = std::make_shared<PETAcquisitionDataInFile>(filename.c_str());
+                        if (!acq_data_sptr)
+                          THROW("ListmodeToSinograms: failed to read output file '" + filename + "'");
+                        return acq_data_sptr;
 		}
 
 		int estimate_randoms()
