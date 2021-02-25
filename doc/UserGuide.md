@@ -754,14 +754,35 @@ Class for the PET acquisition process model that uses (implicitly) a sparse matr
     AcquisitionModelUsingRayTracingMatrix  
                           Constructor. Creates an acquisition model. 
 
+    set_num_tangential_LORs(int)
+                          can be set to use more than 1 LOR (recommended)
+
 ###### Examples: 
 
     acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_mode.set_num_tangential_LORs(10)
     smoother = SeparableGaussianImageFilter()
     smoother.set_fwhms((6,5,5))
     acq_model.set_image_data_processor(smoother)
     acq_model.set_up(acq_template, image_template) 
     sim_data = acq_model.forward(image); 
+
+##### AcquisitionModelUsingParallelproj (PET)
+
+This class is only available if STIR is at least version 5 (or built from the master branch).
+It uses [Georg Schramm's parallel (computing) projector](https://github.com/gschramm/parallelproj proj). This uses Joseph interpolation, but importantly can use your GPU (if CUDA was found during building).
+
+###### Methods:
+    AcquisitionModelUsingParallelproj
+                      Constructor
+
+###### Examples:
+
+    acq_model = AcquisitionModelUsingParallelproj()
+    acq_model.set_up(acq_template, image_template) 
+    sim_data = acq_model.forward(image); 
+
+(Note that `set_image_data_processor` can also be used of course.)
 
 ##### AcquisitionSensitivityModel (PET)
 

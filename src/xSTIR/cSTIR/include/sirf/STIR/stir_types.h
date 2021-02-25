@@ -70,6 +70,9 @@ limitations under the License.
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
 #include "stir/recon_buildblock/NiftyPET_projector/ProjectorByBinPairUsingNiftyPET.h"
 #endif
+#ifdef STIR_WITH_Parallelproj_PROJECTOR
+#include "stir/recon_buildblock/Parallelproj_projector/ProjectorByBinPairUsingParallelproj.h"
+#endif
 
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"

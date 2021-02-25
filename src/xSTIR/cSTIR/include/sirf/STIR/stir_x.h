@@ -812,6 +812,22 @@ The actual algorithm is described in
     typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
 #endif
 
+#ifdef STIR_WITH_Parallelproj_PROJECTOR
+    /*!
+    \ingroup STIR Extensions
+    \brief Parallelproj implementation of the PET acquisition model
+    (see https://github.com/gschramm/parallelproj).
+    */
+	class PETAcquisitionModelUsingParallelproj : public PETAcquisitionModel {
+	public:
+		PETAcquisitionModelUsingParallelproj()
+		{
+			this->sptr_projectors_.reset(new ProjectorByBinPairUsingParallelproj);
+		}
+	};
+	typedef PETAcquisitionModelUsingParallelproj AcqModUsingParallelproj;
+#endif
+
 	/*!
 	\ingroup STIR Extensions
 	\brief Attenuation model.

@@ -132,6 +132,10 @@ void* cSTIR_newObject(const char* name)
         if (boost::iequals(name, "AcqModUsingNiftyPET"))
             return NEW_OBJECT_HANDLE(AcqModUsingNiftyPET3DF);
 #endif
+#ifdef STIR_WITH_Parallelproj_PROJECTOR
+		if (boost::iequals(name, "AcqModUsingParallelproj"))
+			return NEW_OBJECT_HANDLE(AcqModUsingParallelproj);
+#endif
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (boost::iequals(name, "QuadraticPrior"))
