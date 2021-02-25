@@ -41,6 +41,7 @@ import sirf.pystir as pystir
 
 import sirf.STIR_params as parms
 from sirf.config import SIRF_HAS_NiftyPET
+from sirf.config import SIRF_HAS_Parallelproj
 
 try:
     input = raw_input
@@ -1793,6 +1794,27 @@ if SIRF_HAS_NiftyPET:
             else:
                 v = 0
             parms.set_int_par(self.handle, self.name, 'use_truncation', v)
+
+
+if SIRF_HAS_Parallelproj:
+    class AcquisitionModelUsingParallelproj(AcquisitionModel):
+        """PET acquisition model that uses NiftyPET projector.
+
+        Class for a PET acquisition model that uses the NiftyPET projector
+        for G in AcquisitionModel (F).
+        """
+
+        def __init__(self):
+            """Create an AcquisitionModelUsingNiftyPET object."""
+            super(AcquisitionModelUsingParallelproj, self).__init__()
+            self.name = 'AcqModUsingParallelproj'
+            self.handle = pystir.cSTIR_newObject(self.name)
+            check_status(self.handle)
+
+        def __del__(self):
+            """del."""
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
 
 
 class Prior(object):
