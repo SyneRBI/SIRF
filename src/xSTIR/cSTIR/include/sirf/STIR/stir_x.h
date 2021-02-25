@@ -824,7 +824,8 @@ The actual algorithm is described in
 		{
 			this->sptr_projectors_.reset(new ProjectorByBinPairUsingParallelproj);
 		}
-		typedef PETAcquisitionModelUsingParallelproj AcqModUsingParallelproj;
+	};
+	typedef PETAcquisitionModelUsingParallelproj AcqModUsingParallelproj;
 #endif
 
 	/*!
