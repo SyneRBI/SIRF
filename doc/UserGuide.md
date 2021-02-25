@@ -763,6 +763,23 @@ Class for the PET acquisition process model that uses (implicitly) a sparse matr
     acq_model.set_up(acq_template, image_template) 
     sim_data = acq_model.forward(image); 
 
+##### AcquisitionModelUsingParallelproj (PET)
+
+This class is only available if STIR is at least version 5 (or built from the master branch).
+It uses [Georg Schramm's parallel (computing) projector](https://github.com/gschramm/parallelproj proj). This uses Joseph interpolation, but importantly can use your GPU (if CUDA was found during building).
+
+###### Methods:
+    AcquisitionModelUsingParallelproj
+                      Constructor
+
+###### Examples:
+
+    acq_model = AcquisitionModelUsingParallelproj()
+    acq_model.set_up(acq_template, image_template) 
+    sim_data = acq_model.forward(image); 
+
+(Note that `set_image_data_processor` can also be used of course.)
+
 ##### AcquisitionSensitivityModel (PET)
 
 Class for a part of `AcquisitionModel` that accounts for bin efficiencies and attenuation.
