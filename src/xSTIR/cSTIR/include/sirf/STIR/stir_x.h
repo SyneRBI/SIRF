@@ -813,6 +813,11 @@ The actual algorithm is described in
 #endif
 
 #ifdef STIR_WITH_Parallelproj_PROJECTOR
+    /*!
+    \ingroup STIR Extensions
+    \brief Parallelproj implementation of the PET acquisition model
+    (see https://github.com/gschramm/parallelproj).
+    */
 	class PETAcquisitionModelUsingParallelproj : public PETAcquisitionModel {
 	public:
 		PETAcquisitionModelUsingParallelproj()

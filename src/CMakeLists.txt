@@ -80,6 +80,7 @@ option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
 if (DISABLE_STIR)
   message(STATUS "STIR support disabled.")
   set(NiftyPET_BOOL_STR "0" PARENT_SCOPE)
+  set(Parallelproj_BOOL_STR "0" PARENT_SCOPE)
 else()
   find_package(STIR REQUIRED)
   message(STATUS "STIR version found: ${STIR_VERSION}")
@@ -114,6 +115,7 @@ else()
   ADD_SUBDIRECTORY(xSTIR)
 endif()
 set(NiftyPET_BOOL_STR ${NiftyPET_BOOL_STR} PARENT_SCOPE)
+set(Parallelproj_BOOL_STR ${Parallelproj_BOOL_STR} PARENT_SCOPE)
 
 
 ##########################################################################

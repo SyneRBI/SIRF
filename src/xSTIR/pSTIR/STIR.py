@@ -1798,10 +1798,11 @@ if SIRF_HAS_NiftyPET:
 
 if SIRF_HAS_Parallelproj:
     class AcquisitionModelUsingParallelproj(AcquisitionModel):
-        """PET acquisition model that uses NiftyPET projector.
+        """PET acquisition model that uses Parallelproj projector.
 
-        Class for a PET acquisition model that uses the NiftyPET projector
-        for G in AcquisitionModel (F).
+        Class for a PET acquisition model that uses the Parallelproj projector
+        (see https://github.com/gschramm/parallelproj) for G in
+        AcquisitionModel (F).
         """
 
         def __init__(self):
