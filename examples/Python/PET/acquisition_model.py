@@ -13,6 +13,7 @@ Options:
   -n <norm>, --norm=<norm>    normalization value [default: 1]
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+  --parallelproj              use Parallelproj for projections
   --non-interactive           do not show plots
 
 There is an interactive demo with much more documentation on this process.
@@ -41,8 +42,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import matplotlib.pyplot as plt
-
 from sirf.Utilities import show_2D_array
 
 # import engine module
@@ -59,7 +58,14 @@ addv = float(args['--addv'])
 back = float(args['--back'])
 beff = 1/float(args['--norm'])
 output_file = args['--output']
+parallelproj = args['--parallelproj']
 show_plot = not args['--non-interactive']
+
+
+try:
+    import matplotlib.pyplot as plt
+except:
+    show_plot = False
 
 
 def main():
@@ -117,7 +123,12 @@ def main():
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    if parallelproj:
+        acq_model = AcquisitionModelUsingParallelproj()
+        num_subsets = 1
+    else:
+        acq_model = AcquisitionModelUsingRayTracingMatrix()
+        num_subsets = 4
 
     # testing bin efficiencies
     bin_eff = acq_template.clone()
@@ -151,8 +162,8 @@ def main():
     # data from raw_data_file is used as a template
     acq_model.set_up(acq_template, image)
     simulated_data = acq_template.get_uniform_copy()
-    acq_model.forward(image, 0, 4, simulated_data)
-#    simulated_data = acq_model.forward(image, 0, 4)
+    acq_model.forward(image, 0, num_subsets, simulated_data)
+#    simulated_data = acq_model.forward(image, 0, num_subsets)
     if output_file is not None:
         simulated_data.write(output_file)
 
@@ -174,19 +185,19 @@ def main():
     if show_plot:
         # show simulated acquisition data
         simulated_data_as_array = simulated_data.as_array()
-        show_2D_array('Forward projection (subset 0/4)', simulated_data_as_array[0,0,:,:])
+        show_2D_array('Forward projection (subset 0)', simulated_data_as_array[0,0,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
     # note that the backprojection takes the acquisition sensitivy model asm into account as well
-    back_projected_image = acq_model.backward(simulated_data, 0, 4)
+    back_projected_image = acq_model.backward(simulated_data, 0, num_subsets)
     back_projected_image_as_array = back_projected_image.as_array()
     if show_plot:
         show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
 
     # backproject again, this time into pre-allocated image
     back_projected_image.fill(0.0)
-    acq_model.backward(simulated_data, 0, 4, out=back_projected_image)
+    acq_model.backward(simulated_data, 0, num_subsets, out=back_projected_image)
     back_projected_image_as_array = back_projected_image.as_array()
     if show_plot:
         msg = 'Backprojection into pre-allocated image'
@@ -199,7 +210,7 @@ def main():
     acq_model.set_image_data_processor(smoother)
     acq_model.set_up(acq_template, image)
     simulated_data_PSF = acq_template.get_uniform_copy()
-    acq_model.forward(image, 0, 4, simulated_data_PSF)
+    acq_model.forward(image, 0, num_subsets, simulated_data_PSF)
     if show_plot:
         simulated_data_PSF_as_array = simulated_data_PSF.as_array()
         plt.figure()
@@ -208,7 +219,7 @@ def main():
         plt.title('Diff Forward projection without/ with smoothing (first view)')
         plt.legend()
     # backprojection
-    back_projected_image_PSF = acq_model.backward(simulated_data, 0, 4)
+    back_projected_image_PSF = acq_model.backward(simulated_data, 0, num_subsets)
     if show_plot:
         back_projected_image_PSF_as_array = back_projected_image_PSF.as_array()
         y = back_projected_image_as_array.shape[1]//2;
@@ -221,7 +232,7 @@ def main():
     # direct is alias for the forward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
     try:
-        acq_model.num_subsets = 4
+        acq_model.num_subsets = num_subsets
         acq_model.direct(image, simulated_data)
     except error as err:
         print('%s' % err.value)

@@ -1,8 +1,6 @@
 '''Utilities used by all engines
 '''
 import inspect
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy
 import os
 import sirf
@@ -81,6 +79,11 @@ def show_2D_array(title, array, scale = None, colorbar = True):
     array   : 2D array
     colorbar: flag specifying whether the colorbar is to be displayed
     '''
+    try:
+        import matplotlib.pyplot as plt
+    except:
+        print('matplotlib not found, cannot plot the array')
+        return
     if scale is None:
         vmin = numpy.amin(array)
         vmax = numpy.amax(array)
@@ -130,6 +133,12 @@ def show_3D_array\
     show      : flag specifying whether the array must be displayed immediately
     '''
     import math
+    try:
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+    except:
+        print('matplotlib not found, cannot plot the array')
+        return
     import numpy
 
     current_title_size = mpl.rcParams['axes.titlesize']
