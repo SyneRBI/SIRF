@@ -415,30 +415,12 @@ const DataContainer& a_y)
 	typename Array<3, float>::const_full_iterator iter_y;
 #endif
 
-	float vmax = 0.0;
-	for (
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter_x++, iter_y++) {
-		float vy = abs(*iter_y);
-		if (vy > vmax)
-			vmax = vy;
-	}
-	float vmin = 1e-6*vmax;
-	if (vmin == 0.0)
-		THROW("division by zero in STIRImageData::divide");
-
 	for (iter = data().begin_all(),
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
 		iter != data().end_all() &&
 		iter_x != x.data().end_all() && iter_y != y.data().end_all();
 	iter++, iter_x++, iter_y++) {
-		float vy = *iter_y;
-		if (vy >= 0 && vy < vmin)
-			vy = vmin;
-		else if (vy < 0 && vy > -vmin)
-			vy = -vmin;
-		*iter = (*iter_x) / vy;
+		*iter = (*iter_x) / (*iter_y);
 	}
 }
 

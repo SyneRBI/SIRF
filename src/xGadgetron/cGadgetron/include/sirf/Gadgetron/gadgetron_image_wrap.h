@@ -731,8 +731,6 @@ namespace sirf {
 			for (; ii < nx; i++, j++, ii++) {
 				complex_float_t u = (complex_float_t)*i;
 				complex_float_t v = (complex_float_t)*j;
-				if (abs(u) == 0.0)
-					THROW("division by zero in ImageWrap divide 1");
 				xGadgetronUtilities::convert_complex(v / u, *j);
 			}
 		}
@@ -754,8 +752,6 @@ namespace sirf {
 			for (; ii < n; i++, j++, k++, ii++) {
 				complex_float_t u = (complex_float_t)*i;
 				complex_float_t v = (complex_float_t)*j;
-				if (abs(v) == 0.0)
-					THROW("division by zero in ImageWrap divide 2");
 				xGadgetronUtilities::convert_complex(u / v, *k);
 			}
 		}
