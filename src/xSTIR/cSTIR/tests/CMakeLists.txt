@@ -23,7 +23,7 @@
 
   add_executable(cstir_test4  test4.cpp run_test4.cpp ${STIR_REGISTRIES})
   target_link_libraries(cstir_test4 csirf cstir ${STIR_LIBRARIES})
-  INSTALL(TARGETS cstir_tests DESTINATION bin)
+  INSTALL(TARGETS cstir_test4 DESTINATION bin)
 
 ADD_TEST(NAME PET_TESTS_CPLUSPLUS_1 COMMAND cstir_tests WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
