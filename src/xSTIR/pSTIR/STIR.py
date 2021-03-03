@@ -766,6 +766,7 @@ class AcquisitionData(DataContainer):
             return
         if isinstance(src, str):
             i = src.find('.')
+            print(i)
             if i > -1:
                 # src is a file name
                 self.handle = pystir.cSTIR_objectFromFile(
@@ -1119,8 +1120,14 @@ class ListmodeToSinograms(object):
         parms.set_char_par(self.handle, self.name, 'output', sino_file)
 
     def set_template(self, templ):
-        """Sets the sinograms template."""
-        parms.set_char_par(self.handle, self.name, 'template', templ)
+        """Sets the sinograms template.
+
+        templ: either file name or AcquisitionData
+        """
+        if type(templ) == type('a'):
+            parms.set_char_par(self.handle, self.name, 'template_file', templ)
+        else:
+            parms.set_parameter(self.handle, self.name, 'template', templ.handle)
 
     def set_time_interval(self, start, stop):
         """Sets the time interval.

@@ -90,8 +90,10 @@ sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const vo
 		lm2s.set_input(charDataFromHandle(hv));
 	else if (boost::iequals(name, "output"))
 		lm2s.set_output(charDataFromHandle(hv));
-	else if (boost::iequals(name, "template"))
+	else if (boost::iequals(name, "template_file"))
 		lm2s.set_template(charDataFromHandle(hv));
+	else if (boost::iequals(name, "template"))
+		lm2s.set_template(objectFromHandle<PETAcquisitionData>(hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;

@@ -66,6 +66,9 @@ show_plot = not args['--non-interactive']
 
 def main():
 
+    # read acquisition data template
+    acq_data_template = AcquisitionData(tmpl_file)
+
     # select acquisition data storage scheme
     AcquisitionData.set_storage_scheme(storage)
 
@@ -78,7 +81,9 @@ def main():
     # the template is used to specify the sizes of the output sinogram.
     # see the acquisition_data_from_scanner_info demo for an example how to 
     # make your own template file
-    lm2sino.set_template(tmpl_file)
+    lm2sino.set_template(acq_data_template)
+    # old way (now just an alternative option)
+    # lm2sino.set_template(tmpl_file)
 
     # set interval
     lm2sino.set_time_interval(interval[0], interval[1])
