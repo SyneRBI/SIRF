@@ -66,11 +66,11 @@ show_plot = not args['--non-interactive']
 
 def main():
 
-    # read acquisition data template
-    acq_data_template = AcquisitionData(tmpl_file)
-
     # select acquisition data storage scheme
     AcquisitionData.set_storage_scheme(storage)
+
+    # read acquisition data template
+    acq_data_template = AcquisitionData(tmpl_file)
 
     # create listmode-to-sinograms converter object
     lm2sino = ListmodeToSinograms()

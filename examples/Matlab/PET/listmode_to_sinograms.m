@@ -31,7 +31,7 @@ PET = set_up_PET(engine);
 pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 AD = PET.AcquisitionData();
-AD.set_storage_scheme('file');
+AD.set_storage_scheme('memory');
 %AcquisitionData.set_storage_scheme('memory');
 
 try
@@ -55,7 +55,6 @@ try
         ('*.hs', 'Select raw data file to be used as a template', default_path);
     tmpl_file = fullfile(pathname, filename);
     acq_templ = PET.AcquisitionData(tmpl_file);
-    acq_templ.set_storage_scheme('memory');
     
     % set input, output and template files
     lm2sino.set_input(list_file)
