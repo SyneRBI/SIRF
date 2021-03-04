@@ -766,7 +766,6 @@ class AcquisitionData(DataContainer):
             return
         if isinstance(src, str):
             i = src.find('.')
-            print(i)
             if i > -1:
                 # src is a file name
                 self.handle = pystir.cSTIR_objectFromFile(
