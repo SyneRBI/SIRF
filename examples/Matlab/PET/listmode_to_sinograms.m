@@ -31,7 +31,7 @@ PET = set_up_PET(engine);
 pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 AD = PET.AcquisitionData();
-AD.set_storage_scheme('memory');
+AD.set_storage_scheme('file');
 %AcquisitionData.set_storage_scheme('memory');
 
 try
@@ -54,11 +54,14 @@ try
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', default_path);
     tmpl_file = fullfile(pathname, filename);
+    acq_templ = PET.AcquisitionData(tmpl_file);
+    acq_templ.set_storage_scheme('memory');
     
     % set input, output and template files
     lm2sino.set_input(list_file)
     lm2sino.set_output_prefix('sinograms')
-    lm2sino.set_template(tmpl_file)
+    lm2sino.set_template(acq_templ)
+%    lm2sino.set_template(tmpl_file)
 
     % set interval
     lm2sino.set_time_interval(0, 10)
