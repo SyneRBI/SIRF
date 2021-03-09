@@ -54,7 +54,7 @@ def test_main(rec=False, verb=False, throw=True):
 
     fwd_acqs = am.forward(complex_images)
     fwd_acqs_norm = fwd_acqs.norm()
-    test.check(fwd_acqs_norm)
+    test.check(fwd_acqs_norm, rel_tol = 1e-2)
 
     acqs_diff = fwd_acqs - processed_data
     rr = acqs_diff.norm()/fwd_acqs_norm
