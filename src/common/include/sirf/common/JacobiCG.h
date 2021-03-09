@@ -111,8 +111,11 @@ namespace sirf {
 				Az.axpby(u[0], Ax, u[1], Ay);
 				Ax.axpby(v[0], Ax, v[1], Ay);
 				lmd = mu[1];
-				s = sqrt(abs(x.dot(x)));
+//				s = sqrt(abs(x.dot(x)));
+				complex_float_t t = x.dot(x);
+				s = sqrt(abs(t));
 				x.scale(s);
+				Ax.scale(s);
 			}
 			return abs(lmd);
 		}

@@ -32,14 +32,12 @@ limitations under the License.
 
 int test1();
 int test2();
-int test4();
 
 int main()
 {
 	int failed = 0;
 	failed += test1();
 	failed += test2();
-	failed += test4();
 	std::cout << failed << " tests failed\n";
 	return failed;
 }

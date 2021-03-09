@@ -110,8 +110,6 @@ def main():
     #    - kspace encode step 1
     print('---\n sorting acquisition data...')
     processed_data.sort()
-    if output_file is not None:
-        processed_data.write(output_file)
 
     # compute coil sensitivity maps
     print('---\n computing coil sensitivity maps...')

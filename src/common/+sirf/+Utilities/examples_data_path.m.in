@@ -1,7 +1,3 @@
-function p = examples_data_path(petmr)
-% If SIRF_PATH is defined, returns path to PET or MR examples raw data.
-% Otherwise, defaults to current folder.
-
 % SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % 
@@ -19,10 +15,23 @@ function p = examples_data_path(petmr)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
+function p = examples_data_path(petmr)
+% If SIRF_DATA_PATH is defined, returns path to PET or MR examples raw data.
+% Otherwise, searches in SIRF_INSTALL_PATH, finally defaults to current folder.
+
+
+
+    
+    SIRF_INSTALL_PATH = getenv('SIRF_INSTALL_PATH');
+    SIRF_DATA_PATH = getenv('SIRF_DATA_PATH');
     SIRF_PATH = getenv('SIRF_PATH');
-    if ~isempty(SIRF_PATH)
-        p = [SIRF_PATH '/data/examples/' petmr];
+    if ~isempty(SIRF_DATA_PATH)
+        p = [ SIRF_DATA_PATH filesep 'examples' filesep petmr];
+    elseif ~isempty(SIRF_INSTALL_PATH)
+        p = [ SIRF_INSTALL_PATH filesep 'share' filesep ['SIRF-' version_major() '.' version_minor() ] filesep 'data' filesep 'examples' filesep petmr ];
+    elseif ~isempty(SIRF_PATH)
+        p = [ SIRF_PATH filesep 'data' filesep 'examples' filesep petmr];
     else
-        p = './';
+        p = pwd;
     end
 end

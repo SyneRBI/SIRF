@@ -473,11 +473,11 @@ namespace sirf {
 			_data = stir::shared_ptr<stir::ProjData>
                           (new stir::ProjDataInMemory(MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info));
 		}
-		PETAcquisitionDataInMemory(const stir::ProjData& pd)
+		PETAcquisitionDataInMemory(const stir::ProjData& templ)
 		{
 			_data = stir::shared_ptr<stir::ProjData>
-				(new stir::ProjDataInMemory(pd.get_exam_info_sptr(),
-				pd.get_proj_data_info_sptr()->create_shared_clone()));
+				(new stir::ProjDataInMemory(templ.get_exam_info_sptr(),
+					templ.get_proj_data_info_sptr()->create_shared_clone()));
 		}
 		PETAcquisitionDataInMemory
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
@@ -494,8 +494,20 @@ namespace sirf {
         PETAcquisitionDataInMemory(const char* filename)
         {
             auto pd_sptr = stir::ProjData::read_from_file(filename);
-			_data = stir::shared_ptr<stir::ProjData>
-                (new stir::ProjDataInMemory(*pd_sptr));
+			bool is_empty = false;
+			try {
+				pd_sptr->get_segment_by_sinogram(0);
+			}
+			catch (...) {
+				is_empty = true;
+			}
+			if (is_empty)
+				_data = stir::shared_ptr<stir::ProjData>
+					(new stir::ProjDataInMemory(pd_sptr->get_exam_info_sptr(),
+						pd_sptr->get_proj_data_info_sptr()->create_shared_clone()));
+			else
+				_data = stir::shared_ptr<stir::ProjData>
+				(new stir::ProjDataInMemory(*pd_sptr));
         }
 
 		static void init() 
@@ -890,6 +902,10 @@ namespace sirf {
 			return _data.get();
 		}
 		stir::shared_ptr<Image3DF> data_sptr()
+		{
+			return _data;
+		}
+		stir::shared_ptr<const Image3DF> data_sptr() const
 		{
 			return _data;
 		}

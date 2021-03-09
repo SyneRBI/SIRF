@@ -74,9 +74,14 @@ classdef ListmodeToSinograms < handle
             %***SIRF*** Sets the sinograms file names prefix.
             sirf.STIR.setParameter(self.handle_, self.name_, 'output', file, 'c')
         end
-        function set_template(self, file)
+        function set_template(self, src)
             %***SIRF*** Sets the sinograms template.
-            sirf.STIR.setParameter(self.handle_, self.name_, 'template', file, 'c')
+            % src: either file name or AcquisitionData template
+            if ischar(src)
+                sirf.STIR.setParameter(self.handle_, self.name_, 'template_file', src, 'c')
+            else
+                sirf.STIR.setParameter(self.handle_, self.name_, 'template', src, 'h')
+            end
         end
         function set_time_interval(self, start, stop)
             %***SIRF*** Sets time interval.

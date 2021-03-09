@@ -267,6 +267,8 @@ public:
 
     /// Multiplication operator
     NiftiImageData& operator*=(const float);
+    /// Multiplication operator
+    NiftiImageData& operator*=(const NiftiImageData &rhs);
 
     /// Multiplication operator
     friend NiftiImageData operator*(NiftiImageData lhs, const float val)
@@ -275,13 +277,29 @@ public:
         return lhs;
     }
 
-    /// Division operator
-    NiftiImageData& operator/=(const float);
+    /// Multiplication operator
+    friend NiftiImageData operator*(NiftiImageData lhs, const NiftiImageData& rhs)
+    {
+        lhs *= rhs;
+        return lhs;
+    }
 
     /// Division operator
+    NiftiImageData& operator/=(const float);
+    // /// Division operator
+    NiftiImageData& operator/=(const NiftiImageData &rhs);
+    
+    // /// Division operator
     friend NiftiImageData operator/(NiftiImageData lhs, const float val)
     {
         lhs /= val;
+        return lhs;
+    }
+
+    /// Division operator
+    friend NiftiImageData operator/(NiftiImageData lhs, const NiftiImageData& rhs)
+    {
+        lhs /= rhs;
         return lhs;
     }
 
@@ -431,7 +449,7 @@ protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
 
-    enum MathsType { add, sub, mul };
+    enum MathsType { add, sub, mul, div};
 
     /// Image data as a nifti object
     std::shared_ptr<nifti_image>  _nifti_image;

@@ -90,8 +90,10 @@ sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const vo
 		lm2s.set_input(charDataFromHandle(hv));
 	else if (boost::iequals(name, "output"))
 		lm2s.set_output(charDataFromHandle(hv));
-	else if (boost::iequals(name, "template"))
+	else if (boost::iequals(name, "template_file"))
 		lm2s.set_template(charDataFromHandle(hv));
+	else if (boost::iequals(name, "template"))
+		lm2s.set_template(objectFromHandle<PETAcquisitionData>(hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -417,6 +419,88 @@ sirf::cSTIR_PLSPriorParameter
 }
 
 void*
+sirf::cSTIR_setScatterSimulatorParameter
+(const DataHandle *hp, const char* name, const DataHandle* hv)
+{
+
+    auto& obj = objectFromHandle< PETSingleScatterSimulator >(hp);
+
+    if (boost::iequals(name, "setActivityImage"))
+    {
+        SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
+        obj.set_activity_image_sptr(sptr_id);
+    }
+    else if (boost::iequals(name, "setAttenuationImage"))
+    {
+        SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
+        obj.set_attenuation_image_sptr(sptr_id);
+    }
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+
+    return new DataHandle;
+}
+
+void*
+sirf::cSTIR_setScatterEstimatorParameter
+(const DataHandle *hp, const char* name, const DataHandle* hv)
+{
+
+    PETScatterEstimator& obj =
+            objectFromHandle< PETScatterEstimator >(hp);
+
+    if (boost::iequals(name, "setInput"))
+    {
+        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_pd, hv);
+        obj.set_input_sptr(sptr_pd);
+    }
+    else if (boost::iequals(name, "setRandoms"))
+    {
+        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_pd, hv);
+        obj.set_background_sptr(sptr_pd);
+    }
+    else if (boost::iequals(name, "setAttenuationImage"))
+    {
+        SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
+        obj.set_attenuation_image_sptr(sptr_id);
+    }
+    else if (boost::iequals(name, "setAttenuationCorrectionFactors"))
+    {
+        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
+        obj.set_attenuation_correction_factors_sptr(sptr_ad);
+    }
+    else if (boost::iequals(name, "setASM"))
+    {
+      SPTR_FROM_HANDLE(PETAcquisitionSensitivityModel, sptr_asm, hv);
+        obj.set_asm(sptr_asm);
+    }
+    else if (boost::iequals(name, "set_num_iterations"))
+    {
+        int value = dataFromHandle<int>(hv);
+        obj.set_num_iterations(value);
+    }
+    else if (boost::iequals(name, "set_output_prefix"))
+    {
+        obj.set_output_prefix(charDataFromHandle(hv));
+    }
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+
+    return new DataHandle;
+}
+
+void*
+sirf::cSTIR_ScatterEstimatorParameter(DataHandle* hp, const char* name)
+{
+	auto& processor = objectFromHandle<PETScatterEstimator>(hp);
+	if (boost::iequals(name, "output"))
+		return newObjectHandle(processor.get_output());
+	if (boost::iequals(name, "num_iterations"))
+          return dataHandle<int>(processor.get_num_iterations());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 sirf::cSTIR_setGeneralisedObjectiveFunctionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
@@ -614,9 +698,9 @@ sirf::cSTIR_setOSMAPOSLParameter
 		objectFromHandle<OSMAPOSLReconstruction<Image3DF> >(hp);
     if (boost::iequals(name, "set_maximum_relative_change"))
             recon.set_maximum_relative_change(dataFromHandle<double>((void*)hv));
-    if (boost::iequals(name, "set_minimum_relative_change"))
+    else if (boost::iequals(name, "set_minimum_relative_change"))
             recon.set_minimum_relative_change(dataFromHandle<double>((void*)hv));
-	if (boost::iequals(name, "MAP_model"))
+	else if (boost::iequals(name, "MAP_model"))
 		recon.set_MAP_model(charDataFromDataHandle(hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);

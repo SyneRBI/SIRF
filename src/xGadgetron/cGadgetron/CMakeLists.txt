@@ -84,4 +84,7 @@ set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
 
 target_link_libraries(cgadgetron PUBLIC ${GT_LIBS})
 
+target_compile_definitions(cgadgetron PRIVATE _WIN32_WINNT=0x0501)
+
+
 ADD_SUBDIRECTORY(tests)

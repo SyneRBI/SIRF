@@ -23,6 +23,7 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 import abc
 import numpy
 import os
+from numbers import Number, Complex
 try:
     import pylab
     HAVE_PYLAB = True
@@ -247,9 +248,6 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pygadgetron.cGT_readImages(file)
         check_status(self.handle)
-    def write(self, file, ext='h5'):
-        """For extension, use 'dcm' to write as DICOM. Else, image will be written as h5."""
-        try_calling(pygadgetron.cGT_writeImages(self.handle, file, ext))
     def data_type(self, im_num):
         '''
         Returns the data type for a specified image (see 8 data types above).
@@ -315,13 +313,6 @@ class ImageData(SIRF.ImageData):
         if isinstance(data, ImageData):
             return super(ImageData, self).fill(data)
         
-        if not isinstance(data, numpy.ndarray ):
-            # CIL/SIRF compatibility
-            try:
-                data = data.as_array()
-            except:
-                raise TypeError('Input should be numpy.ndarray or ImageData. Got {}'.format(type(data)))
-        
         if isinstance(data, numpy.ndarray):
             the_data = data
             if self.is_real():
@@ -339,9 +330,15 @@ class ImageData(SIRF.ImageData):
             else:
                 try_calling(pygadgetron.cGT_setImageDataFromCmplxArray\
                     (self.handle, the_data.ctypes.data))
+        elif isinstance (data, Complex):
+            arr = data + numpy.zeros(self.shape, dtype=numpy.complex64)
+            return self.fill(arr)
+        elif isinstance (data, Number):
+            arr = data + numpy.zeros(self.shape, dtype=numpy.float32)
+            return self.fill(arr)
         else:
             raise error('wrong fill value.' + \
-                        ' Should be ImageData or numpy.ndarray')
+                        ' Should be ImageData, numpy.ndarray or number. Got {}'.format(type(data)))
         return self
 
     def dimensions(self):
@@ -915,9 +912,15 @@ class AcquisitionData(DataContainer):
                 fill_all = 0
             try_calling(pygadgetron.cGT_fillAcquisitionData\
                 (self.handle, the_data.ctypes.data, fill_all))
+        elif isinstance (data, Complex):
+            arr = data + numpy.zeros(self.shape, dtype=numpy.complex64)
+            return self.fill(arr)
+        elif isinstance (data, Number):
+            arr = data + numpy.zeros(self.shape, dtype=numpy.float32)
+            return self.fill(arr)
         else:
             raise error('wrong fill value.' + \
-                        ' Should be AcquisitionData or numpy.ndarray')
+                        ' Should be AcquisitionData, numpy.ndarray or number. Got {}'.format(type(data)))
         return self
     def as_array(self, acq=None):
         '''

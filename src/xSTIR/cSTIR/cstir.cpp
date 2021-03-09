@@ -132,6 +132,10 @@ void* cSTIR_newObject(const char* name)
         if (boost::iequals(name, "AcqModUsingNiftyPET"))
             return NEW_OBJECT_HANDLE(AcqModUsingNiftyPET3DF);
 #endif
+#ifdef STIR_WITH_Parallelproj_PROJECTOR
+		if (boost::iequals(name, "AcqModUsingParallelproj"))
+			return NEW_OBJECT_HANDLE(AcqModUsingParallelproj);
+#endif
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (boost::iequals(name, "QuadraticPrior"))
@@ -142,6 +146,10 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (boost::iequals(name, "EllipsoidalCylinder"))
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
+                if (boost::iequals(name, "PETSingleScatterSimulator"))
+                  return NEW_OBJECT_HANDLE(PETSingleScatterSimulator);
+                if (boost::iequals(name, "PETScatterEstimator"))
+                  return NEW_OBJECT_HANDLE(PETScatterEstimator);
 		if (boost::iequals(name, "SeparableGaussianImageFilter"))
 			return NEW_OBJECT_HANDLE(xSTIR_SeparableGaussianImageFilter);
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -207,6 +215,10 @@ void* cSTIR_setParameter
 			return cSTIR_setOSSPSParameter(hs, name, hv);
 		else if (boost::iequals(obj, "FBP2D"))
 			return cSTIR_setFBP2DParameter(hs, name, hv);
+                else if(boost::iequals(obj, "PETSingleScatterSimulator"))
+                        return cSTIR_setScatterSimulatorParameter(hs, name, hv);
+                else if(boost::iequals(obj, "PETScatterEstimator"))
+                        return cSTIR_setScatterEstimatorParameter(hs, name, hv);
 		else
 			return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -248,6 +260,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_OSSPSParameter(handle, name);
 		else if (boost::iequals(obj, "FBP2D"))
 			return cSTIR_FBP2DParameter(handle, name);
+                else if(boost::iequals(obj, "PETScatterEstimator"))
+                        return cSTIR_ScatterEstimatorParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -289,6 +303,16 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 				sptr(new ListmodeToSinograms(filename));
 			return newObjectHandle(sptr);
 		}
+                if (boost::iequals(name, "PETSingleScatterSimulator")) {
+                  shared_ptr<PETSingleScatterSimulator>
+                    sptr(new PETSingleScatterSimulator(filename));
+                  return newObjectHandle(sptr);
+                }
+                if (boost::iequals(name, "PETScatterEstimator")) {
+                  shared_ptr<PETScatterEstimator>
+                    sptr(new PETScatterEstimator(filename));
+                  return newObjectHandle(sptr);
+                }
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -353,6 +377,70 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 		return newObjectHandle(lm2s.get_output());
 	}
 	CATCH;
+}
+
+extern "C"
+void* cSTIR_scatterSimulatorFwd
+(void* ptr_am, void* ptr_im)
+{
+	try {
+		auto& am = objectFromHandle<PETSingleScatterSimulator>(ptr_am);
+		auto& id = objectFromHandle<STIRImageData>(ptr_im);
+		return newObjectHandle(am.forward(id));
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_scatterSimulatorFwdReplace
+(void* ptr_am, void* ptr_im, void* ptr_ad)
+{
+	try {
+		auto& am = objectFromHandle<PETSingleScatterSimulator>(ptr_am);
+		auto& id = objectFromHandle<STIRImageData>(ptr_im);
+		auto& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+                am.forward(ad, id);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setupScatterSimulator
+(void* ptr_am, void* ptr_ad, void* ptr_im)
+{
+	try {
+		auto& am = objectFromHandle<PETSingleScatterSimulator>(ptr_am);
+		SPTR_FROM_HANDLE(STIRImageData, id, ptr_im);
+		SPTR_FROM_HANDLE(PETAcquisitionData, ad, ptr_ad);
+                am.set_up(ad, id);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setupScatterEstimator(void* ptr_r)
+{
+    try {
+        auto& se = objectFromHandle<PETScatterEstimator>(ptr_r);
+        se.set_up();
+        DataHandle* handle = new DataHandle;
+        return handle;
+    }
+    CATCH;
+}
+
+extern "C"
+void* cSTIR_runScatterEstimator(void* ptr_r)
+{
+    try {
+        auto& se = objectFromHandle<PETScatterEstimator>(ptr_r);
+        se.process();
+        DataHandle* handle = new DataHandle;
+        return handle;
+    }
+    CATCH;
 }
 
 extern "C"

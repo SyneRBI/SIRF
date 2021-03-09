@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
+Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2021 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -37,6 +37,7 @@ limitations under the License.
 #include <stdlib.h>
 
 #include "sirf/STIR/stir_data_containers.h"
+#include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "sirf/common/JacobiCG.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
@@ -94,6 +95,7 @@ The actual algorithm is described in
 		ListmodeToSinograms(const char* par) : stir::LmToProjData(par) {}
 		ListmodeToSinograms() : stir::LmToProjData()
 		{
+                        set_defaults();
 			fan_size = -1;
 			store_prompts = true;
 			store_delayeds = false;
@@ -107,6 +109,7 @@ The actual algorithm is described in
 		void set_input(std::string lm_file)
 		{
 			input_filename = lm_file;
+                        lm_data_ptr = stir::read_from_file<ListModeData>(input_filename);
 		}
 		//! Specifies the prefix for the output file(s), 
 		/*! This will be appended by `_g1f1d0b0.hs`.
@@ -117,7 +120,13 @@ The actual algorithm is described in
 		}
 		void set_template(std::string proj_data_file)
 		{
-			template_proj_data_name = proj_data_file;
+                        PETAcquisitionDataInFile acq_data_template(proj_data_file.c_str());
+                        set_template(acq_data_template);
+		}
+		void set_template(const PETAcquisitionData& acq_data_template)
+		{
+                        template_proj_data_info_ptr =
+                          acq_data_template.get_proj_data_info_sptr()->create_shared_clone();
 		}
 		void set_time_interval(double start, double stop)
 		{
@@ -155,21 +164,9 @@ The actual algorithm is described in
 		}
         virtual stir::Succeeded set_up()
 		{
-			// always reset here, in case somebody set a new listmode or template file
-			max_segment_num_to_process = -1;
-			fan_size = -1;
-
-			bool failed = post_processing();
-			if (failed)
+			if (LmToProjData::set_up() == Succeeded::no)
 				return stir::Succeeded::no;
-			const int num_rings =
-				lm_data_ptr->get_scanner_ptr()->get_num_rings();
-			// code below is a copy of STIR for more generic cases
-			if (max_segment_num_to_process == -1)
-				max_segment_num_to_process = num_rings - 1;
-			else
-				max_segment_num_to_process =
-				std::min(max_segment_num_to_process, num_rings - 1);
+			fan_size = -1;
 			const int max_fan_size =
 				lm_data_ptr->get_scanner_ptr()->get_max_num_non_arccorrected_bins();
 			if (fan_size == -1)
@@ -185,8 +182,10 @@ The actual algorithm is described in
 		stir::shared_ptr<PETAcquisitionData> get_output()
 		{
 			std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
-			return stir::shared_ptr<PETAcquisitionData>
-				(new PETAcquisitionDataInFile(filename.c_str()));
+			auto acq_data_sptr = std::make_shared<PETAcquisitionDataInFile>(filename.c_str());
+                        if (!acq_data_sptr)
+                          THROW("ListmodeToSinograms: failed to read output file '" + filename + "'");
+                        return acq_data_sptr;
 		}
 
 		int estimate_randoms()
@@ -496,6 +495,246 @@ The actual algorithm is described in
 		//shared_ptr<stir::BinNormalisation> sptr_normalisation_;
 	};
 
+        /*!
+          \ingroup STIR Extensions
+
+          \brief Class for simulating the scatter contribution to PET data.
+
+          This class uses the STIR Single Scatter simulation, taking as input an
+          activity and attenuation image, and a acquisition data template.
+
+          WARNING: Currently this class does not use the low-resolution sampling
+          mechanism of STIR. This means that if you give it a full resolution acq_data,
+          you will likely run out of memory and/or time.
+        */
+    class PETSingleScatterSimulator : public stir::SingleScatterSimulation
+    {
+    public:
+        //! Default constructor
+        PETSingleScatterSimulator() : stir::SingleScatterSimulation()
+        {}
+        //! Overloaded constructor which takes the parameter file
+        PETSingleScatterSimulator(std::string filename) :
+        stir::SingleScatterSimulation(filename)
+        {}
+
+        void set_up(shared_ptr<const PETAcquisitionData> sptr_acq_template,
+                    shared_ptr<const STIRImageData> sptr_act_image_template)
+          {
+            this->sptr_acq_template_ = sptr_acq_template;
+
+            stir::SingleScatterSimulation::set_template_proj_data_info(
+                        *sptr_acq_template_->get_proj_data_info_sptr());
+            stir::SingleScatterSimulation::set_exam_info(
+                        *sptr_acq_template_->get_exam_info_sptr());
+            // check if attenuation image is set
+            try
+              {
+                auto& tmp = stir::SingleScatterSimulation::get_attenuation_image();
+              }
+            catch (...)
+              {
+                THROW("Fatal error in PETSingleScatterSimulator::set_up: attenuation_image has not been set");
+              }
+            this->set_activity_image_sptr(sptr_act_image_template);
+
+            if (stir::SingleScatterSimulation::set_up() == Succeeded::no)
+              THROW("Fatal error in PETSingleScatterSimulator::set_up() failed.");
+          }
+
+        void set_activity_image_sptr(stir::shared_ptr<const STIRImageData> arg)
+        {
+#if STIR_VERSION < 050000
+            // need to make a copy as the function doesn't accept a const
+            stir::shared_ptr<Image3DF> sptr_image_copy(arg->data_sptr()->clone());
+            stir::SingleScatterSimulation::set_activity_image_sptr(sptr_image_copy);
+#else
+            stir::SingleScatterSimulation::set_activity_image_sptr(arg->data_sptr());
+#endif
+        }
+
+        void set_attenuation_image_sptr(stir::shared_ptr<const STIRImageData> arg)
+        {
+#if STIR_VERSION < 050000
+            // need to make a copy as the function doesn't accept a const
+            stir::shared_ptr<Image3DF> sptr_image_copy(arg->data_sptr()->clone());
+            stir::SingleScatterSimulation::set_density_image_sptr(sptr_image_copy);
+#else
+            stir::SingleScatterSimulation::set_density_image_sptr(arg->data_sptr());
+#endif
+        }
+
+        stir::shared_ptr<PETAcquisitionData> forward(const STIRImageData& activity_img) /*TODO CONST*/
+          {
+            if (!sptr_acq_template_.get())
+              THROW("Fatal error in PETSingleScatterSimulator::forward: acquisition template not set");
+            shared_ptr<PETAcquisitionData> sptr_ad;
+            sptr_ad = sptr_acq_template_->new_acquisition_data();
+            this->forward( *sptr_ad, activity_img);
+            return sptr_ad;
+          }
+
+        void forward(PETAcquisitionData& ad, const STIRImageData& activity_img) /* TODO CONST*/
+          {
+            shared_ptr<ProjData> sptr_fd = ad.data();
+            this->set_output_proj_data_sptr(sptr_fd);
+            // hopefully STIR checks if template consistent with input data
+            this->process_data();
+          }
+
+    protected:
+        stir::shared_ptr<const PETAcquisitionData> sptr_acq_template_;
+
+    };
+
+    /*!
+      \ingroup STIR Extensions
+
+      \brief Class for estimating the scatter contribution in PET projection data
+
+      This class implements the SSS iterative algorithm from STIR. It
+      is an iterative loop of reconstruction, single scatter estimation,
+      upsampling, tail-fitting.
+
+      Output is an acquisition_data object with the scatter contribution.
+      This can be added to the randoms to use in PETAcquisitionModel.set_background_term().
+    */
+    class PETScatterEstimator : private stir::ScatterEstimation
+    {
+    public:
+        //!
+        PETScatterEstimator() : stir::ScatterEstimation()
+        {
+          stir::shared_ptr<stir::PoissonLogLikelihoodWithLinearModelForMeanAndProjData<DiscretisedDensity<3,float> > >
+            obj_sptr(new PoissonLogLikelihoodWithLinearModelForMeanAndProjData<DiscretisedDensity<3,float> >);
+          stir::shared_ptr<stir::OSMAPOSLReconstruction<DiscretisedDensity<3,float> > >
+            recon_sptr(new stir::OSMAPOSLReconstruction<DiscretisedDensity<3,float> >);
+          recon_sptr->set_num_subiterations(8);
+          recon_sptr->set_num_subsets(7); // this works for the mMR. TODO
+          recon_sptr->set_disable_output(true);
+          recon_sptr->set_objective_function_sptr(obj_sptr);
+          stir::shared_ptr<stir::SeparableGaussianImageFilter<float> >
+            filter_sptr(new stir::SeparableGaussianImageFilter<float>);
+          filter_sptr->set_fwhms(stir::make_coordinate(15.F,15.F,15.F));
+          recon_sptr->set_post_processor_sptr(filter_sptr);
+          stir::ScatterEstimation::set_reconstruction_method_sptr(recon_sptr);
+        }
+        //! Overloaded constructor which takes the parameter file
+        PETScatterEstimator(std::string filename) :
+        stir::ScatterEstimation(filename)
+        {}
+
+        //! Set the input data
+        void set_input_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        {
+            stir::ScatterEstimation::set_input_proj_data_sptr(arg->data());
+        }
+        //! Set attenuation correction factors as acq_data
+        void set_attenuation_correction_factors_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        {
+          stir::ScatterEstimation::set_attenuation_correction_proj_data_sptr(arg->data());
+        }
+        //! Set acquisition sensitivity model specifying detection efficiencies (without attenuation)
+        void set_asm(stir::shared_ptr<PETAcquisitionSensitivityModel> arg)
+        {
+          stir::ScatterEstimation::set_normalisation_sptr(arg->data());
+        }
+        //! Set the background data (normally equal to the randoms in PET)
+        void set_background_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        {
+            stir::ScatterEstimation::set_background_proj_data_sptr(arg->data());
+        }
+
+        void set_attenuation_image_sptr(stir::shared_ptr<const STIRImageData> arg)
+        {
+#if STIR_VERSION < 050000
+            // need to make a copy as the function doesn't accept a const
+            stir::shared_ptr<Image3DF> sptr_image_copy(arg->data_sptr()->clone());
+            stir::ScatterEstimation::set_attenuation_image_sptr(sptr_image_copy);
+#else
+            stir::ScatterEstimation::set_attenuation_image_sptr(arg->data_sptr());
+#endif
+        }
+
+        //! Set prefix for filenames with scatter estimates.
+        /*!
+          Actual filenames will append the iteration number and the .hs extension
+          as common for STIR Interfile data.
+
+          Set it to the empty string to prevent any output.
+        */
+        void set_output_prefix(std::string prefix)
+        {
+          stir::ScatterEstimation::set_export_scatter_estimates_of_each_iteration(!prefix.empty());
+          stir::ScatterEstimation::set_output_scatter_estimate_prefix(prefix);
+        }
+
+        void set_num_iterations(int arg)
+        {
+          stir::ScatterEstimation::set_num_iterations(arg);
+        }
+
+        int get_num_iterations() const
+        {
+          return stir::ScatterEstimation::get_num_iterations();
+        }
+
+        stir::shared_ptr<PETAcquisitionData> get_scatter_estimate(int est_num = -1) const
+        {
+            if (est_num == -1) // Get the last one
+                est_num = num_scatter_iterations;
+            if (est_num == num_scatter_iterations)
+              return get_output();
+            // try to read from file
+            if (output_scatter_estimate_prefix.empty())
+              THROW("output_scatter_estimate_prefix not set, so scatter estimates were not saved to file.");
+            const std::string filename = output_scatter_estimate_prefix + "_" + std::to_string(est_num) + ".hs";
+            return std::make_shared<PETAcquisitionDataInFile>(filename.c_str());
+        }
+
+        //! get last scatter estimate
+        stir::shared_ptr<PETAcquisitionData> get_output() const
+          {
+            auto stir_proj_data_sptr = stir::ScatterEstimation::get_output();
+            if (!stir_proj_data_sptr)
+              THROW("output not yet computed");
+            stir::shared_ptr<PETAcquisitionData> sptr_acq_data
+              (PETAcquisitionData::storage_template()->same_acquisition_data(stir_proj_data_sptr->get_exam_info_sptr(),
+                                                                             stir_proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone()));
+            sptr_acq_data->data()->fill(*stir_proj_data_sptr);
+            return sptr_acq_data;
+          }
+
+        //! set up the object and performs checks
+        /*! All input data has been set first. This is different from the reconstruction
+          algorithms.
+
+          Throws if unsuccesful.
+          \todo Return type should be `void` in the future.
+        */
+        Succeeded set_up()
+        {
+          // reconstruct an smooth image with a large voxel size
+          const float zoom = 0.2F;
+          stir::shared_ptr<Voxels3DF>
+            image_sptr(new Voxels3DF(MAKE_SHARED<stir::ExamInfo>(*this->get_input_data()->get_exam_info_sptr()),
+                                     *this->get_input_data()->get_proj_data_info_sptr(),
+                                     zoom));
+          image_sptr->fill(1.F);
+          stir::ScatterEstimation::set_initial_activity_image_sptr(image_sptr);
+          if (stir::ScatterEstimation::set_up() == Succeeded::no)
+            THROW("scatter estimation set_up failed");
+          return Succeeded::yes;
+        }
+        void process()
+        {
+          if (!stir::ScatterEstimation::already_setup())
+            THROW("scatter estimation needs to be set-up first");
+          if (stir::ScatterEstimation::process_data() == Succeeded::no)
+            THROW("scatter estimation failed");
+        }
+    };
+
 	/*!
 	\ingroup STIR Extensions
 	\brief Ray tracing matrix implementation of the PET acquisition model.
@@ -571,6 +810,22 @@ The actual algorithm is described in
         stir::shared_ptr<ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
     };
     typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
+#endif
+
+#ifdef STIR_WITH_Parallelproj_PROJECTOR
+    /*!
+    \ingroup STIR Extensions
+    \brief Parallelproj implementation of the PET acquisition model
+    (see https://github.com/gschramm/parallelproj).
+    */
+	class PETAcquisitionModelUsingParallelproj : public PETAcquisitionModel {
+	public:
+		PETAcquisitionModelUsingParallelproj()
+		{
+			this->sptr_projectors_.reset(new ProjectorByBinPairUsingParallelproj);
+		}
+	};
+	typedef PETAcquisitionModelUsingParallelproj AcqModUsingParallelproj;
 #endif
 
 	/*!

@@ -32,9 +32,12 @@ FOREACH(elem ${SYN_executables})
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${SYN_executables})
 
-ADD_SUBDIRECTORY(cSyn)
-ADD_SUBDIRECTORY(mSyn)
-ADD_SUBDIRECTORY(pSyn)
+add_subdirectory(cSyn)
+add_subdirectory(mSyn)
+if (PYTHON_FOUND AND BUILD_PYTHON)
+  add_subdirectory(pSyn)
+endif()
+
 
 # Tests
 ADD_SUBDIRECTORY(tests)

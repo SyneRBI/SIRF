@@ -325,13 +325,11 @@ ListmodeToSinograms::compute_singles_()
 void
 ListmodeToSinograms::estimate_randoms_()
 {
-	PETAcquisitionDataInFile acq_temp(template_proj_data_name.c_str());
-	shared_ptr<ProjData> template_projdata_ptr = acq_temp.data();
 	std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
 	shared_ptr<ExamInfo> exam_info_sptr(new ExamInfo(lm_data_ptr->get_exam_info()));
 	const ProjDataInfo& proj_data_info = *lm_data_ptr->get_proj_data_info_sptr();
 	exam_info_sptr->set_time_frame_definitions(frame_defs);
-	shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(acq_temp.get_proj_data_info_sptr()->clone());
+	shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(template_proj_data_info_ptr->clone());
 	const float h = proj_data_info.get_bed_position_horizontal();
 	const float v = proj_data_info.get_bed_position_vertical();
 	temp_proj_data_info_sptr->set_bed_position_horizontal(h);
@@ -340,10 +338,9 @@ ListmodeToSinograms::estimate_randoms_()
 	ProjData& proj_data = *randoms_sptr->data();
 
 	const int num_rings =
-		template_projdata_ptr->get_proj_data_info_sptr()->get_scanner_ptr()->
-		get_num_rings();
+                temp_proj_data_info_sptr->get_scanner_ptr()->get_num_rings();
 	const int num_detectors_per_ring =
-		template_projdata_ptr->get_proj_data_info_sptr()->get_scanner_ptr()->
+		temp_proj_data_info_sptr->get_scanner_ptr()->
 		get_num_detectors_per_ring();
 	DetectorEfficiencies& efficiencies = *det_eff_sptr;
 
@@ -468,12 +465,19 @@ PETAcquisitionSensitivityModel::
 PETAcquisitionSensitivityModel(std::string filename)
 {
 #if defined(HAVE_HDF5)
-	if (GEHDF5Wrapper::check_GE_signature(filename)) {
-		shared_ptr<BinNormalisation>
-			sptr_n(new BinNormalisationFromGEHDF5(filename));
-		norm_ = sptr_n;
-		return;
+	std::cout << "trying GEHDF5...\n";
+	try {
+		if (GEHDF5Wrapper::check_GE_signature(filename)) {
+			shared_ptr<BinNormalisation>
+				sptr_n(new BinNormalisationFromGEHDF5(filename));
+			norm_ = sptr_n;
+			std::cout << "created bin normalisation from GE HDF5 file\n";
+			return;
+		}
 	}
+	catch (...) {
+	}
+	std::cout << "not a GE HDF5 file\n";
 #endif
 	shared_ptr<BinNormalisation>
 		sptr_n(new BinNormalisationFromECAT8(filename));

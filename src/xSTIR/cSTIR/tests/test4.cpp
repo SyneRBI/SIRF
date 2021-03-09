@@ -54,14 +54,17 @@ int test4()
 
 		std::string path = SIRF_path + "/data/examples/PET/mMR/";
 
-		string f_listmode = path + "list.l.hdr";
-		string f_template = path + "mMR_template_span11_small.hs";
+		std::string f_listmode = path + "list.l.hdr";
+		std::string f_template = path + "mMR_template_span11_small.hs";
+		PETAcquisitionDataInFile acq_data_template(f_template.c_str());
 
 		// Listmode to sinograms
 		ListmodeToSinograms converter;
 		converter.set_input(f_listmode);
 		converter.set_output("proj_data");
-		converter.set_template(f_template);
+		converter.set_template(acq_data_template);
+		//// old way (now just an alternative option):
+		//converter.set_template(f_template);
 		converter.set_time_interval(0, 10);
 		converter.set_up();
 		converter.estimate_randoms();
