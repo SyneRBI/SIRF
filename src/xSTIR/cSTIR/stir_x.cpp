@@ -21,9 +21,10 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/config.h"
+#include "stir/error.h"
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/is_null_ptr.h"
-#include "stir/error.h"
+#include "stir/multiply_crystal_factors.h"
 #include "stir/Verbosity.h"
 
 #include "sirf/STIR/stir_x.h"
@@ -335,114 +336,11 @@ ListmodeToSinograms::estimate_randoms_()
 	temp_proj_data_info_sptr->set_bed_position_horizontal(h);
 	temp_proj_data_info_sptr->set_bed_position_vertical(v);
 	randoms_sptr.reset(new PETAcquisitionDataInMemory(exam_info_sptr, temp_proj_data_info_sptr));
+
 	ProjData& proj_data = *randoms_sptr->data();
-
-	const int num_rings =
-                temp_proj_data_info_sptr->get_scanner_ptr()->get_num_rings();
-	const int num_detectors_per_ring =
-		temp_proj_data_info_sptr->get_scanner_ptr()->
-		get_num_detectors_per_ring();
 	DetectorEfficiencies& efficiencies = *det_eff_sptr;
+	multiply_crystal_factors(proj_data, efficiencies, 1.0f);
 
-	{
-		const shared_ptr<const ProjDataInfoCylindricalNoArcCorr> proj_data_info_sptr =
-			stir::dynamic_pointer_cast<const ProjDataInfoCylindricalNoArcCorr>
-			(proj_data.get_proj_data_info_sptr());
-		if (proj_data_info_sptr == 0)
-		{
-			error("Can only process not arc-corrected data\n");
-		}
-
-		const int mashing_factor =
-			proj_data_info_sptr->get_view_mashing_factor();
-
-		shared_ptr<Scanner>
-			scanner_sptr(new Scanner(*proj_data_info_sptr->get_scanner_ptr()));
-		unique_ptr<ProjDataInfo> uncompressed_proj_data_info_uptr
-			(ProjDataInfo::construct_proj_data_info(scanner_sptr,
-				/*span=*/1, max_ring_diff_for_fansums,
-				/*num_views=*/num_detectors_per_ring / 2,
-				scanner_sptr->get_max_num_non_arccorrected_bins(),
-				/*arccorrection=*/false));
-		const ProjDataInfoCylindricalNoArcCorr &uncompressed_proj_data_info =
-			dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>
-			(*uncompressed_proj_data_info_uptr);
-		Bin bin;
-		Bin uncompressed_bin;
-
-		for (bin.segment_num() = proj_data.get_min_segment_num();
-			bin.segment_num() <= proj_data.get_max_segment_num();
-			++bin.segment_num())
-		{
-
-			for (bin.axial_pos_num() = proj_data.get_min_axial_pos_num
-				(bin.segment_num());
-				bin.axial_pos_num() <= proj_data.get_max_axial_pos_num
-				(bin.segment_num());
-			++bin.axial_pos_num())
-			{
-				Sinogram<float> sinogram = proj_data_info_sptr->get_empty_sinogram
-					(bin.axial_pos_num(), bin.segment_num());
-				const float out_m = proj_data_info_sptr->get_m(bin);
-				const int in_min_segment_num =
-					proj_data_info_sptr->get_min_ring_difference(bin.segment_num());
-				const int in_max_segment_num =
-					proj_data_info_sptr->get_max_ring_difference(bin.segment_num());
-
-				// now loop over uncompressed detector-pairs
-				{
-					for (uncompressed_bin.segment_num() = in_min_segment_num;
-						uncompressed_bin.segment_num() <= in_max_segment_num;
-						++uncompressed_bin.segment_num())
-						for (uncompressed_bin.axial_pos_num() =
-							uncompressed_proj_data_info.get_min_axial_pos_num
-							(uncompressed_bin.segment_num());
-					uncompressed_bin.axial_pos_num() <=
-						uncompressed_proj_data_info.get_max_axial_pos_num
-						(uncompressed_bin.segment_num());
-					++uncompressed_bin.axial_pos_num())
-						{
-							const float in_m =
-								uncompressed_proj_data_info.get_m(uncompressed_bin);
-							if (fabs(out_m - in_m) > 1E-4)
-								continue;
-
-							// views etc
-							if (proj_data.get_min_view_num() != 0)
-								error("Can only handle min_view_num==0\n");
-							for (bin.view_num() = proj_data.get_min_view_num();
-								bin.view_num() <= proj_data.get_max_view_num();
-								++bin.view_num())
-							{
-
-								for (bin.tangential_pos_num() = proj_data_info_sptr->get_min_tangential_pos_num();
-									bin.tangential_pos_num() <= proj_data_info_sptr->get_max_tangential_pos_num();
-									++bin.tangential_pos_num())
-								{
-									uncompressed_bin.tangential_pos_num() =
-										bin.tangential_pos_num();
-									for (uncompressed_bin.view_num() =
-										bin.view_num()*mashing_factor;
-										uncompressed_bin.view_num() <
-										(bin.view_num() + 1)*mashing_factor;
-									++uncompressed_bin.view_num())
-									{
-										int ra = 0, a = 0;
-										int rb = 0, b = 0;
-										uncompressed_proj_data_info.get_det_pair_for_bin(a, ra, b, rb,
-											uncompressed_bin);
-										/*(*segment_ptr)[bin.axial_pos_num()]*/
-										sinogram[bin.view_num()][bin.tangential_pos_num()] +=
-											efficiencies[ra][a] * efficiencies[rb][b%num_detectors_per_ring];
-									}
-								}
-							}
-						}
-				}
-				proj_data.set_sinogram(sinogram);
-			}
-		}
-	}
 	randoms_sptr->write(filename.c_str());
 }
 
