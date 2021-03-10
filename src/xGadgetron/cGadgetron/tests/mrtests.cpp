@@ -579,7 +579,6 @@ int main ( int argc, char* argv[])
 //        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
-//        sirf::AcquisitionsVector av;
         gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
         AcquisitionsVector::set_as_template();
 
@@ -600,7 +599,7 @@ int main ( int argc, char* argv[])
 
         test_bwd(av);
 
-        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/3D_Rpe.h5";
+        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/Lowres_RPE_Dixon.h5";
 
         sirf::AcquisitionsVector rpe_av;
         rpe_av.read(rpe_data_path);
