@@ -581,6 +581,8 @@ int main ( int argc, char* argv[])
 
 //        sirf::AcquisitionsVector av;
         gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        AcquisitionsVector::set_as_template();
+
         AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
 
         av.read(data_path);
@@ -588,33 +590,33 @@ int main ( int argc, char* argv[])
         sirf::preprocess_acquisition_data(av);
         av.sort();
 
-//        test_get_kspace_order(av);
-//        test_get_subset(av);
+        test_get_kspace_order(av);
+        test_get_subset(av);
 
-//        test_GRPETrajectoryPrep_set_trajectory(av);
+        test_GRPETrajectoryPrep_set_trajectory(av);
 
-//        test_CoilSensitivitiesVector_calculate(av);
-//        test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+        test_CoilSensitivitiesVector_calculate(av);
+        test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
-//        test_bwd(av);
+        test_bwd(av);
 
-//        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/3D_Rpe.h5";
+        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/3D_Rpe.h5";
 
-//        sirf::AcquisitionsVector rpe_av;
-//        rpe_av.read(rpe_data_path);
+        sirf::AcquisitionsVector rpe_av;
+        rpe_av.read(rpe_data_path);
 
-//        sirf::preprocess_acquisition_data(rpe_av);
-//        rpe_av.sort();
-//        sirf::set_unit_dcf(rpe_av);
+        sirf::preprocess_acquisition_data(rpe_av);
+        rpe_av.sort();
+        sirf::set_unit_dcf(rpe_av);
 
 
-//        test_get_rpe_trajectory(rpe_av);
-//        test_rpe_bwd(rpe_av);
-//        test_rpe_fwd(rpe_av);
+        test_get_rpe_trajectory(rpe_av);
+        test_rpe_bwd(rpe_av);
+        test_rpe_fwd(rpe_av);
 
-//        test_rpe_csm(rpe_av);
+        test_rpe_csm(rpe_av);
 
-//        test_mracquisition_model_rpe_bwd(rpe_av);
+        test_mracquisition_model_rpe_bwd(rpe_av);
 
         test_number_of_encodings(sptr_ad);
         test_acq_mod_norm(sptr_ad);
