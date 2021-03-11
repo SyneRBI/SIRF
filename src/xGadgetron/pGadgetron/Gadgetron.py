@@ -1432,7 +1432,7 @@ class CartesianGRAPPAReconstructor(Reconstructor):
     
 def preprocess_acquisition_data(input_data):
     '''
-    Acquisition processor function that adjusts noise and asymmetrich echo and
+    Acquisition processor function that adjusts noise and asymmetric echo and
     removes readout oversampling.
     '''
     assert isinstance(input_data, AcquisitionData)
@@ -1466,10 +1466,9 @@ def get_grpe_trajectory(mr_rawdata):
 
 def set_densitycompensation_as_userfloat(mr_rawdata, dcf):
     '''
-    Function that gets the trajectory of AcquisitionData.
-    '''    
-   
+    Function that sets the density compensation of AcquisitionData.
+    '''       
     assert isinstance(mr_rawdata, AcquisitionData)
     user_idx = 0
-    mr_rawdata.set_user_floats(dcf, user_idx)
+    mr_rawdata.set_user_floats(dcf.astype(numpy.float32), user_idx)
     return mr_rawdata
