@@ -44,6 +44,7 @@ limitations under the License.
 
 using namespace sirf;
 
+bool const mr_cpp_tests_writefiles = false;
 
 bool test_TrajectoryPreparation_constructors( void )
 {
@@ -144,15 +145,8 @@ bool test_CoilSensitivitiesVector_calculate( MRAcquisitionData& av)
 
         std::cout << "We have " << csv.items() << " coilmaps" << std::endl;
 
-        for(int i=0; i<csv.items(); ++i)
-        {
-            gadgetron::shared_ptr<ImageWrap> sptr_iw = csv.sptr_image_wrap(i);
-
-            std::stringstream fname_out;
-            fname_out << "output_" << __FUNCTION__ << "_" << i;
-
-            sirf::write_cfimage_to_raw(fname_out.str(), *sptr_iw);
-        }
+        if(mr_cpp_tests_writefiles)
+            sirf::write_imagevector_to_raw(__FUNCTION__, csv);
 
         return true;
 
@@ -180,10 +174,12 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(MRAcquisitionData& av)
         {
             CFImage img = csv.get_csm_as_cfimage(i);
 
-            std::stringstream fname_out;
-            fname_out << "output_" << __FUNCTION__ << "_" << i;
-
-            sirf::write_cfimage_to_raw(fname_out.str(), img);
+            if(mr_cpp_tests_writefiles)
+            {
+                std::stringstream fname_out;
+                fname_out << "output_" << __FUNCTION__ << "_" << i;
+                sirf::write_cfimage_to_raw(fname_out.str(), img);
+            }
         }
 
         return true;
@@ -208,7 +204,6 @@ bool test_number_of_encodings(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
     gadgetron::shared_ptr<GadgetronImageData> sptr_id;
     gadgetron::shared_ptr<GadgetronImageData> sptr;
 
-    std::cout << "################ Directorly BEFORE calling undersampled(): # encodings: " << ad.acquisitions_info().get_IsmrmrdHeader().encoding.size() << " encodings now ####################### " << std::endl;
     ad.undersampled();
 
     if (ad.undersampled()) {
@@ -319,12 +314,9 @@ bool test_bwd(MRAcquisitionData& av)
 
         acquis_model.bwd(img_vec, csm, av);
 
-        for(int i=0; i<img_vec.items(); ++i)
-        {
-            std::stringstream fname_output;
-            fname_output << "output_" << __FUNCTION__ << "_image_" << i;
-            write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
-        }
+
+        if(mr_cpp_tests_writefiles)
+            sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
 
         return true;
 
@@ -346,12 +338,12 @@ bool test_get_rpe_trajectory(AcquisitionsVector av)
 
         rpe_tp.set_trajectory(av);
 
-        std::stringstream fname_output;
-        fname_output << "output_" << __FUNCTION__ << ".h5";
-        av.write(fname_output.str());
-
-        std::cout << "wrote file apparently" << std::endl;
-
+        if(mr_cpp_tests_writefiles)
+        {
+            std::stringstream fname_output;
+            fname_output << "output_" << __FUNCTION__ << ".h5";
+            av.write(fname_output.str());
+        }
         return true;
 
     }
@@ -378,12 +370,8 @@ bool test_rpe_csm(MRAcquisitionData& av)
        csm.set_csm_smoothness(50);
        csm.calculate(av);
 
-       for(int i=0; i<csm.items(); ++i)
-       {
-           std::stringstream fname_output;
-           fname_output << "output_" << __FUNCTION__ << "_image_" << i;
-           write_cfimage_to_raw(fname_output.str(), csm.image_wrap(i));
-       }
+       if(mr_cpp_tests_writefiles)
+           sirf::write_imagevector_to_raw(__FUNCTION__, csm);
 
        return true;
 
@@ -394,10 +382,6 @@ bool test_rpe_csm(MRAcquisitionData& av)
         std::cout << e.what() << std::endl;
         throw;
     }
-
-
-
-
 }
 
 
@@ -437,12 +421,9 @@ bool test_rpe_bwd(MRAcquisitionData& av)
 
        }
 
-       for(int i=0; i<img_vec.items(); ++i)
-       {
-           std::stringstream fname_output;
-           fname_output << "output_" << __FUNCTION__ << "_image_" << i;
-           write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
-       }
+       if(mr_cpp_tests_writefiles)
+           sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
+
 
        return true;
 
@@ -498,16 +479,14 @@ bool test_rpe_fwd(MRAcquisitionData& av)
            av.set_subset(subset, sort_idx[i]); //assume forward does not reorder the acquisitions
        }
 
-       for(int i=0; i<img_vec.items(); ++i)
+       if(mr_cpp_tests_writefiles)
        {
-           std::stringstream fname_output_img;
-           fname_output_img << "output_" << __FUNCTION__ << "_image_" << i;
-           write_cfimage_to_raw(fname_output_img.str(), img_vec.image_wrap(i));
-       }
+           sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
 
-       std::stringstream fname_output_raw;
-       fname_output_raw << "output_" << __FUNCTION__ << "_rawdata.h5";
-       av.write(fname_output_raw.str());
+           std::stringstream fname_output_raw;
+           fname_output_raw << "output_" << __FUNCTION__ << "_rawdata.h5";
+           av.write(fname_output_raw.str());
+       }
 
        return true;
 
@@ -544,12 +523,8 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
 
             acquis_model.bwd(img_vec, csm, av);
 
-            for(int i=0; i<img_vec.items(); ++i)
-            {
-                std::stringstream fname_output;
-                fname_output << "output_" << __FUNCTION__ << "_image_" << i;
-                write_cfimage_to_raw(fname_output.str(), img_vec.image_wrap(i));
-            }
+            if(mr_cpp_tests_writefiles)
+                sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
 
             return true;
 
@@ -599,8 +574,7 @@ int main ( int argc, char* argv[])
 
         test_bwd(av);
 
-        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/Lowres_RPE_Dixon.h5";
-
+        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
         sirf::AcquisitionsVector rpe_av;
         rpe_av.read(rpe_data_path);
 
