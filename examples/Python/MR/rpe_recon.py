@@ -1,14 +1,14 @@
 '''
 Upper-level demo that illustrates the computation of how to use a non-cartesian
 radial phase-encoding acquisition model to reconstruct data. The computed 
-density compensation function does not supply optimal weights.
+density compensation function simply accounts for multiply acquired points.
 
 Usage:
   rpe_recon.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
-                              [default: Lowres_RPE.h5]
+                              [default: 3D_RPE_Lowres.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
@@ -45,43 +45,24 @@ exec('from sirf.' + args['--engine'] + ' import *')
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = examples_data_path('MR')
+    data_path = examples_data_path('MR') + '/zenodo/'
 output_file = args['--output']
 show_plot = not args['--non-interactive']
 
 import numpy as np
 from scipy import stats
 
-
-def calc_dcf(traj):
-    # this is an educated guess of the DCF using scipy kde
+def calc_unit_dcf(traj):
+    
+    # simple function just weighting multiple acquired datapoints down
     traj, inverse, counts = np.unique(traj, return_inverse=True, return_counts=True, axis=1)
-        
-    bandwith_method = 0.05
-    kernel = stats.gaussian_kde(traj, bw_method=bandwith_method)
-    dcf = ( 1 / kernel(traj).T / counts)[inverse] # down-weight double samples
+
+    dcf = ( 1.0 / counts)[inverse] 
         
     max_traj_rad = np.max(np.linalg.norm(traj, axis=0))
     dcf_norm =  np.sum(dcf) / (max_traj_rad**2 * np.pi)  
     dcf = dcf / dcf_norm
-    
-    if show_plot:
-        kmin, kmax = -max_traj_rad , max_traj_rad 
-        nsteps = 100j        
-        KX,KY = np.mgrid[kmin:kmax:nsteps, kmin:kmax:nsteps]
-    
-        interpol_pos = np.vstack([KX.ravel(), KY.ravel()])    
-        dcf_interpol = np.reshape(kernel(interpol_pos).T, KX.shape)
-    
-        import matplotlib.pyplot as plt
-    
-        fig, ax = plt.subplots()
-        ax.imshow(np.rot90(dcf_interpol), cmap=plt.cm.gist_earth_r, extent=[kmin, kmax, kmin, kmax])
-        ax.plot(traj[0,:], traj[1,:], 'k.', markersize=2)
-        ax.set_xlim([kmin, kmax])
-        ax.set_ylim([kmin, kmax])
-        plt.show()
-    
+  
     return dcf
 
 
@@ -89,7 +70,7 @@ def main():
 
     # locate the k-space raw data file
     input_file = existing_filepath(data_path, data_file)
-
+    
     # acquisition data will be read from an HDF file input_file
     AcquisitionData.set_storage_scheme('memory')
     acq_data = AcquisitionData(input_file)
@@ -98,18 +79,19 @@ def main():
 
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
-    processed_data = preprocess_acquisition_data(acq_data)
+    processed_data  = preprocess_acquisition_data(acq_data) 
     
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
     processed_data.sort()
     
     #set the trajectory and compute the dcf
+    print('---\n setting the trajectory...')
     processed_data = set_grpe_trajectory(processed_data)
-    traj = np.transpose(get_grpe_trajectory(processed_data))
-
+    
     print('---\n computing density weights...')
-    dcf = calc_dcf(traj)
+    traj = np.transpose(get_grpe_trajectory(processed_data))
+    dcf = calc_unit_dcf(traj)
     processed_data = set_densitycompensation_as_userfloat(processed_data, dcf)
 
     # compute coil sensitivity maps
@@ -131,7 +113,9 @@ def main():
     if show_plot:
         recon_img.show(title = 'Reconstructed images (magnitude)')
 
- 
+    import nibabel as nib
+    img = nib.Nifti1Image( np.abs(recon_img.as_array()), np.eye(4))
+    nib.save(img, output_file)
 
 try:
     main()
