@@ -86,8 +86,8 @@ namespace sirf {
 			_filename(filename),
 			_owns_file(owns_file)
 		{}
-		ProjDataFile(const stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
-			const stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info,
+		ProjDataFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info,
 			const std::string& filename, bool owns_file = true) :
 			stir::ProjDataInterfile(sptr_exam_info, sptr_proj_data_info,
 			filename, std::ios::in | std::ios::out | std::ios::trunc),
@@ -376,11 +376,11 @@ namespace sirf {
 		{
 			_data = stir::ProjData::read_from_file(filename);
 		}
-		PETAcquisitionDataInFile(const stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
-			const stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info)
+		PETAcquisitionDataInFile(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
+			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data.reset(new ProjDataFile
-                                    (sptr_exam_info, sptr_proj_data_info,
+                                    (MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info,
                                      _filename = SIRFUtilities::scratch_file_name()));
 		}
 		PETAcquisitionDataInFile(const stir::ProjData& pd) : _owns_file(true)
@@ -467,11 +467,11 @@ namespace sirf {
 	class PETAcquisitionDataInMemory : public PETAcquisitionData {
 	public:
 		PETAcquisitionDataInMemory() {}
-		PETAcquisitionDataInMemory(const stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
-			const stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info)
+		PETAcquisitionDataInMemory(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
+			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data = stir::shared_ptr<stir::ProjData>
-			   (new stir::ProjDataInMemory(sptr_exam_info, sptr_proj_data_info));
+				(new stir::ProjDataInMemory(MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info));
 		}
 		PETAcquisitionDataInMemory(const stir::ProjData& templ)
 		{
