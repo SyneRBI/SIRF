@@ -43,5 +43,5 @@ void set_unit_dcf(MRAcquisitionData& ad);
 
 void write_cfimage_to_raw(const std::string& fname_prefix, const CFImage& img);
 void write_cfimage_to_raw(const std::string& fname_prefix, const ImageWrap& iw);
-
+void write_imagevector_to_raw(const std::string& fname_prefix, const sirf::GadgetronImagesVector iv);
 } // END NAMESPACE
