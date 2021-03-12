@@ -328,8 +328,9 @@ ListmodeToSinograms::estimate_randoms_()
 {
 	std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
 	shared_ptr<ExamInfo> exam_info_sptr(new ExamInfo(lm_data_ptr->get_exam_info()));
-	const ProjDataInfo& proj_data_info = *lm_data_ptr->get_proj_data_info_sptr();
 	exam_info_sptr->set_time_frame_definitions(frame_defs);
+	shared_ptr<const ProjDataInfo> proj_data_info_sptr = lm_data_ptr->get_proj_data_info_sptr();
+	const ProjDataInfo& proj_data_info = *proj_data_info_sptr;
 	shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(template_proj_data_info_ptr->clone());
 	const float h = proj_data_info.get_bed_position_horizontal();
 	const float v = proj_data_info.get_bed_position_vertical();
@@ -340,7 +341,6 @@ ListmodeToSinograms::estimate_randoms_()
 	ProjData& proj_data = *randoms_sptr->data();
 	DetectorEfficiencies& efficiencies = *det_eff_sptr;
 	multiply_crystal_factors(proj_data, efficiencies, 1.0f);
-
 	randoms_sptr->write(filename.c_str());
 }
 
