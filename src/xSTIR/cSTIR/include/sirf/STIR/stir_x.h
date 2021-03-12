@@ -110,6 +110,8 @@ The actual algorithm is described in
 		{
 			input_filename = lm_file;
                         lm_data_ptr = stir::read_from_file<ListModeData>(input_filename);
+                        exam_info_sptr_.reset(new ExamInfo(lm_data_ptr->get_exam_info()));
+                        proj_data_info_sptr_.reset(lm_data_ptr->get_proj_data_info_sptr()->clone());
 		}
 		//! Specifies the prefix for the output file(s), 
 		/*! This will be appended by `_g1f1d0b0.hs`.
@@ -214,6 +216,8 @@ The actual algorithm is described in
 		int display_interval;
 		int KL_interval;
 		int save_interval;
+		stir::shared_ptr<ExamInfo> exam_info_sptr_;
+		stir::shared_ptr<ProjDataInfo> proj_data_info_sptr_;
 		stir::shared_ptr<std::vector<stir::Array<2, float> > > fan_sums_sptr;
 		stir::shared_ptr<stir::DetectorEfficiencies> det_eff_sptr;
 		stir::shared_ptr<PETAcquisitionData> randoms_sptr;
