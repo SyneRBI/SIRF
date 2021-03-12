@@ -17,6 +17,26 @@
 #
 #=========================================================================
 
+
+function(get_zenodo_file path url md5)
+        message(STATUS "Downloading (if not already done)...
+                Path:     ${path}
+                URL:      ${url}
+                MD5:      ${md5}")
+        file(DOWNLOAD "${url}" "${path}" SHOW_PROGRESS EXPECTED_MD5 "${md5}")
+endfunction()
+
+OPTION(DOWNLOAD_ZENODO_TEST_DATA "download zenodo data for tests" ON)
+if (DOWNLOAD_ZENODO_TEST_DATA)
+        set(MR_RPE_DATA "${CMAKE_SOURCE_DIR}/data/examples/MR/zenodo/3D_RPE_Lowres.h5")
+        get_zenodo_file(
+                "${MR_RPE_DATA}"
+                "https://zenodo.org/record/4600937/files/3DRPE_Lowres.h5?download=1"
+                "a692ba3a6c456d1ad49750717a9d5dda")
+endif()
+
+
+
 add_library(MR_TESTS_CPP_AUXILIARY ${CMAKE_CURRENT_SOURCE_DIR}/mrtest_auxiliary_funs.cpp)
 target_link_libraries(MR_TESTS_CPP_AUXILIARY PUBLIC csirf cgadgetron)
 
