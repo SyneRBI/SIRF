@@ -844,7 +844,7 @@ class AcquisitionData(DataContainer):
         subset.handle = pygadgetron.cGT_getAcquisitionsSubset(self.handle, idx.astype(numpy.intc).ctypes.data, idx.size)
         check_status(subset.handle)
         
-        return subset    
+        return subset
     
     def set_user_floats(self, data, idx):
         assert self.handle is not None
@@ -1435,7 +1435,7 @@ def preprocess_acquisition_data(input_data):
     Acquisition processor function that adjusts noise and asymmetric echo and
     removes readout oversampling.
     '''
-    assert isinstance(input_data, AcquisitionData)
+    assert_validity(input_data, AcquisitionData)
     return input_data.process(\
         ['NoiseAdjustGadget', \
          'AsymmetricEchoAdjustROGadget', \
@@ -1446,7 +1446,7 @@ def set_grpe_trajectory(mr_rawdata):
     Function that fills the trajectory of AcquisitionData with golden angle radial
     phase encoding trajectory.
     '''    
-    assert isinstance(mr_rawdata, AcquisitionData)
+    assert_validity(mr_rawdata, AcquisitionData)
 
     try_calling(pygadgetron.cGT_setGRPETrajecotry(mr_rawdata.handle))
     return mr_rawdata
@@ -1455,7 +1455,7 @@ def get_grpe_trajectory(mr_rawdata):
     '''
     Function that gets the trajectory of AcquisitionData.
     '''    
-    assert isinstance(mr_rawdata, AcquisitionData)
+    assert_validity(mr_rawdata, AcquisitionData)
 
     dims = (mr_rawdata.number(), 2)
     traj = numpy.ndarray(dims, dtype = numpy.float32)
@@ -1468,7 +1468,7 @@ def set_densitycompensation_as_userfloat(mr_rawdata, dcf):
     '''
     Function that sets the density compensation of AcquisitionData.
     '''       
-    assert isinstance(mr_rawdata, AcquisitionData)
+    assert_validity(mr_rawdata, AcquisitionData)
     user_idx = 0
     mr_rawdata.set_user_floats(dcf.astype(numpy.float32), user_idx)
     return mr_rawdata
