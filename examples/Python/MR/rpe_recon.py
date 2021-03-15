@@ -1,4 +1,6 @@
 '''
+Example of radial phase encoding (RPE) reconstruction 
+
 Upper-level demo that illustrates the computation of how to use a non-cartesian 
 radial phase-encoding acquisition model to reconstruct data. The computed
 density compensation function simply accounts for multiply acquired points.
