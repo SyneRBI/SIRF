@@ -193,36 +193,6 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(MRAcquisitionData& av)
     }
 }
 
-bool test_number_of_encodings(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
-{
-    MRAcquisitionData& ad = *sptr_ad;
-    gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csv
-        (new CoilSensitivitiesVector);
-    CoilSensitivitiesVector& csv = *sptr_csv;
-    csv.calculate(ad);
-
-    gadgetron::shared_ptr<GadgetronImageData> sptr_id;
-    gadgetron::shared_ptr<GadgetronImageData> sptr;
-
-    ad.undersampled();
-
-    if (ad.undersampled()) {
-        std::cout << "found undersampled data\n";
-        SimpleGRAPPAReconstructionProcessor recon;
-        std::cout << "reconstructing...\n";
-        recon.process(ad);
-        sptr_id = recon.get_output();
-        sptr_id = sptr_id->clone("GADGETRON_DataRole", "image");
-    }
-    else {
-        std::cout << "found fully sampled data\n";
-        SimpleReconstructionProcessor recon;
-        std::cout << "reconstructing...\n";
-        recon.process(ad);
-        sptr_id = recon.get_output();
-    }
-}
-
 bool test_acq_mod_norm(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
 {
     MRAcquisitionData& ad = *sptr_ad;
@@ -436,7 +406,6 @@ bool test_rpe_bwd(MRAcquisitionData& av)
     }
 }
 
-
 bool test_rpe_fwd(MRAcquisitionData& av)
 {
     try
@@ -498,9 +467,6 @@ bool test_rpe_fwd(MRAcquisitionData& av)
         throw;
     }
 }
-
-
-
 
 bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
 {
@@ -591,7 +557,6 @@ int main ( int argc, char* argv[])
 
         test_mracquisition_model_rpe_bwd(rpe_av);
 
-        test_number_of_encodings(sptr_ad);
         test_acq_mod_norm(sptr_ad);
 
         return 0;
