@@ -1451,7 +1451,7 @@ def set_grpe_trajectory(mr_rawdata):
     try_calling(pygadgetron.cGT_setGRPETrajecotry(mr_rawdata.handle))
     return mr_rawdata
     
-def get_grpe_trajectory(mr_rawdata):    
+def get_grpe_trajectory(mr_rawdata):
     '''
     Function that gets the trajectory of AcquisitionData.
     '''    
