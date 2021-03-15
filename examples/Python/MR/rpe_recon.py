@@ -1,6 +1,6 @@
 '''
-Upper-level demo that illustrates the computation of how to use a non-cartesian
-radial phase-encoding acquisition model to reconstruct data. The computed 
+Upper-level demo that illustrates the computation of how to use a non-cartesian 
+radial phase-encoding acquisition model to reconstruct data. The computed
 density compensation function simply accounts for multiply acquired points.
 
 Usage:
@@ -50,17 +50,17 @@ output_file = args['--output']
 show_plot = not args['--non-interactive']
 
 import numpy as np
-from scipy import stats
 
-def calc_unit_dcf(traj):
+def calc_unit_dcf(acq_data):
     
-    # simple function just weighting multiple acquired datapoints down
-    traj, inverse, counts = np.unique(traj, return_inverse=True, return_counts=True, axis=1)
+    import numpy as np
+    traj = np.transpose(get_grpe_trajectory(acq_data))
 
-    dcf = ( 1.0 / counts)[inverse] 
-        
+    traj, inverse, counts = np.unique(traj, return_inverse=True, return_counts=True, axis=1)
+    
+    dcf = ( 1.0 / counts)[inverse]
     max_traj_rad = np.max(np.linalg.norm(traj, axis=0))
-    dcf_norm =  np.sum(dcf) / (max_traj_rad**2 * np.pi)  
+    dcf_norm =  np.sum(dcf) / (max_traj_rad**2 * np.pi)
     dcf = dcf / dcf_norm
   
     return dcf
@@ -79,7 +79,7 @@ def main():
 
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
-    processed_data  = preprocess_acquisition_data(acq_data) 
+    processed_data  = preprocess_acquisition_data(acq_data)
     
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
@@ -90,8 +90,7 @@ def main():
     processed_data = set_grpe_trajectory(processed_data)
     
     print('---\n computing density weights...')
-    traj = np.transpose(get_grpe_trajectory(processed_data))
-    dcf = calc_unit_dcf(traj)
+    dcf = calc_unit_dcf(processed_data)
     processed_data = set_densitycompensation_as_userfloat(processed_data, dcf)
 
     # compute coil sensitivity maps
@@ -104,7 +103,7 @@ def main():
     print('---\n Setting up Acquisition Model...')
 
     acq_model = AcquisitionModel()
-    acq_model.set_up(processed_data, csms.copy()) #use csm as template image
+    acq_model.set_up(processed_data, csms.copy())
     acq_model.set_coil_sensitivity_maps(csms)
     
     print('---\n Backward projection ...')
@@ -113,9 +112,6 @@ def main():
     if show_plot:
         recon_img.show(title = 'Reconstructed images (magnitude)')
 
-    import nibabel as nib
-    img = nib.Nifti1Image( np.abs(recon_img.as_array()), np.eye(4))
-    nib.save(img, output_file)
 
 try:
     main()
