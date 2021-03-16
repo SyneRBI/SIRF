@@ -39,6 +39,11 @@ limitations under the License.
 #include "sirf/Gadgetron/chain_lib.h"
 #include "sirf/Gadgetron/encoding.h"
 
+#if GADGETRON_TOOLBOXES_AVAILABLE
+    #include "sirf/Gadgetron/noncartesian_encoding.h"
+#endif
+
+
 using namespace gadgetron;
 using namespace sirf;
 
@@ -760,7 +765,7 @@ cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
 	CATCH;
 
 }
-
+#if GADGETRON_TOOLBOXES_AVAILABLE
 extern "C"
 void*
 cGT_setGRPETrajecotry(void* ptr_acqs)
@@ -796,6 +801,7 @@ cGT_getGRPETrajecotry(void* ptr_acqs, size_t ptr_traj)
     }
     CATCH;
 }
+#endif
 
 extern "C"
 void* cGT_setAcquisitionUserFloat(void* ptr_acqs, size_t ptr_floats, int idx)

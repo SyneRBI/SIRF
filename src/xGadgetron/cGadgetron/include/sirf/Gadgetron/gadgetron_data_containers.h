@@ -77,7 +77,9 @@ namespace sirf {
 
     class FourierEncoding;
     class CartesianFourierEncoding;
+#if GADGETRON_TOOLBOXES_AVAILABLE
     class RPEFourierEncoding;
+#endif
 
 	class AcquisitionsInfo {
 	public:
@@ -434,7 +436,7 @@ namespace sirf {
 	public:
         AcquisitionsVector(const char* filename_with_ext)
         {
-            this->read( std::string(filename_with_ext) );
+            this->read(std::string(filename_with_ext));
         }
 
         AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())

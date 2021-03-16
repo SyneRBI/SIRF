@@ -46,47 +46,6 @@ using namespace sirf;
 
 bool const mr_cpp_tests_writefiles = false;
 
-bool test_TrajectoryPreparation_constructors( void )
-{
-    try
-    {
-        std::cout << "Running test " << __FUNCTION__ << std::endl;
-
-        sirf::CartesianTrajectoryPrep cart_tp;
-        sirf::GRPETrajectoryPrep rpe_tp;
-
-        return true;
-
-    }
-    catch( std::runtime_error const &e)
-    {
-        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-        std::cout << e.what() << std::endl;
-        throw;
-    }
-}
-
-
-bool test_GRPETrajectoryPrep_set_trajectory(const AcquisitionsVector av)
-{
-    try
-    {
-        std::cout << "Running test " << __FUNCTION__ << std::endl;
-        sirf::GRPETrajectoryPrep rpe_tp;
-
-        AcquisitionsVector av_temp(av);
-
-        rpe_tp.set_trajectory(av_temp);
-        return true;
-
-    }
-    catch( std::runtime_error const &e)
-    {
-        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-        std::cout << e.what() << std::endl;
-        throw;
-    }
-}
 
 
 bool test_get_kspace_order(const MRAcquisitionData& av)
@@ -299,6 +258,51 @@ bool test_bwd(MRAcquisitionData& av)
     }
 }
 
+#if GADGETRON_TOOLBOXES_AVAILABLE
+
+bool test_TrajectoryPreparation_constructors( void )
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        sirf::CartesianTrajectoryPrep cart_tp;
+        sirf::GRPETrajectoryPrep rpe_tp;
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+
+bool test_GRPETrajectoryPrep_set_trajectory(const AcquisitionsVector av)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+        sirf::GRPETrajectoryPrep rpe_tp;
+
+        AcquisitionsVector av_temp(av);
+
+        rpe_tp.set_trajectory(av_temp);
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+
 bool test_get_rpe_trajectory(AcquisitionsVector av)
 {
     try
@@ -502,7 +506,7 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
             throw;
         }
 }
-
+#endif
 
 
 
@@ -533,13 +537,16 @@ int main ( int argc, char* argv[])
         test_get_kspace_order(av);
         test_get_subset(av);
 
-        test_GRPETrajectoryPrep_set_trajectory(av);
+        #if GADGETRON_TOOLBOXES_AVAILABLE
+            test_GRPETrajectoryPrep_set_trajectory(av);
+        #endif
 
         test_CoilSensitivitiesVector_calculate(av);
         test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
         test_bwd(av);
 
+        #if GADGETRON_TOOLBOXES_AVAILABLE
         std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
         sirf::AcquisitionsVector rpe_av;
         rpe_av.read(rpe_data_path);
@@ -556,6 +563,7 @@ int main ( int argc, char* argv[])
         test_rpe_csm(rpe_av);
 
         test_mracquisition_model_rpe_bwd(rpe_av);
+        #endif
 
         test_acq_mod_norm(sptr_ad);
 

@@ -34,6 +34,7 @@ else()
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
   find_package(FFTW3 COMPONENTS single REQUIRED)
   ADD_SUBDIRECTORY(xGadgetron)
+
 endif()
 
 

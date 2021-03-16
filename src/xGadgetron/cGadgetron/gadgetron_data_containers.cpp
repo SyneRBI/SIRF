@@ -1754,7 +1754,13 @@ CoilImagesVector::calculate(MRAcquisitionData& ac, int calibration)
     if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
     else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+    {
+    #if GADGETRON_TOOLBOXES_AVAILABLE
         this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+    #else
+        throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
+    #endif
+    }
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 

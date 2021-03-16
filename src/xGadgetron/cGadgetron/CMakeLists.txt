@@ -28,14 +28,45 @@
 if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
     set(Boost_DLL_DIR ${Boost_LIBRARY_DIR_RELEASE})
     message(STATUS "Install boost shared libraries from ${Boost_DLL_DIR} ")
-	foreach (__boost_lib system filesystem thread date_time chrono program_options)
-	   file(GLOB Boost_DLL "${Boost_DLL_DIR}/boost_${__boost_lib}*.dll")
-       install( FILES ${Boost_DLL} DESTINATION bin )
-	endforeach()
-  endif()
-	
-add_library(cgadgetron cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp 
-            gadgetron_fftw.cpp ismrmrd_fftw.cpp ismrmrd_phantom.cpp shepp_logan_phantom.cpp encoding.cpp)
+    foreach (__boost_lib system filesystem thread date_time chrono program_options)
+        file(GLOB Boost_DLL "${Boost_DLL_DIR}/boost_${__boost_lib}*.dll")
+        install( FILES ${Boost_DLL} DESTINATION bin )
+    endforeach()
+endif()
+
+set(CGADGETRON_SOURCES cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp
+    gadgetron_fftw.cpp ismrmrd_fftw.cpp ismrmrd_phantom.cpp shepp_logan_phantom.cpp encoding.cpp)
+
+
+find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX}
+                )
+find_library( GT_FFT NAMES gadgetron_toolbox_cpufft
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX}
+                )
+find_library( GT_NFFT NAMES gadgetron_toolbox_cpunfft
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX}
+                )
+find_library( GT_LOG NAMES gadgetron_toolbox_log
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX}
+                )
+
+set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
+
+if(NOTFOUND IN_LIST GT_LIBS)
+      set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
+      MESSAGE(WARNING "The Gadgetron Toolboxes requried for radial gridding were NOT FOUND. Non-caratesian encoding will NOT BE compiled.")
+else()
+      MESSAGE(STATUS "The Gadgetron Toolboxes requried for radial gridding were found. Non-caratesian encoding will be compiled.")
+      set(GADGETRON_TOOLBOXES_AVAILABLE TRUE)
+      set(CGADGETRON_SOURCES ${CGADGETRON_SOURCES} noncartesian_encoding.cpp)
+endif()
+
+add_library(cgadgetron ${CGADGETRON_SOURCES})
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
 target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
@@ -63,28 +94,16 @@ endif()
 target_link_libraries(cgadgetron PUBLIC ISMRMRD::ISMRMRD)
 target_link_libraries(cgadgetron PUBLIC "${FFTW3_LIBRARIES}")
 
-find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore 
-              NAMES_PER_DIR 
-              PATHS ${CMAKE_INSTALL_PREFIX}
-              )
-find_library( GT_FFT NAMES gadgetron_toolbox_cpufft 
-              NAMES_PER_DIR 
-              PATHS ${CMAKE_INSTALL_PREFIX}
-              )
-find_library( GT_NFFT NAMES gadgetron_toolbox_cpunfft 
-              NAMES_PER_DIR 
-              PATHS ${CMAKE_INSTALL_PREFIX}
-              )
-find_library( GT_LOG NAMES gadgetron_toolbox_log 
-              NAMES_PER_DIR 
-              PATHS ${CMAKE_INSTALL_PREFIX}
-              )
+if(GADGETRON_TOOLBOXES_AVAILABLE)
+      target_link_libraries(cgadgetron PUBLIC ${GT_LIBS})
+endif()
 
-set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
-
-target_link_libraries(cgadgetron PUBLIC ${GT_LIBS})
+if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+  add_definitions(-DGADGETRON_TOOLBOXES_AVAILABLE)
+else()
+  add_compile_definitions(GADGETRON_TOOLBOXES_AVAILABLE)
+endif()
 
 target_compile_definitions(cgadgetron PRIVATE _WIN32_WINNT=0x0501)
-
 
 ADD_SUBDIRECTORY(tests)
