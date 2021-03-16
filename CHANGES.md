@@ -1,6 +1,7 @@
 # ChangeLog
 
 ## vX.X.X
+* GE Signa randoms support added.
 * If the `SIRF_DATA_PATH` environment variable is set, `examples_data_path` will search for the examples data there, or in `SIRF_INSTALL_PATH/share/SIRF-<versio_major>.<version_minor>/data` directory. In MATLAB, the `example_data_path` function has the version set by CMake at install time.
 * Defines `__version__` in `sirf` python package.
 * Installs `examples`, `data` and `doc` to the install directory, i.e. `${CMAKE_INSTALL_PREFIX}/share/SIRF-<versio_major>.<version_minor>` directory.
