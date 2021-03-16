@@ -21,6 +21,7 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/config.h"
+#include "stir/data/randoms_from_singles.h"
 #include "stir/error.h"
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/is_null_ptr.h"
@@ -35,6 +36,7 @@ using namespace sirf;
 
 #if defined(HAVE_HDF5)
 #include "stir/IO/GEHDF5Wrapper.h"
+#include "stir/data/SinglesFromGEHDF5.h"
 #include "stir/recon_buildblock/BinNormalisationFromGEHDF5.h"
 using namespace GE;
 using namespace RDF_HDF5;
@@ -323,23 +325,34 @@ ListmodeToSinograms::compute_singles_()
 	return EXIT_SUCCESS;
 }
 
-void
-ListmodeToSinograms::estimate_randoms_()
+int 
+ListmodeToSinograms::estimate_randoms()
 {
-	exam_info_sptr_->set_time_frame_definitions(frame_defs);
-	const float h = proj_data_info_sptr_->get_bed_position_horizontal();
-	const float v = proj_data_info_sptr_->get_bed_position_vertical();
-	shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(template_proj_data_info_ptr->clone());
-	temp_proj_data_info_sptr->set_bed_position_horizontal(h);
-	temp_proj_data_info_sptr->set_bed_position_vertical(v);
-	randoms_sptr.reset(new PETAcquisitionDataInMemory(exam_info_sptr_, temp_proj_data_info_sptr));
-
+#if defined(HAVE_HDF5)
+	std::cout << "trying GEHDF5...\n";
+	try {
+		if (GEHDF5Wrapper::check_GE_signature(input_filename)) {
+			SinglesFromGEHDF5  singles;
+			singles.read_singles_from_file(input_filename);
+			GEHDF5Wrapper input_file(input_filename);
+			float coincidence_time_window = input_file.get_coincidence_time_window();
+			ProjData& proj_data = *randoms_sptr->data();
+			randoms_from_singles(proj_data, singles, coincidence_time_window);
+			return 0;
+		}
+	}
+	catch (...) {
+	}
+	std::cout << "not a GE HDF5 file\n";
+#endif
+	compute_fan_sums_();
+	int err = compute_singles_();
+	if (err)
+		return err;
 	ProjData& proj_data = *randoms_sptr->data();
 	DetectorEfficiencies& efficiencies = *det_eff_sptr;
 	multiply_crystal_factors(proj_data, efficiencies, 1.0f);
-
-	std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
-	randoms_sptr->write(filename.c_str());
+	return 0;
 }
 
 PETAcquisitionSensitivityModel::

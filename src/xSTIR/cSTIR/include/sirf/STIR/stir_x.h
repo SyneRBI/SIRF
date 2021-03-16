@@ -179,25 +179,25 @@ The actual algorithm is described in
 			half_fan_size = fan_size / 2;
 			fan_size = 2 * half_fan_size + 1;
 
+			exam_info_sptr_->set_time_frame_definitions(frame_defs);
+			const float h = proj_data_info_sptr_->get_bed_position_horizontal();
+			const float v = proj_data_info_sptr_->get_bed_position_vertical();
+			shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(template_proj_data_info_ptr->clone());
+			temp_proj_data_info_sptr->set_bed_position_horizontal(h);
+			temp_proj_data_info_sptr->set_bed_position_vertical(v);
+			randoms_sptr.reset(new PETAcquisitionDataInMemory(exam_info_sptr_, temp_proj_data_info_sptr));
+
 			return stir::Succeeded::yes;
+		}
+		int estimate_randoms();
+		void save_randoms()
+		{
+			std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
+			randoms_sptr->write(filename.c_str());
 		}
 		stir::shared_ptr<PETAcquisitionData> get_output()
 		{
-			std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
-			auto acq_data_sptr = std::make_shared<PETAcquisitionDataInFile>(filename.c_str());
-                        if (!acq_data_sptr)
-                          THROW("ListmodeToSinograms: failed to read output file '" + filename + "'");
-                        return acq_data_sptr;
-		}
-
-		int estimate_randoms()
-		{
-			compute_fan_sums_();
-			int err = compute_singles_();
-			if (err)
-				return err;
-			estimate_randoms_();
-			return 0;
+			return get_randoms_sptr();
 		}
 		stir::shared_ptr<PETAcquisitionData> get_randoms_sptr()
 		{
@@ -223,7 +223,7 @@ The actual algorithm is described in
 		stir::shared_ptr<PETAcquisitionData> randoms_sptr;
 		void compute_fan_sums_(bool prompt_fansum = false);
 		int compute_singles_();
-		void estimate_randoms_();
+//		void estimate_randoms_();
 		static unsigned long compute_num_bins_(const int num_rings,
 			const int num_detectors_per_ring,
 			const int max_ring_diff, const int half_fan_size);
