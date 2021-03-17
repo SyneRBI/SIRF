@@ -432,7 +432,7 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& c
     #if GADGETRON_TOOLBOXES_AVAILABLE
         this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
     #else
-        throw std::runtime_error("Non-cartesian reconstructino is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
+        throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
     #endif
     }
     else
