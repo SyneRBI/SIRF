@@ -1,5 +1,5 @@
 '''
-Example of radial phase encoding (RPE) reconstruction 
+Example of radial phase encoding (RPE) reconstruction. 
 
 Upper-level demo that illustrates the computation of how to use a non-cartesian 
 radial phase-encoding acquisition model to reconstruct data. The computed
