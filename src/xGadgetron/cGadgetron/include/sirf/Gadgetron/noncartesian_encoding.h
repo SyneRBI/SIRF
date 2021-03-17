@@ -47,26 +47,6 @@ limitations under the License.
 
 namespace sirf{
 
-typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
-
-class GRPETrajectoryPrep : public aTrajectoryPreparation {
-
-public:
-    GRPETrajectoryPrep(): aTrajectoryPreparation() {
-        traj_type_ = ISMRMRD::TrajectoryType::OTHER;
-        traj_dim_ = 3;
-    }
-
-    virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq);
-    static SIRFTrajectoryType2D get_trajectory(const sirf::MRAcquisitionData& mr_acq);
-
-protected:
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq);
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq);
-    std::vector< uint16_t > const rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
-    uint16_t circ_mod(uint16_t const a, uint16_t const b){ return (((a%b) + b ) % b);}
-};
-
 
 typedef Gadgetron::hoNDArray<Gadgetron::floatd2> GadgetronTrajectoryType2D;
 

@@ -62,99 +62,8 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "sirf/Gadgetron/noncartesian_encoding.h"
 
-#define SIRF_GOLDEN_ANGLE M_PI*0.618034
-
 using namespace sirf;
 using namespace ISMRMRD;
-
-
-void sirf::GRPETrajectoryPrep::set_trajectory(MRAcquisitionData& mr_acq)
-{
-    update_acquisitions_info(mr_acq);
-
-    for(size_t ia=0; ia<mr_acq.number(); ++ia)
-    {
-        Acquisition acq;
-        mr_acq.get_acquisition(ia, acq);
-        this->set_acquisition_trajectory(acq);
-        mr_acq.set_acquisition(ia, acq);
-    }
-}
-
-SIRFTrajectoryType2D sirf::GRPETrajectoryPrep::get_trajectory(const sirf::MRAcquisitionData& ac)
-{
-    if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER)
-        throw std::runtime_error("Please only ask to get the trajectory for acquisition data with an RPE trajectory pre-computed in the acquisitions.");
-
-    if(ac.number() <= 0)
-        throw std::runtime_error("Please pass a non-empty container.");
-
-    ISMRMRD::Acquisition acq;
-    ac.get_acquisition(0, acq);
-
-    if( acq.trajectory_dimensions() != 3)
-        throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
-
-    std::vector<size_t> kspace_dims;
-    ac.get_kspace_dimensions(kspace_dims);
-
-    SIRFTrajectoryType2D traj;
-
-    for(int ia=0; ia<ac.number(); ++ia)
-    {
-        ac.get_acquisition(ia, acq);
-
-        std::pair<float, float> curr_point;
-        curr_point.first = acq.traj(1, 0);
-        curr_point.second = acq.traj(2, 0);
-
-        traj.push_back(curr_point);
-    }
-
-    return traj;
-}
-
-void sirf::GRPETrajectoryPrep::set_acquisition_trajectory(Acquisition& acq)
-{
-    acq.resize(acq.number_of_samples(),acq.active_channels(), this->traj_dim_);
-    std::vector<float> acq_traj = this->calculate_trajectory(acq);
-    acq.setTraj(&acq_traj[0]);
-}
-
-std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& acq)
-{
-    ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);
-    if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
-        rad_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.get();
-    if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_2.is_present())
-        ang_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_2.get();
-
-    const ISMRMRD::EncodingCounters idx = acq.idx();
-
-//    float const pe_angle = SIRF_GOLDEN_ANGLE * (idx.kspace_encode_step_2 - 1); // for old in vivo-data
-    float const pe_angle = SIRF_GOLDEN_ANGLE * idx.kspace_encode_step_2;
-
-    size_t const num_diff_shifts = this->rad_shift_.size();
-    float rad_shift = float( this->rad_shift_.at(this->circ_mod(idx.kspace_encode_step_2 - ang_lims.center,num_diff_shifts))) / float(num_diff_shifts);
-
-    float pe_radius = idx.kspace_encode_step_1 - rad_lims.center;
-    pe_radius = (pe_radius==0) ? pe_radius : pe_radius+rad_shift;
-
-    float const traj_norm = 2*std::max<float>(( rad_lims.center - rad_lims.minimum + 0), (rad_lims.maximum - rad_lims.center + (num_diff_shifts-1)/num_diff_shifts));
-    pe_radius /= traj_norm;
-
-    std::vector<float> traj;
-
-    for(size_t i_sample=0; i_sample<acq.number_of_samples();++i_sample)
-    {
-        traj.push_back(0); //dummy for RPE as the readout is cartesian
-        traj.push_back(pe_radius * cos( pe_angle ));
-        traj.push_back(pe_radius * sin( pe_angle ));
-    }
-
-    return traj;
-}
-
 
 GadgetronTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
@@ -171,7 +80,6 @@ GadgetronTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisition
 
     return traj;
 }
-
 
 void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 {
