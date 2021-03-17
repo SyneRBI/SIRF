@@ -35,6 +35,19 @@ if (DOWNLOAD_ZENODO_TEST_DATA)
                 "a692ba3a6c456d1ad49750717a9d5dda")
 endif()
 
+OPTION(RERUN_ISMRMRD_SHEPP_LOGAN "Generate testdata compatible with ISMRMRD Version" ON)
+find_program(EXE_ISMRMRD_SL NAMES ismrmrd_generate_cartesian_shepp_logan
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX})
+
+if(EXE_ISMRMRD_SL AND RERUN_ISMRMRD_SHEPP_LOGAN)
+    execute_process(COMMAND ${EXE_ISMRMRD_SL} --repetitions 2 -o simulated_MR_2D_cartesian.h5
+        WORKING_DIRECTORY "${SIRF_SOURCE_DIR}/data/examples/MR/")
+    execute_process(COMMAND ${EXE_ISMRMRD_SL} --repetitions 1 --acceleration 2 -o simulated_MR_2D_cartesian_Grappa2.h5
+        WORKING_DIRECTORY "${SIRF_SOURCE_DIR}/data/examples/MR/")
+else(RERUN_ISMRMRD_SHEPP_LOGAN)
+    message(ERROR "We could not find the ISMRMRD executable for the Shepp Logan Generation." )
+endif()
 
 
 add_library(MR_TESTS_CPP_AUXILIARY ${CMAKE_CURRENT_SOURCE_DIR}/mrtest_auxiliary_funs.cpp)
