@@ -847,8 +847,12 @@ class AcquisitionData(DataContainer):
         return subset
     
     def set_user_floats(self, data, idx):
-        assert self.handle is not None
-        assert data.size == self.number(), "Please give as many datapoints as there are acquisitions"
+        if self.handle is None:
+            raise AssertionError('self.handle is None')
+                    
+        if data.size != self.number():  
+            raise AssertionError('Please give as many datapoints as there are acquisitions')
+        
         try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
                     (self.handle, data.ctypes.data, idx))
 

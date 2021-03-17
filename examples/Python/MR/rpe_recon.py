@@ -52,10 +52,9 @@ output_file = args['--output']
 show_plot = not args['--non-interactive']
 
 import numpy as np
-
-def calc_unit_dcf(acq_data):
     
-    import numpy as np
+def calc_unit_dcf(acq_data):
+
     traj = np.transpose(get_grpe_trajectory(acq_data))
 
     traj, inverse, counts = np.unique(traj, return_inverse=True, return_counts=True, axis=1)
