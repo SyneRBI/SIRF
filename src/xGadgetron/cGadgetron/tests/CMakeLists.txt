@@ -41,9 +41,13 @@ find_program(EXE_ISMRMRD_SL NAMES ismrmrd_generate_cartesian_shepp_logan
                 PATHS ${CMAKE_INSTALL_PREFIX})
 
 if(EXE_ISMRMRD_SL AND RERUN_ISMRMRD_SHEPP_LOGAN)
-    execute_process(COMMAND ${EXE_ISMRMRD_SL} --repetitions 2 -o simulated_MR_2D_cartesian.h5
+    execute_process(
+        COMMAND rm simulated_MR_2D_cartesian.h5
+        COMMAND ${EXE_ISMRMRD_SL} --repetitions 2 -o simulated_MR_2D_cartesian.h5
         WORKING_DIRECTORY "${SIRF_SOURCE_DIR}/data/examples/MR/")
-    execute_process(COMMAND ${EXE_ISMRMRD_SL} --repetitions 1 --acceleration 2 -o simulated_MR_2D_cartesian_Grappa2.h5
+    execute_process(
+        COMMAND rm simulated_MR_2D_cartesian_Grappa2.h5
+        COMMAND ${EXE_ISMRMRD_SL} --repetitions 1 --acceleration 2 -o simulated_MR_2D_cartesian_Grappa2.h5
         WORKING_DIRECTORY "${SIRF_SOURCE_DIR}/data/examples/MR/")
 else(RERUN_ISMRMRD_SHEPP_LOGAN)
     message(ERROR "We could not find the ISMRMRD executable for the Shepp Logan Generation." )
