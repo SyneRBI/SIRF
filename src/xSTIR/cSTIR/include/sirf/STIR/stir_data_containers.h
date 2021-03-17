@@ -47,6 +47,12 @@ limitations under the License.
 #include "sirf/common/GeometricalInfo.h"
 #include "stir/ZoomOptions.h"
 
+#if STIR_VERSION < 050000
+#define SPTR_WRAP(X) X->create_shared_clone()
+#else
+#define SPTR_WRAP(X) X
+#endif
+
 namespace sirf {
 
 	class SIRFUtilities {
@@ -89,7 +95,7 @@ namespace sirf {
 		ProjDataFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info,
 			const std::string& filename, bool owns_file = true) :
-			stir::ProjDataInterfile(sptr_exam_info, sptr_proj_data_info,
+			stir::ProjDataInterfile(SPTR_WRAP(sptr_exam_info), SPTR_WRAP(sptr_proj_data_info),
 			filename, std::ios::in | std::ios::out | std::ios::trunc),
 			_filename(filename),
 			_owns_file(owns_file)
@@ -471,7 +477,7 @@ namespace sirf {
 			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data = stir::shared_ptr<stir::ProjData>
-				(new stir::ProjDataInMemory(MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info));
+				(new stir::ProjDataInMemory(SPTR_WRAP(sptr_exam_info), SPTR_WRAP(sptr_proj_data_info)));
 		}
 		PETAcquisitionDataInMemory(const stir::ProjData& templ)
 		{
