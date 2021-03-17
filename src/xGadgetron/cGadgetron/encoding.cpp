@@ -11,7 +11,6 @@
 using namespace sirf;
 using namespace ISMRMRD;
 
-#define SIRF_GOLDEN_ANGLE M_PI*0.618034
 
 void sirf::aTrajectoryPreparation::update_acquisitions_info(MRAcquisitionData& mr_acq)
 {
