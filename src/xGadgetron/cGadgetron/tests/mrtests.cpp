@@ -258,7 +258,6 @@ bool test_bwd(MRAcquisitionData& av)
     }
 }
 
-#if GADGETRON_TOOLBOXES_AVAILABLE
 
 bool test_TrajectoryPreparation_constructors( void )
 {
@@ -329,7 +328,8 @@ bool test_get_rpe_trajectory(AcquisitionsVector av)
     }
 }
 
-
+#ifdef GADGETRON_TOOLBOXES_AVAILABLE
+#warning "INCLUDING THE RADIAL TESTS INTO THE C++ TESTS"
 bool test_rpe_csm(MRAcquisitionData& av)
 {
     try
@@ -537,32 +537,32 @@ int main ( int argc, char* argv[])
         test_get_kspace_order(av);
         test_get_subset(av);
 
-        #if GADGETRON_TOOLBOXES_AVAILABLE
-            test_GRPETrajectoryPrep_set_trajectory(av);
-        #endif
+
+        test_GRPETrajectoryPrep_set_trajectory(av);
 
         test_CoilSensitivitiesVector_calculate(av);
         test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
         test_bwd(av);
 
-        #if GADGETRON_TOOLBOXES_AVAILABLE
-        std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
-        sirf::AcquisitionsVector rpe_av;
-        rpe_av.read(rpe_data_path);
+        #ifdef GADGETRON_TOOLBOXES_AVAILABLE
+        #warning "RUNNING THE RADIAL TESTS FOR C++."
+            std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
+            sirf::AcquisitionsVector rpe_av;
+            rpe_av.read(rpe_data_path);
 
-        sirf::preprocess_acquisition_data(rpe_av);
-        rpe_av.sort();
-        sirf::set_unit_dcf(rpe_av);
+            sirf::preprocess_acquisition_data(rpe_av);
+            rpe_av.sort();
+            sirf::set_unit_dcf(rpe_av);
 
 
-        test_get_rpe_trajectory(rpe_av);
-        test_rpe_bwd(rpe_av);
-        test_rpe_fwd(rpe_av);
+            test_get_rpe_trajectory(rpe_av);
+            test_rpe_bwd(rpe_av);
+            test_rpe_fwd(rpe_av);
 
-        test_rpe_csm(rpe_av);
+            test_rpe_csm(rpe_av);
 
-        test_mracquisition_model_rpe_bwd(rpe_av);
+            test_mracquisition_model_rpe_bwd(rpe_av);
         #endif
 
         test_acq_mod_norm(sptr_ad);

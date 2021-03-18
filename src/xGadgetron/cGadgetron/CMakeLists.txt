@@ -56,13 +56,19 @@ find_library( GT_LOG NAMES gadgetron_toolbox_log
                 )
 
 set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
+
 if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
     MESSAGE(STATUS "The Gadgetron Toolboxes requried for radial gridding were found. Non-caratesian encoding will be compiled.")
     set(GADGETRON_TOOLBOXES_AVAILABLE TRUE)
     set(CGADGETRON_SOURCES ${CGADGETRON_SOURCES} noncartesian_encoding.cpp)
+
+    if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+      add_definitions(-DGADGETRON_TOOLBOXES_AVAILABLE)
+    else()
+      add_compile_definitions(GADGETRON_TOOLBOXES_AVAILABLE)
+    endif()
 else()
     set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
-    remove_definitions(-DGADGETRON_TOOLBOXES_AVAILABLE)
     MESSAGE(WARNING "The Gadgetron Toolboxes requried for radial gridding were NOT FOUND. Non-caratesian encoding will NOT BE compiled.")
 endif()
 
@@ -96,12 +102,6 @@ target_link_libraries(cgadgetron PUBLIC "${FFTW3_LIBRARIES}")
 
 if(GADGETRON_TOOLBOXES_AVAILABLE)
     target_link_libraries(cgadgetron PUBLIC ${GT_LIBS})
-endif()
-
-if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-  add_definitions(-DGADGETRON_TOOLBOXES_AVAILABLE)
-else()
-  add_compile_definitions(GADGETRON_TOOLBOXES_AVAILABLE)
 endif()
 
 target_compile_definitions(cgadgetron PRIVATE _WIN32_WINNT=0x0501)
