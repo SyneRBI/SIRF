@@ -850,7 +850,7 @@ class AcquisitionData(DataContainer):
         if self.handle is None:
             raise AssertionError('self.handle is None')
                     
-        if data.size != self.number():  
+        if data.size != self.number():
             raise AssertionError('Please give as many datapoints as there are acquisitions')
         
         try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
