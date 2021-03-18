@@ -101,7 +101,7 @@ endif()
 if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
   add_definitions(-DGADGETRON_TOOLBOXES_AVAILABLE)
 else()
-  add_compile_definitions(GADGETRON_TOOLBOXES_AVAILABLE=${GADGETRON_TOOLBOXES_AVAILABLE})
+  add_compile_definitions(GADGETRON_TOOLBOXES_AVAILABLE)
 endif()
 
 target_compile_definitions(cgadgetron PRIVATE _WIN32_WINNT=0x0501)
