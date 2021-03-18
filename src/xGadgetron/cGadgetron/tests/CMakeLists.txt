@@ -41,23 +41,25 @@ find_program(EXE_ISMRMRD_SL NAMES ismrmrd_generate_cartesian_shepp_logan
                 PATHS ${CMAKE_INSTALL_PREFIX})
 
 if(EXE_ISMRMRD_SL AND RERUN_ISMRMRD_SHEPP_LOGAN)
-    execute_process(
-        COMMAND rm simulated_MR_2D_cartesian.h5
-        COMMAND ${EXE_ISMRMRD_SL} --repetitions 2 -o simulated_MR_2D_cartesian.h5
+    add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
+        COMMAND rm -f simulated_MR_2D_cartesian.h5
+        COMMAND rm -f simulated_MR_2D_cartesian_Grappa2.h5
+        COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH ${EXE_ISMRMRD_SL} -r 2 -o simulated_MR_2D_cartesian.h5
+        COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH ${EXE_ISMRMRD_SL} -a 2 -o simulated_MR_2D_cartesian_Grappa2.h5
         WORKING_DIRECTORY "${SIRF_SOURCE_DIR}/data/examples/MR/")
-    execute_process(
-        COMMAND rm simulated_MR_2D_cartesian_Grappa2.h5
-        COMMAND ${EXE_ISMRMRD_SL} --repetitions 1 --acceleration 2 -o simulated_MR_2D_cartesian_Grappa2.h5
-        WORKING_DIRECTORY "${SIRF_SOURCE_DIR}/data/examples/MR/")
-else(RERUN_ISMRMRD_SHEPP_LOGAN)
+elseif(RERUN_ISMRMRD_SHEPP_LOGAN)
     message(ERROR "We could not find the ISMRMRD executable for the Shepp Logan Generation." )
+else()
+    add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
+        COMMAND "")
 endif()
-
 
 add_library(MR_TESTS_CPP_AUXILIARY ${CMAKE_CURRENT_SOURCE_DIR}/mrtest_auxiliary_funs.cpp)
 target_link_libraries(MR_TESTS_CPP_AUXILIARY PUBLIC csirf cgadgetron)
 
 add_executable(MR_TESTS_CPLUSPLUS ${CMAKE_CURRENT_SOURCE_DIR}/mrtests.cpp)
+add_dependencies(MR_TESTS_CPLUSPLUS GENERATE_SIMULATED_TESTDATA)
+
 target_link_libraries(MR_TESTS_CPLUSPLUS PUBLIC MR_TESTS_CPP_AUXILIARY csirf cgadgetron)
 INSTALL(TARGETS MR_TESTS_CPLUSPLUS DESTINATION bin)
 
