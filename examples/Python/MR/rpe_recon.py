@@ -97,29 +97,32 @@ def main():
     dcf = calc_unit_dcf(processed_data)
     processed_data = set_densitycompensation_as_userfloat(processed_data, dcf)
 
-    # compute coil sensitivity maps
-    print('---\n computing coil sensitivity maps...')
-    csms = CoilSensitivityData()
-    csms.smoothness = 10
-    csms.calculate(processed_data)
+    print("Am i running the rest of the code? : " + str(run_recon))
     
-    # create acquisition model based on the acquisition parameters
-    print('---\n Setting up Acquisition Model...')
-
-    acq_model = AcquisitionModel()
-    acq_model.set_up(processed_data, csms.copy())
-    acq_model.set_coil_sensitivity_maps(csms)
+    if run_recon is True:
+        print('---\n computing coil sensitivity maps...')
+        csms = CoilSensitivityData()
+        csms.smoothness = 10
+        
+        csms.calculate(processed_data)
+        
+        # create acquisition model based on the acquisition parameters
+        print('---\n Setting up Acquisition Model...')
     
+        acq_model = AcquisitionModel()
+        acq_model.set_up(processed_data, csms.copy())
+        acq_model.set_coil_sensitivity_maps(csms)
     
-    if run_recon:
         print('---\n Backward projection ...')
         recon_img = acq_model.backward(processed_data)
+        
+        if show_plot:
+            recon_img.show(title = 'Reconstructed images (magnitude)')
     else:
-        print('---\n Skipping backward projection...')
+        print('---\n Skipping non-cartesian code...')
 
     
-    if show_plot:
-        recon_img.show(title = 'Reconstructed images (magnitude)')
+        
 
 
 try:
