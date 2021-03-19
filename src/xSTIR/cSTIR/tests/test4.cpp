@@ -68,6 +68,7 @@ int test4()
 		converter.set_time_interval(0, 10);
 		converter.set_up();
 		converter.estimate_randoms();
+		converter.save_randoms();
 
         // Check count rates - for the particular dataset,
         // we know that 73036 is exceeded at 22s. You can
