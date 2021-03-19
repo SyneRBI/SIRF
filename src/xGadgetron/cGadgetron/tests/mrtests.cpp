@@ -243,7 +243,6 @@ bool test_bwd(MRAcquisitionData& av)
 
         acquis_model.bwd(img_vec, csm, av);
 
-
         if(mr_cpp_tests_writefiles)
             sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
 
@@ -346,7 +345,6 @@ bool test_rpe_csm(MRAcquisitionData& av)
 
        if(mr_cpp_tests_writefiles)
            sirf::write_imagevector_to_raw(__FUNCTION__, csm);
-
        return true;
 
     }
