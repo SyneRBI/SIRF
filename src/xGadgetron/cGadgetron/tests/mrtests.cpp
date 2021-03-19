@@ -44,7 +44,7 @@ limitations under the License.
 
 using namespace sirf;
 
-bool const mr_cpp_tests_writefiles = false;
+bool const mr_cpp_tests_writefiles = true;
 
 
 
