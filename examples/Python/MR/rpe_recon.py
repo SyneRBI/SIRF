@@ -16,7 +16,7 @@ Options:
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   -n <bool>, --non-cartesian  run recon iff non-cartesian code was compiled 
-                              [default: false]
+                              [default: False]
   --non-interactive           do not show plots
 '''
 
@@ -52,7 +52,7 @@ if data_path is None:
     data_path = examples_data_path('MR') + '/zenodo/'
 output_file = args['--output']
 show_plot = not args['--non-interactive']
-run_recon = args['--non-cartesian']
+run_recon = bool(args['--non-cartesian'])
 
 import numpy as np
     
