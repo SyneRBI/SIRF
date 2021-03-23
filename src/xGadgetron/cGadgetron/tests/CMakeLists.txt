@@ -67,6 +67,6 @@ include(FindUnixCommands)
 
 if(BASH)
 ADD_TEST(NAME MR_TESTS_CPLUSPLUS
-         COMMAND ${BASH} -c "MR_TESTS_CPLUSPLUS ${CMAKE_SOURCE_DIR} ${_out}>/dev/null"
+         COMMAND MR_TESTS_CPLUSPLUS
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
  endif()
