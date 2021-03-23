@@ -264,7 +264,6 @@ bool test_TrajectoryPreparation_constructors( void )
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
 
-        sirf::CartesianTrajectoryPrep cart_tp;
         sirf::GRPETrajectoryPrep rpe_tp;
 
         return true;

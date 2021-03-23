@@ -30,12 +30,6 @@ void sirf::aTrajectoryPreparation::update_acquisitions_info(MRAcquisitionData& m
     mr_acq.set_acquisitions_info(ai);
 }
 
-void sirf::CartesianTrajectoryPrep::set_trajectory(MRAcquisitionData& mr_acq)
-{
-    update_acquisitions_info(mr_acq); // do nothing for cartesian trajectories
-}
-
-
 void sirf::GRPETrajectoryPrep::set_trajectory(MRAcquisitionData& mr_acq)
 {
     update_acquisitions_info(mr_acq);

@@ -74,28 +74,6 @@ protected:
     virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const =0;
 };
 
-/*!
-\ingroup CartesianTrajectoryPrep
-\brief Cartesian trajectory preparation class
-
-*/
-
-class CartesianTrajectoryPrep : public aTrajectoryPreparation{
-
-public:
-    CartesianTrajectoryPrep(): aTrajectoryPreparation() {
-        traj_type_ = ISMRMRD::TrajectoryType::CARTESIAN;
-        traj_dim_ = 0;
-    }
-
-    virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq);
-
-protected:
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const {}
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const {return std::vector<float>{};}
-};
-
-
 
 typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
 
