@@ -20,8 +20,8 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Fourier encoding
-\brief File for cartesian fourier encoding.
+\ingroup Gadgetron Extensions
+\brief File for cartesian fourier encoding and trajectory setting.
 
 \author Johannes Mayer
 \author SyneRBI
@@ -41,21 +41,24 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Fourier Encoding
+\ingroup Gadgetron Extensions
 \brief Specification file for preparing MRAcquisitionData for Fourier encoding.
 
 \author Johannes Mayer
 \author CCP PETMR
 */
 
-/*!
-\ingroup aTrajectoryPreparation
-\brief Abstract class for trajectory preparation
-
-*/
 
 namespace sirf{
 
+/*!
+\ingroup Gadgetron Extensions
+\brief Abstract class defining the interface to set trajectories
+
+* The strategy is to perform the trajectory computation as a pre-processsing step to the
+* reconstruction. The ISMRMRD format has a 3D trajectory data field in their ISRMRMRD::Acquisition classe.
+* The interface provides set_trajectory() which populates this data field depending on the implementation.
+*/
 class aTrajectoryPreparation{
 
 public:
@@ -76,6 +79,17 @@ protected:
 
 
 typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
+
+/*!
+\ingroup Gadgetron Extensions
+\brief Class to set the gold-angle radial phase encoding (RPE) trajecotry
+*
+* Computation is based on doi:10.1002/mrm.22102
+* The data reconstructed with this trajectory are parallel readouts arranged on
+* a non-cartesian grid in the phase-slice-encoding plane.
+* As a cartesian FFT is performed along the readout-direction the 0-dimension
+* of the trajectory is set to 0 for all data points.
+*/
 
 class GRPETrajectoryPrep : public aTrajectoryPreparation {
 
@@ -98,9 +112,8 @@ protected:
 };
 
 /*!
-\ingroup Fourier Encoding
-\brief Abstract class for doing FFTs for different trajectories for self-consistent k-space data.
-
+\ingroup Gadgetron Extensions
+\brief Abstract class defining the interface to perform Fourier transforms
 */
 
 class FourierEncoding
@@ -115,8 +128,14 @@ public:
 };
 
 /*!
-\ingroup Fourier Encoding
-\brief FFT between cartesian spaces
+\ingroup Gadgetron Extensions
+\brief Class to perform a cartesian FFT
+
+* The transform performs sorting of the data into a 4D matrix
+* with the dimensions x, y, z and coil with a subsequent FFT along
+* the first three dimensions.
+* The methods assume that the acquisitions belong to the same dynamics,
+* i.e. to the same echo, repetition etc.
 */
 
 class CartesianFourierEncoding : public FourierEncoding

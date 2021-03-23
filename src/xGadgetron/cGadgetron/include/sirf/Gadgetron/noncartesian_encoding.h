@@ -40,10 +40,6 @@ limitations under the License.
 #include <gadgetron/hoNDFFT.h>
 #include <gadgetron/hoNFFT.h>
 
-/*!
-\ingroup GRPETrajectoryPrep
-\brief Golden Radial Phase Encoding interleaved trajectory preparation class.
-*/
 
 namespace sirf{
 
@@ -51,9 +47,15 @@ namespace sirf{
 typedef Gadgetron::hoNDArray<Gadgetron::floatd2> GadgetronTrajectoryType2D;
 
 /*!
-\ingroup RPE Fourier Encoding
-\brief Radial phase encoding operator
+\ingroup Gadgetron Extensions
+\brief Implementation to perform a non-cartesian FFT for RPE MR data
+*
+* backward(...): first data are sorted into a 4D matrix consisting of kx, ky, kz, coil
+* and then the Fourier-transformed along the kx dimension. In the second step a NUFFT
+* along the two remaining dimensions is performed.
+*
 */
+
 
 class RPEFourierEncoding : public FourierEncoding
 {
@@ -72,8 +74,10 @@ using namespace Gadgetron;
 typedef Gadgetron::hoNDArray<std::complex<float> > CFGThoNDArr;
 
 /*!
-\ingroup CartesianFourierEncoding
-\brief Radial phase encoding operator
+\ingroup Gadgetron Extensions
+\brief Class to perform a NUFFT for 2D data
+*
+*
 */
 
 class Gridder_2D
