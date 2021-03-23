@@ -1053,6 +1053,10 @@ namespace sirf {
 
     protected:
 
+        void coilchannels_from_combined_image(GadgetronImageData& img, GadgetronImageData& combined_img) const;
+        void combine_images_with_coilmaps(GadgetronImageData& combined_img, GadgetronImageData& img) const;
+
+
         //bool flag_imgs_suitable_for_csm_computation_=false;
 
         void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);
