@@ -101,9 +101,8 @@ namespace sirf {
 				deserialize();
 				have_header_ = true;
 			}
-            std::cout << "################ WE HAAAAVE " << this->header_.encoding.size() << " encodings now ####################### " << std::endl;
 
-			return *this;
+            return *this;
 		}
 		const char* c_str() const { return data_.c_str(); }
 		operator std::string&() { return data_; }
@@ -387,8 +386,7 @@ namespace sirf {
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
-			//std::cerr << 
-			THROW("AcquisitionsFile::set_acquisition not implemented yet, sorry\n");
+            THROW("AcquisitionsFile::set_acquisition not implemented yet, sorry\n");
 		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
