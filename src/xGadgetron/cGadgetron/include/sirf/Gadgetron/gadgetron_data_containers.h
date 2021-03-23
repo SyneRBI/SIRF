@@ -127,6 +127,17 @@ namespace sirf {
         mutable bool have_header_;
 	};
 
+    /*!
+    \ingroup Gadgetron Data Containers
+    \brief Class to keep track of order in k-space
+    *
+    * The entirety of data consists of all acquisitions in the container. However,
+    * the individual acquisitions belong to different dimensions of k-space. These
+    * dimensions may include slice, contrast, repetition etc.
+    * This class is used to keep track of what acquisitions belong to which dimension.
+    *
+
+    */
     class KSpaceSorting
     {
         static int const num_kspace_dims_ = 7 + ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS;
@@ -167,15 +178,33 @@ namespace sirf {
 
         static void print_tag(const TagType& tag);
         static void print_acquisition_tag(ISMRMRD::Acquisition acq);
+
+        //! Function to get k-space dimension tag from an ISMRMRD::Acquisition
+        /*!
+        * This allows to find out which k-space dimension an Acquisition belongs to.
+        */
         static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq);
+
+        //! Function to get k-space dimension tag from an ISMRMRD::Image
+        /*!
+        * This allows to find out which k-space dimension the image belongs to.
+        */
         static TagType get_tag_from_img(const CFImage& img);
 
     private:
-
-        // order is [average, slice, contrast, phase, repetition, set, segment, user_ (0,...,ISMRMRD_USER_INTS-1)]
+        //! Tag labelling the dimension of k-space
+        /*!
+        * An int-array of length 7+ISMRMRD_USER_INTS that labels the dimension of k-space.
+        * The order is: [average, slice, contrast, phase, repetition, set, segment, user_ (0,...,ISMRMRD_USER_INTS-1)]
+        */
         TagType tag_;
-        SetType idx_set_;
 
+        //! Tag labelling the dimension of k-space
+        /*!
+        * A vector of ints keeping track which acquisitions belong the the
+        * dimension labeled by tag_
+        */
+        SetType idx_set_;
     };
 
 	/*!
@@ -279,9 +308,23 @@ namespace sirf {
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 
-        std::vector<std::vector<int> > get_kspace_order(const bool get_first_subset_order=false) const;
+        //! Function to get the indices of the acquisitions belonging to different dimensions of k-space
+        /*!
+        * All acquisitions belong to only one subset in a multi-dimensional k-space.
+        * This function returns a vector of sets of indices belonging to the acquisitions of the individual subsets.
+        */
+        std::vector<KSpaceSorting::SetType > get_kspace_order() const;
+
+        //! Function to get the all KSpaceSorting of the MRAcquisitionData
         std::vector<KSpaceSorting> get_kspace_sorting() const { return this->sorting_; }
 
+        //! Function to go through Acquisitions and assign them to their k-space dimension
+        /*!
+        * All acquisitions belong to only one subset in a multi-dimensional k-space. This function goes through
+        * all acquisitions in the container, extracts their subset (i.e. which slice contrast etc.) and stores
+        * this information s.t. consisten subsets (i.e. all acquisitions belonging to the same slice) can be
+        * extracted.
+        */
         void organise_kspace();
 
         virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;

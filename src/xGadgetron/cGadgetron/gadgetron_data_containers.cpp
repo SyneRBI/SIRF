@@ -526,76 +526,6 @@ MRAcquisitionData::clone_base() const
 void
 MRAcquisitionData::sort()
 {
-//	const int NUMVAL = 6;
-//	typedef std::array<int, NUMVAL> tuple;
-//	int na = number();
-//	if (na < 1) {
-//		index_.resize(0);
-//		return;
-//	}
-
-//	int last = -1;
-//	tuple t;
-//	tuple tmax;
-//	for (int i = 0; i < NUMVAL; i++)
-//		tmax[i] = 0;
-//	for (int a = 0; a < na; a++) {
-//		ISMRMRD::Acquisition acq;
-//		get_acquisition(a, acq);
-//		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
-//			last = a;
-//		t[0] = acq.idx().repetition;
-//		t[1] = acq.idx().phase;
-//		t[2] = acq.idx().contrast;
-//		t[3] = acq.idx().slice;
-//		t[4] = acq.idx().kspace_encode_step_2;
-//		t[5] = acq.idx().kspace_encode_step_1;
-//		for (int i = 0; i < NUMVAL; i++)
-//			if (t[i] > tmax[i])
-//				tmax[i] = t[i];
-//	}
-
-////	for (int i = 0; i < NUMVAL; i++)
-////		std::cout << tmax[i] << ' ';
-////	std::cout << '\n';
-
-//	typedef std::vector<int> tuple_to_sort;
-//	tuple_to_sort tsind;
-//	std::vector<tuple_to_sort> vt;
-//	for (int i = 0; i < NUMVAL; i++)
-//		if (tmax[i] > 0)
-//			tsind.push_back(i);
-////	for (int i = 0; i < tsind.size(); i++)
-////		std::cout << tsind[i] << ' ';
-////	std::cout << '\n';
-//	for (int a = 0; a < na; a++) {
-//		ISMRMRD::Acquisition acq;
-//		get_acquisition(a, acq);
-//		t[0] = acq.idx().repetition;
-//		t[1] = acq.idx().phase;
-//		t[2] = acq.idx().contrast;
-//		t[3] = acq.idx().slice;
-//		t[4] = acq.idx().kspace_encode_step_2;
-//		t[5] = acq.idx().kspace_encode_step_1;
-//		tuple_to_sort tsort;
-//		if (TO_BE_IGNORED(acq)) // put first to avoid interference with the rest
-//			t[tsind[0]] = -1;
-//		for (int i = 0; i < tsind.size(); i++)
-//			tsort.push_back(t[tsind[i]]);
-//		vt.push_back(tsort);
-//	}
-//	if (last > -1)
-//		vt[last][0] = tmax[tsind[0]];
-
-//	index_.resize(na);
-//	NewMultisort::sort( vt, &index_[0] );
-//    index_.resize(this->number());
-//    for(int j=0; j<index_.size(); ++j)
-//        index_[j] = j;
-
-//    this->organise_kspace();
-//	sorted_ = true;
-
     sort_by_time();
 }
 
@@ -626,22 +556,16 @@ MRAcquisitionData::sort_by_time()
 
 }
 
-std::vector<std::vector<int> > MRAcquisitionData::get_kspace_order(const bool get_first_subset_order) const
+std::vector<KSpaceSorting::SetType > MRAcquisitionData::get_kspace_order() const
 {
     if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
 
-    std::vector<std::vector<int> > output;
+    std::vector<KSpaceSorting::SetType > output;
     for(unsigned i = 0; i<sorting_.size(); ++i)
     {
-        if(!get_first_subset_order)
-        {
-            if(!sorting_.at(i).get_idx_set().empty())
+        if(!sorting_.at(i).get_idx_set().empty())
                output.push_back(sorting_.at(i).get_idx_set());
-        }
-        else
-            if(sorting_.at(i).is_first_set() && !sorting_.at(i).get_idx_set().empty())
-                output.push_back(sorting_.at(i).get_idx_set());
     }
     return output;
 }
@@ -1805,7 +1729,7 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(const KSpaceSorting::TagType
         CFImage csm_img = get_csm_as_cfimage(access_idx);
         KSpaceSorting::TagType tag_csm = KSpaceSorting::get_tag_from_img(csm_img);
 
-        if(tag_csm[1] == tag[1]) //for now if the same slice is available then take it!
+        if(tag_csm[1] == tag[1] && tag_csm[2]==0) //tag[1]=slice, tag[2]=contrast
             return csm_img;
     }
 
