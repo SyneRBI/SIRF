@@ -3,12 +3,10 @@
 #include <sstream>
 #include <math.h>
 
-//#include <cassert>
-//#define assertm(exp, msg) assert(((void)msg, exp)
-
-#define SIRF_GOLDEN_ANGLE M_PI*0.618034
-
 #include "sirf/iUtilities/LocalisedException.h"
+
+const static double SIRF_PI = 3.14159265358979323846;
+const static double SIRF_GOLDEN_ANGLE = SIRF_PI*0.618034;
 
 using namespace sirf;
 using namespace ISMRMRD;
