@@ -60,9 +60,7 @@ class aTrajectoryPreparation{
 
 public:
     aTrajectoryPreparation(){}
-    virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq)=0;
-
-
+    virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq) =0;
 
 protected:
 
@@ -72,8 +70,8 @@ protected:
     ISMRMRD::TrajectoryType traj_type_;
 
     uint16_t traj_dim_;
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq)=0;
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq)=0;
+    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const =0;
+    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const =0;
 };
 
 /*!
@@ -93,8 +91,8 @@ public:
     virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq);
 
 protected:
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq){}
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq){return std::vector<float>{};}
+    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const {}
+    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const {return std::vector<float>{};}
 };
 
 
@@ -113,10 +111,12 @@ public:
     static SIRFTrajectoryType2D get_trajectory(const sirf::MRAcquisitionData& mr_acq);
 
 protected:
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq);
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq);
-    std::vector< uint16_t > const rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
-    uint16_t circ_mod(uint16_t const a, uint16_t const b){ return (((a%b) + b ) % b);}
+    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const;
+    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const;
+    uint16_t circ_mod(uint16_t const a, uint16_t const b) const { return (((a%b) + b ) % b);}
+
+    const std::vector< uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
+
 };
 
 /*!

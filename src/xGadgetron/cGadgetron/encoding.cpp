@@ -82,14 +82,14 @@ SIRFTrajectoryType2D sirf::GRPETrajectoryPrep::get_trajectory(const sirf::MRAcqu
     return traj;
 }
 
-void sirf::GRPETrajectoryPrep::set_acquisition_trajectory(Acquisition& acq)
+void sirf::GRPETrajectoryPrep::set_acquisition_trajectory(Acquisition& acq) const
 {
     acq.resize(acq.number_of_samples(),acq.active_channels(), this->traj_dim_);
     std::vector<float> acq_traj = this->calculate_trajectory(acq);
     acq.setTraj(&acq_traj[0]);
 }
 
-std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& acq)
+std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& acq) const
 {
     ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);
     if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
@@ -103,7 +103,7 @@ std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& a
     float const pe_angle = SIRF_GOLDEN_ANGLE * idx.kspace_encode_step_2;
 
     size_t const num_diff_shifts = this->rad_shift_.size();
-    float rad_shift = float( this->rad_shift_.at(this->circ_mod(idx.kspace_encode_step_2 - ang_lims.center,num_diff_shifts))) / float(num_diff_shifts);
+    float const rad_shift = float( this->rad_shift_.at( this->circ_mod(idx.kspace_encode_step_2 - ang_lims.center,num_diff_shifts)) ) / float(num_diff_shifts);
 
     float pe_radius = idx.kspace_encode_step_1 - rad_lims.center;
     pe_radius = (pe_radius==0) ? pe_radius : pe_radius+rad_shift;
