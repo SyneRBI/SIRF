@@ -69,7 +69,7 @@ if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
     endif()
 else()
     set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
-    MESSAGE(WARNING "The Gadgetron Toolboxes requried for radial gridding were NOT FOUND. Non-caratesian encoding will NOT BE compiled.")
+    MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-caratesian encoding will NOT BE compiled.")
 endif()
 
 add_library(cgadgetron ${CGADGETRON_SOURCES})
