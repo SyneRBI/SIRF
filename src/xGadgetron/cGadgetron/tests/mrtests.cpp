@@ -228,10 +228,66 @@ bool test_acq_mod_norm(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
     return ok;
 }
 
+#include <ismrmrd/ismrmrd.h>
+
+void edit_acq(const char* in, const char* out)
+{
+	std::string SIRF_PATH = getenv("SIRF_PATH");
+	std::string path_in = SIRF_PATH + in;
+	std::string path_out = out;
+	gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+	AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+	av.read(path_in);
+	int na = av.number();
+	std::cout << na << " acquisitions read from " << path_in << '\n';
+	int acq_dim[10];
+	av.get_acquisitions_dimensions((size_t)acq_dim);
+	std::cout << "acquisitions dimensions: "
+		<< acq_dim[0] << " by "
+		<< acq_dim[1] << " by "
+		<< acq_dim[2] << '\n';
+	ISMRMRD::Acquisition acq;
+	for (int i = 0; i < na; i++) {
+		av.get_acquisition(i, acq);
+		float* read_dir = acq.read_dir();
+		float* phase_dir = acq.phase_dir();
+		float* slice_dir = acq.slice_dir();
+		if (i == 0) {
+			std::cout << "in:\n";
+			std::cout << read_dir[0] << ',' << read_dir[1] << ',' << read_dir[2] << '\n';
+			std::cout << phase_dir[0] << ',' << phase_dir[1] << ',' << phase_dir[2] << '\n';
+			std::cout << slice_dir[0] << ',' << slice_dir[1] << ',' << slice_dir[2] << '\n';
+		}
+		read_dir[0] = 1.0f;
+		read_dir[1] = 0.0f;
+		read_dir[2] = 0.0f;
+		phase_dir[0] = 0.0f;
+		phase_dir[1] = 1.0f;
+		phase_dir[2] = 0.0f;
+		slice_dir[0] = 0.0f;
+		slice_dir[1] = 0.0f;
+		slice_dir[2] = 1.0f;
+		if (i == 0) {
+			std::cout << "out:\n";
+			std::cout << read_dir[0] << ',' << read_dir[1] << ',' << read_dir[2] << '\n';
+			std::cout << phase_dir[0] << ',' << phase_dir[1] << ',' << phase_dir[2] << '\n';
+			std::cout << slice_dir[0] << ',' << slice_dir[1] << ',' << slice_dir[2] << '\n';
+		}
+		av.set_acquisition(i, acq);
+	}
+	std::cout << "saving edited acquisition data to " << out << "...";
+	av.write(out);
+	std::cout << "done\n";
+}
+
 int main ( int argc, char* argv[])
 {
 
 	try{
+		if (argc == 3) {
+			edit_acq(argv[1], argv[2]);
+			return 0;
+		}
 
         std::string SIRF_PATH;
         if (argc==1)
