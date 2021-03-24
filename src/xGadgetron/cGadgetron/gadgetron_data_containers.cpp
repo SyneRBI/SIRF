@@ -556,12 +556,12 @@ MRAcquisitionData::sort_by_time()
 
 }
 
-std::vector<KSpaceSorting::SetType > MRAcquisitionData::get_kspace_order() const
+std::vector<KSpaceSubset::SetType > MRAcquisitionData::get_kspace_order() const
 {
     if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
 
-    std::vector<KSpaceSorting::SetType > output;
+    std::vector<KSpaceSubset::SetType > output;
     for(unsigned i = 0; i<sorting_.size(); ++i)
     {
         if(!sorting_.at(i).get_idx_set().empty())
@@ -585,7 +585,7 @@ static int get_num_enc_states( const ISMRMRD::Optional<ISMRMRD::Limit>& enc_lim)
 
 void MRAcquisitionData::organise_kspace()
 {
-    std::vector<KSpaceSorting>().swap(this->sorting_);
+    std::vector<KSpaceSubset>().swap(this->sorting_);
 
     const ISMRMRD::IsmrmrdHeader header = this->acquisitions_info().get_IsmrmrdHeader();
 
@@ -613,11 +613,11 @@ void MRAcquisitionData::organise_kspace()
     for(int iset= 0; iset <NSet; iset++)
     for(int iseg=0;   iseg<NSegm; ++iseg)
     {
-        KSpaceSorting::TagType tag{ia, is, ic, ip, ir, iset, iseg};
+        KSpaceSubset::TagType tag{ia, is, ic, ip, ir, iset, iseg};
         for(int i=7; i<tag.size(); ++i)
             tag[i]=0; // ignore user ints so far
 
-        KSpaceSorting sorting(tag);
+        KSpaceSubset sorting(tag);
         this->sorting_.push_back(sorting);
     }
 
@@ -626,12 +626,12 @@ void MRAcquisitionData::organise_kspace()
     {
         this->get_acquisition(i, acq);
 
-        KSpaceSorting::TagType tag = KSpaceSorting::get_tag_from_acquisition(acq);
+        KSpaceSubset::TagType tag = KSpaceSubset::get_tag_from_acquisition(acq);
         int access_idx = (((((tag[0] * NSlice + tag[1])*NCont + tag[2])*NPhase + tag[3])*NRep + tag[4])*NSet + tag[5])*NSegm + tag[6];
         this->sorting_.at(access_idx).add_idx_to_set(i);
     }
     this->sorting_.erase(
-                std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSorting& s){return s.get_idx_set().empty();}),
+                std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSubset& s){return s.get_idx_set().empty();}),
                 sorting_.end());
 }
 
@@ -879,7 +879,7 @@ AcquisitionsVector::copy_acquisitions_data(const MRAcquisitionData& ac)
 	}
 }
 
-KSpaceSorting::TagType KSpaceSorting::get_tag_from_img(const CFImage& img)
+KSpaceSubset::TagType KSpaceSubset::get_tag_from_img(const CFImage& img)
 {
     TagType tag;
 
@@ -898,7 +898,7 @@ KSpaceSorting::TagType KSpaceSorting::get_tag_from_img(const CFImage& img)
 }
 
 
-KSpaceSorting::TagType KSpaceSorting::get_tag_from_acquisition(ISMRMRD::Acquisition acq)
+KSpaceSubset::TagType KSpaceSubset::get_tag_from_acquisition(ISMRMRD::Acquisition acq)
 {
     TagType tag;
     tag[0] = acq.idx().average;
@@ -915,7 +915,7 @@ KSpaceSorting::TagType KSpaceSorting::get_tag_from_acquisition(ISMRMRD::Acquisit
     return tag;
 }
 
-void KSpaceSorting::print_tag(const TagType& tag)
+void KSpaceSubset::print_tag(const TagType& tag)
 {
     std::cout << "(";
 
@@ -925,7 +925,7 @@ void KSpaceSorting::print_tag(const TagType& tag)
     std::cout << ")" << std::endl;
 }
 
-void KSpaceSorting::print_acquisition_tag(ISMRMRD::Acquisition acq)
+void KSpaceSubset::print_acquisition_tag(ISMRMRD::Acquisition acq)
 {
     TagType tag = get_tag_from_acquisition(acq);
     print_tag(tag);
@@ -1721,13 +1721,13 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
     return CFImage(*( (CFImage*)ptr_cf_img));
 }
 
-CFImage CoilSensitivitiesVector::get_csm_as_cfimage(const KSpaceSorting::TagType tag, const int offset) const
+CFImage CoilSensitivitiesVector::get_csm_as_cfimage(const KSpaceSubset::TagType tag, const int offset) const
 {
     for(int i=0; i<this->items();++i)
     {
         size_t const access_idx = ((offset + i) % this->items());
         CFImage csm_img = get_csm_as_cfimage(access_idx);
-        KSpaceSorting::TagType tag_csm = KSpaceSorting::get_tag_from_img(csm_img);
+        KSpaceSubset::TagType tag_csm = KSpaceSubset::get_tag_from_img(csm_img);
 
         if(tag_csm[1] == tag[1] && tag_csm[2]==0) //tag[1]=slice, tag[2]=contrast
             return csm_img;
@@ -1761,7 +1761,7 @@ void CoilSensitivitiesVector::coilchannels_from_combined_image(GadgetronImageDat
         void* vptr_src_img = iw_src.ptr_image();
         CFImage* ptr_src_img = static_cast<CFImage*>(vptr_src_img);
 
-        CFImage coilmap = get_csm_as_cfimage( KSpaceSorting::get_tag_from_img(*ptr_src_img), i_img);
+        CFImage coilmap = get_csm_as_cfimage( KSpaceSubset::get_tag_from_img(*ptr_src_img), i_img);
 
         CFImage dst_img(coilmap);
         dst_img.setHead((*ptr_src_img).getHead());
@@ -1815,7 +1815,7 @@ void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& c
 
         CFImage* ptr_src_img = static_cast<CFImage*>(vptr_src_img);
 
-        CFImage coilmap= get_csm_as_cfimage(KSpaceSorting::get_tag_from_img(*ptr_src_img), i_img);
+        CFImage coilmap= get_csm_as_cfimage(KSpaceSubset::get_tag_from_img(*ptr_src_img), i_img);
 
         int const Nx = (int)coilmap.getMatrixSizeX();
         int const Ny = (int)coilmap.getMatrixSizeY();
