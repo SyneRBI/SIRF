@@ -388,7 +388,7 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
     cc.forward(images_channelresolved, ic);
 
     ac.sort();
-    std::vector<KSpaceSorting> kspace_sorting = ac.get_kspace_sorting();
+    std::vector<KSpaceSubset> kspace_sorting = ac.get_kspace_sorting();
 
     if( kspace_sorting.size() != images_channelresolved.number() )
         throw LocalisedException("Number of images does not match number of acquisition data bins  ", __FILE__, __LINE__);
@@ -399,10 +399,10 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
         void* vptr_img = iw.ptr_image();
         CFImage* ptr_img = static_cast<CFImage*>(vptr_img);
 
-        auto tag_img = KSpaceSorting::get_tag_from_img(*ptr_img);
+        auto tag_img = KSpaceSubset::get_tag_from_img(*ptr_img);
 
         sirf::AcquisitionsVector subset;
-        KSpaceSorting::SetType idx_set;
+        KSpaceSubset::SetType idx_set;
         for(int j=0; j<kspace_sorting.size(); ++j)
         {
             if(tag_img == kspace_sorting[j].get_tag())

@@ -132,13 +132,13 @@ namespace sirf {
     \brief Class to keep track of order in k-space
     *
     * The entirety of data consists of all acquisitions in the container. However,
-    * the individual acquisitions belong to different dimensions of k-space. These
-    * dimensions may include slice, contrast, repetition etc.
-    * This class is used to keep track of what acquisitions belong to which dimension.
+    * the individual acquisitions belong to different subsets of k-space. These
+    * each have a different slice, contrast, repetition etc.
+    * This class is used to keep track of what acquisitions belong to which subset.
     *
 
     */
-    class KSpaceSorting
+    class KSpaceSubset
     {
         static int const num_kspace_dims_ = 7 + ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS;
 
@@ -147,17 +147,17 @@ namespace sirf {
         typedef std::array<int, num_kspace_dims_> TagType;
         typedef std::vector<int> SetType;
 
-        KSpaceSorting(){
+        KSpaceSubset(){
             for(int i=0; i<num_kspace_dims_; ++i)
                 this->tag_[i] = -1;
         }
 
-        KSpaceSorting(TagType tag){
+        KSpaceSubset(TagType tag){
             this->tag_ = tag;
             this->idx_set_ = {};
         }
 
-        KSpaceSorting(TagType tag, SetType idx_set){
+        KSpaceSubset(TagType tag, SetType idx_set){
             this->tag_ = tag;
             this->idx_set_ = idx_set;
         }
@@ -313,10 +313,10 @@ namespace sirf {
         * All acquisitions belong to only one subset in a multi-dimensional k-space.
         * This function returns a vector of sets of indices belonging to the acquisitions of the individual subsets.
         */
-        std::vector<KSpaceSorting::SetType > get_kspace_order() const;
+        std::vector<KSpaceSubset::SetType > get_kspace_order() const;
 
         //! Function to get the all KSpaceSorting of the MRAcquisitionData
-        std::vector<KSpaceSorting> get_kspace_sorting() const { return this->sorting_; }
+        std::vector<KSpaceSubset> get_kspace_sorting() const { return this->sorting_; }
 
         //! Function to go through Acquisitions and assign them to their k-space dimension
         /*!
@@ -358,7 +358,7 @@ namespace sirf {
 	protected:
 		bool sorted_ = false;
 		std::vector<int> index_;
-        std::vector<KSpaceSorting> sorting_;
+        std::vector<KSpaceSubset> sorting_;
 		AcquisitionsInfo acqs_info_;
 
 		static std::string _storage_scheme;
@@ -1082,7 +1082,7 @@ namespace sirf {
         }
 
         CFImage get_csm_as_cfimage(size_t const i) const;
-        CFImage get_csm_as_cfimage(const KSpaceSorting::TagType tag, const int offset) const;
+        CFImage get_csm_as_cfimage(const KSpaceSubset::TagType tag, const int offset) const;
 
 
         void get_dim(size_t const num_csm, int* dim) const
