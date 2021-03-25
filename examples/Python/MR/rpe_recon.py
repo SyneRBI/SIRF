@@ -59,10 +59,14 @@ import numpy as np
 def calc_unit_dcf(acq_data):
 
     traj = np.transpose(get_grpe_trajectory(acq_data))
+    ramp_filter = np.linalg.norm(traj, axis=0)
 
     traj, inverse, counts = np.unique(traj, return_inverse=True, return_counts=True, axis=1)
     
-    dcf = ( 1.0 / counts)[inverse]
+    num_angles = np.max(counts)
+    
+    dcf = ( 1.0 / counts)[inverse]  + num_angles * ramp_filter 
+    
     max_traj_rad = np.max(np.linalg.norm(traj, axis=0))
     dcf_norm =  np.sum(dcf) / (max_traj_rad**2 * np.pi)
     dcf = dcf / dcf_norm
@@ -118,6 +122,7 @@ def main():
         
         if show_plot:
             recon_img.show(title = 'Reconstructed images (magnitude)')
+            
     else:
         print('---\n Skipping non-cartesian code...')
 
