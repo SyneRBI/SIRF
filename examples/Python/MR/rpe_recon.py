@@ -15,7 +15,7 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -n <bool>, --non-cartesian  run recon iff non-cartesian code was compiled 
+  -n <bool>, --no-cart=<bool> run recon iff non-cartesian code was compiled 
                               [default: False]
   --non-interactive           do not show plots
 '''
@@ -52,7 +52,8 @@ if data_path is None:
     data_path = examples_data_path('MR') + '/zenodo/'
 output_file = args['--output']
 show_plot = not args['--non-interactive']
-run_recon = bool(args['--non-cartesian'])
+
+run_recon = str(args['--no-cart']) == 'True'
 
 import numpy as np
     
@@ -100,10 +101,9 @@ def main():
     print('---\n computing density weights...')
     dcf = calc_ramlak_dcf(processed_data)
     processed_data = set_densitycompensation_as_userfloat(processed_data, dcf)
-
-    print("Am i running the rest of the code? : " + str(run_recon))
     
     if run_recon is True:
+    
         print('---\n computing coil sensitivity maps...')
         csms = CoilSensitivityData()
         csms.smoothness = 10
