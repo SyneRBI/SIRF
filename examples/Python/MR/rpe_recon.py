@@ -56,7 +56,7 @@ run_recon = bool(args['--non-cartesian'])
 
 import numpy as np
     
-def calc_unit_dcf(acq_data):
+def calc_ramlak_dcf(acq_data):
 
     traj = np.transpose(get_grpe_trajectory(acq_data))
     ramp_filter = np.linalg.norm(traj, axis=0)
@@ -98,7 +98,7 @@ def main():
     processed_data = set_grpe_trajectory(processed_data)
     
     print('---\n computing density weights...')
-    dcf = calc_unit_dcf(processed_data)
+    dcf = calc_ramlak_dcf(processed_data)
     processed_data = set_densitycompensation_as_userfloat(processed_data, dcf)
 
     print("Am i running the rest of the code? : " + str(run_recon))
@@ -122,13 +122,9 @@ def main():
         
         if show_plot:
             recon_img.show(title = 'Reconstructed images (magnitude)')
-            
+    
     else:
         print('---\n Skipping non-cartesian code...')
-
-    
-        
-
 
 try:
     main()
