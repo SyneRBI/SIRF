@@ -506,11 +506,14 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
 #endif
 
 
-
 int main ( int argc, char* argv[])
 {
 
 	try{
+		if (argc == 3) {
+			edit_acq(argv[1], argv[2]);
+			return 0;
+		}
 
         std::string SIRF_PATH;
         if (argc==1)

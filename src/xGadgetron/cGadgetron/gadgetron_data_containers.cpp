@@ -1583,7 +1583,9 @@ GadgetronImagesVector::set_up_geom_info()
 
     // Check that read, phase and slice directions are all unit vectors
     if (!(is_unit_vector(ih1.read_dir) && is_unit_vector(ih1.phase_dir) && is_unit_vector(ih1.slice_dir))) {
+#ifndef NDEBUG
         std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.\n";
+#endif
         return;
     }
 
