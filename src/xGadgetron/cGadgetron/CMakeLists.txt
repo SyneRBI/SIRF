@@ -35,7 +35,7 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
 endif()
 
 set(CGADGETRON_SOURCES cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp
-    gadgetron_fftw.cpp ismrmrd_fftw.cpp ismrmrd_phantom.cpp shepp_logan_phantom.cpp encoding.cpp)
+    gadgetron_fftw.cpp ismrmrd_fftw.cpp ismrmrd_phantom.cpp shepp_logan_phantom.cpp fourierencoding.cpp)
 
 
 find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore

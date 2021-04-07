@@ -1,4 +1,4 @@
-#include "sirf/Gadgetron/encoding.h"
+#include "sirf/Gadgetron/fourierencoding.h"
 
 #include <sstream>
 #include <math.h>
@@ -117,7 +117,7 @@ std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& a
     return traj;
 }
 
-void sirf::FourierEncoding::match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq)
+void sirf::FourierEncoding::match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq) const
 {
 
     auto acq_hdr = acq.getHead();
@@ -139,7 +139,7 @@ void sirf::FourierEncoding::match_img_header_to_acquisition(CFImage& img, const 
 
 }
 
-void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
+void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, CFImage& img) const
 {
 
     std::string par;
@@ -167,7 +167,6 @@ void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImag
         kz_lim = e.encodingLimits.kspace_encoding_step_2.get();
 
 
-    CFImage img = *ptr_img;
 
     unsigned int nx = img.getMatrixSizeX();
     unsigned int ny = img.getMatrixSizeY();
@@ -191,7 +190,7 @@ void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImag
         for (unsigned int z = 0; z < nz; z++) {
             for (unsigned int y = 0; y < ny; y++) {
                 for (unsigned int x = 0; x < nx; x++) {
-                    ci(x, y, z, c) = (complex_float_t)img(x, y, z, c);
+                    ci(x, y, z, c) = (complex_float_t)img.operator()(x, y, z, c);
                 }
             }
         }
@@ -216,7 +215,7 @@ void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImag
     }
 }
 
-void sirf::CartesianFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
+void sirf::CartesianFourierEncoding::backward(CFImage& img, const MRAcquisitionData& ac) const
 {
 
     if(ac.items()<1)
@@ -292,11 +291,11 @@ void sirf::CartesianFourierEncoding::backward(CFImage* ptr_img, const MRAcquisit
     if( ny!=ny_img || nz!=nz_img)
         throw LocalisedException("Phase and slice encoding are not consistent between reconstructed image and k-space.", __FILE__, __LINE__);
 
-    ptr_img->resize(nx_img, ny_img, nz_img, nc);
-    memcpy(ptr_img->begin(), ci.begin(), ci.getDataSize());
+    img.resize(nx_img, ny_img, nz_img, nc);
+    memcpy((&img)->begin(), ci.begin(), ci.getDataSize());
 
     // set the header correctly of the image
-    this->match_img_header_to_acquisition(*ptr_img, acq);
+    this->match_img_header_to_acquisition(img, acq);
 
 }
 

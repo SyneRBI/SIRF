@@ -396,8 +396,7 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
     for( unsigned int i=0; i<images_channelresolved.number(); ++i)
     {
         ImageWrap iw = images_channelresolved.image_wrap(i);
-        void* vptr_img = iw.ptr_image();
-        CFImage* ptr_img = static_cast<CFImage*>(vptr_img);
+        CFImage* ptr_img = static_cast<CFImage*>(iw.ptr_image());
 
         auto tag_img = KSpaceSubset::get_tag_from_img(*ptr_img);
 
@@ -416,7 +415,7 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
         if(subset.number() == 0)
             throw LocalisedException("You didn't find rawdata corresponding to your image in the acquisition data.", __FILE__, __LINE__);
 
-        this->sptr_enc_->forward(subset, ptr_img);
+        this->sptr_enc_->forward(subset, *ptr_img);
         ac.set_subset(subset, idx_set); //assume forward does not reorder the acquisitions
     }
     ac.sort();
@@ -444,20 +443,16 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& c
     GadgetronImagesVector iv;
     iv.set_meta_data(ac.acquisitions_info());
 
-
-//    ac.sort();
     auto sort_idx = ac.get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
         ac.get_subset(subset, sort_idx[i]);
-
-        CFImage img;
-        this->sptr_enc_->backward(&img, subset);
-
-        void* vptr_img = new CFImage(img);// god help me I don't trust this!
-        ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img);
+        
+		CFImage* img_ptr = new CFImage();
+		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!
+		this->sptr_enc_->backward(*img_ptr, subset);
 
         iv.append(iw);
 

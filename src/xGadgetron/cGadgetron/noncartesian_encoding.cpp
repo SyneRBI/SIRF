@@ -81,7 +81,7 @@ GadgetronTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisition
     return traj;
 }
 
-void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
+void RPEFourierEncoding::backward(CFImage& img, const MRAcquisitionData& ac) const
 {
     ASSERT( ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
 
@@ -120,7 +120,7 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 
     Gridder_2D nufft(img_slice_dims, traj);
 
-    ptr_img->resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
+    img.resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
 
     float const fft_normalisation_factor = sqrt(float(rec_space.matrixSize.x));
 
@@ -141,34 +141,34 @@ void RPEFourierEncoding::backward(CFImage* ptr_img, const MRAcquisitionData& ac)
 
             for(size_t iz=0; iz<rec_space.matrixSize.z; ++iz)
             for(size_t iy=0; iy<rec_space.matrixSize.y; ++iy)
-                ptr_img->operator()(islice, iy, iz, ichannel) = fft_normalisation_factor * imgdata_slice(iy, iz);
+                img.operator()(islice, iy, iz, ichannel) = fft_normalisation_factor * imgdata_slice(iy, iz);
         }
     }
 
-    ptr_img->setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
+    img.setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
 
     ISMRMRD::Acquisition acq;
     ac.get_acquisition(0,acq);
 
-    this->match_img_header_to_acquisition(*ptr_img, acq);
+    this->match_img_header_to_acquisition(img, acq);
 }
 
-void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage* ptr_img)
+void RPEFourierEncoding::forward(MRAcquisitionData& ac, CFImage& img) const
 {
 
     ASSERT( ac.number() >0, "Give a non-empty rawdata container if you want to use the rpe forward.");
     ASSERT( ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER, "Give a MRAcquisitionData reference with the trajectory type OTHER.");
 
     std::vector<size_t> img_dims;
-    img_dims.push_back(ptr_img->getMatrixSizeX());
-    img_dims.push_back(ptr_img->getMatrixSizeY());
-    img_dims.push_back(ptr_img->getMatrixSizeZ());
-    img_dims.push_back(ptr_img->getNumberOfChannels());
+    img_dims.push_back(img.getMatrixSizeX());
+    img_dims.push_back(img.getMatrixSizeY());
+    img_dims.push_back(img.getMatrixSizeZ());
+    img_dims.push_back(img.getNumberOfChannels());
 
     CFGThoNDArr img_data(img_dims);
 
-    for(int i=0; i<ptr_img->getNumberOfDataElements();++i)
-        *(img_data.begin()+i) = *(ptr_img->getDataPtr()+i);
+    for(int i=0; i<img.getNumberOfDataElements();++i)
+        *(img_data.begin()+i) = *(img.getDataPtr()+i);
 
     GadgetronTrajectoryType2D traj = this->get_trajectory(ac);
     size_t const num_kdata_pts = traj.get_number_of_elements();

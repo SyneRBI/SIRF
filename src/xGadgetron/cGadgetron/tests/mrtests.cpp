@@ -37,7 +37,7 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
 
-#include "sirf/Gadgetron/encoding.h"
+#include "sirf/Gadgetron/fourierencoding.h"
 #include "sirf/Gadgetron/chain_lib.h"
 
 #include "mrtest_auxiliary_funs.h"
@@ -382,11 +382,12 @@ bool test_rpe_bwd(MRAcquisitionData& av)
            sirf::AcquisitionsVector subset;
            av.get_subset(subset, sort_idx[i]);
 
-           CFImage img;
-           sptr_enc->backward(&img, subset);
+           CFImage* ptr_img = new CFImage();// god help me I don't trust this!
+           ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, ptr_img);
 
-           void* vptr_img = new CFImage(img);// god help me I don't trust this!
-           ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img);
+           sptr_enc->backward(*ptr_img, subset);
+
+           
 
            img_vec.append(iw);
 
@@ -430,20 +431,20 @@ bool test_rpe_fwd(MRAcquisitionData& av)
            sirf::AcquisitionsVector subset;
            av.get_subset(subset, sort_idx[i]);
 
-           CFImage img;
-           sptr_enc->backward(&img, subset);
+           CFImage* ptr_img = new CFImage();
+           ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, ptr_img);
 
-           void* vptr_img = new CFImage(img);// god help me I don't trust this!
+           sptr_enc->backward(*ptr_img, subset);
 
-           ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img);
            img_vec.append(iw);
 
-           sptr_enc->forward(subset, &img);
+           sptr_enc->forward(subset, *ptr_img);
 
-           sptr_enc->backward(&img, subset);
+           sptr_enc->backward(*ptr_img, subset);
 
-           void* vptr_img_bfb = new CFImage(img);// god help me I don't trust this!
-           ImageWrap iw_bfb(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img_bfb);
+           CFImage* ptr_img_bfb = new CFImage(*ptr_img);// god help me I don't trust this!
+           ImageWrap iw_bfb(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, ptr_img_bfb);
+           
            img_vec.append(iw_bfb);
 
            av.set_subset(subset, sort_idx[i]); //assume forward does not reorder the acquisitions

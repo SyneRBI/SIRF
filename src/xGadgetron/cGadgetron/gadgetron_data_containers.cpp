@@ -1703,11 +1703,9 @@ CoilImagesVector::calculate(MRAcquisitionData& ac, int calibration)
         sirf::AcquisitionsVector subset;
         ac.get_subset(subset, sort_idx[i]);
 
-        CFImage img;
-        this->sptr_enc_->backward(&img, subset);
-
-        void* vptr_img = new CFImage(img);// god help me I don't trust this!
-        ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, vptr_img);
+		CFImage* img_ptr = new CFImage();
+		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!
+		this->sptr_enc_->backward(*img_ptr, subset);
 
         this->append(iw);
     }

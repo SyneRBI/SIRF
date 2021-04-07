@@ -121,10 +121,10 @@ class FourierEncoding
 public:
     FourierEncoding(){}
 
-    virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img)=0;
-    virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac)=0;
+    virtual void forward(MRAcquisitionData& ac, CFImage& img) const =0;
+    virtual void backward(CFImage& img, const MRAcquisitionData& ac) const =0;
 
-    void match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq);
+    void match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq) const;
 };
 
 /*!
@@ -143,8 +143,8 @@ class CartesianFourierEncoding : public FourierEncoding
 public:
     CartesianFourierEncoding() : FourierEncoding() {}
 
-    virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img);
-    virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac);
+    virtual void forward(MRAcquisitionData& ac, CFImage& img) const;
+    virtual void backward(CFImage& img, const MRAcquisitionData& ac) const;
 
 };
 

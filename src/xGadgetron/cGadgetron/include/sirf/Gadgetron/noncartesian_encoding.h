@@ -31,7 +31,7 @@ limitations under the License.
 #ifndef NONCARTESIAN_ENCODING_H
 #define NONCARTESIAN_ENCODING_H
 
-#include <sirf/Gadgetron/encoding.h>
+#include <sirf/Gadgetron/fourierencoding.h>
 
 #include <gadgetron/hoNDArray.h>
 #include <gadgetron/vector_td.h>
@@ -62,8 +62,8 @@ class RPEFourierEncoding : public FourierEncoding
 public:
     RPEFourierEncoding(): FourierEncoding() {}
 
-    virtual void forward(MRAcquisitionData& ac, const CFImage* ptr_img);
-    virtual void backward(CFImage* ptr_img, const MRAcquisitionData& ac);
+    virtual void forward(MRAcquisitionData& ac, CFImage& img) const;
+    virtual void backward(CFImage& img, const MRAcquisitionData& ac) const;
 protected:
     GadgetronTrajectoryType2D get_trajectory(const MRAcquisitionData& ac) const;
 
