@@ -38,6 +38,8 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_x.h"
 
 #include "sirf/Gadgetron/fourierencoding.h"
+#include "sirf/Gadgetron/trajectorypreparation.h"
+
 #include "sirf/Gadgetron/chain_lib.h"
 
 #include "mrtest_auxiliary_funs.h"

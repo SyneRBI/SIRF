@@ -61,6 +61,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "sirf/Gadgetron/noncartesian_encoding.h"
+#include "sirf/Gadgetron/trajectorypreparation.h"
 
 using namespace sirf;
 using namespace ISMRMRD;

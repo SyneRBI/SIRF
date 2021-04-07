@@ -27,17 +27,11 @@ limitations under the License.
 \author SyneRBI
 */
 
-#ifndef ENCODING_H
-#define ENCODING_H
+#ifndef FOURIERENCODING_H
+#define FOURIERENCODING_H
 
-#include <vector>
-
-#include <ismrmrd/xml.h>
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
-//#include "sirf/Gadgetron/gadgetron_image_wrap.h"
 #include "sirf/iUtilities/LocalisedException.h"
-
-#include <ismrmrd/ismrmrd.h>
 
 /*!
 \file
@@ -50,67 +44,6 @@ limitations under the License.
 
 
 namespace sirf{
-
-/*!
-\ingroup Gadgetron Extensions
-\brief Abstract class defining the interface to set trajectories
-
-* The strategy is to perform the trajectory computation as a pre-processsing step to the
-* reconstruction. The ISMRMRD format has a 3D trajectory data field in their ISRMRMRD::Acquisition classe.
-* The interface provides set_trajectory() which populates this data field depending on the implementation.
-*/
-class aTrajectoryPreparation{
-
-public:
-    aTrajectoryPreparation(){}
-    virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq) =0;
-
-protected:
-
-    void update_acquisitions_info(sirf::MRAcquisitionData& mr_acq);
-
-    ISMRMRD::Encoding kspace_encoding_;
-    ISMRMRD::TrajectoryType traj_type_;
-
-    uint16_t traj_dim_;
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const =0;
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const =0;
-};
-
-
-typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
-
-/*!
-\ingroup Gadgetron Extensions
-\brief Class to set the gold-angle radial phase encoding (RPE) trajecotry
-*
-* Computation is based on doi:10.1002/mrm.22102
-* The data reconstructed with this trajectory are parallel readouts arranged on
-* a non-cartesian grid in the phase-slice-encoding plane.
-* As a cartesian FFT is performed along the readout-direction the 0-dimension
-* of the trajectory is set to 0 for all data points.
-*/
-
-class GRPETrajectoryPrep : public aTrajectoryPreparation {
-
-public:
-    GRPETrajectoryPrep(): aTrajectoryPreparation() {
-        traj_type_ = ISMRMRD::TrajectoryType::OTHER;
-        traj_dim_ = 3;
-    }
-
-    virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq);
-    static SIRFTrajectoryType2D get_trajectory(const sirf::MRAcquisitionData& mr_acq);
-
-protected:
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const;
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const;
-    uint16_t circ_mod(uint16_t const a, uint16_t const b) const { return (((a%b) + b ) % b);}
-
-    const std::vector< uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
-
-};
-
 /*!
 \ingroup Gadgetron Extensions
 \brief Abstract class defining the interface to perform Fourier transforms
@@ -145,9 +78,7 @@ public:
 
     virtual void forward(MRAcquisitionData& ac, CFImage& img) const;
     virtual void backward(CFImage& img, const MRAcquisitionData& ac) const;
-
 };
 
-
 } // namespace sirf
-#endif // ENCODING_H
+#endif // FOURIERENCODING_H
