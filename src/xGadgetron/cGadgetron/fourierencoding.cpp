@@ -134,11 +134,11 @@ void sirf::CartesianFourierEncoding::backward(CFImage& img, const MRAcquisitionD
     if(nx_img != readout)
         throw LocalisedException("Number of readout points and reconstructed image dimension in readout direction are assumed the same.",   __FILE__, __LINE__);
 
-    std::vector<size_t> dims, dims_dcf;
+    std::vector<size_t> dims;
 
     dims.push_back(readout);
-    dims.push_back(ny); dims_dcf.push_back(ny);
-    dims.push_back(nz); dims_dcf.push_back(nz);
+    dims.push_back(ny);
+    dims.push_back(nz);
     dims.push_back(nc);
 
     ISMRMRD::Limit ky_lim, kz_lim(0,0,0);
@@ -148,30 +148,19 @@ void sirf::CartesianFourierEncoding::backward(CFImage& img, const MRAcquisitionD
         kz_lim = e.encodingLimits.kspace_encoding_step_2.get();
 
     ISMRMRD::NDArray<complex_float_t> ci(dims);
-    ISMRMRD::NDArray<float> dcf(dims_dcf);
-
     memset(ci.getDataPtr(), 0, ci.getDataSize());
-    memset(dcf.getDataPtr(), 0, dcf.getDataSize());
-
+    
     for (int a=0; a < ac.number(); a++) {
         ac.get_acquisition(a, acq);
         int y = ny/2 - ky_lim.center + acq.idx().kspace_encode_step_1 ;
         int z = nz/2 - kz_lim.center + acq.idx().kspace_encode_step_2;
-        dcf(y, z) += (float)1;
+    
         for (unsigned int c = 0; c < nc; c++) {
             for (unsigned int s = 0; s < readout; s++) {
                 ci(s, y, z, c) += acq.data(s, c);
             }
         }
     }
-
-    // correct for multi-acquired PE points
-    for(unsigned int c=0; c<nc; ++c)
-    for(unsigned int z=0; z<nz; ++z)
-    for(unsigned int y=0; y<ny; ++y)
-    for(unsigned int x=0; x<readout; ++x)
-        ci(x,y,z,c) /= (complex_float_t)std::max(1.f, dcf(y,z));
-
 
     // now if image and kspace have different dimension then you need to interpolate or pad with zeros here
     ifft3c(ci);

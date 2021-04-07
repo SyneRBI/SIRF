@@ -96,20 +96,14 @@ void RPEFourierEncoding::backward(CFImage& img, const MRAcquisitionData& ac) con
 
     CFGThoNDArr kspace_data(kdata_dims);
 
-//    #pragma omp parallel
     for(int ia=0; ia<ac.number(); ++ia)
     {
         ISMRMRD::Acquisition acq;
         ac.get_acquisition(ia, acq);
 
-        float const dcw = acq.user_float()[0];
-        if(dcw <= 0)
-            throw LocalisedException("The density is smaller or equal to zero. Please use set_user_float() to set it to a value > 0." , __FILE__, __LINE__);
-
-
         for(int is=0; is<acq.number_of_samples(); ++is)
             for(int ic=0; ic<acq.active_channels(); ++ic)
-                kspace_data(is, ia, ic) =  acq.data(is,ic) * dcw;
+                kspace_data(is, ia, ic) =  acq.data(is,ic);
     }
 
     Gadgetron::hoNDFFT< float >::instance()->ifft1c(kspace_data);
