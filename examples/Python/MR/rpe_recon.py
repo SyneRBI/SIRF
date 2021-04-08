@@ -15,7 +15,7 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -n <bool>, --no-cart=<bool> run recon iff non-cartesian code was compiled 
+  -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled 
                               [default: False]
   --non-interactive           do not show plots
 '''
@@ -53,28 +53,11 @@ if data_path is None:
 output_file = args['--output']
 show_plot = not args['--non-interactive']
 
-run_recon = str(args['--no-cart']) == 'True'
+run_recon = str(args['--non-cart']) == 'True'
 
+import sys
 import numpy as np
     
-def calc_ramlak_dcf(acq_data):
-
-    traj = np.transpose(get_grpe_trajectory(acq_data))
-    ramp_filter = np.linalg.norm(traj, axis=0)
-
-    traj, inverse, counts = np.unique(traj, return_inverse=True, return_counts=True, axis=1)
-    
-    num_angles = np.max(counts)
-    
-    dcf = ( 1.0 / counts)[inverse]  + num_angles * ramp_filter 
-    
-    max_traj_rad = np.max(np.linalg.norm(traj, axis=0))
-    dcf_norm =  np.sum(dcf) / (max_traj_rad**2 * np.pi)
-    dcf = dcf / dcf_norm
-  
-    return dcf
-
-
 def main():
 
     # locate the k-space raw data file
@@ -89,7 +72,7 @@ def main():
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
     processed_data  = preprocess_acquisition_data(acq_data)
-    
+
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
     processed_data.sort()
@@ -97,11 +80,7 @@ def main():
     #set the trajectory and compute the dcf
     print('---\n setting the trajectory...')
     processed_data = set_grpe_trajectory(processed_data)
-    
-    print('---\n computing density weights...')
-    dcf = calc_ramlak_dcf(processed_data)
-    processed_data = set_densitycompensation_as_userfloat(processed_data, dcf)
-    
+
     if run_recon is True:
     
         print('---\n computing coil sensitivity maps...')
@@ -118,10 +97,13 @@ def main():
         acq_model.set_coil_sensitivity_maps(csms)
     
         print('---\n Backward projection ...')
-        recon_img = acq_model.backward(processed_data)
+        #recon_img = acq_model.backward(processed_data)
+        bwd_img = acq_model.backward(processed_data)
+        inv_img = acq_model.inverse(processed_data)
         
         if show_plot:
-            recon_img.show(title = 'Reconstructed images (magnitude)')
+            bwd_img.show(title = 'Reconstructed images using backward() (magnitude)')
+            inv_img.show(title = 'Reconstructed images using inverse() (magnitude)')
     
     else:
         print('---\n Skipping non-cartesian code...')
@@ -134,3 +116,4 @@ except error as err:
     # display error information
     print('??? %s' % err.value)
     exit(1)
+
