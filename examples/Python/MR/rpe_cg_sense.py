@@ -1,10 +1,9 @@
 '''
-Example of radial phase encoding (RPE) reconstruction.
+Example of an iterative reconstruciton with radial phase encoding (RPE) data.
 
 Upper-level demo that illustrates the computation of how to use a non-cartesian 
-radial phase-encoding acquisition model to reconstruct data. The backward method
-ignores any non-uniform density in k-space and the inverse does account for it
-by using a ramp kernel as in a filtered backprojection.
+radial phase-encoding acquisition model to reconstruct data iteratively and 
+without the use of any k-space density weighting.
 
 Usage:
   rpe_recon.py [--help | options]
@@ -41,6 +40,8 @@ Options:
 
 __version__ = '0.1.0'
 from docopt import docopt
+from tqdm.auto import trange
+
 args = docopt(__doc__, version=__version__)
 
 # import engine module
@@ -57,8 +58,13 @@ show_plot = not args['--non-interactive']
 run_recon = str(args['--non-cart']) == 'True'
 
 import sys
-import numpy as np
-    
+import numpy 
+import nibabel as nib     
+
+# define symmetrical operator for cg-optimisation
+def EhE(E, image ):
+    return E.backward( E.forward(image) )
+
 def main():
 
     # locate the k-space raw data file
@@ -87,24 +93,70 @@ def main():
         print('---\n computing coil sensitivity maps...')
         csms = CoilSensitivityData()
         csms.smoothness = 10
-        
         csms.calculate(processed_data)
         
         # create acquisition model based on the acquisition parameters
         print('---\n Setting up Acquisition Model...')
     
-        acq_model = AcquisitionModel()
-        acq_model.set_up(processed_data, csms.copy())
-        acq_model.set_coil_sensitivity_maps(csms)
+        #set up the acquisition model
+        E = AcquisitionModel()
+        E.set_up(processed_data, csms.copy())
+        E.set_coil_sensitivity_maps(csms)
     
         print('---\n Backward projection ...')
-        #recon_img = acq_model.backward(processed_data)
-        bwd_img = acq_model.backward(processed_data)
-        inv_img = acq_model.inverse(processed_data)
+        # this is our first residual
+        recon_img = E.backward(processed_data)
+        recon_img.fill(0+0j) # for some reason you need to start with this set to zero
+ 
+        # now copy the pseudo-code from wikipedia for cg optimisation
+        x = recon_img
+        y = processed_data
+
+        # this is our first residual
+        r = E.backward( y ) - EhE(E,x)
+
+        # print the type
+        print('The type of r is: ' + str( type(r) ) ) 
+
+        # this is our cost function at the start
+        rr = r.norm() ** 2
+        rr0 = rr
+
+        # initialize p
+        p = r
         
-        if show_plot:
-            bwd_img.show(title = 'Reconstructed images using backward() (magnitude)')
-            inv_img.show(title = 'Reconstructed images using inverse() (magnitude)')
+        # define optimisation parameters
+        num_iter = 10
+        sufficiently_small = 1e-7
+        
+        print('Cost for k = 0: '  + str( rr/ rr0) )
+        with trange(num_iter) as iters:
+            for k in iters:
+
+                Ap = EhE(E, p )
+
+                alpha = rr / Ap.dot(p)
+
+                x = x + alpha * p
+
+                r = r - alpha * Ap
+
+                beta  = r.norm()**2 / rr
+                rr = r.norm()**2
+
+                p = r + beta * p
+
+                relative_residual = numpy.sqrt(rr/rr0)
+
+                iters.write('Cost for k = ' +str(k+1) + ': ' + str(relative_residual) )
+                iters.set_postfix(cost=relative_residual)
+
+                if( relative_residual  < sufficiently_small ):
+                    iters.write('We achieved our desired accuracy. Stopping iterative reconstruction')
+                    break
+
+                if k is num_iter-1:    
+                    print('Reached maximum number of iterations. Stopping reconstruction.')
     
     else:
         print('---\n Skipping non-cartesian code...')
