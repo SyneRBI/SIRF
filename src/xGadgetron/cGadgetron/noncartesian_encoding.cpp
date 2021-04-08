@@ -215,10 +215,6 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, CFImage& img) const
 }
 
 
-
-
-
-
 void Gridder_2D::setup_nufft(std::vector<size_t> img_dims_output, const GadgetronTrajectoryType2D &traj)
 {
     if( img_dims_output.size() != 2)
@@ -236,11 +232,7 @@ void Gridder_2D::setup_nufft(std::vector<size_t> img_dims_output, const Gadgetro
 void Gridder_2D::ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
 {
     auto sptr_const_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
-
-    float const num_img_pts = this->output_dims_[0] * this->output_dims_[1];
-    float const num_kspace_pts = kdata.get_number_of_elements();
-    float const area_trajectory = M_PI * 0.5*0.5;
-    float const normed_dcw_value = 1.0 * (float) num_img_pts / (float)num_kspace_pts * area_trajectory;
+    float const normed_dcw_value = 1.0;
 
     sptr_const_dcw ->fill(normed_dcw_value);
 

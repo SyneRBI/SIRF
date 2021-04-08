@@ -159,7 +159,9 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
-        
+        std::cout << "Assessing if operator E is adjoint by comparing <Eh k, i> and <k, E i> <>" << std::endl;        
+        std::cout << "where E is the MR acquisition model, k is k-space data and i is a random complex image." << std::endl;        
+
         sirf::CoilSensitivitiesVector csm;
         csm.calculate(ad);
         
@@ -173,7 +175,6 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
 
         // generate a random image to project onto
         int const num_total_pixels = dims["x"]*dims["y"]*dims["z"]*dims["c"]*dims["n"];
-        std::cout <<"Number of pixels is " << num_total_pixels<< std::endl;
 
         std::default_random_engine generator;
         std::normal_distribution<float> distribution(0.0,1.0);
@@ -203,7 +204,15 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
         std::cout << "Backward kdata dot random image: " << Eh_kdat_Dot_img << std::endl;
         std::cout << "Forward random image dot kdata : " << E_img_Dot_kdat  << std::endl;
 
-        bool ok =  Eh_kdat_Dot_img == E_img_Dot_kdat;
+        float const order_of_magnitude = std::min( std::abs(Eh_kdat_Dot_img), std::abs(E_img_Dot_kdat));
+        float const diff_in_scalar_prod = std::abs(Eh_kdat_Dot_img - E_img_Dot_kdat);
+        float const tolerance = 0.0001;
+        
+        std::cout <<"Level of non-adjointness is given by: |<Eh k, i> - <k, E i> <>|/max(|<Eh k, i>,<k, E i> <>|) = " <<  diff_in_scalar_prod/order_of_magnitude << std::endl;
+        std::cout <<"Accepting a relative tolerance of " << tolerance << std::endl;
+
+        
+        bool ok = diff_in_scalar_prod/order_of_magnitude < tolerance;
     
         return ok;
     }
