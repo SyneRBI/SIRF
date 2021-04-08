@@ -797,7 +797,7 @@ class AcquisitionData(DataContainer):
         '''
         list_available_trajs = ('cartesian', 'epi', 'radial', 'goldenangle', 'spiral', 'other')
         if trajname not in list_available_trajs:
-            raise AssertionError("The trajecotry you asked for is not among the available trajecotryies") 
+            raise AssertionError("The trajectory you asked for is not among the available trajectoryies") 
 
         xml_hdr = self.get_header()
         traj_id_substring = "<trajectory>"+trajname+"</trajectory>"
@@ -1513,7 +1513,7 @@ def set_grpe_trajectory(ad):
     '''    
     assert_validity(ad, AcquisitionData)
 
-    try_calling(pygadgetron.cGT_setGRPETrajecotry(ad.handle))
+    try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
     return ad
     
 def get_data_trajectory(ad):
@@ -1526,7 +1526,7 @@ def get_data_trajectory(ad):
     dims = (ad.number(), 2)
     traj = numpy.ndarray(dims, dtype = numpy.float32)
     
-    try_calling(pygadgetron.cGT_getDataTrajecotry(ad.handle, traj.ctypes.data))
+    try_calling(pygadgetron.cGT_getDataTrajectory(ad.handle, traj.ctypes.data))
     
     return traj
 

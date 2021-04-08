@@ -74,8 +74,8 @@ extern "C" {
 	void* cGT_sortAcquisitions(void* ptr_acqs);
 	void* cGT_sortAcquisitionsByTime(void* ptr_acqs);
 	void* cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info);
-    void* cGT_setGRPETrajecotry(void* ptr_acqs);
-    void* cGT_getDataTrajecotry(void* ptr_acqs, PTR_FLOAT ptr_traj);
+    void* cGT_setGRPETrajectory(void* ptr_acqs);
+    void* cGT_getDataTrajectory(void* ptr_acqs, PTR_FLOAT ptr_traj);
     void* cGT_setAcquisitionUserFloat(void* ptr_acqs, PTR_FLOAT ptr_floats, int idx);
 
 	void* cGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);

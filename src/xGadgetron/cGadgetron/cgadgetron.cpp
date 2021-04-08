@@ -769,7 +769,7 @@ cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
 
 extern "C"
 void*
-cGT_setGRPETrajecotry(void* ptr_acqs)
+cGT_setGRPETrajectory(void* ptr_acqs)
 {
     try {
         CAST_PTR(DataHandle, h_acqs, ptr_acqs);
@@ -787,7 +787,7 @@ cGT_setGRPETrajecotry(void* ptr_acqs)
 
 extern "C"
 void*
-cGT_getDataTrajecotry(void* ptr_acqs, size_t ptr_traj)
+cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 {
     try {
         CAST_PTR(DataHandle, h_acqs, ptr_acqs);
