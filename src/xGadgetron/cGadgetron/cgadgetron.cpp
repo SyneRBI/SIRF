@@ -787,7 +787,7 @@ cGT_setGRPETrajecotry(void* ptr_acqs)
 
 extern "C"
 void*
-cGT_getGRPETrajecotry(void* ptr_acqs, size_t ptr_traj)
+cGT_getDataTrajecotry(void* ptr_acqs, size_t ptr_traj)
 {
     try {
         CAST_PTR(DataHandle, h_acqs, ptr_acqs);
@@ -795,7 +795,14 @@ cGT_getGRPETrajecotry(void* ptr_acqs, size_t ptr_traj)
             objectFromHandle<MRAcquisitionData>(h_acqs);
 
         float* fltptr_traj = (float*) ptr_traj;
-        const SIRFTrajectoryType2D& traj = GRPETrajectoryPrep::get_trajectory(acqs);
+		
+		SIRFTrajectoryType2D traj;
+		
+		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+			traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+    	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+			traj = sirf::GRPETrajectoryPrep::get_trajectory(acqs);
+        
         memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(std::pair<float, float>));
 
         return new DataHandle;

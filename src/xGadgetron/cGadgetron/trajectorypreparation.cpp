@@ -30,6 +30,33 @@ void sirf::TrajectoryPreparation::update_acquisitions_info(MRAcquisitionData& mr
     mr_acq.set_acquisitions_info(ai);
 }
 
+SIRFTrajectoryType2D sirf::CartesianTrajectoryPrep::get_trajectory(const sirf::MRAcquisitionData& ac)
+{
+    if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::CARTESIAN)
+        throw std::runtime_error("Please only ask to get the trajectory for acquisition data with a Cartesian trajectory.");
+
+    if(ac.number() <= 0)
+        throw std::runtime_error("Please pass a non-empty container.");
+
+    ISMRMRD::Acquisition acq;
+
+    SIRFTrajectoryType2D traj;
+
+    for(int ia=0; ia<ac.number(); ++ia)
+    {
+        ac.get_acquisition(ia, acq);
+
+        std::pair<float, float> curr_point;
+        curr_point.first = acq.idx().kspace_encode_step_1;
+        curr_point.second = acq.idx().kspace_encode_step_2;
+
+        traj.push_back(curr_point);
+    }
+
+    return traj;
+}
+
+
 void sirf::GRPETrajectoryPrep::set_trajectory(MRAcquisitionData& mr_acq)
 {
     update_acquisitions_info(mr_acq);
@@ -56,9 +83,6 @@ SIRFTrajectoryType2D sirf::GRPETrajectoryPrep::get_trajectory(const sirf::MRAcqu
 
     if( acq.trajectory_dimensions() != 3)
         throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
-
-    std::vector<size_t> kspace_dims;
-    ac.get_kspace_dimensions(kspace_dims);
 
     SIRFTrajectoryType2D traj;
 

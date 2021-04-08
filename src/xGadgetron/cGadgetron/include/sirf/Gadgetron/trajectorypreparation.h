@@ -55,7 +55,7 @@ class TrajectoryPreparation{
 public:
     TrajectoryPreparation(){}
     virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq) =0;
-
+    
 protected:
 
     void update_acquisitions_info(sirf::MRAcquisitionData& mr_acq);
@@ -70,6 +70,19 @@ protected:
 
 
 typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
+
+/*!
+\ingroup Gadgetron Extensions
+\brief Class to get cartesian encoding phase encoding locations
+*
+* Since no computation is required for cartesian trajecoties this is not
+* inherited and only a static getter is made available.
+*/
+
+class CartesianTrajectoryPrep{ 
+public:
+    static SIRFTrajectoryType2D get_trajectory(const sirf::MRAcquisitionData& ac);
+};
 
 /*!
 \ingroup Gadgetron Extensions

@@ -56,7 +56,7 @@ public:
 
     virtual void forward(MRAcquisitionData& ac, CFImage& img) const =0;
     virtual void backward(CFImage& img, const MRAcquisitionData& ac) const =0;
-
+    
     void match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq) const;
 };
 
@@ -78,6 +78,7 @@ public:
 
     virtual void forward(MRAcquisitionData& ac, CFImage& img) const;
     virtual void backward(CFImage& img, const MRAcquisitionData& ac) const;
+    
 };
 
 } // namespace sirf

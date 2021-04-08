@@ -48,14 +48,11 @@ using namespace sirf;
 
 bool const mr_cpp_tests_writefiles = true;
 
-
-
 bool test_get_kspace_order(const MRAcquisitionData& av)
 {
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
-
 
         auto kspace_sorting_slice = av.get_kspace_order();
 
