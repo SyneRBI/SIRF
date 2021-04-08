@@ -40,7 +40,7 @@ limitations under the License.
 using namespace gadgetron;
 using namespace sirf;
 
-std::string MRAcquisitionData::_storage_scheme;
+//std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
 
 static std::string get_date_time_string()
@@ -432,6 +432,7 @@ complex_float_t a, complex_float_t b)
 		}
 	}
 	catch (...) {
+#if 0
 		AcquisitionsFile ac(acqs_info_);
 //		empty();
 		for (int i = 0, j = 0; i < n && j < m;) {
@@ -466,6 +467,7 @@ complex_float_t a, complex_float_t b)
 			j++;
 		}
 		take_over(ac);
+#endif
 	}
 	this->set_sorted(true);
 	this->organise_kspace();
@@ -488,21 +490,21 @@ MRAcquisitionData::norm() const
 	return sqrt(r);
 }
 
-MRAcquisitionData*
-MRAcquisitionData::clone_base() const
-{
-	MRAcquisitionData* ptr_ad =
-		acqs_templ_->same_acquisitions_container(this->acqs_info_);
-	for (int i = 0; i < number(); i++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		ptr_ad->append_acquisition(acq);
-	}
-	ptr_ad->set_sorted(sorted());
-	if (sorted())
-		ptr_ad->organise_kspace();
-	return ptr_ad;
-}
+//MRAcquisitionData*
+//MRAcquisitionData::clone_base() const
+//{
+//	MRAcquisitionData* ptr_ad =
+//		acqs_templ_->same_acquisitions_container(this->acqs_info_);
+//	for (int i = 0; i < number(); i++) {
+//		ISMRMRD::Acquisition acq;
+//		get_acquisition(i, acq);
+//		ptr_ad->append_acquisition(acq);
+//	}
+//	ptr_ad->set_sorted(sorted());
+//	if (sorted())
+//		ptr_ad->organise_kspace();
+//	return ptr_ad;
+//}
 
 void
 MRAcquisitionData::sort()
@@ -709,6 +711,7 @@ void MRAcquisitionData::set_subset(const MRAcquisitionData& subset, const std::v
     }
 }
 
+#if 0
 AcquisitionsFile::AcquisitionsFile
 (std::string filename, bool create_file, AcquisitionsInfo info)
 {
@@ -876,6 +879,23 @@ AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
 	}
 	af.set_sorted(ac.sorted());
 	take_over(af);
+}
+#endif
+
+AcquisitionsVector*
+AcquisitionsVector::clone_impl() const
+{
+	AcquisitionsVector* ptr_ad =
+		new AcquisitionsVector(this->acqs_info_);
+	for (int i = 0; i < number(); i++) {
+		ISMRMRD::Acquisition acq;
+		get_acquisition(i, acq);
+		ptr_ad->append_acquisition(acq);
+	}
+	ptr_ad->set_sorted(sorted());
+	if (sorted())
+		ptr_ad->organise_kspace();
+	return ptr_ad;
 }
 
 void

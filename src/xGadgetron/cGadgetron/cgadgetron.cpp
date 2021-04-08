@@ -425,22 +425,23 @@ extern "C"
 void*
 cGT_setAcquisitionDataStorageScheme(const char* scheme)
 {
-	try{
-		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
-			AcquisitionsFile::set_as_template();
-		else
-			AcquisitionsVector::set_as_template();
-		return (void*)new DataHandle;
-	}
-	CATCH;
+	return (void*)new DataHandle;
+	//try{
+	//	if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
+	//		AcquisitionsFile::set_as_template();
+	//	else
+	//		AcquisitionsVector::set_as_template();
+	//	return (void*)new DataHandle;
+	//}
+	//CATCH;
 }
 
 extern "C"
 void*
 cGT_getAcquisitionDataStorageScheme()
 {
-	return charDataHandleFromCharData
-		(MRAcquisitionData::storage_scheme().c_str());
+	return charDataHandleFromCharData("memory");
+//		(MRAcquisitionData::storage_scheme().c_str());
 }
 
 extern "C"
@@ -481,15 +482,19 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 		return fileNotFound(file, __FILE__, __LINE__);
 	std::string scheme = MRAcquisitionData::storage_scheme();
 	try {
-		shared_ptr<MRAcquisitionData> 
-			acquisitions(new AcquisitionsFile(file));
-		if (scheme[0] != 'm')
-			return newObjectHandle<MRAcquisitionData>(acquisitions);
-		else {
-			shared_ptr<MRAcquisitionData>
-				acqs(acquisitions->clone());
-			return newObjectHandle<MRAcquisitionData>(acqs);
-		}
+		shared_ptr<MRAcquisitionData>
+			acquisitions(new AcquisitionsVector);
+		acquisitions->read(file);
+		return newObjectHandle<MRAcquisitionData>(acquisitions);
+		//shared_ptr<MRAcquisitionData> 
+		//	acquisitions(new AcquisitionsFile(file));
+		//if (scheme[0] != 'm')
+		//	return newObjectHandle<MRAcquisitionData>(acquisitions);
+		//else {
+		//	shared_ptr<MRAcquisitionData>
+		//		acqs(acquisitions->clone());
+		//	return newObjectHandle<MRAcquisitionData>(acqs);
+		//}
 	}
 	CATCH;
 }
@@ -500,7 +505,9 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 {
 	try {
 		shared_ptr<MRAcquisitionData> 
-			acquisitions(new AcquisitionsFile(file, true));
+			acquisitions(new AcquisitionsVector);
+		acquisitions->read(file);
+		//acquisitions(new AcquisitionsFile(file, true));
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;

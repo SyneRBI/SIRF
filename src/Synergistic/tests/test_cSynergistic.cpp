@@ -137,7 +137,9 @@ int main(int argc, char* argv[])
             std::cout << "//                  Starting complex resampler test...\n";
             std::cout << "//------------------------------------------------------------------------ //\n";
 
-            AcquisitionsFile raw_mr(raw_mr_filename);
+			AcquisitionsVector raw_mr;
+			raw_mr.read(raw_mr_filename);
+//            AcquisitionsFile raw_mr(raw_mr_filename);
 
             std::vector<gadgetron::shared_ptr<Gadget> > gadgets;
             ADD_GADGET(gadgets, NoiseAdjustGadget);

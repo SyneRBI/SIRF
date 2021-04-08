@@ -193,12 +193,13 @@ namespace sirf {
 
 		static std::string storage_scheme()
 		{
-			static bool initialized = false;
-			if (!initialized) {
-				_storage_scheme = "file";
-				initialized = true;
-			}
-			return _storage_scheme;
+			return std::string("memory");
+			//static bool initialized = false;
+			//if (!initialized) {
+			//	_storage_scheme = "file";
+			//	initialized = true;
+			//}
+			//return _storage_scheme;
 		}
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
@@ -314,13 +315,13 @@ namespace sirf {
         std::vector<KSpaceSorting> sorting_;
 		AcquisitionsInfo acqs_info_;
 
-		static std::string _storage_scheme;
+//		static std::string _storage_scheme;
 		// new MRAcquisitionData objects will be created from this template
 		// using same_acquisitions_container()
 		static gadgetron::shared_ptr<MRAcquisitionData> acqs_templ_;
 
 		virtual MRAcquisitionData* clone_impl() const = 0;
-		MRAcquisitionData* clone_base() const;
+//		MRAcquisitionData* clone_base() const;
 
 	private:
 		void binary_op_(int op, 
@@ -329,6 +330,7 @@ namespace sirf {
 
 	};
 
+#if 0
 	/*!
 	\ingroup Gadgetron Data Containers
 	\brief File implementation of Abstract MR acquisition data container class.
@@ -418,6 +420,7 @@ namespace sirf {
 			return (AcquisitionsFile*)clone_base();
 		}
 	};
+#endif
 
 	/*!
 	\ingroup Gadgetron Data Containers
@@ -435,14 +438,14 @@ namespace sirf {
 		}
 		static void init() 
 		{ 
-			AcquisitionsFile::init(); 
+			//AcquisitionsFile::init(); 
 		}
-		static void set_as_template()
-		{
-			init();
-			acqs_templ_.reset(new AcquisitionsVector);
-			_storage_scheme = "memory";
-		}
+		//static void set_as_template()
+		//{
+		//	init();
+		//	acqs_templ_.reset(new AcquisitionsVector);
+		//	_storage_scheme = "memory";
+		//}
 		virtual void empty();
 		virtual void take_over(MRAcquisitionData& ad) {}
 		virtual unsigned int number() const { return (unsigned int)acqs_.size(); }
@@ -472,30 +475,34 @@ namespace sirf {
 		virtual AcquisitionsVector* same_acquisitions_container
 			(const AcquisitionsInfo& info) const
 		{
+//			std::cout << "in same_acquisitions_container...\n";
 			return new AcquisitionsVector(info);
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
-			init();
-			DataContainer* ptr = acqs_templ_->same_acquisitions_container(acqs_info_);
+//			init();
+//			DataContainer* ptr = acqs_templ_->same_acquisitions_container(acqs_info_);
+			DataContainer* ptr = new AcquisitionsVector(acqs_info_);
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(ptr));
 		}
 		virtual gadgetron::unique_ptr<MRAcquisitionData>
 			new_acquisitions_container()
 		{
-			init();
 			return gadgetron::unique_ptr<MRAcquisitionData>
-				(acqs_templ_->same_acquisitions_container(acqs_info_));
+				(new AcquisitionsVector(acqs_info_));
+			//			init();
+			//return gadgetron::unique_ptr<MRAcquisitionData>
+			//	(acqs_templ_->same_acquisitions_container(acqs_info_));
 		}
 
 	private:
 		std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
-		virtual AcquisitionsVector* clone_impl() const
-		{
-			init();
-			return (AcquisitionsVector*)clone_base();
-		}
+		virtual AcquisitionsVector* clone_impl() const;
+//		{
+////			init();
+//			return (AcquisitionsVector*)clone_base();
+//		}
 	};
 
 	/*!
