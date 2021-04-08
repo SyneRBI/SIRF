@@ -559,7 +559,10 @@ class CoilSensitivityData(ImageData):
 
     def __calc_from_acquisitions(self, data, method_name):
         assert data.handle is not None
-            
+
+        dcw = compute_kspace_density(data)
+        data = data * dcw
+
         if method_name == 'Inati':
             try:
                 from ismrmrdtools import coils
