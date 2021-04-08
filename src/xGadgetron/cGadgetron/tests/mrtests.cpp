@@ -32,15 +32,18 @@ limitations under the License.
 #include <cstdlib>
 #include <numeric>
 #include <vector>
+#include <random>
 
+#include "sirf/Gadgetron/chain_lib.h"
 
+#include "sirf/common/DataContainer.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
 
 #include "sirf/Gadgetron/fourierencoding.h"
 #include "sirf/Gadgetron/trajectorypreparation.h"
 
-#include "sirf/Gadgetron/chain_lib.h"
+
 
 #include "mrtest_auxiliary_funs.h"
 
@@ -142,6 +145,67 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(MRAcquisitionData& av)
 
         return true;
 
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_acq_mod_adjointness(MRAcquisitionData& ad)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+        
+        sirf::CoilSensitivitiesVector csm;
+        csm.calculate(ad);
+        
+        sirf::GadgetronImagesVector img_vec;
+        
+        sirf::MRAcquisitionModel acquis_model;
+        acquis_model.bwd(img_vec, csm, ad);
+
+        gadgetron::unique_ptr<ISMRMRDImageData> uptr_random_img = img_vec.clone();
+        sirf::Dimensions dims = uptr_random_img->dimensions();
+
+        // generate a random image to project onto
+        int const num_total_pixels = dims["x"]*dims["y"]*dims["z"]*dims["c"]*dims["n"];
+        std::cout <<"Number of pixels is " << num_total_pixels<< std::endl;
+
+        std::default_random_engine generator;
+        std::normal_distribution<float> distribution(0.0,1.0);
+
+        std::vector<complex_float_t> random_data;
+        for(int i=0; i<num_total_pixels; ++i)
+        {
+            float const real_part = distribution(generator);
+            float const imag_part = distribution(generator);
+            complex_float_t curr_number = std::complex<float>(real_part, imag_part);
+            random_data.push_back(curr_number);
+        }
+
+        
+        uptr_random_img->set_data(&random_data[0]);
+        
+        complex_float_t Eh_kdat_Dot_img;
+        img_vec.dot(*uptr_random_img, &Eh_kdat_Dot_img);
+
+        gadgetron::unique_ptr<MRAcquisitionData> uptr_ad = ad.clone();
+        
+        acquis_model.fwd(*uptr_random_img, csm, *uptr_ad);
+        
+        complex_float_t E_img_Dot_kdat;
+        ad.dot(*uptr_ad, &E_img_Dot_kdat);
+
+        std::cout << "Backward kdata dot random image: " << Eh_kdat_Dot_img << std::endl;
+        std::cout << "Forward random image dot kdata : " << E_img_Dot_kdat  << std::endl;
+
+        bool ok =  Eh_kdat_Dot_img == E_img_Dot_kdat;
+    
+        return ok;
     }
     catch( std::runtime_error const &e)
     {
@@ -534,16 +598,20 @@ int main ( int argc, char* argv[])
         sirf::preprocess_acquisition_data(av);
         av.sort();
 
-        test_get_kspace_order(av);
-        test_get_subset(av);
+        bool ok = true;
+
+        ok *= test_get_kspace_order(av);
+        ok *= test_get_subset(av);
 
 
-        test_GRPETrajectoryPrep_set_trajectory(av);
+        ok *= test_GRPETrajectoryPrep_set_trajectory(av);
 
-        test_CoilSensitivitiesVector_calculate(av);
-        test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+        ok *= test_CoilSensitivitiesVector_calculate(av);
+        ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
-        test_bwd(av);
+        ok *= test_bwd(av);
+
+        ok *= test_acq_mod_adjointness(av);
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
         #warning "RUNNING THE RADIAL TESTS FOR C++."
@@ -556,18 +624,26 @@ int main ( int argc, char* argv[])
             sirf::set_unit_dcf(rpe_av);
 
 
-            test_get_rpe_trajectory(rpe_av);
-            test_rpe_bwd(rpe_av);
-            test_rpe_fwd(rpe_av);
+            ok *= test_get_rpe_trajectory(rpe_av);
+            ok *= test_rpe_bwd(rpe_av);
+            ok *= test_rpe_fwd(rpe_av);
 
-            test_rpe_csm(rpe_av);
+            ok *= test_rpe_csm(rpe_av);
 
-            test_mracquisition_model_rpe_bwd(rpe_av);
+            ok *= test_mracquisition_model_rpe_bwd(rpe_av);
+            ok *= test_acq_mod_adjointness(rpe_av);
+
         #endif
 
-        test_acq_mod_norm(sptr_ad);
+        ok *= test_acq_mod_norm(sptr_ad);
 
-        return 0;
+        if(ok)
+            return 0;
+        else
+        { 
+            std::cerr << "The code ran but some quantitative tests must have failed"<<std::endl;
+            return EXIT_FAILURE;
+        }
 	}
     catch(const std::exception &error) {
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
