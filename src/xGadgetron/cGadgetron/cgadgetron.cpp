@@ -421,6 +421,7 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 	CATCH;
 }
 
+#if 0
 extern "C"
 void*
 cGT_setAcquisitionDataStorageScheme(const char* scheme)
@@ -443,6 +444,7 @@ cGT_getAcquisitionDataStorageScheme()
 	return charDataHandleFromCharData("memory");
 //		(MRAcquisitionData::storage_scheme().c_str());
 }
+#endif
 
 extern "C"
 void*

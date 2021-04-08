@@ -60,8 +60,8 @@ extern "C" {
 	void* cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 
 	// acquisition data methods
-	void* cGT_setAcquisitionDataStorageScheme(const char* scheme);
-	void* cGT_getAcquisitionDataStorageScheme();
+	//void* cGT_setAcquisitionDataStorageScheme(const char* scheme);
+	//void* cGT_getAcquisitionDataStorageScheme();
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
