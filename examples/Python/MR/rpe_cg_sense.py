@@ -59,7 +59,6 @@ run_recon = str(args['--non-cart']) == 'True'
 
 import sys
 import numpy 
-import nibabel as nib     
 
 # define symmetrical operator for cg-optimisation
 def EhE(E, image ):
@@ -114,9 +113,6 @@ def main():
 
         # this is our first residual
         r = E.backward( y ) - EhE(E,x)
-
-        # print the type
-        print('The type of r is: ' + str( type(r) ) ) 
 
         # this is our cost function at the start
         rr = r.norm() ** 2
