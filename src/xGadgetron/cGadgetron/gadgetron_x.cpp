@@ -370,12 +370,12 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
         throw LocalisedException("Please dont use an empty acquisition template.", __FILE__, __LINE__);
 
     if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
+        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
     else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
     {
     #ifdef GADGETRON_TOOLBOXES_AVAILABLE
     #warning "We compile the non-cartesian code in GADGETRON_X"
-        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
     #else
         throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
     #endif
@@ -426,12 +426,12 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& c
     const MRAcquisitionData& ac)
 {
     if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
+        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
     else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
     {
     #ifdef GADGETRON_TOOLBOXES_AVAILABLE
     #warning "We compile the non-cartesian code in GADGETRON_X"
-        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
     #else
         throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
     #endif

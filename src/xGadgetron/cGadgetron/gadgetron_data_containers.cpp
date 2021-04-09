@@ -1678,12 +1678,12 @@ void
 CoilImagesVector::calculate(MRAcquisitionData& ac, int calibration)
 {
     if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
+        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
     else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
     {
     #ifdef GADGETRON_TOOLBOXES_AVAILABLE
     #warning "Compiling non-cartesian code into coil sensitivity class"
-        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
     #else
         throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
     #endif
