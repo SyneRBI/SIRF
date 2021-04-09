@@ -879,6 +879,8 @@ class AcquisitionData(DataContainer):
         Writes the data into the user_float[idx] data field of the acquisition
         data header of each acquisition in the container to pass additional data 
         into the raw data. 
+        data: numpy array
+        idx: integer in range 0 to 7
         '''        
         if self.handle is None:
             raise AssertionError('self.handle is None')
@@ -886,6 +888,9 @@ class AcquisitionData(DataContainer):
         if data.size != self.number():
             raise AssertionError('Please give as many datapoints as there are acquisitions')
         
+        if idx > 7 or idx < 0 or not isinstance(idx,int): 
+            raise AssertionError('Please give an integer from [0,...,7]')
+
         try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
                     (self.handle, data.ctypes.data, idx))
 
