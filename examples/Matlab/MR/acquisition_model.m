@@ -40,7 +40,7 @@ mr_data_path = sirf.Utilities.examples_data_path('MR');
 % unless the acquisition data storage scheme is explicitely set to 'memory' 
 % (see using_acquisition_data.m) or Matlab is re-started
 AD = MR.AcquisitionData();
-AD.set_storage_scheme('memory');
+%AD.set_storage_scheme('memory');
 %AcquisitionData.set_storage_scheme('file');
 
 % acquisitions will be read from an HDF file
