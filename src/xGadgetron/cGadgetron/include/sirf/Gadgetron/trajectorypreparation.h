@@ -1,6 +1,6 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -21,10 +21,9 @@ limitations under the License.
 /*!
 \file
 \ingroup Gadgetron Extensions
-\brief File for trajectory setting in ISMRMRD files.
-
+\brief Utilities for setting trajectories in ISMRMRD data.
 \author Johannes Mayer
-\author SyneRBI
+
 */
 
 #ifndef TRAJECTORYPREPARATION_H
@@ -86,7 +85,7 @@ public:
 
 /*!
 \ingroup Gadgetron Extensions
-\brief Class to set the gold-angle radial phase encoding (RPE) trajecotry
+\brief Class to set the golden-angle radial phase encoding (GRPE) trajecotry
 *
 * Computation is based on doi:10.1002/mrm.22102
 * The data reconstructed with this trajectory are parallel readouts arranged on
