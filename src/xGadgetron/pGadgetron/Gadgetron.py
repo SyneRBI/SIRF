@@ -5,6 +5,7 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 # Copyright 2018 - 2020 University College London
+# Copyright 2018 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
 #
 # This is software developed for the Collaborative Computational
 # Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)

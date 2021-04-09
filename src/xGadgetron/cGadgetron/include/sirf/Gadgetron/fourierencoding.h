@@ -1,6 +1,6 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+Copyright 2020-2021 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -24,7 +24,6 @@ limitations under the License.
 \brief File for cartesian fourier encoding and trajectory setting.
 
 \author Johannes Mayer
-\author SyneRBI
 */
 
 #ifndef FOURIERENCODING_H
