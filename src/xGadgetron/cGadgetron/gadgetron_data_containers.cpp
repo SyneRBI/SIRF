@@ -1675,7 +1675,7 @@ GadgetronImagesVector::set_up_geom_info()
 
 
 void 
-CoilImagesVector::calculate(MRAcquisitionData& ac, int calibration)
+CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
 {
     if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
@@ -1692,9 +1692,6 @@ CoilImagesVector::calculate(MRAcquisitionData& ac, int calibration)
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
     this->set_meta_data(ac.acquisitions_info());
-
-//    if(!ac.sorted())
-    ac.sort();
 
     auto sort_idx = ac.get_kspace_order();
 

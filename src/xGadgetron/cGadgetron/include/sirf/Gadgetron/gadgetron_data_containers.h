@@ -1041,7 +1041,7 @@ namespace sirf {
     {
     public:
         CoilImagesVector() : GadgetronImagesVector(){}
-        void calculate(MRAcquisitionData& acq, int calibration = 1);
+        void calculate(const MRAcquisitionData& acq, int calibration = 1);
     protected:
         gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
     };
@@ -1074,7 +1074,7 @@ namespace sirf {
         void set_csm_smoothness(int s){csm_smoothness_ = s;}
 
         void calculate(CoilImagesVector& iv);
-        void calculate(MRAcquisitionData& acq)
+        void calculate(const MRAcquisitionData& acq)
         {
             CoilImagesVector ci;
             ci.calculate(acq);

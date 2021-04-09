@@ -455,7 +455,6 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& c
 		this->sptr_enc_->backward(*img_ptr, subset);
 
         iv.append(iw);
-
 	}
 
     cc.backward(ic, iv);
