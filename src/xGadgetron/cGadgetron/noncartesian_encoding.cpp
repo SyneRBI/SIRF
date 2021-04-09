@@ -214,14 +214,14 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, CFImage& img) const
 }
 
 
-void Gridder_2D::setup_nufft(std::vector<size_t> img_dims_output, const GadgetronTrajectoryType2D &traj)
+void Gridder_2D::setup_nufft(const std::vector<size_t> img_output_dims, const GadgetronTrajectoryType2D &traj)
 {
-    if( img_dims_output.size() != 2)
+    if( img_output_dims.size() != 2)
         throw LocalisedException("The image dimensions of the output should be of size 2." , __FILE__, __LINE__);
 
     traj.get_dimensions(this->trajdims_);
 
-    this->output_dims_ = img_dims_output;
+    this->output_dims_ = img_output_dims;
 
     this->nufft_operator_.preprocess(traj);
 }
