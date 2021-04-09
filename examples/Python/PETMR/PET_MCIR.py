@@ -74,7 +74,11 @@ import os
 from glob import glob
 from docopt import docopt
 from sirf.Utilities import error, show_2D_array
-import pylab
+try:
+    import pylab
+    have_pylab = True
+except:
+    have_pylab = False
 import sirf.Reg as reg
 import sirf.STIR as pet
 from ccpi.optimisation.algorithms import PDHG
@@ -120,7 +124,7 @@ outp_prefix = args['--outp']
 # Initial estimate
 initial_estimate = args['--initial']
 
-visualisations = True if args['--visualisations'] else False
+visualisations = True if args['--visualisations'] and have_pylab else False
 nifti = True if args['--nifti'] else False
 use_gpu = True if args['--gpu'] else False
 descriptive_fname = True if args['--descriptive_fname'] else False
