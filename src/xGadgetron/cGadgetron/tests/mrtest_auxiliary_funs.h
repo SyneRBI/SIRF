@@ -43,5 +43,5 @@ void edit_acq(const char* in, const char* out);
 
 void write_cfimage_to_raw(const std::string& fname_prefix, const CFImage& img);
 void write_cfimage_to_raw(const std::string& fname_prefix, const ImageWrap& iw);
-void write_imagevector_to_raw(const std::string& fname_prefix, const sirf::GadgetronImagesVector iv);
+void write_imagevector_to_raw(const std::string& fname_prefix, const sirf::GadgetronImagesVector& iv);
 } // END NAMESPACE

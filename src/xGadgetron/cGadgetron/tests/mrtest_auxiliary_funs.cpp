@@ -104,7 +104,7 @@ void sirf::write_cfimage_to_raw(const std::string& fname_prefix, const ImageWrap
     sirf::write_cfimage_to_raw(fname_prefix, *ptr_img);
 }
 
-void sirf::write_imagevector_to_raw(const std::string& fname_prefix, const sirf::GadgetronImagesVector iv)
+void sirf::write_imagevector_to_raw(const std::string& fname_prefix, const sirf::GadgetronImagesVector& iv)
 {
     for(int i=0; i<iv.items(); ++i)
     {
