@@ -57,7 +57,6 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 \brief Specification file for non-cartesian Fourier encoding.
 
 \author Johannes Mayer
-\author SyneRBI
 */
 
 
@@ -84,7 +83,7 @@ typedef Gadgetron::hoNDArray<Gadgetron::floatd2> GadgetronTrajectoryType2D;
 \brief Implementation to perform a non-cartesian FFT for RPE MR data
 *
 * backward(...): first data are sorted into a 4D matrix consisting of kx, ky, kz, coil
-* and then the Fourier-transformed along the kx dimension. In the second step a NUFFT
+* and then Fourier-transformed along the kx dimension. In the second step a NUFFT
 * along the two remaining dimensions is performed.
 *
 */

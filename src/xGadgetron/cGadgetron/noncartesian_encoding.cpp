@@ -57,7 +57,6 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 \brief Implementation file for non-cartesian Fourier encoding.
 
 \author Johannes Mayer
-\author SyneRBI
 */
 
 #include "sirf/Gadgetron/noncartesian_encoding.h"
