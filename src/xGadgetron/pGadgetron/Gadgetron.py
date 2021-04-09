@@ -741,7 +741,8 @@ class AcquisitionData(DataContainer):
     @staticmethod
     def set_storage_scheme(scheme):
         '''Sets acquisition data storage scheme.'''
-        pass
+        if scheme != 'memory':
+            print('WARNING: using memory storage scheme, others not supported')
         '''
         scheme = 'file' (default):
             all acquisition data generated from now on will be kept in
