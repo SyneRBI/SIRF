@@ -35,7 +35,11 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
         end
         function set_storage_scheme(scheme)
 %***SIRF*** Sets acquisition data storage scheme.
-			return
+            if ~strcmp(scheme, 'memory')
+                fprintf("WARNING: storage scheme '%s' not supported, ", scheme)
+                fprintf('using memory storage scheme instead\n')
+            end
+            return
 % %           scheme = 'file' (default):
 % %               all acquisition data generated from now on will be kept in
 % %               scratch files deleted after the user's script terminates
