@@ -30,7 +30,7 @@ for i in glob.glob('*.py'):
     args = ''
     for a in range(1, narg):
         args += ' ' + sys.argv[a]
-    exe = 'python ' + i + args
+    exe = os.path.split(sys.executable)[1] + ' ' + i + args
     err = os.system(exe)
     if err:
         raise RuntimeError(i + ' failed')
