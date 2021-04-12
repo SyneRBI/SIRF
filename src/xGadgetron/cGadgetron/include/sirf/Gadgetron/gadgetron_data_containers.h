@@ -436,10 +436,10 @@ namespace sirf {
 		{
 			acqs_info_ = info;
 		}
-		static void init() 
-		{ 
-			//AcquisitionsFile::init(); 
-		}
+		//static void init() 
+		//{ 
+		//	//AcquisitionsFile::init(); 
+		//}
 		//static void set_as_template()
 		//{
 		//	init();
