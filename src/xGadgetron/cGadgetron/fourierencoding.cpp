@@ -97,16 +97,8 @@ void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, CFImage& img
     ISMRMRD::NDArray<complex_float_t> ci(dims);
     memset(ci.getDataPtr(), 0, ci.getDataSize());
 
-    for (unsigned int c = 0; c < nc; c++) {
-        for (unsigned int z = 0; z < nz; z++) {
-            for (unsigned int y = 0; y < ny; y++) {
-                for (unsigned int x = 0; x < nx; x++) {
-                    ci(x, y, z, c) = (complex_float_t)img.operator()(x, y, z, c);
-                }
-            }
-        }
-    }
-
+    std::copy(img.begin(), img.end(), ci.begin());
+   
     fft3c(ci);
 
     for(size_t i =0; i<ac.items(); ++i)
@@ -192,7 +184,7 @@ void sirf::CartesianFourierEncoding::backward(CFImage& img, const MRAcquisitionD
         throw LocalisedException("Phase and slice encoding are not consistent between reconstructed image and k-space.", __FILE__, __LINE__);
 
     img.resize(nx_img, ny_img, nz_img, nc);
-    memcpy((&img)->begin(), ci.begin(), ci.getDataSize());
+    std::copy(ci.begin(), ci.end(), img.begin());
 
     // set the header correctly of the image
     this->match_img_header_to_acquisition(img, acq);
