@@ -94,7 +94,7 @@ class RPEFourierEncoding : public FourierEncoding
 public:
     RPEFourierEncoding(): FourierEncoding() {}
 
-    virtual void forward(MRAcquisitionData& ac, CFImage& img) const;
+    virtual void forward(MRAcquisitionData& ac, const CFImage& img) const;
     virtual void backward(CFImage& img, const MRAcquisitionData& ac) const;
 protected:
     GadgetronTrajectoryType2D get_trajectory(const MRAcquisitionData& ac) const;

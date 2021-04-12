@@ -147,7 +147,7 @@ void RPEFourierEncoding::backward(CFImage& img, const MRAcquisitionData& ac) con
     this->match_img_header_to_acquisition(img, acq);
 }
 
-void RPEFourierEncoding::forward(MRAcquisitionData& ac, CFImage& img) const
+void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) const
 {
 
     ASSERT( ac.number() >0, "Give a non-empty rawdata container if you want to use the rpe forward.");
@@ -160,9 +160,7 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, CFImage& img) const
     img_dims.push_back(img.getNumberOfChannels());
 
     CFGThoNDArr img_data(img_dims);
-
-    for(int i=0; i<img.getNumberOfDataElements();++i)
-        *(img_data.begin()+i) = *(img.getDataPtr()+i);
+    std::memcpy(img_data.begin(), img.getDataPtr(), img.getDataSize());
 
     GadgetronTrajectoryType2D traj = this->get_trajectory(ac);
     size_t const num_kdata_pts = traj.get_number_of_elements();
