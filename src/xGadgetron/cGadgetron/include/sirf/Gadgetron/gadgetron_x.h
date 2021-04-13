@@ -435,29 +435,7 @@ namespace sirf {
 		{
 			sptr_acqs_ = sptr_ac;
 			set_image_template(sptr_ic);
-			//sptr_imgs_ = sptr_ic;
 		}
-
-		// Forward projects one image item (typically xy-slice) into
-		// respective readouts, and appends them to the AcquisitionContainer
-		// passed as the last argument.
-        void fwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
-			unsigned int& off)
-		{
-			int type = iw.type();
-			void* ptr = iw.ptr_image();
-			IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, csm, ac, off);
-		}
-
-		// Backprojects a set of readouts corresponding to one image item
-		// (typically xy-slice).
-//        void bwd(ImageWrap& iw, CFImage& csm, const MRAcquisitionData& ac,
-//			unsigned int& off)
-//		{
-//			int type = iw.type();
-//			void* ptr = iw.ptr_image();
-//			IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, csm, ac, off);
-//		}
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
@@ -511,13 +489,6 @@ namespace sirf {
 		gadgetron::shared_ptr<GadgetronImageData> sptr_imgs_;
         gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms_;
         gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
-
-		template< typename T>
-        void fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
-			MRAcquisitionData& ac, unsigned int& off);
-//		template< typename T>
-//        void bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
-//			MRAcquisitionData& ac, unsigned int& off);
 	};
 
 }
