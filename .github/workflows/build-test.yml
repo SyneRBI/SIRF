@@ -23,8 +23,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: install_dependencies
-      run: 
-          cd docker;
+      run:
+          cd ${GITHUB_WORKSPACE};
+          git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master;
+          cd SIRF-SuperBuild/docker;
           sudo bash raw-ubuntu.sh;
           sudo bash build_essential-ubuntu.sh;
           sudo bash build_python-ubuntu.sh;
@@ -44,10 +46,6 @@ jobs:
       run: |
           set -ex;
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          export sirf_source_dir=`pwd`;
-          # get SuperBuild
-          cd ..
-          git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
           cmake --version
           #echo "cmake flags $BUILD_FLAGS $EXTRA_BUILD_FLAGS"          
           BUILD_FLAGS="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_Armadillo=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DCMAKE_INSTALL_PREFIX=~/install -DPYVER=3";
