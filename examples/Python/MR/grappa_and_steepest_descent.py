@@ -132,12 +132,15 @@ def main():
                             postpone=(i < niter - 1))
 
     if niter > 1 and show_plot:
-        import pylab
-        pylab.figure()
-        pylab.plot(numpy.arange(1, niter + 1, 1), res)
-        pylab.grid()
-        pylab.title('residual norm')
-        pylab.show()
+        try:
+            import pylab
+            pylab.figure()
+            pylab.plot(numpy.arange(1, niter + 1, 1), res)
+            pylab.grid()
+            pylab.title('residual norm')
+            pylab.show()
+        except:
+            print('pylab not found')
 
     if output_file is not None:
       print('writing to %s' % output_file)

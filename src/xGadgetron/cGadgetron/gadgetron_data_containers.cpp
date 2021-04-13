@@ -40,7 +40,6 @@ limitations under the License.
 using namespace gadgetron;
 using namespace sirf;
 
-std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
 
 static std::string get_date_time_string()
@@ -105,7 +104,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			if( verbose )
 			{
 				if( i_acqu%( num_acquis/10 ) == 0 )
-					std::cout << std::ceil( float(i_acqu)/num_acquis*100 )<< " % " << " done."<< std::endl;
+					std::cout << std::ceil(float(i_acqu) / num_acquis * 100) << "%.." << std::flush;
 			}
 
 			ISMRMRD::Acquisition acq;
@@ -119,7 +118,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 				this->append_acquisition( acq );
 		}
 		if( verbose )
-			std::cout<< "Finished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
+			std::cout<< "\nFinished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	}
 	catch( std::runtime_error& e)
 	{
@@ -387,85 +386,47 @@ complex_float_t a, complex_float_t b)
 	ISMRMRD::Acquisition ay;
 	ISMRMRD::Acquisition acq;
 	bool isempty = (number() < 1);
-	try {
-		for (int i = 0, j = 0, k = 0; i < n && j < m;) {
-			y.get_acquisition(i, ay);
-			x.get_acquisition(j, ax);
-			if (TO_BE_IGNORED(ay)) {
-				std::cout << i << " ignored (ay)\n";
-				i++;
-				continue;
-			}
-			if (TO_BE_IGNORED(ax)) {
-				std::cout << j << " ignored (ax)\n";
-				j++;
-				continue;
-			}
-			if (!isempty) {
-				get_acquisition(k, acq);
-				if (TO_BE_IGNORED(acq)) {
-					std::cout << k << " ignored (acq)\n";
-					k++;
-					continue;
-				}
-			}
-			switch (op) {
-			case 1:
-				MRAcquisitionData::axpby(a, ax, b, ay);
-				break;
-			case 2:
-				MRAcquisitionData::multiply(ax, ay);
-				break;
-			case 3:
-				MRAcquisitionData::divide(ax, ay);
-				break;
-			default:
-				THROW("wrong operation in MRAcquisitionData::binary_op_");
-			}
-			if (isempty)
-				append_acquisition(ay);
-			else
-				set_acquisition(k, ay);
+	for (int i = 0, j = 0, k = 0; i < n && j < m;) {
+		y.get_acquisition(i, ay);
+		x.get_acquisition(j, ax);
+		if (TO_BE_IGNORED(ay)) {
+			std::cout << i << " ignored (ay)\n";
 			i++;
-			j++;
-			k++;
+			continue;
 		}
-	}
-	catch (...) {
-		AcquisitionsFile ac(acqs_info_);
-//		empty();
-		for (int i = 0, j = 0; i < n && j < m;) {
-			y.get_acquisition(i, ay);
-			x.get_acquisition(j, ax);
-			if (TO_BE_IGNORED(ay)) {
-				std::cout << i << " ignored (ay)\n";
-				i++;
+		if (TO_BE_IGNORED(ax)) {
+			std::cout << j << " ignored (ax)\n";
+			j++;
+			continue;
+		}
+		if (!isempty) {
+			get_acquisition(k, acq);
+			if (TO_BE_IGNORED(acq)) {
+				std::cout << k << " ignored (acq)\n";
+				k++;
 				continue;
 			}
-			if (TO_BE_IGNORED(ax)) {
-				std::cout << j << " ignored (ax)\n";
-				j++;
-				continue;
-			}
-			switch (op) {
-			case 1:
-				MRAcquisitionData::axpby(a, ax, b, ay);
-				break;
-			case 2:
-				MRAcquisitionData::multiply(ax, ay);
-				break;
-			case 3:
-				MRAcquisitionData::divide(ax, ay);
-				break;
-			default:
-				THROW("wrong operation in MRAcquisitionData::binary_op_");
-			}
-//			append_acquisition(ay);
-			ac.append_acquisition(ay);
-			i++;
-			j++;
 		}
-		take_over(ac);
+		switch (op) {
+		case 1:
+			MRAcquisitionData::axpby(a, ax, b, ay);
+			break;
+		case 2:
+			MRAcquisitionData::multiply(ax, ay);
+			break;
+		case 3:
+			MRAcquisitionData::divide(ax, ay);
+			break;
+		default:
+			THROW("wrong operation in MRAcquisitionData::binary_op_");
+		}
+		if (isempty)
+			append_acquisition(ay);
+		else
+			set_acquisition(k, ay);
+		i++;
+		j++;
+		k++;
 	}
 	this->set_sorted(true);
 	this->organise_kspace();
@@ -486,22 +447,6 @@ MRAcquisitionData::norm() const
 		r += s*s;
 	}
 	return sqrt(r);
-}
-
-MRAcquisitionData*
-MRAcquisitionData::clone_base() const
-{
-	MRAcquisitionData* ptr_ad =
-		acqs_templ_->same_acquisitions_container(this->acqs_info_);
-	for (int i = 0; i < number(); i++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		ptr_ad->append_acquisition(acq);
-	}
-	ptr_ad->set_sorted(sorted());
-	if (sorted())
-		ptr_ad->organise_kspace();
-	return ptr_ad;
 }
 
 void
@@ -709,173 +654,20 @@ void MRAcquisitionData::set_subset(const MRAcquisitionData& subset, const std::v
     }
 }
 
-AcquisitionsFile::AcquisitionsFile
-(std::string filename, bool create_file, AcquisitionsInfo info)
+AcquisitionsVector*
+AcquisitionsVector::clone_impl() const
 {
-	own_file_ = create_file;
-	filename_ = filename;
-
-	Mutex mtx;
-	mtx.lock();
-	dataset_ = shared_ptr<ISMRMRD::Dataset>
-		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create_file));
-	if (!create_file) {
-		dataset_->readHeader(acqs_info_);
+	AcquisitionsVector* ptr_ad =
+		new AcquisitionsVector(this->acqs_info_);
+	for (int i = 0; i < number(); i++) {
+		ISMRMRD::Acquisition acq;
+		get_acquisition(i, acq);
+		ptr_ad->append_acquisition(acq);
 	}
-	else {
-		acqs_info_ = info;
-		dataset_->writeHeader(acqs_info_);
-	}
-	mtx.unlock();
-}
-
-AcquisitionsFile::AcquisitionsFile(AcquisitionsInfo info)
-{
-	own_file_ = true;
-	filename_ = xGadgetronUtilities::scratch_file_name();
-	Mutex mtx;
-	mtx.lock();
-	dataset_ = shared_ptr<ISMRMRD::Dataset>
-		(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
-	acqs_info_ = info;
-	dataset_->writeHeader(acqs_info_);
-	mtx.unlock();
-}
-
-AcquisitionsFile::~AcquisitionsFile() 
-{
-	dataset_.reset();
-	if (own_file_) {
-		Mutex mtx;
-		mtx.lock();
-		std::remove(filename_.c_str());
-		mtx.unlock();
-	}
-}
-
-void
-AcquisitionsFile::empty()
-{
-	dataset_.reset();
-	if (own_file_) {
-		Mutex mtx;
-		mtx.lock();
-		std::remove(filename_.c_str());
-		mtx.unlock();
-	}
-	own_file_ = true;
-	filename_ = xGadgetronUtilities::scratch_file_name();
-	Mutex mtx;
-	mtx.lock();
-	dataset_ = shared_ptr<ISMRMRD::Dataset>
-		(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
-	dataset_->writeHeader(acqs_info_);
-	mtx.unlock();
-}
-
-void 
-AcquisitionsFile::take_over_impl(AcquisitionsFile& af)
-{
-	acqs_info_ = af.acquisitions_info();
-	sorted_ = af.sorted();
-	index_ = af.index();
-	dataset_ = af.dataset_;
-	if (own_file_) {
-		Mutex mtx;
-		mtx.lock();
-		std::remove(filename_.c_str());
-		mtx.unlock();
-	}
-	filename_ = af.filename_;
-	own_file_ = af.own_file_;
-	af.own_file_ = false;
-}
-
-unsigned int 
-AcquisitionsFile::items() const
-{
-	Mutex mtx;
-	mtx.lock();
-	unsigned int na = dataset_->getNumberOfAcquisitions();
-	mtx.unlock();
-	return na;
-}
-
-void 
-AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
-{
-	int ind = index(num);
-	Mutex mtx;
-	mtx.lock();
-	dataset_->readAcquisition(ind, acq);
-	//dataset_->readAcquisition(index(num), acq); // ??? does not work!
-	mtx.unlock();
-}
-
-void 
-AcquisitionsFile::append_acquisition(ISMRMRD::Acquisition& acq)
-{
-	Mutex mtx;
-	mtx.lock();
-	dataset_->appendAcquisition(acq);
-	mtx.unlock();
-}
-
-void 
-AcquisitionsFile::copy_acquisitions_info(const MRAcquisitionData& ac)
-{
-	acqs_info_ = ac.acquisitions_info();
-	Mutex mtx;
-	mtx.lock();
-	dataset_->writeHeader(acqs_info_);
-	mtx.unlock();
-}
-
-void 
-AcquisitionsFile::write_acquisitions_info()
-{
-	Mutex mtx;
-	mtx.lock();
-	dataset_->writeHeader(acqs_info_);
-	mtx.unlock();
-}
-
-void
-AcquisitionsFile::set_data(const complex_float_t* z, int all)
-{
-	AcquisitionsFile ac(acqs_info_);
-	ISMRMRD::Acquisition acq;
-	int na = number();
-	for (int a = 0, i = 0; a < na; a++) {
-		get_acquisition(a, acq);
-		if (!all && TO_BE_IGNORED(acq)) {
-			std::cout << "ignoring acquisition " << a << '\n';
-			continue;
-		}
-		unsigned int nc = acq.active_channels();
-		unsigned int ns = acq.number_of_samples();
-		for (int c = 0; c < nc; c++)
-			for (int s = 0; s < ns; s++, i++)
-				acq.data(s, c) = z[i];
-		ac.append_acquisition(acq);
-	}
-	ac.set_sorted(sorted());
-	take_over(ac);
-}
-
-void
-AcquisitionsFile::copy_acquisitions_data(const MRAcquisitionData& ac)
-{
-	AcquisitionsFile af(acqs_info_);
-	ISMRMRD::Acquisition acq;
-	int na = number();
-	ASSERT(na == ac.number(), "copy source and destination sizes differ");
-	for (int a = 0, i = 0; a < na; a++) {
-		ac.get_acquisition(a, acq);
-		af.append_acquisition(acq);
-	}
-	af.set_sorted(ac.sorted());
-	take_over(af);
+	ptr_ad->set_sorted(sorted());
+	if (sorted())
+		ptr_ad->organise_kspace();
+	return ptr_ad;
 }
 
 void

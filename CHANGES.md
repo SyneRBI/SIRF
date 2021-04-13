@@ -1,6 +1,7 @@
 # ChangeLog
 
-## vX.X.X
+## v3.0.0
+* MR acquisition data storage scheme restricted to memory only.
 * GE Signa randoms support added.
 * If the `SIRF_DATA_PATH` environment variable is set, `examples_data_path` will search for the examples data there, or in `SIRF_INSTALL_PATH/share/SIRF-<versio_major>.<version_minor>/data` directory. In MATLAB, the `example_data_path` function has the version set by CMake at install time.
 * Defines `__version__` in `sirf` python package.

@@ -740,25 +740,16 @@ class AcquisitionData(DataContainer):
             pyiutil.deleteDataHandle(self.handle)
     @staticmethod
     def set_storage_scheme(scheme):
-        '''Sets acquisition data storage scheme.
-
-        scheme = 'file' (default):
-            all acquisition data generated from now on will be kept in
-            scratch files deleted after the user's script terminates
-        scheme = 'memory':
-            all acquisition data generated from now on will be kept in RAM
-            (avoid if data is very large)
-        '''
-        try_calling(pygadgetron.cGT_setAcquisitionDataStorageScheme(scheme))
+        '''Sets acquisition data storage scheme.'''
+        if scheme != 'memory':
+            msg = 'WARNING: storage scheme ' + repr(scheme) + ' not supported,'
+            msg += ' using memory storage scheme instead'
+            print(msg)
     @staticmethod
     def get_storage_scheme():
         '''Returns acquisition data storage scheme.
         '''
-        handle = pygadgetron.cGT_getAcquisitionDataStorageScheme()
-        check_status(handle)
-        scheme = pyiutil.charDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return scheme
+        return 'memory'
     def same_object(self):
         return AcquisitionData()
     def new_acquisition_data(self, empty=True):
