@@ -1755,35 +1755,34 @@ void CoilSensitivitiesVector::coilchannels_from_combined_image(GadgetronImageDat
     for(size_t i_img=0; i_img<combined_img.items(); ++i_img)
     {
         ImageWrap& iw_src = combined_img.image_wrap(i_img);
-        void* vptr_src_img = iw_src.ptr_image();
-        CFImage* ptr_src_img = static_cast<CFImage*>(vptr_src_img);
+        CFImage* ptr_src_img = static_cast<CFImage*>(iw_src.ptr_image());
 
         CFImage coilmap = get_csm_as_cfimage( KSpaceSubset::get_tag_from_img(*ptr_src_img), i_img);
 
-        CFImage dst_img(coilmap);
-        dst_img.setHead((*ptr_src_img).getHead());
-        dst_img.setNumberOfChannels(coilmap.getNumberOfChannels());
+        CFImage* ptr_dst_img = new CFImage(coilmap);
+		sirf::ImageWrap iw_dst(ISMRMRD::ISMRMRD_CXFLOAT, ptr_dst_img);
 
-        size_t const Nx = dst_img.getMatrixSizeX();
-        size_t const Ny = dst_img.getMatrixSizeY();
-        size_t const Nz = dst_img.getMatrixSizeZ();
-        size_t const Nc = dst_img.getNumberOfChannels();
+        ptr_dst_img->setHead((*ptr_src_img).getHead());
+        ptr_dst_img->setNumberOfChannels(coilmap.getNumberOfChannels());
+
+        size_t const Nx = ptr_dst_img->getMatrixSizeX();
+        size_t const Ny = ptr_dst_img->getMatrixSizeY();
+        size_t const Nz = ptr_dst_img->getMatrixSizeZ();
+        size_t const Nc = ptr_dst_img->getNumberOfChannels();
 
         for( size_t nc=0;nc<Nc ; nc++)
         for( size_t nz=0;nz<Nz ; nz++)
         for( size_t ny=0;ny<Ny ; ny++)
         for( size_t nx=0;nx<Nx ; nx++)
         {
-            dst_img(nx, ny, nz, nc) = coilmap(nx, ny, nz, nc) * ((*ptr_src_img)(nx, ny, nz, 0));
+            (*ptr_dst_img)(nx, ny, nz, nc) =  (*ptr_src_img)(nx, ny, nz, 0) * coilmap(nx, ny, nz, nc);
         }
 
-        void* vptr_dst_img = new CFImage(dst_img); //urgh this is so horrible
-        sirf::ImageWrap iw_dst(ISMRMRD::ISMRMRD_CXFLOAT, vptr_dst_img );
         img.append(iw_dst);
     }
 }
 
-void CoilSensitivitiesVector::backward(GadgetronImageData& combined_img, GadgetronImageData& img)const
+void CoilSensitivitiesVector::backward(GadgetronImageData& combined_img, const GadgetronImageData& img)const
 {
 
     if(img.items() != this->items() )
@@ -1800,18 +1799,19 @@ void CoilSensitivitiesVector::backward(GadgetronImageData& combined_img, Gadgetr
        this->combine_images_with_coilmaps(combined_img, img);
 }
 
-void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& combined_img, GadgetronImageData& img) const
+void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& combined_img, const GadgetronImageData& img) const
 {
     std::vector<int> img_dims(4);
     img.get_image_dimensions(0, &img_dims[0]);
 
     for(size_t i_img=0; i_img<img.items(); ++i_img)
     {
-        ImageWrap& iw_src = img.image_wrap(i_img);
-        void* vptr_src_img = iw_src.ptr_image();
+        const ImageWrap& iw_src = img.image_wrap(i_img);
+        const CFImage* ptr_src_img = static_cast<const CFImage*>(iw_src.ptr_image());
 
-        CFImage* ptr_src_img = static_cast<CFImage*>(vptr_src_img);
-
+		// const void* vptr_src_img = iw_src.ptr_image();
+        // const CFImage* ptr_src_img = static_cast<const CFImage*>(vptr_src_img);
+		
         CFImage coilmap= get_csm_as_cfimage(KSpaceSubset::get_tag_from_img(*ptr_src_img), i_img);
 
         int const Nx = (int)coilmap.getMatrixSizeX();
@@ -1824,30 +1824,32 @@ void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& c
         if( img_dims != csm_dims)
             throw LocalisedException("The data dimensions of the image don't match the sensitivity maps.",   __FILE__, __LINE__);
 
-        CFImage dst_img(Nx, Ny, Nz, 1);
+        
+		CFImage* ptr_dst_img = new CFImage(Nx, Ny, Nz, 1); //urgh this is so horrible
+		sirf::ImageWrap iw_dst(ISMRMRD::ISMRMRD_CXFLOAT, ptr_dst_img );
+		
+		ptr_dst_img->setHead(ptr_src_img->getHead());
+		ptr_dst_img->setNumberOfChannels(1);
 
-        complex_float_t* it_dst = dst_img.begin();
+		for(auto it=ptr_dst_img->begin(); it!=ptr_dst_img->end(); ++it)	
+			*it = complex_float_t(0.f,0.f);
+		
+		// conjugate the coilmap
+		for(auto it=coilmap.begin(); it!=coilmap.end(); ++it)
+			*it = std::conj(*it);
 
-        while(it_dst != dst_img.end())
-        {
-            *it_dst = complex_float_t(0.f,0.f);
-            it_dst++;
-        }
 
-        dst_img.setHead(ptr_src_img->getHead());
-        dst_img.setNumberOfChannels(1);
+		// multiply with image
+		std::transform( coilmap.begin(), coilmap.end(),
+						ptr_src_img->getDataPtr(), coilmap.begin(), 
+						std::multiplies<complex_float_t>());
 
         for( size_t nc=0;nc<Nc ; nc++)
         for( size_t nz=0;nz<Nz ; nz++)
         for( size_t ny=0;ny<Ny ; ny++)
         for( size_t nx=0;nx<Nx ; nx++)
-        {
-            dst_img(nx, ny, nz, 0) += std::conj(coilmap(nx, ny, nz, nc)) * ((*ptr_src_img)(nx, ny, nz, nc));
+	        ptr_dst_img->operator() (nx, ny, nz, 0) += coilmap(nx,ny,nz,nc);
 
-        }
-
-        void* vptr_dst_img = new CFImage(dst_img); //urgh this is so horrible
-        sirf::ImageWrap iw_dst(ISMRMRD::ISMRMRD_CXFLOAT, vptr_dst_img );
         combined_img.append(iw_dst);
     }
 }

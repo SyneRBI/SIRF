@@ -1092,12 +1092,12 @@ namespace sirf {
         }
 
         void forward(GadgetronImageData& img, GadgetronImageData& combined_img)const;
-        void backward(GadgetronImageData& combined_img, GadgetronImageData& img)const;
+        void backward(GadgetronImageData& combined_img, const GadgetronImageData& img)const;
 
     protected:
 
         void coilchannels_from_combined_image(GadgetronImageData& img, GadgetronImageData& combined_img) const;
-        void combine_images_with_coilmaps(GadgetronImageData& combined_img, GadgetronImageData& img) const;
+        void combine_images_with_coilmaps(GadgetronImageData& combined_img, const GadgetronImageData& img) const;
 
 
         //bool flag_imgs_suitable_for_csm_computation_=false;
