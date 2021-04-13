@@ -65,4 +65,4 @@ jobs:
     - name: tests
       shell: bash
       run: 
-          bash ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
+          bash -evx ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
