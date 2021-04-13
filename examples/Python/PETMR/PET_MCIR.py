@@ -89,8 +89,6 @@ from ccpi.plugins.regularisers import FGP_TV
 from ccpi.filters import regularisers
 import numpy as np
 
-pet.AcquisitionData.set_storage_scheme('memory')
-
 __version__ = '0.1.0'
 args = docopt(__doc__, version=__version__)
 

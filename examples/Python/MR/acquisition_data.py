@@ -51,10 +51,6 @@ if data_path is None:
 slcs = int(args['--slices'])
 show_plot = not args['--non-interactive']
 
-#AcquisitionData.set_storage_scheme('memory')
-#scheme = AcquisitionData.get_storage_scheme()
-#print('storage scheme: %s' % repr(scheme))
-
 def main():
 
     # locate the input data file
