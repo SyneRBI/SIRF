@@ -39,7 +39,7 @@ namespace sirf{
 
 void preprocess_acquisition_data(MRAcquisitionData& ad);
 void set_unit_dcf(MRAcquisitionData& ad);
-void edit_acq(std::string path_in, std::string path_out);
+void set_acq_default_orientation(std::string path_in, std::string path_out);
 
 void write_cfimage_to_raw(const std::string& fname_prefix, const CFImage& img);
 void write_cfimage_to_raw(const std::string& fname_prefix, const ImageWrap& iw);

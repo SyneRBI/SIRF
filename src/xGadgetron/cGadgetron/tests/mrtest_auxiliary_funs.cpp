@@ -116,7 +116,7 @@ void sirf::write_imagevector_to_raw(const std::string& fname_prefix, const sirf:
 
 
 
-void sirf::edit_acq(std::string path_in, std::string path_out)
+void sirf::set_acq_default_orientation(std::string path_in, std::string path_out)
 {
     gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
     AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;

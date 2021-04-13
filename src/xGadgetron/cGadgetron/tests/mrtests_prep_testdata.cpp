@@ -39,7 +39,7 @@ int main ( int argc, char* argv[])
         const char * path_in  = argv[1];
         const char * path_out = argv[2];
                 
-        sirf::edit_acq(path_in, path_out);
+        sirf::set_acq_default_orientation(path_in, path_out);
 
         return 0;
     }
