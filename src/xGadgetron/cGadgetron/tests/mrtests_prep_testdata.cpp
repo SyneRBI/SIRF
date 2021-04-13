@@ -24,24 +24,28 @@ limitations under the License.
 \brief Auxiliary functions for MR related C++ tests.
 
 \author Johannes Mayer
-\author CCP PETMR
 */
 
-#pragma once
+#include <iostream>
+#include "mrtest_auxiliary_funs.h"
 
-#include "sirf/Gadgetron/gadgetron_x.h"
-#include "sirf/Gadgetron/gadget_lib.h"
-#include "sirf/Gadgetron/gadgetron_data_containers.h"
-#include "sirf/Gadgetron/gadgetron_image_wrap.h"
+int main ( int argc, char* argv[])
+{
+    try{    
 
-namespace sirf{
+        if(argc != 3)
+            throw std::runtime_error("Please supply exactly two arguments: full path to input and output files.");
+        
+        const char * path_in  = argv[1];
+        const char * path_out = argv[2];
+                
+        sirf::edit_acq(path_in, path_out);
 
-
-void preprocess_acquisition_data(MRAcquisitionData& ad);
-void set_unit_dcf(MRAcquisitionData& ad);
-void edit_acq(std::string path_in, std::string path_out);
-
-void write_cfimage_to_raw(const std::string& fname_prefix, const CFImage& img);
-void write_cfimage_to_raw(const std::string& fname_prefix, const ImageWrap& iw);
-void write_imagevector_to_raw(const std::string& fname_prefix, const sirf::GadgetronImagesVector& iv);
-} // END NAMESPACE
+        return 0;
+    }
+    catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}

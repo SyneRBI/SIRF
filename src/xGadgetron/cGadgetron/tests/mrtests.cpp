@@ -43,8 +43,6 @@ limitations under the License.
 #include "sirf/Gadgetron/fourierencoding.h"
 #include "sirf/Gadgetron/trajectorypreparation.h"
 
-
-
 #include "mrtest_auxiliary_funs.h"
 
 using namespace sirf;
@@ -583,11 +581,7 @@ int main ( int argc, char* argv[])
 {
 
 	try{
-		if (argc == 3) {
-			edit_acq(argv[1], argv[2]);
-			return 0;
-		}
-
+		
         std::string SIRF_PATH;
         if (argc==1)
             SIRF_PATH = getenv("SIRF_PATH");
