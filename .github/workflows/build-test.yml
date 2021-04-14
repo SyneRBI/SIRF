@@ -24,6 +24,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - name: install_dependencies
       run:
           cd ${GITHUB_WORKSPACE};
@@ -67,10 +69,10 @@ jobs:
     - name: tests
       shell: bash
       run: |
-          find ${GITHUB_WORKSPACE} -name \*.h\*;
+          find ${GITHUB_WORKSPACE} -name \*.h5;
           ls -lR ${GITHUB_WORKSPACE}/SIRF/data
-          find ~/install -name \*.h\*;
+          find ~/install -name \*.h5;
           ls -lR ~/install/share
-          exit 0
+          #exit 0
           #XXX disable such that we fill the cache
-          #bash -evx ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
+          bash -evx ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
