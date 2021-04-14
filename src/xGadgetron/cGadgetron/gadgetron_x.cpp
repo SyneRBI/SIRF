@@ -182,6 +182,7 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 
 	ISMRMRD::Acquisition acq_tmp;
 	std::string config = xml();
+
 	// quick fix: checking if AcquisitionFinishGadget is needed (= running old Gadgetron)
 	shared_ptr<MRAcquisitionData> sptr_acqs = acquisitions.new_acquisitions_container();
 	{
@@ -190,6 +191,7 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 			shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs)));
 		for (int nt = 0; nt < N_TRIALS; nt++) {
+//			std::cout << "connection attempt " << nt << '\n';
 			try {
 				conn().connect(host_, port_);
 				conn().send_gadgetron_configuration_script(config);
@@ -208,7 +210,7 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 	}
 
 	uint32_t na = sptr_acqs->number();
-	//std::cout << na << '\n';
+	//std::cout << na << " acquisitions processed\n";
 	if (na < 1) {
 		// old Gadgetron is running, have to append AcquisitionFinishGadget to the chain
 		gadgetron::shared_ptr<AcquisitionFinishGadget>

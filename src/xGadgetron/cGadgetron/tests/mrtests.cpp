@@ -592,10 +592,7 @@ int main ( int argc, char* argv[])
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
         gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
-        AcquisitionsVector::set_as_template();
-
         AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
-
         av.read(data_path);
 
         sirf::preprocess_acquisition_data(av);

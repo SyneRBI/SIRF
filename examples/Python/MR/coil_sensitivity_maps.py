@@ -113,11 +113,9 @@ def main():
                   show=False)
 
     try:
-        from ismrmrdtools0 import coils
+        from ismrmrdtools import coils
     except:
         print('Inati method requires ismrmrd-python-tools')
-        import matplotlib.pyplot as plt
-        plt.show()
         return
     # calculate coil sensitivity maps using an approach suggested by 
     #   Inati SJ, Hansen MS, Kellman P.
