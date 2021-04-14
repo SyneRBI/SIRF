@@ -53,6 +53,12 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;
+		virtual void xapyb(
+		 	const DataContainer& x, const void* ptr_a,
+		 	const DataContainer& y, const void* ptr_b)=0;
+		virtual void xapyb(
+		 	const DataContainer& x, const DataContainer& a,
+		 	const DataContainer& y, const DataContainer& b)=0;					
 		bool is_empty() const
 		{
 			return items() < 1;

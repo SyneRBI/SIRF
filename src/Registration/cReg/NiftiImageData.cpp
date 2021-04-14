@@ -1627,6 +1627,21 @@ void NiftiImageData<dataType>::axpby(
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, const void* ptr_a,
+    const DataContainer& a_y, const void* ptr_b)
+{
+    //Not implemented
+}
+template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, const DataContainer& a_a,
+    const DataContainer& a_y, const DataContainer& a_b)
+{
+    //Not implemented
+}
+
+template<class dataType>
 float NiftiImageData<dataType>::norm() const
 {
     double s = 0.0;

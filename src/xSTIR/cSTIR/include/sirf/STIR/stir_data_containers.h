@@ -252,6 +252,12 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const void* ptr_b);
+		virtual void xapyb(
+			const DataContainer& a_a, const DataContainer& a_x,
+			const DataContainer& a_b, const DataContainer& a_y);	
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y);
 		virtual void divide
@@ -886,6 +892,12 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const void* ptr_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void multiply(const DataContainer& x,
 			const DataContainer& y);
 		virtual void divide(const DataContainer& x,
@@ -934,10 +946,15 @@ namespace sirf {
 		void axpby(
 			float a, const DataContainer& a_x,
 			float b, const DataContainer& a_y)
-		{
+		{	
 			axpby(&a, a_x, &b, a_y);
 		}
-
+		void xapyb(
+			const DataContainer& a_x, float a,
+			const DataContainer& a_y, float b)
+		{
+			xapyb(a_x, &a, a_y, &b);
+		}
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;

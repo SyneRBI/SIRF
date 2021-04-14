@@ -264,6 +264,22 @@ MRAcquisitionData::axpby
 	}
 }
 
+void 
+MRAcquisitionData::xapyb
+(const ISMRMRD::Acquisition& acq_x, complex_float_t a,
+	ISMRMRD::Acquisition& acq_y, complex_float_t b)
+{
+	//not implemented
+}
+
+void 
+MRAcquisitionData::xapyb
+(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
+	ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b)
+{
+	//not implemented
+}
+
 void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
@@ -354,6 +370,22 @@ const void* ptr_b, const DataContainer& a_y)
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(1, x, y, a, b);
+}
+
+void
+MRAcquisitionData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b)
+{
+	//not implemented
+}
+
+void
+MRAcquisitionData::xapyb(
+const DataContainer& a_x, const DataContainer& a_a,
+const DataContainer& a_y, const DataContainer& a_b)
+{
+	//not implemented
 }
 
 void
@@ -971,6 +1003,22 @@ const void* ptr_b, const DataContainer& a_y)
 		}
 	}
 	this->set_meta_data(x.get_meta_data());
+}
+
+void
+GadgetronImageData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b)
+{
+	//not implemented
+}
+
+void
+GadgetronImageData::xapyb(
+const DataContainer& a_x, const DataContainer& a_a,
+const DataContainer& a_y, const DataContainer& a_b)
+{
+	//not implemented
 }
 
 void
