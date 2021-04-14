@@ -69,8 +69,6 @@ jobs:
     - name: tests
       shell: bash
       run: |
-          find ${GITHUB_WORKSPACE} -name \*.h5;
-          ls -lR ${GITHUB_WORKSPACE}/SIRF/data
           find ~/install -name \*.h5;
           ls -lR ~/install/share
           #exit 0
