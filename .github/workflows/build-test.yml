@@ -13,10 +13,10 @@ jobs:
     strategy:
       matrix:
         # the agent machine operating systems
-        #XXX disable for test os: [ubuntu-latest, ubuntu-18.04]
-        os: [ubuntu-latest]
-        #XXX disable for test DEVEL_BUILD: ["OFF", "ON"]
-        DEVEL_BUILD: ["ON"]
+        os: [ubuntu-latest, ubuntu-18.04]
+        #os: [ubuntu-latest]
+        disable for test DEVEL_BUILD: ["OFF", "ON"]
+        #DEVEL_BUILD: ["ON"]
         EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
         CMAKE_BUILD_TYPE: ["Release"]
         # let's run all of them, as opposed to aborting when one fails
@@ -54,6 +54,8 @@ jobs:
           #echo "cmake flags $BUILD_FLAGS $EXTRA_BUILD_FLAGS"          
           BUILD_FLAGS="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_Armadillo=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DCMAKE_INSTALL_PREFIX=~/install -DPYVER=3";
           BUILD_FLAGS="$BUILD_FLAGS -DSIRF_SOURCE_DIR:PATH=${GITHUB_WORKSPACE} -DDISABLE_GIT_CHECKOUT_SIRF=ON"
+          # only test SIRF (others are tested in the SIRF-SuperBuild action)
+          BUILD_FLAGS="$BUILD_FLAGS -DBUILD_TESTING_GADGETRON=OFF -DBUILD_TESTING_ISMRMRD=OFF"
           mkdir -p build/;
           cd build;
           export CC="gcc-7";
@@ -69,8 +71,6 @@ jobs:
     - name: tests
       shell: bash
       run: |
-          find ~/install -name \*.h5;
-          ls -lR ~/install/share
-          #exit 0
+          exit 0
           #XXX disable such that we fill the cache
-          bash -evx ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
+          #bash -evx ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
