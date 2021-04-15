@@ -13,10 +13,8 @@ jobs:
     strategy:
       matrix:
         # the agent machine operating systems
-        os: [ubuntu-latest, ubuntu-18.04]
-        #os: [ubuntu-latest]
-        disable for test DEVEL_BUILD: ["OFF", "ON"]
-        #DEVEL_BUILD: ["ON"]
+        os: [ubuntu-latest]
+        DEVEL_BUILD: ["OFF", "ON"]
         EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
         CMAKE_BUILD_TYPE: ["Release"]
         # let's run all of them, as opposed to aborting when one fails
@@ -71,6 +69,4 @@ jobs:
     - name: tests
       shell: bash
       run: |
-          exit 0
-          #XXX disable such that we fill the cache
-          #bash -evx ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
+          bash -ev ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
