@@ -138,7 +138,7 @@ const DataContainer& a_y, const DataContainer& a_b
                                  "PETAcquisitionData or is not initialised.");
 
     // STIR's xapby can't take mixed types for a and b
-    //not implemented error
+	throw std::runtime_error("xapyb has not been implemented yet where a and b are different types.");
 }
 
 void

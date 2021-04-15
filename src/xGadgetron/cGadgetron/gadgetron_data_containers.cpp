@@ -269,7 +269,7 @@ MRAcquisitionData::xapyb
 (const ISMRMRD::Acquisition& acq_x, complex_float_t a,
 	ISMRMRD::Acquisition& acq_y, complex_float_t b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void 
@@ -277,7 +277,7 @@ MRAcquisitionData::xapyb
 (const ISMRMRD::Acquisition& acq_x, complex_float_t a,
 	ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void 
@@ -285,7 +285,7 @@ MRAcquisitionData::xapyb
 (const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
 	ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void
@@ -385,7 +385,7 @@ MRAcquisitionData::xapyb(
 const DataContainer& a_x, const void* ptr_a,
 const DataContainer& a_y, const void* ptr_b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void
@@ -393,7 +393,7 @@ MRAcquisitionData::xapyb(
 const DataContainer& a_x, const void* ptr_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void
@@ -401,7 +401,7 @@ MRAcquisitionData::xapyb(
 const DataContainer& a_x, const DataContainer& a_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void
@@ -1026,7 +1026,7 @@ GadgetronImageData::xapyb(
 const DataContainer& a_x, const void* ptr_a,
 const DataContainer& a_y, const void* ptr_b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void
@@ -1034,7 +1034,7 @@ GadgetronImageData::xapyb(
 const DataContainer& a_x, const void* ptr_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void
@@ -1042,7 +1042,7 @@ GadgetronImageData::xapyb(
 const DataContainer& a_x, const DataContainer& a_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
-	//not implemented
+	throw std::runtime_error("xapyb has not been implemented yet.");
 }
 
 void
