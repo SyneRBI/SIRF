@@ -214,11 +214,11 @@ class DataContainer(ABC):
         # splits axpby in 3 steps if a and b are not numbers as 
         # pysirf.cSIRF_axpby requires them as numbers
         if not ( isinstance(a , Number) and isinstance(b , Number) ):
+            tmp = self.multiply(a)
             if out is None:
                 out = y.multiply(b)
             else:
                 y.multiply(b, out=out)
-            tmp = self.multiply(a)
             out.add(tmp, out=out)
             return out
 
@@ -236,6 +236,52 @@ class DataContainer(ABC):
             try_calling(pysirf.cSIRF_axpbyAlt \
                 (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle, z.handle))
         check_status(z.handle)
+        return z
+
+    def sapyb(self, a, y, b, out=None, **kwargs):
+        '''
+        Addition for data containers. Can be in place.
+
+        Returns the sum of the container data with another container 
+        data viewed as vectors.
+        a: multiplier to self, can be a number or a DataContainer
+        b: multiplier to y, can be a number or a DataContainer 
+        y: DataContainer
+        out:   DataContainer to store the result to, can be self or y.
+        '''
+
+        assert_validities(self, y)
+
+        if out is not None:
+            assert_validities(self, out)
+            z = out
+        else:
+            z = self.copy()
+
+        if isinstance(a, Number):
+            alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
+
+            if isinstance(b, Number):
+                beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
+                pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, z.handle)
+            else:
+                assert_validities(self, b)
+                pysirf.cSIRF_xapyb_sv_Alt(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, z.handle)
+        else:
+            assert_validities(self, a)
+
+            if isinstance(b, Number):
+                beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
+                pysirf.cSIRF_xapyb_sv_Alt(y.handle, beta.ctypes.data, self.handle, alpha.ctypes.data, z.handle) 
+            else:
+                assert_validities(self, b)
+                pysirf.cSIRF_xapby_vv_Alt(self.handle, a.handle, y.handle, b.handle, z.handle)
+
+        if not check_status(z.handle):
+            tmp = self.multiply(a)
+            y.multiply(b, out=z)
+            z.add(tmp, out=z)
+        
         return z
 
     def write(self, filename):
