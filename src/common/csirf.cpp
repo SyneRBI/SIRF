@@ -26,6 +26,7 @@ limitations under the License.
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ImageData.h"
 #include "sirf/Syn/utilities.h"
+#include "sirf/common/deprecated.h"
 
 using namespace sirf;
 
@@ -103,13 +104,13 @@ cSIRF_dot(const void* ptr_x, const void* ptr_y)
 	CATCH;
 }
 
+//! \deprecated cSIRF_axpby (\see cSIRF_xapyb_ss)
 extern "C"
 void*
-cSIRF_axpby(
+SIRF_DEPRECATED cSIRF_axpby(
 const void* ptr_a, const void* ptr_x,
 const void* ptr_b, const void* ptr_y
 ) {
-	//mark as deprecated
 	try {
 		DataContainer& x =
 			objectFromHandle<DataContainer >(ptr_x);
@@ -123,14 +124,14 @@ const void* ptr_b, const void* ptr_y
 	CATCH;
 }
 
+//! \deprecated cSIRF_axpbyAlt (\see cSIRF_xapyb_ss_ALT)
 extern "C"
 void*
-cSIRF_axpbyAlt(
+SIRF_DEPRECATED cSIRF_axpbyAlt(
 const void* ptr_a, const void* ptr_x,
 const void* ptr_b, const void* ptr_y,
 void* ptr_z
 ) {
-	//mark as deprecated
 	try {
 		DataContainer& x =
 			objectFromHandle<DataContainer >(ptr_x);

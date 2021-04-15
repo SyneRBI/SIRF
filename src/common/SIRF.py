@@ -202,6 +202,8 @@ class DataContainer(ABC):
         return z
     def axpby(self, a, b, y, out=None, **kwargs):
         '''
+        This function has been deprecated and will be removed in a future release. Please use `sapyb` instead.
+
         Addition for data containers.
 
         Returns the sum of the container data with another container 
@@ -211,32 +213,7 @@ class DataContainer(ABC):
         y: DataContainer
         out:   DataContainer to store the result to.
         '''
-        # splits axpby in 3 steps if a and b are not numbers as 
-        # pysirf.cSIRF_axpby requires them as numbers
-        if not ( isinstance(a , Number) and isinstance(b , Number) ):
-            tmp = self.multiply(a)
-            if out is None:
-                out = y.multiply(b)
-            else:
-                y.multiply(b, out=out)
-            out.add(tmp, out=out)
-            return out
-
-        assert_validities(self, y)
-        alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
-        beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
-        
-        if out is None:
-            z = self.same_object()
-            z.handle = pysirf.cSIRF_axpby \
-                (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
-        else:
-            assert_validities(self, out)
-            z = out
-            try_calling(pysirf.cSIRF_axpbyAlt \
-                (alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle, z.handle))
-        check_status(z.handle)
-        return z
+        return self.sapyb(a, y, b, out=out, **kwargs)
 
     def sapyb(self, a, y, b, out=None, **kwargs):
         '''
