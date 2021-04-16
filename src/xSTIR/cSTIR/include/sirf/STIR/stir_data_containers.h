@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup STIR Extensions
+\ingroup PET
 \brief Specification file for data handling types not present in STIR.
 
 \author Evgueni Ovtchinnikov
@@ -75,7 +75,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief STIR ProjDataInterfile wrapper with additional file managing features.
 
 	This derived class has additional capability of deleting the file it handles
@@ -134,7 +134,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief STIR ProjData wrapper with added functionality.
 
 	This class enjoys some features of STIR ProjData and, additionally,
@@ -370,7 +370,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief In-file implementation of PETAcquisitionData.
 
 	*/
@@ -465,7 +465,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief In-memory implementation of PETAcquisitionData.
 
 	*/
@@ -697,7 +697,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief STIR DiscretisedDensity<3, float> wrapper with added functionality.
 
 	This class enjoys some features of STIR DiscretisedDensity<3, float> and,

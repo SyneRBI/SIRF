@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Matlab Interface Generators
+\ingroup MatlabInterface
 \brief The executable for generating Matlab interface for iutilities library.
 
 \author Evgueni Ovtchinnikov

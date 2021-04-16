@@ -22,7 +22,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Data Containers
+\ingroup MR
 \brief Specification file for data container classes for Gadgetron data.
 
 \author Evgueni Ovtchinnikov
@@ -53,7 +53,7 @@ limitations under the License.
 #define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 /*!
-\ingroup Gadgetron Data Containers
+\ingroup MR
 \brief Acquisitions filter.
 
 Some acquisitions do not participate directly in the reconstruction process
@@ -67,7 +67,7 @@ Some acquisitions do not participate directly in the reconstruction process
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
 
 /*!
-\ingroup Gadgetron Data Containers
+\ingroup MR
 \brief Serialized ISMRMRD acquisition header (cf. ismrmrd.h).
 
 */
@@ -183,7 +183,7 @@ namespace sirf {
     };
 
 	/*!
-	\ingroup Gadgetron Data Containers
+	\ingroup MR
 	\brief Abstract MR acquisition data container class.
 
 	*/
@@ -319,7 +319,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Data Containers
+	\ingroup MR
 	\brief A vector implementation of the abstract MR acquisition data container
 	class.
 
@@ -382,7 +382,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Data Containers
+	\ingroup MR
 	\brief Abstract Gadgetron image data container class.
 
 	*/
@@ -534,7 +534,7 @@ namespace sirf {
 	typedef ISMRMRDImageData GadgetronImageData;
 
 	/*!
-	\ingroup Gadgetron Data Containers
+	\ingroup MR
 	\brief A vector implementation of the abstract Gadgetron image data 
 	container class.
 
@@ -839,7 +839,7 @@ namespace sirf {
     };
 
     /*!
-    \ingroup Gadgetron Data Containers
+    \ingroup MR
     \brief A coil images container based on the GadgetronImagesVector class.
     */
 
@@ -853,7 +853,7 @@ namespace sirf {
     };
 
     /*!
-    \ingroup Gadgetron Data Containers
+    \ingroup MR
     \brief A coil sensitivities container based on the GadgetronImagesVector class.
 
     Coil sensitivities can be computed directly form Acquisition data where in the first

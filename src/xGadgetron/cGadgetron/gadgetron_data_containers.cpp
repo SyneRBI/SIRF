@@ -22,7 +22,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Data Containers
+\ingroup MR
 \brief Implementation file for SIRF data container classes for Gadgetron data.
 
 \author Evgueni Ovtchinnikov

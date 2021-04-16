@@ -31,6 +31,12 @@ limitations under the License.
 */
 
 /*!
+\defgroup Common SIRF common functionality
+\ingroup SIRF
+All functionality of SIRF common to all engines.
+*/
+
+/*!
 \defgroup PET SIRF PET
 \ingroup SIRF
 All PET functionality of SIRF.
@@ -53,3 +59,16 @@ All registration/resampling functionality of SIRF.
 \ingroup SIRF
 All synergistic functionality of SIRF.
 */
+
+/*!
+\defgroup CInterface C Interface to C++ Objects
+\ingroup SIRF
+C Interface to SIRF C++ Objects.
+*/
+
+/*!
+\defgroup MatlabInterface Matlab interface generator
+\ingroup SIRF
+Matlab interface generator.
+*/
+

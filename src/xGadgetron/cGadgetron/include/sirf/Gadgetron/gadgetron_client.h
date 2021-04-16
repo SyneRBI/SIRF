@@ -53,7 +53,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /*!
 \file
-\ingroup xGadgetron Client
+\ingroup MR
 \brief Utilities for data exchange between SIRF and Gadgetron server.
 
 \author Evgueni Ovtchinnikov

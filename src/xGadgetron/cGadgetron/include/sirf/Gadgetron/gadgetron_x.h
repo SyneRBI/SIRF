@@ -20,7 +20,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Extensions
+\ingroup MR
 \brief Specification file for extended Gadgetron functionality classes.
 
 \author Evgueni Ovtchinnikov
@@ -54,7 +54,7 @@ namespace sirf {
   class GadgetronClientConnector;
 
 	/*!
-	\ingroup Gadgetron Extensions
+	\ingroup MR
 	\brief Shared pointer wrap-up for GadgetronClientConnector.
 	*/
 	class GTConnector {
@@ -67,7 +67,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Extensions
+	\ingroup MR
 	\brief Shared pointer wrap-up for the abstract gadget class aGadget.
 
 	*/
@@ -98,7 +98,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Extensions
+	\ingroup MR
 	\brief Gadget chain class.
 
 	Gadgetron gadget chains have the following form:
@@ -182,7 +182,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Extensions
+	\ingroup MR
 	\brief A particular type of Gadget chain that has AcquisitionData
 	on input and output.
 
@@ -219,7 +219,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Extensions
+	\ingroup MR
 	\brief A particular type of Gadget chain that has AcquisitionData on input
 	and ImageData on output.
 
@@ -257,7 +257,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Extensions
+	\ingroup MR
 	\brief A particular type of Gadget chain that has ImageData
 	on input and output.
 
@@ -306,7 +306,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Extensions
+	\ingroup MR
 	\brief A class for MR acquisition modelling.
 
 	MR Acquisition model is a mathematical model that represents
@@ -335,7 +335,7 @@ namespace sirf {
 	class MRAcquisitionModel {
 	public:
 		/*!
-		\ingroup Gadgetron Extensions
+		\ingroup MR
 		\brief Class for the product of backward and forward projectors of the MR acquisition model.
 
 		For a given GadgetronImageData object x, computes B(F(x)), where F(x) is the forward projection of x,

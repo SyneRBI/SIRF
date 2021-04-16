@@ -53,7 +53,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /*!
 \file
-\ingroup SIRF Gadgetron client
+\ingroup MR
 \brief Implementation file for SIRF Gadgetron client.
 
 \author Evgueni Ovtchinnikov

@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Image Wrapper
+\ingroup MR
 \brief Specification file for a wrapper class for ISMRMRD::Image.
 
 \author Evgueni Ovtchinnikov
