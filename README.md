@@ -1,7 +1,9 @@
 # Synergistic Image Reconstruction Framework
 
 [![gh-action-badge]][gh-action-link]
-[![coveralls-badge]][coveralls] [![codecov-badge]][codecov] [![style-badge]][style-link]
+<!--
+[![coveralls-badge]][coveralls] [![codecov-badge]][codecov] -->
+[![style-badge]][style-link]
 [![zenodo-badge]][zenodo-link]
 
 This software is the main output of [SyneRBI](https://www.ccpsynerbi.ac.uk), the Collaborative Computational 
@@ -16,8 +18,8 @@ You can also [download a VM](https://doi.org/10.5281/zenodo.2707911) with SIRF a
 [coveralls]: https://coveralls.io/github/CCPPETMR/SIRF?branch=master
 [codecov-badge]: https://codecov.io/gh/SyneRBI/SIRF/branch/master/graph/badge.svg
 [codecov]: https://codecov.io/gh/SyneRBI/SIRF
-[gh-action-badge]: https://github.com/SyneRBI/SIRF-SuperBuild/actions/workflows/c-cpp.yml/badge.svg
-[gh-action-link]: https://github.com/SyneRBI/SIRF-SuperBuild/actions/workflows/c-cpp.yml/
+[gh-action-badge]: https://github.com/SyneRBI/SIRF/actions/workflows/build-test.yml/badge.svg
+[gh-action-link]: https://github.com/SyneRBI/SIRF/actions/workflows/build-test.yml
 [travis-badge]: https://travis-ci.org/SyneRBI/SIRF.svg?branch=master
 [travis]: https://travis-ci.org/SyneRBI/SIRF
 [style-badge]: https://api.codacy.com/project/badge/Grade/392861b4085f4f438d12c41029f86b47
