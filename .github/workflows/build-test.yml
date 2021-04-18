@@ -56,8 +56,8 @@ jobs:
           BUILD_FLAGS="$BUILD_FLAGS -DBUILD_TESTING_GADGETRON=OFF -DBUILD_TESTING_ISMRMRD=OFF"
           mkdir -p build/;
           cd build;
-          export CC="gcc-7";
-          export CXX="g++-7";
+          export CC="gcc-8";
+          export CXX="g++-8";
           source ~/virtualenv/bin/activate;
           cmake -S ../SIRF-SuperBuild ${BUILD_FLAGS} ${EXTRA_BUILD_FLAGS} ${DEVEL_BUILD};
     - name: build
