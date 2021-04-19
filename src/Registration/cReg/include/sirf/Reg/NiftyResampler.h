@@ -155,9 +155,4 @@ protected:
     /// Adjoint output weights. Vector as may be complex
     std::shared_ptr<NiftiImageData<dataType> > _adjoint_output_weights_sptr;
 };
-
-template<class dataType>
-class NiftyResample : public NiftyResampler<dataType>
-{};
-
 }
