@@ -124,7 +124,7 @@ const void* ptr_b, const void* ptr_y
 	CATCH;
 }
 
-//! \deprecated cSIRF_axpbyAlt (\see cSIRF_xapyb_ss_ALT)
+//! \deprecated cSIRF_axpbyAlt (\see cSIRF_xapyb_ss_Alt)
 extern "C"
 void*
 SIRF_DEPRECATED cSIRF_axpbyAlt(
@@ -212,7 +212,7 @@ const void* ptr_y, const void* ptr_b
 
 extern "C"
 void*
-cSIRF_xapyb_ss_ALT(
+cSIRF_xapyb_ss_Alt(
 const void* ptr_x, const void* ptr_a,
 const void* ptr_y, const void* ptr_b,
 void* ptr_z
@@ -233,7 +233,7 @@ void* ptr_z
 
 extern "C"
 void*
-cSIRF_xapyb_vv_ALT(
+cSIRF_xapyb_vv_Alt(
 const void* ptr_x, const void* ptr_a,
 const void* ptr_y, const void* ptr_b,
 void* ptr_z
@@ -258,7 +258,7 @@ void* ptr_z
 
 extern "C"
 void*
-cSIRF_xapyb_sv_ALT(
+cSIRF_xapyb_sv_Alt(
 const void* ptr_x, const void* ptr_a,
 const void* ptr_y, const void* ptr_b,
 void* ptr_z
