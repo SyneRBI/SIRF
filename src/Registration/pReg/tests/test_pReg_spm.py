@@ -58,7 +58,7 @@ def try_spm():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    # Resample an image with NiftyResample. Register SPM, check the result
+    # Resample an image with NiftyResampler. Register SPM, check the result
 
     # TM
     translations = np.array([5.,  4., -5.], dtype=np.float32)
@@ -66,7 +66,7 @@ def try_spm():
 
     tm = sirf.Reg.AffineTransformation(translations, euler_angles)
 
-    niftyreg_resampler = sirf.Reg.NiftyResample()
+    niftyreg_resampler = sirf.Reg.NiftyResampler()
     niftyreg_resampler.set_padding_value(0.)
     niftyreg_resampler.set_reference_image(ref_aladin)
     niftyreg_resampler.set_floating_image(ref_aladin)

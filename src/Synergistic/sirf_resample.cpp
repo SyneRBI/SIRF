@@ -30,7 +30,7 @@ If multiple transformations are given, they will be applied in the order they we
 \author SyneRBI
 */
 
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Reg/AffineTransformation.h"
@@ -60,7 +60,7 @@ static std::shared_ptr<Resampler<float> > algo_as_sptr(const std::string &algori
 {
     std::cout << "\nUsing " << algorithm << " resampling algorithm...\n";
     if      (strcmp(algorithm.c_str(), "niftyreg") == 0)
-        return std::make_shared<NiftyResample<float> >();
+        return std::make_shared<NiftyResampler<float> >();
     else
         throw std::runtime_error("Synergistic_registration: unknown algorithm - " + algorithm + ".\n");
 }

@@ -53,10 +53,10 @@ namespace sirf {
 #endif
 
     // ---------------------------------------------------------------------------- //
-    // NiftyResample
+    // NiftyResampler
     // ---------------------------------------------------------------------------- //
-    void* cReg_setNiftyResampleParameter(void* hp, const char* name, const void* hv);
-    void* cReg_NiftyResampleParameter(const DataHandle* handle, const char* name);
+    void* cReg_setNiftyResamplerParameter(void* hp, const char* name, const void* hv);
+    void* cReg_NiftyResamplerParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // ImageWeightedMean

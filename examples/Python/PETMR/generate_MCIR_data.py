@@ -62,8 +62,8 @@ num_ms = int(args['--num_ms'])
 
 
 def get_resampler_from_tm(tm, image):
-    """returns a NiftyResample object for the specified transform matrix and image"""
-    resampler = reg.NiftyResample()
+    """returns a NiftyResampler object for the specified transform matrix and image"""
+    resampler = reg.NiftyResampler()
     resampler.set_reference_image(image)
     resampler.set_floating_image(image)
     resampler.add_transformation(tm)
