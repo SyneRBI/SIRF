@@ -340,5 +340,7 @@ void NiftyResampler<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, c
 
 namespace sirf {
 template class NiftyResampler<float>;
+
+template class DEPRECATED NiftyResample<float>;
 }
 
