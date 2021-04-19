@@ -151,7 +151,7 @@ void NiftyResample<dataType>::set_up_adjoint()
     set_up();
 
     // SINC currently not supported in NiftyMoMo
-    if (this->_interpolation_type == Resample<dataType>::SINC)
+    if (this->_interpolation_type == Resampler<dataType>::SINC)
         throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
 
     // Setup output image

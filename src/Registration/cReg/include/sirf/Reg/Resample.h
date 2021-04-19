@@ -52,7 +52,7 @@ i.e., Trans3(Trans2(Trans1(x))).
 \author SyneRBI
 */
 template<class dataType>
-class Resample
+class Resampler
 {
 public:
 
@@ -66,10 +66,10 @@ public:
     };
 
     /// Constructor
-    Resample() { _interpolation_type = NOTSET; }
+    Resampler() { _interpolation_type = NOTSET; }
 
     /// Destructor
-    virtual ~Resample() {}
+    virtual ~Resampler() {}
 
     /// Set reference image. This is the image that would be the reference if you were doing a forward transformation.
     virtual void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr);

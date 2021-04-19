@@ -98,7 +98,7 @@ The reference image and floating image can have nt and/or nu != 1.
 \author SyneRBI
 */
 template<class dataType>
-class NiftyResample : public Resample<dataType>
+class NiftyResample : public Resampler<dataType>
 {
 public:
 

@@ -1084,7 +1084,7 @@ int main(int argc, char* argv[])
         NiftyResample<float> nr;
         nr.set_reference_image(x);
         nr.set_floating_image(y);
-        nr.set_interpolation_type(Resample<float>::LINEAR);
+        nr.set_interpolation_type(Resampler<float>::LINEAR);
         nr.add_transformation(T);
 
         // Do the forward

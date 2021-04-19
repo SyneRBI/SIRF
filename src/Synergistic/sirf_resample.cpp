@@ -56,7 +56,7 @@ static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filenam
         throw std::runtime_error("unknown engine - " + engine + ".\n");
 }
 
-static std::shared_ptr<Resample<float> > algo_as_sptr(const std::string &algorithm)
+static std::shared_ptr<Resampler<float> > algo_as_sptr(const std::string &algorithm)
 {
     std::cout << "\nUsing " << algorithm << " resampling algorithm...\n";
     if      (strcmp(algorithm.c_str(), "niftyreg") == 0)
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
         std::string output = "output";
         std::vector<std::shared_ptr<const Transformation<float> > > trans;
         std::string algo = "niftyreg";
-        Resample<float>::InterpolationType interp = Resample<float>::NEARESTNEIGHBOUR;
+        Resampler<float>::InterpolationType interp = Resampler<float>::NEARESTNEIGHBOUR;
         float pad = 0;
         bool pad_set = false;
         bool forward = true;
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
             else if (strcmp(argv[0], "-interp") == 0) {
                 if (argc<2)
                     err("Option '-interp' expects a (numerical) argument.");
-                interp = static_cast<Resample<float>::InterpolationType>(atoi(argv[1]));
+                interp = static_cast<Resampler<float>::InterpolationType>(atoi(argv[1]));
                 argc-=2; argv+=2;
             }
             // add affine
@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<const ImageData> flo = image_as_sptr(flo_filename,eng_flo);
 
         // Resample
-        std::shared_ptr<Resample<float> > res = algo_as_sptr(algo);
+        std::shared_ptr<Resampler<float> > res = algo_as_sptr(algo);
         res->set_reference_image(ref);
         res->set_floating_image(flo);
         for (size_t i=0; i<trans.size(); ++i)
