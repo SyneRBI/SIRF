@@ -22,6 +22,8 @@
 import abc
 import sys
 import inspect
+import deprecation
+
 
 from sirf.Utilities import error, check_status, try_calling
 from sirf import SIRF
@@ -1238,6 +1240,13 @@ class NiftyResampler(object):
         """Get range geometry."""
         return self.reference_image
 
+@deprecation.deprecated(details="The use of NiftyResample is discouraged and will be dropped. \
+                        Please use NiftyResampler instead.")
+
+class NiftyResample(object):
+    pass
+
+NiftyResample = NiftyResampler
 
 class ImageWeightedMean(object):
     """Class for performing weighted mean of images."""
