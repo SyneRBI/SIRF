@@ -1639,7 +1639,22 @@ void NiftiImageData<dataType>::xapyb(
     const DataContainer& a_x, const DataContainer& a_a,
     const DataContainer& a_y, const DataContainer& a_b)
 {
-	throw std::runtime_error("xapyb has not been implemented yet for a and b as vectors.");
+    const NiftiImageData<dataType>& a = dynamic_cast<const NiftiImageData<dataType>&>(a_a);
+    const NiftiImageData<dataType>& b = dynamic_cast<const NiftiImageData<dataType>&>(a_b);
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
+	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
+	ASSERT(_nifti_image->nvox == a._nifti_image->nvox, "axpby operands size mismatch");
+	ASSERT(_nifti_image->nvox == b._nifti_image->nvox, "axpby operands size mismatch");
+    
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] = a._data[i] * x._data[i] + b._data[i] * y._data[i];
 }
 
 template<class dataType>
