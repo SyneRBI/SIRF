@@ -770,7 +770,7 @@ class TestDataContainerAlgebra(object):
 
         a = 2.0
         b = -3.0
-        gold = a * image1.as_array() + b * image2.as_array()
+        gold = a * arr - b * arr
 
         out = image1.sapyb(a, image2, b)
         numpy.testing.assert_allclose(out.as_array(), gold)
@@ -783,22 +783,24 @@ class TestDataContainerAlgebra(object):
         numpy.testing.assert_allclose(image1.as_array(), arr)
         numpy.testing.assert_allclose(image2.as_array(), -arr)
 
-        out.fill(image1)
+        out.fill(arr)
         out.sapyb(a, image2, b, out=out)
         numpy.testing.assert_allclose(out.as_array(), gold)
         numpy.testing.assert_allclose(image1.as_array(), arr)
         numpy.testing.assert_allclose(image2.as_array(), -arr)
 
-        out.fill(image2)
+        out.fill(-arr)
         image1.sapyb(a, out, b, out=out)
         numpy.testing.assert_allclose(out.as_array(), gold)
         numpy.testing.assert_allclose(image1.as_array(), arr)
         numpy.testing.assert_allclose(image2.as_array(), -arr)
         
         #vectors
-        a = image1.copy().fill(2)
-        b = image1.copy().fill(-3)
-        gold = a.as_array() * image1.as_array() + b.as_array() * image2.as_array()
+        a = image1.copy()
+        a.fill(2)
+        b = image1.copy()
+        b.fill(-3)
+        gold = a.as_array() * arr - b.as_array() * arr
    
         out.fill(0)
         image1.sapyb(a, image2, b, out=out)
@@ -808,7 +810,7 @@ class TestDataContainerAlgebra(object):
 
         #mixed
         a = 2.0
-        gold = a * image1.as_array() + b.as_array() * image2.as_array()
+        gold = a * arr - b.as_array() * arr
 
         out.fill(0)
         image1.sapyb(a, image2, b, out=out)

@@ -190,28 +190,6 @@ const void* ptr_y, const void* ptr_b
 
 extern "C"
 void*
-cSIRF_xapyb_sv(
-const void* ptr_x, const void* ptr_a,
-const void* ptr_y, const void* ptr_b
-) {
-	try {
-		DataContainer& x =
-			objectFromHandle<DataContainer >(ptr_x);
-		DataContainer& y =
-			objectFromHandle<DataContainer >(ptr_y);
-		DataContainer& b =
-			objectFromHandle<DataContainer >(ptr_b);
-
-		void* h = x.new_data_container_handle();
-		DataContainer& z = objectFromHandle<DataContainer>(h);
-		z.xapyb(x, ptr_a, y, b);
-		return h;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
 cSIRF_xapyb_ss_Alt(
 const void* ptr_x, const void* ptr_a,
 const void* ptr_y, const void* ptr_b,
@@ -251,29 +229,6 @@ void* ptr_z
 			objectFromHandle<DataContainer >(ptr_z);
 
 		z.xapyb(x, a, y, b);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_xapyb_sv_Alt(
-const void* ptr_x, const void* ptr_a,
-const void* ptr_y, const void* ptr_b,
-void* ptr_z
-) {
-	try {
-		DataContainer& x =
-			objectFromHandle<DataContainer >(ptr_x);
-		DataContainer& y =
-			objectFromHandle<DataContainer >(ptr_y);
-		DataContainer& b =
-			objectFromHandle<DataContainer >(ptr_b);
-		DataContainer& z =
-			objectFromHandle<DataContainer >(ptr_z);
-
-		z.xapyb(x, ptr_a, y, b);
 		return new DataHandle;
 	}
 	CATCH;

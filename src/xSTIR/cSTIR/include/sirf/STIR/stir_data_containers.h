@@ -254,10 +254,7 @@ namespace sirf {
 			const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const DataContainer& a_b);			
+			const DataContainer& a_y, const void* ptr_b);	
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
@@ -897,10 +894,7 @@ namespace sirf {
 			const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const DataContainer& a_b);			
+			const DataContainer& a_y, const void* ptr_b);		
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
@@ -960,13 +954,7 @@ namespace sirf {
 			const DataContainer& a_y, float b)
 		{
 			xapyb(a_x, &a, a_y, &b);
-		}
-		void xapyb(
-			const DataContainer& a_x, float a,
-			const DataContainer& a_y, const DataContainer& a_b)
-		{
-			xapyb(a_x, &a, a_y, a_b);
-		}		
+		}	
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;

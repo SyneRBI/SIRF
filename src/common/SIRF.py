@@ -235,7 +235,7 @@ class DataContainer(ABC):
         else:
             z = self.copy()
 
-        use_python = False
+        
         if isinstance(a, Number):
             alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
 
@@ -243,27 +243,26 @@ class DataContainer(ABC):
                 beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
                 pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, z.handle)
             else:
-                assert_validities(self, b)
-                use_python = True
-                #pysirf.cSIRF_xapyb_sv_Alt(self.handle, alpha.ctypes.data, y.handle, b.handle, z.handle)
+                one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
+                tmp = y.multiply(b)
+                pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, tmp.handle, one.ctypes.data, z.handle)
         else:
             assert_validities(self, a)
-
             if isinstance(b, Number):
-                use_python = True
-                #beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
-                #pysirf.cSIRF_xapyb_sv_Alt(y.handle, beta.ctypes.data, self.handle, a.handle, z.handle)
+                one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
+                beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
+                tmp = self.multiply(a)
+                pysirf.cSIRF_xapyb_ss_Alt(tmp.handle, one.ctypes.data, y.handle, beta.ctypes.data, z.handle)
             else:
                 assert_validities(self, b)
-                pysirf.cSIRF_xapyb_vv_Alt(self.handle, a.handle, y.handle, b.handle, z.handle)
-
-        if use_python==True:
-            tmp = self.multiply(a)
-            y.multiply(b, out=z)
-            z.add(tmp, out=z)
-
+                try:
+                    try_calling(pysirf.cSIRF_xapyb_vv_Alt(self.handle, a.handle, y.handle, b.handle, z.handle))
+                except:
+                    tmp = self.multiply(a)
+                    y.multiply(b, out=z)
+                    z.add(tmp, out=z)
+                    
         check_status(z.handle)
-
         return z
 
     def write(self, filename):

@@ -47,10 +47,6 @@ void* cSIRF_xapyb_ss(const void* ptr_x, const PTR_FLOAT ptr_a,
 	const void* ptr_y, const PTR_FLOAT ptr_b);
 void* cSIRF_xapyb_ss_Alt(const void* ptr_x, const PTR_FLOAT ptr_a,
 	const void* ptr_y, const PTR_FLOAT ptr_b, void* ptr_z);
-void* cSIRF_xapyb_sv(const void* ptr_x, const PTR_FLOAT ptr_a,
-	const void* ptr_y, const void* ptr_b);
-void* cSIRF_xapyb_sv_Alt(const void* ptr_x, const PTR_FLOAT ptr_a,
-	const void* ptr_y, const void* ptr_b, void* ptr_z);
 void* cSIRF_xapyb_vv(const void* ptr_x, const void*  ptr_a,
 	const void* ptr_y, const void* ptr_b);
 void* cSIRF_xapyb_vv_Alt(const void* ptr_x, const void*  ptr_a,

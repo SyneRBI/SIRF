@@ -1631,21 +1631,15 @@ void NiftiImageData<dataType>::xapyb(
     const DataContainer& a_x, const void* ptr_a,
     const DataContainer& a_y, const void* ptr_b)
 {
-	throw std::runtime_error("xapyb has not been implemented yet.");
+	NiftiImageData<dataType>::axpby(ptr_a, a_x, ptr_b, a_y);
 }
-template<class dataType>
-void NiftiImageData<dataType>::xapyb(
-    const DataContainer& a_x, const void* ptr_a,
-    const DataContainer& a_y, const DataContainer& a_b)
-{
-	throw std::runtime_error("xapyb has not been implemented yet.");
-}
+
 template<class dataType>
 void NiftiImageData<dataType>::xapyb(
     const DataContainer& a_x, const DataContainer& a_a,
     const DataContainer& a_y, const DataContainer& a_b)
 {
-	throw std::runtime_error("xapyb has not been implemented yet.");
+	throw std::runtime_error("xapyb has not been implemented yet for a and b as vectors.");
 }
 
 template<class dataType>
