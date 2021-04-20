@@ -261,7 +261,7 @@ class DataContainer(ABC):
                     tmp = self.multiply(a)
                     y.multiply(b, out=z)
                     z.add(tmp, out=z)
-                    
+
         check_status(z.handle)
         return z
 
