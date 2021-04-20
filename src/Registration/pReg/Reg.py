@@ -1240,12 +1240,7 @@ class NiftyResampler(object):
         """Get range geometry."""
         return self.reference_image
 
-@deprecation.deprecated(details="The use of NiftyResample is discouraged and will be dropped. \
-                        Please use NiftyResampler instead.")
-
-class NiftyResample(object):
-    pass
-
+"""This alias for the NiftyResampler is deprecated."""
 NiftyResample = NiftyResampler
 
 class ImageWeightedMean(object):
