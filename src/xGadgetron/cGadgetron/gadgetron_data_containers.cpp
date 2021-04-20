@@ -257,9 +257,9 @@ MRAcquisitionData::axpby
 	for (px = acq_x.data_begin(), py = acq_y.data_begin();
 		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
 		if (b == complex_float_t(0.0))
-			*py = a*complex_float_t(*px);
+			*py = a * (*px);
 		else
-			*py = a*complex_float_t(*px) + b*complex_float_t(*py);
+			*py = a * (*px) + b * (*py);
 	}
 }
 
