@@ -38,7 +38,7 @@ if(BUILD_MATLAB)
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Transformation.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Registration.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/setParameter.m"
-    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftyResample.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftyResampler.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/parameter.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Quaternion.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftiImageData3DTensor.m"

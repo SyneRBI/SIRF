@@ -1,4 +1,4 @@
-classdef NiftyResample < handle
+classdef NiftyResampler < handle
 % Class for resampling using NiftyReg.
 
 % SyneRBI Synergistic Image Reconstruction Framework (SIRF).
@@ -26,12 +26,12 @@ classdef NiftyResample < handle
     end
     methods(Static)
         function name = class_name()
-            name = 'NiftyResample';
+            name = 'NiftyResampler';
         end
     end
     methods
-        function self = NiftyResample(src)
-            self.name = 'NiftyResample';
+        function self = NiftyResampler(src)
+            self.name = 'NiftyResampler';
             self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             sirf.Utilities.check_status(self.name, self.handle_)
         end
@@ -43,24 +43,24 @@ classdef NiftyResample < handle
         end
         function set_reference_image(self, reference_image)
             %Set reference image. This is the image that would be the reference if you were doing a forward transformation.
-            assert(isa(reference_image, 'sirf.SIRF.ImageData'), 'NiftyResample::set_reference_image expects sirf.SIRF.ImageData')
+            assert(isa(reference_image, 'sirf.SIRF.ImageData'), 'NiftyResampler::set_reference_image expects sirf.SIRF.ImageData')
             self.reference_image = reference_image;
             sirf.Reg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
             %Set floating image. This is the image that would be the floating if you were doing a forward transformation.
-            assert(isa(floating_image, 'sirf.SIRF.ImageData'), 'NiftyResample::set_floating_image expects sirf.SIRF.ImageData')
+            assert(isa(floating_image, 'sirf.SIRF.ImageData'), 'NiftyResampler::set_floating_image expects sirf.SIRF.ImageData')
             self.floating_image = floating_image;
             sirf.Reg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
         function add_transformation(self, src)
             %Add transformation.
             if isa(src, 'sirf.Reg.AffineTransformation')
-                h = calllib('mreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
+                h = calllib('mreg', 'mReg_NiftyResampler_add_transformation', self.handle_, src.handle_, 'affine');
             elseif isa(src, 'sirf.Reg.NiftiImageData3DDisplacement')
-                h = calllib('mreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
+                h = calllib('mreg', 'mReg_NiftyResampler_add_transformation', self.handle_, src.handle_, 'displacement');
             elseif isa(src, 'sirf.Reg.NiftiImageData3DDeformation')
-                h = calllib('mreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
+                h = calllib('mreg', 'mReg_NiftyResampler_add_transformation', self.handle_, src.handle_, 'deformation');
             else 
                 error('Transformation should be affine, deformation or displacement.')
             end
@@ -68,7 +68,7 @@ classdef NiftyResample < handle
         function clear_transformations(self)
             %Clear transformations.
             if ~isempty(self.handle_)
-                h = calllib('mreg', 'mReg_NiftyResample_clear_transformations', self.handle_);
+                h = calllib('mreg', 'mReg_NiftyResampler_clear_transformations', self.handle_);
                 sirf.Utilities.check_status([self.name ':clear_transformations'], self.handle_)
             end
         end
@@ -98,7 +98,7 @@ classdef NiftyResample < handle
         end
         function process(self)
             %Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image.
-            h = calllib('mreg', 'mReg_NiftyResample_process', self.handle_);
+            h = calllib('mreg', 'mReg_NiftyResampler_process', self.handle_);
             sirf.Utilities.check_status([self.name ':process'], h);
             sirf.Utilities.delete(h)
         end
@@ -123,15 +123,15 @@ classdef NiftyResample < handle
                 input_im = im1;
             % If usage was 'forward(output, input)'
             else
-                assert(nargout == 0, 'NiftyResample::forward too many output arguments')
+                assert(nargout == 0, 'NiftyResampler::forward too many output arguments')
                 output_im = im1;
                 input_im = im2;
             end
             % Check image validity
-            assert(isa(output_im, 'sirf.SIRF.ImageData'), 'NiftyResample::forward expects sirf.SIRF.ImageData')
-            assert(isa(input_im,  'sirf.SIRF.ImageData'), 'NiftyResample::forward expects sirf.SIRF.ImageData')
+            assert(isa(output_im, 'sirf.SIRF.ImageData'), 'NiftyResampler::forward expects sirf.SIRF.ImageData')
+            assert(isa(input_im,  'sirf.SIRF.ImageData'), 'NiftyResampler::forward expects sirf.SIRF.ImageData')
             % Forward
-            h = calllib('mreg', 'mReg_NiftyResample_forward', output_im.handle_, input_im.handle_, self.handle_);
+            h = calllib('mreg', 'mReg_NiftyResampler_forward', output_im.handle_, input_im.handle_, self.handle_);
             sirf.Utilities.check_status([self.name ':forward'], h);
             sirf.Utilities.delete(h)
         end
@@ -148,15 +148,15 @@ classdef NiftyResample < handle
                 input_im = im1;
             % If usage was 'adjoint(output, input)'
             else
-                assert(nargout == 0, 'NiftyResample::adjoint too many output arguments')
+                assert(nargout == 0, 'NiftyResampler::adjoint too many output arguments')
                 output_im = im1;
                 input_im = im2;
             end
             % Check image validity
-            assert(isa(output_im, 'sirf.SIRF.ImageData'), 'NiftyResample::forward expects sirf.SIRF.ImageData')
-            assert(isa(input_im,  'sirf.SIRF.ImageData'), 'NiftyResample::forward expects sirf.SIRF.ImageData')
+            assert(isa(output_im, 'sirf.SIRF.ImageData'), 'NiftyResampler::forward expects sirf.SIRF.ImageData')
+            assert(isa(input_im,  'sirf.SIRF.ImageData'), 'NiftyResampler::forward expects sirf.SIRF.ImageData')
             % Adjoint
-            h = calllib('mreg', 'mReg_NiftyResample_adjoint', output_im.handle_, input_im.handle_, self.handle_);
+            h = calllib('mreg', 'mReg_NiftyResampler_adjoint', output_im.handle_, input_im.handle_, self.handle_);
             sirf.Utilities.check_status([self.name ':adjoint'], h);
             sirf.Utilities.delete(h)
         end
@@ -166,7 +166,7 @@ classdef NiftyResample < handle
             if nargin == 2
                 output_im = self.adjoint(im1);
             else %nargin == 3
-                assert(nargout == 0, 'NiftyResample::backward too many output arguments')
+                assert(nargout == 0, 'NiftyResampler::backward too many output arguments')
                 self.adjoint(im1,im2);
             end
         end

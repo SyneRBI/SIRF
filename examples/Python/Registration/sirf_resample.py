@@ -8,7 +8,7 @@ Options:
   --eng_flo <eng>              engine for floating image [default: Reg]
   --ref <file>                 reference image (default: test.nii.gz)
   --flo <file>                 floating image (default: test2.nii.gz)
-  --algo <algo>                resampling algorithm [default: NiftyResample]
+  --algo <algo>                resampling algorithm [default: NiftyResampler]
   --output <file>              output image filename [default: output]
   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
   --trans_filenames ...        transformation filenames, (with quotations): "filename1,filename2,filename3"
@@ -90,7 +90,7 @@ def main():
     ref = eng_ref.ImageData(ref_file)
     flo = eng_flo.ImageData(flo_file)
 
-    # Dynamically create resample algorithm. With inline code, you can do e.g. res = sirf.Reg.NiftyResample()
+    # Dynamically create resample algorithm. With inline code, you can do e.g. res = sirf.Reg.NiftyResampler()
     algorithm = getattr(sirf.Reg, algo)
     res = algorithm()
     # Set the image we want to resample
