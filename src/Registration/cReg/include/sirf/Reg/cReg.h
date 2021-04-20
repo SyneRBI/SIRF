@@ -101,12 +101,12 @@ extern "C" {
     // SPM methods
     void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx);
 
-    // NiftyResample
-    void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
-    void* cReg_NiftyResample_clear_transformations(void* self);
-    void* cReg_NiftyResample_process(void* ptr);
-    void* cReg_NiftyResample_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
-    void* cReg_NiftyResample_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    // NiftyResampler
+    void* cReg_NiftyResampler_add_transformation(void* self, const void* trans, const char* type);
+    void* cReg_NiftyResampler_clear_transformations(void* self);
+    void* cReg_NiftyResampler_process(void* ptr);
+    void* cReg_NiftyResampler_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    void* cReg_NiftyResampler_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
 
     // ImageWeightedMean
     void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);

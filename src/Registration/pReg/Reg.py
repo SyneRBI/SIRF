@@ -1060,12 +1060,12 @@ if SIRF_HAS_SPM:
                               'delete_temp_files', delete_temp_files)
 
 
-class NiftyResample(object):
+class NiftyResampler(object):
     """Resample using NiftyReg."""
 
     def __init__(self):
         """init."""
-        self.name = 'NiftyResample'
+        self.name = 'NiftyResampler'
         self.handle = pyreg.cReg_newObject(self.name)
         self.reference_image = None
         self.floating_image = None
@@ -1103,13 +1103,13 @@ class NiftyResample(object):
     def add_transformation(self, src):
         """Add transformation."""
         if isinstance(src, AffineTransformation):
-            try_calling(pyreg.cReg_NiftyResample_add_transformation(
+            try_calling(pyreg.cReg_NiftyResampler_add_transformation(
                 self.handle, src.handle, 'affine'))
         elif isinstance(src, NiftiImageData3DDisplacement):
-            try_calling(pyreg.cReg_NiftyResample_add_transformation(
+            try_calling(pyreg.cReg_NiftyResampler_add_transformation(
                 self.handle, src.handle, 'displacement'))
         elif isinstance(src, NiftiImageData3DDeformation):
-            try_calling(pyreg.cReg_NiftyResample_add_transformation(
+            try_calling(pyreg.cReg_NiftyResampler_add_transformation(
                 self.handle, src.handle, 'deformation'))
         else:
             raise AssertionError()
@@ -1117,7 +1117,7 @@ class NiftyResample(object):
     def clear_transformations(self):
         """Clear transformations."""
         if self.handle is not None:
-            try_calling(pyreg.cReg_NiftyResample_clear_transformations(
+            try_calling(pyreg.cReg_NiftyResampler_clear_transformations(
                 self.handle))
 
     def set_interpolation_type(self, interp_type):
@@ -1156,7 +1156,7 @@ class NiftyResample(object):
         Equivalent of calling forward(floating_image).
         Use get_output to get resampled image.
         """
-        try_calling(pyreg.cReg_NiftyResample_process(self.handle))
+        try_calling(pyreg.cReg_NiftyResampler_process(self.handle))
 
     def get_output(self):
         """Get output."""
@@ -1186,7 +1186,7 @@ class NiftyResample(object):
             raise TypeError('{} expecting output as SIRF.ImageData, got {}'.
                             format(self.__class__.__name__, type(out)))
         # Forward
-        try_calling(pyreg.cReg_NiftyResample_forward(
+        try_calling(pyreg.cReg_NiftyResampler_forward(
             out.handle, x.handle, self.handle))
         return out
 
@@ -1213,7 +1213,7 @@ class NiftyResample(object):
             raise TypeError('{} expecting output as SIRF.ImageData, got {}'.
                             format(self.__class__.__name__, type(out)))
         # Forward
-        try_calling(pyreg.cReg_NiftyResample_adjoint(
+        try_calling(pyreg.cReg_NiftyResampler_adjoint(
             out.handle, x.handle, self.handle))
         return out
 
@@ -1238,6 +1238,8 @@ class NiftyResample(object):
         """Get range geometry."""
         return self.reference_image
 
+"""This alias for the NiftyResampler is deprecated."""
+NiftyResample = NiftyResampler
 
 class ImageWeightedMean(object):
     """Class for performing weighted mean of images."""

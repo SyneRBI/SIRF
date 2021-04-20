@@ -50,7 +50,7 @@ def try_stirtonifti(nifti_filename):
         raise AssertionError("Conversion from STIR to Nifti failed.")
 
     # Resample and then check that voxel values match
-    resample = reg.NiftyResample()
+    resample = reg.NiftyResampler()
     resample.set_floating_image(image_stir) 
     resample.set_reference_image(image_nifti) 
     resample.set_interpolation_type_to_nearest_neighbour()
@@ -143,7 +143,7 @@ def try_complex_resample(raw_mr_filename):
     tm = reg.AffineTransformation(tm_)
 
     # Resample the complex data
-    res_complex = reg.NiftyResample()
+    res_complex = reg.NiftyResampler()
     res_complex.set_reference_image(ismrmrd_im)
     res_complex.set_floating_image(ismrmrd_im)
     res_complex.set_interpolation_type_to_linear()
@@ -163,7 +163,7 @@ def try_complex_resample(raw_mr_filename):
     adjoint_cplx_imag.write("results/adjoint_cplx_imag")
 
     # Now resample each of the components individually
-    res_real = reg.NiftyResample()
+    res_real = reg.NiftyResampler()
     res_real.set_reference_image(real)
     res_real.set_floating_image(real)
     res_real.set_interpolation_type_to_linear()
@@ -171,7 +171,7 @@ def try_complex_resample(raw_mr_filename):
     forward_real = res_real.forward(real)
     adjoint_real = res_real.adjoint(real)
 
-    res_imag = reg.NiftyResample()
+    res_imag = reg.NiftyResampler()
     res_imag.set_reference_image(imag)
     res_imag.set_floating_image(imag)
     res_imag.set_interpolation_type_to_linear()
@@ -187,9 +187,9 @@ def try_complex_resample(raw_mr_filename):
     # Compare that the real and imaginary parts match regardless
     # of whether they were resampled separately or together.
     if forward_real != forward_cplx_real or forward_imag != forward_cplx_imag:
-        raise AssertionError("NiftyResample::forward failed for complex data")
+        raise AssertionError("NiftyResampler::forward failed for complex data")
     if adjoint_real != adjoint_cplx_real or adjoint_imag != adjoint_cplx_imag:
-        raise AssertionError("NiftyResample::adjoint failed for complex data")
+        raise AssertionError("NiftyResampler::adjoint failed for complex data")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
