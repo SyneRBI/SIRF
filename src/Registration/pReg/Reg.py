@@ -22,8 +22,6 @@
 import abc
 import sys
 import inspect
-import deprecation
-
 
 from sirf.Utilities import error, check_status, try_calling
 from sirf import SIRF
