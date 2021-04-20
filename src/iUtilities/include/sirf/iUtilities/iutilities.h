@@ -30,6 +30,11 @@ limitations under the License.
 #pragma message("WARNING: You need to implement DEPRECATED for this compiler")
 #define DEPRECATED
 #endif
+#if defined(_MSC_VER)
+#define DEPRECATED_USING
+#else
+#define DEPRECATED_USING DEPRECATED
+#endif
 
 #ifndef IUTILITIES_FOR_MATLAB
 extern "C" {
