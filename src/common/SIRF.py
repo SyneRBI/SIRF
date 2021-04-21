@@ -233,7 +233,7 @@ class DataContainer(ABC):
             assert_validities(self, out)
             z = out
         else:
-            z = self.same_object()       
+            z = self.same_object()
         
         if isinstance(a, Number):
             alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
@@ -241,7 +241,7 @@ class DataContainer(ABC):
             if isinstance(b, Number):
                 #a is scalar, b is scalar
                 beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
-                if out is None: 
+                if out is None:
                     z.handle = pysirf.cSIRF_xapyb_ss(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data)
                 else:
                     pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, z.handle)
