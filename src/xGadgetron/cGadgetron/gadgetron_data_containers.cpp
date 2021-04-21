@@ -277,7 +277,7 @@ MRAcquisitionData::xapyb
 (const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
 	ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b)
 {
-	throw std::runtime_error("xapyb has not been implemented yet.");
+	throw std::runtime_error("NotImplemented: xapyb has not been implemented yet.");
 }
 
 void
@@ -385,7 +385,7 @@ MRAcquisitionData::xapyb(
 const DataContainer& a_x, const DataContainer& a_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
-	throw std::runtime_error("xapyb has not been implemented yet.");
+	throw std::runtime_error("NotImplemented: xapyb has not been implemented yet.");
 }
 
 void
@@ -1018,7 +1018,7 @@ GadgetronImageData::xapyb(
 const DataContainer& a_x, const DataContainer& a_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
-	throw std::runtime_error("xapyb has not been implemented yet.");
+	throw std::runtime_error("NotImplemented: xapyb has not been implemented yet.");
 }
 
 void

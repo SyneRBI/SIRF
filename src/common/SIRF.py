@@ -29,10 +29,10 @@ except:
     HAVE_PYLAB = False
 import sys
 
-from sirf.Utilities import assert_validity, assert_validities, check_status, try_calling
+from sirf.Utilities import assert_validity, assert_validities, check_status, try_calling, error
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
-
+#from deprecated import deprecated
 
 from numbers import Number
 
@@ -61,8 +61,8 @@ class DataContainer(ABC):
         zero = numpy.asarray([0.0, 0.0], dtype = numpy.float32)
         mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
         z = self.same_object()
-        z.handle = pysirf.cSIRF_axpby \
-            (mn_one.ctypes.data, self.handle, zero.ctypes.data, self.handle)
+        z.handle = pysirf.cSIRF_xapyb_ss \
+            (self.handle, mn_one.ctypes.data, self.handle, zero.ctypes.data)
         check_status(z.handle)
         return z
 
@@ -191,19 +191,19 @@ class DataContainer(ABC):
         one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
         if out is None:
             z = self.same_object()
-            z.handle = pysirf.cSIRF_axpby \
-                (one.ctypes.data, self.handle, one.ctypes.data, other.handle)
+            z.handle = pysirf.cSIRF_xapyb_ss \
+                (self.handle, one.ctypes.data, other.handle, one.ctypes.data)
             check_status(z.handle)
         else:
             assert_validities(self, out)
             z = out
-            try_calling(pysirf.cSIRF_axpbyAlt \
-                (one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
+            try_calling(pysirf.cSIRF_xapyb_ss_Alt \
+                (self.handle, one.ctypes.data, other.handle, one.ctypes.data, z.handle))
         return z
+
+#    @deprecated
     def axpby(self, a, b, y, out=None, **kwargs):
         '''
-        This function has been deprecated and will be removed in a future release. Please use `sapyb` instead.
-
         Addition for data containers.
 
         Returns the sum of the container data with another container 
@@ -233,34 +233,65 @@ class DataContainer(ABC):
             assert_validities(self, out)
             z = out
         else:
-            z = self.copy()
-
+            z = self.same_object()       
         
         if isinstance(a, Number):
             alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
 
             if isinstance(b, Number):
+                #a is scalar, b is scalar
                 beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
-                pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, z.handle)
+                if out is None: 
+                    z.handle = pysirf.cSIRF_xapyb_ss(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data)
+                else:
+                    pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, z.handle)
+                    
             else:
+                #a is scalar, b is array
                 one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
                 tmp = y.multiply(b)
-                pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, tmp.handle, one.ctypes.data, z.handle)
+                
+                if out is None:
+                    z.handle = pysirf.cSIRF_xapyb_ss(self.handle, alpha.ctypes.data, tmp.handle, one.ctypes.data)
+                else:
+                    pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, tmp.handle, one.ctypes.data, z.handle)
         else:
             assert_validities(self, a)
             if isinstance(b, Number):
+                #a is array, b is scalar
                 one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
                 beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
                 tmp = self.multiply(a)
-                pysirf.cSIRF_xapyb_ss_Alt(tmp.handle, one.ctypes.data, y.handle, beta.ctypes.data, z.handle)
+                if out is None:
+                    z.handle = pysirf.cSIRF_xapyb_ss(tmp.handle, one.ctypes.data, y.handle, beta.ctypes.data)
+                else:
+                    pysirf.cSIRF_xapyb_ss_Alt(tmp.handle, one.ctypes.data, y.handle, beta.ctypes.data, z.handle)
+
             else:
+                #a is array, b is array
                 assert_validities(self, b)
-                try:
-                    try_calling(pysirf.cSIRF_xapyb_vv_Alt(self.handle, a.handle, y.handle, b.handle, z.handle))
-                except:
-                    tmp = self.multiply(a)
-                    y.multiply(b, out=z)
-                    z.add(tmp, out=z)
+
+                if out is None:
+                    try:
+                        z.handle = pysirf.cSIRF_xapyb_vv(self.handle, a.handle, y.handle, b.handle)
+                        check_status(z.handle)
+                    except error as e:
+                        if 'NotImplemented' in str(e):
+                            tmp = self.multiply(a)
+                            z = y.multiply(b)
+                            z.add(tmp, out=z)
+                        else:
+                            raise RuntimeError(str(e))
+                else:
+                    try:
+                        try_calling(pysirf.cSIRF_xapyb_vv_Alt(self.handle, a.handle, y.handle, b.handle, z.handle))
+                    except error as e:
+                        if 'NotImplemented' in str(e):
+                            tmp = self.multiply(a)
+                            y.multiply(b, out=z)
+                            z.add(tmp, out=z)
+                        else:
+                            raise RuntimeError(str(e))
 
         check_status(z.handle)
         return z
@@ -299,14 +330,14 @@ class DataContainer(ABC):
         mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
         if out is None:
             z = self.same_object()
-            z.handle = pysirf.cSIRF_axpby \
-                (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle)
+            z.handle = pysirf.cSIRF_xapyb_ss \
+                (self.handle, pl_one.ctypes.data, other.handle, mn_one.ctypes.data)
             check_status(z.handle)
         else:
             assert_validities(self, out)
             z = out
-            try_calling(pysirf.cSIRF_axpbyAlt \
-                (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle, z.handle))
+            try_calling(pysirf.cSIRF_xapyb_ss_Alt \
+                (self.handle, pl_one.ctypes.data, other.handle, mn_one.ctypes.data, z.handle))
         return z
     def __sub__(self, other):
         '''
@@ -340,8 +371,8 @@ class DataContainer(ABC):
             z = self.same_object()
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
-            z.handle = pysirf.cSIRF_axpby \
-                (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
+            z.handle = pysirf.cSIRF_xapyb_ss \
+                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data)
             z.src = 'mult'
             check_status(z.handle)
             return z
@@ -360,8 +391,8 @@ class DataContainer(ABC):
             z = self.same_object()
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
-            z.handle = pysirf.cSIRF_axpby \
-                (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
+            z.handle = pysirf.cSIRF_xapyb_ss \
+                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data)
             check_status(z.handle)
             return z
 
@@ -386,8 +417,8 @@ class DataContainer(ABC):
             other = 1.0/other
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
-            z.handle = pysirf.cSIRF_axpby \
-                (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
+            z.handle = pysirf.cSIRF_xapyb_ss \
+                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data)
             check_status(z.handle)
             return z
 

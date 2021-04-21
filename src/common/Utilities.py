@@ -423,7 +423,6 @@ def try_calling(returned_handle):
     check_status(returned_handle, inspect.stack()[1])
     pyiutil.deleteDataHandle(returned_handle)
 
-
 def assert_validity(obj, dtype):
     if not isinstance(obj, dtype):
         msg = 'Expecting object of type {}, got {}'
@@ -756,7 +755,7 @@ class TestDataContainerAlgebra(object):
         except error:
             self.assertTrue(True)
 
-    def test_sapyb(self):
+    def test_sapyb_scalars(self):
 
         image1 = self.image1.copy()
         image2 = self.image2.copy()
@@ -786,31 +785,69 @@ class TestDataContainerAlgebra(object):
         out.fill(arr)
         out.sapyb(a, image2, b, out=out)
         numpy.testing.assert_allclose(out.as_array(), gold)
-        numpy.testing.assert_allclose(image1.as_array(), arr)
         numpy.testing.assert_allclose(image2.as_array(), -arr)
 
         out.fill(-arr)
         image1.sapyb(a, out, b, out=out)
         numpy.testing.assert_allclose(out.as_array(), gold)
         numpy.testing.assert_allclose(image1.as_array(), arr)
-        numpy.testing.assert_allclose(image2.as_array(), -arr)
-        
-        #vectors
+
+    def test_sapyb_vectors(self):
+
+        image1 = self.image1.copy()
+        image2 = self.image2.copy()
+
+        arr = numpy.arange(0,image1.size).reshape(image1.shape)
+        image1.fill(arr)
+        image2.fill(-arr)
+
         a = image1.copy()
         a.fill(2)
         b = image1.copy()
         b.fill(-3)
+
         gold = a.as_array() * arr - b.as_array() * arr
-   
+
+        out = image1.sapyb(a, image2, b)
+        numpy.testing.assert_allclose(out.as_array(), gold)
+        numpy.testing.assert_allclose(image1.as_array(), arr)
+        numpy.testing.assert_allclose(image2.as_array(), -arr)
+
         out.fill(0)
         image1.sapyb(a, image2, b, out=out)
         numpy.testing.assert_allclose(out.as_array(), gold)
         numpy.testing.assert_allclose(image1.as_array(), arr)
         numpy.testing.assert_allclose(image2.as_array(), -arr)
 
-        #mixed
+        out.fill(arr)
+        out.sapyb(a, image2, b, out=out)
+        numpy.testing.assert_allclose(out.as_array(), gold)
+        numpy.testing.assert_allclose(image2.as_array(), -arr)
+
+        out.fill(-arr)
+        image1.sapyb(a, out, b, out=out)
+        numpy.testing.assert_allclose(out.as_array(), gold)
+        numpy.testing.assert_allclose(image1.as_array(), arr)
+
+    def test_sapyb_mixed(self):
+
+        image1 = self.image1.copy()
+        image2 = self.image2.copy()
+
+        arr = numpy.arange(0,image1.size).reshape(image1.shape)
+        image1.fill(arr)
+        image2.fill(-arr)
+ 
         a = 2.0
+        b = image1.copy()
+        b.fill(-3)
+
         gold = a * arr - b.as_array() * arr
+
+        out = image1.sapyb(a, image2, b)
+        numpy.testing.assert_allclose(out.as_array(), gold)
+        numpy.testing.assert_allclose(image1.as_array(), arr)
+        numpy.testing.assert_allclose(image2.as_array(), -arr)
 
         out.fill(0)
         image1.sapyb(a, image2, b, out=out)
@@ -818,3 +855,12 @@ class TestDataContainerAlgebra(object):
         numpy.testing.assert_allclose(image1.as_array(), arr)
         numpy.testing.assert_allclose(image2.as_array(), -arr)
        
+        out.fill(arr)
+        out.sapyb(a, image2, b, out=out)
+        numpy.testing.assert_allclose(out.as_array(), gold)
+        numpy.testing.assert_allclose(image2.as_array(), -arr)
+
+        out.fill(-arr)
+        image1.sapyb(a, out, b, out=out)
+        numpy.testing.assert_allclose(out.as_array(), gold)
+        numpy.testing.assert_allclose(image1.as_array(), arr)
