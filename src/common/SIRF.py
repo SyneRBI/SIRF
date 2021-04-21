@@ -34,6 +34,7 @@ import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
 from numbers import Number
+import deprecation
 
 try:
     input = raw_input
@@ -200,6 +201,7 @@ class DataContainer(ABC):
                 (self.handle, one.ctypes.data, other.handle, one.ctypes.data, z.handle))
         return z
 
+    @deprecation.deprecated(details="Please use the sapyb method instead")
     def axpby(self, a, b, y, out=None, **kwargs):
         '''
         Addition for data containers.
