@@ -15,7 +15,7 @@
 #if defined(_MSC_VER)
 #define SIRF_DEPRECATED_USING
 #else
-#define SIRF_DEPRECATED_USING DEPRECATED
+#define SIRF_DEPRECATED_USING SIRF_DEPRECATED
 #endif
 
 #endif
