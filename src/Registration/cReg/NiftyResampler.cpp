@@ -27,6 +27,7 @@ limitations under the License.
 \author SyneRBI
 */
 
+#include "sirf/common/deprecate.h"
 #include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/NiftiImageData3DTensor.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
