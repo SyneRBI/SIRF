@@ -23,17 +23,17 @@ limitations under the License.
 
 // Deprecation function. With C++14, could use [[deprecated("some message")]]
 #if defined(__GNUC__) || defined(__clang__)
-#define DEPRECATED __attribute__((deprecated))
+#define SIRF_DEPRECATED __attribute__((deprecated))
 #elif defined(_MSC_VER)
-#define DEPRECATED __declspec(deprecated)
+#define SIRF_DEPRECATED __declspec(deprecated)
 #else
 #pragma message("WARNING: You need to implement DEPRECATED for this compiler")
-#define DEPRECATED
+#define SIRF_DEPRECATED
 #endif
 #if defined(_MSC_VER)
-#define DEPRECATED_USING
+#define SIRF_DEPRECATED_USING
 #else
-#define DEPRECATED_USING DEPRECATED
+#define SIRF_DEPRECATED_USING DEPRECATED
 #endif
 
 #ifndef IUTILITIES_FOR_MATLAB
