@@ -32,7 +32,6 @@ import sys
 from sirf.Utilities import assert_validity, assert_validities, check_status, try_calling, error
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
-#from deprecated import deprecated
 
 from numbers import Number
 
@@ -201,7 +200,6 @@ class DataContainer(ABC):
                 (self.handle, one.ctypes.data, other.handle, one.ctypes.data, z.handle))
         return z
 
-#    @deprecated
     def axpby(self, a, b, y, out=None, **kwargs):
         '''
         Addition for data containers.
