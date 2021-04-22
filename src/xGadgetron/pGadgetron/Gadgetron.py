@@ -31,6 +31,7 @@ except:
     HAVE_PYLAB = False
 import sys
 import time
+from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, label_and_name, \
@@ -73,13 +74,14 @@ ISMRMRD_CXFLOAT  = 7 ##, /**< corresponds to complex float */
 ISMRMRD_CXDOUBLE = 8 ##  /**< corresponds to complex double */
 
 # data path finding helper functions
+@deprecated(
+    deprecated_in="2.0.0", removed_in="4.0", current_version=sirf.__version__,
+    details="use examples_data_path() instead")
 def mr_data_path():
     '''
     Returns default path to MR raw data files.
-
-    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
     '''
-    return petmr_data_path('MR')
+    return examples_data_path('MR')
 
 ### low-level client functionality
 ### likely to be obsolete - not used for a long time

@@ -6,6 +6,7 @@ import os
 import sirf
 import sirf.pyiutilities as pyiutil
 import re
+from deprecation import deprecated
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
@@ -29,12 +30,13 @@ __license__ = __licence__
 RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 
+@deprecated(
+    deprecated_in="2.0.0", removed_in="4.0", current_version=sirf.__version__,
+    details="use examples_data_path() instead")
 def petmr_data_path(petmr):
     '''
     Returns the path to PET or MR data.
     petmr: either 'PET' or 'MR'
-
-    *** DEPRECATED: refrain from use (use examples_data_path instead). ***
     '''
     return examples_data_path( petmr.upper() )
     
@@ -58,6 +60,7 @@ def examples_data_path(data_type):
     else:
         errorMsg = 'You need to set the SIRF_DATA_PATH or SIRF_INSTALL_PATH environment variable to allow finding the raw data.'
         raise ValueError(errorMsg)
+
 
 def existing_filepath(data_path, file_name):
     '''
