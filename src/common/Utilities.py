@@ -55,9 +55,32 @@ def examples_data_path(data_type):
         return os.path.join(SIRF_INSTALL_PATH , data_path)
     elif SIRF_PATH is not None:
         return os.path.join(SIRF_PATH, 'data', 'examples', data_type)
-    else:
-        errorMsg = 'You need to set the SIRF_DATA_PATH or SIRF_INSTALL_PATH environment variable to allow finding the raw data.'
-        raise ValueError(errorMsg)
+
+    # one final effort
+    try:
+        py_root = sirf.__file__
+        try:
+            # is install dir like $SIRF_PATH/lib/python3.8/site-packages?
+            lib_idx = py_root.split(os.sep).index('lib')
+        except ValueError:
+            # is install dir like $SIRF_PATH/python?
+            lib_idx = py_root.split(os.sep).index('python')
+        potential_install_loc = os.path.join(os.sep, *py_root.split(os.sep)[:lib_idx])
+        sirf_ver_folder = 'SIRF-{}.{}'.format(
+            sirf.__version_major__, sirf.__version_minor__)
+        potential_sirf_data_path = os.path.join(
+            potential_install_loc, 'share', sirf_ver_folder, 'data',
+            'examples', data_type)
+        print(potential_sirf_data_path)
+        if os.path.exists(potential_sirf_data_path):
+            return potential_sirf_data_path
+    except Exception:
+        pass
+
+    errorMsg = \
+        'You need to set the SIRF_DATA_PATH or SIRF_INSTALL_PATH ' \
+        'environment variable to allow finding the raw data.'
+    raise ValueError(errorMsg)
 
 def existing_filepath(data_path, file_name):
     '''
