@@ -1,32 +1,47 @@
 # ChangeLog
 
 ## v3.0.0
-* MR acquisition data storage scheme restricted to memory only.
-* GE Signa randoms support added.
-* If the `SIRF_DATA_PATH` environment variable is set, `examples_data_path` will search for the examples data there, or in `SIRF_INSTALL_PATH/share/SIRF-<versio_major>.<version_minor>/data` directory. In MATLAB, the `example_data_path` function has the version set by CMake at install time.
-* Defines `__version__` in `sirf` python package.
-* Installs `examples`, `data` and `doc` to the install directory, i.e. `${CMAKE_INSTALL_PREFIX}/share/SIRF-<versio_major>.<version_minor>` directory.
-* bugfix in path manipulation of `examples_data_path`, now should work for any platform, not just linux.
-* STIR version 4.0.2 is now required
-* If STIR is at least version 5 or built from the master branch, [Georg Schramm's parallel (computing) projector](https://github.com/gschramm/parallelproj proj) is now made available from SIRF (use `AcquisitionModelUsingParallelproj`). This uses Joseph interpolation, but importantly can use your GPU (if CUDA was found during building).
-* Use CMake variable names from find_package(Python) which are available with CMake 3.12+. A warning is sent when the python version found is 2. This can be changed to FATAL_ERROR at a later stage. CMake will accept both `Python_EXECUTABLE` or `PYTHON_EXECUTABLE`, for the latter it will send a deprecation warning.
-* Added common Python DataContainer algebra unit tests for all DataContainer inherited classes.
-* Added implementation of division and multiplication for NiftiImageData.
-* Bug fix: Python fill method in MR DataContainer accepts numpy array, number or DataContainer.
-* Addition of sirf.STIR.ScatterEstimation and ScatterSimulation to allow scatter estimation in PET
-* STIR AcquisitionModel `forward`, `direct`, `backward` and `adjoint` signatures have changed in Python. Subset information should now be set via `num_subsets` and `subset_num` members. `The `forward` and `backward` members can still be called with the previous syntax but this will be removed in a later version.
+### Backwards incompatible changes
+* STIR version 4.0.2 is now required, but the `release_4` branch (or `master` dated 20Apr2021) is highly recommended.
+* Python 2 is no longer supported. Most code might still work, but we do not check. A warning is written when the Python version found is 2. This will be changed to `FATAL_ERROR` at a later stage. 
+* Handling of coil images and sensitivities in C++ code simplified by inheriting CoilImagesVector from GadgetronImagesVector and replacing CoilSensitivitiesAsImages with CoilSensitivitiesVector, also inheriting from GadgetronImagesVector. All methods of CoilImagesVector and CoilSensitivitiesVector other than those inherited from GadgetronImagesVector are no longer supported except methods named compute(), which are renamed to calculate().
+
+### Deprecations (will be errors in SIRF 4.0)
+* `Registration`: renamed `Resample` to `Resampler` and `NiftyResample` to `NiftyResampler`. Old names are now deprecated but should still work.
+* STIR `AcquisitionModel` `forward`, `direct`, `backward` and `adjoint` signatures have changed in Python. Subset information should now be set via `num_subsets` and `subset_num` members. `The `forward` and `backward` members can still be called with the previous syntax but this will be removed in a later version.
 Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectively, such that default behaviour is default behaviour (i.e. process all data) is unchanged.
-* Extraction of the operator representing the linear part of PET acquisition model and computation of its norm implemented.
-* Data validity checks return NotImplemented instead of throwing error, opening the door for future implementations of operations on data.
-* Handling of coil images and sensitivities data simplified.
-* STIR projection data now have an implementation of `axpby`, so that duplicate functionality has been removed from SIRF
-* Iterators are now used in `AcquisitionDataInMemory` to improve speed of `as_array`, `fill`, `dot`, `norm`, etc.
-* Bug fix in `get_index_to_physical_point_matrix`
-* if `storage_scheme` is set to `memory`, then `PETAcquisitionData` will now contain `ProjDataInMemory`, instead of `ProjDataFromStream`. As such, if storage scheme is set to memory, it will now be possible to open a PET acquisition data and modify it directly, whereas before a copy would need to be created first.
-* Registration of 2d images with aladin and f3d. 
-* When registering, internally the forward displacement is no loner stored, replaced by the forward deformation. The inverse is no longer stored, and is calculated as needed.
-* When adding a shape to a `sirf.STIR.ImageData`, optionally give the number of times to sample a voxel. This is useful when the shape partially - but not completely - fills a voxel.
-* Renamed `Resample` to `Resampler` and `NiftyResample` to `NiftyResampler`
+* MR acquisition data storage scheme restricted to memory only (a message will be printed but no error thrown)
+* Use CMake variable names from `find_package(Python)` which are available with CMake 3.12+. SIRF CMake files will accept both `Python_EXECUTABLE` or `PYTHON_EXECUTABLE`, for the latter it will send a deprecation warning.
+
+### New features
+* PET
+  - Addition of `sirf.STIR.ScatterEstimation` and `ScatterSimulation` to allow (non-TOF) scatter estimation in PET
+  - GE Signa PET/MR reading of listmode data, sinograms, normalisation and randoms support added.
+  - If STIR is at least version 5 or built from the master branch, [Georg Schramm's parallel (computing) projector](https://github.com/gschramm/parallelproj proj) is now made available from SIRF (use `AcquisitionModelUsingParallelproj`). This uses Joseph interpolation, but importantly can use your GPU (if CUDA was found during building).
+  - Implemented extraction of the operator representing the linear part of PET acquisition model and computation of its norm.
+  - When adding a shape to a `sirf.STIR.ImageData`, optionally give the number of times to sample a voxel. This is useful when the shape partially - but not completely - fills a voxel.
+  - If `storage_scheme` is set to `memory`, `PETAcquisitionData` allows direct modification, whereas before a copy would need to be created first. (Internally, it uses STIR `ProjDataInMemory`, instead of `ProjDataFromStream`).
+* Registration
+  - Registration of 2d images is now supported with aladin and f3d. 
+* examples data:
+  - Installs `examples`, `data` and `doc` to the install directory, i.e. `${CMAKE_INSTALL_PREFIX}/share/SIRF-<version_major>.<version_minor>` directory.
+  - If the `SIRF_DATA_PATH` environment variable is set, `examples_data_path` will search for the examples data there, or in `SIRF_INSTALL_PATH/share/SIRF-<version_major>.<version_minor>/data` directory. In MATLAB, the `example_data_path` function has the version set by CMake at install time.
+* Other Python features:
+  - Define `__version__` in `sirf` python package.
+  - Added implementation of division and multiplication for `NiftiImageData`.
+  - Data validity checks return `NotImplemented` instead of throwing error, opening the door for future implementations of operations on data.
+
+### Other changes
+* When registering, internally the forward displacement is no longer stored, replaced by the forward deformation. The inverse is no longer stored, and is calculated as needed.
+* `PETAcquisitionData.axpby` now uses STIR's `axpby` and is therefore faster.
+* Speed-up in `stir::AcquisitionDataInMemory` of `as_array`, `fill`, `dot`, `norm`, etc. (by using STIR iterators).
+* Added common Python `DataContainer` algebra unit tests for all `DataContainer` inherited classes.
+* Continuous Integration now uses Github Actions. Travis-CI has been dropped.
+
+### Bug fixes
+* Python `fill` method in MR `DataContainer` accepts `numpy` array, number or `DataContainer`.
+* `get_index_to_physical_point_matrix()` returned a wrong matrix in MATLAB and Python.
+* path manipulation of `examples_data_path` now should work for any platform, not just linux.
 
 ## v2.2.0
 * Changed CCP PETMR to SyneRBI
