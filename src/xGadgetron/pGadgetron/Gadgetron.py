@@ -38,6 +38,7 @@ from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      name_and_parameters, parse_arglist, \
      examples_data_path, existing_filepath, \
      pTest, RE_PYEXT
+import sirf
 from sirf import SIRF
 from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
