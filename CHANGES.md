@@ -4,7 +4,7 @@
 ### Backwards incompatible changes
 * STIR version 4.0.2 is now required, but the `release_4` branch (or `master` dated 20Apr2021) is highly recommended.
 * Python 2 is no longer supported. Most code might still work, but we do not check. A warning is written when the Python version found is 2. This will be changed to `FATAL_ERROR` at a later stage. 
-* Handling of coil images and sensitivities simplified by inheriting respective classes' functionality from GadgetronImagesVector. Previously, this functionality was defined independently in order to benefit from the fact that coil and sensitivity images are always complex, whereas GadgetronImagesVector is designed to handle 8 data types, which might affect negatively the code performance in handling coil images and sensitivities. Essentially, we now decided to prioritise the code simplicity, since handling coil images and sensitivities is not a performance bottleneck.
+* Handling of coil images and sensitivities in C++ code simplified by inheriting CoilImagesVector from GadgetronImagesVector and replacing CoilSensitivitiesAsImages with CoilSensitivitiesVector, also inheriting from GadgetronImagesVector. All methods of CoilImagesVector and CoilSensitivitiesVector other than those inherited from GadgetronImagesVector are no longer supported except methods named compute(), which are renamed to calculate().
 
 ### Deprecations (will be errors in SIRF 4.0)
 * `Registration`: renamed `Resample` to `Resampler` and `NiftyResample` to `NiftyResampler`. Old names are now deprecated but should still work.
