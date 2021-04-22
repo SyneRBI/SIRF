@@ -4,6 +4,7 @@
 ### Backwards incompatible changes
 * STIR version 4.0.2 is now required, but the `release_4` branch (or `master` dated 20Apr2021) is highly recommended.
 * Python 2 is no longer supported. Most code might still work, but we do not check. A warning is written when the Python version found is 2. This will be changed to `FATAL_ERROR` at a later stage. 
+* Handling of coil images and sensitivities simplified by inheriting respective classes' functionality from GadgetronImagesVector. Previously, this functionality was defined independently in order to benefit from the fact that coil and sensitivity images are always complex, whereas GadgetronImagesVector is designed to handle 8 data types, which might affect negatively the code performance in handling coil images and sensitivities. Essentially, we now decided to prioritise the code simplicity, since handling coil images and sensitivities is not a performance bottleneck.
 
 ### Deprecations (will be errors in SIRF 4.0)
 * `Registration`: renamed `Resample` to `Resampler` and `NiftyResample` to `NiftyResampler`. Old names are now deprecated but should still work.
@@ -20,8 +21,6 @@ Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectiv
   - Implemented extraction of the operator representing the linear part of PET acquisition model and computation of its norm.
   - When adding a shape to a `sirf.STIR.ImageData`, optionally give the number of times to sample a voxel. This is useful when the shape partially - but not completely - fills a voxel.
   - If `storage_scheme` is set to `memory`, `PETAcquisitionData` allows direct modification, whereas before a copy would need to be created first. (Internally, it uses STIR `ProjDataInMemory`, instead of `ProjDataFromStream`).
-* MR
-  - Handling of coil images and sensitivities data simplified.
 * Registration
   - Registration of 2d images is now supported with aladin and f3d. 
 * examples data:
