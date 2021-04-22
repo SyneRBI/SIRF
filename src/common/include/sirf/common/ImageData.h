@@ -29,7 +29,7 @@ limitations under the License.
 #include "sirf/common/GeometricalInfo.h"
 
 /*!
-\ingroup SIRFImageDataClasses
+\ingroup Common
 \brief Abstract base class for SIRF image data.
 
 */

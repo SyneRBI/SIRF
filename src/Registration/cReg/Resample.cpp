@@ -33,7 +33,7 @@ using namespace sirf;
 
 /// Set reference image
 template<class dataType>
-void Resample<dataType>::set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr)
+void Resampler<dataType>::set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr)
 {
     _reference_image_sptr = reference_image_sptr;
     _need_to_set_up = true;
@@ -43,7 +43,7 @@ void Resample<dataType>::set_reference_image(const std::shared_ptr<const ImageDa
 
 /// Set floating image
 template<class dataType>
-void Resample<dataType>::set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
+void Resampler<dataType>::set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
 {
     _floating_image_sptr = floating_image_sptr;
     _need_to_set_up = true;
@@ -52,7 +52,7 @@ void Resample<dataType>::set_floating_image(const std::shared_ptr<const ImageDat
 }
 
 template<class dataType>
-void Resample<dataType>::add_transformation(const std::shared_ptr<const Transformation<dataType> > transformation_sptr)
+void Resampler<dataType>::add_transformation(const std::shared_ptr<const Transformation<dataType> > transformation_sptr)
 {
     _transformations.push_back(transformation_sptr);
     this->_need_to_set_up = true;
@@ -61,7 +61,7 @@ void Resample<dataType>::add_transformation(const std::shared_ptr<const Transfor
 }
 
 template<class dataType>
-void Resample<dataType>::set_interpolation_type(const enum InterpolationType type)
+void Resampler<dataType>::set_interpolation_type(const enum InterpolationType type)
 {
     _interpolation_type = type;
     this->_need_to_set_up = true;
@@ -70,7 +70,7 @@ void Resample<dataType>::set_interpolation_type(const enum InterpolationType typ
 }
 
 template<class dataType>
-void Resample<dataType>::check_parameters()
+void Resampler<dataType>::check_parameters()
 {
     // If anything is missing
     if (!_reference_image_sptr)
@@ -82,18 +82,18 @@ void Resample<dataType>::check_parameters()
 }
 
 template<class dataType>
-std::shared_ptr<ImageData> Resample<dataType>::backward(const std::shared_ptr<const ImageData> input_sptr)
+std::shared_ptr<ImageData> Resampler<dataType>::backward(const std::shared_ptr<const ImageData> input_sptr)
 {
     return adjoint(input_sptr);
 }
 
 template<class dataType>
-void Resample<dataType>::backward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
+void Resampler<dataType>::backward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
 {
     adjoint(output_sptr, input_sptr);
 }
 
 namespace sirf {
-template class Resample<float>;
+template class Resampler<float>;
 }
 

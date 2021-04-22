@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief C interface to DataHandle.
 
 Defines C functions handling DataHandle objects.

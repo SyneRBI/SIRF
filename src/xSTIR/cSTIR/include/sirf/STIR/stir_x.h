@@ -26,7 +26,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup STIR Extensions
+\ingroup PET
 \brief Specification file for extended STIR functionality classes.
 
 \author Evgueni Ovtchinnikov
@@ -47,7 +47,7 @@ limitations under the License.
 namespace sirf {
 
 	/*!
-\ingroup STIR Extensions
+\ingroup PET
 \brief Listmode-to-sinograms converter.
 
 This class reads list mode data and produces corresponding *sinograms*,
@@ -230,7 +230,7 @@ The actual algorithm is described in
 	};
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief Class for PET scanner detector efficiencies model.
 
 	*/
@@ -286,7 +286,7 @@ The actual algorithm is described in
 
 	
         /*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief A typedef to use SIRF terminology for DataProcessors
 
         \todo We should have a sirf::ImageDataProcessor which takes a sirf::ImageData, but that's too much work for now...
@@ -294,7 +294,7 @@ The actual algorithm is described in
 	typedef DataProcessor3DF ImageDataProcessor;
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief Class for a PET acquisition model.
 
 	PET acquisition model relates an image representation \e x to the
@@ -341,7 +341,7 @@ The actual algorithm is described in
 	class PETAcquisitionModel {
 	public:
 		/*!
-		\ingroup STIR Extensions
+		\ingroup PET
 		\brief Class for the product of backward and forward projectors of a PET acquisition model.
 
 		For a given STIRImageData object x, computes B(F(x)), where F(x) is the forward projection of x,
@@ -500,7 +500,7 @@ The actual algorithm is described in
 	};
 
         /*!
-          \ingroup STIR Extensions
+          \ingroup PET
 
           \brief Class for simulating the scatter contribution to PET data.
 
@@ -592,7 +592,7 @@ The actual algorithm is described in
     };
 
     /*!
-      \ingroup STIR Extensions
+      \ingroup PET
 
       \brief Class for estimating the scatter contribution in PET projection data
 
@@ -740,7 +740,7 @@ The actual algorithm is described in
     };
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief Ray tracing matrix implementation of the PET acquisition model.
 
 	In this implementation \e x and \e y are essentially vectors and \e G
@@ -789,7 +789,7 @@ The actual algorithm is described in
 
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
     /*!
-    \ingroup STIR Extensions
+    \ingroup PET
     \brief NiftyPET implementation of the PET acquisition model.
     */
 
@@ -818,7 +818,7 @@ The actual algorithm is described in
 
 #ifdef STIR_WITH_Parallelproj_PROJECTOR
     /*!
-    \ingroup STIR Extensions
+    \ingroup PET
     \brief Parallelproj implementation of the PET acquisition model
     (see https://github.com/gschramm/parallelproj).
     */
@@ -833,7 +833,7 @@ The actual algorithm is described in
 #endif
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief Attenuation model.
 
 	*/
@@ -850,7 +850,7 @@ The actual algorithm is described in
 	};
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief Accessor classes.
 
 	Some methods of the STIR classes exposed to the user by SIRF are protected

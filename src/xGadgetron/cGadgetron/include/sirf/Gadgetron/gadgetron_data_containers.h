@@ -22,7 +22,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Data Containers
+\ingroup MR
 \brief Specification file for data container classes for Gadgetron data.
 
 \author Evgueni Ovtchinnikov
@@ -53,7 +53,7 @@ limitations under the License.
 #define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 /*!
-\ingroup Gadgetron Data Containers
+\ingroup MR
 \brief Acquisitions filter.
 
 Some acquisitions do not participate directly in the reconstruction process
@@ -67,7 +67,7 @@ Some acquisitions do not participate directly in the reconstruction process
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
 
 /*!
-\ingroup Gadgetron Data Containers
+\ingroup MR
 \brief Serialized ISMRMRD acquisition header (cf. ismrmrd.h).
 
 */
@@ -183,23 +183,13 @@ namespace sirf {
     };
 
 	/*!
-	\ingroup Gadgetron Data Containers
+	\ingroup MR
 	\brief Abstract MR acquisition data container class.
 
 	*/
 	class MRAcquisitionData : public DataContainer {
 	public:
 		// static methods
-
-		static std::string storage_scheme()
-		{
-			static bool initialized = false;
-			if (!initialized) {
-				_storage_scheme = "file";
-				initialized = true;
-			}
-			return _storage_scheme;
-		}
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
 		// acquisition data
@@ -326,13 +316,12 @@ namespace sirf {
         std::vector<KSpaceSorting> sorting_;
 		AcquisitionsInfo acqs_info_;
 
-		static std::string _storage_scheme;
 		// new MRAcquisitionData objects will be created from this template
 		// using same_acquisitions_container()
 		static gadgetron::shared_ptr<MRAcquisitionData> acqs_templ_;
 
 		virtual MRAcquisitionData* clone_impl() const = 0;
-		MRAcquisitionData* clone_base() const;
+//		MRAcquisitionData* clone_base() const;
 
 	private:
 		void binary_op_(int op, 
@@ -342,97 +331,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup Gadgetron Data Containers
-	\brief File implementation of Abstract MR acquisition data container class.
-
-	Acquisitions are stored in HDF5 file.
-	*/
-	class AcquisitionsFile : public MRAcquisitionData {
-	public:
-		AcquisitionsFile() { own_file_ = false; }
-		AcquisitionsFile
-			(std::string filename, bool create_file = false,
-			AcquisitionsInfo info = AcquisitionsInfo());
-		AcquisitionsFile(AcquisitionsInfo info);
-		~AcquisitionsFile();
-
-		// initializes MRAcquisitionData template as AcquisitionsFile
-		static void init() {
-			static bool initialized = false;
-			if (!initialized) {
-				acqs_templ_.reset(new AcquisitionsFile());
-				_storage_scheme = "file";
-				MRAcquisitionData::storage_scheme();
-				initialized = true;
-			}
-		}
-		// sets MRAcquisitionData template as AcquisitionsFile
-		static void set_as_template()
-		{
-			init();
-			acqs_templ_.reset(new AcquisitionsFile);
-			_storage_scheme = "file";
-		}
-
-		// implements 'overwriting' of an acquisition file data with new values:
-		// in reality, creates new file with new data and deletes the old one
-		void take_over_impl(AcquisitionsFile& ac);
-
-		void write_acquisitions_info();
-
-		// implementations of abstract methods
-
-		virtual void empty();
-		virtual void take_over(MRAcquisitionData& ad)
-		{
-			AcquisitionsFile& af = dynamic_cast<AcquisitionsFile&>(ad);
-			take_over_impl(af);
-		}
-		virtual void set_data(const complex_float_t* z, int all = 1);
-		virtual unsigned int items() const;
-		virtual unsigned int number() const { return items(); }
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const;
-		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
-		{
-			//std::cerr << 
-			THROW("AcquisitionsFile::set_acquisition not implemented yet, sorry\n");
-		}
-		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
-		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
-		virtual void copy_acquisitions_data(const MRAcquisitionData& ac);
-
-		virtual AcquisitionsFile*
-			same_acquisitions_container(const AcquisitionsInfo& info) const
-		{
-			return (AcquisitionsFile*) new AcquisitionsFile(info);
-		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
-		{
-			init();
-			DataContainer* ptr = acqs_templ_->same_acquisitions_container(acqs_info_);
-			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(ptr));
-		}
-		virtual gadgetron::unique_ptr<MRAcquisitionData> new_acquisitions_container()
-		{
-			init();
-			return gadgetron::unique_ptr<MRAcquisitionData>
-				(acqs_templ_->same_acquisitions_container(acqs_info_));
-		}
-
-	private:
-		bool own_file_;
-		std::string filename_;
-		gadgetron::shared_ptr<ISMRMRD::Dataset> dataset_;
-		virtual AcquisitionsFile* clone_impl() const
-		{
-			init();
-			return (AcquisitionsFile*)clone_base();
-		}
-	};
-
-	/*!
-	\ingroup Gadgetron Data Containers
+	\ingroup MR
 	\brief A vector implementation of the abstract MR acquisition data container
 	class.
 
@@ -444,16 +343,6 @@ namespace sirf {
 		AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
 		{
 			acqs_info_ = info;
-		}
-		static void init() 
-		{ 
-			AcquisitionsFile::init(); 
-		}
-		static void set_as_template()
-		{
-			init();
-			acqs_templ_.reset(new AcquisitionsVector);
-			_storage_scheme = "memory";
 		}
 		virtual void empty();
 		virtual void take_over(MRAcquisitionData& ad) {}
@@ -488,30 +377,24 @@ namespace sirf {
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
-			init();
-			DataContainer* ptr = acqs_templ_->same_acquisitions_container(acqs_info_);
+			DataContainer* ptr = new AcquisitionsVector(acqs_info_);
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(ptr));
 		}
 		virtual gadgetron::unique_ptr<MRAcquisitionData>
 			new_acquisitions_container()
 		{
-			init();
 			return gadgetron::unique_ptr<MRAcquisitionData>
-				(acqs_templ_->same_acquisitions_container(acqs_info_));
+				(new AcquisitionsVector(acqs_info_));
 		}
 
 	private:
 		std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
-		virtual AcquisitionsVector* clone_impl() const
-		{
-			init();
-			return (AcquisitionsVector*)clone_base();
-		}
+		virtual AcquisitionsVector* clone_impl() const;
 	};
 
 	/*!
-	\ingroup Gadgetron Data Containers
+	\ingroup MR
 	\brief Abstract Gadgetron image data container class.
 
 	*/
@@ -675,7 +558,7 @@ namespace sirf {
 	typedef ISMRMRDImageData GadgetronImageData;
 
 	/*!
-	\ingroup Gadgetron Data Containers
+	\ingroup MR
 	\brief A vector implementation of the abstract Gadgetron image data 
 	container class.
 
@@ -980,7 +863,7 @@ namespace sirf {
     };
 
     /*!
-    \ingroup Gadgetron Data Containers
+    \ingroup MR
     \brief A coil images container based on the GadgetronImagesVector class.
     */
 
@@ -994,7 +877,7 @@ namespace sirf {
     };
 
     /*!
-    \ingroup Gadgetron Data Containers
+    \ingroup MR
     \brief A coil sensitivities container based on the GadgetronImagesVector class.
 
     Coil sensitivities can be computed directly form Acquisition data where in the first
@@ -1062,8 +945,3 @@ namespace sirf {
 }
 
 #endif
-
-
-
-
-

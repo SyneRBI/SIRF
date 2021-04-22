@@ -74,7 +74,11 @@ import os
 from glob import glob
 from docopt import docopt
 from sirf.Utilities import error, show_2D_array
-import pylab
+try:
+    import pylab
+    have_pylab = True
+except:
+    have_pylab = False
 import sirf.Reg as reg
 import sirf.STIR as pet
 from ccpi.optimisation.algorithms import PDHG
@@ -84,8 +88,6 @@ from ccpi.optimisation.operators import CompositionOperator, BlockOperator
 from ccpi.plugins.regularisers import FGP_TV
 from ccpi.filters import regularisers
 import numpy as np
-
-pet.AcquisitionData.set_storage_scheme('memory')
 
 __version__ = '0.1.0'
 args = docopt(__doc__, version=__version__)
@@ -120,7 +122,7 @@ outp_prefix = args['--outp']
 # Initial estimate
 initial_estimate = args['--initial']
 
-visualisations = True if args['--visualisations'] else False
+visualisations = True if args['--visualisations'] and have_pylab else False
 nifti = True if args['--nifti'] else False
 use_gpu = True if args['--gpu'] else False
 descriptive_fname = True if args['--descriptive_fname'] else False
@@ -142,10 +144,10 @@ precond = True if args['--precond'] else False
 
 
 def get_resampler(image, ref=None, trans=None):
-    """returns a NiftyResample object for the specified transform and image"""
+    """returns a NiftyResampler object for the specified transform and image"""
     if ref is None:
         ref = image
-    resampler = reg.NiftyResample()
+    resampler = reg.NiftyResampler()
     resampler.set_reference_image(ref)
     resampler.set_floating_image(image)
     resampler.set_padding_value(0)

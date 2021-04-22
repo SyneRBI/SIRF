@@ -746,7 +746,7 @@ def try_niftyaladin():
     sirf.Reg.NiftiImageData.print_headers([ref_aladin, flo_aladin, def_inverse, def_fwd_then_inv])
 
     # Reference forward with def_inv
-    resample = sirf.Reg.NiftyResample()
+    resample = sirf.Reg.NiftyResampler()
     resample.set_reference_image(flo_aladin)
     resample.set_floating_image(ref_aladin)
     resample.set_padding_value(0.)
@@ -897,7 +897,7 @@ def try_resample(na):
     padding_value = -20
 
     sys.stderr.write('Testing rigid resample...\n')
-    nr1 = sirf.Reg.NiftyResample()
+    nr1 = sirf.Reg.NiftyResampler()
     nr1.set_reference_image(ref_aladin)
     nr1.set_floating_image(flo_aladin)
     nr1.set_interpolation_type_to_cubic_spline()  # try different interpolations
@@ -910,7 +910,7 @@ def try_resample(na):
     nr1.get_output().write(rigid_resample)
 
     sys.stderr.write('Testing non-rigid displacement...\n')
-    nr2 = sirf.Reg.NiftyResample()
+    nr2 = sirf.Reg.NiftyResampler()
     nr2.set_reference_image(ref_aladin)
     nr2.set_floating_image(flo_aladin)
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
@@ -921,10 +921,10 @@ def try_resample(na):
     nr2.get_output().write(nonrigid_resample_disp)
 
     if nr2.get_output().get_min() != padding_value:
-        raise AssertionError('NiftyResample:set_padding_value failed')
+        raise AssertionError('NiftyResampler:set_padding_value failed')
 
     sys.stderr.write('Testing non-rigid deformation...\n')
-    nr3 = sirf.Reg.NiftyResample()
+    nr3 = sirf.Reg.NiftyResampler()
     nr3.set_reference_image(ref_aladin)
     nr3.set_floating_image(flo_aladin)
     nr3.set_interpolation_type_to_linear()  # try different interpolations
@@ -940,7 +940,7 @@ def try_resample(na):
     out2 = ref_aladin.deep_copy()
     nr3.forward(out=out2, x=flo_aladin)
     if out1 != out2:
-        raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
+        raise AssertionError('out = NiftyResampler::forward(in) and NiftyResampler::forward(out, in) do not give same result.')
 
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
     # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
@@ -984,7 +984,7 @@ def try_niftymomo(na):
     y.crop(min_idx, max_idx)
 
     sys.stderr.write('Testing adjoint resample...\n')
-    nr = sirf.Reg.NiftyResample()
+    nr = sirf.Reg.NiftyResampler()
     nr.set_reference_image(x)
     nr.set_floating_image(y)
     nr.set_interpolation_type_to_linear()
@@ -992,7 +992,7 @@ def try_niftymomo(na):
 
     # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
     if not is_operator_adjoint(nr):
-        raise AssertionError("NiftyResample::adjoint() failed")
+        raise AssertionError("NiftyResampler::adjoint() failed")
 
     # Check that the following give the same result
     #       out = resample.adjoint(in)
@@ -1002,7 +1002,7 @@ def try_niftymomo(na):
     nr.backward(out=out2, x=x)
     if out1 != out2:
         raise AssertionError(
-            'out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.')
+            'out = NiftyResampler::adjoint(in) and NiftyResampler::adjoint(out, in) do not give same result.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

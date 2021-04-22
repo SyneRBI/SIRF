@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Matlab Interface Generators
+\ingroup MatlabInterface
 \brief The executable for generating Matlab interface for cstir library.
 
 \author Evgueni Ovtchinnikov

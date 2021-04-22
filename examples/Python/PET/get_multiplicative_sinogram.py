@@ -87,7 +87,7 @@ def resample_attn_image(image):
     else:
         raise ValueError("Unknown transformation type.")
 
-    resampler = reg.NiftyResample()
+    resampler = reg.NiftyResampler()
     resampler.set_reference_image(image)
     resampler.set_floating_image(image)
     resampler.set_interpolation_type_to_linear()

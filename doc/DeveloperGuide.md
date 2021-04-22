@@ -46,13 +46,12 @@ Our topmost interface layer are Object-Oriented Matlab and Python modules that c
 
 To summarise, SIRF software is structured as the following set of layers (from top to bottom):
 
-| SIRF software layers | PET | MR | Registration | Common
-| --- | --- | --- |
-| Matlab/Python OO interfaces | `+STIR STIR.py` | `+Gadgetron Gadgetron.py`| `+Reg Reg.py` | `+SIRF SIRF.py`
-| Matlab/Python interfaces to C | `mstir.* pystir.*` | `mgadgetron.* pygadgetron.*` | `mreg.* pyreg.py`| `msirf.m pysirf.py`
-| C interface to C\++ code | `cstir.*` | `cgadgetron.*` | `cReg.*`| `csirf.*`
-| Extended engine functionality | `xSTIR/cSTIR/*` | `xGadgetron/cGadgetron/*` |
-| Reconstruction engines | `STIR/*` | `Gadgetron/*` |
+| SIRF software layers | PET | MR | Registration | Common |
+| --- | --- | --- | --- | --- |
+| Matlab/Python OO interfaces | `+STIR STIR.py` | `+Gadgetron Gadgetron.py`| `+Reg Reg.py` | `+SIRF SIRF.py` |
+| Matlab/Python interfaces to C | `mstir.* pystir.*` | `mgadgetron.* pygadgetron.*` | `mreg.* pyreg.py`| `msirf.m pysirf.py` |
+| C interface to C\++ code | `cstir.*` | `cgadgetron.*` | `cReg.*`| `csirf.*` |
+| Extended engine functionality | `xSTIR/cSTIR/*` | `xGadgetron/cGadgetron/*` | Registration | common |
 
 As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c", "p" and "m". These correspond to the various layers of SIRF: eXtended engine functionality, C-interface, Python and Matlab.
 

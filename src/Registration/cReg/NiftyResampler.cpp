@@ -27,7 +27,8 @@ limitations under the License.
 \author SyneRBI
 */
 
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/common/deprecate.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/NiftiImageData3DTensor.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/AffineTransformation.h"
@@ -97,7 +98,7 @@ static void set_up_output_image(ComplexNiftiImageData<dataType> &output,
 }
 
 template<class dataType>
-void NiftyResample<dataType>::set_up()
+void NiftyResampler<dataType>::set_up()
 {
     // If set up has already been called, nothing to do.
     if (!this->_need_to_set_up)
@@ -125,7 +126,7 @@ void NiftyResample<dataType>::set_up()
 }
 
 template<class dataType>
-void NiftyResample<dataType>::set_up_forward()
+void NiftyResampler<dataType>::set_up_forward()
 {
     // If set up has already been called, nothing to do.
     if (!this->_need_to_set_up_forward)
@@ -141,7 +142,7 @@ void NiftyResample<dataType>::set_up_forward()
 }
 
 template<class dataType>
-void NiftyResample<dataType>::set_up_adjoint()
+void NiftyResampler<dataType>::set_up_adjoint()
 {
     // If set up has already been called, nothing to do.
     if (!this->_need_to_set_up_adjoint)
@@ -151,7 +152,7 @@ void NiftyResample<dataType>::set_up_adjoint()
     set_up();
 
     // SINC currently not supported in NiftyMoMo
-    if (this->_interpolation_type == Resample<dataType>::SINC)
+    if (this->_interpolation_type == Resampler<dataType>::SINC)
         throw std::runtime_error("NiftyMoMo does not currently support SINC interpolation");
 
     // Setup output image
@@ -188,26 +189,26 @@ void NiftyResample<dataType>::set_up_adjoint()
 }
 
 template<class dataType>
-void NiftyResample<dataType>::process()
+void NiftyResampler<dataType>::process()
 {
     this->_output_image_sptr = forward(this->_floating_image_sptr);
 }
 
 template<class dataType>
-void NiftyResample<dataType>::set_up_input_images()
+void NiftyResampler<dataType>::set_up_input_images()
 {
     convert_ImageData_to_ComplexNiftiImageData(this->_reference_image_niftis, this->_reference_image_sptr);
     convert_ImageData_to_ComplexNiftiImageData(this->_floating_image_niftis,  this->_floating_image_sptr);
 
 #ifndef NDEBUG
     if (!_reference_image_niftis.is_complex() && !_floating_image_niftis.is_complex())
-        std::cout << "\nNiftyResample: Reference = real, floating = real. Output forward will = real, output adjoint will = real.\n";
+        std::cout << "\nNiftyResampler: Reference = real, floating = real. Output forward will = real, output adjoint will = real.\n";
     else if (_reference_image_niftis.is_complex() && _floating_image_niftis.is_complex())
-        std::cout << "\nNiftyResample: Reference = complex, floating = complex. Output forward will = complex, output adjoint will = complex.\n";
+        std::cout << "\nNiftyResampler: Reference = complex, floating = complex. Output forward will = complex, output adjoint will = complex.\n";
     else if (_reference_image_niftis.is_complex())
-        std::cout << "\nNiftyResample: Reference = complex, floating = real. Output forward will = complex (with 0 imaginary), output adjoint will = real (only real component of reference will be resampled).\n";
+        std::cout << "\nNiftyResampler: Reference = complex, floating = real. Output forward will = complex (with 0 imaginary), output adjoint will = real (only real component of reference will be resampled).\n";
     else if (_floating_image_niftis.is_complex())
-        std::cout << "\nNiftyResample: Reference = real, floating = complex. Output forward will = real (only real component of floating will be resampled), output adjoint will = complex (with 0 imaginary).\n";
+        std::cout << "\nNiftyResampler: Reference = real, floating = complex. Output forward will = real (only real component of floating will be resampled), output adjoint will = complex (with 0 imaginary).\n";
     else
         throw std::runtime_error("Shouldn't be here");
 #endif
@@ -236,7 +237,7 @@ static void set_post_resample_outputs(std::shared_ptr<ImageData> &output_to_retu
     else {
         NumberType::Type output_num_type = (*output_to_return_sptr->begin()).get_typeID();
         if (output_num_type != NumberType::CXFLOAT)
-            throw std::runtime_error("NiftyResample: Only complex type currently supported is complex float");
+            throw std::runtime_error("NiftyResampler: Only complex type currently supported is complex float");
         ImageData::Iterator &it_out = output_to_return_sptr->begin();
         auto &it_real = resampled_niftis.real()->begin();
         auto &it_imag = resampled_niftis.imag()->begin();
@@ -251,7 +252,7 @@ static void set_post_resample_outputs(std::shared_ptr<ImageData> &output_to_retu
 }
 
 template<class dataType>
-std::shared_ptr<ImageData> NiftyResample<dataType>::forward(const std::shared_ptr<const ImageData> input_sptr)
+std::shared_ptr<ImageData> NiftyResampler<dataType>::forward(const std::shared_ptr<const ImageData> input_sptr)
 {
     // Call the set up
     set_up_forward();
@@ -263,7 +264,7 @@ std::shared_ptr<ImageData> NiftyResample<dataType>::forward(const std::shared_pt
 }
 
 template<class dataType>
-void NiftyResample<dataType>::forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
+void NiftyResampler<dataType>::forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
 {
     // Call the set up
     set_up_forward();
@@ -275,9 +276,9 @@ void NiftyResample<dataType>::forward(std::shared_ptr<ImageData> output_sptr, co
 
     // Check that the metadata match
     check_images_match(input_niftis, this->_floating_image_niftis,
-                       "NiftyResample::forward: Metadata of input image should match floating image.");
+                       "NiftyResampler::forward: Metadata of input image should match floating image.");
     check_images_match(output_niftis, this->_reference_image_niftis,
-                       "NiftyResample::forward: Metadata of output image should match reference image.");
+                       "NiftyResampler::forward: Metadata of output image should match reference image.");
 
     // Loop over as many output images
     for (unsigned i=0; i<_output_image_forward_niftis.size(); ++i) {
@@ -294,7 +295,7 @@ void NiftyResample<dataType>::forward(std::shared_ptr<ImageData> output_sptr, co
 }
 
 template<class dataType>
-std::shared_ptr<ImageData> NiftyResample<dataType>::adjoint(const std::shared_ptr<const ImageData> input_sptr)
+std::shared_ptr<ImageData> NiftyResampler<dataType>::adjoint(const std::shared_ptr<const ImageData> input_sptr)
 {
     // Call the set up
     set_up_adjoint();
@@ -306,7 +307,7 @@ std::shared_ptr<ImageData> NiftyResample<dataType>::adjoint(const std::shared_pt
 }
 
 template<class dataType>
-void NiftyResample<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
+void NiftyResampler<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
 {
     // Call the set up
     set_up_adjoint();
@@ -318,9 +319,9 @@ void NiftyResample<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, co
 
     // Check that the metadata match
     check_images_match(input_niftis, this->_reference_image_niftis,
-                       "NiftyResample::adjoint: Metadata of input image should match reference image.");
+                       "NiftyResampler::adjoint: Metadata of input image should match reference image.");
     check_images_match(output_niftis, this->_floating_image_niftis,
-                       "NiftyResample::adjoint: Metadata of output image should match floating image.");
+                       "NiftyResampler::adjoint: Metadata of output image should match floating image.");
 
     // Loop over the real and potentially imaginary parts
     for (unsigned i=0; i<output_niftis.size(); ++i) {
@@ -339,6 +340,7 @@ void NiftyResample<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, co
 }
 
 namespace sirf {
-template class NiftyResample<float>;
+template class NiftyResampler<float>;
+using NiftyResample SIRF_DEPRECATED_USING = NiftyResampler<float>;
 }
 

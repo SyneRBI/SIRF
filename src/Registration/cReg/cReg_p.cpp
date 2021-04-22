@@ -24,7 +24,7 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/Registration.h"
 #include "sirf/Reg/NiftyF3dSym.h"
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/AffineTransformation.h"
 #ifdef SIRF_SPM
@@ -196,15 +196,15 @@ sirf::cReg_setSPMRegistrationParameter(void* hp, const char* name, const void* h
 }
 #endif
 // ------------------------------------------------------------------------------------ //
-//   NiftyResample
+//   NiftyResampler
 // ------------------------------------------------------------------------------------ //
 // set
 void*
-sirf::cReg_setNiftyResampleParameter(void* hp, const char* name, const void* hv)
+sirf::cReg_setNiftyResamplerParameter(void* hp, const char* name, const void* hv)
 {
     std::shared_ptr<const ImageData> im_sptr;
 
-    NiftyResample<float>& s = objectFromHandle<NiftyResample<float> >(hp);
+    NiftyResampler<float>& s = objectFromHandle<NiftyResampler<float> >(hp);
     if (strcmp(name, "reference_image") == 0) {
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
         s.set_reference_image(im_sptr);
@@ -214,7 +214,7 @@ sirf::cReg_setNiftyResampleParameter(void* hp, const char* name, const void* hv)
         s.set_floating_image(im_sptr);
     }
     else if (strcmp(name, "interpolation_type") == 0)
-        s.set_interpolation_type(static_cast<NiftyResample<float>::InterpolationType>(intDataFromHandle(hv)));
+        s.set_interpolation_type(static_cast<NiftyResampler<float>::InterpolationType>(intDataFromHandle(hv)));
     else if (strcmp(name, "padding") == 0)
         s.set_padding_value(floatDataFromHandle(hv));
     else
@@ -223,9 +223,9 @@ sirf::cReg_setNiftyResampleParameter(void* hp, const char* name, const void* hv)
 }
 // get
 void*
-sirf::cReg_NiftyResampleParameter(const DataHandle* handle, const char* name)
+sirf::cReg_NiftyResamplerParameter(const DataHandle* handle, const char* name)
 {
-    NiftyResample<float>& s = objectFromHandle<NiftyResample<float> >(handle);
+    NiftyResampler<float>& s = objectFromHandle<NiftyResampler<float> >(handle);
     if (strcmp(name, "output") == 0)
         return newObjectHandle(s.get_output_sptr());
     else
