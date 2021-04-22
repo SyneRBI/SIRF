@@ -26,7 +26,7 @@ limitations under the License.
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ImageData.h"
 #include "sirf/Syn/utilities.h"
-#include "sirf/common/deprecated.h"
+#include "sirf/common/deprecate.h"
 
 using namespace sirf;
 
