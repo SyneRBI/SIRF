@@ -11,6 +11,7 @@ from deprecation import deprecated
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
 Copyright 2015 - 2021 University College London
+Copyright 2021 CSIRO
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
