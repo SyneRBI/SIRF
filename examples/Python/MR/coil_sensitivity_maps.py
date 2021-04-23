@@ -80,7 +80,7 @@ def main():
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS)
     CSMs.calculate(processed_data)
     #
-    CSMs.write('csm.h5')
+    #CSMs.write('csm.h5')
     if show_plot:
         # display coil sensitivity maps
         csms_array = CSMs.as_array()
