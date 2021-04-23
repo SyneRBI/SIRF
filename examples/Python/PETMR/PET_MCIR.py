@@ -144,10 +144,10 @@ precond = True if args['--precond'] else False
 
 
 def get_resampler(image, ref=None, trans=None):
-    """returns a NiftyResample object for the specified transform and image"""
+    """returns a NiftyResampler object for the specified transform and image"""
     if ref is None:
         ref = image
-    resampler = reg.NiftyResample()
+    resampler = reg.NiftyResampler()
     resampler.set_reference_image(ref)
     resampler.set_floating_image(image)
     resampler.set_padding_value(0)

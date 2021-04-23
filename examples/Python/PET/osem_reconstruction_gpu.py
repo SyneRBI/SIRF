@@ -180,7 +180,7 @@ def main():
         attn_image = ImageData(attn_im_file)
         # If gpu, make sure that the attn. image is same dimensions as image to recon
         if use_gpu:
-            resampler = sirf.Reg.NiftyResample()
+            resampler = sirf.Reg.NiftyResampler()
             resampler.set_reference_image(image)
             resampler.set_floating_image(attn_image)
             resampler.set_interpolation_type_to_linear()

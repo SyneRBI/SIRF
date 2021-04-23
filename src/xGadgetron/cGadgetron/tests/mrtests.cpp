@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Extensions
+\ingroup MR
 \brief MR related C++ tests
 
 \author Johannes Mayer

@@ -43,7 +43,7 @@ function try_stirtonifti(g)
     assert(image_nifti == image_nifti_from_stir, 'Conversion from STIR to Nifti failed.');
 
     % Resample and then check that voxel values match
-    resample = sirf.Reg.NiftyResample();
+    resample = sirf.Reg.NiftyResampler();
     resample.set_floating_image(image_stir);
     resample.set_reference_image(image_nifti);
     resample.set_interpolation_type_to_nearest_neighbour();

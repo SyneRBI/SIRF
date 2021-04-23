@@ -38,21 +38,39 @@ std::string
 VoxelisedGeometricalInfo<num_dimensions>::
 get_info() const
 {
-	std::stringstream info; 
+	std::stringstream info;
 	info << "Offset: (";
-	info << _offset[0] << ", " << _offset[1] << ", " << _offset[2] << ")\n";
+	for (int i = 0; i < num_dimensions; i++) {
+		info << _offset[i];
+		if (i < num_dimensions - 1)
+			info << ", ";
+		else
+			info << ")\n";
+	}
 
 	info << "Spacing: (";
-	info << _spacing[0] << ", " << _spacing[1] << ", " << _spacing[2] << ")\n";
+	for (int i = 0; i < num_dimensions; i++) {
+		info << _spacing[i];
+		if (i < num_dimensions - 1)
+			info << ", ";
+		else
+			info << ")\n";
+	}
 
 	info << "Size: (";
-	info << _size[0] << ", " << _size[1] << ", " << _size[2] << ")\n";
+	for (int i = 0; i < num_dimensions; i++) {
+		info << _size[i];
+		if (i < num_dimensions - 1)
+			info << ", ";
+		else
+			info << ")\n";
+	}
 
-	info << "Dir mat: \n";
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
+	info << "Direction matrix: \n";
+	for (int i = 0; i < num_dimensions; i++) {
+		for (int j = 0; j < num_dimensions; j++) {
 			info << _direction[i][j];
-			if (j < 2) 
+			if (j < num_dimensions - 1)
 				info << ", ";
 			else
 				info << "\n";

@@ -31,7 +31,7 @@ limitations under the License.
 #include <iostream>
 #include "sirf/Reg/NiftyAladinSym.h"
 #include "sirf/Reg/NiftyF3dSym.h"
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
@@ -796,7 +796,7 @@ int main(int argc, char* argv[])
         NiftiImageData<float>::print_headers({&*ref_aladin, &*flo_aladin, &*def_inverse_sptr, &*def_fwd_then_inv_sptr});
 
         // Reference forward with def_inv
-        NiftyResample<float> resample;
+        NiftyResampler<float> resample;
         resample.set_reference_image(flo_aladin);
         resample.set_floating_image(ref_aladin);
         resample.set_padding_value(0.f);
@@ -990,11 +990,11 @@ int main(int argc, char* argv[])
         float padding_value = -20.f;
 
         std::cout << "Testing rigid resample...\n";
-        NiftyResample<float> nr1;
+        NiftyResampler<float> nr1;
         nr1.set_reference_image(ref_aladin);
         nr1.set_floating_image(flo_aladin);
         nr1.set_interpolation_type_to_cubic_spline(); // try different interpolations
-        nr1.set_interpolation_type(NiftyResample<float>::CUBICSPLINE); // try different interpolations (cubic)
+        nr1.set_interpolation_type(NiftyResampler<float>::CUBICSPLINE); // try different interpolations (cubic)
         nr1.add_transformation(tm_iden);
         nr1.clear_transformations();
         nr1.add_transformation(tm_iden);
@@ -1003,7 +1003,7 @@ int main(int argc, char* argv[])
         nr1.get_output_sptr()->write(rigid_resample);
 
         std::cout << "Testing non-rigid displacement...\n";
-        NiftyResample<float> nr2;
+        NiftyResampler<float> nr2;
         nr2.set_reference_image(ref_aladin);
         nr2.set_floating_image(flo_aladin);
         nr2.set_interpolation_type_to_sinc(); // try different interpolations
@@ -1017,10 +1017,10 @@ int main(int argc, char* argv[])
         nr2_output->write(nonrigid_resample_disp);
 
         if (std::abs(nr2_output->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
-            throw std::runtime_error("NiftyResample::set_padding_value failed.");
+            throw std::runtime_error("NiftyResampler::set_padding_value failed.");
 
         std::cout << "Testing non-rigid deformation...\n";
-        NiftyResample<float> nr3;
+        NiftyResampler<float> nr3;
         nr3.set_reference_image(ref_aladin);
         nr3.set_floating_image(flo_aladin);
         nr3.set_interpolation_type_to_nearest_neighbour(); // try different interpolations
@@ -1040,7 +1040,7 @@ int main(int argc, char* argv[])
         nr3.forward(out2_sptr, flo_aladin);
 
         if (*out1_sptr != *out2_sptr)
-            throw std::runtime_error("out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.");
+            throw std::runtime_error("out = NiftyResampler::forward(in) and NiftyResampler::forward(out, in) do not give same result.");
 
         // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
         // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
@@ -1081,10 +1081,10 @@ int main(int argc, char* argv[])
         int max_idx[7] = {y_dims[1]-3,y_dims[2]-1,y_dims[3]-5-1,-1,-1,-1};
         y->crop(min_idx,max_idx);
 
-        NiftyResample<float> nr;
+        NiftyResampler<float> nr;
         nr.set_reference_image(x);
         nr.set_floating_image(y);
-        nr.set_interpolation_type(Resample<float>::LINEAR);
+        nr.set_interpolation_type(Resampler<float>::LINEAR);
         nr.add_transformation(T);
 
         // Do the forward
@@ -1105,7 +1105,7 @@ int main(int argc, char* argv[])
         std::cout << "<y, Tsx> = " << inner_y_Tsx << "\n";
         std::cout << "|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = " << adjoint_test << "\n";
         if (adjoint_test > 1e-4F)
-            throw std::runtime_error("NiftyResample::adjoint() failed");
+            throw std::runtime_error("NiftyResampler::adjoint() failed");
 
         // Check that the following give the same result
         //      out = resample.adjoint(in)
@@ -1118,7 +1118,7 @@ int main(int argc, char* argv[])
         nr.backward(out2_sptr, x);
 
         if (*out1_sptr != *out2_sptr)
-            throw std::runtime_error("out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.");
+            throw std::runtime_error("out = NiftyResampler::adjoint(in) and NiftyResampler::adjoint(out, in) do not give same result.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftyMoMo test.\n";
@@ -1302,7 +1302,7 @@ int main(int argc, char* argv[])
 
         {
 
-            // Resample an image with NiftyResample. Register SPM, check the result
+            // Resample an image with NiftyResampler. Register SPM, check the result
 
             // TM
             std::array<float,3> translations = {5.f, 4.f, -5.f};
@@ -1310,7 +1310,7 @@ int main(int argc, char* argv[])
             const std::shared_ptr<const AffineTransformation<float> > tm_sptr =
                     std::make_shared<const AffineTransformation<float> >(translations,euler_angles,true);
 
-            NiftyResample<float> niftyreg_resampler;
+            NiftyResampler<float> niftyreg_resampler;
             niftyreg_resampler.set_padding_value(0.f);
             niftyreg_resampler.set_reference_image(ref_aladin);
             niftyreg_resampler.set_floating_image(ref_aladin);

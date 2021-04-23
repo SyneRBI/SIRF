@@ -20,8 +20,8 @@ limitations under the License.
 
 /*!
 \file
-\ingroup C Interface to C++ Objects
-\brief Execution status type and basic wrapper for C++ objects.
+\ingroup CInterface
+\brief Execution status type and wrappers for C++ objects.
 
 \author Evgueni Ovtchinnikov
 \author SyneRBI
@@ -69,7 +69,7 @@ limitations under the License.
 typedef std::vector<void const *> DataHandleVector;
 
 /*!
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief Execution status type.
 
 An ExecutionStatus object is created when an exception is caught (see above).
@@ -103,7 +103,7 @@ private:
 };
 
 /*!
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief Basic wrapper for C++ objects.
 
 A DataHandle object stores data address (void* _data) and the current
@@ -277,8 +277,8 @@ getObjectSptrFromHandle(const void* h, boost::shared_ptr<Object>& sptr) {
 #define GRAB 1
 
 /*!
-\ingroup C Interface to C++ Objects
-\brief Data wrapper.
+\ingroup CInterface
+\brief DataHandle wrapper.
 
 Wraps an object of type T into DataHandle.
 The data is owned by the DataHandle object and hence will be deleted by its 
@@ -294,7 +294,7 @@ setDataHandle(DataHandle* h, T x)
 }
 
 /*!
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief Data wrapper constructor.
 
 Creates a new DataHandle to wrap an object of type T. 
@@ -309,13 +309,13 @@ dataHandle(T x)
 }
 
 /*!
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief Data extractor.
 
 Returns a copy of the data stored in a DataHandle object.
 */
 template <typename T>
-T // must have a proper copy constructor
+T /// must have a proper copy constructor
 dataFromHandle(const void* ptr)
 {
 	DataHandle* ptr_h = (DataHandle*)ptr;

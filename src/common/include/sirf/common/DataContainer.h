@@ -24,8 +24,8 @@ limitations under the License.
 #include <map>
 #include "sirf/iUtilities/DataHandle.h"
 
-/*
-\ingroup Data Container
+/*!
+\ingroup Common
 \brief Abstract data container.
 
 A class for a set of generally heterogeneous items of data.

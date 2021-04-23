@@ -38,7 +38,7 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/AffineTransformation.h"
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include <iomanip>
 #include <cmath>
 #include <numeric>
@@ -1560,7 +1560,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
         std::cout << "\nImage comparison: metadata do not match, doing resampling...\n";
         std::shared_ptr<NiftiImageData> im1_sptr = im1.clone();
         std::shared_ptr<NiftiImageData> im2_sptr = im2.clone();
-        NiftyResample<float> resample;
+        NiftyResampler<float> resample;
         resample.set_interpolation_type_to_nearest_neighbour();
         resample.set_reference_image(im1_sptr);
         resample.set_floating_image(im2_sptr);

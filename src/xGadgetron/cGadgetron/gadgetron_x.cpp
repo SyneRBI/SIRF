@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Extensions
+\ingroup MR
 \brief Implementation file for extended Gadgetron functionality classes.
 
 \author Evgueni Ovtchinnikov

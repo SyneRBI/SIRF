@@ -24,7 +24,7 @@ SET(SOURCES
   "NiftyF3dSym.cpp"
   "ImageWeightedMean.cpp"
   "Resample.cpp"
-  "NiftyResample.cpp"
+  "NiftyResampler.cpp"
   "Transformation.cpp"
   "AffineTransformation.cpp"
   "Quaternion.cpp"

@@ -8,7 +8,7 @@ Options:
   --eng_flo <eng>              engine for floating image [default: Reg]
   --ref <file>                 reference image (default: test.nii.gz)
   --flo <file>                 floating image (default: test2.nii.gz)
-  --algo <algo>                resampling algorithm [default: NiftyResample]
+  --algo <algo>                resampling algorithm [default: NiftyResampler]
   --output <file>              output image filename [default: output]
   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
   --trans_filenames ...        transformation filenames, (with quotations): "filename1,filename2,filename3"
@@ -41,6 +41,7 @@ args = docopt(__doc__, version=__version__)
 
 # import engine module
 import sirf.Reg
+from sirf.Utilities import examples_data_path
 exec('import p' + args['--eng_ref'] + ' as eng_ref')
 exec('import p' + args['--eng_flo'] + ' as eng_flo')
 
@@ -51,13 +52,8 @@ algo = args['--algo']
 pad = args['--pad']
 
 # if using the default for any, need to get the examples folder
-if (ref_file or flo_file) is None: 
-  SIRF_PATH = os.environ.get('SIRF_PATH')
-  if SIRF_PATH is not None:
-    examples_path = SIRF_PATH + '/data/examples/Registration'
-  else:
-    errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
-    raise error(errorMsg)
+if (ref_file or flo_file) is None:
+  examples_path = examples_data_path('Registration')
 
 # reference
 if ref_file is None:
@@ -90,7 +86,7 @@ def main():
     ref = eng_ref.ImageData(ref_file)
     flo = eng_flo.ImageData(flo_file)
 
-    # Dynamically create resample algorithm. With inline code, you can do e.g. res = sirf.Reg.NiftyResample()
+    # Dynamically create resample algorithm. With inline code, you can do e.g. res = sirf.Reg.NiftyResampler()
     algorithm = getattr(sirf.Reg, algo)
     res = algorithm()
     # Set the image we want to resample
