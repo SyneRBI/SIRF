@@ -1127,7 +1127,6 @@ class AcquisitionModel(object):
             if ad.shape != dcw.shape:
                 raise AssertionError("The shape of the density weights and the acquisition data must be the same.") 
 
-
         if dcw is None:
             dcw = compute_kspace_density(ad)
             
@@ -1138,8 +1137,6 @@ class AcquisitionModel(object):
             (self.handle, ad.handle)
         check_status(image.handle)
         return image    
-
-    
 
     def direct(self, image, out = None):
         '''Alias of forward

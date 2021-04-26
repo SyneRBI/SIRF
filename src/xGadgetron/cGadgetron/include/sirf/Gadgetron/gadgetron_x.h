@@ -372,19 +372,18 @@ namespace sirf {
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic
-			) : sptr_acqs_(sptr_ac) //, sptr_imgs_(sptr_ic)
+			)
 		{
-            sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
-			set_image_template(sptr_ic);
+            this->set_up(sptr_ac, sptr_ic);
 		}
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic,
 			gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms,
 			std::string acqs_info
-			) : sptr_acqs_(sptr_ac), sptr_csms_(sptr_csms), acqs_info_(acqs_info)
+			) : sptr_csms_(sptr_csms), acqs_info_(acqs_info)
 		{
-			set_image_template(sptr_ic);
+			this->set_up(sptr_ac, sptr_ic);
 		}
 		
 		float norm()
@@ -431,12 +430,8 @@ namespace sirf {
 		// Records templates
 		void set_up
 			(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
-			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
-		{
-			sptr_acqs_ = sptr_ac;
-			set_image_template(sptr_ic);
-		}
-
+			gadgetron::shared_ptr<GadgetronImageData> sptr_ic);
+		
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
         void fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
@@ -454,10 +449,10 @@ namespace sirf {
 
             if (!sptr_acqs_.get())
 				throw LocalisedException
-				("acquisition data template not set", __FILE__, __LINE__);
+				("Acquisition data template not set", __FILE__, __LINE__);
 			if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 				throw LocalisedException
-				("coil sensitivity maps not found", __FILE__, __LINE__);
+				("Coil sensitivity maps not found", __FILE__, __LINE__);
 			check_data_role(ic);
             gadgetron::unique_ptr<MRAcquisitionData> uptr_acqs =
                 sptr_acqs_->clone();
