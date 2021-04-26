@@ -365,7 +365,7 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 }
 
 void 
-MRAcquisitionModel:set_up(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
+MRAcquisitionModel::set_up(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 {
 	if( sptr_ac->number() ==0 )
