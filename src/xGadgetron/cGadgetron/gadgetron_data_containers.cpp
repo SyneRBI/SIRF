@@ -264,6 +264,24 @@ MRAcquisitionData::axpby
 }
 
 void
+MRAcquisitionData::xapyb
+(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
+	ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b)
+{
+	complex_float_t* px;
+	complex_float_t* pa;
+	complex_float_t* py;
+	complex_float_t* pb;
+	for (px = acq_x.data_begin(), pa = acq_a.data_begin(),
+		py = acq_y.data_begin(), pb = acq_b.data_begin();
+		px != acq_x.data_end() && pa != acq_a.data_end(),
+		py != acq_y.data_end() && pb != acq_b.data_end();
+		px++, pa++, py++, pb++) {
+		*py = (*pa) * (*px) + (*pb) * (*py);
+	}
+}
+
+void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
@@ -348,11 +366,21 @@ MRAcquisitionData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y)
 {
-	complex_float_t a = *(complex_float_t*)ptr_a;
-	complex_float_t b = *(complex_float_t*)ptr_b;
+	//complex_float_t a = *(complex_float_t*)ptr_a;
+	//complex_float_t b = *(complex_float_t*)ptr_b;
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(1, x, y, a, b);
+	binary_op_(1, x, y, ptr_a, ptr_b);
+}
+
+void
+MRAcquisitionData::xapyb(
+	const DataContainer& a_x, const DataContainer* ptr_a,
+	const DataContainer& a_y, const DataContainer* ptr_b)
+{
+	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	binary_op_(-1, x, y, ptr_a, ptr_b);
 }
 
 void
@@ -373,31 +401,67 @@ MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
 
 void 
 MRAcquisitionData::binary_op_(int op, 
-const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
-complex_float_t a, complex_float_t b)
+const MRAcquisitionData& x, const MRAcquisitionData& y,
+const void* ptr_a, const void* ptr_b)
 {
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	//DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	//DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	if (!x.sorted() || !y.sorted())
 		THROW("binary algebraic operations cannot be applied to unsorted data");
-	int m = x.number();
-	int n = y.number();
+	complex_float_t a;
+	complex_float_t b;
+	const MRAcquisitionData* ptr_aa;
+	const MRAcquisitionData* ptr_ab;
+	if (op == 1) {
+		a = *(complex_float_t*)ptr_a;
+		b = *(complex_float_t*)ptr_b;
+	}
+	else if (op == -1) {
+		ptr_aa = (const MRAcquisitionData*)ptr_a;
+		ptr_ab = (const MRAcquisitionData*)ptr_b;
+	}
+
+	int nx = x.number();
+	int ny = y.number();
+	int na = 1;
+	int nb = 1;
+	if (op < 0) {
+		na = ptr_aa->number();
+		nb = ptr_ab->number();
+	}
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
+	ISMRMRD::Acquisition aa;
+	ISMRMRD::Acquisition ab;
 	ISMRMRD::Acquisition acq;
 	bool isempty = (number() < 1);
-	for (int i = 0, j = 0, k = 0; i < n && j < m;) {
-		y.get_acquisition(i, ay);
-		x.get_acquisition(j, ax);
-		if (TO_BE_IGNORED(ay)) {
-			std::cout << i << " ignored (ay)\n";
-			i++;
+	for (int ix = 0, iy = 0, ia = 0, ib = 0, k = 0; 
+		ix < nx && iy < ny && ia < na && ib < nb;) {
+		x.get_acquisition(ix, ax);
+		if (TO_BE_IGNORED(ax)) {
+			std::cout << ix << " ignored (ax)\n";
+			ix++;
 			continue;
 		}
-		if (TO_BE_IGNORED(ax)) {
-			std::cout << j << " ignored (ax)\n";
-			j++;
+		y.get_acquisition(iy, ay);
+		if (TO_BE_IGNORED(ay)) {
+			std::cout << iy << " ignored (ay)\n";
+			iy++;
 			continue;
+		}
+		if (op < 0) {
+			ptr_aa->get_acquisition(ia, aa);
+			if (TO_BE_IGNORED(aa)) {
+				std::cout << ia << " ignored (aa)\n";
+				ia++;
+				continue;
+			}
+			ptr_ab->get_acquisition(ib, ab);
+			if (TO_BE_IGNORED(ab)) {
+				std::cout << ib << " ignored (ab)\n";
+				ib++;
+				continue;
+			}
 		}
 		if (!isempty) {
 			get_acquisition(k, acq);
@@ -410,6 +474,9 @@ complex_float_t a, complex_float_t b)
 		switch (op) {
 		case 1:
 			MRAcquisitionData::axpby(a, ax, b, ay);
+			break;
+		case -1:
+			MRAcquisitionData::xapyb(ax, aa, ay, ab);
 			break;
 		case 2:
 			MRAcquisitionData::multiply(ax, ay);
@@ -424,8 +491,12 @@ complex_float_t a, complex_float_t b)
 			append_acquisition(ay);
 		else
 			set_acquisition(k, ay);
-		i++;
-		j++;
+		ix++;
+		iy++;
+		if (op < 0) {
+			ia++;
+			ib++;
+		}
 		k++;
 	}
 	this->set_sorted(true);

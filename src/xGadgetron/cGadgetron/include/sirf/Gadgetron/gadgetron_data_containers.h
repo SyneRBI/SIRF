@@ -197,6 +197,10 @@ namespace sirf {
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
 			complex_float_t b, ISMRMRD::Acquisition& acq_y);
+		void xapyb
+			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
+				ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b);
+
 		// the inner (l2) product of x and y
 		static complex_float_t dot
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
@@ -239,6 +243,9 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, const DataContainer* ptr_a,
+			const DataContainer& a_y, const DataContainer* ptr_b);
 		virtual void multiply(
 			const DataContainer& a_x,
 			const DataContainer& a_y);
@@ -314,7 +321,7 @@ namespace sirf {
 	private:
 		void binary_op_(int op, 
 			const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
-			complex_float_t a = 0, complex_float_t b = 0);
+			const void* ptr_a = 0, const void* ptr_b = 0);
 
 	};
 
