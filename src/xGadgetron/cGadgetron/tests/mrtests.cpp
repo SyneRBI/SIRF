@@ -160,16 +160,24 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
         std::cout << "Assessing if operator E is adjoint by comparing <Eh k, i> and <k, E i> <>" << std::endl;        
         std::cout << "where E is the MR acquisition model, k is k-space data and i is a random complex image." << std::endl;        
 
+        
+        sirf::GadgetronImagesVector iv;
+        std::shared_ptr<GadgetronImageData> sptr_iv = std::move(iv.clone());
+        
+        std::shared_ptr<MRAcquisitionData> sptr_ad = std::move(ad.clone());
+        
         sirf::CoilSensitivitiesVector csm;
-        csm.calculate(ad);
-        
-        sirf::GadgetronImagesVector img_vec;
-        
-        sirf::MRAcquisitionModel acquis_model;
-        acquis_model.bwd(img_vec, csm, ad);
+        auto sptr_csm = std::make_shared<CoilSensitivitiesVector>(csm);
+        sptr_csm->calculate(ad);
 
-        gadgetron::unique_ptr<ISMRMRDImageData> uptr_random_img = img_vec.clone();
-        sirf::Dimensions dims = uptr_random_img->dimensions();
+        // setup the acquisition model                 
+        sirf::MRAcquisitionModel AM;
+        AM.set_up(sptr_ad, sptr_iv);
+        AM.setCSMs(sptr_csm);
+
+        AM.bwd(ad);
+
+        sirf::Dimensions dims = sptr_iv->dimensions();
 
         // generate a random image to project onto
         int const num_total_pixels = dims["x"]*dims["y"]*dims["z"]*dims["c"]*dims["n"];
@@ -186,18 +194,16 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
             random_data.push_back(curr_number);
         }
 
-        
-        uptr_random_img->set_data(&random_data[0]);
+        std::shared_ptr<ISMRMRDImageData> sptr_random = std::move(sptr_iv->clone());
+        sptr_random->set_data(&random_data[0]);
         
         complex_float_t Eh_kdat_Dot_img;
-        img_vec.dot(*uptr_random_img, &Eh_kdat_Dot_img);
+        sptr_iv->dot(*sptr_random, &Eh_kdat_Dot_img);
 
-        gadgetron::unique_ptr<MRAcquisitionData> uptr_ad = ad.clone();
-        
-        acquis_model.fwd(*uptr_random_img, csm, *uptr_ad);
-        
+        AM.fwd(*sptr_random);
+
         complex_float_t E_img_Dot_kdat;
-        ad.dot(*uptr_ad, &E_img_Dot_kdat);
+        ad.dot(*sptr_ad, &E_img_Dot_kdat);
 
         std::cout << "Backward kdata dot random image: " << Eh_kdat_Dot_img << std::endl;
         std::cout << "Forward random image dot kdata : " << E_img_Dot_kdat  << std::endl;
@@ -208,7 +214,6 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
         
         std::cout <<"Level of non-adjointness is given by: |<Eh k, i> - <k, E i> <>|/max(|<Eh k, i>,<k, E i> <>|) = " <<  diff_in_scalar_prod/order_of_magnitude << std::endl;
         std::cout <<"Accepting a relative tolerance of " << tolerance << std::endl;
-
         
         bool ok = diff_in_scalar_prod/order_of_magnitude < tolerance;
     
@@ -591,7 +596,7 @@ int main ( int argc, char* argv[])
 //        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
-        gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        std::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
         AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
         av.read(data_path);
 
