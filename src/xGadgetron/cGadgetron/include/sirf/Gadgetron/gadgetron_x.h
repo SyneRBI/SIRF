@@ -481,7 +481,7 @@ namespace sirf {
 
             fwd(ic, *sptr_csms_, *uptr_acqs);
 
-            return std::shared_ptr<MRAcquisitionData>(std::move(uptr_acqs));// something else wouldn't work for some reason...
+            return std::shared_ptr<MRAcquisitionData>(std::move(uptr_acqs));
 		}
 
 		// Backprojects the whole AcquisitionContainer using
