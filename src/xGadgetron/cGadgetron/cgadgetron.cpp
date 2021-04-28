@@ -362,7 +362,7 @@ cGT_setAcquisitionModelParameter
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 			shared_ptr<CoilSensitivitiesVector> sptr_csc;
 			getObjectSptrFromHandle<CoilSensitivitiesVector>(handle, sptr_csc);
-			am.setCSMs(sptr_csc);
+			am.set_csm(sptr_csc);
 		}
 		else
 			return unknownObject("parameter", name, __FILE__, __LINE__);
@@ -381,7 +381,7 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 		shared_ptr<CoilSensitivitiesVector> sptr_csms;
 		getObjectSptrFromHandle<CoilSensitivitiesVector>(h_csms, sptr_csms);
-		am.setCSMs(sptr_csms);
+		am.set_csm(sptr_csms);
 		return (void*)new DataHandle;
 	}
 	CATCH;

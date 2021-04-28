@@ -163,7 +163,7 @@ sirf::get_prepared_MRAcquisitionModel(const MRAcquisitionData& ad)
     // setup the acquisition model                 
     sirf::MRAcquisitionModel AM;
     AM.set_up(sptr_ad, sptr_iv);
-    AM.setCSMs(sptr_csm);
+    AM.set_csm(sptr_csm);
 
     return AM;
 }

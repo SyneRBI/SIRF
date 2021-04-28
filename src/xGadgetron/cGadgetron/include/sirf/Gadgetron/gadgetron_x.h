@@ -418,7 +418,7 @@ namespace sirf {
 			sptr_imgs_ = sptr_ic;
 		}
 		// Records the coil sensitivities maps to be used. 
-        void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms)
+        void set_csm(gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms)
 		{
 			sptr_csms_ = sptr_csms;
 		}
@@ -429,7 +429,7 @@ namespace sirf {
         }
 
 		// Records templates
-		void set_up (gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
+		void set_up(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic);
 		
 		// Forward projects the whole ImageContainer using
