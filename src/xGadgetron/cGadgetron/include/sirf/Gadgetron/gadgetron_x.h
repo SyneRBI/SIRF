@@ -433,6 +433,23 @@ namespace sirf {
 			(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
+			if( sptr_ac->number() ==0 )
+				throw LocalisedException("Please dont use an empty acquisition template.", __FILE__, __LINE__);
+
+			if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+				this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
+			else if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+			{
+			#ifdef GADGETRON_TOOLBOXES_AVAILABLE
+			#warning "We compile the non-cartesian code in GADGETRON_X"
+				this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
+			#else
+				throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
+			#endif
+			}
+			else
+				throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");					
+
 			sptr_acqs_ = sptr_ac;
 			set_image_template(sptr_ic);
 		}
