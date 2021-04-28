@@ -44,4 +44,8 @@ void set_acq_default_orientation(std::string path_in, std::string path_out);
 void write_cfimage_to_raw(const std::string& fname_prefix, const CFImage& img);
 void write_cfimage_to_raw(const std::string& fname_prefix, const ImageWrap& iw);
 void write_imagevector_to_raw(const std::string& fname_prefix, const sirf::GadgetronImagesVector& iv);
+
+sirf::MRAcquisitionModel
+get_prepared_MRAcquisitionModel(const MRAcquisitionData& ad);
+
 } // END NAMESPACE
