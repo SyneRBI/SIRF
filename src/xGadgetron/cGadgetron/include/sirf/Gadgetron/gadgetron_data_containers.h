@@ -557,7 +557,7 @@ namespace sirf {
 		{
 			const std::size_t ni = index_.size();
 			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) || static_cast<unsigned>(i) >= number())
-				THROW("Image number is out of range");
+				THROW("Image number is out of range. You tried to look up an image number that is not inside the container.");
 			if (ni > 0)
 				return index_[i];
 			else

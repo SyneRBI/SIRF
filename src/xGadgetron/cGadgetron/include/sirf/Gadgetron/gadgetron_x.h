@@ -390,6 +390,7 @@ namespace sirf {
 		{
 			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am
 				(new MRAcquisitionModel(sptr_acqs_, sptr_imgs_, sptr_csms_, acqs_info_));
+
 			BFOperator bf(sptr_am);
 			JacobiCG<complex_float_t> jcg;
 			jcg.set_num_iterations(2);
@@ -428,8 +429,7 @@ namespace sirf {
         }
 
 		// Records templates
-		void set_up
-			(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
+		void set_up (gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic);
 		
 		// Forward projects the whole ImageContainer using
@@ -459,7 +459,7 @@ namespace sirf {
 
             fwd(ic, *sptr_csms_, *uptr_acqs);
 
-            return std::shared_ptr<MRAcquisitionData>(std::move(uptr_acqs));// something else wouldn't work for some reason...
+            return std::shared_ptr<MRAcquisitionData>(std::move(uptr_acqs));
 		}
 
 		// Backprojects the whole AcquisitionContainer using

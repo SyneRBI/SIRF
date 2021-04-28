@@ -434,7 +434,7 @@ void
 MRAcquisitionModel::bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& cc,
     const MRAcquisitionData& ac)
 {
-	GadgetronImagesVector iv;
+    GadgetronImagesVector iv;
     iv.set_meta_data(ac.acquisitions_info());
 
     auto sort_idx = ac.get_kspace_order();

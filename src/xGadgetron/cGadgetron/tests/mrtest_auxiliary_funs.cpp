@@ -146,3 +146,24 @@ void sirf::set_acq_default_orientation(std::string path_in, std::string path_out
     }
     av.write(path_out);
 }
+
+
+sirf::MRAcquisitionModel
+sirf::get_prepared_MRAcquisitionModel(const MRAcquisitionData& ad)
+{
+    sirf::GadgetronImagesVector iv;
+    std::shared_ptr<GadgetronImageData> sptr_iv = std::move(iv.clone());
+
+    std::shared_ptr<MRAcquisitionData> sptr_ad = std::move(ad.clone());
+
+    sirf::CoilSensitivitiesVector csm;
+    auto sptr_csm = std::make_shared<CoilSensitivitiesVector>(csm);
+    sptr_csm->calculate(ad);
+
+    // setup the acquisition model                 
+    sirf::MRAcquisitionModel AM;
+    AM.set_up(sptr_ad, sptr_iv);
+    AM.setCSMs(sptr_csm);
+
+    return AM;
+}
