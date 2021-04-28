@@ -5,7 +5,7 @@ Usage:
 
 Options:
   -d <file>, --file=<file>    raw data file
-                              [default: my_forward_projection.hs]
+                              [default: simulated_data.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
