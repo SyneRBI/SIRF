@@ -165,6 +165,27 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
     return num_dims;
 }
 
+uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
+{
+    int na = number();
+    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+
+    ISMRMRD::Acquisition acq;
+    get_acquisition(0,acq);
+
+    uint16_t const traj_dims = acq.trajectory_dimensions();
+    bool trajectory_consistent = true;
+    for(int i=1; i<na; ++i)
+    {
+        get_acquisition(i, acq);
+        trajectory_consistent *= (traj_dims== acq.trajectory_dimensions());
+    }
+    if(trajectory_consistent)
+        return traj_dims;
+    else
+        throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
+}
+
 void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
 {
     int na = number();
@@ -1460,18 +1481,14 @@ GadgetronImagesVector::set_up_geom_info()
                 (offset,spacing,size,direction));
 }
 
-
-
-
-
-
 void 
-CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
+CoilImagesVector::calculate(const MRAcquisitionData& ad, int calibration)
 {
-    if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+    if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
-    else if(ac.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+    else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
     {
+        ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::OTHER trajectory before calling the calculate method with dimension > 0.");
     #ifdef GADGETRON_TOOLBOXES_AVAILABLE
     #warning "Compiling non-cartesian code into coil sensitivity class"
         this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
@@ -1482,14 +1499,14 @@ CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
-    this->set_meta_data(ac.acquisitions_info());
+    this->set_meta_data(ad.acquisitions_info());
 
-    auto sort_idx = ac.get_kspace_order();
+    auto sort_idx = ad.get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
-        ac.get_subset(subset, sort_idx[i]);
+        ad.get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
 		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!

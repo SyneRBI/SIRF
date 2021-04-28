@@ -375,6 +375,7 @@ MRAcquisitionModel::set_up(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 		this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
 	else if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
 	{
+		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::OTHER trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
 	#warning "We compile the non-cartesian code in GADGETRON_X"
 		this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
