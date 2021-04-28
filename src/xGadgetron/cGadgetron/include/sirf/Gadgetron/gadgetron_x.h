@@ -372,25 +372,25 @@ namespace sirf {
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic
-			) : sptr_acqs_(sptr_ac) //, sptr_imgs_(sptr_ic)
+			) 
 		{
-            sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
-			set_image_template(sptr_ic);
+        	this->set_up(sptr_ac, sptr_ic);
 		}
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic,
 			gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms,
 			std::string acqs_info
-			) : sptr_acqs_(sptr_ac), sptr_csms_(sptr_csms), acqs_info_(acqs_info)
+			) : acqs_info_(acqs_info), sptr_csms_(sptr_csms)
 		{
-			set_image_template(sptr_ic);
+			this->set_up(sptr_ac, sptr_ic);
 		}
 		
 		float norm()
 		{
 			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am
 				(new MRAcquisitionModel(sptr_acqs_, sptr_imgs_, sptr_csms_, acqs_info_));
+
 			BFOperator bf(sptr_am);
 			JacobiCG<complex_float_t> jcg;
 			jcg.set_num_iterations(2);
