@@ -60,12 +60,13 @@ def examples_data_path(data_type):
     try:
         py_root = sirf.__file__
         try:
-            # is install dir like $SIRF_PATH/lib/python3.8/site-packages?
+            # is install dir like $SIRF_INSTALL_PATH/lib/python?.?/site-packages?
             lib_idx = py_root.split(os.sep).index('lib')
         except ValueError:
-            # is install dir like $SIRF_PATH/python?
+            # is install dir like $SIRF_INSTALL_PATH/python?
             lib_idx = py_root.split(os.sep).index('python')
-        potential_install_loc = os.path.join(os.sep, *py_root.split(os.sep)[:lib_idx])
+        potential_install_loc = os.path.abspath(
+            os.path.join(os.sep, *py_root.split(os.sep)[:lib_idx]))
         sirf_ver_folder = 'SIRF-{}.{}'.format(
             sirf.__version_major__, sirf.__version_minor__)
         potential_sirf_data_path = os.path.join(
