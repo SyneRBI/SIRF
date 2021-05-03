@@ -26,6 +26,7 @@ VER=2.2.0-rc.1
 3. SuperBuild
   - [ ] update `CHANGES.md`
   - [ ] update `NOTICE.txt`
+  - [ ] update `.zenodo.json`
   - [ ] update `SIRF-Superbuild/version_config.cmake` with new `SIRF_TAG` (and `STIR_TAG` etc if necessary)
   - [ ] `git push`
   - [ ] check Travis
