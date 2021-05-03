@@ -193,10 +193,15 @@ ADD_SUBDIRECTORY(src)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
 INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
+
 set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples 
+        COMPONENT DOC
         DESTINATION ${SHARE_DIR})
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/doc 
+        COMPONENT DOC
         DESTINATION ${SHARE_DIR})
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/data 
         DESTINATION ${SHARE_DIR})
+
+ADD_SUBDIRECTORY(doxygen)
