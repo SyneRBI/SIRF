@@ -2,7 +2,7 @@
 
 ## v3.0.0
 ### Backwards incompatible changes
-* STIR version 4.0.2 is now required, but the `release_4` branch (or `master` dated 20Apr2021) is highly recommended.
+* STIR version 4.1.0 is now required.
 * Python 2 is no longer supported. Most code might still work, but we do not check. A warning is written when the Python version found is 2. This will be changed to `FATAL_ERROR` at a later stage. 
 * Handling of coil images and sensitivities in C++ code simplified by inheriting CoilImagesVector from GadgetronImagesVector and replacing CoilSensitivitiesAsImages with CoilSensitivitiesVector, also inheriting from GadgetronImagesVector. All methods of CoilImagesVector and CoilSensitivitiesVector other than those inherited from GadgetronImagesVector are no longer supported except methods named compute(), which are renamed to calculate().
 
