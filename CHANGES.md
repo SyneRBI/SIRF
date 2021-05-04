@@ -37,6 +37,8 @@ Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectiv
 * Speed-up in `stir::AcquisitionDataInMemory` of `as_array`, `fill`, `dot`, `norm`, etc. (by using STIR iterators).
 * Added common Python `DataContainer` algebra unit tests for all `DataContainer` inherited classes.
 * Continuous Integration now uses Github Actions. Travis-CI has been dropped.
+* New `CMake` option `BUILD_DOCUMENTATION` to use doxygen to build C++ documentation.
+It will be installed in the `share/SIRF-version/doc/doxygen`.
 
 ### Bug fixes
 * Python `fill` method in MR `DataContainer` accepts `numpy` array, number or `DataContainer`.
