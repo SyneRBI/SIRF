@@ -170,5 +170,58 @@ classdef DataContainer < handle
                 ptr_za, x.handle_, ptr_zb, y.handle_);
             sirf.Utilities.check_status('DataContainer:axpby', z.handle_);
         end
+        function z = axpby(a, x, b, y)
+%***SIRF*** xapyb(x, a, y, b) returns a linear combination a*x + b*y 
+%         of two data containers x and y;
+%         a and b: complex scalars, or DataContainers
+%         x and y: DataContainers
+            %assert(strcmp(class(x), class(y)))
+            sirf.Utilities.assert_validities(x, y)
+            z = x.same_object();
+
+            if isscalar(a)
+                a_scalar = true
+                a = single(a);
+                za = [real(a); imag(a)];
+                ptr_a = libpointer('singlePtr', za);
+                
+            else:
+                a_scalar = false
+                sirf.Utilities.assert_validities(x, a)
+                ptr_a = a.handle;
+                
+
+            if isscalar(b)
+                b_scalar = true
+                b = single(b);
+                zb = [real(b); imag(b)];
+                ptr_b = libpointer('singlePtr', zb);
+                
+            else:
+                b_scalar = false
+                sirf.Utilities.assert_validities(x, b)
+                ptr_b = b.handle;
+                
+
+            if xor(a_scalar, b_scalar)
+                tmp = x.same_object();
+
+                if a_scalar
+                    tmp = b.dot(y);
+
+                    z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                        ptr_a, x.handle_, 1.0, tmp.handle_);
+                else
+                    tmp = a.dot(x);
+
+                    z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                        1.0, tmp.handle_, ptr_b, y.handle_);                    
+            else
+                z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                    ptr_a, x.handle_, ptr_b, y.handle_);
+
+
+            sirf.Utilities.check_status('DataContainer:axpby', z.handle_);
+        end        
     end
 end
