@@ -36,7 +36,7 @@ using namespace sirf;
 
 #if defined(HAVE_HDF5)
 #include "stir/IO/GEHDF5Wrapper.h"
-#include "stir/data/SinglesFromGEHDF5.h"
+#include "stir/data/SinglesRatesFromGEHDF5.h"
 #include "stir/recon_buildblock/BinNormalisationFromGEHDF5.h"
 using namespace GE;
 using namespace RDF_HDF5;
@@ -329,11 +329,11 @@ int
 ListmodeToSinograms::estimate_randoms()
 {
 #if defined(HAVE_HDF5)
-	std::cout << "trying GEHDF5...\n";
+	std::cout << "estimate_randoms: trying GEHDF5...\n";
 	try {
 		if (GEHDF5Wrapper::check_GE_signature(input_filename)) {
-			SinglesFromGEHDF5  singles;
-			singles.read_singles_from_file(input_filename);
+			SinglesRatesFromGEHDF5  singles;
+			singles.read_from_file(input_filename);
 			GEHDF5Wrapper input_file(input_filename);
 			float coincidence_time_window = input_file.get_coincidence_time_window();
 			ProjData& proj_data = *randoms_sptr->data();
@@ -343,7 +343,7 @@ ListmodeToSinograms::estimate_randoms()
 	}
 	catch (...) {
 	}
-	std::cout << "not a GE HDF5 file\n";
+	std::cout << "not a GE HDF5 file. Using ML estimate from delayeds\n";
 #endif
 	compute_fan_sums_();
 	int err = compute_singles_();
