@@ -375,12 +375,12 @@ const void* ptr_b, const DataContainer& a_y)
 
 void
 MRAcquisitionData::xapyb(
-	const DataContainer& a_x, const DataContainer* ptr_a,
-	const DataContainer& a_y, const DataContainer* ptr_b)
+	const DataContainer& a_x, const DataContainer& a_a,
+	const DataContainer& a_y, const DataContainer& a_b)
 {
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(-1, x, y, ptr_a, ptr_b);
+	binary_op_(-1, x, y, &a_a, &a_b);
 }
 
 void

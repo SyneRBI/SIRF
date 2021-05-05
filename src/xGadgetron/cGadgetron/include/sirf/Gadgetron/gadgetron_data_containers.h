@@ -244,8 +244,8 @@ namespace sirf {
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
-			const DataContainer& a_x, const DataContainer* ptr_a,
-			const DataContainer& a_y, const DataContainer* ptr_b);
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void multiply(
 			const DataContainer& a_x,
 			const DataContainer& a_y);
