@@ -421,14 +421,14 @@ namespace sirf {
 		{
 			IMAGE_PROCESSING_SWITCH(type_, read_, ptr_, dataset, var, ind, &ptr_);
 		}
-		void axpby(complex_float_t a, const ImageWrap& x, complex_float_t b)
-		{
-			IMAGE_PROCESSING_SWITCH(type_, axpby_, x.ptr_image(), a, b);
-		}
+		//void axpby(complex_float_t a, const ImageWrap& x, complex_float_t b)
+		//{
+		//	IMAGE_PROCESSING_SWITCH(type_, axpby_, x.ptr_image(), a, b);
+		//}
 		void axpby(complex_float_t a, const ImageWrap& x, complex_float_t b, 
 			const ImageWrap& y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, axpby__, x.ptr_image(), a, y.ptr_image(), b);
+			IMAGE_PROCESSING_SWITCH(type_, axpby_, x.ptr_image(), a, y.ptr_image(), b);
 		}
 		void multiply(const ImageWrap& x)
 		{
@@ -624,33 +624,33 @@ namespace sirf {
 					xGadgetronUtilities::convert_complex(data[i], ptr[i]);
 		}
 
-		template<typename T>
-		void axpby_
-			(const ISMRMRD::Image<T>* ptr_x, complex_float_t a, 
-			complex_float_t b)
-		{
-			ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)ptr_;
-			size_t nx = ptr_x->getNumberOfDataElements();
-			size_t ny = ptr_y->getNumberOfDataElements();
-			if (nx != ny)
-				THROW("sizes mismatch in ImageWrap multiply");
-			const T* i = ptr_x->getDataPtr();
-			T* j = ptr_y->getDataPtr();
-			if (b == complex_float_t(0.0))
-				for (size_t ii = 0; ii < nx; i++, j++, ii++) {
-				complex_float_t u = (complex_float_t)*i;
-				xGadgetronUtilities::convert_complex(a*u, *j);
-			}
-			else
-				for (size_t ii = 0; ii < nx; i++, j++, ii++) {
-				complex_float_t u = (complex_float_t)*i;
-				complex_float_t v = (complex_float_t)*j;
-				xGadgetronUtilities::convert_complex(a*u + b*v, *j);
-			}
-		}
+		//template<typename T>
+		//void axpby_
+		//	(const ISMRMRD::Image<T>* ptr_x, complex_float_t a, 
+		//	complex_float_t b)
+		//{
+		//	ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)ptr_;
+		//	size_t nx = ptr_x->getNumberOfDataElements();
+		//	size_t ny = ptr_y->getNumberOfDataElements();
+		//	if (nx != ny)
+		//		THROW("sizes mismatch in ImageWrap multiply");
+		//	const T* i = ptr_x->getDataPtr();
+		//	T* j = ptr_y->getDataPtr();
+		//	if (b == complex_float_t(0.0))
+		//		for (size_t ii = 0; ii < nx; i++, j++, ii++) {
+		//		complex_float_t u = (complex_float_t)*i;
+		//		xGadgetronUtilities::convert_complex(a*u, *j);
+		//	}
+		//	else
+		//		for (size_t ii = 0; ii < nx; i++, j++, ii++) {
+		//		complex_float_t u = (complex_float_t)*i;
+		//		complex_float_t v = (complex_float_t)*j;
+		//		xGadgetronUtilities::convert_complex(a*u + b*v, *j);
+		//	}
+		//}
 
 		template<typename T>
-		void axpby__
+		void axpby_
 			(const ISMRMRD::Image<T>* ptr_x, complex_float_t a, 
 			const void* vptr_y, complex_float_t b)
 		{
