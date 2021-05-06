@@ -1553,6 +1553,8 @@ class AcquisitionModel(object):
         am.handle = pystir.cSTIR_linearAcquisitionModel(self.handle)
         check_status(am.handle)
         am.const = True # am to be a const reference of self
+        am.img_templ = self.img_templ
+        am.acq_templ = self.acq_templ
         return am
 
     def direct(self, image, out=None):
