@@ -31,6 +31,7 @@ limitations under the License.
 #include <iostream>
 #include <cstdlib>
 
+#include "sirf/common/getenv.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/Gadgetron/chain_lib.h"
@@ -232,7 +233,7 @@ bool test_acq_mod_norm(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
 
 void edit_acq(const char* in, const char* out)
 {
-	std::string SIRF_PATH = getenv("SIRF_PATH");
+	std::string SIRF_PATH = sirf::getenv("SIRF_PATH");
 	std::string path_in = SIRF_PATH + in;
 	std::string path_out = out;
 	gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
@@ -282,7 +283,6 @@ void edit_acq(const char* in, const char* out)
 
 int main ( int argc, char* argv[])
 {
-
 	try{
 		if (argc == 3) {
 			edit_acq(argv[1], argv[2]);
@@ -291,7 +291,7 @@ int main ( int argc, char* argv[])
 
         std::string SIRF_PATH;
         if (argc==1)
-            SIRF_PATH = getenv("SIRF_PATH");
+            SIRF_PATH = sirf::getenv("SIRF_PATH");
         else
             SIRF_PATH = argv[1];
 
