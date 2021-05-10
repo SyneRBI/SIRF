@@ -437,6 +437,18 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH(type_, xapyb_, x.ptr_image(), &a,
 				y.ptr_image(), &b, 0, 0);
 		}
+		void xapyb(const ImageWrap& x, complex_float_t a,
+			const ImageWrap& y, const ImageWrap& b)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, xapyb_, x.ptr_image(), &a,
+				y.ptr_image(), &b, 0, 1);
+		}
+		void xapyb(const ImageWrap& x, const ImageWrap& a,
+			const ImageWrap& y, complex_float_t b)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, xapyb_, x.ptr_image(), &a,
+				y.ptr_image(), &b, 1, 0);
+		}
 		void xapyb(const ImageWrap& x, const ImageWrap& a,
 			const ImageWrap& y, const ImageWrap& b)
 		{
