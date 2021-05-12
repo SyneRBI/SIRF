@@ -197,7 +197,7 @@ namespace sirf {
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
 			complex_float_t b, ISMRMRD::Acquisition& acq_y);
-		void xapyb
+		static void xapyb
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
 				ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b);
 
