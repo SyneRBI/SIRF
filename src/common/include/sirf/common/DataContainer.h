@@ -53,6 +53,16 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;
+		virtual void xapyb(
+			const DataContainer& x, const void* ptr_a,
+			const DataContainer& y, const void* ptr_b) // = 0; // when PET side is merged
+		{
+			axpby(ptr_a, x, ptr_b, y); // to go when PET side is merged
+		}
+		virtual void xapyb(
+			const DataContainer& x, const DataContainer& a,
+			const DataContainer& y, const DataContainer& b) // = 0; // when PET side is merged
+		{} // to go when PET side is merged
 		bool is_empty() const
 		{
 			return items() < 1;
