@@ -588,8 +588,8 @@ namespace sirf {
 		template<class A, class B>
 		void xapyb_(const DataContainer& a_x, A& a, const DataContainer& a_y, B& b)
 		{
-			DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-			DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+			DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);
 			unsigned int nx = x.number();
 			unsigned int na = a.number();
 			unsigned int ny = y.number();
