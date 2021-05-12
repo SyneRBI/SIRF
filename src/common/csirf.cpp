@@ -148,7 +148,6 @@ cSIRF_xapybAlt(
 			objectFromHandle<DataContainer >(ptr_y);
 		DataContainer& z =
 			objectFromHandle<DataContainer >(ptr_z);
-		z.axpby(ptr_a, x, ptr_b, y);
 		if (strcmp(ab, "ss") == 0)
 			z.axpby(ptr_a, x, ptr_b, y);
 		else if (strcmp(ab, "vv") == 0) {
