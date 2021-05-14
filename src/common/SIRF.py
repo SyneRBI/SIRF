@@ -61,8 +61,8 @@ class DataContainer(ABC):
         zero = numpy.asarray([0.0, 0.0], dtype = numpy.float32)
         mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
         z = self.same_object()
-        z.handle = pysirf.cSIRF_xapyb_ss \
-            (self.handle, mn_one.ctypes.data, self.handle, zero.ctypes.data)
+        z.handle = pysirf.cSIRF_xapyb \
+            (self.handle, mn_one.ctypes.data, self.handle, zero.ctypes.data, "ss")
         check_status(z.handle)
         return z
 
@@ -191,14 +191,14 @@ class DataContainer(ABC):
         one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
         if out is None:
             z = self.same_object()
-            z.handle = pysirf.cSIRF_xapyb_ss \
-                (self.handle, one.ctypes.data, other.handle, one.ctypes.data)
+            z.handle = pysirf.cSIRF_xapyb \
+                (self.handle, one.ctypes.data, other.handle, one.ctypes.data, "ss")
             check_status(z.handle)
         else:
             assert_validities(self, out)
             z = out
-            try_calling(pysirf.cSIRF_xapyb_ss_Alt \
-                (self.handle, one.ctypes.data, other.handle, one.ctypes.data, z.handle))
+            try_calling(pysirf.cSIRF_xapybAlt \
+                (self.handle, one.ctypes.data, other.handle, one.ctypes.data, z.handle, "ss"))
         return z
 
     @deprecation.deprecated(details="Please use the sapyb method instead")
@@ -242,9 +242,9 @@ class DataContainer(ABC):
                 #a is scalar, b is scalar
                 beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
                 if out is None:
-                    z.handle = pysirf.cSIRF_xapyb_ss(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data)
+                    z.handle = pysirf.cSIRF_xapyb(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, "ss")
                 else:
-                    pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, z.handle)
+                    try_calling(pysirf.cSIRF_xapybAlt(self.handle, alpha.ctypes.data, y.handle, beta.ctypes.data, z.handle, "ss"))
                     
             else:
                 #a is scalar, b is array
@@ -252,9 +252,9 @@ class DataContainer(ABC):
                 tmp = y.multiply(b)
                 
                 if out is None:
-                    z.handle = pysirf.cSIRF_xapyb_ss(self.handle, alpha.ctypes.data, tmp.handle, one.ctypes.data)
+                    z.handle = pysirf.cSIRF_xapyb(self.handle, alpha.ctypes.data, tmp.handle, one.ctypes.data, "ss")
                 else:
-                    pysirf.cSIRF_xapyb_ss_Alt(self.handle, alpha.ctypes.data, tmp.handle, one.ctypes.data, z.handle)
+                    try_calling(pysirf.cSIRF_xapybAlt(self.handle, alpha.ctypes.data, tmp.handle, one.ctypes.data, z.handle, "ss"))
         else:
             assert_validities(self, a)
             if isinstance(b, Number):
@@ -263,9 +263,9 @@ class DataContainer(ABC):
                 beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
                 tmp = self.multiply(a)
                 if out is None:
-                    z.handle = pysirf.cSIRF_xapyb_ss(tmp.handle, one.ctypes.data, y.handle, beta.ctypes.data)
+                    z.handle = pysirf.cSIRF_xapyb(tmp.handle, one.ctypes.data, y.handle, beta.ctypes.data, "ss")
                 else:
-                    pysirf.cSIRF_xapyb_ss_Alt(tmp.handle, one.ctypes.data, y.handle, beta.ctypes.data, z.handle)
+                    try_calling(pysirf.cSIRF_xapybAlt(tmp.handle, one.ctypes.data, y.handle, beta.ctypes.data, z.handle, "ss"))
 
             else:
                 #a is array, b is array
@@ -273,7 +273,7 @@ class DataContainer(ABC):
 
                 if out is None:
                     try:
-                        z.handle = pysirf.cSIRF_xapyb_vv(self.handle, a.handle, y.handle, b.handle)
+                        z.handle = pysirf.cSIRF_xapyb(self.handle, a.handle, y.handle, b.handle, "vv")
                         check_status(z.handle)
                     except error as e:
                         if 'NotImplemented' in str(e):
@@ -284,7 +284,7 @@ class DataContainer(ABC):
                             raise RuntimeError(str(e))
                 else:
                     try:
-                        try_calling(pysirf.cSIRF_xapyb_vv_Alt(self.handle, a.handle, y.handle, b.handle, z.handle))
+                        try_calling(pysirf.cSIRF_xapybAlt(self.handle, a.handle, y.handle, b.handle, z.handle, "vv"))
                     except error as e:
                         if 'NotImplemented' in str(e):
                             tmp = self.multiply(a)
@@ -330,14 +330,14 @@ class DataContainer(ABC):
         mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
         if out is None:
             z = self.same_object()
-            z.handle = pysirf.cSIRF_xapyb_ss \
-                (self.handle, pl_one.ctypes.data, other.handle, mn_one.ctypes.data)
+            z.handle = pysirf.cSIRF_xapyb \
+                (self.handle, pl_one.ctypes.data, other.handle, mn_one.ctypes.data, "ss")
             check_status(z.handle)
         else:
             assert_validities(self, out)
             z = out
-            try_calling(pysirf.cSIRF_xapyb_ss_Alt \
-                (self.handle, pl_one.ctypes.data, other.handle, mn_one.ctypes.data, z.handle))
+            try_calling(pysirf.cSIRF_xapyb \
+                (self.handle, pl_one.ctypes.data, other.handle, mn_one.ctypes.data, z.handle, "ss"))
         return z
     def __sub__(self, other):
         '''
@@ -371,8 +371,8 @@ class DataContainer(ABC):
             z = self.same_object()
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
-            z.handle = pysirf.cSIRF_xapyb_ss \
-                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data)
+            z.handle = pysirf.cSIRF_xapyb \
+                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data, "ss")
             z.src = 'mult'
             check_status(z.handle)
             return z
@@ -391,8 +391,8 @@ class DataContainer(ABC):
             z = self.same_object()
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
-            z.handle = pysirf.cSIRF_xapyb_ss \
-                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data)
+            z.handle = pysirf.cSIRF_xapyb \
+                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data, "ss")
             check_status(z.handle)
             return z
 
@@ -417,8 +417,8 @@ class DataContainer(ABC):
             other = 1.0/other
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
-            z.handle = pysirf.cSIRF_xapyb_ss \
-                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data)
+            z.handle = pysirf.cSIRF_xapyb \
+                (self.handle, a.ctypes.data, self.handle, zero.ctypes.data, "ss")
             check_status(z.handle)
             return z
 
