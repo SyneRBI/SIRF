@@ -263,6 +263,14 @@ MRAcquisitionData::axpby
 	}
 }
 
+void 
+MRAcquisitionData::xapyb
+(const ISMRMRD::Acquisition& acq_x, complex_float_t a,
+	ISMRMRD::Acquisition& acq_y, complex_float_t b)
+{
+	MRAcquisitionData::axpby(a, acq_x, b, acq_y);
+}
+
 void
 MRAcquisitionData::xapyb
 (const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
@@ -381,6 +389,14 @@ MRAcquisitionData::xapyb(
 	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(-1, x, y, &a_a, &a_b);
+}
+
+void
+MRAcquisitionData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b)
+{
+	MRAcquisitionData::axpby(ptr_a, a_x, ptr_b, a_y);
 }
 
 void
@@ -835,6 +851,14 @@ const void* ptr_b, const DataContainer& a_y)
 	}
 	this->set_meta_data(x.get_meta_data());
 }
+
+//void
+//GadgetronImageData::xapyb(
+//const DataContainer& a_x, const void* ptr_a,
+//const DataContainer& a_y, const void* ptr_b)
+//{
+//	GadgetronImageData::axpby(ptr_a, a_x, ptr_b, a_y);
+//}
 
 void
 GadgetronImageData::multiply(

@@ -26,6 +26,7 @@ limitations under the License.
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ImageData.h"
 #include "sirf/Syn/utilities.h"
+#include "sirf/common/deprecate.h"
 
 using namespace sirf;
 
@@ -103,6 +104,7 @@ cSIRF_dot(const void* ptr_x, const void* ptr_y)
 	CATCH;
 }
 
+//! \deprecated cSIRF_axpby (\see cSIRF_xapyb_ss)
 extern "C"
 void*
 cSIRF_xapyb(
@@ -134,6 +136,17 @@ cSIRF_xapyb(
 	CATCH;
 }
 
+//extern "C"
+//void*
+////SIRF_DEPRECATED 
+//cSIRF_axpby(
+//	const void* ptr_a, const void* ptr_x,
+//	const void* ptr_b, const void* ptr_y
+//) {
+//	return cSIRF_xapyb(ptr_x, ptr_a, ptr_y, ptr_b, "ss");
+//}
+
+//! \deprecated cSIRF_axpbyAlt (\see cSIRF_xapyb_ss_Alt)
 extern "C"
 void*
 cSIRF_xapybAlt(
@@ -160,6 +173,105 @@ cSIRF_xapybAlt(
 		else {
 			THROW("NotImplemented: the last argument is neither ss nor vv");
 		}
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+//extern "C"
+//void*
+////SIRF_DEPRECATED 
+//cSIRF_axpbyAlt(
+//	const void* ptr_a, const void* ptr_x,
+//	const void* ptr_b, const void* ptr_y,
+//	void* ptr_z
+//) {
+//	return cSIRF_xapybAlt(ptr_x, ptr_a, ptr_y, ptr_b, ptr_z, "ss");
+//}
+
+extern "C"
+void*
+cSIRF_xapyb_ss(
+const void* ptr_x, const void* ptr_a,
+const void* ptr_y, const void* ptr_b
+) {
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.xapyb(x, ptr_a, y, ptr_b);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_xapyb_vv(
+const void* ptr_x, const void* ptr_a,
+const void* ptr_y, const void* ptr_b
+) {
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		DataContainer& a =
+			objectFromHandle<DataContainer >(ptr_a);
+		DataContainer& b =
+			objectFromHandle<DataContainer >(ptr_b);
+
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.xapyb(x, a, y, b);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_xapyb_ss_Alt(
+const void* ptr_x, const void* ptr_a,
+const void* ptr_y, const void* ptr_b,
+void* ptr_z
+) {
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		DataContainer& z =
+			objectFromHandle<DataContainer >(ptr_z);
+						
+		z.xapyb(x, ptr_a, y, ptr_b);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_xapyb_vv_Alt(
+const void* ptr_x, const void* ptr_a,
+const void* ptr_y, const void* ptr_b,
+void* ptr_z
+) {
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		DataContainer& a =
+			objectFromHandle<DataContainer >(ptr_a);
+		DataContainer& b =
+			objectFromHandle<DataContainer >(ptr_b);
+		DataContainer& z =
+			objectFromHandle<DataContainer >(ptr_z);
+		z.xapyb(x, a, y, b);
 		return new DataHandle;
 	}
 	CATCH;

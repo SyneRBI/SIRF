@@ -198,6 +198,9 @@ namespace sirf {
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
 			complex_float_t b, ISMRMRD::Acquisition& acq_y);
 		static void xapyb
+			(const ISMRMRD::Acquisition& acq_x, complex_float_t a,
+			ISMRMRD::Acquisition& acq_y, complex_float_t b);
+		static void xapyb
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
 				ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b);
 
@@ -246,6 +249,12 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const void* ptr_b);
+		//{
+		//	axpby(ptr_a, a_x, ptr_b, a_y);
+		//}
 		virtual void multiply(
 			const DataContainer& a_x,
 			const DataContainer& a_y);
@@ -515,6 +524,12 @@ namespace sirf {
 		{
 			axpby(&a, a_x, &b, a_y);
 		}
+		void xapyb(
+			const DataContainer& a_x, complex_float_t a,
+			const DataContainer& a_y, complex_float_t b)
+		{
+			xapyb(a_x, &a, a_y, &b);
+		}			
 		gadgetron::unique_ptr<ISMRMRDImageData> clone() const
 		{
 			return gadgetron::unique_ptr<ISMRMRDImageData>(this->clone_impl());

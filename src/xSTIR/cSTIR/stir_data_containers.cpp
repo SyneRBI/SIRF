@@ -94,6 +94,16 @@ const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y
 )
 {
+	//Add deprecation warning
+    PETAcquisitionData::xapyb(a_x, ptr_a, a_y, ptr_b);
+}
+
+void
+PETAcquisitionData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b
+)
+{
     // Cast to correct types
     float a = *(float*)ptr_a;
     float b = *(float*)ptr_b;
@@ -102,11 +112,34 @@ const void* ptr_b, const DataContainer& a_y
 
     if (is_null_ptr(x) || is_null_ptr(x->data()) ||
             is_null_ptr(y) || is_null_ptr(y->data()))
-        throw std::runtime_error("PETAcquisitionData::axpby: At least one argument is not"
+        throw std::runtime_error("PETAcquisitionData::xapyb: At least one argument is not"
                                  "PETAcquisitionData or is not initialised.");
 
-    // Call STIR's axpby
-    data()->axpby(a, *x->data(), b, *y->data());
+    // Call STIR's xapyb
+    data()->xapyb(*x->data(), a, *y->data(), b);
+}
+
+void
+PETAcquisitionData::xapyb(
+const DataContainer& a_x, const DataContainer& a_a,
+const DataContainer& a_y, const DataContainer& a_b
+)
+{
+    // Cast to correct types
+    auto a = dynamic_cast<const PETAcquisitionData*>(&a_a);
+    auto b = dynamic_cast<const PETAcquisitionData*>(&a_b);
+    auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const PETAcquisitionData*>(&a_y);
+
+    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
+            is_null_ptr(y) || is_null_ptr(y->data()) ||
+            is_null_ptr(a) || is_null_ptr(a->data()) ||
+            is_null_ptr(b) || is_null_ptr(b->data()))
+        throw std::runtime_error("PETAcquisitionData::xapyb: At least one argument is not"
+                                 "PETAcquisitionData or is not initialised.");
+
+    // Call STIR's xapyb
+    data()->xapyb(*x->data(), *a->data(), *y->data(), *b->data());
 }
 
 void
@@ -314,12 +347,19 @@ STIRImageData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y)
 {
+	//add deprecation warning
+	STIRImageData::xapyb(a_x, ptr_a, a_y, ptr_b);
+}
+
+void
+STIRImageData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b)
+{
 	float a = *(float*)ptr_a;
 	float b = *(float*)ptr_b;
 	DYNAMIC_CAST(const STIRImageData, x, a_x);
 	DYNAMIC_CAST(const STIRImageData, y, a_y);
-	//STIRImageData& x = (STIRImageData&)a_x;
-	//STIRImageData& y = (STIRImageData&)a_y;
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -336,6 +376,40 @@ const void* ptr_b, const DataContainer& a_y)
 		iter_x != x.data().end_all() && iter_y != y.data().end_all();
 	iter++, iter_x++, iter_y++)
 		*iter = a * (*iter_x) + b * (*iter_y);
+}
+
+void
+STIRImageData::xapyb(
+const DataContainer& a_x, const DataContainer& a_a,
+const DataContainer& a_y, const DataContainer& a_b)
+{
+	DYNAMIC_CAST(const STIRImageData, a, a_a);
+	DYNAMIC_CAST(const STIRImageData, b, a_b);	
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	DYNAMIC_CAST(const STIRImageData, y, a_y);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+	Image3DF::const_full_iterator iter_y;
+	Image3DF::const_full_iterator iter_a;
+	Image3DF::const_full_iterator iter_b;	
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+	typename Array<3, float>::const_full_iterator iter_y;
+	typename Array<3, float>::const_full_iterator iter_a;
+	typename Array<3, float>::const_full_iterator iter_b;	
+#endif
+
+	for (iter = data().begin_all(),
+		iter_a = a.data().begin_all(), iter_b = b.data().begin_all(),
+		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
+		iter != data().end_all() &&
+		iter_x != x.data().end_all() && iter_y != y.data().end_all()
+		&& iter_a != a.data().end_all() && iter_b != b.data().end_all();
+	iter++, iter_x++, iter_y++, iter_a++, iter_b++)
+
+		*iter = (*iter_a) * (*iter_x) + (*iter_b) * (*iter_y);
 }
 
 float

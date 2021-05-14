@@ -61,13 +61,13 @@ namespace sirf {
 		}
 		virtual void xapyb(
 			const DataContainer& x, const DataContainer& a,
-			const DataContainer& y, const DataContainer& b) // = 0; // when PET side is merged
-		{} // to go when PET side is merged
+			const DataContainer& y, const DataContainer& b) = 0;
+		virtual void write(const std::string &filename) const = 0;
+
 		bool is_empty() const
 		{
 			return items() < 1;
 		}
-		virtual void write(const std::string &filename) const = 0;
 		std::unique_ptr<DataContainer> clone() const
 		{
 			return std::unique_ptr<DataContainer>(this->clone_impl());
