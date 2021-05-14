@@ -168,21 +168,23 @@ cSIRF_xapybAlt(
 
 //! \deprecated cSIRF_axpby (\see cSIRF_xapyb)
 extern "C"
-SIRF_DEPRECATED void*
+SIRF_DEPRECATED
+void*
 cSIRF_axpby(
-const void* ptr_a, const void* ptr_x,
-const void* ptr_b, const void* ptr_y
+	const void* ptr_a, const void* ptr_x,
+	const void* ptr_b, const void* ptr_y
 ) {
 	return cSIRF_xapyb(ptr_x, ptr_a, ptr_y, ptr_b, "ss");
 }
 
 //! \deprecated cSIRF_axpbyAlt (\see cSIRF_xapybAlt)
 extern "C"
-SIRF_DEPRECATED void*
+SIRF_DEPRECATED
+void*
 cSIRF_axpbyAlt(
-const void* ptr_a, const void* ptr_x,
-const void* ptr_b, const void* ptr_y,
-void* ptr_z
+	const void* ptr_a, const void* ptr_x,
+	const void* ptr_b, const void* ptr_y,
+	void* ptr_z
 ) {
 	return cSIRF_xapybAlt(ptr_x, ptr_a, ptr_y, ptr_b, ptr_z, "ss");
 }
