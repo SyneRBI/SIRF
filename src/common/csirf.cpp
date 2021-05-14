@@ -104,7 +104,6 @@ cSIRF_dot(const void* ptr_x, const void* ptr_y)
 	CATCH;
 }
 
-//! \deprecated cSIRF_axpby (\see cSIRF_xapyb_ss)
 extern "C"
 void*
 cSIRF_xapyb(
@@ -136,17 +135,6 @@ cSIRF_xapyb(
 	CATCH;
 }
 
-//extern "C"
-//void*
-////SIRF_DEPRECATED 
-//cSIRF_axpby(
-//	const void* ptr_a, const void* ptr_x,
-//	const void* ptr_b, const void* ptr_y
-//) {
-//	return cSIRF_xapyb(ptr_x, ptr_a, ptr_y, ptr_b, "ss");
-//}
-
-//! \deprecated cSIRF_axpbyAlt (\see cSIRF_xapyb_ss_Alt)
 extern "C"
 void*
 cSIRF_xapybAlt(
@@ -177,17 +165,6 @@ cSIRF_xapybAlt(
 	}
 	CATCH;
 }
-
-//extern "C"
-//void*
-////SIRF_DEPRECATED 
-//cSIRF_axpbyAlt(
-//	const void* ptr_a, const void* ptr_x,
-//	const void* ptr_b, const void* ptr_y,
-//	void* ptr_z
-//) {
-//	return cSIRF_xapybAlt(ptr_x, ptr_a, ptr_y, ptr_b, ptr_z, "ss");
-//}
 
 extern "C"
 void*
@@ -277,45 +254,25 @@ void* ptr_z
 	CATCH;
 }
 
+//! \deprecated cSIRF_axpby (\see cSIRF_xapyb)
 extern "C"
-void*
+SIRF_DEPRECATED void*
 cSIRF_axpby(
 const void* ptr_a, const void* ptr_x,
 const void* ptr_b, const void* ptr_y
 ) {
 	return cSIRF_xapyb(ptr_x, ptr_a, ptr_y, ptr_b, "ss");
-	//try {
-	//	DataContainer& x =
-	//		objectFromHandle<DataContainer >(ptr_x);
-	//	DataContainer& y =
-	//		objectFromHandle<DataContainer >(ptr_y);
-	//	void* h = x.new_data_container_handle();
-	//	DataContainer& z = objectFromHandle<DataContainer>(h);
-	//	z.axpby(ptr_a, x, ptr_b, y);
-	//	return h;
-	//}
-	//CATCH;
 }
 
+//! \deprecated cSIRF_axpbyAlt (\see cSIRF_xapybAlt)
 extern "C"
-void*
+SIRF_DEPRECATED void*
 cSIRF_axpbyAlt(
 const void* ptr_a, const void* ptr_x,
 const void* ptr_b, const void* ptr_y,
 void* ptr_z
 ) {
 	return cSIRF_xapybAlt(ptr_x, ptr_a, ptr_y, ptr_b, ptr_z, "ss");
-	//try {
-	//	DataContainer& x =
-	//		objectFromHandle<DataContainer >(ptr_x);
-	//	DataContainer& y =
-	//		objectFromHandle<DataContainer >(ptr_y);
-	//	DataContainer& z =
-	//		objectFromHandle<DataContainer >(ptr_z);
-	//	z.axpby(ptr_a, x, ptr_b, y);
-	//	return new DataHandle;
-	//}
-	//CATCH;
 }
 
 extern "C"
