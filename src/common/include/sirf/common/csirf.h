@@ -43,6 +43,13 @@ void* cSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x,
 	const PTR_FLOAT ptr_b, const void* ptr_y);
 void* cSIRF_axpbyAlt(const PTR_FLOAT ptr_a, const void* ptr_x,
 	const PTR_FLOAT ptr_b, const void* ptr_y, void* ptr_z);
+void* cSIRF_xapyb(
+	const void* ptr_x, const void* ptr_a,
+	const void* ptr_y, const void* ptr_b);
+void* cSIRF_xapybAlt(
+	const void* ptr_x, const void* ptr_a,
+	const void* ptr_y, const void* ptr_b,
+	void* ptr_z);
 void* cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z);
 void* cSIRF_product(const void* ptr_x, const void* ptr_y);
 void* cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z);
