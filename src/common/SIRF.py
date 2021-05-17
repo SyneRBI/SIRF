@@ -237,7 +237,6 @@ class DataContainer(ABC):
         
         if isinstance(a, Number):
             alpha = numpy.asarray([a.real, a.imag], dtype = numpy.float32)
-
             if isinstance(b, Number):
                 #a is scalar, b is scalar
                 beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
@@ -266,14 +265,12 @@ class DataContainer(ABC):
                     z.handle = pysirf.cSIRF_axpby(one.ctypes.data, tmp.handle, beta.ctypes.data, y.handle)
                 else:
                     try_calling(pysirf.cSIRF_axpbyAlt(one.ctypes.data, tmp.handle, beta.ctypes.data, y.handle, z.handle))
-
             else:
                 #a is array, b is array
                 assert_validities(self, b)
-
                 if out is None:
                     try:
-                        z.handle = pysirf.cSIRF_xapyb(self.handle, a.handle, y.handle, b.handle, "vv")
+                        z.handle = pysirf.cSIRF_xapyb(self.handle, a.handle, y.handle, b.handle)
                         check_status(z.handle)
                     except error as e:
                         if 'NotImplemented' in str(e):
@@ -284,7 +281,7 @@ class DataContainer(ABC):
                             raise RuntimeError(str(e))
                 else:
                     try:
-                        try_calling(pysirf.cSIRF_xapybAlt(self.handle, a.handle, y.handle, b.handle, z.handle, "vv"))
+                        try_calling(pysirf.cSIRF_xapybAlt(self.handle, a.handle, y.handle, b.handle, z.handle))
                     except error as e:
                         if 'NotImplemented' in str(e):
                             tmp = self.multiply(a)
