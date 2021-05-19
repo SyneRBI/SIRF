@@ -1,7 +1,7 @@
 """Get multiplicative sinograms from normalisation and/or attenuation.
 
 Usage:
-  osem_reconstruction [--help | options]
+  get_multiplicative_sinogram [--help | options]
 
 Options:
   -p <path>, --path=<path>      path to data files, defaults to data/examples/PET/mMR
