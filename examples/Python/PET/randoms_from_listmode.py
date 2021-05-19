@@ -12,7 +12,8 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr]
-  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -o <sino>, --sino=<sino>     sinograms file prefix [default: sinograms]
+  -r <rand>, --rand=<rand>     randoms file [default: randoms]
   -t <tmpl>, --tmpl=<tmpl>     raw data template [default: mMR_template_span11_small.hs]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                (no space after comma) [default: (0,100)]
@@ -62,6 +63,7 @@ if data_path is None:
     data_path = examples_data_path('PET') + '/mMR'
 list_file = args['--list']
 sino_file = args['--sino']
+rand_file = args['--rand']
 tmpl_file = args['--tmpl']
 list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
@@ -105,6 +107,7 @@ def main():
     # estimate the randoms from the delayeds via Maximum Likelihood estimation
     # This will take at least a few seconds
     randoms_estimate_acq_data = lm2sino.estimate_randoms();
+    randoms_estimate_acq_data.write(rand_file)
     
     # copy the acquisition data into Python arrays
     delayeds_acq_array = delayeds_acq_data.as_array()
