@@ -20,7 +20,7 @@
 import os, shutil, numpy
 import unittest
 import sirf.STIR as pet
-from sirf.Utilities import examples_data_path, TestDataContainerAlgebra
+from sirf.Utilities import examples_data_path
 
 pet.AcquisitionData.set_storage_scheme('file')
 pet.set_verbosity(0)
@@ -29,8 +29,7 @@ pet.set_verbosity(0)
 class TestSTIRObjectiveFunction(unittest.TestCase):
 
     def setUp(self):
-        
-    
+
         os.chdir(examples_data_path('PET'))
         #%% copy files to working folder and change directory to where the output files are
         shutil.rmtree('working_folder/thorax_single_slice',True)
