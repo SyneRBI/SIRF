@@ -2095,10 +2095,10 @@ class ObjectiveFunction(object):
         return v
 
     def __call__(self, value):
-	'''Alias to value: Returns the value of this objective function on the specified image.
+        '''Alias of value: Returns the value of this objective function on the specified image.
 
         image: ImageData object'''
-	return self.value(image)
+    return self.value(image)
 
     def get_value(self, image):
         """Returns the value of this objective function on the specified image.
