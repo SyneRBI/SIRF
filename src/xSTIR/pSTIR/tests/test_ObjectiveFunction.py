@@ -51,12 +51,12 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
 
         self.obj_fun = obj_fun
         self.image = image
-        
+
     def tearDown(self):
         os.chdir(examples_data_path('PET'))
         #%% copy files to working folder and change directory to where the output files are
         shutil.rmtree('working_folder/thorax_single_slice',True)
-            
+
 
     def test_Poisson_loglikelihood_call(self):
         x = self.image * 0 + 1
@@ -64,5 +64,3 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
         b = self.obj_fun(x)
 
         numpy.testing.assert_almost_equal(a,b)
-
-
