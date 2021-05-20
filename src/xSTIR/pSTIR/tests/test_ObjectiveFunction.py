@@ -29,48 +29,34 @@ pet.set_verbosity(0)
 class TestSTIRObjectiveFunction(unittest.TestCase):
 
     def setUp(self):
-        if os.path.exists(os.path.join(
-            examples_data_path('PET'), 'mMR', 'mMR_template_span11_small.hs')):
-
-            template = pet.AcquisitionData(os.path.join(
-                examples_data_path('PET'), 'mMR', 'mMR_template_span11_small.hs')
-            )
-            
-            self.image1 = template.get_uniform_copy(0)
-            self.image2 = template.get_uniform_copy(0)
-            # assert False
-            self.set_storage_scheme()
-            os.chdir(examples_data_path('PET'))
-            #%% copy files to working folder and change directory to where the output files are
-            shutil.rmtree('working_folder/thorax_single_slice',True)
-            shutil.copytree('thorax_single_slice','working_folder/thorax_single_slice')
-            os.chdir('working_folder/thorax_single_slice')
+        
+    
+        os.chdir(examples_data_path('PET'))
+        #%% copy files to working folder and change directory to where the output files are
+        shutil.rmtree('working_folder/thorax_single_slice',True)
+        shutil.copytree('thorax_single_slice','working_folder/thorax_single_slice')
+        os.chdir('working_folder/thorax_single_slice')
 
 
-            image = pet.ImageData('emission.hv')
+        image = pet.ImageData('emission.hv')
 
+        am = pet.AcquisitionModelUsingRayTracingMatrix()
+        am.set_num_tangential_LORs(5)
+        templ = pet.AcquisitionData('template_sinogram.hs')
+        am.set_up(templ,image)
+        acquired_data=am.forward(image)
 
-            am = pet.AcquisitionModelUsingRayTracingMatrix()
-            am.set_num_tangential_LORs(5)
-            templ = pet.AcquisitionData('template_sinogram.hs')
-            am.set_up(templ,image);
-            acquired_data=am.forward(image)
+        obj_fun = pet.make_Poisson_loglikelihood(acquired_data)
+        obj_fun.set_acquisition_model(am)
+        obj_fun.set_up(image)
 
-            obj_fun = pet.make_Poisson_loglikelihood(acquired_data)
-            obj_fun.set_acquisition_model(am)
-            obj_fun.set_up(image)
-
-            self.obj_fun = obj_fun
-            self.image = image
-            self.do_cleanup = True
-        else:
-            self.do_cleanup = False
+        self.obj_fun = obj_fun
+        self.image = image
         
     def tearDown(self):
-        if self.do_cleanup:
-            os.chdir(examples_data_path('PET'))
-            #%% copy files to working folder and change directory to where the output files are
-            shutil.rmtree('working_folder/thorax_single_slice',True)
+        os.chdir(examples_data_path('PET'))
+        #%% copy files to working folder and change directory to where the output files are
+        shutil.rmtree('working_folder/thorax_single_slice',True)
             
 
     def test_Poisson_loglikelihood_call(self):
