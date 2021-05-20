@@ -2094,6 +2094,12 @@ class ObjectiveFunction(object):
         pyiutil.deleteDataHandle(handle)
         return v
 
+    def __call__(self, image):
+        '''Alias of value: Returns the value of this objective function on the specified image.
+
+        image: ImageData object'''
+        return self.value(image)
+
     def get_value(self, image):
         """Returns the value of this objective function on the specified image.
 
