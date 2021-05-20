@@ -37,7 +37,14 @@ followed by an empty line and then more details).
 (enable changes by project admins.) Be prepared to add further commits to your branch after discussion.
 In the description of the PR, add a statement about which Issue this applies to
 using [a phrase such that github auto-closes the issue when merged to master](https://help.github.com/articles/closing-issues-using-keywords/).
-7. After acceptance of your PR, go home with a nice warm feeling.
+7. Be prepared to add further commits to your branch after discussion.
+Please by mindful about the resources used by our Continuous Integration (CI) workflows:
+  - Group your commits and only push once your code compiles and tests succeed on your machine
+  - Use specific keywords in the body of the last commit that you push to prevent CI being run:
+     - `[ci skip]` skips all CI runs (e.g. when you only change documentation, or when your update isn't ready yet)
+     - `[actions skip]` does not run GitHub Actions, see [here](https://github.blog/changelog/2021-02-08-github-actions-skip-pull-request-and-push-workflows-with-skip-ci/).
+     - `[travis skip]` does not run Travis-CI, see [here](https://docs.travis-ci.com/user/customizing-the-build/#skipping-a-build).
+8. After acceptance of your PR, go home with a nice warm feeling.
 
 Suggested reading: 
 https://help.github.com/articles/fork-a-repo/, https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project or https://guides.github.com/activities/forking/.
@@ -70,11 +77,11 @@ In addition, you might need to add yourself to [NOTICE.txt](https://github.com/C
   commenting/improving/merging this branch/PR
   independent of other developments.
 - Discussions on issues and PRs are forwarded to the
-  <CCP-PETMR-DEVEL@jiscmail.ac.uk> mailing list daily.
+  <SyneRBI-DEVEL@jiscmail.ac.uk> mailing list daily.
     + Forwarded from github via the [googlegroup],
       which is also a backup in case github dies.
 - Contributions of new features should also update documentation and release notes. After version 1.0,
-  this needs documentation needs to state something like "introduced after version 1.xxx".
+  this documentation needs to state something like "introduced after version 1.xxx".
 - We prefer issues to be opened via [github][issue-tracker] due to the following reasons:
     + Ensures issues will never get lost in emails
         * Facilitates issue status tracking
@@ -82,8 +89,8 @@ In addition, you might need to add yourself to [NOTICE.txt](https://github.com/C
         * Easy cross-referencing of related issues, PRs, and commits
     + The mailing list gets notified within 24 hours.
 
-[issue-tracker]: https://github.com/CCPPETMR/SIRF/issues
-[pull-requests]: https://github.com/CCPPETMR/SIRF/pulls
+[issue-tracker]: https://github.com/SyneRBI/SIRF/issues
+[pull-requests]: https://github.com/SyneRBI/SIRF/pulls
 [googlegroup]: https://groups.google.com/forum/#!forum/ccp-petmr-codebot
 
 
@@ -97,7 +104,7 @@ This project uses [submodules] to point to infrequently changed/large datasets.
 1. How to pull updates to SIRF
 ```bash
 # first time
-SIRF$ git clone https://github.com/CCPPETMR/SIRF --recursive
+SIRF$ git clone https://github.com/SyneRBI/SIRF --recursive
 # subsequently
 SIRF$ git pull
 SIRF$ git submodule update --init --recursive
