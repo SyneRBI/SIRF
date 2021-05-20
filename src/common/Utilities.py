@@ -58,24 +58,32 @@ def examples_data_path(data_type):
 
     # one final effort
     try:
-        py_root = sirf.__file__
+        # Try find <SIRF_INSTALL_PATH>/share/data/examples
+        py_root = os.path.abspath(sirf.__file__)
         try:
-            # is install dir like $SIRF_INSTALL_PATH/lib/python?.?/site-packages?
+            # is install dir like <SIRF_INSTALL_PATH>/lib/python?.?/site-packages?
             lib_idx = py_root.split(os.sep).index('lib')
         except ValueError:
-            # is install dir like $SIRF_INSTALL_PATH/python?
+            # is install dir like <SIRF_INSTALL_PATH>/python? (SuperBuild)
             lib_idx = py_root.split(os.sep).index('python')
-        potential_install_loc = os.path.abspath(
-            os.path.join(os.sep, *py_root.split(os.sep)[:lib_idx]))
+        # on Unix, first element of split is empty
+        # On Windows, first element of split is Drive
+        # Split out this first element and get SIRF_INSTALL_PATH candidate
+        maybe_drive, *path_to_sirf = py_root.split(os.sep)[:lib_idx]
+        potential_install_loc = \
+            maybe_drive + os.path.join(os.sep, *path_to_sirf)
+        # Now data_dir might be:
+        # <SIRF_INSTALL_PATH>/share/SIRF-<major>.<minor>/data/examples
         sirf_ver_folder = 'SIRF-{}.{}'.format(
             sirf.__version_major__, sirf.__version_minor__)
         potential_sirf_data_path = os.path.join(
             potential_install_loc, 'share', sirf_ver_folder, 'data',
             'examples', data_type)
-        print(potential_sirf_data_path)
+        # if it exists, assume that's it
         if os.path.exists(potential_sirf_data_path):
             return potential_sirf_data_path
-    except Exception:
+    except Exception as e:
+        # didn't work
         pass
 
     errorMsg = \
