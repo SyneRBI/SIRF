@@ -653,7 +653,7 @@ It has 2 main functions:
                          be appended by `_g1f1d0b0.hs`.
     set_template         Specifies the file containing acquisition data to be
                          used as a source of information about the scanner.
-    set_time_interval    Specifies the scanning time sub-interval to be converted
+    set_time_interval    Specifies the scanning time sub-interval (in seconds) to be converted
                          (an empty interval indicates that all raw data must be converted)
     flag_on              Turns on (i.e. assigns value true to) a conversion flag.
     flag_off             Turns off (i.e. assigns value false to) a conversion flag.
