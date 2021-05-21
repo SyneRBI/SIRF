@@ -37,6 +37,7 @@ limitations under the License.
 #include "sirf/Gadgetron/chain_lib.h"
 
 #include "sirf/common/DataContainer.h"
+#include "sirf/common/getenv.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
 
@@ -522,12 +523,11 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
 
 int main ( int argc, char* argv[])
 {
-
 	try{
 		
         std::string SIRF_PATH;
         if (argc==1)
-            SIRF_PATH = getenv("SIRF_PATH");
+            SIRF_PATH = sirf::getenv("SIRF_PATH");
         else
             SIRF_PATH = argv[1];
 

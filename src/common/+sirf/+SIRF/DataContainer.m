@@ -121,7 +121,6 @@ classdef DataContainer < handle
 %         by a scalar or another data container. 
 %         Returns the product self*other if other is a scalar or the dot 
 %         product with other if it is a data container.
-            %if isobject(other)
             if strcmp(class(self), class(other))
                 z = self.dot(other);
                 return
@@ -135,7 +134,7 @@ classdef DataContainer < handle
             sirf.Utilities.check_status('DataContainer:mtimes', z.handle_);
         end
         function z = mrdivide(self, other)
-%***SIRF*** mtimes(other) overloads / for data containers multiplication 
+%***SIRF*** mtimes(other) overloads / for data containers division
 %         by a scalar. 
 %         Returns the ratio self/other where other is a scalar.
             if isscalar(other)
@@ -157,7 +156,6 @@ classdef DataContainer < handle
 %         of two data containers x and y;
 %         a and b: complex scalars
 %         x and y: DataContainers
-            %assert(strcmp(class(x), class(y)))
             sirf.Utilities.assert_validities(x, y)
             z = x.same_object();
             a = single(a);
@@ -168,6 +166,57 @@ classdef DataContainer < handle
             ptr_zb = libpointer('singlePtr', zb);
             z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
                 ptr_za, x.handle_, ptr_zb, y.handle_);
+            sirf.Utilities.check_status('DataContainer:axpby', z.handle_);
+        end
+        function z = xapyb(x, a, y, b)
+%***SIRF*** xapyb(x, a, y, b) returns a linear combination a*x + b*y 
+%         of two data containers x and y;
+%         a and b: complex scalars, or DataContainers
+%         x and y: DataContainers
+            sirf.Utilities.assert_validities(x, y)
+            z = x.same_object();
+
+            if isscalar(a)
+                a_scalar = true;
+                a = single(a);
+                za = [real(a); imag(a)];
+                ptr_a = libpointer('singlePtr', za);
+            else
+                a_scalar = false;
+                sirf.Utilities.assert_validities(x, a);
+                ptr_a = a.handle;
+            end
+
+            if isscalar(b)
+                b_scalar = true;
+                b = single(b);
+                zb = [real(b); imag(b)];
+                ptr_b = libpointer('singlePtr', zb);
+            else
+                b_scalar = false;
+                sirf.Utilities.assert_validities(y, b)
+                ptr_b = b.handle;
+            end
+
+            if xor(a_scalar, b_scalar)
+                tmp = x.same_object();
+                if a_scalar
+                    tmp = b.times(y);
+                    z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                        ptr_a, x.handle_, 1.0, tmp.handle_);
+                else
+                    tmp = a.times(x);
+                    z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                        1.0, tmp.handle_, ptr_b, y.handle_);
+                end
+            elseif a_scalar
+                z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                    ptr_a, x.handle_, ptr_b, y.handle_);
+            else
+                z.handle_ = calllib('msirf', 'mSIRF_xapyb', ...
+                    x.handle_, ptr_a, y.handle_, ptr_b);
+            end
+
             sirf.Utilities.check_status('DataContainer:axpby', z.handle_);
         end
     end

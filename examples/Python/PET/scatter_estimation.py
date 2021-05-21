@@ -1,17 +1,21 @@
 '''
-Scatter estimation demo
+Scatter estimation demo.
+
+NOTE: Must be used after running acquisition_sensitivity_from_attenuation.py
+(to create attenuation correction factors file) and randoms_from_listmode.py
+(to create raw data sinograms file and randoms sinograms file).
 
 Usage:
   scatter_estimation [--help | options]
 
 Options: (defaults are set to work for mMR data processed in the current directory)
   -f <file>, --file=<file>    raw data file [default: sinospan11_f1g1d0b0.hs]
-  -p <path>, --path=<path>    path to data files [default: .]
-                              i.e. current directory
   -r <file>, --randoms=<file>  filename with randoms [default: MLrandomsspan11_f1.hs]
+  -p <path>, --path=<path>    path to normalization and attenuation files,
+                              defaults to data/examples/PET/mMR
   -n <norm>, --norm=<norm>    normalization file [default: norm.n.hdr]
   -a <file>, --attenuation_image=<file>
-                              attenuation image file [default: mu.hv]
+                              attenuation image file [default: mu_map.hv]
   -A <file>, --attenuation_correction_factors=<file>
                               attenuation correction factors file [default: acf.hs]
   -o <file>, --output=<file>  output prefix for scatter estimates [default: scatter_estimate]
@@ -50,28 +54,24 @@ from sirf.Utilities import show_2D_array
 import PET_plot_functions
 #import os
 
+
 # process command-line options
-data_file = args['--file']
+raw_data_file = args['--file']
+randoms_data_file = args['--randoms']
+acf_file = args['--attenuation_correction_factors']
 data_path = args['--path']
 if data_path is None:
-    data_path = '.'
-raw_data_file = PET.existing_filepath(data_path, data_file)
-randoms_data_file = args['--randoms']
-if not(randoms_data_file is None):
-    randoms_data_file = PET.existing_filepath(data_path, randoms_data_file)
-norm_file = args['--norm']
-if not(norm_file is None):
-    norm_file = PET.existing_filepath(data_path, norm_file)
-acf_file = args['--attenuation_correction_factors']
-if not(acf_file is None):
-    acf_file = PET.existing_filepath(data_path, acf_file)
-mu_map_file = args['--attenuation_image']
-if not(mu_map_file is None):
-    mu_map_file = PET.existing_filepath(data_path, mu_map_file)
+    data_path = PET.examples_data_path('PET') + '/mMR'
+norm_file = PET.existing_filepath(data_path, args['--norm'])
+mu_map_file = PET.existing_filepath(data_path, args['--attenuation_image'])
 output_prefix = args['--output']
 
 
 def main():
+
+    # direct all engine's messages to files
+    msg_red = PET.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+
     PET.AcquisitionData.set_storage_scheme('memory')
 
     # Create the Scatter Estimator

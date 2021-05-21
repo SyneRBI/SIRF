@@ -222,6 +222,13 @@ namespace sirf {
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
 			complex_float_t b, ISMRMRD::Acquisition& acq_y);
+		static void xapyb
+			(const ISMRMRD::Acquisition& acq_x, complex_float_t a,
+			ISMRMRD::Acquisition& acq_y, complex_float_t b);
+		static void xapyb
+			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
+				ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b);
+
 		// the inner (l2) product of x and y
 		static complex_float_t dot
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
@@ -266,6 +273,15 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const void* ptr_b);
+		//{
+		//	axpby(ptr_a, a_x, ptr_b, a_y);
+		//}
 		virtual void multiply(
 			const DataContainer& a_x,
 			const DataContainer& a_y);
@@ -361,7 +377,7 @@ namespace sirf {
 	private:
 		void binary_op_(int op, 
 			const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
-			complex_float_t a = 0, complex_float_t b = 0);
+			const void* ptr_a = 0, const void* ptr_b = 0);
 
 	};
 
@@ -523,6 +539,38 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const void* ptr_b)
+		{
+			ComplexFloat_ a(*(complex_float_t*)ptr_a);
+			ComplexFloat_ b(*(complex_float_t*)ptr_b);
+			xapyb_(a_x, a, a_y, b);
+		}
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b)
+		{
+			ComplexFloat_ a(*(complex_float_t*)ptr_a);
+			DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
+			xapyb_(a_x, a, a_y, b);
+		}
+		virtual void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const void* ptr_b)
+		{
+			DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
+			ComplexFloat_ b(*(complex_float_t*)ptr_b);
+			xapyb_(a_x, a, a_y, b);
+		}
+		virtual void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const DataContainer& a_b)
+		{
+			DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
+			DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
+			xapyb_(a_x, a, a_y, b);
+		}
 		virtual void multiply(
 			const DataContainer& a_x,
 			const DataContainer& a_y);
@@ -544,6 +592,12 @@ namespace sirf {
 		{
 			axpby(&a, a_x, &b, a_y);
 		}
+		void xapyb(
+			const DataContainer& a_x, complex_float_t a,
+			const DataContainer& a_y, complex_float_t b)
+		{
+			xapyb(a_x, &a, a_y, &b);
+		}			
 		gadgetron::unique_ptr<ISMRMRDImageData> clone() const
 		{
 			return gadgetron::unique_ptr<ISMRMRDImageData>(this->clone_impl());
@@ -597,6 +651,59 @@ namespace sirf {
 				return name;
 			return name + '.' + def_ext;
 		}
+
+	private:
+		class ComplexFloat_ {
+		public:
+			ComplexFloat_(complex_float_t v) : v_(v) {}
+			unsigned int number() const
+			{
+				return 0;
+			}
+			complex_float_t image_wrap(unsigned int i)
+			{
+				return v_;
+			}
+		private:
+			complex_float_t v_;
+		};
+
+		template<class A, class B>
+		void xapyb_(const DataContainer& a_x, A& a, const DataContainer& a_y, B& b)
+		{
+			DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);
+			unsigned int nx = x.number();
+			unsigned int na = a.number();
+			unsigned int ny = y.number();
+			unsigned int nb = b.number();
+			//std::cout << nx << ' ' << ny << '\n';
+			if (nx != ny)
+				THROW("ImageData sizes mismatch in axpby");
+			if (na > 0 && na != nx)
+				THROW("ImageData sizes mismatch in axpby");
+			if (nb > 0 && nb != nx)
+				THROW("ImageData sizes mismatch in axpby");
+			unsigned int n = number();
+			if (n > 0) {
+				if (n != nx)
+					THROW("ImageData sizes mismatch in axpby");
+				for (unsigned int i = 0; i < nx; i++)
+					image_wrap(i).xapyb(x.image_wrap(i), a.image_wrap(i), 
+						y.image_wrap(i), b.image_wrap(i));
+			}
+			else {
+				for (unsigned int i = 0; i < nx; i++) {
+					const ImageWrap& u = x.image_wrap(i);
+					const ImageWrap& v = y.image_wrap(i);
+					ImageWrap w(u);
+					w.xapyb(u, a.image_wrap(i), v, b.image_wrap(i));
+					append(w);
+				}
+			}
+			this->set_meta_data(x.get_meta_data());
+		}
+
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;

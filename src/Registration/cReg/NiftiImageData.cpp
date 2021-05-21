@@ -1627,6 +1627,43 @@ void NiftiImageData<dataType>::axpby(
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, const void* ptr_a,
+    const DataContainer& a_y, const void* ptr_b)
+{
+	NiftiImageData<dataType>::axpby(ptr_a, a_x, ptr_b, a_y);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, const DataContainer& a_a,
+    const DataContainer& a_y, const DataContainer& a_b)
+{
+    try{
+        auto& a = dynamic_cast<const NiftiImageData<dataType>&>(a_a);
+        auto& b = dynamic_cast<const NiftiImageData<dataType>&>(a_b);
+        auto& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+        auto& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+        // If the result hasn't been initialised, make a clone of one of them
+        if (!this->is_initialised())
+            *this = *x.clone();
+
+        ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
+        ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
+        ASSERT(_nifti_image->nvox == a._nifti_image->nvox, "axpby operands size mismatch");
+        ASSERT(_nifti_image->nvox == b._nifti_image->nvox, "axpby operands size mismatch");
+        
+        for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+            _data[i] = a._data[i] * x._data[i] + b._data[i] * y._data[i];
+
+    }
+    catch (...) {
+        throw std::runtime_error("NiftiImageData<dataType>::xapyb expects a_a and a_b to be NiftiImageData<dataType> of the same size as x and y\n");
+    }    
+}
+
+template<class dataType>
 float NiftiImageData<dataType>::norm() const
 {
     double s = 0.0;

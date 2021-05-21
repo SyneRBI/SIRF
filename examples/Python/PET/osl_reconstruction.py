@@ -11,7 +11,7 @@ Parallel Level Sets prior. The latter uses an anatomical image to preserve
 edges.
 
 Usage:
-  OSL_reconstruction [--help | options]
+  osl_reconstruction [--help | options]
 
 Options:
   -d <file>, --file=<file>    raw data file [default: my_forward_projection.hs]

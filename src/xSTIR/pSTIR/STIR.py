@@ -1553,6 +1553,8 @@ class AcquisitionModel(object):
         am.handle = pystir.cSTIR_linearAcquisitionModel(self.handle)
         check_status(am.handle)
         am.const = True # am to be a const reference of self
+        am.img_templ = self.img_templ
+        am.acq_templ = self.acq_templ
         return am
 
     def direct(self, image, out=None):
@@ -2091,6 +2093,12 @@ class ObjectiveFunction(object):
         v = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return v
+
+    def __call__(self, image):
+        '''Alias of value: Returns the value of this objective function on the specified image.
+
+        image: ImageData object'''
+        return self.value(image)
 
     def get_value(self, image):
         """Returns the value of this objective function on the specified image.

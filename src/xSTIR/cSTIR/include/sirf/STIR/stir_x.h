@@ -197,7 +197,9 @@ The actual algorithm is described in
 		}
 		stir::shared_ptr<PETAcquisitionData> get_output()
 		{
-			return get_randoms_sptr();
+			std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
+			return stir::shared_ptr<PETAcquisitionData>
+				(new PETAcquisitionDataInFile(filename.c_str()));
 		}
 		stir::shared_ptr<PETAcquisitionData> get_randoms_sptr()
 		{
