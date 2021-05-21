@@ -40,7 +40,6 @@ Options:
 
 __version__ = '0.1.0'
 from docopt import docopt
-from tqdm.auto import trange
 
 args = docopt(__doc__, version=__version__)
 
@@ -126,34 +125,33 @@ def main():
         sufficiently_small = 1e-7
         
         print('Cost for k = 0: '  + str( rr/ rr0) )
-        with trange(num_iter) as iters:
-            for k in iters:
+        
+        for k in range(num_iter):
 
-                Ap = EhE(E, p )
+            Ap = EhE(E, p )
 
-                alpha = rr / Ap.dot(p)
+            alpha = rr / Ap.dot(p)
 
-                x = x + alpha * p
+            x = x + alpha * p
 
-                r = r - alpha * Ap
+            r = r - alpha * Ap
 
-                beta  = r.norm()**2 / rr
-                rr = r.norm()**2
+            beta  = r.norm()**2 / rr
+            rr = r.norm()**2
 
-                p = r + beta * p
+            p = r + beta * p
 
-                relative_residual = numpy.sqrt(rr/rr0)
+            relative_residual = numpy.sqrt(rr/rr0)
 
-                iters.write('Cost for k = ' +str(k+1) + ': ' + str(relative_residual) )
-                iters.set_postfix(cost=relative_residual)
+            print('Cost at step  {} = {}'.format(k+1, relative_residual))
+            
+            if( relative_residual  < sufficiently_small ):
+                print('We achieved our desired accuracy. Stopping iterative reconstruction')
+                break
 
-                if( relative_residual  < sufficiently_small ):
-                    iters.write('We achieved our desired accuracy. Stopping iterative reconstruction')
-                    break
+            if k is num_iter-1:    
+                print('Reached maximum number of iterations. Stopping reconstruction.')
 
-                if k is num_iter-1:    
-                    print('Reached maximum number of iterations. Stopping reconstruction.')
-    
     else:
         print('---\n Skipping non-cartesian code...')
 
