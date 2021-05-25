@@ -8,7 +8,7 @@
 
 ### Deprecations (will be errors in SIRF 4.0)
 * `Registration`: renamed `Resample` to `Resampler` and `NiftyResample` to `NiftyResampler`. Old names are now deprecated but should still work.
-* STIR `AcquisitionModel` `forward`, `direct`, `backward` and `adjoint` signatures have changed in Python. Subset information should now be set via `num_subsets` and `subset_num` members. `The `forward` and `backward` members can still be called with the previous syntax but this will be removed in a later version.
+* STIR `AcquisitionModel` `forward`, `direct`, `backward` and `adjoint` signatures have changed in Python. Subset information should now be set via `num_subsets` and `subset_num` members. The `forward` and `backward` members can still be called with the previous syntax but this will be removed in a later version.
 Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectively, such that default behaviour is default behaviour (i.e. process all data) is unchanged.
 * MR acquisition data storage scheme restricted to memory only (a message will be printed but no error thrown)
 * Use CMake variable names from `find_package(Python)` which are available with CMake 3.12+. SIRF CMake files will accept both `Python_EXECUTABLE` or `PYTHON_EXECUTABLE`, for the latter it will send a deprecation warning.
