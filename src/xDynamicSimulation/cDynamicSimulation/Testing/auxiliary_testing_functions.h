@@ -24,7 +24,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
 #include "sirf/cDynamicSimulation/dynamics.h"
-#include "sirf/Gadgetron/encoding.h"
 
 #include "sirf/common/GeometricalInfo.h"
 

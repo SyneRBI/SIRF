@@ -72,10 +72,7 @@ class MRDynamicSimulation : public aDynamicSimulation {
 public:
 
 	MRDynamicSimulation( MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) 
-	{
-		this->sptr_trajectory_ = std::shared_ptr< sirf::CartesianTrajectoryContainer >( new sirf::CartesianTrajectoryContainer() );
-		this->vol_orientator_.set_readout_direction( sirf::ro_dir_z);
-	};
+	{};
 
 	virtual void set_filename_rawdata( std::string const filename_template_rawdata );
 	void write_simulation_results( const std::string& filename_output_with_extension );
@@ -96,7 +93,6 @@ public:
 
 
 	void extract_hdr_information( void );
-	void set_trajectory( std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory);
 
 	void set_coilmaps( ISMRMRD::Image< complex_float_t >& coilmaps );
 
@@ -110,7 +106,6 @@ private:
 	std::vector< std::shared_ptr<MRContrastDynamic> > contrast_dynamics_;
 
 	GaussianNoiseGenerator noise_generator_;
-	sirf::aVolumeOrientator vol_orientator_;
 
 	ISMRMRD::IsmrmrdHeader hdr_;
 	ISMRMRD::Image< complex_float_t > coilmaps_;
@@ -122,13 +117,12 @@ private:
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
 
-	std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory_;
 
 	void shift_time_start_to_zero( void );
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );
 	void simulate_simultaneous_motion_contrast_dynamics( void );
-	void set_noise_scaling( std::shared_ptr<sirf::aTrajectoryContainer> sptr_traj );
+	void set_noise_scaling();
 };
 
 

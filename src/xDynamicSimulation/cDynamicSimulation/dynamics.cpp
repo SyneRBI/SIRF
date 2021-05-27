@@ -675,7 +675,7 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
 
 	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
-	time_ordered_acquisitions.time_order();
+	time_ordered_acquisitions.sort_by_time();
 	TimeAxisType time_offset = SIRF_SCANNER_MS_PER_TIC * time_ordered_acquisitions.get_acquisition_sptr(0)->acquisition_time_stamp();
 
 
@@ -752,7 +752,7 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 	}
 
 	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
-	time_ordered_acquisitions.time_order(); 
+	time_ordered_acquisitions.sort_by_time(); 
 
 	size_t const num_acquis = time_ordered_acquisitions.number();	
 

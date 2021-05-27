@@ -45,7 +45,7 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 		ISMRMRD::serialize(this->hdr_, serialized_hdr);
 		target_acquisitions_.set_acquisitions_info( serialized_hdr.str() ); 
 
-		target_acquisitions_.time_order();		
+		target_acquisitions_.sort_by_time();		
 
 		target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
 		cout << "Finished writing simulation output."<<endl;
@@ -91,8 +91,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	cout << "Simulating motion and contrast dynamics... " <<endl;
 
 	this->extract_hdr_information();
-	this->acq_model_.setTraj( this->sptr_trajectory_ );
-
+	
 	this->mr_cont_gen_.map_contrast();
 	
 	// all contrast dynamic variations are sampled at the same timepoint.
@@ -209,35 +208,14 @@ void MRDynamicSimulation::extract_hdr_information( void )
 {
 	this->hdr_ = mr_io::read_ismrmrd_header( filename_rawdata_ );
 
-	this->sptr_trajectory_->set_header( this->hdr_ );
-	this->sptr_trajectory_->compute_trajectory();
-
-	sptr_trajectory_->overwrite_ismrmrd_trajectory_info( this->hdr_ );
-
-	this->acq_model_.setISMRMRDHeader( this->hdr_ );
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
 	
 }
 
 
-void MRDynamicSimulation::set_trajectory( std::shared_ptr<aTrajectoryContainer> sptr_trajectory)
+void MRDynamicSimulation::set_noise_scaling()
 {
-	this->sptr_trajectory_ = sptr_trajectory;
-	sptr_trajectory_->overwrite_ismrmrd_trajectory_info( this->hdr_ );
-	
-	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
-
-	this->set_noise_scaling( this->sptr_trajectory_ );
-
-}
-
-
-void MRDynamicSimulation::set_noise_scaling( std::shared_ptr<aTrajectoryContainer> sptr_trajectory )
-{
-	ISMRMRD::TrajectoryType traj_type = sptr_trajectory->get_traj_type();
-
-	if( traj_type == ISMRMRD::TrajectoryType::OTHER )
-		this->noise_generator_.set_sampling_specific_scaling(RPE_NOISE_SCALING);
+	this->noise_generator_.set_sampling_specific_scaling(RPE_NOISE_SCALING);
 }
 
 
@@ -248,7 +226,7 @@ void MRDynamicSimulation::set_coilmaps( ISMRMRD::Image< complex_float_t > &coilm
 
 void MRDynamicSimulation::shift_time_start_to_zero( void )
 {
-	this->all_source_acquisitions_.time_order();
+	this->all_source_acquisitions_.sort_by_time();
 	auto sptr_acquis = all_source_acquisitions_.get_acquisition_sptr(0);
 	uint32_t const t0 = sptr_acquis->acquisition_time_stamp();
 	for(size_t i=0; i<all_source_acquisitions_.number(); i++)
@@ -288,50 +266,11 @@ void MRDynamicSimulation::acquire_raw_data( void )
 	if( this->coilmaps_.getNumberOfDataElements() == 0)
 		throw std::runtime_error("Please make sure to set the coilmaps prior to starting the simulation.");
 
-	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
+	GadgetronImagesVector contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
-	size_t const num_contrasts = contrast_filled_volumes.size();
+	this->acq_model_.set_acquisition_template( curr_template_acquis );
+	this->acq_model_.fwd(contrast_filled_volumes);
 
-
-	size_t Nx = contrast_filled_volumes[0].getMatrixSizeX();
-	size_t Ny = contrast_filled_volumes[0].getMatrixSizeY();
-	size_t Nz = contrast_filled_volumes[0].getMatrixSizeZ();
-	size_t Nc = this->coilmaps_.getNumberOfChannels();
-
-	auto csm = vol_orientator_.reorient_image(this->coilmaps_);
-	CoilDataAsCFImage csm_as_img( csm.getMatrixSizeX(), csm.getMatrixSizeY(), csm.getMatrixSizeZ() , Nc);
-	csm_as_img.image() = csm;
-
-	unsigned int offset = 0;
-
-
-	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
-	{
-		cout << "Acquisition of contrast " << i_contrast << endl;
-		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
-		curr_cont = vol_orientator_.reorient_image(curr_cont);
-
-		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
-
-		AcquisitionsVector acq_vec;
-		acq_vec.copy_acquisitions_info( this->source_acquisitions_ );
-		
-		for( size_t i_acqu=0; i_acqu<this->source_acquisitions_.items(); i_acqu++)
-		{
-			auto sptr_acq = this->source_acquisitions_.get_acquisition_sptr(i_acqu);
-			ISMRMRD::AcquisitionHeader acq_head = sptr_acq->getHead();
-			
-			if( acq_head.idx.contrast == i_contrast )
-				acq_vec.append_acquisition_sptr( sptr_acq );
-		}
-		
-		// std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
-		auto curr_template_acquis = std::make_shared< AcquisitionsVector >(acq_vec);
-		
-		this->acq_model_.set_acquisition_template( curr_template_acquis );
-		this->acq_model_.fwd(curr_img_wrap, csm_as_img, this->target_acquisitions_, offset);
-		
-	}
 }
 
 void PETDynamicSimulation::write_simulation_results( const std::string& filename_output_with_extension )
