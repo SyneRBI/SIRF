@@ -12,7 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/ismrmrd.h>
 
-#include "sirf/cSTIR/stir_types.h"
+#include "sirf/STIR/stir_types.h"
 
 using namespace sirf;
 

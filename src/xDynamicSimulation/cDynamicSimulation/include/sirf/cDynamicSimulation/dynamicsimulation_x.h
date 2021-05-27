@@ -16,7 +16,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "sirf/Gadgetron/gadgetron_x.h"
-#include "sirf/cSTIR/stir_x.h"
+#include "sirf/STIR/stir_x.h"
 
 #include "sirf/Gadgetron/encoding.h"
 
