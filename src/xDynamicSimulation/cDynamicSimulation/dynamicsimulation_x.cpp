@@ -9,12 +9,13 @@ date: 15. March 2018
 #include <sstream>
 
 #include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
-
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
+#include "sirf/cDynamicSimulation/dynsim_deformer.h"
 
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 
-#include "sirf/cDynamicSimulation/dynsim_deformer.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
+
 
 
 
@@ -270,9 +271,9 @@ void MRDynamicSimulation::acquire_raw_data( void )
 	if( this->coilmaps_.getNumberOfDataElements() == 0)
 		throw std::runtime_error("Please make sure to set the coilmaps prior to starting the simulation.");
 
-	GadgetronImagesVector contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
+	sirf::GadgetronImagesVector contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
-	this->acq_model_.set_acquisition_template( curr_template_acquis );
+	this->acq_model_.set_acquisition_template( this->source_acquisitions_.clone() );
 	this->acq_model_.fwd(contrast_filled_volumes);
 
 }

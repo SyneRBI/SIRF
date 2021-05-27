@@ -26,7 +26,6 @@ include_directories("${GADGETRON_INCLUDE_DIR}/../")
 include_directories(./Testing)
 
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamicsimulation_x.cpp  Testing/tests_dynamicsimulation.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_mr_acquisition_model.cpp )
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} auxiliary_input_output.cpp )
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_auxiliary_testing_functions.cpp )
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_auxiliary_input_output.cpp )

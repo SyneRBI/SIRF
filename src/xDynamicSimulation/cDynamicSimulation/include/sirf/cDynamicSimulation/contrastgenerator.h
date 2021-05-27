@@ -17,9 +17,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/tissueparameters.h"
 #include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/STIR/stir_data_containers.h"
 
 #include "sirf/STIR/stir_types.h"
-#include "sirf/STIR/stir_data_containers.h"
 
 // base class for contrast generators. inherit for different modalities.
 // Reading the header is the same for each modality (hopefully!!!).
@@ -27,8 +28,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // as a virutal method
 
 using ISMRMRD::IsmrmrdHeader;
-
-
 
 
 #define CASE_MAP_PET_CONTRAST 0
@@ -66,7 +65,7 @@ public:
 	void map_contrast();
 	complex_float_t get_signal_for_tissuelabel( size_t const label );
 
-	std::vector< ISMRMRD::Image< complex_float_t> >& get_contrast_filled_volumes(bool const resample_output=false);
+	sirf::GadgetronImagesVector& get_contrast_filled_volumes(bool const resample_output=false);
 
 	void match_output_dims_to_headerinfo( void );
 

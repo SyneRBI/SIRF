@@ -58,7 +58,7 @@ void MRContrastGenerator::set_rawdata_header(const ISMRMRD::IsmrmrdHeader& hdr)
 	this->hdr_ = hdr;
 }
 
-std::vector< ISMRMRD::Image< complex_float_t> >& MRContrastGenerator::get_contrast_filled_volumes(bool const resample_output)
+sirf::GadgetronImagesVector& MRContrastGenerator::get_contrast_filled_volumes(bool const resample_output)
 {
 	if( resample_output == true )
 		this->resample_to_template_image();
