@@ -391,7 +391,7 @@ try
 	mr_dyn_sim.set_coilmaps( csm );
 
 	AcquisitionsVector all_acquis;
-	all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
+	all_acquis.read( mr_dyn_sim.get_filename_rawdata());
 	mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 				
@@ -526,7 +526,7 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 
 
 		AcquisitionsVector all_acquis;
-		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
+		all_acquis.read( mr_dyn_sim.get_filename_rawdata());
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 				
@@ -655,7 +655,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		mr_dyn_sim.set_coilmaps( csm );
 
 		AcquisitionsVector all_acquis;
-		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
+		all_acquis.read( mr_dyn_sim.get_filename_rawdata());
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 		float const test_SNR = 19;
