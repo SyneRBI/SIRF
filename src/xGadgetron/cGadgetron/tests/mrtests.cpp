@@ -591,7 +591,7 @@ int main ( int argc, char* argv[])
         ok *= test_get_kspace_order(av);
         ok *= test_get_subset(av);
 
-        ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
+        // ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
 
         ok *= test_CoilSensitivitiesVector_calculate(av);
         ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
