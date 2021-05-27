@@ -188,14 +188,6 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		// std::string const traj_name = "ITLGCRPE";
 		std::string const traj_name = "Cartesian";
 
-		if( traj_name == "ITLGCRPE") 
-		{
-			RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
-			auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
-			mr_dyn_sim.set_trajectory( sptr_traj );
-		}
-
-
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
@@ -312,9 +304,6 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 
 bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 {
-	
-	using sirf::RPETrajectoryContainer;
-
 
 	try
 	{	
@@ -327,10 +316,6 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		
 		auto data_dims = segmentation_labels.get_dimensions();
 
-
-		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
-		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
-		mr_dyn_sim.set_trajectory( sptr_traj );
 
 		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
 		
@@ -404,12 +389,6 @@ try
 	size_t num_coils = 4;
 	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 	mr_dyn_sim.set_coilmaps( csm );
-
-	typedef RPESuperInterleavedGoldenCutTrajectoryContainer TrajType;
-	// RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
-	TrajType rpe_traj;
-	auto sptr_traj = std::make_shared< TrajType >( rpe_traj );
-	mr_dyn_sim.set_trajectory( sptr_traj );
 
 	AcquisitionsVector all_acquis;
 	all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
@@ -546,15 +525,6 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 		mr_dyn_sim.set_coilmaps( csm );
 
 
-		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
-		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
-		mr_dyn_sim.set_trajectory( sptr_traj );
-
-		// typedef RPESuperInterleavedGoldenCutTrajectoryContainer TrajType;
-		// TrajType sfl_traj;
-		// auto sptr_traj = std::make_shared< TrajType >( sfl_traj );
-		// mr_dyn_sim.set_trajectory( sptr_traj );
-
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
@@ -683,11 +653,6 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
-
-
-		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
-		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
-		mr_dyn_sim.set_trajectory( sptr_traj );
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata(), false );
