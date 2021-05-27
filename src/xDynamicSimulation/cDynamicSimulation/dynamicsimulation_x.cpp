@@ -227,12 +227,16 @@ void MRDynamicSimulation::set_coilmaps( ISMRMRD::Image< complex_float_t > &coilm
 void MRDynamicSimulation::shift_time_start_to_zero( void )
 {
 	this->all_source_acquisitions_.sort_by_time();
-	auto sptr_acquis = all_source_acquisitions_.get_acquisition_sptr(0);
-	uint32_t const t0 = sptr_acquis->acquisition_time_stamp();
-	for(size_t i=0; i<all_source_acquisitions_.number(); i++)
+	
+	ISMRMRD::Acquisition acq;
+	this->all_source_acquisitions_.get_acquisition(0, acq);
+	uint32_t const t0 = acq.acquisition_time_stamp();
+
+	for(size_t i=0; i<all_source_acquisitions_.number(); ++i)
 	{
-		sptr_acquis = all_source_acquisitions_.get_acquisition_sptr(i);
-		sptr_acquis->acquisition_time_stamp() -= t0;
+		this->all_source_acquisitions_.get_acquisition(i, acq);
+		acq.acquisition_time_stamp() -= t0;
+		this->all_source_acquisitions_.set_acquisition(i, acq);
 	}
 }
 
