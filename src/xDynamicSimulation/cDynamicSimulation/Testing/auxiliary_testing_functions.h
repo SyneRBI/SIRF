@@ -14,8 +14,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
-#include "sirf/cGadgetron/gadgetron_image_wrap.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_image_wrap.h"
 
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
@@ -24,7 +24,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
 #include "sirf/cDynamicSimulation/dynamics.h"
-#include "sirf/cGadgetron/encoding.h"
+#include "sirf/Gadgetron/encoding.h"
 
 #include "sirf/common/GeometricalInfo.h"
 

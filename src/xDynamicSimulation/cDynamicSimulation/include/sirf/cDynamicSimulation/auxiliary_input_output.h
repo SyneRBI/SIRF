@@ -27,7 +27,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #include <gadgetron/ImageIOAnalyze.h>
 
 #include "sirf/cSTIR/stir_data_containers.h"
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
  
 
 #include "sirf/common/GeometricalInfo.h"

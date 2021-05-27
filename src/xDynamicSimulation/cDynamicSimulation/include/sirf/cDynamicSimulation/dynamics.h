@@ -21,7 +21,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 
 
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
 #include "sirf/cReg/ImageWeightedMean.h"

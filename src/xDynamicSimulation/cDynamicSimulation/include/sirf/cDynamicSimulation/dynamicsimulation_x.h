@@ -12,13 +12,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 
-#include "sirf/cGadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/cSTIR/stir_x.h"
 
-#include "sirf/cGadgetron/encoding.h"
+#include "sirf/Gadgetron/encoding.h"
 
 #include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 #include "sirf/cDynamicSimulation/contrastgenerator.h"

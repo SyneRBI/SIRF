@@ -15,9 +15,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <ismrmrd/ismrmrd.h>
 
-#include "sirf/cGadgetron/gadgetron_x.h"
-#include "sirf/cGadgetron/gadgetron_image_wrap.h"
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/gadgetron_image_wrap.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 
 #include "auxiliary_testing_functions.h"

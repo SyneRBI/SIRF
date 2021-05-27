@@ -17,7 +17,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 #include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
 #include "auxiliary_testing_functions.h"

@@ -14,7 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <gadgetron/vector_td.h>
 
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 #include "auxiliary_testing_functions.h"

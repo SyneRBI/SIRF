@@ -8,7 +8,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "app_mracquisitiondata.h" 
 
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include <ismrmrd/ismrmrd.h>
 
 
