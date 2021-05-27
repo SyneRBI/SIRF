@@ -583,27 +583,6 @@ ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<siz
 	return csm;
 }
 
-
-CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
-{
-	ISMRMRD::NDArray<complex_float_t> mock_csm = get_mock_csm();
-	
-	size_t const * dummy_size = mock_csm.getDims();
-	std::vector <size_t> data_size;
-	for(int i=0; i<ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i++)
-	{
-		if(dummy_size[i] > 0)
-			data_size.push_back(dummy_size[i]);
-		else 
-			data_size.push_back( 1 ); 
-	}
-
-	CoilDataAsCFImage csm_as_img( data_size[0], data_size[1], data_size[2], data_size[3] );
-	csm_as_img.set_data( mock_csm.begin() );
-
-	return csm_as_img;
-}
-
 ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
 {
 	ISMRMRD::AcquisitionHeader acq_hdr;

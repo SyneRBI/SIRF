@@ -82,7 +82,6 @@ namespace aux_test
 
 	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
 	ISMRMRD::Image<complex_float_t> get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils );
-	sirf::CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	sirf::AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
