@@ -12,21 +12,23 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr]
-  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -o <sino>, --sino=<sino>     sinograms file prefix [default: sinograms]
+  -r <rand>, --rand=<rand>     randoms file [default: randoms]
   -t <tmpl>, --tmpl=<tmpl>     raw data template [default: mMR_template_span11_small.hs]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                (no space after comma) [default: (0,100)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  --non-interactive            do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -49,22 +51,26 @@ from pUtilities import show_3D_array
 import numpy as np
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 data_path = args['--path']
 if data_path is None:
     # default to data/examples/PET/mMR
     # Note: seem to need / even on Windows
-    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
-    data_path = petmr_data_path('pet') + '/mMR'
+    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+    data_path = examples_data_path('PET') + '/mMR'
 list_file = args['--list']
 sino_file = args['--sino']
+rand_file = args['--rand']
 tmpl_file = args['--tmpl']
 list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
 interval = literal_eval(args['--interval'])
 storage = args['--storage']
+show_plot = not args['--non-interactive']
+
 
 def main():
 
@@ -101,12 +107,13 @@ def main():
     # estimate the randoms from the delayeds via Maximum Likelihood estimation
     # This will take at least a few seconds
     randoms_estimate_acq_data = lm2sino.estimate_randoms();
+    randoms_estimate_acq_data.write(rand_file)
     
     # copy the acquisition data into Python arrays
     delayeds_acq_array = delayeds_acq_data.as_array()
     randoms_estimate_acq_array = randoms_estimate_acq_data.as_array()
     acq_dim = delayeds_acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+    print('acquisition data dimensions: %dx%dx%dx%d' % acq_dim)
     print('The total number of delayed coincidences and estimated randoms have to be very similar.')
     print('Let us check this:')
     print('total delayeds: %.1f, total estimated randoms: %.1f' % (delayeds_acq_array.sum(), randoms_estimate_acq_array.sum()))
@@ -114,13 +121,15 @@ def main():
     print('max delayeds: %f, max estimated randoms: %f' % (delayeds_acq_array.max(), randoms_estimate_acq_array.max()))
 
     print('A single sinogram (this will look very different for noisy data)')
-    z = acq_dim[0]//2
-    show_3D_array(np.stack((delayeds_acq_array[z,:,:], randoms_estimate_acq_array[z,:,:])), titles=('raw delayeds', ' estimated randoms'))
+    z = acq_dim[1]//2
+    if show_plot:
+        show_3D_array(np.stack((delayeds_acq_array[0,z,:,:], randoms_estimate_acq_array[0,z,:,:])), titles=('raw delayeds', ' estimated randoms'))
+        pylab.show()
 
-    pylab.show()
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

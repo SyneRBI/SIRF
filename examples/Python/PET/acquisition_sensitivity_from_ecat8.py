@@ -10,15 +10,16 @@ Options:
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  --non-interactive            do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -36,10 +37,11 @@ args = docopt(__doc__, version=__version__)
 
 import math
 
-from pUtilities import show_2D_array
+from sirf.Utilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 temp_file = args['--temp']
@@ -48,11 +50,13 @@ data_path = args['--path']
 if data_path is None:
     # default to data/examples/PET/mMR
     # Note: seem to need / even on Windows
-    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
-    data_path = petmr_data_path('pet') + '/mMR'
+    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+    data_path = examples_data_path('PET') + '/mMR'
 temp_file = existing_filepath(data_path, temp_file)
 norm_file = existing_filepath(data_path, norm_file)
 storage = args['--storage']
+show_plot = not args['--non-interactive']
+
 
 def main():
 
@@ -80,11 +84,14 @@ def main():
     # show bin efficiencies
     acq_array = fwd_data.as_array()
     acq_dim = acq_array.shape
-    z = acq_dim[0]//2
-    show_2D_array('Bin efficiencies', acq_array[z,:,:])
+    z = acq_dim[1]//2
+    if show_plot:
+        show_2D_array('Bin efficiencies', acq_array[0,z,:,:])
+
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)

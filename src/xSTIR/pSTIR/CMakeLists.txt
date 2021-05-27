@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Copyright 2016 University College London
+# Author: Kris Thielemans, Richard Brown
+# Copyright 2016 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,28 +16,33 @@
 #
 #=========================================================================
 
-if(BUILD_PYTHON)
-  set(CMAKE_POSITION_INDEPENDENT_CODE True)
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+  # policy introduced in CMake 3.13
+  cmake_policy(SET CMP0078 OLD)
+endif()
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  FIND_PACKAGE(SWIG REQUIRED)
-  INCLUDE("${SWIG_USE_FILE}")
+FIND_PACKAGE(SWIG REQUIRED)
+INCLUDE("${SWIG_USE_FILE}")
 
-  SET_SOURCE_FILES_PROPERTIES(pystir.i PROPERTIES CPLUSPLUS ON)
-  SET_SOURCE_FILES_PROPERTIES(pystir.i PROPERTIES SWIG_FLAGS "-I${cSTIR_INCLUDE_DIR}")
-  # find libraries and include files
-  # TODO would be better to use target_include_directories
+SET(cSTIR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cSTIR/include")
 
-  FIND_PACKAGE(PythonLibs REQUIRED)
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-  #FIND_PACKAGE(Numpy REQUIRED)
-  #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
-  # Tell CMake it needs to re-run SWIG when .h file changes
-  set(SWIG_MODULE_pystir_EXTRA_DEPS "${cSTIR_INCLUDE_DIR}/cstir.h")
-  SWIG_ADD_MODULE(pystir python pystir.i  ${STIR_REGISTRIES})
-  SWIG_LINK_LIBRARIES(pystir csirf cstir iutilities ${STIR_LIBRARIES} ${PYTHON_LIBRARIES})
+SET_SOURCE_FILES_PROPERTIES(pystir.i PROPERTIES CPLUSPLUS ON)
+SET_SOURCE_FILES_PROPERTIES(pystir.i PROPERTIES SWIG_FLAGS "-I${cSTIR_INCLUDE_DIR}")
+# find libraries and include files
+# TODO would be better to use target_include_directories
 
-  INSTALL(TARGETS ${SWIG_MODULE_pystir_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
-  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pystir.py" STIR.py DESTINATION "${PYTHON_DEST}/sirf")
+# Tell CMake it needs to re-run SWIG when .h file changes
+set(SWIG_MODULE_pystir_EXTRA_DEPS "${cSTIR_INCLUDE_DIR}/sirf/STIR/cstir.h")
+SWIG_ADD_LIBRARY(pystir LANGUAGE python TYPE MODULE SOURCES pystir.i  ${STIR_REGISTRIES})
+TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pystir_REAL_NAME} PUBLIC ${Python_INCLUDE_DIRS})
+SWIG_LINK_LIBRARIES(pystir csirf cstir iutilities ${STIR_LIBRARIES} ${Python_LIBRARIES})
 
-ADD_SUBDIRECTORY(tests)
-endif(BUILD_PYTHON)
+INSTALL(TARGETS ${SWIG_MODULE_pystir_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
+INSTALL(FILES 
+  "${CMAKE_CURRENT_BINARY_DIR}/pystir.py"
+  "${CMAKE_CURRENT_SOURCE_DIR}/STIR.py"
+  "${CMAKE_CURRENT_SOURCE_DIR}/STIR_params.py"
+  DESTINATION "${PYTHON_DEST}/sirf")
+
+add_subdirectory(tests)

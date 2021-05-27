@@ -1,11 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2018 Rutherford Appleton Laboratory STFC
-Copyright 2018 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ limitations under the License.
 #include "sirf/common/GeometricalInfo.h"
 
 /*!
-\ingroup SIRFImageDataClasses
+\ingroup Common
 \brief Abstract base class for SIRF image data.
 
 */
@@ -79,8 +79,39 @@ namespace sirf {
 				*dst = *src;
         }
         /// Write image to file
-        virtual void write(const std::string &filename) const = 0;
-        /// Get geometrical info
+        //virtual void write(const std::string &filename) const = 0;
+		virtual bool operator==(const ImageData& id) const
+		{
+			if (&id == this)
+				return true;
+			GeometricalInfo<3, 3>& gi_self = (GeometricalInfo<3, 3>&)*get_geom_info_sptr();
+			GeometricalInfo<3, 3>& gi_other = (GeometricalInfo<3, 3>&)*id.get_geom_info_sptr();
+			if (gi_self != gi_other)
+				return false;
+			float s = 0.0f;
+			float sx = 0.0f;
+			float sy = 0.0f;
+			complex_float_t zx;
+			complex_float_t zy;
+			Iterator_const& x = this->begin();
+			Iterator_const& y = id.begin();
+			for (; x != this->end(); ++x, ++y) {
+				zx = (*x).complex_float();
+				zy = (*y).complex_float();
+				sx += std::abs(zx*zx);
+				sy += std::abs(zy*zy);
+				zx -= zy;
+				s += std::abs(zx*zx);
+			}
+			float t = std::max(sx, sy);
+			bool same = (s <= 1e-6*t);
+			return same;
+		}
+		virtual bool operator!=(const ImageData& id) const
+		{
+			return !(*this == id);
+		}
+		/// Get geometrical info
         std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info_sptr() const
         {
             // If the geometrical info has not been created yet, throw an error
@@ -96,11 +127,20 @@ namespace sirf {
         {
             return std::unique_ptr<ImageData>(this->clone_impl());
         }
+        /// Is complex? Unless overwridden (Gadgetron), assume not complex.
+        virtual bool is_complex() const { return false; }
+        /// Reorient image. Requires that dimesions and spacing match
+        virtual void reorient(const VoxelisedGeometricalInfo3D &);
+        /// Can reorient? (check dimensions and spacing)
+        static bool can_reorient(const VoxelisedGeometricalInfo3D &geom_1, const VoxelisedGeometricalInfo3D &geom_2, const bool throw_error);
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info() = 0;
     protected:
         /// Clone helper function. Don't use.
         virtual ImageData* clone_impl() const = 0;
-        /// Populate the geometrical info metadata (from the image's own metadata)
-        virtual void set_up_geom_info() = 0;
+        /// Set geom info
+        void set_geom_info(const std::shared_ptr<VoxelisedGeometricalInfo3D> geom_info_sptr) { _geom_info_sptr = geom_info_sptr; }
+    private:
         std::shared_ptr<VoxelisedGeometricalInfo3D> _geom_info_sptr;
 	};
 }

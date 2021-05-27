@@ -32,7 +32,7 @@ if __name__ == "__main__":
     failed = 0
     ntests = 0
 
-    for script in glob('*.py'):
+    for script in sorted(glob('*.py')):
         if path.abspath(__file__) == path.abspath(script):
             continue
         print('\n\n--- running %s' % script)

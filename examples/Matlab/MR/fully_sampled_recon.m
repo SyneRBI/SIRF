@@ -11,7 +11,7 @@ function fully_sampled_recon(engine)
 % 2) An input data file in the ISMRMRD format.
 %    Example datasets:
 %    a) 'meas_MID00103_FID57244_test.dat' is 
-%       available from https://www.ccppetmr.ac.uk/downloads
+%       available from https://www.ccpsynerbi.ac.uk/downloads
 %       This is in the manufacturer's raw data format and needs to be
 %       converted to ISMRMRD format using 'siemens_to_ismrmrd'.
 %       This executable is installed on the Virtual Machine.
@@ -29,13 +29,13 @@ function fully_sampled_recon(engine)
 % See also FULLY_SAMPLED_RECON_SINGLE_CHAIN
 % FULLY_SAMPLED_RECON_THREE_CHAINS
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -51,16 +51,17 @@ function fully_sampled_recon(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
-mr_data_path = mUtilities.examples_data_path('MR');
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % MR raw data formats from different vendors can be transformed to 
 % HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
 % bruker_to_ismrmrd on https://github.com/ismrmrd/.
 % acquisitions will be read from this HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-input_data = AcquisitionData(fullfile(pathname, filename));
+input_data = MR.AcquisitionData(fullfile(pathname, filename));
 
 % pre-process acquisition data
 % Prior to image reconstruction several pre-processing steps such as 
@@ -69,12 +70,12 @@ input_data = AcquisitionData(fullfile(pathname, filename));
 % direction. So far only the removal of readout oversampling and noise and
 % asymmetric echo adjusting is implemented
 fprintf('processing acquisitions...\n')
-processed_data = preprocess_acquisition_data(input_data);
+processed_data = MR.preprocess_acquisition_data(input_data);
 
 % perform reconstruction:
 % 1. Create a reconstruction object using 2D inverse Fourier transform and
 %    FullySampledCartesianReconstructor() sets up a default gadget chain.
-recon = FullySampledCartesianReconstructor();
+recon = MR.FullySampledCartesianReconstructor();
 % 2. Provide pre-processed k-space data as input
 recon.set_input(processed_data)
 
@@ -91,7 +92,7 @@ if exist('montage','file') && exist('mat2gray','file')
     idisp = mat2gray(abs(image_data.as_array()));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    mUtilities.show_3D_array...
+    sirf.Utilities.show_3D_array...
         (abs(image_data.as_array()), 'Reconstructed image data (magnitude)', ...
         'samples', 'readouts', 'slice');
 end
@@ -100,6 +101,6 @@ end
 image_array = image_data.as_array();
 image_array(abs(image_array) < 0.2*max(image_array(:))) = 0;
 image_data.fill(image_array);
-mUtilities.show_3D_array...
+sirf.Utilities.show_3D_array...
     (abs(image_data.as_array()), 'Filtered image data (magnitude)', ...
     'samples', 'readouts', 'slice');

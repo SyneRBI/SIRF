@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""pSTIR OSSPS reconstruction tests
+"""sirf.STIR OSSPS reconstruction tests
 v{version}
 
 Usage:
@@ -13,9 +13,10 @@ Options:
 
 {licence}
 """
-from pSTIR import *
-__version__ = "0.2.2"
-__author__ = "Casper da Costa-Luis"
+from sirf.STIR import *
+from sirf.Utilities import runner, RE_PYEXT, __license__
+__version__ = "0.2.4"
+__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
 def test_main(rec=False, verb=False, throw=True):
@@ -25,7 +26,7 @@ def test_main(rec=False, verb=False, throw=True):
 
     msg_red = MessageRedirector(warn=None)
 
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
     raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
     acq_data = AcquisitionData(raw_data_file)
     test.check(acq_data.norm())
@@ -54,6 +55,16 @@ def test_main(rec=False, verb=False, throw=True):
     recon.process()
     image_data = recon.get_output()
     test.check(image_data.norm())
+
+    # Check openmp
+    max_num_threads = get_default_num_omp_threads() - 1
+    if max_num_threads > 0:
+        set_max_omp_threads(max_num_threads)
+        if get_max_omp_threads() != max_num_threads:
+            raise AssertionError("Max num omp threads failed (pt. 1)")
+        set_default_num_omp_threads()
+        if get_max_omp_threads() != get_default_num_omp_threads():
+            raise AssertionError("Max num omp threads failed (pt. 2)")
 
     return test.failed, test.ntest
 

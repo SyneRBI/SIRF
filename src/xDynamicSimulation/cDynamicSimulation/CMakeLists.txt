@@ -53,10 +53,11 @@ set (cdynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL
 TARGET_INCLUDE_DIRECTORIES(cdynamicsimulation PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
 )
-target_include_directories(cdynamicsimulation PRIVATE "${FFTW3_INCLUDE_DIR}")
+
 target_include_directories(cdynamicsimulation PUBLIC "${HDF5_INCLUDE_DIRS}")
 
 target_link_libraries(cdynamicsimulation iutilities)
+
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with

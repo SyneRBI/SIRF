@@ -1,11 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2018 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,12 +19,16 @@ limitations under the License.
 
 */
 
-#include "sirf/cSTIR/stir_data_containers.h"
+#include "sirf/STIR/stir_data_containers.h"
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
+#include "stir/zoom.h"
 
 using namespace stir;
 using namespace sirf;
+
+//#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 std::string PETAcquisitionData::_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
@@ -55,7 +59,8 @@ PETAcquisitionData::norm() const
 void
 PETAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	double t = 0;
@@ -89,49 +94,59 @@ const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y
 )
 {
-	float a = *(float*)ptr_a;
-	float b = *(float*)ptr_b;
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	int ny = y.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
-	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		SegmentBySinogram<float>::full_iterator sy_iter;
-		for (seg_iter = seg.begin_all(),
-			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all() &&
-			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-		/*empty*/) {
-			*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
-		}
-		set_segment(seg);
-		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(),
-				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all() &&
-				sx_iter != sx.end_all() && sy_iter != sy.end_all();
-			/*empty*/) {
-				*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
-			}
-			set_segment(seg);
-		}
-	}
+	//Add deprecation warning
+    PETAcquisitionData::xapyb(a_x, ptr_a, a_y, ptr_b);
+}
+
+void
+PETAcquisitionData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b
+)
+{
+    // Cast to correct types
+    float a = *(float*)ptr_a;
+    float b = *(float*)ptr_b;
+    auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const PETAcquisitionData*>(&a_y);
+
+    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
+            is_null_ptr(y) || is_null_ptr(y->data()))
+        throw std::runtime_error("PETAcquisitionData::xapyb: At least one argument is not"
+                                 "PETAcquisitionData or is not initialised.");
+
+    // Call STIR's xapyb
+    data()->xapyb(*x->data(), a, *y->data(), b);
+}
+
+void
+PETAcquisitionData::xapyb(
+const DataContainer& a_x, const DataContainer& a_a,
+const DataContainer& a_y, const DataContainer& a_b
+)
+{
+    // Cast to correct types
+    auto a = dynamic_cast<const PETAcquisitionData*>(&a_a);
+    auto b = dynamic_cast<const PETAcquisitionData*>(&a_b);
+    auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const PETAcquisitionData*>(&a_y);
+
+    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
+            is_null_ptr(y) || is_null_ptr(y->data()) ||
+            is_null_ptr(a) || is_null_ptr(a->data()) ||
+            is_null_ptr(b) || is_null_ptr(b->data()))
+        throw std::runtime_error("PETAcquisitionData::xapyb: At least one argument is not"
+                                 "PETAcquisitionData or is not initialised.");
+
+    // Call STIR's xapyb
+    data()->xapyb(*x->data(), *a->data(), *y->data(), *b->data());
 }
 
 void
 PETAcquisitionData::inv(float amin, const DataContainer& a_x)
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	for (int s = 0; s <= n && s <= nx; ++s)
@@ -166,8 +181,10 @@ const DataContainer& a_x,
 const DataContainer& a_y
 )
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -209,8 +226,10 @@ const DataContainer& a_x,
 const DataContainer& a_y
 )
 {
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -304,7 +323,8 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
 void
 STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
-	STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -315,7 +335,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 
 	double s = 0.0;
 	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all() && iter_x != x.data().end_all(); 
+		iter != data().end_all() && iter_x != x.data().end_all();
 		iter++, iter_x++) {
 		double t = *iter;
 		s += t * (*iter_x);
@@ -329,10 +349,19 @@ STIRImageData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y)
 {
+	//add deprecation warning
+	STIRImageData::xapyb(a_x, ptr_a, a_y, ptr_b);
+}
+
+void
+STIRImageData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b)
+{
 	float a = *(float*)ptr_a;
 	float b = *(float*)ptr_b;
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -349,6 +378,40 @@ const void* ptr_b, const DataContainer& a_y)
 		iter_x != x.data().end_all() && iter_y != y.data().end_all();
 	iter++, iter_x++, iter_y++)
 		*iter = a * (*iter_x) + b * (*iter_y);
+}
+
+void
+STIRImageData::xapyb(
+const DataContainer& a_x, const DataContainer& a_a,
+const DataContainer& a_y, const DataContainer& a_b)
+{
+	DYNAMIC_CAST(const STIRImageData, a, a_a);
+	DYNAMIC_CAST(const STIRImageData, b, a_b);	
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	DYNAMIC_CAST(const STIRImageData, y, a_y);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+	Image3DF::const_full_iterator iter_y;
+	Image3DF::const_full_iterator iter_a;
+	Image3DF::const_full_iterator iter_b;	
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+	typename Array<3, float>::const_full_iterator iter_y;
+	typename Array<3, float>::const_full_iterator iter_a;
+	typename Array<3, float>::const_full_iterator iter_b;	
+#endif
+
+	for (iter = data().begin_all(),
+		iter_a = a.data().begin_all(), iter_b = b.data().begin_all(),
+		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
+		iter != data().end_all() &&
+		iter_x != x.data().end_all() && iter_y != y.data().end_all()
+		&& iter_a != a.data().end_all() && iter_b != b.data().end_all();
+	iter++, iter_x++, iter_y++, iter_a++, iter_b++)
+
+		*iter = (*iter_a) * (*iter_x) + (*iter_b) * (*iter_y);
 }
 
 float
@@ -371,12 +434,26 @@ STIRImageData::norm() const
 }
 
 void
+STIRImageData::scale(float s)
+{
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+#else
+	typename Array<3, float>::full_iterator iter;
+#endif
+	for (iter = _data->begin_all(); iter != _data->end_all(); iter++)
+		*iter /= s;
+}
+
+void
 STIRImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -400,8 +477,10 @@ STIRImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
+	//STIRImageData& x = (STIRImageData&)a_x;
+	//STIRImageData& y = (STIRImageData&)a_y;
+	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -412,30 +491,12 @@ const DataContainer& a_y)
 	typename Array<3, float>::const_full_iterator iter_y;
 #endif
 
-	float vmax = 0.0;
-	for (
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter_x++, iter_y++) {
-		float vy = abs(*iter_y);
-		if (vy > vmax)
-			vmax = vy;
-	}
-	float vmin = 1e-6*vmax;
-	if (vmin == 0.0)
-		THROW("division by zero in STIRImageData::divide");
-
 	for (iter = data().begin_all(),
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
 		iter != data().end_all() &&
 		iter_x != x.data().end_all() && iter_y != y.data().end_all();
 	iter++, iter_x++, iter_y++) {
-		float vy = *iter_y;
-		if (vy >= 0 && vy < vmin)
-			vy = vmin;
-		else if (vy < 0 && vy > -vmin)
-			vy = -vmin;
-		*iter = (*iter_x) / vy;
+		*iter = (*iter_x) / (*iter_y);
 	}
 }
 
@@ -458,7 +519,8 @@ STIRImageData::get_dimensions(int* dim) const
 void
 STIRImageData::get_voxel_sizes(float* vsize) const
 {
-	const Voxels3DF& voxels = (const Voxels3DF&)*_data;
+	//const Voxels3DF& voxels = (const Voxels3DF&)*_data;
+	DYNAMIC_CAST(const Voxels3DF, voxels, *_data);
 	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
 	for (int i = 0; i < 3; i++)
 		vsize[i] = vs[i + 1];
@@ -467,13 +529,12 @@ STIRImageData::get_voxel_sizes(float* vsize) const
 void
 STIRImageData::get_data(float* data) const
 {
-	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	if (!image.get_regular_range(min_indices, max_indices))
+	if (!_data->get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
 		//return -1;
-	std::cout << "trying new const iterator...\n";
+	//std::cout << "trying new const iterator...\n";
 	STIRImageData::Iterator_const iter(begin());
 	for (int i = 0; iter != end(); ++i, ++iter)
 		data[i] = *iter;
@@ -504,7 +565,7 @@ STIRImageData::set_data(const float* data)
 	size_t n = 1;
 	for (int i = 0; i < 3; i++)
 		n *= (max_indices[i + 1] - min_indices[i + 1] + 1);
-	std::cout << "trying new iterator...\n";
+	//std::cout << "trying new iterator...\n";
 	STIRImageData::Iterator iter(begin());
 	for (int i = 0; iter != end(); ++i, ++iter)
 		*iter = data[i];
@@ -518,6 +579,60 @@ STIRImageData::set_data(const float* data)
 	//	}
 	//}
 	//return 0;
+}
+
+void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes, const char *zoom_options_str)
+{
+    stir::ZoomOptions zoom_options;
+    if (strcmp(zoom_options_str,"preserve_sum")==0)
+        zoom_options = stir::ZoomOptions::preserve_sum;
+    else if (strcmp(zoom_options_str,"preserve_values")==0)
+        zoom_options = stir::ZoomOptions::preserve_values;
+    else if (strcmp(zoom_options_str,"preserve_projections")==0)
+        zoom_options = stir::ZoomOptions::preserve_projections;
+    else
+        throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
+
+    this->zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
+}
+
+void
+STIRImageData::
+zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
+           const Coord3DI &new_sizes_in, const stir::ZoomOptions zoom_options)
+{
+    // We need the underyling image as a VoxelsOnCartesianGrid
+    DYNAMIC_CAST(Voxels3DF, voxels, this->data());
+
+    int dim[3];
+    this->get_dimensions(dim);
+
+    // If any sizes have been set to <= 0, set to image size
+    Coord3DI new_sizes(new_sizes_in);
+    for (unsigned i=0; i<3; ++i)
+        if (new_sizes.at(int(i+1))<=0)
+            new_sizes.at(int(i+1)) = dim[i];
+
+    // Zoom the image
+    voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
+
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
+}
+
+void
+STIRImageData::
+move_to_scanner_centre(const PETAcquisitionData &)
+{
+    this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
+
+    // Need to modify the geom info after mod
+    set_up_geom_info();
 }
 
 void
@@ -567,6 +682,6 @@ STIRImageData::set_up_geom_info()
     }
 
     // Initialise the geom info shared pointer
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
-                (offset,spacing,size,direction);
+    this->set_geom_info(std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction));
 }

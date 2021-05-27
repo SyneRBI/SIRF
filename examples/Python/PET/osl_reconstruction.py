@@ -11,7 +11,7 @@ Parallel Level Sets prior. The latter uses an anatomical image to preserve
 edges.
 
 Usage:
-  OSL_reconstruction [--help | options]
+  osl_reconstruction [--help | options]
 
 Options:
   -d <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
@@ -22,15 +22,16 @@ Options:
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
   -i <iter>, --subiter=<iter>    number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -47,7 +48,8 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
+
 
 # process command-line options
 num_subsets = int(args['--subs'])
@@ -56,12 +58,13 @@ pen_factor = args['--penf']
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 if args['--anim'] is not None:
     ai_file = existing_filepath(data_path, args['--anim'])
 else:
     ai_file = None
+show_plot = not args['--non-interactive']
 
 
 def main():
@@ -99,9 +102,6 @@ def main():
         # compatible with the scanner geometry (included in the AcquisitionData
         # object ad) and initialize each voxel to 1.0
         image = acq_data.create_uniform_image(1.0)
-##        image = ImageData()
-##        image.initialise((111, 111, 31), (3.0, 3.0, 3.375))
-##        image.fill(1.0)
 
     prior.set_up(image)
     prior.set_penalisation_factor(float(pen_factor))
@@ -133,18 +133,16 @@ def main():
     # (check the OSEM demo to learn how to display results during sub-iterations)
     print('reconstructing...')
     recon.reconstruct(image)
-    image.show()
+    if show_plot:
+        image.show(title = 'Reconstructed images')
 
-##    v = image.as_array()
-##    nz, ny, nx = v.shape
-##    for z in range(nz):
-##        print(numpy.amin(v[z,:,:]), numpy.amax(v[z,:,:]))
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
+
 except error as err:
     # display error information
     print('%s' % err.value)

@@ -6,7 +6,7 @@ except ImportError:
     from distutils.core import setup
 
 __author__ = "Casper da Costa-Luis <imaging@caspersci.uk.to>"
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 setup(
@@ -18,12 +18,12 @@ setup(
     author_email='ccppetmr@stfc.ac.uk',
     url='https://github.com/CCPPETMR/SIRF',
     platforms=['any'],
-    package_data={'sirf': ['*.so']},
+    package_data={'sirf': ['*.so', '*.dll', '*.lib', '*.dylib']},
     packages=[${PYTHON_SETUP_PKGS_CSV}],
     long_description='',
     classifiers=[
         # Trove classifiers
-        # (https://pypi.python.org/pypi?%3Aaction=list_classifiers)
+        # (https://pypi.org/pypi?%3Aaction=list_classifiers)
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',

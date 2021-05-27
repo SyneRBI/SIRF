@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,26 +26,21 @@ limitations under the License.
 #include <exception>
 #include <iostream>
 
+#define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
+#define ASSERT(condition, msg) if (!(condition)) THROW(msg)
+
 class LocalisedException : public std::exception {
 public:
-	LocalisedException(const char* reason, const char* file, int line) {
-		size_t len = strlen(reason) + 1;
-		reason_ = new char[len];
-		memcpy(reason_, reason, len);
-		len = strlen(file) + 1;
-		file_ = new char[len];
-		memcpy(file_, file, len);
-		line_ = line;
-	}
-	virtual ~LocalisedException() throw() {
-		delete[] reason_;
-		delete[] file_;
-	}
+	LocalisedException(const std::string& reason, const std::string& file, int line)
+        : reason_(reason), file_(file), line_(line)
+    { }
+	virtual ~LocalisedException() throw()
+    { }
 	virtual const char* what() const throw()
 	{
-		return reason_;
+		return reason_.c_str();
 	}
-	const char* file() const throw()
+	const std::string& file() const throw()
 	{
 		return file_;
 	}
@@ -53,8 +48,8 @@ public:
 		return line_;
 	}
 private:
-	char* reason_;
-	char* file_;
+	const std::string reason_;
+	const std::string file_;
 	int line_;
 };
 

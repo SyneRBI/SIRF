@@ -4,13 +4,13 @@ function listmode_to_sinograms(engine)
 %   output will be in the current working directory.
 %   input defaults to the mMR subfolder of pet_data_path
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018 Rutherford Appleton Laboratory STFC.
-% Copyright 2018 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -25,19 +25,22 @@ function listmode_to_sinograms(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
-pet_data_path = mUtilities.examples_data_path('PET');
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
-AcquisitionData.set_storage_scheme('memory');
+AD = PET.AcquisitionData();
+AD.set_storage_scheme('memory');
+%AcquisitionData.set_storage_scheme('memory');
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt', 'warn.txt');
+    PET.MessageRedirector('info.txt', 'warn.txt');
 
     % create listmode-to-sinograms converter object
-    lm2sino = ListmodeToSinograms();
+    lm2sino = PET.ListmodeToSinograms();
 
     default_path = fullfile(pet_data_path, 'mMR');
 
@@ -51,11 +54,13 @@ try
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', default_path);
     tmpl_file = fullfile(pathname, filename);
+    acq_templ = PET.AcquisitionData(tmpl_file);
     
     % set input, output and template files
     lm2sino.set_input(list_file)
     lm2sino.set_output_prefix('sinograms')
-    lm2sino.set_template(tmpl_file)
+    lm2sino.set_template(acq_templ)
+%    lm2sino.set_template(tmpl_file)
 
     % set interval
     lm2sino.set_time_interval(0, 10)
@@ -74,17 +79,18 @@ try
     acq_data = lm2sino.get_output();
     % copy the acquisition data into a Python array
     acq_array = acq_data.as_array();
-    acq_dim = size(acq_array);
-    fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
+    %acq_dim = size(acq_array);
+    acq_dim = acq_data.dimensions();
+    fprintf('acquisition data dimensions: %d x %d x %d x %d\n', acq_dim)
     z = uint16(acq_dim(3)/2);
-    mUtilities.show_2D_array(acq_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
 
     % compute randoms
     fprintf('estimating randoms, please wait...\n')
     randoms = lm2sino.estimate_randoms();
     rnd_array = randoms.as_array();
-    mUtilities.show_2D_array(rnd_array(:,:,z), ...
+    sirf.Utilities.show_2D_array(rnd_array(:,:,z), ...
         'randoms', 'tang. pos.', 'views');
 
 catch err

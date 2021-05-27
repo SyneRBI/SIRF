@@ -35,6 +35,10 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <complex>
+#include <iostream>
+#include <mutex>
+
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/meta.h>
@@ -42,7 +46,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <fftw3.h>
 
-#include "sirf/cGadgetron/ismrmrd_fftw.h"
+#include "sirf/Gadgetron/ismrmrd_fftw.h"
 
 namespace ISMRMRD {
 
@@ -102,15 +106,13 @@ namespace ISMRMRD {
 		return 0;
 	}
 
-	int fft2c(NDArray<complex_float_t> &a) 
+	int fft2c(NDArray<complex_float_t> &a)
 	{
 		return fft2c(a, true);
 	}
 
-	int ifft2c(NDArray<complex_float_t> &a) 
+	int ifft2c(NDArray<complex_float_t> &a)
 	{
 		return fft2c(a, false);
 	}
-
-};
-
+}

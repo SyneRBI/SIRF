@@ -11,15 +11,16 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  images output file
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -42,8 +43,9 @@ from pGadgetron import *
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
+    data_path = examples_data_path('MR')
 output_file = args['--output']
+show_plot = not args['--non-interactive']
 
 def main():
 
@@ -57,27 +59,19 @@ def main():
     # reconstruct images
     image_data = recon.reconstruct(acq_data)
     # show reconstructed images
-    image_array = image_data.as_array()
-    title = 'Reconstructed images (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
+    if show_plot:
+        image_data.show(title='Reconstructed images (magnitude)')
 
     if output_file is not None:
-        # write images to a new group /dataset in args.output
+        # write images to output_file
         print('writing to %s' % output_file)
-        image_data.write(output_file, 'dataset')
-        # demonstrate reading from file
-        test_image = ImageData()
-        test_image.read_from_file(output_file)
-        image_array = test_image.as_array()
-        title = 'Reconstructed images in file (magnitude)'
-        show_3D_array(abs(image_array), suptitle = title, \
-                      xlabel = 'samples', ylabel = 'readouts', label = 'slice')
+        image_data.write(output_file)
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    exit(1)

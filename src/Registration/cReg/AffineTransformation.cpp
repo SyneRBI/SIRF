@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,11 +24,12 @@ limitations under the License.
 \brief Class for affine transformations.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
-#include "sirf/cReg/AffineTransformation.h"
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/Quaternion.h"
 #include <_reg_globalTrans.h>
 #include <iomanip>
 #include <boost/filesystem.hpp>
@@ -104,9 +105,15 @@ AffineTransformation<dataType>::AffineTransformation()
 template<class dataType>
 AffineTransformation<dataType>::AffineTransformation(const std::string &filename)
 {
+#ifndef NDEBUG
     std::cout << "\n\nReading transformation matrix from file...\n\n";
-
+#endif
     try{
+        std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+        // If the file is greater than 10KB it's exxxtremely unlikely it's a 4x4 TM
+        if (in.tellg() > 10000)
+            throw std::runtime_error("File over 10KB, assuming it's not a TM");
+
         std::ifstream file(filename);
 
         // Check opening worked
@@ -120,10 +127,10 @@ AffineTransformation<dataType>::AffineTransformation(const std::string &filename
     catch (...) {
         throw std::runtime_error("Failed reading affine matrix (" + filename + ").\n\t");
     }
-
+#ifndef NDEBUG
     std::cout << "\n\nSuccessfully read transformation matrix from file:\n";
-
     this->print();
+#endif
 }
 
 template<class dataType>
@@ -135,13 +142,85 @@ AffineTransformation<dataType>::AffineTransformation(const mat44 &tm)
 }
 
 template<class dataType>
+AffineTransformation<dataType>::AffineTransformation(const std::array<dataType,3> &trans, const Quaternion<dataType> &quat)
+{
+    // Set bottom row to [0,0,0,1]
+    for (unsigned i=0; i<3; ++i)
+        _tm[3][i] = 0.f;
+    _tm[3][3] = 1.f;
+
+    // Translations are easy
+    for (unsigned i=0; i<3; ++i)
+        _tm[i][3] = trans[i];
+
+    // Convert quaternions back to rotation matrix
+    std::array<dataType,4> quat_data = quat.get_data();
+    const dataType a(quat_data[0]);
+    const dataType b(quat_data[1]);
+    const dataType c(quat_data[2]);
+    const dataType d(quat_data[3]);
+
+    _tm[0][0] = dataType(2*pow(a,2) -1 + 2*pow(b,2));
+    _tm[0][1] = 2*b*c-2*a*d;
+    _tm[0][2] = 2*b*d+2*a*c;
+
+    _tm[1][0] = 2*b*c+2*a*d;
+    _tm[1][1] = dataType(2*pow(a,2) -1 + 2*pow(c,2));
+    _tm[1][2] = 2*c*d-2*a*b;
+
+    _tm[2][0] = 2*b*d-2*a*c;
+    _tm[2][1] = 2*c*d+2*a*b;
+    _tm[2][2] = dataType(2*pow(a,2) -1 + 2*pow(d,2));
+}
+
+template<class dataType>
+AffineTransformation<dataType>::AffineTransformation(const std::array<dataType,3> &trans, const std::array<dataType,3> &euler, const bool degrees)
+{
+    // Set bottom row to [0,0,0,1]
+    for (unsigned i=0; i<3; ++i)
+        _tm[3][i] = 0.f;
+    _tm[3][3] = 1.f;
+
+    // Set translations
+    for (unsigned i=0; i<3; ++i)
+        _tm[i][3] = trans[i];
+
+    std::array<dataType,3> euler_rad = euler;
+
+    // if in degrees, convert to radian
+    if (degrees)
+        for (unsigned i=0; i<3; ++i)
+            euler_rad[i] *= dataType(M_PI) / 180.f;
+
+    // Convert euler angles to rotation matrix
+    float cu = cos(euler_rad[0]);
+    float su = sin(euler_rad[0]);
+    float cv = cos(euler_rad[1]);
+    float sv = sin(euler_rad[1]);
+    float cw = cos(euler_rad[2]);
+    float sw = sin(euler_rad[2]);
+
+    _tm[0][0] = cv*cw;
+    _tm[0][1] = su*sv*cw - cu*sw;
+    _tm[0][2] = su*sw + cu*sv*cw;
+
+    _tm[1][0] = cv*sw;
+    _tm[1][1] = cu*cw + su*sv*sw;
+    _tm[1][2] = cu*sv*sw - su*cw;
+
+    _tm[2][0] = -sv;
+    _tm[2][1] = su*cv;
+    _tm[2][2] = cu*cv;
+}
+
+template<class dataType>
 bool AffineTransformation<dataType>::operator==(const AffineTransformation &other) const
 {
     if (this == &other)
         return true;
     for (int i=0; i<4; i++)
         for (int j=0; j<4; j++)
-            if( fabs(_tm[j][i] - other._tm[j][i]) > 1.e-5F )
+            if( fabs(_tm[j][i] - other._tm[j][i]) > 1.e-4F )
                 return false;
     return true;
 }
@@ -168,15 +247,6 @@ AffineTransformation<dataType> AffineTransformation<dataType>::operator* (const 
             for (int k=0;k<4;k++)
                 res[i][j] += (*this)[i][k] * other[k][j];
 
-#ifndef NDEBUG
-    std::cout << "\nMultiplying two matrices...\n";
-    std::cout << "Matrix 1:\n";
-    this->print();
-    std::cout << "Matrix 2:\n";
-    other.print();
-    std::cout << "Result:\n";
-    res.print();
-#endif
     return res;
 }
 
@@ -219,11 +289,16 @@ void AffineTransformation<dataType>::write(const std::string &filename) const
     if (filename.empty())
         throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
+    std::string filename_w_ext = filename;
+    boost::filesystem::path filename_boost(filename_w_ext);
+    if (!filename_boost.has_extension())
+        filename_w_ext += ".txt";
+
     // If the folder doesn't exist, create it
-    check_folder_exists_if_not_create(filename);
+    check_folder_exists_if_not_create(filename_w_ext);
 
     FILE *file;
-    file=fopen(filename.c_str(), "w");
+    file=fopen(filename_w_ext.c_str(), "w");
     for(int i=0; i<4; ++i)
         fprintf(file, "%e %e %e %e\n", _tm[i][0], _tm[i][1], _tm[i][2], _tm[i][3]);
     fclose(file);
@@ -248,6 +323,68 @@ AffineTransformation<dataType> AffineTransformation<dataType>::get_inverse() con
 {
     mat44 res = nifti_mat44_inverse(this->get_as_mat44());
     return AffineTransformation(res.m);
+}
+
+template<class dataType>
+const std::array<dataType,3> AffineTransformation<dataType>::get_Euler_angles() const
+{
+    if (!this->is_rigid())
+        throw std::runtime_error("Transformation matrix needs to be rigid in order for Euler angles to be calculated.");
+
+    float sy = sqrt(_tm[0][0] * _tm[0][0] +  _tm[1][0] * _tm[1][0] );
+    bool singular = sy < 1e-6F;
+
+    dataType x, y, z;
+    if (!singular) {
+        x = atan2(_tm[2][1], _tm[2][2]);
+        y = atan2(-_tm[2][0], sy);
+        z = atan2(_tm[1][0], _tm[0][0]);
+    }
+    else {
+        x = atan2(-_tm[1][2], _tm[1][1]);
+        y = atan2(-_tm[2][0], sy);
+        z = 0;
+    }
+    return std::array<dataType,3>{x, y, z};
+}
+
+template<class dataType>
+Quaternion<dataType> AffineTransformation<dataType>::get_quaternion() const
+{
+    return Quaternion<dataType>(*this);
+}
+
+template<class dataType>
+bool AffineTransformation<dataType>::is_rigid() const
+{
+    return std::abs(dataType(std::pow(this->get_determinant(),2)) - 1.F) < 1.e-4F;
+}
+
+template<class dataType>
+AffineTransformation<dataType> AffineTransformation<dataType>::get_average(const std::vector<AffineTransformation<dataType> > &mats)
+{
+    // Array for translations and vector of quaternions
+    std::array<dataType,3> avg_trans{0.F,0.F,0.F};
+    std::vector<Quaternion<dataType> > quaternions;
+
+    // loop over all matrices
+    for (size_t i=0; i<mats.size(); ++i) {
+        // sum translations
+        for (unsigned j=0; j<3; ++j)
+            avg_trans[j] += mats[i][j][3];
+
+        // For quaternions, need to extract them from TM
+        quaternions.push_back(Quaternion<dataType>(mats[i]));
+    }
+    // For translations, average by dividing by number of TMs
+    for (unsigned i=0; i<3; ++i)
+        avg_trans[i] /= dataType(mats.size());
+
+    // For quaternions, slightly more complicated
+    Quaternion<dataType> avg_quaternion = Quaternion<dataType>::get_average(quaternions);
+
+    // Return the average
+    return AffineTransformation<dataType>(avg_trans,avg_quaternion);
 }
 
 namespace sirf {

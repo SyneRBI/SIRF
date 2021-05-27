@@ -16,7 +16,7 @@ function grappa_basic(engine)
 % 2) An input data file from a GRAPPA MRI acquisition in the ISMRMRD format.
 %    Example GRAPPA datasets:
 %    a) 'meas_MID00108_FID57249_test_2D_2x.dat' is 
-%       available from https://www.ccppetmr.ac.uk/downloads
+%       available from https://www.ccpsynerbi.ac.uk/downloads
 %       This is in the manufacturer's raw data format and needs to be
 %       converted to ISMRMRD format using 'siemens_to_ismrmrd'.
 %       This executable is installed on the Virtual Machine.
@@ -35,13 +35,13 @@ function grappa_basic(engine)
 %
 % See also GRAPPA_DETAIL GEN_US_DATA
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -56,25 +56,26 @@ function grappa_basic(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_MR(engine);
-eval(import_str)
-mr_data_path = mUtilities.examples_data_path('MR');
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
+mr_data_path = sirf.Utilities.examples_data_path('MR');
 
 % Get the filename of the input ISMRMRD h5 file
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
 filein = fullfile(pn,fn) ;
 
 % Load this ISMRMRD h5 file, creating an input Container
-acq_data = AcquisitionData(filein);
+acq_data = MR.AcquisitionData(filein);
 
 % Pre-process this input data. (Currently this is a MATLAB script that just
 % sets up a 3 chain gadget. In the future it will be independent of the MR
 % recon engine.)
-preprocessed_data = preprocess_acquisition_data(acq_data);
+preprocessed_data = MR.preprocess_acquisition_data(acq_data);
 
 % Perform reconstruction of the preprocessed data.
 % 1. set the reconstruction to be for Cartesian GRAPPA data.
-recon = CartesianGRAPPAReconstructor();
+recon = MR.CartesianGRAPPAReconstructor();
 
 % 2. set the reconstruction input to be the data we just preprocessed.
 recon.set_input(preprocessed_data);
@@ -97,6 +98,3 @@ end
 figure('Name',['idata, slice: ',num2str(sl)])
 subplot(1,2,1), imshow(abs(image_array(:,:,sl)),[]), title('Abs')
 subplot(1,2,2), imshow(angle(image_array(:,:,sl)),[-pi pi]), title('Phase')
-
-
-

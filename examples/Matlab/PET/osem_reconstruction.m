@@ -5,13 +5,13 @@ function osem_reconstruction(engine)
 % from Green et al for Maximum a Posteriori (MAP) maximisation. Here we use it
 % for Maximum Likelihood (ML) in which case it is equivalent to OSEM.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -26,29 +26,36 @@ function osem_reconstruction(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
-pet_data_path = mUtilities.examples_data_path('PET');
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+AD = PET.AcquisitionData();
+AD.set_storage_scheme('memory');
+%AcquisitionData.set_storage_scheme('memory');
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 try
     % direct all printing to MatlabCommand Window
-    MessageRedirector('stdout');
+    PET.MessageRedirector('stdout');
 
     % create acquisition model
-    acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_model = PET.AcquisitionModelUsingRayTracingMatrix();
     
     % PET acquisition data to be read from this file
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
-    acq_data = AcquisitionData(fullfile(pathname, filename));
+    acq_data = PET.AcquisitionData(fullfile(pathname, filename));
 
     % create initial image estimate of dimensions and voxel sizes
     % compatible with the scanner geometry (included in the AcquisitionData
     % object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0);
 
+    fprintf('setting up acquisition model...\n')
+    acq_model.set_up(acq_data, image);
+
     % create objective function of Poisson logarithmic likelihood type
     % compatible with the acquisition data type
-    obj_fun = make_Poisson_loglikelihood(acq_data);
+    obj_fun = PET.make_Poisson_loglikelihood(acq_data);
     obj_fun.set_acquisition_model(acq_model)
     
     num_subiterations = 2;
@@ -58,7 +65,7 @@ try
     % this example, we actually run OSEM);
     % this algorithm does not converge to the maximum of the objective function
     % but is used in practice to speed-up calculations
-    recon = OSMAPOSLReconstructor();    
+    recon = PET.OSMAPOSLReconstructor();    
     recon.set_objective_function(obj_fun)
     recon.set_input(acq_data)
     recon.set_num_subsets(12)
@@ -73,13 +80,13 @@ try
     % display the initial image
     z = 20;
     image_array = image.as_array();
-    mUtilities.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
+    sirf.Utilities.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
 
     % set the initial image estimate
     recon.set_current_estimate(image)
 
     % suppress further information printing
-    MessageRedirector();
+    PET.MessageRedirector();
 
     % in order to see the reconstructed image evolution
     % open up the user's access to the iterative process
@@ -91,7 +98,7 @@ try
         % display the current image
         image_array = recon.get_current_estimate().as_array();
         the_title = sprintf('iteration %d', iter);
-        mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+        sirf.Utilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
     end
 
 catch err

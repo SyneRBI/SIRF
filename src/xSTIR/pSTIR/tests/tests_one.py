@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""pSTIR tests
+"""sirf.STIR tests
 v{version}
 
 Usage:
@@ -14,9 +14,10 @@ Options:
 {licence}
 """
 import math
-from pSTIR import *
-__version__ = "0.2.2"
-__author__ = "Casper da Costa-Luis"
+from sirf.STIR import *
+from sirf.Utilities import runner, RE_PYEXT, __license__
+__version__ = "0.2.3"
+__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
 def norm(v):
@@ -40,87 +41,111 @@ def test_main(rec=False, verb=False, throw=True):
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
-    matrix = RayTracingMatrix()
-    matrix.set_num_tangential_LORs(2)
+    for scheme in ("file", "memory"):
+        AcquisitionData.set_storage_scheme(scheme)
 
-    am = AcquisitionModelUsingMatrix()
-    am.set_matrix(matrix)
+        # create an acq_model that is explicitly a RayTracingMatrix and test it a tiny bit
+        am = AcquisitionModelUsingRayTracingMatrix()
+        am.set_num_tangential_LORs(3);
+        test.check_if_equal(3, am.get_num_tangential_LORs());
 
-    data_path = petmr_data_path('pet')
+        # create the matrix on its own, and use that for later tests
+        matrix = RayTracingMatrix()
+        matrix.set_num_tangential_LORs(2)
+        test.check_if_equal(2, matrix.get_num_tangential_LORs());
 
-    raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
-    ad = AcquisitionData(raw_data_file)
-    adata = ad.as_array()
-    s = norm(adata)
-    v = var(adata)
-    test.check(s)
-    test.check(v)
+        am = AcquisitionModelUsingMatrix()
+        am.set_matrix(matrix)
 
-    filter = TruncateToCylinderProcessor()
+        data_path = examples_data_path('PET')
 
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375)
-    image = ImageData()
-    image.initialise(image_size, voxel_size)
-    image.fill(1.0)
+        raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
+        ad = AcquisitionData(raw_data_file)
+        adata = ad.as_array()
+        s = norm(adata)
+        v = var(adata)
+        test.check(s)
+        test.check(v)
+        print("Printing AcqData info")
+        print(ad.get_info())
 
-    filter.apply(image)
-    image_arr = image.as_array()
-    s = norm(image_arr)
-    v = var(image_arr)
-    test.check(s)
-    test.check(v)
+        filter = TruncateToCylinderProcessor()
 
-    prior = QuadraticPrior()
-    prior.set_penalisation_factor(0.5)
-    prior.set_up(image)
+        image_size = (31, 111, 111)
+        voxel_size = (3.375, 3, 3)
+        image = ImageData()
+        image.initialise(image_size, voxel_size)
+        image.fill(1.0)
+        test.check_if_equal(voxel_size, image.voxel_sizes())
 
-    num_subsets = 12
+        filter.apply(image)
+        image_arr = image.as_array()
+        s = norm(image_arr)
+        v = var(image_arr)
+        test.check(s)
+        test.check(v)
 
-    obj_fun = make_Poisson_loglikelihood(ad)
-    obj_fun.set_acquisition_model(am)
-    obj_fun.set_num_subsets(num_subsets)
-    if verb:
-        print('setting up objective function, please wait...')
-    obj_fun.set_up(image)
+        prior = QuadraticPrior()
+        prior.set_penalisation_factor(0.5)
+        prior.set_up(image)
 
-    subset = 0
+        num_subsets = 12
 
-    ss_img = obj_fun.get_subset_sensitivity(subset)
+        obj_fun = make_Poisson_loglikelihood(ad)
+        obj_fun.set_acquisition_model(am)
+        obj_fun.set_num_subsets(num_subsets)
+        if verb:
+            print('setting up objective function, please wait...')
+        obj_fun.set_up(image)
 
-    grad_img = obj_fun.get_backprojection_of_acquisition_ratio(image, subset)
+        subset = 0
 
-    pgrad_img = prior.get_gradient(image)
+        ss_img = obj_fun.get_subset_sensitivity(subset)
 
-    image_arr = image.as_array()
-    ss_arr = ss_img.as_array()
-    grad_arr = grad_img.as_array()
-    pgrad_arr = pgrad_img.as_array()
+        grad_img = obj_fun.get_backprojection_of_acquisition_ratio(image, subset)
 
-    ss_arr[ss_arr < 1e-6] = 1e-6
-    update = grad_arr / (ss_arr + pgrad_arr / num_subsets)
-    image_arr = image_arr * update
+        pgrad_img = prior.get_gradient(image)
 
-    s = norm(image_arr)
-    v = var(image_arr)
-    test.check(s)
-    test.check(v)
-    s = norm(update)
-    v = var(update)
-    test.check(s)
-    test.check(v)
-    s = norm(ss_arr)
-    v = var(ss_arr)
-    test.check(s)
-    test.check(v)
-    s = norm(grad_arr)
-    v = var(grad_arr)
-    test.check(s)
-    test.check(v)
-    s = norm(pgrad_arr)
-    v = var(pgrad_arr)
-    test.check(s)
-    test.check(v)
+        image_arr = image.as_array()
+        ss_arr = ss_img.as_array()
+        grad_arr = grad_img.as_array()
+        pgrad_arr = pgrad_img.as_array()
+
+        ss_arr[ss_arr < 1e-6] = 1e-6
+        update = grad_arr / (ss_arr + pgrad_arr / num_subsets)
+        image_arr = image_arr * update
+
+        s = norm(image_arr)
+        v = var(image_arr)
+        test.check(s)
+        test.check(v)
+        s = norm(ss_arr)
+        v = var(ss_arr)
+        test.check(s)
+        test.check(v)
+        s = norm(pgrad_arr)
+        v = var(pgrad_arr)
+        test.check(s)
+        test.check(v)
+
+    # Test geom info
+    geom_info = image.get_geometrical_info()
+    geom_info.print_info()
+    if geom_info.get_size() != (image_size[0],image_size[1],image_size[2]):
+        raise AssertionError("SIRF get_geometrical_info().get_size() failed.")
+    if geom_info.get_spacing() != (voxel_size[0],voxel_size[1],voxel_size[2]):
+        raise AssertionError("SIRF get_geometrical_info().get_spacing() failed.")
+
+    # Test zoom_image
+    new_size = (3,2,5)
+    zoomed_im = image.zoom_image(size=new_size)
+    if zoomed_im.dimensions() != new_size:
+        raise AssertionError("STIRImageData zoom_image() failed.\n\t" + \
+            "Expected new size: " + str(new_size) + "\n\t" + \
+            "Actual new size: " + str(zoomed_im.dimensions()))
+
+    # Test move to scanner centre
+    moved_im = image.move_to_scanner_centre(ad)
 
     return test.failed, test.ntest
 

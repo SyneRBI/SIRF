@@ -1,14 +1,38 @@
+/*
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2018 Rutherford Appleton Laboratory STFC
+
+This is software developed for the Collaborative Computational
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
+/*!
+\file
+\ingroup PET
+
+\author Evgueni Ovtchinnikov
+\author SyneRBI
+*/
 #include <iostream>
 
-#include "stir/common.h"
-#include "stir/IO/stir_ecat_common.h"
+//#include "stir/common.h"
 
 #include "object.h"
 #include "sirf/cSTIR/stir_x.h"
-#include "sirf/cGadgetron/gadgetron_data_containers.h"
 
 using namespace stir;
-using namespace ecat;
 using namespace sirf;
 
 int test_a(shared_ptr<ProjData> sptr_data, shared_ptr<Image3DF>& sptr_image);
@@ -29,7 +53,8 @@ int test5()
 		return 1;
 	}
 
-	filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
+	//filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
+        filename = SIRF_path + "/data/examples/SPECT/working_folder/simple/simulation.hs";
 
 	CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 		acq_data, sptr_ad, filename.c_str());
@@ -63,11 +88,14 @@ int test5()
 	im_norm = image.norm();
 	std::cout << "image norm: " << im_norm << '\n';
 
+        // can't do this yet
+#if 0
 	std::cout << "\ntesting conversion from PET data...\n";
 	status = test_c(image);
 	if (status)
 		return status;
-
+#endif
+#if 0 // should not be here
 	std::cout << "\ntesting conversion from MR data...\n";
 	GadgetronImagesVector mr_image;
 	mr_image.read(SIRF_path + "/examples/Python/MR/Gadgetron/output.h5");
@@ -78,73 +106,53 @@ int test5()
 	status = test_c(mr_image);
 	if (status)
 		return status;
-
-	std::cout << "Press any key to continue";
-	getc(stdin);
+#endif
+	//std::cout << "Press any key to continue";
+	//getc(stdin);
 	return status;
 }
 
 // STIR test
 int test_a(shared_ptr<ProjData> sptr_data, shared_ptr<Image3DF>& sptr_image)
 {
-	try {
-		FBP2DReconstruction fbp2d;
-		fbp2d.set_input_data(sptr_data);
-		sptr_image.reset(fbp2d.construct_target_image_ptr());
-		fbp2d.reconstruct(sptr_image);
-	}
-	catch (...) {
-		std::cout << "exception thrown\n";
-		return 1;
-	}
-	return 0;
+  FBP2DReconstruction fbp2d;
+  fbp2d.set_input_data(sptr_data);
+  sptr_image.reset(fbp2d.construct_target_image_ptr());
+  std::cout << "Modality " << sptr_image->get_exam_info().imaging_modality.get_name() << '\n';
+  fbp2d.reconstruct(sptr_image);
+  return 0;
 }
 
 // SIRF test
 int test_b(const PETAcquisitionData& acq_data, STIRImageData& image)
 {
-	try {
-		xSTIR_FBP2DReconstruction fbp2d;
+  xSTIR_FBP2DReconstruction fbp2d;
 
-		fbp2d.set_input(acq_data);
-		fbp2d.process();
-		shared_ptr<STIRImageData> sptr_image = fbp2d.get_output();
+  fbp2d.set_input(acq_data);
+  fbp2d.process();
+  shared_ptr<STIRImageData> sptr_image = fbp2d.get_output();
 
-		image.set_data_sptr(sptr_image->data_sptr());
-	}
-	catch (...) {
-		std::cout << "exception thrown\n";
-		return 1;
-	}
-	return 0;
+  image.set_data_sptr(sptr_image->data_sptr());
+
+  STIRImageData image2(acq_data);
+  image2.write("test.hv");
+  return 0;
 }
 
 int test_c(const ImageData& image)
 {
-	try {
-		STIRImageData img(image);
-		int dim[3];
-		float im_norm;
-		img.get_dimensions(dim);
-		std::cout << "image dimensions: "
-			<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
-		im_norm = img.norm();
-		std::cout << "image norm: " << im_norm << '\n';
-	}
-	catch (...) {
-		std::cout << "exception thrown\n";
-		return 1;
-	}
-	return 0;
+  STIRImageData img(image);
+  int dim[3];
+  float im_norm;
+  img.get_dimensions(dim);
+  std::cout << "image dimensions: "
+            << dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
+  im_norm = img.norm();
+  std::cout << "image norm: " << im_norm << '\n';
+  return 0;
 }
 
-int test_d()
+int main()
 {
-	try {
-	}
-	catch (...) {
-		std::cout << "exception thrown\n";
-		return 1;
-	}
-	return 0;
+	return test5();
 }

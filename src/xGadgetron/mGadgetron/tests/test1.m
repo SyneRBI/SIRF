@@ -4,13 +4,13 @@ function [failed, ntests] = test1(record, engine)
 % Fully sampled reconstruction and the illustration of the use of 
 % Acquisition Model projections.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -30,31 +30,32 @@ end
 if nargin < 1
     record = false;
 end
-import_str = set_up_MR(engine);
-eval(import_str)
+% import_str = set_up_MR(engine);
+% eval(import_str)
+MR = set_up_MR(engine);
 
-test = mUtilities.mTest('test1.txt', record);
+test = sirf.Utilities.mTest('test1.txt', record);
 
 filename = 'simulated_MR_2D_cartesian.h5';
-pathname = mUtilities.examples_data_path('MR');
-acq_data = AcquisitionData(fullfile(pathname, filename));
+pathname = sirf.Utilities.examples_data_path('MR');
+acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 test.check(acq_data.norm())
 
 prep_gadgets = {'RemoveROOversamplingGadget'};
 processed_data = acq_data.process(prep_gadgets);
 test.check(processed_data.norm())
 
-recon = FullySampledCartesianReconstructor();
+recon = MR.FullySampledCartesianReconstructor();
 recon.set_input(processed_data);
 recon.process();
 complex_images = recon.get_output();
 test.check(complex_images.norm())
 
 processed_data.sort()
-csms = CoilSensitivityData();
+csms = MR.CoilSensitivityData();
 csms.calculate(processed_data)
 
-am = AcquisitionModel(processed_data, complex_images);
+am = MR.AcquisitionModel(processed_data, complex_images);
 am.set_coil_sensitivity_maps(csms)
 fwd_acqs = am.forward(complex_images);
 fwd_acqs_norm = fwd_acqs.norm();

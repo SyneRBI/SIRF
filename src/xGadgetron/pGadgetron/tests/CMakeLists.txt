@@ -1,11 +1,8 @@
 #========================================================================
-# Author: Edoardo Pasca
-# Copyright 2017 University College London
-# Copyright 2017 Science Technology Facilities Council
-# Author: Casper da Costa-Luis
-# Copyright 2017
+# Copyright 2017 - 2021 Science Technology Facilities Council
+# Copyright 2017 - 2021 University College London
 #
-# This file is part of the CCP PETMR Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
+# This file is part of the SyneRBI Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +17,16 @@
 # limitations under the License.
 #
 #=========================================================================
+set (exclude_tests "--ignore-files=\"test_algebra\"" "--exclude=TestDataContainerAlgebra")
 add_test(NAME MR_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=pGadgetron src/xGadgetron/pGadgetron/
+  COMMAND ${Python_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Gadgetron src/xGadgetron/pGadgetron/ ${exclude_tests}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME MR_DEMOS_PYTHON
+  COMMAND ${Python_EXECUTABLE} run_all.py --non-interactive
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/MR")
+add_test(NAME MR_GADGETRON_DEMOS_PYTHON
+  COMMAND ${Python_EXECUTABLE} run_all.py --non-interactive
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/MR/Gadgetron")
+add_test(NAME MR_PYTHON_ALGEBRA
+  COMMAND ${Python_EXECUTABLE} -m unittest test_algebra
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2017 - 2019 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,18 +24,18 @@ limitations under the License.
 \brief Split or join tensor images (i.e., deformation or displacement fields)
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include <iostream>
-#include "sirf/cReg/NiftiImageData3DTensor.h"
-#include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3DTensor.h"
+#include "sirf/Reg/NiftiImageData3D.h"
 
 using namespace sirf;
 
 void print_usage()
 {
-    std::cout << "\nUsage: sirf_tensor_split_join --join/split filename_4D filename_x filename_y filename z\n";
+    std::cout << "\nUsage: sirf_tensor_split_join --join/split filename_4D filename_x filename_y filename_z\n";
 }
 
 enum JoinOrSplit{join,split};
@@ -44,9 +44,9 @@ enum JoinOrSplit{join,split};
 int main(int argc, char* argv[])
 {
     try {
-        if (argc != 5) {
+        if (argc != 6) {
             print_usage();
-            EXIT_SUCCESS;
+            return EXIT_FAILURE;
         }
 
         // Are we splitting or joining images?
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
             mode = join;
         else {
             print_usage();
-            EXIT_SUCCESS;
+            return EXIT_FAILURE;
         }
 
         // Get filenames

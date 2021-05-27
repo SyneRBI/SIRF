@@ -1,13 +1,13 @@
 function fbp2d_reconstruction(engine)
 % FBP2D reconstruction demo. 
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2020 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -22,28 +22,29 @@ function fbp2d_reconstruction(engine)
 if nargin < 1
     engine = [];
 end
-import_str = set_up_PET(engine);
-eval(import_str)
-pet_data_path = mUtilities.examples_data_path('PET');
+% import_str = set_up_PET(engine);
+% eval(import_str)
+PET = set_up_PET(engine);
+pet_data_path = sirf.Utilities.examples_data_path('PET');
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    MessageRedirector('info.txt');
+    PET.MessageRedirector('info.txt');
 
     % PET acquisition data to be read from this file
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
-    acq_data = AcquisitionData(fullfile(pathname, filename));
+    acq_data = PET.AcquisitionData(fullfile(pathname, filename));
     
     % create reconstructor object
-    recon = FBP2DReconstructor();
+    recon = PET.FBP2DReconstructor();
     % specify the acquisition data
 
     % reconstruct with default settings
     recon.set_input(acq_data);
     recon.reconstruct();
     image = recon.get_output();
-    dim = image.size();
+    dim = image.dimensions();
     fprintf('image size: %d x %d x %d\n', dim(1), dim(2), dim(3));
     z = idivide(2*dim(3), 3);
     % display the reconstructed image

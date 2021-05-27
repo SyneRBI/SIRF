@@ -1,8 +1,8 @@
 
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 - 2019 University College London
-# Copyright 2016 - 2018 Science Technology Facilities Council
+# Copyright 2016 - 2020 University College London
+# Copyright 2016 - 2020 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,6 +20,18 @@
 
 # cmake file for building SIRF. See the SIRF User's Guide and http://www.cmake.org.
 
+cmake_minimum_required(VERSION 3.9.0)
+# require 2.8.3 to get FOLDER properties support
+# require 3.3 for descent FindMatlab.cmake
+# require 3.9 for compatible FindOPENMP.cmake
+
+
+# Set the CMake policy for SWIG
+# https://cmake.org/cmake/help/v3.14/policy/CMP0078.html#policy:CMP0078
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+  # policy introduced in CMake 3.13
+  cmake_policy(SET CMP0078 OLD)
+endif()
 # avoid warning about WIN32 no longer defined in CYGWIN
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
 
@@ -30,9 +42,7 @@ UseCXX(11)
 PROJECT(SIRF)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
-# require 2.8.3 to get FOLDER properties support
-# require 3.3 for descent FindMatlab.cmake
-cmake_minimum_required(VERSION 3.3.0)
+
 
 # set default build-type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -40,9 +50,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 ####### Set Version number etc
-set(VERSION_MAJOR   1 )
-set(VERSION_MINOR   1 )
-set(VERSION_PATCH   1 )
+set(VERSION_MAJOR   3 )
+set(VERSION_MINOR   0 )
+set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 set(SIRF_VERSION
@@ -59,8 +69,22 @@ if (APPLE)
   if (SHARED_LIBS_ABS_PATH)
     # Set install_name_dir as the absolute path to install_prefix/lib
     GET_FILENAME_COMPONENT(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib REALPATH)
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
   endif(SHARED_LIBS_ABS_PATH)
 endif(APPLE)
+
+# If OSX, we might need to assume pthreads. For this, first try to find boost_thread.
+# If that fails, then give a bit of help.
+if (APPLE)
+  find_package(Boost COMPONENTS thread QUIET)
+  if (NOT boost_thread_FOUND)
+    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    set(CMAKE_HAVE_THREADS_LIBRARY 1)
+    set(CMAKE_USE_WIN32_THREADS_INIT 0)
+    set(CMAKE_USE_PTHREADS_INIT 1)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+  endif()
+endif()
 
 ####### External packages
 
@@ -74,115 +98,110 @@ find_package(Boost 1.36.0 COMPONENTS system filesystem thread date_time chrono R
 # See http://stackoverflow.com/questions/32252016/cmake-visual-studio-build-looks-for-wrong-library
 add_definitions(-DBOOST_ALL_NO_LIB)
 
-include_directories(${Boost_INCLUDE_DIRS})
-
 #### optional back-ends
-# find Python interpreter. Needed for tests, and best to enforce consistency anyway.
-find_package(PythonInterp QUIET)
-find_package(PythonLibs QUIET)
-option(BUILD_PYTHON "Build SIRF with python" ${PYTHONLIBS_FOUND})
-if (BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
-  message(FATAL_ERROR "Python enabled but not found")
-endif(BUILD_PYTHON AND NOT ${PYTHONLIBS_FOUND})
-if (BUILD_PYTHON)
-
-  # PYTHON_DEST_DIR allows the user to select the install destination of the 
-  # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
-  # updated on the GUI.
-  # If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python 
-  set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
-  if (PYTHON_DEST_DIR)
-   set(PYTHON_DEST "${PYTHON_DEST_DIR}")
-  else() 
-    set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
+option(DISABLE_PYTHON "Disable building SIRF python support" OFF)
+if (DISABLE_PYTHON)
+  message(STATUS "Python support disabled")
+else(DISABLE_PYTHON)
+  # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
+  if (${CMAKE_VERSION} VERSION_LESS "3.12")
+      if (Python_EXECUTABLE)
+        set (PYTHON_EXECUTABLE ${Python_EXECUTABLE})
+      endif()
+      find_package(PythonInterp QUIET)
+      find_package(PythonLibs)
+      if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)
+        set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+        set (Python_LIBRARIES ${PYTHON_LIBRARIES})
+        set (Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+        set (Python_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
+      endif()
+  else()
+    if (PYTHON_EXECUTABLE)
+      message(WARNING "Usage of PYTHON_EXECUTABLE is deprecated. Use Python_EXECUTABLE instead.")
+      set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+    endif()
+    find_package(Python COMPONENTS Interpreter Development)
+    if (Python_FOUND)
+      set (PYTHONLIBS_FOUND ON)
+    else()
+      set (PYTHONLIBS_FOUND OFF)
+    endif()
   endif()
-  message(STATUS "Python libraries found")
-  message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
-  set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
+
+  if (PYTHONLIBS_FOUND)
+    if (Python_VERSION_MAJOR VERSION_LESS "3")
+      message(WARNING "The use of Python 2 is deprecated and support will be removed in future versions.")
+    endif()
+    set(BUILD_PYTHON ON)
+    # PYTHON_DEST_DIR allows the user to select the install destination of the
+    # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be
+    # updated on the GUI.
+    # If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python
+    set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
+    if (PYTHON_DEST_DIR)
+      set(PYTHON_DEST "${PYTHON_DEST_DIR}")
+    else()
+      set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
+    endif()
+    message(STATUS "Python libraries found")
+    message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
+    set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
     PYTHONPATH: prefix PYTHONPATH \n\
-    SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
+    SETUP_PY:   execute ${Python_EXECUTABLE} setup.py install \n\
     CONDA:      do nothing")
-endif(BUILD_PYTHON)
+
+  else(PYTHONLIBS_FOUND)
+    message(WARNING "Pythonlibs not found. Best to set Python_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
+  endif(PYTHONLIBS_FOUND)
+
+endif(DISABLE_PYTHON)
 
 
-FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
-option(BUILD_MATLAB "Build SIRF with matlab" ${Matlab_FOUND})
-if (BUILD_MATLAB AND NOT ${Matlab_FOUND})
-  message(FATAL_ERROR "Matlab enabled but not found")
-endif()
-if (BUILD_MATLAB)
-  message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
-  matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
-  # MATLAB_DEST_DIR allows the user to select the install destination of the 
-  # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
-  # updated on the GUI. 
-  # If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab 
-  set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
-  if (MATLAB_DEST_DIR)
-   set(MATLAB_DEST "${MATLAB_DEST_DIR}")
-  else() 
-    set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
+option(DISABLE_Matlab "Disable building SIRF matlab support" OFF)
+if (DISABLE_Matlab)
+  message(STATUS "Matlab support disabled")
+else(DISABLE_Matlab)
+
+  FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
+  if (NOT Matlab_FOUND)
+    message(WARNING "MATLAB not found. Set Matlab_ROOT_DIR if you want it. Set DISABLE_Matlab to ON to silence this warning.")
+  else()
+    set(BUILD_MATLAB ON)
+    message(STATUS "Attempting to find MATLAB Mex extension (This might launch MATLAB so might take a while)")
+    matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
+    # MATLAB_DEST_DIR allows the user to select the install destination of the
+    # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be
+    # updated on the GUI.
+    # If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab
+    set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
+    if (MATLAB_DEST_DIR)
+      set(MATLAB_DEST "${MATLAB_DEST_DIR}")
+    else()
+      set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
+    endif()
+    message(STATUS "Matlab libraries found")
+    message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
   endif()
-  message(STATUS "Matlab libraries found")
-  message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
-endif(BUILD_MATLAB)
 
-if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
-  message(FATAL_ERROR "SIRF needs either MATLAB or Python")
-endif()
+endif(DISABLE_Matlab)
 
 ENABLE_TESTING()
 
-######### Find The Gadgetron ############
-if (NOT GADGETRON_HOME)
-  SET(GADGETRON_HOME $ENV{GADGETRON_HOME} CACHE PATH "Gadgetron home")
-endif()
-find_path(GADGETRON_CMAKE_MODULES "FindGadgetron.cmake" HINTS "${GADGETRON_HOME}/share/gadgetron/cmake") 
-if (NOT GADGETRON_CMAKE_MODULES)
-  MESSAGE(FATAL_ERROR "GADGETRON_CMAKE_MODULES cannot be found. 
-   Try to set GADGETRON_HOME variable.")
-endif(NOT GADGETRON_CMAKE_MODULES)
-
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${GADGETRON_CMAKE_MODULES}")
-
-## find the package
-find_package(Gadgetron REQUIRED)
-include_directories(${GADGETRON_INCLUDE_DIR})
-link_directories(${GADGETRON_LIB_DIR})
-
-
-ADD_SUBDIRECTORY(src/iUtilities)
-ADD_SUBDIRECTORY(src/common)
-ADD_SUBDIRECTORY(src/xSTIR)
-ADD_SUBDIRECTORY(src/xGadgetron)
+ADD_SUBDIRECTORY(src)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
+configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
 
-# Optional registration
-option(REG_ENABLE "Build the SIRF registration package" ON)
-if (REG_ENABLE)
+set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples 
+        COMPONENT DOC
+        DESTINATION ${SHARE_DIR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/doc 
+        COMPONENT DOC
+        DESTINATION ${SHARE_DIR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/data 
+        DESTINATION ${SHARE_DIR})
 
-  # Find NiftyReg
-  set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake")
-  FIND_PACKAGE(NiftyReg)
-  if (NiftyReg_FOUND)
-    if(NOT ("${NR_VERSION}" MATCHES "1.5.59" OR "${NR_VERSION}" MATCHES "1.5.61"))
-      MESSAGE(STATUS "\n\nSIRF's registration was developed with NiftyReg 1.5.59 and 1.5.61, and cannot be guaranteed for other version numbers.\n"
-        "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
-        "If there is a version mismatch, the keys in the parser may need to be altered.\n")
-    endif()
-  else()
-    MESSAGE(FATAL_ERROR "Registration has been enabled, but there are no registration packages available.")
-  endif()
-
-  ADD_SUBDIRECTORY(src/Registration)
-  ADD_SUBDIRECTORY(src/xDynamicSimulation)
-endif()
-
-# Synergistic code currently only works if STIR (with ITK), Gadgetron and Registration are built
-if (REG_ENABLE AND STIR_REGISTRIES AND cGadgetron_LIBRARY_DIRS AND "${STIR_BUILT_WITH_ITK}")
-  MESSAGE(STATUS "Registration, Gadgetron and STIR (with ITK) have been built. Building synergistic code.")
-  ADD_SUBDIRECTORY(src/Synergistic)
-else()
-  MESSAGE(STATUS "One or more of the following components are missing: Registration, Gadgetron and STIR (with ITK). Synergistic code will not be built.")
-endif()
+ADD_SUBDIRECTORY(doxygen)

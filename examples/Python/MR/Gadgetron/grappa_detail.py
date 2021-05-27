@@ -12,7 +12,7 @@ Pre-requisites:
  2) An input data file from a GRAPPA MRI acquisition in the ISMRMRD format.
     Example GRAPPA datasets:
     a) 'meas_MID00108_FID57249_test_2D_2x.dat' is 
-       available from https://www.ccppetmr.ac.uk/downloads
+       available from https://www.ccpsynerbi.ac.uk/downloads
        This is in the manufacturer's raw data format and needs to be
        converted to ISMRMRD format using 'siemens_to_ismrmrd'.
        This executable is installed on the Virtual Machine.
@@ -27,16 +27,17 @@ Options:
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
+  --non-interactive           do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
 ## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -59,9 +60,8 @@ from pGadgetron import *
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('mr')
-
-from pUtilities import show_3D_array
+    data_path = examples_data_path('MR')
+show_plot = not args['--non-interactive']
 
 
 def main():
@@ -88,16 +88,9 @@ def main():
     # specified in prep_gadgets, returning an instance
     # of an mGadgetron.AcquisitionsContainer
     preprocessed_data = acq_data.process(prep_gadgets)
+    if show_plot:
+        preprocessed_data.show(title = 'Acquisition data (magnitude)')
     
-    # Extract sorted k-space, permute dimensions and display
-    acq_array = preprocessed_data.as_array(0)
-    [ns,nc,nro] = preprocessed_data.dimensions() # [nx ncoil ny]
-    acq_array = numpy.transpose(acq_array,(1,0,2))
-    title = 'Acquisition data (magnitude)'
-    show_3D_array(acq_array, power = 0.2, \
-                  suptitle = title, title_size = 16, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
-            
     
     # Perform reconstruction of the preprocessed data.
     
@@ -145,35 +138,20 @@ def main():
     # for both the reconstructed images and g-factors, before extracting the
     # data as Python arrays.
     
-    # Get image and gfactor data as objects of type mGadgetron.ImageData
+    # Get image and gfactor data as objects of type pGadgetron.ImageData
     # (Note this syntax may change in the future with the addition of a
     #  method '.get_gfactor'.)
     image_data = recon.get_output('image')
     gfact_data = recon.get_output('gfactor')
+    if show_plot:
+        image_data.show(title = 'Reconstructed image data (magnitude)')
+        gfact_data.show(title = 'G-factor data (magnitude)')
     
-    # Return as Python matrices the data pointed to by the containers.
-    # Note the image data is complex.
-    image_as_3D_array = image_data.as_array()
-    maxv = numpy.amax(abs(image_as_3D_array))
-    title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_as_3D_array), \
-                  suptitle = title, title_size = 16, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                  scale = (0, maxv))
-            
-            
-    gfactor_as_3D_array = gfact_data.as_array();
-    maxv = numpy.amax(abs(gfactor_as_3D_array))
-    title = 'G-factor data (magnitude)'
-    show_3D_array(abs(gfactor_as_3D_array),
-                  suptitle = title, title_size = 16, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                  scale = (0, maxv))
-
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    exit(1)

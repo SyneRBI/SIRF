@@ -1,6 +1,6 @@
 %module pygadgetron
 %{
-#include "cgadgetron.h"
+#include "sirf/Gadgetron/cgadgetron.h"
 #include <cmath>
 %}
-%include "cgadgetron.h"
+%include "sirf/Gadgetron/cgadgetron.h"

@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ limitations under the License.
 #include <map>
 #include "sirf/iUtilities/DataHandle.h"
 
-/*
-\ingroup Data Container
+/*!
+\ingroup Common
 \brief Abstract data container.
 
 A class for a set of generally heterogeneous items of data.
@@ -53,7 +53,21 @@ namespace sirf {
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;
+		virtual void xapyb(
+			const DataContainer& x, const void* ptr_a,
+			const DataContainer& y, const void* ptr_b) // = 0; // when PET side is merged
+		{
+			axpby(ptr_a, x, ptr_b, y); // to go when PET side is merged
+		}
+		virtual void xapyb(
+			const DataContainer& x, const DataContainer& a,
+			const DataContainer& y, const DataContainer& b) = 0;
 		virtual void write(const std::string &filename) const = 0;
+
+		bool is_empty() const
+		{
+			return items() < 1;
+		}
 		std::unique_ptr<DataContainer> clone() const
 		{
 			return std::unique_ptr<DataContainer>(this->clone_impl());

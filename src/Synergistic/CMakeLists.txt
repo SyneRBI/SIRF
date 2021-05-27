@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -18,23 +18,26 @@
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Need this because there's a problem in ISMRMRDConfig.cmake. 
-# This has to come before making any executables
-LINK_DIRECTORIES(${cGadgetron_LIBRARY_DIRS})
-INCLUDE_DIRECTORIES(${cGadgetron_INCLUDE_DIR})
-
 # Executables
 SET(SYN_executables
     sirf_registration
     sirf_do_images_match
     sirf_resample
+    sirf_convert_image_type
     )
 
 FOREACH(elem ${SYN_executables})
-    ADD_EXECUTABLE(${elem} ${elem}.cpp)
+    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
     TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${SYN_executables})
+
+add_subdirectory(cSyn)
+add_subdirectory(mSyn)
+if (PYTHON_FOUND AND BUILD_PYTHON)
+  add_subdirectory(pSyn)
+endif()
+
 
 # Tests
 ADD_SUBDIRECTORY(tests)
