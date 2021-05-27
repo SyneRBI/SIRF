@@ -1221,6 +1221,13 @@ GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
     this->set_up_geom_info();
 }
 
+GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad)
+{
+    set_meta_data(ad.acquisitions_info());
+    this->set_up_geom_info();
+}    
+
+
 GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()

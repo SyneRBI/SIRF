@@ -34,6 +34,8 @@ limitations under the License.
 #include <vector>
 #include <random>
 
+#include <ismrmrd/xml.h>
+
 #include "sirf/Gadgetron/chain_lib.h"
 
 #include "sirf/common/DataContainer.h"
@@ -83,6 +85,47 @@ bool test_get_subset(const MRAcquisitionData& av)
         av.get_subset(subset, subset_idx);
 
         return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
+{
+     try
+    {
+        using namespace ISMRMRD;
+
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        GadgetronImagesVector iv(av);
+        
+        bool test_successful = true;
+
+        //
+        int const num_images = iv.number();
+        int const num_kspace_dims = av.get_kspace_sorting().size();
+        test_successful *= (num_images == num_kspace_dims);
+
+
+        //
+        std::vector<Encoding> enc_vec = av.acquisitions_info().get_IsmrmrdHeader().encoding;
+        Encoding enc = enc_vec[0];
+        EncodingSpace rec_space = enc.reconSpace;
+
+        MatrixSize rawdata_recon_matrix = rec_space.matrixSize;
+        FieldOfView_mm rawdata_recon_FOV = rec_space.fieldOfView_mm;
+
+        if(test_successful)
+            return test_successful;
+        else{
+            throw std::runtime_error("The test for images from acquisition data failed.");                
+        }
 
     }
     catch( std::runtime_error const &e)
@@ -543,8 +586,12 @@ int main ( int argc, char* argv[])
 
         bool ok = true;
 
+        
+
         ok *= test_get_kspace_order(av);
         ok *= test_get_subset(av);
+
+        ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
 
         ok *= test_CoilSensitivitiesVector_calculate(av);
         ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);

@@ -876,6 +876,7 @@ namespace sirf {
 
 		GadgetronImagesVector() : images_()
 		{}
+		GadgetronImagesVector(const MRAcquisitionData& ad);
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
