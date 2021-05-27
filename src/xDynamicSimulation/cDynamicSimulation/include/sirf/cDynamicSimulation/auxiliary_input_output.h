@@ -33,7 +33,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/common/GeometricalInfo.h"
 #include "sirf/common/ImageData.h"
 
-#include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3D.h"
 	
 
 #include "test_input_filenames.h"

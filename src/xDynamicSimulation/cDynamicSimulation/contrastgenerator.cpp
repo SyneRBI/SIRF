@@ -7,7 +7,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
-#include "sirf/cReg/NiftyResample.h"
+#include "sirf/Reg/NiftyResample.h"
 
 #include <memory>
 #include <stdexcept>

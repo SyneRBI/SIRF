@@ -15,8 +15,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "auxiliary_testing_functions.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
-#include "sirf/cReg/NiftyResample.h"
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
 
 
 

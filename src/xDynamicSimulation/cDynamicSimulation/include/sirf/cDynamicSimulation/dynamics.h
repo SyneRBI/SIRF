@@ -24,8 +24,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
-#include "sirf/cReg/ImageWeightedMean.h"
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/ImageWeightedMean.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
 
 
 #define SIRF_SCANNER_MS_PER_TIC 2.5

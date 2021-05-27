@@ -18,7 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h" // this header (rather the Gadgetron Base IO including Nifti) must not be included after the SIRFImageData.h headers. DONT put it into the cpp!
 
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/STIR/stir_data_containers.h"
 
 class DynamicSimulationDeformer

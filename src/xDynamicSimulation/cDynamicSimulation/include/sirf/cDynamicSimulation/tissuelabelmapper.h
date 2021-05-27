@@ -22,7 +22,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <memory>
 
 #include "sirf/cDynamicSimulation/tissueparameters.h"
-#include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3D.h"
 
 typedef std::vector< std::shared_ptr<TissueParameter> > TissueVector;
 

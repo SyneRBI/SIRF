@@ -21,8 +21,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "sirf/common/GeometricalInfo.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/NiftiImageData3DDisplacement.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
 
 #include "H5Cpp.h"
 

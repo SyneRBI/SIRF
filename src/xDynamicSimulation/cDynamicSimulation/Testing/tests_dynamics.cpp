@@ -12,10 +12,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/common/GeometricalInfo.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
-#include "sirf/cReg/NiftiImageData3DDisplacement.h"
-#include "sirf/cReg/NiftiImageData3D.h"
-#include "sirf/cReg/NiftyResample.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
+#include "sirf/Reg/NiftiImageData3D.h"
+#include "sirf/Reg/NiftyResample.h"
 
 using namespace sirf;
 

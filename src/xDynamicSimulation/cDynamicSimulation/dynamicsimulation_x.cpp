@@ -12,7 +12,7 @@ date: 15. March 2018
 
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
-#include "sirf/cReg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftiImageData3DDeformation.h"
 
 #include "sirf/cDynamicSimulation/dynsim_deformer.h"
 
