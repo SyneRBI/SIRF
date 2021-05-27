@@ -86,10 +86,6 @@ namespace aux_test
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	sirf::AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
 
-	sirf::RPETrajectoryContainer get_mock_radial_trajectory(size_t const NRad, size_t const NAng);
-
-
-
 	SignalContainer get_generic_respiratory_signal( sirf::AcquisitionsVector &acq_vec);
 	SignalContainer get_generic_cardiac_signal( sirf::AcquisitionsVector &acq_vec);
 	SignalContainer get_generic_contrast_inflow_signal( sirf::AcquisitionsVector &acq_vec);
