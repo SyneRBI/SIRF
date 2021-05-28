@@ -1,8 +1,8 @@
 '''
 Example of an iterative reconstruciton with radial phase encoding (RPE) data.
 
-Upper-level demo that illustrates the computation of how to use a non-cartesian 
-radial phase-encoding acquisition model to reconstruct data iteratively and 
+Upper-level demo that illustrates the computation of how to use a non-cartesian
+radial phase-encoding acquisition model to reconstruct data iteratively and
 without the use of any k-space density weighting.
 
 Usage:
@@ -15,7 +15,7 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled 
+  -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled
                               [default: False]
   --non-interactive           do not show plots
 '''
@@ -56,8 +56,7 @@ show_plot = not args['--non-interactive']
 
 run_recon = str(args['--non-cart']) == 'True'
 
-import sys
-import numpy 
+import numpy
 
 # define symmetrical operator for cg-optimisation
 def EhE(E, image ):
@@ -69,7 +68,7 @@ def main():
     input_file = existing_filepath(data_path, data_file)
     
     # acquisition data will be read from an HDF file input_file
-    AcquisitionData.set_storage_scheme('memory')
+    # AcquisitionData.set_storage_scheme('memory')
     acq_data = AcquisitionData(input_file)
     
     print('---\n acquisition data norm: %e' % acq_data.norm())
@@ -149,7 +148,7 @@ def main():
                 print('We achieved our desired accuracy. Stopping iterative reconstruction')
                 break
 
-            if k is num_iter-1:    
+            if k is num_iter-1:
                 print('Reached maximum number of iterations. Stopping reconstruction.')
 
     else:
