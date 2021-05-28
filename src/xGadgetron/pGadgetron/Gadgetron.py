@@ -792,7 +792,7 @@ class AcquisitionData(DataContainer):
         '''
         list_available_trajs = ('cartesian', 'epi', 'radial', 'goldenangle', 'spiral', 'other')
         if trajname not in list_available_trajs:
-            raise AssertionError("The trajectory you asked for is not among the available trajectoryies") 
+            raise AssertionError("The trajectory you asked for is not among the available trajectoryies")
 
         xml_hdr = self.get_header()
         traj_id_substring = "<trajectory>"+trajname+"</trajectory>"
@@ -871,8 +871,8 @@ class AcquisitionData(DataContainer):
     def set_user_floats(self, data, idx):
         '''
         Writes the data into the user_float[idx] data field of the acquisition
-        data header of each acquisition in the container to pass additional data 
-        into the raw data. 
+        data header of each acquisition in the container to pass additional data
+        into the raw data.
         data: numpy array
         idx: integer in range 0 to 7
         '''        
@@ -882,7 +882,7 @@ class AcquisitionData(DataContainer):
         if data.size != self.number():
             raise AssertionError('Please give as many datapoints as there are acquisitions')
         
-        if idx > 7 or idx < 0 or not isinstance(idx,int): 
+        if idx > 7 or idx < 0 or not isinstance(idx,int):
             raise AssertionError('Please give an integer from [0,...,7]')
 
         try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
@@ -1125,18 +1125,18 @@ class AcquisitionModel(object):
         if dcw is not None:
             assert_validity(dcw, AcquisitionData)
             if ad.shape != dcw.shape:
-                raise AssertionError("The shape of the density weights and the acquisition data must be the same.") 
+                raise AssertionError("The shape of the density weights and the acquisition data must be the same.")
 
         if dcw is None:
             dcw = compute_kspace_density(ad)
             
-        ad = ad * dcw 
+        ad = ad * dcw
 
         image = ImageData()
         image.handle = pygadgetron.cGT_AcquisitionModelBackward\
             (self.handle, ad.handle)
         check_status(image.handle)
-        return image    
+        return image
 
     def direct(self, image, out = None):
         '''Alias of forward
@@ -1530,14 +1530,14 @@ def get_data_trajectory(ad):
 
 def compute_kspace_density(ad):
     '''
-    Function that computes the kspace density depending the 
+    Function that computes the kspace density depending the
     ad: AcquisitionData
     '''  
     assert_validity(ad, AcquisitionData)
 
     if ad.check_traj_type('cartesian'):
         return calc_cartesian_dcw(ad)
-    elif ad.check_traj_type('other'): 
+    elif ad.check_traj_type('other'):
         return calc_rpe_dcw(ad)
     else:
         raise AssertionError("Please only try to recon trajectory types cartesian or other")
@@ -1552,7 +1552,7 @@ def calc_cartesian_dcw(ad):
     traj = numpy.transpose(get_data_trajectory(ad))
     traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
     
-    density_weight = ( 1.0 / counts)[inverse]  
+    density_weight = (1.0 / counts)[inverse]
     
     density_weight = numpy.expand_dims(density_weight, axis=(1,2))
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
@@ -1565,7 +1565,7 @@ def calc_cartesian_dcw(ad):
 def calc_rpe_dcw(ad):
     '''
     Function that computes the kspace weight depending on the distance to the center
-    as in a filtered back-projection. Stricly valid only for equally angular-spaced 
+    as in a filtered back-projection. Stricly valid only for equally angular-spaced
     radially distributed points
     ad: AcquisitionData
     '''
@@ -1577,7 +1577,7 @@ def calc_rpe_dcw(ad):
     
     num_angles = numpy.max(counts)
     
-    density_weight = ( 1.0 / counts)[inverse]  + num_angles * ramp_filter 
+    density_weight = ( 1.0 / counts)[inverse]  + num_angles * ramp_filter
     
     max_traj_rad = numpy.max(numpy.linalg.norm(traj, axis=0))
     density_weight_norm =  numpy.sum(density_weight) / (max_traj_rad**2 * numpy.pi)
