@@ -913,6 +913,20 @@ cGT_readImages(const char* file)
 }
 
 extern "C"
+void *
+cGT_ImageFromAcquisitiondata(void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		auto sptr_iv = std::make_shared<GadgetronImagesVector>(acqs);
+		return newObjectHandle<GadgetronImageData>(sptr_iv);
+	}
+	CATCH;
+}
+
+extern "C"
 void*
 cGT_processImages(void* ptr_proc, void* ptr_input)
 {
