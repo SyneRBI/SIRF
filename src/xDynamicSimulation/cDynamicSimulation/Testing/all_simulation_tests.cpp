@@ -47,23 +47,23 @@ void run_tests_auxiliary_testing_functions( void )
 
 	bool tests_successful = true;
 
-	// tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
-	// tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
-	// tests_successful *= test_aux_test_funs::test_get_mock_csm();
-	// tests_successful *= test_aux_test_funs::test_get_mock_coildata_as_cfimage();
-	// tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
-	// tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
-	// tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
+	tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
+	tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
+	tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
+	tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
+	tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
 	tests_successful *= test_aux_test_funs::test_get_mock_gaussian_csm();
 
 
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The auxiliary testing functions tests failed.");
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The auxiliary testing functions tests succeeded." <<std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
 
 
@@ -132,14 +132,17 @@ void run_tests_dynamics( void )
 	}
 	std::cout << std::endl;
 
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The dynamics tests failed." );
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The dynamics tests succeeded" << std::endl;
-	}	
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+	}
 }
 
 
@@ -217,17 +220,17 @@ void run_tests_dynamic_simulation( void )
 	std::cout << std::endl;
 
 
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The dynamic simulation tests failed." );
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The dynamic simulation tests succeeded" << std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
-
-
-
 }
 
 void run_tests_noise_generator( void )
@@ -238,13 +241,16 @@ void run_tests_noise_generator( void )
 	// tests_successful *= test_noisegen::test_add_poisson_noise();
 	tests_successful *= test_noisegen::test_add_gaussian_noise();
 
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The noise generator tests failed." );
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The noise generator tests succeeded" << std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
 
 
@@ -261,13 +267,16 @@ void run_tests_auxiliary_input_output( void )
 	// tests_successful *= test_aux_io::test_read_acquisitions_vector_number_consistency();	
 	tests_successful *= test_aux_io::test_read_single_column_txt();
 
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The auxiliary input output functions tests failed.");
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The auxiliary input output functions tests succeeded." <<std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
 }
 
@@ -299,11 +308,13 @@ void run_tests_tissueparameters(void)
 
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The tissueparameters tests failed.");
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The tissueparameters tests succeeded." <<std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
 }
 
@@ -399,13 +410,16 @@ void run_tests_contrastgenerator(void)
 	// }
 	std::cout << std::endl;
 
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The contrastgenerator tests failed.");
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The contrastgenerator tests succeeded." <<std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
 }
 
@@ -427,13 +441,16 @@ void run_tests_phantom_input( void )
 	// tests_successful *= test_read_h5_motionfields();
 
 	
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The h5 file reader tests failed." );
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The phantom input tests succeeded" << std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
 
 
@@ -455,13 +472,16 @@ void run_tests_encoding( void )
 
 	tests_successful *= RPESuperInterleavedGoldenCutTester::test_compute_trajectory();
 
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The encoding tests failed." );
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The encoding tests succeeded" << std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
 
 
@@ -493,15 +513,17 @@ void run_tests_dynsim_deformer( void )
 
 	std::cout << " End -------------------------- " <<std::endl;
 
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The dynsim deformer tests failed." );
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The dynsim deformer tests succeeded" << std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
-
 }
 
 
@@ -515,13 +537,14 @@ void run_tests_volume_orientator( void )
 
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The volume orientator tests failed." );
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The volume orientator tests succeeded" << std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
-
 }
 
 
@@ -537,15 +560,15 @@ void run_tests_memory_usage( void )
 	// tests_successful *= tests_memory::test_ndarray_memory_managment();
 	// tests_successful *= tests_memory::tests_resizing_acquisition_memory();
 	// tests_successful *= tests_memory::tests_VD_h5_file_content();
+	
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The memory usage tests failed." );
+		std::stringstream ss_msg;
+		ss_msg << "Running " << __FUNCTION__ << " failed.";
+		throw std::runtime_error( ss_msg.c_str().str() );
 	}
 	else
 	{
-		std::cout<< "The memory usage tests succeeded" << std::endl;
+		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
-
-
-
 }
