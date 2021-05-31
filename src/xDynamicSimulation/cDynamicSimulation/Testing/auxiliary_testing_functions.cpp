@@ -435,46 +435,6 @@ ISMRMRD::Image< float > aux_test::get_mock_ismrmrd_image_with_gradients( void )
 }
 
 
-
-ISMRMRD::NDArray< complex_float_t > aux_test::get_mock_csm( void )
-{
-	size_t const Nx = MOCK_DATA_MATRIX_SIZE;
-	size_t const Ny = MOCK_DATA_MATRIX_SIZE;
-	size_t const Nz = MOCK_DATA_MATRIX_SIZE;
-
-	std::vector <size_t> csm_dims;
-	csm_dims.push_back( Nx );
-	csm_dims.push_back( Ny );
-	csm_dims.push_back( Ny );
-	csm_dims.push_back( MOCK_DATA_NUM_CHANNELS );
-
-	ISMRMRD::NDArray< complex_float_t > csm(csm_dims);
-
-	for( size_t i=0; i<csm.getNumberOfElements(); i++)
-		*(csm.begin() +i) = std::complex<float> (0,0);
-		
-	
-	for(size_t nc=0; nc<MOCK_DATA_NUM_CHANNELS; nc++)
-	{
-		for(size_t nz=0; nz<Nz; nz++)
-		{
-			for(size_t ny=0; ny<Ny; ny++)
-			{
-				for(size_t nx=0; nx<Nx; nx++)
-				{
-					if( nc == 0 )
-						csm(nx, ny, nz, nc) = std::complex<float> (1,0);	
-									
-					else
-						csm(nx, ny, nz, nc) = std::complex<float> (0,0);	
-				}
-			}
-		}
-	}
-
-	return csm;
-}
-
 ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils )
 {
 
@@ -676,17 +636,21 @@ AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeade
 				}
 			}
 		}
-		
-
-		//ISMRMRD::Acquisition acq(MOCK_DATA_MATRIX_SIZE, MOCK_DATA_NUM_CHANNELS, 0);	
-
-
-
 	}
 
 	return acq_vec;
 }
 
+sirf::CoilSensitivitiesVector aux_test::aux_test_get_mock_coilmaps( void )
+{
+	
+	ISMRMRD::IsmrmrdHeader hdr = get_mock_ismrmrd_header();
+
+	AcquisitionsVector av = get_mock_acquisition_vector ( hdr );
+	GadgetronImagesVector csm(av, true);
+
+	return csm;
+}
 
 SignalContainer aux_test::get_mock_motion_signal()
 {

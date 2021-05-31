@@ -80,9 +80,9 @@ namespace aux_test
 	ISMRMRD::Image< complex_float_t > get_mock_ismrmrd_image_with_cube( void );
 	ISMRMRD::Image< float > get_mock_ismrmrd_image_with_gradients( void );
 
-	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
+	sirf::CoilSensitivitiesVector aux_test_get_mock_coilmaps( void );
 	ISMRMRD::Image<complex_float_t> get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils );
-
+	
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	sirf::AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
 
@@ -90,7 +90,6 @@ namespace aux_test
 	SignalContainer get_generic_cardiac_signal( sirf::AcquisitionsVector &acq_vec);
 	SignalContainer get_generic_contrast_inflow_signal( sirf::AcquisitionsVector &acq_vec);
 	SignalContainer get_generic_contrast_in_and_outflow_signal( sirf::AcquisitionsVector &acq_vec);
-
 
 
 	SignalContainer get_mock_motion_signal( void );
