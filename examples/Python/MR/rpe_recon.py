@@ -1,7 +1,7 @@
 '''
 Example of radial phase encoding (RPE) reconstruction.
 
-Upper-level demo that illustrates the computation of how to use a non-cartesian 
+Upper-level demo that illustrates the computation of how to use a non-cartesian
 radial phase-encoding acquisition model to reconstruct data. The backward method
 ignores any non-uniform density in k-space and the inverse does account for it
 by using a ramp kernel as in a filtered backprojection.
@@ -16,7 +16,7 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled 
+  -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled
                               [default: False]
   --non-interactive           do not show plots
 '''
@@ -56,9 +56,6 @@ show_plot = not args['--non-interactive']
 
 run_recon = str(args['--non-cart']) == 'True'
 
-import sys
-import numpy as np
-    
 def main():
 
     # locate the k-space raw data file

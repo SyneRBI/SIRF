@@ -68,7 +68,7 @@ def main():
     # (cannot be obtained in any other way at present)
 #    if processed_data.is_undersampled():
     if acq_data.is_undersampled():
-        recon = CartesianGRAPPAReconstructor();
+        recon = CartesianGRAPPAReconstructor()
         recon.compute_gfactors(False)
     else:
         recon = FullySampledReconstructor()
