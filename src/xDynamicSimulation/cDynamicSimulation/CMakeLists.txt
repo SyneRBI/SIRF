@@ -3,8 +3,6 @@
 # Date: 15.03.2018
 #=========================================================================
 
-
-
 add_definitions(-DBOOST_ALL_NO_LIB)
 
 if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
@@ -23,37 +21,27 @@ include_directories(${PROJECT_SOURCE_DIR}/src/Registration/Reg)
 include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
 include_directories("${GADGETRON_INCLUDE_DIR}/../")
 
-include_directories(./Testing)
 
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamicsimulation_x.cpp  Testing/tests_dynamicsimulation.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} auxiliary_input_output.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_auxiliary_testing_functions.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_auxiliary_input_output.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/auxiliary_testing_functions.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/all_simulation_tests.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissueparameters.cpp Testing/tests_tissueparameters.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissuelabelmapper.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} contrastgenerator.cpp  Testing/tests_contrastgenerator.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} phantom_input.cpp Testing/tests_phantom_input.cpp )
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamics.cpp Testing/tests_dynamics.cpp)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynsim_noisegenerator.cpp Testing/tests_noisegenerator.cpp)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynsim_deformer.cpp Testing/tests_dynsim_deformer.cpp)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} volume_orientator.cpp Testing/tests_volume_orientator.cpp)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_memory_usage.cpp)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/app_mracquisitiondata.cpp)
+set(SRC_FILES_TO_COMPILE 
+  dynamicsimulation_x.cpp  
+  auxiliary_input_output.cpp 
+  tissueparameters.cpp
+  tissuelabelmapper.cpp 
+  contrastgenerator.cpp 
+  phantom_input.cpp 
+  dynamics.cpp 
+  dynsim_noisegenerator.cpp 
+  dynsim_deformer.cpp 
+  volume_orientator.cpp)
 
-
-add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
-
+  add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
 set (cdynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
-# copy to parent scope
 
 TARGET_INCLUDE_DIRECTORIES(cdynamicsimulation PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
 )
 
 target_include_directories(cdynamicsimulation PUBLIC "${HDF5_INCLUDE_DIRS}")
-
 target_link_libraries(cdynamicsimulation iutilities)
 
 # Add boost library dependencies
@@ -72,29 +60,13 @@ endif()
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
 # a list of filenames with spaces. There doesn't seem to be a way to pass this through (strange).
 # Luckily, we know what libraries it uses
-target_link_libraries(cdynamicsimulation ismrmrd)
-target_link_libraries(cdynamicsimulation "${FFTW3_LIBRARIES}")
-target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
-
-
 target_link_libraries(cdynamicsimulation cgadgetron)
 target_link_libraries(cdynamicsimulation cstir)
 target_link_libraries(cdynamicsimulation Reg)
 
+target_link_libraries(cdynamicsimulation ismrmrd)
+target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
 target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
-set( GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpucore ${GADGETRON_LIBRARIES} )
-set( GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpufft ${GADGETRON_LIBRARIES_TOLINK} )
-set( GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_image_analyze_io ${GADGETRON_LIBRARIES_TOLINK} )
-set( GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_log ${GADGETRON_LIBRARIES_TOLINK} )
 
-#message(STATUS "#########################GADGETRON_LIBRARIES: ${GADGETRON_LIBRARIES_TOLINK}")
-
-target_link_libraries(cdynamicsimulation ${GADGETRON_LIBRARIES_TOLINK})
-
-#get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
-#message ( STATUS "##################################### include dirs #####################################: " ${inc_dirs})
-
-message(STATUS "XXXXXXXXXXXXXXXXXXSTIR_LIB ${STIR_LIBRARIES}")
-add_executable( TestJobs main.cpp ${STIR_REGISTRIES})
-target_link_libraries( TestJobs cdynamicsimulation ${STIR_LIBRARIES} )
+include_directories(./tests)
