@@ -65,35 +65,6 @@ bool test_aux_test_funs::test_get_mock_acquisition_vector( void )
 
 	return true;
 }
-bool test_aux_test_funs::test_get_mock_csm( void )
-
-{
-
-try
-	{
-		ISMRMRD::NDArray<complex_float_t> csm = aux_test::get_mock_csm();
-		
-		size_t const * dim = csm.getDims();
-		
-
-		ISMRMRD::Image<float> csm_abs(dim[0], dim[1], dim[2], dim[3]);
-		for( int i=0; i<csm.getNumberOfElements(); i++)			
-			*(csm_abs.begin() + i) = std::abs( *(csm.begin() + i) );
-
-		std::stringstream name_stream;
-		name_stream << "/media/sf_SharedFiles/test_mock_csm_" << dim[0] << "x" <<  dim[1] << "x" << dim[2]*dim[3];
-		data_io::write_raw<float>(name_stream.str(), csm_abs.begin(), csm_abs.getNumberOfDataElements());
-
-	}
-	catch( std::runtime_error const &e)
-	{
-		std::cout << "Exception caught in " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
-		throw e;
-	}
-	return true;
-
-}
 
 bool test_aux_test_funs::test_get_mock_gaussian_csm( void )
 {
@@ -119,39 +90,6 @@ bool test_aux_test_funs::test_get_mock_gaussian_csm( void )
 	}
 	return true;
 }
-
-bool test_aux_test_funs::test_get_mock_coildata_as_cfimage( void )
-{
-
-try
-	{
-		CoilDataAsCFImage csm = aux_test::get_mock_coildata_as_cfimage();
-		ISMRMRD::Image<complex_float_t> csm_image = csm.image();
-
-		int dim[4];
-		csm.get_dim(dim);
-
-		ISMRMRD::Image<float> csm_abs((size_t)dim[0], (size_t)dim[1], (size_t)dim[2], (size_t)dim[3]);
-		for( int i=0; i<csm_image.getNumberOfDataElements(); i++)			
-			*(csm_abs.begin() + i) = std::abs( *(csm_image.begin() + i) );
-
-
-		std::stringstream name_stream;
-		name_stream << "/media/sf_SharedFiles/test_mock_coildata_asscfimage_" << dim[0] << "x" <<  dim[1] << "x" << dim[2]*dim[3];
-
-		data_io::write_raw<float>(name_stream.str(), csm_abs.begin(), csm_abs.getNumberOfDataElements());
-
-	}
-	catch( std::runtime_error const &e)
-	{
-		std::cout << "Exception caught in " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
-		throw e;
-	}
-	return true;
-
-}
-
 
 bool test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube( void )
 {
