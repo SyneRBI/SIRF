@@ -22,8 +22,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_tissueparameters.h"
 #include "tests_contrastgenerator.h"
 #include "tests_phantom_input.h"
-#include "tests_encoding.h"
-#include "tests_mr_acquisition_model.h"
 #include "tests_dynamics.h"
 #include "tests_dynamicsimulation.h"
 #include "tests_noisegenerator.h"
@@ -59,19 +57,16 @@ void run_tests_auxiliary_testing_functions( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 	}
-
-
 }
 
 void run_tests_dynamics( void )
 {
-	
 
 	bool tests_successful = true;
 	std::vector< bool > dyn_tests;
@@ -137,7 +132,7 @@ void run_tests_dynamics( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -225,7 +220,7 @@ void run_tests_dynamic_simulation( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -246,7 +241,7 @@ void run_tests_noise_generator( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -272,7 +267,7 @@ void run_tests_auxiliary_input_output( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -310,7 +305,7 @@ void run_tests_tissueparameters(void)
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -415,7 +410,7 @@ void run_tests_contrastgenerator(void)
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -446,7 +441,7 @@ void run_tests_phantom_input( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -455,40 +450,6 @@ void run_tests_phantom_input( void )
 
 
 }
-
-void run_tests_encoding( void )
-{
-
-	bool tests_successful = true;
-
-	// tests_successful *= test_enc::test_cube_input();
-	// tests_successful *= CartesianEncodingTester::test_sample_fourier_space();
-	
-
-	// tests_successful *= RPETrajectoryPreparationTester::test_get_set_trajectory();
-	// tests_successful *= RPETrajectoryPreparationTester::test_get_result_container();
-
-	// tests_successful *= RPETester::test_sample_fourier_space();
-
-	tests_successful *= RPESuperInterleavedGoldenCutTester::test_compute_trajectory();
-
-	
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
-	}
-	else
-	{
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
-	}
-
-
-}
-
-
-
 
 void run_tests_dynsim_deformer( void )
 {
@@ -518,7 +479,7 @@ void run_tests_dynsim_deformer( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -539,7 +500,7 @@ void run_tests_volume_orientator( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{
@@ -565,7 +526,7 @@ void run_tests_memory_usage( void )
 	{
 		std::stringstream ss_msg;
 		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.c_str().str() );
+		throw std::runtime_error( ss_msg.str() );
 	}
 	else
 	{

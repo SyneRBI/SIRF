@@ -26,8 +26,6 @@ void run_tests_phantom_input( void );
 
 void run_tests_contrastgenerator( void );
 
-void run_tests_encoding( void );
-
 void run_tests_dynamics( void );
 
 void run_tests_dynamic_simulation( void );
