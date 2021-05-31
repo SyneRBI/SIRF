@@ -71,6 +71,7 @@ private:
 	void resample_to_template_image( void );
 	sirf::GadgetronImagesVector contrast_filled_volumes_;
 	IsmrmrdHeader hdr_;
+	std::shared_ptr<sirf::MRAcquisitionData> sptr_acqu_;
 
 };
 

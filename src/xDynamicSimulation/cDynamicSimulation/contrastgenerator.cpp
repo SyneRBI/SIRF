@@ -78,8 +78,7 @@ void MRContrastGenerator::map_contrast()
 {
 	this->tlm_.assign_tissues_to_labels();
 	this->contrast_filled_volumes_.empty()
-
-	this->contrast_filled_volumes_ = GadgetronImagesVector( )
+	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
 	
 	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr);
 
@@ -108,14 +107,10 @@ void MRContrastGenerator::map_contrast()
 
 	std::vector<std::vector< complex_float_t> > contrast_vector;
 	contrast_vector.resize(num_voxels);
-
 	
 	// #pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
-	{	
 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
-		
-	}
 
 	size_t const num_contrasts = contrast_vector[0].size();
 
@@ -132,28 +127,22 @@ void MRContrastGenerator::map_contrast()
 	size_t Ny = data_size[2];
 	size_t Nx = data_size[1];
 
-
-	ISMRMRD::Image< complex_float_t > contrast_img(Nx, Ny, Nz, 1);
-
-	for( size_t i_contrast = 0; i_contrast<num_contrasts; i_contrast++)
+	for(int i=0; i<this->contrast_filled_volumes_.number(); ++i)
 	{
-	
+		auto ptr_img = (CFImage*) contrast_filled_volumes_.sptr_image_wrap(i)->ptr_image();
+		ptr_img->resize(Nx, Ny, Nz, 1);
+		uint16_t const current_contast = ptr_img.getContrast();
+
 		// #pragma omp parallel
 		for( size_t nz=0; nz<Nz; nz++)
+		for( size_t ny=0; ny<Ny; ny++)
+		for( size_t nx=0; nx<Nx; nx++)
 		{
-			for( size_t ny=0; ny<Ny; ny++)
-			{
-				for( size_t nx=0; nx<Nx; nx++)
-				{
-					size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
-					std::vector<complex_float_t> curr_voxel = contrast_vector[linear_index_access];
-					contrast_img(nx, ny, nz, 0) = curr_voxel[i_contrast];						
-				}
-			}
+			size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
+			std::vector<complex_float_t> curr_voxel = contrast_vector[linear_index_access];
+			ptr_img->operator()(nx, ny, nz, 0) = curr_voxel[ current_contast ];						
 		}
-
-		contrast_img.setContrast(i_contrast);
-		this->contrast_filled_volumes_.push_back( contrast_img );
+		
 	}
 }
 
