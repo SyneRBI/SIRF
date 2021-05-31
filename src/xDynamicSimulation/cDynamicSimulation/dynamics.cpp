@@ -58,19 +58,18 @@ AcquisitionsVector intersect_mr_acquisition_data( AcquisitionsVector& one_dat, A
 
 	CounterBox one_counters, other_counters;
 
+	ISMRMRD::Acquisition acq;
 
 	for( size_t i=0; i<one_dat.items(); i++)
 	{
-		auto sptr_acq = one_dat.get_acquisition_sptr( i );
-		one_counters.push_back(sptr_acq->getHead().scan_counter);
+		one_dat.get_acquisition( i, acq );
+		one_counters.push_back(acq.getHead().scan_counter);
 	}
 
 	for( size_t i=0; i<other_dat.items(); i++)
 	{
-		ISMRMRD::Acquisition acq;
-
-		auto sptr_acq = other_dat.get_acquisition_sptr( i );
-		other_counters.push_back(sptr_acq->getHead().scan_counter);
+		other_dat.get_acquisition( i, acq );
+		other_counters.push_back(acq.getHead().scan_counter);
 	}
 	
 	std::sort(one_counters.begin(), one_counters.end() );
@@ -95,11 +94,12 @@ AcquisitionsVector intersect_mr_acquisition_data( AcquisitionsVector& one_dat, A
 
 	for( size_t i=0; i<smaller_data_container.items(); i++)
 	{
-		auto sptr_acq = smaller_data_container.get_acquisition_sptr( i );
-		uint32_t acquis_counter = sptr_acq->getHead().scan_counter;
+		ISMRMRD::Acquisition acq;
+		smaller_data_container.get_acquisition(i, acq);
+		uint32_t acquis_counter = acq.getHead().scan_counter;
 		if(std::find(intersected_counters.begin(), intersected_counters.end(), acquis_counter) != intersected_counters.end()) 
 		{
-			intersection.append_acquisition_sptr(sptr_acq);
+			intersection.append_acquisition(acq);
     	} 
 	}
 
@@ -676,8 +676,11 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 
 	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
 	time_ordered_acquisitions.sort_by_time();
-	TimeAxisType time_offset = SIRF_SCANNER_MS_PER_TIC * time_ordered_acquisitions.get_acquisition_sptr(0)->acquisition_time_stamp();
 
+	ISMRMRD::Acquisition acq;
+	time_ordered_acquisitions.get_acquisition(0, acq);
+
+	TimeAxisType time_offset = SIRF_SCANNER_MS_PER_TIC * acq.acquisition_time_stamp();
 
 	std::deque< size_t > relevant_acq_numbers;
 	std::deque< size_t > acq_not_binned;
@@ -700,9 +703,9 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 		{
 			auto curr_pos = relevant_acq_numbers[0];
 			relevant_acq_numbers.pop_front();	
-			
-			auto sptr_acq = all_acquisitions.get_acquisition_sptr( curr_pos );
-			auto acq_hdr = sptr_acq->getHead();
+			ISMRMRD::Acquisition acq;
+			all_acquisitions.get_acquisition( curr_pos, acq );
+			auto acq_hdr = acq.getHead();
 			
 			TimeAxisType acq_time = SIRF_SCANNER_MS_PER_TIC * (TimeAxisType)acq_hdr.acquisition_time_stamp - time_offset;
 			
@@ -755,10 +758,15 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 	time_ordered_acquisitions.sort_by_time(); 
 
 	size_t const num_acquis = time_ordered_acquisitions.number();	
+	ISMRMRD::Acquisition acq;
+	time_ordered_acquisitions.get_acquisition(num_acquis-1, acq);
+	float const t_fin = acq.acquisition_time_stamp;
 
-	TimeAxisType total_time = SIRF_SCANNER_MS_PER_TIC * (time_ordered_acquisitions.get_acquisition_sptr(num_acquis-1)->acquisition_time_stamp() -
-							   time_ordered_acquisitions.get_acquisition_sptr(0)->acquisition_time_stamp());
+	time_ordered_acquisitions.get_acquisition(0, acq);
+	float const t_start = acq.acquisition_time_stamp;
 
+	TimeAxisType total_time = SIRF_SCANNER_MS_PER_TIC * (t_fin - t_start);
+							   
 	std::vector< size_t > index_lims;
 
 	for( size_t i=0; i<this->num_simul_states_;i++)
@@ -780,8 +788,9 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 
 		for(size_t i=start_index; i<stop_index; i++)
 		{
-			auto sptr_acq = time_ordered_acquisitions.get_acquisition_sptr( i );
-			av.append_acquisition_sptr( sptr_acq );
+			ISRMRMD::Acquisition acq;
+			time_ordered_acquisitions.get_acquisition( i, acq );
+			av.append_acquisition_sptr( acq );
 		}
 		
 		this->binned_mr_acquisitions_.push_back( av );
@@ -1155,24 +1164,3 @@ void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData
 
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
