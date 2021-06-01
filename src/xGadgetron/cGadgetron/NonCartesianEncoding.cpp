@@ -59,7 +59,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 \author Johannes Mayer
 */
 
-#include "sirf/Gadgetron/noncartesian_encoding.h"
+#include "sirf/Gadgetron/NonCartesianEncoding.h"
 #include "sirf/Gadgetron/TrajectoryPreparation.h"
 
 using namespace sirf;

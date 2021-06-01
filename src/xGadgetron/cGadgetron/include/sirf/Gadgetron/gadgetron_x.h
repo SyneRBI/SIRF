@@ -50,7 +50,7 @@ limitations under the License.
 #include "sirf/Gadgetron/FourierEncoding.h"
 
 #if GADGETRON_TOOLBOXES_AVAILABLE
-    #include "sirf/Gadgetron/noncartesian_encoding.h"
+    #include "sirf/Gadgetron/NonCartesianEncoding.h"
 #endif
 
 #define N_TRIALS 5

@@ -61,7 +61,7 @@ set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
 if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
     MESSAGE(STATUS "The Gadgetron toolboxes required for radial gridding were found. Non-cartesian encoding will be compiled.")
     set(GADGETRON_TOOLBOXES_AVAILABLE TRUE)
-    set(CGADGETRON_SOURCES ${CGADGETRON_SOURCES} noncartesian_encoding.cpp)
+    set(CGADGETRON_SOURCES ${CGADGETRON_SOURCES} NonCartesianEncoding.cpp)
 
     if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
       add_definitions(-DGADGETRON_TOOLBOXES_AVAILABLE)
