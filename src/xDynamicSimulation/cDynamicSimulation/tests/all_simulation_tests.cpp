@@ -43,7 +43,7 @@ void run_apps(void)
 
 void run_tests_auxiliary_testing_functions( void )
 {
-
+		
 	bool tests_successful = true;
 
 	tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
@@ -53,7 +53,7 @@ void run_tests_auxiliary_testing_functions( void )
 	tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
 	tests_successful *= test_aux_test_funs::test_get_mock_gaussian_csm();
 
-
+	
 	if ( !tests_successful )
 	{
 		std::stringstream ss_msg;
@@ -487,18 +487,17 @@ void run_tests_dynsim_deformer( void )
 }
 
 
-int main( int argc, char *argv[] )
+
+int main ( int argc, char* argv[])
 {
-	std::cout << "Starting Simulation C++ tests... " <<std::endl;
-	try
-	{
+	try{
+		std::cout << "Starting Simulation C++ tests... " <<std::endl;
+
 		if(argc > 1)
-		{
-
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
-		}
+		
 
-		// run_tests_auxiliary_testing_functions();
+		run_tests_auxiliary_testing_functions();
 		// run_tests_auxiliary_input_output();
 		// run_tests_tissueparameters();
 		// run_tests_contrastgenerator();
@@ -512,19 +511,12 @@ int main( int argc, char *argv[] )
 		
 		// run_apps();		
 
-
-		return 0;
 	}
-
-	catch(const std::exception& e)
-	{	
-		std::cout << "Exception caught at highest level in main" << std::endl;
-		std::cout<< e.what() << '\n';			
-	}
-	catch(...)
-	{
-		std::cout<< "An exception of unknown type was caught. The tests failed." <<std::endl;	
-	}
-
-
+    catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
+
+
