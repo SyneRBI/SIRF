@@ -65,7 +65,7 @@ jobs:
       run: 
           cd ${GITHUB_WORKSPACE}/build;
           source ~/virtualenv/bin/activate;
-          source ~/install/bin/env_sirf.sh
+          source ~/install/bin/env_sirf.sh;
           cmake --build . -j 2;
     - name: tests
       shell: bash
