@@ -473,13 +473,9 @@ void PETContrastGenerator::resample_to_template_image( void )
 		const std::shared_ptr<const sirf::ImageData> sptr_deformed_img = resampler.get_output_sptr();
 
 		this->contrast_filled_volumes_[i] = sirf::STIRImageData( this->template_pet_image_data_ ); //constructor for STIRImageData from ImageData does not exist yet.
-		std::shared_ptr<sirf::STIRImageData> sptr_contrast_volume = std::move(this->contrast_filled_volumes_[i].clone());
 		
 		sptr_deformed_img->copy(sptr_deformed_img->begin(),
-								sptr_contrast_volume->begin(), 
-								sptr_contrast_volume->end());
-
-		// this->contrast_filled_volumes_[i].set_data( (float*)( deformed_img->get_raw_nifti_sptr()->data ) );
-
+								this->contrast_filled_volumes_[i].begin(), 
+								this->contrast_filled_volumes_[i].end());
 	}
 }
