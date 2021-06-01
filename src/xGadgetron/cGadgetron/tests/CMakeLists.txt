@@ -35,7 +35,7 @@ if (DOWNLOAD_ZENODO_TEST_DATA)
                 "a692ba3a6c456d1ad49750717a9d5dda")
 endif()
 
-OPTION(RERUN_ISMRMRD_SHEPP_LOGAN "Generate testdata compatible with ISMRMRD Version" OFF)
+OPTION(RERUN_ISMRMRD_SHEPP_LOGAN "Generate testdata compatible with ISMRMRD Version" ON)
 find_program(EXE_ISMRMRD_SL NAMES ismrmrd_generate_cartesian_shepp_logan
                 NAMES_PER_DIR
                 PATHS ${CMAKE_INSTALL_PREFIX})
