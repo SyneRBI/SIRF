@@ -322,7 +322,7 @@ namespace sirf {
         */
         std::vector<KSpaceSubset::SetType > get_kspace_order() const;
 
-        //! Function to get the all KSpaceSorting of the MRAcquisitionData
+        //! Function to get the all KSpaceSubset's of the MRAcquisitionData
         std::vector<KSpaceSubset> get_kspace_sorting() const { return this->sorting_; }
 
         //! Function to go through Acquisitions and assign them to their k-space dimension
@@ -876,7 +876,7 @@ namespace sirf {
 
 		GadgetronImagesVector() : images_()
 		{}
-		GadgetronImagesVector(const MRAcquisitionData& ad);
+		GadgetronImagesVector(const MRAcquisitionData& ad, const bool coil_resolved=false);
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
