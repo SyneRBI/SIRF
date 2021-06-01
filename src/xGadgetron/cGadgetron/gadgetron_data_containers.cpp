@@ -1224,41 +1224,10 @@ GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
     this->set_up_geom_info();
 }
 
-GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad, const bool coil_resolved)
+GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad)
 {
-
     set_meta_data(ad.acquisitions_info());
     this->set_up_geom_info();
-
-    ISMRMRD::IsmrmrdHeader hdr = ad.acquisitions_info().get_IsmrmrdHeader();
-
-    unsigned int const num_coil_channels = coil_resolved ? hdr.acquisitionSystemInformation.get().receiverChannels.get() : 1;
-
-    std::vector<ISMRMRD::Encoding> enc_vec = hdr.encoding;
-    ISMRMRD::Encoding enc = enc_vec[0];
-    ISMRMRD::EncodingSpace rec_space = enc.reconSpace;
-
-    ISMRMRD::MatrixSize rawdata_recon_matrix = rec_space.matrixSize;
-    ISMRMRD::FieldOfView_mm rawdata_recon_FOV = rec_space.fieldOfView_mm;
-    
-    auto sort_idx = ad.get_kspace_order();
-
-    ISMRMRD::Acquisition acq;
-
-    for(int i=0; i<sort_idx.size(); ++i)
-    {
-
-        CFImage img(rawdata_recon_matrix.x, rawdata_recon_matrix.y, rawdata_recon_matrix.z, num_coil_channels);
-        img.setFieldOfView(rawdata_recon_FOV.x, rawdata_recon_FOV.y, rawdata_recon_FOV.z);
-
-        sirf::AcquisitionsVector subset; // subset container must be empty so it is created inside the loop scope
-        ad.get_subset(subset, sort_idx[i]);
-        // all subsets are self-consistent and non-empty so it suffices to populate img header from the 0st acquisition
-        subset.get_acquisition(0, acq);
-        match_img_header_to_acquisition(img, acq);
-
-        this->append(img);
-    }
 }    
 
 

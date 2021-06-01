@@ -144,7 +144,7 @@ void RPEFourierEncoding::backward(CFImage& img, const MRAcquisitionData& ac) con
     ISMRMRD::Acquisition acq;
     ac.get_acquisition(0,acq);
 
-    sirf::match_img_header_to_acquisition(img, acq);
+    this->match_img_header_to_acquisition(img, acq);
 }
 
 void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) const
