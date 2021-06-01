@@ -101,8 +101,6 @@ protected:
 
 };
 
-using namespace Gadgetron;
-
 typedef Gadgetron::hoNDArray<std::complex<float> > CFGThoNDArr;
 
 /*!
@@ -116,8 +114,8 @@ class Gridder_2D
 {
 public:
 
-    Gridder_2D(const std::vector<size_t> img_output_dims, const GadgetronTrajectoryType2D &traj) : nufft_operator_(from_std_vector<size_t, 2>(img_output_dims), (float)this->oversampling_factor_, (float)this->kernel_size_)
-
+    Gridder_2D(const std::vector<size_t> img_output_dims, const GadgetronTrajectoryType2D &traj) : 
+    nufft_operator_(Gadgetron::from_std_vector<size_t, 2>(img_output_dims), (float)this->oversampling_factor_, (float)this->kernel_size_)
     {
         setup_nufft(img_output_dims, traj);
     }
