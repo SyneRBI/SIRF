@@ -67,21 +67,16 @@ float GaussianNoiseGenerator::noise_width_from_snr( AcquisitionsVector& acquisit
 	if( num_acquistions <= 0)
 		return 0.f;
 
-	auto sptr_acquis = acquisition_vector.get_acquisition_sptr(0);
-	float const suggested_noise_width = this->noise_width_img_;// / sqrt ( num_acquistions * sptr_acquis->number_of_samples() );
+	float const suggested_noise_width = this->noise_width_img_;
 
 	return suggested_noise_width;
 }
 
 void GaussianNoiseGenerator::add_noise_to_data( AcquisitionsVector& acquisition_vector ) 
 {
-	std::cout << "Adding noise of width " << this->noise_width_kspace_ <<std::endl;
-
-	std::cout << "Adding noise ..." ;
-	acquisition_vector.set_as_template();
+	std::cout << "Adding gaussian noise of width " << this->noise_width_kspace_ <<std::endl;
 
 	std::default_random_engine generator;
-	
 	generator.seed(this->generate_pseudo_seed());
 
 
@@ -89,11 +84,12 @@ void GaussianNoiseGenerator::add_noise_to_data( AcquisitionsVector& acquisition_
 
 	for( size_t i_acq=0; i_acq<acquisition_vector.number(); i_acq++)
 	{
-		auto sptr_acquis = acquisition_vector.get_acquisition_sptr( i_acq );
+		ISMRMRD::Acquisition acq;
+		acquisition_vector.get_acquisition( i_acq, acq);
 
-		for(size_t i_data_point=0; i_data_point<sptr_acquis->getNumberOfDataElements(); i_data_point++)
+		for(size_t i_data_point=0; i_data_point<acq.getNumberOfDataElements(); i_data_point++)
 		{
-			*(sptr_acquis->getDataPtr() + i_data_point) +=   complex_float_t(gaussian_distribution(generator), gaussian_distribution(generator)) / this->sequence_specific_scaling_;	
+			*(acq.getDataPtr() + i_data_point) +=   complex_float_t(gaussian_distribution(generator), gaussian_distribution(generator)) / this->sequence_specific_scaling_;	
 		}
 	}
 
