@@ -477,8 +477,6 @@ bool test_rpe_bwd(MRAcquisitionData& av)
         throw;
     }
 }
-#endif
-
 
 bool test_rpe_fwd(MRAcquisitionData& av)
 {
