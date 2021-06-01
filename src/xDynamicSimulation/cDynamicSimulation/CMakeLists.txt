@@ -42,7 +42,8 @@ TARGET_INCLUDE_DIRECTORIES(cdynamicsimulation PUBLIC
 )
 
 target_include_directories(cdynamicsimulation PUBLIC "${HDF5_INCLUDE_DIRS}")
-target_link_libraries(cdynamicsimulation iutilities)
+
+target_link_libraries(cdynamicsimulation ISMRMRD::ISMRMRD iutilities cgadgetron cstir Reg "${HDF5_LIBRARIES}" ${HDF5_CXX_LIBRARIES})
 
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
@@ -60,12 +61,5 @@ endif()
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
 # a list of filenames with spaces. There doesn't seem to be a way to pass this through (strange).
 # Luckily, we know what libraries it uses
-target_link_libraries(cdynamicsimulation cgadgetron)
-target_link_libraries(cdynamicsimulation cstir)
-target_link_libraries(cdynamicsimulation Reg)
-
-target_link_libraries(cdynamicsimulation ismrmrd)
-target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
-target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
 add_subdirectory(tests)
