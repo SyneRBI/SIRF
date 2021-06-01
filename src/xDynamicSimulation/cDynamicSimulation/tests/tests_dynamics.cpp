@@ -595,7 +595,7 @@ bool test_dynamic::test_nonisotropic_mvf_resampling( void )
 
 
 
-		NiftyResample<float> resampler;
+		NiftyResampler<float> resampler;
 
 	    resampler.set_interpolation_type_to_cubic_spline();
 		// resampler.set_reference_image(std::make_shared< NiftiImageData3DDisplacement<float> >(dst_mvf));

@@ -101,7 +101,7 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 
     auto sptr_img_to_deform = std::make_shared< NiftiImageData3D<float> >(img.getDataPtr(), *sptr_geometrical_info);
 
-	NiftyResample<float> resampler;
+	NiftyResampler<float> resampler;
 
     resampler.set_interpolation_type_to_cubic_spline();
 	resampler.set_reference_image(sptr_img_to_deform);
@@ -170,7 +170,7 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
 
 	}
 
-    NiftyResample<float> resampler;
+    NiftyResampler<float> resampler;
 
     resampler.set_interpolation_type_to_cubic_spline();
 

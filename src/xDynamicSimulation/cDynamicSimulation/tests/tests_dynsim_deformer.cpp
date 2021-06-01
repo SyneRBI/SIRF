@@ -44,7 +44,7 @@ try
 		std::stringstream sstream_output; 
 		sstream_output << SHARED_FOLDER_PATH <<"/" << output_name <<"_state_" << i;
 
-		NiftyResample<float> resampler;
+		NiftyResampler<float> resampler;
 
 	    resampler.set_interpolation_type_to_cubic_spline();
 		resampler.set_reference_image(sptr_img_to_deform);
