@@ -59,6 +59,8 @@ def main():
     input_file = existing_filepath(data_path, data_file)
     #
     # acquisition data will be read from an HDF file input_file
+    AcquisitionData.set_storage_scheme('memory')
+
     acq_data = AcquisitionData(input_file)
     #
     # pre-process acquisition data

@@ -47,6 +47,12 @@ limitations under the License.
 #include "sirf/Gadgetron/gadget_lib.h"
 #include "sirf/Gadgetron/ismrmrd_fftw.h"
 
+#include "sirf/Gadgetron/FourierEncoding.h"
+
+#if GADGETRON_TOOLBOXES_AVAILABLE
+    #include "sirf/Gadgetron/NonCartesianEncoding.h"
+#endif
+
 #define N_TRIALS 5
 
 namespace sirf {
@@ -366,24 +372,25 @@ namespace sirf {
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic
-			) : sptr_acqs_(sptr_ac) //, sptr_imgs_(sptr_ic)
+			)
 		{
-			set_image_template(sptr_ic);
+            this->set_up(sptr_ac, sptr_ic);
 		}
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
 			gadgetron::shared_ptr<GadgetronImageData> sptr_ic,
 			gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms,
 			std::string acqs_info
-			) : sptr_acqs_(sptr_ac), sptr_csms_(sptr_csms), acqs_info_(acqs_info)
+			) : sptr_csms_(sptr_csms), acqs_info_(acqs_info)
 		{
-			set_image_template(sptr_ic);
+			this->set_up(sptr_ac, sptr_ic);
 		}
 		
 		float norm()
 		{
 			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am
 				(new MRAcquisitionModel(sptr_acqs_, sptr_imgs_, sptr_csms_, acqs_info_));
+
 			BFOperator bf(sptr_am);
 			JacobiCG<complex_float_t> jcg;
 			jcg.set_num_iterations(2);
@@ -411,42 +418,20 @@ namespace sirf {
 			sptr_imgs_ = sptr_ic;
 		}
 		// Records the coil sensitivities maps to be used. 
-        void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms)
+        void set_csm(gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms)
 		{
 			sptr_csms_ = sptr_csms;
 		}
 
+        void set_encoder(gadgetron::shared_ptr<sirf::FourierEncoding> sptr_enc)
+        {
+            sptr_enc_ = sptr_enc;
+        }
+
 		// Records templates
-		void set_up
-			(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
-			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
-		{
-			sptr_acqs_ = sptr_ac;
-			set_image_template(sptr_ic);
-			//sptr_imgs_ = sptr_ic;
-		}
-
-		// Forward projects one image item (typically xy-slice) into
-		// respective readouts, and appends them to the AcquisitionContainer
-		// passed as the last argument.
-        void fwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
-			unsigned int& off)
-		{
-			int type = iw.type();
-			void* ptr = iw.ptr_image();
-			IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, csm, ac, off);
-		}
-
-		// Backprojects a set of readouts corresponding to one image item
-		// (typically xy-slice).
-        void bwd(ImageWrap& iw, CFImage& csm, MRAcquisitionData& ac,
-			unsigned int& off)
-		{
-			int type = iw.type();
-			void* ptr = iw.ptr_image();
-			IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, csm, ac, off);
-		}
-
+		void set_up(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
+			gadgetron::shared_ptr<GadgetronImageData> sptr_ic);
+		
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
         void fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
@@ -454,32 +439,32 @@ namespace sirf {
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps in the second argument.
-        void bwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
-			MRAcquisitionData& ac);
+        void bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& cc,
+            const MRAcquisitionData& ac);
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps referred to by sptr_csms_.
 		gadgetron::shared_ptr<MRAcquisitionData> fwd(GadgetronImageData& ic)
 		{
-			if (!sptr_acqs_.get())
+
+            if (!sptr_acqs_.get())
 				throw LocalisedException
-				("acquisition data template not set", __FILE__, __LINE__);
+				("Acquisition data template not set", __FILE__, __LINE__);
 			if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 				throw LocalisedException
-				("coil sensitivity maps not found", __FILE__, __LINE__);
+				("Coil sensitivity maps not found", __FILE__, __LINE__);
 			check_data_role(ic);
-			gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs =
-				sptr_acqs_->new_acquisitions_container();
-			sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
-			fwd(ic, *sptr_csms_, *sptr_acqs);
-			sptr_acqs->set_sorted(true);
-			sptr_acqs->organise_kspace();
-			return sptr_acqs;
+            gadgetron::unique_ptr<MRAcquisitionData> uptr_acqs =
+                sptr_acqs_->clone();
+
+            fwd(ic, *sptr_csms_, *uptr_acqs);
+
+            return std::shared_ptr<MRAcquisitionData>(std::move(uptr_acqs));
 		}
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps referred to by sptr_csms_.
-		gadgetron::shared_ptr<GadgetronImageData> bwd(MRAcquisitionData& ac)
+        gadgetron::shared_ptr<GadgetronImageData> bwd(const MRAcquisitionData& ac)
 		{
 			if (!sptr_imgs_.get())
 				throw LocalisedException
@@ -498,13 +483,7 @@ namespace sirf {
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_imgs_;
         gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms_;
-
-		template< typename T>
-        void fwd_(ISMRMRD::Image<T>* ptr_img, CFImage& csm,
-			MRAcquisitionData& ac, unsigned int& off);
-		template< typename T>
-        void bwd_(ISMRMRD::Image<T>* ptr_im, CFImage& csm,
-			MRAcquisitionData& ac, unsigned int& off);
+        gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
 	};
 
 }

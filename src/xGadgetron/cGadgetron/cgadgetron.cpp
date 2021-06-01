@@ -37,6 +37,13 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/Gadgetron/gadget_lib.h"
 #include "sirf/Gadgetron/chain_lib.h"
+#include "sirf/Gadgetron/TrajectoryPreparation.h"
+// #include "sirf/Gadgetron/FourierEncoding.h"
+
+#if GADGETRON_TOOLBOXES_AVAILABLE
+    #include "sirf/Gadgetron/NonCartesianEncoding.h"
+#endif
+
 
 using namespace gadgetron;
 using namespace sirf;
@@ -355,7 +362,7 @@ cGT_setAcquisitionModelParameter
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 			shared_ptr<CoilSensitivitiesVector> sptr_csc;
 			getObjectSptrFromHandle<CoilSensitivitiesVector>(handle, sptr_csc);
-			am.setCSMs(sptr_csc);
+			am.set_csm(sptr_csc);
 		}
 		else
 			return unknownObject("parameter", name, __FILE__, __LINE__);
@@ -374,7 +381,7 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 		shared_ptr<CoilSensitivitiesVector> sptr_csms;
 		getObjectSptrFromHandle<CoilSensitivitiesVector>(h_csms, sptr_csms);
-		am.setCSMs(sptr_csms);
+		am.set_csm(sptr_csms);
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -508,6 +515,29 @@ cGT_createEmptyAcquisitionData(void* ptr_ad)
 		return newObjectHandle<MRAcquisitionData>(sptr_ac);
 	}
 	CATCH;
+}
+
+extern "C"
+void*
+cGT_getAcquisitionsSubset(void* ptr_acqs, size_t ptr_idx, size_t const num_elem_subset)
+{
+    try {
+        MRAcquisitionData& ad =
+            objectFromHandle<MRAcquisitionData>(ptr_acqs);
+        shared_ptr<MRAcquisitionData> sptr_subset = ad.new_acquisitions_container();
+
+        int* idx = (int*)ptr_idx;
+
+        std::vector<int> vec_idx(num_elem_subset);
+        for(size_t i=0; i<num_elem_subset; ++i)
+            vec_idx.at(i) = *(idx+i);
+
+        ad.get_subset(*sptr_subset.get(), vec_idx);
+        sptr_subset->sort();
+
+        return newObjectHandle<MRAcquisitionData>(sptr_subset);
+    }
+    CATCH;
 }
 
 extern "C"
@@ -715,6 +745,66 @@ cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
 	}
 	CATCH;
 
+}
+
+extern "C"
+void*
+cGT_setGRPETrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        GRPETrajectoryPrep rpe_prep;
+        rpe_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+
+}
+
+extern "C"
+void*
+cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* fltptr_traj = (float*) ptr_traj;
+		
+		SIRFTrajectoryType2D traj;
+		
+		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+			traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+    	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+			traj = sirf::GRPETrajectoryPrep::get_trajectory(acqs);
+        
+        memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(std::pair<float, float>));
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+
+extern "C"
+void* cGT_setAcquisitionUserFloat(void* ptr_acqs, size_t ptr_floats, int idx)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* user_data = (float*) ptr_floats;
+        acqs.set_user_floats(user_data, idx);
+
+        return new DataHandle;
+    }
+    CATCH;
 }
 
 extern "C"

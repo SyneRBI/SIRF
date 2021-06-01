@@ -30,27 +30,35 @@ limitations under the License.
 
 #include <iostream>
 #include <cstdlib>
+#include <numeric>
+#include <vector>
+#include <random>
 
+#include <ismrmrd/xml.h>
+
+#include "sirf/Gadgetron/chain_lib.h"
+
+#include "sirf/common/DataContainer.h"
 #include "sirf/common/getenv.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
-#include "sirf/Gadgetron/chain_lib.h"
+
+#include "sirf/Gadgetron/FourierEncoding.h"
+#include "sirf/Gadgetron/TrajectoryPreparation.h"
 
 #include "mrtest_auxiliary_funs.h"
 
 using namespace sirf;
 
-bool test_get_kspace_order(const std::string& fname_input)
+bool const mr_cpp_tests_writefiles = true;
+
+bool test_get_kspace_order(const MRAcquisitionData& av)
 {
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
 
-        sirf::AcquisitionsVector av_slice;
-        av_slice.read(fname_input);
-        av_slice.sort();
-
-        auto kspace_sorting_slice = av_slice.get_kspace_order();
+        auto kspace_sorting_slice = av.get_kspace_order();
 
         return true;
 
@@ -63,14 +71,11 @@ bool test_get_kspace_order(const std::string& fname_input)
     }
 }
 
-bool test_get_subset(const std::string& fname_input)
+bool test_get_subset(const MRAcquisitionData& av)
 {
     try
     {
         std::cout << "Running test " << __FUNCTION__ << std::endl;
-
-        sirf::AcquisitionsVector av;
-        av.read(fname_input);
 
         std::vector<int> subset_idx;
         for(int i=0; i<av.number()/10; ++i)
@@ -90,7 +95,48 @@ bool test_get_subset(const std::string& fname_input)
     }
 }
 
-bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
+bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
+{
+     try
+    {
+        using namespace ISMRMRD;
+
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        GadgetronImagesVector iv(av);
+        
+        bool test_successful = true;
+
+        //
+        int const num_images = iv.number();
+        int const num_kspace_dims = av.get_kspace_sorting().size();
+        test_successful *= (num_images == num_kspace_dims);
+
+
+        //
+        std::vector<Encoding> enc_vec = av.acquisitions_info().get_IsmrmrdHeader().encoding;
+        Encoding enc = enc_vec[0];
+        EncodingSpace rec_space = enc.reconSpace;
+
+        MatrixSize rawdata_recon_matrix = rec_space.matrixSize;
+        FieldOfView_mm rawdata_recon_FOV = rec_space.fieldOfView_mm;
+
+        if(test_successful)
+            return test_successful;
+        else{
+            throw std::runtime_error("The test for images from acquisition data failed.");                
+        }
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_CoilSensitivitiesVector_calculate( MRAcquisitionData& av)
 {
     try
     {
@@ -102,15 +148,8 @@ bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
 
         std::cout << "We have " << csv.items() << " coilmaps" << std::endl;
 
-        for(int i=0; i<csv.items(); ++i)
-        {
-            gadgetron::shared_ptr<ImageWrap> sptr_iw = csv.sptr_image_wrap(i);
-
-            std::stringstream fname_out;
-            fname_out << "output_" << __FUNCTION__ << "_" << i;
-
-            sirf::write_cfimage_to_raw(fname_out.str(), *sptr_iw);
-        }
+        if(mr_cpp_tests_writefiles)
+            sirf::write_imagevector_to_raw(__FUNCTION__, csv);
 
         return true;
 
@@ -123,7 +162,7 @@ bool test_CoilSensitivitiesVector_calculate(const MRAcquisitionData& av)
     }
 }
 
-bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av)
+bool test_CoilSensitivitiesVector_get_csm_as_cfimage(MRAcquisitionData& av)
 {
     try
     {
@@ -138,10 +177,12 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av
         {
             CFImage img = csv.get_csm_as_cfimage(i);
 
-            std::stringstream fname_out;
-            fname_out << "output_" << __FUNCTION__ << "_" << i;
-
-            sirf::write_cfimage_to_raw(fname_out.str(), img);
+            if(mr_cpp_tests_writefiles)
+            {
+                std::stringstream fname_out;
+                fname_out << "output_" << __FUNCTION__ << "_" << i;
+                sirf::write_cfimage_to_raw(fname_out.str(), img);
+            }
         }
 
         return true;
@@ -155,162 +196,449 @@ bool test_CoilSensitivitiesVector_get_csm_as_cfimage(const MRAcquisitionData& av
     }
 }
 
+bool test_acq_mod_adjointness(MRAcquisitionData& ad)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+        std::cout << "Assessing if operator E is adjoint by comparing <Eh k, i> and <k, E i> <>" << std::endl;        
+        std::cout << "where E is the MR acquisition model, k is k-space data and i is a random complex image." << std::endl;        
+
+        // setup the acquisition model                 
+        sirf::MRAcquisitionModel AM = sirf::get_prepared_MRAcquisitionModel(ad);
+        
+        auto sptr_bwd = AM.bwd(ad);
+
+        sirf::Dimensions dims = sptr_bwd->dimensions();
+
+        // generate a random image to project onto
+        int const num_total_pixels = dims["x"]*dims["y"]*dims["z"]*dims["c"]*dims["n"];
+
+        std::default_random_engine generator;
+        std::normal_distribution<float> distribution(0.0,1.0);
+
+        std::vector<complex_float_t> random_data;
+        for(int i=0; i<num_total_pixels; ++i)
+        {
+            float const real_part = distribution(generator);
+            float const imag_part = distribution(generator);
+            complex_float_t curr_number = std::complex<float>(real_part, imag_part);
+            random_data.push_back(curr_number);
+        }
+
+        std::shared_ptr<ISMRMRDImageData> sptr_random = std::move(sptr_bwd->clone());
+        sptr_random->set_data(&random_data[0]);
+
+        complex_float_t Eh_kdat_Dot_img;
+        sptr_bwd->dot(*sptr_random, &Eh_kdat_Dot_img);
+
+        auto sptr_fwd = AM.fwd(*sptr_random);
+
+        complex_float_t E_img_Dot_kdat;
+        ad.dot(*sptr_fwd, &E_img_Dot_kdat);
+
+        std::cout << "Backward kdata dot random image: " << Eh_kdat_Dot_img << std::endl;
+        std::cout << "Forward random image dot kdata : " << E_img_Dot_kdat  << std::endl;
+
+        float const order_of_magnitude = std::min( std::abs(Eh_kdat_Dot_img), std::abs(E_img_Dot_kdat));
+        float const diff_in_scalar_prod = std::abs(Eh_kdat_Dot_img - E_img_Dot_kdat);
+        float const tolerance = 0.0001;
+        
+        std::cout <<"Level of non-adjointness is given by: |<Eh k, i> - <k, E i> <>|/max(|<Eh k, i>,<k, E i> <>|) = " <<  diff_in_scalar_prod/order_of_magnitude << std::endl;
+        std::cout <<"Accepting a relative tolerance of " << tolerance << std::endl;
+        
+        bool ok = diff_in_scalar_prod/order_of_magnitude < tolerance;
+    
+        return ok;
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
 bool test_acq_mod_norm(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
 {
-    MRAcquisitionData& ad = *sptr_ad;
-    int acq_dim[10];
-    ad.get_acquisitions_dimensions((size_t)acq_dim);
-    std::cout << "acquisitions dimensions: "
-              << acq_dim[0] << " by "
-              << acq_dim[1] << " by "
-              << acq_dim[2] << '\n';
 
-    gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csv
-        (new CoilSensitivitiesVector);
-    CoilSensitivitiesVector& csv = *sptr_csv;
-    csv.calculate(ad);
+try
+    {   
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
 
-    gadgetron::shared_ptr<GadgetronImageData> sptr_id;
-    gadgetron::shared_ptr<GadgetronImageData> sptr;
-    if (ad.undersampled()) {
-        std::cout << "found undersampled data\n";
-        SimpleGRAPPAReconstructionProcessor recon;
-        std::cout << "reconstructing...\n";
-        recon.process(ad);
-        sptr_id = recon.get_output();
-        sptr_id = sptr_id->clone("GADGETRON_DataRole", "image");
+        MRAcquisitionModel AM = sirf::get_prepared_MRAcquisitionModel(*sptr_ad);
+
+        std::cout << "Back projection ... "<< std::endl;
+        auto sptr_bwd = AM.bwd(*sptr_ad);
+        std::cout << "Forward projection ... "<< std::endl;
+        auto sptr_fwd = AM.fwd(*sptr_bwd);
+
+        float im_norm = sptr_bwd->norm();
+        float sd_norm = sptr_fwd->norm();
+
+        AM.set_up(sptr_fwd, sptr_bwd);
+        
+        std::cout << "AM norm calculation ... " << std::endl;
+        float am_norm = AM.norm();
+
+        std::cout << "\nChecking the acquisition model norm:\n";
+        std::cout << "acquisition model norm: |A| = " << am_norm << '\n';
+        std::cout << "image data x norm: |x| = " << im_norm << '\n';
+        std::cout << "simulated acquisition data norm: |A(x)| = " << sd_norm << '\n';
+        std::cout << "checking that |A(x)| <= |A||x|: ";
+        float bound = am_norm*im_norm;
+        bool ok = (sd_norm <= bound);
+        if (ok)
+            std::cout << sd_norm << " <= " << bound << " ok!\n";
+        else
+            std::cout << sd_norm << " > " << bound << " failure!\n";
+
+        return ok;
+        
     }
-    else {
-        std::cout << "found fully sampled data\n";
-        SimpleReconstructionProcessor recon;
-        std::cout << "reconstructing...\n";
-        recon.process(ad);
-        sptr_id = recon.get_output();
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
     }
-
-    GadgetronImageData& image = *sptr_id;
-    int img_dim[10];
-    int ni = image.number();
-    image.get_image_dimensions(0, img_dim);
-    std::cout << ni << " images reconstructed\n";
-    std::cout << "image dimensions: "
-              << img_dim[0] << " by "
-              << img_dim[1] << " by "
-              << img_dim[2] << " by "
-              << img_dim[3] << '\n';
-
-    MRAcquisitionModel am;
-    am.set_up(sptr_ad, sptr_id);
-    am.setCSMs(sptr_csv);
-    std::cout << "forward projectiong...\n";
-    gadgetron::shared_ptr<MRAcquisitionData> sptr_sd = am.fwd(image);
-    MRAcquisitionData& sd = *sptr_sd;
-    sd.get_acquisitions_dimensions((size_t)acq_dim);
-    std::cout << "simulated acquisitions dimensions: "
-              << acq_dim[0] << " by "
-              << acq_dim[1] << " by "
-              << acq_dim[2] << '\n';
-
-    float im_norm = image.norm();
-    float sd_norm = sd.norm();
-    float am_norm = am.norm();
-    std::cout << "\nchecking the acquisition model norm:\n";
-    std::cout << "acquisition model norm: |A| = " << am_norm << '\n';
-    std::cout << "image data x norm: |x| = " << im_norm << '\n';
-    std::cout << "simulated acquisition data norm: |A(x)| = " << sd_norm << '\n';
-    std::cout << "checking that |A(x)| <= |A||x|: ";
-    float bound = am_norm*im_norm;
-    bool ok = (sd_norm <= bound);
-    if (ok)
-        std::cout << sd_norm << " <= " << bound << " ok!\n";
-    else
-        std::cout << sd_norm << " > " << bound << " failure!\n";
-
-    return ok;
 }
 
-#include <ismrmrd/ismrmrd.h>
-
-void edit_acq(const char* in, const char* out)
+bool test_bwd(MRAcquisitionData& av)
 {
-	std::string SIRF_PATH = sirf::getenv("SIRF_PATH");
-	std::string path_in = SIRF_PATH + in;
-	std::string path_out = out;
-	gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
-	AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
-	av.read(path_in);
-	int na = av.number();
-	std::cout << na << " acquisitions read from " << path_in << '\n';
-	int acq_dim[10];
-	av.get_acquisitions_dimensions((size_t)acq_dim);
-	std::cout << "acquisitions dimensions: "
-		<< acq_dim[0] << " by "
-		<< acq_dim[1] << " by "
-		<< acq_dim[2] << '\n';
-	ISMRMRD::Acquisition acq;
-	for (int i = 0; i < na; i++) {
-		av.get_acquisition(i, acq);
-		float* read_dir = acq.read_dir();
-		float* phase_dir = acq.phase_dir();
-		float* slice_dir = acq.slice_dir();
-		if (i == 0) {
-			std::cout << "in:\n";
-			std::cout << read_dir[0] << ',' << read_dir[1] << ',' << read_dir[2] << '\n';
-			std::cout << phase_dir[0] << ',' << phase_dir[1] << ',' << phase_dir[2] << '\n';
-			std::cout << slice_dir[0] << ',' << slice_dir[1] << ',' << slice_dir[2] << '\n';
-		}
-		read_dir[0] = 1.0f;
-		read_dir[1] = 0.0f;
-		read_dir[2] = 0.0f;
-		phase_dir[0] = 0.0f;
-		phase_dir[1] = 1.0f;
-		phase_dir[2] = 0.0f;
-		slice_dir[0] = 0.0f;
-		slice_dir[1] = 0.0f;
-		slice_dir[2] = 1.0f;
-		if (i == 0) {
-			std::cout << "out:\n";
-			std::cout << read_dir[0] << ',' << read_dir[1] << ',' << read_dir[2] << '\n';
-			std::cout << phase_dir[0] << ',' << phase_dir[1] << ',' << phase_dir[2] << '\n';
-			std::cout << slice_dir[0] << ',' << slice_dir[1] << ',' << slice_dir[2] << '\n';
-		}
-		av.set_acquisition(i, acq);
-	}
-	std::cout << "saving edited acquisition data to " << out << "...";
-	av.write(out);
-	std::cout << "done\n";
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        sirf::GadgetronImagesVector img_vec;
+        sirf::MRAcquisitionModel acquis_model;
+
+        sirf::CoilSensitivitiesVector csm;
+        csm.calculate(av);
+
+        auto sptr_encoder = std::make_shared<sirf::CartesianFourierEncoding>(sirf::CartesianFourierEncoding());
+        acquis_model.set_encoder(sptr_encoder);
+
+        acquis_model.bwd(img_vec, csm, av);
+
+        if(mr_cpp_tests_writefiles)
+            sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
 }
+
+
+bool test_TrajectoryPreparation_constructors( void )
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        sirf::GRPETrajectoryPrep rpe_tp;
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+
+
+bool test_set_rpe_trajectory(AcquisitionsVector av)
+{
+    try
+    {
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+        sirf::GRPETrajectoryPrep rpe_tp;
+
+        rpe_tp.set_trajectory(av);
+
+        if(mr_cpp_tests_writefiles)
+        {
+            std::stringstream fname_output;
+            fname_output << "output_" << __FUNCTION__ << ".h5";
+            av.write(fname_output.str());
+        }
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+#ifdef GADGETRON_TOOLBOXES_AVAILABLE
+#warning "INCLUDING THE RADIAL TESTS INTO THE C++ TESTS"
+bool test_rpe_csm(MRAcquisitionData& av)
+{
+    try
+    {
+       std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+
+       sirf::GRPETrajectoryPrep rpe_tp;
+       rpe_tp.set_trajectory(av);
+
+       sirf::CoilSensitivitiesVector csm;
+       csm.set_csm_smoothness(50);
+       csm.calculate(av);
+
+       if(mr_cpp_tests_writefiles)
+           sirf::write_imagevector_to_raw(__FUNCTION__, csm);
+       return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+
+bool test_rpe_bwd(MRAcquisitionData& av)
+{
+    try
+    {
+       std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+
+       sirf::GRPETrajectoryPrep rpe_tp;
+       rpe_tp.set_trajectory(av);
+
+
+       sirf::GadgetronImagesVector img_vec;
+       img_vec.set_meta_data(av.acquisitions_info());
+
+       if(!av.sorted())
+           av.sort();
+
+       auto sort_idx = av.get_kspace_order();
+
+       auto sptr_enc = std::make_shared< RPEFourierEncoding > (RPEFourierEncoding());
+
+       for(int i=0; i<sort_idx.size(); ++i)
+       {
+           sirf::AcquisitionsVector subset;
+           av.get_subset(subset, sort_idx[i]);
+
+           CFImage* ptr_img = new CFImage();// god help me I don't trust this!
+           ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, ptr_img);
+
+           sptr_enc->backward(*ptr_img, subset);
+
+           
+
+           img_vec.append(iw);
+
+       }
+
+       if(mr_cpp_tests_writefiles)
+           sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
+
+
+       return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_rpe_fwd(MRAcquisitionData& av)
+{
+    try
+    {
+       std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+       sirf::GRPETrajectoryPrep rpe_tp;
+       rpe_tp.set_trajectory(av);
+
+       sirf::GadgetronImagesVector img_vec;
+       img_vec.set_meta_data(av.acquisitions_info());
+
+       if(!av.sorted())
+           av.sort();
+
+       auto sort_idx = av.get_kspace_order();
+       auto sptr_enc = std::make_shared< RPEFourierEncoding > (RPEFourierEncoding());
+
+       for(int i=0; i<sort_idx.size(); ++i)
+       {
+           sirf::AcquisitionsVector subset;
+           av.get_subset(subset, sort_idx[i]);
+
+           CFImage* ptr_img = new CFImage();
+           ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, ptr_img);
+
+           sptr_enc->backward(*ptr_img, subset);
+
+           img_vec.append(iw);
+
+           sptr_enc->forward(subset, *ptr_img);
+
+           sptr_enc->backward(*ptr_img, subset);
+
+           CFImage* ptr_img_bfb = new CFImage(*ptr_img);// god help me I don't trust this!
+           ImageWrap iw_bfb(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, ptr_img_bfb);
+           
+           img_vec.append(iw_bfb);
+
+           av.set_subset(subset, sort_idx[i]); //assume forward does not reorder the acquisitions
+       }
+
+       if(mr_cpp_tests_writefiles)
+       {
+           sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
+
+           std::stringstream fname_output_raw;
+           fname_output_raw << "output_" << __FUNCTION__ << "_rawdata.h5";
+           av.write(fname_output_raw.str());
+       }
+
+       return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
+{
+    try
+        {
+            std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+            sirf::GRPETrajectoryPrep rpe_tp;
+            rpe_tp.set_trajectory(av);
+
+            sirf::GadgetronImagesVector img_vec;
+            sirf::MRAcquisitionModel acquis_model;
+
+            sirf::CoilSensitivitiesVector csm;
+            csm.set_csm_smoothness(50);
+            csm.calculate(av);
+
+            auto sptr_encoder = std::make_shared<sirf::RPEFourierEncoding>(sirf::RPEFourierEncoding());
+            acquis_model.set_encoder(sptr_encoder);
+
+            acquis_model.bwd(img_vec, csm, av);
+
+            if(mr_cpp_tests_writefiles)
+                sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
+
+            return true;
+
+        }
+        catch( std::runtime_error const &e)
+        {
+            std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+            std::cout << e.what() << std::endl;
+            throw;
+        }
+}
+#endif
+
 
 int main ( int argc, char* argv[])
 {
 	try{
-		if (argc == 3) {
-			edit_acq(argv[1], argv[2]);
-			return 0;
-		}
-
+		
         std::string SIRF_PATH;
         if (argc==1)
             SIRF_PATH = sirf::getenv("SIRF_PATH");
         else
             SIRF_PATH = argv[1];
 
-        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
+//        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
+        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
-//        test_get_kspace_order(data_path);
-//        test_get_subset(data_path);
-
-//        sirf::AcquisitionsVector av;
-        gadgetron::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        std::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
         AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
         av.read(data_path);
 
         sirf::preprocess_acquisition_data(av);
+        av.sort();
 
-        test_CoilSensitivitiesVector_calculate(av);
-        test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
-        test_acq_mod_norm(sptr_ad);
-        return 0;
+        bool ok = true;
+
+        
+
+        ok *= test_get_kspace_order(av);
+        ok *= test_get_subset(av);
+
+        // ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
+
+        ok *= test_CoilSensitivitiesVector_calculate(av);
+        ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+
+        ok *= test_bwd(av);
+
+        ok *= test_acq_mod_adjointness(av);
+        ok *= test_acq_mod_norm(sptr_ad);
+
+
+        #ifdef GADGETRON_TOOLBOXES_AVAILABLE
+        #warning "RUNNING THE RADIAL TESTS FOR C++."
+            std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
+            sirf::AcquisitionsVector rpe_av;
+            rpe_av.read(rpe_data_path);
+
+
+
+            sirf::preprocess_acquisition_data(rpe_av);
+            rpe_av.sort();
+            sirf::set_unit_dcf(rpe_av);
+
+
+            ok *= test_set_rpe_trajectory(rpe_av);
+            ok *= test_rpe_bwd(rpe_av);
+            ok *= test_rpe_fwd(rpe_av);
+
+            ok *= test_rpe_csm(rpe_av);
+
+            ok *= test_mracquisition_model_rpe_bwd(rpe_av);
+            ok *= test_acq_mod_adjointness(rpe_av);
+
+            auto sptr_rpe_av = std::make_shared<AcquisitionsVector>(rpe_av);
+            sirf::GRPETrajectoryPrep rpe_tp;
+            rpe_tp.set_trajectory(*sptr_rpe_av);
+            ok *= test_acq_mod_norm(sptr_rpe_av);
+        #endif
+
+
+
+        if(ok)
+            return 0;
+        else
+        { 
+            std::cerr << "The code ran but some quantitative tests must have failed"<<std::endl;
+            return EXIT_FAILURE;
+        }
 	}
     catch(const std::exception &error) {
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
@@ -318,4 +646,8 @@ int main ( int argc, char* argv[])
     }
     return EXIT_SUCCESS;
 }
+
+
+
+
 

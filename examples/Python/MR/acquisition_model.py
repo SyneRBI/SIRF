@@ -55,6 +55,7 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
+    AcquisitionData.set_storage_scheme('memory')
     acq_data = AcquisitionData(input_file)
     print('---\n acquisition data norm: %e' % acq_data.norm())
 
@@ -67,7 +68,7 @@ def main():
     # (cannot be obtained in any other way at present)
 #    if processed_data.is_undersampled():
     if acq_data.is_undersampled():
-        recon = CartesianGRAPPAReconstructor();
+        recon = CartesianGRAPPAReconstructor()
         recon.compute_gfactors(False)
     else:
         recon = FullySampledReconstructor()

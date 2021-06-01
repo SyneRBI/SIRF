@@ -5,6 +5,7 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 # Copyright 2018 - 2020 University College London
+# Copyright 2018 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
 #
 # This is software developed for the Collaborative Computational
 # Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -391,7 +392,7 @@ class ImageData(SIRF.ImageData):
         ns = self.number() # number of total dynamics (slices, contrasts, etc.)
         nz = nz//ns        # z-dimension of a slice
 
-        # hope numpy is clever enough to do all this in-place:
+        # hope Numpy is clever enough to do all this in-place:
         array = numpy.reshape(array, (ns, nc, nz, ny, nx))
         array = numpy.swapaxes(array, 0, 1)
         array = numpy.reshape(array, (nc, ns*nz, ny, nx))
@@ -498,6 +499,8 @@ class CoilImagesData(ImageData):
     def same_object(self):
         return CoilImagesData()
     def calculate(self, acq):
+        dcw = compute_kspace_density(acq)
+        acq = acq * dcw
         try_calling(pygadgetron.cGT_computeCoilImages(self.handle, acq.handle))
 
 SIRF.ImageData.register(CoilImagesData)
@@ -560,7 +563,10 @@ class CoilSensitivityData(ImageData):
 
     def __calc_from_acquisitions(self, data, method_name):
         assert data.handle is not None
-            
+
+        dcw = compute_kspace_density(data)
+        data = data * dcw
+
         if method_name == 'Inati':
             try:
                 from ismrmrdtools import coils
@@ -771,6 +777,28 @@ class AcquisitionData(DataContainer):
             return self.number()
     def number_of_acquisitions(self, select='image'):
         return self.number_of_readouts
+
+    def check_traj_type(self, trajname):
+        '''
+        Checks if the data is of the trajectory type trajname.
+        trajname: string with trajectory name.
+        Possible choices are:
+            - cartesian
+            - radial
+            - epi
+            - goldenangle
+            - spiral
+            - other
+        '''
+        list_available_trajs = ('cartesian', 'epi', 'radial', 'goldenangle', 'spiral', 'other')
+        if trajname not in list_available_trajs:
+            raise AssertionError("The trajectory you asked for is not among the available trajectoryies")
+
+        xml_hdr = self.get_header()
+        traj_id_substring = "<trajectory>"+trajname+"</trajectory>"
+
+        return traj_id_substring in xml_hdr
+     
     def sort(self):
         '''
         Sorts acquisitions with respect to (in this order):
@@ -828,6 +856,37 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         try_calling( pygadgetron.cGT_appendAcquisition(self.handle, acq.handle))
+    
+    def get_subset(self, idx):
+        '''
+        Returns AcquisitionData object with subset of acquisitions defined by idx
+        '''
+        assert self.handle is not None
+        subset = AcquisitionData()
+        subset.handle = pygadgetron.cGT_getAcquisitionsSubset(self.handle, idx.astype(numpy.intc).ctypes.data, idx.size)
+        check_status(subset.handle)
+        
+        return subset
+    
+    def set_user_floats(self, data, idx):
+        '''
+        Writes the data into the user_float[idx] data field of the acquisition
+        data header of each acquisition in the container to pass additional data
+        into the raw data.
+        data: numpy array
+        idx: integer in range 0 to 7
+        '''        
+        if self.handle is None:
+            raise AssertionError('self.handle is None')
+                    
+        if data.size != self.number():
+            raise AssertionError('Please give as many datapoints as there are acquisitions')
+        
+        if idx > 7 or idx < 0 or not isinstance(idx,int):
+            raise AssertionError('Please give an integer from [0,...,7]')
+
+        try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
+                    (self.handle, data.ctypes.data, idx))
 
     def dimensions(self):
         '''
@@ -1054,6 +1113,31 @@ class AcquisitionModel(object):
             (self.handle, ad.handle)
         check_status(image.handle)
         return image
+    def inverse(self, ad, dcw=None):
+        '''
+        Weights acquisition data with k-space density prior to back-projection
+        into image space using a complex transpose of the forward projection.
+        ad: AcquisitionData
+        dcw: AcquisitionData
+        '''
+        assert_validity(ad, AcquisitionData)
+        
+        if dcw is not None:
+            assert_validity(dcw, AcquisitionData)
+            if ad.shape != dcw.shape:
+                raise AssertionError("The shape of the density weights and the acquisition data must be the same.")
+
+        if dcw is None:
+            dcw = compute_kspace_density(ad)
+            
+        ad = ad * dcw
+
+        image = ImageData()
+        image.handle = pygadgetron.cGT_AcquisitionModelBackward\
+            (self.handle, ad.handle)
+        check_status(image.handle)
+        return image
+
     def direct(self, image, out = None):
         '''Alias of forward
 
@@ -1384,7 +1468,7 @@ class FullySampledReconstructor(Reconstructor):
     '''
     def __init__(self):
         self.handle = None
-        self.handle = pygadgetron.cGT_newObject('SimpleReconstructionProcessor')
+        self.handle = pygadgetron.cGT_newObject('SimpleReconstructionprocessor')
         check_status(self.handle)
         self.input_data = None
     def __del__(self):
@@ -1398,7 +1482,7 @@ class CartesianGRAPPAReconstructor(Reconstructor):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject\
-            ('SimpleGRAPPAReconstructionProcessor')
+            ('SimpleGRAPPAReconstructionprocessor')
         check_status(self.handle)
         self.input_data = None
     def __del__(self):
@@ -1409,12 +1493,100 @@ class CartesianGRAPPAReconstructor(Reconstructor):
     
 def preprocess_acquisition_data(input_data):
     '''
-    Acquisition processor function that adjusts noise and asymmetrich echo and
+    Acquisition processor function that adjusts noise and asymmetric echo and
     removes readout oversampling.
     '''
-    assert isinstance(input_data, AcquisitionData)
+    assert_validity(input_data, AcquisitionData)
     return input_data.process(\
         ['NoiseAdjustGadget', \
          'AsymmetricEchoAdjustROGadget', \
          'RemoveROOversamplingGadget'])
     
+def set_grpe_trajectory(ad):
+    '''
+    Function that fills the trajectory of AcquisitionData with golden angle radial
+    phase encoding trajectory.
+    ad: AcquisitionData
+    '''    
+    assert_validity(ad, AcquisitionData)
+
+    try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
+    return ad
+    
+def get_data_trajectory(ad):
+    '''
+    Function that gets the trajectory of AcquisitionData depending on the rawdata trajectory.
+    ad: AcquisitionData
+    '''    
+    assert_validity(ad, AcquisitionData)
+
+    dims = (ad.number(), 2)
+    traj = numpy.ndarray(dims, dtype = numpy.float32)
+    
+    try_calling(pygadgetron.cGT_getDataTrajectory(ad.handle, traj.ctypes.data))
+    
+    return traj
+
+
+def compute_kspace_density(ad):
+    '''
+    Function that computes the kspace density depending the
+    ad: AcquisitionData
+    '''  
+    assert_validity(ad, AcquisitionData)
+
+    if ad.check_traj_type('cartesian'):
+        return calc_cartesian_dcw(ad)
+    elif ad.check_traj_type('other'):
+        return calc_rpe_dcw(ad)
+    else:
+        raise AssertionError("Please only try to recon trajectory types cartesian or other")
+    
+
+def calc_cartesian_dcw(ad):
+    '''
+    Function that computes the kspace weight for a cartesian acquisition by
+    averaging out phase encoding points that were acquired multiple times.
+    ad: AcquisitionData
+    '''
+    traj = numpy.transpose(get_data_trajectory(ad))
+    traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
+    
+    density_weight = (1.0 / counts)[inverse]
+    
+    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
+    
+    dcw = ad.copy()
+    dcw.fill(density_weight)
+    
+    return dcw
+
+def calc_rpe_dcw(ad):
+    '''
+    Function that computes the kspace weight depending on the distance to the center
+    as in a filtered back-projection. Stricly valid only for equally angular-spaced
+    radially distributed points
+    ad: AcquisitionData
+    '''
+
+    traj = numpy.transpose(get_data_trajectory(ad))
+    ramp_filter = numpy.linalg.norm(traj, axis=0)
+
+    traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
+    
+    num_angles = numpy.max(counts)
+    
+    density_weight = ( 1.0 / counts)[inverse]  + num_angles * ramp_filter
+    
+    max_traj_rad = numpy.max(numpy.linalg.norm(traj, axis=0))
+    density_weight_norm =  numpy.sum(density_weight) / (max_traj_rad**2 * numpy.pi)
+    density_weight = density_weight / density_weight_norm
+
+    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
+    
+    dcw = ad.copy()
+    dcw.fill(density_weight)
+    
+    return dcw

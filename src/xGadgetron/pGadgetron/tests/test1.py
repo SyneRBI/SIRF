@@ -28,6 +28,7 @@ def test_main(rec=False, verb=False, throw=True):
     test.verbose = verb
 
     data_path = examples_data_path('MR')
+    AcquisitionData.set_storage_scheme('memory')
     input_data = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
     test.check(input_data.norm())
 
@@ -45,7 +46,7 @@ def test_main(rec=False, verb=False, throw=True):
 
     processed_data.sort()
     csms.calculate(processed_data)
-    am = AcquisitionModel(processed_data, complex_images)
+    am = AcquisitionModel(processed_data, csms)
     am.set_coil_sensitivity_maps(csms)
     fwd_acqs = am.forward(complex_images)
     fwd_acqs_norm = fwd_acqs.norm()

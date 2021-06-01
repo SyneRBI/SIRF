@@ -80,6 +80,8 @@ def main():
     
     # Create an acquisition container of type AcquisitionData
     print('---\n reading in file %s...' % input_file)
+    AcquisitionData.set_storage_scheme('memory')
+
     acq_data = AcquisitionData(input_file)
     
     # Pre-process this input data.

@@ -2,7 +2,7 @@
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 Copyright 2020 University College London
-Copyright 2020 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -47,6 +47,7 @@ limitations under the License.
 #include "sirf/Gadgetron/ismrmrd_fftw.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_image_wrap.h"
+
 #include "sirf/iUtilities/LocalisedException.h"
 
 //#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
@@ -74,6 +75,12 @@ Some acquisitions do not participate directly in the reconstruction process
 
 namespace sirf {
 
+    class FourierEncoding;
+    class CartesianFourierEncoding;
+#if GADGETRON_TOOLBOXES_AVAILABLE
+    class RPEFourierEncoding;
+#endif
+
 	class AcquisitionsInfo {
 	public:
 		AcquisitionsInfo(std::string data = "") : data_(data)
@@ -94,7 +101,8 @@ namespace sirf {
 				deserialize();
 				have_header_ = true;
 			}
-			return *this;
+
+            return *this;
 		}
 		const char* c_str() const { return data_.c_str(); }
 		operator std::string&() { return data_; }
@@ -119,7 +127,18 @@ namespace sirf {
         mutable bool have_header_;
 	};
 
-    class KSpaceSorting
+    /*!
+    \ingroup Gadgetron Data Containers
+    \brief Class to keep track of order in k-space
+    *
+    * The entirety of data consists of all acquisitions in the container. However,
+    * the individual acquisitions belong to different subsets of k-space. These
+    * each have a different slice, contrast, repetition etc.
+    * This class is used to keep track of what acquisitions belong to which subset.
+    *
+
+    */
+    class KSpaceSubset
     {
         static int const num_kspace_dims_ = 7 + ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS;
 
@@ -128,17 +147,17 @@ namespace sirf {
         typedef std::array<int, num_kspace_dims_> TagType;
         typedef std::vector<int> SetType;
 
-        KSpaceSorting(){
+        KSpaceSubset(){
             for(int i=0; i<num_kspace_dims_; ++i)
                 this->tag_[i] = -1;
         }
 
-        KSpaceSorting(TagType tag){
+        KSpaceSubset(TagType tag){
             this->tag_ = tag;
             this->idx_set_ = {};
         }
 
-        KSpaceSorting(TagType tag, SetType idx_set){
+        KSpaceSubset(TagType tag, SetType idx_set){
             this->tag_ = tag;
             this->idx_set_ = idx_set;
         }
@@ -146,23 +165,6 @@ namespace sirf {
         TagType get_tag(void) const {return tag_;}
         SetType get_idx_set(void) const {return idx_set_;}
         void add_idx_to_set(size_t const idx){this->idx_set_.push_back(idx);}
-
-        static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq)
-        {
-            TagType tag;
-            tag[0] = acq.idx().average;
-            tag[1] = acq.idx().slice;
-            tag[2] = acq.idx().contrast;
-            tag[3] = acq.idx().phase;
-            tag[4] = acq.idx().repetition;
-            tag[5] = acq.idx().set;
-            tag[6] = 0; //acq.idx().segment;
-
-            for(int i=7; i<tag.size(); ++i)
-                tag[i]=acq.idx().user[i];
-
-            return tag;
-        }
 
         bool is_first_set() const {
             bool is_first= (tag_[0] == 0);
@@ -174,12 +176,35 @@ namespace sirf {
             return is_first;
         }
 
+        static void print_tag(const TagType& tag);
+        static void print_acquisition_tag(ISMRMRD::Acquisition acq);
+
+        //! Function to get k-space dimension tag from an ISMRMRD::Acquisition
+        /*!
+        * This allows to find out which k-space dimension an Acquisition belongs to.
+        */
+        static TagType get_tag_from_acquisition(ISMRMRD::Acquisition acq);
+
+        //! Function to get k-space dimension tag from an ISMRMRD::Image
+        /*!
+        * This allows to find out which k-space dimension the image belongs to.
+        */
+        static TagType get_tag_from_img(const CFImage& img);
+
     private:
-
-        // order is [average, slice, contrast, phase, repetition, set, segment, user_ (0,...,ISMRMRD_USER_INTS-1)]
+        //! Tag labelling the dimension of k-space
+        /*!
+        * An int-array of length 7+ISMRMRD_USER_INTS that labels the dimension of k-space.
+        * The order is: [average, slice, contrast, phase, repetition, set, segment, user_ (0,...,ISMRMRD_USER_INTS-1)]
+        */
         TagType tag_;
-        SetType idx_set_;
 
+        //! Tag labelling the dimension of k-space
+        /*!
+        * A vector of ints keeping track which acquisitions belong the the
+        * dimension labeled by tag_
+        */
+        SetType idx_set_;
     };
 
 	/*!
@@ -241,6 +266,8 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
 		virtual void get_data(complex_float_t* z, int all = 1);
 
+        virtual void set_user_floats(float const * const z, int const idx);
+
 		// acquisition data algebra
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(
@@ -269,6 +296,9 @@ namespace sirf {
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
+        void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
+
+        ISMRMRD::TrajectoryType get_trajectory_type() const;
 
 		gadgetron::unique_ptr<MRAcquisitionData> clone() const
 		{
@@ -276,14 +306,32 @@ namespace sirf {
 		}
 
 		bool undersampled() const;
-		int get_acquisitions_dimensions(size_t ptr_dim) const;
+        int get_acquisitions_dimensions(size_t ptr_dim) const;
+        void get_kspace_dimensions(std::vector<size_t>& dims) const;
+		uint16_t get_trajectory_dimensions(void) const;
 	
 		void sort();
 		void sort_by_time();
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 
-        std::vector<std::vector<int> > get_kspace_order(const bool get_first_subset_order=false) const;
+        //! Function to get the indices of the acquisitions belonging to different dimensions of k-space
+        /*!
+        * All acquisitions belong to only one subset in a multi-dimensional k-space.
+        * This function returns a vector of sets of indices belonging to the acquisitions of the individual subsets.
+        */
+        std::vector<KSpaceSubset::SetType > get_kspace_order() const;
+
+        //! Function to get the all KSpaceSorting of the MRAcquisitionData
+        std::vector<KSpaceSubset> get_kspace_sorting() const { return this->sorting_; }
+
+        //! Function to go through Acquisitions and assign them to their k-space dimension
+        /*!
+        * All acquisitions belong to only one subset in a multi-dimensional k-space. This function goes through
+        * all acquisitions in the container, extracts their subset (i.e. which slice contrast etc.) and stores
+        * this information s.t. consisten subsets (i.e. all acquisitions belonging to the same slice) can be
+        * extracted.
+        */
         void organise_kspace();
 
         virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
@@ -317,7 +365,7 @@ namespace sirf {
 	protected:
 		bool sorted_ = false;
 		std::vector<int> index_;
-        std::vector<KSpaceSorting> sorting_;
+        std::vector<KSpaceSubset> sorting_;
 		AcquisitionsInfo acqs_info_;
 
 		// new MRAcquisitionData objects will be created from this template
@@ -325,7 +373,6 @@ namespace sirf {
 		static gadgetron::shared_ptr<MRAcquisitionData> acqs_templ_;
 
 		virtual MRAcquisitionData* clone_impl() const = 0;
-//		MRAcquisitionData* clone_base() const;
 
 	private:
 		void binary_op_(int op, 
@@ -344,7 +391,12 @@ namespace sirf {
 	*/
 	class AcquisitionsVector : public MRAcquisitionData {
 	public:
-		AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
+        AcquisitionsVector(const std::string& filename_with_ext)
+        {
+            this->read(filename_with_ext);
+        }
+
+        AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo())
 		{
 			acqs_info_ = info;
 		}
@@ -418,6 +470,7 @@ namespace sirf {
 //		virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
+        virtual void clear_data()=0;
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
@@ -457,6 +510,21 @@ namespace sirf {
             const ImageWrap&  iw = image_wrap(im_num);
 			iw.get_dim(dim);
 		}
+        bool check_dimension_consistency() const
+        {
+            size_t const num_dims = 4;
+            std::vector<int> first_img_dims(num_dims), temp_img_dims(num_dims);
+
+            this->get_image_dimensions(0, &first_img_dims[0]);
+
+            bool dims_match = true;
+            for(int i=1; i<number(); ++i)
+            {
+                this->get_image_dimensions(0, &temp_img_dims[0]);
+                dims_match *= (first_img_dims == temp_img_dims);
+            }
+            return dims_match;
+        }
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
 			new_images_container() const = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData>
@@ -544,7 +612,7 @@ namespace sirf {
 		{
 			const std::size_t ni = index_.size();
 			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) || static_cast<unsigned>(i) >= number())
-				THROW("Image number is out of range");
+				THROW("Image number is out of range. You tried to look up an image number that is not inside the container.");
 			if (ni > 0)
 				return index_[i];
 			else
@@ -808,6 +876,7 @@ namespace sirf {
 
 		GadgetronImagesVector() : images_()
 		{}
+		GadgetronImagesVector(const MRAcquisitionData& ad);
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
@@ -828,10 +897,20 @@ namespace sirf {
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>
 				(new ImageWrap(image_data_type, ptr_image)));
 		}
+        virtual void append(CFImage& img)
+        {
+            void* vptr_img = new CFImage(img);
+            this->append(7, vptr_img);
+        }
 		virtual void append(const ImageWrap& iw)
 		{
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 		}
+        virtual void clear_data()
+        {
+            std::vector<gadgetron::shared_ptr<ImageWrap> > empty_data;
+            images_.swap(empty_data);
+        }
 		virtual void sort();
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
 			(unsigned int im_num)
@@ -953,10 +1032,10 @@ namespace sirf {
     class CoilImagesVector : public GadgetronImagesVector
     {
     public:
-        CoilImagesVector() : GadgetronImagesVector()
-        {
-        }
+        CoilImagesVector() : GadgetronImagesVector(){}
         void calculate(const MRAcquisitionData& acq, int calibration = 1);
+    protected:
+        gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
     };
 
     /*!
@@ -995,26 +1074,23 @@ namespace sirf {
         }
 
         CFImage get_csm_as_cfimage(size_t const i) const;
+        CFImage get_csm_as_cfimage(const KSpaceSubset::TagType tag, const int offset) const;
+
 
         void get_dim(size_t const num_csm, int* dim) const
         {
             GadgetronImagesVector::get_image_dimensions(num_csm, dim);
-
         }
+
+        void forward(GadgetronImageData& img, GadgetronImageData& combined_img)const;
+        void backward(GadgetronImageData& combined_img, const GadgetronImageData& img)const;
 
     protected:
 
-        //bool flag_imgs_suitable_for_csm_computation_=false;
+        void coilchannels_from_combined_image(GadgetronImageData& img, GadgetronImageData& combined_img) const;
+        void combine_images_with_coilmaps(GadgetronImageData& combined_img, const GadgetronImageData& img) const;
 
         void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);
-
-        void forward(){
-            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
-        }
-        void backward(){
-            throw LocalisedException("This has not been implemented yet." , __FILE__, __LINE__);
-        }
-
 
     private:
         int csm_smoothness_ = 0;

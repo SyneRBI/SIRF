@@ -28,6 +28,7 @@ def test_main(rec=False, verb=False, throw=True):
     test.verbose = verb
 
     data_path = examples_data_path('MR')
+    AcquisitionData.set_storage_scheme('memory')
     input_data = AcquisitionData(
             data_path + '/simulated_MR_2D_cartesian_Grappa2.h5')
     test.check(input_data.norm())
@@ -53,7 +54,7 @@ def test_main(rec=False, verb=False, throw=True):
 
     fwd_acqs = am.forward(complex_images)
     fwd_acqs_norm = fwd_acqs.norm()
-    test.check(fwd_acqs_norm)
+    test.check(fwd_acqs_norm, rel_tol = 1e-2)
 
     acqs_diff = fwd_acqs - processed_data
     rr = acqs_diff.norm()/fwd_acqs_norm

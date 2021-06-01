@@ -2,7 +2,7 @@
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 Copyright 2018 - 2020 University College London
-Copyright 2020 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -86,7 +86,7 @@ void
 MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 {
 	
-	bool const verbose = true;
+    bool const verbose = false;
 
 	if( verbose )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
@@ -140,80 +140,87 @@ MRAcquisitionData::undersampled() const
 int 
 MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 {
-	ISMRMRD::Acquisition acq;
-	int* dim = (int*)ptr_dim;
+    int na = number();
+    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
 
-	int na = number();
-	int ms, ns;
-	int mc, nc;
-	int my, ny;
-	int slice = 0;
-	int y = 0;
-	// assume all dimensions (samples, coils [, acqs per slice]) regular
-	int nrd = sorted() ? 3 : 2;
-	// number of regular readouts
-	int nrr = 0;
-	//int not_reg = 0;
-	for (; y < na;) {
-		for (; y < na && sorted();) {
-			get_acquisition(y, acq);
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-				break;
-			y++;
-		}
-		if (y >= na)
-			break;
-		ny = 0;
-		for (; y < na; y++) {
-			get_acquisition(y, acq);
-			if (TO_BE_IGNORED(acq)) // not a regular acquisition
-				continue;
-			ns = acq.number_of_samples();
-			nc = acq.active_channels();
-			nrr += ns*nc;
-			if (slice == 0) {
-				ms = ns;
-				mc = nc;
-			}
-			else {
-				if (ms != ns)
-					nrd = 0;
-				else if (mc != nc && nrd > 1)
-					nrd = 1;
-			}
-			ny++;
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) && sorted())
-				break;
-		}
-		if (slice == 0) {
-			my = ny;
-		}
-		else {
-			if (my != ny && nrd > 2) {
-				nrd = 2;
-			}
-			//if (my != ny)
-			//	not_reg = 1;
-		}
-		slice++;
-	}
+    int* dim = (int*)ptr_dim;
+    ISMRMRD::Acquisition acq;
+    get_acquisition(0, acq);
 
-	int reg_size = 1;
-	if (nrd > 0) {
-		dim[0] = ms;
-		reg_size *= ms;
-	}
-	if (nrd > 1) {
-		dim[1] = mc;
-		reg_size *= mc;
-	}
-	if (nrd > 2) {
-		dim[2] = my;
-		reg_size *= my;
-	}
-	dim[nrd] = nrr / reg_size;
-	return nrd;
+    int ns = acq.number_of_samples();
+    int nc = acq.active_channels();
+
+    for(int i=1; i<na; ++i)
+    {
+        get_acquisition(i, acq);
+        ASSERT(acq.number_of_samples() == ns, "One of your acquisitions has a different number of samples. Please make sure the dimensions are consistent.");
+        ASSERT(acq.active_channels() == nc, "One of your acquisitions has a different number of active channels. Please make sure the dimensions are consistent.");
+    }
+
+    int const num_dims = 3;
+    dim[0] = ns;
+    dim[1] = nc;
+    dim[2] = na;
+
+    return num_dims;
 }
+
+uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
+{
+    int na = number();
+    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+
+    ISMRMRD::Acquisition acq;
+    get_acquisition(0,acq);
+
+    uint16_t const traj_dims = acq.trajectory_dimensions();
+    bool trajectory_consistent = true;
+    for(int i=1; i<na; ++i)
+    {
+        get_acquisition(i, acq);
+        trajectory_consistent *= (traj_dims== acq.trajectory_dimensions());
+    }
+    if(trajectory_consistent)
+        return traj_dims;
+    else
+        throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
+}
+
+void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
+{
+    int na = number();
+    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+
+    ISMRMRD::Acquisition acq;
+    get_acquisition(0,acq);
+
+    int nro = acq.number_of_samples();
+    int nc = acq.active_channels();
+
+    std::vector<size_t> empty_data;
+    dims.swap(empty_data);
+
+    for(int i=1; i<na; ++i)
+    {
+        get_acquisition(i, acq);
+
+        if(acq.active_channels() !=nc)
+            throw std::runtime_error("The number of channels is not consistent within this container.");
+        if(acq.number_of_samples() != nro)
+            throw std::runtime_error("The number of readout points is not consistent within this container.");
+    }
+
+    ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
+    ISMRMRD::Encoding e = hdr.encoding[0];
+    ISMRMRD::EncodingSpace enc_space = e.encodedSpace;
+
+    dims.push_back(nro);
+    dims.push_back(enc_space.matrixSize.y);
+    dims.push_back(enc_space.matrixSize.z);
+    dims.push_back(nc);
+}
+
+
 
 void
 MRAcquisitionData::get_data(complex_float_t* z, int a)
@@ -246,6 +253,24 @@ MRAcquisitionData::get_data(complex_float_t* z, int a)
 		}
 	}
 }
+
+void
+MRAcquisitionData::set_user_floats(float const * const z, int const idx)
+{
+
+    if(idx >= ISMRMRD::ISMRMRD_USER_FLOATS)
+        throw LocalisedException("You try to set the user floats of an index higher than available in the memory of ISMRMRDAcquisition. Pass a smaller idx." , __FILE__, __LINE__);
+
+    ISMRMRD::Acquisition acq;
+    for(int ia=0;ia<this->number();ia++)
+    {
+        this->get_acquisition(ia, acq);
+        acq.user_float()[idx] = *(z+ia);
+        this->set_acquisition(ia,acq);
+    }
+}
+
+
 
 void 
 MRAcquisitionData::axpby
@@ -536,74 +561,24 @@ MRAcquisitionData::norm() const
 	return sqrt(r);
 }
 
+
+ISMRMRD::TrajectoryType
+MRAcquisitionData::get_trajectory_type() const
+{
+    AcquisitionsInfo hdr_as_ai = acquisitions_info();
+    ISMRMRD::IsmrmrdHeader hdr = hdr_as_ai.get_IsmrmrdHeader();
+
+    if(hdr.encoding.size()!= 1)
+        std::cout << "You have a file with " << hdr.encoding.size() << " encodings. Just the first one is picked." << std::endl;
+
+    return hdr.encoding[0].trajectory;
+
+}
+
 void
 MRAcquisitionData::sort()
 {
-	const int NUMVAL = 6;
-	typedef std::array<int, NUMVAL> tuple;
-	int na = number();
-	if (na < 1) {
-		index_.resize(0);
-		return;
-	}
-
-	int last = -1;
-	tuple t;
-	tuple tmax;
-	for (int i = 0; i < NUMVAL; i++)
-		tmax[i] = 0;
-	for (int a = 0; a < na; a++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(a, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT))
-			last = a;
-		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().phase;
-		t[2] = acq.idx().contrast;
-		t[3] = acq.idx().slice;
-		t[4] = acq.idx().kspace_encode_step_2;
-		t[5] = acq.idx().kspace_encode_step_1;
-		for (int i = 0; i < NUMVAL; i++)
-			if (t[i] > tmax[i])
-				tmax[i] = t[i];
-	}
-
-//	for (int i = 0; i < NUMVAL; i++)
-//		std::cout << tmax[i] << ' ';
-//	std::cout << '\n';
-
-	typedef std::vector<int> tuple_to_sort;
-	tuple_to_sort tsind;
-	std::vector<tuple_to_sort> vt;
-	for (int i = 0; i < NUMVAL; i++)
-		if (tmax[i] > 0)
-			tsind.push_back(i);
-//	for (int i = 0; i < tsind.size(); i++)
-//		std::cout << tsind[i] << ' ';
-//	std::cout << '\n';
-	for (int a = 0; a < na; a++) {
-		ISMRMRD::Acquisition acq;
-		get_acquisition(a, acq);
-		t[0] = acq.idx().repetition;
-		t[1] = acq.idx().phase;
-		t[2] = acq.idx().contrast;
-		t[3] = acq.idx().slice;
-		t[4] = acq.idx().kspace_encode_step_2;
-		t[5] = acq.idx().kspace_encode_step_1;
-		tuple_to_sort tsort;
-		if (TO_BE_IGNORED(acq)) // put first to avoid interference with the rest
-			t[tsind[0]] = -1;
-		for (int i = 0; i < tsind.size(); i++)
-			tsort.push_back(t[tsind[i]]);
-		vt.push_back(tsort);
-	}
-	if (last > -1)
-		vt[last][0] = tmax[tsind[0]];
-
-	index_.resize(na);
-	NewMultisort::sort( vt, &index_[0] );
-    this->organise_kspace();
-	sorted_ = true;
+    sort_by_time();
 }
 
 void
@@ -629,25 +604,20 @@ MRAcquisitionData::sort_by_time()
 	else
 		Multisort::sort( vt, &index_[0] );
     this->organise_kspace();
+    sorted_ = true;
 
 }
 
-std::vector<std::vector<int> > MRAcquisitionData::get_kspace_order(const bool get_first_subset_order) const
+std::vector<KSpaceSubset::SetType > MRAcquisitionData::get_kspace_order() const
 {
     if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
 
-    std::vector<std::vector<int> > output;
+    std::vector<KSpaceSubset::SetType > output;
     for(unsigned i = 0; i<sorting_.size(); ++i)
     {
-        if(!get_first_subset_order)
-        {
-            if(!sorting_.at(i).get_idx_set().empty())
+        if(!sorting_.at(i).get_idx_set().empty())
                output.push_back(sorting_.at(i).get_idx_set());
-        }
-        else
-            if(sorting_.at(i).is_first_set() && !sorting_.at(i).get_idx_set().empty())
-                output.push_back(sorting_.at(i).get_idx_set());
     }
     return output;
 }
@@ -667,8 +637,9 @@ static int get_num_enc_states( const ISMRMRD::Optional<ISMRMRD::Limit>& enc_lim)
 
 void MRAcquisitionData::organise_kspace()
 {
-    ISMRMRD::IsmrmrdHeader header;
-    ISMRMRD::deserialize(this->acqs_info_.c_str(), header);
+    std::vector<KSpaceSubset>().swap(this->sorting_);
+
+    const ISMRMRD::IsmrmrdHeader header = this->acquisitions_info().get_IsmrmrdHeader();
 
     auto encoding_vector = header.encoding;
 
@@ -694,11 +665,11 @@ void MRAcquisitionData::organise_kspace()
     for(int iset= 0; iset <NSet; iset++)
     for(int iseg=0;   iseg<NSegm; ++iseg)
     {
-        KSpaceSorting::TagType tag{ia, is, ic, ip, ir, iset, iseg};
+        KSpaceSubset::TagType tag{ia, is, ic, ip, ir, iset, iseg};
         for(int i=7; i<tag.size(); ++i)
             tag[i]=0; // ignore user ints so far
 
-        KSpaceSorting sorting(tag);
+        KSpaceSubset sorting(tag);
         this->sorting_.push_back(sorting);
     }
 
@@ -707,10 +678,13 @@ void MRAcquisitionData::organise_kspace()
     {
         this->get_acquisition(i, acq);
 
-        KSpaceSorting::TagType tag = KSpaceSorting::get_tag_from_acquisition(acq);
+        KSpaceSubset::TagType tag = KSpaceSubset::get_tag_from_acquisition(acq);
         int access_idx = (((((tag[0] * NSlice + tag[1])*NCont + tag[2])*NPhase + tag[3])*NRep + tag[4])*NSet + tag[5])*NSegm + tag[6];
         this->sorting_.at(access_idx).add_idx_to_set(i);
     }
+    this->sorting_.erase(
+                std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSubset& s){return s.get_idx_set().empty();}),
+                sorting_.end());
 }
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
@@ -802,6 +776,58 @@ AcquisitionsVector::copy_acquisitions_data(const MRAcquisitionData& ac)
 			for (int s = 0; s < ns; s++, i++)
 				acq_dst.data(s, c) = acq_src.data(s, c);
 	}
+}
+
+KSpaceSubset::TagType KSpaceSubset::get_tag_from_img(const CFImage& img)
+{
+    TagType tag;
+
+    tag[0] = img.getAverage();
+    tag[1] = img.getSlice();
+    tag[2] = img.getContrast();
+    tag[3] = img.getPhase();
+    tag[4] = img.getRepetition();
+    tag[5] = img.getSet();
+    tag[6] = 0; //segments area always zero
+
+    for(int i=0; i<ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS; ++i)
+        tag[7+i] = img.getUserInt(i);
+
+    return tag;
+}
+
+
+KSpaceSubset::TagType KSpaceSubset::get_tag_from_acquisition(ISMRMRD::Acquisition acq)
+{
+    TagType tag;
+    tag[0] = acq.idx().average;
+    tag[1] = acq.idx().slice;
+    tag[2] = acq.idx().contrast;
+    tag[3] = acq.idx().phase;
+    tag[4] = acq.idx().repetition;
+    tag[5] = acq.idx().set;
+    tag[6] = 0; //acq.idx().segment;
+
+    for(int i=7; i<tag.size(); ++i)
+        tag[i]=acq.idx().user[i];
+
+    return tag;
+}
+
+void KSpaceSubset::print_tag(const TagType& tag)
+{
+    std::cout << "(";
+
+    for(int i=0; i<tag.size();++i)
+        std::cout << tag[i] <<",";
+
+    std::cout << ")" << std::endl;
+}
+
+void KSpaceSubset::print_acquisition_tag(ISMRMRD::Acquisition acq)
+{
+    TagType tag = get_tag_from_acquisition(acq);
+    print_tag(tag);
 }
 
 void
@@ -1195,6 +1221,13 @@ GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
     this->set_up_geom_info();
 }
 
+GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad)
+{
+    set_meta_data(ad.acquisitions_info());
+    this->set_up_geom_info();
+}    
+
+
 GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()
@@ -1551,89 +1584,38 @@ GadgetronImagesVector::set_up_geom_info()
 }
 
 void 
-CoilImagesVector::calculate(const MRAcquisitionData& ac, int calibration)
+CoilImagesVector::calculate(const MRAcquisitionData& ad, int calibration)
 {
-    this->empty();
-
-    std::string par;
-    ISMRMRD::IsmrmrdHeader header;
-    ISMRMRD::Acquisition acq;
-    par = ac.acquisitions_info();
-    set_meta_data(par);
-    ISMRMRD::deserialize(par.c_str(), header);
-
-    for (unsigned int i = 0; i < ac.number(); i++) {
-        ac.get_acquisition(i, acq);
-        if (!TO_BE_IGNORED(acq))
-            break;
+    if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+        this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
+    else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+    {
+        ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::OTHER trajectory before calling the calculate method with dimension > 0.");
+    #ifdef GADGETRON_TOOLBOXES_AVAILABLE
+    #warning "Compiling non-cartesian code into coil sensitivity class"
+        this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
+    #else
+        throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
+    #endif
     }
+    else
+        throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
-    ISMRMRD::Encoding e = header.encoding[0];
-    bool parallel = e.parallelImaging.is_present() &&
-        e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
-    unsigned int nx = e.reconSpace.matrixSize.x;
-    unsigned int ny = e.encodedSpace.matrixSize.y;
-    unsigned int nz = e.encodedSpace.matrixSize.z;
-    unsigned int nc = acq.active_channels();
-    unsigned int readout = acq.number_of_samples();
+    this->set_meta_data(ad.acquisitions_info());
 
-    std::vector<size_t> ci_dims;
-    ci_dims.push_back(readout);
-    ci_dims.push_back(ny);
-    ci_dims.push_back(nz);
-    ci_dims.push_back(nc);
-    ISMRMRD::NDArray<complex_float_t> ci(ci_dims);
+    auto sort_idx = ad.get_kspace_order();
 
-    const int NUMVAL = 4;
-    typedef std::array<int, NUMVAL> tuple;
-    tuple t_first;
-    for (unsigned int i = 0; i < NUMVAL; i++)
-        t_first[i] = -1;
-    bool first = true;
-    for (unsigned int a = 0; a < ac.number(); a++) {
-        ac.get_acquisition(a, acq);
-        if (TO_BE_IGNORED(acq))
-            continue;
-        bool last = (a == ac.number() - 1);
-        tuple t;
-        t[0] = acq.idx().repetition;
-        t[1] = acq.idx().phase;
-        t[2] = acq.idx().contrast;
-        t[3] = acq.idx().slice;
-        if (t != t_first) {
-            std::cout << "new slice: ";
-            for (int i = 0; i < NUMVAL; i++)
-                std::cout << t[i] << ' ';
-            std::cout << '\n';
-            if (!first) {
-                ifft3c(ci);
-                CFImage* ptr_ci = new CFImage(readout, ny, nz, nc);
-                memcpy(ptr_ci->getDataPtr(), ci.getDataPtr(), ci.getDataSize());
-                ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_ci);
-                append(iw);
-            }
-            else
-                first = false;
-            memset(ci.getDataPtr(), 0, ci.getDataSize());
-            t_first = t;
-        }
-        bool par_cal = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION);
-        bool par_cal_img = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING);
-        if (calibration && parallel && !par_cal && !par_cal_img)
-            continue;
-        int yy = acq.idx().kspace_encode_step_1;
-        int zz = acq.idx().kspace_encode_step_2;
-        for (unsigned int c = 0; c < nc; c++) {
-            for (unsigned int s = 0; s < readout; s++) {
-                ci(s, yy, zz, c) = acq.data(s, c);
-            }
-        }
+    for(int i=0; i<sort_idx.size(); ++i)
+    {
+        sirf::AcquisitionsVector subset;
+        ad.get_subset(subset, sort_idx[i]);
+
+		CFImage* img_ptr = new CFImage();
+		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!
+		this->sptr_enc_->backward(*img_ptr, subset);
+
+        this->append(iw);
     }
-    ifft3c(ci);
-    CFImage* ptr_ci = new CFImage(readout, ny, nz, nc);
-    memcpy(ptr_ci->getDataPtr(), ci.getDataPtr(), ci.getDataSize());
-    ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_ci);
-    append(iw);
 }
 
 CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
@@ -1645,6 +1627,143 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
     const void* ptr_cf_img = sptr_iw->ptr_image();
     return CFImage(*( (CFImage*)ptr_cf_img));
 }
+
+CFImage CoilSensitivitiesVector::get_csm_as_cfimage(const KSpaceSubset::TagType tag, const int offset) const
+{
+    for(int i=0; i<this->items();++i)
+    {
+        size_t const access_idx = ((offset + i) % this->items());
+        CFImage csm_img = get_csm_as_cfimage(access_idx);
+        KSpaceSubset::TagType tag_csm = KSpaceSubset::get_tag_from_img(csm_img);
+
+        if(tag_csm[1] == tag[1] && tag_csm[2]==0) //tag[1]=slice, tag[2]=contrast
+            return csm_img;
+    }
+
+    throw LocalisedException("No coilmap with this tag was in the coilsensitivity container.",   __FILE__, __LINE__);
+}
+
+void CoilSensitivitiesVector::forward(GadgetronImageData& img, GadgetronImageData& combined_img)const
+{
+    if(combined_img.items() != this->items() )
+        throw LocalisedException("The number of coilmaps does not equal the number of images to which they should be applied to.",   __FILE__, __LINE__);
+
+    if(!combined_img.check_dimension_consistency())
+       throw LocalisedException("The image dimensions in the source image container are not consistent.",   __FILE__, __LINE__);
+
+    if(combined_img.dimensions()["c"] != 1)
+        throw LocalisedException("The source image has more than one channel.",   __FILE__, __LINE__);
+
+    img.set_meta_data( combined_img.get_meta_data());
+    img.clear_data();
+
+    this->coilchannels_from_combined_image(img, combined_img);
+}
+
+void CoilSensitivitiesVector::coilchannels_from_combined_image(GadgetronImageData& img, GadgetronImageData& combined_img) const
+{
+    for(size_t i_img=0; i_img<combined_img.items(); ++i_img)
+    {
+        ImageWrap& iw_src = combined_img.image_wrap(i_img);
+        CFImage* ptr_src_img = static_cast<CFImage*>(iw_src.ptr_image());
+
+        CFImage coilmap = get_csm_as_cfimage( KSpaceSubset::get_tag_from_img(*ptr_src_img), i_img);
+
+        CFImage* ptr_dst_img = new CFImage(coilmap);
+		sirf::ImageWrap iw_dst(ISMRMRD::ISMRMRD_CXFLOAT, ptr_dst_img);
+
+        ptr_dst_img->setHead((*ptr_src_img).getHead());
+        ptr_dst_img->setNumberOfChannels(coilmap.getNumberOfChannels());
+
+        size_t const Nx = ptr_dst_img->getMatrixSizeX();
+        size_t const Ny = ptr_dst_img->getMatrixSizeY();
+        size_t const Nz = ptr_dst_img->getMatrixSizeZ();
+        size_t const Nc = ptr_dst_img->getNumberOfChannels();
+
+        for( size_t nc=0;nc<Nc ; nc++)
+        for( size_t nz=0;nz<Nz ; nz++)
+        for( size_t ny=0;ny<Ny ; ny++)
+        for( size_t nx=0;nx<Nx ; nx++)
+        {
+            (*ptr_dst_img)(nx, ny, nz, nc) =  (*ptr_src_img)(nx, ny, nz, 0) * coilmap(nx, ny, nz, nc);
+        }
+
+        img.append(iw_dst);
+    }
+}
+
+void CoilSensitivitiesVector::backward(GadgetronImageData& combined_img, const GadgetronImageData& img)const
+{
+
+    if(img.items() != this->items() )
+           throw LocalisedException("The number of coilmaps does not equal the number of images to be combined.",   __FILE__, __LINE__);
+
+       // check for matching dimensions
+       if(!img.check_dimension_consistency())
+           throw LocalisedException("The image dimensions in the source image container are not consistent.",   __FILE__, __LINE__);
+
+
+       combined_img.set_meta_data(img.get_meta_data());
+       combined_img.clear_data();
+
+       this->combine_images_with_coilmaps(combined_img, img);
+}
+
+void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& combined_img, const GadgetronImageData& img) const
+{
+    std::vector<int> img_dims(4);
+    img.get_image_dimensions(0, &img_dims[0]);
+
+    for(size_t i_img=0; i_img<img.items(); ++i_img)
+    {
+        const ImageWrap& iw_src = img.image_wrap(i_img);
+        const CFImage* ptr_src_img = static_cast<const CFImage*>(iw_src.ptr_image());
+
+		// const void* vptr_src_img = iw_src.ptr_image();
+        // const CFImage* ptr_src_img = static_cast<const CFImage*>(vptr_src_img);
+		
+        CFImage coilmap= get_csm_as_cfimage(KSpaceSubset::get_tag_from_img(*ptr_src_img), i_img);
+
+        int const Nx = (int)coilmap.getMatrixSizeX();
+        int const Ny = (int)coilmap.getMatrixSizeY();
+        int const Nz = (int)coilmap.getMatrixSizeZ();
+        int const Nc = (int)coilmap.getNumberOfChannels();
+
+        std::vector<int> csm_dims{Nx, Ny, Nz, Nc};
+
+        if( img_dims != csm_dims)
+            throw LocalisedException("The data dimensions of the image don't match the sensitivity maps.",   __FILE__, __LINE__);
+
+        
+		CFImage* ptr_dst_img = new CFImage(Nx, Ny, Nz, 1); //urgh this is so horrible
+		sirf::ImageWrap iw_dst(ISMRMRD::ISMRMRD_CXFLOAT, ptr_dst_img );
+		
+		ptr_dst_img->setHead(ptr_src_img->getHead());
+		ptr_dst_img->setNumberOfChannels(1);
+
+		for(auto it=ptr_dst_img->begin(); it!=ptr_dst_img->end(); ++it)	
+			*it = complex_float_t(0.f,0.f);
+		
+		// conjugate the coilmap
+		for(auto it=coilmap.begin(); it!=coilmap.end(); ++it)
+			*it = std::conj(*it);
+
+
+		// multiply with image
+		std::transform( coilmap.begin(), coilmap.end(),
+						ptr_src_img->getDataPtr(), coilmap.begin(), 
+						std::multiplies<complex_float_t>());
+
+        for( size_t nc=0;nc<Nc ; nc++)
+        for( size_t nz=0;nz<Nz ; nz++)
+        for( size_t ny=0;ny<Ny ; ny++)
+        for( size_t nx=0;nx<Nx ; nx++)
+	        ptr_dst_img->operator() (nx, ny, nz, 0) += coilmap(nx,ny,nz,nc);
+
+        combined_img.append(iw_dst);
+    }
+}
+
 
 void 
 CoilSensitivitiesVector::calculate(CoilImagesVector& iv)
