@@ -30,10 +30,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynsim_deformer.h"
 #include "tests_volume_orientator.h"
 
-#include "all_simulation_tests.h"
 
 
-void run_apps(void)
+bool run_apps(void)
 {
 	// std::string const fname_ismrmrd = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/5DMotion/output_grpe_mri_simulation_motion_type_cardiorespiratory__num_motion_states_10_x_10.h5";
 	std::string const fname_ismrmrd = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/4DMotion/Cardiac/output_grpe_mri_simulation_motion_type_cardiac_num_motion_states_10.h5";
@@ -41,32 +40,38 @@ void run_apps(void)
 }
 
 
-void run_tests_auxiliary_testing_functions( void )
+bool run_tests_auxiliary_testing_functions(void )
 {
-		
-	bool tests_successful = true;
 
-	tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
-	tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
-	tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
-	tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
-	tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
-	tests_successful *= test_aux_test_funs::test_get_mock_gaussian_csm();
-
+	std::cout<< "Running " << __FUNCTION__ << std::endl;		
 	
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.str() );
-	}
-	else
-	{
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+	try
+    {
+       bool tests_successful = true;
+
+		tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
+		tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
+		tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
+		tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
+		tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
+		tests_successful *= test_aux_test_funs::test_get_mock_gaussian_csm();
+
+		return tests_successful;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+	catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+		throw;
 	}
 }
 
-void run_tests_dynamics( void )
+bool run_tests_dynamics( void )
 {
 
 	bool tests_successful = true;
@@ -138,11 +143,12 @@ void run_tests_dynamics( void )
 	else
 	{
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		return tests_successful;
 	}
 }
 
 
-void run_tests_dynamic_simulation( void )
+bool run_tests_dynamic_simulation( void )
 {
 
 	bool tests_successful = true;
@@ -226,10 +232,11 @@ void run_tests_dynamic_simulation( void )
 	else
 	{
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		return tests_successful;
 	}
 }
 
-void run_tests_noise_generator( void )
+bool run_tests_noise_generator( void )
 {
 
 	bool tests_successful = true;
@@ -247,12 +254,13 @@ void run_tests_noise_generator( void )
 	else
 	{
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		return tests_successful;
 	}
 
 
 }
 
-void run_tests_auxiliary_input_output( void )
+bool run_tests_auxiliary_input_output( void )
 {
 	std::cout << "Starting aux io tests" << std::endl;
 	bool tests_successful = true;
@@ -273,12 +281,13 @@ void run_tests_auxiliary_input_output( void )
 	else
 	{
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		return tests_successful;
 	}
 }
 
 
 
-void run_tests_tissueparameters(void)
+bool run_tests_tissueparameters(void)
 {
 	bool tests_successful = true;
 
@@ -311,10 +320,11 @@ void run_tests_tissueparameters(void)
 	else
 	{
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		return tests_successful;
 	}
 }
 
-void run_tests_contrastgenerator(void)
+bool run_tests_contrastgenerator(void)
 {
 	bool tests_successful = true;
 	std::vector< bool > tlm_tests, abstract_contgen_tests, mr_contgen_tests, pet_contgen_tests;
@@ -414,11 +424,12 @@ void run_tests_contrastgenerator(void)
 	else
 	{
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		return tests_successful;
 	}
 }
 
 
-void run_tests_phantom_input( void )
+bool run_tests_phantom_input( void )
 {
 	bool tests_successful = true;
 
@@ -445,12 +456,13 @@ void run_tests_phantom_input( void )
 	else
 	{
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		return tests_successful;
 	}
 
 
 }
 
-void run_tests_dynsim_deformer( void )
+bool run_tests_dynsim_deformer( void )
 {
 	bool tests_successful = true;
 
@@ -481,8 +493,9 @@ void run_tests_dynsim_deformer( void )
 		throw std::runtime_error( ss_msg.str() );
 	}
 	else
-	{
+	{	
 		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		return tests_successful;
 	}
 }
 
@@ -490,33 +503,37 @@ void run_tests_dynsim_deformer( void )
 
 int main ( int argc, char* argv[])
 {
+
 	try{
 		std::cout << "Starting Simulation C++ tests... " <<std::endl;
+		bool ok = true;
 
 		if(argc > 1)
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
-		
 
-		run_tests_auxiliary_testing_functions();
-		// run_tests_auxiliary_input_output();
-		// run_tests_tissueparameters();
-		// run_tests_contrastgenerator();
-		// run_tests_phantom_input();
-		// run_tests_encoding();
-		// run_tests_mr_acquisition_model();
-		// run_tests_dynamics();
-		// run_tests_dynamic_simulation();
-		// run_tests_noise_generator();
-		// run_tests_dynsim_deformer();
+		ok *= run_tests_auxiliary_testing_functions();
+		// ok *= run_tests_auxiliary_input_output();
+		// ok *= run_tests_tissueparameters();
+		// ok *= run_tests_contrastgenerator();
+		// ok *= run_tests_phantom_input();
+		// ok *= run_tests_encoding();
+		// ok *= run_tests_mr_acquisition_model();
+		// ok *= run_tests_dynamics();
+		// ok *= run_tests_dynamic_simulation();
+		// ok *= run_tests_noise_generator();
+		// ok *= run_tests_dynsim_deformer();
+		// ok *= run_apps();		
 		
-		// run_apps();		
-
+		if(ok)
+			return EXIT_SUCCESS;	
+		else
+			return EXIT_FAILURE;
 	}
     catch(const std::exception &error) {
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
-    return EXIT_SUCCESS;
+	
 }
 
 
