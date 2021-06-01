@@ -35,8 +35,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/Reg/NiftiImageData3D.h"
 	
-
-#include "test_input_filenames.h"
+#define epiph(x) #x << " = " << x
 
 #define PIX_SIZE_X 3.20f
 #define PIX_SIZE_Y 3.20f
