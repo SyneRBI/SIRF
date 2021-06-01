@@ -22,17 +22,17 @@ __author__ = "Johannes Mayer"
 
 
 def test_main(rec=False, verb=False, throw=True):
-    print("Running the constructor test")
 
+    print("Running the ImageData from AcquisitionData constructor test")
     data_path = examples_data_path('MR')
-    AcquisitionData.set_storage_scheme('memory')
     
     rawdata = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
-    
+    test_img_dimensions = (2, 256, 256)
+
     imgdata = ImageData()
     imgdata.from_acquisition_data(rawdata)
-
-    test_successful = (imgdata.number() == rawdata.number())
+    
+    test_successful = imgdata.dimensions() == test_img_dimensions
 
     return test_successful, 1
 
