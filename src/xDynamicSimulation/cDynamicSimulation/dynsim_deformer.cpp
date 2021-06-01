@@ -164,10 +164,8 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
 	std::vector<NiftiImageData3DDeformation<float> > deformation_fields_with_stir_geometry;
 	for(size_t i=0; i<vec_deformation_fields.size(); i++)
 	{
-
 		auto sptr_nifti = vec_deformation_fields[i].get_raw_nifti_sptr();
 		deformation_fields_with_stir_geometry.push_back( NiftiImageData3DDeformation<float>((float*)sptr_nifti->data, *geom_stir_img));
-
 	}
 
     NiftyResampler<float> resampler;
@@ -176,14 +174,6 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
 
     resampler.set_reference_image(sptr_img_to_deform);
 	resampler.set_floating_image(sptr_img_to_deform);
-
-	// for( size_t i_disp=0; i_disp<vec_deformation_fields.size(); i_disp++)
-	// {
- //        std::shared_ptr<NiftiImageData3DDeformation<float> > disp_trafo =
- //                std::make_shared<NiftiImageData3DDeformation<float> >( vec_deformation_fields[i_disp] );
-	// 	resampler.add_transformation(disp_trafo);
-	// }
-
 
 	for( size_t i_disp=0; i_disp<deformation_fields_with_stir_geometry.size(); i_disp++)
 	{
