@@ -680,7 +680,7 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 	ISMRMRD::Acquisition acq;
 	time_ordered_acquisitions.get_acquisition(0, acq);
 
-	TimeAxisType time_offset = SIRF_SCANNER_MS_PER_TIC * acq.acquisition_time_stamp();
+	TimeAxisType time_offset = SIRF_SCANNER_MS_PER_TIC * acq.getHead().acquisition_time_stamp;
 
 	std::deque< size_t > relevant_acq_numbers;
 	std::deque< size_t > acq_not_binned;
@@ -705,14 +705,13 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 			relevant_acq_numbers.pop_front();	
 			ISMRMRD::Acquisition acq;
 			all_acquisitions.get_acquisition( curr_pos, acq );
-			auto acq_hdr = acq.getHead();
 			
-			TimeAxisType acq_time = SIRF_SCANNER_MS_PER_TIC * (TimeAxisType)acq_hdr.acquisition_time_stamp - time_offset;
+			TimeAxisType acq_time = SIRF_SCANNER_MS_PER_TIC * (TimeAxisType)acq.getHead().acquisition_time_stamp - time_offset;
 			
 			SignalAxisType signal_of_acq = this->linear_interpolate_signal( acq_time );
 			
 			if( is_in_bin(signal_of_acq, bin) )
-				curr_acq_vector.append_acquisition_sptr(sptr_acq);
+				curr_acq_vector.append_acquisition(acq);
 			else
 				acq_not_binned.push_back(curr_pos);					
 		}
@@ -721,12 +720,6 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 		this->binned_mr_acquisitions_.push_back( curr_acq_vector );
 	}
 }
-
-
-// void MRMotionDynamic::prep_displacement_fields()
-// {
-// 	MotionDynamic::prep_displacement_fields();
-// }
 
 std::vector<AcquisitionsVector> MRContrastDynamic::binned_mr_acquisitions_ = std::vector< AcquisitionsVector >(0);
 
@@ -760,10 +753,10 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 	size_t const num_acquis = time_ordered_acquisitions.number();	
 	ISMRMRD::Acquisition acq;
 	time_ordered_acquisitions.get_acquisition(num_acquis-1, acq);
-	float const t_fin = acq.acquisition_time_stamp;
+	float const t_fin = acq.getHead().acquisition_time_stamp;
 
 	time_ordered_acquisitions.get_acquisition(0, acq);
-	float const t_start = acq.acquisition_time_stamp;
+	float const t_start = acq.getHead().acquisition_time_stamp;
 
 	TimeAxisType total_time = SIRF_SCANNER_MS_PER_TIC * (t_fin - t_start);
 							   
@@ -788,9 +781,9 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 
 		for(size_t i=start_index; i<stop_index; i++)
 		{
-			ISRMRMD::Acquisition acq;
+			ISMRMRD::Acquisition acq;
 			time_ordered_acquisitions.get_acquisition( i, acq );
-			av.append_acquisition_sptr( acq );
+			av.append_acquisition( acq );
 		}
 		
 		this->binned_mr_acquisitions_.push_back( av );
