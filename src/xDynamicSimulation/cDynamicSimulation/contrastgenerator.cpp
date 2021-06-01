@@ -77,7 +77,7 @@ void MRContrastGenerator::resample_to_template_image( void )
 void MRContrastGenerator::map_contrast()
 {
 	this->tlm_.assign_tissues_to_labels();
-	this->contrast_filled_volumes_.empty()
+	this->contrast_filled_volumes_.empty();
 	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
 	
 	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr);
@@ -131,7 +131,7 @@ void MRContrastGenerator::map_contrast()
 	{
 		auto ptr_img = (CFImage*) contrast_filled_volumes_.sptr_image_wrap(i)->ptr_image();
 		ptr_img->resize(Nx, Ny, Nz, 1);
-		uint16_t const current_contast = ptr_img.getContrast();
+		uint16_t const current_contast = ptr_img->getContrast();
 
 		// #pragma omp parallel
 		for( size_t nz=0; nz<Nz; nz++)
@@ -459,24 +459,27 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 void PETContrastGenerator::resample_to_template_image( void )
 {
 
-	NiftyResample<float> resampler;
+	NiftyResampler<float> resampler;
 
     resampler.set_interpolation_type_to_cubic_spline();
 	resampler.set_reference_image(std::make_shared< sirf::STIRImageData > (this->template_pet_image_data_));
-	// resampler.set_floating_image(std::make_shared< sirf::STIRImageData > (this->template_pet_image_data_));
 	
 	auto contrast_volumes = this->get_contrast_filled_volumes();
 
 	for(int i=0; i<contrast_volumes.size(); ++i)
 	{
 		resampler.set_floating_image(std::make_shared< sirf::STIRImageData >( contrast_volumes[i]));
-		// resampler.set_reference_image(std::make_shared< sirf::STIRImageData >( contrast_volumes[i]));
 		resampler.process();
-		
+		const std::shared_ptr<const sirf::ImageData> sptr_deformed_img = resampler.get_output_sptr();
 
-		auto deformed_img = resampler.get_output_sptr();
 		this->contrast_filled_volumes_[i] = sirf::STIRImageData( this->template_pet_image_data_ ); //constructor for STIRImageData from ImageData does not exist yet.
-		this->contrast_filled_volumes_[i].set_data( (float*)( deformed_img->get_raw_nifti_sptr()->data ) );
+		std::shared_ptr<sirf::STIRImageData> sptr_contrast_volume = std::move(this->contrast_filled_volumes_[i].clone());
+		
+		sptr_deformed_img->copy(sptr_deformed_img->begin(),
+								sptr_contrast_volume->begin(), 
+								sptr_contrast_volume->end());
+
+		// this->contrast_filled_volumes_[i].set_data( (float*)( deformed_img->get_raw_nifti_sptr()->data ) );
 
 	}
 }
