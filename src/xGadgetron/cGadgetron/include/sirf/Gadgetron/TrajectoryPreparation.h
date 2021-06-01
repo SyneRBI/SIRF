@@ -74,7 +74,7 @@ typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
 \ingroup Gadgetron Extensions
 \brief Class to get cartesian encoding phase encoding locations
 *
-* Since no computation is required for cartesian trajecoties this is not
+* Since no computation is required for cartesian trajectories this is not
 * inherited and only a static getter is made available.
 */
 
@@ -85,7 +85,7 @@ public:
 
 /*!
 \ingroup Gadgetron Extensions
-\brief Class to set the golden-angle radial phase encoding (GRPE) trajecotry
+\brief Class to set the golden-angle radial phase encoding (GRPE) trajectory
 *
 * Computation is based on doi:10.1002/mrm.22102
 * The data reconstructed with this trajectory are parallel readouts arranged on

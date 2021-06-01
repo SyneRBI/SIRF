@@ -26,7 +26,7 @@ limitations under the License.
 
 */
 
-#include "sirf/Gadgetron/trajectorypreparation.h"
+#include "sirf/Gadgetron/TrajectoryPreparation.h"
 
 #include "sirf/iUtilities/LocalisedException.h"
 

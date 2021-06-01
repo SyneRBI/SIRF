@@ -37,11 +37,11 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/Gadgetron/gadget_lib.h"
 #include "sirf/Gadgetron/chain_lib.h"
-#include "sirf/Gadgetron/trajectorypreparation.h"
-// #include "sirf/Gadgetron/fourierencoding.h"
+#include "sirf/Gadgetron/TrajectoryPreparation.h"
+// #include "sirf/Gadgetron/FourierEncoding.h"
 
 #if GADGETRON_TOOLBOXES_AVAILABLE
-    #include "sirf/Gadgetron/noncartesian_encoding.h"
+    #include "sirf/Gadgetron/NonCartesianEncoding.h"
 #endif
 
 
