@@ -153,6 +153,11 @@ namespace sirf {
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
 
+		virtual bool is_complex() const
+		{
+			return false;
+		}
+
 		//! rebin the data to lower resolution by adding
 		/*!
 		  \param num_segments_to_combine combines multiple oblique 'segments' together. If set to the
@@ -860,6 +865,11 @@ namespace sirf {
 			return new ObjectHandle<DataContainer>
 				(stir::shared_ptr<DataContainer>(same_image_data()));
 		}
+		virtual bool is_complex() const
+		{
+			return false;
+		}
+
 		unsigned int items() const
 		{
 			return 1;

@@ -268,6 +268,11 @@ namespace sirf {
 
         virtual void set_user_floats(float const * const z, int const idx);
 
+		virtual bool is_complex() const
+		{
+			return true;
+		}
+
 		// acquisition data algebra
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(

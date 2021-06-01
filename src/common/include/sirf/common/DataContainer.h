@@ -44,6 +44,7 @@ namespace sirf {
 		//virtual DataContainer* new_data_container() const = 0;
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
 		virtual unsigned int items() const = 0;
+		virtual bool is_complex() const = 0;
 		virtual float norm() const = 0;
 		virtual void dot(const DataContainer& dc, void* ptr) const = 0;
 		virtual void multiply

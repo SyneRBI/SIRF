@@ -97,6 +97,14 @@ class DataContainer(ABC):
     def is_empty(self):
         return self.number() < 1
 
+    def is_complex(self):
+        assert self.handle is not None
+        handle = pysirf.cSIRF_isComplex(self.handle)
+        check_status(handle)
+        i = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return i != 0
+
     def norm(self):
         '''
         Returns the 2-norm of the container data viewed as a vector.
