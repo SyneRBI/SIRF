@@ -489,31 +489,11 @@ void run_tests_dynsim_deformer( void )
 
 
 
-
-void run_tests_volume_orientator( void )
-{
-	bool tests_successful = true;
-
-	tests_successful *= sirf::aVolumeOrientatorTester::test_reorient_image();
-
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.str() );
-	}
-	else
-	{
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
-	}
-}
-
-
 void run_tests_memory_usage( void )
 {
 	bool tests_successful = true;
 
- 	tests_memory::test_sirf_free_acquisition();	
+ 	// tests_memory::test_sirf_free_acquisition();	
 	// tests_memory::test_acquisition_memory();
 	// tests_memory::test_downsizing_acquisition_memory();
 	// tests_successful *= tests_memory::test_acquisition_vector_memory();
@@ -536,7 +516,7 @@ void run_tests_memory_usage( void )
 
 int main( int argc, char *argv[] )
 {
-	std::cout << "Starting... " <<std::endl;
+	std::cout << "Starting Simulation C++ tests... " <<std::endl;
 	try
 	{
 		if(argc > 1)
@@ -545,7 +525,6 @@ int main( int argc, char *argv[] )
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 		}
 
-		
 		// run_tests_auxiliary_testing_functions();
 		// run_tests_auxiliary_input_output();
 		// run_tests_tissueparameters();
@@ -554,10 +533,9 @@ int main( int argc, char *argv[] )
 		// run_tests_encoding();
 		// run_tests_mr_acquisition_model();
 		// run_tests_dynamics();
-		run_tests_dynamic_simulation();
+		// run_tests_dynamic_simulation();
 		// run_tests_noise_generator();
 		// run_tests_dynsim_deformer();
-		// run_tests_volume_orientator();
 		// run_tests_memory_usage();
 		
 		// run_apps();		

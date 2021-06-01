@@ -25,6 +25,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/phantom_input.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 
+#include "mrtest_auxiliary_funs.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
+
+
 using namespace std;
 using namespace ISMRMRD;
 using namespace stir;
@@ -92,26 +96,28 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 
 	LabelVolume segmentation_labels = aux_test::get_mock_label_volume();
 	MRContrastGenerator mr_contgen (segmentation_labels, XML_TEST_PATH);  	
-
-
 	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
 
 	mr_contgen.set_rawdata_header(hdr);
 
 	mr_contgen.map_contrast();
 
-	std::vector< ISMRMRD::Image< complex_float_t> > contrasts = mr_contgen.get_contrast_filled_volumes();	
+	GadgetronImagesVector& contrasts = mr_contgen.get_contrast_filled_volumes();	
+
 
 	size_t const num_echoes = ((hdr.sequenceParameters.get()).TE.get()).size();;
 	size_t input_dims[8] = {3,2,2,2,num_echoes,1,1,1};
 
-	std::vector< size_t > contrast_dims;
+	std::vector< int > contrast_dims;
+
+
+	sirf::Dimensions dims = contrasts.dimensions();
 
 	contrast_dims.push_back( 3 );
-	contrast_dims.push_back( contrasts[0].getMatrixSizeX() );
-	contrast_dims.push_back( contrasts[0].getMatrixSizeY() );
-	contrast_dims.push_back( contrasts[0].getMatrixSizeZ() );
-	contrast_dims.push_back( contrasts.size() );
+	contrast_dims.push_back( dims["x"] );
+	contrast_dims.push_back( dims["y"] );
+	contrast_dims.push_back( dims["z"] );
+	contrast_dims.push_back( dims["n"] );
 
 	bool dims_are_correct = true; 
 	for( int i=0; i< 4; i++)
@@ -135,19 +141,11 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	
 	mr_contgen.map_contrast();
 	
-	std::vector< ISMRMRD::Image< complex_float_t> >	mr_contrasts = mr_contgen.get_contrast_filled_volumes();	
-
-	size_t num_elements = mr_contrasts[0].getNumberOfDataElements();
-	size_t num_contrasts = mr_contrasts.size();
-	std::cout << epiph(num_elements) << std::endl;
-	std::cout << epiph(num_contrasts) << std::endl;
-
-	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
-	{	
-		std::stringstream name_stream;
-		name_stream << SHARED_FOLDER_PATH << "testoutput_mr_cont_gent_contrast_" << i_contrast;
-		data_io::write_ISMRMRD_Image_to_nii< complex_float_t > ( name_stream.str(), mr_contrasts[i_contrast]);
-	}			
+	GadgetronImagesVector& mr_contrasts = mr_contgen.get_contrast_filled_volumes();	
+	
+	std::stringstream name_stream;
+	name_stream << SHARED_FOLDER_PATH << "testoutput_mr_cont_gent_contrast_";
+	sirf::write_imagevector_to_raw(name_stream.str(), mr_contrasts);
 }
 
 void test_contgen::test_get_signal_for_tissuelabel_in_xcat()
@@ -178,27 +176,9 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 	mr_contgen.set_rawdata_header(hdr);
 	mr_contgen.map_contrast();
 
-	auto mr_contrasts = mr_contgen.get_contrast_filled_volumes();
-
-	std::string const output_name_pre_contrast = std::string(SHARED_FOLDER_PATH) + "test_contrast_gen_pre_contrast";
-	
-	auto img_data = mr_contrasts[0];
-	
-	ImageHeader img_hdr = img_data.getHead();
-	img_hdr.data_type = ISMRMRD_FLOAT; 
-
-	Image< float > output_img;
-	output_img.setHead( img_hdr );
-
-	size_t const num_voxels = output_img.getNumberOfDataElements(); 
-
-	for(size_t i_vx=0; i_vx<num_voxels; i_vx++) 
-		*(output_img.begin() + i_vx) = std::abs( *(img_data.begin()+ i_vx) );
-	
-
-	data_io::write_ISMRMRD_Image_to_nii<float>(output_name_pre_contrast, output_img);
-
-
+	GadgetronImagesVector& mr_contrasts = mr_contgen.get_contrast_filled_volumes();
+	std::string output_name = std::string(SHARED_FOLDER_PATH) + "test_contrast_gen_pre_contrast";
+	sirf::write_imagevector_to_raw(output_name, mr_contrasts);
 
 	// now replace one label and see what happens in the image
 	LabelType label_to_replace = 1;
@@ -208,17 +188,8 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 	mr_contgen.map_contrast();
 
 	mr_contrasts = mr_contgen.get_contrast_filled_volumes();
-
-	std::string const output_name_post_contrast = std::string(SHARED_FOLDER_PATH) + "test_contrast_gen_post_contrast";
-	
-	img_data = mr_contrasts[0];
-	
-	for(size_t i_vx=0; i_vx<num_voxels; i_vx++) 
-		*(output_img.begin() + i_vx) = std::abs( *(img_data.begin()+ i_vx) );
-
-	data_io::write_ISMRMRD_Image_to_nii<float>(output_name_post_contrast, output_img);
-
-
+	output_name = std::string(SHARED_FOLDER_PATH) + "test_contrast_gen_post_contrast";
+	sirf::write_imagevector_to_raw(output_name, mr_contrasts);
 }
 
 
