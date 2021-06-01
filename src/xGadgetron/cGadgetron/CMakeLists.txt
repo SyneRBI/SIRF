@@ -59,7 +59,7 @@ find_library( GT_LOG NAMES gadgetron_toolbox_log
 set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
 
 if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
-    MESSAGE(STATUS "The Gadgetron toolboxes required for radial gridding were found. Non-caratesian encoding will be compiled.")
+    MESSAGE(STATUS "The Gadgetron toolboxes required for radial gridding were found. Non-cartesian encoding will be compiled.")
     set(GADGETRON_TOOLBOXES_AVAILABLE TRUE)
     set(CGADGETRON_SOURCES ${CGADGETRON_SOURCES} noncartesian_encoding.cpp)
 
@@ -70,7 +70,7 @@ if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
     endif()
 else()
     set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
-    MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-caratesian encoding will NOT BE compiled.")
+    MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-cartesian encoding will NOT BE compiled.")
 endif()
 
 add_library(cgadgetron ${CGADGETRON_SOURCES})
