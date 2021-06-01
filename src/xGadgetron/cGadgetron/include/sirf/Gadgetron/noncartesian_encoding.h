@@ -63,7 +63,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef NONCARTESIAN_ENCODING_H
 #define NONCARTESIAN_ENCODING_H
 
-#include <sirf/Gadgetron/fourierencoding.h>
+#include <sirf/Gadgetron/FourierEncoding.h>
 
 #include <gadgetron/hoNDArray.h>
 #include <gadgetron/vector_td.h>

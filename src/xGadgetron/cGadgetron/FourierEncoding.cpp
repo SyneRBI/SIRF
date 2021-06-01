@@ -18,7 +18,7 @@ limitations under the License.
 
 */
 
-#include "sirf/Gadgetron/fourierencoding.h"
+#include "sirf/Gadgetron/FourierEncoding.h"
 
 #include <sstream>
 #include <math.h>

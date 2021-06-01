@@ -47,7 +47,7 @@ limitations under the License.
 #include "sirf/Gadgetron/gadget_lib.h"
 #include "sirf/Gadgetron/ismrmrd_fftw.h"
 
-#include "sirf/Gadgetron/fourierencoding.h"
+#include "sirf/Gadgetron/FourierEncoding.h"
 
 #if GADGETRON_TOOLBOXES_AVAILABLE
     #include "sirf/Gadgetron/noncartesian_encoding.h"
