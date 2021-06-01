@@ -1,5 +1,13 @@
 # ChangeLog
 
+## Current changes
+* MR/Gadgetron
+  - new MR reconstruction framework sorts the ISMRMRD::Acquisitions prior to reconstruction. This ensures that only consistent images are reconstructed.
+  - Encoding classes perform the Fourier transformations instead of the MRAcquisitionModel
+  - Golden-angle radial phase encoding (RPE) trajectory is supported.
+  - CoilSensitivitiesVector class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute coil sensitivities from MRAcquisitionData.
+
+
 ## v3.0.0
 ### Backwards incompatible changes
 * STIR version 4.1.0 is now required.
