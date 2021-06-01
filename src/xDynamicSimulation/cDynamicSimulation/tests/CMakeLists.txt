@@ -33,8 +33,9 @@ set( SIMULATION_TEST_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/app_mracquisitiondata.cpp
 )
 
-add_library(SIMULATION_TESTS_LIB SIMULATION_TEST_FILES)
-target_link_libraries(SIMULATION_TESTS_LIB PUBLIC csirf cgadgetron cdynamicsimulation)
+add_library(SIMULATION_TESTS_LIB ${SIMULATION_TEST_FILES})
+target_link_libraries(SIMULATION_TESTS_LIB PUBLIC csirf cgadgetron cdynamicsimulation MR_TESTS_CPP_AUXILIARY)
+
 
 add_executable(SIMULATION_TESTS_CPLUSPLUS ${CMAKE_CURRENT_SOURCE_DIR}/all_simulation_tests.cpp ${STIR_REGISTRIES})
 target_link_libraries(SIMULATION_TESTS_CPLUSPLUS PUBLIC SIMULATION_TESTS_LIB ${STIR_LIBRARIES})

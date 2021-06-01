@@ -34,7 +34,7 @@ set(SRC_FILES_TO_COMPILE
   dynsim_deformer.cpp 
   volume_orientator.cpp)
 
-  add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
+add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
 set (cdynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 
 TARGET_INCLUDE_DIRECTORIES(cdynamicsimulation PUBLIC
@@ -68,5 +68,4 @@ target_link_libraries(cdynamicsimulation ismrmrd)
 target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
 target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
-
-include_directories(./tests)
+add_subdirectory(tests)
