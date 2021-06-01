@@ -18,6 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 
+#include "mrtest_auxiliary_funs.h"
 
 
 using namespace sirf;
@@ -103,12 +104,11 @@ try
 			mr_cont_gen.map_contrast();
 			DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, vec_mvfs);
 			
-			auto curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
-			
-			std::stringstream filename_stream;
-			filename_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_" << i; 		
-			
-			data_io::write_ISMRMRD_Image_to_nii< complex_float_t > (filename_stream.str(), curr_motion_state[0]);
+			GadgetronImagesVector curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
+			std::stringstream name_stream;
+			name_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_" << i; 		
+			sirf::write_imagevector_to_raw(name_stream.str(), curr_motion_state);
+
 		}
 
 		return true;
@@ -139,13 +139,10 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 		motion_dyn.prep_displacement_fields();
 
 		STIRImageData template_img( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH ); 
-		// motion_dyn.align_motion_fields_with_image( template_img );
 
 		pet_cont_gen.map_tissue();
 		std::vector< sirf::STIRImageData > static_state = pet_cont_gen.get_contrast_filled_volumes();
 
-		// std::string filename_static = std::string(SHARED_FOLDER_PATH) + "/pet_activity_map_static";
-		// data_io::write_PET_image_to_hv(filename_static, static_state[0]);
 
 		for( size_t i_motion=0; i_motion<num_simul_cardiac_states; i_motion++)
 		{
@@ -266,12 +263,11 @@ bool DynSimDeformerTester::test_motion_of_MotionDynamics()
 			mr_cont_gen.map_contrast();
 			DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, vec_mvfs);
 			
-			auto curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
-			
-			std::stringstream filename_stream;
-			filename_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_from_dyn_" << i; 		
-			
-			data_io::write_ISMRMRD_Image_to_nii< complex_float_t > (filename_stream.str(), curr_motion_state[0]);
+			GadgetronImagesVector curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
+			std::stringstream name_stream;
+			name_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_from_dyn_" << i; 		
+			sirf::write_imagevector_to_raw(name_stream.str(), curr_motion_state);
+
 		}
 	
 		return test_succesful;

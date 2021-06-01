@@ -29,7 +29,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_noisegenerator.h"
 #include "tests_dynsim_deformer.h"
 #include "tests_volume_orientator.h"
-#include "tests_memory_usage.h" 
 
 #include "all_simulation_tests.h"
 
@@ -488,32 +487,6 @@ void run_tests_dynsim_deformer( void )
 }
 
 
-
-void run_tests_memory_usage( void )
-{
-	bool tests_successful = true;
-
- 	// tests_memory::test_sirf_free_acquisition();	
-	// tests_memory::test_acquisition_memory();
-	// tests_memory::test_downsizing_acquisition_memory();
-	// tests_successful *= tests_memory::test_acquisition_vector_memory();
-	// tests_successful *=tests_memory::test_acquisition_vector_ordering_memory();
-	// tests_successful *= tests_memory::test_ndarray_memory_managment();
-	// tests_successful *= tests_memory::tests_resizing_acquisition_memory();
-	// tests_successful *= tests_memory::tests_VD_h5_file_content();
-	
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.str() );
-	}
-	else
-	{
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
-	}
-}
-
 int main( int argc, char *argv[] )
 {
 	std::cout << "Starting Simulation C++ tests... " <<std::endl;
@@ -536,7 +509,6 @@ int main( int argc, char *argv[] )
 		// run_tests_dynamic_simulation();
 		// run_tests_noise_generator();
 		// run_tests_dynsim_deformer();
-		// run_tests_memory_usage();
 		
 		// run_apps();		
 
