@@ -53,15 +53,17 @@ bool test_noisegen::test_add_gaussian_noise( void )
 
 		for(size_t i=0; i<av.number(); i++)
 		{
-			auto sptr_ac = av.get_acquisition_sptr( i );
-			sptr_ac->resize( sptr_ac->number_of_samples() );
+			ISMRMRD::Acquisition acq;
+			av.get_acquisition( i, acq );
+			acq.resize( acq.number_of_samples() );
 
-			auto it = sptr_ac->data_begin ();
-			while( it != sptr_ac->data_end() )
+			auto it = acq.data_begin ();
+			while( it != acq.data_end() )
 			{
 				*it = complex_float_t( 0.f, 0.f );	
 				it++;
-			}  
+			} 
+			av.set_acquisition(i, acq); 
 		}
 
 		float const SNR = 13;
