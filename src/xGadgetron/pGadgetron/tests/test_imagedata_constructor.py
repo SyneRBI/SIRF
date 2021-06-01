@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""sirf.Gadgetron Test set 1.
+"""sirf.Gadgetron test.
 v{version}
 
-Fully sampled data tests
+Constructor of MR image data from MR acquisition data
 
 Usage:
   test_imagedata_constructor [--help | options]
@@ -14,7 +14,7 @@ Options:
 
 {licence}
 """
-# Created on Tue Nov 21 10:17:28 2017
+
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
 __version__ = "0.2.3"
