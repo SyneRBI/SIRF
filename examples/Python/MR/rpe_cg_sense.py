@@ -21,7 +21,7 @@ Options:
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2021 Physikalisch-Technische Bundesanstalt
+## Copyright 2021 Physikalisch-Technische Bundesanstalt (PTB)
 ## Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2021 University College London.
 ##
