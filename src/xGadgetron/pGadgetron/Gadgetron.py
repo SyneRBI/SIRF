@@ -577,10 +577,6 @@ class CoilSensitivityData(ImageData):
 
         dcw = compute_kspace_density(csm_data)
         csm_data = csm_data * dcw
-        try_calling(pygadgetron.cGT_computeCoilImages(self.handle, csm_data.handle))
-
-        dcw = compute_kspace_density(csm_data)
-        csm_data = csm_data * dcw
 
         if method_name == 'Inati':
             try:
