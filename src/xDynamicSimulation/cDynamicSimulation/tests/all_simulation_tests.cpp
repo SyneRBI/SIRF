@@ -49,24 +49,34 @@ bool run_tests_auxiliary_testing_functions(void )
     {
        bool tests_successful = true;
 
+		std::cout << "##############################################################" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
+		std::cout << "##############################################################" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
+		std::cout << "##############################################################" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
+		std::cout << "##############################################################" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
+		std::cout << "##############################################################" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
+		std::cout << "##############################################################" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_gaussian_csm();
+		std::cout << "##############################################################" << std::endl;
 
 		return tests_successful;
 
     }
-    catch( std::runtime_error const &e)
-    {
+    catch(std::runtime_error const &e){
         std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
         std::cout << e.what() << std::endl;
         throw;
     }
-	catch(const std::exception &error) {
+	catch(const std::exception &error){
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+		throw;
+	}
+	catch(...){
+        std::cerr << "An unknown exception was caught in "<< __FUNCTION__ << std::endl;
 		throw;
 	}
 }
@@ -262,26 +272,33 @@ bool run_tests_noise_generator( void )
 
 bool run_tests_auxiliary_input_output( void )
 {
-	std::cout << "Starting aux io tests" << std::endl;
-	bool tests_successful = true;
+	std::cout<< "Running " << __FUNCTION__ << std::endl;		
 
-	// test_aux_io::test_write_ndarray_to_raw();
-	// test_aux_io::test_write_ismrmrd_image_to_analyze();
+	try
+    {
+       bool tests_successful = true;
 
-	// tests_successful *= test_aux_io::test_read_acquisitions_vector_number_consistency();	
-	tests_successful *= test_aux_io::test_read_single_column_txt();
+		test_aux_io::test_write_ndarray_to_raw();
+		test_aux_io::test_write_ismrmrd_image_to_analyze();
 
-	
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.str() );
-	}
-	else
-	{
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		tests_successful *= test_aux_io::test_read_acquisitions_vector_number_consistency();	
+		tests_successful *= test_aux_io::test_read_single_column_txt();
+
 		return tests_successful;
+
+    }
+    catch(std::runtime_error const &e){
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+	catch(const std::exception &error){
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+		throw;
+	}
+	catch(...){
+        std::cerr << "An unknown exception was caught in "<< __FUNCTION__ << std::endl;
+		throw;
 	}
 }
 

@@ -211,12 +211,8 @@ ISMRMRD::IsmrmrdHeader aux_test::get_mock_ismrmrd_header( void )
 
 std::string aux_test::get_serialized_mock_ismrmrd_header( void )
 {
-
-	
 	ISMRMRD::IsmrmrdHeader hdr = get_mock_ismrmrd_header();
-
 	std::ostringstream out;
-
 	ISMRMRD::serialize(hdr, out);
 
 	return out.str();
@@ -561,10 +557,11 @@ AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeade
 	using namespace ISMRMRD;
 	typedef unsigned short unshort;
 
-
 	std::ostringstream out;
 	serialize(hdr, out);
-	AcquisitionsVector acq_vec(out.str());
+
+	AcquisitionsInfo serialized_hdr(out.str());
+	AcquisitionsVector acq_vec(serialized_hdr);
 
 	std::vector< Encoding > encodings = hdr.encoding;
 
