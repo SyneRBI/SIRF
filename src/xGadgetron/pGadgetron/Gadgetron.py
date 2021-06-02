@@ -1614,8 +1614,8 @@ def extract_calibration_data( ad ):
 
     subset_idx = numpy.array([])
     for i in range(ad.number()):
-        a = ad.acquisition(i)
-        flags = decode_ismrmrd_flag(a.flags())
+        acq = ad.acquisition(i)
+        flags = decode_ismrmrd_flag(acq.flags())
         if ref_flag in flags or ref_img_flag in flags:
             subset_idx = numpy.append(subset_idx, i)
 
