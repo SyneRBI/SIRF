@@ -1602,20 +1602,13 @@ def calc_rpe_dcw(ad):
     
     return dcw
 
-
-def decode_ismrmrd_flag(flag):
-
-    dec_flags = []
-
-    while flag>0:
-        log_flag = int( numpy.floor(numpy.log2(flag)) )
-        dec_flags.append(log_flag + 1)
-
-        flag -= 2 ** log_flag
-
-    return dec_flags
-
 def extract_calibration_data( ad ):
+    '''
+    Function to extract all Acquisitions from an AcquisitionData object that 
+    carry the coil calibration flag.
+    '''
+
+    assert(isinstance(ad, AcquisitionData)), "Please pass only AcquisitionData objects."
     ref_flag = 20
     ref_img_flag = 21
 
@@ -1634,3 +1627,17 @@ def extract_calibration_data( ad ):
         return ad
 
     
+def decode_ismrmrd_flag(flag):
+    '''
+    Function to turn the flag set in an Acquisition header into the set of integers
+    that generated the bitmask.
+    '''
+    dec_flags = []
+
+    while flag>0:
+        log_flag = int( numpy.floor(numpy.log2(flag)) )
+        dec_flags.append(log_flag + 1)
+
+        flag -= 2 ** log_flag
+
+    return dec_flags
