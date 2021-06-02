@@ -1619,12 +1619,18 @@ def extract_calibration_data( ad ):
     ref_flag = 20
     ref_img_flag = 21
 
-    subset_idx = []
+    subset_idx = numpy.array([])
     for i in range(ad.number()):
         a = ad.acquisition(i)
         flags = decode_ismrmrd_flag(a.flags())
         if ref_flag in flags or ref_img_flag in flags:
-            subset_idx.append(i)
+            subset_idx = numpy.append(subset_idx, i)
 
-    calib_data = ad.get_subset(numpy.array(subset_idx))
-    return calib_data
+    if subset_idx.size > 0:
+        calib_data = ad.get_subset(subset_idx)
+        return calib_data
+    else:
+        print("Warning, there are no calibration data in this dataset. We use them all for CSM computation.")
+        return ad
+
+    
