@@ -1,4 +1,4 @@
-numpy --only-binary=numpy
+numpy>=1.18.0 --only-binary=numpy
 scipy --only-binary=scipy
 matplotlib --only-binary=matplotlib
 docopt
