@@ -1602,13 +1602,15 @@ def calc_rpe_dcw(ad):
     
     return dcw
 
-def extract_calibration_data( ad ):
+def extract_calibration_data(ad):
     '''
-    Function to extract all Acquisitions from an AcquisitionData object that 
+    Function to extract all Acquisitions from an AcquisitionData object that
     carry the coil calibration flag.
     '''
 
-    assert(isinstance(ad, AcquisitionData)), "Please pass only AcquisitionData objects."
+    if not isinstance(ad, AcquisitionData):
+        raise AssertionError("The trajectory you asked for is not among the available trajectoryies")
+
     ref_flag = 20
     ref_img_flag = 21
 
