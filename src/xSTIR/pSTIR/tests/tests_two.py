@@ -40,6 +40,14 @@ def test_main(rec=False, verb=False, throw=True):
         acq_model = AcquisitionModelUsingRayTracingMatrix()
         acq_model.set_up(acq_data, image)
 
+        acq_mod_lin = acq_model.get_linear_acquisition_model()
+        rng = acq_mod_lin.range_geometry()
+        dom = acq_mod_lin.domain_geometry()
+        rng = rng - acq_data
+        dom = dom - image
+        test.check_if_equal(0, rng.norm())
+        test.check_if_equal(0, dom.norm())
+
         obj_fun = make_Poisson_loglikelihood(acq_data)
         obj_fun.set_acquisition_model(acq_model)
 

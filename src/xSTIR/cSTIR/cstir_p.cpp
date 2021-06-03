@@ -280,6 +280,19 @@ sirf::cSTIR_setAcquisitionModelParameter
 }
 
 void*
+sirf::cSTIR_AcquisitionModelParameter(DataHandle* hm, const char* name)
+{
+	AcqMod3DF& am = objectFromHandle< AcqMod3DF >(hm);
+	if (boost::iequals(name, "range geometry"))
+		return newObjectHandle(am.acq_template_sptr());
+	else if (boost::iequals(name, "domain geometry"))
+		return newObjectHandle(am.image_template_sptr());
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
 sirf::cSTIR_setAcqModUsingMatrixParameter
 (DataHandle* hm, const char* name, const DataHandle* hv)
 {
