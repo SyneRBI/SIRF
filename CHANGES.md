@@ -1,6 +1,8 @@
 # ChangeLog
 
 ## Current changes
+* SIRF Python interface
+  - `range_geometry` and `domain_geometry` methods of `AcquisitionModel` classes, required by CIL algorithms, now obtain data via respective C++ `AcquisitionModel` classes accessors, in line with our strategy of keeping interface code minimal
 * MR/Gadgetron
   - new MR reconstruction framework sorts the ISMRMRD::Acquisitions prior to reconstruction. This ensures that only consistent images are reconstructed.
   - Encoding classes perform the Fourier transformations instead of the MRAcquisitionModel
