@@ -196,6 +196,9 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 			std::string value = g.value_of(name);
 			return charDataHandleFromCharData(value.c_str());
 		}
+		if (boost::iequals(obj, "acquisition model")) {
+			return cGT_AcquisitionModelParameter(ptr, name);
+		}
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -363,6 +366,26 @@ cGT_setAcquisitionModelParameter
 			shared_ptr<CoilSensitivitiesVector> sptr_csc;
 			getObjectSptrFromHandle<CoilSensitivitiesVector>(handle, sptr_csc);
 			am.set_csm(sptr_csc);
+		}
+		else
+			return unknownObject("parameter", name, __FILE__, __LINE__);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_AcquisitionModelParameter(void* ptr_am, const char* name)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+		if (boost::iequals(name, "range geometry")) {
+			return newObjectHandle(am.acq_template_sptr());
+		}
+		else if (boost::iequals(name, "domain geometry")) {
+			return newObjectHandle(am.image_template_sptr());
 		}
 		else
 			return unknownObject("parameter", name, __FILE__, __LINE__);
