@@ -1230,7 +1230,9 @@ class AcquisitionSensitivityModel(object):
             if src.handle is None:
                 raise AssertionError()
             if other_src is None:
-                raise AssertionError('AcquisitionSensitivityModel constructor with attenuation image needs an AcquisitionModel as second argument (for ray tracing)')
+                raise AssertionError('AcquisitionSensitivityModel constructor' + 
+                ' with attenuation image needs an AcquisitionModel' +
+                ' as second argument (for ray tracing)')
             assert_validity(other_src, AcquisitionModel)
             self.handle = pystir.cSTIR_createPETAttenuationModel(
                 src.handle, other_src.handle)

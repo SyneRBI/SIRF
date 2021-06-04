@@ -196,7 +196,7 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 			std::string value = g.value_of(name);
 			return charDataHandleFromCharData(value.c_str());
 		}
-		if (boost::iequals(obj, "acquisition model")) {
+		if (boost::iequals(obj, "AcquisitionModel")) {
 			return cGT_AcquisitionModelParameter(ptr, name);
 		}
 		return unknownObject("object", obj, __FILE__, __LINE__);
