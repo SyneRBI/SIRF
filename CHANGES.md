@@ -9,6 +9,9 @@
   - Golden-angle radial phase encoding (RPE) trajectory is supported.
   - CoilSensitivitiesVector class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute coil sensitivities from MRAcquisitionData.
 
+* Build system
+  - fix bug with older CMake (pre-3.12?) that the Python interface was not built
+  [#939](https://github.com/SyneRBI/SIRF/issues/939).
 
 ## v3.0.0
 ### Backwards incompatible changes

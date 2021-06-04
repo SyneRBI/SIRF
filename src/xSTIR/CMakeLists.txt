@@ -17,7 +17,7 @@
 #=========================================================================
 
 add_subdirectory(cSTIR)
-if (PYTHON_FOUND AND BUILD_PYTHON)
+if (BUILD_PYTHON)
   add_subdirectory(pSTIR)
 endif()
 add_subdirectory(mSTIR)
