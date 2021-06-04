@@ -54,6 +54,9 @@ namespace sirf {
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 
 	void*
+		cSTIR_AcquisitionModelParameter(DataHandle* hm, const char* name);
+
+	void*
 		cSTIR_setAcqModUsingMatrixParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 

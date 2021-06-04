@@ -1062,9 +1062,6 @@ class AcquisitionModel(object):
             self.handle = \
                 pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         check_status(self.handle)
-        # saves reference to template of AcquisitionData and ImageData
-        self.acq_templ = acqs
-        self.img_templ = imgs
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1171,11 +1168,19 @@ class AcquisitionModel(object):
 
     def range_geometry(self):
         '''Returns the template of AcquisitionData'''
-        return self.acq_templ
+        geom = AcquisitionData()
+        geom.handle = pygadgetron.cGT_parameter(
+            self.handle, 'AcquisitionModel', 'range geometry')
+        check_status(geom.handle)
+        return geom
 
     def domain_geometry(self):
         '''Returns the template of ImageData'''
-        return self.img_templ
+        geom = ImageData()
+        geom.handle = pygadgetron.cGT_parameter(
+            self.handle, 'AcquisitionModel', 'domain geometry')
+        check_status(geom.handle)
+        return geom
 
 class Gadget(object):
     '''

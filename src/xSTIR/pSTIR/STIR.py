@@ -1230,7 +1230,9 @@ class AcquisitionSensitivityModel(object):
             if src.handle is None:
                 raise AssertionError()
             if other_src is None:
-                raise AssertionError('AcquisitionSensitivityModel constructor with attenuation image needs an AcquisitionModel as second argument (for ray tracing)')
+                raise AssertionError('AcquisitionSensitivityModel constructor' +
+                ' with attenuation image needs an AcquisitionModel' +
+                ' as second argument (for ray tracing)')
             assert_validity(other_src, AcquisitionModel)
             self.handle = pystir.cSTIR_createPETAttenuationModel(
                 src.handle, other_src.handle)
@@ -1355,7 +1357,6 @@ class AcquisitionModel(object):
     def __init__(self):
         """init."""
         self.handle = None
-        self.name = 'AcquisitionModel'
         # reference to the background term
         self.bt = None
         # reference to the additive term
@@ -1384,10 +1385,6 @@ class AcquisitionModel(object):
 
         assert_validity(acq_templ, AcquisitionData)
         assert_validity(img_templ, ImageData)
-
-        # temporarily save the templates in the class
-        self.acq_templ = acq_templ
-        self.img_templ = img_templ
 
         try_calling(pystir.cSTIR_setupAcquisitionModel(
             self.handle, acq_templ.handle, img_templ.handle))
@@ -1553,8 +1550,6 @@ class AcquisitionModel(object):
         am.handle = pystir.cSTIR_linearAcquisitionModel(self.handle)
         check_status(am.handle)
         am.const = True # am to be a const reference of self
-        am.img_templ = self.img_templ
-        am.acq_templ = self.acq_templ
         return am
 
     def direct(self, image, out=None):
@@ -1608,11 +1603,19 @@ class AcquisitionModel(object):
 
     def range_geometry(self):
         """Return the template of AcquisitionData."""
-        return self.acq_templ
+        geom = AcquisitionData()
+        geom.handle = pystir.cSTIR_parameter(
+            self.handle, 'AcquisitionModel', 'range geometry')
+        check_status(geom.handle)
+        return geom
 
     def domain_geometry(self):
         """Return the template of ImageData."""
-        return self.img_templ
+        geom = ImageData()
+        geom.handle = pystir.cSTIR_parameter(
+            self.handle, 'AcquisitionModel', 'domain geometry')
+        check_status(geom.handle)
+        return geom
 
     @property
     def subset_num(self):
@@ -1674,7 +1677,6 @@ class AcquisitionModel(object):
                     .format(value))
         else:
             raise ValueError("Expected an integer. Got {}".format(type(value)))
-
 
 
 

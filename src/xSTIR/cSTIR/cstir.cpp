@@ -239,6 +239,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			(handle, name);
 		else if (boost::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_rayTracingMatrixParameter(handle, name);
+		else if (boost::iequals(obj, "AcquisitionModel"))
+			return cSTIR_AcquisitionModelParameter(handle, name);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_acqModUsingMatrixParameter(handle, name);
 		else if (boost::iequals(obj, "GeneralisedPrior"))
