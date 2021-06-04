@@ -56,7 +56,7 @@ endif()
 
 add_subdirectory(NiftyMoMo)
 add_subdirectory(cReg)
-if (PYTHON_FOUND AND BUILD_PYTHON)
+if (BUILD_PYTHON)
   add_subdirectory(pReg)
 endif()
 add_subdirectory(mReg)

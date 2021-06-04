@@ -34,7 +34,7 @@ ENDFOREACH(elem ${SYN_executables})
 
 add_subdirectory(cSyn)
 add_subdirectory(mSyn)
-if (PYTHON_FOUND AND BUILD_PYTHON)
+if (BUILD_PYTHON)
   add_subdirectory(pSyn)
 endif()
 

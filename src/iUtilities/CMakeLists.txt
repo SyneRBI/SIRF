@@ -28,7 +28,7 @@ target_include_directories(iutilities PUBLIC
 
 target_include_directories(iutilities PUBLIC ${Boost_INCLUDE_DIRS})
 
-if(BUILD_PYTHON AND PYTHON_FOUND)
+if(BUILD_PYTHON)
   if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
     # policy introduced in CMake 3.13
     cmake_policy(SET CMP0078 OLD)
