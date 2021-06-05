@@ -32,7 +32,6 @@ limitations under the License.
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
-#include <_reg_f3d.h>
 #include <_reg_f3d_sym.h>
 #include <_reg_f3d2.h>
 

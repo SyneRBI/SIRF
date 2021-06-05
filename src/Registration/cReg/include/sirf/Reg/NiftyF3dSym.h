@@ -35,6 +35,8 @@ in the symmetric version, and therefore do not recommend using it until that iss
 
 #include "sirf/Reg/NiftyRegistration.h"
 
+template<class dataType> class reg_f3d;
+
 namespace sirf {
 
 /// Forward declarations
