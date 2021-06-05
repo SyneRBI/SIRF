@@ -35,8 +35,6 @@ in the symmetric version, and therefore do not recommend using it until that iss
 
 #include "sirf/Reg/NiftyRegistration.h"
 
-template<class dataType> class reg_f3d;
-
 namespace sirf {
 
 /// Forward declarations
@@ -52,6 +50,7 @@ In theory, multiple time points can be used, but thus far has only been tested f
 t == 1 for both reference and floating images.
 
 \author Richard Brown
+\author Alexander C. Whitehead
 \author SyneRBI
 */
 template<class dataType> class NiftyF3dSym : public NiftyRegistration<dataType>
