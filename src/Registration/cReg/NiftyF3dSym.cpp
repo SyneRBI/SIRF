@@ -33,6 +33,7 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include <_reg_f3d_sym.h>
+#include <_reg_f3d2.h>
 
 using namespace sirf;
 
@@ -50,10 +51,21 @@ void NiftyF3dSym<dataType>::process()
     NiftiImageData3D<dataType> flo = *this->_floating_images_nifti.at(0);
 
     // Create the registration object
-    if (_use_symmetric)
-        _registration_sptr = std::make_shared<reg_f3d_sym<dataType> >(_reference_time_point, _floating_time_point);
+    if(_use_symmetric)
+    {
+        _registration_sptr = std::make_shared<reg_f3d_sym<dataType>>(_reference_time_point, _floating_time_point);
+    }
     else
-        _registration_sptr = std::make_shared<reg_f3d<dataType> >(_reference_time_point, _floating_time_point);
+    {
+        if(_use_velocity)
+        {
+            _registration_sptr = std::make_shared<reg_f3d2<dataType>>(_reference_time_point, _floating_time_point);
+        }
+        else
+        {
+            _registration_sptr = std::make_shared<reg_f3d<dataType>>(_reference_time_point, _floating_time_point);
+        }
+    }
 
     // Set reference and floating images
     _registration_sptr->SetReferenceImage(ref.get_raw_nifti_sptr().get());

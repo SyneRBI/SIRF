@@ -107,6 +107,8 @@ protected:
     int _reference_time_point;
     /// Use symmetric bool
     bool _use_symmetric = false;
+    /// Use velocity bool
+    bool _use_velocity = true;
     /// Transformation matrix
     std::shared_ptr<const AffineTransformation<float> > _initial_transformation_sptr;
 };
