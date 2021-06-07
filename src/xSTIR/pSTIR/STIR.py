@@ -43,11 +43,6 @@ import sirf.STIR_params as parms
 from sirf.config import SIRF_HAS_NiftyPET
 from sirf.config import SIRF_HAS_Parallelproj
 
-try:
-    input = raw_input
-except NameError:
-    pass
-
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
 else:
