@@ -293,7 +293,8 @@ class ImageData(SIRF.ImageData):
         images.handle = pygadgetron.cGT_selectImages(self.handle, attr, value)
         check_status(images.handle)
         return images
-    def get_info(self, par):
+
+    def parameter_info(self, par):
         '''
         Returns the array of values of the specified image information 
         parameter. Parameters names are the same as the names of Image class
@@ -306,6 +307,10 @@ class ImageData(SIRF.ImageData):
             image = self.image(i)
             info[i] = image.info(par)
         return info
+
+    @deprecated(details="Please use parameter_info method instead")
+    def get_info(self, par):
+        return self.parameter_info(par)
 
     def fill(self, data):
         '''
@@ -904,7 +909,8 @@ class AcquisitionData(DataContainer):
         pyiutil.deleteDataHandle(hv)
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
-    def get_info(self, par, which = 'all'):
+
+    def parameter_info(self, par, which='all'):
         '''
         Returns the array of values of the specified acquisition information 
         parameter.
@@ -924,6 +930,11 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
+
+    @deprecated(details="Please use parameter_info method instead")
+    def get_info(self, par, which='all'):
+        return self.parameter_info(par, which)
+
     def fill(self, data, select='image'):
         '''
         Fills self's acquisitions with specified values.
