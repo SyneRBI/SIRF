@@ -726,6 +726,7 @@ class GeometricalInfo(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    @deprecation.deprecated(details="Please use get_info method instead")
     def print_info(self):
         """Print the geom info"""
         print(self.get_info())
