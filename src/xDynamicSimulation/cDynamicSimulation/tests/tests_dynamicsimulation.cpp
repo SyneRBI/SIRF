@@ -137,7 +137,7 @@ void tests_mr_dynsim::test_extract_hdr_information( void )
 bool tests_mr_dynsim::test_acquisitionsvector_memory_management( void )
 {
 
-	AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( ISMRMRD_H5_TEST_PATH );
+	AcquisitionsVector all_acquis(ISMRMRD_H5_TEST_PATH);
 
 
 	uint const num_reps = 100;
@@ -334,7 +334,7 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 
-		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
+		AcquisitionsVector all_acquis(mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 		clock_t t;

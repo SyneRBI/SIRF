@@ -97,6 +97,7 @@ void data_io::write_PET_image_to_hv( const std::string& filename_without_ext,con
 ISMRMRD::IsmrmrdHeader mr_io::read_ismrmrd_header( std::string path_ismrmrd_h5_file_with_ext)
 {
 
+
 	ISMRMRD::Dataset d(path_ismrmrd_h5_file_with_ext.c_str(),"dataset", false);
 
 	std::string xml;
@@ -108,48 +109,5 @@ ISMRMRD::IsmrmrdHeader mr_io::read_ismrmrd_header( std::string path_ismrmrd_h5_f
 	return hdr;
 
 }
-
-AcquisitionsVector mr_io::read_ismrmrd_acquisitions( std::string path_ismrmrd_h5_file_with_ext )
-{
-
-	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header( path_ismrmrd_h5_file_with_ext );
-	std::ostringstream out;
-	serialize(hdr, out);
-
-	std::cout<< "Started reading acquisitions from " << path_ismrmrd_h5_file_with_ext << std::endl;
-
-	ISMRMRD::Dataset d(path_ismrmrd_h5_file_with_ext.c_str(),"dataset", false);
-
-	uint32_t num_acquis = d.getNumberOfAcquisitions();
-
-	AcquisitionsVector acq_vec(out.str());
-
-	for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
-	{
-		ISMRMRD::Acquisition acq;
-
-		if ((i_acqu%1000) == 0 )
-			std::cout << float(i_acqu)/num_acquis*100.f << " % " << std::endl;
-
-		d.readAcquisition( i_acqu, acq);
-
-
-		if( acq.isFlagSet( ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT ))
-		{
-			std::cout << "Acquisition # " << i_acqu <<" omitted due to it being a noise sample." <<std::endl;
-			continue;
-		}
-
-		acq_vec.append_acquisition( acq );
-
-	}
-
-	std::cout<< "Finished reading acquisitions from " << path_ismrmrd_h5_file_with_ext << std::endl;
-
-	return acq_vec;
-
-}
-
-
 
 // ++++++++++++++++++ pet_IO ++++++++++++++++++

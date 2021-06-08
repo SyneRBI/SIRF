@@ -174,7 +174,7 @@ bool test_aux_test_funs::test_get_mock_sawtooth_signal( void )
 {
 	try
 	{
-		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( ISMRMRD_H5_TEST_PATH );
+		AcquisitionsVector all_acquis(ISMRMRD_H5_TEST_PATH);
 
 		SignalContainer mock_cardiac_signal = aux_test::get_generic_cardiac_signal(all_acquis);
 
