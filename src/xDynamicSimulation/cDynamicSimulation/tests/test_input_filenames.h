@@ -16,8 +16,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define SHARED_FOLDER_PATH "/media/sf_CCPPETMR/"
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
-#define USE_64_CUBE_INPUT
-// #define USE_128_CUBE_INPUT
+// #define USE_64_CUBE_INPUT
+#define USE_128_CUBE_INPUT
 // #define USE_192_CUBE_INPUT
 // #define USE_208_CUBE_INPUT
 
@@ -44,14 +44,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_1Echo.h5"   
 	
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_FLASH_PD.h5"   
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_FLASH_T1.h5"   
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_FLASH_T1.h5"   
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_FLASH_T2.h5"   
 	
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_GRAPPA4_REF48_FLASH_PD.h5"   
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_GRAPPA4_REF48_FLASH_T1.h5"   
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_GRAPPA4_REF48_FLASH_T2.h5"   
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_GRAPPA4_REF48_FLASH_T2.h5"   
 
-	
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_itl_golden.h5"  
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_sfl_gc_usos8.h5" 
 
