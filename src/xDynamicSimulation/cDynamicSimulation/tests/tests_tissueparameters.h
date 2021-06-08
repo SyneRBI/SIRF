@@ -30,7 +30,7 @@ bool test_TissueParameter_algebra( void );
 bool test_get_MRTissueParameter_from_ptree(void);
 bool test_get_PETTissueParameter_from_ptree(void);
 
-bool test_exception_throw_if_node_not_exists(void);
+void test_exception_throw_if_node_not_exists(void);
 
 bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath );
 

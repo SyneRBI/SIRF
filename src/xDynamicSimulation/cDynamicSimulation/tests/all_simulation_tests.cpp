@@ -309,38 +309,59 @@ bool run_tests_auxiliary_input_output( void )
 
 bool run_tests_tissueparameters(void)
 {
-	bool tests_successful = true;
+	std::cout<< "Running " << __FUNCTION__ << std::endl;		
 
+	try
+    {
+		bool tests_successful = true;
+        int i=0;
+		// call every test here
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;	
+		tests_successful *= test_allocate_MRTissueParameter_successful();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		tests_successful *= test_allocate_PETTissueParameter_successful();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		tests_successful *= test_allocate_TissueParameter_successful();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		tests_successful *= test_get_MRTissueParameter_from_ptree();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		tests_successful *= test_get_PETTissueParameter_from_ptree();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		test_exception_throw_if_node_not_exists();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		tests_successful *= test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		tests_successful *= test_check_label_uniqueness_fails();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		tests_successful *= test_check_label_uniqueness_true();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
+		std::cout << "current status: " << tests_successful << std::endl;
+		tests_successful *= test_TissueParameter_algebra();			
 
-	// call every test here
-	tests_successful *= test_allocate_MRTissueParameter_successful();
-	tests_successful *= test_allocate_PETTissueParameter_successful();
-	tests_successful *= test_allocate_TissueParameter_successful();
-	
-	tests_successful *= test_get_MRTissueParameter_from_ptree();
-	tests_successful *= test_get_PETTissueParameter_from_ptree();
-
-	//tests_successful *= test_exception_throw_if_node_not_exists();
-
-	tests_successful *= test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
-	
-	tests_successful *= test_check_label_uniqueness_fails();
-	tests_successful *= test_check_label_uniqueness_true();
-	
-	tests_successful *= test_TissueParameter_algebra();
-
-
-
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.str() );
-	}
-	else
-	{
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 		return tests_successful;
+
+    }
+    catch(std::runtime_error const &e){
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+	catch(const std::exception &error){
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+		throw;
+	}
+	catch(...){
+        std::cerr << "An unknown exception was caught in "<< __FUNCTION__ << std::endl;
+		throw;
 	}
 }
 
@@ -532,8 +553,8 @@ int main ( int argc, char* argv[])
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 
 		// ok *= run_tests_auxiliary_testing_functions();
-		ok *= run_tests_auxiliary_input_output();
-		// ok *= run_tests_tissueparameters();
+		// ok *= run_tests_auxiliary_input_output();
+		ok *= run_tests_tissueparameters();
 		// ok *= run_tests_contrastgenerator();
 		// ok *= run_tests_phantom_input();
 		// ok *= run_tests_encoding();
