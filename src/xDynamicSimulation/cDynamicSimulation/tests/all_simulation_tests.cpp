@@ -47,21 +47,22 @@ bool run_tests_auxiliary_testing_functions(void )
 	
 	try
     {
-       bool tests_successful = true;
+        bool tests_successful = true;
+		int i=0;
 
-		std::cout << "##############################################################" << std::endl;
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
-		std::cout << "##############################################################" << std::endl;
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
-		std::cout << "##############################################################" << std::endl;
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
-		std::cout << "##############################################################" << std::endl;
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
-		std::cout << "##############################################################" << std::endl;
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
-		std::cout << "##############################################################" << std::endl;
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_mock_gaussian_csm();
-		std::cout << "##############################################################" << std::endl;
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 
 		return tests_successful;
 
