@@ -1,12 +1,18 @@
 # ChangeLog
 
 ## Current changes
+* SIRF Python interface
+  - `range_geometry` and `domain_geometry` methods of `AcquisitionModel` classes, required by CIL algorithms, now obtain data via respective C++ `AcquisitionModel` classes accessors, in line with our strategy of keeping interface code minimal
 * MR/Gadgetron
   - new MR reconstruction framework sorts the ISMRMRD::Acquisitions prior to reconstruction. This ensures that only consistent images are reconstructed.
   - Encoding classes perform the Fourier transformations instead of the MRAcquisitionModel
   - Golden-angle radial phase encoding (RPE) trajectory is supported.
   - CoilSensitivitiesVector class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute coil sensitivities from MRAcquisitionData.
+  - added constructor for GadgetronImagesVector from MRAcquisitionData. This allows setting up an MR acquisition model without having to perform a reconstruction before. 
 
+* Build system
+  - fix bug with older CMake (pre-3.12?) that the Python interface was not built
+  [#939](https://github.com/SyneRBI/SIRF/issues/939).
 
 ## v3.0.0
 ### Backwards incompatible changes

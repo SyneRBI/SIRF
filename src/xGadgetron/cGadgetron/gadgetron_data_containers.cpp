@@ -1257,6 +1257,9 @@ GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad, const 
         subset.get_acquisition(0, acq);
         match_img_header_to_acquisition(img, acq);
 
+        for(auto it=img.begin(); it!=img.end(); ++it)
+            *it = complex_float_t(0.f,0.f);
+
         this->append(img);
     }
 }    

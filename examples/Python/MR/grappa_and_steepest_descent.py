@@ -144,8 +144,8 @@ def main():
             print('pylab not found')
 
     if output_file is not None:
-      print('writing to %s' % output_file)
-      image_data.write(output_file)
+        print('writing to %s' % output_file)
+        image_data.write(output_file)
 
 try:
     main()

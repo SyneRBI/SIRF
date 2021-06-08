@@ -417,6 +417,16 @@ namespace sirf {
 			check_data_role(*sptr_ic);
 			sptr_imgs_ = sptr_ic;
 		}
+		// Returns shared pointer to the acquisitions template used. 
+		gadgetron::shared_ptr<const MRAcquisitionData> acq_template_sptr() const
+		{
+			return sptr_acqs_;
+		}
+		// Returns shared pointer to the images template used. 
+		gadgetron::shared_ptr<const GadgetronImageData> image_template_sptr() const
+		{
+			return sptr_imgs_;
+		}
 		// Records the coil sensitivities maps to be used. 
         void set_csm(gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms)
 		{
