@@ -32,7 +32,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // volume sizes
 
 #define MOCK_FOV 256
-#define MOCK_DATA_MATRIX_SIZE 64
+#define MOCK_DATA_MATRIX_SIZE 128
 #define MOCK_DATA_NUM_CHANNELS 4
 #define MOCK_DATA_RO_OVERSAMPLING 1
 #define MOCK_IMAGE_TYPE 5 // from ismrmrd enum ISMRMRD_IMTYPE_COMPLEX   = 5

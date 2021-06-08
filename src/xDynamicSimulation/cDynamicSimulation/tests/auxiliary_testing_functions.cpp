@@ -53,7 +53,10 @@ sirf::VoxelisedGeometricalInfo3D aux_test::get_mock_geometrical_info( void )
 
 	sirf::VoxelisedGeometricalInfo3D::Offset offset{0.f,0.f,0.f};
 	sirf::VoxelisedGeometricalInfo3D::Spacing spacing{1.f,1.f,1.f};
-	sirf::VoxelisedGeometricalInfo3D::Size data_size{2,2,2};
+	sirf::VoxelisedGeometricalInfo3D::Size data_size{MOCK_DATA_MATRIX_SIZE,
+													 MOCK_DATA_MATRIX_SIZE,
+													 MOCK_DATA_MATRIX_SIZE};
+
 	sirf::VoxelisedGeometricalInfo3D::DirectionMatrix dir_mat;
 
 	dir_mat[0] = {1,0,0};
