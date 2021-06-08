@@ -27,12 +27,30 @@ def test_main(rec=False, verb=False, throw=True):
     data_path = examples_data_path('MR')
     
     rawdata = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
-    test_img_dimensions = (2, 256, 256)
+    rawdata = preprocess_acquisition_data(rawdata)
+    rawdata.sort()
+    
+    
 
     imgdata = ImageData()
     imgdata.from_acquisition_data(rawdata)
     
-    test_successful = imgdata.dimensions() == test_img_dimensions
+        
+    acq_model = AcquisitionModel()
+    acq_model.set_up(rawdata, imgdata)
+
+    csms = CoilSensitivityData()
+    csms.calculate(rawdata)
+    acq_model.set_coil_sensitivity_maps(csms)
+
+    bwd_img = acq_model.backward(rawdata)
+
+    print("The empty images have norm: {}".format(imgdata.norm()))
+    print("The backprojected rawdata have norm: {}".format(bwd_img.norm()))
+    test_successful = imgdata.norm() != bwd_img.norm()
+
+    test_img_dimensions = (2, 256, 256)
+    test_successful *= imgdata.dimensions() == test_img_dimensions
 
     return test_successful, 1
 
