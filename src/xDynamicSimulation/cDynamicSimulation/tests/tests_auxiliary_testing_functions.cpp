@@ -180,7 +180,6 @@ bool test_aux_test_funs::test_get_mock_sawtooth_signal( void )
 		std::stringstream output_name;
 		output_name << SHARED_FOLDER_PATH << "ecg_file.txt";
 
-
 		std::ofstream ecg_file;
 		ecg_file.open(output_name.str());
  		ecg_file << std::setprecision(10) << std::endl;

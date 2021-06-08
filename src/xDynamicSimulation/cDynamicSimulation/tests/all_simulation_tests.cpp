@@ -49,7 +49,6 @@ bool run_tests_auxiliary_testing_functions(void )
     {
         bool tests_successful = true;
 		int i=0;
-
 		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
 		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
@@ -277,12 +276,15 @@ bool run_tests_auxiliary_input_output( void )
 
 	try
     {
-       bool tests_successful = true;
-
+        bool tests_successful = true;
+		int i=0;
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		test_aux_io::test_write_ndarray_to_raw();
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		test_aux_io::test_write_ismrmrd_image_to_analyze();
-
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_io::test_read_acquisitions_vector_number_consistency();	
+		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
 		tests_successful *= test_aux_io::test_read_single_column_txt();
 
 		return tests_successful;
@@ -529,8 +531,8 @@ int main ( int argc, char* argv[])
 		if(argc > 1)
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 
-		ok *= run_tests_auxiliary_testing_functions();
-		// ok *= run_tests_auxiliary_input_output();
+		// ok *= run_tests_auxiliary_testing_functions();
+		ok *= run_tests_auxiliary_input_output();
 		// ok *= run_tests_tissueparameters();
 		// ok *= run_tests_contrastgenerator();
 		// ok *= run_tests_phantom_input();

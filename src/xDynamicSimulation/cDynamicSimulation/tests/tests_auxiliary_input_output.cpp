@@ -55,11 +55,7 @@ bool test_aux_io::test_read_acquisitions_vector_number_consistency( void )
 {
 
 	size_t const expected_num_acquisitions = 128*128;
-
-
 	AcquisitionsVector acqu_vec(ISMRMRD_H5_TEST_PATH);
-
-
 	size_t const read_num_acquisitions = acqu_vec.items();	
 
 	std::cout << epiph(expected_num_acquisitions) << std::endl;
@@ -90,8 +86,7 @@ bool test_aux_io::test_read_single_column_txt( void )
 	{	
 		bool test_successful = true;
 		
-		// std::string const filename_input = std::string(SHARED_FOLDER_PATH) + "testdata_inputoutput/testfile";
-		std::string const filename_input = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/SurrogateSignals/card_time";
+		std::string const filename_input = std::string(SHARED_FOLDER_PATH) + "/TestData/Input/xDynamicSimulation/cDynamicSimulation/SurrogateSignals/card_time";
 
 		std::vector< float > input = data_io::read_single_column_txt<float>(filename_input);
 		std::cout << epiph( input.size() ) << std::endl;
@@ -105,8 +100,8 @@ bool test_aux_io::test_read_single_column_txt( void )
 	}
 	catch(...)
 	{
-		std::cout << "An unknown exception was caught" << std::endl;
-		return false;
+		std::cout << "An exception was caught" << std::endl;
+		throw;
 	}
 
 
