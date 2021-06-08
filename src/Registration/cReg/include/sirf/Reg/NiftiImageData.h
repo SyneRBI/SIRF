@@ -607,7 +607,9 @@ protected:
     virtual float norm() const;
     virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
     virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
-    virtual Dimensions dimensions() const
+	virtual void maximum(const DataContainer& x, const DataContainer& y);
+	virtual void minimum(const DataContainer& x, const DataContainer& y);
+	virtual Dimensions dimensions() const
     {
         Dimensions dim;
         int *d = _nifti_image->dim;
