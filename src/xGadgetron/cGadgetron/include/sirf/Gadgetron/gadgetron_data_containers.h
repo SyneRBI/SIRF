@@ -287,12 +287,16 @@ namespace sirf {
 		//{
 		//	axpby(ptr_a, a_x, ptr_b, a_y);
 		//}
-		virtual void multiply(
-			const DataContainer& a_x,
-			const DataContainer& a_y);
-		virtual void divide(
-			const DataContainer& a_x,
-			const DataContainer& a_y);
+		virtual void multiply(const DataContainer& x, const DataContainer& y);
+		virtual void divide(const DataContainer& x,	const DataContainer& y);
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			THROW("maximum not defined for MRAcquisitionData");
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			THROW("minimum not defined for MRAcquisitionData");
+		}
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
@@ -576,12 +580,16 @@ namespace sirf {
 			DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		virtual void multiply(
-			const DataContainer& a_x,
-			const DataContainer& a_y);
-		virtual void divide(
-			const DataContainer& a_x,
-			const DataContainer& a_y);
+		virtual void multiply(const DataContainer& x, const DataContainer& y);
+		virtual void divide(const DataContainer& x, const DataContainer& y);
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			THROW("maximum not defined for ISMRMRDImageData");
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			THROW("minimum not defined for ISMRMRDImageData");
+		}
 
 		void fill(float s);
 		void scale(float s);
