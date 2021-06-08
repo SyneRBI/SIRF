@@ -10,7 +10,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 
-
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <cmath>
@@ -20,6 +20,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 //#include "Testing/auxiliary_testing_functions.h"
 
+using namespace std;
 using namespace stir;
 using namespace sirf;
 using namespace ISMRMRD;
@@ -59,6 +60,9 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 void MRContrastGenerator::set_rawdata_header(const ISMRMRD::IsmrmrdHeader& hdr)
 {
 	this->hdr_ = hdr;
+	stringstream stream_acqu_info;
+	ISMRMRD::serialize(hdr, stream_acqu_info);
+	this->sptr_acqu_->set_acquisitions_info(stream_acqu_info.str());
 }
 
 sirf::GadgetronImagesVector& MRContrastGenerator::get_contrast_filled_volumes(bool const resample_output)
