@@ -32,7 +32,7 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
 endif()
 
 add_subdirectory(cGadgetron)
-if (PYTHON_FOUND AND BUILD_PYTHON)
+if (BUILD_PYTHON)
   add_subdirectory(pGadgetron)
 endif()
 add_subdirectory(mGadgetron)

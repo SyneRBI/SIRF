@@ -36,11 +36,6 @@ import sirf.pysirf as pysirf
 from numbers import Number
 import deprecation
 
-try:
-    input = raw_input
-except NameError:
-    pass
-
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
 else:
@@ -96,6 +91,14 @@ class DataContainer(ABC):
 
     def is_empty(self):
         return self.number() < 1
+
+    def is_complex(self):
+        assert self.handle is not None
+        handle = pysirf.cSIRF_isComplex(self.handle)
+        check_status(handle)
+        i = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return i != 0
 
     def norm(self):
         '''
@@ -723,6 +726,7 @@ class GeometricalInfo(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    @deprecation.deprecated(details="Please use get_info method instead")
     def print_info(self):
         """Print the geom info"""
         print(self.get_info())
