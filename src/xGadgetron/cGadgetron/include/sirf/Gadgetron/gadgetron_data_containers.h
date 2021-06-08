@@ -1074,8 +1074,8 @@ namespace sirf {
     public:
 
         CoilSensitivitiesVector() : GadgetronImagesVector(){}
-		CoilSensitivitiesVector(MRAcquisitionData& ad, const bool coil_resolved=true) :
-			GadgetronImagesVector(ad, coil_resolved){}
+		CoilSensitivitiesVector(MRAcquisitionData& ad) :
+			GadgetronImagesVector(ad, true){}
         CoilSensitivitiesVector(const char * file)
         {
             throw std::runtime_error("This has not been implemented yet.");
