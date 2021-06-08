@@ -1712,6 +1712,42 @@ void NiftiImageData<dataType>::divide
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::maximum
+(const DataContainer& a_x, const DataContainer& a_y)
+{
+	const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+	const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+	// If the result hasn't been initialised, make a clone of one of them
+	if (!this->is_initialised())
+		*this = *x.clone();
+
+	ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "multiply operands size mismatch");
+	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "multiply operands size mismatch");
+
+	for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+		_data[i] = std::max(x._data[i], y._data[i]);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::minimum
+(const DataContainer& a_x, const DataContainer& a_y)
+{
+	const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+	const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+	// If the result hasn't been initialised, make a clone of one of them
+	if (!this->is_initialised())
+		*this = *x.clone();
+
+	ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "multiply operands size mismatch");
+	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "multiply operands size mismatch");
+
+	for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+		_data[i] = std::min(x._data[i], y._data[i]);
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::set_up_geom_info()
 {
 #ifndef NDEBUG
