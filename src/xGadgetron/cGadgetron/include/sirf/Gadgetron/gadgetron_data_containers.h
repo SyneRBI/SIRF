@@ -881,6 +881,17 @@ namespace sirf {
 
 		GadgetronImagesVector() : images_()
 		{}
+
+		/*!
+		\ingroup MR
+		\brief Constructor for images from MR Acquisition data.
+
+		The images are generated with the dimensions given in the recon-space of the 
+		MRAcquisitionData's ISMRMRD header information.
+		The geometry information and header of the individual images are populated
+		based on all consistent subsets of acquisitions in the MRAcquisition object.
+		The images can also be created coil-resolved.
+		*/
 		GadgetronImagesVector(const MRAcquisitionData& ad, const bool coil_resolved=false);
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
