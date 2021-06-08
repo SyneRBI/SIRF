@@ -77,7 +77,7 @@ bool test_aux_test_funs::test_get_mock_gaussian_csm( void )
 		ISMRMRD::Image<complex_float_t> mock_csm = aux_test::get_mock_gaussian_csm(vol_size, num_coils);
 		
 		std::stringstream name_stream;
-		name_stream << "/media/sf_SharedFolder/CCPPETMR/test_mock_gaussian_csm_";
+		name_stream << "/media/sf_CCPPETMR/test_mock_gaussian_csm_";
 		
 		data_io::write_ISMRMRD_Image_to_nii< complex_float_t > (name_stream.str(), mock_csm);
 
@@ -175,7 +175,6 @@ bool test_aux_test_funs::test_get_mock_sawtooth_signal( void )
 	try
 	{
 		AcquisitionsVector all_acquis(ISMRMRD_H5_TEST_PATH);
-
 		SignalContainer mock_cardiac_signal = aux_test::get_generic_cardiac_signal(all_acquis);
 
 		std::stringstream output_name;
