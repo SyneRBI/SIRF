@@ -438,14 +438,13 @@ bool test_tlm::test_get_segmentation_dimensions( void )
 
 	const int* data_dims = tlm.get_segmentation_dimensions();
 
-	int input_dims[8] = {3,2,2,2,1,1,1,1};
+	int input_dims[8] = {3,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,1,1,1,1};
 
 	bool dims_are_correct = true;
 
 	for( int i=0; i<8; i++)
 		dims_are_correct *= (data_dims[i] == input_dims[i]);		
 		
-	
 	return dims_are_correct;
 }
 
