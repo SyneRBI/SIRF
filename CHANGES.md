@@ -8,6 +8,7 @@
   - Encoding classes perform the Fourier transformations instead of the MRAcquisitionModel
   - Golden-angle radial phase encoding (RPE) trajectory is supported.
   - CoilSensitivitiesVector class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute coil sensitivities from MRAcquisitionData.
+  - added constructor for GadgetronImagesVector from MRAcquisitionData. This allows setting up an MR acquisition model without having to perform a reconstruction before. 
 
 * Build system
   - fix bug with older CMake (pre-3.12?) that the Python interface was not built
