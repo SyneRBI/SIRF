@@ -512,15 +512,9 @@ class CoilImagesData(ImageData):
     def same_object(self):
         return CoilImagesData()
     def calculate(self, acq):
-
-        if acq.check_traj_type('cartesian'):
-            csm_data = extract_calibration_data(acq)
-        else:
-            csm_data = acq
-
-        dcw = compute_kspace_density(csm_data)
-        csm_data = csm_data * dcw
-        try_calling(pygadgetron.cGT_computeCoilImages(self.handle, csm_data.handle))
+        dcw = compute_kspace_density(acq)
+        acq = acq * dcw
+        try_calling(pygadgetron.cGT_computeCoilImages(self.handle, acq.handle))
 
 SIRF.ImageData.register(CoilImagesData)
 
@@ -583,13 +577,8 @@ class CoilSensitivityData(ImageData):
     def __calc_from_acquisitions(self, data, method_name):
         assert data.handle is not None
 
-        if data.check_traj_type('cartesian'):
-            csm_data = extract_calibration_data(data)
-        else:
-            csm_data = data
-
-        dcw = compute_kspace_density(csm_data)
-        csm_data = csm_data * dcw
+        dcw = compute_kspace_density(data)
+        data = data * dcw
 
         if method_name == 'Inati':
             try:
@@ -597,7 +586,7 @@ class CoilSensitivityData(ImageData):
             except:
                 raise error('Inati method requires ismrmrd-python-tools')
             
-            try_calling(pygadgetron.cGT_computeCoilImages(self.handle, csm_data.handle))
+            try_calling(pygadgetron.cGT_computeCoilImages(self.handle, data.handle))
                 
             cis_array = self.as_array()
             csm, _ = coils.calculate_csm_inati_iter(cis_array)
@@ -611,7 +600,7 @@ class CoilSensitivityData(ImageData):
             self.fill(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
-            try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, csm_data.handle))
+            try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
 
     def __calc_from_images(self, data, method_name):
         assert data.handle is not None
@@ -1625,45 +1614,3 @@ def calc_rpe_dcw(ad):
     dcw.fill(density_weight)
     
     return dcw
-
-def extract_calibration_data(ad):
-    '''
-    Function to extract all Acquisitions from an AcquisitionData object that
-    carry the coil calibration flag.
-    '''
-
-    if not isinstance(ad, AcquisitionData):
-        raise AssertionError("The trajectory you asked for is not among the available trajectories")
-
-    ref_flag = 20
-    ref_img_flag = 21
-
-    subset_idx = numpy.array([])
-    for i in range(ad.number()):
-        acq = ad.acquisition(i)
-        flags = decode_ismrmrd_flag(acq.flags())
-        if ref_flag in flags or ref_img_flag in flags:
-            subset_idx = numpy.append(subset_idx, i)
-
-    if subset_idx.size > 0:
-        calib_data = ad.get_subset(subset_idx)
-        return calib_data
-    else:
-        print("Warning, there are no calibration data in this dataset. We use them all for CSM computation.")
-        return ad
-
-    
-def decode_ismrmrd_flag(flag):
-    '''
-    Function to turn the flag set in an Acquisition header into the set of integers
-    that generated the bitmask.
-    '''
-    dec_flags = []
-
-    while flag>0:
-        log_flag = int( numpy.floor(numpy.log2(flag)) )
-        dec_flags.append(log_flag + 1)
-
-        flag -= 2 ** log_flag
-
-    return dec_flags
