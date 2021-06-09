@@ -396,7 +396,6 @@ try{
 		std::cout << tlm_tests[i] << " / ";
 		tests_successful *= tlm_tests[i];
 	}
-	std::cout << std::endl;
 
 	// abstract contgent tests
 	std::cout << "#: " << ++i << "----------------------------------------------------" <<std::endl;
