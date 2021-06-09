@@ -33,6 +33,9 @@ namespace sirf {
 		void* cGT_imageParameter(void* ptr_im, const char* name);
 
 	extern "C"
+		void* cGT_AcquisitionModelParameter(void* ptr_am, const char* name);
+
+	extern "C"
 		void* cGT_setCSParameter(void* ptr, const char* par, const void* val);
 }
 

@@ -263,10 +263,22 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void multiply
-			(const DataContainer& x, const DataContainer& y);
-		virtual void divide
-			(const DataContainer& x, const DataContainer& y);
+		virtual void multiply(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_(x, y, 1);
+		}
+		virtual void divide(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_(x, y, 2);
+		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_(x, y, 3);
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_(x, y, 4);
+		}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
 		{
@@ -377,7 +389,7 @@ namespace sirf {
 
 	private:
 		mutable int _is_empty = -1;
-
+		void binary_op_(const DataContainer& a_x, const DataContainer& a_y, int job);
 	};
 
 	/*!
@@ -908,10 +920,22 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void multiply(const DataContainer& x,
-			const DataContainer& y);
-		virtual void divide(const DataContainer& x,
-			const DataContainer& y);
+		virtual void multiply(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_(x, y, 1);
+		}
+		virtual void divide(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_(x, y, 2);
+		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_(x, y, 3);
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_(x, y, 4);
+		}
 
 		Image3DF& data()
 		{
@@ -1032,6 +1056,7 @@ namespace sirf {
         {
             return new STIRImageData(*this);
         }
+		void binary_op_(const DataContainer& a_x, const DataContainer& a_y, int job);
 
 	protected:
 

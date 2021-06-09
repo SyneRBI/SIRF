@@ -411,6 +411,14 @@ The actual algorithm is described in
 		{
 			return sptr_background_;
 		}
+		stir::shared_ptr<const PETAcquisitionData> acq_template_sptr() const
+		{
+			return sptr_acq_template_;
+		}
+		stir::shared_ptr<const STIRImageData> image_template_sptr() const
+		{
+			return sptr_image_template_;
+		}
 		//void set_normalisation(shared_ptr<stir::BinNormalisation> sptr)
 		//{
 		//	sptr_normalisation_ = sptr;
