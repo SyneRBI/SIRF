@@ -87,6 +87,8 @@ extern "C" {
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);
     void* cGT_readImages(const char* file);
+	void* cGT_ImageFromAcquisitiondata(void* ptr_acqs);
+
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
 	void* cGT_selectImages
 		(void* ptr_input, const char* attr, const char* target);

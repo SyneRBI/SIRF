@@ -252,6 +252,14 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pygadgetron.cGT_readImages(file)
         check_status(self.handle)
+
+    def from_acquisition_data(self, ad):
+        assert isinstance(ad, AcquisitionData), "Please pass a AcquisitionData object"
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pygadgetron.cGT_ImageFromAcquisitiondata(ad.handle)
+        check_status(self.handle)
+
     def data_type(self, im_num):
         '''
         Returns the data type for a specified image (see 8 data types above).

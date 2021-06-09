@@ -121,6 +121,19 @@ bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
         MatrixSize rawdata_recon_matrix = rec_space.matrixSize;
         FieldOfView_mm rawdata_recon_FOV = rec_space.fieldOfView_mm;
 
+        for(int i=0; i<iv.number(); ++i)
+        {
+            CFImage* const ptr_img = (CFImage*)(iv.sptr_image_wrap(i)->ptr_image());            
+
+            test_successful *= (ptr_img->getMatrixSizeX() == rawdata_recon_matrix.x);
+            test_successful *= (ptr_img->getMatrixSizeY() == rawdata_recon_matrix.y);
+            test_successful *= (ptr_img->getMatrixSizeZ() == rawdata_recon_matrix.z);
+
+        	test_successful *= (ptr_img->getFieldOfViewX() == rawdata_recon_FOV.x);
+            test_successful *= (ptr_img->getFieldOfViewY() == rawdata_recon_FOV.y);
+            test_successful *= (ptr_img->getFieldOfViewZ() == rawdata_recon_FOV.z);
+        }
+
         if(test_successful)
             return test_successful;
         else{
@@ -591,7 +604,7 @@ int main ( int argc, char* argv[])
         ok *= test_get_kspace_order(av);
         ok *= test_get_subset(av);
 
-        // ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
+        ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
 
         ok *= test_CoilSensitivitiesVector_calculate(av);
         ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);

@@ -2,7 +2,7 @@
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 Copyright 2019 - 2020 University College London
-Copyright 2020 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -931,6 +931,20 @@ cGT_readImages(const char* file)
 		shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
 		sptr_img->read(file);
 		return newObjectHandle<GadgetronImageData>(sptr_img);
+	}
+	CATCH;
+}
+
+extern "C"
+void *
+cGT_ImageFromAcquisitiondata(void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		auto sptr_iv = std::make_shared<GadgetronImagesVector>(acqs);
+		return newObjectHandle<GadgetronImageData>(sptr_iv);
 	}
 	CATCH;
 }
