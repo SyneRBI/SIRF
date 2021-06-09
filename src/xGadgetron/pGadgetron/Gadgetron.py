@@ -1625,7 +1625,7 @@ def extract_calibration_data(ad):
     '''
 
     if not isinstance(ad, AcquisitionData):
-        raise AssertionError("The trajectory you asked for is not among the available trajectoryies")
+        raise AssertionError("The trajectory you asked for is not among the available trajectories")
 
     ref_flag = 20
     ref_img_flag = 21
