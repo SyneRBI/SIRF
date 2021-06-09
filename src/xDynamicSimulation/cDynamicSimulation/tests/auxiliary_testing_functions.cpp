@@ -647,7 +647,7 @@ sirf::CoilSensitivitiesVector aux_test::aux_test_get_mock_coilmaps( void )
 	ISMRMRD::IsmrmrdHeader hdr = get_mock_ismrmrd_header();
 
 	AcquisitionsVector av = get_mock_acquisition_vector ( hdr );
-	CoilSensitivitiesVector csm(av, true);
+	CoilSensitivitiesVector csm(av);
 
 	return csm;
 }
