@@ -39,6 +39,8 @@ using namespace sirf;
 
 bool test_contgen::test_get_tissue_parameter( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{	
 		MRContrastGenerator cont_gen = aux_test::get_mock_mr_contrast_generator();
@@ -62,6 +64,8 @@ bool test_contgen::test_get_tissue_parameter( void )
 
 bool test_contgen::test_mr_constructor( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	LabelVolume segmentation_labels = aux_test::get_mock_label_volume();
 	MRContrastGenerator mr_contgen (segmentation_labels, XML_TEST_PATH); 
 
@@ -71,6 +75,8 @@ bool test_contgen::test_mr_constructor( void )
 
 bool test_contgen::test_mr_set_rawdata_header( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{	
 		LabelVolume segmentation_labels = aux_test::get_mock_label_volume();
@@ -92,24 +98,22 @@ bool test_contgen::test_mr_set_rawdata_header( void )
 
 bool test_contgen::test_mr_map_contrast_dim_check( void )
 {
-
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
 	LabelVolume segmentation_labels = aux_test::get_mock_label_volume();
 	MRContrastGenerator mr_contgen (segmentation_labels, XML_TEST_PATH);  	
 	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
 
 	mr_contgen.set_rawdata_header(hdr);
-
 	mr_contgen.map_contrast();
 
 	GadgetronImagesVector& contrasts = mr_contgen.get_contrast_filled_volumes();	
 
 
 	size_t const num_echoes = ((hdr.sequenceParameters.get()).TE.get()).size();;
-	size_t input_dims[8] = {3,2,2,2,num_echoes,1,1,1};
+	size_t input_dims[8] = {3,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,num_echoes,1,1,1};
 
 	std::vector< int > contrast_dims;
-
 
 	sirf::Dimensions dims = contrasts.dimensions();
 
@@ -128,7 +132,7 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 
 void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 {
-	std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 	
 	std::cout << "Reading segmentation ... " <<std::endl;
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -150,6 +154,8 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 
 void test_contgen::test_get_signal_for_tissuelabel_in_xcat()
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
 	IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
@@ -167,6 +173,8 @@ void test_contgen::test_get_signal_for_tissuelabel_in_xcat()
 
 void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 {
+
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
@@ -196,6 +204,8 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 
 bool test_contgen::test_map_flash_contrast( void )
 {
+
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
 	TissueParameter tiss_par = aux_test::get_mock_tissue_parameter();
 	auto ptr_to_mock_tiss = std::make_shared<TissueParameter>(tiss_par);
@@ -233,6 +243,8 @@ bool test_contgen::test_map_flash_contrast( void )
 
 bool test_contgen::test_pet_constructor( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		LabelVolume segmentation_labels = aux_test::get_mock_label_volume();
@@ -250,6 +262,8 @@ bool test_contgen::test_pet_constructor( void )
 
 bool test_contgen::test_pet_map_contrast( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -274,6 +288,8 @@ bool test_contgen::test_pet_map_contrast( void )
 
 bool test_contgen::test_pet_map_attenuation( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -297,6 +313,8 @@ bool test_contgen::test_pet_map_attenuation( void )
 
 bool test_contgen::test_set_template_image_from_file( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -328,6 +346,8 @@ bool test_contgen::test_set_template_image_from_file( void )
 
 bool test_contgen::test_resample_to_template_image( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -364,6 +384,8 @@ bool test_contgen::test_resample_to_template_image( void )
 
 void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		PETContrastGenerator pet_contgen = aux_test::get_mock_pet_contrast_generator( );
@@ -411,6 +433,8 @@ void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 bool test_tlm::test_get_filepath_tissue_parameter_xml()
 {
 
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	LabelVolume labels_list = aux_test::get_mock_label_volume();
 	TissueLabelMapper tlm(labels_list, XML_TEST_PATH);
 
@@ -451,6 +475,7 @@ bool test_tlm::test_get_segmentation_dimensions( void )
 
 bool test_tlm::test_assign_tissue_parameters_label_found( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
 	TissueParameterList tiss_list = aux_test::get_mock_tissue_param_list();
 	LabelVolume labels_list = aux_test::get_mock_label_volume();
@@ -476,6 +501,7 @@ bool test_tlm::test_assign_tissue_parameters_label_found( void )
 
 bool test_tlm::test_assign_tissue_parameters_label_not_found( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
 	TissueParameterList tiss_list = aux_test::get_mock_tissue_param_list();
 	LabelVolume labels_list = aux_test::get_mock_label_volume();
@@ -494,6 +520,8 @@ bool test_tlm::test_assign_tissue_parameters_label_not_found( void )
 
 bool test_tlm::test_map_labels_to_tissue_from_xml( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	LabelVolume lab_arr = aux_test::get_mock_label_volume();
 
 	TissueLabelMapper tlm(lab_arr, XML_TEST_PATH);
@@ -515,8 +543,9 @@ bool test_tlm::test_map_labels_to_tissue_from_xml( void )
 
 
 bool test_tlm::test_replace_petmr_tissue_parameters( void )
-
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		
