@@ -331,7 +331,7 @@ namespace sirf {
         */
         std::vector<KSpaceSubset::SetType > get_kspace_order() const;
 
-        //! Function to get the all KSpaceSorting of the MRAcquisitionData
+        //! Function to get the all KSpaceSubset's of the MRAcquisitionData
         std::vector<KSpaceSubset> get_kspace_sorting() const { return this->sorting_; }
 
         //! Function to go through Acquisitions and assign them to their k-space dimension
@@ -891,7 +891,18 @@ namespace sirf {
 
 		GadgetronImagesVector() : images_()
 		{}
-		GadgetronImagesVector(const MRAcquisitionData& ad);
+
+		/*!
+		\ingroup MR
+		\brief Constructor for images from MR Acquisition data.
+
+		The images are generated with the dimensions given in the recon-space of the 
+		MRAcquisitionData's ISMRMRD header information.
+		The geometry information and header of the individual images are populated
+		based on all consistent subsets of acquisitions in the MRAcquisition object.
+		The images can also be created coil-resolved.
+		*/
+		GadgetronImagesVector(const MRAcquisitionData& ad, const bool coil_resolved=false);
         GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
@@ -1073,6 +1084,8 @@ namespace sirf {
     public:
 
         CoilSensitivitiesVector() : GadgetronImagesVector(){}
+		CoilSensitivitiesVector(MRAcquisitionData& ad) :
+			GadgetronImagesVector(ad, true){}
         CoilSensitivitiesVector(const char * file)
         {
             throw std::runtime_error("This has not been implemented yet.");
@@ -1115,6 +1128,8 @@ namespace sirf {
         float max_(int nx, int ny, int nz, float* u);
 
     };
+
+void match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq);
 
 }
 
