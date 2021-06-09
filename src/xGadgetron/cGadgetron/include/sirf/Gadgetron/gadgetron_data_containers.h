@@ -1097,7 +1097,7 @@ namespace sirf {
         void calculate(const MRAcquisitionData& acq)
         {
             CoilImagesVector ci;
-            ci.calculate(acq);
+			ci.calculate(acq);
             calculate(ci);
         }
 
