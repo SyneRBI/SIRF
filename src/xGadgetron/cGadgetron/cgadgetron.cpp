@@ -2,7 +2,7 @@
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 Copyright 2019 - 2020 University College London
-Copyright 2020 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -196,6 +196,9 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 			std::string value = g.value_of(name);
 			return charDataHandleFromCharData(value.c_str());
 		}
+		if (boost::iequals(obj, "AcquisitionModel")) {
+			return cGT_AcquisitionModelParameter(ptr, name);
+		}
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -363,6 +366,26 @@ cGT_setAcquisitionModelParameter
 			shared_ptr<CoilSensitivitiesVector> sptr_csc;
 			getObjectSptrFromHandle<CoilSensitivitiesVector>(handle, sptr_csc);
 			am.set_csm(sptr_csc);
+		}
+		else
+			return unknownObject("parameter", name, __FILE__, __LINE__);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_AcquisitionModelParameter(void* ptr_am, const char* name)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+		if (boost::iequals(name, "range geometry")) {
+			return newObjectHandle(am.acq_template_sptr());
+		}
+		else if (boost::iequals(name, "domain geometry")) {
+			return newObjectHandle(am.image_template_sptr());
 		}
 		else
 			return unknownObject("parameter", name, __FILE__, __LINE__);
@@ -908,6 +931,20 @@ cGT_readImages(const char* file)
 		shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
 		sptr_img->read(file);
 		return newObjectHandle<GadgetronImageData>(sptr_img);
+	}
+	CATCH;
+}
+
+extern "C"
+void *
+cGT_ImageFromAcquisitiondata(void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		auto sptr_iv = std::make_shared<GadgetronImagesVector>(acqs);
+		return newObjectHandle<GadgetronImageData>(sptr_iv);
 	}
 	CATCH;
 }

@@ -52,6 +52,13 @@ def test_main(rec=False, verb=False, throw=True):
     fwd_acqs_norm = fwd_acqs.norm()
     test.check(fwd_acqs_norm)
 
+    rng = am.range_geometry()
+    dom = am.domain_geometry()
+    rng = rng - processed_data
+    dom = dom - csms
+    test.check_if_equal(0, rng.norm())
+    test.check_if_equal(0, dom.norm())
+
     acqs_diff = fwd_acqs - processed_data
     rr = acqs_diff.norm()/fwd_acqs_norm
     test.check(rr, abs_tol = 1e-4)

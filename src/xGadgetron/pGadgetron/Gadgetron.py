@@ -252,6 +252,14 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pygadgetron.cGT_readImages(file)
         check_status(self.handle)
+
+    def from_acquisition_data(self, ad):
+        assert isinstance(ad, AcquisitionData), "Please pass a AcquisitionData object"
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pygadgetron.cGT_ImageFromAcquisitiondata(ad.handle)
+        check_status(self.handle)
+
     def data_type(self, im_num):
         '''
         Returns the data type for a specified image (see 8 data types above).
@@ -293,7 +301,8 @@ class ImageData(SIRF.ImageData):
         images.handle = pygadgetron.cGT_selectImages(self.handle, attr, value)
         check_status(images.handle)
         return images
-    def get_info(self, par):
+
+    def parameter_info(self, par):
         '''
         Returns the array of values of the specified image information 
         parameter. Parameters names are the same as the names of Image class
@@ -306,6 +315,10 @@ class ImageData(SIRF.ImageData):
             image = self.image(i)
             info[i] = image.info(par)
         return info
+
+    @deprecated(details="Please use parameter_info method instead")
+    def get_info(self, par):
+        return self.parameter_info(par)
 
     def fill(self, data):
         '''
@@ -904,7 +917,8 @@ class AcquisitionData(DataContainer):
         pyiutil.deleteDataHandle(hv)
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
-    def get_info(self, par, which = 'all'):
+
+    def parameter_info(self, par, which='all'):
         '''
         Returns the array of values of the specified acquisition information 
         parameter.
@@ -924,6 +938,11 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
+
+    @deprecated(details="Please use parameter_info method instead")
+    def get_info(self, par, which='all'):
+        return self.parameter_info(par, which)
+
     def fill(self, data, select='image'):
         '''
         Fills self's acquisitions with specified values.
@@ -1062,9 +1081,6 @@ class AcquisitionModel(object):
             self.handle = \
                 pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         check_status(self.handle)
-        # saves reference to template of AcquisitionData and ImageData
-        self.acq_templ = acqs
-        self.img_templ = imgs
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1171,11 +1187,19 @@ class AcquisitionModel(object):
 
     def range_geometry(self):
         '''Returns the template of AcquisitionData'''
-        return self.acq_templ
+        geom = AcquisitionData()
+        geom.handle = pygadgetron.cGT_parameter(
+            self.handle, 'AcquisitionModel', 'range geometry')
+        check_status(geom.handle)
+        return geom
 
     def domain_geometry(self):
         '''Returns the template of ImageData'''
-        return self.img_templ
+        geom = ImageData()
+        geom.handle = pygadgetron.cGT_parameter(
+            self.handle, 'AcquisitionModel', 'domain geometry')
+        check_status(geom.handle)
+        return geom
 
 class Gadget(object):
     '''
