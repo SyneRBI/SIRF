@@ -711,8 +711,9 @@ void MRAcquisitionData::keep_flagged_acquisitions(const std::vector<ISMRMRD::ISM
         this->get_acquisition(i, acq);
         bool all_flags_set = true;
         for(auto& it: flags)
+        {
             all_flags_set *= acq.isFlagSet(it);
-        
+        }
         if(all_flags_set)
             flags_true_index.push_back(i);
     }
@@ -1697,21 +1698,19 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
     const std::vector<ISMRMRD_AcquisitionFlags> calibration_flags{ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION,
                                                                   ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING};
     
-
-    MRAcquisitionData& ad_calib = *(ad.clone());
+    std::unique_ptr<MRAcquisitionData> uptr_calib_ad = ad.clone();
 
     if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-        ad_calib.keep_flagged_acquisitions(calibration_flags);
+        uptr_calib_ad->keep_flagged_acquisitions(calibration_flags);
 
-    
-    this->set_meta_data(ad_calib.acquisitions_info());
+    this->set_meta_data(uptr_calib_ad->acquisitions_info());
 
-    auto sort_idx = ad_calib.get_kspace_order();
+    auto sort_idx = uptr_calib_ad->get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
-        ad_calib.get_subset(subset, sort_idx[i]);
+        uptr_calib_ad->get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
 		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!
