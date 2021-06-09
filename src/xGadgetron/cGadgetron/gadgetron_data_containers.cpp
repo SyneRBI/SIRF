@@ -31,6 +31,11 @@ limitations under the License.
 */
 #include <cmath>
 #include <iomanip>
+#include <algorithm> 
+
+#include <ismrmrd/xml.h>
+#include <ismrmrd/ismrmrd.h>
+
 
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
@@ -117,6 +122,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			else
 				this->append_acquisition( acq );
 		}
+        this->organise_kspace();
 		if( verbose )
 			std::cout<< "\nFinished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	}
@@ -603,6 +609,7 @@ MRAcquisitionData::sort_by_time()
 		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
 	else
 		Multisort::sort( vt, &index_[0] );
+    
     this->organise_kspace();
     sorted_ = true;
 
@@ -610,6 +617,8 @@ MRAcquisitionData::sort_by_time()
 
 std::vector<KSpaceSubset::SetType > MRAcquisitionData::get_kspace_order() const
 {
+    if(this->is_empty())
+        throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
     if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
 
@@ -685,6 +694,31 @@ void MRAcquisitionData::organise_kspace()
     this->sorting_.erase(
                 std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSubset& s){return s.get_idx_set().empty();}),
                 sorting_.end());
+}
+
+
+void MRAcquisitionData::keep_flagged_acquisitions(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags)
+{
+    if(flags.empty())
+        return;
+
+    ISMRMRD::Acquisition acq;
+    std::vector<int> flags_true_index;
+    for(int i=0; i<this->number(); ++i)
+    {
+        this->get_acquisition(i, acq);
+        bool all_flags_set = true;
+        for(auto& it: flags)
+            all_flags_set *= acq.isFlagSet(it);
+        
+        if(all_flags_set)
+            flags_true_index.push_back(i);
+    }
+
+    if(flags_true_index.empty())
+        return;
+    else
+        this->set_subset(*this, flags_true_index);
 }
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
@@ -1221,10 +1255,44 @@ GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
     this->set_up_geom_info();
 }
 
-GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad)
+GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad, const bool coil_resolved)
 {
+
     set_meta_data(ad.acquisitions_info());
     this->set_up_geom_info();
+
+    ISMRMRD::IsmrmrdHeader hdr = ad.acquisitions_info().get_IsmrmrdHeader();
+
+    unsigned int const num_coil_channels = coil_resolved ? hdr.acquisitionSystemInformation.get().receiverChannels.get() : 1;
+
+    std::vector<ISMRMRD::Encoding> enc_vec = hdr.encoding;
+    ISMRMRD::Encoding enc = enc_vec[0];
+    ISMRMRD::EncodingSpace rec_space = enc.reconSpace;
+
+    ISMRMRD::MatrixSize rawdata_recon_matrix = rec_space.matrixSize;
+    ISMRMRD::FieldOfView_mm rawdata_recon_FOV = rec_space.fieldOfView_mm;
+    
+    auto sort_idx = ad.get_kspace_order();
+
+    ISMRMRD::Acquisition acq;
+
+    for(int i=0; i<sort_idx.size(); ++i)
+    {
+
+        CFImage img(rawdata_recon_matrix.x, rawdata_recon_matrix.y, rawdata_recon_matrix.z, num_coil_channels);
+        img.setFieldOfView(rawdata_recon_FOV.x, rawdata_recon_FOV.y, rawdata_recon_FOV.z);
+
+        sirf::AcquisitionsVector subset; // subset container must be empty so it is created inside the loop scope
+        ad.get_subset(subset, sort_idx[i]);
+        // all subsets are self-consistent and non-empty so it suffices to populate img header from the 0st acquisition
+        subset.get_acquisition(0, acq);
+        match_img_header_to_acquisition(img, acq);
+
+        for(auto it=img.begin(); it!=img.end(); ++it)
+            *it = complex_float_t(0.f,0.f);
+
+        this->append(img);
+    }
 }    
 
 
@@ -1312,6 +1380,26 @@ GadgetronImagesVector::set_real_data(const float* data)
 	GadgetronImagesVector::Iterator iter = begin();
 	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
+}
+
+void sirf::match_img_header_to_acquisition(CFImage& img, const ISMRMRD::Acquisition& acq) 
+{
+    auto acq_hdr = acq.getHead();
+    auto idx = acq_hdr.idx;
+
+    img.setAverage(idx.average);
+    img.setSlice(idx.slice);
+    img.setContrast(idx.contrast);
+    img.setPhase(idx.phase);
+    img.setRepetition(idx.repetition);
+    img.setSet(idx.set);
+
+    img.setReadDirection(acq_hdr.read_dir[0], acq_hdr.read_dir[1], acq_hdr.read_dir[2]);
+    img.setPhaseDirection(acq_hdr.phase_dir[0], acq_hdr.phase_dir[1], acq_hdr.phase_dir[2]);
+    img.setSliceDirection(acq_hdr.slice_dir[0], acq_hdr.slice_dir[1], acq_hdr.slice_dir[2]);
+
+    img.setPosition(acq_hdr.position[0], acq_hdr.position[1], acq_hdr.position[2]);
+    img.setPatientTablePosition(acq_hdr.patient_table_position[0], acq_hdr.patient_table_position[1], acq_hdr.patient_table_position[2]);
 }
 
 static bool is_unit_vector(const float * const vec)
