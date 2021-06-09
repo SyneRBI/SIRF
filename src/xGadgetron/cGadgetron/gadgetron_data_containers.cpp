@@ -620,9 +620,10 @@ MRAcquisitionData::sort_by_time()
 std::vector<KSpaceSubset::SetType > MRAcquisitionData::get_kspace_order() const
 {
     if(this->is_empty())
+        throw LocalisedException("Your acquisition data object contains no data, so no order is determined." , __FILE__, __LINE__);
+    else if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
-    if(this->sorting_.size() == 0)
-        throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
+    
 
     std::vector<KSpaceSubset::SetType > output;
     for(unsigned i = 0; i<sorting_.size(); ++i)
