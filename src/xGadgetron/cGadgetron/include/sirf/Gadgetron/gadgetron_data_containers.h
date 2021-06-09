@@ -1059,7 +1059,7 @@ namespace sirf {
     {
     public:
         CoilImagesVector() : GadgetronImagesVector(){}
-        void calculate(const MRAcquisitionData& acq, int calibration = 1);
+        void calculate(const MRAcquisitionData& ad);
     protected:
         gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
     };

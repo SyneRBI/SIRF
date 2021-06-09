@@ -1674,8 +1674,10 @@ GadgetronImagesVector::set_up_geom_info()
 }
 
 void 
-CoilImagesVector::calculate(const MRAcquisitionData& ad, int calibration)
+CoilImagesVector::calculate(const MRAcquisitionData& ad)
 {
+    using ISMRMRD::ISMRMRD_AcquisitionFlags;
+
     if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
     else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
@@ -1691,14 +1693,25 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad, int calibration)
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
-    this->set_meta_data(ad.acquisitions_info());
+    
+    const std::vector<ISMRMRD_AcquisitionFlags> calibration_flags{ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION,
+                                                                  ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING};
+    
 
-    auto sort_idx = ad.get_kspace_order();
+    MRAcquisitionData& ad_calib = *(ad.clone());
+
+    if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+        ad_calib.keep_flagged_acquisitions(calibration_flags);
+
+    
+    this->set_meta_data(ad_calib.acquisitions_info());
+
+    auto sort_idx = ad_calib.get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
-        ad.get_subset(subset, sort_idx[i]);
+        ad_calib.get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
 		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!
