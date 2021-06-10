@@ -48,9 +48,13 @@ namespace sirf {
 		virtual float norm() const = 0;
 		virtual void dot(const DataContainer& dc, void* ptr) const = 0;
 		virtual void multiply
-		(const DataContainer& x, const DataContainer& y) = 0;
+			(const DataContainer& x, const DataContainer& y) = 0;
 		virtual void divide
-		(const DataContainer& x, const DataContainer& y) = 0;
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void maximum
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void minimum
+			(const DataContainer& x, const DataContainer& y) = 0;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;

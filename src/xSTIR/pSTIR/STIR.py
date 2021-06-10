@@ -30,6 +30,7 @@ except:
     HAVE_PYLAB = False
 import sys
 from numbers import Integral
+from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, \
@@ -42,11 +43,6 @@ import sirf.pystir as pystir
 import sirf.STIR_params as parms
 from sirf.config import SIRF_HAS_NiftyPET
 from sirf.config import SIRF_HAS_Parallelproj
-
-try:
-    input = raw_input
-except NameError:
-    pass
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -1038,13 +1034,17 @@ class AcquisitionData(DataContainer):
             out = self.get_uniform_copy(value)
         return out
 
-    def get_info(self):
+    def parameter_info(self):
         """Returns the AcquisitionData's metadata as Python str."""
         handle = pystir.cSTIR_get_ProjDataInfo(self.handle)
         check_status(handle)
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
+
+    @deprecated(details="Please use parameter_info method instead")
+    def get_info(self):
+        return self.parameter_info()
 
     @property
     def shape(self):

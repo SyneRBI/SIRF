@@ -176,13 +176,12 @@ PETAcquisitionData::inv(float amin, const DataContainer& a_x)
 }
 
 void
-PETAcquisitionData::multiply(
-const DataContainer& a_x,
-const DataContainer& a_y
+PETAcquisitionData::binary_op_(
+	const DataContainer& a_x,
+	const DataContainer& a_y,
+	int job
 )
 {
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
 	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
 	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
@@ -200,53 +199,21 @@ const DataContainer& a_y
 			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
 			seg_iter != seg.end_all() &&
 			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-		/*empty*/) {
-			*seg_iter++ = (*sx_iter++) * (*sy_iter++);
-		}
-		set_segment(seg);
-		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(),
-				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all() &&
-				sx_iter != sx.end_all() && sy_iter != sy.end_all();
 			/*empty*/) {
+			switch (job) {
+			case 1:
 				*seg_iter++ = (*sx_iter++) * (*sy_iter++);
+				break;
+			case 2:
+				*seg_iter++ = (*sx_iter++) / (*sy_iter++);
+				break;
+			case 3:
+				*seg_iter++ = std::max(*sx_iter++, *sy_iter++);
+				break;
+			case 4:
+				*seg_iter++ = std::min(*sx_iter++, *sy_iter++);
+				break;
 			}
-			set_segment(seg);
-		}
-	}
-}
-
-void
-PETAcquisitionData::divide(
-const DataContainer& a_x,
-const DataContainer& a_y
-)
-{
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	int ny = y.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
-	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		SegmentBySinogram<float>::full_iterator sy_iter;
-		for (seg_iter = seg.begin_all(),
-			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all() &&
-			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-		/*empty*/) {
-			*seg_iter++ = (*sx_iter++) / (*sy_iter++);
 		}
 		set_segment(seg);
 		if (s != 0) {
@@ -257,8 +224,21 @@ const DataContainer& a_y
 				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
 				seg_iter != seg.end_all() &&
 				sx_iter != sx.end_all() && sy_iter != sy.end_all();
-			/*empty*/) {
-				*seg_iter++ = (*sx_iter++) / (*sy_iter++);
+				/*empty*/) {
+				switch (job) {
+				case 1:
+					*seg_iter++ = (*sx_iter++) * (*sy_iter++);
+					break;
+				case 2:
+					*seg_iter++ = (*sx_iter++) / (*sy_iter++);
+					break;
+				case 3:
+					*seg_iter++ = std::max((*sx_iter++), (*sy_iter++));
+					break;
+				case 4:
+					*seg_iter++ = std::min((*sx_iter++), (*sy_iter++));
+					break;
+				}
 			}
 			set_segment(seg);
 		}
@@ -444,12 +424,11 @@ STIRImageData::scale(float s)
 }
 
 void
-STIRImageData::multiply(
-const DataContainer& a_x,
-const DataContainer& a_y)
-{
-	//STIRImageData& x = (STIRImageData&)a_x;
-	//STIRImageData& y = (STIRImageData&)a_y;
+STIRImageData::binary_op_(
+	const DataContainer& a_x,
+	const DataContainer& a_y, 
+	int job
+){
 	DYNAMIC_CAST(const STIRImageData, x, a_x);
 	DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -466,36 +445,21 @@ const DataContainer& a_y)
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
 		iter != data().end_all() &&
 		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter++, iter_x++, iter_y++)
-		*iter = (*iter_x) * (*iter_y);
-}
-
-void
-STIRImageData::divide(
-const DataContainer& a_x,
-const DataContainer& a_y)
-{
-	//STIRImageData& x = (STIRImageData&)a_x;
-	//STIRImageData& y = (STIRImageData&)a_y;
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
-	DYNAMIC_CAST(const STIRImageData, y, a_y);
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-	Image3DF::const_full_iterator iter_y;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-	typename Array<3, float>::const_full_iterator iter_y;
-#endif
-
-	for (iter = data().begin_all(),
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all() &&
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter++, iter_x++, iter_y++) {
-		*iter = (*iter_x) / (*iter_y);
-	}
+		iter++, iter_x++, iter_y++)
+		switch (job) {
+		case 1:
+			*iter = (*iter_x) * (*iter_y);
+			break;
+		case 2:
+			*iter = (*iter_x) / (*iter_y);
+			break;
+		case 3:
+			*iter = std::max(*iter_x, *iter_y);
+			break;
+		case 4:
+			*iter = std::min(*iter_x, *iter_y);
+			break;
+		}
 }
 
 int
