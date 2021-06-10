@@ -102,15 +102,15 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 
 	LabelVolume segmentation_labels = aux_test::get_mock_label_volume();
 	MRContrastGenerator mr_contgen (segmentation_labels, XML_TEST_PATH);  	
-	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+	
+	sirf::AcquisitionsVector av(ISMRMRD_H5_TEST_PATH);
+	av.sort();
+	mr_contgen.set_template_rawdata(av);
 
-	mr_contgen.set_rawdata_header(hdr);
 	mr_contgen.map_contrast();
-
 	GadgetronImagesVector& contrasts = mr_contgen.get_contrast_filled_volumes();	
 
-
-	size_t const num_echoes = ((hdr.sequenceParameters.get()).TE.get()).size();;
+	size_t const num_echoes = ((av.acquisitions_info().get_IsmrmrdHeader().sequenceParameters.get()).TE.get()).size();;
 	size_t input_dims[8] = {3,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,num_echoes,1,1,1};
 
 	std::vector< int > contrast_dims;
@@ -139,16 +139,17 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	std::cout << "... finished. " <<std::endl;
 	
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
-	ISMRMRD::IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-	mr_contgen.set_rawdata_header(hdr);
 
+	sirf::AcquisitionsVector av(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_template_rawdata(av);
 	
 	mr_contgen.map_contrast();
 	
 	GadgetronImagesVector& mr_contrasts = mr_contgen.get_contrast_filled_volumes();	
-	
+	std::cout << "There are "<< mr_contrasts.number() << " images in the XCAT output." << std::endl;		
+
 	std::stringstream name_stream;
-	name_stream << SHARED_FOLDER_PATH << "testoutput_mr_cont_gent_contrast_";
+	name_stream <<  __FUNCTION__;
 	sirf::write_imagevector_to_raw(name_stream.str(), mr_contrasts);
 }
 
@@ -158,11 +159,10 @@ void test_contgen::test_get_signal_for_tissuelabel_in_xcat()
 
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
-	IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
 
-	mr_contgen.set_rawdata_header(hdr);
-
-
+	sirf::AcquisitionsVector av(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_template_rawdata(av);
+	
 	size_t const test_label = 3;
 
 	auto signal = mr_contgen.get_signal_for_tissuelabel( test_label );
@@ -179,14 +179,17 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
-	IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
 	
-	mr_contgen.set_rawdata_header(hdr);
+	sirf::AcquisitionsVector av(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_template_rawdata(av);
+
 	mr_contgen.map_contrast();
 
 	GadgetronImagesVector& mr_contrasts = mr_contgen.get_contrast_filled_volumes();
-	std::string output_name = std::string(SHARED_FOLDER_PATH) + "test_contrast_gen_pre_contrast";
-	sirf::write_imagevector_to_raw(output_name, mr_contrasts);
+	
+	std::stringstream ss_outname;
+	ss_outname << __FUNCTION__ << "_contrast_gen_pre_contrast_";
+	sirf::write_imagevector_to_raw(ss_outname.str(), mr_contrasts);
 
 	// now replace one label and see what happens in the image
 	LabelType label_to_replace = 1;
@@ -196,8 +199,9 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 	mr_contgen.map_contrast();
 
 	mr_contrasts = mr_contgen.get_contrast_filled_volumes();
-	output_name = std::string(SHARED_FOLDER_PATH) + "test_contrast_gen_post_contrast";
-	sirf::write_imagevector_to_raw(output_name, mr_contrasts);
+	std::stringstream ss_outname;
+	ss_outname << __FUNCTION__ << "_contrast_gen_post_contrast_";
+	sirf::write_imagevector_to_raw(ss_outname.str(), mr_contrasts);
 }
 
 
