@@ -357,17 +357,11 @@ try{
 	// // tlm tests
 
 	tlm_tests.push_back( test_tlm::test_get_filepath_tissue_parameter_xml() );
-
 	tlm_tests.push_back( test_tlm::test_get_labels_array() );
-
 	tlm_tests.push_back( test_tlm::test_get_segmentation_dimensions() );
-
 	tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_found() );
-
 	tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_not_found() );
-
 	tlm_tests.push_back( test_tlm::test_map_labels_to_tissue_from_xml() );
-
 	tlm_tests.push_back( test_tlm::test_replace_petmr_tissue_parameters() );
 
 	std::cout << "tlm test results = ";
@@ -390,17 +384,12 @@ try{
 	// mr contgen tests
 
 	mr_contgen_tests.push_back( test_contgen::test_mr_constructor() );
-
 	mr_contgen_tests.push_back( test_contgen::test_mr_set_rawdata_header() );
-
 	mr_contgen_tests.push_back( test_contgen::test_map_flash_contrast() );
-
 	mr_contgen_tests.push_back( test_contgen::test_mr_map_contrast_dim_check() );
 
 	test_contgen::test_mr_map_contrast_application_to_xcat();
-
 	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
-
 	test_contgen::test_get_signal_for_tissuelabel_in_xcat();
 
 	std::cout << "mr contgen test results = ";
