@@ -18,7 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 
-#include "mrtest_auxiliary_funs.h"
+#include "../../../xGadgetron/cGadgetron/tests/mrtest_auxiliary_funs.h"
 
 
 using namespace sirf;
@@ -80,7 +80,6 @@ bool DynSimDeformerTester::test_deform_contrast_generator( void )
 	
 try
 	{
-
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
