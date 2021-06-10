@@ -16,6 +16,8 @@ using boost::property_tree::ptree;
 
 bool test_allocate_MRTissueParameter_successful(void)
 {
+	std::cout << __FUNCTION__ << std::endl;
+
 	MRTissueParameter mr_tissue_pars;
 	mr_tissue_pars.t1_miliseconds_ = 1000;
 	mr_tissue_pars.t2_miliseconds_ = 200;
@@ -26,6 +28,8 @@ bool test_allocate_MRTissueParameter_successful(void)
 
 bool test_allocate_PETTissueParameter_successful(void)
 {
+	std::cout << __FUNCTION__ << std::endl;
+
 	PETTissueParameter pet_tissue_pars;
 	pet_tissue_pars.attenuation_1_by_cm_ = 0.01;
 	pet_tissue_pars.activity_kBq_ml_ = 15;
@@ -35,6 +39,8 @@ bool test_allocate_PETTissueParameter_successful(void)
 
 bool test_allocate_TissueParameter_successful(void)
 {
+	std::cout << __FUNCTION__ << std::endl;
+
 	TissueParameter tissue_pars;
 	tissue_pars.label_ = 1;
 	tissue_pars.name_ = "Liver";
@@ -50,6 +56,8 @@ bool test_allocate_TissueParameter_successful(void)
 
 bool test_TissueParameter_algebra( void )
 {
+	std::cout << __FUNCTION__ << std::endl;
+
 	TissueParameter first_param, second_param;
 		
 	first_param.label_ = 0;
@@ -101,6 +109,7 @@ bool test_TissueParameter_algebra( void )
 
 bool test_get_MRTissueParameter_from_ptree()
 {
+	std::cout << __FUNCTION__ << std::endl;
 
 	ptree pt;
 
@@ -137,6 +146,7 @@ bool test_get_MRTissueParameter_from_ptree()
 
 bool test_get_PETTissueParameter_from_ptree()
 {
+	std::cout << __FUNCTION__ << std::endl;
 
 	ptree pt;
 
@@ -166,6 +176,7 @@ bool test_get_PETTissueParameter_from_ptree()
 
 void test_exception_throw_if_node_not_exists(void)
 {
+	std::cout << __FUNCTION__ << std::endl;
 
 	ptree pt;
 
@@ -189,6 +200,8 @@ void test_exception_throw_if_node_not_exists(void)
 
 bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 {
+
+	std::cout << __FUNCTION__ << std::endl;
 
 	TissueParameterList tissueList = read_TissueParameters_from_xml(xml_filepath);
 
@@ -230,7 +243,8 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 
 bool test_check_label_uniqueness_fails( void )
 {
-	
+	std::cout << __FUNCTION__ << std::endl;
+
 	TissueParameterList tiss_list = aux_test::get_mock_tissue_param_list();
 
 	tiss_list[3].label_ = tiss_list[0].label_;
@@ -245,6 +259,8 @@ bool test_check_label_uniqueness_fails( void )
 
 bool test_check_label_uniqueness_true()
 {
+	std::cout << __FUNCTION__ << std::endl;
+	
 	TissueParameterList tiss_list = aux_test::get_mock_tissue_param_list();
 
 	bool const labels_are_unique = check_label_uniqueness(tiss_list);

@@ -317,35 +317,15 @@ bool run_tests_tissueparameters(void)
 		bool tests_successful = true;
         int i=0;
 		// call every test here
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;	
 		tests_successful *= test_allocate_MRTissueParameter_successful();
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		tests_successful *= test_allocate_PETTissueParameter_successful();
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		tests_successful *= test_allocate_TissueParameter_successful();
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		tests_successful *= test_get_MRTissueParameter_from_ptree();
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		tests_successful *= test_get_PETTissueParameter_from_ptree();
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		test_exception_throw_if_node_not_exists();
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		tests_successful *= test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		tests_successful *= test_check_label_uniqueness_fails();
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		tests_successful *= test_check_label_uniqueness_true();
-		std::cout << "#:" << ++i << "-------------------------------------" << std::endl;
-		std::cout << "current status: " << tests_successful << std::endl;
 		tests_successful *= test_TissueParameter_algebra();			
 
 		return tests_successful;
