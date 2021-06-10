@@ -57,15 +57,15 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }
 
+void MRContrastGenerator::set_template_rawdata(const MRAcquisitionData& ad){
+
+	this->sptr_acqu_ = std::move(ad.clone());
+	this->hdr_ = this->sptr_acqu_->acquisitions_info().get_IsmrmrdHeader();
+}
+
 void MRContrastGenerator::set_rawdata_header(const ISMRMRD::IsmrmrdHeader& hdr)
 {
 	this->hdr_ = hdr;
-	
-	stringstream stream_acqu_info;
-	ISMRMRD::serialize(hdr, stream_acqu_info);
-	AcquisitionsInfo acqu_info(stream_acqu_info.str());
-	this->sptr_acqu_ = std::make_shared<AcquisitionsVector>(acqu_info);
-	
 }
 
 sirf::GadgetronImagesVector& MRContrastGenerator::get_contrast_filled_volumes(bool const resample_output)

@@ -27,8 +27,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // otherwise the header reading can be just inherited and implemented
 // as a virutal method
 
-using ISMRMRD::IsmrmrdHeader;
-
 
 #define CASE_MAP_PET_CONTRAST 0
 #define CASE_MAP_PET_ATTENUATION 1
@@ -61,7 +59,8 @@ public:
 	
 	MRContrastGenerator (const LabelVolume& tissue_labels, const std::string& filename_tissue_parameter_xml);
 
-	void set_rawdata_header(const IsmrmrdHeader& hdr);
+	void set_template_rawdata(const sirf::MRAcquisitionData& ad);
+	void set_rawdata_header(const ISMRMRD::IsmrmrdHeader& hdr);
 	void map_contrast();
 	complex_float_t get_signal_for_tissuelabel( size_t const label );
 	sirf::GadgetronImagesVector& get_contrast_filled_volumes(bool const resample_output=false);
@@ -70,7 +69,8 @@ private:
 
 	void resample_to_template_image( void );
 	sirf::GadgetronImagesVector contrast_filled_volumes_;
-	IsmrmrdHeader hdr_;
+	ISMRMRD::IsmrmrdHeader hdr_;
+
 	std::shared_ptr<sirf::MRAcquisitionData> sptr_acqu_;
 
 };
