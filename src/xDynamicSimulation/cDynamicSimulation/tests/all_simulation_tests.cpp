@@ -394,6 +394,8 @@ try{
 
 	std::cout << "mr contgen test results = ";
 	
+	
+
 	for( size_t i=0; i<mr_contgen_tests.size(); i++)
 	{
 		std::cout << mr_contgen_tests[i] << " / ";
@@ -404,15 +406,10 @@ try{
 	// pet contgen tests
 
 	pet_contgen_tests.push_back( test_contgen::test_pet_constructor() );
-
 	pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
-
 	pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
-
 	pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
-
 	pet_contgen_tests.push_back( test_contgen::test_resample_to_template_image() );
-
 	test_contgen::test_pet_map_contrast_application_to_xcat();
 
 	std::cout << "pet contgen test results = ";
@@ -421,10 +418,7 @@ try{
 		std::cout << pet_contgen_tests[i] << " / ";
 		tests_successful *= pet_contgen_tests[i];
 	}
-	tests_successful *= std::accumulate(
-						std::begin(pet_contgen_tests), std::end(pet_contgen_tests), 1,
-						std::multiplies<bool>());
-						
+	std::cout << std::endl;
 
 	}
     catch(std::runtime_error const &e){
