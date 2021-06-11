@@ -162,8 +162,11 @@ bool test_CoilSensitivitiesVector_calculate( MRAcquisitionData& av)
         std::cout << "We have " << csv.items() << " coilmaps" << std::endl;
 
         if(mr_cpp_tests_writefiles)
-            sirf::write_imagevector_to_raw(__FUNCTION__, csv);
-
+        {
+            std::stringstream fname_output;
+            fname_output << "output_" << __FUNCTION__; 
+            sirf::write_imagevector_to_raw(fname_output.str(), csv);
+        }
         return true;
 
     }
@@ -334,9 +337,13 @@ bool test_bwd(MRAcquisitionData& av)
 
         acquis_model.bwd(img_vec, csm, av);
 
+        
         if(mr_cpp_tests_writefiles)
-            sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
-
+        {
+            std::stringstream fname_output;
+            fname_output << "output_" << __FUNCTION__; 
+            sirf::write_imagevector_to_raw(fname_output.str(), img_vec);
+        }
         return true;
 
     }
@@ -412,8 +419,13 @@ bool test_rpe_csm(MRAcquisitionData& av)
        csm.set_csm_smoothness(50);
        csm.calculate(av);
 
-       if(mr_cpp_tests_writefiles)
-           sirf::write_imagevector_to_raw(__FUNCTION__, csm);
+      
+        if(mr_cpp_tests_writefiles)
+        {
+            std::stringstream fname_output;
+            fname_output << "output_" << __FUNCTION__; 
+            sirf::write_imagevector_to_raw(fname_output.str(), csm);
+        }
        return true;
 
     }
@@ -462,10 +474,12 @@ bool test_rpe_bwd(MRAcquisitionData& av)
            img_vec.append(iw);
 
        }
-
        if(mr_cpp_tests_writefiles)
-           sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
-
+       {
+           std::stringstream fname_output;
+           fname_output << "output_" << __FUNCTION__; 
+           sirf::write_imagevector_to_raw(fname_output.str(), img_vec);
+       }
 
        return true;
 
@@ -522,8 +536,10 @@ bool test_rpe_fwd(MRAcquisitionData& av)
 
        if(mr_cpp_tests_writefiles)
        {
-           sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
-
+           std::stringstream fname_output;
+           fname_output << "output_" << __FUNCTION__; 
+           sirf::write_imagevector_to_raw(fname_output.str(), img_vec);
+         
            std::stringstream fname_output_raw;
            fname_output_raw << "output_" << __FUNCTION__ << "_rawdata.h5";
            av.write(fname_output_raw.str());
@@ -562,8 +578,11 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
             acquis_model.bwd(img_vec, csm, av);
 
             if(mr_cpp_tests_writefiles)
-                sirf::write_imagevector_to_raw(__FUNCTION__, img_vec);
-
+            {
+                std::stringstream fname_output;
+                fname_output << "output_" << __FUNCTION__; 
+                sirf::write_imagevector_to_raw(fname_output.str(), img_vec);
+            }
             return true;
 
         }
