@@ -104,9 +104,6 @@ bool run_tests_dynamics( void )
 	dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
 	dyn_tests.push_back(test_dynamic::test_nonisotropic_mvf_resampling () );
 	
-	std::cout << "end ----------------------------------------------------" <<std::endl;
-
-
 	std::cout << "dynamics test results = ";
 	for( size_t i=0; i<dyn_tests.size(); i++)
 	{
@@ -218,28 +215,27 @@ bool run_tests_dynamic_simulation( void )
 	}
 }
 
+
 bool run_tests_noise_generator( void )
 {
-
 	bool tests_successful = true;
+	std::vector<bool> noise_tests;
 
-	// tests_successful *= test_noisegen::test_add_poisson_noise();
-	tests_successful *= test_noisegen::test_add_gaussian_noise();
+	noise_tests.push_back(test_noisegen::test_add_poisson_noise());
+	noise_tests.push_back(test_noisegen::test_add_gaussian_noise());
 
+	std::cout << "Results " << __FUNCTION__ << " = ";
+
+	for( size_t i=0; i<noise_tests.size(); i++)
+	{
+		std::cout << noise_tests[i] << " / ";
+		tests_successful *= noise_tests[i];
+	}
+
+	std::cout << std::endl;
+
+	return tests_successful;	
 	
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.str() );
-	}
-	else
-	{
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
-		return tests_successful;
-	}
-
-
 }
 
 bool run_tests_auxiliary_input_output( void )
@@ -276,8 +272,6 @@ bool run_tests_auxiliary_input_output( void )
 		throw;
 	}
 }
-
-
 
 bool run_tests_tissueparameters(void)
 {
@@ -500,16 +494,16 @@ int main ( int argc, char* argv[])
 		if(argc > 1)
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 
-		// ok *= run_tests_auxiliary_testing_functions();
-		// ok *= run_tests_auxiliary_input_output();
-		// ok *= run_tests_tissueparameters();
-		// ok *= run_tests_contrastgenerator();
-		// ok *= run_tests_phantom_input();
+		ok *= run_tests_auxiliary_testing_functions();
+		ok *= run_tests_auxiliary_input_output();
+		ok *= run_tests_tissueparameters();
+		ok *= run_tests_contrastgenerator();
+		ok *= run_tests_phantom_input();
+		ok *= run_tests_noise_generator();
 		ok *= run_tests_dynamics();
-		// ok *= run_tests_dynamic_simulation();
-		// ok *= run_tests_noise_generator();
 		// ok *= run_tests_dynsim_deformer();
-		// ok *= run_apps();		
+		// ok *= run_tests_dynamic_simulation();
+		
 		
 		if(ok)
 			return EXIT_SUCCESS;	
