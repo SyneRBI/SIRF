@@ -85,9 +85,6 @@ sirf::NiftiImageData3D<float> read_segmentation_to_nifti_from_h5(const std::stri
 
 	sirf::NiftiImageData3D<float> segmentation_nifti =  read_nifti_from_h5<DataTypeSegmentation>( h5_filename_with_suffix, dataset_name, type_input, type_reader );
 
-	// sirf::NiftiImageData3D<float> read_nifti_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader )
-
-
 	return segmentation_nifti;
 }
 
@@ -162,50 +159,3 @@ std::vector< sirf::NiftiImageData3DDisplacement <float> > read_respiratory_motio
 {
 	return read_motionfields_to_nifti_from_h5(h5_filename_with_suffix, "respiratory");
 }
-
-
-
-// OLD STUFF, DELETE AS SOON AS UP AND RUNNING
-
-
-ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( const std::string& h5_filename_with_suffix)
-{
-	std::string const name_dataset = "segmentation";
-
-	std::cout << "Reading dataset /" << name_dataset <<std::endl;
-
-	H5T_class_t type_input = H5T_INTEGER;
-	PredType type_reader = PredType::NATIVE_UINT32;
-
- 	return read_dataset< DataTypeSegmentation >(h5_filename_with_suffix, name_dataset, type_input, type_reader );
- 
- }
-
-ISMRMRD::NDArray< DataTypeMotionFields > read_motionfield_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_motion_field_dataset )
-{
-	std::string const name_dataset =  "/motionfields/" + name_motion_field_dataset;
-
-	std::cout << "Reading dataset /" << name_dataset <<std::endl;
-
-	H5T_class_t type_input = H5T_FLOAT;
-	PredType type_reader = PredType::NATIVE_FLOAT;
-
- 	return read_dataset< DataTypeMotionFields >(h5_filename_with_suffix, name_dataset, type_input, type_reader );
-}
-
-
-
-
-ISMRMRD::NDArray< DataTypeMotionFields > read_cardiac_motionfield_from_h5( const std::string& h5_filename_with_suffix )
-{
-	std::string const name_motion_field_dataset = "cardiac";
-	return read_motionfield_from_h5( h5_filename_with_suffix, name_motion_field_dataset);
-
-}
-
-ISMRMRD::NDArray< DataTypeMotionFields > read_respiratory_motionfield_from_h5( const std::string& h5_filename_with_suffix )
-{
-	std::string const name_motion_field_dataset = "respiratory";
-	return read_motionfield_from_h5( h5_filename_with_suffix, name_motion_field_dataset);
-}
-
