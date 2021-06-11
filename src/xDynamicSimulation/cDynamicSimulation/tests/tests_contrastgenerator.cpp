@@ -9,7 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_contrastgenerator.h"
 
-
+#include <cstdlib>
 #include <string>
 #include <sstream>
 #include <stdio.h>
@@ -18,6 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/xml.h>
 
 #include "auxiliary_testing_functions.h"
+#include "test_input_filenames.h"
 
 #include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 #include "sirf/cDynamicSimulation/tissueparameters.h"
@@ -149,7 +150,7 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	std::cout << "There are "<< mr_contrasts.number() << " images in the XCAT output." << std::endl;		
 
 	std::stringstream name_stream;
-	name_stream << "/media/sf_CCPPETMR/TestData/Output/xDynamicSimulation/cDynamicSimulation/output_" << __FUNCTION__;
+	name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;
 	sirf::write_imagevector_to_raw(name_stream.str(), mr_contrasts);
 }
 
@@ -188,7 +189,7 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 	GadgetronImagesVector& mr_contrasts = mr_contgen.get_contrast_filled_volumes();
 	
 	std::stringstream ss_outname;
-	ss_outname << "/media/sf_CCPPETMR/TestData/Output/xDynamicSimulation/cDynamicSimulation/output_" << __FUNCTION__ << "_contrast_gen_pre_contrast_";
+	ss_outname << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__ << "_contrast_gen_pre_contrast_";
 
 	sirf::write_imagevector_to_raw(ss_outname.str(), mr_contrasts);
 
@@ -201,7 +202,7 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 
 	mr_contrasts = mr_contgen.get_contrast_filled_volumes();
 	ss_outname.str(std::string());;
-	ss_outname << "/media/sf_CCPPETMR/TestData/Output/xDynamicSimulation/cDynamicSimulation/output_" << __FUNCTION__ << "_contrast_gen_post_contrast_";
+	ss_outname << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__ << "_contrast_gen_post_contrast_";
 
 	sirf::write_imagevector_to_raw(ss_outname.str(), mr_contrasts);
 }
@@ -401,27 +402,14 @@ void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 
 		STIRImageData contrast_volume = volume_container[0];
 	
-		auto dims = pet_contgen.get_dimensions();
-
-		int Nx = dims[0];
-		int Ny = dims[1];
-		int Nz = dims[2];
-		std::cout << " dims " << Nx << "," << Ny << ","<< Nz;
+		std::stringstream fname_formatfile;
+		fname_formatfile << std::getenv("SIRF_PATH") << "/examples/parameter_files/STIR_output_file_format_nifti.par";
+		std::cout << "Reading format file from: " << fname_formatfile.str() <<std::endl;;
+		
 		std::stringstream outname_contrast; 
-		outname_contrast << std::string(SHARED_FOLDER_PATH) << "xcat_pet_contrast";
+		outname_contrast << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__ << ".nii";
 
-
-		std::vector<float> data_output(Nx*Ny*Nz, 0.f);
-		// for( size_t i=0; i<data_output.size(); i++)
-			// std::cout << data_output[i] <<std::endl;
-
-		contrast_volume.get_data( &data_output[0] );
-
-		// contrast_volume.write( outname_contrast.str() );
-		// for( size_t i=0; i<data_output.size(); i++)
-			// std::cout << data_output[i] <<std::endl;
-
-		data_io::write_raw< float >( outname_contrast.str() , &data_output[0], Nx*Ny*Nz);
+		contrast_volume.write(outname_contrast.str(), fname_formatfile.str());			
 
 	}
 	catch( std::runtime_error const &e)

@@ -17,6 +17,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
 #define TESTDATA_PREFIX "TestData/Input/xDynamicSimulation/cDynamicSimulation/"
+#define TESTDATA_OUT_PREFIX "TestData/Output/xDynamicSimulation/cDynamicSimulation/"
 
 #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH TESTDATA_PREFIX "Segmentations/xcat_phantom_incl_geomertry_128.h5"
 #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH TESTDATA_PREFIX "TemplateData/MR/CV_nav_cart_128Cube_FLASH_T1.h5"   
