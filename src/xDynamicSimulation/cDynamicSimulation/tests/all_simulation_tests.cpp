@@ -88,50 +88,21 @@ bool run_tests_dynamics( void )
 	bool tests_successful = true;
 	std::vector< bool > dyn_tests;
 	std::cout << "start ----------------------------------------------------" <<std::endl;
-	// std::cout << "1 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_is_in_bin());
-
-	// std::cout << "2 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
-
-	// std::cout << "3 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());
-
-	// std::cout << "4 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_get_set_bins());
-
-	// std::cout << "5 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
-
-	// std::cout << "6 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_counter());
-
-	// std::cout << "7 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
-
-	// std::cout << "7.1 --------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
-
-	// std::cout << "8 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
-
-	// std::cout << "10 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_prep_motion_fields());	
-
-	// std::cout << "11 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_interpolate_dvfs());
-
-	// std::cout << "12 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
-
-	// std::cout << "13 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
-	
-	// std::cout << "14 ----------------------------------------------------" <<std::endl;
+	dyn_tests.push_back(test_dynamic::test_is_in_bin());
+	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
+	dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());
+	dyn_tests.push_back(test_dynamic::test_get_set_bins());
+	dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_counter());
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_prep_motion_fields());	
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_interpolate_dvfs());
+	dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
+	dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
 	dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
-
-	std::cout << "15 ----------------------------------------------------" <<std::endl;
-	// dyn_tests.push_back(test_dynamic::test_nonisotropic_mvf_resampling () );
+	dyn_tests.push_back(test_dynamic::test_nonisotropic_mvf_resampling () );
 	
 	std::cout << "end ----------------------------------------------------" <<std::endl;
 
@@ -533,10 +504,8 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_auxiliary_input_output();
 		// ok *= run_tests_tissueparameters();
 		// ok *= run_tests_contrastgenerator();
-		ok *= run_tests_phantom_input();
-		// ok *= run_tests_encoding();
-		// ok *= run_tests_mr_acquisition_model();
-		// ok *= run_tests_dynamics();
+		// ok *= run_tests_phantom_input();
+		ok *= run_tests_dynamics();
 		// ok *= run_tests_dynamic_simulation();
 		// ok *= run_tests_noise_generator();
 		// ok *= run_tests_dynsim_deformer();

@@ -24,7 +24,7 @@ using std::endl;
 
 bool test_dynamic::test_is_in_bin( void )
 {
-
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 	bool test_succesful;
 	SignalAxisType test_signal = 0.15;
 
@@ -57,6 +57,7 @@ bool test_dynamic::test_is_in_bin( void )
 
 bool test_dynamic::test_intersect_mr_acquisition_data( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
 	AcquisitionsVector one_vec, other_vec;
 	auto hdr = aux_test::get_serialized_mock_ismrmrd_header();
@@ -107,6 +108,7 @@ bool test_dynamic::test_intersect_mr_acquisition_data( void )
 
 bool test_dynamic::test_linear_interpolate_signal( )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
 	try
 	{
@@ -149,6 +151,8 @@ bool test_dynamic::test_linear_interpolate_signal( )
 
 bool test_dynamic::test_get_set_bins()
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		bool test_succesful = true;
@@ -197,6 +201,8 @@ bool test_dynamic::test_get_set_bins()
 
 bool test_dynamic::test_bin_mr_acquisitions()
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		bool test_succesful = true;
@@ -271,6 +277,8 @@ bool test_dynamic::test_bin_mr_acquisitions()
 
 bool test_dynamic::test_motion_dynamic_counter()
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		bool test_succesful = true;
@@ -309,6 +317,7 @@ bool test_dynamic::test_motion_dynamic_counter()
 
 bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
 	try
 	{
@@ -316,11 +325,7 @@ bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 
 		MotionDynamic first_dyn;
 		cout << epiph( first_dyn.get_temp_folder_name() )<< endl;
-		// test_succesful *= first_dyn.make_temp_folder();
-		// test_succesful *= first_dyn.delete_temp_folder();
-
-		// test_succesful *= !(first_dyn.delete_temp_folder());
-
+		
 		return test_succesful;
 	}
 	catch( std::runtime_error const &e)
@@ -334,6 +339,8 @@ bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 
 bool test_dynamic::test_motion_dynamic_save_gt_deformations( )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		bool test_succesful = true;
@@ -346,8 +353,6 @@ bool test_dynamic::test_motion_dynamic_save_gt_deformations( )
 
 		std::vector<float> gt_points{0.0, 0.1, 0.2, 0.3, 0.4};
 		motion_dyn.save_ground_truth_displacements(gt_points);
-
-		// motion_dyn.save_ground_truth_displacements();
 
 		return test_succesful;
 	}
@@ -363,7 +368,9 @@ bool test_dynamic::test_motion_dynamic_save_gt_deformations( )
 
 bool test_dynamic::test_motion_dynamic_set_motion_fields()
 {
-try
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
+	try
 	{
 		bool test_succesful = true;
 
@@ -386,6 +393,8 @@ try
 
 bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		bool test_succesful = true;
@@ -500,7 +509,9 @@ bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
 
 bool test_dynamic::test_motion_dynamic_prep_motion_fields()
 {
-try
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
+	try
 	{
 		bool test_succesful = true;
 
@@ -526,6 +537,8 @@ try
 
 bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		bool test_succesful = true;
@@ -553,6 +566,8 @@ bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 
 bool test_dynamic::test_nonisotropic_mvf_resampling( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		bool test_succesful = true;
@@ -581,25 +596,14 @@ bool test_dynamic::test_nonisotropic_mvf_resampling( void )
 		dst_spacing[1] = spacing_scaling[1] * dst_spacing[1];
 		dst_spacing[2] = spacing_scaling[2] * dst_spacing[2];
 
-		// ref_offset[0] = spacing_scaling[0] * ref_offset[0];
-		// ref_offset[1] = spacing_scaling[1] * ref_offset[1];
-		// ref_offset[2] = spacing_scaling[2] * ref_offset[2];
-
-
-
 		VoxelisedGeometricalInfo3D dst_geo(ref_offset, dst_spacing, ref_size, ref_dir );
 
 		NiftiImageData3DDisplacement<float> dst_mvf( (float*) ref_mvf.get_raw_nifti_sptr()->data, dst_geo);
 		dst_mvf.write( output_path + "mvf_non_iso_dstgeo" );
 
-
-
-
 		NiftyResampler<float> resampler;
 
 	    resampler.set_interpolation_type_to_cubic_spline();
-		// resampler.set_reference_image(std::make_shared< NiftiImageData3DDisplacement<float> >(dst_mvf));
-		// resampler.set_floating_image (std::make_shared< NiftiImageData3DDisplacement<float> >(ref_mvf));
 
 		resampler.set_floating_image(std::make_shared< NiftiImageData3DDisplacement<float> >(dst_mvf));
 		resampler.set_reference_image (std::make_shared< NiftiImageData3DDisplacement<float> >(ref_mvf));
@@ -623,6 +627,8 @@ bool test_dynamic::test_nonisotropic_mvf_resampling( void )
 
 bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
 	try
 	{
 		bool test_succesful = true;
@@ -653,6 +659,8 @@ bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
 
 bool test_dynamic::test_bin_pet_time_interval( void )
 {
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+	
 	try
 	{
 		bool test_succesful = true;
