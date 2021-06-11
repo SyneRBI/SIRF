@@ -18,22 +18,25 @@ using namespace sirf;
 
 bool test_noisegen::test_add_poisson_noise( void )
 {
+	std::cout << "--- Running " << __FUNCTION__ << std::endl;
 	try
 	{
-			
-		PETAcquisitionDataInFile noise_free_acq(FILENAME_STATICSIM_PET);
+		std::stringstream fpath_pet_exampledata;
+		fpath_pet_exampledata << SHARED_FOLDER_PATH << TESTDATA_PREFIX << "TemplateData/PET/simulated_data.hs"; 				
+
+		PETAcquisitionDataInMemory noise_free_acq(fpath_pet_exampledata.str().c_str());
 		PETAcquisitionDataInMemory noisy_acq(noise_free_acq);
 
 		PoissonNoiseGenerator png;
 		png.add_noise( noisy_acq, noise_free_acq);
 
-		std::string const filename_test_output = std::string(SHARED_FOLDER_PATH) + "test_poisson_noise_generator.hs";		
+		std::stringstream name_stream;
+		name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;
 
-		std::cout << "Writing " << filename_test_output << std::endl;
-		noisy_acq.write(filename_test_output.c_str());
+		std::cout << "Writing " << name_stream.str() << std::endl;
+		noisy_acq.write(name_stream.str());
 
 		return true;
-
 	}
 	catch( std::runtime_error const &e)
 	{
@@ -46,6 +49,8 @@ bool test_noisegen::test_add_poisson_noise( void )
 
 bool test_noisegen::test_add_gaussian_noise( void )
 {
+	std::cout << "--- Running " << __FUNCTION__ << std::endl;
+
 	try
 	{
 		AcquisitionsVector av;
@@ -77,9 +82,9 @@ bool test_noisegen::test_add_gaussian_noise( void )
 
 		noise_gen.add_noise(av);
 
-		std::stringstream filename_test_output;
-		filename_test_output << std::string(SHARED_FOLDER_PATH) << "test_gaussian_noise_generator_SNR_" << SNR <<"_signal_" << signal  << ".h5";		
-		av.write(filename_test_output.str().c_str());
+		std::stringstream name_stream;
+		name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;
+		av.write(name_stream.str());
 
 		return true;
 
