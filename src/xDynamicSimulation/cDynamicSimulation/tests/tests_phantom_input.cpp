@@ -6,18 +6,17 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
+#include <iostream>
+
 #include "auxiliary_testing_functions.h"
-
 #include "sirf/common/GeometricalInfo.h"
-
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
 #include "sirf/cDynamicSimulation/phantom_input.h"
-
 #include "tests_phantom_input.h"
 
 
 using namespace sirf;
-
+using namespace std;
 
 
 bool test_read_1D_dataset_from_h5( std::string h5_filename_with_suffix)
