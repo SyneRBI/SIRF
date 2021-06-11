@@ -631,10 +631,10 @@ bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
 
 	try
 	{
-		bool test_succesful = true;
+		
 
-		int const num_con_states = 3;
-		int const num_motion_states = 4;
+		int const num_con_states = 7;
+		int const num_motion_states = 2;
 
 		MRContrastDynamic cont_dyn( num_con_states );
 		MRMotionDynamic motion_dyn( num_motion_states );
@@ -642,7 +642,8 @@ bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
 		cout << epiph (cont_dyn.get_num_simul_states()) << endl;
 		cout << epiph (motion_dyn.get_num_simul_states()) << endl;
 
-		test_succesful *= (cont_dyn.get_num_simul_states() == num_con_states);
+		bool test_succesful = true;
+		test_succesful *= (cont_dyn.get_num_simul_states() == num_con_states+1);
 		test_succesful *= (motion_dyn.get_num_simul_states() == num_motion_states);
 
 		return test_succesful;
