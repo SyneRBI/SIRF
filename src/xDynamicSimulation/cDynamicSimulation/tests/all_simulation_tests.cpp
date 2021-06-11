@@ -354,7 +354,7 @@ try{
 	bool tests_successful = true;
 	std::vector< bool > tlm_tests, abstract_contgen_tests, mr_contgen_tests, pet_contgen_tests;
 	
-	// // tlm tests
+	// tlm tests
 
 	tlm_tests.push_back( test_tlm::test_get_filepath_tissue_parameter_xml() );
 	tlm_tests.push_back( test_tlm::test_get_labels_array() );
@@ -370,7 +370,7 @@ try{
 		std::cout << tlm_tests[i] << " / ";
 		tests_successful *= tlm_tests[i];
 	}
-
+	std::cout << std::endl;
 	// abstract contgent tests
 
 	abstract_contgen_tests.push_back( test_contgen::test_get_tissue_parameter() );
@@ -394,8 +394,6 @@ try{
 
 	std::cout << "mr contgen test results = ";
 	
-	
-
 	for( size_t i=0; i<mr_contgen_tests.size(); i++)
 	{
 		std::cout << mr_contgen_tests[i] << " / ";
@@ -419,6 +417,8 @@ try{
 		tests_successful *= pet_contgen_tests[i];
 	}
 	std::cout << std::endl;
+
+	return tests_successful;
 
 	}
     catch(std::runtime_error const &e){

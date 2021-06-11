@@ -221,7 +221,6 @@ bool test_contgen::test_map_flash_contrast( void )
 
 	std::vector <complex_float_t> flash_contrast = map_flash_contrast(ptr_to_mock_tiss, hdr);
 
-
 	float const t1 = 1;
 	float const t2 = 2;
 	float const dens = 100;
@@ -234,8 +233,9 @@ bool test_contgen::test_map_flash_contrast( void )
 
 
 	complex_float_t IMAG_UNIT(0,1);
+	float const gyro = (float)42.58 * 2*M_PI;;
 
-	complex_float_t input_contrast_echo1 = exp( IMAG_UNIT * (float)42.58/1000.f * TE * cs * field_strength_t)*dens * (float)sin(angle) * 
+	complex_float_t input_contrast_echo1 = exp( IMAG_UNIT * gyro/1000.f * TE * cs * field_strength_t)*dens * (float)sin(angle) * 
 	(float)(1-exp(-TR/t1)) / (float)(1- exp(-TR/t1)*cos(angle)) * (float)exp(-TE/t2);	
 	complex_float_t mock_contrast = flash_contrast[0];
 
