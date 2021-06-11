@@ -88,7 +88,7 @@ void
 MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 {
 	
-    bool const verbose = false;
+    bool const verbose = true;
 
 	if( verbose )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
@@ -119,7 +119,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			else
 				this->append_acquisition( acq );
 		}
-        this->organise_kspace();
+        this->sort();
 		if( verbose )
 			std::cout<< "\nFinished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	}
