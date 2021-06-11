@@ -445,43 +445,46 @@ bool run_tests_phantom_input( void )
 	}
 }
 
+
 bool run_tests_dynsim_deformer( void )
 {
-	bool tests_successful = true;
+	std::cout<< "Running " << __FUNCTION__ << std::endl;		
+	try
+    {
+		bool tests_successful = true;
+		std::vector< bool > test_results{};
 
-	std::cout << " Start -------------------------- " <<std::endl;
+		test_results.push_back(DynSimDeformerTester::test_nifti_data_deformation());
+		test_results.push_back(DynSimDeformerTester::test_deform_contrast_generator());
+		test_results.push_back(DynSimDeformerTester::test_deform_pet_contrast_generator());
+		test_results.push_back(DynSimDeformerTester::test_motion_of_MotionDynamics());
 
-	std::cout << " 0-------------------------- " <<std::endl;
-	// tests_successful *= DynSimDeformerTester::test_nifti_data_deformation();
 
-	// std::cout << " 1-------------------------- " <<std::endl;
-	tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
+		std::cout << "#### #### #### " << __FUNCTION__ << " test results = ";
+		for( size_t i=0; i<test_results.size(); i++)
+		{
+			std::cout << test_results[i] << " / ";
+			tests_successful *= test_results[i];
+		}
+		std::cout << std::endl;
 
-	std::cout << " 2 -------------------------- " <<std::endl;
-	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
-
-	std::cout << " 3 -------------------------- " <<std::endl;
-	// tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
-
-	std::cout << " 4-------------------------- " <<std::endl;
-	// tests_successful *= DynSimDeformerTester::test_motion_of_MotionDynamics();
-
-	std::cout << " End -------------------------- " <<std::endl;
-
-	
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.str() );
-	}
-	else
-	{	
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
 		return tests_successful;
+
+    }
+    catch(std::runtime_error const &e){
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+	catch(const std::exception &error){
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+		throw;
+	}
+	catch(...){
+        std::cerr << "An unknown exception was caught in "<< __FUNCTION__ << std::endl;
+		throw;
 	}
 }
-
 
 
 int main ( int argc, char* argv[])
@@ -494,14 +497,14 @@ int main ( int argc, char* argv[])
 		if(argc > 1)
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 
-		ok *= run_tests_auxiliary_testing_functions();
-		ok *= run_tests_auxiliary_input_output();
-		ok *= run_tests_tissueparameters();
-		ok *= run_tests_contrastgenerator();
-		ok *= run_tests_phantom_input();
-		ok *= run_tests_noise_generator();
-		ok *= run_tests_dynamics();
-		// ok *= run_tests_dynsim_deformer();
+		// ok *= run_tests_auxiliary_testing_functions();
+		// ok *= run_tests_auxiliary_input_output();
+		// ok *= run_tests_tissueparameters();
+		// ok *= run_tests_contrastgenerator();
+		// ok *= run_tests_phantom_input();
+		// ok *= run_tests_noise_generator();
+		// ok *= run_tests_dynamics();
+		ok *= run_tests_dynsim_deformer();
 		// ok *= run_tests_dynamic_simulation();
 		
 		

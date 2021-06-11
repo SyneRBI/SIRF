@@ -26,92 +26,42 @@ using namespace sirf;
 
 bool DynSimDeformerTester::test_nifti_data_deformation( void )
 {
-
-try
-{
-
-	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-
-	auto sptr_img_to_deform = std::make_shared< NiftiImageData3D<float> >( segmentation_labels );
-
-	// auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-	auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-
-
-	std::string output_name = "deformed_segmentation";
-
-	for(size_t i=0; i<motion_fields.size(); i++)
+	std::cout << " --- Running " << __FUNCTION__ << std::endl;
+	try
 	{
-		std::stringstream sstream_output; 
-		sstream_output << SHARED_FOLDER_PATH <<"/" << output_name <<"_state_" << i;
 
-		NiftyResampler<float> resampler;
-
-	    resampler.set_interpolation_type_to_cubic_spline();
-		resampler.set_reference_image(sptr_img_to_deform);
-		resampler.set_floating_image (sptr_img_to_deform);
-
-        auto disp_trafo = std::make_shared<NiftiImageData3DDeformation<float> >( ( motion_fields[i] ).get_as_deformation_field(motion_fields[i]) );
-		resampler.add_transformation(disp_trafo);
-
-		resampler.process();
-
-		auto output_img = resampler.get_output_sptr();
-		
-		output_img->write( sstream_output.str() );
-		
-
-	}
-
-	return true;
-}
-catch( std::runtime_error const &e)
-{
-	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-	std::cout << e.what() << std::endl;
-	throw e;
-}
-}
-
-
-
-bool DynSimDeformerTester::test_deform_contrast_generator( void )
-{
-	
-try
-	{
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
-		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+		auto sptr_img_to_deform = std::make_shared< NiftiImageData3D<float> >( segmentation_labels );
 
-		ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-		mr_cont_gen.set_rawdata_header(hdr);
+		// auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
-	
-		auto motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		// auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		
-
-		for( size_t i=0; i<motion_fields.size(); i++)
+		for(size_t i=0; i<motion_fields.size(); i++)
 		{
-			std::cout << "Getting mvf #" << i << std::endl;
-			NiftiImageData3DDeformation<float> curr_mvf = (motion_fields[i]).get_as_deformation_field( motion_fields[i] );
 
-			std::vector< NiftiImageData3DDeformation<float> > vec_mvfs;
-			vec_mvfs.push_back( curr_mvf );
+			std::stringstream sstream_output;	
+			sstream_output << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__ << "_state_" << i; 		
 
-			mr_cont_gen.map_contrast();
-			DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, vec_mvfs);
+			NiftyResampler<float> resampler;
+
+			resampler.set_interpolation_type_to_cubic_spline();
+			resampler.set_reference_image(sptr_img_to_deform);
+			resampler.set_floating_image (sptr_img_to_deform);
+
+			auto disp_trafo = std::make_shared<NiftiImageData3DDeformation<float> >( ( motion_fields[i] ).get_as_deformation_field(motion_fields[i]) );
+			resampler.add_transformation(disp_trafo);
+
+			resampler.process();
+
+			auto output_img = resampler.get_output_sptr();
 			
-			GadgetronImagesVector curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
-			std::stringstream name_stream;
-			name_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_" << i; 		
-			sirf::write_imagevector_to_raw(name_stream.str(), curr_motion_state);
+			output_img->write( sstream_output.str() );
+			
 
 		}
 
 		return true;
-		
 	}
 	catch( std::runtime_error const &e)
 	{
@@ -121,8 +71,58 @@ try
 	}
 }
 
+
+
+bool DynSimDeformerTester::test_deform_contrast_generator( void )
+{
+	std::cout << " --- Running " << __FUNCTION__ << std::endl;
+
+	try
+		{
+			LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+
+			MRContrastGenerator mr_cont_gen (segmentation_labels, XML_TEST_PATH);  	
+			sirf::AcquisitionsVector av(ISMRMRD_H5_TEST_PATH);
+			mr_cont_gen.set_template_rawdata(av);
+			
+			auto motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			
+
+			for( size_t i=0; i<motion_fields.size(); i++)
+			{
+				std::cout << "Getting mvf #" << i << std::endl;
+				NiftiImageData3DDeformation<float> curr_mvf = (motion_fields[i]).get_as_deformation_field( motion_fields[i] );
+
+				std::vector< NiftiImageData3DDeformation<float> > vec_mvfs;
+				vec_mvfs.push_back( curr_mvf );
+
+				mr_cont_gen.map_contrast();
+				DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, vec_mvfs);
+				
+				GadgetronImagesVector curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
+
+				std::stringstream name_stream;	
+				name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__ << "_state_" << i; 		
+
+				sirf::write_imagevector_to_raw(name_stream.str(), curr_motion_state);
+
+			}
+
+			return true;
+			
+		}
+		catch( std::runtime_error const &e)
+		{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+		}
+}
+
 bool DynSimDeformerTester::test_deform_pet_contrast_generator( void ) 
 {
+
+	std::cout << " --- Running " << __FUNCTION__ << std::endl;
 
 	try{
 		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
@@ -158,8 +158,9 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 			
 			std::vector< sirf::STIRImageData > curr_motion_state = pet_cont_gen.get_contrast_filled_volumes();
 			
-			std::stringstream filename_stream;
-			filename_stream << SHARED_FOLDER_PATH << "pet_activity_map_state_" << i_motion; 		
+			std::stringstream filename_stream;	
+			filename_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__ << "_state_" << i_motion; 		
+
 
 			sirf::NiftiImageData3D<float> curr_motion_state_nii( curr_motion_state[0] );				
 			curr_motion_state_nii.write(filename_stream.str() );
@@ -177,40 +178,9 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 	}
 }
 
-
-
-bool DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior()
-{
-
-	try
-	{
-		bool test_succesful = true;
-	
-		typedef NiftiImageData3D<float> ImageType;
-		size_t const num_cycles = 10000;
-
-		
-
-		for(size_t i_cycle=0; i_cycle<num_cycles; i_cycle++)
-		{
-			ImageType temp_img(DISPLACEMENT_FIELD_PATH);				
-			std::cout << "Cycle: " << i_cycle+1 << "/" << num_cycles << std::endl;
-			// ImageType another_img(temp_img);				
-		}
-
-		return test_succesful;
-	}
-	catch( std::runtime_error const &e)
-	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
-		throw e;
-	}
-
-}
-
 bool DynSimDeformerTester::test_motion_of_MotionDynamics()
 {
+	std::cout << " --- Running " << __FUNCTION__ << std::endl;
 
 	try
 	{
@@ -220,10 +190,9 @@ bool DynSimDeformerTester::test_motion_of_MotionDynamics()
 		// Prep
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
-		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
-
-		ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-		mr_cont_gen.set_rawdata_header(hdr);
+		MRContrastGenerator mr_cont_gen (segmentation_labels, XML_TEST_PATH);  	
+		sirf::AcquisitionsVector av(ISMRMRD_H5_TEST_PATH);
+		mr_cont_gen.set_template_rawdata(av);
 
 		//	---------------------------------------
 		// Set motion infos
@@ -252,7 +221,6 @@ bool DynSimDeformerTester::test_motion_of_MotionDynamics()
 			float const motion_state = std::get<1>(motion_bins[i]);
 
 			std::cout << "Getting mvf for motion state " << motion_state << std::endl;
-		
 			
 			sirf::NiftiImageData3DDeformation<float> curr_mvf = motion_dyn.get_interpolated_deformation_field( motion_state );
 			
@@ -264,7 +232,7 @@ bool DynSimDeformerTester::test_motion_of_MotionDynamics()
 			
 			GadgetronImagesVector curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
 			std::stringstream name_stream;
-			name_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_from_dyn_" << i; 		
+			name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__ << "_dyn_" << i; 		
 			sirf::write_imagevector_to_raw(name_stream.str(), curr_motion_state);
 
 		}

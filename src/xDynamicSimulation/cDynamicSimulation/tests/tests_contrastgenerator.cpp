@@ -105,7 +105,6 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 	MRContrastGenerator mr_contgen (segmentation_labels, XML_TEST_PATH);  	
 	
 	sirf::AcquisitionsVector av(ISMRMRD_H5_TEST_PATH);
-	av.sort();
 	mr_contgen.set_template_rawdata(av);
 
 	mr_contgen.map_contrast();
