@@ -364,7 +364,7 @@ try{
 	tlm_tests.push_back( test_tlm::test_map_labels_to_tissue_from_xml() );
 	tlm_tests.push_back( test_tlm::test_replace_petmr_tissue_parameters() );
 
-	std::cout << "tlm test results = ";
+	std::cout << "#### #### #### Tissue-Label-Mapper test results = ";
 	for( size_t i=0; i<tlm_tests.size(); i++)
 	{
 		std::cout << tlm_tests[i] << " / ";
@@ -374,6 +374,8 @@ try{
 	// abstract contgent tests
 
 	abstract_contgen_tests.push_back( test_contgen::test_get_tissue_parameter() );
+
+	std::cout << "#### #### #### Abstract contrast generator test results = ";
 	for( size_t i=0; i<abstract_contgen_tests.size(); i++)
 	{
 		std::cout << abstract_contgen_tests[i] << " / ";
@@ -392,7 +394,7 @@ try{
 	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
 	test_contgen::test_get_signal_for_tissuelabel_in_xcat();
 
-	std::cout << "mr contgen test results = ";
+	std::cout << "#### #### #### MR constrast generator test results = ";
 	
 	for( size_t i=0; i<mr_contgen_tests.size(); i++)
 	{
@@ -410,7 +412,7 @@ try{
 	pet_contgen_tests.push_back( test_contgen::test_resample_to_template_image() );
 	test_contgen::test_pet_map_contrast_application_to_xcat();
 
-	std::cout << "pet contgen test results = ";
+	std::cout << "#### #### #### PET Contrast generator test results = ";
 	for( size_t i=0; i<pet_contgen_tests.size(); i++)
 	{
 		std::cout << pet_contgen_tests[i] << " / ";
@@ -439,35 +441,49 @@ try{
 
 bool run_tests_phantom_input( void )
 {
-	bool tests_successful = true;
+	std::cout<< "Running " << __FUNCTION__ << std::endl;		
 
+	try
+    {
 
-	// test_read_1D_dataset_from_h5(H5_PHANTOM_TEST_PATH);
-	// test_read_geometrical_info_from_h5( H5_PHANTOM_TEST_PATH );
-	// test_read_segmentation_to_nifti( H5_PHANTOM_TEST_PATH );
-	test_read_motionfield_to_nifti(  H5_XCAT_PHANTOM_PATH );
+		bool tests_successful = true;
+		std::vector< bool > test_results{};
 
-	// tests_successful *= test_read_h5_segmentation_correct_dims(H5_XCAT_PHANTOM_PATH);
-	// tests_successful *= test_read_h5_segmentation_correct_content(H5_XCAT_PHANTOM_PATH);
-	
-	// test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
-	// tests_successful *= test_read_h5_motionfields();
+		test_read_1D_dataset_from_h5(H5_PHANTOM_TEST_PATH);
+		test_read_geometrical_info_from_h5( H5_PHANTOM_TEST_PATH );
+		test_read_segmentation_to_nifti( H5_PHANTOM_TEST_PATH );
+		test_read_motionfield_to_nifti(  H5_XCAT_PHANTOM_PATH );
 
-	
-	
-	if ( !tests_successful )
-	{
-		std::stringstream ss_msg;
-		ss_msg << "Running " << __FUNCTION__ << " failed.";
-		throw std::runtime_error( ss_msg.str() );
-	}
-	else
-	{
-		std::cout<< "Running " << __FUNCTION__ << " succeeded.";
+		test_results.push_back( test_read_h5_segmentation_correct_dims(H5_XCAT_PHANTOM_PATH) );
+		test_results.push_back( test_read_h5_segmentation_correct_content(H5_XCAT_PHANTOM_PATH) );
+		
+		test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
+		test_results.push_back(test_read_h5_motionfields());
+
+		std::cout << "#### #### #### " << __FUNCTION << " test results = ";
+		for( size_t i=0; i<test_results.size(); i++)
+		{
+			std::cout << test_results[i] << " / ";
+			tests_successful *= test_results[i];
+		}
+		std::cout << std::endl;
+
 		return tests_successful;
+
+    }
+    catch(std::runtime_error const &e){
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+	catch(const std::exception &error){
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+		throw;
 	}
-
-
+	catch(...){
+        std::cerr << "An unknown exception was caught in "<< __FUNCTION__ << std::endl;
+		throw;
+	}
 }
 
 bool run_tests_dynsim_deformer( void )
@@ -522,8 +538,8 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_auxiliary_testing_functions();
 		// ok *= run_tests_auxiliary_input_output();
 		// ok *= run_tests_tissueparameters();
-		ok *= run_tests_contrastgenerator();
-		// ok *= run_tests_phantom_input();
+		// ok *= run_tests_contrastgenerator();
+		ok *= run_tests_phantom_input();
 		// ok *= run_tests_encoding();
 		// ok *= run_tests_mr_acquisition_model();
 		// ok *= run_tests_dynamics();
