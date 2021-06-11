@@ -149,7 +149,7 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	std::cout << "There are "<< mr_contrasts.number() << " images in the XCAT output." << std::endl;		
 
 	std::stringstream name_stream;
-	name_stream <<  __FUNCTION__;
+	name_stream << "/media/sf_CCPPETMR/output_" << __FUNCTION__;
 	sirf::write_imagevector_to_raw(name_stream.str(), mr_contrasts);
 }
 
@@ -188,7 +188,8 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 	GadgetronImagesVector& mr_contrasts = mr_contgen.get_contrast_filled_volumes();
 	
 	std::stringstream ss_outname;
-	ss_outname << __FUNCTION__ << "_contrast_gen_pre_contrast_";
+	ss_outname << "/media/sf_CCPPETMR/output_" << __FUNCTION__ << "_contrast_gen_pre_contrast_";
+
 	sirf::write_imagevector_to_raw(ss_outname.str(), mr_contrasts);
 
 	// now replace one label and see what happens in the image
@@ -199,8 +200,9 @@ void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 	mr_contgen.map_contrast();
 
 	mr_contrasts = mr_contgen.get_contrast_filled_volumes();
-	std::stringstream ss_outname;
-	ss_outname << __FUNCTION__ << "_contrast_gen_post_contrast_";
+	ss_outname.str(std::string());;
+	ss_outname << "/media/sf_CCPPETMR/output_" << __FUNCTION__ << "_contrast_gen_post_contrast_";
+
 	sirf::write_imagevector_to_raw(ss_outname.str(), mr_contrasts);
 }
 
