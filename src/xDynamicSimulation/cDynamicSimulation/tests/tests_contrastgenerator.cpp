@@ -371,7 +371,7 @@ bool test_contgen::test_resample_to_template_image( void )
 		for(int i=0; i<resampled_images.size(); ++i)
 		{
 			stringstream outname;
-			outname << SHARED_FOLDER_PATH << "resampled_PET_image_" << i;
+			outname << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "resampled_PET_image_" << i;
 
 			sirf::NiftiImageData3D<float> resampled_nifti( resampled_images[i] );
 
