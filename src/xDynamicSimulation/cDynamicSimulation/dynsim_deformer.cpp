@@ -111,7 +111,4 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
 
 	resampler.process();
 
-	auto deformed_img = resampler.get_output_sptr();
-	deformed_img->write( "/media/sf_SharedFolder/CCPPETMR/img_post_deforming" );
-    img.sirf::ImageData::fill(*deformed_img);
 }
