@@ -119,7 +119,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			else
 				this->append_acquisition( acq );
 		}
-        this->organise_kspace();
+        this->sort_by_time();
 		if( verbose )
 			std::cout<< "\nFinished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	}
