@@ -522,6 +522,7 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 			objectFromHandle<MRAcquisitionData>(h_input);
 		proc.process(input);
 		shared_ptr<MRAcquisitionData> sptr_ac = proc.get_output();
+		sptr_ac.sort_by_time();
 		return newObjectHandle<MRAcquisitionData>(sptr_ac);
 	}
 	CATCH;
