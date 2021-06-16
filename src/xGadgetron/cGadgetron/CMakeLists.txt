@@ -38,7 +38,6 @@ set(CGADGETRON_SOURCES cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.
     gadgetron_fftw.cpp ismrmrd_fftw.cpp ismrmrd_phantom.cpp shepp_logan_phantom.cpp TrajectoryPreparation.cpp 
     FourierEncoding.cpp)
     
-add_library(cgadgetron ${CGADGETRON_SOURCES})
 
 find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore
                 NAMES_PER_DIR
@@ -63,6 +62,7 @@ if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
     MESSAGE(STATUS "The Gadgetron toolboxes required for radial gridding were found. Non-cartesian encoding will be compiled.")
     set(GADGETRON_TOOLBOXES_AVAILABLE TRUE)
     set(CGADGETRON_SOURCES ${CGADGETRON_SOURCES} NonCartesianEncoding.cpp)
+    add_library(cgadgetron ${CGADGETRON_SOURCES})
 
     if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
       add_definitions(-DGADGETRON_TOOLBOXES_AVAILABLE)
@@ -87,6 +87,7 @@ if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
 else()
     set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
     MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-cartesian encoding will NOT BE compiled.")
+    add_library(cgadgetron ${CGADGETRON_SOURCES})
 endif()
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
