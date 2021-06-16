@@ -37,7 +37,8 @@ endif()
 set(CGADGETRON_SOURCES cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp
     gadgetron_fftw.cpp ismrmrd_fftw.cpp ismrmrd_phantom.cpp shepp_logan_phantom.cpp TrajectoryPreparation.cpp 
     FourierEncoding.cpp)
-
+    
+add_library(cgadgetron ${CGADGETRON_SOURCES})
 
 find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore
                 NAMES_PER_DIR
@@ -87,8 +88,6 @@ else()
     set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
     MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-cartesian encoding will NOT BE compiled.")
 endif()
-
-add_library(cgadgetron ${CGADGETRON_SOURCES})
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
 target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
