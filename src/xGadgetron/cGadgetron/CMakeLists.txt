@@ -68,6 +68,21 @@ if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
     else()
       add_compile_definitions(GADGETRON_TOOLBOXES_AVAILABLE)
     endif()
+    if (Gadgetron_USE_CUDA)
+        find_package(CUDA)
+        if (CUDA_FOUND)
+            message(STATUS "<<<<<<<<<<<<<<<<< CUDA FOUND >>>>>>>>>>>>>>>>>>>>>")
+            message(STATUS "Will enable CUDA dependencies for Gadgetron.")
+            target_include_directories(cgadgetron PUBLIC "${CUDA_INCLUDE_DIRS}")
+	    # might need gadgetron_toolbox_gpucore as well
+	    list(APPEND GT_LIBS ${CUDA_LIBRARIES}
+	       ${CUDA_CUFFT_LIBRARIES}
+	       ${CUDA_CUBLAS_LIBRARIES}
+	       ${CUDA_CUSPARSE_LIBRARIES})
+         else()
+	    message(FATAL_ERROR "CUDA not found and Gadgetron is built with CUDA. Cannot compile.")
+         endif()
+      endif()
 else()
     set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
     MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-cartesian encoding will NOT BE compiled.")
@@ -83,16 +98,6 @@ target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_
 target_include_directories(cgadgetron PUBLIC "${cGadgetron_INCLUDE_DIR}")
 target_include_directories(cgadgetron PRIVATE "${FFTW3_INCLUDE_DIR}")
 target_include_directories(cgadgetron PUBLIC "${ISMRMRD_INCLUDE_DIR}")
-if (Gadgetron_USE_CUDA)
-  find_package(CUDA)
-  if (CUDA_FOUND)
-    message(STATUS "<<<<<<<<<<<<<<<<< CUDA FOUND >>>>>>>>>>>>>>>>>>>>>")
-    message(STATUS "Will enable CUDA dependencies where possible.")
-    target_include_directories(cgadgetron PUBLIC "${CUDA_INCLUDE_DIRS}")
-  else()
-	  message(FATAL_ERROR "CUDA not found and Gadgetron is built with CUDA. Cannot compile.")
-  endif()
-endif()
 
 target_link_libraries(cgadgetron PUBLIC iutilities csirf)
 # Add boost library dependencies
