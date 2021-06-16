@@ -215,7 +215,9 @@ namespace sirf {
 		void process(MRAcquisitionData& acquisitions);
 		gadgetron::shared_ptr<MRAcquisitionData> get_output()
 		{
-			sptr_acqs_->sort_by_time();
+			if(!sptr_acqs_->sorted())
+			 	sptr_acqs_->sort_by_time();
+
 			return sptr_acqs_;
 		}
 
