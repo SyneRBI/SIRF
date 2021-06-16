@@ -83,6 +83,16 @@ target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_
 target_include_directories(cgadgetron PUBLIC "${cGadgetron_INCLUDE_DIR}")
 target_include_directories(cgadgetron PRIVATE "${FFTW3_INCLUDE_DIR}")
 target_include_directories(cgadgetron PUBLIC "${ISMRMRD_INCLUDE_DIR}")
+if (Gadgetron_USE_CUDA)
+  find_package(CUDA)
+  if (CUDA_FOUND)
+    message(STATUS "<<<<<<<<<<<<<<<<< CUDA FOUND >>>>>>>>>>>>>>>>>>>>>")
+    message(STATUS "Will enable CUDA dependencies where possible.")
+    target_include_directories(cgadgetron PUBLIC "${CUDA_INCLUDE_DIRS}")
+  else()
+	  message(FATAL_ERROR "CUDA not found and Gadgetron is built with CUDA. Cannot compile.")
+  endif()
+endif()
 
 target_link_libraries(cgadgetron PUBLIC iutilities csirf)
 # Add boost library dependencies
