@@ -37,7 +37,7 @@ endif()
 set(CGADGETRON_SOURCES cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp
     gadgetron_fftw.cpp ismrmrd_fftw.cpp ismrmrd_phantom.cpp shepp_logan_phantom.cpp TrajectoryPreparation.cpp 
     FourierEncoding.cpp)
-
+    
 
 find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore
                 NAMES_PER_DIR
@@ -62,18 +62,33 @@ if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
     MESSAGE(STATUS "The Gadgetron toolboxes required for radial gridding were found. Non-cartesian encoding will be compiled.")
     set(GADGETRON_TOOLBOXES_AVAILABLE TRUE)
     set(CGADGETRON_SOURCES ${CGADGETRON_SOURCES} NonCartesianEncoding.cpp)
+    add_library(cgadgetron ${CGADGETRON_SOURCES})
 
     if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
       add_definitions(-DGADGETRON_TOOLBOXES_AVAILABLE)
     else()
       add_compile_definitions(GADGETRON_TOOLBOXES_AVAILABLE)
     endif()
+    if (Gadgetron_USE_CUDA)
+        find_package(CUDA)
+        if (CUDA_FOUND)
+            message(STATUS "<<<<<<<<<<<<<<<<< CUDA FOUND >>>>>>>>>>>>>>>>>>>>>")
+            message(STATUS "Will enable CUDA dependencies for Gadgetron.")
+            target_include_directories(cgadgetron PUBLIC "${CUDA_INCLUDE_DIRS}")
+	    # might need gadgetron_toolbox_gpucore as well
+	    list(APPEND GT_LIBS ${CUDA_LIBRARIES}
+	       ${CUDA_CUFFT_LIBRARIES}
+	       ${CUDA_CUBLAS_LIBRARIES}
+	       ${CUDA_CUSPARSE_LIBRARIES})
+         else()
+	    message(FATAL_ERROR "CUDA not found and Gadgetron is built with CUDA. Cannot compile.")
+         endif()
+      endif()
 else()
     set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
     MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-cartesian encoding will NOT BE compiled.")
+    add_library(cgadgetron ${CGADGETRON_SOURCES})
 endif()
-
-add_library(cgadgetron ${CGADGETRON_SOURCES})
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
 target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")

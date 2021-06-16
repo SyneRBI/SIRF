@@ -1227,9 +1227,6 @@ GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
 GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad, const bool coil_resolved)
 {
 
-    set_meta_data(ad.acquisitions_info());
-    this->set_up_geom_info();
-
     ISMRMRD::IsmrmrdHeader hdr = ad.acquisitions_info().get_IsmrmrdHeader();
 
     unsigned int const num_coil_channels = coil_resolved ? hdr.acquisitionSystemInformation.get().receiverChannels.get() : 1;
@@ -1262,6 +1259,8 @@ GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad, const 
 
         this->append(img);
     }
+
+    set_meta_data(ad.acquisitions_info());
 }    
 
 

@@ -6,7 +6,8 @@
 * MR/Gadgetron
   - new MR reconstruction framework sorts the ISMRMRD::Acquisitions prior to reconstruction. This ensures that only consistent images are reconstructed.
   - Encoding classes perform the Fourier transformations instead of the MRAcquisitionModel
-  - Golden-angle radial phase encoding (RPE) trajectory is supported.
+  - Golden-angle radial phase encoding (RPE) trajectory is supported if `Gadgetron` toolboxes were found during building<br />
+    **WARNING** if Gadgetron was compiled with CUDA support, you need to build SIRF with the `Gadgetron_USE_CUDA` CMake variable set to `ON`.
   - CoilSensitivitiesVector class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute coil sensitivities from MRAcquisitionData.
   - added constructor for GadgetronImagesVector from MRAcquisitionData. This allows setting up an MR acquisition model without having to perform a reconstruction before. 
 

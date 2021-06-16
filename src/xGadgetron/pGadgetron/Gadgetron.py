@@ -135,7 +135,7 @@ def mr_data_path():
 
 class Image(object):
     '''
-    Class for an MR image.
+    Provides access to ISMRMRD::Image parameters (cf. ismrmrd.h).
     '''
     def __init__(self, image_data = None, image_num = 0):
         self.handle = None
@@ -308,6 +308,15 @@ class ImageData(SIRF.ImageData):
         parameter. Parameters names are the same as the names of Image class
         public methods (except is_real and info).
         par: parameter name
+
+        Examples:
+
+        # to get the slice number:
+        slice = image.parameter_info('slice')
+
+        # to get the unit vector orthogonal to the slice and directed
+        # to the next slice:
+        slice_dir = image.parameter_info('slice_dir')
         '''
         ni = self.number()
         info = numpy.empty((ni,), dtype = object)
@@ -634,6 +643,8 @@ DataContainer.register(CoilSensitivityData)
 
 
 class Acquisition(object):
+    ''' Provides access to ISMRMRD::Acquisition parameters (cf. ismrmrd.h).
+    '''
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
@@ -922,7 +933,13 @@ class AcquisitionData(DataContainer):
         '''
         Returns the array of values of the specified acquisition information 
         parameter.
-        par: parameter name
+        par: parameter name (see Acquisition class methods except info)
+        which: specifies the range of acquisitions whose parameters are returned
+
+        Example:
+        # to retrieve readouts flags for acquisitions 0 to 10:
+        flags = acq_data.get_info('flags', range(10))
+
         '''
         na, nc, ns = self.dimensions()
         if which == 'all':
@@ -932,11 +949,10 @@ class AcquisitionData(DataContainer):
             na = len(rng)
         info = numpy.empty((na,), dtype = object)
         i = 0
-        for a in rng: #range(na):
+        for a in rng:
             acq = self.acquisition(a)
             info[i] = acq.info(par)
             i += 1
-##            info[a] = acq.info(par)
         return info
 
     @deprecated(details="Please use parameter_info method instead")
@@ -947,6 +963,8 @@ class AcquisitionData(DataContainer):
         '''
         Fills self's acquisitions with specified values.
         data: Python Numpy array or AcquisitionData
+        select: specifies whether all or only image-related acquisitions are
+                filled with values from the array data.
         '''
         assert self.handle is not None
         if isinstance(data, AcquisitionData):
@@ -977,16 +995,22 @@ class AcquisitionData(DataContainer):
             raise error('wrong fill value.' + \
                         ' Should be AcquisitionData, numpy.ndarray or number. Got {}'.format(type(data)))
         return self
+
     def as_array(self, acq=None):
         '''
-        Returns selected self's acquisitions as a 3D Numpy ndarray.
+        Returns selected self's acquisition(s) data as a 2D or 3D Numpy ndarray.
+        acq: acquisition number; if None all acquisitions data is returned.
         '''
         assert self.handle is not None
         if acq is None:
+            ''' return 3D array of all acquisition data
+            '''
             ny, nc, ns = self.dimensions()
             z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
             acq = -1
         else:
+            ''' return 2D array of the specified acquisition data
+            '''
             a = self.acquisition(acq)
             nc = a.active_channels()
             ns = a.number_of_samples()
@@ -994,8 +1018,9 @@ class AcquisitionData(DataContainer):
         try_calling(pygadgetron.cGT_acquisitionDataAsArray\
             (self.handle, z.ctypes.data, acq))
         return z
-    def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \
-             postpone = False):
+
+    def show(self, slice=None, title=None, cmap='gray', power=0.2, \
+             postpone=False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -1578,7 +1603,8 @@ def calc_cartesian_dcw(ad):
     
     density_weight = (1.0 / counts)[inverse]
     
-    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.expand_dims(density_weight, axis=1)
+    density_weight = numpy.expand_dims(density_weight, axis=2)
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
     
     dcw = ad.copy()
