@@ -1061,7 +1061,8 @@ namespace sirf {
         CoilImagesVector() : GadgetronImagesVector(){}
         void calculate(const MRAcquisitionData& ad);
     protected:
-        gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
+		std::unique_ptr<MRAcquisitionData> extract_calibration_data(const MRAcquisitionData& ad) const;
+	    gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
     };
 
     /*!

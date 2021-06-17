@@ -1684,8 +1684,6 @@ GadgetronImagesVector::set_up_geom_info()
 void 
 CoilImagesVector::calculate(const MRAcquisitionData& ad)
 {
-    using ISMRMRD::ISMRMRD_AcquisitionFlags;
-
     if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
     else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
@@ -1701,30 +1699,15 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
+    auto coil_calib_data = this->extract_calibration_data(ad);
     
-    const std::vector<ISMRMRD_AcquisitionFlags> calibration_flags{ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION,
-                                                                  ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING};
-    
-    std::unique_ptr<MRAcquisitionData> uptr_calib_ad = ad.clone();
-
-    if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-    {   
-        std::cout << "We went to keep the flagged ones " <<std::endl;
-        std::vector<int> flagged_positions = ad.get_flagged_acquisitions_index(calibration_flags);
-        uptr_calib_ad->empty();
-        ad.get_subset(*(uptr_calib_ad), flagged_positions);
-        uptr_calib_ad->sort_by_time();
-    }
-    
-    std::cout << "How many acquisitions calibration flags we keep: " << uptr_calib_ad->number() << std::endl;
-
-    this->set_meta_data(uptr_calib_ad->acquisitions_info());
-    auto sort_idx = uptr_calib_ad->get_kspace_order();
+    this->set_meta_data(coil_calib_data->acquisitions_info());
+    auto sort_idx = coil_calib_data->get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
-        uptr_calib_ad->get_subset(subset, sort_idx[i]);
+        coil_calib_data->get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
 		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);
@@ -1732,6 +1715,27 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
 
         this->append(iw);
     }
+}
+
+
+std::unique_ptr<MRAcquisitionData> CoilImagesVector::extract_calibration_data(const MRAcquisitionData& ad) const
+{
+    using ISMRMRD::ISMRMRD_AcquisitionFlags;
+
+    const std::vector<ISMRMRD_AcquisitionFlags> 
+                calibration_flags{ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION,
+                                  ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING};
+    
+    std::unique_ptr<MRAcquisitionData> uptr_calib_ad = ad.clone();
+
+    if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+    {   
+        std::vector<int> flagged_positions = ad.get_flagged_acquisitions_index(calibration_flags);
+        uptr_calib_ad->empty();
+        ad.get_subset(*(uptr_calib_ad), flagged_positions);
+        uptr_calib_ad->sort_by_time();
+    }
+    return uptr_calib_ad;
 }
 
 CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
