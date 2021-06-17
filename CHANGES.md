@@ -10,6 +10,7 @@
     **WARNING** if Gadgetron was compiled with CUDA support, you need to build SIRF with the `Gadgetron_USE_CUDA` CMake variable set to `ON`.
   - CoilSensitivitiesVector class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute coil sensitivities from MRAcquisitionData.
   - added constructor for GadgetronImagesVector from MRAcquisitionData. This allows setting up an MR acquisition model without having to perform a reconstruction before. 
+  - automatically calls sort_by_time() in MRAcquisitionData::read() and AcquisitionProcessor::get_output() to take away responsibility from the user when to call sort()
 
 * Build system
   - fix bug with older CMake (pre-3.12?) that the Python interface was not built

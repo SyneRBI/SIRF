@@ -51,6 +51,7 @@ public:
 
     /// Print multiple AffineTransformation
     static void print(const std::vector<AffineTransformation<dataType> > &mats);
+	static std::string get(const std::vector<AffineTransformation<dataType> > &mats);
 
     /// Default constructor - identity matrix
     AffineTransformation();

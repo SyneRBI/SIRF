@@ -420,7 +420,13 @@ public:
     template<typename T>
     static void dump_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
 
-    /// Set the voxel spacing. Requires resampling image, and so interpolation order is required.
+	static std::string get_headers(const std::vector<const NiftiImageData<dataType>*> &ims);
+	template<typename T>
+	static std::string get_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back);
+	template<typename T>
+	static std::string get_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
+
+	/// Set the voxel spacing. Requires resampling image, and so interpolation order is required.
     /// As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation.
     void set_voxel_spacing(const float factors[3], const int interpolation_order);
 

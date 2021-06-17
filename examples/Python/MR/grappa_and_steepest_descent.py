@@ -107,6 +107,9 @@ def main():
     acq_model = AcquisitionModel(preprocessed_data, image_data)
     acq_model.set_coil_sensitivity_maps(csms)
 
+    start_val = 0.001
+    image_data.fill(start_val + start_val * 1j)
+
     res = numpy.ndarray((niter,))
     scale = 1 # reconstructed image and phantom may have different scale,
               # and so would forward projection and pre-processed raw data
