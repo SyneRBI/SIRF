@@ -31,6 +31,11 @@ limitations under the License.
 */
 #include <cmath>
 #include <iomanip>
+#include <algorithm> 
+
+#include <ismrmrd/xml.h>
+#include <ismrmrd/ismrmrd.h>
+
 
 #include <ismrmrd/xml.h>
 
@@ -606,6 +611,7 @@ MRAcquisitionData::sort_by_time()
 		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
 	else
 		Multisort::sort( vt, &index_[0] );
+    
     this->organise_kspace();
     sorted_ = true;
 
@@ -613,8 +619,11 @@ MRAcquisitionData::sort_by_time()
 
 std::vector<KSpaceSubset::SetType > MRAcquisitionData::get_kspace_order() const
 {
-    if(this->sorting_.size() == 0)
+    if(this->is_empty())
+        throw LocalisedException("Your acquisition data object contains no data, so no order is determined." , __FILE__, __LINE__);
+    else if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
+    
 
     std::vector<KSpaceSubset::SetType > output;
     for(unsigned i = 0; i<sorting_.size(); ++i)
@@ -688,6 +697,32 @@ void MRAcquisitionData::organise_kspace()
     this->sorting_.erase(
                 std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSubset& s){return s.get_idx_set().empty();}),
                 sorting_.end());
+}
+
+
+void MRAcquisitionData::keep_flagged_acquisitions(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags)
+{
+    if(flags.empty())
+        return;
+
+    ISMRMRD::Acquisition acq;
+    std::vector<int> flags_true_index;
+    for(int i=0; i<this->number(); ++i)
+    {
+        this->get_acquisition(i, acq);
+        bool all_flags_set = true;
+        for(auto& it: flags)
+        {
+            all_flags_set *= acq.isFlagSet(it);
+        }
+        if(all_flags_set)
+            flags_true_index.push_back(i);
+    }
+
+    if(flags_true_index.empty())
+        return;
+    else
+        this->set_subset(*this, flags_true_index);
 }
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
@@ -1640,8 +1675,10 @@ GadgetronImagesVector::set_up_geom_info()
 }
 
 void 
-CoilImagesVector::calculate(const MRAcquisitionData& ad, int calibration)
+CoilImagesVector::calculate(const MRAcquisitionData& ad)
 {
+    using ISMRMRD::ISMRMRD_AcquisitionFlags;
+
     if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
     else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
@@ -1657,14 +1694,23 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad, int calibration)
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
-    this->set_meta_data(ad.acquisitions_info());
+    
+    const std::vector<ISMRMRD_AcquisitionFlags> calibration_flags{ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION,
+                                                                  ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING};
+    
+    std::unique_ptr<MRAcquisitionData> uptr_calib_ad = ad.clone();
 
-    auto sort_idx = ad.get_kspace_order();
+    if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+        uptr_calib_ad->keep_flagged_acquisitions(calibration_flags);
+
+    this->set_meta_data(uptr_calib_ad->acquisitions_info());
+
+    auto sort_idx = uptr_calib_ad->get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
-        ad.get_subset(subset, sort_idx[i]);
+        uptr_calib_ad->get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
 		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!

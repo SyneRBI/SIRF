@@ -637,7 +637,7 @@ class CoilSensitivityData(ImageData):
             try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
                 (self.handle, data.handle))
         else:
-            raise error('Unknown method %s' % method_name)   
+            raise error('Unknown method %s' % method_name)
 
 DataContainer.register(CoilSensitivityData)
 
