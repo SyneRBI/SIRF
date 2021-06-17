@@ -95,6 +95,26 @@ void AffineTransformation<dataType>::print(const std::vector<AffineTransformatio
 }
 
 template<class dataType>
+std::string AffineTransformation<dataType>::get(const std::vector<AffineTransformation> &mats)
+{
+	std::stringstream stream;
+	for (int i = 0; i < 4; i++) {
+		stream << "\t" << std::left << std::setw(19) << "";
+		for (unsigned j = 0; j < mats.size(); j++) {
+			std::ostringstream ss;
+			ss << "[" <<
+				std::setprecision(3) << mats[j][i][0] << "," <<
+				std::setprecision(3) << mats[j][i][1] << "," <<
+				std::setprecision(3) << mats[j][i][2] << "," <<
+				std::setprecision(3) << mats[j][i][3] << "] ";
+			stream << std::left << std::setw(19) << ss.str();
+		}
+		stream << "\n";
+	}
+	return stream.str();
+}
+
+template<class dataType>
 AffineTransformation<dataType>::AffineTransformation()
 {
     for (int i=0; i<4; ++i)

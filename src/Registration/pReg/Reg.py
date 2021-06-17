@@ -438,9 +438,18 @@ class NiftiImageData(SIRF.ImageData):
 
     def print_header(self):
         """Print nifti header metadata."""
+        print(self.get_header())
+
+    def get_header(self):
+        """Print nifti header metadata."""
         vec = SIRF.DataHandleVector()
         vec.push_back(self.handle)
-        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
+#        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
+        handle = pyreg.cReg_NiftiImageData_get_headers(vec.handle)
+        check_status(handle)
+        s = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return s
 
     def same_object(self):
         """See DataContainer method."""
@@ -501,12 +510,21 @@ class NiftiImageData(SIRF.ImageData):
     @staticmethod
     def print_headers(to_print):
         """Print nifti header metadata of one or multiple nifti images."""
+        print(NiftiImageData.get_headers(to_print))
+
+    @staticmethod
+    def get_headers(to_print):
         if not all(isinstance(n, NiftiImageData) for n in to_print):
             raise AssertionError()
         vec = SIRF.DataHandleVector()
         for n in to_print:
             vec.push_back(n.handle)
-        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
+#        try_calling(pyreg.cReg_NiftiImageData_print_headers(vec.handle))
+        handle = pyreg.cReg_NiftiImageData_get_headers(vec.handle)
+        check_status(handle)
+        s = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return s
 
     @staticmethod
     def construct_from_complex_image(complex_im):
