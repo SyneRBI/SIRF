@@ -28,22 +28,6 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 {
 
 	GadgetronImagesVector& img_data = mr_cont_gen.get_contrast_filled_volumes();
-
-	std::cout << "######### " << std::endl;
-	sirf::VoxelisedGeometricalInfo3D::Size size_imgs = vec_displacement_fields[0].get_geom_info_sptr()->get_size();
-	sirf::VoxelisedGeometricalInfo3D::Size size_mvfs = img_data.get_geom_info_sptr()->get_size();
-
-	std::cout << "the imgs have # size elements: " << size_imgs.size() << std::endl;
-	std::cout << "the mvfs have # size elements: " << size_mvfs.size() << std::endl;
-
-	std::cout << "the mvfs have size " << size_imgs[0] << "/" << size_imgs[1] <<  "/" << size_imgs[2] << std::endl;
-	std::cout << "the imgs have size " << size_mvfs [0] << "/" << size_mvfs [1] <<  "/" << size_mvfs [2] << std::endl;
-
-	std::cout << "are the geometries equal? " << 
-		(vec_displacement_fields[0].get_geom_info_sptr()->get_size() == img_data.get_geom_info_sptr()->get_size()) 
-	<< std::endl;
-
-
 	img_data.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
 
 	NiftyResampler<float> resampler;
