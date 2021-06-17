@@ -700,29 +700,36 @@ void MRAcquisitionData::organise_kspace()
 }
 
 
-void MRAcquisitionData::keep_flagged_acquisitions(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags)
+std::vector<int> MRAcquisitionData::get_flagged_acquisitions_index(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const
 {
+    std::vector<int> flags_true_index;
+
     if(flags.empty())
-        return;
+        return flags_true_index;
 
     ISMRMRD::Acquisition acq;
-    std::vector<int> flags_true_index;
+
     for(int i=0; i<this->number(); ++i)
     {
         this->get_acquisition(i, acq);
-        bool all_flags_set = true;
-        for(auto& it: flags)
+        
+        uint64_t current_flag =  acq.flags();
+        std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags_of_acquisition;
+        while(current_flag > 0)
         {
-            all_flags_set *= acq.isFlagSet(it);
-        }
-        if(all_flags_set)
+            unsigned short log_flag = int( std::floor(std::log2(current_flag)));
+            flags_of_acquisition.push_back( ISMRMRD::ISMRMRD_AcquisitionFlags(log_flag + 1));
+            current_flag -= std::pow(2, log_flag);
+        }            
+
+        bool const one_flag_is_set = std::find_first_of (flags.begin(), flags.end(),
+                    flags_of_acquisition.begin(), flags_of_acquisition.end()) != flags.end();
+
+        if(one_flag_is_set)
             flags_true_index.push_back(i);
     }
 
-    if(flags_true_index.empty())
-        return;
-    else
-        this->set_subset(*this, flags_true_index);
+    return flags_true_index;
 }
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
@@ -1701,10 +1708,17 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
     std::unique_ptr<MRAcquisitionData> uptr_calib_ad = ad.clone();
 
     if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-        uptr_calib_ad->keep_flagged_acquisitions(calibration_flags);
+    {   
+        std::cout << "We went to keep the flagged ones " <<std::endl;
+        std::vector<int> flagged_positions = ad.get_flagged_acquisitions_index(calibration_flags);
+        uptr_calib_ad->empty();
+        ad.get_subset(*(uptr_calib_ad), flagged_positions);
+        uptr_calib_ad->sort_by_time();
+    }
+    
+    std::cout << "How many acquisitions calibration flags we keep: " << uptr_calib_ad->number() << std::endl;
 
     this->set_meta_data(uptr_calib_ad->acquisitions_info());
-
     auto sort_idx = uptr_calib_ad->get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
@@ -1713,7 +1727,7 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
         uptr_calib_ad->get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
-		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!
+		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);
 		this->sptr_enc_->backward(*img_ptr, subset);
 
         this->append(iw);
