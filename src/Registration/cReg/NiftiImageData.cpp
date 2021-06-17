@@ -738,7 +738,8 @@ void NiftiImageData<dataType>::print_header() const
 template<class dataType>
 void NiftiImageData<dataType>::print_headers(const std::vector<const NiftiImageData<dataType>*> &ims)
 {
-    dump_headers(ims);
+    //dump_headers(ims);
+	std::cout << get_headers(ims);
 }
 
 template<class dataType>
@@ -1279,6 +1280,148 @@ void NiftiImageData<dataType>::dump_nifti_element(const std::vector<const NiftiI
             std::cout << std::setw(19) << (ims[j]->get_raw_nifti_sptr().get()->*call_back)[i];
         std::cout << "\n";
     }
+}
+
+template<class dataType>
+std::string NiftiImageData<dataType>::get_headers(const std::vector<const NiftiImageData<dataType>*> &ims)
+{
+	std::stringstream stream;
+	stream << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
+	stream << get_nifti_element(ims, "analyze_75_orient", &nifti_image::analyze75_orient);
+	stream << get_nifti_element(ims, "analyze75_orient", &nifti_image::analyze75_orient);
+	stream << get_nifti_element(ims, "byteorder", &nifti_image::byteorder);
+	stream << get_nifti_element(ims, "cal_max", &nifti_image::cal_max);
+	stream << get_nifti_element(ims, "cal_min", &nifti_image::cal_min);
+	stream << get_nifti_element(ims, "datatype", &nifti_image::datatype);
+	stream << get_nifti_element(ims, "dt", &nifti_image::dt);
+	stream << get_nifti_element(ims, "du", &nifti_image::du);
+	stream << get_nifti_element(ims, "dv", &nifti_image::dv);
+	stream << get_nifti_element(ims, "dw", &nifti_image::dw);
+	stream << get_nifti_element(ims, "dx", &nifti_image::dx);
+	stream << get_nifti_element(ims, "dy", &nifti_image::dy);
+	stream << get_nifti_element(ims, "dz", &nifti_image::dz);
+	stream << get_nifti_element(ims, "ext_list", &nifti_image::ext_list);
+	stream << get_nifti_element(ims, "freq_dim", &nifti_image::freq_dim);
+	stream << get_nifti_element(ims, "iname_offset", &nifti_image::iname_offset);
+	stream << get_nifti_element(ims, "intent_code", &nifti_image::intent_code);
+	stream << get_nifti_element(ims, "intent_p1", &nifti_image::intent_p1);
+	stream << get_nifti_element(ims, "intent_p2", &nifti_image::intent_p2);
+	stream << get_nifti_element(ims, "intent_p3", &nifti_image::intent_p3);
+	stream << get_nifti_element(ims, "nbyper", &nifti_image::nbyper);
+	stream << get_nifti_element(ims, "ndim", &nifti_image::ndim);
+	stream << get_nifti_element(ims, "nifti_type", &nifti_image::nifti_type);
+	stream << get_nifti_element(ims, "num_ext", &nifti_image::num_ext);
+	stream << get_nifti_element(ims, "nvox", &nifti_image::nvox);
+	stream << get_nifti_element(ims, "nx", &nifti_image::nx);
+	stream << get_nifti_element(ims, "ny", &nifti_image::ny);
+	stream << get_nifti_element(ims, "nz", &nifti_image::nz);
+	stream << get_nifti_element(ims, "nt", &nifti_image::nt);
+	stream << get_nifti_element(ims, "nu", &nifti_image::nu);
+	stream << get_nifti_element(ims, "nv", &nifti_image::nv);
+	stream << get_nifti_element(ims, "nw", &nifti_image::nw);
+	stream << get_nifti_element(ims, "phase_dim", &nifti_image::phase_dim);
+	stream << get_nifti_element(ims, "qfac", &nifti_image::qfac);
+	stream << get_nifti_element(ims, "qform_code", &nifti_image::qform_code);
+	stream << get_nifti_element(ims, "qoffset_x", &nifti_image::qoffset_x);
+	stream << get_nifti_element(ims, "qoffset_y", &nifti_image::qoffset_y);
+	stream << get_nifti_element(ims, "qoffset_z", &nifti_image::qoffset_z);
+	stream << get_nifti_element(ims, "quatern_b", &nifti_image::quatern_b);
+	stream << get_nifti_element(ims, "quatern_c", &nifti_image::quatern_c);
+	stream << get_nifti_element(ims, "quatern_d", &nifti_image::quatern_d);
+	stream << get_nifti_element(ims, "scl_inter", &nifti_image::scl_inter);
+	stream << get_nifti_element(ims, "scl_slope", &nifti_image::scl_slope);
+	stream << get_nifti_element(ims, "sform_code", &nifti_image::sform_code);
+	stream << get_nifti_element(ims, "slice_code", &nifti_image::slice_code);
+	stream << get_nifti_element(ims, "slice_dim", &nifti_image::slice_dim);
+	stream << get_nifti_element(ims, "slice_duration", &nifti_image::slice_duration);
+	stream << get_nifti_element(ims, "slice_end", &nifti_image::slice_end);
+	stream << get_nifti_element(ims, "slice_start", &nifti_image::slice_start);
+	stream << get_nifti_element(ims, "swapsize", &nifti_image::swapsize);
+	stream << get_nifti_element(ims, "time_units", &nifti_image::time_units);
+	stream << get_nifti_element(ims, "toffset", &nifti_image::toffset);
+	stream << get_nifti_element(ims, "xyz_units", &nifti_image::xyz_units);
+	stream << get_nifti_element(ims, "dim", &nifti_image::dim, 8);
+	stream << get_nifti_element(ims, "pixdim", &nifti_image::pixdim, 8);
+
+	std::vector<std::shared_ptr<const nifti_image> > images;
+	for (unsigned i = 0; i < ims.size(); i++)
+		images.push_back(ims[i]->get_raw_nifti_sptr());
+
+	// Print transformation matrices
+	std::vector<AffineTransformation<float> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
+	for (unsigned j = 0; j < images.size(); j++) {
+		qto_ijk_vec.push_back(images[j]->qto_ijk.m);
+		qto_xyz_vec.push_back(images[j]->qto_xyz.m);
+		sto_ijk_vec.push_back(images[j]->sto_ijk.m);
+		sto_xyz_vec.push_back(images[j]->sto_xyz.m);
+	}
+	stream << "\t" << std::left << std::setw(19) << "qto_ijk:" << "\n";
+	stream << AffineTransformation<float>::get(qto_ijk_vec);
+	stream << "\t" << std::left << std::setw(19) << "qto_xyz:" << "\n";
+	stream << AffineTransformation<float>::get(qto_xyz_vec);
+	stream << "\t" << std::left << std::setw(19) << "sto_ijk:" << "\n";
+	stream << AffineTransformation<float>::get(sto_ijk_vec);
+	stream << "\t" << std::left << std::setw(19) << "sto_xyz:" << "\n";
+	stream << AffineTransformation<float>::get(sto_xyz_vec);
+
+	// Print original datatype
+	std::string original_datatype = "orig_datatype: ";
+	stream << "\t" << std::left << std::setw(19) << original_datatype;
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_original_datatype();
+
+	// Print min
+	std::string min_header = "min: ";
+	stream << "\n\t" << std::left << std::setw(19) << min_header;
+	for (unsigned i = 0; i < ims.size(); i++)
+		std::cout << std::setw(19) << ims[i]->get_min();
+
+	// Print max
+	stream << "\n\t" << std::left << std::setw(19) << "max: ";
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_max();
+
+	// Print mean
+	stream << "\n\t" << std::left << std::setw(19) << "mean: ";
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_mean();
+
+	// Print if image contains nans
+	stream << "\n\t" << std::left << std::setw(19) << "contains nans?: ";
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_contains_nans();
+
+	stream << "\n\n";
+
+	return stream.str();
+}
+
+template<class dataType>
+template<typename T>
+std::string NiftiImageData<dataType>::get_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back)
+{
+	std::stringstream stream;
+	std::string header = name + ": ";
+	stream << "\t" << std::left << std::setw(19) << header;
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_raw_nifti_sptr().get()->*call_back;
+	stream << "\n";
+	return stream.str();
+}
+
+template<class dataType>
+template<typename T>
+std::string NiftiImageData<dataType>::get_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
+{
+	std::stringstream stream;
+	for (unsigned i = 0; i < num_elems; i++) {
+		std::string header = name + "[" + std::to_string(i) + "]: ";
+		stream << "\t" << std::left << std::setw(19) << header;
+		for (unsigned j = 0; j < ims.size(); j++)
+			stream << std::setw(19) << (ims[j]->get_raw_nifti_sptr().get()->*call_back)[i];
+		stream << "\n";
+	}
+	return stream.str();
 }
 
 template<class dataType>

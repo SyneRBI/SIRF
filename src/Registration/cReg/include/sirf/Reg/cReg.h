@@ -40,8 +40,9 @@ extern "C" {
     void* parameter(const void* ptr, const char* obj, const char* name);
 
     // NiftiImageData
-    void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
-    void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
+	void* cReg_NiftiImageData_get_headers(const void *handle_vector_ptr);
+	void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
+	void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
     void* cReg_NiftiImageData_fill(const void* ptr, const float val);
     void* cReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
     void* cReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
