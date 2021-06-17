@@ -1730,9 +1730,13 @@ std::unique_ptr<MRAcquisitionData> CoilImagesVector::extract_calibration_data(co
 
     if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
     {   
-        std::vector<int> flagged_positions = ad.get_flagged_acquisitions_index(calibration_flags);
+        std::vector<int> idx_calib_acquisitions = ad.get_flagged_acquisitions_index(calibration_flags);
+        
+        if(idx_calib_acquisitions.size() < 1)
+            return uptr_calib_ad;
+
         uptr_calib_ad->empty();
-        ad.get_subset(*(uptr_calib_ad), flagged_positions);
+        ad.get_subset(*(uptr_calib_ad), idx_calib_acquisitions);
         uptr_calib_ad->sort_by_time();
     }
     return uptr_calib_ad;
