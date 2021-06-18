@@ -1691,15 +1691,15 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
-    std::unique_ptr<MRAcquisitionData> sptr_calib_data = this->extract_calibration_data(ad);
+    std::unique_ptr<MRAcquisitionData> uptr_calib_data = this->extract_calibration_data(ad);
     
-    this->set_meta_data(sptr_calib_data->acquisitions_info());
-    auto sort_idx = sptr_calib_data->get_kspace_order();
+    this->set_meta_data(uptr_calib_data->acquisitions_info());
+    auto sort_idx = uptr_calib_data->get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
-        sptr_calib_data->get_subset(subset, sort_idx[i]);
+        uptr_calib_data->get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
 		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);
