@@ -454,10 +454,10 @@ bool run_tests_dynsim_deformer( void )
 		bool tests_successful = true;
 		std::vector< bool > test_results{};
 
-		test_results.push_back(DynSimDeformerTester::test_nifti_data_deformation());
+		// test_results.push_back(DynSimDeformerTester::test_nifti_data_deformation());
 		test_results.push_back(DynSimDeformerTester::test_deform_contrast_generator());
-		test_results.push_back(DynSimDeformerTester::test_deform_pet_contrast_generator());
-		test_results.push_back(DynSimDeformerTester::test_motion_of_MotionDynamics());
+		// test_results.push_back(DynSimDeformerTester::test_deform_pet_contrast_generator());
+		// test_results.push_back(DynSimDeformerTester::test_motion_of_MotionDynamics());
 
 
 		std::cout << "#### #### #### " << __FUNCTION__ << " test results = ";
