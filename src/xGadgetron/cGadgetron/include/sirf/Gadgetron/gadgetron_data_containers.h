@@ -343,7 +343,7 @@ namespace sirf {
         */
         void organise_kspace();
 
-		virtual void keep_flagged_acquisitions(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags);
+		virtual std::vector<int> get_flagged_acquisitions_index(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const;
 
         virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
         virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
@@ -1061,7 +1061,8 @@ namespace sirf {
         CoilImagesVector() : GadgetronImagesVector(){}
         void calculate(const MRAcquisitionData& ad);
     protected:
-        gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
+		std::unique_ptr<MRAcquisitionData> extract_calibration_data(const MRAcquisitionData& ad) const;
+	    gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
     };
 
     /*!
