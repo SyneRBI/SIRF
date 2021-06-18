@@ -1,13 +1,13 @@
 CCP SyneRBI (formerly PETMR) Synergistic Image Reconstruction Framework (SIRF).
-Copyright 2015-2021 Rutherford Appleton Laboratory STFC
+Copyright 2015-2021 Rutherford Appleton Laboratory, STFC, UK Research and Innovation
 Copyright 2015-2021 University College London (UCL)
-Copyright 2017-2020 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2017-2021 Physikalisch-Technische Bundesanstalt (PTB)
 Copyright 2019 University of Hull
 
 This software product is developed for the Collaborative Computational 
 Project in Synergistic Reconstruction for Biomedical Imaging,
 formerly CCP PETMR, (http://www.ccpsynerbi.ac.uk/)
-at RAL STFC (http://www.stfc.ac.uk), UCL (http://www.ucl.ac.uk/)
+at UKRI-STFC RAL (http://www.stfc.ac.uk), UCL (http://www.ucl.ac.uk/)
 and other contributing institutions.
 
 Main contributors (see each file for authors):
