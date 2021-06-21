@@ -160,6 +160,10 @@ def test_main(rec=False, verb=False, throw=True):
         d = numpy.linalg.norm(im2_arr - im_arr/2)
         print('images division (with out=) error: %.1e' % d)
         test.check_if_equal(0, d)
+        # test on fill with scalar
+        for n in (2,2.0,numpy.int32(2),numpy.int64(2),numpy.float128(2)):
+            image.fill(n)
+            test.check_if_zero_within_tolerance((image-2).norm())
 
     return test.failed, test.ntest
 

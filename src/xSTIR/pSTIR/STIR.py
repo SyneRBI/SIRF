@@ -29,7 +29,7 @@ try:
 except:
     HAVE_PYLAB = False
 import sys
-from numbers import Integral
+from numbers import Integral, Number
 from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
@@ -375,9 +375,7 @@ class ImageData(SIRF.ImageData):
             if not v.flags['C_CONTIGUOUS']:
                 v = numpy.ascontiguousarray(v)
             try_calling(pystir.cSTIR_setImageData(self.handle, v.ctypes.data))
-        elif isinstance(value, float):
-            try_calling(pystir.cSTIR_fillImage(self.handle, value))
-        elif isinstance(value, int):
+        elif isinstance(value, (Number, numpy.number)):
             try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
             raise TypeError('wrong fill value.' + \
@@ -473,7 +471,7 @@ class ImageData(SIRF.ImageData):
             return
         data = self.as_array()
         nz = data.shape[0]
-        if isinstance(slice, int):
+        if isinstance(slice, (Integral,numpy.integer)):
             if slice < 0 or slice >= nz:
                 raise IndexError('Slice index out of range')
             show_2D_array('slice %d' % slice, data[slice, :, :])
@@ -923,7 +921,7 @@ class AcquisitionData(DataContainer):
                 self.handle, value.handle))
         elif isinstance(value, float):
             try_calling(pystir.cSTIR_fillAcquisitionData(self.handle, value))
-        elif isinstance(value, int):
+        elif isinstance(value, (Integral,numpy.number)):
             try_calling(pystir.cSTIR_fillAcquisitionData(
                 self.handle, float(value)))
         else:
@@ -982,7 +980,7 @@ class AcquisitionData(DataContainer):
         if tof <0 or tof >= data.shape[0]:
             raise IndexError('TOF bin index out of range')
         nz = data.shape[1]
-        if isinstance(sino, int):
+        if isinstance(sino, (Integral,numpy.integer)):
             if sino < 0 or sino >= nz:
                 raise IndexError('Slice index out of range')
             show_2D_array('sinogram %d' % sino, data[tof, sino, :, :])
