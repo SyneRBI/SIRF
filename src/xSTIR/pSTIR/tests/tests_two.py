@@ -16,7 +16,8 @@ Options:
 import math
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-__version__ = "0.2.4"
+import numpy
+__version__ = "3.1.0"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 def test_main(rec=False, verb=False, throw=True):
