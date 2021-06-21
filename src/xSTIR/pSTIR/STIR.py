@@ -1034,17 +1034,13 @@ class AcquisitionData(DataContainer):
             out = self.get_uniform_copy(value)
         return out
 
-    def parameter_info(self):
+    def get_info(self):
         """Returns the AcquisitionData's metadata as Python str."""
         handle = pystir.cSTIR_get_ProjDataInfo(self.handle)
         check_status(handle)
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
-
-    @deprecated(details="Please use parameter_info method instead")
-    def get_info(self):
-        return self.parameter_info()
 
     @property
     def shape(self):
