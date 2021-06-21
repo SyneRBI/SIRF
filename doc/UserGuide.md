@@ -285,7 +285,7 @@ An engine-specific image data container class for data representing 3D objects. 
     as_array            Returns the object data as an array. 
     read_from_file      Reads the image data from file.
     get_ISMRMRD_info
-                   (MR) Returns information on the image data as an array.
+                  (MR)  Returns information on the image data as an array.
     get_uniform_copy   
                  (PET)  Returns a copy of this image filled with a constant value. 
     add_shape    (PET)  Adds a shape to the image. 
