@@ -308,15 +308,15 @@ class ImageData(SIRF.ImageData):
         parameter. Parameters names are the same as the names of sirf.Gadgetron.Image class
         public methods (except is_real and info).
 
-        par: parameter name
+        par: parameter name (as a string)
 
         Examples:
 
-        # to get the slice number:
-        slice = image.get_ISMRMRD_info('slice')
+        # to get information on the timing:
+        slice = image.get_ISMRMRD_info('acquisition_time_stamp')
 
         # to get the unit vector orthogonal to the slice and directed
-        # to the next slice:
+        # to the next slice (in ISMRMRD coordinate system):
         slice_dir = image.get_ISMRMRD_info('slice_dir')
         '''
         ni = self.number()
@@ -941,6 +941,9 @@ class AcquisitionData(DataContainer):
         Example:
         # to retrieve readouts flags for acquisitions 0 to 10:
         flags = acq_data.get_ISMRMRD_info('flags', range(10))
+
+        # for phase encoding information
+        encoding = acq_data.get_ISMRMRD_info('kspace_encode_step_1')
 
         '''
         na, nc, ns = self.dimensions()
