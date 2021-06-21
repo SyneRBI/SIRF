@@ -24,7 +24,7 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 import abc
 import numpy
 import os
-from numbers import Number, Complex
+from numbers import Number, Complex, Integral
 try:
     import pylab
     HAVE_PYLAB = True
@@ -441,7 +441,7 @@ class ImageData(SIRF.ImageData):
             return
         data = self.as_array()
         nz = data.shape[0]
-        if type(slice) == type(1):
+        if isinstance(slice, (Integral,numpy.integer)):
             if slice < 0 or slice >= nz:
                 return
             ni = 1
@@ -1033,7 +1033,7 @@ class AcquisitionData(DataContainer):
             return
         data = numpy.transpose(self.as_array(), (1, 0, 2))
         nz = data.shape[0]
-        if type(slice) == type(1):
+        if isinstance(slice, (Integral,numpy.integer)):
             if slice < 0 or slice >= nz:
                 return
             ns = 1
