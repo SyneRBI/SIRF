@@ -265,7 +265,9 @@ An engine-specific acquisition data container class for acquisition data objects
     fill                Replaces the object data with user-supplied data. 
     sort           (MR) Sorts the acquisition data. 
     is_sorted      (MR) Returns true if and only if the acquisition data is sorted. 
-    get_info       (MR) Returns information on the acquisition data. 
+    get_info      (PET) Returns information on the acquisition data as a string. 
+    get_ISMRMRD_info
+                   (MR) Returns information on the acquisition data as an array.
     process        (MR) Processes the acquisition data by a chain of gadgets. 
     dimensions    (PET) Returns the acquisition data dimensions
     show                Displays the acquisition data as a set of 2D sinograms (PET)
@@ -282,6 +284,8 @@ An engine-specific image data container class for data representing 3D objects. 
     fill                Replaces the object data with user-supplied data. 
     as_array            Returns the object data as an array. 
     read_from_file      Reads the image data from file.
+    get_ISMRMRD_info
+                   (MR) Returns information on the image data as an array.
     get_uniform_copy   
                  (PET)  Returns a copy of this image filled with a constant value. 
     add_shape    (PET)  Adds a shape to the image. 

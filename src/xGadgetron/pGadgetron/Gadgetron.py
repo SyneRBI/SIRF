@@ -302,21 +302,22 @@ class ImageData(SIRF.ImageData):
         check_status(images.handle)
         return images
 
-    def parameter_info(self, par):
+    def get_ISMRMRD_info(self, par):
         '''
         Returns the array of values of the specified image information 
-        parameter. Parameters names are the same as the names of Image class
+        parameter. Parameters names are the same as the names of sirf.Gadgetron.Image class
         public methods (except is_real and info).
+
         par: parameter name
 
         Examples:
 
         # to get the slice number:
-        slice = image.parameter_info('slice')
+        slice = image.get_ISMRMRD_info('slice')
 
         # to get the unit vector orthogonal to the slice and directed
         # to the next slice:
-        slice_dir = image.parameter_info('slice_dir')
+        slice_dir = image.get_ISMRMRD_info('slice_dir')
         '''
         ni = self.number()
         info = numpy.empty((ni,), dtype = object)
@@ -325,9 +326,9 @@ class ImageData(SIRF.ImageData):
             info[i] = image.info(par)
         return info
 
-    @deprecated(details="Please use parameter_info method instead")
+    @deprecated(details="Please use get_ISMRMRD_info method instead")
     def get_info(self, par):
-        return self.parameter_info(par)
+        return self.get_ISMRMRD_info(par)
 
     def fill(self, data):
         '''
@@ -929,16 +930,17 @@ class AcquisitionData(DataContainer):
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
 
-    def parameter_info(self, par, which='all'):
+    def get_ISMRMRD_info(self, par, which='all'):
         '''
         Returns the array of values of the specified acquisition information 
         parameter.
-        par: parameter name (see Acquisition class methods except info)
+
+        par: parameter name (see sirf.Gadgetron.Acquisition class methods except info)
         which: specifies the range of acquisitions whose parameters are returned
 
         Example:
         # to retrieve readouts flags for acquisitions 0 to 10:
-        flags = acq_data.get_info('flags', range(10))
+        flags = acq_data.get_ISMRMRD_info('flags', range(10))
 
         '''
         na, nc, ns = self.dimensions()
@@ -955,9 +957,9 @@ class AcquisitionData(DataContainer):
             i += 1
         return info
 
-    @deprecated(details="Please use parameter_info method instead")
+    @deprecated(details="Please use the get_ISMRMRD_info method instead")
     def get_info(self, par, which='all'):
-        return self.parameter_info(par, which)
+        return self.get_ISMRMRD_info(par, which)
 
     def fill(self, data, select='image'):
         '''
