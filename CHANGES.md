@@ -11,7 +11,8 @@
 
 * SIRF Python interface
   - `range_geometry` and `domain_geometry` methods of `AcquisitionModel` classes, required by CIL algorithms, now obtain data via respective C++ `AcquisitionModel` classes accessors, in line with our strategy of keeping interface code minimal
-
+  - `sirf.Gadgetron.AcquisitionData.get_info` was renamed to `get_ISMRMRD_info` to avoid
+    confusion with the other `get_info()` methods that return a string. (`get_info` still works but issues a deprecation warning).
 * Build system
   - fix bug with older CMake (pre-3.12?) that the Python interface was not built
   [#939](https://github.com/SyneRBI/SIRF/issues/939).
