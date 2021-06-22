@@ -59,7 +59,7 @@ def test_main(rec=False, verb=False, throw=True):
         recon.set_input(acq_data)
         recon.set_up(image)
 
-        recon.set_current_estimate(image)
+        recon.set_estimate(image)
 
         num_iterations = 2
         for iteration in range(num_iterations):

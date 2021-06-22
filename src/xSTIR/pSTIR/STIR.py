@@ -2468,7 +2468,15 @@ class IterativeReconstructor(Reconstructor):
             self.handle, image.handle))
 
     def set_current_estimate(self, image):
-        """Sets image estimate."""
+        """Sets image estimate for further iterations.
+
+        image will be cloned.
+        """
+        assert_validity(image, ImageData)
+        self.image = image.clone()
+
+    def set_estimate(self, image):
+        """Sets image estimate as a variable that will be updated."""
         assert_validity(image, ImageData)
         self.image = image
 
@@ -2481,7 +2489,7 @@ class IterativeReconstructor(Reconstructor):
 
     def get_current_estimate(self):
         """Return current image estimate."""
-        return self.image
+        return self.image.clone()
 
     def update_current_estimate(self):
         """Updates current image estimate by performing one subiteration."""
@@ -2511,9 +2519,9 @@ class IterativeReconstructor(Reconstructor):
         argument.
         """
         assert_validity(image, ImageData)
-        self.set_current_estimate(image)
+        self.set_estimate(image)
         self.update_current_estimate()
-        return self.get_current_estimate()
+        return image
 
 
 class OSMAPOSLReconstructor(IterativeReconstructor):
