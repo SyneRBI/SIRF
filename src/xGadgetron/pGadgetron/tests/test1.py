@@ -18,7 +18,8 @@ Options:
 # Created on Tue Nov 21 10:17:28 2017
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-__version__ = "0.2.3"
+import numpy
+__version__ = "3.1.0"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
@@ -170,6 +171,10 @@ def test_main(rec=False, verb=False, throw=True):
     d = (images_copy.norm() - complex_images.norm())/complex_images.norm()
     print('%f is 0.0' % d)
     test.check_if_equal(1, d < 1e-6)
+    # test on fill with scalar
+    for n in (2,2.0,numpy.int32(2),numpy.int64(2),numpy.float128(2),numpy.complex(2)):
+        complex_images.fill(n)
+        test.check_if_zero_within_tolerance((complex_images-2).norm())
 
     return test.failed, test.ntest
 

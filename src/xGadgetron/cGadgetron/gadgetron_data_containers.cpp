@@ -712,19 +712,11 @@ std::vector<int> MRAcquisitionData::get_flagged_acquisitions_index(const std::ve
     for(int i=0; i<this->number(); ++i)
     {
         this->get_acquisition(i, acq);
+        bool one_flag_is_set = false;
         
-        uint64_t current_flag =  acq.flags();
-        std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags_of_acquisition;
-        while(current_flag > 0)
-        {
-            unsigned short log_flag = int( std::floor(std::log2(current_flag)));
-            flags_of_acquisition.push_back( ISMRMRD::ISMRMRD_AcquisitionFlags(log_flag + 1));
-            current_flag -= std::pow(2, log_flag);
-        }            
-
-        bool const one_flag_is_set = std::find_first_of (flags.begin(), flags.end(),
-                    flags_of_acquisition.begin(), flags_of_acquisition.end()) != flags.end();
-
+        for(auto it: flags)
+            one_flag_is_set = (one_flag_is_set || acq.isFlagSet(it));
+        
         if(one_flag_is_set)
             flags_true_index.push_back(i);
     }
@@ -1699,15 +1691,15 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
-    auto coil_calib_data = this->extract_calibration_data(ad);
+    std::unique_ptr<MRAcquisitionData> uptr_calib_data = this->extract_calibration_data(ad);
     
-    this->set_meta_data(coil_calib_data->acquisitions_info());
-    auto sort_idx = coil_calib_data->get_kspace_order();
+    this->set_meta_data(uptr_calib_data->acquisitions_info());
+    auto sort_idx = uptr_calib_data->get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
-        coil_calib_data->get_subset(subset, sort_idx[i]);
+        uptr_calib_data->get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
 		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);

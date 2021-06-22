@@ -94,13 +94,13 @@ def main():
         print('patient_table_position:'),
         print(reconstructed_image.patient_table_position())
 
-    ind = reconstructed_images.get_info('image_index')
+    ind = reconstructed_images.get_ISMRMRD_info('image_index')
     print('\nimage indices:')
     print(ind)
-    ind = reconstructed_images.get_info('slice')
+    ind = reconstructed_images.get_ISMRMRD_info('slice')
     print('image slices:')
     print(ind)
-    ptp = reconstructed_images.get_info('patient_table_position')
+    ptp = reconstructed_images.get_ISMRMRD_info('patient_table_position')
     print('patient table positions:')
     print(ptp)
     

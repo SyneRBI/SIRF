@@ -61,7 +61,7 @@ extern "C" {
     void* cReg_NiftiImageData_standardise(const void* im_ptr);
     void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
     //!  create NiftiImage or NiftiImageData3D
-    /*! Use an \c int as \c bool to create a 3D image (running 3D checks) */
+    //! Use an \c int as \c bool to create a 3D image (running 3D checks)
     void* cReg_NiftiImageData_from_SIRFImageData(void* ptr, const int is_3D);
     void* cReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr);
     void* cReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr);

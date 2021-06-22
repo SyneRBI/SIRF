@@ -75,7 +75,7 @@ if(DOXYGEN_FOUND)
         RUN_DOXYGEN ${DOXY_ALL}
         DEPENDS doxygen.stamp)
 
-    set(DOXYGEN_INSTALL_DIR ${SHARE_DIR}/doc/doxygen/html/)
+    set(DOXYGEN_INSTALL_DIR ${SHARE_DIR}/doc/doxygen/)
     if (BUILD_DOCUMENTATION)
       # Doxyfile.in currently tells doxygen to output in PROJECT_BINARY_DIR
       install(DIRECTORY ${PROJECT_BINARY_DIR}/html
@@ -83,10 +83,10 @@ if(DOXYGEN_FOUND)
         DESTINATION ${DOXYGEN_INSTALL_DIR})
     else()
       # CMake currently doesn't allow adding a dependency on a custom target.
-      # As we don't know if the user has executaged the `RUN_DOXYGEN` target,
-      # we hide this install a bit by adding it do a new component.
+      # As we don't know if the user has executed the `RUN_DOXYGEN` target,
+      # we hide this install a bit by adding it to a new component.
       # There has to be a better way...
-      install(DIRECTORY ${PROJECT_BINARY_DIR}/html/
+      install(DIRECTORY ${PROJECT_BINARY_DIR}/html
         COMPONENT DOXYGEN EXCLUDE_FROM_ALL
         DESTINATION ${DOXYGEN_INSTALL_DIR})
     endif()
