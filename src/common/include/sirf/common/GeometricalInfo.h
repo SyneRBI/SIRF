@@ -90,11 +90,33 @@ public:
 	virtual bool operator==(const GeometricalInfo<num_dimensions, num_dimensions>& gi) const
 	{
 		const VoxelisedGeometricalInfo& vgi = (const VoxelisedGeometricalInfo&)gi;
-		return
-			_offset == vgi.get_offset() &&
-			_spacing == vgi.get_spacing() &&
-			_size == vgi.get_size() &&
-			_direction == vgi.get_direction();
+
+		float const desired_precision = 1e-4F; // three before comma and two after
+		Offset this_offset = _offset;
+		Offset other_offset = vgi.get_offset();
+		
+		Spacing this_spacing = _spacing;
+		Spacing other_spacing = vgi.get_spacing();
+		
+		DirectionMatrix this_direction = _direction;
+		DirectionMatrix other_direction = vgi.get_direction();
+
+		bool is_equal = true;
+		is_equal *= (_size == vgi.get_size()); // integer comparison is ok
+
+		// use adaptive epsilon comparison
+		for(int i=0; i<num_dimensions; ++i)
+			is_equal *= ( std::abs(this_offset[i] - other_offset[i]) <= desired_precision); // * std::max<float>(this_offset[i], other_offset[i]) );
+
+		for(int i=0; i<num_dimensions; ++i)
+			is_equal *= ( std::abs(this_spacing[i] - other_spacing[i]) <= desired_precision);// * std::max<float>(this_spacing[i], other_spacing[i]) );
+			
+		for(int i=0; i<num_dimensions; ++i)
+		for(int j=0; j<num_dimensions; ++j)
+			is_equal *= ( std::abs(this_direction[i][j] - other_direction[i][j]) <= desired_precision);// * std::max<float>(this_direction[i][j], other_direction[i][j]) );
+
+		return is_equal;
+			
 	}
 	virtual bool operator!=(const GeometricalInfo<num_dimensions, num_dimensions>& gi) const
 	{
