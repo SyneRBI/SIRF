@@ -2283,15 +2283,16 @@ class Reconstructor(object):
         parms.set_int_par(self.handle, 'Reconstruction', 'enable_output', 1)
 
     def reconstruct(self, image):
-        """Performs reconstruction."""
+        """Performs reconstruction (will update the image argument)"""
         assert_validity(image, ImageData)
         try_calling(pystir.cSTIR_runReconstruction(self.handle, image.handle))
         self.image = image
 
     def get_output(self):
         """Returns the reconstructed image."""
+        assert self.image is not None, 'current estimate not set. Did you run a reconstruction already?'
         # TODO: move to C++
-        return self.image
+        return self.image.clone()
 
 
 class FBP2DReconstructor(object):
@@ -2468,20 +2469,28 @@ class IterativeReconstructor(Reconstructor):
             self.handle, image.handle))
 
     def set_current_estimate(self, image):
-        """Sets image estimate."""
+        """Sets image estimate for further iterations.
+
+        image will be cloned.
+        """
         assert_validity(image, ImageData)
-        self.image = image
+        self.image = image.clone()
+
+    #def set_estimate(self, image):
+    #    """Sets image estimate as a variable that will be updated."""
+    #    assert_validity(image, ImageData)
+    #    self.image = image
 
     def process(self):
         """Performs reconstruction."""
-        if self.image is None:
-            raise error('current estimate not set')
+        assert self.image is not None, 'current estimate not set.'
         try_calling(pystir.cSTIR_runReconstruction(
             self.handle, self.image.handle))
 
     def get_current_estimate(self):
         """Return current image estimate."""
-        return self.image
+        assert self.image is not None, 'current estimate not set.'
+        return self.image.clone()
 
     def update_current_estimate(self):
         """Updates current image estimate by performing one subiteration."""
@@ -2511,9 +2520,10 @@ class IterativeReconstructor(Reconstructor):
         argument.
         """
         assert_validity(image, ImageData)
-        self.set_current_estimate(image)
+        #self.set_estimate(image)
+        self.image = image;
         self.update_current_estimate()
-        return self.get_current_estimate()
+        return image
 
 
 class OSMAPOSLReconstructor(IterativeReconstructor):
