@@ -59,18 +59,18 @@ def test_main(rec=False, verb=False, throw=True):
         recon.set_input(acq_data)
         recon.set_up(image)
 
-        recon.set_estimate(image)
+        recon.set_current_estimate(image)
 
         num_iterations = 2
         for iteration in range(num_iterations):
             if verb:
                 print('\n------------- iteration %d' % iteration)
             recon.update_current_estimate()
-        test.check(image.norm())
+        test.check(recon.get_output().norm())
 
         if verb:
             print('projecting...')
-        simulated_data = acq_model.forward(image)
+        simulated_data = acq_model.forward(recon.get_output())
         diff = simulated_data * (
                 acq_data.norm() / simulated_data.norm()) - acq_data
         res = diff.norm() / acq_data.norm()
