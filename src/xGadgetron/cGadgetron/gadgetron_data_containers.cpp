@@ -1510,6 +1510,14 @@ void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info
     if (!this->sorted())
         this->sort();
 
+    uint16_t number_slices = 0;
+
+    for (unsigned im=1; im<number(); ++im) {
+        ISMRMRD::ImageHeader &ih = image_wrap(im).head();
+        number_slices = (ih.slice > number_slices) ? ih.slice : number_slices; 
+    }
+    number_slices += 1; // account for starting counting at zero.
+
     // loop over all images in stack
     for (unsigned im=0; im<number(); ++im) {
         // Get image header
@@ -1526,16 +1534,24 @@ void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info
         // FOV
         auto spacing = geom_info_out.get_spacing();
         auto size = geom_info_out.get_size();
-        for(unsigned i=0; i<3; ++i)
+        
+        // Read and phase FOV are matrix-size * voxel size
+        for(unsigned i=0; i<2; ++i)
             ih.field_of_view[i] = spacing[i] * size[i];
-
+        // 2D slices should only have the slice width as a FOV along slice encoding
+        // for 3D number_slices = 1 and no correction is necessary
+        ih.field_of_view[2] = spacing[2] * size[2] / number_slices; 
+        
         // Position
         auto offset = geom_info_out.get_offset();
         for (unsigned i=0; i<3; ++i)
             ih.position[i] = offset[i]
                     + direction[i][0] * (ih.field_of_view[0] / 2.0f)
                     + direction[i][1] * (ih.field_of_view[1] / 2.0f)
-                    + direction[i][2] * float(im) * geom_info_out.get_spacing()[2];
+                    + direction[i][2] * (ih.field_of_view[2] / 2.0f)
+                    + direction[i][2] * (ih.slice-0.5) * geom_info_out.get_spacing()[2]; 
+                    // this last line corrects 2D the half voxel shift from above (as FOV == spacing)
+                    // and for 3D this shifts only halfa  voxel
     }
 
     // set up geom info
@@ -1571,8 +1587,6 @@ GadgetronImagesVector::set_up_geom_info()
     if (!this->sorted())
         this->sort();
 
-    bool is_2d_stack = number()>1;
-
     // Patient position not necessary as read, phase and slice directions
     // are already in patient coordinates
 #if 0
@@ -1594,25 +1608,41 @@ GadgetronImagesVector::set_up_geom_info()
     }
 
     // Check that the read, phase and slice directions are constant
+    uint16_t number_slices = ih1.slice; 
+
     for (unsigned im=1; im<number(); ++im) {
         ISMRMRD::ImageHeader &ih = image_wrap(im).head();
+        
+        // record which is the largest slice index
+        // this allows to differentiate between slice number and this->number() as the
+        // latter also includes different contrasts, phases, repetitions etc. that have
+        // no geometrical meaning
+        number_slices = (ih.slice > number_slices) ? ih.slice : number_slices; 
+
         if (!(are_vectors_equal(ih1.read_dir,ih.read_dir) && are_vectors_equal(ih1.phase_dir,ih.phase_dir) && are_vectors_equal(ih1.slice_dir,ih.slice_dir))) {
             std::cout << "\nGadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should be constant over slices.\n";
             return;
         }
     }
+    number_slices += 1;
 
     // Size
     // For the z-direction.
     // If it's a 3d image, matrix_size[2] == num voxels
-    // If it's a 2d image, matrix_size[2] == 1, and number of slices is given by this->number()
+    // If it's a 2d image, matrix_size[2] == 1, and number of slices is given by number_slices.
+    // Assert that if 3D data is present multiple slices are not covered, but this is usually not happening.
     VoxelisedGeometricalInfo3D::Size size;
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
-    // If it's a stack of 2d images.
-    if (is_2d_stack)
-        size[2] = this->number();
 
+    bool const is_2d_stack = (number_slices > 1) && (size[2] == 1);
+
+    if( (number_slices > 1) && (size[2] > 1))
+        throw LocalisedException("You try to set up the geometry information for 3D data that contains multiple slices. This special case is unavailable." , __FILE__, __LINE__);
+    
+    if( is_2d_stack )        
+        size[2] = number_slices; // +1 because we start counting at 0
+    
     // Spacing
     VoxelisedGeometricalInfo3D::Spacing spacing;
     for(unsigned i=0; i<3; ++i)
@@ -1625,6 +1655,14 @@ GadgetronImagesVector::set_up_geom_info()
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
+
+        if( spacing[2] != get_slice_spacing(ih1, ih2) )
+        {
+            std::cout << "\nGadgetronImagesVector::set_up_geom_info(). "
+                        "Warning, you set up geometry for slices whose width is not their distance."
+                        "This setup does probably not account for overlaps or gaps between slices.\n";
+        }
+        
         spacing[2] = get_slice_spacing(ih1, ih2);
 
         // Check: Loop over all images, and check that spacing is more-or-less constant
@@ -1654,18 +1692,23 @@ GadgetronImagesVector::set_up_geom_info()
     }
 
     // Offset
+    // this has to happen regardless of the 2D or 3D nature since 
+    // we are looking at the edge of the first voxel and not the center
+
     VoxelisedGeometricalInfo3D::Offset offset;
     for (unsigned i=0; i<3; ++i)
         offset[i] = ih1.position[i]
                 - direction[i][0] * (ih1.field_of_view[0] / 2.0f)
                 - direction[i][1] * (ih1.field_of_view[1] / 2.0f);
+                
 
     // TODO this isn't perfect
     if (!is_2d_stack && size[2]>1) {
         std::cout << "\nGadgetronImagesVector::set_up_geom_info(). "
                      "Warning, we think we're ~half a voxel out in the 3D case.\n";
         for (unsigned i=0; i<3; ++i)
-            offset[i] += ih1.slice_dir[i] * (ih1.field_of_view[2] / 2.0f);
+            offset[i] -= direction[i][2] * (ih1.field_of_view[2] / 2.0f); 
+                        
     }
 
     // Initialise the geom info shared pointer

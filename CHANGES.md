@@ -9,6 +9,10 @@
   - `CoilSensitivitiesVector` class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute `coil sensitivities` from `MRAcquisitionData`.
   - Added constructor for `GadgetronImagesVector` from `MRAcquisitionData`. This allows setting up an MR acquisition model without having to perform a reconstruction first. 
 
+* PET/STIR
+   - iterative reconstructors `set_current_estimate` and `get_current_estimate` now create a clone to avoid surprising modifications of arguments. The old behaviour of `set_current_estimate` can still be achieved by `set_estimate`.<br>
+   **Warning** This is backwards incompatible, but arguably a bug fix.
+
 * SIRF Python interface
   - `range_geometry` and `domain_geometry` methods of `AcquisitionModel` classes, required by CIL algorithms, now obtain data via respective C++ `AcquisitionModel` classes accessors, in line with our strategy of keeping interface code minimal
   - `sirf.Gadgetron.AcquisitionData.get_info` was renamed to `get_ISMRMRD_info` to avoid
