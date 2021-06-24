@@ -286,9 +286,10 @@ class ImageData(SIRF.ImageData):
             arg : Python str or AcquisitionData or None, interpreted as follows:
         str            : read the object from a file specified by <arg>
                          (the file format has to be support by STIR).
-        AcquisitionData: create an object compatible with the scanner data
+        STIR.AcquisitionData: create an object compatible with the scanner data
                          recorded in an AcquisitionData object <arg>.
                          This sets default voxel sizes.
+        SIRF.ImageData : (attempt to) convert data from another SIRF ImageData container.
         None           : create an empty ImageData object. Call initialise()
                          method before using it.
         """
