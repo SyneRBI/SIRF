@@ -49,7 +49,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
-
+import os
 
 def file_exists(filename):
     """Check if file exists, optionally throw error if not"""
