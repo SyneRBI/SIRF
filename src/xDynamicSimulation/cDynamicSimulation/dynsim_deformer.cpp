@@ -66,6 +66,7 @@ void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& 
 	for(size_t i_cont=0; i_cont<vect_img_data.size(); i_cont++)
 	{
 		STIRImageData &curr_img = vect_img_data[i_cont];
+		curr_img.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
 		deform_pet_image( curr_img, vec_displacement_fields );
 	}
 }
@@ -84,8 +85,6 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
 
 	std::cout << " \n printing vox geo inf for deformation field" << std::endl;
 	print_io::print_voxelized_geometrical_info( vec_deformation_fields[0] );
-
-
 
 	auto geom_stir_img = img.get_geom_info_sptr();
 
