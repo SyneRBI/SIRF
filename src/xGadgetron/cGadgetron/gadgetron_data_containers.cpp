@@ -1549,7 +1549,7 @@ void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info
                     + direction[i][0] * (ih.field_of_view[0] / 2.0f)
                     + direction[i][1] * (ih.field_of_view[1] / 2.0f)
                     + direction[i][2] * (ih.field_of_view[2] / 2.0f)
-                    + direction[i][2] * (ih.slice-0.5) * geom_info_out.get_spacing()[2]; 
+                    + direction[i][2] *  ih.slice * geom_info_out.get_spacing()[2]; 
                     // this last line corrects 2D the half voxel shift from above (as FOV == spacing)
                     // and for 3D this shifts only halfa  voxel
     }
@@ -1682,6 +1682,8 @@ GadgetronImagesVector::set_up_geom_info()
 
     // Make sure we're looking at the first image
     ih1 = image_wrap( 0 ).head();
+    if(ih1.slice != 0)
+        throw LocalisedException("The first image header should have slice=0." , __FILE__, __LINE__);
 
     // Direction
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
@@ -1692,24 +1694,12 @@ GadgetronImagesVector::set_up_geom_info()
     }
 
     // Offset
-    // this has to happen regardless of the 2D or 3D nature since 
-    // we are looking at the edge of the first voxel and not the center
-
     VoxelisedGeometricalInfo3D::Offset offset;
     for (unsigned i=0; i<3; ++i)
         offset[i] = ih1.position[i]
                 - direction[i][0] * (ih1.field_of_view[0] / 2.0f)
-                - direction[i][1] * (ih1.field_of_view[1] / 2.0f);
-                
-
-    // TODO this isn't perfect
-    if (!is_2d_stack && size[2]>1) {
-        std::cout << "\nGadgetronImagesVector::set_up_geom_info(). "
-                     "Warning, we think we're ~half a voxel out in the 3D case.\n";
-        for (unsigned i=0; i<3; ++i)
-            offset[i] -= direction[i][2] * (ih1.field_of_view[2] / 2.0f); 
-                        
-    }
+                - direction[i][1] * (ih1.field_of_view[1] / 2.0f)
+                - direction[i][2] * (ih1.field_of_view[2] / 2.0f);
 
     // Initialise the geom info shared pointer
     this->set_geom_info(std::make_shared<VoxelisedGeometricalInfo3D>
