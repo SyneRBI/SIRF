@@ -162,9 +162,14 @@ def test_main(rec=False, verb=False, throw=True):
         print('images division (with out=) error: %.1e' % d)
         test.check_if_equal(0, d)
         # test on fill with scalar
-        for n in (2,2.0,numpy.int32(2),numpy.int64(2),numpy.float128(2)):
+        twos = (2,2.0,numpy.int32(2),numpy.int64(2))
+        try:
+            twos += numpy.float128(2)
+        except:
+            pass
+        for n in twos:
             image.fill(n)
-            test.check_if_zero_within_tolerance((image-2).norm())
+            test.check_if_equal(0, (image-2).norm())
 
     return test.failed, test.ntest
 

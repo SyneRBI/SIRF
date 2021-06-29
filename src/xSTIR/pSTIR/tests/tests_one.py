@@ -132,12 +132,8 @@ def test_main(rec=False, verb=False, throw=True):
     # Test geom info
     geom_info = image.get_geometrical_info()
     geom_info.print_info()
-    if geom_info.get_size() != (image_size[0],image_size[1],image_size[2]):
-        #raise AssertionError("SIRF get_geometrical_info().get_size() failed.")
-        warnings.warn("SIRF get_geometrical_info().get_size() failed.")
-    if geom_info.get_spacing() != (voxel_size[0],voxel_size[1],voxel_size[2]):
-        #raise AssertionError("SIRF get_geometrical_info().get_spacing() failed.")
-        warnings.warn("SIRF get_geometrical_info().get_spacing() failed.")
+    test.check_if_equal(geom_info.get_size(), image_size[::-1])
+    test.check_if_equal(geom_info.get_spacing(), voxel_size[::-1])
 
     # Test zoom_image
     new_size = (3,2,5)
