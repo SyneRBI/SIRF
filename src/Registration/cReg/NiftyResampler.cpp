@@ -118,9 +118,11 @@ void NiftyResampler<dataType>::set_up()
 
     // If there are multiple transformations, compose them into single transformation.
     // Use the reference regardless of forward/adjoint.
-    this->_deformation_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >(
-            NiftiImageData3DDeformation<dataType>::compose_single_deformation(
-                this->_transformations,*this->_reference_image_niftis.real()));
+    if (this->_transformations.size() > 1) {
+        this->_deformation_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >(
+                NiftiImageData3DDeformation<dataType>::compose_single_deformation(
+                    this->_transformations,*this->_reference_image_niftis.real()));
+    }
 
     this->_need_to_set_up = false;
 }

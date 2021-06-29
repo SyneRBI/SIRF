@@ -587,6 +587,8 @@ void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im
                 trans_vec.push_back(&objectFromHandle<const NiftiImageData3DDisplacement<float> >(vec.at(i)));
             else if (types[i] == '3')
                 trans_vec.push_back(&objectFromHandle<const NiftiImageData3DDeformation<float> >(vec.at(i)));
+            else
+                throw std::runtime_error("cReg_NiftiImageData3DDeformation_compose_single_deformation: Bad tranformation type.");
 
         const NiftiImageData3D<float>& ref = objectFromHandle<const NiftiImageData3D<float> >(im);
         const std::shared_ptr<const NiftiImageData3DDeformation<float> > def_sptr
