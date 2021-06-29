@@ -648,11 +648,11 @@ int main ( int argc, char* argv[])
 
 //        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
-
+        std::string data_3d_path = "/media/sf_CCPPETMR/TestData/Input/xGadgetron/cGadgetron/CV_nav_cart_64Cube_1Echo.h5";
+        
         std::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
         AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
         av.read(data_path);
-
         sirf::preprocess_acquisition_data(av);
         av.sort();
 
@@ -664,6 +664,14 @@ int main ( int argc, char* argv[])
         ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
         ok *= test_ISMRMRDImageData_reorienting(av);
 
+        AcquisitionsVector av_3d;
+        av_3d.read(data_3d_path);
+
+        sirf::preprocess_acquisition_data(av_3d);
+        av_3d.sort();
+        ok *= test_ISMRMRDImageData_reorienting(av_3d);
+ 
+    
         ok *= test_CoilSensitivitiesVector_calculate(av);
         ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
