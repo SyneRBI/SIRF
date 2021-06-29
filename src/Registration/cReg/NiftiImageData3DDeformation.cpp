@@ -58,12 +58,17 @@ void NiftiImageData3DDeformation<dataType>::create_from_cpp(NiftiImageData3DTens
 {
     this->create_from_3D_image(ref);
 
-    reg_spline_getDeformationField(cpp.get_raw_nifti_sptr().get(),
-                                   this->_nifti_image.get(),
-                                   NULL,
-                                   false, //composition
-                                   true // bspline
-                                   );
+    // reg_spline_getDeformationField(cpp.get_raw_nifti_sptr().get(),
+    //                                this->_nifti_image.get(),
+    //                                NULL,
+    //                                false, //composition
+    //                                true // bspline
+    //                                );
+
+    reg_spline_getDefFieldFromVelocityGrid(cpp.get_raw_nifti_sptr().get(),
+                                           this->_nifti_image.get(),
+                                           false // the number of step is not automatically updated
+                                           );
 }
 
 template<class dataType>
