@@ -101,6 +101,9 @@ int test1()
 		image_data.fill(1.0);
 		float im_norm = image_data.norm();
 		std::cout << "image norm: " << im_norm << '\n';
+		const VoxelisedGeometricalInfo3D &geom_info = *image_data.get_geom_info_sptr();
+		std::cout << geom_info.get_info().c_str() << '\n';
+		std::cout << bool(geom_info == geom_info) << '\n';
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();
