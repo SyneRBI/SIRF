@@ -175,7 +175,7 @@ def test_main(rec=False, verb=False, throw=True):
     types = (2,2.0,numpy.int32(2),numpy.int64(2),numpy.complex(2))
     try:
         twos = types + (numpy.float128(2),)
-    except:
+    except AttributeError:
         twos = types
     for n in twos:
         complex_images.fill(n)
