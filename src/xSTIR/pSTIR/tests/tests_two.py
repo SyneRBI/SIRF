@@ -164,7 +164,7 @@ def test_main(rec=False, verb=False, throw=True):
         # test on fill with scalar
         twos = (2,2.0,numpy.int32(2),numpy.int64(2))
         try:
-            twos += numpy.float128(2)
+            twos += (numpy.float128(2),)
         except:
             pass
         for n in twos:
