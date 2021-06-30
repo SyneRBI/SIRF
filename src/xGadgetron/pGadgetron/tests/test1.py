@@ -172,11 +172,11 @@ def test_main(rec=False, verb=False, throw=True):
     print('%f is 0.0' % d)
     test.check_if_equal(1, d < 1e-6)
     # test on fill with scalar
-    twos = (2,2.0,numpy.int32(2),numpy.int64(2),numpy.complex(2))
+    types = (2,2.0,numpy.int32(2),numpy.int64(2),numpy.complex(2))
     try:
-        twos += (numpy.float128(2),)
+        twos = types + (numpy.float128(2),)
     except:
-        pass
+        twos = types
     for n in twos:
         complex_images.fill(n)
         test.check_if_equal(0, (complex_images-2).norm())
