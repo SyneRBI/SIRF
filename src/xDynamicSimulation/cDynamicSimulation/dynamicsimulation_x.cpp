@@ -16,9 +16,6 @@ date: 15. March 2018
 
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 
-
-
-
 using namespace sirf;
 using std::cout;
 using std::endl;
@@ -26,11 +23,10 @@ using std::endl;
 
 #define PET_GLOBAL_NOISE_SCALING 4.0f
 
-
 void MRDynamicSimulation::set_filename_rawdata( std::string const filename_template_rawdata ) 
 {
 	aDynamicSimulation::set_filename_rawdata( filename_template_rawdata );
-	this->extract_hdr_information();
+	this->set_mr_rawdata();
 }
 
 
@@ -91,7 +87,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 {
 	cout << "Simulating motion and contrast dynamics... " <<endl;
 
-	this->extract_hdr_information();
+	this->set_mr_rawdata();
 	
 	this->mr_cont_gen_.map_contrast();
 	
@@ -205,10 +201,8 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 }
 
 
-void MRDynamicSimulation::extract_hdr_information( void )
+void MRDynamicSimulation::set_mr_rawdata( void )
 {
-	this->hdr_ = mr_io::read_ismrmrd_header( filename_rawdata_ );
-
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
 	
 }
@@ -241,7 +235,7 @@ void MRDynamicSimulation::shift_time_start_to_zero( void )
 	}
 }
 
-void MRDynamicSimulation::set_all_source_acquisitions(MRDataType& acquisitions )
+void MRDynamicSimulation::set_template_acquisition_data(MRDataType& acquisitions )
 {
 	this->all_source_acquisitions_ = acquisitions;
 	this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_ );

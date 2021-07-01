@@ -54,14 +54,7 @@ public:
 	virtual void write_simulation_results( const std::string& filename_output_with_extension ) = 0;
 	virtual void save_ground_truth_displacements() = 0;
 
-
 	virtual void acquire_raw_data( void ) = 0;
-
-
-
-protected:
-
-	std::string filename_rawdata_;
 
 };
 
@@ -71,7 +64,7 @@ class MRDynamicSimulation : public aDynamicSimulation {
 
 public:
 
-	MRDynamicSimulation( MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) 
+	MRDynamicSimulation(MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) 
 	{};
 
 	virtual void set_filename_rawdata( std::string const filename_template_rawdata );
@@ -84,7 +77,7 @@ public:
 
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
 	
-	void set_all_source_acquisitions(MRDataType& acquisitions );
+	void set_template_acquisition_data(MRDataType& acquisitions );
 	void set_SNR(float const SNR);
 	void set_noise_label(size_t const label);
 
@@ -92,7 +85,7 @@ public:
 	void simulate_dynamics( void );
 
 
-	void extract_hdr_information( void );
+	void set_mr_rawdata( void );
 
 	void set_coilmaps( ISMRMRD::Image< complex_float_t >& coilmaps );
 
@@ -154,7 +147,7 @@ public:
 
 private:
 
-
+	std::string filename_rawdata_;
 	std::string output_filename_prefix_;
 
 	void simulate_motion_dynamics(size_t const total_scan_time );	
