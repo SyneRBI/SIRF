@@ -66,7 +66,7 @@ void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& 
 	for(size_t i_cont=0; i_cont<vect_img_data.size(); i_cont++)
 	{
 		STIRImageData &curr_img = vect_img_data[i_cont];
-		curr_img.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
+		// curr_img.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
 		deform_pet_image( curr_img, vec_displacement_fields );
 	}
 }
