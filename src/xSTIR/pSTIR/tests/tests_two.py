@@ -169,7 +169,7 @@ def test_main(rec=False, verb=False, throw=True):
             twos = types
         for n in twos:
             image.fill(n)
-            test.check_if_equal(0, (image-2).norm())
+            test.check_if_zero_within_tolerance((image-2).norm())
 
     return test.failed, test.ntest
 

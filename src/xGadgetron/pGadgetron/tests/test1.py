@@ -179,7 +179,7 @@ def test_main(rec=False, verb=False, throw=True):
         twos = types
     for n in twos:
         complex_images.fill(n)
-        test.check_if_equal(0, (complex_images-2).norm())
+        test.check_if_zero_within_tolerance((complex_images-2).norm())
 
     return test.failed, test.ntest
 
