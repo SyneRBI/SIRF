@@ -45,8 +45,6 @@ try
 		dims.push_back(M);
 		dims.push_back(L);
 
-
-
 		LinearCombiGenerator lcg( dims );
 
 		auto all_perm = lcg.get_all_combinations();
@@ -72,10 +70,6 @@ try
 	}
 
 }
-
-
-
-
 
 
 
@@ -114,7 +108,7 @@ void tests_mr_dynsim::test_extract_hdr_information( void )
 
 	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 
-	mr_dyn_sim.extract_hdr_information();
+	mr_dyn_sim.set_mr_rawdata();
 
 
 	ISMRMRD::IsmrmrdHeader hdr = mr_dyn_sim.get_ismrmrd_header();
@@ -134,34 +128,6 @@ void tests_mr_dynsim::test_extract_hdr_information( void )
 
 }
 
-bool tests_mr_dynsim::test_acquisitionsvector_memory_management( void )
-{
-
-	AcquisitionsVector all_acquis(ISMRMRD_H5_TEST_PATH);
-
-
-	uint const num_reps = 100;
-	for(uint i_rep=0; i_rep<num_reps; i_rep++)
-	{
-
-
-		AcquisitionsVector temp_dummy_vector;
-		temp_dummy_vector.copy_acquisitions_info(all_acquis);
-
-		for(size_t i_acq=0; i_acq<all_acquis.number(); i_acq++)
-		{
-			ISMRMRD::Acquisition acq;
-			all_acquis.get_acquisition(i_acq, acq);
-			temp_dummy_vector.append_acquisition(acq);
-		}
-
-		std::cout << "Iteration number: " << i_rep << std::endl;
-		std::cout << "Number count in vector: " << temp_dummy_vector.number() << std::endl;
-	}
-
-	return true;
-
-}
 
 
 bool tests_mr_dynsim::test_simulate_dynamics()
@@ -172,8 +138,8 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 	{	
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
-
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+		
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
 		auto data_dims = segmentation_labels.get_dimensions();
@@ -190,7 +156,7 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
-		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
 		float const test_SNR = 15;
 		size_t const noise_label = 13;
@@ -335,7 +301,7 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		mr_dyn_sim.set_noise_label( noise_label );
 
 		AcquisitionsVector all_acquis(mr_dyn_sim.get_filename_rawdata() );
-		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
 		clock_t t;
 		t = clock();
@@ -392,7 +358,7 @@ try
 
 	AcquisitionsVector all_acquis;
 	all_acquis.read( mr_dyn_sim.get_filename_rawdata());
-	mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+	mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
 				
 	mr_dyn_sim.set_SNR(test_SNR);
@@ -527,7 +493,7 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata());
-		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
 				
 		mr_dyn_sim.set_SNR(test_SNR);
@@ -656,7 +622,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata());
-		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
 		float const test_SNR = 19;
 		size_t const noise_label = 13;
@@ -848,7 +814,7 @@ bool test_pet_dynsim::test_constructor()
 
 
 
-bool test_pet_dynsim::set_template_acquisition_data()
+bool test_pet_dynsim::test_set_template_acquisition_data()
 {
 
 	try
