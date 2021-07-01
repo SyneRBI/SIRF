@@ -73,7 +73,7 @@ bool DynSimDeformerTester::test_nifti_data_deformation( void )
 
 
 
-bool DynSimDeformerTester::test_deform_contrast_generator( void )
+bool DynSimDeformerTester::test_deform_mr_contrast_generator( void )
 {
 	std::cout << " --- Running " << __FUNCTION__ << std::endl;
 

@@ -18,7 +18,7 @@ private:
 
 public:
 	static bool test_nifti_data_deformation( void );
-	static bool test_deform_contrast_generator( void );
+	static bool test_deform_mr_contrast_generator( void );
 	static bool test_deform_pet_contrast_generator( void );
 	static bool test_motion_of_MotionDynamics( void );
 };
