@@ -59,16 +59,19 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<NiftiImageData3DDeformation<float> >& vec_displacement_fields)
 {
 	std::vector< STIRImageData >&  vect_img_data = pet_cont_gen.get_contrast_filled_volumes();
+	
+	bool equal_geometry = false;
+	equal_geometry = ( *(vect_img_data[0].get_geom_info_sptr()) == *(vec_displacement_fields[0].get_geom_info_sptr()));
 
+	if( !equal_geometry )
+		throw std::runtime_error("You don't have the same geometry between STIR image data and vector fields");
+	
 	if( vect_img_data.size() != 2)
 		throw std::runtime_error(" Please call map_tissue before the deformation of the contrast generator. You need both activity and attenaution in the correct motion state.");
 	
 	for(size_t i_cont=0; i_cont<vect_img_data.size(); i_cont++)
-	{
-		STIRImageData &curr_img = vect_img_data[i_cont];
-		// curr_img.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
-		deform_pet_image( curr_img, vec_displacement_fields );
-	}
+		deform_pet_image( vect_img_data[i_cont], vec_displacement_fields );
+
 }
 
 void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector<NiftiImageData3DDeformation<float> >& vec_deformation_fields)
@@ -110,5 +113,10 @@ void DynamicSimulationDeformer::deform_pet_image(STIRImageData& img, std::vector
 	}
 
 	resampler.process();
+	const std::shared_ptr<const sirf::ImageData>  sptr_deformed_img = resampler.get_output_sptr();
+		
+	sptr_deformed_img->copy(sptr_deformed_img->begin(),
+							img.begin(), 
+							img.end());
 
 }
