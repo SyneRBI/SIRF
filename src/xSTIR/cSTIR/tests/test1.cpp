@@ -65,13 +65,13 @@ int test1()
 		return 1;
 	}
 
-	bool ok;
-	bool fail = false;
-
 	try {
 		TextWriter w; // create writer with no output
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
+
+		bool ok;
+		bool fail = false;
 
 		std::string filename;
 		int dim[10];
