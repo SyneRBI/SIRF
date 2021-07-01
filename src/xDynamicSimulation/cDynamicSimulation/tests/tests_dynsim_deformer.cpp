@@ -29,7 +29,6 @@ bool DynSimDeformerTester::test_nifti_data_deformation( void )
 	std::cout << " --- Running " << __FUNCTION__ << std::endl;
 	try
 	{
-
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		auto sptr_img_to_deform = std::make_shared< NiftiImageData3D<float> >( segmentation_labels );

@@ -29,7 +29,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynamicsimulation.h"
 #include "tests_noisegenerator.h"
 #include "tests_dynsim_deformer.h"
-#include "tests_volume_orientator.h"
 
 
 
@@ -505,8 +504,8 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_phantom_input();
 		// ok *= run_tests_noise_generator();
 		// ok *= run_tests_dynamics();
-		ok *= run_tests_dynsim_deformer();
-		// ok *= run_tests_dynamic_simulation();
+		// ok *= run_tests_dynsim_deformer();
+		ok *= run_tests_dynamic_simulation();
 		
 		
 		if(ok)
