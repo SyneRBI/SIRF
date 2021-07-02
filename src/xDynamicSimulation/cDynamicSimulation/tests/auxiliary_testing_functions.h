@@ -81,7 +81,7 @@ namespace aux_test
 	ISMRMRD::Image< float > get_mock_ismrmrd_image_with_gradients( void );
 
 	sirf::CoilSensitivitiesVector aux_test_get_mock_coilmaps( void );
-	ISMRMRD::Image<complex_float_t> get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils );
+	sirf::CoilsSensitivitiesVector get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils );
 	
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	sirf::AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	

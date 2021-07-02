@@ -197,11 +197,6 @@ void MRDynamicSimulation::set_noise_scaling()
 }
 
 
-void MRDynamicSimulation::set_coilmaps( ISMRMRD::Image< complex_float_t > &coilmaps )
-{
-	this->coilmaps_ = coilmaps;
-}
-
 void MRDynamicSimulation::shift_time_start_to_zero( void )
 {
 	this->all_source_acquisitions_.sort_by_time();
@@ -245,8 +240,8 @@ void MRDynamicSimulation::set_noise_label(size_t const label)
 void MRDynamicSimulation::acquire_raw_data( void )
 {
 
-	if( this->coilmaps_.getNumberOfDataElements() == 0)
-		throw std::runtime_error("Please make sure to set the coilmaps prior to starting the simulation.");
+	if( this->coilmaps_.number() == 0 )
+		throw std::runtime_error("Your coilmaps are empty. Make sure to set them before trying to simulate rawdata.");
 
 	sirf::GadgetronImagesVector contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 

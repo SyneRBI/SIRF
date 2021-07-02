@@ -13,8 +13,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/xml.h>
 
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
-
-
 #include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/STIR/stir_x.h"
 
@@ -70,7 +68,10 @@ public:
 	void simulate_dynamics( void );
 
 	void set_mr_rawdata( void );
-	void set_coilmaps( ISMRMRD::Image< complex_float_t >& coilmaps );
+	void set_coilmaps(const sirf::CoilSensitivitiesVector& csm)
+	{
+		this->coilmaps_ = csm;
+	};
 
 
 	virtual void acquire_raw_data( void );
@@ -84,7 +85,7 @@ private:
 	GaussianNoiseGenerator noise_generator_;
 
 	ISMRMRD::IsmrmrdHeader hdr_;
-	ISMRMRD::Image< complex_float_t > coilmaps_;
+	sirf::CoilSensitivitiesVector coilmaps_;
 
 	MRDataType all_source_acquisitions_;
 	MRDataType source_acquisitions_;

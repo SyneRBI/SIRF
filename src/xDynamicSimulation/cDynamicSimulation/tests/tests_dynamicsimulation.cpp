@@ -115,110 +115,21 @@ try
 	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 	mr_dyn_sim.set_coilmaps( csm );
 
-	// std::string const traj_name = "ITLGCRPE";
-	std::string const traj_name = "Cartesian";
-
-	
-
 	float const test_SNR = 15;
 	size_t const noise_label = 13;
 	mr_dyn_sim.set_SNR(test_SNR);
 	mr_dyn_sim.set_noise_label( noise_label );
-
-
-	// SETTING UP MOTION DYNAMICS ########################################################################
-	
-	// int const num_simul_motion_dyn = 5;
-	
-	// MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
-	
-	// SignalContainer mock_cardiac_signal = aux_test::get_mock_sawtooth_signal(all_acquis, 1000);
-	// SignalContainer mock_respiratory_signal = aux_test::get_mock_sinus_signal(all_acquis, 3000);
-
-	// 	cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
-	// 	cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
-	
-	// auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-	// cardiac_motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
-
-	// respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
-	// 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
-
-	// auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-	// respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
-
-
-	// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_motion_dyn ));
-	// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
-
-
-	// SETTING UP CONRAST DYNAMICS ########################################################################
-
-	// int const num_simul_states_myocardium_contrast_dyn = 2;
-	// int const num_simul_states_blood_contrast_dyn = 2;
-
-	// MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
-
-	// std::vector<LabelType> myocardium_dynamic_labels = {1, 2, 3, 4};	
-	// for(int i=0; i<myocardium_dynamic_labels.size(); i++)
-	// {
-	// 	std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to myocardium dynamic." << std::endl;
-	// 	myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
-	// }
-
-	// std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
-	// for(int i=0; i<blood_dynamic_labels.size(); i++)
-	// {
-	// 	std::cout << "Adding label " << blood_dynamic_labels[i] << " to vascular dynamic." << std::endl;
-	// 	blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
-	// }
-
-
-	// auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
-
-	// myocardium_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
-
-	// auto blood_extremes_0 = extreme_tissue_params.first;
-	// auto blood_extremes_1 = extreme_tissue_params.second;
-
-	// blood_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
-	// blood_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
-	// blood_extremes_0.mr_tissue_.t2_miliseconds_= 100;
-	
-	// blood_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
-	// blood_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
-	// blood_extremes_1.mr_tissue_.t2_miliseconds_= 100;
-
-	// blood_cont_dyn.set_parameter_extremes(blood_extremes_0, blood_extremes_1);
-
-	// SignalContainer myocard_contrast_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
-	// SignalContainer blood_contrast_signal = aux_test::get_generic_contrast_in_and_outflow_signal( all_acquis );
-
-	// myocardium_cont_dyn.set_dyn_signal( myocard_contrast_signal );
-	// 	myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
-
-	// 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
-	// blood_cont_dyn.bin_mr_acquisitions( all_acquis );
-
-	// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
-	// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
-	
-	// ####################################################################################################
 
 	clock_t t;
 	t = clock();
 	mr_dyn_sim.simulate_dynamics();
 	t = clock() - t;
 
-	std::cout << "Storing ground truth motion information" << std::endl;
-	mr_dyn_sim.save_ground_truth_displacements();
-
-
-
 	std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
-	std::string output_name = std::string(SHARED_FOLDER_PATH) + "HackathonSimulations/MRI/testoutput_mr_dynamic_motion_contrast_simulation.h5";
-	mr_dyn_sim.write_simulation_results( output_name );
+	std::stringstream ss_output_name;
+	ss_output_name << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_test_" << __FUNCTION__ << ".h5";
+	mr_dyn_sim.write_simulation_results( ss_output_name.str() );
 
 	return true;
 }
