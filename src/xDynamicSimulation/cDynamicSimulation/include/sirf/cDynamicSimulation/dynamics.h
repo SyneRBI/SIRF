@@ -46,7 +46,7 @@ typedef sirf::NiftiImageData3DDisplacement<float> MotionFieldType;
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 
 typedef sirf::AcquisitionsVector MRDataType;
-MRDataType intersect_mr_acquisition_data( MRDataType& one_dat, MRDataType& other_dat );
+MRDataType intersect_mr_acquisition_data( const sirf::MRAcquisitionData& one_dat, const sirf::MRAcquisitionData& other_dat );
 
 class aDynamic {
 

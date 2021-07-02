@@ -49,7 +49,7 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 
 
  
-AcquisitionsVector intersect_mr_acquisition_data( AcquisitionsVector& one_dat, AcquisitionsVector& other_dat)
+AcquisitionsVector intersect_mr_acquisition_data( const MRAcquisitionData& one_dat, const MRAcquisitionData& other_dat)
 {
 
 	bool one_dat_is_smaller = ( one_dat.items() >= other_dat.items() );
@@ -90,7 +90,7 @@ AcquisitionsVector intersect_mr_acquisition_data( AcquisitionsVector& one_dat, A
 	MRDataType intersection;
 	intersection.copy_acquisitions_info(one_dat);
 
-	MRDataType& smaller_data_container = one_dat_is_smaller ? one_dat : other_dat;
+	const MRAcquisitionData& smaller_data_container = one_dat_is_smaller ? one_dat : other_dat;
 
 	for( size_t i=0; i<smaller_data_container.items(); i++)
 	{
