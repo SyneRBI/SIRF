@@ -162,7 +162,13 @@ bool test_ISMRMRDImageData_reorienting(MRAcquisitionData& av)
 
         VoxelisedGeometricalInfo3D::Size input_size = sptr_geom_info->get_size();
 
-        float const rand_angle = 0.0;
+        std::default_random_engine generator;
+        generator.seed(100000); // 
+        float const maximum_random_range = 100.f;
+        std::uniform_real_distribution<float> distribution(0, maximum_random_range);
+
+        float const rand_angle = distribution(generator);
+        std::cout << "Rotating by an angle of : " << rand_angle << std::endl;
         VoxelisedGeometricalInfo3D::DirectionMatrix random_rotation{
             std::cos(rand_angle), -std::sin(rand_angle), 0,
             std::sin(rand_angle),  std::cos(rand_angle), 0,
@@ -181,8 +187,8 @@ bool test_ISMRMRDImageData_reorienting(MRAcquisitionData& av)
                 rotated_direction[i][j] += random_rotation[i][k]*direction[k][l]*random_rotation[j][l];
 
         }
-        VoxelisedGeometricalInfo3D::Offset offset{-23.f, -5.44f, 0.f};
-        VoxelisedGeometricalInfo3D::Spacing spacing{1.993f, 1.32f, 6.f};                    
+        VoxelisedGeometricalInfo3D::Offset offset{distribution(generator),distribution(generator),distribution(generator)};
+        VoxelisedGeometricalInfo3D::Spacing spacing{distribution(generator),distribution(generator),distribution(generator)};                    
 
         VoxelisedGeometricalInfo3D random_new_geometry(offset, spacing, input_size, rotated_direction);
 
