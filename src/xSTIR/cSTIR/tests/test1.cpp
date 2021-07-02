@@ -70,6 +70,9 @@ int test1()
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
 
+		bool ok;
+		bool fail = false;
+
 		std::string filename;
 		int dim[10];
 		size_t sinos, views, tangs;
@@ -101,6 +104,15 @@ int test1()
 		image_data.fill(1.0);
 		float im_norm = image_data.norm();
 		std::cout << "image norm: " << im_norm << '\n';
+		const VoxelisedGeometricalInfo3D &geom_info = *image_data.get_geom_info_sptr();
+		const VoxelisedGeometricalInfo3D &geom_info_copy = *image_data.get_geom_info_sptr();
+		std::cout << geom_info.get_info().c_str();
+		ok = (geom_info == geom_info_copy);
+		if (ok)
+			std::cout << "== ok\n";
+		else
+			std::cout << "== failed \n";
+		fail = fail || !ok;
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();
@@ -227,11 +239,12 @@ int test1()
 		std::cout << "simulated acquisition data norm: |A(x)| = " << sim_norm << '\n';
 		std::cout << "checking that |A(x)| <= |A||x|: ";
 		float bound = am_norm*im_norm;
-		bool ok = (sim_norm <= bound);
+		ok = (sim_norm <= bound);
 		if (ok)
 			std::cout << sim_norm << " <= " << bound << " ok!\n";
 		else
 			std::cout << sim_norm << " > " << bound << " failure!\n";
+		fail = fail || !ok;
 
 		// restore the default storage scheme
 		PETAcquisitionDataInFile::set_as_template();
@@ -240,8 +253,7 @@ int test1()
 
 		std::cout << "done with test1.cpp...\n";
 
-		if (!ok)
-			return 1;
+		return fail;
 	}
 	catch (...) {
 		std::cout << "exception thrown\n";
