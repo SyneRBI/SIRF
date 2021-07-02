@@ -36,6 +36,7 @@ limitations under the License.
 
 #include "sirf/STIR/stir_x.h"
 
+#include "getenv.h"
 #include "object.h"
 
 using namespace stir;
@@ -59,16 +60,20 @@ void openChannel(int channel, void* ptr_w);
 int test1()
 {
 	std::cout << "running test1.cpp...\n";
-	std::string SIRF_path = std::getenv("SIRF_PATH");
-	if (SIRF_path.length() < 1) {
-		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-		return 1;
-	}
 
 	try {
+		std::string SIRF_path = sirf::getenv("SIRF_PATH");
+		if (SIRF_path.length() < 1) {
+			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+			return 1;
+		}
+
 		TextWriter w; // create writer with no output
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
+
+		bool ok;
+		bool fail = false;
 
 		std::string filename;
 		int dim[10];
@@ -101,6 +106,15 @@ int test1()
 		image_data.fill(1.0);
 		float im_norm = image_data.norm();
 		std::cout << "image norm: " << im_norm << '\n';
+		const VoxelisedGeometricalInfo3D &geom_info = *image_data.get_geom_info_sptr();
+		const VoxelisedGeometricalInfo3D &geom_info_copy = *image_data.get_geom_info_sptr();
+		std::cout << geom_info.get_info().c_str();
+		ok = (geom_info == geom_info_copy);
+		if (ok)
+			std::cout << "== ok\n";
+		else
+			std::cout << "== failed \n";
+		fail = fail || !ok;
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();
@@ -227,11 +241,12 @@ int test1()
 		std::cout << "simulated acquisition data norm: |A(x)| = " << sim_norm << '\n';
 		std::cout << "checking that |A(x)| <= |A||x|: ";
 		float bound = am_norm*im_norm;
-		bool ok = (sim_norm <= bound);
+		ok = (sim_norm <= bound);
 		if (ok)
 			std::cout << sim_norm << " <= " << bound << " ok!\n";
 		else
 			std::cout << sim_norm << " > " << bound << " failure!\n";
+		fail = fail || !ok;
 
 		// restore the default storage scheme
 		PETAcquisitionDataInFile::set_as_template();
@@ -240,11 +255,14 @@ int test1()
 
 		std::cout << "done with test1.cpp...\n";
 
-		if (!ok)
-			return 1;
+		return fail;
+	}
+	catch (const std::exception &error) {
+		std::cerr << "\nException thrown:\n\t" << error.what() << "\n\n";
+		return 1;
 	}
 	catch (...) {
-		std::cout << "exception thrown\n";
+		std::cerr << "\nException thrown\n";
 		return 1;
 	}
 	return 0;

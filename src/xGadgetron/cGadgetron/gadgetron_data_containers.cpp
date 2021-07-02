@@ -1548,11 +1548,9 @@ void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info
             ih.position[i] = offset[i]
                     + direction[i][0] * (ih.field_of_view[0] / 2.0f)
                     + direction[i][1] * (ih.field_of_view[1] / 2.0f)
-                    + direction[i][2] * (ih.field_of_view[2] / 2.0f)
+                    + direction[i][2] * (ih.field_of_view[2] / 2.0f) // for 2D slices this is the slice thickness
                     + direction[i][2] *  ih.slice * geom_info_out.get_spacing()[2]; 
-                    // this last line corrects 2D the half voxel shift from above (as FOV == spacing)
-                    // and for 3D this shifts only halfa  voxel
-    }
+        }
 
     // set up geom info
     this->set_up_geom_info();
@@ -1624,7 +1622,7 @@ GadgetronImagesVector::set_up_geom_info()
             return;
         }
     }
-    number_slices += 1;
+    number_slices += 1; // we start counting at 0
 
     // Size
     // For the z-direction.
@@ -1634,19 +1632,20 @@ GadgetronImagesVector::set_up_geom_info()
     VoxelisedGeometricalInfo3D::Size size;
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
+    
+    // Spacing
+    //for 2D case: size[2] = 1 and ih1.field_of_view[2] = excited slice thickness
+    VoxelisedGeometricalInfo3D::Spacing spacing;
+    for(unsigned i=0; i<3; ++i)
+        spacing[i] = ih1.field_of_view[i] / size[i]; 
 
     bool const is_2d_stack = (number_slices > 1) && (size[2] == 1);
 
     if( (number_slices > 1) && (size[2] > 1))
         throw LocalisedException("You try to set up the geometry information for 3D data that contains multiple slices. This special case is unavailable." , __FILE__, __LINE__);
-    
+
     if( is_2d_stack )        
-        size[2] = number_slices; // +1 because we start counting at 0
-    
-    // Spacing
-    VoxelisedGeometricalInfo3D::Spacing spacing;
-    for(unsigned i=0; i<3; ++i)
-        spacing[i] = ih1.field_of_view[i] / size[i];
+            size[2] = number_slices;
 
     // If there are more than 1 slices, then take the size of the voxel
     // in the z-direction to be the distance between voxel centres (this
