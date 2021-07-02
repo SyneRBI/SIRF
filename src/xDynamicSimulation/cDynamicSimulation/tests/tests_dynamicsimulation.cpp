@@ -876,21 +876,17 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 	 	card_dyn.set_dyn_signal( card_sig );
 
 	 	TimeBin total_time(0, tot_time_card_ms);
-
+		
 	 	// resp_dyn.bin_total_time_interval( total_time );
-	 	card_dyn.bin_total_time_interval( total_time );
-		
-
 		// auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		auto card_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		
-		// resp_dyn.set_displacement_fields( resp_motion_fields, false );
-		card_dyn.set_displacement_fields( card_motion_fields, true );
-		
 		// pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (resp_dyn) );
+		// resp_dyn.set_displacement_fields( resp_motion_fields, false );
+		
+		card_dyn.bin_total_time_interval( total_time );
+		auto card_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		card_dyn.set_displacement_fields( card_motion_fields, true );
 		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (card_dyn) );
 		
-
 		pet_dyn_sim.simulate_dynamics( tot_time_card_ms );
 
 		return true;
