@@ -1622,7 +1622,7 @@ GadgetronImagesVector::set_up_geom_info()
             return;
         }
     }
-    number_slices += 1;
+    number_slices += 1; // we start counting at 0
 
     // Size
     // For the z-direction.
@@ -1639,7 +1639,7 @@ GadgetronImagesVector::set_up_geom_info()
         throw LocalisedException("You try to set up the geometry information for 3D data that contains multiple slices. This special case is unavailable." , __FILE__, __LINE__);
     
     if( is_2d_stack )        
-        size[2] = number_slices; // +1 because we start counting at 0
+        size[2] = number_slices; 
     
     // Spacing
     VoxelisedGeometricalInfo3D::Spacing spacing;
