@@ -36,6 +36,7 @@ limitations under the License.
 
 #include "sirf/STIR/stir_x.h"
 
+#include "getenv.h"
 #include "object.h"
 
 using namespace stir;
@@ -59,13 +60,14 @@ void openChannel(int channel, void* ptr_w);
 int test1()
 {
 	std::cout << "running test1.cpp...\n";
-	std::string SIRF_path = std::getenv("SIRF_PATH");
-	if (SIRF_path.length() < 1) {
-		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-		return 1;
-	}
 
 	try {
+		std::string SIRF_path = sirf::getenv("SIRF_PATH");
+		if (SIRF_path.length() < 1) {
+			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+			return 1;
+		}
+
 		TextWriter w; // create writer with no output
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
@@ -255,8 +257,12 @@ int test1()
 
 		return fail;
 	}
+	catch (const std::exception &error) {
+		std::cerr << "\nException thrown:\n\t" << error.what() << "\n\n";
+		return 1;
+	}
 	catch (...) {
-		std::cout << "exception thrown\n";
+		std::cerr << "\nException thrown\n";
 		return 1;
 	}
 	return 0;
