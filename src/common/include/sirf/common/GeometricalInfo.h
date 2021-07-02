@@ -90,6 +90,7 @@ public:
 	virtual bool operator==(const GeometricalInfo<num_dimensions, num_dimensions>& gi) const
 	{
 		const VoxelisedGeometricalInfo& vgi = (const VoxelisedGeometricalInfo&)gi;
+<<<<<<< HEAD
 
 		float const desired_precision = 1e-4F; // three before comma and two after
 		Offset this_offset = _offset;
@@ -117,6 +118,15 @@ public:
 
 		return is_equal;
 			
+=======
+		float eps = 0.01;
+		float delta = 0.1;
+		return
+			near_(_offset, vgi.get_offset(), eps) &&
+			near_(_spacing, vgi.get_spacing(), eps) &&
+			_size == vgi.get_size() &&
+			near_(_direction, vgi.get_direction(), delta);
+>>>>>>> 440bddf6b9ddb858a5732075841b3d35318cb1d1
 	}
 	virtual bool operator!=(const GeometricalInfo<num_dimensions, num_dimensions>& gi) const
 	{
@@ -139,6 +149,28 @@ private:
 	Spacing _spacing;
 	Size _size;
 	DirectionMatrix _direction;
+	static bool near_(const Coordinate& x, const Coordinate& y, float eps)
+	{
+		float t = 0;
+		for (int i = 0; i < num_dimensions; i++) {
+			float xi = x[i];
+			float yi = y[i];
+			t = std::max(t, std::abs(xi - yi));
+		}
+		return t <= eps;
+	}
+	static bool near_(const DirectionMatrix& x, const DirectionMatrix& y, float eps)
+	{
+		float t = 0;
+		for (int i = 0; i < num_dimensions; i++) {
+			for (int j = 0; j < num_dimensions; j++) {
+				float xij = x[i][j];
+				float yij = y[i][j];
+				t = std::max(t, std::abs(xij - yij));
+			}
+		}
+		return t <= eps;
+	}
 };
 
 typedef GeometricalInfo<3, 3> GeometricalInfo3D;

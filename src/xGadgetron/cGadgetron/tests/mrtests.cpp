@@ -642,7 +642,7 @@ int main ( int argc, char* argv[])
 		
         std::string SIRF_PATH;
         if (argc==1)
-            SIRF_PATH = sirf::getenv("SIRF_PATH");
+            SIRF_PATH = sirf::getenv("SIRF_PATH", true);
         else
             SIRF_PATH = argv[1];
 
