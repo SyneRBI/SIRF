@@ -53,7 +53,6 @@ protected:
 };
 
 
-
 class MRDynamicSimulation : public aDynamicSimulation {
 
 public:
@@ -61,11 +60,8 @@ public:
 	MRDynamicSimulation(MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) 
 	{};
 
-	virtual void set_filename_rawdata( std::string const filename_template_rawdata );
 	void write_simulation_results( const std::string& filename_output_with_extension );
 
-	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
-	
 	void set_template_acquisition_data(MRDataType& acquisitions );
 	void set_SNR(float const SNR);
 	void set_noise_label(size_t const label);
@@ -73,9 +69,7 @@ public:
 	void simulate_statics( void );
 	void simulate_dynamics( void );
 
-
 	void set_mr_rawdata( void );
-
 	void set_coilmaps( ISMRMRD::Image< complex_float_t >& coilmaps );
 
 

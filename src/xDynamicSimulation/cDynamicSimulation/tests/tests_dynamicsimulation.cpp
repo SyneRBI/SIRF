@@ -92,38 +92,6 @@ catch( std::runtime_error const &e)
 }
 }
 
-void tests_mr_dynsim::test_extract_hdr_information( void )
-{
-
-std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
-
-try
-{
-	
-	MRContrastGenerator mr_cont_gen = aux_test::get_mock_mr_contrast_generator();
-	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-
-	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
-	mr_dyn_sim.set_mr_rawdata();
-
-	ISMRMRD::IsmrmrdHeader hdr = mr_dyn_sim.get_ismrmrd_header();
-
-	std::stringstream xml;
-	serialize(hdr, xml);
-
-	std::cout << xml.str() << std::endl;	
-
-}
-catch( std::runtime_error const &e)
-{
-	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-	std::cout << e.what() << std::endl;
-	throw e;
-}
-}
-
-
-
 bool tests_mr_dynsim::test_simulate_dynamics()
 {
 
@@ -134,8 +102,10 @@ try
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-	
-	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+
+	AcquisitionsVector all_acquis;
+	all_acquis.read( ISMRMRD_H5_TEST_PATH );
+	mr_dyn_sim.set_template_acquisition_data(all_acquis);
 	
 	auto data_dims = segmentation_labels.get_dimensions();
 	
@@ -145,13 +115,10 @@ try
 	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 	mr_dyn_sim.set_coilmaps( csm );
 
-
 	// std::string const traj_name = "ITLGCRPE";
 	std::string const traj_name = "Cartesian";
 
-	AcquisitionsVector all_acquis;
-	all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
-	mr_dyn_sim.set_template_acquisition_data(all_acquis);
+	
 
 	float const test_SNR = 15;
 	size_t const noise_label = 13;
@@ -272,7 +239,6 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
 		auto data_dims = segmentation_labels.get_dimensions();
 
@@ -294,7 +260,7 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 
-		AcquisitionsVector all_acquis(mr_dyn_sim.get_filename_rawdata() );
+		AcquisitionsVector all_acquis(ISMRMRD_H5_TEST_PATH);
 		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
 		clock_t t;
@@ -340,9 +306,11 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-		// mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"); // PETMR
-		mr_dyn_sim.set_filename_rawdata( input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"); //CARDIAC FWSEP
-			
+		std::string fname_rawdata = input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5";
+		AcquisitionsVector all_acquis;
+		all_acquis.read(fname_rawdata);
+
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 		auto data_dims = segmentation_labels.get_dimensions();
 			
 		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
@@ -351,9 +319,7 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
 
-		AcquisitionsVector all_acquis;
-		all_acquis.read( mr_dyn_sim.get_filename_rawdata());
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
+		
 
 					
 		mr_dyn_sim.set_SNR(test_SNR);
@@ -466,15 +432,14 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-		mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"); // PETMR
-		// mr_dyn_sim.set_filename_rawdata( input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"); //CARDIAC FWSEP
+		std::string fname_rawdata = input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"; // PETMR
+
+		AcquisitionsVector all_acquis;
+		all_acquis.read(fname_rawdata);
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);			
 
 
 		std::vector<float> roi_labels{1,2,3,4,50,72,73};
-
-		// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
-		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/";
-				
 		std::string const output_prefix_roi = output_path;
 		
 		auto data_dims = segmentation_labels.get_dimensions();
@@ -486,9 +451,6 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 		mr_dyn_sim.set_coilmaps( csm );
 
 
-		AcquisitionsVector all_acquis;
-		all_acquis.read( mr_dyn_sim.get_filename_rawdata());
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
 				
 		mr_dyn_sim.set_SNR(test_SNR);
@@ -603,19 +565,17 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+		
+		AcquisitionsVector all_acquis;
+		all_acquis.read(ISMRMRD_H5_TEST_PATH);
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);		
 		
 		auto data_dims = segmentation_labels.get_dimensions();
-		
 		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
 		
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
-
-		AcquisitionsVector all_acquis;
-		all_acquis.read( mr_dyn_sim.get_filename_rawdata());
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
 		float const test_SNR = 19;
 		size_t const noise_label = 13;
