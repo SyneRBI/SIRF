@@ -33,8 +33,9 @@ using namespace ISMRMRD;
 
 bool test_lin_combi_gen::test_get_all_combinations( void )
 {
+	std::cout << " --- Running " << __FUNCTION__ << std::endl;
 
-try
+	try
 	{
 		int const N = 1;
 		int const M = 2;
@@ -58,7 +59,6 @@ try
 			std::cout << std::endl;
 		}
 
-
 		bool test_succesful = (all_perm.size() == N*M*L);
 		return test_succesful;
 	}
@@ -68,48 +68,43 @@ try
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
-
 }
 
 
 
 bool tests_mr_dynsim::test_constructor( void ) 
 {
-	try
-	{
-	
-	
+	std::cout << " --- Running " << __FUNCTION__ << std::endl;
+try
+{
+		
 	MRContrastGenerator mr_cont = aux_test::get_mock_mr_contrast_generator();
-
 	MRDynamicSimulation mr_dyn_sim( mr_cont );
 
 	return true;
 
-
-	}
-	catch( std::runtime_error const &e)
-	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
-		throw e;
-	}
-
-
+}
+catch( std::runtime_error const &e)
+{
+	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << e.what() << std::endl;
+	throw e;
+}
 }
 
 void tests_mr_dynsim::test_extract_hdr_information( void )
 {
-	try
-	{
+
+std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+
+try
+{
 	
 	MRContrastGenerator mr_cont_gen = aux_test::get_mock_mr_contrast_generator();
-
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 
 	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
-
 	mr_dyn_sim.set_mr_rawdata();
-
 
 	ISMRMRD::IsmrmrdHeader hdr = mr_dyn_sim.get_ismrmrd_header();
 
@@ -118,162 +113,161 @@ void tests_mr_dynsim::test_extract_hdr_information( void )
 
 	std::cout << xml.str() << std::endl;	
 
-	}
-	catch( std::runtime_error const &e)
-	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
-		throw e;
-	}
-
+}
+catch( std::runtime_error const &e)
+{
+	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << e.what() << std::endl;
+	throw e;
+}
 }
 
 
 
 bool tests_mr_dynsim::test_simulate_dynamics()
 {
-	std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
 
-	try
-	{	
-		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
-		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-		
-		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
-		
-		auto data_dims = segmentation_labels.get_dimensions();
-		
-		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
-		
-		size_t num_coils = 4;
-		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
-		mr_dyn_sim.set_coilmaps( csm );
+std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
 
-
-		// std::string const traj_name = "ITLGCRPE";
-		std::string const traj_name = "Cartesian";
-
-		AcquisitionsVector all_acquis;
-		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
-
-		float const test_SNR = 15;
-		size_t const noise_label = 13;
-		mr_dyn_sim.set_SNR(test_SNR);
-		mr_dyn_sim.set_noise_label( noise_label );
+try
+{	
+	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+	
+	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+	
+	auto data_dims = segmentation_labels.get_dimensions();
+	
+	std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
+	
+	size_t num_coils = 4;
+	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+	mr_dyn_sim.set_coilmaps( csm );
 
 
-		// SETTING UP MOTION DYNAMICS ########################################################################
-		
-		// int const num_simul_motion_dyn = 5;
-		
-		// MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
-		
-		// SignalContainer mock_cardiac_signal = aux_test::get_mock_sawtooth_signal(all_acquis, 1000);
-		// SignalContainer mock_respiratory_signal = aux_test::get_mock_sinus_signal(all_acquis, 3000);
+	// std::string const traj_name = "ITLGCRPE";
+	std::string const traj_name = "Cartesian";
 
-	 // 	cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
-	 // 	cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
-		
-		// auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		// cardiac_motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
+	AcquisitionsVector all_acquis;
+	all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
+	mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
-		// respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
-	 // 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
-
-		// auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		// respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
+	float const test_SNR = 15;
+	size_t const noise_label = 13;
+	mr_dyn_sim.set_SNR(test_SNR);
+	mr_dyn_sim.set_noise_label( noise_label );
 
 
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_motion_dyn ));
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
+	// SETTING UP MOTION DYNAMICS ########################################################################
+	
+	// int const num_simul_motion_dyn = 5;
+	
+	// MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
+	
+	// SignalContainer mock_cardiac_signal = aux_test::get_mock_sawtooth_signal(all_acquis, 1000);
+	// SignalContainer mock_respiratory_signal = aux_test::get_mock_sinus_signal(all_acquis, 3000);
+
+	// 	cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
+	// 	cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
+	
+	// auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+	// cardiac_motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
+
+	// respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
+	// 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
+
+	// auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+	// respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
 
 
-		// SETTING UP CONRAST DYNAMICS ########################################################################
-
-		// int const num_simul_states_myocardium_contrast_dyn = 2;
-		// int const num_simul_states_blood_contrast_dyn = 2;
-
-		// MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
-
-		// std::vector<LabelType> myocardium_dynamic_labels = {1, 2, 3, 4};	
-		// for(int i=0; i<myocardium_dynamic_labels.size(); i++)
-		// {
-		// 	std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to myocardium dynamic." << std::endl;
-		// 	myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
-		// }
-
-		// std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
-		// for(int i=0; i<blood_dynamic_labels.size(); i++)
-		// {
-		// 	std::cout << "Adding label " << blood_dynamic_labels[i] << " to vascular dynamic." << std::endl;
-		// 	blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
-		// }
+	// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_motion_dyn ));
+	// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
 
 
-		// auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
+	// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		// myocardium_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+	// int const num_simul_states_myocardium_contrast_dyn = 2;
+	// int const num_simul_states_blood_contrast_dyn = 2;
 
-		// auto blood_extremes_0 = extreme_tissue_params.first;
-		// auto blood_extremes_1 = extreme_tissue_params.second;
+	// MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
 
-		// blood_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
-		// blood_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
-		// blood_extremes_0.mr_tissue_.t2_miliseconds_= 100;
-		
-		// blood_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
-		// blood_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
-		// blood_extremes_1.mr_tissue_.t2_miliseconds_= 100;
+	// std::vector<LabelType> myocardium_dynamic_labels = {1, 2, 3, 4};	
+	// for(int i=0; i<myocardium_dynamic_labels.size(); i++)
+	// {
+	// 	std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to myocardium dynamic." << std::endl;
+	// 	myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
+	// }
 
-		// blood_cont_dyn.set_parameter_extremes(blood_extremes_0, blood_extremes_1);
-
-		// SignalContainer myocard_contrast_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
-		// SignalContainer blood_contrast_signal = aux_test::get_generic_contrast_in_and_outflow_signal( all_acquis );
-
-		// myocardium_cont_dyn.set_dyn_signal( myocard_contrast_signal );
-	 // 	myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
-
-	 // 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
-		// blood_cont_dyn.bin_mr_acquisitions( all_acquis );
-
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
-		
-		// ####################################################################################################
-
-		clock_t t;
-		t = clock();
-		mr_dyn_sim.simulate_dynamics();
-		t = clock() - t;
-
-		std::cout << "Storing ground truth motion information" << std::endl;
-		mr_dyn_sim.save_ground_truth_displacements();
+	// std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
+	// for(int i=0; i<blood_dynamic_labels.size(); i++)
+	// {
+	// 	std::cout << "Adding label " << blood_dynamic_labels[i] << " to vascular dynamic." << std::endl;
+	// 	blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
+	// }
 
 
+	// auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
 
-		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+	// myocardium_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
 
-		std::string output_name = std::string(SHARED_FOLDER_PATH) + "HackathonSimulations/MRI/testoutput_mr_dynamic_motion_contrast_simulation.h5";
-		mr_dyn_sim.write_simulation_results( output_name );
+	// auto blood_extremes_0 = extreme_tissue_params.first;
+	// auto blood_extremes_1 = extreme_tissue_params.second;
 
-		return true;
-	}
-	catch( std::runtime_error const &e)
-	{
-			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-			std::cout << e.what() << std::endl;
-			throw e;
-	}
+	// blood_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
+	// blood_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
+	// blood_extremes_0.mr_tissue_.t2_miliseconds_= 100;
+	
+	// blood_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
+	// blood_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
+	// blood_extremes_1.mr_tissue_.t2_miliseconds_= 100;
+
+	// blood_cont_dyn.set_parameter_extremes(blood_extremes_0, blood_extremes_1);
+
+	// SignalContainer myocard_contrast_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
+	// SignalContainer blood_contrast_signal = aux_test::get_generic_contrast_in_and_outflow_signal( all_acquis );
+
+	// myocardium_cont_dyn.set_dyn_signal( myocard_contrast_signal );
+	// 	myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
+
+	// 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
+	// blood_cont_dyn.bin_mr_acquisitions( all_acquis );
+
+	// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
+	// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
+	
+	// ####################################################################################################
+
+	clock_t t;
+	t = clock();
+	mr_dyn_sim.simulate_dynamics();
+	t = clock() - t;
+
+	std::cout << "Storing ground truth motion information" << std::endl;
+	mr_dyn_sim.save_ground_truth_displacements();
+
+
+
+	std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+
+	std::string output_name = std::string(SHARED_FOLDER_PATH) + "HackathonSimulations/MRI/testoutput_mr_dynamic_motion_contrast_simulation.h5";
+	mr_dyn_sim.write_simulation_results( output_name );
+
+	return true;
+}
+catch( std::runtime_error const &e)
+{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+}
 }
 
 bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 {
-
+	std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
 	try
 	{	
-
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
@@ -325,124 +319,125 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 
 bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 {
-try
-	{	
-	bool const simulate_data = false;
-	bool const store_gt_mvfs = true;
+	std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+	try
+		{	
+		bool const simulate_data = false;
+		bool const store_gt_mvfs = true;
 
-	int const num_simul_motion_states = 10;
+		int const num_simul_motion_states = 10;
 
-	float const test_SNR = 10;
-	size_t const noise_label = 13;
+		float const test_SNR = 10;
+		size_t const noise_label = 13;
 
-	// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
-	// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/5DMotion/";
+		// std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/";
+		// std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/MRI/5DMotion/";
 
-	std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Input/";
-	std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/5DMotion/";
+		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Input/";
+		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/FatWaterQuantification/Output/5DMotion/";
 
-	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
-	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-	// mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"); // PETMR
-	mr_dyn_sim.set_filename_rawdata( input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"); //CARDIAC FWSEP
-		
-	auto data_dims = segmentation_labels.get_dimensions();
-		
-	std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
-		
-	size_t num_coils = 4;
-	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
-	mr_dyn_sim.set_coilmaps( csm );
+		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+		// mr_dyn_sim.set_filename_rawdata( input_path + "/MRI/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5"); // PETMR
+		mr_dyn_sim.set_filename_rawdata( input_path + "/MR/meas_MID00443_FID81493_3DFatWater_Rpe_Sfl_bSSFP_5min_ismrmrd.h5"); //CARDIAC FWSEP
+			
+		auto data_dims = segmentation_labels.get_dimensions();
+			
+		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
+			
+		size_t num_coils = 4;
+		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+		mr_dyn_sim.set_coilmaps( csm );
 
-	AcquisitionsVector all_acquis;
-	all_acquis.read( mr_dyn_sim.get_filename_rawdata());
-	mr_dyn_sim.set_template_acquisition_data(all_acquis);
+		AcquisitionsVector all_acquis;
+		all_acquis.read( mr_dyn_sim.get_filename_rawdata());
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);
 
-				
-	mr_dyn_sim.set_SNR(test_SNR);
-	mr_dyn_sim.set_noise_label( noise_label );
-		
-	// SETTING UP MOTION DYNAMICS ########################################################################
+					
+		mr_dyn_sim.set_SNR(test_SNR);
+		mr_dyn_sim.set_noise_label( noise_label );
+			
+		// SETTING UP MOTION DYNAMICS ########################################################################
 
-	if( num_simul_motion_states > 1)
-	{
-		MRMotionDynamic card_dyn(num_simul_motion_states), resp_dyn(num_simul_motion_states);
+		if( num_simul_motion_states > 1)
+		{
+			MRMotionDynamic card_dyn(num_simul_motion_states), resp_dyn(num_simul_motion_states);
 
- 		std::string const signal_path = input_path + "/SurrogateSignals/";
+			std::string const signal_path = input_path + "/SurrogateSignals/";
 
-		std::string fname_timepts, fname_signalpts;
+			std::string fname_timepts, fname_signalpts;
 
-		// add card motion
-		fname_timepts = signal_path + "card_time";
-		fname_signalpts = signal_path + "card_signal";
-		SignalContainer card_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
-	 	card_dyn.set_dyn_signal( card_signal );
+			// add card motion
+			fname_timepts = signal_path + "card_time";
+			fname_signalpts = signal_path + "card_signal";
+			SignalContainer card_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
+			card_dyn.set_dyn_signal( card_signal );
 
-		// add resp motion
-		fname_timepts  = signal_path + "resp_time";
-		fname_signalpts = signal_path + "resp_signal";
-		SignalContainer resp_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
-		resp_dyn.set_dyn_signal( resp_signal );
+			// add resp motion
+			fname_timepts  = signal_path + "resp_time";
+			fname_signalpts = signal_path + "resp_signal";
+			SignalContainer resp_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
+			resp_dyn.set_dyn_signal( resp_signal );
 
-		card_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_card");
-		resp_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_resp");
+			card_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_card");
+			resp_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_resp");
 
-	 	card_dyn.bin_mr_acquisitions( all_acquis );
-	 	resp_dyn.bin_mr_acquisitions( all_acquis );
+			card_dyn.bin_mr_acquisitions( all_acquis );
+			resp_dyn.bin_mr_acquisitions( all_acquis );
 
-	 	auto binned_resp_acq = resp_dyn.get_binned_mr_acquisitions();
-	 	auto binned_card_acq = card_dyn.get_binned_mr_acquisitions();
-	 	for( int i=0; i<binned_resp_acq.size(); ++i)
-	 		std::cout<< "In this resp bin " << i << " we have " << binned_resp_acq[i].number() << " acquisitions." << std::endl;
-	 	for( int i=0; i<binned_resp_acq.size(); ++i)
-	 		std::cout<< "In this card bin " << i << " we have " << binned_card_acq[i].number() << " acquisitions." << std::endl;;
-		
-		auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		card_dyn.set_displacement_fields( cardiac_motion_fields, true );
-		
-		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-		resp_dyn.set_displacement_fields( resp_motion_fields, false );
+			auto binned_resp_acq = resp_dyn.get_binned_mr_acquisitions();
+			auto binned_card_acq = card_dyn.get_binned_mr_acquisitions();
+			for( int i=0; i<binned_resp_acq.size(); ++i)
+				std::cout<< "In this resp bin " << i << " we have " << binned_resp_acq[i].number() << " acquisitions." << std::endl;
+			for( int i=0; i<binned_resp_acq.size(); ++i)
+				std::cout<< "In this card bin " << i << " we have " << binned_card_acq[i].number() << " acquisitions." << std::endl;;
+			
+			auto cardiac_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			card_dyn.set_displacement_fields( cardiac_motion_fields, true );
+			
+			auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+			resp_dyn.set_displacement_fields( resp_motion_fields, false );
 
-		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( card_dyn ));
-		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
-	}
-	// ####################################################################################################
-
-
-
-	if( simulate_data )
-	{
-		clock_t t;
-		t = clock();
-		mr_dyn_sim.simulate_dynamics();
-		t = clock() - t;
-
-		std::cout << " TIME FOR 5D MRI SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
-		
-		std::stringstream outname_stream;
-		outname_stream << "output_grpe_mri_simulation_" << "motion_type_cardiorespiratory_"<< "_num_motion_states_" << num_simul_motion_states << "_x_"<< num_simul_motion_states;
-		
-		std::string const filename_mri_output = output_path + outname_stream.str() + ".h5";
-		mr_dyn_sim.write_simulation_results( filename_mri_output );
-
+			mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( card_dyn ));
+			mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
 		}
-	if( store_gt_mvfs )
-	{
-		std::cout << "Storing ground truth motion information" << std::endl;
-		mr_dyn_sim.save_ground_truth_displacements();
+		// ####################################################################################################
+
+
+
+		if( simulate_data )
+		{
+			clock_t t;
+			t = clock();
+			mr_dyn_sim.simulate_dynamics();
+			t = clock() - t;
+
+			std::cout << " TIME FOR 5D MRI SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+			
+			std::stringstream outname_stream;
+			outname_stream << "output_grpe_mri_simulation_" << "motion_type_cardiorespiratory_"<< "_num_motion_states_" << num_simul_motion_states << "_x_"<< num_simul_motion_states;
+			
+			std::string const filename_mri_output = output_path + outname_stream.str() + ".h5";
+			mr_dyn_sim.write_simulation_results( filename_mri_output );
+
+			}
+		if( store_gt_mvfs )
+		{
+			std::cout << "Storing ground truth motion information" << std::endl;
+			mr_dyn_sim.save_ground_truth_displacements();
+		}
+
+		return true;
+
 	}
-
-   	return true;
-
-}
-catch( std::runtime_error const &e)
-{
-	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-	std::cout << e.what() << std::endl;
-	throw e;
-}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
 }
 
 
@@ -604,8 +599,6 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		std::string const input_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Input/DCE/";
 		std::string const output_path = std::string(SHARED_FOLDER_PATH) + "/PublicationData/Output/DCE/";
 
-
-
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( input_path + "Phantoms/xcat_phantom_incl_geomertry_192_dce.h5" );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
@@ -630,10 +623,8 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
 		
-		
 		int const num_simul_motion_dyn = 16;
 		
-
 		// SETTING UP MOTION DYNAMICS ########################################################################
 		if( num_simul_motion_dyn > 0)
 		{
@@ -670,7 +661,6 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		std::string const filename_aif_t1_ =input_path + "/aif_signal_T1_0_0.23482_T1_1_2.0853";
 		std::string const filename_healthy_tissue_t1 = input_path + "/liver_signal_T1_0_0.48778_T1_1_0.90637";
  		std::string const filename_lesion_t1_ = input_path + "/lesion_signal_T1_0_0.52744_T1_1_1.2473";
-
 
 		// ####################################################################################################
 
@@ -767,11 +757,6 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 			mr_dyn_sim.save_ground_truth_displacements();
 		}
 		
-
-		
-
-		
-
      	return true;
 
 	}
@@ -784,11 +769,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 }
 
 
-
-
 // PET #################################################################################
-
-
 
 bool test_pet_dynsim::test_constructor()
 {
@@ -823,7 +804,6 @@ bool test_pet_dynsim::test_set_template_acquisition_data()
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
 
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
-
 		pet_dyn_sim.set_template_acquisition_data();
 
 		return true;
