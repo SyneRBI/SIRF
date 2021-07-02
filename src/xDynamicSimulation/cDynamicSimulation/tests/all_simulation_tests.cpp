@@ -128,36 +128,16 @@ bool run_tests_dynamics( void )
 
 bool run_tests_dynamic_simulation( void )
 {
-
 	bool tests_successful = true;
 	std::vector< bool > mr_dynsim_tests;
 
-	std::cout << "start ----------------------------------------------------" <<std::endl;
-	std::cout << "MR 1 ----------------------------------------------------" <<std::endl;
-	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_acquisitionsvector_memory_management());
-
-	std::cout << "MR 2 ----------------------------------------------------" <<std::endl;
 	// mr_dynsim_tests.push_back(test_lin_combi_gen::test_get_all_combinations());
-
-	std::cout << "MR 3 ----------------------------------------------------" <<std::endl;
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_constructor());
-
-	std::cout << "MR void test 1 ----------------------------------------------------" <<std::endl;
 	// tests_mr_dynsim::test_extract_hdr_information();
-
-	std::cout << "MR 4 ----------------------------------------------------" <<std::endl;
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_dynamics());
-
-	std::cout << "MR 5 ----------------------------------------------------" <<std::endl;
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
-
-	std::cout << "MR 6 ----------------------------------------------------" <<std::endl;
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
-
-	std::cout << "MR 7 ----------------------------------------------------" <<std::endl;
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
-
-	std::cout << "MR 8 ----------------------------------------------------" <<std::endl;
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
 
 	
@@ -169,28 +149,15 @@ bool run_tests_dynamic_simulation( void )
 	}
 	std::cout << std::endl;
 
-
 	std::vector< bool > pet_dynsim_tests;
 
-	std::cout << "PET 1 ----------------------------------------------------" <<std::endl;
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_constructor());
-
-	std::cout << "PET 2 ----------------------------------------------------" <<std::endl;
 	// pet_dynsim_tests.push_back(test_pet_dynsim::set_template_acquisition_data());
-
-	std::cout << "PET 3 ----------------------------------------------------" <<std::endl;
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_statics());
-
-	std::cout << "PET 4 ----------------------------------------------------" <<std::endl;
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_simulate_motion_dynamics());
-
-	std::cout << "PET 5 ----------------------------------------------------" <<std::endl;
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_4d_pet_acquisition());
-
-	std::cout << "PET 6 ----------------------------------------------------" <<std::endl;
 	// pet_dynsim_tests.push_back(test_pet_dynsim::test_5d_pet_acquisition());
 	
-
 	std::cout << "pet dynamic simulation test results = ";
 	for( size_t i=0; i<pet_dynsim_tests.size(); i++)
 	{
@@ -198,7 +165,6 @@ bool run_tests_dynamic_simulation( void )
 		tests_successful *= pet_dynsim_tests[i];
 	}
 	std::cout << std::endl;
-
 
 	
 	if ( !tests_successful )
