@@ -28,15 +28,15 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 	try	
 	{
 		cout << "Started writing simulation output to: " << filename_output_with_h5_extension <<endl;
-		cout << "Number of acquisitions to write: " << this->target_acquisitions_.number() << endl;
+		cout << "Number of acquisitions to write: " << this->sptr_simul_data_->number() << endl;
 
 		std::stringstream serialized_hdr;
 		ISMRMRD::serialize(this->hdr_, serialized_hdr);
-		target_acquisitions_.set_acquisitions_info( serialized_hdr.str() ); 
+		sptr_simul_data_->set_acquisitions_info( serialized_hdr.str() ); 
 
-		target_acquisitions_.sort_by_time();		
+		sptr_simul_data_->sort_by_time();		
 
-		target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
+		sptr_simul_data_->write( filename_output_with_h5_extension.c_str() );
 		cout << "Finished writing simulation output."<<endl;
 	}
 	catch( std::runtime_error const &e)
@@ -61,8 +61,8 @@ void aDynamicSimulation::add_dynamic( std::shared_ptr<ContrastDynamic> sptr_cont
 
 void MRDynamicSimulation::simulate_dynamics( void )
 {
-
 	cout << "Simulating dynamic data acquisition... " <<endl;
+	this->sptr_simul_data_->empty();
 	this->simulate_simultaneous_motion_contrast_dynamics();		
 	
 }
@@ -72,7 +72,6 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	cout << "Simulating motion and contrast dynamics... " <<endl;
 
 	this->set_mr_rawdata();
-	
 	this->mr_cont_gen_.map_contrast();
 	
 	// all contrast dynamic variations are sampled at the same timepoint.
@@ -177,7 +176,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
         }
 	}
 	
-    this->noise_generator_.add_noise(this->target_acquisitions_);
+    this->noise_generator_.add_noise(*sptr_simul_data_);
 
 	for(size_t i=0; i<num_motion_dyns; i++)
 		this->motion_dynamics_[i]->delete_temp_folder();	
@@ -216,7 +215,7 @@ void MRDynamicSimulation::shift_time_start_to_zero( void )
 void MRDynamicSimulation::set_template_acquisition_data(MRDataType& acquisitions )
 {
 	this->all_source_acquisitions_ = acquisitions;
-	this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_);
+	this->sptr_simul_data_->copy_acquisitions_info( this->all_source_acquisitions_);
 
 	this->shift_time_start_to_zero();
 	this->mr_cont_gen_.set_template_rawdata(acquisitions);
@@ -245,9 +244,17 @@ void MRDynamicSimulation::acquire_raw_data( void )
 
 	sirf::GadgetronImagesVector contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
-	this->acq_model_.set_acquisition_template( this->source_acquisitions_.clone() );
-	this->acq_model_.fwd(contrast_filled_volumes);
+	this->acq_model_.set_up(this->source_acquisitions_.clone(), std::make_shared<GadgetronImagesVector>(contrast_filled_volumes));
+	this->acq_model_.set_csm(std::make_shared<sirf::CoilSensitivitiesVector>(this->coilmaps_));
 
+	auto sptr_rawdata = acq_model_.fwd(contrast_filled_volumes);
+	
+	for(int i=0; i<sptr_rawdata->number();++i)
+	{
+		ISMRMRD::Acquisition acq;
+		sptr_rawdata->get_acquisition(i, acq);
+		this->sptr_simul_data_->append_acquisition(acq);
+	}
 }
 
 void PETDynamicSimulation::write_simulation_results( const std::string& filename_output_with_extension )

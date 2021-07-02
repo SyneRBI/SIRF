@@ -89,8 +89,8 @@ private:
 
 	MRDataType all_source_acquisitions_;
 	MRDataType source_acquisitions_;
-	MRDataType target_acquisitions_;
-	
+	std::shared_ptr<sirf::MRAcquisitionData> sptr_simul_data_;
+
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
 

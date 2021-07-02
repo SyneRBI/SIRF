@@ -95,7 +95,7 @@ catch( std::runtime_error const &e)
 bool tests_mr_dynsim::test_simulate_dynamics()
 {
 
-std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+std::cout << " --- Running function " <<__FUNCTION__ <<" .!" <<std::endl;
 
 try
 {	
@@ -135,7 +135,7 @@ try
 }
 catch( std::runtime_error const &e)
 {
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << "Exception caught " << __FUNCTION__ <<" .!" <<std::endl;
 		std::cout << e.what() << std::endl;
 		throw e;
 }
@@ -143,7 +143,7 @@ catch( std::runtime_error const &e)
 
 bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 {
-	std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << " --- Running function " << __FUNCTION__ <<" .!" <<std::endl;
 	try
 	{	
 		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -196,7 +196,7 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 
 bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 {
-	std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << " --- Running function " <<__FUNCTION__ <<" .!" <<std::endl;
 	try
 		{	
 		bool const simulate_data = false;
@@ -229,6 +229,9 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
+
+		
+
 					
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );
