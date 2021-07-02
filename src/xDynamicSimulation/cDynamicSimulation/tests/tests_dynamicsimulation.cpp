@@ -95,50 +95,50 @@ catch( std::runtime_error const &e)
 bool tests_mr_dynsim::test_simulate_dynamics()
 {
 
-std::cout << " --- Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << " --- Running function " <<__FUNCTION__ <<" .!" <<std::endl;
 
-try
-{	
-	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
-	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
-	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+	try
+	{	
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 
-	AcquisitionsVector all_acquis;
-	all_acquis.read( ISMRMRD_H5_TEST_PATH );
-	mr_dyn_sim.set_template_acquisition_data(all_acquis);
-	
-	auto data_dims = segmentation_labels.get_dimensions();
-	
-	std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
-	
-	size_t num_coils = 4;
-	auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
-	mr_dyn_sim.set_coilmaps( csm );
+		AcquisitionsVector all_acquis;
+		all_acquis.read( ISMRMRD_H5_TEST_PATH );
+		mr_dyn_sim.set_template_acquisition_data(all_acquis);
+		
+		auto data_dims = segmentation_labels.get_dimensions();
+		
+		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
+		
+		size_t num_coils = 4;
+		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+		mr_dyn_sim.set_coilmaps( std::make_shared<CoilSensitivitiesVector>(csm));
 
-	float const test_SNR = 15;
-	size_t const noise_label = 13;
-	mr_dyn_sim.set_SNR(test_SNR);
-	mr_dyn_sim.set_noise_label( noise_label );
+		float const test_SNR = 15;
+		size_t const noise_label = 13;
+		mr_dyn_sim.set_SNR(test_SNR);
+		mr_dyn_sim.set_noise_label( noise_label );
 
-	clock_t t;
-	t = clock();
-	mr_dyn_sim.simulate_dynamics();
-	t = clock() - t;
+		clock_t t;
+		t = clock();
+		mr_dyn_sim.simulate_dynamics();
+		t = clock() - t;
 
-	std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
-	std::stringstream ss_output_name;
-	ss_output_name << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_test_" << __FUNCTION__ << ".h5";
-	mr_dyn_sim.write_simulation_results( ss_output_name.str() );
+		std::stringstream ss_output_name;
+		ss_output_name << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_test_" << __FUNCTION__ << ".h5";
+		mr_dyn_sim.write_simulation_results( ss_output_name.str() );
 
-	return true;
-}
-catch( std::runtime_error const &e)
-{
-		std::cout << "Exception caught " << __FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
-		throw e;
-}
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " << __FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
 }
 
 bool tests_mr_dynsim::test_simulate_rpe_acquisition()
@@ -164,7 +164,7 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
-		mr_dyn_sim.set_coilmaps( csm );
+		mr_dyn_sim.set_coilmaps( std::make_shared<CoilSensitivitiesVector>(csm));
 
 		float const test_SNR = 15;
 		size_t const noise_label = 13;
@@ -228,7 +228,7 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 			
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
-		mr_dyn_sim.set_coilmaps( csm );
+		mr_dyn_sim.set_coilmaps( std::make_shared<CoilSensitivitiesVector>(csm));
 
 		
 
@@ -359,7 +359,7 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 		
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
-		mr_dyn_sim.set_coilmaps( csm );
+		mr_dyn_sim.set_coilmaps( std::make_shared<CoilSensitivitiesVector>(csm));
 
 
 
@@ -486,7 +486,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
-		mr_dyn_sim.set_coilmaps( csm );
+		mr_dyn_sim.set_coilmaps( std::make_shared<CoilSensitivitiesVector>(csm));
 
 		float const test_SNR = 19;
 		size_t const noise_label = 13;

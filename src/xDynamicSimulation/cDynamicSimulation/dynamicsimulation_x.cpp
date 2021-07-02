@@ -30,12 +30,7 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 		cout << "Started writing simulation output to: " << filename_output_with_h5_extension <<endl;
 		cout << "Number of acquisitions to write: " << this->sptr_simul_data_->number() << endl;
 
-		std::stringstream serialized_hdr;
-		ISMRMRD::serialize(this->hdr_, serialized_hdr);
-		sptr_simul_data_->set_acquisitions_info( serialized_hdr.str() ); 
-
 		sptr_simul_data_->sort_by_time();		
-
 		sptr_simul_data_->write( filename_output_with_h5_extension.c_str() );
 		cout << "Finished writing simulation output."<<endl;
 	}
@@ -63,6 +58,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 {
 	cout << "Simulating dynamic data acquisition... " <<endl;
 	this->sptr_simul_data_->empty();
+	this->sptr_simul_data_->set_acquisitions_info(this-> all_source_acquisitions_.acquisitions_info());
 	this->simulate_simultaneous_motion_contrast_dynamics();		
 	
 }
@@ -71,7 +67,6 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 {
 	cout << "Simulating motion and contrast dynamics... " <<endl;
 
-	this->set_mr_rawdata();
 	this->mr_cont_gen_.map_contrast();
 	
 	// all contrast dynamic variations are sampled at the same timepoint.
@@ -164,12 +159,14 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
                         }
                     }
 
-                    this->mr_cont_gen_.map_contrast();//crucial call, as the deformation results in deformed contrast generator data
+					// crucial call, as the tissu parameters have been replaced and 
+					// deformation results in deformed contrast generator data
+                    this->mr_cont_gen_.map_contrast();
                     
                     if( all_motion_fields.size() > 0 )
                         DynamicSimulationDeformer::deform_contrast_generator(this->mr_cont_gen_, all_motion_fields);
                     
-                    this->source_acquisitions_ = acquisitions_for_this_contrast_state;
+                    this->sptr_template_data_ = std::shared_ptr<MRAcquisitionData>(std::move(acquisitions_for_this_contrast_state.clone()));
                     this->acquire_raw_data();	
                 }
             }
@@ -183,12 +180,6 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 
 }
 
-
-void MRDynamicSimulation::set_mr_rawdata( void )
-{
-	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
-	
-}
 
 void MRDynamicSimulation::set_noise_scaling()
 {
@@ -238,16 +229,10 @@ void MRDynamicSimulation::set_noise_label(size_t const label)
 
 void MRDynamicSimulation::acquire_raw_data( void )
 {
-
-	if( this->coilmaps_.number() == 0 )
-		throw std::runtime_error("Your coilmaps are empty. Make sure to set them before trying to simulate rawdata.");
-
 	sirf::GadgetronImagesVector contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
-	this->acq_model_.set_up(this->source_acquisitions_.clone(), std::make_shared<GadgetronImagesVector>(contrast_filled_volumes));
-	this->acq_model_.set_csm(std::make_shared<sirf::CoilSensitivitiesVector>(this->coilmaps_));
-
-	auto sptr_rawdata = acq_model_.fwd(contrast_filled_volumes);
+	this->acq_model_.set_up(this->sptr_template_data_, std::make_shared<GadgetronImagesVector>(contrast_filled_volumes));
+	std::shared_ptr<MRAcquisitionData> sptr_rawdata = acq_model_.fwd(contrast_filled_volumes);
 	
 	for(int i=0; i<sptr_rawdata->number();++i)
 	{

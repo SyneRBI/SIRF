@@ -67,10 +67,9 @@ public:
 	void simulate_statics( void );
 	void simulate_dynamics( void );
 
-	void set_mr_rawdata( void );
-	void set_coilmaps(const sirf::CoilSensitivitiesVector& csm)
+	void set_coilmaps(const std::shared_ptr<sirf::CoilSensitivitiesVector> sptr_csm)
 	{
-		this->coilmaps_ = csm;
+		this->acq_model_.set_csm(sptr_csm);
 	};
 
 
@@ -84,11 +83,9 @@ private:
 
 	GaussianNoiseGenerator noise_generator_;
 
-	ISMRMRD::IsmrmrdHeader hdr_;
-	sirf::CoilSensitivitiesVector coilmaps_;
-
 	MRDataType all_source_acquisitions_;
-	MRDataType source_acquisitions_;
+	
+	std::shared_ptr<sirf::MRAcquisitionData> sptr_template_data_;
 	std::shared_ptr<sirf::MRAcquisitionData> sptr_simul_data_;
 
 	MRContrastGenerator mr_cont_gen_;
