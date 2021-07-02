@@ -30,6 +30,8 @@ limitations under the License.
 
 #include <iostream>
 
+#include "sirf/common/getenv.h"
+
 int test1();
 int test2();
 
