@@ -2433,6 +2433,10 @@ class IterativeReconstructor(Reconstructor):
         Defines how often to save image iterates (n = 1: on each
         subiteration, n = 2: every other subiteration etc.)
         """
+        if n > 0:
+            self.enable_output()
+        else:
+            self.disable_output()
         parms.set_int_par(
             self.handle, 'IterativeReconstruction', 'save_interval', n)
 #    def set_inter_iteration_filter_interval(self, n):
