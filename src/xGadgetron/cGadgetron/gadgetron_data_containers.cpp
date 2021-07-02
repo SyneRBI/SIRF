@@ -1632,19 +1632,20 @@ GadgetronImagesVector::set_up_geom_info()
     VoxelisedGeometricalInfo3D::Size size;
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
+    
+    // Spacing
+    //for 2D case: size[2] = 1 and ih1.field_of_view[2] = excited slice thickness
+    VoxelisedGeometricalInfo3D::Spacing spacing;
+    for(unsigned i=0; i<3; ++i)
+        spacing[i] = ih1.field_of_view[i] / size[i]; 
 
     bool const is_2d_stack = (number_slices > 1) && (size[2] == 1);
 
     if( (number_slices > 1) && (size[2] > 1))
         throw LocalisedException("You try to set up the geometry information for 3D data that contains multiple slices. This special case is unavailable." , __FILE__, __LINE__);
-    
+
     if( is_2d_stack )        
-        size[2] = number_slices; 
-    
-    // Spacing
-    VoxelisedGeometricalInfo3D::Spacing spacing;
-    for(unsigned i=0; i<3; ++i)
-        spacing[i] = ih1.field_of_view[i] / size[i];
+            size[2] = number_slices;
 
     // If there are more than 1 slices, then take the size of the voxel
     // in the z-direction to be the distance between voxel centres (this
