@@ -1548,11 +1548,9 @@ void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info
             ih.position[i] = offset[i]
                     + direction[i][0] * (ih.field_of_view[0] / 2.0f)
                     + direction[i][1] * (ih.field_of_view[1] / 2.0f)
-                    + direction[i][2] * (ih.field_of_view[2] / 2.0f)
+                    + direction[i][2] * (ih.field_of_view[2] / 2.0f) // for 2D slices this is the slice thickness
                     + direction[i][2] *  ih.slice * geom_info_out.get_spacing()[2]; 
-                    // this last line corrects 2D the half voxel shift from above (as FOV == spacing)
-                    // and for 3D this shifts only halfa  voxel
-    }
+        }
 
     // set up geom info
     this->set_up_geom_info();
