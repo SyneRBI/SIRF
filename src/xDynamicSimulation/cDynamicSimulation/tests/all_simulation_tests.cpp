@@ -134,10 +134,10 @@ bool run_tests_dynamic_simulation( void )
 	mr_dynsim_tests.push_back(test_lin_combi_gen::test_get_all_combinations());
 	mr_dynsim_tests.push_back(tests_mr_dynsim::test_constructor());
 	mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_dynamics());
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_5d_mri_acquisition());
 
 	std::cout << "mr dynamic simulation test results = ";
 	for( size_t i=0; i<mr_dynsim_tests.size(); i++)

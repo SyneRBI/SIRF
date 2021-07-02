@@ -434,7 +434,7 @@ ISMRMRD::Image< float > aux_test::get_mock_ismrmrd_image_with_gradients( void )
 }
 
 
-CoilsSensitivitiesVector aux_test::get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils )
+sirf::CoilSensitivitiesVector aux_test::get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils )
 {
 
 	int const num_non_zero_coils = pow( (double)2,  std::floor( log2( num_coils ) ) );
@@ -480,7 +480,11 @@ CoilsSensitivitiesVector aux_test::get_mock_gaussian_csm( std::vector<size_t> vo
 		for(size_t i=0; i<csm.getNumberOfDataElements(); i++)
 			*(csm.begin() + i) = std::complex<float>(1.f, 0);
 
-		return csm;
+		sirf::CoilSensitivitiesVector coilmaps;
+		coilmaps.append(csm);
+
+		return coilmaps;
+
 	}
 	else if (num_non_zero_coils == 2)
 	{

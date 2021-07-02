@@ -229,9 +229,6 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
-
-		
-
 					
 		mr_dyn_sim.set_SNR(test_SNR);
 		mr_dyn_sim.set_noise_label( noise_label );

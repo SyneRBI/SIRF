@@ -74,12 +74,13 @@ bool test_aux_test_funs::test_get_mock_gaussian_csm( void )
 		std::vector<size_t> vol_size {192,192,192};
 
 		int const num_coils = 9;
-		ISMRMRD::Image<complex_float_t> mock_csm = aux_test::get_mock_gaussian_csm(vol_size, num_coils);
+		sirf::CoilSensitivitiesVector mock_csm = aux_test::get_mock_gaussian_csm(vol_size, num_coils);
 		
 		std::stringstream name_stream;
 		name_stream << "/media/sf_CCPPETMR/test_mock_gaussian_csm_";
 		
-		data_io::write_ISMRMRD_Image_to_nii< complex_float_t > (name_stream.str(), mock_csm);
+		data_io::write_ISMRMRD_Image_to_nii< complex_float_t > (name_stream.str(), 
+					*((CFImage*) mock_csm.image_wrap(0).ptr_image()));
 
 	}
 	catch( std::runtime_error const &e)
