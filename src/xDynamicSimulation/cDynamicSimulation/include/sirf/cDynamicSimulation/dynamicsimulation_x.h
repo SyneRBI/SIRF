@@ -29,10 +29,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define IMG_DATA_TYPE 7 // from ismrmrd enum ISMRMRD_CXFLOAT = 7
 
-
-
-
-
 class aDynamicSimulation {
 
 public:
@@ -40,21 +36,19 @@ public:
 	aDynamicSimulation(){};
 	~aDynamicSimulation(){};
 
-	std::string get_filename_rawdata( void )
-	{ 
-		return this-> filename_rawdata_; 
-	}
-
-	virtual void set_filename_rawdata( std::string const filename_template_rawdata ) 
-	{ 
-		this->filename_rawdata_ = filename_template_rawdata; 
-	}
-
 	virtual void simulate_dynamics( void ) = 0;
 	virtual void write_simulation_results( const std::string& filename_output_with_extension ) = 0;
-	virtual void save_ground_truth_displacements() = 0;
+	virtual void save_ground_truth_displacements();
 
 	virtual void acquire_raw_data( void ) = 0;
+
+	void add_dynamic( std::shared_ptr<MotionDynamic> sptr_motion_dyn);
+	void add_dynamic( std::shared_ptr<ContrastDynamic> sptr_contrast_dyn); 
+
+
+protected:
+	std::vector< std::shared_ptr<MotionDynamic> > motion_dynamics_;
+	std::vector< std::shared_ptr<ContrastDynamic> > contrast_dynamics_;
 
 };
 
@@ -69,11 +63,6 @@ public:
 
 	virtual void set_filename_rawdata( std::string const filename_template_rawdata );
 	void write_simulation_results( const std::string& filename_output_with_extension );
-
-	void save_ground_truth_displacements( void );
-
-	void add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn);
-	void add_dynamic( std::shared_ptr<MRContrastDynamic> sptr_contrast_dyn); 
 
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
 	
@@ -129,6 +118,17 @@ public:
 	void simulate_dynamics( void );
 	void simulate_dynamics( size_t const total_scan_time );
 
+
+	std::string get_filename_rawdata( void )
+	{ 
+		return this-> filename_rawdata_; 
+	}
+
+	virtual void set_filename_rawdata( std::string const filename_template_rawdata ) 
+	{ 
+		this->filename_rawdata_ = filename_template_rawdata; 
+	}
+
 	void set_template_acquisition_data( void );
 	void set_template_image_data( const std::string& filename_header_with_ext );
 
@@ -143,7 +143,6 @@ public:
 	void add_noise( float const scaling_factor );
 
 	void write_simulation_results( const std::string& filename_output_with_extension );
-	void save_ground_truth_displacements( void );
 
 private:
 

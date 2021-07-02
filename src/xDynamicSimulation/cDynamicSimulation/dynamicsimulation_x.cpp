@@ -23,14 +23,6 @@ using std::endl;
 
 #define PET_GLOBAL_NOISE_SCALING 4.0f
 
-void MRDynamicSimulation::set_filename_rawdata( std::string const filename_template_rawdata ) 
-{
-	aDynamicSimulation::set_filename_rawdata( filename_template_rawdata );
-	this->set_mr_rawdata();
-}
-
-
-
 void MRDynamicSimulation::write_simulation_results( const std::string& filename_output_with_h5_extension ) 
 {	
 	try	
@@ -55,21 +47,13 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 	}
 }
 
-void MRDynamicSimulation::save_ground_truth_displacements( void )
-{
-	for(size_t i=0; i<this->motion_dynamics_.size(); i++)
-	{
-		this->motion_dynamics_[i]->save_ground_truth_displacements();
-	}
-}
 
-void MRDynamicSimulation::add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn )
+void aDynamicSimulation::add_dynamic( std::shared_ptr<MotionDynamic> sptr_motion_dyn )
 {
 	this->motion_dynamics_.push_back( sptr_motion_dyn );
 };
 
-
-void MRDynamicSimulation::add_dynamic( std::shared_ptr<MRContrastDynamic> sptr_contrast_dyn) 
+void aDynamicSimulation::add_dynamic( std::shared_ptr<ContrastDynamic> sptr_contrast_dyn) 
 {
 	this->contrast_dynamics_.push_back( sptr_contrast_dyn );
 };
@@ -207,7 +191,6 @@ void MRDynamicSimulation::set_mr_rawdata( void )
 	
 }
 
-
 void MRDynamicSimulation::set_noise_scaling()
 {
 	this->noise_generator_.set_sampling_specific_scaling(RPE_NOISE_SCALING);
@@ -238,11 +221,11 @@ void MRDynamicSimulation::shift_time_start_to_zero( void )
 void MRDynamicSimulation::set_template_acquisition_data(MRDataType& acquisitions )
 {
 	this->all_source_acquisitions_ = acquisitions;
-	this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_ );
+	this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_);
 
 	this->shift_time_start_to_zero();
+	this->mr_cont_gen_.set_template_rawdata(acquisitions);
 }
-
 
 void MRDynamicSimulation::set_SNR(float const SNR)
 {
@@ -295,23 +278,13 @@ void PETDynamicSimulation::write_simulation_results( const std::string& filename
 
 }
 
-void PETDynamicSimulation::save_ground_truth_displacements( void )
+void aDynamicSimulation::save_ground_truth_displacements( void )
 {
 	for(size_t i=0; i<this->motion_dynamics_.size(); i++)
 	{
 		this->motion_dynamics_[i]->save_ground_truth_displacements();
 	}
 }
-
-void PETDynamicSimulation::add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn)
-{
-	this->motion_dynamics_.push_back( sptr_motion_dyn );
-
-}
-void PETDynamicSimulation::add_dynamic( std::shared_ptr<PETContrastDynamic> sptr_contrast_dyn)
-{
-	this->contrast_dynamics_.push_back( sptr_contrast_dyn );
-} 
 
 
 void PETDynamicSimulation::simulate_statics()
