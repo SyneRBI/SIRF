@@ -60,7 +60,7 @@ public:
 
 	void write_simulation_results( const std::string& filename_output_with_extension );
 
-	void set_template_acquisition_data(MRDataType& acquisitions );
+	void set_template_acquisition_data(sirf::MRAcquisitionData& acquisitions );
 	void set_SNR(float const SNR);
 	void set_noise_label(size_t const label);
 
@@ -83,8 +83,7 @@ private:
 
 	GaussianNoiseGenerator noise_generator_;
 
-	MRDataType all_source_acquisitions_;
-	
+	std::shared_ptr<sirf::MRAcquisitionData> sptr_source_acquisitions_;
 	std::shared_ptr<sirf::MRAcquisitionData> sptr_template_data_;
 	std::shared_ptr<sirf::MRAcquisitionData> sptr_simul_data_;
 

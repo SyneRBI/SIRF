@@ -57,9 +57,9 @@ void aDynamicSimulation::add_dynamic( std::shared_ptr<ContrastDynamic> sptr_cont
 void MRDynamicSimulation::simulate_dynamics( void )
 {
 	cout << "Simulating dynamic data acquisition... " <<endl;
-	this->sptr_simul_data_->empty();
-	this->sptr_simul_data_->set_acquisitions_info(this-> all_source_acquisitions_.acquisitions_info());
-	this->simulate_simultaneous_motion_contrast_dynamics();		
+	sptr_simul_data_->empty();
+	sptr_simul_data_->copy_acquisitions_info(*sptr_source_acquisitions_);
+	simulate_simultaneous_motion_contrast_dynamics();		
 	
 }
 
@@ -95,7 +95,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 		cout << " ++++++++++++    Acquisition dynamic motion state #" << i_dyn_state + 1 << "/" << num_tot_motion_states << "++++++++++++++" << endl;
 
 		DimensionsType current_combination = all_dynamic_state_combos[i_dyn_state];
-		AcquisitionsVector acquisitions_for_this_motion_state = this->all_source_acquisitions_;
+		AcquisitionsVector acquisitions_for_this_motion_state; 
 
         for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dyns; i_motion_dyn++ )
 		{
@@ -103,7 +103,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 			int const current_bin = current_combination[ i_motion_dyn ];						
 
 			AcquisitionsVector acquis_in_motion_bin = motion_dyn->get_binned_mr_acquisitions( current_bin );
-			acquisitions_for_this_motion_state = intersect_mr_acquisition_data(acquisitions_for_this_motion_state, acquis_in_motion_bin);
+			acquisitions_for_this_motion_state = intersect_mr_acquisition_data(*sptr_source_acquisitions_, acquis_in_motion_bin);
 
 		}
     
@@ -189,27 +189,32 @@ void MRDynamicSimulation::set_noise_scaling()
 
 void MRDynamicSimulation::shift_time_start_to_zero( void )
 {
-	this->all_source_acquisitions_.sort_by_time();
+	this->sptr_source_acquisitions_->sort_by_time();
 	
 	ISMRMRD::Acquisition acq;
-	this->all_source_acquisitions_.get_acquisition(0, acq);
+	this->sptr_source_acquisitions_->get_acquisition(0, acq);
 	uint32_t const t0 = acq.acquisition_time_stamp();
 
-	for(size_t i=0; i<all_source_acquisitions_.number(); ++i)
+	for(size_t i=0; i<sptr_source_acquisitions_->number(); ++i)
 	{
-		this->all_source_acquisitions_.get_acquisition(i, acq);
+		this->sptr_source_acquisitions_->get_acquisition(i, acq);
 		acq.acquisition_time_stamp() -= t0;
-		this->all_source_acquisitions_.set_acquisition(i, acq);
+		this->sptr_source_acquisitions_->set_acquisition(i, acq);
 	}
 }
 
-void MRDynamicSimulation::set_template_acquisition_data(MRDataType& acquisitions )
+void MRDynamicSimulation::set_template_acquisition_data( MRAcquisitionData& acquisitions )
 {
-	this->all_source_acquisitions_ = acquisitions;
-	this->sptr_simul_data_->copy_acquisitions_info( this->all_source_acquisitions_);
+	sptr_source_acquisitions_ = std::shared_ptr<MRAcquisitionData>
+								(std::move(acquisitions.clone()));
+	
+	sptr_simul_data_ = std::shared_ptr<MRAcquisitionData>
+								(std::move(acquisitions.clone()));
 
+	sptr_simul_data_->empty();
+	
 	this->shift_time_start_to_zero();
-	this->mr_cont_gen_.set_template_rawdata(acquisitions);
+	this->mr_cont_gen_.set_template_rawdata(*sptr_source_acquisitions_);
 }
 
 void MRDynamicSimulation::set_SNR(float const SNR)
