@@ -44,25 +44,25 @@ void PoissonNoiseGenerator::add_noise( PETAcquisitionData& noisy_acq, PETAcquisi
 }
 
 
-void GaussianNoiseGenerator::add_noise( AcquisitionsVector& acquisition_vector ) 
+void GaussianNoiseGenerator::add_noise( MRAcquisitionData& ad ) 
 {
 	if( this->SNR_ > 0)
 	{
-		this->noise_width_kspace_ = noise_width_from_snr( acquisition_vector );
-		this->add_noise_to_data(acquisition_vector);
+		this->noise_width_kspace_ = noise_width_from_snr( ad );
+		this->add_noise_to_data(ad);
 	}
 	else
 	{
-		this->add_noise_to_data( acquisition_vector );
+		this->add_noise_to_data( ad );
 	}
 
 }
 
-float GaussianNoiseGenerator::noise_width_from_snr( AcquisitionsVector& acquisition_vector )
+float GaussianNoiseGenerator::noise_width_from_snr( MRAcquisitionData& ad )
 {
 	this->noise_width_img_ = this->signal_img_ / this->SNR_;
 
-	size_t num_acquistions = acquisition_vector.number();		
+	size_t num_acquistions = ad.number();		
 	
 	if( num_acquistions <= 0)
 		return 0.f;
@@ -72,7 +72,7 @@ float GaussianNoiseGenerator::noise_width_from_snr( AcquisitionsVector& acquisit
 	return suggested_noise_width;
 }
 
-void GaussianNoiseGenerator::add_noise_to_data( AcquisitionsVector& acquisition_vector ) 
+void GaussianNoiseGenerator::add_noise_to_data( MRAcquisitionData& ad ) 
 {
 	std::cout << "Adding gaussian noise of width " << this->noise_width_kspace_ <<std::endl;
 
@@ -82,10 +82,10 @@ void GaussianNoiseGenerator::add_noise_to_data( AcquisitionsVector& acquisition_
 
 	std::normal_distribution< float > gaussian_distribution( this->mean_noise_ , this->noise_width_kspace_ );
 
-	for( size_t i_acq=0; i_acq<acquisition_vector.number(); i_acq++)
+	for( size_t i_acq=0; i_acq<ad.number(); i_acq++)
 	{
 		ISMRMRD::Acquisition acq;
-		acquisition_vector.get_acquisition( i_acq, acq);
+		ad.get_acquisition( i_acq, acq);
 
 		for(size_t i_data_point=0; i_data_point<acq.getNumberOfDataElements(); i_data_point++)
 		{

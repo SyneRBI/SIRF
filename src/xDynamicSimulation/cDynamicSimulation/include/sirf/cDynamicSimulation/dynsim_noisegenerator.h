@@ -80,7 +80,7 @@ public:
 	void set_SNR(float const SNR){ this->SNR_ = SNR; };
 	void set_sampling_specific_scaling( float const scaling) { this->sequence_specific_scaling_ = scaling;};
 
-	void add_noise( sirf::AcquisitionsVector& acquisition_vector );
+	void add_noise( sirf::MRAcquisitionData& acquisition_vector );
 	
 
 private:
@@ -93,7 +93,7 @@ private:
 
 	float sequence_specific_scaling_ = 1.f;	
 	
-	void add_noise_to_data( sirf::AcquisitionsVector& acquisition_vector );
-	float noise_width_from_snr( sirf::AcquisitionsVector& acquisition_vector );
+	void add_noise_to_data( sirf::MRAcquisitionData& acquisition_vector );
+	float noise_width_from_snr( sirf::MRAcquisitionData& acquisition_vector );
 
 };
