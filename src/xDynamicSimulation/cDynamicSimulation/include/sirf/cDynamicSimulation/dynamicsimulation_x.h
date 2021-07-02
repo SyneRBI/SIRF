@@ -128,9 +128,6 @@ public:
 
 	void set_output_filename_prefix( const std::string& output_filename_prefix_);
 
-	void add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn);
-	void add_dynamic( std::shared_ptr<PETContrastDynamic> sptr_contrast_dyn); 
-
 	virtual void acquire_raw_data( void );
 	
 	void add_noise( void );
