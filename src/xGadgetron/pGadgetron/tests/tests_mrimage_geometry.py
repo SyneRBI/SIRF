@@ -51,10 +51,11 @@ def test_2d_slice_stack(rec=False, verb=False, throw=True):
     img_data = recon.get_output()
     
     img_data = img_data.abs()
-    img_data.write("/home/sirfuser/tmp_mrgeometry.dcm")
+    img_data.write( data_path+ "tmp_mrgeometry.dcm")
     
     nii_img = sreg.NiftiImageData(img_data)
-    nii_img.write('/media/sf_CCPPETMR/tmp_mrgeometry.nii')
+    img_data.write( data_path+ "tmp_mrgeometry.nii")
+    
     
     test_failed = False
     return test_failed, 1
