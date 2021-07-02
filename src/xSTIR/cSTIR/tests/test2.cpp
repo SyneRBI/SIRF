@@ -237,6 +237,10 @@ int test2()
 		std::cerr << "\nException thrown:\n\t" << error.what() << "\n\n";
 		return 1;
 	}
+	catch (...) {
+		std::cerr << "\nException thrown\n";
+		return 1;
+	}
 	return status;
 }
 
