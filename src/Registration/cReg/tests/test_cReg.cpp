@@ -38,6 +38,8 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
+#include "sirf/Reg/NiftiImageData3DBSpline.h"
+#include "sirf/Reg/ControlPointGridToDeformationConverter.h"
 #include <memory>
 #include <numeric>
 #ifdef SIRF_SPM
@@ -45,6 +47,54 @@ limitations under the License.
 #endif
 
 using namespace sirf;
+
+
+void check_non_zero(const NiftiImageData<float> &im,
+                    const std::string &explanation)
+{
+    if (std::abs(im.get_min()) < 1e-4f && std::abs(im.get_max()) < 1e-4f)
+        throw std::runtime_error(explanation + ": contains no non-zeroes");
+}
+NiftiImageData3DDeformation<float>
+CPG2DVF(const ControlPointGridToDeformationConverter<float> &converter,
+        const NiftiImageData3DBSpline<float> &cpg)
+{
+    check_non_zero(cpg, "converter::forward (input)");
+    auto dvf = converter.forward(cpg);
+    check_non_zero(dvf, "converter::forward (output)");
+    return dvf;
+}
+NiftiImageData3DBSpline<float>
+DVF2CPG(const ControlPointGridToDeformationConverter<float> &converter,
+         const NiftiImageData3DDeformation<float> &dvf)
+{
+    check_non_zero(dvf, "converter::backward (input)");
+    auto cpg = converter.backward(dvf);
+    check_non_zero(cpg, "converter::backward (output)");
+    return cpg;
+}
+NiftiImageData3DDeformation<float>
+rand_dvf(
+        NiftiImageData3DDisplacement<float> &disp,
+        const float min_disp = -10.f, const float max_disp = 10.f)
+{
+    for (unsigned i=0; i<disp.get_num_voxels(); ++i)
+        disp(i) = min_disp + static_cast<float>(rand()) /(static_cast<float>(RAND_MAX/(max_disp-min_disp)));
+    auto dvf = NiftiImageData3DDeformation<float>(disp);
+    check_non_zero(dvf, "Rand DVF");
+    return dvf;
+}
+NiftiImageData3DBSpline<float>
+rand_cpg(
+        const ControlPointGridToDeformationConverter<float> &converter,
+        NiftiImageData3DDisplacement<float> &disp,
+        const float min_disp = -10.f, const float max_disp = 10.f)
+{
+    auto dvf = rand_dvf(disp, min_disp, max_disp);
+    auto cpg = DVF2CPG(converter,dvf);
+    check_non_zero(cpg, "Rand CPG");
+    return cpg;
+}
 
 int main(int argc, char* argv[])
 {
@@ -1182,6 +1232,68 @@ int main(int argc, char* argv[])
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished weighted mean test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+    }
+    {
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting CGP<->DVF test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
+
+        // Test both 2D and 3D cases
+        for (unsigned is_3d=0; is_3d<2; ++is_3d) {
+            unsigned int z_size = is_3d ? 32 : 1;
+            // Generate image
+            VoxelisedGeometricalInfo3D::Size size({150,125,z_size});
+            VoxelisedGeometricalInfo3D::Spacing spacing_dvf({2.f,3.f,5.f});
+            VoxelisedGeometricalInfo3D::Offset offset({0.f,0.f,0.f});
+            std::array<float,3> dm_row_1({1.f,0.f,0.f});
+            std::array<float,3> dm_row_2({0.f,1.f,0.f});
+            std::array<float,3> dm_row_3({0.f,0.f,1.f});
+            VoxelisedGeometricalInfo3D::DirectionMatrix dm({dm_row_1,dm_row_2, dm_row_3});
+            VoxelisedGeometricalInfo3D geom_info(offset, spacing_dvf, size, dm);
+            // Create displacement, convert to deformation and reference image
+            NiftiImageData3DDisplacement<float> disp(
+                        *NiftiImageData<float>::create_from_geom_info(
+                            geom_info,true, NREG_TRANS_TYPE::DISP_FIELD));
+            NiftiImageData3DDeformation<float> dvf(disp);
+            NiftiImageData<float> ref = *dvf.get_tensor_component(0);
+
+            // CPG spacing double the dvf spacing
+            float cpg_spacing[3] = {4.f * spacing_dvf[0], 4.f * spacing_dvf[1], 4.f * spacing_dvf[2]};
+
+            // set up DVF<->CPG converter
+            ControlPointGridToDeformationConverter<float> cpg_2_dvf_converter;
+            cpg_2_dvf_converter.set_cpg_spacing(cpg_spacing);
+            cpg_2_dvf_converter.set_reference_image(ref);
+
+            // ok, now ready to do adjoint test using:
+            // |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
+
+            for (unsigned i=0; i<10; ++i) {
+                // Get random CPG and DVF
+                auto x = rand_cpg(cpg_2_dvf_converter, disp);
+                auto y = rand_dvf(disp);
+
+                // Convert random CPG to DVF and random DVF to CPG
+                auto Tx = CPG2DVF(cpg_2_dvf_converter,x);
+                auto Tsy = DVF2CPG(cpg_2_dvf_converter,y);
+
+                // Get inner products
+                float x_dot, y_dot;
+                dynamic_cast<const DataContainer&>(x).dot(Tsy, &x_dot);
+                dynamic_cast<const DataContainer&>(y).dot(Tx, &y_dot);
+
+                float adjoint_test = std::abs(x_dot - y_dot) / (0.5f * (std::abs(x_dot) + std::abs(y_dot)));
+                std::cout << "\t|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = " << adjoint_test << "\n";
+                float epsilon = 1e-4f;
+                if (adjoint_test > epsilon)
+                    throw std::runtime_error("adjoint test > " + std::to_string(epsilon));
+            }
+        }
+
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished CGP<->DVF test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 

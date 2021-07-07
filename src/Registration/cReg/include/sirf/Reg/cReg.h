@@ -75,6 +75,7 @@ extern "C" {
     void* cReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
     void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
     void* cReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
+    void* cReg_NiftiImageData3DTensor_get_tensor_component(const void *ptr, const int dim);
 
     // NiftiImageData3DDeformation
     void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
@@ -83,6 +84,12 @@ extern "C" {
 
     // NiftiImageData3DDisplacement
     void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
+
+    // ControlPointGridToDeformationConverter
+    void* cReg_CPG2DVF_set_cpg_spacing(const void* converter_ptr, const float spacing_x, const float spacing_y, const float spacing_z);
+    void* cReg_CPG2DVF_set_ref_im(const void* converter_ptr, const void* ref_im_ptr);
+    void* cReg_CPG2DVF_forward(const void* converter_ptr, const void* cpg_ptr);
+    void* cReg_CPG2DVF_backward(const void* converter_ptr, const void* dvf_ptr);
 
     // Registration
     void* cReg_Registration_process(void* ptr);

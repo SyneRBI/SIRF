@@ -1092,6 +1092,38 @@ def try_weighted_mean(na):
     time.sleep(0.5)
 
 
+# CGP<->DVF conversion
+def try_cgp_dvf_conversion(na):
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Starting CGP<->DVF test...\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+    dvf = na.get_deformation_field_forward()
+    spacing = dvf.get_voxel_sizes()[1:4] * 2.0
+
+    # DVF->CPG with converter
+    cpg_2_dvf_converter = sirf.Reg.ControlPointGridToDeformationConverter()
+    cpg_2_dvf_converter.set_cpg_spacing(spacing)
+    cpg_2_dvf_converter.set_reference_image(dvf.get_tensor_component(0))
+    # DVF->CPG
+    dvf_to_cpg = cpg_2_dvf_converter.backward(dvf)
+    # DVF->CPG->DVF
+    _ = cpg_2_dvf_converter.forward(dvf_to_cpg)
+
+    # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
+    cpg_2_dvf_converter._set_up_for_adjoint_test(dvf, dvf_to_cpg)
+    if not is_operator_adjoint(cpg_2_dvf_converter):
+        raise AssertionError("ControlPointGridToDeformationConverter::adjoint() failed")
+
+    time.sleep(0.5)
+    sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+    sys.stderr.write('#                             Finished CGP<->DVF test.\n')
+    sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
+    time.sleep(0.5)
+
+
 # AffineTransformation
 def try_affinetransformation(na):
     time.sleep(0.5)
@@ -1239,23 +1271,21 @@ def try_quaternion():
 
 
 def test():
-    try_niftiimage()
-    try_niftiimage3d()
-    try_niftiimage3dtensor()
-    try_niftiimage3ddisplacement()
-    try_niftiimage3ddeformation()
+    # try_niftiimage()
+    # try_niftiimage3d()
+    # try_niftiimage3dtensor()
+    # try_niftiimage3ddisplacement()
+    # try_niftiimage3ddeformation()
     na = try_niftyaladin()
-    try_niftyf3d()
-    try_transformations(na)
-    try_resample(na)
-    try_niftymomo(na)
-    try_weighted_mean(na)
-    try_affinetransformation(na)
-    try_quaternion()
+    # try_niftyf3d()
+    # try_transformations(na)
+    # try_resample(na)
+    # try_niftymomo(na)
+    # try_weighted_mean(na)
+    try_cgp_dvf_conversion(na)
+    # try_affinetransformation(na)
+    # try_quaternion()
 
 
 if __name__ == "__main__":
-    try:
-        test()
-    except:
-        raise error("Error encountered.")
+    test()

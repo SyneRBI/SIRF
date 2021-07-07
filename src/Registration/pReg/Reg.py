@@ -23,7 +23,8 @@ import abc
 import sys
 import inspect
 
-from sirf.Utilities import error, check_status, try_calling
+from sirf.Utilities import error, check_status, try_calling, \
+    assert_validity
 from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
@@ -345,8 +346,11 @@ class NiftiImageData(SIRF.ImageData):
             image = NiftiImageData3DDeformation()
         elif self.name == 'NiftiImageData3DDisplacement':
             image = NiftiImageData3DDisplacement()
-        try_calling(pyreg.cReg_NiftiImageData_deep_copy(
-            image.handle, self.handle))
+        elif self.name == 'NiftiImageData3DBSpline':
+            image = NiftiImageData3DBSpline()
+        else:
+            raise error("unknown object name: " + self.name)
+        try_calling(pyreg.cReg_NiftiImageData_deep_copy(image.handle, self.handle))
         return image
 
     def allocate(self, value=0, **kwargs):
@@ -653,6 +657,17 @@ class NiftiImageData3DTensor(NiftiImageData):
             self.handle, dim))
         check_status(self.handle)
 
+    def get_tensor_component(self, dim):
+        """Get tensor component (i.e., nu=3 -> nu=1)."""
+        if 0 < dim or dim > 2:
+            raise AssertionError(
+                "Tensor component to extract should be between 0 and 2.")
+        output = NiftiImageData3D()
+        output.handle = pyreg.cReg_NiftiImageData3DTensor_get_tensor_component(
+            self.handle, dim)
+        check_status(output.handle)
+        return output
+
 
 class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
     """Class for 3D displacement nifti image data.
@@ -780,6 +795,108 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
                 ref.handle, types, vec.handle)
         check_status(z.handle)
         return z
+
+
+class NiftiImageData3DBSpline(NiftiImageData3DTensor, _Transformation):
+    """
+    Class for 3D b-spline nifti image data.
+    """
+
+    def __init__(self, src1=None, src2=None, src3=None):
+        self.handle = None
+        self.name = 'NiftiImageData3DBSpline'
+        if src1 is None:
+            self.handle = pyreg.cReg_newObject(self.name)
+        # filename
+        elif isinstance(src1, str):
+            self.handle = pyreg.cReg_objectFromFile(self.name, src1)
+        # 3 x scalar images
+        elif isinstance(src1, NiftiImageData3D) and \
+            isinstance(src2, NiftiImageData3D) and \
+                isinstance(src3, NiftiImageData3D):
+            self.handle = pyreg.\
+                cReg_NiftiImageData3DTensor_construct_from_3_components(
+                    self.name, src1.handle, src2.handle, src3.handle)
+        else:
+            raise error('Wrong source in NiftiImageData3DBSpline constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+
+class ControlPointGridToDeformationConverter(object):
+    """
+    Class for converting from control points grids to deformations and vice
+    versa.
+    """
+    def __init__(self):
+        self.handle = None
+        self.dvf_template = None  # only used for testing
+        self.cpg_template = None  # only used for testing
+        self.name = 'ControlPointGridToDeformationConverter'
+        self.handle = pyreg.cReg_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_cpg_spacing(self, spacing):
+        """Set CPG spacing."""
+        if len(spacing) != 3:
+            raise AssertionError("Spacing should be array of 3 numbers.")
+        try_calling(pyreg.cReg_CPG2DVF_set_cpg_spacing(self.handle,
+                    float(spacing[0]), float(spacing[1]), float(spacing[2])))
+
+    def set_reference_image(self, ref_im):
+        """Set reference image for generating dvfs."""
+        assert_validity(ref_im, NiftiImageData3D)
+        try_calling(pyreg.cReg_CPG2DVF_set_ref_im(self.handle, ref_im.handle))
+
+    def forward(self, cpg):
+        """CPG to DVF."""
+        assert_validity(cpg, NiftiImageData3DBSpline)
+        output = NiftiImageData3DDeformation()
+        output.handle = pyreg.cReg_CPG2DVF_forward(self.handle, cpg.handle)
+        check_status(output.handle)
+        return output
+
+    def backward(self, dvf):
+        """DVF to CPG"""
+        assert_validity(dvf, NiftiImageData3DDeformation)
+        output = NiftiImageData3DBSpline()
+        output.handle = pyreg.cReg_CPG2DVF_backward(self.handle, dvf.handle)
+        check_status(output.handle)
+        return output
+
+    def _set_up_for_adjoint_test(self, dvf_template, cpg_template):
+        """Set template dvf and cpg to be used for testing."""
+        assert_validity(dvf_template, NiftiImageData3DDeformation)
+        assert_validity(cpg_template, NiftiImageData3DBSpline)
+        self.dvf_template = dvf_template
+        self.cpg_template = cpg_template
+
+    def direct(self, cpg):
+        """Alias of forward."""
+        return self.forward(cpg)
+
+    def adjoint(self, dvf):
+        """Alias of backward."""
+        return self.backward(dvf)
+
+    def is_linear(self):
+        """Returns whether the transformation is linear"""
+        return True
+
+    def domain_geometry(self):
+        """Get domain geometry (only used for testing)."""
+        return self.cpg_template
+
+    def range_geometry(self):
+        """Get range geometry (only used for testing)."""
+        return self.dvf_template
 
 
 class _Registration(ABC):

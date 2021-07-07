@@ -37,6 +37,7 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DTensor.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
+#include "sirf/Reg/NiftiImageData3DBSpline.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftyResampler.h"
 #include <iomanip>
@@ -563,7 +564,10 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     if        (image_type == _3D)       { ndim= 3; nt= 1; nu= 1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
     else   if (image_type == _3DTensor) { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=-1;         }
     else   if (image_type == _3DDisp)   { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DISP_FIELD; }
-    else /*if (image_type == _3DDef)*/  { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DEF_FIELD;  }
+    else   if (image_type == _3DDef)    { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DEF_FIELD;  }
+    else   if (image_type == _3DBSpl)   { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=SPLINE_VEL_GRID;  }
+    else
+        throw std::runtime_error("NiftiImageData::check_dimensions: Unknown image type");
 
     // Check everthing is as it should be. -1 means we don't care about it
     // (e.g., NiftiImageData3D doesn't care about intent_p1, which is used by NiftyReg for Disp/Def fields)
@@ -585,16 +589,19 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     else if (typeid(*this) == typeid(NiftiImageData3DTensor<dataType>))       ss << "NiftiImageData3DTensor";
     else if (typeid(*this) == typeid(NiftiImageData3DDisplacement<dataType>)) ss << "NiftiImageData3DDisplacement";
     else if (typeid(*this) == typeid(NiftiImageData3DDeformation<dataType>))  ss << "NiftiImageData3DDeformation";
+    else if (typeid(*this) == typeid(NiftiImageData3DBSpline<dataType>))      ss << "NiftiImageData3DBSpline";
     ss << ".\n\t\tExpected params: ndim = " << ndim << ", nu = " << nu << ", nt = " << nt;
     if      (intent_code == NIFTI_INTENT_NONE)   ss << ", intent_code = None";
     else if (intent_code == NIFTI_INTENT_VECTOR) ss << ", intent_code = Vector";
     if      (intent_p1 == 0) ss << ", intent_p1 = Deformation";
     else if (intent_p1 == 1) ss << ", intent_p1 = Displacement";
+    else if (intent_p1 == SPLINE_VEL_GRID) ss << ", intent_p1 = Control point grid";
     ss << "\n\t\tActual params:   ndim = " << _nifti_image->ndim << ", nu = " << _nifti_image->nu << ", nt = " << _nifti_image->nt;
     if      (_nifti_image->intent_code == NIFTI_INTENT_NONE)   ss << ", intent_code = None";
     else if (_nifti_image->intent_code == NIFTI_INTENT_VECTOR) ss << ", intent_code = Vector";
     if      (intent_p1 != -1 && _nifti_image->intent_p1 == 0)  ss << ", intent_p1 = Deformation";
     else if (intent_p1 != -1 && _nifti_image->intent_p1 == 1)  ss << ", intent_p1 = Displacement";
+    else if (intent_p1 != -1 && _nifti_image->intent_p1 == SPLINE_VEL_GRID)  ss << ", intent_p1 = Control point grid";
     //std::cout << ss.str() << "\n";
     throw std::runtime_error(ss.str());
 }

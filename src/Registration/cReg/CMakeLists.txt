@@ -32,7 +32,10 @@ SET(SOURCES
   "NiftiImageData3D.cpp"
   "NiftiImageData3DTensor.cpp"
   "NiftiImageData3DDeformation.cpp"
-  "NiftiImageData3DDisplacement.cpp")
+  "NiftiImageData3DDisplacement.cpp"
+  "NiftiImageData3DBSpline.cpp"
+  "ControlPointGridToDeformationConverter.cpp"
+  )
 
 # If we're also wrapping to python or matlab, include the c-files
 IF(BUILD_PYTHON OR BUILD_MATLAB)
