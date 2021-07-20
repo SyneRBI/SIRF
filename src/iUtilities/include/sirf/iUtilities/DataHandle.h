@@ -150,18 +150,23 @@ protected:
 	ExecutionStatus* _status; // execution status
 };
 
+#if defined(USE_BOOST)
 #include <boost/shared_ptr.hpp>
+#endif
 
 template<class Base>
 class ObjectHandle : public DataHandle {
 public:
 	ObjectHandle(const ObjectHandle& obj) {
+#if defined(USE_BOOST)
 		if (obj.uses_boost_sptr()) {
 			NEW(boost::shared_ptr<Base>, ptr_sptr);
 			*ptr_sptr = *(boost::shared_ptr<Base>*)obj.data();
 			_data = (void*)ptr_sptr;
 		}
-		else {
+		else
+#endif
+		{
 			NEW(std::shared_ptr<Base>, ptr_sptr);
 			*ptr_sptr = *(std::shared_ptr<Base>*)obj.data();
 			_data = (void*)ptr_sptr;
@@ -181,6 +186,7 @@ public:
 		else
 			_status = 0;
 	}
+#if defined(USE_BOOST)
 	ObjectHandle(const boost::shared_ptr<Base>& sptr,
 		const ExecutionStatus* status = 0) : _boost_sptr(true) {
 		NEW(boost::shared_ptr<Base>, ptr_sptr);
@@ -191,14 +197,18 @@ public:
 		else
 			_status = 0;
 	}
+#endif
 	virtual ~ObjectHandle() {
 		delete _status;
 		_status = 0;
+#if defined(USE_BOOST)
 		if (_boost_sptr) {
 			CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
 			delete ptr_sptr;
 		}
-		else {
+		else
+#endif
+		{
 			CAST_PTR(std::shared_ptr<Base>, ptr_sptr, _data);
 			delete ptr_sptr;
 		}
@@ -218,12 +228,14 @@ newObjectHandle(std::shared_ptr<Object> sptr)
 	return (void*)new ObjectHandle<Object>(sptr);
 }
 
+#if defined(USE_BOOST)
 template<class Object>
 static void*
 newObjectHandle(boost::shared_ptr<Object> sptr)
 {
 	return (void*)new ObjectHandle<Object>(sptr);
 }
+#endif
 
 template<class Object>
 Object&
@@ -232,6 +244,7 @@ objectFromHandle(const void* h) {
 	void* ptr = handle->data();
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
+#if defined(USE_BOOST)
 	if (handle->uses_boost_sptr()) {
 		CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
 		Object* ptr_obj = ptr_sptr->get();
@@ -239,7 +252,9 @@ objectFromHandle(const void* h) {
 			THROW("zero object pointer cannot be dereferenced");
 		return *ptr_obj;
 	}
-	else {
+	else
+#endif
+	{
 		CAST_PTR(std::shared_ptr<Object>, ptr_sptr, ptr);
 		Object* ptr_obj = ptr_sptr->get();
 		if (ptr_obj == 0)
@@ -261,6 +276,7 @@ getObjectSptrFromHandle(const void* h, std::shared_ptr<Object>& sptr) {
 	sptr = *ptr_sptr;
 }
 
+#if defined(USE_BOOST)
 template<class Object>
 void
 getObjectSptrFromHandle(const void* h, boost::shared_ptr<Object>& sptr) {
@@ -273,6 +289,7 @@ getObjectSptrFromHandle(const void* h, boost::shared_ptr<Object>& sptr) {
 	CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
 	sptr = *ptr_sptr;
 }
+#endif
 
 #define GRAB 1
 
