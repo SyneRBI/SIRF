@@ -1352,6 +1352,8 @@ class AcquisitionModel(object):
     def __init__(self):
         """init."""
         self.handle = None
+        self.acq_templ = None
+        self.img_templ = None
         # reference to the background term
         self.bt = None
         # reference to the additive term
@@ -1383,6 +1385,9 @@ class AcquisitionModel(object):
 
         try_calling(pystir.cSTIR_setupAcquisitionModel(
             self.handle, acq_templ.handle, img_templ.handle))
+
+        self.acq_templ = acq_templ
+        self.img_templ = img_templ
 
     def norm(self, subset_num=0, num_subsets=1):
         assert self.handle is not None
@@ -1439,6 +1444,8 @@ class AcquisitionModel(object):
         """Returns the background term b of the AcquisitionModel (F).
         """
         if self.bt is None:
+            if self.acq_templ is None:
+                raise RuntimeError('AcquisitionModel.set_up() call missing')
             self.bt = AcquisitionData(self.acq_templ)
             self.bt.fill(0)
         return self.bt
@@ -1447,6 +1454,8 @@ class AcquisitionModel(object):
         """Returns the additive term a of the AcquisitionModel (F).
         """
         if self.at is None:
+            if self.acq_templ is None:
+                raise RuntimeError('AcquisitionModel.set_up() call missing')
             self.at = AcquisitionData(self.acq_templ)
             self.at.fill(0)
         return self.at
