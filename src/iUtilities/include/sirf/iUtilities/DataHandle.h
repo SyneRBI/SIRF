@@ -31,6 +31,7 @@ limitations under the License.
 #define DATA_HANDLE_TYPES
 
 #include <stdlib.h>
+#include <memory>
 #include <string>
 #include <vector>
 
