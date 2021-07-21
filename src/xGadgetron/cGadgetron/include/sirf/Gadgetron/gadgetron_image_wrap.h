@@ -324,6 +324,10 @@ namespace sirf {
 		{
 			IMAGE_PROCESSING_SWITCH(type_, return get_head_ref_, ptr_);
 		}
+		const ISMRMRD::ImageHeader& head() const
+		{
+			IMAGE_PROCESSING_SWITCH_CONST(type_, return get_head_ref_const_, ptr_);
+		}
 		std::string attributes() const
 		{
 			std::string attr;
@@ -395,7 +399,30 @@ namespace sirf {
 			//IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
 		}
 
-        /// Get data type
+		gadgetron::shared_ptr<ImageWrap> abs() const
+		{
+			int dim[4];
+			get_dim(dim);
+			ISMRMRD::Image<float>* ptr_im = new ISMRMRD::Image<float>(dim[0], dim[1], dim[2], dim[3]);
+			ISMRMRD::Image<float>& im = *ptr_im;
+
+			im.setHead(head());
+			im.getHead().data_type = ISMRMRD::ISMRMRD_FLOAT;
+			im.getHead().image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
+			im.getHead().image_series_index = 0;
+
+			ImageWrap::Iterator_const i = begin_const();
+			ImageWrap::Iterator_const stop = end_const();
+			float* data = im.getDataPtr();
+			for (; i != stop; ++data, ++i) {
+				*data = std::abs((*i).complex_float());
+			}
+
+			ImageWrap* ptr_iw = new ImageWrap(ISMRMRD::ISMRMRD_FLOAT, ptr_im);
+			return gadgetron::shared_ptr<ImageWrap>(ptr_iw);
+		}
+
+		/// Get data type
         ISMRMRD::ISMRMRD_DataTypes get_data_type() const
         {
             ISMRMRD::ISMRMRD_DataTypes data_type;
@@ -534,6 +561,12 @@ namespace sirf {
 
 		template<typename T>
 		ISMRMRD::ImageHeader& get_head_ref_(ISMRMRD::Image<T>* ptr_im)
+		{
+			return ptr_im->getHead();
+		}
+
+		template<typename T>
+		const ISMRMRD::ImageHeader& get_head_ref_const_(const ISMRMRD::Image<T>* ptr_im) const
 		{
 			return ptr_im->getHead();
 		}
