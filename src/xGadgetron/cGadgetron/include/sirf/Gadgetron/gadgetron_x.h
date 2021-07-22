@@ -33,6 +33,7 @@ limitations under the License.
 #define WIN32_LEAN_AND_MEAN
 
 #include <cmath>
+#include <list>
 #include <string>
 
 #include <ismrmrd/ismrmrd.h>

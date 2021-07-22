@@ -39,6 +39,7 @@ limitations under the License.
 
 #include <ismrmrd/xml.h>
 
+#include "sirf/common/iequals.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
@@ -1330,7 +1331,7 @@ images_()
 			value += mc.as_str(attr, j);
 		}
 		//std::cout << value.c_str() << '\n';
-		if (boost::iequals(value, target))
+		if (sirf::iequals(value, target))
 			append(u);
 	}
     this->set_up_geom_info();

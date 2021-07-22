@@ -32,10 +32,10 @@ extern "C" {
 #define PTR_DOUBLE double*
 #endif
 
-	// Unified parameter exchange methods
-	void* setParameter
-		(void* ptr, const char* obj, const char* name, const void* value);
-	void* parameter(const void* ptr, const char* obj, const char* name);
+	//// Unified parameter exchange methods
+	//void* setParameter
+	//	(void* ptr, const char* obj, const char* name, const void* value);
+	//void* parameter(const void* ptr, const char* obj, const char* name);
 
     // Global
     void* cSTIR_setVerbosity(const int verbosity_ptr);

@@ -36,7 +36,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>

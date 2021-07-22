@@ -28,6 +28,19 @@ limitations under the License.
 #include "sirf/Syn/utilities.h"
 #include "sirf/common/deprecate.h"
 
+namespace sirf {
+	bool iequals(const std::string& a, const std::string& b)
+	{
+		unsigned int n = a.size();
+		if (b.size() != n)
+			return false;
+		for (unsigned int i = 0; i < n; i++)
+			if (tolower(a[i]) != tolower(b[i]))
+				return false;
+		return true;
+	}
+}
+
 using namespace sirf;
 
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))
@@ -324,7 +337,7 @@ void*
 cSIRF_readImageData(const char* file, const char* eng, int verb)
 {
 	try {
-		ImageDataWrap idw(file, eng, verb);
+		ImageDataWrap idw(std::string(file), std::string(eng), verb);
 		std::shared_ptr<ImageData> sptr_id = idw.data_sptr();
 		return newObjectHandle<ImageData>(sptr_id);
 	}
