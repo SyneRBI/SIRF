@@ -297,8 +297,10 @@ ImagesProcessor::process(const GadgetronImageData& images)
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
 			for (unsigned int i = 0; i < images.number(); i++) {
-				const ImageWrap& iw = images.image_wrap(i);
-				conn().send_wrapped_image(iw);
+				if (dicom_)
+					conn().send_wrapped_image(*images.image_wrap(i).abs());
+				else
+					conn().send_wrapped_image(images.image_wrap(i));
 			}
 			conn().send_gadgetron_close();
 			conn().wait();
