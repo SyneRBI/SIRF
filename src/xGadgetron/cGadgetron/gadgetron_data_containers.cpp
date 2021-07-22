@@ -1336,7 +1336,7 @@ images_()
     this->set_up_geom_info();
 }
 
-std::unique_ptr<GadgetronImageData>
+shared_ptr<GadgetronImageData>
 GadgetronImagesVector::abs() const
 {
 	GadgetronImagesVector* ptr_iv = new GadgetronImagesVector;
@@ -1344,7 +1344,7 @@ GadgetronImagesVector::abs() const
 		ptr_iv->append(image_wrap(i).abs());
 	}
 	ptr_iv->set_up_geom_info();
-	return std::unique_ptr<GadgetronImageData>(ptr_iv);
+	return shared_ptr<GadgetronImageData>(ptr_iv);
 }
 
 void

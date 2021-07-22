@@ -247,6 +247,14 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
     def same_object(self):
         return ImageData()
+
+    def abs(self):
+        print('in ImageData.abs()...')
+        images = ImageData()
+        images.handle = pygadgetron.cGT_absImages(self.handle)
+        check_status(images.handle)
+        return images
+
     def read_from_file(self, file):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)

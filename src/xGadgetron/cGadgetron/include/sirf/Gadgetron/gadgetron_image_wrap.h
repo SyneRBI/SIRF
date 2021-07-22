@@ -406,10 +406,11 @@ namespace sirf {
 			ISMRMRD::Image<float>* ptr_im = new ISMRMRD::Image<float>(dim[0], dim[1], dim[2], dim[3]);
 			ISMRMRD::Image<float>& im = *ptr_im;
 
-			im.setHead(head());
-			im.getHead().data_type = ISMRMRD::ISMRMRD_FLOAT;
-			im.getHead().image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
-			im.getHead().image_series_index = 0;
+			ISMRMRD::ImageHeader header = head();
+			header.data_type = ISMRMRD::ISMRMRD_FLOAT;
+			header.image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
+			header.image_series_index = 0;
+			im.setHead(header);
 
 			ImageWrap::Iterator_const i = begin_const();
 			ImageWrap::Iterator_const stop = end_const();
