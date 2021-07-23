@@ -44,7 +44,6 @@ limitations under the License.
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/MRImageData.h"
 #include "sirf/common/multisort.h"
-#include "sirf/Gadgetron/ismrmrd_fftw.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_image_wrap.h"
 

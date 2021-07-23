@@ -90,6 +90,11 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+namespace ISMRMRD {
+    void fft3c(NDArray<complex_float_t>& a);
+    void ifft3c(NDArray<complex_float_t>& a);
+}
+
 void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) const
 {
 
@@ -138,7 +143,7 @@ void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImag
     memset(ci.getDataPtr(), 0, ci.getDataSize());
     std::memcpy(ci.getDataPtr(), img.getDataPtr(), img.getDataSize());
 
-    fft3c(ci);
+    ISMRMRD::fft3c(ci);
 
     for(size_t i =0; i<ac.items(); ++i)
     {
@@ -214,7 +219,7 @@ void sirf::CartesianFourierEncoding::backward(CFImage& img, const MRAcquisitionD
     }
 
     // now if image and kspace have different dimension then you need to interpolate or pad with zeros here
-    ifft3c(ci);
+    ISMRMRD::ifft3c(ci);
 
     unsigned int ny_img = e.reconSpace.matrixSize.y;
     unsigned int nz_img = e.reconSpace.matrixSize.z;
