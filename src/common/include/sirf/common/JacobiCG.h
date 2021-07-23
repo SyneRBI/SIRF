@@ -23,6 +23,7 @@ limitations under the License.
 #include <cmath>
 #include <complex>
 #include <iostream>
+#include <memory>
 
 #include "sirf/common/Operator.h"
 
