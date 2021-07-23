@@ -18,11 +18,11 @@ limitations under the License.
 
 */
 
-#include "sirf/Gadgetron/FourierEncoding.h"
-
-#include <sstream>
+#include <cstring>
 #include <math.h>
+#include <sstream>
 
+#include "sirf/Gadgetron/FourierEncoding.h"
 #include "sirf/iUtilities/LocalisedException.h"
 
 using namespace sirf;
