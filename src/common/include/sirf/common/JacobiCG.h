@@ -23,8 +23,6 @@ limitations under the License.
 #include <cmath>
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
-
 #include "sirf/common/Operator.h"
 
 /* A simplified implementation of Jacobi-Conjugated Gradients method
