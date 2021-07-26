@@ -36,13 +36,12 @@ limitations under the License.
 
 #include <ismrmrd/xml.h>
 
-#include "sirf/Gadgetron/chain_lib.h"
-
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/getenv.h"
+
+#include "sirf/Gadgetron/chain_lib.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
-
 #include "sirf/Gadgetron/FourierEncoding.h"
 #include "sirf/Gadgetron/TrajectoryPreparation.h"
 
@@ -121,6 +120,8 @@ bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
         MatrixSize rawdata_recon_matrix = rec_space.matrixSize;
         FieldOfView_mm rawdata_recon_FOV = rec_space.fieldOfView_mm;
 
+        float const tolerance_mm = 0.1;        
+
         for(int i=0; i<iv.number(); ++i)
         {
             CFImage* const ptr_img = (CFImage*)(iv.sptr_image_wrap(i)->ptr_image());            
@@ -129,16 +130,13 @@ bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
             test_successful *= (ptr_img->getMatrixSizeY() == rawdata_recon_matrix.y);
             test_successful *= (ptr_img->getMatrixSizeZ() == rawdata_recon_matrix.z);
 
-        	test_successful *= (ptr_img->getFieldOfViewX() == rawdata_recon_FOV.x);
-            test_successful *= (ptr_img->getFieldOfViewY() == rawdata_recon_FOV.y);
-            test_successful *= (ptr_img->getFieldOfViewZ() == rawdata_recon_FOV.z);
+        	test_successful *= (std::abs(ptr_img->getFieldOfViewX() - rawdata_recon_FOV.x) < tolerance_mm);
+            test_successful *= (std::abs(ptr_img->getFieldOfViewY() - rawdata_recon_FOV.y) < tolerance_mm);
+            test_successful *= (std::abs(ptr_img->getFieldOfViewZ() - rawdata_recon_FOV.z) < tolerance_mm);
         }
 
-        if(test_successful)
-            return test_successful;
-        else{
-            throw std::runtime_error("The test for images from acquisition data failed.");                
-        }
+        return test_successful;
+        
 
     }
     catch( std::runtime_error const &e)
@@ -197,13 +195,7 @@ bool test_ISMRMRDImageData_reorienting(MRAcquisitionData& av)
 
         iv.reorient(random_new_geometry);
         
-        bool test_successful = true;
-
-        if(test_successful)
-            return test_successful;
-        else{
-            throw std::runtime_error("The test for images from acquisition data failed.");                
-        }
+        return true;
 
     }
     catch( std::runtime_error const &e)
