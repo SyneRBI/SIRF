@@ -1336,6 +1336,17 @@ images_()
     this->set_up_geom_info();
 }
 
+shared_ptr<GadgetronImageData>
+GadgetronImagesVector::abs() const
+{
+	GadgetronImagesVector* ptr_iv = new GadgetronImagesVector;
+	for (int i = 0; i < number(); i++) {
+		ptr_iv->append(image_wrap(i).abs());
+	}
+	ptr_iv->set_up_geom_info();
+	return shared_ptr<GadgetronImageData>(ptr_iv);
+}
+
 void
 GadgetronImagesVector::get_data(complex_float_t* data) const
 {
@@ -2121,10 +2132,10 @@ CoilSensitivitiesVector::max_diff_
             for (int iy = 1; iy < ny - 1; iy++) {
                 for (int ix = 1; ix < nx - 1; ix++) {
                     int i = ix + nx*iy + nxy*iz + nxyz*ic;
-                    float gx = abs(u[i + 1] - u[i - 1]) / 2.0f;
-                    float gy = abs(u[i + nx] - u[i - nx]) / 2.0f;
+                    float gx = std::abs(u[i + 1] - u[i - 1]) / 2.0f;
+                    float gy = std::abs(u[i + nx] - u[i - nx]) / 2.0f;
                     float g = (float)std::sqrt(gx*gx + gy*gy);
-                    float si = abs(u[i] - v[i]);
+                    float si = std::abs(u[i] - v[i]);
                     if (g <= small_grad && si > s)
                         s = si;
                 }

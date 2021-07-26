@@ -481,7 +481,9 @@ namespace sirf {
 //		virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
-        virtual void clear_data()=0;
+		virtual void append(gadgetron::shared_ptr<ImageWrap> sptr_iw) = 0;
+		virtual gadgetron::shared_ptr<ISMRMRDImageData> abs() const = 0;
+		virtual void clear_data()=0;
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
@@ -644,7 +646,7 @@ namespace sirf {
 				sptr_image_wrap(im_num);
 			return *sptr_iw;
 		}
-        /// Set the meta data
+		/// Set the meta data
         void set_meta_data(const AcquisitionsInfo &acqs_info);
         /// Get the meta data
         const AcquisitionsInfo &get_meta_data() const { return acqs_info_; }
@@ -932,7 +934,12 @@ namespace sirf {
 		{
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 		}
-        virtual void clear_data()
+		virtual void append(gadgetron::shared_ptr<ImageWrap> sptr_iw)
+		{
+			images_.push_back(sptr_iw);
+		}
+		virtual gadgetron::shared_ptr<GadgetronImageData> abs() const;
+		virtual void clear_data()
         {
             std::vector<gadgetron::shared_ptr<ImageWrap> > empty_data;
             images_.swap(empty_data);

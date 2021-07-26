@@ -52,9 +52,11 @@ using namespace sirf;
 
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T>(shared_ptr<T>(new T))
 #define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
-return NEW_OBJECT_HANDLE(G)
+	return NEW_OBJECT_HANDLE(G)
 #define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
-return NEW_OBJECT_HANDLE(C)
+	return NEW_OBJECT_HANDLE(C)
+#define SPTR_FROM_HANDLE(Object, X, H) \
+	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 
 shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
@@ -919,6 +921,17 @@ cGT_reconstructedImages(void* ptr_recon)
 	}
 	CATCH;
 
+}
+
+extern "C"
+void*
+cGT_absImages(void* ptr_im)
+{
+	try {
+		SPTR_FROM_HANDLE(GadgetronImageData, sptr_im, ptr_im);
+		return newObjectHandle(sptr_im->abs());
+	}
+	CATCH;
 }
 
 extern "C"
