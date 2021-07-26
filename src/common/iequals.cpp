@@ -1,6 +1,8 @@
 #include <cctype>
 #include <string>
 
+#include "sirf/common/iequals.h"
+
 namespace sirf {
 	bool iequals(const std::string& a, const std::string& b)
 	{
