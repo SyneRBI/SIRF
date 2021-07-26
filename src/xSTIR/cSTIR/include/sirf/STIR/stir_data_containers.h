@@ -40,6 +40,8 @@ limitations under the License.
 
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/iUtilities/DataHandle.h"
+#include "sirf/common/iequals.h"
+#include "sirf/common/JacobiCG.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/PETImageData.h"
@@ -361,7 +363,7 @@ namespace sirf {
 			stir::shared_ptr<stir::Scanner> 
 				sptr_s(stir::Scanner::get_scanner_from_name(scanner_name));
 			//std::cout << "scanner: " << sptr_s->get_name().c_str() << '\n';
-			if (boost::iequals(sptr_s->get_name(), "unknown")) {
+			if (sirf::iequals(sptr_s->get_name(), "unknown")) {
 				throw LocalisedException("Unknown scanner", __FILE__, __LINE__);
 			}
 			int num_views = sptr_s->get_num_detectors_per_ring() / 2 / view_mash_factor;

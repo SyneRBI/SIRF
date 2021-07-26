@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 namespace sirf {
 	template<class Vector>
 	class Operator {

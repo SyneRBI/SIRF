@@ -33,6 +33,7 @@ limitations under the License.
 #define WIN32_LEAN_AND_MEAN
 
 #include <cmath>
+#include <list>
 #include <string>
 
 #include <ismrmrd/ismrmrd.h>
@@ -45,7 +46,6 @@ limitations under the License.
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadget_lib.h"
-#include "sirf/Gadgetron/ismrmrd_fftw.h"
 
 #include "sirf/Gadgetron/FourierEncoding.h"
 

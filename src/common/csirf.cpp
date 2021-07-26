@@ -324,6 +324,7 @@ void*
 cSIRF_readImageData(const char* file, const char* eng, int verb)
 {
 	try {
+//		ImageDataWrap idw(std::string(file), std::string(eng), verb);
 		ImageDataWrap idw(file, eng, verb);
 		std::shared_ptr<ImageData> sptr_id = idw.data_sptr();
 		return newObjectHandle<ImageData>(sptr_id);

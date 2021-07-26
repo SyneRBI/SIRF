@@ -93,7 +93,7 @@ GadgetChain::gadget_sptr(std::string id)
 	typename std::list<shared_ptr<GadgetHandle> >::iterator gh;
 #endif
 	for (gh = gadgets_.begin(); gh != gadgets_.end(); ++gh) {
-		if (boost::iequals(gh->get()->id(), id))
+		if (sirf::iequals(gh->get()->id(), id))
 			return gh->get()->gadget_sptr();
 	}
 	return shared_ptr<aGadget>();
@@ -349,7 +349,7 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 		bool ok = false;
 		std::string value;
 		for (int i = 0; i < l; i++) {
-			if (boost::iequals(mc.as_str(attr, i), "image")) {
+			if (sirf::iequals(mc.as_str(attr, i), "image")) {
 				ok = true;
 				break;
 			}

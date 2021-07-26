@@ -28,6 +28,7 @@ limitations under the License.
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 
+#include "sirf/common/iequals.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
@@ -51,14 +52,14 @@ using namespace sirf;
 #define GRAB 1
 
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T>(shared_ptr<T>(new T))
-#define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
+#define NEW_GADGET(G) if (sirf::iequals(name, G::class_name())) \
 	return NEW_OBJECT_HANDLE(G)
-#define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
+#define NEW_GADGET_CHAIN(C) if (sirf::iequals(name, C::class_name())) \
 	return NEW_OBJECT_HANDLE(C)
 #define SPTR_FROM_HANDLE(Object, X, H) \
 	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 
-shared_ptr<boost::mutex> Mutex::sptr_mutex_;
+shared_ptr<std::mutex> Mutex::sptr_mutex_;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -114,13 +115,13 @@ extern "C"
 void* cGT_newObject(const char* name)
 {
 	try {
-		if (boost::iequals(name, "Mutex"))
+		if (sirf::iequals(name, "Mutex"))
 			return NEW_OBJECT_HANDLE(Mutex);
-		if (boost::iequals(name, "GTConnector"))
+		if (sirf::iequals(name, "GTConnector"))
 			return NEW_OBJECT_HANDLE(GTConnector);
-		if (boost::iequals(name, "CoilImages"))
+		if (sirf::iequals(name, "CoilImages"))
 			return NEW_OBJECT_HANDLE(CoilImagesVector);
-        if (boost::iequals(name, "AcquisitionModel"))
+        if (sirf::iequals(name, "AcquisitionModel"))
 			return NEW_OBJECT_HANDLE(MRAcquisitionModel);
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
@@ -172,13 +173,13 @@ void*
 cGT_parameter(void* ptr, const char* obj, const char* name)
 {
 	try {
-		if (boost::iequals(obj, "image"))
+		if (sirf::iequals(obj, "image"))
 			return cGT_imageParameter(ptr, name);
-		if (boost::iequals(obj, "acquisition"))
+		if (sirf::iequals(obj, "acquisition"))
 			return cGT_acquisitionParameter(ptr, name);
-		if (boost::iequals(obj, "acquisitions"))
+		if (sirf::iequals(obj, "acquisitions"))
 			return cGT_acquisitionsParameter(ptr, name);
-		if (boost::iequals(obj, "gadget_chain")) {
+		if (sirf::iequals(obj, "gadget_chain")) {
 			GadgetChain& gc = objectFromHandle<GadgetChain>(ptr);
 			shared_ptr<aGadget> sptr = gc.gadget_sptr(name);
 			if (sptr.get())
@@ -193,12 +194,12 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 				return (void*)handle;
 			}
 		}
-		if (boost::iequals(obj, "gadget")) {
+		if (sirf::iequals(obj, "gadget")) {
 			aGadget& g = objectFromHandle<aGadget>(ptr);
 			std::string value = g.value_of(name);
 			return charDataHandleFromCharData(value.c_str());
 		}
-		if (boost::iequals(obj, "AcquisitionModel")) {
+		if (sirf::iequals(obj, "AcquisitionModel")) {
 			return cGT_AcquisitionModelParameter(ptr, name);
 		}
 		return unknownObject("object", obj, __FILE__, __LINE__);
@@ -211,7 +212,7 @@ void*
 cGT_setParameter(void* ptr, const char* obj, const char* par, const void* val)
 {
 	try {
-		if (boost::iequals(obj, "coil_sensitivity"))
+		if (sirf::iequals(obj, "coil_sensitivity"))
 			return cGT_setCSParameter(ptr, par, val);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -244,7 +245,7 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 	CAST_PTR(DataHandle, h_csms, ptr);
 	CoilSensitivitiesVector& csms =
 		objectFromHandle<CoilSensitivitiesVector>(h_csms);
-	if (boost::iequals(par, "smoothness"))
+	if (sirf::iequals(par, "smoothness"))
 		csms.set_csm_smoothness(dataFromHandle<int>(val));
 	//csms.set_csm_smoothness(intDataFromHandle(val)); // causes problems with Matlab
 	else
@@ -348,21 +349,21 @@ cGT_setAcquisitionModelParameter
 {
 	try {
 		CAST_PTR(DataHandle, h_am, ptr_am);
-		if (boost::iequals(name, "acquisition_template")) {
+		if (sirf::iequals(name, "acquisition_template")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 			shared_ptr<MRAcquisitionData> sptr_acqs;
 			getObjectSptrFromHandle<MRAcquisitionData>(handle, sptr_acqs);
 			am.set_acquisition_template(sptr_acqs);
 		}
-		else if (boost::iequals(name, "image_template")) {
+		else if (sirf::iequals(name, "image_template")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 			shared_ptr<GadgetronImageData> sptr_imgs;
 			getObjectSptrFromHandle<GadgetronImageData>(handle, sptr_imgs);
 			am.set_image_template(sptr_imgs);
 		}
-		else if (boost::iequals(name, "coil_sensitivity_maps")) {
+		else if (sirf::iequals(name, "coil_sensitivity_maps")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 			shared_ptr<CoilSensitivitiesVector> sptr_csc;
@@ -383,10 +384,10 @@ cGT_AcquisitionModelParameter(void* ptr_am, const char* name)
 	try {
 		CAST_PTR(DataHandle, h_am, ptr_am);
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-		if (boost::iequals(name, "range geometry")) {
+		if (sirf::iequals(name, "range geometry")) {
 			return newObjectHandle(am.acq_template_sptr());
 		}
-		else if (boost::iequals(name, "domain geometry")) {
+		else if (sirf::iequals(name, "domain geometry")) {
 			return newObjectHandle(am.image_template_sptr());
 		}
 		else
@@ -675,65 +676,65 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 	CAST_PTR(DataHandle, h_acq, ptr_acq);
 	ISMRMRD::Acquisition& acq =
 		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
-	if (boost::iequals(name, "version"))
+	if (sirf::iequals(name, "version"))
 		return dataHandle((int)acq.version());
-	if (boost::iequals(name, "flags"))
+	if (sirf::iequals(name, "flags"))
 		return dataHandle((int)acq.flags());
-	if (boost::iequals(name, "measurement_uid"))
+	if (sirf::iequals(name, "measurement_uid"))
 		return dataHandle((int)acq.measurement_uid());
-	if (boost::iequals(name, "scan_counter"))
+	if (sirf::iequals(name, "scan_counter"))
 		return dataHandle((int)acq.scan_counter());
-	if (boost::iequals(name, "acquisition_time_stamp"))
+	if (sirf::iequals(name, "acquisition_time_stamp"))
 		return dataHandle((int)acq.acquisition_time_stamp());
-	if (boost::iequals(name, "number_of_samples"))
+	if (sirf::iequals(name, "number_of_samples"))
 		return dataHandle((int)acq.number_of_samples());
-	if (boost::iequals(name, "available_channels"))
+	if (sirf::iequals(name, "available_channels"))
 		return dataHandle((int)acq.available_channels());
-	if (boost::iequals(name, "active_channels"))
+	if (sirf::iequals(name, "active_channels"))
 		return dataHandle((int)acq.active_channels());
-	if (boost::iequals(name, "discard_pre"))
+	if (sirf::iequals(name, "discard_pre"))
 		return dataHandle((int)acq.discard_pre());
-	if (boost::iequals(name, "discard_post"))
+	if (sirf::iequals(name, "discard_post"))
 		return dataHandle((int)acq.discard_post());
-	if (boost::iequals(name, "center_sample"))
+	if (sirf::iequals(name, "center_sample"))
 		return dataHandle((int)acq.center_sample());
-	if (boost::iequals(name, "encoding_space_ref"))
+	if (sirf::iequals(name, "encoding_space_ref"))
 		return dataHandle((int)acq.encoding_space_ref());
-	if (boost::iequals(name, "trajectory_dimensions"))
+	if (sirf::iequals(name, "trajectory_dimensions"))
 		return dataHandle((int)acq.trajectory_dimensions());
-	if (boost::iequals(name, "idx_kspace_encode_step_1"))
+	if (sirf::iequals(name, "idx_kspace_encode_step_1"))
 		return dataHandle((int)acq.idx().kspace_encode_step_1);
-	if (boost::iequals(name, "idx_kspace_encode_step_2"))
+	if (sirf::iequals(name, "idx_kspace_encode_step_2"))
 		return dataHandle((int)acq.idx().kspace_encode_step_2);
-	if (boost::iequals(name, "idx_average"))
+	if (sirf::iequals(name, "idx_average"))
 		return dataHandle((int)acq.idx().average);
-	if (boost::iequals(name, "idx_slice"))
+	if (sirf::iequals(name, "idx_slice"))
 		return dataHandle((int)acq.idx().slice);
-	if (boost::iequals(name, "idx_contrast"))
+	if (sirf::iequals(name, "idx_contrast"))
 		return dataHandle((int)acq.idx().contrast);
-	if (boost::iequals(name, "idx_phase"))
+	if (sirf::iequals(name, "idx_phase"))
 		return dataHandle((int)acq.idx().phase);
-	if (boost::iequals(name, "idx_repetition"))
+	if (sirf::iequals(name, "idx_repetition"))
 		return dataHandle((int)acq.idx().repetition);
-	if (boost::iequals(name, "idx_set"))
+	if (sirf::iequals(name, "idx_set"))
 		return dataHandle((int)acq.idx().set);
-	if (boost::iequals(name, "idx_segment"))
+	if (sirf::iequals(name, "idx_segment"))
 		return dataHandle((int)acq.idx().segment);
-	if (boost::iequals(name, "physiology_time_stamp"))
+	if (sirf::iequals(name, "physiology_time_stamp"))
 		return dataHandle(acq.physiology_time_stamp());
-	if (boost::iequals(name, "channel_mask"))
+	if (sirf::iequals(name, "channel_mask"))
 		return dataHandle(acq.channel_mask());
-	if (boost::iequals(name, "sample_time_us"))
+	if (sirf::iequals(name, "sample_time_us"))
 		return dataHandle((float)acq.sample_time_us());
-	if (boost::iequals(name, "position"))
+	if (sirf::iequals(name, "position"))
 		return dataHandle((float*)acq.position());
-	if (boost::iequals(name, "read_dir"))
+	if (sirf::iequals(name, "read_dir"))
 		return dataHandle((float*)acq.read_dir());
-	if (boost::iequals(name, "phase_dir"))
+	if (sirf::iequals(name, "phase_dir"))
 		return dataHandle((float*)acq.phase_dir());
-	if (boost::iequals(name, "slice_dir"))
+	if (sirf::iequals(name, "slice_dir"))
 		return dataHandle((float*)acq.slice_dir());
-	if (boost::iequals(name, "patient_table_position"))
+	if (sirf::iequals(name, "patient_table_position"))
 		return dataHandle((float*)acq.patient_table_position());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -746,11 +747,11 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		if (boost::iequals(name, "undersampled"))
+		if (sirf::iequals(name, "undersampled"))
 			return dataHandle((int)acqs.undersampled());
-		if (boost::iequals(name, "sorted"))
+		if (sirf::iequals(name, "sorted"))
 			return dataHandle((int)acqs.sorted());
-		if (boost::iequals(name, "info"))
+		if (sirf::iequals(name, "info"))
 			return charDataHandleFromCharData(acqs.acquisitions_info().c_str());
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
@@ -839,53 +840,53 @@ cGT_imageParameter(void* ptr_im, const char* name)
 	try {
 		ImageWrap& im = objectFromHandle<ImageWrap>(ptr_im);
 		ISMRMRD::ImageHeader& head = im.head();
-		if (boost::iequals(name, "version"))
+		if (sirf::iequals(name, "version"))
 			return dataHandle((int)head.version);
-		if (boost::iequals(name, "flags"))
+		if (sirf::iequals(name, "flags"))
 			return dataHandle((int)head.flags);
-		if (boost::iequals(name, "data_type"))
+		if (sirf::iequals(name, "data_type"))
 			return dataHandle((int)head.data_type);
-		if (boost::iequals(name, "measurement_uid"))
+		if (sirf::iequals(name, "measurement_uid"))
 			return dataHandle((int)head.measurement_uid);
-		if (boost::iequals(name, "channels"))
+		if (sirf::iequals(name, "channels"))
 			return dataHandle((int)head.channels);
-		if (boost::iequals(name, "average"))
+		if (sirf::iequals(name, "average"))
 			return dataHandle((int)head.average);
-		if (boost::iequals(name, "slice"))
+		if (sirf::iequals(name, "slice"))
 			return dataHandle((int)head.slice);
-		if (boost::iequals(name, "contrast"))
+		if (sirf::iequals(name, "contrast"))
 			return dataHandle((int)head.contrast);
-		if (boost::iequals(name, "phase"))
+		if (sirf::iequals(name, "phase"))
 			return dataHandle((int)head.phase);
-		if (boost::iequals(name, "repetition"))
+		if (sirf::iequals(name, "repetition"))
 			return dataHandle((int)head.repetition);
-		if (boost::iequals(name, "set"))
+		if (sirf::iequals(name, "set"))
 			return dataHandle((int)head.set);
-		if (boost::iequals(name, "acquisition_time_stamp"))
+		if (sirf::iequals(name, "acquisition_time_stamp"))
 			return dataHandle((int)head.acquisition_time_stamp);
-		if (boost::iequals(name, "image_type"))
+		if (sirf::iequals(name, "image_type"))
 			return dataHandle((int)head.image_type);
-		if (boost::iequals(name, "image_index"))
+		if (sirf::iequals(name, "image_index"))
 			return dataHandle((int)head.image_index);
-		if (boost::iequals(name, "image_series_index"))
+		if (sirf::iequals(name, "image_series_index"))
 			return dataHandle((int)head.image_series_index);
-		if (boost::iequals(name, "attribute_string_len"))
+		if (sirf::iequals(name, "attribute_string_len"))
 			return dataHandle((int)head.attribute_string_len);
-		if (boost::iequals(name, "matrix_size"))
+		if (sirf::iequals(name, "matrix_size"))
 			return dataHandle(head.matrix_size);
-		if (boost::iequals(name, "physiology_time_stamp"))
+		if (sirf::iequals(name, "physiology_time_stamp"))
 			return dataHandle(head.physiology_time_stamp);
-		if (boost::iequals(name, "field_of_view"))
+		if (sirf::iequals(name, "field_of_view"))
 			return dataHandle((float*)head.field_of_view);
-		if (boost::iequals(name, "position"))
+		if (sirf::iequals(name, "position"))
 			return dataHandle((float*)head.position);
-		if (boost::iequals(name, "read_dir"))
+		if (sirf::iequals(name, "read_dir"))
 			return dataHandle((float*)head.read_dir);
-		if (boost::iequals(name, "phase_dir"))
+		if (sirf::iequals(name, "phase_dir"))
 			return dataHandle((float*)head.phase_dir);
-		if (boost::iequals(name, "slice_dir"))
+		if (sirf::iequals(name, "slice_dir"))
 			return dataHandle((float*)head.slice_dir);
-		if (boost::iequals(name, "patient_table_position"))
+		if (sirf::iequals(name, "patient_table_position"))
 			return dataHandle((float*)head.patient_table_position);
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
@@ -1405,7 +1406,7 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		std::mutex& mtx = mutex();
 		mtx.lock();
 		ISMRMRD::Dataset& ismrmrd_dataset = 
 			objectFromHandle<ISMRMRD::Dataset>(h_dat);
@@ -1423,8 +1424,10 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		ISMRMRD::Acquisition acq_tmp;
 		for (uint32_t i = 0; i < acquisitions; i++) {
 			{
-				boost::mutex::scoped_lock scoped_lock(mtx);
+				//boost::mutex::scoped_lock scoped_lock(mtx);
+				mtx.lock();
 				ismrmrd_dataset.readAcquisition(i, acq_tmp);
+				mtx.unlock();
 			}
 			con.send_ismrmrd_acquisition(acq_tmp);
 		}
@@ -1471,16 +1474,16 @@ cGT_disconnect(void* ptr_con)
 	return (void*)new DataHandle;
 }
 
-extern "C"
-void*
-parameter(void* ptr, const char* obj, const char* name)
-{
-	return cGT_parameter(ptr, obj, name);
-}
-
-extern "C"
-void*
-setParameter(void* ptr, const char* obj, const char* par, const void* val)
-{
-	return cGT_setParameter(ptr, obj, par, val);
-}
+//extern "C"
+//void*
+//parameter(void* ptr, const char* obj, const char* name)
+//{
+//	return cGT_parameter(ptr, obj, name);
+//}
+//
+//extern "C"
+//void*
+//setParameter(void* ptr, const char* obj, const char* par, const void* val)
+//{
+//	return cGT_setParameter(ptr, obj, par, val);
+//}
