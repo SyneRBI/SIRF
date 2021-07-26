@@ -22,7 +22,6 @@ from sirf.Utilities import runner, RE_PYEXT, __license__
 __version__ = "0.2.3"
 __author__ = "Johannes Mayer"
 
-
 def test_2d_slice_stack(rec=False, verb=False, throw=True):
 
     print("Running the img geometry test")
@@ -35,15 +34,15 @@ def test_2d_slice_stack(rec=False, verb=False, throw=True):
     imgdata = ImageData()
     imgdata.from_acquisition_data(rawdata)
     
-    print("The image positions are {:.2f}".format(imgdata.get_ISMRMRD_info('position')))
+    print("The image positions are {}".format(imgdata.get_ISMRMRD_info('position')))
 
-    print("The rawdata directions are: {:.2f}".format(rawdata.get_ISMRMRD_info('read_dir')[0]))
-    print("The rawdata directions are: {:.2f}".format(rawdata.get_ISMRMRD_info('phase_dir')[0]))
-    print("The rawdata directions are: {:.2f}".format(rawdata.get_ISMRMRD_info('slice_dir')[0]))
+    print("The rawdata directions are: {}".format(rawdata.get_ISMRMRD_info('read_dir')[0]))
+    print("The rawdata directions are: {}".format(rawdata.get_ISMRMRD_info('phase_dir')[0]))
+    print("The rawdata directions are: {}".format(rawdata.get_ISMRMRD_info('slice_dir')[0]))
 
-    print("The image data directions are: {:.2f}".format(imgdata.get_ISMRMRD_info('read_dir')[0]))
-    print("The image data directions are: {:.2f}".format(imgdata.get_ISMRMRD_info('phase_dir')[0]))
-    print("The image data directions are: {:.2f}".format(imgdata.get_ISMRMRD_info('slice_dir')[0]))
+    print("The image data directions are: {}".format(imgdata.get_ISMRMRD_info('read_dir')[0]))
+    print("The image data directions are: {}".format(imgdata.get_ISMRMRD_info('phase_dir')[0]))
+    print("The image data directions are: {}".format(imgdata.get_ISMRMRD_info('slice_dir')[0]))
 
     recon = FullySampledReconstructor()
     recon.set_input(rawdata)
@@ -51,11 +50,7 @@ def test_2d_slice_stack(rec=False, verb=False, throw=True):
     img_data = recon.get_output()
     
     img_data = img_data.abs()
-    img_data.write( data_path+ "tmp_mrgeometry.dcm")
-    
-    nii_img = sreg.NiftiImageData(img_data)
-    img_data.write( data_path+ "tmp_mrgeometry.nii")
-    
+    img_data.write( data_path+ "/tmp_mrgeometry.dcm")
     
     test_failed = False
     return test_failed, 1
