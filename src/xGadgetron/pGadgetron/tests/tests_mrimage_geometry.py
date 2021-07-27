@@ -16,6 +16,8 @@ Options:
 {licence}
 """
 
+import numpy as np 
+
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, __license__
 __version__ = "0.2.3"
@@ -46,11 +48,16 @@ def test_MR_DICOM_writer(rec=False, verb=False, throw=True):
     print("The image data directions are: {}".format(img_data.get_ISMRMRD_info('slice_dir')[0]))
 
     img_data = img_data.abs()
+
+    img_content = img_data.as_array()
+    dicom_value_range = (2**16-1)
+    img_content =  dicom_value_range * (img_content - np.amin(img_content[:]) ) / ( np.amax(img_content[:]) - np.amin(img_content[:]) )
+    img_data.fill(img_content)
+
     img_data.write( data_path+ "/output_test_MR_DICOM_writer.dcm")
     
     test_failed = False
     return test_failed, 1
-
 
 if __name__ == "__main__":
     runner(test_MR_DICOM_writer, __doc__, __version__, __author__)
