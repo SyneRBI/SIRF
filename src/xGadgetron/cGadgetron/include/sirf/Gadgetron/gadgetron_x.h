@@ -499,6 +499,9 @@ namespace sirf {
         gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
 	};
 
+
+	void preprocess_acquisition_data(MRAcquisitionData& ad);
+
 }
 
 #endif

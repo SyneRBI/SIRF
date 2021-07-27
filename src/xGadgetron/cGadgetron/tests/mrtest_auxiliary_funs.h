@@ -37,7 +37,6 @@ limitations under the License.
 namespace sirf{
 
 
-void preprocess_acquisition_data(MRAcquisitionData& ad);
 void set_unit_dcf(MRAcquisitionData& ad);
 void set_acq_default_orientation(std::string path_in, std::string path_out);
 
