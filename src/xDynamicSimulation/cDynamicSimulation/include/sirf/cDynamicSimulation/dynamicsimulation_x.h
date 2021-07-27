@@ -40,10 +40,6 @@ public:
 
 	virtual void acquire_raw_data( void ) = 0;
 
-	void add_dynamic( std::shared_ptr<MotionDynamic> sptr_motion_dyn);
-	void add_dynamic( std::shared_ptr<ContrastDynamic> sptr_contrast_dyn); 
-
-
 protected:
 	std::vector< std::shared_ptr<MotionDynamic> > motion_dynamics_;
 	std::vector< std::shared_ptr<ContrastDynamic> > contrast_dynamics_;
@@ -63,6 +59,13 @@ public:
 	void set_template_acquisition_data(sirf::MRAcquisitionData& acquisitions );
 	void set_SNR(float const SNR);
 	void set_noise_label(size_t const label);
+
+	void add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn){
+		this->motion_dynamics_.push_back(sptr_motion_dyn);
+	}
+	void add_dynamic( std::shared_ptr<MRContrastDynamic> sptr_contrast_dyn){
+		this->contrast_dynamics_.push_back(sptr_contrast_dyn);
+	} 
 
 	void simulate_statics( void );
 	void simulate_dynamics( void );
@@ -127,6 +130,13 @@ public:
 
 	virtual void acquire_raw_data( void );
 	
+	void add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn){
+		this->motion_dynamics_.push_back(sptr_motion_dyn);
+	}
+	void add_dynamic( std::shared_ptr<PETContrastDynamic> sptr_contrast_dyn){
+		this->contrast_dynamics_.push_back(sptr_contrast_dyn);
+	} 
+
 	void add_noise( void );
 	void add_noise( float const scaling_factor );
 

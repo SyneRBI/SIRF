@@ -42,18 +42,6 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 	}
 }
 
-
-void aDynamicSimulation::add_dynamic( std::shared_ptr<MotionDynamic> sptr_motion_dyn )
-{
-	this->motion_dynamics_.push_back( sptr_motion_dyn );
-};
-
-void aDynamicSimulation::add_dynamic( std::shared_ptr<ContrastDynamic> sptr_contrast_dyn) 
-{
-	this->contrast_dynamics_.push_back( sptr_contrast_dyn );
-};
-
-
 void MRDynamicSimulation::simulate_dynamics( void )
 {
 	cout << "Simulating dynamic data acquisition... " <<endl;
