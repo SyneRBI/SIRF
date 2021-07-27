@@ -36,9 +36,10 @@ limitations under the License.
 #include <cmath>
 #include <stdlib.h>
 
+#include "sirf/common/iequals.h"
+#include "sirf/common/JacobiCG.h"
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
-#include "sirf/common/JacobiCG.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -140,17 +141,17 @@ The actual algorithm is described in
 		}
 		int set_flag(const char* flag, bool value)
 		{
-			if (boost::iequals(flag, "store_prompts"))
+			if (sirf::iequals(flag, "store_prompts"))
 				store_prompts = value;
-			else if (boost::iequals(flag, "store_delayeds"))
+			else if (sirf::iequals(flag, "store_delayeds"))
 				store_delayeds = value;
 #if 0
-			else if (boost::iequals(flag, "do_pre_normalisation"))
+			else if (sirf::iequals(flag, "do_pre_normalisation"))
 				do_pre_normalisation = value;
-			else if (boost::iequals(flag, "do_time_frame"))
+			else if (sirf::iequals(flag, "do_time_frame"))
 				do_time_frame = value;
 #endif
-			else if (boost::iequals(flag, "interactive"))
+			else if (sirf::iequals(flag, "interactive"))
 				interactive = value;
 			else
 				return -1;

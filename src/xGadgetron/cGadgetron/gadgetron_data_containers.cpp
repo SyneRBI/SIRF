@@ -39,6 +39,7 @@ limitations under the License.
 
 #include <ismrmrd/xml.h>
 
+#include "sirf/common/iequals.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
@@ -1020,15 +1021,20 @@ GadgetronImagesVector::sort()
 	for (int i = 0; i < ni; i++) {
       ImageWrap& iw = image_wrap(i);
       ISMRMRD::ImageHeader& head = iw.head();
-		t[0] = head.contrast;
-        t[1] = head.repetition;
-        // Calculate the projection of the position in the slice direction
-        t[2] = -( head.position[0] * head.slice_dir[0] +
+		// It is crucial to sort the images first by their projection onto the slice direction
+        // and only then consider other dimensions.
+        // In the function this->reorient() the computation of the position of the 2D slices
+        // requires them to be ordered with respect to their projection onto the slice direction to
+        // ensure that they are located next to each other.
+        t[0] = -( head.position[0] * head.slice_dir[0] +
                 head.position[1] * head.slice_dir[1]   +
                 head.position[2] * head.slice_dir[2]   );
+        t[1] = head.contrast;
+        t[2] = head.repetition;
+
 		vt.push_back(t);
 #ifndef NDEBUG
-        std::cout << "Before sorting. Image " << i << "/" << ni <<  ", Contrast: " << t[0] << ", Repetition: " << t[1] << ", Projection: " << t[2] << "\n";
+        std::cout << "Before sorting. Image " << i << "/" << ni <<  ", Projection: " << t[0] << ", Contrast: " << t[1] << ", Repetition: " << t[2] << "\n";
 #endif
 	}
 
@@ -1048,13 +1054,15 @@ GadgetronImagesVector::sort()
     for (int i = 0; i < ni; i++) {
       ImageWrap& iw = image_wrap(i);
       ISMRMRD::ImageHeader& head = iw.head();
-		t[0] = head.contrast;
-        t[1] = head.repetition;
-        // Calculate the projection of the position in the slice direction
-        t[2] = head.position[0] * head.slice_dir[0] +
+		// Calculate the projection of the position in the slice direction
+        t[0] = head.position[0] * head.slice_dir[0] +
                head.position[1] * head.slice_dir[1] +
                head.position[2] * head.slice_dir[2];
-        std::cout << "Image " << i << "/" << ni <<  ", Contrast: " << t[0] << ", Repetition: " << t[1] << ", Projection: " << t[2] << "\n";
+        t[1] = head.contrast;
+        t[2] = head.repetition;
+        
+        std::cout << "Image " << i << "/" << ni <<  ", Projection: " << t[0] << ", Contrast: " << t[1] << ", Repetition: " << t[2] << "\n";
+
 	}
 #endif
 }
@@ -1330,7 +1338,7 @@ images_()
 			value += mc.as_str(attr, j);
 		}
 		//std::cout << value.c_str() << '\n';
-		if (boost::iequals(value, target))
+		if (sirf::iequals(value, target))
 			append(u);
 	}
     this->set_up_geom_info();
@@ -1556,12 +1564,21 @@ void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info
         // Position
         auto offset = geom_info_out.get_offset();
         for (unsigned i=0; i<3; ++i)
+        {
             ih.position[i] = offset[i]
                     + direction[i][0] * (ih.field_of_view[0] / 2.0f)
                     + direction[i][1] * (ih.field_of_view[1] / 2.0f)
-                    + direction[i][2] * (ih.field_of_view[2] / 2.0f) // for 2D slices this is the slice thickness
-                    + direction[i][2] *  ih.slice * geom_info_out.get_spacing()[2]; 
+                    + direction[i][2] * (ih.field_of_view[2] / 2.0f); // for 2D stacks this is half the slice thickness
+                     
+            // For 2D stacks the position is the position of the first slice plus the slice number in the slice direction.
+            // However, temporally subsequently acquired slices are usually not next to each other in space
+            // but at a distance to ensure relaxation of the magnetisation.
+            // this->sort() called above sorts the images first by the projection onto the slice direction.
+            // Hence (im % number_slices) gives the geometrical order of slices while
+            // using ih.slice to iterate over slices would give them in order of acquisition time instead. 
+            ih.position[i] += direction[i][2] * (im % number_slices) * geom_info_out.get_spacing()[2]; 
         }
+    }
 
     // set up geom info
     this->set_up_geom_info();
@@ -1692,9 +1709,7 @@ GadgetronImagesVector::set_up_geom_info()
 
     // Make sure we're looking at the first image
     ih1 = image_wrap( 0 ).head();
-    if(ih1.slice != 0)
-        throw LocalisedException("The first image header should have slice=0." , __FILE__, __LINE__);
-
+    
     // Direction
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
     for (unsigned axis=0; axis<3; ++axis) {
