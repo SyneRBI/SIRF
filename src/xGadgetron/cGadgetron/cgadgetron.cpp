@@ -926,17 +926,6 @@ cGT_reconstructedImages(void* ptr_recon)
 
 extern "C"
 void*
-cGT_absImages(void* ptr_im)
-{
-	try {
-		SPTR_FROM_HANDLE(GadgetronImageData, sptr_im, ptr_im);
-		return newObjectHandle(sptr_im->abs());
-	}
-	CATCH;
-}
-
-extern "C"
-void*
 cGT_readImages(const char* file)
 {
 	if (!file_exists(file))

@@ -281,6 +281,12 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 void 
 ImagesProcessor::process(const GadgetronImageData& images)
 {
+	if (images.number() < 1)
+		return;
+	const ImageWrap& iw = images.image_wrap(0);
+	if (dicom_ && iw.is_complex())
+		THROW("DICOM writer does not support complex images");
+
 	std::string config = xml();
 	GTConnector conn;
 	sptr_images_ = images.new_images_container();
@@ -297,10 +303,8 @@ ImagesProcessor::process(const GadgetronImageData& images)
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
 			for (unsigned int i = 0; i < images.number(); i++) {
-				if (dicom_)
-					conn().send_wrapped_image(*images.image_wrap(i).abs());
-				else
-					conn().send_wrapped_image(images.image_wrap(i));
+				const ImageWrap& iw = images.image_wrap(i);
+				conn().send_wrapped_image(iw);
 			}
 			conn().send_gadgetron_close();
 			conn().wait();
