@@ -18,11 +18,11 @@ endif ()
 
 # include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 # find_package(STIR REQUIRED)
-add_subdirectory(cDynamicSimulation)
 
-#if (PYTHON_FOUND AND BUILD_PYTHON)
-#  add_subdirectory(pDynamicSimulationon)
-#endif()
+add_subdirectory(cDynamicSimulation)
+if (BUILD_PYTHON)
+  add_subdirectory(pDynamicSimulation)
+endif()
 
 # set(cDynamicSimulation_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cDynamicSimulation")
 
