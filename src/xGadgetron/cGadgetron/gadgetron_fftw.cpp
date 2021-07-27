@@ -43,8 +43,6 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <fftw3.h>
 
-#include "sirf/Gadgetron/ismrmrd_fftw.h"
-
 typedef complex_float_t ComplexType;
 
 #define USE_OMP

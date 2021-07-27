@@ -32,10 +32,10 @@ extern "C" {
 #define PTR_DOUBLE double*
 #endif
 
-	// Unified parameter exchange methods
-	void* parameter(void* ptr, const char* obj, const char* name);
-	void* setParameter
-		(void* ptr, const char* obj, const char* par, const void* val);
+	//// Unified parameter exchange methods
+	//void* parameter(void* ptr, const char* obj, const char* name);
+	//void* setParameter
+	//	(void* ptr, const char* obj, const char* par, const void* val);
 
 	// common Object methods
 	void* cGT_newObject(const char* name);

@@ -33,7 +33,9 @@ limitations under the License.
 #define GADGETS_LIBRARY
 
 #include <map>
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
+
+#include "sirf/common/iequals.h"
 
 namespace sirf {
 
@@ -687,24 +689,24 @@ namespace sirf {
 		}
 		virtual void set_property(const char* prop, const char* value)
 		{
-			if (boost::iequals(prop, "trigger_dimension") ||
-				boost::iequals(prop, "sorting_dimension"))
+			if (sirf::iequals(prop, "trigger_dimension") ||
+				sirf::iequals(prop, "sorting_dimension"))
 				aat_.set_property(prop, value);
-			else if (boost::iequals(prop, "n_dimension") ||
-				boost::iequals(prop, "s_dimension") ||
-				boost::iequals(prop, "split_slices"))
+			else if (sirf::iequals(prop, "n_dimension") ||
+				sirf::iequals(prop, "s_dimension") ||
+				sirf::iequals(prop, "split_slices"))
 				bb_.set_property(prop, value);
 			else
 				THROW("unknown gadget parameter");
 		}
 		virtual std::string value_of(const char* prop)
 		{
-			if (boost::iequals(prop, "trigger_dimension") ||
-				boost::iequals(prop, "sorting_dimension"))
+			if (sirf::iequals(prop, "trigger_dimension") ||
+				sirf::iequals(prop, "sorting_dimension"))
 				return aat_.value_of(prop);
-			else if (boost::iequals(prop, "n_dimension") ||
-				boost::iequals(prop, "s_dimension") ||
-				boost::iequals(prop, "split_slices"))
+			else if (sirf::iequals(prop, "n_dimension") ||
+				sirf::iequals(prop, "s_dimension") ||
+				sirf::iequals(prop, "split_slices"))
 				return bb_.value_of(prop);
 			THROW("unknown gadget parameter");
 		}
