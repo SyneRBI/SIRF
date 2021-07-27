@@ -700,7 +700,7 @@ SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, Ti
 	{
 		std::pair<TimeAxisType, SignalAxisType> signal_point;
 
-		signal_point.first = all_time_points[i];
+		signal_point.first = all_time_points[i]-t0;
 		signal_point.second = (1 - cos(2*M_PI / period_duration_ms * (all_time_points[i]-t0)))/2;
 		signal.push_back(signal_point);
 	}
@@ -729,9 +729,9 @@ SignalContainer aux_test::get_mock_sawtooth_signal( AcquisitionsVector acq_vec, 
 	{
 		std::pair<TimeAxisType, SignalAxisType> signal_point;
 
-		signal_point.first = t_0 + i * dt;
+		signal_point.first = i * dt;
 
-		signal_point.second = fmod(t_0 + i * dt, period_duration_ms) / period_duration_ms;
+		signal_point.second = fmod(signal_point.first, period_duration_ms) / period_duration_ms;
 		signal.push_back(signal_point);
 	}
 
