@@ -59,8 +59,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 	cout << "Simulating dynamic data acquisition... " <<endl;
 	sptr_simul_data_->empty();
 	sptr_simul_data_->copy_acquisitions_info(*sptr_source_acquisitions_);
-	simulate_simultaneous_motion_contrast_dynamics();		
-	
+	this->simulate_simultaneous_motion_contrast_dynamics();		
 }
 
 void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
@@ -81,20 +80,23 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 		motion_dynamics_[i]->prep_displacement_fields();
 	}
 
+	if(num_states_per_motion.empty())
+		num_states_per_motion.push_back(1);
+
 	LinearCombiGenerator lcg(num_states_per_motion);
 
 	size_t const num_tot_motion_states = lcg.get_num_total_combinations();
 
-	std::vector< DimensionsType >  all_dynamic_state_combos = lcg.get_all_combinations();
+	std::vector< DimensionsType >  all_motion_state_combos = lcg.get_all_combinations();
 
-    auto binned_contrast_acquisitions = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_binned_mr_acquisitions()  : std::vector< AcquisitionsVector >(0);
-    auto sampled_contrast_timepoints = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_time_points_sampled() : std::vector< TimeAxisType >(0);
+    std::vector<sirf::AcquisitionsVector> binned_contrast_acquisitions = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_binned_mr_acquisitions()  : std::vector< AcquisitionsVector >(0);
+    std::vector< TimeAxisType > sampled_contrast_timepoints = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_time_points_sampled() : std::vector< TimeAxisType >(0);
     
-    for( size_t i_dyn_state=0; i_dyn_state < num_tot_motion_states; i_dyn_state++)
+    for( size_t i_motion_state=0; i_motion_state < num_tot_motion_states; i_motion_state++)
 	{
-		cout << " ++++++++++++    Acquisition dynamic motion state #" << i_dyn_state + 1 << "/" << num_tot_motion_states << "++++++++++++++" << endl;
+		cout << " ++++++++++++    Acquisition dynamic motion state #" << i_motion_state + 1 << "/" << num_tot_motion_states << "++++++++++++++" << endl;
 
-		DimensionsType current_combination = all_dynamic_state_combos[i_dyn_state];
+		DimensionsType current_combination = all_motion_state_combos[i_motion_state];
 		AcquisitionsVector acquisitions_for_this_motion_state; 
 
         for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dyns; i_motion_dyn++ )
@@ -104,9 +106,11 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 
 			AcquisitionsVector acquis_in_motion_bin = motion_dyn->get_binned_mr_acquisitions( current_bin );
 			acquisitions_for_this_motion_state = intersect_mr_acquisition_data(*sptr_source_acquisitions_, acquis_in_motion_bin);
-
 		}
-    
+
+		if(num_motion_dyns<1)
+			acquisitions_for_this_motion_state = intersect_mr_acquisition_data(*sptr_source_acquisitions_,*sptr_source_acquisitions_);
+
         cout << "# of mr acquis in this motion state: " << acquisitions_for_this_motion_state.number() << endl;
     
         if( acquisitions_for_this_motion_state.number() > 0)
