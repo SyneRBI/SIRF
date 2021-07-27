@@ -21,6 +21,7 @@ namespace tests_mr_dynsim
 {
 
 bool test_constructor( void );
+bool test_simulate_statics( void );
 bool test_simulate_dynamics( void );
 bool test_simulate_rpe_acquisition( void );
 bool test_4d_mri_acquisition( void );

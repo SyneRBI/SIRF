@@ -133,6 +133,7 @@ bool run_tests_dynamic_simulation( void )
 
 	// mr_dynsim_tests.push_back(test_lin_combi_gen::test_get_all_combinations());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_constructor());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_statics());
 	mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_dynamics());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
