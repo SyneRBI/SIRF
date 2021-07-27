@@ -1105,6 +1105,21 @@ cGT_setImageDataFromCmplxArray(void* ptr_imgs, size_t ptr_z)
 }
 
 extern "C"
+void*
+cGT_realImageData(void* ptr_imgs, const char* way)
+{
+	try {
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		if (sirf::iequals(way, "real"))
+			return newObjectHandle<GadgetronImageData>(imgs.real());
+		else
+			return newObjectHandle<GadgetronImageData>(imgs.abs());
+	}
+	CATCH;
+}
+
+extern "C"
 void* cGT_print_header(const void* ptr_imgs, const int im_idx)
 {
     try {

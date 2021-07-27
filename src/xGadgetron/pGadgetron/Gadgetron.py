@@ -249,9 +249,14 @@ class ImageData(SIRF.ImageData):
         return ImageData()
 
     def abs(self):
-        print('in ImageData.abs()...')
         images = ImageData()
-        images.handle = pygadgetron.cGT_absImages(self.handle)
+        images.handle = pygadgetron.cGT_realImageData(self.handle, 'abs')
+        check_status(images.handle)
+        return images
+
+    def real(self):
+        images = ImageData()
+        images.handle = pygadgetron.cGT_realImageData(self.handle, 'real')
         check_status(images.handle)
         return images
 
