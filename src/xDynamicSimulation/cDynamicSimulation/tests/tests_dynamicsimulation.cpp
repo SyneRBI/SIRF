@@ -244,7 +244,7 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		
 		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-		size_t const num_resp_states = 4;
+		size_t const num_resp_states = 2;
 		MRMotionDynamic resp_dyn(num_resp_states);
 		
 		resp_dyn.set_displacement_fields( resp_motion_fields, false );
@@ -260,7 +260,7 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		
 		auto card_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-		size_t const num_card_states = 4;
+		size_t const num_card_states = 2;
 		MRMotionDynamic card_dyn(num_card_states);
 		
 		card_dyn.set_displacement_fields( card_motion_fields, true );
