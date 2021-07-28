@@ -23,6 +23,7 @@ include_directories("${GADGETRON_INCLUDE_DIR}/../")
 
 
 set(SRC_FILES_TO_COMPILE 
+  cdynamicsimulation.cpp
   dynamicsimulation_x.cpp  
   auxiliary_input_output.cpp 
   tissueparameters.cpp
