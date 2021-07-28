@@ -110,7 +110,7 @@ public:
 	void simulate_statics( void );
 	
 	void simulate_data( void );
-	void simulate_dynamics( size_t const total_scan_time );
+	void simulate_data( size_t const total_scan_time );
 
 
 	std::string get_filename_rawdata( void )
