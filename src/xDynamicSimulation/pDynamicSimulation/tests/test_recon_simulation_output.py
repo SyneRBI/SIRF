@@ -81,6 +81,24 @@ def test_recon_output_simulate_dynamics(record=False, verb=False, throw=True):
     test_failed = False
     return test_failed, 1
 
+def test_recon_output_simulate_5d_dynamics(record=False, verb=False, throw=True):
+
+    print("Running a reconstruction of simulated MR data")
+
+    prefix_data_path = "/media/sf_CCPPETMR/TestData/Output/xDynamicSimulation/"
+    input_data_path = prefix_data_path + "cDynamicSimulation/"
+    
+    rawdata = AcquisitionData(input_data_path + '/output_test_test_simulate_dynamics.h5')
+    
+    recon = recon_cartesian_motion_avg(rawdata)
+
+    output_data_path = prefix_data_path + "pDynamicSimulation/"
+    recon.write(output_data_path + "output_recon_simulate_5d_motion
+    .dcm")
+
+    test_failed = False
+    return test_failed, 1
+
 
 def test_main(record=False, verb=False, throw=True):
     
