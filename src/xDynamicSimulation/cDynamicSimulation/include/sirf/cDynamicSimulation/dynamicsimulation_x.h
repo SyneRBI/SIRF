@@ -34,7 +34,7 @@ public:
 	aDynamicSimulation(){};
 	~aDynamicSimulation(){};
 
-	virtual void simulate_dynamics( void ) = 0;
+	virtual void simulate_data( void ) = 0;
 	virtual void write_simulation_results( const std::string& filename_output_with_extension ) = 0;
 	virtual void save_ground_truth_displacements();
 
@@ -68,7 +68,7 @@ public:
 	} 
 
 	void simulate_statics( void );
-	void simulate_dynamics( void );
+	void simulate_data( void );
 
 	void set_coilmaps(const std::shared_ptr<sirf::CoilSensitivitiesVector> sptr_csm)
 	{
@@ -109,7 +109,7 @@ public:
 		
 	void simulate_statics( void );
 	
-	void simulate_dynamics( void );
+	void simulate_data( void );
 	void simulate_dynamics( size_t const total_scan_time );
 
 

@@ -42,7 +42,7 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 	}
 }
 
-void MRDynamicSimulation::simulate_dynamics( void )
+void MRDynamicSimulation::simulate_data( void )
 {
 	cout << "Simulating dynamic data acquisition... " <<endl;
 	sptr_simul_data_->empty();
@@ -292,12 +292,12 @@ void PETDynamicSimulation::add_noise( float const scaling_factor )
 	this->sptr_noise_generator_->add_noise( *sptr_target_acquisitions_, *sptr_target_acquisitions_ );
 }	
 
-void PETDynamicSimulation::simulate_dynamics( void )
+void PETDynamicSimulation::simulate_data( void )
 {
 	throw std::runtime_error( "Please give an acquisition time to simulate pet dynamics." );
 }
 
-void PETDynamicSimulation::simulate_dynamics( size_t const total_scan_time )
+void PETDynamicSimulation::simulate_data( size_t const total_scan_time )
 {
 	if( motion_dynamics_.size() > 0)
 		this->simulate_motion_dynamics( total_scan_time );		
