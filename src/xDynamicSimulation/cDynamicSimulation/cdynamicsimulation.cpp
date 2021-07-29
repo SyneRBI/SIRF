@@ -46,16 +46,17 @@ limitations under the License.
 // }
 
 extern "C"
-void* cDS_MRDynamicSimulation(void* ptr_labels, const char* fname_xml)
+void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml)
 {
 	try {
+		std::cout << "nag" << std::endl;
 
         CAST_PTR(DataHandle, h_labels, ptr_labels);
 		std::shared_ptr<LabelVolume> sptr_labels;
 		getObjectSptrFromHandle<LabelVolume>(h_labels, sptr_labels);
 		
         MRContrastGenerator cont_gen(*sptr_labels, fname_xml);
-        
+
         std::shared_ptr<MRDynamicSimulation> 
 			sptr_ds(new MRDynamicSimulation(cont_gen));
 

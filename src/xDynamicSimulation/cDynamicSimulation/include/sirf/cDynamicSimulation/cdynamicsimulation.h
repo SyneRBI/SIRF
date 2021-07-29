@@ -33,8 +33,7 @@ extern "C" {
 
 #include "sirf/cDynamicSimulation/cdynamicsimulation.h"
 
-// dynamic simulation 
-    void* cDS_MRDynamicSimulation(void* ptr_labels, const char* fname_xml);
+void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml);
 
 #ifndef CSIMULATION_FOR_MATLAB
 }
