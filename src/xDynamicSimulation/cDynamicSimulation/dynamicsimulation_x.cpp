@@ -93,7 +93,10 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 			int const current_bin = current_combination[ i_motion_dyn ];						
 
 			AcquisitionsVector acquis_in_motion_bin = motion_dyn->get_binned_mr_acquisitions( current_bin );
-			acquisitions_for_this_motion_state = intersect_mr_acquisition_data(*sptr_source_acquisitions_, acquis_in_motion_bin);
+			if(i_motion_dyn == 0)
+				acquisitions_for_this_motion_state = intersect_mr_acquisition_data(*sptr_source_acquisitions_, acquis_in_motion_bin);
+			else
+				acquisitions_for_this_motion_state = intersect_mr_acquisition_data(acquisitions_for_this_motion_state, acquis_in_motion_bin);
 		}
 
 		if(num_motion_dyns<1)
