@@ -16,7 +16,6 @@ Options:
 {licence}
 """
 import numpy as np
-# Created on Tue Nov 21 10:17:28 2017
 
 import sirf.DynamicSimulation as pDS
 import sirf.Gadgetron as pMR
@@ -44,7 +43,8 @@ def test_main(rec=False, verb=False, throw=True):
 
     labels = pReg.NiftiImageData3D(empty_img)
     label_array = labels.as_array()
-    label_array[:] = 1
+    max_label = 50
+    label_array = np.random.randint(1, max_label,size = label_array.shape)
     labels.fill(label_array)
 
     mrsim = pDS.DynamicSimulation(labels, fpath_xml)

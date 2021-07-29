@@ -117,7 +117,7 @@ bool tests_mr_dynsim::test_simulate_statics()
 		
 		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
-		mr_dyn_sim.set_coilmaps( std::make_shared<CoilSensitivitiesVector>(csm));
+		mr_dyn_sim.set_coilmaps(std::make_shared<CoilSensitivitiesVector>(csm));
 
 		float const test_SNR = 15;
 		size_t const noise_label = 13;

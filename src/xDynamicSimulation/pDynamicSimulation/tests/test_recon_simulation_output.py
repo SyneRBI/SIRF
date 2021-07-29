@@ -99,8 +99,28 @@ def test_recon_output_simulate_5d_dynamics(record=False, verb=False, throw=True)
     return test_failed, 1
 
 
-def test_main(record=False, verb=False, throw=True):
+def test_recon_output_python_simulate_statics(record=False, verb=False, throw=True):
+
+    print("Running a reconstruction of simulated MR data")
+
+    prefix_data_path = "/media/sf_CCPPETMR/TestData/Output/xDynamicSimulation/"
+    input_data_path = prefix_data_path + "pDynamicSimulation/"
     
+    rawdata = AcquisitionData(input_data_path + '/mr_static_simulation.h5')
+    
+    recon = recon_cartesian_motion_avg(rawdata)
+
+    output_data_path = prefix_data_path + "pDynamicSimulation/"
+    recon.write(output_data_path + "recon_mr_static_python_simulation.dcm")
+
+    test_failed = False
+    return test_failed, 1
+
+
+def test_main(record=False, verb=False, throw=True):
+
+    # return False, 0
+
     all_tests_failed = False
     number_executed_tests = 0
 
@@ -117,9 +137,13 @@ def test_main(record=False, verb=False, throw=True):
     # all_tests_failed = all_tests_failed and test_failure
     # number_executed_tests += num_tests
     
-    # return all_tests_failed, number_executed_tests
+    # test_failure, num_tests = test_recon_output_python_simulate_statics(record, verb, throw)
+    # all_tests_failed = all_tests_failed and test_failure
+    # number_executed_tests += num_tests
 
-    return False, 0
+    return all_tests_failed, number_executed_tests
+
+    
    
 
 
