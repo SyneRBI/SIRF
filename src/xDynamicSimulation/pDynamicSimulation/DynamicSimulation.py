@@ -64,6 +64,24 @@ class DynamicSimulation(object):
         assert_validity(ad, pMR.AcquisitionData)
         pysim.cDS_setAcquisitionTemplateData(self.handle, ad.handle)
 
+    def simulate_data(self):
+        pysim.cDS_simulateData(self.handle)
+
+    def set_csm(self, csm):
+        assert_validity(csm, pMR.CoilSensitivityData)
+        pysim.cDS_setCoilmaps(self.handle, csm.handle)
+
+    def set_snr(self, SNR):
+        pysim.cDS_setSNR(self.handle, SNR)
+
+    def set_snr_label(self, SNR_label):
+        pysim.cDS_setNoiseLabel(self.handle, SNR_label)
+
+    def write_simulation_results(self, fpath_output):
+        pysim.cDS_writeSimulationResults(self.handle, fpath_output); 
+
+
+
 
 
 

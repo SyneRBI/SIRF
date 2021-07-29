@@ -47,6 +47,37 @@ using namespace sirf;
 // 	CATCH;
 // }
 
+
+extern "C"
+void* cDS_simulateData(void* ptr_sim)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		
+		aDynamicSimulation& sim = objectFromHandle<aDynamicSimulation>(h_sim);
+		sim.simulate_data();
+		return new DataHandle;
+
+	}
+	CATCH;
+}
+
+extern "C"
+void* cDS_writeSimulationResults(const void* ptr_sim, const char* fname_with_ext)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		aDynamicSimulation& sim = objectFromHandle<aDynamicSimulation>(h_sim);
+		sim.write_simulation_results(fname_with_ext);
+
+		return new DataHandle;
+
+	}
+	CATCH;
+}
+
 extern "C"
 void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml)
 {
@@ -84,3 +115,53 @@ void* cDS_setAcquisitionTemplateData(void* ptr_sim, const void* ptr_acqs)
 	CATCH;
 }
 
+extern "C"
+void* cDS_setCoilmaps(void* ptr_sim, const void* ptr_csm)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+
+		CAST_PTR(DataHandle, h_csm, ptr_csm);
+		std::shared_ptr<CoilSensitivitiesVector> sptr_csm;
+		getObjectSptrFromHandle(h_csm, sptr_csm);
+
+		sim.set_coilmaps(sptr_csm); 
+
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cDS_setSNR(void* ptr_sim, float const SNR)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		sim.set_SNR(SNR);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
+
+extern "C"
+void* cDS_setNoiseLabel(void* ptr_sim, int const label)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		sim.set_noise_label(label);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
