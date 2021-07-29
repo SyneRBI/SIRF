@@ -710,6 +710,7 @@ SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, Ti
 
 SignalContainer aux_test::get_mock_sawtooth_signal( AcquisitionsVector acq_vec, TimeAxisType const period_duration_ms)
 {
+	acq_vec.sort_by_time();
 	ISMRMRD::Acquisition acq;
 	acq_vec.get_acquisition(0, acq);
 	TimeAxisType t_0 = acq.getHead().acquisition_time_stamp;
