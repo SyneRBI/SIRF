@@ -22,6 +22,7 @@ if(BUILD_PYTHON)
   python_pkg_alias(pyiutilities "sirf.pyiutilities")
   python_pkg_alias(pReg "sirf.Reg")
   python_pkg_alias(pyreg "sirf.pyreg")
+  python_pkg_alias(pysimulation "sirf.pysimulation")
   # convert to python CSV tuple for setup.py configure_file
   string(REPLACE ";" "', '" PYTHON_SETUP_PKGS_CSV "${PYTHON_SETUP_PKGS}")
   set(PYTHON_SETUP_PKGS_CSV "'${PYTHON_SETUP_PKGS_CSV}'")
