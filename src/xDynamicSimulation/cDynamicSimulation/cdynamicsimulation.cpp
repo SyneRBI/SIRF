@@ -24,10 +24,12 @@ limitations under the License.
 #include <memory>
 
 #include "sirf/iUtilities/DataHandle.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
+
 #include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
 
-// using namespace sirf;
+using namespace sirf;
 
 
 // extern "C"
@@ -49,7 +51,6 @@ extern "C"
 void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml)
 {
 	try {
-		std::cout << "nag" << std::endl;
 
         CAST_PTR(DataHandle, h_labels, ptr_labels);
 		std::shared_ptr<LabelVolume> sptr_labels;
@@ -65,3 +66,21 @@ void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml)
 	}
 	CATCH;
 }
+
+extern "C"
+void* cDS_setAcquisitionTemplateData(void* ptr_sim, const void* ptr_acqs)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		
+		MRAcquisitionData& ad = objectFromHandle<MRAcquisitionData>(h_acqs);
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		sim.set_template_acquisition_data(ad);
+		return new DataHandle;
+
+	}
+	CATCH;
+}
+

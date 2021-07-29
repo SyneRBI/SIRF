@@ -48,7 +48,9 @@ def test_main(rec=False, verb=False, throw=True):
     labels.fill(label_array)
 
     sim = pDS.DynamicSimulation(labels, fpath_xml)
+    sim.set_acquisition_template_data(rawdata)
 
+    
     return False, 1
     
 

@@ -23,6 +23,7 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 
 import numpy as np
 from numbers import Number, Complex, Integral
+
 try:
     import pylab
     HAVE_PYLAB = True
@@ -45,18 +46,26 @@ import sirf.pysimulation as pysim
 import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
-import sirf.Reg as sreg
 
+import sirf.Reg as pReg
+import sirf.Gadgetron as pMR
 
 class DynamicSimulation(object):
 
     def __init__(self, tissue_labels, fname_xml):
 
         self.handle = None
-        assert_validity(tissue_labels, sreg.NiftiImageData3D)
+        assert_validity(tissue_labels, pReg.NiftiImageData3D)
 
         self.handle = pysim.cDS_MRDynamicSimulation(tissue_labels.handle, fname_xml)
         check_status(self.handle)
+
+    def set_acquisition_template_data(self, ad):
+        assert_validity(ad, pMR.AcquisitionData)
+        pysim.cDS_setAcquisitionTemplateData(self.handle, ad.handle)
+
+
+
 
 
 # #class ImageData(DataContainer):

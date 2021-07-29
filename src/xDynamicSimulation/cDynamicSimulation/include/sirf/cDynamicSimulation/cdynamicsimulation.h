@@ -34,6 +34,7 @@ extern "C" {
 #include "sirf/cDynamicSimulation/cdynamicsimulation.h"
 
 void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml);
+void* cDS_setAcquisitionTemplateData(void* ptr_sim, const void* ptr_acqs);
 
 #ifndef CSIMULATION_FOR_MATLAB
 }
