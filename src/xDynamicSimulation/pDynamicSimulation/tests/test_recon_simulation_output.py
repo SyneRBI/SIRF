@@ -88,13 +88,12 @@ def test_recon_output_simulate_5d_dynamics(record=False, verb=False, throw=True)
     prefix_data_path = "/media/sf_CCPPETMR/TestData/Output/xDynamicSimulation/"
     input_data_path = prefix_data_path + "cDynamicSimulation/"
     
-    rawdata = AcquisitionData(input_data_path + '/output_test_test_simulate_dynamics.h5')
+    rawdata = AcquisitionData(input_data_path + '/output_test_test_simulate_5d_motion_dynamics.h5')
     
     recon = recon_cartesian_motion_avg(rawdata)
 
     output_data_path = prefix_data_path + "pDynamicSimulation/"
-    recon.write(output_data_path + "output_recon_simulate_5d_motion
-    .dcm")
+    recon.write(output_data_path + "output_recon_simulate_5d_dynamics.dcm")
 
     test_failed = False
     return test_failed, 1
@@ -102,7 +101,7 @@ def test_recon_output_simulate_5d_dynamics(record=False, verb=False, throw=True)
 
 def test_main(record=False, verb=False, throw=True):
     
-    all_tests_failed = True
+    all_tests_failed = False
     number_executed_tests = 0
 
     # test_failure, num_tests = test_recon_output_simulate_statics(record, verb, throw)
@@ -110,11 +109,20 @@ def test_main(record=False, verb=False, throw=True):
     # all_tests_failed = all_tests_failed and test_failure
     # number_executed_tests += num_tests
 
-    test_failure, num_tests = test_recon_output_simulate_dynamics(record, verb, throw)
+    # test_failure, num_tests = test_recon_output_simulate_dynamics(record, verb, throw)
+    # all_tests_failed = all_tests_failed and test_failure
+    # number_executed_tests += num_tests
+
+    test_failure, num_tests = test_recon_output_simulate_5d_dynamics(record, verb, throw)
     all_tests_failed = all_tests_failed and test_failure
     number_executed_tests += num_tests
 
+    
+
     return all_tests_failed, number_executed_tests
+
+    # return False, 0
+
 
 if __name__ == "__main__":
     # test_main()
