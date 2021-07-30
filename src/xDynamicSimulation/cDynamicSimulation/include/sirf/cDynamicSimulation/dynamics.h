@@ -125,6 +125,9 @@ public:
 
 	void set_ground_truth_folder_name( std::string const name_existing_folder );
 
+	void set_cyclicality(bool const is_cyclic);
+	void add_displacement_field(const MotionFieldType& dvf);
+
 	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic = false);
 	void set_displacement_fields( std::vector< MotionFieldType > &input_vectors, bool const motion_fields_are_cyclic = false);
 	     

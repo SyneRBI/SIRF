@@ -518,9 +518,19 @@ void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3D
 
 }
 
+void MotionDynamic::set_cyclicality(bool const is_cyclic)
+{
+	this->is_cyclic_dynamic_ = is_cyclic;
+	this->set_bins( this->num_simul_states_ );
+}
+
+void MotionDynamic::add_displacement_field(const MotionFieldType& dvf)
+{
+	this->displacement_fields_.push_back( dvf );
+}
+
 sirf::NiftiImageData3DDisplacement<float> MotionDynamic::scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf )
 {
-	
     const int* dvf_dims = dvf.get_dimensions() ;
 
     sirf::VoxelisedGeometricalInfo3D::Spacing voxel_sizes = dvf.get_geom_info_sptr()->get_spacing();
