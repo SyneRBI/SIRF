@@ -167,12 +167,12 @@ protected:
 	// std::vector< sirf::NiftiImageData3DDeformation<float> > sirf_displacement_fields_;
 };
 
-class aMRDynamic : virtual public aDynamic{
+class MRDynamic : virtual public aDynamic{
 
 public:
 
-	aMRDynamic();
-	aMRDynamic(int const num_simul_states);
+	MRDynamic();
+	MRDynamic(int const num_simul_states);
 
 	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
 	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
@@ -188,23 +188,23 @@ protected:
 
 
 
-class MRMotionDynamic : public aMRDynamic, public MotionDynamic {
+class MRMotionDynamic : public MRDynamic, public MotionDynamic {
 
 
 public:
-	MRMotionDynamic():aMRDynamic(), MotionDynamic() {};
-	MRMotionDynamic(int const num_simul_states): aMRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+	MRMotionDynamic():MRDynamic(), MotionDynamic() {};
+	MRMotionDynamic(int const num_simul_states): MRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
 	// void prep_displacement_fields( void );
 	virtual void bin_mr_acquisitions( sirf::AcquisitionsVector& all_acquisitions );
 };
 
-class MRContrastDynamic: public aMRDynamic, public ContrastDynamic {
+class MRContrastDynamic: public MRDynamic, public ContrastDynamic {
 
 
 public:
-	MRContrastDynamic():aMRDynamic(), ContrastDynamic() {};
-	MRContrastDynamic(int const num_simul_states): aMRDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
+	MRContrastDynamic():MRDynamic(), ContrastDynamic() {};
+	MRContrastDynamic(int const num_simul_states): MRDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
 	virtual void bin_mr_acquisitions( sirf::AcquisitionsVector& all_acquisitions );
 
 	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );

@@ -212,16 +212,16 @@ SignalAxisType aDynamic::linear_interpolate_signal(TimeAxisType time_point)
 
 
 
-aMRDynamic::aMRDynamic(): aDynamic() {};
-aMRDynamic::aMRDynamic(int const num_simul_states): aDynamic(num_simul_states){}
+MRDynamic::MRDynamic(): aDynamic() {};
+MRDynamic::MRDynamic(int const num_simul_states): aDynamic(num_simul_states){}
 
-std::vector<sirf::AcquisitionsVector> aMRDynamic::get_binned_mr_acquisitions( void )
+std::vector<sirf::AcquisitionsVector> MRDynamic::get_binned_mr_acquisitions( void )
 {
 	std::cout << "size in the getter " << epiph( this->binned_mr_acquisitions_.size()) <<std::endl;
 	return this->binned_mr_acquisitions_;
 };
 
-sirf::AcquisitionsVector aMRDynamic::get_binned_mr_acquisitions( int const bin_num )
+sirf::AcquisitionsVector MRDynamic::get_binned_mr_acquisitions( int const bin_num )
 {
 	if(bin_num >= this->num_simul_states_)
 		throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
