@@ -103,7 +103,7 @@ extern "C" {
 	void* cGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 	void* cGT_setImageDataFromCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
     void* cGT_print_header(const void* ptr_imgs, const int im_idx);
-	void* cGT_absImages(void* ptr_im);
+	void* cGT_realImageData(void* ptr_imgs, const char* way);
 
 	// gadget chain methods
 	void* cGT_setHost(void* ptr_gc, const char* host);

@@ -482,6 +482,7 @@ namespace sirf {
 		virtual void append(const ImageWrap& iw) = 0;
 		virtual void append(gadgetron::shared_ptr<ImageWrap> sptr_iw) = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> abs() const = 0;
+		virtual gadgetron::shared_ptr<ISMRMRDImageData> real() const = 0;
 		virtual void clear_data()=0;
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
@@ -938,6 +939,7 @@ namespace sirf {
 			images_.push_back(sptr_iw);
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> abs() const;
+		virtual gadgetron::shared_ptr<GadgetronImageData> real() const;
 		virtual void clear_data()
         {
             std::vector<gadgetron::shared_ptr<ImageWrap> > empty_data;

@@ -1355,6 +1355,17 @@ GadgetronImagesVector::abs() const
 	return shared_ptr<GadgetronImageData>(ptr_iv);
 }
 
+shared_ptr<GadgetronImageData>
+GadgetronImagesVector::real() const
+{
+    GadgetronImagesVector* ptr_iv = new GadgetronImagesVector;
+    for (int i = 0; i < number(); i++) {
+        ptr_iv->append(image_wrap(i).real());
+    }
+    ptr_iv->set_up_geom_info();
+    return shared_ptr<GadgetronImageData>(ptr_iv);
+}
+
 void
 GadgetronImagesVector::get_data(complex_float_t* data) const
 {

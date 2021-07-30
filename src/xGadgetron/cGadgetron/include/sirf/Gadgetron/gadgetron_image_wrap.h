@@ -37,6 +37,7 @@ limitations under the License.
 #include <ismrmrd/xml.h>
 
 #include "sirf/common/ANumRef.h"
+#include "sirf/common/iequals.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/xgadgetron_utilities.h"
 
@@ -373,7 +374,7 @@ namespace sirf {
 		void scale(float s)
 		{
 			for (ImageWrap::Iterator i = begin(); i != end(); ++i)
-				*i = (*i).complex_float() / s;
+				*i /= s;
 		}
 		void get_complex_data(complex_float_t* data) const
 		{
@@ -401,6 +402,11 @@ namespace sirf {
 
 		gadgetron::shared_ptr<ImageWrap> abs() const
 		{
+			return real("abs");
+		}
+
+		gadgetron::shared_ptr<ImageWrap> real(const std::string& way = "real") const
+		{
 			int dim[4];
 			get_dim(dim);
 			ISMRMRD::Image<float>* ptr_im = new ISMRMRD::Image<float>(dim[0], dim[1], dim[2], dim[3]);
@@ -415,9 +421,16 @@ namespace sirf {
 			ImageWrap::Iterator_const i = begin_const();
 			ImageWrap::Iterator_const stop = end_const();
 			float* data = im.getDataPtr();
-			for (; i != stop; ++data, ++i) {
-				*data = std::abs((*i).complex_float());
-			}
+			if (sirf::iequals(way, "abs"))
+				for (; i != stop; ++data, ++i) {
+					*data = std::abs((*i).complex_float());
+				}
+			else if (sirf::iequals(way, "real"))
+				for (; i != stop; ++data, ++i) {
+					*data = std::real((*i).complex_float());
+				}
+			else
+				THROW("unknown conversion to real specified in ImageWrap::real");
 
 			ImageWrap* ptr_iw = new ImageWrap(ISMRMRD::ISMRMRD_FLOAT, ptr_im);
 			return gadgetron::shared_ptr<ImageWrap>(ptr_iw);

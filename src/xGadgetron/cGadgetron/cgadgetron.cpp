@@ -926,17 +926,6 @@ cGT_reconstructedImages(void* ptr_recon)
 
 extern "C"
 void*
-cGT_absImages(void* ptr_im)
-{
-	try {
-		SPTR_FROM_HANDLE(GadgetronImageData, sptr_im, ptr_im);
-		return newObjectHandle(sptr_im->abs());
-	}
-	CATCH;
-}
-
-extern "C"
-void*
 cGT_readImages(const char* file)
 {
 	if (!file_exists(file))
@@ -1100,6 +1089,21 @@ cGT_setImageDataFromCmplxArray(void* ptr_imgs, size_t ptr_z)
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		imgs.set_data(z);
 		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_realImageData(void* ptr_imgs, const char* way)
+{
+	try {
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		if (sirf::iequals(way, "real"))
+			return newObjectHandle<GadgetronImageData>(imgs.real());
+		else
+			return newObjectHandle<GadgetronImageData>(imgs.abs());
 	}
 	CATCH;
 }
