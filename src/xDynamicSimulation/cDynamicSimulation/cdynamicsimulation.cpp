@@ -22,7 +22,6 @@ limitations under the License.
 #include "sirf/cDynamicSimulation/cdynamicsimulation.h"
 
 #include <memory>
-#include <stddef.h>
 
 
 #include "sirf/iUtilities/DataHandle.h"

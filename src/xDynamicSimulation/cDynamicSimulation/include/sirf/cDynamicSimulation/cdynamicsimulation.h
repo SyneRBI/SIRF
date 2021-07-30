@@ -20,6 +20,8 @@ limitations under the License.
 #ifndef SIMULATION_C_INTERFACE
 #define SIMULATION_C_INTERFACE
 
+#include <stddef.h>
+
 #ifndef CSIMULATION_FOR_MATLAB
 #define PTR_INT size_t
 #define PTR_FLOAT size_t
