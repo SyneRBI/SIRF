@@ -85,6 +85,9 @@ class DynamicSimulation(object):
     def write_simulation_results(self, fpath_output):
         pysim.cDS_writeSimulationResults(self.handle, fpath_output); 
 
+    def add_motion_dynamic(self, motiondyn):
+        pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle); 
+
 
 
 class SurrogateSignal(object):
@@ -108,7 +111,10 @@ class MotionDynamic(Dynamic):
 
     def add_displacement_field(self, dvf):
         assert_validity(dvf, pReg.NiftiImageData3DDisplacement)
-        pysim.cDS_addDisplacementField(dvf.handle)
+        pysim.cDS_addDisplacementField(self.handle, dvf.handle)
+
+    def set_cyclicality(self, is_cyclic):
+        pysim.cDS_setCyclicality(self.handle, is_cyclic)
 
 
 class MRDynamic(Dynamic):

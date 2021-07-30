@@ -98,7 +98,7 @@ def test_static_mr_simulation(rec=False, verb=False, throw=True):
     fpath_output = input_fpath_prefix + 'mr_static_simulation.h5'
     mrsim.write_simulation_results(fpath_output)
 
-    return False, 1
+    return 1
 
 
 def test_motion_mr_simulation(rec=False, verb=False, throw=True):
@@ -143,8 +143,10 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
     resp_motion.set_dynamic_signal(motion_signal)
     
-    resp_motion.add_dvf(identity_trafo)
-    resp_motion.add_dvf(inhale_dvf)
+    resp_motion.add_displacement_field(identity_trafo)
+    resp_motion.add_displacement_field(inhale_dvf)
+    
+    resp_motion.set_mr_acquisitions(rawdata)
 
     mrsim.add_motion_dynamic(resp_motion)
     
@@ -154,11 +156,15 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     fpath_output = input_fpath_prefix + 'mr_motion_simulation.h5'
     mrsim.write_simulation_results(fpath_output)
 
-    return False, 1
+    return 1
 
 def test_main(rec=False, verb=False, throw=True):
-    # test_static_mr_simulation(rec, verb, throw)
-    test_motion_mr_simulation(rec, verb, throw)
+    
+    num_tests = 0
+    # num_tests += test_static_mr_simulation(rec, verb, throw)
+    num_tests += test_motion_mr_simulation(rec, verb, throw)
+
+    return False, num_tests
 
 if __name__ == "__main__":
     runner(test_main, __doc__, __version__, __author__)

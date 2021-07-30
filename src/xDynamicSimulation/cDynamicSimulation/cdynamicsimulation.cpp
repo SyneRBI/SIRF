@@ -168,6 +168,27 @@ void* cDS_setNoiseLabel(void* ptr_sim, int const label)
 	CATCH;
 }
 
+extern "C"
+void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		std::shared_ptr<MRMotionDynamic> sptr_dyn;
+		getObjectSptrFromHandle(h_dyn, sptr_dyn);
+		
+		sim.add_dynamic(sptr_dyn);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
+
 // signals
 extern "C"
 void* cDS_DynamicSignal(size_t ptr_time, size_t ptr_signal, int const num_points)
@@ -209,8 +230,24 @@ void* cDS_setDynamicSignal(void* ptr_dyn, const void* ptr_sig)
 
 		CAST_PTR(DataHandle, h_sig, ptr_sig);			
 		SignalContainer& sig = objectFromHandle<SignalContainer>(h_sig);
+		std::cout << "We have "<< sig.size() << "Signal points " << std::endl;
 
 		dyn.set_dyn_signal(sig);
+
+		return new DataHandle;
+	}
+
+	CATCH;
+}
+
+extern "C"
+void* cDS_setCyclicality(void* ptr_dyn, bool const cyc)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		MotionDynamic& dyn = objectFromHandle<MotionDynamic>(h_dyn);
+		dyn.set_cyclicality(cyc);
 
 		return new DataHandle;
 	}
