@@ -29,6 +29,7 @@ limitations under the License.
 
 #include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
+#include "sirf/cDynamicSimulation/dynamics.h"
 
 using namespace sirf;
 
@@ -167,21 +168,51 @@ void* cDS_setNoiseLabel(void* ptr_sim, int const label)
 	CATCH;
 }
 
+// signals
+extern "C"
+void* cDS_DynamicSignal(size_t ptr_time, size_t ptr_signal, int const num_points)
+{
+	try {
+
+		float* time = (float*) ptr_time;
+		float* signal = (float*) ptr_signal;
+
+		typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
+		typedef std::vector< SignalPoint > SignalContainer;
+
+        SignalContainer surrogate(num_points);
+        for(size_t i=0; i<surrogate.size(); ++i)
+		{
+            surrogate.at(i).first = *(time+i);
+			surrogate.at(i).second = *(signal+i);
+		}
+
+		auto sptr_surrogate = std::make_shared<SignalContainer>(std::move(surrogate));
+
+		return newObjectHandle<SignalContainer>(sptr_surrogate);
+	}
+
+	CATCH;
+}
+
 
 
 // Dynamics
 
 extern "C"
-void* cDS_setDynamicSignal(void* ptr_dyn, size_t signal)
+void* cDS_setDynamicSignal(void* ptr_dyn, const void* ptr_sig)
 {
 	try {
 
-		// CAST_PTR(DataHandle, h_sim, ptr_sim);			
-		// MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
-		// sim.set_noise_label(label);
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		aDynamic& dyn = objectFromHandle<aDynamic>(h_dyn);
+
+		CAST_PTR(DataHandle, h_sig, ptr_sig);			
+		SignalContainer& sig = objectFromHandle<SignalContainer>(h_sig);
+
+		dyn.set_dyn_signal(sig);
 
 		return new DataHandle;
-
 	}
 
 	CATCH;
@@ -204,6 +235,20 @@ void* cDS_addDisplacementField(void* ptr_dyn, const void* ptr_dvf)
 
 		return new DataHandle;
 
+	}
+
+	CATCH;
+}
+
+extern "C"
+void* cDS_MRMotionDynamic( int const num_states )
+{
+	try {
+
+		std::shared_ptr<MRMotionDynamic> 
+			sptr_dyn(new MRMotionDynamic(num_states));
+
+		return newObjectHandle<MRMotionDynamic>(sptr_dyn);
 	}
 
 	CATCH;

@@ -21,8 +21,10 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+import abc
 import numpy as np
 from numbers import Number, Complex, Integral
+
 
 try:
     import pylab
@@ -30,22 +32,25 @@ try:
 except:
     HAVE_PYLAB = False
 
+import sys
+
+if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
+    ABC = abc.ABC
+else:
+    ABC = abc.ABCMeta('ABC', (), {})
+
 from deprecation import deprecated
 
-from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, assert_validities, label_and_name, \
-     name_and_parameters, parse_arglist, \
-     examples_data_path, existing_filepath, \
-     pTest, RE_PYEXT
+from sirf.Utilities import check_status, assert_validity
 
 import sirf
 from sirf import SIRF
 from sirf.SIRF import DataContainer
 
 import sirf.pysimulation as pysim
-import sirf.pyiutilities as pyiutil
-import sirf.pygadgetron as pygadgetron
-import sirf.pysirf as pysirf
+# import sirf.pyiutilities as pyiutil
+# import sirf.pygadgetron as pygadgetron
+# import sirf.pysirf as pysirf
 
 import sirf.Reg as pReg
 import sirf.Gadgetron as pMR
@@ -82,9 +87,40 @@ class DynamicSimulation(object):
 
 
 
+class SurrogateSignal(object):
+    def __init__(self, time_points, signal_points):
+
+        self.handle = None
+        self.handle = pysim.cDS_DynamicSignal(time_points.ctypes.data, signal_points.ctypes.data)
+        check_status(self.handle)
 
 
+class Dynamic(object):
 
+    def set_dynamic_signal(self, sig):
+        assert_validity(sig, SurrogateSignal)
+        pysim.cDS_setDynamicSignal(self.handle, sig.handle)
+
+class MotionDynamic(Dynamic):
+
+    def add_displacement_field(self, dvf):
+        assert_validity(dvf, pReg.NiftiImageData3DDisplacement)
+        pysim.cDS_addDisplacementField(dvf.handle)
+
+
+class MRDynamic(Dynamic):
+    
+    def set_mr_acquisitions(self, ad):
+        assert_validity(ad, pMR.AcquisitionData)
+        pysim.cDS_setMRAcquisitions(self.handle, ad.handle)
+
+
+class MRMotionDynamic(MotionDynamic, MRDynamic):
+
+    def __init__(self, num_states):
+        self.handle = None
+        self.handle = pysim.cDS_MRMotionDynamic(num_states)
+        check_status(self.handle)
 
 # #class ImageData(DataContainer):
 # class ImageData(SIRF.ImageData):

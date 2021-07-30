@@ -46,12 +46,18 @@ void* cDS_setCoilmaps(void* ptr_sim, const void* ptr_csm);
 void* cDS_setSNR(void* ptr_sim, float const SNR);
 void* cDS_setNoiseLabel(void* ptr_sim, int const label);
 
+// surrogate signal
+
+void* cDS_DynamicSignal(PTR_FLOAT ptr_time, PTR_FLOAT ptr_signal, int const num_points);
+
 // Dynamics
-void* cDS_setDynamicSignal(void* ptr_dyn, PTR_FLOAT signal);
+void* cDS_setDynamicSignal(void* ptr_dyn, const void* ptr_sig);
 
 // Motion Dynamics
 void* cDS_addDisplacementField(void* ptr_dyn, const void* ptr_dvf);
 
+// MR Motion
+void* cDS_MRMotionDynamic( int const num_states );
 
 
 #ifndef CSIMULATION_FOR_MATLAB
