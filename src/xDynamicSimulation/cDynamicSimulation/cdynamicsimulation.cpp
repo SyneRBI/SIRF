@@ -22,6 +22,8 @@ limitations under the License.
 #include "sirf/cDynamicSimulation/cdynamicsimulation.h"
 
 #include <memory>
+#include <stddef.h>
+
 
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
@@ -158,6 +160,48 @@ void* cDS_setNoiseLabel(void* ptr_sim, int const label)
 		CAST_PTR(DataHandle, h_sim, ptr_sim);			
 		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
 		sim.set_noise_label(label);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
+
+
+
+// Dynamics
+
+extern "C"
+void* cDS_setDynamicSignal(void* ptr_dyn, size_t signal)
+{
+	try {
+
+		// CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		// MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		// sim.set_noise_label(label);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
+
+// Motion Dynamics
+
+extern "C"
+void* cDS_addDisplacementField(void* ptr_dyn, const void* ptr_dvf)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		MotionDynamic& dyn = objectFromHandle<MotionDynamic>(h_dyn);
+		
+		CAST_PTR(DataHandle, h_dvf, ptr_dvf);
+		MotionFieldType& dvf = objectFromHandle<MotionFieldType>(h_dvf);
+		
+		dyn.add_displacement_field(dvf);
 
 		return new DataHandle;
 
