@@ -90,10 +90,13 @@ class DynamicSimulation(object):
 class SurrogateSignal(object):
     def __init__(self, time_points, signal_points):
 
-        self.handle = None
-        self.handle = pysim.cDS_DynamicSignal(time_points.ctypes.data, signal_points.ctypes.data)
-        check_status(self.handle)
+        num_signal_points = time_points.size
+        if num_signal_points != signal_points.size:
+            AssertionError("The signal and time points do not have the identical size.")
 
+        self.handle = None
+        self.handle = pysim.cDS_DynamicSignal(time_points.ctypes.data, signal_points.ctypes.data, num_signal_points)
+        check_status(self.handle)
 
 class Dynamic(object):
 
