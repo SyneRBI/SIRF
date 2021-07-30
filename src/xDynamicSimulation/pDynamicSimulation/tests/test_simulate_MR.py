@@ -57,19 +57,15 @@ def prepare_test_simulation(fname_mr_rawdata, fpath_xml):
 
 def prep_displacement_field(nifti_3D_volume):
     
-    dvf_x = nifti_3D_volume.copy()
-    dvf_y = nifti_3D_volume.copy()
-    dvf_z = nifti_3D_volume.copy()
+    dvf_x = nifti_3D_volume.deep_copy()
+    dvf_y = nifti_3D_volume.deep_copy()
+    dvf_z = nifti_3D_volume.deep_copy()
 
     Nx, Ny, Nz = nifti_3D_volume.shape
 
-    dvf_x = Nx / 3
-    dvf_y = Ny / 3
-    dvf_z = Nz / 3
-
-    dvf_x.fill(0)
-    dvf_y.fill(0)
-    dvf_z.fill(0)
+    dvf_x.fill(Nx / 3)
+    dvf_y.fill(Ny / 3)
+    dvf_z.fill(Nz / 3)
 
     return pReg.NiftiImageData3DDisplacement(dvf_x, dvf_y, dvf_z)
 
@@ -161,7 +157,7 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     return False, 1
 
 def test_main(rec=False, verb=False, throw=True):
-    test_static_mr_simulation(rec, verb, throw)
+    # test_static_mr_simulation(rec, verb, throw)
     test_motion_mr_simulation(rec, verb, throw)
 
 if __name__ == "__main__":
