@@ -56,6 +56,9 @@ void* cDS_setDynamicSignal(void* ptr_dyn, const void* ptr_sig);
 // Motion Dynamics
 void* cDS_addDisplacementField(void* ptr_dyn, const void* ptr_dvf);
 
+// MR Dynamics
+void* cDS_setMRAcquisitions(void* ptr_dyn, void* ptr_ad);
+
 // MR Motion
 void* cDS_MRMotionDynamic( int const num_states );
 

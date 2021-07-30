@@ -240,6 +240,27 @@ void* cDS_addDisplacementField(void* ptr_dyn, const void* ptr_dvf)
 	CATCH;
 }
 
+// MR Dynamics
+
+extern "C"
+void* cDS_setMRAcquisitions(void* ptr_dyn, void* ptr_ad)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		MRDynamic& dyn = objectFromHandle<MRDynamic>(h_dyn);
+		
+		CAST_PTR(DataHandle, h_ad, ptr_ad);
+		MRAcquisitionData& ad = objectFromHandle<MRAcquisitionData>(h_ad);
+
+		dyn.bin_mr_acquisitions(ad);
+		
+		return new DataHandle;
+		
+	}
+	CATCH;
+}
+
 extern "C"
 void* cDS_MRMotionDynamic( int const num_states )
 {
