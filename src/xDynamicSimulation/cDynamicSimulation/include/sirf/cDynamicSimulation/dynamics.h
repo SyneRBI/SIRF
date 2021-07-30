@@ -177,7 +177,7 @@ public:
 	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
 	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
 
-	virtual void bin_mr_acquisitions( sirf::AcquisitionsVector& all_acquisitions )=0;
+	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions )=0;
 
 protected:
 
@@ -196,7 +196,7 @@ public:
 	MRMotionDynamic(int const num_simul_states): MRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
 	// void prep_displacement_fields( void );
-	virtual void bin_mr_acquisitions( sirf::AcquisitionsVector& all_acquisitions );
+	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 };
 
 class MRContrastDynamic: public MRDynamic, public ContrastDynamic {
@@ -205,7 +205,7 @@ class MRContrastDynamic: public MRDynamic, public ContrastDynamic {
 public:
 	MRContrastDynamic():MRDynamic(), ContrastDynamic() {};
 	MRContrastDynamic(int const num_simul_states): MRDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
-	virtual void bin_mr_acquisitions( sirf::AcquisitionsVector& all_acquisitions );
+	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 
 	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
 	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );

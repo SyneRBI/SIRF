@@ -678,17 +678,16 @@ MotionDynamic::calc_inverse_offset_deformation( NiftiImageData3DDeformation<floa
 }
 
 
-void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
+void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 
 	if(this->dyn_signal_.size() == 0)
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
 
-	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
-	time_ordered_acquisitions.sort_by_time();
+	all_acquisitions.sort_by_time();
 
 	ISMRMRD::Acquisition acq;
-	time_ordered_acquisitions.get_acquisition(0, acq);
+	all_acquisitions.get_acquisition(0, acq);
 
 	TimeAxisType time_offset = SIRF_SCANNER_MS_PER_TIC * acq.getHead().acquisition_time_stamp;
 
@@ -747,7 +746,7 @@ sirf::AcquisitionsVector MRContrastDynamic::get_binned_mr_acquisitions( int cons
 	return this->binned_mr_acquisitions_[bin_num];
 };
 
-void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
+void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	if( true ) // empty the old bins -> every mr contrast dynamic must hold same binned data
 	{
@@ -757,15 +756,14 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 		this->time_points_sampled_.clear();
 	}
 
-	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
-	time_ordered_acquisitions.sort_by_time(); 
+	all_acquisitions.sort_by_time(); 
 
-	size_t const num_acquis = time_ordered_acquisitions.number();	
+	size_t const num_acquis = all_acquisitions.number();	
 	ISMRMRD::Acquisition acq;
-	time_ordered_acquisitions.get_acquisition(num_acquis-1, acq);
+	all_acquisitions.get_acquisition(num_acquis-1, acq);
 	float const t_fin = acq.getHead().acquisition_time_stamp;
 
-	time_ordered_acquisitions.get_acquisition(0, acq);
+	all_acquisitions.get_acquisition(0, acq);
 	float const t_start = acq.getHead().acquisition_time_stamp;
 
 	TimeAxisType total_time = SIRF_SCANNER_MS_PER_TIC * (t_fin - t_start);
@@ -787,12 +785,12 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 		stop_index = ( index_lims[i_bin] < num_acquis ) ? index_lims[i_bin] : num_acquis;
 
 		sirf::AcquisitionsVector av;
-		av.copy_acquisitions_info(time_ordered_acquisitions);
+		av.copy_acquisitions_info(all_acquisitions);
 
 		for(size_t i=start_index; i<stop_index; i++)
 		{
 			ISMRMRD::Acquisition acq;
-			time_ordered_acquisitions.get_acquisition( i, acq );
+			all_acquisitions.get_acquisition( i, acq );
 			av.append_acquisition( acq );
 		}
 		
