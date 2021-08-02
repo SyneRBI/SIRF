@@ -19,6 +19,8 @@ limitations under the License.
 
 */
 
+#include <cmath>
+
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
@@ -441,6 +443,8 @@ STIRImageData::binary_op_(
 	typename Array<3, float>::const_full_iterator iter_y;
 #endif
 
+	float u, v;
+
 	for (iter = data().begin_all(),
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
 		iter != data().end_all() &&
@@ -451,7 +455,16 @@ STIRImageData::binary_op_(
 			*iter = (*iter_x) * (*iter_y);
 			break;
 		case 2:
-			*iter = (*iter_x) / (*iter_y);
+			u = *iter_y;
+			if (u == 0.0)
+				*iter = 0.0;
+			else {
+				v = (*iter_x) / u;
+				if (isinf(v))
+					v = 0.0;
+				*iter = v;
+			}
+			//*iter = (*iter_x) / (*iter_y);
 			break;
 		case 3:
 			*iter = std::max(*iter_x, *iter_y);
