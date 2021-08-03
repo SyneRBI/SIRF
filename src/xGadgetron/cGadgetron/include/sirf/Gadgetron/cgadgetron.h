@@ -82,6 +82,11 @@ extern "C" {
 	void* cGT_fillAcquisitionData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 	void* cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src);
 	void* cGT_acquisitionDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
+	void* cGT_acquisitionParameterInfo(void* ptr_acqs, const char* name, PTR_INT info);
+	void* cGT_acquisitionParameterValuesInt(void* ptr_acqs, const char* name,
+		int from, int till, int n, PTR_INT values);
+	void* cGT_acquisitionParameterValuesFloat(void* ptr_acqs, const char* name,
+		int from, int till, int n, PTR_FLOAT values);
 
 	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
