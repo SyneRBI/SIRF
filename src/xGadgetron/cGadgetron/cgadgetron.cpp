@@ -775,7 +775,7 @@ cGT_acquisitionParameterInfo(void* ptr_acqs, const char* name,
 extern "C"
 void*
 cGT_acquisitionParameterValuesInt(void* ptr_acqs, const char* name,
-	int from, int till, int n, int* values)
+	int from, int till, int n, unsigned long long int* values)
 {
 	try {
 		MRAcquisitionData& acqs =

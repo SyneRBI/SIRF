@@ -972,7 +972,7 @@ class AcquisitionData(DataContainer):
                     (self.handle, par, info.ctypes.data))
         n = int(info[1])
         if info[0] == 0:
-            values = numpy.ndarray((na, n), dtype=numpy.int32)
+            values = numpy.ndarray((na, n), dtype=numpy.uint64)
             try_calling(pygadgetron.cGT_acquisitionParameterValuesInt \
                         (self.handle, par, f, t, n, values.ctypes.data))
         else:

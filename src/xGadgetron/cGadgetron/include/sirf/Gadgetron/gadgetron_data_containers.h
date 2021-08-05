@@ -278,65 +278,64 @@ namespace sirf {
 		}
 		// value of an ISMRMRD::Acquisition int parameter
 		static void ismrmrd_par_value(ISMRMRD::Acquisition& acq,
-			const char* name, int* v)
+			const char* name, unsigned long long int* v)
 		{
 			if (sirf::iequals(name, "version"))
-				*v = ((int)acq.version());
+				*v = ((unsigned int)acq.version());
 			else if (sirf::iequals(name, "flags"))
-				*v = ((int)acq.flags());
+				*v = ((unsigned long long int)acq.flags());
 			else if (sirf::iequals(name, "measurement_uid"))
-				*v = ((int)acq.measurement_uid());
+				*v = ((unsigned int)acq.measurement_uid());
 			else if (sirf::iequals(name, "scan_counter"))
-				*v = ((int)acq.scan_counter());
+				*v = ((unsigned int)acq.scan_counter());
 			else if (sirf::iequals(name, "acquisition_time_stamp"))
-				*v = ((int)acq.acquisition_time_stamp());
+				*v = ((unsigned int)acq.acquisition_time_stamp());
 			else if (sirf::iequals(name, "number_of_samples"))
-				*v = ((int)acq.number_of_samples());
+				*v = ((unsigned int)acq.number_of_samples());
 			else if (sirf::iequals(name, "available_channels"))
-				*v = ((int)acq.available_channels());
+				*v = ((unsigned int)acq.available_channels());
 			else if (sirf::iequals(name, "active_channels"))
-				*v = ((int)acq.active_channels());
+				*v = ((unsigned int)acq.active_channels());
 			else if (sirf::iequals(name, "discard_pre"))
-				*v = ((int)acq.discard_pre());
+				*v = ((unsigned int)acq.discard_pre());
 			else if (sirf::iequals(name, "discard_post"))
-				*v = ((int)acq.discard_post());
+				*v = ((unsigned int)acq.discard_post());
 			else if (sirf::iequals(name, "center_sample"))
-				*v = ((int)acq.center_sample());
+				*v = ((unsigned int)acq.center_sample());
 			else if (sirf::iequals(name, "encoding_space_ref"))
-				*v = ((int)acq.encoding_space_ref());
+				*v = ((unsigned int)acq.encoding_space_ref());
 			else if (sirf::iequals(name, "trajectory_dimensions"))
-				*v = ((int)acq.trajectory_dimensions());
+				*v = ((unsigned int)acq.trajectory_dimensions());
 			else if (sirf::iequals(name, "kspace_encode_step_1"))
-				*v = ((int)acq.idx().kspace_encode_step_1);
+				*v = ((unsigned int)acq.idx().kspace_encode_step_1);
 			else if (sirf::iequals(name, "kspace_encode_step_2"))
-				*v = ((int)acq.idx().kspace_encode_step_2);
+				*v = ((unsigned int)acq.idx().kspace_encode_step_2);
 			else if (sirf::iequals(name, "average"))
-				*v = ((int)acq.idx().average);
+				*v = ((unsigned int)acq.idx().average);
 			else if (sirf::iequals(name, "slice"))
-				*v = ((int)acq.idx().slice);
+				*v = ((unsigned int)acq.idx().slice);
 			else if (sirf::iequals(name, "contrast"))
-				*v = ((int)acq.idx().contrast);
+				*v = ((unsigned int)acq.idx().contrast);
 			else if (sirf::iequals(name, "phase"))
-				*v = ((int)acq.idx().phase);
+				*v = ((unsigned int)acq.idx().phase);
 			else if (sirf::iequals(name, "repetition"))
-				*v = ((int)acq.idx().repetition);
+				*v = ((unsigned int)acq.idx().repetition);
 			else if (sirf::iequals(name, "set"))
-				*v = ((int)acq.idx().set);
+				*v = ((unsigned int)acq.idx().set);
 			else if (sirf::iequals(name, "segment"))
-				*v = ((int)acq.idx().segment);
+				*v = ((unsigned int)acq.idx().segment);
 			else if (sirf::iequals(name, "physiology_time_stamp")) {
 				int n = ISMRMRD::ISMRMRD_Constants::ISMRMRD_PHYS_STAMPS;
 				const uint32_t* pts = acq.physiology_time_stamp();
 				for (int i = 0; i < n; i++)
-					v[i] = (int)pts[i];
+					v[i] = (unsigned int)pts[i];
 			}
 			else if (sirf::iequals(name, "channel_mask")) {
 				int n = ISMRMRD::ISMRMRD_Constants::ISMRMRD_CHANNEL_MASKS;
 				const uint64_t* pts = acq.channel_mask();
 				for (int i = 0; i < n; i++)
-					v[i] = (int)pts[i];
+					v[i] = (unsigned long long int)pts[i];
 			}
-
 		}
 		// value of an ISMRMRD::Acquisition float parameter
 		static void ismrmrd_par_value(ISMRMRD::Acquisition& acq,
