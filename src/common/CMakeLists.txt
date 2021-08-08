@@ -40,10 +40,18 @@ else()
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
   target_link_libraries(Syn PUBLIC cgadgetron cstir Reg)
-  INSTALL(TARGETS Syn DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
   target_link_libraries(csirf PUBLIC iutilities Syn)
+  install(TARGETS Syn EXPORT SIRFTargets
+    COMPONENT Development
+    DESTINATION lib)
 endif()
-INSTALL(TARGETS csirf DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS csirf EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
 
 if (BUILD_PYTHON)
   if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 

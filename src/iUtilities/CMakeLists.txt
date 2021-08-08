@@ -28,6 +28,13 @@ target_include_directories(iutilities PUBLIC
 
 target_include_directories(iutilities PUBLIC ${Boost_INCLUDE_DIRS})
 
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS iutilities EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
+
 if(BUILD_PYTHON)
   if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
     # policy introduced in CMake 3.13
