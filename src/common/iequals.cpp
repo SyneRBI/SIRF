@@ -14,5 +14,13 @@ namespace sirf {
 				return false;
 		return true;
 	}
+	std::string path(const std::string& path)
+	{
+		std::string output = path;
+		for (int i = 0; i < path.size(); i++)
+			if (path[i] == '\\')
+				output[i] = '/';
+		return output;
+	}
 }
 

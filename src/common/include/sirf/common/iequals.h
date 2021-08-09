@@ -20,6 +20,7 @@ namespace sirf {
 	\brief Case insensitive string comparison, replaces boost::iequals.
 	*/
 	bool iequals(const std::string& a, const std::string& b);
+	std::string path(const std::string& path);
 }
 
 #endif

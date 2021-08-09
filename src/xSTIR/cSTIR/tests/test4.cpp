@@ -36,6 +36,7 @@ limitations under the License.
 
 #include "sirf/STIR/stir_x.h"
 #include "sirf/common/getenv.h"
+#include "sirf/common/iequals.h"
 
 using namespace stir;
 using namespace ecat;
@@ -52,7 +53,7 @@ int test4()
 			return 1;
 		}
 
-		std::string path = SIRF_path + "/data/examples/PET/mMR/";
+		std::string path = sirf::path(SIRF_path + "/data/examples/PET/mMR/");
 
 		std::string f_listmode = path + "list.l.hdr";
 		std::string f_template = path + "mMR_template_span11_small.hs";
