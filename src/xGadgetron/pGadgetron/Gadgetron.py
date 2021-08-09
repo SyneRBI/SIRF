@@ -965,6 +965,25 @@ class AcquisitionData(DataContainer):
         else:
             rng = which
             na = len(rng)
+        f = min(rng)
+        t = max(rng) + 1
+        info = numpy.ndarray((2,), dtype=numpy.int32)
+        try_calling(pygadgetron.cGT_acquisitionParameterInfo \
+                    (self.handle, par, info.ctypes.data))
+        n = int(info[1])
+        if info[0] == 0:
+            values = numpy.ndarray((na, n), dtype=numpy.uint64)
+            try_calling(pygadgetron.cGT_acquisitionParameterValuesInt \
+                        (self.handle, par, f, t, n, values.ctypes.data))
+        else:
+            values = numpy.ndarray((na, n), dtype=numpy.float32)
+            try_calling(pygadgetron.cGT_acquisitionParameterValuesFloat \
+                        (self.handle, par, f, t, n, values.ctypes.data))
+        if n == 1:
+            values = numpy.reshape(values, (na,))
+        return values
+
+        # Python way is much slower for large data
         info = numpy.empty((na,), dtype = object)
         i = 0
         for a in rng:
