@@ -356,7 +356,7 @@ class ImageData(SIRF.ImageData):
         if isinstance(data, numpy.ndarray):
             dims = self.dimensions()
             shape = data.shape
-            if shape != dims:
+            if numpy.prod(shape) != numpy.prod(dims):
                 msg = 'cannot fill ImageData of size %s with data of size %s'
                 raise ValueError(msg % (repr(dims), repr(shape)))
             the_data = data
