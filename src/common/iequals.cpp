@@ -14,13 +14,13 @@ namespace sirf {
 				return false;
 		return true;
 	}
-	std::string path(const std::string& path)
+	void fix_path_separator(std::string& path)
 	{
-		std::string output = path;
+#ifdef _WIN32
 		for (int i = 0; i < path.size(); i++)
 			if (path[i] == '\\')
-				output[i] = '/';
-		return output;
+				path[i] = '/';
+#endif
 	}
 }
 

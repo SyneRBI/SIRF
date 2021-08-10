@@ -53,7 +53,8 @@ int test4()
 			return 1;
 		}
 
-		std::string path = sirf::path(SIRF_path + "/data/examples/PET/mMR/");
+		std::string path = SIRF_path + "/data/examples/PET/mMR/";
+        fix_path_separator(path);
 
 		std::string f_listmode = path + "list.l.hdr";
 		std::string f_template = path + "mMR_template_span11_small.hs";

@@ -88,7 +88,8 @@ int test2()
 			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 			return 1;
 		}
-		std::string data_path = path(SIRF_path + "/data/examples/PET/");
+		std::string data_path = SIRF_path + "/data/examples/PET/";
+		fix_path_separator(data_path);
 
 		TextWriter w;
 		openChannel(0, &w); // suppress STIR info output

@@ -81,7 +81,8 @@ int test1()
 		size_t sinos, views, tangs;
 		// locate acquisition data
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
-		filename = path(SIRF_path + "/data/examples/PET/my_forward_projection.hs");
+		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
+		fix_path_separator(filename);
 		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();
