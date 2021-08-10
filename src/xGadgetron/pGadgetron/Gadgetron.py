@@ -354,6 +354,11 @@ class ImageData(SIRF.ImageData):
             return super(ImageData, self).fill(data)
         
         if isinstance(data, numpy.ndarray):
+            dims = self.dimensions()
+            shape = data.shape
+            if shape != dims:
+                msg = 'cannot fill ImageData of size %s with data of size %s'
+                raise ValueError(msg % (repr(dims), repr(shape)))
             the_data = data
             if self.is_real():
                 if data.dtype != numpy.float32:
@@ -1009,6 +1014,12 @@ class AcquisitionData(DataContainer):
                 (self.handle, data.handle))
             return
         elif isinstance(data, numpy.ndarray):
+            dims = self.dimensions()
+            shape = data.shape
+            if shape != dims:
+                msg = 'cannot fill AcquisitionData of size %s' \
+                      + ' with data of size %s'
+                raise ValueError(msg % (repr(dims), repr(shape)))
             if data.dtype is not numpy.complex64:
                 the_data = data.astype(numpy.complex64)
             else:
@@ -1042,8 +1053,8 @@ class AcquisitionData(DataContainer):
         if acq is None:
             ''' return 3D array of all acquisition data
             '''
-            ny, nc, ns = self.dimensions()
-            z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+            na, nc, ns = self.dimensions()
+            z = numpy.ndarray((na, nc, ns), dtype = numpy.complex64)
             acq = -1
         else:
             ''' return 2D array of the specified acquisition data
