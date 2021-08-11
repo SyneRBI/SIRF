@@ -105,7 +105,12 @@ IF(VTK_FOUND)
 ENDIF()
 
 # Install
-INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS Reg EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
 
 SET(REG_executables
     sirf_affine_to_disp

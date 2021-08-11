@@ -57,4 +57,11 @@ else()
   target_link_libraries(cstir Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 endif()
 
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS cstir EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
+
 ADD_SUBDIRECTORY(tests)
