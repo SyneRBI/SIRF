@@ -43,7 +43,7 @@ limitations under the License.
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
-#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 namespace sirf {
 

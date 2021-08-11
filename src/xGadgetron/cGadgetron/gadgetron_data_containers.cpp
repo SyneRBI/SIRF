@@ -378,7 +378,7 @@ void
 MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
 	//MRAcquisitionData& other = (MRAcquisitionData&)dc;
-	DYNAMIC_CAST(const MRAcquisitionData, other, dc);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, other, dc);
 	int n = number();
 	int m = other.number();
 	complex_float_t z = 0;
@@ -410,8 +410,8 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	//complex_float_t a = *(complex_float_t*)ptr_a;
 	//complex_float_t b = *(complex_float_t*)ptr_b;
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(1, x, y, ptr_a, ptr_b);
 }
 
@@ -420,8 +420,8 @@ MRAcquisitionData::xapyb(
 	const DataContainer& a_x, const DataContainer& a_a,
 	const DataContainer& a_y, const DataContainer& a_b)
 {
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(-1, x, y, &a_a, &a_b);
 }
 
@@ -436,16 +436,16 @@ const DataContainer& a_y, const void* ptr_b)
 void
 MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(2, x, y);
 }
 
 void
 MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
 {
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(3, x, y);
 }
 
@@ -454,8 +454,8 @@ MRAcquisitionData::binary_op_(int op,
 const MRAcquisitionData& x, const MRAcquisitionData& y,
 const void* ptr_a, const void* ptr_b)
 {
-	//DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	//DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	//SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	//SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	if (!x.sorted() || !y.sorted())
 		THROW("binary algebraic operations cannot be applied to unsorted data");
 	complex_float_t a;
@@ -872,7 +872,7 @@ void
 GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 {
 	//GadgetronImageData& ic = (GadgetronImageData&)dc;
-	DYNAMIC_CAST(const GadgetronImageData, ic, dc);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, ic, dc);
 	complex_float_t z = 0;
 	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
 		const ImageWrap& u = image_wrap(i);
@@ -890,8 +890,8 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	complex_float_t a = *(complex_float_t*)ptr_a;
 	complex_float_t b = *(complex_float_t*)ptr_b;
-	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
 	//std::cout << nx << ' ' << ny << '\n';
@@ -929,8 +929,8 @@ GadgetronImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
 	if (nx != ny)
@@ -957,8 +957,8 @@ GadgetronImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
 	if (nx != ny)
@@ -1303,7 +1303,7 @@ GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()
 {
-	DYNAMIC_CAST(const GadgetronImageData, imgs, images);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, imgs, images);
 	set_meta_data(imgs.get_meta_data());
 	for (unsigned int i = 0; i < images.number(); i++) {
 		const ImageWrap& u = images.image_wrap(i);
@@ -1316,7 +1316,7 @@ GadgetronImagesVector::GadgetronImagesVector
 (GadgetronImagesVector& images, const char* attr, const char* target) : 
 images_()
 {
-	DYNAMIC_CAST(const GadgetronImageData, imgs, images);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, imgs, images);
 	set_meta_data(imgs.get_meta_data());
 	for (unsigned int i = 0; i < images.number(); i++) {
 		const ImageWrap& u = images.image_wrap(i);

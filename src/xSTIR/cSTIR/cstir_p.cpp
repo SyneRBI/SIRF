@@ -32,7 +32,7 @@ using namespace sirf;
 
 #define SPTR_FROM_HANDLE(Object, X, H) \
 	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
-#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 extern "C"
 char* charDataFromHandle(const void* ptr);
@@ -645,7 +645,7 @@ sirf::cSTIR_setIterativeReconstructionParameter
 	else if (sirf::iequals(name, "initial_estimate")) {
 		//xSTIR_IterativeReconstruction3DF& xrecon =
 		//	(xSTIR_IterativeReconstruction3DF&)(recon);
-		DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+		SIRF_DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
 		xrecon.set_initial_estimate_file(charDataFromDataHandle(hv));
 	}
 	else {
@@ -661,7 +661,7 @@ sirf::cSTIR_setIterativeReconstructionParameter
 		else if (sirf::iequals(name, "subiteration_num")) {
 			//xSTIR_IterativeReconstruction3DF& xrecon =
 			//	(xSTIR_IterativeReconstruction3DF&)(recon);
-			DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+			SIRF_DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
 			xrecon.subiteration() = value;
 		}
 		else if (sirf::iequals(name, "save_interval"))
@@ -691,7 +691,7 @@ sirf::cSTIR_iterativeReconstructionParameter
 	if (sirf::iequals(name, "subiteration_num")) {
 		//xSTIR_IterativeReconstruction3DF& xrecon =
 		//	(xSTIR_IterativeReconstruction3DF&)(recon);
-		//DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+		//SIRF_DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
 		int iter = recon.get_subiteration_num();
 		return dataHandle<int>(iter);
 		//return dataHandle<int>(xrecon.subiteration());

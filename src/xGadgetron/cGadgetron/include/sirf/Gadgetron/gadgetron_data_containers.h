@@ -49,8 +49,8 @@ limitations under the License.
 
 #include "sirf/iUtilities/LocalisedException.h"
 
-//#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
-#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+//#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 /*!
 \ingroup MR
@@ -693,14 +693,14 @@ namespace sirf {
 			const DataContainer& a_y, const DataContainer& a_b)
 		{
 			ComplexFloat_ a(*(complex_float_t*)ptr_a);
-			DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const void* ptr_b)
 		{
-			DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
 			ComplexFloat_ b(*(complex_float_t*)ptr_b);
 			xapyb_(a_x, a, a_y, b);
 		}
@@ -708,8 +708,8 @@ namespace sirf {
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b)
 		{
-			DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
-			DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
@@ -816,8 +816,8 @@ namespace sirf {
 		template<class A, class B>
 		void xapyb_(const DataContainer& a_x, A& a, const DataContainer& a_y, B& b)
 		{
-			DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
-			DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);
 			unsigned int nx = x.number();
 			unsigned int na = a.number();
 			unsigned int ny = y.number();
@@ -889,12 +889,12 @@ namespace sirf {
 			}
 			virtual bool operator==(const BaseIter& ai) const
 			{
-				DYNAMIC_CAST(const Iterator, i, ai);
+				SIRF_DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ == i.iter_;
 			}
 			virtual bool operator!=(const BaseIter& ai) const
 			{
-				DYNAMIC_CAST(const Iterator, i, ai);
+				SIRF_DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator& operator++()
@@ -963,12 +963,12 @@ namespace sirf {
 			}
 			bool operator==(const BaseIter_const& ai) const
 			{
-				DYNAMIC_CAST(const Iterator_const, i, ai);
+				SIRF_DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ == i.iter_;
 			}
 			bool operator!=(const BaseIter_const& ai) const
 			{
-				DYNAMIC_CAST(const Iterator_const, i, ai);
+				SIRF_DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator_const& operator++()
