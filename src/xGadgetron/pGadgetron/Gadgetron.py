@@ -613,18 +613,20 @@ class CoilSensitivityData(ImageData):
                 from ismrmrdtools import coils
             except:
                 raise error('Inati method requires ismrmrd-python-tools')
-            
-            try_calling(pygadgetron.cGT_computeCoilImages(self.handle, data.handle))
-                
-            cis_array = self.as_array()
+
+            cis = CoilImagesData()
+            try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
+            cis_array = cis.as_array()
             csm, _ = coils.calculate_csm_inati_iter(cis_array)
-            
+
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+            self.handle = pysirf.cSIRF_clone(cis.handle)
             nc, nz, ny, nx = self.dimensions()
             ns = self.number() # number of total dynamics (slices, contrasts, etc.)
             nz = nz//ns        # z-dimension of a slice
             csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
             csm = numpy.swapaxes(csm, 0,  1)
-            
             self.fill(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
