@@ -1,0 +1,106 @@
+# The original *cmake.in file is part of SIRF.
+#
+# Author: Kris Thielemans
+# Author Richard Brown
+# Copyright 2016, 2019, 2020 University College London
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0.txt
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+# This file sets SIRF_INCLUDE_DIRS, SIRF_LIBRARIES and SIRF_REGISTRIES.
+# It also finds the packages that were used to build SIRF as you need those
+# to link against etc. It should normally not be required that you know about
+# these, as they should be automatically added to the dependencies of the SIRF
+# libraries. Therefore, if you make a target that depends on ${SIRF_LIBRARIES},
+# its include_directories and linkage should automagically be ok.
+#
+# At this point in time, you do need to add
+#  include_directories("${SIRF_INCLUDE_DIRS}")
+# to your CMake file to get the SIRF_REGISTRIES to compile.
+#
+# The file also sets variables such as SIRF_BUILT_WITH_ITK, SIRF_BUILT_WITH_OpenMP etc
+# in case you need to how it was built.
+@PACKAGE_INIT@ 
+
+include(CMakeFindDependencyMacro)
+
+# add folder where this file resides to the cmake path such that it can use our find_package modules and .cmake files
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
+
+include("${CMAKE_CURRENT_LIST_DIR}/SIRFTargets.cmake")
+
+## find external packages
+
+find_dependency(Boost COMPONENTS system filesystem thread date_time chrono)
+# For Visual Studio we have to disable the auto-linking feature of boost
+# where just including a boost file automatically adds it to the linker path.
+# Although this sounds great, it sadly breaks because of conflicting file-paths when linking etc etc.
+# In any case, we need to add the libraries by hand for other systems.
+# See http://stackoverflow.com/questions/32252016/cmake-visual-studio-build-looks-for-wrong-library
+add_definitions(-DBOOST_ALL_NO_LIB)
+
+# we use a trick by Matt McCormick (kitware)
+# to set ITK_DIR etc first before calling find_dependency
+# to make sure we pick the same version of the external library
+
+#if (@ITK_FOUND@)
+#  message(STATUS "ITK support in SIRF enabled.")
+#  set(ITK_DIR "@ITK_DIR@")
+#  find_dependency(ITK)
+#  include(${ITK_USE_FILE})
+#  set(SIRF_BUILT_WITH_ITK TRUE)
+#endif()
+
+
+if (@SIRF_BUILT_WITH_STIR@)
+  message(STATUS "STIR support in SIRF enabled.")
+  find_dependency(STIR @STIR_VERSION_TRUNCATED@)
+  set(SIRF_BUILT_WITH_STIR TRUE)
+endif()
+
+if (@SIRF_BUILT_WITH_REGISTRATION@)
+  message(STATUS "REGISTRATION support in SIRF enabled.")
+  #find_dependency(REGISTRATION @REGISTRATION_VERSION@)
+  set(SIRF_BUILT_WITH_REGISTRATION TRUE)
+
+  find_dependency(NIFTYREG 1.5.61)
+  if (NIFTYREG_BUILT_WITH_OPENMP)
+    find_dependency(OpenMP)
+  endif()
+  if (NIFTYREG_BUILT_WITH_CUDA)
+    find_dependency(CUDA)
+  endif()
+  if (NIFTYREG_BUILT_WITH_OPENCL)
+    find_dependency(OpenCL)
+  endif()
+endif()
+
+if (@SIRF_BUILT_WITH_ISMRMRD@)
+  message(STATUS "ISMRMRD support in SIRF enabled.")
+  find_dependency(ISMRMRD @ISMRMRD_VERSION@)
+  set(SIRF_BUILT_WITH_ISMRMRD TRUE)
+  if (@Gadgetron_USE_CUDA@)
+    find_package(CUDA) # using find_package here as this dependency is optional
+  endif()
+endif()
+
+if (@SIRF_BUILT_WITH_VTK@)
+  message(STATUS "VTK support in SIRF enabled.")
+  find_dependency(VTK @VTK_VERSION@)
+  set(SIRF_BUILT_WITH_VTK TRUE)
+endif()
+
+if(@SIRF_OPENMP@)
+  find_dependency(OpenMP)
+  set(SIRF_BUILT_WITH_OpenMP TRUE)
+endif()
+

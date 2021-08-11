@@ -26,6 +26,7 @@
     2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
         1. [Creating and running gadget chains by SIRF script](#creating_and_running_gadget_chains)
         2. [SIRF gadget library](#SIRF_gadget_library)
+    3. [Using the C++ libraries](#using_the_c++_libraries)
 
 # Overview <a name="Overview"></a>
 
@@ -76,12 +77,13 @@ The MR module and the demos create temporary files during operation. They are no
 	
 # Framework basic functionality <a name="Basic_functionality"></a>
 
+This section mostly describes the Python/MATLAB interface of SIRF, although a lot of the text applies to the underlying C++ library as well. See the [appendix on using SIRF C++](#using_the_c++_libraries) for additional information if you use C++.
 
 ## General conventions <a name="General_conventions"></a> 
 
 ### Object-oriented paradigm <a name="Object-oriented_paradigm"></a>
 
-SIRF library modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
+SIRF Python/MATLAB modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
 
     image = ImageData('my_image.h5'); 
 
@@ -1250,3 +1252,12 @@ for fully sampled reconstruction.
 | | | trigger_dimension | "repetition" |
 | | | split_slices | "true" |
 
+### Using the C++ libraries<a name="using_the_c++_libraries</name>
+
+The Python/MATLAB interface is based on the underlying C++ code. However, the mapping is currently not one-to-one. Python/MATLAB classes do correspond to C++ classes but might have extra methods or vice versa.
+
+The C++ library is currently still somewhat preliminary, although quite usable of course.
+We use [Doxygen](https://www.doxygen.nl/index.html) to generate the documentation for the C++ classes. The documentation for the current SIRF release can be found via the [SyneRBI website](http://www.ccpsynerbi.ac.uk/) (currently the link is in the Wiki, accessible via the Software tab).
+
+If you want to develop a program or library that uses SIRF functionality, we recommend using CMake for your project.
+After SIRF v3.1.0 was released, we added CMake code to SIRF such that building SIRF will export a CMake config file to enable this. See the [../examples/C++](SIRF/examples/C++) folder for an example on how to use this.
