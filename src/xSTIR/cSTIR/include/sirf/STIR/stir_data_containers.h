@@ -338,9 +338,10 @@ namespace sirf {
 		{
 			return data()->get_empty_segment_by_sinogram(segment_num);
 		}
-		virtual stir::Succeeded set_segment(const stir::SegmentBySinogram<float>& s)
+		void set_segment(const stir::SegmentBySinogram<float>& s)
 		{
-			return data()->set_segment(s);
+			if (data()->set_segment(s) != stir::Succeeded::yes)
+				THROW("stir::ProjData set segment failed");
 		}
 		stir::shared_ptr<const stir::ExamInfo> get_exam_info_sptr() const
 		{
