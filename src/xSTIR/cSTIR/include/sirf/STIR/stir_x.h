@@ -1014,14 +1014,13 @@ The actual algorithm is described in
 				("wrong frequency cut-off", __FILE__, __LINE__);
 			fc_ramp = fc;
 		}
-		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
+		void set_up(stir::shared_ptr<STIRImageData> sptr_id)
 		{
 			_sptr_image_data.reset(new STIRImageData(*sptr_id));
 			stir::Succeeded s = stir::Reconstruction<Image3DF>::set_up(_sptr_image_data->data_sptr());
 			if (s != stir::Succeeded::yes)
 				THROW("stir::Reconstruction setup failed");
 			_is_set_up = true;
-			return stir::Succeeded::yes;
 		}
 		void cancel_setup()
 		{
