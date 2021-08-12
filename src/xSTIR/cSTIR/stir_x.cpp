@@ -393,15 +393,17 @@ PETAcquisitionSensitivityModel(std::string filename)
 	norm_ = sptr_n;
 }
 
-Succeeded 
+void
 PETAcquisitionSensitivityModel::set_up(const shared_ptr<const ExamInfo>& sptr_ei,
 	const shared_ptr<ProjDataInfo>& sptr_pdi)
 {
 #if STIR_VERSION < 050000
-	return norm_->set_up(sptr_pdi);
+	stir::Succeeded s = norm_->set_up(sptr_pdi);
 #else
-	return norm_->set_up(sptr_ei, sptr_pdi);
+	stir::Succeeded s = norm_->set_up(sptr_ei, sptr_pdi);
 #endif
+	if (s != stir::Succeeded::yes)
+		THROW("stir::BinNormalisation setup failed");
 }
 
 void
@@ -469,7 +471,7 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 //	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
 //}
 
-Succeeded 
+void
 PETAcquisitionModel::set_up(
 	shared_ptr<PETAcquisitionData> sptr_acq,
 	shared_ptr<STIRImageData> sptr_image)
@@ -484,10 +486,11 @@ PETAcquisitionModel::set_up(
 	}
 	if (s == Succeeded(Succeeded::yes)) {
 		if (sptr_asm_ && sptr_asm_->data())
-			s = sptr_asm_->set_up(sptr_acq->get_exam_info_sptr(),
+			sptr_asm_->set_up(sptr_acq->get_exam_info_sptr(),
 				sptr_acq->get_proj_data_info_sptr()->create_shared_clone());
 	}
-	return s;
+	else
+		THROW("stir::ProjectorByBinPair setup failed");
 }
 
 void 

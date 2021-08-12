@@ -555,15 +555,9 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 		PETAcquisitionSensitivityModel& sm = 
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-		Succeeded s = sm.set_up(sptr_ad->get_exam_info_sptr(), 
+		sm.set_up(sptr_ad->get_exam_info_sptr(),
 			sptr_ad->get_proj_data_info_sptr()->create_shared_clone());
-		DataHandle* handle = new DataHandle;
-		if (s != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }
@@ -600,15 +594,8 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_dt, ptr_dt);
 		SPTR_FROM_HANDLE(STIRImageData, sptr_id, ptr_im);
-		//std::cout << "setting up acquisition model...\n";
-		Succeeded s = am.set_up(sptr_dt, sptr_id);
-		DataHandle* handle = new DataHandle;
-		if (s != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
+		am.set_up(sptr_dt, sptr_id);
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }
@@ -871,12 +858,8 @@ void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
 		xSTIR_FBP2DReconstruction& recon =
 			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
 		SPTR_FROM_HANDLE(STIRImageData, sptr_id, ptr_i);
-		if (recon.set_up(sptr_id) != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_setupFBP2DReconstruction failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
+		recon.set_up(sptr_id);
+		return (void*)new DataHandle;
 	}
 	CATCH;
 }
@@ -888,12 +871,8 @@ void* cSTIR_runFBP2DReconstruction(void* ptr_r)
 		DataHandle* handle = new DataHandle;
 		xSTIR_FBP2DReconstruction& recon =
 			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
-		if (recon.process() != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_FBP2DReconstruction failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
+		recon.process();
+		return (void*)new DataHandle;
 	}
 	CATCH;
 }
@@ -902,7 +881,6 @@ extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
-		//std::cout << "in cSTIR_setupReconstruction...\n";
 		DataHandle* handle = new DataHandle;
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		sptrImage3DF sptr_image = id.data_sptr();

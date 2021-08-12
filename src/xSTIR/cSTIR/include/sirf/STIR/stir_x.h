@@ -168,7 +168,7 @@ The actual algorithm is described in
         virtual stir::Succeeded set_up()
 		{
 			if (LmToProjData::set_up() == Succeeded::no)
-				return stir::Succeeded::no;
+				THROW("LmToProjData setup failed");
 			fan_size = -1;
 			const int max_fan_size =
 				lm_data_ptr->get_scanner_ptr()->get_max_num_non_arccorrected_bins();
@@ -252,7 +252,7 @@ The actual algorithm is described in
 			norm_.reset(new stir::ChainedBinNormalisation(mod1.data(), mod2.data()));
 		}
 
-		stir::Succeeded set_up(const stir::shared_ptr<const stir::ExamInfo>& exam_info_sptr,
+		void set_up(const stir::shared_ptr<const stir::ExamInfo>& exam_info_sptr,
 			const stir::shared_ptr<stir::ProjDataInfo>&);
 
 		// multiply by bin efficiencies
@@ -470,7 +470,7 @@ The actual algorithm is described in
 			return sptr_am;
 		}
 
-		virtual stir::Succeeded set_up(
+		virtual void set_up(
 			stir::shared_ptr<PETAcquisitionData> sptr_acq,
 			stir::shared_ptr<STIRImageData> sptr_image);
 
@@ -781,13 +781,13 @@ The actual algorithm is described in
 			return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 				get_proj_matrix_sptr();
 		}
-		virtual stir::Succeeded set_up(
+		virtual	void set_up(
 			stir::shared_ptr<PETAcquisitionData> sptr_acq,
 			stir::shared_ptr<STIRImageData> sptr_image)
 		{
 			if (!sptr_matrix_.get())
-				return stir::Succeeded::no;
-			return PETAcquisitionModel::set_up(sptr_acq, sptr_image);
+				THROW("PETAcquisitionModelUsingMatrix setup failed - matrix not set");
+			PETAcquisitionModel::set_up(sptr_acq, sptr_image);
 		}
 
 	private:
@@ -1017,7 +1017,9 @@ The actual algorithm is described in
 		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
 		{
 			_sptr_image_data.reset(new STIRImageData(*sptr_id));
-			stir::Reconstruction<Image3DF>::set_up(_sptr_image_data->data_sptr());
+			stir::Succeeded s = stir::Reconstruction<Image3DF>::set_up(_sptr_image_data->data_sptr());
+			if (s != stir::Succeeded::yes)
+				THROW("stir::Reconstruction setup failed");
 			_is_set_up = true;
 			return stir::Succeeded::yes;
 		}
@@ -1025,16 +1027,19 @@ The actual algorithm is described in
 		{
 			_is_set_up = false;
 		}
-		stir::Succeeded process()
+		void process()
 		{
+			stir::Succeeded s = stir::Succeeded::no;
 			if (!_is_set_up) {
 				stir::shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());
 				_sptr_image_data.reset(new STIRImageData(sptr_image));
 				stir::Reconstruction<Image3DF>::set_up(sptr_image);
-				return reconstruct(sptr_image);
+				s = reconstruct(sptr_image);
 			}
 			else
-				return reconstruct(_sptr_image_data->data_sptr());
+				s = reconstruct(_sptr_image_data->data_sptr());
+			if (s != stir::Succeeded::yes)
+				THROW("stir::AnalyticReconstruction::reconstruct failed");
 		}
 		stir::shared_ptr<STIRImageData> get_output()
 		{
