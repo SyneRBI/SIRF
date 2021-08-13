@@ -915,21 +915,26 @@ The actual algorithm is described in
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
 		}
-		void set_acquisition_model(stir::shared_ptr<AcqMod3DF> sptr)
+		void set_acquisition_model(stir::shared_ptr<AcqMod3DF> sptr_am)
 		{
-			sptr_am_ = sptr;
-			AcqMod3DF& am = *sptr;
+			sptr_am_ = sptr_am;
+			AcqMod3DF& am = *sptr_am;
+			stir::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm = am.asm_sptr();
 			set_projector_pair_sptr(am.projectors_sptr());
 			bool have_a = am.additive_term_sptr().get();
 			bool have_b = am.background_term_sptr().get();
+			bool have_asm = sptr_asm.get();
 			if (!have_b) {
 				if (have_a)
 					set_additive_proj_data_sptr(am.additive_term_sptr()->data());
 			}
 			else {
-				stir::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm = am.asm_sptr();
 				stir::shared_ptr<const PETAcquisitionData> sptr_b = am.background_term_sptr();
-				stir::shared_ptr<PETAcquisitionData> sptr = sptr_asm->invert(*sptr_b);
+				stir::shared_ptr<PETAcquisitionData> sptr;
+				if (have_asm)
+					sptr = sptr_asm->invert(*sptr_b);
+				else
+					sptr = sptr_b->clone();
 				if (have_a) {
 					stir::shared_ptr<const PETAcquisitionData> sptr_a = am.additive_term_sptr();
 					float a = 1.0f;
@@ -937,8 +942,6 @@ The actual algorithm is described in
 				}
 				set_additive_proj_data_sptr(sptr->data());
 			}
-			//if (am.additive_term_sptr().get())
-			//	set_additive_proj_data_sptr(am.additive_term_sptr()->data());
 			if (am.normalisation_sptr().get())
 				set_normalisation_sptr(am.normalisation_sptr());
 		}
