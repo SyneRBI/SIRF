@@ -20,8 +20,8 @@ limitations under the License.
 */
 
 #include "sirf/common/iequals.h"
-#include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/stir_types.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 #include "stir/ImagingModality.h"
@@ -32,9 +32,9 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
-#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))
+#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(std::shared_ptr<T >(new T))
 #define SPTR_FROM_HANDLE(Object, X, H) \
-	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+  std::shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -56,11 +56,11 @@ cSTIR_newReconstructionMethod(const char* par_file)
 {
 	try {
 		if (strlen(par_file) > 0) {
-			shared_ptr<Reconstruction<Image3DF> > sptr(new Method(par_file));
+                        std::shared_ptr<Reconstruction<Image3DF> > sptr(new Method(par_file));
 			return newObjectHandle(sptr);
 		}
 		else {
-			shared_ptr<Reconstruction<Image3DF> > sptr(new Method);
+                        std::shared_ptr<Reconstruction<Image3DF> > sptr(new Method);
 			return newObjectHandle(sptr);
 		}
 	}
@@ -289,12 +289,12 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			<OSSPSReconstruction<Image3DF> >
 			(filename);
 		if (sirf::iequals(name, "Image")) {
-			shared_ptr<STIRImageData> sptr(new STIRImageData(filename));
+                        std::shared_ptr<STIRImageData> sptr(new STIRImageData(filename));
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "AcquisitionData")) {
 
-            shared_ptr<PETAcquisitionData> sptr;
+            std::shared_ptr<PETAcquisitionData> sptr;
             if (PETAcquisitionData::storage_scheme().compare("file") == 0)
                 sptr.reset(new PETAcquisitionDataInFile(filename));
             else
@@ -302,17 +302,17 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "ListmodeToSinograms")) {
-			shared_ptr<ListmodeToSinograms>
+                        std::shared_ptr<ListmodeToSinograms>
 				sptr(new ListmodeToSinograms(filename));
 			return newObjectHandle(sptr);
 		}
                 if (sirf::iequals(name, "PETSingleScatterSimulator")) {
-                  shared_ptr<PETSingleScatterSimulator>
+                    stir::shared_ptr<PETSingleScatterSimulator>
                     sptr(new PETSingleScatterSimulator(filename));
                   return newObjectHandle(sptr);
                 }
                 if (sirf::iequals(name, "PETScatterEstimator")) {
-                  shared_ptr<PETScatterEstimator>
+                  stir::shared_ptr<PETScatterEstimator>
                     sptr(new PETScatterEstimator(filename));
                   return newObjectHandle(sptr);
                 }
@@ -699,7 +699,7 @@ void* cSTIR_acquisitionDataFromTemplate(void* ptr_t)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
-		shared_ptr<PETAcquisitionData> sptr(sptr_t->new_acquisition_data());
+                std::shared_ptr<PETAcquisitionData> sptr(sptr_t->new_acquisition_data());
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -710,7 +710,7 @@ void* cSTIR_cloneAcquisitionData(void* ptr_ad)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-		shared_ptr<PETAcquisitionData> sptr(sptr_ad->clone());
+                std::shared_ptr<PETAcquisitionData> sptr(sptr_ad->clone());
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -727,7 +727,7 @@ const int max_in_segment_num_to_process
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
-		shared_ptr<PETAcquisitionData> sptr =
+                std::shared_ptr<PETAcquisitionData> sptr =
 			sptr_t->single_slice_rebinned_data(
 			num_segments_to_combine,
 			num_views_to_combine,
@@ -745,15 +745,15 @@ void* cSTIR_acquisitionDataFromScannerInfo
 (const char* scanner, int span, int max_ring_diff, int view_mash_factor)
 {
 	try{
-		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
+                stir::shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
         sptr_ei->imaging_modality = ImagingModality::PT;
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
 		PETAcquisitionDataInFile::init();
-		stir::shared_ptr<PETAcquisitionData> sptr_t =
+		std::shared_ptr<PETAcquisitionData> sptr_t =
 			PETAcquisitionData::storage_template();
-		stir::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
+		std::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
 			(sptr_ei, sptr_pdi));
 		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
