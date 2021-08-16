@@ -183,7 +183,7 @@ The actual algorithm is described in
 			exam_info_sptr_->set_time_frame_definitions(frame_defs);
 			const float h = proj_data_info_sptr_->get_bed_position_horizontal();
 			const float v = proj_data_info_sptr_->get_bed_position_vertical();
-			shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(template_proj_data_info_ptr->clone());
+                        stir::shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(template_proj_data_info_ptr->clone());
 			temp_proj_data_info_sptr->set_bed_position_horizontal(h);
 			temp_proj_data_info_sptr->set_bed_position_vertical(v);
 			randoms_sptr.reset(new PETAcquisitionDataInMemory(exam_info_sptr_, temp_proj_data_info_sptr));
@@ -196,13 +196,13 @@ The actual algorithm is described in
 			std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
 			randoms_sptr->write(filename.c_str());
 		}
-		stir::shared_ptr<PETAcquisitionData> get_output()
+		std::shared_ptr<PETAcquisitionData> get_output()
 		{
 			std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
-			return stir::shared_ptr<PETAcquisitionData>
+			return std::shared_ptr<PETAcquisitionData>
 				(new PETAcquisitionDataInFile(filename.c_str()));
 		}
-		stir::shared_ptr<PETAcquisitionData> get_randoms_sptr()
+		std::shared_ptr<PETAcquisitionData> get_randoms_sptr()
 		{
 			return randoms_sptr;
 		}
@@ -223,7 +223,7 @@ The actual algorithm is described in
 		stir::shared_ptr<ProjDataInfo> proj_data_info_sptr_;
 		stir::shared_ptr<std::vector<stir::Array<2, float> > > fan_sums_sptr;
 		stir::shared_ptr<stir::DetectorEfficiencies> det_eff_sptr;
-		stir::shared_ptr<PETAcquisitionData> randoms_sptr;
+		std::shared_ptr<PETAcquisitionData> randoms_sptr;
 		void compute_fan_sums_(bool prompt_fansum = false);
 		int compute_singles_();
 //		void estimate_randoms_();
@@ -260,17 +260,17 @@ The actual algorithm is described in
 		// divide by bin efficiencies
 		virtual void normalise(PETAcquisitionData& ad) const;
 		// same as apply, but returns new data rather than changes old one
-		stir::shared_ptr<PETAcquisitionData> forward(PETAcquisitionData& ad) const
+		std::shared_ptr<PETAcquisitionData> forward(PETAcquisitionData& ad) const
 		{
-			stir::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
+			std::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 			sptr_ad->fill(ad);
 			this->unnormalise(*sptr_ad);
 			return sptr_ad;
 		}
 		// same as undo, but returns new data rather than changes old one
-		stir::shared_ptr<PETAcquisitionData> invert(const PETAcquisitionData& ad) const
+		std::shared_ptr<PETAcquisitionData> invert(PETAcquisitionData& ad) const
 		{
-			stir::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
+			std::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 			sptr_ad->fill(ad);
 			this->normalise(*sptr_ad);
 			return sptr_ad;
@@ -396,27 +396,27 @@ The actual algorithm is described in
 		{
 			return sptr_projectors_;
 		}
-		void set_additive_term(stir::shared_ptr<PETAcquisitionData> sptr)
+		void set_additive_term(std::shared_ptr<PETAcquisitionData> sptr)
 		{
 			sptr_add_ = sptr;
 		}
-		stir::shared_ptr<const PETAcquisitionData> additive_term_sptr() const
+		std::shared_ptr<const PETAcquisitionData> additive_term_sptr() const
 		{
 			return sptr_add_;
 		}
-		void set_background_term(stir::shared_ptr<PETAcquisitionData> sptr)
+		void set_background_term(std::shared_ptr<PETAcquisitionData> sptr)
 		{
 			sptr_background_ = sptr;
 		}
-		stir::shared_ptr<const PETAcquisitionData> background_term_sptr() const
+		std::shared_ptr<const PETAcquisitionData> background_term_sptr() const
 		{
 			return sptr_background_;
 		}
-		stir::shared_ptr<const PETAcquisitionData> acq_template_sptr() const
+		std::shared_ptr<const PETAcquisitionData> acq_template_sptr() const
 		{
 			return sptr_acq_template_;
 		}
-		stir::shared_ptr<const STIRImageData> image_template_sptr() const
+		std::shared_ptr<const STIRImageData> image_template_sptr() const
 		{
 			return sptr_image_template_;
 		}
@@ -437,7 +437,7 @@ The actual algorithm is described in
 		//{
 		//	sptr_normalisation_.reset(new stir::BinNormalisationFromProjData(*sptr_data));
 		//}
-		void set_asm(stir::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm)
+		void set_asm(std::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm)
 		{
 			//sptr_normalisation_ = sptr_asm->data();
 			sptr_asm_ = sptr_asm;
@@ -464,9 +464,9 @@ The actual algorithm is described in
 			sptr_asm_.reset();
 			//sptr_normalisation_.reset();
 		}
-		stir::shared_ptr<const PETAcquisitionModel> linear_acq_mod_sptr() const
+		std::shared_ptr<const PETAcquisitionModel> linear_acq_mod_sptr() const
 		{
-			stir::shared_ptr<PETAcquisitionModel> sptr_am(new PETAcquisitionModel);
+			std::shared_ptr<PETAcquisitionModel> sptr_am(new PETAcquisitionModel);
 			sptr_am->set_projectors(sptr_projectors_);
 			sptr_am->set_asm(sptr_asm_);
 			sptr_am->sptr_acq_template_ = sptr_acq_template_;
@@ -475,13 +475,13 @@ The actual algorithm is described in
 		}
 
 		virtual void set_up(
-			stir::shared_ptr<PETAcquisitionData> sptr_acq,
-			stir::shared_ptr<STIRImageData> sptr_image);
+			std::shared_ptr<PETAcquisitionData> sptr_acq,
+			std::shared_ptr<STIRImageData> sptr_image);
 
 		/*! \brief computes and returns a subset of forward-projected data
 		\see forward(PETAcquisitionData&, const STIRImageData&,, int, int, bool, bool)
 		*/
-		stir::shared_ptr<PETAcquisitionData>
+		std::shared_ptr<PETAcquisitionData>
 			forward(const STIRImageData& image,
 			int subset_num = 0, int num_subsets = 1, bool do_linear_only = false) const;
 		/*! \brief replaces a subset of acquisition data with forward-projected data
@@ -498,7 +498,7 @@ The actual algorithm is described in
 			int subset_num, int num_subsets, bool zero = false, bool do_linear_only = false) const;
 
 		// computes and returns back-projected subset of acquisition data 
-		stir::shared_ptr<STIRImageData> backward(PETAcquisitionData& ad,
+		std::shared_ptr<STIRImageData> backward(PETAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1) const;
 		// puts back-projected subset of acquisition data into image 
 		void backward(STIRImageData& image, PETAcquisitionData& ad,
@@ -506,11 +506,11 @@ The actual algorithm is described in
 
 	protected:
 		stir::shared_ptr<stir::ProjectorByBinPair> sptr_projectors_;
-		stir::shared_ptr<PETAcquisitionData> sptr_acq_template_;
-		stir::shared_ptr<STIRImageData> sptr_image_template_;
-		stir::shared_ptr<PETAcquisitionData> sptr_add_;
-		stir::shared_ptr<PETAcquisitionData> sptr_background_;
-		stir::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm_;
+		std::shared_ptr<PETAcquisitionData> sptr_acq_template_;
+		std::shared_ptr<STIRImageData> sptr_image_template_;
+		std::shared_ptr<PETAcquisitionData> sptr_add_;
+		std::shared_ptr<PETAcquisitionData> sptr_background_;
+		std::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm_;
 		//shared_ptr<stir::BinNormalisation> sptr_normalisation_;
 	};
 
@@ -537,8 +537,8 @@ The actual algorithm is described in
         stir::SingleScatterSimulation(filename)
         {}
 
-        void set_up(shared_ptr<const PETAcquisitionData> sptr_acq_template,
-                    shared_ptr<const STIRImageData> sptr_act_image_template)
+        void set_up(std::shared_ptr<const PETAcquisitionData> sptr_acq_template,
+                    std::shared_ptr<const STIRImageData> sptr_act_image_template)
           {
             this->sptr_acq_template_ = sptr_acq_template;
 
@@ -561,7 +561,7 @@ The actual algorithm is described in
               THROW("Fatal error in PETSingleScatterSimulator::set_up() failed.");
           }
 
-        void set_activity_image_sptr(stir::shared_ptr<const STIRImageData> arg)
+        void set_activity_image_sptr(std::shared_ptr<const STIRImageData> arg)
         {
 #if STIR_VERSION < 050000
             // need to make a copy as the function doesn't accept a const
@@ -572,7 +572,7 @@ The actual algorithm is described in
 #endif
         }
 
-        void set_attenuation_image_sptr(stir::shared_ptr<const STIRImageData> arg)
+        void set_attenuation_image_sptr(std::shared_ptr<const STIRImageData> arg)
         {
 #if STIR_VERSION < 050000
             // need to make a copy as the function doesn't accept a const
@@ -583,26 +583,26 @@ The actual algorithm is described in
 #endif
         }
 
-        stir::shared_ptr<PETAcquisitionData> forward(const STIRImageData& activity_img) /*TODO CONST*/
+        std::shared_ptr<PETAcquisitionData> forward(const STIRImageData& activity_img) /*TODO CONST*/
           {
             if (!sptr_acq_template_.get())
               THROW("Fatal error in PETSingleScatterSimulator::forward: acquisition template not set");
-            shared_ptr<PETAcquisitionData> sptr_ad;
-            sptr_ad = sptr_acq_template_->new_acquisition_data();
+            std::shared_ptr<PETAcquisitionData> sptr_ad =
+              sptr_acq_template_->new_acquisition_data();
             this->forward( *sptr_ad, activity_img);
             return sptr_ad;
           }
 
         void forward(PETAcquisitionData& ad, const STIRImageData& activity_img) /* TODO CONST*/
           {
-            shared_ptr<ProjData> sptr_fd = ad.data();
+            stir::shared_ptr<ProjData> sptr_fd = ad.data();
             this->set_output_proj_data_sptr(sptr_fd);
             // hopefully STIR checks if template consistent with input data
             this->process_data();
           }
 
     protected:
-        stir::shared_ptr<const PETAcquisitionData> sptr_acq_template_;
+        std::shared_ptr<const PETAcquisitionData> sptr_acq_template_;
 
     };
 
@@ -644,27 +644,27 @@ The actual algorithm is described in
         {}
 
         //! Set the input data
-        void set_input_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        void set_input_sptr(std::shared_ptr<const PETAcquisitionData> arg)
         {
             stir::ScatterEstimation::set_input_proj_data_sptr(arg->data());
         }
         //! Set attenuation correction factors as acq_data
-        void set_attenuation_correction_factors_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        void set_attenuation_correction_factors_sptr(std::shared_ptr<const PETAcquisitionData> arg)
         {
           stir::ScatterEstimation::set_attenuation_correction_proj_data_sptr(arg->data());
         }
         //! Set acquisition sensitivity model specifying detection efficiencies (without attenuation)
-        void set_asm(stir::shared_ptr<PETAcquisitionSensitivityModel> arg)
+        void set_asm(std::shared_ptr<PETAcquisitionSensitivityModel> arg)
         {
           stir::ScatterEstimation::set_normalisation_sptr(arg->data());
         }
         //! Set the background data (normally equal to the randoms in PET)
-        void set_background_sptr(stir::shared_ptr<const PETAcquisitionData> arg)
+        void set_background_sptr(std::shared_ptr<const PETAcquisitionData> arg)
         {
             stir::ScatterEstimation::set_background_proj_data_sptr(arg->data());
         }
 
-        void set_attenuation_image_sptr(stir::shared_ptr<const STIRImageData> arg)
+        void set_attenuation_image_sptr(std::shared_ptr<const STIRImageData> arg)
         {
 #if STIR_VERSION < 050000
             // need to make a copy as the function doesn't accept a const
@@ -698,7 +698,7 @@ The actual algorithm is described in
           return stir::ScatterEstimation::get_num_iterations();
         }
 
-        stir::shared_ptr<PETAcquisitionData> get_scatter_estimate(int est_num = -1) const
+        std::shared_ptr<PETAcquisitionData> get_scatter_estimate(int est_num = -1) const
         {
             if (est_num == -1) // Get the last one
                 est_num = num_scatter_iterations;
@@ -712,12 +712,12 @@ The actual algorithm is described in
         }
 
         //! get last scatter estimate
-        stir::shared_ptr<PETAcquisitionData> get_output() const
+        std::shared_ptr<PETAcquisitionData> get_output() const
           {
             auto stir_proj_data_sptr = stir::ScatterEstimation::get_output();
             if (!stir_proj_data_sptr)
               THROW("output not yet computed");
-            stir::shared_ptr<PETAcquisitionData> sptr_acq_data
+            std::shared_ptr<PETAcquisitionData> sptr_acq_data
               (PETAcquisitionData::storage_template()->same_acquisition_data(stir_proj_data_sptr->get_exam_info_sptr(),
                                                                              stir_proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone()));
             sptr_acq_data->data()->fill(*stir_proj_data_sptr);
@@ -786,8 +786,8 @@ The actual algorithm is described in
 				get_proj_matrix_sptr();
 		}
 		virtual	void set_up(
-			stir::shared_ptr<PETAcquisitionData> sptr_acq,
-			stir::shared_ptr<STIRImageData> sptr_image)
+			std::shared_ptr<PETAcquisitionData> sptr_acq,
+			std::shared_ptr<STIRImageData> sptr_image)
 		{
 			if (!sptr_matrix_.get())
 				THROW("PETAcquisitionModelUsingMatrix setup failed - matrix not set");
@@ -800,7 +800,7 @@ The actual algorithm is described in
 
 	typedef PETAcquisitionModel AcqMod3DF;
 	typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
-	typedef stir::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
+	typedef std::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
 
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
     /*!
@@ -826,7 +826,7 @@ The actual algorithm is described in
             _NiftyPET_projector_pair_sptr->set_use_truncation(use_truncation);
         }
     protected:
-        stir::shared_ptr<ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
+        stir::shared_ptr<stir::ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
     };
     typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
 #endif
@@ -910,12 +910,12 @@ The actual algorithm is described in
 		void set_input_file(const char* filename) {
 			input_filename = filename;
 		}
-		void set_acquisition_data(stir::shared_ptr<PETAcquisitionData> sptr)
+		void set_acquisition_data(std::shared_ptr<PETAcquisitionData> sptr)
 		{
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
 		}
-		void set_acquisition_model(stir::shared_ptr<AcqMod3DF> sptr_am)
+		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr)
 		{
 			sptr_am_ = sptr_am;
 			AcqMod3DF& am = *sptr_am;
@@ -945,13 +945,13 @@ The actual algorithm is described in
 			if (am.normalisation_sptr().get())
 				set_normalisation_sptr(am.normalisation_sptr());
 		}
-		stir::shared_ptr<AcqMod3DF> acquisition_model_sptr()
+		std::shared_ptr<AcqMod3DF> acquisition_model_sptr()
 		{
 			return sptr_am_;
 		}
 	private:
-		stir::shared_ptr<PETAcquisitionData> sptr_ad_;
-		stir::shared_ptr<AcqMod3DF> sptr_am_;
+		std::shared_ptr<PETAcquisitionData> sptr_ad_;
+		std::shared_ptr<AcqMod3DF> sptr_am_;
 	};
 
 	typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
@@ -1038,7 +1038,7 @@ The actual algorithm is described in
 				("wrong frequency cut-off", __FILE__, __LINE__);
 			fc_ramp = fc;
 		}
-		void set_up(stir::shared_ptr<STIRImageData> sptr_id)
+		void set_up(std::shared_ptr<STIRImageData> sptr_id)
 		{
 			_sptr_image_data.reset(new STIRImageData(*sptr_id));
 			stir::Succeeded s = stir::Reconstruction<Image3DF>::set_up(_sptr_image_data->data_sptr());
@@ -1064,13 +1064,13 @@ The actual algorithm is described in
 			if (s != stir::Succeeded::yes)
 				THROW("stir::AnalyticReconstruction::reconstruct failed");
 		}
-		stir::shared_ptr<STIRImageData> get_output()
+		std::shared_ptr<STIRImageData> get_output()
 		{
 			return _sptr_image_data;
 		}
 	protected:
 		bool _is_set_up;
-		stir::shared_ptr<STIRImageData> _sptr_image_data;
+		std::shared_ptr<STIRImageData> _sptr_image_data;
 	};
 
 	class xSTIR_SeparableGaussianImageFilter : 

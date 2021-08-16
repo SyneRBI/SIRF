@@ -358,10 +358,10 @@ ListmodeToSinograms::estimate_randoms()
 PETAcquisitionSensitivityModel::
 PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
 {
-	shared_ptr<PETAcquisitionData>
+        std::shared_ptr<PETAcquisitionData>
 		sptr_ad(ad.new_acquisition_data());
 	sptr_ad->inv(MIN_BIN_EFFICIENCY, ad);
-	shared_ptr<BinNormalisation> 
+        stir::shared_ptr<BinNormalisation> 
 		sptr_n(new BinNormalisationFromProjData(sptr_ad->data()));
 	//shared_ptr<BinNormalisation> sptr_0;
 	//norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
@@ -441,7 +441,7 @@ PETAttenuationModel::unnormalise(PETAcquisitionData& ad) const
 {
 	//std::cout << "in PETAttenuationModel::unnormalise\n";
 	BinNormalisation* norm = norm_.get();
-	shared_ptr<DataSymmetriesForViewSegmentNumbers>
+        stir::shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
 	norm->undo(*ad.data(), 0, 1, symmetries_sptr);
 }
@@ -450,7 +450,7 @@ void
 PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
-	shared_ptr<DataSymmetriesForViewSegmentNumbers>
+        stir::shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
 #if STIR_VERSION < 050000
 	norm->apply(*ad.data(), 0, 1, symmetries_sptr);
@@ -463,7 +463,7 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 //PETAcquisitionModel::set_bin_efficiency
 //(shared_ptr<PETAcquisitionData> sptr_data)
 //{
-//	shared_ptr<PETAcquisitionData>
+//	std::shared_ptr<PETAcquisitionData>
 //		sptr_ad(sptr_data->new_acquisition_data());
 //	sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
 //	sptr_normalisation_.reset
@@ -473,8 +473,8 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 
 void
 PETAcquisitionModel::set_up(
-	shared_ptr<PETAcquisitionData> sptr_acq,
-	shared_ptr<STIRImageData> sptr_image)
+                            std::shared_ptr<PETAcquisitionData> sptr_acq,
+                            std::shared_ptr<STIRImageData> sptr_image)
 {
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
@@ -507,7 +507,7 @@ void
 PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 	int subset_num, int num_subsets, bool zero, bool do_linear_only) const
 {
-	shared_ptr<ProjData> sptr_fd = ad.data();
+        stir::shared_ptr<ProjData> sptr_fd = ad.data();
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
 		(*sptr_fd, image.data(), subset_num, num_subsets, zero);
 
@@ -541,26 +541,26 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 		if (stir::Verbosity::get() > 1) std::cout << "no background term added\n";
 }
 
-shared_ptr<PETAcquisitionData>
+std::shared_ptr<PETAcquisitionData>
 PETAcquisitionModel::forward(const STIRImageData& image, 
 	int subset_num, int num_subsets, bool do_linear_only) const
 {
 	if (!sptr_acq_template_.get())
 		THROW("Fatal error in PETAcquisitionModel::forward: acquisition template not set");
-	shared_ptr<PETAcquisitionData> sptr_ad;
-	sptr_ad = sptr_acq_template_->new_acquisition_data();
-	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
+        std::shared_ptr<PETAcquisitionData> sptr_ad =
+          sptr_acq_template_->new_acquisition_data();
+        stir::shared_ptr<ProjData> sptr_fd = sptr_ad->data();
 	forward(*sptr_ad, image, subset_num, num_subsets, num_subsets > 1, do_linear_only);
 	return sptr_ad;
 }
 
-shared_ptr<STIRImageData> 
+std::shared_ptr<STIRImageData> 
 PETAcquisitionModel::backward(PETAcquisitionData& ad,
 	int subset_num, int num_subsets) const
 {
 	if (!sptr_image_template_.get())
 		THROW("Fatal error in PETAcquisitionModel::backward: image template not set");
-	shared_ptr<STIRImageData> sptr_id;
+        std::shared_ptr<STIRImageData> sptr_id;
 	sptr_id = sptr_image_template_->new_image_data();
 	backward(*sptr_id, ad, subset_num, num_subsets);
 	return sptr_id;
@@ -570,12 +570,12 @@ void
 PETAcquisitionModel::backward(STIRImageData& id, PETAcquisitionData& ad,
 	int subset_num, int num_subsets) const
 {
-	shared_ptr<Image3DF> sptr_im = id.data_sptr();
+        stir::shared_ptr<Image3DF> sptr_im = id.data_sptr();
 
 	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
 	if (sm && sm->data() && !sm->data()->is_trivial()) {
 		if (stir::Verbosity::get() > 1) std::cout << "applying unnormalisation...";
-		shared_ptr<PETAcquisitionData> sptr_ad(ad.new_acquisition_data());
+                std::shared_ptr<PETAcquisitionData> sptr_ad(ad.new_acquisition_data());
 		sptr_ad->fill(ad);
 		sptr_asm_->unnormalise(*sptr_ad);
 		//sptr_normalisation_->undo(*sptr_ad->data(), 0, 1);
