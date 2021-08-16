@@ -402,6 +402,12 @@ namespace sirf {
 
 		// acquisition data algebra
 		virtual void dot(const DataContainer& dc, void* ptr) const;
+		complex_float_t dot(const DataContainer& a_x)
+		{
+			complex_float_t z;
+			dot(a_x, &z);
+			return z;
+		}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);

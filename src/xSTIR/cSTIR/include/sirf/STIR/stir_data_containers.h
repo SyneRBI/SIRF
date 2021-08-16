@@ -256,6 +256,12 @@ namespace sirf {
 		}
 		virtual float norm() const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
+		float dot(const DataContainer& a_x) const
+		{
+			float s;
+			dot(a_x, &s);
+			return s;
+		}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
