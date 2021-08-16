@@ -260,7 +260,7 @@ The actual algorithm is described in
 		// divide by bin efficiencies
 		virtual void normalise(PETAcquisitionData& ad) const;
 		// same as apply, but returns new data rather than changes old one
-		std::shared_ptr<PETAcquisitionData> forward(PETAcquisitionData& ad) const
+		std::shared_ptr<PETAcquisitionData> forward(const PETAcquisitionData& ad) const
 		{
 			std::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 			sptr_ad->fill(ad);
@@ -268,7 +268,7 @@ The actual algorithm is described in
 			return sptr_ad;
 		}
 		// same as undo, but returns new data rather than changes old one
-		std::shared_ptr<PETAcquisitionData> invert(PETAcquisitionData& ad) const
+		std::shared_ptr<PETAcquisitionData> invert(const PETAcquisitionData& ad) const
 		{
 			std::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 			sptr_ad->fill(ad);
@@ -441,6 +441,10 @@ The actual algorithm is described in
 		{
 			//sptr_normalisation_ = sptr_asm->data();
 			sptr_asm_ = sptr_asm;
+		}
+		stir::shared_ptr<PETAcquisitionSensitivityModel> asm_sptr() const
+		{
+			return sptr_asm_;
 		}
 
 		//! sets data processor to use on the image before forward projection and after back projection
@@ -911,13 +915,33 @@ The actual algorithm is described in
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
 		}
-		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr)
+		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
 		{
-			sptr_am_ = sptr;
-			AcqMod3DF& am = *sptr;
+			sptr_am_ = sptr_am;
+			AcqMod3DF& am = *sptr_am;
+			auto sptr_asm = am.asm_sptr();
 			set_projector_pair_sptr(am.projectors_sptr());
-			if (am.additive_term_sptr().get())
-				set_additive_proj_data_sptr(am.additive_term_sptr()->data());
+			bool have_a = am.additive_term_sptr().get();
+			bool have_b = am.background_term_sptr().get();
+			bool have_asm = sptr_asm.get();
+			if (!have_b) {
+				if (have_a)
+					set_additive_proj_data_sptr(am.additive_term_sptr()->data());
+			}
+			else {
+				auto sptr_b = am.background_term_sptr();
+				stir::shared_ptr<PETAcquisitionData> sptr;
+				if (have_asm)
+					sptr = sptr_asm->invert(*sptr_b);
+				else
+					sptr = sptr_b->clone();
+				if (have_a) {
+					auto sptr_a = am.additive_term_sptr();
+					float a = 1.0f;
+					sptr->axpby(&a, *sptr, &a, *sptr_a);
+				}
+				set_additive_proj_data_sptr(sptr->data());
+			}
 			if (am.normalisation_sptr().get())
 				set_normalisation_sptr(am.normalisation_sptr());
 		}
