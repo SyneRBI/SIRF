@@ -919,7 +919,7 @@ The actual algorithm is described in
 		{
 			sptr_am_ = sptr_am;
 			AcqMod3DF& am = *sptr_am;
-			stir::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm = am.asm_sptr();
+			auto sptr_asm = am.asm_sptr();
 			set_projector_pair_sptr(am.projectors_sptr());
 			bool have_a = am.additive_term_sptr().get();
 			bool have_b = am.background_term_sptr().get();
@@ -929,14 +929,14 @@ The actual algorithm is described in
 					set_additive_proj_data_sptr(am.additive_term_sptr()->data());
 			}
 			else {
-				stir::shared_ptr<const PETAcquisitionData> sptr_b = am.background_term_sptr();
+				auto sptr_b = am.background_term_sptr();
 				stir::shared_ptr<PETAcquisitionData> sptr;
 				if (have_asm)
 					sptr = sptr_asm->invert(*sptr_b);
 				else
 					sptr = sptr_b->clone();
 				if (have_a) {
-					stir::shared_ptr<const PETAcquisitionData> sptr_a = am.additive_term_sptr();
+					auto sptr_a = am.additive_term_sptr();
 					float a = 1.0f;
 					sptr->axpby(&a, *sptr, &a, *sptr_a);
 				}
