@@ -260,7 +260,7 @@ The actual algorithm is described in
 		// divide by bin efficiencies
 		virtual void normalise(PETAcquisitionData& ad) const;
 		// same as apply, but returns new data rather than changes old one
-		std::shared_ptr<PETAcquisitionData> forward(PETAcquisitionData& ad) const
+		std::shared_ptr<PETAcquisitionData> forward(const PETAcquisitionData& ad) const
 		{
 			std::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 			sptr_ad->fill(ad);
@@ -268,7 +268,7 @@ The actual algorithm is described in
 			return sptr_ad;
 		}
 		// same as undo, but returns new data rather than changes old one
-		std::shared_ptr<PETAcquisitionData> invert(PETAcquisitionData& ad) const
+		std::shared_ptr<PETAcquisitionData> invert(const PETAcquisitionData& ad) const
 		{
 			std::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 			sptr_ad->fill(ad);
@@ -915,7 +915,7 @@ The actual algorithm is described in
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
 		}
-		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr)
+		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
 		{
 			sptr_am_ = sptr_am;
 			AcqMod3DF& am = *sptr_am;
