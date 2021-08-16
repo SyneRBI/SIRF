@@ -639,7 +639,6 @@ namespace sirf {
             while (iter != pd_ptr->end())
                 *d++ = *iter++;
         }
-        /// Calculate the norm
         virtual float norm() const
         {
             const stir::ProjDataInMemory *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
@@ -654,7 +653,6 @@ namespace sirf {
                 t += (*iter) * (*iter++);
             return sqrt((float)t);
         }
-        /// Dot between "this" and "other"
         virtual void dot(const DataContainer& a_x, void* ptr) const
         {
             auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
@@ -675,7 +673,6 @@ namespace sirf {
             float* ptr_t = (float*)ptr;
             *ptr_t = (float)t;
         }
-        /// Element-wise multiplication of x and y. Store result in "this"
         virtual void multiply(const DataContainer& x, const DataContainer& y)
         {
             auto a_x = dynamic_cast<const PETAcquisitionData*>(&x);
@@ -697,7 +694,6 @@ namespace sirf {
             while (iter != pd_ptr->end())
                 *iter++ = (*iter_x++) * (*iter_y++);
         }
-        /// Element-wise division of x and y. Store result in "this"
         virtual void divide(const DataContainer& x, const DataContainer& y)
         {
             auto a_x = dynamic_cast<const PETAcquisitionData*>(&x);
