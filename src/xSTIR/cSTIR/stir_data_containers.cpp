@@ -31,7 +31,7 @@ using namespace sirf;
 #define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 std::string PETAcquisitionData::_storage_scheme;
-shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
+std::shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
 float
 PETAcquisitionData::norm() const
