@@ -109,6 +109,7 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     fpath_xml = input_fpath_prefix + 'Segmentations/XCAT_TissueParameters_XML.xml'
     fpath_template_rawdata = input_fpath_prefix + 'TemplateData/MR/CV_nav_cart_64Cube_1Echo.h5'
 
+    #
     mrsim, rawdata, labels = prepare_test_simulation(fpath_template_rawdata, fpath_xml)
     
     mrsim.set_acquisition_template_data(rawdata)
@@ -123,35 +124,40 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     mrsim.set_snr(SNR)
     mrsim.set_snr_label(SNR_label)
 
+    # 
+    num_resp_states = 4
+    resp_motion = pDS.MRMotionDynamic(num_resp_states)
+    resp_motion.set_cyclicality(False)
 
+    # generate artificial motion signal
     Nt = 100
     t0_s = 0
     tmax_s = 1200
     time_points = np.linspace(t0_s, tmax_s, Nt)
 
     resp_frequency_Hz = 0.2
-    resp_curve = 0.5 * ( 1 + np.sin( 2*np.pi*resp_frequency_Hz *time_points))
+    resp_curve = 0.5 * ( 1 + np.sin( 2*np.pi*resp_frequency_Hz*time_points))
     motion_signal = pDS.SurrogateSignal(time_points, resp_curve)
 
+    resp_motion.set_dynamic_signal(motion_signal)
+
+    #
     inhale_dvf = prep_displacement_field(labels)
     identity_trafo = prep_displacement_field(labels)
     identity_trafo.fill(0)
-
-    num_resp_states = 4
-    resp_motion = pDS.MRMotionDynamic(num_resp_states)
-    resp_motion.set_cyclicality(False)
-
-    resp_motion.set_dynamic_signal(motion_signal)
     
     resp_motion.add_displacement_field(identity_trafo)
     resp_motion.add_displacement_field(inhale_dvf)
     
+
+    #
     resp_motion.set_mr_acquisitions(rawdata)
 
+    # 
     mrsim.add_motion_dynamic(resp_motion)
-    
     mrsim.simulate_data()
 
+    #   
     input_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
     fpath_output = input_fpath_prefix + 'mr_motion_simulation.h5'
     mrsim.write_simulation_results(fpath_output)
