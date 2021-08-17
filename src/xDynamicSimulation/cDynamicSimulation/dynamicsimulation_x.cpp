@@ -445,11 +445,8 @@ void PETDynamicSimulation::acquire_raw_data( void )
 	PETAttenuationModel att_mod(attenuation_map, this->acq_model_);
 	this->acq_model_.set_asm( std::make_shared<PETAttenuationModel>(att_mod)); 
 
-	auto succeeded = this->acq_model_.set_up( stir::shared_ptr<PETAcquisitionDataInFile>(new PETAcquisitionDataInFile(source_acquisitions_)),
+	this->acq_model_.set_up( stir::shared_ptr<PETAcquisitionDataInFile>(new PETAcquisitionDataInFile(source_acquisitions_)),
 	 			       stir::shared_ptr<STIRImageData>(new STIRImageData(template_img) ) );
-
-	if( succeeded == stir::Succeeded::no )
-		throw std::runtime_error("Setup of acquisition model failed");
 
 	std::cout << "Application of forward model." << std::endl;
 	this->sptr_target_acquisitions_ = this->acq_model_.forward(activity_img);
