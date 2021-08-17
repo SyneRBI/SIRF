@@ -1038,7 +1038,7 @@ GadgetronImagesVector::sort()
 	sorted_ = true;
 
 	// quick fix for the problem of compatibility with image data iterators
-	std::vector<gadgetron::shared_ptr<ImageWrap> > sorted_images;
+	std::vector<shared_ptr<ImageWrap> > sorted_images;
 	for (int i = 0; i < ni; i++)
 		sorted_images.push_back(sptr_image_wrap(i));
 	images_ = sorted_images;
@@ -1060,7 +1060,7 @@ GadgetronImagesVector::sort()
 #endif
 }
 
-std::shared_ptr<std::vector<std::string> >
+shared_ptr<std::vector<std::string> >
 group_names_sptr(const char* filename)
 {
 	hid_t    file;
@@ -1072,7 +1072,7 @@ group_names_sptr(const char* filename)
 	const int MAX_NAME = 1024;
 	char group_name[MAX_NAME];
 	char var_name[MAX_NAME];
-	std::shared_ptr<std::vector<std::string> >
+	shared_ptr<std::vector<std::string> >
 		sptr_names(new std::vector<std::string>);
 	std::vector<std::string>& names = *sptr_names;
 
@@ -1106,7 +1106,7 @@ int
 GadgetronImageData::read(std::string filename, std::string variable, int iv) 
 {
 	int vsize = variable.size();
-	std::shared_ptr<std::vector<std::string> > sptr_names;
+	shared_ptr<std::vector<std::string> > sptr_names;
 	sptr_names = group_names_sptr(filename.c_str());
 	std::vector<std::string>& names = *sptr_names;
 	int ng = names.size();
@@ -1440,7 +1440,7 @@ static bool are_vectors_equal(const float * const vec1, const float * const vec2
     return true;
 }
 
-static void print_slice_directions(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
+static void print_slice_directions(const std::vector<shared_ptr<ImageWrap> > &images)
 {
     std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.\n";
     for (unsigned im=0; im<images.size(); ++im) {
@@ -1450,7 +1450,7 @@ static void print_slice_directions(const std::vector<gadgetron::shared_ptr<Image
     }
 }
 
-static void print_slice_distances(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
+static void print_slice_distances(const std::vector<shared_ptr<ImageWrap> > &images)
 {
     std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.\n";
     for (unsigned im=0; im<images.size()-1; ++im) {
@@ -1912,7 +1912,7 @@ CoilSensitivitiesVector::calculate(CoilImagesVector& iv)
 
     for(int i_img=0; i_img<iv.items();++i_img)
     {
-        gadgetron::shared_ptr<ImageWrap> sptr_iw = iv.sptr_image_wrap(i_img);
+        shared_ptr<ImageWrap> sptr_iw = iv.sptr_image_wrap(i_img);
 
         int dim[4];
         sptr_iw->get_dim(dim);
