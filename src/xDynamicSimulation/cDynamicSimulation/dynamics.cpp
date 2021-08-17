@@ -168,7 +168,7 @@ void aDynamic::set_num_simul_states(int const num_states)
 
 }
 
-void aDynamic::set_dyn_signal(SignalContainer signal) 
+void aDynamic::set_dyn_signal(const SignalContainer& signal) 
 {
 	this->dyn_signal_ = signal;
 }

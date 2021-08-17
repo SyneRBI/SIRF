@@ -59,8 +59,8 @@ public:
 
 	std::vector< SignalBin > get_bins( void ){ return this->signal_bins_;};
 	void set_num_simul_states(int const num_states);
-	void set_dyn_signal(SignalContainer signal);
-
+	void set_dyn_signal(const SignalContainer& signal);
+	
 	SignalAxisType linear_interpolate_signal(TimeAxisType time_point);
 	
 protected:
