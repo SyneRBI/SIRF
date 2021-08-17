@@ -34,7 +34,8 @@ else()
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
   find_package(FFTW3 COMPONENTS single REQUIRED)
   ADD_SUBDIRECTORY(xGadgetron)
-
+  set(SIRF_BUILT_WITH_ISMRMRD TRUE PARENT_SCOPE)
+  set(ISMRMRD_VERSION ${ISMRMRD_VERSION} PARENT_SCOPE)
 endif()
 
 
@@ -46,6 +47,7 @@ option(DISABLE_Registration "Disable building the SIRF registration package" OFF
 if (DISABLE_Registration)
   message(STATUS "Registration support disabled.")
   set(SPM_BOOL_STR "0" PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION False PARENT_SCOPE)
 else()
   FIND_PACKAGE(NIFTYREG 1.5.61 REQUIRED)
   # NIFTYREG
@@ -70,6 +72,7 @@ else()
   endif()
   ADD_SUBDIRECTORY(Registration)
   set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION TRUE PARENT_SCOPE)
 endif()
 
 
@@ -114,6 +117,8 @@ else()
     set(Parallelproj_BOOL_STR "0")
   endif()
   ADD_SUBDIRECTORY(xSTIR)
+  set(SIRF_BUILT_WITH_STIR TRUE PARENT_SCOPE)
+  set(STIR_VERSION ${STIR_VERSION} PARENT_SCOPE)
 endif()
 set(NiftyPET_BOOL_STR ${NiftyPET_BOOL_STR} PARENT_SCOPE)
 set(Parallelproj_BOOL_STR ${Parallelproj_BOOL_STR} PARENT_SCOPE)

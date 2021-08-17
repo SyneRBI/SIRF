@@ -38,6 +38,7 @@ limitations under the License.
 #include <fstream>
 #include <exception>
 
+#include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/iequals.h"
@@ -45,7 +46,6 @@ limitations under the License.
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/PETImageData.h"
-#include "sirf/STIR/stir_types.h"
 #include "sirf/common/GeometricalInfo.h"
 #include "stir/ZoomOptions.h"
 
@@ -153,7 +153,7 @@ namespace sirf {
 		virtual PETAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
+		virtual std::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
 
 		virtual bool is_complex() const
 		{
@@ -175,7 +175,7 @@ namespace sirf {
 		  \param max_in_segment_num_to_process by default all input data are used. If set to a non-negative
 		    number, it will remove the most oblique segments.
 		*/
-		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
+		std::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,
 			const int num_views_to_combine = 1,
 			const int num_tang_poss_to_trim = 0,
@@ -190,7 +190,7 @@ namespace sirf {
 				num_tang_poss_to_trim,
 				max_in_segment_num_to_process
 				));
-			stir::shared_ptr<PETAcquisitionData> 
+			std::shared_ptr<PETAcquisitionData> 
 				sptr(same_acquisition_data
                                      (this->get_exam_info_sptr(), out_proj_data_info_sptr));
 			SSRB(*sptr, *data(), do_normalisation);
@@ -206,7 +206,7 @@ namespace sirf {
 			}
 			return _storage_scheme;
 		}
-		static stir::shared_ptr<PETAcquisitionData> storage_template()
+		static std::shared_ptr<PETAcquisitionData> storage_template()
 		{
 			return _template;
 		}
@@ -256,6 +256,12 @@ namespace sirf {
 		}
 		virtual float norm() const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
+		float dot(const DataContainer& a_x) const
+		{
+			float s;
+			dot(a_x, &s);
+			return s;
+		}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -338,9 +344,10 @@ namespace sirf {
 		{
 			return data()->get_empty_segment_by_sinogram(segment_num);
 		}
-		virtual stir::Succeeded set_segment(const stir::SegmentBySinogram<float>& s)
+		void set_segment(const stir::SegmentBySinogram<float>& s)
 		{
-			return data()->set_segment(s);
+			if (data()->set_segment(s) != stir::Succeeded::yes)
+				THROW("stir::ProjData set segment failed");
 		}
 		stir::shared_ptr<const stir::ExamInfo> get_exam_info_sptr() const
 		{
@@ -376,7 +383,7 @@ namespace sirf {
 
 	protected:
 		static std::string _storage_scheme;
-		static stir::shared_ptr<PETAcquisitionData> _template;
+		static std::shared_ptr<PETAcquisitionData> _template;
 		stir::shared_ptr<stir::ProjData> _data;
 		virtual PETAcquisitionData* clone_impl() const = 0;
 		PETAcquisitionData* clone_base() const
@@ -431,9 +438,9 @@ namespace sirf {
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
-		stir::shared_ptr<PETAcquisitionData> new_acquisition_data(std::string filename)
+		std::shared_ptr<PETAcquisitionData> new_acquisition_data(std::string filename)
 		{
-			stir::shared_ptr<PETAcquisitionDataInFile> sptr_ad(new PETAcquisitionDataInFile);
+			std::shared_ptr<PETAcquisitionDataInFile> sptr_ad(new PETAcquisitionDataInFile);
 			sptr_ad->_data.reset(new ProjDataFile(*data(), filename, false));
 			return sptr_ad;
 		}
@@ -469,12 +476,12 @@ namespace sirf {
                                 this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone());
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(ptr));
+				(std::shared_ptr<DataContainer>(ptr));
 		}
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
+		virtual std::shared_ptr<PETAcquisitionData> new_acquisition_data() const
 		{
 			init();
-			return stir::shared_ptr < PETAcquisitionData >
+			return std::shared_ptr < PETAcquisitionData >
 				(_template->same_acquisition_data(this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
@@ -567,12 +574,12 @@ namespace sirf {
 				(this->get_exam_info_sptr(),
                                  this->get_proj_data_info_sptr()->create_shared_clone());
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(ptr));
+				(std::shared_ptr<DataContainer>(ptr));
 		}
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
+		virtual std::shared_ptr<PETAcquisitionData> new_acquisition_data() const
 		{
 			init();
-			return stir::shared_ptr < PETAcquisitionData >
+			return std::shared_ptr < PETAcquisitionData >
 				(_template->same_acquisition_data
 				(this->get_exam_info_sptr(),
                                  this->get_proj_data_info_sptr()->create_shared_clone()));
@@ -632,7 +639,6 @@ namespace sirf {
             while (iter != pd_ptr->end())
                 *d++ = *iter++;
         }
-        /// Calculate the norm
         virtual float norm() const
         {
             const stir::ProjDataInMemory *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
@@ -647,7 +653,6 @@ namespace sirf {
                 t += (*iter) * (*iter++);
             return sqrt((float)t);
         }
-        /// Dot between "this" and "other"
         virtual void dot(const DataContainer& a_x, void* ptr) const
         {
             auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
@@ -668,7 +673,6 @@ namespace sirf {
             float* ptr_t = (float*)ptr;
             *ptr_t = (float)t;
         }
-        /// Element-wise multiplication of x and y. Store result in "this"
         virtual void multiply(const DataContainer& x, const DataContainer& y)
         {
             auto a_x = dynamic_cast<const PETAcquisitionData*>(&x);
@@ -690,7 +694,6 @@ namespace sirf {
             while (iter != pd_ptr->end())
                 *iter++ = (*iter_x++) * (*iter_y++);
         }
-        /// Element-wise division of x and y. Store result in "this"
         virtual void divide(const DataContainer& x, const DataContainer& y)
         {
             auto a_x = dynamic_cast<const PETAcquisitionData*>(&x);
@@ -870,14 +873,14 @@ namespace sirf {
             ptr_image->set_up_geom_info();
 			return ptr_image;
 		}
-		stir::shared_ptr<STIRImageData> new_image_data()
+		std::shared_ptr<STIRImageData> new_image_data()
 		{
-			return stir::shared_ptr<STIRImageData>(same_image_data());
+			return std::shared_ptr<STIRImageData>(same_image_data());
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(same_image_data()));
+				(std::shared_ptr<DataContainer>(same_image_data()));
 		}
 		virtual bool is_complex() const
 		{
@@ -1063,10 +1066,10 @@ namespace sirf {
 	protected:
 
 		stir::shared_ptr<Image3DF> _data;
-		mutable stir::shared_ptr<Iterator> _begin;
-		mutable stir::shared_ptr<Iterator> _end;
-		mutable stir::shared_ptr<Iterator_const> _begin_const;
-		mutable stir::shared_ptr<Iterator_const> _end_const;
+		mutable std::shared_ptr<Iterator> _begin;
+		mutable std::shared_ptr<Iterator> _end;
+		mutable std::shared_ptr<Iterator_const> _begin_const;
+		mutable std::shared_ptr<Iterator_const> _end_const;
 	};
 
 }  // namespace sirf

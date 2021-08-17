@@ -167,6 +167,11 @@ def main():
     if output_file is not None:
         simulated_data.write(output_file)
 
+    if show_plot:
+        # show simulated acquisition data
+        simulated_data_as_array = simulated_data.as_array()
+        show_2D_array('Forward projection (subset 0)', simulated_data_as_array[0,0,:,:])
+
     print('\n--- Computing the norm of the linear part A of acquisition model...')
     acqm_norm = acq_model.norm()
     image_norm = image.norm()
@@ -181,11 +186,6 @@ def main():
     else:
         msg += ' - ???\n'
     print( msg % acqd_bound)
-
-    if show_plot:
-        # show simulated acquisition data
-        simulated_data_as_array = simulated_data.as_array()
-        show_2D_array('Forward projection (subset 0)', simulated_data_as_array[0,0,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
@@ -238,6 +238,8 @@ def main():
         print('%s' % err.value)
         print('Extracting the linear acquisition model...')
         lin_acq_model = acq_model.get_linear_acquisition_model()
+        lin_acq_model.num_subsets = num_subsets
+        lin_acq_model.subset_num = 0
         lin_acq_model.direct(image, simulated_data)
 
     if show_plot:

@@ -94,7 +94,7 @@ def main():
         print('first readout shape: %dx%d' % a0.shape)
         
     # display flags
-    print('Flags'),
+    print('Flags')
     print(flags)
     
     # inspect some kspace_encode_step_1 counters

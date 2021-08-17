@@ -1,5 +1,14 @@
 # ChangeLog
 
+## v3.1.1
+
+* Build system
+   - export a CMake config file such that external C++ projects can use SIRF via CMake,
+   see the `examples/C++` directory for basic usage.
+
+* PET/STIR
+  - Replaced where possible returning `stir::Succeeded::no` with throwing exception.
+
 ## v3.1.0
 * MR/Gadgetron
   - Golden-angle radial phase encoding (RPE) trajectory is supported if `Gadgetron` toolboxes were found during building.<br />

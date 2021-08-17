@@ -34,6 +34,7 @@ limitations under the License.
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
 
+#include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_x.h"
 
 #include "getenv.h"
@@ -81,6 +82,7 @@ int test1()
 		// locate acquisition data
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
 		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
+		fix_path_separator(filename);
 		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();

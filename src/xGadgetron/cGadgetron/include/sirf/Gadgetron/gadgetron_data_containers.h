@@ -49,8 +49,8 @@ limitations under the License.
 
 #include "sirf/iUtilities/LocalisedException.h"
 
-//#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
-#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+//#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 /*!
 \ingroup MR
@@ -242,6 +242,134 @@ namespace sirf {
 		// l2 norm of x
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
+		// type and dimension of an ISMRMRD::Acquisition parameter
+		static void ismrmrd_par_info(const char* par, int* output)
+		{
+			// default type: int, dimension: 1
+			output[0] = 0;
+			output[1] = 1;
+
+			// check parameter type
+			if (sirf::iequals(par, "sample_time_us") ||
+				sirf::iequals(par, "position") ||
+				sirf::iequals(par, "read_dir") ||
+				sirf::iequals(par, "phase_dir") ||
+				sirf::iequals(par, "slice_dir") ||
+				sirf::iequals(par, "patient_table_position") ||
+				sirf::iequals(par, "user_float"))
+				output[0] = 1; // float
+
+			// check parameter dimension
+			if (sirf::iequals(par, "physiology_time_stamp"))
+				output[1] = ISMRMRD::ISMRMRD_Constants::ISMRMRD_PHYS_STAMPS;
+			else if (sirf::iequals(par, "channel_mask"))
+				output[1] = ISMRMRD::ISMRMRD_Constants::ISMRMRD_CHANNEL_MASKS;
+			else if (sirf::iequals(par, "position") ||
+				sirf::iequals(par, "read_dir") ||
+				sirf::iequals(par, "phase_dir") ||
+				sirf::iequals(par, "slice_dir") ||
+				sirf::iequals(par, "patient_table_position"))
+				output[1] = 3;
+			else if (sirf::iequals(par, "user_int") || 
+				sirf::iequals(par, "idx_user"))
+				output[1] = ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS;
+			else if (sirf::iequals(par, "user_float"))
+				output[1] = ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_FLOATS;
+		}
+		// value of an ISMRMRD::Acquisition int parameter
+		static void ismrmrd_par_value(ISMRMRD::Acquisition& acq,
+			const char* name, unsigned long long int* v)
+		{
+			if (sirf::iequals(name, "version"))
+				*v = ((unsigned int)acq.version());
+			else if (sirf::iequals(name, "flags"))
+				*v = ((unsigned long long int)acq.flags());
+			else if (sirf::iequals(name, "measurement_uid"))
+				*v = ((unsigned int)acq.measurement_uid());
+			else if (sirf::iequals(name, "scan_counter"))
+				*v = ((unsigned int)acq.scan_counter());
+			else if (sirf::iequals(name, "acquisition_time_stamp"))
+				*v = ((unsigned int)acq.acquisition_time_stamp());
+			else if (sirf::iequals(name, "number_of_samples"))
+				*v = ((unsigned int)acq.number_of_samples());
+			else if (sirf::iequals(name, "available_channels"))
+				*v = ((unsigned int)acq.available_channels());
+			else if (sirf::iequals(name, "active_channels"))
+				*v = ((unsigned int)acq.active_channels());
+			else if (sirf::iequals(name, "discard_pre"))
+				*v = ((unsigned int)acq.discard_pre());
+			else if (sirf::iequals(name, "discard_post"))
+				*v = ((unsigned int)acq.discard_post());
+			else if (sirf::iequals(name, "center_sample"))
+				*v = ((unsigned int)acq.center_sample());
+			else if (sirf::iequals(name, "encoding_space_ref"))
+				*v = ((unsigned int)acq.encoding_space_ref());
+			else if (sirf::iequals(name, "trajectory_dimensions"))
+				*v = ((unsigned int)acq.trajectory_dimensions());
+			else if (sirf::iequals(name, "kspace_encode_step_1"))
+				*v = ((unsigned int)acq.idx().kspace_encode_step_1);
+			else if (sirf::iequals(name, "kspace_encode_step_2"))
+				*v = ((unsigned int)acq.idx().kspace_encode_step_2);
+			else if (sirf::iequals(name, "average"))
+				*v = ((unsigned int)acq.idx().average);
+			else if (sirf::iequals(name, "slice"))
+				*v = ((unsigned int)acq.idx().slice);
+			else if (sirf::iequals(name, "contrast"))
+				*v = ((unsigned int)acq.idx().contrast);
+			else if (sirf::iequals(name, "phase"))
+				*v = ((unsigned int)acq.idx().phase);
+			else if (sirf::iequals(name, "repetition"))
+				*v = ((unsigned int)acq.idx().repetition);
+			else if (sirf::iequals(name, "set"))
+				*v = ((unsigned int)acq.idx().set);
+			else if (sirf::iequals(name, "segment"))
+				*v = ((unsigned int)acq.idx().segment);
+			else if (sirf::iequals(name, "physiology_time_stamp")) {
+				int n = ISMRMRD::ISMRMRD_Constants::ISMRMRD_PHYS_STAMPS;
+				const uint32_t* pts = acq.physiology_time_stamp();
+				for (int i = 0; i < n; i++)
+					v[i] = (unsigned int)pts[i];
+			}
+			else if (sirf::iequals(name, "channel_mask")) {
+				int n = ISMRMRD::ISMRMRD_Constants::ISMRMRD_CHANNEL_MASKS;
+				const uint64_t* pts = acq.channel_mask();
+				for (int i = 0; i < n; i++)
+					v[i] = (unsigned long long int)pts[i];
+			}
+		}
+		// value of an ISMRMRD::Acquisition float parameter
+		static void ismrmrd_par_value(ISMRMRD::Acquisition& acq,
+			const char* name, float* v)
+		{
+			if (sirf::iequals(name, "sample_time_us"))
+				*v = acq.sample_time_us();
+			else if (sirf::iequals(name, "position")) {
+				float* u = acq.position();
+				for (int i = 0; i < 3; i++)
+					v[i] = u[i];
+			}
+			else if (sirf::iequals(name, "read_dir")) {
+				float* u = acq.read_dir();
+				for (int i = 0; i < 3; i++)
+					v[i] = u[i];
+			}
+			else if (sirf::iequals(name, "phase_dir")) {
+				float* u = acq.phase_dir();
+				for (int i = 0; i < 3; i++)
+					v[i] = u[i];
+			}
+			else if (sirf::iequals(name, "slice_dir")) {
+				float* u = acq.slice_dir();
+				for (int i = 0; i < 3; i++)
+					v[i] = u[i];
+			}
+			else if (sirf::iequals(name, "patient_table_position")) {
+				float* u = acq.patient_table_position();
+				for (int i = 0; i < 3; i++)
+					v[i] = u[i];
+			}
+		}
+
 		// abstract methods
 
 		virtual void empty() = 0;
@@ -274,6 +402,12 @@ namespace sirf {
 
 		// acquisition data algebra
 		virtual void dot(const DataContainer& dc, void* ptr) const;
+		complex_float_t dot(const DataContainer& a_x)
+		{
+			complex_float_t z;
+			dot(a_x, &z);
+			return z;
+		}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -565,14 +699,14 @@ namespace sirf {
 			const DataContainer& a_y, const DataContainer& a_b)
 		{
 			ComplexFloat_ a(*(complex_float_t*)ptr_a);
-			DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const void* ptr_b)
 		{
-			DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
 			ComplexFloat_ b(*(complex_float_t*)ptr_b);
 			xapyb_(a_x, a, a_y, b);
 		}
@@ -580,8 +714,8 @@ namespace sirf {
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b)
 		{
-			DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
-			DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
@@ -688,8 +822,8 @@ namespace sirf {
 		template<class A, class B>
 		void xapyb_(const DataContainer& a_x, A& a, const DataContainer& a_y, B& b)
 		{
-			DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
-			DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);
 			unsigned int nx = x.number();
 			unsigned int na = a.number();
 			unsigned int ny = y.number();
@@ -761,12 +895,12 @@ namespace sirf {
 			}
 			virtual bool operator==(const BaseIter& ai) const
 			{
-				DYNAMIC_CAST(const Iterator, i, ai);
+				SIRF_DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ == i.iter_;
 			}
 			virtual bool operator!=(const BaseIter& ai) const
 			{
-				DYNAMIC_CAST(const Iterator, i, ai);
+				SIRF_DYNAMIC_CAST(const Iterator, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator& operator++()
@@ -835,12 +969,12 @@ namespace sirf {
 			}
 			bool operator==(const BaseIter_const& ai) const
 			{
-				DYNAMIC_CAST(const Iterator_const, i, ai);
+				SIRF_DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ == i.iter_;
 			}
 			bool operator!=(const BaseIter_const& ai) const
 			{
-				DYNAMIC_CAST(const Iterator_const, i, ai);
+				SIRF_DYNAMIC_CAST(const Iterator_const, i, ai);
 				return iter_ != i.iter_;
 			}
 			Iterator_const& operator++()

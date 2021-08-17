@@ -121,4 +121,11 @@ endif()
 
 target_compile_definitions(cgadgetron PRIVATE _WIN32_WINNT=0x0501)
 
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS cgadgetron EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
+
 ADD_SUBDIRECTORY(tests)

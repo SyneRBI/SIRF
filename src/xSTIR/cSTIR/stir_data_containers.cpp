@@ -27,11 +27,11 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
-//#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
-#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+//#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
+#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 std::string PETAcquisitionData::_storage_scheme;
-shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
+std::shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
 float
 PETAcquisitionData::norm() const
@@ -60,7 +60,7 @@ void
 PETAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
 	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	double t = 0;
@@ -146,7 +146,7 @@ void
 PETAcquisitionData::inv(float amin, const DataContainer& a_x)
 {
 	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	for (int s = 0; s <= n && s <= nx; ++s)
@@ -182,8 +182,8 @@ PETAcquisitionData::binary_op_(
 	int job
 )
 {
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -304,7 +304,7 @@ void
 STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
 	//STIRImageData& x = (STIRImageData&)a_x;
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -340,8 +340,8 @@ const DataContainer& a_y, const void* ptr_b)
 {
 	float a = *(float*)ptr_a;
 	float b = *(float*)ptr_b;
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
-	DYNAMIC_CAST(const STIRImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -365,10 +365,10 @@ STIRImageData::xapyb(
 const DataContainer& a_x, const DataContainer& a_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
-	DYNAMIC_CAST(const STIRImageData, a, a_a);
-	DYNAMIC_CAST(const STIRImageData, b, a_b);	
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
-	DYNAMIC_CAST(const STIRImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const STIRImageData, a, a_a);
+	SIRF_DYNAMIC_CAST(const STIRImageData, b, a_b);	
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -431,8 +431,8 @@ STIRImageData::binary_op_(
 	const DataContainer& a_y, 
 	int job
 ){
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
-	DYNAMIC_CAST(const STIRImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -484,7 +484,7 @@ void
 STIRImageData::get_voxel_sizes(float* vsize) const
 {
 	//const Voxels3DF& voxels = (const Voxels3DF&)*_data;
-	DYNAMIC_CAST(const Voxels3DF, voxels, *_data);
+	SIRF_DYNAMIC_CAST(const Voxels3DF, voxels, *_data);
 	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
 	for (int i = 0; i < 3; i++)
 		vsize[i] = vs[i + 1];
@@ -571,7 +571,7 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
            const Coord3DI &new_sizes_in, const stir::ZoomOptions zoom_options)
 {
     // We need the underyling image as a VoxelsOnCartesianGrid
-    DYNAMIC_CAST(Voxels3DF, voxels, this->data());
+    SIRF_DYNAMIC_CAST(Voxels3DF, voxels, this->data());
 
     int dim[3];
     this->get_dimensions(dim);
