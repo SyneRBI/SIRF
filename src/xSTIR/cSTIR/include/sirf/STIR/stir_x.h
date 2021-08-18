@@ -815,7 +815,7 @@ The actual algorithm is described in
 		}
 		int get_num_tangential_LORs()
 		{
-			RayTracingMatrix& matrix = (RayTracingMatrix&)*matrix_sptr();
+			auto matrix = dynamic_cast<const RayTracingMatrix&>(*matrix_sptr());
 			return matrix.get_num_tangential_LORs();
 		}
 	};
