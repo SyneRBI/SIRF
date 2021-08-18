@@ -22,6 +22,24 @@ using namespace sirf;
 using std::cout;
 using std::endl;
 
+bool test_dynamic::test_set_dynamic_signal( void )
+{
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+	const SignalContainer mock_signal = aux_test::get_mock_motion_signal();
+
+	aDynamic dyn;
+	dyn.set_dyn_signal(mock_signal);
+
+	int const num_bins = 4;
+	MRMotionDynamic mm_dyn(num_bins);
+
+	aDynamic& cast_dyn = mm_dyn;
+	cast_dyn.set_dyn_signal(mock_signal);
+
+	return true;
+}
+
+
 bool test_dynamic::test_is_in_bin( void )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;

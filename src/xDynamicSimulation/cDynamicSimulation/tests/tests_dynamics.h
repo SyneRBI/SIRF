@@ -15,6 +15,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 namespace test_dynamic{
 
+bool test_set_dynamic_signal( void );
+
 bool test_is_in_bin( void );
 bool test_intersect_mr_acquisition_data( void );
 
