@@ -29,7 +29,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynamicsimulation.h"
 #include "tests_noisegenerator.h"
 #include "tests_dynsim_deformer.h"
-
+#include "tests_c_interface.h"
 
 
 bool run_apps(void)
@@ -87,6 +87,7 @@ bool run_tests_dynamics( void )
 	bool tests_successful = true;
 	std::vector< bool > dyn_tests;
 	std::cout << "start ----------------------------------------------------" <<std::endl;
+	dyn_tests.push_back(test_dynamic::test_set_dynamic_signal());
 	dyn_tests.push_back(test_dynamic::test_is_in_bin());
 	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
 	dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());
@@ -453,6 +454,44 @@ bool run_tests_dynsim_deformer( void )
 }
 
 
+bool run_tests_c_interface( void )
+{
+	std::cout<< "Running " << __FUNCTION__ << std::endl;		
+	try
+    {
+		bool tests_successful = true;
+		std::vector< bool > test_results{};
+
+		test_results.push_back(test_simulation_interface::test_bin_data_from_handle());
+	
+		std::cout << "#### #### #### " << __FUNCTION__ << " test results = ";
+		for( size_t i=0; i<test_results.size(); i++)
+		{
+			std::cout << test_results[i] << " / ";
+			tests_successful *= test_results[i];
+		}
+		
+		std::cout << std::endl;
+
+		return tests_successful;
+
+    }
+    catch(std::runtime_error const &e){
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+	catch(const std::exception &error){
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+		throw;
+	}
+	catch(...){
+        std::cerr << "An unknown exception was caught in "<< __FUNCTION__ << std::endl;
+		throw;
+	}
+}
+
+
 int main ( int argc, char* argv[])
 {
 
@@ -470,8 +509,9 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_phantom_input();
 		// ok *= run_tests_noise_generator();
 		// ok *= run_tests_dynamics();
+		ok *= run_tests_c_interface();
 		// ok *= run_tests_dynsim_deformer();
-		ok *= run_tests_dynamic_simulation();
+		// ok *= run_tests_dynamic_simulation();
 		
 		
 		if(ok)

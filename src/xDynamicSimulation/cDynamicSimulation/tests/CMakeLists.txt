@@ -28,7 +28,8 @@ set( SIMULATION_TEST_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/tests_dynsim_deformer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tests_auxiliary_testing_functions.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/tests_auxiliary_input_output.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/auxiliary_testing_functions.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests_c_interface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/auxiliary_testing_functions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/app_mracquisitiondata.cpp
 )
 
