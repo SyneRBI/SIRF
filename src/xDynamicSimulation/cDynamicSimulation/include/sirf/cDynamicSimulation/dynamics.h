@@ -55,6 +55,11 @@ public:
 	aDynamic() {};
 	aDynamic(int const num_simul_states);
 
+	virtual int get_num_signal_points( void ) const 
+	{
+		return this->dyn_signal_.size();
+	}
+
 	virtual int get_num_simul_states( void ){ return this->num_simul_states_; };
 
 	std::vector< SignalBin > get_bins( void ){ return this->signal_bins_;};
@@ -175,9 +180,19 @@ public:
 	MRDynamic(int const num_simul_states);
 
 	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
-	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
+	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( unsigned int const bin_num );
 
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions )=0;
+	virtual void print_bin_info(void){
+		
+		std::cout << "Printing info for binning in MR Dynamic..." << std::endl;
+
+		for(int i=0; i<this->binned_mr_acquisitions_.size(); ++i)
+		{
+			std::cout 	<< "Bin " << i << " contains " 
+						<< binned_mr_acquisitions_[i].number() << "acquisitions" <<std::endl;
+		}
+	}
 
 protected:
 

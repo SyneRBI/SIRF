@@ -221,7 +221,7 @@ std::vector<sirf::AcquisitionsVector> MRDynamic::get_binned_mr_acquisitions( voi
 	return this->binned_mr_acquisitions_;
 };
 
-sirf::AcquisitionsVector MRDynamic::get_binned_mr_acquisitions( int const bin_num )
+sirf::AcquisitionsVector MRDynamic::get_binned_mr_acquisitions( unsigned int const bin_num )
 {
 	if(bin_num >= this->num_simul_states_)
 		throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
@@ -680,6 +680,8 @@ MotionDynamic::calc_inverse_offset_deformation( NiftiImageData3DDeformation<floa
 
 void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
+	std::cout << "Binning motion dynamics\n";
+	std::cout << "The signal ended up having " << this->dyn_signal_.size() << " pts "<< std::endl;
 
 	if(this->dyn_signal_.size() == 0)
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
@@ -748,7 +750,8 @@ sirf::AcquisitionsVector MRContrastDynamic::get_binned_mr_acquisitions( int cons
 
 void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
-	if( true ) // empty the old bins -> every mr contrast dynamic must hold same binned data
+	std::cout << "Binning contrast dynamics\n";
+	if( true ) //this loop just for RAII reasons to free data
 	{
 		std::vector<AcquisitionsVector> empty_vec;
 		this->binned_mr_acquisitions_.swap( empty_vec );
