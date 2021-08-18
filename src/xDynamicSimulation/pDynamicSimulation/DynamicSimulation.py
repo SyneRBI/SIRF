@@ -41,14 +41,14 @@ else:
 
 from deprecation import deprecated
 
-from sirf.Utilities import check_status, assert_validity, try_calling, error 
+from sirf.Utilities import check_status, assert_validity, try_calling, error
 
 import sirf
 from sirf import SIRF
 from sirf.SIRF import DataContainer
 
 import sirf.pysimulation as pysim
-# import sirf.pyiutilities as pyiutil
+import sirf.pyiutilities as pyiutil
 # import sirf.pygadgetron as pygadgetron
 # import sirf.pysirf as pysirf
 
@@ -131,6 +131,11 @@ class Dynamic(object):
     def set_dynamic_signal(self, sig):
         assert_validity(sig, SurrogateSignal)
         pysim.cDS_setDynamicSignal(self.handle, sig.handle)
+
+    def get_num_signal_pts(self):
+        
+        h_pts = pysim.cDS_getNumberOfSignalPoints(self.handle)
+        return pyiutil.intDataFromHandle(h_pts)
 
 class MotionDynamic(Dynamic):
 
