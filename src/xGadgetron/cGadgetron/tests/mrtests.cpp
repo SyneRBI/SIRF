@@ -45,7 +45,8 @@ limitations under the License.
 #include "sirf/Gadgetron/FourierEncoding.h"
 #include "sirf/Gadgetron/TrajectoryPreparation.h"
 
-#include "mrtest_auxiliary_funs.h"
+#include "sirf/Gadgetron/mrtest_auxiliary_funs.h"
+
 
 using namespace gadgetron;
 using namespace sirf;

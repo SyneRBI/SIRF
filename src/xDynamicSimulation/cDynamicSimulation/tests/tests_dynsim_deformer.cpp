@@ -18,7 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 
-#include "../../../xGadgetron/cGadgetron/tests/mrtest_auxiliary_funs.h"
+#include "sirf/Gadgetron/mrtest_auxiliary_funs.h"
 
 
 using namespace sirf;

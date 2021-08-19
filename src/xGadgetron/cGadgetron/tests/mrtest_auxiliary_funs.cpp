@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "mrtest_auxiliary_funs.h"
+#include "sirf/Gadgetron/mrtest_auxiliary_funs.h"
 
 
 #include <vector>

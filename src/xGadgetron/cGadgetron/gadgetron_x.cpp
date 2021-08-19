@@ -461,32 +461,3 @@ MRAcquisitionModel::bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& c
     cc.backward(ic, iv);
     ic.set_up_geom_info();
 }
-
-
-
-void sirf::preprocess_acquisition_data(MRAcquisitionData& ad)
-{
-    std::cout << "Pre-processing Acquisition Data" << std::endl;
-
-    sirf::AcquisitionsProcessor preprocessing_chain;
-
-    auto sptr_noise_gadget = std::make_shared<Gadget>(NoiseAdjustGadget());
-    auto sptr_ro_overs_gadget = std::make_shared<Gadget>(RemoveROOversamplingGadget());
-    auto sptr_asymmecho_gadget = std::make_shared<Gadget>(AsymmetricEchoAdjustROGadget());
-
-    preprocessing_chain.add_gadget("dummy1", sptr_noise_gadget);
-    preprocessing_chain.add_gadget("dummy2", sptr_asymmecho_gadget);
-    preprocessing_chain.add_gadget("dummy3", sptr_ro_overs_gadget);
-
-    preprocessing_chain.process(ad);
-    auto sptr_preproc_ad =preprocessing_chain.get_output();
-
-    ISMRMRD::Acquisition acq;
-    for(int i=0; i<sptr_preproc_ad->number(); ++i)
-    {
-        sptr_preproc_ad->get_acquisition(i, acq);
-        ad.set_acquisition(i, acq);
-    }
-    ad.set_acquisitions_info( sptr_preproc_ad->acquisitions_info());
-
-}
