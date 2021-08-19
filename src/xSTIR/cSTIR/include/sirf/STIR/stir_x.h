@@ -798,6 +798,28 @@ The actual algorithm is described in
 		stir::shared_ptr<stir::ProjMatrixByBin> sptr_matrix_;
 	};
 
+	class PETAcquisitionModelUsingRayTracingMatrix :
+		public PETAcquisitionModelUsingMatrix {
+	public:
+		PETAcquisitionModelUsingRayTracingMatrix(int num_LORs = 2) :
+			PETAcquisitionModelUsingMatrix()
+		{
+			stir::shared_ptr<RayTracingMatrix> matrix_sptr(new RayTracingMatrix);
+			matrix_sptr->set_num_tangential_LORs(num_LORs);
+			set_matrix(matrix_sptr);
+		}
+		void set_num_tangential_LORs(int num_LORs)
+		{
+			RayTracingMatrix& matrix = (RayTracingMatrix&)*matrix_sptr();
+			matrix.set_num_tangential_LORs(num_LORs);
+		}
+		int get_num_tangential_LORs()
+		{
+			auto matrix = dynamic_cast<const RayTracingMatrix&>(*matrix_sptr());
+			return matrix.get_num_tangential_LORs();
+		}
+	};
+
 	typedef PETAcquisitionModel AcqMod3DF;
 	typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
 	typedef std::shared_ptr<AcqMod3DF> sptrAcqMod3DF;

@@ -38,14 +38,14 @@ using namespace sirf;
 
 GTConnector::GTConnector()
 {
-	sptr_con_ = gadgetron::shared_ptr < GadgetronClientConnector >
+	sptr_con_ = shared_ptr < GadgetronClientConnector >
 		(new GadgetronClientConnector);
 }
 GadgetronClientConnector& GTConnector::operator()()
 {
 	return *sptr_con_.get();
 }
-gadgetron::shared_ptr<GadgetronClientConnector> GTConnector::sptr()
+shared_ptr<GadgetronClientConnector> GTConnector::sptr()
 {
 	return sptr_con_;
 }
@@ -213,7 +213,7 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 	//std::cout << na << " acquisitions processed\n";
 	if (na < 1) {
 		// old Gadgetron is running, have to append AcquisitionFinishGadget to the chain
-		gadgetron::shared_ptr<AcquisitionFinishGadget>
+		shared_ptr<AcquisitionFinishGadget>
 			endgadget(new AcquisitionFinishGadget);
 		set_endgadget(endgadget);
 		config = xml();
@@ -371,8 +371,8 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 }
 
 void 
-MRAcquisitionModel::set_up(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
-			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
+MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
+			shared_ptr<GadgetronImageData> sptr_ic)
 {
 	if( sptr_ac->number() ==0 )
 		throw LocalisedException("Please dont use an empty acquisition template.", __FILE__, __LINE__);
