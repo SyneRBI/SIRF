@@ -148,9 +148,6 @@ bool test_dynamic::test_intersect_mr_acquisition_data( void )
 	return test_succesful;
 }
 
-
-
-
 bool test_binprocessor::test_get_set_bins()
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;

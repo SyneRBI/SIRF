@@ -84,6 +84,14 @@ public:
 		this->set_bins();
 	}
 
+	int get_num_bins( void ) const {
+		return num_bins_;
+	}
+	
+	std::vector< SignalBin > get_bins( void ) const {
+		return signal_bins_;
+	}
+
 	void set_cylicality(const bool cyclic){
 		this->cyclic_ = cyclic;
 		set_bins();
@@ -97,9 +105,6 @@ public:
 					  : set_non_cyclic_bins(num_bins_);
 	}
 
-	std::vector< SignalBin > get_bins( void ) const{
-		return this->signal_bins_;
-	}
 
 private:
 	void set_cyclic_bins( int const num_bins);
@@ -112,16 +117,22 @@ private:
 };
 
 
-
-
 class Dynamic{
 
 public:
 
 	Dynamic(const int num_states) : bp_(num_states){
 	}
+	
+	int get_num_simul_states(void) const {
+		return bp_.get_num_bins();
+	}
 
 	virtual void set_bins()=0;
+
+	std::vector< SignalBin > get_bins(void) const {
+		 return bp_.get_bins();
+	}
 
 	void set_cylicality(const bool cyclic){
 		this->bp_.set_cylicality(cyclic);
@@ -144,11 +155,6 @@ public:
 
 	aDynamic() {};
 	aDynamic(int const num_simul_states);
-
-	virtual int get_num_signal_points( void ) const 
-	{
-		return this->dyn_signal_.size();
-	}
 
 	virtual int get_num_simul_states( void ){ return this->num_simul_states_; };
 
