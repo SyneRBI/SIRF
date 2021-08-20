@@ -123,7 +123,11 @@ void aDynamic::set_bins(int const num_bins)
 		this->set_non_cyclic_bins(num_bins);
 }
 
-void aDynamic::set_cyclic_bins(int const num_bins)
+void aDynamic::set_cyclic_bins(int const num_bins){}
+void aDynamic::set_non_cyclic_bins(int const num_bins){}
+
+
+void BinProcessor::set_cyclic_bins(int const num_bins)
 {
 	for(int i_state=0; i_state<num_bins; i_state++)
 	{	
@@ -133,20 +137,15 @@ void aDynamic::set_cyclic_bins(int const num_bins)
 		std::get<1>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins);
 		std::get<2>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(2*num_bins);
 		
-		if( std::get<0>(bin) < 0 )
-			std::get<0>(bin) = ( 1 + std::get<0>(bin) );
-
-		if( std::get<1>(bin) < 0 )
-			std::get<1>(bin) = ( 1 + std::get<1>(bin) );
-
-		if( std::get<2>(bin) < 0 )
-			std::get<2>(bin) = ( 1 + std::get<2>(bin) );
+		std::get<0>(bin) = std::get<0>(bin) < 0 ? ( 1 + std::get<0>(bin) ) : std::get<0>(bin);
+		std::get<1>(bin) = std::get<1>(bin) < 0 ? ( 1 + std::get<1>(bin) ) : std::get<1>(bin);
+		std::get<2>(bin) = std::get<2>(bin) < 0 ? ( 1 + std::get<2>(bin) ) : std::get<2>(bin);
 
 		this->signal_bins_.push_back( bin );
 	}
 }
 
-void aDynamic::set_non_cyclic_bins(int const num_bins)
+void BinProcessor::set_non_cyclic_bins(int const num_bins)
 {
 	for(int i_state=0; i_state<num_bins; i_state++)
 	{	
@@ -165,18 +164,21 @@ void aDynamic::set_dyn_signal(const SignalContainer& signal)
 {
 	this->dyn_signal_ = signal;
 }
-
-
 SignalAxisType aDynamic::linear_interpolate_signal(TimeAxisType time_point)
 {
+	return 0.f;
+}
 
-	size_t const num_sig_points = this->dyn_signal_.size();
+SignalAxisType SurrogateProcessor::linear_interpolate_signal(TimeAxisType time_point) const
+{
+
+	size_t const num_sig_points = this->signal_.size();
 	
 	size_t first_bigger_thant_time_point=-1;
 
 	for( size_t i=0; i<num_sig_points; i++)
 	{
-		if(this->dyn_signal_[i].first > time_point)
+		if(this->signal_[i].first > time_point)
 		{
 			first_bigger_thant_time_point = i;
 			break;
@@ -186,15 +188,15 @@ SignalAxisType aDynamic::linear_interpolate_signal(TimeAxisType time_point)
 	SignalAxisType interpol_signal;
 
 	if( first_bigger_thant_time_point == 0)
-		interpol_signal = this->dyn_signal_[0].second;
+		interpol_signal = this->signal_[0].second;
 	else if( first_bigger_thant_time_point == -1 )
-		interpol_signal = this->dyn_signal_[num_sig_points-1].second;
+		interpol_signal = this->signal_[num_sig_points-1].second;
 	else
 	{
-		interpol_signal = dyn_signal_[first_bigger_thant_time_point-1].second + 
-							(time_point - dyn_signal_[first_bigger_thant_time_point-1].first )
-						   *(dyn_signal_[first_bigger_thant_time_point].second - dyn_signal_[first_bigger_thant_time_point-1].second)
-						   /(dyn_signal_[first_bigger_thant_time_point].first  - dyn_signal_[first_bigger_thant_time_point-1].first );
+		interpol_signal = signal_[first_bigger_thant_time_point-1].second + 
+							(time_point - signal_[first_bigger_thant_time_point-1].first )
+						   *(signal_[first_bigger_thant_time_point].second - signal_[first_bigger_thant_time_point-1].second)
+						   /(signal_[first_bigger_thant_time_point].first  - signal_[first_bigger_thant_time_point-1].first );
 	}
 
 	return interpol_signal;

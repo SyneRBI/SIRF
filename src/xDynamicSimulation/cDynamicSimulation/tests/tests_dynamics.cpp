@@ -22,23 +22,6 @@ using namespace sirf;
 using std::cout;
 using std::endl;
 
-bool test_dynamic::test_set_dynamic_signal( void )
-{
-	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
-	const SignalContainer mock_signal = aux_test::get_mock_motion_signal();
-
-	aDynamic dyn;
-	dyn.set_dyn_signal(mock_signal);
-
-	int const num_bins = 4;
-	MRMotionDynamic mm_dyn(num_bins);
-
-	aDynamic& cast_dyn = mm_dyn;
-	cast_dyn.set_dyn_signal(mock_signal);
-
-	return true;
-}
-
 
 bool test_dynamic::test_is_in_bin( void )
 {
@@ -70,6 +53,48 @@ bool test_dynamic::test_is_in_bin( void )
 
 	return test_succesful;
 
+}
+
+
+bool test_surrogateprocessor::test_linear_interpolate_signal( )
+{
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
+	try
+	{
+		SignalContainer mock_signal = aux_test::get_mock_motion_signal();
+
+		SurrogateProcessor sp;
+		sp.set_signal(mock_signal);
+
+		size_t num_repetitions_for_speed_estimate = 256*256*3;
+
+		for( size_t rep=0; rep<num_repetitions_for_speed_estimate; rep++)
+		{
+			TimeAxisType time_point = 0.55;
+			SignalAxisType interpol_signal = sp.linear_interpolate_signal( time_point );
+		}
+		TimeAxisType time_point = 0.55;
+		SignalAxisType interpol_signal = sp.linear_interpolate_signal( time_point );
+
+		cout << epiph ( interpol_signal ) <<endl; 
+
+		time_point = -1;
+		interpol_signal = sp.linear_interpolate_signal( time_point );
+		cout << epiph ( interpol_signal ) <<endl;
+
+		time_point = 15;
+		interpol_signal = sp.linear_interpolate_signal( time_point );
+		cout << epiph ( interpol_signal ) <<endl;	
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
+		throw e;
+	}
 }
 
 
@@ -124,50 +149,9 @@ bool test_dynamic::test_intersect_mr_acquisition_data( void )
 }
 
 
-bool test_dynamic::test_linear_interpolate_signal( )
-{
-	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
-
-	try
-	{
-		SignalContainer mock_signal = aux_test::get_mock_motion_signal();
-
-		aDynamic dyn;
-		dyn.set_dyn_signal(mock_signal);
-
-		
-		size_t num_repetitions_for_speed_estimate = 256*256*3;
-
-		for( size_t rep=0; rep<num_repetitions_for_speed_estimate; rep++)
-		{
-			TimeAxisType time_point = 0.55;
-			SignalAxisType interpol_signal = dyn.linear_interpolate_signal( time_point );
-		}
-		TimeAxisType time_point = 0.55;
-		SignalAxisType interpol_signal = dyn.linear_interpolate_signal( time_point );
-
-		cout << epiph ( interpol_signal ) <<endl; 
-
-		time_point = -1;
-		interpol_signal = dyn.linear_interpolate_signal( time_point );
-		cout << epiph ( interpol_signal ) <<endl;
-
-		time_point = 15;
-		interpol_signal = dyn.linear_interpolate_signal( time_point );
-		cout << epiph ( interpol_signal ) <<endl;	
-
-		return true;
-	}
-	catch( std::runtime_error const &e)
-	{
-		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
-		cout << e.what() << endl;
-		throw e;
-	}
-}
 
 
-bool test_dynamic::test_get_set_bins()
+bool test_binprocessor::test_get_set_bins()
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
@@ -175,14 +159,17 @@ bool test_dynamic::test_get_set_bins()
 	{
 		bool test_succesful = true;
 
-		int const num_bins = 10;
-		aDynamic dyn(num_bins);
+		bool cyclic = false;
 
-		std::vector< SignalBin > all_bins = dyn.get_bins();
+		int const num_bins = 4;
+		BinProcessor bp(num_bins, cyclic);
 
-		std::cout << "#### REGULAR DYNAMIC ####" << std::endl;
+		std::vector< SignalBin > all_bins = bp.get_bins();
+
+		std::cout << "#### NONCYCLIC DYNAMIC ####" << std::endl;
 		for( int i=0; i<all_bins.size(); i++ )
-		{
+		{	
+			cout << " ---- "  <<std::endl;
 			cout << epiph(std::get<0> (all_bins[i] )) << endl;
 			cout << epiph(std::get<1> (all_bins[i] )) << endl;
 			cout << epiph(std::get<2> (all_bins[i] )) << endl;
@@ -190,14 +177,14 @@ bool test_dynamic::test_get_set_bins()
 
 		test_succesful = ( all_bins.size() == num_bins );
 
+		cyclic = true;
+		bp.set_cylicality(cyclic);
+		all_bins = bp.get_bins();
 
-		ContrastDynamic cont_dyn(num_bins);
-
-		all_bins = cont_dyn.get_bins();
-
-		std::cout << "#### CONTRAST DYNAMIC ####" << std::endl;
+		std::cout << "#### CYCLIC DYNAMIC ####" << std::endl;
 		for( int i=0; i<all_bins.size(); i++ )
 		{
+			cout << " ---- "  <<std::endl;
 			cout << epiph(std::get<0> (all_bins[i] )) << endl;
 			cout << epiph(std::get<1> (all_bins[i] )) << endl;
 			cout << epiph(std::get<2> (all_bins[i] )) << endl;

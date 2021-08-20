@@ -49,24 +49,50 @@ typedef sirf::AcquisitionsVector MRDataType;
 MRDataType intersect_mr_acquisition_data( const sirf::MRAcquisitionData& one_dat, const sirf::MRAcquisitionData& other_dat );
 
 
+
+class SurrogateProcessor{
+
+public:
+	SurrogateProcessor(){};
+
+	void set_signal(const SignalContainer& sig){
+		this->signal_ = sig;
+	}
+
+	SignalAxisType linear_interpolate_signal(const TimeAxisType time_point) const;
+
+private:
+
+	SignalContainer signal_; 
+};
+
 class BinProcessor{
 public:
 
 	BinProcessor(){
 		num_bins_ = 0;
 		cyclic_ = false;
+
+		signal_bins_ = {};
+		
 	}
 
 	BinProcessor(int const num_bins, bool const cyclic=false){
 		num_bins_ = num_bins;
 		cyclic_ = cyclic;
+
+		this->set_bins();
 	}
 
 	void set_cylicality(const bool cyclic){
 		this->cyclic_ = cyclic;
+		set_bins();
 	}
 
 	void set_bins( void ){
+
+		this->signal_bins_.clear();
+
 		this->cyclic_ ? set_cyclic_bins(num_bins_) 
 					  : set_non_cyclic_bins(num_bins_);
 	}
@@ -85,21 +111,6 @@ private:
 
 };
 
-class SurrogateProcessor{
-
-public:
-	SurrogateProcessor(){};
-
-	void set_signal(const SignalContainer& sig){
-		this->signal_ = sig;
-	}
-
-	SignalAxisType linear_interpolate_signal(const TimeAxisType time_point) const;
-
-private:
-
-	SignalContainer signal_; 
-};
 
 
 

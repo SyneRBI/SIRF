@@ -87,11 +87,14 @@ bool run_tests_dynamics( void )
 	bool tests_successful = true;
 	std::vector< bool > dyn_tests;
 	std::cout << "start ----------------------------------------------------" <<std::endl;
-	dyn_tests.push_back(test_dynamic::test_set_dynamic_signal());
 	dyn_tests.push_back(test_dynamic::test_is_in_bin());
+
+
+	dyn_tests.push_back(test_surrogateprocessor::test_linear_interpolate_signal());
+	dyn_tests.push_back(test_binprocessor::test_get_set_bins());
+
+
 	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
-	dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());
-	dyn_tests.push_back(test_dynamic::test_get_set_bins());
 	dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
 	dyn_tests.push_back(test_dynamic::test_motion_dynamic_counter());
 	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
@@ -508,8 +511,8 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_contrastgenerator();
 		// ok *= run_tests_phantom_input();
 		// ok *= run_tests_noise_generator();
-		// ok *= run_tests_dynamics();
-		ok *= run_tests_c_interface();
+		ok *= run_tests_dynamics();
+		// ok *= run_tests_c_interface();
 		// ok *= run_tests_dynsim_deformer();
 		// ok *= run_tests_dynamic_simulation();
 		
