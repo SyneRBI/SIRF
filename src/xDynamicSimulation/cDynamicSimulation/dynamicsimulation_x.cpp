@@ -144,7 +144,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
                     for( int i_contrast_dyn = 0; i_contrast_dyn<num_contrast_dyns; i_contrast_dyn++ )
                     {
                         auto sptr_contrast_dyn = this->contrast_dynamics_[i_contrast_dyn];
-                        auto contrast_signal = sptr_contrast_dyn->linear_interpolate_signal(current_time_point);
+                        auto contrast_signal = sptr_contrast_dyn->interpolate_signal(current_time_point);
                         TissueParameterList tissueparameter_list_to_replace = sptr_contrast_dyn->get_interpolated_tissue_params( contrast_signal );
 
                         for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
