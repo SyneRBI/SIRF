@@ -168,12 +168,17 @@ public:
 
 	ContrastProcessor(){};
 	
-	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal);
-
-	void add_dynamic_label(LabelType l) { this->list_cont_var_labels_.push_back(l);};
+	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal) const;
+	
 	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1);
 
-	std::vector< TimeAxisType > get_time_points_sampled (void)const {return this->time_points_sampled_;};
+	void add_dynamic_label(LabelType l) {
+		this->list_cont_var_labels_.push_back(l);
+	}
+
+	std::vector< TimeAxisType > get_sampled_time_points(void) const {
+		return this->time_points_sampled_;
+	}
 
 private:
 
@@ -185,32 +190,42 @@ private:
 };
 
 
-class MotionDynamic : virtual public Dynamic {
+class MotionProcessor {
 
 public:
-	MotionDynamic();
-	MotionDynamic(unsigned int const num_simul_states);
 
-	~MotionDynamic();
+	~MotionProcessor();
 
-	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(SignalAxisType signal);
+	std::string get_temp_folder_name(void) const
+	{
+		return this->temp_folder_name_;
+	}
+	void set_ground_truth_folder_name(const std::string name_existing_folder_prefix)
+	{
+		this->ground_truth_folder_name_ = name_existing_folder_prefix;
+		this->make_ground_truth_folder();
+	}
 
-	int get_which_motion_dynamic_am_i();
-	int get_num_total_motion_dynamics();
+	void MotionProcessor::add_displacement_field(const MotionFieldType& dvf)
+	{
+		this->displacement_fields_.push_back( dvf );
+	}
 
-	std::string get_temp_folder_name();
+	int get_which_motion_dynamic_am_i(void) const
+	{ 
+		return this->which_motion_dynamic_am_i_; 
+	}
 
-	void set_ground_truth_folder_name( std::string const name_existing_folder );
+	int get_num_total_motion_dynamics(void) const
+	{ 
+		return this->num_total_motion_dynamics_; 
+	}
 
-	void set_cyclicality(bool const is_cyclic);
-	void add_displacement_field(const MotionFieldType& dvf);
+	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal);
 
-	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic = false);
 	void set_displacement_fields( std::vector< MotionFieldType > &input_vectors, bool const motion_fields_are_cyclic = false);
-	     
-	virtual void prep_displacement_fields( void );
+	void prep_displacement_fields( void );
 
-	virtual void save_ground_truth_displacements( void );
 	void save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points);
 
 	bool delete_temp_folder();
@@ -226,7 +241,6 @@ protected:
 	bool make_ground_truth_folder();
 
 	sirf::NiftiImageData3DDeformation<float> calc_inverse_offset_deformation( sirf::NiftiImageData3DDeformation<float> offset_deformation );
-
 	sirf::NiftiImageData3DDisplacement<float> scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf);
 
 	std::string const temp_folder_prefix_  = "/media/sf_CCPPETMR/TestData/Input/xDynamicSimulation/cDynamicSimulation/Temp/";
@@ -247,56 +261,54 @@ class MRDynamic : virtual public Dynamic{
 
 public:
 
-	MRDynamic(unsigned int const num_simul_states);
+	MRDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
-	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
-	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( unsigned int const bin_num );
-
-	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions )=0;
-	virtual void print_bin_info(void){
-		
-		std::cout << "Printing info for binning in MR Dynamic..." << std::endl;
-
-		for(int i=0; i<this->binned_mr_acquisitions_.size(); ++i)
-		{
-			std::cout 	<< "Bin " << i << " contains " 
-						<< binned_mr_acquisitions_[i].number() << "acquisitions" <<std::endl;
-		}
+	std::vector<sirf::AcquisitionsVector> MRDynamic::get_binned_mr_acquisitions(void) const
+	{
+		return this->binned_mr_acquisitions_;
 	}
 
-protected:
+	sirf::AcquisitionsVector MRDynamic::get_binned_mr_acquisitions(unsigned int const bin_num) const
+	{
+		if(bin_num >= this->bp_.get_num_bins())
+			throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
+		
+		return this->binned_mr_acquisitions_[bin_num];
+	}
 
+
+	virtual void bin_mr_acquisitions(sirf::MRAcquisitionData& all_acquisitions)=0;
+	
+protected:
 	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
 
-
 };
 
 
-
-class MRMotionDynamic : public MRDynamic, public MotionDynamic {
-
+class MRMotionDynamic : public MRDynamic{
 
 public:
-	// MRMotionDynamic():MRDynamic(), MotionDynamic() {};
-	MRMotionDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states), MotionDynamic(num_simul_states), Dynamic(num_simul_states) {};
 
-	// void prep_displacement_fields( void );
+	MRMotionDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states){}
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
+
+private:
+	MotionProcessor mp_;
+
 };
 
-class MRContrastDynamic: public MRDynamic, public ContrastDynamic {
-
+class MRContrastDynamic: public MRDynamic {
 
 public:
-	// MRContrastDynamic():MRDynamic(), ContrastDynamic() {};
 	MRContrastDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states), ContrastDynamic(num_simul_states), Dynamic(num_simul_states) {};
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 
 	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
 	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
 
+private:
 
-protected:
+	ContrastProcessor cp_;
 	static std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
 
 };
@@ -375,7 +387,7 @@ public:
 	PETMotionDynamic(unsigned int const num_simul_states): PETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
 	void align_motion_fields_with_image( const sirf::STIRImageData& img);
-	// void prep_displacement_fields( void );
+
 private:
 	bool const keep_motion_fields_in_memory_ = true;
 

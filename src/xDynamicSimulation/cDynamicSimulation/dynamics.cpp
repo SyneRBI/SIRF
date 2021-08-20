@@ -176,37 +176,21 @@ SignalAxisType SurrogateProcessor::linear_interpolate_signal(TimeAxisType time_p
 
 }
 
-MRDynamic::MRDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
-
-std::vector<sirf::AcquisitionsVector> MRDynamic::get_binned_mr_acquisitions( void )
-{
-	std::cout << "size in the getter " << epiph( this->binned_mr_acquisitions_.size()) <<std::endl;
-	return this->binned_mr_acquisitions_;
-};
-
-sirf::AcquisitionsVector MRDynamic::get_binned_mr_acquisitions( unsigned int const bin_num )
-{
-	if(bin_num >= this->bp_.get_num_bins())
-		throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
-	
-	return this->binned_mr_acquisitions_[bin_num];
-};
-
 
 // static member variable initialization
-int ContrastDynamic::num_simul_states_ = 0;
-std::vector< TimeAxisType > ContrastDynamic::time_points_sampled_ = std::vector<TimeAxisType>(0);
+int ContrastProcessor::num_simul_states_ = 0;
+std::vector< TimeAxisType > ContrastProcessor::time_points_sampled_ = std::vector<TimeAxisType>(0);
 
 
 
-void ContrastDynamic::set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
+void ContrastProcessor::set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
 {
 	this->tissue_parameter_extremes_.first = tiss_at_0;
 	this->tissue_parameter_extremes_.second = tiss_at_1;
 }
 
 
-TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisType const signal)
+TissueParameterList ContrastProcessor::get_interpolated_tissue_params(SignalAxisType const signal) const
 {
 	TissueParameterList tiss_list;
 
@@ -223,31 +207,18 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 }
 
 
-int MotionDynamic::num_total_motion_dynamics_ = 0;
+int MotionProcessor::num_total_motion_dynamics_ = 0;
 
-MotionDynamic::MotionDynamic() 
+MotionProcessor::MotionProcessor() 
 {
 	this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
 	this->num_total_motion_dynamics_ += 1;
 	
 	this->temp_folder_name_ = setup_tmp_folder_name();
 	this->ground_truth_folder_name_ = setup_gt_folder_name();
-}
+}1
 
-MotionDynamic::MotionDynamic(unsigned int const num_simul_states) : Dynamic()
-{
-	this->num_simul_states_ =num_simul_states;
-	this->set_bins(num_simul_states_);
-
-	this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
-	this->num_total_motion_dynamics_ += 1;
-
-	this->temp_folder_name_ = setup_tmp_folder_name();
-	this->ground_truth_folder_name_ = setup_gt_folder_name();
-}
-
-
-MotionDynamic::~MotionDynamic()
+MotionProcessor::~MotionProcessor()
 { 
 	// if( this->destroy_upon_deletion_)
 	// this->delete_temp_folder();
@@ -256,7 +227,7 @@ MotionDynamic::~MotionDynamic()
 }
 
 
-NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_deformation_field(SignalAxisType signal)
+NiftiImageData3DDeformation<float> MotionProcessor::get_interpolated_deformation_field(const SignalAxisType signal)
 {
 	if( this->temp_mvf_filenames_.size() == 0 && this->displacement_fields_.size() == 0)
 		throw std::runtime_error("Before calling get_interpolated_deformation_field: Please use prep_displacement_fields() if the fields are not kept in memory, or set_displacement_fields() if they are.");
@@ -304,10 +275,8 @@ NiftiImageData3DDeformation<float> MotionDynamic::get_interpolated_deformation_f
 
 
 
-int MotionDynamic::get_which_motion_dynamic_am_i(){ return this->which_motion_dynamic_am_i_; }
-int MotionDynamic::get_num_total_motion_dynamics(){ return this->num_total_motion_dynamics_; }
 
-std::string MotionDynamic::setup_tmp_folder_name()
+std::string MotionProcessor::setup_tmp_folder_name()
 {
 	std::string const current_folder_prefix = "temp_folder_motion_dyn_";
 	std::stringstream tmp_stream;
@@ -316,7 +285,7 @@ std::string MotionDynamic::setup_tmp_folder_name()
 
 }
 
-std::string MotionDynamic::setup_gt_folder_name()
+std::string MotionProcessor::setup_gt_folder_name()
 {
 	std::string const gt_folder_prefix = "ground_truth_folder_motion_dyn_";
 	std::stringstream name_stream;
@@ -324,12 +293,8 @@ std::string MotionDynamic::setup_gt_folder_name()
 	return name_stream.str();
 }
 
-std::string MotionDynamic::get_temp_folder_name()
-{
-	return this->temp_folder_name_;
-}
 
-bool MotionDynamic::make_ground_truth_folder()
+bool MotionProcessor::make_ground_truth_folder()
 {
 	try
 	{
@@ -348,7 +313,7 @@ bool MotionDynamic::make_ground_truth_folder()
 }
 
 
-bool MotionDynamic::make_temp_folder()
+bool MotionProcessor::make_temp_folder()
 {
 	try
 	{
@@ -365,7 +330,7 @@ bool MotionDynamic::make_temp_folder()
 	}
 }
 
-bool MotionDynamic::delete_temp_folder()
+bool MotionProcessor::delete_temp_folder()
 {
 	try
 	{
@@ -393,53 +358,8 @@ bool MotionDynamic::delete_temp_folder()
 ;
 }
 
-// delete this!
-// void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic)
-// {
-	
-// 	if ( motion_fields_are_cyclic )
-// 	{
-// 		this->is_cyclic_dynamic_ = true;
-// 		this->set_bins( this->num_simul_states_ );
-// 	}	
 
-
-// 	using namespace ISMRMRD;
-
-// 	const size_t* dimensions = motion_fields.getDims();
-
-// 	size_t const Nt = dimensions[0];
-// 	size_t const Nv = dimensions[1];
-// 	size_t const Nz = dimensions[2];
-// 	size_t const Ny = dimensions[3];
-// 	size_t const Nx = dimensions[4];
-
-// 	for(size_t nt=0; nt<Nt; nt++)
-// 	{
-		
-// 		Image<DataTypeMotionFields> img(dimensions[4],dimensions[3], dimensions[2], dimensions[1]);
- 		
-//  		for(uint16_t  nv= 0; nv<Nv ; nv++)
-// 		for(uint16_t  nz= 0; nz<Nz ; nz++)
-// 		for(uint16_t  ny= 0; ny<Ny ; ny++)
-// 		for(uint16_t  nx= 0; nx<Nx ; nx++)
-// 		{
-// 			// size_t const lin_index = ((((Nt-1 -nt)*Nv + Nv-1 -nv)*Nz + Nz-1 - nz)*Ny + Ny-1 - ny)*Nx + Nx-1 - nx;
-// 			size_t const lin_index = (((nt*Nv + nv)*Nz + nz)*Ny + ny)*Nx + nx;
-// 			img(nx,ny,nz,nv) = 	  *(motion_fields.begin() + lin_index);
-// 		}
-// 		// this->displacement_fields_.push_back(img);
-// 	}
-// }
-
-
-void MotionDynamic::set_ground_truth_folder_name( std::string const name_existing_folder_path )
-{
-	this->ground_truth_folder_name_ = name_existing_folder_path;
-	this->make_ground_truth_folder();
-}
-
-void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3DDisplacement <float> > &input_displacement_fields, bool const motion_fields_are_cyclic)
+void MotionProcessor::set_displacement_fields( std::vector< sirf::NiftiImageData3DDisplacement <float> > &input_displacement_fields, bool const motion_fields_are_cyclic)
 {
 	if ( motion_fields_are_cyclic )
 	{
@@ -459,18 +379,8 @@ void MotionDynamic::set_displacement_fields( std::vector< sirf::NiftiImageData3D
 
 }
 
-void MotionDynamic::set_cyclicality(bool const is_cyclic)
-{
-	this->is_cyclic_dynamic_ = is_cyclic;
-	this->set_bins( this->num_simul_states_ );
-}
 
-void MotionDynamic::add_displacement_field(const MotionFieldType& dvf)
-{
-	this->displacement_fields_.push_back( dvf );
-}
-
-sirf::NiftiImageData3DDisplacement<float> MotionDynamic::scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf )
+sirf::NiftiImageData3DDisplacement<float> MotionProcessor::scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf )
 {
     const int* dvf_dims = dvf.get_dimensions() ;
 
@@ -497,7 +407,7 @@ sirf::NiftiImageData3DDisplacement<float> MotionDynamic::scale_displacementfield
 	return scaled_dvf;
 }
 
-void MotionDynamic::prep_displacement_fields()
+void MotionProcessor::prep_displacement_fields()
 {
 
 	if(this->displacement_fields_.size() == 0)
@@ -533,10 +443,9 @@ void MotionDynamic::prep_displacement_fields()
 	std::cout << "... finished." <<std::endl;
 }
 
-void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points)
+void MotionProcessor::save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points)
 {
 	bool const correct_for_offset = false;
-
 
 	this->make_ground_truth_folder();
 
@@ -579,28 +488,13 @@ void MotionDynamic::save_ground_truth_displacements( std::vector< SignalAxisType
 		NiftiImageData3DDisplacement<float> const gt_displacement( gt_deformation );
 		gt_displacement.write( sstream_output.str() );		
 
-		// NiftiImageData3DDisplacement<float> const gt_displacements_with_offset( gt_deformation_with_offset );
-		// gt_displacements_with_offset.write( sstream_output.str() );		
   	}
 }
 
-void MotionDynamic::save_ground_truth_displacements( void )
-{
-	std::vector< SignalBin > simulated_motion_bins = this->get_bins();
-	std::vector< SignalAxisType > bin_centers;
 
-	for( size_t i=0; i<simulated_motion_bins.size(); i++)
-	{	
-		std::cout << "pushing center " << std::get<1>( simulated_motion_bins[i]) << std::endl;
-		bin_centers.push_back( std::get<1>( simulated_motion_bins[i]) );
-	}
-
-	this->save_ground_truth_displacements( bin_centers );
-
-}
 
 NiftiImageData3DDeformation<float>  
-MotionDynamic::calc_inverse_offset_deformation( NiftiImageData3DDeformation<float> offset_deformation )
+MotionProcessor::calc_inverse_offset_deformation( NiftiImageData3DDeformation<float> offset_deformation )
 {
 	std::shared_ptr<nifti_image> sptr_offset_deformation = offset_deformation.get_raw_nifti_sptr();
 	std::shared_ptr<nifti_image> sptr_inverse_offset_deformation = std::make_shared< nifti_image >(*sptr_offset_deformation);
@@ -1021,46 +915,6 @@ TimeAxisType PETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 
 }
 
-
-
-
-// void PETMotionDynamic::prep_displacement_fields( void )
-// {
-// 	if(this->displacement_fields_.size() == 0)
-// 		throw std::runtime_error("Please call set_displacements_fields() first.");
-
-// 	std::cout << "Preparing PET displacement fields..." <<std::endl;
-
-// 	bool const temp_folder_creation_successful = this->make_temp_folder();
-
-// 	if( temp_folder_creation_successful )
-// 	{
-// 		for(int i=0; i<this->displacement_fields_.size(); i++)
-// 		{
-// 			std::stringstream temp_filename_mvf;
-// 			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
-
-// 			data_io::write_MVF_from_ISMRMRD_Image_to_Analyze_In_PET_Geometry<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacement_fields_[i]);
-// 			temp_filename_mvf << ".hdr";
-// 			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
-// 		}
-
-// 		std::vector<MotionFieldType> empty_container;
-// 		this->displacement_fields_.swap(empty_container); 
-
-// 	}
-// 	else
-// 		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
-
-// 	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
-// 	{
-// 		NiftiImageData3DDeformation<float> temp_deformation( this->temp_mvf_filenames_[i] );
-// 		this->sirf_displacement_fields_.push_back( temp_deformation );
-// 	}
-
-// 	this->delete_temp_folder();
-// 	std::cout << "... finished." <<std::endl;
-// }
 
 void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData& img )
 {
