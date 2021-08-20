@@ -226,13 +226,12 @@ void* cDS_setDynamicSignal(void* ptr_dyn, const void* ptr_sig)
 	try {
 
 		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
-		aDynamic& dyn = objectFromHandle<aDynamic>(h_dyn);
+		Dynamic& dyn = objectFromHandle<Dynamic>(h_dyn);
 
 		CAST_PTR(DataHandle, h_sig, ptr_sig);			
 		SignalContainer& sig = objectFromHandle<SignalContainer>(h_sig);
-		std::cout << "We have "<< sig.size() << "Signal points " << std::endl;
 
-		dyn.set_dyn_signal(sig);
+		dyn.set_dynamic_signal(sig);
 
 		return new DataHandle;
 	}
