@@ -70,14 +70,23 @@ class BinProcessor{
 public:
 
 	BinProcessor(){
-		num_bins_ = 0;
+		num_bins_ = 1;
 		cyclic_ = false;
 
-		signal_bins_ = {};
-		
+		SignalBin bin;
+
+		std::get<0>(bin) = 0.0;
+		std::get<1>(bin) = 0.5;
+		std::get<2>(bin) = 1.0;
+
+		signal_bins_.push_back(bin);
 	}
 
-	BinProcessor(int const num_bins, bool const cyclic=false){
+	BinProcessor(unsigned int const num_bins, bool const cyclic=false){
+		
+		if(num_bins < 1)
+			throw std::runtime_error("Please a number of bins >= 1.");
+		
 		num_bins_ = num_bins;
 		cyclic_ = cyclic;
 
@@ -120,15 +129,19 @@ private:
 class Dynamic{
 
 public:
-
-	Dynamic(const int num_states) : bp_(num_states){
+	
+	Dynamic() : bp_(){}
+	Dynamic(const unsigned int num_states) : bp_(num_states){
 	}
 	
 	int get_num_simul_states(void) const {
 		return bp_.get_num_bins();
 	}
 
-	virtual void set_bins()=0;
+	void set_dynamic_signal(const SignalContainer& sig)
+	{
+		sp_.set_signal(sig);
+	}
 
 	std::vector< SignalBin > get_bins(void) const {
 		 return bp_.get_bins();
@@ -149,43 +162,12 @@ protected:
 };
 
 
-class aDynamic {
+class ContrastProcessor {
 
 public:
 
-	aDynamic() {};
-	aDynamic(int const num_simul_states);
-
-	virtual int get_num_simul_states( void ){ return this->num_simul_states_; };
-
-	std::vector< SignalBin > get_bins( void ){ return this->signal_bins_;};
-	void set_dyn_signal(const SignalContainer& signal);
+	ContrastProcessor(){};
 	
-	SignalAxisType linear_interpolate_signal(TimeAxisType time_point);
-	
-protected:
-
-	int num_simul_states_;
-
-	bool is_cyclic_dynamic_ = false;
-
-	virtual void set_bins( int const num_bins );
-	void set_cyclic_bins( int const num_bins);
-	void set_non_cyclic_bins( int const num_bins);
-
-
-	std::vector< SignalBin > signal_bins_;
-	SignalContainer dyn_signal_; 
-
-};
-
-
-class ContrastDynamic : virtual public aDynamic {
-
-public:
-	ContrastDynamic():aDynamic(){};
-	ContrastDynamic(int const num_simul_states); 
-
 	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal);
 
 	void add_dynamic_label(LabelType l) { this->list_cont_var_labels_.push_back(l);};
@@ -193,26 +175,21 @@ public:
 
 	std::vector< TimeAxisType > get_time_points_sampled (void)const {return this->time_points_sampled_;};
 
-	virtual int get_num_simul_states( void ){ return this->num_simul_states_; };
+private:
 
-
-protected:
-
-	static int num_simul_states_;
 	static std::vector< TimeAxisType > time_points_sampled_;
 
 	std::vector< LabelType > list_cont_var_labels_;
 	std::pair< TissueParameter, TissueParameter > tissue_parameter_extremes_;
-	virtual void set_bins( int const num_bins );
 
 };
 
 
-class MotionDynamic : virtual public aDynamic {
+class MotionDynamic : virtual public Dynamic {
 
 public:
 	MotionDynamic();
-	MotionDynamic(int const num_simul_states);
+	MotionDynamic(unsigned int const num_simul_states);
 
 	~MotionDynamic();
 
@@ -266,12 +243,11 @@ protected:
 	std::vector<MotionFieldType> displacement_fields_;
 };
 
-class MRDynamic : virtual public aDynamic{
+class MRDynamic : virtual public Dynamic{
 
 public:
 
-	MRDynamic();
-	MRDynamic(int const num_simul_states);
+	MRDynamic(unsigned int const num_simul_states);
 
 	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
 	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( unsigned int const bin_num );
@@ -301,8 +277,8 @@ class MRMotionDynamic : public MRDynamic, public MotionDynamic {
 
 
 public:
-	MRMotionDynamic():MRDynamic(), MotionDynamic() {};
-	MRMotionDynamic(int const num_simul_states): MRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+	// MRMotionDynamic():MRDynamic(), MotionDynamic() {};
+	MRMotionDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states), MotionDynamic(num_simul_states), Dynamic(num_simul_states) {};
 
 	// void prep_displacement_fields( void );
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
@@ -312,8 +288,8 @@ class MRContrastDynamic: public MRDynamic, public ContrastDynamic {
 
 
 public:
-	MRContrastDynamic():MRDynamic(), ContrastDynamic() {};
-	MRContrastDynamic(int const num_simul_states): MRDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
+	// MRContrastDynamic():MRDynamic(), ContrastDynamic() {};
+	MRContrastDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states), ContrastDynamic(num_simul_states), Dynamic(num_simul_states) {};
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 
 	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
@@ -374,12 +350,11 @@ TimeAxisType get_total_time_in_set( TimeBinSet& set_of_bins );
 TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point);
 
 
-class PETDynamic : virtual public aDynamic{
+class PETDynamic : virtual public Dynamic{
 
 public:
 
-	PETDynamic();
-	PETDynamic(int const num_simul_states);
+	PETDynamic(unsigned int const num_simul_states);
 
 	void bin_total_time_interval(TimeBin time_interval_total_dynamic_process);
 
@@ -396,8 +371,8 @@ protected:
 class PETMotionDynamic: public PETDynamic, public MotionDynamic{
 
 public:
-	PETMotionDynamic():PETDynamic(), MotionDynamic() {};
-	PETMotionDynamic(int const num_simul_states): PETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+	// PETMotionDynamic():PETDynamic(), MotionDynamic() {};
+	PETMotionDynamic(unsigned int const num_simul_states): PETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
 	void align_motion_fields_with_image( const sirf::STIRImageData& img);
 	// void prep_displacement_fields( void );
@@ -409,138 +384,6 @@ private:
 class PETContrastDynamic: public PETDynamic, public ContrastDynamic {
 
 public:
-	PETContrastDynamic():PETDynamic(), ContrastDynamic() {};
-	PETContrastDynamic(int const num_simul_states): PETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
-};
-
-
-
-
-
-
-//
-//
-//
-//
-//
-//  experimental code for bug fixing
-
-
-class SignalProcessor{
-
-public:
-
-	SignalProcessor(void){};
-
-	void set_signal(const SignalContainer& sig){
-		this->sig_ = sig;
-	}
-
-	void set_bins(void){
-		std::cout << "bin setter not done yet" <<std::endl;
-	}
-
-	void print_sig_size(void) const{
-		std::cout << "The signal has " << sig_.size() << " elements\n";
-	}
-
-private: 
-	SignalContainer sig_;
-};
-
-class Dyn{
-
-public:
-	Dyn(void) {};
-	void set_signal(const SignalContainer& sig){
-		this->sp_.set_signal(sig);
-	}
-
-	virtual void set_bins()=0;
-
-protected:
-	SignalProcessor sp_;
-};
-
-
-
-class MR : public Dyn
-{
-public:
-	MR(const int num_states){
-		num_states_ = num_states;
-	}
-	
-	void signal_setter(SignalContainer sig){
-		this->sp_.set_signal(sig);
-    }
-
-	void print_sig_size(){
-		this->sp_.print_sig_size();
-	}
-
-    virtual void binning()=0;
-
-protected:
-	int num_states_;
-};
-
-class Motion 
-{
-public:
-    void motion_function(){
-        std::cout << "We do something motion-specific." << std::endl;
-    }
-};
-
-class Contrast 
-{
-public:
-    void contrast_function(){
-        std::cout << "We do something contrast-specific." << std::endl;
-    }
-};
-
-class MR_Motion : public MR
-{
-public:
-	MR_Motion(const int n) : MR(n) {};
-
-	virtual void set_bins(void){
-		this->sp_.set_bins();
-	}
-
-    virtual void binning(){
-
-		std::cout << "We do the binning for MR motion." << std::endl;
-		this->print_sig_size();
-		std::cout << "To this end we call the motion class:" << std::endl;
-
-		mo_.motion_function();
-	}
-
-private:
-	Motion mo_;
-};
-
-class MR_Contrast : public MR
-{
-public:
-	MR_Contrast(const int n) : MR(n){};
-
-	virtual void set_bins(void){
-		this->sp_.set_bins();
-	}
-
-    virtual void binning(){
-
-        std::cout << "We do the binning for MR contrast." << std::endl;
-		this->print_sig_size();
-		std::cout << "To this end we call the contrast class:" << std::endl;
-
-		co_.contrast_function();
-	}
-
-private:
-	Contrast co_;
+	// PETContrastDynamic():PETDynamic(), ContrastDynamic() {};
+	PETContrastDynamic(unsigned int const num_simul_states): PETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
 };

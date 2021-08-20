@@ -108,24 +108,6 @@ AcquisitionsVector intersect_mr_acquisition_data( const MRAcquisitionData& one_d
 }
 
 
-aDynamic::aDynamic(int const num_simul_states) : num_simul_states_(num_simul_states)
-{
-	set_bins( num_simul_states );
-}
-
-void aDynamic::set_bins(int const num_bins)
-{
-	this->signal_bins_.clear();
-
-	if( this-> is_cyclic_dynamic_ )
-		this->set_cyclic_bins(num_bins);
-	else if ( ! this->is_cyclic_dynamic_)
-		this->set_non_cyclic_bins(num_bins);
-}
-
-void aDynamic::set_cyclic_bins(int const num_bins){}
-void aDynamic::set_non_cyclic_bins(int const num_bins){}
-
 
 void BinProcessor::set_cyclic_bins(int const num_bins)
 {
@@ -159,15 +141,6 @@ void BinProcessor::set_non_cyclic_bins(int const num_bins)
 	}
 }
 
-
-void aDynamic::set_dyn_signal(const SignalContainer& signal) 
-{
-	this->dyn_signal_ = signal;
-}
-SignalAxisType aDynamic::linear_interpolate_signal(TimeAxisType time_point)
-{
-	return 0.f;
-}
 
 SignalAxisType SurrogateProcessor::linear_interpolate_signal(TimeAxisType time_point) const
 {
@@ -203,12 +176,7 @@ SignalAxisType SurrogateProcessor::linear_interpolate_signal(TimeAxisType time_p
 
 }
 
-
-
-
-
-MRDynamic::MRDynamic(): aDynamic() {};
-MRDynamic::MRDynamic(int const num_simul_states): aDynamic(num_simul_states){}
+MRDynamic::MRDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
 std::vector<sirf::AcquisitionsVector> MRDynamic::get_binned_mr_acquisitions( void )
 {
@@ -218,7 +186,7 @@ std::vector<sirf::AcquisitionsVector> MRDynamic::get_binned_mr_acquisitions( voi
 
 sirf::AcquisitionsVector MRDynamic::get_binned_mr_acquisitions( unsigned int const bin_num )
 {
-	if(bin_num >= this->num_simul_states_)
+	if(bin_num >= this->bp_.get_num_bins())
 		throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
 	
 	return this->binned_mr_acquisitions_[bin_num];
@@ -230,11 +198,6 @@ int ContrastDynamic::num_simul_states_ = 0;
 std::vector< TimeAxisType > ContrastDynamic::time_points_sampled_ = std::vector<TimeAxisType>(0);
 
 
-ContrastDynamic::ContrastDynamic(int const num_simul_states): aDynamic()
-{
-	this->num_simul_states_ = num_simul_states;
-	this->set_bins( num_simul_states );
-} 
 
 void ContrastDynamic::set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
 {
@@ -259,27 +222,10 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 	return tiss_list;
 }
 
-void ContrastDynamic::set_bins( int const num_bins )
-{
-	if(num_simul_states_ != 1)
-		this->num_simul_states_ = num_bins+1;
-
-	for(int i_state=0; i_state<this->num_simul_states_; i_state++)
-	{	
-		SignalBin bin;
-
-		std::get<0>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins)- 1.f/(2*num_bins);;
-		std::get<1>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins);
-		std::get<2>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins)+ 1.f/(2*num_bins);
-	
-		this->signal_bins_.push_back( bin );
-	}
-}
-
 
 int MotionDynamic::num_total_motion_dynamics_ = 0;
 
-MotionDynamic::MotionDynamic():aDynamic()
+MotionDynamic::MotionDynamic() 
 {
 	this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
 	this->num_total_motion_dynamics_ += 1;
@@ -288,7 +234,7 @@ MotionDynamic::MotionDynamic():aDynamic()
 	this->ground_truth_folder_name_ = setup_gt_folder_name();
 }
 
-MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic()
+MotionDynamic::MotionDynamic(unsigned int const num_simul_states) : Dynamic()
 {
 	this->num_simul_states_ =num_simul_states;
 	this->set_bins(num_simul_states_);
@@ -836,7 +782,7 @@ TimeAxisType get_total_time_in_set(TimeBinSet& set_of_bins )
 	return t;
 }
 
-PETDynamic::PETDynamic(int const num_simul_states): aDynamic(num_simul_states){}
+PETDynamic::PETDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
 
 void PETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_process)
