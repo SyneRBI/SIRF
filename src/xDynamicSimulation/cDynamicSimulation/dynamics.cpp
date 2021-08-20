@@ -161,13 +161,6 @@ void aDynamic::set_non_cyclic_bins(int const num_bins)
 }
 
 
-void aDynamic::set_num_simul_states(int const num_states)
-{
-	this->num_simul_states_ = num_states;
-	set_bins( num_states );
-
-}
-
 void aDynamic::set_dyn_signal(const SignalContainer& signal) 
 {
 	this->dyn_signal_ = signal;
