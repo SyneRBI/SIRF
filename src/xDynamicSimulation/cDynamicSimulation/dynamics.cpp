@@ -841,10 +841,10 @@ TimeAxisType get_total_time_in_set(TimeBinSet& set_of_bins )
 	return t;
 }
 
-aPETDynamic::aPETDynamic(int const num_simul_states): aDynamic(num_simul_states){}
+PETDynamic::PETDynamic(int const num_simul_states): aDynamic(num_simul_states){}
 
 
-void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_process)
+void PETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_process)
 {
 	if(this->dyn_signal_.size() == 0)
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
@@ -1061,7 +1061,7 @@ TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, Sign
 		return (signal-left_point.second) * (right_point.first - left_point.first) / (right_point.second - left_point.second) + left_point.first;
 }
 
-TimeBinSet aPETDynamic::get_time_bin_set_for_state( unsigned int const which_state )
+TimeBinSet PETDynamic::get_time_bin_set_for_state( unsigned int const which_state )
 {
 	if(which_state >= binned_time_intervals_.size())
 		throw std::runtime_error( " Please give a number not larger than the number of dynamic states-1");
@@ -1070,7 +1070,7 @@ TimeBinSet aPETDynamic::get_time_bin_set_for_state( unsigned int const which_sta
 	return this->binned_time_intervals_[which_state];	
 }
 
-TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
+TimeAxisType PETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 {
 	if(which_state >= binned_time_intervals_.size())
 		throw std::runtime_error( " Please give a number not larger than the number of dynamic states-1");

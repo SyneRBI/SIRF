@@ -280,12 +280,12 @@ TimeAxisType get_total_time_in_set( TimeBinSet& set_of_bins );
 TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point);
 
 
-class aPETDynamic : virtual public aDynamic{
+class PETDynamic : virtual public aDynamic{
 
 public:
 
-	aPETDynamic();
-	aPETDynamic(int const num_simul_states);
+	PETDynamic();
+	PETDynamic(int const num_simul_states);
 
 	void bin_total_time_interval(TimeBin time_interval_total_dynamic_process);
 
@@ -299,11 +299,11 @@ protected:
 };
 
 
-class PETMotionDynamic: public aPETDynamic, public MotionDynamic{
+class PETMotionDynamic: public PETDynamic, public MotionDynamic{
 
 public:
-	PETMotionDynamic():aPETDynamic(), MotionDynamic() {};
-	PETMotionDynamic(int const num_simul_states): aPETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+	PETMotionDynamic():PETDynamic(), MotionDynamic() {};
+	PETMotionDynamic(int const num_simul_states): PETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
 	void align_motion_fields_with_image( const sirf::STIRImageData& img);
 	// void prep_displacement_fields( void );
@@ -312,9 +312,9 @@ private:
 
 };
 
-class PETContrastDynamic: public aPETDynamic, public ContrastDynamic {
+class PETContrastDynamic: public PETDynamic, public ContrastDynamic {
 
 public:
-	PETContrastDynamic():aPETDynamic(), ContrastDynamic() {};
-	PETContrastDynamic(int const num_simul_states): aPETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
+	PETContrastDynamic():PETDynamic(), ContrastDynamic() {};
+	PETContrastDynamic(int const num_simul_states): PETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
 };
