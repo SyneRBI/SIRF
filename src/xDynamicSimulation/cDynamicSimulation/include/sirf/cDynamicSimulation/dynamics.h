@@ -48,6 +48,85 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 typedef sirf::AcquisitionsVector MRDataType;
 MRDataType intersect_mr_acquisition_data( const sirf::MRAcquisitionData& one_dat, const sirf::MRAcquisitionData& other_dat );
 
+
+class BinProcessor{
+public:
+
+	BinProcessor(){
+		num_bins_ = 0;
+		cyclic_ = false;
+	}
+
+	BinProcessor(int const num_bins, bool const cyclic=false){
+		num_bins_ = num_bins;
+		cyclic_ = cyclic;
+	}
+
+	void set_cylicality(const bool cyclic){
+		this->cyclic_ = cyclic;
+	}
+
+	void set_bins( void ){
+		this->cyclic_ ? set_cyclic_bins(num_bins_) 
+					  : set_non_cyclic_bins(num_bins_);
+	}
+
+	std::vector< SignalBin > get_bins( void ) const{
+		return this->signal_bins_;
+	}
+
+private:
+	void set_cyclic_bins( int const num_bins);
+	void set_non_cyclic_bins( int const num_bins);
+
+	int num_bins_;
+	bool cyclic_;
+	std::vector< SignalBin > signal_bins_;
+
+};
+
+class SurrogateProcessor{
+
+public:
+	SurrogateProcessor(){};
+
+	void set_signal(const SignalContainer& sig){
+		this->signal_ = sig;
+	}
+
+	SignalAxisType linear_interpolate_signal(const TimeAxisType time_point) const;
+
+private:
+
+	SignalContainer signal_; 
+};
+
+
+
+class Dynamic{
+
+public:
+
+	Dynamic(const int num_states) : bp_(num_states){
+	}
+
+	virtual void set_bins()=0;
+
+	void set_cylicality(const bool cyclic){
+		this->bp_.set_cylicality(cyclic);
+	}
+
+	SignalAxisType interpolate_signal(const TimeAxisType time_point) const
+	{
+		return this->sp_.linear_interpolate_signal(time_point);
+	}
+
+protected: 
+	SurrogateProcessor sp_;
+	BinProcessor bp_;
+};
+
+
 class aDynamic {
 
 public:
@@ -63,7 +142,6 @@ public:
 	virtual int get_num_simul_states( void ){ return this->num_simul_states_; };
 
 	std::vector< SignalBin > get_bins( void ){ return this->signal_bins_;};
-	void set_num_simul_states(int const num_states);
 	void set_dyn_signal(const SignalContainer& signal);
 	
 	SignalAxisType linear_interpolate_signal(TimeAxisType time_point);
@@ -169,7 +247,6 @@ protected:
 	int which_motion_dynamic_am_i_;
 
 	std::vector<MotionFieldType> displacement_fields_;
-	// std::vector< sirf::NiftiImageData3DDeformation<float> > sirf_displacement_fields_;
 };
 
 class MRDynamic : virtual public aDynamic{
@@ -317,4 +394,136 @@ class PETContrastDynamic: public PETDynamic, public ContrastDynamic {
 public:
 	PETContrastDynamic():PETDynamic(), ContrastDynamic() {};
 	PETContrastDynamic(int const num_simul_states): PETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
+};
+
+
+
+
+
+
+//
+//
+//
+//
+//
+//  experimental code for bug fixing
+
+
+class SignalProcessor{
+
+public:
+
+	SignalProcessor(void){};
+
+	void set_signal(const SignalContainer& sig){
+		this->sig_ = sig;
+	}
+
+	void set_bins(void){
+		std::cout << "bin setter not done yet" <<std::endl;
+	}
+
+	void print_sig_size(void) const{
+		std::cout << "The signal has " << sig_.size() << " elements\n";
+	}
+
+private: 
+	SignalContainer sig_;
+};
+
+class Dyn{
+
+public:
+	Dyn(void) {};
+	void set_signal(const SignalContainer& sig){
+		this->sp_.set_signal(sig);
+	}
+
+	virtual void set_bins()=0;
+
+protected:
+	SignalProcessor sp_;
+};
+
+
+
+class MR : public Dyn
+{
+public:
+	MR(const int num_states){
+		num_states_ = num_states;
+	}
+	
+	void signal_setter(SignalContainer sig){
+		this->sp_.set_signal(sig);
+    }
+
+	void print_sig_size(){
+		this->sp_.print_sig_size();
+	}
+
+    virtual void binning()=0;
+
+protected:
+	int num_states_;
+};
+
+class Motion 
+{
+public:
+    void motion_function(){
+        std::cout << "We do something motion-specific." << std::endl;
+    }
+};
+
+class Contrast 
+{
+public:
+    void contrast_function(){
+        std::cout << "We do something contrast-specific." << std::endl;
+    }
+};
+
+class MR_Motion : public MR
+{
+public:
+	MR_Motion(const int n) : MR(n) {};
+
+	virtual void set_bins(void){
+		this->sp_.set_bins();
+	}
+
+    virtual void binning(){
+
+		std::cout << "We do the binning for MR motion." << std::endl;
+		this->print_sig_size();
+		std::cout << "To this end we call the motion class:" << std::endl;
+
+		mo_.motion_function();
+	}
+
+private:
+	Motion mo_;
+};
+
+class MR_Contrast : public MR
+{
+public:
+	MR_Contrast(const int n) : MR(n){};
+
+	virtual void set_bins(void){
+		this->sp_.set_bins();
+	}
+
+    virtual void binning(){
+
+        std::cout << "We do the binning for MR contrast." << std::endl;
+		this->print_sig_size();
+		std::cout << "To this end we call the contrast class:" << std::endl;
+
+		co_.contrast_function();
+	}
+
+private:
+	Contrast co_;
 };
