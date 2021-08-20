@@ -97,8 +97,17 @@ public:
 		return num_bins_;
 	}
 	
-	std::vector< SignalBin > get_bins( void ) const {
+	std::vector<SignalBin> get_bins( void ) const {
 		return signal_bins_;
+	}
+
+	std::vector<SignalPoint> get_bin_centers(void) const {
+		
+		std::vector<SignalPoint> centres;
+		for(int i=0; i<signal_bins_.size(); ++i)
+			centres.push_back(std::get<1>(signal_bins_.at(i)));
+		
+		return centres;
 	}
 
 	void set_cylicality(const bool cyclic){
@@ -206,7 +215,7 @@ public:
 		this->make_ground_truth_folder();
 	}
 
-	void MotionProcessor::add_displacement_field(const MotionFieldType& dvf)
+	void add_displacement_field(const MotionFieldType& dvf)
 	{
 		this->displacement_fields_.push_back( dvf );
 	}
@@ -257,7 +266,7 @@ protected:
 	std::vector<MotionFieldType> displacement_fields_;
 };
 
-class MRDynamic : virtual public Dynamic{
+class MRDynamic : public Dynamic{
 
 public:
 
@@ -276,7 +285,6 @@ public:
 		return this->binned_mr_acquisitions_[bin_num];
 	}
 
-
 	virtual void bin_mr_acquisitions(sirf::MRAcquisitionData& all_acquisitions)=0;
 	
 protected:
@@ -292,9 +300,13 @@ public:
 	MRMotionDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states){}
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 
+	void save_ground_truth_displacements(void) const
+	{
+		mp_.save_ground_truth_displacements(bp_.get_bin_centers());
+	}
+
 private:
 	MotionProcessor mp_;
-
 };
 
 class MRContrastDynamic: public MRDynamic {
@@ -362,7 +374,7 @@ TimeAxisType get_total_time_in_set( TimeBinSet& set_of_bins );
 TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point);
 
 
-class PETDynamic : virtual public Dynamic{
+class PETDynamic : public Dynamic{
 
 public:
 
