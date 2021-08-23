@@ -55,14 +55,12 @@ void* cDS_DynamicSignal(PTR_FLOAT ptr_time, PTR_FLOAT ptr_signal, int const num_
 // Dynamics
 void* cDS_setDynamicSignal(void* ptr_dyn, const void* ptr_sig);
 
-// Motion Dynamics
-void* cDS_addDisplacementField(void* ptr_dyn, const void* ptr_dvf);
+void* cDS_addMRDisplacementField(void* ptr_dyn, const void* ptr_dvf);
 void* cDS_setCyclicality(void* ptr_dyn, bool const cyc);
 
 // MR Dynamics
 void* cDS_setMRAcquisitions(void* ptr_dyn, void* ptr_ad);
 
-// MR Motion
 void* cDS_MRMotionDynamic( int const num_states );
 
 

@@ -36,13 +36,8 @@ public:
 
 	virtual void simulate_data( void ) = 0;
 	virtual void write_simulation_results( const std::string& filename_output_with_extension ) = 0;
-	virtual void save_ground_truth_displacements();
 
 	virtual void acquire_raw_data( void ) = 0;
-
-protected:
-	std::vector< std::shared_ptr<MotionDynamic> > motion_dynamics_;
-	std::vector< std::shared_ptr<ContrastDynamic> > contrast_dynamics_;
 
 };
 
@@ -55,6 +50,7 @@ public:
 	{};
 
 	void write_simulation_results( const std::string& filename_output_with_extension );
+	void save_ground_truth_displacements() const;
 
 	void set_template_acquisition_data(sirf::MRAcquisitionData& acquisitions );
 	void set_SNR(float const SNR);
@@ -112,6 +108,7 @@ public:
 	void simulate_data( void );
 	void simulate_data( size_t const total_scan_time );
 
+	void save_ground_truth_displacements(void) const;
 
 	std::string get_filename_rawdata( void )
 	{ 

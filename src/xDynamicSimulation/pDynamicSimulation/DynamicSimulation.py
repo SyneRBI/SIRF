@@ -141,7 +141,7 @@ class MotionDynamic(Dynamic):
 
     def add_displacement_field(self, dvf):
         assert_validity(dvf, pReg.NiftiImageData3DDisplacement)
-        pysim.cDS_addDisplacementField(self.handle, dvf.handle)
+        pysim.cDS_addMRDisplacementField(self.handle, dvf.handle)
 
     def set_cyclicality(self, is_cyclic):
         pysim.cDS_setCyclicality(self.handle, is_cyclic)

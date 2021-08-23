@@ -245,7 +245,7 @@ void* cDS_setCyclicality(void* ptr_dyn, bool const cyc)
 	try {
 
 		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
-		MotionDynamic& dyn = objectFromHandle<MotionDynamic>(h_dyn);
+		Dynamic& dyn = objectFromHandle<Dynamic>(h_dyn);
 		dyn.set_cyclicality(cyc);
 
 		return new DataHandle;
@@ -257,12 +257,12 @@ void* cDS_setCyclicality(void* ptr_dyn, bool const cyc)
 // Motion Dynamics
 
 extern "C"
-void* cDS_addDisplacementField(void* ptr_dyn, const void* ptr_dvf)
+void* cDS_addMRDisplacementField(void* ptr_dyn, const void* ptr_dvf)
 {
 	try {
 
 		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
-		MotionDynamic& dyn = objectFromHandle<MotionDynamic>(h_dyn);
+		MRMotionDynamic& dyn = objectFromHandle<MRMotionDynamic>(h_dyn);
 		
 		CAST_PTR(DataHandle, h_dvf, ptr_dvf);
 		MotionFieldType& dvf = objectFromHandle<MotionFieldType>(h_dvf);

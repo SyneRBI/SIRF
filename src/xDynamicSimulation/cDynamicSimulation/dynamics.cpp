@@ -142,7 +142,7 @@ void BinProcessor::set_non_cyclic_bins(int const num_bins)
 }
 
 
-SignalAxisType SurrogateProcessor::linear_interpolate_signal(TimeAxisType time_point) const
+SignalAxisType SurrogateProcessor::linear_interpolate_signal(const TimeAxisType time_point) const
 {
 
 	size_t const num_sig_points = this->signal_.size();
@@ -176,12 +176,8 @@ SignalAxisType SurrogateProcessor::linear_interpolate_signal(TimeAxisType time_p
 
 }
 
-
 // static member variable initialization
-int ContrastProcessor::num_simul_states_ = 0;
-std::vector< TimeAxisType > ContrastProcessor::time_points_sampled_ = std::vector<TimeAxisType>(0);
-
-
+std::vector< TimeAxisType > ContrastProcessor::time_points_sampled_ = std::vector<TimeAxisType>{};
 
 void ContrastProcessor::set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
 {
@@ -207,27 +203,27 @@ TissueParameterList ContrastProcessor::get_interpolated_tissue_params(SignalAxis
 }
 
 
-int MotionProcessor::num_total_motion_dynamics_ = 0;
+int MotionProcessor::num_total_motion_processors_ = 0;
 
 MotionProcessor::MotionProcessor() 
 {
-	this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
-	this->num_total_motion_dynamics_ += 1;
+	this->which_motion_processor_am_i_ = num_total_motion_processors_;
+	this->num_total_motion_processors_ += 1;
 	
 	this->temp_folder_name_ = setup_tmp_folder_name();
 	this->ground_truth_folder_name_ = setup_gt_folder_name();
-}1
+}
 
 MotionProcessor::~MotionProcessor()
 { 
 	// if( this->destroy_upon_deletion_)
 	// this->delete_temp_folder();
 
-	this->num_total_motion_dynamics_ -= 1; 
+	this->num_total_motion_processors_ -= 1; 
 }
 
 
-NiftiImageData3DDeformation<float> MotionProcessor::get_interpolated_deformation_field(const SignalAxisType signal)
+NiftiImageData3DDeformation<float> MotionProcessor::get_interpolated_deformation_field(const SignalAxisType signal, const bool cyclic) const
 {
 	if( this->temp_mvf_filenames_.size() == 0 && this->displacement_fields_.size() == 0)
 		throw std::runtime_error("Before calling get_interpolated_deformation_field: Please use prep_displacement_fields() if the fields are not kept in memory, or set_displacement_fields() if they are.");
@@ -240,7 +236,7 @@ NiftiImageData3DDeformation<float> MotionProcessor::get_interpolated_deformation
 	// check in which interval the signal lies
 	SignalAxisType signal_on_bin_range;
 
-	if( this->is_cyclic_dynamic_ )
+	if( cyclic )
 		signal_on_bin_range = num_motion_fields * signal;
 	else
 		signal_on_bin_range = (num_motion_fields  - 1)* signal;
@@ -280,7 +276,7 @@ std::string MotionProcessor::setup_tmp_folder_name()
 {
 	std::string const current_folder_prefix = "temp_folder_motion_dyn_";
 	std::stringstream tmp_stream;
-	tmp_stream << this->temp_folder_prefix_ << current_folder_prefix << this->which_motion_dynamic_am_i_;
+	tmp_stream << this->temp_folder_prefix_ << current_folder_prefix << this->which_motion_processor_am_i_;
 	return tmp_stream.str();
 
 }
@@ -289,16 +285,16 @@ std::string MotionProcessor::setup_gt_folder_name()
 {
 	std::string const gt_folder_prefix = "ground_truth_folder_motion_dyn_";
 	std::stringstream name_stream;
-	name_stream << this->temp_folder_prefix_ << gt_folder_prefix << this->which_motion_dynamic_am_i_;
+	name_stream << this->temp_folder_prefix_ << gt_folder_prefix << this->which_motion_processor_am_i_;
 	return name_stream.str();
 }
 
 
-bool MotionProcessor::make_ground_truth_folder()
+bool MotionProcessor::make_ground_truth_folder() const
 {
 	try
 	{
-		std::cout << "Generating temporary folder " << this->ground_truth_folder_name_ << std::endl;
+		std::cout << "Generating ground truth folder " << this->ground_truth_folder_name_ << std::endl;
 		boost::filesystem::path dir_to_make(this->ground_truth_folder_name_.c_str());
 		bool folder_creation_worked = boost::filesystem::create_directories(dir_to_make);
 
@@ -313,7 +309,7 @@ bool MotionProcessor::make_ground_truth_folder()
 }
 
 
-bool MotionProcessor::make_temp_folder()
+bool MotionProcessor::make_temp_folder() const
 {
 	try
 	{
@@ -330,7 +326,7 @@ bool MotionProcessor::make_temp_folder()
 	}
 }
 
-bool MotionProcessor::delete_temp_folder()
+bool MotionProcessor::delete_temp_folder() const
 {
 	try
 	{
@@ -359,28 +355,21 @@ bool MotionProcessor::delete_temp_folder()
 }
 
 
-void MotionProcessor::set_displacement_fields( std::vector< sirf::NiftiImageData3DDisplacement <float> > &input_displacement_fields, bool const motion_fields_are_cyclic)
+void MotionProcessor::set_displacement_fields(const std::vector< sirf::NiftiImageData3DDisplacement <float> > &input_displacement_fields)
 {
-	if ( motion_fields_are_cyclic )
-	{
-		this->is_cyclic_dynamic_ = true;
-		this->set_bins( this->num_simul_states_ );
-	}
-
 	for(size_t i=0; i<input_displacement_fields.size(); i++)
 		this->displacement_fields_.push_back( input_displacement_fields[i] );
 
-	if( true ) 
-	{
-		std::cout << "WARNING: Emtpying the passed vector to save memory." <<std::endl;
-		std::vector< sirf::NiftiImageData3DDisplacement<float> >  empty_container;
-		input_displacement_fields.swap(empty_container);
-	}
-
+	// if( false ) 
+	// {
+	// 	std::cout << "WARNING: Emtpying the passed vector to save memory." <<std::endl;
+	// 	std::vector< sirf::NiftiImageData3DDisplacement<float> >  empty_container;
+	// 	input_displacement_fields.swap(empty_container);
+	// }
 }
 
 
-sirf::NiftiImageData3DDisplacement<float> MotionProcessor::scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf )
+sirf::NiftiImageData3DDisplacement<float> MotionProcessor::scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf ) const
 {
     const int* dvf_dims = dvf.get_dimensions() ;
 
@@ -443,29 +432,29 @@ void MotionProcessor::prep_displacement_fields()
 	std::cout << "... finished." <<std::endl;
 }
 
-void MotionProcessor::save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points)
+void MotionProcessor::save_ground_truth_displacements( const std::vector< SignalAxisType >& gt_signal_points, const bool cyclic) const
 {
 	bool const correct_for_offset = false;
 
 	this->make_ground_truth_folder();
 
-	std::vector<SignalAxisType>::iterator minimum_pos = std::min_element(std::begin(gt_signal_points), std::end(gt_signal_points));
+	// std::vector<SignalAxisType>::iterator minimum_pos = std::min_element(std::begin(gt_signal_points), std::end(gt_signal_points));
+	auto minimum_pos = std::min_element(std::begin(gt_signal_points), std::end(gt_signal_points));
 	SignalAxisType gt_signal_offset = *minimum_pos;
 
 	std::cout << "Subtracting offset of signal " << gt_signal_offset << std::endl;
 
-	NiftiImageData3DDeformation<float> offset_deformation = this->get_interpolated_deformation_field( gt_signal_offset ); 
-
+	NiftiImageData3DDeformation<float> offset_deformation = this->get_interpolated_deformation_field( gt_signal_offset, cyclic); 
 
 	std::shared_ptr<const NiftiImageData3DDeformation<float> > sptr_inverse_offset_deformation; 
-	//= std::make_shared<const NiftiImageData3DDeformation<float> >(calc_inverse_offset_deformation( offset_deformation ));
+
 	if( correct_for_offset )
 		sptr_inverse_offset_deformation = std::make_shared<const NiftiImageData3DDeformation<float> >(calc_inverse_offset_deformation( offset_deformation ));
 
 	for( size_t i=0; i<gt_signal_points.size(); i++)
 	{
 
-		NiftiImageData3DDeformation<float> gt_deformation_with_offset = this->get_interpolated_deformation_field( gt_signal_points[i] );
+		NiftiImageData3DDeformation<float> gt_deformation_with_offset = this->get_interpolated_deformation_field( gt_signal_points[i], cyclic);
 		
 		std::vector< std::shared_ptr<const Transformation<float> > > vec_gt_def_with_offset;
 
@@ -494,7 +483,7 @@ void MotionProcessor::save_ground_truth_displacements( std::vector< SignalAxisTy
 
 
 NiftiImageData3DDeformation<float>  
-MotionProcessor::calc_inverse_offset_deformation( NiftiImageData3DDeformation<float> offset_deformation )
+MotionProcessor::calc_inverse_offset_deformation(NiftiImageData3DDeformation<float> offset_deformation) const
 {
 	std::shared_ptr<nifti_image> sptr_offset_deformation = offset_deformation.get_raw_nifti_sptr();
 	std::shared_ptr<nifti_image> sptr_inverse_offset_deformation = std::make_shared< nifti_image >(*sptr_offset_deformation);
@@ -516,9 +505,8 @@ MotionProcessor::calc_inverse_offset_deformation( NiftiImageData3DDeformation<fl
 void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	std::cout << "Binning motion dynamics\n";
-	std::cout << "The signal ended up having " << this->dyn_signal_.size() << " pts "<< std::endl;
-
-	if(this->dyn_signal_.size() == 0)
+	
+	if(sp_.is_empty())
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
 
 	all_acquisitions.sort_by_time();
@@ -535,10 +523,12 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 	for( size_t i=0; i<all_acquisitions.items(); i++)
 		relevant_acq_numbers.push_back( i );
 
-	for( int i_bin=0; i_bin<this->signal_bins_.size(); i_bin++)
+	const std::vector<SignalBin> signal_bins = bp_.get_bins();
+
+	for( int i_bin=0; i_bin<signal_bins.size(); i_bin++)
 	{
 
-		auto bin = this->signal_bins_[i_bin];
+		auto bin = signal_bins[i_bin];
 	
 		AcquisitionsVector curr_acq_vector;
 		curr_acq_vector.copy_acquisitions_info(all_acquisitions);
@@ -554,7 +544,7 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 			
 			TimeAxisType acq_time = SIRF_SCANNER_MS_PER_TIC * (TimeAxisType)acq.getHead().acquisition_time_stamp - time_offset;
 			
-			SignalAxisType signal_of_acq = this->linear_interpolate_signal( acq_time );
+			SignalAxisType signal_of_acq = this->interpolate_signal(acq_time);
 			
 			if( is_in_bin(signal_of_acq, bin) )
 				curr_acq_vector.append_acquisition(acq);
@@ -569,20 +559,6 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 
 std::vector<AcquisitionsVector> MRContrastDynamic::binned_mr_acquisitions_ = std::vector< AcquisitionsVector >(0);
 
-std::vector<sirf::AcquisitionsVector> MRContrastDynamic::get_binned_mr_acquisitions( void )
-{
-	std::cout << "size in the getter " << epiph( this->binned_mr_acquisitions_.size()) <<std::endl;
-	return this->binned_mr_acquisitions_;
-};
-
-sirf::AcquisitionsVector MRContrastDynamic::get_binned_mr_acquisitions( int const bin_num )
-{
-	if(bin_num >= this->num_simul_states_)
-		throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
-	
-	return this->binned_mr_acquisitions_[bin_num];
-};
-
 void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	std::cout << "Binning contrast dynamics\n";
@@ -591,7 +567,7 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 		std::vector<AcquisitionsVector> empty_vec;
 		this->binned_mr_acquisitions_.swap( empty_vec );
 
-		this->time_points_sampled_.clear();
+		cp_.empty_timepoints();
 	}
 
 	all_acquisitions.sort_by_time(); 
@@ -607,17 +583,20 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 	TimeAxisType total_time = SIRF_SCANNER_MS_PER_TIC * (t_fin - t_start);
 							   
 	std::vector< size_t > index_lims;
+	const std::vector<SignalBin> signal_bins = bp_.get_bins();
 
-	for( size_t i=0; i<this->num_simul_states_;i++)
+	for( size_t i=0; i<signal_bins.size();i++)
 	{
-		index_lims.push_back( std::get<2>(this->signal_bins_[i]) *num_acquis );
-		this->time_points_sampled_.push_back( total_time * std::get<1>(this->signal_bins_[i]) );
+		index_lims.push_back( std::get<2>(signal_bins[i]) *num_acquis );
+		cp_.add_timepoint(total_time * std::get<1>(signal_bins[i]));
 	}
 
 	int start_index = 0;
 	int stop_index  = 0;
 
-	for( size_t i_bin=0; i_bin<this->num_simul_states_; i_bin++)
+	int const num_bins = bp_.get_num_bins();
+
+	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
 	{
 
 		stop_index = ( index_lims[i_bin] < num_acquis ) ? index_lims[i_bin] : num_acquis;
@@ -634,9 +613,6 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 		
 		this->binned_mr_acquisitions_.push_back( av );
 		start_index = stop_index;
-
-
-
 	}
 }
 
@@ -676,12 +652,9 @@ TimeAxisType get_total_time_in_set(TimeBinSet& set_of_bins )
 	return t;
 }
 
-PETDynamic::PETDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
-
-
 void PETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_process)
 {
-	if(this->dyn_signal_.size() == 0)
+	if(sp_.is_empty())
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
 
 	// up-sample the time point to temporal resolution of 1ms
@@ -696,19 +669,20 @@ void PETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pro
 	while(current_time <= time_interval_total_dynamic_process.max_)
 	{
 		upsampled_time_pts.push_back(current_time);
-		upsampled_signal.push_back( this->linear_interpolate_signal(current_time));
+		upsampled_signal.push_back( sp_.linear_interpolate_signal(current_time));
 
 		current_time +=delta_time_ms;
 	}
 
 	std::cout << "Finished upsampling signal." << std::endl;
 
-	size_t const num_bins = signal_bins_.size();
+	size_t const num_bins = bp_.get_num_bins();
+	const std::vector<SignalBin> signal_bins = bp_.get_bins();
 
 	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
 	{
 		std::cout << "Calculating time bins for " << i_bin << "/ " << num_bins <<std::endl;
-		SignalBin bin = this->signal_bins_[i_bin];
+		SignalBin bin = signal_bins[i_bin];
 
 		TimeBinSet time_intervals_for_bin;
 
@@ -751,7 +725,6 @@ void PETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pro
 		}
 		
 		this->binned_time_intervals_.push_back( time_intervals_for_bin );
-		
 	}
 
 	/*	
@@ -916,50 +889,40 @@ TimeAxisType PETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 }
 
 
-void PETMotionDynamic::align_motion_fields_with_image( const sirf::STIRImageData& img )
-{
+// void MotionProcessor::align_motion_fields_with_image( const sirf::STIRImageData& img )
+// {
 
-	size_t const num_disp_fields = this->displacement_fields_.size();
+// 	size_t const num_disp_fields = this->displacement_fields_.size();
 
-	if( num_disp_fields ==0 )
-		throw std::runtime_error("Please call prep_displacement_fields() first.");
+// 	if( num_disp_fields ==0 )
+// 		throw std::runtime_error("Please call prep_displacement_fields() first.");
 
-	NiftiImageData3D<float> sirf_img( img );
-	auto sptr_pet_nifti = sirf_img.get_raw_nifti_sptr();
+// 	NiftiImageData3D<float> sirf_img( img );
+// 	auto sptr_pet_nifti = sirf_img.get_raw_nifti_sptr();
 
-	float const img_off_x = sptr_pet_nifti->qoffset_x;
-	float const img_off_y = sptr_pet_nifti->qoffset_y;
-	float const img_off_z = sptr_pet_nifti->qoffset_z;
+// 	float const img_off_x = sptr_pet_nifti->qoffset_x;
+// 	float const img_off_y = sptr_pet_nifti->qoffset_y;
+// 	float const img_off_z = sptr_pet_nifti->qoffset_z;
 	 
-	float const img_quart_b = sptr_pet_nifti->quatern_b;
-	float const img_quart_c = sptr_pet_nifti->quatern_c;
-	float const img_quart_d = sptr_pet_nifti->quatern_d;
-	float const img_quart_ac = sptr_pet_nifti->qfac;
+// 	float const img_quart_b = sptr_pet_nifti->quatern_b;
+// 	float const img_quart_c = sptr_pet_nifti->quatern_c;
+// 	float const img_quart_d = sptr_pet_nifti->quatern_d;
+// 	float const img_quart_ac = sptr_pet_nifti->qfac;
 
+// 	for(size_t i=0; i<num_disp_fields; i++)
+// 	{
 
-	// float const img_dx = sptr_pet_nifti->dx;
- //    float const img_dy = sptr_pet_nifti->dy;
- //    float const img_dz = sptr_pet_nifti->dz;
- //    float const img_dt = sptr_pet_nifti->dt;
- //    float const img_du = sptr_pet_nifti->du;
- //    float const img_dv = sptr_pet_nifti->dv;
- //    float const img_dw = sptr_pet_nifti->dw;
+// 		auto sptr_mvf_nifti = this->displacement_fields_[i].get_raw_nifti_sptr();
 
-	for(size_t i=0; i<num_disp_fields; i++)
-	{
+// 		sptr_mvf_nifti->qoffset_x = img_off_x;
+// 		sptr_mvf_nifti->qoffset_y = img_off_y;
+// 		sptr_mvf_nifti->qoffset_z = img_off_z;
 
-		auto sptr_mvf_nifti = this->displacement_fields_[i].get_raw_nifti_sptr();
+// 		sptr_mvf_nifti->quatern_b = img_quart_b ;
+// 		sptr_mvf_nifti->quatern_c = img_quart_c ;
+// 		sptr_mvf_nifti->quatern_d = img_quart_d ;
+// 		sptr_mvf_nifti->qfac	  = img_quart_ac;
 
-		sptr_mvf_nifti->qoffset_x = img_off_x;
-		sptr_mvf_nifti->qoffset_y = img_off_y;
-		sptr_mvf_nifti->qoffset_z = img_off_z;
-
-		sptr_mvf_nifti->quatern_b = img_quart_b ;
-		sptr_mvf_nifti->quatern_c = img_quart_c ;
-		sptr_mvf_nifti->quatern_d = img_quart_d ;
-		sptr_mvf_nifti->qfac	  = img_quart_ac;
-
-		this->displacement_fields_[i] = NiftiImageData3DDisplacement<float>(*sptr_mvf_nifti);
-
-	}
-}
+// 		this->displacement_fields_[i] = NiftiImageData3DDisplacement<float>(*sptr_mvf_nifti);
+// 	}
+// }

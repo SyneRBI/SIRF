@@ -59,6 +59,14 @@ public:
 		this->signal_ = sig;
 	}
 
+	SignalContainer get_signal(void) const{
+		return signal_;
+	}
+
+	bool is_empty(void) const{
+		return signal_.size() < 1;
+	}
+
 	SignalAxisType linear_interpolate_signal(const TimeAxisType time_point) const;
 
 private:
@@ -101,18 +109,21 @@ public:
 		return signal_bins_;
 	}
 
-	std::vector<SignalPoint> get_bin_centers(void) const {
+	std::vector<SignalAxisType> get_bin_centers(void) const {
 		
-		std::vector<SignalPoint> centres;
+		std::vector<SignalAxisType> centres;
 		for(int i=0; i<signal_bins_.size(); ++i)
 			centres.push_back(std::get<1>(signal_bins_.at(i)));
 		
 		return centres;
 	}
 
-	void set_cylicality(const bool cyclic){
+	void set_cyclicality(const bool cyclic){
 		this->cyclic_ = cyclic;
 		set_bins();
+	}
+	bool is_cyclic(void) const{
+		return cyclic_;
 	}
 
 	void set_bins( void ){
@@ -156,8 +167,8 @@ public:
 		 return bp_.get_bins();
 	}
 
-	void set_cylicality(const bool cyclic){
-		this->bp_.set_cylicality(cyclic);
+	void set_cyclicality(const bool cyclic){
+		this->bp_.set_cyclicality(cyclic);
 	}
 
 	SignalAxisType interpolate_signal(const TimeAxisType time_point) const
@@ -186,7 +197,15 @@ public:
 	}
 
 	std::vector< TimeAxisType > get_sampled_time_points(void) const {
-		return this->time_points_sampled_;
+		return time_points_sampled_;
+	}
+
+	void add_timepoint(const TimeAxisType time){
+		time_points_sampled_.push_back(time);
+	}
+
+	void empty_timepoints(void){
+		this->time_points_sampled_.clear();
 	}
 
 private:
@@ -202,7 +221,7 @@ private:
 class MotionProcessor {
 
 public:
-
+	MotionProcessor();
 	~MotionProcessor();
 
 	std::string get_temp_folder_name(void) const
@@ -220,24 +239,25 @@ public:
 		this->displacement_fields_.push_back( dvf );
 	}
 
-	int get_which_motion_dynamic_am_i(void) const
+	int get_which_motion_processor_am_i(void) const
 	{ 
-		return this->which_motion_dynamic_am_i_; 
+		return this->which_motion_processor_am_i_; 
 	}
 
 	int get_num_total_motion_dynamics(void) const
 	{ 
-		return this->num_total_motion_dynamics_; 
+		return this->num_total_motion_processors_; 
 	}
 
-	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal);
+	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal, const bool cyclic) const;
 
-	void set_displacement_fields( std::vector< MotionFieldType > &input_vectors, bool const motion_fields_are_cyclic = false);
+	void set_displacement_fields( const std::vector< MotionFieldType > &input_vectors);
 	void prep_displacement_fields( void );
+	// void align_motion_fields_with_image( const sirf::STIRImageData& img);
 
-	void save_ground_truth_displacements( std::vector< SignalAxisType > gt_signal_points);
+	void save_ground_truth_displacements( const std::vector< SignalAxisType >& gt_signal_points, const bool cyclic) const;
 
-	bool delete_temp_folder();
+	bool delete_temp_folder() const;
 	
 protected:
 
@@ -246,11 +266,11 @@ protected:
 
 	std::string setup_tmp_folder_name( void );
 	std::string setup_gt_folder_name( void );
-	bool make_temp_folder();
-	bool make_ground_truth_folder();
+	bool make_temp_folder() const;
+	bool make_ground_truth_folder() const;
 
-	sirf::NiftiImageData3DDeformation<float> calc_inverse_offset_deformation( sirf::NiftiImageData3DDeformation<float> offset_deformation );
-	sirf::NiftiImageData3DDisplacement<float> scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf);
+	sirf::NiftiImageData3DDeformation<float> calc_inverse_offset_deformation( sirf::NiftiImageData3DDeformation<float> offset_deformation ) const;
+	sirf::NiftiImageData3DDisplacement<float> scale_displacementfields_to_mm( const sirf::NiftiImageData3DDisplacement<float> &dvf) const;
 
 	std::string const temp_folder_prefix_  = "/media/sf_CCPPETMR/TestData/Input/xDynamicSimulation/cDynamicSimulation/Temp/";
 	std::string const temp_mvf_prefix_ = "/motion_field_";
@@ -260,8 +280,8 @@ protected:
 
 	std::vector< std::string > temp_mvf_filenames_;
 
-	static int num_total_motion_dynamics_;
-	int which_motion_dynamic_am_i_;
+	static int num_total_motion_processors_;
+	int which_motion_processor_am_i_;
 
 	std::vector<MotionFieldType> displacement_fields_;
 };
@@ -272,12 +292,12 @@ public:
 
 	MRDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
-	std::vector<sirf::AcquisitionsVector> MRDynamic::get_binned_mr_acquisitions(void) const
+	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions(void) const
 	{
 		return this->binned_mr_acquisitions_;
 	}
 
-	sirf::AcquisitionsVector MRDynamic::get_binned_mr_acquisitions(unsigned int const bin_num) const
+	sirf::AcquisitionsVector get_binned_mr_acquisitions(unsigned int const bin_num) const
 	{
 		if(bin_num >= this->bp_.get_num_bins())
 			throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
@@ -300,9 +320,53 @@ public:
 	MRMotionDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states){}
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 
+	void set_ground_truth_folder_name(const std::string name_existing_folder_prefix)
+	{
+		mp_.set_ground_truth_folder_name(name_existing_folder_prefix);
+	}
+
+	void add_displacement_field(const MotionFieldType& dvf)
+	{
+		mp_.add_displacement_field(dvf);
+	}
+
+	int get_which_motion_dynamic_am_i(void) const
+	{ 
+		return mp_.get_which_motion_processor_am_i();
+	}
+
+	int get_num_total_motion_dynamics(void) const
+	{ 
+		return mp_.get_num_total_motion_dynamics();
+	}
+	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal) const
+	{
+		return mp_.get_interpolated_deformation_field(signal, bp_.is_cyclic());
+	}
+
+	void set_displacement_fields( const std::vector< MotionFieldType > &input_vectors, bool const motion_fields_are_cyclic = false)
+	{
+		bp_.set_cyclicality(motion_fields_are_cyclic);
+		mp_.set_displacement_fields(input_vectors);
+	}
+	void prep_displacement_fields(void)
+	{
+		mp_.prep_displacement_fields();
+	}
+	
+	void save_ground_truth_displacements( const std::vector< SignalAxisType >& gt_signal_points) const
+	{
+		mp_.save_ground_truth_displacements(gt_signal_points,bp_.is_cyclic());
+	}
+
 	void save_ground_truth_displacements(void) const
 	{
-		mp_.save_ground_truth_displacements(bp_.get_bin_centers());
+		mp_.save_ground_truth_displacements(bp_.get_bin_centers(), bp_.is_cyclic());
+	}
+
+	bool delete_temp_folder() const
+	{
+		mp_.delete_temp_folder();
 	}
 
 private:
@@ -312,11 +376,28 @@ private:
 class MRContrastDynamic: public MRDynamic {
 
 public:
-	MRContrastDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states), ContrastDynamic(num_simul_states), Dynamic(num_simul_states) {};
+	MRContrastDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states){};
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 
-	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
-	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
+	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal) const
+	{
+		return cp_.get_interpolated_tissue_params(signal);
+	}
+	
+	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
+	{
+		cp_.set_parameter_extremes(tiss_at_0, tiss_at_1);
+	}
+
+	void add_dynamic_label(LabelType l) 
+	{
+		cp_.add_dynamic_label(l);
+	}
+
+	std::vector< TimeAxisType > get_sampled_time_points(void) const 
+	{
+		return cp_.get_sampled_time_points();
+	}
 
 private:
 
@@ -378,7 +459,7 @@ class PETDynamic : public Dynamic{
 
 public:
 
-	PETDynamic(unsigned int const num_simul_states);
+	PETDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
 	void bin_total_time_interval(TimeBin time_interval_total_dynamic_process);
 
@@ -386,28 +467,97 @@ public:
 	TimeAxisType get_time_spent_in_bin(unsigned int const which_state );
 
 protected:
-
 	std::vector< TimeBinSet > binned_time_intervals_;
 
 };
 
 
-class PETMotionDynamic: public PETDynamic, public MotionDynamic{
+class PETMotionDynamic: public PETDynamic {
 
 public:
-	// PETMotionDynamic():PETDynamic(), MotionDynamic() {};
-	PETMotionDynamic(unsigned int const num_simul_states): PETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+	PETMotionDynamic(unsigned int const num_simul_states): PETDynamic(num_simul_states) {};
 
-	void align_motion_fields_with_image( const sirf::STIRImageData& img);
+	void save_ground_truth_displacements(void) const
+	{
+		mp_.save_ground_truth_displacements(bp_.get_bin_centers(),bp_.is_cyclic());
+	}
+	
+	void save_ground_truth_displacements( const std::vector< SignalAxisType >& gt_signal_points) const
+	{
+		mp_.save_ground_truth_displacements(gt_signal_points, bp_.is_cyclic());
+	}
+
+	void set_ground_truth_folder_name(const std::string name_existing_folder_prefix)
+	{
+		mp_.set_ground_truth_folder_name(name_existing_folder_prefix);
+	}
+
+	void add_displacement_field(const MotionFieldType& dvf)
+	{
+		mp_.add_displacement_field(dvf);
+	}
+
+	int get_which_motion_dynamic_am_i(void) const
+	{ 
+		return mp_.get_which_motion_processor_am_i();
+	}
+
+	int get_num_total_motion_dynamics(void) const
+	{ 
+		return mp_.get_num_total_motion_dynamics();
+	}
+
+	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal) const
+	{
+		return mp_.get_interpolated_deformation_field(signal, bp_.is_cyclic());
+	}
+
+	void set_displacement_fields( const std::vector< MotionFieldType > &input_vectors, bool const motion_fields_are_cyclic = false)
+	{
+		bp_.set_cyclicality(motion_fields_are_cyclic);
+		mp_.set_displacement_fields(input_vectors);
+	}
+
+	void prep_displacement_fields(void)
+	{
+		mp_.prep_displacement_fields();
+	}
+	
+	bool delete_temp_folder() const
+	{
+		mp_.delete_temp_folder();
+	}
 
 private:
+	MotionProcessor mp_;
 	bool const keep_motion_fields_in_memory_ = true;
-
 };
 
-class PETContrastDynamic: public PETDynamic, public ContrastDynamic {
+class PETContrastDynamic: public PETDynamic {
 
 public:
-	// PETContrastDynamic():PETDynamic(), ContrastDynamic() {};
-	PETContrastDynamic(unsigned int const num_simul_states): PETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
+	PETContrastDynamic(unsigned int const num_simul_states): PETDynamic(num_simul_states){};
+
+	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal) const
+	{
+		return cp_.get_interpolated_tissue_params(signal);
+	}
+	
+	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
+	{
+		cp_.set_parameter_extremes(tiss_at_0, tiss_at_1);
+	}
+
+	void add_dynamic_label(LabelType l) 
+	{
+		cp_.add_dynamic_label(l);
+	}
+
+	std::vector< TimeAxisType > get_sampled_time_points(void) const 
+	{
+		return cp_.get_sampled_time_points();
+	}
+
+private:
+	ContrastProcessor cp_;
 };
