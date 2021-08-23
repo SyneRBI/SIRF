@@ -55,6 +55,24 @@ import sirf.pyiutilities as pyiutil
 import sirf.Reg as pReg
 import sirf.Gadgetron as pMR
 
+
+
+def format_arrays_for_setters(data):
+
+    if not isinstance(data, np.ndarray):
+        raise error('Wrong input format.' + \
+            ' Should be numpy.ndarray. Got {}'.format(type(data)))
+
+    if data.dtype != np.float32:
+            the_data = data.astype(np.float32)
+
+    convert = not the_data.flags['C_CONTIGUOUS']
+    if convert:
+        the_data = np.ascontiguousarray(the_data)
+
+    return the_data
+
+
 class DynamicSimulation(object):
 
     def __init__(self, tissue_labels, fname_xml):
@@ -128,16 +146,19 @@ class SurrogateSignal(object):
 
 class Dynamic(object):
 
-    def set_dynamic_signal(self, sig):
-        assert_validity(sig, SurrogateSignal)
-        pysim.cDS_setDynamicSignal(self.handle, sig.handle)
+    def set_dynamic_signal(self, time_points, signal_points):
+      
+        num_signal_points = time_points.size
+        if num_signal_points != signal_points.size:
+            AssertionError("The signal and time points do not have the identical size.")
 
-    def get_num_signal_pts(self):
+        the_time = format_arrays_for_setters(time_points)
+        the_signal = format_arrays_for_setters(signal_points)
         
-        h_pts = pysim.cDS_getNumberOfSignalPoints(self.handle)
-        return pyiutil.intDataFromHandle(h_pts)
-
-class MotionDynamic(Dynamic):
+        pysim.cDS_setDynamicSignal(self.handle, 
+                                    the_time.ctypes.data,\
+                                    the_signal.ctypes.data,\
+                                    num_signal_points)
 
     def add_displacement_field(self, dvf):
         assert_validity(dvf, pReg.NiftiImageData3DDisplacement)
@@ -146,6 +167,10 @@ class MotionDynamic(Dynamic):
     def set_cyclicality(self, is_cyclic):
         pysim.cDS_setCyclicality(self.handle, is_cyclic)
 
+    def get_num_signal_pts(self):
+        
+        h_pts = pysim.cDS_getNumberOfSignalPoints(self.handle)
+        return pyiutil.intDataFromHandle(h_pts)
 
 class MRDynamic(Dynamic):
     
@@ -154,12 +179,19 @@ class MRDynamic(Dynamic):
         pysim.cDS_setMRAcquisitions(self.handle, ad.handle)
 
 
-class MRMotionDynamic(MotionDynamic, MRDynamic):
+class MRMotionDynamic(MRDynamic):
 
     def __init__(self, num_states):
         self.handle = None
         self.handle = pysim.cDS_MRMotionDynamic(num_states)
         check_status(self.handle)
+   
+    def add_displacement_field(self, dvf):
+        assert_validity(dvf, pReg.NiftiImageData3DDisplacement)
+        pysim.cDS_addMRDisplacementField(self.handle, dvf.handle)
+
+    def set_cyclicality(self, is_cyclic):
+        pysim.cDS_setCyclicality(self.handle, is_cyclic)
 
 # #class ImageData(DataContainer):
 # class ImageData(SIRF.ImageData):

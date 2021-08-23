@@ -137,9 +137,8 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
     resp_frequency_Hz = 0.2
     resp_curve = 0.5 * ( 1 + np.sin( 2*np.pi*resp_frequency_Hz*time_points))
-    motion_signal = pDS.SurrogateSignal(time_points, resp_curve)
 
-    resp_motion.set_dynamic_signal(motion_signal)
+    resp_motion.set_dynamic_signal(time_points, resp_curve)
 
     #
     inhale_dvf = prep_displacement_field(labels)
