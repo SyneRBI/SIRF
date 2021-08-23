@@ -158,7 +158,7 @@ public:
 		return bp_.get_num_bins();
 	}
 
-	void set_dynamic_signal(const SignalContainer& sig)
+	virtual void set_dynamic_signal(const SignalContainer& sig)
 	{
 		sp_.set_signal(sig);
 	}
@@ -167,7 +167,7 @@ public:
 		 return bp_.get_bins();
 	}
 
-	void set_cyclicality(const bool cyclic){
+	virtual void set_cyclicality(const bool cyclic){
 		this->bp_.set_cyclicality(cyclic);
 	}
 
