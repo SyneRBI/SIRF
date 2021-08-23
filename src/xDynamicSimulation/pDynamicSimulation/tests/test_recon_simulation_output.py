@@ -15,12 +15,17 @@ Options:
 """
 
 import numpy as np 
+import nibabel as nib
 
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, __license__
 __version__ = "0.2.3"
 __author__ = "Johannes Mayer"
 
+
+def save_to_nii(sirf_img, fname_with_ext):
+    img = nib.Nifti1Image(np.squeeze(np.abs(sirf_img.as_array())), np.eye(4))
+    nib.save(img, fname_with_ext)
 
 def recon_cartesian_motion_avg(rawdata):
     
@@ -57,12 +62,9 @@ def test_recon_output_simulate_statics(record=False, verb=False, throw=True):
     rawdata = AcquisitionData(input_data_path + '/output_test_test_simulate_statics.h5')
     
     recon = recon_cartesian_motion_avg(rawdata)
-
     output_data_path = prefix_data_path + "pDynamicSimulation/"
-    recon.write(output_data_path + "output_recon_simulate_statics.dcm")
+    save_to_nii(recon, output_data_path + "output_recon_simulate_statics.nii")
 
-    test_failed = False
-    return test_failed, 1
 
 def test_recon_output_simulate_dynamics(record=False, verb=False, throw=True):
 
@@ -76,7 +78,8 @@ def test_recon_output_simulate_dynamics(record=False, verb=False, throw=True):
     recon = recon_cartesian_motion_avg(rawdata)
 
     output_data_path = prefix_data_path + "pDynamicSimulation/"
-    recon.write(output_data_path + "output_recon_simulate_dynamics.dcm")
+    save_to_nii(recon, output_data_path + "output_recon_simulate_dynamics.nii")
+
 
     test_failed = False
     return test_failed, 1
@@ -91,9 +94,9 @@ def test_recon_output_simulate_5d_dynamics(record=False, verb=False, throw=True)
     rawdata = AcquisitionData(input_data_path + '/output_test_test_simulate_5d_motion_dynamics.h5')
     
     recon = recon_cartesian_motion_avg(rawdata)
-
     output_data_path = prefix_data_path + "pDynamicSimulation/"
-    recon.write(output_data_path + "output_recon_simulate_5d_dynamics.dcm")
+    save_to_nii(recon, output_data_path + "output_recon_simulate_dynamics.nii")
+
 
     test_failed = False
     return test_failed, 1
@@ -111,10 +114,27 @@ def test_recon_output_python_simulate_statics(record=False, verb=False, throw=Tr
     recon = recon_cartesian_motion_avg(rawdata)
 
     output_data_path = prefix_data_path + "pDynamicSimulation/"
-    recon.write(output_data_path + "recon_mr_static_python_simulation.dcm")
+    save_to_nii(recon, output_data_path + "recon_mr_static_python_simulation.nii")
 
     test_failed = False
     return test_failed, 1
+
+def test_recon_output_python_simulate_motion(record=False, verb=False, throw=True):
+
+    print("Running a reconstruction of simulated motoin MR data")
+
+    prefix_data_path = "/media/sf_CCPPETMR/TestData/Output/xDynamicSimulation/"
+    input_data_path = prefix_data_path + "pDynamicSimulation/"
+    
+    rawdata = AcquisitionData(input_data_path + '/mr_motion_simulation.h5')
+    
+    recon = recon_cartesian_motion_avg(rawdata)
+    output_data_path = prefix_data_path + "pDynamicSimulation/"
+    save_to_nii(recon, output_data_path + "recon_mr_motion_python_simulation.nii")
+
+    test_failed = False
+    return test_failed, 1
+
 
 
 def test_main(record=False, verb=False, throw=True):
@@ -141,11 +161,12 @@ def test_main(record=False, verb=False, throw=True):
     # all_tests_failed = all_tests_failed and test_failure
     # number_executed_tests += num_tests
 
+    test_failure, num_tests = test_recon_output_python_simulate_motion(record, verb, throw)
+    all_tests_failed = all_tests_failed and test_failure
+    number_executed_tests += num_tests
+
     return all_tests_failed, number_executed_tests
 
     
-   
-
-
 if __name__ == "__main__":
     runner(test_main, __doc__, __version__, __author__)

@@ -312,10 +312,10 @@ void* cDS_MRMotionDynamic( int const num_states )
 {
 	try {
 
-		std::shared_ptr<MRMotionDynamic> 
+		std::shared_ptr<MRDynamic> 
 			sptr_dyn(new MRMotionDynamic(num_states));
 
-		return newObjectHandle<MRMotionDynamic>(sptr_dyn);
+		return newObjectHandle<MRDynamic>(sptr_dyn);
 	}
 
 	CATCH;

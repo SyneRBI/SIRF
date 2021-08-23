@@ -17,6 +17,7 @@ Options:
 """
 import numpy as np
 from numpy.core.function_base import linspace
+from pathlib import Path
 
 import sirf.DynamicSimulation as pDS
 import sirf.Gadgetron as pMR
@@ -52,7 +53,6 @@ def prepare_test_simulation(fname_mr_rawdata, fpath_xml):
     mrsim = pDS.DynamicSimulation(labels, fpath_xml)
     
     return mrsim, rawdata, labels
-
 
 
 def prep_displacement_field(nifti_3D_volume):
@@ -96,7 +96,10 @@ def test_static_mr_simulation(rec=False, verb=False, throw=True):
 
     input_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
     fpath_output = input_fpath_prefix + 'mr_static_simulation.h5'
-    mrsim.write_simulation_results(fpath_output)
+
+    output_file = Path(fpath_output)
+    if not output_file.is_file():
+        mrsim.write_simulation_results(fpath_output)
 
     return 1
 
@@ -159,7 +162,10 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     #   
     input_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
     fpath_output = input_fpath_prefix + 'mr_motion_simulation.h5'
-    mrsim.write_simulation_results(fpath_output)
+
+    output_file = Path(fpath_output)
+    if not output_file.is_file():
+        mrsim.write_simulation_results(fpath_output)
 
     return 1
 
