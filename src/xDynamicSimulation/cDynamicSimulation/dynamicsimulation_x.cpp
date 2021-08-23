@@ -281,7 +281,6 @@ void PETDynamicSimulation::save_ground_truth_displacements( void ) const
 	}
 }
 
-
 void PETDynamicSimulation::simulate_statics()
 {
 	this->pet_cont_gen_.map_tissue();

@@ -73,7 +73,7 @@ def format_arrays_for_setters(data):
     return the_data
 
 
-class DynamicSimulation(object):
+class MRDynamicSimulation(object):
 
     def __init__(self, tissue_labels, fname_xml):
 
@@ -102,6 +102,9 @@ class DynamicSimulation(object):
 
     def write_simulation_results(self, fpath_output):
         pysim.cDS_writeSimulationResults(self.handle, fpath_output); 
+
+    def save_motion_ground_truth(self):
+        pysim.cDS_saveMotionGroundTruth(self.handle)
 
     def add_motion_dynamic(self, motiondyn):
         pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle); 
@@ -189,3 +192,5 @@ class MRMotionDynamic(MRDynamic):
     def set_cyclicality(self, is_cyclic):
         pysim.cDS_setCyclicality(self.handle, is_cyclic)
 
+    def set_groundtruth_folder_prefix(self, prefix_existing_path):
+        pysim.cDS_setMRGroundTruthFolderName(self.handle, prefix_existing_path)

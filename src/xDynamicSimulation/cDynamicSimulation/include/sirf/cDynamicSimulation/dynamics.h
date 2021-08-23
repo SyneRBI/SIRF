@@ -228,9 +228,9 @@ public:
 	{
 		return this->temp_folder_name_;
 	}
-	void set_ground_truth_folder_name(const std::string name_existing_folder_prefix)
+	void set_ground_truth_folder_name(const std::string prefix_output_dir)
 	{
-		this->ground_truth_folder_name_ = name_existing_folder_prefix;
+		this->ground_truth_folder_name_ = prefix_output_dir;
 		this->make_ground_truth_folder();
 	}
 
@@ -320,9 +320,9 @@ public:
 	MRMotionDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states){}
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 
-	void set_ground_truth_folder_name(const std::string name_existing_folder_prefix)
+	void set_ground_truth_folder_name(const std::string prefix_output_dir)
 	{
-		mp_.set_ground_truth_folder_name(name_existing_folder_prefix);
+		mp_.set_ground_truth_folder_name(prefix_output_dir);
 	}
 
 	void add_displacement_field(const MotionFieldType& dvf)
@@ -356,12 +356,12 @@ public:
 	
 	void save_ground_truth_displacements( const std::vector< SignalAxisType >& gt_signal_points) const
 	{
-		mp_.save_ground_truth_displacements(gt_signal_points,bp_.is_cyclic());
+		mp_.save_ground_truth_displacements(gt_signal_points, bp_.is_cyclic());
 	}
 
 	void save_ground_truth_displacements(void) const
 	{
-		mp_.save_ground_truth_displacements(bp_.get_bin_centers(), bp_.is_cyclic());
+		this->save_ground_truth_displacements(bp_.get_bin_centers());
 	}
 
 	bool delete_temp_folder() const
@@ -487,9 +487,9 @@ public:
 		mp_.save_ground_truth_displacements(gt_signal_points, bp_.is_cyclic());
 	}
 
-	void set_ground_truth_folder_name(const std::string name_existing_folder_prefix)
+	void set_ground_truth_folder_name(const std::string prefix_output_dir)
 	{
-		mp_.set_ground_truth_folder_name(name_existing_folder_prefix);
+		mp_.set_ground_truth_folder_name(prefix_output_dir);
 	}
 
 	void add_displacement_field(const MotionFieldType& dvf)

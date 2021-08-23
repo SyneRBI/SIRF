@@ -36,7 +36,8 @@ public:
 
 	virtual void simulate_data( void ) = 0;
 	virtual void write_simulation_results( const std::string& filename_output_with_extension ) = 0;
-
+	
+	virtual void save_ground_truth_displacements(void) const = 0;
 	virtual void acquire_raw_data( void ) = 0;
 
 };
@@ -50,7 +51,6 @@ public:
 	{};
 
 	void write_simulation_results( const std::string& filename_output_with_extension );
-	void save_ground_truth_displacements() const;
 
 	void set_template_acquisition_data(sirf::MRAcquisitionData& acquisitions );
 	void set_SNR(float const SNR);
@@ -71,9 +71,9 @@ public:
 		this->acq_model_.set_csm(sptr_csm);
 	};
 
-
 	virtual void acquire_raw_data( void );
 	
+	virtual void save_ground_truth_displacements() const;
 
 private:
 
@@ -108,8 +108,6 @@ public:
 	void simulate_data( void );
 	void simulate_data( size_t const total_scan_time );
 
-	void save_ground_truth_displacements(void) const;
-
 	std::string get_filename_rawdata( void )
 	{ 
 		return this-> filename_rawdata_; 
@@ -138,6 +136,7 @@ public:
 	void add_noise( float const scaling_factor );
 
 	void write_simulation_results( const std::string& filename_output_with_extension );
+	virtual void save_ground_truth_displacements() const;
 
 private:
 

@@ -38,7 +38,8 @@ extern "C" {
 // MR Simulation
 void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml);
 void* cDS_simulateData(void* ptr_sim);
-void* cDS_writeSimulationResults(const void* ptr_sim, const char* fname_with_ext); 
+void* cDS_writeSimulationResults(const void* ptr_sim, const char* fname_with_ext);
+void* cDS_saveMotionGroundTruth(const void* ptr_sim);
 
 void* cDS_setAcquisitionTemplateData(void* ptr_sim, const void* ptr_acqs);
 void* cDS_setCoilmaps(void* ptr_sim, const void* ptr_csm);
@@ -51,6 +52,7 @@ void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn);
 // Dynamics
 void* cDS_setDynamicSignal(void* ptr_dyn, PTR_FLOAT ptr_time, PTR_FLOAT ptr_signal, int const num_points);
 void* cDS_addMRDisplacementField(void* ptr_dyn, const void* ptr_dvf);
+void* cDS_setMRGroundTruthFolderName(void* ptr_dyn, const char* fpath_output_prefix);
 void* cDS_setCyclicality(void* ptr_dyn, bool const cyc);
 
 // MR Dynamics

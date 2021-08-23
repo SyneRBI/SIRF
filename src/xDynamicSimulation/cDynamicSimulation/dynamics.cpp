@@ -438,7 +438,6 @@ void MotionProcessor::save_ground_truth_displacements( const std::vector< Signal
 
 	this->make_ground_truth_folder();
 
-	// std::vector<SignalAxisType>::iterator minimum_pos = std::min_element(std::begin(gt_signal_points), std::end(gt_signal_points));
 	auto minimum_pos = std::min_element(std::begin(gt_signal_points), std::end(gt_signal_points));
 	SignalAxisType gt_signal_offset = *minimum_pos;
 

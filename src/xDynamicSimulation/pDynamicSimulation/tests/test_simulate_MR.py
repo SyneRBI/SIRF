@@ -50,7 +50,7 @@ def prepare_test_simulation(fname_mr_rawdata, fpath_xml):
 
     labels.fill(label_array)
 
-    mrsim = pDS.DynamicSimulation(labels, fpath_xml)
+    mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
     
     return mrsim, rawdata, labels
 
@@ -108,6 +108,7 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
     fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
     input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/cDynamicSimulation/'
+    output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
 
     fpath_xml = input_fpath_prefix + 'Segmentations/XCAT_TissueParameters_XML.xml'
     fpath_template_rawdata = input_fpath_prefix + 'TemplateData/MR/CV_nav_cart_64Cube_1Echo.h5'
@@ -129,8 +130,11 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
     # 
     num_resp_states = 4
+    
     resp_motion = pDS.MRMotionDynamic(num_resp_states)
     resp_motion.set_cyclicality(False)
+    prefix_motion_GT = output_fpath_prefix + "gt_"
+    resp_motion.set_groundtruth_folder_prefix(prefix_motion_GT + "resp")
 
     # generate artificial motion signal
     Nt = 100
@@ -157,8 +161,9 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     #
     num_card_states = 4
     card_motion = pDS.MRMotionDynamic(num_card_states)
-
     card_motion.set_cyclicality(True)
+    card_motion.set_groundtruth_folder_prefix(prefix_motion_GT + "card")
+
     card_motion.set_dynamic_signal(time_points, resp_curve)
     
     card_motion.add_displacement_field(identity_trafo)
@@ -169,10 +174,10 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     mrsim.add_motion_dynamic(resp_motion)
     mrsim.add_motion_dynamic(card_motion)
     mrsim.simulate_data()
+    mrsim.save_motion_ground_truth()
 
     #   
-    input_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
-    fpath_output = input_fpath_prefix + 'mr_motion_simulation.h5'
+    fpath_output = output_fpath_prefix + 'mr_motion_simulation.h5'
 
     output_file = Path(fpath_output)
     if not output_file.is_file():
