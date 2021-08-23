@@ -151,12 +151,23 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     resp_motion.add_displacement_field(identity_trafo)
     resp_motion.add_displacement_field(inhale_dvf)
     
-
     #
     resp_motion.set_mr_acquisitions(rawdata)
 
+    #
+    num_card_states = 4
+    card_motion = pDS.MRMotionDynamic(num_card_states)
+
+    card_motion.set_cyclicality(True)
+    card_motion.set_dynamic_signal(time_points, resp_curve)
+    
+    card_motion.add_displacement_field(identity_trafo)
+    card_motion.add_displacement_field(inhale_dvf)
+    card_motion.set_mr_acquisitions(rawdata)
+    
     # 
     mrsim.add_motion_dynamic(resp_motion)
+    mrsim.add_motion_dynamic(card_motion)
     mrsim.simulate_data()
 
     #   
