@@ -189,37 +189,7 @@ void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn)
 	CATCH;
 }
 
-// signals
-// extern "C"
-// void* cDS_DynamicSignal(size_t ptr_time, size_t ptr_signal, int const num_points)
-// {
-// 	try {
-
-// 		float* time = (float*) ptr_time;
-// 		float* signal = (float*) ptr_signal;
-
-// 		typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
-// 		typedef std::vector< SignalPoint > SignalContainer;
-
-//         SignalContainer surrogate(num_points);
-//         for(size_t i=0; i<surrogate.size(); ++i)
-// 		{
-//             surrogate.at(i).first = *(time+i);
-// 			surrogate.at(i).second = *(signal+i);
-// 		}
-
-// 		auto sptr_surrogate = std::make_shared<SignalContainer>(std::move(surrogate));
-
-// 		return newObjectHandle<SignalContainer>(sptr_surrogate);
-// 	}
-
-// 	CATCH;
-// }
-
-
-
 // Dynamics
-
 extern "C"
 void* cDS_setDynamicSignal(void* ptr_dyn, size_t ptr_time, size_t ptr_signal, int const num_points)
 {
