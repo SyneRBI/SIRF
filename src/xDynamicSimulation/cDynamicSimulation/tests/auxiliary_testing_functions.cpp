@@ -828,7 +828,7 @@ MRContrastDynamic aux_test::get_constant_contrast( LabelType const which_tissue_
 	SignalPoint sig_pt_1(1,1);
 	SignalContainer signal{sig_pt_0, sig_pt_1};
 
-	cont_dyn.set_dyn_signal(signal);
+	cont_dyn.set_dynamic_signal(signal);
 
 	// fix two parameters that correspond to the 0 and 1.
 	TissueParameter param_at_1 = template_param;
@@ -883,7 +883,7 @@ float aux_test::prep_pet_motion_dyn( PETMotionDynamic& motion_dyn, SignalContain
 		shifted_motion_signal.push_back(curr_sig_pt);
 	}
 
- 	motion_dyn.set_dyn_signal( shifted_motion_signal );
+ 	motion_dyn.set_dynamic_signal( shifted_motion_signal );
 
 	float tot_time_ms = last_sig_pt.first - min_time_card_ms;
 	TimeBin total_time(0, tot_time_ms);

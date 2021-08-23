@@ -31,7 +31,7 @@ bool test_simulation_interface::test_bin_data_from_handle( void )
 		int const num_bins = 4;
 		MRMotionDynamic motion_dyn(num_bins);
 		SignalContainer mock_signal = aux_test::get_generic_cardiac_signal(acq_vec);
-		motion_dyn.set_dyn_signal(mock_signal);
+		motion_dyn.set_dynamic_signal(mock_signal);
 
         std::shared_ptr<MRMotionDynamic> 
 			sptr_motiondyn(new MRMotionDynamic(motion_dyn));

@@ -185,7 +185,7 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		MRMotionDynamic resp_dyn(num_resp_states);
 		
 		resp_dyn.set_displacement_fields( resp_motion_fields, false );
-		resp_dyn.set_dyn_signal(resp_signal);
+		resp_dyn.set_dynamic_signal(resp_signal);
 		resp_dyn.bin_mr_acquisitions(all_acquis);
 
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
@@ -250,7 +250,7 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		MRMotionDynamic resp_dyn(num_resp_states);
 		
 		resp_dyn.set_displacement_fields( resp_motion_fields, false );
-		resp_dyn.set_dyn_signal(resp_signal);
+		resp_dyn.set_dynamic_signal(resp_signal);
 		resp_dyn.bin_mr_acquisitions(all_acquis);
 
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
@@ -266,7 +266,7 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		MRMotionDynamic card_dyn(num_card_states);
 		
 		card_dyn.set_displacement_fields( card_motion_fields, true );
-		card_dyn.set_dyn_signal(card_signal);
+		card_dyn.set_dynamic_signal(card_signal);
 		card_dyn.bin_mr_acquisitions(all_acquis);
 
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( card_dyn ));
@@ -402,13 +402,13 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 			fname_timepts = signal_path + "card_time";
 			fname_signalpts = signal_path + "card_signal";
 			SignalContainer card_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
-			card_dyn.set_dyn_signal( card_signal );
+			card_dyn.set_dynamic_signal( card_signal );
 
 			// add resp motion
 			fname_timepts  = signal_path + "resp_time";
 			fname_signalpts = signal_path + "resp_signal";
 			SignalContainer resp_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
-			resp_dyn.set_dyn_signal( resp_signal );
+			resp_dyn.set_dynamic_signal( resp_signal );
 
 			card_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_card");
 			resp_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_resp");
@@ -551,7 +551,7 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 			// for( size_t j=0; j< motion_signal.size(); ++j)
 			// 	motion_signal[j].second = 0.99;
 
-		 	motion_dyn.set_dyn_signal( motion_signal );
+		 	motion_dyn.set_dynamic_signal( motion_signal );
 		 	motion_dyn.bin_mr_acquisitions( all_acquis );
 
 		 	auto binned_acq = motion_dyn.get_binned_mr_acquisitions();
@@ -658,7 +658,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 
 			SignalContainer respiratory_signal = data_io::read_surrogate_signal(filename_resp_timepoints, filename_resp_signal);
 
-		 	respiratory_motion_dyn.set_dyn_signal( respiratory_signal );
+		 	respiratory_motion_dyn.set_dynamic_signal( respiratory_signal );
 		 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
 
 			respiratory_motion_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields");
@@ -741,9 +741,9 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		SignalContainer lesion_dyn_signal = data_io::read_surrogate_signal(filename_contrast_timepoints, filename_lesion_t1_);
 
 
-		aif_contrast.set_dyn_signal( aif_dyn_signal );
-		healthy_tissue_contrast.set_dyn_signal( healthy_dyn_tissue_signal );
-		lesion_contrast.set_dyn_signal( lesion_dyn_signal );
+		aif_contrast.set_dynamic_signal( aif_dyn_signal );
+		healthy_tissue_contrast.set_dynamic_signal( healthy_dyn_tissue_signal );
+		lesion_contrast.set_dynamic_signal( lesion_dyn_signal );
 
 
 	 	aif_contrast.bin_mr_acquisitions( all_acquis );
@@ -935,8 +935,8 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 			card_sig[i] = curr_sig_pt;
 		}
 
-	 	// resp_dyn.set_dyn_signal( resp_sig );
-	 	card_dyn.set_dyn_signal( card_sig );
+	 	// resp_dyn.set_dynamic_signal( resp_sig );
+	 	card_dyn.set_dynamic_signal( card_sig );
 
 	 	TimeBin total_time(0, tot_time_card_ms);
 		
@@ -1043,7 +1043,7 @@ bool test_pet_dynsim::test_4d_pet_acquisition()
 				motion_signal[i] = curr_sig_pt;
 			}
 
-		 	motion_dyn.set_dyn_signal( motion_signal );
+		 	motion_dyn.set_dynamic_signal( motion_signal );
 
 			tot_time_ms = last_card_pt.first - first_card_pt.first;
 		 	TimeBin total_time(0, tot_time_ms);
@@ -1141,7 +1141,7 @@ bool test_pet_dynsim::test_5d_pet_acquisition()
 			fname_timepts = signal_path + "card_time";
 			fname_signalpts = signal_path + "card_signal";
 			SignalContainer card_signal = data_io::read_surrogate_signal(fname_timepts, fname_signalpts);
-			card_dyn.set_dyn_signal( card_signal );
+			card_dyn.set_dynamic_signal( card_signal );
 	
 			float tot_time_card_ms = aux_test::prep_pet_motion_dyn(card_dyn, card_signal);
 

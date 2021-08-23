@@ -175,7 +175,7 @@ bool test_binprocessor::test_get_set_bins()
 		test_succesful = ( all_bins.size() == num_bins );
 
 		cyclic = true;
-		bp.set_cylicality(cyclic);
+		bp.set_cyclicality(cyclic);
 		all_bins = bp.get_bins();
 
 		std::cout << "#### CYCLIC DYNAMIC ####" << std::endl;
@@ -216,7 +216,7 @@ bool test_dynamic::test_bin_mr_acquisitions()
 		MRMotionDynamic motion_dyn(num_bins);
 
 		SignalContainer mock_signal = aux_test::get_generic_cardiac_signal(acq_vec);
-		motion_dyn.set_dyn_signal( mock_signal );
+		motion_dyn.set_dynamic_signal( mock_signal );
 
 		motion_dyn.bin_mr_acquisitions( acq_vec );
 		auto motion_binned_acquis = motion_dyn.get_binned_mr_acquisitions();
@@ -244,7 +244,7 @@ bool test_dynamic::test_bin_mr_acquisitions()
 		MRContrastDynamic mr_cont_dyn( num_bins );
 		std::cout << epiph( mr_cont_dyn.get_num_simul_states() ) << std::endl;
 
-		mr_cont_dyn.set_dyn_signal( mock_signal );
+		mr_cont_dyn.set_dynamic_signal( mock_signal );
 		mr_cont_dyn.bin_mr_acquisitions( acq_vec );
 
 		auto contrast_binned_acquis = mr_cont_dyn.get_binned_mr_acquisitions();
@@ -285,14 +285,13 @@ bool test_motionprocessor::test_motion_dynamic_counter()
 	{
 		bool test_succesful = true;
 
-		MotionDynamic first_dyn, second_dyn, third_dyn;
+		MotionProcessor first_mp, second_mp, third_mp;
 
-		
-		int const first_counter = first_dyn.get_which_motion_dynamic_am_i();
-		int const second_counter = second_dyn.get_which_motion_dynamic_am_i();
-		int const third_counter = third_dyn.get_which_motion_dynamic_am_i();
+		int const first_counter = first_mp.get_which_motion_processor_am_i();
+		int const second_counter = second_mp.get_which_motion_processor_am_i();
+		int const third_counter = third_mp.get_which_motion_processor_am_i();
 
-		int const total_counter = first_dyn.get_num_total_motion_dynamics();
+		int const total_counter = first_mp.get_num_total_motion_dynamics();
 
 		cout << epiph(first_counter) << endl;
 		cout << epiph(second_counter) << endl;
@@ -325,8 +324,8 @@ bool test_motionprocessor::test_motion_dynamic_temp_folder_setup( )
 	{
 		bool test_succesful = true;
 
-		MotionDynamic first_dyn;
-		cout << epiph( first_dyn.get_temp_folder_name() )<< endl;
+		MotionProcessor mp;
+		cout << epiph( mp.get_temp_folder_name() )<< endl;
 		
 		return test_succesful;
 	}
@@ -376,11 +375,10 @@ bool test_motionprocessor::test_motion_dynamic_set_motion_fields()
 	{
 		bool test_succesful = true;
 
-		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		std::vector< MotionFieldType > mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
-		int const num_simul_bins = 12;
-		MotionDynamic motion_dyn(num_simul_bins);
-		motion_dyn.set_displacement_fields(resp_mvfs);
+		MotionProcessor mp;
+		mp.set_displacement_fields(mvfs);
 
 		return test_succesful;
 	}
@@ -393,121 +391,121 @@ bool test_motionprocessor::test_motion_dynamic_set_motion_fields()
 
 }
 
-bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
-{
-	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+// bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
+// {
+// 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
-	try
-	{
-		bool test_succesful = true;
+// 	try
+// 	{
+// 		bool test_succesful = true;
 
-		auto pet_img = STIRImageData(PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH);
-		NiftiImageData3D<float> pet_sirf_img( pet_img );
-		auto pet_img_data = pet_sirf_img.get_raw_nifti_sptr();
+// 		auto pet_img = STIRImageData(PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH);
+// 		NiftiImageData3D<float> pet_sirf_img( pet_img );
+// 		auto pet_img_data = pet_sirf_img.get_raw_nifti_sptr();
 
-		float const img_off_x = pet_img_data->qoffset_x;
-		float const img_off_y = pet_img_data->qoffset_y;
-		float const img_off_z = pet_img_data->qoffset_z;
+// 		float const img_off_x = pet_img_data->qoffset_x;
+// 		float const img_off_y = pet_img_data->qoffset_y;
+// 		float const img_off_z = pet_img_data->qoffset_z;
 		 
 
-		float const img_quart_b = pet_img_data->quatern_b;
-		float const img_quart_c = pet_img_data->quatern_c;
-		float const img_quart_d = pet_img_data->quatern_d;
-		float const img_quart_ac = pet_img_data->qfac;
+// 		float const img_quart_b = pet_img_data->quatern_b;
+// 		float const img_quart_c = pet_img_data->quatern_c;
+// 		float const img_quart_d = pet_img_data->quatern_d;
+// 		float const img_quart_ac = pet_img_data->qfac;
 
-		float const img_slope = pet_img_data->scl_slope;
-		float const img_inter = pet_img_data->scl_inter;
+// 		float const img_slope = pet_img_data->scl_slope;
+// 		float const img_inter = pet_img_data->scl_inter;
 
-		float const img_dx = pet_img_data->dx;
-	    float const img_dy = pet_img_data->dy;
-	    float const img_dz = pet_img_data->dz;
-	    float const img_dt = pet_img_data->dt;
-	    float const img_du = pet_img_data->du;
-	    float const img_dv = pet_img_data->dv;
-	    float const img_dw = pet_img_data->dw;
+// 		float const img_dx = pet_img_data->dx;
+// 	    float const img_dy = pet_img_data->dy;
+// 	    float const img_dz = pet_img_data->dz;
+// 	    float const img_dt = pet_img_data->dt;
+// 	    float const img_du = pet_img_data->du;
+// 	    float const img_dv = pet_img_data->dv;
+// 	    float const img_dw = pet_img_data->dw;
 
-		cout << epiph( img_off_x )<< endl;
-		cout << epiph( img_off_y )<< endl;
-		cout << epiph( img_off_z )<< endl;
+// 		cout << epiph( img_off_x )<< endl;
+// 		cout << epiph( img_off_y )<< endl;
+// 		cout << epiph( img_off_z )<< endl;
 
-		cout << epiph( img_quart_b ) << endl;
-		cout << epiph( img_quart_c ) << endl;
-		cout << epiph( img_quart_d ) << endl;
-		cout << epiph( img_quart_ac) << endl;
-        cout << epiph( img_slope ) << endl;
-		cout << epiph( img_inter ) << endl;
+// 		cout << epiph( img_quart_b ) << endl;
+// 		cout << epiph( img_quart_c ) << endl;
+// 		cout << epiph( img_quart_d ) << endl;
+// 		cout << epiph( img_quart_ac) << endl;
+//         cout << epiph( img_slope ) << endl;
+// 		cout << epiph( img_inter ) << endl;
 
 
-		cout << epiph( img_dx ) << endl;
-		cout << epiph( img_dy ) << endl;
-		cout << epiph( img_dz ) << endl;
-		cout << epiph( img_dt ) << endl;
-		cout << epiph( img_du ) << endl;
-		cout << epiph( img_dv ) << endl;
-		cout << epiph( img_dw ) << endl;
+// 		cout << epiph( img_dx ) << endl;
+// 		cout << epiph( img_dy ) << endl;
+// 		cout << epiph( img_dz ) << endl;
+// 		cout << epiph( img_dt ) << endl;
+// 		cout << epiph( img_du ) << endl;
+// 		cout << epiph( img_dv ) << endl;
+// 		cout << epiph( img_dw ) << endl;
 
-		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+// 		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
-		int const num_simul_bins = 1;
-		PETMotionDynamic motion_dyn(num_simul_bins);
-		motion_dyn.set_displacement_fields(resp_mvfs);
-		motion_dyn.prep_displacement_fields();
-		motion_dyn.align_motion_fields_with_image(pet_img);
+// 		int const num_simul_bins = 1;
+// 		PETMotionDynamic motion_dyn(num_simul_bins);
+// 		motion_dyn.set_displacement_fields(resp_mvfs);
+// 		motion_dyn.prep_displacement_fields();
+// 		motion_dyn.align_motion_fields_with_image(pet_img);
 
-		auto some_mvf = motion_dyn.get_interpolated_deformation_field( 0.f );
-		auto mvf_img_data = some_mvf.get_raw_nifti_sptr();
+// 		auto some_mvf = motion_dyn.get_interpolated_deformation_field( 0.f );
+// 		auto mvf_img_data = some_mvf.get_raw_nifti_sptr();
 
-		float const mvf_off_x = mvf_img_data->qoffset_x;
-		float const mvf_off_y = mvf_img_data->qoffset_y;
-		float const mvf_off_z = mvf_img_data->qoffset_z;
+// 		float const mvf_off_x = mvf_img_data->qoffset_x;
+// 		float const mvf_off_y = mvf_img_data->qoffset_y;
+// 		float const mvf_off_z = mvf_img_data->qoffset_z;
 
-		float const mvf_quart_b = mvf_img_data->quatern_b;
-		float const mvf_quart_c = mvf_img_data->quatern_c;
-		float const mvf_quart_d = mvf_img_data->quatern_d;
-		float const mvf_quart_ac = mvf_img_data->qfac;
+// 		float const mvf_quart_b = mvf_img_data->quatern_b;
+// 		float const mvf_quart_c = mvf_img_data->quatern_c;
+// 		float const mvf_quart_d = mvf_img_data->quatern_d;
+// 		float const mvf_quart_ac = mvf_img_data->qfac;
 
-		float const mvf_slope = mvf_img_data->scl_slope;
-		float const mvf_inter = mvf_img_data->scl_inter;
+// 		float const mvf_slope = mvf_img_data->scl_slope;
+// 		float const mvf_inter = mvf_img_data->scl_inter;
 
-		float const mvf_dx = mvf_img_data->dx;
-	    float const mvf_dy = mvf_img_data->dy;
-	    float const mvf_dz = mvf_img_data->dz;
-	    float const mvf_dt = mvf_img_data->dt;
-	    float const mvf_du = mvf_img_data->du;
-	    float const mvf_dv = mvf_img_data->dv;
-	    float const mvf_dw = mvf_img_data->dw;
+// 		float const mvf_dx = mvf_img_data->dx;
+// 	    float const mvf_dy = mvf_img_data->dy;
+// 	    float const mvf_dz = mvf_img_data->dz;
+// 	    float const mvf_dt = mvf_img_data->dt;
+// 	    float const mvf_du = mvf_img_data->du;
+// 	    float const mvf_dv = mvf_img_data->dv;
+// 	    float const mvf_dw = mvf_img_data->dw;
 
-		cout << epiph( mvf_off_x)<< endl;
-		cout << epiph( mvf_off_y)<< endl;
-		cout << epiph( mvf_off_z)<< endl;
+// 		cout << epiph( mvf_off_x)<< endl;
+// 		cout << epiph( mvf_off_y)<< endl;
+// 		cout << epiph( mvf_off_z)<< endl;
 
-		cout << epiph(mvf_quart_b ) << endl;
-		cout << epiph(mvf_quart_c ) << endl;
-		cout << epiph(mvf_quart_d ) << endl;
-		cout << epiph(mvf_quart_ac) << endl;
+// 		cout << epiph(mvf_quart_b ) << endl;
+// 		cout << epiph(mvf_quart_c ) << endl;
+// 		cout << epiph(mvf_quart_d ) << endl;
+// 		cout << epiph(mvf_quart_ac) << endl;
 
-		cout << epiph( mvf_slope ) << endl;
-		cout << epiph( mvf_inter ) << endl;
+// 		cout << epiph( mvf_slope ) << endl;
+// 		cout << epiph( mvf_inter ) << endl;
 		
-		cout << epiph( mvf_dx ) << endl;
-		cout << epiph( mvf_dy ) << endl;
-		cout << epiph( mvf_dz ) << endl;
-		cout << epiph( mvf_dt ) << endl;
-		cout << epiph( mvf_du ) << endl;
-		cout << epiph( mvf_dv ) << endl;
-		cout << epiph( mvf_dw ) << endl;
+// 		cout << epiph( mvf_dx ) << endl;
+// 		cout << epiph( mvf_dy ) << endl;
+// 		cout << epiph( mvf_dz ) << endl;
+// 		cout << epiph( mvf_dt ) << endl;
+// 		cout << epiph( mvf_du ) << endl;
+// 		cout << epiph( mvf_dv ) << endl;
+// 		cout << epiph( mvf_dw ) << endl;
 
-		return test_succesful;
-	}
-	catch( std::runtime_error const &e)
-	{
-		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
-		cout << e.what() << endl;
-		throw e;
-	}
+// 		return test_succesful;
+// 	}
+// 	catch( std::runtime_error const &e)
+// 	{
+// 		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+// 		cout << e.what() << endl;
+// 		throw e;
+// 	}
 
 
-}
+// }
 
 bool test_motionprocessor::test_motion_dynamic_prep_motion_fields()
 {
@@ -519,10 +517,10 @@ bool test_motionprocessor::test_motion_dynamic_prep_motion_fields()
 
 		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
-		int const num_simul_bins = 12;
-		MotionDynamic motion_dyn(num_simul_bins);
-		motion_dyn.set_displacement_fields(resp_mvfs);
-		motion_dyn.prep_displacement_fields();
+		MotionProcessor mp;
+		
+		mp.set_displacement_fields(resp_mvfs);
+		mp.prep_displacement_fields();
 
 		return test_succesful;
 	}
@@ -547,14 +545,19 @@ bool test_motionprocessor::test_motion_dynamic_temp_interpolate_dvfs( void )
 
 		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 
-		int const num_simul_bins = 12;
-		MotionDynamic motion_dyn(num_simul_bins);
-		motion_dyn.set_displacement_fields(resp_mvfs);
-		motion_dyn.prep_displacement_fields();
+		
+		MotionProcessor mp;
+		
+		mp.set_displacement_fields(resp_mvfs);
+		mp.prep_displacement_fields();
 
 		SignalAxisType motion_signal = 0.6;
 
-		auto interpolated_dvf = motion_dyn.get_interpolated_deformation_field(motion_signal);
+		bool cyclic = false;
+		auto interpolated_dvf = mp.get_interpolated_deformation_field(motion_signal, cyclic);
+
+		cyclic = true;
+		interpolated_dvf = mp.get_interpolated_deformation_field(motion_signal, cyclic);
 
 		return test_succesful;
 	}
@@ -696,7 +699,7 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		tot_time_ms = last_pt.first - first_pt.first;
 
 		std::cout << "total time ms: " << tot_time_ms <<std::endl;
-	 	pet_dyn.set_dyn_signal( card_sig );
+	 	pet_dyn.set_dynamic_signal( card_sig );
 
 		TimeBin total_time(0, tot_time_ms);
 	 	pet_dyn.bin_total_time_interval( total_time );

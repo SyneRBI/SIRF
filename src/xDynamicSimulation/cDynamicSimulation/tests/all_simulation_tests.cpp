@@ -89,23 +89,25 @@ bool run_tests_dynamics( void )
 	std::cout << "start ----------------------------------------------------" <<std::endl;
 	dyn_tests.push_back(test_dynamic::test_is_in_bin());
 
-
 	dyn_tests.push_back(test_surrogateprocessor::test_linear_interpolate_signal());
 	dyn_tests.push_back(test_binprocessor::test_get_set_bins());
 
+	dyn_tests.push_back(test_contrastprocessor::test_mr_contrast_motion_dyn_get_num_simul_states());
 
+	dyn_tests.push_back(test_motionprocessor::test_motion_dynamic_counter());
+	dyn_tests.push_back(test_motionprocessor::test_motion_dynamic_temp_folder_setup());
+	dyn_tests.push_back(test_motionprocessor::test_motion_dynamic_save_gt_deformations());	
+	dyn_tests.push_back(test_motionprocessor::test_motion_dynamic_set_motion_fields());	
+	dyn_tests.push_back(test_motionprocessor::test_motion_dynamic_prep_motion_fields());	
+	dyn_tests.push_back(test_motionprocessor::test_motion_dynamic_temp_interpolate_dvfs());
+	dyn_tests.push_back(test_motionprocessor::test_nonisotropic_mvf_resampling () );
+	// dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
+	
 	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
 	dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_counter());
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_save_gt_deformations());	
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());	
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_prep_motion_fields());	
-	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_interpolate_dvfs());
-	dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
-	dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
 	dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
-	dyn_tests.push_back(test_dynamic::test_nonisotropic_mvf_resampling () );
+	
+
 	
 	std::cout << "dynamics test results = ";
 	for( size_t i=0; i<dyn_tests.size(); i++)

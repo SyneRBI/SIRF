@@ -32,7 +32,7 @@ bool test_motion_dynamic_counter( void );
 bool test_motion_dynamic_temp_folder_setup( void );
 bool test_motion_dynamic_set_motion_fields(void);
 bool test_motion_dynamic_prep_motion_fields( void );
-bool test_mvf_vs_pet_img_quarternions( void );
+// bool test_mvf_vs_pet_img_quarternions( void );
 bool test_motion_dynamic_temp_interpolate_dvfs( void );
 bool test_motion_dynamic_save_gt_deformations( void );
 
@@ -46,7 +46,6 @@ bool test_is_in_bin( void );
 bool test_intersect_mr_acquisition_data( void );
 
 bool test_bin_mr_acquisitions(void);
-
 bool test_bin_pet_time_interval( void );
 
 }
