@@ -73,7 +73,53 @@ bool test_lin_combi_gen::test_get_all_combinations( void )
 	}
 }
 
+bool tests_datageneration::read_write_h5_filecontent(void){
 
+std::cout << " --- Running " << __FUNCTION__ << std::endl;
+try
+{
+
+	std::string const output_prefix = std::string(SHARED_FOLDER_PATH) + "TestData/Input/xDynamicSimulation/pDynamicSimulation/Cube128/";
+
+	if(true)
+	{
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		std::stringstream ss_fname_out;
+		ss_fname_out << output_prefix << "label_volume.nii";
+		segmentation_labels.write(ss_fname_out.str());
+		ss_fname_out.str("");
+	}
+
+	std::vector<sirf::NiftiImageData3DDisplacement <float> > card_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+	
+	for(int i=0; i<card_motion_fields.size(); ++i)
+	{
+		std::stringstream ss_fname_out;
+		ss_fname_out << output_prefix << "mvf_card/" << "mvf_" << i << ".nii";
+		card_motion_fields.at(i).write(ss_fname_out.str());
+		ss_fname_out.str("");
+	}
+
+	std::vector<sirf::NiftiImageData3DDisplacement <float> >  resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+
+	for(int i=0; i<resp_motion_fields.size(); ++i)
+	{
+		std::stringstream ss_fname_out;
+		ss_fname_out << output_prefix << "mvf_resp/" << "mvf_" << i << ".nii";
+		resp_motion_fields.at(i).write(ss_fname_out.str());
+		ss_fname_out.str("");
+	}
+
+	return true;
+
+}
+catch( std::runtime_error const &e)
+{
+	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << e.what() << std::endl;
+	throw e;
+}
+}
 
 bool tests_mr_dynsim::test_constructor( void ) 
 {

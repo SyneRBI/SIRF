@@ -138,10 +138,11 @@ bool run_tests_dynamic_simulation( void )
 	std::vector< bool > mr_dynsim_tests;
 
 	// mr_dynsim_tests.push_back(test_lin_combi_gen::test_get_all_combinations());
+	mr_dynsim_tests.push_back(tests_datageneration::read_write_h5_filecontent());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_constructor());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_statics());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_dynamics());
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_5d_motion_dynamics());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_5d_motion_dynamics());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
@@ -513,10 +514,10 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_contrastgenerator();
 		// ok *= run_tests_phantom_input();
 		// ok *= run_tests_noise_generator();
-		ok *= run_tests_dynamics();
+		// ok *= run_tests_dynamics();
 		// ok *= run_tests_c_interface();
 		// ok *= run_tests_dynsim_deformer();
-		// ok *= run_tests_dynamic_simulation();
+		ok *= run_tests_dynamic_simulation();
 		
 		
 		if(ok)

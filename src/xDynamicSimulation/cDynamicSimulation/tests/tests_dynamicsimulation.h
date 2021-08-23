@@ -16,6 +16,10 @@ bool test_get_all_combinations( void );
 
 }
 
+namespace tests_datageneration{
+
+    bool read_write_h5_filecontent(void);
+}
 
 namespace tests_mr_dynsim
 {
