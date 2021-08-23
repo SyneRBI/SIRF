@@ -78,7 +78,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	std::vector< DimensionsType >  all_motion_state_combos = lcg.get_all_combinations();
 
     std::vector<sirf::AcquisitionsVector> binned_contrast_acquisitions = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_binned_mr_acquisitions()  : std::vector< AcquisitionsVector >(0);
-    std::vector< TimeAxisType > sampled_contrast_timepoints = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_time_points_sampled() : std::vector< TimeAxisType >(0);
+    std::vector< TimeAxisType > sampled_contrast_timepoints = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_sampled_time_points() : std::vector< TimeAxisType >(0);
     
     for( size_t i_motion_state=0; i_motion_state < num_tot_motion_states; i_motion_state++)
 	{
