@@ -277,7 +277,7 @@ bool test_dynamic::test_bin_mr_acquisitions()
 }
 
 
-bool test_dynamic::test_motion_dynamic_counter()
+bool test_motionprocessor::test_motion_dynamic_counter()
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
@@ -317,7 +317,7 @@ bool test_dynamic::test_motion_dynamic_counter()
 
 
 
-bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
+bool test_motionprocessor::test_motion_dynamic_temp_folder_setup( )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
@@ -339,7 +339,7 @@ bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 
 }
 
-bool test_dynamic::test_motion_dynamic_save_gt_deformations( )
+bool test_motionprocessor::test_motion_dynamic_save_gt_deformations( )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
@@ -368,7 +368,7 @@ bool test_dynamic::test_motion_dynamic_save_gt_deformations( )
 
 
 
-bool test_dynamic::test_motion_dynamic_set_motion_fields()
+bool test_motionprocessor::test_motion_dynamic_set_motion_fields()
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
@@ -509,7 +509,7 @@ bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
 
 }
 
-bool test_dynamic::test_motion_dynamic_prep_motion_fields()
+bool test_motionprocessor::test_motion_dynamic_prep_motion_fields()
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
@@ -537,7 +537,7 @@ bool test_dynamic::test_motion_dynamic_prep_motion_fields()
 
 
 
-bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
+bool test_motionprocessor::test_motion_dynamic_temp_interpolate_dvfs( void )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
@@ -566,7 +566,7 @@ bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 	}
 }
 
-bool test_dynamic::test_nonisotropic_mvf_resampling( void )
+bool test_motionprocessor::test_nonisotropic_mvf_resampling( void )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
@@ -627,7 +627,7 @@ bool test_dynamic::test_nonisotropic_mvf_resampling( void )
 
 
 
-bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
+bool test_contrastprocessor::test_mr_contrast_motion_dyn_get_num_simul_states( void )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
 
