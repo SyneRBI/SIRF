@@ -179,9 +179,9 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     #   
     fpath_output = output_fpath_prefix + 'mr_motion_simulation.h5'
 
-    output_file = Path(fpath_output)
-    if not output_file.is_file():
-        mrsim.write_simulation_results(fpath_output)
+    simulated_file = Path(fpath_output)
+    if not simulated_file.is_file():
+        mrsim.write_simulation_results(simulated_file)
 
     return 1
 
