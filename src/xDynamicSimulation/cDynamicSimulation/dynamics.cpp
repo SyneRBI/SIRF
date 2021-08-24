@@ -505,6 +505,21 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	std::cout << "Binning motion dynamics\n";
 	
+	if(bp_.get_bins().size() == 1)
+	{
+		std::cout << "We have only one bin, we take all the acquisitions" << std::endl;
+		AcquisitionsVector av(all_acquisitions.acquisitions_info());
+		ISMRMRD::Acquisition acq;
+		for(int i=0; i<all_acquisitions.number(); ++i)
+		{
+			all_acquisitions.get_acquisition(i,acq);
+			av.append_acquisition(acq);
+		}
+
+		binned_mr_acquisitions_.push_back(av);
+		return;
+	}
+
 	if(sp_.is_empty())
 		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
 

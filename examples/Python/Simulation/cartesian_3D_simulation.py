@@ -120,7 +120,7 @@ def main():
 
 	# configure the motion
 	# RESP
-	num_sim_resp_states = 1
+	num_sim_resp_states = 2
 	resp_motion = pDS.MRMotionDynamic( num_sim_resp_states )
 	set_motionfields_from_path(resp_motion, input_fpath_prefix + 'mvf_resp/')
 	resp_motion.set_dynamic_signal(t_resp, sig_resp)
@@ -143,13 +143,16 @@ def main():
 	mrsim.add_motion_dynamic(card_motion)
 
 	#
-	tstart = time.time()
-	mrsim.simulate_data()
-	print("--- Required {} minutes for the simulation.".format( (time.time()-tstart)/60))
-
-	simulated_file = Path(output_fpath_prefix + "output_example_cartesian_3D_simulation.h5")
+	fname_sim_output = output_fpath_prefix + "output_example_cartesian_3D_simulation_r{}_c{}.h5".format(num_sim_resp_states,num_sim_card_states)
+	simulated_file = Path(fname_sim_output)
 	if not simulated_file.is_file():
+
+		tstart = time.time()
+		mrsim.simulate_data()
+		print("--- Required {} minutes for the simulation.".format( (time.time()-tstart)/60))
 		mrsim.write_simulation_results(str(simulated_file))
+	else:
+		print("Skipping simulation since output file already exists.")
 
 	mrsim.save_motion_ground_truth()
 
@@ -159,10 +162,13 @@ def main():
 	
 	recon.set_input(simulated_data)
 	recon.process()
-	recon_img = np.squeeze(np.abs(recon.get_output()))
+	recon_img = recon.get_output()
+	recon_arr = np.squeeze(np.abs(recon_img.as_array()))
 
-	recon_nii = nib.Nifti1Image(recon_img, np.eye(4))
-	nib.save(recon_nii, output_fpath_prefix +  "output_example_cartesian_3D_reconstruction.nii" )
+	recon_nii = nib.Nifti1Image(recon_arr, np.eye(4))
+	fname_recon = "output_example_cartesian_3D_recon_r{}_c{}.nii".format(num_sim_resp_states,num_sim_card_states)
+
+	nib.save(recon_nii, output_fpath_prefix +  fname_recon )
 	return 1
 
 try:
