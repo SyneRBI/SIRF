@@ -44,6 +44,7 @@ show_plot = not args['--non-interactive']
 from pathlib import Path
 import numpy as np
 import time
+import nibabel as nib
 
 
 def read_motionfields(fpath_prefix):
@@ -119,25 +120,25 @@ def main():
 
 	# configure the motion
 	# RESP
-	num_sim_resp_states = 2
+	num_sim_resp_states = 1
 	resp_motion = pDS.MRMotionDynamic( num_sim_resp_states )
 	set_motionfields_from_path(resp_motion, input_fpath_prefix + 'mvf_resp/')
 	resp_motion.set_dynamic_signal(t_resp, sig_resp)
 	resp_motion.set_cyclicality(False)
 	resp_motion.set_mr_acquisitions(rawdata)
-	resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "gt_resp")		
+	resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_resp")		
 
 	mrsim.add_motion_dynamic(resp_motion)
 
 	# CARD
-	num_sim_card_states = 4
+	num_sim_card_states = 1
 
 	card_motion = pDS.MRMotionDynamic(num_sim_card_states)
 	set_motionfields_from_path(card_motion, input_fpath_prefix + 'mvf_card/')
 	card_motion.set_dynamic_signal(t_card, sig_card)
 	card_motion.set_cyclicality(True)
 	card_motion.set_mr_acquisitions(rawdata)
-	card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "gt_card")		
+	card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_card")		
 
 	mrsim.add_motion_dynamic(card_motion)
 
@@ -145,9 +146,24 @@ def main():
 	tstart = time.time()
 	mrsim.simulate_data()
 	print("--- Required {} minutes for the simulation.".format( (time.time()-tstart)/60))
-	mrsim.save_motion_ground_truth()
-	return 1
 
+	simulated_file = Path(output_fpath_prefix + "output_example_cartesian_3D_simulation.h5")
+	if not simulated_file.is_file():
+		mrsim.write_simulation_results(str(simulated_file))
+
+	mrsim.save_motion_ground_truth()
+
+	simulated_data = pMR.AcquisitionData(str(simulated_file))
+	
+	recon = pMR.FullySampledReconstructor()
+	
+	recon.set_input(simulated_data)
+	recon.process()
+	recon_img = np.squeeze(np.abs(recon.get_output()))
+
+	recon_nii = nib.Nifti1Image(recon_img, np.eye(4))
+	nib.save(recon_nii, output_fpath_prefix +  "output_example_cartesian_3D_reconstruction.nii" )
+	return 1
 
 try:
     main()
