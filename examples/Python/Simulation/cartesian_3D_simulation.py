@@ -125,19 +125,17 @@ def main():
 	set_motionfields_from_path(resp_motion, input_fpath_prefix + 'mvf_resp/')
 	resp_motion.set_dynamic_signal(t_resp, sig_resp)
 	resp_motion.set_cyclicality(False)
-	# resp_motion.set_mr_acquisitions(rawdata)
 	resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_resp")		
 
 	mrsim.add_motion_dynamic(resp_motion)
 
 	# CARD
-	num_sim_card_states = 1
+	num_sim_card_states = 2
 
 	card_motion = pDS.MRMotionDynamic(num_sim_card_states)
 	set_motionfields_from_path(card_motion, input_fpath_prefix + 'mvf_card/')
 	card_motion.set_dynamic_signal(t_card, sig_card)
 	card_motion.set_cyclicality(True)
-	# card_motion.set_mr_acquisitions(rawdata)
 	card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_card")		
 
 	mrsim.add_motion_dynamic(card_motion)

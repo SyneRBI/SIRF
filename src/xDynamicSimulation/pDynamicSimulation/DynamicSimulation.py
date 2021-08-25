@@ -133,14 +133,7 @@ class Dynamic(object):
         pysim.cDS_setCyclicality(self.handle, is_cyclic)
 
  
-class MRDynamic(Dynamic):
-    
-    def set_mr_acquisitions(self, ad):
-        assert_validity(ad, pMR.AcquisitionData)
-        pysim.cDS_setMRAcquisitions(self.handle, ad.handle)
-
-
-class MRMotionDynamic(MRDynamic):
+class MRMotionDynamic(Dynamic):
 
     def __init__(self, num_states):
         self.handle = None

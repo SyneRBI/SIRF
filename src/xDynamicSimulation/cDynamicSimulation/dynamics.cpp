@@ -47,6 +47,7 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 		return false;
 }
 
+// data are taken from one_dat, just scan_counters are compared
 AcquisitionsVector intersect_mr_acquisition_data( const MRAcquisitionData& one_dat, const MRAcquisitionData& other_dat)
 {
 	typedef std::vector<uint32_t> CounterBox;
