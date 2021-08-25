@@ -6,6 +6,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
+#include <chrono>
+
 #include "tests_dynamics.h"
 #include "auxiliary_testing_functions.h"
 
@@ -52,7 +54,6 @@ bool test_dynamic::test_is_in_bin( void )
 	test_succesful *= !(is_in_bin(test_signal, bin));
 
 	return test_succesful;
-
 }
 
 
@@ -97,7 +98,6 @@ bool test_surrogateprocessor::test_linear_interpolate_signal( )
 	}
 }
 
-
 bool test_dynamic::test_intersect_mr_acquisition_data( void )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
@@ -113,10 +113,10 @@ bool test_dynamic::test_intersect_mr_acquisition_data( void )
 	ISMRMRD::AcquisitionHeader acq_hdr = acq.getHead();
 
 	uint32_t const one_start_counter = 1;
-	uint32_t const one_end_counter = 10;
+	uint32_t const one_end_counter = 10000;
 
-	uint32_t const other_start_counter = 6;
-	uint32_t const other_end_counter = 13;
+	uint32_t const other_start_counter = 5000;
+	uint32_t const other_end_counter = 11000;
 
 	
 	for( uint32_t i=one_start_counter; i<=one_end_counter; i++)
@@ -133,11 +133,22 @@ bool test_dynamic::test_intersect_mr_acquisition_data( void )
 		other_vec.append_acquisition(acq);
 	}
 	
-	AcquisitionsVector intersec_vec = intersect_mr_acquisition_data(one_vec, other_vec);
+	AcquisitionsVector intersec_vec;
+
+	std::chrono::steady_clock::time_point begin_timept = std::chrono::steady_clock::now();
+
+	int const num_intersections = 20;
+	for(int i=0; i<num_intersections; ++i)
+	{
+		intersec_vec = intersect_mr_acquisition_data(one_vec, other_vec);
+	}
+	std::chrono::steady_clock::time_point end_timept = std::chrono::steady_clock::now();	
+
+	std::cout << "Time to intersect " << num_intersections << " times: " << std::chrono::duration_cast<std::chrono::seconds>(end_timept - begin_timept).count() << "[s]" << std::endl;
+	std::cout << "That is :" << std::chrono::duration_cast<std::chrono::seconds>(end_timept - begin_timept).count() / (float)num_intersections << "[s]/intersection" << std::endl;
 
 	int32_t num_overlap = one_end_counter - other_start_counter;
 	num_overlap = (num_overlap>=0) ? num_overlap+1 : 0;
-
 
 	bool test_succesful = (num_overlap == intersec_vec.items());
 	

@@ -47,23 +47,21 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 		return false;
 }
 
-
- 
 AcquisitionsVector intersect_mr_acquisition_data( const MRAcquisitionData& one_dat, const MRAcquisitionData& other_dat)
 {
-
-	bool one_dat_is_smaller = ( one_dat.items() >= other_dat.items() );
-
 	typedef std::vector<uint32_t> CounterBox;
 
 	CounterBox one_counters, other_counters;
 
 	ISMRMRD::Acquisition acq;
 
+	std::map<uint32_t, int> map_counter_idx;
+	
 	for( size_t i=0; i<one_dat.items(); i++)
 	{
 		one_dat.get_acquisition( i, acq );
 		one_counters.push_back(acq.getHead().scan_counter);
+		map_counter_idx[acq.getHead().scan_counter] = i;
 	}
 
 	for( size_t i=0; i<other_dat.items(); i++)
@@ -90,24 +88,15 @@ AcquisitionsVector intersect_mr_acquisition_data( const MRAcquisitionData& one_d
 	MRDataType intersection;
 	intersection.copy_acquisitions_info(one_dat);
 
-	const MRAcquisitionData& smaller_data_container = one_dat_is_smaller ? one_dat : other_dat;
-
-	for( size_t i=0; i<smaller_data_container.items(); i++)
+	for( int i=0; i<intersected_counters.size(); ++i)
 	{
-		ISMRMRD::Acquisition acq;
-		smaller_data_container.get_acquisition(i, acq);
-		uint32_t acquis_counter = acq.getHead().scan_counter;
-		if(std::find(intersected_counters.begin(), intersected_counters.end(), acquis_counter) != intersected_counters.end()) 
-		{
-			intersection.append_acquisition(acq);
-    	} 
+		int const idx_for_acq = map_counter_idx[intersected_counters[i]];
+		one_dat.get_acquisition(idx_for_acq, acq);
+		intersection.append_acquisition(acq);
 	}
 
 	return intersection;
-
 }
-
-
 
 void BinProcessor::set_cyclic_bins(int const num_bins)
 {

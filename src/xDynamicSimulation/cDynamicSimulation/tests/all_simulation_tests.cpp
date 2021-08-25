@@ -104,10 +104,9 @@ bool run_tests_dynamics( void )
 	// dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
 	
 	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
+	
 	dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
 	dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
-	
-
 	
 	std::cout << "dynamics test results = ";
 	for( size_t i=0; i<dyn_tests.size(); i++)
@@ -514,10 +513,10 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_contrastgenerator();
 		// ok *= run_tests_phantom_input();
 		// ok *= run_tests_noise_generator();
-		// ok *= run_tests_dynamics();
+		ok *= run_tests_dynamics();
 		// ok *= run_tests_c_interface();
 		// ok *= run_tests_dynsim_deformer();
-		ok *= run_tests_dynamic_simulation();
+		// ok *= run_tests_dynamic_simulation();
 		
 		
 		if(ok)
