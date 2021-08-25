@@ -110,7 +110,7 @@ def main():
 	# configure the surrogates
 	Nt = 10000
 	t0_s = 0
-	tmax_s = 60* 5 * 1000
+	tmax_s = 60* 5 
 
 	f_Hz_card = 1
 	f_Hz_resp = 0.2

@@ -50,6 +50,7 @@ void MRDynamicSimulation::simulate_data( void )
 
 	for(int i=0; i<motion_dynamics_.size(); ++i)
 		motion_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
+		
 	for(int i=0; i<contrast_dynamics_.size(); ++i)
 		contrast_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
 
