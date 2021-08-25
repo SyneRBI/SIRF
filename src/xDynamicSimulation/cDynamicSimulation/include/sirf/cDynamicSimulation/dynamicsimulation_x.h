@@ -20,7 +20,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
 #include "sirf/cDynamicSimulation/dynamics.h"
 #include "sirf/cDynamicSimulation/dynsim_noisegenerator.h"
-#include "sirf/cDynamicSimulation/volume_orientator.h"
+#include "sirf/cDynamicSimulation/dynsim_deformer.h"
+
 
 
 
@@ -39,6 +40,9 @@ public:
 	
 	virtual void save_ground_truth_displacements(void) const = 0;
 	virtual void acquire_raw_data( void ) = 0;
+
+protected:
+	DynamicSimulationDeformer dsd_;
 
 };
 

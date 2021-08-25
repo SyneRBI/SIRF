@@ -10,7 +10,6 @@ date: 15. March 2018
 
 #include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
-#include "sirf/cDynamicSimulation/dynsim_deformer.h"
 
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 
@@ -50,7 +49,7 @@ void MRDynamicSimulation::simulate_data( void )
 
 	for(int i=0; i<motion_dynamics_.size(); ++i)
 		motion_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
-		
+
 	for(int i=0; i<contrast_dynamics_.size(); ++i)
 		contrast_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
 
@@ -167,7 +166,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
                     this->mr_cont_gen_.map_contrast();
                     
                     if( all_motion_fields.size() > 0 )
-                        DynamicSimulationDeformer::deform_contrast_generator(this->mr_cont_gen_, all_motion_fields);
+                        dsd_.deform_contrast_generator(this->mr_cont_gen_, all_motion_fields);
                     
                     this->sptr_template_data_ = std::shared_ptr<MRAcquisitionData>(std::move(acquisitions_for_this_contrast_state.clone()));
                     this->acquire_raw_data();	
@@ -214,10 +213,13 @@ void MRDynamicSimulation::set_template_acquisition_data( MRAcquisitionData& acqu
 	sptr_simul_data_ = std::shared_ptr<MRAcquisitionData>
 								(std::move(acquisitions.clone()));
 
+	dsd_.set_template_rawdata(acquisitions);
+
 	sptr_simul_data_->empty();
 	
 	this->shift_time_start_to_zero();
 	this->mr_cont_gen_.set_template_rawdata(*sptr_source_acquisitions_);
+
 }
 
 void MRDynamicSimulation::set_SNR(float const SNR)
@@ -393,7 +395,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 			}
 
 			this->pet_cont_gen_.map_tissue();//crucial call, as the deformation results in deformed contrast generator data
-			DynamicSimulationDeformer::deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
+			dsd_.deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
 			// std::cout <<"Norm before acquisition "<< sptr_target_acquisitions_->norm() << std::endl;
 			this->acquire_raw_data();	
 			std::cout <<"Norm after acquisition " << sptr_target_acquisitions_->norm() << std::endl;
