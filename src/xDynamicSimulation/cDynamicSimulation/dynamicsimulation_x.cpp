@@ -47,7 +47,14 @@ void MRDynamicSimulation::simulate_data( void )
 	cout << "Simulating dynamic data acquisition... " <<endl;
 	sptr_simul_data_->empty();
 	sptr_simul_data_->copy_acquisitions_info(*sptr_source_acquisitions_);
+
+	for(int i=0; i<motion_dynamics_.size(); ++i)
+		motion_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
+	for(int i=0; i<contrast_dynamics_.size(); ++i)
+		contrast_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
+
 	this->simulate_simultaneous_motion_contrast_dynamics();		
+
 }
 
 void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
