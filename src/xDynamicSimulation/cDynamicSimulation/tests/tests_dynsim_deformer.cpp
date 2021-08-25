@@ -96,7 +96,8 @@ bool DynSimDeformerTester::test_deform_mr_contrast_generator( void )
 				vec_mvfs.push_back( curr_mvf );
 
 				mr_cont_gen.map_contrast();
-				DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, vec_mvfs);
+				DynamicSimulationDeformer dsd;
+				dsd.deform_contrast_generator(mr_cont_gen, vec_mvfs);
 				
 				GadgetronImagesVector curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
 
@@ -153,7 +154,8 @@ bool DynSimDeformerTester::test_deform_pet_contrast_generator( void )
 			vec_mvfs.push_back( curr_mvf );
 
 			pet_cont_gen.map_tissue();
-			DynamicSimulationDeformer::deform_contrast_generator(pet_cont_gen, vec_mvfs);
+			DynamicSimulationDeformer dsd;
+			dsd.deform_contrast_generator(pet_cont_gen, vec_mvfs);
 			
 			std::vector< sirf::STIRImageData > curr_motion_state = pet_cont_gen.get_contrast_filled_volumes();
 			
@@ -227,7 +229,9 @@ bool DynSimDeformerTester::test_motion_of_MotionDynamics()
 			vec_mvfs.push_back( curr_mvf );
 
 			mr_cont_gen.map_contrast();
-			DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, vec_mvfs);
+
+			DynamicSimulationDeformer dsd;
+			dsd.deform_contrast_generator(mr_cont_gen, vec_mvfs);
 			
 			GadgetronImagesVector curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
 			std::stringstream name_stream;

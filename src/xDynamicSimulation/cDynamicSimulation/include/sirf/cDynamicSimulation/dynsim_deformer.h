@@ -20,28 +20,29 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/STIR/stir_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 class DynamicSimulationDeformer
 {
 
 public:
 
-	
-	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
+	void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
+	void deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
 
-	static void deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
-
-
-	static ISMRMRD::Image< float > extract_real_part( ISMRMRD::Image< complex_float_t >& img );
-	static ISMRMRD::Image< float > extract_imaginary_part( ISMRMRD::Image< complex_float_t >& img );
+	void set_template_rawdata(const sirf::MRAcquisitionData& ad)
+	{
+		sptr_mr_template_img_ = std::shared_ptr<sirf::GadgetronImageData>(new sirf::GadgetronImagesVector(ad));
+		mr_template_available_ = true;
+	}
 
 protected:
 
+	std::shared_ptr<sirf::GadgetronImageData> sptr_mr_template_img_;
+	bool mr_template_available_ = false;
+
 	static const std::string temp_folder_name_;
 
-	static void deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields);
 	static void deform_pet_image( sirf::STIRImageData& img, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields);
-	
-	static ISMRMRD::Image< float > extract_complex_subpart( ISMRMRD::Image< complex_float_t >& img, bool const extract_real_part );
 
 };

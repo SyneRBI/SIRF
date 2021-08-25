@@ -35,7 +35,14 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 
 	std::shared_ptr< sirf::GadgetronImageData > sptr_img_to_deform = std::move(img_data.clone());
 
-	resampler.set_reference_image(sptr_img_to_deform);
+	if(mr_template_available_)
+	{
+		sptr_mr_template_img_->reorient(*(img_data.get_geom_info_sptr()));
+		resampler.set_reference_image(sptr_mr_template_img_);
+	}
+	else
+		resampler.set_reference_image(sptr_img_to_deform);
+
 	resampler.set_floating_image (sptr_img_to_deform);
 
 	for( size_t i_trafo=0; i_trafo<vec_displacement_fields.size(); i_trafo++)
