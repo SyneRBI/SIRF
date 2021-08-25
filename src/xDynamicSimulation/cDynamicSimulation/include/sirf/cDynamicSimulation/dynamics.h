@@ -31,12 +31,14 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define SIRF_SCANNER_MS_PER_TIC 2.5
 
 
+// time in seconds
+// signal normed to [0,1]
 typedef float TimeAxisType;
 typedef float SignalAxisType;
 
 
 typedef std::tuple<SignalAxisType,SignalAxisType,SignalAxisType> SignalBin;
-typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
+typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint; 
 typedef std::vector< SignalPoint > SignalContainer;
 
 // typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContainer;

@@ -109,53 +109,15 @@ class MRDynamicSimulation(object):
     def add_motion_dynamic(self, motiondyn):
         pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle); 
 
-
-
-class SurrogateSignal(object):
-    def __init__(self, time_points, signal_points):
-
-        if not isinstance(time_points, np.ndarray):
-            raise error('Wrong input format.' + \
-                ' Should be numpy.ndarray. Got {}'.format(type(time_points)))
-
-        if not isinstance(signal_points, np.ndarray):
-            raise error('Wrong input format.' + \
-                ' Should be numpy.ndarray. Got {}'.format(type(signal_points)))
-
-        num_signal_points = time_points.size
-        if num_signal_points != signal_points.size:
-            AssertionError("The signal and time points do not have the identical size.")
-
-        if time_points.dtype != np.float32:
-            the_time = time_points.astype(np.float32)
-        
-        if signal_points.dtype != np.float32:
-            the_signal = signal_points.astype(np.float32)
-
-        convert = not the_time.flags['C_CONTIGUOUS']
-        if convert:
-            the_time = np.ascontiguousarray(the_time)
-
-        convert = not the_signal.flags['C_CONTIGUOUS']
-        if convert:
-            the_signal = np.ascontiguousarray(the_signal)
-        
-        self.handle = None
-        self.handle = pysim.cDS_DynamicSignal(the_time.ctypes.data,\
-                                    the_signal.ctypes.data,\
-                                    num_signal_points)
-        check_status(self.handle)
-
-
 class Dynamic(object):
 
-    def set_dynamic_signal(self, time_points, signal_points):
+    def set_dynamic_signal(self, time_points_seconds, signal_points):
       
-        num_signal_points = time_points.size
+        num_signal_points = time_points_seconds.size
         if num_signal_points != signal_points.size:
-            AssertionError("The signal and time points do not have the identical size.")
+            AssertionError("The signal and time point arrays do not have identical size.")
 
-        the_time = format_arrays_for_setters(time_points)
+        the_time = format_arrays_for_setters(time_points_seconds)
         the_signal = format_arrays_for_setters(signal_points)
         
         pysim.cDS_setDynamicSignal(self.handle, 
