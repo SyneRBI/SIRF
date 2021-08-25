@@ -48,6 +48,8 @@ typedef sirf::NiftiImageData3DDisplacement<float> MotionFieldType;
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 
 typedef sirf::AcquisitionsVector MRDataType;
+
+// data are taken from one_dat, just scan_counters are compared. Acquisitions from other_dat are not returned!
 MRDataType intersect_mr_acquisition_data( const sirf::MRAcquisitionData& one_dat, const sirf::MRAcquisitionData& other_dat );
 
 
