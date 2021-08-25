@@ -502,6 +502,7 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 		for(int i=0; i<all_acquisitions.number(); ++i)
 		{
 			all_acquisitions.get_acquisition(i,acq);
+			acq.resize(1,1,0);
 			av.append_acquisition(acq);
 		}
 
@@ -611,6 +612,7 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 		{
 			ISMRMRD::Acquisition acq;
 			all_acquisitions.get_acquisition( i, acq );
+			acq.resize(1,1,0);
 			av.append_acquisition( acq );
 		}
 		

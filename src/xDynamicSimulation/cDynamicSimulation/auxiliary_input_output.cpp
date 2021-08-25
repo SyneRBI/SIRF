@@ -60,17 +60,17 @@ void print_io::print_voxelized_geometrical_info( const sirf::ImageData& im )
 
 SignalContainer data_io::read_surrogate_signal( const std::string& filename_time_axis, const std::string& filename_signal )
 {
-	std::vector< TimeAxisType > time_points = read_single_column_txt<TimeAxisType>(filename_time_axis);
+	std::vector< TimeAxisType > time_points_ms = read_single_column_txt<TimeAxisType>(filename_time_axis);
 	std::vector< SignalAxisType > signal_points = read_single_column_txt<SignalAxisType>(filename_signal);
   	
 	SignalContainer signal;
 
-  	if( time_points.size() == signal_points.size())
+  	if( time_points_ms.size() == signal_points.size())
   	{
-  		std::cout << time_points.size() << " signal points read from file." <<std::endl;
-  		for( size_t i=0; i<time_points.size(); i++)
+  		std::cout << time_points_ms.size() << " signal points read from file." <<std::endl;
+  		for( size_t i=0; i<time_points_ms.size(); i++)
   		{
-	  		SignalPoint sp (time_points[i], signal_points[i]);
+	  		SignalPoint sp (time_points_ms[i]/1000, signal_points[i]);
 	  		signal.push_back( sp );
 	  	}
   	}

@@ -181,7 +181,7 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
     simulated_file = Path(fpath_output)
     if not simulated_file.is_file():
-        mrsim.write_simulation_results(simulated_file)
+        mrsim.write_simulation_results(str(simulated_file))
 
     return 1
 

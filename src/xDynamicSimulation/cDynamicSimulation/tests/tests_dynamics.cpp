@@ -691,28 +691,28 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		auto first_pt = card_sig[0];
 		auto last_pt = card_sig[ card_sig.size()-1 ];
 
-		float min_time_ms = first_pt.first;
-		float tot_time_ms = last_pt.first - first_pt.first;
+		float min_time_sec = first_pt.first;
+		float tot_time_sec = last_pt.first - first_pt.first;
 
-		std::cout << "total time ms: " << tot_time_ms <<std::endl;
+		std::cout << "total time ms: " << tot_time_sec <<std::endl;
 
 		for( size_t i=0; i<card_sig.size(); i++)
 		{
 			auto curr_sig_pt = card_sig[i];	
-			curr_sig_pt.first = curr_sig_pt.first - min_time_ms;
+			curr_sig_pt.first = curr_sig_pt.first - min_time_sec;
 			card_sig[i] = curr_sig_pt;
 		}
 
 	 	first_pt = card_sig[0];
 		last_pt = card_sig[ card_sig.size()-1 ];
 
-		min_time_ms = first_pt.first;
-		tot_time_ms = last_pt.first - first_pt.first;
+		min_time_sec = first_pt.first;
+		tot_time_sec = last_pt.first - first_pt.first;
 
-		std::cout << "total time ms: " << tot_time_ms <<std::endl;
+		std::cout << "total time ms: " << tot_time_sec <<std::endl;
 	 	pet_dyn.set_dynamic_signal( card_sig );
 
-		TimeBin total_time(0, tot_time_ms);
+		TimeBin total_time(0, tot_time_sec);
 	 	pet_dyn.bin_total_time_interval( total_time );
 
 		for(int i=0; i<num_simul_bins; i++)
@@ -721,7 +721,7 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		}
 		for(int i=0; i<num_simul_bins; i++)
 		{
-			cout <<"Percantage of total time in bin " <<i << " = " << pet_dyn.get_time_spent_in_bin(i)/tot_time_ms <<endl;
+			cout <<"Percantage of total time in bin " <<i << " = " << pet_dyn.get_time_spent_in_bin(i)/tot_time_sec <<endl;
 		}
 
 		float sum_of_times = 0.0;
@@ -730,7 +730,7 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 			sum_of_times += pet_dyn.get_time_spent_in_bin(i);
 			
 		}
-		cout <<"Sum over all times spent in bins " << sum_of_times/tot_time_ms << std::endl;;
+		cout <<"Sum over all times spent in bins " << sum_of_times/tot_time_sec << std::endl;;
 
 		return test_succesful;
 	}
