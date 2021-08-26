@@ -37,7 +37,12 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 
 	if(mr_template_available_)
 	{
-		sptr_mr_template_img_->reorient(*(img_data.get_geom_info_sptr()));
+		if( ImageData::can_reorient(*(img_data.get_geom_info_sptr()), 
+									*(sptr_mr_template_img_->get_geom_info_sptr()), false))
+		{
+			sptr_mr_template_img_->reorient(*(img_data.get_geom_info_sptr()));
+		}			
+		
 		resampler.set_reference_image(sptr_mr_template_img_);
 	}
 	else
@@ -54,10 +59,17 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 	resampler.process();
 
 	const std::shared_ptr<const sirf::ImageData>  sptr_deformed_img = resampler.get_output_sptr();
-		
+	
+	if(mr_template_available_)
+	{
+		img_data = GadgetronImagesVector(*sptr_mr_template_img_);
+	}
+	
 	sptr_deformed_img->copy(sptr_deformed_img->begin(),
 							img_data.begin(), 
 							img_data.end());
+	
+	mr_cont_gen.set_contrast_filled_volumes(img_data);
 
 	std::vector< NiftiImageData3DDeformation<float> > empty_vec_to_free_memory;
 	vec_displacement_fields.swap( empty_vec_to_free_memory );

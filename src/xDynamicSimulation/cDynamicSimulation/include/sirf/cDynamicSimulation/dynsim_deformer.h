@@ -32,13 +32,13 @@ public:
 
 	void set_template_rawdata(const sirf::MRAcquisitionData& ad)
 	{
-		sptr_mr_template_img_ = std::shared_ptr<sirf::GadgetronImageData>(new sirf::GadgetronImagesVector(ad));
+		sptr_mr_template_img_ = std::shared_ptr<sirf::GadgetronImagesVector>(new sirf::GadgetronImagesVector(ad));
 		mr_template_available_ = true;
 	}
 
 protected:
 
-	std::shared_ptr<sirf::GadgetronImageData> sptr_mr_template_img_;
+	std::shared_ptr<sirf::GadgetronImagesVector> sptr_mr_template_img_;
 	bool mr_template_available_ = false;
 
 	static const std::string temp_folder_name_;
