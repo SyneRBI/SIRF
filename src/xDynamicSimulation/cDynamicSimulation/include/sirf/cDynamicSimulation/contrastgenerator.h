@@ -63,7 +63,12 @@ public:
 	void set_rawdata_header(const ISMRMRD::IsmrmrdHeader& hdr);
 	void map_contrast();
 	complex_float_t get_signal_for_tissuelabel( size_t const label );
+	
 	sirf::GadgetronImagesVector& get_contrast_filled_volumes(bool const resample_output=false);
+	void set_contrast_filled_volumes(const sirf::GadgetronImagesVector& img)
+	{
+		contrast_filled_volumes_ = img;
+	}
 
 private:
 
