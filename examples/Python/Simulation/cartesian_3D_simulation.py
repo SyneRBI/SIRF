@@ -44,7 +44,6 @@ show_plot = not args['--non-interactive']
 from pathlib import Path
 import numpy as np
 import time
-import nibabel as nib
 
 
 def read_motionfields(fpath_prefix):
@@ -79,26 +78,33 @@ def get_normed_surrogate_signal(t0_s, tmax_s, Nt, f_Hz):
 def main():
 
 	fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
-	input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/Cube128/'
+	input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/'
 	output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
 	
-	fpath_xml = input_fpath_prefix + 'XCAT_TissueParameters_XML.xml'
-	fpath_template_rawdata = input_fpath_prefix + 'CV_nav_cart_128Cube_FLASH_T1.h5'
+	fpath_xml = input_fpath_prefix + 'Cube128/XCAT_TissueParameters_XML.xml'
+	fpath_template_contrast_rawdata = input_fpath_prefix + 'Cube128/CV_nav_cart_128Cube_FLASH_T1.h5'
+	fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID29_cart_ref_image_FID78804_ismrmrd.h5'
+	
 
 	# configure the simulation
-	rawdata = pMR.AcquisitionData(fpath_template_rawdata)
-	rawdata = pMR.preprocess_acquisition_data(rawdata)
+	contrast_ad = pMR.AcquisitionData(fpath_template_contrast_rawdata)
+	contrast_ad = pMR.preprocess_acquisition_data(contrast_ad)
 
-	labels = pReg.NiftiImageData3D( input_fpath_prefix + "label_volume.nii"	)
+	
+	acquisition_ad = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
+	acquisition_ad = pMR.preprocess_acquisition_data(acquisition_ad)
+
+	labels = pReg.NiftiImageData3D( input_fpath_prefix + "Cube128/label_volume.nii"	)
 	mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
 
-	mrsim.set_contrast_template_data(rawdata)
-	mrsim.set_acquisition_template_data(rawdata)
+	mrsim.set_contrast_template_data(contrast_ad)
+	# mrsim.set_acquisition_template_data(acquisition_ad)
+	mrsim.set_acquisition_template_data(contrast_ad)
 	
 	# take CSM from the rawdata itself
 	# could be replaced if independent way of computing CSM is available
 	csm = pMR.CoilSensitivityData()
-	csm.calculate(rawdata)
+	csm.calculate(contrast_ad)
 	mrsim.set_csm(csm)
 
 	# set which tissue defines SNR
@@ -123,7 +129,7 @@ def main():
 	# RESP
 	num_sim_resp_states = 2
 	resp_motion = pDS.MRMotionDynamic( num_sim_resp_states )
-	set_motionfields_from_path(resp_motion, input_fpath_prefix + 'mvf_resp/')
+	set_motionfields_from_path(resp_motion, input_fpath_prefix + 'Cube128/mvf_resp/')
 	resp_motion.set_dynamic_signal(t_resp, sig_resp)
 	resp_motion.set_cyclicality(False)
 	resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_resp")		
@@ -134,7 +140,7 @@ def main():
 	num_sim_card_states = 2
 
 	card_motion = pDS.MRMotionDynamic(num_sim_card_states)
-	set_motionfields_from_path(card_motion, input_fpath_prefix + 'mvf_card/')
+	set_motionfields_from_path(card_motion, input_fpath_prefix + 'Cube128/mvf_card/')
 	card_motion.set_dynamic_signal(t_card, sig_card)
 	card_motion.set_cyclicality(True)
 	card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_card")		
@@ -162,12 +168,11 @@ def main():
 	recon.set_input(simulated_data)
 	recon.process()
 	recon_img = recon.get_output()
-	recon_arr = np.squeeze(np.abs(recon_img.as_array()))
 
-	recon_nii = nib.Nifti1Image(recon_arr, np.eye(4))
-	fname_recon = "output_example_cartesian_3D_recon_r{}_c{}.nii".format(num_sim_resp_states,num_sim_card_states)
-
-	nib.save(recon_nii, output_fpath_prefix +  fname_recon )
+	recon_nii = pReg.NiftiImageData3D(recon_img)
+	recon_nii = recon_nii.abs()
+	recon_nii.write(output_fpath_prefix + "output_example_cartesian_3D_recon_r{}_c{}.nii".format(num_sim_resp_states,num_sim_card_states))
+	
 	return 1
 
 try:
