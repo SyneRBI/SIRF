@@ -191,21 +191,21 @@ void MRDynamicSimulation::set_noise_scaling()
 
 void MRDynamicSimulation::shift_time_start_to_zero( void )
 {
-	this->sptr_source_acquisitions_->sort_by_time();
+	sptr_source_acquisitions_->sort_by_time();
 	
 	ISMRMRD::Acquisition acq;
-	this->sptr_source_acquisitions_->get_acquisition(0, acq);
+	sptr_source_acquisitions_->get_acquisition(0, acq);
 	uint32_t const t0 = acq.acquisition_time_stamp();
 
 	for(size_t i=0; i<sptr_source_acquisitions_->number(); ++i)
 	{
-		this->sptr_source_acquisitions_->get_acquisition(i, acq);
+		sptr_source_acquisitions_->get_acquisition(i, acq);
 		acq.acquisition_time_stamp() -= t0;
-		this->sptr_source_acquisitions_->set_acquisition(i, acq);
+		sptr_source_acquisitions_->set_acquisition(i, acq);
 	}
 }
 
-void MRDynamicSimulation::set_template_acquisition_data( MRAcquisitionData& acquisitions )
+void MRDynamicSimulation::set_acquisition_template_rawdata(const MRAcquisitionData& acquisitions)
 {
 	sptr_source_acquisitions_ = std::shared_ptr<MRAcquisitionData>
 								(std::move(acquisitions.clone()));
@@ -214,12 +214,13 @@ void MRDynamicSimulation::set_template_acquisition_data( MRAcquisitionData& acqu
 								(std::move(acquisitions.clone()));
 
 	dsd_.set_template_rawdata(acquisitions);
-
 	sptr_simul_data_->empty();
-	
 	this->shift_time_start_to_zero();
-	this->mr_cont_gen_.set_template_rawdata(*sptr_source_acquisitions_);
-
+	
+}
+void MRDynamicSimulation::set_contrast_template_rawdata(const MRAcquisitionData& acquisitions)
+{
+		mr_cont_gen_.set_template_rawdata(acquisitions);
 }
 
 void MRDynamicSimulation::set_SNR(float const SNR)

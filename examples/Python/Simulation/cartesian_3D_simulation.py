@@ -92,6 +92,7 @@ def main():
 	labels = pReg.NiftiImageData3D( input_fpath_prefix + "label_volume.nii"	)
 	mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
 
+	mrsim.set_contrast_template_data(rawdata)
 	mrsim.set_acquisition_template_data(rawdata)
 	
 	# take CSM from the rawdata itself

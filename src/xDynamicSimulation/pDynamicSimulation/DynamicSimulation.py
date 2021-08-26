@@ -87,6 +87,10 @@ class MRDynamicSimulation(object):
         assert_validity(ad, pMR.AcquisitionData)
         pysim.cDS_setAcquisitionTemplateData(self.handle, ad.handle)
 
+    def set_contrast_template_data(self, ad):
+        assert_validity(ad, pMR.AcquisitionData)
+        pysim.cDS_setContrastTemplateData(self.handle, ad.handle)
+
     def simulate_data(self):
         pysim.cDS_simulateData(self.handle)
 

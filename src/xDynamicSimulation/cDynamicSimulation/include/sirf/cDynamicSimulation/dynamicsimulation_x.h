@@ -56,7 +56,10 @@ public:
 
 	void write_simulation_results( const std::string& filename_output_with_extension );
 
-	void set_template_acquisition_data(sirf::MRAcquisitionData& acquisitions );
+	
+	void set_acquisition_template_rawdata(const sirf::MRAcquisitionData& acquisitions);
+	void set_contrast_template_rawdata(const sirf::MRAcquisitionData& acquisitions);
+
 	void set_SNR(float const SNR);
 	void set_noise_label(size_t const label);
 

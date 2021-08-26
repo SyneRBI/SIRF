@@ -156,7 +156,7 @@ bool tests_mr_dynsim::test_simulate_statics()
 		all_acquis.read( ISMRMRD_H5_TEST_PATH );
 		sirf::preprocess_acquisition_data(all_acquis);
 
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
+		mr_dyn_sim.set_acquisition_template_rawdata(all_acquis);
 		
 		auto data_dims = segmentation_labels.get_dimensions();
 		
@@ -207,7 +207,7 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		all_acquis.read( ISMRMRD_H5_TEST_PATH );
 		sirf::preprocess_acquisition_data(all_acquis);
 
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
+		mr_dyn_sim.set_acquisition_template_rawdata(all_acquis);
 		auto data_dims = segmentation_labels.get_dimensions();
 		
 		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
@@ -271,7 +271,7 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		all_acquis.read( ISMRMRD_H5_TEST_PATH );
 		sirf::preprocess_acquisition_data(all_acquis);
 
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
+		mr_dyn_sim.set_acquisition_template_rawdata(all_acquis);
 		auto data_dims = segmentation_labels.get_dimensions();
 		
 		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
@@ -370,7 +370,7 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		mr_dyn_sim.set_noise_label( noise_label );
 
 		AcquisitionsVector all_acquis(ISMRMRD_H5_TEST_PATH);
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
+		mr_dyn_sim.set_acquisition_template_rawdata(all_acquis);
 
 		clock_t t;
 		t = clock();
@@ -419,7 +419,7 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 		AcquisitionsVector all_acquis;
 		all_acquis.read(fname_rawdata);
 
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);
+		mr_dyn_sim.set_acquisition_template_rawdata(all_acquis);
 		auto data_dims = segmentation_labels.get_dimensions();
 			
 		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
@@ -545,7 +545,7 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read(fname_rawdata);
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);			
+		mr_dyn_sim.set_acquisition_template_rawdata(all_acquis);			
 
 
 		std::vector<float> roi_labels{1,2,3,4,50,72,73};
@@ -677,7 +677,7 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		
 		AcquisitionsVector all_acquis;
 		all_acquis.read(ISMRMRD_H5_TEST_PATH);
-		mr_dyn_sim.set_template_acquisition_data(all_acquis);		
+		mr_dyn_sim.set_acquisition_template_rawdata(all_acquis);		
 		
 		auto data_dims = segmentation_labels.get_dimensions();
 		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 

@@ -115,6 +115,24 @@ void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml)
 	CATCH;
 }
 
+
+extern "C"
+void* cDS_setContrastTemplateData(void* ptr_sim, const void* ptr_acqs)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		
+		MRAcquisitionData& ad = objectFromHandle<MRAcquisitionData>(h_acqs);
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		sim.set_contrast_template_rawdata(ad);
+		return new DataHandle;
+
+	}
+	CATCH;
+}
+
 extern "C"
 void* cDS_setAcquisitionTemplateData(void* ptr_sim, const void* ptr_acqs)
 {
@@ -125,7 +143,7 @@ void* cDS_setAcquisitionTemplateData(void* ptr_sim, const void* ptr_acqs)
 		
 		MRAcquisitionData& ad = objectFromHandle<MRAcquisitionData>(h_acqs);
 		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
-		sim.set_template_acquisition_data(ad);
+		sim.set_acquisition_template_rawdata(ad);
 		return new DataHandle;
 
 	}

@@ -80,6 +80,7 @@ def test_static_mr_simulation(rec=False, verb=False, throw=True):
 
     mrsim, rawdata, __ = prepare_test_simulation(fpath_template_rawdata, fpath_xml)
     
+    mrsim.set_contrast_template_data(rawdata)
     mrsim.set_acquisition_template_data(rawdata)
 
     csm = pMR.CoilSensitivityData()
@@ -116,6 +117,7 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
     #
     mrsim, rawdata, labels = prepare_test_simulation(fpath_template_rawdata, fpath_xml)
     
+    mrsim.set_contrast_template_data(rawdata)
     mrsim.set_acquisition_template_data(rawdata)
 
     csm = pMR.CoilSensitivityData()

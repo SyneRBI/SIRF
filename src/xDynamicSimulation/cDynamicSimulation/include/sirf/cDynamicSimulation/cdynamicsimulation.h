@@ -42,6 +42,7 @@ void* cDS_writeSimulationResults(const void* ptr_sim, const char* fname_with_ext
 void* cDS_saveMotionGroundTruth(const void* ptr_sim);
 
 void* cDS_setAcquisitionTemplateData(void* ptr_sim, const void* ptr_acqs);
+void* cDS_setContrastTemplateData(void* ptr_sim, const void* ptr_acqs);
 void* cDS_setCoilmaps(void* ptr_sim, const void* ptr_csm);
 
 void* cDS_setSNR(void* ptr_sim, float const SNR);
