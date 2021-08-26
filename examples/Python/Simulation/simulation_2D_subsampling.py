@@ -128,10 +128,6 @@ def main():
     resampler.set_floating_image(labels)
     resampler.set_reference_image(labels)
 
-
-    # resp_transf = mvfs[-1]
-    # resampler.add_transformation(resp_transf)
-
     offset_shift = offset_shift_from_nifti(labels)
     resampler.add_transformation(offset_shift)
     resampler.process()

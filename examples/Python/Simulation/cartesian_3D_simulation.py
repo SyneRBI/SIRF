@@ -104,7 +104,7 @@ def main():
 	# take CSM from the rawdata itself
 	# could be replaced if independent way of computing CSM is available
 	csm = pMR.CoilSensitivityData()
-	csm.calculate(contrast_ad)
+	csm.calculate(acquisition_ad)
 	mrsim.set_csm(csm)
 
 	# set which tissue defines SNR
