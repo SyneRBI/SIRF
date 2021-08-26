@@ -20,7 +20,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define TESTDATA_OUT_PREFIX "TestData/Output/xDynamicSimulation/cDynamicSimulation/"
 
 #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH TESTDATA_PREFIX "Segmentations/xcat_phantom_incl_geomertry_128.h5"
-#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH TESTDATA_PREFIX "TemplateData/MR/CV_nav_cart_128Cube_FLASH_T1.h5"   
+#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH TESTDATA_PREFIX "TemplateData/MR/CV_nav_cart_128Cube_FLASH_T1.h5" 
+#define PATH_2D_ACQ_TEMPLATE  SHARED_FOLDER_PATH TESTDATA_PREFIX "TemplateData/MR/meas_MID29_cart_ref_image_FID78804_ismrmrd.h5" 
 // #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_sfl_gc_usos8.h5" 
 
 #define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""

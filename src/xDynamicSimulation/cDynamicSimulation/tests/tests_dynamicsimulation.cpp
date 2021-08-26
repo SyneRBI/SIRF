@@ -232,7 +232,6 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		
 		resp_dyn.set_displacement_fields( resp_motion_fields, false );
 		resp_dyn.set_dynamic_signal(resp_signal);
-		resp_dyn.bin_mr_acquisitions(all_acquis);
 
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
 
@@ -267,11 +266,17 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 
-		AcquisitionsVector all_acquis;
-		all_acquis.read( ISMRMRD_H5_TEST_PATH );
-		sirf::preprocess_acquisition_data(all_acquis);
+		AcquisitionsVector contrast_template;
+		contrast_template.read( ISMRMRD_H5_TEST_PATH );
+		sirf::preprocess_acquisition_data(contrast_template);
 
-		mr_dyn_sim.set_acquisition_template_rawdata(all_acquis);
+		AcquisitionsVector acquisition_template;
+		acquisition_template.read(PATH_2D_ACQ_TEMPLATE);
+		sirf::preprocess_acquisition_data(acquisition_template);
+
+		mr_dyn_sim.set_acquisition_template_rawdata(acquisition_template);
+		mr_dyn_sim.set_contrast_template_rawdata(contrast_template);
+		
 		auto data_dims = segmentation_labels.get_dimensions();
 		
 		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
@@ -287,7 +292,7 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 
 		// generate mock respiratory motion dynamic
 		float const respiratory_period_ms = 6000;
-		SignalContainer resp_signal = aux_test::get_mock_sinus_signal( all_acquis, respiratory_period_ms);
+		SignalContainer resp_signal = aux_test::get_mock_sinus_signal( contrast_template, respiratory_period_ms);
 		
 		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
@@ -297,14 +302,13 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		
 		resp_dyn.set_displacement_fields( resp_motion_fields, false );
 		resp_dyn.set_dynamic_signal(resp_signal);
-		resp_dyn.bin_mr_acquisitions(all_acquis);
 
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
 
 		// 
 		// generate mock respiratory motion dynamic
 		float const cardiac_period_ms = 1000;
-		SignalContainer card_signal = aux_test::get_mock_sawtooth_signal( all_acquis, respiratory_period_ms);
+		SignalContainer card_signal = aux_test::get_mock_sawtooth_signal( contrast_template, respiratory_period_ms);
 		
 		auto card_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 		
@@ -313,7 +317,6 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		
 		card_dyn.set_displacement_fields( card_motion_fields, true );
 		card_dyn.set_dynamic_signal(card_signal);
-		card_dyn.bin_mr_acquisitions(all_acquis);
 
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( card_dyn ));
 
@@ -459,9 +462,6 @@ bool tests_mr_dynsim::test_5d_mri_acquisition( void )
 			card_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_card");
 			resp_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields_resp");
 
-			card_dyn.bin_mr_acquisitions( all_acquis );
-			resp_dyn.bin_mr_acquisitions( all_acquis );
-
 			auto binned_resp_acq = resp_dyn.get_binned_mr_acquisitions();
 			auto binned_card_acq = card_dyn.get_binned_mr_acquisitions();
 			for( int i=0; i<binned_resp_acq.size(); ++i)
@@ -598,7 +598,6 @@ bool tests_mr_dynsim::test_4d_mri_acquisition( void )
 			// 	motion_signal[j].second = 0.99;
 
 		 	motion_dyn.set_dynamic_signal( motion_signal );
-		 	motion_dyn.bin_mr_acquisitions( all_acquis );
 
 		 	auto binned_acq = motion_dyn.get_binned_mr_acquisitions();
 		 	for( int i=0; i<binned_acq.size(); ++i)
@@ -705,7 +704,6 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 			SignalContainer respiratory_signal = data_io::read_surrogate_signal(filename_resp_timepoints, filename_resp_signal);
 
 		 	respiratory_motion_dyn.set_dynamic_signal( respiratory_signal );
-		 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
 
 			respiratory_motion_dyn.set_ground_truth_folder_name( output_path + "ground_truth_motionfields");
 
@@ -790,11 +788,6 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 		aif_contrast.set_dynamic_signal( aif_dyn_signal );
 		healthy_tissue_contrast.set_dynamic_signal( healthy_dyn_tissue_signal );
 		lesion_contrast.set_dynamic_signal( lesion_dyn_signal );
-
-
-	 	aif_contrast.bin_mr_acquisitions( all_acquis );
-		healthy_tissue_contrast.bin_mr_acquisitions( all_acquis );
-		lesion_contrast.bin_mr_acquisitions( all_acquis );
 
 		if( num_contrast_states > 0)
 		{
