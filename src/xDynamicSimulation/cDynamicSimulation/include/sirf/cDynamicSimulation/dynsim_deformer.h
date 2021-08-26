@@ -18,6 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h" // this header (rather the Gadgetron Base IO including Nifti) must not be included after the SIRFImageData.h headers. DONT put it into the cpp!
 
+#include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 
@@ -28,6 +29,20 @@ class DynamicSimulationDeformer
 {
 
 public:
+
+	DynamicSimulationDeformer(){
+
+		std::array<float, 3> id_translation{0,0,0};
+		std::array<float, 3> id_euler{0,0,0};
+
+		offset_ = sirf::AffineTransformation<float>(id_translation, id_euler);
+
+	}
+
+	void set_offset_transformation(const sirf::AffineTransformation<float>& trafo)
+	{
+		offset_ = trafo;
+	}
 
 	void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
 	void deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
@@ -40,33 +55,35 @@ public:
 
 protected:
 
+	sirf::AffineTransformation<float> offset_;
+
 	std::shared_ptr<sirf::GadgetronImagesVector> sptr_mr_template_img_;
 	bool mr_template_available_ = false;
 
 	static const std::string temp_folder_name_;
 
 	static void deform_pet_image( sirf::STIRImageData& img, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields);
-
-	std::shared_ptr<sirf::NiftiImageData3DDeformation<float> > compute_shift_to_center(const sirf::NiftiImageData3D<float>& img) const
+	
+	std::shared_ptr<sirf::AffineTransformation<float> > compute_shift_to_center(const sirf::NiftiImageData3D<float>& img) 
 	{
-		sirf::NiftiImageData3D<float> shift_x(img), shift_y(img), shift_z(img);		
-		
+	
 		int const num_dims = 7;
 		std::array<float, num_dims> spacings;
 		std::array<int, num_dims> dimensions;
 		
 		for (int i=0; i<= num_dims; ++i)
 		{
-			dimensions[i] = shift_z.get_raw_nifti_sptr()->dim[i];
-            spacings[i] = shift_z.get_raw_nifti_sptr()->pixdim[i];
+			dimensions[i] = img.get_raw_nifti_sptr()->dim[i];
+            spacings[i] = img.get_raw_nifti_sptr()->pixdim[i];
 		}
 
-		shift_x.fill(0.f);	
-		shift_y.fill(0.f);	
-		shift_z.fill(-1 * dimensions[3] * spacings[3]);
+		std::array<float, 3> id_euler{0,0,0};
+		std::array<float, 3> shift_translation{0,0,0};
 		
-		sirf::NiftiImageData3DDisplacement<float> shift_vf(shift_x,shift_y,shift_z);
-		return std::make_shared<sirf::NiftiImageData3DDeformation<float> >(shift_vf);
+		shift_translation[2] = -1 * dimensions[3]/2.f * spacings[3];
+		sirf::AffineTransformation<float> offset(shift_translation, id_euler);
+		offset_ = offset;
 
-	}
+		return std::shared_ptr<sirf::AffineTransformation<float> >(new sirf::AffineTransformation<float>(offset));
+ 	}
 };

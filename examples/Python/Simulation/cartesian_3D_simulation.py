@@ -98,8 +98,8 @@ def main():
 	mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
 
 	mrsim.set_contrast_template_data(contrast_ad)
-	# mrsim.set_acquisition_template_data(acquisition_ad)
-	mrsim.set_acquisition_template_data(contrast_ad)
+	mrsim.set_acquisition_template_data(acquisition_ad)
+	# mrsim.set_acquisition_template_data(contrast_ad)
 	
 	# take CSM from the rawdata itself
 	# could be replaced if independent way of computing CSM is available

@@ -45,7 +45,7 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 	}
 	
 	// finally shift by half a field of view into z-direction
-	resampler.add_transformation(this->compute_shift_to_center(img_data));
+	resampler.add_transformation( this->compute_shift_to_center(img_data) );
 	resampler.process();
 
 	// now clear the transformations, and put the deformed image as new floating
