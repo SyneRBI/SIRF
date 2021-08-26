@@ -19,6 +19,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h" // this header (rather the Gadgetron Base IO including Nifti) must not be included after the SIRFImageData.h headers. DONT put it into the cpp!
 
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
+#include "sirf/Reg/NiftiImageData3DDisplacement.h"
+
 #include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 
@@ -45,4 +47,26 @@ protected:
 
 	static void deform_pet_image( sirf::STIRImageData& img, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields);
 
+	std::shared_ptr<sirf::NiftiImageData3DDeformation<float> > compute_shift_to_center(const sirf::NiftiImageData3D<float>& img) const
+	{
+		sirf::NiftiImageData3D<float> shift_x(img), shift_y(img), shift_z(img);		
+		
+		int const num_dims = 7;
+		std::array<float, num_dims> spacings;
+		std::array<int, num_dims> dimensions;
+		
+		for (int i=0; i<= num_dims; ++i)
+		{
+			dimensions[i] = shift_z.get_raw_nifti_sptr()->dim[i];
+            spacings[i] = shift_z.get_raw_nifti_sptr()->pixdim[i];
+		}
+
+		shift_x.fill(0.f);	
+		shift_y.fill(0.f);	
+		shift_z.fill(-1 * dimensions[3] * spacings[3]);
+		
+		sirf::NiftiImageData3DDisplacement<float> shift_vf(shift_x,shift_y,shift_z);
+		return std::make_shared<sirf::NiftiImageData3DDeformation<float> >(shift_vf);
+
+	}
 };

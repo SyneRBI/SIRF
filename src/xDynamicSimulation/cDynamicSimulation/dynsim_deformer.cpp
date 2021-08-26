@@ -17,7 +17,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <boost/filesystem/operations.hpp>
 
 #include "sirf/Reg/NiftyResample.h"
-#include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/common/GeometricalInfo.h"
 
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
@@ -27,27 +26,16 @@ using namespace sirf;
 void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields)
 {
 
-	GadgetronImagesVector& img_data = mr_cont_gen.get_contrast_filled_volumes();
-	img_data.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
-
 	NiftyResampler<float> resampler;
     resampler.set_interpolation_type_to_cubic_spline();
 
+	// deform the images in the contrast generator with the supplied displacement fields
+	GadgetronImagesVector& img_data = mr_cont_gen.get_contrast_filled_volumes();
+	img_data.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
 	std::shared_ptr< sirf::GadgetronImageData > sptr_img_to_deform = std::move(img_data.clone());
-
-	if(mr_template_available_)
-	{
-		if( ImageData::can_reorient(*(img_data.get_geom_info_sptr()), 
-									*(sptr_mr_template_img_->get_geom_info_sptr()), false))
-		{
-			sptr_mr_template_img_->reorient(*(img_data.get_geom_info_sptr()));
-		}			
-		
-		resampler.set_reference_image(sptr_mr_template_img_);
-	}
-	else
-		resampler.set_reference_image(sptr_img_to_deform);
-
+	
+	// both floating and reference image must be in the same coordinate system
+	resampler.set_reference_image(sptr_img_to_deform);
 	resampler.set_floating_image (sptr_img_to_deform);
 
 	for( size_t i_trafo=0; i_trafo<vec_displacement_fields.size(); i_trafo++)
@@ -55,8 +43,20 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
         auto disp_trafo = std::make_shared<NiftiImageData3DDeformation<float> >( vec_displacement_fields[i_trafo] );
 		resampler.add_transformation(disp_trafo);
 	}
-
+	
+	// finally shift by half a field of view into z-direction
+	resampler.add_transformation(this->compute_shift_to_center(img_data));
 	resampler.process();
+
+	// now clear the transformations, and put the deformed image as new floating
+	resampler.clear_transformations();
+	resampler.set_floating_image(resampler.get_output_sptr());
+
+	// then resample into the template image coordinates
+	if(mr_template_available_)
+		resampler.set_reference_image(sptr_mr_template_img_);
+	
+    resampler.process();
 
 	const std::shared_ptr<const sirf::ImageData>  sptr_deformed_img = resampler.get_output_sptr();
 	
