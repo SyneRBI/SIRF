@@ -12,6 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
+#include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/STIR/stir_x.h"
@@ -79,8 +80,12 @@ public:
 	};
 
 	virtual void acquire_raw_data( void );
-	
 	virtual void save_ground_truth_displacements() const;
+
+	virtual void set_offset_transformation(const sirf::AffineTransformation<float>& trafo)
+	{
+		dsd_.set_offset_transformation(trafo);
+	}
 
 private:
 

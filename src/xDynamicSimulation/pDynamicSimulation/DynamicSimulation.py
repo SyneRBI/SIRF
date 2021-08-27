@@ -104,6 +104,10 @@ class MRDynamicSimulation(object):
     def set_snr_label(self, SNR_label):
         pysim.cDS_setNoiseLabel(self.handle, SNR_label)
 
+    def set_offset_trafo(self, trafo):
+        assert_validity(trafo, pReg.AffineTransformation)
+        pysim.cDS_setOffsetTransformation(self.handle, trafo.handle)
+
     def write_simulation_results(self, fpath_output):
         pysim.cDS_writeSimulationResults(self.handle, fpath_output); 
 

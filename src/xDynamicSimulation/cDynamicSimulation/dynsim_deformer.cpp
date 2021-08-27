@@ -45,7 +45,12 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 	}
 	
 	// finally shift by half a field of view into z-direction
-	resampler.add_transformation( this->compute_shift_to_center(img_data) );
+	// resampler.add_transformation( this->compute_shift_to_center(img_data) );
+
+	std::cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
+	offset_.print();
+	std::cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
+	resampler.add_transformation(std::make_shared<sirf::AffineTransformation<float> >(offset_));
 	resampler.process();
 
 	// now clear the transformations, and put the deformed image as new floating

@@ -48,6 +48,8 @@ void* cDS_setCoilmaps(void* ptr_sim, const void* ptr_csm);
 void* cDS_setSNR(void* ptr_sim, float const SNR);
 void* cDS_setNoiseLabel(void* ptr_sim, int const label);
 
+void* cDS_setOffsetTransformation(void* ptr_sim, const void* ptr_trafo);
+
 void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn); 
 
 // Dynamics

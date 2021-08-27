@@ -25,8 +25,9 @@ limitations under the License.
 
 
 #include "sirf/iUtilities/DataHandle.h"
-#include "sirf/Gadgetron/gadgetron_data_containers.h"
 
+#include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
 #include "sirf/cDynamicSimulation/dynamics.h"
@@ -200,6 +201,26 @@ void* cDS_setNoiseLabel(void* ptr_sim, int const label)
 
 	CATCH;
 }
+
+extern "C"
+void* cDS_setOffsetTransformation(void* ptr_sim, const void* ptr_trafo)
+{
+	try{
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		CAST_PTR(DataHandle, h_trafo, ptr_trafo);			
+
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		AffineTransformation<float>& aff = objectFromHandle<AffineTransformation<float> >(h_trafo);
+
+		sim.set_offset_transformation(aff);
+
+
+		return new DataHandle;
+	}
+
+	CATCH;
+}
+
 
 extern "C"
 void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn)
