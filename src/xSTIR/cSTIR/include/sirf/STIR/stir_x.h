@@ -782,8 +782,9 @@ The actual algorithm is described in
 		}
 		stir::shared_ptr<stir::ProjMatrixByBin> matrix_sptr()
 		{
-			return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
-				get_proj_matrix_sptr();
+			return sptr_matrix_;
+			//return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
+			//	get_proj_matrix_sptr();
 		}
 		virtual	void set_up(
 			std::shared_ptr<PETAcquisitionData> sptr_acq,
@@ -811,7 +812,10 @@ The actual algorithm is described in
 		void set_num_tangential_LORs(int num_LORs)
 		{
 			RayTracingMatrix& matrix = (RayTracingMatrix&)*matrix_sptr();
+			//auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+			//std::cout << matrix.get_num_tangential_LORs() << '\n';
 			matrix.set_num_tangential_LORs(num_LORs);
+			//std::cout << get_num_tangential_LORs() << '\n';
 		}
 		int get_num_tangential_LORs()
 		{

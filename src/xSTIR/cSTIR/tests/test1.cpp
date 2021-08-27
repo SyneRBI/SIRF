@@ -147,8 +147,8 @@ int test1()
 		am.set_background_term(sptr_b);
 		am.set_up(sptr_ad, sptr_id);
 
-		int num_LORS = am.get_num_tangential_LORs();
-		std::cout << "tangential LORs: " << num_LORS << '\n';
+		int num_LORs = am.get_num_tangential_LORs();
+		std::cout << "tangential LORs: " << num_LORs << '\n';
 
 		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, processor, sptr_processor,);
 //		processor.set_fwhms(stir::make_coords(3.F, 4.F, 3.F));
