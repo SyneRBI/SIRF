@@ -101,7 +101,7 @@ def main():
 	mrsim.set_acquisition_template_data(acquisition_ad)
 
 
-	offset_z_mm = -64
+	offset_z_mm = -128
 	translation = np.array([0, 0, offset_z_mm])
 	euler_angles_deg = np.array([15,15,0])
 
