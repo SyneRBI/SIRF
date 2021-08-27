@@ -103,9 +103,10 @@ def main():
 
 	offset_z_mm = -64
 	translation = np.array([0, 0, offset_z_mm])
-	euler_angles = np.array([0,0,0])
+	euler_angles_deg = np.array([15,15,0])
 
-	offset_trafo = pReg.AffineTransformation(translation, euler_angles)
+	offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
+	print("--- We have a trafo of: {}".format(offset_trafo.as_array()))
 	mrsim.set_offset_trafo(offset_trafo)
 
 	# mrsim.set_acquisition_template_data(contrast_ad)
