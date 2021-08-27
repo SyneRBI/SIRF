@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "mrtest_auxiliary_funs.h"
+#include "sirf/Gadgetron/mrtest_auxiliary_funs.h"
 
 
 #include <vector>
@@ -111,7 +111,7 @@ void sirf::write_imagevector_to_raw(const std::string& fname_prefix, const sirf:
     for(int i=0; i<iv.items(); ++i)
     {
         std::stringstream fname_output_img;
-        fname_output_img << "output_" << fname_prefix << "_image_" << i;
+        fname_output_img << fname_prefix << "_image_" << i;
         write_cfimage_to_raw(fname_output_img.str(), iv.image_wrap(i));
     }
 }

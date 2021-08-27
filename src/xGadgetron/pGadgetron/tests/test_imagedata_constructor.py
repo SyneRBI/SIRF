@@ -30,11 +30,8 @@ def test_main(rec=False, verb=False, throw=True):
     rawdata = preprocess_acquisition_data(rawdata)
     rawdata.sort()
     
-    
-
     imgdata = ImageData()
     imgdata.from_acquisition_data(rawdata)
-    
         
     acq_model = AcquisitionModel()
     acq_model.set_up(rawdata, imgdata)

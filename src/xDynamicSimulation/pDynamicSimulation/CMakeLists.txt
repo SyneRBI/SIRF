@@ -1,0 +1,44 @@
+#========================================================================
+# Author: Kris Thielemans
+# Copyright 2016 - 2019 University College London
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0.txt
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+#=========================================================================
+
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
+  # policy introduced in CMake 3.13
+  cmake_policy(SET CMP0078 OLD)
+endif()
+FIND_PACKAGE(SWIG REQUIRED)
+INCLUDE("${SWIG_USE_FILE}")
+
+set(cDynamicSimulation_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cDynamicSimulation/include")
+
+SET_SOURCE_FILES_PROPERTIES(pysimulation.i PROPERTIES CPLUSPLUS ON)  
+SET_SOURCE_FILES_PROPERTIES(pysimulation.i PROPERTIES SWIG_FLAGS "-I${cDynamicSimulation_INCLUDE_DIR}")
+# find libraries and include files
+# TODO would be better to use target_include_directories
+
+# Tell CMake it needs to re-run SWIG when .h file changes
+set(SWIG_MODULE_pysimulation_EXTRA_DEPS "${cDynamicSimulation_INCLUDE_DIR}/sirf/cDynamicSimulation/cdynamicsimulation.h")
+SWIG_ADD_LIBRARY(pysimulation LANGUAGE python TYPE MODULE SOURCES pysimulation.i)
+TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pysimulation_REAL_NAME} PUBLIC ${Python_INCLUDE_DIRS})
+SWIG_LINK_LIBRARIES(pysimulation cdynamicsimulation iutilities "${Python_LIBRARIES}")
+
+INSTALL(TARGETS ${SWIG_MODULE_pysimulation_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysimulation.py" DynamicSimulation.py DESTINATION "${PYTHON_DEST}/sirf")
+
+add_subdirectory(tests)
+

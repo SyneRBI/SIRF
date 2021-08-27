@@ -22,6 +22,7 @@ if(BUILD_PYTHON)
   python_pkg_alias(pyiutilities "sirf.pyiutilities")
   python_pkg_alias(pReg "sirf.Reg")
   python_pkg_alias(pyreg "sirf.pyreg")
+  python_pkg_alias(pysimulation "sirf.pysimulation")
   # convert to python CSV tuple for setup.py configure_file
   string(REPLACE ";" "', '" PYTHON_SETUP_PKGS_CSV "${PYTHON_SETUP_PKGS}")
   set(PYTHON_SETUP_PKGS_CSV "'${PYTHON_SETUP_PKGS_CSV}'")
@@ -42,8 +43,13 @@ if(BUILD_PYTHON)
   if(PYTHONINTERP_FOUND)
     # python setup.py install
     if("${PYTHON_STRATEGY}" STREQUAL "SETUP_PY")
+      message("intalling setup.py")
       install(CODE "execute_process(COMMAND\n\
+<<<<<<< HEAD
+        \"${PYTHON_EXECUTABLE}\" setup.py install --prefix ${PYTHON_DEST}\n\
+=======
         \"${Python_EXECUTABLE}\" setup.py build install\n\
+>>>>>>> rpe-encoding
         WORKING_DIRECTORY \"${PYTHON_DEST}\")")
     endif()
   endif(PYTHONINTERP_FOUND)
