@@ -1331,7 +1331,7 @@ class AffineTransformation(_Transformation):
                 isinstance(src2, numpy.ndarray):
             self.handle = pyreg.\
                 cReg_AffineTransformation_construct_from_trans_and_euler(
-                    src1.ctypes.data, src1.ctypes.data)
+                    src1.ctypes.data, src2.ctypes.data)
         else:
             raise error("""AffineTransformation accepts no args, filename,
                         4x4 array or translation with quaternion.""")
