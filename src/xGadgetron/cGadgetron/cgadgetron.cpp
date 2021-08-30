@@ -864,14 +864,22 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 
         float* fltptr_traj = (float*) ptr_traj;
 		
-		SIRFTrajectoryType2D traj;
+		
 		
 		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-			traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+		{
+			auto traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(TrajPrep2D::TrajPointType));
+		}
     	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
-			traj = sirf::GRPETrajectoryPrep::get_trajectory(acqs);
+		{
+			sirf::GRPETrajectoryPrep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GRPETrajectoryPrep::TrajPointType));
+		}
+			
         
-        memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(std::pair<float, float>));
+        
 
         return new DataHandle;
     }

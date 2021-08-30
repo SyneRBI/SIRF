@@ -49,26 +49,86 @@ namespace sirf{
 * reconstruction. The ISMRMRD format has a 3D trajectory data field in their ISRMRMRD::Acquisition classe.
 * The interface provides set_trajectory() which populates this data field depending on the implementation.
 */
+template <uint16_t D>
 class TrajectoryPreparation{
 
 public:
+    typedef typename std::array<float, D> TrajPointType;
+    typedef typename std::vector<TrajPointType> TrajPointSet;
+
     TrajectoryPreparation(){}
-    virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq) =0;
     
+    virtual void set_trajectory(MRAcquisitionData& mr_acq)
+    {
+        update_acquisitions_info(mr_acq);
+
+        for(size_t ia=0; ia<mr_acq.number(); ++ia)
+        {
+            ISMRMRD::Acquisition acq;
+            mr_acq.get_acquisition(ia, acq);
+            this->set_acquisition_trajectory(acq);
+            mr_acq.set_acquisition(ia, acq);
+        }
+    }        
+    virtual TrajPointSet get_trajectory(const MRAcquisitionData& mr_acq)
+    {
+        if(mr_acq.number() <= 0){
+            throw std::runtime_error("Please pass a non-empty container.");
+        }
+
+        ISMRMRD::Acquisition acq;
+        mr_acq.get_acquisition(0, acq);
+
+        if( acq.trajectory_dimensions() != D){
+            throw std::runtime_error("Please give Acquisition with a the correct dimensionality if you want to use it here.");
+        }
+
+        TrajPointSet traj;
+
+        for(int ia=0; ia<mr_acq.number(); ++ia)
+        {
+            mr_acq.get_acquisition(ia, acq);
+            append_to_trajectory(traj, acq);
+        }
+
+        return traj;
+    }
+
+
 protected:
-
-    void update_acquisitions_info(sirf::MRAcquisitionData& mr_acq);
-
     ISMRMRD::Encoding kspace_encoding_;
     ISMRMRD::TrajectoryType traj_type_;
 
-    uint16_t traj_dim_;
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const =0;
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const =0;
+    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const
+    {
+        acq.resize(acq.number_of_samples(),acq.active_channels(), D);
+        TrajPointSet acq_traj = this->calculate_trajectory(acq);
+        acq.setTraj(&(acq_traj[0][0]));
+    }
+    virtual void update_acquisitions_info(sirf::MRAcquisitionData& mr_acq)
+    {
+        ISMRMRD::IsmrmrdHeader hdr = mr_acq.acquisitions_info().get_IsmrmrdHeader();
+
+        if(hdr.encoding.size() != 1)
+            throw LocalisedException("Currrently only files with one encoding are supported", __FILE__, __LINE__);
+
+        hdr.encoding[0].trajectory = traj_type_;
+        kspace_encoding_ = hdr.encoding[0];
+
+        std::stringstream hdr_stream;
+        serialize(hdr, hdr_stream);
+
+        AcquisitionsInfo ai(hdr_stream.str());
+        mr_acq.set_acquisitions_info(ai);
+    }
+
+    virtual TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const =0;
+    virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)=0;
 };
 
+typedef TrajectoryPreparation<2> TrajPrep2D;
+typedef TrajectoryPreparation<3> TrajPrep3D;
 
-typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
 
 /*!
 \ingroup Gadgetron Extensions
@@ -80,7 +140,7 @@ typedef std::vector< std::pair<float, float> > SIRFTrajectoryType2D;
 
 class CartesianTrajectoryPrep{ 
 public:
-    static SIRFTrajectoryType2D get_trajectory(const sirf::MRAcquisitionData& ac);
+    static TrajPrep2D::TrajPointSet get_trajectory(const sirf::MRAcquisitionData& ac);
 };
 
 /*!
@@ -94,22 +154,21 @@ public:
 * of the trajectory is set to 0 for all data points.
 */
 
-class GRPETrajectoryPrep : public TrajectoryPreparation {
+typedef TrajectoryPreparation<3> TrajPrep3D;
+
+class GRPETrajectoryPrep : public TrajPrep3D {
 
 public:
-    GRPETrajectoryPrep(): TrajectoryPreparation() {
+    GRPETrajectoryPrep() : TrajPrep3D() {
         traj_type_ = ISMRMRD::TrajectoryType::OTHER;
-        traj_dim_ = 3;
     }
 
-    virtual void set_trajectory(sirf::MRAcquisitionData& mr_acq);
-    static SIRFTrajectoryType2D get_trajectory(const sirf::MRAcquisitionData& mr_acq);
-
 protected:
-    virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const;
-    virtual std::vector<float> calculate_trajectory(ISMRMRD::Acquisition& acq) const;
-    uint16_t circ_mod(uint16_t const a, uint16_t const b) const { return (((a%b) + b ) % b);}
+    TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
+    void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq);
 
+private:    
+    uint16_t circ_mod(uint16_t const a, uint16_t const b) const { return (((a%b) + b ) % b);}
     const std::vector< uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
 
 
