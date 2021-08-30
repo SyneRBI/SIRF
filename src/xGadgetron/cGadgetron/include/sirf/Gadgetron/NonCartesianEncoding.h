@@ -75,8 +75,71 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace sirf{
 
+typedef Gadgetron::hoNDArray<std::complex<float> > CFGThoNDArr;
 
-typedef Gadgetron::hoNDArray<Gadgetron::floatd2> GadgetronTrajectoryType2D;
+/*!
+\ingroup Gadgetron Extensions
+\brief Class to perform a NUFFT for 2D data
+*
+*
+*/
+
+template <unsigned int D>
+class Gridder
+{
+public:
+    typedef Gadgetron::hoNDArray<Gadgetron::vector_td<float,D> > TrajectoryArrayType;
+
+    Gridder(const std::vector<size_t> img_output_dims, const TrajectoryArrayType &traj) : 
+    nufft_operator_(Gadgetron::from_std_vector<size_t, D>(img_output_dims), (float)this->oversampling_factor_, (float)this->kernel_size_)
+    {
+        setup_nufft(img_output_dims, traj);
+    }
+
+    void setup_nufft(const std::vector<size_t> img_output_dims, const TrajectoryArrayType &traj)
+    {
+        if( img_output_dims.size() != D)
+            throw LocalisedException("The image dimensions of the output should be of the dimensions of the Gridder." , __FILE__, __LINE__);
+
+        traj.get_dimensions(this->trajdims_);
+        this->output_dims_ = img_output_dims;
+        this->nufft_operator_.preprocess(traj);
+    }
+
+    void ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
+    {
+        auto sptr_const_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
+        float const normed_dcw_value = 1.0;
+
+        sptr_const_dcw ->fill(normed_dcw_value);
+
+        img.create(this->output_dims_);
+        img.fill(std::complex<float>(0.f, 0.f));
+
+        this->nufft_operator_.compute(kdata, img, sptr_const_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
+    }
+
+    void fft(CFGThoNDArr& kdata, const CFGThoNDArr& img)
+    {
+        auto sptr_unit_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
+        sptr_unit_dcw ->fill(1.f);
+        kdata.create(this->trajdims_);
+
+        this->nufft_operator_.compute(img, kdata, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::FORWARDS_C2NC);
+    }
+
+protected:
+    static const size_t oversampling_factor_ = 2;
+    static size_t const kernel_size_ = 2;
+
+    std::vector<size_t> trajdims_;
+    std::vector<size_t> output_dims_;
+
+    Gadgetron::hoNFFT_plan<float, D> nufft_operator_;
+};
+
+typedef Gridder<2> Gridder2D;
+
 
 /*!
 \ingroup Gadgetron Extensions
@@ -97,44 +160,16 @@ public:
     virtual void forward(MRAcquisitionData& ac, const CFImage& img) const;
     virtual void backward(CFImage& img, const MRAcquisitionData& ac) const;
 protected:
-    GadgetronTrajectoryType2D get_trajectory(const MRAcquisitionData& ac) const;
+    Gridder2D::TrajectoryArrayType get_trajectory(const MRAcquisitionData& ac) const;
 
 };
 
-typedef Gadgetron::hoNDArray<std::complex<float> > CFGThoNDArr;
-
-/*!
-\ingroup Gadgetron Extensions
-\brief Class to perform a NUFFT for 2D data
-*
-*
-*/
-
-class Gridder_2D
-{
-public:
-
-    Gridder_2D(const std::vector<size_t> img_output_dims, const GadgetronTrajectoryType2D &traj) : 
-    nufft_operator_(Gadgetron::from_std_vector<size_t, 2>(img_output_dims), (float)this->oversampling_factor_, (float)this->kernel_size_)
-    {
-        setup_nufft(img_output_dims, traj);
-    }
-
-    void setup_nufft(const std::vector<size_t> img_output_dims, const GadgetronTrajectoryType2D &traj);
 
 
-    void fft(CFGThoNDArr& kdata, const CFGThoNDArr& img);
-    void ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata);
 
-protected:
-    static const size_t oversampling_factor_ = 2;
-    static size_t const kernel_size_ = 2;
 
-    std::vector<size_t> trajdims_;
-    std::vector<size_t> output_dims_;
 
-    Gadgetron::hoNFFT_plan<float, 2> nufft_operator_;
-};
 
 } // namespace sirf
 #endif // NONCARTESIAN_ENCODING_H
+

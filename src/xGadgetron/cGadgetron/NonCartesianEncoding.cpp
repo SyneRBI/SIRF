@@ -67,11 +67,11 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 using namespace sirf;
 using namespace ISMRMRD;
 
-GadgetronTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
+Gridder2D::TrajectoryArrayType RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
     SIRFTrajectoryType2D sirftraj = GRPETrajectoryPrep::get_trajectory(ac);
 
-    GadgetronTrajectoryType2D traj(sirftraj.size());
+    Gridder2D::TrajectoryArrayType traj(sirftraj.size());
     traj.fill(Gadgetron::floatd2(0.f, 0.f));
 
     for(int ik=0; ik<traj.get_number_of_elements(); ++ik)
@@ -112,9 +112,9 @@ void RPEFourierEncoding::backward(CFImage& img, const MRAcquisitionData& ac) con
     EncodingSpace rec_space = e.reconSpace;
     std::vector < size_t > img_slice_dims{rec_space.matrixSize.y, rec_space.matrixSize.z};
 
-    GadgetronTrajectoryType2D traj = this->get_trajectory(ac);
+    Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
 
-    Gridder_2D nufft(img_slice_dims, traj);
+    Gridder2D nufft(img_slice_dims, traj);
 
     img.resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
 
@@ -164,11 +164,11 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) cons
     CFGThoNDArr img_data(img_dims);
     std::memcpy(img_data.begin(), img.getDataPtr(), img.getDataSize());
 
-    GadgetronTrajectoryType2D traj = this->get_trajectory(ac);
+    Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
     size_t const num_kdata_pts = traj.get_number_of_elements();
 
     std::vector < size_t > img_slice_dims{img_dims[1], img_dims[2]};
-    Gridder_2D nufft(img_slice_dims, traj);
+    Gridder2D nufft(img_slice_dims, traj);
 
     std::vector< size_t> output_dims{img_dims[0], num_kdata_pts, img_dims[3]};
     CFGThoNDArr kdata(output_dims);
@@ -211,45 +211,5 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) cons
 
         ac.set_acquisition(ia, acq);
     }
-}
-
-
-void Gridder_2D::setup_nufft(const std::vector<size_t> img_output_dims, const GadgetronTrajectoryType2D &traj)
-{
-    if( img_output_dims.size() != 2)
-        throw LocalisedException("The image dimensions of the output should be of size 2." , __FILE__, __LINE__);
-
-    traj.get_dimensions(this->trajdims_);
-
-    this->output_dims_ = img_output_dims;
-
-    this->nufft_operator_.preprocess(traj);
-}
-
-
-
-void Gridder_2D::ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
-{
-    auto sptr_const_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
-    float const normed_dcw_value = 1.0;
-
-    sptr_const_dcw ->fill(normed_dcw_value);
-
-    img.create(this->output_dims_);
-    img.fill(std::complex<float>(0.f, 0.f));
-
-    this->nufft_operator_.compute(kdata, img, sptr_const_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
-
-}
-
-void Gridder_2D::fft(CFGThoNDArr& kdata, const CFGThoNDArr& img)
-{
-    auto sptr_unit_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
-    sptr_unit_dcw ->fill(1.f);
-
-    kdata.create(this->trajdims_);
-
-    this->nufft_operator_.compute(img, kdata, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::FORWARDS_C2NC);
-
 }
 
