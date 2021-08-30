@@ -1658,6 +1658,8 @@ def compute_kspace_density(ad):
         return calc_cartesian_dcw(ad)
     elif ad.check_traj_type('other'):
         return calc_rpe_dcw(ad)
+    elif ad.check_traj_type('radial'):
+        return calc_radial_dcw(ad)
     	
     else:
         raise AssertionError("Please only try to recon trajectory types cartesian or other")
@@ -1711,5 +1713,24 @@ def calc_rpe_dcw(ad):
     
     dcw = ad.copy()
     dcw.fill(density_weight)
+    
+    return dcw
+
+
+
+def calc_radial_dcw(ad):
+    '''
+    Function that computes the kspace weight depending on the distance to the center
+    as in a filtered back-projection. Stricly valid only for equally angular-spaced
+    radially distributed points
+    ad: AcquisitionData
+    '''
+
+    traj = numpy.transpose(get_data_trajectory(ad))
+    (na, nc, ns) = ad.dimensions() # 
+    traj = numpy.reshape(traj, (ns, na, 2))
+  
+    dcw = ad.copy()
+    dcw.fill(1)
     
     return dcw
