@@ -164,10 +164,16 @@ protected:
 
 };
 
+class NonCartesian2DEncoding : public FourierEncoding
+{
+public:
+    NonCartesian2DEncoding(): FourierEncoding() {}
 
-
-
-
+    virtual void forward(MRAcquisitionData& ac, const CFImage& img) const;
+    virtual void backward(CFImage& img, const MRAcquisitionData& ac) const;
+protected:
+    Gridder2D::TrajectoryArrayType get_trajectory(const MRAcquisitionData& ac) const;
+};    
 
 
 } // namespace sirf
