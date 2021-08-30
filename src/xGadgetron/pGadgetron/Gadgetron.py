@@ -1612,6 +1612,17 @@ def set_grpe_trajectory(ad):
     try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
     return ad
     
+def set_radial2D_trajectory(ad):
+    '''
+    Function that fills the trajectory of AcquisitionData with linear increment 2D radial
+    readout trajectory.
+    ad: AcquisitionData
+    '''
+    assert_validity(ad, AcquisitionData)
+
+    try_calling(pygadgetron.cGT_setRadial2DTrajectory(ad.handle))
+    return ad
+
 def get_data_trajectory(ad):
     '''
     Function that gets the trajectory of AcquisitionData depending on the rawdata trajectory.
@@ -1620,17 +1631,21 @@ def get_data_trajectory(ad):
     assert_validity(ad, AcquisitionData)
     
     if ad.check_traj_type('cartesian'):
+        num_traj_pts = ad.number()
         traj_dim = 2
     elif ad.check_traj_type('other'):
+        num_traj_pts = ad.number()
         traj_dim = 3
-
-    dims = (ad.number(), traj_dim)
+    elif ad.check_traj_type('radial'):
+        num_traj_pts = ad.number() * ad.dimensions()[2]
+        traj_dim = 2
+        
+    dims = (num_traj_pts, traj_dim)
     traj = numpy.ndarray(dims, dtype = numpy.float32)
     
     try_calling(pygadgetron.cGT_getDataTrajectory(ad.handle, traj.ctypes.data))
     
     return traj
-
 
 def compute_kspace_density(ad):
     '''
@@ -1643,6 +1658,7 @@ def compute_kspace_density(ad):
         return calc_cartesian_dcw(ad)
     elif ad.check_traj_type('other'):
         return calc_rpe_dcw(ad)
+    	
     else:
         raise AssertionError("Please only try to recon trajectory types cartesian or other")
     

@@ -127,22 +127,28 @@ Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acqu
     
     if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.is_present())
         rad_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.get();
-
+    else
+    {
+        rad_lims.minimum = 0;
+        rad_lims.center = acq.number_of_samples()/2;
+        rad_lims.maximum = acq.number_of_samples()-1;
+    }
     if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
         ang_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.get();
-    
+
     const ISMRMRD::EncodingCounters idx = acq.idx();
 
     unsigned short num_angles = ang_lims.maximum;
     float const pe_angle = SIRF_PI/(float)num_angles * idx.kspace_encode_step_1;
 
     float const traj_norm = 2*std::max<float>( rad_lims.center-rad_lims.minimum, rad_lims.maximum-rad_lims.center);
+    std::cout << "--- Traj norm :  " << traj_norm << std::endl;
 
     TrajPointSet traj;
 
-    for(size_t i_sample=0; i_sample<acq.number_of_samples();++i_sample)
+    for(int i_sample=0; i_sample<acq.number_of_samples();++i_sample)
     {
-        float pe_radius = float(i_sample - rad_lims.center);
+        float pe_radius = (float)i_sample - (float)rad_lims.center;
         pe_radius /= traj_norm;
 
         TrajPointType pt{pe_radius * cos(pe_angle),
