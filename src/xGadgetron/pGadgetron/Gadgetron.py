@@ -606,8 +606,8 @@ class CoilSensitivityData(ImageData):
         assert data.handle is not None
 
         dcw = compute_kspace_density(data)
-        data = data * dcw
 
+        data = data * dcw
         if method_name == 'Inati':
             try:
                 from ismrmrdtools import coils
@@ -1618,8 +1618,13 @@ def get_data_trajectory(ad):
     ad: AcquisitionData
     '''    
     assert_validity(ad, AcquisitionData)
+    
+    if ad.check_traj_type('cartesian'):
+        traj_dim = 2
+    elif ad.check_traj_type('other'):
+        traj_dim = 3
 
-    dims = (ad.number(), 2)
+    dims = (ad.number(), traj_dim)
     traj = numpy.ndarray(dims, dtype = numpy.float32)
     
     try_calling(pygadgetron.cGT_getDataTrajectory(ad.handle, traj.ctypes.data))
@@ -1671,6 +1676,8 @@ def calc_rpe_dcw(ad):
     '''
 
     traj = numpy.transpose(get_data_trajectory(ad))
+    print(traj.shape)
+    traj = traj[1:3,:]
     ramp_filter = numpy.linalg.norm(traj, axis=0)
 
     traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)

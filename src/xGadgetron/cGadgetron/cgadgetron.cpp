@@ -864,8 +864,6 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 
         float* fltptr_traj = (float*) ptr_traj;
 		
-		
-		
 		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
 		{
 			auto traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
