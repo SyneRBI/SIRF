@@ -73,7 +73,6 @@ void sirf::GRPETrajectoryPrep::append_to_trajectory(TrajPointSet& tps, ISMRMRD::
     tps.push_back(curr_point);
 }
 
-
 GRPETrajectoryPrep::TrajPointSet sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& acq) const
 {
     ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);
@@ -108,4 +107,49 @@ GRPETrajectoryPrep::TrajPointSet sirf::GRPETrajectoryPrep::calculate_trajectory(
     }
 
     return traj;
+}
+
+void sirf::NonCartesian2DTrajPrep::append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)
+{
+    if(acq.trajectory_dimensions() != 2)
+        throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
+
+    for(int ns=0; ns<acq.number_of_samples(); ++ns)
+    {
+        TrajPrep2D::TrajPointType curr_point{acq.traj(0,ns), acq.traj(1,ns)};
+        tps.push_back(curr_point);
+    }
+}
+
+Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acquisition& acq) const
+{
+    ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);
+    
+    if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.is_present())
+        rad_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.get();
+
+    if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
+        ang_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.get();
+    
+    const ISMRMRD::EncodingCounters idx = acq.idx();
+
+    unsigned short num_angles = ang_lims.maximum;
+    float const pe_angle = SIRF_PI/(float)num_angles * idx.kspace_encode_step_1;
+
+    float const traj_norm = 2*std::max<float>( rad_lims.center-rad_lims.minimum, rad_lims.maximum-rad_lims.center);
+
+    TrajPointSet traj;
+
+    for(size_t i_sample=0; i_sample<acq.number_of_samples();++i_sample)
+    {
+        float pe_radius = float(i_sample - rad_lims.center);
+        pe_radius /= traj_norm;
+
+        TrajPointType pt{pe_radius * cos(pe_angle),
+                         pe_radius * sin(pe_angle)};
+        
+        traj.push_back(pt);
+    }
+
+    return traj;    
 }

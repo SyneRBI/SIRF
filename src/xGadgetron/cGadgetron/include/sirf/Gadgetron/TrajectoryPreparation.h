@@ -154,12 +154,10 @@ public:
 * of the trajectory is set to 0 for all data points.
 */
 
-typedef TrajectoryPreparation<3> TrajPrep3D;
-
 class GRPETrajectoryPrep : public TrajPrep3D {
 
 public:
-    GRPETrajectoryPrep() : TrajPrep3D() {
+    GRPETrajectoryPrep(){
         traj_type_ = ISMRMRD::TrajectoryType::OTHER;
     }
 
@@ -170,8 +168,32 @@ protected:
 private:    
     uint16_t circ_mod(uint16_t const a, uint16_t const b) const { return (((a%b) + b ) % b);}
     const std::vector< uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
-
-
 };
+
+
+/*!
+\ingroup Gadgetron Extensions
+\brief Class to set the 2D radial trajectory
+... 
+*/
+
+class NonCartesian2DTrajPrep : public TrajPrep2D {
+
+protected:
+    virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq);
+};
+
+class Radial2DTrajprep : public NonCartesian2DTrajPrep {
+
+public:
+    Radial2DTrajprep() {
+        traj_type_ = ISMRMRD::TrajectoryType::RADIAL;
+    }
+
+protected:
+    TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
+};
+
+
 }
 #endif// TRAJECTORYPREPARATION_H
