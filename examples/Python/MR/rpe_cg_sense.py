@@ -144,14 +144,14 @@ def main():
     print('---\n acquisition data norm: %e' % acq_data.norm())
 
 
-    # pre-process acquisition data
-    if trajtype is not 'radial' or 'goldenangle':
+    # pre-process acquisition data only for cartesian readouts
+    if trajtype != 'radial' and trajtype != 'goldenangle':
         print('---\n pre-processing acquisition data...')
         processed_data  = preprocess_acquisition_data(acq_data)
     else:
         processed_data = acq_data
 
-    #set the trajectory and compute the dcf
+    #set the trajectory 
     print('---\n setting the trajectory...')
     if trajtype == 'cartesian':
         pass
@@ -163,21 +163,12 @@ def main():
         raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
                         .format(trajtype))
 
-    # pre-process acquisition data
-    print('---\n pre-processing acquisition data...')
-    # processed_data  = preprocess_acquisition_data(acq_data)
-    processed_data = acq_data
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
     processed_data.sort()
     
-    #set the trajectory and compute the dcf
-    print('---\n setting the trajectory...')
-    # processed_data = set_grpe_trajectory(processed_data)
-    processed_data = set_radial2D_trajectory(processed_data)
-
     if run_recon:
-        recon = SENSE(processed_data, num_iter = 10, stop_criterion = 1e-7)
+        recon = SENSE(processed_data, num_iter = 5, stop_criterion = 1e-7)
         
         if show_plot:
             recon.show(title = 'Reconstructed images using backward() (magnitude)')
