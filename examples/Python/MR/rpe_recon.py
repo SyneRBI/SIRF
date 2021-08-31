@@ -16,8 +16,10 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled
+  -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
                               [default: False]
+  --traj=<str>                trajectory type, must match the data supplied in file
+                              [default: grpe]
   --non-interactive           do not show plots
 '''
 
@@ -42,6 +44,7 @@ Options:
 
 __version__ = '0.1.0'
 from docopt import docopt
+ 
 args = docopt(__doc__, version=__version__)
 
 # import engine module
@@ -54,8 +57,8 @@ if data_path is None:
     data_path = examples_data_path('MR') + '/zenodo/'
 output_file = args['--output']
 show_plot = not args['--non-interactive']
-
-run_recon = str(args['--non-cart']) == 'True'
+trajtype = args['--traj']
+run_recon = str(args['--recon']) == 'True'
 
 def main():
 
@@ -64,16 +67,27 @@ def main():
     acq_data = AcquisitionData(input_file)
     
     # pre-process acquisition data
-    print('---\n pre-processing acquisition data...')
-    processed_data  = preprocess_acquisition_data(acq_data)
+    if trajtype is not 'radial' or 'goldenangle':
+        print('---\n pre-processing acquisition data...')
+        processed_data  = preprocess_acquisition_data(acq_data)
+    else:
+        processed_data = acq_data
+
+    #set the trajectory and compute the dcf
+    print('---\n setting the trajectory...')
+    if trajtype == 'cartesian':
+        pass
+    elif trajtype == 'grpe':
+        processed_data = set_grpe_trajectory(processed_data)
+    elif trajtype == 'radial':
+        processed_data = set_radial2D_trajectory(processed_data)
+    else:
+        raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
+                        .format(trajtype))
 
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
     processed_data.sort()
-    
-    #set the trajectory and compute the dcf
-    print('---\n setting the trajectory...')
-    processed_data = set_grpe_trajectory(processed_data)
 
     if run_recon is True:
     

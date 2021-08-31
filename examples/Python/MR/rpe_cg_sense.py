@@ -17,6 +17,10 @@ Options:
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled
                               [default: False]
+  -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
+                              [default: False]
+  --traj=<str>                trajectory type, must match the data supplied in file
+                              [default: grpe]
   --non-interactive           do not show plots
 '''
 
@@ -54,104 +58,130 @@ if data_path is None:
     data_path = examples_data_path('MR') + '/zenodo/'
 output_file = args['--output']
 show_plot = not args['--non-interactive']
-
-run_recon = str(args['--non-cart']) == 'True'
+trajtype = args['--traj']
+run_recon = str(args['--recon']) == 'True'
 
 import numpy
 
 # define symmetrical operator for cg-optimisation
-def EhE(E, image ):
+def EhE(E, image):
     return E.backward( E.forward(image) )
 
-def main():
+def SENSE(rawdata, num_iter = 10, stop_criterion = 1e-7):
 
+    print('---\n computing coil sensitivity maps...')
+    csms = CoilSensitivityData()
+    csms.smoothness = 10
+    csms.calculate(rawdata)
+    
+    # create acquisition model based on the acquisition parameters
+    print('---\n Setting up Acquisition Model...')
+
+    #set up the acquisition model
+    E = AcquisitionModel()
+    E.set_up(rawdata, csms.copy())
+    E.set_coil_sensitivity_maps(csms)
+
+    print('---\n Backward projection ...')
+    # this is our first residual
+    recon_img = E.backward(rawdata)
+    recon_img.fill(0+0j) # for some reason you need to start with this set to zero
+
+    # now copy the pseudo-code from wikipedia for cg optimisation
+    x = recon_img
+    y = rawdata
+
+    # this is our first residual
+    r = E.backward( y ) - EhE(E,x)
+
+    # this is our cost function at the start
+    rr = r.norm() ** 2
+    rr0 = rr
+
+    # initialize p
+    p = r
+    
+    # define optimisation parameters
+    print('Cost for k = 0: '  + str( rr/ rr0) )
+    
+    for k in range(num_iter):
+
+        Ap = EhE(E, p )
+
+        alpha = rr / Ap.dot(p)
+
+        x = x + alpha * p
+
+        r = r - alpha * Ap
+
+        beta  = r.norm()**2 / rr
+        rr = r.norm()**2
+
+        p = r + beta * p
+
+        relative_residual = numpy.sqrt(rr/rr0)
+
+        print('Cost at step  {} = {}'.format(k+1, relative_residual))
+        
+        if( relative_residual  < stop_criterion ):
+            print('We achieved our desired accuracy. Stopping iterative reconstruction')
+            break
+
+        if k is num_iter-1:
+            print('Reached maximum number of iterations. Stopping reconstruction.')
+
+    return x
+
+def main():
+    
     # locate the k-space raw data file
     input_file = existing_filepath(data_path, data_file)
-    
+
     # acquisition data will be read from an HDF file input_file
     # AcquisitionData.set_storage_scheme('memory')
     acq_data = AcquisitionData(input_file)
     
     print('---\n acquisition data norm: %e' % acq_data.norm())
 
+
+    # pre-process acquisition data
+    if trajtype is not 'radial' or 'goldenangle':
+        print('---\n pre-processing acquisition data...')
+        processed_data  = preprocess_acquisition_data(acq_data)
+    else:
+        processed_data = acq_data
+
+    #set the trajectory and compute the dcf
+    print('---\n setting the trajectory...')
+    if trajtype == 'cartesian':
+        pass
+    elif trajtype == 'grpe':
+        processed_data = set_grpe_trajectory(processed_data)
+    elif trajtype == 'radial':
+        processed_data = set_radial2D_trajectory(processed_data)
+    else:
+        raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
+                        .format(trajtype))
+
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
-    processed_data  = preprocess_acquisition_data(acq_data)
-
+    # processed_data  = preprocess_acquisition_data(acq_data)
+    processed_data = acq_data
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
     processed_data.sort()
     
     #set the trajectory and compute the dcf
     print('---\n setting the trajectory...')
-    processed_data = set_grpe_trajectory(processed_data)
+    # processed_data = set_grpe_trajectory(processed_data)
+    processed_data = set_radial2D_trajectory(processed_data)
 
-    if run_recon is True:
-    
-        print('---\n computing coil sensitivity maps...')
-        csms = CoilSensitivityData()
-        csms.smoothness = 10
-        csms.calculate(processed_data)
+    if run_recon:
+        recon = SENSE(processed_data, num_iter = 10, stop_criterion = 1e-7)
         
-        # create acquisition model based on the acquisition parameters
-        print('---\n Setting up Acquisition Model...')
-    
-        #set up the acquisition model
-        E = AcquisitionModel()
-        E.set_up(processed_data, csms.copy())
-        E.set_coil_sensitivity_maps(csms)
-    
-        print('---\n Backward projection ...')
-        # this is our first residual
-        recon_img = E.backward(processed_data)
-        recon_img.fill(0+0j) # for some reason you need to start with this set to zero
- 
-        # now copy the pseudo-code from wikipedia for cg optimisation
-        x = recon_img
-        y = processed_data
-
-        # this is our first residual
-        r = E.backward( y ) - EhE(E,x)
-
-        # this is our cost function at the start
-        rr = r.norm() ** 2
-        rr0 = rr
-
-        # initialize p
-        p = r
-        
-        # define optimisation parameters
-        num_iter = 10
-        sufficiently_small = 1e-7
-        
-        print('Cost for k = 0: '  + str( rr/ rr0) )
-        
-        for k in range(num_iter):
-
-            Ap = EhE(E, p )
-
-            alpha = rr / Ap.dot(p)
-
-            x = x + alpha * p
-
-            r = r - alpha * Ap
-
-            beta  = r.norm()**2 / rr
-            rr = r.norm()**2
-
-            p = r + beta * p
-
-            relative_residual = numpy.sqrt(rr/rr0)
-
-            print('Cost at step  {} = {}'.format(k+1, relative_residual))
+        if show_plot:
+            recon.show(title = 'Reconstructed images using backward() (magnitude)')
             
-            if( relative_residual  < sufficiently_small ):
-                print('We achieved our desired accuracy. Stopping iterative reconstruction')
-                break
-
-            if k is num_iter-1:
-                print('Reached maximum number of iterations. Stopping reconstruction.')
-
     else:
         print('---\n Skipping non-cartesian code...')
 
