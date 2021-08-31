@@ -112,7 +112,7 @@ GRPETrajectoryPrep::TrajPointSet sirf::GRPETrajectoryPrep::calculate_trajectory(
 void sirf::NonCartesian2DTrajPrep::append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)
 {
     if(acq.trajectory_dimensions() != 2)
-        throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
+        throw std::runtime_error("Please give an Acquisition with a 2D noncartesian trajectory if you want to use it here.");
 
     for(int ns=0; ns<acq.number_of_samples(); ++ns)
     {
@@ -121,6 +121,18 @@ void sirf::NonCartesian2DTrajPrep::append_to_trajectory(TrajPointSet& tps, ISMRM
     }
 }
 
+void sirf::NonCartesian2DTrajPrep::get_ky_sorted_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)
+{
+    if(acq.trajectory_dimensions() != 2)
+        throw std::runtime_error("Please give an Acquisition with a 2D noncartesian trajectory if you want to use it here.");
+
+    for(int ns=0; ns<acq.number_of_samples(); ++ns)
+    {
+        TrajPrep2D::TrajPointType curr_point{acq.traj(0,ns), acq.traj(1,ns)};
+        const size_t access_idx = acq.idx().kspace_encode_step_1 * acq.number_of_samples() + ns;
+        tps.at(access_idx) = curr_point;
+    }
+}
 Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acquisition& acq) const
 {
     ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);

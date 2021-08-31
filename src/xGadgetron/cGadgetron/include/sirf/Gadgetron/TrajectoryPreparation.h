@@ -70,11 +70,13 @@ public:
             mr_acq.set_acquisition(ia, acq);
         }
     }        
-    virtual TrajPointSet get_trajectory(const MRAcquisitionData& mr_acq)
+
+    virtual TrajPointSet get_trajectory(const MRAcquisitionData& mr_acq, const bool unique_kz=true)
     {
         if(mr_acq.number() <= 0){
             throw std::runtime_error("Please pass a non-empty container.");
         }
+        
 
         ISMRMRD::Acquisition acq;
         mr_acq.get_acquisition(0, acq);
@@ -82,13 +84,32 @@ public:
         if( acq.trajectory_dimensions() != D){
             throw std::runtime_error("Please give Acquisition with a the correct dimensionality if you want to use it here.");
         }
+        
+        std::vector<size_t> kspace_dims;
+        mr_acq.get_kspace_dimensions(kspace_dims);
+
+        size_t const Nz = mr_acq.acquisitions_info().get_IsmrmrdHeader().encoding[0].encodedSpace.matrixSize.z;
+        size_t const num_traj_points = unique_kz ? mr_acq.number()*kspace_dims[0]/Nz 
+                                                 : mr_acq.number()*kspace_dims[0];
 
         TrajPointSet traj;
-
+        
+        if(unique_kz)
+            traj.resize(num_traj_points);
+            
         for(int ia=0; ia<mr_acq.number(); ++ia)
         {
             mr_acq.get_acquisition(ia, acq);
-            append_to_trajectory(traj, acq);
+            
+            if(unique_kz)
+            {
+                if(acq.idx().kspace_encode_step_2 != 0)
+                    continue;
+                    
+                get_ky_sorted_trajectory(traj, acq);
+            }
+            else
+                append_to_trajectory(traj, acq);
         }
 
         return traj;
@@ -124,6 +145,8 @@ protected:
 
     virtual TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const =0;
     virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)=0;
+    virtual void get_ky_sorted_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)=0;
+
 };
 
 typedef TrajectoryPreparation<2> TrajPrep2D;
@@ -164,7 +187,9 @@ public:
 protected:
     TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
     void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq);
-
+    void get_ky_sorted_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq){
+        throw std::runtime_error("Please use append_to_trajectory() instead.");
+    }
 private:    
     uint16_t circ_mod(uint16_t const a, uint16_t const b) const { return (((a%b) + b ) % b);}
     const std::vector< uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
@@ -181,6 +206,7 @@ class NonCartesian2DTrajPrep : public TrajPrep2D {
 
 protected:
     virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq);
+    virtual void get_ky_sorted_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq);
 };
 
 class Radial2DTrajprep : public NonCartesian2DTrajPrep {
