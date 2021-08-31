@@ -1694,7 +1694,6 @@ def calc_rpe_dcw(ad):
     '''
 
     traj = numpy.transpose(get_data_trajectory(ad))
-    print(traj.shape)
     traj = traj[1:3,:]
     ramp_filter = numpy.linalg.norm(traj, axis=0)
 
