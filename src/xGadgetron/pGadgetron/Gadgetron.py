@@ -1727,10 +1727,24 @@ def calc_radial_dcw(ad):
     '''
 
     traj = numpy.transpose(get_data_trajectory(ad))
-    (na, nc, ns) = ad.dimensions() # 
-    traj = numpy.reshape(traj, (ns, na, 2))
+    (na, nc, ns) = ad.dimensions() 
   
+    ramp_filter = numpy.linalg.norm(traj, axis=0)
+    traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
+    num_angles = numpy.max(counts)
+    
+    density_weight = ( 1.0 / counts)[inverse]  + num_angles * ramp_filter
+    
+    max_traj_rad = numpy.max(numpy.linalg.norm(traj, axis=0))
+    density_weight_norm =  numpy.sum(density_weight) / (max_traj_rad**2 * numpy.pi)
+    density_weight = density_weight / density_weight_norm
+
+    density_weight = numpy.transpose(density_weight)
+    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.reshape(density_weight, (na, 1, ns))
+    density_weight = numpy.tile(density_weight, (1, nc, 1))
+    
     dcw = ad.copy()
-    dcw.fill(1)
+    dcw.fill(density_weight)
     
     return dcw
