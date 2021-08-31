@@ -48,6 +48,7 @@ import matplotlib.pyplot as plt
 
 # import engine module
 exec('from sirf.' + args['--engine'] + ' import *')
+from pUtilities import show_3D_array
 
 # process command-line options
 data_file = args['--file']
@@ -79,40 +80,50 @@ def main():
     print('---\n setting the trajectory...')
     processed_data = set_radial2D_trajectory(processed_data)
     traj = get_data_trajectory(processed_data)
-    print(traj.shape)
 
-    plt.figure
-    plt.scatter(traj[:,0], traj[:,1], marker='.')
-    window_size = 0.5
-    plt.xlim(-window_size,window_size)
-    plt.ylim(-window_size,window_size)
-    plt.show()
-    # if run_recon is True:
+
+    if show_plot:
+        plt.figure
+        plt.scatter(traj[:,0], traj[:,1], marker='.')
+        window_size = 0.05
+        plt.xlim(-window_size,window_size)
+        plt.ylim(-window_size,window_size)
+        plt.show()
+
+    if run_recon is True:
     
-    #     print('---\n computing coil sensitivity maps...')
-    #     csms = CoilSensitivityData()
-    #     csms.smoothness = 10
+        print('---\n computing coil sensitivity maps...')
+        csms = CoilSensitivityData()
+        csms.smoothness = 10
         
-    #     csms.calculate(processed_data)
+        csms.calculate(processed_data)
+
+        if show_plot:
+            # display coil sensitivity maps
+            csms_array = csms.as_array()
+            nz = csms_array.shape[1]
+            title = 'SRSS from raw data (magnitude)'
+            show_3D_array(abs(csms_array[:, nz//2, :, :]), suptitle=title, \
+                    xlabel='samples', ylabel='readouts', label='coil', show=False)
+
+        # create acquisition model based on the acquisition parameters
+        print('---\n Setting up Acquisition Model...')
+    
+        acq_model = AcquisitionModel()
+        acq_model.set_up(processed_data, csms.copy())
+        acq_model.set_coil_sensitivity_maps(csms)
+    
+        print('---\n Backward projection ...')
+        #recon_img = acq_model.backward(processed_data)
+        bwd_img = acq_model.backward(processed_data)
+        inv_img = acq_model.inverse(processed_data)
         
-    #     # create acquisition model based on the acquisition parameters
-    #     print('---\n Setting up Acquisition Model...')
+        if show_plot:
+            bwd_img.show(title = 'Reconstructed images using backward() (magnitude)')
+            inv_img.show(title = 'Reconstructed images using inverse() (magnitude)')
     
-    #     acq_model = AcquisitionModel()
-    #     acq_model.set_up(processed_data, csms.copy())
-    #     acq_model.set_coil_sensitivity_maps(csms)
-    
-    #     print('---\n Backward projection ...')
-    #     #recon_img = acq_model.backward(processed_data)
-    #     bwd_img = acq_model.backward(processed_data)
-    #     inv_img = acq_model.inverse(processed_data)
-        
-    #     if show_plot:
-    #         bwd_img.show(title = 'Reconstructed images using backward() (magnitude)')
-    #         inv_img.show(title = 'Reconstructed images using inverse() (magnitude)')
-    
-    # else:
-    #     print('---\n Skipping non-cartesian code...')
+    else:
+        print('---\n Skipping non-cartesian code...')
 
 try:
     main()
