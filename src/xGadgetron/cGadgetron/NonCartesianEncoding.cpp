@@ -70,7 +70,8 @@ using namespace ISMRMRD;
 Gridder2D::TrajectoryArrayType RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
     sirf::GRPETrajectoryPrep tp;
-    TrajPrep3D::TrajPointSet sirftraj = tp.get_trajectory(ac);
+    bool const unique_kz = false;
+    TrajPrep3D::TrajPointSet sirftraj = tp.get_trajectory(ac, unique_kz);
 
     Gridder2D::TrajectoryArrayType traj(sirftraj.size());
     traj.fill(Gadgetron::floatd2(0.f, 0.f));

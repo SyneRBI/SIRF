@@ -77,7 +77,6 @@ public:
             throw std::runtime_error("Please pass a non-empty container.");
         }
         
-
         ISMRMRD::Acquisition acq;
         mr_acq.get_acquisition(0, acq);
 
@@ -186,8 +185,8 @@ public:
 
 protected:
     TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
-    void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq);
-    void get_ky_sorted_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq){
+    virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq);
+    virtual void get_ky_sorted_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq){
         throw std::runtime_error("Please use append_to_trajectory() instead.");
     }
 private:    

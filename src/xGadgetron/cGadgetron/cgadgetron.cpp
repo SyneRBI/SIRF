@@ -892,7 +892,7 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
     	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
 		{
 			sirf::GRPETrajectoryPrep tp;
-			auto traj = tp.get_trajectory(acqs);
+			auto traj = tp.get_trajectory(acqs, false);
 			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GRPETrajectoryPrep::TrajPointType));
 		}
 		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL)
