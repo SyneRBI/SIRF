@@ -219,7 +219,8 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) cons
 Gridder2D::TrajectoryArrayType NonCartesian2DEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
     sirf::Radial2DTrajprep tp;
-    TrajPrep2D::TrajPointSet sirftraj = tp.get_trajectory(ac);
+    bool const unique_kz = true;
+    TrajPrep2D::TrajPointSet sirftraj = tp.get_trajectory(ac, unique_kz);
 
     Gridder2D::TrajectoryArrayType traj(sirftraj.size());
     traj.fill(Gadgetron::floatd2(0.f, 0.f));
@@ -234,21 +235,105 @@ Gridder2D::TrajectoryArrayType NonCartesian2DEncoding::get_trajectory(const MRAc
 }
 
 void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) const {
-    throw std::runtime_error("TO DO.");
+      
+    ASSERT( ac.number() >0, "Give a non-empty rawdata container if you want to use forward.");
+    
+    ISMRMRD::TrajectoryType traj_in_rawdata = ac.get_trajectory_type();
+    ASSERT(traj_in_rawdata == ISMRMRD::TrajectoryType::RADIAL || 
+           traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE, 
+           "Give a MRAcquisitionData reference with the trajectory type RADIAL or GOLDENANGLE.");
+
+    uint16_t  Nx = img.getMatrixSizeX();
+    uint16_t  Ny = img.getMatrixSizeY();
+    uint16_t  NSlice = img.getMatrixSizeZ();
+    uint16_t  NChannel = img.getNumberOfChannels();
+
+    std::vector<size_t> img_dims{Nx, Ny, NSlice, NChannel};
+    
+    CFGThoNDArr img_data(img_dims);
+    std::memcpy(img_data.begin(), img.getDataPtr(), img.getDataSize());
+
+    Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
+    std::vector < size_t > img_slice_dims{Nx, Ny};
+
+    Gridder2D nufft(img_slice_dims, traj);
+
+    const size_t num_kdata_pts = traj.get_number_of_elements();
+    const std::vector< size_t> output_dims{NSlice,num_kdata_pts,NChannel};
+    CFGThoNDArr kdata(output_dims);
+
+//    #pragma omp parallel
+    for(size_t ichannel=0; ichannel < NChannel; ++ichannel)
+    for(size_t islice=0; islice < NSlice; ++islice)
+    {
+        CFGThoNDArr img_slice(img_slice_dims);
+        
+        for(int ny=0; ny < Ny; ++ny)
+        for(int nx=0; nx < Nx; ++nx)
+             img_slice(nx,ny)= img_data(nx,ny,islice,ichannel);
+
+        CFGThoNDArr k_slice_data_sausage;
+        nufft.fft(k_slice_data_sausage, img_slice);
+
+        for( int ik=0; ik<num_kdata_pts; ++ik)
+            kdata(islice, ik, ichannel) = k_slice_data_sausage.at(ik);
+    }
+
+    Gadgetron::hoNDFFT< float >::instance()->fft1c(kdata);
+
+    ISMRMRD::Acquisition acq;
+    ac.get_acquisition(0, acq);
+
+    ASSERT( acq.number_of_samples() == img_dims[0],"NUMBER OF SAMPLES OF RAWDATA DONT MATCH IMAGES SLICES");
+    ASSERT( acq.active_channels() == img_dims[3],"NUMBER OF CHANNELS OF RAWDATA DONT MATCH IMAGES CHANNELS");
+
+    float const fft_normalisation_factor = sqrt((float)NSlice);
+
+    size_t const num_angles = num_kdata_pts / acq.number_of_samples();
+
+    for(int ia=0; ia<ac.number(); ++ia)
+    {
+        ac.get_acquisition(ia, acq);
+
+        for(int is=0; is<acq.number_of_samples(); ++is)
+            for(int ic=0; ic<acq.active_channels(); ++ic)
+            {
+                const size_t access_idx = acq.number_of_samples()*acq.idx().kspace_encode_step_1 + is;
+                acq.data(is,ic) = fft_normalisation_factor * kdata(acq.idx().kspace_encode_step_2, access_idx, ic);
+            }
+        ac.set_acquisition(ia, acq);
+    }
 }
 
 void NonCartesian2DEncoding::backward(CFImage& img, const MRAcquisitionData& ac) const
 {
-    ASSERT( ac.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL, "Give a MRAcquisitionData reference with the trajectory type RADIAL.");
+    ISMRMRD::TrajectoryType traj_in_rawdata = ac.get_trajectory_type();
+    
+    ASSERT(traj_in_rawdata == ISMRMRD::TrajectoryType::RADIAL || 
+           traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE, 
+           "Give a MRAcquisitionData reference with the trajectory type RADIAL or GOLDENANGLE.");
 
     ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
-    ISMRMRD::Encoding e = hdr.encoding[0];
+    EncodingSpace rec_space = hdr.encoding[0].reconSpace;
+    EncodingSpace enc_space = hdr.encoding[0].encodedSpace;
+
+    ASSERT(rec_space.matrixSize.z == enc_space.matrixSize.z, 
+           "The number of slices in encoded and reconstructed space differ. Please give a slice-consistent file.");
 
     std::vector<size_t> kspace_dims;
     ac.get_kspace_dimensions(kspace_dims);
 
-    std::vector<size_t> const kdata_dims{kspace_dims[0]*ac.number(), 1, kspace_dims[3]};
+    size_t const Nx     = rec_space.matrixSize.x ;
+    size_t const Ny     = rec_space.matrixSize.y ;
+    size_t const NSlice = enc_space.matrixSize.z;
+    size_t const NChannel = kspace_dims[3];
 
+    img.resize(Nx, Ny, NSlice, NChannel);
+
+    Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
+    const size_t num_kdata_pts = traj.get_number_of_elements();
+
+    std::vector<size_t> const kdata_dims{NSlice, num_kdata_pts, kspace_dims[3]};
     CFGThoNDArr kspace_data(kdata_dims);
 
     for(int ia=0; ia<ac.number(); ++ia)
@@ -259,39 +344,37 @@ void NonCartesian2DEncoding::backward(CFImage& img, const MRAcquisitionData& ac)
         for(int is=0; is<acq.number_of_samples(); ++is)
             for(int ic=0; ic<acq.active_channels(); ++ic)
             {
-                int access_idx = ia * acq.number_of_samples() + is;
-                kspace_data(access_idx, 0, ic) =  acq.data(is,ic);
+                const size_t access_idx = acq.number_of_samples()*acq.idx().kspace_encode_step_1 + is;
+                kspace_data(acq.idx().kspace_encode_step_2, access_idx, ic) =  acq.data(is,ic);
             }
     }
 
-    EncodingSpace rec_space = e.reconSpace;
-    std::vector < size_t > img_slice_dims{rec_space.matrixSize.x, rec_space.matrixSize.y};
+    Gadgetron::hoNDFFT< float >::instance()->ifft1c(kspace_data);
 
-    Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
-
+    std::vector < size_t > img_slice_dims{Nx, Ny};
     Gridder2D nufft(img_slice_dims, traj);
 
-    img.resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
+    float const fft_normalisation_factor = sqrt(float(NSlice));
 
-    float const fft_normalisation_factor = 1;//
-
-    for(size_t ichannel=0; ichannel<kspace_dims[3]; ++ichannel)
+    for(size_t ichannel=0; ichannel<NChannel; ++ichannel)
     {
-        CFGThoNDArr k_slice_data_sausage(kdata_dims[0]);
-        k_slice_data_sausage.fill(complex_float_t(0,0));
-
-        for(int ik=0;ik<kdata_dims[0];++ik)
+        for(size_t islice=0; islice<NSlice; ++islice)
         {
-            k_slice_data_sausage.at(ik) = kspace_data(ik,0,ichannel);
+            CFGThoNDArr k_slice_data_sausage(kdata_dims[1]);
+            k_slice_data_sausage.fill(complex_float_t(0,0));
+
+            for(int ik=0;ik<kdata_dims[1];++ik)
+            {
+                k_slice_data_sausage.at(ik) = fft_normalisation_factor*kspace_data(islice,ik,ichannel);
+            }
+
+            CFGThoNDArr imgdata_slice;
+            nufft.ifft(imgdata_slice, k_slice_data_sausage);
+
+            for(size_t iy=0; iy<Ny; ++iy)
+            for(size_t ix=0; ix<Nx; ++ix)
+                img.operator()(ix, iy, islice, ichannel) = imgdata_slice(ix, iy);
         }
-
-        CFGThoNDArr imgdata_slice;
-        nufft.ifft(imgdata_slice, k_slice_data_sausage);
-
-        for(size_t iy=0; iy<rec_space.matrixSize.y; ++iy)
-        for(size_t ix=0; ix<rec_space.matrixSize.x; ++ix)
-            img.operator()(ix, iy, 0, ichannel) = imgdata_slice(ix, iy);
-    
     }
 
     img.setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
