@@ -898,7 +898,7 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL)
 		{
 			sirf::Radial2DTrajprep tp;
-			auto traj = tp.get_trajectory(acqs);
+			auto traj = tp.get_trajectory(acqs, false);
 			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(Radial2DTrajprep::TrajPointType));
 		}
 		
