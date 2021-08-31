@@ -175,7 +175,6 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) cons
     std::vector< size_t> output_dims{img_dims[0], num_kdata_pts, img_dims[3]};
     CFGThoNDArr kdata(output_dims);
 
-//    #pragma omp parallel
     for(size_t ichannel=0; ichannel<img_dims[3]; ++ichannel)
     for(size_t islice=0;islice<img_dims[0]; ++islice)
     {
@@ -239,6 +238,14 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
       
     ASSERT( ac.number() >0, "Give a non-empty rawdata container if you want to use forward.");
     
+    ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
+    EncodingSpace rec_space = hdr.encoding[0].reconSpace;
+    EncodingSpace enc_space = hdr.encoding[0].encodedSpace;
+
+    ASSERT(img.getMatrixSizeZ() == enc_space.matrixSize.z, 
+           "The number of slices in encoded space and image differ. Please give a slice-consistent rawdata file.");
+
+
     ISMRMRD::TrajectoryType traj_in_rawdata = ac.get_trajectory_type();
     ASSERT(traj_in_rawdata == ISMRMRD::TrajectoryType::RADIAL || 
            traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE, 
@@ -285,7 +292,6 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
     ISMRMRD::Acquisition acq;
     ac.get_acquisition(0, acq);
 
-    ASSERT( acq.number_of_samples() == img_dims[0],"NUMBER OF SAMPLES OF RAWDATA DONT MATCH IMAGES SLICES");
     ASSERT( acq.active_channels() == img_dims[3],"NUMBER OF CHANNELS OF RAWDATA DONT MATCH IMAGES CHANNELS");
 
     float const fft_normalisation_factor = sqrt((float)NSlice);
@@ -319,7 +325,7 @@ void NonCartesian2DEncoding::backward(CFImage& img, const MRAcquisitionData& ac)
     EncodingSpace enc_space = hdr.encoding[0].encodedSpace;
 
     ASSERT(rec_space.matrixSize.z == enc_space.matrixSize.z, 
-           "The number of slices in encoded and reconstructed space differ. Please give a slice-consistent file.");
+           "The number of slices in encoded and reconstructed space differ. Please give rawdata from a slice-consistent file.");
 
     std::vector<size_t> kspace_dims;
     ac.get_kspace_dimensions(kspace_dims);
