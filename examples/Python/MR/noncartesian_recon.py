@@ -1,9 +1,10 @@
 '''
-Example of an iterative reconstruciton with radial phase encoding (RPE) data.
+Example of radial phase encoding (RPE) reconstruction.
 
 Upper-level demo that illustrates the computation of how to use a non-cartesian
-radial phase-encoding acquisition model to reconstruct data iteratively and
-without the use of any k-space density weighting.
+radial phase-encoding acquisition model to reconstruct data. The backward method
+ignores any non-uniform density in k-space and the inverse does account for it
+by using a ramp kernel as in a filtered backprojection.
 
 Usage:
   rpe_recon.py [--help | options]
@@ -15,8 +16,10 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled
+  -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
                               [default: False]
+  --traj=<str>                trajectory type, must match the data supplied in file
+                              [default: grpe]
   --non-interactive           do not show plots
 '''
 
@@ -41,7 +44,7 @@ Options:
 
 __version__ = '0.1.0'
 from docopt import docopt
-
+ 
 args = docopt(__doc__, version=__version__)
 
 # import engine module
@@ -54,104 +57,62 @@ if data_path is None:
     data_path = examples_data_path('MR') + '/zenodo/'
 output_file = args['--output']
 show_plot = not args['--non-interactive']
-
-run_recon = str(args['--non-cart']) == 'True'
-
-import numpy
-
-# define symmetrical operator for cg-optimisation
-def EhE(E, image ):
-    return E.backward( E.forward(image) )
+trajtype = args['--traj']
+run_recon = str(args['--recon']) == 'True'
 
 def main():
 
-    # locate the k-space raw data file
+    # locate the k-space raw data file adn read
     input_file = existing_filepath(data_path, data_file)
-    
-    # acquisition data will be read from an HDF file input_file
-    # AcquisitionData.set_storage_scheme('memory')
     acq_data = AcquisitionData(input_file)
     
-    print('---\n acquisition data norm: %e' % acq_data.norm())
-
     # pre-process acquisition data
-    print('---\n pre-processing acquisition data...')
-    processed_data  = preprocess_acquisition_data(acq_data)
+    if trajtype is not 'radial' or 'goldenangle':
+        print('---\n pre-processing acquisition data...')
+        processed_data  = preprocess_acquisition_data(acq_data)
+    else:
+        processed_data = acq_data
+
+    #set the trajectory and compute the dcf
+    print('---\n setting the trajectory...')
+    if trajtype == 'cartesian':
+        pass
+    elif trajtype == 'grpe':
+        processed_data = set_grpe_trajectory(processed_data)
+    elif trajtype == 'radial':
+        processed_data = set_radial2D_trajectory(processed_data)
+    else:
+        raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
+                        .format(trajtype))
 
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
     processed_data.sort()
-    
-    #set the trajectory and compute the dcf
-    print('---\n setting the trajectory...')
-    processed_data = set_grpe_trajectory(processed_data)
 
     if run_recon is True:
     
         print('---\n computing coil sensitivity maps...')
         csms = CoilSensitivityData()
         csms.smoothness = 10
+        
         csms.calculate(processed_data)
         
         # create acquisition model based on the acquisition parameters
         print('---\n Setting up Acquisition Model...')
     
-        #set up the acquisition model
-        E = AcquisitionModel()
-        E.set_up(processed_data, csms.copy())
-        E.set_coil_sensitivity_maps(csms)
+        acq_model = AcquisitionModel()
+        acq_model.set_up(processed_data, csms.copy())
+        acq_model.set_coil_sensitivity_maps(csms)
     
         print('---\n Backward projection ...')
-        # this is our first residual
-        recon_img = E.backward(processed_data)
-        recon_img.fill(0+0j) # for some reason you need to start with this set to zero
- 
-        # now copy the pseudo-code from wikipedia for cg optimisation
-        x = recon_img
-        y = processed_data
-
-        # this is our first residual
-        r = E.backward( y ) - EhE(E,x)
-
-        # this is our cost function at the start
-        rr = r.norm() ** 2
-        rr0 = rr
-
-        # initialize p
-        p = r
+        #recon_img = acq_model.backward(processed_data)
+        bwd_img = acq_model.backward(processed_data)
+        inv_img = acq_model.inverse(processed_data)
         
-        # define optimisation parameters
-        num_iter = 10
-        sufficiently_small = 1e-7
-        
-        print('Cost for k = 0: '  + str( rr/ rr0) )
-        
-        for k in range(num_iter):
-
-            Ap = EhE(E, p )
-
-            alpha = rr / Ap.dot(p)
-
-            x = x + alpha * p
-
-            r = r - alpha * Ap
-
-            beta  = r.norm()**2 / rr
-            rr = r.norm()**2
-
-            p = r + beta * p
-
-            relative_residual = numpy.sqrt(rr/rr0)
-
-            print('Cost at step  {} = {}'.format(k+1, relative_residual))
-            
-            if( relative_residual  < sufficiently_small ):
-                print('We achieved our desired accuracy. Stopping iterative reconstruction')
-                break
-
-            if k is num_iter-1:
-                print('Reached maximum number of iterations. Stopping reconstruction.')
-
+        if show_plot:
+            bwd_img.show(title = 'Reconstructed images using backward() (magnitude)')
+            inv_img.show(title = 'Reconstructed images using inverse() (magnitude)')
+    
     else:
         print('---\n Skipping non-cartesian code...')
 

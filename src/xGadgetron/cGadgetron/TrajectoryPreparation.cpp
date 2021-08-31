@@ -39,26 +39,7 @@ const static double SIRF_GOLDEN_ANGLE = SIRF_PI*0.618034;
 using namespace sirf;
 using namespace ISMRMRD;
 
-void sirf::TrajectoryPreparation::update_acquisitions_info(MRAcquisitionData& mr_acq)
-{
-
-    IsmrmrdHeader hdr = mr_acq.acquisitions_info().get_IsmrmrdHeader();
-
-    if(hdr.encoding.size() != 1)
-        throw LocalisedException("Currrently only files with one encoding are supported", __FILE__, __LINE__);
-
-    hdr.encoding[0].trajectory = this->traj_type_;
-
-    this->kspace_encoding_ = hdr.encoding[0];
-
-    std::stringstream hdr_stream;
-    serialize(hdr, hdr_stream);
-
-    AcquisitionsInfo ai(hdr_stream.str());
-    mr_acq.set_acquisitions_info(ai);
-}
-
-SIRFTrajectoryType2D sirf::CartesianTrajectoryPrep::get_trajectory(const sirf::MRAcquisitionData& ac)
+TrajPrep2D::TrajPointSet sirf::CartesianTrajectoryPrep::get_trajectory(const sirf::MRAcquisitionData& ac)
 {
     if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::CARTESIAN)
         throw std::runtime_error("Please only ask to get the trajectory for acquisition data with a Cartesian trajectory.");
@@ -68,16 +49,14 @@ SIRFTrajectoryType2D sirf::CartesianTrajectoryPrep::get_trajectory(const sirf::M
 
     ISMRMRD::Acquisition acq;
 
-    SIRFTrajectoryType2D traj;
+    TrajPrep2D::TrajPointSet traj;
 
     for(int ia=0; ia<ac.number(); ++ia)
     {
         ac.get_acquisition(ia, acq);
 
-        std::pair<float, float> curr_point;
-        curr_point.first = acq.idx().kspace_encode_step_1;
-        curr_point.second = acq.idx().kspace_encode_step_2;
-
+        TrajPrep2D::TrajPointType curr_point{(float)acq.idx().kspace_encode_step_1, 
+                                             (float)acq.idx().kspace_encode_step_2};
         traj.push_back(curr_point);
     }
 
@@ -85,57 +64,16 @@ SIRFTrajectoryType2D sirf::CartesianTrajectoryPrep::get_trajectory(const sirf::M
 }
 
 
-void sirf::GRPETrajectoryPrep::set_trajectory(MRAcquisitionData& mr_acq)
+void sirf::GRPETrajectoryPrep::append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)
 {
-    update_acquisitions_info(mr_acq);
-
-    for(size_t ia=0; ia<mr_acq.number(); ++ia)
-    {
-        Acquisition acq;
-        mr_acq.get_acquisition(ia, acq);
-        this->set_acquisition_trajectory(acq);
-        mr_acq.set_acquisition(ia, acq);
-    }
-}
-
-SIRFTrajectoryType2D sirf::GRPETrajectoryPrep::get_trajectory(const sirf::MRAcquisitionData& ac)
-{
-    if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::OTHER)
-        throw std::runtime_error("Please only ask to get the trajectory for acquisition data with an RPE trajectory pre-computed in the acquisitions.");
-
-    if(ac.number() <= 0)
-        throw std::runtime_error("Please pass a non-empty container.");
-
-    ISMRMRD::Acquisition acq;
-    ac.get_acquisition(0, acq);
-
     if( acq.trajectory_dimensions() != 3)
         throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
 
-    SIRFTrajectoryType2D traj;
-
-    for(int ia=0; ia<ac.number(); ++ia)
-    {
-        ac.get_acquisition(ia, acq);
-
-        std::pair<float, float> curr_point;
-        curr_point.first = acq.traj(1, 0);
-        curr_point.second = acq.traj(2, 0);
-
-        traj.push_back(curr_point);
-    }
-
-    return traj;
+    TrajPrep3D::TrajPointType curr_point{0.f, acq.traj(1, 0), acq.traj(2, 0)}; // append only the 0th sample since the readout is cartesian for RPE
+    tps.push_back(curr_point);
 }
 
-void sirf::GRPETrajectoryPrep::set_acquisition_trajectory(Acquisition& acq) const
-{
-    acq.resize(acq.number_of_samples(),acq.active_channels(), this->traj_dim_);
-    std::vector<float> acq_traj = this->calculate_trajectory(acq);
-    acq.setTraj(&acq_traj[0]);
-}
-
-std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& acq) const
+GRPETrajectoryPrep::TrajPointSet sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& acq) const
 {
     ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);
     if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
@@ -157,14 +95,78 @@ std::vector<float> sirf::GRPETrajectoryPrep::calculate_trajectory(Acquisition& a
     float const traj_norm = 2*std::max<float>(( rad_lims.center - rad_lims.minimum + 0), (rad_lims.maximum - rad_lims.center + (num_diff_shifts-1)/num_diff_shifts));
     pe_radius /= traj_norm;
 
-    std::vector<float> traj;
+    TrajPrep3D::TrajPointSet traj;
 
     for(size_t i_sample=0; i_sample<acq.number_of_samples();++i_sample)
     {
-        traj.push_back(0); //dummy for RPE as the readout is cartesian
-        traj.push_back(pe_radius * cos( pe_angle ));
-        traj.push_back(pe_radius * sin( pe_angle ));
+        TrajPrep3D::TrajPointType pt{0,
+                                     pe_radius * cos(pe_angle),
+                                     pe_radius * sin(pe_angle)};
+        
+        traj.push_back(pt);
     }
 
     return traj;
+}
+
+void sirf::NonCartesian2DTrajPrep::append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)
+{
+    if(acq.trajectory_dimensions() != 2)
+        throw std::runtime_error("Please give an Acquisition with a 2D noncartesian trajectory if you want to use it here.");
+
+    for(int ns=0; ns<acq.number_of_samples(); ++ns)
+    {
+        TrajPrep2D::TrajPointType curr_point{acq.traj(0,ns), acq.traj(1,ns)};
+        tps.push_back(curr_point);
+    }
+}
+
+void sirf::NonCartesian2DTrajPrep::get_ky_sorted_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq)
+{
+    if(acq.trajectory_dimensions() != 2)
+        throw std::runtime_error("Please give an Acquisition with a 2D noncartesian trajectory if you want to use it here.");
+
+    for(int ns=0; ns<acq.number_of_samples(); ++ns)
+    {
+        TrajPrep2D::TrajPointType curr_point{acq.traj(0,ns), acq.traj(1,ns)};
+        const size_t access_idx = acq.idx().kspace_encode_step_1 * acq.number_of_samples() + ns;
+        tps.at(access_idx) = curr_point;
+    }
+}
+Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acquisition& acq) const
+{
+    ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);
+    
+    if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.is_present())
+        rad_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.get();
+    else
+    {
+        rad_lims.minimum = 0;
+        rad_lims.center = acq.number_of_samples()/2;
+        rad_lims.maximum = acq.number_of_samples()-1;
+    }
+    if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
+        ang_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.get();
+
+    const ISMRMRD::EncodingCounters idx = acq.idx();
+
+    unsigned short num_angles = ang_lims.maximum;
+    float const pe_angle = SIRF_PI/(float)num_angles * idx.kspace_encode_step_1;
+
+    float const traj_norm = 2*std::max<float>( rad_lims.center-rad_lims.minimum, rad_lims.maximum-rad_lims.center);
+
+    TrajPointSet traj;
+
+    for(int i_sample=0; i_sample<acq.number_of_samples();++i_sample)
+    {
+        float pe_radius = (float)i_sample - (float)rad_lims.center;
+        pe_radius /= traj_norm;
+
+        TrajPointType pt{pe_radius * cos(pe_angle),
+                         pe_radius * sin(pe_angle)};
+        
+        traj.push_back(pt);
+    }
+
+    return traj;    
 }
