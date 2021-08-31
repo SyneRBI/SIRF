@@ -142,7 +142,6 @@ Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acqu
     float const pe_angle = SIRF_PI/(float)num_angles * idx.kspace_encode_step_1;
 
     float const traj_norm = 2*std::max<float>( rad_lims.center-rad_lims.minimum, rad_lims.maximum-rad_lims.center);
-    std::cout << "--- Traj norm :  " << traj_norm << std::endl;
 
     TrajPointSet traj;
 
