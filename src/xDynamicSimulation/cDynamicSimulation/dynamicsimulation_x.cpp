@@ -143,7 +143,6 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
                     all_motion_fields.push_back( motion_dyn->get_interpolated_deformation_field( std::get<1>(bin) ) ); 
 
                 }
-
                 if( acquisitions_for_this_contrast_state.number() > 0)
                 {
                     TimeAxisType current_time_point =  sampled_contrast_timepoints.size()>0 ? sampled_contrast_timepoints[i_contrast_state] : (TimeAxisType)0;
@@ -164,12 +163,11 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 					// crucial call, as the tissu parameters have been replaced and 
 					// deformation results in deformed contrast generator data
                     this->mr_cont_gen_.map_contrast();
-                    
-                    if( all_motion_fields.size() > 0 )
-                        dsd_.deform_contrast_generator(this->mr_cont_gen_, all_motion_fields);
-                    
+					dsd_.deform_contrast_generator(this->mr_cont_gen_, all_motion_fields);
+
                     this->sptr_template_data_ = std::shared_ptr<MRAcquisitionData>(std::move(acquisitions_for_this_contrast_state.clone()));
                     this->acquire_raw_data();	
+
                 }
             }
         }
@@ -244,7 +242,7 @@ void MRDynamicSimulation::acquire_raw_data( void )
 
 	this->acq_model_.set_up(this->sptr_template_data_, std::make_shared<GadgetronImagesVector>(contrast_filled_volumes));
 	std::shared_ptr<MRAcquisitionData> sptr_rawdata = acq_model_.fwd(contrast_filled_volumes);
-	
+
 	for(int i=0; i<sptr_rawdata->number();++i)
 	{
 		ISMRMRD::Acquisition acq;
