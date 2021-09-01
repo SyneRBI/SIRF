@@ -29,6 +29,7 @@ Options:
 
 __version__ = '0.1.0'
 from docopt import docopt
+
 args = docopt(__doc__, version=__version__)
 
 from pUtilities import *
@@ -83,16 +84,23 @@ def main():
 	
 	fpath_xml = input_fpath_prefix + 'Cube128/XCAT_TissueParameters_XML.xml'
 	fpath_template_contrast_rawdata = input_fpath_prefix + 'Cube128/CV_nav_cart_128Cube_FLASH_T1.h5'
-	fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID29_cart_ref_image_FID78804_ismrmrd.h5'
 	
+	cartesian_template = False
+
+	if cartesian_template:
+		fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID29_cart_ref_image_FID78804_ismrmrd.h5'
+	else:
+		fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID30_rad_2d_uniform_FID78805_ismrmrd.h5'
+	
+	acquisition_ad = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
+	if cartesian_template:
+		acquisition_ad = pMR.preprocess_acquisition_data(acquisition_ad)
+	else:
+		acquisition_ad = pMR.set_radial2D_trajectory(acquisition_ad)
 
 	# configure the simulation
 	contrast_ad = pMR.AcquisitionData(fpath_template_contrast_rawdata)
 	contrast_ad = pMR.preprocess_acquisition_data(contrast_ad)
-
-	
-	acquisition_ad = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
-	acquisition_ad = pMR.preprocess_acquisition_data(acquisition_ad)
 
 	labels = pReg.NiftiImageData3D( input_fpath_prefix + "Cube128/label_volume.nii"	)
 	mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
@@ -106,7 +114,6 @@ def main():
 	euler_angles_deg = np.array([15,15,0])
 
 	offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
-	print("--- We have a trafo of: {}".format(offset_trafo.as_array()))
 	mrsim.set_offset_trafo(offset_trafo)
 
 	# take CSM from the rawdata itself
@@ -137,22 +144,20 @@ def main():
 	# RESP
 	num_sim_resp_states = 2
 	resp_motion = pDS.MRMotionDynamic( num_sim_resp_states )
-	set_motionfields_from_path(resp_motion, input_fpath_prefix + 'Cube128/mvf_resp/')
 	resp_motion.set_dynamic_signal(t_resp, sig_resp)
 	resp_motion.set_cyclicality(False)
 	resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_resp")		
-
+	set_motionfields_from_path(resp_motion, input_fpath_prefix + 'Cube128/mvf_resp/')
 	mrsim.add_motion_dynamic(resp_motion)
 
 	# CARD
 	num_sim_card_states = 2
 
 	card_motion = pDS.MRMotionDynamic(num_sim_card_states)
-	set_motionfields_from_path(card_motion, input_fpath_prefix + 'Cube128/mvf_card/')
 	card_motion.set_dynamic_signal(t_card, sig_card)
 	card_motion.set_cyclicality(True)
 	card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_card")		
-
+	set_motionfields_from_path(card_motion, input_fpath_prefix + 'Cube128/mvf_card/')
 	mrsim.add_motion_dynamic(card_motion)
 
 	#
@@ -171,12 +176,13 @@ def main():
 
 	simulated_data = pMR.AcquisitionData(str(simulated_file))
 	
-	recon = pMR.FullySampledReconstructor()
-	
-	recon.set_input(simulated_data)
-	recon.process()
-	recon_img = recon.get_output()
+	csm.calculate(simulated_data)
 
+	AM = pMR.AcquisitionModel()
+	AM.set_coil_sensitivity_maps(csm)
+	AM.set_up(simulated_data, csm)
+
+	recon_img = AM.inverse(simulated_data)
 	recon_nii = pReg.NiftiImageData3D(recon_img)
 	recon_nii = recon_nii.abs()
 	recon_nii.write(output_fpath_prefix + "output_example_cartesian_3D_recon_r{}_c{}.nii".format(num_sim_resp_states,num_sim_card_states))
