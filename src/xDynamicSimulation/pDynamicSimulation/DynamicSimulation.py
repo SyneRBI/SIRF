@@ -92,11 +92,11 @@ class MRDynamicSimulation(object):
         pysim.cDS_setContrastTemplateData(self.handle, ad.handle)
 
     def simulate_data(self):
-        pysim.cDS_simulateData(self.handle)
+        try_calling( pysim.cDS_simulateData(self.handle) )
 
     def set_csm(self, csm):
         assert_validity(csm, pMR.CoilSensitivityData)
-        pysim.cDS_setCoilmaps(self.handle, csm.handle)
+        try_calling( pysim.cDS_setCoilmaps(self.handle, csm.handle))
 
     def set_snr(self, SNR):
         pysim.cDS_setSNR(self.handle, SNR)
@@ -106,16 +106,16 @@ class MRDynamicSimulation(object):
 
     def set_offset_trafo(self, trafo):
         assert_validity(trafo, pReg.AffineTransformation)
-        pysim.cDS_setOffsetTransformation(self.handle, trafo.handle)
+        try_calling(pysim.cDS_setOffsetTransformation(self.handle, trafo.handle))
 
     def write_simulation_results(self, fpath_output):
-        pysim.cDS_writeSimulationResults(self.handle, fpath_output); 
+        pysim.cDS_writeSimulationResults(self.handle, fpath_output) 
 
     def save_motion_ground_truth(self):
         pysim.cDS_saveMotionGroundTruth(self.handle)
 
     def add_motion_dynamic(self, motiondyn):
-        pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle); 
+        try_calling(pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle)) 
 
 class Dynamic(object):
 
