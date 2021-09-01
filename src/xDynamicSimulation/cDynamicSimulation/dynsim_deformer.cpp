@@ -31,7 +31,14 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 
 	// deform the images in the contrast generator with the supplied displacement fields
 	GadgetronImagesVector& img_data = mr_cont_gen.get_contrast_filled_volumes();
-	img_data.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
+	
+	// img_data.get_geom_info_sptr()->print_info();
+	// vec_displacement_fields[0].get_geom_info_sptr()->print_info();
+	
+	
+	if(vec_displacement_fields.size() > 0)
+		img_data.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
+
 	std::shared_ptr< sirf::GadgetronImageData > sptr_img_to_deform = std::move(img_data.clone());
 	
 	// both floating and reference image must be in the same coordinate system
@@ -60,12 +67,12 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
     resampler.process();
 
 	const std::shared_ptr<const sirf::ImageData>  sptr_deformed_img = resampler.get_output_sptr();
-	
+
 	if(mr_template_available_)
 	{
 		img_data = GadgetronImagesVector(*sptr_mr_template_img_);
 	}
-	
+
 	sptr_deformed_img->copy(sptr_deformed_img->begin(),
 							img_data.begin(), 
 							img_data.end());
