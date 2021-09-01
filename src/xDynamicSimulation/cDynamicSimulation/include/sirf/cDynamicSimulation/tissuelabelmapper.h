@@ -43,6 +43,9 @@ public:
 	std::string get_filepath_tissue_parameter_xml( void );
 	const int* get_segmentation_dimensions( void );
 
+	std::shared_ptr<const sirf::VoxelisedGeometricalInfo3D> get_sptr_geometry(void) const{
+		return segmentation_labels_.get_geom_info_sptr();
+	}
 	LabelVolume get_segmentation_labels( void );
 	TissueParameterList get_tissue_parameter_list( void );
 	

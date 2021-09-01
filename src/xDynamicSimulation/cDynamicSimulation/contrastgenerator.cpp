@@ -151,6 +151,7 @@ void MRContrastGenerator::map_contrast()
 		}
 		
 	}
+	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
 }
 
 complex_float_t MRContrastGenerator::get_signal_for_tissuelabel( size_t const label )
