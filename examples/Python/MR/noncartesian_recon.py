@@ -44,7 +44,11 @@ Options:
 
 __version__ = '0.1.0'
 from docopt import docopt
- 
+from pUtilities import *
+
+import numpy as np
+import matplotlib.pyplot as plt
+
 args = docopt(__doc__, version=__version__)
 
 # import engine module
@@ -85,6 +89,13 @@ def main():
         raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
                         .format(trajtype))
 
+    if show_plot:
+        traj = np.transpose( get_data_trajectory(processed_data))
+        print("--- traj shape is {}".format(traj.shape))
+        plt.figure()
+        plt.scatter(traj[0,:], traj[1,:], marker='.')
+        plt.show()
+
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
     processed_data.sort()
@@ -94,8 +105,15 @@ def main():
         print('---\n computing coil sensitivity maps...')
         csms = CoilSensitivityData()
         csms.smoothness = 10
-        
         csms.calculate(processed_data)
+
+        if show_plot:
+        # display coil sensitivity maps
+            csms_array = csms.as_array()
+            nz = csms_array.shape[1]
+            title = 'SRSS from raw data (magnitude)'
+            show_3D_array(abs(csms_array[:, nz//2, :, :]), suptitle=title, \
+                    xlabel='samples', ylabel='readouts', label='coil', show=False)
         
         # create acquisition model based on the acquisition parameters
         print('---\n Setting up Acquisition Model...')
