@@ -622,8 +622,6 @@ int main ( int argc, char* argv[])
             sirf::AcquisitionsVector rpe_av;
             rpe_av.read(rpe_data_path);
 
-
-
             sirf::preprocess_acquisition_data(rpe_av);
             rpe_av.sort();
             sirf::set_unit_dcf(rpe_av);
@@ -638,10 +636,14 @@ int main ( int argc, char* argv[])
             ok *= test_mracquisition_model_rpe_bwd(rpe_av);
             ok *= test_acq_mod_adjointness(rpe_av);
 
-            auto sptr_rpe_av = std::make_shared<AcquisitionsVector>(rpe_av);
-            sirf::GRPETrajectoryPrep rpe_tp;
-            rpe_tp.set_trajectory(*sptr_rpe_av);
-            ok *= test_acq_mod_norm(sptr_rpe_av);
+
+            sirf::AcquisitionsVector radial_av;
+            radial_av.read(data_path);
+            
+            sirf::Radial2DTrajprep radial_tp;
+            radial_tp.set_trajectory(radial_av);
+            ok *= test_acq_mod_adjointness(radial_av);
+
         #endif
 
 
