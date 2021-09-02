@@ -262,12 +262,12 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
     std::memcpy(img_data.begin(), img.getDataPtr(), img.getDataSize());
 
     Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
-    std::vector < size_t > img_slice_dims{Nx, Ny};
+    std::vector <size_t> img_slice_dims{Nx, Ny};
 
     Gridder2D nufft(img_slice_dims, traj);
 
     const size_t num_kdata_pts = traj.get_number_of_elements();
-    const std::vector< size_t> output_dims{NSlice,num_kdata_pts,NChannel};
+    const std::vector<size_t> output_dims{NSlice,num_kdata_pts,NChannel};
     CFGThoNDArr kdata(output_dims);
 
 //    #pragma omp parallel
@@ -296,8 +296,6 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
 
     float const fft_normalisation_factor = sqrt((float)NSlice);
 
-    size_t const num_angles = num_kdata_pts / acq.number_of_samples();
-
     for(int ia=0; ia<ac.number(); ++ia)
     {
         ac.get_acquisition(ia, acq);
@@ -305,7 +303,7 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
         for(int is=0; is<acq.number_of_samples(); ++is)
             for(int ic=0; ic<acq.active_channels(); ++ic)
             {
-                const size_t access_idx = acq.number_of_samples()*acq.idx().kspace_encode_step_1 + is;
+                const size_t access_idx = acq.number_of_samples()*ia + is;
                 acq.data(is,ic) = fft_normalisation_factor * kdata(acq.idx().kspace_encode_step_2, access_idx, ic);
             }
         ac.set_acquisition(ia, acq);
