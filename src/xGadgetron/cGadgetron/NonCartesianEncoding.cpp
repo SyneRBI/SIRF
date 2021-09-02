@@ -350,45 +350,52 @@ void NonCartesian2DEncoding::backward(CFImage& img, const MRAcquisitionData& ac)
     size_t const Ny     = rec_space.matrixSize.y ;
     size_t const NSlice = enc_space.matrixSize.z;
     size_t const NChannel = kspace_dims[3];
-
-    img.resize(Nx, Ny, NSlice, NChannel);
-
-    Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
-    const size_t num_kdata_pts = traj.get_number_of_elements();
-
-    std::vector<size_t> const kdata_dims{NSlice, num_kdata_pts, kspace_dims[3]};
-    CFGThoNDArr kspace_data(kdata_dims);
-
-    for(int ia=0; ia<ac.number(); ++ia)
-    {
-        ISMRMRD::Acquisition acq;
-        ac.get_acquisition(ia, acq);
-        
-        for(int is=0; is<acq.number_of_samples(); ++is)
-            for(int ic=0; ic<acq.active_channels(); ++ic)
-            {
-                const size_t access_idx = acq.number_of_samples()*acq.idx().kspace_encode_step_1 + is;
-                kspace_data(acq.idx().kspace_encode_step_2, access_idx, ic) =  acq.data(is,ic);
-            }
-    }
-
-    Gadgetron::hoNDFFT< float >::instance()->ifft1c(kspace_data);
-
-    std::vector < size_t > img_slice_dims{Nx, Ny};
-    Gridder2D nufft(img_slice_dims, traj);
-
+    
     float const fft_normalisation_factor = sqrt(float(NSlice));
 
-    for(size_t ichannel=0; ichannel<NChannel; ++ichannel)
+    auto uptr_slice_subset = ac.clone();
+
+    std::vector<size_t> img_dimensions{NSlice,Nx,Ny,NChannel};
+    CFGThoNDArr img_data(img_dimensions);
+
+    for(size_t islice=0; islice<NSlice; ++islice)
     {
-        for(size_t islice=0; islice<NSlice; ++islice)
+        uptr_slice_subset->empty();
+
+        std::vector<int> slice_subset_indices = get_slice_encoding_subset_indices(ac, islice);
+        ac.get_subset(*uptr_slice_subset, slice_subset_indices);
+
+        Gridder2D::TrajectoryArrayType traj = this->get_trajectory(*uptr_slice_subset);
+        const size_t num_kdata_pts = traj.get_number_of_elements();
+        std::vector<size_t> const kdata_dims{num_kdata_pts, NChannel};
+        CFGThoNDArr kspace_data(kdata_dims);
+        
+        for(int ia=0; ia<uptr_slice_subset->number(); ++ia)
         {
-            CFGThoNDArr k_slice_data_sausage(kdata_dims[1]);
+            ISMRMRD::Acquisition acq;
+            uptr_slice_subset->get_acquisition(ia, acq);
+
+            for(int nc=0; nc<acq.active_channels(); ++nc)
+            for(int ns=0; ns<acq.number_of_samples(); ++ns)
+            {   
+                int const access_idx = kspace_dims[0] * ia + ns;
+                kspace_data(access_idx, nc) = acq.data(ns,nc);
+            }
+        }
+       
+        // uptr_slice_subset->get_data(kspace_data.begin(), -1);
+
+        std::vector < size_t > img_slice_dims{Nx, Ny};
+        Gridder2D nufft(img_slice_dims, traj);
+
+        for(size_t ichannel=0; ichannel<NChannel; ++ichannel)
+        {
+            CFGThoNDArr k_slice_data_sausage(num_kdata_pts);
             k_slice_data_sausage.fill(complex_float_t(0,0));
 
-            for(int ik=0;ik<kdata_dims[1];++ik)
+            for(int ik=0;ik<num_kdata_pts;++ik)
             {
-                k_slice_data_sausage.at(ik) = fft_normalisation_factor*kspace_data(islice,ik,ichannel);
+                k_slice_data_sausage.at(ik) = fft_normalisation_factor*kspace_data(ik,ichannel);
             }
 
             CFGThoNDArr imgdata_slice;
@@ -396,14 +403,23 @@ void NonCartesian2DEncoding::backward(CFImage& img, const MRAcquisitionData& ac)
 
             for(size_t iy=0; iy<Ny; ++iy)
             for(size_t ix=0; ix<Nx; ++ix)
-                img.operator()(ix, iy, islice, ichannel) = imgdata_slice(ix, iy);
+                img_data(islice, ix, iy, ichannel) = imgdata_slice(ix, iy);
         }
     }
 
+    Gadgetron::hoNDFFT< float >::instance()->ifft1c(img_data);
+
+    img.resize(Nx, Ny, NSlice, NChannel);
+
+    for(int nc=0; nc<NChannel; ++nc)
+    for(int ny=0; ny<Ny; ++ny)
+    for(int nx=0; nx<Nx; ++nx)
+    for(int ns=0; ns<NSlice; ++ns)
+        img(nx,ny,ns,nc) = img_data(ns,nx,ny,nc);
+    
     img.setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
 
     ISMRMRD::Acquisition acq;
     ac.get_acquisition(0,acq);
-
     this->match_img_header_to_acquisition(img, acq);    
 }
