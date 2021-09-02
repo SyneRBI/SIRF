@@ -322,7 +322,20 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
                 kdata(ik, ichannel) = fft_normalisation_factor * k_slice_data_sausage(ik);
         }
 
-        uptr_slice_subset->set_data(kdata.begin());
+        // uptr_slice_subset->set_data(kdata.begin());
+
+        for(int ia=0; ia<uptr_slice_subset->number(); ++ia)
+        {
+            uptr_slice_subset->get_acquisition(ia, acq);
+            int const num_samples = acq.number_of_samples();
+            for(int nc=0; nc<NChannel; ++nc)
+            for(int ns=0; ns<num_samples; ++ns)
+            {   
+                int const access_idx = num_samples * ia + ns;
+                acq.data(ns,nc) = kdata(access_idx, nc);
+            }
+            uptr_slice_subset->set_acquisition(ia, acq);
+        }
 
         ac.set_subset(*uptr_slice_subset, slice_subset_idx);
     }
@@ -383,8 +396,6 @@ void NonCartesian2DEncoding::backward(CFImage& img, const MRAcquisitionData& ac)
             }
         }
        
-        // uptr_slice_subset->get_data(kspace_data.begin(), -1);
-
         std::vector < size_t > img_slice_dims{Nx, Ny};
         Gridder2D nufft(img_slice_dims, traj);
 
