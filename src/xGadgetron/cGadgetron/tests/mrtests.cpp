@@ -229,6 +229,8 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
         int const num_total_pixels = dims["x"]*dims["y"]*dims["z"]*dims["c"]*dims["n"];
 
         std::default_random_engine generator;
+        unsigned int random_seed = 2;
+        generator.seed(random_seed);
         std::normal_distribution<float> distribution(0.0,1.0);
 
         std::vector<complex_float_t> random_data;
@@ -253,6 +255,7 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
 
         std::cout << "Backward kdata dot random image: " << Eh_kdat_Dot_img << std::endl;
         std::cout << "Forward random image dot kdata : " << E_img_Dot_kdat  << std::endl;
+        std::cout << "We have a ratio of adjointness of : " << std::abs(E_img_Dot_kdat) / std::abs(Eh_kdat_Dot_img) << std::endl;            
 
         float const order_of_magnitude = std::min( std::abs(Eh_kdat_Dot_img), std::abs(E_img_Dot_kdat));
         float const diff_in_scalar_prod = std::abs(Eh_kdat_Dot_img - E_img_Dot_kdat);
@@ -602,46 +605,49 @@ int main ( int argc, char* argv[])
 
         
 
-        ok *= test_get_kspace_order(av);
-        ok *= test_get_subset(av);
+        // ok *= test_get_kspace_order(av);
+        // ok *= test_get_subset(av);
 
-        ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
+        // ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
 
-        ok *= test_CoilSensitivitiesVector_calculate(av);
-        ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+        // ok *= test_CoilSensitivitiesVector_calculate(av);
+        // ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
-        ok *= test_bwd(av);
+        // ok *= test_bwd(av);
 
-        ok *= test_acq_mod_adjointness(av);
-        ok *= test_acq_mod_norm(sptr_ad);
+        // ok *= test_acq_mod_adjointness(av);
+        // ok *= test_acq_mod_norm(sptr_ad);
 
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
         #warning "RUNNING THE RADIAL TESTS FOR C++."
             std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
-            sirf::AcquisitionsVector rpe_av;
-            rpe_av.read(rpe_data_path);
+            // sirf::AcquisitionsVector rpe_av;
+            // rpe_av.read(rpe_data_path);
 
-            sirf::preprocess_acquisition_data(rpe_av);
-            rpe_av.sort();
-            sirf::set_unit_dcf(rpe_av);
+            // sirf::preprocess_acquisition_data(rpe_av);
+            // rpe_av.sort();
+            // sirf::set_unit_dcf(rpe_av);
 
 
-            ok *= test_set_rpe_trajectory(rpe_av);
-            ok *= test_rpe_bwd(rpe_av);
-            ok *= test_rpe_fwd(rpe_av);
+            // ok *= test_set_rpe_trajectory(rpe_av);
+            // ok *= test_rpe_bwd(rpe_av);
+            // ok *= test_rpe_fwd(rpe_av);
 
-            ok *= test_rpe_csm(rpe_av);
+            // ok *= test_rpe_csm(rpe_av);
 
-            ok *= test_mracquisition_model_rpe_bwd(rpe_av);
-            ok *= test_acq_mod_adjointness(rpe_av);
+            // ok *= test_mracquisition_model_rpe_bwd(rpe_av);
+            // ok *= test_acq_mod_adjointness(rpe_av);
 
 
             sirf::AcquisitionsVector radial_av;
             radial_av.read(data_path);
-            
+            // sirf::preprocess_acquisition_data(radial_av);
+
             sirf::Radial2DTrajprep radial_tp;
             radial_tp.set_trajectory(radial_av);
+            radial_av.sort();
+
             ok *= test_acq_mod_adjointness(radial_av);
 
         #endif
