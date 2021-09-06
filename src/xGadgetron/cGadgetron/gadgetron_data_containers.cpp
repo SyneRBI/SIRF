@@ -725,7 +725,7 @@ std::vector<int> MRAcquisitionData::get_flagged_acquisitions_index(const std::ve
     return flags_true_index;
 }
 
-virtual std::vector<int> MRAcquisitionData::get_slice_encoding_index(const unsigned kspace_encode_step_2) const
+std::vector<int> MRAcquisitionData::get_slice_encoding_index(const unsigned kspace_encode_step_2) const
 {
     std::vector<int> slice_encode_index;
 
