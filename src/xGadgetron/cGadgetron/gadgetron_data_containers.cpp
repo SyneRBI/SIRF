@@ -725,6 +725,23 @@ std::vector<int> MRAcquisitionData::get_flagged_acquisitions_index(const std::ve
     return flags_true_index;
 }
 
+virtual std::vector<int> MRAcquisitionData::get_slice_encoding_index(const unsigned kspace_encode_step_2) const
+{
+    std::vector<int> slice_encode_index;
+
+    ISMRMRD::Acquisition acq;
+
+    for(int i=0; i<this->number(); ++i)
+    {
+        this->get_acquisition(i, acq);
+        if( acq.idx().kspace_encode_step_2 == kspace_encode_step_2)
+            slice_encode_index.push_back(i);
+    }
+
+    return slice_encode_index;
+}
+
+
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
 {
     subset.set_acquisitions_info(this->acquisitions_info());
