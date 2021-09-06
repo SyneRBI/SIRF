@@ -477,6 +477,8 @@ namespace sirf {
         void organise_kspace();
 
 		virtual std::vector<int> get_flagged_acquisitions_index(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const;
+		virtual std::vector<int> get_slice_encoding_index(const unsigned kspace_encode_step_2) const;
+
 
         virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
         virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);

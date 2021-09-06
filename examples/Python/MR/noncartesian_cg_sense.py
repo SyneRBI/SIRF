@@ -168,7 +168,7 @@ def main():
     processed_data.sort()
     
     if run_recon:
-        recon = SENSE(processed_data, num_iter = 5, stop_criterion = 1e-7)
+        recon = SENSE(processed_data, num_iter = 2, stop_criterion = 1e-7)
         
         if show_plot:
             recon.show(title = 'Reconstructed images using backward() (magnitude)')

@@ -173,6 +173,8 @@ public:
     virtual void backward(CFImage& img, const MRAcquisitionData& ac) const;
 protected:
     Gridder2D::TrajectoryArrayType get_trajectory(const MRAcquisitionData& ac) const;
+    std::vector<int> get_slice_encoding_subset_indices(const MRAcquisitionData& full_dataset, unsigned int kspace_enc_step_2) const;
+
 };    
 
 
