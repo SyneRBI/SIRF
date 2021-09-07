@@ -647,6 +647,14 @@ int main ( int argc, char* argv[])
 
             ok *= test_acq_mod_adjointness(radial_av);
 
+            radial_av.empty();
+            radial_av.read(data_path);
+            sirf::GoldenAngle2DTrajprep ga_tp;
+            ga_tp.set_trajectory(radial_av);
+            radial_av.sort();
+
+            ok *= test_acq_mod_adjointness(radial_av);
+
         #endif
 
 

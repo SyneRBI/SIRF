@@ -33,8 +33,6 @@ limitations under the License.
 #include <sstream>
 #include <math.h>
 
-const static double SIRF_PI = 3.14159265358979323846;
-const static double SIRF_GOLDEN_ANGLE = SIRF_PI*0.618034;
 
 using namespace sirf;
 using namespace ISMRMRD;
@@ -121,9 +119,9 @@ void sirf::NonCartesian2DTrajPrep::append_to_trajectory(TrajPointSet& tps, ISMRM
     }
 }
 
-Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acquisition& acq) const
+Radial2DTrajprep::TrajPointSet sirf::NonCartesian2DTrajPrep::calculate_trajectory(Acquisition& acq) const
 {
-    ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);
+    ISMRMRD::Limit rad_lims(0,0,0);
     
     if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.is_present())
         rad_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.get();
@@ -133,13 +131,8 @@ Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acqu
         rad_lims.center = acq.number_of_samples()/2;
         rad_lims.maximum = acq.number_of_samples()-1;
     }
-    if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
-        ang_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.get();
-
-    const ISMRMRD::EncodingCounters idx = acq.idx();
-
-    unsigned short num_angles = ang_lims.maximum;
-    float const pe_angle = SIRF_PI/(float)num_angles * idx.kspace_encode_step_1;
+    
+    float const pe_angle = calculate_pe_angle(acq);
 
     float const traj_norm = 2*std::max<float>( rad_lims.center-rad_lims.minimum, rad_lims.maximum-rad_lims.center);
 

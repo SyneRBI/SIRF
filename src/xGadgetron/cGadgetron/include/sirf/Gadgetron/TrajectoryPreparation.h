@@ -39,6 +39,9 @@ limitations under the License.
 
 
 
+const static double SIRF_PI = 3.14159265358979323846;
+const static double SIRF_GOLDEN_ANGLE = SIRF_PI*0.618034;
+
 namespace sirf{
 
 /*!
@@ -181,7 +184,10 @@ private:
 class NonCartesian2DTrajPrep : public TrajPrep2D {
 
 protected:
+    virtual TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
+
     virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq) const;
+    virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const =0;
 };
 
 class Radial2DTrajprep : public NonCartesian2DTrajPrep {
@@ -192,7 +198,33 @@ public:
     }
 
 protected:
-    TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
+    virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const 
+    {
+        ISMRMRD::Limit ang_lims(0,0,0);
+
+        if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
+                ang_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.get();
+
+        const ISMRMRD::EncodingCounters idx = acq.idx();
+        unsigned short num_angles = ang_lims.maximum;
+
+        return (SIRF_PI/(float)num_angles * idx.kspace_encode_step_1);
+    }
+};
+
+class GoldenAngle2DTrajprep : public NonCartesian2DTrajPrep {
+
+public:
+    GoldenAngle2DTrajprep() {
+        traj_type_ = ISMRMRD::TrajectoryType::GOLDENANGLE;
+    }
+
+protected:
+    virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const 
+    {
+        const ISMRMRD::EncodingCounters idx = acq.idx();
+        return SIRF_GOLDEN_ANGLE * idx.kspace_encode_step_1;
+    }
 };
 
 
