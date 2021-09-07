@@ -223,7 +223,7 @@ protected:
     virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const 
     {
         const ISMRMRD::EncodingCounters idx = acq.idx();
-        return SIRF_GOLDEN_ANGLE * idx.kspace_encode_step_1;
+        return (SIRF_GOLDEN_ANGLE * idx.kspace_encode_step_1);
     }
 };
 

@@ -917,7 +917,13 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 			auto traj = tp.get_trajectory(acqs);
 			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(Radial2DTrajprep::TrajPointType));
 		}
-		
+		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+		{
+			sirf::GoldenAngle2DTrajprep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GoldenAngle2DTrajprep::TrajPointType));
+		}
+	
         return new DataHandle;
     }
     CATCH;

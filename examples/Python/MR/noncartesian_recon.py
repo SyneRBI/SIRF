@@ -85,6 +85,8 @@ def main():
         processed_data = set_grpe_trajectory(processed_data)
     elif trajtype == 'radial':
         processed_data = set_radial2D_trajectory(processed_data)
+    elif trajtype == 'goldenangle':
+            processed_data = set_goldenangle2D_trajectory(processed_data)
     else:
         raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
                         .format(trajtype))
