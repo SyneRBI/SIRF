@@ -943,14 +943,14 @@ class will effectively use 1 for all kappa values.
 
 ## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
 
-The CCPi [`CIL Python Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel
+The CCPi [`CIL Python Framework`](https://github.com/TomographicImaging/CIL) for development of novel
 reconstruction algorithms can be used with SIRF classes such as
 `DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal,
 a number of methods and properties were added to SIRF Python classes for compatibility.
 
 ### `AcquisitionModel`
 
-PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](http://edosil.net/stfc/cil/html/optimisation.html). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](https://tomographicimaging.github.io/CIL/nightly/optimisation.html#operator). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
 In all what follows the parameter `out` can be passed when user wants to use a specific instance to retrieve the result.
 
 The methods that have been added both in MR and PET :
