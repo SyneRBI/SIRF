@@ -872,6 +872,22 @@ cGT_setRadial2DTrajectory(void* ptr_acqs)
 }
 
 
+extern "C"
+void*
+cGT_setGoldenAngle2DTrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        GoldenAngle2DTrajprep ga2D_prep;
+        ga2D_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
 
 extern "C"
 void*
