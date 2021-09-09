@@ -3,6 +3,7 @@
 ## v3.x.x
 
 * Removed `__div__` ,  `__idiv__` operators for `DataContainers` required for Python2.
+* Added `__truediv__` and `__itruediv__` Python3 operators to DataContainer algebra.
 
 ## v3.1.1
 
