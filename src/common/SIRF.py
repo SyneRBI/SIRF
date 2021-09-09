@@ -620,6 +620,13 @@ class DataContainer(ABC):
         Same as __div__ but for Python 3.*
         '''
         return self.__div__(other)
+
+    def __itruediv__(self, other):
+        '''
+        Same as __idiv__ but for Python 3.*
+        '''
+        return self.__idiv__(other)    
+            
     @property
     def shape(self):
         '''Returns the shape of the data array
