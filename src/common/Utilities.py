@@ -579,6 +579,10 @@ class TestDataContainerAlgebra(object):
         image1.divide(1., out=image2)
         numpy.testing.assert_array_equal(tmp.as_array(), image2.as_array())
 
+        image2.fill(2)
+        image2 /= 2.0
+        numpy.testing.assert_array_equal(image1.as_array(), image2.as_array())
+
     def test_divide_datacontainer(self):
         if hasattr(self, 'cwd'):
             os.chdir(self.cwd)
@@ -603,6 +607,11 @@ class TestDataContainerAlgebra(object):
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
+        
+        image1 /= image2
+        numpy.testing.assert_array_almost_equal(
+            numpy.ones(image1.shape, dtype=numpy.float32), image1.as_array()
+            )        
 
     def test_multiply_scalar(self):
         if hasattr(self, 'cwd'):
