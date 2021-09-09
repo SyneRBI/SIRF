@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v3.x.x
+
+* Removed `__div__` ,  `__idiv__` operators for `DataContainers` required for Python2.
+
 ## v3.1.1
 
 * Build system
