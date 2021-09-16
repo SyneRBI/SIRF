@@ -244,6 +244,19 @@ def show_3D_array\
 
     return 0
 
+def format_numpy_array_for_setter(data, dtype_to_pass=numpy.float32):
+
+    if not isinstance(data, numpy.ndarray):
+        raise error('Wrong input format.' + \
+            ' Should be numpy.ndarray. Got {}'.format(type(data)))
+
+    if data.dtype != dtype_to_pass:
+            data = data.astype(dtype_to_pass)
+
+    if not data.flags['C_CONTIGUOUS']:
+        data = numpy.ascontiguousarray(data)
+
+    return data
 
 def check_tolerance(expected, actual, abstol=0, reltol=2e-3):
     '''
