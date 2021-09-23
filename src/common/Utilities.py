@@ -244,6 +244,19 @@ def show_3D_array\
 
     return 0
 
+def format_numpy_array_for_setter(data, dtype_to_pass=numpy.float32):
+
+    if not isinstance(data, numpy.ndarray):
+        raise error('Wrong input format.' + \
+            ' Should be numpy.ndarray. Got {}'.format(type(data)))
+
+    if data.dtype != dtype_to_pass:
+            data = data.astype(dtype_to_pass)
+
+    if not data.flags['C_CONTIGUOUS']:
+        data = numpy.ascontiguousarray(data)
+
+    return data
 
 def check_tolerance(expected, actual, abstol=0, reltol=2e-3):
     '''
@@ -579,6 +592,10 @@ class TestDataContainerAlgebra(object):
         image1.divide(1., out=image2)
         numpy.testing.assert_array_equal(tmp.as_array(), image2.as_array())
 
+        image2.fill(2)
+        image2 /= 2.0
+        numpy.testing.assert_array_equal(image1.as_array(), image2.as_array())
+
     def test_divide_datacontainer(self):
         if hasattr(self, 'cwd'):
             os.chdir(self.cwd)
@@ -603,6 +620,11 @@ class TestDataContainerAlgebra(object):
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
+        
+        image1 /= image2
+        numpy.testing.assert_array_almost_equal(
+            numpy.ones(image1.shape, dtype=numpy.float32), image1.as_array()
+            )        
 
     def test_multiply_scalar(self):
         if hasattr(self, 'cwd'):
