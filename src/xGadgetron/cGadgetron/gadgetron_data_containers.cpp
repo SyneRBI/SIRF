@@ -1667,7 +1667,8 @@ GadgetronImagesVector::set_up_geom_info()
     // For the z-direction.
     // If it's a 3d image, matrix_size[2] == num voxels
     // If it's a 2d image, matrix_size[2] == 1, and number of slices is given by number_slices.
-    // Assert that if 3D data is present multiple slices are not covered, but this is usually not happening.
+    // We will check below that if 3D data is present multiple slices are not covered, 
+    // but this is usually not happening.
     VoxelisedGeometricalInfo3D::Size size;
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
