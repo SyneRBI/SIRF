@@ -63,7 +63,7 @@ public:
     
     virtual void set_trajectory(MRAcquisitionData& mr_acq)
     {
-        update_acquisitions_info(mr_acq);
+        overwrite_trajectory_name(mr_acq);
 
         for(size_t ia=0; ia<mr_acq.number(); ++ia)
         {
@@ -100,6 +100,11 @@ public:
 
 protected:
     ISMRMRD::Encoding kspace_encoding_;
+    
+    /*!
+    \ingroup Gadgetron Extensions
+    \brief Labels which trajectory type the TrajectoryPreparation is for.
+    */
     ISMRMRD::TrajectoryType traj_type_;
 
     /*!
@@ -117,7 +122,13 @@ protected:
         TrajPointSet acq_traj = this->calculate_trajectory(acq);
         acq.setTraj(&(acq_traj[0][0]));
     }
-    virtual void update_acquisitions_info(sirf::MRAcquisitionData& mr_acq)
+
+    /*!
+    \ingroup Gadgetron Extensions
+    \brief Overwrites the trajectory name in the argument with the traj_type_ member.
+    
+    */
+    virtual void overwrite_trajectory_name(sirf::MRAcquisitionData& mr_acq)
     {
         ISMRMRD::IsmrmrdHeader hdr = mr_acq.acquisitions_info().get_IsmrmrdHeader();
 
@@ -139,8 +150,8 @@ protected:
 
 };
 
-typedef TrajectoryPreparation<2> TrajPrep2D;
-typedef TrajectoryPreparation<3> TrajPrep3D;
+typedef TrajectoryPreparation<2> TrajectoryPreparation2D;
+typedef TrajectoryPreparation<3> TrajectoryPreparation3D;
 
 
 /*!
@@ -153,7 +164,7 @@ typedef TrajectoryPreparation<3> TrajPrep3D;
 
 class CartesianTrajectoryPrep{ 
 public:
-    static TrajPrep2D::TrajPointSet get_trajectory(const sirf::MRAcquisitionData& ac);
+    static TrajectoryPreparation2D::TrajPointSet get_trajectory(const sirf::MRAcquisitionData& ac);
 };
 
 /*!
@@ -167,7 +178,7 @@ public:
 * of the trajectory is set to 0 for all data points.
 */
 
-class GRPETrajectoryPrep : public TrajPrep3D {
+class GRPETrajectoryPrep : public TrajectoryPreparation3D {
 
 public:
     GRPETrajectoryPrep(){
@@ -188,7 +199,7 @@ private:
 \ingroup Gadgetron Extensions
 \brief Interface to set the 2D radial trajectory
 */
-class NonCartesian2DTrajPrep : public TrajPrep2D {
+class NonCartesian2DTrajPrep : public TrajectoryPreparation2D {
 
 protected:
     virtual TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;

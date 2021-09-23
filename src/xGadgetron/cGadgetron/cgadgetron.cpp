@@ -903,7 +903,7 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
 		{
 			auto traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
-			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(TrajPrep2D::TrajPointType));
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(TrajectoryPreparation2D::TrajPointType));
 		}
     	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
 		{
