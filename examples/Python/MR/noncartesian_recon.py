@@ -19,6 +19,7 @@ Options:
   -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
                               [default: False]
   --traj=<str>                trajectory type, must match the data supplied in file
+                              options are cartesian, radial, goldenangle or grpe 
                               [default: grpe]
   --non-interactive           do not show plots
 '''

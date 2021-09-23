@@ -20,6 +20,7 @@ Options:
   -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
                               [default: False]
   --traj=<str>                trajectory type, must match the data supplied in file
+                              options are cartesian, radial, goldenangle or grpe 
                               [default: grpe]
   --non-interactive           do not show plots
 '''
@@ -83,7 +84,6 @@ def SENSE(rawdata, num_iter = 10, stop_criterion = 1e-7):
     E.set_coil_sensitivity_maps(csms)
 
     print('---\n Backward projection ...')
-    # this is our first residual
     recon_img = E.backward(rawdata)
     recon_img.fill(0+0j) # for some reason you need to start with this set to zero
 
@@ -159,6 +159,8 @@ def main():
         processed_data = set_grpe_trajectory(processed_data)
     elif trajtype == 'radial':
         processed_data = set_radial2D_trajectory(processed_data)
+    elif trajtype == 'goldenangle':
+        processed_data = set_goldenangle2D_trajectory(processed_data)
     else:
         raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
                         .format(trajtype))

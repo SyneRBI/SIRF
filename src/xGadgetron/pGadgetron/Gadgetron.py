@@ -1699,7 +1699,7 @@ def calc_cartesian_dcw(ad):
 def calc_rpe_dcw(ad):
     '''
     Function that computes the kspace weight depending on the distance to the center
-    as in a filtered back-projection. Stricly valid only for equally angular-spaced
+    as in a filtered back-projection. Strictly valid only for equally angular-spaced
     radially distributed points
     ad: AcquisitionData
     '''
