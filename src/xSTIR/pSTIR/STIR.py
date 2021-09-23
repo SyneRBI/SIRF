@@ -367,6 +367,12 @@ class ImageData(SIRF.ImageData):
 #            try_calling(pystir.cSTIR_setImageDataFromImage \
 #                        (self.handle, value.handle))
         elif isinstance(value, numpy.ndarray):
+            dims = self.dimensions()
+            shape = value.shape
+            if shape != dims:
+                msg = 'cannot fill ImageData of size %s' \
+                      + ' with data of size %s'
+                raise ValueError(msg % (repr(dims), repr(shape)))
             if value.dtype is numpy.dtype('float32'):
                 # print('keeping dtype float32')
                 v = value
@@ -905,6 +911,12 @@ class AcquisitionData(DataContainer):
             raise error(
                 'Cannot fill read-only object, consider filling a clone')
         if isinstance(value, numpy.ndarray):
+            dims = self.dimensions()
+            shape = value.shape
+            if shape != dims:
+                msg = 'cannot fill AcquisitionData of size %s' \
+                      + ' with data of size %s'
+                raise ValueError(msg % (repr(dims), repr(shape)))
             if value.dtype is numpy.dtype('float32'):
                 # print('keeping dtype float32')
                 v = value

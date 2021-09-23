@@ -34,6 +34,7 @@ limitations under the License.
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
 
+#include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_x.h"
 
 #include "getenv.h"
@@ -81,6 +82,7 @@ int test1()
 		// locate acquisition data
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
 		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
+		fix_path_separator(filename);
 		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();
@@ -129,17 +131,24 @@ int test1()
 		PETAcquisitionData& be = *sptr_e;
 		be.fill(2.0f);
 
-		// create ray tracing matrix
-		CREATE_OBJ(RayTracingMatrix, matrix, sptr_matrix,);
-		matrix.set_num_tangential_LORs(2);
-
 		// create acquisition model that uses ray tracing matrix
-		CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingMatrix, 
+		// long way:
+		// create ray tracing matrix
+		//CREATE_OBJ(RayTracingMatrix, matrix, sptr_matrix, );
+		//matrix.set_num_tangential_LORs(2);
+		//CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingMatrix,
+		//	am, sptr_am, );
+		//am.set_matrix(sptr_matrix);
+		// short way:
+		CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingRayTracingMatrix,
 			am, sptr_am,);
-		am.set_matrix(sptr_matrix);
+		am.set_num_tangential_LORs(10);
 		am.set_additive_term(sptr_a);
 		am.set_background_term(sptr_b);
 		am.set_up(sptr_ad, sptr_id);
+
+		int num_LORs = am.get_num_tangential_LORs();
+		std::cout << "tangential LORs: " << num_LORs << '\n';
 
 		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, processor, sptr_processor,);
 //		processor.set_fwhms(stir::make_coords(3.F, 4.F, 3.F));

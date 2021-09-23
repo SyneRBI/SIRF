@@ -760,6 +760,68 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 
 extern "C"
 void*
+cGT_acquisitionParameterInfo(void* ptr_acqs, const char* name,
+	int* info)
+{
+	try {
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(ptr_acqs);
+		acqs.ismrmrd_par_info(name, info);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_acquisitionParameterValuesInt(void* ptr_acqs, const char* name,
+	int from, int till, int n, unsigned long long int* values)
+{
+	try {
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(ptr_acqs);
+		int na = acqs.number();
+		if (na < 1)
+			return new DataHandle;
+		if (till < 0)
+			till = na;
+		for (int a = from; a < till; a++) {
+			ISMRMRD::Acquisition acq;
+			acqs.get_acquisition(a, acq);
+			acqs.ismrmrd_par_value(acq, name, values);
+			values += n;
+		}
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_acquisitionParameterValuesFloat(void* ptr_acqs, const char* name,
+	int from, int till, int n, float* values)
+{
+	try {
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(ptr_acqs);
+		int na = acqs.number();
+		if (na < 1)
+			return new DataHandle;
+		if (till < 0)
+			till = na;
+		for (int a = from; a < till; a++) {
+			ISMRMRD::Acquisition acq;
+			acqs.get_acquisition(a, acq);
+			acqs.ismrmrd_par_value(acq, name, values);
+			values += n;
+		}
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
 {
 	try {
@@ -922,17 +984,6 @@ cGT_reconstructedImages(void* ptr_recon)
 	}
 	CATCH;
 
-}
-
-extern "C"
-void*
-cGT_absImages(void* ptr_im)
-{
-	try {
-		SPTR_FROM_HANDLE(GadgetronImageData, sptr_im, ptr_im);
-		return newObjectHandle(sptr_im->abs());
-	}
-	CATCH;
 }
 
 extern "C"
@@ -1100,6 +1151,21 @@ cGT_setImageDataFromCmplxArray(void* ptr_imgs, size_t ptr_z)
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		imgs.set_data(z);
 		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_realImageData(void* ptr_imgs, const char* way)
+{
+	try {
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		if (sirf::iequals(way, "real"))
+			return newObjectHandle<GadgetronImageData>(imgs.real());
+		else
+			return newObjectHandle<GadgetronImageData>(imgs.abs());
 	}
 	CATCH;
 }

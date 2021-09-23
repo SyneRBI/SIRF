@@ -23,7 +23,7 @@ import abc
 import sys
 import inspect
 
-from sirf.Utilities import error, check_status, try_calling
+from sirf.Utilities import error, check_status, try_calling, format_numpy_array_for_setter
 from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
@@ -1312,6 +1312,7 @@ class AffineTransformation(_Transformation):
         elif isinstance(src1, str):
             self.handle = pyreg.cReg_objectFromFile(self.name, src1)
         elif isinstance(src1, numpy.ndarray) and src2 is None:
+            src1 = format_numpy_array_for_setter(src1)
             if src1.shape != (4, 4):
                 raise AssertionError()
             # Need to transpose relative to MATLAB
@@ -1324,14 +1325,17 @@ class AffineTransformation(_Transformation):
                         trans.ctypes.data)
         elif isinstance(src1, numpy.ndarray) and src2 is not None and \
                 isinstance(src2, Quaternion):
+            src1 = format_numpy_array_for_setter(src1)
             self.handle = pyreg.\
                 cReg_AffineTransformation_construct_from_trans_and_quaternion(
                     src1.ctypes.data, src2.handle)
         elif isinstance(src1, numpy.ndarray) and \
                 isinstance(src2, numpy.ndarray):
+            src1 = format_numpy_array_for_setter(src1)
+            src2 = format_numpy_array_for_setter(src2)
             self.handle = pyreg.\
                 cReg_AffineTransformation_construct_from_trans_and_euler(
-                    src1.ctypes.data, src1.ctypes.data)
+                    src1.ctypes.data, src2.ctypes.data)
         else:
             raise error("""AffineTransformation accepts no args, filename,
                         4x4 array or translation with quaternion.""")

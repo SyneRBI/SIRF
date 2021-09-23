@@ -399,10 +399,10 @@ class DataContainer(ABC):
 
         return NotImplemented
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         '''
         Overloads / for data containers division by a scalar or (elementwise)
-        another data container (Python 2.*)
+        another data container (Python 3.*)
 
         Returns the ratio self/other if other is a scalar
         or the elementwise ratio if other is of the same type as self.
@@ -516,7 +516,7 @@ class DataContainer(ABC):
         #self.fill(self.subtract(other).as_array())
         self.subtract(other, out=self)
         return self
-    def __idiv__(self, other):
+    def __itruediv__(self, other):
         '''Not quite in-place division'''
         if isinstance(other, Number):
             z = (1./other) * self
@@ -615,11 +615,7 @@ class DataContainer(ABC):
         CIL/SIRF compatibility'''
         return self.norm() ** 2
 
-    def __truediv__(self, other):
-        '''
-        Same as __div__ but for Python 3.*
-        '''
-        return self.__div__(other)
+
     @property
     def shape(self):
         '''Returns the shape of the data array

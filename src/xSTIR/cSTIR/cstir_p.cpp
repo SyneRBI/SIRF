@@ -22,8 +22,8 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/stir_types.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 
@@ -31,8 +31,10 @@ using namespace stir;
 using namespace sirf;
 
 #define SPTR_FROM_HANDLE(Object, X, H) \
-	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
-#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+  std::shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+#define STIRSPTR_FROM_HANDLE(Object, X, H) \
+  stir::shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 extern "C"
 char* charDataFromHandle(const void* ptr);
@@ -271,7 +273,7 @@ sirf::cSTIR_setAcquisitionModelParameter
 		am.set_asm(sptr_asm);
 	}
 	else if (sirf::iequals(name, "image_data_processor")) {
-		SPTR_FROM_HANDLE(ImageDataProcessor, sptr_proc, hv);
+		STIRSPTR_FROM_HANDLE(ImageDataProcessor, sptr_proc, hv);
 		am.set_image_data_processor(sptr_proc);
 	}
 	else
@@ -298,7 +300,7 @@ sirf::cSTIR_setAcqModUsingMatrixParameter
 {
 	AcqModUsingMatrix3DF& am = objectFromHandle<AcqModUsingMatrix3DF>(hm);
 	if (sirf::iequals(name, "matrix")) {
-		SPTR_FROM_HANDLE(ProjMatrixByBin, sptr_m, hv);
+		STIRSPTR_FROM_HANDLE(ProjMatrixByBin, sptr_m, hv);
 		am.set_matrix(sptr_m);
 	}
 	else
@@ -520,7 +522,7 @@ sirf::cSTIR_setGeneralisedObjectiveFunctionParameter
 	ObjectiveFunction3DF& obj_fun =
 		objectFromHandle< ObjectiveFunction3DF >(hp);
 	if (sirf::iequals(name, "prior")) {
-		SPTR_FROM_HANDLE(GeneralisedPrior<Image3DF>, sptr_p, hv);
+		STIRSPTR_FROM_HANDLE(GeneralisedPrior<Image3DF>, sptr_p, hv);
 		obj_fun.set_prior_sptr(sptr_p);
 	}
 	else if (sirf::iequals(name, "num_subsets"))
@@ -635,17 +637,17 @@ sirf::cSTIR_setIterativeReconstructionParameter
 	IterativeReconstruction3DF& recon =
 		objectFromHandle<IterativeReconstruction3DF>(hp);
 	if (sirf::iequals(name, "inter_iteration_filter_type")) {
-		SPTR_FROM_HANDLE(DataProcessor3DF, sptr_f, hv);
+		STIRSPTR_FROM_HANDLE(DataProcessor3DF, sptr_f, hv);
 		recon.set_inter_iteration_filter_ptr(sptr_f);
 	}
 	else if (sirf::iequals(name, "objective_function")) {
-		SPTR_FROM_HANDLE(ObjectiveFunction3DF, sptr_obf, hv);
+		STIRSPTR_FROM_HANDLE(ObjectiveFunction3DF, sptr_obf, hv);
 		recon.set_objective_function_sptr(sptr_obf);
 	}
 	else if (sirf::iequals(name, "initial_estimate")) {
 		//xSTIR_IterativeReconstruction3DF& xrecon =
 		//	(xSTIR_IterativeReconstruction3DF&)(recon);
-		DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+		SIRF_DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
 		xrecon.set_initial_estimate_file(charDataFromDataHandle(hv));
 	}
 	else {
@@ -661,7 +663,7 @@ sirf::cSTIR_setIterativeReconstructionParameter
 		else if (sirf::iequals(name, "subiteration_num")) {
 			//xSTIR_IterativeReconstruction3DF& xrecon =
 			//	(xSTIR_IterativeReconstruction3DF&)(recon);
-			DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+			SIRF_DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
 			xrecon.subiteration() = value;
 		}
 		else if (sirf::iequals(name, "save_interval"))
@@ -691,7 +693,7 @@ sirf::cSTIR_iterativeReconstructionParameter
 	if (sirf::iequals(name, "subiteration_num")) {
 		//xSTIR_IterativeReconstruction3DF& xrecon =
 		//	(xSTIR_IterativeReconstruction3DF&)(recon);
-		//DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
+		//SIRF_DYNAMIC_CAST(xSTIR_IterativeReconstruction3DF, xrecon, recon);
 		int iter = recon.get_subiteration_num();
 		return dataHandle<int>(iter);
 		//return dataHandle<int>(xrecon.subiteration());

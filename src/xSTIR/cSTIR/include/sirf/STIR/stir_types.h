@@ -107,4 +107,8 @@ namespace sirf {
 
 }
 
+#ifdef STIR_USE_BOOST_SHARED_PTR
+#define USE_BOOST //KTXXXX
+#endif
+
 #endif

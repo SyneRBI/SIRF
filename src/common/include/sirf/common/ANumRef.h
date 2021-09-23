@@ -287,6 +287,35 @@ namespace sirf {
 				*(unsigned short*)ptr_ = (unsigned short)ref;
 			}
 		}
+		NumRef& operator/=(float s)
+		{
+			switch (type_) {
+			case NumberType::CXDOUBLE:
+				*(complex_double_t*)ptr_ /= s;
+				break;
+			case NumberType::CXFLOAT:
+				*(complex_float_t*)ptr_ /= s;
+				break;
+			case NumberType::DOUBLE:
+				*(double*)ptr_ /= s;
+				break;
+			case NumberType::FLOAT:
+				*(float*)ptr_ /= s;
+				break;
+			case NumberType::INT:
+				*(int*)ptr_ /= s;
+				break;
+			case NumberType::UINT:
+				*(unsigned int*)ptr_ /= s;
+				break;
+			case NumberType::SHORT:
+				*(short*)ptr_ /= s;
+				break;
+			case NumberType::USHORT:
+				*(unsigned short*)ptr_ /= s;
+			}
+			return *this;
+		}
 		template <typename T>
 		NumRef& operator=(std::complex<T> v)
 		{
