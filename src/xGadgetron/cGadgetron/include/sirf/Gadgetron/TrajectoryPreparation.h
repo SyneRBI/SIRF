@@ -102,6 +102,15 @@ protected:
     ISMRMRD::Encoding kspace_encoding_;
     ISMRMRD::TrajectoryType traj_type_;
 
+    /*!
+    \ingroup Gadgetron Extensions
+    \brief Sets the trajectory field in an ISMRMRD::Acquisition
+
+    * Depending on the virtual method calculate_trajectory(...) which is overloaded for
+    * child classes, this method fills the trajectory data field of the acquisition with
+    * the correct locations in k-space. The trajectory information is later picked up 
+    * by the forward() and backward() methods of the MRAcquisitionModel.
+    */
     virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const
     {
         acq.resize(acq.number_of_samples(),acq.active_channels(), D);
@@ -177,19 +186,26 @@ private:
 
 /*!
 \ingroup Gadgetron Extensions
-\brief Class to set the 2D radial trajectory
-... 
+\brief Interface to set the 2D radial trajectory
 */
-
 class NonCartesian2DTrajPrep : public TrajPrep2D {
 
 protected:
     virtual TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
 
     virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq) const;
+    /*!
+    \ingroup Gadgetron Extensions
+    \brief Abstract function computing a anglular increment depending on the trajectory type.
+    */
     virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const =0;
 };
 
+
+/*!
+\ingroup Gadgetron Extensions
+\brief Implementation to set anglular increment for 2D radial trajectory based on (Pi=3.141...)/#Angles
+*/
 class Radial2DTrajprep : public NonCartesian2DTrajPrep {
 
 public:
@@ -198,6 +214,7 @@ public:
     }
 
 protected:
+
     virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const 
     {
         ISMRMRD::Limit ang_lims(0,0,0);
@@ -212,6 +229,10 @@ protected:
     }
 };
 
+/*!
+\ingroup Gadgetron Extensions
+\brief Implementation to set anglular increment for 2D radial trajectory based on doi:10.1109/TMI.2006.885337
+*/
 class GoldenAngle2DTrajprep : public NonCartesian2DTrajPrep {
 
 public:
