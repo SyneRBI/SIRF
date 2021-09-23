@@ -168,10 +168,10 @@ def main():
     processed_data.sort()
     
     if run_recon:
-        recon = SENSE(processed_data, num_iter = 2, stop_criterion = 1e-7)
+        recon = SENSE(processed_data, num_iter = 20, stop_criterion = 1e-7)
         
         if show_plot:
-            recon.show(title = 'Reconstructed images using backward() (magnitude)')
+            recon.show(title = 'Reconstructed images using CG Sense() (magnitude)')
             
     else:
         print('---\n Skipping non-cartesian code...')
