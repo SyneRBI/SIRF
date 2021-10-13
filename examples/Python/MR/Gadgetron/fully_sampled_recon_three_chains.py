@@ -99,7 +99,7 @@ def main():
     recon = Reconstructor\
         (['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', 
-        'SimpleReconGadget', 'ImageArraySplitGadget', 'ExtractGadget'])
+        'SimpleReconGadget', 'ImageArraySplitGadget'])
     
     # provide pre-processed k-space data
     recon.set_input(preprocessed_data)
@@ -107,21 +107,19 @@ def main():
     # perform reconstruction
     recon.process()
 
-##    # temporarily removed because of a bug in ExtractGadget    
-##    # retrieve reconstructed images
-##    complex_image_data = recon.get_output()
-##
-##    # post-process reconstructed images by a one-work-gadget chain
-##    # that recieves a complex image on input and sends back its magnitude
-##    # (default setting - see fully_sampled_single_chain.py for general case)
-##    img_proc = ImageDataProcessor(['ExtractGadget'])
-##    # standard usage of a data processor object
-##    img_proc.set_input(complex_image_data)
-##    img_proc.process()
-##    real_image_data = img_proc.get_output()
-    real_image_data = recon.get_output()
-    # shortcut for the above 3 lines
-##    real_image_data = img_proc.process(complex_image_data)
+    # retrieve the reconstructed complex images
+    complex_image_data = recon.get_output()
+
+    # post-process reconstructed images by a one-work-gadget chain
+    # that recieves a complex image on input and sends back its magnitude
+    complex_image_data.set_conversion_to_real(ISMRMRD_IMTYPE_MAGNITUDE)
+    img_proc = ImageDataProcessor(['ComplexToFloatGadget'])
+    # standard usage of a data processor object:
+    img_proc.set_input(complex_image_data)
+    img_proc.process()
+    real_image_data = img_proc.get_output()
+    # shortcut for the above 3 lines:
+    # real_image_data = img_proc.process(complex_image_data)
 
     # show obtained images
     if show_plot:

@@ -1101,6 +1101,18 @@ cGT_imageType(const void* ptr_img)
 
 extern "C"
 void*
+cGT_setConversionToReal(const void* ptr_img, int conv)
+{
+	try {
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(ptr_img);
+		imgs.set_conversion_to_real(conv);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_getImageDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	try {
