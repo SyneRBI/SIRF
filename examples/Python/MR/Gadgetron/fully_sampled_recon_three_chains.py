@@ -38,12 +38,21 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
+import numpy
+
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-# import engine module
-from pGadgetron import *
+# import engine module objects
+from pGadgetron import examples_data_path
+from pGadgetron import existing_filepath
+from pGadgetron import AcquisitionData
+from pGadgetron import AcquisitionDataProcessor
+from pGadgetron import Reconstructor
+from pGadgetron import ISMRMRD_IMTYPE_MAGNITUDE
+from pGadgetron import ImageDataProcessor
+from pGadgetron import error
 
 # process command-line options
 data_file = args['--file']
