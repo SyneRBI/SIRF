@@ -121,8 +121,11 @@ def main():
 
     # post-process reconstructed images by a one-work-gadget chain
     # that recieves a complex image on input and sends back its magnitude
-    complex_image_data.set_conversion_to_real(ISMRMRD_IMTYPE_MAGNITUDE)
     img_proc = ImageDataProcessor(['ComplexToFloatGadget'])
+    # the way ComplexToFloatGadget converts complex values to real
+    # (magnitude, real part, imaginary part or phase) is determined by
+    # ISMRMRD::ISMRMRD_ImageHeader::image_type, below we select magnitude
+    complex_image_data.set_ISMRMRD_image_type(ISMRMRD_IMTYPE_MAGNITUDE)
     # standard usage of a data processor object:
     img_proc.set_input(complex_image_data)
     img_proc.process()

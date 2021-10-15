@@ -618,7 +618,7 @@ namespace sirf {
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> abs() const = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> real() const = 0;
 		virtual void clear_data()=0;
-		virtual void set_conversion_to_real(int conv) = 0;
+		virtual void set_image_type(int imtype) = 0;
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
@@ -1156,7 +1156,7 @@ namespace sirf {
 				(new Iterator_const(iw, n, n - 1, (**iw).end_const()));
 			return *end_const_;
 		}
-		virtual void set_conversion_to_real(int conv);
+		virtual void set_image_type(int image_type);
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;

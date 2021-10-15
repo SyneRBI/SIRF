@@ -285,9 +285,9 @@ class ImageData(SIRF.ImageData):
         pyiutil.deleteDataHandle(handle)
         return n
 
-    def set_conversion_to_real(self, conv):
+    def set_ISMRMRD_image_type(self, imtype):
         assert self.handle is not None
-        try_calling(pygadgetron.cGT_setConversionToReal(self.handle, conv))
+        try_calling(pygadgetron.cGT_setImageType(self.handle, imtype))
 
     def is_real(self):
         assert self.handle is not None

@@ -1101,11 +1101,11 @@ cGT_imageType(const void* ptr_img)
 
 extern "C"
 void*
-cGT_setConversionToReal(const void* ptr_img, int conv)
+cGT_setImageType(const void* ptr_img, int image_type)
 {
 	try {
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(ptr_img);
-		imgs.set_conversion_to_real(conv);
+		imgs.set_image_type(image_type);
 		return new DataHandle;
 	}
 	CATCH;
