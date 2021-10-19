@@ -4,6 +4,7 @@
 
 * PET/STIR
   - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception.
+  - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
 
 * SIRF Python interface
   - Removed `__div__` ,  `__idiv__` operators for `DataContainers` required for Python2.
