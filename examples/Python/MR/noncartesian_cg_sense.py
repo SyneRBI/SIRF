@@ -68,7 +68,7 @@ import numpy
 def EhE(E, image):
     return E.backward( E.forward(image) )
 
-def SENSE(rawdata, num_iter = 10, stop_criterion = 1e-7):
+def ConjugateGradient(rawdata, num_iter = 10, stop_criterion = 1e-7):
 
     print('---\n computing coil sensitivity maps...')
     csms = CoilSensitivityData()
@@ -87,7 +87,7 @@ def SENSE(rawdata, num_iter = 10, stop_criterion = 1e-7):
     recon_img = E.backward(rawdata)
     recon_img.fill(0+0j) # for some reason you need to start with this set to zero
 
-    # now copy the pseudo-code from wikipedia for cg optimisation
+    # implement pseudo-code from Wikipedia
     x = recon_img
     y = rawdata
 
@@ -101,7 +101,6 @@ def SENSE(rawdata, num_iter = 10, stop_criterion = 1e-7):
     # initialize p
     p = r
     
-    # define optimisation parameters
     print('Cost for k = 0: '  + str( rr/ rr0) )
     
     for k in range(num_iter):
@@ -170,10 +169,10 @@ def main():
     processed_data.sort()
     
     if run_recon:
-        recon = SENSE(processed_data, num_iter = 20, stop_criterion = 1e-7)
+        recon = ConjugateGradient(processed_data, num_iter = 20, stop_criterion = 1e-7)
         
         if show_plot:
-            recon.show(title = 'Reconstructed images using CG Sense() (magnitude)')
+            recon.show(title = 'Reconstructed images using CG() (magnitude)')
             
     else:
         print('---\n Skipping non-cartesian code...')
