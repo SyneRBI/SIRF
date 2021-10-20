@@ -1460,6 +1460,8 @@ class Quaternion(object):
             if src.size != 4:
                 raise AssertionError("""Quaternion constructor from numpy
                                      array is wrong size.""")
+            if src.dtype is not numpy.float32:
+                src = src.astype(numpy.float32)
             self.handle = pyreg.cReg_Quaternion_construct_from_array(
                 src.ctypes.data)
         elif isinstance(src, AffineTransformation):

@@ -930,6 +930,9 @@ class AcquisitionData(DataContainer):
         if idx > 7 or idx < 0 or not isinstance(idx,int):
             raise AssertionError('Please give an integer from [0,...,7]')
 
+        if data.dtype is not numpy.float32:
+            data = data.astype(numpy.float32)
+
         try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
                     (self.handle, data.ctypes.data, idx))
 

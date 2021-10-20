@@ -649,9 +649,9 @@ namespace sirf {
             // do it
             double t = 0.0;
             auto iter = pd_ptr->begin();
-            while (iter != pd_ptr->end())
-                t += (*iter) * (*iter++);
-            return sqrt((float)t);
+			for (; iter != pd_ptr->end(); ++iter)
+				t += (*iter) * (*iter);
+			return sqrt((float)t);
         }
         virtual void dot(const DataContainer& a_x, void* ptr) const
         {
