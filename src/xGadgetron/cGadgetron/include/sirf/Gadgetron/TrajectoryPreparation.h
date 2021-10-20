@@ -52,7 +52,7 @@ namespace sirf{
 * reconstruction. The ISMRMRD format has a 3D trajectory data field in their ISRMRMRD::Acquisition classe.
 * The interface provides set_trajectory() which populates this data field depending on the implementation.
 */
-template <uint16_t D>
+template <std::uint16_t D>
 class TrajectoryPreparation{
 
 public:
@@ -190,8 +190,8 @@ protected:
     virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq) const;
     
 private:    
-    uint16_t circ_mod(uint16_t const a, uint16_t const b) const { return (((a%b) + b ) % b);}
-    const std::vector< uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
+    std::uint16_t circ_mod(std::uint16_t const a, std::uint16_t const b) const { return (((a%b) + b ) % b);}
+    const std::vector< std::uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
 };
 
 
