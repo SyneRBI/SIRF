@@ -20,7 +20,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-add_library(csirf csirf.cpp ImageData.cpp GeometricalInfo.cpp)
+add_library(csirf csirf.cpp ImageData.cpp GeometricalInfo.cpp iequals.cpp)
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
@@ -40,10 +40,18 @@ else()
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
   target_link_libraries(Syn PUBLIC cgadgetron cstir Reg)
-  INSTALL(TARGETS Syn DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
   target_link_libraries(csirf PUBLIC iutilities Syn)
+  install(TARGETS Syn EXPORT SIRFTargets
+    COMPONENT Development
+    DESTINATION lib)
 endif()
-INSTALL(TARGETS csirf DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS csirf EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
 
 if (BUILD_PYTHON)
   if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
@@ -60,7 +68,8 @@ if (BUILD_PYTHON)
   SWIG_LINK_LIBRARIES(pysirf csirf iutilities ${Python_LIBRARIES})
   INSTALL(TARGETS ${SWIG_MODULE_pysirf_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirf.py" DESTINATION "${PYTHON_DEST}/sirf")
-  file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
+  #file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
+  set(PythonFiles select_module.py  show_image.py  SIRF.py  Utilities.py)
   INSTALL(FILES ${PythonFiles} DESTINATION "${PYTHON_DEST}/sirf")
 endif()
 

@@ -52,7 +52,8 @@ def test_main(rec=False, verb=False, throw=True):
     test_img_dimensions = (2, 256, 256)
     test_successful *= imgdata.dimensions() == test_img_dimensions
 
-    return test_successful, 1
+    test_failed = not test_successful
+    return test_failed, 1
 
 
 if __name__ == "__main__":

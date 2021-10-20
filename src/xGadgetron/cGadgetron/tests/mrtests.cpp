@@ -48,6 +48,7 @@ limitations under the License.
 
 #include "mrtest_auxiliary_funs.h"
 
+using namespace gadgetron;
 using namespace sirf;
 
 bool const mr_cpp_tests_writefiles = true;
@@ -239,7 +240,7 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
             random_data.push_back(curr_number);
         }
 
-        std::shared_ptr<ISMRMRDImageData> sptr_random = std::move(sptr_bwd->clone());
+        shared_ptr<ISMRMRDImageData> sptr_random = std::move(sptr_bwd->clone());
         sptr_random->set_data(&random_data[0]);
 
         complex_float_t Eh_kdat_Dot_img;
@@ -272,7 +273,7 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
     }
 }
 
-bool test_acq_mod_norm(gadgetron::shared_ptr<MRAcquisitionData> sptr_ad)
+bool test_acq_mod_norm(shared_ptr<MRAcquisitionData> sptr_ad)
 {
 
 try
@@ -583,14 +584,14 @@ int main ( int argc, char* argv[])
 		
         std::string SIRF_PATH;
         if (argc==1)
-            SIRF_PATH = sirf::getenv("SIRF_PATH");
+            SIRF_PATH = sirf::getenv("SIRF_PATH", true);
         else
             SIRF_PATH = argv[1];
 
 //        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
-        std::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
         AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
         av.read(data_path);
 

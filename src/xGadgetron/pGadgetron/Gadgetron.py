@@ -24,7 +24,7 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 import abc
 import numpy
 import os
-from numbers import Number, Complex
+from numbers import Number, Complex, Integral
 try:
     import pylab
     HAVE_PYLAB = True
@@ -135,7 +135,7 @@ def mr_data_path():
 
 class Image(object):
     '''
-    Class for an MR image.
+    Provides access to ISMRMRD::Image parameters (cf. ismrmrd.h).
     '''
     def __init__(self, image_data = None, image_num = 0):
         self.handle = None
@@ -247,6 +247,19 @@ class ImageData(SIRF.ImageData):
             pyiutil.deleteDataHandle(self.handle)
     def same_object(self):
         return ImageData()
+
+    def abs(self):
+        images = ImageData()
+        images.handle = pygadgetron.cGT_realImageData(self.handle, 'abs')
+        check_status(images.handle)
+        return images
+
+    def real(self):
+        images = ImageData()
+        images.handle = pygadgetron.cGT_realImageData(self.handle, 'real')
+        check_status(images.handle)
+        return images
+
     def read_from_file(self, file):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -302,12 +315,22 @@ class ImageData(SIRF.ImageData):
         check_status(images.handle)
         return images
 
-    def parameter_info(self, par):
+    def get_ISMRMRD_info(self, par):
         '''
         Returns the array of values of the specified image information 
-        parameter. Parameters names are the same as the names of Image class
+        parameter. Parameters names are the same as the names of sirf.Gadgetron.Image class
         public methods (except is_real and info).
-        par: parameter name
+
+        par: parameter name (as a string)
+
+        Examples:
+
+        # to get information on the timing:
+        slice = image.get_ISMRMRD_info('acquisition_time_stamp')
+
+        # to get the unit vector orthogonal to the slice and directed
+        # to the next slice (in ISMRMRD coordinate system):
+        slice_dir = image.get_ISMRMRD_info('slice_dir')
         '''
         ni = self.number()
         info = numpy.empty((ni,), dtype = object)
@@ -316,9 +339,9 @@ class ImageData(SIRF.ImageData):
             info[i] = image.info(par)
         return info
 
-    @deprecated(details="Please use parameter_info method instead")
+    @deprecated(details="Please use get_ISMRMRD_info method instead")
     def get_info(self, par):
-        return self.parameter_info(par)
+        return self.get_ISMRMRD_info(par)
 
     def fill(self, data):
         '''
@@ -331,6 +354,11 @@ class ImageData(SIRF.ImageData):
             return super(ImageData, self).fill(data)
         
         if isinstance(data, numpy.ndarray):
+            dims = self.dimensions()
+            shape = data.shape
+            if numpy.prod(shape) != numpy.prod(dims):
+                msg = 'cannot fill ImageData of size %s with data of size %s'
+                raise ValueError(msg % (repr(dims), repr(shape)))
             the_data = data
             if self.is_real():
                 if data.dtype != numpy.float32:
@@ -431,7 +459,7 @@ class ImageData(SIRF.ImageData):
             return
         data = self.as_array()
         nz = data.shape[0]
-        if type(slice) == type(1):
+        if isinstance(slice, (Integral,numpy.integer)):
             if slice < 0 or slice >= nz:
                 return
             ni = 1
@@ -585,18 +613,20 @@ class CoilSensitivityData(ImageData):
                 from ismrmrdtools import coils
             except:
                 raise error('Inati method requires ismrmrd-python-tools')
-            
-            try_calling(pygadgetron.cGT_computeCoilImages(self.handle, data.handle))
-                
-            cis_array = self.as_array()
+
+            cis = CoilImagesData()
+            try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
+            cis_array = cis.as_array()
             csm, _ = coils.calculate_csm_inati_iter(cis_array)
-            
+
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+            self.handle = pysirf.cSIRF_clone(cis.handle)
             nc, nz, ny, nx = self.dimensions()
             ns = self.number() # number of total dynamics (slices, contrasts, etc.)
             nz = nz//ns        # z-dimension of a slice
             csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
             csm = numpy.swapaxes(csm, 0,  1)
-            
             self.fill(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
@@ -628,12 +658,14 @@ class CoilSensitivityData(ImageData):
             try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
                 (self.handle, data.handle))
         else:
-            raise error('Unknown method %s' % method_name)   
+            raise error('Unknown method %s' % method_name)
 
 DataContainer.register(CoilSensitivityData)
 
 
 class Acquisition(object):
+    ''' Provides access to ISMRMRD::Acquisition parameters (cf. ismrmrd.h).
+    '''
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
@@ -898,6 +930,9 @@ class AcquisitionData(DataContainer):
         if idx > 7 or idx < 0 or not isinstance(idx,int):
             raise AssertionError('Please give an integer from [0,...,7]')
 
+        if data.dtype is not numpy.float32:
+            data = data.astype(numpy.float32)
+
         try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
                     (self.handle, data.ctypes.data, idx))
 
@@ -918,11 +953,21 @@ class AcquisitionData(DataContainer):
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
 
-    def parameter_info(self, par, which='all'):
+    def get_ISMRMRD_info(self, par, which='all'):
         '''
         Returns the array of values of the specified acquisition information 
         parameter.
-        par: parameter name
+
+        par: parameter name (see sirf.Gadgetron.Acquisition class methods except info)
+        which: specifies the range of acquisitions whose parameters are returned
+
+        Example:
+        # to retrieve readouts flags for acquisitions 0 to 10:
+        flags = acq_data.get_ISMRMRD_info('flags', range(10))
+
+        # for phase encoding information
+        encoding = acq_data.get_ISMRMRD_info('kspace_encode_step_1')
+
         '''
         na, nc, ns = self.dimensions()
         if which == 'all':
@@ -930,23 +975,43 @@ class AcquisitionData(DataContainer):
         else:
             rng = which
             na = len(rng)
+        f = min(rng)
+        t = max(rng) + 1
+        info = numpy.ndarray((2,), dtype=numpy.int32)
+        try_calling(pygadgetron.cGT_acquisitionParameterInfo \
+                    (self.handle, par, info.ctypes.data))
+        n = int(info[1])
+        if info[0] == 0:
+            values = numpy.ndarray((na, n), dtype=numpy.uint64)
+            try_calling(pygadgetron.cGT_acquisitionParameterValuesInt \
+                        (self.handle, par, f, t, n, values.ctypes.data))
+        else:
+            values = numpy.ndarray((na, n), dtype=numpy.float32)
+            try_calling(pygadgetron.cGT_acquisitionParameterValuesFloat \
+                        (self.handle, par, f, t, n, values.ctypes.data))
+        if n == 1:
+            values = numpy.reshape(values, (na,))
+        return values
+
+        # Python way is much slower for large data
         info = numpy.empty((na,), dtype = object)
         i = 0
-        for a in rng: #range(na):
+        for a in rng:
             acq = self.acquisition(a)
             info[i] = acq.info(par)
             i += 1
-##            info[a] = acq.info(par)
         return info
 
-    @deprecated(details="Please use parameter_info method instead")
+    @deprecated(details="Please use the get_ISMRMRD_info method instead")
     def get_info(self, par, which='all'):
-        return self.parameter_info(par, which)
+        return self.get_ISMRMRD_info(par, which)
 
     def fill(self, data, select='image'):
         '''
         Fills self's acquisitions with specified values.
         data: Python Numpy array or AcquisitionData
+        select: specifies whether all or only image-related acquisitions are
+                filled with values from the array data.
         '''
         assert self.handle is not None
         if isinstance(data, AcquisitionData):
@@ -954,6 +1019,12 @@ class AcquisitionData(DataContainer):
                 (self.handle, data.handle))
             return
         elif isinstance(data, numpy.ndarray):
+            dims = self.dimensions()
+            shape = data.shape
+            if shape != dims:
+                msg = 'cannot fill AcquisitionData of size %s' \
+                      + ' with data of size %s'
+                raise ValueError(msg % (repr(dims), repr(shape)))
             if data.dtype is not numpy.complex64:
                 the_data = data.astype(numpy.complex64)
             else:
@@ -977,16 +1048,22 @@ class AcquisitionData(DataContainer):
             raise error('wrong fill value.' + \
                         ' Should be AcquisitionData, numpy.ndarray or number. Got {}'.format(type(data)))
         return self
+
     def as_array(self, acq=None):
         '''
-        Returns selected self's acquisitions as a 3D Numpy ndarray.
+        Returns selected self's acquisition(s) data as a 2D or 3D Numpy ndarray.
+        acq: acquisition number; if None all acquisitions data is returned.
         '''
         assert self.handle is not None
         if acq is None:
-            ny, nc, ns = self.dimensions()
-            z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+            ''' return 3D array of all acquisition data
+            '''
+            na, nc, ns = self.dimensions()
+            z = numpy.ndarray((na, nc, ns), dtype = numpy.complex64)
             acq = -1
         else:
+            ''' return 2D array of the specified acquisition data
+            '''
             a = self.acquisition(acq)
             nc = a.active_channels()
             ns = a.number_of_samples()
@@ -994,8 +1071,9 @@ class AcquisitionData(DataContainer):
         try_calling(pygadgetron.cGT_acquisitionDataAsArray\
             (self.handle, z.ctypes.data, acq))
         return z
-    def show(self, slice = None, title = None, cmap = 'gray', power = 0.2, \
-             postpone = False):
+
+    def show(self, slice=None, title=None, cmap='gray', power=0.2, \
+             postpone=False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -1003,7 +1081,7 @@ class AcquisitionData(DataContainer):
             return
         data = numpy.transpose(self.as_array(), (1, 0, 2))
         nz = data.shape[0]
-        if type(slice) == type(1):
+        if isinstance(slice, (Integral,numpy.integer)):
             if slice < 0 or slice >= nz:
                 return
             ns = 1
@@ -1578,7 +1656,8 @@ def calc_cartesian_dcw(ad):
     
     density_weight = (1.0 / counts)[inverse]
     
-    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.expand_dims(density_weight, axis=1)
+    density_weight = numpy.expand_dims(density_weight, axis=2)
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
     
     dcw = ad.copy()

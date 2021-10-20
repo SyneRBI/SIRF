@@ -28,6 +28,7 @@ try:
 except:
     HAVE_PYLAB = False
 import sys
+import warnings
 
 from sirf.Utilities import assert_validity, assert_validities, check_status, try_calling, error
 import pyiutilities as pyiutil
@@ -398,10 +399,10 @@ class DataContainer(ABC):
 
         return NotImplemented
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         '''
         Overloads / for data containers division by a scalar or (elementwise)
-        another data container (Python 2.*)
+        another data container (Python 3.*)
 
         Returns the ratio self/other if other is a scalar
         or the elementwise ratio if other is of the same type as self.
@@ -515,7 +516,7 @@ class DataContainer(ABC):
         #self.fill(self.subtract(other).as_array())
         self.subtract(other, out=self)
         return self
-    def __idiv__(self, other):
+    def __itruediv__(self, other):
         '''Not quite in-place division'''
         if isinstance(other, Number):
             z = (1./other) * self
@@ -614,11 +615,7 @@ class DataContainer(ABC):
         CIL/SIRF compatibility'''
         return self.norm() ** 2
 
-    def __truediv__(self, other):
-        '''
-        Same as __div__ but for Python 3.*
-        '''
-        return self.__div__(other)
+
     @property
     def shape(self):
         '''Returns the shape of the data array
@@ -681,6 +678,12 @@ class ImageData(DataContainer):
 
     def get_geometrical_info(self):
         """Get the image's geometrical info."""
+        try:
+            import sirf.STIR
+            if isinstance(self, sirf.STIR.ImageData):
+                warnings.warn("geometrical info for STIR.ImageData might be incorrect")
+        except:
+            pass
         geom_info = GeometricalInfo()
         geom_info.handle = pysirf.cSIRF_ImageData_get_geom_info(self.handle)
         check_status(geom_info.handle)
@@ -743,19 +746,19 @@ class GeometricalInfo(object):
         """Offset is the LPS coordinate of the centre of the first voxel."""
         arr = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling(pysirf.cSIRF_GeomInfo_get_offset(self.handle, arr.ctypes.data))
-        return tuple(arr[::-1])
+        return tuple(arr)
 
     def get_spacing(self):
         """Spacing is the physical distance between voxels in each dimension."""
         arr = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_spacing(self.handle, arr.ctypes.data))
-        return tuple(arr[::-1])
+        return tuple(arr)
     
     def get_size(self):
         """Size is the number of voxels in each dimension."""
         arr = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling (pysirf.cSIRF_GeomInfo_get_size(self.handle, arr.ctypes.data))
-        return tuple(arr[::-1])
+        return tuple(arr)
 
     def get_direction_matrix(self):
         """Each row gives a vector dictating the direction of the axis in LPS physical space."""

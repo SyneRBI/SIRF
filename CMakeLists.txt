@@ -51,7 +51,7 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   3 )
-set(VERSION_MINOR   0 )
+set(VERSION_MINOR   1 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -205,3 +205,44 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/data
         DESTINATION ${SHARE_DIR})
 
 ADD_SUBDIRECTORY(doxygen)
+
+#### export configuration for external projects that want to use SIRF
+# See https://cmake.org/cmake/help/v3.0/manual/cmake-packages.7.html
+# Also https://rix0r.nl/blog/2015/08/13/cmake-guide/
+# https://coderwall.com/p/qej45g/use-cmake-enabled-libraries-in-your-cmake-project-iii
+set(ConfigPackageLocation lib/cmake/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
+
+include(CMakePackageConfigHelpers)
+
+WRITE_BASIC_PACKAGE_VERSION_FILE(${CMAKE_CURRENT_BINARY_DIR}/SIRFConfigVersion.cmake
+                                 VERSION ${SIRF_VERSION}
+                                 COMPATIBILITY SameMajorVersion )
+
+# get rid of any -alpha, -beta or similar suffixes in STIR_VERSION,
+# as find_package doesn't allow that
+string(REGEX MATCH "[0-9]*\.[0-9]*\.[0-9]*" STIR_VERSION_TRUNCATED ${STIR_VERSION})
+CONFIGURE_PACKAGE_CONFIG_FILE(
+  cmake/SIRFConfig.cmake.in
+  "${CMAKE_BINARY_DIR}/SIRFConfig.cmake"
+   INSTALL_DESTINATION "${ConfigPackageLocation}"
+)
+
+install(EXPORT SIRFTargets
+  DESTINATION "${ConfigPackageLocation}"
+  NAMESPACE sirf::
+)
+
+# install SIRFConfig*.cmake
+install(
+  FILES
+    "${CMAKE_BINARY_DIR}/SIRFConfig.cmake"
+    "${CMAKE_BINARY_DIR}/SIRFConfigVersion.cmake"
+  DESTINATION "${ConfigPackageLocation}"
+)
+
+# install our own *.cmake
+install(
+  FILES
+    #cmake/FindNiftyPET.cmake
+  DESTINATION "${ConfigPackageLocation}"
+)

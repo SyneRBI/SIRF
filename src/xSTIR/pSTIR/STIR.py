@@ -29,7 +29,7 @@ try:
 except:
     HAVE_PYLAB = False
 import sys
-from numbers import Integral
+from numbers import Integral, Number
 from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
@@ -286,9 +286,10 @@ class ImageData(SIRF.ImageData):
             arg : Python str or AcquisitionData or None, interpreted as follows:
         str            : read the object from a file specified by <arg>
                          (the file format has to be support by STIR).
-        AcquisitionData: create an object compatible with the scanner data
+        STIR.AcquisitionData: create an object compatible with the scanner data
                          recorded in an AcquisitionData object <arg>.
                          This sets default voxel sizes.
+        SIRF.ImageData : (attempt to) convert data from another SIRF ImageData container.
         None           : create an empty ImageData object. Call initialise()
                          method before using it.
         """
@@ -366,6 +367,12 @@ class ImageData(SIRF.ImageData):
 #            try_calling(pystir.cSTIR_setImageDataFromImage \
 #                        (self.handle, value.handle))
         elif isinstance(value, numpy.ndarray):
+            dims = self.dimensions()
+            shape = value.shape
+            if shape != dims:
+                msg = 'cannot fill ImageData of size %s' \
+                      + ' with data of size %s'
+                raise ValueError(msg % (repr(dims), repr(shape)))
             if value.dtype is numpy.dtype('float32'):
                 # print('keeping dtype float32')
                 v = value
@@ -375,9 +382,7 @@ class ImageData(SIRF.ImageData):
             if not v.flags['C_CONTIGUOUS']:
                 v = numpy.ascontiguousarray(v)
             try_calling(pystir.cSTIR_setImageData(self.handle, v.ctypes.data))
-        elif isinstance(value, float):
-            try_calling(pystir.cSTIR_fillImage(self.handle, value))
-        elif isinstance(value, int):
+        elif isinstance(value, (Number, numpy.number)):
             try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
             raise TypeError('wrong fill value.' + \
@@ -473,7 +478,7 @@ class ImageData(SIRF.ImageData):
             return
         data = self.as_array()
         nz = data.shape[0]
-        if isinstance(slice, int):
+        if isinstance(slice, (Integral,numpy.integer)):
             if slice < 0 or slice >= nz:
                 raise IndexError('Slice index out of range')
             show_2D_array('slice %d' % slice, data[slice, :, :])
@@ -906,6 +911,12 @@ class AcquisitionData(DataContainer):
             raise error(
                 'Cannot fill read-only object, consider filling a clone')
         if isinstance(value, numpy.ndarray):
+            dims = self.dimensions()
+            shape = value.shape
+            if shape != dims:
+                msg = 'cannot fill AcquisitionData of size %s' \
+                      + ' with data of size %s'
+                raise ValueError(msg % (repr(dims), repr(shape)))
             if value.dtype is numpy.dtype('float32'):
                 # print('keeping dtype float32')
                 v = value
@@ -923,7 +934,7 @@ class AcquisitionData(DataContainer):
                 self.handle, value.handle))
         elif isinstance(value, float):
             try_calling(pystir.cSTIR_fillAcquisitionData(self.handle, value))
-        elif isinstance(value, int):
+        elif isinstance(value, (Integral,numpy.number)):
             try_calling(pystir.cSTIR_fillAcquisitionData(
                 self.handle, float(value)))
         else:
@@ -982,7 +993,7 @@ class AcquisitionData(DataContainer):
         if tof <0 or tof >= data.shape[0]:
             raise IndexError('TOF bin index out of range')
         nz = data.shape[1]
-        if isinstance(sino, int):
+        if isinstance(sino, (Integral,numpy.integer)):
             if sino < 0 or sino >= nz:
                 raise IndexError('Slice index out of range')
             show_2D_array('sinogram %d' % sino, data[tof, sino, :, :])
@@ -1034,17 +1045,13 @@ class AcquisitionData(DataContainer):
             out = self.get_uniform_copy(value)
         return out
 
-    def parameter_info(self):
+    def get_info(self):
         """Returns the AcquisitionData's metadata as Python str."""
         handle = pystir.cSTIR_get_ProjDataInfo(self.handle)
         check_status(handle)
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
-
-    @deprecated(details="Please use parameter_info method instead")
-    def get_info(self):
-        return self.parameter_info()
 
     @property
     def shape(self):
@@ -1357,6 +1364,8 @@ class AcquisitionModel(object):
     def __init__(self):
         """init."""
         self.handle = None
+        self.acq_templ = None
+        self.img_templ = None
         # reference to the background term
         self.bt = None
         # reference to the additive term
@@ -1388,6 +1397,9 @@ class AcquisitionModel(object):
 
         try_calling(pystir.cSTIR_setupAcquisitionModel(
             self.handle, acq_templ.handle, img_templ.handle))
+
+        self.acq_templ = acq_templ
+        self.img_templ = img_templ
 
     def norm(self, subset_num=0, num_subsets=1):
         assert self.handle is not None
@@ -1444,6 +1456,8 @@ class AcquisitionModel(object):
         """Returns the background term b of the AcquisitionModel (F).
         """
         if self.bt is None:
+            if self.acq_templ is None:
+                raise RuntimeError('AcquisitionModel.set_up() call missing')
             self.bt = AcquisitionData(self.acq_templ)
             self.bt.fill(0)
         return self.bt
@@ -1452,6 +1466,8 @@ class AcquisitionModel(object):
         """Returns the additive term a of the AcquisitionModel (F).
         """
         if self.at is None:
+            if self.acq_templ is None:
+                raise RuntimeError('AcquisitionModel.set_up() call missing')
             self.at = AcquisitionData(self.acq_templ)
             self.at.fill(0)
         return self.at
@@ -2289,15 +2305,16 @@ class Reconstructor(object):
         parms.set_int_par(self.handle, 'Reconstruction', 'enable_output', 1)
 
     def reconstruct(self, image):
-        """Performs reconstruction."""
+        """Performs reconstruction (will update the image argument)"""
         assert_validity(image, ImageData)
         try_calling(pystir.cSTIR_runReconstruction(self.handle, image.handle))
         self.image = image
 
     def get_output(self):
         """Returns the reconstructed image."""
+        assert self.image is not None, 'current estimate not set. Did you run a reconstruction already?'
         # TODO: move to C++
-        return self.image
+        return self.image.clone()
 
 
 class FBP2DReconstructor(object):
@@ -2437,6 +2454,10 @@ class IterativeReconstructor(Reconstructor):
         Defines how often to save image iterates (n = 1: on each
         subiteration, n = 2: every other subiteration etc.)
         """
+        if n > 0:
+            self.enable_output()
+        else:
+            self.disable_output()
         parms.set_int_par(
             self.handle, 'IterativeReconstruction', 'save_interval', n)
 #    def set_inter_iteration_filter_interval(self, n):
@@ -2474,20 +2495,28 @@ class IterativeReconstructor(Reconstructor):
             self.handle, image.handle))
 
     def set_current_estimate(self, image):
-        """Sets image estimate."""
+        """Sets image estimate for further iterations.
+
+        image will be cloned.
+        """
         assert_validity(image, ImageData)
-        self.image = image
+        self.image = image.clone()
+
+    #def set_estimate(self, image):
+    #    """Sets image estimate as a variable that will be updated."""
+    #    assert_validity(image, ImageData)
+    #    self.image = image
 
     def process(self):
         """Performs reconstruction."""
-        if self.image is None:
-            raise error('current estimate not set')
+        assert self.image is not None, 'current estimate not set.'
         try_calling(pystir.cSTIR_runReconstruction(
             self.handle, self.image.handle))
 
     def get_current_estimate(self):
         """Return current image estimate."""
-        return self.image
+        assert self.image is not None, 'current estimate not set.'
+        return self.image.clone()
 
     def update_current_estimate(self):
         """Updates current image estimate by performing one subiteration."""
@@ -2517,9 +2546,10 @@ class IterativeReconstructor(Reconstructor):
         argument.
         """
         assert_validity(image, ImageData)
-        self.set_current_estimate(image)
+        #self.set_estimate(image)
+        self.image = image;
         self.update_current_estimate()
-        return self.get_current_estimate()
+        return image
 
 
 class OSMAPOSLReconstructor(IterativeReconstructor):

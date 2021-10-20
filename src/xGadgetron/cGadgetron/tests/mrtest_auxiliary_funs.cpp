@@ -37,6 +37,8 @@ limitations under the License.
 
 #include <ismrmrd/ismrmrd.h>
 
+using namespace gadgetron;
+
 void sirf::preprocess_acquisition_data(MRAcquisitionData& ad)
 {
     std::cout << "Pre-processing Acquisition Data" << std::endl;
@@ -118,7 +120,7 @@ void sirf::write_imagevector_to_raw(const std::string& fname_prefix, const sirf:
 
 void sirf::set_acq_default_orientation(std::string path_in, std::string path_out)
 {
-    std::shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+    shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
     AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
     av.read(path_in);
     int na = av.number();
@@ -152,9 +154,9 @@ sirf::MRAcquisitionModel
 sirf::get_prepared_MRAcquisitionModel(const MRAcquisitionData& ad)
 {
     sirf::GadgetronImagesVector iv;
-    std::shared_ptr<GadgetronImageData> sptr_iv = std::move(iv.clone());
+    shared_ptr<GadgetronImageData> sptr_iv = std::move(iv.clone());
 
-    std::shared_ptr<MRAcquisitionData> sptr_ad = std::move(ad.clone());
+    shared_ptr<MRAcquisitionData> sptr_ad = std::move(ad.clone());
 
     sirf::CoilSensitivitiesVector csm;
     auto sptr_csm = std::make_shared<CoilSensitivitiesVector>(csm);

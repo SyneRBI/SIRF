@@ -37,6 +37,7 @@ limitations under the License.
 #include <ismrmrd/xml.h>
 
 #include "sirf/common/ANumRef.h"
+#include "sirf/common/iequals.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/xgadgetron_utilities.h"
 
@@ -324,6 +325,10 @@ namespace sirf {
 		{
 			IMAGE_PROCESSING_SWITCH(type_, return get_head_ref_, ptr_);
 		}
+		const ISMRMRD::ImageHeader& head() const
+		{
+			IMAGE_PROCESSING_SWITCH_CONST(type_, return get_head_ref_const_, ptr_);
+		}
 		std::string attributes() const
 		{
 			std::string attr;
@@ -369,7 +374,7 @@ namespace sirf {
 		void scale(float s)
 		{
 			for (ImageWrap::Iterator i = begin(); i != end(); ++i)
-				*i = (*i).complex_float() / s;
+				*i /= s;
 		}
 		void get_complex_data(complex_float_t* data) const
 		{
@@ -395,7 +400,43 @@ namespace sirf {
 			//IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
 		}
 
-        /// Get data type
+		gadgetron::shared_ptr<ImageWrap> abs() const
+		{
+			return real("abs");
+		}
+
+		gadgetron::shared_ptr<ImageWrap> real(const std::string& way = "real") const
+		{
+			int dim[4];
+			get_dim(dim);
+			ISMRMRD::Image<float>* ptr_im = new ISMRMRD::Image<float>(dim[0], dim[1], dim[2], dim[3]);
+			ISMRMRD::Image<float>& im = *ptr_im;
+
+			ISMRMRD::ImageHeader header = head();
+			header.data_type = ISMRMRD::ISMRMRD_FLOAT;
+			header.image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
+			header.image_series_index = 0;
+			im.setHead(header);
+
+			ImageWrap::Iterator_const i = begin_const();
+			ImageWrap::Iterator_const stop = end_const();
+			float* data = im.getDataPtr();
+			if (sirf::iequals(way, "abs"))
+				for (; i != stop; ++data, ++i) {
+					*data = std::abs((*i).complex_float());
+				}
+			else if (sirf::iequals(way, "real"))
+				for (; i != stop; ++data, ++i) {
+					*data = std::real((*i).complex_float());
+				}
+			else
+				THROW("unknown conversion to real specified in ImageWrap::real");
+
+			ImageWrap* ptr_iw = new ImageWrap(ISMRMRD::ISMRMRD_FLOAT, ptr_im);
+			return gadgetron::shared_ptr<ImageWrap>(ptr_iw);
+		}
+
+		/// Get data type
         ISMRMRD::ISMRMRD_DataTypes get_data_type() const
         {
             ISMRMRD::ISMRMRD_DataTypes data_type;
@@ -534,6 +575,12 @@ namespace sirf {
 
 		template<typename T>
 		ISMRMRD::ImageHeader& get_head_ref_(ISMRMRD::Image<T>* ptr_im)
+		{
+			return ptr_im->getHead();
+		}
+
+		template<typename T>
+		const ISMRMRD::ImageHeader& get_head_ref_const_(const ISMRMRD::Image<T>* ptr_im) const
 		{
 			return ptr_im->getHead();
 		}

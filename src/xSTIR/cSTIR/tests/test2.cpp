@@ -33,9 +33,12 @@ SIRF C interface test.
 #include "stir/IO/stir_ecat_common.h"
 
 #include "sirf/common/csirf.h"
+#include "sirf/common/iequals.h"
 #include "sirf/STIR/cstir.h"
-#include "handle.h"
 #include "sirf/STIR/stir_types.h"
+
+#include "getenv.h"
+#include "handle.h"
 
 using namespace stir;
 using namespace ecat;
@@ -78,158 +81,168 @@ int test2()
 	void* smn = 0;
 	void* ai = 0;
 
-	std::string SIRF_path = std::getenv("SIRF_PATH");
-	if (SIRF_path.length() < 1) {
-		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-		return 1;
-	}
-	std::string path = SIRF_path + "/data/examples/PET/";
-
-	TextWriter w;
-	openChannel(0, &w); // suppress STIR info output
-
 	int status = 1;
-	for (;;) {
+	try {
+		std::string SIRF_path = sirf::getenv("SIRF_PATH");
+		if (SIRF_path.length() < 1) {
+			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+			return 1;
+		}
+		std::string data_path = SIRF_path + "/data/examples/PET/";
+		fix_path_separator(data_path);
 
-		HANDLE(matrix, cSTIR_newObject("RayTracingMatrix"));
-		CALL(cSTIR_setParameter
+		TextWriter w;
+		openChannel(0, &w); // suppress STIR info output
+
+		for (;;) {
+
+			HANDLE(matrix, cSTIR_newObject("RayTracingMatrix"));
+			CALL(cSTIR_setParameter
 			(matrix, "RayTracingMatrix", "num_tangential_LORs", intDataHandle(2)));
 
-		filename = path + "mMR/mMR_template_span11_small.hs";
-		//filename = path + "my_forward_projection.hs";
-		//std::cout << "reading data from " << filename << "...";
-		//BUG: fails if storage scheme is "memory"!
-		HANDLE(ad, cSTIR_objectFromFile("AcquisitionData", filename.c_str()));
-		//std::cout << "ok\n";
-		cSTIR_getAcquisitionDataDimensions(ad, (size_t)&dim[0]);
-		std::cout << "acquisition data dimensions: "
-			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+			filename = data_path + "mMR/mMR_template_span11_small.hs";
+			//filename = path + "my_forward_projection.hs";
+			//std::cout << "reading data from " << filename << "...";
+			//BUG: fails if storage scheme is "memory"!
+			HANDLE(ad, cSTIR_objectFromFile("AcquisitionData", filename.c_str()));
+			//std::cout << "ok\n";
+			cSTIR_getAcquisitionDataDimensions(ad, (size_t)&dim[0]);
+			std::cout << "acquisition data dimensions: "
+				<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
-		//cSTIR_setAcquisitionDataStorageScheme("memory");
+			//cSTIR_setAcquisitionDataStorageScheme("memory");
 
-		HANDLE(image, cSTIR_imageFromAcquisitionData(ad));
-		cSTIR_getImageDimensions(image, (size_t)&dim[0]);
-		std::cout << "image dimensions: " 
-			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+			HANDLE(image, cSTIR_imageFromAcquisitionData(ad));
+			cSTIR_getImageDimensions(image, (size_t)&dim[0]);
+			std::cout << "image dimensions: "
+				<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
-		HANDLE(at, cSTIR_acquisitionDataFromTemplate(ad));
-		cSTIR_getAcquisitionDataDimensions(at, (size_t)&dim[0]);
-		cSTIR_fillAcquisitionData(at, at_value);
-		HANDLE(bt, cSTIR_acquisitionDataFromTemplate(ad));
-		cSTIR_getAcquisitionDataDimensions(bt, (size_t)&dim[0]);
-		cSTIR_fillAcquisitionData(bt, bt_value);
-		HANDLE(nd, cSTIR_acquisitionDataFromTemplate(ad));
-		cSTIR_getAcquisitionDataDimensions(nd, (size_t)&dim[0]);
-		cSTIR_fillAcquisitionData(nd, 2.0);
+			HANDLE(at, cSTIR_acquisitionDataFromTemplate(ad));
+			cSTIR_getAcquisitionDataDimensions(at, (size_t)&dim[0]);
+			cSTIR_fillAcquisitionData(at, at_value);
+			HANDLE(bt, cSTIR_acquisitionDataFromTemplate(ad));
+			cSTIR_getAcquisitionDataDimensions(bt, (size_t)&dim[0]);
+			cSTIR_fillAcquisitionData(bt, bt_value);
+			HANDLE(nd, cSTIR_acquisitionDataFromTemplate(ad));
+			cSTIR_getAcquisitionDataDimensions(nd, (size_t)&dim[0]);
+			cSTIR_fillAcquisitionData(nd, 2.0);
 
-		HANDLE(am, cSTIR_newObject("AcqModUsingMatrix"));
-		CALL(cSTIR_setParameter(am, "AcquisitionModel", "additive_term", at));
-		CALL(cSTIR_setParameter(am, "AcqModUsingMatrix", "matrix", matrix));
-		CALL(cSTIR_setupAcquisitionModel(am, ad, image));
+			HANDLE(am, cSTIR_newObject("AcqModUsingMatrix"));
+			CALL(cSTIR_setParameter(am, "AcquisitionModel", "additive_term", at));
+			CALL(cSTIR_setParameter(am, "AcqModUsingMatrix", "matrix", matrix));
+			CALL(cSTIR_setupAcquisitionModel(am, ad, image));
 
-		filename = path + "mMR/mu_map.hv";
-		HANDLE(ai, cSTIR_objectFromFile("Image", filename.c_str()));
-		HANDLE(sma, cSTIR_createPETAttenuationModel(ai, am));
-		CALL(cSTIR_setupAcquisitionSensitivityModel(sma, ad));
-		HANDLE(smn, cSTIR_createPETAcquisitionSensitivityModel(nd, "s"));
-		CALL(cSTIR_fillAcquisitionData(nd, 1.0));
-		CALL(cSTIR_applyAcquisitionSensitivityModel(sma, nd, "unnormalise"));
-		deleteDataHandle(sma);
-		HANDLE(sma, cSTIR_createPETAcquisitionSensitivityModel(nd, "s"));
-		HANDLE(sm, cSTIR_chainPETAcquisitionSensitivityModels(smn, sma));
-		CALL(cSTIR_setupAcquisitionSensitivityModel(sm, ad));
-		CALL(cSTIR_setParameter(am, "AcquisitionModel", "asm", sm));
+			filename = data_path + "mMR/mu_map.hv";
+			HANDLE(ai, cSTIR_objectFromFile("Image", filename.c_str()));
+			HANDLE(sma, cSTIR_createPETAttenuationModel(ai, am));
+			CALL(cSTIR_setupAcquisitionSensitivityModel(sma, ad));
+			HANDLE(smn, cSTIR_createPETAcquisitionSensitivityModel(nd, "s"));
+			CALL(cSTIR_fillAcquisitionData(nd, 1.0));
+			CALL(cSTIR_applyAcquisitionSensitivityModel(sma, nd, "unnormalise"));
+			deleteDataHandle(sma);
+			HANDLE(sma, cSTIR_createPETAcquisitionSensitivityModel(nd, "s"));
+			HANDLE(sm, cSTIR_chainPETAcquisitionSensitivityModels(smn, sma));
+			CALL(cSTIR_setupAcquisitionSensitivityModel(sm, ad));
+			CALL(cSTIR_setParameter(am, "AcquisitionModel", "asm", sm));
 
-		int num_subsets = 9; // 8;
-		std::cout << "projecting...\n";
-		HANDLE(fd, cSTIR_acquisitionModelFwd(am, image, 0, num_subsets));
-		cSTIR_getAcquisitionDataDimensions(fd, (size_t)&dim[0]);
-		std::cout << "simulated acquisition data dimensions: "
-			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+			int num_subsets = 9; // 8;
+			std::cout << "projecting...\n";
+			HANDLE(fd, cSTIR_acquisitionModelFwd(am, image, 0, num_subsets));
+			cSTIR_getAcquisitionDataDimensions(fd, (size_t)&dim[0]);
+			std::cout << "simulated acquisition data dimensions: "
+				<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
-		std::cout << "backprojecting...\n";
-		HANDLE(img, cSTIR_acquisitionModelBwd(am, fd, 0, num_subsets));
-		cSTIR_getImageDimensions(img, (size_t)&dim[0]);
-		std::cout << "backprojected image dimensions: " 
-			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+			std::cout << "backprojecting...\n";
+			HANDLE(img, cSTIR_acquisitionModelBwd(am, fd, 0, num_subsets));
+			cSTIR_getImageDimensions(img, (size_t)&dim[0]);
+			std::cout << "backprojected image dimensions: "
+				<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
-		HANDLE(prior, cSTIR_newObject("QuadraticPrior"));
+			HANDLE(prior, cSTIR_newObject("QuadraticPrior"));
 
-		std::string obj_fun_name
+			std::string obj_fun_name
 			("PoissonLogLikelihoodWithLinearModelForMeanAndProjData");
-		HANDLE(obj_fun, cSTIR_newObject(obj_fun_name.c_str()));
-		CALL(cSTIR_setParameter
+			HANDLE(obj_fun, cSTIR_newObject(obj_fun_name.c_str()));
+			CALL(cSTIR_setParameter
 			(obj_fun, obj_fun_name.c_str(), "acquisition_model", am));
-		handle = charDataHandle("true");
-		CALL(cSTIR_setParameter
+			handle = charDataHandle("true");
+			CALL(cSTIR_setParameter
 			(obj_fun, obj_fun_name.c_str(), "zero_seg0_end_planes", handle));
-		deleteDataHandle(handle);
-		CALL(cSTIR_setParameter
+			deleteDataHandle(handle);
+			CALL(cSTIR_setParameter
 			(obj_fun, "GeneralisedObjectiveFunction", "prior", prior));
 
-		HANDLE(filter, cSTIR_newObject("TruncateToCylindricalFOVImageProcessor"));
+			HANDLE(filter, cSTIR_newObject("TruncateToCylindricalFOVImageProcessor"));
 
-		int num_subiterations = 2;
-		HANDLE(recon, cSTIR_objectFromFile("OSMAPOSLReconstruction", ""));
-		handle = charDataHandle("reconstructedImage");
-		CALL(cSTIR_setParameter
+			int num_subiterations = 2;
+			HANDLE(recon, cSTIR_objectFromFile("OSMAPOSLReconstruction", ""));
+			handle = charDataHandle("reconstructedImage");
+			CALL(cSTIR_setParameter
 			(recon, "Reconstruction", "output_filename_prefix", handle));
-		deleteDataHandle(handle);
-		handle = intDataHandle(num_subsets);
-		CALL(cSTIR_setParameter
+			deleteDataHandle(handle);
+			handle = intDataHandle(num_subsets);
+			CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "num_subsets", handle));
-		deleteDataHandle(handle);
-		handle = intDataHandle(num_subiterations);
-		CALL(cSTIR_setParameter
+			deleteDataHandle(handle);
+			handle = intDataHandle(num_subiterations);
+			CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "num_subiterations", handle));
-		CALL(cSTIR_setParameter
+			CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "save_interval", handle));
-		deleteDataHandle(handle);
-		handle = intDataHandle(1);
-		CALL(cSTIR_setParameter
-			(recon, "IterativeReconstruction", "inter_iteration_filter_interval", 
-			handle));
-		deleteDataHandle(handle);
-		CALL(cSTIR_setParameter
+			deleteDataHandle(handle);
+			handle = intDataHandle(1);
+			CALL(cSTIR_setParameter
+			(recon, "IterativeReconstruction", "inter_iteration_filter_interval",
+				handle));
+			deleteDataHandle(handle);
+			CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "objective_function", obj_fun));
-		CALL(cSTIR_setParameter
+			CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "inter_iteration_filter_type", filter));
-		handle = charDataHandle("multiplicative");
-		CALL(cSTIR_setParameter(recon, "OSMAPOSL", "MAP_model", handle));
-		deleteDataHandle(handle);
-		CALL(cSTIR_setParameter(recon, "Reconstruction", "input_data", fd));
-		std::cout << "setting up the reconstructor, please wait...";
-		CALL(cSTIR_setupReconstruction(recon, image));
-		std::cout << "ok\n";
+			handle = charDataHandle("multiplicative");
+			CALL(cSTIR_setParameter(recon, "OSMAPOSL", "MAP_model", handle));
+			deleteDataHandle(handle);
+			CALL(cSTIR_setParameter(recon, "Reconstruction", "input_data", fd));
+			std::cout << "setting up the reconstructor, please wait...";
+			CALL(cSTIR_setupReconstruction(recon, image));
+			std::cout << "ok\n";
 
-		for (int iter = 0; iter < num_subiterations; iter++) {
-			std::cout << "iteration " << iter << '\n';
-			cSTIR_updateReconstruction(recon, image);
+			for (int iter = 0; iter < num_subiterations; iter++) {
+				std::cout << "iteration " << iter << '\n';
+				cSTIR_updateReconstruction(recon, image);
+			}
+
+			status = 0;
+			break;
 		}
-		
+
+		deleteDataHandle(image);
+		deleteDataHandle(img);
+		deleteDataHandle(ad);
+		deleteDataHandle(am);
+		deleteDataHandle(sm);
+		deleteDataHandle(sma);
+		deleteDataHandle(smn);
+		deleteDataHandle(matrix);
+		deleteDataHandle(at);
+		deleteDataHandle(bt);
+		deleteDataHandle(nd);
+		deleteDataHandle(fd);
+		deleteDataHandle(recon);
+		deleteDataHandle(filter);
+		deleteDataHandle(prior);
+		deleteDataHandle(obj_fun);
+		closeChannel(0, &w);
 		std::cout << "done with test2.cpp...\n";
-		status = 0;
-		break;
 	}
-
-	deleteDataHandle(image);
-	deleteDataHandle(img);
-	deleteDataHandle(ad);
-	deleteDataHandle(am);
-	deleteDataHandle(sm);
-	deleteDataHandle(sma);
-	deleteDataHandle(smn);
-	deleteDataHandle(matrix);
-	deleteDataHandle(at);
-	deleteDataHandle(bt);
-	deleteDataHandle(nd);
-	deleteDataHandle(fd);
-	deleteDataHandle(recon);
-	deleteDataHandle(filter);
-	deleteDataHandle(prior);
-	deleteDataHandle(obj_fun);
-	closeChannel(0, &w);
-
+	catch (const std::exception &error) {
+		std::cerr << "\nException thrown:\n\t" << error.what() << "\n\n";
+		return 1;
+	}
+	catch (...) {
+		std::cerr << "\nException thrown\n";
+		return 1;
+	}
 	return status;
 }
 

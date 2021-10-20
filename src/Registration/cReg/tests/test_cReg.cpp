@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     // Paths
     std::string SIRF_PATH;
     if (argc==1)
-        SIRF_PATH = sirf::getenv("SIRF_PATH");
+        SIRF_PATH = sirf::getenv("SIRF_PATH", true);
     else
         SIRF_PATH = argv[1];
     const std::string examples_path = SIRF_PATH + "/data/examples/Registration";

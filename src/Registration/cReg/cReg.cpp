@@ -186,6 +186,19 @@ void* cReg_NiftiImageData_print_headers(const void* handle_vector_ptr)
     CATCH;
 }
 extern "C"
+void* cReg_NiftiImageData_get_headers(const void* handle_vector_ptr)
+{
+	try {
+		const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+		std::vector<const NiftiImageData<float>*> vec;
+		for (unsigned i = 0; i < handle_vector.size(); ++i)
+			vec.push_back(&objectFromHandle<const NiftiImageData<float> >(handle_vector.at(i)));
+		std::string str = NiftiImageData<float>::get_headers(vec);
+		return charDataHandleFromCharData(str.c_str());
+	}
+	CATCH;
+}
+extern "C"
 void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype)
 {
 	try {

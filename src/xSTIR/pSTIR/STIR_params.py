@@ -4,7 +4,9 @@ import sirf.select_module as select_module
 import sirf.pyiutilities as pyiutil
 from sirf.Utilities import check_status
 
-from sirf.pystir import setParameter, parameter
+#from sirf.pystir import setParameter, parameter
+from sirf.pystir import cSTIR_setParameter as setParameter
+from sirf.pystir import cSTIR_parameter as parameter
 
 
 def set_parameter(hs, group, par, hv, stack = None):

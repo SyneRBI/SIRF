@@ -1,14 +1,39 @@
 # ChangeLog
 
-## Current changes
+## v3.x.x
+
+* PET/STIR
+  - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception.
+  - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
+
 * SIRF Python interface
-  - `range_geometry` and `domain_geometry` methods of `AcquisitionModel` classes, required by CIL algorithms, now obtain data via respective C++ `AcquisitionModel` classes accessors, in line with our strategy of keeping interface code minimal
+  - Removed `__div__` ,  `__idiv__` operators for `DataContainers` required for Python2.
+  - Added `__truediv__` and `__itruediv__` Python3 operators to DataContainer algebra.
+
+* Build system
+   - export a CMake config file such that external C++ projects can use SIRF via CMake,
+   see the `examples/C++` directory for basic usage.
+
+## v3.1.1
+  - minor bug fixes
+
+## v3.1.0
 * MR/Gadgetron
-  - new MR reconstruction framework sorts the ISMRMRD::Acquisitions prior to reconstruction. This ensures that only consistent images are reconstructed.
-  - Encoding classes perform the Fourier transformations instead of the MRAcquisitionModel
-  - Golden-angle radial phase encoding (RPE) trajectory is supported.
-  - CoilSensitivitiesVector class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute coil sensitivities from MRAcquisitionData.
-  - added constructor for GadgetronImagesVector from MRAcquisitionData. This allows setting up an MR acquisition model without having to perform a reconstruction before. 
+  - Golden-angle radial phase encoding (RPE) trajectory is supported if `Gadgetron` toolboxes were found during building.<br />
+    **WARNING** if Gadgetron was compiled with CUDA support, you need to build SIRF with the `Gadgetron_USE_CUDA` CMake variable set to `ON`.
+  - Automatic calling of `sort_by_time()` in most places. This ensures that only consistent images are reconstructed.
+  - Encoding classes perform the Fourier transformations instead of the `MRAcquisitionModel`.
+  - `CoilSensitivitiesVector` class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute `coil sensitivities` from `MRAcquisitionData`.
+  - Added constructor for `GadgetronImagesVector` from `MRAcquisitionData`. This allows setting up an MR acquisition model without having to perform a reconstruction first. 
+
+* PET/STIR
+   - iterative reconstructors `set_current_estimate` and `get_current_estimate` now create a clone to avoid surprising modifications of arguments. The old behaviour of `set_current_estimate` can still be achieved by `set_estimate`.<br>
+   **Warning** This is backwards incompatible, but arguably a bug fix.
+
+* SIRF Python interface
+  - `range_geometry` and `domain_geometry` methods of `AcquisitionModel` classes, required by CIL algorithms, now obtain data via respective C++ `AcquisitionModel` classes accessors, in line with our strategy of keeping interface code minimal.
+  - `sirf.Gadgetron.AcquisitionData.get_info` was renamed to `get_ISMRMRD_info` to avoid
+    confusion with the other `get_info()` methods that return a string. (`get_info` still works but issues a deprecation warning).
 
 * Build system
   - fix bug with older CMake (pre-3.12?) that the Python interface was not built

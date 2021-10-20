@@ -123,14 +123,17 @@ cSIRF_axpby(
 	const void* ptr_a, const void* ptr_x,
 	const void* ptr_b, const void* ptr_y
 ) {
-	DataContainer& x =
-		objectFromHandle<DataContainer >(ptr_x);
-	DataContainer& y =
-		objectFromHandle<DataContainer >(ptr_y);
-	void* h = x.new_data_container_handle();
-	DataContainer& z = objectFromHandle<DataContainer>(h);
-	z.xapyb(x, ptr_a, y, ptr_b);
-	return h;
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.xapyb(x, ptr_a, y, ptr_b);
+		return h;
+	}
+	CATCH;
 }
 
 extern "C"
@@ -140,14 +143,17 @@ cSIRF_axpbyAlt(
 	const void* ptr_b, const void* ptr_y,
 	void* ptr_z
 ) {
-	DataContainer& x =
-		objectFromHandle<DataContainer >(ptr_x);
-	DataContainer& y =
-		objectFromHandle<DataContainer >(ptr_y);
-	DataContainer& z =
-		objectFromHandle<DataContainer >(ptr_z);
-	z.xapyb(x, ptr_a, y, ptr_b);
-	return new DataHandle;
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		DataContainer& z =
+			objectFromHandle<DataContainer >(ptr_z);
+		z.xapyb(x, ptr_a, y, ptr_b);
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
@@ -304,12 +310,12 @@ extern "C"
 void*
 cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src)
 {
-    try {
-	ImageData& id = objectFromHandle<ImageData>(ptr_im);
-	ImageData& id_src = objectFromHandle<ImageData>(ptr_src);
-	id.fill(id_src);
-	return new DataHandle;
-    }
+	try {
+		ImageData& id = objectFromHandle<ImageData>(ptr_im);
+		ImageData& id_src = objectFromHandle<ImageData>(ptr_src);
+		id.fill(id_src);
+		return new DataHandle;
+	}
     CATCH;
 }
 
@@ -318,6 +324,7 @@ void*
 cSIRF_readImageData(const char* file, const char* eng, int verb)
 {
 	try {
+//		ImageDataWrap idw(std::string(file), std::string(eng), verb);
 		ImageDataWrap idw(file, eng, verb);
 		std::shared_ptr<ImageData> sptr_id = idw.data_sptr();
 		return newObjectHandle<ImageData>(sptr_id);
@@ -329,12 +336,12 @@ extern "C"
 void* 
 cSIRF_equalImages(const void* ptr_im_a, const void* ptr_im_b)
 {
-    try {
-	ImageData& id_a = objectFromHandle<ImageData>(ptr_im_a);
-	ImageData& id_b = objectFromHandle<ImageData>(ptr_im_b);
-	int same = (id_a == id_b);
-	return dataHandle(same);
-    }
+	try {
+		ImageData& id_a = objectFromHandle<ImageData>(ptr_im_a);
+		ImageData& id_b = objectFromHandle<ImageData>(ptr_im_b);
+		int same = (id_a == id_b);
+		return dataHandle(same);
+	}
     CATCH;
 }
 
@@ -356,87 +363,108 @@ extern "C"
 void*
 cSIRF_ImageData_get_geom_info(const void* ptr_im)
 {
-    const ImageData& id = objectFromHandle<const ImageData>(ptr_im);
-    return newObjectHandle(id.get_geom_info_sptr());
+	try {
+		const ImageData& id = objectFromHandle<const ImageData>(ptr_im);
+		return newObjectHandle(id.get_geom_info_sptr());
+	}
+	CATCH;
 }
 
 extern "C"
 void*
 cSIRF_GeomInfo_get(const void* ptr_geom)
 {
-	const VoxelisedGeometricalInfo3D &geom_info =
-		objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
-	return charDataHandleFromCharData(geom_info.get_info().c_str());
+	try {
+		const VoxelisedGeometricalInfo3D &geom_info =
+			objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+		return charDataHandleFromCharData(geom_info.get_info().c_str());
+	}
+	CATCH;
 }
 
 extern "C"
 void*
 cSIRF_GeomInfo_get_offset(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D &geom_info =
-            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
-    const VoxelisedGeometricalInfo3D::Offset offset =
-            geom_info.get_offset();
-    float *data = (float*)ptr_arr;
-    for (unsigned i=0; i<3; ++i)
-        data[i] = offset[i];
-    return new DataHandle;
+	try {
+		const VoxelisedGeometricalInfo3D &geom_info =
+			objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+		const VoxelisedGeometricalInfo3D::Offset offset =
+			geom_info.get_offset();
+		float *data = (float*)ptr_arr;
+		for (unsigned i = 0; i < 3; ++i)
+			data[i] = offset[i];
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
 void*
 cSIRF_GeomInfo_get_spacing(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D &geom_info =
-            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
-    const VoxelisedGeometricalInfo3D::Spacing spacing =
-            geom_info.get_spacing();
-    float *data = (float*)ptr_arr;
-    for (unsigned i=0; i<3; ++i)
-        data[i] = spacing[i];
-    return new DataHandle;
+	try {
+		const VoxelisedGeometricalInfo3D &geom_info =
+			objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+		const VoxelisedGeometricalInfo3D::Spacing spacing =
+			geom_info.get_spacing();
+		float *data = (float*)ptr_arr;
+		for (unsigned i = 0; i < 3; ++i)
+			data[i] = spacing[i];
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
 void*
 cSIRF_GeomInfo_get_size(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D &geom_info =
-            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
-    const VoxelisedGeometricalInfo3D::Size size =
-            geom_info.get_size();
-    int *data = (int*)ptr_arr;
-    for (unsigned i=0; i<3; ++i)
-        data[i] = size[i];
-    return new DataHandle;
+	try {
+		const VoxelisedGeometricalInfo3D &geom_info =
+			objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+		const VoxelisedGeometricalInfo3D::Size size =
+			geom_info.get_size();
+		int *data = (int*)ptr_arr;
+		for (unsigned i = 0; i < 3; ++i)
+			data[i] = size[i];
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
 void*
 cSIRF_GeomInfo_get_direction_matrix(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D &geom_info =
-            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
-    const VoxelisedGeometricalInfo3D::DirectionMatrix dm =
-            geom_info.get_direction();
-    float *data = (float*)ptr_arr;
-    for (unsigned i=0; i<3; ++i)
-        for (unsigned j=0; j<3; ++j)
-        data[i*3+j] = dm[i][j];
-    return new DataHandle;
+	try {
+		const VoxelisedGeometricalInfo3D &geom_info =
+			objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+		const VoxelisedGeometricalInfo3D::DirectionMatrix dm =
+			geom_info.get_direction();
+		float *data = (float*)ptr_arr;
+		for (unsigned i = 0; i < 3; ++i)
+			for (unsigned j = 0; j < 3; ++j)
+				data[i * 3 + j] = dm[i][j];
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
 void*
 cSIRF_GeomInfo_get_index_to_physical_point_matrix(const void* ptr_geom, void* ptr_arr)
 {
-    const VoxelisedGeometricalInfo3D &geom_info =
-            objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
-    const VoxelisedGeometricalInfo3D::TransformMatrix tm =
-            geom_info.calculate_index_to_physical_point_matrix();
-    float *data = (float*)ptr_arr;
-    for (unsigned i=0; i<4; ++i)
-        for (unsigned j=0; j<4; ++j)
-        data[i*4+j] = tm[i][j];
-    return new DataHandle;
+	try {
+		const VoxelisedGeometricalInfo3D &geom_info =
+			objectFromHandle<const VoxelisedGeometricalInfo3D>(ptr_geom);
+		const VoxelisedGeometricalInfo3D::TransformMatrix tm =
+			geom_info.calculate_index_to_physical_point_matrix();
+		float *data = (float*)ptr_arr;
+		for (unsigned i = 0; i < 4; ++i)
+			for (unsigned j = 0; j < 4; ++j)
+				data[i * 4 + j] = tm[i][j];
+		return new DataHandle;
+	}
+	CATCH;
 }

@@ -19,8 +19,9 @@ limitations under the License.
 
 */
 
-#include "sirf/iUtilities/DataHandle.h"
+#include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_types.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 #include "stir/ImagingModality.h"
@@ -31,9 +32,9 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
-#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))
+#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(std::shared_ptr<T >(new T))
 #define SPTR_FROM_HANDLE(Object, X, H) \
-	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+  std::shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -55,11 +56,11 @@ cSTIR_newReconstructionMethod(const char* par_file)
 {
 	try {
 		if (strlen(par_file) > 0) {
-			shared_ptr<Reconstruction<Image3DF> > sptr(new Method(par_file));
+                        std::shared_ptr<Reconstruction<Image3DF> > sptr(new Method(par_file));
 			return newObjectHandle(sptr);
 		}
 		else {
-			shared_ptr<Reconstruction<Image3DF> > sptr(new Method);
+                        std::shared_ptr<Reconstruction<Image3DF> > sptr(new Method);
 			return newObjectHandle(sptr);
 		}
 	}
@@ -118,39 +119,39 @@ extern "C"
 void* cSTIR_newObject(const char* name)
 {
 	try {
-		if (boost::iequals(name, "FBP2D"))
+		if (sirf::iequals(name, "FBP2D"))
 			return NEW_OBJECT_HANDLE(xSTIR_FBP2DReconstruction);
-		if (boost::iequals(name, "ListmodeToSinograms"))
+		if (sirf::iequals(name, "ListmodeToSinograms"))
 			return NEW_OBJECT_HANDLE(ListmodeToSinograms);
-		if (boost::iequals(name,
+		if (sirf::iequals(name,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return NEW_OBJECT_HANDLE
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
-		if (boost::iequals(name, "AcqModUsingMatrix"))
+		if (sirf::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
-        if (boost::iequals(name, "AcqModUsingNiftyPET"))
+        if (sirf::iequals(name, "AcqModUsingNiftyPET"))
             return NEW_OBJECT_HANDLE(AcqModUsingNiftyPET3DF);
 #endif
 #ifdef STIR_WITH_Parallelproj_PROJECTOR
-		if (boost::iequals(name, "AcqModUsingParallelproj"))
+		if (sirf::iequals(name, "AcqModUsingParallelproj"))
 			return NEW_OBJECT_HANDLE(AcqModUsingParallelproj);
 #endif
-		if (boost::iequals(name, "RayTracingMatrix"))
+		if (sirf::iequals(name, "RayTracingMatrix"))
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
-		if (boost::iequals(name, "QuadraticPrior"))
+		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
-		if (boost::iequals(name, "PLSPrior"))
+		if (sirf::iequals(name, "PLSPrior"))
 			return NEW_OBJECT_HANDLE(PLSPrior<float>);
-		if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
+		if (sirf::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
-		if (boost::iequals(name, "EllipsoidalCylinder"))
+		if (sirf::iequals(name, "EllipsoidalCylinder"))
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
-                if (boost::iequals(name, "PETSingleScatterSimulator"))
+                if (sirf::iequals(name, "PETSingleScatterSimulator"))
                   return NEW_OBJECT_HANDLE(PETSingleScatterSimulator);
-                if (boost::iequals(name, "PETScatterEstimator"))
+                if (sirf::iequals(name, "PETScatterEstimator"))
                   return NEW_OBJECT_HANDLE(PETScatterEstimator);
-		if (boost::iequals(name, "SeparableGaussianImageFilter"))
+		if (sirf::iequals(name, "SeparableGaussianImageFilter"))
 			return NEW_OBJECT_HANDLE(xSTIR_SeparableGaussianImageFilter);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
@@ -164,60 +165,60 @@ void* cSTIR_setParameter
 	try {
 		CAST_PTR(DataHandle, hs, ptr_s);
 		CAST_PTR(DataHandle, hv, ptr_v);
-		if (boost::iequals(obj, "ListmodeToSinograms"))
+		if (sirf::iequals(obj, "ListmodeToSinograms"))
 			return cSTIR_setListmodeToSinogramsParameter(ptr_s, name, ptr_v);
-		else if (boost::iequals(obj, "SeparableGaussianImageFilter"))
+		else if (sirf::iequals(obj, "SeparableGaussianImageFilter"))
 			return cSTIR_setSeparableGaussianImageFilterParameter(ptr_s, name, ptr_v);
-		else if (boost::iequals(obj, "Shape"))
+		else if (sirf::iequals(obj, "Shape"))
 			return cSTIR_setShapeParameter(ptr_s, name, ptr_v);
-		else if (boost::iequals(obj, "EllipsoidalCylinder"))
+		else if (sirf::iequals(obj, "EllipsoidalCylinder"))
 			return cSTIR_setEllipsoidalCylinderParameter(hs, name, hv);
-		else if (boost::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
+		else if (sirf::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 			return cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 			(hs, name, hv);
-		else if (boost::iequals(obj, "AcquisitionModel"))
+		else if (sirf::iequals(obj, "AcquisitionModel"))
 			return cSTIR_setAcquisitionModelParameter(hs, name, hv);
-		else if (boost::iequals(obj, "AcqModUsingMatrix"))
+		else if (sirf::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_setAcqModUsingMatrixParameter(hs, name, hv);
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
-        else if (boost::iequals(obj, "AcqModUsingNiftyPET"))
+        else if (sirf::iequals(obj, "AcqModUsingNiftyPET"))
             return cSTIR_setAcqModUsingNiftyPETParameter(hs, name, hv);
 #endif
-		else if (boost::iequals(obj, "RayTracingMatrix"))
+		else if (sirf::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
-		else if (boost::iequals(obj, "GeneralisedPrior"))
+		else if (sirf::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
-		else if (boost::iequals(obj, "QuadraticPrior"))
+		else if (sirf::iequals(obj, "QuadraticPrior"))
 			return cSTIR_setQuadraticPriorParameter(hs, name, hv);
-		else if (boost::iequals(obj, "PLSPrior"))
+		else if (sirf::iequals(obj, "PLSPrior"))
 			return cSTIR_setPLSPriorParameter(hs, name, hv);
-		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
+		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_setGeneralisedObjectiveFunctionParameter(hs, name, hv);
-		else if (boost::iequals(obj, "PoissonLogLikelihoodWithLinearModelForMean"))
+		else if (sirf::iequals(obj, "PoissonLogLikelihoodWithLinearModelForMean"))
 			return cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
 			(hs, name, hv);
-		else if (boost::iequals(obj,
+		else if (sirf::iequals(obj,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return
 			cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(hs, name, hv);
-		else if (boost::iequals(obj, "Reconstruction"))
+		else if (sirf::iequals(obj, "Reconstruction"))
 			return cSTIR_setReconstructionParameter(hs, name, hv);
-		else if (boost::iequals(obj, "IterativeReconstruction"))
+		else if (sirf::iequals(obj, "IterativeReconstruction"))
 			return cSTIR_setIterativeReconstructionParameter(hs, name, hv);
-		else if (boost::iequals(obj, "OSMAPOSL"))
+		else if (sirf::iequals(obj, "OSMAPOSL"))
 			return cSTIR_setOSMAPOSLParameter(hs, name, hv);
 #ifdef USE_HKEM
-		else if (boost::iequals(obj, "KOSMAPOSL"))
+		else if (sirf::iequals(obj, "KOSMAPOSL"))
 			return cSTIR_setKOSMAPOSLParameter(hs, name, hv);
 #endif
-		else if (boost::iequals(obj, "OSSPS"))
+		else if (sirf::iequals(obj, "OSSPS"))
 			return cSTIR_setOSSPSParameter(hs, name, hv);
-		else if (boost::iequals(obj, "FBP2D"))
+		else if (sirf::iequals(obj, "FBP2D"))
 			return cSTIR_setFBP2DParameter(hs, name, hv);
-                else if(boost::iequals(obj, "PETSingleScatterSimulator"))
+                else if(sirf::iequals(obj, "PETSingleScatterSimulator"))
                         return cSTIR_setScatterSimulatorParameter(hs, name, hv);
-                else if(boost::iequals(obj, "PETScatterEstimator"))
+                else if(sirf::iequals(obj, "PETScatterEstimator"))
                         return cSTIR_setScatterEstimatorParameter(hs, name, hv);
 		else
 			return unknownObject("object", obj, __FILE__, __LINE__);
@@ -230,39 +231,39 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 {
 	try {
 		CAST_PTR(DataHandle, handle, ptr);
-		if (boost::iequals(obj, "Shape"))
+		if (sirf::iequals(obj, "Shape"))
 			return cSTIR_shapeParameter(handle, name);
-		else if (boost::iequals(obj, "EllipsoidalCylinder"))
+		else if (sirf::iequals(obj, "EllipsoidalCylinder"))
 			return cSTIR_ellipsoidalCylinderParameter(handle, name);
-		else if (boost::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
+		else if (sirf::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 			return cSTIR_truncateToCylindricalFOVImageProcessorParameter
 			(handle, name);
-		else if (boost::iequals(obj, "RayTracingMatrix"))
+		else if (sirf::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_rayTracingMatrixParameter(handle, name);
-		else if (boost::iequals(obj, "AcquisitionModel"))
+		else if (sirf::iequals(obj, "AcquisitionModel"))
 			return cSTIR_AcquisitionModelParameter(handle, name);
-		else if (boost::iequals(obj, "AcqModUsingMatrix"))
+		else if (sirf::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_acqModUsingMatrixParameter(handle, name);
-		else if (boost::iequals(obj, "GeneralisedPrior"))
+		else if (sirf::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_generalisedPriorParameter(handle, name);
-		else if (boost::iequals(obj, "PLSPrior"))
+		else if (sirf::iequals(obj, "PLSPrior"))
 			return cSTIR_PLSPriorParameter(handle, name);
-		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
+		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
-		else if (boost::iequals(obj,
+		else if (sirf::iequals(obj,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return
 			cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(handle, name);
-		else if (boost::iequals(obj, "IterativeReconstruction"))
+		else if (sirf::iequals(obj, "IterativeReconstruction"))
 			return cSTIR_iterativeReconstructionParameter(handle, name);
-		else if (boost::iequals(obj, "OSMAPOSL"))
+		else if (sirf::iequals(obj, "OSMAPOSL"))
 			return cSTIR_OSMAPOSLParameter(handle, name);
-		else if (boost::iequals(obj, "OSSPS"))
+		else if (sirf::iequals(obj, "OSSPS"))
 			return cSTIR_OSSPSParameter(handle, name);
-		else if (boost::iequals(obj, "FBP2D"))
+		else if (sirf::iequals(obj, "FBP2D"))
 			return cSTIR_FBP2DParameter(handle, name);
-                else if(boost::iequals(obj, "PETScatterEstimator"))
+                else if(sirf::iequals(obj, "PETScatterEstimator"))
                         return cSTIR_ScatterEstimatorParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -273,45 +274,45 @@ extern "C"
 void* cSTIR_objectFromFile(const char* name, const char* filename)
 {
 	try {
-		if (boost::iequals(name, "OSMAPOSLReconstruction"))
+		if (sirf::iequals(name, "OSMAPOSLReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSMAPOSLReconstruction<Image3DF> >
 			(filename);
 #ifdef USE_HKEM
-		if (boost::iequals(name, "KOSMAPOSLReconstruction"))
+		if (sirf::iequals(name, "KOSMAPOSLReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<KOSMAPOSLReconstruction<Image3DF> >
 			(filename);
 #endif
-		if (boost::iequals(name, "OSSPSReconstruction"))
+		if (sirf::iequals(name, "OSSPSReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSSPSReconstruction<Image3DF> >
 			(filename);
-		if (boost::iequals(name, "Image")) {
-			shared_ptr<STIRImageData> sptr(new STIRImageData(filename));
+		if (sirf::iequals(name, "Image")) {
+                        std::shared_ptr<STIRImageData> sptr(new STIRImageData(filename));
 			return newObjectHandle(sptr);
 		}
-		if (boost::iequals(name, "AcquisitionData")) {
+		if (sirf::iequals(name, "AcquisitionData")) {
 
-            shared_ptr<PETAcquisitionData> sptr;
+            std::shared_ptr<PETAcquisitionData> sptr;
             if (PETAcquisitionData::storage_scheme().compare("file") == 0)
                 sptr.reset(new PETAcquisitionDataInFile(filename));
             else
                 sptr.reset(new PETAcquisitionDataInMemory(filename));
 			return newObjectHandle(sptr);
 		}
-		if (boost::iequals(name, "ListmodeToSinograms")) {
-			shared_ptr<ListmodeToSinograms>
+		if (sirf::iequals(name, "ListmodeToSinograms")) {
+                        std::shared_ptr<ListmodeToSinograms>
 				sptr(new ListmodeToSinograms(filename));
 			return newObjectHandle(sptr);
 		}
-                if (boost::iequals(name, "PETSingleScatterSimulator")) {
-                  shared_ptr<PETSingleScatterSimulator>
+                if (sirf::iequals(name, "PETSingleScatterSimulator")) {
+                    stir::shared_ptr<PETSingleScatterSimulator>
                     sptr(new PETSingleScatterSimulator(filename));
                   return newObjectHandle(sptr);
                 }
-                if (boost::iequals(name, "PETScatterEstimator")) {
-                  shared_ptr<PETScatterEstimator>
+                if (sirf::iequals(name, "PETScatterEstimator")) {
+                  stir::shared_ptr<PETScatterEstimator>
                     sptr(new PETScatterEstimator(filename));
                   return newObjectHandle(sptr);
                 }
@@ -505,11 +506,11 @@ void* cSTIR_createPETAcquisitionSensitivityModel
 {
 	try {
 		shared_ptr<PETAcquisitionSensitivityModel> sptr;
-		if (boost::iequals(src, "s")) {
+		if (sirf::iequals(src, "s")) {
 			PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_src);
 			sptr.reset(new PETAcquisitionSensitivityModel(ad));
 		}
-		else if (boost::iequals(src, "n")) {
+		else if (sirf::iequals(src, "n")) {
 			CAST_PTR(DataHandle, h, ptr_src);
 			sptr.reset(new PETAcquisitionSensitivityModel(charDataFromDataHandle(h)));
 		}
@@ -554,15 +555,9 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 		PETAcquisitionSensitivityModel& sm = 
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-		Succeeded s = sm.set_up(sptr_ad->get_exam_info_sptr(), 
+		sm.set_up(sptr_ad->get_exam_info_sptr(),
 			sptr_ad->get_proj_data_info_sptr()->create_shared_clone());
-		DataHandle* handle = new DataHandle;
-		if (s != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }
@@ -576,15 +571,15 @@ void* cSTIR_applyAcquisitionSensitivityModel
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
 
-		if (boost::iequals(job, "fwd"))
+		if (sirf::iequals(job, "fwd"))
 			return newObjectHandle(sm.forward(*sptr_ad));
-		else if (boost::iequals(job, "inv"))
+		else if (sirf::iequals(job, "inv"))
 			return newObjectHandle(sm.invert(*sptr_ad));
 
 		void* handle = new DataHandle;
-		if (boost::iequals(job, "unnormalise"))
+		if (sirf::iequals(job, "unnormalise"))
 			sm.unnormalise(*sptr_ad);
-		else if (boost::iequals(job, "normalise"))
+		else if (sirf::iequals(job, "normalise"))
 			sm.normalise(*sptr_ad);
 		return handle;
 	}
@@ -599,15 +594,8 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_dt, ptr_dt);
 		SPTR_FROM_HANDLE(STIRImageData, sptr_id, ptr_im);
-		//std::cout << "setting up acquisition model...\n";
-		Succeeded s = am.set_up(sptr_dt, sptr_id);
-		DataHandle* handle = new DataHandle;
-		if (s != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
+		am.set_up(sptr_dt, sptr_id);
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }
@@ -711,7 +699,7 @@ void* cSTIR_acquisitionDataFromTemplate(void* ptr_t)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
-		shared_ptr<PETAcquisitionData> sptr(sptr_t->new_acquisition_data());
+                std::shared_ptr<PETAcquisitionData> sptr(sptr_t->new_acquisition_data());
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -722,7 +710,7 @@ void* cSTIR_cloneAcquisitionData(void* ptr_ad)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-		shared_ptr<PETAcquisitionData> sptr(sptr_ad->clone());
+                std::shared_ptr<PETAcquisitionData> sptr(sptr_ad->clone());
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -739,7 +727,7 @@ const int max_in_segment_num_to_process
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
-		shared_ptr<PETAcquisitionData> sptr =
+                std::shared_ptr<PETAcquisitionData> sptr =
 			sptr_t->single_slice_rebinned_data(
 			num_segments_to_combine,
 			num_views_to_combine,
@@ -757,15 +745,15 @@ void* cSTIR_acquisitionDataFromScannerInfo
 (const char* scanner, int span, int max_ring_diff, int view_mash_factor)
 {
 	try{
-		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
+                stir::shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
         sptr_ei->imaging_modality = ImagingModality::PT;
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
 		PETAcquisitionDataInFile::init();
-		stir::shared_ptr<PETAcquisitionData> sptr_t =
+		std::shared_ptr<PETAcquisitionData> sptr_t =
 			PETAcquisitionData::storage_template();
-		stir::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
+		std::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
 			(sptr_ei, sptr_pdi));
 		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
@@ -870,12 +858,8 @@ void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
 		xSTIR_FBP2DReconstruction& recon =
 			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
 		SPTR_FROM_HANDLE(STIRImageData, sptr_id, ptr_i);
-		if (recon.set_up(sptr_id) != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_setupFBP2DReconstruction failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
+		recon.set_up(sptr_id);
+		return (void*)new DataHandle;
 	}
 	CATCH;
 }
@@ -887,12 +871,8 @@ void* cSTIR_runFBP2DReconstruction(void* ptr_r)
 		DataHandle* handle = new DataHandle;
 		xSTIR_FBP2DReconstruction& recon =
 			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
-		if (recon.process() != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_FBP2DReconstruction failed",
-				__FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
+		recon.process();
+		return (void*)new DataHandle;
 	}
 	CATCH;
 }
@@ -901,7 +881,6 @@ extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
-		//std::cout << "in cSTIR_setupReconstruction...\n";
 		DataHandle* handle = new DataHandle;
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		sptrImage3DF sptr_image = id.data_sptr();
@@ -1361,15 +1340,15 @@ void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src)
 	CATCH;
 }
 
-extern "C"
-void* setParameter
-(void* ptr_s, const char* obj, const char* name, const void* ptr_v)
-{
-	return cSTIR_setParameter(ptr_s, obj, name, ptr_v);
-}
-
-extern "C"
-void* parameter(const void* ptr, const char* obj, const char* name)
-{
-	return cSTIR_parameter(ptr, obj, name);
-}
+//extern "C"
+//void* setParameter
+//(void* ptr_s, const char* obj, const char* name, const void* ptr_v)
+//{
+//	return cSTIR_setParameter(ptr_s, obj, name, ptr_v);
+//}
+//
+//extern "C"
+//void* parameter(const void* ptr, const char* obj, const char* name)
+//{
+//	return cSTIR_parameter(ptr, obj, name);
+//}

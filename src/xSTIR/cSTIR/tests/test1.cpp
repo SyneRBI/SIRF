@@ -34,8 +34,10 @@ limitations under the License.
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
 
+#include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_x.h"
 
+#include "getenv.h"
 #include "object.h"
 
 using namespace stir;
@@ -59,16 +61,20 @@ void openChannel(int channel, void* ptr_w);
 int test1()
 {
 	std::cout << "running test1.cpp...\n";
-	std::string SIRF_path = std::getenv("SIRF_PATH");
-	if (SIRF_path.length() < 1) {
-		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-		return 1;
-	}
 
 	try {
+		std::string SIRF_path = sirf::getenv("SIRF_PATH");
+		if (SIRF_path.length() < 1) {
+			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+			return 1;
+		}
+
 		TextWriter w; // create writer with no output
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
+
+		bool ok;
+		bool fail = false;
 
 		std::string filename;
 		int dim[10];
@@ -76,6 +82,7 @@ int test1()
 		// locate acquisition data
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
 		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
+		fix_path_separator(filename);
 		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();
@@ -101,6 +108,15 @@ int test1()
 		image_data.fill(1.0);
 		float im_norm = image_data.norm();
 		std::cout << "image norm: " << im_norm << '\n';
+		const VoxelisedGeometricalInfo3D &geom_info = *image_data.get_geom_info_sptr();
+		const VoxelisedGeometricalInfo3D &geom_info_copy = *image_data.get_geom_info_sptr();
+		std::cout << geom_info.get_info().c_str();
+		ok = (geom_info == geom_info_copy);
+		if (ok)
+			std::cout << "== ok\n";
+		else
+			std::cout << "== failed \n";
+		fail = fail || !ok;
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();
@@ -115,17 +131,24 @@ int test1()
 		PETAcquisitionData& be = *sptr_e;
 		be.fill(2.0f);
 
-		// create ray tracing matrix
-		CREATE_OBJ(RayTracingMatrix, matrix, sptr_matrix,);
-		matrix.set_num_tangential_LORs(2);
-
 		// create acquisition model that uses ray tracing matrix
-		CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingMatrix, 
+		// long way:
+		// create ray tracing matrix
+		//CREATE_OBJ(RayTracingMatrix, matrix, sptr_matrix, );
+		//matrix.set_num_tangential_LORs(2);
+		//CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingMatrix,
+		//	am, sptr_am, );
+		//am.set_matrix(sptr_matrix);
+		// short way:
+		CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingRayTracingMatrix,
 			am, sptr_am,);
-		am.set_matrix(sptr_matrix);
+		am.set_num_tangential_LORs(10);
 		am.set_additive_term(sptr_a);
 		am.set_background_term(sptr_b);
 		am.set_up(sptr_ad, sptr_id);
+
+		int num_LORs = am.get_num_tangential_LORs();
+		std::cout << "tangential LORs: " << num_LORs << '\n';
 
 		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, processor, sptr_processor,);
 //		processor.set_fwhms(stir::make_coords(3.F, 4.F, 3.F));
@@ -227,11 +250,12 @@ int test1()
 		std::cout << "simulated acquisition data norm: |A(x)| = " << sim_norm << '\n';
 		std::cout << "checking that |A(x)| <= |A||x|: ";
 		float bound = am_norm*im_norm;
-		bool ok = (sim_norm <= bound);
+		ok = (sim_norm <= bound);
 		if (ok)
 			std::cout << sim_norm << " <= " << bound << " ok!\n";
 		else
 			std::cout << sim_norm << " > " << bound << " failure!\n";
+		fail = fail || !ok;
 
 		// restore the default storage scheme
 		PETAcquisitionDataInFile::set_as_template();
@@ -240,11 +264,14 @@ int test1()
 
 		std::cout << "done with test1.cpp...\n";
 
-		if (!ok)
-			return 1;
+		return fail;
+	}
+	catch (const std::exception &error) {
+		std::cerr << "\nException thrown:\n\t" << error.what() << "\n\n";
+		return 1;
 	}
 	catch (...) {
-		std::cout << "exception thrown\n";
+		std::cerr << "\nException thrown\n";
 		return 1;
 	}
 	return 0;

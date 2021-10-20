@@ -81,10 +81,10 @@ def main():
     where = range(first, last + 1)
 
     # retrieve readouts flags
-    flags = acq_data.get_info('flags', where)
+    flags = acq_data.get_ISMRMRD_info('flags', where)
 
     # inspect the first readout flag
-    flags0 = acq_data.get_info('flags', range(1))
+    flags0 = acq_data.get_ISMRMRD_info('flags', range(1))
     if flags0 & IMAGE_DATA_MASK:
         print('first readout is image data')
     else:
@@ -94,26 +94,26 @@ def main():
         print('first readout shape: %dx%d' % a0.shape)
         
     # display flags
-    print('Flags'),
+    print('Flags')
     print(flags)
     
     # inspect some kspace_encode_step_1 counters
-    encode_step_1 = acq_data.get_info('kspace_encode_step_1', where)
+    encode_step_1 = acq_data.get_ISMRMRD_info('kspace_encode_step_1', where)
     print('Ky/PE - encoding'),
     print(encode_step_1)
     
     # inspect some slice counters
-    slice = acq_data.get_info('slice', where)
+    slice = acq_data.get_ISMRMRD_info('slice', where)
     print('Slices'),
     print(slice)
     
     # inspect some repetition counters
-    repetition = acq_data.get_info('repetition', where)
+    repetition = acq_data.get_ISMRMRD_info('repetition', where)
     print('Repetitions'),
     print(repetition)
 
     # inspect some physiology time stamps
-    pts = acq_data.get_info('physiology_time_stamp', where)
+    pts = acq_data.get_ISMRMRD_info('physiology_time_stamp', where)
     print('Physiology time stamps'),
     print(pts)
 

@@ -40,8 +40,9 @@ extern "C" {
     void* parameter(const void* ptr, const char* obj, const char* name);
 
     // NiftiImageData
-    void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
-    void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
+	void* cReg_NiftiImageData_get_headers(const void *handle_vector_ptr);
+	void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
+	void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
     void* cReg_NiftiImageData_fill(const void* ptr, const float val);
     void* cReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
     void* cReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
@@ -60,7 +61,7 @@ extern "C" {
     void* cReg_NiftiImageData_standardise(const void* im_ptr);
     void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
     //!  create NiftiImage or NiftiImageData3D
-    /*! Use an \c int as \c bool to create a 3D image (running 3D checks) */
+    //! Use an \c int as \c bool to create a 3D image (running 3D checks)
     void* cReg_NiftiImageData_from_SIRFImageData(void* ptr, const int is_3D);
     void* cReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr);
     void* cReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr);

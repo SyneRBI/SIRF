@@ -23,19 +23,21 @@ limitations under the License.
 
 #ifndef CGADGETRON_FOR_MATLAB
 #define PTR_INT size_t
+#define PTR_UINT64 size_t
 #define PTR_FLOAT size_t
 #define PTR_DOUBLE size_t
 extern "C" {
 #else
 #define PTR_INT int*
+#define PTR_UINT64 unsigned long long int*
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
 
-	// Unified parameter exchange methods
-	void* parameter(void* ptr, const char* obj, const char* name);
-	void* setParameter
-		(void* ptr, const char* obj, const char* par, const void* val);
+	//// Unified parameter exchange methods
+	//void* parameter(void* ptr, const char* obj, const char* name);
+	//void* setParameter
+	//	(void* ptr, const char* obj, const char* par, const void* val);
 
 	// common Object methods
 	void* cGT_newObject(const char* name);
@@ -68,7 +70,7 @@ extern "C" {
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq);
 	void* cGT_createEmptyAcquisitionData(void* ptr_ad);
-    void* cGT_getAcquisitionsSubset(void* ptr_acqs, PTR_INT ptr_idx, size_t const num_elem_subset);
+    void* cGT_getAcquisitionsSubset(void* ptr_acqs, PTR_INT ptr_idx, PTR_INT const num_elem_subset);
 
 	void* cGT_cloneAcquisitions(void* ptr_input);
 	void* cGT_sortAcquisitions(void* ptr_acqs);
@@ -82,6 +84,11 @@ extern "C" {
 	void* cGT_fillAcquisitionData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 	void* cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src);
 	void* cGT_acquisitionDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
+	void* cGT_acquisitionParameterInfo(void* ptr_acqs, const char* name, PTR_INT info);
+	void* cGT_acquisitionParameterValuesInt(void* ptr_acqs, const char* name,
+		int from, int till, int n, PTR_UINT64 values);
+	void* cGT_acquisitionParameterValuesFloat(void* ptr_acqs, const char* name,
+		int from, int till, int n, PTR_FLOAT values);
 
 	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
@@ -103,6 +110,7 @@ extern "C" {
 	void* cGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 	void* cGT_setImageDataFromCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
     void* cGT_print_header(const void* ptr_imgs, const int im_idx);
+	void* cGT_realImageData(void* ptr_imgs, const char* way);
 
 	// gadget chain methods
 	void* cGT_setHost(void* ptr_gc, const char* host);

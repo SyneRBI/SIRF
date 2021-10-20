@@ -26,12 +26,13 @@
     2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
         1. [Creating and running gadget chains by SIRF script](#creating_and_running_gadget_chains)
         2. [SIRF gadget library](#SIRF_gadget_library)
+    3. [Using the C++ libraries](#using_the_c++_libraries)
 
 # Overview <a name="Overview"></a>
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
-This User’s Guide describes version 3.0 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
+This User’s Guide describes version 3.1 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
 
 ## General architecture <a name="General_architecture"></a>
 
@@ -76,12 +77,13 @@ The MR module and the demos create temporary files during operation. They are no
 	
 # Framework basic functionality <a name="Basic_functionality"></a>
 
+This section mostly describes the Python/MATLAB interface of SIRF, although a lot of the text applies to the underlying C++ library as well. See the [appendix on using SIRF C++](#using_the_c++_libraries) for additional information if you use C++.
 
 ## General conventions <a name="General_conventions"></a> 
 
 ### Object-oriented paradigm <a name="Object-oriented_paradigm"></a>
 
-SIRF library modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
+SIRF Python/MATLAB modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
 
     image = ImageData('my_image.h5'); 
 
@@ -265,7 +267,9 @@ An engine-specific acquisition data container class for acquisition data objects
     fill                Replaces the object data with user-supplied data. 
     sort           (MR) Sorts the acquisition data. 
     is_sorted      (MR) Returns true if and only if the acquisition data is sorted. 
-    get_info       (MR) Returns information on the acquisition data. 
+    get_info      (PET) Returns information on the acquisition data as a string. 
+    get_ISMRMRD_info
+                   (MR) Returns information on the acquisition data as an array.
     process        (MR) Processes the acquisition data by a chain of gadgets. 
     dimensions    (PET) Returns the acquisition data dimensions
     show                Displays the acquisition data as a set of 2D sinograms (PET)
@@ -282,6 +286,8 @@ An engine-specific image data container class for data representing 3D objects. 
     fill                Replaces the object data with user-supplied data. 
     as_array            Returns the object data as an array. 
     read_from_file      Reads the image data from file.
+    get_ISMRMRD_info
+                  (MR)  Returns information on the image data as an array.
     get_uniform_copy   
                  (PET)  Returns a copy of this image filled with a constant value. 
     add_shape    (PET)  Adds a shape to the image. 
@@ -937,14 +943,14 @@ class will effectively use 1 for all kappa values.
 
 ## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
 
-The CCPi [`CIL Python Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel
+The CCPi [`CIL Python Framework`](https://github.com/TomographicImaging/CIL) for development of novel
 reconstruction algorithms can be used with SIRF classes such as
 `DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal,
 a number of methods and properties were added to SIRF Python classes for compatibility.
 
 ### `AcquisitionModel`
 
-PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](http://edosil.net/stfc/cil/html/optimisation.html). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](https://tomographicimaging.github.io/CIL/nightly/optimisation.html#operator). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
 In all what follows the parameter `out` can be passed when user wants to use a specific instance to retrieve the result.
 
 The methods that have been added both in MR and PET :
@@ -1246,3 +1252,12 @@ for fully sampled reconstruction.
 | | | trigger_dimension | "repetition" |
 | | | split_slices | "true" |
 
+### Using the C++ libraries<a name="using_the_c++_libraries</name>
+
+The Python/MATLAB interface is based on the underlying C++ code. However, the mapping is currently not one-to-one. Python/MATLAB classes do correspond to C++ classes but might have extra methods or vice versa.
+
+The C++ library is currently still somewhat preliminary, although quite usable of course.
+We use [Doxygen](https://www.doxygen.nl/index.html) to generate the documentation for the C++ classes. The documentation for the current SIRF release can be found via the [SyneRBI website](http://www.ccpsynerbi.ac.uk/) (currently the link is in the Wiki, accessible via the Software tab).
+
+If you want to develop a program or library that uses SIRF functionality, we recommend using CMake for your project.
+After SIRF v3.1.0 was released, we added CMake code to SIRF such that building SIRF will export a CMake config file to enable this. See the [../examples/C++](SIRF/examples/C++) folder for an example on how to use this.

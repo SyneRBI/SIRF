@@ -33,6 +33,7 @@ limitations under the License.
 #define WIN32_LEAN_AND_MEAN
 
 #include <cmath>
+#include <list>
 #include <string>
 
 #include <ismrmrd/ismrmrd.h>
@@ -45,7 +46,6 @@ limitations under the License.
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadget_lib.h"
-#include "sirf/Gadgetron/ismrmrd_fftw.h"
 
 #include "sirf/Gadgetron/FourierEncoding.h"
 
@@ -215,6 +215,9 @@ namespace sirf {
 		void process(MRAcquisitionData& acquisitions);
 		gadgetron::shared_ptr<MRAcquisitionData> get_output()
 		{
+			if(!sptr_acqs_->sorted())
+			 	sptr_acqs_->sort_by_time();
+
 			return sptr_acqs_;
 		}
 
@@ -349,18 +352,18 @@ namespace sirf {
 		*/
 		class BFOperator : public Operator<GadgetronImageData> {
 		public:
-			BFOperator(std::shared_ptr<MRAcquisitionModel> sptr_am) : sptr_am_(sptr_am) {}
-			virtual std::shared_ptr<GadgetronImageData> 
+			BFOperator(gadgetron::shared_ptr<MRAcquisitionModel> sptr_am) : sptr_am_(sptr_am) {}
+			virtual gadgetron::shared_ptr<GadgetronImageData>
 				apply(GadgetronImageData& image_data)
 			{
-				std::shared_ptr<MRAcquisitionData> sptr_fwd =
+				gadgetron::shared_ptr<MRAcquisitionData> sptr_fwd =
 					sptr_am_->fwd(image_data);
-				std::shared_ptr<GadgetronImageData> sptr_bwd =
+				gadgetron::shared_ptr<GadgetronImageData> sptr_bwd =
 					sptr_am_->bwd(*sptr_fwd);
 				return sptr_bwd;
 			}
 		private:
-			std::shared_ptr<MRAcquisitionModel> sptr_am_;
+			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am_;
 		};
 
 		MRAcquisitionModel() {}
@@ -469,7 +472,7 @@ namespace sirf {
 
             fwd(ic, *sptr_csms_, *uptr_acqs);
 
-            return std::shared_ptr<MRAcquisitionData>(std::move(uptr_acqs));
+            return gadgetron::shared_ptr<MRAcquisitionData>(std::move(uptr_acqs));
 		}
 
 		// Backprojects the whole AcquisitionContainer using

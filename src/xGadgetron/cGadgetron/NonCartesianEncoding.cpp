@@ -59,6 +59,8 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 \author Johannes Mayer
 */
 
+#include <cstring>
+
 #include "sirf/Gadgetron/NonCartesianEncoding.h"
 #include "sirf/Gadgetron/TrajectoryPreparation.h"
 

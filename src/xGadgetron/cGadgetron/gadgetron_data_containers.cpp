@@ -31,9 +31,15 @@ limitations under the License.
 */
 #include <cmath>
 #include <iomanip>
+#include <algorithm> 
+
+#include <ismrmrd/xml.h>
+#include <ismrmrd/ismrmrd.h>
+
 
 #include <ismrmrd/xml.h>
 
+#include "sirf/common/iequals.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
@@ -119,7 +125,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			else
 				this->append_acquisition( acq );
 		}
-        this->organise_kspace();
+        this->sort_by_time();
 		if( verbose )
 			std::cout<< "\nFinished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	}
@@ -372,7 +378,7 @@ void
 MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
 	//MRAcquisitionData& other = (MRAcquisitionData&)dc;
-	DYNAMIC_CAST(const MRAcquisitionData, other, dc);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, other, dc);
 	int n = number();
 	int m = other.number();
 	complex_float_t z = 0;
@@ -404,8 +410,8 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	//complex_float_t a = *(complex_float_t*)ptr_a;
 	//complex_float_t b = *(complex_float_t*)ptr_b;
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(1, x, y, ptr_a, ptr_b);
 }
 
@@ -414,8 +420,8 @@ MRAcquisitionData::xapyb(
 	const DataContainer& a_x, const DataContainer& a_a,
 	const DataContainer& a_y, const DataContainer& a_b)
 {
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(-1, x, y, &a_a, &a_b);
 }
 
@@ -430,16 +436,16 @@ const DataContainer& a_y, const void* ptr_b)
 void
 MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(2, x, y);
 }
 
 void
 MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
 {
-	DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(3, x, y);
 }
 
@@ -448,8 +454,8 @@ MRAcquisitionData::binary_op_(int op,
 const MRAcquisitionData& x, const MRAcquisitionData& y,
 const void* ptr_a, const void* ptr_b)
 {
-	//DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	//DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	//SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	//SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	if (!x.sorted() || !y.sorted())
 		THROW("binary algebraic operations cannot be applied to unsorted data");
 	complex_float_t a;
@@ -606,6 +612,7 @@ MRAcquisitionData::sort_by_time()
 		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
 	else
 		Multisort::sort( vt, &index_[0] );
+    
     this->organise_kspace();
     sorted_ = true;
 
@@ -613,8 +620,11 @@ MRAcquisitionData::sort_by_time()
 
 std::vector<KSpaceSubset::SetType > MRAcquisitionData::get_kspace_order() const
 {
-    if(this->sorting_.size() == 0)
+    if(this->is_empty())
+        throw LocalisedException("Your acquisition data object contains no data, so no order is determined." , __FILE__, __LINE__);
+    else if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
+    
 
     std::vector<KSpaceSubset::SetType > output;
     for(unsigned i = 0; i<sorting_.size(); ++i)
@@ -688,6 +698,31 @@ void MRAcquisitionData::organise_kspace()
     this->sorting_.erase(
                 std::remove_if(sorting_.begin(), sorting_.end(),[](const KSpaceSubset& s){return s.get_idx_set().empty();}),
                 sorting_.end());
+}
+
+
+std::vector<int> MRAcquisitionData::get_flagged_acquisitions_index(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const
+{
+    std::vector<int> flags_true_index;
+
+    if(flags.empty())
+        return flags_true_index;
+
+    ISMRMRD::Acquisition acq;
+
+    for(int i=0; i<this->number(); ++i)
+    {
+        this->get_acquisition(i, acq);
+        bool one_flag_is_set = false;
+        
+        for(auto it: flags)
+            one_flag_is_set = (one_flag_is_set || acq.isFlagSet(it));
+        
+        if(one_flag_is_set)
+            flags_true_index.push_back(i);
+    }
+
+    return flags_true_index;
 }
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
@@ -837,7 +872,7 @@ void
 GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 {
 	//GadgetronImageData& ic = (GadgetronImageData&)dc;
-	DYNAMIC_CAST(const GadgetronImageData, ic, dc);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, ic, dc);
 	complex_float_t z = 0;
 	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
 		const ImageWrap& u = image_wrap(i);
@@ -855,8 +890,8 @@ const void* ptr_b, const DataContainer& a_y)
 {
 	complex_float_t a = *(complex_float_t*)ptr_a;
 	complex_float_t b = *(complex_float_t*)ptr_b;
-	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
 	//std::cout << nx << ' ' << ny << '\n';
@@ -894,8 +929,8 @@ GadgetronImageData::multiply(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
 	if (nx != ny)
@@ -922,8 +957,8 @@ GadgetronImageData::divide(
 const DataContainer& a_x,
 const DataContainer& a_y)
 {
-	DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
 	if (nx != ny)
@@ -1003,7 +1038,7 @@ GadgetronImagesVector::sort()
 	sorted_ = true;
 
 	// quick fix for the problem of compatibility with image data iterators
-	std::vector<gadgetron::shared_ptr<ImageWrap> > sorted_images;
+	std::vector<shared_ptr<ImageWrap> > sorted_images;
 	for (int i = 0; i < ni; i++)
 		sorted_images.push_back(sptr_image_wrap(i));
 	images_ = sorted_images;
@@ -1025,7 +1060,7 @@ GadgetronImagesVector::sort()
 #endif
 }
 
-std::shared_ptr<std::vector<std::string> >
+shared_ptr<std::vector<std::string> >
 group_names_sptr(const char* filename)
 {
 	hid_t    file;
@@ -1037,7 +1072,7 @@ group_names_sptr(const char* filename)
 	const int MAX_NAME = 1024;
 	char group_name[MAX_NAME];
 	char var_name[MAX_NAME];
-	std::shared_ptr<std::vector<std::string> >
+	shared_ptr<std::vector<std::string> >
 		sptr_names(new std::vector<std::string>);
 	std::vector<std::string>& names = *sptr_names;
 
@@ -1071,7 +1106,7 @@ int
 GadgetronImageData::read(std::string filename, std::string variable, int iv) 
 {
 	int vsize = variable.size();
-	std::shared_ptr<std::vector<std::string> > sptr_names;
+	shared_ptr<std::vector<std::string> > sptr_names;
 	sptr_names = group_names_sptr(filename.c_str());
 	std::vector<std::string>& names = *sptr_names;
 	int ng = names.size();
@@ -1227,9 +1262,6 @@ GadgetronImageData::set_meta_data(const AcquisitionsInfo &acqs_info)
 GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad, const bool coil_resolved)
 {
 
-    set_meta_data(ad.acquisitions_info());
-    this->set_up_geom_info();
-
     ISMRMRD::IsmrmrdHeader hdr = ad.acquisitions_info().get_IsmrmrdHeader();
 
     unsigned int const num_coil_channels = coil_resolved ? hdr.acquisitionSystemInformation.get().receiverChannels.get() : 1;
@@ -1262,6 +1294,8 @@ GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad, const 
 
         this->append(img);
     }
+
+    set_meta_data(ad.acquisitions_info());
 }    
 
 
@@ -1269,7 +1303,7 @@ GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()
 {
-	DYNAMIC_CAST(const GadgetronImageData, imgs, images);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, imgs, images);
 	set_meta_data(imgs.get_meta_data());
 	for (unsigned int i = 0; i < images.number(); i++) {
 		const ImageWrap& u = images.image_wrap(i);
@@ -1282,7 +1316,7 @@ GadgetronImagesVector::GadgetronImagesVector
 (GadgetronImagesVector& images, const char* attr, const char* target) : 
 images_()
 {
-	DYNAMIC_CAST(const GadgetronImageData, imgs, images);
+	SIRF_DYNAMIC_CAST(const GadgetronImageData, imgs, images);
 	set_meta_data(imgs.get_meta_data());
 	for (unsigned int i = 0; i < images.number(); i++) {
 		const ImageWrap& u = images.image_wrap(i);
@@ -1297,10 +1331,32 @@ images_()
 			value += mc.as_str(attr, j);
 		}
 		//std::cout << value.c_str() << '\n';
-		if (boost::iequals(value, target))
+		if (sirf::iequals(value, target))
 			append(u);
 	}
     this->set_up_geom_info();
+}
+
+shared_ptr<GadgetronImageData>
+GadgetronImagesVector::abs() const
+{
+	GadgetronImagesVector* ptr_iv = new GadgetronImagesVector;
+	for (int i = 0; i < number(); i++) {
+		ptr_iv->append(image_wrap(i).abs());
+	}
+	ptr_iv->set_up_geom_info();
+	return shared_ptr<GadgetronImageData>(ptr_iv);
+}
+
+shared_ptr<GadgetronImageData>
+GadgetronImagesVector::real() const
+{
+    GadgetronImagesVector* ptr_iv = new GadgetronImagesVector;
+    for (int i = 0; i < number(); i++) {
+        ptr_iv->append(image_wrap(i).real());
+    }
+    ptr_iv->set_up_geom_info();
+    return shared_ptr<GadgetronImageData>(ptr_iv);
 }
 
 void
@@ -1384,7 +1440,7 @@ static bool are_vectors_equal(const float * const vec1, const float * const vec2
     return true;
 }
 
-static void print_slice_directions(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
+static void print_slice_directions(const std::vector<shared_ptr<ImageWrap> > &images)
 {
     std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.\n";
     for (unsigned im=0; im<images.size(); ++im) {
@@ -1394,7 +1450,7 @@ static void print_slice_directions(const std::vector<gadgetron::shared_ptr<Image
     }
 }
 
-static void print_slice_distances(const std::vector<gadgetron::shared_ptr<ImageWrap> > &images)
+static void print_slice_distances(const std::vector<shared_ptr<ImageWrap> > &images)
 {
     std::cout << "\nGadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.\n";
     for (unsigned im=0; im<images.size()-1; ++im) {
@@ -1641,7 +1697,7 @@ GadgetronImagesVector::set_up_geom_info()
 }
 
 void 
-CoilImagesVector::calculate(const MRAcquisitionData& ad, int calibration)
+CoilImagesVector::calculate(const MRAcquisitionData& ad)
 {
     if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
         this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
@@ -1658,21 +1714,47 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad, int calibration)
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
-    this->set_meta_data(ad.acquisitions_info());
-
-    auto sort_idx = ad.get_kspace_order();
+    std::unique_ptr<MRAcquisitionData> uptr_calib_data = this->extract_calibration_data(ad);
+    
+    this->set_meta_data(uptr_calib_data->acquisitions_info());
+    auto sort_idx = uptr_calib_data->get_kspace_order();
 
     for(int i=0; i<sort_idx.size(); ++i)
     {
         sirf::AcquisitionsVector subset;
-        ad.get_subset(subset, sort_idx[i]);
+        uptr_calib_data->get_subset(subset, sort_idx[i]);
 
 		CFImage* img_ptr = new CFImage();
-		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!
+		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);
 		this->sptr_enc_->backward(*img_ptr, subset);
 
         this->append(iw);
     }
+}
+
+
+std::unique_ptr<MRAcquisitionData> CoilImagesVector::extract_calibration_data(const MRAcquisitionData& ad) const
+{
+    using ISMRMRD::ISMRMRD_AcquisitionFlags;
+
+    const std::vector<ISMRMRD_AcquisitionFlags> 
+                calibration_flags{ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION,
+                                  ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING};
+    
+    std::unique_ptr<MRAcquisitionData> uptr_calib_ad = ad.clone();
+
+    if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+    {   
+        std::vector<int> idx_calib_acquisitions = ad.get_flagged_acquisitions_index(calibration_flags);
+        
+        if(idx_calib_acquisitions.size() < 1)
+            return uptr_calib_ad;
+
+        uptr_calib_ad->empty();
+        ad.get_subset(*(uptr_calib_ad), idx_calib_acquisitions);
+        uptr_calib_ad->sort_by_time();
+    }
+    return uptr_calib_ad;
 }
 
 CFImage CoilSensitivitiesVector::get_csm_as_cfimage(size_t const i) const
@@ -1830,7 +1912,7 @@ CoilSensitivitiesVector::calculate(CoilImagesVector& iv)
 
     for(int i_img=0; i_img<iv.items();++i_img)
     {
-        gadgetron::shared_ptr<ImageWrap> sptr_iw = iv.sptr_image_wrap(i_img);
+        shared_ptr<ImageWrap> sptr_iw = iv.sptr_image_wrap(i_img);
 
         int dim[4];
         sptr_iw->get_dim(dim);
@@ -2030,10 +2112,10 @@ CoilSensitivitiesVector::max_diff_
             for (int iy = 1; iy < ny - 1; iy++) {
                 for (int ix = 1; ix < nx - 1; ix++) {
                     int i = ix + nx*iy + nxy*iz + nxyz*ic;
-                    float gx = abs(u[i + 1] - u[i - 1]) / 2.0f;
-                    float gy = abs(u[i + nx] - u[i - nx]) / 2.0f;
+                    float gx = std::abs(u[i + 1] - u[i - 1]) / 2.0f;
+                    float gy = std::abs(u[i + nx] - u[i - nx]) / 2.0f;
                     float g = (float)std::sqrt(gx*gx + gy*gy);
-                    float si = abs(u[i] - v[i]);
+                    float si = std::abs(u[i] - v[i]);
                     if (g <= small_grad && si > s)
                         s = si;
                 }

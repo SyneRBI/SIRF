@@ -38,14 +38,14 @@ using namespace sirf;
 
 GTConnector::GTConnector()
 {
-	sptr_con_ = gadgetron::shared_ptr < GadgetronClientConnector >
+	sptr_con_ = shared_ptr < GadgetronClientConnector >
 		(new GadgetronClientConnector);
 }
 GadgetronClientConnector& GTConnector::operator()()
 {
 	return *sptr_con_.get();
 }
-gadgetron::shared_ptr<GadgetronClientConnector> GTConnector::sptr()
+shared_ptr<GadgetronClientConnector> GTConnector::sptr()
 {
 	return sptr_con_;
 }
@@ -93,7 +93,7 @@ GadgetChain::gadget_sptr(std::string id)
 	typename std::list<shared_ptr<GadgetHandle> >::iterator gh;
 #endif
 	for (gh = gadgets_.begin(); gh != gadgets_.end(); ++gh) {
-		if (boost::iequals(gh->get()->id(), id))
+		if (sirf::iequals(gh->get()->id(), id))
 			return gh->get()->gadget_sptr();
 	}
 	return shared_ptr<aGadget>();
@@ -213,7 +213,7 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 	//std::cout << na << " acquisitions processed\n";
 	if (na < 1) {
 		// old Gadgetron is running, have to append AcquisitionFinishGadget to the chain
-		gadgetron::shared_ptr<AcquisitionFinishGadget>
+		shared_ptr<AcquisitionFinishGadget>
 			endgadget(new AcquisitionFinishGadget);
 		set_endgadget(endgadget);
 		config = xml();
@@ -281,6 +281,12 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 void 
 ImagesProcessor::process(const GadgetronImageData& images)
 {
+	if (images.number() < 1)
+		return;
+	const ImageWrap& iw = images.image_wrap(0);
+	if (dicom_ && iw.is_complex())
+		THROW("DICOM writer does not support complex images");
+
 	std::string config = xml();
 	GTConnector conn;
 	sptr_images_ = images.new_images_container();
@@ -347,7 +353,7 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 		bool ok = false;
 		std::string value;
 		for (int i = 0; i < l; i++) {
-			if (boost::iequals(mc.as_str(attr, i), "image")) {
+			if (sirf::iequals(mc.as_str(attr, i), "image")) {
 				ok = true;
 				break;
 			}
@@ -365,8 +371,8 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 }
 
 void 
-MRAcquisitionModel::set_up(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
-			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
+MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
+			shared_ptr<GadgetronImageData> sptr_ic)
 {
 	if( sptr_ac->number() ==0 )
 		throw LocalisedException("Please dont use an empty acquisition template.", __FILE__, __LINE__);
