@@ -620,6 +620,7 @@ int main ( int argc, char* argv[])
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
         #warning "RUNNING THE RADIAL TESTS FOR C++."
             std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
+            
             sirf::AcquisitionsVector rpe_av;
             rpe_av.read(rpe_data_path);
 
@@ -637,23 +638,22 @@ int main ( int argc, char* argv[])
             ok *= test_mracquisition_model_rpe_bwd(rpe_av);
             ok *= test_acq_mod_adjointness(rpe_av);
 
-
-            sirf::AcquisitionsVector radial_av;
-            radial_av.read(data_path);
-
+            av.empty();
+            av.read(data_path);
+            
             sirf::Radial2DTrajprep radial_tp;
-            radial_tp.set_trajectory(radial_av);
-            radial_av.sort();
+            radial_tp.set_trajectory(av);
+            av.sort();
 
-            ok *= test_acq_mod_adjointness(radial_av);
+            ok *= test_acq_mod_adjointness(av);
 
-            radial_av.empty();
-            radial_av.read(data_path);
+            av.empty();
+            av.read(data_path);
             sirf::GoldenAngle2DTrajprep ga_tp;
-            ga_tp.set_trajectory(radial_av);
-            radial_av.sort();
+            ga_tp.set_trajectory(av);
+            av.sort();
 
-            ok *= test_acq_mod_adjointness(radial_av);
+            ok *= test_acq_mod_adjointness(av);
 
         #endif
 
