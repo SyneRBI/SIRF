@@ -51,6 +51,7 @@ protected:
 
 };
 
+typedef std::tuple< unsigned, uint32_t, complex_float_t> ExternalTissueSignal; // label-#,  acquisition time-stamp, MR signal
 
 
 class MRContrastGenerator : public AbstractContrastGenerator {
@@ -61,6 +62,13 @@ public:
 
 	void set_template_rawdata(const sirf::MRAcquisitionData& ad);
 	void set_rawdata_header(const ISMRMRD::IsmrmrdHeader& hdr);
+	
+	void set_external_signal(const std::vector<ExternalTissueSignal>& ext_sig)
+	{
+		if(ext_sig.size() < tlm_.get_segmentation_tissues().size())
+			throw std::runtime_error("You gave an external contrast that describes less tissue types than present in the segmentation.");
+		this->external_signal_ = ext_sig;
+	}
 	void map_contrast();
 	complex_float_t get_signal_for_tissuelabel( size_t const label );
 	
@@ -71,6 +79,8 @@ public:
 	}
 
 private:
+
+	std::vector<ExternalTissueSignal> external_signal_;
 
 	void resample_to_template_image( void );
 	sirf::GadgetronImagesVector contrast_filled_volumes_;
