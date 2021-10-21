@@ -153,6 +153,55 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	sirf::write_imagevector_to_raw(name_stream.str(), mr_contrasts);
 }
 
+void test_contgen::test_mr_map_external_contrast_to_xcat( void )
+{
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;		
+	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
+
+	sirf::AcquisitionsVector av(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_template_rawdata(av);
+	
+
+	try{
+		int num_labels = 10;
+		std::vector<LabelType> label_list_too_small(num_labels); 
+		std::iota(label_list_too_small.begin(), label_list_too_small.end(), 0);
+		std::vector<ExternalTissueSignal> ext_sig_small = aux_test::get_mock_external_signal(label_list_too_small);
+		mr_contgen.map_contrast(ext_sig_small);
+	}
+	catch(const std::runtime_error& err)
+	{
+		std::cout << "The problem should be that the list is too small. The actual error is "<< err.what() << std::endl;
+	}
+	try{
+		int num_labels = 100;
+		std::vector<LabelType> label_list_incomplete(num_labels, 1); 
+		std::vector<ExternalTissueSignal> ext_sig_incomplete = aux_test::get_mock_external_signal(label_list_incomplete);
+
+		mr_contgen.map_contrast(ext_sig_incomplete);
+	}
+	catch(const std::runtime_error& err)
+	{
+		std::cout << "The problem should be that the list is incomplete. The actual error is "<< err.what() << std::endl;
+	}
+	
+	int num_labels = 100;
+	std::vector<LabelType> label_list_correct(num_labels); 
+	std::iota(label_list_correct.begin(), label_list_correct.end(), 0);
+	std::vector<ExternalTissueSignal> ext_sig_correct = aux_test::get_mock_external_signal(label_list_correct);
+
+	mr_contgen.map_contrast(ext_sig_correct);
+
+	GadgetronImagesVector& mr_contrasts = mr_contgen.get_contrast_filled_volumes();	
+	
+	std::stringstream name_stream;
+	name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;
+	sirf::write_imagevector_to_raw(name_stream.str(), mr_contrasts);
+
+}
+
+
 void test_contgen::test_get_signal_for_tissuelabel_in_xcat()
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;

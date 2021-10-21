@@ -23,6 +23,7 @@ bool test_mr_map_contrast_dim_check( void );
 
 void test_get_signal_for_tissuelabel_in_xcat( void );
 void test_mr_map_contrast_application_to_xcat( void );
+void test_mr_map_external_contrast_to_xcat( void );
 
 
 bool test_pet_constructor( void );
