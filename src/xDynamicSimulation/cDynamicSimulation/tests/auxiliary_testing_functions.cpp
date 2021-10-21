@@ -19,6 +19,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <algorithm>
 #include <vector>
 
+#include <cstdlib>
+
 
 using namespace sirf;
 
@@ -675,6 +677,28 @@ SignalContainer aux_test::get_mock_motion_signal()
 
 	return signal;
 }
+
+std::vector<ExternalTissueSignal> aux_test::get_mock_external_signal(const std::vector<LabelType>& label_list){
+
+	std::uint32_t dummy_timestamp= 0;
+
+	std::srand(static_cast<unsigned>(1));
+	float const lo = -1.f;
+	float const hi = 1.f;
+
+	std::vector<ExternalTissueSignal> sigvec;
+
+	for(int i=0; i<label_list.size(); ++i){
+
+		float const real = lo + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(hi-lo)));
+		float const imag = lo + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(hi-lo)));
+
+		ExternalTissueSignal sig(label_list[i], dummy_timestamp, complex_float_t(real,imag));
+		sigvec.push_back(sig);
+	}
+	return sigvec;
+}
+
 
 
 SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms)
