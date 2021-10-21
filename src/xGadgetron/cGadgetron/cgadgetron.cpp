@@ -872,6 +872,22 @@ cGT_setRadial2DTrajectory(void* ptr_acqs)
 }
 
 
+extern "C"
+void*
+cGT_setGoldenAngle2DTrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        GoldenAngle2DTrajprep ga2D_prep;
+        ga2D_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
 
 extern "C"
 void*
@@ -887,7 +903,7 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
 		{
 			auto traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
-			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(TrajPrep2D::TrajPointType));
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(TrajectoryPreparation2D::TrajPointType));
 		}
     	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
 		{
@@ -901,7 +917,13 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 			auto traj = tp.get_trajectory(acqs);
 			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(Radial2DTrajprep::TrajPointType));
 		}
-		
+		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+		{
+			sirf::GoldenAngle2DTrajprep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GoldenAngle2DTrajprep::TrajPointType));
+		}
+	
         return new DataHandle;
     }
     CATCH;

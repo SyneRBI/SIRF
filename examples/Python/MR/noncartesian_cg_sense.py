@@ -20,6 +20,7 @@ Options:
   -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
                               [default: False]
   --traj=<str>                trajectory type, must match the data supplied in file
+                              options are cartesian, radial, goldenangle or grpe 
                               [default: grpe]
   --non-interactive           do not show plots
 '''
@@ -67,7 +68,7 @@ import numpy
 def EhE(E, image):
     return E.backward( E.forward(image) )
 
-def SENSE(rawdata, num_iter = 10, stop_criterion = 1e-7):
+def ConjugateGradient(rawdata, num_iter = 10, stop_criterion = 1e-7):
 
     print('---\n computing coil sensitivity maps...')
     csms = CoilSensitivityData()
@@ -83,11 +84,10 @@ def SENSE(rawdata, num_iter = 10, stop_criterion = 1e-7):
     E.set_coil_sensitivity_maps(csms)
 
     print('---\n Backward projection ...')
-    # this is our first residual
     recon_img = E.backward(rawdata)
     recon_img.fill(0+0j) # for some reason you need to start with this set to zero
 
-    # now copy the pseudo-code from wikipedia for cg optimisation
+    # implement pseudo-code from Wikipedia
     x = recon_img
     y = rawdata
 
@@ -101,7 +101,6 @@ def SENSE(rawdata, num_iter = 10, stop_criterion = 1e-7):
     # initialize p
     p = r
     
-    # define optimisation parameters
     print('Cost for k = 0: '  + str( rr/ rr0) )
     
     for k in range(num_iter):
@@ -159,6 +158,8 @@ def main():
         processed_data = set_grpe_trajectory(processed_data)
     elif trajtype == 'radial':
         processed_data = set_radial2D_trajectory(processed_data)
+    elif trajtype == 'goldenangle':
+        processed_data = set_goldenangle2D_trajectory(processed_data)
     else:
         raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
                         .format(trajtype))
@@ -168,10 +169,10 @@ def main():
     processed_data.sort()
     
     if run_recon:
-        recon = SENSE(processed_data, num_iter = 2, stop_criterion = 1e-7)
+        recon = ConjugateGradient(processed_data, num_iter = 20, stop_criterion = 1e-7)
         
         if show_plot:
-            recon.show(title = 'Reconstructed images using backward() (magnitude)')
+            recon.show(title = 'Reconstructed images using CG() (magnitude)')
             
     else:
         print('---\n Skipping non-cartesian code...')

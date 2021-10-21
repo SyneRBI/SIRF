@@ -19,6 +19,7 @@ Options:
   -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
                               [default: False]
   --traj=<str>                trajectory type, must match the data supplied in file
+                              options are cartesian, radial, goldenangle or grpe 
                               [default: grpe]
   --non-interactive           do not show plots
 '''
@@ -85,6 +86,8 @@ def main():
         processed_data = set_grpe_trajectory(processed_data)
     elif trajtype == 'radial':
         processed_data = set_radial2D_trajectory(processed_data)
+    elif trajtype == 'goldenangle':
+            processed_data = set_goldenangle2D_trajectory(processed_data)
     else:
         raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
                         .format(trajtype))

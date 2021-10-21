@@ -42,6 +42,7 @@ limitations under the License.
 #include <iomanip>
 #include <cmath>
 #include <numeric>
+#include <algorithm>
 
 // Remove NiftyReg's definition of isnan
 #undef isnan

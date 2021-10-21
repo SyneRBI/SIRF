@@ -930,6 +930,9 @@ class AcquisitionData(DataContainer):
         if idx > 7 or idx < 0 or not isinstance(idx,int):
             raise AssertionError('Please give an integer from [0,...,7]')
 
+        if data.dtype is not numpy.float32:
+            data = data.astype(numpy.float32)
+
         try_calling(pygadgetron.cGT_setAcquisitionUserFloat\
                     (self.handle, data.ctypes.data, idx))
 
@@ -1623,6 +1626,17 @@ def set_radial2D_trajectory(ad):
     try_calling(pygadgetron.cGT_setRadial2DTrajectory(ad.handle))
     return ad
 
+def set_goldenangle2D_trajectory(ad):
+    '''
+    Function that fills the trajectory of AcquisitionData with golden angle increment 2D radial
+    readout trajectory.
+    ad: AcquisitionData
+    '''
+    assert_validity(ad, AcquisitionData)
+
+    try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
+    return ad
+
 def get_data_trajectory(ad):
     '''
     Function that gets the trajectory of AcquisitionData depending on the rawdata trajectory.
@@ -1636,7 +1650,7 @@ def get_data_trajectory(ad):
     elif ad.check_traj_type('other'):
         num_traj_pts = ad.number()
         traj_dim = 3
-    elif ad.check_traj_type('radial'):
+    elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
         num_traj_pts = ad.number() * ad.dimensions()[2]
         traj_dim = 2
         
@@ -1658,7 +1672,7 @@ def compute_kspace_density(ad):
         return calc_cartesian_dcw(ad)
     elif ad.check_traj_type('other'):
         return calc_rpe_dcw(ad)
-    elif ad.check_traj_type('radial'):
+    elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
         return calc_radial_dcw(ad)
     	
     else:
@@ -1688,7 +1702,7 @@ def calc_cartesian_dcw(ad):
 def calc_rpe_dcw(ad):
     '''
     Function that computes the kspace weight depending on the distance to the center
-    as in a filtered back-projection. Stricly valid only for equally angular-spaced
+    as in a filtered back-projection. Strictly valid only for equally angular-spaced
     radially distributed points
     ad: AcquisitionData
     '''

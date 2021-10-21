@@ -106,7 +106,7 @@ public:
         this->nufft_operator_.preprocess(traj);
     }
 
-    void ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
+    void ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata) const
     {
         auto sptr_const_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
         float const normed_dcw_value = 1.0;
@@ -119,7 +119,7 @@ public:
         this->nufft_operator_.compute(kdata, img, sptr_const_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
     }
 
-    void fft(CFGThoNDArr& kdata, const CFGThoNDArr& img)
+    void fft(CFGThoNDArr& kdata, const CFGThoNDArr& img) const
     {
         auto sptr_unit_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
         sptr_unit_dcw ->fill(1.f);
@@ -135,7 +135,7 @@ protected:
     std::vector<size_t> trajdims_;
     std::vector<size_t> output_dims_;
 
-    Gadgetron::hoNFFT_plan<float, D> nufft_operator_;
+    mutable Gadgetron::hoNFFT_plan<float, D> nufft_operator_;
 };
 
 typedef Gridder<2> Gridder2D;

@@ -39,6 +39,9 @@ limitations under the License.
 
 
 
+const static double SIRF_PI = 3.14159265358979323846;
+const static double SIRF_GOLDEN_ANGLE = SIRF_PI*0.618034;
+
 namespace sirf{
 
 /*!
@@ -49,7 +52,7 @@ namespace sirf{
 * reconstruction. The ISMRMRD format has a 3D trajectory data field in their ISRMRMRD::Acquisition classe.
 * The interface provides set_trajectory() which populates this data field depending on the implementation.
 */
-template <uint16_t D>
+template <std::uint16_t D>
 class TrajectoryPreparation{
 
 public:
@@ -60,7 +63,7 @@ public:
     
     virtual void set_trajectory(MRAcquisitionData& mr_acq)
     {
-        update_acquisitions_info(mr_acq);
+        overwrite_trajectory_name(mr_acq);
 
         for(size_t ia=0; ia<mr_acq.number(); ++ia)
         {
@@ -97,15 +100,35 @@ public:
 
 protected:
     ISMRMRD::Encoding kspace_encoding_;
+    
+    /*!
+    \ingroup Gadgetron Extensions
+    \brief Labels which trajectory type the TrajectoryPreparation is for.
+    */
     ISMRMRD::TrajectoryType traj_type_;
 
+    /*!
+    \ingroup Gadgetron Extensions
+    \brief Sets the trajectory field in an ISMRMRD::Acquisition
+
+    * Depending on the virtual method calculate_trajectory(...) which is overloaded for
+    * child classes, this method fills the trajectory data field of the acquisition with
+    * the correct locations in k-space. The trajectory information is later picked up 
+    * by the forward() and backward() methods of the MRAcquisitionModel.
+    */
     virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& acq) const
     {
         acq.resize(acq.number_of_samples(),acq.active_channels(), D);
         TrajPointSet acq_traj = this->calculate_trajectory(acq);
         acq.setTraj(&(acq_traj[0][0]));
     }
-    virtual void update_acquisitions_info(sirf::MRAcquisitionData& mr_acq)
+
+    /*!
+    \ingroup Gadgetron Extensions
+    \brief Overwrites the trajectory name in the argument with the traj_type_ member.
+    
+    */
+    virtual void overwrite_trajectory_name(sirf::MRAcquisitionData& mr_acq)
     {
         ISMRMRD::IsmrmrdHeader hdr = mr_acq.acquisitions_info().get_IsmrmrdHeader();
 
@@ -127,8 +150,8 @@ protected:
 
 };
 
-typedef TrajectoryPreparation<2> TrajPrep2D;
-typedef TrajectoryPreparation<3> TrajPrep3D;
+typedef TrajectoryPreparation<2> TrajectoryPreparation2D;
+typedef TrajectoryPreparation<3> TrajectoryPreparation3D;
 
 
 /*!
@@ -141,7 +164,7 @@ typedef TrajectoryPreparation<3> TrajPrep3D;
 
 class CartesianTrajectoryPrep{ 
 public:
-    static TrajPrep2D::TrajPointSet get_trajectory(const sirf::MRAcquisitionData& ac);
+    static TrajectoryPreparation2D::TrajPointSet get_trajectory(const sirf::MRAcquisitionData& ac);
 };
 
 /*!
@@ -155,7 +178,7 @@ public:
 * of the trajectory is set to 0 for all data points.
 */
 
-class GRPETrajectoryPrep : public TrajPrep3D {
+class GRPETrajectoryPrep : public TrajectoryPreparation3D {
 
 public:
     GRPETrajectoryPrep(){
@@ -167,23 +190,33 @@ protected:
     virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq) const;
     
 private:    
-    uint16_t circ_mod(uint16_t const a, uint16_t const b) const { return (((a%b) + b ) % b);}
-    const std::vector< uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
+    std::uint16_t circ_mod(std::uint16_t const a, std::uint16_t const b) const { return (((a%b) + b ) % b);}
+    const std::vector< std::uint16_t > rad_shift_ = {0, 2, 1, 3}; //this is bit-reversed {0 1 2 3}
 };
 
 
 /*!
 \ingroup Gadgetron Extensions
-\brief Class to set the 2D radial trajectory
-... 
+\brief Interface to set the 2D radial trajectory
 */
-
-class NonCartesian2DTrajPrep : public TrajPrep2D {
+class NonCartesian2DTrajPrep : public TrajectoryPreparation2D {
 
 protected:
+    virtual TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
+
     virtual void append_to_trajectory(TrajPointSet& tps, ISMRMRD::Acquisition& acq) const;
+    /*!
+    \ingroup Gadgetron Extensions
+    \brief Abstract function computing a anglular increment depending on the trajectory type.
+    */
+    virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const =0;
 };
 
+
+/*!
+\ingroup Gadgetron Extensions
+\brief Implementation to set anglular increment for 2D radial trajectory based on (Pi=3.141...)/#Angles
+*/
 class Radial2DTrajprep : public NonCartesian2DTrajPrep {
 
 public:
@@ -192,7 +225,38 @@ public:
     }
 
 protected:
-    TrajPointSet calculate_trajectory(ISMRMRD::Acquisition& acq) const;
+
+    virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const 
+    {
+        ISMRMRD::Limit ang_lims(0,0,0);
+
+        if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
+                ang_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.get();
+
+        const ISMRMRD::EncodingCounters idx = acq.idx();
+        unsigned short num_angles = ang_lims.maximum;
+
+        return (SIRF_PI/(float)num_angles * idx.kspace_encode_step_1);
+    }
+};
+
+/*!
+\ingroup Gadgetron Extensions
+\brief Implementation to set anglular increment for 2D radial trajectory based on doi:10.1109/TMI.2006.885337
+*/
+class GoldenAngle2DTrajprep : public NonCartesian2DTrajPrep {
+
+public:
+    GoldenAngle2DTrajprep() {
+        traj_type_ = ISMRMRD::TrajectoryType::GOLDENANGLE;
+    }
+
+protected:
+    virtual float calculate_pe_angle(ISMRMRD::Acquisition& acq) const 
+    {
+        const ISMRMRD::EncodingCounters idx = acq.idx();
+        return (SIRF_GOLDEN_ANGLE * idx.kspace_encode_step_1);
+    }
 };
 
 

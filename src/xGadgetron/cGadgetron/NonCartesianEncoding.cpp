@@ -70,7 +70,7 @@ using namespace ISMRMRD;
 Gridder2D::TrajectoryArrayType RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
     sirf::GRPETrajectoryPrep tp;
-    TrajPrep3D::TrajPointSet sirftraj = tp.get_trajectory(ac);
+    TrajectoryPreparation3D::TrajPointSet sirftraj = tp.get_trajectory(ac);
 
     Gridder2D::TrajectoryArrayType traj(sirftraj.size());
     traj.fill(Gadgetron::floatd2(0.f, 0.f));
@@ -216,7 +216,7 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) cons
 Gridder2D::TrajectoryArrayType NonCartesian2DEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
     sirf::Radial2DTrajprep tp;
-    TrajPrep2D::TrajPointSet sirftraj = tp.get_trajectory(ac);
+    TrajectoryPreparation2D::TrajPointSet sirftraj = tp.get_trajectory(ac);
 
     Gridder2D::TrajectoryArrayType traj(sirftraj.size());
     traj.fill(Gadgetron::floatd2(0.f, 0.f));

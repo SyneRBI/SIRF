@@ -33,13 +33,11 @@ limitations under the License.
 #include <sstream>
 #include <math.h>
 
-const static double SIRF_PI = 3.14159265358979323846;
-const static double SIRF_GOLDEN_ANGLE = SIRF_PI*0.618034;
 
 using namespace sirf;
 using namespace ISMRMRD;
 
-TrajPrep2D::TrajPointSet sirf::CartesianTrajectoryPrep::get_trajectory(const sirf::MRAcquisitionData& ac)
+TrajectoryPreparation2D::TrajPointSet sirf::CartesianTrajectoryPrep::get_trajectory(const sirf::MRAcquisitionData& ac)
 {
     if(ac.get_trajectory_type() != ISMRMRD::TrajectoryType::CARTESIAN)
         throw std::runtime_error("Please only ask to get the trajectory for acquisition data with a Cartesian trajectory.");
@@ -49,13 +47,13 @@ TrajPrep2D::TrajPointSet sirf::CartesianTrajectoryPrep::get_trajectory(const sir
 
     ISMRMRD::Acquisition acq;
 
-    TrajPrep2D::TrajPointSet traj;
+    TrajectoryPreparation2D::TrajPointSet traj;
 
     for(int ia=0; ia<ac.number(); ++ia)
     {
         ac.get_acquisition(ia, acq);
 
-        TrajPrep2D::TrajPointType curr_point{(float)acq.idx().kspace_encode_step_1, 
+        TrajectoryPreparation2D::TrajPointType curr_point{(float)acq.idx().kspace_encode_step_1, 
                                              (float)acq.idx().kspace_encode_step_2};
         traj.push_back(curr_point);
     }
@@ -69,7 +67,7 @@ void sirf::GRPETrajectoryPrep::append_to_trajectory(TrajPointSet& tps, ISMRMRD::
     if( acq.trajectory_dimensions() != 3)
         throw std::runtime_error("Please give Acquisition with a 3D RPE trajectory if you want to use it here.");
 
-    TrajPrep3D::TrajPointType curr_point{0.f, acq.traj(1, 0), acq.traj(2, 0)}; // append only the 0th sample since the readout is cartesian for RPE
+    TrajectoryPreparation3D::TrajPointType curr_point{0.f, acq.traj(1, 0), acq.traj(2, 0)}; // append only the 0th sample since the readout is cartesian for RPE
     tps.push_back(curr_point);
 }
 
@@ -95,11 +93,11 @@ GRPETrajectoryPrep::TrajPointSet sirf::GRPETrajectoryPrep::calculate_trajectory(
     float const traj_norm = 2*std::max<float>(( rad_lims.center - rad_lims.minimum + 0), (rad_lims.maximum - rad_lims.center + (num_diff_shifts-1)/num_diff_shifts));
     pe_radius /= traj_norm;
 
-    TrajPrep3D::TrajPointSet traj;
+    TrajectoryPreparation3D::TrajPointSet traj;
 
     for(size_t i_sample=0; i_sample<acq.number_of_samples();++i_sample)
     {
-        TrajPrep3D::TrajPointType pt{0,
+        TrajectoryPreparation3D::TrajPointType pt{0,
                                      pe_radius * cos(pe_angle),
                                      pe_radius * sin(pe_angle)};
         
@@ -116,14 +114,14 @@ void sirf::NonCartesian2DTrajPrep::append_to_trajectory(TrajPointSet& tps, ISMRM
 
     for(int ns=0; ns<acq.number_of_samples(); ++ns)
     {
-        TrajPrep2D::TrajPointType curr_point{acq.traj(0,ns), acq.traj(1,ns)};
+        TrajectoryPreparation2D::TrajPointType curr_point{acq.traj(0,ns), acq.traj(1,ns)};
         tps.push_back(curr_point);
     }
 }
 
-Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acquisition& acq) const
+Radial2DTrajprep::TrajPointSet sirf::NonCartesian2DTrajPrep::calculate_trajectory(Acquisition& acq) const
 {
-    ISMRMRD::Limit rad_lims(0,0,0), ang_lims(0,0,0);
+    ISMRMRD::Limit rad_lims(0,0,0);
     
     if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.is_present())
         rad_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_0.get();
@@ -133,13 +131,8 @@ Radial2DTrajprep::TrajPointSet sirf::Radial2DTrajprep::calculate_trajectory(Acqu
         rad_lims.center = acq.number_of_samples()/2;
         rad_lims.maximum = acq.number_of_samples()-1;
     }
-    if(this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.is_present())
-        ang_lims = this->kspace_encoding_.encodingLimits.kspace_encoding_step_1.get();
-
-    const ISMRMRD::EncodingCounters idx = acq.idx();
-
-    unsigned short num_angles = ang_lims.maximum;
-    float const pe_angle = SIRF_PI/(float)num_angles * idx.kspace_encode_step_1;
+    
+    float const pe_angle = calculate_pe_angle(acq);
 
     float const traj_norm = 2*std::max<float>( rad_lims.center-rad_lims.minimum, rad_lims.maximum-rad_lims.center);
 
