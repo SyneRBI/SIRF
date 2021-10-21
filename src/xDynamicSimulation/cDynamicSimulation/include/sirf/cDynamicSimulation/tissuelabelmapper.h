@@ -47,7 +47,7 @@ public:
 		return segmentation_labels_.get_geom_info_sptr();
 	}
 	LabelVolume get_segmentation_labels( void );
-	TissueParameterList get_tissue_parameter_list( void );
+	TissueParameterList get_tissue_parameter_list( void ) const;
 	
 	void map_labels_to_tissue_from_xml( void );
 

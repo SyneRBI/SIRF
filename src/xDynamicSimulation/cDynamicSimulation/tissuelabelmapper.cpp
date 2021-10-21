@@ -31,7 +31,7 @@ LabelVolume TissueLabelMapper::get_segmentation_labels( void )
 	return this->segmentation_labels_;
 }
 
-TissueParameterList TissueLabelMapper::get_tissue_parameter_list( void )
+TissueParameterList TissueLabelMapper::get_tissue_parameter_list( void ) const
 {
 	return this->tissue_parameter_list_;
 }
