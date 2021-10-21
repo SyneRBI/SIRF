@@ -1684,7 +1684,8 @@ GadgetronImagesVector::set_up_geom_info()
     // For the z-direction.
     // If it's a 3d image, matrix_size[2] == num voxels
     // If it's a 2d image, matrix_size[2] == 1, and number of slices is given by number_slices.
-    // Assert that if 3D data is present multiple slices are not covered, but this is usually not happening.
+    // We will check below that if 3D data is present, slices are not repeated as we do not yet cover this case.
+    // Luckily this is usually not happening.
     VoxelisedGeometricalInfo3D::Size size;
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
@@ -1711,13 +1712,14 @@ GadgetronImagesVector::set_up_geom_info()
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
 
-        if( spacing[2] != get_slice_spacing(ih1, ih2) )
+        const float tolerance_mm = 0.01f;
+        if( std::abs(spacing[2] - get_slice_spacing(ih1, ih2)) > tolerance_mm )
         {
             std::cout << "\nGadgetronImagesVector::set_up_geom_info(). "
                         "Warning, you set up geometry for slices whose width is not their distance."
                         "This setup does probably not account for overlaps or gaps between slices.\n";
         }
-        
+        // just making sure they are the same, as opposed to "up to tolerance"
         spacing[2] = get_slice_spacing(ih1, ih2);
 
         // Check: Loop over all images, and check that spacing is more-or-less constant
