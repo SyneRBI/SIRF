@@ -32,6 +32,7 @@ bool test_simulate_rpe_acquisition( void );
 bool test_4d_mri_acquisition( void );
 bool test_5d_mri_acquisition( void );
 bool test_dce_acquisition( void );
+bool test_external_contrast_acquisition( void );
 
 }
 

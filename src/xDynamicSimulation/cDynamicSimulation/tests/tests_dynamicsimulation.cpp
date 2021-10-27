@@ -306,7 +306,7 @@ bool tests_mr_dynsim::test_simulate_5d_motion_dynamics()
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
 
 		// 
-		// generate mock respiratory motion dynamic
+		// generate mock cardiac motion dynamic
 		float const cardiac_period_ms = 1000;
 		SignalContainer card_signal = aux_test::get_mock_sawtooth_signal( contrast_template, respiratory_period_ms);
 		
@@ -831,6 +831,99 @@ bool tests_mr_dynsim::test_dce_acquisition( void )
 }
 
 
+bool tests_mr_dynsim::test_external_contrast_acquisition( void )
+{
+	try
+	{	
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+
+		AcquisitionsVector contrast_template;
+		contrast_template.read( ISMRMRD_H5_TEST_PATH );
+		sirf::preprocess_acquisition_data(contrast_template);
+
+		AcquisitionsVector acquisition_template;
+		acquisition_template.read(PATH_2D_ACQ_TEMPLATE);
+		sirf::preprocess_acquisition_data(acquisition_template);
+
+		mr_dyn_sim.set_acquisition_template_rawdata(acquisition_template);
+		mr_dyn_sim.set_contrast_template_rawdata(contrast_template);
+		
+		auto data_dims = segmentation_labels.get_dimensions();
+		
+		std::vector< size_t > vol_dims{(size_t)data_dims[1], (size_t)data_dims[2], (size_t)data_dims[3]}; 
+		
+		size_t num_coils = 4;
+		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+		mr_dyn_sim.set_coilmaps( std::make_shared<CoilSensitivitiesVector>(csm));
+
+		float const test_SNR = 15;
+		size_t const noise_label = 13;
+		mr_dyn_sim.set_SNR(test_SNR);
+		mr_dyn_sim.set_noise_label( noise_label );
+
+		// generate mock respiratory motion dynamic
+		float const respiratory_period_ms = 6000;
+		SignalContainer resp_signal = aux_test::get_mock_sinus_signal( contrast_template, respiratory_period_ms);
+		
+		auto resp_motion_fields = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		
+		size_t const num_sim_stats_per_dyn = 4;
+		size_t const num_resp_states = num_sim_stats_per_dyn;
+		MRMotionDynamic resp_dyn(num_resp_states);
+		
+		resp_dyn.set_displacement_fields( resp_motion_fields, false );
+		resp_dyn.set_dynamic_signal(resp_signal);
+
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( resp_dyn ));
+
+		
+		const int minimum_num_labels = 100;
+		std::vector<LabelType> label_list(minimum_num_labels); 
+		std::iota(label_list.begin(), label_list.end(), 0);
+
+		ExternalMRContrastDynamic edyn;
+		auto ext_signals = aux_test::get_mock_external_signals_for_templatedata(label_list, acquisition_template);
+		edyn.set_tissue_signals(ext_signals);
+		
+		mr_dyn_sim.add_dynamic( std::make_shared<ExternalMRContrastDynamic>(edyn));
+
+		// generate mock cardiac motion dynamic
+		// float const cardiac_period_ms = 1000;
+		// SignalContainer card_signal = aux_test::get_mock_sawtooth_signal( contrast_template, respiratory_period_ms);
+		
+		// auto card_motion_fields = read_cardiac_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		
+		// size_t const num_card_states = num_sim_stats_per_dyn;
+		// MRMotionDynamic card_dyn(num_card_states);
+		
+		// card_dyn.set_displacement_fields( card_motion_fields, true );
+		// card_dyn.set_dynamic_signal(card_signal);
+
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> ( card_dyn ));
+
+		// run actual 
+		clock_t t;
+		t = clock();
+		mr_dyn_sim.simulate_data();
+		t = clock() - t;
+
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+
+		std::stringstream ss_output_name;
+		ss_output_name << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_test_" << __FUNCTION__ << ".h5";
+		mr_dyn_sim.write_simulation_results( ss_output_name.str() );
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
+}
 // PET #################################################################################
 
 bool test_pet_dynsim::test_constructor()
