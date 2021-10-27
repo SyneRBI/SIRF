@@ -49,7 +49,8 @@ void MRDynamicSimulation::simulate_data( void )
 	if(external_contrast_.size() == 1)
 	{
 		cout << "Simulating dynamic data acquisition of pre-computed signal... " <<endl;
-		this->simulate_external_motion_contrast_dynamics();
+		external_contrast_[0]->bin_mr_acquisitions(*sptr_source_acquisitions_);
+		simulate_external_motion_contrast_dynamics();
 		return;
 	}
 	else if(external_contrast_.size() > 0)
@@ -223,6 +224,7 @@ void MRDynamicSimulation::simulate_external_motion_contrast_dynamics()
 	
 	const ExternalMRContrastDynamic ed = *(external_contrast_[0]);		
 	const size_t num_simul_states = ed.get_num_simul_states();
+
 	for(unsigned i=0; i<num_simul_states; ++i)
 	{
 		std::cout << "### Performing the simulation of external state " << i << " / " << num_simul_states << std::endl;

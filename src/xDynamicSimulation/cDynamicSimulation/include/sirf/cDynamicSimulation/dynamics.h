@@ -425,9 +425,13 @@ public:
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions )
 	{
 		if(external_signals_.size() != all_acquisitions.number())
-			throw std::runtime_error("Please supply the same number of tissue signal sets in temporal order"
-				"as number of readouts using set_tissue_signals() prior to calling this function.");
-
+		{
+			std::stringstream message;
+			message << "Please supply the same number (" << external_signals_.size() << ") of tissue signal sets in temporal order"
+				"as number of readouts (" << all_acquisitions.number() << ") using set_tissue_signals() prior to calling this function.\n";
+			throw std::runtime_error(message.str());
+		}
+			
 		all_acquisitions.sort_by_time();
 
 		binned_mr_acquisitions_.empty();
