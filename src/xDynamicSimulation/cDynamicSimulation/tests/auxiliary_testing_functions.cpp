@@ -709,6 +709,7 @@ aux_test::get_mock_external_signals_for_templatedata(const std::vector<LabelType
 			get_mock_external_signal(label_list, weight)
 		);
 	}
+	return external_signals;
 }
 
 SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms)
