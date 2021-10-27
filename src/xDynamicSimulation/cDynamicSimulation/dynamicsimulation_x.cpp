@@ -43,18 +43,31 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 
 void MRDynamicSimulation::simulate_data( void )
 {
-	cout << "Simulating dynamic data acquisition... " <<endl;
 	sptr_simul_data_->empty();
 	sptr_simul_data_->copy_acquisitions_info(*sptr_source_acquisitions_);
 
-	for(int i=0; i<motion_dynamics_.size(); ++i)
-		motion_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
+	if(external_contrast_.size() == 1)
+	{
+		cout << "Simulating dynamic data acquisition of pre-computed signal... " <<endl;
+		this->simulate_external_motion_contrast_dynamics();
+		return;
+	}
+	else if(external_contrast_.size() > 0)
+	{
+		throw std::runtime_error("You supplied more than one external contrast dynamic. Only one is allowed.");
+	}
+	else
+	{
+		cout << "Simulating dynamic signal generation and data acquisition... " <<endl;
 
-	for(int i=0; i<contrast_dynamics_.size(); ++i)
-		contrast_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
+		for(int i=0; i<motion_dynamics_.size(); ++i)
+			motion_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
 
-	this->simulate_simultaneous_motion_contrast_dynamics();		
+		for(int i=0; i<contrast_dynamics_.size(); ++i)
+			contrast_dynamics_[i]->bin_mr_acquisitions(*sptr_source_acquisitions_);
 
+		this->simulate_simultaneous_motion_contrast_dynamics();		
+	}
 }
 
 
@@ -205,6 +218,32 @@ void MRDynamicSimulation::update_tissue_parameters(TimeAxisType current_time_poi
 	}
 }
 
+void MRDynamicSimulation::simulate_external_motion_contrast_dynamics()
+{
+	
+	const ExternalMRContrastDynamic ed = *(external_contrast_[0]);		
+	const size_t num_simul_states = ed.get_num_simul_states();
+	for(unsigned i=0; i<num_simul_states; ++i)
+	{
+		std::cout << "### Performing the simulation of external state " << i << " / " << num_simul_states << std::endl;
+		AcquisitionsVector acquisitions_for_this_contrast_state = ed.get_binned_mr_acquisitions(i);
+		
+		ISMRMRD::Acquisition acq;
+		acquisitions_for_this_contrast_state.get_acquisition(i, acq);
+		uint32_t const timepoint_ms = SIRF_SCANNER_MS_PER_TIC * acq.acquisition_time_stamp();
+
+		std::vector<sirf::NiftiImageData3DDeformation<float> > current_mvfs;	
+		for( int i_motion_dyn = 0; i_motion_dyn<motion_dynamics_.size(); i_motion_dyn++ )
+			current_mvfs.push_back(motion_dynamics_[i_motion_dyn]->get_interpolated_deformation_field_at_timepoint(timepoint_ms)); 
+
+		mr_cont_gen_.map_contrast(ed.get_tissue_signals(i));
+		dsd_.deform_contrast_generator(this->mr_cont_gen_, current_mvfs);
+
+		sptr_template_data_ = std::shared_ptr<MRAcquisitionData>(std::move(acquisitions_for_this_contrast_state.clone()));
+		acquire_raw_data();
+	}
+}
+
 void MRDynamicSimulation::set_noise_scaling()
 {
 	this->noise_generator_.set_sampling_specific_scaling(RPE_NOISE_SCALING);
@@ -275,6 +314,14 @@ void MRDynamicSimulation::acquire_raw_data( void )
 	}
 }
 
+void MRDynamicSimulation::save_ground_truth_displacements( void ) const
+{
+	for(size_t i=0; i<this->motion_dynamics_.size(); i++)
+	{
+		this->motion_dynamics_[i]->save_ground_truth_displacements();
+	}
+}
+
 void PETDynamicSimulation::write_simulation_results( const std::string& filename_output_with_extension )
 {
 	
@@ -298,13 +345,6 @@ void PETDynamicSimulation::write_simulation_results( const std::string& filename
 
 }
 
-void MRDynamicSimulation::save_ground_truth_displacements( void ) const
-{
-	for(size_t i=0; i<this->motion_dynamics_.size(); i++)
-	{
-		this->motion_dynamics_[i]->save_ground_truth_displacements();
-	}
-}
 
 void PETDynamicSimulation::save_ground_truth_displacements( void ) const
 {

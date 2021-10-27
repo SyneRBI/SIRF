@@ -134,6 +134,10 @@ public:
 		this->contrast_dynamics_.push_back(sptr_contrast_dyn);
 	} 
 
+	void add_dynamic( std::shared_ptr<ExternalMRContrastDynamic> sptr_ext_contrast_dyn){
+		this->external_contrast_.push_back(sptr_ext_contrast_dyn);
+	}
+
 	void simulate_statics( void );
 	void simulate_data( void );
 
@@ -154,7 +158,8 @@ private:
 
 	std::vector< std::shared_ptr<MRMotionDynamic> > motion_dynamics_;
 	std::vector< std::shared_ptr<MRContrastDynamic> > contrast_dynamics_;
-
+	std::vector< std::shared_ptr<ExternalMRContrastDynamic> > external_contrast_;
+	
 	GaussianNoiseGenerator noise_generator_;
 
 	std::shared_ptr<sirf::MRAcquisitionData> sptr_source_acquisitions_;
@@ -179,6 +184,8 @@ private:
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );
 	void simulate_simultaneous_motion_contrast_dynamics( void );
+	void simulate_external_motion_contrast_dynamics( void );
+
 	void set_noise_scaling();
 };
 
