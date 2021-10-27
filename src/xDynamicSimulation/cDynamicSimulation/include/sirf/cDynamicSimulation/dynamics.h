@@ -343,6 +343,13 @@ public:
 	{ 
 		return mp_.get_num_total_motion_dynamics();
 	}
+
+	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field_at_timepoint(const TimeAxisType time_seconds) const
+	{
+		SignalAxisType sig = sp_.linear_interpolate_signal(time_seconds);			
+		return this->get_interpolated_deformation_field(sig);
+	}
+
 	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal) const
 	{
 		return mp_.get_interpolated_deformation_field(signal, bp_.is_cyclic());
@@ -414,6 +421,7 @@ class ExternalMRContrastDynamic: public MRDynamic {
 
 public:
 	ExternalMRContrastDynamic(): MRDynamic(){};
+	
 	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions )
 	{
 		if(external_signals_.size() != all_acquisitions.number())
