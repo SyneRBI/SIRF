@@ -90,7 +90,7 @@ cSIRF_isComplex(const void* ptr_x)
 
 extern "C"
 void*
-cGT_conjugate(void* ptr)
+cSIRF_conjugate(void* ptr)
 {
 	try {
 		DataContainer& x = objectFromHandle<DataContainer>(ptr);
