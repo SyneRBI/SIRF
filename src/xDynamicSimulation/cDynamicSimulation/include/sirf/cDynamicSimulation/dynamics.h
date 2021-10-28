@@ -296,17 +296,17 @@ public:
 	MRDynamic(): Dynamic(){}
 	MRDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
-	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions(void) const
+	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions(void) const
 	{
 		return this->binned_mr_acquisitions_;
 	}
 
-	sirf::AcquisitionsVector get_binned_mr_acquisitions(unsigned int const bin_num) const
+	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions(unsigned int const bin_num) const
 	{
-		if(bin_num >= this->bp_.get_num_bins())
+		if(bin_num >= binned_mr_acquisitions_.size())
 			throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
 		
-		return this->binned_mr_acquisitions_[bin_num];
+		return binned_mr_acquisitions_.at(bin_num);
 	}
 
 	virtual void bin_mr_acquisitions(sirf::MRAcquisitionData& all_acquisitions)=0;
@@ -431,18 +431,18 @@ public:
 				"as number of readouts (" << all_acquisitions.number() << ") using set_tissue_signals() prior to calling this function.\n";
 			throw std::runtime_error(message.str());
 		}
-			
+
 		all_acquisitions.sort_by_time();
 
 		binned_mr_acquisitions_.empty();
-		binned_mr_acquisitions_.resize(all_acquisitions.number());
+
 		ISMRMRD::Acquisition acq;
 		for(int i=0; i<all_acquisitions.number(); ++i)
 		{
 			sirf::AcquisitionsVector av(all_acquisitions.acquisitions_info());	
 			all_acquisitions.get_acquisition(i, acq);
 			av.append_acquisition(acq);
-			binned_mr_acquisitions_.at(i) = av;
+			binned_mr_acquisitions_.push_back(av);
 		}
 	}
 
@@ -458,14 +458,11 @@ public:
 	
 	int get_num_simul_states( void ) const
 	{
-		return external_signals_.size();
+		return binned_mr_acquisitions_.size();
 	}
 
 private:
-
 	std::vector<std::vector<ExternalTissueSignal> > external_signals_;
-	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
-
 };
 
 

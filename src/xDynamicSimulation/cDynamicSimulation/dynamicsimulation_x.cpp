@@ -50,7 +50,7 @@ void MRDynamicSimulation::simulate_data( void )
 	{
 		cout << "Simulating dynamic data acquisition of pre-computed signal... " <<endl;
 		external_contrast_[0]->bin_mr_acquisitions(*sptr_source_acquisitions_);
-		simulate_external_motion_contrast_dynamics();
+		this->simulate_external_motion_contrast_dynamics();
 		return;
 	}
 	else if(external_contrast_.size() > 0)
@@ -222,13 +222,12 @@ void MRDynamicSimulation::update_tissue_parameters(TimeAxisType current_time_poi
 void MRDynamicSimulation::simulate_external_motion_contrast_dynamics()
 {
 	
-	const ExternalMRContrastDynamic ed = *(external_contrast_[0]);		
-	const size_t num_simul_states = ed.get_num_simul_states();
-
-	for(unsigned i=0; i<num_simul_states; ++i)
+	std::shared_ptr<ExternalMRContrastDynamic> sptr_ed = external_contrast_[0];		
+	const size_t num_simul_states = sptr_ed->get_num_simul_states();
+	for(unsigned int i=0; i<num_simul_states; ++i)
 	{
 		std::cout << "### Performing the simulation of external state " << i << " / " << num_simul_states << std::endl;
-		AcquisitionsVector acquisitions_for_this_contrast_state = ed.get_binned_mr_acquisitions(i);
+		AcquisitionsVector acquisitions_for_this_contrast_state = sptr_ed->get_binned_mr_acquisitions(i);
 		
 		ISMRMRD::Acquisition acq;
 		acquisitions_for_this_contrast_state.get_acquisition(i, acq);
@@ -238,7 +237,7 @@ void MRDynamicSimulation::simulate_external_motion_contrast_dynamics()
 		for( int i_motion_dyn = 0; i_motion_dyn<motion_dynamics_.size(); i_motion_dyn++ )
 			current_mvfs.push_back(motion_dynamics_[i_motion_dyn]->get_interpolated_deformation_field_at_timepoint(timepoint_ms)); 
 
-		mr_cont_gen_.map_contrast(ed.get_tissue_signals(i));
+		mr_cont_gen_.map_contrast(sptr_ed->get_tissue_signals(i));
 		dsd_.deform_contrast_generator(this->mr_cont_gen_, current_mvfs);
 
 		sptr_template_data_ = std::shared_ptr<MRAcquisitionData>(std::move(acquisitions_for_this_contrast_state.clone()));
