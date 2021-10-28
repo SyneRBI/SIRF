@@ -105,6 +105,7 @@ extern "C" {
 	void* cGT_imageDataType(const void* ptr_x, int im_num);
 	void cGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
 	void* cGT_imageType(const void* ptr_img);
+	void* cGT_setImageType(const void* ptr_img, int image_type);
 	void* cGT_getImageDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 	void* cGT_setImageDataFromFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 	void* cGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
