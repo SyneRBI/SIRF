@@ -594,28 +594,32 @@ int main ( int argc, char* argv[])
 //        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
-        shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
-        AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
-        av.read(data_path);
-
-        sirf::preprocess_acquisition_data(av);
-        av.sort();
-
         bool ok = true;
 
-        ok *= test_get_kspace_order(av);
-        ok *= test_get_subset(av);
+        bool const run_cartesian_tests = true;
+        if(run_cartesian_tests)
+        {
+            shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+            AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+            av.read(data_path);
 
-        ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
+            sirf::preprocess_acquisition_data(av);
+            av.sort();
 
-        ok *= test_CoilSensitivitiesVector_calculate(av);
-        ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
 
-        ok *= test_bwd(av);
+            ok *= test_get_kspace_order(av);
+            ok *= test_get_subset(av);
 
-        ok *= test_acq_mod_adjointness(av);
-        ok *= test_acq_mod_norm(sptr_ad);
+            ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
 
+            ok *= test_CoilSensitivitiesVector_calculate(av);
+            ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+
+            ok *= test_bwd(av);
+
+            ok *= test_acq_mod_adjointness(av);
+            ok *= test_acq_mod_norm(sptr_ad);
+        }
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
         #warning "RUNNING THE RADIAL TESTS FOR C++."
@@ -638,23 +642,26 @@ int main ( int argc, char* argv[])
             ok *= test_mracquisition_model_rpe_bwd(rpe_av);
             ok *= test_acq_mod_adjointness(rpe_av);
 
-            av.empty();
-            av.read(data_path);
-            
-            sirf::Radial2DTrajprep radial_tp;
-            radial_tp.set_trajectory(av);
-            av.sort();
+            bool const run_2d_radial_tests=true;
+            if(run_2d_radial_tests)
+            {
+                AcquisitionsVector av;
+                av.read(data_path);
+                
+                sirf::Radial2DTrajprep radial_tp;
+                radial_tp.set_trajectory(av);
+                av.sort();
 
-            ok *= test_acq_mod_adjointness(av);
+                ok *= test_acq_mod_adjointness(av);
 
-            av.empty();
-            av.read(data_path);
-            sirf::GoldenAngle2DTrajprep ga_tp;
-            ga_tp.set_trajectory(av);
-            av.sort();
+                av.empty();
+                av.read(data_path);
+                sirf::GoldenAngle2DTrajprep ga_tp;
+                ga_tp.set_trajectory(av);
+                av.sort();
 
-            ok *= test_acq_mod_adjointness(av);
-
+                ok *= test_acq_mod_adjointness(av);
+            }
         #endif
 
 
