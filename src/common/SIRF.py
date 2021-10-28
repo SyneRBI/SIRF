@@ -103,6 +103,7 @@ class DataContainer(ABC):
 
     def conjugate(self, out=None):
         ''' Computes complex conjugate of self.
+
             Use y = x.conjugate() to get the conjugated copy of x.
             Use x.conjugate(out=x) to conjugate in-place.
         '''
