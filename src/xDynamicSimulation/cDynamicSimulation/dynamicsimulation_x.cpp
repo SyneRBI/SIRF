@@ -230,7 +230,7 @@ void MRDynamicSimulation::simulate_external_motion_contrast_dynamics()
 		AcquisitionsVector acquisitions_for_this_contrast_state = sptr_ed->get_binned_mr_acquisitions(i);
 		
 		ISMRMRD::Acquisition acq;
-		acquisitions_for_this_contrast_state.get_acquisition(i, acq);
+		acquisitions_for_this_contrast_state.get_acquisition(0, acq);
 		uint32_t const timepoint_ms = SIRF_SCANNER_MS_PER_TIC * acq.acquisition_time_stamp();
 
 		std::vector<sirf::NiftiImageData3DDeformation<float> > current_mvfs;	
