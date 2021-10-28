@@ -92,8 +92,21 @@ namespace sirf {
 		{
 			return std::unique_ptr<DataContainer>(this->clone_impl());
 		}
+		void conjugate()
+		{
+			this->conjugate_impl();
+		}
+		std::unique_ptr<DataContainer> conjugated() const
+		{
+			DataContainer* ptr = this->clone_impl();
+			ptr->conjugate();
+			return std::unique_ptr<DataContainer>(ptr);
+		}
 	protected:
 		virtual DataContainer* clone_impl() const = 0;
+		virtual void conjugate_impl()
+		{
+		}
 	};
 }
 

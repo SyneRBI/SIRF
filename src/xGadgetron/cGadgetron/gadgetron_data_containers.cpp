@@ -776,6 +776,21 @@ AcquisitionsVector::empty()
 }
 
 void
+AcquisitionsVector::conjugate_impl()
+{
+    int na = number();
+    for (int a = 0, i = 0; a < na; a++) {
+        int ia = index(a);
+        ISMRMRD::Acquisition& acq = *acqs_[ia];
+        unsigned int nc = acq.active_channels();
+        unsigned int ns = acq.number_of_samples();
+        for (int c = 0; c < nc; c++)
+            for (int s = 0; s < ns; s++, i++)
+                acq.data(s, c) = std::conj(acq.data(s, c));
+    }
+}
+
+void
 AcquisitionsVector::set_data(const complex_float_t* z, int all)
 {
 	int na = number();
@@ -1202,6 +1217,13 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
         ImagesProcessor ip(true, filename);
         ip.process(*this);
     }
+}
+
+void
+GadgetronImageData::conjugate_impl()
+{
+    for (unsigned int i = 0; i < number(); i++)
+        image_wrap(i).conjugate();
 }
 
 void

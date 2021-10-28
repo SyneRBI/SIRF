@@ -530,6 +530,10 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, diff_, iw.ptr_image(), &s);
 			return s;
 		}
+		void conjugate()
+		{
+			IMAGE_PROCESSING_SWITCH(type_, conjugate_, ptr_);
+		}
 
 	private:
 		int type_;
@@ -932,6 +936,19 @@ namespace sirf {
 				*s += (float)std::abs(b - a);
 			}
 		}
+
+		template<typename T>
+		void conjugate_(ISMRMRD::Image<T>* ptr)
+		{
+			T* i;
+			size_t ii = 0;
+			size_t n = ptr->getNumberOfDataElements();
+			for (i = ptr->getDataPtr(); ii < n; i++, ii++) {
+				complex_float_t a = (complex_float_t)*i;
+				xGadgetronUtilities::convert_complex(std::conj(a), *i);
+			}
+		}
+
 	};
 }
 

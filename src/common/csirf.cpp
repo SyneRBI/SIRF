@@ -90,6 +90,32 @@ cSIRF_isComplex(const void* ptr_x)
 
 extern "C"
 void*
+cGT_conjugate(void* ptr)
+{
+	try {
+		DataContainer& x = objectFromHandle<DataContainer>(ptr);
+		x.conjugate();
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_conjugated(void* ptr_x)
+{
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		std::shared_ptr<DataContainer> sptr(x.clone());
+		sptr->conjugate();
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_norm(const void* ptr_x)
 {
 	try {
