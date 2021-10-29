@@ -96,7 +96,7 @@ namespace sirf {
 		{
 			this->conjugate_impl();
 		}
-		std::unique_ptr<DataContainer> conjugated() const
+		std::unique_ptr<DataContainer> conjugate() const
 		{
 			DataContainer* ptr = this->clone_impl();
 			ptr->conjugate();
