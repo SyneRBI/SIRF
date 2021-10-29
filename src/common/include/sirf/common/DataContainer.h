@@ -110,6 +110,7 @@ namespace sirf {
 
 	protected:
 		virtual DataContainer* clone_impl() const = 0;
+		/// we assume data to be real, complex data containers must override this
 		virtual void conjugate_impl()
 		{
 		}
