@@ -113,6 +113,8 @@ namespace sirf {
 		/// we assume data to be real, complex data containers must override this
 		virtual void conjugate_impl()
 		{
+			if (is_complex())
+				THROW("complex data containes must override conjugate_impl()");
 		}
 	};
 }
