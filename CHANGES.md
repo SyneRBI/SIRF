@@ -11,8 +11,11 @@
   - Added `__truediv__` and `__itruediv__` Python3 operators to DataContainer algebra.
 
 * Build system
-   - export a CMake config file such that external C++ projects can use SIRF via CMake,
-   see the `examples/C++` directory for basic usage.
+  - export a CMake config file such that external C++ projects can use SIRF via CMake,
+  see the `examples/C++` directory for basic usage.
+
+* Other changes
+  - added conjugation methods to DataContainer
 
 ## v3.1.1
   - minor bug fixes
