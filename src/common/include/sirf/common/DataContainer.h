@@ -88,20 +88,26 @@ namespace sirf {
 		{
 			return items() < 1;
 		}
+
 		std::unique_ptr<DataContainer> clone() const
 		{
 			return std::unique_ptr<DataContainer>(this->clone_impl());
 		}
+
+		/// overwrites this container's complex data with complex conjugate values
 		void conjugate()
 		{
 			this->conjugate_impl();
 		}
+
+		///  returns unique pointer to the complex-conjugated copy of this container
 		std::unique_ptr<DataContainer> conjugate() const
 		{
 			DataContainer* ptr = this->clone_impl();
 			ptr->conjugate();
 			return std::unique_ptr<DataContainer>(ptr);
 		}
+
 	protected:
 		virtual DataContainer* clone_impl() const = 0;
 		virtual void conjugate_impl()
