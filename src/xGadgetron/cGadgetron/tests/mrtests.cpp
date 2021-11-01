@@ -595,7 +595,7 @@ int main ( int argc, char* argv[])
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
         
-        bool const run_cartesian_tests = false;
+        bool const run_cartesian_tests = true;
         bool const run_rpe_tests = false;
         bool const run_2d_radial_tests=true;
 
