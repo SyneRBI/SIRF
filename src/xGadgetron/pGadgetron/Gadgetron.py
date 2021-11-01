@@ -284,10 +284,16 @@ class ImageData(SIRF.ImageData):
         n = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return n
+
+    def set_ISMRMRD_image_type(self, imtype):
+        assert self.handle is not None
+        try_calling(pygadgetron.cGT_setImageType(self.handle, imtype))
+
     def is_real(self):
         assert self.handle is not None
         t = self.data_type(0)
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
+
     def process(self, list):
         '''
         Returns processed self with an image processor specified by
@@ -300,8 +306,10 @@ class ImageData(SIRF.ImageData):
         assert self.handle is not None
         ip = ImageDataProcessor(list)
         return ip.process(self)
+
     def image(self, im_num):
         return Image(self, im_num)
+
     def select(self, attr, value):
         '''
         Creates an images container with images from self with the specified
