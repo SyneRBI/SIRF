@@ -594,11 +594,16 @@ int main ( int argc, char* argv[])
 //        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
         std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
 
+        
+        bool const run_cartesian_tests = false;
+        bool const run_rpe_tests = false;
+        bool const run_2d_radial_tests=true;
+
         bool ok = true;
 
-        bool const run_cartesian_tests = true;
         if(run_cartesian_tests)
         {
+            std::cout << "--- Running cartesian CPP tests" << std::endl;
             shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
             AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
             av.read(data_path);
@@ -623,29 +628,38 @@ int main ( int argc, char* argv[])
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
         #warning "RUNNING THE RADIAL TESTS FOR C++."
-            std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
             
-            sirf::AcquisitionsVector rpe_av;
-            rpe_av.read(rpe_data_path);
+           
+            if(run_rpe_tests)
+            {    
+                std::cout << "--- Running RPE CPP tests" << std::endl;
 
-            sirf::preprocess_acquisition_data(rpe_av);
-            rpe_av.sort();
-            sirf::set_unit_dcf(rpe_av);
+                std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
+                
+                sirf::AcquisitionsVector rpe_av;
+                rpe_av.read(rpe_data_path);
+
+                sirf::preprocess_acquisition_data(rpe_av);
+                rpe_av.sort();
+                sirf::set_unit_dcf(rpe_av);
 
 
-            ok *= test_set_rpe_trajectory(rpe_av);
-            ok *= test_rpe_bwd(rpe_av);
-            ok *= test_rpe_fwd(rpe_av);
+                ok *= test_set_rpe_trajectory(rpe_av);
+                ok *= test_rpe_bwd(rpe_av);
+                ok *= test_rpe_fwd(rpe_av);
 
-            ok *= test_rpe_csm(rpe_av);
+                ok *= test_rpe_csm(rpe_av);
 
-            ok *= test_mracquisition_model_rpe_bwd(rpe_av);
-            ok *= test_acq_mod_adjointness(rpe_av);
-
-            bool const run_2d_radial_tests=true;
+                ok *= test_mracquisition_model_rpe_bwd(rpe_av);
+                ok *= test_acq_mod_adjointness(rpe_av);
+            }
+            
             if(run_2d_radial_tests)
             {
-                AcquisitionsVector av;
+                std::cout << "--- Running 2D radial CPP tests" << std::endl;
+
+                shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+                AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
                 av.read(data_path);
                 
                 sirf::Radial2DTrajprep radial_tp;

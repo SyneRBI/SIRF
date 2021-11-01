@@ -94,7 +94,7 @@ void
 MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 {
 	
-    bool const verbose = false;
+    bool const verbose = true;
 
 	if( verbose )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
@@ -104,6 +104,13 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		mtx.lock();
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
 		d.readHeader(this->acqs_info_);
+
+        ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
+        
+        std::cout << "hdr.version gives: " << hdr.version << std::endl;
+        if(hdr.version)
+            std::cout << "*hdr.version is: " << *hdr.version << std::endl;
+
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
