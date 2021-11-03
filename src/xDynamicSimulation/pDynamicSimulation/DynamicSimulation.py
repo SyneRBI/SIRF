@@ -157,3 +157,18 @@ class MRMotionDynamic(Dynamic):
 
     def set_groundtruth_folder_prefix(self, prefix_existing_path):
         pysim.cDS_setMRGroundTruthFolderName(self.handle, prefix_existing_path)
+
+class ExternalMRContrastDynamic(Dynamic):
+
+    def __init__(self):
+        self.handle = None
+        self.handle = pysim.cDS_ExternalMRContrastDynamic()
+        check_status(self.handle)
+    
+    def add_external_signal(self, labels, signals):
+        
+        if labels.shape != signals.shape:
+            error("There must be as many labels as there are signals.")
+        
+        print("make sure that signals is a numpy array and cast to the correct datatype")
+        error("TODO")
