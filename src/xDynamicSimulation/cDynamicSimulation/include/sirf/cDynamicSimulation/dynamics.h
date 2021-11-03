@@ -446,6 +446,11 @@ public:
 		}
 	}
 
+	void append_tissue_signals(const std::vector<ExternalTissueSignal>& ext_signals)
+	{
+		external_signals_.push_back(ext_signals);
+	}
+
 	void set_tissue_signals(std::vector<std::vector<ExternalTissueSignal> > signals)
 	{
 		external_signals_ = signals;
