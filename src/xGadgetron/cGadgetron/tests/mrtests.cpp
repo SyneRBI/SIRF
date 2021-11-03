@@ -597,7 +597,7 @@ int main ( int argc, char* argv[])
         
         bool const run_cartesian_tests = true;
         bool const run_rpe_tests = false;
-        bool const run_2d_radial_tests=false;
+        bool const run_2d_radial_tests=true;
 
         bool ok = true;
 

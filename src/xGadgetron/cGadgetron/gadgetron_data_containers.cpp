@@ -35,7 +35,7 @@ limitations under the License.
 
 #include <ismrmrd/xml.h>
 #include <ismrmrd/ismrmrd.h>
-
+#include <ismrmrd/version.h>
 
 #include <ismrmrd/xml.h>
 
@@ -107,9 +107,9 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 
         ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
         
-        std::cout << "hdr.version gives: " << hdr.version << std::endl;
+        std::cout << "ISMRMRD XML VERSION IS: " << ISMRMRD_XMLHDR_VERSION << std::endl;
         if(hdr.version)
-            std::cout << "*hdr.version is: " << *hdr.version << std::endl;
+            std::cout << "The version of the file (*hdr.version): " << *hdr.version << std::endl;
 
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
