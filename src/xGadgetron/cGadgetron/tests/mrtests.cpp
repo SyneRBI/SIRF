@@ -658,23 +658,31 @@ int main ( int argc, char* argv[])
             {
                 std::cout << "--- Running 2D radial CPP tests" << std::endl;
 
-                shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
-                AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
-                av.read(data_path);
-                
-                sirf::Radial2DTrajprep radial_tp;
-                radial_tp.set_trajectory(av);
-                av.sort();
+                if(true)
+                {
+                    shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+                    AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+                    av.read(data_path);
+                    
+                    sirf::Radial2DTrajprep radial_tp;
+                    radial_tp.set_trajectory(av);
+                    av.sort();
 
-                ok *= test_acq_mod_adjointness(av);
+                    ok *= test_acq_mod_adjointness(av);
+                }
 
-                av.empty();
-                av.read(data_path);
-                sirf::GoldenAngle2DTrajprep ga_tp;
-                ga_tp.set_trajectory(av);
-                av.sort();
+                if(true)
+                {
+                    shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+                    AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+                    av.read(data_path);
 
-                ok *= test_acq_mod_adjointness(av);
+                    sirf::GoldenAngle2DTrajprep ga_tp;
+                    ga_tp.set_trajectory(av);
+                    av.sort();
+
+                    ok *= test_acq_mod_adjointness(av);
+                }
             }
         #endif
 
