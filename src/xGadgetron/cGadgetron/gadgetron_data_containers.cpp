@@ -1367,6 +1367,15 @@ GadgetronImagesVector::real() const
 }
 
 void
+GadgetronImagesVector::set_image_type(int image_type)
+{
+    for (int i = 0; i < number(); i++) {
+        ISMRMRD::ImageHeader& head = image_wrap(i).head();
+        head.image_type = image_type;
+    }
+}
+
+void
 GadgetronImagesVector::get_data(complex_float_t* data) const
 {
 	//std::copy(begin(), end(), data);
