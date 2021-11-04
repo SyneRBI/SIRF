@@ -220,9 +220,10 @@ def test_simulate_external_contrast(rec=False, verb=False, throw=True):
     mrsim.set_csm(csm)
 
     # Set trafo between 3D coordintes and 2D slice
-    offset_z_mm = -128
+    offset_z_mm = -32
     translation = np.array([0, 0, offset_z_mm])
-    euler_angles_deg = np.array([15,15,0])
+    # euler_angles_deg = np.array([15,15,0])
+    euler_angles_deg = np.array([0,0,0])
 
     offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
     mrsim.set_offset_trafo(offset_trafo)
@@ -251,6 +252,25 @@ def test_simulate_external_contrast(rec=False, verb=False, throw=True):
     simulated_file = Path(fpath_output)
     if not simulated_file.is_file():
         mrsim.write_simulation_results(str(simulated_file))
+
+    simulated_ad = pMR.AcquisitionData(fpath_output)
+    # simulated_ad = pMR.preprocess_acquisition_data(simulated_ad)
+
+    template_img = pMR.ImageData()
+    template_img.from_acquisition_data(simulated_ad)
+
+    am = pMR.AcquisitionModel(simulated_ad, template_img)
+
+    csm = pMR.CoilSensitivityData()
+    csm.calculate(simulated_ad)
+    am.set_coil_sensitivity_maps(csm)
+
+    recon = am.inverse(simulated_ad)
+    recon = recon.abs()
+    recon_nii = pReg.NiftiImageData3D(recon)
+
+    fpath_output = output_fpath_prefix + 'reconstructed_mrf_simulation_static.h5'
+    recon_nii.write(fpath_output)
 
     return 1
 
