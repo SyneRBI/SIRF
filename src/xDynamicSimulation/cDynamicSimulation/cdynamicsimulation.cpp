@@ -243,6 +243,29 @@ void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn)
 	CATCH;
 }
 
+
+extern "C"
+void* cDS_addExternalContrastDynamic(void* ptr_sim, void* ptr_dyn)
+{
+	try {
+		
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		std::shared_ptr<ExternalMRContrastDynamic> sptr_dyn;
+		getObjectSptrFromHandle(h_dyn, sptr_dyn);
+		
+		sim.add_dynamic(sptr_dyn);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
+
+
 // Dynamics
 extern "C"
 void* cDS_setDynamicSignal(void* ptr_dyn, size_t ptr_time, size_t ptr_signal, int const num_points)
