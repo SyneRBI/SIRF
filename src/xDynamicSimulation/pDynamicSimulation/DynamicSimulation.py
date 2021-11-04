@@ -118,7 +118,8 @@ class MRDynamicSimulation(object):
         try_calling(pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle)) 
 
     def add_external_contrast_dynamic(self, contrastdyn):
-        error("TODO")
+        try_calling(pysim.cDS_addExternalContrastDynamic(self.handle, contrastdyn.handle))
+        
 
 class Dynamic(object):
 
@@ -170,10 +171,13 @@ class ExternalMRContrastDynamic(Dynamic):
     
     def add_external_signal(self, external_signal):
         
-        print("make sure that signals is a numpy array and cast to the correct datatype")
+        num_sig_pts = external_signal.get_num_signal_points()
+        num_labels = external_signal.get_num_labels()
+        print("Adding external MR signal for {} labels at {} time points".format(num_labels, num_sig_pts))
 
-        error("TODO")
-
+        for i in range(num_sig_pts):
+            ptr_labels, ptr_sig = external_signal.get_signal_pointers(i)
+            pysim.cDS_appendExternalTissueSignal(self.handle, num_labels, ptr_labels, ptr_sig)
 
 # helper class to set up external MR signal
 class ExternalMRSignal():
@@ -184,11 +188,18 @@ class ExternalMRSignal():
         assert np.iscomplexobj(signals), "Please pass a 64-bit complex numpy array"
 
         (num_tissue_signals, num_time_pts) = signals.shape
+        self.number_of_labels = labels.size
 
-        assert labels.size == num_tissue_signals, "Please pass a signal array of shape (#labels, #time points)"
+        assert self.number_of_labels == num_tissue_signals, "Please pass a signal array of shape (#labels, #time points)"
 
         self.tissue_signals = np.array([self.TissueSignal() for _ in range(num_time_pts)])
         self.set_up_signal(labels, signals)
+
+    def get_num_signal_points(self):
+        return self.tissue_signals.size
+
+    def get_num_labels(self):
+        return self.number_of_labels
 
     def set_up_signal(self, labels, signals):
         

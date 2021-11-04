@@ -183,6 +183,16 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
     return 1
 
+def create_dummy_mrf_signal(num_tissue_types,num_time_points):
+    # 
+    labels = np.array([i for i in range(num_tissue_types)])
+    time_curve = np.sin(np.array([t for t in range(num_time_points)]) * np.pi / num_time_points) \
+                +1j * np.cos(np.array([t for t in range(num_time_points)]) * 2 * np.pi / num_time_points)
+
+    mrf_signal = labels[:,np.newaxis] * time_curve[np.newaxis,:] / num_tissue_types / np.sqrt(2)
+    
+    return pDS.ExternalMRSignal(labels, mrf_signal)
+
 def test_simulate_external_contrast(rec=False, verb=False, throw=True):
 
     fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
@@ -190,40 +200,53 @@ def test_simulate_external_contrast(rec=False, verb=False, throw=True):
     output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
 
     fpath_xml = input_fpath_prefix + 'Segmentations/XCAT_TissueParameters_XML.xml'
-    fpath_template_rawdata = input_fpath_prefix + 'TemplateData/MR/CV_nav_cart_64Cube_1Echo.h5'
+    fpath_template_contrast_rawdata = input_fpath_prefix + 'TemplateData/MR/CV_nav_cart_64Cube_1Echo.h5'
+    fpath_template_acquisition_rawdata = input_fpath_prefix + 'TemplateData/MR/meas_MID33_rad_2d_gc_FID78808_ismrmrd.h5'
 
-    #
-    mrsim, rawdata, __ = prepare_test_simulation(fpath_template_rawdata, fpath_xml)
+    # create simulation and read acquisition template 
+    mrsim, contrast_template, __ = prepare_test_simulation(fpath_template_contrast_rawdata, fpath_xml)
+
+    acquisition_template = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
+    acquisition_template = pMR.preprocess_acquisition_data(acquisition_template)
+    acquisition_template = pMR.set_goldenangle2D_trajectory(acquisition_template)
+
+    # 
+    mrsim.set_contrast_template_data(contrast_template)
+    mrsim.set_acquisition_template_data(acquisition_template)
     
-    mrsim.set_contrast_template_data(rawdata)
-    mrsim.set_acquisition_template_data(rawdata)
-
+    #
     csm = pMR.CoilSensitivityData()
-    csm.calculate(rawdata)
+    csm.calculate(acquisition_template)
     mrsim.set_csm(csm)
 
+    # Set trafo between 3D coordintes and 2D slice
+    offset_z_mm = -128
+    translation = np.array([0, 0, offset_z_mm])
+    euler_angles_deg = np.array([15,15,0])
+
+    offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
+    mrsim.set_offset_trafo(offset_trafo)
+
+    # fix image quality parameters
     SNR = 5
     SNR_label = 13
 
     mrsim.set_snr(SNR)
     mrsim.set_snr_label(SNR_label)
 
-    # 
-    labels = np.array([0,13,15])
-    num_signal_points = rawdata.number()
-
-    mrf_signal = np.zeros(shape=(labels.size, num_signal_points), dtype=np.complex64)
-    
-    external_signal = pDS.ExternalMRSignal(labels, mrf_signal)
+    # create the external MR signal
+    num_max_labels = 100
+    external_signal = create_dummy_mrf_signal(num_max_labels, acquisition_template.number())
 
     external_contrast = pDS.ExternalMRContrastDynamic() 
     external_contrast.add_external_signal(external_signal)
-
+    
     mrsim.add_external_contrast_dynamic(external_contrast)
+
+    # run 
     mrsim.simulate_data()
     
-    #   
-    fpath_output = output_fpath_prefix + 'mrf_simulation_no_motion.h5'
+    fpath_output = output_fpath_prefix + 'mrf_simulation_static.h5'
 
     simulated_file = Path(fpath_output)
     if not simulated_file.is_file():
