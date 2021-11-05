@@ -184,7 +184,7 @@ private:
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );
 	void simulate_simultaneous_motion_contrast_dynamics( void );
-	void simulate_external_motion_contrast_dynamics( void );
+	void simulate_external_contrast_motion_dynamics( void );
 
 	void set_noise_scaling();
 };
