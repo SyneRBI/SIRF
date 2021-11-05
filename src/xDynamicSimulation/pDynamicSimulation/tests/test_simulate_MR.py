@@ -196,35 +196,49 @@ def create_dummy_mrf_signal(num_tissue_types,num_time_points):
 def test_simulate_external_contrast(rec=False, verb=False, throw=True):
 
     fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
-    input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/cDynamicSimulation/'
     output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
+    fpath_simulation_output = output_fpath_prefix + 'mrf_simulation_static.h5'
+    
+    input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/'
 
-    fpath_xml = input_fpath_prefix + 'Segmentations/XCAT_TissueParameters_XML.xml'
-    fpath_template_contrast_rawdata = input_fpath_prefix + 'TemplateData/MR/CV_nav_cart_64Cube_1Echo.h5'
-    fpath_template_acquisition_rawdata = input_fpath_prefix + 'TemplateData/MR/meas_MID33_rad_2d_gc_FID78808_ismrmrd.h5'
+    fpath_xml = input_fpath_prefix + 'Cube128/XCAT_TissueParameters_XML.xml'
+    fpath_template_contrast_rawdata = input_fpath_prefix + 'Cube128/CV_nav_cart_128Cube_FLASH_T1.h5'
+    fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID33_rad_2d_gc_FID78808_ismrmrd.h5'
+    fpath_segmentation = input_fpath_prefix + 'Cube128/label_volume.nii'
 
-    # create simulation and read acquisition template 
-    mrsim, contrast_template, __ = prepare_test_simulation(fpath_template_contrast_rawdata, fpath_xml)
+    # generate a simulation object
+    labels = pReg.NiftiImageData3D(fpath_segmentation)
+    mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
+
+    # read template data
+    contrast_template = pMR.AcquisitionData(fpath_template_contrast_rawdata)
+    contrast_template = pMR.preprocess_acquisition_data(contrast_template)
 
     acquisition_template = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
     acquisition_template = pMR.preprocess_acquisition_data(acquisition_template)
     acquisition_template = pMR.set_goldenangle2D_trajectory(acquisition_template)
-
-    # 
-    mrsim.set_contrast_template_data(contrast_template)
-    mrsim.set_acquisition_template_data(acquisition_template)
-    
+    acquisition_template.sort_by_time()
     #
     csm = pMR.CoilSensitivityData()
     csm.calculate(acquisition_template)
     mrsim.set_csm(csm)
 
-    # Set trafo between 3D coordintes and 2D slice
-    offset_z_mm = -32
-    translation = np.array([0, 0, offset_z_mm])
-    # euler_angles_deg = np.array([15,15,0])
-    euler_angles_deg = np.array([0,0,0])
+    use_subset = True
+    if use_subset:
+        subset_reduction = 10
+        subset_idx = np.arange(0,acquisition_template.number() // subset_reduction, dtype=np.int32)
+        # subset_idx = np.arange(0,3, dtype=np.int32)
+        acquisition_template = acquisition_template.get_subset(subset_idx)
 
+    # 
+    mrsim.set_contrast_template_data(contrast_template)
+    mrsim.set_acquisition_template_data(acquisition_template)
+    
+    # Set trafo between 3D coordintes and 2D slice
+    offset_z_mm = -128
+    translation = np.array([0, 0, offset_z_mm])
+    euler_angles_deg = np.array([15,15,0])
+    
     offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
     mrsim.set_offset_trafo(offset_trafo)
 
@@ -246,31 +260,27 @@ def test_simulate_external_contrast(rec=False, verb=False, throw=True):
 
     # run 
     mrsim.simulate_data()
+    mrsim.write_simulation_results(fpath_simulation_output)
+
+
+    # reconstruct the simulated output
+    simulated_ad = pMR.AcquisitionData(fpath_simulation_output) # -> don't preprocess, it'll crash gadgetron!
     
-    fpath_output = output_fpath_prefix + 'mrf_simulation_static.h5'
-
-    simulated_file = Path(fpath_output)
-    if not simulated_file.is_file():
-        mrsim.write_simulation_results(str(simulated_file))
-
-    simulated_ad = pMR.AcquisitionData(fpath_output)
-    # simulated_ad = pMR.preprocess_acquisition_data(simulated_ad)
-
     template_img = pMR.ImageData()
     template_img.from_acquisition_data(simulated_ad)
 
     am = pMR.AcquisitionModel(simulated_ad, template_img)
 
-    csm = pMR.CoilSensitivityData()
-    csm.calculate(simulated_ad)
+    # csm = pMR.CoilSensitivityData()
+    # csm.calculate(simulated_ad)
     am.set_coil_sensitivity_maps(csm)
 
     recon = am.inverse(simulated_ad)
     recon = recon.abs()
     recon_nii = pReg.NiftiImageData3D(recon)
 
-    fpath_output = output_fpath_prefix + 'reconstructed_mrf_simulation_static.h5'
-    recon_nii.write(fpath_output)
+    fpath_reconstructed_simulation = output_fpath_prefix + 'reconstructed_mrf_simulation_static.h5'
+    recon_nii.write(fpath_reconstructed_simulation)
 
     return 1
 
