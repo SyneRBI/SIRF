@@ -16,7 +16,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <cmath>
 #include <math.h>
 #include <algorithm>
-//TODO Johannes #include <omp.h>
+#include <omp.h>
 
 //#include "Testing/auxiliary_testing_functions.h"
 
@@ -115,7 +115,7 @@ void MRContrastGenerator::map_contrast()
 	std::vector<std::vector< complex_float_t> > contrast_vector;
 	contrast_vector.resize(num_voxels);
 	
-	// #pragma omp parallel
+	#pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
 
@@ -140,7 +140,7 @@ void MRContrastGenerator::map_contrast()
 		ptr_img->resize(Nx, Ny, Nz, 1);
 		uint16_t const current_contast = ptr_img->getContrast();
 
-		// #pragma omp parallel
+		#pragma omp parallel
 		for( size_t nz=0; nz<Nz; nz++)
 		for( size_t ny=0; ny<Ny; ny++)
 		for( size_t nx=0; nx<Nx; nx++)
@@ -204,7 +204,7 @@ void MRContrastGenerator::map_contrast(const std::vector<ExternalTissueSignal>& 
 	std::vector< complex_float_t> magnetisation;
 	magnetisation.resize(num_voxels);
 	
-	// #pragma omp parallel
+	#pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
 		magnetisation[i] = map_label_to_signal[tissue_params[i]->label_];
 		
@@ -522,7 +522,7 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 
 		TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
 
-		// #pragma omp parallel
+		#pragma omp parallel
 		for( size_t i_vox=0; i_vox<num_voxels; i_vox++)
 		{
 			TissueParameter param_in_voxel = *(tissue_params[i_vox]);
