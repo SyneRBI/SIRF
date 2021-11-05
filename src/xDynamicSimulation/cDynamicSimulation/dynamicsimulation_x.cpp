@@ -50,7 +50,7 @@ void MRDynamicSimulation::simulate_data( void )
 	{
 		cout << "Simulating dynamic data acquisition of pre-computed signal... " <<endl;
 		external_contrast_[0]->bin_mr_acquisitions(*sptr_source_acquisitions_);
-		this->simulate_external_motion_contrast_dynamics();
+		this->simulate_external_contrast_motion_dynamics();
 		return;
 	}
 	else if(external_contrast_.size() > 0)
@@ -219,7 +219,7 @@ void MRDynamicSimulation::update_tissue_parameters(TimeAxisType current_time_poi
 	}
 }
 
-void MRDynamicSimulation::simulate_external_motion_contrast_dynamics()
+void MRDynamicSimulation::simulate_external_contrast_motion_dynamics()
 {
 	
 	std::shared_ptr<ExternalMRContrastDynamic> sptr_ed = external_contrast_[0];		
