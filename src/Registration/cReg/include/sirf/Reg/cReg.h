@@ -79,7 +79,7 @@ extern "C" {
     void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
     void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
     void* cReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const void* floating_ptr);
-    void* cReg_NiftiImageData3DDeformation_create_from_cpp(const void* cpp_ptr, const void* def_ptr);
+    void* cReg_NiftiImageData3DDeformation_create_from_cpp(const void* def_ptr, const void* cpp_ptr, const void* ref_ptr);
 
     // NiftiImageData3DDisplacement
     void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);

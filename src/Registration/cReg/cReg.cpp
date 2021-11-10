@@ -619,12 +619,13 @@ void* cReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const vo
     CATCH;
 }
 extern "C"
-void* cReg_NiftiImageData3DDeformation_create_from_cpp(const void* cpp_ptr, const void* ref_ptr)
+void* cReg_NiftiImageData3DDeformation_create_from_cpp(const void* def_ptr, const void* cpp_ptr, const void* ref_ptr)
 {
     try {
+        std::shared_ptr<NiftiImageData3DDeformation<float> > def_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DDeformation<float> >(def_ptr, def_sptr);
         NiftiImageData3DTensor<float>& cpp = objectFromHandle<NiftiImageData3DTensor<float> >(cpp_ptr);
         const NiftiImageData<float>& ref = objectFromHandle<NiftiImageData<float> >(ref_ptr);
-        std::shared_ptr<NiftiImageData3DDeformation<float> > def_sptr = std::make_shared<NiftiImageData3DDeformation<float> >(ref);
         def_sptr->create_from_cpp(cpp, ref);
         return newObjectHandle(def_sptr);
     }

@@ -744,10 +744,11 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         check_status(output.handle)
         return output
     
-    def create_from_cpp(self, cpp):
+    def create_from_cpp(self, cpp, ref):
         """create from cpp"""
+        output = NiftiImageData3DDeformation()
         output.handle = pyreg.cReg_NiftiImageData3DDeformation_create_from_cpp(
-            cpp.handle, self.handle)
+            self.handle, cpp.handle, ref.handle)
         check_status(output.handle)
         return output
 
