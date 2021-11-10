@@ -24,6 +24,7 @@ limitations under the License.
 \brief Class for deformation field transformations.
 
 \author Richard Brown
+\author Alexander C. Whitehead
 \author SyneRBI
 */
 

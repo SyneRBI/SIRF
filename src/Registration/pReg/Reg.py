@@ -592,6 +592,10 @@ class NiftiImageData3DTensor(NiftiImageData):
             self.handle = pyreg.\
                 cReg_NiftiImageData3DTensor_construct_from_3_components(
                     self.name, src1.handle, src2.handle, src3.handle)
+        elif isinstance(src1, NiftiImageData3D):
+            self.handle = pyreg.\
+                cReg_NiftiImageData3DTensor_construct_from_3_components(
+                    self.name, src1.handle, src1.handle, src1.handle)
         else:
             raise error('Wrong source in NiftiImageData3DTensor constructor')
         check_status(self.handle)
@@ -658,6 +662,10 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
             self.handle = pyreg.\
                 cReg_NiftiImageData3DTensor_construct_from_3_components(
                     self.name, src1.handle, src2.handle, src3.handle)
+        elif isinstance(src1, NiftiImageData3D):
+            self.handle = pyreg.\
+                cReg_NiftiImageData3DTensor_construct_from_3_components(
+                    self.name, src1.handle, src1.handle, src1.handle)
         elif isinstance(src1, NiftiImageData3DDeformation):
             self.handle = pyreg.\
                 cReg_NiftiImageData3DDisplacement_create_from_def(src1.handle)
@@ -696,6 +704,10 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
             self.handle = pyreg.\
                 cReg_NiftiImageData3DTensor_construct_from_3_components(
                     self.name, src1.handle, src2.handle, src3.handle)
+        elif isinstance(src1, NiftiImageData3D):
+            self.handle = pyreg.\
+                cReg_NiftiImageData3DTensor_construct_from_3_components(
+                    self.name, src1.handle, src1.handle, src1.handle)
         elif isinstance(src1, NiftiImageData3DDisplacement):
             self.handle = pyreg.\
                 cReg_NiftiImageData3DDeformation_create_from_disp(src1.handle)
@@ -729,6 +741,13 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         output = NiftiImageData3DDeformation()
         output.handle = pyreg.cReg_NiftiImageData3DDeformation_get_inverse(
             self.handle, floating.handle)
+        check_status(output.handle)
+        return output
+    
+    def create_from_cpp(self, cpp):
+        """create from cpp"""
+        output.handle = pyreg.cReg_NiftiImageData3DDeformation_create_from_cpp(
+            cpp.handle, self.handle)
         check_status(output.handle)
         return output
 
@@ -990,6 +1009,23 @@ class NiftyF3dSym(_NiftyRegistration):
             raise AssertionError()
         parms.set_parameter(self.handle, self.name,
                             'initial_affine_transformation', src.handle)
+    
+    def set_initial_cpp(self, cpp):
+        """Set initial affine transformation."""
+        if not isinstance(cpp, NiftiImageData3DTensor):
+            raise AssertionError()
+        pyreg.\
+            cReg_NiftyF3d2_set_initial_cpp(
+                self.handle, cpp)
+    
+    def get_cpp_image(self, idx=0):
+        """Get the forward deformation field image."""
+        output = NiftiImageData3DTensor()
+        output.handle = pyreg.\
+            cReg_NiftyF3d2_get_cpp_image(
+                self.handle, int(idx))
+        check_status(output.handle)
+        return output
 
     @staticmethod
     def print_all_wrapped_methods():

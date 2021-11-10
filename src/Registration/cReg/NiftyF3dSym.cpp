@@ -24,6 +24,7 @@ limitations under the License.
 \brief NiftyReg's f3d class for non-rigid registrations.
 
 \author Richard Brown
+\author Alexander C. Whitehead
 \author SyneRBI
 */
 
@@ -74,10 +75,20 @@ void NiftyF3dSym<dataType>::process()
     // By default, use a padding value of 0
     _registration_sptr->SetWarpedPaddingValue(0.f);
 
-    // If there is an initial transformation matrix, set it
-    if (_initial_transformation_sptr) {
-        mat44 init_tm = _initial_transformation_sptr->get_as_mat44();
-        _registration_sptr->SetAffineTransformation(&init_tm);
+    nifti_image* init_cpp;
+    
+        // If there is an initial transformation matrix, set it
+    if (_initial_cpp_sptr) {
+        init_cpp = new nifti_image(*_initial_cpp_sptr->get_raw_nifti_sptr());
+        _registration_sptr->SetControlPointGridImage(init_cpp);
+    }
+    else
+    {
+        // If there is an initial transformation matrix, set it
+        if (_initial_transformation_sptr) {
+            mat44 init_tm = _initial_transformation_sptr->get_as_mat44();
+            _registration_sptr->SetAffineTransformation(&init_tm);
+        }
     }
 
     // Set masks (if present). Again, need to copy to get rid of const
@@ -124,7 +135,11 @@ void NiftyF3dSym<dataType>::process()
     nifti_image * cpp_fwd_ptr = _registration_sptr->GetControlPointPositionImage();
     NiftiImageData3DTensor<dataType> cpp_forward(*cpp_fwd_ptr);
     nifti_image_free(cpp_fwd_ptr);
-
+    
+    // Store CPP
+    std::shared_ptr<NiftiImageData3DTensor<dataType> > cpp_fwd_sptr = std::make_shared<NiftiImageData3DTensor<dataType> >(cpp_forward);
+    this->_cpp_fwd_images.at(0) = cpp_fwd_sptr;
+    
     // Get deformation fields from cpp
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_fwd_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >();
     def_fwd_sptr->create_from_cpp(cpp_forward, ref);
@@ -140,6 +155,8 @@ void NiftyF3dSym<dataType>::process()
         this->_warped_images.at(0) = this->_warped_images_nifti.at(0);
 
     std::cout << "\n\nRegistration finished!\n\n";
+    
+    nifti_image_free(init_cpp);
 }
 
 template<class dataType>

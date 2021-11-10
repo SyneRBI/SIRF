@@ -618,6 +618,18 @@ void* cReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const vo
     }
     CATCH;
 }
+extern "C"
+void* cReg_NiftiImageData3DDeformation_create_from_cpp(const void* cpp_ptr, const void* ref_ptr)
+{
+    try {
+        NiftiImageData3DTensor<float>& cpp = objectFromHandle<NiftiImageData3DTensor<float> >(cpp_ptr);
+        const NiftiImageData<float>& ref = objectFromHandle<NiftiImageData<float> >(ref_ptr);
+        std::shared_ptr<NiftiImageData3DDeformation<float> > def_sptr = std::make_shared<NiftiImageData3DDeformation<float> >(ref);
+        def_sptr->create_from_cpp(cpp, ref);
+        return newObjectHandle(def_sptr);
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DDisplacement
 // -------------------------------------------------------------------------------- //
@@ -746,6 +758,30 @@ void* cReg_NiftyRegistration_print_all_wrapped_methods(const char* name)
             NiftyF3dSym<float>::print_all_wrapped_methods();
         else
             throw std::runtime_error("cReg_Registration_print_all_wrapped_methods: Non-existent reconstruction algorithm name.");
+        return new DataHandle;
+    }
+    CATCH;
+}
+// -------------------------------------------------------------------------------- //
+//      NiftyF3d2
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cReg_NiftyF3d2_get_cpp_image(const void* ptr, const int idx)
+{
+    try {
+        NiftyF3dSym<float>& reg = objectFromHandle<NiftyF3dSym<float>>(ptr);
+        return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DTensor<float> >(reg.get_cpp_forward_sptr(unsigned(idx))));
+    }
+    CATCH;
+}
+extern "C"
+void* cReg_NiftyF3d2_set_initial_cpp(const void* ptr, const void* cpp_ptr)
+{
+    try {
+        NiftyF3dSym<float>& reg = objectFromHandle<NiftyF3dSym<float>>(ptr);
+        const NiftiImageData<float>& cpp = objectFromHandle<NiftiImageData<float> >(cpp_ptr);
+        std::shared_ptr<NiftiImageData3DDeformation<float> > cpp_sptr = std::make_shared<NiftiImageData3DDeformation<float> >(cpp);
+        reg.set_initial_cpp(cpp_sptr);
         return new DataHandle;
     }
     CATCH;
