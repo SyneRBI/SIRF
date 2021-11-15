@@ -85,18 +85,23 @@ def main():
 	fpath_xml = input_fpath_prefix + 'Cube128/XCAT_TissueParameters_XML.xml'
 	fpath_template_contrast_rawdata = input_fpath_prefix + 'Cube128/CV_nav_cart_128Cube_FLASH_T1.h5'
 	
-	cartesian_template = False
+	trajectory_type = 'radial2D'
 
-	if cartesian_template:
+	if trajectory_type == 'cartesian':
 		fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID29_cart_ref_image_FID78804_ismrmrd.h5'
 	else:
 		fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID30_rad_2d_uniform_FID78805_ismrmrd.h5'
 	
 	acquisition_ad = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
-	if cartesian_template:
+	
+	if trajectory_type == 'cartesian':
 		acquisition_ad = pMR.preprocess_acquisition_data(acquisition_ad)
-	else:
+	elif trajectory_type == 'radial2D':
 		acquisition_ad = pMR.set_radial2D_trajectory(acquisition_ad)
+	elif trajectory_type == 'goldenangle2D':
+		acquisition_ad = pMR.set_goldenangle2D_trajectory(acquisition_ad)
+	else:
+		raise ValueError("The trajectory you gave is {}. The only options are cartesian, radial2D or goldenangle2D".format(trajectory_type))
 
 	# configure the simulation
 	contrast_ad = pMR.AcquisitionData(fpath_template_contrast_rawdata)
@@ -107,7 +112,6 @@ def main():
 
 	mrsim.set_contrast_template_data(contrast_ad)
 	mrsim.set_acquisition_template_data(acquisition_ad)
-
 
 	offset_z_mm = -128
 	translation = np.array([0, 0, offset_z_mm])
@@ -141,28 +145,31 @@ def main():
 	t_card, sig_card = get_normed_surrogate_signal(t0_s, tmax_s, Nt, f_Hz_card)
 
 	# configure the motion
+	num_motion_states = 4
 	# RESP
-	num_sim_resp_states = 2
+	num_sim_resp_states = num_motion_states
 	resp_motion = pDS.MRMotionDynamic( num_sim_resp_states )
 	resp_motion.set_dynamic_signal(t_resp, sig_resp)
 	resp_motion.set_cyclicality(False)
-	resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_resp")		
+	resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_simulation_2D_motiondata_r_{}_gt_resp".format(num_sim_resp_states))		
 	set_motionfields_from_path(resp_motion, input_fpath_prefix + 'Cube128/mvf_resp/')
 	mrsim.add_motion_dynamic(resp_motion)
 
 	# CARD
-	num_sim_card_states = 2
+	num_sim_card_states = num_motion_states
 
 	card_motion = pDS.MRMotionDynamic(num_sim_card_states)
 	card_motion.set_dynamic_signal(t_card, sig_card)
 	card_motion.set_cyclicality(True)
-	card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_example_cartesian_3D_simulation_gt_card")		
+	card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_simulation_2D_motiondata_c_{}_gt_card".format(num_sim_card_states))		
 	set_motionfields_from_path(card_motion, input_fpath_prefix + 'Cube128/mvf_card/')
 	mrsim.add_motion_dynamic(card_motion)
 
 	#
-	fname_sim_output = output_fpath_prefix + "output_example_cartesian_3D_simulation_r{}_c{}.h5".format(num_sim_resp_states,num_sim_card_states)
-	simulated_file = Path(fname_sim_output)
+	fname_simulation_output = "output_simulation_2D_motiondata_traj_{}_r{}_c{}".format(trajectory_type, num_sim_resp_states,num_sim_card_states)
+	
+	fname_output = output_fpath_prefix + fname_simulation_output + ".h5"
+	simulated_file = Path(fname_output)
 	if not simulated_file.is_file():
 
 		tstart = time.time()
@@ -185,7 +192,9 @@ def main():
 	recon_img = AM.inverse(simulated_data)
 	recon_nii = pReg.NiftiImageData3D(recon_img)
 	recon_nii = recon_nii.abs()
-	recon_nii.write(output_fpath_prefix + "output_example_cartesian_3D_recon_r{}_c{}.nii".format(num_sim_resp_states,num_sim_card_states))
+
+	fname_output = output_fpath_prefix + "recon_" + fname_simulation_output + ".nii"
+	recon_nii.write(fname_output)
 	
 	return 1
 
