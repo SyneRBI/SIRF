@@ -107,6 +107,13 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
+		std::string xml = this->acqs_info_.c_str();
+		size_t i = xml.find("<version>");
+		if (i != std::string::npos) {
+			size_t j = xml.find("</version>");
+			this->acqs_info_ = xml.substr(0, i) + xml.substr(j + 10);
+		}
+
 		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
 		{
 			if( verbose )
