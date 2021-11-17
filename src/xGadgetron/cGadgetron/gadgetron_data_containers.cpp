@@ -35,6 +35,7 @@ limitations under the License.
 
 #include <ismrmrd/xml.h>
 #include <ismrmrd/ismrmrd.h>
+#include <ismrmrd/version.h>
 
 
 #include <ismrmrd/xml.h>
@@ -111,7 +112,16 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		size_t i = xml.find("<version>");
 		if (i != std::string::npos) {
 			size_t j = xml.find("</version>");
-			this->acqs_info_ = xml.substr(0, i) + xml.substr(j + 10);
+			int va = std::stoi(xml.substr(i + 9, j - i - 9));
+			int v = ISMRMRD_XMLHDR_VERSION;
+			if (va > v)
+				THROW("ERROR: ISMRMRD version too old, terminating...");
+			else if (va < v) {
+				std::cout << "WARNING: ";
+				std::cout << "acquisitions header version too old, ";
+				std::cout << "ignoring...\n";
+				this->acqs_info_ = xml.substr(0, i) + xml.substr(j + 10);
+			}
 		}
 
 		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
