@@ -29,15 +29,13 @@ limitations under the License.
 \author Johannes Mayer
 \author SyneRBI
 */
+#include <algorithm> 
 #include <cmath>
 #include <iomanip>
-#include <algorithm> 
+#include <sstream>
 
-#include <ismrmrd/xml.h>
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/version.h>
-
-
 #include <ismrmrd/xml.h>
 
 #include "sirf/common/iequals.h"
@@ -108,18 +106,25 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
+		std::stringstream str;
 		std::string xml = this->acqs_info_.c_str();
 		size_t i = xml.find("<version>");
 		if (i != std::string::npos) {
 			size_t j = xml.find("</version>");
 			int va = std::stoi(xml.substr(i + 9, j - i - 9));
 			int v = ISMRMRD_XMLHDR_VERSION;
-			if (va > v)
-				THROW("ERROR: ISMRMRD version too old, terminating...");
+			if (va > v) {
+				str << "ERROR: ISMRMRD header version (" << v 
+					<< ") is older than the acquisitions header version ("
+					<< va << "), terminating...";
+				THROW(str.str());
+//				THROW("ERROR: ISMRMRD version too old, terminating...");
+			}
 			else if (va < v) {
 				std::cout << "WARNING: ";
-				std::cout << "acquisitions header version too old, ";
-				std::cout << "ignoring...\n";
+				std::cout << "acquisitions header version (" << va;
+				std::cout << ") is older than ISMRMRD header version (" << v;
+				std::cout << "), ignoring...\n";
 				this->acqs_info_ = xml.substr(0, i) + xml.substr(j + 10);
 			}
 		}
