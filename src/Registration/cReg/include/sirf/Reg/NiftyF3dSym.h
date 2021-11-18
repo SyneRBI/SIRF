@@ -84,8 +84,8 @@ public:
     /// Set initial affine transformation
     void set_initial_affine_transformation(const std::shared_ptr<const AffineTransformation<float> > mat) { _initial_transformation_sptr = mat; }
     
-    /// Set initial CPP
-    void set_initial_cpp(const std::shared_ptr<const NiftiImageData3DTensor<float> > cpp) { _initial_cpp_sptr = cpp; }
+    /// Set initial control_point_grid
+    void set_initial_control_point_grid(const std::shared_ptr<const NiftiImageData3DTensor<float> > cpp) { _initial_cpp_sptr = cpp; }
     
     /// Get forward CPP image
     virtual const std::shared_ptr<const NiftiImageData3DTensor<dataType> > get_cpp_forward_sptr(const unsigned idx = 0) const { return _cpp_fwd_images.at(idx); }
@@ -123,6 +123,6 @@ protected:
     /// Transformation matrix
     std::shared_ptr<const NiftiImageData3DTensor<float> > _initial_cpp_sptr;
     /// CPP
-    std::vector<std::shared_ptr<NiftiImageData3DTensor<float> > > _cpp_fwd_images;
+    std::vector<std::shared_ptr<NiftiImageData3DTensor<dataType> > > _cpp_fwd_images;
 };
 }

@@ -52,15 +52,15 @@ void NiftyF3dSym<dataType>::process()
     NiftiImageData3D<dataType> flo = *this->_floating_images_nifti.at(0);
 
     // Create the registration object
-    if(_use_symmetric)
+    if(_use_velocity)
     {
-        _registration_sptr = std::make_shared<reg_f3d_sym<dataType>>(_reference_time_point, _floating_time_point);
+        _registration_sptr = std::make_shared<reg_f3d2<dataType>>(_reference_time_point, _floating_time_point);
     }
     else
     {
-        if(_use_velocity)
+        if(_use_symmetric)
         {
-            _registration_sptr = std::make_shared<reg_f3d2<dataType>>(_reference_time_point, _floating_time_point);
+            _registration_sptr = std::make_shared<reg_f3d_sym<dataType>>(_reference_time_point, _floating_time_point);
         }
         else
         {
@@ -75,10 +75,13 @@ void NiftyF3dSym<dataType>::process()
     // By default, use a padding value of 0
     _registration_sptr->SetWarpedPaddingValue(0.f);
 
-    nifti_image* init_cpp;
+    nifti_image* init_cpp = NULL;
     
-        // If there is an initial transformation matrix, set it
-    if (_initial_cpp_sptr) {
+    // If there is an initial transformation matrix, set it
+    if (_initial_cpp_sptr)
+    {
+        std::cout << "\n\nSetting initial cpp...\n\n";
+        
         init_cpp = new nifti_image(*_initial_cpp_sptr->get_raw_nifti_sptr());
         _registration_sptr->SetControlPointGridImage(init_cpp);
     }
@@ -132,7 +135,7 @@ void NiftyF3dSym<dataType>::process()
         this->_warped_images_nifti.at(0)->get_raw_nifti_sptr()->pixdim[4] = this->_warped_images_nifti.at(0)->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the CPP images
-    nifti_image * cpp_fwd_ptr = _registration_sptr->GetControlPointPositionImage();
+    nifti_image* cpp_fwd_ptr = _registration_sptr->GetControlPointPositionImage();
     NiftiImageData3DTensor<dataType> cpp_forward(*cpp_fwd_ptr);
     nifti_image_free(cpp_fwd_ptr);
     
@@ -156,7 +159,11 @@ void NiftyF3dSym<dataType>::process()
 
     std::cout << "\n\nRegistration finished!\n\n";
     
-    nifti_image_free(init_cpp);
+    if(init_cpp != NULL)
+    {
+        delete init_cpp;
+        init_cpp = NULL;
+    }
 }
 
 template<class dataType>

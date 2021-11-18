@@ -803,15 +803,15 @@ class _Registration(ABC):
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        parms.set_parameter(self.handle, 'Registration', 'reference_image',
-                            reference_image.handle)
+        parms.set_parameter(self.handle, 'Registration',
+                            'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Set the floating image. Will clear any previous floating images."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        parms.set_parameter(self.handle, 'Registration', 'floating_image',
-                            floating_image.handle)
+        parms.set_parameter(self.handle, 'Registration',
+                            'floating_image', floating_image.handle)
 
     def add_floating_image(self, floating_image):
         """Add floating image."""
@@ -910,22 +910,22 @@ class _NiftyRegistration(_Registration):
 
     def set_parameter_file(self, filename):
         """Set the parameter filename."""
-        parms.set_char_par(self.handle, 'NiftyRegistration', 'parameter_file',
-                           filename)
+        parms.set_char_par(self.handle, 'NiftyRegistration',
+                           'parameter_file', filename)
 
     def set_reference_mask(self, reference_mask):
         """Set the reference mask."""
         if not isinstance(reference_mask, SIRF.ImageData):
             raise AssertionError()
-        parms.set_parameter(self.handle, 'NiftyRegistration', 'reference_mask',
-                            reference_mask.handle)
+        parms.set_parameter(self.handle, 'NiftyRegistration',
+                            'reference_mask', reference_mask.handle)
 
     def set_floating_mask(self, floating_mask):
         """Set the floating mask."""
         if not isinstance(floating_mask, SIRF.ImageData):
             raise AssertionError()
-        parms.set_parameter(self.handle, 'NiftyRegistration', 'floating_mask',
-                            floating_mask.handle)
+        parms.set_parameter(self.handle, 'NiftyRegistration',
+                            'floating_mask', floating_mask.handle)
 
     def set_parameter(self, par, arg1="", arg2=""):
         """Set string parameter.
@@ -996,28 +996,30 @@ class NiftyF3dSym(_NiftyRegistration):
 
     def set_floating_time_point(self, floating_time_point):
         """Set floating time point."""
-        parms.set_int_par(self.handle, self.name, 'floating_time_point',
-                          floating_time_point)
+        parms.set_int_par(self.handle, 'NiftyF3dSym',
+                          'floating_time_point', floating_time_point)
 
     def set_reference_time_point(self, reference_time_point):
         """Set reference time point."""
-        parms.set_int_par(self.handle, self.name, 'reference_time_point',
-                          reference_time_point)
+        parms.set_int_par(self.handle, 'NiftyF3dSym',
+                          'reference_time_point', reference_time_point)
 
     def set_initial_affine_transformation(self, src):
         """Set initial affine transformation."""
         if not isinstance(src, AffineTransformation):
             raise AssertionError()
-        parms.set_parameter(self.handle, self.name,
+        parms.set_parameter(self.handle, 'NiftyF3dSym',
                             'initial_affine_transformation', src.handle)
     
-    def set_initial_cpp(self, cpp):
-        """Set initial affine transformation."""
+    def set_initial_control_point_grid(self, cpp):
+        """Set initial control point grid."""
         if not isinstance(cpp, NiftiImageData3DTensor):
             raise AssertionError()
-        pyreg.\
-            cReg_NiftyF3d2_set_initial_cpp(
-                self.handle, cpp)
+        output = NiftyF3dSym()
+        output.handle = pyreg.cReg_NiftyF3d2_set_initial_cpp_image(
+            self.handle, cpp.handle)
+        check_status(output.handle)
+        return output
     
     def get_cpp_image(self, idx=0):
         """Get the forward deformation field image."""
@@ -1122,8 +1124,8 @@ class NiftyResampler(object):
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        parms.set_parameter(
-            self.handle, self.name, 'reference_image', reference_image.handle)
+        parms.set_parameter(self.handle, 'NiftyResampler',
+                            'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Set floating image.
@@ -1134,8 +1136,8 @@ class NiftyResampler(object):
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
         self.floating_image = floating_image
-        parms.set_parameter(
-            self.handle, self.name, 'floating_image', floating_image.handle)
+        parms.set_parameter(self.handle, 'NiftyResampler',
+                            'floating_image', floating_image.handle)
 
     def add_transformation(self, src):
         """Add transformation."""
@@ -1164,28 +1166,28 @@ class NiftyResampler(object):
         """
         if not isinstance(interp_type, int):
             raise AssertionError()
-        parms.set_int_par(self.handle, self.name,
+        parms.set_int_par(self.handle, 'NiftyResampler',
                           'interpolation_type', interp_type)
 
     def set_interpolation_type_to_nearest_neighbour(self):
         """Set interpolation type to nearest neighbour."""
-        parms.set_int_par(self.handle, self.name, 'interpolation_type', 0)
+        parms.set_int_par(self.handle, 'NiftyResampler', 'interpolation_type', 0)
 
     def set_interpolation_type_to_linear(self):
         """Set interpolation type to linear."""
-        parms.set_int_par(self.handle, self.name, 'interpolation_type', 1)
+        parms.set_int_par(self.handle, 'NiftyResampler', 'interpolation_type', 1)
 
     def set_interpolation_type_to_cubic_spline(self):
         """Set interpolation type to cubic spline."""
-        parms.set_int_par(self.handle, self.name, 'interpolation_type', 3)
+        parms.set_int_par(self.handle, 'NiftyResampler', 'interpolation_type', 3)
 
     def set_interpolation_type_to_sinc(self):
         """Set interpolation type to sinc."""
-        parms.set_int_par(self.handle, self.name, 'interpolation_type', 4)
+        parms.set_int_par(self.handle, 'NiftyResampler', 'interpolation_type', 4)
 
     def set_padding_value(self, val):
         """Set padding value."""
-        parms.set_float_par(self.handle, self.name, 'padding', val)
+        parms.set_float_par(self.handle, 'NiftyResampler', 'padding', val)
 
     def process(self):
         """Process.

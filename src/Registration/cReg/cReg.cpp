@@ -776,14 +776,15 @@ void* cReg_NiftyF3d2_get_cpp_image(const void* ptr, const int idx)
     CATCH;
 }
 extern "C"
-void* cReg_NiftyF3d2_set_initial_cpp(const void* ptr, const void* cpp_ptr)
+void* cReg_NiftyF3d2_set_initial_cpp_image(const void* reg_ptr, const void* cpp_ptr)
 {
     try {
-        NiftyF3dSym<float>& reg = objectFromHandle<NiftyF3dSym<float>>(ptr);
-        const NiftiImageData<float>& cpp = objectFromHandle<NiftiImageData<float> >(cpp_ptr);
-        std::shared_ptr<NiftiImageData3DDeformation<float> > cpp_sptr = std::make_shared<NiftiImageData3DDeformation<float> >(cpp);
-        reg.set_initial_cpp(cpp_sptr);
-        return new DataHandle;
+        std::shared_ptr<NiftyF3dSym<float> > reg_sptr;
+        getObjectSptrFromHandle<NiftyF3dSym<float> >(reg_ptr, reg_sptr);
+        std::shared_ptr<NiftiImageData3DTensor<float> > cpp_sptr;
+        getObjectSptrFromHandle<NiftiImageData3DTensor<float> >(cpp_ptr, cpp_sptr);
+        reg_sptr->set_initial_control_point_grid(cpp_sptr);
+        return newObjectHandle(reg_sptr);
     }
     CATCH;
 }

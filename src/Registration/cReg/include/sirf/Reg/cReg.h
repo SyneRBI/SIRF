@@ -100,7 +100,7 @@ extern "C" {
     
     //NiftyF3d2
     void* cReg_NiftyF3d2_get_cpp_image(const void* ptr, const int idx);
-    void* cReg_NiftyF3d2_set_initial_cpp(const void* ptr, const void* cpp_ptr);
+    void* cReg_NiftyF3d2_set_initial_cpp_image(const void* ptr, const void* cpp_ptr);
 
     // Aladin methods
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
