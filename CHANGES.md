@@ -2,6 +2,10 @@
 
 ## v3.x.x
 
+* MR Geometry
+  - fixed GadgetronImagesVector::reorient() to only consider slice index 
+  and ignore dimensions such as contrast, repetition etc.
+
 * PET/STIR
   - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception.
   - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
