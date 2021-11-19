@@ -29,7 +29,7 @@ limitations under the License.
 \author Johannes Mayer
 \author SyneRBI
 */
-#include <algorithm> 
+#include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -114,11 +114,10 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			int va = std::stoi(xml.substr(i + 9, j - i - 9));
 			int v = ISMRMRD_XMLHDR_VERSION;
 			if (va > v) {
-				str << "ERROR: ISMRMRD header version (" << v 
+				str << "ERROR: ISMRMRD header version (" << v
 					<< ") is older than the acquisitions header version ("
 					<< va << "), terminating...";
 				THROW(str.str());
-//				THROW("ERROR: ISMRMRD version too old, terminating...");
 			}
 			else if (va < v) {
 				std::cout << "WARNING: ";
