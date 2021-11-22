@@ -114,9 +114,11 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			int va = std::stoi(xml.substr(i + 9, j - i - 9));
 			int v = ISMRMRD_XMLHDR_VERSION;
 			if (va > v) {
-				str << "ERROR: ISMRMRD header version (" << v
-					<< ") is older than the acquisitions header version ("
-					<< va << "), terminating...";
+				str << "Input acquisition file was written in with "
+				<< "ISMRMRD XML version "<< va 
+				<< ", but the version of ISMRMRD used presently by SIRF "
+				<< "supports XML version " << v 
+				<< " or less only, terminating...";
 				THROW(str.str());
 			}
 			else if (va < v) {
