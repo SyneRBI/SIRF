@@ -160,6 +160,8 @@ namespace sirf {
 			return false;
 		}
 
+		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const = 0;
+
 		//! rebin the data to lower resolution by adding
 		/*!
 		  \param num_segments_to_combine combines multiple oblique 'segments' together. If set to the
@@ -401,6 +403,8 @@ namespace sirf {
 		void binary_op_(const DataContainer& a_x, const DataContainer& a_y, int job);
 	};
 
+	//class PETAcquisitionDataInMemory;
+
 	/*!
 	\ingroup PET
 	\brief In-file implementation of PETAcquisitionData.
@@ -485,6 +489,12 @@ namespace sirf {
 				(_template->same_acquisition_data(this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
+		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const;
+//		{
+//			auto uptr_sub = _data->get_subset(views);
+//			auto ptr_ad = new PETAcquisitionDataInMemory(uptr_sub);
+//			return std::unique_ptr<PETAcquisitionData>(ptr_ad);
+//		}
 
 	private:
 		bool _owns_file;
@@ -528,6 +538,10 @@ namespace sirf {
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
+		PETAcquisitionDataInMemory(std::unique_ptr<stir::ProjData> uptr_pd)
+		{
+			_data = std::move(uptr_pd);
+		}
         /// Constructor for PETAcquisitionDataInMemory from filename
         PETAcquisitionDataInMemory(const char* filename)
         {
@@ -548,10 +562,10 @@ namespace sirf {
 				(new stir::ProjDataInMemory(*pd_sptr));
         }
 
-		static void init() 
-		{ 
-			PETAcquisitionDataInFile::init(); 
-		}
+		static void init();
+//		{ 
+//			PETAcquisitionDataInFile::init(); 
+//		}
 		static void set_as_template()
 		{
 			init();
@@ -584,6 +598,14 @@ namespace sirf {
 				(this->get_exam_info_sptr(),
                                  this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
+		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const
+		{
+			//auto uptr_sub = std::move(_data->get_subset(views));
+			//auto ptr_ad = new PETAcquisitionDataInMemory(uptr_sub);
+			auto ptr_ad = new PETAcquisitionDataInMemory(std::move(_data->get_subset(views)));
+			return std::unique_ptr<PETAcquisitionData>(ptr_ad);
+		}
+
         /// fill with single value
         virtual void fill(const float v)
         {
