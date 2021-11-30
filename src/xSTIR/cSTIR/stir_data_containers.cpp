@@ -248,16 +248,14 @@ PETAcquisitionData::binary_op_(
 std::unique_ptr<PETAcquisitionData>
 PETAcquisitionDataInFile::get_subset(const std::vector<int>& views) const
 {
-//	auto uptr_sub = _data->get_subset(views);
-//	auto ptr_ad = new PETAcquisitionDataInMemory(uptr_sub);
 	auto ptr_ad = new PETAcquisitionDataInMemory(std::move(_data->get_subset(views)));
 	return std::unique_ptr<PETAcquisitionData>(ptr_ad);
 }
 
 void
 PETAcquisitionDataInMemory::init()
-{ 
-	PETAcquisitionDataInFile::init(); 
+{
+	PETAcquisitionDataInFile::init();
 }
 
 

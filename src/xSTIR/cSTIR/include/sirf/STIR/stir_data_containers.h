@@ -403,8 +403,6 @@ namespace sirf {
 		void binary_op_(const DataContainer& a_x, const DataContainer& a_y, int job);
 	};
 
-	//class PETAcquisitionDataInMemory;
-
 	/*!
 	\ingroup PET
 	\brief In-file implementation of PETAcquisitionData.
@@ -563,9 +561,7 @@ namespace sirf {
         }
 
 		static void init();
-//		{ 
-//			PETAcquisitionDataInFile::init(); 
-//		}
+
 		static void set_as_template()
 		{
 			init();
@@ -600,8 +596,6 @@ namespace sirf {
 		}
 		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const
 		{
-			//auto uptr_sub = std::move(_data->get_subset(views));
-			//auto ptr_ad = new PETAcquisitionDataInMemory(uptr_sub);
 			auto ptr_ad = new PETAcquisitionDataInMemory(std::move(_data->get_subset(views)));
 			return std::unique_ptr<PETAcquisitionData>(ptr_ad);
 		}
