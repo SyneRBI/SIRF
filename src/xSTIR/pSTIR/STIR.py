@@ -247,7 +247,7 @@ class EllipticCylinder(Shape):
         parms.set_float_par(self.handle, self.name, 'radius_x', value)
 
     def get_radius_x(self):
-        """Returns x radius. in mm"""
+        """Returns x radius in mm."""
         return parms.float_par(self.handle, self.name, 'radius_x')
 
     def set_radius_y(self, value):
