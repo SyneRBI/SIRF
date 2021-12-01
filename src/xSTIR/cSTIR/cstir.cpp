@@ -19,6 +19,8 @@ limitations under the License.
 
 */
 
+#include <vector>
+
 #include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/DataHandle.h"
@@ -846,6 +848,19 @@ void* cSTIR_get_ProjDataInfo(void* ptr_acq)
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		return charDataHandleFromCharData(
 			sptr_ad->get_proj_data_info_sptr()->parameter_info().c_str());
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_get_subset(void* ptr_acq, int nv, size_t ptr_views)
+{
+	try {
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		int* ptr_v = (int*)ptr_views;
+		std::vector<int> v(ptr_v, ptr_v + nv);
+		std::shared_ptr<PETAcquisitionData> sptr = std::move(sptr_ad->get_subset(v));
+		return newObjectHandle(sptr);
 	}
 	CATCH;
 }
