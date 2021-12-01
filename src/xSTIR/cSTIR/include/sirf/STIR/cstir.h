@@ -111,6 +111,7 @@ extern "C" {
 		(void* ptr_acq, const void * ptr_from);
 	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
 	void* cSTIR_get_ProjDataInfo(void* ptr_acq);
+	void* cSTIR_get_subset(void* ptr_acq, int nv, size_t ptr_views);
 
 	// Reconstruction methods
 	void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i);

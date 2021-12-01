@@ -983,7 +983,7 @@ class AcquisitionData(DataContainer):
         return ad
 
     def show(self, sino=None, tof=0, title=None):
-        '''Displays interactively selected sinograms.'''
+        '''Displays selected sinograms.'''
         if self.handle is None:
             raise AssertionError()
         if not HAVE_PYLAB:
@@ -1052,6 +1052,16 @@ class AcquisitionData(DataContainer):
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
+
+    def get_subset(self, views):
+        """Returns the subset of self data formed by specified views
+
+        views: numpy.int32 array of views
+        """
+        n = len(views)
+        subset = AcquisitionData()
+        subset.handle = pystir.cSTIR_get_subset(self.handle, n, views.ctypes.data)
+        return subset
 
     @property
     def shape(self):
