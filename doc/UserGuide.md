@@ -356,8 +356,8 @@ in each spacial direction.
 
 ###### Methods (in addition to those of ImageDataProcessor):
 
-	set_fwhms            Sets Full Widths at Half Maximum in each spacial direction
-	set_max_kernel_sizes Sets max kernel size in each spacial direction.
+	set_fwhms            Sets Full Widths at Half Maximum in mm in each spacial direction
+	set_max_kernel_sizes Sets max kernel size in voxels in each spacial direction.
 	set_normalise        Normalise the kernel to 1 or not (default is on)
 
 ##### AcquisitionDataProcessor (MR)

@@ -235,36 +235,36 @@ class EllipticCylinder(Shape):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_length(self, value):
-        """Sets length."""
+        """Sets length in mm."""
         parms.set_float_par(self.handle, self.name, 'length', value)
 
     def get_length(self):
-        """Returns length."""
+        """Returns length in mm."""
         return parms.float_par(self.handle, self.name, 'length')
 
     def set_radius_x(self, value):
-        """Sets x radius."""
+        """Sets x radius in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_x', value)
 
     def get_radius_x(self):
-        """Returns x radius."""
+        """Returns x radius in mm."""
         return parms.float_par(self.handle, self.name, 'radius_x')
 
     def set_radius_y(self, value):
-        """Sets y radius."""
+        """Sets y radius in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_y', value)
 
     def get_radius_y(self):
-        """Returns y radius."""
+        """Returns y radius in mm."""
         return parms.float_par(self.handle, self.name, 'radius_y')
 
     def set_radii(self, radii):
-        """Sets radii."""
+        """Sets radii in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_x', radii[1])
         parms.set_float_par(self.handle, self.name, 'radius_y', radii[0])
 
     def get_radii(self):
-        """Returns radii."""
+        """Returns radii in mm."""
         rx = parms.float_par(self.handle, self.name, 'radius_x')
         ry = parms.float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
@@ -660,13 +660,13 @@ class SeparableGaussianImageFilter(ImageDataProcessor):
             self.handle, image.handle))
 
     def set_fwhms(self, fwhms):
-        """Sets FWHM."""
+        """Sets FWHM in mm."""
         parms.set_float_par(self.handle, self.name, 'fwhms_x', fwhms[2])
         parms.set_float_par(self.handle, self.name, 'fwhms_y', fwhms[1])
         parms.set_float_par(self.handle, self.name, 'fwhms_z', fwhms[0])
 
     def set_max_kernel_sizes(self, mks):
-        """Sets max kernel sizes."""
+        """Sets max kernel sizes in voxels."""
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_x', mks[2])
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_y', mks[1])
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_z', mks[0])
