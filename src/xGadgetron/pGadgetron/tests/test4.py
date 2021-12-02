@@ -1,11 +1,11 @@
-'''sirf.Gadgetron Test set 4.
+# -*- coding: utf-8 -*-
+"""sirf.Gadgetron Test set 1.
 v{version}
 
-2D Cartesian MR image reconstruction by direct creating
-and running a chain of Gadgetron gadgets.
+DataContainer algebra tests
 
 Usage:
-  test4.py [--help | options]
+  test4 [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them
@@ -14,115 +14,163 @@ Options:
 {author}
 
 {licence}
-'''
+"""
+from sirf.Gadgetron import *
+from sirf.Utilities import runner, RE_PYEXT, __license__
+import numpy
+__version__ = "3.1.0"
+__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
-__version__ = "0.2.3"
-__author__ = "Evgueni Ovtchinnikov"
-
-import time
-import sys
-
-# import SIRF utilities
-from sirf.Utilities import examples_data_path, existing_filepath, error
-from sirf.Utilities import runner
-# import MR engine types
-from sirf.Gadgetron import AcquisitionData, Reconstructor
 
 def test_main(rec=False, verb=False, throw=True):
+    datafile = RE_PYEXT.sub(".txt", __file__)
+    test = pTest(datafile, rec, throw=throw)
+    test.verbose = verb
 
-    data_file = 'simulated_MR_2D_cartesian.h5'
     data_path = examples_data_path('MR')
-    type_to_save = 'all'
-    show_plot = False
-    algorithm = 'SimpleReconGadget'
+    AcquisitionData.set_storage_scheme('memory')
+    input_data = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
 
-    # locate the input data
-    input_file = existing_filepath(data_path, data_file)
-    acq_data = AcquisitionData(input_file)
-    
-    if algorithm == 'SimpleReconGadget':
-        extra_gadgets = [algorithm]
-    else:
-        extra_gadgets = [algorithm, 'GenericReconFieldOfViewAdjustmentGadget']
-    
-    # create reconstruction object
-    # Rather than using a predefined image reconstruction object, here a new 
-    # image reconstruction object is created by concatinating multiple gadgets 
-    # (for more information on Gadgetron and its gadgets please see: 
-    # https://github.com/gadgetron/.).
-    # Parameters for individual gadgets can be defined either during the 
-    # creation of the reconstruction object:
-    #   e.g. AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)
-    # or by giving a gadget a label (cf. label ex: for the last gadget)
-    # and using set_gadget_property(label, propery, value).
-    # The gadgets will be concatenated and will be executed as soon as 
-    # process() is called.
-    recon_gadgets = ['NoiseAdjustGadget',
-        'AsymmetricEchoAdjustROGadget',
-        'RemoveROOversamplingGadget',
-        'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)',
-        'BucketToBufferGadget(split_slices=true, verbose=false)'] \
-        + extra_gadgets + \
-        ['ImageArraySplitGadget', 
-        'ex:ExtractGadget'
-        ]
+    prep_gadgets = ['RemoveROOversamplingGadget']
+    processed_data = input_data.process(prep_gadgets)
 
-    recon = Reconstructor(recon_gadgets)
-
-    # ExtractGadget defines which type of image should be returned:
-    # none      0
-    # magnitude 1
-    # real      2
-    # imag      4
-    # phase     8
-    # in this example '5' returns both magnitude and imaginary part
-##    recon.set_gadget_property('ex', 'extract_mask', 5)
-    # === THE ABOVE IS OBSOLETE, NOW SHOULD USE ===>
-    if type_to_save=='mag' or type_to_save=='all':
-        recon.set_gadget_property('ex', 'extract_magnitude', True)
-    if type_to_save=='imag' or type_to_save=='all':
-        recon.set_gadget_property('ex', 'extract_imag', True)
-    
-    # provide raw k-space data as input
-    recon.set_input(acq_data)
-
-    # optionally set Gadgetron server host and port
-    recon.set_host('localhost')
-    # On VM you can try a port other than the default 9002, e.g. 9003, by taking
-    # the following steps:
-    # 1) in ~/devel/install/share/gadgetron/config/gadgetron.xml replace
-    #    <port>9002</port> with <port>9003</port>
-    # 2) go to Settings->Network->Advanced->Port Forwarding and add new rule
-    #    (click on green + in the upper right corner) with Host and Guest ports
-    #    set to 9003
-    # 3) uncomment the next line
-    #recon.set_port('9003')
-    # Note: each gadget chain can run on a different VM - to try, start two VMs
-    # and do the above steps 1 and 2 on one of them, then add
-    # recon.set_port('9003') before recon.process in grappa_detail.py
-    # (where preprocessing will still run on default port 9002). 
-
-    # perform reconstruction
+    recon = FullySampledReconstructor()
+    recon.set_input(processed_data)
     recon.process()
-    
-    # retrieve reconstructed image data
-    image_data = recon.get_output()
+    complex_images = recon.get_output()
 
-    # show reconstructed image data
-    if show_plot:
-        for im in range(image_data.number()):
-            image = image_data.image(im)
-            # image types   series
-            # magnitude 1       0
-            # phase     2    3000
-            # real      3    1000
-            # imag      4    2000
-            im_type = image.image_type()
-            im_series = image.image_series_index()
-            print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
-        image_data.show(title = 'Images magnitude and imaginary part')
+    pad2 = processed_data - processed_data
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr)
+    #print('acquisitions subtraction error: %.1e' % d)
+    test.check_if_equal(0, d)
+    processed_data.subtract(processed_data, out=pad2)
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr)
+    #print('acquisitions subtraction (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    pad2 = processed_data * processed_data
+    pad_arr = processed_data.as_array()
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
+    #print('acquisitions multiplication error: %.1e' % d)
+    test.check_if_equal(0, d)
+    processed_data.multiply(processed_data, out=pad2)
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
+    #print('acquisitions multiplication (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    acq = processed_data.copy()
+    pad2_arr[:] = 2.0
+    acq.fill(pad2_arr)
+    pad2 = processed_data / acq
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr - pad_arr/2)
+    #print('acquisitions division error: %.1e' % d)
+    test.check_if_equal(0, d)
+    processed_data.divide(acq, out=pad2)
+    pad2_arr = pad2.as_array()
+    d = numpy.linalg.norm(pad2_arr - pad_arr/2)
+    #print('acquisitions division (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    # testing in-place algebra
+    acq = processed_data
+    acq_clone = acq.clone()
+    acq_clone /= acq_clone
+    acq_clone *= acq
+    acq_clone -= acq
+    d = acq_clone.norm()/acq.norm()
+    #print('%f is 0.0' % d)
+    test.check_if_equal(1, d < 1e-6)
+    acq_clone += acq
+    d = (acq_clone.norm() - acq.norm())/acq.norm()
+    #print('%f is 0.0' % d)
+    test.check_if_equal(1, d < 1e-6)
+    acq_arr = acq.as_array()
+    acq_conj = acq.conjugate()
+    acq_arr2 = acq.as_array()
+    d = numpy.linalg.norm(acq_arr - acq_arr2)
+    test.check_if_equal(0, d)
+    acq_arr_conj_sirf = acq_conj.as_array()
+    acq_arr_conj_numpy = numpy.conjugate(acq_arr)
+    d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
+    test.check_if_equal(0, d)
+    acq.conjugate(out=acq)
+    acq_arr_conj_sirf = acq.as_array()
+    d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
+    test.check_if_equal(0, d)
 
-    return 0, 1
+    ci2 = complex_images - complex_images
+    ci2_arr = ci2.as_array()
+    d = numpy.linalg.norm(ci2_arr)
+    #print('images subtraction error: %.1e' % d)
+    test.check_if_equal(0, d)
+    complex_images.subtract(complex_images, out=ci2)
+    ci2_arr = ci2.as_array()
+    d = numpy.linalg.norm(ci2_arr)
+    #print('images subtraction (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    ci2 = complex_images * complex_images
+    ci_arr = complex_images.as_array()
+    ci2_arr = ci2.as_array()
+    d = numpy.linalg.norm(ci2_arr - ci_arr*ci_arr)
+    #print('images multiplication error: %.1e' % d)
+    test.check_if_equal(0, d)
+    complex_images.multiply(complex_images, out=ci2)
+    ci2_arr = ci2.as_array()
+    d = numpy.linalg.norm(ci2_arr - ci_arr*ci_arr)
+    #print('images multiplication (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    img = complex_images.copy()
+    ci2_arr[:] = 2.0
+    img.fill(ci2_arr)
+    ci2 = complex_images / img
+    ci2_arr = ci2.as_array()
+    d = numpy.linalg.norm(ci2_arr - ci_arr/2)
+    #print('images division error: %.1e' % d)
+    test.check_if_equal(0, d)
+    complex_images.divide(img, out=ci2)
+    ci2_arr = ci2.as_array()
+    d = numpy.linalg.norm(ci2_arr - ci_arr/2)
+    #print('images division (with out=) error: %.1e' % d)
+    test.check_if_equal(0, d)
+    images_copy = complex_images.copy()
+    # testing /=, *= and -=
+    images_copy /= images_copy
+    images_copy *= complex_images
+    images_copy -= complex_images
+    d = images_copy.norm()/complex_images.norm()
+    #print('%f is 0.0' % d)
+    test.check_if_equal(1, d < 1e-6)
+    images_copy += complex_images
+    d = (images_copy.norm() - complex_images.norm())/complex_images.norm()
+    #print('%f is 0.0' % d)
+    test.check_if_equal(1, d < 1e-6)
+    # test on fill with scalar
+    types = (2,2.0,numpy.int32(2),numpy.int64(2),numpy.complex(2))
+    try:
+        twos = types + (numpy.float128(2),)
+    except AttributeError:
+        twos = types
+    for n in twos:
+        complex_images.fill(n)
+        test.check_if_zero_within_tolerance((complex_images-2).norm())
+    img = complex_images
+    img_arr = img.as_array()
+    img_conj = img.conjugate()
+    img_arr2 = img.as_array()
+    d = numpy.linalg.norm(img_arr - img_arr2)
+    test.check_if_equal(0, d)
+    img_arr_conj_sirf = img_conj.as_array()
+    img_arr_conj_numpy = numpy.conjugate(img_arr)
+    d = numpy.linalg.norm(img_arr_conj_sirf - img_arr_conj_numpy)
+    test.check_if_equal(0, d)
+    img.conjugate(out=img)
+    img_arr_conj_sirf = img.as_array()
+    d = numpy.linalg.norm(img_arr_conj_sirf - img_arr_conj_numpy)
+    test.check_if_equal(0, d)
+
+    return test.failed, test.ntest
 
 
 if __name__ == "__main__":

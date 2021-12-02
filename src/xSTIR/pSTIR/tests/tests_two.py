@@ -119,6 +119,19 @@ def test_main(rec=False, verb=False, throw=True):
         d = numpy.linalg.norm(ad2_arr - ad_arr/2)
         print('acquisitions division (with out=) error: %.1e' % d)
         test.check_if_equal(0, d)
+        acq_arr = acq_data.as_array()
+        acq_conj = acq_data.conjugate()
+        acq_arr2 = acq_data.as_array()
+        d = numpy.linalg.norm(acq_arr - acq_arr2)
+        test.check_if_equal(0, d)
+        acq_arr_conj_sirf = acq_conj.as_array()
+        acq_arr_conj_numpy = numpy.conjugate(acq_arr)
+        d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
+        test.check_if_equal(0, d)
+        acq_data.conjugate(out=acq_data)
+        acq_arr_conj_sirf = acq_data.as_array()
+        d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
+        test.check_if_equal(0, d)
 
         image_copy = image.get_uniform_copy(1.0)
         image_copy *= image
@@ -170,6 +183,20 @@ def test_main(rec=False, verb=False, throw=True):
         for n in twos:
             image.fill(n)
             test.check_if_zero_within_tolerance((image-2).norm())
+        img = image
+        img_arr = img.as_array()
+        img_conj = img.conjugate()
+        img_arr2 = img.as_array()
+        d = numpy.linalg.norm(img_arr - img_arr2)
+        test.check_if_equal(0, d)
+        img_arr_conj_sirf = img_conj.as_array()
+        img_arr_conj_numpy = numpy.conjugate(img_arr)
+        d = numpy.linalg.norm(img_arr_conj_sirf - img_arr_conj_numpy)
+        test.check_if_equal(0, d)
+        img.conjugate(out=img)
+        img_arr_conj_sirf = img.as_array()
+        d = numpy.linalg.norm(img_arr_conj_sirf - img_arr_conj_numpy)
+        test.check_if_equal(0, d)
 
     return test.failed, test.ntest
 

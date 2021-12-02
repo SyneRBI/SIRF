@@ -36,13 +36,12 @@ limitations under the License.
 
 #include <ismrmrd/xml.h>
 
-#include "sirf/Gadgetron/chain_lib.h"
-
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/getenv.h"
+
+#include "sirf/Gadgetron/chain_lib.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
-
 #include "sirf/Gadgetron/FourierEncoding.h"
 #include "sirf/Gadgetron/TrajectoryPreparation.h"
 
@@ -122,6 +121,8 @@ bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
         MatrixSize rawdata_recon_matrix = rec_space.matrixSize;
         FieldOfView_mm rawdata_recon_FOV = rec_space.fieldOfView_mm;
 
+        float const tolerance_mm = 0.1;        
+
         for(int i=0; i<iv.number(); ++i)
         {
             CFImage* const ptr_img = (CFImage*)(iv.sptr_image_wrap(i)->ptr_image());            
@@ -130,16 +131,72 @@ bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
             test_successful *= (ptr_img->getMatrixSizeY() == rawdata_recon_matrix.y);
             test_successful *= (ptr_img->getMatrixSizeZ() == rawdata_recon_matrix.z);
 
-        	test_successful *= (ptr_img->getFieldOfViewX() == rawdata_recon_FOV.x);
-            test_successful *= (ptr_img->getFieldOfViewY() == rawdata_recon_FOV.y);
-            test_successful *= (ptr_img->getFieldOfViewZ() == rawdata_recon_FOV.z);
+        	test_successful *= (std::abs(ptr_img->getFieldOfViewX() - rawdata_recon_FOV.x) < tolerance_mm);
+            test_successful *= (std::abs(ptr_img->getFieldOfViewY() - rawdata_recon_FOV.y) < tolerance_mm);
+            test_successful *= (std::abs(ptr_img->getFieldOfViewZ() - rawdata_recon_FOV.z) < tolerance_mm);
         }
 
-        if(test_successful)
-            return test_successful;
-        else{
-            throw std::runtime_error("The test for images from acquisition data failed.");                
+        return test_successful;
+        
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_ISMRMRDImageData_reorienting(MRAcquisitionData& av)
+{
+    try
+    {
+        using namespace ISMRMRD;
+
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        GadgetronImagesVector iv(av);
+        std::shared_ptr<const VoxelisedGeometricalInfo3D > sptr_geom_info = iv.get_geom_info_sptr();
+
+        VoxelisedGeometricalInfo3D::Size input_size = sptr_geom_info->get_size();
+
+        std::default_random_engine generator;
+        generator.seed(100000); // 
+        float const maximum_random_range = 100.f;
+        std::uniform_real_distribution<float> distribution(0, maximum_random_range);
+
+        float const rand_angle = distribution(generator);
+        std::cout << "Rotating by an angle of : " << rand_angle << std::endl;
+        VoxelisedGeometricalInfo3D::DirectionMatrix random_rotation{
+            std::cos(rand_angle), -std::sin(rand_angle), 0,
+            std::sin(rand_angle),  std::cos(rand_angle), 0,
+            0, 0, 1};
+
+        VoxelisedGeometricalInfo3D::DirectionMatrix direction = sptr_geom_info->get_direction();
+        VoxelisedGeometricalInfo3D::DirectionMatrix rotated_direction = direction;
+        
+        for(int i=0; i<3; ++i)
+        for(int j=0; j<3; ++j)
+        {   
+            rotated_direction[i][j] = 0.0;
+
+            for(int k=0; k<3; ++k)
+            for(int l=0; l<3; ++l)
+                rotated_direction[i][j] += random_rotation[i][k]*direction[k][l]*random_rotation[j][l];
+
         }
+        VoxelisedGeometricalInfo3D::Offset offset{distribution(generator),distribution(generator),distribution(generator)};
+        VoxelisedGeometricalInfo3D::Spacing spacing{distribution(generator),distribution(generator),distribution(generator)};                    
+
+        VoxelisedGeometricalInfo3D random_new_geometry(offset, spacing, input_size, rotated_direction);
+
+        if(!iv.can_reorient(*sptr_geom_info, random_new_geometry, false))
+            throw std::runtime_error("You can not perform this arbitrary reorienting.");
+
+        iv.reorient(random_new_geometry);
+        
+        return true;
 
     }
     catch( std::runtime_error const &e)
@@ -611,11 +668,11 @@ int main ( int argc, char* argv[])
             sirf::preprocess_acquisition_data(av);
             av.sort();
 
-
             ok *= test_get_kspace_order(av);
             ok *= test_get_subset(av);
 
             ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
+            ok *= test_ISMRMRDImageData_reorienting(av);
 
             ok *= test_CoilSensitivitiesVector_calculate(av);
             ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
