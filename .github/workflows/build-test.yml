@@ -55,7 +55,7 @@ jobs:
           # only test SIRF (others are tested in the SIRF-SuperBuild action)
           BUILD_FLAGS="$BUILD_FLAGS -DBUILD_TESTING_GADGETRON=OFF -DBUILD_TESTING_ISMRMRD=OFF"
           # check if updated ismrmrd version will solve build error
-          BUILD_FLAGS="$BUILD_FLAGS -DISMRMRD_URL=https://github.com/SyneRBI/ismrmrd/ -DISMRMRD_TAG=program_options_fix" 
+          BUILD_FLAGS="$BUILD_FLAGS -DISMRMRD_TAG=v1.4.2.1" 
 
           mkdir -p build/;
           cd build;
