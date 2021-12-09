@@ -451,14 +451,6 @@ class ImageData(SIRF.ImageData):
     def copy(self):
         '''alias of clone'''
         return self.clone()
-    def conjugate(self):
-        '''Returns the complex conjugate of the data '''
-        if self.handle is not None:
-            out = self.clone()
-            out.fill(self.as_array().conjugate())
-            return out
-        else:
-            raise error("Empty object cannot be conjugated")
     def show(self, zyx=None, slice=None, title=None, cmap='gray', postpone=False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None

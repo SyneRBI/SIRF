@@ -101,6 +101,25 @@ class DataContainer(ABC):
         pyiutil.deleteDataHandle(handle)
         return i != 0
 
+    def conjugate(self, out=None):
+        ''' Computes complex conjugate of self.
+
+            Use y = x.conjugate() to get the conjugated copy of x.
+            Use x.conjugate(out=x) to conjugate in-place.
+        '''
+        assert self.handle is not None
+        if out is self:
+            try_calling(pysirf.cSIRF_conjugate(self.handle))
+            return
+        elif out is None:
+            x = self.same_object()
+        else:
+            x = out
+        x.handle = pysirf.cSIRF_conjugated(self.handle)
+        check_status(x.handle)
+        if out is None:
+            return x
+
     def norm(self):
         '''
         Returns the 2-norm of the container data viewed as a vector.
