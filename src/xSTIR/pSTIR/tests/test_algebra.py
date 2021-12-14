@@ -41,16 +41,30 @@ class TestSTIRImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
 class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, TestDataContainerAlgebra):
 
     def setUp(self):
-        path = os.path.join(
-            examples_data_path('PET'), 'thorax_single_slice', 'template_sinogram.hs')
+        self.set_storage_scheme()
+        sirf_path = os.environ.get('SIRF_PATH')
+        data_path = os.path.join(sirf_path, 'tests', 'data.hs')
+        if os.path.exists(data_path):
+            print('reading data from %s' % data_path)
+            data = pet.AcquisitionData(data_path)
+            self.image1 = data.get_uniform_copy(0)
+            self.image2 = data.get_uniform_copy(0)
+            self.set_storage_scheme()
+            return
+        path = os.path.join(examples_data_path('PET'),
+                            'mMR', 'mMR_template_span11_small.hs')
+#                            'thorax_single_slice', 'template_sinogram.hs')
         if os.path.exists(path):
             template = pet.AcquisitionData(path)
-            self.image1 = template.get_uniform_copy(0)
-            self.image2 = template.get_uniform_copy(0)
-            # assert False
-            self.set_storage_scheme()
-        
-        
+            print(template.dimensions())
+            data = template.get_uniform_copy(0)
+            data = data.rebin(3, num_views_to_combine=6, num_tang_poss_to_trim=200)
+            print('rebinned to ', data.dimensions())
+            self.image1 = data
+            self.image2 = data.get_uniform_copy(0)
+            print('saving data to %s' % data_path)
+            self.image1.write(data_path)
+
     def tearDown(self):
         pass
 
@@ -63,16 +77,32 @@ class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, TestDataContainerAlg
 
 
 class TestSTIRAcquisitionDataAlgebraMemory(unittest.TestCase, TestDataContainerAlgebra):
+
     def setUp(self):
         pet.AcquisitionData.set_storage_scheme('file')
-        path = os.path.join(
-            examples_data_path('PET'), 'thorax_single_slice', 'template_sinogram.hs')
+        sirf_path = os.environ.get('SIRF_PATH')
+        data_path = os.path.join(sirf_path, 'tests', 'data.hs')
+        if os.path.exists(data_path):
+            print('reading data from %s' % data_path)
+            data = pet.AcquisitionData(data_path)
+            self.image1 = data.get_uniform_copy(0)
+            self.image2 = data.get_uniform_copy(0)
+            return
+        path = os.path.join(examples_data_path('PET'),
+                            'mMR', 'mMR_template_span11_small.hs')
+#                            'thorax_single_slice', 'template_sinogram.hs')
         if os.path.exists(path):
             template = pet.AcquisitionData(path)
-            self.image1 = template.get_uniform_copy(0)
-            self.image2 = template.get_uniform_copy(0)
-            # assert False
+            print(template.dimensions())
+            data = template.get_uniform_copy(0)
+            data = data.rebin(3, num_views_to_combine=6, num_tang_poss_to_trim=200)
+            print('rebinned to ', data.dimensions())
+            self.image1 = data.get_uniform_copy(0)
+            self.image2 = data.get_uniform_copy(0)
             pet.AcquisitionData.set_storage_scheme('memory')
+            print('saving data to %s' % data_path)
+            self.image1.write(data_path)
+
     def test_division_by_datacontainer_zero(self):
         # skip this test as currently cSIRF doesn't throw
         pass
