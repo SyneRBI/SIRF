@@ -108,7 +108,7 @@ def main():
     recon = Reconstructor\
         (['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', 
-        'SimpleReconGadget', 'ImageArraySplitGadget'])
+        'SimpleReconGadget', 'ImageArraySplitGadget', 'ExtractGadget'])
     
     # provide pre-processed k-space data
     recon.set_input(preprocessed_data)
@@ -117,25 +117,11 @@ def main():
     recon.process()
 
     # retrieve the reconstructed complex images
-    complex_image_data = recon.get_output()
-
-    # post-process reconstructed images by a one-work-gadget chain
-    # that recieves a complex image on input and sends back its magnitude
-    img_proc = ImageDataProcessor(['ComplexToFloatGadget'])
-    # the way ComplexToFloatGadget converts complex values to real
-    # (magnitude, real part, imaginary part or phase) is determined by
-    # ISMRMRD::ISMRMRD_ImageHeader::image_type, below we select magnitude
-    complex_image_data.set_ISMRMRD_image_type(ISMRMRD_IMTYPE_MAGNITUDE)
-    # standard usage of a data processor object:
-    img_proc.set_input(complex_image_data)
-    img_proc.process()
-    real_image_data = img_proc.get_output()
-    # shortcut for the above 3 lines:
-    # real_image_data = img_proc.process(complex_image_data)
+    image_data = recon.get_output()
 
     # show obtained images
     if show_plot:
-        real_image_data.show(title = 'Reconstructed image data (magnitude)')
+        image_data.show(title = 'Reconstructed image data (magnitude)')
 
 try:
     main()
