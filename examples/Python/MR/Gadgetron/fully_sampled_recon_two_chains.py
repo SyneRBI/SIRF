@@ -1,22 +1,20 @@
 '''
 Medium-level interface demo that illustrates 2D Cartesian MR image 
-reconstruction using Gadgetron by creating and running multiple gadget chains
-of 3 types:
+reconstruction using Gadgetron by creating and running two gadget chains:
 - acquisition processing chain
 - reconstruction chain
-- image processing chain
 and how to visualise or modify data in between these chains.
 
 Usage:
-  fully_sampled_recon_three_chains.py [--help | options]
+  fully_sampled_recon_two_chains.py [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file
-                              [default: simulated_MR_2D_cartesian.h5]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
-                              subfolder of SIRF root folder
-  -s=<sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
-  --non-interactive           do not show plots
+  -f <file>, --file=<file>     raw data file
+                               [default: simulated_MR_2D_cartesian.h5]
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/MR
+                               subfolder of SIRF root folder
+  -s <sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
+  --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
