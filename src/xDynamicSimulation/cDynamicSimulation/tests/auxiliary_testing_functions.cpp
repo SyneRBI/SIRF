@@ -19,6 +19,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <algorithm>
 #include <vector>
 
+#include <cstdlib>
+
 
 using namespace sirf;
 
@@ -676,6 +678,39 @@ SignalContainer aux_test::get_mock_motion_signal()
 	return signal;
 }
 
+std::vector<ExternalTissueSignal> aux_test::get_mock_external_signal(const std::vector<LabelType>& label_list, const float weight)
+{
+
+	std::uint32_t dummy_timestamp= 0;
+
+	std::vector<ExternalTissueSignal> sigvec;
+	float const angle = 30/360*2*M_PI;
+	const complex_float_t phase = complex_float_t( std::cos(angle), std::sin(angle));
+
+	for(int i=0; i<label_list.size(); ++i){
+
+		float const real = weight*(float)label_list[i];
+		float const imag = 0;
+
+		ExternalTissueSignal sig(label_list[i], dummy_timestamp, phase*complex_float_t(real,imag));
+		sigvec.push_back(sig);
+	}
+	return sigvec;
+}
+
+std::vector<std::vector<ExternalTissueSignal> > 
+aux_test::get_mock_external_signals_for_templatedata(const std::vector<LabelType>& label_list, const sirf::MRAcquisitionData& ad)
+{
+	std::vector<std::vector<ExternalTissueSignal> > external_signals;
+	for(int i=0; i<ad.number(); ++i)
+	{
+		const float weight = float(i)/float(ad.number());
+		external_signals.push_back(
+			get_mock_external_signal(label_list, weight)
+		);
+	}
+	return external_signals;
+}
 
 SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms)
 {

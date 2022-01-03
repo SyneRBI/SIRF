@@ -24,10 +24,73 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/dynsim_deformer.h"
 
 
-
-
-
 #define IMG_DATA_TYPE 7 // from ismrmrd enum ISMRMRD_CXFLOAT = 7
+
+
+
+typedef std::vector<int> DimensionsType;
+
+/*!
+	\brief A class to generate combinations of integers in a vector. 
+*/
+class LinearCombiGenerator{
+
+public:
+	LinearCombiGenerator(DimensionsType const dims): dims_(dims){};
+
+	void set_dims(DimensionsType const dims){ this->dims_ = dims;};
+	DimensionsType get_dims( void ){ return this->dims_;};
+
+	
+	std::vector< DimensionsType > get_all_combinations( void )
+	{
+		this->compute_all_combinations();
+		return this->all_combinations_;
+	};
+	
+	size_t get_num_total_combinations()
+	{
+		size_t linear_range = 1;
+		for( int direction=0; direction<dims_.size(); direction++ )
+			linear_range *= dims_[direction];
+
+		return linear_range;
+	}
+
+private:
+
+	DimensionsType dims_;
+	std::vector< DimensionsType > all_combinations_;
+
+	void compute_all_combinations( void )
+	{
+		size_t const linear_range = this->get_num_total_combinations();
+
+		for( size_t i=0; i<linear_range; i++)
+		{
+			DimensionsType curr_combination;
+
+			for( int j=0; j<this->dims_.size(); j++)
+			{
+				size_t curr_idx = i;
+
+				for(int k=0;k<j;k++)
+					curr_idx = this->recurse(curr_idx, k, curr_combination);
+
+				curr_idx = curr_idx % this->dims_[j];
+				curr_combination.push_back(curr_idx);
+			}
+			this->all_combinations_.push_back( curr_combination );
+		}
+	};
+
+	
+	int recurse(size_t const idx, int const num_iter, DimensionsType const curr_combination)
+	{	
+		int l = (idx - curr_combination[num_iter])/this->dims_[num_iter];
+		return l;
+	};
+};
 
 class aDynamicSimulation {
 
@@ -71,6 +134,10 @@ public:
 		this->contrast_dynamics_.push_back(sptr_contrast_dyn);
 	} 
 
+	void add_dynamic( std::shared_ptr<ExternalMRContrastDynamic> sptr_ext_contrast_dyn){
+		this->external_contrast_.push_back(sptr_ext_contrast_dyn);
+	}
+
 	void simulate_statics( void );
 	void simulate_data( void );
 
@@ -91,7 +158,8 @@ private:
 
 	std::vector< std::shared_ptr<MRMotionDynamic> > motion_dynamics_;
 	std::vector< std::shared_ptr<MRContrastDynamic> > contrast_dynamics_;
-
+	std::vector< std::shared_ptr<ExternalMRContrastDynamic> > external_contrast_;
+	
 	GaussianNoiseGenerator noise_generator_;
 
 	std::shared_ptr<sirf::MRAcquisitionData> sptr_source_acquisitions_;
@@ -101,11 +169,23 @@ private:
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
 
+	sirf::AcquisitionsVector 
+		get_acquisitions_for_motionstate(DimensionsType current_combination) const;
+
+	std::vector<sirf::NiftiImageData3DDeformation<float> >
+		get_motionfields_for_motionstate(DimensionsType current_combination) const;
+
+	LinearCombiGenerator prepare_motion_information(void);
+
+	void update_tissue_parameters(TimeAxisType current_time_point);
+
 
 	void shift_time_start_to_zero( void );
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );
 	void simulate_simultaneous_motion_contrast_dynamics( void );
+	void simulate_external_contrast_motion_dynamics( void );
+
 	void set_noise_scaling();
 };
 
@@ -179,64 +259,3 @@ private:
 
 
 
-
-typedef std::vector<int> DimensionsType;
-
-class LinearCombiGenerator{
-
-public:
-	LinearCombiGenerator(DimensionsType const dims): dims_(dims){};
-
-	void set_dims(DimensionsType const dims){ this->dims_ = dims;};
-	DimensionsType get_dims( void ){ return this->dims_;};
-
-	
-	std::vector< DimensionsType > get_all_combinations( void )
-	{
-		this->compute_all_combinations();
-		return this->all_combinations_;
-	};
-	
-	size_t get_num_total_combinations()
-	{
-		size_t linear_range = 1;
-		for( int direction=0; direction<dims_.size(); direction++ )
-			linear_range *= dims_[direction];
-
-		return linear_range;
-	}
-
-private:
-
-	DimensionsType dims_;
-	std::vector< DimensionsType > all_combinations_;
-
-	void compute_all_combinations( void )
-	{
-		size_t const linear_range = this->get_num_total_combinations();
-
-		for( size_t i=0; i<linear_range; i++)
-		{
-			DimensionsType curr_combination;
-
-			for( int j=0; j<this->dims_.size(); j++)
-			{
-				size_t curr_idx = i;
-
-				for(int k=0;k<j;k++)
-					curr_idx = this->recurse(curr_idx, k, curr_combination);
-
-				curr_idx = curr_idx % this->dims_[j];
-				curr_combination.push_back(curr_idx);
-			}
-			this->all_combinations_.push_back( curr_combination );
-		}
-	};
-
-	
-	int recurse(size_t const idx, int const num_iter, DimensionsType const curr_combination)
-	{	
-		int l = (idx - curr_combination[num_iter])/this->dims_[num_iter];
-		return l;
-	};
-};

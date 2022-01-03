@@ -243,6 +243,29 @@ void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn)
 	CATCH;
 }
 
+
+extern "C"
+void* cDS_addExternalContrastDynamic(void* ptr_sim, void* ptr_dyn)
+{
+	try {
+		
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		std::shared_ptr<ExternalMRContrastDynamic> sptr_dyn;
+		getObjectSptrFromHandle(h_dyn, sptr_dyn);
+		
+		sim.add_dynamic(sptr_dyn);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
+
+
 // Dynamics
 extern "C"
 void* cDS_setDynamicSignal(void* ptr_dyn, size_t ptr_time, size_t ptr_signal, int const num_points)
@@ -357,6 +380,46 @@ void* cDS_MRMotionDynamic( int const num_states )
 			sptr_dyn(new MRMotionDynamic(num_states));
 
 		return newObjectHandle<MRDynamic>(sptr_dyn);
+	}
+
+	CATCH;
+}
+
+extern "C"
+void* cDS_ExternalMRContrastDynamic( void )
+{
+	try {
+
+		std::shared_ptr<MRDynamic> 
+			sptr_dyn(new ExternalMRContrastDynamic());
+
+		return newObjectHandle<MRDynamic>(sptr_dyn);
+	}
+
+	CATCH;
+}
+
+extern "C"
+void* cDS_appendExternalTissueSignal(void* ptr_dyn, int const num_points, size_t ptr_labels, size_t ptr_sig)
+{
+	try {
+		
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		ExternalMRContrastDynamic& dyn = objectFromHandle<ExternalMRContrastDynamic>(h_dyn);
+		
+		std::vector<ExternalTissueSignal> ext_sig;
+		
+		int* labels = (int*) ptr_labels;
+		complex_float_t* sig = (complex_float_t*) ptr_sig;
+
+		std::uint32_t dummy_time = 0;
+		for(int i=0; i<num_points; ++i)
+		{
+			ExternalTissueSignal ets( (LabelType)(*(labels + i)), dummy_time, *(sig+i));
+			ext_sig.push_back(ets);
+		}
+
+		dyn.append_tissue_signals(ext_sig);
 	}
 
 	CATCH;

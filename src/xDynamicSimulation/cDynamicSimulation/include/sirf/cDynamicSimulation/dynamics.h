@@ -19,7 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/phantom_input.h"
 #include "sirf/cDynamicSimulation/tissueparameters.h"
 #include "sirf/cDynamicSimulation/tissuelabelmapper.h"
-
+#include "sirf/cDynamicSimulation/contrastgenerator.h"
 
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h"
@@ -293,20 +293,20 @@ protected:
 class MRDynamic : public Dynamic{
 
 public:
-
+	MRDynamic(): Dynamic(){}
 	MRDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
-	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions(void) const
+	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions(void) const
 	{
 		return this->binned_mr_acquisitions_;
 	}
 
-	sirf::AcquisitionsVector get_binned_mr_acquisitions(unsigned int const bin_num) const
+	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions(unsigned int const bin_num) const
 	{
-		if(bin_num >= this->bp_.get_num_bins())
+		if(bin_num >= binned_mr_acquisitions_.size())
 			throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
 		
-		return this->binned_mr_acquisitions_[bin_num];
+		return binned_mr_acquisitions_.at(bin_num);
 	}
 
 	virtual void bin_mr_acquisitions(sirf::MRAcquisitionData& all_acquisitions)=0;
@@ -343,6 +343,13 @@ public:
 	{ 
 		return mp_.get_num_total_motion_dynamics();
 	}
+
+	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field_at_timepoint(const TimeAxisType time_seconds) const
+	{
+		SignalAxisType sig = sp_.linear_interpolate_signal(time_seconds);			
+		return this->get_interpolated_deformation_field(sig);
+	}
+
 	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal) const
 	{
 		return mp_.get_interpolated_deformation_field(signal, bp_.is_cyclic());
@@ -408,6 +415,59 @@ private:
 	ContrastProcessor cp_;
 	static std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
 
+};
+
+class ExternalMRContrastDynamic: public MRDynamic {
+
+public:
+	ExternalMRContrastDynamic(): MRDynamic(){};
+	
+	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions )
+	{
+		if(external_signals_.size() != all_acquisitions.number())
+		{
+			std::stringstream message;
+			message << "Please supply the same number (" << external_signals_.size() << ") of tissue signal sets in temporal order"
+				"as number of readouts (" << all_acquisitions.number() << ") using set_tissue_signals() prior to calling this function.\n";
+			throw std::runtime_error(message.str());
+		}
+
+		all_acquisitions.sort_by_time();
+
+		binned_mr_acquisitions_.empty();
+
+		ISMRMRD::Acquisition acq;
+		for(int i=0; i<all_acquisitions.number(); ++i)
+		{
+			sirf::AcquisitionsVector av(all_acquisitions.acquisitions_info());	
+			all_acquisitions.get_acquisition(i, acq);
+			av.append_acquisition(acq);
+			binned_mr_acquisitions_.push_back(av);
+		}
+	}
+
+	void append_tissue_signals(const std::vector<ExternalTissueSignal>& ext_signals)
+	{
+		external_signals_.push_back(ext_signals);
+	}
+
+	void set_tissue_signals(std::vector<std::vector<ExternalTissueSignal> > signals)
+	{
+		external_signals_ = signals;
+	}
+
+	std::vector<ExternalTissueSignal> get_tissue_signals(const int i) const
+	{
+		return external_signals_[i];
+	}
+	
+	int get_num_simul_states( void ) const
+	{
+		return binned_mr_acquisitions_.size();
+	}
+
+private:
+	std::vector<std::vector<ExternalTissueSignal> > external_signals_;
 };
 
 

@@ -51,18 +51,20 @@ void* cDS_setNoiseLabel(void* ptr_sim, int const label);
 void* cDS_setOffsetTransformation(void* ptr_sim, const void* ptr_trafo);
 
 void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn); 
-
+void* cDS_addExternalContrastDynamic(void* ptr_sim, void* ptr_dyn);
 // Dynamics
 void* cDS_setDynamicSignal(void* ptr_dyn, PTR_FLOAT ptr_time, PTR_FLOAT ptr_signal, int const num_points);
 void* cDS_addMRDisplacementField(void* ptr_dyn, const void* ptr_dvf);
 void* cDS_setMRGroundTruthFolderName(void* ptr_dyn, const char* fpath_output_prefix);
 void* cDS_setCyclicality(void* ptr_dyn, bool const cyc);
 
-// MR Dynamics
+
 void* cDS_setMRAcquisitions(void* ptr_dyn, void* ptr_ad);
 
+// MR Dynamics
 void* cDS_MRMotionDynamic( int const num_states );
-
+void* cDS_ExternalMRContrastDynamic( void );
+void* cDS_appendExternalTissueSignal(void* ptr_dyn, int const num_points, PTR_INT ptr_labels, PTR_FLOAT ptr_sig);
 
 #ifndef CSIMULATION_FOR_MATLAB
 }

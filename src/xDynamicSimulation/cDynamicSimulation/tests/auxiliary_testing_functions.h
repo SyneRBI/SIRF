@@ -93,6 +93,10 @@ namespace aux_test
 
 
 	SignalContainer get_mock_motion_signal( void );
+	std::vector<ExternalTissueSignal> get_mock_external_signal(const std::vector<LabelType>& label_list, const float weight=1.f);
+
+	std::vector<std::vector<ExternalTissueSignal> > 
+		get_mock_external_signals_for_templatedata(const std::vector<LabelType>& label_list, const sirf::MRAcquisitionData& ad);
 
 	SignalContainer get_mock_sinus_signal( sirf::AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms);
 	SignalContainer get_mock_sawtooth_signal( sirf::AcquisitionsVector acq_vec, TimeAxisType const period_duration_ms);

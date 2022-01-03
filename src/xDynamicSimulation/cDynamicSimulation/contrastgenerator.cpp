@@ -16,7 +16,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <cmath>
 #include <math.h>
 #include <algorithm>
-//TODO Johannes #include <omp.h>
+#include <omp.h>
 
 //#include "Testing/auxiliary_testing_functions.h"
 
@@ -115,7 +115,7 @@ void MRContrastGenerator::map_contrast()
 	std::vector<std::vector< complex_float_t> > contrast_vector;
 	contrast_vector.resize(num_voxels);
 	
-	// #pragma omp parallel
+	#pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
 
@@ -140,7 +140,7 @@ void MRContrastGenerator::map_contrast()
 		ptr_img->resize(Nx, Ny, Nz, 1);
 		uint16_t const current_contast = ptr_img->getContrast();
 
-		// #pragma omp parallel
+		#pragma omp parallel
 		for( size_t nz=0; nz<Nz; nz++)
 		for( size_t ny=0; ny<Ny; ny++)
 		for( size_t nx=0; nx<Nx; nx++)
@@ -151,6 +151,86 @@ void MRContrastGenerator::map_contrast()
 		}
 		
 	}
+	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
+}
+
+std::vector<complex_float_t> MRContrastGenerator::build_label_signal_map(std::vector<ExternalTissueSignal> ext_sig) const {
+
+	TissueParameterList tpl = tlm_.get_tissue_parameter_list();
+
+	if(ext_sig.size()<tpl.size())
+		throw std::runtime_error("The external signal you supplied contains less labels than in the segmentation. Please supply one signal point for each label.");
+
+	unsigned int max_label = 0;
+	for(int i=0; i<tpl.size(); ++i)
+		max_label = tpl[i].label_>max_label?tpl[i].label_:max_label;
+
+	std::vector<complex_float_t> signal_map(max_label+1);
+
+	for(int i=0; i<tpl.size(); ++i)
+	{
+		bool label_found = false;
+		LabelType const curr_label = tpl[i].label_;
+		for(int j=0; j<ext_sig.size(); ++j)
+		{
+			if(std::get<0>(ext_sig[j]) == curr_label)
+			{
+				signal_map[curr_label] = std::get<2>(ext_sig[j]);
+				ext_sig.erase(ext_sig.begin() + j);
+				label_found = true;
+				break;
+			}
+		}
+		if(!label_found)
+			throw std::runtime_error("Could not find every label in the segmentation in the external signal dictionary.");
+	}
+
+	return signal_map;
+}
+void MRContrastGenerator::map_contrast(const std::vector<ExternalTissueSignal>& ext_sig)
+{
+	std::vector<complex_float_t> map_label_to_signal = build_label_signal_map(ext_sig);
+
+	this->tlm_.assign_tissues_to_labels();
+	this->contrast_filled_volumes_.empty();
+	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
+
+	if( contrast_filled_volumes_.number() != 1)
+		throw std::runtime_error("For external contrast signal mapping please supply template rawdata yiedling only one single image (i.e. only one contrast, repetition etc.)");
+
+	TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
+	size_t const num_voxels = tissue_params.size();	
+
+	std::vector< complex_float_t> magnetisation;
+	magnetisation.resize(num_voxels);
+	
+	#pragma omp parallel
+	for (size_t i= 0; i<num_voxels; i++)
+		magnetisation[i] = map_label_to_signal[tissue_params[i]->label_];
+		
+	const int* segmentation_dims = this->tlm_.get_segmentation_dimensions();
+	std::vector<size_t> data_size;
+
+	for( int i_dim=0; i_dim< 8; i_dim++)
+		data_size.push_back( (size_t)segmentation_dims[i_dim] );
+
+	size_t Nz = data_size[3];
+	size_t Ny = data_size[2];
+	size_t Nx = data_size[1];
+
+	auto ptr_img = (CFImage*) contrast_filled_volumes_.sptr_image_wrap(0)->ptr_image();
+	ptr_img->resize(Nx, Ny, Nz, 1);
+	memcpy(ptr_img->begin(), &magnetisation[0], magnetisation.size() * sizeof(complex_float_t));
+
+	// // #pragma omp parallel
+	// for( size_t nz=0; nz<Nz; nz++)
+	// for( size_t ny=0; ny<Ny; ny++)
+	// for( size_t nx=0; nx<Nx; nx++)
+	// {
+	// 	size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
+	// 	ptr_img->operator()(nx, ny, nz, 0) = magnetisation[linear_index_access];
+	// }
+
 	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
 }
 
@@ -442,7 +522,7 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 
 		TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
 
-		// #pragma omp parallel
+		#pragma omp parallel
 		for( size_t i_vox=0; i_vox<num_voxels; i_vox++)
 		{
 			TissueParameter param_in_voxel = *(tissue_params[i_vox]);

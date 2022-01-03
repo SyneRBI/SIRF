@@ -183,11 +183,114 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
     return 1
 
+def create_dummy_mrf_signal(num_tissue_types,num_time_points):
+    # 
+    labels = np.array([i for i in range(num_tissue_types)])
+    time_curve = np.sin(np.array([t for t in range(num_time_points)]) * np.pi / num_time_points) \
+                +1j * np.cos(np.array([t for t in range(num_time_points)]) * 2 * np.pi / num_time_points)
+
+    mrf_signal = labels[:,np.newaxis] * time_curve[np.newaxis,:] / num_tissue_types / np.sqrt(2)
+    
+    return pDS.ExternalMRSignal(labels, mrf_signal)
+
+def test_simulate_external_contrast(rec=False, verb=False, throw=True):
+
+    fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
+    output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
+    fpath_simulation_output = output_fpath_prefix + 'mrf_simulation_static.h5'
+    
+    input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/'
+
+    fpath_xml = input_fpath_prefix + 'Cube128/XCAT_TissueParameters_XML.xml'
+    fpath_template_contrast_rawdata = input_fpath_prefix + 'Cube128/CV_nav_cart_128Cube_FLASH_T1.h5'
+    fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID33_rad_2d_gc_FID78808_ismrmrd.h5'
+    fpath_segmentation = input_fpath_prefix + 'Cube128/label_volume.nii'
+
+    # generate a simulation object
+    labels = pReg.NiftiImageData3D(fpath_segmentation)
+    mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
+
+    # read template data
+    contrast_template = pMR.AcquisitionData(fpath_template_contrast_rawdata)
+    contrast_template = pMR.preprocess_acquisition_data(contrast_template)
+
+    acquisition_template = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
+    acquisition_template = pMR.preprocess_acquisition_data(acquisition_template)
+    acquisition_template = pMR.set_goldenangle2D_trajectory(acquisition_template)
+    acquisition_template.sort_by_time()
+    #
+    csm = pMR.CoilSensitivityData()
+    csm.calculate(acquisition_template)
+    mrsim.set_csm(csm)
+
+    use_subset = True
+    if use_subset:
+        subset_reduction = 10
+        subset_idx = np.arange(0,acquisition_template.number() // subset_reduction, dtype=np.int32)
+        # subset_idx = np.arange(0,3, dtype=np.int32)
+        acquisition_template = acquisition_template.get_subset(subset_idx)
+
+    # 
+    mrsim.set_contrast_template_data(contrast_template)
+    mrsim.set_acquisition_template_data(acquisition_template)
+    
+    # Set trafo between 3D coordintes and 2D slice
+    offset_z_mm = -128
+    translation = np.array([0, 0, offset_z_mm])
+    euler_angles_deg = np.array([15,15,0])
+    
+    offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
+    mrsim.set_offset_trafo(offset_trafo)
+
+    # fix image quality parameters
+    SNR = 5
+    SNR_label = 13
+
+    mrsim.set_snr(SNR)
+    mrsim.set_snr_label(SNR_label)
+
+    # create the external MR signal
+    num_max_labels = 100
+    external_signal = create_dummy_mrf_signal(num_max_labels, acquisition_template.number())
+
+    external_contrast = pDS.ExternalMRContrastDynamic() 
+    external_contrast.add_external_signal(external_signal)
+    
+    mrsim.add_external_contrast_dynamic(external_contrast)
+
+    # run 
+    mrsim.simulate_data()
+    mrsim.write_simulation_results(fpath_simulation_output)
+
+
+    # reconstruct the simulated output
+    simulated_ad = pMR.AcquisitionData(fpath_simulation_output) # -> don't preprocess, it'll crash gadgetron!
+    
+    template_img = pMR.ImageData()
+    template_img.from_acquisition_data(simulated_ad)
+
+    am = pMR.AcquisitionModel(simulated_ad, template_img)
+
+    # csm = pMR.CoilSensitivityData()
+    # csm.calculate(simulated_ad)
+    am.set_coil_sensitivity_maps(csm)
+
+    recon = am.inverse(simulated_ad)
+    recon = recon.abs()
+    recon_nii = pReg.NiftiImageData3D(recon)
+
+    fpath_reconstructed_simulation = output_fpath_prefix + 'reconstructed_mrf_simulation_static.h5'
+    recon_nii.write(fpath_reconstructed_simulation)
+
+    return 1
+
 def test_main(rec=False, verb=False, throw=True):
     
     num_tests = 0
     # num_tests += test_static_mr_simulation(rec, verb, throw)
-    num_tests += test_motion_mr_simulation(rec, verb, throw)
+    # num_tests += test_motion_mr_simulation(rec, verb, throw)
+    
+    num_tests += test_simulate_external_contrast(rec,verb,throw)
 
     return False, num_tests
 

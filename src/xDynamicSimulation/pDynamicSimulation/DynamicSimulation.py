@@ -117,6 +117,10 @@ class MRDynamicSimulation(object):
     def add_motion_dynamic(self, motiondyn):
         try_calling(pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle)) 
 
+    def add_external_contrast_dynamic(self, contrastdyn):
+        try_calling(pysim.cDS_addExternalContrastDynamic(self.handle, contrastdyn.handle))
+        
+
 class Dynamic(object):
 
     def set_dynamic_signal(self, time_points_seconds, signal_points):
@@ -157,3 +161,75 @@ class MRMotionDynamic(Dynamic):
 
     def set_groundtruth_folder_prefix(self, prefix_existing_path):
         pysim.cDS_setMRGroundTruthFolderName(self.handle, prefix_existing_path)
+
+class ExternalMRContrastDynamic(Dynamic):
+
+    def __init__(self):
+        self.handle = None
+        self.handle = pysim.cDS_ExternalMRContrastDynamic()
+        check_status(self.handle)
+    
+    def add_external_signal(self, external_signal):
+        
+        num_sig_pts = external_signal.get_num_signal_points()
+        num_labels = external_signal.get_num_labels()
+        print("Adding external MR signal for {} labels at {} time points".format(num_labels, num_sig_pts))
+
+        for i in range(num_sig_pts):
+            ptr_labels, ptr_sig = external_signal.get_signal_pointers(i)
+            pysim.cDS_appendExternalTissueSignal(self.handle, num_labels, ptr_labels, ptr_sig)
+
+# helper class to set up external MR signal
+class ExternalMRSignal():
+
+    def __init__(self, labels, signals):
+        
+        assert type(signals) is np.ndarray, "Please pass a numpy ndarray of signals. You provided {}".format(type(signals))
+        assert np.iscomplexobj(signals), "Please pass a 64-bit complex numpy array"
+
+        (num_tissue_signals, num_time_pts) = signals.shape
+        self.number_of_labels = labels.size
+
+        assert self.number_of_labels == num_tissue_signals, "Please pass a signal array of shape (#labels, #time points)"
+
+        self.tissue_signals = np.array([self.TissueSignal() for _ in range(num_time_pts)])
+        self.set_up_signal(labels, signals)
+
+    def get_num_signal_points(self):
+        return self.tissue_signals.size
+
+    def get_num_labels(self):
+        return self.number_of_labels
+
+    def set_up_signal(self, labels, signals):
+        
+        if signals.dtype is not np.complex64:
+            the_signals = signals.astype(np.complex64)
+        else:
+            the_signals = signals
+
+        if labels.dtype is not np.int32:
+            the_labels = labels.astype(np.int32)
+        else:
+            the_labels = labels
+
+        num_time_pts = the_signals.shape[1]
+
+        for t in range(num_time_pts):
+            signal_at_time = the_signals[:,t]
+            self.tissue_signals[t] = self.TissueSignal(the_labels, signal_at_time)
+
+    def get_signal_pointers(self, time_index):
+
+        return self.tissue_signals[time_index].get_signal_pointers()
+
+    class TissueSignal():
+
+        def __init__(self, labels=None, signals=None):
+            
+            self.time_ms = 0.0
+            self.labels = np.ascontiguousarray(labels)
+            self.signals = np.ascontiguousarray(signals)
+        
+        def get_signal_pointers(self):
+            return( self.labels.ctypes.data, self.signals.ctypes.data)

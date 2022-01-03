@@ -141,7 +141,8 @@ bool run_tests_dynamic_simulation( void )
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_constructor());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_statics());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_dynamics());
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_5d_motion_dynamics());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_5d_motion_dynamics());
+	mr_dynsim_tests.push_back(tests_mr_dynsim::test_external_contrast_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());
@@ -320,12 +321,12 @@ try{
 	std::cout << std::endl;
 
 	// mr contgen tests
-
+	mr_contgen_tests.push_back( test_contgen::test_mr_map_contrast_dim_check() );
 	mr_contgen_tests.push_back( test_contgen::test_mr_constructor() );
 	mr_contgen_tests.push_back( test_contgen::test_mr_set_rawdata_header() );
 	mr_contgen_tests.push_back( test_contgen::test_map_flash_contrast() );
-	mr_contgen_tests.push_back( test_contgen::test_mr_map_contrast_dim_check() );
-
+	
+	test_contgen::test_mr_map_external_contrast_to_xcat();
 	test_contgen::test_mr_map_contrast_application_to_xcat();
 	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
 	test_contgen::test_get_signal_for_tissuelabel_in_xcat();
@@ -517,8 +518,7 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_c_interface();
 		// ok *= run_tests_dynsim_deformer();
 		ok *= run_tests_dynamic_simulation();
-		
-		
+				
 		if(ok)
 			return EXIT_SUCCESS;	
 		else
