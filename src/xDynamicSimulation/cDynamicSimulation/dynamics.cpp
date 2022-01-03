@@ -562,11 +562,12 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 	}
 }
 
-std::vector<AcquisitionsVector> MRContrastDynamic::binned_mr_acquisitions_ = std::vector< AcquisitionsVector >(0);
+// std::vector<AcquisitionsVector> MRContrastDynamic::binned_mr_acquisitions_ = std::vector<AcquisitionsVector>();
 
 void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
-	std::cout << "Binning contrast dynamics\n";
+	std::cout << "######################## Binning contrast dynamics\n";
+
 	if( true ) //this loop just for RAII reasons to free data
 	{
 		std::vector<AcquisitionsVector> empty_vec;

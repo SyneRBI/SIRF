@@ -85,8 +85,11 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	size_t const num_tot_motion_states = motionmode_combinator.get_num_total_combinations();
 	std::vector< DimensionsType >  all_motion_state_combos = motionmode_combinator.get_all_combinations();
 
-	std::vector<sirf::AcquisitionsVector> binned_contrast_acquisitions = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_binned_mr_acquisitions()  : std::vector< AcquisitionsVector >();
+	
+	std::vector<sirf::AcquisitionsVector> binned_contrast_acquisitions = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_binned_mr_acquisitions() : std::vector< AcquisitionsVector >();
+
 	std::vector< TimeAxisType > sampled_contrast_timepoints = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_sampled_time_points() : std::vector< TimeAxisType >(0);
+
 
 	for( size_t i_motion_state=0; i_motion_state < num_tot_motion_states; i_motion_state++)
 	{
@@ -460,9 +463,9 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 
 			this->pet_cont_gen_.map_tissue();//crucial call, as the deformation results in deformed contrast generator data
 			dsd_.deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
-			// std::cout <<"Norm before acquisition "<< sptr_target_acquisitions_->norm() << std::endl;
+			
 			this->acquire_raw_data();	
-			std::cout <<"Norm after acquisition " << sptr_target_acquisitions_->norm() << std::endl;
+			
 
 			float const ms_per_second = 1000.f;
             float const result = time_in_dynamic_state/ms_per_second;

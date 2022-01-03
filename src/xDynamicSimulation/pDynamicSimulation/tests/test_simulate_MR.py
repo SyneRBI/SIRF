@@ -235,7 +235,7 @@ def test_contrast_mr_simulation(rec=False, verb=False, throw=True):
 
     gadovist_contrast.set_parameter_extremes(tp0, tp1)
 
-    # mrsim.add_contrast_dynamic(gadovist_contrast)
+    mrsim.add_contrast_dynamic(gadovist_contrast)
     mrsim.simulate_data()
 
     fpath_output = output_fpath_prefix + 'mr_contrast_simulation.h5'
