@@ -296,12 +296,12 @@ public:
 	MRDynamic(): Dynamic(){}
 	MRDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
-	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions(void) const
+	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions(void) const
 	{
 		return this->binned_mr_acquisitions_;
 	}
 
-	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions(unsigned int const bin_num) const
+	sirf::AcquisitionsVector get_binned_mr_acquisitions(unsigned int const bin_num) const
 	{
 		if(bin_num >= binned_mr_acquisitions_.size())
 			throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
@@ -388,7 +388,7 @@ class MRContrastDynamic: public MRDynamic {
 
 public:
 	MRContrastDynamic(unsigned int const num_simul_states): MRDynamic(num_simul_states){};
-	virtual void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
+	void bin_mr_acquisitions( sirf::MRAcquisitionData& all_acquisitions );
 
 	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal) const
 	{
@@ -411,10 +411,8 @@ public:
 	}
 
 private:
-
 	ContrastProcessor cp_;
-	static std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
-
+	
 };
 
 class ExternalMRContrastDynamic: public MRDynamic {
