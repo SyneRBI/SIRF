@@ -433,6 +433,22 @@ void* cDS_MRContrastDynamic( int const num_states )
 
 	CATCH;
 }
+
+extern "C"
+void* cDS_addDynamicLabel(void* ptr_contrast_dyn, int const label)
+{
+	try {
+		CAST_PTR(DataHandle, h_dyn, ptr_contrast_dyn);
+		MRContrastDynamic& dyn = objectFromHandle<MRContrastDynamic>(h_dyn);
+		dyn.add_dynamic_label(label);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
+
 extern "C"
 void* cDS_setMRParameterExtremes(void* ptr_contrast_dyn, void* ptr_tissueparameter_0, void* ptr_tissueparameter_1)
 {

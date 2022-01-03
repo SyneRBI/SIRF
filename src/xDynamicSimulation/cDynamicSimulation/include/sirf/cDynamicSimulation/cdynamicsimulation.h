@@ -65,6 +65,7 @@ void* cDS_setMRAcquisitions(void* ptr_dyn, void* ptr_ad);
 void* cDS_MRMotionDynamic( int const num_states );
 
 void* cDS_MRContrastDynamic( int const num_states );
+void* cDS_addDynamicLabel(void* ptr_contrast_dyn, int const label);
 void* cDS_setMRParameterExtremes(void* ptr_contrast_dyn, void* ptr_tissueparameter_0, void* ptr_tissueparameter_1);
 
 void* cDS_ExternalMRContrastDynamic( void );

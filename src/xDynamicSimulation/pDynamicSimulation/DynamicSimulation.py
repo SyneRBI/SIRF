@@ -117,6 +117,9 @@ class MRDynamicSimulation(object):
     def add_motion_dynamic(self, motiondyn):
         try_calling(pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle)) 
 
+    def add_contrast_dynamic(self, contdyn):
+        try_calling(pysim.cDS_addMRContrastDynamic(self.handle, contdyn.handle))
+
     def add_external_contrast_dynamic(self, contrastdyn):
         try_calling(pysim.cDS_addExternalContrastDynamic(self.handle, contrastdyn.handle))
         
@@ -184,12 +187,16 @@ class MRContrastDynamic(Dynamic):
         self.handle = pysim.cDS_MRContrastDynamic(num_states)
         check_status(self.handle)
 
+    def add_dynamic_label(self, label):
+        pysim.cDS_addDynamicLabel(self.handle, label)
+
+
     def set_parameter_extremes(self, tissue_0, tissue_1):
         assert_validity(tissue_0, TissueParameter)
         assert_validity(tissue_1, TissueParameter)
 
         pysim.cDS_setMRParameterExtremes(self.handle, tissue_0.handle, tissue_1.handle)
-        check_status(self.handle)
+
 
 class ExternalMRContrastDynamic(Dynamic):
 

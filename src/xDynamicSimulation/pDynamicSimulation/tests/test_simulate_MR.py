@@ -208,7 +208,7 @@ def test_contrast_mr_simulation(rec=False, verb=False, throw=True):
     mrsim.set_snr(SNR)
     mrsim.set_snr_label(SNR_label)
 
-    num_cont_states = 10
+    num_cont_states = 4
     gadovist_contrast = pDS.MRContrastDynamic(num_cont_states)
 
     # generate artificial contrast signal of linear uptake
@@ -225,17 +225,17 @@ def test_contrast_mr_simulation(rec=False, verb=False, throw=True):
     for label in uptake_labels:
         gadovist_contrast.add_dynamic_label(label)
     
-    
-    
     # fix what the meaning of signal=0 and signal=1 is
     tissue_template = pDS.TissueParameter(mrsim, uptake_labels[0])
     T1_1_ms = 600
-    tp0 = copy.deepcopy(tissue_template)
-    tp1 = copy.deepcopy(tissue_template.set_T1_value(T1_1_ms))
+    tp0 = tissue_template
+    
+    tissue_template.set_T1_value(T1_1_ms)
+    tp1 = tissue_template
 
     gadovist_contrast.set_parameter_extremes(tp0, tp1)
 
-    mrsim.add_contrast_dynamic(gadovist_contrast)
+    # mrsim.add_contrast_dynamic(gadovist_contrast)
     mrsim.simulate_data()
 
     fpath_output = output_fpath_prefix + 'mr_contrast_simulation.h5'

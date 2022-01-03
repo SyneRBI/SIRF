@@ -592,7 +592,7 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 
 	for( size_t i=0; i<signal_bins.size();i++)
 	{
-		index_lims.push_back( std::get<2>(signal_bins[i]) *num_acquis );
+		index_lims.push_back( std::get<2>(signal_bins[i])*num_acquis );
 		cp_.add_timepoint(total_time_seconds * std::get<1>(signal_bins[i]));
 	}
 
