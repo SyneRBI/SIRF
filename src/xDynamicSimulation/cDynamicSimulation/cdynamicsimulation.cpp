@@ -30,6 +30,7 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/cDynamicSimulation/dynamicsimulation_x.h"
 #include "sirf/cDynamicSimulation/contrastgenerator.h"
+#include "sirf/cDynamicSimulation/tissueparameters.h"
 #include "sirf/cDynamicSimulation/dynamics.h"
 
 using namespace sirf;
@@ -92,6 +93,20 @@ void* cDS_saveMotionGroundTruth(const void* ptr_sim)
 
 		return new DataHandle;
 
+	}
+	CATCH;
+}
+
+extern "C"
+void* cDS_getTissueParameter(const void* ptr_sim, const LabelType label)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		auto sptr_tp = std::make_shared<TissueParameter> (sim.get_petmr_tissue_parameter(label));
+
+		return newObjectHandle<TissueParameter>(sptr_tp);
 	}
 	CATCH;
 }
@@ -245,6 +260,27 @@ void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn)
 
 
 extern "C"
+void* cDS_addMRContrastDynamic(void* ptr_sim, void* ptr_dyn)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		std::shared_ptr<MRContrastDynamic> sptr_dyn;
+		getObjectSptrFromHandle(h_dyn, sptr_dyn);
+		
+		sim.add_dynamic(sptr_dyn);
+
+		return new DataHandle;
+
+	}
+
+	CATCH;
+}
+
+extern "C"
 void* cDS_addExternalContrastDynamic(void* ptr_sim, void* ptr_dyn)
 {
 	try {
@@ -386,6 +422,39 @@ void* cDS_MRMotionDynamic( int const num_states )
 }
 
 extern "C"
+void* cDS_MRContrastDynamic( int const num_states )
+{
+	try {
+		std::shared_ptr<MRDynamic> 
+			sptr_dyn(new MRContrastDynamic(num_states));
+
+		return newObjectHandle<MRDynamic>(sptr_dyn);
+	}
+
+	CATCH;
+}
+extern "C"
+void* cDS_setMRParameterExtremes(void* ptr_contrast_dyn, void* ptr_tissueparameter_0, void* ptr_tissueparameter_1)
+{
+	try {
+		CAST_PTR(DataHandle, h_dyn, ptr_contrast_dyn);
+		MRContrastDynamic& dyn = objectFromHandle<MRContrastDynamic>(h_dyn);
+
+		CAST_PTR(DataHandle, h_tp0, ptr_tissueparameter_0);
+		TissueParameter& tp0 = objectFromHandle<TissueParameter>(h_tp0);
+		
+		CAST_PTR(DataHandle, h_tp1, ptr_tissueparameter_1);
+		TissueParameter& tp1 = objectFromHandle<TissueParameter>(h_tp1);
+
+		dyn.set_parameter_extremes(tp0, tp1);
+
+		return new DataHandle;
+	}
+
+	CATCH;
+}
+
+extern "C"
 void* cDS_ExternalMRContrastDynamic( void )
 {
 	try {
@@ -420,6 +489,23 @@ void* cDS_appendExternalTissueSignal(void* ptr_dyn, int const num_points, size_t
 		}
 
 		dyn.append_tissue_signals(ext_sig);
+	}
+
+	CATCH;
+}
+
+//
+
+extern "C"
+void* cDS_setT1Value(void* ptr_tissue_parameter, float const T1_ms)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_tissue_parameter, ptr_tissue_parameter);			
+		TissueParameter& tp = objectFromHandle<TissueParameter>(h_tissue_parameter);
+		tp.mr_tissue_.t1_miliseconds_ = T1_ms;
+		
+		return new DataHandle;
 	}
 
 	CATCH;

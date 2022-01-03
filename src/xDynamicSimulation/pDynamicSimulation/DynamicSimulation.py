@@ -162,6 +162,35 @@ class MRMotionDynamic(Dynamic):
     def set_groundtruth_folder_prefix(self, prefix_existing_path):
         pysim.cDS_setMRGroundTruthFolderName(self.handle, prefix_existing_path)
 
+class TissueParameter():
+    
+    def __init__(self, sim, label):
+        self.handle = None
+
+        assert_validity(sim, MRDynamicSimulation)
+        
+        self.handle = pysim.cDS_getTissueParameter(sim.handle, label)
+        check_status(self.handle)
+
+    def set_T1_value(self, T1_ms):
+        pysim.cDS_setT1Value(self.handle,T1_ms)
+
+
+
+class MRContrastDynamic(Dynamic):
+    
+    def __init__(self, num_states):
+        self.handle = None
+        self.handle = pysim.cDS_MRContrastDynamic(num_states)
+        check_status(self.handle)
+
+    def set_parameter_extremes(self, tissue_0, tissue_1):
+        assert_validity(tissue_0, TissueParameter)
+        assert_validity(tissue_1, TissueParameter)
+
+        pysim.cDS_setMRParameterExtremes(self.handle, tissue_0.handle, tissue_1.handle)
+        check_status(self.handle)
+
 class ExternalMRContrastDynamic(Dynamic):
 
     def __init__(self):

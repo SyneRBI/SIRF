@@ -154,6 +154,10 @@ public:
 		dsd_.set_offset_transformation(trafo);
 	}
 
+	TissueParameter get_petmr_tissue_parameter(LabelType label){
+		return mr_cont_gen_.get_petmr_tissue_parameter(label);
+	}
+
 private:
 
 	std::vector< std::shared_ptr<MRMotionDynamic> > motion_dynamics_;

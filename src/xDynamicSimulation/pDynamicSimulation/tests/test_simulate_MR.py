@@ -15,8 +15,8 @@ Options:
 
 {licence}
 """
+import copy
 import numpy as np
-from numpy.core.function_base import linspace
 from pathlib import Path
 
 import sirf.DynamicSimulation as pDS
@@ -183,6 +183,69 @@ def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
     return 1
 
+def test_contrast_mr_simulation(rec=False, verb=False, throw=True):
+
+    fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
+    input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/cDynamicSimulation/'
+    output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
+
+    fpath_xml = input_fpath_prefix + 'Segmentations/XCAT_TissueParameters_XML.xml'
+    fpath_template_rawdata = input_fpath_prefix + 'TemplateData/MR/CV_nav_cart_64Cube_1Echo.h5'
+
+    #
+    mrsim, rawdata, __ = prepare_test_simulation(fpath_template_rawdata, fpath_xml)
+    
+    mrsim.set_contrast_template_data(rawdata)
+    mrsim.set_acquisition_template_data(rawdata)
+
+    csm = pMR.CoilSensitivityData()
+    csm.calculate(rawdata)
+    mrsim.set_csm(csm)
+
+    SNR = 5
+    SNR_label = 13
+
+    mrsim.set_snr(SNR)
+    mrsim.set_snr_label(SNR_label)
+
+    num_cont_states = 10
+    gadovist_contrast = pDS.MRContrastDynamic(num_cont_states)
+
+    # generate artificial contrast signal of linear uptake
+    Nt = 1000
+    t0_s = 0
+    tmax_s = 300
+    time_points = np.linspace(t0_s, tmax_s, Nt)
+
+    cont_curve = np.linspace(0, 1, Nt)
+    gadovist_contrast.set_dynamic_signal(time_points, cont_curve)
+
+    # generate list on which labels the dynamic will act
+    uptake_labels = [5, 6, 7, 8, 36, 37]
+    for label in uptake_labels:
+        gadovist_contrast.add_dynamic_label(label)
+    
+    
+    
+    # fix what the meaning of signal=0 and signal=1 is
+    tissue_template = pDS.TissueParameter(mrsim, uptake_labels[0])
+    T1_1_ms = 600
+    tp0 = copy.deepcopy(tissue_template)
+    tp1 = copy.deepcopy(tissue_template.set_T1_value(T1_1_ms))
+
+    gadovist_contrast.set_parameter_extremes(tp0, tp1)
+
+    mrsim.add_contrast_dynamic(gadovist_contrast)
+    mrsim.simulate_data()
+
+    fpath_output = output_fpath_prefix + 'mr_contrast_simulation.h5'
+
+    simulated_file = Path(fpath_output)
+    if not simulated_file.is_file():
+        mrsim.write_simulation_results(str(simulated_file))
+
+    return 1
+
 def create_dummy_mrf_signal(num_tissue_types,num_time_points):
     # 
     labels = np.array([i for i in range(num_tissue_types)])
@@ -289,8 +352,8 @@ def test_main(rec=False, verb=False, throw=True):
     num_tests = 0
     # num_tests += test_static_mr_simulation(rec, verb, throw)
     # num_tests += test_motion_mr_simulation(rec, verb, throw)
-    
-    num_tests += test_simulate_external_contrast(rec,verb,throw)
+    # num_tests += test_simulate_external_contrast(rec,verb,throw)
+    num_tests += test_contrast_mr_simulation(rec, verb, throw)
 
     return False, num_tests
 

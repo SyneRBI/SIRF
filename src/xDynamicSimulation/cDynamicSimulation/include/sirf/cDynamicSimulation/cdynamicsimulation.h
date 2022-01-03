@@ -33,7 +33,6 @@ extern "C" {
 #define PTR_DOUBLE double*
 #endif
 
-#include "sirf/cDynamicSimulation/cdynamicsimulation.h"
 
 // MR Simulation
 void* cDS_MRDynamicSimulation(const void* ptr_labels, const char* fname_xml);
@@ -51,6 +50,7 @@ void* cDS_setNoiseLabel(void* ptr_sim, int const label);
 void* cDS_setOffsetTransformation(void* ptr_sim, const void* ptr_trafo);
 
 void* cDS_addMRMotionDynamic(void* ptr_sim, void* ptr_dyn); 
+void* cDS_addMRContrastDynamic(void* ptr_sim, void* ptr_dyn); 
 void* cDS_addExternalContrastDynamic(void* ptr_sim, void* ptr_dyn);
 // Dynamics
 void* cDS_setDynamicSignal(void* ptr_dyn, PTR_FLOAT ptr_time, PTR_FLOAT ptr_signal, int const num_points);
@@ -63,8 +63,18 @@ void* cDS_setMRAcquisitions(void* ptr_dyn, void* ptr_ad);
 
 // MR Dynamics
 void* cDS_MRMotionDynamic( int const num_states );
+
+void* cDS_MRContrastDynamic( int const num_states );
+void* cDS_setMRParameterExtremes(void* ptr_contrast_dyn, void* ptr_tissueparameter_0, void* ptr_tissueparameter_1);
+
 void* cDS_ExternalMRContrastDynamic( void );
 void* cDS_appendExternalTissueSignal(void* ptr_dyn, int const num_points, PTR_INT ptr_labels, PTR_FLOAT ptr_sig);
+
+
+// Tissue Parameters
+void* cDS_getTissueParameter(const void* ptr_sim, const unsigned int label);
+void* cDS_setT1Value(void* ptr_tissue_parameter, float const T1_ms);
+
 
 #ifndef CSIMULATION_FOR_MATLAB
 }
