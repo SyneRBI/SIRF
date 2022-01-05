@@ -112,15 +112,14 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 				}
 
 				cout << "# of mr acquis in this dynamic motion x contrast state: " << acquisitions_for_this_contrast_state.number() << endl;
-
 				std::vector<sirf::NiftiImageData3DDeformation<float> > motionfields_for_current_state =
 					this->get_motionfields_for_motionstate(current_combination);
 
-					if( acquisitions_for_this_contrast_state.number() > 0)
-					{
-						TimeAxisType current_time_point =  sampled_contrast_timepoints.size()>0 ? sampled_contrast_timepoints[i_contrast_state] : (TimeAxisType)0;
-						this-> update_tissue_parameters(current_time_point);
-					
+				if( acquisitions_for_this_contrast_state.number() > 0)
+				{
+					TimeAxisType current_time_point =  sampled_contrast_timepoints.size()>0 ? sampled_contrast_timepoints[i_contrast_state] : (TimeAxisType)0;
+					this-> update_tissue_parameters(current_time_point);
+				
 					// crucial to call here, as the tissue parameters have been replaced and 
 					// deformation results in motion-deformed images in contrast generator
 					this->mr_cont_gen_.map_contrast();
