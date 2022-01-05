@@ -921,6 +921,15 @@ class AcquisitionData(DataContainer):
         
         return subset
     
+    def discard_data(self):
+        '''
+        Resizes every acquisition to size 1 to avoid keeping data in memory for simulation.
+        '''
+        assert self.handle is not None
+        pygadgetron.cGT_discardAcquisitionData(self.handle)
+        
+        return
+
     def set_user_floats(self, data, idx):
         '''
         Writes the data into the user_float[idx] data field of the acquisition
