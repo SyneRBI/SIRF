@@ -568,6 +568,22 @@ cGT_getAcquisitionsSubset(void* ptr_acqs, size_t ptr_idx, size_t const num_elem_
 
 extern "C"
 void*
+cGT_discardAcquisitionData(void* ptr_acqs)
+{
+    try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+
+        MRAcquisitionData& ad =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+        
+		ad.discard_data();
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void*
 cGT_cloneAcquisitions(void* ptr_input)
 {
 	try {
