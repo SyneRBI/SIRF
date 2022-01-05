@@ -15,7 +15,6 @@ Options:
 
 {licence}
 """
-import copy
 import numpy as np
 from pathlib import Path
 
@@ -27,8 +26,6 @@ from sirf.Utilities import __license__, runner
 
 __version__ = "3.1.0"
 __author__ = "Johannes Mayer"
-
-
 
 def prepare_test_simulation(fname_mr_rawdata, fpath_xml):
 
@@ -243,6 +240,19 @@ def test_contrast_mr_simulation(rec=False, verb=False, throw=True):
     simulated_file = Path(fpath_output)
     if not simulated_file.is_file():
         mrsim.write_simulation_results(str(simulated_file))
+
+    ad_output = pMR.AcquisitionData(file=fpath_output)
+    template_img = pMR.ImageData()
+    template_img.from_acquisition_data (ad_output)
+    am = pMR.AcquisitionModel(ad_output, csm)
+    am.set_coil_sensitivity_maps(csm)
+    recon = am.inverse(ad_output)
+    recon = recon.abs()
+    recon_nii = pReg.NiftiImageData3D(recon)
+
+    fpath_reconstructed_simulation = output_fpath_prefix + 'reconstructed_mr_contrast_simulation.h5'
+    recon_nii.write(fpath_reconstructed_simulation)
+
 
     return 1
 
