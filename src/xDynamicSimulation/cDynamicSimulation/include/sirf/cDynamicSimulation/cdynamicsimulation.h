@@ -75,6 +75,7 @@ void* cDS_appendExternalTissueSignal(void* ptr_dyn, int const num_points, PTR_IN
 // Tissue Parameters
 void* cDS_getTissueParameter(const void* ptr_sim, const unsigned int label);
 void* cDS_setT1Value(void* ptr_tissue_parameter, float const T1_ms);
+void* cDS_setSpinDensity(void* ptr_tissue_parameter, float const spin_density);
 
 
 #ifndef CSIMULATION_FOR_MATLAB

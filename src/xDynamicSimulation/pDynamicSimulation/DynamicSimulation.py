@@ -178,6 +178,9 @@ class TissueParameter():
     def set_T1_value(self, T1_ms):
         pysim.cDS_setT1Value(self.handle,T1_ms)
 
+    def set_spin_density(self, spin_density):
+        pysim.cDS_setSpinDensity(self.handle, spin_density)
+
 
 
 class MRContrastDynamic(Dynamic):

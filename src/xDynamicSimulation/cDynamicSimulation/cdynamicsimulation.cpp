@@ -526,3 +526,18 @@ void* cDS_setT1Value(void* ptr_tissue_parameter, float const T1_ms)
 
 	CATCH;
 }
+
+extern "C"
+void* cDS_setSpinDensity(void* ptr_tissue_parameter, float const spin_density)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_tissue_parameter, ptr_tissue_parameter);			
+		TissueParameter& tp = objectFromHandle<TissueParameter>(h_tissue_parameter);
+		tp.mr_tissue_.spin_density_percentH2O_ = spin_density;
+		
+		return new DataHandle;
+	}
+
+	CATCH;
+}
