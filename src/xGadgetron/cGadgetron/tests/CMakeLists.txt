@@ -39,7 +39,11 @@ OPTION(RERUN_ISMRMRD_SHEPP_LOGAN "Generate testdata compatible with ISMRMRD Vers
 find_program(EXE_ISMRMRD_SL NAMES ismrmrd_generate_cartesian_shepp_logan
                 NAMES_PER_DIR
                 PATHS ${CMAKE_INSTALL_PREFIX})
-
+if (EXE_ISMRMRD_SL STREQUAL "EXE_ISMRMRD_SL-NOTFOUND")
+  set (EXE_ISMRMRD_SL_FOUND OFF)
+else()
+  set (EXE_ISMRMRD_SL_FOUND ON)
+endif()
 
 set(TESTDATA_OUTPUT_PATH "${SIRF_SOURCE_DIR}/data/examples/MR/")
 set(TESTDATA_OUTPUT_NAME_FULL "simulated_MR_2D_cartesian.h5")
@@ -47,18 +51,21 @@ set(TESTDATA_OUTPUT_NAME_GRAPPA "simulated_MR_2D_cartesian_Grappa2.h5")
 
 set(TESTDATA_TEMP_PREFIX "testdata_tmp")
 
-if(EXE_ISMRMRD_SL AND RERUN_ISMRMRD_SHEPP_LOGAN)
+if(RERUN_ISMRMRD_SHEPP_LOGAN)
+  if(EXE_ISMRMRD_SL_FOUND)
     add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
         COMMAND rm -f ${TESTDATA_OUTPUT_NAME_FULL}
         COMMAND rm -f ${TESTDATA_OUTPUT_NAME_GRAPPA}
         COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH ${EXE_ISMRMRD_SL} -r 2 -o "${TESTDATA_TEMP_PREFIX}_1.h5"
         COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH ${EXE_ISMRMRD_SL} -w 64 -a 2 -o "${TESTDATA_TEMP_PREFIX}_2.h5"
         WORKING_DIRECTORY ${TESTDATA_OUTPUT_PATH})
-elseif(RERUN_ISMRMRD_SHEPP_LOGAN)
+  else()
     message(ERROR "We could not find the ISMRMRD executable for the Shepp Logan Generation." )
+  endif()
 else()
-    add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
-        COMMAND "")
+    # do nothing but add target as it will be a dependence later
+    add_custom_target(GENERATE_SIMULATED_TESTDATA ALL COMMAND "")
+  message(WARNING "Will not run the Shepp Logan Generation." )
 endif()
 
 add_library(MR_TESTS_CPP_AUXILIARY ${CMAKE_CURRENT_SOURCE_DIR}/mrtest_auxiliary_funs.cpp)
