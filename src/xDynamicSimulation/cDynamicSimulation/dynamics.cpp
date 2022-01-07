@@ -586,15 +586,14 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 	all_acquisitions.get_acquisition(0, acq);
 	float const t_start = acq.getHead().acquisition_time_stamp;
 
-	TimeAxisType total_time_seconds = SIRF_SCANNER_MS_PER_TIC/1000.f * (t_fin - t_start);
-							   
+	TimeAxisType total_time_ms = SIRF_SCANNER_MS_PER_TIC * (t_fin - t_start);
 	std::vector< size_t > index_lims;
 	const std::vector<SignalBin> signal_bins = bp_.get_bins();
 
 	for( size_t i=0; i<signal_bins.size();i++)
 	{
 		index_lims.push_back( std::get<2>(signal_bins[i])*num_acquis );
-		cp_.add_timepoint(total_time_seconds * std::get<1>(signal_bins[i]));
+		cp_.add_timepoint(total_time_ms * std::get<1>(signal_bins[i]));
 	}
 
 	int start_index = 0;
