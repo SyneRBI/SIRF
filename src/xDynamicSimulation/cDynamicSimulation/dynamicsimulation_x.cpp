@@ -107,8 +107,8 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 
 				if( binned_contrast_acquisitions.size() >0)
 				{
-					AcquisitionsVector acquis_in_contrast_state = binned_contrast_acquisitions[ i_contrast_state ];
-					acquisitions_for_this_contrast_state = intersect_mr_acquisition_data(acquisitions_for_this_contrast_state, acquis_in_contrast_state);
+					AcquisitionsVector tmp_acq_for_contrast_dyn = binned_contrast_acquisitions[ i_contrast_state ];
+					acquisitions_for_this_contrast_state = intersect_mr_acquisition_data(acquisitions_for_this_contrast_state, tmp_acq_for_contrast_dyn);
 				}
 
 				cout << "# of mr acquis in this dynamic motion x contrast state: " << acquisitions_for_this_contrast_state.number() << endl;
@@ -211,6 +211,7 @@ void MRDynamicSimulation::update_tissue_parameters(TimeAxisType current_time_poi
 	{
 		auto sptr_contrast_dyn = this->contrast_dynamics_[i_contrast_dyn];
 		auto contrast_signal = sptr_contrast_dyn->interpolate_signal(current_time_point);
+		
 		TissueParameterList tissueparameter_list_to_replace = sptr_contrast_dyn->get_interpolated_tissue_params( contrast_signal );
 
 		for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
