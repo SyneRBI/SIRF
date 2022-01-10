@@ -45,7 +45,6 @@ else()
   set (EXE_ISMRMRD_SL_FOUND ON)
 endif()
 
-# set(TESTDATA_OUTPUT_PATH "${SIRF_SOURCE_DIR}/data/examples/MR/")
 set (TESTDATA_OUTPUT_PATH "${SHARE_DIR}/data/MR/unittest")
 set(TESTDATA_OUTPUT_NAME_FULL "simulated_MR_2D_cartesian.h5")
 set(TESTDATA_OUTPUT_NAME_GRAPPA "simulated_MR_2D_cartesian_Grappa2.h5")
