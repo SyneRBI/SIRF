@@ -38,6 +38,7 @@ limitations under the License.
 
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/getenv.h"
+#include "sirf/common/version.h"
 
 #include "sirf/Gadgetron/chain_lib.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
@@ -641,7 +642,11 @@ int main ( int argc, char* argv[])
 		
         std::string SIRF_PATH;
         if (argc==1)
-            SIRF_PATH = sirf::getenv("SIRF_PATH", true);
+        {
+            std::stringstream sssirfpath;
+            sssirfpath << sirf::getenv("SIRF_INSTALL_PATH", true) << "/share/SIRF-" << SIRF_VERSION_MAJOR << "." << SIRF_VERSION_MINOR;
+            SIRF_PATH = sssirfpath.str();
+        }
         else
             SIRF_PATH = argv[1];
 
