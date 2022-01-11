@@ -602,6 +602,7 @@ class CoilSensitivityData(ImageData):
             raise error('Cannot calculate coil sensitivities from %s' % \
                         repr(type(data)))
 
+<<<<<<< HEAD
     def __calc_from_acquisitions(self, data, method_name):
         assert data.handle is not None
 
@@ -632,8 +633,11 @@ class CoilSensitivityData(ImageData):
         elif method_name == 'SRSS':
             try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
 
+=======
+>>>>>>> 0c22d1dcdf5bb7a5135d50e99ec3eca3e9f4d18f
     def __calc_from_images(self, data, method_name):
         assert data.handle is not None
+
         if method_name == 'Inati':
             try:
                 from ismrmrdtools import coils
@@ -655,10 +659,20 @@ class CoilSensitivityData(ImageData):
             self.fill(csm.astype(numpy.complex64))
 
         elif method_name == 'SRSS':
+
             try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
                 (self.handle, data.handle))
+
         else:
             raise error('Unknown method %s' % method_name)
+
+    def __calc_from_acquisitions(self, data, method_name):
+        assert data.handle is not None
+        dcw = compute_kspace_density(data)
+        data = data * dcw
+        cis = CoilImagesData()
+        try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
+        self.__calc_from_images(cis, method_name)
 
 DataContainer.register(CoilSensitivityData)
 
