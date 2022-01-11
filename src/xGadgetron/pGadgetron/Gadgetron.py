@@ -602,7 +602,6 @@ class CoilSensitivityData(ImageData):
             raise error('Cannot calculate coil sensitivities from %s' % \
                         repr(type(data)))
 
-<<<<<<< HEAD
     def __calc_from_acquisitions(self, data, method_name):
         assert data.handle is not None
 
@@ -633,8 +632,6 @@ class CoilSensitivityData(ImageData):
         elif method_name == 'SRSS':
             try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
 
-=======
->>>>>>> 0c22d1dcdf5bb7a5135d50e99ec3eca3e9f4d18f
     def __calc_from_images(self, data, method_name):
         assert data.handle is not None
 
