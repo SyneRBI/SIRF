@@ -188,13 +188,20 @@ endif(DISABLE_Matlab)
 
 ENABLE_TESTING()
 
+# create location of SHARE_DIR to be used when creating Shepp Logan phantom during build
+set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
+
 ADD_SUBDIRECTORY(src)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
-INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
+configure_file("cmake/version.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/sirf/common/version.h")
 
-set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/sirf/common/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
+
+
+
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples 
         COMPONENT DOC
         DESTINATION ${SHARE_DIR})
