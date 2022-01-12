@@ -54,7 +54,6 @@ set(TESTDATA_TEMP_PREFIX "testdata_tmp")
 if(RERUN_ISMRMRD_SHEPP_LOGAN)
   if(EXE_ISMRMRD_SL_FOUND)
     if (NOT EXISTS ${TESTDATA_OUTPUT_PATH})
-      # create the directory
       file(MAKE_DIRECTORY ${TESTDATA_OUTPUT_PATH})
     endif()
     add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
@@ -82,6 +81,8 @@ set(MR_PROCESS_TESTDATA_EXE "${CMAKE_CURRENT_BINARY_DIR}/MR_PROCESS_TESTDATA")
 
 
 if(RERUN_ISMRMRD_SHEPP_LOGAN)
+  # this pre-processing step calls an executable MR_PROCESS_TESTDATA which fills a
+  # default geometry orientation into the MR acquisitions to suppress warnings.
   add_custom_target(PROCESS_SIMULATED_TESTDATA ALL
           COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH ${MR_PROCESS_TESTDATA_EXE} "${TESTDATA_TEMP_PREFIX}_1.h5" ${TESTDATA_OUTPUT_NAME_FULL}
           COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH ${MR_PROCESS_TESTDATA_EXE} "${TESTDATA_TEMP_PREFIX}_2.h5" ${TESTDATA_OUTPUT_NAME_GRAPPA}
@@ -92,6 +93,9 @@ else()
         add_custom_target(PROCESS_SIMULATED_TESTDATA ALL
         COMMAND "")
 endif()
+
+# adding a dependency of PROCESS_SIMULATED_TESTDATA on MR_PROCESS_TESTDATA ensures the
+# executable is built before it is called by the custom target.
 add_dependencies(PROCESS_SIMULATED_TESTDATA MR_PROCESS_TESTDATA)
 
 add_executable(MR_TESTS_CPLUSPLUS ${CMAKE_CURRENT_SOURCE_DIR}/mrtests.cpp)
@@ -101,6 +105,7 @@ target_link_libraries(MR_TESTS_CPLUSPLUS PUBLIC MR_TESTS_CPP_AUXILIARY csirf cga
 INSTALL(TARGETS MR_TESTS_CPLUSPLUS DESTINATION bin)
 
 
+# generate filenames that are passed to the C++ test exe and install testdata into the shared directory.
 set(MR_TESTDATA_PATH "${SHARE_DIR}/data/examples/MR")
 if(RERUN_ISMRMRD_SHEPP_LOGAN)
   install(FILES  "${TESTDATA_OUTPUT_PATH}/${TESTDATA_OUTPUT_NAME_FULL}"
