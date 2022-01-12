@@ -105,3 +105,7 @@ if (BUILD_MATLAB)
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Utilities/examples_data_path.m.in" ${MATLAB_DEST}/+sirf/+Utilities/examples_data_path.m)
 
 endif (BUILD_MATLAB)
+
+if(CMAKE_TESTING_ENABLED)
+  add_subdirectory(tests)
+endif()
