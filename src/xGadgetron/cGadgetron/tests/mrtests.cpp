@@ -637,6 +637,7 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
 
 bool run_cartesian_tests(const std::string& filename_testdata)
 {
+
     shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
     AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
     av.read(filename_testdata);
