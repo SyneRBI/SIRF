@@ -1,4 +1,4 @@
-#include "sirf/common/version.h"
+#include "version.h"
 #include <iostream>
 
 
