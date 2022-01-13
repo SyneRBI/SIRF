@@ -188,8 +188,8 @@ endif(DISABLE_Matlab)
 
 ENABLE_TESTING()
 
-configure_file("cmake/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/sirf/common/version.h")
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sirf/common/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
+configure_file("cmake/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/version.h")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
 
 ADD_SUBDIRECTORY(src)
 
