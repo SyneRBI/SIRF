@@ -17,6 +17,8 @@
 * Build system
   - export a CMake config file such that external C++ projects can use SIRF via CMake,
   see the `examples/C++` directory for basic usage.
+  - we now require ISMRMRD v1.4.2.1 to allow for the -w flag for the creation of Shepp
+  Logan test data during build.
 
 * Other changes
   - added conjugation methods to DataContainer
