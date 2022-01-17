@@ -458,7 +458,7 @@ bool test_set_rpe_trajectory(AcquisitionsVector av)
 }
 
 #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-#warning "INCLUDING THE RADIAL TESTS INTO THE C++ TESTS"
+#warning "INCLUDING THE NON-CARTESIAN TESTS FOR C++."
 bool test_rpe_csm(MRAcquisitionData& av)
 {
     try
@@ -740,7 +740,8 @@ int main ( int argc, char* argv[])
         int num_expected_arguments = 2;
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-        #warning "RUNNING THE RADIAL TESTS FOR C++."
+        #warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
+
             num_expected_arguments += 1;
         #endif
 
@@ -751,7 +752,7 @@ int main ( int argc, char* argv[])
         bool test_successful = run_cartesian_tests(filename_simulated_2D_testdata);
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-        #warning "RUNNING THE RADIAL TESTS FOR C++."
+        #warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
             const std::string  filename_rpe_testdata = argv[2];
             test_successful *= run_rpe_tests(filename_rpe_testdata);
             test_successful *= run_2D_radial_tests(filename_simulated_2D_testdata);
