@@ -34,7 +34,6 @@ jobs:
           sudo bash build_python-ubuntu.sh;
           sudo bash build_gadgetron-ubuntu.sh;
           sudo bash build_system-ubuntu.sh;
-          sudo apt-get install -yq --no-install-recommends libboost-random-dev;
           bash user_python-ubuntu.sh ~/virtualenv python3 ;
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
