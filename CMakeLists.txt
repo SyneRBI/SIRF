@@ -195,11 +195,8 @@ ADD_SUBDIRECTORY(src)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
-configure_file("cmake/version.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/sirf/common/version.h")
 
-INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
-INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/sirf/common/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
-
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
 
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples 
@@ -253,3 +250,5 @@ install(
     #cmake/FindNiftyPET.cmake
   DESTINATION "${ConfigPackageLocation}"
 )
+
+
