@@ -692,7 +692,6 @@ bool run_rpe_tests(const std::string& filename_testdata)
     sirf::GRPETrajectoryPrep rpe_tp;
     rpe_tp.set_trajectory(*sptr_rpe_av);
     ok *= test_acq_mod_norm(sptr_rpe_av);
-    ok *= test_acq_mod_adjointness(sptr_rpe_av);
     
     return ok;
 }
