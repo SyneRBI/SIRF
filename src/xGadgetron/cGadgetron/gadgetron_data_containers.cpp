@@ -106,11 +106,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 
         ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
         
-        std::cout << "ISMRMRD XML VERSION IS: " << ISMRMRD_XMLHDR_VERSION << std::endl;
-        if(hdr.version)
-            std::cout << "The version of the file (*hdr.version): " << *hdr.version << std::endl;
-
-		uint32_t num_acquis = d.getNumberOfAcquisitions();
+        uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
 		std::stringstream str;
