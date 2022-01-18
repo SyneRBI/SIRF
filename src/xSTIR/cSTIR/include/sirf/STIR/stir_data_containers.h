@@ -37,7 +37,6 @@ limitations under the License.
 #include <chrono>
 #include <fstream>
 #include <exception>
-
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/iUtilities/DataHandle.h"
@@ -724,6 +723,9 @@ namespace sirf {
 		}
 	};
 
+	typedef Image3DF::full_iterator Image3DFIterator;
+	typedef Image3DF::const_full_iterator Image3DFIterator_const;
+
 	/*!
 	\ingroup PET
 	\brief STIR DiscretisedDensity<3, float> wrapper with added functionality.
@@ -732,10 +734,6 @@ namespace sirf {
 	additioanally, implements the linear algebra functionality specified by the
 	abstract base class aDatacontainer.
 	*/
-
-	typedef Image3DF::full_iterator Image3DFIterator;
-	typedef Image3DF::const_full_iterator Image3DFIterator_const;
-
 	//class STIRImageData : public aDataContainer < float > {
 	class STIRImageData : public PETImageData { //<Iterator, Iterator_const> {
 	public:
