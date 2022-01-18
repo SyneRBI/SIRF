@@ -37,6 +37,7 @@ limitations under the License.
 #include <chrono>
 #include <fstream>
 #include <exception>
+#include <iterator>
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/iUtilities/DataHandle.h"
@@ -743,6 +744,14 @@ namespace sirf {
 		typedef ImageData::Iterator_const BaseIter_const;
 		class Iterator : public BaseIter {
 		public:
+                        //! \name typedefs for std::iterator_traits
+                        //@{
+                        typedef Image3DFIterator::difference_type difference_type;
+                        typedef Image3DFIterator::value_type value_type;
+                        typedef Image3DFIterator::reference reference;
+                        typedef Image3DFIterator::pointer pointer;
+                        typedef std::forward_iterator_tag iterator_category;
+                        //@}
 			Iterator(const Image3DFIterator& iter) : _iter(iter)
 			{}
 			Iterator& operator=(const Iterator& iter)
