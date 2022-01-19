@@ -1,7 +1,7 @@
 #========================================================================
 # Author: Johannes Mayer
 # Copyright 2016 - 2020 University College London
-# Copyright 2020 Physikalisch-Technische Bundesanstalt Berlin
+# Copyright 2020-2022 Physikalisch-Technische Bundesanstalt Berlin
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -54,8 +54,8 @@ if(RERUN_ISMRMRD_SHEPP_LOGAN)
     add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
         COMMAND ${CMAKE_COMMAND} -E rm -f "${TESTDATA_OUTPUT_NAME_FULL}"
         COMMAND ${CMAKE_COMMAND} -E rm -f "${TESTDATA_OUTPUT_NAME_GRAPPA}"
-        COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH ${EXE_ISMRMRD_SL} -r 2 -o "${TESTDATA_TEMP_PREFIX}_1.h5"
-        COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH ${EXE_ISMRMRD_SL} -w 64 -a 2 -o "${TESTDATA_TEMP_PREFIX}_2.h5"
+        COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -r 2 -o "${TESTDATA_TEMP_PREFIX}_1.h5"
+        COMMAND env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -w 64 -a 2 -o "${TESTDATA_TEMP_PREFIX}_2.h5"
         WORKING_DIRECTORY ${TESTDATA_OUTPUT_PATH})
   else()
     message(ERROR "We could not find the ISMRMRD executable for the Shepp Logan Generation." )
@@ -72,7 +72,7 @@ target_link_libraries(MR_TESTS_CPP_AUXILIARY PUBLIC csirf cgadgetron)
 add_executable(MR_PROCESS_TESTDATA ${CMAKE_CURRENT_SOURCE_DIR}/mrtests_prep_testdata.cpp)
 add_dependencies(MR_PROCESS_TESTDATA GENERATE_SIMULATED_TESTDATA)
 target_link_libraries(MR_PROCESS_TESTDATA PUBLIC MR_TESTS_CPP_AUXILIARY csirf cgadgetron)
-set(MR_PROCESS_TESTDATA_EXE "${CMAKE_CURRENT_BINARY_DIR}/MR_PROCESS_TESTDATA")
+set(MR_PROCESS_TESTDATA_EXE "$<TARGET_FILE:MR_PROCESS_TESTDATA>")
 
 
 if(RERUN_ISMRMRD_SHEPP_LOGAN)
