@@ -7,6 +7,8 @@ function value = parameter(engine_lib, prefix, handle, set, name, type, n)
         value = calllib('miutilities', 'mFloatDataFromHandle', hv);
     elseif strcmp(type, 'b')
         value = calllib('miutilities', 'mBoolDataFromHandle', hv);
+    elseif strcmp(type, 'c')
+        value = calllib('miutilities', 'mCharDataFromHandle', hv);
     elseif strcmp(type, 'u16s')
         value = zeros(n, 1);
         for i = 1 : n
