@@ -2,6 +2,8 @@
 
 ## v3.x.x
 
+* a version.h is created by CMake and installed to access version minor and major from C++.
+
 * MR Geometry
   - fixed GadgetronImagesVector::reorient() to only consider slice index 
   and ignore dimensions such as contrast, repetition etc.

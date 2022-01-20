@@ -602,38 +602,9 @@ class CoilSensitivityData(ImageData):
             raise error('Cannot calculate coil sensitivities from %s' % \
                         repr(type(data)))
 
-    def __calc_from_acquisitions(self, data, method_name):
-        assert data.handle is not None
-
-        dcw = compute_kspace_density(data)
-        data = data * dcw
-
-        if method_name == 'Inati':
-            try:
-                from ismrmrdtools import coils
-            except:
-                raise error('Inati method requires ismrmrd-python-tools')
-
-            cis = CoilImagesData()
-            try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
-            cis_array = cis.as_array()
-            csm, _ = coils.calculate_csm_inati_iter(cis_array)
-
-            if self.handle is not None:
-                pyiutil.deleteDataHandle(self.handle)
-            self.handle = pysirf.cSIRF_clone(cis.handle)
-            nc, nz, ny, nx = self.dimensions()
-            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
-            nz = nz//ns        # z-dimension of a slice
-            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
-            csm = numpy.swapaxes(csm, 0,  1)
-            self.fill(csm.astype(numpy.complex64))
-        
-        elif method_name == 'SRSS':
-            try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
-
     def __calc_from_images(self, data, method_name):
         assert data.handle is not None
+
         if method_name == 'Inati':
             try:
                 from ismrmrdtools import coils
@@ -655,10 +626,20 @@ class CoilSensitivityData(ImageData):
             self.fill(csm.astype(numpy.complex64))
 
         elif method_name == 'SRSS':
+
             try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
                 (self.handle, data.handle))
+
         else:
             raise error('Unknown method %s' % method_name)
+
+    def __calc_from_acquisitions(self, data, method_name):
+        assert data.handle is not None
+        dcw = compute_kspace_density(data)
+        data = data * dcw
+        cis = CoilImagesData()
+        try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
+        self.__calc_from_images(cis, method_name)
 
 DataContainer.register(CoilSensitivityData)
 
