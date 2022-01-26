@@ -153,7 +153,7 @@ classdef ImageData < sirf.SIRF.ImageData
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
             if nargin < 4
-                num_samples_in_each_direction = 1
+                num_samples_in_each_direction = 1;
             end
             h = calllib...
                 ('mstir', 'mSTIR_addShape', self.handle_,...
