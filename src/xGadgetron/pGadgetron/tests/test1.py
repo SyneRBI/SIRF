@@ -18,7 +18,8 @@ Options:
 # Created on Tue Nov 21 10:17:28 2017
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-__version__ = "0.2.3"
+import numpy
+__version__ = "3.1.0"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
@@ -28,6 +29,7 @@ def test_main(rec=False, verb=False, throw=True):
     test.verbose = verb
 
     data_path = examples_data_path('MR')
+    AcquisitionData.set_storage_scheme('memory')
     input_data = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
     test.check(input_data.norm())
 
@@ -41,19 +43,22 @@ def test_main(rec=False, verb=False, throw=True):
     complex_images = recon.get_output()
     test.check(complex_images.norm())
 
-    cis = CoilImageData()
-
     csms = CoilSensitivityData()
 
     processed_data.sort()
-    cis.calculate(processed_data)
-    csms.calculate(cis)
-
-    am = AcquisitionModel(processed_data, complex_images)
+    csms.calculate(processed_data)
+    am = AcquisitionModel(processed_data, csms)
     am.set_coil_sensitivity_maps(csms)
     fwd_acqs = am.forward(complex_images)
     fwd_acqs_norm = fwd_acqs.norm()
     test.check(fwd_acqs_norm)
+
+    rng = am.range_geometry()
+    dom = am.domain_geometry()
+    rng = rng - processed_data
+    dom = dom - csms
+    test.check_if_equal(0, rng.norm())
+    test.check_if_equal(0, dom.norm())
 
     acqs_diff = fwd_acqs - processed_data
     rr = acqs_diff.norm()/fwd_acqs_norm

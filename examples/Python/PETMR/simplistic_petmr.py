@@ -3,6 +3,8 @@
 Usage:
   simplistic_petmr [--help | options]
 
+This demo currently only shows how to convert an MR image to a PET object.
+
 Options:
   -f <file>, --file=<file>  raw data file
                             [default: simulated_MR_2D_cartesian.h5]
@@ -12,13 +14,13 @@ Options:
   --pet_engine=<pet>  PET reconstruction engine [default: STIR]
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2017, 2021 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -31,10 +33,11 @@ Options:
 ##   limitations under the License.
 
 # import common (engine-independent) utilities
-import pUtilities as pUtil
+import sirf.Utilities as pUtil
+import numpy
 
 # get command-line arguments
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
@@ -66,7 +69,14 @@ def main():
 
 # PET
     # convert MR image into PET image
-    image = PET.ImageData(complex_image)
+    # At present, we cannot do the following yet
+    #image = PET.ImageData(complex_image)
+    # So, instead we do it "by hand".
+    # Note however that the lines below ignore any orientation (TODO)
+    image = PET.ImageData()
+    image.initialise(complex_image.dimensions(), complex_image.get_geometrical_info().get_spacing())
+    image.fill(numpy.abs(complex_image.as_array()))
+    # should give the same values as the MR ones
     print(image.norm())
     print(image.dot(image))
     # apply filter that zeroes the image outside a cylinder of the same

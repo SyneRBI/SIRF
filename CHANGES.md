@@ -1,8 +1,128 @@
 # ChangeLog
 
-## v2.x
+## v3.x.x
+
+* a version.h is created by CMake and installed to access version minor and major from C++.
+
+* MR Geometry
+  - fixed GadgetronImagesVector::reorient() to only consider slice index 
+  and ignore dimensions such as contrast, repetition etc.
+
+* PET/STIR
+  - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception.
+  - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
 
 * added SPECTUBMatrix for (simple) usage in SPECT
+
+* SIRF Python interface
+  - Removed `__div__` ,  `__idiv__` operators for `DataContainers` required for Python2.
+  - Added `__truediv__` and `__itruediv__` Python3 operators to DataContainer algebra.
+
+* Build system
+  - export a CMake config file such that external C++ projects can use SIRF via CMake,
+  see the `examples/C++` directory for basic usage.
+
+* Other changes
+  - added conjugation methods to DataContainer
+
+## v3.1.1
+  - minor bug fixes
+
+## v3.1.0
+* MR/Gadgetron
+  - Golden-angle radial phase encoding (RPE) trajectory is supported if `Gadgetron` toolboxes were found during building.<br />
+    **WARNING** if Gadgetron was compiled with CUDA support, you need to build SIRF with the `Gadgetron_USE_CUDA` CMake variable set to `ON`.
+  - Automatic calling of `sort_by_time()` in most places. This ensures that only consistent images are reconstructed.
+  - Encoding classes perform the Fourier transformations instead of the `MRAcquisitionModel`.
+  - `CoilSensitivitiesVector` class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute `coil sensitivities` from `MRAcquisitionData`.
+  - Added constructor for `GadgetronImagesVector` from `MRAcquisitionData`. This allows setting up an MR acquisition model without having to perform a reconstruction first. 
+
+* PET/STIR
+   - iterative reconstructors `set_current_estimate` and `get_current_estimate` now create a clone to avoid surprising modifications of arguments. The old behaviour of `set_current_estimate` can still be achieved by `set_estimate`.<br>
+   **Warning** This is backwards incompatible, but arguably a bug fix.
+
+* SIRF Python interface
+  - `range_geometry` and `domain_geometry` methods of `AcquisitionModel` classes, required by CIL algorithms, now obtain data via respective C++ `AcquisitionModel` classes accessors, in line with our strategy of keeping interface code minimal.
+  - `sirf.Gadgetron.AcquisitionData.get_info` was renamed to `get_ISMRMRD_info` to avoid
+    confusion with the other `get_info()` methods that return a string. (`get_info` still works but issues a deprecation warning).
+
+* Build system
+  - fix bug with older CMake (pre-3.12?) that the Python interface was not built
+  [#939](https://github.com/SyneRBI/SIRF/issues/939).
+
+## v3.0.0
+### Backwards incompatible changes
+* STIR version 4.1.0 is now required.
+* Python 2 is no longer supported. Most code might still work, but we do not check. A warning is written when the Python version found is 2. This will be changed to `FATAL_ERROR` at a later stage. 
+* Handling of coil images and sensitivities in C++ code simplified by inheriting CoilImagesVector from GadgetronImagesVector and replacing CoilSensitivitiesAsImages with CoilSensitivitiesVector, also inheriting from GadgetronImagesVector. All methods of CoilImagesVector and CoilSensitivitiesVector other than those inherited from GadgetronImagesVector are no longer supported except methods named compute(), which are renamed to calculate().
+
+### Deprecations (will be errors in SIRF 4.0)
+* `Registration`: renamed `Resample` to `Resampler` and `NiftyResample` to `NiftyResampler`. Old names are now deprecated but should still work.
+* STIR `AcquisitionModel` `forward`, `direct`, `backward` and `adjoint` signatures have changed in Python. Subset information should now be set via `num_subsets` and `subset_num` members. The `forward` and `backward` members can still be called with the previous syntax but this will be removed in a later version.
+Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectively, such that default behaviour is default behaviour (i.e. process all data) is unchanged.
+* MR acquisition data storage scheme restricted to memory only (a message will be printed but no error thrown)
+* Use CMake variable names from `find_package(Python)` which are available with CMake 3.12+. SIRF CMake files will accept both `Python_EXECUTABLE` or `PYTHON_EXECUTABLE`, for the latter it will send a deprecation warning.
+
+### New features
+* PET
+  - Addition of `sirf.STIR.ScatterEstimation` and `ScatterSimulation` to allow (non-TOF) scatter estimation in PET
+  - GE Signa PET/MR reading of listmode data, sinograms, normalisation and randoms support added.
+  - If STIR is at least version 5 or built from the master branch, [Georg Schramm's parallel (computing) projector](https://github.com/gschramm/parallelproj proj) is now made available from SIRF (use `AcquisitionModelUsingParallelproj`). This uses Joseph interpolation, but importantly can use your GPU (if CUDA was found during building).
+  - Implemented extraction of the operator representing the linear part of PET acquisition model and computation of its norm.
+  - When adding a shape to a `sirf.STIR.ImageData`, optionally give the number of times to sample a voxel. This is useful when the shape partially - but not completely - fills a voxel.
+  - If `storage_scheme` is set to `memory`, `PETAcquisitionData` allows direct modification, whereas before a copy would need to be created first. (Internally, it uses STIR `ProjDataInMemory`, instead of `ProjDataFromStream`).
+* Registration
+  - Registration of 2d images is now supported with aladin and f3d. 
+* examples data:
+  - Installs `examples`, `data` and `doc` to the install directory, i.e. `${CMAKE_INSTALL_PREFIX}/share/SIRF-<version_major>.<version_minor>` directory.
+  - If the `SIRF_DATA_PATH` environment variable is set, `examples_data_path` will search for the examples data there, or in `SIRF_INSTALL_PATH/share/SIRF-<version_major>.<version_minor>/data` directory. In MATLAB, the `example_data_path` function has the version set by CMake at install time.
+* Other Python features:
+  - Define `__version__` in `sirf` python package.
+  - Added implementation of division and multiplication for `NiftiImageData`.
+  - Data validity checks return `NotImplemented` instead of throwing error, opening the door for future implementations of operations on data.
+
+### Other changes
+* When registering, internally the forward displacement is no longer stored, replaced by the forward deformation. The inverse is no longer stored, and is calculated as needed.
+* `PETAcquisitionData.axpby` now uses STIR's `axpby` and is therefore faster.
+* Speed-up in `stir::AcquisitionDataInMemory` of `as_array`, `fill`, `dot`, `norm`, etc. (by using STIR iterators).
+* Added common Python `DataContainer` algebra unit tests for all `DataContainer` inherited classes.
+* Continuous Integration now uses Github Actions. Travis-CI has been dropped.
+* New `CMake` option `BUILD_DOCUMENTATION` to use doxygen to build C++ documentation.
+It will be installed in the `share/SIRF-version/doc/doxygen`.
+
+### Bug fixes
+* Python `fill` method in MR `DataContainer` accepts `numpy` array, number or `DataContainer`.
+* `get_index_to_physical_point_matrix()` returned a wrong matrix in MATLAB and Python.
+* path manipulation of `examples_data_path` now should work for any platform, not just linux.
+
+## v2.2.0
+* Changed CCP PETMR to SyneRBI
+* updates to steepest ascent demo
+* STIR.AcquisitionData.get_info() returns a string that describes the scanner etc
+* documentation fixes/additions
+
+## v2.2.0-rc.1
+
+* A passthrough for both the maximum and minimum relative change during OSMAPOSL reconstruction has been added.
+* We have now corrected the geometrical information of `.h5` images (coming from ISMRMRD and Gadgetron). This means we can now convert them to other SIRF image types (e.g., `NiftiImageData` and `STIRImageData`). This is necessary for any kind of synergistic reconstruction. Further, to the best of our knowledge, this is the first ISMRMRD to NIfTI converter out there!
+* The adjoint transformation has now been implemented for `NiftyResample` through the wrapping of NiftyMoMo.
+* The following methods have been added to C++, python and matlab NiftyResample:
+	* `out = forward(in)`
+	* `forward(out, in)`
+	* `out = adjoint(in)`
+	* `adjoint(out, in)`
+	* `out = backward(in)` <- alias for adjoint
+	* `backward(out, in)` <- alias for adjoint
+* Inverse deformation images. Inverse displacements are also possible by converting to and from deformations.
+* NiftyPET projector wrapped (if STIR is built with NiftyPET)
+* Added `set_image_data_processor` to `PETAcquisitionModel`.  This allows for instance image-based PSF modelling.
+* Resampling of complex images.
+* SPM registration wrapping (only SPM12 tested). If `Matlab` and `SPM` are present, the SPM wrapper is available from `C++`, `Matlab` and `Python`.
+* Support for registering multiple floating images has been added. This is only available for certain algorithms (currently only `SPM`). There are therefore new methods `add_floating_image` and `clear_floating_images` on top of the original `set_floating_image`. Methods extracting the results of registrations can now be called with an index (`get_output(idx = 0)`, `get_transformation_matrix_forward(idx = 0)`, etc.). This index defaults to the first to maintain backwards compatibility.
+* Ability to pad `NiftiImageData`, e.g., `a.pad([10,10,0],[10,10,0])` to add 10 voxels to the minimum and maximum of the x- and y-directions.
+* Ability to set and get STIR verbosity from python.
+* Save STIR images using a parameter file (e.g., for saving as `.nii`)
+* Default F3d to using non-symmetric version (previously, symmetric was used). Option to use the symmetric in C++, but currently exposed to python and matlab as we suspect there is an upstream bug there.
 
 ## v2.1.0
 
@@ -86,7 +206,7 @@
   * Build with OpenMP delivers stable and substantially accelerated performance
 * More documentation
   * Developer's Guide
-  * Doxygen inline documentation (available on CCP PETMR website)
+  * Doxygen inline documentation (available on SyneRBI website)
 * More tests (now run via CTest), for Python, Matlab and C++.
 * Coverage reporting for Python tests done by ctest
 

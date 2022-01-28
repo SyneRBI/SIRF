@@ -1,6 +1,6 @@
 %module pysirf
 %{
-#include "csirf.h"
+#include "sirf/common/csirf.h"
 %}
-%include "csirf.h"
+%include "sirf/common/csirf.h"
 

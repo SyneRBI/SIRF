@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,19 +21,34 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Extensions
+\ingroup MR
 \brief Implementation file for extended Gadgetron functionality classes.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
-
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/gadgetron_client.h"
 
 using namespace gadgetron;
 using namespace sirf;
+
+GTConnector::GTConnector()
+{
+	sptr_con_ = shared_ptr < GadgetronClientConnector >
+		(new GadgetronClientConnector);
+}
+GadgetronClientConnector& GTConnector::operator()()
+{
+	return *sptr_con_.get();
+}
+shared_ptr<GadgetronClientConnector> GTConnector::sptr()
+{
+	return sptr_con_;
+}
 
 static bool
 connection_failed(int nt)
@@ -76,8 +92,8 @@ GadgetChain::gadget_sptr(std::string id)
 #else
 	typename std::list<shared_ptr<GadgetHandle> >::iterator gh;
 #endif
-	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
-		if (boost::iequals(gh->get()->id(), id))
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); ++gh) {
+		if (sirf::iequals(gh->get()->id(), id))
 			return gh->get()->gadget_sptr();
 	}
 	return shared_ptr<aGadget>();
@@ -97,16 +113,17 @@ GadgetChain::xml() const
 #else
 	typename std::list<shared_ptr<GadgetHandle> >::const_iterator gh;
 #endif
-	for (gh = readers_.begin(); gh != readers_.end(); gh++)
+	for (gh = readers_.begin(); gh != readers_.end(); ++gh)
 		xml_script += gh->get()->gadget().xml() + '\n';
-	for (gh = writers_.begin(); gh != writers_.end(); gh++)
+	for (gh = writers_.begin(); gh != writers_.end(); ++gh)
 		xml_script += gh->get()->gadget().xml() + '\n';
-	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); ++gh) {
 		const GadgetHandle* ptr_gh = gh->get();
 		xml_script += ptr_gh->gadget().xml(ptr_gh->id()) + '\n';
 //		xml_script += gh->get()->gadget().xml() + '\n';
 	}
-	xml_script += endgadget_->xml() + '\n';
+	if (endgadget_.get())
+		xml_script += endgadget_->xml() + '\n';
 	xml_script += "</gadgetronStreamConfiguration>\n";
 
 	return xml_script;
@@ -157,35 +174,64 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 void 
 AcquisitionsProcessor::process(MRAcquisitionData& acquisitions) 
 {
-	std::string config = xml();
-	GTConnector conn;
-	uint32_t nacq = 0;
-	nacq = acquisitions.number();
+	uint32_t nacq = acquisitions.number();
 	//std::cout << nacq << " acquisitions" << std::endl;
-	ISMRMRD::Acquisition acq_tmp;
 	sptr_acqs_ = acquisitions.new_acquisitions_container();
+	if (nacq < 1)
+		return;
 
+	ISMRMRD::Acquisition acq_tmp;
+	std::string config = xml();
+
+	// quick fix: checking if AcquisitionFinishGadget is needed (= running old Gadgetron)
+	shared_ptr<MRAcquisitionData> sptr_acqs = acquisitions.new_acquisitions_container();
+	{
+		GTConnector conn;
+		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
+			shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs)));
+		for (int nt = 0; nt < N_TRIALS; nt++) {
+//			std::cout << "connection attempt " << nt << '\n';
+			try {
+				conn().connect(host_, port_);
+				conn().send_gadgetron_configuration_script(config);
+				conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
+				acquisitions.get_acquisition(0, acq_tmp);
+				conn().send_ismrmrd_acquisition(acq_tmp);
+				conn().send_gadgetron_close();
+				conn().wait();
+				break;
+			}
+			catch (...) {
+				if (connection_failed(nt))
+					THROW("Server running Gadgetron not accessible");
+			}
+		}
+	}
+
+	uint32_t na = sptr_acqs->number();
+	//std::cout << na << " acquisitions processed\n";
+	if (na < 1) {
+		// old Gadgetron is running, have to append AcquisitionFinishGadget to the chain
+		shared_ptr<AcquisitionFinishGadget>
+			endgadget(new AcquisitionFinishGadget);
+		set_endgadget(endgadget);
+		config = xml();
+	}
+
+	GTConnector conn;
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
-	for (int nt = 0; nt < N_TRIALS; nt++) {
-		try {
-			conn().connect(host_, port_);
-			conn().send_gadgetron_configuration_script(config);
-			conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
-			for (uint32_t i = 0; i < nacq; i++) {
-				acquisitions.get_acquisition(i, acq_tmp);
-				conn().send_ismrmrd_acquisition(acq_tmp);
-			}
-			conn().send_gadgetron_close();
-			conn().wait();
-			break;
-		}
-		catch (...) {
-			if (connection_failed(nt))
-				THROW("Server running Gadgetron not accessible");
-		}
+	conn().connect(host_, port_);
+	conn().send_gadgetron_configuration_script(config);
+	conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
+	for (uint32_t i = 0; i < nacq; i++) {
+		acquisitions.get_acquisition(i, acq_tmp);
+		conn().send_ismrmrd_acquisition(acq_tmp);
 	}
+	conn().send_gadgetron_close();
+	conn().wait();
 	check_gadgetron_connection(host_, port_);
 }
 
@@ -235,6 +281,12 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 void 
 ImagesProcessor::process(const GadgetronImageData& images)
 {
+	if (images.number() < 1)
+		return;
+	const ImageWrap& iw = images.image_wrap(0);
+	if (dicom_ && iw.is_complex())
+		THROW("DICOM writer does not support complex images");
+
 	std::string config = xml();
 	GTConnector conn;
 	sptr_images_ = images.new_images_container();
@@ -301,7 +353,7 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 		bool ok = false;
 		std::string value;
 		for (int i = 0; i < l; i++) {
-			if (boost::iequals(mc.as_str(attr, i), "image")) {
+			if (sirf::iequals(mc.as_str(attr, i), "image")) {
 				ok = true;
 				break;
 			}
@@ -318,234 +370,94 @@ void MRAcquisitionModel::check_data_role(const GadgetronImageData& ic)
 	}
 }
 
+void 
+MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
+			shared_ptr<GadgetronImageData> sptr_ic)
+{
+	if( sptr_ac->number() ==0 )
+		throw LocalisedException("Please dont use an empty acquisition template.", __FILE__, __LINE__);
+
+	if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+		this->sptr_enc_ = std::make_shared<sirf::CartesianFourierEncoding>();
+	else if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+	{
+		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::OTHER trajectory before calling the calculate method with dimension > 0.");
+	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
+	#warning "We compile the non-cartesian code in GADGETRON_X"
+		this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
+	#else
+		throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
+	#endif
+	}
+	else
+		throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
+
+	sptr_acqs_ = sptr_ac;
+	set_image_template(sptr_ic);
+}
+
 void
-MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
-	if (cc.items() < 1)
-		throw LocalisedException
-		("coil sensitivity maps not found", __FILE__, __LINE__);
-	for (unsigned int i = 0, a = 0; i < ic.number(); i++) {
-		ImageWrap& iw = ic.image_wrap(i);
-		CoilData& csm = cc(i%cc.items());
-		fwd(iw, csm, ac, a);
-	}
+    GadgetronImagesVector images_channelresolved;
+    cc.forward(images_channelresolved, ic);
+
+    ac.sort();
+    std::vector<KSpaceSubset> kspace_sorting = ac.get_kspace_sorting();
+
+    if( kspace_sorting.size() != images_channelresolved.number() )
+        throw LocalisedException("Number of images does not match number of acquisition data bins  ", __FILE__, __LINE__);
+
+    for( unsigned int i=0; i<images_channelresolved.number(); ++i)
+    {
+        ImageWrap iw = images_channelresolved.image_wrap(i);
+        CFImage* ptr_img = static_cast<CFImage*>(iw.ptr_image());
+
+        auto tag_img = KSpaceSubset::get_tag_from_img(*ptr_img);
+
+        sirf::AcquisitionsVector subset;
+        KSpaceSubset::SetType idx_set;
+        for(int j=0; j<kspace_sorting.size(); ++j)
+        {
+            if(tag_img == kspace_sorting[j].get_tag())
+            {
+                idx_set = kspace_sorting[j].get_idx_set();
+                ac.get_subset(subset, idx_set);
+                break;
+            }
+        }
+
+        if(subset.number() == 0)
+            throw LocalisedException("You didn't find rawdata corresponding to your image in the acquisition data.", __FILE__, __LINE__);
+
+        this->sptr_enc_->forward(subset, *ptr_img);
+        ac.set_subset(subset, idx_set); //assume forward does not reorder the acquisitions
+    }
+    ac.sort();
 }
 
 void 
-MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
-	MRAcquisitionData& ac)
+MRAcquisitionModel::bwd(GadgetronImageData& ic, const CoilSensitivitiesVector& cc,
+    const MRAcquisitionData& ac)
 {
-	ic.set_meta_data(ac.acquisitions_info());
-	if (cc.items() < 1)
-		throw LocalisedException
-		("coil sensitivity maps not found", __FILE__, __LINE__);
-	for (unsigned int i = 0, a = 0; a < ac.number(); i++) {
-		CoilData& csm = cc(i%cc.items());
-		ImageWrap iw(sptr_imgs_->image_wrap(i));
-		bwd(iw, csm, ac, a);
-		ic.append(iw);
+    GadgetronImagesVector iv;
+    iv.set_meta_data(ac.acquisitions_info());
+
+    auto sort_idx = ac.get_kspace_order();
+
+    for(int i=0; i<sort_idx.size(); ++i)
+    {
+        sirf::AcquisitionsVector subset;
+        ac.get_subset(subset, sort_idx[i]);
+        
+		CFImage* img_ptr = new CFImage();
+		ImageWrap iw(ISMRMRD::ISMRMRD_DataTypes::ISMRMRD_CXFLOAT, img_ptr);// God I trust this!
+		this->sptr_enc_->backward(*img_ptr, subset);
+
+        iv.append(iw);
 	}
+
+    cc.backward(ic, iv);
+    ic.set_up_geom_info();
 }
-
-/*
-The next two methods:
-
-	MRAcquisitionModel::fwd_
-	MRAcquisitionModel::bwd_
-
-contain code snippets from ISMRMRD/utilities/generate_cartesian_shepp_logan.cpp
-by Michael S. Hansen
-
-ISMRMRD SOFTWARE LICENSE JULY 2013
-
-PERMISSION IS HEREBY GRANTED, FREE OF CHARGE, TO ANY PERSON OBTAINING
-A COPY OF THIS SOFTWARE AND ASSOCIATED DOCUMENTATION FILES (THE
-"SOFTWARE"), TO DEAL IN THE SOFTWARE WITHOUT RESTRICTION, INCLUDING
-WITHOUT LIMITATION THE RIGHTS TO USE, COPY, MODIFY, MERGE, PUBLISH,
-DISTRIBUTE, SUBLICENSE, AND/OR SELL COPIES OF THE SOFTWARE, AND TO
-PERMIT PERSONS TO WHOM THE SOFTWARE IS FURNISHED TO DO SO, SUBJECT TO
-THE FOLLOWING CONDITIONS:
-
-THE ABOVE COPYRIGHT NOTICE, THIS PERMISSION NOTICE, AND THE LIMITATION
-OF LIABILITY BELOW SHALL BE INCLUDED IN ALL COPIES OR REDISTRIBUTIONS
-OF SUBSTANTIAL PORTIONS OF THE SOFTWARE.
-
-SOFTWARE IS BEING DEVELOPED IN PART AT THE NATIONAL HEART, LUNG, AND BLOOD
-INSTITUTE, NATIONAL INSTITUTES OF HEALTH BY AN EMPLOYEE OF THE FEDERAL
-GOVERNMENT IN THE COURSE OF HIS OFFICIAL DUTIES. PURSUANT TO TITLE 17,
-SECTION 105 OF THE UNITED STATES CODE, THIS SOFTWARE IS NOT SUBJECT TO
-COPYRIGHT PROTECTION AND IS IN THE PUBLIC DOMAIN. EXCEPT AS CONTAINED IN
-THIS NOTICE, THE NAME OF THE AUTHORS, THE NATIONAL HEART, LUNG, AND BLOOD
-INSTITUTE (NHLBI), OR THE NATIONAL INSTITUTES OF HEALTH (NIH) MAY NOT
-BE USED TO ENDORSE OR PROMOTE PRODUCTS DERIVED FROM THIS SOFTWARE WITHOUT
-SPECIFIC PRIOR WRITTEN PERMISSION FROM THE NHLBI OR THE NIH.THE SOFTWARE IS
-PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-template< typename T>
-void 
-MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
-	MRAcquisitionData& ac, unsigned int& off)
-{
-	ISMRMRD::Image<T>& img = *ptr_img;
-
-	std::string par;
-	ISMRMRD::IsmrmrdHeader header;
-	//par = ac.acquisitions_info();
-	par = sptr_acqs_->acquisitions_info();
-	ISMRMRD::deserialize(par.c_str(), header);
-	ISMRMRD::Encoding e = header.encoding[0];
-	ISMRMRD::Acquisition acq; // (acq_);
-	//sptr_acqs_->get_acquisition(0, acq);
-	for (unsigned int i = 0; i < sptr_acqs_->number(); i++) {
-		sptr_acqs_->get_acquisition(i, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-	}
-
-	//int readout = e.encodedSpace.matrixSize.x;
-	unsigned int nx = e.reconSpace.matrixSize.x;
-	//unsigned int ny = e.reconSpace.matrixSize.y;
-	//unsigned int nz = e.reconSpace.matrixSize.z;
-	unsigned int ny = e.encodedSpace.matrixSize.y;
-	unsigned int nz = e.encodedSpace.matrixSize.z;
-	unsigned int nc = acq.active_channels();
-	unsigned int readout = acq.number_of_samples();
-
-	std::vector<size_t> dims;
-	dims.push_back(readout);
-	dims.push_back(ny);
-	dims.push_back(nz);
-	dims.push_back(nc);
-
-	ISMRMRD::NDArray<complex_float_t> ci(dims);
-	memset(ci.getDataPtr(), 0, ci.getDataSize());
-
-	for (unsigned int c = 0; c < nc; c++) {
-		for (unsigned int z = 0; z < nz; z++) {
-			for (unsigned int y = 0; y < ny; y++) {
-				for (unsigned int x = 0; x < nx; x++) {
-					uint16_t xout = x + (readout - nx) / 2;
-					complex_float_t zi = (complex_float_t)img(x, y, z);
-					complex_float_t zc = csm(x, y, z, c);
-					ci(xout, y, z, c) = zi * zc;
-				}
-			}
-		}
-	}
-
-	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
-
-	fft3c(ci);
-
-	int y = 0;
-	for (;;){
-		sptr_acqs_->get_acquisition(off + y, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-		y++;
-	}
-	for (;;) {
-		sptr_acqs_->get_acquisition(off + y, acq);
-		int yy = acq.idx().kspace_encode_step_1;
-		int zz = acq.idx().kspace_encode_step_2;
-		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int s = 0; s < readout; s++) {
-				acq.data(s, c) = ci(s, yy, zz, c);
-			}
-		}
-		ac.append_acquisition(acq);
-		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-			break;
-	}
-	off += y;
-
-}
-
-template< typename T>
-void 
-MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
-	MRAcquisitionData& ac, unsigned int& off)
-{
-	ISMRMRD::Image<T>& im = *ptr_im;
-
-	std::string par;
-	ISMRMRD::IsmrmrdHeader header;
-	par = ac.acquisitions_info();
-	ISMRMRD::deserialize(par.c_str(), header);
-	ISMRMRD::Encoding e = header.encoding[0];
-	ISMRMRD::Acquisition acq;
-	//sptr_acqs_->get_acquisition(0, acq);
-	for (unsigned int i = 0; i < ac.number(); i++) {
-		ac.get_acquisition(i, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-	}
-
-	unsigned int nx = e.reconSpace.matrixSize.x;
-	//unsigned int ny = e.reconSpace.matrixSize.y;
-	//unsigned int nz = e.reconSpace.matrixSize.z;
-	unsigned int ny = e.encodedSpace.matrixSize.y;
-	unsigned int nz = e.encodedSpace.matrixSize.z;
-	unsigned int nc = acq.active_channels();
-	unsigned int readout = acq.number_of_samples();
-
-	std::vector<size_t> dims;
-	dims.push_back(readout);
-	dims.push_back(ny);
-	dims.push_back(nz);
-	dims.push_back(nc);
-
-	ISMRMRD::NDArray<complex_float_t> ci(dims);
-	memset(ci.getDataPtr(), 0, ci.getDataSize());
-	int y = 0;
-	for (;;){
-		ac.get_acquisition(off + y, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-		y++;
-	}
-	for (;;) {
-		ac.get_acquisition(off + y, acq);
-		int yy = acq.idx().kspace_encode_step_1;
-		int zz = acq.idx().kspace_encode_step_2;
-		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int s = 0; s < readout; s++) {
-				ci(s, yy, zz, c) = acq.data(s, c);
-			}
-		}
-		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-			break;
-	}
-	off += y;
-	ifft3c(ci);
-
-	T* ptr = im.getDataPtr();
-	T s;
-	memset(ptr, 0, im.getDataSize());
-	long long int i = 0;
-	for (unsigned int c = 0; c < nc; c++) {
-		i = 0;
-		for (unsigned int z = 0; z < nz; z++) {
-			for (unsigned int y = 0; y < ny; y++) {
-				for (unsigned int x = 0; x < nx; x++, i++) {
-					uint16_t xout = x + (readout - nx) / 2;
-					complex_float_t zi = ci(xout, y, z, c);
-					complex_float_t zc = csm(x, y, z, c);
-					xGadgetronUtilities::convert_complex(std::conj(zc) * zi, s);
-					ptr[i] += s;
-				}
-			}
-		}
-	}
-
-}
-

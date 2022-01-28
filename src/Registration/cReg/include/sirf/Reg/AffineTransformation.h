@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ limitations under the License.
 \ingroup Registration
 \brief Class for affine transformations.
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -42,7 +42,7 @@ template<class dataType> class Quaternion;
 \ingroup Registration
 \brief Class for affine transformations.
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class dataType>
 class AffineTransformation : public Transformation<dataType>
@@ -51,6 +51,7 @@ public:
 
     /// Print multiple AffineTransformation
     static void print(const std::vector<AffineTransformation<dataType> > &mats);
+	static std::string get(const std::vector<AffineTransformation<dataType> > &mats);
 
     /// Default constructor - identity matrix
     AffineTransformation();
@@ -67,6 +68,9 @@ public:
     /// Construct from translation and quaternion
     /// Code from here: https://uk.mathworks.com/help/robotics/ref/quaternion.rotmat.html
     AffineTransformation(const std::array<dataType,3> &trans, const Quaternion<dataType> &quat);
+
+    /// Construct from translation and euler angles (XYZ order)
+    AffineTransformation(const std::array<dataType,3> &trans, const std::array<dataType,3> &euler, const bool degrees = true);
 
     /// Copy constructor
     AffineTransformation(const AffineTransformation& to_copy);
@@ -95,8 +99,12 @@ public:
     /// Destructor
     virtual ~AffineTransformation() {}
 
-    /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref) const;
+    /// Get as deformation field.
+    ///
+    /// Reference image **must** be used when converting a transformation matrix to a deformation.
+    /// For displacements and deformations, the reference can be used optionally. It **should** be used when composing transformations to be used for resampling
+    /// But is probably unnecessary for simply concatenating deformations.
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref, const bool use_ref = true) const;
 
     /// Deep copy
     virtual AffineTransformation deep_copy() const;

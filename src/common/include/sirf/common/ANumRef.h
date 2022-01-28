@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2018 Rutherford Appleton Laboratory STFC
+Copyright 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@ limitations under the License.
 
 #include <complex>
 #include <typeinfo>
-
+#include <stdexcept>
 /// Number type. Taken from ismrmrd/ismrmrd.h (saves having to include 
 /// it in this file, which should be independent of it)
 /// class NumberType
@@ -61,6 +62,7 @@ namespace sirf {
 			return *this;
 		}
 		virtual void set_ptr(void* ptr) = 0;
+        virtual NumberType::Type get_typeID() const = 0;
 	};
 
 	class FloatRef : public ANumRef {
@@ -103,6 +105,10 @@ namespace sirf {
 		{
 			ptr_ = ref.ptr_;
 		}
+        virtual NumberType::Type get_typeID() const
+        {
+            return NumberType::FLOAT;
+        }
 	private:
 		float* ptr_;
 	};
@@ -281,6 +287,35 @@ namespace sirf {
 				*(unsigned short*)ptr_ = (unsigned short)ref;
 			}
 		}
+		NumRef& operator/=(float s)
+		{
+			switch (type_) {
+			case NumberType::CXDOUBLE:
+				*(complex_double_t*)ptr_ /= s;
+				break;
+			case NumberType::CXFLOAT:
+				*(complex_float_t*)ptr_ /= s;
+				break;
+			case NumberType::DOUBLE:
+				*(double*)ptr_ /= s;
+				break;
+			case NumberType::FLOAT:
+				*(float*)ptr_ /= s;
+				break;
+			case NumberType::INT:
+				*(int*)ptr_ /= s;
+				break;
+			case NumberType::UINT:
+				*(unsigned int*)ptr_ /= s;
+				break;
+			case NumberType::SHORT:
+				*(short*)ptr_ /= s;
+				break;
+			case NumberType::USHORT:
+				*(unsigned short*)ptr_ /= s;
+			}
+			return *this;
+		}
 		template <typename T>
 		NumRef& operator=(std::complex<T> v)
 		{
@@ -341,6 +376,10 @@ namespace sirf {
 			}
 			return *this;
 		}
+        virtual NumberType::Type get_typeID() const
+        {
+            return NumberType::Type(type_);
+        }
 
 	private:
 		bool abs_;

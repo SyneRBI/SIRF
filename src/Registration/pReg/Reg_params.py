@@ -15,6 +15,12 @@ def set_parameter(hs, group, par, hv, stack = None):
     pyiutil.deleteDataHandle(h)
 
 
+def set_bool_par(handle, group, par, value):
+    h = pyiutil.charDataHandle(value)
+    set_parameter(handle, group, par, h, inspect.stack()[1])
+    pyiutil.deleteDataHandle(h)
+
+
 def set_char_par(handle, group, par, value):
     h = pyiutil.charDataHandle(value)
     set_parameter(handle, group, par, h, inspect.stack()[1])

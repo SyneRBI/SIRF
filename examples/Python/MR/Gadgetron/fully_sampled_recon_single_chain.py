@@ -7,23 +7,24 @@ Usage:
   fully_sampled_recon_single_chain.py [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file
-                              [default: simulated_MR_2D_cartesian.h5]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
-                              subfolder of SIRF root folder
-  -o <file>, --output=<file>  images output file
-  --type_to_save=<string>     type to save ('mag', 'imag', 'all') [default: all]
-  --show                      show plots
+  -f <file>, --file=<file>           raw data file
+                                     [default: simulated_MR_2D_cartesian.h5]
+  -p <path>, --path=<path>           path to data files, defaults to data/examples/MR
+                                     subfolder of SIRF root folder
+  -o <file>, --output=<file>         images output file [default: output.h5]
+  -a <string>, --algorithm=<string>  algorithm to use ('SimpleReconGadget', 'GenericReconCartesianFFTGadget') [default: SimpleReconGadget]
+  --type-to-save=<string>            type to save ('mag', 'imag', 'all') [default: all]
+  --non-interactive                  do not show plots
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-## Copyright 2015 - 2017 University College London.
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+## Copyright 2015 - 2019 University College London.
 ## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -40,6 +41,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 import time
+import sys
 
 # import SIRF utilities
 from sirf.Utilities import examples_data_path, existing_filepath, error
@@ -53,16 +55,21 @@ if data_path is None:
     data_path = examples_data_path('MR')
 output_file = args['--output']
 
-type_to_save = args['--type_to_save']
-show_plot = False
-if args['--show']:
-    show_plot = True
+type_to_save = args['--type-to-save']
+show_plot = not args['--non-interactive']
+
+algorithm = args['--algorithm']
 
 def main():
 
     # locate the input data
     input_file = existing_filepath(data_path, data_file)
     acq_data = AcquisitionData(input_file)
+    
+    if algorithm == 'SimpleReconGadget':
+        extra_gadgets = [algorithm]
+    else:
+        extra_gadgets = [algorithm, 'GenericReconFieldOfViewAdjustmentGadget']
     
     # create reconstruction object
     # Rather than using a predefined image reconstruction object, here a new 
@@ -76,30 +83,23 @@ def main():
     # and using set_gadget_property(label, propery, value).
     # The gadgets will be concatenated and will be executed as soon as 
     # process() is called.
-    recon = Reconstructor([ \
-        'NoiseAdjustGadget', \
-        'AsymmetricEchoAdjustROGadget', \
-        'RemoveROOversamplingGadget', \
-        'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
-        'BucketToBufferGadget(split_slices=true, verbose=false)', \
-        'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])
-##        'SimpleReconGadget', 'ImageArraySplitGadget', \
-##        'PhysioInterpolationGadget', 'ex:ExtractGadget'])
+    recon_gadgets = ['NoiseAdjustGadget',
+        'AsymmetricEchoAdjustROGadget',
+        'RemoveROOversamplingGadget',
+        'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)',
+        'BucketToBufferGadget(split_slices=true, verbose=false)'] \
+        + extra_gadgets + \
+        ['ImageArraySplitGadget', 
+        'ex:ExtractGadget'
+        ]
 
-    # ExtractGadget defines which type of image should be returned:
-    # none      0
-    # magnitude 1
-    # real      2
-    # imag      4
-    # phase     8
-    # in this example '5' returns both magnitude and imaginary part
-##    recon.set_gadget_property('ex', 'extract_mask', 5)
-    # === THE ABOVE IS OBSOLETE, NOW SHOULD USE ===>
-    if type_to_save=='mag' or type_to_save=='all':
-        recon.set_gadget_property('ex', 'extract_magnitude', True)
-    if type_to_save=='imag' or type_to_save=='all':
+    recon = Reconstructor(recon_gadgets)
+
+    if type_to_save == 'imag' or type_to_save == 'all':
         recon.set_gadget_property('ex', 'extract_imag', True)
-    
+        if type_to_save != 'all':
+            recon.set_gadget_property('ex', 'extract_magnitude', False)
+
     # provide raw k-space data as input
     recon.set_input(acq_data)
 
@@ -137,19 +137,22 @@ def main():
             im_type = image.image_type()
             im_series = image.image_series_index()
             print('image: %d, type: %d, series: %d' % (im, im_type, im_series))
-        image_data.show(title = 'Images magnitude and imaginary part')
+        if type_to_save == 'all':
+            title = 'Images magnitude and imaginary part'
+        elif type_to_save == 'imag':
+            title = 'Images imaginary part'
+        else:
+            title = 'Images magnitude'
+        image_data.show(title=title)
 
     if output_file is not None:
-        # write images to a new group in args.output
-        # named after the current date and time
-        time_str = time.asctime()
-        print('writing to %s' % output_file)
-        image_data.write(output_file) #, time_str)
+        image_data.write(output_file)
 
 try:
     main()
-    print('done')
+    print('\n=== done with %s' % __file__)
 
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    sys.exit(1)

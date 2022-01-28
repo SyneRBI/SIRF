@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -144,7 +145,8 @@ int generate_matlab_interface(
 	const string& path_out,
 	const string& mhfile,
 	const string& mcfile,
-	int with_print = 0)
+	int with_print = 0,
+	bool to_cout = false)
 {
 
 	ifstream fin;
@@ -185,7 +187,8 @@ int generate_matlab_interface(
 			break;
 
 		getline(fin, line);
-		cout << line << endl;
+		if (to_cout)
+			cout << line << endl;
 		i = line.find_first_not_of(" \t\n\v\f\r");
 
 		if (i == string::npos || line[i] == '/' && line[i + 1] == '/')
@@ -247,7 +250,8 @@ int generate_matlab_interface(
 			if (fin.eof())
 				break;
 			getline(fin, line);
-			cout << line << endl;
+			if (to_cout)
+				cout << line << endl;
 			m = line.find("//");
 			if (m != string::npos)
 				line.erase(m);
@@ -281,7 +285,8 @@ int generate_matlab_interface(
 		//cout << in << endl;
 		status = convert_h(prefix, in, out);
 		if (status) {
-			cout << in << endl;
+			if (to_cout)
+				cout << in << endl;
 			fin.close();
 			fh.close();
 			fc.close();
@@ -290,7 +295,8 @@ int generate_matlab_interface(
 		fh << out << endl;
 		status = convert_c(prefix, in, out);
 		if (status) {
-			cout << in << endl;
+			if (to_cout)
+				cout << in << endl;
 			fin.close();
 			fh.close();
 			fc.close();

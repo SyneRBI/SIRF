@@ -1,8 +1,8 @@
 
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 - 2019 University College London
-# Copyright 2016 - 2018 Science Technology Facilities Council
+# Copyright 2016 - 2020 University College London
+# Copyright 2016 - 2020 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,6 +20,12 @@
 
 # cmake file for building SIRF. See the SIRF User's Guide and http://www.cmake.org.
 
+cmake_minimum_required(VERSION 3.9.0)
+# require 2.8.3 to get FOLDER properties support
+# require 3.3 for descent FindMatlab.cmake
+# require 3.9 for compatible FindOPENMP.cmake
+
+
 # Set the CMake policy for SWIG
 # https://cmake.org/cmake/help/v3.14/policy/CMP0078.html#policy:CMP0078
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
@@ -36,10 +42,7 @@ UseCXX(11)
 PROJECT(SIRF)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
-# require 2.8.3 to get FOLDER properties support
-# require 3.3 for descent FindMatlab.cmake
-# require 3.9 for compatible FindOPENMP.cmake
-cmake_minimum_required(VERSION 3.9.0)
+
 
 # set default build-type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -47,7 +50,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 ####### Set Version number etc
-set(VERSION_MAJOR   2 )
+set(VERSION_MAJOR   3 )
 set(VERSION_MINOR   1 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
@@ -66,8 +69,22 @@ if (APPLE)
   if (SHARED_LIBS_ABS_PATH)
     # Set install_name_dir as the absolute path to install_prefix/lib
     GET_FILENAME_COMPONENT(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib REALPATH)
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
   endif(SHARED_LIBS_ABS_PATH)
 endif(APPLE)
+
+# If OSX, we might need to assume pthreads. For this, first try to find boost_thread.
+# If that fails, then give a bit of help.
+if (APPLE)
+  find_package(Boost COMPONENTS thread QUIET)
+  if (NOT boost_thread_FOUND)
+    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    set(CMAKE_HAVE_THREADS_LIBRARY 1)
+    set(CMAKE_USE_WIN32_THREADS_INIT 0)
+    set(CMAKE_USE_PTHREADS_INIT 1)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+  endif()
+endif()
 
 ####### External packages
 
@@ -81,17 +98,41 @@ find_package(Boost 1.36.0 COMPONENTS system filesystem thread date_time chrono R
 # See http://stackoverflow.com/questions/32252016/cmake-visual-studio-build-looks-for-wrong-library
 add_definitions(-DBOOST_ALL_NO_LIB)
 
-include_directories(${Boost_INCLUDE_DIRS})
-
 #### optional back-ends
 option(DISABLE_PYTHON "Disable building SIRF python support" OFF)
 if (DISABLE_PYTHON)
   message(STATUS "Python support disabled")
 else(DISABLE_PYTHON)
   # find Python interpreter. Needed for tests, and best to enforce consistency anyway.
-  find_package(PythonInterp QUIET)
-  find_package(PythonLibs)
+  if (${CMAKE_VERSION} VERSION_LESS "3.12")
+      if (Python_EXECUTABLE)
+        set (PYTHON_EXECUTABLE ${Python_EXECUTABLE})
+      endif()
+      find_package(PythonInterp QUIET)
+      find_package(PythonLibs)
+      if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)
+        set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+        set (Python_LIBRARIES ${PYTHON_LIBRARIES})
+        set (Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+        set (Python_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
+      endif()
+  else()
+    if (PYTHON_EXECUTABLE)
+      message(WARNING "Usage of PYTHON_EXECUTABLE is deprecated. Use Python_EXECUTABLE instead.")
+      set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+    endif()
+    find_package(Python COMPONENTS Interpreter Development)
+    if (Python_FOUND)
+      set (PYTHONLIBS_FOUND ON)
+    else()
+      set (PYTHONLIBS_FOUND OFF)
+    endif()
+  endif()
+
   if (PYTHONLIBS_FOUND)
+    if (Python_VERSION_MAJOR VERSION_LESS "3")
+      message(WARNING "The use of Python 2 is deprecated and support will be removed in future versions.")
+    endif()
     set(BUILD_PYTHON ON)
     # PYTHON_DEST_DIR allows the user to select the install destination of the
     # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be
@@ -107,11 +148,11 @@ else(DISABLE_PYTHON)
     message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
     set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
     PYTHONPATH: prefix PYTHONPATH \n\
-    SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
+    SETUP_PY:   execute ${Python_EXECUTABLE} setup.py install \n\
     CONDA:      do nothing")
 
   else(PYTHONLIBS_FOUND)
-    message(WARNING "Pythonlibs not found. Best to set PYTHON_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
+    message(WARNING "Pythonlibs not found. Best to set Python_EXECUTABLE if you want Python support. You can set DISABLE_PYTHON to ON to silence this warning.")
   endif(PYTHONLIBS_FOUND)
 
 endif(DISABLE_PYTHON)
@@ -147,52 +188,65 @@ endif(DISABLE_Matlab)
 
 ENABLE_TESTING()
 
-ADD_SUBDIRECTORY(src/iUtilities)
-ADD_SUBDIRECTORY(src/common)
+configure_file("cmake/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
 
-option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
-if (DISABLE_STIR)
-  message(STATUS "STIR support disabled.")
-else()
-  ADD_SUBDIRECTORY(src/xSTIR)
-endif()
-option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
-if (DISABLE_Gadgetron)
-  message(STATUS "Gadgetron support disabled.")
-else()
-  ADD_SUBDIRECTORY(src/xGadgetron)
-endif()
-option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
-if (DISABLE_Registration)
-  message(STATUS "Registration support disabled.")
-else()
-  ADD_SUBDIRECTORY(src/Registration)
-  # will set BUILD_Registration if it's actually built
-endif()
-#mark_as_advanced(DISABLE_STIR DISABLE_Gadgetron DISABLE_Registration)
+ADD_SUBDIRECTORY(src)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
+configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
 
-# Synergistic code currently only works if STIR (with ITK), ISMRMRD and Registration are built
-option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
-if (DISABLE_Synergistic)
-  message(STATUS "Synergistic code disabled.")
-else()
-  if (BUILD_Registration AND cGadgetron_LIBRARY_DIRS AND STIR_REGISTRIES AND "${STIR_BUILT_WITH_ITK}")
-    MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built. Building synergistic code.")
-    ADD_SUBDIRECTORY(src/Synergistic)
-  else()
-    MESSAGE(STATUS "One or more of the following components are missing: Registration, ISMRMRD and STIR (with ITK). Synergistic code will not be built.")
-    if (NOT BUILD_Registration)
-      MESSAGE(STATUS "Registration missing.")
-    endif()
-    if (NOT cGadgetron_LIBRARY_DIRS)
-      MESSAGE(STATUS "ISMRMRD missing.")
-    endif()
-    if (NOT STIR_REGISTRIES)
-      MESSAGE(STATUS "STIR missing.")
-    elseif(NOT STIR_BUILT_WITH_ITK)
-      MESSAGE(STATUS "STIR not built with ITK.")
-    endif()
-  endif()
-endif()
+
+set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples 
+        COMPONENT DOC
+        DESTINATION ${SHARE_DIR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/doc 
+        COMPONENT DOC
+        DESTINATION ${SHARE_DIR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/data 
+        DESTINATION ${SHARE_DIR})
+
+ADD_SUBDIRECTORY(doxygen)
+
+#### export configuration for external projects that want to use SIRF
+# See https://cmake.org/cmake/help/v3.0/manual/cmake-packages.7.html
+# Also https://rix0r.nl/blog/2015/08/13/cmake-guide/
+# https://coderwall.com/p/qej45g/use-cmake-enabled-libraries-in-your-cmake-project-iii
+set(ConfigPackageLocation lib/cmake/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
+
+include(CMakePackageConfigHelpers)
+
+WRITE_BASIC_PACKAGE_VERSION_FILE(${CMAKE_CURRENT_BINARY_DIR}/SIRFConfigVersion.cmake
+                                 VERSION ${SIRF_VERSION}
+                                 COMPATIBILITY SameMajorVersion )
+
+# get rid of any -alpha, -beta or similar suffixes in STIR_VERSION,
+# as find_package doesn't allow that
+string(REGEX MATCH "[0-9]*\.[0-9]*\.[0-9]*" STIR_VERSION_TRUNCATED ${STIR_VERSION})
+CONFIGURE_PACKAGE_CONFIG_FILE(
+  cmake/SIRFConfig.cmake.in
+  "${CMAKE_BINARY_DIR}/SIRFConfig.cmake"
+   INSTALL_DESTINATION "${ConfigPackageLocation}"
+)
+
+install(EXPORT SIRFTargets
+  DESTINATION "${ConfigPackageLocation}"
+  NAMESPACE sirf::
+)
+
+# install SIRFConfig*.cmake
+install(
+  FILES
+    "${CMAKE_BINARY_DIR}/SIRFConfig.cmake"
+    "${CMAKE_BINARY_DIR}/SIRFConfigVersion.cmake"
+  DESTINATION "${ConfigPackageLocation}"
+)
+
+# install our own *.cmake
+install(
+  FILES
+    #cmake/FindNiftyPET.cmake
+  DESTINATION "${ConfigPackageLocation}"
+)

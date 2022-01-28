@@ -7,13 +7,13 @@ classdef Reconstructor < sirf.Gadgetron.GadgetChain
 %    process  - performs the call to gadgetron
 %    get_output  - returns output
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % Copyright 2015 - 2017 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -62,7 +62,8 @@ classdef Reconstructor < sirf.Gadgetron.GadgetChain
 %***SIRF*** Sets the specified AcquisitionData argument as the input.
 %         See also PROCESS
             %assert(isa(input_data, 'sirf.Gadgetron.AcquisitionData'))
-            assert(strcmp(input_data.class_name(), 'AcquisitionData'))
+            %assert(strcmp(input_data.class_name(), 'AcquisitionData'))
+            sirf.Utilities.assert_validity(input_data, 'AcquisitionData')
             self.input_ = input_data;
         end
         function process(self)

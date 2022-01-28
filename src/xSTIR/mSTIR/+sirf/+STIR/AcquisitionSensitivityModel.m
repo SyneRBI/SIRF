@@ -1,12 +1,12 @@
 classdef AcquisitionSensitivityModel < handle
 %     Class for PET acquisition sensitivity model objects.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ classdef AcquisitionSensitivityModel < handle
     methods
         function self = AcquisitionSensitivityModel(src, other_src)
 %***SIRF*** Creates new AcquisitionSensitivityModel object
-%         - from an ECAT8 file or
+%         - from a manufacturer normalisation file (supported by STIR) or
 %         - from ImageData object containing attenuation image (units: 1/cm) or
 %         - from AcquisitionData object containing bin efficiencies or
 %         - by chaining two existing AcquisitionSensitivityModel objects
@@ -43,6 +43,8 @@ classdef AcquisitionSensitivityModel < handle
             end
             if nargin < 2
                 if ischar(src)
+                    % create from ECAT8/GE norm file
+                    fprintf(1, 'Reading manufacturer PET normalisation file from %s\n', src)
                     h = calllib('miutilities', 'mCharDataHandle', src);
                     self.handle_ = calllib('mstir',...
                         'mSTIR_createPETAcquisitionSensitivityModel', h, 'n');

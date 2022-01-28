@@ -8,7 +8,7 @@ Options:
   --eng_flo <eng>              engine for floating image [default: Reg]
   --ref <file>                 reference image (default: test.nii.gz)
   --flo <file>                 floating image (default: test2.nii.gz)
-  --algo <algo>                resampling algorithm [default: NiftyResample]
+  --algo <algo>                resampling algorithm [default: NiftyResampler]
   --output <file>              output image filename [default: output]
   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
   --trans_filenames ...        transformation filenames, (with quotations): "filename1,filename2,filename3"
@@ -16,12 +16,12 @@ Options:
   --pad <pad>                  Padding value
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2018 - 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ args = docopt(__doc__, version=__version__)
 
 # import engine module
 import sirf.Reg
+from sirf.Utilities import examples_data_path
 exec('import p' + args['--eng_ref'] + ' as eng_ref')
 exec('import p' + args['--eng_flo'] + ' as eng_flo')
 
@@ -51,13 +52,8 @@ algo = args['--algo']
 pad = args['--pad']
 
 # if using the default for any, need to get the examples folder
-if (ref_file or flo_file) is None: 
-  SIRF_PATH = os.environ.get('SIRF_PATH')
-  if SIRF_PATH is not None:
-    examples_path = SIRF_PATH + '/data/examples/Registration'
-  else:
-    errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
-    raise error(errorMsg)
+if (ref_file or flo_file) is None:
+  examples_path = examples_data_path('Registration')
 
 # reference
 if ref_file is None:
@@ -90,11 +86,14 @@ def main():
     ref = eng_ref.ImageData(ref_file)
     flo = eng_flo.ImageData(flo_file)
 
-    # Dynamically create resample algorithm
+    # Dynamically create resample algorithm. With inline code, you can do e.g. res = sirf.Reg.NiftyResampler()
     algorithm = getattr(sirf.Reg, algo)
     res = algorithm()
+    # Set the image we want to resample
     res.set_reference_image(ref)
+    # the floating image is set so we know the domain of the resampled image. This can be ref.
     res.set_floating_image(flo)
+    # 0 is nearest neighbour, 1 is linear, 3 is cubic, 4 is sinc
     res.set_interpolation_type(int(args['--intrp']))
 
     # create and add each transformation

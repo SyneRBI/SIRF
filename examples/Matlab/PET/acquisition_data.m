@@ -1,13 +1,13 @@
 function acquisition_data(engine)
 % A demo showing basics of PET acquisition data handling.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ try
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file', pet_data_path);
     acq_data = PET.AcquisitionData(fullfile(pathname, filename));
+    fprintf('data dimensions: %d x %d x %d x %d\n', acq_data.dimensions())
 
     % copy the acquisition data into a Matlab array
     acq_array = acq_data.as_array();
@@ -58,6 +59,16 @@ try
     % display the acquisition data
     sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
+
+    % rebin the acquisition data
+    new_acq_data = acq_data.rebin(3);
+    fprintf('rebinned data dimensions: %d x %d x %d x %d\n', ...
+        new_acq_data.dimensions())
+
+    % display the rebinned data
+    acq_array = new_acq_data.as_array();
+    sirf.Utilities.show_2D_array(acq_array(:,:,z), ...
+        'acquisition data rebinned', 'tang. pos.', 'views');
 
     % clone the acquisition data
     new_acq_data = acq_data.clone();
@@ -82,6 +93,8 @@ try
     fprintf('acq_data*10 at (%d,%d,%d): %f\n', x, y, z, acq_array(x, y, z))
     
     image = acq_data.create_uniform_image(1.0);
+    geom_info = get_geometrical_info(image);
+    fprintf(geom_info.get_info())
     image_array = image.as_array();
     s = sqrt(image*image);
     fprintf('norm(image): %e = %e = %e\n', norm(image_array(:)), image.norm(), s)
@@ -90,6 +103,9 @@ try
     fprintf('norm(new_image - image): %e\n', diff.norm())
     new_image = image*10;
     fprintf('norm(image*10): %e\n', new_image.norm())
+    new_image.fill(image);
+    diff = new_image - image;
+    fprintf('norm(new_image.fill(image) - image): %e\n', diff.norm())
     
 catch err
     % display error information

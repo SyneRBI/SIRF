@@ -1,7 +1,7 @@
 %module pystir
 %{
-#include "cstir.h"
+#include "sirf/STIR/cstir.h"
 #include <cmath>
 %}
-%include "cstir.h"
+%include "sirf/STIR/cstir.h"
 

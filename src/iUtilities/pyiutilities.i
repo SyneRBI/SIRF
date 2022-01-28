@@ -1,7 +1,7 @@
 %module pyiutilities
 %{
-#include "iutilities.h"
+#include "sirf/iUtilities/iutilities.h"
 #include <cmath>
 %}
-%include "iutilities.h"
+%include "sirf/iUtilities/iutilities.h"
 

@@ -4,13 +4,13 @@ function listmode_to_sinograms(engine)
 %   output will be in the current working directory.
 %   input defaults to the mMR subfolder of pet_data_path
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018 Rutherford Appleton Laboratory STFC.
-% Copyright 2018 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -54,11 +54,13 @@ try
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', default_path);
     tmpl_file = fullfile(pathname, filename);
+    acq_templ = PET.AcquisitionData(tmpl_file);
     
     % set input, output and template files
     lm2sino.set_input(list_file)
     lm2sino.set_output_prefix('sinograms')
-    lm2sino.set_template(tmpl_file)
+    lm2sino.set_template(acq_templ)
+%    lm2sino.set_template(tmpl_file)
 
     % set interval
     lm2sino.set_time_interval(0, 10)

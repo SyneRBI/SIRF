@@ -4,12 +4,12 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
 % that is formed by components corresponding to subsets of the acquisition
 % data.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -139,12 +139,19 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
         end
         function set_current_estimate(self, image)
 %***SIRF*** Sets the current image estimate.
+%
+%         image will be cloned.
             sirf.Utilities.assert_validity(image, 'ImageData')
-            self.image = image;
+            self.image = image.clone();
         end
+%        function set_estimate(self, image)
+%%***SIRF*** Sets image estimate as a variable that will be updated.
+%            sirf.Utilities.assert_validity(image, 'ImageData')
+%            self.image = image;
+%        end
         function image = get_current_estimate(self)
 %***SIRF*** Returns the current image estimate.
-            image = self.image;
+            image = self.image.clone();
         end
         function update_current_estimate(self)
 %***SIRF*** Updates the current image estimate.

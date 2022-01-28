@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Abstract resampling base class
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -32,6 +32,7 @@ limitations under the License.
 #include <vector>
 #include <memory>
 #include "sirf/Reg/Transformation.h"
+#include "sirf/iUtilities/iutilities.h"
 
 namespace sirf {
 
@@ -48,10 +49,10 @@ If multiple transformations are set, they will be used in the order that they ha
 i.e., Trans3(Trans2(Trans1(x))).
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class dataType>
-class Resample
+class Resampler
 {
 public:
 
@@ -65,48 +66,78 @@ public:
     };
 
     /// Constructor
-    Resample() { _interpolation_type = NOTSET; }
+    Resampler() { _interpolation_type = NOTSET; }
 
     /// Destructor
-    virtual ~Resample() {}
+    virtual ~Resampler() {}
 
-    /// Set reference image
-    virtual void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
+    /// Set reference image. This is the image that would be the reference if you were doing a forward transformation.
+    virtual void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr);
 
-    /// Set floating image
-    virtual void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
+    /// Set floating image. This is the image that would be the floating if you were doing a forward transformation.
+    virtual void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
 
     /// Add transformation
     virtual void add_transformation(const std::shared_ptr<const Transformation<dataType> > transformation_sptr);
 
+    /// Clear transformations
+    void clear_transformations() { _transformations.clear(); }
+
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
-    virtual void set_interpolation_type(const enum InterpolationType type)
-    {
-        _interpolation_type = type;
-    }
+    virtual void set_interpolation_type(const enum InterpolationType type);
 
     /// Set interpolation type to nearest neighbour
-    void set_interpolation_type_to_nearest_neighbour() { _interpolation_type = NEARESTNEIGHBOUR; }
+    void set_interpolation_type_to_nearest_neighbour() { set_interpolation_type(NEARESTNEIGHBOUR); }
 
     /// Set interpolation type to linear
-    void set_interpolation_type_to_linear() { _interpolation_type = LINEAR; }
+    void set_interpolation_type_to_linear() { set_interpolation_type(LINEAR); }
 
     /// Set interpolation type to cubic spline
-    void set_interpolation_type_to_cubic_spline() { _interpolation_type = CUBICSPLINE; }
+    void set_interpolation_type_to_cubic_spline() { set_interpolation_type(CUBICSPLINE); }
 
     /// Set interpolation type to sinc
-    void set_interpolation_type_to_sinc() { _interpolation_type = SINC; }
+    void set_interpolation_type_to_sinc() { set_interpolation_type(SINC); }
+
+    /// Get interpolation type
+    const InterpolationType get_interpolation_type() const { return _interpolation_type; }
 
     /// Set padding value
     void set_padding_value(const float padding_value) { _padding_value = padding_value; }
 
-    /// Process
+    /// Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image.
     virtual void process() = 0;
 
     /// Get output
     const std::shared_ptr<const ImageData> get_output_sptr() const { return _output_image_sptr; }
 
+    /// Do the forward transformation
+    virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const ImageData> input_sptr) = 0;
+
+    /// Do the forward transformation
+    virtual void forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr) = 0;
+
+    /// Do the adjoint transformation
+    virtual std::shared_ptr<ImageData> adjoint(const std::shared_ptr<const ImageData> input_sptr) = 0;
+
+    /// Do the adjoint transformation
+    virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr) = 0;
+
+    /// Backward. Alias for Adjoint
+    virtual std::shared_ptr<ImageData> backward(const std::shared_ptr<const ImageData> input_sptr);
+
+    /// Backward. Alias for Adjoint
+    virtual void backward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
+
 protected:
+
+    /// Set up
+    virtual void set_up() = 0;
+
+    /// Set up forward
+    virtual void set_up_forward() = 0;
+
+    /// Set up adjoint
+    virtual void set_up_adjoint() = 0;
 
     /// Check parameters
     virtual void check_parameters();
@@ -127,5 +158,8 @@ protected:
 
     /// Padding value
     float _padding_value = 0;
+    bool _need_to_set_up = true;
+    bool _need_to_set_up_forward = true;
+    bool _need_to_set_up_adjoint = true;
 };
 }

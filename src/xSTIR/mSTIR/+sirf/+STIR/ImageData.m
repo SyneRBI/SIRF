@@ -1,12 +1,13 @@
 classdef ImageData < sirf.SIRF.ImageData
 % Class for PET image data objects.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% 
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2020 University College London.
+%
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -99,6 +100,10 @@ classdef ImageData < sirf.SIRF.ImageData
 %***SIRF*** Sets this image values at voxels.
 %         The argument is either 3D array of values or a scalar to be
 %         assigned at each voxel.
+            if isa(value, 'sirf.SIRF.ImageData')
+                fill@sirf.SIRF.ImageData(self, value);
+                return
+            end
             if numel(value) == 1
                 h = calllib('mstir', 'mSTIR_fillImage', ...
                     self.handle_, single(value));
@@ -134,21 +139,29 @@ classdef ImageData < sirf.SIRF.ImageData
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
             sirf.Utilities.check_status('ImageData:read_from_file', self.handle_);
         end
-        function add_shape(self, shape, add)
+        function add_shape(self, shape, add, num_samples_in_each_direction)
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
 %         by the value of the last argument.
+%
+%         If a shape partially fills a voxel, it is possible to choose the
+%         number of samples that will be used in each direction to determine the
+%         fraction of the voxel that is filled by the shape. For a 3D image,
+%         using num_samples_in_each_direction=2 would result in 2^3=8 samples.
             sirf.Utilities.assert_validity(shape, 'Shape')
             if isempty(self.handle_)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
+            if nargin < 4
+                num_samples_in_each_direction = 1;
+            end
             h = calllib...
                 ('mstir', 'mSTIR_addShape', self.handle_,...
-                shape.handle_, add);
+                shape.handle_, add, num_samples_in_each_direction);
             sirf.Utilities.check_status('ImageData:add_shape', h);
             sirf.Utilities.delete(h)
         end
-        function dim = size(self)
+        function dim = dimensions(self)
 %***SIRF*** Returns the dimensions of 3D array of this image values at voxels.
             if isempty(self.handle_)
                 dim = [];
@@ -165,25 +178,25 @@ classdef ImageData < sirf.SIRF.ImageData
         end
         function data = as_array(self)
 %***SIRF*** Returns 3D array of this image values at voxels.
-
-%             [ptr, dim] = calllib...
-%                 ('mstir', 'mSTIR_getImageDimensions', self.handle_, zeros(3, 1));
-            ptr_i = libpointer('int32Ptr', zeros(3, 1));
-            h = calllib...
-                ('mstir', 'mSTIR_getImageDimensions', self.handle_, ptr_i);
-            sirf.Utilities.check_status('ImageData:as_array', h);
-            sirf.Utilities.delete(h)
-            dim = ptr_i.Value;
+            dim = self.dimensions();
             n = dim(1)*dim(2)*dim(3);
-%             [ptr, data] = calllib...
-%                 ('mstir', 'mSTIR_getImageData', self.handle_, zeros(n, 1));
-%             data = reshape(data, dim(3), dim(2), dim(1));
             ptr_v = libpointer('singlePtr', zeros(n, 1));
             h = calllib...
                 ('mstir', 'mSTIR_getImageData', self.handle_, ptr_v);
             sirf.Utilities.check_status('ImageData:as_array', h);
             sirf.Utilities.delete(h)
-            data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
+            data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
+        end
+        function write(self,filename,par)
+            if nargin < 3
+                write@sirf.SIRF.ImageData(self, filename)
+                return
+            end
+        %Write with parameter file
+            h = calllib...
+                ('mstir', 'mSTIR_writeImage_par', self.handle_, filename, par);
+            sirf.Utilities.check_status('ImageData:write_w_param_file', h);
+            sirf.Utilities.delete(h);
         end
         function show(self, z)
 %***SIRF*** Interactively plots this image data as a set of 2D image slices.

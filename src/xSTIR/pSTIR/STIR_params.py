@@ -4,7 +4,9 @@ import sirf.select_module as select_module
 import sirf.pyiutilities as pyiutil
 from sirf.Utilities import check_status
 
-from sirf.pystir import setParameter, parameter
+#from sirf.pystir import setParameter, parameter
+from sirf.pystir import cSTIR_setParameter as setParameter
+from sirf.pystir import cSTIR_parameter as parameter
 
 
 def set_parameter(hs, group, par, hv, stack = None):
@@ -22,13 +24,13 @@ def set_char_par(handle, group, par, value):
 
 
 def set_int_par(handle, group, par, value):
-    h = pyiutil.intDataHandle(value)
+    h = pyiutil.intDataHandle(int(value))
     set_parameter(handle, group, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 
 
 def set_float_par(handle, group, par, value):
-    h = pyiutil.floatDataHandle(value)
+    h = pyiutil.floatDataHandle(float(value))
     set_parameter(handle, group, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 

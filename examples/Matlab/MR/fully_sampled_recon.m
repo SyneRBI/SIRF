@@ -11,7 +11,7 @@ function fully_sampled_recon(engine)
 % 2) An input data file in the ISMRMRD format.
 %    Example datasets:
 %    a) 'meas_MID00103_FID57244_test.dat' is 
-%       available from https://www.ccppetmr.ac.uk/downloads
+%       available from https://www.ccpsynerbi.ac.uk/downloads
 %       This is in the manufacturer's raw data format and needs to be
 %       converted to ISMRMRD format using 'siemens_to_ismrmrd'.
 %       This executable is installed on the Virtual Machine.
@@ -29,13 +29,13 @@ function fully_sampled_recon(engine)
 % See also FULLY_SAMPLED_RECON_SINGLE_CHAIN
 % FULLY_SAMPLED_RECON_THREE_CHAINS
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.

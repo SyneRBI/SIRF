@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ limitations under the License.
 
 /*!
 \file
-\ingroup xGadgetron Utilities
+\ingroup MR
 \brief Various utilities used by SIRF Gadgetron extensions.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #ifndef XGADGETRON_UTILITIES
@@ -32,8 +32,8 @@ limitations under the License.
 
 #include <chrono>
 #include <complex>
-
-#include <boost/thread/mutex.hpp>
+#include <mutex>
+//#include <boost/thread/mutex.hpp>
 
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 
@@ -51,10 +51,14 @@ namespace sirf {
 		static std::string scratch_file_name()
 		{
 			static int calls = 0;
-			char buff[32];
+			char buff[128];
 			long long int ms = xGadgetronUtilities::milliseconds();
 			calls++;
+#ifdef _MSC_VER
+			sprintf_s(buff, 128, "tmp_%d_%lld.h5", calls, ms);
+#else
 			sprintf(buff, "tmp_%d_%lld.h5", calls, ms);
+#endif
 			return std::string(buff);
 		}
 		template<typename T>
@@ -106,11 +110,11 @@ namespace sirf {
 		{
 			init_();
 		}
-		boost::mutex& operator()()
+		std::mutex& operator()()
 		{
 			return *sptr_mutex_.get();
 		}
-		gadgetron::shared_ptr<boost::mutex> sptr()
+		gadgetron::shared_ptr<std::mutex> sptr()
 		{
 			return sptr_mutex_;
 		}
@@ -123,12 +127,12 @@ namespace sirf {
 			sptr_mutex_->unlock();
 		}
 	private:
-		static gadgetron::shared_ptr<boost::mutex> sptr_mutex_;
+		static gadgetron::shared_ptr<std::mutex> sptr_mutex_;
 		static void init_()
 		{
 			static bool initialized = false;
 			if (!initialized) {
-				sptr_mutex_ = gadgetron::shared_ptr<boost::mutex>(new boost::mutex);
+				sptr_mutex_ = gadgetron::shared_ptr<std::mutex>(new std::mutex);
 				initialized = true;
 			}
 		}
