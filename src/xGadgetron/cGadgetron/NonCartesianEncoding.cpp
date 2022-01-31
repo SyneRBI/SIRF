@@ -249,7 +249,6 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
     ASSERT( ac.number() >0, "Give a non-empty rawdata container if you want to use forward.");
     
     ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
-    EncodingSpace rec_space = hdr.encoding[0].reconSpace;
     EncodingSpace enc_space = hdr.encoding[0].encodedSpace;
 
     ASSERT(img.getMatrixSizeZ() == enc_space.matrixSize.z, 
