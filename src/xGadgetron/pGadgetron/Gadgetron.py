@@ -1756,7 +1756,7 @@ def calc_radial_dcw(ad):
     '''
 
     traj = numpy.transpose(get_data_trajectory(ad))
-    (na, nc, ns) = ad.dimensions() 
+    (na, nc, ns) = ad.dimensions()
   
     ramp_filter = numpy.linalg.norm(traj, axis=0)
     traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
