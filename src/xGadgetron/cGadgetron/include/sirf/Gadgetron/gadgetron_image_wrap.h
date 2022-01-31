@@ -59,7 +59,9 @@ limitations under the License.
 			##__VA_ARGS__);\
 	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((ISMRMRD::Image< std::complex<double> >*) Arguments, \
-			##__VA_ARGS__);
+			##__VA_ARGS__);\
+	else\
+		throw std::domain_error("unknown data type in IMAGE_PROCESSING_SWITCH");
 
 #define IMAGE_PROCESSING_SWITCH_CONST(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
@@ -80,7 +82,10 @@ limitations under the License.
 			##__VA_ARGS__);\
 	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, \
-			##__VA_ARGS__);
+			##__VA_ARGS__);\
+	else\
+		throw std::domain_error("unknown data type in IMAGE_PROCESSING_SWITCH_CONST");
+
 
 typedef ISMRMRD::Image<complex_float_t> CFImage;
 typedef ISMRMRD::Image<complex_double_t> CDImage;

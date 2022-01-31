@@ -1,5 +1,5 @@
-function assert_validity(object, type)
-% Ensures the object is of a correct type and is not empty.
+function obj_subclass = class_name(object)
+% Obtains the name of the object class without sirf.<engine>. prefix.
 
 % SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -18,13 +18,7 @@ function assert_validity(object, type)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-errID = 'SIRF:assert_validity';
-if ~ismethod(object, 'class_name')
-    object_class = sirf.Utilities.class_name(object);
-else
-    object_class = object.class_name();
-end
-if ~strcmp(object_class, type)
-    error(errID, 'expected %s, got %s\n', type, object_class)
-end
-assert(~isempty(object.handle_), errID, 'empty object')
+obj_class = class(object);
+i = strfind(obj_class, '.');
+l = i(end);
+obj_subclass = obj_class(l + 1 : end);

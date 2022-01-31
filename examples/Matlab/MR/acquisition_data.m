@@ -40,6 +40,9 @@ AD = MR.AcquisitionData();
 acq_data = MR.AcquisitionData(fullfile(pathname, filename));
 %acq_data = acq_data.clone(); % R2014b doesn't allow .clone() in the previous line
 
+header = acq_data.get_header();
+fprintf(header);
+
 na = acq_data.number();
 fprintf('%d acquisitions (readouts) found\n', na)
 
@@ -47,6 +50,8 @@ fprintf('sorting acquisitions...\n')
 acq_data.sort()
 
 [ns, nc, na] = acq_data.dimensions();
+fprintf('raw data dimensions: %d samples, %d coils, %d acquisitions\n', ...
+    ns, nc, na)
 
 % clone acquisition data
 cloned_acq_data = acq_data.clone();

@@ -29,19 +29,13 @@ pet.set_verbosity(0)
 class TestSTIRObjectiveFunction(unittest.TestCase):
 
     def setUp(self):
+        data_path = os.path.join(examples_data_path('PET'), 'thorax_single_slice')
 
-        os.chdir(examples_data_path('PET'))
-        #%% copy files to working folder and change directory to where the output files are
-        shutil.rmtree('working_folder/thorax_single_slice',True)
-        shutil.copytree('thorax_single_slice','working_folder/thorax_single_slice')
-        os.chdir('working_folder/thorax_single_slice')
-
-
-        image = pet.ImageData('emission.hv')
+        image = pet.ImageData(os.path.join(data_path,'emission.hv'))
 
         am = pet.AcquisitionModelUsingRayTracingMatrix()
         am.set_num_tangential_LORs(5)
-        templ = pet.AcquisitionData('template_sinogram.hs')
+        templ = pet.AcquisitionData(os.path.join(data_path,'template_sinogram.hs'))
         am.set_up(templ,image)
         acquired_data=am.forward(image)
 
@@ -52,10 +46,7 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
         self.obj_fun = obj_fun
         self.image = image
 
-    def tearDown(self):
-        os.chdir(examples_data_path('PET'))
-        #%% copy files to working folder and change directory to where the output files are
-        shutil.rmtree('working_folder/thorax_single_slice',True)
+    #def tearDown(self):
 
 
     def test_Poisson_loglikelihood_call(self):
@@ -64,3 +55,4 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
         b = self.obj_fun(x)
 
         numpy.testing.assert_almost_equal(a,b)
+
