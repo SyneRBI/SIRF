@@ -603,7 +603,9 @@ class CoilSensitivityData(ImageData):
                         repr(type(data)))
 
     def __calc_from_acquisitions(self, data, method_name):
-        assert data.handle is not None
+        
+        if data.handle is None:
+            raise AssertionError("The handle for data is None. Please pass valid acquisition data.")
 
         dcw = compute_kspace_density(data)
 
