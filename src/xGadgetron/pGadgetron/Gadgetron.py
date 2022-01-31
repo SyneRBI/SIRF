@@ -603,7 +603,7 @@ class CoilSensitivityData(ImageData):
                         repr(type(data)))
 
     def __calc_from_acquisitions(self, data, method_name):
-        
+
         if data.handle is None:
             raise AssertionError("The handle for data is None. Please pass valid acquisition data.")
 
@@ -635,7 +635,10 @@ class CoilSensitivityData(ImageData):
             try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
 
     def __calc_from_images(self, data, method_name):
-        assert data.handle is not None
+
+        if data.handle is None:
+            raise AssertionError("The handle for data is None. Please pass valid image data.")
+
 
         if method_name == 'Inati':
             try:
