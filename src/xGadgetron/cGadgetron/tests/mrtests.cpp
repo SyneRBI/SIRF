@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2019 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
+Copyright 2020 - 2022 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2020 - 2022 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2022 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -740,12 +741,11 @@ int main ( int argc, char* argv[])
         int num_expected_arguments = 2;
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-        #warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
-
-            num_expected_arguments += 1;
+        // currently test is always called with 2 arguments (with the second one empty)
+        //num_expected_arguments += 1;
         #endif
 
-        if (argc!=num_expected_arguments)
+        if ((argc-1)!=num_expected_arguments)
             throw std::runtime_error("Please provide the correct number of arguments.");
         
         const std::string filename_simulated_2D_testdata = argv[1];

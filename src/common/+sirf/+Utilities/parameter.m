@@ -1,5 +1,5 @@
-function value = parameter(engine_lib, handle, set, name, type, n)
-    hv = calllib(engine_lib, 'mParameter', handle, set, name);
+function value = parameter(engine_lib, prefix, handle, set, name, type, n)
+    hv = calllib(engine_lib, [prefix 'parameter'], handle, set, name);
     sirf.Utilities.check_status('parameter', hv)
     if strcmp(type, 'i')
         value = calllib('miutilities', 'mIntDataFromHandle', hv);
