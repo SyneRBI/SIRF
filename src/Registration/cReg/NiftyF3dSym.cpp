@@ -306,12 +306,15 @@ void NiftyF3dSym<dataType>::set_parameters()
         else if (strcmp(par.c_str(),"SetLevelToPerform")== 0) _registration_sptr->SetLevelToPerform(unsigned(stoi(arg1)));
         else if (strcmp(par.c_str(),"SetMaximalIterationNumber")== 0) _registration_sptr->SetMaximalIterationNumber(unsigned(stoi(arg1)));
         else if (strcmp(par.c_str(),"SetPerturbationNumber")== 0) _registration_sptr->SetPerturbationNumber(unsigned(stoi(arg1)));
-        else if (strcmp(par.c_str(),"SetSSDWeight")== 0){ _registration_sptr->SetSSDWeight(stoi(arg1), stoi(arg2)); _registration_sptr->UseSSD(0, 0); }
-        else if (strcmp(par.c_str(),"SetLNCCWeight")== 0){ _registration_sptr->SetLNCCWeight(stoi(arg1), stod(arg2)); _registration_sptr->UseLNCC(0, 1.0); }
-        else if (strcmp(par.c_str(),"SetNMIWeight")== 0){ _registration_sptr->SetNMIWeight(stoi(arg1), stod(arg2)); }
+        else if (strcmp(par.c_str(),"SetSSDWeight")== 0) _registration_sptr->UseSSD(stoi(arg1), stoi(arg2));
+        else if (strcmp(par.c_str(),"SetLNCCWeight")== 0) _registration_sptr->UseLNCC(stoi(arg1), stod(arg2));
+        else if (strcmp(par.c_str(),"SetKLDWeight")== 0) _registration_sptr->UseKLDivergence(stoi(arg1));
+        // else if (strcmp(par.c_str(),"SetSSDWeight")== 0){ _registration_sptr->SetSSDWeight(stoi(arg1), stoi(arg2)); _registration_sptr->UseSSD(0, 0); }
+        // else if (strcmp(par.c_str(),"SetLNCCWeight")== 0){ _registration_sptr->SetLNCCWeight(stoi(arg1), stod(arg2)); _registration_sptr->UseLNCC(0, 1.0); }
+        // else if (strcmp(par.c_str(),"SetNMIWeight")== 0){ _registration_sptr->SetNMIWeight(stoi(arg1), stod(arg2)); }
         else if (strcmp(par.c_str(),"UseNMISetReferenceBinNumber")== 0) _registration_sptr->UseNMISetReferenceBinNumber(0, stod(arg1));
         else if (strcmp(par.c_str(),"UseNMISetFloatingBinNumber")== 0) _registration_sptr->UseNMISetFloatingBinNumber(0, stod(arg1));
-        else if (strcmp(par.c_str(),"SetKLDWeight")== 0){ _registration_sptr->SetKLDWeight(stoi(arg1), unsigned(stoi(arg2))); _registration_sptr->UseKLDivergence(0); }
+        // else if (strcmp(par.c_str(),"SetKLDWeight")== 0){ _registration_sptr->SetKLDWeight(stoi(arg1), unsigned(stoi(arg2))); _registration_sptr->UseKLDivergence(0); }
         else if (strcmp(par.c_str(),"SetFloatingThresholdUp")== 0) _registration_sptr->SetFloatingThresholdUp(unsigned(stoi(arg1)), dataType(stod(arg2)));
         else if (strcmp(par.c_str(),"SetFloatingThresholdLow")== 0) _registration_sptr->SetFloatingThresholdLow(unsigned(stoi(arg1)), dataType(stod(arg2)));
         else if (strcmp(par.c_str(),"SetReferenceThresholdUp")== 0) _registration_sptr->SetReferenceThresholdUp(unsigned(stoi(arg1)), dataType(stod(arg2)));
