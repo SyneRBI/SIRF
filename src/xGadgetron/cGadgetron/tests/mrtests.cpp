@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2019 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
+Copyright 2020 - 2022 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2020 - 2022 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2022 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -635,74 +636,90 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
 #endif
 
 
+bool run_cartesian_tests(const std::string& filename_testdata)
+{
+
+    shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+    AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+    av.read(filename_testdata);
+
+    sirf::preprocess_acquisition_data(av);
+    av.sort();
+
+    bool ok = true;
+
+    ok *= test_get_kspace_order(av);
+    ok *= test_get_subset(av);
+
+    ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
+    ok *= test_ISMRMRDImageData_reorienting(av);
+
+    ok *= test_CoilSensitivitiesVector_calculate(av);
+    ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+
+    ok *= test_bwd(av);
+
+    ok *= test_acq_mod_adjointness(av);
+    ok *= test_acq_mod_norm(sptr_ad);
+
+    return ok;
+}
+
+#ifdef GADGETRON_TOOLBOXES_AVAILABLE
+#warning "RUNNING THE RADIAL TESTS FOR C++."
+bool run_rpe_tests(const std::string& filename_testdata)
+{
+    
+    sirf::AcquisitionsVector rpe_av;
+    rpe_av.read(filename_testdata);
+
+    sirf::preprocess_acquisition_data(rpe_av);
+    rpe_av.sort();
+    sirf::set_unit_dcf(rpe_av);
+    
+    bool ok = true;
+    ok *= test_set_rpe_trajectory(rpe_av);
+    ok *= test_rpe_bwd(rpe_av);
+    ok *= test_rpe_fwd(rpe_av);
+
+    ok *= test_rpe_csm(rpe_av);
+
+    ok *= test_mracquisition_model_rpe_bwd(rpe_av);
+    ok *= test_acq_mod_adjointness(rpe_av);
+
+    auto sptr_rpe_av = std::make_shared<AcquisitionsVector>(rpe_av);
+    sirf::GRPETrajectoryPrep rpe_tp;
+    rpe_tp.set_trajectory(*sptr_rpe_av);
+    ok *= test_acq_mod_norm(sptr_rpe_av);
+    
+    return ok;
+}
+#endif
+
 int main ( int argc, char* argv[])
 {
 	try{
-		
-        std::string SIRF_PATH;
-        if (argc==1)
-            SIRF_PATH = sirf::getenv("SIRF_PATH", true);
-        else
-            SIRF_PATH = argv[1];
 
-//        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
-        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
+        int num_expected_arguments = 2;
 
-        shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
-        AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
-        av.read(data_path);
+        #ifdef GADGETRON_TOOLBOXES_AVAILABLE
+        // currently test is always called with 2 arguments (with the second one empty)
+        //num_expected_arguments += 1;
+        #endif
 
-        sirf::preprocess_acquisition_data(av);
-        av.sort();
-
-        bool ok = true;
-
-        ok *= test_get_kspace_order(av);
-        ok *= test_get_subset(av);
-
-        ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
-        ok *= test_ISMRMRDImageData_reorienting(av);
-
-        ok *= test_CoilSensitivitiesVector_calculate(av);
-        ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
-
-        ok *= test_bwd(av);
-
-        ok *= test_acq_mod_adjointness(av);
-        ok *= test_acq_mod_norm(sptr_ad);
-
+        if ((argc-1)!=num_expected_arguments)
+            throw std::runtime_error("Please provide the correct number of arguments.");
+        
+        const std::string filename_simulated_2D_testdata = argv[1];
+        bool test_successful = run_cartesian_tests(filename_simulated_2D_testdata);
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
         #warning "RUNNING THE RADIAL TESTS FOR C++."
-            std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
-            sirf::AcquisitionsVector rpe_av;
-            rpe_av.read(rpe_data_path);
-
-
-
-            sirf::preprocess_acquisition_data(rpe_av);
-            rpe_av.sort();
-            sirf::set_unit_dcf(rpe_av);
-
-
-            ok *= test_set_rpe_trajectory(rpe_av);
-            ok *= test_rpe_bwd(rpe_av);
-            ok *= test_rpe_fwd(rpe_av);
-
-            ok *= test_rpe_csm(rpe_av);
-
-            ok *= test_mracquisition_model_rpe_bwd(rpe_av);
-            ok *= test_acq_mod_adjointness(rpe_av);
-
-            auto sptr_rpe_av = std::make_shared<AcquisitionsVector>(rpe_av);
-            sirf::GRPETrajectoryPrep rpe_tp;
-            rpe_tp.set_trajectory(*sptr_rpe_av);
-            ok *= test_acq_mod_norm(sptr_rpe_av);
+            const std::string  filename_rpe_testdata = argv[2];
+            test_successful *= run_rpe_tests(filename_rpe_testdata);
         #endif
 
-
-
-        if(ok)
+        if(test_successful)
             return 0;
         else
         { 
