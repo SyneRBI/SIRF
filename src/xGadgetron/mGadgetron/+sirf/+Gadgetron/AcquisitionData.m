@@ -124,6 +124,10 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                 'acquisitions', 'undersampled', 'i') ~= 0);
 %            sorted = self.sorted_;
         end
+        function header = get_header(self)
+            header = sirf.Gadgetron.parameter(self.handle_, ...
+                'acquisitions', 'info', 'c');
+        end
         function a = process(self, list)
 %***SIRF*** Returns acquisitions processed by a chain of gadgets.
 %         The argument is a cell array of gadget definitions

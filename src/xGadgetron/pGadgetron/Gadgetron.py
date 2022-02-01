@@ -451,14 +451,6 @@ class ImageData(SIRF.ImageData):
     def copy(self):
         '''alias of clone'''
         return self.clone()
-    def conjugate(self):
-        '''Returns the complex conjugate of the data '''
-        if self.handle is not None:
-            out = self.clone()
-            out.fill(self.as_array().conjugate())
-            return out
-        else:
-            raise error("Empty object cannot be conjugated")
     def show(self, zyx=None, slice=None, title=None, cmap='gray', postpone=False):
         '''Displays xy-cross-section(s) of images.'''
         assert self.handle is not None
@@ -610,6 +602,7 @@ class CoilSensitivityData(ImageData):
             raise error('Cannot calculate coil sensitivities from %s' % \
                         repr(type(data)))
 
+<<<<<<< HEAD
     def __calc_from_acquisitions(self, data, method_name):
         assert data.handle is not None
 
@@ -640,8 +633,11 @@ class CoilSensitivityData(ImageData):
         elif method_name == 'SRSS':
             try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
 
+=======
+>>>>>>> 2204c76ee8a1818ebe46415366a0e5c062e65d4f
     def __calc_from_images(self, data, method_name):
         assert data.handle is not None
+
         if method_name == 'Inati':
             try:
                 from ismrmrdtools import coils
@@ -663,10 +659,20 @@ class CoilSensitivityData(ImageData):
             self.fill(csm.astype(numpy.complex64))
 
         elif method_name == 'SRSS':
+
             try_calling(pygadgetron.cGT_computeCoilSensitivitiesFromCoilImages \
                 (self.handle, data.handle))
+
         else:
             raise error('Unknown method %s' % method_name)
+
+    def __calc_from_acquisitions(self, data, method_name):
+        assert data.handle is not None
+        dcw = compute_kspace_density(data)
+        data = data * dcw
+        cis = CoilImagesData()
+        try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
+        self.__calc_from_images(cis, method_name)
 
 DataContainer.register(CoilSensitivityData)
 

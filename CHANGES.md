@@ -2,6 +2,12 @@
 
 ## v3.x.x
 
+* a version.h is created by CMake and installed to access version minor and major from C++.
+
+* MR Geometry
+  - fixed GadgetronImagesVector::reorient() to only consider slice index 
+  and ignore dimensions such as contrast, repetition etc.
+
 * PET/STIR
   - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception.
   - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
@@ -11,8 +17,11 @@
   - Added `__truediv__` and `__itruediv__` Python3 operators to DataContainer algebra.
 
 * Build system
-   - export a CMake config file such that external C++ projects can use SIRF via CMake,
-   see the `examples/C++` directory for basic usage.
+  - export a CMake config file such that external C++ projects can use SIRF via CMake,
+  see the `examples/C++` directory for basic usage.
+
+* Other changes
+  - added conjugation methods to DataContainer
 
 ## v3.1.1
   - minor bug fixes

@@ -29,14 +29,13 @@ limitations under the License.
 \author Johannes Mayer
 \author SyneRBI
 */
+#include <algorithm>
 #include <cmath>
 #include <iomanip>
-#include <algorithm> 
+#include <sstream>
 
-#include <ismrmrd/xml.h>
 #include <ismrmrd/ismrmrd.h>
-
-
+#include <ismrmrd/version.h>
 #include <ismrmrd/xml.h>
 
 #include "sirf/common/iequals.h"
@@ -106,6 +105,30 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		d.readHeader(this->acqs_info_);
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
+
+		std::stringstream str;
+		std::string xml = this->acqs_info_.c_str();
+		size_t i = xml.find("<version>");
+		if (i != std::string::npos) {
+			size_t j = xml.find("</version>");
+			int va = std::stoi(xml.substr(i + 9, j - i - 9));
+			int v = ISMRMRD_XMLHDR_VERSION;
+			if (va > v) {
+				str << "Input acquisition file was written in with "
+				<< "ISMRMRD XML version "<< va 
+				<< ", but the version of ISMRMRD used presently by SIRF "
+				<< "supports XML version " << v 
+				<< " or less only, terminating...";
+				THROW(str.str());
+			}
+			else if (va < v) {
+				std::cout << "WARNING: ";
+				std::cout << "acquisitions header version (" << va;
+				std::cout << ") is older than ISMRMRD header version (" << v;
+				std::cout << "), ignoring...\n";
+				this->acqs_info_ = xml.substr(0, i) + xml.substr(j + 10);
+			}
+		}
 
 		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
 		{
@@ -793,6 +816,21 @@ AcquisitionsVector::empty()
 }
 
 void
+AcquisitionsVector::conjugate_impl()
+{
+    int na = number();
+    for (int a = 0, i = 0; a < na; a++) {
+        int ia = index(a);
+        ISMRMRD::Acquisition& acq = *acqs_[ia];
+        unsigned int nc = acq.active_channels();
+        unsigned int ns = acq.number_of_samples();
+        for (int c = 0; c < nc; c++)
+            for (int s = 0; s < ns; s++, i++)
+                acq.data(s, c) = std::conj(acq.data(s, c));
+    }
+}
+
+void
 AcquisitionsVector::set_data(const complex_float_t* z, int all)
 {
 	int na = number();
@@ -1226,6 +1264,13 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
         ImagesProcessor ip(true, filename);
         ip.process(*this);
     }
+}
+
+void
+GadgetronImageData::conjugate_impl()
+{
+    for (unsigned int i = 0; i < number(); i++)
+        image_wrap(i).conjugate();
 }
 
 void

@@ -611,6 +611,7 @@ namespace sirf {
 	private:
 		std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 		virtual AcquisitionsVector* clone_impl() const;
+		virtual void conjugate_impl();
 	};
 
 	/*!
@@ -637,7 +638,7 @@ namespace sirf {
 		virtual void append(gadgetron::shared_ptr<ImageWrap> sptr_iw) = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> abs() const = 0;
 		virtual gadgetron::shared_ptr<ISMRMRDImageData> real() const = 0;
-		virtual void clear_data()=0;
+		virtual void clear_data() = 0;
 		virtual void set_image_type(int imtype) = 0;
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
@@ -812,6 +813,7 @@ namespace sirf {
         AcquisitionsInfo acqs_info_;
 		/// Clone helper function. Don't use.
 		virtual ISMRMRDImageData* clone_impl() const = 0;
+		virtual void conjugate_impl();
 		std::string ensure_ext_(std::string name, const char* def_ext) const
 		{
 			auto found = name.find_last_of("/\\");
