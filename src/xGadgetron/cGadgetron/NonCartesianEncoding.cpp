@@ -67,17 +67,18 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 using namespace sirf;
 using namespace ISMRMRD;
 
-GadgetronTrajectoryType2D RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
+Gridder2D::TrajectoryArrayType RPEFourierEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
-    SIRFTrajectoryType2D sirftraj = GRPETrajectoryPrep::get_trajectory(ac);
+    sirf::GRPETrajectoryPrep tp;
+    TrajectoryPreparation3D::TrajPointSet sirftraj = tp.get_trajectory(ac);
 
-    GadgetronTrajectoryType2D traj(sirftraj.size());
+    Gridder2D::TrajectoryArrayType traj(sirftraj.size());
     traj.fill(Gadgetron::floatd2(0.f, 0.f));
 
     for(int ik=0; ik<traj.get_number_of_elements(); ++ik)
     {
-        traj.at(ik)[0] = sirftraj[ik].first;
-        traj.at(ik)[1] = sirftraj[ik].second;
+        traj.at(ik)[0] = sirftraj[ik][1];
+        traj.at(ik)[1] = sirftraj[ik][2];
     }
 
     return traj;
@@ -112,9 +113,9 @@ void RPEFourierEncoding::backward(CFImage& img, const MRAcquisitionData& ac) con
     EncodingSpace rec_space = e.reconSpace;
     std::vector < size_t > img_slice_dims{rec_space.matrixSize.y, rec_space.matrixSize.z};
 
-    GadgetronTrajectoryType2D traj = this->get_trajectory(ac);
+    Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
 
-    Gridder_2D nufft(img_slice_dims, traj);
+    Gridder2D nufft(img_slice_dims, traj);
 
     img.resize(rec_space.matrixSize.x, rec_space.matrixSize.y, rec_space.matrixSize.z, kspace_dims[3]);
 
@@ -164,16 +165,15 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) cons
     CFGThoNDArr img_data(img_dims);
     std::memcpy(img_data.begin(), img.getDataPtr(), img.getDataSize());
 
-    GadgetronTrajectoryType2D traj = this->get_trajectory(ac);
+    Gridder2D::TrajectoryArrayType traj = this->get_trajectory(ac);
     size_t const num_kdata_pts = traj.get_number_of_elements();
 
     std::vector < size_t > img_slice_dims{img_dims[1], img_dims[2]};
-    Gridder_2D nufft(img_slice_dims, traj);
+    Gridder2D nufft(img_slice_dims, traj);
 
     std::vector< size_t> output_dims{img_dims[0], num_kdata_pts, img_dims[3]};
     CFGThoNDArr kdata(output_dims);
 
-//    #pragma omp parallel
     for(size_t ichannel=0; ichannel<img_dims[3]; ++ichannel)
     for(size_t islice=0;islice<img_dims[0]; ++islice)
     {
@@ -213,43 +213,211 @@ void RPEFourierEncoding::forward(MRAcquisitionData& ac, const CFImage& img) cons
     }
 }
 
-
-void Gridder_2D::setup_nufft(const std::vector<size_t> img_output_dims, const GadgetronTrajectoryType2D &traj)
+Gridder2D::TrajectoryArrayType NonCartesian2DEncoding::get_trajectory(const MRAcquisitionData& ac) const
 {
-    if( img_output_dims.size() != 2)
-        throw LocalisedException("The image dimensions of the output should be of size 2." , __FILE__, __LINE__);
+    sirf::Radial2DTrajprep tp;
+    TrajectoryPreparation2D::TrajPointSet sirftraj = tp.get_trajectory(ac);
 
-    traj.get_dimensions(this->trajdims_);
+    Gridder2D::TrajectoryArrayType traj(sirftraj.size());
+    traj.fill(Gadgetron::floatd2(0.f, 0.f));
 
-    this->output_dims_ = img_output_dims;
+    for(int ik=0; ik<traj.get_number_of_elements(); ++ik)
+    {
+        traj.at(ik)[0] = sirftraj[ik][0];
+        traj.at(ik)[1] = sirftraj[ik][1];
+    }
 
-    this->nufft_operator_.preprocess(traj);
+    return traj;
 }
 
-
-
-void Gridder_2D::ifft(CFGThoNDArr& img, const CFGThoNDArr& kdata)
+std::vector<int> NonCartesian2DEncoding::get_slice_encoding_subset_indices(const MRAcquisitionData& full_dataset, unsigned int kspace_enc_step_2) const
 {
-    auto sptr_const_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
-    float const normed_dcw_value = 1.0;
-
-    sptr_const_dcw ->fill(normed_dcw_value);
-
-    img.create(this->output_dims_);
-    img.fill(std::complex<float>(0.f, 0.f));
-
-    this->nufft_operator_.compute(kdata, img, sptr_const_dcw.get(), Gadgetron::NFFT_comp_mode::BACKWARDS_NC2C);
-
+    ISMRMRD::Acquisition acq;
+    std::vector<int> subset_indices;
+    for(int i=0; i<full_dataset.number(); ++i)
+    {   
+        full_dataset.get_acquisition(i,acq);
+        if ((unsigned int)acq.idx().kspace_encode_step_2 == kspace_enc_step_2)
+            subset_indices.push_back(i);
+    }
+    
+    return subset_indices;
 }
 
-void Gridder_2D::fft(CFGThoNDArr& kdata, const CFGThoNDArr& img)
+void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) const 
 {
-    auto sptr_unit_dcw = std::make_shared<Gadgetron::hoNDArray<float> >( this->trajdims_);
-    sptr_unit_dcw ->fill(1.f);
+    ASSERT( ac.number() >0, "Give a non-empty rawdata container if you want to use forward.");
+    
+    ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
+    EncodingSpace enc_space = hdr.encoding[0].encodedSpace;
 
-    kdata.create(this->trajdims_);
+    ASSERT(img.getMatrixSizeZ() == enc_space.matrixSize.z, 
+           "The number of slices in encoded space and image differ. Please give a slice-consistent rawdata file.");
 
-    this->nufft_operator_.compute(img, kdata, sptr_unit_dcw.get(), Gadgetron::NFFT_comp_mode::FORWARDS_C2NC);
 
+    ISMRMRD::TrajectoryType traj_in_rawdata = ac.get_trajectory_type();
+    ASSERT(traj_in_rawdata == ISMRMRD::TrajectoryType::RADIAL || 
+           traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE, 
+           "Give a MRAcquisitionData reference with the trajectory type RADIAL or GOLDENANGLE.");
+
+    uint16_t  Nx = img.getMatrixSizeX();
+    uint16_t  Ny = img.getMatrixSizeY();
+    uint16_t  NSlice = img.getMatrixSizeZ();
+    uint16_t  NChannel = img.getNumberOfChannels();
+
+    std::vector<size_t> img_dims{NSlice, Nx, Ny, NChannel};
+    CFGThoNDArr img_data(img_dims);
+    
+    for(int nc=0; nc<NChannel; nc++)
+    for(int ns=0; ns<NSlice; ns++)
+    for(int ny=0; ny<Ny; ny++)
+    for(int nx=0; nx<Nx; nx++)
+    {   int const access_idx =  nx + Nx * (ny + Ny*(ns + nc*NSlice));
+        img_data(ns,nx,ny,nc) = *(img.getDataPtr() + access_idx);
+    }
+    float const fft_normalisation_factor = sqrt((float)NSlice);
+    Gadgetron::hoNDFFT< float >::instance()->fft1c(img_data);
+
+    std::vector < size_t > img_slice_dims{Nx, Ny};
+
+//    #pragma omp parallel
+    for(size_t islice=0; islice < NSlice; ++islice)
+    {
+        std::vector<int> index_acqs_for_this_slice = ac.get_slice_encoding_index(islice);            
+        std::unique_ptr<MRAcquisitionData> uptr_slice_subset = ac.clone();
+        uptr_slice_subset->empty();
+        ac.get_subset(*uptr_slice_subset, index_acqs_for_this_slice);
+
+        Gridder2D::TrajectoryArrayType traj = this->get_trajectory(*uptr_slice_subset);
+        Gridder2D nufft(img_slice_dims, traj);
+        const size_t num_kdata_pts = traj.get_number_of_elements();
+
+        const std::vector< size_t> output_dims{num_kdata_pts,NChannel};
+        CFGThoNDArr kdata(output_dims);
+
+        for(size_t ichannel=0; ichannel < NChannel; ++ichannel)
+        {
+            CFGThoNDArr img_slice(img_slice_dims);
+            
+            for(int ny=0; ny < Ny; ++ny)
+            for(int nx=0; nx < Nx; ++nx)
+                img_slice(nx,ny)= img_data(islice,nx,ny,ichannel);
+
+            CFGThoNDArr k_slice_data_sausage;
+            nufft.fft(k_slice_data_sausage, img_slice);
+            
+            for( int ik=0; ik<num_kdata_pts; ++ik)
+                kdata(ik, ichannel) = k_slice_data_sausage.at(ik);
+        }
+
+        ISMRMRD::Acquisition acq;
+
+        for(int ia=0; ia<uptr_slice_subset->number(); ++ia)
+        {
+            uptr_slice_subset->get_acquisition(ia, acq);
+
+            for(int is=0; is<acq.number_of_samples(); ++is)
+            for(int ic=0; ic<acq.active_channels(); ++ic)
+            {
+                const size_t access_idx = acq.number_of_samples()*ia + is;
+                acq.data(is,ic) = fft_normalisation_factor * kdata(access_idx, ic);
+            }
+            uptr_slice_subset->set_acquisition(ia, acq);
+        }
+        ac.set_subset(*uptr_slice_subset, index_acqs_for_this_slice);
+    }
 }
 
+void NonCartesian2DEncoding::backward(CFImage& img, const MRAcquisitionData& ac) const
+{
+    ISMRMRD::TrajectoryType traj_in_rawdata = ac.get_trajectory_type();
+    
+    ASSERT(traj_in_rawdata == ISMRMRD::TrajectoryType::RADIAL || 
+           traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE, 
+           "Give a MRAcquisitionData reference with the trajectory type RADIAL or GOLDENANGLE.");
+
+    ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();
+    EncodingSpace rec_space = hdr.encoding[0].reconSpace;
+    EncodingSpace enc_space = hdr.encoding[0].encodedSpace;
+
+    ASSERT(rec_space.matrixSize.z == enc_space.matrixSize.z, 
+           "The number of slices in encoded and reconstructed space differ. Please give rawdata from a slice-consistent file.");
+
+    std::vector<size_t> kspace_dims;
+    ac.get_kspace_dimensions(kspace_dims);
+
+    size_t const Nx     = rec_space.matrixSize.x ;
+    size_t const Ny     = rec_space.matrixSize.y ;
+    size_t const NSlice = enc_space.matrixSize.z;
+    size_t const NChannel = kspace_dims[3];
+    
+    float const fft_normalisation_factor = sqrt(float(NSlice));
+
+    auto uptr_slice_subset = ac.clone();
+
+    std::vector<size_t> img_dimensions{NSlice,Nx,Ny,NChannel};
+    CFGThoNDArr img_data(img_dimensions);
+
+    for(size_t islice=0; islice<NSlice; ++islice)
+    {
+        uptr_slice_subset->empty();
+
+        std::vector<int> slice_subset_indices = get_slice_encoding_subset_indices(ac, islice);
+        ac.get_subset(*uptr_slice_subset, slice_subset_indices);
+
+        Gridder2D::TrajectoryArrayType traj = this->get_trajectory(*uptr_slice_subset);
+        const size_t num_kdata_pts = traj.get_number_of_elements();
+        std::vector<size_t> const kdata_dims{num_kdata_pts, NChannel};
+        CFGThoNDArr kspace_data(kdata_dims);
+        
+        for(int ia=0; ia<uptr_slice_subset->number(); ++ia)
+        {
+            ISMRMRD::Acquisition acq;
+            uptr_slice_subset->get_acquisition(ia, acq);
+
+            for(int nc=0; nc<acq.active_channels(); ++nc)
+            for(int ns=0; ns<acq.number_of_samples(); ++ns)
+            {   
+                int const access_idx = kspace_dims[0] * ia + ns;
+                kspace_data(access_idx, nc) = acq.data(ns,nc);
+            }
+        }
+       
+        std::vector < size_t > img_slice_dims{Nx, Ny};
+        Gridder2D nufft(img_slice_dims, traj);
+
+        for(size_t ichannel=0; ichannel<NChannel; ++ichannel)
+        {
+            CFGThoNDArr k_slice_data_sausage(num_kdata_pts);
+            k_slice_data_sausage.fill(complex_float_t(0,0));
+
+            for(int ik=0;ik<num_kdata_pts;++ik)
+            {
+                k_slice_data_sausage.at(ik) = fft_normalisation_factor*kspace_data(ik,ichannel);
+            }
+
+            CFGThoNDArr imgdata_slice;
+            nufft.ifft(imgdata_slice, k_slice_data_sausage);
+
+            for(size_t iy=0; iy<Ny; ++iy)
+            for(size_t ix=0; ix<Nx; ++ix)
+                img_data(islice, ix, iy, ichannel) = imgdata_slice(ix, iy);
+        }
+    }
+
+    Gadgetron::hoNDFFT< float >::instance()->ifft1c(img_data);
+
+    img.resize(Nx, Ny, NSlice, NChannel);
+
+    for(int nc=0; nc<NChannel; ++nc)
+    for(int ny=0; ny<Ny; ++ny)
+    for(int nx=0; nx<Nx; ++nx)
+    for(int ns=0; ns<NSlice; ++ns)
+        img(nx,ny,ns,nc) = img_data(ns,nx,ny,nc);
+    
+    img.setFieldOfView( rec_space.fieldOfView_mm.x, rec_space.fieldOfView_mm.y ,rec_space.fieldOfView_mm.z );
+
+    ISMRMRD::Acquisition acq;
+    ac.get_acquisition(0,acq);
+    this->match_img_header_to_acquisition(img, acq);    
+}

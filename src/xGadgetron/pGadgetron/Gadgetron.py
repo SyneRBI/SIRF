@@ -602,8 +602,43 @@ class CoilSensitivityData(ImageData):
             raise error('Cannot calculate coil sensitivities from %s' % \
                         repr(type(data)))
 
+    def __calc_from_acquisitions(self, data, method_name):
+
+        if data.handle is None:
+            raise AssertionError("The handle for data is None. Please pass valid acquisition data.")
+
+        dcw = compute_kspace_density(data)
+
+        data = data * dcw
+        if method_name == 'Inati':
+            try:
+                from ismrmrdtools import coils
+            except:
+                raise error('Inati method requires ismrmrd-python-tools')
+
+            cis = CoilImagesData()
+            try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
+            cis_array = cis.as_array()
+            csm, _ = coils.calculate_csm_inati_iter(cis_array)
+
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+            self.handle = pysirf.cSIRF_clone(cis.handle)
+            nc, nz, ny, nx = self.dimensions()
+            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+            nz = nz//ns        # z-dimension of a slice
+            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
+            csm = numpy.swapaxes(csm, 0,  1)
+            self.fill(csm.astype(numpy.complex64))
+        
+        elif method_name == 'SRSS':
+            try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
+
     def __calc_from_images(self, data, method_name):
-        assert data.handle is not None
+
+        if data.handle is None:
+            raise AssertionError("The handle for data is None. Please pass valid image data.")
+
 
         if method_name == 'Inati':
             try:
@@ -1596,20 +1631,51 @@ def set_grpe_trajectory(ad):
     try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
     return ad
     
+def set_radial2D_trajectory(ad):
+    '''
+    Function that fills the trajectory of AcquisitionData with linear increment 2D radial
+    readout trajectory.
+    ad: AcquisitionData
+    '''
+    assert_validity(ad, AcquisitionData)
+
+    try_calling(pygadgetron.cGT_setRadial2DTrajectory(ad.handle))
+    return ad
+
+def set_goldenangle2D_trajectory(ad):
+    '''
+    Function that fills the trajectory of AcquisitionData with golden angle increment 2D radial
+    readout trajectory.
+    ad: AcquisitionData
+    '''
+    assert_validity(ad, AcquisitionData)
+
+    try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
+    return ad
+
 def get_data_trajectory(ad):
     '''
     Function that gets the trajectory of AcquisitionData depending on the rawdata trajectory.
     ad: AcquisitionData
     '''    
     assert_validity(ad, AcquisitionData)
-
-    dims = (ad.number(), 2)
+    
+    if ad.check_traj_type('cartesian'):
+        num_traj_pts = ad.number()
+        traj_dim = 2
+    elif ad.check_traj_type('other'):
+        num_traj_pts = ad.number()
+        traj_dim = 3
+    elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
+        num_traj_pts = ad.number() * ad.dimensions()[2]
+        traj_dim = 2
+        
+    dims = (num_traj_pts, traj_dim)
     traj = numpy.ndarray(dims, dtype = numpy.float32)
     
     try_calling(pygadgetron.cGT_getDataTrajectory(ad.handle, traj.ctypes.data))
     
     return traj
-
 
 def compute_kspace_density(ad):
     '''
@@ -1622,6 +1688,9 @@ def compute_kspace_density(ad):
         return calc_cartesian_dcw(ad)
     elif ad.check_traj_type('other'):
         return calc_rpe_dcw(ad)
+    elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
+        return calc_radial_dcw(ad)
+    	
     else:
         raise AssertionError("Please only try to recon trajectory types cartesian or other")
     
@@ -1649,12 +1718,13 @@ def calc_cartesian_dcw(ad):
 def calc_rpe_dcw(ad):
     '''
     Function that computes the kspace weight depending on the distance to the center
-    as in a filtered back-projection. Stricly valid only for equally angular-spaced
+    as in a filtered back-projection. Strictly valid only for equally angular-spaced
     radially distributed points
     ad: AcquisitionData
     '''
 
     traj = numpy.transpose(get_data_trajectory(ad))
+    traj = traj[1:3,:]
     ramp_filter = numpy.linalg.norm(traj, axis=0)
 
     traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
@@ -1669,6 +1739,39 @@ def calc_rpe_dcw(ad):
 
     density_weight = numpy.expand_dims(density_weight, axis=(1,2))
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
+    
+    dcw = ad.copy()
+    dcw.fill(density_weight)
+    
+    return dcw
+
+
+
+def calc_radial_dcw(ad):
+    '''
+    Function that computes the kspace weight depending on the distance to the center
+    as in a filtered back-projection. Stricly valid only for equally angular-spaced
+    radially distributed points
+    ad: AcquisitionData
+    '''
+
+    traj = numpy.transpose(get_data_trajectory(ad))
+    (na, nc, ns) = ad.dimensions()
+  
+    ramp_filter = numpy.linalg.norm(traj, axis=0)
+    traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
+    num_angles = numpy.max(counts)
+    
+    density_weight = ( 1.0 / counts)[inverse]  + num_angles * ramp_filter
+    
+    max_traj_rad = numpy.max(numpy.linalg.norm(traj, axis=0))
+    density_weight_norm =  numpy.sum(density_weight) / (max_traj_rad**2 * numpy.pi)
+    density_weight = density_weight / density_weight_norm
+
+    density_weight = numpy.transpose(density_weight)
+    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.reshape(density_weight, (na, 1, ns))
+    density_weight = numpy.tile(density_weight, (1, nc, 1))
     
     dcw = ad.copy()
     dcw.fill(density_weight)

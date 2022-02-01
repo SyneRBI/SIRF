@@ -287,6 +287,8 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
         int const num_total_pixels = dims["x"]*dims["y"]*dims["z"]*dims["c"]*dims["n"];
 
         std::default_random_engine generator;
+        unsigned int random_seed = 2;
+        generator.seed(random_seed);
         std::normal_distribution<float> distribution(0.0,1.0);
 
         std::vector<complex_float_t> random_data;
@@ -311,6 +313,7 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
 
         std::cout << "Backward kdata dot random image: " << Eh_kdat_Dot_img << std::endl;
         std::cout << "Forward random image dot kdata : " << E_img_Dot_kdat  << std::endl;
+        std::cout << "We have a ratio of adjointness of : " << std::abs(E_img_Dot_kdat) / std::abs(Eh_kdat_Dot_img) << std::endl;            
 
         float const order_of_magnitude = std::min( std::abs(Eh_kdat_Dot_img), std::abs(E_img_Dot_kdat));
         float const diff_in_scalar_prod = std::abs(Eh_kdat_Dot_img - E_img_Dot_kdat);
@@ -456,7 +459,7 @@ bool test_set_rpe_trajectory(AcquisitionsVector av)
 }
 
 #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-#warning "INCLUDING THE RADIAL TESTS INTO THE C++ TESTS"
+#warning "INCLUDING THE NON-CARTESIAN TESTS FOR C++."
 bool test_rpe_csm(MRAcquisitionData& av)
 {
     try
@@ -638,7 +641,6 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
 
 bool run_cartesian_tests(const std::string& filename_testdata)
 {
-
     shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
     AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
     av.read(filename_testdata);
@@ -666,7 +668,7 @@ bool run_cartesian_tests(const std::string& filename_testdata)
 }
 
 #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-#warning "RUNNING THE RADIAL TESTS FOR C++."
+#warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
 bool run_rpe_tests(const std::string& filename_testdata)
 {
     
@@ -694,7 +696,43 @@ bool run_rpe_tests(const std::string& filename_testdata)
     
     return ok;
 }
+
+bool run_2D_radial_tests(const std::string& filename_testdata)
+{
+    bool ok = true;
+    if(true)
+    {
+        shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+        av.read(filename_testdata);
+        
+        sirf::Radial2DTrajprep radial_tp;
+        radial_tp.set_trajectory(av);
+        av.sort();
+    
+        ok *= test_acq_mod_norm(sptr_ad);
+        ok *= test_acq_mod_adjointness(av);
+    }
+
+    if(true)
+    {
+        shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+        av.read(filename_testdata);
+
+        sirf::GoldenAngle2DTrajprep ga_tp;
+        ga_tp.set_trajectory(av);
+        av.sort();
+
+        ok *= test_acq_mod_norm(sptr_ad);
+        ok *= test_acq_mod_adjointness(av);
+    }
+
+    return ok;
+}
 #endif
+
+
 
 int main ( int argc, char* argv[])
 {
@@ -714,9 +752,10 @@ int main ( int argc, char* argv[])
         bool test_successful = run_cartesian_tests(filename_simulated_2D_testdata);
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-        #warning "RUNNING THE RADIAL TESTS FOR C++."
+        #warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
             const std::string  filename_rpe_testdata = argv[2];
             test_successful *= run_rpe_tests(filename_rpe_testdata);
+            test_successful *= run_2D_radial_tests(filename_simulated_2D_testdata);
         #endif
 
         if(test_successful)
