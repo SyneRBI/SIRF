@@ -602,39 +602,6 @@ class CoilSensitivityData(ImageData):
             raise error('Cannot calculate coil sensitivities from %s' % \
                         repr(type(data)))
 
-<<<<<<< HEAD
-    def __calc_from_acquisitions(self, data, method_name):
-        assert data.handle is not None
-
-        dcw = compute_kspace_density(data)
-
-        data = data * dcw
-        if method_name == 'Inati':
-            try:
-                from ismrmrdtools import coils
-            except:
-                raise error('Inati method requires ismrmrd-python-tools')
-
-            cis = CoilImagesData()
-            try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
-            cis_array = cis.as_array()
-            csm, _ = coils.calculate_csm_inati_iter(cis_array)
-
-            if self.handle is not None:
-                pyiutil.deleteDataHandle(self.handle)
-            self.handle = pysirf.cSIRF_clone(cis.handle)
-            nc, nz, ny, nx = self.dimensions()
-            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
-            nz = nz//ns        # z-dimension of a slice
-            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
-            csm = numpy.swapaxes(csm, 0,  1)
-            self.fill(csm.astype(numpy.complex64))
-        
-        elif method_name == 'SRSS':
-            try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
-
-=======
->>>>>>> 2204c76ee8a1818ebe46415366a0e5c062e65d4f
     def __calc_from_images(self, data, method_name):
         assert data.handle is not None
 
