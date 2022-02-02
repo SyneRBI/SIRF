@@ -154,6 +154,20 @@ void MRContrastGenerator::map_contrast()
 	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
 }
 
+// void MRContrastGenerator::map_tissue()
+// {
+// 	this->tlm_.assign_tissues_to_labels();
+// 	this->contrast_filled_volumes_.empty();
+// 	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
+
+// 	for (size_t i= 0; i<num_voxels; i++)
+// 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
+		
+// 	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
+
+// }
+
+
 std::vector<complex_float_t> MRContrastGenerator::build_label_signal_map(std::vector<ExternalTissueSignal> ext_sig) const {
 
 	TissueParameterList tpl = tlm_.get_tissue_parameter_list();

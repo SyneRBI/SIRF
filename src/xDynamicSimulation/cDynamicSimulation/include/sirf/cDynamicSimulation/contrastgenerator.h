@@ -67,10 +67,17 @@ public:
 	
 	void map_contrast();
 	void map_contrast(const std::vector<ExternalTissueSignal>& ext_sig);
-	
+	void map_tissue(){throw std::runtime_error("not done yet");};
+
+
 	complex_float_t get_signal_for_tissuelabel( size_t const label );
 	
 	sirf::GadgetronImagesVector& get_contrast_filled_volumes(bool const resample_output=false);
+
+	const sirf::GadgetronImagesVector& get_parameter_filled_volumes() const {
+		return this->parameter_filled_volumes_;
+	}
+
 	void set_contrast_filled_volumes(const sirf::GadgetronImagesVector& img)
 	{
 		contrast_filled_volumes_ = img;
@@ -82,6 +89,7 @@ private:
 
 	void resample_to_template_image( void );
 	sirf::GadgetronImagesVector contrast_filled_volumes_;
+	sirf::GadgetronImagesVector parameter_filled_volumes_;
 	ISMRMRD::IsmrmrdHeader hdr_;
 
 	std::shared_ptr<sirf::MRAcquisitionData> sptr_acqu_;

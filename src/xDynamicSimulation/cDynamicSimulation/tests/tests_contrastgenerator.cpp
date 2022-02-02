@@ -130,6 +130,36 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 	return dims_are_correct;
 }
 
+void test_contgen::test_mr_contgen_map_tissue(void)
+{
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+
+	try
+	{
+		std::cout << "Reading segmentation ... " <<std::endl;
+		LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		std::cout << "... finished. " <<std::endl;
+		
+		MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);	
+
+		mr_contgen.map_tissue();
+		
+		const GadgetronImagesVector& mr_parameters = mr_contgen.get_parameter_filled_volumes();	
+		std::cout << "There are "<< mr_parameters.number() << " images in the XCAT output." << std::endl;		
+
+		std::stringstream name_stream;
+		name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;
+		sirf::write_imagevector_to_raw(name_stream.str(), mr_parameters);
+		
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+
 void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;

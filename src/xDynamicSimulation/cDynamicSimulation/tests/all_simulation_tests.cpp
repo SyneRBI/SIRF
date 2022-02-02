@@ -327,6 +327,7 @@ try{
 	mr_contgen_tests.push_back( test_contgen::test_mr_set_rawdata_header() );
 	mr_contgen_tests.push_back( test_contgen::test_map_flash_contrast() );
 	
+	test_contgen::test_mr_contgen_map_tissue();
 	test_contgen::test_mr_map_external_contrast_to_xcat();
 	test_contgen::test_mr_map_contrast_application_to_xcat();
 	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
@@ -512,13 +513,13 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_auxiliary_testing_functions();
 		// ok *= run_tests_auxiliary_input_output();
 		// ok *= run_tests_tissueparameters();
-		// ok *= run_tests_contrastgenerator();
+		ok *= run_tests_contrastgenerator();
 		// ok *= run_tests_phantom_input();
 		// ok *= run_tests_noise_generator();
 		// ok *= run_tests_dynamics();
 		// ok *= run_tests_c_interface();
 		// ok *= run_tests_dynsim_deformer();
-		ok *= run_tests_dynamic_simulation();
+		// ok *= run_tests_dynamic_simulation();
 				
 		if(ok)
 			return EXIT_SUCCESS;	
