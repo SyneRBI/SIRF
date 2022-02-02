@@ -20,7 +20,7 @@ Options:
   -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
                               [default: False]
   --traj=<str>                trajectory type, must match the data supplied in file
-                              options are cartesian, radial, goldenangle or grpe 
+                              options are cartesian, radial, goldenangle or grpe
                               [default: grpe]
   --non-interactive           do not show plots
 '''
@@ -150,7 +150,7 @@ def main():
     else:
         processed_data = acq_data
 
-    #set the trajectory 
+    #set the trajectory
     print('---\n setting the trajectory...')
     if trajtype == 'cartesian':
         pass

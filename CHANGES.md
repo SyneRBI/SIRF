@@ -19,6 +19,11 @@
 * Build system
   - export a CMake config file such that external C++ projects can use SIRF via CMake,
   see the `examples/C++` directory for basic usage.
+  - during the build step the executable ismrmrd_generate_cartesian_shepp_logan is called
+  to generate simulated data to be used in tests such that the test data are compatible with
+  the installed ISMRMRD version. 
+  - we now require ISMRMRD v1.4.2.1 to allow for the -w flag for the creation of Shepp
+  Logan test data during build.
 
 * Other changes
   - added conjugation methods to DataContainer

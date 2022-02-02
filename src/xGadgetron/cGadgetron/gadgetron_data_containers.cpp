@@ -103,7 +103,10 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		mtx.lock();
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
 		d.readHeader(this->acqs_info_);
-		uint32_t num_acquis = d.getNumberOfAcquisitions();
+
+        ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
+        
+        uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
 		std::stringstream str;

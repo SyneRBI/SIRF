@@ -19,7 +19,7 @@ Options:
   -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
                               [default: False]
   --traj=<str>                trajectory type, must match the data supplied in file
-                              options are cartesian, radial, goldenangle or grpe 
+                              options are cartesian, radial, goldenangle or grpe
                               [default: grpe]
   --non-interactive           do not show plots
 '''
@@ -72,7 +72,7 @@ def main():
     acq_data = AcquisitionData(input_file)
     
     # pre-process acquisition data
-    if trajtype is not 'radial' or 'goldenangle':
+    if trajtype != 'radial' and trajtype != 'goldenangle':
         print('---\n pre-processing acquisition data...')
         processed_data  = preprocess_acquisition_data(acq_data)
     else:
