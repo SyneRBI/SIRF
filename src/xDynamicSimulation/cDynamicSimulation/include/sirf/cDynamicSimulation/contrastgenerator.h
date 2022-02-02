@@ -87,6 +87,10 @@ public:
 
 private:
 
+	
+	sirf::NiftiImageData3D<float> get_parameter_map(const int which_parameter);
+	float get_parameter_from_tissue(const TissueParameter tp, const int which_parameter) const;
+
 	std::vector<complex_float_t> build_label_signal_map(std::vector<ExternalTissueSignal> ext_sig) const;
 
 	void resample_to_template_image( void );

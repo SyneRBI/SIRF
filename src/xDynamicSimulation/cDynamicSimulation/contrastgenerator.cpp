@@ -156,26 +156,53 @@ void MRContrastGenerator::map_contrast()
 
 void MRContrastGenerator::map_tissue()
 {
-	throw std::runtime_error("not done yet");
-	// this->tlm_.assign_tissues_to_labels();
-	// this->get_parameter_filled_volumes.empty();
-	// this->get_parameter_filled_volumes = GadgetronImagesVector(*sptr_acqu_);
-
-	// TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
-
-	// for (size_t i= 0; i<num_voxels; i++)
-	// 	contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
-		
-	// 	TissueParameter param_in_voxel = *(tissue_params[i_vox]);
-
-	// 		if(case_map==CASE_MAP_PET_CONTRAST)
-	// 			contrast_img[i_vox] = param_in_voxel.pet_tissue_.activity_kBq_ml_ * voxel_volume_ml ;						
-	// 		else if(case_map == CASE_MAP_PET_ATTENUATION)
-	// 			contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_cm_;			
-
-	// contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
+	// throw std::runtime_error("not done yet");
+	
+	parameter_filled_volumes_.empty();
+	parameter_filled_volumes_.push_back( get_parameter_map(0));
+	parameter_filled_volumes_.push_back( get_parameter_map(1));
+	parameter_filled_volumes_.push_back( get_parameter_map(2));
+	parameter_filled_volumes_.push_back( get_parameter_map(3));
 }
 
+
+sirf::NiftiImageData3D<float> MRContrastGenerator::get_parameter_map(const int which_parameter) 
+{
+	this->tlm_.assign_tissues_to_labels();
+	TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
+
+	LabelVolume parameter_map = this->tlm_.get_segmentation_labels();
+	
+	const int num_voxels = parameter_map.get_num_voxels();
+	if(tissue_params.size() != num_voxels)
+		throw std::runtime_error("Your Tissue label mapper gives a different number of voxels compared to your segmentation.");
+
+	// #pragma omp parallel
+	for( size_t i_vox=0; i_vox<num_voxels; i_vox++)
+	{
+		TissueParameter param_in_voxel = *(tissue_params[i_vox]);
+		parameter_map(i_vox) = get_parameter_from_tissue(param_in_voxel, which_parameter);
+	}
+
+	return parameter_map;
+}
+
+float MRContrastGenerator::get_parameter_from_tissue(const TissueParameter tp, const int which_parameter) const
+{
+	switch(which_parameter)
+	{
+	case 0:
+		return tp.mr_tissue_.spin_density_percentH2O_;
+	case 1:
+		return tp.mr_tissue_.t1_miliseconds_;
+	case 2:
+		return tp.mr_tissue_.t2_miliseconds_;
+	case 3:
+		return tp.mr_tissue_.cs_ppm_;
+	default:
+		throw std::runtime_error("Please as for parameter 0, 1, 2 or 3 and nothing else.");
+	}
+}
 
 std::vector<complex_float_t> MRContrastGenerator::build_label_signal_map(std::vector<ExternalTissueSignal> ext_sig) const {
 
