@@ -101,6 +101,10 @@ def static_MR_fingerprinting():
     fname_template_contrast_rawdata = prefix_fpath_input + 'Cube128/CV_nav_cart_128Cube_FLASH_T1.h5'
     fname_template_acquisition_rawdata = prefix_fpath_input + 'General/meas_MID27_CV_11s_TI2153_a6_2x2x8_TR45_FID33312.h5'
 
+    ##
+    labels = pReg.NiftiImageData3D( prefix_fpath_input + "Cube128/label_volume.nii"	)
+    mrsim = pDS.MRDynamicSimulation(labels, fname_xml)
+
     print(" --- Loading the template raw data.\n")
 
     contrast_template = pMR.AcquisitionData(fname_template_contrast_rawdata)
@@ -113,32 +117,39 @@ def static_MR_fingerprinting():
     # First compute the coil profiles from the rawdata itself.
     csm = pMR.CoilSensitivityData()
     csm.calculate(acquisition_template)
+    mrsim.set_csm(csm)
 
+    # 
+    fname_mrf_labels = prefix_fpath_input + 'Fingerprints/XCAT_tissue_parameter_list.npz'
+    fname_mrf_signal = prefix_fpath_input + 'Fingerprints/XCAT_tissue_parameter_fingerprints.npy'
+    
+    mrf_label_input = np.load(fname_mrf_labels)
+    mrf_labels = mrf_label_input['mr_params_full'][:,0]
+    unique_inv_idx = mrf_label_input['unique_idx_inverse']
+
+    epg_simulation = np.array(np.load(fname_mrf_signal), dtype=np.complex64)
+    
+    num_lines_kept = 520
+    epg_simulation = epg_simulation[:num_lines_kept,:]
+
+    plt.figure()
+    plt.plot(np.abs(epg_simulation))
+    plt.show()
+
+    epg_simulation = np.transpose(epg_simulation[:,unique_inv_idx])
+
+    mrf_signal = pDS.ExternalMRSignal(mrf_labels, epg_simulation)
+    mrf_dynamic = pDS.ExternalMRContrastDynamic()
+    mrf_dynamic.add_external_signal(mrf_signal)
+    mrsim.add_external_contrast_dynamic(mrf_dynamic)
 
     print(" --- Extracting subset for template acquisition data.\n")
-    num_acquisitions = 3
-    list_acquisitions_to_keep = np.array(random.sample(range(0,acquisition_template.number()), num_acquisitions))
-    print("We will keep {} acquisitions.".format(list_acquisitions_to_keep.size))
-
-    simulated_traj = pMR.get_data_trajectory(acquisition_template)
-    plt.figure()
-    plt.scatter(simulated_traj[:,0], simulated_traj[:,1] )
-    plt.title('prior')
-    plt.show()
-
-    reduced_template = acquisition_template.get_subset(list_acquisitions_to_keep) 
-    reduced_template = pMR.set_goldenangle2D_trajectory(reduced_template)
-    simulated_traj = pMR.get_data_trajectory(reduced_template)
-    plt.figure('posterior')
-    plt.scatter(simulated_traj[:,0], simulated_traj[:,1] )
-    plt.show()
-
-    print(" --- Our Acquisition template contains {} readouts.\n".format(reduced_template.number()))
-    ##
-    labels = pReg.NiftiImageData3D( prefix_fpath_input + "Cube128/label_volume.nii"	)
-    mrsim = pDS.MRDynamicSimulation(labels, fname_xml)
-
-    mrsim.set_csm(csm)
+    num_acquisitions = epg_simulation.shape[1]
+    list_acquisitions_to_keep = np.arange(0,num_acquisitions)
+    acquisition_template = acquisition_template.get_subset(list_acquisitions_to_keep) 
+    acquisition_template = pMR.set_goldenangle2D_trajectory(acquisition_template)
+    
+    # 
     mrsim.set_contrast_template_data(contrast_template)
     mrsim.set_acquisition_template_data(acquisition_template)
 
