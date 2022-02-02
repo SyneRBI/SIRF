@@ -852,6 +852,42 @@ cGT_setGRPETrajectory(void* ptr_acqs)
 
 }
 
+
+extern "C"
+void*
+cGT_setRadial2DTrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        Radial2DTrajprep radial2D_prep;
+        radial2D_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+
+extern "C"
+void*
+cGT_setGoldenAngle2DTrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        GoldenAngle2DTrajprep ga2D_prep;
+        ga2D_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
 extern "C"
 void*
 cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
@@ -863,15 +899,30 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 
         float* fltptr_traj = (float*) ptr_traj;
 		
-		SIRFTrajectoryType2D traj;
-		
 		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-			traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+		{
+			auto traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(TrajectoryPreparation2D::TrajPointType));
+		}
     	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
-			traj = sirf::GRPETrajectoryPrep::get_trajectory(acqs);
-        
-        memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(std::pair<float, float>));
-
+		{
+			sirf::GRPETrajectoryPrep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GRPETrajectoryPrep::TrajPointType));
+		}
+		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL)
+		{
+			sirf::Radial2DTrajprep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(Radial2DTrajprep::TrajPointType));
+		}
+		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+		{
+			sirf::GoldenAngle2DTrajprep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GoldenAngle2DTrajprep::TrajPointType));
+		}
+	
         return new DataHandle;
     }
     CATCH;

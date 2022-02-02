@@ -93,7 +93,7 @@ void
 MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 {
 	
-    bool const verbose = false;
+    bool const verbose = true;
 
 	if( verbose )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
@@ -103,7 +103,10 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		mtx.lock();
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
 		d.readHeader(this->acqs_info_);
-		uint32_t num_acquis = d.getNumberOfAcquisitions();
+
+        ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
+        
+        uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
 		std::stringstream str;
@@ -747,6 +750,23 @@ std::vector<int> MRAcquisitionData::get_flagged_acquisitions_index(const std::ve
 
     return flags_true_index;
 }
+
+std::vector<int> MRAcquisitionData::get_slice_encoding_index(const unsigned kspace_encode_step_2) const
+{
+    std::vector<int> slice_encode_index;
+
+    ISMRMRD::Acquisition acq;
+
+    for(int i=0; i<this->number(); ++i)
+    {
+        this->get_acquisition(i, acq);
+        if( acq.idx().kspace_encode_step_2 == kspace_encode_step_2)
+            slice_encode_index.push_back(i);
+    }
+
+    return slice_encode_index;
+}
+
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
 {
@@ -1813,6 +1833,16 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
         throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
     #endif
     }
+    else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || ad.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+	{
+		ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL trajectory before calling the calculate method with dimension > 0.");
+	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
+	#warning "Compiling non-cartesian code into coil sensitivity class"
+		this->sptr_enc_ = std::make_shared<sirf::NonCartesian2DEncoding>();
+	#else
+		throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::RADIAL data.");
+	#endif
+	}
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 
