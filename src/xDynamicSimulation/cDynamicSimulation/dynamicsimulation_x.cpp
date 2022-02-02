@@ -318,6 +318,8 @@ void MRDynamicSimulation::acquire_raw_data( void )
 	}
 }
 
+
+
 void MRDynamicSimulation::save_ground_truth_displacements( void ) const
 {
 	for(size_t i=0; i<this->motion_dynamics_.size(); i++)
@@ -325,6 +327,12 @@ void MRDynamicSimulation::save_ground_truth_displacements( void ) const
 		this->motion_dynamics_[i]->save_ground_truth_displacements();
 	}
 }
+
+void MRDynamicSimulation::save_groud_truth_parameter_maps( const std::string prefix_output ) const
+{
+	throw std::runtime_error("not done yet");
+}
+
 
 void PETDynamicSimulation::write_simulation_results( const std::string& filename_output_with_extension )
 {

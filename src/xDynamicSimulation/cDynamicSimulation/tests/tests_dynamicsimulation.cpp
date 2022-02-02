@@ -141,6 +141,33 @@ catch( std::runtime_error const &e)
 }
 }
 
+bool tests_mr_dynsim::test_write_ground_truth_parametermaps()
+{
+
+std::cout << " --- Running " << __FUNCTION__ << std::endl;
+try
+{
+	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+	
+	std::stringstream ss_output_prefix;
+	ss_output_prefix << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_test_" << __FUNCTION__;
+
+	mr_dyn_sim.save_groud_truth_parameter_maps(ss_output_prefix.str());
+
+	return true;
+
+}
+catch( std::runtime_error const &e)
+{
+	std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+	std::cout << e.what() << std::endl;
+	throw e;
+}
+
+}
+
 bool tests_mr_dynsim::test_simulate_statics()
 {
 

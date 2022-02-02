@@ -138,11 +138,12 @@ bool run_tests_dynamic_simulation( void )
 
 	// mr_dynsim_tests.push_back(test_lin_combi_gen::test_get_all_combinations());
 	// mr_dynsim_tests.push_back(tests_datageneration::read_write_h5_filecontent());
+	mr_dynsim_tests.push_back(tests_mr_dynsim::test_write_ground_truth_parametermaps());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_constructor());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_statics());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_dynamics());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_5d_motion_dynamics());
-	mr_dynsim_tests.push_back(tests_mr_dynsim::test_external_contrast_acquisition());
+	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_external_contrast_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_simulate_rpe_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_dce_acquisition());
 	// mr_dynsim_tests.push_back(tests_mr_dynsim::test_4d_mri_acquisition());

@@ -104,7 +104,7 @@ public:
 	
 	virtual void save_ground_truth_displacements(void) const = 0;
 	virtual void acquire_raw_data( void ) = 0;
-
+	
 protected:
 	DynamicSimulationDeformer dsd_;
 
@@ -148,6 +148,8 @@ public:
 
 	virtual void acquire_raw_data( void );
 	virtual void save_ground_truth_displacements() const;
+	
+	virtual void save_groud_truth_parameter_maps( const std::string prefix_output ) const;
 
 	virtual void set_offset_transformation(const sirf::AffineTransformation<float>& trafo)
 	{
@@ -233,6 +235,10 @@ public:
 
 	void write_simulation_results( const std::string& filename_output_with_extension );
 	virtual void save_ground_truth_displacements() const;
+	virtual void save_groud_truth_parameter_maps() const
+	{
+		throw std::runtime_error("Not implemented yet");
+	}
 
 private:
 

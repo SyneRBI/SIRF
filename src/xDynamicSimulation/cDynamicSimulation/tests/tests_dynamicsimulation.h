@@ -25,6 +25,7 @@ namespace tests_mr_dynsim
 {
 
 bool test_constructor( void );
+bool test_write_ground_truth_parametermaps(void);
 bool test_simulate_statics( void );
 bool test_simulate_dynamics( void );
 bool test_simulate_5d_motion_dynamics( void );
