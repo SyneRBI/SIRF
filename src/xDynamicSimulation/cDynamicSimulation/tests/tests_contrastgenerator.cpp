@@ -144,12 +144,18 @@ void test_contgen::test_mr_contgen_map_tissue(void)
 
 		mr_contgen.map_tissue();
 		
-		const GadgetronImagesVector& mr_parameters = mr_contgen.get_parameter_filled_volumes();	
-		std::cout << "There are "<< mr_parameters.number() << " images in the XCAT output." << std::endl;		
+		const std::vector<sirf::NiftiImageData3D<float> > mr_parameter_maps = mr_contgen.get_parameter_filled_volumes();	
+		std::cout << "There are "<< mr_parameter_maps.size() << " parameter maps in the XCAT output." << std::endl;		
 
-		std::stringstream name_stream;
-		name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;
-		sirf::write_imagevector_to_raw(name_stream.str(), mr_parameters);
+		std::stringstream fpath_output_prefix;
+		fpath_output_prefix << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;
+		
+		for(int i=0; i<mr_parameter_maps.size(); ++i)
+		{
+			std::stringstream output_name_stream;
+			output_name_stream << fpath_output_prefix.str() << "_map_" << i << ".nii";
+			mr_parameter_maps[i].write(output_name_stream.str());
+		}
 		
 	}
 	catch( std::runtime_error const &e)

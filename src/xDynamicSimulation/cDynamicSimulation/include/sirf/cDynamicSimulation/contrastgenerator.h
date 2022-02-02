@@ -15,6 +15,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
+#include "sirf/Reg/NiftiImageData3D.h"
+
 #include "sirf/cDynamicSimulation/tissueparameters.h"
 #include "sirf/cDynamicSimulation/tissuelabelmapper.h"
 
@@ -67,14 +69,14 @@ public:
 	
 	void map_contrast();
 	void map_contrast(const std::vector<ExternalTissueSignal>& ext_sig);
-	void map_tissue(){throw std::runtime_error("not done yet");};
+	void map_tissue();
 
 
 	complex_float_t get_signal_for_tissuelabel( size_t const label );
 	
 	sirf::GadgetronImagesVector& get_contrast_filled_volumes(bool const resample_output=false);
 
-	const sirf::GadgetronImagesVector& get_parameter_filled_volumes() const {
+	const std::vector<sirf::NiftiImageData3D<float> >& get_parameter_filled_volumes() const {
 		return this->parameter_filled_volumes_;
 	}
 
@@ -89,7 +91,7 @@ private:
 
 	void resample_to_template_image( void );
 	sirf::GadgetronImagesVector contrast_filled_volumes_;
-	sirf::GadgetronImagesVector parameter_filled_volumes_;
+	std::vector<sirf::NiftiImageData3D<float> > parameter_filled_volumes_;
 	ISMRMRD::IsmrmrdHeader hdr_;
 
 	std::shared_ptr<sirf::MRAcquisitionData> sptr_acqu_;

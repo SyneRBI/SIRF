@@ -154,18 +154,27 @@ void MRContrastGenerator::map_contrast()
 	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
 }
 
-// void MRContrastGenerator::map_tissue()
-// {
-// 	this->tlm_.assign_tissues_to_labels();
-// 	this->contrast_filled_volumes_.empty();
-// 	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
+void MRContrastGenerator::map_tissue()
+{
+	throw std::runtime_error("not done yet");
+	// this->tlm_.assign_tissues_to_labels();
+	// this->get_parameter_filled_volumes.empty();
+	// this->get_parameter_filled_volumes = GadgetronImagesVector(*sptr_acqu_);
 
-// 	for (size_t i= 0; i<num_voxels; i++)
-// 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
+	// TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
+
+	// for (size_t i= 0; i<num_voxels; i++)
+	// 	contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
 		
-// 	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
+	// 	TissueParameter param_in_voxel = *(tissue_params[i_vox]);
 
-// }
+	// 		if(case_map==CASE_MAP_PET_CONTRAST)
+	// 			contrast_img[i_vox] = param_in_voxel.pet_tissue_.activity_kBq_ml_ * voxel_volume_ml ;						
+	// 		else if(case_map == CASE_MAP_PET_ATTENUATION)
+	// 			contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_cm_;			
+
+	// contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
+}
 
 
 std::vector<complex_float_t> MRContrastGenerator::build_label_signal_map(std::vector<ExternalTissueSignal> ext_sig) const {
