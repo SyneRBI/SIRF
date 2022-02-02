@@ -42,9 +42,11 @@ import sirf.Gadgetron as pMR
 # process command-line options
 show_plot = not args['--non-interactive']
 
+import matplotlib.pyplot as plt
 from pathlib import Path
 import numpy as np
 import time
+import random
 
 def create_dummy_mrf_signal(num_tissue_types,num_time_points):
     # 
@@ -85,7 +87,104 @@ def get_normed_surrogate_signal(t0_s, tmax_s, Nt, f_Hz):
 	return t_s, sig
 
 
-def main():
+def static_MR_fingerprinting():
+
+    print(" --- Running static MRF simulation.\n")
+
+    fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
+    prefix_fpath_input = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/'
+    
+    fpath_output = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
+    fname_output = fpath_output + 'simulated_static_MR_fingerprinting.h5'
+
+    fname_xml = prefix_fpath_input + 'Cube128/XCAT_TissueParameters_XML.xml'
+    fname_template_contrast_rawdata = prefix_fpath_input + 'Cube128/CV_nav_cart_128Cube_FLASH_T1.h5'
+    fname_template_acquisition_rawdata = prefix_fpath_input + 'General/meas_MID27_CV_11s_TI2153_a6_2x2x8_TR45_FID33312.h5'
+
+    print(" --- Loading the template raw data.\n")
+
+    contrast_template = pMR.AcquisitionData(fname_template_contrast_rawdata)
+    contrast_template = pMR.preprocess_acquisition_data(contrast_template)
+
+    acquisition_template = pMR.AcquisitionData(fname_template_acquisition_rawdata)
+    acquisition_template = pMR.set_radial2D_trajectory(acquisition_template)
+    
+
+    # First compute the coil profiles from the rawdata itself.
+    csm = pMR.CoilSensitivityData()
+    csm.calculate(acquisition_template)
+
+
+    print(" --- Extracting subset for template acquisition data.\n")
+    num_acquisitions = 3
+    list_acquisitions_to_keep = np.array(random.sample(range(0,acquisition_template.number()), num_acquisitions))
+    print("We will keep {} acquisitions.".format(list_acquisitions_to_keep.size))
+
+    simulated_traj = pMR.get_data_trajectory(acquisition_template)
+    plt.figure()
+    plt.scatter(simulated_traj[:,0], simulated_traj[:,1] )
+    plt.title('prior')
+    plt.show()
+
+    reduced_template = acquisition_template.get_subset(list_acquisitions_to_keep) 
+    reduced_template = pMR.set_goldenangle2D_trajectory(reduced_template)
+    simulated_traj = pMR.get_data_trajectory(reduced_template)
+    plt.figure('posterior')
+    plt.scatter(simulated_traj[:,0], simulated_traj[:,1] )
+    plt.show()
+
+    print(" --- Our Acquisition template contains {} readouts.\n".format(reduced_template.number()))
+    ##
+    labels = pReg.NiftiImageData3D( prefix_fpath_input + "Cube128/label_volume.nii"	)
+    mrsim = pDS.MRDynamicSimulation(labels, fname_xml)
+
+    mrsim.set_csm(csm)
+    mrsim.set_contrast_template_data(contrast_template)
+    mrsim.set_acquisition_template_data(acquisition_template)
+
+    offset_z_mm = -128
+    offset_centre_mm = 0
+    translation = np.array([offset_centre_mm, offset_centre_mm, offset_z_mm])
+    euler_angles_deg = np.array([0,0,0])
+
+    offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
+    mrsim.set_offset_trafo(offset_trafo)
+
+    # set which tissue defines SNR
+    SNR = 10
+    SNR_label = 13
+
+    mrsim.set_snr(SNR)
+    mrsim.set_snr_label(SNR_label)
+
+    fname_simulation_output = "simulation_static_MRF"
+    simulated_file = Path(fpath_output, fname_simulation_output).with_suffix('.h5')
+    if not simulated_file.is_file():
+        print(" --- Simulation of MRF data \n")
+        tstart = time.time()
+        mrsim.simulate_data()
+        print("--- Required {} minutes for the simulation.".format( (time.time()-tstart)/60))
+        mrsim.write_simulation_results(str(simulated_file))
+    else:
+        print("Skipping simulation since output file already exists.")
+
+    simulated_data = pMR.AcquisitionData(str(simulated_file))
+    csm.calculate(simulated_data)
+
+    AM = pMR.AcquisitionModel()
+    AM.set_coil_sensitivity_maps(csm)
+    AM.set_up(simulated_data, csm)
+
+    recon_img = AM.inverse(simulated_data)
+    recon_nii = pReg.NiftiImageData3D(recon_img)
+    recon_nii = recon_nii.abs()
+
+    fname_output = fpath_output + "recon_" + fname_simulation_output + ".nii"
+    recon_nii.write(fname_output)
+
+    return 1
+
+def motion_MR_fingerprinting():
 
     fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
     input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/'
@@ -217,6 +316,9 @@ def main():
 
     return 1
 
+def main():
+    static_MR_fingerprinting()
+    # motion_MR_fingerprinting()
 try:
     main()
     print('\n=== done with %s' % __file__)
