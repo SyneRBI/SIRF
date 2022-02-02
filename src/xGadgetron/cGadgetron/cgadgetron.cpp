@@ -588,9 +588,10 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<ISMRMRD::Acquisition>
-			sptr_acq(new ISMRMRD::Acquisition);
-		acqs.get_acquisition(acq_num, *sptr_acq);
+		shared_ptr<ISMRMRD::Acquisition> sptr_acq = acqs.get_acquisition_sptr(acq_num);
+		//shared_ptr<ISMRMRD::Acquisition>
+		//	sptr_acq(new ISMRMRD::Acquisition);
+		//acqs.get_acquisition(acq_num, *sptr_acq);
 		return newObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
 	}
 	CATCH;

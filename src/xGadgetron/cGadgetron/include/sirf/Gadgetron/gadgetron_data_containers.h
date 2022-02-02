@@ -378,6 +378,8 @@ namespace sirf {
 		// the number of acquisitions in the container
 		virtual unsigned int number() const = 0;
 
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition>
+			get_acquisition_sptr(unsigned int num) = 0;
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
@@ -554,6 +556,12 @@ namespace sirf {
 		{
 			acqs_.push_back(gadgetron::shared_ptr<ISMRMRD::Acquisition>
 				(new ISMRMRD::Acquisition(acq)));
+		}
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> 
+			get_acquisition_sptr(unsigned int num)
+		{
+			int ind = index(num);
+			return acqs_[ind];
 		}
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 		{
