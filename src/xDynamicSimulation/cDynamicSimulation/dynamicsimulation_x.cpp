@@ -335,15 +335,20 @@ void MRDynamicSimulation::save_groud_truth_parameter_maps( const std::string pre
 
 	std::stringstream fname_output;
 	fname_output << prefix_output << "_spindensity.nii";
-	parameter_maps[0].write(fname_output.str());
+	NiftiImageData3D<float> tmp_img;
+	
+	tmp_img = dsd_.resample_to_template(parameter_maps[0]);
+	tmp_img.write(fname_output.str());
 	fname_output.str(std::string());
 	
 	fname_output << prefix_output << "_T1_ms.nii";
-	parameter_maps[1].write(fname_output.str());
+	tmp_img = dsd_.resample_to_template(parameter_maps[1]);
+	tmp_img.write(fname_output.str());
 	fname_output.str(std::string());
 	
 	fname_output << prefix_output << "_T2_ms.nii";
-	parameter_maps[2].write(fname_output.str());
+	tmp_img = dsd_.resample_to_template(parameter_maps[2]);
+	tmp_img.write(fname_output.str());
 	fname_output.str(std::string());
 
 }

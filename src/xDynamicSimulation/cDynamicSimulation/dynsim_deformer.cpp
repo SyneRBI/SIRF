@@ -83,6 +83,34 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 	vec_displacement_fields.swap( empty_vec_to_free_memory );
 }
 
+NiftiImageData3D<float> DynamicSimulationDeformer::resample_to_template(const NiftiImageData3D<float>& img) const
+{
+	if(!mr_template_available_)
+		return img;
+	else{	
+		
+		NiftiImageData3D<float> real_valued_template(*sptr_mr_template_img_);
+		NiftyResampler<float> resampler;
+    	resampler.set_interpolation_type_to_cubic_spline();
+		resampler.set_floating_image( std::make_shared<NiftiImageData3D<float> > (img));
+		resampler.set_reference_image(std::make_shared<NiftiImageData3D<float> > (img));
+		resampler.add_transformation(std::make_shared<sirf::AffineTransformation<float> >(offset_));
+	
+		resampler.process();
+
+		// now clear the transformations, and put the deformed image as new floating
+		resampler.clear_transformations();
+		resampler.set_floating_image(resampler.get_output_sptr());
+		resampler.set_reference_image(std::make_shared<NiftiImageData3D<float> >(real_valued_template));
+		resampler.process();
+
+		NiftiImageData3D<float> deformed_img(*resampler.get_output_sptr());
+		return deformed_img;
+	}
+}
+
+
+
 void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<NiftiImageData3DDeformation<float> >& vec_displacement_fields)
 {
 	std::vector< STIRImageData >&  vect_img_data = pet_cont_gen.get_contrast_filled_volumes();

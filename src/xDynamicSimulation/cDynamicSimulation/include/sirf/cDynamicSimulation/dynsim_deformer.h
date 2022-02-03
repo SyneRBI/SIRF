@@ -19,6 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/cDynamicSimulation/auxiliary_input_output.h" // this header (rather the Gadgetron Base IO including Nifti) must not be included after the SIRFImageData.h headers. DONT put it into the cpp!
 
 #include "sirf/Reg/AffineTransformation.h"
+#include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 
@@ -46,7 +47,9 @@ public:
 
 	void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
 	void deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
-
+	
+	sirf::NiftiImageData3D<float> resample_to_template(const sirf::NiftiImageData3D<float>& img) const;
+	
 	void set_template_rawdata(const sirf::MRAcquisitionData& ad)
 	{
 		sptr_mr_template_img_ = std::shared_ptr<sirf::GadgetronImagesVector>(new sirf::GadgetronImagesVector(ad));
