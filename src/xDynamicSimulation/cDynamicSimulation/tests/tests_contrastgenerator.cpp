@@ -142,7 +142,7 @@ void test_contgen::test_mr_contgen_map_tissue(void)
 		
 		MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);	
 
-		mr_contgen.map_tissue();
+		mr_contgen.map_parameters();
 		
 		const std::vector<sirf::NiftiImageData3D<float> > mr_parameter_maps = mr_contgen.get_parameter_filled_volumes();	
 		std::cout << "There are "<< mr_parameter_maps.size() << " parameter maps in the XCAT output." << std::endl;		

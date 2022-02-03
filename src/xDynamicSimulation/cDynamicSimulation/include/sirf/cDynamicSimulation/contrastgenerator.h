@@ -69,7 +69,7 @@ public:
 	
 	void map_contrast();
 	void map_contrast(const std::vector<ExternalTissueSignal>& ext_sig);
-	void map_tissue();
+	void map_parameters();
 
 
 	complex_float_t get_signal_for_tissuelabel( size_t const label );

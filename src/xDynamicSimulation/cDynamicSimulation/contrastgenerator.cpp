@@ -154,10 +154,8 @@ void MRContrastGenerator::map_contrast()
 	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
 }
 
-void MRContrastGenerator::map_tissue()
+void MRContrastGenerator::map_parameters()
 {
-	// throw std::runtime_error("not done yet");
-	
 	parameter_filled_volumes_.empty();
 	parameter_filled_volumes_.push_back( get_parameter_map(0));
 	parameter_filled_volumes_.push_back( get_parameter_map(1));
@@ -183,6 +181,8 @@ sirf::NiftiImageData3D<float> MRContrastGenerator::get_parameter_map(const int w
 		TissueParameter param_in_voxel = *(tissue_params[i_vox]);
 		parameter_map(i_vox) = get_parameter_from_tissue(param_in_voxel, which_parameter);
 	}
+
+	parameter_map.reorient(*(tlm_.get_sptr_geometry()));
 
 	return parameter_map;
 }
