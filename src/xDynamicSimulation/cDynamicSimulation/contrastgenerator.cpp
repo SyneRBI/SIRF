@@ -182,8 +182,6 @@ sirf::NiftiImageData3D<float> MRContrastGenerator::get_parameter_map(const int w
 		parameter_map(i_vox) = get_parameter_from_tissue(param_in_voxel, which_parameter);
 	}
 
-	parameter_map.reorient(*(tlm_.get_sptr_geometry()));
-
 	return parameter_map;
 }
 
