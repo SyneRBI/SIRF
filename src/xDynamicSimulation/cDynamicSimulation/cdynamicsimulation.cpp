@@ -83,6 +83,20 @@ void* cDS_writeSimulationResults(const void* ptr_sim, const char* fname_with_ext
 }
 
 extern "C"
+void* cDS_saveParameterMapsGroundTruth(const void* ptr_sim, const char* fname_prefix)
+{
+	try {
+
+		CAST_PTR(DataHandle, h_sim, ptr_sim);			
+		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		sim.save_groud_truth_parameter_maps(fname_prefix);
+
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cDS_saveMotionGroundTruth(const void* ptr_sim)
 {
 	try {
@@ -331,8 +345,6 @@ void* cDS_setDynamicSignal(void* ptr_dyn, size_t ptr_time, size_t ptr_signal, in
 
 	CATCH;
 }
-
-
 
 extern "C"
 void* cDS_setMRGroundTruthFolderName(void* ptr_dyn, const char* fpath_output_prefix)

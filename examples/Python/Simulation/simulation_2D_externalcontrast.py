@@ -156,10 +156,12 @@ def static_MR_fingerprinting():
     offset_z_mm = -128
     offset_centre_mm = 0
     translation = np.array([offset_centre_mm, offset_centre_mm, offset_z_mm])
-    euler_angles_deg = np.array([0,0,0])
+    euler_angles_deg = np.array([15,15,0])
 
     offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
     mrsim.set_offset_trafo(offset_trafo)
+
+    mrsim.save_parametermap_ground_truth(fpath_output + "static_fingerprinting_parametermap_")
 
     # set which tissue defines SNR
     SNR = 10

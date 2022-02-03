@@ -114,6 +114,9 @@ class MRDynamicSimulation(object):
     def save_motion_ground_truth(self):
         pysim.cDS_saveMotionGroundTruth(self.handle)
 
+    def save_parametermap_ground_truth(self, filename_prefix):
+        pysim.cDS_saveParameterMapsGroundTruth(self.handle, filename_prefix)
+
     def add_motion_dynamic(self, motiondyn):
         try_calling(pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle)) 
 
