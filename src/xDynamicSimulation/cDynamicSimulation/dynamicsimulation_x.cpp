@@ -297,7 +297,7 @@ void MRDynamicSimulation::set_noise_label(size_t const label)
 {
 	auto const signal_in_label = this->mr_cont_gen_.get_signal_for_tissuelabel(label);
 	auto const abs_signal = std::abs( signal_in_label );
-	// float const abs_signal = 1.f;
+	
 	std::cout << "Adding signal " << abs_signal << " for label " << label << std::endl;
 	this->noise_generator_.set_signal_img( abs_signal );
 }
@@ -328,9 +328,24 @@ void MRDynamicSimulation::save_ground_truth_displacements( void ) const
 	}
 }
 
-void MRDynamicSimulation::save_groud_truth_parameter_maps( const std::string prefix_output ) const
+void MRDynamicSimulation::save_groud_truth_parameter_maps( const std::string prefix_output ) 
 {
-	throw std::runtime_error("not done yet");
+	this->mr_cont_gen_.map_parameters();
+	std::vector<NiftiImageData3D<float> > parameter_maps = this->mr_cont_gen_.get_parameter_filled_volumes();
+
+	std::stringstream fname_output;
+	fname_output << prefix_output << "_spindensity.nii";
+	parameter_maps[0].write(fname_output.str());
+	fname_output.str(std::string());
+	
+	fname_output << prefix_output << "_T1_ms.nii";
+	parameter_maps[1].write(fname_output.str());
+	fname_output.str(std::string());
+	
+	fname_output << prefix_output << "_T2_ms.nii";
+	parameter_maps[2].write(fname_output.str());
+	fname_output.str(std::string());
+
 }
 
 

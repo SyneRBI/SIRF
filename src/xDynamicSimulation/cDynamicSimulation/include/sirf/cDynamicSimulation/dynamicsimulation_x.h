@@ -149,7 +149,7 @@ public:
 	virtual void acquire_raw_data( void );
 	virtual void save_ground_truth_displacements() const;
 	
-	virtual void save_groud_truth_parameter_maps( const std::string prefix_output ) const;
+	virtual void save_groud_truth_parameter_maps( const std::string prefix_output );
 
 	virtual void set_offset_transformation(const sirf::AffineTransformation<float>& trafo)
 	{
