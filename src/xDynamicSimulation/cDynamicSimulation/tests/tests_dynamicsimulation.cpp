@@ -151,8 +151,12 @@ try
 	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 	
+	AcquisitionsVector av_template;
+	av_template.read( PATH_2D_ACQ_TEMPLATE );
+	mr_dyn_sim.set_acquisition_template_rawdata(av_template);
+
 	std::stringstream ss_output_prefix;
-	ss_output_prefix << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_test_" << __FUNCTION__;
+	ss_output_prefix << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;
 
 	mr_dyn_sim.save_groud_truth_parameter_maps(ss_output_prefix.str());
 
