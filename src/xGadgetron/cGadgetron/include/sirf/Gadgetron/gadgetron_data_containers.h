@@ -120,7 +120,9 @@ namespace sirf {
 		void deserialize() const
 		{
 			if (!this->empty())
+			{	header_ = ISMRMRD::IsmrmrdHeader();
 				ISMRMRD::deserialize(data_.c_str(), header_);
+			}
             have_header_ = true;
 		}
 		std::string data_;
