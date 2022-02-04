@@ -97,12 +97,13 @@ def static_MR_fingerprinting():
     fpath_output = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
     fname_output = fpath_output + 'simulated_static_MR_fingerprinting.h5'
 
-    fname_xml = prefix_fpath_input + 'Cube128/XCAT_TissueParameters_XML.xml'
-    fname_template_contrast_rawdata = prefix_fpath_input + 'Cube128/CV_nav_cart_128Cube_FLASH_T1.h5'
-    fname_template_acquisition_rawdata = prefix_fpath_input + 'General/meas_MID27_CV_11s_TI2153_a6_2x2x8_TR45_FID33312.h5'
+    fname_xml = prefix_fpath_input + 'Slab128/XCAT_TissueParameters_XML.xml'
+    fname_template_contrast_rawdata = prefix_fpath_input + 'Slab128/CV_nav_cart_128Slab_FLASH_T1.h5'
+    # fname_template_acquisition_rawdata = prefix_fpath_input + 'General/meas_MID27_CV_11s_TI2153_a6_2x2x8_TR45_FID33312.h5'
+    fname_template_acquisition_rawdata = prefix_fpath_input + 'General/meas_MID30_rad_2d_uniform_FID78805_ismrmrd.h5'
 
     ##
-    labels = pReg.NiftiImageData3D( prefix_fpath_input + "Cube128/label_volume.nii"	)
+    labels = pReg.NiftiImageData3D( prefix_fpath_input + "Slab128/label_volume_ras.nii")
     mrsim = pDS.MRDynamicSimulation(labels, fname_xml)
 
     print(" --- Loading the template raw data.\n")
@@ -129,19 +130,19 @@ def static_MR_fingerprinting():
 
     epg_simulation = np.array(np.load(fname_mrf_signal), dtype=np.complex64)
     
-    num_lines_kept = 520
+    num_lines_kept = 120
     epg_simulation = epg_simulation[:num_lines_kept,:]
 
     plt.figure()
     plt.plot(np.abs(epg_simulation))
-    plt.show()
+    # plt.show()
 
     epg_simulation = np.transpose(epg_simulation[:,unique_inv_idx])
 
     mrf_signal = pDS.ExternalMRSignal(mrf_labels, epg_simulation)
     mrf_dynamic = pDS.ExternalMRContrastDynamic()
     mrf_dynamic.add_external_signal(mrf_signal)
-    mrsim.add_external_contrast_dynamic(mrf_dynamic)
+    # mrsim.add_external_contrast_dynamic(mrf_dynamic)
 
     print(" --- Extracting subset for template acquisition data.\n")
     num_acquisitions = epg_simulation.shape[1]
@@ -151,12 +152,13 @@ def static_MR_fingerprinting():
     
     # 
     mrsim.set_contrast_template_data(contrast_template)
-    mrsim.set_acquisition_template_data(acquisition_template)
+    # mrsim.set_acquisition_template_data(acquisition_template)
+    mrsim.set_acquisition_template_data(contrast_template)
 
-    offset_z_mm = -128
+    offset_z_mm = 0
     offset_centre_mm = 0
     translation = np.array([offset_centre_mm, offset_centre_mm, offset_z_mm])
-    euler_angles_deg = np.array([15,15,0])
+    euler_angles_deg = np.array([0,0,0])
 
     offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
     mrsim.set_offset_trafo(offset_trafo)
@@ -199,133 +201,133 @@ def static_MR_fingerprinting():
 
 def motion_MR_fingerprinting():
 
-    fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
-    input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/'
-    output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
+    # fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
+    # input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/'
+    # output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynamicSimulation/'
 
-    fpath_xml = input_fpath_prefix + 'Slab128/XCAT_TissueParameters_XML.xml'
-    fpath_template_contrast_rawdata = input_fpath_prefix + 'Slab128/CV_nav_cart_128Slab_FLASH_T1.h5'
+    # fpath_xml = input_fpath_prefix + 'Slab128/XCAT_TissueParameters_XML.xml'
+    # fpath_template_contrast_rawdata = input_fpath_prefix + 'Slab128/CV_nav_cart_128Slab_FLASH_T1.h5'
 
-    trajectory_type = 'radial2D'
+    # trajectory_type = 'radial2D'
 
-    if trajectory_type == 'cartesian':
-        fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID29_cart_ref_image_FID78804_ismrmrd.h5'
-    else:
-        fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID30_rad_2d_uniform_FID78805_ismrmrd.h5'
+    # if trajectory_type == 'cartesian':
+    #     fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID29_cart_ref_image_FID78804_ismrmrd.h5'
+    # else:
+    #     fpath_template_acquisition_rawdata = input_fpath_prefix + 'General/meas_MID30_rad_2d_uniform_FID78805_ismrmrd.h5'
 
-    acquisition_ad = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
+    # acquisition_ad = pMR.AcquisitionData(fpath_template_acquisition_rawdata)
 
-    if trajectory_type == 'cartesian':
-        acquisition_ad = pMR.preprocess_acquisition_data(acquisition_ad)
-    elif trajectory_type == 'radial2D':
-        acquisition_ad = pMR.set_radial2D_trajectory(acquisition_ad)
-    elif trajectory_type == 'goldenangle2D':
-        acquisition_ad = pMR.set_goldenangle2D_trajectory(acquisition_ad)
-    else:
-        raise ValueError("The trajectory you gave is {}. The only options are cartesian, radial2D or goldenangle2D".format(trajectory_type))
+    # if trajectory_type == 'cartesian':
+    #     acquisition_ad = pMR.preprocess_acquisition_data(acquisition_ad)
+    # elif trajectory_type == 'radial2D':
+    #     acquisition_ad = pMR.set_radial2D_trajectory(acquisition_ad)
+    # elif trajectory_type == 'goldenangle2D':
+    #     acquisition_ad = pMR.set_goldenangle2D_trajectory(acquisition_ad)
+    # else:
+    #     raise ValueError("The trajectory you gave is {}. The only options are cartesian, radial2D or goldenangle2D".format(trajectory_type))
 
-    # configure the simulation
-    contrast_ad = pMR.AcquisitionData(fpath_template_contrast_rawdata)
-    contrast_ad = pMR.preprocess_acquisition_data(contrast_ad)
+    # # configure the simulation
+    # contrast_ad = pMR.AcquisitionData(fpath_template_contrast_rawdata)
+    # contrast_ad = pMR.preprocess_acquisition_data(contrast_ad)
 
-    labels = pReg.NiftiImageData3D( input_fpath_prefix + "Slab128/label_volume.nii"	)
-    mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
+    # labels = pReg.NiftiImageData3D( input_fpath_prefix + "Slab128/label_volume_ras.nii"	)
+    # mrsim = pDS.MRDynamicSimulation(labels, fpath_xml)
 
-    mrsim.set_contrast_template_data(contrast_ad)
-    mrsim.set_acquisition_template_data(acquisition_ad)
+    # mrsim.set_contrast_template_data(contrast_ad)
+    # mrsim.set_acquisition_template_data(acquisition_ad)
 
-    offset_z_mm = 0
-    translation = np.array([64, 64, offset_z_mm])
-    euler_angles_deg = np.array([0,3,3])
+    # offset_z_mm = -5
+    # translation = np.array([0, 0, offset_z_mm])
+    # euler_angles_deg = np.array([0,0,0])
 
-    offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
-    mrsim.set_offset_trafo(offset_trafo)
+    # offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
+    # mrsim.set_offset_trafo(offset_trafo)
 
-    # take CSM from the rawdata itself
-    # could be replaced if independent way of computing CSM is available
-    csm = pMR.CoilSensitivityData()
-    csm.calculate(acquisition_ad)
-    mrsim.set_csm(csm)
+    # # take CSM from the rawdata itself
+    # # could be replaced if independent way of computing CSM is available
+    # csm = pMR.CoilSensitivityData()
+    # csm.calculate(acquisition_ad)
+    # mrsim.set_csm(csm)
 
-    # set which tissue defines SNR
-    SNR = 10
-    SNR_label = 13
+    # # set which tissue defines SNR
+    # SNR = 10
+    # SNR_label = 13
 
-    mrsim.set_snr(SNR)
-    mrsim.set_snr_label(SNR_label)
+    # mrsim.set_snr(SNR)
+    # mrsim.set_snr_label(SNR_label)
 
-    # configure the surrogates
-    Nt = 10000
-    t0_s = 0
-    tmax_s = 60* 5 
+    # # configure the surrogates
+    # Nt = 10000
+    # t0_s = 0
+    # tmax_s = 60* 5 
 
-    f_Hz_card = 1
-    f_Hz_resp = 0.2
+    # f_Hz_card = 1
+    # f_Hz_resp = 0.2
 
-    t_resp, sig_resp = get_normed_surrogate_signal(t0_s, tmax_s, Nt, f_Hz_resp)
-    t_card, sig_card = get_normed_surrogate_signal(t0_s, tmax_s, Nt, f_Hz_card)
+    # t_resp, sig_resp = get_normed_surrogate_signal(t0_s, tmax_s, Nt, f_Hz_resp)
+    # t_card, sig_card = get_normed_surrogate_signal(t0_s, tmax_s, Nt, f_Hz_card)
 
-    # configure the motion
-    num_motion_states = 2
-    # RESP
-    num_sim_resp_states = num_motion_states
-    resp_motion = pDS.MRMotionDynamic( num_sim_resp_states )
-    resp_motion.set_dynamic_signal(t_resp, sig_resp)
-    resp_motion.set_cyclicality(False)
-    resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_simulation_2D_motiondata_r_{}_gt_resp".format(num_sim_resp_states))		
-    set_motionfields_from_path(resp_motion, input_fpath_prefix + 'Slab128/mvf_resp/')
-    mrsim.add_motion_dynamic(resp_motion)
+    # # configure the motion
+    # num_motion_states = 2
+    # # RESP
+    # num_sim_resp_states = num_motion_states
+    # resp_motion = pDS.MRMotionDynamic( num_sim_resp_states )
+    # resp_motion.set_dynamic_signal(t_resp, sig_resp)
+    # resp_motion.set_cyclicality(False)
+    # resp_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_simulation_2D_motiondata_r_{}_gt_resp".format(num_sim_resp_states))		
+    # set_motionfields_from_path(resp_motion, input_fpath_prefix + 'Slab128/mvf_resp/')
+    # mrsim.add_motion_dynamic(resp_motion)
 
-    # external signal
-    num_max_labels = 100
-    external_signal = create_dummy_mrf_signal(num_max_labels, acquisition_ad.number())
+    # # external signal
+    # num_max_labels = 100
+    # external_signal = create_dummy_mrf_signal(num_max_labels, acquisition_ad.number())
 
-    external_contrast = pDS.ExternalMRContrastDynamic() 
-    external_contrast.add_external_signal(external_signal)
+    # external_contrast = pDS.ExternalMRContrastDynamic() 
+    # external_contrast.add_external_signal(external_signal)
 
-    mrsim.add_external_contrast_dynamic(external_contrast)
+    # mrsim.add_external_contrast_dynamic(external_contrast)
 
 
-    # CARD
-    num_sim_card_states = num_motion_states
+    # # CARD
+    # num_sim_card_states = num_motion_states
 
-    card_motion = pDS.MRMotionDynamic(num_sim_card_states)
-    card_motion.set_dynamic_signal(t_card, sig_card)
-    card_motion.set_cyclicality(True)
-    card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_simulation_2D_externalcontrast_c_{}_gt_card".format(num_sim_card_states))		
-    set_motionfields_from_path(card_motion, input_fpath_prefix + 'Slab128/mvf_card/')
-    mrsim.add_motion_dynamic(card_motion)
+    # card_motion = pDS.MRMotionDynamic(num_sim_card_states)
+    # card_motion.set_dynamic_signal(t_card, sig_card)
+    # card_motion.set_cyclicality(True)
+    # card_motion.set_groundtruth_folder_prefix(output_fpath_prefix + "output_simulation_2D_externalcontrast_c_{}_gt_card".format(num_sim_card_states))		
+    # set_motionfields_from_path(card_motion, input_fpath_prefix + 'Slab128/mvf_card/')
+    # mrsim.add_motion_dynamic(card_motion)
 
-    #
-    fname_simulation_output = "output_simulation_2D_externalcontrast_traj_{}_r{}_c{}".format(trajectory_type, num_sim_resp_states,num_sim_card_states)
+    # #
+    # fname_simulation_output = "output_simulation_2D_externalcontrast_traj_{}_r{}_c{}".format(trajectory_type, num_sim_resp_states,num_sim_card_states)
 
-    fname_output = output_fpath_prefix + fname_simulation_output + ".h5"
-    simulated_file = Path(fname_output)
-    if not simulated_file.is_file():
+    # fname_output = output_fpath_prefix + fname_simulation_output + ".h5"
+    # simulated_file = Path(fname_output)
+    # if not simulated_file.is_file():
 
-        tstart = time.time()
-        mrsim.simulate_data()
-        print("--- Required {} minutes for the simulation.".format( (time.time()-tstart)/60))
-        mrsim.write_simulation_results(str(simulated_file))
-    else:
-        print("Skipping simulation since output file already exists.")
+    #     tstart = time.time()
+    #     mrsim.simulate_data()
+    #     print("--- Required {} minutes for the simulation.".format( (time.time()-tstart)/60))
+    #     mrsim.write_simulation_results(str(simulated_file))
+    # else:
+    #     print("Skipping simulation since output file already exists.")
 
-    mrsim.save_motion_ground_truth()
+    # mrsim.save_motion_ground_truth()
 
-    simulated_data = pMR.AcquisitionData(str(simulated_file))
+    # simulated_data = pMR.AcquisitionData(str(simulated_file))
 
-    csm.calculate(simulated_data)
+    # csm.calculate(simulated_data)
 
-    AM = pMR.AcquisitionModel()
-    AM.set_coil_sensitivity_maps(csm)
-    AM.set_up(simulated_data, csm)
+    # AM = pMR.AcquisitionModel()
+    # AM.set_coil_sensitivity_maps(csm)
+    # AM.set_up(simulated_data, csm)
 
-    recon_img = AM.inverse(simulated_data)
-    recon_nii = pReg.NiftiImageData3D(recon_img)
-    recon_nii = recon_nii.abs()
+    # recon_img = AM.inverse(simulated_data)
+    # recon_nii = pReg.NiftiImageData3D(recon_img)
+    # recon_nii = recon_nii.abs()
 
-    fname_output = output_fpath_prefix + "recon_" + fname_simulation_output + ".nii"
-    recon_nii.write(fname_output)
+    # fname_output = output_fpath_prefix + "recon_" + fname_simulation_output + ".nii"
+    # recon_nii.write(fname_output)
 
     return 1
 
