@@ -66,7 +66,7 @@ def reorient_label_volume():
     data = data[:,:,60:70]
 
     affine = np.diag([2,2,-2,1])
-    affine[:,3] = [-127, -127, 9, 1]
+    affine[:,3] = [-127, -127, 9 , 1]
 
     img = nib.Nifti1Image(data, affine)
     fname_out = input_fpath_prefix + 'Slab128/label_volume_rai.nii'
@@ -86,42 +86,26 @@ def experiments_simulation_geometry():
 
     mrsim.set_contrast_template_data(contrast_template)
     mrsim.set_acquisition_template_data(contrast_template)
-    # mrsim.set_acquisition_template_data(acquisition_template)
     
+    # 
+    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_contrast_parametermap_")
+    #
+    mrsim.set_acquisition_template_data(acquisition_template)
+    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_acquisition_parametermap_")
 
+    #
     offset_x_mm = 0
     offset_y_mm = 0
-    offset_z_mm = 0
+    offset_z_mm = -10
     
-    rotation_angles_deg = [0,0,0]
+    rotation_angles_deg = [15,15,0]
     translation = np.array([offset_x_mm, offset_y_mm, offset_z_mm])
     euler_angles_deg = np.array(rotation_angles_deg)
 
     offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
     mrsim.set_offset_trafo(offset_trafo)
 
-    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_parametermap_")
-
-
-def print_header_infos():
-    pass  
-#     print("############### Labels ")
-#     print(fname_labels)
-#     labels_nii = pReg.NiftiImageData3D(fname_labels)
-#     labels_nii.print_header()
-    
-#     print("############### Acquisition ")
-#     acq_img = pMR.ImageData()	
-#     acq_img.from_acquisition_data(acquisition_template)
-#     acq_nii = pReg.NiftiImageData(acq_img)
-#     acq_nii.print_header()
-
-#     print("############### Contrast ")
-#     contrast_img = pMR.ImageData()
-#     contrast_img.from_acquisition_data(contrast_template)
-#     contrast_nii = pReg.NiftiImageData3D(contrast_img)
-#     contrast_nii.print_header()
-
+    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_acquisition_offset_parametermap_")
     
 def main():
     # print_header_infos()

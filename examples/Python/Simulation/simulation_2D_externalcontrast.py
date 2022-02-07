@@ -98,12 +98,11 @@ def static_MR_fingerprinting():
     fname_output = fpath_output + 'simulated_static_MR_fingerprinting.h5'
 
     fname_xml = prefix_fpath_input + 'Slab128/XCAT_TissueParameters_XML.xml'
-    fname_template_contrast_rawdata = prefix_fpath_input + 'Slab128/CV_nav_cart_128Slab_FLASH_T1.h5'
-    # fname_template_acquisition_rawdata = prefix_fpath_input + 'General/meas_MID27_CV_11s_TI2153_a6_2x2x8_TR45_FID33312.h5'
-    fname_template_acquisition_rawdata = prefix_fpath_input + 'General/meas_MID30_rad_2d_uniform_FID78805_ismrmrd.h5'
+    fname_template_contrast_rawdata = prefix_fpath_input + 'Slab128/CV_nav_cart_128Slab_FLASH_T1_defaultorientation.h5'
+    fname_template_acquisition_rawdata = prefix_fpath_input + 'General/meas_MID27_CV_11s_TI2153_a6_2x2x8_TR45_FID33312_defaultorientation.h5'
 
     ##
-    labels = pReg.NiftiImageData3D( prefix_fpath_input + "Slab128/label_volume_ras.nii")
+    labels = pReg.NiftiImageData3D( prefix_fpath_input + "Slab128/label_volume_rai.nii")
     mrsim = pDS.MRDynamicSimulation(labels, fname_xml)
 
     print(" --- Loading the template raw data.\n")
@@ -130,12 +129,8 @@ def static_MR_fingerprinting():
 
     epg_simulation = np.array(np.load(fname_mrf_signal), dtype=np.complex64)
     
-    num_lines_kept = 120
+    num_lines_kept = 320
     epg_simulation = epg_simulation[:num_lines_kept,:]
-
-    plt.figure()
-    plt.plot(np.abs(epg_simulation))
-    # plt.show()
 
     epg_simulation = np.transpose(epg_simulation[:,unique_inv_idx])
 
@@ -148,12 +143,10 @@ def static_MR_fingerprinting():
     num_acquisitions = epg_simulation.shape[1]
     list_acquisitions_to_keep = np.arange(0,num_acquisitions)
     acquisition_template = acquisition_template.get_subset(list_acquisitions_to_keep) 
-    acquisition_template = pMR.set_goldenangle2D_trajectory(acquisition_template)
     
     # 
     mrsim.set_contrast_template_data(contrast_template)
-    # mrsim.set_acquisition_template_data(acquisition_template)
-    mrsim.set_acquisition_template_data(contrast_template)
+    mrsim.set_acquisition_template_data(acquisition_template)
 
     offset_z_mm = 0
     offset_centre_mm = 0
