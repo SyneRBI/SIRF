@@ -257,27 +257,14 @@ void MRContrastGenerator::map_contrast(const std::vector<ExternalTissueSignal>& 
 		magnetisation[i] = map_label_to_signal[tissue_params[i]->label_];
 		
 	const int* segmentation_dims = this->tlm_.get_segmentation_dimensions();
-	std::vector<size_t> data_size;
 
-	for( int i_dim=0; i_dim< 8; i_dim++)
-		data_size.push_back( (size_t)segmentation_dims[i_dim] );
-
-	size_t Nz = data_size[3];
-	size_t Ny = data_size[2];
-	size_t Nx = data_size[1];
+	size_t Nz = segmentation_dims[3];
+	size_t Ny = segmentation_dims[2];
+	size_t Nx = segmentation_dims[1];
 
 	auto ptr_img = (CFImage*) contrast_filled_volumes_.sptr_image_wrap(0)->ptr_image();
 	ptr_img->resize(Nx, Ny, Nz, 1);
 	memcpy(ptr_img->begin(), &magnetisation[0], magnetisation.size() * sizeof(complex_float_t));
-
-	// // #pragma omp parallel
-	// for( size_t nz=0; nz<Nz; nz++)
-	// for( size_t ny=0; ny<Ny; ny++)
-	// for( size_t nx=0; nx<Nx; nx++)
-	// {
-	// 	size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
-	// 	ptr_img->operator()(nx, ny, nz, 0) = magnetisation[linear_index_access];
-	// }
 
 	contrast_filled_volumes_.reorient(*(tlm_.get_sptr_geometry()));
 }
