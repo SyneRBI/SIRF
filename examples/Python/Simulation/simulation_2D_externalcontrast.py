@@ -129,7 +129,7 @@ def static_MR_fingerprinting():
 
     epg_simulation = np.array(np.load(fname_mrf_signal), dtype=np.complex64)
     
-    num_lines_kept = 320
+    num_lines_kept = 120
     epg_simulation = epg_simulation[:num_lines_kept,:]
 
     epg_simulation = np.transpose(epg_simulation[:,unique_inv_idx])
@@ -137,7 +137,7 @@ def static_MR_fingerprinting():
     mrf_signal = pDS.ExternalMRSignal(mrf_labels, epg_simulation)
     mrf_dynamic = pDS.ExternalMRContrastDynamic()
     mrf_dynamic.add_external_signal(mrf_signal)
-    # mrsim.add_external_contrast_dynamic(mrf_dynamic)
+    mrsim.add_external_contrast_dynamic(mrf_dynamic)
 
     print(" --- Extracting subset for template acquisition data.\n")
     num_acquisitions = epg_simulation.shape[1]
@@ -148,15 +148,18 @@ def static_MR_fingerprinting():
     mrsim.set_contrast_template_data(contrast_template)
     mrsim.set_acquisition_template_data(acquisition_template)
 
-    offset_z_mm = 0
+    
     offset_centre_mm = 0
-    translation = np.array([offset_centre_mm, offset_centre_mm, offset_z_mm])
+    offset_z_mm = 0
+    offset_mm = [offset_centre_mm, offset_centre_mm, offset_z_mm]
+    
+    translation = np.array(offset_mm)
     euler_angles_deg = np.array([0,0,0])
 
     offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
     mrsim.set_offset_trafo(offset_trafo)
 
-    mrsim.save_parametermap_ground_truth(fpath_output + "static_fingerprinting_parametermap_")
+    mrsim.save_parametermap_ground_truth(fpath_output + "static_fingerprinting_parametermap")
 
     # set which tissue defines SNR
     SNR = 10

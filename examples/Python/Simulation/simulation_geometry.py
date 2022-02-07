@@ -56,24 +56,35 @@ output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynami
 fname_xml = input_fpath_prefix + 'Slab128/XCAT_TissueParameters_XML.xml'
 fname_template_contrast = input_fpath_prefix + 'Slab128/CV_nav_cart_128Slab_FLASH_T1.h5'
 fname_template_acquisition = input_fpath_prefix + 'General/meas_MID33_rad_2d_gc_FID78808_ismrmrd_defaultorient.h5'
-fname_labels = input_fpath_prefix + 'Slab128/label_volume_rai.nii'
+fname_labels = input_fpath_prefix + 'Cube128/label_volume_rai.nii'
 
-def reorient_label_volume():
+
+reorient_label_volume = True
+if reorient_label_volume:
 
     img = nib.load(fname_labels)
     data = img.get_fdata()
 
     data = data[:,:,60:70]
 
-    affine = np.diag([2,2,-2,1])
-    affine[:,3] = [-127, -127, 9 , 1]
+    resolution_mm_per_pixel = np.array([2,2,-2,1])
+    offset_mm =(-np.array(data.shape)/2 + 0.5) * resolution_mm_per_pixel[0:3]
 
+    affine = np.diag(resolution_mm_per_pixel)
+    affine[:3,3] = offset_mm
+    
+    #
     img = nib.Nifti1Image(data, affine)
-    fname_out = input_fpath_prefix + 'Slab128/label_volume_rai.nii'
+    hdr = img.header
+    hdr.set_qform(hdr.get_sform())
 
+    fname_out = '/media/sf_CCPPETMR/labels.nii'
     nib.save(img, fname_out)
 
-# reorient_label_volume()
+    sirf_nii = pReg.NiftiImageData(fname_out)
+    sirf_nii.print_header()
+
+
 
 
 acquisition_template = pMR.AcquisitionData(fname_template_acquisition)
@@ -88,10 +99,10 @@ def experiments_simulation_geometry():
     mrsim.set_acquisition_template_data(contrast_template)
     
     # 
-    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_contrast_parametermap_")
+    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_contrast_parametermap")
     #
     mrsim.set_acquisition_template_data(acquisition_template)
-    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_acquisition_parametermap_")
+    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_acquisition_parametermap")
 
     #
     offset_x_mm = 0
@@ -105,7 +116,7 @@ def experiments_simulation_geometry():
     offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
     mrsim.set_offset_trafo(offset_trafo)
 
-    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_acquisition_offset_parametermap_")
+    mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_acquisition_offset_parametermap")
     
 def main():
     # print_header_infos()
