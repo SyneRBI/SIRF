@@ -67,26 +67,4 @@ protected:
 
 	static void deform_pet_image( sirf::STIRImageData& img, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields);
 	
-	std::shared_ptr<sirf::AffineTransformation<float> > compute_shift_to_center(const sirf::NiftiImageData3D<float>& img) 
-	{
-	
-		int const num_dims = 7;
-		std::array<float, num_dims> spacings;
-		std::array<int, num_dims> dimensions;
-		
-		for (int i=0; i<= num_dims; ++i)
-		{
-			dimensions[i] = img.get_raw_nifti_sptr()->dim[i];
-            spacings[i] = img.get_raw_nifti_sptr()->pixdim[i];
-		}
-
-		std::array<float, 3> id_euler{0,0,0};
-		std::array<float, 3> shift_translation{0,0,0};
-		
-		shift_translation[2] = -1 * dimensions[3]/2.f * spacings[3];
-		sirf::AffineTransformation<float> offset(shift_translation, id_euler);
-		offset_ = offset;
-
-		return std::shared_ptr<sirf::AffineTransformation<float> >(new sirf::AffineTransformation<float>(offset));
- 	}
 };

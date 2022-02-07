@@ -32,10 +32,6 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 	// deform the images in the contrast generator with the supplied displacement fields
 	GadgetronImagesVector& img_data = mr_cont_gen.get_contrast_filled_volumes();
 	
-	// img_data.get_geom_info_sptr()->print_info();
-	// vec_displacement_fields[0].get_geom_info_sptr()->print_info();
-	
-	
 	if(vec_displacement_fields.size() > 0)
 		img_data.reorient(*(vec_displacement_fields[0].get_geom_info_sptr()));
 
@@ -51,8 +47,6 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 		resampler.add_transformation(disp_trafo);
 	}
 	
-	// finally shift by half a field of view into z-direction
-	// resampler.add_transformation( this->compute_shift_to_center(img_data) );
 	resampler.add_transformation(std::make_shared<sirf::AffineTransformation<float> >(offset_));
 	resampler.process();
 
