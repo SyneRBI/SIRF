@@ -11,7 +11,7 @@ Detailed (short-term) issues are at
 - <https://github.com/SyneRBI/SIRF/milestones>
 - <https://github.com/SyneRBI/SyneRBI_VM/milestones>
 
-Descriptions on past releases are not necessarily complete. Check our
+Descriptions on past releases are not complete. Check our
 [../CHANGES.md](CHANGES.md) for more information.
 
 # SIRF 0.9
@@ -73,8 +73,6 @@ Released 20 May 2020
 
   - Drop support for Python 2.
   - Simplify handling of coil images and sensitivities in C++ code.
-  - `Registration`: rename `Resample` to `Resampler` and `NiftyResample` to `NiftyResampler`.
-  - Restrict MR acquisition data storage scheme to memory only.
   - Add of `sirf.STIR.ScatterEstimation` and `ScatterSimulation` to allow (non-TOF) scatter estimation in PET.
   - Support GE Signa PET/MR reading of listmode data, sinograms, normalisation and randoms.
   - Make [Georg Schramm's parallel (GPU) projector](https://github.com/gschramm/parallelproj) available from SIRF.
@@ -87,37 +85,36 @@ Released 24 Jun 2020
   - Support golden-angle radial phase encoding (RPE) if `Gadgetron` toolboxes were found during built.
   - Use `sort_by_time()` for MR acquisitions.
   - Introduce encoding classes that perform the Fourier transformations instead of the `MRAcquisitionModel`.
-  - Add constructor for `GadgetronImagesVector` from `MRAcquisitionData`.
   - Methods `range_geometry` and `domain_geometry` of `AcquisitionModel` classes in Python interface, required by CIL algorithms, should obtain data via respective C++ `AcquisitionModel` classes accessors.
 
 # SIRF 3.2
 Target: 2022 Q1
 
-  - Replace where possible returning `stir::Succeeded::no` with throwing exception.
-  - Remove `__div__` ,  `__idiv__` operators for `DataContainer` classes in Python interface required for Python2.
-  - Add `__truediv__` and `__itruediv__` Python3 operators to `DataContainer` classes.
-  - Export a CMake config file such that external C++ projects can use SIRF via CMake.
-  - During the build step run the executable `ismrmrd_generate_cartesian_shepp_logan` to generate test data compatible with the installed ISMRMRD version.
-  - Require ISMRMRD not older than v1.4.2.1.
   - Add conjugation methods to `DataContainer` classes.
+  - C++: Replace where possible returning `stir::Succeeded::no` with throwing exception.
+  - Python: clean-up of division operators
+  - CMake/build:
+     - Export a CMake config file such that external C++ projects can use SIRF via CMake.
+     - During the build step run the executable `ismrmrd_generate_cartesian_shepp_logan` to generate test data compatible with the installed ISMRMRD version.
 
 # SIRF 3.3
 Target: Q4 2022
 
-  - Create subsets of acquisition and image data.
-  - C++ functions to compute gradients and values of MR objective function.
   - More MR sequences (list of example sequences that we support TBC).
   - PET TOF support (no scatter; depends on STIR).
+  - Create subsets of acquisition and image data.
+  - Initial SPECT support
   - Implement creation of gated PET sinograms from listmode (depends on STIR).
   - Motion estimation via image registration in SIRF (via connection with CIL).
-  - Further additions to C++ Interface coherent with Python and Matlab interface (enabling a possible move to direct use of SWIG).
+  - C++:
+     - C++ functions to compute gradients and values of MR objective function.
+     - Further additions to C++ Interface coherent with Python and Matlab interface (enabling a possible move to direct use of SWIG).
 
 # SIRF 4.0
 Target: Q4 2023
 
   - Software
       - LPS coordinate system that coincides with the vendor's, including handling of bed position.
-      - Full support for measured data (Siemens, GE non-TOF; MR only if ismrmrd converter available).
       - PET dynamics and gated (separate reconstructions), needs support on `DataContainer` classes.
       - Extended SPECT support, including multiple energy windows and scatter (via STIR).
       - Expanded Testing framework.
@@ -125,7 +122,7 @@ Target: Q4 2023
       - Joint motion and reconstruction estimation (via connection with CIL; spatial only at first, time sync later).
       - MR reconstruction with PET prior (via connection with CIL).
       - Joint PET-MR reconstruction using MATLAB or Python tools/toolboxes.
-      - Implementation of a few generic optimisation algorithms (to be decided how much of this needs to be in SIRF vs CIL).
+      - <strike>Implementation of a few generic optimisation algorithms</strike> (we will rely on CIL).
   - Sample pipelines for PET and MR reconstruction for static data (based on current scripts)
       - Add error checking of input.
       - Standardise input and output file structure/location.
@@ -137,7 +134,7 @@ Target: Q4 2023
      - MR sequences: (list TBD)
      - Philips?
   - Example interfaces to Machine Learning framework(s).
-  - Further ode optimization.
+  - Further code optimization.
   - Dynamic/gated data with parametric models.
   - Non-cuboid voxelised images (e.g. blobs, non-Cartesian grids, wavelet representations, etc),
   - Integration of other reconstruction packages.
