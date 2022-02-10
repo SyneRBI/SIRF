@@ -103,6 +103,9 @@ if (BUILD_MATLAB)
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Utilities/examples_data_path.m.in" ${MATLAB_DEST}/+sirf/+Utilities/examples_data_path.m)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Utilities/version_major.m.in" ${MATLAB_DEST}/version_major.m)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Utilities/version_minor.m.in" ${MATLAB_DEST}/version_minor.m)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Utilities/version_patch.m.in" ${MATLAB_DEST}/version_patch.m)
 
 endif (BUILD_MATLAB)
 

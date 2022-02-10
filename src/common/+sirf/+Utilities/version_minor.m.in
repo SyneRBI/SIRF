@@ -19,7 +19,7 @@
 function str = version_minor()
 % return SIRF version minor string (minor)
 % Usage:
-% version_string = version()
+% version_string = version_minor()
 
   str = '@VERSION_MINOR@';
 end

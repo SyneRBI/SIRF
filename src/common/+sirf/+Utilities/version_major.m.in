@@ -20,7 +20,7 @@
 function str = version_major()
 % return SIRF version major string (major)
 % Usage:
-% version_string = version()
+% version_string = version_major()
 
   str = '@VERSION_MAJOR@';
 end
