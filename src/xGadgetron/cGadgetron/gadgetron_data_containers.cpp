@@ -619,26 +619,26 @@ MRAcquisitionData::sort()
 void
 MRAcquisitionData::sort_by_time()
 {
-	typedef std::array<uint32_t , 1>  tuple;
-	tuple t;
-	std::vector< tuple > vt;
-	size_t const num_acquis = this->number();
+    size_t const N = this->number();
+    index_.resize(N);
+    if (N == 0)
+        std::cerr
+        << "WARNING: cannot sort an empty container of acquisition data."
+        << std::endl;
+    else {
+        std::vector<uint32_t> a;
+        for (size_t i = 0; i < N; i++)
+        {
+            ISMRMRD::Acquisition acq;
+            get_acquisition(i, acq);
+            a.push_back(acq.acquisition_time_stamp());
+        }
+        int* index = &index_[0];
+        std::iota(index, index + N, 0);
+        std::stable_sort
+        (index, index + N, [&a](int i, int j) {return (a[i] < a[j]); });
+    }
 
-	for(size_t i=0; i<num_acquis; i++)
-	{
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		t[0] = acq.acquisition_time_stamp();
-		vt.push_back( t );
-	}
-
-	index_.resize(num_acquis);
-	
-	if( num_acquis == 0 )
-		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
-	else
-		Multisort::sort( vt, &index_[0] );
-    
     this->organise_kspace();
     sorted_ = true;
 
