@@ -99,7 +99,7 @@ bool test_get_subset(const MRAcquisitionData& av)
 bool test_set_trajectory_type(const MRAcquisitionData& ad)
 {
     try{
-        std::cout << "Running " << __FUNCTION << std::endl;
+        std::cout << "Running " << __FUNCTION__ << std::endl;
         auto sptr_av = ad.clone();
         std::cout << "Our trajectory type is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
         sptr_av ->set_trajectory_type(ISMRMRD::TrajectoryType::SPIRAL);
