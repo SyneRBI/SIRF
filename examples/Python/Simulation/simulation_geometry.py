@@ -55,11 +55,11 @@ output_fpath_prefix = fpath_testdata_prefix + 'Output/xDynamicSimulation/pDynami
 
 fname_xml = input_fpath_prefix + 'Slab128/XCAT_TissueParameters_XML.xml'
 fname_template_contrast = input_fpath_prefix + 'Slab128/CV_nav_cart_128Slab_FLASH_T1.h5'
-fname_template_acquisition = input_fpath_prefix + 'General/meas_MID33_rad_2d_gc_FID78808_ismrmrd_defaultorient.h5'
+fname_template_acquisition = input_fpath_prefix + 'General/meas_MID27_CV_11s_TI2153_a6_2x2x8_TR45_FID33312_defaultorientation.h5'
 fname_labels = input_fpath_prefix + 'Cube128/label_volume_rai.nii'
 
 
-reorient_label_volume = True
+reorient_label_volume = False
 if reorient_label_volume:
 
     img = nib.load(fname_labels)
@@ -87,10 +87,40 @@ if reorient_label_volume:
 
 
 
-acquisition_template = pMR.AcquisitionData(fname_template_acquisition)
-contrast_template = pMR.AcquisitionData(fname_template_contrast)
+
+
+
+
+def resample_to_destination_geometry():
+
+    acquisition_template = pMR.AcquisitionData(fname_template_acquisition)
+    labels = pReg.NiftiImageData3D( input_fpath_prefix + "Cube128/label_volume_rai.nii")
+
+    dst_img = pMR.ImageData()
+    dst_img.from_acquisition_data(acquisition_template)
+    dst_img = pReg.NiftiImageData3D(dst_img)
+    
+    resampler = pReg.NiftyResampler()
+    resampler.set_interpolation_type_to_nearest_neighbour()
+
+    resampler.set_reference_image(dst_img)
+    resampler.set_floating_image(labels)
+
+    translation = np.array([0,0,100], dtype=np.float32)
+    euler_angles_deg = np.array([0,0,45], dtype=np.float32)
+
+    offset_trafo = pReg.AffineTransformation(translation, euler_angles_deg)
+    resampler.add_transformation(offset_trafo)
+
+    resampler.process()
+    output = resampler.get_output()
+    output.write("/media/sf_CCPPETMR/tmp_neartestneighbor.nii")
 
 def experiments_simulation_geometry():
+
+
+    contrast_template = pMR.AcquisitionData(fname_template_contrast)
+    acquisition_template = pMR.AcquisitionData(fname_template_acquisition)
 
     labels = pReg.NiftiImageData3D(fname_labels)
     mrsim = pDS.MRDynamicSimulation(labels, fname_xml)
@@ -119,8 +149,8 @@ def experiments_simulation_geometry():
     mrsim.save_parametermap_ground_truth(output_fpath_prefix + "simulation_geometry_acquisition_offset_parametermap")
     
 def main():
-    # print_header_infos()
-    experiments_simulation_geometry()
+    resample_to_destination_geometry()
+    # experiments_simulation_geometry()
 try:
     main()
     print('\n=== done with %s' % __file__)
