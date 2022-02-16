@@ -104,10 +104,10 @@ bool test_set_trajectory_type(const MRAcquisitionData& ad)
         std::cout << "The trajectory type before setting is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
         
         ISMRMRD::TrajectoryType type_to_set = ISMRMRD::TrajectoryType::SPIRAL;
+        sptr_av ->set_trajectory_type(type_to_set);
 
         std::cout << "The trajectory type after setting is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
 
-        sptr_av ->set_trajectory_type(type_to_set);
 
         if(sptr_av->get_trajectory_type() == type_to_set)
             return true;
