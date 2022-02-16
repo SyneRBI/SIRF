@@ -389,7 +389,7 @@ MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
 		throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
 	#endif
 	}
-	else if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+	else if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE || sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::SPIRAL)
 	{
 		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
