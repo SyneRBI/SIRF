@@ -101,9 +101,19 @@ bool test_set_trajectory_type(const MRAcquisitionData& ad)
     try{
         std::cout << "Running " << __FUNCTION__ << std::endl;
         auto sptr_av = ad.clone();
-        std::cout << "Our trajectory type is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
-        sptr_av ->set_trajectory_type(ISMRMRD::TrajectoryType::SPIRAL);
-        std::cout << "Our trajectory type is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
+        std::cout << "The trajectory type before setting is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
+        
+        ISMRMRD::TrajectoryType type_to_set = ISMRMRD::TrajectoryType::SPIRAL;
+
+        std::cout << "The trajectory type after setting is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
+
+        sptr_av ->set_trajectory_type(type_to_set);
+
+        if(sptr_av->get_trajectory_type() == type_to_set)
+            return true;
+        else
+            return false;
+        
     }
     catch( std::runtime_error const &e)
     {
@@ -128,7 +138,6 @@ bool test_set_trajectory(const MRAcquisitionData& ad)
         int const traj_dim = 2;
 
         size_t const num_trajectory_pts = traj_dim*num_samples*num_readouts;
-        std::cout << "Our container has " << num_readouts << " readouts with " << num_samples << " samples." << std::endl;
         std::vector<float> traj(num_trajectory_pts);
 
         sptr_av->set_trajectory(traj_dim,&traj[0]);
