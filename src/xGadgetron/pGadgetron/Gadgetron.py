@@ -1654,6 +1654,30 @@ def set_goldenangle2D_trajectory(ad):
     try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
     return ad
 
+def set_spiral2D_trajectory(ad, data):
+    
+    traj_type = int(4) # == spiral
+    pygadgetron.cGT_setTrajectoryType(ad.handle, traj_type)
+
+    traj_dim = int(2)
+    dims = ad.dimensions()
+    
+    num_readouts = dims[0]
+    num_samples = dims[1]
+    expected_data_shape = (num_readouts, num_samples, traj_dim)
+
+    if data.shape != expected_data_shape:
+        raise AssertionError("Pass the spiral trajectory in the shape {}. You gave a shape of {}".format(expected_data_shape, data.shape))
+    
+    data = numpy.array(data, numpy.float32)
+    convert = not data.flags['C_CONTIGUOUS']
+    if convert:
+        data = numpy.ascontiguousarray(data)
+    pygadgetron.cGT_setDataTrajectory(ad.handle, traj_dim, data.ctypes.data)
+
+
+
+
 def get_data_trajectory(ad):
     '''
     Function that gets the trajectory of AcquisitionData depending on the rawdata trajectory.
