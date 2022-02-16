@@ -610,6 +610,29 @@ MRAcquisitionData::get_trajectory_type() const
 
 }
 
+void MRAcquisitionData::set_trajectory_type(const ISMRMRD::TrajectoryType type) 
+{
+    bool const argument_valid = type == ISMRMRD::TrajectoryType::CARTESIAN || \
+                                    type == ISMRMRD::TrajectoryType::EPI || \
+                                    type == ISMRMRD::TrajectoryType::GOLDENANGLE || \
+                                    type == ISMRMRD::TrajectoryType::RADIAL || \
+                                    type == ISMRMRD::TrajectoryType::SPIRAL || \
+                                    type == ISMRMRD::TrajectoryType::OTHER;
+
+    if(!argument_valid)
+        throw std::runtime_error("The trajectory type you provided was invalid");
+
+    ISMRMRD::IsmrmrdHeader hdr = acquisitions_info().get_IsmrmrdHeader();
+
+    if(hdr.encoding.size()!= 1)
+        std::cout << "You have a file with " << hdr.encoding.size() << " encodings. Just the first one is picked." << std::endl;
+
+    hdr.encoding[0].trajectory = type;
+    std::stringstream ss_hdr;
+    ISMRMRD::serialize(hdr, ss_hdr);
+    set_acquisitions_info(ss_hdr.str());
+}
+
 void
 MRAcquisitionData::sort()
 {

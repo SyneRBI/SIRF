@@ -446,24 +446,8 @@ namespace sirf {
 
         ISMRMRD::TrajectoryType get_trajectory_type() const;
 		
-		void set_trajectory_type(const ISMRMRD::TrajectoryType type) 
-		{
-	//   CARTESIAN,
-    //   EPI,
-    //   RADIAL,
-    //   GOLDENANGLE,
-    //   SPIRAL,
-    //   OTHER
-			ISMRMRD::IsmrmrdHeader hdr = acquisitions_info().get_IsmrmrdHeader();
+		void set_trajectory_type(const ISMRMRD::TrajectoryType type);
 
-			if(hdr.encoding.size()!= 1)
-				std::cout << "You have a file with " << hdr.encoding.size() << " encodings. Just the first one is picked." << std::endl;
-
-			hdr.encoding[0].trajectory = type;
-			std::stringstream ss_hdr;
-			ISMRMRD::serialize(hdr, ss_hdr);
-		    set_acquisitions_info(ss_hdr.str());
-		}
 		void set_trajectory(const uint16_t traj_dim, float* traj)
 		{
 			ISMRMRD::Acquisition acq;
