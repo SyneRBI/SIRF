@@ -1856,7 +1856,9 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
         throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
     #endif
     }
-    else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || ad.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+    else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || 
+            ad.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE ||
+            ad.get_trajectory_type() == ISMRMRD::TrajectoryType::SPIRAL)
 	{
 		ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE

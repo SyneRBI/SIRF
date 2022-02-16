@@ -1663,7 +1663,7 @@ def set_spiral2D_trajectory(ad, data):
     dims = ad.dimensions()
     
     num_readouts = dims[0]
-    num_samples = dims[1]
+    num_samples = dims[2]
     expected_data_shape = (num_readouts, num_samples, traj_dim)
 
     if data.shape != expected_data_shape:
@@ -1691,7 +1691,7 @@ def get_data_trajectory(ad):
     elif ad.check_traj_type('other'):
         num_traj_pts = ad.number()
         traj_dim = 3
-    elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
+    elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle') or ad.check_traj_type('spiral') :
         num_traj_pts = ad.number() * ad.dimensions()[2]
         traj_dim = 2
         
@@ -1715,10 +1715,18 @@ def compute_kspace_density(ad):
         return calc_rpe_dcw(ad)
     elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
         return calc_radial_dcw(ad)
-    	
+    elif ad.check_traj_type('spiral'):
+        return calc_unit_dcw(ad)
     else:
         raise AssertionError("Please only try to recon trajectory types cartesian or other")
     
+    
+def calc_unit_dcw(ad):
+    
+    dcw = ad.copy()
+    dcw.fill(1.0)
+    
+    return dcw
 
 def calc_cartesian_dcw(ad):
     '''

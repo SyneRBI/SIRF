@@ -257,7 +257,8 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
 
     ISMRMRD::TrajectoryType traj_in_rawdata = ac.get_trajectory_type();
     ASSERT(traj_in_rawdata == ISMRMRD::TrajectoryType::RADIAL || 
-           traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE, 
+           traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE ||
+           traj_in_rawdata == ISMRMRD::TrajectoryType::SPIRAL , 
            "Give a MRAcquisitionData reference with the trajectory type RADIAL or GOLDENANGLE.");
 
     uint16_t  Nx = img.getMatrixSizeX();
@@ -333,7 +334,8 @@ void NonCartesian2DEncoding::backward(CFImage& img, const MRAcquisitionData& ac)
     ISMRMRD::TrajectoryType traj_in_rawdata = ac.get_trajectory_type();
     
     ASSERT(traj_in_rawdata == ISMRMRD::TrajectoryType::RADIAL || 
-           traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE, 
+           traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE ||
+           traj_in_rawdata == ISMRMRD::TrajectoryType::SPIRAL, 
            "Give a MRAcquisitionData reference with the trajectory type RADIAL or GOLDENANGLE.");
 
     ISMRMRD::IsmrmrdHeader hdr = ac.acquisitions_info().get_IsmrmrdHeader();

@@ -459,6 +459,7 @@ namespace sirf {
 				acq.resize(num_samples,num_channels,traj_dim);
 				int const offset = i*traj_dim*num_samples;
 				acq.setTraj(traj + offset);
+				set_acquisition(i, acq);
 			}
 		} 
 
