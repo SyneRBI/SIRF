@@ -887,7 +887,7 @@ KSpaceSubset::TagType KSpaceSubset::get_tag_from_img(const CFImage& img)
     tag[6] = 0; //segments area always zero
 
     for(int i=0; i<ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS; ++i)
-        tag[7+i] = img.getUserInt(i);
+        tag[7+i] = 0; //img.getUserInt(i);
 
     return tag;
 }
@@ -905,7 +905,7 @@ KSpaceSubset::TagType KSpaceSubset::get_tag_from_acquisition(ISMRMRD::Acquisitio
     tag[6] = 0; //acq.idx().segment;
 
     for(int i=7; i<tag.size(); ++i)
-        tag[i]=acq.idx().user[i];
+        tag[i]= 0; //acq.idx().user[i];
 
     return tag;
 }
