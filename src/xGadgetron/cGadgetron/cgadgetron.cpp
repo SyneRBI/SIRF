@@ -545,19 +545,18 @@ cGT_createEmptyAcquisitionData(void* ptr_ad)
 
 extern "C"
 void*
-cGT_getAcquisitionsSubset(void* ptr_acqs, size_t ptr_idx, size_t const num_elem_subset)
+cGT_getAcquisitionsSubset(void* ptr_acqs, size_t const ptr_idx, size_t const num_elem_subset)
 {
     try {
         MRAcquisitionData& ad =
             objectFromHandle<MRAcquisitionData>(ptr_acqs);
         shared_ptr<MRAcquisitionData> sptr_subset = ad.new_acquisitions_container();
-
         int* idx = (int*)ptr_idx;
 
         std::vector<int> vec_idx(num_elem_subset);
         for(size_t i=0; i<num_elem_subset; ++i)
-            vec_idx.at(i) = *(idx+i);
-
+	    vec_idx.at(i) = *(idx+i);
+			
         ad.get_subset(*sptr_subset.get(), vec_idx);
         sptr_subset->sort();
 
