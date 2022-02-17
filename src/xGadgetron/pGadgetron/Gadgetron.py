@@ -920,7 +920,8 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         subset = AcquisitionData()
-        subset.handle = pygadgetron.cGT_getAcquisitionsSubset(self.handle, idx.astype(numpy.intc).ctypes.data, idx.size)
+        idx = numpy.array(idx, dtype = numpy.int32)
+        subset.handle = pygadgetron.cGT_getAcquisitionsSubset(self.handle, idx.ctypes.data, idx.size)
         check_status(subset.handle)
         
         return subset

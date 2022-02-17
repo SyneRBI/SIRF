@@ -19,7 +19,7 @@
 function str = version_patch()
 % return SIRF version patch string (patch)
 % Usage:
-% version_string = version()
+% version_string = version_patch()
 
   str = '@VERSION_PATCH@';
 end
