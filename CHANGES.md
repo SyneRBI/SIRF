@@ -2,7 +2,9 @@
 
 ## v3.x.x
 
-* a version.h is created by CMake and installed to access version minor and major from C++.
+* To avoid appending to an existing `.h5` file, writing methods now first check whether the file to which data is to be written already exists, and if so, delete it before writing.
+
+* A version.h is created by CMake and installed to access version minor and major from C++.
 
 * MR Geometry
   - fixed GadgetronImagesVector::reorient() to only consider slice index 
