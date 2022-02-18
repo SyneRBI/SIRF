@@ -6,7 +6,7 @@
 
 * MR 
   - added acquisition models for 2D non-cartesian encoding. 
-  - The 2D radial, golden-angle increment radial and stack-of-stars are supported.
+  - The 2D radial, golden-angle increment radial and stack-of-stars trajectory are supported.
 * MR Geometry
   - fixed GadgetronImagesVector::reorient() to only consider slice index 
   and ignore dimensions such as contrast, repetition etc.
