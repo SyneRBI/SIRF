@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Synergistic Image Reconstruction Framework
 
 [![gh-action-badge]][gh-action-link]
@@ -35,13 +34,6 @@ what was found/built:
 
 [coveralls-badge]: https://coveralls.io/repos/github/CCPPETMR/SIRF/badge.svg?branch=master
 [coveralls]: https://coveralls.io/github/CCPPETMR/SIRF?branch=master
-<<<<<<< HEAD
-[codecov-badge]: https://codecov.io/gh/CCPPETMR/SIRF/branch/master/graph/badge.svg
-[codecov]: https://codecov.io/gh/CCPPETMR/SIRF
-[travis-badge]: https://travis-ci.org/CCPPETMR/SIRF.svg?branch=master
-[travis]: https://travis-ci.org/CCPPETMR/SIRF
-
-=======
 [codecov-badge]: https://codecov.io/gh/SyneRBI/SIRF/branch/master/graph/badge.svg
 [codecov]: https://codecov.io/gh/SyneRBI/SIRF
 [gh-action-badge]: https://github.com/SyneRBI/SIRF/actions/workflows/build-test.yml/badge.svg
@@ -50,6 +42,5 @@ what was found/built:
 [travis]: https://travis-ci.org/SyneRBI/SIRF
 [style-badge]: https://api.codacy.com/project/badge/Grade/392861b4085f4f438d12c41029f86b47
 [style-link]: https://www.codacy.com/gh/SyneRBI/SIRF?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=SyneRBI/SIRF&amp;utm_campaign=Badge_Grade
-[zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.3885368.svg
-[zenodo-link]: https://doi.org/10.5281/zenodo.3885368
->>>>>>> rpe-encoding
+[zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.2707911.svg
+[zenodo-link]: https://doi.org/10.5281/zenodo.2707911

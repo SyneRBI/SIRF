@@ -555,7 +555,7 @@ cGT_getAcquisitionsSubset(void* ptr_acqs, size_t const ptr_idx, size_t const num
 
         std::vector<int> vec_idx(num_elem_subset);
         for(size_t i=0; i<num_elem_subset; ++i)
-			vec_idx.at(i) = *(idx+i);
+	    vec_idx.at(i) = *(idx+i);
 			
         ad.get_subset(*sptr_subset.get(), vec_idx);
         sptr_subset->sort();

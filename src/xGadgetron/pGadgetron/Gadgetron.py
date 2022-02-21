@@ -830,18 +830,14 @@ class AcquisitionData(DataContainer):
      
     def sort(self):
         '''
-        Sorts acquisitions with respect to (in this order):
-            - repetition
-            - slice
-            - kspace_encode_step_1
+        Sorts acquisitions (currently, with respect to acquisition_time_stamp)
         '''
         assert self.handle is not None
         try_calling(pygadgetron.cGT_sortAcquisitions(self.handle))
         self.sorted = True
     def sort_by_time(self):
         '''
-        Sorts acquisitions with respect to:
-            - acquisition_time_stamp
+        Sorts acquisitions with respect to acquisition_time_stamp
         '''
         assert self.handle is not None
         try_calling(pygadgetron.cGT_sortAcquisitionsByTime(self.handle))
