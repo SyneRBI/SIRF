@@ -124,6 +124,9 @@ void sirf::set_acq_default_orientation(std::string path_in, std::string path_out
     AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
     av.read(path_in);
 
+    ISMRMRD::MatrixSize matsize = av.acquisitions_info().get_IsmrmrdHeader().encoding[0].reconSpace.matrixSize;
+    ISMRMRD::FieldOfView_mm fov_mm = av.acquisitions_info().get_IsmrmrdHeader().encoding[0].reconSpace.fieldOfView_mm;
+
     int na = av.number();
     int acq_dim[10];
     av.get_acquisitions_dimensions((size_t)acq_dim);
@@ -144,6 +147,10 @@ void sirf::set_acq_default_orientation(std::string path_in, std::string path_out
         acq.slice_dir()[1] = 0.0f;
         acq.slice_dir()[2] = 1.0f;
         
+        // acq.position()[0] = + fov_mm.x/2 - 0.5*fov_mm.x/matsize.x;
+        // acq.position()[1] = + fov_mm.y/2 - 0.5*fov_mm.y/matsize.y;
+        // acq.position()[2] = + fov_mm.z/2 - 0.5*fov_mm.z/matsize.z;
+
         acq.position()[0] = 0.f;
         acq.position()[1] = 0.f;
         acq.position()[2] = 0.f;
