@@ -87,7 +87,7 @@ void MRContrastGenerator::map_contrast()
 	this->contrast_filled_volumes_.empty();
 	if(sptr_acqu_ == nullptr)
 		throw std::runtime_error("Your contrast template acquisition is not set.");
-		
+
 	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
 	
 	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr);
@@ -244,6 +244,9 @@ void MRContrastGenerator::map_contrast(const std::vector<ExternalTissueSignal>& 
 
 	this->tlm_.assign_tissues_to_labels();
 	this->contrast_filled_volumes_.empty();
+	if(sptr_acqu_ == nullptr)
+		throw std::runtime_error("Your contrast template acquisition is not set.");
+		
 	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
 
 	if( contrast_filled_volumes_.number() != 1)
