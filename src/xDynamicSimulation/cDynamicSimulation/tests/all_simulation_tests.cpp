@@ -428,6 +428,7 @@ bool run_tests_dynsim_deformer( void )
 		bool tests_successful = true;
 		std::vector< bool > test_results{};
 
+		test_results.push_back(DynSimDeformerTester::test_mr_geometry());
 		test_results.push_back(DynSimDeformerTester::test_nifti_data_deformation());
 		test_results.push_back(DynSimDeformerTester::test_deform_mr_contrast_generator());
 		test_results.push_back(DynSimDeformerTester::test_deform_pet_contrast_generator());
@@ -518,8 +519,8 @@ int main ( int argc, char* argv[])
 		// ok *= run_tests_noise_generator();
 		// ok *= run_tests_dynamics();
 		// ok *= run_tests_c_interface();
-		// ok *= run_tests_dynsim_deformer();
-		ok *= run_tests_dynamic_simulation();
+		ok *= run_tests_dynsim_deformer();
+		// ok *= run_tests_dynamic_simulation();
 				
 		if(ok)
 			return EXIT_SUCCESS;	

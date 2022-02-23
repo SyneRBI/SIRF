@@ -70,7 +70,56 @@ bool DynSimDeformerTester::test_nifti_data_deformation( void )
 	}
 }
 
+bool DynSimDeformerTester::test_mr_geometry( void )
+{
+	std::cout << " --- Running " << __FUNCTION__ << std::endl;
 
+	try
+		{
+			std::string root_path = "/home/sirfuser/devel/install/share/SIRF-3.1/Simulation/Input/";
+			std::string fname_segmentation = root_path + "segmentation.nii";
+			std::string fname_ct = root_path + "contrast_template.h5";
+			std::string fname_at = root_path + "acquisition_template.h5";
+
+			LabelVolume segmentation = NiftiImageData3D<float>(fname_segmentation);
+
+			MRContrastGenerator mr_cont_gen (segmentation, XML_TEST_PATH);  	
+			sirf::AcquisitionsVector contrast_template(fname_ct);
+			mr_cont_gen.set_template_rawdata(contrast_template);
+			mr_cont_gen.map_contrast();
+			
+			DynamicSimulationDeformer dsd;
+			
+			sirf::AcquisitionsVector acquisition_template(fname_at);
+			dsd.set_template_rawdata(acquisition_template);	
+			
+			std::vector<sirf::NiftiImageData3DDeformation<float> > vec_mvfs;
+	
+			const std::array<float,3> trans{0,0,0};
+			const std::array<float,3> euler{0,0,0};
+			const sirf::AffineTransformation<float> trafo(trans,euler);
+			dsd.set_offset_transformation(trafo);
+
+
+			dsd.deform_contrast_generator(mr_cont_gen, vec_mvfs);
+			
+			GadgetronImagesVector deformed_imgs = mr_cont_gen.get_contrast_filled_volumes();
+
+			std::stringstream name_stream;	
+			name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__; 		
+
+			sirf::write_imagevector_to_raw(name_stream.str(), deformed_imgs);
+
+			return true;
+			
+		}
+		catch( std::runtime_error const &e)
+		{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+		}
+}
 
 bool DynSimDeformerTester::test_deform_mr_contrast_generator( void )
 {
