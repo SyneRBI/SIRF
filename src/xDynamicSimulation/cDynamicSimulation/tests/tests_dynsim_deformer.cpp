@@ -83,32 +83,68 @@ bool DynSimDeformerTester::test_mr_geometry( void )
 
 			LabelVolume segmentation = NiftiImageData3D<float>(fname_segmentation);
 
-			MRContrastGenerator mr_cont_gen (segmentation, XML_TEST_PATH);  	
-			sirf::AcquisitionsVector contrast_template(fname_ct);
-			mr_cont_gen.set_template_rawdata(contrast_template);
-			mr_cont_gen.map_contrast();
-			
-			DynamicSimulationDeformer dsd;
-			
-			sirf::AcquisitionsVector acquisition_template(fname_at);
-			dsd.set_template_rawdata(acquisition_template);	
-			
-			std::vector<sirf::NiftiImageData3DDeformation<float> > vec_mvfs;
-	
-			const std::array<float,3> trans{0,0,0};
-			const std::array<float,3> euler{0,0,0};
-			const sirf::AffineTransformation<float> trafo(trans,euler);
-			dsd.set_offset_transformation(trafo);
+			segmentation.get_geom_info_sptr()->print_info();
 
+			AcquisitionsVector contrast_rawdata(fname_ct);
+			ISMRMRD::MatrixSize matsize = contrast_rawdata.acquisitions_info().get_IsmrmrdHeader().encoding[0].reconSpace.matrixSize;
 
-			dsd.deform_contrast_generator(mr_cont_gen, vec_mvfs);
-			
-			GadgetronImagesVector deformed_imgs = mr_cont_gen.get_contrast_filled_volumes();
+			int const Nx = matsize.x;
+			int const Ny = matsize.y;
+			int const Nz = matsize.z;
+
+			GadgetronImagesVector contrast_template(contrast_rawdata);
+
+			for(int i=0; i<contrast_template.number(); ++i)
+			{
+				auto ptr_img = (CFImage*) contrast_template.sptr_image_wrap(i)->ptr_image();
+				ptr_img->resize(Nx, Ny, Nz, 1);
+				
+				// #pragma omp parallel
+				for( size_t nz=0; nz<Nz; nz++)
+				for( size_t ny=0; ny<Ny; ny++)
+				for( size_t nx=0; nx<Nx; nx++)
+				{
+					size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
+					ptr_img->operator()(nx, ny, nz, 0) = segmentation(nx,ny,nz);						
+				}
+				
+			}
+			contrast_template.get_geom_info_sptr()->print_info();
+			contrast_template.reorient(*(segmentation.get_geom_info_sptr()));
 
 			std::stringstream name_stream;	
-			name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__; 		
+			name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_contrast" << __FUNCTION__; 		
 
-			sirf::write_imagevector_to_raw(name_stream.str(), deformed_imgs);
+			sirf::write_imagevector_to_raw(name_stream.str(), contrast_template);
+
+			NiftyResampler<float> resampler;
+		    resampler.set_interpolation_type_to_cubic_spline();
+
+			// both floating and reference image must be in the same coordinate system
+			resampler.set_floating_image (std::make_shared< GadgetronImagesVector> (contrast_template));
+			
+			AcquisitionsVector target_rawdata(fname_at);
+			GadgetronImagesVector acquisition_template(target_rawdata);
+			resampler.set_reference_image(std::make_shared< GadgetronImagesVector> (acquisition_template));
+
+			acquisition_template.get_geom_info_sptr()->print_info();
+			contrast_template.get_geom_info_sptr()->print_info();
+
+
+			resampler.process();
+
+			const std::shared_ptr<const sirf::ImageData>  sptr_deformed_img = resampler.get_output_sptr();
+
+			GadgetronImagesVector img_data(acquisition_template);
+
+			sptr_deformed_img->copy(sptr_deformed_img->begin(),
+									img_data.begin(), 
+									img_data.end());
+
+
+			name_stream.str("");
+			name_stream << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_resampled" << __FUNCTION__; 		
+			sirf::write_imagevector_to_raw(name_stream.str(), img_data);
 
 			return true;
 			
