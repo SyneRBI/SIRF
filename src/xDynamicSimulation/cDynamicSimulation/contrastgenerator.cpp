@@ -59,7 +59,34 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 
 void MRContrastGenerator::set_template_rawdata(const MRAcquisitionData& ad){
 
-	this->sptr_acqu_ = std::move(ad.clone());
+	const int* segmentation_dims = this->tlm_.get_segmentation_dimensions();
+
+	auto sptr_tmp_ad = ad.clone();
+	ISMRMRD::IsmrmrdHeader hdr = sptr_tmp_ad->acquisitions_info().get_IsmrmrdHeader();
+	ISMRMRD::EncodingSpace es = hdr.encoding[0].reconSpace; 
+	
+	float const dx =  es.fieldOfView_mm.x / es.matrixSize.x;
+	float const dy =  es.fieldOfView_mm.y / es.matrixSize.y;
+	float const dz =  es.fieldOfView_mm.z / es.matrixSize.z;
+
+	// dims[0] == number of dimensions for niftis
+	es.matrixSize.x = segmentation_dims[1];
+	es.matrixSize.y = segmentation_dims[2];	
+	es.matrixSize.z = segmentation_dims[3];
+	
+	es.fieldOfView_mm.x  = es.matrixSize.x * dx;
+	es.fieldOfView_mm.y  = es.matrixSize.y * dy;
+	es.fieldOfView_mm.z  = es.matrixSize.z * dz;
+	
+	hdr.encoding[0].reconSpace = es;
+	hdr.encoding[0].encodedSpace = es;
+	
+	std::stringstream xmlhdr;
+	ISMRMRD::serialize(hdr, xmlhdr);
+
+	sptr_tmp_ad->set_acquisitions_info( xmlhdr.str() );
+	
+	this->sptr_acqu_ = std::move(sptr_tmp_ad->clone());
 	this->hdr_ = this->sptr_acqu_->acquisitions_info().get_IsmrmrdHeader();
 }
 
