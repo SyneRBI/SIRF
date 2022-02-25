@@ -58,6 +58,8 @@ extern "C" {
 	void* cGT_setAcquisitionModelParameter
 		(void* ptr_am, const char* name, const void* ptr);
 	void* cGT_AcquisitionModelParameter(void* ptr_am, const char* name);
+	void* cGT_setCSParameter(void* ptr, const char* par, const void* val);
+	void* cGT_setAcquisitionParameter(void* ptr, const char* param_name, const void* val);
 	void* cGT_setCSMs(void* ptr_am, const void* ptr_csms);
 	void* cGT_acquisitionModelNorm(void* ptr_am);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
