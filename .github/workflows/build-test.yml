@@ -14,7 +14,7 @@ jobs:
       matrix:
         # the agent machine operating systems
         os: [ubuntu-latest]
-        DEVEL_BUILD: ["OFF", "ON"]
+        DEVEL_BUILD: ["ON"]
         EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
         CMAKE_BUILD_TYPE: ["Release"]
         # let's run all of them, as opposed to aborting when one fails

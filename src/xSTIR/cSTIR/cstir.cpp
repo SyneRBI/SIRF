@@ -753,7 +753,7 @@ const int max_in_segment_num_to_process
 
 extern "C"
 void* cSTIR_acquisitionDataFromScannerInfo
-(const char* scanner, int span, int max_ring_diff, int view_mash_factor)
+(const char* scanner, int span, int max_ring_diff, int view_mash_factor, int tof_mash_factor)
 {
 	try{
                 stir::shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
@@ -761,6 +761,9 @@ void* cSTIR_acquisitionDataFromScannerInfo
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
+#if STIR_VERSION >= 050000
+                sptr_pdi->set_tof_mash_factor(tof_mash_factor);
+#endif
 		PETAcquisitionDataInFile::init();
 		std::shared_ptr<PETAcquisitionData> sptr_t =
 			PETAcquisitionData::storage_template();

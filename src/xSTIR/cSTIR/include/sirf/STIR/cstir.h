@@ -103,7 +103,7 @@ extern "C" {
 		const int max_in_segment_num_to_process
 		);
 	void* cSTIR_acquisitionDataFromScannerInfo
-		(const char* scanner, int span, int max_ring_diff, int view_mash_factor);
+        (const char* scanner, int span, int max_ring_diff, int view_mash_factor, int tof_mash_factor);
 	void* cSTIR_getAcquisitionDataDimensions(const void* ptr_acq, PTR_INT ptr_dim);
 	void* cSTIR_getAcquisitionData(const void* ptr_acq, PTR_FLOAT ptr_data);
 	void* cSTIR_setAcquisitionData(void* ptr_acq, PTR_FLOAT ptr_data);

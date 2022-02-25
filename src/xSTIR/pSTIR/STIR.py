@@ -795,7 +795,7 @@ class RayTracingMatrix(object):
 class AcquisitionData(DataContainer):
     """Class for PET acquisition data."""
 
-    def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1):
+    def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1, tof_mash_factor=1):
         """Creates new AcquisitionData.
 
         Can create object from a file or another AcquisitionData object.
@@ -818,7 +818,7 @@ class AcquisitionData(DataContainer):
             else:
                 # src is a scanner name
                 self.handle = pystir.cSTIR_acquisitionDataFromScannerInfo(
-                    src, span, max_ring_diff, view_mash_factor)
+                    src, span, max_ring_diff, view_mash_factor, tof_mash_factor)
                 if pyiutil.executionStatus(self.handle) != 0:
                     msg = pyiutil.executionError(self.handle)
                     if msg == 'Unknown scanner':
