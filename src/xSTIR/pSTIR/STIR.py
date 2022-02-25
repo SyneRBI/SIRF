@@ -2,7 +2,7 @@
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
-# Copyright 2015 - 2021 University College London
+# Copyright 2015 - 2022 University College London
 # Copyright 2019 University of Hull
 #
 # This is software developed for the Collaborative Computational
@@ -735,6 +735,14 @@ class RayTracingMatrix(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def get_info(self):
+        """Returns the metadata from STIR as Python str."""
+        handle = pystir.cSTIR_get_MatrixInfo(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
     def set_num_tangential_LORs(self, value):
         """Sets the number of tangential LORs.
 
@@ -749,6 +757,40 @@ class RayTracingMatrix(object):
         """Returns the number of LORs for each bin in the sinogram."""
         return parms.int_par(self.handle, self.name, 'num_tangential_LORs')
 
+    def enable_cache(self, value=True):
+        """Enables or disables the caching mechanism."""
+        parms.set_bool_par(self.handle, self.name, 'enable_cache', value)
+        return self
+
+    def set_restrict_to_cylindrical_FOV(self, value=True):
+        """Enables or disables using a circular axial FOV (vs rectangular)."""
+        parms.set_bool_par(self.handle, self.name, 'restrict_to_cylindrical_FOV', value)
+        return self
+
+    def set_do_symmetry_90degrees_min_phi(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_90degrees_min_phi', value)
+        return self
+
+    def set_do_symmetry_180degrees_min_phi(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_180degrees_min_phi', value)
+        return self
+
+    def set_do_symmetry_swap_segment(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_swap_segment', value)
+        return self
+
+    def set_do_symmetry_swap_s(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_swap_s', value)
+        return self
+
+    def set_do_symmetry_shift_z(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_shift_z', value)
+        return self
 
 class AcquisitionData(DataContainer):
     """Class for PET acquisition data."""
