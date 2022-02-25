@@ -48,6 +48,8 @@ SIRF expects raw MR data in the ISMRMRD format. We use [siemens_to_ismrmrd](http
 
 Converters for data from other scanners are available from [https://github.com/ismrmrd](https://github.com/ismrmrd) but we have not tried these yet. 
 
+SIRF currently supports sequences that use 2D and 3D cartesian sampling. If the Gadgetron toolboxes were found during building, it supports radial, golden-angle radial and radial-phase-encoding trajectories.
+
 ### PET <a name="PET"></a>
 
 STIR can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR.
