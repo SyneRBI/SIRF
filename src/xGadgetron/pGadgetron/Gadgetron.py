@@ -811,7 +811,7 @@ class Acquisition(object):
     def set_phase(self,val):
         assert self.handle is not None
         return parms.set_int_par(self.handle, 'acquisition', 'idx_phase', int(val))
-    def set_set_repetition(self, val):
+    def set_repetition(self, val):
         assert self.handle is not None
         return parms.set_int_par(self.handle, 'acquisition', 'idx_repetition', val)
     def set_set(self,val):
