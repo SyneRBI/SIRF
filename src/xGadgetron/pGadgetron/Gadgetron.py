@@ -795,6 +795,35 @@ class Acquisition(object):
     def info(self, method):
         return eval('self.' + method + '()')
 
+    
+    def set_kspace_encode_step_1(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1', int(val))
+    def set_kspace_encode_step_2(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2', int(val))
+    def set_average(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_average', int(val))
+    def set_slice(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_slice', int(val))
+    def set_contrast(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_contrast', int(val))
+    def set_phase(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_phase', int(val))
+    def set_set_repetition(self, val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_repetition', val)
+    def set_set(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_set', int(val))
+    def set_segment(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_segment', int(val))
+
 class AcquisitionData(DataContainer):
     '''
     Class for an MR acquisitions container.
