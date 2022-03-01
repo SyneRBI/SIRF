@@ -293,11 +293,11 @@ void MRDynamicSimulation::set_SNR(float const SNR)
 	this->noise_generator_.set_SNR(SNR);
 }
 
-void MRDynamicSimulation::set_noise_label(size_t const label)
+void MRDynamicSimulation::set_noise_label(int const label)
 {
 	auto const signal_in_label = this->mr_cont_gen_.get_signal_for_tissuelabel(label);
 	auto const abs_signal = std::abs( signal_in_label );
-	
+
 	std::cout << "Adding signal " << abs_signal << " for label " << label << std::endl;
 	this->noise_generator_.set_signal_img( abs_signal );
 }

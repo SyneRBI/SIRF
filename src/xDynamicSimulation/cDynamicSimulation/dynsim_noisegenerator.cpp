@@ -53,6 +53,7 @@ void GaussianNoiseGenerator::add_noise( MRAcquisitionData& ad )
 	}
 	else
 	{
+		std::cout << " --- The SNR you supplied was 0, so no noise is added" <<std::endl;
 		this->add_noise_to_data( ad );
 	}
 
@@ -61,7 +62,7 @@ void GaussianNoiseGenerator::add_noise( MRAcquisitionData& ad )
 float GaussianNoiseGenerator::noise_width_from_snr( MRAcquisitionData& ad )
 {
 	this->noise_width_img_ = this->signal_img_ / this->SNR_;
-
+	std::cout << "--- The signal in the image is "<< noise_width_img_ << std::endl;
 	size_t num_acquistions = ad.number();		
 	
 	if( num_acquistions <= 0)
