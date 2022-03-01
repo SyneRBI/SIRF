@@ -125,7 +125,7 @@ public:
 	void set_contrast_template_rawdata(const sirf::MRAcquisitionData& acquisitions);
 
 	void set_SNR(float const SNR);
-	void set_noise_label(size_t const label);
+	void set_noise_label(int const label);
 
 	void add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn){
 		this->motion_dynamics_.push_back(sptr_motion_dyn);
