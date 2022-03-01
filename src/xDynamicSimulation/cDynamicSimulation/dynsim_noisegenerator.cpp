@@ -69,7 +69,6 @@ float GaussianNoiseGenerator::noise_width_from_snr( MRAcquisitionData& ad )
 		return 0.f;
 
 	float const suggested_noise_width = this->noise_width_img_;
-	std::cout << "--- we will use  "<< suggested_noise_width << std::endl;
 	return suggested_noise_width;
 }
 
@@ -93,6 +92,4 @@ void GaussianNoiseGenerator::add_noise_to_data( MRAcquisitionData& ad )
 		
 		ad.set_acquisition( i_acq, acq);
 	}
-
-	std::cout << "finished." <<std::endl; ;
 }
