@@ -200,12 +200,14 @@ void* cDS_setCoilmaps(void* ptr_sim, const void* ptr_csm)
 }
 
 extern "C"
-void* cDS_setSNR(void* ptr_sim, float const SNR)
+void* cDS_setSNR(void* ptr_sim, size_t ptr_SNR)
 {
 	try {
 
 		CAST_PTR(DataHandle, h_sim, ptr_sim);			
 		MRDynamicSimulation& sim = objectFromHandle<MRDynamicSimulation>(h_sim);
+		
+		float const SNR = *((float*) ptr_SNR);
 		sim.set_SNR(SNR);
 
 		return new DataHandle;
