@@ -99,10 +99,10 @@ class MRDynamicSimulation(object):
         try_calling( pysim.cDS_setCoilmaps(self.handle, csm.handle))
 
     def set_snr(self, SNR):
-        pysim.cDS_setSNR(self.handle, SNR)
+        pysim.cDS_setSNR(self.handle, np.float32(SNR))
 
     def set_snr_label(self, SNR_label):
-        pysim.cDS_setNoiseLabel(self.handle, SNR_label)
+        pysim.cDS_setNoiseLabel(self.handle, np.int32(SNR_label))
 
     def set_offset_trafo(self, trafo):
         assert_validity(trafo, pReg.AffineTransformation)
