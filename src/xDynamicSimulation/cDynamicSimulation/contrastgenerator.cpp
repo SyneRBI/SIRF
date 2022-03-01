@@ -113,7 +113,10 @@ void MRContrastGenerator::map_contrast()
 	this->tlm_.assign_tissues_to_labels();
 	this->contrast_filled_volumes_.empty();
 	if(sptr_acqu_ == nullptr)
-		throw std::runtime_error("Your contrast template acquisition is not set.");
+	{
+		std::cout << "Your contrast template acquisition is not yet set." << std::endl;
+		std::exit( EXIT_FAILURE );
+	}
 
 	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
 	
@@ -272,7 +275,10 @@ void MRContrastGenerator::map_contrast(const std::vector<ExternalTissueSignal>& 
 	this->tlm_.assign_tissues_to_labels();
 	this->contrast_filled_volumes_.empty();
 	if(sptr_acqu_ == nullptr)
-		throw std::runtime_error("Your contrast template acquisition is not set.");
+	{
+		std::cout << "Your contrast template acquisition is not yet set." << std::endl;
+		std::exit( EXIT_FAILURE );
+	}
 		
 	this->contrast_filled_volumes_ = GadgetronImagesVector(*sptr_acqu_);
 
@@ -304,6 +310,14 @@ void MRContrastGenerator::map_contrast(const std::vector<ExternalTissueSignal>& 
 
 complex_float_t MRContrastGenerator::get_signal_for_tissuelabel( size_t const label )
 {
+	
+	if(sptr_acqu_ == nullptr)
+	{
+		std::cout << "Your contrast template acquisition is not yet set." << std::endl;
+		std::exit( EXIT_FAILURE );
+	}
+
+
 	auto tissue_list = this->tlm_.get_tissue_parameter_list();
 
 	TissueParameter tp;
@@ -342,7 +356,9 @@ complex_float_t MRContrastGenerator::get_signal_for_tissuelabel( size_t const la
 		error_msg_stream << "The header you read in requires a contrast which has not been implemented yet. ";
 		error_msg_stream << "The demanded sequence type is: " << sequ_name << ". ";
 		error_msg_stream << "Please give another rawdata header or write the contrast map yourself and add an else if to the map_contrast method.";
-		throw std::runtime_error( error_msg_stream.str() );
+		std::cout << error_msg_stream.str() << std::endl;
+		std::exit( EXIT_FAILURE );
+		// throw std::runtime_error( error_msg_stream.str() );
 	}
 
 	auto signal_vector = contrast_map_function( std::make_shared<TissueParameter>(tp), this->hdr_);
@@ -432,7 +448,7 @@ std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParamet
 	}
 	catch(const std::runtime_error &e)
 	{
-		std::cout << "Caught exception in map_flash_contrast." << std::endl;
+		std::cout << "Caught exception in map_bssfp_contrast." << std::endl;
 		std::cout << e.what() <<std::endl;
 		std::cout << "Echo spacing was not set in header file, taking TR value instead." <<std::endl;
 		TR = *(sequ_par.TR);
