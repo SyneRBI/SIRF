@@ -19,7 +19,7 @@ You probably want to check that instead.
 ## Copyright 2015 - 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
+## Project in Synergistic Reconstruction for Biomedical Imaging (SyneRBI)
 ## (http://www.ccppetmr.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
