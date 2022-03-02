@@ -102,6 +102,8 @@ def main():
     acq_model_matrix = SPECTUBMatrix();
     acq_model = AcquisitionModelUsingMatrix(acq_model_matrix)
 
+    # require same number slices and equal z-sampling for projection data & image
+    image = image.zoom_image(zooms=(0.5, 1.0, 1.0), size=(12, -1, -1))
     print('projecting image...')
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
