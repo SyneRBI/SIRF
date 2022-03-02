@@ -432,7 +432,7 @@ public:
 
 		all_acquisitions.sort_by_time();
 
-		binned_mr_acquisitions_.empty();
+		vector<sirf::AcquisitionsVector>().swap(binned_mr_acquisitions_);
 
 		ISMRMRD::Acquisition acq;
 		for(int i=0; i<all_acquisitions.number(); ++i)
