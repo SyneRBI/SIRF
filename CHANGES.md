@@ -2,8 +2,13 @@
 
 ## v3.x.x
 
-* a version.h is created by CMake and installed to access version minor and major from C++.
+* To avoid appending to an existing `.h5` file, writing methods now first check whether the file to which data is to be written already exists, and if so, delete it before writing.
 
+* A version.h is created by CMake and installed to access version minor and major from C++.
+
+* MR 
+  - added acquisition models for 2D non-cartesian encoding. 
+  - The 2D radial, golden-angle increment radial and stack-of-stars trajectory are supported.
 * MR Geometry
   - fixed GadgetronImagesVector::reorient() to only consider slice index 
   and ignore dimensions such as contrast, repetition etc.
@@ -11,6 +16,8 @@
 * PET/STIR
   - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception.
   - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
+  - (C++) Expose advanced parameters from STIR to sirf.STIR.RayTracingMatrix
+  - (Python) Expose advanced parameters from STIR to sirf.STIR.RayTracingMatrix and add get_info()
 
 * added SPECTUBMatrix for (simple) usage in SPECT
 
