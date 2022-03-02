@@ -12,12 +12,12 @@
 # Author: Kris Thielemans
 # Author: Evgueni Ovtchinnikov
 #
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017, 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
+## Project in Synergistic Reconstruction for Biomedical Imaging
 ## (http://www.ccppetmr.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
