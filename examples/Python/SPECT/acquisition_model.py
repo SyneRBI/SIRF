@@ -1,4 +1,5 @@
-'''Forward projection demo: creates an image, projects it to simulate
+'''
+Forward projection demo: creates an image, projects it to simulate
 acquisition data and backprojects
 
 Usage:
@@ -36,18 +37,17 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import os.path
 from sirf.Utilities import show_2D_array, examples_data_path
 
 # import engine module
-from sirf.STIR import *
+import sirf.STIR
 
 # process command-line options
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
-    data_path = examples_data_path('SPECT')
-raw_data_file = existing_filepath(data_path, data_file)
+    data_path = sirf.STIR.examples_data_path('SPECT')
+raw_data_file = sirf.STIR.existing_filepath(data_path, data_file)
 output_file = args['--output']
 
 def create_sample_image(image):
@@ -56,7 +56,7 @@ def create_sample_image(image):
     '''
     image.fill(0)
     # create a shape
-    shape = EllipticCylinder()
+    shape = sirf.STIR.EllipticCylinder()
     shape.set_length(400)
     shape.set_radii((100, 40))
     shape.set_origin((0, 60, 10))
@@ -80,10 +80,10 @@ def main():
     # no info printing from the engine, warnings and errors sent to stdout
     # msg_red = MessageRedirector()
     # output goes to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    msg_red = sirf.STIR.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # raw data to be used as a template for the acquisition model
-    acq_template = AcquisitionData(raw_data_file)
+    acq_template = sirf.STIR.AcquisitionData(raw_data_file)
 
     # create image with suitable sizes
     image = acq_template.create_uniform_image()
@@ -99,8 +99,8 @@ def main():
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    acq_model_matrix = SPECTUBMatrix();
-    acq_model = AcquisitionModelUsingMatrix(acq_model_matrix)
+    acq_model_matrix = sirf.STIR.SPECTUBMatrix();
+    acq_model = sirf.STIR.AcquisitionModelUsingMatrix(acq_model_matrix)
 
     # require same number slices and equal z-sampling for projection data & image
     image = image.zoom_image(zooms=(0.5, 1.0, 1.0), size=(12, -1, -1))
@@ -129,5 +129,5 @@ def main():
 try:
     main()
     print('done')
-except error as err:
+except sirf.STIR.error as err:
     print('%s' % err.value)
