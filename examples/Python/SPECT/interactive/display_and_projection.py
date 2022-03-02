@@ -38,12 +38,9 @@
 ##   limitations under the License.
 
 #%% Initial imports etc
-import numpy
-from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os
-import sys
 import shutil
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
@@ -58,7 +55,8 @@ import sirf.STIR
 #
 # First a function to display an image
 def imshow(image, limits, title=''):
-    """Display an image with a colourbar, returning the plot handle.
+    """
+    Display an image with a colourbar, returning the plot handle.
 
     Arguments:
     image -- a 2D array of numbers
