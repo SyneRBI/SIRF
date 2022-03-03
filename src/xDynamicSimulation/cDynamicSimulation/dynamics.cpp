@@ -231,9 +231,9 @@ NiftiImageData3DDeformation<float> MotionProcessor::get_interpolated_deformation
 	else
 		signal_on_bin_range = (num_motion_fields  - 1)* signal;
 
-	int const bin_floor = int( signal_on_bin_range + 1) -1;
+	int const bin_floor = (int( signal_on_bin_range + 1) -1) % num_motion_fields;;
 	int const bin_ceil  = int( signal_on_bin_range + 1) % num_motion_fields;
-
+	
 	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
 
 	/// Constructor
@@ -241,13 +241,13 @@ NiftiImageData3DDeformation<float> MotionProcessor::get_interpolated_deformation
 
     if(keep_motion_fields_in_memory_)
 	{
-		dvf_interpolator.add_image( this->displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
-	    dvf_interpolator.add_image( this->displacement_fields_[bin_ceil], linear_interpolation_weight);
+		dvf_interpolator.add_image( this->displacement_fields_.at(bin_floor), 1 - linear_interpolation_weight);
+	    dvf_interpolator.add_image( this->displacement_fields_.at(bin_ceil), linear_interpolation_weight);
 	}
 	else 
 	{
-		dvf_interpolator.add_image( temp_mvf_filenames_[bin_floor], 1 - linear_interpolation_weight);
-	    dvf_interpolator.add_image( temp_mvf_filenames_[bin_ceil], linear_interpolation_weight);
+		dvf_interpolator.add_image( temp_mvf_filenames_.at(bin_floor), 1 - linear_interpolation_weight);
+	    dvf_interpolator.add_image( temp_mvf_filenames_.at(bin_ceil), linear_interpolation_weight);
 	} 
 
 
