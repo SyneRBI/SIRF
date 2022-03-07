@@ -18,7 +18,7 @@ Options:
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (SyneRBI)
-## (http://www.ccppetmr.ac.uk/).
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
