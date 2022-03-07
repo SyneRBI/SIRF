@@ -146,9 +146,7 @@ def main():
     acq_model.set_up(acq_template, image)
     simulated_data = acq_template.get_uniform_copy()
     acq_model.forward(image, 0, 1, simulated_data)
-    if output_file is not None:
-        simulated_data.write(output_file)
-
+    
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
     middle_slice=simulated_data_as_array.shape[0]//2
@@ -181,6 +179,9 @@ def main():
     out_image = OSEM_reconstructor.get_current_estimate()
     out_image_array = out_image.as_array()
     show_2D_array('Reconstructed image', out_image_array[z,:,:])
+    if output_file is not None:
+        out_image.write(output_file)
+
 
 try:
     main()
