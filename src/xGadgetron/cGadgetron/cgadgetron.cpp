@@ -545,19 +545,18 @@ cGT_createEmptyAcquisitionData(void* ptr_ad)
 
 extern "C"
 void*
-cGT_getAcquisitionsSubset(void* ptr_acqs, size_t ptr_idx, size_t const num_elem_subset)
+cGT_getAcquisitionsSubset(void* ptr_acqs, size_t const ptr_idx, size_t const num_elem_subset)
 {
     try {
         MRAcquisitionData& ad =
             objectFromHandle<MRAcquisitionData>(ptr_acqs);
         shared_ptr<MRAcquisitionData> sptr_subset = ad.new_acquisitions_container();
-
         int* idx = (int*)ptr_idx;
 
         std::vector<int> vec_idx(num_elem_subset);
         for(size_t i=0; i<num_elem_subset; ++i)
-            vec_idx.at(i) = *(idx+i);
-
+	    vec_idx.at(i) = *(idx+i);
+			
         ad.get_subset(*sptr_subset.get(), vec_idx);
         sptr_subset->sort();
 
@@ -588,9 +587,10 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<ISMRMRD::Acquisition>
-			sptr_acq(new ISMRMRD::Acquisition);
-		acqs.get_acquisition(acq_num, *sptr_acq);
+		shared_ptr<ISMRMRD::Acquisition> sptr_acq = acqs.get_acquisition_sptr(acq_num);
+		//shared_ptr<ISMRMRD::Acquisition>
+		//	sptr_acq(new ISMRMRD::Acquisition);
+		//acqs.get_acquisition(acq_num, *sptr_acq);
 		return newObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
 	}
 	CATCH;
@@ -853,6 +853,42 @@ cGT_setGRPETrajectory(void* ptr_acqs)
 
 }
 
+
+extern "C"
+void*
+cGT_setRadial2DTrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        Radial2DTrajprep radial2D_prep;
+        radial2D_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+
+extern "C"
+void*
+cGT_setGoldenAngle2DTrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        GoldenAngle2DTrajprep ga2D_prep;
+        ga2D_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
 extern "C"
 void*
 cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
@@ -864,15 +900,30 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 
         float* fltptr_traj = (float*) ptr_traj;
 		
-		SIRFTrajectoryType2D traj;
-		
 		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
-			traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+		{
+			auto traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(TrajectoryPreparation2D::TrajPointType));
+		}
     	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
-			traj = sirf::GRPETrajectoryPrep::get_trajectory(acqs);
-        
-        memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(std::pair<float, float>));
-
+		{
+			sirf::GRPETrajectoryPrep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GRPETrajectoryPrep::TrajPointType));
+		}
+		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL)
+		{
+			sirf::Radial2DTrajprep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(Radial2DTrajprep::TrajPointType));
+		}
+		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+		{
+			sirf::GoldenAngle2DTrajprep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GoldenAngle2DTrajprep::TrajPointType));
+		}
+	
         return new DataHandle;
     }
     CATCH;

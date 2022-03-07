@@ -118,7 +118,9 @@ namespace sirf {
 		void deserialize() const
 		{
 			if (!this->empty())
+			{	header_ = ISMRMRD::IsmrmrdHeader();
 				ISMRMRD::deserialize(data_.c_str(), header_);
+			}
             have_header_ = true;
 		}
 		std::string data_;
@@ -378,6 +380,8 @@ namespace sirf {
 		// the number of acquisitions in the container
 		virtual unsigned int number() const = 0;
 
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition>
+			get_acquisition_sptr(unsigned int num) = 0;
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
@@ -477,6 +481,8 @@ namespace sirf {
         void organise_kspace();
 
 		virtual std::vector<int> get_flagged_acquisitions_index(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const;
+		virtual std::vector<int> get_slice_encoding_index(const unsigned kspace_encode_step_2) const;
+
 
         virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
         virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
@@ -552,6 +558,12 @@ namespace sirf {
 		{
 			acqs_.push_back(gadgetron::shared_ptr<ISMRMRD::Acquisition>
 				(new ISMRMRD::Acquisition(acq)));
+		}
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> 
+			get_acquisition_sptr(unsigned int num)
+		{
+			int ind = index(num);
+			return acqs_[ind];
 		}
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 		{

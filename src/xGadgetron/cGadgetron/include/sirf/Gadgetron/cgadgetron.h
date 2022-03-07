@@ -70,13 +70,15 @@ extern "C" {
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq);
 	void* cGT_createEmptyAcquisitionData(void* ptr_ad);
-    void* cGT_getAcquisitionsSubset(void* ptr_acqs, PTR_INT ptr_idx, PTR_INT const num_elem_subset);
+    void* cGT_getAcquisitionsSubset(void* ptr_acqs, PTR_INT const ptr_idx, PTR_INT const num_elem_subset);
 
 	void* cGT_cloneAcquisitions(void* ptr_input);
 	void* cGT_sortAcquisitions(void* ptr_acqs);
 	void* cGT_sortAcquisitionsByTime(void* ptr_acqs);
 	void* cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info);
     void* cGT_setGRPETrajectory(void* ptr_acqs);
+	void* cGT_setRadial2DTrajectory(void* ptr_acqs);
+	void* cGT_setGoldenAngle2DTrajectory(void* ptr_acqs);
     void* cGT_getDataTrajectory(void* ptr_acqs, PTR_FLOAT ptr_traj);
     void* cGT_setAcquisitionUserFloat(void* ptr_acqs, PTR_FLOAT ptr_floats, int idx);
 
