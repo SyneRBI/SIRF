@@ -117,7 +117,7 @@ def main():
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
     middle_slice=simulated_data_as_array.shape[0]//2
-    show_2D_array('Forward projection', simulated_data_as_array[middle_slice,:,:])
+    show_2D_array('Forward projection', simulated_data_as_array[0, middle_slice,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
