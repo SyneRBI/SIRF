@@ -10,14 +10,11 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/SPECT
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
-
-There is an interactive demo with much more documentation on this process.
-You probably want to check that instead.
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2019 University College London.
+## Copyright 2015 - 2022 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (SyneRBI)
@@ -54,9 +51,9 @@ output_file = args['--output']
 def create_sample_image(image, attenuation = False):
     '''fill the image with some simple geometric shapes'''
 
-    # make shape uniform density for attenuation image
+    # make shape uniform density for attenuation image by raising to power 0
     if attenuation == True:
-        att = 0
+        att = 0 
         value = 0.1
     else: 
         att = 1
