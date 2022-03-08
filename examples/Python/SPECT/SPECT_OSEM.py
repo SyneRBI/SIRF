@@ -51,12 +51,10 @@ output_file = args['--output']
 def create_sample_image(image, attenuation = False):
     '''fill the image with some simple geometric shapes'''
 
-    # make shape uniform density for attenuation image by raising to power 0
+    # density needs to be scaled down for attenuation image
     if attenuation == True:
-        att = 0 
         value = 0.1
-    else: 
-        att = 1
+    else:
         value = 1
         
     image.fill(0)
@@ -67,16 +65,16 @@ def create_sample_image(image, attenuation = False):
     shape.set_origin((0, 60, 10))
 
     # add the shape to the image
-    image.add_shape(shape, scale = value*1**att)
+    image.add_shape(shape, scale = value*1)
 
     # add another shape
     shape.set_radii((30, 30))
     shape.set_origin((60, -30, 10))
-    image.add_shape(shape, scale = value*1.5**att)
+    image.add_shape(shape, scale = value*1.5)
 
     # add another shape
     shape.set_origin((-60, -30, 10))
-    image.add_shape(shape, scale = value*0.75**att)
+    image.add_shape(shape, scale = value*0.75)
 
 def make_cylindrical_FOV(image):
     """truncate to cylindrical FOV"""
