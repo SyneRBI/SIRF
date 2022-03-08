@@ -177,7 +177,7 @@ def main():
     OSEM_reconstructor.reconstruct(init_image)
     out_image = OSEM_reconstructor.get_current_estimate()
     out_image_array = out_image.as_array()
-    show_2D_array('Attenuation image', out_image_array[z,:,:])
+    show_2D_array('Reconstructed image', out_image_array[z,:,:])
 
 try:
     main()
