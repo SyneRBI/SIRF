@@ -160,7 +160,7 @@ namespace sirf {
 			return false;
 		}
 
-		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const = 0;
+		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const;
 
 		//! rebin the data to lower resolution by adding
 		/*!
@@ -487,12 +487,6 @@ namespace sirf {
 				(_template->same_acquisition_data(this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
-		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const;
-//		{
-//			auto uptr_sub = _data->get_subset(views);
-//			auto ptr_ad = new PETAcquisitionDataInMemory(uptr_sub);
-//			return std::unique_ptr<PETAcquisitionData>(ptr_ad);
-//		}
 
 	private:
 		bool _owns_file;
@@ -536,7 +530,7 @@ namespace sirf {
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
-		PETAcquisitionDataInMemory(std::unique_ptr<stir::ProjData> uptr_pd)
+		PETAcquisitionDataInMemory(std::unique_ptr<stir::ProjDataInMemory> uptr_pd)
 		{
 			_data = std::move(uptr_pd);
 		}
@@ -593,11 +587,6 @@ namespace sirf {
 				(_template->same_acquisition_data
 				(this->get_exam_info_sptr(),
                                  this->get_proj_data_info_sptr()->create_shared_clone()));
-		}
-		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const
-		{
-			auto ptr_ad = new PETAcquisitionDataInMemory(std::move(_data->get_subset(views)));
-			return std::unique_ptr<PETAcquisitionData>(ptr_ad);
 		}
 
         /// fill with single value
