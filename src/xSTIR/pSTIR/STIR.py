@@ -775,26 +775,26 @@ class SPECTUBMatrix:
 
         You have to call set_up() after this (unless the value didn't change).
         '''
-        _set_int_par(self.handle, self.name, 'keep_all_views_in_cache', value)
+        parms.set_int_par(self.handle, self.name, 'keep_all_views_in_cache', value)
         return self
     def get_keep_all_views_in_cache(self):
         '''
         Returns a bool checking if we're keeping the whole matrix in memory or not.
         '''
-        return _int_par(self.handle, self.name, 'keep_all_views_in_cache') != 0
+        return parms.int_par(self.handle, self.name, 'keep_all_views_in_cache') != 0
     def set_attenuation_image(self, value):
         '''
         Sets the attenuation image used by the projector.
         '''
         assert_validity(value, ImageData)
-        _setParameter(self.handle, self.name, 'attenuation_image', value.handle)
+        parms.set_parameter(self.handle, self.name, 'attenuation_image', value.handle)
         return self
     def get_attenuation_image(self):
         '''
         Returns the attenuation image used by the projector.
         '''
         image = ImageData()
-        image.handle = _getParameterHandle(self.handle, self.name, 'attenuation_image')
+        image.handle = parms.parameter_handle(self.handle, self.name, 'attenuation_image')
         return image
 
     def set_resolution_model(self, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D = True):

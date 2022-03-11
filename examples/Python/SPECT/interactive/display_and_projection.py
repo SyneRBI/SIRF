@@ -19,13 +19,13 @@
 # First version: 8th of September 2016
 #
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017, 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -38,12 +38,9 @@
 ##   limitations under the License.
 
 #%% Initial imports etc
-import numpy
-from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os
-import sys
 import shutil
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
@@ -58,7 +55,8 @@ import sirf.STIR
 #
 # First a function to display an image
 def imshow(image, limits, title=''):
-    """Display an image with a colourbar, returning the plot handle.
+    """
+    Display an image with a colourbar, returning the plot handle.
 
     Arguments:
     image -- a 2D array of numbers

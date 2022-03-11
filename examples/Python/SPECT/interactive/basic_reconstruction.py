@@ -12,13 +12,13 @@
 # Author: Kris Thielemans
 # Author: Evgueni Ovtchinnikov
 #
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017, 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -31,13 +31,8 @@
 ##   limitations under the License.
 
 #%% Initial imports etc
-import numpy
-from numpy.linalg import norm
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import os
-import sys
-import shutil
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
 #%% Import SIRF
@@ -88,8 +83,8 @@ recon.reconstruct(reconstructed_image)
 
 #%% display of image
 reconstructed_array=reconstructed_image.as_array()
-slice=reconstructed_array.shape[0]/3;
-sirf.Utilities.show_2D_array('reconstructed image (no AC) after 10 sub-iterations',reconstructed_array[slice,:,:,]);
+sl=reconstructed_array.shape[0]/3;
+sirf.Utilities.show_2D_array('reconstructed image (no AC) after 10 sub-iterations',reconstructed_array[sl,:,:,]);
 #%% show all slices
 sirf.Utilities.show_3D_array(reconstructed_array,suptitle='reconstructed image (no AC) after 10 sub-iterations');
 #%% show original input of the simulation
@@ -99,15 +94,15 @@ sirf.Utilities.show_3D_array(image.as_array(),suptitle='original input');
 #%% do another set of iterations
 recon.reconstruct(reconstructed_image)
 reconstructed_array=reconstructed_image.as_array()
-sirf.Utilities.show_2D_array('reconstructed image (no AC) after 20 sub-iterations',reconstructed_array[slice,:,:,]);
+sirf.Utilities.show_2D_array('reconstructed image (no AC) after 20 sub-iterations',reconstructed_array[sl,:,:,]);
 
 #%% forward project the reconstructed image with this acquisition model and display
 # This will show that the estimated data doesn't fit the acquired data very well
 # (as we didn't include attenuation)
 estimated_data = am.forward(reconstructed_image)
 estimated_array = estimated_data.as_array()
-sirf.Utilities.show_2D_array('estimated data (no AC)', estimated_array[slice,:,:]);
-sirf.Utilities.show_2D_array('acquired data', acquired_data.as_array()[slice,:,:]);
+sirf.Utilities.show_2D_array('estimated data (no AC)', estimated_array[sl,:,:]);
+sirf.Utilities.show_2D_array('acquired data', acquired_data.as_array()[sl,:,:]);
 
 #%% Now we include attenuation
 acq_model_matrix.set_attenuation_image(attenuation_image)
@@ -121,10 +116,10 @@ recon.reconstruct(reconstructed_image)
 #cmax = image.as_array().max()*1.2;
 reconstructed_array=reconstructed_image.as_array()
 plt.figure()
-sirf.Utilities.show_2D_array('reconstructed image with attenuation included',reconstructed_array[slice,:,:,]);
+sirf.Utilities.show_2D_array('reconstructed image with attenuation included',reconstructed_array[sl,:,:,]);
 
 #%% forward project the reconstructed image with the AC acquisition model and display
 estimated_data = am.forward(reconstructed_image)
 estimated_array = estimated_data.as_array()
-sirf.Utilities.show_2D_array('estimated data (with AC)', estimated_array[slice,:,:]);
-sirf.Utilities.show_2D_array('acquired data', acquired_data.as_array()[slice,:,:]);
+sirf.Utilities.show_2D_array('estimated data (with AC)', estimated_array[sl,:,:]);
+sirf.Utilities.show_2D_array('acquired data', acquired_data.as_array()[sl,:,:]);
