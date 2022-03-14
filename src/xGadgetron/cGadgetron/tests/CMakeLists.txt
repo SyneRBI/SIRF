@@ -44,34 +44,46 @@ set(TESTDATA_OUTPUT_PATH "${CMAKE_CURRENT_BINARY_DIR}/data/examples/MR")
 set(TESTDATA_OUTPUT_NAME_FULL "simulated_MR_2D_cartesian.h5")
 set(TESTDATA_OUTPUT_NAME_GRAPPA "simulated_MR_2D_cartesian_Grappa2.h5")
 
-set(TESTDATA_TEMP_PREFIX "testdata_tmp")
+add_library(MR_TESTS_CPP_AUXILIARY ${CMAKE_CURRENT_SOURCE_DIR}/mrtest_auxiliary_funs.cpp)
+target_link_libraries(MR_TESTS_CPP_AUXILIARY PUBLIC csirf cgadgetron)
+
+add_executable(MR_PROCESS_TESTDATA ${CMAKE_CURRENT_SOURCE_DIR}/mrtests_prep_testdata.cpp)
+target_link_libraries(MR_PROCESS_TESTDATA PUBLIC MR_TESTS_CPP_AUXILIARY csirf cgadgetron)
+set(MR_PROCESS_TESTDATA_EXE "$<TARGET_FILE:MR_PROCESS_TESTDATA>")
 
 if(RUN_ISMRMRD_SHEPP_LOGAN)
   if(EXE_ISMRMRD_SL)
     if (NOT EXISTS ${TESTDATA_OUTPUT_PATH})
       file(MAKE_DIRECTORY ${TESTDATA_OUTPUT_PATH})
     endif()
-    # rm has been added in CMake 3.17 
+    set(TESTDATA_TEMP_PREFIX "testdata_tmp")
+    set (TESTDATA_OUTPUT_FILES
+      "${TESTDATA_OUTPUT_NAME_FULL}"
+      "${TESTDATA_OUTPUT_NAME_GRAPPA}")
+    set(TESTDATA_TEMP_FILES
+      "${TESTDATA_TEMP_PREFIX}_1.h5"
+      "${TESTDATA_TEMP_PREFIX}_2.h5")
+    # this pre-processing step calls an executable MR_PROCESS_TESTDATA which fills a
+    # default geometry orientation into the MR acquisitions to suppress warnings.
+
+    # rm has been added in CMake 3.17
     if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.17")
-      add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
-          COMMAND ${CMAKE_COMMAND} -E rm -f "${TESTDATA_OUTPUT_NAME_FULL}"
-          COMMAND ${CMAKE_COMMAND} -E rm -f "${TESTDATA_OUTPUT_NAME_GRAPPA}"
-          COMMAND ${CMAKE_COMMAND} -E rm -f "${TESTDATA_TEMP_PREFIX}_1.h5"
-          COMMAND ${CMAKE_COMMAND} -E rm -f "${TESTDATA_TEMP_PREFIX}_2.h5"
-          COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -r 2 -o "${TESTDATA_TEMP_PREFIX}_1.h5"
-          COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -w 64 -a 2 -o "${TESTDATA_TEMP_PREFIX}_2.h5"
-          WORKING_DIRECTORY ${TESTDATA_OUTPUT_PATH})
+      set(RM rm)
     else()
-      add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
-          COMMAND ${CMAKE_COMMAND} -E remove -f "${TESTDATA_OUTPUT_NAME_FULL}"
-          COMMAND ${CMAKE_COMMAND} -E remove -f "${TESTDATA_OUTPUT_NAME_GRAPPA}"
-          COMMAND ${CMAKE_COMMAND} -E remove -f "${TESTDATA_TEMP_PREFIX}_1.h5"
-          COMMAND ${CMAKE_COMMAND} -E remove -f "${TESTDATA_TEMP_PREFIX}_2.h5"
-          COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -r 2 -o "${TESTDATA_TEMP_PREFIX}_1.h5"
-          COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -w 64 -a 2 -o "${TESTDATA_TEMP_PREFIX}_2.h5"
-          WORKING_DIRECTORY ${TESTDATA_OUTPUT_PATH})
+      set(RM remove)
     endif()
-    
+    add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
+      COMMAND ${CMAKE_COMMAND} -E ${RM} -f ${TESTDATA_OUTPUT_FILES} ${TESTDATA_TEMP_FILES}
+      COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -r 2 -o "${TESTDATA_TEMP_PREFIX}_1.h5"
+      COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -w 64 -a 2 -o "${TESTDATA_TEMP_PREFIX}_2.h5"
+      COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${MR_PROCESS_TESTDATA_EXE} "${TESTDATA_TEMP_PREFIX}_1.h5" ${TESTDATA_OUTPUT_NAME_FULL}
+      COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${MR_PROCESS_TESTDATA_EXE} "${TESTDATA_TEMP_PREFIX}_2.h5" ${TESTDATA_OUTPUT_NAME_GRAPPA}
+      COMMAND ${CMAKE_COMMAND} -E ${RM} -f ${TESTDATA_TEMP_FILES}
+      WORKING_DIRECTORY ${TESTDATA_OUTPUT_PATH})
+    # adding a dependency of PROCESS_SIMULATED_TESTDATA on MR_PROCESS_TESTDATA ensures the
+    # executable is built before it is called by the custom target.
+    add_dependencies(GENERATE_SIMULATED_TESTDATA MR_PROCESS_TESTDATA)
+   
   else()
     message(FATAL_ERROR "We could not find the ismrmrd_generate_cartesian_shepp_logan executable. Either set the corresponding variable EXE_ISMRMRD_SL=<path_to>ismrmrd_generate_cartesian_shepp_logan_executable, or disable the generation of the Shepp Logan phantom by setting RUN_ISMRMRD_SHEPP_LOGAN=OFF" )
   endif()
@@ -81,35 +93,9 @@ else()
   message(WARNING "Will not run the Shepp Logan Generation." )
 endif()
 
-add_library(MR_TESTS_CPP_AUXILIARY ${CMAKE_CURRENT_SOURCE_DIR}/mrtest_auxiliary_funs.cpp)
-target_link_libraries(MR_TESTS_CPP_AUXILIARY PUBLIC csirf cgadgetron)
-
-add_executable(MR_PROCESS_TESTDATA ${CMAKE_CURRENT_SOURCE_DIR}/mrtests_prep_testdata.cpp)
-add_dependencies(MR_PROCESS_TESTDATA GENERATE_SIMULATED_TESTDATA)
-target_link_libraries(MR_PROCESS_TESTDATA PUBLIC MR_TESTS_CPP_AUXILIARY csirf cgadgetron)
-set(MR_PROCESS_TESTDATA_EXE "$<TARGET_FILE:MR_PROCESS_TESTDATA>")
-
-
-if(RUN_ISMRMRD_SHEPP_LOGAN)
-  # this pre-processing step calls an executable MR_PROCESS_TESTDATA which fills a
-  # default geometry orientation into the MR acquisitions to suppress warnings.
-  add_custom_target(PROCESS_SIMULATED_TESTDATA ALL
-          COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${MR_PROCESS_TESTDATA_EXE} "${TESTDATA_TEMP_PREFIX}_1.h5" ${TESTDATA_OUTPUT_NAME_FULL}
-          COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${MR_PROCESS_TESTDATA_EXE} "${TESTDATA_TEMP_PREFIX}_2.h5" ${TESTDATA_OUTPUT_NAME_GRAPPA}
-          COMMAND ${CMAKE_COMMAND} -E rm -f "${TESTDATA_TEMP_PREFIX}_1.h5"
-          COMMAND ${CMAKE_COMMAND} -E rm -f "${TESTDATA_TEMP_PREFIX}_2.h5"
-          WORKING_DIRECTORY ${TESTDATA_OUTPUT_PATH})
-else()
-        add_custom_target(PROCESS_SIMULATED_TESTDATA ALL
-        COMMAND "")
-endif()
-
-# adding a dependency of PROCESS_SIMULATED_TESTDATA on MR_PROCESS_TESTDATA ensures the
-# executable is built before it is called by the custom target.
-add_dependencies(PROCESS_SIMULATED_TESTDATA MR_PROCESS_TESTDATA)
 
 add_executable(MR_TESTS_CPLUSPLUS ${CMAKE_CURRENT_SOURCE_DIR}/mrtests.cpp)
-add_dependencies(MR_TESTS_CPLUSPLUS GENERATE_SIMULATED_TESTDATA PROCESS_SIMULATED_TESTDATA)
+add_dependencies(MR_TESTS_CPLUSPLUS GENERATE_SIMULATED_TESTDATA)
 
 target_link_libraries(MR_TESTS_CPLUSPLUS PUBLIC MR_TESTS_CPP_AUXILIARY csirf cgadgetron)
 INSTALL(TARGETS MR_TESTS_CPLUSPLUS DESTINATION bin)
