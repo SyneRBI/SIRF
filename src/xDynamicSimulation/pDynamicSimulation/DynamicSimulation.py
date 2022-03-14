@@ -83,6 +83,10 @@ class MRDynamicSimulation(object):
         self.handle = pysim.cDS_MRDynamicSimulation(tissue_labels.handle, fname_xml)
         check_status(self.handle)
 
+    def set_template_data(self, ad):
+        self.set_acquisition_template_data(ad)
+        self.set_contrast_template_data(ad)
+    
     def set_acquisition_template_data(self, ad):
         assert_validity(ad, pMR.AcquisitionData)
         pysim.cDS_setAcquisitionTemplateData(self.handle, ad.handle)
