@@ -494,12 +494,13 @@ MotionProcessor::calc_inverse_offset_deformation(NiftiImageData3DDeformation<flo
 void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	std::cout << "Binning motion dynamics\n";
-	
 
 	if( true ) //this loop just for RAII reasons to free data
 	{
 		std::vector<AcquisitionsVector> empty_vec;
 		this->binned_mr_acquisitions_.swap( empty_vec );
+
+		this->idx_corr_.clear();
 	}
 
 	if(bp_.get_bins().size() == 1)
@@ -583,6 +584,7 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 		this->binned_mr_acquisitions_.swap( empty_vec );
 
 		cp_.empty_timepoints();
+		idx_corr_.clear();
 	}
 
 	all_acquisitions.sort_by_time(); 

@@ -422,6 +422,49 @@ void* cDS_setMRAcquisitions(void* ptr_dyn, void* ptr_ad)
 }
 
 extern "C"
+void* cDS_getIdxCorrSizes(void* ptr_dyn, void* ptr_ad, size_t ptr_sizes)
+{
+	try {
+
+		float* sizes = (float*)ptr_sizes;
+
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		MRDynamic& dyn = objectFromHandle<MRDynamic>(h_dyn);
+
+		CAST_PTR(DataHandle, h_ad, ptr_ad);
+		MRAcquisitionData& ad = objectFromHandle<MRAcquisitionData>(h_ad);
+
+		dyn.bin_mr_acquisitions(ad);
+
+		std::vector<int> idxcorr_size = dyn.get_idx_corr_sizes();
+		memcpy(sizes, &idxcorr_size.front(), dyn.get_num_simul_states()*sizeof(int));
+
+		return new DataHandle;
+	}
+
+	CATCH;	
+}
+
+extern "C"
+void* cDS_getIdxCorr(void* ptr_dyn, int const bin_num, size_t ptr_idx_corr)
+{
+	try {
+
+		float* idx_corr = (float*)ptr_idx_corr;
+
+		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
+		MRDynamic& dyn = objectFromHandle<MRDynamic>(h_dyn);
+
+		std::deque<int> idx = dyn.get_idx_corr(bin_num);
+		memcpy(idx_corr, &idx.front(), idx.size() * sizeof(int));
+
+		return new DataHandle;
+	}
+
+	CATCH;	
+}
+
+extern "C"
 void* cDS_MRMotionDynamic( int const num_states )
 {
 	try {

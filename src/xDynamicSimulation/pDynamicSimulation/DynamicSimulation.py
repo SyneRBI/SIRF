@@ -156,10 +156,19 @@ class Dynamic(object):
     def set_cyclicality(self, is_cyclic):
         pysim.cDS_setCyclicality(self.handle, is_cyclic)
 
- 
+    def obtain_idx_corr_sizes(self, ad, num_states):
+
+        assert_validity(ad, pMR.AcquisitionData)
+        sizes = np.zeros(shape=(num_states,), dtype=np.int32)
+        sizes = np.ascontiguousarray(sizes)
+        pysim.cDS_getIdxCorrSizes(self.handle, ad.handle, sizes.ctypes.data)
+        
+        return sizes
+
 class MRMotionDynamic(Dynamic):
 
     def __init__(self, num_states):
+        self.num_states = num_states
         self.handle = None
         self.handle = pysim.cDS_MRMotionDynamic(num_states)
         check_status(self.handle)
@@ -173,6 +182,22 @@ class MRMotionDynamic(Dynamic):
 
     def set_groundtruth_folder_prefix(self, prefix_existing_path):
         pysim.cDS_setMRGroundTruthFolderName(self.handle, prefix_existing_path)
+
+    def get_idx_corr_sizes(self, ad):
+        return self.obtain_idx_corr_sizes(ad, self.num_states)
+
+    def get_idx_corr(self, ad):
+        idx_sizes = self.get_idx_corr_sizes(ad)
+        idx_corr = []
+        for ibin in range(len(idx_sizes)):
+            print("Getting idx for {}".format(bin))
+            num_entries=idx_sizes[ibin]
+            idx = np.zeros(shape=(num_entries,), dtype=np.int32)
+            idx = np.ascontiguousarray(idx)
+            pysim.cDS_getIdxCorr(self.handle, int(ibin), idx.ctypes.data)
+            idx_corr.append(idx)
+        
+        return idx_corr
 
 class TissueParameter():
     
@@ -195,6 +220,7 @@ class TissueParameter():
 class MRContrastDynamic(Dynamic):
     
     def __init__(self, num_states):
+        self.num_states = num_states
         self.handle = None
         self.handle = pysim.cDS_MRContrastDynamic(num_states)
         check_status(self.handle)
@@ -209,6 +235,21 @@ class MRContrastDynamic(Dynamic):
 
         pysim.cDS_setMRParameterExtremes(self.handle, tissue_0.handle, tissue_1.handle)
 
+    def get_idx_corr_sizes(self, ad):
+
+        return self.obtain_idx_corr_sizes(ad, self.num_states)
+
+    def get_idx_corr(self, ad):
+        idx_sizes = self.get_idx_corr(ad)
+        idx_corr = []
+        for ibin in range(len(idx_sizes)):
+            num_entries=idx_sizes[ibin]
+            idx = np.zeros(shape=(num_entries,), dtype=np.int32)
+            idx = np.ascontiguousarray(idx)
+            pysim.cDS_getIdxCorr(self.handle, int(ibin), idx.ctypes.data)
+            idx_corr.append(idx)
+        
+        return idx_corr
 
 class ExternalMRContrastDynamic(Dynamic):
 

@@ -309,16 +309,20 @@ public:
 		return binned_mr_acquisitions_.at(bin_num);
 	}
 
-	virtual std::vector<std::deque<size_t>> get_idx_corr() const
+	virtual std::deque<int> get_idx_corr(int const bin_num) const
 	{
-		return this->idx_corr_;
+		if(bin_num >= binned_mr_acquisitions_.size())
+			throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
+
+		return this->idx_corr_.at(bin_num);
 	}
 
-	virtual std::vector<size_t> get_idx_corr_sizes() const
+	virtual std::vector<int> get_idx_corr_sizes() const
 	{
-		std::vector<size_t> idx_corr_sizes;
+		std::vector<int> idx_corr_sizes;
 		for(int i=0; i<idx_corr_.size(); ++i)
 			idx_corr_sizes.push_back(idx_corr_[i].size());
+
 		return idx_corr_sizes;
 	}
 
@@ -326,7 +330,7 @@ public:
 	
 protected:
 	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
-	std::vector<std::deque<size_t> > idx_corr_;
+	std::vector<std::deque<int> > idx_corr_;
 };
 
 

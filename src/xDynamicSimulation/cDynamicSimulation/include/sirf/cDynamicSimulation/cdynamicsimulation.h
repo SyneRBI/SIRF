@@ -62,6 +62,10 @@ void* cDS_setCyclicality(void* ptr_dyn, bool const cyc);
 
 void* cDS_setMRAcquisitions(void* ptr_dyn, void* ptr_ad);
 
+void* cDS_getIdxCorrSizes(void* ptr_dyn, void* ptr_ad, PTR_INT ptr_sizes);
+void* cDS_getIdxCorr(void* ptr_dyn, int const bin_num, PTR_INT ptr_idx_corr);
+
+
 // MR Dynamics
 void* cDS_MRMotionDynamic( int const num_states );
 
