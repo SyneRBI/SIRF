@@ -309,11 +309,24 @@ public:
 		return binned_mr_acquisitions_.at(bin_num);
 	}
 
+	virtual std::vector<std::deque<size_t>> get_idx_corr() const
+	{
+		return this->idx_corr_;
+	}
+
+	virtual std::vector<size_t> get_idx_corr_sizes() const
+	{
+		std::vector<size_t> idx_corr_sizes;
+		for(int i=0; i<idx_corr_.size(); ++i)
+			idx_corr_sizes.push_back(idx_corr_[i].size());
+		return idx_corr_sizes;
+	}
+
 	virtual void bin_mr_acquisitions(sirf::MRAcquisitionData& all_acquisitions)=0;
 	
 protected:
 	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
-
+	std::vector<std::deque<size_t> > idx_corr_;
 };
 
 

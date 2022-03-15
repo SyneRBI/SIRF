@@ -529,6 +529,7 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 		relevant_acq_numbers.push_back( i );
 
 	const std::vector<SignalBin> signal_bins = bp_.get_bins();
+	this->idx_corr_.resize(signal_bins.size());
 
 	for( int i_bin=0; i_bin<signal_bins.size(); i_bin++)
 	{
@@ -552,7 +553,10 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 			SignalAxisType signal_of_acq = this->interpolate_signal(acq_time_seconds);
 			
 			if( is_in_bin(signal_of_acq, bin) )
+			{
+				this->idx_corr_[i_bin].push_back(curr_pos);
 				curr_acq_vector.append_acquisition(acq);
+			}
 			else
 				acq_not_binned.push_back(curr_pos);					
 		}
@@ -562,12 +566,10 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 	}
 }
 
-// std::vector<AcquisitionsVector> MRContrastDynamic::binned_mr_acquisitions_ = std::vector<AcquisitionsVector>();
-
 void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	std::cout << "######################## Binning contrast dynamics\n";
-
+	
 	if( true ) //this loop just for RAII reasons to free data
 	{
 		std::vector<AcquisitionsVector> empty_vec;
@@ -589,6 +591,8 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 	TimeAxisType total_time_ms = SIRF_SCANNER_MS_PER_TIC * (t_fin - t_start);
 	std::vector< size_t > index_lims;
 	const std::vector<SignalBin> signal_bins = bp_.get_bins();
+
+	this->idx_corr_.resize(signal_bins.size());
 
 	for( size_t i=0; i<signal_bins.size();i++)
 	{
@@ -615,6 +619,7 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 			all_acquisitions.get_acquisition( i, acq );
 			acq.resize(1,1,0);
 			av.append_acquisition( acq );
+			this->idx_corr_[i_bin].push_back(i);
 		}
 		
 		this->binned_mr_acquisitions_.push_back( av );
