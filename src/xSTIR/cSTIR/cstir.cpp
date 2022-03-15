@@ -673,6 +673,17 @@ void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
 }
 
 extern "C"
+void* cSTIR_get_MatrixInfo(void* ptr)
+{
+	try {
+		SPTR_FROM_HANDLE(RayTracingMatrix, sptr, ptr);
+		return charDataHandleFromCharData(
+			sptr->parameter_info().c_str());
+	}
+	CATCH;
+}
+
+extern "C"
 void*
 cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 { 
