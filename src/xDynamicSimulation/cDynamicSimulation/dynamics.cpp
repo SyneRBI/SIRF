@@ -495,6 +495,13 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	std::cout << "Binning motion dynamics\n";
 	
+
+	if( true ) //this loop just for RAII reasons to free data
+	{
+		std::vector<AcquisitionsVector> empty_vec;
+		this->binned_mr_acquisitions_.swap( empty_vec );
+	}
+
 	if(bp_.get_bins().size() == 1)
 	{
 		std::cout << "We have only one bin, we take all the acquisitions" << std::endl;
