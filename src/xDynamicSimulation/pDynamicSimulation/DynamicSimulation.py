@@ -172,7 +172,6 @@ class Dynamic(object):
         idx_sizes = self.get_idx_corr_sizes(ad)
         idx_corr = []
         for ibin in range(len(idx_sizes)):
-            print("Getting idx for {}".format(bin))
             num_entries=idx_sizes[ibin]
             idx = np.zeros(shape=(num_entries,), dtype=np.int32)
             idx = np.ascontiguousarray(idx)
