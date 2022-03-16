@@ -101,6 +101,39 @@ def test_static_mr_simulation(rec=False, verb=False, throw=True):
 
     return 1
 
+def test_get_idx_corr(rec=False, verb=False, throw=True):
+    
+    fpath_testdata_prefix = '/media/sf_CCPPETMR/TestData/'
+    input_fpath_prefix = fpath_testdata_prefix + 'Input/xDynamicSimulation/pDynamicSimulation/'
+    
+    fpath_template_rawdata = input_fpath_prefix + 'General/meas_MID27_CV_11s_TI2153_a6_2x2x8_TR45_FID33312_defaultorientation.h5'
+    ad = pMR.AcquisitionData(fpath_template_rawdata)
+
+    num_resp_states = 4
+    
+    resp_motion = pDS.MRMotionDynamic(num_resp_states)
+    resp_motion.set_cyclicality(False)
+
+    # generate artificial motion signal
+    Nt = 100000
+    t0_s = 0
+    tmax_s = 1200
+    time_points = np.linspace(t0_s, tmax_s, Nt)
+
+    resp_frequency_Hz = 0.2
+    resp_curve = 0.5 * ( 1 + np.sin( 2*np.pi*resp_frequency_Hz*time_points))
+
+    resp_motion.set_dynamic_signal(time_points, resp_curve)
+
+    print("The bins with acquisitions are of size {}".format(resp_motion.get_idx_corr_sizes(ad)))
+    idx_corr = resp_motion.get_idx_corr(ad)
+    
+    print("The idx has size {}".format(len(idx_corr)))
+
+    for idx in idx_corr:
+        print("The bin containes {}".format(idx))
+    
+    return 1
 
 def test_motion_mr_simulation(rec=False, verb=False, throw=True):
 
@@ -360,10 +393,11 @@ def test_simulate_external_contrast(rec=False, verb=False, throw=True):
 def test_main(rec=False, verb=False, throw=True):
     
     num_tests = 0
+    num_tests += test_get_idx_corr(rec, verb, throw)
     # num_tests += test_static_mr_simulation(rec, verb, throw)
     # num_tests += test_motion_mr_simulation(rec, verb, throw)
     # num_tests += test_simulate_external_contrast(rec,verb,throw)
-    num_tests += test_contrast_mr_simulation(rec, verb, throw)
+    # num_tests += test_contrast_mr_simulation(rec, verb, throw)
 
     return False, num_tests
 

@@ -494,15 +494,8 @@ MotionProcessor::calc_inverse_offset_deformation(NiftiImageData3DDeformation<flo
 void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	std::cout << "Binning motion dynamics\n";
-
-	if( true ) //this loop just for RAII reasons to free data
-	{
-		std::vector<AcquisitionsVector> empty_vec;
-		this->binned_mr_acquisitions_.swap( empty_vec );
-
-		this->idx_corr_.clear();
-	}
-
+	this->clear_binning_data();
+	
 	if(bp_.get_bins().size() == 1)
 	{
 		std::cout << "We have only one bin, we take all the acquisitions" << std::endl;
@@ -541,7 +534,7 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 
 	for( int i_bin=0; i_bin<signal_bins.size(); i_bin++)
 	{
-
+		
 		auto bin = signal_bins[i_bin];
 	
 		AcquisitionsVector curr_acq_vector;
@@ -577,16 +570,8 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 {
 	std::cout << "######################## Binning contrast dynamics\n";
-	
-	if( true ) //this loop just for RAII reasons to free data
-	{
-		std::vector<AcquisitionsVector> empty_vec;
-		this->binned_mr_acquisitions_.swap( empty_vec );
-
-		cp_.empty_timepoints();
-		idx_corr_.clear();
-	}
-
+	this->clear_binning_data();
+	cp_.empty_timepoints();
 	all_acquisitions.sort_by_time(); 
 
 	size_t const num_acquis = all_acquisitions.number();	

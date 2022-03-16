@@ -426,7 +426,7 @@ void* cDS_getIdxCorrSizes(void* ptr_dyn, void* ptr_ad, size_t ptr_sizes)
 {
 	try {
 
-		float* sizes = (float*)ptr_sizes;
+		int* sizes = (int*)ptr_sizes;
 
 		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
 		MRDynamic& dyn = objectFromHandle<MRDynamic>(h_dyn);
@@ -450,14 +450,20 @@ void* cDS_getIdxCorr(void* ptr_dyn, int const bin_num, size_t ptr_idx_corr)
 {
 	try {
 
-		float* idx_corr = (float*)ptr_idx_corr;
+
+		int* idx_corr = (int*)ptr_idx_corr;
 
 		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
 		MRDynamic& dyn = objectFromHandle<MRDynamic>(h_dyn);
 
-		std::deque<int> idx = dyn.get_idx_corr(bin_num);
-		memcpy(idx_corr, &idx.front(), idx.size() * sizeof(int));
+		std::cout << "We copy bin num " << bin_num << std::endl;
 
+		std::deque<int> idx = dyn.get_idx_corr(bin_num);
+
+		// memcpy does not seem to work here.
+		for(int i=0; i<idx.size();++i)
+			*(idx_corr + i) = idx.at(i);
+		
 		return new DataHandle;
 	}
 

@@ -309,6 +309,16 @@ public:
 		return binned_mr_acquisitions_.at(bin_num);
 	}
 
+	void clear_binning_data() 
+	{
+		std::vector<sirf::AcquisitionsVector> empty_acquis_vec;
+		binned_mr_acquisitions_.swap( empty_acquis_vec );
+		
+		std::vector<std::deque<int> > empty_idx_corr;
+		idx_corr_.swap(empty_idx_corr);
+	
+	}
+
 	virtual std::deque<int> get_idx_corr(int const bin_num) const
 	{
 		if(bin_num >= binned_mr_acquisitions_.size())
