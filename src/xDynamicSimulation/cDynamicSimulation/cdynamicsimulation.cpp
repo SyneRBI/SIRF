@@ -456,8 +456,6 @@ void* cDS_getIdxCorr(void* ptr_dyn, int const bin_num, size_t ptr_idx_corr)
 		CAST_PTR(DataHandle, h_dyn, ptr_dyn);			
 		MRDynamic& dyn = objectFromHandle<MRDynamic>(h_dyn);
 
-		std::cout << "We copy bin num " << bin_num << std::endl;
-
 		std::deque<int> idx = dyn.get_idx_corr(bin_num);
 
 		// memcpy does not seem to work here.

@@ -131,7 +131,9 @@ def test_get_idx_corr(rec=False, verb=False, throw=True):
     print("The idx has size {}".format(len(idx_corr)))
 
     for idx in idx_corr:
-        print("The bin containes {}".format(idx))
+        print("We have idx with {} numbers.".format(idx.shape))
+        if any(idx > ad.number()):
+            raise AssertionError("Indices larger than the maximum number appear in the idx_corr.")
     
     return 1
 
