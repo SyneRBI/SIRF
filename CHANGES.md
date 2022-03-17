@@ -3,8 +3,8 @@
 ## v3.2.0
 
 * Dependencies
-- we now require ISMRMRD v1.4.2.1 to allow for the `-w` flag for the creation of Shepp
-  Logan test data during build.
+  - we now require ISMRMRD v1.4.2.1 to allow for the `-w` flag for the creation of Shepp
+    Logan test data during build.
 
 * MR (major improvements)
   - added acquisition models for 2D non-cartesian encoding. 
@@ -13,13 +13,14 @@
     Other MR features only need access to a Gadgetron server at run-time.
   - fixed GadgetronImagesVector::reorient() to only consider slice index 
     and ignore dimensions such as contrast, repetition etc.
-  - To avoid appending to an existing `.h5` file, writing methods now first check whether the file to which data is to be written already exists, and if so, delete it before writing.
+  - To avoid appending to an existing `.h5` file, writing methods now first check whether
+    the file to which data is to be written already exists, and if so, delete it before writing. 
 
 * PET/STIR (minor improvements)
   - (Python) Expose advanced parameters from STIR to sirf.STIR.RayTracingMatrix and add get_info()
   - (C++) Expose advanced parameters from STIR to sirf.STIR.RayTracingMatrix
   - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception to reduce
-  the API dependency on STIR.
+    the API dependency on STIR.
   - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
 
 * Generic (minor improvements)
