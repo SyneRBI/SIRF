@@ -1,4 +1,5 @@
 '''
+
 Forward projection demo: creates an image, projects it to simulate
 acquisition data and backprojects
 
@@ -37,7 +38,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from sirf.Utilities import show_2D_array, examples_data_path
+from sirf.Utilities import show_2D_array
 
 # import engine module
 import sirf.STIR
@@ -51,9 +52,7 @@ raw_data_file = sirf.STIR.existing_filepath(data_path, data_file)
 output_file = args['--output']
 
 def create_sample_image(image):
-    '''
-    fill the image with some simple geometric shapes
-    '''
+    '''fill the image with some simple geometric shapes.'''
     image.fill(0)
     # create a shape
     shape = sirf.STIR.EllipticCylinder()
@@ -75,7 +74,7 @@ def create_sample_image(image):
 
 def main():
 
-##    AcquisitionData.set_storage_scheme('mem')
+    ## AcquisitionData.set_storage_scheme('mem')
 
     # no info printing from the engine, warnings and errors sent to stdout
     # msg_red = MessageRedirector()
@@ -110,7 +109,7 @@ def main():
     acq_model.set_up(acq_template, image)
     simulated_data = acq_template.get_uniform_copy()
     acq_model.forward(image, 0, 1, simulated_data)
-#    simulated_data = acq_model.forward(image, 0, 4)
+    # simulated_data = acq_model.forward(image, 0, 4)
     if output_file is not None:
         simulated_data.write(output_file)
 

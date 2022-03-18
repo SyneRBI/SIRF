@@ -1787,7 +1787,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_matrix(self, matrix):
-        ''' 
+        '''
         Sets the matrix G to be used for projecting;
         matrix:  a matrix object to represent G in acquisition model (F).
         '''
