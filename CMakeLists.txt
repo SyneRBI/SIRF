@@ -91,6 +91,14 @@ if (APPLE)
   endif()
 endif()
 
+if (WIN32)
+  # Enable secure versions of standard C functions such as sprintf etc
+  # this will cause a run-time error when overwriting memory etc
+  add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
+  # This still leaves a lot of warnings about sscanf etc, so we'll silence them all for now
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
 ####### External packages
 
 #### we need the boost library from boost.org
