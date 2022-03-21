@@ -1,4 +1,5 @@
 '''
+
 Simple OSEM reconstruction demo: creates an image, projects it to simulate
 acquisition data , adds noise to the data and then does an OSEM reconstruction.
 
@@ -49,8 +50,7 @@ raw_data_file = sirf.STIR.existing_filepath(data_path, data_file)
 output_file = args['--output']
 
 def create_sample_image(image, attenuation = False):
-    '''fill the image with some simple geometric shapes'''
-
+    '''fill the image with some simple geometric shapes.'''
     # density needs to be scaled down for attenuation image
     if attenuation == True:
         value = 0.1
@@ -77,24 +77,24 @@ def create_sample_image(image, attenuation = False):
     image.add_shape(shape, scale = value*0.75)
 
 def make_cylindrical_FOV(image):
-    """truncate to cylindrical FOV"""
-    filter = sirf.STIR.TruncateToCylinderProcessor()
-    filter.apply(image)
-    return image 
+    """truncate to cylindrical FOV."""
+    cyl_filter = sirf.STIR.TruncateToCylinderProcessor()
+    cyl_filter.apply(image)
+    return image
 
 def add_noise(proj_data,noise_factor = 1):
-    """Add Poission noise to acquisition data"""    
+    """Add Poission noise to acquisition data."""
     proj_data_arr = proj_data.as_array() / noise_factor
     # Data should be >=0 anyway, but add abs just to be safe
     proj_data_arr = np.abs(proj_data_arr)
     noisy_proj_data_arr = np.random.poisson(proj_data_arr).astype('float32');
     noisy_proj_data = proj_data.clone()
     noisy_proj_data.fill(noisy_proj_data_arr);
-    return noisy_proj_data 
+    return noisy_proj_data
 
 def main():
 
-##    AcquisitionData.set_storage_scheme('mem')
+    ## AcquisitionData.set_storage_scheme('mem')
 
     # no info printing from the engine, warnings and errors sent to stdout
     # msg_red = MessageRedirector()

@@ -9,8 +9,8 @@
 # Python IDE such as spyder. It is organised in 'cells'. spyder displays these
 # cells nicely and allows you to run each cell on its own.
 #
-# # We'll use the Python Animation package for one display. This might not display 
-# anything depending on your IDE settings (check the 'backend' settings).
+# # We'll use the Python Animation package for one display. This might not display
+# # anything depending on your IDE settings (check the 'backend' settings).
 # For instance, in spyder, go to Tools->Preferences->iPython->Graphics and
 # set your backend to "automatic". You will have to do this BEFORE you start the
 # ipython console (or just restart spyder)
@@ -74,9 +74,7 @@ def imshow(image, limits, title=''):
     return bitmap
 
 def create_sample_image(image):
-    '''
-    fill the image with some simple geometric shapes
-    '''
+    '''fill the image with some simple geometric shapes.'''
     image.fill(0)
     # create a shape
     shape = sirf.STIR.EllipticCylinder()
@@ -104,9 +102,7 @@ def create_sample_image(image):
     image.add_shape(shape, scale = 1)
 
 def create_attenuation_image(image):
-    '''
-    fill the attenuation image with some simple geometric shapes
-    '''
+    '''fill the attenuation image with some simple geometric shapes.'''
     image.fill(0)
     # create a shape
     shape = sirf.STIR.EllipticCylinder()
