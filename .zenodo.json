@@ -7,7 +7,7 @@
     {"identifier": "10.1109/NSSMIC.2017.8532815", "relation": "documents"}],
   "communities": [{"identifier": "ccp-petmr"},{"identifier": "synerbi"}],
   "creators": [
-    {"name": "Ovtchinnikov, Evgueni", "affiliation":"UK Research & Innovation"},
+    {"name": "Ovtchinnikov, Evgueni", "orcid": "0000-0002-9359-6514", "affiliation":"UK Research & Innovation"},
     {"name": "Brown, Richard", "orcid": "0000-0001-6989-9200", "affiliation": "University College London"},
     {"name": "Mayer, Johannes", "orcid": "0000-0002-2500-445X", "affiliation": "Physikalisch-Technische Bundesanstalt (PTB)"},
     {"name": "Pasca, Edoardo", "orcid": "0000-0001-6957-2160", "affiliation":"UK Research & Innovation"},
