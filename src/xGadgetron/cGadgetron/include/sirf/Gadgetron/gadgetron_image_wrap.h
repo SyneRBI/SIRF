@@ -253,19 +253,25 @@ namespace sirf {
 			type_ = type;
 			ptr_ = ptr_im;
 		}
-		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index)
+		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index) noexcept(false)
 		{
 			type_ = type;
 			IMAGE_PROCESSING_SWITCH(type_, read_, ptr_, dataset, var, index, &ptr_);
 		}
-		ImageWrap(const ImageWrap& iw)
+		ImageWrap(const ImageWrap& iw) noexcept(false)
 		{
 			type_ = iw.type();
 			IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
 		}
-		~ImageWrap()
+		~ImageWrap() noexcept
 		{
-			IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
+                	try {
+				IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
+                        }
+                        catch(...)
+                        {
+                          // catch exceptions in destructor to prevent crashes
+                        }
 		}
 		int type() const
 		{
