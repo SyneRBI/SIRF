@@ -234,11 +234,11 @@ void MRDynamicSimulation::simulate_external_contrast_motion_dynamics()
 		
 		ISMRMRD::Acquisition acq;
 		acquisitions_for_this_contrast_state.get_acquisition(0, acq);
-		uint32_t const timepoint_ms = SIRF_SCANNER_MS_PER_TIC * acq.acquisition_time_stamp();
+		uint32_t const timepoint_sec = SIRF_SCANNER_MS_PER_TIC * acq.acquisition_time_stamp()/1000;
 
 		std::vector<sirf::NiftiImageData3DDeformation<float> > current_mvfs;	
 		for( int i_motion_dyn = 0; i_motion_dyn<motion_dynamics_.size(); i_motion_dyn++ )
-			current_mvfs.push_back(motion_dynamics_[i_motion_dyn]->get_interpolated_deformation_field_at_timepoint(timepoint_ms)); 
+			current_mvfs.push_back(motion_dynamics_[i_motion_dyn]->get_interpolated_deformation_field_at_timepoint(timepoint_sec)); 
 
 		mr_cont_gen_.map_contrast(sptr_ed->get_tissue_signals(i));
 		dsd_.deform_contrast_generator(this->mr_cont_gen_, current_mvfs);
