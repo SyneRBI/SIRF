@@ -248,11 +248,15 @@ class ImageData(SIRF.ImageData):
     def same_object(self):
         return ImageData()
 
-    def abs(self):
-        images = ImageData()
+    def abs(self, out=None):
+        if out is None:
+            images = ImageData()
+        else:
+            images = out
         images.handle = pygadgetron.cGT_realImageData(self.handle, 'abs')
         check_status(images.handle)
-        return images
+        if out is None:
+            return images
 
     def real(self):
         images = ImageData()
