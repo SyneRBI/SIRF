@@ -49,6 +49,15 @@ class TissueParameterList:
             tp = self.TissueParameter(label, name, rho, t1, t2, cs, mu, act)
             self.tissue_parameters = np.append(self.tissue_parameters, tp)
         
+    def get_labels_and_names(self):
+        
+        label_dict = {}
+
+        for tp in self.tissue_parameters:
+            label_dict[tp.name] = tp.label
+
+        return label_dict
+
     def mr_as_array(self):
 
         arr = np.empty( shape=(self.tissue_parameters.size, 5))
