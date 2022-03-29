@@ -44,7 +44,7 @@ public:
 	{
 		offset_ = trafo;
 	}
-	void add_displacement_offset(const std::vector<sirf::NiftiImageData3DDeformation<float> > &vec)
+	void add_offset_deformation(const std::vector<sirf::NiftiImageData3DDeformation<float> > &vec)
 	{
 		displacement_offset_ = vec;
 	}
