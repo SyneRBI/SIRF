@@ -333,6 +333,13 @@ void MRDynamicSimulation::save_groud_truth_parameter_maps( const std::string pre
 	this->mr_cont_gen_.map_parameters();
 	std::vector<NiftiImageData3D<float> > parameter_maps = this->mr_cont_gen_.get_parameter_filled_volumes();
 
+	std::vector<sirf::NiftiImageData3DDeformation<float> > average_motion_fields;
+	for(auto& modyn : motion_dynamics_)
+	{	
+		average_motion_fields.push_back(modyn->get_average_deformation_field(*sptr_source_acquisitions_));
+	}
+	dsd_.add_offset_deformation(average_motion_fields);
+
 	std::stringstream fname_output;
 	fname_output << prefix_output << "_spindensity.nii";
 	NiftiImageData3D<float> tmp_img;
