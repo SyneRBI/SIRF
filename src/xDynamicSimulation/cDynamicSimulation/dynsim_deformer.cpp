@@ -83,8 +83,8 @@ NiftiImageData3D<float> DynamicSimulationDeformer::resample_to_template(NiftiIma
 		return img;
 	else{	
 		
-		if(displacement_offset_.size() > 0)
-			img.reorient(*(displacement_offset_[0].get_geom_info_sptr()));
+		// if(displacement_offset_.size() > 0)
+		// 	img.reorient(*(displacement_offset_[0].get_geom_info_sptr()));
 
 
 		NiftiImageData3D<float> real_valued_template(*sptr_mr_template_img_);
