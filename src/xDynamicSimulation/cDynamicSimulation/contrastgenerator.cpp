@@ -194,6 +194,7 @@ void MRContrastGenerator::map_parameters()
 	parameter_filled_volumes_.push_back( get_parameter_map(1));
 	parameter_filled_volumes_.push_back( get_parameter_map(2));
 	parameter_filled_volumes_.push_back( get_parameter_map(3));
+	parameter_filled_volumes_.push_back( get_parameter_map(4));
 }
 
 
@@ -230,6 +231,8 @@ float MRContrastGenerator::get_parameter_from_tissue(const TissueParameter tp, c
 		return tp.mr_tissue_.t2_miliseconds_;
 	case 3:
 		return tp.mr_tissue_.cs_ppm_;
+	case 4:
+		return tp.label_;
 	default:
 		throw std::runtime_error("Please as for parameter 0, 1, 2 or 3 and nothing else.");
 	}
