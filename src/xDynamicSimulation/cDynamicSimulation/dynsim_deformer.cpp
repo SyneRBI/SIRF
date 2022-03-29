@@ -77,19 +77,33 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 	vec_displacement_fields.swap( empty_vec_to_free_memory );
 }
 
-NiftiImageData3D<float> DynamicSimulationDeformer::resample_to_template(const NiftiImageData3D<float>& img) const
+NiftiImageData3D<float> DynamicSimulationDeformer::resample_to_template(NiftiImageData3D<float> img, bool const use_nearest_neighbor) const
 {
 	if(!mr_template_available_)
 		return img;
 	else{	
 		
+		if(displacement_offset_.size() > 0)
+			img.reorient(*(displacement_offset_[0].get_geom_info_sptr()));
+
+
 		NiftiImageData3D<float> real_valued_template(*sptr_mr_template_img_);
 		NiftyResampler<float> resampler;
-    	resampler.set_interpolation_type_to_cubic_spline();
+		if(use_nearest_neighbor)
+			resampler.set_interpolation_type_to_nearest_neighbour();
+		else
+			resampler.set_interpolation_type_to_cubic_spline();
+
 		resampler.set_floating_image( std::make_shared<NiftiImageData3D<float> > (img));
 		resampler.set_reference_image(std::make_shared<NiftiImageData3D<float> > (img));
+
+		for( size_t i_trafo=0; i_trafo<displacement_offset_.size(); i_trafo++)
+		{
+			auto disp_trafo = std::make_shared<NiftiImageData3DDeformation<float> >( displacement_offset_[i_trafo] );
+			resampler.add_transformation(disp_trafo);
+		}
+
 		resampler.add_transformation(std::make_shared<sirf::AffineTransformation<float> >(offset_));
-	
 		resampler.process();
 
 		// now clear the transformations, and put the deformed image as new floating
@@ -102,7 +116,6 @@ NiftiImageData3D<float> DynamicSimulationDeformer::resample_to_template(const Ni
 		return deformed_img;
 	}
 }
-
 
 
 void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<NiftiImageData3DDeformation<float> >& vec_displacement_fields)

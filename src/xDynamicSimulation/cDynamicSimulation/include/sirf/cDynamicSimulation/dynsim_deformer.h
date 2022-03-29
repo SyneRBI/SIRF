@@ -44,11 +44,15 @@ public:
 	{
 		offset_ = trafo;
 	}
+	void add_displacement_offset(const std::vector<sirf::NiftiImageData3DDeformation<float> > &vec)
+	{
+		displacement_offset_ = vec;
+	}
 
 	void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
 	void deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
 	
-	sirf::NiftiImageData3D<float> resample_to_template(const sirf::NiftiImageData3D<float>& img) const;
+	sirf::NiftiImageData3D<float> resample_to_template(sirf::NiftiImageData3D<float> img, bool const use_nearest_neighbor=false) const;
 	
 	void set_template_rawdata(const sirf::MRAcquisitionData& ad)
 	{
@@ -56,9 +60,13 @@ public:
 		mr_template_available_ = true;
 	}
 
+	
+
 protected:
 
+
 	sirf::AffineTransformation<float> offset_;
+	std::vector<sirf::NiftiImageData3DDeformation<float> > displacement_offset_;
 
 	std::shared_ptr<sirf::GadgetronImagesVector> sptr_mr_template_img_;
 	bool mr_template_available_ = false;
