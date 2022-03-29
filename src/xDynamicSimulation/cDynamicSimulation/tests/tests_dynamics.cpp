@@ -98,6 +98,33 @@ bool test_surrogateprocessor::test_linear_interpolate_signal( )
 	}
 }
 
+
+bool test_surrogateprocessor::test_get_average_signal()
+{
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+	try
+	{
+		SignalContainer mock_signal = aux_test::get_mock_motion_signal();
+		std::vector<TimeAxisType> timpts;
+		for(auto& elem: mock_signal)
+			timpts.push_back(elem.first);
+		
+		SurrogateProcessor sp;
+		sp.set_signal(mock_signal);
+
+		SignalAxisType avg_signal = sp.get_average_signal(timpts);
+		cout << epiph ( avg_signal ) <<endl;	
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
+		throw e;
+	}
+}
+
 bool test_dynamic::test_intersect_mr_acquisition_data( void )
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
@@ -159,6 +186,32 @@ bool test_dynamic::test_intersect_mr_acquisition_data( void )
 	return test_succesful;
 }
 
+
+
+bool test_dynamic::get_average_deformation_field( void )
+{
+	std::cout << "--- Running "<< __FUNCTION__ << std::endl;
+	try{
+		AcquisitionsVector av_template;
+		av_template.read( PATH_2D_ACQ_TEMPLATE );
+
+		int const num_motion_states = 10;
+		MRMotionDynamic motion_dyn( num_motion_states );
+
+		auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+		motion_dyn.set_displacement_fields(resp_mvfs);
+
+		auto avg_vf = motion_dyn.get_average_deformation_field(av_template);
+		return true;
+	}
+	
+	catch( std::runtime_error const &e)
+	{
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
+		throw e;
+	}
+}
 bool test_binprocessor::test_get_set_bins()
 {
 	std::cout << "--- Running "<< __FUNCTION__ << std::endl;

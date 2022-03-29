@@ -17,6 +17,7 @@ namespace test_binprocessor{
 
 namespace test_surrogateprocessor{
     bool test_linear_interpolate_signal( void );
+    bool test_get_average_signal( void );
 
 }
 
@@ -44,7 +45,7 @@ namespace test_dynamic{
 
 bool test_is_in_bin( void );
 bool test_intersect_mr_acquisition_data( void );
-
+bool get_average_deformation_field(void);
 
 bool test_bin_mr_acquisitions(void);
 bool test_bin_pet_time_interval( void );

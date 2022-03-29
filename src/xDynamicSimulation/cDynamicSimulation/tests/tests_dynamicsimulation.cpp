@@ -150,10 +150,28 @@ try
 	LabelVolume segmentation_labels = read_segmentation_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
 	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
-	
+
 	AcquisitionsVector av_template;
 	av_template.read( PATH_2D_ACQ_TEMPLATE );
 	mr_dyn_sim.set_acquisition_template_rawdata(av_template);
+	
+	int const num_motion_states = 10;
+	MRMotionDynamic motion_dyn( num_motion_states );
+
+	float const TResp_ms = 1800;
+	SignalContainer respsig = aux_test::get_mock_sinus_signal( av_template, TResp_ms);
+	motion_dyn.set_dynamic_signal(respsig);
+
+	auto resp_mvfs = read_respiratory_motionfields_to_nifti_from_h5( H5_XCAT_PHANTOM_PATH );
+	motion_dyn.set_displacement_fields(resp_mvfs);
+
+
+	std::cout << "nag " << std::endl;
+	std::cout << "We have " << av_template.number() << " readouts " << std::endl;
+	float const avgsig = motion_dyn.get_average_surrogate_signal(av_template);
+	std::cout << "nag 2, " << avgsig << std::endl;
+
+	mr_dyn_sim.add_dynamic(std::make_shared<MRMotionDynamic>(motion_dyn));
 
 	std::stringstream ss_output_prefix;
 	ss_output_prefix << SHARED_FOLDER_PATH << TESTDATA_OUT_PREFIX << "output_" << __FUNCTION__;

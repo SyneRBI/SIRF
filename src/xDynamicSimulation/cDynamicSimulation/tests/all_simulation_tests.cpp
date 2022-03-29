@@ -90,6 +90,8 @@ bool run_tests_dynamics( void )
 	dyn_tests.push_back(test_dynamic::test_is_in_bin());
 
 	dyn_tests.push_back(test_surrogateprocessor::test_linear_interpolate_signal());
+	dyn_tests.push_back(test_surrogateprocessor::test_get_average_signal());
+
 	dyn_tests.push_back(test_binprocessor::test_get_set_bins());
 
 	dyn_tests.push_back(test_contrastprocessor::test_mr_contrast_motion_dyn_get_num_simul_states());
@@ -511,16 +513,16 @@ int main ( int argc, char* argv[])
 		if(argc > 1)
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 
-		ok *= run_tests_auxiliary_testing_functions();
-		ok *= run_tests_auxiliary_input_output();
-		ok *= run_tests_tissueparameters();
-		ok *= run_tests_contrastgenerator();
-		ok *= run_tests_phantom_input();
-		ok *= run_tests_noise_generator();
-		ok *= run_tests_dynamics();
-		ok *= run_tests_c_interface();
-		ok *= run_tests_dynsim_deformer();
-		// ok *= run_tests_dynamic_simulation();
+		// ok *= run_tests_auxiliary_testing_functions();
+		// ok *= run_tests_auxiliary_input_output();
+		// ok *= run_tests_tissueparameters();
+		// ok *= run_tests_contrastgenerator();
+		// ok *= run_tests_phantom_input();
+		// ok *= run_tests_noise_generator();
+		// ok *= run_tests_dynamics();
+		// ok *= run_tests_c_interface();
+		// ok *= run_tests_dynsim_deformer();
+		ok *= run_tests_dynamic_simulation();
 				
 		if(ok)
 			return EXIT_SUCCESS;	
