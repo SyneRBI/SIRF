@@ -187,12 +187,12 @@ public:
 		return this->sp_.linear_interpolate_signal(time_point);
 	}
 
-	SignalAxisType get_average_surrogate_signal(const sirf::MRAcquisitionData& ad) const
+	virtual SignalAxisType get_average_surrogate_signal(const sirf::MRAcquisitionData& ad) const
 	{
 		std::vector<TimeAxisType> timepts;
-		ISMRMRD::Acquisition acq;
 		for(int ia=0; ia<ad.number(); ++ia)
 		{
+			ISMRMRD::Acquisition acq;
 			ad.get_acquisition(ia, acq);
 			TimeAxisType acq_time_seconds = SIRF_SCANNER_MS_PER_TIC/1000.f * (TimeAxisType)acq.getHead().acquisition_time_stamp;
 			timepts.push_back(acq_time_seconds);
@@ -408,7 +408,7 @@ public:
 
 	sirf::NiftiImageData3DDeformation<float> get_average_deformation_field(const sirf::MRAcquisitionData& ad)
 	{
-		SignalAxisType const avg_sig = this->get_average_surrogate_signal(ad);
+		SignalAxisType const avg_sig = get_average_surrogate_signal(ad);
 		return get_interpolated_deformation_field(avg_sig);
 	}
 
@@ -436,6 +436,7 @@ public:
 	{
 		mp_.delete_temp_folder();
 	}
+
 
 private:
 	MotionProcessor mp_;
