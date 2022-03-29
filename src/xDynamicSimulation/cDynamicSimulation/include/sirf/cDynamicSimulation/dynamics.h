@@ -71,6 +71,13 @@ public:
 		return signal_.size() < 1;
 	}
 
+	SignalAxisType get_average_signal(const std::vector<TimeAxisType> timepoints) const{
+		SignalAxisType avg_signal = 0.f;
+		for(int i=0; i<timepoints.size(); ++i)
+			avg_signal += linear_interpolate_signal(timepoints[i]);
+		return avg_signal/timepoints.size();
+	}
+
 	SignalAxisType linear_interpolate_signal(const TimeAxisType time_point) const;
 
 private:
@@ -178,6 +185,23 @@ public:
 	SignalAxisType interpolate_signal(const TimeAxisType time_point) const
 	{
 		return this->sp_.linear_interpolate_signal(time_point);
+	}
+
+	SignalAxisType get_average_surrogate_signal(const sirf::MRAcquisitionData& ad) const
+	{
+		std::vector<TimeAxisType> timepts;
+		ISMRMRD::Acquisition acq;
+		for(int ia=0; ia<ad.number(); ++ia)
+		{
+			ad.get_acquisition(ia, acq);
+			TimeAxisType acq_time_seconds = SIRF_SCANNER_MS_PER_TIC/1000.f * (TimeAxisType)acq.getHead().acquisition_time_stamp;
+			timepts.push_back(acq_time_seconds);
+		}
+		TimeAxisType const t0 = *std::min_element(timepts.begin(), timepts.end());
+		for(auto& element: timepts)
+			element -= t0;
+		
+		return this->sp_.get_average_signal(timepts);
 	}
 
 protected: 
@@ -380,6 +404,12 @@ public:
 	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal) const
 	{
 		return mp_.get_interpolated_deformation_field(signal, bp_.is_cyclic());
+	}
+
+	sirf::NiftiImageData3DDeformation<float> get_average_deformation_field(const sirf::MRAcquisitionData& ad)
+	{
+		SignalAxisType const avg_sig = this->get_average_surrogate_signal(ad);
+		return get_interpolated_deformation_field(avg_sig);
 	}
 
 	void set_displacement_fields( const std::vector< MotionFieldType > &input_vectors, bool const motion_fields_are_cyclic = false)
