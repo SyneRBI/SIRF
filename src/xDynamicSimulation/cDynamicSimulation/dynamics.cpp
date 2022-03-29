@@ -18,7 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <ismrmrd/ismrmrd.h>
 
-
+#include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/common/multisort.h"
 #include "sirf/cDynamicSimulation/dynamics.h"
 
@@ -136,7 +136,8 @@ SignalAxisType SurrogateProcessor::linear_interpolate_signal(const TimeAxisType 
 {
 
 	size_t const num_sig_points = this->signal_.size();
-	
+	ASSERT(num_sig_points > 1, "You have at least two signal points before you interpolate between them.");
+
 	size_t first_bigger_thant_time_point=-1;
 
 	for( size_t i=0; i<num_sig_points; i++)
