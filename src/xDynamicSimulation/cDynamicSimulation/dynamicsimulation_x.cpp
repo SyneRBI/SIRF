@@ -359,7 +359,7 @@ void MRDynamicSimulation::save_groud_truth_parameter_maps( const std::string pre
 	fname_output.str(std::string());
 
 	fname_output << prefix_output << "_labels.nii";
-	tmp_img = dsd_.resample_to_template(parameter_maps[4], true);
+	tmp_img = dsd_.resample_to_template(parameter_maps[4]);
 	tmp_img.write(fname_output.str());
 	fname_output.str(std::string());
 
