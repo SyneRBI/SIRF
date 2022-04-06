@@ -1,3 +1,6 @@
+function obj_subclass = class_name(object)
+% Obtains the name of the object class without sirf.<engine>. prefix.
+
 % SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % 
@@ -15,12 +18,7 @@
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-
-function str = version_patch()
-% return SIRF version patch string (patch)
-% Usage:
-% version_string = version()
-
-  str = '@VERSION_PATCH@';
-end
-
+obj_class = class(object);
+i = strfind(obj_class, '.');
+l = i(end);
+obj_subclass = obj_class(l + 1 : end);

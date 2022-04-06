@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2019 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
+Copyright 2020 - 2022 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2020 - 2022 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2022 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -36,13 +37,12 @@ limitations under the License.
 
 #include <ismrmrd/xml.h>
 
-#include "sirf/Gadgetron/chain_lib.h"
-
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/getenv.h"
+
+#include "sirf/Gadgetron/chain_lib.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
-
 #include "sirf/Gadgetron/FourierEncoding.h"
 #include "sirf/Gadgetron/TrajectoryPreparation.h"
 
@@ -122,6 +122,8 @@ bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
         MatrixSize rawdata_recon_matrix = rec_space.matrixSize;
         FieldOfView_mm rawdata_recon_FOV = rec_space.fieldOfView_mm;
 
+        float const tolerance_mm = 0.1;        
+
         for(int i=0; i<iv.number(); ++i)
         {
             CFImage* const ptr_img = (CFImage*)(iv.sptr_image_wrap(i)->ptr_image());            
@@ -130,16 +132,72 @@ bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
             test_successful *= (ptr_img->getMatrixSizeY() == rawdata_recon_matrix.y);
             test_successful *= (ptr_img->getMatrixSizeZ() == rawdata_recon_matrix.z);
 
-        	test_successful *= (ptr_img->getFieldOfViewX() == rawdata_recon_FOV.x);
-            test_successful *= (ptr_img->getFieldOfViewY() == rawdata_recon_FOV.y);
-            test_successful *= (ptr_img->getFieldOfViewZ() == rawdata_recon_FOV.z);
+        	test_successful *= (std::abs(ptr_img->getFieldOfViewX() - rawdata_recon_FOV.x) < tolerance_mm);
+            test_successful *= (std::abs(ptr_img->getFieldOfViewY() - rawdata_recon_FOV.y) < tolerance_mm);
+            test_successful *= (std::abs(ptr_img->getFieldOfViewZ() - rawdata_recon_FOV.z) < tolerance_mm);
         }
 
-        if(test_successful)
-            return test_successful;
-        else{
-            throw std::runtime_error("The test for images from acquisition data failed.");                
+        return test_successful;
+        
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_ISMRMRDImageData_reorienting(MRAcquisitionData& av)
+{
+    try
+    {
+        using namespace ISMRMRD;
+
+        std::cout << "Running test " << __FUNCTION__ << std::endl;
+
+        GadgetronImagesVector iv(av);
+        std::shared_ptr<const VoxelisedGeometricalInfo3D > sptr_geom_info = iv.get_geom_info_sptr();
+
+        VoxelisedGeometricalInfo3D::Size input_size = sptr_geom_info->get_size();
+
+        std::default_random_engine generator;
+        generator.seed(100000); // 
+        float const maximum_random_range = 100.f;
+        std::uniform_real_distribution<float> distribution(0, maximum_random_range);
+
+        float const rand_angle = distribution(generator);
+        std::cout << "Rotating by an angle of : " << rand_angle << std::endl;
+        VoxelisedGeometricalInfo3D::DirectionMatrix random_rotation{
+            std::cos(rand_angle), -std::sin(rand_angle), 0,
+            std::sin(rand_angle),  std::cos(rand_angle), 0,
+            0, 0, 1};
+
+        VoxelisedGeometricalInfo3D::DirectionMatrix direction = sptr_geom_info->get_direction();
+        VoxelisedGeometricalInfo3D::DirectionMatrix rotated_direction = direction;
+        
+        for(int i=0; i<3; ++i)
+        for(int j=0; j<3; ++j)
+        {   
+            rotated_direction[i][j] = 0.0;
+
+            for(int k=0; k<3; ++k)
+            for(int l=0; l<3; ++l)
+                rotated_direction[i][j] += random_rotation[i][k]*direction[k][l]*random_rotation[j][l];
+
         }
+        VoxelisedGeometricalInfo3D::Offset offset{distribution(generator),distribution(generator),distribution(generator)};
+        VoxelisedGeometricalInfo3D::Spacing spacing{distribution(generator),distribution(generator),distribution(generator)};                    
+
+        VoxelisedGeometricalInfo3D random_new_geometry(offset, spacing, input_size, rotated_direction);
+
+        if(!iv.can_reorient(*sptr_geom_info, random_new_geometry, false))
+            throw std::runtime_error("You can not perform this arbitrary reorienting.");
+
+        iv.reorient(random_new_geometry);
+        
+        return true;
 
     }
     catch( std::runtime_error const &e)
@@ -229,6 +287,8 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
         int const num_total_pixels = dims["x"]*dims["y"]*dims["z"]*dims["c"]*dims["n"];
 
         std::default_random_engine generator;
+        unsigned int random_seed = 2;
+        generator.seed(random_seed);
         std::normal_distribution<float> distribution(0.0,1.0);
 
         std::vector<complex_float_t> random_data;
@@ -253,6 +313,7 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
 
         std::cout << "Backward kdata dot random image: " << Eh_kdat_Dot_img << std::endl;
         std::cout << "Forward random image dot kdata : " << E_img_Dot_kdat  << std::endl;
+        std::cout << "We have a ratio of adjointness of : " << std::abs(E_img_Dot_kdat) / std::abs(Eh_kdat_Dot_img) << std::endl;            
 
         float const order_of_magnitude = std::min( std::abs(Eh_kdat_Dot_img), std::abs(E_img_Dot_kdat));
         float const diff_in_scalar_prod = std::abs(Eh_kdat_Dot_img - E_img_Dot_kdat);
@@ -398,7 +459,7 @@ bool test_set_rpe_trajectory(AcquisitionsVector av)
 }
 
 #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-#warning "INCLUDING THE RADIAL TESTS INTO THE C++ TESTS"
+#warning "INCLUDING THE NON-CARTESIAN TESTS FOR C++."
 bool test_rpe_csm(MRAcquisitionData& av)
 {
     try
@@ -578,75 +639,126 @@ bool test_mracquisition_model_rpe_bwd(MRAcquisitionData& av)
 #endif
 
 
+bool run_cartesian_tests(const std::string& filename_testdata)
+{
+    shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+    AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+    av.read(filename_testdata);
+
+    sirf::preprocess_acquisition_data(av);
+    av.sort();
+
+    bool ok = true;
+
+    ok *= test_get_kspace_order(av);
+    ok *= test_get_subset(av);
+
+    ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
+    ok *= test_ISMRMRDImageData_reorienting(av);
+
+    ok *= test_CoilSensitivitiesVector_calculate(av);
+    ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
+
+    ok *= test_bwd(av);
+
+    ok *= test_acq_mod_adjointness(av);
+    ok *= test_acq_mod_norm(sptr_ad);
+
+    return ok;
+}
+
+#ifdef GADGETRON_TOOLBOXES_AVAILABLE
+#warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
+bool run_rpe_tests(const std::string& filename_testdata)
+{
+    
+    sirf::AcquisitionsVector rpe_av;
+    rpe_av.read(filename_testdata);
+
+    sirf::preprocess_acquisition_data(rpe_av);
+    rpe_av.sort();
+    sirf::set_unit_dcf(rpe_av);
+    
+    bool ok = true;
+    ok *= test_set_rpe_trajectory(rpe_av);
+    ok *= test_rpe_bwd(rpe_av);
+    ok *= test_rpe_fwd(rpe_av);
+
+    ok *= test_rpe_csm(rpe_av);
+
+    ok *= test_mracquisition_model_rpe_bwd(rpe_av);
+    ok *= test_acq_mod_adjointness(rpe_av);
+
+    auto sptr_rpe_av = std::make_shared<AcquisitionsVector>(rpe_av);
+    sirf::GRPETrajectoryPrep rpe_tp;
+    rpe_tp.set_trajectory(*sptr_rpe_av);
+    ok *= test_acq_mod_norm(sptr_rpe_av);
+    
+    return ok;
+}
+
+bool run_2D_radial_tests(const std::string& filename_testdata)
+{
+    bool ok = true;
+    if(true)
+    {
+        shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+        av.read(filename_testdata);
+        
+        sirf::Radial2DTrajprep radial_tp;
+        radial_tp.set_trajectory(av);
+        av.sort();
+    
+        ok *= test_acq_mod_norm(sptr_ad);
+        ok *= test_acq_mod_adjointness(av);
+    }
+
+    if(true)
+    {
+        shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
+        AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
+        av.read(filename_testdata);
+
+        sirf::GoldenAngle2DTrajprep ga_tp;
+        ga_tp.set_trajectory(av);
+        av.sort();
+
+        ok *= test_acq_mod_norm(sptr_ad);
+        ok *= test_acq_mod_adjointness(av);
+    }
+
+    return ok;
+}
+#endif
+
+
+
 int main ( int argc, char* argv[])
 {
 	try{
-		
-        std::string SIRF_PATH;
-        if (argc==1)
-            SIRF_PATH = sirf::getenv("SIRF_PATH", true);
-        else
-            SIRF_PATH = argv[1];
 
-//        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian_Grappa2.h5";
-        std::string data_path = SIRF_PATH + "/data/examples/MR/simulated_MR_2D_cartesian.h5";
-
-        shared_ptr<MRAcquisitionData> sptr_ad(new AcquisitionsVector);
-        AcquisitionsVector& av = (AcquisitionsVector&)*sptr_ad;
-        av.read(data_path);
-
-        sirf::preprocess_acquisition_data(av);
-        av.sort();
-
-        bool ok = true;
-
-        
-
-        ok *= test_get_kspace_order(av);
-        ok *= test_get_subset(av);
-
-        ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
-
-        ok *= test_CoilSensitivitiesVector_calculate(av);
-        ok *= test_CoilSensitivitiesVector_get_csm_as_cfimage(av);
-
-        ok *= test_bwd(av);
-
-        ok *= test_acq_mod_adjointness(av);
-        ok *= test_acq_mod_norm(sptr_ad);
-
+        int num_expected_arguments = 2;
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-        #warning "RUNNING THE RADIAL TESTS FOR C++."
-            std::string rpe_data_path = SIRF_PATH + "/data/examples/MR/zenodo/3D_RPE_Lowres.h5";
-            sirf::AcquisitionsVector rpe_av;
-            rpe_av.read(rpe_data_path);
-
-
-
-            sirf::preprocess_acquisition_data(rpe_av);
-            rpe_av.sort();
-            sirf::set_unit_dcf(rpe_av);
-
-
-            ok *= test_set_rpe_trajectory(rpe_av);
-            ok *= test_rpe_bwd(rpe_av);
-            ok *= test_rpe_fwd(rpe_av);
-
-            ok *= test_rpe_csm(rpe_av);
-
-            ok *= test_mracquisition_model_rpe_bwd(rpe_av);
-            ok *= test_acq_mod_adjointness(rpe_av);
-
-            auto sptr_rpe_av = std::make_shared<AcquisitionsVector>(rpe_av);
-            sirf::GRPETrajectoryPrep rpe_tp;
-            rpe_tp.set_trajectory(*sptr_rpe_av);
-            ok *= test_acq_mod_norm(sptr_rpe_av);
+        // currently test is always called with 2 arguments (with the second one empty)
+        //num_expected_arguments += 1;
         #endif
 
+        if ((argc-1)!=num_expected_arguments)
+            throw std::runtime_error("Please provide the correct number of arguments.");
+        
+        const std::string filename_simulated_2D_testdata = argv[1];
+        bool test_successful = run_cartesian_tests(filename_simulated_2D_testdata);
 
+        #ifdef GADGETRON_TOOLBOXES_AVAILABLE
+        #warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
+            const std::string  filename_rpe_testdata = argv[2];
+            test_successful *= run_rpe_tests(filename_rpe_testdata);
+            test_successful *= run_2D_radial_tests(filename_simulated_2D_testdata);
+        #endif
 
-        if(ok)
+        if(test_successful)
             return 0;
         else
         { 

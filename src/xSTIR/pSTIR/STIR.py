@@ -2,7 +2,7 @@
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
-# Copyright 2015 - 2021 University College London
+# Copyright 2015 - 2022 University College London
 # Copyright 2019 University of Hull
 #
 # This is software developed for the Collaborative Computational
@@ -235,36 +235,36 @@ class EllipticCylinder(Shape):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_length(self, value):
-        """Sets length."""
+        """Sets length in mm."""
         parms.set_float_par(self.handle, self.name, 'length', value)
 
     def get_length(self):
-        """Returns length."""
+        """Returns length in mm."""
         return parms.float_par(self.handle, self.name, 'length')
 
     def set_radius_x(self, value):
-        """Sets x radius."""
+        """Sets x radius in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_x', value)
 
     def get_radius_x(self):
-        """Returns x radius."""
+        """Returns x radius in mm."""
         return parms.float_par(self.handle, self.name, 'radius_x')
 
     def set_radius_y(self, value):
-        """Sets y radius."""
+        """Sets y radius in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_y', value)
 
     def get_radius_y(self):
-        """Returns y radius."""
+        """Returns y radius in mm."""
         return parms.float_par(self.handle, self.name, 'radius_y')
 
     def set_radii(self, radii):
-        """Sets radii."""
+        """Sets radii in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_x', radii[1])
         parms.set_float_par(self.handle, self.name, 'radius_y', radii[0])
 
     def get_radii(self):
-        """Returns radii."""
+        """Returns radii in mm."""
         rx = parms.float_par(self.handle, self.name, 'radius_x')
         ry = parms.float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
@@ -660,13 +660,13 @@ class SeparableGaussianImageFilter(ImageDataProcessor):
             self.handle, image.handle))
 
     def set_fwhms(self, fwhms):
-        """Sets FWHM."""
+        """Sets FWHM in mm."""
         parms.set_float_par(self.handle, self.name, 'fwhms_x', fwhms[2])
         parms.set_float_par(self.handle, self.name, 'fwhms_y', fwhms[1])
         parms.set_float_par(self.handle, self.name, 'fwhms_z', fwhms[0])
 
     def set_max_kernel_sizes(self, mks):
-        """Sets max kernel sizes."""
+        """Sets max kernel sizes in voxels."""
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_x', mks[2])
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_y', mks[1])
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_z', mks[0])
@@ -735,6 +735,14 @@ class RayTracingMatrix(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def get_info(self):
+        """Returns the metadata from STIR as Python str."""
+        handle = pystir.cSTIR_get_MatrixInfo(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
     def set_num_tangential_LORs(self, value):
         """Sets the number of tangential LORs.
 
@@ -749,6 +757,40 @@ class RayTracingMatrix(object):
         """Returns the number of LORs for each bin in the sinogram."""
         return parms.int_par(self.handle, self.name, 'num_tangential_LORs')
 
+    def enable_cache(self, value=True):
+        """Enables or disables the caching mechanism."""
+        parms.set_bool_par(self.handle, self.name, 'enable_cache', value)
+        return self
+
+    def set_restrict_to_cylindrical_FOV(self, value=True):
+        """Enables or disables using a circular axial FOV (vs rectangular)."""
+        parms.set_bool_par(self.handle, self.name, 'restrict_to_cylindrical_FOV', value)
+        return self
+
+    def set_do_symmetry_90degrees_min_phi(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_90degrees_min_phi', value)
+        return self
+
+    def set_do_symmetry_180degrees_min_phi(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_180degrees_min_phi', value)
+        return self
+
+    def set_do_symmetry_swap_segment(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_swap_segment', value)
+        return self
+
+    def set_do_symmetry_swap_s(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_swap_s', value)
+        return self
+
+    def set_do_symmetry_shift_z(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_shift_z', value)
+        return self
 
 class AcquisitionData(DataContainer):
     """Class for PET acquisition data."""

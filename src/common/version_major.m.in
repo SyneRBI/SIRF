@@ -16,10 +16,11 @@
 % limitations under the License.
 
 
-function str = version_minor()
-% return SIRF version minor string (minor)
-% Usage:
-% version_string = version()
 
-  str = '@VERSION_MINOR@';
+function str = version_major()
+% return SIRF version major string (major)
+% Usage:
+% version_string = version_major()
+
+  str = '@VERSION_MAJOR@';
 end

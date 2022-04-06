@@ -87,8 +87,7 @@ def test_main(rec=False, verb=False, throw=True):
     data_path = examples_data_path('PET')
     # raw_data_path = pet.existing_filepath(os.path.join(data_path, 'mMR'), 'mMR_template_span11.hs')
     raw_data_path = os.path.join(data_path, 'mMR')
-    os.chdir(raw_data_path)
-    template_acq_data = pet.AcquisitionData('mMR_template_span11.hs')
+    template_acq_data = pet.AcquisitionData(os.path.join(raw_data_path,'mMR_template_span11.hs'))
 
     acq_model.set_up(template_acq_data, image)
 

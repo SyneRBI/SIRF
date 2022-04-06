@@ -794,6 +794,12 @@ The actual algorithm is described in
 				THROW("PETAcquisitionModelUsingMatrix setup failed - matrix not set");
 			PETAcquisitionModel::set_up(sptr_acq, sptr_image);
 		}
+                
+                //! Enables or disables the caching mechanism.
+                void enable_cache(bool v = true)
+                {
+                        sptr_matrix_->enable_cache(v);
+                }
 
 	private:
 		stir::shared_ptr<stir::ProjMatrixByBin> sptr_matrix_;
@@ -811,17 +817,56 @@ The actual algorithm is described in
 		}
 		void set_num_tangential_LORs(int num_LORs)
 		{
-			RayTracingMatrix& matrix = (RayTracingMatrix&)*matrix_sptr();
-			//auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                       //RayTracingMatrix& matrix = (RayTracingMatrix&)*matrix_sptr();
+			auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
 			//std::cout << matrix.get_num_tangential_LORs() << '\n';
 			matrix.set_num_tangential_LORs(num_LORs);
 			//std::cout << get_num_tangential_LORs() << '\n';
 		}
+                //!@
 		int get_num_tangential_LORs()
 		{
 			auto matrix = dynamic_cast<const RayTracingMatrix&>(*matrix_sptr());
 			return matrix.get_num_tangential_LORs();
 		}
+                //! Enables or disables using a circular axial FOV (vs rectangular)
+                void set_restrict_to_cylindrical_FOV(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_restrict_to_cylindrical_FOV(v);
+                }
+                //! \name Which symmetries will be used
+                //!@{
+                //bool get_do_symmetry_90degrees_min_phi() const;
+                void set_do_symmetry_90degrees_min_phi(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_90degrees_min_phi(v);
+                }
+                //bool get_do_symmetry_180degrees_min_phi() const;
+                void set_do_symmetry_180degrees_min_phi(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_180degrees_min_phi(v);
+                }
+                //bool get_do_symmetry_swap_segment() const;
+                void set_do_symmetry_swap_segment(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_swap_segment(v);
+                }
+                //bool get_do_symmetry_swap_s() const;
+                void set_do_symmetry_swap_s(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_swap_s(v);
+                }
+                //bool get_do_symmetry_shift_z() const;
+                void set_do_symmetry_shift_z(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_shift_z(v);
+                }
 	};
 
 	typedef PETAcquisitionModel AcqMod3DF;

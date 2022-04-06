@@ -27,7 +27,7 @@ jobs:
     - name: install_dependencies
       run:
           cd ${GITHUB_WORKSPACE};
-          git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master;
+          git clone https://github.com/SyneRBI/SIRF-SuperBuild --recursive -b master;
           cd SIRF-SuperBuild/docker;
           sudo bash raw-ubuntu.sh;
           sudo bash build_essential-ubuntu.sh;

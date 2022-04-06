@@ -59,7 +59,9 @@ limitations under the License.
 			##__VA_ARGS__);\
 	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((ISMRMRD::Image< std::complex<double> >*) Arguments, \
-			##__VA_ARGS__);
+			##__VA_ARGS__);\
+	else\
+		throw std::domain_error("unknown data type in IMAGE_PROCESSING_SWITCH");
 
 #define IMAGE_PROCESSING_SWITCH_CONST(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
@@ -80,7 +82,10 @@ limitations under the License.
 			##__VA_ARGS__);\
 	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, \
-			##__VA_ARGS__);
+			##__VA_ARGS__);\
+	else\
+		throw std::domain_error("unknown data type in IMAGE_PROCESSING_SWITCH_CONST");
+
 
 typedef ISMRMRD::Image<complex_float_t> CFImage;
 typedef ISMRMRD::Image<complex_double_t> CDImage;
@@ -248,19 +253,25 @@ namespace sirf {
 			type_ = type;
 			ptr_ = ptr_im;
 		}
-		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index)
+		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index) noexcept(false)
 		{
 			type_ = type;
 			IMAGE_PROCESSING_SWITCH(type_, read_, ptr_, dataset, var, index, &ptr_);
 		}
-		ImageWrap(const ImageWrap& iw)
+		ImageWrap(const ImageWrap& iw) noexcept(false)
 		{
 			type_ = iw.type();
 			IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
 		}
-		~ImageWrap()
+		~ImageWrap() noexcept
 		{
-			IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
+                	try {
+				IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
+                        }
+                        catch(...)
+                        {
+                          // catch exceptions in destructor to prevent crashes
+                        }
 		}
 		int type() const
 		{
@@ -529,6 +540,10 @@ namespace sirf {
 			float s;
 			IMAGE_PROCESSING_SWITCH_CONST(type_, diff_, iw.ptr_image(), &s);
 			return s;
+		}
+		void conjugate()
+		{
+			IMAGE_PROCESSING_SWITCH(type_, conjugate_, ptr_);
 		}
 
 	private:
@@ -932,6 +947,19 @@ namespace sirf {
 				*s += (float)std::abs(b - a);
 			}
 		}
+
+		template<typename T>
+		void conjugate_(ISMRMRD::Image<T>* ptr)
+		{
+			T* i;
+			size_t ii = 0;
+			size_t n = ptr->getNumberOfDataElements();
+			for (i = ptr->getDataPtr(); ii < n; i++, ii++) {
+				complex_float_t a = (complex_float_t)*i;
+				xGadgetronUtilities::convert_complex(std::conj(a), *i);
+			}
+		}
+
 	};
 }
 
