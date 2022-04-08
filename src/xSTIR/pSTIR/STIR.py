@@ -1098,11 +1098,20 @@ class AcquisitionData(DataContainer):
     def get_subset(self, views):
         """Returns the subset of self data formed by specified views
 
-        views: numpy.int32 array of views
+        views: numpy.int32 array of views (will be converted)
         """
+        # Check if array is not already numpy ndarray
+        if not isinstance(views, numpy.ndarray):
+            views = numpy.array(views,dtype=numpy.int32)
         n = len(views)
+        if views.dtype is numpy.dtype('int32'):
+            v = views
+        else:
+            v = views.astype(numpy.int32)
+        if not v.flags['C_CONTIGUOUS']:
+            v = numpy.ascontiguousarray(v)
         subset = AcquisitionData()
-        subset.handle = pystir.cSTIR_get_subset(self.handle, n, views.ctypes.data)
+        subset.handle = pystir.cSTIR_get_subset(self.handle, n, v.ctypes.data)
         return subset
 
     @property
