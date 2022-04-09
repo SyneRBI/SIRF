@@ -58,7 +58,12 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 set(SIRF_VERSION
   ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" WIN32)
+if (WIN32)
+  set (DEFAULT_SIRF_INSTALL_DEPENDENCIES ON)
+else()
+  set (DEFAULT_SIRF_INSTALL_DEPENDENCIES OFF)
+endif()
+option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" ${DEFAULT_SIRF_INSTALL_DEPENDENCIES})
 ####### CMake path
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -84,6 +89,14 @@ if (APPLE)
     set(CMAKE_USE_PTHREADS_INIT 1)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
   endif()
+endif()
+
+if (WIN32)
+  # Enable secure versions of standard C functions such as sprintf etc
+  # this will cause a run-time error when overwriting memory etc
+  add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
+  # This still leaves a lot of warnings about sscanf etc, so we'll silence them all for now
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 ####### External packages
