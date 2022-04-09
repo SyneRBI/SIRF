@@ -1,4 +1,7 @@
 # ChangeLog
+## v3.3.0
+
+* added SPECTUBMatrix for (simple) usage in SPECT
 
 ## v3.2.0
 

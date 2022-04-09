@@ -139,6 +139,8 @@ void* cSTIR_newObject(const char* name)
 #endif
 		if (sirf::iequals(name, "RayTracingMatrix"))
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
+		if (sirf::iequals(name, "SPECTUBMatrix"))
+			return NEW_OBJECT_HANDLE(SPECTUBMatrix);
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (sirf::iequals(name, "PLSPrior"))
@@ -186,6 +188,8 @@ void* cSTIR_setParameter
 #endif
 		else if (sirf::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
+		else if (sirf::iequals(obj, "SPECTUBMatrix"))
+			return cSTIR_setSPECTUBMatrixParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "QuadraticPrior"))
@@ -240,6 +244,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			(handle, name);
 		else if (sirf::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_rayTracingMatrixParameter(handle, name);
+		else if (sirf::iequals(obj, "SPECTUBMatrix"))
+			return cSTIR_SPECTUBMatrixParameter(handle, name);
 		else if (sirf::iequals(obj, "AcquisitionModel"))
 			return cSTIR_AcquisitionModelParameter(handle, name);
 		else if (sirf::iequals(obj, "AcqModUsingMatrix"))
@@ -656,6 +662,19 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 		return newObjectHandle(am.backward(ad, subset_num, num_subsets));
 	}
 	CATCH;
+}
+
+extern "C"
+void* cSTIR_SPECTUBMatrixSetResolution
+	(const void* ptr_acq_matrix,
+         const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D)
+{
+	try {
+                SPECTUBMatrix& matrix = objectFromHandle<SPECTUBMatrix>(ptr_acq_matrix);
+                matrix.set_resolution_model(collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D);
+                return (void*)new DataHandle;
+        }
+        CATCH;
 }
 
 extern "C"
