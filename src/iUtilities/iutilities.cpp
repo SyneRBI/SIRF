@@ -61,6 +61,10 @@ extern "C" {
 	{
 		return dataHandle<int>(i);
 	}	
+	void* boolDataHandle(int b)
+	{
+		return dataHandle<bool>(b);
+	}	
 	void* floatDataHandle(float i) 
 	{
 		return dataHandle<float>(i);

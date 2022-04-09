@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2015 - 2017 University College London.
+Copyright 2015 - 2017, 2022 University College London.
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -88,6 +88,7 @@ extern "C" {
 		int subset_num, int num_subsets);
 	void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
 		int subset_num, int num_subsets, void* ptr_im);
+        void* cSTIR_get_MatrixInfo(void* ptr);
 
         // Acquisition Model Matrix
         void* cSTIR_SPECTUBMatrixSetResolution

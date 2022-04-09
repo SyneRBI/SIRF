@@ -247,11 +247,31 @@ sirf::cSTIR_setRayTracingMatrixParameter
 {
 	RayTracingMatrix& matrix = 
 		objectFromHandle<RayTracingMatrix>(hp);
-	int value = dataFromHandle<int>(hv);
 	if (sirf::iequals(name, "num_tangential_LORs"))
-		matrix.set_num_tangential_LORs(value);
+          {
+            	const auto value = dataFromHandle<int>(hv);
+                matrix.set_num_tangential_LORs(value);
+          }
 	else
+          {
+            const auto value = dataFromHandle<bool>(hv);
+            if (sirf::iequals(name, "enable_cache"))
+              matrix.enable_cache(value);
+            else if (sirf::iequals(name, "restrict_to_cylindrical_FOV"))
+              matrix.set_restrict_to_cylindrical_FOV(value);
+            else if (sirf::iequals(name, "do_symmetry_90degrees_min_phi"))
+              matrix.set_do_symmetry_90degrees_min_phi(value);
+            else if (sirf::iequals(name, "do_symmetry_180degrees_min_phi"))
+              matrix.set_do_symmetry_180degrees_min_phi(value);
+            else if (sirf::iequals(name, "do_symmetry_swap_segment"))
+              matrix.set_do_symmetry_swap_segment(value);
+            else if (sirf::iequals(name, "do_symmetry_swap_s"))
+		matrix.set_do_symmetry_swap_s(value);
+            else if (sirf::iequals(name, "do_symmetry_shift_z"))
+		matrix.set_do_symmetry_shift_z(value);
+            else
 		return parameterNotFound(name, __FILE__, __LINE__);
+          }
 	return new DataHandle;
 }
 
@@ -626,7 +646,7 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		obj_fun.set_zero_seg0_end_planes
 			(sirf::iequals(charDataFromDataHandle(hv), "true"));
 	//else if (sirf::iequals(name, "max_segment_num_to_process"))
-	//	obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
+	//	obj_fun.set_max_segment_num_toa_process(dataFromHandle<int>((void*)hv));
 	else if (sirf::iequals(name, "acquisition_data")) {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
 		obj_fun.set_acquisition_data(sptr_ad);

@@ -31,6 +31,7 @@ limitations under the License.
 */
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 
@@ -70,7 +71,18 @@ void
 MRAcquisitionData::write(const std::string &filename) const
 {
 	Mutex mtx;
-	mtx.lock();
+    std::ifstream file;
+    mtx.lock();
+    file.open(filename.c_str());
+    if (file.good()) {
+        file.close();
+        int err = std::remove(filename.c_str());
+        if (err)
+            std::cerr << "deleting " << filename.c_str() << " failed, appending...\n";
+    }
+    file.close();
+    //mtx.unlock();
+    //mtx.lock();
 	shared_ptr<ISMRMRD::Dataset> dataset
 		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", true));
 	dataset->writeHeader(acqs_info_.c_str());
@@ -93,7 +105,7 @@ void
 MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 {
 	
-    bool const verbose = false;
+    bool const verbose = true;
 
 	if( verbose )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
@@ -103,7 +115,10 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		mtx.lock();
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
 		d.readHeader(this->acqs_info_);
-		uint32_t num_acquis = d.getNumberOfAcquisitions();
+
+        ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
+        
+        uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
 		std::stringstream str;
@@ -616,26 +631,26 @@ MRAcquisitionData::sort()
 void
 MRAcquisitionData::sort_by_time()
 {
-	typedef std::array<uint32_t , 1>  tuple;
-	tuple t;
-	std::vector< tuple > vt;
-	size_t const num_acquis = this->number();
+    size_t const N = this->number();
+    index_.resize(N);
+    if (N == 0)
+        std::cerr
+        << "WARNING: cannot sort an empty container of acquisition data."
+        << std::endl;
+    else {
+        std::vector<uint32_t> a;
+        for (size_t i = 0; i < N; i++)
+        {
+            ISMRMRD::Acquisition acq;
+            get_acquisition(i, acq);
+            a.push_back(acq.acquisition_time_stamp());
+        }
+        int* index = &index_[0];
+        std::iota(index, index + N, 0);
+        std::stable_sort
+        (index, index + N, [&a](int i, int j) {return (a[i] < a[j]); });
+    }
 
-	for(size_t i=0; i<num_acquis; i++)
-	{
-		ISMRMRD::Acquisition acq;
-		get_acquisition(i, acq);
-		t[0] = acq.acquisition_time_stamp();
-		vt.push_back( t );
-	}
-
-	index_.resize(num_acquis);
-	
-	if( num_acquis == 0 )
-		std::cerr << "WARNING: You try to sort by time an empty container of acquisition data." << std::endl;
-	else
-		Multisort::sort( vt, &index_[0] );
-    
     this->organise_kspace();
     sorted_ = true;
 
@@ -747,6 +762,23 @@ std::vector<int> MRAcquisitionData::get_flagged_acquisitions_index(const std::ve
 
     return flags_true_index;
 }
+
+std::vector<int> MRAcquisitionData::get_slice_encoding_index(const unsigned kspace_encode_step_2) const
+{
+    std::vector<int> slice_encode_index;
+
+    ISMRMRD::Acquisition acq;
+
+    for(int i=0; i<this->number(); ++i)
+    {
+        this->get_acquisition(i, acq);
+        if( acq.idx().kspace_encode_step_2 == kspace_encode_step_2)
+            slice_encode_index.push_back(i);
+    }
+
+    return slice_encode_index;
+}
+
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
 {
@@ -867,7 +899,7 @@ KSpaceSubset::TagType KSpaceSubset::get_tag_from_img(const CFImage& img)
     tag[6] = 0; //segments area always zero
 
     for(int i=0; i<ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS; ++i)
-        tag[7+i] = img.getUserInt(i);
+        tag[7+i] = 0; //img.getUserInt(i);
 
     return tag;
 }
@@ -885,7 +917,7 @@ KSpaceSubset::TagType KSpaceSubset::get_tag_from_acquisition(ISMRMRD::Acquisitio
     tag[6] = 0; //acq.idx().segment;
 
     for(int i=7; i<tag.size(); ++i)
-        tag[i]=acq.idx().user[i];
+        tag[i]= 0; //acq.idx().user[i];
 
     return tag;
 }
@@ -1228,11 +1260,22 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
 
     // If not DICOM
     if (!dicom) {
+        Mutex mtx;
+        std::ifstream file;
+        mtx.lock();
+        file.open(filename.c_str());
+        if (file.good()) {
+            file.close();
+            int err = std::remove(filename.c_str());
+            if (err)
+                std::cerr << "deleting " << filename.c_str() << " failed, appending...\n";
+        }
+        file.close();
+        mtx.unlock();
         // If the groupname hasn't been set, use the current date and time.
         std::string group = groupname;
         if (group.empty())
             group = get_date_time_string();
-        Mutex mtx;
         mtx.lock();
         ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
         dataset.writeHeader(acqs_info_.c_str());
@@ -1813,6 +1856,16 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
         throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
     #endif
     }
+    else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || ad.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+	{
+		ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL trajectory before calling the calculate method with dimension > 0.");
+	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
+	#warning "Compiling non-cartesian code into coil sensitivity class"
+		this->sptr_enc_ = std::make_shared<sirf::NonCartesian2DEncoding>();
+	#else
+		throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::RADIAL data.");
+	#endif
+	}
     else
         throw std::runtime_error("Only cartesian or OTHER type of trajectory are available.");
 

@@ -15,23 +15,11 @@
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-function p = examples_data_path(petmr)
-% If SIRF_DATA_PATH is defined, returns path to PET or MR examples raw data.
-% Otherwise, searches in SIRF_INSTALL_PATH, finally defaults to current folder.
 
+function str = version_minor()
+% return SIRF version minor string (minor)
+% Usage:
+% version_string = version_minor()
 
-
-    
-    SIRF_INSTALL_PATH = getenv('SIRF_INSTALL_PATH');
-    SIRF_DATA_PATH = getenv('SIRF_DATA_PATH');
-    SIRF_PATH = getenv('SIRF_PATH');
-    if ~isempty(SIRF_DATA_PATH)
-        p = [ SIRF_DATA_PATH filesep 'examples' filesep petmr];
-    elseif ~isempty(SIRF_INSTALL_PATH)
-        p = [ SIRF_INSTALL_PATH filesep 'share' filesep ['SIRF-' version_major() '.' version_minor() ] filesep 'data' filesep 'examples' filesep petmr ];
-    elseif ~isempty(SIRF_PATH)
-        p = [ SIRF_PATH filesep 'data' filesep 'examples' filesep petmr];
-    else
-        p = pwd;
-    end
+  str = '@VERSION_MINOR@';
 end
