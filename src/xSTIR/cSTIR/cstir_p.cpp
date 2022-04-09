@@ -863,7 +863,7 @@ sirf::cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle
 		recon.set_input(acq_data);
 	}
 	else if (sirf::iequals(name, "zoom")) {
-		double zoom = dataFromHandle<float>(hv);
+		float zoom = dataFromHandle<float>(hv);
 		recon.set_zoom(zoom);
 		recon.cancel_setup();
 	}
@@ -873,7 +873,7 @@ sirf::cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle
 		recon.cancel_setup();
 	}
 	else if (sirf::iequals(name, "alpha")) {
-		double alpha = dataFromHandle<float>(hv);
+		float alpha = dataFromHandle<float>(hv);
 		recon.set_alpha_ramp(alpha);
 	}
 	else if (sirf::iequals(name, "fc")) {

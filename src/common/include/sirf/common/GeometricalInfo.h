@@ -90,8 +90,8 @@ public:
 	virtual bool operator==(const GeometricalInfo<num_dimensions, num_dimensions>& gi) const
 	{
 		const VoxelisedGeometricalInfo& vgi = (const VoxelisedGeometricalInfo&)gi;
-		float eps = 0.01;
-		float delta = 0.1;
+		const float eps = 0.01F;
+		const float delta = 0.1F;
 		return
 			near_(_offset, vgi.get_offset(), eps) &&
 			near_(_spacing, vgi.get_spacing(), eps) &&
