@@ -1971,6 +1971,12 @@ class Prior(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def __call__(self, image):
+        '''Returns the prior value on the specified image (alias of value()).
+
+        image: ImageData object'''
+        return self.value(image)
+
     def set_penalisation_factor(self, value):
         """Sets penalisation factor.
 
@@ -1986,6 +1992,23 @@ class Prior(object):
         return parms.float_par(
             self.handle, 'GeneralisedPrior', 'penalisation_factor')
 
+    def get_value(self, image):
+        """Returns the value of the prior.
+
+        Returns the value of the prior for the specified image.
+        image: ImageData object
+        """
+        assert_validity(image, ImageData)
+        handle = pystir.cSTIR_priorValue(self.handle, image.handle)
+        check_status(handle)
+        v = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return v
+
+    def value(self, image):
+        """Returns the value of the prior (alias of get_value())."""
+        return self.get_value(image)
+
     def get_gradient(self, image):
         """Returns gradient of the prior.
 
@@ -1997,6 +2020,11 @@ class Prior(object):
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
+
+    def gradient(self, image):
+        """Returns the gradient of the prior (alias of get_gradient())."""
+
+        return self.get_gradient(image)
 
     def set_up(self, image):
         """Sets up."""

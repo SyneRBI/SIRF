@@ -142,6 +142,7 @@ extern "C" {
 
 	// Prior methods
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
+	void* cSTIR_priorValue(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
 	void* cSTIR_PLSPriorGradient(void* ptr_p, int dir);
 
