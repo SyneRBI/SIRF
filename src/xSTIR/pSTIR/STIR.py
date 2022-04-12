@@ -33,7 +33,7 @@ from numbers import Integral, Number
 from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, \
+     try_calling, assert_validity, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
 from sirf.SIRF import DataContainer
@@ -1098,18 +1098,12 @@ class AcquisitionData(DataContainer):
     def get_subset(self, views):
         """Returns the subset of self data formed by specified views
 
-        views: numpy.int32 array of views (will be converted)
+        views: array of views (will be converted to numpy ndarray)
         """
-        # Check if array is not already numpy ndarray
-        if not isinstance(views, numpy.ndarray):
-            views = numpy.array(views,dtype=numpy.int32)
+        '''Ensure the array passed to C++ is a contiguous array of C++ int's
+        '''
+        v = cpp_int_array(views)
         n = len(views)
-        if views.dtype is numpy.dtype('int32'):
-            v = views
-        else:
-            v = views.astype(numpy.int32)
-        if not v.flags['C_CONTIGUOUS']:
-            v = numpy.ascontiguousarray(v)
         subset = AcquisitionData()
         subset.handle = pystir.cSTIR_get_subset(self.handle, n, v.ctypes.data)
         return subset
