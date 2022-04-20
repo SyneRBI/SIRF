@@ -37,7 +37,7 @@ from deprecation import deprecated
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, label_and_name, \
      name_and_parameters, parse_arglist, \
-     cpp_int_bits, cpp_int_array, \
+     cpp_int_bits, cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, \
      pTest, RE_PYEXT
 import sirf
@@ -406,9 +406,7 @@ class ImageData(SIRF.ImageData):
         if self.number() < 1:
             return 0
         assert self.handle is not None
-        dt = 'int%s' % cpp_int_bits()
-        dim = numpy.ndarray((4,), dtype=numpy.dtype(dt))
-#        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        dim = numpy.ndarray((4,), dtype=cpp_int_dtype())
         image = Image(self)
         pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
         nx = dim[0]
@@ -965,12 +963,9 @@ class AcquisitionData(DataContainer):
         assert self.handle is not None
         if self.number() < 1:
             return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
-        dt = 'int%s' % cpp_int_bits()
-        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype=numpy.dtype(dt))
-#        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
+        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
         hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
-        #nr = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
