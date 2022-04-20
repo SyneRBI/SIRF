@@ -37,7 +37,7 @@ from deprecation import deprecated
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, label_and_name, \
      name_and_parameters, parse_arglist, \
-     cpp_int_bits, cpp_int_dtype, cpp_int_array, \
+     cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, \
      pTest, RE_PYEXT
 import sirf
