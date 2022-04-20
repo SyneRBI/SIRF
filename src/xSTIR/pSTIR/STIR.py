@@ -430,7 +430,9 @@ class ImageData(SIRF.ImageData):
         """Returns image dimensions as a tuple (nz, ny, nx)."""
         if self.handle is None:
             raise AssertionError()
-        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
+        dt = 'int%s' % cpp_int_bytes()
+        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.dtype(dt))
+#        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
         try_calling(
             pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
         return tuple(dim[:3])  # [::-1])
@@ -980,7 +982,9 @@ class AcquisitionData(DataContainer):
         """
         if self.handle is None:
             raise AssertionError()
-        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
+        dt = 'int%s' % cpp_int_bytes()
+        dim = numpy.ndarray((MAX_ACQ_DIMS,), dtype=numpy.dtype(dt))
+#        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
         try_calling(pystir.cSTIR_getAcquisitionDataDimensions(
             self.handle, dim.ctypes.data))
         dim = dim[:4]
