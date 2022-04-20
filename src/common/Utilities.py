@@ -31,12 +31,12 @@ __license__ = __licence__
 RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 
-def cpp_int_bytes():
-    return pyiutil.intBytes()
+def cpp_int_bits():
+    return pyiutil.intBits()
 
 
 def cpp_int_array(v):
-    dt = numpy.dtype('int%s' % cpp_int_bytes())
+    dt = numpy.dtype('int%s' % cpp_int_bits())
     if not isinstance(v, numpy.ndarray):
         v = numpy.array(v, dtype=dt)
     elif dt != v.dtype:
