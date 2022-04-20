@@ -31,6 +31,21 @@ __license__ = __licence__
 RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 
+def cpp_int_bytes():
+    return pyiutil.intBytes()
+
+
+def cpp_int_array(v):
+    dt = numpy.dtype('int%s' % cpp_int_bytes())
+    if not isinstance(v, numpy.ndarray):
+        v = numpy.array(v, dtype=dt)
+    elif dt != v.dtype:
+        v = v.astype(dt)
+    if not v.flags['C_CONTIGUOUS']:
+        v = numpy.ascontiguousarray(v)
+    return v
+
+
 @deprecated(
     deprecated_in="2.0.0", removed_in="4.0", current_version=sirf.__version__,
     details="use examples_data_path() instead")
