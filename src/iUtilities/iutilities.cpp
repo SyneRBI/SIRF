@@ -36,7 +36,7 @@ Defines C functions handling DataHandle objects.
 
 extern "C" {
 
-	int intBytes()
+	int intBits()
 	{
 		return 8 * sizeof(int);
 	}
