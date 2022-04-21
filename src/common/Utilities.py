@@ -32,18 +32,18 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 
 def cpp_int_bits():
-    """Returns the number of bits in a C++ integer"""
+    """Returns the number of bits in a C++ integer."""
     return pyiutil.intBits()
 
 
 def cpp_int_dtype():
-    """Returns numpy dtype corresponding to a C++ int"""
+    """Returns numpy dtype corresponding to a C++ int."""
     dt = 'int%s' % cpp_int_bits()
     return numpy.dtype(dt)
 
 
 def cpp_int_array(v):
-    """Converts the input into numpy.ndarray compatible with C++ int array"""
+    """Converts the input into numpy.ndarray compatible with C++ int array."""
     dt = numpy.dtype('int%s' % cpp_int_bits())
     if not isinstance(v, numpy.ndarray):
         v = numpy.array(v, dtype=dt)

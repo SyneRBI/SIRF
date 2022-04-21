@@ -24,7 +24,7 @@ import sys
 import inspect
 
 from sirf.Utilities import error, check_status, try_calling, \
-     cpp_int_dtype, cpp_int_array, format_numpy_array_for_setter
+     cpp_int_dtype, format_numpy_array_for_setter
 from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
