@@ -38,7 +38,7 @@ extern "C" {
 
 	int intBits()
 	{
-		return 8*sizeof(int);
+		return 8 * sizeof(int);
 	}
 
 	void* newDataHandle() // C constructor

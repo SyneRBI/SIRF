@@ -33,7 +33,8 @@ from numbers import Integral, Number
 from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, cpp_int_array, \
+     try_calling, assert_validity, \
+     cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
 from sirf.SIRF import DataContainer
