@@ -549,7 +549,7 @@ class ImageData(SIRF.ImageData):
             raise error('zoom_image: size should be tuple')
         np_zooms = numpy.asarray(zooms, dtype=numpy.float32)
         np_offsets_in_mm = numpy.asarray(offsets_in_mm, dtype=numpy.float32)
-        np_size = numpy.asarray(size, dtype=numpy.int32)
+        np_size = numpy.asarray(size, dtype=cpp_int_dtype())
 
         try_calling(pystir.cSTIR_ImageData_zoom_image(
             zoomed_im.handle, np_zooms.ctypes.data,

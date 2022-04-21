@@ -925,7 +925,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         subset = AcquisitionData()
-        idx = numpy.array(idx, dtype = numpy.int32)
+        idx = numpy.array(idx, dtype = cpp_int_dtype())
         subset.handle = pygadgetron.cGT_getAcquisitionsSubset(self.handle, idx.ctypes.data, idx.size)
         check_status(subset.handle)
         
@@ -962,7 +962,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         if self.number() < 1:
-            return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
+            return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
         hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
@@ -994,7 +994,7 @@ class AcquisitionData(DataContainer):
             na = len(rng)
         f = min(rng)
         t = max(rng) + 1
-        info = numpy.ndarray((2,), dtype=numpy.int32)
+        info = numpy.ndarray((2,), dtype=cpp_int_dtype())
         try_calling(pygadgetron.cGT_acquisitionParameterInfo \
                     (self.handle, par, info.ctypes.data))
         n = int(info[1])
