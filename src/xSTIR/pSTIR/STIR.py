@@ -2064,6 +2064,22 @@ class QuadraticPrior(Prior):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def set_kappa(self, image):
+        """Sets kappa."""
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, 'QuadraticPrior', 'kappa', image.handle)
+
+    def get_kappa(self):
+        """Returns kappa."""
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'QuadraticPrior', 'kappa')
+        check_status(image.handle)
+        return image
+
+    def set_kappa_filename(self, filename):
+        """Sets kappa filename."""
+        parms.set_char_par(self.handle, 'QuadraticPrior', 'kappa_filename', filename)
+
 
 class PLSPrior(Prior):
     r"""Class for Parallel Level Sets prior.
