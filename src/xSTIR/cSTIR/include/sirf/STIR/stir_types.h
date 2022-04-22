@@ -104,6 +104,7 @@ namespace sirf {
         typedef stir::ProjMatrixByBinSPECTUB SPECTUBMatrix;
 	typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;
+	typedef stir::PLSPrior<float> PLSPrior3DF;
 	typedef stir::DataProcessor<Image3DF> DataProcessor3DF;
 	typedef stir::TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
 

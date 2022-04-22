@@ -144,7 +144,7 @@ void* cSTIR_newObject(const char* name)
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (sirf::iequals(name, "PLSPrior"))
-			return NEW_OBJECT_HANDLE(PLSPrior<float>);
+			return NEW_OBJECT_HANDLE(PLSPrior3DF);
 		if (sirf::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (sirf::iequals(name, "EllipsoidalCylinder"))
