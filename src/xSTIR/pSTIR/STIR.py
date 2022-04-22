@@ -2077,6 +2077,60 @@ class QuadraticPrior(Prior):
         return image
 
 
+class RelativeDifferencePrior(Prior):
+    r"""Class for the prior that is the relative difference prior.
+
+    J. Nuyts, D. Beque, P. Dupont, and L. Mortelmans, "A Concave 
+    Prior Penalizing Relative Differences for Maximum-a-Posteriori 
+    Reconstruction in Emission Tomography," vol. 49, no. 1, pp. 
+    56-60, 2002.
+
+    gamma
+    eps
+    kappa
+    """
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'RelativeDifferencePrior'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_gamma(self, v):
+        """Sets gamma."""
+        parms.set_float_par(self.handle, 'RelativeDifferencePrior', 'gamma', v)
+
+    def get_gamma(self):
+        """Returns gamma."""
+        return parms.float_par(self.handle, 'RelativeDifferencePrior', 'gamma')
+
+    def set_epsilon(self, v):
+        """Sets epsilon."""
+        parms.set_float_par(self.handle, 'RelativeDifferencePrior', 'epsilon', v)
+
+    def get_epsilon(self):
+        """Returns epsilon."""
+        return parms.float_par(self.handle, 'RelativeDifferencePrior', 'epsilon')
+
+    def set_kappa(self, image):
+        """Sets kappa."""
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, 'RelativeDifferencePrior', 'kappa', image.handle)
+
+    def get_kappa(self):
+        """Returns kappa."""
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'RelativeDifferencePrior', 'kappa')
+        check_status(image.handle)
+        return image
+
+
 class PLSPrior(Prior):
     r"""Class for Parallel Level Sets prior.
 

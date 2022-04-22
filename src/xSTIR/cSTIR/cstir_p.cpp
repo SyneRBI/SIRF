@@ -459,6 +459,47 @@ sirf::cSTIR_QuadraticPriorParameter
 }
 
 void*
+sirf::cSTIR_setRelativeDifferencePriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_RelativeDifferencePrior3DF& prior =
+		objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
+	if (sirf::iequals(name, "only_2D"))
+		prior.only2D(dataFromHandle<int>((void*)hv));
+	else if (sirf::iequals(name, "kappa")) {
+		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		prior.set_kappa_sptr(id.data_sptr());
+	}
+	else if (sirf::iequals(name, "gamma"))
+		prior.set_gamma(dataFromHandle<float>((void*)hv));
+	else if (sirf::iequals(name, "epsilon"))
+		prior.set_epsilon(dataFromHandle<float>((void*)hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_RelativeDifferencePriorParameter
+(DataHandle* hp, const char* name)
+{
+	xSTIR_RelativeDifferencePrior3DF& prior =
+		objectFromHandle<xSTIR_RelativeDifferencePrior3DF >(hp);
+	if (sirf::iequals(name, "kappa")) {
+		auto sptr_im = prior.get_kappa_sptr();
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
+		return newObjectHandle(sptr_id);
+	}
+	else if (sirf::iequals(name, "gamma"))
+		return dataHandle<float>(prior.get_gamma());
+	else if (sirf::iequals(name, "epsilon"))
+		return dataHandle<float>(prior.get_epsilon());
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
 sirf::cSTIR_setPLSPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
