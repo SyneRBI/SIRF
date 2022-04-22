@@ -2076,10 +2076,6 @@ class QuadraticPrior(Prior):
         check_status(image.handle)
         return image
 
-    def set_kappa_filename(self, filename):
-        """Sets kappa filename."""
-        parms.set_char_par(self.handle, 'QuadraticPrior', 'kappa_filename', filename)
-
 
 class PLSPrior(Prior):
     r"""Class for Parallel Level Sets prior.
