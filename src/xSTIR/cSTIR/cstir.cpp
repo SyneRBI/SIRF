@@ -254,6 +254,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_generalisedPriorParameter(handle, name);
 		else if (sirf::iequals(obj, "PLSPrior"))
 			return cSTIR_PLSPriorParameter(handle, name);
+		else if (sirf::iequals(obj, "QuadraticPrior"))
+			return cSTIR_QuadraticPriorParameter(handle, name);
 		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
 		else if (sirf::iequals(obj,

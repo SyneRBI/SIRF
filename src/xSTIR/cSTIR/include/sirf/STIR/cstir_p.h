@@ -98,6 +98,9 @@ namespace sirf {
 	void*
 		cSTIR_setQuadraticPriorParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_QuadraticPriorParameter
+		(DataHandle* hp, const char* name);
 
 	void*
 		cSTIR_setPLSPriorParameter
