@@ -3,6 +3,8 @@
 
 * added SPECTUBMatrix for (simple) usage in SPECT
 
+* removed interactive Python demos superseded by SIRF-Exercises notebooks
+
 ## v3.2.0
 
 * Dependencies
