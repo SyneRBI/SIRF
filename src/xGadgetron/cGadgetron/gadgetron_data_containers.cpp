@@ -1769,7 +1769,6 @@ GadgetronImagesVector::set_up_geom_info()
     VoxelisedGeometricalInfo3D::Size size;
     for(unsigned i=0; i<3; ++i)
         size[i] = ih1.matrix_size[i];
-    size[2] *= number();
     
     // Spacing
     //for 2D case: size[2] = 1 and ih1.field_of_view[2] = excited slice thickness
@@ -1817,6 +1816,8 @@ GadgetronImagesVector::set_up_geom_info()
             }
         }
     }
+
+    size[2] *= number();
 
     // Make sure we're looking at the first image
     ih1 = image_wrap( 0 ).head();
