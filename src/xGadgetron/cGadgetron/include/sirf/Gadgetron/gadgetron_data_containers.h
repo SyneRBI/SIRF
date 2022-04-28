@@ -655,7 +655,7 @@ namespace sirf {
 		{
 			Dimensions dim;
 			const ImageWrap& iw = image_wrap(0);
-			int d[4];
+			int d[5];
 			iw.get_dim(d);
 			dim["x"] = d[0];
 			dim["y"] = d[1];
