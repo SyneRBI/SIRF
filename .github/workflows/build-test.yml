@@ -27,14 +27,14 @@ jobs:
     - name: install_dependencies
       run:
           cd ${GITHUB_WORKSPACE};
-          git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master;
+          git clone https://github.com/SyneRBI/SIRF-SuperBuild --recursive -b master;
           cd SIRF-SuperBuild/docker;
           sudo bash raw-ubuntu.sh;
           sudo bash build_essential-ubuntu.sh;
           sudo bash build_python-ubuntu.sh;
           sudo bash build_gadgetron-ubuntu.sh;
           sudo bash build_system-ubuntu.sh;
-          bash user_python-ubuntu.sh ~/virtualenv python3 ;
+          PYTHON_EXECUTABLE=python3 PYTHON_INSTALL_DIR=~/virtualenv bash user_python-ubuntu.sh;
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
       with:

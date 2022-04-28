@@ -31,6 +31,7 @@ limitations under the License.
 */
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 
@@ -70,7 +71,18 @@ void
 MRAcquisitionData::write(const std::string &filename) const
 {
 	Mutex mtx;
-	mtx.lock();
+    std::ifstream file;
+    mtx.lock();
+    file.open(filename.c_str());
+    if (file.good()) {
+        file.close();
+        int err = std::remove(filename.c_str());
+        if (err)
+            std::cerr << "deleting " << filename.c_str() << " failed, appending...\n";
+    }
+    file.close();
+    //mtx.unlock();
+    //mtx.lock();
 	shared_ptr<ISMRMRD::Dataset> dataset
 		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", true));
 	dataset->writeHeader(acqs_info_.c_str());
@@ -910,7 +922,7 @@ KSpaceSubset::TagType KSpaceSubset::get_tag_from_img(const CFImage& img)
     tag[6] = 0; //segments area always zero
 
     for(int i=0; i<ISMRMRD::ISMRMRD_Constants::ISMRMRD_USER_INTS; ++i)
-        tag[7+i] = img.getUserInt(i);
+        tag[7+i] = 0; //img.getUserInt(i);
 
     return tag;
 }
@@ -928,7 +940,7 @@ KSpaceSubset::TagType KSpaceSubset::get_tag_from_acquisition(ISMRMRD::Acquisitio
     tag[6] = 0; //acq.idx().segment;
 
     for(int i=7; i<tag.size(); ++i)
-        tag[i]=acq.idx().user[i];
+        tag[i]= 0; //acq.idx().user[i];
 
     return tag;
 }
@@ -1271,11 +1283,22 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
 
     // If not DICOM
     if (!dicom) {
+        Mutex mtx;
+        std::ifstream file;
+        mtx.lock();
+        file.open(filename.c_str());
+        if (file.good()) {
+            file.close();
+            int err = std::remove(filename.c_str());
+            if (err)
+                std::cerr << "deleting " << filename.c_str() << " failed, appending...\n";
+        }
+        file.close();
+        mtx.unlock();
         // If the groupname hasn't been set, use the current date and time.
         std::string group = groupname;
         if (group.empty())
             group = get_date_time_string();
-        Mutex mtx;
         mtx.lock();
         ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
         dataset.writeHeader(acqs_info_.c_str());

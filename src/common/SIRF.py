@@ -30,7 +30,8 @@ except:
 import sys
 import warnings
 
-from sirf.Utilities import assert_validity, assert_validities, check_status, try_calling, error
+from sirf.Utilities import assert_validity, assert_validities, \
+     cpp_int_dtype, check_status, try_calling, error
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
@@ -775,7 +776,7 @@ class GeometricalInfo(object):
     
     def get_size(self):
         """Size is the number of voxels in each dimension."""
-        arr = numpy.ndarray((3,), dtype = numpy.int32)
+        arr = numpy.ndarray((3,), dtype = cpp_int_dtype())
         try_calling (pysirf.cSIRF_GeomInfo_get_size(self.handle, arr.ctypes.data))
         return tuple(arr)
 

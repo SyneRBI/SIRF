@@ -1049,8 +1049,7 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		MRAcquisitionData& input = objectFromHandle<MRAcquisitionData>(h_input);
 		recon.process(input);
-		shared_ptr<GadgetronImageData> sptr_img = recon.get_output();
-		return newObjectHandle<GadgetronImageData>(sptr_img);
+		return new DataHandle;
 	}
 	CATCH;
 

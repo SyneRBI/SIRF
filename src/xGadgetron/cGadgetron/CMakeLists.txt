@@ -1,7 +1,11 @@
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016, 2017, 2019, 2020 University College London
-# Copyright 2018 Science Technology Facilities Council
+# Author: Johannes Mayer
+# Author: Edoardo Pasca
+# Author: Evgueni Ovtchinnikov
+# Copyright 2016, 2017, 2019, 2020, 2022 University College London
+# Copyright 2018, 2021 Science Technology Facilities Council
+# Copyright 2021  Physikalisch-Technische Bundesanstalt Berlin
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.

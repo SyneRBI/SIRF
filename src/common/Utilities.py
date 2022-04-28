@@ -31,6 +31,29 @@ __license__ = __licence__
 RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 
+def cpp_int_bits():
+    """Returns the number of bits in a C++ integer."""
+    return pyiutil.intBits()
+
+
+def cpp_int_dtype():
+    """Returns numpy dtype corresponding to a C++ int."""
+    dt = 'int%s' % cpp_int_bits()
+    return numpy.dtype(dt)
+
+
+def cpp_int_array(v):
+    """Converts the input into numpy.ndarray compatible with C++ int array."""
+    dt = numpy.dtype('int%s' % cpp_int_bits())
+    if not isinstance(v, numpy.ndarray):
+        v = numpy.array(v, dtype=dt)
+    elif dt != v.dtype:
+        v = v.astype(dt)
+    if not v.flags['C_CONTIGUOUS']:
+        v = numpy.ascontiguousarray(v)
+    return v
+
+
 @deprecated(
     deprecated_in="2.0.0", removed_in="4.0", current_version=sirf.__version__,
     details="use examples_data_path() instead")
