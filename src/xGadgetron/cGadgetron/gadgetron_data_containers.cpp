@@ -1817,6 +1817,8 @@ GadgetronImagesVector::set_up_geom_info()
         }
     }
 
+    //size[2] *= number();
+
     // Make sure we're looking at the first image
     ih1 = image_wrap( 0 ).head();
     

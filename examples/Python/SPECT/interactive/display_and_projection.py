@@ -9,8 +9,8 @@
 # Python IDE such as spyder. It is organised in 'cells'. spyder displays these
 # cells nicely and allows you to run each cell on its own.
 #
-# # We'll use the Python Animation package for one display. This might not display 
-# anything depending on your IDE settings (check the 'backend' settings).
+# # We'll use the Python Animation package for one display. This might not display
+# # anything depending on your IDE settings (check the 'backend' settings).
 # For instance, in spyder, go to Tools->Preferences->iPython->Graphics and
 # set your backend to "automatic". You will have to do this BEFORE you start the
 # ipython console (or just restart spyder)
@@ -19,13 +19,13 @@
 # First version: 8th of September 2016
 #
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017, 2019 University College London.
 ##
 ## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
+## Project in Synergistic Reconstruction for Biomedical Imaging
+## (http://www.ccpsynerbi.ac.uk/).
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -38,12 +38,9 @@
 ##   limitations under the License.
 
 #%% Initial imports etc
-import numpy
-from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os
-import sys
 import shutil
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
@@ -58,7 +55,8 @@ import sirf.STIR
 #
 # First a function to display an image
 def imshow(image, limits, title=''):
-    """Display an image with a colourbar, returning the plot handle.
+    """
+    Display an image with a colourbar, returning the plot handle.
 
     Arguments:
     image -- a 2D array of numbers
@@ -76,9 +74,7 @@ def imshow(image, limits, title=''):
     return bitmap
 
 def create_sample_image(image):
-    '''
-    fill the image with some simple geometric shapes
-    '''
+    '''fill the image with some simple geometric shapes.'''
     image.fill(0)
     # create a shape
     shape = sirf.STIR.EllipticCylinder()
@@ -106,9 +102,7 @@ def create_sample_image(image):
     image.add_shape(shape, scale = 1)
 
 def create_attenuation_image(image):
-    '''
-    fill the attenuation image with some simple geometric shapes
-    '''
+    '''fill the attenuation image with some simple geometric shapes.'''
     image.fill(0)
     # create a shape
     shape = sirf.STIR.EllipticCylinder()

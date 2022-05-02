@@ -51,14 +51,19 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   3 )
-set(VERSION_MINOR   1 )
+set(VERSION_MINOR   2 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 set(SIRF_VERSION
   ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" WIN32)
+if (WIN32)
+  set (DEFAULT_SIRF_INSTALL_DEPENDENCIES ON)
+else()
+  set (DEFAULT_SIRF_INSTALL_DEPENDENCIES OFF)
+endif()
+option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" ${DEFAULT_SIRF_INSTALL_DEPENDENCIES})
 ####### CMake path
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -84,6 +89,14 @@ if (APPLE)
     set(CMAKE_USE_PTHREADS_INIT 1)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
   endif()
+endif()
+
+if (WIN32)
+  # Enable secure versions of standard C functions such as sprintf etc
+  # this will cause a run-time error when overwriting memory etc
+  add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
+  # This still leaves a lot of warnings about sscanf etc, so we'll silence them all for now
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 ####### External packages
@@ -193,6 +206,17 @@ set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINO
 
 configure_file("cmake/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
+
+if (CMAKE_VERSION VERSION_LESS 3.21.0)
+  # Possibly superfluous finding of HDF5, looking for both C and CXX libraries
+  # This is an attempt to overcome https://gitlab.kitware.com/cmake/cmake/-/issues/20909
+  # We will try to find ISMRMRD and STIR later. The former needs HDF C, the latter HDF5 CXX.
+  # By looking for both first, CMake will populate targets for HDF5 for both C and CXX.
+  #
+  # Note that this is slightly dangerous if there are multiple versions of HDF5 on the system.
+  # ISMRMRD and STIR might be looking for a specific version while the statement below doesn't.
+  find_package(HDF5 COMPONENTS C CXX QUIET)
+endif()
 
 ADD_SUBDIRECTORY(src)
 

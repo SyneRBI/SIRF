@@ -34,6 +34,7 @@ from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, \
+     cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
 from sirf.SIRF import DataContainer
@@ -430,7 +431,7 @@ class ImageData(SIRF.ImageData):
         """Returns image dimensions as a tuple (nz, ny, nx)."""
         if self.handle is None:
             raise AssertionError()
-        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
+        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=cpp_int_dtype())
         try_calling(
             pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
         return tuple(dim[:3])  # [::-1])
@@ -548,7 +549,7 @@ class ImageData(SIRF.ImageData):
             raise error('zoom_image: size should be tuple')
         np_zooms = numpy.asarray(zooms, dtype=numpy.float32)
         np_offsets_in_mm = numpy.asarray(offsets_in_mm, dtype=numpy.float32)
-        np_size = numpy.asarray(size, dtype=numpy.int32)
+        np_size = numpy.asarray(size, dtype=cpp_int_dtype())
 
         try_calling(pystir.cSTIR_ImageData_zoom_image(
             zoomed_im.handle, np_zooms.ctypes.data,
@@ -817,26 +818,26 @@ class SPECTUBMatrix:
 
         You have to call set_up() after this (unless the value didn't change).
         '''
-        _set_int_par(self.handle, self.name, 'keep_all_views_in_cache', value)
+        parms.set_int_par(self.handle, self.name, 'keep_all_views_in_cache', value)
         return self
     def get_keep_all_views_in_cache(self):
         '''
         Returns a bool checking if we're keeping the whole matrix in memory or not.
         '''
-        return _int_par(self.handle, self.name, 'keep_all_views_in_cache') != 0
+        return parms.int_par(self.handle, self.name, 'keep_all_views_in_cache') != 0
     def set_attenuation_image(self, value):
         '''
         Sets the attenuation image used by the projector.
         '''
         assert_validity(value, ImageData)
-        _setParameter(self.handle, self.name, 'attenuation_image', value.handle)
+        parms.set_parameter(self.handle, self.name, 'attenuation_image', value.handle)
         return self
     def get_attenuation_image(self):
         '''
         Returns the attenuation image used by the projector.
         '''
         image = ImageData()
-        image.handle = _getParameterHandle(self.handle, self.name, 'attenuation_image')
+        image.handle = parms.parameter_handle(self.handle, self.name, 'attenuation_image')
         return image
 
     def set_resolution_model(self, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D = True):
@@ -980,7 +981,7 @@ class AcquisitionData(DataContainer):
         """
         if self.handle is None:
             raise AssertionError()
-        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
+        dim = numpy.ndarray((MAX_ACQ_DIMS,), dtype=cpp_int_dtype())
         try_calling(pystir.cSTIR_getAcquisitionDataDimensions(
             self.handle, dim.ctypes.data))
         dim = dim[:4]
@@ -1829,7 +1830,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_matrix(self, matrix):
-        ''' 
+        '''
         Sets the matrix G to be used for projecting;
         matrix:  a matrix object to represent G in acquisition model (F).
         '''
@@ -1971,6 +1972,12 @@ class Prior(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def __call__(self, image):
+        '''Returns the prior value on the specified image (alias of value()).
+
+        image: ImageData object'''
+        return self.value(image)
+
     def set_penalisation_factor(self, value):
         """Sets penalisation factor.
 
@@ -1986,6 +1993,23 @@ class Prior(object):
         return parms.float_par(
             self.handle, 'GeneralisedPrior', 'penalisation_factor')
 
+    def get_value(self, image):
+        """Returns the value of the prior.
+
+        Returns the value of the prior for the specified image.
+        image: ImageData object
+        """
+        assert_validity(image, ImageData)
+        handle = pystir.cSTIR_priorValue(self.handle, image.handle)
+        check_status(handle)
+        v = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return v
+
+    def value(self, image):
+        """Returns the value of the prior (alias of get_value())."""
+        return self.get_value(image)
+
     def get_gradient(self, image):
         """Returns gradient of the prior.
 
@@ -1997,6 +2021,11 @@ class Prior(object):
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
+
+    def gradient(self, image):
+        """Returns the gradient of the prior (alias of get_gradient())."""
+
+        return self.get_gradient(image)
 
     def set_up(self, image):
         """Sets up."""
