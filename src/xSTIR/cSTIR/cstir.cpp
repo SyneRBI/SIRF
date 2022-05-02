@@ -1080,6 +1080,21 @@ cSTIR_setupPrior(void* ptr_p, void* ptr_i)
 
 extern "C"
 void*
+cSTIR_priorValue(void* ptr_p, void* ptr_i)
+{
+	try {
+		xSTIR_GeneralisedPrior3DF& prior =
+			objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_p);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		Image3DF& image = id.data();
+		float v = (float)prior.compute_value(image);
+		return dataHandle<float>(v);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 {
 	try {

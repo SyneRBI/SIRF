@@ -1,21 +1,18 @@
 '''
 
-Forward projection demo: creates an image, projects it to simulate
-acquisition data and backprojects
+Simple OSEM reconstruction demo: creates an image, projects it to simulate
+acquisition data , adds noise to the data and then does an OSEM reconstruction.
 
 Usage:
-  acquisition_model [--help | options]
+  SPECT_OSEM [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file [default: template_sinogram.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/SPECT
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
-
-There is an interactive demo with much more documentation on this process.
-You probably want to check that instead.
 '''
-
+##
 ## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017, 2019, 2022 University College London.
@@ -42,6 +39,7 @@ from sirf.Utilities import show_2D_array
 
 # import engine module
 import sirf.STIR
+import numpy as np
 
 # process command-line options
 data_file = args['--file']
@@ -51,8 +49,14 @@ if data_path is None:
 raw_data_file = sirf.STIR.existing_filepath(data_path, data_file)
 output_file = args['--output']
 
-def create_sample_image(image):
+def create_sample_image(image, attenuation = False):
     '''fill the image with some simple geometric shapes.'''
+    # density needs to be scaled down for attenuation image
+    if attenuation == True:
+        value = 0.1
+    else:
+        value = 1
+        
     image.fill(0)
     # create a shape
     shape = sirf.STIR.EllipticCylinder()
@@ -61,16 +65,32 @@ def create_sample_image(image):
     shape.set_origin((0, 60, 10))
 
     # add the shape to the image
-    image.add_shape(shape, scale = 1)
+    image.add_shape(shape, scale = value*1)
 
     # add another shape
     shape.set_radii((30, 30))
     shape.set_origin((60, -30, 10))
-    image.add_shape(shape, scale = 1.5)
+    image.add_shape(shape, scale = value*1.5)
 
     # add another shape
     shape.set_origin((-60, -30, 10))
-    image.add_shape(shape, scale = 0.75)
+    image.add_shape(shape, scale = value*0.75)
+
+def make_cylindrical_FOV(image):
+    """truncate to cylindrical FOV."""
+    cyl_filter = sirf.STIR.TruncateToCylinderProcessor()
+    cyl_filter.apply(image)
+    return image
+
+def add_noise(proj_data,noise_factor = 1):
+    """Add Poission noise to acquisition data."""
+    proj_data_arr = proj_data.as_array() / noise_factor
+    # Data should be >=0 anyway, but add abs just to be safe
+    proj_data_arr = np.abs(proj_data_arr)
+    noisy_proj_data_arr = np.random.poisson(proj_data_arr).astype('float32');
+    noisy_proj_data = proj_data.clone()
+    noisy_proj_data.fill(noisy_proj_data_arr);
+    return noisy_proj_data
 
 def main():
 
@@ -89,6 +109,11 @@ def main():
     create_sample_image(image)
     image.write("simulated_image.hv")
 
+    # create attenuation image
+    uMap = acq_template.create_uniform_image()
+    create_sample_image(uMap, attenuation = True)
+    uMap.write("simulated_uMap.hv")
+
     # z-pixel coordinate of the xy-cross-section to show
     z = image.dimensions()[0]//2
 
@@ -96,20 +121,26 @@ def main():
     image_array = image.as_array()
     show_2D_array('Phantom image', image_array[z,:,:])
 
-    # select acquisition model that implements the geometric
-    # forward projection by a ray tracing matrix multiplication
-    acq_model_matrix = sirf.STIR.SPECTUBMatrix();
-    acq_model = sirf.STIR.AcquisitionModelUsingMatrix(acq_model_matrix)
+    # show the attenuation image
+    uMap_array = uMap.as_array()
+    show_2D_array('Attenuation image', uMap_array[z,:,:])
 
     # require same number slices and equal z-sampling for projection data & image
     image = image.zoom_image(zooms=(0.5, 1.0, 1.0), size=(12, -1, -1))
+    uMap = uMap.zoom_image(zooms=(0.5, 1.0, 1.0), size=(12, -1, -1))
+
+    # select acquisition model that implements the geometric
+    # forward projection by a ray tracing matrix multiplication
+    acq_model_matrix = sirf.STIR.SPECTUBMatrix();
+    acq_model_matrix.set_attenuation_image(uMap) # add attenuation
+    acq_model = sirf.STIR.AcquisitionModelUsingMatrix(acq_model_matrix)
+
     print('projecting image...')
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
     acq_model.set_up(acq_template, image)
     simulated_data = acq_template.get_uniform_copy()
     acq_model.forward(image, 0, 1, simulated_data)
-    # simulated_data = acq_model.forward(image, 0, 4)
     if output_file is not None:
         simulated_data.write(output_file)
 
@@ -118,12 +149,33 @@ def main():
     middle_slice=simulated_data_as_array.shape[0]//2
     show_2D_array('Forward projection', simulated_data_as_array[0, middle_slice,:,:])
 
-    print('backprojecting the forward projection...')
-    # backproject the computed forward projection
-    back_projected_image = acq_model.backward(simulated_data, 0, 1)
+    # create noisy data
+    noisy_data = simulated_data.clone()
+    noisy_data_as_array = np.random.poisson(simulated_data.as_array())
+    noisy_data.fill(noisy_data_as_array)
+    show_2D_array('Forward projection with added noise', noisy_data_as_array[0, middle_slice,:,:])
 
-    back_projected_image_as_array = back_projected_image.as_array()
-    show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
+    # create objective function
+    obj_fun = sirf.STIR.make_Poisson_loglikelihood(noisy_data)
+    obj_fun.set_acquisition_model(acq_model)
+
+    # create OSEM reconstructor object
+    num_subsets = 30 # number of subsets for OSEM reconstruction
+    num_subiters = 60 #number of subiterations (i.e two full iterations)
+    OSEM_reconstructor = sirf.STIR.OSMAPOSLReconstructor()
+    OSEM_reconstructor.set_objective_function(obj_fun)
+    OSEM_reconstructor.set_num_subsets(num_subsets)
+    OSEM_reconstructor.set_num_subiterations(num_subiters)
+
+    # create initialisation image and set up reconstructor
+    init_image = make_cylindrical_FOV(image.get_uniform_copy(1))
+    OSEM_reconstructor.set_up(init_image)
+
+    # Reconstruct and show reconstructed image
+    OSEM_reconstructor.reconstruct(init_image)
+    out_image = OSEM_reconstructor.get_current_estimate()
+    out_image_array = out_image.as_array()
+    show_2D_array('Reconstructed image', out_image_array[z,:,:])
 
 try:
     main()

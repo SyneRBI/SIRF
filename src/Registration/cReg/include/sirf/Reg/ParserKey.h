@@ -106,8 +106,8 @@ protected:
     {
         // Start index is always to right of the ":="
         // End index is up to ","
-        int index_start = line.find(":=") + 2;
-        int index_end   = line.find(",");
+        auto index_start = line.find(":=") + 2;
+        auto index_end   = line.find(",");
 
         // For subsequent arguments
         for (int i=0; i<arg_num; i++) {
@@ -137,7 +137,7 @@ protected:
     void get_argument(const std::string &line, const int arg_num, int &arg          ) const { arg = std::stoi(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - unsigned int
-    void get_argument(const std::string &line, const int arg_num, unsigned int &arg ) const { arg = std::stoll(get_arg_as_string(line, arg_num)); }
+    void get_argument(const std::string &line, const int arg_num, unsigned int &arg ) const { arg = static_cast<unsigned>(std::stoul(get_arg_as_string(line, arg_num))); }
 
     /// Get argument - float
     void get_argument(const std::string &line, const int arg_num, float &arg        ) const { arg = std::stof(get_arg_as_string(line, arg_num));  }

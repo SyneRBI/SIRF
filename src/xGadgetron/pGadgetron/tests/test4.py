@@ -100,6 +100,15 @@ def test_main(rec=False, verb=False, throw=True):
     d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
     test.check_if_equal(0, d)
 
+    ci_abs1 = numpy.abs(complex_images.as_array())
+    ci_abs2 = complex_images.abs().as_array()
+    d = numpy.linalg.norm(ci_abs1 - ci_abs2)
+    test.check_if_equal(0, d)
+    ci2 = ImageData()
+    complex_images.abs(out=ci2)
+    ci_abs3 = numpy.abs(ci2.as_array())
+    d = numpy.linalg.norm(ci_abs1 - ci_abs3)
+    test.check_if_equal(0, d)
     ci2 = complex_images - complex_images
     ci2_arr = ci2.as_array()
     d = numpy.linalg.norm(ci2_arr)

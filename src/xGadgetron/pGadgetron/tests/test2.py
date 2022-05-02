@@ -35,14 +35,14 @@ def test_main(rec=False, verb=False, throw=True):
 
     prep_gadgets = ['RemoveROOversamplingGadget']
     processed_data = input_data.process(prep_gadgets)
-    test.check(processed_data.norm() / input_norm)
+    test.check(processed_data.norm() / input_norm, rel_tol=0.01)
 
     recon = CartesianGRAPPAReconstructor()
     recon.compute_gfactors(False)
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()
-    test.check(complex_images.norm() / input_norm)
+    test.check(complex_images.norm() / input_norm, rel_tol=0.01)
 
     csms = CoilSensitivityData()
 

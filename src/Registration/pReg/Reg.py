@@ -23,7 +23,8 @@ import abc
 import sys
 import inspect
 
-from sirf.Utilities import error, check_status, try_calling, format_numpy_array_for_setter
+from sirf.Utilities import error, check_status, try_calling, \
+     cpp_int_dtype, format_numpy_array_for_setter
 from sirf import SIRF
 import pyiutilities as pyiutil
 import pyreg
@@ -161,8 +162,9 @@ class NiftiImageData(SIRF.ImageData):
             self.handle = pyreg.cReg_objectFromFile(self.name, src)
         elif isinstance(src, SIRF.ImageData):
             # src is ImageData
+            dim = src.dimensions()
             self.handle = pyreg.cReg_NiftiImageData_from_SIRFImageData(
-                src.handle, 0)
+                src.handle, int(dim[0] > 1))
         else:
             raise error('Wrong source in NiftiImageData constructor')
         check_status(self.handle)
@@ -291,7 +293,7 @@ class NiftiImageData(SIRF.ImageData):
         """
         if self.handle is None:
             raise AssertionError()
-        dim = numpy.ndarray((8,), dtype=numpy.int32)
+        dim = numpy.ndarray((8,), dtype=cpp_int_dtype())
         try_calling(pyreg.cReg_NiftiImageData_get_dimensions(
             self.handle, dim.ctypes.data))
         return dim
@@ -409,8 +411,8 @@ class NiftiImageData(SIRF.ImageData):
         # Fill in any missing indices with -1's
         min_.extend([-1] * (7-len(min_)))
         max_.extend([-1] * (7-len(max_)))
-        min_np = numpy.array(min_, dtype=numpy.int32)
-        max_np = numpy.array(max_, dtype=numpy.int32)
+        min_np = numpy.array(min_, dtype=cpp_int_dtype())
+        max_np = numpy.array(max_, dtype=cpp_int_dtype())
         try_calling(pyreg.cReg_NiftiImageData_crop(
             self.handle, min_np.ctypes.data, max_np.ctypes.data))
 
@@ -431,8 +433,8 @@ class NiftiImageData(SIRF.ImageData):
         # Fill in any missing indices with -1's
         min_.extend([-1] * (7-len(min_)))
         max_.extend([-1] * (7-len(max_)))
-        min_np = numpy.array(min_, dtype=numpy.int32)
-        max_np = numpy.array(max_, dtype=numpy.int32)
+        min_np = numpy.array(min_, dtype=cpp_int_dtype())
+        max_np = numpy.array(max_, dtype=cpp_int_dtype())
         try_calling(pyreg.cReg_NiftiImageData_pad(
             self.handle, min_np.ctypes.data, max_np.ctypes.data, float(val)))
 
