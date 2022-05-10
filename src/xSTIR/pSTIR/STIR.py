@@ -855,6 +855,42 @@ class SPECTUBMatrix:
         '''
         try_calling(pystir.cSTIR_SPECTUBMatrixSetResolution(self.handle, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D))
 
+
+class ListmodeData(DataContainer):
+    """Class for PET list mode data."""
+
+    def __init__(self, filename=None):
+        self.handle = None
+        self.name = 'ListmodeData'
+        self.read_only = False
+        if filename is None:
+            return
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile('ListmodeData', filename)
+        check_status(self.handle)
+        self.read_only = True
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def read_from_file(self, filename):
+        """
+        Reads data from file.
+
+        Replaces the current content of the object.
+        """
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile('ListmodeData', filename)
+        check_status(self.handle)
+        self.read_only = True
+
+DataContainer.register(ListmodeData)
+
+
 class AcquisitionData(DataContainer):
     """Class for PET acquisition data."""
 

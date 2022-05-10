@@ -307,8 +307,13 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
                 sptr.reset(new PETAcquisitionDataInMemory(filename));
 			return newObjectHandle(sptr);
 		}
+		if (sirf::iequals(name, "ListmodeData")) {
+			std::shared_ptr<ListmodeData>
+				sptr(new ListmodeData(filename));
+			return newObjectHandle(sptr);
+		}
 		if (sirf::iequals(name, "ListmodeToSinograms")) {
-                        std::shared_ptr<ListmodeToSinograms>
+			std::shared_ptr<ListmodeToSinograms>
 				sptr(new ListmodeToSinograms(filename));
 			return newObjectHandle(sptr);
 		}

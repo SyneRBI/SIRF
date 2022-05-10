@@ -724,8 +724,123 @@ namespace sirf {
 		}
 	};
 
-	typedef Image3DF::full_iterator Image3DFIterator;
-	typedef Image3DF::const_full_iterator Image3DFIterator_const;
+	class ListmodeData : public DataContainer {
+	public:
+		ListmodeData(std::string lmdata_filename)
+		{
+			_data = stir::read_from_file<stir::ListModeData>(lmdata_filename);
+		}
+		virtual ~ListmodeData()
+		{
+
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		{
+			THROW("ListmodeData::new_data_container_handle not implemented");
+			return 0;
+		}
+		virtual unsigned int items() const
+		{
+			return 1;
+		}
+		virtual bool is_complex() const
+		{
+			return false;
+		}
+
+		/// returns the norm of this container viewed as a vector
+		virtual float norm() const
+		{
+			THROW("ListmodeData::norm not implemented");
+		}
+
+		/// calculates the dot product of this container with another one
+		virtual void dot(const DataContainer& dc, void* ptr) const
+		{
+			THROW("ListmodeData::dot not implemented");
+		}
+
+		/// \c *this = the elementwise product \c x*y
+		virtual void multiply
+		(const DataContainer& x, const DataContainer& y)
+		{
+			THROW("ListmodeData::multiply not implemented");
+		}
+
+		/// \c *this = the elementwise ratio \c x/y
+		virtual void divide
+		(const DataContainer& x, const DataContainer& y)
+		{
+			THROW("ListmodeData::divide not implemented");
+		}
+
+		/// \c *this = the elementwise \c max(x, y)
+		virtual void maximum
+		(const DataContainer& x, const DataContainer& y)
+		{
+			THROW("ListmodeData::maximum not implemented");
+		}
+
+		/// \c *this = the elementwise \c min(x, y)
+		virtual void minimum
+		(const DataContainer& x, const DataContainer& y)
+		{
+			THROW("ListmodeData::minimum not implemented");
+		}
+
+		/// \c *this = the linear combination of \c x and \c y
+		virtual void axpby(
+			const void* ptr_a, const DataContainer& x,
+			const void* ptr_b, const DataContainer& y)
+		{
+			THROW("ListmodeData::axpby not implemented");
+		}
+		/// alternative interface to the above
+		virtual void xapyb(
+			const DataContainer& x, const void* ptr_a,
+			const DataContainer& y, const void* ptr_b)
+		{
+			THROW("ListmodeData::xapyb not implemented");
+		}
+
+		/// \c *this = elementwise sum of two elementwise products \c x*a and \c y*b
+		virtual void xapyb(
+			const DataContainer& x, const DataContainer& a,
+			const DataContainer& y, const DataContainer& b)
+		{
+			THROW("ListmodeData::xapyb not implemented");
+		}
+
+		virtual void write(const std::string& filename) const
+		{
+			THROW("ListmodeData::write not implemented");
+		}
+
+		bool is_empty() const
+		{
+			return items() < 1;
+		}
+
+		std::unique_ptr<DataContainer> clone() const
+		{
+			return std::unique_ptr<DataContainer>(this->clone_impl());
+		}
+
+		///  returns unique pointer to the complex-conjugated copy of this container
+		std::unique_ptr<DataContainer> conjugate() const
+		{
+			DataContainer* ptr = this->clone_impl();
+			ptr->conjugate();
+			return std::unique_ptr<DataContainer>(ptr);
+		}
+
+	protected:
+		stir::shared_ptr<stir::ListModeData> _data;
+		virtual DataContainer* clone_impl() const
+		{
+			THROW("ListmodeData::clone not implemented");
+		}
+	};
 
 	/*!
 	\ingroup PET
@@ -735,6 +850,10 @@ namespace sirf {
 	additioanally, implements the linear algebra functionality specified by the
 	abstract base class aDatacontainer.
 	*/
+
+	typedef Image3DF::full_iterator Image3DFIterator;
+	typedef Image3DF::const_full_iterator Image3DFIterator_const;
+
 	//class STIRImageData : public aDataContainer < float > {
 	class STIRImageData : public PETImageData { //<Iterator, Iterator_const> {
 	public:
