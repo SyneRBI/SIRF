@@ -40,6 +40,7 @@ limitations under the License.
 #include "sirf/common/JacobiCG.h"
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
+#include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -1027,6 +1028,10 @@ The actual algorithm is described in
 
 	typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
 		PoissonLogLhLinModMeanProjData3DF;
+
+	class xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF :
+		public stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF> {
+	};
 
 	class xSTIR_IterativeReconstruction3DF :
 		public stir::IterativeReconstruction < Image3DF > {

@@ -127,6 +127,10 @@ void* cSTIR_newObject(const char* name)
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return NEW_OBJECT_HANDLE
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
+		if (sirf::iequals(name,
+			"PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+			return NEW_OBJECT_HANDLE
+			(xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF);
 		if (sirf::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
 #ifdef STIR_WITH_NiftyPET_PROJECTOR

@@ -2444,6 +2444,25 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
             self.handle, self.name, 'acquisition_data', ad.handle)
 
 
+class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin:
+    """Class for a STIR type of Poisson loglikelihood object.
+
+    Specifically, PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.
+    """
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+
 class Reconstructor(object):
     """Base class for a generic PET reconstructor."""
 
@@ -3070,7 +3089,8 @@ class OSSPSReconstructor(IterativeReconstructor):
             self.handle, self.name, 'relaxation_parameter', value)
 
 
-def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
+#def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
+def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
                                acq_model=None):
     """Makes Poisson loglikelihood.
 
@@ -3078,13 +3098,18 @@ def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
     model types.
     """
     # only this objective function is implemented for now
-    if likelihood_type == 'LinearModelForMean':
+    #if likelihood_type == 'LinearModelForMean':
+    if likelihood_type is None:
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
-        obj_fun.set_acquisition_data(acq_data)
+        if acq_data is not None:
+            obj_fun.set_acquisition_data(acq_data)
+    elif likelihood_type == 'LinearModelForMeanAndListModeDataWithProjMatrixByBin':
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin
     else:
-        raise error(
-            'only PoissonLogLikelihoodWithLinearModelForMeanAndProjData ' +
-            'is currently implemented in SIRF')
+        raise error('Poisson_loglikelihood of type ' + likelihood_type + \
+                    ' is not implemented')
+#            'only PoissonLogLikelihoodWithLinearModelForMeanAndProjData ' +
+#            'is currently implemented in SIRF')
     if acq_model is not None:
         obj_fun.set_acquisition_model(acq_model)
     return obj_fun
