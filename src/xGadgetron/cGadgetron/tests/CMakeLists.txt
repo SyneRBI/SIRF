@@ -75,13 +75,31 @@ if(RUN_ISMRMRD_SHEPP_LOGAN)
     # This might have been done before calling CMake, but we are not sure.
     # So, we will try to determine/guess their locations.
     if (CMAKE_VERSION VERSION_LESS 3.20.0)
-      # Hope that they are installed in the same place as where we will install SIRF
-      # (or are already found by the OS)x
-      set (LIBRTPATH=${CMAKE_INSTALL_PREFIX}/lib)
+      message(STATUS "CMAKE_VERSION less than 3.20. Hopefully ISMRMRD shared library is in the same location as where we will install SIRF")
+      # (or is already found by the OS)
+      set (LIBRTPATH ${CMAKE_INSTALL_PREFIX}/lib)
     else()
-      # We need Boost, HDF5 and FFTW libraries...
+      # We need ISMRMRD, Boost, HDF5 and FFTW libraries...
       # We will try to find locations based on corresponding variables.
-      # Sadly, naming of these variables is quite unpredictable, so we try a few.
+
+      # separator used in path variables is different on Windows and elsewhere
+      if (WIN32)
+        set(PATHSEP ";")
+      else()
+        set(PATHSEP ":")
+      endif()
+
+      if (WIN32)
+        cmake_path(REMOVE_FILENAME EXE_ISMRMRD_SL OUTPUT_VARIABLE ISMRMRDPATH)
+      else()
+        get_target_property(ISMRDRDCONFIGS ISMRMRD::ISMRMRD IMPORTED_CONFIGURATIONS)
+        list(GET ISMRDRDCONFIGS 0 ISMRDRDCONFIG)
+        get_target_property(ISMRMRDPATH ISMRMRD::ISMRMRD IMPORTED_LOCATION_${ISMRDRDCONFIG})
+        cmake_path(REMOVE_FILENAME ISMRMRDPATH OUTPUT_VARIABLE ISMRMRDPATH)
+        message(STATUS "ISMRMRD shared library location: ${ISMRMRDPATH}")
+      endif()
+
+      # Sadly, naming of HDF5 variables is quite unpredictable, so we try a few.
       if (HDF5_C_LIBRARY)
         cmake_path(REMOVE_FILENAME HDF5_C_LIBRARY OUTPUT_VARIABLE HDF5PATH)
       elseif (HDF5_hdf5_cpp_LIBRARY_RELEASE)
@@ -99,13 +117,7 @@ if(RUN_ISMRMRD_SHEPP_LOGAN)
         cmake_path(REMOVE_FILENAME FFTW3F_LIBRARY OUTPUT_VARIABLE FFTWPATH)
       endif()
 
-      # separator used in path variables is different on Windows and elsewhere
-      if (WIN32)
-        set(PATHSEP ";")
-      else()
-        set(PATHSEP ":")
-      endif()
-      set(LIBRTPATH "${Boost_LIBRARY_DIR_RELEASE}${PATHSEP}${FFTWPATH}${PATHSEP}${HDF5PATH}")
+      set(LIBRTPATH "${CMAKE_INSTALL_PREFIX}/lib${PATHSEP}${ISMRMRDPATH}${PATHSEP}${Boost_LIBRARY_DIR_RELEASE}${PATHSEP}${FFTWPATH}${PATHSEP}${HDF5PATH}")
     endif()
     message(STATUS "path for finding shared libs/DLLs when generating MR data: ${LIBRTPATH}")
 
