@@ -137,15 +137,28 @@ namespace sirf {
 
 	/*!
 	\ingroup PET
+	\brief Abstract base class for PET scanner data
+	*/
+	class PETScanData : public DataContainer {
+	public:
+		virtual ~PETScanData() {}
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() = 0;
+		virtual const stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
+		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
+	};
+
+	/*!
+	\ingroup PET
 	\brief STIR ProjData wrapper with added functionality.
 
 	This class enjoys some features of STIR ProjData and, additionally,
 	implements the linear algebra functionality specified by the
-	abstract base class aDatacontainer, and provides means for the data
+	abstract base class DataContainer, and provides means for the data
 	storage mode (file/memory) selection.
 	*/
 
-	class PETAcquisitionData : public DataContainer {
+	//class PETAcquisitionData : public DataContainer {
+	class PETAcquisitionData : public PETScanData {
 	public:
 		virtual ~PETAcquisitionData() {}
 
@@ -215,7 +228,17 @@ namespace sirf {
 		{
 			return _data;
 		}
+		virtual stir::shared_ptr<stir::ExamData> data_sptr()
+		{
+			return _data;
+			//return stir::shared_ptr<stir::ExamData>(_data);
+		}
 		const stir::shared_ptr<stir::ProjData> data() const
+		//stir::shared_ptr<const stir::ProjData> data() const // causes lots of problems
+		{
+			return _data;
+		}
+		virtual const stir::shared_ptr<stir::ExamData> data_sptr() const
 		{
 			return _data;
 		}
@@ -230,7 +253,7 @@ namespace sirf {
 		{
 			if (ad.is_empty())
 				THROW("The source of PETAcquisitionData::fill is empty");
-			stir::shared_ptr<stir::ProjData> sptr = ad.data();
+			stir::shared_ptr<const stir::ProjData> sptr = ad.data();
 			data()->fill(*sptr);
 		}
 		virtual void fill_from(const float* d) { data()->fill_from(d); }
@@ -657,7 +680,7 @@ namespace sirf {
         {
             auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
             // Can only do this if both are PETAcquisitionDataInMemory
-            stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+            const stir::ProjDataInMemory *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
             const stir::ProjDataInMemory *pd2_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x->data().get());
             // If either cast failed, fall back to general method
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd2_ptr))
@@ -730,10 +753,14 @@ namespace sirf {
 		{
 			_data = stir::read_from_file<stir::ListModeData>(lmdata_filename);
 		}
-		virtual ~ListmodeData()
-		{
-
+		virtual ~ListmodeData() {}
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() {
+			return _data;
 		}
+		virtual const stir::shared_ptr<stir::ExamData> data_sptr() const {
+			return _data;
+		}
+
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			THROW("ListmodeData::new_data_container_handle not implemented");
