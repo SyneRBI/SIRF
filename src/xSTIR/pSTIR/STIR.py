@@ -856,7 +856,11 @@ class SPECTUBMatrix:
         try_calling(pystir.cSTIR_SPECTUBMatrixSetResolution(self.handle, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D))
 
 
-class ListmodeData(DataContainer):
+class PETScanData(DataContainer):
+    """Abstract base class for PET raw data."""
+
+
+class ListmodeData(PETScanData):
     """Class for PET list mode data."""
 
     def __init__(self, filename=None):
@@ -888,10 +892,10 @@ class ListmodeData(DataContainer):
         check_status(self.handle)
         self.read_only = True
 
-DataContainer.register(ListmodeData)
+PETScanData.register(ListmodeData)
 
 
-class AcquisitionData(DataContainer):
+class AcquisitionData(PETScanData):
     """Class for PET acquisition data."""
 
     def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1):
@@ -1203,7 +1207,7 @@ class AcquisitionData(DataContainer):
         return numpy.float32
 
 
-DataContainer.register(AcquisitionData)
+PETScanData.register(AcquisitionData)
 
 
 class ListmodeToSinograms(object):
@@ -2444,7 +2448,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
             self.handle, self.name, 'acquisition_data', ad.handle)
 
 
-class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin:
+class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(ObjectiveFunction):
     """Class for a STIR type of Poisson loglikelihood object.
 
     Specifically, PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.
@@ -2479,7 +2483,7 @@ class Reconstructor(object):
 
     def set_input(self, input_data):
         """Sets the acquisition data to use for reconstruction."""
-        assert_validity(input_data, AcquisitionData)
+        assert_validity(input_data, PETScanData)
         parms.set_parameter(
             self.handle, 'Reconstruction',
             'input_data', input_data.handle)
@@ -3104,7 +3108,7 @@ def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
         if acq_data is not None:
             obj_fun.set_acquisition_data(acq_data)
     elif likelihood_type == 'LinearModelForMeanAndListModeDataWithProjMatrixByBin':
-        obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin()
     else:
         raise error('Poisson_loglikelihood of type ' + likelihood_type + \
                     ' is not implemented')
