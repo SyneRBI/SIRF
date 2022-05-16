@@ -22,4 +22,4 @@ Please read and adhere to the [contribution guidelines](https://github.com/SyneR
 
 Please tick the following: 
 
-- [ ] I declare that the contributed code is under [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
+ - [ ] The content of this Pull Request (the Contribution) is intentionally submitted for inclusion in SIRF (the Work) under the terms and conditions of the [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) License.
