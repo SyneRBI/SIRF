@@ -347,8 +347,8 @@ namespace sirf {
 		\ingroup MR
 		\brief Class for the product of backward and forward projectors of the MR acquisition model.
 
-		For a given GadgetronImageData object x, computes B(F(x)), where F(x) is the forward projection of x,
-		and B(y) is the backprojection of MRAcquisitionData object y.
+		For a given GadgetronImageData object x, computes A' A x (see the above comments on the
+		MR acquisition model operator A).
 		*/
 		class BFOperator : public Operator<GadgetronImageData> {
 		public:
@@ -389,6 +389,14 @@ namespace sirf {
 			this->set_up(sptr_ac, sptr_ic);
 		}
 		
+		/*!
+		\ingroup PET
+		\brief Method computing the norm of the MR acquisition model operator A.
+
+		Computes the norm of A as the square root of the largest eigenvalue of A' A
+		computed by a variant of Conjugate Gradient method adapted to the eigenvalue
+		computation (see JacobiCG.h for details).
+		*/
 		float norm()
 		{
 			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am

@@ -1193,6 +1193,8 @@ class AcquisitionModel(object):
         try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
             (self.handle, 'coil_sensitivity_maps', csm.handle))
     def norm(self):
+        '''Computes the norm of the forward projection operator.
+        '''
         assert self.handle is not None
         handle = pygadgetron.cGT_acquisitionModelNorm(self.handle)
         check_status(handle)
