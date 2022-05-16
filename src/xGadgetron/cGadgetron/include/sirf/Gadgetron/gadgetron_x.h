@@ -397,18 +397,18 @@ namespace sirf {
 		computed by a variant of Conjugate Gradient method adapted to the eigenvalue
 		computation (see JacobiCG.h for details).
 		*/
-		float norm()
+		float norm(int num_iter = 2, int verb = 0)
 		{
 			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am
 				(new MRAcquisitionModel(sptr_acqs_, sptr_imgs_, sptr_csms_, acqs_info_));
 
 			BFOperator bf(sptr_am);
 			JacobiCG<complex_float_t> jcg;
-			jcg.set_num_iterations(2);
+			jcg.set_num_iterations(num_iter);
 			gadgetron::unique_ptr<GadgetronImageData> sptr_id = sptr_imgs_->clone();
 			GadgetronImageData& image_data = *sptr_id;
 			image_data.fill(1.0);
-			float lmd = jcg.largest(bf, image_data);
+			float lmd = jcg.largest(bf, image_data, verb);
 			return std::sqrt(lmd);
 		}
 

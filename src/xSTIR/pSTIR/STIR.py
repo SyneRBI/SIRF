@@ -1507,7 +1507,7 @@ class AcquisitionModel(object):
         self.acq_templ = acq_templ
         self.img_templ = img_templ
 
-    def norm(self, subset_num=0, num_subsets=1):
+    def norm(self, subset_num=0, num_subsets=1, num_iter=2, verb=0):
         """Computes the norm of a part the linear operator S G.
 
         See the docstring for method forward for the desciption of
@@ -1515,7 +1515,7 @@ class AcquisitionModel(object):
         """
         assert self.handle is not None
         handle = pystir.cSTIR_acquisitionModelNorm \
-                 (self.handle, subset_num, num_subsets)
+                 (self.handle, subset_num, num_subsets, num_iter, verb)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)

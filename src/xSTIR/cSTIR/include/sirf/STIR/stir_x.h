@@ -383,16 +383,16 @@ The actual algorithm is described in
 		of the largest eigenvalue of G' S S G computed by a variant of Conjugate Gradient method
 		adapted to the eigenvalue computation (see JacobiCG.h for details).
 		*/
-		float norm(int subset_num = 0, int num_subsets = 1) const
+		float norm(int subset_num = 0, int num_subsets = 1, int num_iter = 2, int verb = 0) const
 		{
 			BFOperator bf(*this);
 			bf.set_subset(subset_num);
 			bf.set_num_subsets(num_subsets);
 			JacobiCG<float> jcg;
-			jcg.set_num_iterations(2);
+			jcg.set_num_iterations(num_iter);
 			STIRImageData image_data = *sptr_image_template_->clone();
 			image_data.fill(1.0);
-			float lmd = jcg.largest(bf, image_data);
+			float lmd = jcg.largest(bf, image_data, verb);
 			return std::sqrt(lmd);
 		}
 
