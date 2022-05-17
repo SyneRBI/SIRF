@@ -982,7 +982,7 @@ The actual algorithm is described in
 		void set_input_file(const char* filename) {
 			input_filename = filename;
 		}
-		void set_acquisition_data(std::shared_ptr<PETAcquisitionData> sptr)
+        void set_acquisition_data(std::shared_ptr<PETAcquisitionData> sptr)
 		{
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
@@ -1031,6 +1031,27 @@ The actual algorithm is described in
 
 	class xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF :
 		public stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF> {
+    public:
+        void set_acquisition_data_info(std::shared_ptr<PETAcquisitionData> sptr)
+        {
+            sptr_ad_ = sptr;
+            set_proj_data_info_sptr(sptr->data());
+        }
+        void set_acquisition_model(std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am)
+        {
+            sptr_am_ = sptr_am;
+            PETAcquisitionModelUsingMatrix& am = *sptr_am;
+//            auto sptr_asm = am.asm_sptr();
+            set_proj_matrix_bybin(am.matrix_sptr());
+        }
+        void set_cache_path(const char* filepath) {
+            recompute_cache = false;
+            reduce_memory_usage = true;
+            skip_balanced_subsets = true;
+        }
+    private:
+        std::shared_ptr<PETAcquisitionData> sptr_ad_;
+        std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am_;
 	};
 
 	class xSTIR_IterativeReconstruction3DF :

@@ -210,6 +210,11 @@ void* cSTIR_setParameter
 			return
 			cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(hs, name, hv);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+            return
+            cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+            (hs, name, hv);
 		else if (sirf::iequals(obj, "Reconstruction"))
 			return cSTIR_setReconstructionParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "IterativeReconstruction"))
@@ -260,11 +265,16 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_PLSPriorParameter(handle, name);
 		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
-		else if (sirf::iequals(obj,
-			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
-			return
-			cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
-			(handle, name);
+//		else if (sirf::iequals(obj,
+//            "PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+//			return
+//            cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+//			(handle, name);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
+            return
+            cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+            (handle, name);
 		else if (sirf::iequals(obj, "IterativeReconstruction"))
 			return cSTIR_iterativeReconstructionParameter(handle, name);
 		else if (sirf::iequals(obj, "OSMAPOSL"))

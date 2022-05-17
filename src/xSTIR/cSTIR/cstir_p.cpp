@@ -661,6 +661,29 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 }
 
 void*
+sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+    xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF&
+        obj_fun = objectFromHandle
+        <xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF>
+        (hp);
+    if (sirf::iequals(name, "cache_path"))
+        obj_fun.set_cache_path(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "acquisition_data")) {
+        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
+        obj_fun.set_acquisition_data_info(sptr_ad);
+    }
+    else if (sirf::iequals(name, "acquisition_model")) {
+        SPTR_FROM_HANDLE(PETAcquisitionModelUsingMatrix, sptr_pm, hv);
+        obj_fun.set_acquisition_model(sptr_pm);
+    }
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+    return new DataHandle;
+}
+
+void*
 sirf::cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 (const DataHandle* handle, const char* name)
 {

@@ -888,9 +888,16 @@ class ListmodeData(PETScanData):
         """
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+        print("Nikos1111")
         self.handle = pystir.cSTIR_objectFromFile('ListmodeData', filename)
         check_status(self.handle)
         self.read_only = True
+
+    def get_cache_path(self): 
+        return "Nikos"
+
+    def set_cache_path(self): 
+        print("NikosSEt")
 
 PETScanData.register(ListmodeData)
 
@@ -2466,6 +2473,22 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def set_cache_path(self, cp): 
+        ##assert_validity(am, )
+        parms.set_parameter(
+                self.handle, self.name, 'cache_path', cp.handle)
+    
+    def set_acquisition_data(self, ad): 
+        assert_validity(ad, AcquisitionData)
+        parms.set_parameter(
+                self.handle, self.name, 'acquisition_data', ad.handle)
+
+    def set_acquisition_model(self, am): 
+        assert_validity(am, AcquisitionModel)
+        parms.set_parameter(
+                self.handle, self.name, 'acquisition_model', am.handle)
+
+
 
 class Reconstructor(object):
     """Base class for a generic PET reconstructor."""
@@ -3109,6 +3132,8 @@ def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
             obj_fun.set_acquisition_data(acq_data)
     elif likelihood_type == 'LinearModelForMeanAndListModeDataWithProjMatrixByBin':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin()
+        if acq_data is not None: 
+            obj_fun.set_acquisition_data(acq_data)
     else:
         raise error('Poisson_loglikelihood of type ' + likelihood_type + \
                     ' is not implemented')
