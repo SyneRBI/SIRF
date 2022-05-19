@@ -1032,7 +1032,7 @@ The actual algorithm is described in
 	class xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF :
 		public stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF> {
     public:
-        void set_acquisition_data_info(std::shared_ptr<PETAcquisitionData> sptr)
+        void set_acquisition_data(std::shared_ptr<PETAcquisitionData> sptr)
         {
             sptr_ad_ = sptr;
             set_proj_data_info_sptr(sptr->data());
@@ -1040,19 +1040,27 @@ The actual algorithm is described in
         void set_acquisition_model(std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am)
         {
             sptr_am_ = sptr_am;
-            PETAcquisitionModelUsingMatrix& am = *sptr_am;
-//            auto sptr_asm = am.asm_sptr();
-            set_proj_matrix_bybin(am.matrix_sptr());
+            set_proj_matrix_bybin(sptr_am_->matrix_sptr());
+
         }
         void set_cache_path(const char* filepath) {
-            recompute_cache = false;
-            reduce_memory_usage = true;
-            skip_balanced_subsets = true;
+             stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
+                 set_cache_path(filepath);
+        }
+        void set_cache_max_size(const int arg){
+          stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
+              set_cache_max_size(arg);
+        }
+        long unsigned int get_cache_max_size(){
+          return stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
+              get_cache_max_size();
         }
     private:
         std::shared_ptr<PETAcquisitionData> sptr_ad_;
         std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am_;
-	};
+        };
+
+        typedef xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF PoissonLLhLinModMeanListDataProjMatBin3DF;
 
 	class xSTIR_IterativeReconstruction3DF :
 		public stir::IterativeReconstruction < Image3DF > {
@@ -1170,7 +1178,7 @@ The actual algorithm is described in
 		std::shared_ptr<STIRImageData> _sptr_image_data;
 	};
 
-	class xSTIR_SeparableGaussianImageFilter : 
+	class xSTIR_SeparableGaussianImageFilter :
 		public stir::SeparableGaussianImageFilter<float> {
 	public:
 		//stir::Succeeded set_up(const STIRImageData& id)

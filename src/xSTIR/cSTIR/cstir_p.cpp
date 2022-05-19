@@ -672,7 +672,7 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
         obj_fun.set_cache_path(charDataFromDataHandle(hv));
     else if (sirf::iequals(name, "acquisition_data")) {
         SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
-        obj_fun.set_acquisition_data_info(sptr_ad);
+        obj_fun.set_acquisition_data(sptr_ad);
     }
     else if (sirf::iequals(name, "acquisition_model")) {
         SPTR_FROM_HANDLE(PETAcquisitionModelUsingMatrix, sptr_pm, hv);
