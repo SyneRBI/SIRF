@@ -28,7 +28,7 @@ limitations under the License.
 
 #include <iostream>
 #include <cstdlib>
-
+#include "getenv.h"
 int test6();
 
 int main()
