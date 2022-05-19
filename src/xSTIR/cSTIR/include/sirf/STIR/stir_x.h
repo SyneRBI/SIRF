@@ -1043,9 +1043,9 @@ The actual algorithm is described in
             set_proj_matrix_bybin(sptr_am_->matrix_sptr());
 
         }
-        void set_cache_path(const char* filepath) {
+        void set_cache_path(const char* filepath, const bool has_additive_corrections) {
              stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
-                 set_cache_path(filepath);
+                 set_cache_path(filepath, has_additive_corrections);
         }
         void set_cache_max_size(const int arg){
           stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::

@@ -51,6 +51,8 @@ int test6()
 			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 			return 1;
 		}
+		std::string data_path = SIRF_path + "/data/examples/TBPET/";
+		fix_path_separator(data_path);
 
 		TextWriter w; // create writer with no output
 		TextWriterHandle h;
@@ -100,12 +102,19 @@ int test6()
 		am.set_num_tangential_LORs(12);
 		am.set_up(sptr_ad, sptr_id);
 
-		int num_LORs = am.get_num_tangential_LORs(); 
+		int num_LORs = am.get_num_tangential_LORs();
 		std::cout << "tangential LORs: " << num_LORs << std::endl;
-		
+
 		CREATE_OBJECT(ObjectiveFunction3DF,
 			      PoissonLLhLinModMeanListDataProjMatBin3DF,
 			      obj_fun, sptr_fun, );
+		//This will activate use of cache instead of input
+		std::cout << "Setting cache path..." << std::endl;
+		bool with_additive_corrections = true;
+		obj_fun.set_cache_path(cache_path.c_str(), with_additive_corrections);
+		std::cout << "Cache path: " << obj_fun.get_cache_path() << std::endl;
+		obj_fun.set_skip_lm_input_file(true);
+		obj_fun.set_skip_balanced_subsets(true);
 		// We need this because the cache file does not have any information on the Scanner.
 		std::cout << "Setting scanner template..." << std::endl;
 		obj_fun.set_acquisition_data(sptr_ad);
@@ -113,30 +122,34 @@ int test6()
 		obj_fun.set_acquisition_model(sptr_am);
 		std::cout << "Setting max ring diff. ..." << std::endl;
 		obj_fun.set_max_ring_difference(60);
-		//This will activate use of cache instead of input
-		std::cout << "Setting cache path..." << std::endl;
-		obj_fun.set_cache_path(cache_path.c_str());
-		std::cout << "Cache path: " << obj_fun.get_cache_path() << std::endl;
+
 		std::cout << "Sensitivity images: " << obj_fun.get_subsensitivity_filenames() << std::endl;
 		std::cout << "Setting max cache size ..." << std::endl;
 		obj_fun.set_cache_max_size(1500000000);
 		std::cout << "Max cache: " << obj_fun.get_cache_max_size() << std::endl;
 
 		int num_subiterations = 11;
+
 		xSTIR_OSMAPOSLReconstruction3DF recon;
-		recon.set_num_subsets(11);
+		recon.set_num_subsets(num_subiterations);
 		recon.set_num_subiterations(num_subiterations);
 		std::cout << "Setting objective function ..." << std::endl;
+
 		recon.set_objective_function_sptr(sptr_fun);
-		recon.set_input_data(sptr_ad->data());
+		recon.set_save_interval(1);
+		recon.set_output_filename_prefix(data_path + "/my_output");
 		std::cout <<  "Setting up the reconstruction, please wait ..." << std::endl;
 
 		Succeeded s = recon.set_up(sptr_id->data_sptr());
+		if (s == Succeeded::no)
+		  {
+		    fail = true;
+		    return fail;
+		  }
 		std::cout << "Reconstructor set up." << std::endl;
 
 		recon.subiteration() = recon.get_start_subiteration_num();
-		//for(int iter = 0; )
-
+		recon.reconstruct(sptr_id->data_sptr());
 
 		return fail;
 	}
