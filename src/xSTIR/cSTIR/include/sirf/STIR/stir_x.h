@@ -1035,12 +1035,12 @@ The actual algorithm is described in
         void set_acquisition_data(std::shared_ptr<PETAcquisitionData> sptr)
         {
             sptr_ad_ = sptr;
-            set_proj_data_info_sptr(sptr->data());
+            set_proj_data_info(*sptr->data());
         }
         void set_acquisition_model(std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am)
         {
             sptr_am_ = sptr_am;
-            set_proj_matrix_bybin(sptr_am_->matrix_sptr());
+            set_proj_matrix(sptr_am_->matrix_sptr());
 
         }
         void set_cache_path(const char* filepath, const bool has_additive_corrections) {
