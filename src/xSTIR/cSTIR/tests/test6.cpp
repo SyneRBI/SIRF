@@ -63,11 +63,10 @@ int test6()
 		bool fail = false;
 		size_t sinos, views;
 
-		std::string cache_path = "/autofs/space/celer_001/users/nikos/home/Data/UPENN_data/35x30_103139/60r500M/";
+		std::string cache_path = data_path;
 		std::string sens_filename = cache_path + "sens_0.hv";
 		std::string tmpl_projdata_filename =
-		    "/autofs/space/celer_001/users/nikos/home/Notebooks/SIRF-Exercises/data/working_folder/"
-		    "PET/TBP_reconstruction/template.hs";
+		    data_path + "/tmpl_scanner.hs";
 
 		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 			      acq_data, sptr_ad, tmpl_projdata_filename.c_str());
