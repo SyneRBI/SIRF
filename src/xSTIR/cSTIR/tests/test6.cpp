@@ -34,26 +34,12 @@ limitations under the License.
 
 #include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_x.h"
+#include "sirf/common/getenv.h"
 
-#include "getenv.h"
 #include "object.h"
 
 using namespace stir;
 using namespace sirf;
-/*
-bool file_exists(std::string filename)
-{
-	std::ifstream file;
-	file.open(filename.c_str());
-	if (file.good()) {
-		file.close();
-		return true;
-	}
-	return false;
-}*/
-
-//extern "C"
-//void openChannel(int channel, void* ptr_w);
 
 int test6()
 {
