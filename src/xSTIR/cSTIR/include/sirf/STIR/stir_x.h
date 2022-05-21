@@ -304,7 +304,7 @@ The actual algorithm is described in
 	PET acquisition model relates an image representation \e x to the
 	acquisition data representation \e y as
 
-	\f[ y = 1/n(G x + a) + b \f]
+	\f[ y = S(G x + a) + b \f]
 
 	where:
 	<list>
@@ -317,23 +317,23 @@ The actual algorithm is described in
 	the effects of noise and scattering; assumed to be 0 if not present;
 	</item>
 	<item>
-	\e n is an optional bin normalization term representing the inverse of
-	detector (bin) efficiencies; assumed to be 1 if not present.
+	\e S is an optional acquisition sensitivity term representing the effects of
+	detector (bin) efficiencies and attenuation.
 	</item>
 	</list>
 
 	The computation of \e y for a given \e x by the above formula is
 	referred to as forward projection, and the computation of
 
-	\f[ z = G' m y \f]
+	\f[ z = G' S y \f]
 
-	where \e G' is the transpose of \e G and \f$ m = 1/n \f$, is referred to as
+	where \e G' is the transpose of \e G, is referred to as
 	backward projection.
 
 	There is a possibility to add an ImageDataProcessor to the acquisition model. Calling this
 	\e P it extends the model to
 
-	\f[ y = 1/n(G P x + a) + b \f]
+	\f[ y = S(G P x + a) + b \f]
 
 	This can be used for instance to model resolution effects by first blurring the image.
 
@@ -348,8 +348,8 @@ The actual algorithm is described in
 		\ingroup PET
 		\brief Class for the product of backward and forward projectors of a PET acquisition model.
 
-		For a given STIRImageData object x, computes B(F(x)), where F(x) is the forward projection of x,
-		and B(y) is the backprojection of PETAcquisitionData object y.
+		For a given STIRImageData object x, computes B(F(x)), where F(x) is the linear part S G of
+		the forward projection of x, and B(y) is the backprojection of PETAcquisitionData object y.
 		*/
 		class BFOperator : public Operator<STIRImageData> {
 		public:
@@ -376,16 +376,24 @@ The actual algorithm is described in
 			int num_sub_ = 1;
 		};
 
-		float norm(int subset_num = 0, int num_subsets = 1) const
+		/*!
+		\ingroup PET
+		\brief Method computing the norm of the linear part S G of the PET acquisition model operator F.
+
+		Computes the norm of the linear part S G of the forward projection operator F as the square root
+		of the largest eigenvalue of G' S S G computed by a variant of Conjugate Gradient method
+		adapted to the eigenvalue computation (see JacobiCG.h for details).
+		*/
+		float norm(int subset_num = 0, int num_subsets = 1, int num_iter = 2, int verb = 0) const
 		{
 			BFOperator bf(*this);
 			bf.set_subset(subset_num);
 			bf.set_num_subsets(num_subsets);
 			JacobiCG<float> jcg;
-			jcg.set_num_iterations(2);
+			jcg.set_num_iterations(num_iter);
 			STIRImageData image_data = *sptr_image_template_->clone();
 			image_data.fill(1.0);
-			float lmd = jcg.largest(bf, image_data);
+			float lmd = jcg.largest(bf, image_data, verb);
 			return std::sqrt(lmd);
 		}
 
