@@ -74,7 +74,7 @@ if (NIFTYREG_BUILT_WITH_OPENCL)
 endif()
 
 # Add boost library dependencies
-target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)endif()
+target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
 
 # Link Matlab for SPM
 IF(SPM_FOUND)
