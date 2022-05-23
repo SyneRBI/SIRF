@@ -2478,20 +2478,20 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def set_cache_path(self, cp): 
-        ##assert_validity(am, )
-        parms.set_parameter(
-                self.handle, self.name, 'cache_path', cp.handle)
+    def set_cache_path(self, path, with_additive_corrections):
+        if with_additive_corrections:
+            arg = path + ', with'
+        else:
+            arg = path
+        parms.set_char_par(self.handle, self.name, 'cache_path', arg)
+
+    def get_cache_path(self):
+        return parms.char_par(self.handle, self.name, 'cache_path')
     
     def set_acquisition_data(self, ad): 
         assert_validity(ad, AcquisitionData)
         parms.set_parameter(
                 self.handle, self.name, 'acquisition_data', ad.handle)
-
-    def set_acquisition_model(self, am): 
-        assert_validity(am, AcquisitionModel)
-        parms.set_parameter(
-                self.handle, self.name, 'acquisition_model', am.handle)
 
 
 
