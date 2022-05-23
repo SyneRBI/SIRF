@@ -138,29 +138,29 @@ SignalAxisType SurrogateProcessor::linear_interpolate_signal(const TimeAxisType 
 	size_t const num_sig_points = this->signal_.size();
 	ASSERT(num_sig_points > 1, "You have at least two signal points before you interpolate between them.");
 
-	size_t first_bigger_thant_time_point=-1;
+	size_t first_bigger_than_time_point=-1;
 
 	for( size_t i=0; i<num_sig_points; i++)
 	{
 		if(this->signal_[i].first > time_point)
 		{
-			first_bigger_thant_time_point = i;
+			first_bigger_than_time_point = i;
 			break;
 		}
 	}
 
 	SignalAxisType interpol_signal;
 
-	if( first_bigger_thant_time_point == 0)
+	if( first_bigger_than_time_point == 0)
 		interpol_signal = this->signal_[0].second;
-	else if( first_bigger_thant_time_point == -1 )
+	else if( first_bigger_than_time_point == -1 )
 		interpol_signal = this->signal_[num_sig_points-1].second;
 	else
 	{
-		interpol_signal = signal_[first_bigger_thant_time_point-1].second + 
-							(time_point - signal_[first_bigger_thant_time_point-1].first )
-						   *(signal_[first_bigger_thant_time_point].second - signal_[first_bigger_thant_time_point-1].second)
-						   /(signal_[first_bigger_thant_time_point].first  - signal_[first_bigger_thant_time_point-1].first );
+		interpol_signal = signal_[first_bigger_than_time_point-1].second + 
+							(time_point - signal_[first_bigger_than_time_point-1].first )
+						   *(signal_[first_bigger_than_time_point].second - signal_[first_bigger_than_time_point-1].second)
+						   /(signal_[first_bigger_than_time_point].first  - signal_[first_bigger_than_time_point-1].first );
 	}
 
 	return interpol_signal;
@@ -184,7 +184,7 @@ TissueParameterList ContrastProcessor::get_interpolated_tissue_params(SignalAxis
 	for(size_t i=0; i< this->list_cont_var_labels_.size(); i++)
 	{
 		TissueParameter curr_par = ((1-signal) * this->tissue_parameter_extremes_.first + signal * this->tissue_parameter_extremes_.second);
-		curr_par.name_ = "";	// name info is lost unfortunately, but better than the wrong information
+		curr_par.name_ = "";	// name info is lost unfortunately
 		curr_par.label_ = this->list_cont_var_labels_[i];
 
 		tiss_list.push_back( curr_par);

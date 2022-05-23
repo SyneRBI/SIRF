@@ -57,31 +57,63 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 
 
+/*!
+\brief TIC units used in ISMRMRD Encoding.Idx.TimeMr in miliseconds  
+*/
 #define SIRF_SCANNER_MS_PER_TIC 2.5
 
-// time in seconds
-// signal normed to [0,1]
+/*!
+\brief Datatype used for the time axis of surrogate signals
+*/
 typedef float TimeAxisType;
+
+/*!
+\brief Datatype used for the signal axis of surrogate signals
+*/
 typedef float SignalAxisType;
 
-
+/*!
+\brief A signal bin consists of the triplet (lower border, centre, upper border)
+*/
 typedef std::tuple<SignalAxisType,SignalAxisType,SignalAxisType> SignalBin;
+
+/*!
+\brief Signal points of surrogate signals consist of a pair of (time,signal)
+*/
 typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint; 
+
+/*!
+\brief Container class used to store surrogate signals
+*/
 typedef std::vector< SignalPoint > SignalContainer;
 
-// typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContainer;
+/*!
+\brief A signal bin consists of the triplet (lower border, centre, upper border)
+*/
 typedef sirf::NiftiImageData3DDisplacement<float> MotionFieldType;
 
-
+/*!
+\brief Method to check if a signal point is inside a signal bin
+*/
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 
+/*!
+\brief The SIRF container class used to store MR acquisition data
+*/
 typedef sirf::AcquisitionsVector MRDataType;
 
-// data are taken from one_dat, just scan_counters are compared. Acquisitions from other_dat are not returned!
+
+/*!
+\brief Method to intersect two MRAcquisitionData containers by compaing the acquisition scan_coutners.
+
+Data are taken from one_dat, just scan_counters are compared. Acquisitions from other_dat are not returned!
+*/
 MRDataType intersect_mr_acquisition_data( const sirf::MRAcquisitionData& one_dat, const sirf::MRAcquisitionData& other_dat );
 
 
-
+/*!
+\brief Class to handle surrogate signals that are sets of points.
+*/
 class SurrogateProcessor{
 
 public:
@@ -105,7 +137,10 @@ public:
 			avg_signal += linear_interpolate_signal(timepoints[i]);
 		return avg_signal/timepoints.size();
 	}
-
+	/*!
+	\brief Linear interpolate the signal from the discrete points held in signal_ any timepoint.
+	Time points outside the time interval are extrapolated as constant. This assumes that the signal is sorted wrt. time points.
+	*/
 	SignalAxisType linear_interpolate_signal(const TimeAxisType time_point) const;
 
 private:
@@ -113,6 +148,10 @@ private:
 	SignalContainer signal_; 
 };
 
+
+/*!
+\brief Class to handle binning of surrogate signals.
+*/
 class BinProcessor{
 public:
 
@@ -165,6 +204,9 @@ public:
 		return cyclic_;
 	}
 
+	/*!
+	\brief Overlays the interval [0,1] with num_bins_ non-overlapping bins
+	*/
 	void set_bins( void ){
 
 		this->signal_bins_.clear();
@@ -173,9 +215,14 @@ public:
 					  : set_non_cyclic_bins(num_bins_);
 	}
 
-
 private:
+	/*!
+	\brief Applies bins where the 0th bin is centered around 0 and assumes a cyclic interval [0,1].
+	*/
 	void set_cyclic_bins( int const num_bins);
+	/*!
+	\brief Applies bins where the 0th bin is centered around 0.5*1/num_bins_. 
+	*/
 	void set_non_cyclic_bins( int const num_bins);
 
 	int num_bins_;
@@ -184,7 +231,11 @@ private:
 
 };
 
+/*!
+\brief Interface for simulated dynamic processes. 
 
+Dynamics are generally composed of a SurrogateProcessor and a BinProcessor and a SurrogateProcessor and expose their methods.
+*/
 class Dynamic{
 
 public:
@@ -215,6 +266,12 @@ public:
 		return this->sp_.linear_interpolate_signal(time_point);
 	}
 
+	/*!
+	\brief Function to compute average surrogate signal over the timepoints at which MR rawdata was acquired
+
+	The surrogate signal is interpolated linearly onto the timepoints at which the acquisitions were acquired.
+	This subtracts the minimum time for the acquisition data assuming the first acquisition was acquires at t=0 ms.
+	*/
 	virtual SignalAxisType get_average_surrogate_signal(const sirf::MRAcquisitionData& ad) const
 	{
 		std::vector<TimeAxisType> timepts;
@@ -237,7 +294,13 @@ protected:
 	BinProcessor bp_;
 };
 
+/*!
+\brief Class to handle relate the temporal change of tissue parameters to a surrogate signal.
 
+Two tissue parameters can be passes as extreme points that correspond to a surrogate signal of 0 and 1.
+E.g. two tissue parameters with different T1 due to inflow of a T1 contrast agent where 0 corresponds 
+to the native T1 and 1 corresponds to the maximum observed concentration.
+*/
 class ContrastProcessor {
 
 public:
@@ -248,6 +311,9 @@ public:
 	
 	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1);
 
+	/*!
+	/brief Add labels of a segmentation which behave identically (e.g. all labels containing blood)
+	*/
 	void add_dynamic_label(LabelType l) {
 		this->list_cont_var_labels_.push_back(l);
 	}
