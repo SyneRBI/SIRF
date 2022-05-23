@@ -29,11 +29,16 @@ limitations under the License.
 #include <iostream>
 #include <cstdlib>
 #include "getenv.h"
-int test6();
 
-int main()
+int test6(const char*);
+
+int main ( int argc, char* argv[])
 {
-	const int failed = test6();
+	if (argc < 2) {
+		std::cout << "Usage: cstir_test6 <data_path>\n";
+		return EXIT_FAILURE;
+	}
+	const int failed = test6(argv[1]);
 	std::cout << failed << " tests failed\n";
         
 	return failed==0 ? EXIT_SUCCESS : EXIT_FAILURE;

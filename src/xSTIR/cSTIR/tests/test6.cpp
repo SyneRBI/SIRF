@@ -41,17 +41,19 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
-int test6()
+int test6(const char* datapath)
 {
 	std::cout << "running test6.cpp...\n";
 
 	try {
-		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-		if (SIRF_path.length() < 1) {
-			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-			return 1;
-		}
-		std::string data_path = SIRF_path + "/data/examples/TBPET/";
+//		std::string SIRF_path = sirf::getenv("SIRF_PATH");
+//		if (SIRF_path.length() < 1) {
+//			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+//			return 1;
+//		}
+//		std::string data_path = SIRF_path + "/data/examples/TBPET/";
+		std::string data_path(datapath); 
+		data_path += "/";
 		fix_path_separator(data_path);
 
 		TextWriter w; // create writer with no output
@@ -66,7 +68,7 @@ int test6()
 		std::string cache_path = data_path;
 		std::string sens_filename = cache_path + "sens_0.hv";
 		std::string tmpl_projdata_filename =
-		    data_path + "/tmpl_scanner.hs";
+		    data_path + "tmpl_scanner.hs";
 
 		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 			      acq_data, sptr_ad, tmpl_projdata_filename.c_str());
