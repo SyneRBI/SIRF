@@ -1,4 +1,7 @@
 # ChangeLog
+## v3.4.0
+* added support for spiral trajectories that are pre-computed by the user by exposing a setter.
+
 ## v3.3.0
 
 * added SPECTUBMatrix for (simple) usage in SPECT
