@@ -133,12 +133,10 @@ public:
 	void add_dynamic( std::shared_ptr<MRContrastDynamic> sptr_contrast_dyn){
 		this->contrast_dynamics_.push_back(sptr_contrast_dyn);
 	} 
-
 	void add_dynamic( std::shared_ptr<ExternalMRContrastDynamic> sptr_ext_contrast_dyn){
 		this->external_contrast_.push_back(sptr_ext_contrast_dyn);
 	}
 
-	void simulate_statics( void );
 	void simulate_data( void );
 
 	void set_coilmaps(const std::shared_ptr<sirf::CoilSensitivitiesVector> sptr_csm)
@@ -184,7 +182,6 @@ private:
 	LinearCombiGenerator prepare_motion_information(void);
 
 	void update_tissue_parameters(TimeAxisType current_time_point);
-
 
 	void shift_time_start_to_zero( void );
 	void simulate_motion_dynamics( void );
