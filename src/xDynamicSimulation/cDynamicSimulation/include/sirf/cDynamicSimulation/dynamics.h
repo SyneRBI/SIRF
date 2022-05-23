@@ -295,11 +295,12 @@ protected:
 };
 
 /*!
-\brief Class to handle relate the temporal change of tissue parameters to a surrogate signal.
+\brief Class to handle the temporal change of tissue parameters to a surrogate signal.
 
 Two tissue parameters can be passes as extreme points that correspond to a surrogate signal of 0 and 1.
 E.g. two tissue parameters with different T1 due to inflow of a T1 contrast agent where 0 corresponds 
 to the native T1 and 1 corresponds to the maximum observed concentration.
+
 */
 class ContrastProcessor {
 
@@ -340,6 +341,9 @@ private:
 };
 
 
+/*!
+\brief Utility class to process displacement fields.
+*/
 class MotionProcessor {
 
 public:
@@ -374,8 +378,12 @@ public:
 	sirf::NiftiImageData3DDeformation<float> get_interpolated_deformation_field(const SignalAxisType signal, const bool cyclic) const;
 
 	void set_displacement_fields( const std::vector< MotionFieldType > &input_vectors);
+	
+	/*!
+	/brief Function to store motion fields in a temporary folder instead of keeping them in memory.
+	*/
 	void prep_displacement_fields( void );
-	// void align_motion_fields_with_image( const sirf::STIRImageData& img);
+	
 
 	void save_ground_truth_displacements( const std::vector< SignalAxisType >& gt_signal_points, const bool cyclic) const;
 
@@ -407,6 +415,10 @@ protected:
 
 	std::vector<MotionFieldType> displacement_fields_;
 };
+
+/*!
+\brief Interface class to define dynamic processes for the simulation of MR acquisition. 
+*/
 
 class MRDynamic : public Dynamic{
 
@@ -461,6 +473,9 @@ protected:
 	std::vector<std::deque<int> > idx_corr_;
 };
 
+/*!
+\brief Implementation of MR motion dynamic simulation. 
+*/
 
 class MRMotionDynamic : public MRDynamic{
 
@@ -500,6 +515,10 @@ public:
 		return mp_.get_interpolated_deformation_field(signal, bp_.is_cyclic());
 	}
 
+	/*!
+	\brief Computes the average motion state over the time of acuqisition. 
+	Subtracts the temporal offset i.e. assumes the first acquisition to be at t=0 ms
+	*/
 	sirf::NiftiImageData3DDeformation<float> get_average_deformation_field(const sirf::MRAcquisitionData& ad)
 	{
 		SignalAxisType const avg_sig = get_average_surrogate_signal(ad);
