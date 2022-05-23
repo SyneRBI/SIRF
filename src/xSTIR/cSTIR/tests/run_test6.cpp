@@ -32,13 +32,20 @@ limitations under the License.
 
 int test6(const char*);
 
-int main ( int argc, char* argv[])
+int main (int argc, char* argv[])
 {
+	std::string data_path;
 	if (argc < 2) {
-		std::cout << "Usage: cstir_test6 <data_path>\n";
-		return EXIT_FAILURE;
+		std::string SIRF_path = sirf::getenv("SIRF_PATH");
+		if (SIRF_path.length() < 1) {
+			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+			return 1;
+		}
+		data_path = SIRF_path + "/data/examples/TBPET/";
 	}
-	const int failed = test6(argv[1]);
+	else
+		data_path = argv[1];
+	const int failed = test6(data_path.c_str());
 	std::cout << failed << " tests failed\n";
         
 	return failed==0 ? EXIT_SUCCESS : EXIT_FAILURE;
