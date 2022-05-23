@@ -6,6 +6,35 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
+/*
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2018 - 2022 Physikalisch-Technische Bundesanstalt (PTB)
+
+This is software developed for the Collaborative Computational
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
+/*!
+\file
+\ingroup Simulation
+\brief Classes and utilities for handling dynamic processes in the simulation
+
+\author Johannes Mayer
+\author SyneRBI
+*/
+
 
 #pragma once
 
@@ -29,7 +58,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #define SIRF_SCANNER_MS_PER_TIC 2.5
-
 
 // time in seconds
 // signal normed to [0,1]
@@ -320,12 +348,12 @@ public:
 	MRDynamic(): Dynamic(){}
 	MRDynamic(unsigned int const num_simul_states): Dynamic(num_simul_states){}
 
-	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions(void) const
+	std::vector<MRDataType> get_binned_mr_acquisitions(void) const
 	{
 		return this->binned_mr_acquisitions_;
 	}
 
-	sirf::AcquisitionsVector get_binned_mr_acquisitions(unsigned int const bin_num) const
+	MRDataType get_binned_mr_acquisitions(unsigned int const bin_num) const
 	{
 		if(bin_num >= binned_mr_acquisitions_.size())
 			throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
@@ -335,7 +363,7 @@ public:
 
 	void clear_binning_data() 
 	{
-		std::vector<sirf::AcquisitionsVector> empty_acquis_vec;
+		std::vector<MRDataType> empty_acquis_vec;
 		binned_mr_acquisitions_.swap( empty_acquis_vec );
 		
 		std::vector<std::deque<int> > empty_idx_corr;
@@ -363,7 +391,7 @@ public:
 	virtual void bin_mr_acquisitions(sirf::MRAcquisitionData& all_acquisitions)=0;
 	
 protected:
-	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
+	std::vector<MRDataType> binned_mr_acquisitions_;
 	std::vector<std::deque<int> > idx_corr_;
 };
 
@@ -490,12 +518,12 @@ public:
 
 		all_acquisitions.sort_by_time();
 
-		vector<sirf::AcquisitionsVector>().swap(binned_mr_acquisitions_);
+		vector<MRDataType>().swap(binned_mr_acquisitions_);
 
 		ISMRMRD::Acquisition acq;
 		for(int i=0; i<all_acquisitions.number(); ++i)
 		{
-			sirf::AcquisitionsVector av(all_acquisitions.acquisitions_info());	
+			MRDataType av(all_acquisitions.acquisitions_info());	
 			all_acquisitions.get_acquisition(i, acq);
 			av.append_acquisition(acq);
 			binned_mr_acquisitions_.push_back(av);

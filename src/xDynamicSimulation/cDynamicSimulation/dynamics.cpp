@@ -48,7 +48,7 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 }
 
 // data are taken from one_dat, just scan_counters are compared
-AcquisitionsVector intersect_mr_acquisition_data( const MRAcquisitionData& one_dat, const MRAcquisitionData& other_dat)
+MRDataType intersect_mr_acquisition_data( const MRAcquisitionData& one_dat, const MRAcquisitionData& other_dat)
 {
 	typedef std::vector<uint32_t> CounterBox;
 
@@ -500,7 +500,7 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 	if(bp_.get_bins().size() == 1)
 	{
 		std::cout << "We have only one bin, we take all the acquisitions" << std::endl;
-		AcquisitionsVector av(all_acquisitions.acquisitions_info());
+		MRDataType av(all_acquisitions.acquisitions_info());
 		ISMRMRD::Acquisition acq;
 		for(int i=0; i<all_acquisitions.number(); ++i)
 		{
@@ -538,7 +538,7 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 		
 		auto bin = signal_bins[i_bin];
 	
-		AcquisitionsVector curr_acq_vector;
+		MRDataType curr_acq_vector;
 		curr_acq_vector.copy_acquisitions_info(all_acquisitions);
 		
 		acq_not_binned.clear();
@@ -605,7 +605,7 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 
 		stop_index = ( index_lims[i_bin] < num_acquis ) ? index_lims[i_bin] : num_acquis;
 
-		sirf::AcquisitionsVector av;
+		MRDataType av;
 		av.copy_acquisitions_info(all_acquisitions);
 
 		for(size_t i=start_index; i<stop_index; i++)
