@@ -46,12 +46,6 @@ int test6(const char* datapath)
 	std::cout << "running test6.cpp...\n";
 
 	try {
-//		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-//		if (SIRF_path.length() < 1) {
-//			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-//			return 1;
-//		}
-//		std::string data_path = SIRF_path + "/data/examples/TBPET/";
 		std::string data_path(datapath); 
 		data_path += "/";
 		fix_path_separator(data_path);
@@ -60,10 +54,7 @@ int test6(const char* datapath)
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
 
-		bool ok;
 		int dim[10];
-		bool fail = false;
-		size_t sinos, views;
 
 		std::string cache_path = data_path;
 		std::string sens_filename = cache_path + "sens_0.hv";
@@ -72,9 +63,6 @@ int test6(const char* datapath)
 
 		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 			      acq_data, sptr_ad, tmpl_projdata_filename.c_str());
-
-		sinos = acq_data.get_num_sinograms();
-		views = acq_data.get_num_views();
 
 		PETAcquisitionDataInMemory::set_as_template();
 
@@ -86,29 +74,9 @@ int test6(const char* datapath)
 			<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
 		image_data.fill(1.0);
 
-		const VoxelisedGeometricalInfo3D &geom_info = *image_data.get_geom_info_sptr();
-		const VoxelisedGeometricalInfo3D &geom_info_copy = *image_data.get_geom_info_sptr();
-		std::cout << geom_info.get_info().c_str();
-		ok = (geom_info == geom_info_copy);
-
-
-		if (ok)
-		  std::cout << "== ok\n";
-		else
-		  std::cout << "== failed\n";
-		fail = fail || !ok;
-
-		CREATE_OBJECT(PETAcquisitionModelUsingMatrix, PETAcquisitionModelUsingRayTracingMatrix,
-			      am, sptr_am,);
-		am.set_num_tangential_LORs(12);
-		am.set_up(sptr_ad, sptr_id);
-
-		int num_LORs = am.get_num_tangential_LORs();
-		std::cout << "tangential LORs: " << num_LORs << std::endl;
-
 		CREATE_OBJECT(ObjectiveFunction3DF,
 			      PoissonLLhLinModMeanListDataProjMatBin3DF,
-			      obj_fun, sptr_fun, );
+			      obj_fun, sptr_fun,);
 		//This will activate use of cache instead of input
 		std::cout << "Setting cache path..." << std::endl;
 		bool with_additive_corrections = true;
@@ -119,8 +87,6 @@ int test6(const char* datapath)
 		// We need this because the cache file does not have any information on the Scanner.
 		std::cout << "Setting scanner template..." << std::endl;
 		obj_fun.set_acquisition_data(sptr_ad);
-		std::cout << "Setting acquisition model..." << std::endl;
-		obj_fun.set_acquisition_model(sptr_am);
 		std::cout << "Setting max ring diff. ..." << std::endl;
 		obj_fun.set_max_ring_difference(60);
 
@@ -143,16 +109,13 @@ int test6(const char* datapath)
 
 		Succeeded s = recon.set_up(sptr_id->data_sptr());
 		if (s == Succeeded::no)
-		  {
-		    fail = true;
-		    return fail;
-		  }
+			return 1;
 		std::cout << "Reconstructor set up." << std::endl;
 
 		recon.subiteration() = recon.get_start_subiteration_num();
 		recon.reconstruct(sptr_id->data_sptr());
 
-		return fail;
+		return 0;
 	}
 	catch (const std::exception &error) {
 		std::cerr << "\nException thrown:\n\t" << error.what() << "\n\n";
