@@ -214,7 +214,7 @@ public:
     std::string get_keyword(std::string &line)
     {
         // get index of the ":="
-        int index_end = line.find(":=");
+        auto index_end = line.find(":=");
 
         std::string keyword = line.substr(0, index_end);
 

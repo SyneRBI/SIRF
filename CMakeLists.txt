@@ -58,7 +58,12 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 set(SIRF_VERSION
   ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" WIN32)
+if (WIN32)
+  set (DEFAULT_SIRF_INSTALL_DEPENDENCIES ON)
+else()
+  set (DEFAULT_SIRF_INSTALL_DEPENDENCIES OFF)
+endif()
+option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" ${DEFAULT_SIRF_INSTALL_DEPENDENCIES})
 ####### CMake path
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -76,7 +81,7 @@ endif(APPLE)
 # If OSX, we might need to assume pthreads. For this, first try to find boost_thread.
 # If that fails, then give a bit of help.
 if (APPLE)
-  find_package(Boost COMPONENTS thread QUIET)
+  find_package(Boost QUIET COMPONENTS thread)
   if (NOT boost_thread_FOUND)
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
     set(CMAKE_HAVE_THREADS_LIBRARY 1)
@@ -86,11 +91,19 @@ if (APPLE)
   endif()
 endif()
 
+if (WIN32)
+  # Enable secure versions of standard C functions such as sprintf etc
+  # this will cause a run-time error when overwriting memory etc
+  add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
+  # This still leaves a lot of warnings about sscanf etc, so we'll silence them all for now
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
 ####### External packages
 
 #### we need the boost library from boost.org
 set(BOOST_ROOT CACHE PATH "root of Boost")
-find_package(Boost 1.36.0 COMPONENTS system filesystem thread date_time chrono REQUIRED)
+find_package(Boost 1.36.0 REQUIRED COMPONENTS system filesystem thread date_time chrono)
 # For Visual Studio we have to disable the auto-linking feature of boost
 # where just including a boost file automatically adds it to the linker path.
 # Although this sounds great, it sadly breaks because of conflicting file-paths when linking etc etc.
@@ -163,7 +176,7 @@ if (DISABLE_Matlab)
   message(STATUS "Matlab support disabled")
 else(DISABLE_Matlab)
 
-  FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
+  find_package(Matlab QUIET COMPONENTS MAIN_PROGRAM)
   if (NOT Matlab_FOUND)
     message(WARNING "MATLAB not found. Set Matlab_ROOT_DIR if you want it. Set DISABLE_Matlab to ON to silence this warning.")
   else()
@@ -202,7 +215,7 @@ if (CMAKE_VERSION VERSION_LESS 3.21.0)
   #
   # Note that this is slightly dangerous if there are multiple versions of HDF5 on the system.
   # ISMRMRD and STIR might be looking for a specific version while the statement below doesn't.
-  find_package(HDF5 COMPONENTS C CXX QUIET)
+  find_package(HDF5 QUIET COMPONENTS C CXX)
 endif()
 
 ADD_SUBDIRECTORY(src)

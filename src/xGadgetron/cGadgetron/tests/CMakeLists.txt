@@ -1,6 +1,9 @@
 #========================================================================
 # Author: Johannes Mayer
-# Copyright 2016 - 2020 University College London
+# Author: Kris Thielemans
+# Author: Edoardo Pasca
+# Copyright 2016 - 2020, 2022 University College London
+# Copyright 2021, 2022 Science Technology Facilities Council
 # Copyright 2020-2022 Physikalisch-Technische Bundesanstalt Berlin
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +52,6 @@ target_link_libraries(MR_TESTS_CPP_AUXILIARY PUBLIC csirf cgadgetron)
 
 add_executable(MR_PROCESS_TESTDATA ${CMAKE_CURRENT_SOURCE_DIR}/mrtests_prep_testdata.cpp)
 target_link_libraries(MR_PROCESS_TESTDATA PUBLIC MR_TESTS_CPP_AUXILIARY csirf cgadgetron)
-set(MR_PROCESS_TESTDATA_EXE "$<TARGET_FILE:MR_PROCESS_TESTDATA>")
 
 if(RUN_ISMRMRD_SHEPP_LOGAN)
   if(EXE_ISMRMRD_SL)
@@ -63,8 +65,73 @@ if(RUN_ISMRMRD_SHEPP_LOGAN)
     set(TESTDATA_TEMP_FILES
       "${TESTDATA_TEMP_PREFIX}_1.h5"
       "${TESTDATA_TEMP_PREFIX}_2.h5")
-    # this pre-processing step calls an executable MR_PROCESS_TESTDATA which fills a
+
+    # We will first execute ismrmrd_generate_cartesian_shepp_logan, followed
+    # by a processing step calling an executable MR_PROCESS_TESTDATA which fills a
     # default geometry orientation into the MR acquisitions to suppress warnings.
+
+    # Sadly, this is complicated as these executables probably depend on shared
+    # libraries. Their locations need to be given to the OS when running the executables.
+    # This might have been done before calling CMake, but we are not sure.
+    # So, we will try to determine/guess their locations.
+    if (CMAKE_VERSION VERSION_LESS 3.20.0)
+      message(STATUS "CMAKE_VERSION less than 3.20. Hopefully ISMRMRD shared library is in the same location as where we will install SIRF")
+      # (or is already found by the OS)
+      set (LIBRTPATH ${CMAKE_INSTALL_PREFIX}/lib)
+    else()
+      # We need ISMRMRD, Boost, HDF5 and FFTW libraries...
+      # We will try to find locations based on corresponding variables.
+
+      # separator used in path variables is different on Windows and elsewhere
+      if (WIN32)
+        set(PATHSEP ";")
+      else()
+        set(PATHSEP ":")
+      endif()
+
+      if (WIN32)
+        cmake_path(REMOVE_FILENAME EXE_ISMRMRD_SL OUTPUT_VARIABLE ISMRMRDPATH)
+      else()
+        get_target_property(ISMRDRDCONFIGS ISMRMRD::ISMRMRD IMPORTED_CONFIGURATIONS)
+        list(GET ISMRDRDCONFIGS 0 ISMRDRDCONFIG)
+        get_target_property(ISMRMRDPATH ISMRMRD::ISMRMRD IMPORTED_LOCATION_${ISMRDRDCONFIG})
+        cmake_path(REMOVE_FILENAME ISMRMRDPATH OUTPUT_VARIABLE ISMRMRDPATH)
+        message(STATUS "ISMRMRD shared library location: ${ISMRMRDPATH}")
+      endif()
+
+      # Sadly, naming of HDF5 variables is quite unpredictable, so we try a few.
+      if (HDF5_C_LIBRARY)
+        cmake_path(REMOVE_FILENAME HDF5_C_LIBRARY OUTPUT_VARIABLE HDF5PATH)
+      elseif (HDF5_hdf5_cpp_LIBRARY_RELEASE)
+        cmake_path(REMOVE_FILENAME HDF5_hdf5_cpp_LIBRARY_RELEASE OUTPUT_VARIABLE HDF5PATH)
+      endif()
+      if (WIN32 AND HDF5PATH)
+        # Guess the location of the HDF5 DLL from the .lib.
+        set (HDF5PATH "${HDF5PATH}/../bin")
+      endif()
+      #message(STATUS HDF5PATH=${HDF5PATH})
+
+      if (FFTW3_LIBRARY)
+        cmake_path(REMOVE_FILENAME FFTW3_LIBRARY OUTPUT_VARIABLE FFTWPATH)
+      elseif(FFTW3F_LIBRARY)
+        cmake_path(REMOVE_FILENAME FFTW3F_LIBRARY OUTPUT_VARIABLE FFTWPATH)
+      endif()
+
+      set(LIBRTPATH "${CMAKE_INSTALL_PREFIX}/lib${PATHSEP}${ISMRMRDPATH}${PATHSEP}${Boost_LIBRARY_DIR_RELEASE}${PATHSEP}${FFTWPATH}${PATHSEP}${HDF5PATH}")
+    endif()
+    message(STATUS "path for finding shared libs/DLLs when generating MR data: ${LIBRTPATH}")
+
+    # Now create a variable that sets the respective variable
+    if (WIN32)
+      # On Windows, we need to set the path.
+      set (envarg "path=${LIBRTPATH};$ENV{Path}")
+    elseif (APPLE)
+      # On MacOS, we set DYLD_LIBRARY_PATH
+      set (envarg "DYLD_LIBRARY_PATH=${LIBRTPATH}:$ENV{DYLD_LIBRARY_PATH}")
+    else() 
+      # On Linux, we set LD_LIBRARY_PATH
+      set (envarg "LD_LIBRARY_PATH=${LIBRTPATH}:$ENV{LD_LIBRARY_PATH}")
+    endif()
 
     # rm has been added in CMake 3.17
     if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.17")
@@ -72,14 +139,17 @@ if(RUN_ISMRMRD_SHEPP_LOGAN)
     else()
       set(RM remove)
     endif()
+
+    # Finally, add the custom target that will create the files
     add_custom_target(GENERATE_SIMULATED_TESTDATA ALL
       COMMAND ${CMAKE_COMMAND} -E ${RM} -f ${TESTDATA_OUTPUT_FILES} ${TESTDATA_TEMP_FILES}
-      COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -r 2 -o "${TESTDATA_TEMP_PREFIX}_1.h5"
-      COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${EXE_ISMRMRD_SL} -w 64 -a 2 -o "${TESTDATA_TEMP_PREFIX}_2.h5"
-      COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${MR_PROCESS_TESTDATA_EXE} "${TESTDATA_TEMP_PREFIX}_1.h5" ${TESTDATA_OUTPUT_NAME_FULL}
-      COMMAND ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:$ENV{LD_LIBRARY_PATH} ${MR_PROCESS_TESTDATA_EXE} "${TESTDATA_TEMP_PREFIX}_2.h5" ${TESTDATA_OUTPUT_NAME_GRAPPA}
+      COMMAND ${CMAKE_COMMAND} -E env "${envarg}" ${EXE_ISMRMRD_SL} -r 2 -o "${TESTDATA_TEMP_PREFIX}_1.h5"
+      COMMAND ${CMAKE_COMMAND} -E env "${envarg}" ${EXE_ISMRMRD_SL} -w 64 -a 2 -o "${TESTDATA_TEMP_PREFIX}_2.h5"
+      COMMAND ${CMAKE_COMMAND} -E env "${envarg}" $<TARGET_FILE:MR_PROCESS_TESTDATA> "${TESTDATA_TEMP_PREFIX}_1.h5" ${TESTDATA_OUTPUT_NAME_FULL}
+      COMMAND ${CMAKE_COMMAND} -E env "${envarg}" $<TARGET_FILE:MR_PROCESS_TESTDATA> "${TESTDATA_TEMP_PREFIX}_2.h5" ${TESTDATA_OUTPUT_NAME_GRAPPA}
       COMMAND ${CMAKE_COMMAND} -E ${RM} -f ${TESTDATA_TEMP_FILES}
       WORKING_DIRECTORY ${TESTDATA_OUTPUT_PATH})
+
     # adding a dependency of PROCESS_SIMULATED_TESTDATA on MR_PROCESS_TESTDATA ensures the
     # executable is built before it is called by the custom target.
     add_dependencies(GENERATE_SIMULATED_TESTDATA MR_PROCESS_TESTDATA)
@@ -88,7 +158,7 @@ if(RUN_ISMRMRD_SHEPP_LOGAN)
     message(FATAL_ERROR "We could not find the ismrmrd_generate_cartesian_shepp_logan executable. Either set the corresponding variable EXE_ISMRMRD_SL=<path_to>ismrmrd_generate_cartesian_shepp_logan_executable, or disable the generation of the Shepp Logan phantom by setting RUN_ISMRMRD_SHEPP_LOGAN=OFF" )
   endif()
 else()
-    # do nothing but add target as it will be a dependence later
+    # do nothing but add target as it will be a dependency later
     add_custom_target(GENERATE_SIMULATED_TESTDATA ALL COMMAND "")
   message(WARNING "Will not run the Shepp Logan Generation." )
 endif()

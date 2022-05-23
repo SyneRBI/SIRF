@@ -1,4 +1,9 @@
 # ChangeLog
+## v3.3.0
+
+* added SPECTUBMatrix for (simple) usage in SPECT
+
+* removed interactive Python demos superseded by SIRF-Exercises notebooks
 
 ## v3.2.0
 

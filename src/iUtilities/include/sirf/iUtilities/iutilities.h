@@ -24,6 +24,7 @@ limitations under the License.
 #ifndef IUTILITIES_FOR_MATLAB
 extern "C" {
 #endif
+	int intBits();
 	void* newDataHandle();
 	void deleteDataHandle(void* ptr);
 	void* charDataHandle(const char* s);

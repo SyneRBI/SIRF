@@ -37,6 +37,7 @@ from deprecation import deprecated
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, label_and_name, \
      name_and_parameters, parse_arglist, \
+     cpp_int_dtype, \
      examples_data_path, existing_filepath, \
      pTest, RE_PYEXT
 import sirf
@@ -405,7 +406,7 @@ class ImageData(SIRF.ImageData):
         if self.number() < 1:
             return 0
         assert self.handle is not None
-        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        dim = numpy.ndarray((4,), dtype=cpp_int_dtype())
         image = Image(self)
         pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
         nx = dim[0]
@@ -921,7 +922,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         subset = AcquisitionData()
-        idx = numpy.array(idx, dtype = numpy.int32)
+        idx = numpy.array(idx, dtype = cpp_int_dtype())
         subset.handle = pygadgetron.cGT_getAcquisitionsSubset(self.handle, idx.ctypes.data, idx.size)
         check_status(subset.handle)
         
@@ -967,11 +968,10 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         if self.number() < 1:
-            return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
-        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
+            return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
+        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
         hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
-        #nr = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
@@ -1000,7 +1000,7 @@ class AcquisitionData(DataContainer):
             na = len(rng)
         f = min(rng)
         t = max(rng) + 1
-        info = numpy.ndarray((2,), dtype=numpy.int32)
+        info = numpy.ndarray((2,), dtype=cpp_int_dtype())
         try_calling(pygadgetron.cGT_acquisitionParameterInfo \
                     (self.handle, par, info.ctypes.data))
         n = int(info[1])
@@ -1198,9 +1198,11 @@ class AcquisitionModel(object):
         assert_validity(csm, CoilSensitivityData)
         try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
             (self.handle, 'coil_sensitivity_maps', csm.handle))
-    def norm(self):
+    def norm(self, num_iter=2, verb=0):
+        '''Computes the norm of the forward projection operator.
+        '''
         assert self.handle is not None
-        handle = pygadgetron.cGT_acquisitionModelNorm(self.handle)
+        handle = pygadgetron.cGT_acquisitionModelNorm(self.handle, num_iter, verb)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)

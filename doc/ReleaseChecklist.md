@@ -1,7 +1,7 @@
 ## Release Checklist
 Set version variable of the release for further steps, e.g. using the format
 ```
-VER=2.2.0-rc.1
+VER=3.2.0-rc.1
 ```
 
 1. Submodules (within SIRF)
@@ -12,7 +12,7 @@ VER=2.2.0-rc.1
 2. SIRF
   - [ ] update `CHANGES.md`
   - [ ] update `NOTICE.txt`
-  - [ ] update `.zenodo.json`
+  - [ ] update `CITATION.cff`
   - [ ] update version numbers in [SIRF/CMakeLists.txt](https://github.com/SyneRBI/SIRF/blob/master/CMakeLists.txt)
   - [ ] update version numbers in the [doc/UsersGuide.md](https://github.com/SyneRBI/SIRF/blob/master/doc/UserGuide.md) etc
   - [ ] run all demos
@@ -26,8 +26,10 @@ VER=2.2.0-rc.1
 3. SuperBuild
   - [ ] update `CHANGES.md`
   - [ ] update `NOTICE.txt`
-  - [ ] update `.zenodo.json`
+  - [ ] update `CITATION.cff`
   - [ ] update `SIRF-Superbuild/version_config.cmake` with new `SIRF_TAG` (and `STIR_TAG` etc if necessary)
+  - [ ] update version number in [VM_version.txt](https://github.com/SyneRBI/SyneRBI_VM/blob/master/VM_version.txt)
+  - [ ] update `vb.name` in [vagrant/vagrantfile](https://github.com/SyneRBI/SyneRBI_VM/blob/master/vagrant/Vagrantfile)
   - [ ] `git push`
   - [ ] check Travis
   - [ ] `git tag -a v$VER -m "version $VER"`
@@ -37,11 +39,6 @@ VER=2.2.0-rc.1
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
 5. Virtual Machine
-  - [ ] update version number in [VM_version.txt](https://github.com/SyneRBI/SyneRBI_VM/blob/master/VM_version.txt)
-  - [ ] update `vb.name` in [vagrant/vagrantfile](https://github.com/SyneRBI/SyneRBI_VM/blob/master/vagrant/Vagrantfile)
-  - [ ] update `CHANGES.md`
-  - [ ] update `NOTICE.txt`
-  - [ ] `git push`
   - [ ] `vagrant up`
   - [ ] Virtualbox Guest Additions
   - [ ] run `first_run.sh` script (gnome settings and zero-fill trick)
@@ -51,9 +48,7 @@ VER=2.2.0-rc.1
   - [ ] run all exercises (download data first)
   - [ ] upload to Zenodo
         * use name like `SIRF 2.2.0.ova` (with space) as Zenodo uses alphabetical ordering probably, add `-release-candidate-1` if necessary (as most people will not know what `rc1` means).
-  - [ ] `git tag -a v$VER -m "version $VER"`
-  - [ ] `git push origin v$VER`
-5. SIRF-Exercises (already checked in VM)
+6. SIRF-Exercises (already checked in VM)
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
 7. Website (if final release)
@@ -63,10 +58,8 @@ VER=2.2.0-rc.1
   - [ ] add news flash
 8. Announce
   - [ ] Send email to SyneRBI-DEVEL@JISCMAIL.AC.UK; SyneRBI-USERS@JISCMAIL.AC.UK; add SyneRBI@JISCMAIL.AC.UK for final release
-9. Tag wikis
+9. Tag wiki
   - [ ] `git clone https://github.com/SyneRBI/SIRF.wiki.git; cd SIRF.wiki` (or pull)
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
-  - [ ] `git clone https://github.com/SyneRBI/SyneRBI_VM.wiki.git; cd SyneRBI_VM.wiki` (or pull)
-  - [ ] `git tag -a v$VER -m "version $VER"`
-  - [ ] `git push origin v$VER`
+ 
