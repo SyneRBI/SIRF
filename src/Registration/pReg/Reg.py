@@ -162,8 +162,9 @@ class NiftiImageData(SIRF.ImageData):
             self.handle = pyreg.cReg_objectFromFile(self.name, src)
         elif isinstance(src, SIRF.ImageData):
             # src is ImageData
+            dim = src.dimensions()
             self.handle = pyreg.cReg_NiftiImageData_from_SIRFImageData(
-                src.handle, 0)
+                src.handle, int(dim[0] > 1))
         else:
             raise error('Wrong source in NiftiImageData constructor')
         check_status(self.handle)

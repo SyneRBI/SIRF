@@ -173,7 +173,7 @@ def main():
         show_2D_array('Forward projection (subset 0)', simulated_data_as_array[0,0,:,:])
 
     print('\n--- Computing the norm of the linear part A of acquisition model...')
-    acqm_norm = acq_model.norm()
+    acqm_norm = acq_model.norm(num_iter=10, verb=1)
     image_norm = image.norm()
     acqd_norm = simulated_data.norm()
     print('\n--- The computed norm is |A| = %f, checking...' % acqm_norm)

@@ -414,11 +414,11 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 }
 
 extern "C"
-void* cGT_acquisitionModelNorm(void* ptr_am)
+void* cGT_acquisitionModelNorm(void* ptr_am, int num_iter, int verb)
 {
 	try {
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(ptr_am);
-		return dataHandle(am.norm());
+		return dataHandle(am.norm(num_iter, verb));
 	}
 	CATCH;
 }
