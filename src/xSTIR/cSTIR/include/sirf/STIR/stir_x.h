@@ -1051,18 +1051,18 @@ The actual algorithm is described in
             set_proj_matrix(sptr_am_->matrix_sptr());
 
         }
-        void set_cache_path(const char* filepath, const bool has_additive_corrections) {
-             stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
-                 set_cache_path(filepath, has_additive_corrections);
-        }
-        void set_cache_max_size(const int arg){
-          stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
-              set_cache_max_size(arg);
-        }
-        long unsigned int get_cache_max_size(){
-          return stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
-              get_cache_max_size();
-        }
+//        void set_cache_path(const char* filepath, const bool has_additive_corrections) {
+//             stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
+//                 set_cache_path(filepath, has_additive_corrections);
+//        }
+//        void set_cache_max_size(const int arg){
+//          stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
+//              set_cache_max_size(arg);
+//        }
+//        long unsigned int get_cache_max_size(){
+//          return stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
+//              get_cache_max_size();
+//        }
     private:
         std::shared_ptr<PETAcquisitionData> sptr_ad_;
         std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am_;

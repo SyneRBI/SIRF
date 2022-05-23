@@ -137,6 +137,10 @@ namespace sirf {
         cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
         (DataHandle* hp, const char* name, const DataHandle* hv);
 
+    void*
+        cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+        (DataHandle* handle, const char* name);
+
 	void*
 		cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		(const DataHandle* handle, const char* name);

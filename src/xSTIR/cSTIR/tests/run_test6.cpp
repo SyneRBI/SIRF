@@ -41,7 +41,7 @@ int main (int argc, char* argv[])
 			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 			return 1;
 		}
-		data_path = SIRF_path + "/data/examples/TBPET/";
+		data_path = SIRF_path + "/data/examples/TBPET";
 	}
 	else
 		data_path = argv[1];

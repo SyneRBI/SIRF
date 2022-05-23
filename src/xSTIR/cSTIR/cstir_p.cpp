@@ -39,6 +39,9 @@ using namespace sirf;
 extern "C"
 char* charDataFromHandle(const void* ptr);
 
+extern "C"
+void* charDataHandle(const char* ptr);
+
 static void*
 handle_error(const std::string& error_string, const char* file, int line) 
 {
@@ -668,15 +671,33 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
         obj_fun = objectFromHandle
         <xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF>
         (hp);
-//    if (sirf::iequals(name, "cache_path"))
-//        obj_fun.set_cache_path(charDataFromDataHandle(hv));
+    if (sirf::iequals(name, "cache_path")) {
+        std::string s(charDataFromDataHandle(hv));
+        auto found = s.find(",");
+        if (found == std::string::npos)
+            obj_fun.set_cache_path(s, false);
+        else
+            obj_fun.set_cache_path(s.substr(found), true);
+    }
     if (sirf::iequals(name, "acquisition_data")) {
         SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
         obj_fun.set_acquisition_data(sptr_ad);
     }
-    else if (sirf::iequals(name, "acquisition_model")) {
-        SPTR_FROM_HANDLE(PETAcquisitionModelUsingMatrix, sptr_pm, hv);
-        obj_fun.set_acquisition_model(sptr_pm);
+//    else if (sirf::iequals(name, "acquisition_model")) {
+//        SPTR_FROM_HANDLE(PETAcquisitionModelUsingMatrix, sptr_pm, hv);
+//        obj_fun.set_acquisition_model(sptr_pm);
+//    }
+    else if (sirf::iequals(name, "skip_lm_input_file")) {
+        obj_fun.set_skip_lm_input_file(dataFromHandle<int>(hv));
+    }
+    else if (sirf::iequals(name, "skip_balanced_subsets")) {
+        obj_fun.set_skip_balanced_subsets(dataFromHandle<int>(hv));
+    }
+    else if (sirf::iequals(name, "max_ring_difference")) {
+        obj_fun.set_max_ring_difference(dataFromHandle<int>(hv));
+    }
+    else if (sirf::iequals(name, "cache_max_size")) {
+        obj_fun.set_cache_max_size(dataFromHandle<int>(hv));
     }
     else
         return parameterNotFound(name, __FILE__, __LINE__);
@@ -696,6 +717,23 @@ sirf::cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 	if (sirf::iequals(name, "acquisition_model"))
 		return newObjectHandle(obj_fun.acquisition_model_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+sirf::cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+(DataHandle* handle, const char* name)
+{
+    xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF&
+        obj_fun = objectFromHandle
+        <xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF>
+        (handle);
+    if (sirf::iequals(name, "cache_path"))
+        return charDataHandle(obj_fun.get_cache_path().c_str());
+    if (sirf::iequals(name, "cache_max_size"))
+        return dataHandle<int>(obj_fun.get_cache_max_size());
+    if (sirf::iequals(name, "subsensitivity_filenames"))
+        return charDataHandle(obj_fun.get_subsensitivity_filenames().c_str());
+    return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 void*

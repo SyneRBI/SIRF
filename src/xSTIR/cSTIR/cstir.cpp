@@ -265,11 +265,11 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_PLSPriorParameter(handle, name);
 		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
-//		else if (sirf::iequals(obj,
-//            "PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
-//			return
-//            cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
-//			(handle, name);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+            return
+            cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+            (handle, name);
         else if (sirf::iequals(obj,
             "PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
             return
