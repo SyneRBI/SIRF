@@ -2493,6 +2493,29 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
         parms.set_parameter(
                 self.handle, self.name, 'acquisition_data', ad.handle)
 
+    def set_skip_lm_input_file(self, tf):
+        flag = 1 if tf else 0
+        parms.set_int_par(
+                self.handle, self.name, 'skip_lm_input_file', flag)
+
+    def set_skip_balanced_subsets(self, tf):
+        flag = 1 if tf else 0
+        parms.set_int_par(
+                self.handle, self.name, 'skip_balanced_subsets', flag)
+
+    def set_max_ring_difference(self, diff):
+        parms.set_int_par(
+                self.handle, self.name, 'skip_balanced_subsets', diff)
+
+    def set_cache_max_size(self, diff):
+        parms.set_int_par(
+                self.handle, self.name, 'cache_max_size', diff)
+
+    def get_cache_max_size(self):
+        return parms.int_par(self.handle, self.name, 'cache_max_size')
+
+    def get_subsensitivity_filenames(self):
+        return parms.char_par(self.handle, self.name, 'subsensitivity_filenames')
 
 
 class Reconstructor(object):

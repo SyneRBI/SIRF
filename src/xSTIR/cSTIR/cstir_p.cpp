@@ -673,9 +673,9 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
         (hp);
     std::string arg(name);
     const char* prefix = arg.substr(0, 10).c_str();
-    if (sirf::iequals(prefix, "cache_path")) {
+    std::string cp("cache_path");
+    if (sirf::iequals(prefix, cp)) {
         std::string s(charDataFromDataHandle(hv));
-        //std::cout << s << '\n';
         auto found = s.find(",");
         if (found == std::string::npos)
             obj_fun.set_cache_path(s, false);
@@ -730,8 +730,9 @@ sirf::cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMat
         obj_fun = objectFromHandle
         <xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF>
         (handle);
-    if (sirf::iequals(name, "cache_path"))
+    if (sirf::iequals(name, "cache_path")) {
         return charDataHandle(obj_fun.get_cache_path().c_str());
+    }
     if (sirf::iequals(name, "cache_max_size"))
         return dataHandle<int>(obj_fun.get_cache_max_size());
     if (sirf::iequals(name, "subsensitivity_filenames"))
