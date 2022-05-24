@@ -8,14 +8,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "sirf/cDynamicSimulation/dynsim_deformer.h"
 
-
-#include <stdexcept>
-#include <sstream>
-#include <complex>
-
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/operations.hpp>
-
 #include "sirf/Reg/NiftyResample.h"
 #include "sirf/common/GeometricalInfo.h"
 

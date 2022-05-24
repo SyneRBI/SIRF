@@ -1,11 +1,3 @@
-/* ================================================
-
-Author: Johannes Mayer
-Date: 2018.08.01
-Institution: Physikalisch-Technische Bundesanstalt Berlin
-
-================================================ */
-
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2018 - 2022 Physikalisch-Technische Bundesanstalt (PTB)
