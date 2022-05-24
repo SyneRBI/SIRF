@@ -474,7 +474,7 @@ protected:
 };
 
 /*!
-\brief Implementation of MR motion dynamic simulation. 
+\brief Implementation of MR dynamic executing motion during simulation. 
 */
 
 class MRMotionDynamic : public MRDynamic{
@@ -555,6 +555,10 @@ private:
 	MotionProcessor mp_;
 };
 
+/*!
+\brief Implementation of MR dynamic executing tissue parameter changes during simulation. 
+*/
+
 class MRContrastDynamic: public MRDynamic {
 
 public:
@@ -585,6 +589,11 @@ private:
 	ContrastProcessor cp_;
 	
 };
+
+
+/*!
+\brief Implementation of MR dynamic changing the signal according to a pre-computed magnetisation. 
+*/
 
 class ExternalMRContrastDynamic: public MRDynamic {
 

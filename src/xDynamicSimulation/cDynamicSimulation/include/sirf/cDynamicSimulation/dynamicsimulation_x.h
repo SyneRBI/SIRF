@@ -32,6 +32,7 @@ typedef std::vector<int> DimensionsType;
 
 /*!
 	\brief A class to generate combinations of integers in a vector. 
+	This is used to compute combinations of different motion states if multiple motion dynamics are present during simulation.
 */
 class LinearCombiGenerator{
 
@@ -92,6 +93,10 @@ private:
 	};
 };
 
+/*!
+	\brief Interface for a dynamic simulation
+	
+*/
 class aDynamicSimulation {
 
 public:

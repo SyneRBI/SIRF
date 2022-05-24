@@ -26,6 +26,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 
+
+
+/*!
+	\brief Utility class to deform image data with motion fields during a simulation.
+	This class contains an affine offset transformation and can deform contrast generators.
+*/
 class DynamicSimulationDeformer
 {
 
@@ -49,9 +55,17 @@ public:
 		displacement_offset_ = vec;
 	}
 
+	/*!
+	\brief Function to deform the image in reference motion state held by a contrast generator into the motion states defined by the displacement fields.
+	*/
 	void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
 	void deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<sirf::NiftiImageData3DDeformation<float> >& vec_displacement_fields);
 	
+	/*!
+	\brief Function to resample an image to a template geometry. 
+	This function is used to resample the segmentation volume to the acquisition template geometry.
+	During the resampling the first the displacement offset, then the affine offset_ transformation is applied, and then the volume is resampled into the template geometry.
+	*/
 	sirf::NiftiImageData3D<float> resample_to_template(sirf::NiftiImageData3D<float> img, bool const use_nearest_neighbor=false) const;
 	
 	void set_template_rawdata(const sirf::MRAcquisitionData& ad)
