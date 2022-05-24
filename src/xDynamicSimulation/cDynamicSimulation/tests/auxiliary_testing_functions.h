@@ -101,9 +101,9 @@ namespace aux_test
 	SignalContainer get_mock_sinus_signal( sirf::AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms);
 	SignalContainer get_mock_sawtooth_signal( sirf::AcquisitionsVector acq_vec, TimeAxisType const period_duration_ms);
 
-	MRContrastDynamic get_constant_contrast( LabelType const which_tissue_label, TissueParameter template_param, float const T1_ms);
+	sirf::MRContrastDynamic get_constant_contrast( LabelType const which_tissue_label, TissueParameter template_param, float const T1_ms);
 
 	void store_roi( LabelVolume& label_vol, std::vector<float> const labels, std::string const output_prefix);
-	float prep_pet_motion_dyn(PETMotionDynamic& motion_dyn, SignalContainer const motion_signal);
+	float prep_pet_motion_dyn(sirf::PETMotionDynamic& motion_dyn, SignalContainer const motion_signal);
 
 }// namespace aux_test

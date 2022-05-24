@@ -49,10 +49,13 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 
 
+
 /*!
 \brief TIC units used in ISMRMRD Encoding.Idx.TimeMr in miliseconds  
 */
 #define SIRF_SCANNER_MS_PER_TIC 2.5
+
+namespace sirf{
 
 /*!
 \brief Datatype used for the time axis of surrogate signals
@@ -795,3 +798,5 @@ public:
 private:
 	ContrastProcessor cp_;
 };
+
+} // namespace sirf

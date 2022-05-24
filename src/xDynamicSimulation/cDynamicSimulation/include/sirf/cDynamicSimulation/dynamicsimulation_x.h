@@ -132,13 +132,13 @@ public:
 	void set_SNR(float const SNR);
 	void set_noise_label(int const label);
 
-	void add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn){
+	void add_dynamic( std::shared_ptr<sirf::MRMotionDynamic> sptr_motion_dyn){
 		this->motion_dynamics_.push_back(sptr_motion_dyn);
 	}
-	void add_dynamic( std::shared_ptr<MRContrastDynamic> sptr_contrast_dyn){
+	void add_dynamic( std::shared_ptr<sirf::MRContrastDynamic> sptr_contrast_dyn){
 		this->contrast_dynamics_.push_back(sptr_contrast_dyn);
 	} 
-	void add_dynamic( std::shared_ptr<ExternalMRContrastDynamic> sptr_ext_contrast_dyn){
+	void add_dynamic( std::shared_ptr<sirf::ExternalMRContrastDynamic> sptr_ext_contrast_dyn){
 		this->external_contrast_.push_back(sptr_ext_contrast_dyn);
 	}
 
@@ -165,9 +165,9 @@ public:
 
 private:
 
-	std::vector< std::shared_ptr<MRMotionDynamic> > motion_dynamics_;
-	std::vector< std::shared_ptr<MRContrastDynamic> > contrast_dynamics_;
-	std::vector< std::shared_ptr<ExternalMRContrastDynamic> > external_contrast_;
+	std::vector< std::shared_ptr<sirf::MRMotionDynamic> > motion_dynamics_;
+	std::vector< std::shared_ptr<sirf::MRContrastDynamic> > contrast_dynamics_;
+	std::vector< std::shared_ptr<sirf::ExternalMRContrastDynamic> > external_contrast_;
 	
 	GaussianNoiseGenerator noise_generator_;
 
@@ -225,10 +225,10 @@ public:
 
 	virtual void acquire_raw_data( void );
 	
-	void add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn){
+	void add_dynamic( std::shared_ptr<sirf::PETMotionDynamic> sptr_motion_dyn){
 		this->motion_dynamics_.push_back(sptr_motion_dyn);
 	}
-	void add_dynamic( std::shared_ptr<PETContrastDynamic> sptr_contrast_dyn){
+	void add_dynamic( std::shared_ptr<sirf::PETContrastDynamic> sptr_contrast_dyn){
 		this->contrast_dynamics_.push_back(sptr_contrast_dyn);
 	} 
 
@@ -249,8 +249,8 @@ private:
 
 	void simulate_motion_dynamics(size_t const total_scan_time );	
 
-	std::vector< std::shared_ptr<PETMotionDynamic> > motion_dynamics_;
-	std::vector< std::shared_ptr<PETContrastDynamic> > contrast_dynamics_;
+	std::vector< std::shared_ptr<sirf::PETMotionDynamic> > motion_dynamics_;
+	std::vector< std::shared_ptr<sirf::PETContrastDynamic> > contrast_dynamics_;
 
 	std::shared_ptr<PoissonNoiseGenerator> sptr_noise_generator_;
 

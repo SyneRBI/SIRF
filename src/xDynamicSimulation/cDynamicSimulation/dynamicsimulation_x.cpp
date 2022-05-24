@@ -477,7 +477,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 			auto sptr_motion_dyn = this->motion_dynamics_[i_motion_dyn];
 							
 			TimeBinSet acquisition_times_in_bin = sptr_motion_dyn->get_time_bin_set_for_state( current_combination[i_motion_dyn] );
-			acquisition_time_bins_for_this_state = intersect_time_bin_sets(acquisition_time_bins_for_this_state, acquisition_times_in_bin);
+			acquisition_time_bins_for_this_state = sirf::intersect_time_bin_sets(acquisition_time_bins_for_this_state, acquisition_times_in_bin);
 
 		}
 

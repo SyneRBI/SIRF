@@ -33,7 +33,7 @@ using namespace std;
 using namespace sirf;
 
 
-bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
+bool sirf::is_in_bin( SignalAxisType const signal, SignalBin const bin)
 {
 
 	auto bin_min = std::get<0>(bin);
@@ -48,7 +48,7 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 }
 
 // data are taken from one_dat, just scan_counters are compared
-MRDataType intersect_mr_acquisition_data( const MRAcquisitionData& one_dat, const MRAcquisitionData& other_dat)
+MRDataType sirf::intersect_mr_acquisition_data( const MRAcquisitionData& one_dat, const MRAcquisitionData& other_dat)
 {
 	typedef std::vector<uint32_t> CounterBox;
 
@@ -259,10 +259,6 @@ NiftiImageData3DDeformation<float> MotionProcessor::get_interpolated_deformation
     return interpolated_dvf.get_as_deformation_field( interpolated_dvf );
 }
 
-
-
-
-
 std::string MotionProcessor::setup_tmp_folder_name()
 {
 	std::string const current_folder_prefix = "temp_folder_motion_dyn_";
@@ -279,7 +275,6 @@ std::string MotionProcessor::setup_gt_folder_name()
 	name_stream << this->temp_folder_prefix_ << gt_folder_prefix << this->which_motion_processor_am_i_;
 	return name_stream.str();
 }
-
 
 bool MotionProcessor::make_ground_truth_folder() const
 {
@@ -298,7 +293,6 @@ bool MotionProcessor::make_ground_truth_folder() const
 		throw e;	
 	}
 }
-
 
 bool MotionProcessor::make_temp_folder() const
 {
@@ -342,7 +336,6 @@ bool MotionProcessor::delete_temp_folder() const
 		std::cout << e.message() << std::endl;
 		throw e;	
 	}
-;
 }
 
 
@@ -350,13 +343,6 @@ void MotionProcessor::set_displacement_fields(const std::vector< sirf::NiftiImag
 {
 	for(size_t i=0; i<input_displacement_fields.size(); i++)
 		this->displacement_fields_.push_back( input_displacement_fields[i] );
-
-	// if( false ) 
-	// {
-	// 	std::cout << "WARNING: Emtpying the passed vector to save memory." <<std::endl;
-	// 	std::vector< sirf::NiftiImageData3DDisplacement<float> >  empty_container;
-	// 	input_displacement_fields.swap(empty_container);
-	// }
 }
 
 
@@ -380,7 +366,6 @@ sirf::NiftiImageData3DDisplacement<float> MotionProcessor::scale_displacementfie
 		{
 			const int idx[7] = {nx, ny, nz, 0, nv, 0};
 			scaled_dvf(idx) =  voxel_sizes[nv] * dvf(idx);
-			// scaled_dvf(idx) =  1 * dvf(idx);
 		}
 	}
 	
@@ -521,7 +506,7 @@ void MRMotionDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions )
 	ISMRMRD::Acquisition acq;
 	all_acquisitions.get_acquisition(0, acq);
 
-	TimeAxisType time_offset_seconds = SIRF_SCANNER_MS_PER_TIC/1000.f * acq.getHead().acquisition_time_stamp;
+	sirf::TimeAxisType time_offset_seconds = SIRF_SCANNER_MS_PER_TIC/1000.f * acq.getHead().acquisition_time_stamp;
 
 	std::deque< size_t > relevant_acq_numbers;
 	std::deque< size_t > acq_not_binned;
@@ -625,19 +610,18 @@ void MRContrastDynamic::bin_mr_acquisitions( MRAcquisitionData& all_acquisitions
 // ++++++++++++++++++++++++++++++++ PET ++++++++++++++++++++++++++++++++++++++++++++++
 
 
-
-TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval)
+sirf::TimeBin sirf::intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval)
 {
 	return intersect_intervals<TimeAxisType>(one_interval, other_interval);
 }
 
-TimeBinSet intersect_time_bin_sets( const TimeBinSet& one_set, const TimeBinSet& other_set)
+sirf::TimeBinSet sirf::intersect_time_bin_sets( const TimeBinSet& one_set, const TimeBinSet& other_set)
 {
 	TimeBinSet intersected_set;
 	for(size_t i=0; i<one_set.size();i++ )
 	for(size_t j=0; j<other_set.size();j++ )
 	{
-		TimeBin temp_intersect = intersect_time_intervals(one_set[i], other_set[j]);
+		TimeBin temp_intersect = sirf::intersect_time_intervals(one_set[i], other_set[j]);
 		if( !temp_intersect.is_empty() )			
 			intersected_set.push_back( temp_intersect );
 	}
@@ -645,7 +629,7 @@ TimeBinSet intersect_time_bin_sets( const TimeBinSet& one_set, const TimeBinSet&
 }
 
 
-TimeAxisType get_total_time_in_set(TimeBinSet& set_of_bins )
+sirf::TimeAxisType sirf::get_total_time_in_set(TimeBinSet& set_of_bins )
 {
 	TimeAxisType t=0;
 	for(size_t i_bin=0; i_bin<set_of_bins.size(); i_bin++)	
@@ -732,7 +716,7 @@ void PETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pro
 }
 
 
-TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point)
+sirf::TimeAxisType sirf::get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point)
 {
 	if(std::abs(right_point.second - left_point.second) < 1e-8)
 		return (right_point.first + left_point.first)/TimeAxisType(2);
@@ -740,7 +724,7 @@ TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, Sign
 		return (signal-left_point.second) * (right_point.first - left_point.first) / (right_point.second - left_point.second) + left_point.first;
 }
 
-TimeBinSet PETDynamic::get_time_bin_set_for_state( unsigned int const which_state )
+sirf::TimeBinSet PETDynamic::get_time_bin_set_for_state( unsigned int const which_state )
 {
 	if(which_state >= binned_time_intervals_.size())
 		throw std::runtime_error( " Please give a number not larger than the number of dynamic states-1");
@@ -749,51 +733,12 @@ TimeBinSet PETDynamic::get_time_bin_set_for_state( unsigned int const which_stat
 	return this->binned_time_intervals_[which_state];	
 }
 
-TimeAxisType PETDynamic::get_time_spent_in_bin(unsigned int const which_state )
+sirf::TimeAxisType PETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 {
 	if(which_state >= binned_time_intervals_.size())
 		throw std::runtime_error( " Please give a number not larger than the number of dynamic states-1");
 
 
-	return get_total_time_in_set( this->binned_time_intervals_[which_state] );
+	return sirf::get_total_time_in_set( this->binned_time_intervals_[which_state] );
 
 }
-
-
-// void MotionProcessor::align_motion_fields_with_image( const sirf::STIRImageData& img )
-// {
-
-// 	size_t const num_disp_fields = this->displacement_fields_.size();
-
-// 	if( num_disp_fields ==0 )
-// 		throw std::runtime_error("Please call prep_displacement_fields() first.");
-
-// 	NiftiImageData3D<float> sirf_img( img );
-// 	auto sptr_pet_nifti = sirf_img.get_raw_nifti_sptr();
-
-// 	float const img_off_x = sptr_pet_nifti->qoffset_x;
-// 	float const img_off_y = sptr_pet_nifti->qoffset_y;
-// 	float const img_off_z = sptr_pet_nifti->qoffset_z;
-	 
-// 	float const img_quart_b = sptr_pet_nifti->quatern_b;
-// 	float const img_quart_c = sptr_pet_nifti->quatern_c;
-// 	float const img_quart_d = sptr_pet_nifti->quatern_d;
-// 	float const img_quart_ac = sptr_pet_nifti->qfac;
-
-// 	for(size_t i=0; i<num_disp_fields; i++)
-// 	{
-
-// 		auto sptr_mvf_nifti = this->displacement_fields_[i].get_raw_nifti_sptr();
-
-// 		sptr_mvf_nifti->qoffset_x = img_off_x;
-// 		sptr_mvf_nifti->qoffset_y = img_off_y;
-// 		sptr_mvf_nifti->qoffset_z = img_off_z;
-
-// 		sptr_mvf_nifti->quatern_b = img_quart_b ;
-// 		sptr_mvf_nifti->quatern_c = img_quart_c ;
-// 		sptr_mvf_nifti->quatern_d = img_quart_d ;
-// 		sptr_mvf_nifti->qfac	  = img_quart_ac;
-
-// 		this->displacement_fields_[i] = NiftiImageData3DDisplacement<float>(*sptr_mvf_nifti);
-// 	}
-// }
