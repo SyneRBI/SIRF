@@ -47,6 +47,9 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 
 
+namespace sirf{
+
+
 
 /*!
 	\brief Utility class to deform image data with motion fields during a simulation.
@@ -110,3 +113,5 @@ protected:
 	static void deform_pet_image( sirf::STIRImageData& img, std::vector<sirf::NiftiImageData3DDeformation<float> > &vec_displacement_fields);
 	
 };
+
+} //namespace sirf

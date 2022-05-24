@@ -111,7 +111,7 @@ public:
 	virtual void acquire_raw_data( void ) = 0;
 	
 protected:
-	DynamicSimulationDeformer dsd_;
+	sirf::DynamicSimulationDeformer dsd_;
 
 };
 
