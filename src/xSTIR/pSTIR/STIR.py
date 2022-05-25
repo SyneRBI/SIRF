@@ -867,6 +867,7 @@ class ListmodeData(PETScanData):
         self.handle = None
         self.name = 'ListmodeData'
         self.read_only = False
+        self.cache_path = None
         if filename is None:
             return
         if self.handle is not None:
@@ -893,11 +894,11 @@ class ListmodeData(PETScanData):
         check_status(self.handle)
         self.read_only = True
 
-    def get_cache_path(self): 
-        return "Nikos"
+    def get_cache_path(self):
+        return self.cache_path
 
-    def set_cache_path(self): 
-        print("NikosSEt")
+    def set_cache_path(self, path):
+        self.cache_path = path
 
 PETScanData.register(ListmodeData)
 
@@ -2461,7 +2462,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
 
 
 class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(ObjectiveFunction):
-    """Class for a STIR type of Poisson loglikelihood object.
+    """Class for a STIR type of Poisson loglikelihood object for listmode data.
 
     Specifically, PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.
     """

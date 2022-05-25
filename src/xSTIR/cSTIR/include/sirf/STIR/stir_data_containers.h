@@ -143,7 +143,8 @@ namespace sirf {
 	public:
 		virtual ~PETScanData() {}
 		virtual stir::shared_ptr<stir::ExamData> data_sptr() = 0;
-		virtual const stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
+		//virtual const stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
 		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
 	};
 
@@ -238,7 +239,8 @@ namespace sirf {
 		{
 			return _data;
 		}
-		virtual const stir::shared_ptr<stir::ExamData> data_sptr() const
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const
+		//virtual const stir::shared_ptr<stir::ExamData> data_sptr() const
 		{
 			return _data;
 		}
