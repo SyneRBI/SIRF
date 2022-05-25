@@ -3155,10 +3155,13 @@ def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
     """
     # only this objective function is implemented for now
     #if likelihood_type == 'LinearModelForMean':
-    if likelihood_type is None:
+    if likelihood_type is None or likelihood_type=='LinearModelForMean':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
         if acq_data is not None:
             obj_fun.set_acquisition_data(acq_data)
+        else:
+            raise error('PoissonLogLikelihoodWithLinearModelForMeanAndProjData' + \
+            ' requires acquisition data')
     elif likelihood_type == 'LinearModelForMeanAndListModeDataWithProjMatrixByBin':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin()
         if acq_data is not None: 
