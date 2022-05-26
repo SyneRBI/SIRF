@@ -142,7 +142,7 @@ namespace sirf {
 	class PETScanData : public DataContainer {
 	public:
 		virtual ~PETScanData() {}
-		virtual stir::shared_ptr<stir::ExamData> data_sptr() = 0;
+		//virtual stir::shared_ptr<stir::ExamData> data_sptr() = 0;
 		virtual stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
 		//virtual const stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
 		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
@@ -229,11 +229,11 @@ namespace sirf {
 		{
 			return _data;
 		}
-		virtual stir::shared_ptr<stir::ExamData> data_sptr()
+/*		virtual stir::shared_ptr<stir::ExamData> data_sptr()
 		{
 			return _data;
 			//return stir::shared_ptr<stir::ExamData>(_data);
-		}
+		}*/
 		const stir::shared_ptr<stir::ProjData> data() const
 		//stir::shared_ptr<const stir::ProjData> data() const // causes lots of problems
 		{
@@ -756,9 +756,9 @@ namespace sirf {
 			_data = stir::read_from_file<stir::ListModeData>(lmdata_filename);
 		}
 		virtual ~ListmodeData() {}
-		virtual stir::shared_ptr<stir::ExamData> data_sptr() {
+/*		virtual stir::shared_ptr<stir::ExamData> data_sptr() {
 			return _data;
-		}
+		}*/
 		virtual const stir::shared_ptr<stir::ExamData> data_sptr() const {
 			return _data;
 		}
