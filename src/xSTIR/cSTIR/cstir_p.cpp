@@ -671,16 +671,14 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
         obj_fun = objectFromHandle
         <xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF>
         (hp);
-    std::string arg(name);
-    const char* prefix = arg.substr(0, 10).c_str();
     std::string cp("cache_path");
-    if (sirf::iequals(prefix, cp)) {
+    if (sirf::iequals(name, "additive_corrections_flag")) {
+        bool flag = (bool)dataFromHandle<int>(hv);
+        obj_fun.set_additive_corrections_flag(flag);
+    }
+    else if (sirf::iequals(name, "cache_path")) {
         std::string s(charDataFromDataHandle(hv));
-        auto found = s.find(",");
-        if (found == std::string::npos)
-            obj_fun.set_cache_path(s, false);
-        else
-            obj_fun.set_cache_path(s.substr(0, found), true);
+        obj_fun.set_cache_path(s);
     }
     else if (sirf::iequals(name, "acquisition_data")) {
         SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);

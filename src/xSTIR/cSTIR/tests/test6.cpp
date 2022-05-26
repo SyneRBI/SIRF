@@ -71,7 +71,7 @@ int test6(const char* datapath)
 		CREATE_OBJ(STIRImageData, image_data, sptr_id, sens_filename.c_str());
 		image_data.get_dimensions(dim);
 		size_t image_size = dim[0] * dim[1] * dim[2];
-		std::cout << "image dimensions: "
+		std::cout << "Image dimensions: "
 			<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
 		image_data.fill(1.0);
 
@@ -81,7 +81,8 @@ int test6(const char* datapath)
 		//This will activate use of cache instead of input
 		std::cout << "Setting cache path..." << std::endl;
 		bool with_additive_corrections = true;
-		obj_fun.set_cache_path(cache_path.c_str(), with_additive_corrections);
+		obj_fun.set_additive_corrections_flag(with_additive_corrections);
+		obj_fun.set_cache_path(cache_path.c_str()); //, with_additive_corrections);
 		std::cout << "Cache path: " << obj_fun.get_cache_path() << std::endl;
 		obj_fun.set_skip_lm_input_file(true);
 		obj_fun.set_skip_balanced_subsets(true);

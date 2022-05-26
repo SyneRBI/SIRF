@@ -2475,11 +2475,9 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
             pyiutil.deleteDataHandle(self.handle)
 
     def set_cache_path(self, path, with_additive_corrections):
-        if with_additive_corrections:
-            arg = path + ', with'
-        else:
-            arg = path
-        parms.set_char_par(self.handle, self.name, 'cache_path', arg)
+        parms.set_int_par(self.handle, self.name, 'additive_corrections_flag', \
+            with_additive_corrections)
+        parms.set_char_par(self.handle, self.name, 'cache_path', path)
 
     def get_cache_path(self):
         return parms.char_par(self.handle, self.name, 'cache_path')
