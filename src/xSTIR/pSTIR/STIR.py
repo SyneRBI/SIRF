@@ -894,11 +894,6 @@ class ListmodeData(PETScanData):
         check_status(self.handle)
         self.read_only = True
 
-    def get_cache_path(self):
-        return self.cache_path
-
-    def set_cache_path(self, path):
-        self.cache_path = path
 
 PETScanData.register(ListmodeData)
 
@@ -3169,8 +3164,6 @@ def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
     else:
         raise error('Poisson_loglikelihood of type ' + likelihood_type + \
                     ' is not implemented')
-#            'only PoissonLogLikelihoodWithLinearModelForMeanAndProjData ' +
-#            'is currently implemented in SIRF')
     if acq_model is not None:
         obj_fun.set_acquisition_model(acq_model)
     return obj_fun
