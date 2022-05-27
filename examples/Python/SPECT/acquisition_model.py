@@ -89,12 +89,9 @@ def main():
     create_sample_image(image)
     image.write("simulated_image.hv")
 
-    # z-pixel coordinate of the xy-cross-section to show
-    z = image.dimensions()[0]//2
-
     # show the phantom image
     image_array = image.as_array()
-    show_2D_array('Phantom image', image_array[z,:,:])
+    show_2D_array('Phantom image', image_array[0,:,:])
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -102,7 +99,7 @@ def main():
     acq_model = sirf.STIR.AcquisitionModelUsingMatrix(acq_model_matrix)
 
     # require same number slices and equal z-sampling for projection data & image
-    image = image.zoom_image(zooms=(0.5, 1.0, 1.0), size=(12, -1, -1))
+    image = image.zoom_image(zooms=(0.5, 1.0, 1.0))
     print('projecting image...')
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
@@ -115,15 +112,14 @@ def main():
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
-    middle_slice=simulated_data_as_array.shape[0]//2
-    show_2D_array('Forward projection', simulated_data_as_array[0, middle_slice,:,:])
+    show_2D_array('Forward projection', simulated_data_as_array[0, 0,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
     back_projected_image = acq_model.backward(simulated_data, 0, 1)
 
     back_projected_image_as_array = back_projected_image.as_array()
-    show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
+    show_2D_array('Backprojection', back_projected_image_as_array[0,:,:])
 
 try:
     main()
