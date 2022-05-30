@@ -3,6 +3,7 @@ Copyright 2015-2022 Rutherford Appleton Laboratory, STFC, UK Research and Innova
 Copyright 2015-2022 University College London (UCL)
 Copyright 2017-2022 Physikalisch-Technische Bundesanstalt (PTB)
 Copyright 2019 University of Hull
+Copyright 2020-2022 University of Pennsylvania
 
 This software product is developed for the Collaborative Computational 
 Project in Synergistic Reconstruction for Biomedical Imaging,
