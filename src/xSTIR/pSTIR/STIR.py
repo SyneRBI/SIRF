@@ -1107,6 +1107,7 @@ class AcquisitionData(DataContainer):
         n = len(views)
         subset = AcquisitionData()
         subset.handle = pystir.cSTIR_get_subset(self.handle, n, v.ctypes.data)
+        check_status(subset.handle)
         return subset
 
     @property

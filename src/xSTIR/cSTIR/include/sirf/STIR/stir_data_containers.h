@@ -442,7 +442,8 @@ namespace sirf {
 		}
 		PETAcquisitionDataInFile(std::unique_ptr<stir::ProjData> uptr_pd) : _owns_file(true)
 		{
-			auto *pd_ptr = dynamic_cast<stir::ProjDataInterfile*>(uptr_pd.get());
+//			auto *pd_ptr = dynamic_cast<stir::ProjDataInterfile*>(uptr_pd.get());
+			auto pd_ptr = dynamic_cast<stir::ProjDataInterfile*>(uptr_pd.get());
 			if (pd_ptr)
 				_data = std::move(uptr_pd);
 			else {
@@ -454,6 +455,7 @@ namespace sirf {
 				_data.reset(new ProjDataFile
                                     (MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info,
 					_filename = SIRFUtilities::scratch_file_name()));
+				_data->fill(pd);
 			}
 		}
 		std::shared_ptr<PETAcquisitionData> new_acquisition_data(std::string filename)
@@ -549,7 +551,8 @@ namespace sirf {
 		}
 		PETAcquisitionDataInMemory(std::unique_ptr<stir::ProjData> uptr_pd)
 		{
-			auto *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(uptr_pd.get());
+//			auto *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(uptr_pd.get());
+			auto pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(uptr_pd.get());
 			if (pd_ptr)
 				_data = std::move(uptr_pd);
 			else {
