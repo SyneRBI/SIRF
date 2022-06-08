@@ -1,12 +1,13 @@
 classdef AcquisitionData < sirf.SIRF.DataContainer
 % Class for PET acquisition data objects.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 - 2020 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -152,7 +153,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
 %           Dimensions are:
 %           - number of tangential positions
 %           - number of views
-%           - number of sinograms
+%           - number of (non-TOF) sinograms
 %           - number of TOF bins
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib('mstir', 'mSTIR_getAcquisitionDataDimensions', ...
@@ -226,6 +227,38 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             end
             ad = sirf.STIR.AcquisitionData(self);
             ad.fill(value)
+        end
+        function ad = rebin(self, num_segments_to_combine, ...
+              num_views_to_combine, num_tang_poss_to_trim, ...
+              do_normalisation, max_in_segment_num_to_process)
+            if nargin < 3
+                num_views_to_combine = 1;
+            end
+            if nargin < 4
+                num_tang_poss_to_trim = 0;
+            end
+            if nargin < 5
+                do_normalisation = true;
+            end
+            if nargin < 6
+                max_in_segment_num_to_process = -1;
+            end
+            ad = sirf.STIR.AcquisitionData();
+            ad.handle_ = calllib('mstir', 'mSTIR_rebinnedAcquisitionData', ...
+                self.handle_, ...
+                num_segments_to_combine, num_views_to_combine, ...
+                num_tang_poss_to_trim, do_normalisation, ...
+                max_in_segment_num_to_process);
+            sirf.Utilities.check_status...
+                ([self.name ':rebin'], ad.handle_);
+        end
+        function ad_info = get_info(self)
+            %Get the AcquisitionData's metadata.
+            h = calllib...
+                ('mstir', 'mSTIR_get_ProjDataInfo', self.handle_);
+            sirf.Utilities.check_status([self.name ':print_info'], h);
+            ad_info = calllib('miutilities', 'mCharDataFromHandle', h);
+            sirf.Utilities.delete(h)
         end
     end
 end

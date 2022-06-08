@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -49,14 +50,24 @@ namespace sirf {
 		cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name);
 
 	void*
+		cSTIR_setSPECTUBMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name);
+
+	void*
 		cSTIR_setAcquisitionModelParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_AcquisitionModelParameter(DataHandle* hm, const char* name);
 
 	void*
 		cSTIR_setAcqModUsingMatrixParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-#ifdef STIR_WITH_NIFTYPET_PROJECTOR
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
     void*
         cSTIR_setAcqModUsingNiftyPETParameter
         (DataHandle* hp, const char* name, const DataHandle* hv);
@@ -99,6 +110,16 @@ namespace sirf {
 	void*
 		cSTIR_generalisedObjectiveFunctionParameter
 		(const DataHandle* handle, const char* name);
+
+        void*
+                cSTIR_setScatterSimulatorParameter
+                (const DataHandle* hp, const char* name, const DataHandle* hv);
+        void*
+                cSTIR_setScatterEstimatorParameter
+                (const DataHandle *hp, const char* name, const DataHandle* hv);
+        void*
+                cSTIR_ScatterEstimatorParameter
+                (DataHandle* hp, const char* name);
 
 	void*
 		cSTIR_setGeneralisedObjectiveFunctionParameter

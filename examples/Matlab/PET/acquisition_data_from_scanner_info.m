@@ -1,13 +1,13 @@
 function acquisition_data_from_scanner_info(engine)
 % A demo showing basics of PET acquisition data handling.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018 Rutherford Appleton Laboratory STFC.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC.
 % Copyright 2018 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ try
     fprintf('acquisition data dimensions (maximum resolution):\n')
     fprintf('tang. pos: %d\n', acq_dim(1))
     fprintf('views: %d\n', acq_dim(2))
-    fprintf('sinograms: %d\n', acq_dim(3))
+    fprintf('(non-TOF) sinograms: %d\n', acq_dim(3))
     fprintf('TOF bins: %d\n', acq_dim(4))
 
     % create acquisition data from scanner parameters but with axial compression etc

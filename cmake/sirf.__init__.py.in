@@ -1,0 +1,4 @@
+__version_major__ = '@VERSION_MAJOR@'
+__version_minor__ = '@VERSION_MINOR@'
+__version_patch__ = '@VERSION_PATCH@'
+__version__ = '@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@'

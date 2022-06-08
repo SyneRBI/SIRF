@@ -1,9 +1,9 @@
-# CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2018 - 2019 University College London
+# SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+# Copyright 2018 - 2020 University College London
 #
 # This is software developed for the Collaborative Computational
-# Project in Positron Emission Tomography and Magnetic Resonance imaging
-# (http://www.ccppetmr.ac.uk/).
+# Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+# (http://www.ccpsynerbi.ac.uk/).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -21,9 +21,15 @@ import sys
 import time
 
 import numpy as np
-import nibabel as nib
+try:
+    import nibabel as nib
+    have_nibabel = True
+except ImportError:
+    have_nibabel = False
+    print('WARNING: nibabel is not installed, so not running corresponding tests')
+
 import sirf.Reg
-from pUtilities import *
+from sirf.Utilities import is_operator_adjoint
 
 # Paths
 SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -60,8 +66,8 @@ aladin_def_inverse = output_prefix + "aladin_def_inverse.nii"
 aladin_def_fwd_inv = output_prefix + "aladin_def_fwd_then_inv.nii"
 aladin_disp_forward = output_prefix + "aladin_disp_forward.nii"
 aladin_disp_inverse = output_prefix + "aladin_disp_inverse_%s.nii"
-f3d_def_forward = output_prefix + "f3d_disp_forward.nii"
-f3d_def_inverse = output_prefix + "f3d_disp_inverse_%s.nii"
+f3d_def_forward = output_prefix + "f3d_def_forward.nii"
+f3d_def_inverse = output_prefix + "f3d_def_inverse_%s.nii"
 f3d_disp_forward = output_prefix + "f3d_disp_forward.nii"
 f3d_disp_inverse = output_prefix + "f3d_disp_inverse_%s.nii"
 
@@ -184,7 +190,7 @@ def try_niftiimage():
 
     # Get voxel sizes
     s = b.get_voxel_sizes()
-    if not all(numpy.equal(s,numpy.array([0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]))):
+    if not all(np.equal(s,np.array([0, 4.0625, 4.0625, 4.0625, 0, 0, 0, 0]))):
         raise AssertionError("NiftiImageData get_voxel_sizes() failed.")
 
     # Check upsampling/downsampling
@@ -222,8 +228,8 @@ def try_niftiimage():
     # Test that fill works regardless of C- or F-style numpy arrays
     im = sirf.Reg.NiftiImageData(ref_aladin_filename)
     arr = im.as_array()
-    arr_C = numpy.ascontiguousarray(arr)
-    arr_F = numpy.asfortranarray(arr)
+    arr_C = np.ascontiguousarray(arr)
+    arr_F = np.asfortranarray(arr)
     im.fill(arr_C)
     arr_C2 = im.as_array()
     im.fill(arr_F)
@@ -232,10 +238,11 @@ def try_niftiimage():
         raise AssertionError('NiftiImageData::fill() failed for C- or F-style numpy arrays.')
 
     # Compare between sirf.Reg.NiftiImageData::as_array() and nibabel
-    arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
-    arr2 = nib.load(ref_aladin_filename).get_fdata()
-    if not numpy.array_equal(arr1,arr2):
-        raise AssertionError("NiftiImageData as_array() failed.")
+    if have_nibabel:
+        arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
+        arr2 = nib.load(ref_aladin_filename).get_fdata()
+        if not np.array_equal(arr1,arr2):
+            raise AssertionError("NiftiImageData as_array() failed.")
 
     # Test geom info
     geom_info = im.get_geometrical_info()
@@ -253,12 +260,12 @@ def try_niftiimage():
         raise AssertionError("NiftiImageData standardise() or get_variance() failed.")
     if abs(im.get_mean()) > 0.0001:
         raise AssertionError("NiftiImageData standardise() or get_mean() failed.")
-    
+
     # Check normalise 
     im.normalise_zero_and_one()
     if abs(im.get_min()) > 0.0001 or abs(im.get_max()-1) > 0.0001:
         raise AssertionError("NiftiImageData normalise_between_zero_and_one() failed.")
-    
+
     # Test inner product
     in1 = x.deep_copy()
     in2 = x.deep_copy()
@@ -276,6 +283,30 @@ def try_niftiimage():
     in2.fill(in2_arr)
     if abs(inner_product - in1.get_inner_product(in2)) > 1e-4:
         raise AssertionError("NiftiImageData::get_inner_product() failed.")
+
+    # Pad then crop, should be the same
+    aa = ref_aladin
+    cc = aa.clone()
+    original_dims = aa.get_dimensions()
+
+    pad_in_min_dir = [1, 2, 3, 0, 0, 0, 0]
+    pad_in_max_dir = [4, 5, 6, 0, 0, 0, 0]
+    cc.pad(pad_in_min_dir, pad_in_max_dir, 100.)
+
+    padded_dims = cc.get_dimensions()
+    for i in range(7):
+        if padded_dims[i+1] != original_dims[i+1] + pad_in_min_dir[i] + pad_in_max_dir[i]:
+            raise AssertionError("NiftiImageData::pad failed")
+
+    # Crop back to beginning
+    cropped_min_dir = pad_in_min_dir
+    cropped_max_dir = list(cropped_min_dir)
+    for i in range(7):
+        cropped_max_dir[i] = original_dims[i+1] + cropped_min_dir[i] - 1
+
+    cc.crop(cropped_min_dir, cropped_max_dir)
+    if aa != cc:
+        raise AssertionError("NiftiImageData::pad/crop failed")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -317,9 +348,30 @@ def try_niftiimage3d():
     # Deep copy
     d = b.deep_copy()
     if d.handle == b.handle:
-        raise AssertionError('NiftiImageData3D deep_copy failed.')
+        raise AssertionError('NiftiImageData3D deep_copy failed (handle).')
     if d != b:
         raise AssertionError("NiftiImageData3D deep_copy failed.")
+
+    # Constructor
+    dd = sirf.Reg.NiftiImageData3D(b)
+    if dd.handle == b.handle:
+        raise AssertionError('NiftiImageData3D constructor failed (handle).')
+    if dd != b:
+        raise AssertionError("NiftiImageData3D constructor failed.")
+
+    try:
+        sirf.Reg.NiftiImageData3DDeformation(ref_f3d_filename)
+        raise AssertionError('NiftiImageData3DDeformation constructor should have thrown with filename for 3D image')
+    except:
+        pass # ok
+
+    ddd = sirf.Reg.NiftiImageData3DDeformation()
+    ddd.create_from_3D_image(ref_aladin)
+    try:
+        dddd = sirf.Reg.NiftiImageData3D(ddd)
+        raise AssertionError('NiftiImageData3D constructor should have thrown with 4D image')
+    except:
+        pass # ok
 
     # Addition
     e = d + d
@@ -353,6 +405,13 @@ def try_niftiimage3d():
     h = d/10000;
     if abs(h.get_max()-d.get_max()/10000) > 1e-4:
         raise AssertionError('NiftiImageData3D linear algebra failed.')
+
+    # Check as_array and fill is symmetric
+    ref_aladin_arr = ref_aladin.as_array()
+    ref_aladin2 = ref_aladin.clone()
+    ref_aladin2.fill(ref_aladin_arr)
+    if ref_aladin2 != ref_aladin:
+        raise AssertionError("NiftiImageData3D::as_array()/fill() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -648,20 +707,36 @@ def try_niftyaladin():
     na.set_parameter("SetMaxIterations", "5")
     na.set_parameter("SetPerformRigid", "1")
     na.set_parameter("SetPerformAffine", "0")
-    na.set_reference_mask(ref_mask);
-    na.set_floating_mask(flo_mask);
+    na.set_reference_mask(ref_mask)
+    na.set_floating_mask(flo_mask)
     na.process()
 
     # Get outputs
-    warped = na.get_output()
-    def_forward = na.get_deformation_field_forward()
-    def_inverse = na.get_deformation_field_inverse()
-    disp_forward = na.get_displacement_field_forward()
-    disp_inverse = na.get_displacement_field_inverse()
+    warped = na.get_output().deep_copy()
+    def_forward = na.get_deformation_field_forward().deep_copy()
+    def_inverse = na.get_deformation_field_inverse().deep_copy()
+    disp_forward = na.get_displacement_field_forward().deep_copy()
+    disp_inverse = na.get_displacement_field_inverse().deep_copy()
+    TM_forward_ = na.get_transformation_matrix_forward().deep_copy()
+    TM_inverse_ = na.get_transformation_matrix_inverse().deep_copy()
+
+    # Test via filenames
+    na.set_reference_image_filename(ref_aladin_filename)
+    na.set_floating_image_filename(flo_aladin_filename)
+    na.process()
+
+    if warped != na.get_output() or \
+        def_forward != na.get_deformation_field_forward() or \
+        def_inverse != na.get_deformation_field_inverse() or \
+        disp_forward != na.get_displacement_field_forward() or \
+        disp_inverse != na.get_displacement_field_inverse() or \
+        TM_forward_ != na.get_transformation_matrix_forward() or \
+        TM_inverse_ != na.get_transformation_matrix_inverse():
+        raise AssertionError()
 
     warped.write(aladin_warped)
-    na.get_transformation_matrix_forward().write(TM_forward)
-    na.get_transformation_matrix_inverse().write(TM_inverse)
+    TM_forward_.write(TM_forward)
+    TM_inverse_.write(TM_inverse)
     def_forward.write(aladin_def_forward)
     def_inverse.write_split_xyz_components(aladin_def_inverse_xyz)
     def_inverse.write(aladin_def_inverse)
@@ -692,7 +767,7 @@ def try_niftyaladin():
     sirf.Reg.NiftiImageData.print_headers([ref_aladin, flo_aladin, def_inverse, def_fwd_then_inv])
 
     # Reference forward with def_inv
-    resample = sirf.Reg.NiftyResample()
+    resample = sirf.Reg.NiftyResampler()
     resample.set_reference_image(flo_aladin)
     resample.set_floating_image(ref_aladin)
     resample.set_padding_value(0.)
@@ -726,6 +801,16 @@ def try_niftyf3d():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
+    # Crop input to increase speed
+    dim = ref_f3d.get_dimensions()
+    mid = dim[1:4]//2
+    min_idx = [ mid[0]-5,mid[1]-5,mid[2]-5,0,0,0,0 ]
+    max_idx = [ mid[0]+5,mid[1]+4,mid[2]+3,0,0,0,0 ]
+    ref_f3d_crop = ref_f3d.clone()
+    ref_f3d_crop.crop(min_idx, max_idx)
+    flo_f3d_crop = flo_f3d.clone()
+    flo_f3d_crop.crop(min_idx, max_idx)
+
     # Get initial transformation
     tm_init = sirf.Reg.AffineTransformation(TM_forward)
 
@@ -734,8 +819,8 @@ def try_niftyf3d():
 
     # default constructor
     nf = sirf.Reg.NiftyF3dSym()
-    nf.set_reference_image(ref_f3d)
-    nf.set_floating_image(flo_f3d)
+    nf.set_reference_image(ref_f3d_crop)
+    nf.set_floating_image(flo_f3d_crop)
     nf.set_parameter_file(parameter_file_f3d)
     nf.set_reference_time_point(1)
     nf.set_floating_time_point(1)
@@ -754,6 +839,19 @@ def try_niftyf3d():
     def_inverse.write_split_xyz_components(f3d_def_inverse)
     disp_forward.write(f3d_disp_forward)
     disp_inverse.write_split_xyz_components(f3d_disp_inverse)
+
+    # Compare between sirf.Reg.NiftiImageData3DDefofmation::as_array() and nibabel
+    if have_nibabel:
+        deff_arr = def_forward.as_array()
+        deff_nib_arr = nib.load(f3d_def_forward).get_fdata()
+        if not np.array_equal(deff_arr, deff_nib_arr):
+            raise AssertionError("NiftiImageData3DDeformation as_array() failed.")
+
+        # Check as_array and fill for deformation fields
+        deff2 = def_forward.clone()
+        deff2.fill(deff_arr)
+        if deff2 != def_forward:
+            raise AssertionError("NiftiImageData3DDeformation::as_array()/fill() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -795,6 +893,8 @@ def try_transformations(na):
 
     # Test get_inverse
     tm_inv = tm_iden.get_inverse()
+    if not tm_inv:
+        raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -818,7 +918,7 @@ def try_resample(na):
     padding_value = -20
 
     sys.stderr.write('Testing rigid resample...\n')
-    nr1 = sirf.Reg.NiftyResample()
+    nr1 = sirf.Reg.NiftyResampler()
     nr1.set_reference_image(ref_aladin)
     nr1.set_floating_image(flo_aladin)
     nr1.set_interpolation_type_to_cubic_spline()  # try different interpolations
@@ -831,7 +931,7 @@ def try_resample(na):
     nr1.get_output().write(rigid_resample)
 
     sys.stderr.write('Testing non-rigid displacement...\n')
-    nr2 = sirf.Reg.NiftyResample()
+    nr2 = sirf.Reg.NiftyResampler()
     nr2.set_reference_image(ref_aladin)
     nr2.set_floating_image(flo_aladin)
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
@@ -842,10 +942,10 @@ def try_resample(na):
     nr2.get_output().write(nonrigid_resample_disp)
 
     if nr2.get_output().get_min() != padding_value:
-        raise AssertionError('NiftyResample:set_padding_value failed')
+        raise AssertionError('NiftyResampler:set_padding_value failed')
 
     sys.stderr.write('Testing non-rigid deformation...\n')
-    nr3 = sirf.Reg.NiftyResample()
+    nr3 = sirf.Reg.NiftyResampler()
     nr3.set_reference_image(ref_aladin)
     nr3.set_floating_image(flo_aladin)
     nr3.set_interpolation_type_to_linear()  # try different interpolations
@@ -859,13 +959,13 @@ def try_resample(na):
     #       resample.forward(out, in)
     out1 = nr3.forward(flo_aladin)
     out2 = ref_aladin.deep_copy()
-    nr3.forward(out2, flo_aladin)
+    nr3.forward(out=out2, x=flo_aladin)
     if out1 != out2:
-        raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
+        raise AssertionError('out = NiftyResampler::forward(in) and NiftyResampler::forward(out, in) do not give same result.')
 
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
-    # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
-    # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation 
+    # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
+    # ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation
     # is not used to generate final image. You would hope it's used throughout the registration process, otherwise why is it there?
     # if na.get_output() != nr1.get_output():
     #     raise AssertionError()
@@ -905,37 +1005,25 @@ def try_niftymomo(na):
     y.crop(min_idx, max_idx)
 
     sys.stderr.write('Testing adjoint resample...\n')
-    nr = sirf.Reg.NiftyResample()
+    nr = sirf.Reg.NiftyResampler()
     nr.set_reference_image(x)
     nr.set_floating_image(y)
     nr.set_interpolation_type_to_linear()
     nr.add_transformation(T)
 
-    # Do the forward
-    Ty = nr.forward(y)
-
-    # Do the adjoint
-    Tsx = nr.adjoint(x)
-
     # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
-    inner_x_Ty = x.get_inner_product(Ty)
-    inner_y_Tsx = y.get_inner_product(Tsx)
-    adjoint_test = abs(inner_x_Ty - inner_y_Tsx) / (0.5 * (abs(inner_x_Ty) + abs(inner_y_Tsx)))
-    sys.stderr.write('<x, Ty>  = %f\n' % inner_x_Ty)
-    sys.stderr.write('<y, Tsx> = %f\n' % inner_y_Tsx)
-    sys.stderr.write('|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = %f\n' % adjoint_test)
-    if adjoint_test > 1e-4:
-        raise AssertionError("NiftyResample::adjoint() failed")
+    if not is_operator_adjoint(nr):
+        raise AssertionError("NiftyResampler::adjoint() failed")
 
     # Check that the following give the same result
     #       out = resample.adjoint(in)
     #       resample.adjoint(out, in)
     out1 = nr.adjoint(x)
     out2 = y.deep_copy()
-    nr.backward(out2, x)
+    nr.backward(out=out2, x=x)
     if out1 != out2:
         raise AssertionError(
-            'out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.')
+            'out = NiftyResampler::adjoint(in) and NiftyResampler::adjoint(out, in) do not give same result.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -1029,7 +1117,7 @@ def try_affinetransformation(na):
         raise AssertionError('AffineTransformation::get_determinant failed.')
 
     # Test get_Euler_angles
-    array = np.zeros((4, 4), dtype=numpy.float32)
+    array = np.zeros((4, 4), dtype=np.float32)
 
     array[0,2] =  1
     array[1,1] = -1
@@ -1052,10 +1140,10 @@ def try_affinetransformation(na):
         raise AssertionError('AffineTransformation as_array() failed.')
 
     # Average!
-    trans = np.array([0., 0., 0.],dtype=numpy.float32)
-    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=numpy.float32)
-    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=numpy.float32)
-    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=numpy.float32)
+    trans = np.array([0., 0., 0.],dtype=np.float32)
+    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=np.float32)
+    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=np.float32)
+    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=np.float32)
     quat_1 = sirf.Reg.Quaternion(quat_1_array)
     quat_2 = sirf.Reg.Quaternion(quat_2_array)
     quat_3 = sirf.Reg.Quaternion(quat_3_array)
@@ -1063,7 +1151,7 @@ def try_affinetransformation(na):
     tm_2 = sirf.Reg.AffineTransformation(trans,quat_2)
     tm_3 = sirf.Reg.AffineTransformation(trans,quat_3)
     average = sirf.Reg.AffineTransformation.get_average([tm_1, tm_2, tm_3])
-    exptd_avg_array = np.zeros((4, 4), dtype=numpy.float32)
+    exptd_avg_array = np.zeros((4, 4), dtype=np.float32)
     exptd_avg_array[0][0] =  0.5836;
     exptd_avg_array[0][1] = -0.6736;
     exptd_avg_array[0][2] =  0.4535;
@@ -1095,7 +1183,7 @@ def try_quaternion():
     time.sleep(0.5)
 
     # Construct TM
-    array = np.zeros((4, 4), dtype=numpy.float32)
+    array = np.zeros((4, 4), dtype=np.float32)
     array[0,2] = 1
     array[1,1] = 1
     array[2,0] = -1
@@ -1105,17 +1193,21 @@ def try_quaternion():
     # Convert to quaternion
     quat = sirf.Reg.Quaternion(rotm)
     a = quat.as_array()
+    if a is None:
+        raise AssertionError()
 
     # Construct from numpy array
-    expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=numpy.float32)
+    expt_array = np.array([0.707107, 0., 0.707107, 0.],dtype=np.float32)
     expt = sirf.Reg.Quaternion(expt_array)
+    if expt is None:
+        raise AssertionError()
 
     # Compare to expected values
     if not np.allclose(quat.as_array(), expt_array, atol=1e-4):
         raise AssertionError('Quaternion from TM failed.')
 
     # Convert back to TM
-    trans_array = np.array([0., 0., 0.],dtype=numpy.float32)
+    trans_array = np.array([0., 0., 0.],dtype=np.float32)
     affine = sirf.Reg.AffineTransformation(trans_array,quat)
     if affine != rotm:
         raise AssertionError('TM to quaternion failed.')
@@ -1126,19 +1218,18 @@ def try_quaternion():
         raise AssertionError('AffineTransformation:get_quaternion() failed.')
 
     # Average!
-    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=numpy.float32)
-    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=numpy.float32)
-    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=numpy.float32)
+    quat_1_array = np.array([0.92707, 0.02149, 0.19191, 0.32132],dtype=np.float32)
+    quat_2_array = np.array([0.90361, 0.0025836, 0.097279, 0.41716],dtype=np.float32)
+    quat_3_array = np.array([0.75868, -0.21289, 0.53263, 0.30884],dtype=np.float32)
     quat_1 = sirf.Reg.Quaternion(quat_1_array)
     quat_2 = sirf.Reg.Quaternion(quat_2_array)
     quat_3 = sirf.Reg.Quaternion(quat_3_array)
-    exptd_avg_array = np.array([0.88748, -0.0647152, 0.281671, 0.35896],dtype=numpy.float32)
+    exptd_avg_array = np.array([0.88748, -0.0647152, 0.281671, 0.35896],dtype=np.float32)
     exptd_average = sirf.Reg.Quaternion(exptd_avg_array)
     average = sirf.Reg.Quaternion.get_average([quat_1, quat_2, quat_3])
     if not np.allclose(exptd_average.as_array(), average.as_array(), atol=1e-4):
         raise AssertionError('Quaternion average failed.')
     print(average.as_array())
-
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

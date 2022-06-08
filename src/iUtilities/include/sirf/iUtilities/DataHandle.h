@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2019 University College London
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,17 +20,18 @@ limitations under the License.
 
 /*!
 \file
-\ingroup C Interface to C++ Objects
-\brief Execution status type and basic wrapper for C++ objects.
+\ingroup CInterface
+\brief Execution status type and wrappers for C++ objects.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #ifndef DATA_HANDLE_TYPES
 #define DATA_HANDLE_TYPES
 
 #include <stdlib.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -38,7 +39,7 @@ limitations under the License.
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
+//#define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
 #define CATCH \
 	catch (LocalisedException& se) {\
 		ExecutionStatus status(se);\
@@ -69,7 +70,7 @@ limitations under the License.
 typedef std::vector<void const *> DataHandleVector;
 
 /*!
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief Execution status type.
 
 An ExecutionStatus object is created when an exception is caught (see above).
@@ -77,8 +78,8 @@ It stores the exeption's error message and position (file name and line number).
 */
 class ExecutionStatus {
 public:
-	ExecutionStatus() : _error(0), _file(0), _line(0) {}
-	ExecutionStatus(const char* error, const char* file, int line) {
+	ExecutionStatus() : _line(0) {}
+	ExecutionStatus(const std::string& error, const std::string& file, int line) {
 		set(error, file, line);
 	}
 	ExecutionStatus(const ExecutionStatus& s) {
@@ -87,39 +88,23 @@ public:
 	ExecutionStatus(const LocalisedException& ex) {
 		set(ex.what(), ex.file(), ex.line());
 	}
-	~ExecutionStatus() {
-		delete[] _error;
-		delete[] _file;
-	}
-	const char* error() const { return _error; }
-	const char* file() const { return _file; }
+    ~ExecutionStatus() {}
+	const std::string& error() const { return _error; }
+	const std::string& file() const { return _file; }
 	int line() const { return _line; }
 private:
-	char* _error;
-	char* _file;
+	std::string _error;
+	std::string _file;
 	int _line;
-	void set(const char* error, const char* file, int line) {
-		size_t size;
-		if (error) {
-			size = strlen(error) + 1;
-			_error = new char[size];
-			memcpy(_error, error, size);
-		}
-		else
-			_error = 0;
-		if (file) {
-			size = strlen(file) + 1;
-			_file = new char[size];
-			memcpy(_file, file, size);
-		}
-		else
-			_file = 0;
+	void set(const std::string& error, const std::string& file, int line) {
+        _error = error;
+        _file = file;
 		_line = line;
 	}
 };
 
 /*!
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief Basic wrapper for C++ objects.
 
 A DataHandle object stores data address (void* _data) and the current
@@ -135,6 +120,13 @@ public:
 			free(_data);
 		delete _status;
 	}
+	static void* error_handle(const std::string& error, const std::string& file, int line)
+	{
+		DataHandle* handle = new DataHandle;
+		ExecutionStatus status(error, file, line);
+		handle->set(0, &status);
+		return handle;
+	}
 	void set(void* data, const ExecutionStatus* status = 0, int grab = 0) {
 		if (status) {
 			delete _status;
@@ -145,7 +137,7 @@ public:
 		_data = data;
 		_owns_data = grab != 0;
 	}
-	void set_status(const char* error, const char* file, int line)
+	void set_status(const std::string& error, const std::string& file, int line)
 	{
 		if (_status)
 			delete _status;
@@ -159,18 +151,23 @@ protected:
 	ExecutionStatus* _status; // execution status
 };
 
+#if defined(USE_BOOST)
 #include <boost/shared_ptr.hpp>
+#endif
 
 template<class Base>
 class ObjectHandle : public DataHandle {
 public:
 	ObjectHandle(const ObjectHandle& obj) {
+#if defined(USE_BOOST)
 		if (obj.uses_boost_sptr()) {
 			NEW(boost::shared_ptr<Base>, ptr_sptr);
 			*ptr_sptr = *(boost::shared_ptr<Base>*)obj.data();
 			_data = (void*)ptr_sptr;
 		}
-		else {
+		else
+#endif
+		{
 			NEW(std::shared_ptr<Base>, ptr_sptr);
 			*ptr_sptr = *(std::shared_ptr<Base>*)obj.data();
 			_data = (void*)ptr_sptr;
@@ -190,6 +187,7 @@ public:
 		else
 			_status = 0;
 	}
+#if defined(USE_BOOST)
 	ObjectHandle(const boost::shared_ptr<Base>& sptr,
 		const ExecutionStatus* status = 0) : _boost_sptr(true) {
 		NEW(boost::shared_ptr<Base>, ptr_sptr);
@@ -200,14 +198,18 @@ public:
 		else
 			_status = 0;
 	}
+#endif
 	virtual ~ObjectHandle() {
 		delete _status;
 		_status = 0;
+#if defined(USE_BOOST)
 		if (_boost_sptr) {
 			CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
 			delete ptr_sptr;
 		}
-		else {
+		else
+#endif
+		{
 			CAST_PTR(std::shared_ptr<Base>, ptr_sptr, _data);
 			delete ptr_sptr;
 		}
@@ -227,12 +229,14 @@ newObjectHandle(std::shared_ptr<Object> sptr)
 	return (void*)new ObjectHandle<Object>(sptr);
 }
 
+#if defined(USE_BOOST)
 template<class Object>
 static void*
 newObjectHandle(boost::shared_ptr<Object> sptr)
 {
 	return (void*)new ObjectHandle<Object>(sptr);
 }
+#endif
 
 template<class Object>
 Object&
@@ -241,6 +245,7 @@ objectFromHandle(const void* h) {
 	void* ptr = handle->data();
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
+#if defined(USE_BOOST)
 	if (handle->uses_boost_sptr()) {
 		CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
 		Object* ptr_obj = ptr_sptr->get();
@@ -248,7 +253,9 @@ objectFromHandle(const void* h) {
 			THROW("zero object pointer cannot be dereferenced");
 		return *ptr_obj;
 	}
-	else {
+	else
+#endif
+	{
 		CAST_PTR(std::shared_ptr<Object>, ptr_sptr, ptr);
 		Object* ptr_obj = ptr_sptr->get();
 		if (ptr_obj == 0)
@@ -270,6 +277,7 @@ getObjectSptrFromHandle(const void* h, std::shared_ptr<Object>& sptr) {
 	sptr = *ptr_sptr;
 }
 
+#if defined(USE_BOOST)
 template<class Object>
 void
 getObjectSptrFromHandle(const void* h, boost::shared_ptr<Object>& sptr) {
@@ -282,12 +290,13 @@ getObjectSptrFromHandle(const void* h, boost::shared_ptr<Object>& sptr) {
 	CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
 	sptr = *ptr_sptr;
 }
+#endif
 
 #define GRAB 1
 
 /*!
-\ingroup C Interface to C++ Objects
-\brief Data wrapper.
+\ingroup CInterface
+\brief DataHandle wrapper.
 
 Wraps an object of type T into DataHandle.
 The data is owned by the DataHandle object and hence will be deleted by its 
@@ -303,7 +312,7 @@ setDataHandle(DataHandle* h, T x)
 }
 
 /*!
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief Data wrapper constructor.
 
 Creates a new DataHandle to wrap an object of type T. 
@@ -318,13 +327,13 @@ dataHandle(T x)
 }
 
 /*!
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief Data extractor.
 
 Returns a copy of the data stored in a DataHandle object.
 */
 template <typename T>
-T // must have a proper copy constructor
+T /// must have a proper copy constructor
 dataFromHandle(const void* ptr)
 {
 	DataHandle* ptr_h = (DataHandle*)ptr;
@@ -351,8 +360,11 @@ inline void* charDataHandleFromCharData(const char* s)
 	DataHandle* h = new DataHandle;
 	size_t len = strlen(s);
 	char* d = (char*)malloc(len + 1);
-	//strcpy_s(d, len + 1, s);
+#ifdef _MSC_VER
+	strcpy_s(d, len + 1, s);
+#else
 	strcpy(d, s);
+#endif
 	h->set((void*)d, 0, GRAB);
 	return (void*)h;
 }

@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2017 - 2019 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ limitations under the License.
 \ingroup Registration
 \brief Base class for transformations.
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -46,7 +46,7 @@ to a deformation field. In this fashion, they can be composed
 into a single transformation.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */template<class dataType>
 class Transformation
 {
@@ -58,8 +58,12 @@ public:
     /// Destructor
     virtual ~Transformation() {}
 
-    /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref) const = 0;
+    /// Get as deformation field.
+    ///
+    /// Reference image **must** be used when converting a transformation matrix to a deformation.
+    /// For displacements and deformations, the reference can be used optionally. It **should** be used when composing transformations to be used for resampling
+    /// But is probably unnecessary for simply concatenating deformations.
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref, const bool use_ref = true) const = 0;
 
     /// Write
     virtual void write(const std::string &filename) const = 0;

@@ -2,12 +2,13 @@ classdef DataContainer < handle
 % INTERNAL USE ONLY.
 % Class for an abstract data container.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2020 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -42,6 +43,11 @@ classdef DataContainer < handle
             num = calllib('miutilities', 'mIntDataFromHandle', handle);
             sirf.Utilities.delete(handle)
         end
+        function empty = is_empty(self)
+%***SIRF*** Returns true if this container does not actually store data
+%           (but may store metadata - geometry etc.), e.g. is a template.
+            empty = self.number() < 1;
+        end
         function copy = clone(self)
             if isempty(self.handle_)
                 error('DataContainer:clone:empty_object', ...
@@ -70,6 +76,10 @@ classdef DataContainer < handle
             z = complex(re, im);
             sirf.Utilities.delete(handle)
         end
+        function z = uminus(self)
+%***SIRF*** Overloads unary - for data containers.
+            z = self*(-1);
+        end
         function z = minus(self, other)
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
@@ -92,7 +102,7 @@ classdef DataContainer < handle
 %         viewed as vectors.
             sirf.Utilities.assert_validities(self, other)
             z = self.same_object();
-            z.handle_ = calllib('msirf', 'mSIRF_multiply', ...
+            z.handle_ = calllib('msirf', 'mSIRF_product', ...
                 self.handle_, other.handle_);
             sirf.Utilities.check_status('DataContainer:times', z.handle_);
         end
@@ -102,7 +112,7 @@ classdef DataContainer < handle
 %         viewed as vectors.
             sirf.Utilities.assert_validities(self, other)
             z = self.same_object();
-            z.handle_ = calllib('msirf', 'mSIRF_divide', ...
+            z.handle_ = calllib('msirf', 'mSIRF_ratio', ...
                 self.handle_, other.handle_);
             sirf.Utilities.check_status('DataContainer:rdivide', z.handle_);
         end
@@ -111,7 +121,6 @@ classdef DataContainer < handle
 %         by a scalar or another data container. 
 %         Returns the product self*other if other is a scalar or the dot 
 %         product with other if it is a data container.
-            %if isobject(other)
             if strcmp(class(self), class(other))
                 z = self.dot(other);
                 return
@@ -125,7 +134,7 @@ classdef DataContainer < handle
             sirf.Utilities.check_status('DataContainer:mtimes', z.handle_);
         end
         function z = mrdivide(self, other)
-%***SIRF*** mtimes(other) overloads / for data containers multiplication 
+%***SIRF*** mtimes(other) overloads / for data containers division
 %         by a scalar. 
 %         Returns the ratio self/other where other is a scalar.
             if isscalar(other)
@@ -147,7 +156,6 @@ classdef DataContainer < handle
 %         of two data containers x and y;
 %         a and b: complex scalars
 %         x and y: DataContainers
-            %assert(strcmp(class(x), class(y)))
             sirf.Utilities.assert_validities(x, y)
             z = x.same_object();
             a = single(a);
@@ -158,6 +166,57 @@ classdef DataContainer < handle
             ptr_zb = libpointer('singlePtr', zb);
             z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
                 ptr_za, x.handle_, ptr_zb, y.handle_);
+            sirf.Utilities.check_status('DataContainer:axpby', z.handle_);
+        end
+        function z = xapyb(x, a, y, b)
+%***SIRF*** xapyb(x, a, y, b) returns a linear combination a*x + b*y 
+%         of two data containers x and y;
+%         a and b: complex scalars, or DataContainers
+%         x and y: DataContainers
+            sirf.Utilities.assert_validities(x, y)
+            z = x.same_object();
+
+            if isscalar(a)
+                a_scalar = true;
+                a = single(a);
+                za = [real(a); imag(a)];
+                ptr_a = libpointer('singlePtr', za);
+            else
+                a_scalar = false;
+                sirf.Utilities.assert_validities(x, a);
+                ptr_a = a.handle;
+            end
+
+            if isscalar(b)
+                b_scalar = true;
+                b = single(b);
+                zb = [real(b); imag(b)];
+                ptr_b = libpointer('singlePtr', zb);
+            else
+                b_scalar = false;
+                sirf.Utilities.assert_validities(y, b)
+                ptr_b = b.handle;
+            end
+
+            if xor(a_scalar, b_scalar)
+                tmp = x.same_object();
+                if a_scalar
+                    tmp = b.times(y);
+                    z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                        ptr_a, x.handle_, 1.0, tmp.handle_);
+                else
+                    tmp = a.times(x);
+                    z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                        1.0, tmp.handle_, ptr_b, y.handle_);
+                end
+            elseif a_scalar
+                z.handle_ = calllib('msirf', 'mSIRF_axpby', ...
+                    ptr_a, x.handle_, ptr_b, y.handle_);
+            else
+                z.handle_ = calllib('msirf', 'mSIRF_xapyb', ...
+                    x.handle_, ptr_a, y.handle_, ptr_b);
+            end
+
             sirf.Utilities.check_status('DataContainer:axpby', z.handle_);
         end
     end

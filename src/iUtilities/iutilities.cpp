@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
+Copyright 2019 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,12 +21,12 @@ limitations under the License.
 
 /*!
 \file
-\ingroup C Interface to C++ Objects
+\ingroup CInterface
 \brief C interface to DataHandle.
 
 Defines C functions handling DataHandle objects.
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include <stdint.h>
@@ -34,6 +35,11 @@ Defines C functions handling DataHandle objects.
 #include "sirf/iUtilities/DataHandle.h"
 
 extern "C" {
+
+	int intBits()
+	{
+		return 8 * sizeof(int);
+	}
 
 	void* newDataHandle() // C constructor
 	{
@@ -59,6 +65,10 @@ extern "C" {
 	void* intDataHandle(int i)
 	{
 		return dataHandle<int>(i);
+	}	
+	void* boolDataHandle(int b)
+	{
+		return dataHandle<bool>(b);
 	}	
 	void* floatDataHandle(float i) 
 	{
@@ -143,7 +153,7 @@ extern "C" {
 	const char* executionError(const void* ptr) {
 		const DataHandle* ptr_h = (const DataHandle*)ptr;
 		if (ptr_h->status())
-			return ptr_h->status()->error();
+			return ptr_h->status()->error().c_str();
 		else
 			return "";
 	}
@@ -151,7 +161,7 @@ extern "C" {
 	const char* executionErrorFile(const void* ptr) {
 		const DataHandle* ptr_h = (const DataHandle*)ptr;
 		if (ptr_h->status())
-			return ptr_h->status()->file();
+			return ptr_h->status()->file().c_str();
 		else
 			return "";
 	}

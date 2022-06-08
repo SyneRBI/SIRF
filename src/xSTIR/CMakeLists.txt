@@ -16,6 +16,8 @@
 #
 #=========================================================================
 
-ADD_SUBDIRECTORY(cSTIR)
-ADD_SUBDIRECTORY(pSTIR)
-ADD_SUBDIRECTORY(mSTIR)
+add_subdirectory(cSTIR)
+if (BUILD_PYTHON)
+  add_subdirectory(pSTIR)
+endif()
+add_subdirectory(mSTIR)

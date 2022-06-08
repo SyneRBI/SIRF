@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,23 +21,15 @@ limitations under the License.
 #ifndef INTERFACE_UTILITIES
 #define INTERFACE_UTILITIES
 
-// Deprecation function. With C++14, could use [[deprecated("some message")]]
-#if defined(__GNUC__) || defined(__clang__)
-#define DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define DEPRECATED __declspec(deprecated)
-#else
-#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
-#define DEPRECATED
-#endif
-
 #ifndef IUTILITIES_FOR_MATLAB
 extern "C" {
 #endif
+	int intBits();
 	void* newDataHandle();
 	void deleteDataHandle(void* ptr);
 	void* charDataHandle(const char* s);
 	void* intDataHandle(int i);
+	void* boolDataHandle(bool b);
 	void* floatDataHandle(float i);
 	void* doubleDataHandle(double i);
 	char* charDataFromHandle(const void* ptr);

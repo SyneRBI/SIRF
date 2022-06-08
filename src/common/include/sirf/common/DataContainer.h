@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ limitations under the License.
 #include <map>
 #include "sirf/iUtilities/DataHandle.h"
 
-/*
-\ingroup Data Container
+/*!
+\ingroup Common
 \brief Abstract data container.
 
 A class for a set of generally heterogeneous items of data.
@@ -44,22 +44,78 @@ namespace sirf {
 		//virtual DataContainer* new_data_container() const = 0;
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
 		virtual unsigned int items() const = 0;
+		virtual bool is_complex() const = 0;
+
+		/// returns the norm of this container viewed as a vector
 		virtual float norm() const = 0;
+
+		/// calculates the dot product of this container with another one
 		virtual void dot(const DataContainer& dc, void* ptr) const = 0;
+
+		/// \c *this = the elementwise product \c x*y
 		virtual void multiply
-		(const DataContainer& x, const DataContainer& y) = 0;
+			(const DataContainer& x, const DataContainer& y) = 0;
+
+		/// \c *this = the elementwise ratio \c x/y
 		virtual void divide
-		(const DataContainer& x, const DataContainer& y) = 0;
+			(const DataContainer& x, const DataContainer& y) = 0;
+
+		/// \c *this = the elementwise \c max(x, y)
+		virtual void maximum
+			(const DataContainer& x, const DataContainer& y) = 0;
+
+		/// \c *this = the elementwise \c min(x, y)
+		virtual void minimum
+			(const DataContainer& x, const DataContainer& y) = 0;
+
+		/// \c *this = the linear combination of \c x and \c y
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
 			const void* ptr_b, const DataContainer& y) = 0;
+		/// alternative interface to the above
+		virtual void xapyb(
+			const DataContainer& x, const void* ptr_a,
+			const DataContainer& y, const void* ptr_b) = 0;
+
+		/// \c *this = elementwise sum of two elementwise products \c x*a and \c y*b
+		virtual void xapyb(
+			const DataContainer& x, const DataContainer& a,
+			const DataContainer& y, const DataContainer& b) = 0;
+
 		virtual void write(const std::string &filename) const = 0;
+
+		bool is_empty() const
+		{
+			return items() < 1;
+		}
+
 		std::unique_ptr<DataContainer> clone() const
 		{
 			return std::unique_ptr<DataContainer>(this->clone_impl());
 		}
+
+		/// overwrites this container's complex data with complex conjugate values
+		void conjugate()
+		{
+			this->conjugate_impl();
+		}
+
+		///  returns unique pointer to the complex-conjugated copy of this container
+		std::unique_ptr<DataContainer> conjugate() const
+		{
+			DataContainer* ptr = this->clone_impl();
+			ptr->conjugate();
+			return std::unique_ptr<DataContainer>(ptr);
+		}
+
 	protected:
 		virtual DataContainer* clone_impl() const = 0;
+		/// we assume data to be real, complex data containers must override this
+		virtual void conjugate_impl()
+		{
+			if (is_complex())
+				THROW("complex data containes must override conjugate_impl()");
+		}
 	};
 }
 

@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2019 University College London
+# Copyright 2018 - 2020 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -28,10 +28,12 @@ TARGET_INCLUDE_DIRECTORIES(NiftyMoMo PUBLIC
 
 # NIFTYREG
 TARGET_LINK_LIBRARIES(NiftyMoMo PUBLIC ${NR_libs_full_path} ${NR_libs_full_path})
-TARGET_INCLUDE_DIRECTORIES(NiftyMoMo BEFORE PUBLIC "${NIFTYREG_INCLUDE_DIRS}")
+TARGET_INCLUDE_DIRECTORIES(NiftyMoMo PUBLIC "${NIFTYREG_INCLUDE_DIRS}")
 
 # Install
-INSTALL(TARGETS NiftyMoMo DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-INSTALL (
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS NiftyMoMo EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)

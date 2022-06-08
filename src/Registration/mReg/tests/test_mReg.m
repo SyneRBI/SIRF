@@ -1,9 +1,9 @@
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018 - 2019 University College London
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2018 - 2020 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -52,8 +52,8 @@ g.aladin_def_inverse                         = fullfile(output_prefix, 'matlab_a
 g.aladin_def_fwd_inv                         = fullfile(output_prefix, 'matlab_aladin_def_fwd_then_inv.nii');
 g.aladin_disp_forward                        = fullfile(output_prefix, 'matlab_aladin_disp_forward.nii');
 g.aladin_disp_inverse                        = fullfile(output_prefix, 'matlab_aladin_disp_inverse_%s.nii');
-g.f3d_def_forward                            = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
-g.f3d_def_inverse                            = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
+g.f3d_def_forward                            = fullfile(output_prefix, 'matlab_f3d_def_forward.nii');
+g.f3d_def_inverse                            = fullfile(output_prefix, 'matlab_f3d_def_inverse_%s.nii');
 g.f3d_disp_forward                           = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
 g.f3d_disp_inverse                           = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
 
@@ -69,6 +69,10 @@ g.ref_aladin                                 = sirf.Reg.NiftiImageData3D( g.ref_
 g.flo_aladin                                 = sirf.Reg.NiftiImageData3D( g.flo_aladin_filename );
 g.ref_f3d                                    = sirf.Reg.NiftiImageData3D(   g.ref_f3d_filename  );
 g.flo_f3d                                    = sirf.Reg.NiftiImageData3D(   g.flo_f3d_filename  );
+
+% Check if we have niftiread
+toolkits=ver;
+have_niftiread = any(strcmp({toolkits.Name},'Image Processing Toolbox'));
 
 % You can change these when debugging
 try_niftiimage = true;
@@ -202,9 +206,11 @@ if try_niftiimage
     x.fill(x_arr);
     assert(x.get_contains_nans(),'NiftiImageData::get_contains_nans() 2 failed.')
 
-    arr1 = sirf.Reg.NiftiImageData(g.ref_aladin_filename).as_array();
-    arr2 = niftiread(g.ref_aladin_filename);
-    assert(all(all(all(arr1 == arr2))), 'NiftiImageData as_array() failed.')
+    if have_niftiread
+        arr1 = sirf.Reg.NiftiImageData(g.ref_aladin_filename).as_array();
+        arr2 = niftiread(g.ref_aladin_filename);
+        assert(all(all(all(arr1 == arr2))), 'NiftiImageData as_array() failed.')
+    end
 
     % Test geom info
     im = sirf.Reg.NiftiImageData(g.ref_aladin_filename);
@@ -243,6 +249,29 @@ if try_niftiimage
     disp(inner_product)
     disp(in1.get_inner_product(in2))
     assert(abs(inner_product - in1.get_inner_product(in2)) < 1e-4, 'NiftiImageData::get_inner_product() failed.');
+
+    % Pad then crop, should be the same
+    aa = g.ref_aladin;
+    cc = aa.clone();
+    original_dims = aa.get_dimensions();
+
+    pad_in_min_dir = [1, 2, 3, 0, 0, 0, 0];
+    pad_in_max_dir = [4, 5, 6, 0, 0, 0, 0];
+    cc.pad(pad_in_min_dir, pad_in_max_dir, 100.);
+
+    padded_dims = cc.get_dimensions();
+    for i = 1:7
+        assert(padded_dims(i+1) == original_dims(i+1) + pad_in_min_dir(i) + pad_in_max_dir(i), ...
+            'NiftiImageData::pad failed')
+    end
+
+    % Crop back to beginning
+    cropped_min_dir = pad_in_min_dir;
+    for i = 1:7
+        cropped_max_dir(i) = original_dims(i+1) + cropped_min_dir(i) - 1;
+    end
+    cc.crop(cropped_min_dir, cropped_max_dir);
+    assert(aa == cc, 'NiftiImageData::pad/crop failed')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData test.')
@@ -301,6 +330,12 @@ if try_niftiimage3d
     % try linear algebra
     h = d/10000;
     assert(abs(h.get_max()-d.get_max()/10000) < 1e-4,'NiftiImageData3D linear algebra failed.')
+
+    % Check as_array and fill is symmetric
+    ref_aladin_arr = g.ref_aladin.as_array();
+    ref_aladin2 = g.ref_aladin.clone();
+    ref_aladin2.fill(ref_aladin_arr);
+    assert(ref_aladin2 == g.ref_aladin, 'NiftiImageData3D::as_array()/fill() failed.')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImageData3D test.')
@@ -546,11 +581,27 @@ if try_niftyaladin
     na.process();
 
     % Get outputs
-    warped = na.get_output();
-    def_forward = na.get_deformation_field_forward();
-    def_inverse = na.get_deformation_field_inverse();
-    disp_forward = na.get_displacement_field_forward();
-    disp_inverse = na.get_displacement_field_inverse();
+    warped = na.get_output().deep_copy();
+    def_forward = na.get_deformation_field_forward().deep_copy();
+    def_inverse = na.get_deformation_field_inverse().deep_copy();
+    disp_forward = na.get_displacement_field_forward().deep_copy();
+    disp_inverse = na.get_displacement_field_inverse().deep_copy();
+    TM_forward_ = na.get_transformation_matrix_forward().deep_copy();
+    TM_inverse_ = na.get_transformation_matrix_inverse().deep_copy();
+
+    % Test via filenames
+    na.set_reference_image_filename(g.ref_aladin_filename);
+    na.set_floating_image_filename(g.flo_aladin_filename);
+    na.process();
+
+    assert(warped == na.get_output() && ...
+        def_forward == na.get_deformation_field_forward() && ...
+        def_inverse == na.get_deformation_field_inverse() && ...
+        disp_forward == na.get_displacement_field_forward() && ...
+        disp_inverse == na.get_displacement_field_inverse() && ...
+        TM_forward_ == na.get_transformation_matrix_forward() && ...
+        TM_inverse_ == na.get_transformation_matrix_inverse(),...
+        'Registration via filenames failed')
 
     warped.write(g.aladin_warped);
     na.get_transformation_matrix_forward().write(g.TM_forward);
@@ -581,7 +632,7 @@ if try_niftyaladin
     sirf.Reg.NiftiImageData.print_headers([g.ref_aladin, g.flo_aladin, def_inverse, def_fwd_then_inv]);
 
     % Reference forward with def_inv
-    resample = sirf.Reg.NiftyResample();
+    resample = sirf.Reg.NiftyResampler();
     resample.set_reference_image(g.flo_aladin);
     resample.set_floating_image(g.ref_aladin);
     resample.set_padding_value(0.);
@@ -607,6 +658,16 @@ if try_niftyf3d
 	disp('%                  Starting Nifty f3d test...')
 	disp('%------------------------------------------------------------------------ %')
 
+    % Crop input to increase speed
+    dim = g.ref_f3d.get_dimensions();
+    mid = dim(2:4)/2;
+    min_idx = [ mid(1)-5,mid(2)-5,mid(3)-5,0,0,0,0 ];
+    max_idx = [ mid(1)+5,mid(2)+4,mid(3)+3,0,0,0,0 ];
+    ref_f3d_crop = g.ref_f3d.clone();
+    ref_f3d_crop.crop(min_idx, max_idx);
+    flo_f3d_crop = g.flo_f3d.clone();
+    flo_f3d_crop.crop(min_idx, max_idx);
+
 	% Print all wrapped methods.
 	sirf.Reg.NiftyF3dSym.print_all_wrapped_methods();
 
@@ -615,8 +676,8 @@ if try_niftyf3d
 
 	% default constructor
     nf = sirf.Reg.NiftyF3dSym();
-    nf.set_reference_image(g.ref_f3d);
-    nf.set_floating_image(g.flo_f3d);
+    nf.set_reference_image(ref_f3d_crop);
+    nf.set_floating_image(flo_f3d_crop);
     nf.set_parameter_file(g.parameter_file_f3d);
     % nf.set_reference_time_point(1);
     % nf.set_floating_time_point(1);
@@ -635,6 +696,18 @@ if try_niftyf3d
     def_inverse.write_split_xyz_components(g.f3d_def_inverse);
     disp_forward.write(g.f3d_disp_forward);
     disp_inverse.write_split_xyz_components(g.f3d_disp_inverse);
+
+    % Compare between sirf.Reg.NiftiImageData3DDefofmation::as_array() and niftiread
+    if have_niftiread
+        deff_arr = def_forward.as_array();
+        deff_matlab_arr = niftiread(g.f3d_def_forward);
+        assert(all(deff_arr(:) == deff_matlab_arr(:)), 'NiftiImageData3DDeformation as_array() failed.')
+    end
+
+    % Check as_array and fill for deformation fields
+    deff2 = def_forward.clone();
+    deff2.fill(deff_arr);
+    assert(def_forward == deff2, 'NiftiImageData3DDeformation::as_array()/fill() failed.')
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty f3d test.')
@@ -687,7 +760,7 @@ if try_resample
     padding_value = -20;
 
     disp('Testing rigid resample...')
-    nr1 = sirf.Reg.NiftyResample();
+    nr1 = sirf.Reg.NiftyResampler();
     nr1.set_reference_image(g.ref_aladin);
     nr1.set_floating_image(g.flo_aladin);
     nr1.set_interpolation_type_to_cubic_spline();  % try different interpolations
@@ -700,7 +773,7 @@ if try_resample
     nr1.get_output().write(g.rigid_resample);
 
     disp('Testing non-rigid displacement...')
-    nr2 = sirf.Reg.NiftyResample();
+    nr2 = sirf.Reg.NiftyResampler();
     nr2.set_reference_image(g.ref_aladin);
     nr2.set_floating_image(g.flo_aladin);
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
@@ -710,10 +783,10 @@ if try_resample
     nr2.process();
     nr2.get_output().write(g.nonrigid_resample_disp);
 
-    assert(nr2.get_output().get_min() == padding_value, 'NiftyResample:set_padding_value failed.')
+    assert(nr2.get_output().get_min() == padding_value, 'NiftyResampler:set_padding_value failed.')
 
     disp('Testing non-rigid deformation...')
-    nr3 = sirf.Reg.NiftyResample();
+    nr3 = sirf.Reg.NiftyResampler();
     nr3.set_reference_image(g.ref_aladin)
     nr3.set_floating_image(g.flo_aladin)
     nr3.set_interpolation_type_to_linear()  % try different interpolations
@@ -728,7 +801,7 @@ if try_resample
     out1 = nr3.forward(g.flo_aladin);
     out2 = g.ref_aladin.deep_copy();
     nr3.forward(out2, g.flo_aladin);
-    assert(out1 == out2, 'out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
+    assert(out1 == out2, 'out = NiftyResampler::forward(in) and NiftyResampler::forward(out, in) do not give same result.')
 
     % TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
     % doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
@@ -766,7 +839,7 @@ if try_niftymomo
     y.crop(min_idx, max_idx);
 
     disp('Testing adjoint resample..')
-    nr = sirf.Reg.NiftyResample();
+    nr = sirf.Reg.NiftyResampler();
     nr.set_reference_image(x);
     nr.set_floating_image(y);
     nr.set_interpolation_type_to_linear();
@@ -785,7 +858,7 @@ if try_niftymomo
     disp(['<x, Ty>  = ' num2str(inner_x_Ty)])
     disp(['<y, Tsx> = ' num2str(inner_y_Tsx)])
     disp(['|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = ' num2str(adjoint_test)])
-    assert(adjoint_test < 1e-4, 'NiftyResample::adjoint() failed')
+    assert(adjoint_test < 1e-4, 'NiftyResampler::adjoint() failed')
 
     % Check that the following give the same result
     %       out = resample.adjoint(in)
@@ -793,7 +866,7 @@ if try_niftymomo
     out1 = nr.adjoint(x);
     out2 = y.deep_copy();
     nr.backward(out2, x);
-    assert(out1 == out2, 'out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.')
+    assert(out1 == out2, 'out = NiftyResampler::adjoint(in) and NiftyResampler::adjoint(out, in) do not give same result.')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftyMomMo test.')
@@ -884,9 +957,9 @@ if try_affinetransformation
     assert(all(abs(Eul-Eul_expected) < 1e-4), 'AffineTransformation get_Euler_angles() failed.')
 
     % Check as_array
-    f = b.as_array()
-    g = sirf.Reg.AffineTransformation(f);
-    h = g.as_array()
+    f = b.as_array();
+    gg = sirf.Reg.AffineTransformation(f);
+    h = gg.as_array();
     assert(all(all(abs(f-h) < 1e-4)), 'AffineTransformation as_array() failed.')
 
     % Average!

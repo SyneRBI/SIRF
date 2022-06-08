@@ -1,12 +1,12 @@
 classdef Reconstructor < handle
 % Class for a generic PET reconstructor object.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -54,7 +54,10 @@ classdef Reconstructor < handle
             sirf.Utilities.delete(h)
         end
         function image = get_output(self)
-            image = self.image;
+            if isempty(self.image)
+                error('Reconstructor:get_output', 'current estimate not set (did you run a reconstruction already?')
+            end
+            image = self.image.clone();
         end
         function reconstruct(self, image)
 %***SIRF*** Reconstruct the image 

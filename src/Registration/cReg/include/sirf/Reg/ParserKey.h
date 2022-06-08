@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2017 - 2019 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ limitations under the License.
 \brief Parser keys for 0, 1 and 2 arguments
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #pragma once
@@ -52,7 +52,7 @@ std::string get_typename(A)
 \brief Base for parser keys
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class Z>
 class ParserKeyBase
@@ -106,8 +106,8 @@ protected:
     {
         // Start index is always to right of the ":="
         // End index is up to ","
-        int index_start = line.find(":=") + 2;
-        int index_end   = line.find(",");
+        auto index_start = line.find(":=") + 2;
+        auto index_end   = line.find(",");
 
         // For subsequent arguments
         for (int i=0; i<arg_num; i++) {
@@ -137,7 +137,7 @@ protected:
     void get_argument(const std::string &line, const int arg_num, int &arg          ) const { arg = std::stoi(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - unsigned int
-    void get_argument(const std::string &line, const int arg_num, unsigned int &arg ) const { arg = std::stoll(get_arg_as_string(line, arg_num)); }
+    void get_argument(const std::string &line, const int arg_num, unsigned int &arg ) const { arg = static_cast<unsigned>(std::stoul(get_arg_as_string(line, arg_num))); }
 
     /// Get argument - float
     void get_argument(const std::string &line, const int arg_num, float &arg        ) const { arg = std::stof(get_arg_as_string(line, arg_num));  }
@@ -161,7 +161,7 @@ protected:
 \brief Class for parser keys with 0 arguments
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class Z>
 class ParserKey0Arg : public ParserKeyBase<Z>
@@ -206,7 +206,7 @@ protected:
 \brief Class for parser keys with 1 argument
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class Z, class A>
 class ParserKey1Arg : public ParserKeyBase<Z>
@@ -258,7 +258,7 @@ protected:
 \brief Class for parser keys with 2 arguments
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 template<class Z, class A, class B>
 class ParserKey2Arg : public ParserKeyBase<Z>

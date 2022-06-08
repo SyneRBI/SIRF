@@ -1,12 +1,13 @@
 classdef ImageData < sirf.SIRF.ImageData
 % Class for MR image data objects.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% 
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC.
+% Copyright 2019 University College London
+%
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -30,10 +31,22 @@ classdef ImageData < sirf.SIRF.ImageData
         end
     end
     methods
-        function self = ImageData()
-            % Creates empty ImageData object.
+        function self = ImageData(arg)
+            % Creates ImageData object.
             self.name_ = 'ImageData';
             self.handle_ = [];
+            if nargin < 1
+                return
+            end
+            if ischar(arg)
+                fprintf('arg is ImageData filename\n')
+                self.read_from_file(arg)
+            elseif isa(arg, 'sirf.Gadgetron.AcquisitionData')
+                fprintf('arg is AcquisitionData\n')
+                self.handle_ = calllib('mgadgetron', ...
+                    'mGT_ImageFromAcquisitiondata', arg.handle_);
+                sirf.Utilities.check_status(self.name_, self.handle_);
+            end
         end
         function delete(self)
             if ~isempty(self.handle_)
@@ -93,8 +106,8 @@ classdef ImageData < sirf.SIRF.ImageData
             sirf.Utilities.delete(handle)
             ft = (v ~= 7 && v ~= 8);
         end
-        function data = as_array(self)
-%***SIRF*** Returns 3D complex array representing this image data.
+        function [nx, ny, nz] = dimensions(self)
+%***SIRF*** Returns dimensions of complex array representing this ImageData.
 %         First two dimensions are x and y, the third is a product of all
 %         other dimensions (z/slice/repetition etc.).
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
@@ -102,24 +115,34 @@ classdef ImageData < sirf.SIRF.ImageData
                 img = self.image(1);
                 calllib('mgadgetron', 'mGT_getImageDim', img.handle_, ptr_i);
             else
-                data = [];
+                nx = 0;
+                ny = 0;
+                nz = 0;
                 return
             end
             dim = ptr_i.Value;
+            nx = dim(1);
+            ny = dim(2);
             nz = dim(3)*dim(4)*self.number();
-            n = dim(1)*dim(2)*nz;
+        end
+        function data = as_array(self)
+%***SIRF*** Returns 3D complex array representing this ImageData.
+%         First two dimensions are x and y, the third is a product of all
+%         other dimensions (z/slice/repetition etc.).
+            [nx, ny, nz] = self.dimensions();
+            n = nx*ny*nz;
             if self.is_real()
                 ptr_v = libpointer('singlePtr', zeros(n, 1));
                 h = calllib('mgadgetron', 'mGT_getImageDataAsFloatArray', ...
                     self.handle_, ptr_v);
-                data = reshape(ptr_v.Value, dim(1), dim(2), nz);
+                data = reshape(ptr_v.Value, nx, ny, nz);
             else
                 ptr_z = libpointer('singlePtr', zeros(2, n));
                 h = calllib...
                     ('mgadgetron', 'mGT_getImageDataAsCmplxArray', ...
                     self.handle_, ptr_z);
                 data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
-                    dim(1), dim(2), nz);
+                    nx, ny, nz);
             end
             sirf.Utilities.check_status('ImageData', h);
             sirf.Utilities.delete(h)

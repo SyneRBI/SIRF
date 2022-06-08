@@ -1,10 +1,10 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 University College London
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ limitations under the License.
 \brief Perform weighted mean of multiple images.
 
 \author Richard Brown
-\author CCP PETMR
+\author SyneRBI
 */
 
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/NiftiImageData.h"
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include <iostream>
 
 using namespace sirf;
@@ -66,7 +66,7 @@ void ImageWeightedMean<dataType>::process()
             images_sptr.push_back(_input_image_sptrs[i]);
         else {
             std::cout << "\nImageWeightedMean: Mismatch in metadata between images 0 and " << i << ", so resampling taking first image as reference...\n";
-            NiftyResample<float> resample;
+            NiftyResampler<float> resample;
             resample.set_interpolation_type_to_nearest_neighbour();
             resample.set_reference_image(_input_image_sptrs[0]);
             resample.set_floating_image(_input_image_sptrs[i]);

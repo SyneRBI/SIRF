@@ -276,11 +276,10 @@ coverage.xml
 # submodules which should be explicitly force-pushed
 /data
 
-# Dont track automatically generated files
-NiftyAladinSym.cpp
-NiftyF3dSym.cpp
-src/xSTIR/pSTIR/STIR.py
-src/xSTIR/pSTIR/tests/tests_niftypet.py
-
 # Ignore files created by Pycharm
 \.idea/
+
+# Ignore files created by VS Code
+.vscode/
+
+results/

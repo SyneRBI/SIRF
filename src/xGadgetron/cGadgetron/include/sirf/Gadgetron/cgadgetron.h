@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,19 +23,22 @@ limitations under the License.
 
 #ifndef CGADGETRON_FOR_MATLAB
 #define PTR_INT size_t
+#define PTR_UINT64 size_t
 #define PTR_FLOAT size_t
 #define PTR_DOUBLE size_t
 extern "C" {
 #else
 #define PTR_INT int*
+#define PTR_UINT64 unsigned long long int*
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
 
-	// Unified parameter exchange methods
-	void* parameter(void* ptr, const char* obj, const char* name);
-	void* setParameter
-		(void* ptr, const char* obj, const char* par, const void* val);
+	//// Unified parameter exchange methods
+	//void* parameter(void* ptr, const char* obj, const char* name);
+	//void* setParameter
+	//	(void* ptr, const char* obj, const char* par, const void* val);
+
 	// common Object methods
 	void* cGT_newObject(const char* name);
 	void* cGT_parameter(void* ptr, const char* obj, const char* name);
@@ -42,17 +46,10 @@ extern "C" {
 		(void* ptr, const char* obj, const char* par, const void* val);
 
 	// coil data methods
-	void*	cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);
-	void*	cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis);
 	void* cGT_CoilSensitivities(const char* file);
 	void* cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
-	void* cGT_appendCSM
-		(void* ptr_csms, int nx, int ny, int nz, int nc, 
-		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void cGT_getCoilDataDimensions
-		(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
-	void cGT_getCoilData
-		(void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
+	void* cGT_computeCoilImages(void* ptr_imgs, void* ptr_acqs);
+	void* cGT_computeCoilSensitivitiesFromCoilImages(void* ptr_csms, void* ptr_imgs);
 
 	// acquisition model methods
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
@@ -60,32 +57,47 @@ extern "C" {
 		(void* ptr_am, const void* ptr_acqs, const void* ptr_imgs);
 	void* cGT_setAcquisitionModelParameter
 		(void* ptr_am, const char* name, const void* ptr);
+	void* cGT_AcquisitionModelParameter(void* ptr_am, const char* name);
 	void* cGT_setCSMs(void* ptr_am, const void* ptr_csms);
+	void* cGT_acquisitionModelNorm(void* ptr_am, int num_iter, int verb);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 	void* cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 
 	// acquisition data methods
-	void* cGT_setAcquisitionDataStorageScheme(const char* scheme);
-	void* cGT_getAcquisitionDataStorageScheme();
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq);
 	void* cGT_createEmptyAcquisitionData(void* ptr_ad);
+    void* cGT_getAcquisitionsSubset(void* ptr_acqs, PTR_INT const ptr_idx, PTR_INT const num_elem_subset);
+
 	void* cGT_cloneAcquisitions(void* ptr_input);
 	void* cGT_sortAcquisitions(void* ptr_acqs);
 	void* cGT_sortAcquisitionsByTime(void* ptr_acqs);
 	void* cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info);
+    void* cGT_setGRPETrajectory(void* ptr_acqs);
+	void* cGT_setRadial2DTrajectory(void* ptr_acqs);
+	void* cGT_setGoldenAngle2DTrajectory(void* ptr_acqs);
+    void* cGT_getDataTrajectory(void* ptr_acqs, PTR_FLOAT ptr_traj);
+    void* cGT_setAcquisitionUserFloat(void* ptr_acqs, PTR_FLOAT ptr_floats, int idx);
+
 	void* cGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);
 	void* cGT_fillAcquisitionData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 	void* cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src);
 	void* cGT_acquisitionDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
+	void* cGT_acquisitionParameterInfo(void* ptr_acqs, const char* name, PTR_INT info);
+	void* cGT_acquisitionParameterValuesInt(void* ptr_acqs, const char* name,
+		int from, int till, int n, PTR_UINT64 values);
+	void* cGT_acquisitionParameterValuesFloat(void* ptr_acqs, const char* name,
+		int from, int till, int n, PTR_FLOAT values);
 
 	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);
-	void*	cGT_readImages(const char* file);
+    void* cGT_readImages(const char* file);
+	void* cGT_ImageFromAcquisitiondata(void* ptr_acqs);
+
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
 	void* cGT_selectImages
 		(void* ptr_input, const char* attr, const char* target);
@@ -95,11 +107,13 @@ extern "C" {
 	void* cGT_imageDataType(const void* ptr_x, int im_num);
 	void cGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
 	void* cGT_imageType(const void* ptr_img);
+	void* cGT_setImageType(const void* ptr_img, int image_type);
 	void* cGT_getImageDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 	void* cGT_setImageDataFromFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 	void* cGT_getImageDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 	void* cGT_setImageDataFromCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
     void* cGT_print_header(const void* ptr_imgs, const int im_idx);
+	void* cGT_realImageData(void* ptr_imgs, const char* way);
 
 	// gadget chain methods
 	void* cGT_setHost(void* ptr_gc, const char* host);

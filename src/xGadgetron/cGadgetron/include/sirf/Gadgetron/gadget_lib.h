@@ -1,10 +1,11 @@
 /*
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2019 University College London
 
 This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,19 +21,21 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgets Library
+\ingroup MR
 \brief Specification file for the library of SIRF generators of xml-definitions
        of Gadgetron gadgets.
 
 \author Evgueni Ovtchinnikov
-\author CCP PETMR
+\author SyneRBI
 */
 
 #ifndef GADGETS_LIBRARY
 #define GADGETS_LIBRARY
 
 #include <map>
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
+
+#include "sirf/common/iequals.h"
 
 namespace sirf {
 
@@ -686,24 +689,24 @@ namespace sirf {
 		}
 		virtual void set_property(const char* prop, const char* value)
 		{
-			if (boost::iequals(prop, "trigger_dimension") ||
-				boost::iequals(prop, "sorting_dimension"))
+			if (sirf::iequals(prop, "trigger_dimension") ||
+				sirf::iequals(prop, "sorting_dimension"))
 				aat_.set_property(prop, value);
-			else if (boost::iequals(prop, "n_dimension") ||
-				boost::iequals(prop, "s_dimension") ||
-				boost::iequals(prop, "split_slices"))
+			else if (sirf::iequals(prop, "n_dimension") ||
+				sirf::iequals(prop, "s_dimension") ||
+				sirf::iequals(prop, "split_slices"))
 				bb_.set_property(prop, value);
 			else
 				THROW("unknown gadget parameter");
 		}
 		virtual std::string value_of(const char* prop)
 		{
-			if (boost::iequals(prop, "trigger_dimension") ||
-				boost::iequals(prop, "sorting_dimension"))
+			if (sirf::iequals(prop, "trigger_dimension") ||
+				sirf::iequals(prop, "sorting_dimension"))
 				return aat_.value_of(prop);
-			else if (boost::iequals(prop, "n_dimension") ||
-				boost::iequals(prop, "s_dimension") ||
-				boost::iequals(prop, "split_slices"))
+			else if (sirf::iequals(prop, "n_dimension") ||
+				sirf::iequals(prop, "s_dimension") ||
+				sirf::iequals(prop, "split_slices"))
 				return bb_.value_of(prop);
 			THROW("unknown gadget parameter");
 		}

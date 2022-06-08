@@ -4,13 +4,13 @@ function reconstruct_from_listmode(engine)
 %   output will be in the current working directory.
 %   input defaults to the mMR subfolder of pet_data_path
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2018 Rutherford Appleton Laboratory STFC.
-% Copyright 2018 University College London.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 - 2019 University College London.
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -115,6 +115,7 @@ try
 
     % create acquisition sensitivity model from ECAT8 normalization data
     asm_norm = PET.AcquisitionSensitivityModel(norm_file);
+    asm_norm.set_up(acq_data);
     % create acquisition sensitivity model for attenuation
     asm_attn = PET.AcquisitionSensitivityModel(attn_image, acq_model);
     asm_attn.set_up(acq_data);
@@ -125,9 +126,11 @@ try
     asm_attn.unnormalise(bin_eff);
     %store these in a new acquisition sensitivity model
     asm_beff = PET.AcquisitionSensitivityModel(bin_eff);
+    asm_beff.set_up(acq_data);
 
     % chain attenuation and ECAT8 normalisation
     asm = PET.AcquisitionSensitivityModel(asm_norm, asm_beff);
+    asm.set_up(acq_data);
 
     acq_model.set_acquisition_sensitivity(asm);
     acq_model.set_background_term(randoms);

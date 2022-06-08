@@ -1,12 +1,12 @@
 classdef NiftiImageData3D < sirf.Reg.NiftiImageData
 % Class for 3D image data.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018-2019 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ classdef NiftiImageData3D < sirf.Reg.NiftiImageData
             elseif ischar(src)
                 self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
             elseif isa(src, 'sirf.SIRF.ImageData')
-                self.handle_ = calllib('mreg', 'mReg_NiftiImageData_from_SIRFImageData', src.handle_);
+                self.handle_ = calllib('mreg', 'mReg_NiftiImageData_from_SIRFImageData', src.handle_, 1);
             else
                 error('NiftiImageData3D accepts no args, filename or sirf.SIRF.ImageData.')
             end

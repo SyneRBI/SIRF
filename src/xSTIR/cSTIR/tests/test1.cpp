@@ -1,15 +1,44 @@
+/*
+SyneRBI Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2018 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2020 University College London
+
+This is software developed for the Collaborative Computational
+Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+(http://www.ccpsynerbi.ac.uk/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
+/*!
+\file
+\ingroup PET
+
+\author Evgueni Ovtchinnikov
+\author Richard Brown
+\author SyneRBI
+*/
+#include <cmath>
 #include <fstream>
 #include <string>
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
-//USING_NAMESPACE_STIR
-//USING_NAMESPACE_ECAT
 
+#include "sirf/common/iequals.h"
+#include "sirf/STIR/stir_x.h"
+
+#include "getenv.h"
 #include "object.h"
-//#include "stir_types.h"
-#include "stir_x.h"
-//#include "SIRF/common/envar.h"
 
 using namespace stir;
 using namespace ecat;
@@ -26,56 +55,39 @@ bool file_exists(std::string filename)
 	return false;
 }
 
+extern "C"
+void openChannel(int channel, void* ptr_w);
+
 int test1()
 {
-	try {
-		TextWriter w;
-		TextWriterHandle h;
-		h.set_information_channel(&w);
+	std::cout << "running test1.cpp...\n";
 
-		//std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
-		std::string SIRF_path = std::getenv("SIRF_PATH");
+	try {
+		std::string SIRF_path = sirf::getenv("SIRF_PATH");
 		if (SIRF_path.length() < 1) {
 			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 			return 1;
 		}
 
+		TextWriter w; // create writer with no output
+		TextWriterHandle h;
+		h.set_information_channel(&w); // suppress STIR info output
+
+		bool ok;
+		bool fail = false;
+
 		std::string filename;
-		int dim[3];
+		int dim[10];
 		size_t sinos, views, tangs;
-
-		// if this file exists, the image stored there  will be used for comparison
-		// with the reconstructed one
-		filename = "reconstructedImage_2.hv";
-		PETImageData* ptr_ei = 0;
-		if (file_exists(filename)) {
-			ptr_ei = new PETImageData(filename);
-			ptr_ei->get_dimensions(dim);
-			int nx = dim[2];
-			int ny = dim[1];
-			int nz = dim[0];
-			std::cout << "image dimensions: "
-				<< nx << 'x' << ny << 'x' << nz << '\n';
-			PETImageData& image = *ptr_ei;
-			float* ptr_data = new float[nx*ny*nz];
-			image.get_data(ptr_data);
-			int k = nx*ny*nz / 2;
-			for (int i = k; i < k + 4; i++)
-				std::cout << ptr_data[i] << '\n';
-			auto iter = image.data().begin_all();
-			for (int i = 0; i < k; i++, iter++);
-			for (int i = k; i < k + 4; i++, iter++)
-				std::cout << *iter << '\n';
-
-		}
-		return 0;
 		// locate acquisition data
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
 		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
-		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile, 
+		fix_path_separator(filename);
+		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();
 		views = acq_data.get_num_views();
+		//views = sptr_ad->get_num_views();
 		tangs = acq_data.get_num_tangential_poss();
 		float acq_norm = acq_data.norm();
 		std::cout << "sinograms: " << sinos << '\n';
@@ -88,7 +100,7 @@ int test1()
 		PETAcquisitionDataInMemory::set_as_template();
 
 		// create compatible image
-		CREATE_OBJ(PETImageData, image_data, sptr_id, acq_data);
+		CREATE_OBJ(STIRImageData, image_data, sptr_id, acq_data);
 		image_data.get_dimensions(dim);
 		size_t image_size = dim[0] * dim[1] * dim[2];
 		std::cout << "image dimensions: "
@@ -96,6 +108,15 @@ int test1()
 		image_data.fill(1.0);
 		float im_norm = image_data.norm();
 		std::cout << "image norm: " << im_norm << '\n';
+		const VoxelisedGeometricalInfo3D &geom_info = *image_data.get_geom_info_sptr();
+		const VoxelisedGeometricalInfo3D &geom_info_copy = *image_data.get_geom_info_sptr();
+		std::cout << geom_info.get_info().c_str();
+		ok = (geom_info == geom_info_copy);
+		if (ok)
+			std::cout << "== ok\n";
+		else
+			std::cout << "== failed \n";
+		fail = fail || !ok;
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();
@@ -110,21 +131,29 @@ int test1()
 		PETAcquisitionData& be = *sptr_e;
 		be.fill(2.0f);
 
-		// create ray tracing matrix
-		CREATE_OBJ(RayTracingMatrix, matrix, sptr_matrix,);
-		matrix.set_num_tangential_LORs(2);
-
 		// create acquisition model that uses ray tracing matrix
-		CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingMatrix, 
+		// long way:
+		// create ray tracing matrix
+		//CREATE_OBJ(RayTracingMatrix, matrix, sptr_matrix, );
+		//matrix.set_num_tangential_LORs(2);
+		//CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingMatrix,
+		//	am, sptr_am, );
+		//am.set_matrix(sptr_matrix);
+		// short way:
+		CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingRayTracingMatrix,
 			am, sptr_am,);
-		am.set_matrix(sptr_matrix);
+		am.set_num_tangential_LORs(10);
 		am.set_additive_term(sptr_a);
 		am.set_background_term(sptr_b);
-		//am.set_bin_efficiency(sptr_e);
 		am.set_up(sptr_ad, sptr_id);
 
-		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, procesor, sptr_processor,);
-		processor.set_fwhms(stir:make_coords(3.F,4.F,3.F));
+		int num_LORs = am.get_num_tangential_LORs();
+		std::cout << "tangential LORs: " << num_LORs << '\n';
+
+		CREATE_OBJECT(ImageDataProcessor, xSTIR_SeparableGaussianImageFilter, processor, sptr_processor,);
+//		processor.set_fwhms(stir::make_coords(3.F, 4.F, 3.F));
+		stir::Coordinate3D< float > fwhms(3.F, 4.F, 3.F);
+		processor.set_fwhms(fwhms);
 		am.set_image_data_processor(sptr_processor);
 
 		// create quadratic prior
@@ -144,24 +173,30 @@ int test1()
 		obj_fun.set_prior_sptr(sptr_prior);
 
 		// create OSMAPOSL reconstructor
-		int num_subiterations = 2;
-		CREATE_OBJECT(Reconstruction3DF, OSMAPOSLReconstruction3DF, recon,
-			sptr_recon, );
+		int num_subiterations = 4;
+		xSTIR_OSMAPOSLReconstruction3DF recon;
 		recon.set_MAP_model("multiplicative");
 		recon.set_num_subsets(12);
 		recon.set_num_subiterations(num_subiterations);
-		recon.set_save_interval(num_subiterations);
-		recon.set_inter_iteration_filter_interval(1);
-		recon.set_output_filename_prefix("reconstructedImage");
 		recon.set_objective_function_sptr(sptr_fun);
-		recon.set_inter_iteration_filter_ptr(sptr_filter);
+		recon.set_input_data(sptr_ad->data());
+		/* the stuff below is for recon.reconstruct() */
+		//recon.set_save_interval(num_subiterations);
+		//recon.set_inter_iteration_filter_interval(1);
+		//recon.set_output_filename_prefix("reconstructedImage");
+		//recon.set_inter_iteration_filter_ptr(sptr_filter);
 
-		Succeeded s = recon.set_up(sptr_id);
+		std::cout << "setting up the reconstructor, please wait...";
+		Succeeded s = recon.set_up(sptr_id->data_sptr());
+		std::cout << "ok\n";
+		//recon.reconstruct(sptr_id->data_sptr());
 
 		// reconstruct
+		recon.subiteration() = recon.get_start_subiteration_num();
 		for (int iter = 0; iter < num_subiterations; iter++) {
-			std::cout << "iteration " << recon.get_subiteration_num() << '\n';
-			recon.update(sptr_id);
+			std::cout << "iteration " << iter << '\n';
+			recon.update_estimate(sptr_id->data());
+			std::cout << "image norm: " << image_data.norm() << '\n';
 		}
 
 		// forward-project the image to simulate the acquisition process
@@ -180,34 +215,64 @@ int test1()
 		// compare the simulated acquisition data with raw acquisition data
 		shared_ptr<PETAcquisitionData> sptr_diff(acq_data.new_acquisition_data());
 		PETAcquisitionData& acq_diff = *sptr_diff;
+		float alpha = 1.0 / sim_norm;
+		float beta = -alpha;
 		acq_diff.axpby
-			(float(1.0 / sim_norm), sim_data, -float(1.0 / acq_norm), acq_data);
+			(&alpha, sim_data, &beta, acq_data);
 		std::cout << "relative data difference: " << acq_diff.norm() << std::endl;
 
 		// backproject the simulated data
-		shared_ptr<PETImageData> sptr_bd = am.backward(sim_data);
-		PETImageData& back_data = *sptr_bd;
+		shared_ptr<STIRImageData> sptr_bd = am.backward(sim_data);
+		STIRImageData& back_data = *sptr_bd;
 		back_data.get_dimensions(dim);
 		std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 		float bd_norm = back_data.norm();
 		std::cout << "back projection norm: " << bd_norm << '\n';
 
 		// compare backprojected data with the reconstructed image
-		shared_ptr<PETImageData> sptr_imd(image_data.new_image_data());
-		PETImageData& img_diff = *sptr_imd;
+		shared_ptr<STIRImageData> sptr_imd(image_data.new_image_data());
+		STIRImageData& img_diff = *sptr_imd;
 		im_norm = image_data.norm();
+		bd_norm = back_data.norm();
+		alpha = 1.0 / im_norm;
+		beta = -1.0 / bd_norm;
 		img_diff.axpby
-			(float(1.0 / im_norm), image_data, -float(1.0 / bd_norm), back_data);
+			(&alpha, image_data, &beta, back_data);
 		std::cout << "relative images difference: " << img_diff.norm() << std::endl;
 
-		if (ptr_ei) {
-			// compare the reconstructed and expected images
-			img_diff.axpby(1.0f, image_data, -1.0f, *ptr_ei);
-			std::cout << "images difference: " << img_diff.norm() << std::endl;
-		}
+		// compute the norm of the linear part of the acquisition model
+		std::cout << "\ncomputing the norm of the linear part of the acquisition model...\n";
+		float am_norm = am.norm();
+
+		std::cout << "\nchecking the acquisition model norm:\n";
+		std::cout << "acquisition model norm: |A| = " << am_norm << '\n';
+		std::cout << "image data x norm: |x| = " << im_norm << '\n';
+		std::cout << "simulated acquisition data norm: |A(x)| = " << sim_norm << '\n';
+		std::cout << "checking that |A(x)| <= |A||x|: ";
+		float bound = am_norm*im_norm;
+		ok = (sim_norm <= bound);
+		if (ok)
+			std::cout << sim_norm << " <= " << bound << " ok!\n";
+		else
+			std::cout << sim_norm << " > " << bound << " failure!\n";
+		fail = fail || !ok;
+
+		// restore the default storage scheme
+		PETAcquisitionDataInFile::set_as_template();
+
+		h.set_information_channel(0);
+
+		std::cout << "done with test1.cpp...\n";
+
+		return fail;
+	}
+	catch (const std::exception &error) {
+		std::cerr << "\nException thrown:\n\t" << error.what() << "\n\n";
+		return 1;
 	}
 	catch (...) {
-		std::cout << "exception thrown\n";
+		std::cerr << "\nException thrown\n";
+		return 1;
 	}
 	return 0;
 }

@@ -2,12 +2,12 @@ classdef GeometricalInfo < handle
 % INTERNAL USE ONLY.
 % Class for image geometrical info.
 
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2020 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -37,13 +37,18 @@ classdef GeometricalInfo < handle
         end
         function print_info(self)
         	% Print geometrical information
-        	h = calllib('msirf', 'mSIRF_GeomInfo_print', self.handle_);
-            sirf.Utilities.check_status([self.name ':print_info'], h);
+            fprintf('%s', self.get_info())
+        end
+        function info = get_info(self)
+            % Returns geometrical information as a string
+            h = calllib('msirf', 'mSIRF_GeomInfo_get', self.handle_);
+            sirf.Utilities.check_status([self.name ':get_info'], h);
+            info = calllib('miutilities', 'mCharDataFromHandle', h);
             sirf.Utilities.delete(h)
         end
         function value = get_offset(self)
         	% Offset is the LPS coordinate of the centre of the first voxel.
-        	ptr_i = libpointer('int32Ptr', zeros(1, 3));
+            ptr_i = libpointer('singlePtr', zeros(1, 3));
             calllib('msirf', 'mSIRF_GeomInfo_get_offset', self.handle_, ptr_i);
             value = ptr_i.Value;
         end

@@ -1,9 +1,9 @@
-% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% SyneRBI Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018 - 2019 University College London
 % 
 % This is software developed for the Collaborative Computational
-% Project in Positron Emission Tomography and Magnetic Resonance imaging
-% (http://www.ccppetmr.ac.uk/).
+% Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
+% (http://www.ccpsynerbi.ac.uk/).
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ function try_stirtonifti(g)
     assert(image_nifti == image_nifti_from_stir, 'Conversion from STIR to Nifti failed.');
 
     % Resample and then check that voxel values match
-    resample = sirf.Reg.NiftyResample();
+    resample = sirf.Reg.NiftyResampler();
     resample.set_floating_image(image_stir);
     resample.set_reference_image(image_nifti);
     resample.set_interpolation_type_to_nearest_neighbour();
