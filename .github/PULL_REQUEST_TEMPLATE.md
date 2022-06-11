@@ -4,7 +4,7 @@
 ## Testing performed
 
 
-## Released issues
+## Related issues
 <!-- Use keywords such as "fixes", "closes", see https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue -->
 
 
