@@ -1,19 +1,20 @@
-## Describe your changes
+## Changes in this pull request
 
 
-## Describe any testing you have performed
+## Testing performed
 
 
-## Link relevant issues
+## Released issues
+<!-- Use keywords such as "fixes", "closes", see https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue -->
 
 
-## Checklist when you are ready to request a review
+## Checklist before requesting a review
 
 - [ ] I have performed a self-review of my code
-- [ ] I have added docstrings in line with the guidance in the developer guide
+- [ ] I have added docstrings/doxygen in line with the guidance in the developer guide
 - [ ] I have implemented unit tests that cover any new or modified functionality
+- [ ] The code builds and runs on my machine
 - [ ] CHANGES.md has been updated with any functionality change
-- [ ] Request review from all relevant developers
 - [ ] Change pull request label to 'Waiting for review' 
 
 ## Contribution Notes
