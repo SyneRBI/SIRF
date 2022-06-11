@@ -15,7 +15,6 @@
 - [ ] I have implemented unit tests that cover any new or modified functionality
 - [ ] The code builds and runs on my machine
 - [ ] CHANGES.md has been updated with any functionality change
-- [ ] Change pull request label to 'Waiting for review' 
 
 ## Contribution Notes
 
