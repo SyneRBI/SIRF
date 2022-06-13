@@ -24,7 +24,6 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 import abc
 import numpy
 import os
-import warnings
 from numbers import Number, Complex, Integral
 try:
     import pylab
@@ -1722,19 +1721,10 @@ def compute_kspace_density(ad):
     elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
         return calc_radial_dcw(ad)
     elif ad.check_traj_type('spiral'):
-        warnings.warn("Assuming unit density for spiral trajectory. If not content please instead pass non-unit density as an argument where it is possible.")
-        return calc_unit_dcw(ad)
+        raise NotImplementedError("Spiral density can not be computed yet. Potentially compute it externally and pass it as an argument where it is required.")
     else:
         raise AssertionError("Please only try to recon trajectory types cartesian, radial, goldenangle, spiral or other")
     
-    
-def calc_unit_dcw(ad):
-    
-    dcw = ad.copy()
-    dcw.fill(1.0)
-    
-    return dcw
-
 def calc_cartesian_dcw(ad):
     '''
     Function that computes the kspace weight for a cartesian acquisition by
