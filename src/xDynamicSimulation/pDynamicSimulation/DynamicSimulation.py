@@ -5,7 +5,7 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 # Copyright 2018 - 2020 University College London
-# Copyright 2018 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
+# Copyright 2018 - 2022 Physikalisch-Technische Bundesanstalt (PTB)
 #
 # This is software developed for the Collaborative Computational
 # Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -74,7 +74,9 @@ def format_arrays_for_setters(data):
 
 
 class MRDynamicSimulation(object):
-
+    '''
+    Class to perform dynamic MRI simulations
+    '''
     def __init__(self, tissue_labels, fname_xml):
 
         self.handle = None
@@ -84,32 +86,63 @@ class MRDynamicSimulation(object):
         check_status(self.handle)
 
     def set_template_data(self, ad):
+        '''
+        Method to set both contrast and acquisition template data, cf. methods set_acquisition_template_data and set_contrast_template_data. 
+        '''
         self.set_acquisition_template_data(ad)
         self.set_contrast_template_data(ad)
-    
+
     def set_acquisition_template_data(self, ad):
+        '''
+        Setting MR rawdata to define
+        - a destination geometry into which the signal-filled segmentation is resampled.
+        - defining the encoding that is performed, i.e. trajectory and # of readout and phase-encoding points etc.
+        '''
         assert_validity(ad, pMR.AcquisitionData)
         pysim.cDS_setAcquisitionTemplateData(self.handle, ad.handle)
 
+
     def set_contrast_template_data(self, ad):
+        '''
+        Setter to define MR rawdata to fix sequence parameters used in signal computation for steady state sequences.
+        '''
         assert_validity(ad, pMR.AcquisitionData)
         pysim.cDS_setContrastTemplateData(self.handle, ad.handle)
 
+    
     def simulate_data(self):
+        '''
+        Method to start simulation after it is set up.
+        '''
         try_calling( pysim.cDS_simulateData(self.handle) )
 
+
     def set_csm(self, csm):
+        '''
+        Setter for the employed coil sensitiviy profiles. They have to match the geometry of the acquisition template data.
+        '''
         assert_validity(csm, pMR.CoilSensitivityData)
         try_calling( pysim.cDS_setCoilmaps(self.handle, csm.handle))
-
+    
     def set_snr(self, SNR):
+        '''
+        Setting the signal to noise ratio which is added to the MR rawdata as complex Gaussian noise
+        '''
         SNR = np.array(SNR).astype(np.float32)
         pysim.cDS_setSNR(self.handle, SNR.ctypes.data)
 
+
     def set_snr_label(self, SNR_label):
+        '''
+        Method to define a label in the segmentation corresponding to a tissue type used to compute the signal from on which the SNR is based.
+        '''
         pysim.cDS_setNoiseLabel(self.handle, SNR_label)
 
+
     def set_offset_trafo(self, trafo):
+        '''
+        Method to add an affine transform which is applied to the 3D segmentation prior to resampling into template geometry
+        '''
         assert_validity(trafo, pReg.AffineTransformation)
         try_calling(pysim.cDS_setOffsetTransformation(self.handle, trafo.handle))
 
@@ -119,27 +152,45 @@ class MRDynamicSimulation(object):
     def save_motion_ground_truth(self):
         pysim.cDS_saveMotionGroundTruth(self.handle)
 
+
     def save_parametermap_ground_truth(self, filename_prefix):
+        '''
+        Method storing the parameters T1, T2, spin density, chemical shift and the segmentation resampled into the destination geometry as nifti images.
+        '''
         pysim.cDS_saveParameterMapsGroundTruth(self.handle, filename_prefix)
         return (filename_prefix + "_T1_ms.nii", filename_prefix + "_T2_ms.nii", filename_prefix + "_spindensity.nii", filename_prefix + "_labels.nii")
-
+    
+    '''
+    Method to include an independent motion mode in the simulation.
+    '''
     def add_motion_dynamic(self, motiondyn):
         try_calling(pysim.cDS_addMRMotionDynamic(self.handle, motiondyn.handle)) 
 
+    '''
+    Method to include contrast changes during the data acquisition.
+    '''
     def add_contrast_dynamic(self, contdyn):
         try_calling(pysim.cDS_addMRContrastDynamic(self.handle, contdyn.handle))
 
+    '''
+    Method to activate the simulation of a pre-computed magnetisation. This will overwrite other contrast dynamics.
+    '''
     def add_external_contrast_dynamic(self, contrastdyn):
         try_calling(pysim.cDS_addExternalContrastDynamic(self.handle, contrastdyn.handle))
         
 
 class Dynamic(object):
-
+    '''
+    Class to define properties shared by dynamic processes during data acquisition simulation that can be added to the simulation class.
+    '''
     def __init__(self, num_states):
         self.num_states = num_states
 
+    
     def set_dynamic_signal(self, time_points_seconds, signal_points):
-      
+        '''
+        Method to set the temporal evolution of the simulation 
+        '''
         num_signal_points = time_points_seconds.size
         if num_signal_points != signal_points.size:
             AssertionError("The signal and time point arrays do not have identical size.")
@@ -169,6 +220,9 @@ class Dynamic(object):
         return sizes
 
     def get_idx_corr(self, ad):
+        '''
+        Method to get the index of the phase encoding lines that were simulated in the same dynamic state.
+        '''
         idx_sizes = self.get_idx_corr_sizes(ad)
         idx_corr = []
         for ibin in range(len(idx_sizes)):
@@ -180,29 +234,60 @@ class Dynamic(object):
         
         return idx_corr
 
-class MRMotionDynamic(Dynamic):
 
+class MRMotionDynamic(Dynamic):
+    '''
+    Class to define motion that is executed during the simulted data acquisition.
+    '''
     def __init__(self, num_states):
+        '''
+        num_states: # of motion states that are simulated. This is NOT constrained to be equal to the # of motion vector fields 
+                    that are supplied to the motion dynamic.
+        '''
         self.num_states = num_states
         self.handle = None
         self.handle = pysim.cDS_MRMotionDynamic(num_states)
         check_status(self.handle)
    
+
     def add_displacement_field(self, dvf):
+        '''
+        Method to add a displacement field, each added displacement vector field  defines a motion state. The order in which the 
+        motion fields are supplied is important where the first corresponds to surrogate signal = 0 and the last to surrogate signal = 1.
+        '''
         assert_validity(dvf, pReg.NiftiImageData3DDisplacement)
         pysim.cDS_addMRDisplacementField(self.handle, dvf.handle)
 
+
     def set_cyclicality(self, is_cyclic):
+        '''
+        Method defining whether surrogate signal = 0 corresponds to the same motion state as surrogate signal = 1.
+        '''
         pysim.cDS_setCyclicality(self.handle, is_cyclic)
 
+    
+
     def set_groundtruth_folder_prefix(self, prefix_existing_path):
+        '''
+        Method defining the path to which the motion dynamic stores its ground truth motion fields.
+        '''
         pysim.cDS_setMRGroundTruthFolderName(self.handle, prefix_existing_path)
 
     
 
 class TissueParameter():
-    
+    '''
+    Class carrying a tissue parameter associated with a simulation.
+    The information is filled based on the XML file detailing the .
+        
+    This is primarily used to define tissue parameters corresponding to surrogate signal = 0 and surrogate signal = 1
+    in an MRContrastDynamic.
+    '''
     def __init__(self, sim, label):
+        '''
+        sim: MRDynamicSimulation object
+        label: label in segmentation corresponding to the tissue.
+        '''
         self.handle = None
 
         assert_validity(sim, MRDynamicSimulation)
@@ -211,33 +296,53 @@ class TissueParameter():
         check_status(self.handle)
 
     def set_T1_value(self, T1_ms):
+        '''
+        Method to modify the T1 value of the tissue parameters.
+        '''
         pysim.cDS_setT1Value(self.handle,T1_ms)
 
     def set_spin_density(self, spin_density):
+        '''
+        Method to modify the spin density of the tissue parameters.
+        '''
         pysim.cDS_setSpinDensity(self.handle, spin_density)
 
 
 
 class MRContrastDynamic(Dynamic):
-    
+    '''
+    Class to modify the tissue parameters over time during the simulation of MR data acquisition.
+    This is primarily used to modify T1 contrast agent inflow.
+    '''
     def __init__(self, num_states):
+        '''
+        num_states: # of simualted contrast states across the time of data acquisition.
+        '''
         self.num_states = num_states
         self.handle = None
         self.handle = pysim.cDS_MRContrastDynamic(num_states)
         check_status(self.handle)
 
     def add_dynamic_label(self, label):
+        '''
+        Method to add segmentation labels that will behave identially during the simulation of contrast variation.
+        '''
         pysim.cDS_addDynamicLabel(self.handle, label)
 
-
     def set_parameter_extremes(self, tissue_0, tissue_1):
+        '''
+        tissue_0: tissue parameter corresponding to surrogate signal = 0.
+        tissue_1: tissue parameter corresponding to surrogate signal = 1.
+        '''
         assert_validity(tissue_0, TissueParameter)
         assert_validity(tissue_1, TissueParameter)
 
         pysim.cDS_setMRParameterExtremes(self.handle, tissue_0.handle, tissue_1.handle)
 
 class ExternalMRContrastDynamic(Dynamic):
-
+    '''
+    Class to carry information on pre-computed magnetisation that is simulated.
+    '''
     def __init__(self):
         self.handle = None
         self.handle = pysim.cDS_ExternalMRContrastDynamic()
@@ -255,9 +360,15 @@ class ExternalMRContrastDynamic(Dynamic):
 
 # helper class to set up external MR signal
 class ExternalMRSignal():
-
+    '''
+    Auxiliary class for storing information on pre-computed magnetisation. Each label in a segmentation must have an 
+    associated magnetisation signal that is available for each simulated time point.
+    '''
     def __init__(self, labels, signals):
-        
+        '''
+        labels: comprehensive set of labels to which the magnetisation in signals
+        signals: shape (labels.size, #time points) where # time points = acquisition_template.number()
+        '''
         assert type(signals) is np.ndarray, "Please pass a numpy ndarray of signals. You provided {}".format(type(signals))
         assert np.iscomplexobj(signals), "Please pass a 64-bit complex numpy array"
 
@@ -292,11 +403,15 @@ class ExternalMRSignal():
         for t in range(num_time_pts):
             signal_at_time = the_signals[:,t]
             self.tissue_signals[t] = self.TissueSignal(the_labels, signal_at_time)
-
+    '''
+    Auxiliary method to access arrays in C-level.
+    '''
     def get_signal_pointers(self, time_index):
 
         return self.tissue_signals[time_index].get_signal_pointers()
-
+    '''
+    Auxiliary class to access arrays in C-level.
+    '''
     class TissueSignal():
 
         def __init__(self, labels=None, signals=None):
