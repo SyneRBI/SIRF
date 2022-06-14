@@ -259,7 +259,7 @@ void NonCartesian2DEncoding::forward(MRAcquisitionData& ac, const CFImage& img) 
     ASSERT(traj_in_rawdata == ISMRMRD::TrajectoryType::RADIAL || 
            traj_in_rawdata == ISMRMRD::TrajectoryType::GOLDENANGLE ||
            traj_in_rawdata == ISMRMRD::TrajectoryType::SPIRAL , 
-           "Give a MRAcquisitionData reference with the trajectory type RADIAL or GOLDENANGLE.");
+           "Give a MRAcquisitionData reference with the trajectory type RADIAL, GOLDENANGLE or SPIRAL.");
 
     uint16_t  Nx = img.getMatrixSizeX();
     uint16_t  Ny = img.getMatrixSizeY();

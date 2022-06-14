@@ -391,7 +391,7 @@ MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
 	}
 	else if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE || sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::SPIRAL)
 	{
-		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL trajectory before calling the calculate method with dimension > 0.");
+		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL, ISMRMRD::TrajectoryType::GOLDENANGLE or ISMRMRD::TrajectoryType::SPIRAL trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
 	#warning "We compile the non-cartesian code in GADGETRON_X"
 		this->sptr_enc_ = std::make_shared<sirf::NonCartesian2DEncoding>();
