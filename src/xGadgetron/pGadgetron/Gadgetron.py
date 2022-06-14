@@ -1708,9 +1708,6 @@ def compute_kspace_density(ad):
     '''
     Function that computes the kspace density depending the
     ad: AcquisitionData
-    
-    For spiral trajectories the density is set to 1 too much variability in spiral trajectories exist.
-    Please compute it separately and supply it when it can be passed as an argument.
     '''  
     assert_validity(ad, AcquisitionData)
 
