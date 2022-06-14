@@ -114,20 +114,17 @@ def main():
     create_sample_image(uMap, attenuation = True)
     uMap.write("simulated_uMap.hv")
 
-    # z-pixel coordinate of the xy-cross-section to show
-    z = image.dimensions()[0]//2
-
     # show the phantom image
     image_array = image.as_array()
-    show_2D_array('Phantom image', image_array[z,:,:])
+    show_2D_array('Phantom image', image_array[0,:,:])
 
     # show the attenuation image
     uMap_array = uMap.as_array()
-    show_2D_array('Attenuation image', uMap_array[z,:,:])
+    show_2D_array('Attenuation image', uMap_array[0,:,:])
 
     # require same number slices and equal z-sampling for projection data & image
-    image = image.zoom_image(zooms=(0.5, 1.0, 1.0), size=(12, -1, -1))
-    uMap = uMap.zoom_image(zooms=(0.5, 1.0, 1.0), size=(12, -1, -1))
+    image = image.zoom_image(zooms=(0.5, 1.0, 1.0))
+    uMap = uMap.zoom_image(zooms=(0.5, 1.0, 1.0))
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -146,22 +143,21 @@ def main():
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
-    middle_slice=simulated_data_as_array.shape[0]//2
-    show_2D_array('Forward projection', simulated_data_as_array[0, middle_slice,:,:])
+    show_2D_array('Forward projection', simulated_data_as_array[0, 0,:,:])
 
     # create noisy data
     noisy_data = simulated_data.clone()
     noisy_data_as_array = np.random.poisson(simulated_data.as_array())
     noisy_data.fill(noisy_data_as_array)
-    show_2D_array('Forward projection with added noise', noisy_data_as_array[0, middle_slice,:,:])
+    show_2D_array('Forward projection with added noise', noisy_data_as_array[0, 0,:,:])
 
     # create objective function
     obj_fun = sirf.STIR.make_Poisson_loglikelihood(noisy_data)
     obj_fun.set_acquisition_model(acq_model)
 
     # create OSEM reconstructor object
-    num_subsets = 30 # number of subsets for OSEM reconstruction
-    num_subiters = 60 #number of subiterations (i.e two full iterations)
+    num_subsets = 21 # number of subsets for OSEM reconstruction
+    num_subiters = 42 #number of subiterations (i.e two full iterations)
     OSEM_reconstructor = sirf.STIR.OSMAPOSLReconstructor()
     OSEM_reconstructor.set_objective_function(obj_fun)
     OSEM_reconstructor.set_num_subsets(num_subsets)
@@ -175,7 +171,7 @@ def main():
     OSEM_reconstructor.reconstruct(init_image)
     out_image = OSEM_reconstructor.get_current_estimate()
     out_image_array = out_image.as_array()
-    show_2D_array('Reconstructed image', out_image_array[z,:,:])
+    show_2D_array('Reconstructed image', out_image_array[0,:,:])
 
 try:
     main()

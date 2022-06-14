@@ -1,9 +1,26 @@
 # ChangeLog
+
 ## v3.3.0
 
-* added SPECTUBMatrix for (simple) usage in SPECT
+* SPECTUBMatrix for (simple) usage in SPECT added.
 
-* removed interactive Python demos superseded by SIRF-Exercises notebooks
+* interactive Python demos superseded by SIRF-Exercises notebooks removed.
+
+* arguments setting number of CG iterations and verbosity of output
+  of acquisition models method norm() added.
+
+* path for ISMRMRD shared library when generating MR data fixed.
+
+* extension processing in ISMRMRDImageData::write fixed.
+
+* Python int array check/conversion ensuring C++ compatibility added.
+
+* C/Python interfaces for computing prior value added.
+
+* STIR spect matrix added.
+
+* Zenodo citation file added.
+
 
 ## v3.2.0
 
