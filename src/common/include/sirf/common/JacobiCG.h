@@ -74,7 +74,8 @@ namespace sirf {
 				lmd = Ax.dot(x);
 				y.axpby(1.0, Ax, -lmd, x); // residual
 				if (verb > 0)
-					std::cout << it << ": " << abs(lmd) << '\n';
+					std::cout << "CG iteration " << it
+						<< ": largest eigenvalue " << std::real(lmd) << '\n';
 				if (it) { // conjugate y to the previous search direction
 					t = Az.dot(z);
 					w.axpby(1.0, Az, -t, z);
@@ -115,7 +116,7 @@ namespace sirf {
 				x.scale(s);
 				Ax.scale(s);
 			}
-			return abs(lmd);
+			return std::real(lmd);
 		}
 	private:
 		int nit_;

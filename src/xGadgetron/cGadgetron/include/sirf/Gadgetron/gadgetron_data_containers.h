@@ -647,8 +647,23 @@ namespace sirf {
 				this->write(prefix, "", true);
 			}
 			else {
-				std::string fullname = ensure_ext_(filename, "h5");
-				this->write(fullname, "", false);
+				auto found = filename.find_last_of("/\\");
+				auto slash_found = found;
+				if (found == std::string::npos)
+					found = filename.find_last_of(".");
+				else
+					found = filename.substr(found + 1).find_last_of(".");
+				if (found == std::string::npos)
+					this->write(filename + ".h5", "", false);
+				else {
+					std::string ext = filename.substr(slash_found + found + 1);
+					if (ext == std::string(".h5"))
+						this->write(filename, "", false);
+					else
+						std::cerr << "WARNING: writing ISMRMRD images to "
+						<< ext << "-files not implemented, "
+						<< "please convert to Nifti images\n";
+				}
 			}
 		}
 		virtual Dimensions dimensions() const
@@ -806,17 +821,6 @@ namespace sirf {
 		/// Clone helper function. Don't use.
 		virtual ISMRMRDImageData* clone_impl() const = 0;
 		virtual void conjugate_impl();
-		std::string ensure_ext_(std::string name, const char* def_ext) const
-		{
-			auto found = name.find_last_of("/\\");
-			if (found == std::string::npos)
-				found = name.find_last_of(".");
-			else
-				found = name.substr(found + 1).find_last_of(".");
-			if (found != std::string::npos)
-				return name;
-			return name + '.' + def_ext;
-		}
 
 	private:
 		class ComplexFloat_ {

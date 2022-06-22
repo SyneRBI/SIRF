@@ -51,7 +51,7 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   3 )
-set(VERSION_MINOR   2 )
+set(VERSION_MINOR   3 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -81,7 +81,7 @@ endif(APPLE)
 # If OSX, we might need to assume pthreads. For this, first try to find boost_thread.
 # If that fails, then give a bit of help.
 if (APPLE)
-  find_package(Boost COMPONENTS thread QUIET)
+  find_package(Boost QUIET COMPONENTS thread)
   if (NOT boost_thread_FOUND)
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
     set(CMAKE_HAVE_THREADS_LIBRARY 1)
@@ -103,7 +103,7 @@ endif()
 
 #### we need the boost library from boost.org
 set(BOOST_ROOT CACHE PATH "root of Boost")
-find_package(Boost 1.36.0 COMPONENTS system filesystem thread date_time chrono REQUIRED)
+find_package(Boost 1.36.0 REQUIRED COMPONENTS system filesystem thread date_time chrono)
 # For Visual Studio we have to disable the auto-linking feature of boost
 # where just including a boost file automatically adds it to the linker path.
 # Although this sounds great, it sadly breaks because of conflicting file-paths when linking etc etc.
@@ -176,7 +176,7 @@ if (DISABLE_Matlab)
   message(STATUS "Matlab support disabled")
 else(DISABLE_Matlab)
 
-  FIND_PACKAGE(Matlab QUIET COMPONENTS MAIN_PROGRAM)
+  find_package(Matlab QUIET COMPONENTS MAIN_PROGRAM)
   if (NOT Matlab_FOUND)
     message(WARNING "MATLAB not found. Set Matlab_ROOT_DIR if you want it. Set DISABLE_Matlab to ON to silence this warning.")
   else()
@@ -215,7 +215,7 @@ if (CMAKE_VERSION VERSION_LESS 3.21.0)
   #
   # Note that this is slightly dangerous if there are multiple versions of HDF5 on the system.
   # ISMRMRD and STIR might be looking for a specific version while the statement below doesn't.
-  find_package(HDF5 COMPONENTS C CXX QUIET)
+  find_package(HDF5 QUIET COMPONENTS C CXX)
 endif()
 
 ADD_SUBDIRECTORY(src)

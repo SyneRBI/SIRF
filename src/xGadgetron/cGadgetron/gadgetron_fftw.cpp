@@ -202,7 +202,7 @@ namespace ISMRMRD {
 
 	void fft3(NDArray< ComplexType >& a, NDArray< ComplexType >& r, bool forward)
 	{
-		r = a;
+		//r = a;
 
 		const size_t* dims = a.getDims();
 		int n2 = (int)dims[0];
