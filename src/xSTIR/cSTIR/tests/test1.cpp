@@ -33,6 +33,7 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
+#include "stir/ExamData.h"
 
 #include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_x.h"
@@ -117,6 +118,18 @@ int test1()
 		else
 			std::cout << "== failed \n";
 		fail = fail || !ok;
+
+		ExamInfo ex_info = image_data.data().get_exam_info();
+		std::cout << "modality: " << (int)ex_info.imaging_modality.get_modality() << '\n';
+
+		//ex_info.imaging_modality = ImagingModality(ImagingModality::MR);
+		ex_info.imaging_modality = ImagingModality("SPECT");
+		image_data.data().set_exam_info(ex_info);
+
+		auto new_ex_info = image_data.data().get_exam_info();
+		std::cout << "modality: " << (int)new_ex_info.imaging_modality.get_modality() << '\n';
+
+		return fail;
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();
