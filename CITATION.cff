@@ -80,6 +80,10 @@ authors:
     affiliation: University College London
     family-names: Thielemans
     given-names: Kris
+  - orcid: 'https://orcid.org/0000-0002-1815-4716'
+    affiliation: University College London, National Physics Laboratory
+    family-names: Porter
+    given-names: Sam David
 identifiers:
   - type: doi
     value: 10.5281/zenodo.2707911
