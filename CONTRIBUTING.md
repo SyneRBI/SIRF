@@ -6,7 +6,7 @@ bug fixes or even features. Below are some brief guidelines.
 
 ## Reporting a problem
 
-Please use our [issue-tracker]: https://github.com/CCPPETMR/SIRF/issues
+Please use our [issue-tracker]: https://github.com/SyneRBI/SIRF/issues
 
 ## Submitting a patch
 
@@ -28,8 +28,8 @@ This is our recommended process. If it sounds too daunting, ask for help.
 3. Create a branch in your fork with a descriptive name and put your fixes there. If your fix is
 simple you could do it on github by editing a file, otherwise clone your project (or add a remote
 to your current git clone) and work as usual.
-4. If your change is important, add it to [CHANGES.md](https://github.com/CCPPETMR/SIRF/blob/master/CHANGES.md)
-and even [UserGuide.md](https://github.com/CCPPETMR/SIRF/blob/master/doc/UserGuide.md) or other documentation files.
+4. If your change is important, add it to [CHANGES.md](https://github.com/SyneRBI/SIRF/blob/master/CHANGES.md)
+and even [UserGuide.md](https://github.com/SyneRBI/SIRF/blob/master/doc/UserGuide.md) or other documentation files.
 5. Use [well-formed commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
 for each change (in particular with a single "subject" line
 followed by an empty line and then more details).
@@ -59,7 +59,7 @@ If you copied code from somewhere, you need to preserve its copyright date/notic
 you need to make sure its license is compatible with the SIRF license, and indicate clearly what the license
 of the copied code is (and follow its terms of course).
 
-In addition, you might need to add yourself to [NOTICE.txt](https://github.com/CCPPETMR/SIRF/blob/master/NOTICE.txt).
+In addition, you might need to add yourself to [NOTICE.txt](https://github.com/SyneRBI/SIRF/blob/master/NOTICE.txt).
 
 ## Project rules
 
