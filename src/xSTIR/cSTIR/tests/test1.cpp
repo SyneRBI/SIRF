@@ -125,7 +125,7 @@ int test1()
 		image_data.set_modality("SPECT");
 		std::cout << "modality: " << image_data.modality() << '\n';
 		// restore
-		image_data.set_modality(mod.c_str());
+		image_data.set_modality(mod);
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();

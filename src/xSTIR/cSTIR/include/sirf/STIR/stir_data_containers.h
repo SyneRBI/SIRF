@@ -900,7 +900,7 @@ namespace sirf {
 			ExamInfo ex_info = data().get_exam_info();
 			return ex_info.imaging_modality.get_name();
 		}
-		void set_modality(const char* mod)
+		void set_modality(const std::string& mod)
 		{
 			ExamInfo ex_info = data().get_exam_info();
 			ex_info.imaging_modality = ImagingModality(mod);
