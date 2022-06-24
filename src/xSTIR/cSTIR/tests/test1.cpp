@@ -119,22 +119,13 @@ int test1()
 			std::cout << "== failed \n";
 		fail = fail || !ok;
 
-		ExamInfo ex_info = image_data.data().get_exam_info();
-		std::cout << "modality: " << ex_info.imaging_modality.get_name() << '\n';
-		//std::cout << "modality: " << (int)ex_info.imaging_modality.get_modality() << '\n';
-
-		//ex_info.imaging_modality = ImagingModality(ImagingModality::MR);
-		ex_info.imaging_modality = ImagingModality("SPECT");
-		image_data.data().set_exam_info(ex_info);
-
-		auto new_ex_info = image_data.data().get_exam_info();
-		std::cout << "modality: " << ex_info.imaging_modality.get_name() << '\n';
-		//std::cout << "modality: " << (int)new_ex_info.imaging_modality.get_modality() << '\n';
-
-		ex_info.imaging_modality = ImagingModality("PET");
-		image_data.data().set_exam_info(ex_info);
-
-		//return fail;
+		// show and change modality demo
+		std::string mod = image_data.modality();
+		std::cout << "modality: " << mod << '\n';
+		image_data.set_modality("SPECT");
+		std::cout << "modality: " << image_data.modality() << '\n';
+		// restore
+		image_data.set_modality(mod.c_str());
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();

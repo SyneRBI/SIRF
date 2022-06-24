@@ -39,7 +39,7 @@ int main()
 {
 	int failed = 0;
 	failed += test1();
-//	failed += test2();
+	failed += test2();
 	std::cout << failed << " tests failed\n";
 	return failed;
 }

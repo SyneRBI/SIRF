@@ -890,12 +890,24 @@ namespace sirf {
 		{
 			return false;
 		}
-
 		unsigned int items() const
 		{
 			return 1;
 		}
-        /// Write to file
+
+		std::string modality() const
+		{
+			ExamInfo ex_info = data().get_exam_info();
+			return ex_info.imaging_modality.get_name();
+		}
+		void set_modality(const char* mod)
+		{
+			ExamInfo ex_info = data().get_exam_info();
+			ex_info.imaging_modality = ImagingModality(mod);
+			data().set_exam_info(ex_info);
+		}
+
+		/// Write to file
         virtual void write(const std::string &filename) const;
         /// Write to file using format file.
         /*! This allows speciyfing the output file format used by STIR using a text file.
