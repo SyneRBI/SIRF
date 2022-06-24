@@ -167,7 +167,9 @@ void* cSTIR_setParameter
 	try {
 		CAST_PTR(DataHandle, hs, ptr_s);
 		CAST_PTR(DataHandle, hv, ptr_v);
-		if (sirf::iequals(obj, "ListmodeToSinograms"))
+		if (sirf::iequals(obj, "ImageData"))
+			return cSTIR_setImageDataParameter(ptr_s, name, ptr_v);
+		else if (sirf::iequals(obj, "ListmodeToSinograms"))
 			return cSTIR_setListmodeToSinogramsParameter(ptr_s, name, ptr_v);
 		else if (sirf::iequals(obj, "SeparableGaussianImageFilter"))
 			return cSTIR_setSeparableGaussianImageFilterParameter(ptr_s, name, ptr_v);
@@ -242,6 +244,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 		else if (sirf::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 			return cSTIR_truncateToCylindricalFOVImageProcessorParameter
 			(handle, name);
+		else if (sirf::iequals(obj, "ImageData"))
+			return cSTIR_ImageDataParameter(handle, name);
 		else if (sirf::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_rayTracingMatrixParameter(handle, name);
 		else if (sirf::iequals(obj, "SPECTUBMatrix"))

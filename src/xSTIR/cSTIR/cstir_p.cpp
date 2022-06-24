@@ -95,6 +95,27 @@ wrongFloatParameterValue
 }
 
 void*
+sirf::cSTIR_setImageDataParameter(void* hp, const char* name, const void* hv)
+{
+	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
+	if (sirf::iequals(name, "modality"))
+		id.set_modality(charDataFromHandle(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
+{
+	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
+	if (sirf::iequals(name, "modality"))
+		return charDataHandleFromCharData(id.modality().c_str());
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv)
 {
 	ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(hp);
