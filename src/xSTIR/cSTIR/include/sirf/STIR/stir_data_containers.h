@@ -45,7 +45,7 @@ limitations under the License.
 #include "sirf/common/JacobiCG.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
-#include "sirf/common/PETImageData.h"
+#include "sirf/common/ImageData.h"
 #include "sirf/common/GeometricalInfo.h"
 #include "stir/ZoomOptions.h"
 
@@ -735,11 +735,8 @@ namespace sirf {
 	additioanally, implements the linear algebra functionality specified by the
 	abstract base class aDatacontainer.
 	*/
-	//class STIRImageData : public aDataContainer < float > {
-	class STIRImageData : public PETImageData { //<Iterator, Iterator_const> {
+	class STIRImageData : public ImageData {
 	public:
-		//typedef PETImageData<Iterator, Iterator_const>::Iter BaseIter;
-		//typedef PETImageData<Iterator, Iterator_const>::Iter_const BaseIter_const;
 		typedef ImageData::Iterator BaseIter;
 		typedef ImageData::Iterator_const BaseIter_const;
 		class Iterator : public BaseIter {

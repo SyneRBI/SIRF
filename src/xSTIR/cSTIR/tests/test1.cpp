@@ -120,16 +120,21 @@ int test1()
 		fail = fail || !ok;
 
 		ExamInfo ex_info = image_data.data().get_exam_info();
-		std::cout << "modality: " << (int)ex_info.imaging_modality.get_modality() << '\n';
+		std::cout << "modality: " << ex_info.imaging_modality.get_name() << '\n';
+		//std::cout << "modality: " << (int)ex_info.imaging_modality.get_modality() << '\n';
 
 		//ex_info.imaging_modality = ImagingModality(ImagingModality::MR);
 		ex_info.imaging_modality = ImagingModality("SPECT");
 		image_data.data().set_exam_info(ex_info);
 
 		auto new_ex_info = image_data.data().get_exam_info();
-		std::cout << "modality: " << (int)new_ex_info.imaging_modality.get_modality() << '\n';
+		std::cout << "modality: " << ex_info.imaging_modality.get_name() << '\n';
+		//std::cout << "modality: " << (int)new_ex_info.imaging_modality.get_modality() << '\n';
 
-		return fail;
+		ex_info.imaging_modality = ImagingModality("PET");
+		image_data.data().set_exam_info(ex_info);
+
+		//return fail;
 
 		// create additive term
 		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();
