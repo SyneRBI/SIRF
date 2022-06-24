@@ -98,6 +98,8 @@ def main():
 
     # create initial image estimate
     image = anatomical_image.get_uniform_copy()
+    if show_plot:
+        image.show(title='Image used as initial guess')
 
     # set up acquisition model
     acq_model.set_up(acq_data, image)
@@ -122,6 +124,10 @@ def main():
     recon.set_sigma_dp(5.0)
     recon.set_only_2D(True)
     recon.set_hybrid(True)
+
+    image = recon.compute_kernelised_image(image, anatomical_image)
+    if show_plot:
+        image.show(title='kernelised image')
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function

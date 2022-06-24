@@ -1385,6 +1385,27 @@ void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src)
 	CATCH;
 }
 
+#ifdef USE_HKEM
+extern "C"
+void* cSTIR_computeKernelisedImage(void* ptr_r, void* ptr_i, void* ptr_a)
+{
+	try {
+		xSTIR_KOSMAPOSLReconstruction3DF& recon =
+			objectFromHandle<xSTIR_KOSMAPOSLReconstruction3DF>(ptr_r);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		Image3DF& image = id.data();
+		shared_ptr<STIRImageData> sptr_ki(new STIRImageData(id));
+		STIRImageData& ki = *sptr_ki;
+		Image3DF& kernelised_image = ki.data();
+		STIRImageData& ad = objectFromHandle<STIRImageData>(ptr_a);
+		Image3DF& alpha = ad.data();
+		recon.compute_kernelised_image_x(kernelised_image, image, alpha);
+		return (void*)newObjectHandle(sptr_ki);
+	}
+	CATCH;
+}
+#endif
+
 //extern "C"
 //void* setParameter
 //(void* ptr_s, const char* obj, const char* name, const void* ptr_v)

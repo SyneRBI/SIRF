@@ -170,6 +170,7 @@ extern "C" {
                                      const PTR_INT new_sizes_ptr_raw,
                                      const char * const zoom_options);
     void* cSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_ptr);
+	void* cSTIR_computeKernelisedImage(void* ptr_r, void* ptr_i, void* ptr_a);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);
