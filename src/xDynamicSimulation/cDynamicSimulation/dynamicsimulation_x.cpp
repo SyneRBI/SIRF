@@ -229,7 +229,9 @@ void MRDynamicSimulation::simulate_external_contrast_motion_dynamics()
 	const size_t num_simul_states = sptr_ed->get_num_simul_states();
 	for(unsigned int i=0; i<num_simul_states; ++i)
 	{
-		std::cout << "### Performing the simulation of external state " << i << " / " << num_simul_states << std::endl;
+		if(i%100 == 0)
+			std::cout << "### Performing the simulation of external state " << i << " / " << num_simul_states << std::endl;
+			
 		AcquisitionsVector acquisitions_for_this_contrast_state = sptr_ed->get_binned_mr_acquisitions(i);
 		
 		ISMRMRD::Acquisition acq;
