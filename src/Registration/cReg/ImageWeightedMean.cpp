@@ -105,7 +105,7 @@ void ImageWeightedMean<dataType>::check_can_do_mean() const
     if (_input_image_sptrs.size() == 0)
         throw std::runtime_error("Need to add images to be able to do weighted mean.");
 
-    std::cout << "\nAll images match, we can calculate their weighted average.\n";
+    // std::cout << "\nAll images match, we can calculate their weighted average.\n";
 }
 
 namespace sirf {
