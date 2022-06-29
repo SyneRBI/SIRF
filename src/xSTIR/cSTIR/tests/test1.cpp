@@ -114,16 +114,22 @@ int test1()
 		std::cout << geom_info.get_info().c_str();
 		ok = (geom_info == geom_info_copy);
 		if (ok)
-			std::cout << "== ok\n";
+			std::cout << "geom_info == ok\n";
 		else
-			std::cout << "== failed \n";
+			std::cout << "geom_info == failed \n";
 		fail = fail || !ok;
 
 		// show and change modality demo
 		std::string mod = image_data.modality();
-		std::cout << "modality: " << mod << '\n';
-		image_data.set_modality("SPECT");
-		std::cout << "modality: " << image_data.modality() << '\n';
+		std::cout << '\n' << "modality: " << mod << '\n';
+		image_data.set_modality("NM");
+		std::cout << "new modality set: " << image_data.modality() << '\n';
+		ok = sirf::iequals(image_data.modality(), "NM");
+		if (ok)
+			std::cout << "set_modality ok\n";
+		else
+			std::cout << "set_modality failed \n";
+		fail = fail || !ok;
 		// restore
 		image_data.set_modality(mod);
 
