@@ -324,9 +324,14 @@ class ImageData(SIRF.ImageData):
         return ImageData()
 
     def modality(self):
+        """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'ImageData', 'modality')
 
     def set_modality(self, mod):
+        """Sets imaging modality.
+
+        mod: "PT" or "NM" or "MR" or "CT" or "US" or "Optical"
+        """
         return parms.set_char_par(self.handle, 'ImageData', 'modality', mod)
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
