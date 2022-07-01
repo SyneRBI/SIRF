@@ -346,6 +346,10 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_attr_, ptr_, attr);
 			return attr;
 		}
+		void show_attributes() const
+		{
+			IMAGE_PROCESSING_SWITCH_CONST(type_, show_attr_, ptr_, 0);
+		}
 		void set_imtype(ISMRMRD::ISMRMRD_ImageTypes imtype)
 		{
 			IMAGE_PROCESSING_SWITCH(type_, set_imtype_, ptr_, imtype);
@@ -616,6 +620,32 @@ namespace sirf {
 		void get_attr_(const ISMRMRD::Image<T>* ptr_im, std::string& attr) const
 		{
 			ptr_im->getAttributeString(attr);
+		}
+
+		template<typename T>
+		void show_attr_(const ISMRMRD::Image<T>* ptr_im, int i) const
+		{
+			const ISMRMRD::Image<T>& im = *ptr_im;
+			size_t meta_attrib_length = im.getAttributeStringLength();
+			std::cout << "meta_attrib_length: " << meta_attrib_length << '\n';
+			std::string meta_attrib(meta_attrib_length + 1, 0);
+			im.getAttributeString(meta_attrib);
+
+			//std::cout << "attributes:" << std::endl << meta_attrib << std::endl;
+			if (meta_attrib_length > 0) {
+				ISMRMRD::MetaContainer mc;
+				ISMRMRD::deserialize(meta_attrib.c_str(), mc);
+				for (auto it = mc.begin(); it != mc.end(); ++it) {
+					auto name = it->first.c_str();
+					std::cout << name << ":\n";
+					size_t l = mc.length(name);
+					for (int j = 0; j <l; j++)
+					std::cout << mc.as_str(name, j) << '\n';
+				}
+				std::stringstream meta_xml;
+				ISMRMRD::serialize(mc, meta_xml);
+				std::cout << meta_xml.str().c_str() << '\n';
+			}
 		}
 
 		template<typename T>

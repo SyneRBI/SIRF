@@ -1136,6 +1136,7 @@ cGT_getImageDim(void* ptr_img, size_t ptr_dim)
 	int* dim = (int*)ptr_dim;
 	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
 	image.get_dim(dim);
+//	image.show_attributes();
 }
 
 extern "C"
