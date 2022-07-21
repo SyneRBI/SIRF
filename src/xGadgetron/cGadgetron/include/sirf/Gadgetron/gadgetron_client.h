@@ -345,15 +345,6 @@ namespace sirf {
 			std::string meta_attrib(meta_attrib_length + 1, 0);
 			im.getAttributeString(meta_attrib);
 
-			//std::cout << "attributes:" << std::endl << meta_attrib << std::endl;
-
-			meta_attrib_length = 0;
-			if (meta_attrib_length > 0) {
-				size_t l = meta_attrib.find("</ismrmrdMeta>") + std::string("</ismrmrdMeta>").size();
-				//std::cout << meta_attrib_length << ' ' << l << '\n';
-				meta_attrib.erase(l);
-			}
-
 			boost::asio::write
 				(*socket_, boost::asio::buffer(&meta_attrib_length, sizeof(size_t)));
 			boost::asio::write
