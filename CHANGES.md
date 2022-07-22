@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v 3.3.1
+
+* writing MR images and their attributes to `.dcm` and `.xml` files fixed.
+
+
 ## v3.3.0
 
 * SPECTUBMatrix for (simple) usage in SPECT added.
