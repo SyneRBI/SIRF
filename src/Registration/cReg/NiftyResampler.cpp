@@ -112,7 +112,7 @@ void NiftyResampler<dataType>::set_up()
 
     // If no transformations, use identity.
     if (this->_transformations.size() == 0) {
-        std::cout << "\nNo transformations set, using identity.\n";
+        // std::cout << "\nNo transformations set, using identity.\n";
         this->_transformations.push_back(std::make_shared<AffineTransformation<float> >());
     }
 

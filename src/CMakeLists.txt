@@ -146,4 +146,14 @@ else()
   endif()
 endif()
 
+##########################################################################
+#                              Simulation                                #
+##########################################################################
+option(DISABLE_Simulation "Disable building the SIRF simulation package" OFF)
+if (DISABLE_Simulation)
+  message(STATUS "Gadgetron support disabled.")
+else()
+  ADD_SUBDIRECTORY(xDynamicSimulation)
+endif()
+
 ADD_SUBDIRECTORY(common)

@@ -207,6 +207,68 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 	CATCH;
 }
 
+
+extern "C"
+void*
+cGT_setAcquisitionParameter(void* ptr, const char* param_name, const void* val)
+{
+	CAST_PTR(DataHandle, h_acq, ptr);
+	ISMRMRD::Acquisition& acq =
+		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
+
+	if (sirf::iequals(param_name, "measurement_uid"))
+		acq.measurement_uid() = dataFromHandle<int>(val);
+	else if (sirf::iequals(param_name, "scan_counter"))
+		acq.scan_counter() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "acquisition_time_stamp"))
+		acq.acquisition_time_stamp() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "available_channels"))
+		acq.available_channels() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "discard_pre"))
+		acq.discard_pre() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "discard_post"))
+		acq.discard_post() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "center_sample"))
+		acq.center_sample() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "encoding_space_ref"))
+		acq.encoding_space_ref() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_kspace_encode_step_1"))
+		acq.idx().kspace_encode_step_1 = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_kspace_encode_step_2"))
+		acq.idx().kspace_encode_step_2 = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_average"))
+		acq.idx().average = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_slice"))
+		acq.idx().slice = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_contrast"))
+		acq.idx().contrast = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_phase"))
+		acq.idx().phase = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_repetition"))
+		acq.idx().repetition = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_set"))
+		acq.idx().set = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_segment"))
+		acq.idx().segment = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "sample_time_us"))
+		acq.sample_time_us() = dataFromHandle<float>(val);
+	
+	// else if  (sirf::iequals(param_name, "position"))
+	// 	acq.position() = dataFromHandle<float*>(val);
+	// else if  (sirf::iequals(param_name, "read_dir"))
+	// 	acq.read_dir() = dataFromHandle<float*>(val);
+	// else if  (sirf::iequals(param_name, "phase_dir"))
+	// 	acq.phase_dir() = dataFromHandle<float*>(val);
+	// else if  (sirf::iequals(param_name, "slice_dir"))
+	// 	acq.slice_dir() = dataFromHandle<float*>(val);
+	// else if  (sirf::iequals(param_name, "patient_table_position"))
+	// 	acq.patient_table_position() = dataFromHandle<float*>(val);
+	else
+		return unknownObject("parameter", param_name, __FILE__, __LINE__);
+
+	return new DataHandle;
+}
+
 extern "C"
 void*
 cGT_setParameter(void* ptr, const char* obj, const char* par, const void* val)
@@ -214,6 +276,8 @@ cGT_setParameter(void* ptr, const char* obj, const char* par, const void* val)
 	try {
 		if (sirf::iequals(obj, "coil_sensitivity"))
 			return cGT_setCSParameter(ptr, par, val);
+		if (sirf::iequals(obj, "acquisition"))
+			return cGT_setAcquisitionParameter(ptr,par,val);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -252,6 +316,7 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 		return unknownObject("parameter", par, __FILE__, __LINE__);
 	return new DataHandle;
 }
+
 
 extern "C"
 void*
@@ -561,6 +626,22 @@ cGT_getAcquisitionsSubset(void* ptr_acqs, size_t const ptr_idx, size_t const num
         sptr_subset->sort();
 
         return newObjectHandle<MRAcquisitionData>(sptr_subset);
+    }
+    CATCH;
+}
+
+extern "C"
+void*
+cGT_discardAcquisitionData(void* ptr_acqs)
+{
+    try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+
+        MRAcquisitionData& ad =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+        
+		ad.discard_data();
+        return new DataHandle;
     }
     CATCH;
 }

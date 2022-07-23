@@ -36,10 +36,10 @@ limitations under the License.
 
 #include "cstir.h"
 #include "object.h"
-//#include "stir_types.h"
-//#include "stir_data_containers.h"
-#include "stir_x.h"
-//#include "SIRF/common/envar.h"
+//#include "sirf/cSTIR/stir_types.h"
+//#include "sirf/cSTIR/stir_data_containers.h"
+#include "sirf/cSTIR/stir_x.h"
+//#include "sirf/common/envar.h"
 
 using namespace stir;
 using namespace ecat;

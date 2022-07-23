@@ -607,38 +607,6 @@ class CoilSensitivityData(ImageData):
             raise error('Cannot calculate coil sensitivities from %s' % \
                         repr(type(data)))
 
-    def __calc_from_acquisitions(self, data, method_name):
-
-        if data.handle is None:
-            raise AssertionError("The handle for data is None. Please pass valid acquisition data.")
-
-        dcw = compute_kspace_density(data)
-
-        data = data * dcw
-        if method_name == 'Inati':
-            try:
-                from ismrmrdtools import coils
-            except:
-                raise error('Inati method requires ismrmrd-python-tools')
-
-            cis = CoilImagesData()
-            try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
-            cis_array = cis.as_array()
-            csm, _ = coils.calculate_csm_inati_iter(cis_array)
-
-            if self.handle is not None:
-                pyiutil.deleteDataHandle(self.handle)
-            self.handle = pysirf.cSIRF_clone(cis.handle)
-            nc, nz, ny, nx = self.dimensions()
-            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
-            nz = nz//ns        # z-dimension of a slice
-            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
-            csm = numpy.swapaxes(csm, 0,  1)
-            self.fill(csm.astype(numpy.complex64))
-        
-        elif method_name == 'SRSS':
-            try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
-
     def __calc_from_images(self, data, method_name):
 
         if data.handle is None:
@@ -797,6 +765,35 @@ class Acquisition(object):
     def info(self, method):
         return eval('self.' + method + '()')
 
+    
+    def set_kspace_encode_step_1(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1', int(val))
+    def set_kspace_encode_step_2(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2', int(val))
+    def set_average(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_average', int(val))
+    def set_slice(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_slice', int(val))
+    def set_contrast(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_contrast', int(val))
+    def set_phase(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_phase', int(val))
+    def set_repetition(self, val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_repetition', val)
+    def set_set(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_set', int(val))
+    def set_segment(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_segment', int(val))
+
 class AcquisitionData(DataContainer):
     '''
     Class for an MR acquisitions container.
@@ -931,6 +928,15 @@ class AcquisitionData(DataContainer):
         
         return subset
     
+    def discard_data(self):
+        '''
+        Resizes every acquisition to size 1 to avoid keeping data in memory for simulation.
+        '''
+        assert self.handle is not None
+        pygadgetron.cGT_discardAcquisitionData(self.handle)
+        
+        return
+
     def set_user_floats(self, data, idx):
         '''
         Writes the data into the user_float[idx] data field of the acquisition

@@ -27,7 +27,7 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "mrtest_auxiliary_funs.h"
+#include "sirf/Gadgetron/mrtest_auxiliary_funs.h"
 
 int main ( int argc, char* argv[])
 {

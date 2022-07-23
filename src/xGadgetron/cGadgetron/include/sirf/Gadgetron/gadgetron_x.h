@@ -506,7 +506,6 @@ namespace sirf {
         gadgetron::shared_ptr<CoilSensitivitiesVector> sptr_csms_;
         gadgetron::shared_ptr<FourierEncoding> sptr_enc_;
 	};
-
 }
 
 #endif

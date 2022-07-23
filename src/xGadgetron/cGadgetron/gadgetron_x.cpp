@@ -426,8 +426,8 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 
         auto tag_img = KSpaceSubset::get_tag_from_img(*ptr_img);
 
-        sirf::AcquisitionsVector subset;
-        KSpaceSubset::SetType idx_set;
+        sirf::AcquisitionsVector subset(ac.acquisitions_info());
+		KSpaceSubset::SetType idx_set;
         for(int j=0; j<kspace_sorting.size(); ++j)
         {
             if(tag_img == kspace_sorting[j].get_tag())
@@ -440,7 +440,6 @@ MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 
         if(subset.number() == 0)
             throw LocalisedException("You didn't find rawdata corresponding to your image in the acquisition data.", __FILE__, __LINE__);
-
         this->sptr_enc_->forward(subset, *ptr_img);
         ac.set_subset(subset, idx_set); //assume forward does not reorder the acquisitions
     }

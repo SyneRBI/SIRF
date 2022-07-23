@@ -65,7 +65,7 @@ else()
 endif()
 option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" ${DEFAULT_SIRF_INSTALL_DEPENDENCIES})
 ####### CMake path
-set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # If OSX give the advanced option to use absolute paths for shared libraries
 if (APPLE)

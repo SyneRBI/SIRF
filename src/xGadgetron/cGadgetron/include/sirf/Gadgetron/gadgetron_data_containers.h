@@ -64,7 +64,9 @@ Some acquisitions do not participate directly in the reconstruction process
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
+	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA) && \
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
+	
 
 /*!
 \ingroup MR
@@ -396,6 +398,22 @@ namespace sirf {
 
 		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
 		virtual void get_data(complex_float_t* z, int all = 1);
+		
+		virtual void discard_data()
+		{
+			std::cout << "Warning: we are discarding all data keeping only the header." << std::endl;
+			ISMRMRD::Acquisition acq;
+			for(int i=0; i<this->number(); ++i)
+			{
+				this->get_acquisition(i, acq);
+				int num_traj = acq.getHead().number_of_samples * acq.getHead().trajectory_dimensions;
+				std::vector< float > tmp_traj(num_traj);
+				memcpy(&tmp_traj[0], acq.getTrajPtr(), num_traj * sizeof(acq.getTrajPtr()));
+				acq.resize(1,1,num_traj);
+				memcpy(acq.getTrajPtr(), &tmp_traj[0], num_traj * sizeof(acq.getTrajPtr()));
+				this->set_acquisition(i, acq);
+			}
+		}
 
         virtual void set_user_floats(float const * const z, int const idx);
 
