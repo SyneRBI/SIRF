@@ -125,16 +125,16 @@ def main():
     recon.set_only_2D(True)
     recon.set_hybrid(True)
 
-    image = recon.compute_kernelised_image(image, anatomical_image)
-    if show_plot:
-        image.show(title='kernelised image')
-
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function
     # and other objects involved in the reconstruction, which involves
     # computing/reading sensitivity image etc etc.)
     print('setting up, please wait...')
     recon.set_up(image)
+
+    image = recon.compute_kernelised_image(image, anatomical_image)
+    if show_plot:
+        image.show(title='kernelised image')
 
     recon.set_current_estimate(image)
     # in order to see the reconstructed image evolution
