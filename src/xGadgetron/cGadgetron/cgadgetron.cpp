@@ -224,6 +224,12 @@ cGT_setAcquisitionParameter(void* ptr, const char* param_name, const void* val)
 		acq.scan_counter() = dataFromHandle<int>(val);
 	else if  (sirf::iequals(param_name, "acquisition_time_stamp"))
 		acq.acquisition_time_stamp() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "physiology_time_stamp0"))
+		acq.physiology_time_stamp()[0] = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "physiology_time_stamp1"))
+		acq.physiology_time_stamp()[1] = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "physiology_time_stamp2"))
+		acq.physiology_time_stamp()[2] = dataFromHandle<int>(val);
 	else if  (sirf::iequals(param_name, "available_channels"))
 		acq.available_channels() = dataFromHandle<int>(val);
 	else if  (sirf::iequals(param_name, "discard_pre"))
