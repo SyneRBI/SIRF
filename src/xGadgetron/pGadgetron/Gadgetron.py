@@ -372,6 +372,12 @@ class ImageData(SIRF.ImageData):
             if numpy.prod(shape) != numpy.prod(dims):
                 msg = 'cannot fill ImageData of size %s with data of size %s'
                 raise ValueError(msg % (repr(dims), repr(shape)))
+
+            nc, nz, ny, nx = dims if len(dims) > 3 else (1,) + dims
+            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+            nz = nz//ns        # z-dimension of a slice
+            data = numpy.reshape(data, (nc, ns, nz, ny, nx))
+            data = numpy.swapaxes(data, 0, 1)
             the_data = data
             if self.is_real():
                 if data.dtype != numpy.float32:
@@ -616,6 +622,7 @@ class CoilSensitivityData(ImageData):
 
         data = data * dcw
         if method_name == 'Inati':
+
             try:
                 from ismrmrdtools import coils
             except:
@@ -629,11 +636,7 @@ class CoilSensitivityData(ImageData):
             if self.handle is not None:
                 pyiutil.deleteDataHandle(self.handle)
             self.handle = pysirf.cSIRF_clone(cis.handle)
-            nc, nz, ny, nx = self.dimensions()
-            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
-            nz = nz//ns        # z-dimension of a slice
-            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
-            csm = numpy.swapaxes(csm, 0,  1)
+
             self.fill(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
@@ -644,8 +647,8 @@ class CoilSensitivityData(ImageData):
         if data.handle is None:
             raise AssertionError("The handle for data is None. Please pass valid image data.")
 
-
         if method_name == 'Inati':
+
             try:
                 from ismrmrdtools import coils
             except:
@@ -653,15 +656,10 @@ class CoilSensitivityData(ImageData):
                 
             cis_array = data.as_array()
             csm, _ = coils.calculate_csm_inati_iter(cis_array)
+
             if self.handle is not None:
                 pyiutil.deleteDataHandle(self.handle)
             self.handle = pysirf.cSIRF_clone(data.handle)
-
-            nc, nz, ny, nx = self.dimensions()
-            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
-            nz = nz//ns        # z-dimension of a slice
-            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
-            csm = numpy.swapaxes(csm, 0,  1)
 
             self.fill(csm.astype(numpy.complex64))
 
