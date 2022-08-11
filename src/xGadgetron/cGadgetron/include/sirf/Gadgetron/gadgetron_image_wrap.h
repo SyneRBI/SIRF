@@ -59,7 +59,9 @@ limitations under the License.
 			##__VA_ARGS__);\
 	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((ISMRMRD::Image< std::complex<double> >*) Arguments, \
-			##__VA_ARGS__);
+			##__VA_ARGS__);\
+	else\
+		throw std::domain_error("unknown data type in IMAGE_PROCESSING_SWITCH");
 
 #define IMAGE_PROCESSING_SWITCH_CONST(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
@@ -80,7 +82,10 @@ limitations under the License.
 			##__VA_ARGS__);\
 	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, \
-			##__VA_ARGS__);
+			##__VA_ARGS__);\
+	else\
+		throw std::domain_error("unknown data type in IMAGE_PROCESSING_SWITCH_CONST");
+
 
 typedef ISMRMRD::Image<complex_float_t> CFImage;
 typedef ISMRMRD::Image<complex_double_t> CDImage;
@@ -248,19 +253,25 @@ namespace sirf {
 			type_ = type;
 			ptr_ = ptr_im;
 		}
-		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index)
+		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index) noexcept(false)
 		{
 			type_ = type;
 			IMAGE_PROCESSING_SWITCH(type_, read_, ptr_, dataset, var, index, &ptr_);
 		}
-		ImageWrap(const ImageWrap& iw)
+		ImageWrap(const ImageWrap& iw) noexcept(false)
 		{
 			type_ = iw.type();
 			IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
 		}
-		~ImageWrap()
+		~ImageWrap() noexcept
 		{
-			IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
+                	try {
+				IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
+                        }
+                        catch(...)
+                        {
+                          // catch exceptions in destructor to prevent crashes
+                        }
 		}
 		int type() const
 		{
@@ -335,6 +346,14 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_attr_, ptr_, attr);
 			return attr;
 		}
+		void set_attributes(const std::string& attr)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, set_attr_, ptr_, attr);
+		}
+		void show_attributes() const
+		{
+			IMAGE_PROCESSING_SWITCH_CONST(type_, show_attr_, ptr_, 0);
+		}
 		void set_imtype(ISMRMRD::ISMRMRD_ImageTypes imtype)
 		{
 			IMAGE_PROCESSING_SWITCH(type_, set_imtype_, ptr_, imtype);
@@ -388,7 +407,7 @@ namespace sirf {
 			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
 		}
 
-        void set_complex_data(const complex_float_t* data)
+		void set_complex_data(const complex_float_t* data)
 		{
 			//std::cout << "in set_complex_data\n";
 			//std::cout << "trying new image wrap iterator...\n";
@@ -417,6 +436,8 @@ namespace sirf {
 			header.image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
 			header.image_series_index = 0;
 			im.setHead(header);
+
+			im.setAttributeString(attributes());
 
 			ImageWrap::Iterator_const i = begin_const();
 			ImageWrap::Iterator_const stop = end_const();
@@ -605,6 +626,38 @@ namespace sirf {
 		void get_attr_(const ISMRMRD::Image<T>* ptr_im, std::string& attr) const
 		{
 			ptr_im->getAttributeString(attr);
+		}
+
+		template<typename T>
+		void set_attr_(ISMRMRD::Image<T>* ptr_im, const std::string& attr)
+		{
+			ptr_im->setAttributeString(attr);
+		}
+
+		template<typename T>
+		void show_attr_(const ISMRMRD::Image<T>* ptr_im, int i) const
+		{
+			const ISMRMRD::Image<T>& im = *ptr_im;
+			size_t meta_attrib_length = im.getAttributeStringLength();
+			std::cout << "meta_attrib_length: " << meta_attrib_length << '\n';
+			std::string meta_attrib(meta_attrib_length + 1, 0);
+			im.getAttributeString(meta_attrib);
+
+			//std::cout << "attributes:" << std::endl << meta_attrib << std::endl;
+			if (meta_attrib_length > 0) {
+				ISMRMRD::MetaContainer mc;
+				ISMRMRD::deserialize(meta_attrib.c_str(), mc);
+				for (auto it = mc.begin(); it != mc.end(); ++it) {
+					auto name = it->first.c_str();
+					std::cout << name << ":\n";
+					size_t l = mc.length(name);
+					for (int j = 0; j <l; j++)
+						std::cout << mc.as_str(name, j) << '\n';
+				}
+				std::stringstream meta_xml;
+				ISMRMRD::serialize(mc, meta_xml);
+				std::cout << meta_xml.str().c_str() << '\n';
+			}
 		}
 
 		template<typename T>

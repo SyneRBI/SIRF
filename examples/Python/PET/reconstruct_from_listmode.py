@@ -229,6 +229,7 @@ def main():
 
     # chain attenuation and ECAT8 normalisation
     asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
+    asm.set_up(acq_data)
 
     acq_model.set_acquisition_sensitivity(asm)
     acq_model.set_background_term(randoms + scatter_estimate)

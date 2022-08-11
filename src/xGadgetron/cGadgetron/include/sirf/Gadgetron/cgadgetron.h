@@ -59,7 +59,7 @@ extern "C" {
 		(void* ptr_am, const char* name, const void* ptr);
 	void* cGT_AcquisitionModelParameter(void* ptr_am, const char* name);
 	void* cGT_setCSMs(void* ptr_am, const void* ptr_csms);
-	void* cGT_acquisitionModelNorm(void* ptr_am);
+	void* cGT_acquisitionModelNorm(void* ptr_am, int num_iter, int verb);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 	void* cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 
@@ -70,13 +70,15 @@ extern "C" {
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq);
 	void* cGT_createEmptyAcquisitionData(void* ptr_ad);
-    void* cGT_getAcquisitionsSubset(void* ptr_acqs, PTR_INT ptr_idx, PTR_INT const num_elem_subset);
+    void* cGT_getAcquisitionsSubset(void* ptr_acqs, PTR_INT const ptr_idx, PTR_INT const num_elem_subset);
 
 	void* cGT_cloneAcquisitions(void* ptr_input);
 	void* cGT_sortAcquisitions(void* ptr_acqs);
 	void* cGT_sortAcquisitionsByTime(void* ptr_acqs);
 	void* cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info);
     void* cGT_setGRPETrajectory(void* ptr_acqs);
+	void* cGT_setRadial2DTrajectory(void* ptr_acqs);
+	void* cGT_setGoldenAngle2DTrajectory(void* ptr_acqs);
     void* cGT_getDataTrajectory(void* ptr_acqs, PTR_FLOAT ptr_traj);
     void* cGT_setAcquisitionUserFloat(void* ptr_acqs, PTR_FLOAT ptr_floats, int idx);
 

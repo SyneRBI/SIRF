@@ -1,0 +1,117 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: SIRF Synergistic Image Reconstruction Framework
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Evgueni
+    family-names: Ovtchinnikov
+    orcid: 'https://orcid.org/0000-0002-9359-6514'
+    affiliation: UK Research & Innovation
+  - given-names: Richard
+    family-names: Brown
+    affiliation: University College London
+    orcid: 'https://orcid.org/0000-0001-6989-9200'
+  - given-names: Johannes
+    family-names: Mayer
+    affiliation: Physikalisch-Technische Bundesanstalt (PTB)
+    orcid: 'https://orcid.org/0000-0002-2500-445X'
+  - given-names: Edoardo
+    family-names: Pasca
+    affiliation: UK Research & Innovation
+    orcid: 'https://orcid.org/0000-0001-6957-2160'
+  - given-names: Casper
+    family-names: da Costa-Luis
+    affiliation: King's College London
+    orcid: 'https://orcid.org/0000-0002-7211-1557'
+  - given-names: David
+    family-names: Atkinson
+    affiliation: University College London
+    orcid: 'https://orcid.org/0000-0003-1124-6666'
+  - given-names: Christoph
+    family-names: Kolbitsch
+    orcid: 'https://orcid.org/0000-0002-4355-8368'
+    affiliation: Physikalisch-Technische Bundesanstalt (PTB)
+  - given-names: Nikos
+    family-names: Efthimiou
+    orcid: 'https://orcid.org/0000-0003-1947-5033'
+  - given-names: Ashley
+    family-names: Gillman
+    orcid: 'https://orcid.org/0000-0001-9130-1092'
+    affiliation: >-
+      Commonwealth Scientific and Industrial Research
+      Organisation, and University of Queensland
+  - orcid: 'https://orcid.org/0000-0002-1815-4716'
+    affiliation: University College London, National Physics Laboratory
+    family-names: Porter
+    given-names: Sam David
+  - given-names: Ander
+    family-names: Biguri
+    orcid: 'https://orcid.org/0000-0002-2636-3032'
+    affiliation: University College London
+  - affiliation: National Physical Laboratory (UK)
+    orcid: 'https://orcid.org/0000-0002-2766-4339'
+    given-names: Daniel
+    family-names: Deidda
+  - orcid: 'https://orcid.org/0000-0001-8523-353X'
+    affiliation: University of Bath
+    given-names: Matthias
+    family-names: Ehrhardt
+  - given-names: Evangelos
+    family-names: Papoutsellis
+    affiliation: UK Research & Innovation
+  - orcid: 'https://orcid.org/0000-0002-9151-3295'
+    affiliation: University College London
+    given-names: Alexander
+    family-names: Whitehead
+  - family-names: Fardell
+    given-names: Gemma
+    orcid: 'https://orcid.org/0000-0003-2388-5211'
+    affiliation: UK Research & Innovation
+  - affiliation: University College London
+    family-names: Thomas
+    given-names: Ben
+    orcid: 'https://orcid.org/0000-0002-9784-1177'
+  - orcid: 'https://orcid.org/0000-0003-2919-1894'
+    affiliation: University College London
+    given-names: Francesca
+    family-names: Leek
+  - orcid: 'https://orcid.org/0000-0002-5514-199X'
+    affiliation: University College London
+    family-names: Thielemans
+    given-names: Kris
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.2707911
+    description: >-
+      The concept DOI of the work (DOI for all
+      versions).
+  - type: doi
+    value: 10.1016/j.cpc.2019.107087
+    description: >-
+      "SIRF: Synergistic Image Reconstruction
+      Framework". Computer Physics Communications
+      Volume 249, April 2020, 107087
+  - type: doi
+    value: 10.1098/rsta.2020.0208
+    description: >-
+      "Motion estimation and correction for
+      simultaneous PET/MR using SIRF and CIL". Philos
+      Trans A Math Phys Eng Sci . 2021 Aug
+      23;379(2204):20200208.
+  - type: doi
+    value: 10.1109/NSSMIC.2017.8532815
+    description: >-
+      "SIRF: Synergistic Image Reconstruction
+      Framework". 2017 IEEE Nuclear Science Symposium
+      and Medical Imaging Conference (NSS/MIC)
+repository-code: 'https://github.com/SyneRBI/SIRF'
+keywords:
+  - pet-mr
+  - medical imaging
+  - image reconstruction
+license: Apache-2.0

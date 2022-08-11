@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 UCL
+Copyright 2018 - 2020 UCL
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -39,6 +39,16 @@ using namespace sirf;
 extern "C"
 char* charDataFromHandle(const void* ptr);
 
+static void*
+handle_error(const std::string& error_string, const char* file, int line) 
+{
+	DataHandle* handle = new DataHandle;
+	ExecutionStatus status(error_string.c_str(), file, line);
+	handle->set(0, &status);
+	return (void*)handle;
+}
+
+// TODO write below in terms of handle_error() function above
 static void*
 parameterNotFound(const char* name, const char* file, int line) 
 {
@@ -82,6 +92,27 @@ wrongFloatParameterValue
 	char buff[32];
 	sprintf(buff, "%f", value);
 	return wrongParameterValue(name, buff, file, line);
+}
+
+void*
+sirf::cSTIR_setImageDataParameter(void* hp, const char* name, const void* hv)
+{
+	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
+	if (sirf::iequals(name, "modality"))
+		id.set_modality(charDataFromHandle(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
+{
+	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
+	if (sirf::iequals(name, "modality"))
+		return charDataHandleFromCharData(id.modality().c_str());
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 void*
@@ -237,11 +268,31 @@ sirf::cSTIR_setRayTracingMatrixParameter
 {
 	RayTracingMatrix& matrix = 
 		objectFromHandle<RayTracingMatrix>(hp);
-	int value = dataFromHandle<int>(hv);
 	if (sirf::iequals(name, "num_tangential_LORs"))
-		matrix.set_num_tangential_LORs(value);
+          {
+            	const auto value = dataFromHandle<int>(hv);
+                matrix.set_num_tangential_LORs(value);
+          }
 	else
+          {
+            const auto value = dataFromHandle<bool>(hv);
+            if (sirf::iequals(name, "enable_cache"))
+              matrix.enable_cache(value);
+            else if (sirf::iequals(name, "restrict_to_cylindrical_FOV"))
+              matrix.set_restrict_to_cylindrical_FOV(value);
+            else if (sirf::iequals(name, "do_symmetry_90degrees_min_phi"))
+              matrix.set_do_symmetry_90degrees_min_phi(value);
+            else if (sirf::iequals(name, "do_symmetry_180degrees_min_phi"))
+              matrix.set_do_symmetry_180degrees_min_phi(value);
+            else if (sirf::iequals(name, "do_symmetry_swap_segment"))
+              matrix.set_do_symmetry_swap_segment(value);
+            else if (sirf::iequals(name, "do_symmetry_swap_s"))
+		matrix.set_do_symmetry_swap_s(value);
+            else if (sirf::iequals(name, "do_symmetry_shift_z"))
+		matrix.set_do_symmetry_shift_z(value);
+            else
 		return parameterNotFound(name, __FILE__, __LINE__);
+          }
 	return new DataHandle;
 }
 
@@ -252,6 +303,44 @@ sirf::cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name
 		objectFromHandle<RayTracingMatrix>(handle);
 	if (sirf::iequals(name, "num_tangential_LORs"))
 		return dataHandle<int>(matrix.get_num_tangential_LORs());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+sirf::cSTIR_setSPECTUBMatrixParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	SPECTUBMatrix& matrix =
+		objectFromHandle<SPECTUBMatrix>(hp);
+        int value = dataFromHandle<int>(hv);
+	if (boost::iequals(name, "keep_all_views_in_cache"))
+		matrix.set_keep_all_views_in_cache(value);
+        else if (boost::iequals(name, "attenuation_image"))
+                {
+                       STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+                       matrix.set_attenuation_image_sptr(id.data_sptr());
+                }
+        else
+                return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name)
+{
+	SPECTUBMatrix& matrix =
+		objectFromHandle<SPECTUBMatrix>(handle);
+	if (boost::iequals(name, "keep_all_views_in_cache"))
+		return dataHandle<int>(matrix.get_keep_all_views_in_cache());
+        else if (boost::iequals(name, "attenuation_image"))
+                {
+                  shared_ptr<const DiscretisedDensity<3,float> > att_im_sptr(matrix.get_attenuation_image_sptr());
+                  if (!att_im_sptr)
+                       return handle_error("SPECTUBMatrix: attenuation image not set", __FILE__, __LINE__);
+                  sptrImage3DF sptr_im(att_im_sptr->clone());
+                  shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+                  return newObjectHandle(sptr_id);
+                }
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -578,7 +667,7 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		obj_fun.set_zero_seg0_end_planes
 			(sirf::iequals(charDataFromDataHandle(hv), "true"));
 	//else if (sirf::iequals(name, "max_segment_num_to_process"))
-	//	obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
+	//	obj_fun.set_max_segment_num_toa_process(dataFromHandle<int>((void*)hv));
 	else if (sirf::iequals(name, "acquisition_data")) {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
 		obj_fun.set_acquisition_data(sptr_ad);
@@ -795,7 +884,7 @@ sirf::cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle
 		recon.set_input(acq_data);
 	}
 	else if (sirf::iequals(name, "zoom")) {
-		double zoom = dataFromHandle<float>(hv);
+		float zoom = dataFromHandle<float>(hv);
 		recon.set_zoom(zoom);
 		recon.cancel_setup();
 	}
@@ -805,7 +894,7 @@ sirf::cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle
 		recon.cancel_setup();
 	}
 	else if (sirf::iequals(name, "alpha")) {
-		double alpha = dataFromHandle<float>(hv);
+		float alpha = dataFromHandle<float>(hv);
 		recon.set_alpha_ramp(alpha);
 	}
 	else if (sirf::iequals(name, "fc")) {

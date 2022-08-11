@@ -41,13 +41,10 @@ class TestSTIRImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
 class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, TestDataContainerAlgebra):
 
     def setUp(self):
-        if os.path.exists(os.path.join(
-            examples_data_path('PET'), 'mMR', 'mMR_template_span11_small.hs')):
-
-            template = pet.AcquisitionData(os.path.join(
-                examples_data_path('PET'), 'mMR', 'mMR_template_span11_small.hs')
-            )
-            
+        path = os.path.join(
+            examples_data_path('PET'), 'thorax_single_slice', 'template_sinogram.hs')
+        if os.path.exists(path):
+            template = pet.AcquisitionData(path)
             self.image1 = template.get_uniform_copy(0)
             self.image2 = template.get_uniform_copy(0)
             # assert False
@@ -68,13 +65,10 @@ class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, TestDataContainerAlg
 class TestSTIRAcquisitionDataAlgebraMemory(unittest.TestCase, TestDataContainerAlgebra):
     def setUp(self):
         pet.AcquisitionData.set_storage_scheme('file')
-        if os.path.exists(os.path.join(
-            examples_data_path('PET'), 'mMR', 'mMR_template_span11_small.hs')):
-
-            template = pet.AcquisitionData(os.path.join(
-                examples_data_path('PET'), 'mMR', 'mMR_template_span11_small.hs')
-            )
-            
+        path = os.path.join(
+            examples_data_path('PET'), 'thorax_single_slice', 'template_sinogram.hs')
+        if os.path.exists(path):
+            template = pet.AcquisitionData(path)
             self.image1 = template.get_uniform_copy(0)
             self.image2 = template.get_uniform_copy(0)
             # assert False

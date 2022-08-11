@@ -2,7 +2,7 @@
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
-# Copyright 2015 - 2021 University College London
+# Copyright 2015 - 2022 University College London
 # Copyright 2019 University of Hull
 #
 # This is software developed for the Collaborative Computational
@@ -34,6 +34,7 @@ from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, \
+     cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
 from sirf.SIRF import DataContainer
@@ -235,36 +236,36 @@ class EllipticCylinder(Shape):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_length(self, value):
-        """Sets length."""
+        """Sets length in mm."""
         parms.set_float_par(self.handle, self.name, 'length', value)
 
     def get_length(self):
-        """Returns length."""
+        """Returns length in mm."""
         return parms.float_par(self.handle, self.name, 'length')
 
     def set_radius_x(self, value):
-        """Sets x radius."""
+        """Sets x radius in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_x', value)
 
     def get_radius_x(self):
-        """Returns x radius."""
+        """Returns x radius in mm."""
         return parms.float_par(self.handle, self.name, 'radius_x')
 
     def set_radius_y(self, value):
-        """Sets y radius."""
+        """Sets y radius in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_y', value)
 
     def get_radius_y(self):
-        """Returns y radius."""
+        """Returns y radius in mm."""
         return parms.float_par(self.handle, self.name, 'radius_y')
 
     def set_radii(self, radii):
-        """Sets radii."""
+        """Sets radii in mm."""
         parms.set_float_par(self.handle, self.name, 'radius_x', radii[1])
         parms.set_float_par(self.handle, self.name, 'radius_y', radii[0])
 
     def get_radii(self):
-        """Returns radii."""
+        """Returns radii in mm."""
         rx = parms.float_par(self.handle, self.name, 'radius_x')
         ry = parms.float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
@@ -321,6 +322,17 @@ class ImageData(SIRF.ImageData):
     def same_object(self):
         """See DataContainer method."""
         return ImageData()
+
+    def modality(self):
+        """Returns imaging modality as Python string."""
+        return parms.char_par(self.handle, 'ImageData', 'modality')
+
+    def set_modality(self, mod):
+        """Sets imaging modality.
+
+        mod: "PT" or "NM" or "MR" or "CT" or "US" or "Optical"
+        """
+        return parms.set_char_par(self.handle, 'ImageData', 'modality', mod)
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
@@ -430,7 +442,7 @@ class ImageData(SIRF.ImageData):
         """Returns image dimensions as a tuple (nz, ny, nx)."""
         if self.handle is None:
             raise AssertionError()
-        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
+        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=cpp_int_dtype())
         try_calling(
             pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
         return tuple(dim[:3])  # [::-1])
@@ -548,7 +560,7 @@ class ImageData(SIRF.ImageData):
             raise error('zoom_image: size should be tuple')
         np_zooms = numpy.asarray(zooms, dtype=numpy.float32)
         np_offsets_in_mm = numpy.asarray(offsets_in_mm, dtype=numpy.float32)
-        np_size = numpy.asarray(size, dtype=numpy.int32)
+        np_size = numpy.asarray(size, dtype=cpp_int_dtype())
 
         try_calling(pystir.cSTIR_ImageData_zoom_image(
             zoomed_im.handle, np_zooms.ctypes.data,
@@ -660,13 +672,13 @@ class SeparableGaussianImageFilter(ImageDataProcessor):
             self.handle, image.handle))
 
     def set_fwhms(self, fwhms):
-        """Sets FWHM."""
+        """Sets FWHM in mm."""
         parms.set_float_par(self.handle, self.name, 'fwhms_x', fwhms[2])
         parms.set_float_par(self.handle, self.name, 'fwhms_y', fwhms[1])
         parms.set_float_par(self.handle, self.name, 'fwhms_z', fwhms[0])
 
     def set_max_kernel_sizes(self, mks):
-        """Sets max kernel sizes."""
+        """Sets max kernel sizes in voxels."""
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_x', mks[2])
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_y', mks[1])
         parms.set_int_par(self.handle, self.name, 'max_kernel_size_z', mks[0])
@@ -735,6 +747,14 @@ class RayTracingMatrix(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def get_info(self):
+        """Returns the metadata from STIR as Python str."""
+        handle = pystir.cSTIR_get_MatrixInfo(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
     def set_num_tangential_LORs(self, value):
         """Sets the number of tangential LORs.
 
@@ -748,6 +768,103 @@ class RayTracingMatrix(object):
     def get_num_tangential_LORs(self):
         """Returns the number of LORs for each bin in the sinogram."""
         return parms.int_par(self.handle, self.name, 'num_tangential_LORs')
+
+    def enable_cache(self, value=True):
+        """Enables or disables the caching mechanism."""
+        parms.set_bool_par(self.handle, self.name, 'enable_cache', value)
+        return self
+
+    def set_restrict_to_cylindrical_FOV(self, value=True):
+        """Enables or disables using a circular axial FOV (vs rectangular)."""
+        parms.set_bool_par(self.handle, self.name, 'restrict_to_cylindrical_FOV', value)
+        return self
+
+    def set_do_symmetry_90degrees_min_phi(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_90degrees_min_phi', value)
+        return self
+
+    def set_do_symmetry_180degrees_min_phi(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_180degrees_min_phi', value)
+        return self
+
+    def set_do_symmetry_swap_segment(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_swap_segment', value)
+        return self
+
+    def set_do_symmetry_swap_s(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_swap_s', value)
+        return self
+
+    def set_do_symmetry_shift_z(self, value=True):
+        """Enables or disables a symmetry (disabling saves memory but might increase computation time)."""
+        parms.set_bool_par(self.handle, self.name, 'do_symmetry_shift_z', value)
+        return self
+
+class SPECTUBMatrix:
+    '''
+    Class for objects holding sparse matrix representation of a SPECT
+    projector (developed at the University of Barcelona) (see AcquisitionModel class).
+    '''
+    name = 'SPECTUBMatrix'
+
+    def __init__(self):
+        '''
+        Create a new matrix. Default settings use neither attenuation nor resolution modelling.
+        '''
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_keep_all_views_in_cache(self, value):
+        '''
+        Enable keeping the matrix in memory.
+
+        This speeds-up the calculations, but can use a lot of memory.
+
+        You have to call set_up() after this (unless the value didn't change).
+        '''
+        parms.set_int_par(self.handle, self.name, 'keep_all_views_in_cache', value)
+        return self
+    def get_keep_all_views_in_cache(self):
+        '''
+        Returns a bool checking if we're keeping the whole matrix in memory or not.
+        '''
+        return parms.int_par(self.handle, self.name, 'keep_all_views_in_cache') != 0
+    def set_attenuation_image(self, value):
+        '''
+        Sets the attenuation image used by the projector.
+        '''
+        assert_validity(value, ImageData)
+        parms.set_parameter(self.handle, self.name, 'attenuation_image', value.handle)
+        return self
+    def get_attenuation_image(self):
+        '''
+        Returns the attenuation image used by the projector.
+        '''
+        image = ImageData()
+        image.handle = parms.parameter_handle(self.handle, self.name, 'attenuation_image')
+        return image
+
+    def set_resolution_model(self, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D = True):
+        '''
+        Set the parameters for the depth-dependent resolution model
+
+        The detector and collimator blurring is modelled as a Gaussian with sigma dependent on the
+        distance from the collimator.
+
+        sigma_at_depth = collimator_slope * depth_in_mm + collimator sigma 0
+
+        Set slope and sigma_0 to zero to avoid resolution modelling.
+
+        You have to call set_up() after this.
+        '''
+        try_calling(pystir.cSTIR_SPECTUBMatrixSetResolution(self.handle, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D))
 
 
 class AcquisitionData(DataContainer):
@@ -876,7 +993,7 @@ class AcquisitionData(DataContainer):
         """
         if self.handle is None:
             raise AssertionError()
-        dim = numpy.ndarray((MAX_IMG_DIMS,), dtype=numpy.int32)
+        dim = numpy.ndarray((MAX_ACQ_DIMS,), dtype=cpp_int_dtype())
         try_calling(pystir.cSTIR_getAcquisitionDataDimensions(
             self.handle, dim.ctypes.data))
         dim = dim[:4]
@@ -1401,10 +1518,15 @@ class AcquisitionModel(object):
         self.acq_templ = acq_templ
         self.img_templ = img_templ
 
-    def norm(self, subset_num=0, num_subsets=1):
+    def norm(self, subset_num=0, num_subsets=1, num_iter=2, verb=0):
+        """Computes the norm of a part the linear operator S G.
+
+        See the docstring for method forward for the desciption of
+        the partial forward projection and the arguments.
+        """
         assert self.handle is not None
         handle = pystir.cSTIR_acquisitionModelNorm \
-                 (self.handle, subset_num, num_subsets)
+                 (self.handle, subset_num, num_subsets, num_iter, verb)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -1717,7 +1839,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         check_status(self.handle)
         if matrix is None:
             matrix = RayTracingMatrix()
-        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
+        self.set_matrix(matrix)
 
     def __del__(self):
         """del."""
@@ -1725,10 +1847,15 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_matrix(self, matrix):
-        """Sets the matrix G to be used for projecting.
-
-        matrix: an object to represent G in (F).
-        """
+        '''
+        Sets the matrix G to be used for projecting;
+        matrix:  a matrix object to represent G in acquisition model (F).
+        '''
+        # TODO will need to allow for different matrices here
+        try:
+            assert_validity(matrix, SPECTUBMatrix)
+        except:
+            assert_validity(matrix, RayTracingMatrix)
         parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
 
 
@@ -1862,6 +1989,12 @@ class Prior(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def __call__(self, image):
+        '''Returns the prior value on the specified image (alias of value()).
+
+        image: ImageData object'''
+        return self.value(image)
+
     def set_penalisation_factor(self, value):
         """Sets penalisation factor.
 
@@ -1877,6 +2010,23 @@ class Prior(object):
         return parms.float_par(
             self.handle, 'GeneralisedPrior', 'penalisation_factor')
 
+    def get_value(self, image):
+        """Returns the value of the prior.
+
+        Returns the value of the prior for the specified image.
+        image: ImageData object
+        """
+        assert_validity(image, ImageData)
+        handle = pystir.cSTIR_priorValue(self.handle, image.handle)
+        check_status(handle)
+        v = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return v
+
+    def value(self, image):
+        """Returns the value of the prior (alias of get_value())."""
+        return self.get_value(image)
+
     def get_gradient(self, image):
         """Returns gradient of the prior.
 
@@ -1888,6 +2038,11 @@ class Prior(object):
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
+
+    def gradient(self, image):
+        """Returns the gradient of the prior (alias of get_gradient())."""
+
+        return self.get_gradient(image)
 
     def set_up(self, image):
         """Sets up."""

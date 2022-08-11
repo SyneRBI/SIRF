@@ -1,10 +1,9 @@
-function fully_sampled_recon_three_chains(engine)
-% FULLY_SAMPLED_RECON_THREE_CHAINS
-% Runs 3 gadget chains of different type:
+function fully_sampled_recon_two_chains(engine)
+% FULLY_SAMPLED_RECON_TWO_CHAINS
+% Runs 2 gadget chains of different type:
 % - acquisition processing chain,
 % - reconstruction chain,
-% - image processing chain
-% and how to visualise or modify data in between these chains.
+% and shows how to visualise or modify data in between these chains.
 %
 % See also FULLY_SAMPLED_RECON
 
@@ -78,24 +77,12 @@ fprintf('reconstructing...\n')
 recon.process()
 
 % get reconstructed image object
-complex_image_data = recon.get_output();
-
-% extract real images using Images processing chain
-% Note this still returns an sirf.Gadgetron.ImageData object that requires use
-% of as_array() or show() to visulaise.
-% Third chain removed because of Gadgetron bug in ExtractGadget.
-% img_proc = MR.ImageDataProcessor({'ExtractGadget'});
-% fprintf('processing images...\n')
-% img_proc.set_input(complex_image_data)
-% img_proc.process();
-% real_image_data = img_proc.get_output();
-% % a shortcut for the above 3 lines
-% % real_image_data = img_proc.process(complex_image_data);
+image_data = recon.get_output();
 
 % show obtained images
 % See other demos for use of as_array() to extract a MATLAB array and then
 % plot
 title = 'Reconstructed image data (magnitude)';
-sirf.Utilities.show_3D_array(abs(complex_image_data.as_array()), title, ...
+sirf.Utilities.show_3D_array(abs(image_data.as_array()), title, ...
     'samples', 'readouts', 'slice');
 

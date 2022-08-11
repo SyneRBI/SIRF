@@ -44,7 +44,7 @@ classdef AcquisitionSensitivityModel < handle
             if nargin < 2
                 if ischar(src)
                     % create from ECAT8/GE norm file
-                    fprintf(1, 'Reading manufacturer PET normalisation file from %s', src)
+                    fprintf(1, 'Reading manufacturer PET normalisation file from %s\n', src)
                     h = calllib('miutilities', 'mCharDataHandle', src);
                     self.handle_ = calllib('mstir',...
                         'mSTIR_createPETAcquisitionSensitivityModel', h, 'n');

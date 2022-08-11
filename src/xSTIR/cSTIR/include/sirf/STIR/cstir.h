@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-Copyright 2015 - 2017 University College London.
+Copyright 2015 - 2017, 2022 University College London.
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -79,7 +79,7 @@ extern "C" {
 		(void* ptr_sm, void* ptr_ad, const char* job);
 	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
 	void* cSTIR_linearAcquisitionModel(void* ptr_am);
-	void* cSTIR_acquisitionModelNorm(void* ptr_am, int subset_num, int num_subsets);
+	void* cSTIR_acquisitionModelNorm(void* ptr_am, int subset_num, int num_subsets, int num_iter, int verb);
 	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im,
 		int subset_num, int num_subsets);
 	void* cSTIR_acquisitionModelFwdReplace
@@ -88,6 +88,12 @@ extern "C" {
 		int subset_num, int num_subsets);
 	void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
 		int subset_num, int num_subsets, void* ptr_im);
+        void* cSTIR_get_MatrixInfo(void* ptr);
+
+        // Acquisition Model Matrix
+        void* cSTIR_SPECTUBMatrixSetResolution
+                 (const void* ptr_acq_matrix,
+                  const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D);
 
 	// Acquisition data methods
 	void* cSTIR_getAcquisitionDataStorageScheme();
@@ -136,6 +142,7 @@ extern "C" {
 
 	// Prior methods
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
+	void* cSTIR_priorValue(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
 	void* cSTIR_PLSPriorGradient(void* ptr_p, int dir);
 

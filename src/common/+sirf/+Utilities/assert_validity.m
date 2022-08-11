@@ -20,11 +20,11 @@ function assert_validity(object, type)
 
 errID = 'SIRF:assert_validity';
 if ~ismethod(object, 'class_name')
-    error(errID, 'expected %s, got %s\n', type, class(object))
+    object_class = sirf.Utilities.class_name(object);
+else
+    object_class = object.class_name();
 end
-
-if ~strcmp(object.class_name(), type)
-    error(errID, 'expected %s, got %s\n', type, object.class_name())
+if ~strcmp(object_class, type)
+    error(errID, 'expected %s, got %s\n', type, object_class)
 end
-
 assert(~isempty(object.handle_), errID, 'empty object')

@@ -37,7 +37,7 @@ limitations under the License.
 #include <chrono>
 #include <fstream>
 #include <exception>
-
+#include <iterator>
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/iUtilities/DataHandle.h"
@@ -45,7 +45,7 @@ limitations under the License.
 #include "sirf/common/JacobiCG.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
-#include "sirf/common/PETImageData.h"
+#include "sirf/common/ImageData.h"
 #include "sirf/common/GeometricalInfo.h"
 #include "stir/ZoomOptions.h"
 
@@ -724,6 +724,9 @@ namespace sirf {
 		}
 	};
 
+	typedef Image3DF::full_iterator Image3DFIterator;
+	typedef Image3DF::const_full_iterator Image3DFIterator_const;
+
 	/*!
 	\ingroup PET
 	\brief STIR DiscretisedDensity<3, float> wrapper with added functionality.
@@ -732,19 +735,20 @@ namespace sirf {
 	additioanally, implements the linear algebra functionality specified by the
 	abstract base class aDatacontainer.
 	*/
-
-	typedef Image3DF::full_iterator Image3DFIterator;
-	typedef Image3DF::const_full_iterator Image3DFIterator_const;
-
-	//class STIRImageData : public aDataContainer < float > {
-	class STIRImageData : public PETImageData { //<Iterator, Iterator_const> {
+	class STIRImageData : public ImageData {
 	public:
-		//typedef PETImageData<Iterator, Iterator_const>::Iter BaseIter;
-		//typedef PETImageData<Iterator, Iterator_const>::Iter_const BaseIter_const;
 		typedef ImageData::Iterator BaseIter;
 		typedef ImageData::Iterator_const BaseIter_const;
 		class Iterator : public BaseIter {
 		public:
+                        //! \name typedefs for std::iterator_traits
+                        //@{
+                        typedef Image3DFIterator::difference_type difference_type;
+                        typedef Image3DFIterator::value_type value_type;
+                        typedef Image3DFIterator::reference reference;
+                        typedef Image3DFIterator::pointer pointer;
+                        typedef std::forward_iterator_tag iterator_category;
+                        //@}
 			Iterator(const Image3DFIterator& iter) : _iter(iter)
 			{}
 			Iterator& operator=(const Iterator& iter)
@@ -886,12 +890,24 @@ namespace sirf {
 		{
 			return false;
 		}
-
 		unsigned int items() const
 		{
 			return 1;
 		}
-        /// Write to file
+
+		std::string modality() const
+		{
+			ExamInfo ex_info = data().get_exam_info();
+			return ex_info.imaging_modality.get_name();
+		}
+		void set_modality(const std::string& mod)
+		{
+			ExamInfo ex_info = data().get_exam_info();
+			ex_info.imaging_modality = ImagingModality(mod);
+			data().set_exam_info(ex_info);
+		}
+
+		/// Write to file
         virtual void write(const std::string &filename) const;
         /// Write to file using format file.
         /*! This allows speciyfing the output file format used by STIR using a text file.

@@ -173,7 +173,7 @@ void SPMRegistration<dataType>::process()
 
     // Start MATLAB engine synchronously
     if (!_matlab_uptr) {
-        _matlab_uptr = startMATLAB(std::vector<String>({u"-nojvm"}));
+        _matlab_uptr = startMATLAB(std::vector<matlab::engine::String>({u"-nojvm"}));
         std::cout << "Started MATLAB Engine" << std::endl;
     }
 

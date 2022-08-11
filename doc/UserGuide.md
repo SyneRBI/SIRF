@@ -32,7 +32,7 @@
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
-This User’s Guide describes version 3.1 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
+This User’s Guide describes version 3.3 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
 
 ## General architecture <a name="General_architecture"></a>
 
@@ -47,6 +47,8 @@ At present, you should only use the C++, MATLAB and Python interfaces. The under
 SIRF expects raw MR data in the ISMRMRD format. We use [siemens_to_ismrmrd](https://github.com/ismrmrd/siemens_to_ismrmrd) for this. This enables raw data from Siemens mMR Biograph PET-MR scanners to be converted to ISMRMRD format. For more details of how to export the raw MR data from Siemens PET-MR scanners and how to convert the data to ISMRMRD please see the wiki: [https://github.com/SyneRBI/SIRF/wiki/MR-raw-data](https://github.com/SyneRBI/SIRF/wiki/MR-raw-data).  
 
 Converters for data from other scanners are available from [https://github.com/ismrmrd](https://github.com/ismrmrd) but we have not tried these yet. 
+
+SIRF currently supports sequences that use 2D and 3D cartesian sampling. If the Gadgetron toolboxes were found during building, it supports radial, golden-angle radial and radial-phase-encoding trajectories.
 
 ### PET <a name="PET"></a>
 
@@ -356,8 +358,8 @@ in each spacial direction.
 
 ###### Methods (in addition to those of ImageDataProcessor):
 
-	set_fwhms            Sets Full Widths at Half Maximum in each spacial direction
-	set_max_kernel_sizes Sets max kernel size in each spacial direction.
+	set_fwhms            Sets Full Widths at Half Maximum in mm in each spacial direction
+	set_max_kernel_sizes Sets max kernel size in voxels in each spacial direction.
 	set_normalise        Normalise the kernel to 1 or not (default is on)
 
 ##### AcquisitionDataProcessor (MR)

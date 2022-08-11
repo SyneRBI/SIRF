@@ -36,6 +36,11 @@ Defines C functions handling DataHandle objects.
 
 extern "C" {
 
+	int intBits()
+	{
+		return 8 * sizeof(int);
+	}
+
 	void* newDataHandle() // C constructor
 	{
 		return (void*)new DataHandle;
@@ -60,6 +65,10 @@ extern "C" {
 	void* intDataHandle(int i)
 	{
 		return dataHandle<int>(i);
+	}	
+	void* boolDataHandle(int b)
+	{
+		return dataHandle<bool>(b);
 	}	
 	void* floatDataHandle(float i) 
 	{
