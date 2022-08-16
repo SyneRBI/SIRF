@@ -43,7 +43,7 @@ else()
   message(WARNING "Gadgetron not found. Set gadgetron_DIR if you do have it.")
   set (default_CXX_version 11)
 endif()
-UseCXX(default_CXX_version)
+UseCXX(${default_CXX_version})
 
 PROJECT(SIRF)
 
