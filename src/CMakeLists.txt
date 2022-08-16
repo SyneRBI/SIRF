@@ -25,7 +25,6 @@ ADD_SUBDIRECTORY(iUtilities)
 ##########################################################################
 #                              Gadgetron                                 #
 ##########################################################################
-option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
 if (DISABLE_Gadgetron)
   message(STATUS "Gadgetron support disabled.")
 else()

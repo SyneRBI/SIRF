@@ -29,7 +29,7 @@ limitations under the License.
 \author Johannes Mayer
 \author SyneRBI
 */
-#include <algorithm> 
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
