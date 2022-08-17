@@ -19,11 +19,11 @@
 # A macro to set the C++ version
 # If CMAKE_CXX_STANDARD is already set to a more recent version, keep that.
 macro(UseCXX VERSION)
-    if (NOT DEFINED CMAKE_CXX_STANDARD)
-      set (CMAKE_CXX_STANDARD ${VERSION})
-    else()
-      if ((CMAKE_CXX_STANDARD EQUAL 98) OR (CMAKE_CXX_STANDARD LESS VERSION))
-        message(FATAL_ERROR "CXX_STANDARD needs to be at least ${VERSION}")
-      endif()
+  if (NOT DEFINED CMAKE_CXX_STANDARD)
+    set (CMAKE_CXX_STANDARD ${VERSION})
+  else()
+    if ((CMAKE_CXX_STANDARD EQUAL 98) OR (CMAKE_CXX_STANDARD LESS VERSION))
+      message(FATAL_ERROR "CXX_STANDARD needs to be at least ${VERSION}")
     endif()
+  endif()
 endmacro(UseCXX)
