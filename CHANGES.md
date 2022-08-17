@@ -1,9 +1,10 @@
 # ChangeLog
 
-## v3.3.1
+## v3.X
 
 * writing MR images and their attributes to `.dcm` and `.xml` files fixed.
 
+* Use C++ 17 if Gadgetron-support is enabled
 
 ## v3.3.0
 
