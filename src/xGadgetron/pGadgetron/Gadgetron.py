@@ -1738,7 +1738,9 @@ def calc_rpe_dcw(ad):
     density_weight_norm =  numpy.sum(density_weight) / (max_traj_rad**2 * numpy.pi)
     density_weight = density_weight / density_weight_norm
 
-    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+#    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.expand_dims(density_weight, axis=1)
+    density_weight = numpy.expand_dims(density_weight, axis=2)
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
     
     dcw = ad.copy()
@@ -1770,7 +1772,9 @@ def calc_radial_dcw(ad):
     density_weight = density_weight / density_weight_norm
 
     density_weight = numpy.transpose(density_weight)
-    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+#    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.expand_dims(density_weight, axis=1)
+    density_weight = numpy.expand_dims(density_weight, axis=2)
     density_weight = numpy.reshape(density_weight, (na, 1, ns))
     density_weight = numpy.tile(density_weight, (1, nc, 1))
     
