@@ -414,11 +414,11 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 }
 
 extern "C"
-void* cGT_acquisitionModelNorm(void* ptr_am)
+void* cGT_acquisitionModelNorm(void* ptr_am, int num_iter, int verb)
 {
 	try {
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(ptr_am);
-		return dataHandle(am.norm());
+		return dataHandle(am.norm(num_iter, verb));
 	}
 	CATCH;
 }
@@ -1016,8 +1016,7 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		MRAcquisitionData& input = objectFromHandle<MRAcquisitionData>(h_input);
 		recon.process(input);
-		shared_ptr<GadgetronImageData> sptr_img = recon.get_output();
-		return newObjectHandle<GadgetronImageData>(sptr_img);
+		return new DataHandle;
 	}
 	CATCH;
 
@@ -1137,6 +1136,7 @@ cGT_getImageDim(void* ptr_img, size_t ptr_dim)
 	int* dim = (int*)ptr_dim;
 	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
 	image.get_dim(dim);
+//	image.show_attributes();
 }
 
 extern "C"

@@ -37,6 +37,7 @@ from deprecation import deprecated
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      try_calling, assert_validity, assert_validities, label_and_name, \
      name_and_parameters, parse_arglist, \
+     cpp_int_dtype, \
      examples_data_path, existing_filepath, \
      pTest, RE_PYEXT
 import sirf
@@ -248,11 +249,15 @@ class ImageData(SIRF.ImageData):
     def same_object(self):
         return ImageData()
 
-    def abs(self):
-        images = ImageData()
+    def abs(self, out=None):
+        if out is None:
+            images = ImageData()
+        else:
+            images = out
         images.handle = pygadgetron.cGT_realImageData(self.handle, 'abs')
         check_status(images.handle)
-        return images
+        if out is None:
+            return images
 
     def real(self):
         images = ImageData()
@@ -367,6 +372,12 @@ class ImageData(SIRF.ImageData):
             if numpy.prod(shape) != numpy.prod(dims):
                 msg = 'cannot fill ImageData of size %s with data of size %s'
                 raise ValueError(msg % (repr(dims), repr(shape)))
+
+            nc, nz, ny, nx = dims if len(dims) > 3 else (1,) + dims
+            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
+            nz = nz//ns        # z-dimension of a slice
+            data = numpy.reshape(data, (nc, ns, nz, ny, nx))
+            data = numpy.swapaxes(data, 0, 1)
             the_data = data
             if self.is_real():
                 if data.dtype != numpy.float32:
@@ -401,7 +412,7 @@ class ImageData(SIRF.ImageData):
         if self.number() < 1:
             return 0
         assert self.handle is not None
-        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        dim = numpy.ndarray((4,), dtype=cpp_int_dtype())
         image = Image(self)
         pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
         nx = dim[0]
@@ -611,6 +622,7 @@ class CoilSensitivityData(ImageData):
 
         data = data * dcw
         if method_name == 'Inati':
+
             try:
                 from ismrmrdtools import coils
             except:
@@ -624,11 +636,7 @@ class CoilSensitivityData(ImageData):
             if self.handle is not None:
                 pyiutil.deleteDataHandle(self.handle)
             self.handle = pysirf.cSIRF_clone(cis.handle)
-            nc, nz, ny, nx = self.dimensions()
-            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
-            nz = nz//ns        # z-dimension of a slice
-            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
-            csm = numpy.swapaxes(csm, 0,  1)
+
             self.fill(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
@@ -639,8 +647,8 @@ class CoilSensitivityData(ImageData):
         if data.handle is None:
             raise AssertionError("The handle for data is None. Please pass valid image data.")
 
-
         if method_name == 'Inati':
+
             try:
                 from ismrmrdtools import coils
             except:
@@ -648,15 +656,10 @@ class CoilSensitivityData(ImageData):
                 
             cis_array = data.as_array()
             csm, _ = coils.calculate_csm_inati_iter(cis_array)
+
             if self.handle is not None:
                 pyiutil.deleteDataHandle(self.handle)
             self.handle = pysirf.cSIRF_clone(data.handle)
-
-            nc, nz, ny, nx = self.dimensions()
-            ns = self.number() # number of total dynamics (slices, contrasts, etc.)
-            nz = nz//ns        # z-dimension of a slice
-            csm = numpy.reshape(csm, (nc, ns, nz, ny, nx))
-            csm = numpy.swapaxes(csm, 0,  1)
 
             self.fill(csm.astype(numpy.complex64))
 
@@ -920,7 +923,7 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         subset = AcquisitionData()
-        idx = numpy.array(idx, dtype = numpy.int32)
+        idx = numpy.array(idx, dtype = cpp_int_dtype())
         subset.handle = pygadgetron.cGT_getAcquisitionsSubset(self.handle, idx.ctypes.data, idx.size)
         check_status(subset.handle)
         
@@ -957,11 +960,10 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         if self.number() < 1:
-            return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
-        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
+            return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
+        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
         hv = pygadgetron.cGT_getAcquisitionDataDimensions\
              (self.handle, dim.ctypes.data)
-        #nr = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
@@ -990,7 +992,7 @@ class AcquisitionData(DataContainer):
             na = len(rng)
         f = min(rng)
         t = max(rng) + 1
-        info = numpy.ndarray((2,), dtype=numpy.int32)
+        info = numpy.ndarray((2,), dtype=cpp_int_dtype())
         try_calling(pygadgetron.cGT_acquisitionParameterInfo \
                     (self.handle, par, info.ctypes.data))
         n = int(info[1])
@@ -1188,9 +1190,11 @@ class AcquisitionModel(object):
         assert_validity(csm, CoilSensitivityData)
         try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
             (self.handle, 'coil_sensitivity_maps', csm.handle))
-    def norm(self):
+    def norm(self, num_iter=2, verb=0):
+        '''Computes the norm of the forward projection operator.
+        '''
         assert self.handle is not None
-        handle = pygadgetron.cGT_acquisitionModelNorm(self.handle)
+        handle = pygadgetron.cGT_acquisitionModelNorm(self.handle, num_iter, verb)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -1734,7 +1738,9 @@ def calc_rpe_dcw(ad):
     density_weight_norm =  numpy.sum(density_weight) / (max_traj_rad**2 * numpy.pi)
     density_weight = density_weight / density_weight_norm
 
-    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+#    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.expand_dims(density_weight, axis=1)
+    density_weight = numpy.expand_dims(density_weight, axis=2)
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
     
     dcw = ad.copy()
@@ -1766,7 +1772,9 @@ def calc_radial_dcw(ad):
     density_weight = density_weight / density_weight_norm
 
     density_weight = numpy.transpose(density_weight)
-    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+#    density_weight = numpy.expand_dims(density_weight, axis=(1,2))
+    density_weight = numpy.expand_dims(density_weight, axis=1)
+    density_weight = numpy.expand_dims(density_weight, axis=2)
     density_weight = numpy.reshape(density_weight, (na, 1, ns))
     density_weight = numpy.tile(density_weight, (1, nc, 1))
     

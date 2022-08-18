@@ -42,7 +42,7 @@ limitations under the License.
 #include <ismrmrd/dataset.h>
 
 #include "sirf/common/DataContainer.h"
-#include "sirf/common/MRImageData.h"
+#include "sirf/common/ImageData.h"
 #include "sirf/common/multisort.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_image_wrap.h"
@@ -612,7 +612,7 @@ namespace sirf {
 
 	*/
 
-	class ISMRMRDImageData : public MRImageData {
+	class ISMRMRDImageData : public ImageData {
 	public:
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
@@ -647,15 +647,30 @@ namespace sirf {
 				this->write(prefix, "", true);
 			}
 			else {
-				std::string fullname = ensure_ext_(filename, "h5");
-				this->write(fullname, "", false);
+				auto found = filename.find_last_of("/\\");
+				auto slash_found = found;
+				if (found == std::string::npos)
+					found = filename.find_last_of(".");
+				else
+					found = filename.substr(found + 1).find_last_of(".");
+				if (found == std::string::npos)
+					this->write(filename + ".h5", "", false);
+				else {
+					std::string ext = filename.substr(slash_found + found + 1);
+					if (ext == std::string(".h5"))
+						this->write(filename, "", false);
+					else
+						std::cerr << "WARNING: writing ISMRMRD images to "
+						<< ext << "-files not implemented, "
+						<< "please convert to Nifti images\n";
+				}
 			}
 		}
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;
 			const ImageWrap& iw = image_wrap(0);
-			int d[4];
+			int d[5];
 			iw.get_dim(d);
 			dim["x"] = d[0];
 			dim["y"] = d[1];
@@ -806,17 +821,6 @@ namespace sirf {
 		/// Clone helper function. Don't use.
 		virtual ISMRMRDImageData* clone_impl() const = 0;
 		virtual void conjugate_impl();
-		std::string ensure_ext_(std::string name, const char* def_ext) const
-		{
-			auto found = name.find_last_of("/\\");
-			if (found == std::string::npos)
-				found = name.find_last_of(".");
-			else
-				found = name.substr(found + 1).find_last_of(".");
-			if (found != std::string::npos)
-				return name;
-			return name + '.' + def_ext;
-		}
 
 	private:
 		class ComplexFloat_ {
@@ -890,7 +894,7 @@ namespace sirf {
 			ImageWrapIter;
 		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator 
 			ImageWrapIter_const;
-		class Iterator : public MRImageData::Iterator {
+		class Iterator : public ImageData::Iterator {
 		public:
 			Iterator(ImageWrapIter iw, int n, int i, const ImageWrap::Iterator& it) :
 				iw_(iw), n_(n), i_(i), iter_(it), end_((**iw).end())
@@ -962,7 +966,7 @@ namespace sirf {
 			gadgetron::shared_ptr<Iterator> sptr_iter_;
 		};
 
-		class Iterator_const : public MRImageData::Iterator_const {
+		class Iterator_const : public ImageData::Iterator_const {
 		public:
 			Iterator_const(ImageWrapIter_const iw, int n, int i, 
 				const ImageWrap::Iterator_const& it) :

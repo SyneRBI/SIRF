@@ -29,7 +29,7 @@ limitations under the License.
 \author Johannes Mayer
 \author SyneRBI
 */
-#include <algorithm>
+#include <algorithm> 
 #include <cmath>
 #include <fstream>
 #include <iomanip>
@@ -1816,6 +1816,8 @@ GadgetronImagesVector::set_up_geom_info()
             }
         }
     }
+
+    //size[2] *= number();
 
     // Make sure we're looking at the first image
     ih1 = image_wrap( 0 ).head();

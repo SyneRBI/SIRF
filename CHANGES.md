@@ -1,39 +1,69 @@
 # ChangeLog
 
-## v3.x.x
+## v3.X
 
-* To avoid appending to an existing `.h5` file, writing methods now first check whether the file to which data is to be written already exists, and if so, delete it before writing.
+* writing MR images and their attributes to `.dcm` and `.xml` files fixed.
 
-* A version.h is created by CMake and installed to access version minor and major from C++.
+* Use C++ 17 if Gadgetron-support is enabled
 
-* MR 
+## v3.3.0
+
+* Added a new acquisition model `SPECTUBMatrix` for (simple) usage in SPECT.
+  `sirf.STIR.ImageData` has now a way to set/get the modality.
+
+* interactive Python demos superseded by SIRF-Exercises notebooks removed.
+
+* arguments setting number of CG iterations and verbosity of output
+  of acquisition models method `norm()` added.
+
+* path for ISMRMRD shared library when generating MR data fixed.
+
+* extension processing in `ISMRMRDImageData::write` fixed.
+
+* Python int array check/conversion ensuring C++ compatibility added.
+
+* C/Python interfaces for computing prior value added.
+
+* Zenodo citation file added.
+
+
+## v3.2.0
+
+* Dependencies
+  - we now require ISMRMRD v1.4.2.1 to allow for the `-w` flag for the creation of Shepp
+    Logan test data during build.
+
+* MR (major improvements)
   - added acquisition models for 2D non-cartesian encoding. 
-  - The 2D radial, golden-angle increment radial and stack-of-stars trajectory are supported.
-* MR Geometry
+    The 2D radial, golden-angle increment radial and stack-of-stars trajectory are supported.
+    However, this uses Gadgetron toolbox libraries to be found when building SIRF.
+    Other MR features only need access to a Gadgetron server at run-time.
   - fixed GadgetronImagesVector::reorient() to only consider slice index 
-  and ignore dimensions such as contrast, repetition etc.
+    and ignore dimensions such as contrast, repetition etc.
+  - To avoid appending to an existing `.h5` file, writing methods now first check whether
+    the file to which data is to be written already exists, and if so, delete it before writing. 
 
-* PET/STIR
-  - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception.
-  - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
-  - (C++) Expose advanced parameters from STIR to sirf.STIR.RayTracingMatrix
+* PET/STIR (minor improvements)
   - (Python) Expose advanced parameters from STIR to sirf.STIR.RayTracingMatrix and add get_info()
+  - (C++) Expose advanced parameters from STIR to sirf.STIR.RayTracingMatrix
+  - (C++) Replaced where possible returning `stir::Succeeded::no` with throwing exception to reduce
+    the API dependency on STIR.
+  - (C++) Fixed a bug in `PETAcquisitionDataInMemory::norm`.
 
-* SIRF Python interface
-  - Removed `__div__` ,  `__idiv__` operators for `DataContainers` required for Python2.
-  - Added `__truediv__` and `__itruediv__` Python3 operators to DataContainer algebra.
+* Generic (minor improvements)
+  - added conjugation methods to `DataContainer`
+  - (Python) Improve Python3 and drop Python2 support
+       - Removed `__div__` ,  `__idiv__` operators for `DataContainers` required for Python2.
+       - Added `__truediv__` and `__itruediv__` Python3 operators to DataContainer algebra.
+   - (C++) A `version.h` is created by CMake and installed to access version minor and major from C++.
 
-* Build system
+* Build system (minor improvements)
   - export a CMake config file such that external C++ projects can use SIRF via CMake,
   see the `examples/C++` directory for basic usage.
   - during the build step the executable ismrmrd_generate_cartesian_shepp_logan is called
   to generate simulated data to be used in tests such that the test data are compatible with
   the installed ISMRMRD version. 
-  - we now require ISMRMRD v1.4.2.1 to allow for the -w flag for the creation of Shepp
-  Logan test data during build.
 
-* Other changes
-  - added conjugation methods to DataContainer
 
 ## v3.1.1
   - minor bug fixes

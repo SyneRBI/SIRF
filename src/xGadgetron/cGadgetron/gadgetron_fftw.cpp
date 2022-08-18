@@ -72,8 +72,13 @@ namespace ISMRMRD {
 #pragma omp parallel private(tt) shared(a, x, y, z, n, pivotx, pivoty, pivotz) if (n>16)
 		{
 			//hoNDArray< ComplexType > aTmp(x*y*z);
-			ComplexType* tmp =
-				(ComplexType*)fftwf_malloc(sizeof(ComplexType)*x*y*z);
+			std::vector<size_t> dims;
+			dims.push_back(x);
+			dims.push_back(y);
+			dims.push_back(z);
+			NDArray< ComplexType > aTmp(dims);
+			//ComplexType* tmp =
+				//(ComplexType*)fftwf_malloc(sizeof(ComplexType)*x*y*z);
 
 #pragma omp for
 			for (tt = 0; tt < (long long)n; tt++)
@@ -85,8 +90,8 @@ namespace ISMRMRD {
 					rz = az - pivotz;
 
 					const ComplexType* ac = a + tt*x*y*z + az*x*y;
-					ComplexType* rc = tmp + rz*x*y;
-					//ComplexType* rc = aTmp.begin() + rz*x*y;
+					//ComplexType* rc = tmp + rz*x*y;
+					ComplexType* rc = aTmp.begin() + rz*x*y;
 
 					for (ay = pivoty; ay < y; ay++)
 					{
@@ -108,8 +113,8 @@ namespace ISMRMRD {
 					rz = az + z - pivotz;
 
 					const ComplexType* ac = a + tt*x*y*z + az*x*y;
-					ComplexType* rc = tmp + rz*x*y;
-					//ComplexType* rc = aTmp.begin() + rz*x*y;
+					//ComplexType* rc = tmp + rz*x*y;
+					ComplexType* rc = aTmp.begin() + rz*x*y;
 
 					for (ay = pivoty; ay < y; ay++)
 					{
@@ -126,8 +131,8 @@ namespace ISMRMRD {
 					}
 				}
 
-				memcpy(a + tt*x*y*z, tmp, sizeof(ComplexType)*x*y*z);
-				//memcpy(a + tt*x*y*z, aTmp.begin(), sizeof(ComplexType)*x*y*z);
+				//memcpy(a + tt*x*y*z, tmp, sizeof(ComplexType)*x*y*z);
+				memcpy(a + tt*x*y*z, aTmp.begin(), sizeof(ComplexType)*x*y*z);
 			}
 		}
 	}
@@ -197,7 +202,7 @@ namespace ISMRMRD {
 
 	void fft3(NDArray< ComplexType >& a, NDArray< ComplexType >& r, bool forward)
 	{
-		r = a;
+		//r = a;
 
 		const size_t* dims = a.getDims();
 		int n2 = (int)dims[0];
