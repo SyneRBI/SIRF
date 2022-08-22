@@ -95,6 +95,16 @@ wrongFloatParameterValue
 }
 
 void*
+sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
+{
+	PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(hp);
+	if (sirf::iequals(name, "tof_mash_factor"))
+		return dataHandle<int>(ad.get_tof_mash_factor());
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 sirf::cSTIR_setImageDataParameter(void* hp, const char* name, const void* hv)
 {
 	STIRImageData& id = objectFromHandle<STIRImageData>(hp);

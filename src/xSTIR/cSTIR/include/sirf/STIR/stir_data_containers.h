@@ -322,6 +322,12 @@ namespace sirf {
 		{
 			return data()->get_num_tof_poss();
 		}
+
+		int get_tof_mash_factor() const
+		{
+			return data()->get_proj_data_info_sptr()->get_tof_mash_factor();
+		}
+
 		size_t get_dimensions(int* dim)
 		{
 			dim[0] = get_num_tangential_poss();

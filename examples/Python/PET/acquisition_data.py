@@ -116,6 +116,7 @@ def main():
     print('norm of acq_copy - acq_data: %f' % diff.norm())
     diff = -acq_copy.fill(acq_data) + acq_data
     print('norm of -acq_copy.fill(acq_data) + acq_data: %f' % diff.norm())
+    print('TOF mashing factor %d' % acq_data.get_tof_mash_factor())
 
     if show_plot:
         # display the scaled data

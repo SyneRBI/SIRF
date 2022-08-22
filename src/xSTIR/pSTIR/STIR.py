@@ -999,6 +999,10 @@ class AcquisitionData(DataContainer):
         dim = dim[:4]
         return tuple(dim[::-1])
 
+    def get_tof_mash_factor(self):
+        '''Returns TOF mashing factor.'''
+        return parms.int_par(self.handle, 'AcquisitionData', 'tof_mash_factor')
+
     def as_array(self):
         """Returns bin values as ndarray.
 

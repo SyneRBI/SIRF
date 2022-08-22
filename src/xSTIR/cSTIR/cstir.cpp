@@ -244,6 +244,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 		else if (sirf::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 			return cSTIR_truncateToCylindricalFOVImageProcessorParameter
 			(handle, name);
+		else if (sirf::iequals(obj, "AcquisitionData"))
+			return cSTIR_AcquisitionDataParameter(handle, name);
 		else if (sirf::iequals(obj, "ImageData"))
 			return cSTIR_ImageDataParameter(handle, name);
 		else if (sirf::iequals(obj, "RayTracingMatrix"))
