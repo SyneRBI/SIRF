@@ -42,7 +42,7 @@ limitations under the License.
 #include <ismrmrd/dataset.h>
 
 #include "sirf/common/DataContainer.h"
-#include "sirf/common/MRImageData.h"
+#include "sirf/common/ImageData.h"
 #include "sirf/common/multisort.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_image_wrap.h"
@@ -629,7 +629,7 @@ namespace sirf {
 
 	*/
 
-	class ISMRMRDImageData : public MRImageData {
+	class ISMRMRDImageData : public ImageData {
 	public:
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
@@ -911,7 +911,7 @@ namespace sirf {
 			ImageWrapIter;
 		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator 
 			ImageWrapIter_const;
-		class Iterator : public MRImageData::Iterator {
+		class Iterator : public ImageData::Iterator {
 		public:
 			Iterator(ImageWrapIter iw, int n, int i, const ImageWrap::Iterator& it) :
 				iw_(iw), n_(n), i_(i), iter_(it), end_((**iw).end())
@@ -983,7 +983,7 @@ namespace sirf {
 			gadgetron::shared_ptr<Iterator> sptr_iter_;
 		};
 
-		class Iterator_const : public MRImageData::Iterator_const {
+		class Iterator_const : public ImageData::Iterator_const {
 		public:
 			Iterator_const(ImageWrapIter_const iw, int n, int i, 
 				const ImageWrap::Iterator_const& it) :

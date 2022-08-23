@@ -323,6 +323,17 @@ class ImageData(SIRF.ImageData):
         """See DataContainer method."""
         return ImageData()
 
+    def modality(self):
+        """Returns imaging modality as Python string."""
+        return parms.char_par(self.handle, 'ImageData', 'modality')
+
+    def set_modality(self, mod):
+        """Sets imaging modality.
+
+        mod: "PT" or "NM" or "MR" or "CT" or "US" or "Optical"
+        """
+        return parms.set_char_par(self.handle, 'ImageData', 'modality', mod)
+
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
         Sets image size and geometric information.
@@ -987,6 +998,10 @@ class AcquisitionData(DataContainer):
             self.handle, dim.ctypes.data))
         dim = dim[:4]
         return tuple(dim[::-1])
+
+    def get_tof_mash_factor(self):
+        '''Returns TOF mashing factor.'''
+        return parms.int_par(self.handle, 'AcquisitionData', 'tof_mash_factor')
 
     def as_array(self):
         """Returns bin values as ndarray.

@@ -103,6 +103,7 @@ def main():
 
     # retrieve reconstruced image and G-factor data
     image_data = recon.get_output('image')
+    #print(image_data.dimensions())
     gfact_data = recon.get_output('gfactor')
     if show_plot:
       image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
@@ -113,6 +114,7 @@ def main():
       # named after the current date and time
       time_str = time.asctime()
       print('writing to %s' % output_file)
+      image_data = image_data.real()
       image_data.write(output_file) #, time_str)
 
 try:

@@ -36,8 +36,14 @@ endif()
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
 
 include(cmake/SetC++Version.cmake)
-UseCXX(11)
-#set(CMAKE_CXX_STANDARD 11)
+option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
+if (NOT DISABLE_Gadgetron)
+  set(default_CXX_version 17)
+else()
+  message(WARNING "Gadgetron not found. Set gadgetron_DIR if you do have it.")
+  set (default_CXX_version 11)
+endif()
+UseCXX(${default_CXX_version})
 
 PROJECT(SIRF)
 
@@ -51,7 +57,7 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   3 )
-set(VERSION_MINOR   3 )
+set(VERSION_MINOR   4 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 

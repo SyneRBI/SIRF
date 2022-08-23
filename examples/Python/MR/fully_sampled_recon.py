@@ -80,7 +80,7 @@ def main():
     recon.process()
     
     # retrieve reconstruced image data
-    image_data = recon.get_output()
+    image_data = recon.get_output().real()
     image_data.write(args['--output'])
 
     if show_plot:

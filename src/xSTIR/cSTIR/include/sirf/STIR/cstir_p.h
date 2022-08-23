@@ -27,6 +27,15 @@ limitations under the License.
 namespace sirf {
 
 	void*
+		cSTIR_setImageDataParameter(void* hp, const char* name, const void* hv);
+
+	void*
+		cSTIR_AcquisitionDataParameter(void* hp, const char* name);
+
+	void*
+		cSTIR_ImageDataParameter(void* hp, const char* name);
+
+	void*
 		cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv);
 
 	void*
