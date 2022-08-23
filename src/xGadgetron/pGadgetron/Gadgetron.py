@@ -1654,6 +1654,30 @@ def set_goldenangle2D_trajectory(ad):
     try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
     return ad
 
+def set_spiral2D_trajectory(ad, data):
+    
+    traj_type = int(4) # == spiral
+    pygadgetron.cGT_setTrajectoryType(ad.handle, traj_type)
+
+    traj_dim = int(2)
+    dims = ad.dimensions()
+    
+    num_readouts = dims[0]
+    num_samples = dims[2]
+    expected_data_shape = (num_readouts, num_samples, traj_dim)
+
+    if data.shape != expected_data_shape:
+        raise AssertionError("Pass the spiral trajectory in the shape {}. You gave a shape of {}".format(expected_data_shape, data.shape))
+    
+    data = numpy.array(data, numpy.float32)
+    convert = not data.flags['C_CONTIGUOUS']
+    if convert:
+        data = numpy.ascontiguousarray(data)
+    pygadgetron.cGT_setDataTrajectory(ad.handle, traj_dim, data.ctypes.data)
+
+
+
+
 def get_data_trajectory(ad):
     '''
     Function that gets the trajectory of AcquisitionData depending on the rawdata trajectory.
@@ -1667,7 +1691,7 @@ def get_data_trajectory(ad):
     elif ad.check_traj_type('other'):
         num_traj_pts = ad.number()
         traj_dim = 3
-    elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
+    elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle') or ad.check_traj_type('spiral') :
         num_traj_pts = ad.number() * ad.dimensions()[2]
         traj_dim = 2
         
@@ -1691,11 +1715,11 @@ def compute_kspace_density(ad):
         return calc_rpe_dcw(ad)
     elif ad.check_traj_type('radial') or ad.check_traj_type('goldenangle'):
         return calc_radial_dcw(ad)
-    	
+    elif ad.check_traj_type('spiral'):
+        raise NotImplementedError("Spiral density can not be computed yet. Potentially compute it externally and pass it as an argument where it is required.")
     else:
-        raise AssertionError("Please only try to recon trajectory types cartesian or other")
+        raise AssertionError("Please only try to recon trajectory types cartesian, radial, goldenangle, spiral or other")
     
-
 def calc_cartesian_dcw(ad):
     '''
     Function that computes the kspace weight for a cartesian acquisition by

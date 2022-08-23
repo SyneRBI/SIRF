@@ -929,6 +929,39 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
     CATCH;
 }
 
+extern "C"
+void*
+cGT_setDataTrajectory(void* ptr_acqs, int const traj_dim, size_t ptr_traj)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* fltptr_traj = (float*) ptr_traj;
+		acqs.set_trajectory(traj_dim, fltptr_traj);
+	
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void*
+cGT_setTrajectoryType(void* ptr_acqs, int const traj_type)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+		
+		const ISMRMRD::TrajectoryType type = static_cast<ISMRMRD::TrajectoryType>(traj_type);
+		acqs.set_trajectory_type(type);
+			
+        return new DataHandle;
+    }
+    CATCH;
+}
 
 extern "C"
 void* cGT_setAcquisitionUserFloat(void* ptr_acqs, size_t ptr_floats, int idx)

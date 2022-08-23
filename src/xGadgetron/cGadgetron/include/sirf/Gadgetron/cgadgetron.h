@@ -80,6 +80,10 @@ extern "C" {
 	void* cGT_setRadial2DTrajectory(void* ptr_acqs);
 	void* cGT_setGoldenAngle2DTrajectory(void* ptr_acqs);
     void* cGT_getDataTrajectory(void* ptr_acqs, PTR_FLOAT ptr_traj);
+	void* cGT_setDataTrajectory(void* ptr_acqs, int const traj_dim, size_t ptr_traj);
+	void* cGT_setTrajectoryType(void* ptr_acqs, int const traj_type);
+
+
     void* cGT_setAcquisitionUserFloat(void* ptr_acqs, PTR_FLOAT ptr_floats, int idx);
 
 	void* cGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);

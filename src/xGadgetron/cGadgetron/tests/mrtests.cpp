@@ -96,6 +96,63 @@ bool test_get_subset(const MRAcquisitionData& av)
     }
 }
 
+bool test_set_trajectory_type(const MRAcquisitionData& ad)
+{
+    try{
+        std::cout << "Running " << __FUNCTION__ << std::endl;
+        auto sptr_av = ad.clone();
+        std::cout << "The trajectory type before setting is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
+        
+        ISMRMRD::TrajectoryType type_to_set = ISMRMRD::TrajectoryType::SPIRAL;
+        sptr_av ->set_trajectory_type(type_to_set);
+
+        std::cout << "The trajectory type after setting is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
+
+
+        if(sptr_av->get_trajectory_type() == type_to_set)
+            return true;
+        else
+            return false;
+        
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
+bool test_set_trajectory(const MRAcquisitionData& ad)
+{
+    try
+    {
+        auto sptr_av = ad.clone();
+
+        int const num_readouts = sptr_av->number();
+        
+        std::vector<int> dims{0,0,0};
+        sptr_av->get_acquisitions_dimensions((size_t)&dims[0]);
+        int const num_samples = (int)dims[0];
+
+        int const traj_dim = 2;
+
+        size_t const num_trajectory_pts = traj_dim*num_samples*num_readouts;
+        std::vector<float> traj(num_trajectory_pts);
+
+        sptr_av->set_trajectory(traj_dim,&traj[0]);
+
+        return true;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
 bool test_ISMRMRDImageData_from_MRAcquisitionData(MRAcquisitionData& av)
 {
      try
@@ -652,6 +709,8 @@ bool run_cartesian_tests(const std::string& filename_testdata)
 
     ok *= test_get_kspace_order(av);
     ok *= test_get_subset(av);
+    ok *= test_set_trajectory_type(av);
+    ok *= test_set_trajectory(av);
 
     ok *= test_ISMRMRDImageData_from_MRAcquisitionData(av);
     ok *= test_ISMRMRDImageData_reorienting(av);
