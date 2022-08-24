@@ -107,6 +107,8 @@ def show_2D_array(title, array, scale = None, colorbar = True):
     colorbar: flag specifying whether the colorbar is to be displayed
     '''
     try:
+        import matplotlib
+        matplotlib.use('TkAgg')
         import matplotlib.pyplot as plt
     except:
         print('matplotlib not found, cannot plot the array')
@@ -162,6 +164,7 @@ def show_3D_array\
     import math
     try:
         import matplotlib as mpl
+        mpl.use('TkAgg')
         import matplotlib.pyplot as plt
     except:
         print('matplotlib not found, cannot plot the array')
