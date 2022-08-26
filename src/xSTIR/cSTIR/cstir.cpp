@@ -758,7 +758,8 @@ const int num_segments_to_combine,
 const int num_views_to_combine,
 const int num_tang_poss_to_trim,
 const bool do_normalisation,
-const int max_in_segment_num_to_process
+const int max_in_segment_num_to_process,
+const int num_tof_bins_to_combine
 )
 {
 	try {
@@ -769,8 +770,9 @@ const int max_in_segment_num_to_process
 			num_views_to_combine,
 			num_tang_poss_to_trim,
 			do_normalisation,
-			max_in_segment_num_to_process
-			);
+			max_in_segment_num_to_process,
+			num_tof_bins_to_combine
+		);
 		return newObjectHandle(sptr);
 	}
 	CATCH;

@@ -1077,7 +1077,8 @@ class AcquisitionData(DataContainer):
 
     def rebin(self, num_segments_to_combine,
               num_views_to_combine=1, num_tang_poss_to_trim=0,
-              do_normalisation=True, max_in_segment_num_to_process=-1):
+              do_normalisation=True, max_in_segment_num_to_process=-1,
+              num_tof_bins_to_combine=1):
         """Re-bins the data to lower resolution.
 
         Keyword arguments:
@@ -1093,13 +1094,14 @@ class AcquisitionData(DataContainer):
 			while the former should be used for corrected data (or for attenuation correction factors).
 		max_in_segment_num_to_process -- by default all input data are used. If set to a non-negative
 		    number, it will remove the most oblique segments.
+		num_tof_bins_to_combine -- number of TOF bins to combine.
         """
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_rebinnedAcquisitionData(
             self.handle,
             num_segments_to_combine, num_views_to_combine,
             num_tang_poss_to_trim, do_normalisation,
-            max_in_segment_num_to_process)
+            max_in_segment_num_to_process, num_tof_bins_to_combine)
         check_status(ad.handle)
         return ad
 

@@ -180,20 +180,22 @@ namespace sirf {
 			const int num_views_to_combine = 1,
 			const int num_tang_poss_to_trim = 0,
 			const bool do_normalisation = true,
-			const int max_in_segment_num_to_process = -1
-			)
+			const int max_in_segment_num_to_process = -1,
+			const int num_tof_bins_to_combine = 1
+		)
 		{
 			stir::shared_ptr<stir::ProjDataInfo> out_proj_data_info_sptr(
 				stir::SSRB(*data()->get_proj_data_info_sptr(),
 				num_segments_to_combine,
 				num_views_to_combine,
 				num_tang_poss_to_trim,
-				max_in_segment_num_to_process
-				));
+				max_in_segment_num_to_process,
+				num_tof_bins_to_combine
+			));
 			std::shared_ptr<PETAcquisitionData> 
 				sptr(same_acquisition_data
                                      (this->get_exam_info_sptr(), out_proj_data_info_sptr));
-			SSRB(*sptr, *data(), do_normalisation);
+			stir::SSRB(*sptr, *data(), do_normalisation);
 			return sptr;
 		}
 

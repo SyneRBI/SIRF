@@ -105,7 +105,8 @@ extern "C" {
 		const int num_views_to_combine,
 		const int num_tang_poss_to_trim,
 		const bool do_normalisation,
-		const int max_in_segment_num_to_process
+		const int max_in_segment_num_to_process,
+		const int num_tof_bins_to_combine
 		);
 	void* cSTIR_acquisitionDataFromScannerInfo
 		(const char* scanner, int span, int max_ring_diff, int view_mash_factor);
