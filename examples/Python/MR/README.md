@@ -2,6 +2,7 @@ This folder contains scripts demonstrating the use of SIRF for MR reconstruction
 
 All scripts currently use Gadgetron as the reconstruction engine, however only the demos located in the subfolder named `Gadgetron` employ Gadgetron's gadget chains explicitly. Those outside of this subfolder allow the use of any reconstruction engine that provides the necessary functionality such as `AcquisitionData` object, `preprocess_acquisition_data` function etc.
 
+<!--
 ### Fully Sampled Data Reconstructions
 
 The script `fully_sampled_recon.py` shows the reconstruction of fully sampled data without the explicit use of Gadgetron gadgets.
@@ -20,11 +21,10 @@ The script `grappa_and_steepest_descent.py` shows how to use MR acquisition mode
 
 The script `acquisition_data.py` shows how to access and manipulate acquisition data.
 
-The script `using acquisition_model.py` shows how to generate simulated acquisition data and backproject it into image space (see `grappa_and_steepest_descent.py` demo for an illustration on how this functionality can be employed in the improvement of the accuracy of reconstruction).
+The script `acquisition_model.py` shows how to generate simulated acquisition data and backproject it into image space (see `grappa_and_steepest_descent.py` demo for an illustration on how this functionality can be employed in the improvement of the accuracy of reconstruction).
 
 The script `coil_sensitivity_maps.py` demonstrates methods for calculating coil sensitivity maps.
 
-<!--
 This folder contains scripts intended to be run from the command line.
 For instance,
 ```bash
