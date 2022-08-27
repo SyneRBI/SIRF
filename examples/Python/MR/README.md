@@ -2,6 +2,8 @@ This folder contains scripts demonstrating the use of SIRF for MR reconstruction
 
 All scripts currently use Gadgetron as the reconstruction engine, however only the demos located in the subfolder named `Gadgetron` employ Gadgetron's gadget chains explicitly. Those outside of this subfolder allow the use of any reconstruction engine that provides the necessary functionality such as `AcquisitionData` object, `preprocess_acquisition_data` function etc.
 
+See the [Python/README](../README.md) for instructions.
+
 <!--
 ### Fully Sampled Data Reconstructions
 
@@ -34,6 +36,4 @@ The demos also have some options. Try
 ```bash
 python acquisition_model.py --help
 ```
-
-Check the `interactive` folder for demos that you run from an IDE.
 -->
