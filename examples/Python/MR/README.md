@@ -4,7 +4,6 @@ All scripts currently use Gadgetron as the reconstruction engine, however only t
 
 See the [Python/README](../README.md) for instructions.
 
-<!--
 ### Fully Sampled Data Reconstructions
 
 The script `fully_sampled_recon.py` shows the reconstruction of fully sampled data without the explicit use of Gadgetron gadgets.
@@ -27,13 +26,9 @@ The script `acquisition_model.py` shows how to generate simulated acquisition da
 
 The script `coil_sensitivity_maps.py` demonstrates methods for calculating coil sensitivity maps.
 
-This folder contains scripts intended to be run from the command line.
-For instance,
-```bash
-python acquisition_model.py 
-```
-The demos also have some options. Try
-```bash
-python acquisition_model.py --help
-```
--->
+The script `noncartesian_recon.py` illustrates the use of a non-cartesian
+radial phase-encoding acquisition model for reconstruction.
+
+The script `noncartesian_cg_sense.py` illustrates how to use a non-cartesian
+radial phase-encoding acquisition model to reconstruct data iteratively and
+without the use of any k-space density weighting.
