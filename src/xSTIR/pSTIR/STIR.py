@@ -1101,8 +1101,7 @@ class AcquisitionData(DataContainer):
 
         views: array of views (will be converted to numpy ndarray)
         """
-        '''Ensure the array passed to C++ is a contiguous array of C++ int's
-        '''
+        # Ensure the array passed to C++ is a contiguous array of C++ int's
         v = cpp_int_array(views)
         n = len(views)
         subset = AcquisitionData()
