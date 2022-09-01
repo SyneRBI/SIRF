@@ -1,12 +1,12 @@
 # ChangeLog
 ## v3.4.0
-* added support for spiral trajectories that are pre-computed by the user by exposing a setter.
+* MR:
+  - added support for spiral trajectories that are pre-computed by the user by exposing a setter.
+  - writing MR images and their attributes to `.dcm` and `.xml` files fixed.
+  - use C++ 17 if Gadgetron-support is enabled
 
-## v3.X
-
-* writing MR images and their attributes to `.dcm` and `.xml` files fixed.
-
-* Use C++ 17 if Gadgetron-support is enabled
+* documentation
+  - revision of READMEs for the examples
 
 ## v3.3.0
 
