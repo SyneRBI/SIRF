@@ -94,7 +94,7 @@ namespace sirf {
 			_filename(filename),
 			_owns_file(owns_file)
 		{}
-		ProjDataFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		ProjDataFile(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info,
 			const std::string& filename, bool owns_file = true) :
 			stir::ProjDataInterfile(SPTR_WRAP(sptr_exam_info), SPTR_WRAP(sptr_proj_data_info),
@@ -159,6 +159,8 @@ namespace sirf {
 		{
 			return false;
 		}
+
+		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const = 0;
 
 		//! rebin the data to lower resolution by adding
 		/*!
@@ -446,6 +448,24 @@ namespace sirf {
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
+		PETAcquisitionDataInFile(std::unique_ptr<stir::ProjData> uptr_pd) : _owns_file(true)
+		{
+//			auto *pd_ptr = dynamic_cast<stir::ProjDataInterfile*>(uptr_pd.get());
+			auto pd_ptr = dynamic_cast<stir::ProjDataInterfile*>(uptr_pd.get());
+			if (pd_ptr)
+				_data = std::move(uptr_pd);
+			else {
+				stir::ProjData& pd = *uptr_pd;
+				stir::shared_ptr<const stir::ExamInfo> sptr_exam_info =
+					pd.get_exam_info_sptr();
+				stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info =
+					pd.get_proj_data_info_sptr()->create_shared_clone();
+				_data.reset(new ProjDataFile
+                                    (MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info,
+					_filename = SIRFUtilities::scratch_file_name()));
+				_data->fill(pd);
+			}
+		}
 		std::shared_ptr<PETAcquisitionData> new_acquisition_data(std::string filename)
 		{
 			std::shared_ptr<PETAcquisitionDataInFile> sptr_ad(new PETAcquisitionDataInFile);
@@ -493,6 +513,7 @@ namespace sirf {
 				(_template->same_acquisition_data(this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
+		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const;
 
 	private:
 		bool _owns_file;
@@ -536,6 +557,22 @@ namespace sirf {
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
+		PETAcquisitionDataInMemory(std::unique_ptr<stir::ProjData> uptr_pd)
+		{
+//			auto *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(uptr_pd.get());
+			auto pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(uptr_pd.get());
+			if (pd_ptr)
+				_data = std::move(uptr_pd);
+			else {
+				std::cout << "copying ProjData to ProjDataInMemory...\n";
+				const stir::ProjData& pd = *uptr_pd;
+				auto exam_info_sptr = SPTR_WRAP(pd.get_exam_info_sptr());
+				auto proj_data_info_sptr =
+					SPTR_WRAP(pd.get_proj_data_info_sptr()->create_shared_clone());
+				_data.reset(new stir::ProjDataInMemory(exam_info_sptr, proj_data_info_sptr));
+				_data->fill(pd);
+			}
+		}
         /// Constructor for PETAcquisitionDataInMemory from filename
         PETAcquisitionDataInMemory(const char* filename)
         {
@@ -556,10 +593,8 @@ namespace sirf {
 				(new stir::ProjDataInMemory(*pd_sptr));
         }
 
-		static void init() 
-		{ 
-			PETAcquisitionDataInFile::init(); 
-		}
+		static void init();
+
 		static void set_as_template()
 		{
 			init();
@@ -592,6 +627,8 @@ namespace sirf {
 				(this->get_exam_info_sptr(),
                                  this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
+		virtual std::unique_ptr<PETAcquisitionData> get_subset(const std::vector<int>& views) const;
+
         /// fill with single value
         virtual void fill(const float v)
         {

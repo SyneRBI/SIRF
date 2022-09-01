@@ -1106,7 +1106,7 @@ class AcquisitionData(DataContainer):
         return ad
 
     def show(self, sino=None, tof=0, title=None):
-        '''Displays interactively selected sinograms.'''
+        '''Displays selected sinograms.'''
         if self.handle is None:
             raise AssertionError()
         if not HAVE_PYLAB:
@@ -1175,6 +1175,19 @@ class AcquisitionData(DataContainer):
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
+
+    def get_subset(self, views):
+        """Returns the subset of self data formed by specified views
+
+        views: array of views (will be converted to numpy ndarray)
+        """
+        # Ensure the array passed to C++ is a contiguous array of C++ int's
+        v = cpp_int_array(views)
+        n = len(views)
+        subset = AcquisitionData()
+        subset.handle = pystir.cSTIR_get_subset(self.handle, n, v.ctypes.data)
+        check_status(subset.handle)
+        return subset
 
     @property
     def shape(self):
