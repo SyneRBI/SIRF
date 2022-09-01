@@ -8,6 +8,11 @@
 * documentation
   - revision of READMEs for the examples
 
+* Require STIR 5.0
+
+* sirf.STIR.AcquisitionData constructor taking a scanner now has an extra optional argument
+  tof_mash_factor (defaulting to 1). This is only functional if a STIR version supporting TOF is used.
+
 ## v3.3.0
 
 * Added a new acquisition model `SPECTUBMatrix` for (simple) usage in SPECT.
