@@ -130,6 +130,8 @@ def main():
     # forward projection by a ray tracing matrix multiplication
     acq_model_matrix = sirf.STIR.SPECTUBMatrix();
     acq_model_matrix.set_attenuation_image(uMap) # add attenuation
+    acq_model_matrix.set_keep_all_views_in_cache(True) # choose whethe to keep views in cache
+    acq_model_matrix.set_up(acq_template, image)
     acq_model = sirf.STIR.AcquisitionModelUsingMatrix(acq_model_matrix)
 
     print('projecting image...')
