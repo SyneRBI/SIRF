@@ -20,11 +20,31 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # the agent machine operating systems
-        os: [ubuntu-latest]
-        DEVEL_BUILD: ["OFF", "ON"]
-        EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
-        CMAKE_BUILD_TYPE: ["Release"]
+        include:
+        - os: [ubuntu-latest]
+          compiler: gcc
+          compiler_version: 8
+          DEVEL_BUILD: "OFF"
+          EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
+          CMAKE_BUILD_TYPE: ["Release"]
+        - os: [ubuntu-latest]
+          compiler: gcc
+          compiler_version: 9
+          DEVEL_BUILD: "OFF"
+          EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
+          CMAKE_BUILD_TYPE: ["Release"]
+        - os: [ubuntu-latest]
+          compiler: gcc
+          compiler_version: 9
+          DEVEL_BUILD: "ON"
+          EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
+          CMAKE_BUILD_TYPE: ["Release"]
+        - os: [ubuntu-latest]
+          compiler: gcc
+          compiler_version: 10
+          DEVEL_BUILD: "ON"
+          EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
+          CMAKE_BUILD_TYPE: ["Release"]
         # let's run all of them, as opposed to aborting when one fails
       fail-fast: false
 
@@ -47,6 +67,27 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
       with:
         key: ${{ matrix.os }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ matrix.DEVEL_BUILD }}
+    - name: set_compiler_variables
+      shell: bash
+      run: |
+          set -ex
+          if test 'XX${{ matrix.compiler }}' = 'XXclang'; then
+            CC="clang"
+            CXX="clang++"
+          elif test 'XX${{ matrix.compiler }}' = 'XXgcc'; then
+            CC="gcc"
+            CXX="g++"
+          fi
+          if test 'XX${{ matrix.compiler_version }}' != 'XX'; then
+            CC=${CC}-${{ matrix.compiler_version }}
+            CXX=${CXX}-${{ matrix.compiler_version }}
+            sudo apt install -yq ${CXX} ${CC}
+          fi
+
+          export CC CXX
+          # make available to jobs below
+          echo CC="$CC" >> $GITHUB_ENV
+          echo CXX="$CXX" >> $GITHUB_ENV
     - name: configure
       shell: bash
       env:
@@ -64,8 +105,6 @@ jobs:
           BUILD_FLAGS="$BUILD_FLAGS -DBUILD_TESTING_GADGETRON=OFF -DBUILD_TESTING_ISMRMRD=OFF"
           mkdir -p build/;
           cd build;
-          export CC="gcc-8";
-          export CXX="g++-8";
           source ~/virtualenv/bin/activate;
           cmake -S ../SIRF-SuperBuild ${BUILD_FLAGS} ${EXTRA_BUILD_FLAGS} ${DEVEL_BUILD};
     - name: build
