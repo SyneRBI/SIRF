@@ -1415,7 +1415,7 @@ class Reconstructor(GadgetChain):
     Class for a chain of gadgets that has AcquisitionData on input and 
     ImageData on output.
     '''
-    def __init__(self, list = None):
+    def __init__(self, list=None):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('ImagesReconstructor')
         check_status(self.handle)
@@ -1435,14 +1435,21 @@ class Reconstructor(GadgetChain):
         '''
         assert isinstance(input_data, AcquisitionData)
         self.input_data = input_data
-    def process(self):
+    def process(self, dcm_prefix=None):
         '''
         Processes the input with the gadget chain.
+        dcm_prefix: Python text string.
+        If dcm_prefix is not None, the reconstructed images are written to
+        files <dcm_prefix>_<image number>.dcm.
+        Otherwise, they are stored in memory and can be retrieved by
+        get_output().
         '''
         if self.input_data is None:
             raise error('no input data')
+        if dcm_prefix is None:
+            dcm_prefix = ""
         try_calling(pygadgetron.cGT_reconstructImages\
-             (self.handle, self.input_data.handle))
+             (self.handle, self.input_data.handle, dcm_prefix))
     def get_output(self, subset = None):
         '''
         Returns specified subset of the output ImageData. If no subset is 

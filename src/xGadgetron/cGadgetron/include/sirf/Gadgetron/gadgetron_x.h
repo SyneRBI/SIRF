@@ -239,9 +239,9 @@ namespace sirf {
 
 		ImagesReconstructor() :
 			reader_(new IsmrmrdAcqMsgReader),
-			writer_(new IsmrmrdImgMsgWriter)
+			writer_(new IsmrmrdImgMsgWriter),
+			writer_dcm_(new DicomImageMessageWriter)
 		{
-			//class_ = "ImagesReconstructor";
 			sptr_images_.reset();
 			add_reader("reader", reader_);
 			add_writer("writer", writer_);
@@ -253,7 +253,7 @@ namespace sirf {
 			return "ImagesReconstructor";
 		}
 
-		void process(MRAcquisitionData& acquisitions);
+		void process(MRAcquisitionData& acquisitions, const char* dcm_prefix = "image");
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
 			return sptr_images_;
@@ -262,6 +262,7 @@ namespace sirf {
 	private:
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
+		gadgetron::shared_ptr<DicomImageMessageWriter> writer_dcm_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
 	};
 

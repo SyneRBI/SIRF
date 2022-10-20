@@ -356,7 +356,29 @@ namespace sirf {
 		}
 	};
 
-    class GenericReconCartesianFFTGadget : public Gadget {
+	class FFTGadget : public Gadget {
+	public:
+		FFTGadget() :
+			Gadget("FFT", "gadgetron_mricore", "FFTGadget")
+		{}
+		static const char* class_name()
+		{
+			return "FFTGadget";
+		}
+	};
+
+	class CombineGadget : public Gadget {
+	public:
+		CombineGadget() :
+			Gadget("Combine", "gadgetron_mricore", "CombineGadget")
+		{}
+		static const char* class_name()
+		{
+			return "CombineGadget";
+		}
+	};
+
+	class GenericReconCartesianFFTGadget : public Gadget {
 	public:
 		GenericReconCartesianFFTGadget() :
 			Gadget("Recon", "gadgetron_mricore", "GenericReconCartesianFFTGadget")
