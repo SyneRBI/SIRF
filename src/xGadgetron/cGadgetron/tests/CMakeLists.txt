@@ -81,6 +81,8 @@ if(RUN_ISMRMRD_SHEPP_LOGAN)
     else()
       # We need ISMRMRD, Boost, HDF5 and FFTW libraries...
       # We will try to find locations based on corresponding variables.
+      # Note that on some systems, cmake_path is currently broken, so we don't use it anymore
+      # See https://gitlab.kitware.com/cmake/cmake/-/issues/23328
 
       # separator used in path variables is different on Windows and elsewhere
       if (WIN32)
@@ -95,15 +97,18 @@ if(RUN_ISMRMRD_SHEPP_LOGAN)
         get_target_property(ISMRDRDCONFIGS ISMRMRD::ISMRMRD IMPORTED_CONFIGURATIONS)
         list(GET ISMRDRDCONFIGS 0 ISMRDRDCONFIG)
         get_target_property(ISMRMRDPATH ISMRMRD::ISMRMRD IMPORTED_LOCATION_${ISMRDRDCONFIG})
-        cmake_path(REMOVE_FILENAME ISMRMRDPATH OUTPUT_VARIABLE ISMRMRDPATH)
+        #cmake_path(REMOVE_FILENAME ISMRMRDPATH OUTPUT_VARIABLE ISMRMRDPATH)
+	get_filename_component(ISMRMRDPATH "${ISMRMRDPATH}" DIRECTORY)
         message(STATUS "ISMRMRD shared library location: ${ISMRMRDPATH}")
       endif()
 
       # Sadly, naming of HDF5 variables is quite unpredictable, so we try a few.
       if (HDF5_C_LIBRARY)
-        cmake_path(REMOVE_FILENAME HDF5_C_LIBRARY OUTPUT_VARIABLE HDF5PATH)
+        #cmake_path(REMOVE_FILENAME HDF5_C_LIBRARY OUTPUT_VARIABLE HDF5PATH)
+        get_filename_component(HDF5PATH "${HDF5_C_LIBRARY}" DIRECTORY)
       elseif (HDF5_hdf5_cpp_LIBRARY_RELEASE)
-        cmake_path(REMOVE_FILENAME HDF5_hdf5_cpp_LIBRARY_RELEASE OUTPUT_VARIABLE HDF5PATH)
+        #cmake_path(REMOVE_FILENAME HDF5_hdf5_cpp_LIBRARY_RELEASE OUTPUT_VARIABLE HDF5PATH)
+        get_filename_component(HDF5PATH "${HDF5_hdf5_cpp_LIBRARY_RELEASE}" DIRECTORY)
       endif()
       if (WIN32 AND HDF5PATH)
         # Guess the location of the HDF5 DLL from the .lib.
@@ -112,9 +117,11 @@ if(RUN_ISMRMRD_SHEPP_LOGAN)
       #message(STATUS HDF5PATH=${HDF5PATH})
 
       if (FFTW3_LIBRARY)
-        cmake_path(REMOVE_FILENAME FFTW3_LIBRARY OUTPUT_VARIABLE FFTWPATH)
+        #cmake_path(REMOVE_FILENAME FFTW3_LIBRARY OUTPUT_VARIABLE FFTWPATH)
+        get_filename_component(FFTWPATH "${FFTW3_LIBRARY}" DIRECTORY)
       elseif(FFTW3F_LIBRARY)
-        cmake_path(REMOVE_FILENAME FFTW3F_LIBRARY OUTPUT_VARIABLE FFTWPATH)
+        #cmake_path(REMOVE_FILENAME FFTW3F_LIBRARY OUTPUT_VARIABLE FFTWPATH)
+        get_filename_component(FFTWPATH "${FFTW3F_LIBRARY}" DIRECTORY)
       endif()
 
       set(LIBRTPATH "${CMAKE_INSTALL_PREFIX}/lib${PATHSEP}${ISMRMRDPATH}${PATHSEP}${Boost_LIBRARY_DIR_RELEASE}${PATHSEP}${FFTWPATH}${PATHSEP}${HDF5PATH}")
