@@ -88,25 +88,23 @@ jobs:
           # make available to jobs below
           echo CC="$CC" >> $GITHUB_ENV
           echo CXX="$CXX" >> $GITHUB_ENV
+
     - name: configure
       shell: bash
-      env:
-          EXTRA_BUILD_FLAGS: ${{ matrix.EXTRA_BUILD_FLAGS }}
-          CMAKE_BUILD_TYPE: ${{ matrix.CMAKE_BUILD_TYPE }}
-          DEVEL_BUILD: "-DDEVEL_BUILD=${{ matrix.DEVEL_BUILD }}"
       run: |
           set -ex;
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           cmake --version
-          #echo "cmake flags $BUILD_FLAGS $EXTRA_BUILD_FLAGS"          
-          BUILD_FLAGS="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_Armadillo=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DCMAKE_INSTALL_PREFIX=~/install -DPYVER=3";
+          #echo "cmake flags ${{ matrix.CMAKE_BUILD_TYPE }} ${{ matrix.EXTRA_BUILD_FLAGS }}"
+          BUILD_FLAGS="-DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_Armadillo=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DCMAKE_INSTALL_PREFIX=~/install -DPYVER=3";
           BUILD_FLAGS="$BUILD_FLAGS -DSIRF_SOURCE_DIR:PATH=${GITHUB_WORKSPACE} -DDISABLE_GIT_CHECKOUT_SIRF=ON"
           # only test SIRF (others are tested in the SIRF-SuperBuild action)
           BUILD_FLAGS="$BUILD_FLAGS -DBUILD_TESTING_GADGETRON=OFF -DBUILD_TESTING_ISMRMRD=OFF"
+          DEVEL_BUILD="-DDEVEL_BUILD=${{ matrix.DEVEL_BUILD }}"
           mkdir -p build/;
           cd build;
           source ~/virtualenv/bin/activate;
-          cmake -S ../SIRF-SuperBuild ${BUILD_FLAGS} ${EXTRA_BUILD_FLAGS} ${DEVEL_BUILD};
+          cmake -S ../SIRF-SuperBuild ${BUILD_FLAGS} ${{ matrix.EXTRA_BUILD_FLAGS }} ${DEVEL_BUILD};
     - name: build
       shell: bash
       run: 
