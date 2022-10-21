@@ -39,13 +39,14 @@ jobs:
           DEVEL_BUILD: "ON"
           EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
           CMAKE_BUILD_TYPE: "Release"
-        - os: ubuntu-latest
-          compiler: gcc
-          compiler_version: 10
-          DEVEL_BUILD: "ON"
-          EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
-          CMAKE_BUILD_TYPE: "Release"
-        # let's run all of them, as opposed to aborting when one fails
+        # need to upgrade Gadgetron before we can enable gcc 10
+        #- os: ubuntu-latest
+        #  compiler: gcc
+        #  compiler_version: 10
+        #  DEVEL_BUILD: "ON"
+        #  EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
+        #  CMAKE_BUILD_TYPE: "Release"
+      # let's run all of them, as opposed to aborting when one fails
       fail-fast: false
 
     steps:
