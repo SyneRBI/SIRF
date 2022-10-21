@@ -21,30 +21,30 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: [ubuntu-latest]
+        - os: ubuntu-latest
           compiler: gcc
           compiler_version: 8
           DEVEL_BUILD: "OFF"
-          EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
-          CMAKE_BUILD_TYPE: ["Release"]
-        - os: [ubuntu-latest]
+          EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
+          CMAKE_BUILD_TYPE: "Release"
+        - os: ubuntu-latest
           compiler: gcc
           compiler_version: 9
           DEVEL_BUILD: "OFF"
-          EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
-          CMAKE_BUILD_TYPE: ["Release"]
-        - os: [ubuntu-latest]
+          EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
+          CMAKE_BUILD_TYPE: "Release"
+        - os: ubuntu-latest
           compiler: gcc
           compiler_version: 9
           DEVEL_BUILD: "ON"
-          EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
-          CMAKE_BUILD_TYPE: ["Release"]
-        - os: [ubuntu-latest]
+          EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
+          CMAKE_BUILD_TYPE: "Release"
+        - os: ubuntu-latest
           compiler: gcc
           compiler_version: 10
           DEVEL_BUILD: "ON"
-          EXTRA_BUILD_FLAGS: ["-DUSE_ITK=ON"]
-          CMAKE_BUILD_TYPE: ["Release"]
+          EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
+          CMAKE_BUILD_TYPE: "Release"
         # let's run all of them, as opposed to aborting when one fails
       fail-fast: false
 
