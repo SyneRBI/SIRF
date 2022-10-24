@@ -78,7 +78,7 @@ def main():
     # perform reconstruction
     print('---\n reconstructing...')
     recon.process()
-    
+
     # retrieve reconstruced image data
     image_data = recon.get_output().real()
     image_data.write(args['--output'])
