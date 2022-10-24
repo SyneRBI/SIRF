@@ -1463,14 +1463,16 @@ class Reconstructor(GadgetChain):
             return output
         else:
             return output.select('GADGETRON_DataRole', subset)
-    def reconstruct(self, input_data):
+    def reconstruct(self, input_data, dcm_prefix=None):
         '''
         Returns the output from the chain for specified input.
         input_data: AcquisitionData
         '''
         assert_validity(input_data, AcquisitionData)
+        if dcm_prefix is None:
+            dcm_prefix = ""
         handle = pygadgetron.cGT_reconstructImages\
-             (self.handle, input_data.handle)
+             (self.handle, input_data.handle, dcm_prefix)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
         images = ImageData()

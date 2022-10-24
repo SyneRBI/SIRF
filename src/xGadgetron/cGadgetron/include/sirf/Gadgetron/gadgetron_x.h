@@ -253,7 +253,7 @@ namespace sirf {
 			return "ImagesReconstructor";
 		}
 
-		void process(MRAcquisitionData& acquisitions, const char* dcm_prefix = "image");
+		void process(MRAcquisitionData& acquisitions, const char* dcm_prefix = 0);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
 			return sptr_images_;
