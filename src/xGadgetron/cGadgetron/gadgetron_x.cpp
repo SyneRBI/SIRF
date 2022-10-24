@@ -236,7 +236,7 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 }
 
 void 
-ImagesReconstructor::process(MRAcquisitionData& acquisitions, const char* dcm_prefix)
+ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 {
 	uint32_t nacquisitions = 0;
 	nacquisitions = acquisitions.number();
@@ -249,7 +249,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions, const char* dcm_pr
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
-	if (dcm_prefix) {
+	if (dcm_prefix_.size() > 0) {
 		add_gadget("extract", gadgetron::shared_ptr<aGadget>(new ExtractGadget));
 		add_gadget("autoscale", gadgetron::shared_ptr<aGadget>(new AutoScaleGadget));
 		add_writer("writer_dcm", writer_dcm_);
@@ -257,7 +257,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions, const char* dcm_pr
 		set_endgadget(endgadget);
 		conn().register_reader(GADGET_MESSAGE_DICOM_WITHNAME,
 			shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientBlobMessageReader(std::string(dcm_prefix), std::string("dcm"))));
+			(new GadgetronClientBlobMessageReader(dcm_prefix_, std::string("dcm"))));
 	}
 	std::string config = xml();
 	//std::cout << "config:\n" << config << std::endl;
@@ -296,7 +296,7 @@ ImagesProcessor::process(const GadgetronImageData& images)
 		THROW("DICOM writer does not support complex images");
 
 	std::string config = xml();
-	std::cout << xml() << '\n';
+	//std::cout << xml() << '\n';
 	GTConnector conn;
 	sptr_images_ = images.new_images_container();
 	if (dicom_)

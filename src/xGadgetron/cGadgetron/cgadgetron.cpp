@@ -1050,9 +1050,8 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input, const char* dcm_prefix)
 		CAST_PTR(DataHandle, h_input, ptr_input);
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		MRAcquisitionData& input = objectFromHandle<MRAcquisitionData>(h_input);
-		if (strlen(dcm_prefix) < 1)
-			dcm_prefix = 0;
-		recon.process(input, dcm_prefix);
+		recon.set_dcm_prefix(dcm_prefix);
+		recon.process(input);
 		return new DataHandle;
 	}
 	CATCH;

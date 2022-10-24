@@ -1420,6 +1420,7 @@ class Reconstructor(GadgetChain):
         self.handle = pygadgetron.cGT_newObject('ImagesReconstructor')
         check_status(self.handle)
         self.input_data = None
+        self.dcm_prefix = ""
         if list is None:
             return
         for i in range(len(list)):
@@ -1435,7 +1436,9 @@ class Reconstructor(GadgetChain):
         '''
         assert isinstance(input_data, AcquisitionData)
         self.input_data = input_data
-    def process(self, dcm_prefix=None):
+    def set_dcm_prefix(self, dcm_prefix):
+        self.dcm_prefix = dcm_prefix
+    def process(self):
         '''
         Processes the input with the gadget chain.
         dcm_prefix: Python text string.
@@ -1446,10 +1449,8 @@ class Reconstructor(GadgetChain):
         '''
         if self.input_data is None:
             raise error('no input data')
-        if dcm_prefix is None:
-            dcm_prefix = ""
         try_calling(pygadgetron.cGT_reconstructImages\
-             (self.handle, self.input_data.handle, dcm_prefix))
+             (self.handle, self.input_data.handle, self.dcm_prefix))
     def get_output(self, subset = None):
         '''
         Returns specified subset of the output ImageData. If no subset is 
@@ -1463,16 +1464,14 @@ class Reconstructor(GadgetChain):
             return output
         else:
             return output.select('GADGETRON_DataRole', subset)
-    def reconstruct(self, input_data, dcm_prefix=None):
+    def reconstruct(self, input_data):
         '''
         Returns the output from the chain for specified input.
         input_data: AcquisitionData
         '''
         assert_validity(input_data, AcquisitionData)
-        if dcm_prefix is None:
-            dcm_prefix = ""
         handle = pygadgetron.cGT_reconstructImages\
-             (self.handle, input_data.handle, dcm_prefix)
+             (self.handle, input_data.handle, self.dcm_prefix)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
         images = ImageData()
@@ -1599,6 +1598,7 @@ class FullySampledReconstructor(Reconstructor):
         self.handle = pygadgetron.cGT_newObject('SimpleReconstructionprocessor')
         check_status(self.handle)
         self.input_data = None
+        self.dcm_prefix = ""
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1613,6 +1613,7 @@ class CartesianGRAPPAReconstructor(Reconstructor):
             ('SimpleGRAPPAReconstructionprocessor')
         check_status(self.handle)
         self.input_data = None
+        self.dcm_prefix = ""
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)

@@ -253,13 +253,18 @@ namespace sirf {
 			return "ImagesReconstructor";
 		}
 
-		void process(MRAcquisitionData& acquisitions, const char* dcm_prefix = 0);
+		void set_dcm_prefix(const char* dcm_prefix)
+		{
+			dcm_prefix_ = dcm_prefix;
+		}
+		void process(MRAcquisitionData& acquisitions);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
 			return sptr_images_;
 		}
 
 	private:
+		std::string dcm_prefix_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 		gadgetron::shared_ptr<DicomImageMessageWriter> writer_dcm_;
