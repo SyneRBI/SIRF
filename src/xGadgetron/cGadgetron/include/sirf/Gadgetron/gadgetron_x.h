@@ -257,9 +257,19 @@ namespace sirf {
 		{
 			dcm_prefix_ = dcm_prefix;
 		}
+		std::string dcm_prefix() const
+		{
+			return dcm_prefix_;
+		}
+		bool dcm_output() const
+		{
+			return dcm_prefix_.size() > 1;
+		}
 		void process(MRAcquisitionData& acquisitions);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
+			if (dcm_output())
+				THROW("Output to both memory and DICOM files not implemented.");
 			return sptr_images_;
 		}
 
