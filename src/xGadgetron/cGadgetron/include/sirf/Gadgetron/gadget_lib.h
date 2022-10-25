@@ -183,13 +183,15 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Base class for generators of xml-definitions of image writer gadgets.
+	*/
 	class ImageMessageWriter : public aGadget {
-
 	};
+
 	/**
 	\brief Class for MRIImageWriter gadget xml-definition generator.
 	*/
-	//class IsmrmrdImgMsgWriter : public aGadget {
 	class IsmrmrdImgMsgWriter : public ImageMessageWriter {
 	public:
 		static const char* class_name()
@@ -235,6 +237,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of NoiseAdjustGadget.
+	*/
 	class NoiseAdjustGadget : public Gadget {
 	public:
 		NoiseAdjustGadget() :
@@ -246,6 +251,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of PCACoilGadget.
+	*/
 	class PCACoilGadget : public Gadget {
 	public:
 		PCACoilGadget() :
@@ -257,6 +265,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of CoilReductionGadget.
+	*/
 	class CoilReductionGadget : public Gadget {
 	public:
 		CoilReductionGadget() :
@@ -271,6 +282,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of AsymmetricEchoAdjustROGadget.
+	*/
 	class AsymmetricEchoAdjustROGadget : public Gadget {
 	public:
 		AsymmetricEchoAdjustROGadget() :
@@ -283,6 +297,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of RemoveROOversamplingGadget.
+	*/
 	class RemoveROOversamplingGadget : public Gadget {
 	public:
 		RemoveROOversamplingGadget() :
@@ -295,6 +312,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of AcquisitionAccumulateTriggerGadget.
+	*/
 	class AcquisitionAccumulateTriggerGadget : public Gadget {
 	public:
 		AcquisitionAccumulateTriggerGadget() :
@@ -309,6 +329,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of BucketToBufferGadget.
+	*/
 	class BucketToBufferGadget : public Gadget {
 	public:
 		BucketToBufferGadget() :
@@ -326,6 +349,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconCartesianReferencePrepGadget.
+	*/
 	class GenericReconCartesianReferencePrepGadget : public Gadget {
 	public:
 		GenericReconCartesianReferencePrepGadget() :
@@ -345,6 +371,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of SimpleReconGadget.
+	*/
 	class SimpleReconGadget : public Gadget {
 	public:
 		SimpleReconGadget() :
@@ -356,6 +385,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FFTGadget.
+	*/
 	class FFTGadget : public Gadget {
 	public:
 		FFTGadget() :
@@ -367,6 +399,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of CombineGadget.
+	*/
 	class CombineGadget : public Gadget {
 	public:
 		CombineGadget() :
@@ -378,6 +413,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconCartesianFFTGadget.
+	*/
 	class GenericReconCartesianFFTGadget : public Gadget {
 	public:
 		GenericReconCartesianFFTGadget() :
@@ -395,6 +433,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconCartesianGrappaGadget.
+	*/
 	class GenericReconCartesianGrappaGadget : public Gadget {
 	public:
 		GenericReconCartesianGrappaGadget() :
@@ -417,6 +458,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconFieldOfViewAdjustmentGadget.
+	*/
 	class GenericReconFieldOfViewAdjustmentGadget : public Gadget {
 	public:
 		GenericReconFieldOfViewAdjustmentGadget() :
@@ -433,6 +477,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconImageArrayScalingGadget.
+	*/
 	class GenericReconImageArrayScalingGadget : public Gadget {
 	public:
 		GenericReconImageArrayScalingGadget() :
@@ -454,6 +501,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FatWaterGadget.
+	*/
 	class FatWaterGadget : public Gadget {
 	public:
 		FatWaterGadget() :
@@ -465,6 +515,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of ImageArraySplitGadget.
+	*/
 	class ImageArraySplitGadget : public Gadget {
 	public:
 		ImageArraySplitGadget() :
@@ -476,6 +529,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of PhysioInterpolationGadget.
+	*/
 	class PhysioInterpolationGadget : public Gadget {
 	public:
 		PhysioInterpolationGadget() :
@@ -492,6 +548,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GPURadialPrepGadget.
+	*/
 	class GPURadialPrepGadget : public Gadget {
 	public:
 		GPURadialPrepGadget(std::string name, std::string dll, std::string cl) :
@@ -519,6 +578,9 @@ namespace sirf {
 */
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GPURadialSensePrepGadget.
+	*/
 	class GPURadialSensePrepGadget : public GPURadialPrepGadget {
 	public:
 		GPURadialSensePrepGadget() :
@@ -530,6 +592,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GPUSenseGadget.
+	*/
 	class GPUSenseGadget : public Gadget {
 	public:
 		GPUSenseGadget(std::string name, std::string dll, std::string cl) :
@@ -553,6 +618,9 @@ namespace sirf {
 */
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GPUCGSenseGadget.
+	*/
 	class GPUCGSenseGadget : public GPUSenseGadget {
 	public:
 		GPUCGSenseGadget() : 
@@ -568,6 +636,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of ExtractGadget.
+	*/
 	class ExtractGadget : public Gadget {
 	public:
 		ExtractGadget() :
@@ -585,6 +656,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of AutoScaleGadget.
+	*/
 	class AutoScaleGadget : public Gadget {
 	public:
 		AutoScaleGadget() :
@@ -596,6 +670,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of ComplexToFloatGadget.
+	*/
 	class ComplexToFloatGadget : public Gadget {
 	public:
 		ComplexToFloatGadget() :
@@ -607,6 +684,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FloatToFixPointGadget.
+	*/
 	class FloatToFixPointGadget : public Gadget {
 	public:
 		FloatToFixPointGadget(std::string name, // = "FloatToFixPoint", 
@@ -627,6 +707,9 @@ namespace sirf {
 */
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FloatToUShortGadget.
+	*/
 	class FloatToUShortGadget : public FloatToFixPointGadget {
 	public:
 		FloatToUShortGadget() :
@@ -638,6 +721,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FloatToShortGadget.
+	*/
 	class FloatToShortGadget : public FloatToFixPointGadget {
 	public:
 		FloatToShortGadget() :
@@ -666,6 +752,9 @@ namespace sirf {
 		}
 	};
 */
+	/**
+	\brief Class for the generator of xml definition of ImageFinishGadget.
+	*/
 	class ImageFinishGadget : public Gadget {
 	public:
 		ImageFinishGadget() :
@@ -677,6 +766,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of DicomFinishGadget.
+	*/
 	class DicomFinishGadget : public Gadget {
 	public:
 		DicomFinishGadget() :
@@ -688,6 +780,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of AcquisitionFinishGadget.
+	*/
 	class AcquisitionFinishGadget : public Gadget {
 	public:
 		AcquisitionFinishGadget() :
