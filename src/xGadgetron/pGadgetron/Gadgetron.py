@@ -1442,7 +1442,7 @@ class Reconstructor(GadgetChain):
         '''
         Processes the input with the gadget chain.
         dcm_prefix: Python text string.
-        If dcm_prefix is not None, the reconstructed images are written to
+        If dcm_prefix is not "", the reconstructed images are written to
         files <dcm_prefix>_<image number>.dcm.
         Otherwise, they are stored in memory and can be retrieved by
         get_output().

@@ -253,7 +253,11 @@ namespace sirf {
 			return "ImagesReconstructor";
 		}
 
-		void set_dcm_prefix(const char* dcm_prefix)
+		/**
+		\brief Setting dcm prefix to a non-empty string redirects the output
+		       images to DICOM files (cf. get_output() below).
+		*/
+		void set_dcm_prefix(const std::string& dcm_prefix)
 		{
 			dcm_prefix_ = dcm_prefix;
 		}
@@ -263,7 +267,7 @@ namespace sirf {
 		}
 		bool dcm_output() const
 		{
-			return dcm_prefix_.size() > 1;
+			return !dcm_prefix_.empty();
 		}
 		void process(MRAcquisitionData& acquisitions);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
