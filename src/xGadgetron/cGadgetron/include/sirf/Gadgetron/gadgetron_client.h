@@ -213,12 +213,14 @@ namespace sirf {
 			, file_prefix(fileprefix)
 			, file_suffix(filesuffix)
 		{
+			//std::cout << fileprefix << '.' << filesuffix << '\n';
 		}
 
 		virtual ~GadgetronClientBlobMessageReader() {}
 
 		virtual void read(boost::asio::ip::tcp::socket* socket)
 		{
+			//std::cout << "in GadgetronClientBlobMessageReader::read...\n";
 			// MUST READ 32-bits
 			uint32_t nbytes;
 			boost::asio::read(*socket, boost::asio::buffer(&nbytes, sizeof(uint32_t)));
@@ -255,7 +257,7 @@ namespace sirf {
 			filename << "." << file_suffix;
 			filename_attrib.append("_attrib.xml");
 
-			std::cout << "Writing image " << filename.str() << std::endl;
+			//std::cout << "Writing image " << filename.str() << std::endl;
 
 			std::ofstream outfile;
 			outfile.open(filename.str().c_str(), std::ios::out | std::ios::binary);
