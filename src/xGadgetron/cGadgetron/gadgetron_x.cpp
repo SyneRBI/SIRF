@@ -251,7 +251,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
 	if (dcm_prefix_.size() > 0) {
 		add_gadget("extract", gadgetron::shared_ptr<aGadget>(new ExtractGadget));
-		add_gadget("autoscale", gadgetron::shared_ptr<aGadget>(new AutoScaleGadget));
+		//add_gadget("autoscale", gadgetron::shared_ptr<aGadget>(new AutoScaleGadget));
 		add_writer("writer_dcm", writer_dcm_);
 		gadgetron::shared_ptr<DicomFinishGadget> endgadget(new DicomFinishGadget);
 		set_endgadget(endgadget);
