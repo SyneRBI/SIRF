@@ -69,7 +69,7 @@ output_file = args['--output']
 show_plot = not args['--non-interactive']
 
 output_file = args['--output']
-if output_file[-4:] == '.dcm':
+if output_file is not None and output_file[-4:] == '.dcm':
     dcm_prefix = output_file[: -4]
 else:
     dcm_prefix = ''
