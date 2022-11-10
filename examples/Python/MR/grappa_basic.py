@@ -69,11 +69,11 @@ output_file = args['--output']
 show_plot = not args['--non-interactive']
 
 output_file = args['--output']
-if output_file is not None and output_file[-4:] == '.dcm':
-    dcm_prefix = output_file[: -4]
-else:
-    dcm_prefix = ''
-dcm_output = len(dcm_prefix)
+##if output_file is not None and output_file[-4:] == '.dcm':
+##    dcm_prefix = output_file[: -4]
+##else:
+##    dcm_prefix = ''
+##dcm_output = len(dcm_prefix)
 
 
 def main():
@@ -103,17 +103,17 @@ def main():
     
     # 2. set the reconstruction input to be the data we just preprocessed.
     recon.set_input(preprocessed_data);
-    if dcm_output:
-        recon.set_dcm_prefix(dcm_prefix)
+##    if dcm_output:
+##        recon.set_dcm_prefix(dcm_prefix)
     
     # 3. run (i.e. 'process') the reconstruction.
     print('---\n reconstructing...\n');
     recon.process();
 
-    if dcm_output:
-        print('== Gadgetron cannot output to both memory and DICOM files, quitting')
-        print('== Set output file extension to .h5 to run the rest of this demo')
-        return
+##    if dcm_output:
+##        print('== Gadgetron cannot output to both memory and DICOM files, quitting')
+##        print('== Set output file extension to .h5 to run the rest of this demo')
+##        return
 
     # retrieve reconstruced image and G-factor data
     image_data = recon.get_output('image')
@@ -127,7 +127,7 @@ def main():
       # write images to a new group in args.output
       # named after the current date and time
       time_str = time.asctime()
-      print('writing to %s' % output_file)
+##      print('writing to %s' % output_file)
       image_data = image_data.real()
       image_data.write(output_file) #, time_str)
 
