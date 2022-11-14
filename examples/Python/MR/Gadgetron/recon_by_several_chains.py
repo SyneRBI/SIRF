@@ -84,7 +84,7 @@ def main():
     preprocessed_data = acq_proc.get_output()
     # shortcut for the above 3 lines
 ##    preprocessed_data = acq_proc.process(acq_data)
-    
+
     # Compare sizes of k-space data as tuples
     # (number of acquisitions, number of coils, number of samples)
     # before and after removal of oversampling

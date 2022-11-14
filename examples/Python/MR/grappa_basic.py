@@ -75,7 +75,7 @@ def main():
 
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
-    
+
     # Initially we create a container that points to the h5 file.
     # Data is not read from file until the 'process' method of the
     # reconstructor object is called.
@@ -107,13 +107,13 @@ def main():
     image_data = recon.get_output('image')
     gfact_data = recon.get_output('gfactor')
     if show_plot:
-      image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
-      gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
+        image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
+        gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
 
     if output_file is not None:
-      # save images to <output_file>
-      image_data = image_data.real()
-      image_data.write(output_file)
+        # save images to <output_file>
+        image_data = image_data.real()
+        image_data.write(output_file)
 
 
 try:
