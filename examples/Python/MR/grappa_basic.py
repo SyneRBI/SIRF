@@ -1,6 +1,6 @@
 '''
-Demonstrates GRAPPA reconstruction of undersampled data. 
-See function grappa_detail.py for an example showing more of the 
+Demonstrates GRAPPA reconstruction of undersampled data.
+See function grappa_detail.py for an example showing more of the
 workings and functionality of the SIRF code.
 
 Pre-requisites:
@@ -13,7 +13,7 @@ Pre-requisites:
 
  2) An input data file from a GRAPPA MRI acquisition in the ISMRMRD format.
     Example GRAPPA datasets:
-    a) 'meas_MID00108_FID57249_test_2D_2x.dat' is 
+    a) 'meas_MID00108_FID57249_test_2D_2x.dat' is
        available from https://www.ccpsynerbi.ac.uk/downloads
        This is in the manufacturer's raw data format and needs to be
        converted to ISMRMRD format using 'siemens_to_ismrmrd'.
@@ -77,7 +77,7 @@ output_file = args['--output']
 
 
 def main():
-    
+
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
     
@@ -126,15 +126,13 @@ def main():
     if output_file is not None:
       # write images to a new group in args.output
       # named after the current date and time
-      time_str = time.asctime()
-##      print('writing to %s' % output_file)
       image_data = image_data.real()
-      image_data.write(output_file) #, time_str)
+      image_data.write(output_file)
+
 
 try:
     main()
     print('\n=== done with %s' % __file__)
-
 except error as err:
     # display error information
     print('??? %s' % err.value)

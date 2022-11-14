@@ -1,5 +1,5 @@
 '''
-Medium-level interface demo that illustrates Cartesian MR image 
+Medium-level interface demo that illustrates Cartesian MR image
 reconstruction using Gadgetron by creating and running several gadget chains
 of different kind:
 - acquisition processing chain
@@ -51,7 +51,6 @@ from pGadgetron import existing_filepath
 from pGadgetron import AcquisitionData
 from pGadgetron import AcquisitionDataProcessor
 from pGadgetron import Reconstructor
-from pGadgetron import ISMRMRD_IMTYPE_MAGNITUDE
 from pGadgetron import ImageDataProcessor
 from pGadgetron import error
 
@@ -63,9 +62,11 @@ if data_path is None:
 sigma = float(args['--sigma'])
 show_plot = not args['--non-interactive']
 
+
 def gaussian(x, mu, sigma):
     return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sigma, 2.)))
-    
+
+
 def main():
 
     # Acquisitions will be read from this HDF file
@@ -105,10 +106,10 @@ def main():
     preprocessed_data.fill(preprocessed_array)
 
     # create reconstruction chain
-    recon_gadgets = [ 
-        'GenericReconCartesianReferencePrepGadget', 
-        'GRAPPA:GenericReconCartesianGrappaGadget', 
-        'GenericReconFieldOfViewAdjustmentGadget', 
+    recon_gadgets = [
+        'GenericReconCartesianReferencePrepGadget',
+        'GRAPPA:GenericReconCartesianGrappaGadget',
+        'GenericReconFieldOfViewAdjustmentGadget',
         'GenericReconImageArrayScalingGadget'] if undersampled else ['SimpleReconGadget']
     recon = Reconstructor \
         (['AcquisitionAccumulateTriggerGadget', 'BucketToBufferGadget']
@@ -139,10 +140,10 @@ def main():
     if show_plot:
         image_data.show(title = 'Reconstructed image data (magnitude)')
 
+
 try:
     main()
     print('\n=== done with %s' % __file__)
-
 except error as err:
     # display error information
     print('??? %s' % err.value)
