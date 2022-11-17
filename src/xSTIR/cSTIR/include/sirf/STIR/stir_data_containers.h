@@ -47,7 +47,6 @@ limitations under the License.
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/ImageData.h"
 #include "sirf/common/GeometricalInfo.h"
-#include "sirf/common/version.h"
 #include "stir/ZoomOptions.h"
 
 #if STIR_VERSION < 050000
