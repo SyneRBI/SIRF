@@ -47,6 +47,7 @@ limitations under the License.
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/ImageData.h"
 #include "sirf/common/GeometricalInfo.h"
+#include "sirf/common/version.h"
 #include "stir/ZoomOptions.h"
 
 #if STIR_VERSION < 050000
@@ -769,12 +770,14 @@ namespace sirf {
 		}
 	};
 
+#if SIRF_VERSION_MAJOR < 4
 	///
 	///  Backward compatibility - to be removed in SIRF 4
 	///
 	typedef STIRAcquisitionData PETAcquisitionData;
 	typedef STIRAcquisitionDataInFile PETAcquisitionDataInFile;
 	typedef STIRAcquisitionDataInMemory PETAcquisitionDataInMemory;
+#endif
 
 	typedef Image3DF::full_iterator Image3DFIterator;
 	typedef Image3DF::const_full_iterator Image3DFIterator_const;
