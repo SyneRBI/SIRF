@@ -1427,6 +1427,7 @@ images_()
 		const ImageWrap& u = images.image_wrap(i);
 		append(u);
 	}
+    this->set_meta_data(images.get_meta_data());
     this->set_up_geom_info();
 }
 
@@ -1452,6 +1453,7 @@ images_()
 		if (sirf::iequals(value, target))
 			append(u);
 	}
+    this->set_meta_data(images.get_meta_data());
     this->set_up_geom_info();
 }
 

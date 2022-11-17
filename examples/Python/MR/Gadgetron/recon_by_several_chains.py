@@ -122,7 +122,10 @@ def main():
     recon.process()
 
     # retrieve the reconstructed complex images
-    reconstructed_data = recon.get_output('image')
+    if undersampled:
+        reconstructed_data = recon.get_output('image')
+    else:
+        reconstructed_data = recon.get_output()
 
     # convert the images to real and scale using images processing chain
     img_proc = ImageDataProcessor(['ExtractGadget', 'AutoScaleGadget'])
@@ -147,4 +150,4 @@ try:
 except error as err:
     # display error information
     print('??? %s' % err.value)
-    exit(1)
+    #exit(1)
