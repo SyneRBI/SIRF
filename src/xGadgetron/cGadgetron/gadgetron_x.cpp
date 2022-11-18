@@ -238,11 +238,6 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 void 
 ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 {
-	//check_gadgetron_connection(host_, port_);
-
-	std::string config = xml();
-	//std::cout << "config:\n" << config << std::endl;
-
 	uint32_t nacquisitions = 0;
 	nacquisitions = acquisitions.number();
 	//std::cout << nacquisitions << " acquisitions" << std::endl;
@@ -254,6 +249,19 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
+	if (dcm_prefix_.size() > 0) {
+		add_gadget("extract", gadgetron::shared_ptr<aGadget>(new ExtractGadget));
+		//add_gadget("autoscale", gadgetron::shared_ptr<aGadget>(new AutoScaleGadget));
+		add_writer("writer_dcm", writer_dcm_);
+		gadgetron::shared_ptr<DicomFinishGadget> endgadget(new DicomFinishGadget);
+		set_endgadget(endgadget);
+		conn().register_reader(GADGET_MESSAGE_DICOM_WITHNAME,
+			shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientBlobMessageReader(dcm_prefix_, std::string("dcm"))));
+	}
+	std::string config = xml();
+	//std::cout << "config:\n" << config << std::endl;
+
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host_, port_);
@@ -288,6 +296,7 @@ ImagesProcessor::process(const GadgetronImageData& images)
 		THROW("DICOM writer does not support complex images");
 
 	std::string config = xml();
+	//std::cout << xml() << '\n';
 	GTConnector conn;
 	sptr_images_ = images.new_images_container();
 	if (dicom_)
@@ -389,9 +398,9 @@ MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
 		throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
 	#endif
 	}
-	else if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+	else if(sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE || sptr_ac->get_trajectory_type() == ISMRMRD::TrajectoryType::SPIRAL)
 	{
-		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL trajectory before calling the calculate method with dimension > 0.");
+		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL, ISMRMRD::TrajectoryType::GOLDENANGLE or ISMRMRD::TrajectoryType::SPIRAL trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
 	#warning "We compile the non-cartesian code in GADGETRON_X"
 		this->sptr_enc_ = std::make_shared<sirf::NonCartesian2DEncoding>();

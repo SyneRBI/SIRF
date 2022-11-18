@@ -268,8 +268,10 @@ template<class Object>
 void
 getObjectSptrFromHandle(const void* h, std::shared_ptr<Object>& sptr) {
 	ObjectHandle<Object>* handle = (ObjectHandle<Object>*)h;
+#if defined(USE_BOOST)
 	if (handle->uses_boost_sptr())
 		THROW("cannot cast boost::shared_ptr to std::shared_ptr");
+#endif
 	void* ptr = handle->data();
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");

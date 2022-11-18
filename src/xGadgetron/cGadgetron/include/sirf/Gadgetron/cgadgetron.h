@@ -80,6 +80,10 @@ extern "C" {
 	void* cGT_setRadial2DTrajectory(void* ptr_acqs);
 	void* cGT_setGoldenAngle2DTrajectory(void* ptr_acqs);
     void* cGT_getDataTrajectory(void* ptr_acqs, PTR_FLOAT ptr_traj);
+	void* cGT_setDataTrajectory(void* ptr_acqs, int const traj_dim, size_t ptr_traj);
+	void* cGT_setTrajectoryType(void* ptr_acqs, int const traj_type);
+
+
     void* cGT_setAcquisitionUserFloat(void* ptr_acqs, PTR_FLOAT ptr_floats, int idx);
 
 	void* cGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);
@@ -93,7 +97,7 @@ extern "C" {
 		int from, int till, int n, PTR_FLOAT values);
 
 	// image methods
-	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
+	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input, const char* dcm_prefix);
 	void* cGT_reconstructedImages(void* ptr_recon);
     void* cGT_readImages(const char* file);
 	void* cGT_ImageFromAcquisitiondata(void* ptr_acqs);

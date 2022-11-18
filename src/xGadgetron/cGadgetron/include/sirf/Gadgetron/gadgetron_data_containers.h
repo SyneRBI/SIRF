@@ -445,6 +445,23 @@ namespace sirf {
         void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
 
         ISMRMRD::TrajectoryType get_trajectory_type() const;
+		
+		void set_trajectory_type(const ISMRMRD::TrajectoryType type);
+
+		void set_trajectory(const uint16_t traj_dim, float* traj)
+		{
+			ISMRMRD::Acquisition acq;
+			for(int i=0; i<number(); ++i)
+			{
+				get_acquisition(i, acq);
+				const uint16_t num_samples = acq.number_of_samples();
+				const uint16_t num_channels = acq.active_channels();
+				acq.resize(num_samples,num_channels,traj_dim);
+				int const offset = i*traj_dim*num_samples;
+				acq.setTraj(traj + offset);
+				set_acquisition(i, acq);
+			}
+		} 
 
 		gadgetron::unique_ptr<MRAcquisitionData> clone() const
 		{

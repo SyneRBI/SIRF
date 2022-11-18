@@ -1,4 +1,18 @@
 # ChangeLog
+## v3.4.0
+* MR:
+  - Added support for spiral trajectories that are pre-computed by the user by exposing a setter.
+  - Writing MR images to `.dcm` files quick-fixed. For proper fix, help from Gadgetron team will be sought after moving to using Gadgetron 4.
+  - Use C++ 17 if Gadgetron-support is enabled
+  - Renamed PETAcquisitionData and derived classes to STIRAcquisitionData* as STIR now supports SPECT in addition to PET modality. Backward compatibility ensured by defining old nomenclature via typedefs until the release of SIRF 4.
+
+* Documentation
+  - revision of READMEs for the examples
+
+* Require STIR 5.0
+
+* sirf.STIR.AcquisitionData constructor taking a scanner now has an extra optional argument
+  tof_mash_factor (defaulting to 1). This is only functional if a STIR version supporting TOF is used.
 
 ## v3.3.0
 

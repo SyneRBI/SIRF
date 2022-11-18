@@ -105,10 +105,11 @@ extern "C" {
 		const int num_views_to_combine,
 		const int num_tang_poss_to_trim,
 		const bool do_normalisation,
-		const int max_in_segment_num_to_process
+		const int max_in_segment_num_to_process,
+		const int num_tof_bins_to_combine
 		);
 	void* cSTIR_acquisitionDataFromScannerInfo
-		(const char* scanner, int span, int max_ring_diff, int view_mash_factor);
+        (const char* scanner, int span, int max_ring_diff, int view_mash_factor, int tof_mash_factor);
 	void* cSTIR_getAcquisitionDataDimensions(const void* ptr_acq, PTR_INT ptr_dim);
 	void* cSTIR_getAcquisitionData(const void* ptr_acq, PTR_FLOAT ptr_data);
 	void* cSTIR_setAcquisitionData(void* ptr_acq, PTR_FLOAT ptr_data);
@@ -117,6 +118,7 @@ extern "C" {
 		(void* ptr_acq, const void * ptr_from);
 	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
 	void* cSTIR_get_ProjDataInfo(void* ptr_acq);
+	void* cSTIR_get_subset(void* ptr_acq, int nv, size_t ptr_views);
 
 	// Reconstruction methods
 	void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i);

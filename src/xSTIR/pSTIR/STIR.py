@@ -870,7 +870,7 @@ class SPECTUBMatrix:
 class AcquisitionData(DataContainer):
     """Class for PET acquisition data."""
 
-    def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1):
+    def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1, tof_mash_factor=1):
         """Creates new AcquisitionData.
 
         Can create object from a file or another AcquisitionData object.
@@ -893,7 +893,7 @@ class AcquisitionData(DataContainer):
             else:
                 # src is a scanner name
                 self.handle = pystir.cSTIR_acquisitionDataFromScannerInfo(
-                    src, span, max_ring_diff, view_mash_factor)
+                    src, span, max_ring_diff, view_mash_factor, tof_mash_factor)
                 if pyiutil.executionStatus(self.handle) != 0:
                     msg = pyiutil.executionError(self.handle)
                     if msg == 'Unknown scanner':
@@ -999,6 +999,10 @@ class AcquisitionData(DataContainer):
         dim = dim[:4]
         return tuple(dim[::-1])
 
+    def get_tof_mash_factor(self):
+        '''Returns TOF mashing factor.'''
+        return parms.int_par(self.handle, 'AcquisitionData', 'tof_mash_factor')
+
     def as_array(self):
         """Returns bin values as ndarray.
 
@@ -1073,7 +1077,8 @@ class AcquisitionData(DataContainer):
 
     def rebin(self, num_segments_to_combine,
               num_views_to_combine=1, num_tang_poss_to_trim=0,
-              do_normalisation=True, max_in_segment_num_to_process=-1):
+              do_normalisation=True, max_in_segment_num_to_process=-1,
+              num_tof_bins_to_combine=1):
         """Re-bins the data to lower resolution.
 
         Keyword arguments:
@@ -1089,18 +1094,19 @@ class AcquisitionData(DataContainer):
 			while the former should be used for corrected data (or for attenuation correction factors).
 		max_in_segment_num_to_process -- by default all input data are used. If set to a non-negative
 		    number, it will remove the most oblique segments.
+		num_tof_bins_to_combine -- number of TOF bins to combine.
         """
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_rebinnedAcquisitionData(
             self.handle,
             num_segments_to_combine, num_views_to_combine,
             num_tang_poss_to_trim, do_normalisation,
-            max_in_segment_num_to_process)
+            max_in_segment_num_to_process, num_tof_bins_to_combine)
         check_status(ad.handle)
         return ad
 
     def show(self, sino=None, tof=0, title=None):
-        '''Displays interactively selected sinograms.'''
+        '''Displays selected sinograms.'''
         if self.handle is None:
             raise AssertionError()
         if not HAVE_PYLAB:
@@ -1169,6 +1175,19 @@ class AcquisitionData(DataContainer):
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
+
+    def get_subset(self, views):
+        """Returns the subset of self data formed by specified views
+
+        views: array of views (will be converted to numpy ndarray)
+        """
+        # Ensure the array passed to C++ is a contiguous array of C++ int's
+        v = cpp_int_array(views)
+        n = len(views)
+        subset = AcquisitionData()
+        subset.handle = pystir.cSTIR_get_subset(self.handle, n, v.ctypes.data)
+        check_status(subset.handle)
+        return subset
 
     @property
     def shape(self):

@@ -29,7 +29,7 @@ limitations under the License.
 \author Johannes Mayer
 \author SyneRBI
 */
-#include <algorithm>
+#include <algorithm> 
 #include <cmath>
 #include <fstream>
 #include <iomanip>
@@ -620,6 +620,29 @@ MRAcquisitionData::get_trajectory_type() const
 
     return hdr.encoding[0].trajectory;
 
+}
+
+void MRAcquisitionData::set_trajectory_type(const ISMRMRD::TrajectoryType type) 
+{
+    bool const argument_valid = type == ISMRMRD::TrajectoryType::CARTESIAN || \
+                                    type == ISMRMRD::TrajectoryType::EPI || \
+                                    type == ISMRMRD::TrajectoryType::GOLDENANGLE || \
+                                    type == ISMRMRD::TrajectoryType::RADIAL || \
+                                    type == ISMRMRD::TrajectoryType::SPIRAL || \
+                                    type == ISMRMRD::TrajectoryType::OTHER;
+
+    if(!argument_valid)
+        throw std::runtime_error("The trajectory type you provided was invalid");
+
+    ISMRMRD::IsmrmrdHeader hdr = acquisitions_info().get_IsmrmrdHeader();
+
+    if(hdr.encoding.size()!= 1)
+        std::cout << "You have a file with " << hdr.encoding.size() << " encodings. Just the first one is picked." << std::endl;
+
+    hdr.encoding[0].trajectory = type;
+    std::stringstream ss_hdr;
+    ISMRMRD::serialize(hdr, ss_hdr);
+    set_acquisitions_info(ss_hdr.str());
 }
 
 void
@@ -1439,8 +1462,8 @@ GadgetronImagesVector::abs() const
 	for (int i = 0; i < number(); i++) {
 		ptr_iv->append(image_wrap(i).abs());
 	}
-	ptr_iv->set_up_geom_info();
-	return shared_ptr<GadgetronImageData>(ptr_iv);
+    ptr_iv->set_meta_data(this->get_meta_data());
+    return shared_ptr<GadgetronImageData>(ptr_iv);
 }
 
 shared_ptr<GadgetronImageData>
@@ -1450,7 +1473,7 @@ GadgetronImagesVector::real() const
     for (int i = 0; i < number(); i++) {
         ptr_iv->append(image_wrap(i).real());
     }
-    ptr_iv->set_up_geom_info();
+    ptr_iv->set_meta_data(this->get_meta_data());
     return shared_ptr<GadgetronImageData>(ptr_iv);
 }
 
@@ -1858,9 +1881,11 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
         throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
     #endif
     }
-    else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || ad.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+    else if(ad.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL || 
+            ad.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE ||
+            ad.get_trajectory_type() == ISMRMRD::TrajectoryType::SPIRAL)
 	{
-		ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL trajectory before calling the calculate method with dimension > 0.");
+		ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL, ISMRMRD::TrajectoryType::GOLDENANGLE or ISMRMRD::TrajectoryType::SPIRAL trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
 	#warning "Compiling non-cartesian code into coil sensitivity class"
 		this->sptr_enc_ = std::make_shared<sirf::NonCartesian2DEncoding>();
