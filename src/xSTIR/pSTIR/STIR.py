@@ -220,6 +220,46 @@ class Shape(object):
         return (x, y, z)
 
 
+class Ellipsoid(Shape):
+    """Class for ellipsoid shape."""
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'Ellipsoid'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_radius_x(self, value):
+        """Sets x radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_x', value)
+
+    def get_radius_x(self):
+        """Returns x radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_x')
+
+    def set_radius_y(self, value):
+        """Sets y radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_y', value)
+
+    def get_radius_y(self):
+        """Returns y radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_y')
+
+    def set_radius_z(self, value):
+        """Sets z radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_z', value)
+
+    def get_radius_z(self):
+        """Returns z radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_z')
+
+
 class EllipticCylinder(Shape):
     """Class for elliptic cylinder shape."""
 

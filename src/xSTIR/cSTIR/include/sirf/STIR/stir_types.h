@@ -60,6 +60,8 @@ limitations under the License.
 #include "stir/recon_buildblock/ProjMatrixByBinSPECTUB.h"
 #include "stir/recon_buildblock/QuadraticPrior.h"
 #include "stir/SegmentBySinogram.h"
+#include "stir/Shape/Box3D.h"
+#include "stir/Shape/Ellipsoid.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
 #include "stir/shared_ptr.h"

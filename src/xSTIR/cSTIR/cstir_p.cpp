@@ -215,6 +215,42 @@ sirf::cSTIR_shapeParameter(const DataHandle* handle, const char* name)
 }
 
 void*
+sirf::cSTIR_setEllipsoidParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	Ellipsoid& c =
+		objectFromHandle<Ellipsoid>(hp);
+	float value = dataFromHandle<float>(hv);
+	float x = c.get_radius_x();
+	float y = c.get_radius_y();
+	float z = c.get_radius_z();
+	if (sirf::iequals(name, "radius_x"))
+		x = value;
+	else if (sirf::iequals(name, "radius_y"))
+		y = value;
+	else if (sirf::iequals(name, "radius_z"))
+		z = value;
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	c.set_radii(Coord3DF(x, y, z));
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_ellipsoidParameter(const DataHandle* handle, const char* name)
+{
+	Ellipsoid& c =
+		objectFromHandle<Ellipsoid>(handle);
+	if (sirf::iequals(name, "radius_x"))
+		return dataHandle<float>(c.get_radius_x());
+	if (sirf::iequals(name, "radius_y"))
+		return dataHandle<float>(c.get_radius_y());
+	if (sirf::iequals(name, "radius_z"))
+		return dataHandle<float>(c.get_radius_z());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 sirf::cSTIR_setEllipsoidalCylinderParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {

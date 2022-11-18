@@ -45,6 +45,13 @@ namespace sirf {
 		cSTIR_shapeParameter(const DataHandle* handle, const char* name);
 
 	void*
+		cSTIR_setEllipsoidParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_ellipsoidParameter(const DataHandle* handle, const char* name);
+
+	void*
 		cSTIR_setEllipsoidalCylinderParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 
