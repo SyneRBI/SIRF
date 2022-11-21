@@ -215,6 +215,38 @@ sirf::cSTIR_shapeParameter(const DataHandle* handle, const char* name)
 }
 
 void*
+sirf::cSTIR_setBox3DParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_Box3D& box =
+		objectFromHandle<xSTIR_Box3D>(hp);
+	float value = dataFromHandle<float>(hv);
+	if (sirf::iequals(name, "length_x"))
+		box.set_length_x(value);
+	else if (sirf::iequals(name, "length_y"))
+		box.set_length_y(value);
+	else if (sirf::iequals(name, "length_z"))
+		box.set_length_z(value);
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_Box3DParameter(const DataHandle* handle, const char* name)
+{
+	xSTIR_Box3D& box =
+		objectFromHandle<xSTIR_Box3D>(handle);
+	if (sirf::iequals(name, "length_x"))
+		return dataHandle<float>(box.get_length_x());
+	if (sirf::iequals(name, "length_y"))
+		return dataHandle<float>(box.get_length_y());
+	if (sirf::iequals(name, "length_z"))
+		return dataHandle<float>(box.get_length_z());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 sirf::cSTIR_setEllipsoidParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {

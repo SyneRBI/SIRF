@@ -149,6 +149,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(PLSPrior<float>);
 		if (sirf::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
+		if (sirf::iequals(name, "Box3D"))
+			return NEW_OBJECT_HANDLE(xSTIR_Box3D);
 		if (sirf::iequals(name, "Ellipsoid"))
 			return NEW_OBJECT_HANDLE(Ellipsoid);
 		if (sirf::iequals(name, "EllipsoidalCylinder"))
@@ -179,6 +181,8 @@ void* cSTIR_setParameter
 			return cSTIR_setSeparableGaussianImageFilterParameter(ptr_s, name, ptr_v);
 		else if (sirf::iequals(obj, "Shape"))
 			return cSTIR_setShapeParameter(ptr_s, name, ptr_v);
+		else if (sirf::iequals(obj, "Box3D"))
+			return cSTIR_setBox3DParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "Ellipsoid"))
 			return cSTIR_setEllipsoidParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "EllipsoidalCylinder"))
@@ -245,6 +249,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 		CAST_PTR(DataHandle, handle, ptr);
 		if (sirf::iequals(obj, "Shape"))
 			return cSTIR_shapeParameter(handle, name);
+		else if (sirf::iequals(obj, "Box3D"))
+			return cSTIR_Box3DParameter(handle, name);
 		else if (sirf::iequals(obj, "Ellipsoid"))
 			return cSTIR_ellipsoidParameter(handle, name);
 		else if (sirf::iequals(obj, "EllipsoidalCylinder"))

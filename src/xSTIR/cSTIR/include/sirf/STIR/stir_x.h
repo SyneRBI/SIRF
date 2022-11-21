@@ -952,6 +952,34 @@ The actual algorithm is described in
 	protection by inheritance.
 	*/
 
+	class xSTIR_Box3D : public stir::Box3D {
+	public:
+		void set_length_x(float v)
+		{
+			length_x = v;
+		}
+		void set_length_y(float v)
+		{
+			length_y = v;
+		}
+		void set_length_z(float v)
+		{
+			length_z = v;
+		}
+		float get_length_x() const
+		{
+			return length_x;
+		}
+		float get_length_y() const
+		{
+			return length_y;
+		}
+		float get_length_z() const
+		{
+			return length_z;
+		}
+	};
+
 	class xSTIR_GeneralisedPrior3DF : public stir::GeneralisedPrior < Image3DF > {
 	public:
 //		bool post_process() {
