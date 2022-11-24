@@ -7,6 +7,7 @@ import sirf
 import sirf.pyiutilities as pyiutil
 import re
 from deprecation import deprecated
+import pytest
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
@@ -594,7 +595,7 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True
                 print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
     return True
 
-
+@pytest.mark.skip(reason="This is a base-class for the actual tests")
 class TestDataContainerAlgebra(object):
 
     '''A base class for unit test of DataContainer algebra.'''
