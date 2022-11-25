@@ -132,6 +132,10 @@ def main():
     img_proc.set_input(reconstructed_data)
     img_proc.process()
     image_data = img_proc.get_output()
+    if image_data.number() < 1:
+        print('??? ImageDataProcessor failed - please check the version of')
+        print('??? Gadgetron you are using, must be not earlier than 4.1.2')
+        return 1
     print(image_data.dimensions())
 
     # write the images to file;
