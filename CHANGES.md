@@ -2,7 +2,8 @@
 ## v3.4.0
 * MR:
   - Added support for spiral trajectories that are pre-computed by the user by exposing a setter.
-  - Writing MR images to `.dcm` files quick-fixed. For proper fix, help from Gadgetron team will be sought after moving to using Gadgetron 4.
+  - Writing images to `.dcm` files fixed.
+  - Running image processing chains after reconstruction fixed.
   - Use C++ 17 if Gadgetron-support is enabled
 
 * Documentation
