@@ -1,5 +1,6 @@
 # ChangeLog
 ## v3.4.0
+* changed Python test framework to pytest
 * MR:
   - Added support for spiral trajectories that are pre-computed by the user by exposing a setter.
   - Writing MR images to `.dcm` files quick-fixed (proper fix is provided by PR 1143, to be merged after VM with Gadgetron 4.1.2 will become available).

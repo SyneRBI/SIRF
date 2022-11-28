@@ -595,8 +595,7 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True
                 print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
     return True
 
-@pytest.mark.skip(reason="This is a base-class for the actual tests")
-class TestDataContainerAlgebra(object):
+class DataContainerAlgebraTests(object):
 
     '''A base class for unit test of DataContainer algebra.'''
     def test_divide_scalar(self):
