@@ -41,27 +41,39 @@ endif()
 set(CGADGETRON_SOURCES cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp
     gadgetron_fftw.cpp TrajectoryPreparation.cpp FourierEncoding.cpp)
     
+find_package(gadgetron CONFIG)
+if (gadgetron_FOUND)
+  set (GT_LIBS
+    Gadgetron::gadgetron_toolbox_cpucore
+    Gadgetron::gadgetron_toolbox_cpufft
+    Gadgetron::gadgetron_toolbox_cpunfft
+    Gadgetron::gadgetron_toolbox_log
+    )
+else()
+  message(WARNING "gadgetron-config.cmake was not found. Setting gadgetron_DIR if you do have it. Alternatively, maybe you have an old Gadgetron version. We'll try to find some toolbox libraries by hand.")
+  find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX}
+                )
+  find_library( GT_FFT NAMES gadgetron_toolbox_cpufft
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX}
+                )
+  find_library( GT_NFFT NAMES gadgetron_toolbox_cpunfft
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX}
+                )
+  find_library( GT_LOG NAMES gadgetron_toolbox_log
+                NAMES_PER_DIR
+                PATHS ${CMAKE_INSTALL_PREFIX}
+                )
 
-find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore
-                NAMES_PER_DIR
-                PATHS ${CMAKE_INSTALL_PREFIX}
-                )
-find_library( GT_FFT NAMES gadgetron_toolbox_cpufft
-                NAMES_PER_DIR
-                PATHS ${CMAKE_INSTALL_PREFIX}
-                )
-find_library( GT_NFFT NAMES gadgetron_toolbox_cpunfft
-                NAMES_PER_DIR
-                PATHS ${CMAKE_INSTALL_PREFIX}
-                )
-find_library( GT_LOG NAMES gadgetron_toolbox_log
-                NAMES_PER_DIR
-                PATHS ${CMAKE_INSTALL_PREFIX}
-                )
+  if (GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
+    set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
+  endif()
+endif()
 
-set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
-
-if(GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
+if(GT_LIBS)
     MESSAGE(STATUS "The Gadgetron toolboxes required for radial gridding were found. Non-cartesian encoding will be compiled.")
     set(GADGETRON_TOOLBOXES_AVAILABLE TRUE)
     set(CGADGETRON_SOURCES ${CGADGETRON_SOURCES} NonCartesianEncoding.cpp)
