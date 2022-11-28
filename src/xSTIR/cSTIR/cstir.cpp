@@ -143,6 +143,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (sirf::iequals(name, "SPECTUBMatrix"))
 			return NEW_OBJECT_HANDLE(SPECTUBMatrix);
+		if (sirf::iequals(name, "PinholeSPECTUBMatrix"))
+			return NEW_OBJECT_HANDLE(PinholeSPECTUBMatrix);
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (sirf::iequals(name, "PLSPrior"))
@@ -202,6 +204,8 @@ void* cSTIR_setParameter
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "SPECTUBMatrix"))
 			return cSTIR_setSPECTUBMatrixParameter(hs, name, hv);
+		else if (sirf::iequals(obj, "PinholeSPECTUBMatrix"))
+			return cSTIR_setPinholeSPECTUBMatrixParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "QuadraticPrior"))
@@ -266,6 +270,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_rayTracingMatrixParameter(handle, name);
 		else if (sirf::iequals(obj, "SPECTUBMatrix"))
 			return cSTIR_SPECTUBMatrixParameter(handle, name);
+		else if (sirf::iequals(obj, "PinholeSPECTUBMatrix"))
+			return cSTIR_PinholeSPECTUBMatrixParameter(handle, name);
 		else if (sirf::iequals(obj, "AcquisitionModel"))
 			return cSTIR_AcquisitionModelParameter(handle, name);
 		else if (sirf::iequals(obj, "AcqModUsingMatrix"))
