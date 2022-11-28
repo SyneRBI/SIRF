@@ -322,6 +322,8 @@ namespace sirf {
 		void process(const GadgetronImageData& images);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
+			//if (dicom_)
+			//	THROW("Output to both memory and DICOM files not implemented.");
 			return sptr_images_;
 		}
 

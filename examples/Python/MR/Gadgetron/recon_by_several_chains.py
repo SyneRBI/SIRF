@@ -1,12 +1,14 @@
 '''
-Medium-level interface demo that illustrates 2D Cartesian MR image 
-reconstruction using Gadgetron by creating and running two gadget chains:
+Medium-level interface demo that illustrates Cartesian MR image
+reconstruction using Gadgetron by creating and running several gadget chains
+of different kind:
 - acquisition processing chain
 - reconstruction chain
+- image processing chain
 and how to visualise or modify data in between these chains.
 
 Usage:
-  fully_sampled_recon_two_chains.py [--help | options]
+  recon_by_several_chains.py [--help | options]
 
 Options:
   -f <file>, --file=<file>     raw data file
@@ -14,6 +16,7 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/MR
                                subfolder of SIRF root folder
   -s <sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
+  -o <outp>, --output=<path>   output file name [default: images.h5]
   --non-interactive            do not show plots
 '''
 
@@ -48,7 +51,6 @@ from pGadgetron import existing_filepath
 from pGadgetron import AcquisitionData
 from pGadgetron import AcquisitionDataProcessor
 from pGadgetron import Reconstructor
-from pGadgetron import ISMRMRD_IMTYPE_MAGNITUDE
 from pGadgetron import ImageDataProcessor
 from pGadgetron import error
 
@@ -60,33 +62,34 @@ if data_path is None:
 sigma = float(args['--sigma'])
 show_plot = not args['--non-interactive']
 
+
 def gaussian(x, mu, sigma):
     return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sigma, 2.)))
-    
+
+
 def main():
 
     # Acquisitions will be read from this HDF file
     input_file = existing_filepath(data_path, data_file)
     acq_data = AcquisitionData(input_file)
+    undersampled = acq_data.is_undersampled()
 
-    # Get size of current k-space data as tuple
-    # (number of acquisitions, number of coils, number of samples)
-    k_space_dimensions = acq_data.dimensions()
-    # This way of printing works for both Python 2.* and Python 3.*
-    print('Size of k-space slice reduced from %dx%dx%d' % k_space_dimensions)
-    
-    # Pre-process acquisitions:
-    # create an object which removes the readout oversampling from the acquired 
-    # k-space data
-    acq_proc = AcquisitionDataProcessor(['RemoveROOversamplingGadget'])
+    # Create and run Gadgetron chain that pre-processes acquisition data
+    # (removes the readout oversampling from the acquired k-space data etc.)
+    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoAdjustROGadget', \
+                                'RemoveROOversamplingGadget' ]
+    acq_proc = AcquisitionDataProcessor(prep_gadgets)
     acq_proc.set_input(acq_data)
     acq_proc.process()
     preprocessed_data = acq_proc.get_output()
     # shortcut for the above 3 lines
 ##    preprocessed_data = acq_proc.process(acq_data)
-    
-    # Get size of k-space data after removal of oversampling
+
+    # Compare sizes of k-space data as tuples
+    # (number of acquisitions, number of coils, number of samples)
+    # before and after removal of oversampling
     k_space_dimensions = preprocessed_data.dimensions()
+    print('Size of k-space slice reduced from %dx%dx%d' % acq_data.dimensions())
     print('to %dx%dx%d' % k_space_dimensions)
     
     # Create simple Gaussian weighting function and apply it along the
@@ -102,11 +105,15 @@ def main():
             numpy.multiply(preprocessed_array[:,c,:], gauss_weight)
     preprocessed_data.fill(preprocessed_array)
 
-    # create reconstruction object
-    recon = Reconstructor\
-        (['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
-        'BucketToBufferGadget(split_slices=true, verbose=false)', 
-        'SimpleReconGadget', 'ImageArraySplitGadget', 'ExtractGadget'])
+    # create reconstruction chain
+    recon_gadgets = [
+        'GenericReconCartesianReferencePrepGadget',
+        'GRAPPA:GenericReconCartesianGrappaGadget',
+        'GenericReconFieldOfViewAdjustmentGadget',
+        'GenericReconImageArrayScalingGadget'] if undersampled else ['SimpleReconGadget']
+    recon = Reconstructor \
+        (['AcquisitionAccumulateTriggerGadget', 'BucketToBufferGadget']
+         + recon_gadgets + ['ImageArraySplitGadget'])
     
     # provide pre-processed k-space data
     recon.set_input(preprocessed_data)
@@ -115,17 +122,36 @@ def main():
     recon.process()
 
     # retrieve the reconstructed complex images
-    image_data = recon.get_output()
+    if undersampled:
+        reconstructed_data = recon.get_output('image')
+    else:
+        reconstructed_data = recon.get_output()
+
+    # convert the images to real and scale using images processing chain
+    img_proc = ImageDataProcessor(['ExtractGadget', 'AutoScaleGadget'])
+    img_proc.set_input(reconstructed_data)
+    img_proc.process()
+    image_data = img_proc.get_output()
+    if image_data.number() < 1:
+        print('??? ImageDataProcessor failed - please check the version of')
+        print('??? Gadgetron you are using, must be not earlier than 4.1.2')
+        return 1
+    print(image_data.dimensions())
+
+    # write the images to file;
+    # if the file name extension is .dcm, the writing is in DICOM format
+    # and performed by yet another image processing chain
+    image_data.write(args['--output'])
 
     # show obtained images
     if show_plot:
         image_data.show(title = 'Reconstructed image data (magnitude)')
 
+
 try:
     main()
     print('\n=== done with %s' % __file__)
-
 except error as err:
     # display error information
     print('??? %s' % err.value)
-    exit(1)
+    #exit(1)
