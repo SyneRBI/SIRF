@@ -58,7 +58,7 @@ int test4()
 
 		std::string f_listmode = path + "list.l.hdr";
 		std::string f_template = path + "mMR_template_span11_small.hs";
-		PETAcquisitionDataInFile acq_data_template(f_template.c_str());
+		STIRAcquisitionDataInFile acq_data_template(f_template.c_str());
 
 		// Listmode to sinograms
 		ListmodeToSinograms converter;
@@ -111,9 +111,9 @@ int test4()
         std::cout << "\nTesting NiftyPET projection...\n";
         // Load mMR sinogram
         const std::string f_mMR_template = f_template = path + "mMR_template_span11.hs";
-        PETAcquisitionDataInFile mMR_template(f_mMR_template.c_str());
-        std::shared_ptr<PETAcquisitionDataInMemory> acq_data_mMR_sptr(
-                    new PETAcquisitionDataInMemory(mMR_template));
+        STIRAcquisitionDataInFile mMR_template(f_mMR_template.c_str());
+        std::shared_ptr<STIRAcquisitionDataInMemory> acq_data_mMR_sptr(
+                    new STIRAcquisitionDataInMemory(mMR_template));
         acq_data_mMR_sptr->fill(1.f);
 
         // Create mMR image
@@ -134,7 +134,7 @@ int test4()
         acq_model.set_up(acq_data_mMR_sptr, im_mMR_sptr);
         std::cout << "\nForward projecting with NiftyPET acquisition model...\n";
 
-        std::shared_ptr<PETAcquisitionData> prj_sptr = acq_model.forward(*im_mMR_sptr);
+        std::shared_ptr<STIRAcquisitionData> prj_sptr = acq_model.forward(*im_mMR_sptr);
         std::cout << "\nBack projecting with NiftyPET acquisition model...\n";
         im_mMR_sptr = acq_model.backward(*prj_sptr);
         std::cout << "\nNiftyPET test succeeded.\n";

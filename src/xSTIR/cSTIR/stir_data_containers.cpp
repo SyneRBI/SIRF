@@ -30,11 +30,11 @@ using namespace sirf;
 //#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
 #define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
-std::string PETAcquisitionData::_storage_scheme;
-std::shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
+std::string STIRAcquisitionData::_storage_scheme;
+std::shared_ptr<STIRAcquisitionData> STIRAcquisitionData::_template;
 
 float
-PETAcquisitionData::norm() const
+STIRAcquisitionData::norm() const
 {
 	double t = 0.0;
 	for (int s = 0; s <= get_max_segment_num(); ++s)
@@ -57,10 +57,10 @@ PETAcquisitionData::norm() const
 }
 
 void
-PETAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
+STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	SIRF_DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	//STIRAcquisitionData& x = (STIRAcquisitionData&)a_x;
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	double t = 0;
@@ -89,17 +89,17 @@ PETAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 }
 
 void
-PETAcquisitionData::axpby(
+STIRAcquisitionData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y
 )
 {
 	//Add deprecation warning
-    PETAcquisitionData::xapyb(a_x, ptr_a, a_y, ptr_b);
+    STIRAcquisitionData::xapyb(a_x, ptr_a, a_y, ptr_b);
 }
 
 void
-PETAcquisitionData::xapyb(
+STIRAcquisitionData::xapyb(
 const DataContainer& a_x, const void* ptr_a,
 const DataContainer& a_y, const void* ptr_b
 )
@@ -107,46 +107,46 @@ const DataContainer& a_y, const void* ptr_b
     // Cast to correct types
     float a = *(float*)ptr_a;
     float b = *(float*)ptr_b;
-    auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
-    auto y = dynamic_cast<const PETAcquisitionData*>(&a_y);
+    auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const STIRAcquisitionData*>(&a_y);
 
     if (is_null_ptr(x) || is_null_ptr(x->data()) ||
             is_null_ptr(y) || is_null_ptr(y->data()))
-        throw std::runtime_error("PETAcquisitionData::xapyb: At least one argument is not"
-                                 "PETAcquisitionData or is not initialised.");
+        throw std::runtime_error("STIRAcquisitionData::xapyb: At least one argument is not"
+                                 "STIRAcquisitionData or is not initialised.");
 
     // Call STIR's xapyb
     data()->xapyb(*x->data(), a, *y->data(), b);
 }
 
 void
-PETAcquisitionData::xapyb(
+STIRAcquisitionData::xapyb(
 const DataContainer& a_x, const DataContainer& a_a,
 const DataContainer& a_y, const DataContainer& a_b
 )
 {
     // Cast to correct types
-    auto a = dynamic_cast<const PETAcquisitionData*>(&a_a);
-    auto b = dynamic_cast<const PETAcquisitionData*>(&a_b);
-    auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
-    auto y = dynamic_cast<const PETAcquisitionData*>(&a_y);
+    auto a = dynamic_cast<const STIRAcquisitionData*>(&a_a);
+    auto b = dynamic_cast<const STIRAcquisitionData*>(&a_b);
+    auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const STIRAcquisitionData*>(&a_y);
 
     if (is_null_ptr(x) || is_null_ptr(x->data()) ||
             is_null_ptr(y) || is_null_ptr(y->data()) ||
             is_null_ptr(a) || is_null_ptr(a->data()) ||
             is_null_ptr(b) || is_null_ptr(b->data()))
-        throw std::runtime_error("PETAcquisitionData::xapyb: At least one argument is not"
-                                 "PETAcquisitionData or is not initialised.");
+        throw std::runtime_error("STIRAcquisitionData::xapyb: At least one argument is not"
+                                 "STIRAcquisitionData or is not initialised.");
 
     // Call STIR's xapyb
     data()->xapyb(*x->data(), *a->data(), *y->data(), *b->data());
 }
 
 void
-PETAcquisitionData::inv(float amin, const DataContainer& a_x)
+STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
 {
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	SIRF_DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	//STIRAcquisitionData& x = (STIRAcquisitionData&)a_x;
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	for (int s = 0; s <= n && s <= nx; ++s)
@@ -176,14 +176,14 @@ PETAcquisitionData::inv(float amin, const DataContainer& a_x)
 }
 
 void
-PETAcquisitionData::binary_op_(
+STIRAcquisitionData::binary_op_(
 	const DataContainer& a_x,
 	const DataContainer& a_y,
 	int job
 )
 {
-	SIRF_DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -245,25 +245,25 @@ PETAcquisitionData::binary_op_(
 	}
 }
 
-std::unique_ptr<PETAcquisitionData>
-PETAcquisitionDataInFile::get_subset(const std::vector<int>& views) const
+std::unique_ptr<STIRAcquisitionData>
+STIRAcquisitionDataInFile::get_subset(const std::vector<int>& views) const
 {
-	auto ptr_ad = new PETAcquisitionDataInFile(std::move(_data->get_subset(views)));
-//	auto ptr_ad = new PETAcquisitionDataInMemory(std::move(_data->get_subset(views)));
-	return std::unique_ptr<PETAcquisitionData>(ptr_ad);
+	auto ptr_ad = new STIRAcquisitionDataInFile(std::move(_data->get_subset(views)));
+//	auto ptr_ad = new STIRAcquisitionDataInMemory(std::move(_data->get_subset(views)));
+	return std::unique_ptr<STIRAcquisitionData>(ptr_ad);
 }
 
-std::unique_ptr<PETAcquisitionData>
-PETAcquisitionDataInMemory::get_subset(const std::vector<int>& views) const
+std::unique_ptr<STIRAcquisitionData>
+STIRAcquisitionDataInMemory::get_subset(const std::vector<int>& views) const
 {
-	auto ptr_ad = new PETAcquisitionDataInMemory(std::move(_data->get_subset(views)));
-	return std::unique_ptr<PETAcquisitionData>(ptr_ad);
+	auto ptr_ad = new STIRAcquisitionDataInMemory(std::move(_data->get_subset(views)));
+	return std::unique_ptr<STIRAcquisitionData>(ptr_ad);
 }
 
 void
-PETAcquisitionDataInMemory::init()
+STIRAcquisitionDataInMemory::init()
 {
-	PETAcquisitionDataInFile::init();
+	STIRAcquisitionDataInFile::init();
 }
 
 
@@ -611,7 +611,7 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
 
 void
 STIRImageData::
-move_to_scanner_centre(const PETAcquisitionData &)
+move_to_scanner_centre(const STIRAcquisitionData &)
 {
     this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
 

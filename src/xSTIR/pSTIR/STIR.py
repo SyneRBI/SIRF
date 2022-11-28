@@ -219,6 +219,98 @@ class Shape(object):
         z = parms.float_par(self.handle, 'Shape', 'z')
         return (x, y, z)
 
+class Box3D(Shape):
+    """Class for elliptic cylinder shape."""
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'Box3D'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_length_x(self, value):
+        """Sets dimension x length in mm."""
+        parms.set_float_par(self.handle, self.name, 'length_x', value)
+
+    def get_length_x(self):
+        """Returns dimension x length in mm."""
+        return parms.float_par(self.handle, self.name, 'length_x')
+
+    def set_length_y(self, value):
+        """Sets dimension y length in mm."""
+        parms.set_float_par(self.handle, self.name, 'length_y', value)
+
+    def get_length_y(self):
+        """Returns dimension y length in mm."""
+        return parms.float_par(self.handle, self.name, 'length_y')
+
+    def set_length_z(self, value):
+        """Sets dimension z length in mm."""
+        parms.set_float_par(self.handle, self.name, 'length_z', value)
+
+    def get_length_z(self):
+        """Returns dimension z length in mm."""
+        return parms.float_par(self.handle, self.name, 'length_z')
+
+    def set_lengths(self, value):
+        """Sets lengths in mm."""
+        parms.set_float_par(self.handle, self.name, 'length_x', value[0])
+        parms.set_float_par(self.handle, self.name, 'length_y', value[1])
+        parms.set_float_par(self.handle, self.name, 'length_z', value[2])
+
+    def get_lengths(self):
+        """Returns lengths in mm."""
+        length_x = parms.float_par(self.handle, self.name, 'length_x')
+        length_y = parms.float_par(self.handle, self.name, 'length_y')
+        length_z = parms.float_par(self.handle, self.name, 'length_z')
+        return (length_x, length_y, length_z)
+
+
+class Ellipsoid(Shape):
+    """Class for ellipsoid shape."""
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'Ellipsoid'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_radius_x(self, value):
+        """Sets x radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_x', value)
+
+    def get_radius_x(self):
+        """Returns x radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_x')
+
+    def set_radius_y(self, value):
+        """Sets y radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_y', value)
+
+    def get_radius_y(self):
+        """Returns y radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_y')
+
+    def set_radius_z(self, value):
+        """Sets z radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_z', value)
+
+    def get_radius_z(self):
+        """Returns z radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_z')
+
 
 class EllipticCylinder(Shape):
     """Class for elliptic cylinder shape."""

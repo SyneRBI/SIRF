@@ -226,10 +226,11 @@ endif()
 
 ADD_SUBDIRECTORY(src)
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
-configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
-
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
+if(PYTHONLIBS_FOUND)
+  include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
+  configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
+endif(PYTHONLIBS_FOUND)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples 
         COMPONENT DOC
