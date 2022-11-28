@@ -22,6 +22,7 @@
 	2. [File conventions](#conventions_file)
 	3. [Others](#conventions_others)
 6. [Cloning data container](#clone_datacontainer)
+7. [Information on building and testing](#build_testing)
 
 # Overview <a name="Overview"></a>
 
@@ -449,3 +450,58 @@ The programming style used in SIRF resembles closely that used in STIR. When imp
 This section should hopefully clear up a bit of confusion around the way cloning an image/acquisition data in SIRF.
 
 We often store an image/acquisition data as a more general version of itself. For example, we might store a `STIRImageData` as an `ImageData`. However, we need to be able to create a clone of the original object. This requires covariant return types, which is tricky with shared/unique pointers. We followed the advice in [this Fluent C++ blog](https://www.fluentcpp.com/2017/09/12/how-to-return-a-smart-pointer-and-use-covariance/). Therefore any new classes should contain a `clone` method (which returns a unique pointer), and a `clone_impl` (which returns a bare pointer) that should only be used by `clone`.
+
+# Information on building and testing <a name="build_testing"></a>
+## Local
+SIRF uses CMake for configuration, building and installation, and CTest (configured by CMake) for testing.
+Information on how to do this is currently on our wiki.
+One particular note is that we need to set some environment variables before testing. This is
+easiest when using the [SIRF-SuperBuild](https://github.com/SyneRBI/SIRF-SuperBuild) as,
+aside from taking care of dependencies, it creates a file `env_sirf.sh` with appropriate settings.
+Note that this implies that in contrast to other projects, the correct sequence is
+1. build
+2. install
+3. set environment variables (e.g. `. /wherever/env_sirf.sh`)
+4. `ctest`
+
+### Testing mechanisms
+#### C++
+We currently do not use a testing framework. Therefore you have to write an executable that exits with
+`EXIT_FAILURE` (from `cstdlib`) (or `1` on current platforms) if there is a failure. Then use `add_test`
+in a `CMakeLists.txt`.
+
+#### Python
+Since SIRF 3.4 we use [pytest](https://docs.pytest.org/). This auto-discovers files matching certain patterns
+and functions/classes in these files, and executes them. We currently add a `ctest` in each directory
+(e.g. `src/Registration/pReg/tests`). Check the `pytest.ini` for any modifications from the defaults.
+
+Many of the tests are based on our own mechanism in `sirf.Utilities.runner`. This allows
+recording output from a run in a file, and subsequent runs will check if the same output is achieved.
+Note that is recommended to raise `AssertionError` for output where you know what it will be, and
+use the recording facility only where this output is hard to compute or data dependent.
+
+The ctests are configured to use [coverage](https://coverage.readthedocs.io/) via
+[pytest-cov](https://pytest-cov.readthedocs.io/), such that we get some feedback how much
+of the Python functionality is tested via `pytest`. This is currently somewhat complicated
+unfortunately as when running the tests, the **source files are picked up from the installation
+directory** (see above), not the current source. We use `.coveragerc-*` files (in the root directory) to
+map these to the files in the source directory using the `[paths]` configuration setting.
+The first path listed is the one in the source, then we list some common installation paths
+(e.g. on the VM and on GitHub ).
+
+Caveats:
+- Unfortunately, this mapping depends on your installation location. We currently do not
+attempt to handle this. If it matters for you (but it probably doesn't), you could
+add your installation directory to the `.coveragerc-*` files.
+
+## Continuous Integration and deployment via GitHub Actions
+Pushes to the `master` branch and pull-requests on GitHub are tested automatically.
+You could check `.github/workflows` for more information.
+
+As part of the workflow, we also report the Python test coverage. To do this, we need
+to combine the coverage output of each SIRF Python test (called e.g. `.coverage-STIR`)
+into one file using `coverage combine`. Unfortunately, at the time of writing, this
+does not work yet as coverage numbers are lost. This also means that information
+uploaded on [coveralls.io](https://coveralls.io/github/SyneRBI/SIRF) is incomplete.
+Hopefully by the time you read this, this will be fixed, but check
+Issues on GitHub.

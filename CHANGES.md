@@ -1,5 +1,6 @@
 # ChangeLog
 ## v3.4.0
+* changed Python test framework to pytest
 * MR:
   - Added support for spiral trajectories that are pre-computed by the user by exposing a setter.
   - Writing images to `.dcm` files fixed.

@@ -3,6 +3,7 @@ scipy --only-binary=scipy
 matplotlib --only-binary=matplotlib
 docopt
 psutil
-nose
+pytest
+pytest-cov
 deprecation
 nibabel  # optional
