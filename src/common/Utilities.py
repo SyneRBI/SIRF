@@ -7,10 +7,9 @@ import sirf
 import sirf.pyiutilities as pyiutil
 import re
 from deprecation import deprecated
-import pytest
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
 Copyright 2015 - 2021 University College London
 Copyright 2021 CSIRO
 
