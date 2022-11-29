@@ -6,6 +6,8 @@
   - Writing images to `.dcm` files fixed.
   - Running image processing chains after reconstruction fixed.
   - Use C++ 17 if Gadgetron-support is enabled
+  - Support Gadgetron master of end November 2022
+      - using `find_package(gadgetron)` in CMake.
 
 * PET/SPECT
   - Require STIR 5.0
