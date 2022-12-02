@@ -1,10 +1,13 @@
 # ChangeLog
 ## v3.4.0
+* changed Python test framework to pytest
 * MR:
   - Added support for spiral trajectories that are pre-computed by the user by exposing a setter.
   - Writing images to `.dcm` files fixed.
   - Running image processing chains after reconstruction fixed.
   - Use C++ 17 if Gadgetron-support is enabled
+  - Support Gadgetron master of end November 2022
+      - using `find_package(gadgetron)` in CMake.
 
 * PET/SPECT
   - Require STIR 5.0

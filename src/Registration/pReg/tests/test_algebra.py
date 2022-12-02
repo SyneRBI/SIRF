@@ -20,10 +20,10 @@
 import os
 import unittest
 import sirf.Reg as reg
-from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra
+from sirf.Utilities import  examples_data_path, DataContainerAlgebraTests
 
 
-class TestNiftiImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
+class TestNiftiImageDataAlgebra(unittest.TestCase, DataContainerAlgebraTests):
 
     def setUp(self):
         image1 = reg.ImageData(os.path.join(

@@ -115,5 +115,28 @@ jobs:
           cmake --build . -j 2;
     - name: tests
       shell: bash
-      run: |
+      run:
           bash -ev ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
+
+    - name: Coverage
+      shell: bash
+      run: |
+          pwd
+          source ~/virtualenv/bin/activate
+          coverage combine .coverage-*
+          coverage report
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel: true
+        flag-name: python test
+        debug: true
+
+  coveralls_finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel-finished: true
