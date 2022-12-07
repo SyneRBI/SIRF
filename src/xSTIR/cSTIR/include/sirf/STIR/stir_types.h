@@ -58,7 +58,9 @@ limitations under the License.
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
 #include "stir/recon_buildblock/ProjMatrixByBinSPECTUB.h"
+#if STIR_VERSION >= 050100
 #include "stir/recon_buildblock/ProjMatrixByBinPinholeSPECTUB.h"
+#endif
 #include "stir/recon_buildblock/QuadraticPrior.h"
 #include "stir/SegmentBySinogram.h"
 #include "stir/Shape/Box3D.h"
@@ -104,8 +106,10 @@ namespace sirf {
     typedef stir::ProjectorByBinPairUsingNiftyPET ProjectorPairUsingNiftyPET;
 #endif
 	typedef stir::ProjMatrixByBinUsingRayTracing RayTracingMatrix;
-        typedef stir::ProjMatrixByBinSPECTUB SPECTUBMatrix;
-    typedef stir::ProjMatrixByBinPinholeSPECTUB PinholeSPECTUBMatrix;
+	typedef stir::ProjMatrixByBinSPECTUB SPECTUBMatrix;
+#if STIR_VERSION >= 050100
+	typedef stir::ProjMatrixByBinPinholeSPECTUB PinholeSPECTUBMatrix;
+#endif
 	typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;
 	typedef stir::DataProcessor<Image3DF> DataProcessor3DF;

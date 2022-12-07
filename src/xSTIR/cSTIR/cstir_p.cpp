@@ -425,26 +425,33 @@ sirf::cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name)
 void*
 sirf::cSTIR_setPinholeSPECTUBMatrixParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	PinholeSPECTUBMatrix& matrix = 
-		objectFromHandle< PinholeSPECTUBMatrix >(hp);
-	if (sirf::iequals(name, "maximum_number_of_sigmas"))
-	    matrix.set_maximum_number_of_sigmas(dataFromHandle<float>(hv));
-	else if (sirf::iequals(name, "spatial_resolution_PSF"))
-	    matrix.set_spatial_resolution_PSF(dataFromHandle<float>(hv));
-	else if (sirf::iequals(name, "subsampling_factor_PSF"))
-	    matrix.set_subsampling_factor_PSF(dataFromHandle<int>(hv));
-	else if (sirf::iequals(name, "detector_file"))
-	    matrix.set_detector_file(charDataFromDataHandle(hv));
-	else if (sirf::iequals(name, "collimator_file"))
-	    matrix.set_collimator_file(charDataFromDataHandle(hv));
-	else if (sirf::iequals(name, "psf_correction"))
-	    matrix.set_psf_correction(charDataFromDataHandle(hv));
-	else if (sirf::iequals(name, "doi_correction"))
-	    matrix.set_doi_correction(charDataFromDataHandle(hv));
-	else if (sirf::iequals(name, "attenuation_type"))
-	    matrix.set_attenuation_type(charDataFromDataHandle(hv));
-	else if (sirf::iequals(name, "object_radius"))
-	    matrix.set_object_radius(dataFromHandle<float>(hv));
+#if STIR_VERSION < 050100
+    DataHandle* handle = new DataHandle;
+    ExecutionStatus status("STIR version older than 5.1 so PinholeSPECTUB not supported" , __FILE__, __LINE__);
+    handle->set(0, &status);
+    return (void*)handle;
+#else
+        
+    PinholeSPECTUBMatrix& matrix = 
+        objectFromHandle< PinholeSPECTUBMatrix >(hp);
+    if (sirf::iequals(name, "maximum_number_of_sigmas"))
+        matrix.set_maximum_number_of_sigmas(dataFromHandle<float>(hv));
+    else if (sirf::iequals(name, "spatial_resolution_PSF"))
+        matrix.set_spatial_resolution_PSF(dataFromHandle<float>(hv));
+    else if (sirf::iequals(name, "subsampling_factor_PSF"))
+        matrix.set_subsampling_factor_PSF(dataFromHandle<int>(hv));
+    else if (sirf::iequals(name, "detector_file"))
+        matrix.set_detector_file(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "collimator_file"))
+        matrix.set_collimator_file(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "psf_correction"))
+        matrix.set_psf_correction(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "doi_correction"))
+        matrix.set_doi_correction(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "attenuation_type"))
+        matrix.set_attenuation_type(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "object_radius"))
+        matrix.set_object_radius(dataFromHandle<float>(hv));
     else if (sirf::iequals(name, "attenuation_image"))
     {
         STIRImageData& id = objectFromHandle<STIRImageData>(hv);
@@ -455,34 +462,42 @@ sirf::cSTIR_setPinholeSPECTUBMatrixParameter(DataHandle* hp, const char* name, c
         STIRImageData& id = objectFromHandle<STIRImageData>(hv);
         matrix.set_mask_image_sptr(id.data_sptr());
     }
-	else if (sirf::iequals(name, "mask_from_attenuation_map"))
-	    matrix.set_mask_from_attenuation_map(dataFromHandle<bool>(hv));
-	else if (sirf::iequals(name, "keep_all_views_in_cache"))
-	    matrix.set_keep_all_views_in_cache(dataFromHandle<bool>(hv));
+    else if (sirf::iequals(name, "mask_from_attenuation_map"))
+        matrix.set_mask_from_attenuation_map(dataFromHandle<bool>(hv));
+    else if (sirf::iequals(name, "keep_all_views_in_cache"))
+        matrix.set_keep_all_views_in_cache(dataFromHandle<bool>(hv));
     else
-	    return parameterNotFound(name, __FILE__, __LINE__);
-	return new DataHandle;
+        return parameterNotFound(name, __FILE__, __LINE__);
+    return new DataHandle;
+#endif
 }
 
 void*
 sirf::cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* name)
 {
-	PinholeSPECTUBMatrix& matrix =
-		objectFromHandle< PinholeSPECTUBMatrix >(handle);
-	if (sirf::iequals(name, "maximum_number_of_sigmas"))
-	    return dataHandle<float>(matrix.get_maximum_number_of_sigmas());
-	else if (sirf::iequals(name, "spatial_resolution_PSF"))
-	    return dataHandle<float>(matrix.get_spatial_resolution_PSF());
-	else if (sirf::iequals(name, "subsampling_factor_PSF"))
-	    return dataHandle<int>(matrix.get_subsampling_factor_PSF());
-	if (sirf::iequals(name, "psf_correction"))
-		return charDataHandleFromCharData(matrix.get_psf_correction().c_str());
-	if (sirf::iequals(name, "doi_correction"))
-		return charDataHandleFromCharData(matrix.get_doi_correction().c_str());
-	if (sirf::iequals(name, "attenuation_type"))
-		return charDataHandleFromCharData(matrix.get_attenuation_type().c_str());
-	if (sirf::iequals(name, "object_radius"))
-	    return dataHandle<float>(matrix.get_object_radius());
+#if STIR_VERSION < 050100
+    DataHandle* handle = new DataHandle;
+    ExecutionStatus status("STIR version older than 5.1 so PinholeSPECTUB not supported" , __FILE__, __LINE__);
+    handle->set(0, &status);
+    return (void*)handle;
+#else
+
+    PinholeSPECTUBMatrix& matrix =
+        objectFromHandle< PinholeSPECTUBMatrix >(handle);
+    if (sirf::iequals(name, "maximum_number_of_sigmas"))
+        return dataHandle<float>(matrix.get_maximum_number_of_sigmas());
+    else if (sirf::iequals(name, "spatial_resolution_PSF"))
+        return dataHandle<float>(matrix.get_spatial_resolution_PSF());
+    else if (sirf::iequals(name, "subsampling_factor_PSF"))
+        return dataHandle<int>(matrix.get_subsampling_factor_PSF());
+    if (sirf::iequals(name, "psf_correction"))
+        return charDataHandleFromCharData(matrix.get_psf_correction().c_str());
+    if (sirf::iequals(name, "doi_correction"))
+        return charDataHandleFromCharData(matrix.get_doi_correction().c_str());
+    if (sirf::iequals(name, "attenuation_type"))
+        return charDataHandleFromCharData(matrix.get_attenuation_type().c_str());
+    if (sirf::iequals(name, "object_radius"))
+        return dataHandle<float>(matrix.get_object_radius());
     else if (sirf::iequals(name, "attenuation_image"))
     {
         shared_ptr<const DiscretisedDensity<3,float> > att_im_sptr(matrix.get_attenuation_image_sptr());
@@ -501,12 +516,14 @@ sirf::cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* 
         shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
         return newObjectHandle(sptr_id);
     }
-	else if (sirf::iequals(name, "mask_from_attenuation_map"))
-	    return dataHandle<bool>(matrix.get_mask_from_attenuation_map());
-	else if (sirf::iequals(name, "keep_all_views_in_cache"))
-	    return dataHandle<bool>(matrix.get_keep_all_views_in_cache());
+    else if (sirf::iequals(name, "mask_from_attenuation_map"))
+        return dataHandle<bool>(matrix.get_mask_from_attenuation_map());
+    else if (sirf::iequals(name, "keep_all_views_in_cache"))
+        return dataHandle<bool>(matrix.get_keep_all_views_in_cache());
     else
-	    return parameterNotFound(name, __FILE__, __LINE__);
+        return parameterNotFound(name, __FILE__, __LINE__);
+        
+#endif
 }
 
 void*
