@@ -114,12 +114,12 @@ bool test_set_encoding_limits(AcquisitionsVector ad)
 
         std::random_device dev;
         std::mt19937 rng(dev());
-        std::uniform_int_distribution<std::mt19937::result_type> dist6(0,possible_names.size()-1);
+        std::uniform_int_distribution<std::mt19937::result_type> distri(0,possible_names.size()-1);
 
-        std::string name = possible_names[dist6(rng)];
+        std::string name = possible_names[distri(rng)];
         std::cout << "We are testing the setter of encoding limts for " << name << std::endl;
 
-        unsigned short min = dist6(rng);
+        unsigned short min = distri(rng);
         unsigned short max = min + 10;
         unsigned short ctr = min + 4;
 
