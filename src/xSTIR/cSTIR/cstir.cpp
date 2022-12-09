@@ -143,8 +143,10 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (sirf::iequals(name, "SPECTUBMatrix"))
 			return NEW_OBJECT_HANDLE(SPECTUBMatrix);
+#if STIR_VERSION >= 050100
 		if (sirf::iequals(name, "PinholeSPECTUBMatrix"))
 			return NEW_OBJECT_HANDLE(PinholeSPECTUBMatrix);
+#endif
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (sirf::iequals(name, "PLSPrior"))
