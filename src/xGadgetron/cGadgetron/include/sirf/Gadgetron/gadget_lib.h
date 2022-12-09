@@ -337,8 +337,8 @@ namespace sirf {
 		BucketToBufferGadget() :
 			Gadget("Buff", "gadgetron_mricore", "BucketToBufferGadget")
 		{
-			add_property("N_dimension", "phase");
-			add_property("S_dimension", "set");
+			add_property("N_dimension", "");
+			add_property("S_dimension", "");
 			add_property("split_slices", "true");
 			add_property("ignore_segment", "true");
 			add_property("verbose", "true");
