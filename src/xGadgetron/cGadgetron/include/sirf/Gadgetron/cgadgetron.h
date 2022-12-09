@@ -87,7 +87,7 @@ extern "C" {
 
 
     void* cGT_setAcquisitionUserFloat(void* ptr_acqs, PTR_FLOAT ptr_floats, int idx);
-
+	void* cGT_setEncodingLimits(void* ptr_acqs, const char* name, unsigned short min, unsigned short max, unsigned short ctr);
 	void* cGT_getAcquisitionDataDimensions(void* ptr_acqs, PTR_INT ptr_dim);
 	void* cGT_fillAcquisitionData(void* ptr_acqs, PTR_FLOAT ptr_z, int all);
 	void* cGT_fillAcquisitionDataFromAcquisitionData(void* ptr_dst, void* ptr_src);

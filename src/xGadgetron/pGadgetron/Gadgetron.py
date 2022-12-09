@@ -926,6 +926,9 @@ class AcquisitionData(DataContainer):
     def set_header(self, header):
         assert self.handle is not None
         try_calling(pygadgetron.cGT_setAcquisitionsInfo(self.handle, header))
+    def set_encoding_limit(self, name:str, limit:tuple):
+        assert len(limit)==3, "Please give three values, min, max and ctr"
+        try_calling(pygadgetron.cGT_setEncodingLimits(self.handle, name, int(limit[0]), int(limit[1]), int(limit[2])))
     def get_header(self):
         assert self.handle is not None
         return parms.char_par(self.handle, 'acquisitions', 'info')

@@ -1019,6 +1019,24 @@ cGT_setDataTrajectory(void* ptr_acqs, int const traj_dim, size_t ptr_traj)
 }
 
 extern "C"
+void* 
+cGT_setEncodingLimits(void* ptr_acqs, const char* name, const int min, const int max, const int ctr)
+{
+	try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+		std::string name_as_string(name);
+		std::tuple<unsigned short, unsigned short, unsigned short> limit{min, max, ctr};
+		acqs.set_encoding_limits(name_as_string, limit);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
 void*
 cGT_setTrajectoryType(void* ptr_acqs, int const traj_type)
 {
