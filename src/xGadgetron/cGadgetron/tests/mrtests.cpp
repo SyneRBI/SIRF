@@ -96,13 +96,61 @@ bool test_get_subset(const MRAcquisitionData& av)
     }
 }
 
+bool test_set_encoding_limits(AcquisitionsVector ad)
+{
+    try{
+        std::cout << "Running " << __FUNCTION__ << std::endl;
+
+        std::vector<std::string> possible_names{"kspace_encoding_step_0",\
+            "kspace_encoding_step_1",\
+            "kspace_encoding_step_2",\
+            "average",\
+            "slice",\
+            "contrast",\
+            "phase",\
+            "repetition",\
+            "set",\
+            "segment"};
+
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> dist6(0,possible_names.size()-1);
+
+        std::string name = possible_names[dist6(rng)];
+        std::cout << "We are testing the setter of encoding limts for " << name << std::endl;
+
+        unsigned short min = dist6(rng);
+        unsigned short max = min + 10;
+        unsigned short ctr = min + 4;
+
+        auto limit = std::make_tuple(min, max, ctr);
+
+        ad.set_encoding_limits(name, limit);
+        auto new_limit = ad.get_encoding_limits(name);
+
+        bool test_successful = true;
+        test_successful *= (std::get<0>(limit) == std::get<0>(new_limit));
+        test_successful *= (std::get<1>(limit) == std::get<1>(new_limit));
+        test_successful *= (std::get<2>(limit) == std::get<2>(new_limit));
+
+        return test_successful;
+
+    }
+    catch( std::runtime_error const &e)
+    {
+        std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+        std::cout << e.what() << std::endl;
+        throw;
+    }
+}
+
 bool test_set_trajectory_type(const MRAcquisitionData& ad)
 {
     try{
         std::cout << "Running " << __FUNCTION__ << std::endl;
         auto sptr_av = ad.clone();
         std::cout << "The trajectory type before setting is : " << static_cast<int>(sptr_av->get_trajectory_type()) << std::endl;
-        
+
         ISMRMRD::TrajectoryType type_to_set = ISMRMRD::TrajectoryType::SPIRAL;
         sptr_av ->set_trajectory_type(type_to_set);
 
@@ -707,6 +755,7 @@ bool run_cartesian_tests(const std::string& filename_testdata)
 
     bool ok = true;
 
+    ok *= test_set_encoding_limits(av);
     ok *= test_get_kspace_order(av);
     ok *= test_get_subset(av);
     ok *= test_set_trajectory_type(av);

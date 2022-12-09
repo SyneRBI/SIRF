@@ -35,6 +35,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <tuple>
 
 //#include <boost/algorithm/string.hpp>
 
@@ -370,6 +371,81 @@ namespace sirf {
 				for (int i = 0; i < 3; i++)
 					v[i] = u[i];
 			}
+		}
+		/*! 
+    		\brief Setter for the encoding limits in the header of the acquisition.
+      		inputs: 
+				name, name of k-space dimension to modify
+				min_max_ctr = minimium, maximum and center value of sampled region
+    	*/
+		void set_encoding_limits(const std::string& name, \
+									const std::tuple<unsigned short,unsigned short,unsigned short> min_max_ctr)
+		{
+			ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
+			ISMRMRD::EncodingLimits enc_limits = hdr.encoding[0].encodingLimits;
+
+			ISMRMRD::Limit limit;
+			limit.minimum = std::get<0>(min_max_ctr);
+			limit.maximum = std::get<1>(min_max_ctr);
+			limit.center = std::get<2>(min_max_ctr);
+
+			if(sirf::iequals(name, "kspace_encoding_step_1"))
+				enc_limits.kspace_encoding_step_1.get() = limit;
+			else if(sirf::iequals(name, "kspace_encoding_step_2"))
+				enc_limits.kspace_encoding_step_2.get() = limit;
+			else if(sirf::iequals(name, "average"))
+				enc_limits.average.get() = limit;
+			else if(sirf::iequals(name, "slice"))
+				enc_limits.slice.get() = limit;
+			else if(sirf::iequals(name, "contrast"))
+				enc_limits.contrast.get() = limit;
+			else if(sirf::iequals(name, "phase"))
+				enc_limits.phase.get() = limit;
+			else if(sirf::iequals(name, "repetition"))
+				enc_limits.repetition.get() = limit;
+			else if(sirf::iequals(name, "set"))
+				enc_limits.set.get() = limit;
+			else if(sirf::iequals(name, "segment"))
+				enc_limits.segment.get() = limit;
+			else
+				throw std::runtime_error("You passed a name that is not an encoding limit.");
+
+			hdr.encoding[0].encodingLimits = enc_limits;
+			std::stringstream serialised_hdr;
+			ISMRMRD::serialize(hdr, serialised_hdr);
+			this->set_acquisitions_info(AcquisitionsInfo(serialised_hdr.str()));
+		}
+
+		std::tuple<unsigned short,unsigned short,unsigned short>
+		get_encoding_limits(const std::string& name) const
+		{
+			ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
+			ISMRMRD::EncodingLimits enc_limits = hdr.encoding[0].encodingLimits;
+
+			ISMRMRD::Limit limit;
+
+			if(sirf::iequals(name, "kspace_encoding_step_1"))
+				limit = enc_limits.kspace_encoding_step_1.get();
+			else if(sirf::iequals(name, "kspace_encoding_step_2"))
+				limit = enc_limits.kspace_encoding_step_2.get();
+			else if(sirf::iequals(name, "average"))
+				limit = enc_limits.average.get();
+			else if(sirf::iequals(name, "slice"))
+				limit = enc_limits.slice.get();
+			else if(sirf::iequals(name, "contrast"))
+				limit = enc_limits.contrast.get();
+			else if(sirf::iequals(name, "phase"))
+				limit = enc_limits.phase.get();
+			else if(sirf::iequals(name, "repetition"))
+				limit = enc_limits.repetition.get();
+			else if(sirf::iequals(name, "set"))
+				limit = enc_limits.set.get();
+			else if(sirf::iequals(name, "segment"))
+				limit = enc_limits.segment.get();
+			else
+				throw std::runtime_error("You passed a name that is not an encoding limit.");
+
+			return std::make_tuple(limit.minimum, limit.maximum, limit.center);
 		}
 
 		// abstract methods
