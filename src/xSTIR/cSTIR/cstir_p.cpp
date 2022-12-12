@@ -476,10 +476,10 @@ void*
 sirf::cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* name)
 {
 #if STIR_VERSION < 050100
-    DataHandle* handle = new DataHandle;
+    DataHandle* h = new DataHandle;
     ExecutionStatus status("STIR version older than 5.1 so PinholeSPECTUB not supported" , __FILE__, __LINE__);
-    handle->set(0, &status);
-    return (void*)handle;
+    h->set(0, &status);
+    return (void*)h;
 #else
 
     PinholeSPECTUBMatrix& matrix =
