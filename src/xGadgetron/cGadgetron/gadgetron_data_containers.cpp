@@ -193,11 +193,17 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
     int* dim = (int*)ptr_dim;
     ISMRMRD::Acquisition acq;
     get_acquisition(0, acq);
+    int counter_first_valid_acq = 1;
+    while(TO_BE_IGNORED(acq) && counter_first_valid_acq < this->number())
+    {
+        get_acquisition(counter_first_valid_acq, acq);
+        counter_first_valid_acq++;
+    }
 
     int ns = acq.number_of_samples();
     int nc = acq.active_channels();
 
-    for(int i=1; i<na; ++i)
+    for(int i=counter_first_valid_acq; i<na; ++i)
     {
         get_acquisition(i, acq);
         ASSERT(acq.number_of_samples() == ns, "One of your acquisitions has a different number of samples. Please make sure the dimensions are consistent.");
