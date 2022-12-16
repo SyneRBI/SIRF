@@ -851,6 +851,7 @@ void
 AcquisitionsVector::empty()
 {
 	acqs_.clear();
+    index_.clear();
 }
 
 void

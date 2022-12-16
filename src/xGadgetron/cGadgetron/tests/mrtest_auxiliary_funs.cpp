@@ -54,13 +54,14 @@ void sirf::preprocess_acquisition_data(MRAcquisitionData& ad)
     preprocessing_chain.add_gadget("dummy3", sptr_ro_overs_gadget);
 
     preprocessing_chain.process(ad);
-    auto sptr_preproc_ad =preprocessing_chain.get_output();
+    auto sptr_preproc_ad = preprocessing_chain.get_output();
 
+    ad.empty();
     ISMRMRD::Acquisition acq;
-    for(int i=0; i<sptr_preproc_ad->number(); ++i)
+    for(int i = 0; i < sptr_preproc_ad->number(); ++i)
     {
         sptr_preproc_ad->get_acquisition(i, acq);
-        ad.set_acquisition(i, acq);
+        ad.append_acquisition(acq);
     }
     ad.set_acquisitions_info( sptr_preproc_ad->acquisitions_info());
 
