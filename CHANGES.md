@@ -14,6 +14,7 @@
   - sirf.STIR.AcquisitionData constructor taking a scanner now has an extra optional argument
   tof_mash_factor (defaulting to 1). This is only functional if a STIR version supporting TOF is used.
   - Renamed PETAcquisitionData and derived classes to STIRAcquisitionData* as STIR now supports SPECT in addition to PET modality. Backward compatibility ensured by defining old nomenclature via typedefs until the release of SIRF 4.
+  - added PinholeSPECTUBMatrix for usage in SPECT
 
 * Documentation
   - revision of READMEs for the examples

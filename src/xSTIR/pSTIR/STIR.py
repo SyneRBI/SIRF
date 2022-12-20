@@ -959,6 +959,129 @@ class SPECTUBMatrix:
         try_calling(pystir.cSTIR_SPECTUBMatrixSetResolution(self.handle, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D))
 
 
+class PinholeSPECTUBMatrix:
+    """
+    Class for objects holding sparse matrix representation of a pinhole SPECT
+    projector (developed at the University of Barcelona) (see AcquisitionModel class).
+    """
+    name = 'PinholeSPECTUBMatrix'
+
+    def __init__(self):
+        """Create a new matrix. Default settings use neither attenuation, PSF, or DOI modelling."""
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+            
+    def get_maximum_number_of_sigmas(self):
+        """Returns the number of sigmas to consider when correcting for intrinsic PSF."""
+        return parms.float_par(self.handle, self.name, 'maximum_number_of_sigmas')
+    
+    def set_maximum_number_of_sigmas(self, value):
+        """Sets the number of sigmas to consider when correcting for intrinsic PSF."""
+        parms.set_float_par(self.handle, self.name, 'maximum_number_of_sigmas', value)
+        
+    def get_spatial_resolution_PSF(self):
+        """Returns the spatial high resolution in which to sample distributions (in cm)."""
+        return parms.float_par(self.handle, self.name, 'spatial_resolution_PSF')
+    
+    def set_spatial_resolution_PSF(self, value):
+        """Sets the spatial high resolution in which to sample distributions (in cm)."""
+        parms.set_float_par(self.handle, self.name, 'spatial_resolution_PSF', value)
+        
+    def get_subsampling_factor_PSF(self):
+        """Returns the subsampling factor to compute convolutions when PSF or DOI corrections are enabled."""
+        return parms.int_par(self.handle, self.name, 'subsampling_factor_PSF')
+    
+    def set_subsampling_factor_PSF(self, value):
+        """Sets the subsampling factor to compute convolutions when PSF or DOI corrections are enabled."""
+        parms.set_int_par(self.handle, self.name, 'subsampling_factor_PSF', value)
+
+    def set_detector_file(self, filename):
+        """Sets the name of the file containing the detector information."""
+        parms.set_char_par(self.handle, self.name, 'detector_file', filename)
+    
+    def set_collimator_file(self, filename):
+        """Sets the name of the file containing the collimator information."""
+        parms.set_char_par(self.handle, self.name, 'collimator_file', filename)
+        
+    def get_psf_correction(self):
+        """Returns the setting for enabling corrections for intrinsic PSF."""
+        return parms.char_par(self.handle, self.name, 'psf_correction')
+        
+    def set_psf_correction(self, value):
+        """Enable or disable corrections for intrinsic PSF."""
+        parms.set_char_par(self.handle, self.name, 'psf_correction', value)
+        
+    def get_doi_correction(self):
+        """Returns the setting for enabling corrections for depth of interaction."""
+        return parms.char_par(self.handle, self.name, 'doi_correction')
+        
+    def set_doi_correction(self, value):
+        """Enable or disable corrections for depth of interaction."""
+        parms.set_char_par(self.handle, self.name, 'doi_correction', value)
+        
+    def get_attenuation_type(self):
+        """Returns the attenuation type: full, simple, or no."""
+        return parms.char_par(self.handle, self.name, 'attenuation_type')
+        
+    def set_attenuation_type(self, value):
+        """Set the attenuation type to full, simple, or no."""
+        parms.set_char_par(self.handle, self.name, 'attenuation_type', value)
+        
+    def get_attenuation_image(self):
+        """Returns the attenuation image used by the projector."""
+        image = ImageData()
+        image.handle = parms.parameter_handle(self.handle, self.name, 'attenuation_image')
+        return image
+
+    def set_attenuation_image(self, value):
+        """Sets the attenuation image used by the projector."""
+        assert_validity(value, ImageData)
+        parms.set_parameter(self.handle, self.name, 'attenuation_image', value.handle)
+        return self
+        
+    def get_object_radius(self):
+        """Returns the radius of the object in the xy plane of the image volume."""
+        return parms.float_par(self.handle, self.name, 'object_radius')
+    
+    def set_object_radius(self, value):
+        """Sets the radius of the object in the xy plane of the image volume. Could be used for masking."""
+        parms.set_float_par(self.handle, self.name, 'object_radius', value)
+        
+    def get_mask_image(self):
+        """Returns the mask image used by the projector."""
+        image = ImageData()
+        image.handle = parms.parameter_handle(self.handle, self.name, 'mask_image')
+        return image
+
+    def set_mask_image(self, value):
+        """Sets the mask image used by the projector."""
+        assert_validity(value, ImageData)
+        parms.set_parameter(self.handle, self.name, 'mask_image', value.handle)
+        return self
+        
+    def get_keep_all_views_in_cache(self):
+        """Returns a bool checking if we're keeping the whole matrix in memory or not."""
+        return parms.bool_par(self.handle, self.name, 'keep_all_views_in_cache')
+            
+    def set_keep_all_views_in_cache(self, value):
+        """Enable keeping the matrix in memory to speed-up calculations (can use lots of memory)."""
+        parms.set_bool_par(self.handle, self.name, 'keep_all_views_in_cache', value)
+        return self
+        
+    def get_mask_from_attenuation_map(self):
+        """Returns a bool checking if we're masking with the attenuation map or not."""
+        return parms.bool_par(self.handle, self.name, 'mask_from_attenuation_map')
+            
+    def set_mask_from_attenuation_map(self, value):
+        """Enable masking from attenuation map if mask file is not set."""
+        parms.set_bool_par(self.handle, self.name, 'mask_from_attenuation_map', value)
+        return self
+
+
 class AcquisitionData(DataContainer):
     """Class for PET acquisition data."""
 
@@ -1962,12 +2085,11 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         Sets the matrix G to be used for projecting;
         matrix:  a matrix object to represent G in acquisition model (F).
         '''
-        # TODO will need to allow for different matrices here
+        # The following allows for different matrices
         try:
-            assert_validity(matrix, SPECTUBMatrix)
+            parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
         except:
-            assert_validity(matrix, RayTracingMatrix)
-        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
+            raise AssertionError('Unknown matrix type.')
 
 
 class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):

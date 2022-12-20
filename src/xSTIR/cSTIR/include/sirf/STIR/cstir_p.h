@@ -78,6 +78,13 @@ namespace sirf {
 
 	void*
 		cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name);
+		
+	void*
+		cSTIR_setPinholeSPECTUBMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* name);
 
 	void*
 		cSTIR_setAcquisitionModelParameter
