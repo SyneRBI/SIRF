@@ -239,9 +239,9 @@ namespace sirf {
 
 		ImagesReconstructor() :
 			reader_(new IsmrmrdAcqMsgReader),
-			writer_(new IsmrmrdImgMsgWriter)
+			writer_(new IsmrmrdImgMsgWriter),
+			writer_dcm_(new DicomImageMessageWriter)
 		{
-			//class_ = "ImagesReconstructor";
 			sptr_images_.reset();
 			add_reader("reader", reader_);
 			add_writer("writer", writer_);
@@ -253,15 +253,35 @@ namespace sirf {
 			return "ImagesReconstructor";
 		}
 
+		/**
+		\brief Setting dcm prefix to a non-empty string redirects the output
+		       images to DICOM files (cf. get_output() below).
+		*/
+		void set_dcm_prefix(const std::string& dcm_prefix)
+		{
+			dcm_prefix_ = dcm_prefix;
+		}
+		std::string dcm_prefix() const
+		{
+			return dcm_prefix_;
+		}
+		bool dcm_output() const
+		{
+			return !dcm_prefix_.empty();
+		}
 		void process(MRAcquisitionData& acquisitions);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
+			if (dcm_output())
+				THROW("Output to both memory and DICOM files not implemented.");
 			return sptr_images_;
 		}
 
 	private:
+		std::string dcm_prefix_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
+		gadgetron::shared_ptr<DicomImageMessageWriter> writer_dcm_;
 		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
 	};
 
@@ -302,6 +322,8 @@ namespace sirf {
 		void process(const GadgetronImageData& images);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
+			//if (dicom_)
+			//	THROW("Output to both memory and DICOM files not implemented.");
 			return sptr_images_;
 		}
 

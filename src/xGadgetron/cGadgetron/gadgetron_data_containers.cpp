@@ -851,6 +851,7 @@ void
 AcquisitionsVector::empty()
 {
 	acqs_.clear();
+    index_.clear();
 }
 
 void
@@ -1427,6 +1428,7 @@ images_()
 		const ImageWrap& u = images.image_wrap(i);
 		append(u);
 	}
+    this->set_meta_data(images.get_meta_data());
     this->set_up_geom_info();
 }
 
@@ -1452,6 +1454,7 @@ images_()
 		if (sirf::iequals(value, target))
 			append(u);
 	}
+    this->set_meta_data(images.get_meta_data());
     this->set_up_geom_info();
 }
 
@@ -1462,8 +1465,8 @@ GadgetronImagesVector::abs() const
 	for (int i = 0; i < number(); i++) {
 		ptr_iv->append(image_wrap(i).abs());
 	}
-	ptr_iv->set_up_geom_info();
-	return shared_ptr<GadgetronImageData>(ptr_iv);
+    ptr_iv->set_meta_data(this->get_meta_data());
+    return shared_ptr<GadgetronImageData>(ptr_iv);
 }
 
 shared_ptr<GadgetronImageData>
@@ -1473,7 +1476,7 @@ GadgetronImagesVector::real() const
     for (int i = 0; i < number(); i++) {
         ptr_iv->append(image_wrap(i).real());
     }
-    ptr_iv->set_up_geom_info();
+    ptr_iv->set_meta_data(this->get_meta_data());
     return shared_ptr<GadgetronImageData>(ptr_iv);
 }
 

@@ -238,11 +238,6 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 void 
 ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 {
-	//check_gadgetron_connection(host_, port_);
-
-	std::string config = xml();
-	//std::cout << "config:\n" << config << std::endl;
-
 	uint32_t nacquisitions = 0;
 	nacquisitions = acquisitions.number();
 	//std::cout << nacquisitions << " acquisitions" << std::endl;
@@ -254,6 +249,19 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
+	if (dcm_prefix_.size() > 0) {
+		add_gadget("extract", gadgetron::shared_ptr<aGadget>(new ExtractGadget));
+		add_gadget("autoscale", gadgetron::shared_ptr<aGadget>(new AutoScaleGadget));
+		add_writer("writer_dcm", writer_dcm_);
+		gadgetron::shared_ptr<DicomFinishGadget> endgadget(new DicomFinishGadget);
+		set_endgadget(endgadget);
+		conn().register_reader(GADGET_MESSAGE_DICOM_WITHNAME,
+			shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientBlobMessageReader(dcm_prefix_, std::string("dcm"))));
+	}
+	std::string config = xml();
+	//std::cout << "config:\n" << config << std::endl;
+
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host_, port_);
@@ -287,21 +295,26 @@ ImagesProcessor::process(const GadgetronImageData& images)
 	if (dicom_ && iw.is_complex())
 		THROW("DICOM writer does not support complex images");
 
-	std::string config = xml();
 	GTConnector conn;
 	sptr_images_ = images.new_images_container();
-	if (dicom_)
+	if (dicom_) {
+		add_gadget("extract", gadgetron::shared_ptr<aGadget>(new ExtractGadget));
+		add_gadget("autoscale", gadgetron::shared_ptr<aGadget>(new AutoScaleGadget));
 		conn().register_reader(GADGET_MESSAGE_DICOM_WITHNAME,
 			shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientBlobMessageReader(prefix_, "dcm")));
+	}
 	else
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images_)));
+	std::string config = xml();
+	//std::cout << config << '\n';
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
+			conn().send_gadgetron_parameters(images.get_meta_data());
 			for (unsigned int i = 0; i < images.number(); i++) {
 				const ImageWrap& iw = images.image_wrap(i);
 				conn().send_wrapped_image(iw);

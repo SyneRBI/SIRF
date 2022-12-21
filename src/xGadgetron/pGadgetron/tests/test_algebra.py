@@ -20,11 +20,11 @@
 import os
 import unittest
 import sirf.Gadgetron as mr
-from sirf.Utilities import  examples_data_path, TestDataContainerAlgebra
+from sirf.Utilities import  examples_data_path, DataContainerAlgebraTests
 
 
 
-class TestGadgetronAcquisitionDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
+class TestGadgetronAcquisitionDataAlgebra(unittest.TestCase, DataContainerAlgebraTests):
 
     def setUp(self):
         image1 = mr.AcquisitionData(os.path.join
@@ -45,7 +45,7 @@ class TestGadgetronAcquisitionDataAlgebra(unittest.TestCase, TestDataContainerAl
 
 
 
-class TestGadgetronImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
+class TestGadgetronImageDataAlgebra(unittest.TestCase, DataContainerAlgebraTests):
 
     def setUp(self):
         acq_data = mr.AcquisitionData(os.path.join

@@ -112,6 +112,8 @@ identifiers:
 repository-code: 'https://github.com/SyneRBI/SIRF'
 keywords:
   - pet-mr
+  - spect
   - medical imaging
   - image reconstruction
+  - synergistic reconstruction
 license: Apache-2.0

@@ -270,6 +270,7 @@ errr.txt
 output.txt
 
 .coverage
+.coverage-*
 coverage.xml
 
 *_out.txt

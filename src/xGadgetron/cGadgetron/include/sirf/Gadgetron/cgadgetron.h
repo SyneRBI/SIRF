@@ -97,7 +97,7 @@ extern "C" {
 		int from, int till, int n, PTR_FLOAT values);
 
 	// image methods
-	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
+	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input, const char* dcm_prefix);
 	void* cGT_reconstructedImages(void* ptr_recon);
     void* cGT_readImages(const char* file);
 	void* cGT_ImageFromAcquisitiondata(void* ptr_acqs);

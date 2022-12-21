@@ -154,6 +154,8 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(PhysioInterpolationGadget);
 		NEW_GADGET(GPURadialSensePrepGadget);
 		NEW_GADGET(GPUCGSenseGadget);
+		NEW_GADGET(FFTGadget);
+		NEW_GADGET(CombineGadget);
 		NEW_GADGET(ExtractGadget);
 		NEW_GADGET(AutoScaleGadget);
 		NEW_GADGET(ComplexToFloatGadget);
@@ -1041,13 +1043,14 @@ cGT_imageParameter(void* ptr_im, const char* name)
 
 extern "C"
 void*
-cGT_reconstructImages(void* ptr_recon, void* ptr_input)
+cGT_reconstructImages(void* ptr_recon, void* ptr_input, const char* dcm_prefix)
 {
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		CAST_PTR(DataHandle, h_input, ptr_input);
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		MRAcquisitionData& input = objectFromHandle<MRAcquisitionData>(h_input);
+		recon.set_dcm_prefix(dcm_prefix);
 		recon.process(input);
 		return new DataHandle;
 	}

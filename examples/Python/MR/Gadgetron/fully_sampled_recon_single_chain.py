@@ -53,7 +53,13 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
+
 output_file = args['--output']
+if output_file[-4:] == '.dcm':
+    dcm_prefix = output_file[: -4]
+else:
+    dcm_prefix = ''
+dcm_output = len(dcm_prefix)
 
 type_to_save = args['--type-to-save']
 show_plot = not args['--non-interactive']
@@ -102,6 +108,8 @@ def main():
 
     # provide raw k-space data as input
     recon.set_input(acq_data)
+    if dcm_output:
+        recon.set_dcm_prefix(dcm_prefix)
 
     # optionally set Gadgetron server host and port
     recon.set_host('localhost')
@@ -121,6 +129,11 @@ def main():
 
     # perform reconstruction
     recon.process()
+
+    if dcm_output:
+        print('== Gadgetron cannot output to both memory and DICOM files, quitting')
+        print('== Set output file extension to .h5 to run the rest of this demo')
+        return
     
     # retrieve reconstructed image data
     image_data = recon.get_output()

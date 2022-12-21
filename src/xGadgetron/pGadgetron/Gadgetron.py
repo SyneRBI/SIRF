@@ -1415,11 +1415,12 @@ class Reconstructor(GadgetChain):
     Class for a chain of gadgets that has AcquisitionData on input and 
     ImageData on output.
     '''
-    def __init__(self, list = None):
+    def __init__(self, list=None):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('ImagesReconstructor')
         check_status(self.handle)
         self.input_data = None
+        self.dcm_prefix = ""
         if list is None:
             return
         for i in range(len(list)):
@@ -1435,14 +1436,21 @@ class Reconstructor(GadgetChain):
         '''
         assert isinstance(input_data, AcquisitionData)
         self.input_data = input_data
+    def set_dcm_prefix(self, dcm_prefix):
+        self.dcm_prefix = dcm_prefix
     def process(self):
         '''
         Processes the input with the gadget chain.
+        dcm_prefix: Python text string.
+        If dcm_prefix is not "", the reconstructed images are written to
+        files <dcm_prefix>_<image number>.dcm.
+        Otherwise, they are stored in memory and can be retrieved by
+        get_output().
         '''
         if self.input_data is None:
             raise error('no input data')
         try_calling(pygadgetron.cGT_reconstructImages\
-             (self.handle, self.input_data.handle))
+             (self.handle, self.input_data.handle, self.dcm_prefix))
     def get_output(self, subset = None):
         '''
         Returns specified subset of the output ImageData. If no subset is 
@@ -1463,7 +1471,7 @@ class Reconstructor(GadgetChain):
         '''
         assert_validity(input_data, AcquisitionData)
         handle = pygadgetron.cGT_reconstructImages\
-             (self.handle, input_data.handle)
+             (self.handle, input_data.handle, self.dcm_prefix)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
         images = ImageData()
@@ -1590,6 +1598,7 @@ class FullySampledReconstructor(Reconstructor):
         self.handle = pygadgetron.cGT_newObject('SimpleReconstructionprocessor')
         check_status(self.handle)
         self.input_data = None
+        self.dcm_prefix = ""
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -1604,6 +1613,7 @@ class CartesianGRAPPAReconstructor(Reconstructor):
             ('SimpleGRAPPAReconstructionprocessor')
         check_status(self.handle)
         self.input_data = None
+        self.dcm_prefix = ""
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)

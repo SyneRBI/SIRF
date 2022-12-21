@@ -1,17 +1,23 @@
 # ChangeLog
 ## v3.4.0
+* changed Python test framework to pytest
 * MR:
-  - added support for spiral trajectories that are pre-computed by the user by exposing a setter.
-  - writing MR images and their attributes to `.dcm` and `.xml` files fixed.
-  - use C++ 17 if Gadgetron-support is enabled
+  - Added support for spiral trajectories that are pre-computed by the user by exposing a setter.
+  - Writing images to `.dcm` files fixed.
+  - Running image processing chains after reconstruction fixed.
+  - Use C++ 17 if Gadgetron-support is enabled
+  - Support Gadgetron master of end November 2022
+      - using `find_package(gadgetron)` in CMake.
 
-* documentation
-  - revision of READMEs for the examples
-
-* Require STIR 5.0
-
-* sirf.STIR.AcquisitionData constructor taking a scanner now has an extra optional argument
+* PET/SPECT
+  - Require STIR 5.0
+  - sirf.STIR.AcquisitionData constructor taking a scanner now has an extra optional argument
   tof_mash_factor (defaulting to 1). This is only functional if a STIR version supporting TOF is used.
+  - Renamed PETAcquisitionData and derived classes to STIRAcquisitionData* as STIR now supports SPECT in addition to PET modality. Backward compatibility ensured by defining old nomenclature via typedefs until the release of SIRF 4.
+  - added PinholeSPECTUBMatrix for usage in SPECT
+
+* Documentation
+  - revision of READMEs for the examples
 
 ## v3.3.0
 
