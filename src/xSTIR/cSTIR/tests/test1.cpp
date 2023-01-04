@@ -32,6 +32,7 @@ limitations under the License.
 #include <string>
 
 #include "stir/common.h"
+#include "stir/config.h"
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/ExamData.h"
 
@@ -62,6 +63,7 @@ void openChannel(int channel, void* ptr_w);
 int test1()
 {
 	std::cout << "running test1.cpp...\n";
+	std::cout << "STIR version: " << STIR_VERSION_STRING << '\n';
 
 	try {
 		std::string SIRF_path = sirf::getenv("SIRF_PATH");
