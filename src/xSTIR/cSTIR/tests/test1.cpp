@@ -37,6 +37,7 @@ limitations under the License.
 #include "stir/ExamData.h"
 
 #include "sirf/common/iequals.h"
+#include "sirf/common/utilities.h"
 #include "sirf/STIR/stir_x.h"
 
 #include "getenv.h"
@@ -84,8 +85,10 @@ int test1()
 		size_t sinos, views, tangs;
 		// locate acquisition data
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
-		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
-		fix_path_separator(filename);
+		//filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
+		filename = append_path(SIRF_path, "data", "examples", "PET", "my_forward_projection.hs", NULL);
+		//std::cout << filename << '\n';
+		//fix_path_separator(filename);
 		CREATE_OBJECT(STIRAcquisitionData, STIRAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();
