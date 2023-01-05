@@ -26,6 +26,7 @@ limitations under the License.
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
+#include "stir/config.h"
 #include "stir/ImagingModality.h"
 #include "stir/Scanner.h"
 #include "stir/Verbosity.h"
@@ -50,6 +51,17 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	ExecutionStatus status(error.c_str(), file, line);
 	handle->set(0, &status);
 	return (void*)handle;
+}
+
+extern "C"
+void*
+cSTIR_STIR_version_string()
+{
+#if defined(STIR_VERSION_STRING)
+	return charDataHandleFromCharData(STIR_VERSION_STRING);
+#else
+	return charDataHandleFromCharData("unknown");
+#endif
 }
 
 template<class Method>

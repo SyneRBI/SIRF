@@ -41,7 +41,7 @@ import numpy
 #exec('from sirf.' + args['--engine'] + ' import *')
 pet_engine = 'sirf.' + args['--engine']
 for obj in ['error', 'examples_data_path', 'existing_filepath', \
-            'AcquisitionData', 'MessageRedirector']:
+            'get_STIR_version_string', 'AcquisitionData', 'MessageRedirector']:
     exec('from ' + pet_engine + ' import ' + obj)
 
 
@@ -70,6 +70,8 @@ else:
 
 
 def main():
+    STIR_version = get_STIR_version_string()
+    print('Using STIR version %s' % STIR_version)
 
     # direct all engine's messages to files
     msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')

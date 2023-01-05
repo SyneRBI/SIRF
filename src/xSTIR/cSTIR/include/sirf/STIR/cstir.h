@@ -38,6 +38,7 @@ extern "C" {
 	//void* parameter(const void* ptr, const char* obj, const char* name);
 
     // Global
+    void* cSTIR_STIR_version_string();
     void* cSTIR_setVerbosity(const int verbosity_ptr);
     void* cSTIR_getVerbosity();
     void* cSTIR_setOMPThreads(const int threads);
