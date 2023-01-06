@@ -84,7 +84,7 @@ int test1()
 		int dim[10];
 		size_t sinos, views, tangs;
 		// locate acquisition data
-		filename = append_path(SIRF_data_path, "my_forward_projection.hs", NULL);
+		filename = append_path(SIRF_data_path, "my_forward_projection.hs", (const char*)NULL);
 		std::cout << "reading raw data from " << filename << "...\n";
 		CREATE_OBJECT(STIRAcquisitionData, STIRAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
