@@ -67,9 +67,9 @@ int test1()
 	std::cout << "STIR version: " << STIR_VERSION_STRING << '\n';
 
 	try {
-		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-		if (SIRF_path.length() < 1) {
-			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+		std::string SIRF_data_path = sirf::examples_data_path("PET");
+		if (SIRF_data_path.length() < 1) {
+			std::cout << "cannot find data" << std::endl;
 			return 1;
 		}
 
@@ -84,11 +84,8 @@ int test1()
 		int dim[10];
 		size_t sinos, views, tangs;
 		// locate acquisition data
-		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
-		//filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
-		filename = append_path(SIRF_path, "data", "examples", "PET", "my_forward_projection.hs", NULL);
+		filename = append_path(SIRF_data_path, "my_forward_projection.hs", NULL);
 		std::cout << "reading raw data from " << filename << "...\n";
-		//fix_path_separator(filename);
 		CREATE_OBJECT(STIRAcquisitionData, STIRAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();
