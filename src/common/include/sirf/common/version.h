@@ -1,9 +1,0 @@
-#ifndef SIRF_VERSION_H
-#define SIRF_VERSION_H
-
-#define SIRF_VERSION_MAJOR 3
-#define SIRF_VERSION_MINOR 4
-#define SIRF_VERSION_PATCH 0
-
-
-#endif /* SIRF_VERSION_H */
