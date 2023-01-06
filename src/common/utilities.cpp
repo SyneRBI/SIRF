@@ -48,18 +48,18 @@ namespace sirf {
 	{
 		std::string SIRF_data_path = sirf::getenv("SIRF_DATA_PATH");
 		if (SIRF_data_path.length() > 0)
-			return append_path(SIRF_data_path, "examples", data_type, NULL);
+			return append_path(SIRF_data_path, "examples", data_type, (const char*)NULL);
 		std::string SIRF_install_path = sirf::getenv("SIRF_INSTALL_PATH");
 		if (SIRF_install_path.length() > 0) {
 			std::stringstream sirf_version;
 			sirf_version << "SIRF-" << SIRF_VERSION_MAJOR << '.' << SIRF_VERSION_MINOR;
 			std::string version = sirf_version.str();
 			const char* v = version.c_str();
-			return append_path(SIRF_install_path, "share", v, "data", "examples", data_type, NULL);
+			return append_path(SIRF_install_path, "share", v, "data", "examples", data_type, (const char*)NULL);
 		}
 		std::string SIRF_path = sirf::getenv("SIRF_PATH");
 		if (SIRF_path.length() > 0)
-			return append_path(SIRF_path, "data", "examples", data_type, NULL);
+			return append_path(SIRF_path, "data", "examples", data_type, (const char*)NULL);
 		return "";
 	}
 }
