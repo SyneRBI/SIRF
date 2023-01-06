@@ -37,6 +37,7 @@ limitations under the License.
 #include "sirf/STIR/stir_x.h"
 #include "sirf/common/getenv.h"
 #include "sirf/common/iequals.h"
+#include "sirf/common/utilities.h"
 
 using namespace stir;
 using namespace ecat;
@@ -47,17 +48,15 @@ int test4()
 	std::cout << "running test4.cpp...\n";
 	try {
 
-		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-		if (SIRF_path.length() < 1) {
-			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-			return 1;
-		}
+        std::string SIRF_data_path = examples_data_path("PET");
+        if (SIRF_data_path.length() < 1) {
+            std::cout << "cannot find data" << std::endl;
+            return 1;
+        }
+        std::string path = append_path(SIRF_data_path, "mMR", (const char*)NULL);
+        std::string f_listmode = append_path(path, "list.l.hdr", (const char*)NULL);
+        std::string f_template = append_path(path, "mMR_template_span11_small.hs", (const char*)NULL);
 
-		std::string path = SIRF_path + "/data/examples/PET/mMR/";
-        fix_path_separator(path);
-
-		std::string f_listmode = path + "list.l.hdr";
-		std::string f_template = path + "mMR_template_span11_small.hs";
 		STIRAcquisitionDataInFile acq_data_template(f_template.c_str());
 
 		// Listmode to sinograms
