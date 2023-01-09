@@ -33,6 +33,7 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/config.h"
+#include "stir/find_STIR_config.h"
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/ExamData.h"
 
@@ -65,6 +66,8 @@ int test1()
 {
 	std::cout << "running test1.cpp...\n";
 	std::cout << "STIR version: " << STIR_VERSION_STRING << '\n';
+	std::cout << "STIR doc path: " << get_STIR_doc_dir() << '\n';
+	std::cout << "STIR examples path: " << get_STIR_examples_dir() << '\n';
 
 	try {
 		std::string SIRF_data_path = sirf::examples_data_path("PET");
