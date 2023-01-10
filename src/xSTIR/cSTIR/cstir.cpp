@@ -25,6 +25,7 @@ limitations under the License.
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/cstir_p.h"
+#include "stir/find_STIR_config.h"
 #include "sirf/STIR/stir_x.h"
 #include "stir/config.h"
 #include "stir/ImagingModality.h"
@@ -62,6 +63,20 @@ cSTIR_STIR_version_string()
 #else
 	return charDataHandleFromCharData("unknown");
 #endif
+}
+
+extern "C"
+void*
+cSTIR_get_STIR_doc_dir()
+{
+	return charDataHandleFromCharData(get_STIR_doc_dir().c_str());
+}
+
+extern "C"
+void*
+cSTIR_get_STIR_examples_dir()
+{
+	return charDataHandleFromCharData(get_STIR_examples_dir().c_str());
 }
 
 template<class Method>

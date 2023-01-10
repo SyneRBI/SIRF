@@ -68,6 +68,24 @@ def get_STIR_version_string():
     return version
 
 
+def get_STIR_doc_dir():
+    """Returns STIR engine version as Python str."""
+    handle = pystir.cSTIR_get_STIR_doc_dir()
+    check_status(handle)
+    path = pyiutil.charDataFromHandle(handle)
+    pyiutil.deleteDataHandle(handle)
+    return path
+
+
+def get_STIR_examples_dir():
+    """Returns STIR engine version as Python str."""
+    handle = pystir.cSTIR_get_STIR_examples_dir()
+    check_status(handle)
+    path = pyiutil.charDataFromHandle(handle)
+    pyiutil.deleteDataHandle(handle)
+    return path
+
+
 def set_verbosity(verbosity):
     """Set the verbosity of all STIR output."""
     try_calling(pystir.cSTIR_setVerbosity(verbosity))
