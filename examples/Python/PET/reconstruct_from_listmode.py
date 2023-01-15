@@ -97,13 +97,6 @@ else:
 if args['--non-interactive']:
     visualisations = False
 
-if args['--gpu']:
-    use_gpu = True
-    import sirf.Reg
-else:
-    use_gpu = False
-
-
 def main():
 
     # engine's messages go to files, except error messages, which go to stdout
@@ -118,6 +111,7 @@ def main():
 
     # create listmode-to-sinograms converter object
     # See also the listmode_to_sinograms demo
+    # Note that we need this to be able to get randoms and scatter
     lm2sino = ListmodeToSinograms()
 
     # set input, output and template files

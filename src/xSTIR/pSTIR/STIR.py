@@ -867,7 +867,6 @@ class ListmodeData(PETScanData):
         self.handle = None
         self.name = 'ListmodeData'
         self.read_only = False
-        self.cache_path = None
         if filename is None:
             return
         if self.handle is not None:
@@ -889,7 +888,6 @@ class ListmodeData(PETScanData):
         """
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-        print("Nikos1111")
         self.handle = pystir.cSTIR_objectFromFile('ListmodeData', filename)
         check_status(self.handle)
         self.read_only = True
@@ -2474,32 +2472,38 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def set_cache_path(self, path, with_additive_corrections):
-        parms.set_int_par(self.handle, self.name, 'additive_corrections_flag', \
-            with_additive_corrections)
+    def set_cache_path(self, path):
         parms.set_char_par(self.handle, self.name, 'cache_path', path)
 
     def get_cache_path(self):
         return parms.char_par(self.handle, self.name, 'cache_path')
     
     def set_acquisition_data(self, ad): 
-        assert_validity(ad, AcquisitionData)
+        assert_validity(ad, ListmodeData)
         parms.set_parameter(
-                self.handle, self.name, 'acquisition_data', ad.handle)
+            self.handle, self.name, 'acquisition_data', ad.handle)
 
-    def set_skip_lm_input_file(self, tf):
-        flag = 1 if tf else 0
-        parms.set_int_par(
-                self.handle, self.name, 'skip_lm_input_file', flag)
+    # disabled for now as this doesn't work yet in STIR
+    # def set_skip_lm_input_file(self, tf):
+    #    flag = 1 if tf else 0
+    #    parms.set_int_par(
+    #            self.handle, self.name, 'skip_lm_input_file', flag)
 
     def set_skip_balanced_subsets(self, tf):
+        ''' if tf=True, disable the check for balanced subsets (somewhat dangerous)'''
         flag = 1 if tf else 0
         parms.set_int_par(
                 self.handle, self.name, 'skip_balanced_subsets', flag)
 
-    def set_max_ring_difference(self, diff):
+    def set_max_segment_num_to_process(self, diff):
         parms.set_int_par(
-                self.handle, self.name, 'skip_balanced_subsets', diff)
+                self.handle, self.name, 'max_segment_num_to_process', diff)
+
+    def set_recompute_cache(self, tf):
+        ''' if tf=True (and cache_size>0, recompute the listmode cache'''
+        flag = 1 if tf else 0
+        parms.set_int_par(
+                self.handle, self.name, 'recompute_cache', flag)
 
     def set_cache_max_size(self, diff):
         parms.set_int_par(

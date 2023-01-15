@@ -1040,31 +1040,28 @@ The actual algorithm is described in
 	class xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF :
 		public stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF> {
     public:
+#if 0
+          // this functionality was for skip_lm_input_file, but this is disabled for now
         void set_acquisition_data(std::shared_ptr<PETAcquisitionData> sptr)
         {
             sptr_ad_ = sptr;
             set_proj_data_info(*sptr->data());
         }
+#endif
         void set_acquisition_model(std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am)
         {
             sptr_am_ = sptr_am;
             set_proj_matrix(sptr_am_->matrix_sptr());
 
         }
-        void set_additive_corrections_flag(bool has_additive_corrections)
-        {
-            has_additive_corrections_= has_additive_corrections;
-        }
         void set_cache_path(const std::string filepath)
         {
-            std::cout << "in set_cache_path...\n";
             stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
-                 set_cache_path(filepath, has_additive_corrections_);
+                 set_cache_path(filepath);
         }
 
     private:
-        bool has_additive_corrections_= true;
-        std::shared_ptr<PETAcquisitionData> sptr_ad_;
+        //std::shared_ptr<PETAcquisitionData> sptr_ad_;
         std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am_;
         };
 

@@ -25,40 +25,43 @@ limitations under the License.
 \ingroup PET
 
 \author Nikos Efthimiou
+\author Kris Thielemans
 */
 #include <cmath>
 #include <fstream>
 #include <string>
 
-#include "stir/common.h"
 #include "stir/Verbosity.h"
-
+#include "stir/IO/read_from_file.h"
 #include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_x.h"
 #include "sirf/common/getenv.h"
 
 #include "object.h"
 
-using namespace stir;
 using namespace sirf;
 
 int test6(const char* datapath)
 {
-	std::cout << "running test6.cpp...\n";
+  std::cout << "running test6.cpp (PET listmode recon) with files from "
+            << datapath << "...\n";
 
 	try {
 		std::string data_path(datapath); 
 		data_path += "/";
 		fix_path_separator(data_path);
 
-		TextWriter w; // create writer with no output
+                stir::TextWriter w; // create writer with no output
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
 
 		int dim[10];
 
-		std::string cache_path = data_path;
-		std::string sens_filename = cache_path + "sens_0.hv";
+		const std::string cache_path = data_path;
+		//std::string sens_filename = cache_path + "sens_0.hv";
+                const std::string mu_map_filename = data_path + "mu_map.hv";
+                const std::string list_mode_filename = data_path + "list.l.hdr";
+#if 0
 		std::string tmpl_projdata_filename =
 		    data_path + "tmpl_scanner.hs";
 
@@ -66,9 +69,10 @@ int test6(const char* datapath)
 			      acq_data, sptr_ad, tmpl_projdata_filename.c_str());
 
 		PETAcquisitionDataInMemory::set_as_template();
+#endif
 
 		// create compatible image
-		CREATE_OBJ(STIRImageData, image_data, sptr_id, sens_filename.c_str());
+		CREATE_OBJ(STIRImageData, image_data, sptr_id, mu_map_filename.c_str());
 		image_data.get_dimensions(dim);
 		size_t image_size = dim[0] * dim[1] * dim[2];
 		std::cout << "Image dimensions: "
@@ -78,30 +82,35 @@ int test6(const char* datapath)
 		CREATE_OBJECT(ObjectiveFunction3DF,
 			      PoissonLLhLinModMeanListDataProjMatBin3DF,
 			      obj_fun, sptr_fun,);
-		//This will activate use of cache instead of input
+                std::shared_ptr<stir::ListModeData> listmode_data_sptr =
+                  stir::read_from_file<stir::ListModeData>(list_mode_filename);
+                obj_fun.set_input_data(listmode_data_sptr);
+
+		//This will activate use of caching and therefore multi-threading
 		std::cout << "Setting cache path..." << std::endl;
-		bool with_additive_corrections = true;
-		obj_fun.set_additive_corrections_flag(with_additive_corrections);
-		obj_fun.set_cache_path(cache_path.c_str()); //, with_additive_corrections);
+		obj_fun.set_cache_path(cache_path.c_str());
 		std::cout << "Cache path: " << obj_fun.get_cache_path() << std::endl;
+		std::cout << "Setting max cache size ..." << std::endl;
+		obj_fun.set_cache_max_size(1500000);
+		std::cout << "Max cache: " << obj_fun.get_cache_max_size() << std::endl;
+                obj_fun.set_recompute_cache(true);
+#if 0
+                // this functionality was for skip_lm_input_file, but this is disabled for now
 		obj_fun.set_skip_lm_input_file(true);
-		obj_fun.set_skip_balanced_subsets(true);
-		// We need this because the cache file does not have any information on the Scanner.
 		std::cout << "Setting scanner template..." << std::endl;
 		obj_fun.set_acquisition_data(sptr_ad);
-		std::cout << "Setting max ring diff. ..." << std::endl;
-		obj_fun.set_max_ring_difference(60);
+#endif
+		std::cout << "Setting max segment num to process. ..." << std::endl;
+		obj_fun.set_max_segment_num_to_process(1); // small number for faster test
+		obj_fun.set_skip_balanced_subsets(true); // set for faster test
 
-		std::cout << "Sensitivity images: " << obj_fun.get_subsensitivity_filenames() << std::endl;
-		std::cout << "Setting max cache size ..." << std::endl;
-		obj_fun.set_cache_max_size(1500000000);
-		std::cout << "Max cache: " << obj_fun.get_cache_max_size() << std::endl;
+		//std::cout << "Sensitivity images: " << obj_fun.get_subsensitivity_filenames() << std::endl;
 
-		int num_subiterations = 11;
+		int num_subsets = 11;
 
 		xSTIR_OSMAPOSLReconstruction3DF recon;
-		recon.set_num_subsets(num_subiterations);
-		recon.set_num_subiterations(num_subiterations);
+		recon.set_num_subsets(num_subsets);
+		recon.set_num_subiterations(num_subsets);
 		std::cout << "Setting objective function ..." << std::endl;
 
 		recon.set_objective_function_sptr(sptr_fun);

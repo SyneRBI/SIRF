@@ -671,31 +671,31 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
         obj_fun = objectFromHandle
         <xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF>
         (hp);
-    std::string cp("cache_path");
-    if (sirf::iequals(name, "additive_corrections_flag")) {
-        bool flag = (bool)dataFromHandle<int>(hv);
-        obj_fun.set_additive_corrections_flag(flag);
-    }
-    else if (sirf::iequals(name, "cache_path")) {
+    if (sirf::iequals(name, "cache_path")) {
         std::string s(charDataFromDataHandle(hv));
         obj_fun.set_cache_path(s);
     }
-    else if (sirf::iequals(name, "acquisition_data")) {
-        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
-        obj_fun.set_acquisition_data(sptr_ad);
+    else if (sirf::iequals(name, "set_recompute_cache")) {
+        obj_fun.set_skip_lm_input_file(dataFromHandle<int>(hv));
     }
 //    else if (sirf::iequals(name, "acquisition_model")) {
 //        SPTR_FROM_HANDLE(PETAcquisitionModelUsingMatrix, sptr_pm, hv);
 //        obj_fun.set_acquisition_model(sptr_pm);
 //    }
+    else if (sirf::iequals(name, "acquisition_data")) {
+        SPTR_FROM_HANDLE(stir::ListModeData, sptr_ad, hv);
+        obj_fun.set_input_data(sptr_ad);
+    }
+#if 0
     else if (sirf::iequals(name, "skip_lm_input_file")) {
         obj_fun.set_skip_lm_input_file(dataFromHandle<int>(hv));
     }
+#endif
     else if (sirf::iequals(name, "skip_balanced_subsets")) {
         obj_fun.set_skip_balanced_subsets(dataFromHandle<int>(hv));
     }
-    else if (sirf::iequals(name, "max_ring_difference")) {
-        obj_fun.set_max_ring_difference(dataFromHandle<int>(hv));
+    else if (sirf::iequals(name, "max_segment_num_to_process")) {
+        obj_fun.set_max_segment_num_to_process(dataFromHandle<int>(hv));
     }
     else if (sirf::iequals(name, "cache_max_size")) {
         obj_fun.set_cache_max_size(dataFromHandle<int>(hv));
