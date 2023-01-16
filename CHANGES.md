@@ -1,7 +1,7 @@
 # ChangeLog
 ## v3.4.0
 * MR:
-  - Added support for spiral trajectories that are pre-computed by the user (by exposing a trajector setter).
+  - Added support for spiral trajectories that are pre-computed by the user (by exposing a trajectory setter).
   - Writing images to `.dcm` files fixed.
   - Running image processing chains after reconstruction fixed.
   - Use C++ 17 if Gadgetron-support is enabled
