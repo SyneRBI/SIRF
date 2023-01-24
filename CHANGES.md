@@ -1,5 +1,7 @@
 # ChangeLog
+
 ## v3.4.0
+
 * MR:
   - Added support for spiral trajectories that are pre-computed by the user (by exposing a trajectory setter).
   - Writing images to `.dcm` files fixed.
@@ -9,16 +11,18 @@
       - using `find_package(gadgetron)` in CMake, but still support old version by looking for toolboxes.
 
 * PET/SPECT
-  - Require STIR 5.0 and support 5.1
+  - Require STIR 5.0 and support 5.1.
   - If SIRF is compiled with STIR 5.1, we now support **Pinhole SPECT** via the `PinholeSPECTUBMatrix` acquisition model. Examples are provided (but the code is not yet tested).
   - `sirf.STIR.AcquisitionData` constructor taking a scanner now has an extra optional argument
   tof_mash_factor (defaulting to 1). This is only functional if a STIR version supporting TOF is used.
   - C++: Renamed PETAcquisitionData and derived classes to STIRAcquisitionData* as STIR now supports SPECT in addition to PET modality. Backward compatibility ensured by defining old nomenclature via typedefs until the release of SIRF 4.
 
 * Documentation
-  - revision of READMEs for the examples
+  - revision of READMEs for the examples.
 
-* changed Python test framework to pytest
+* Changed Python test framework to pytest.
+
+* Added support for the extraction of subsets of STIR and Gadgetron acquisition data.
 
 ## v3.3.0
 
