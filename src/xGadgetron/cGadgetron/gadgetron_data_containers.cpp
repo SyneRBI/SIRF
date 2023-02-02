@@ -102,7 +102,7 @@ MRAcquisitionData::write(const std::string &filename) const
 }
 
 void
-MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
+MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 {
 	
     bool const verbose = true;
@@ -158,9 +158,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			d.readAcquisition( i_acqu, acq);
 			mtx.unlock();
 
-			if( TO_BE_IGNORED(acq) )
-				continue;
-			else
+			if(all || !TO_BE_IGNORED(acq))
 				this->append_acquisition( acq );
 		}
         this->sort_by_time();
