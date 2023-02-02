@@ -962,9 +962,8 @@ class AcquisitionData(DataContainer):
         if self.number() < 1:
             return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
-        hv = pygadgetron.cGT_getAcquisitionDataDimensions\
-             (self.handle, dim.ctypes.data)
-        pyiutil.deleteDataHandle(hv)
+        try_calling(pygadgetron.cGT_getAcquisitionDataDimensions\
+             (self.handle, dim.ctypes.data))
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
 

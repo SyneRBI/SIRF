@@ -190,22 +190,30 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 
     int* dim = (int*)ptr_dim;
     ISMRMRD::Acquisition acq;
-    get_acquisition(0, acq);
+    int ns;
+    int nc;
+    int num_acq = 0;
 
-    int ns = acq.number_of_samples();
-    int nc = acq.active_channels();
-
-    for(int i=1; i<na; ++i)
+    for (int i = 0; i < na; ++i)
     {
         get_acquisition(i, acq);
-        ASSERT(acq.number_of_samples() == ns, "One of your acquisitions has a different number of samples. Please make sure the dimensions are consistent.");
-        ASSERT(acq.active_channels() == nc, "One of your acquisitions has a different number of active channels. Please make sure the dimensions are consistent.");
+        if (TO_BE_IGNORED(acq))
+            continue;
+        if (num_acq == 0) {
+            ns = acq.number_of_samples();
+            nc = acq.active_channels();
+        }
+        else {
+            ASSERT(acq.number_of_samples() == ns, "One of your acquisitions has a different number of samples. Please make sure the dimensions are consistent.");
+            ASSERT(acq.active_channels() == nc, "One of your acquisitions has a different number of active channels. Please make sure the dimensions are consistent.");
+        }
+        num_acq++;
     }
 
     int const num_dims = 3;
     dim[0] = ns;
     dim[1] = nc;
-    dim[2] = na;
+    dim[2] = num_acq;
 
     return num_dims;
 }
