@@ -800,12 +800,12 @@ class AcquisitionData(DataContainer):
     Class for an MR acquisitions container.
     Each item is a 2D complex array of acquisition samples for each coil.
     '''
-    def __init__(self, file=None, all=False):
+    def __init__(self, file=None, all_=False):
         self.handle = None
         self.sorted = False
         self.info = None
         if file is not None:
-            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all)
+            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all_)
             check_status(self.handle)
 
     def __del__(self):

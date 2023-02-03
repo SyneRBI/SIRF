@@ -186,7 +186,7 @@ int
 MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 {
     int na = number();
-    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+    ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     int* dim = (int*)ptr_dim;
     ISMRMRD::Acquisition acq;
@@ -221,7 +221,7 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
 {
     int na = number();
-    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+    ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
     get_acquisition(0,acq);
@@ -242,31 +242,38 @@ uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
 void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
 {
     int na = number();
-    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+    ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    get_acquisition(0,acq);
 
-    int nro = acq.number_of_samples();
-    int nc = acq.active_channels();
+    int nro;
+    int nc;
 
-    std::vector<size_t> empty_data;
-    dims.swap(empty_data);
-
-    for(int i=1; i<na; ++i)
+    int num_acq = 0;
+    for (int i = 0; i < na; ++i)
     {
         get_acquisition(i, acq);
-
-        if(acq.active_channels() !=nc)
-            throw std::runtime_error("The number of channels is not consistent within this container.");
-        if(acq.number_of_samples() != nro)
-            throw std::runtime_error("The number of readout points is not consistent within this container.");
+        if (TO_BE_IGNORED(acq))
+            continue;
+        if (num_acq == 0) {
+            nro = acq.number_of_samples();
+            nc = acq.active_channels();
+        }
+        else {
+            if (acq.active_channels() != nc)
+                throw std::runtime_error("The number of channels is not consistent within this container.");
+            if (acq.number_of_samples() != nro)
+                throw std::runtime_error("The number of readout points is not consistent within this container.");
+        }
+        num_acq++;
     }
 
     ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
     ISMRMRD::Encoding e = hdr.encoding[0];
     ISMRMRD::EncodingSpace enc_space = e.encodedSpace;
 
+    std::vector<size_t> empty_data;
+    dims.swap(empty_data);
     dims.push_back(nro);
     dims.push_back(enc_space.matrixSize.y);
     dims.push_back(enc_space.matrixSize.z);
