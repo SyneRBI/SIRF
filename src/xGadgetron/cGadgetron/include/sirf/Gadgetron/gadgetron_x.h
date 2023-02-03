@@ -412,14 +412,14 @@ namespace sirf {
 		}
 		
 		/*!
-		\ingroup PET
+		\ingroup MR
 		\brief Method computing the norm of the MR acquisition model operator A.
 
 		Computes the norm of A as the square root of the largest eigenvalue of A' A
 		computed by a variant of Conjugate Gradient method adapted to the eigenvalue
 		computation (see JacobiCG.h for details).
 		*/
-		float norm(int num_iter = 2, int verb = 0)
+		float norm(int num_iter = 16, int verb = 0)
 		{
 			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am
 				(new MRAcquisitionModel(sptr_acqs_, sptr_imgs_, sptr_csms_, acqs_info_));
