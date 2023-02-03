@@ -224,19 +224,20 @@ uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
     ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    get_acquisition(0,acq);
-
-    uint16_t const traj_dims = acq.trajectory_dimensions();
-    bool trajectory_consistent = true;
-    for(int i=1; i<na; ++i)
+    uint16_t traj_dims;
+    int num_acq = 0;
+    for (int i = 0; i < na; ++i)
     {
         get_acquisition(i, acq);
-        trajectory_consistent *= (traj_dims== acq.trajectory_dimensions());
+        if (TO_BE_IGNORED(acq))
+            continue;
+        if (num_acq == 0)
+            traj_dims = acq.trajectory_dimensions();
+        else if (acq.trajectory_dimensions() != traj_dims)
+            throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
+        num_acq++;
     }
-    if(trajectory_consistent)
-        return traj_dims;
-    else
-        throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
+    return traj_dims;
 }
 
 void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
