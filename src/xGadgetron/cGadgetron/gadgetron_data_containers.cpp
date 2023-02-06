@@ -189,11 +189,11 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
     ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     int* dim = (int*)ptr_dim;
+
     ISMRMRD::Acquisition acq;
     int ns;
     int nc;
     int num_acq = 0;
-
     for (int i = 0; i < na; ++i)
     {
         get_acquisition(i, acq);
@@ -224,18 +224,16 @@ uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
     ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    uint16_t traj_dims;
-    int num_acq = 0;
+    uint16_t traj_dims = 65535;
     for (int i = 0; i < na; ++i)
     {
         get_acquisition(i, acq);
         if (TO_BE_IGNORED(acq))
             continue;
-        if (num_acq == 0)
+        if (traj_dims == 65535)
             traj_dims = acq.trajectory_dimensions();
         else if (acq.trajectory_dimensions() != traj_dims)
             throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
-        num_acq++;
     }
     return traj_dims;
 }
@@ -246,17 +244,14 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
     ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-
-    int nro;
+    int nro = -1;
     int nc;
-
-    int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
         get_acquisition(i, acq);
         if (TO_BE_IGNORED(acq))
             continue;
-        if (num_acq == 0) {
+        if (nro == -1) {
             nro = acq.number_of_samples();
             nc = acq.active_channels();
         }
@@ -266,7 +261,6 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
             if (acq.number_of_samples() != nro)
                 throw std::runtime_error("The number of readout points is not consistent within this container.");
         }
-        num_acq++;
     }
 
     ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
