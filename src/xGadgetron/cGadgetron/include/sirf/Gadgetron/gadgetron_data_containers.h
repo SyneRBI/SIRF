@@ -382,7 +382,7 @@ namespace sirf {
 
 		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition>
 			get_acquisition_sptr(unsigned int num) = 0;
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
+		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
@@ -582,10 +582,17 @@ namespace sirf {
 			int ind = index(num);
 			return acqs_[ind];
 		}
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
+		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 		{
 			int ind = index(num);
 			acq = *acqs_[ind];
+			if (!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
+				(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
+				return 0;
+			return 1;
 		}
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
