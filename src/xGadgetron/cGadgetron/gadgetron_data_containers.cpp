@@ -91,10 +91,6 @@ MRAcquisitionData::write(const std::string &filename) const
 	ISMRMRD::Acquisition a;
 	for (int i = 0; i < n; i++) {
 		get_acquisition(i, a);
-		//std::cout << i << ' ' << a.idx().repetition << '\n';
-		//if (TO_BE_IGNORED(a)) {
-		//	continue;
-		//}
 		mtx.lock();
 		dataset->appendAcquisition(a);
 		mtx.unlock();
@@ -196,8 +192,6 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
     int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
-        //get_acquisition(i, acq);
-        //if (TO_BE_IGNORED(acq))
         if (!get_acquisition(i, acq))
             continue;
         if (num_acq == 0) {
@@ -228,8 +222,6 @@ uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
     uint16_t traj_dims = 65535;
     for (int i = 0; i < na; ++i)
     {
-        //get_acquisition(i, acq);
-        //if (TO_BE_IGNORED(acq))
         if (!get_acquisition(i, acq))
             continue;
         if (traj_dims == 65535)
@@ -250,8 +242,6 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
     int nc;
     for (int i = 0; i < na; ++i)
     {
-        //get_acquisition(i, acq);
-        //if (TO_BE_IGNORED(acq))
         if (!get_acquisition(i, acq))
             continue;
         if (nro == -1) {
@@ -297,10 +287,8 @@ MRAcquisitionData::get_data(complex_float_t* z, int a)
 		return;
 	}
 	for (unsigned int a = 0, i = 0; a < na; a++) {
-		//get_acquisition(a, acq);
-		//if (TO_BE_IGNORED(acq)) {
-        if (!get_acquisition(a, acq)) {
-            std::cout << "ignoring acquisition " << a << '\n';
+		if (!get_acquisition(a, acq)) {
+			std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
 		unsigned int nc = acq.active_channels();
@@ -435,16 +423,12 @@ MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 	ISMRMRD::Acquisition a;
 	ISMRMRD::Acquisition b;
 	for (int i = 0, j = 0; i < n && j < m;) {
-		//get_acquisition(i, a);
-		//if (TO_BE_IGNORED(a)) {
-        if (!get_acquisition(i, a)) {
-            i++;
+		if (!get_acquisition(i, a)) {
+			i++;
 			continue;
 		}
-		//other.get_acquisition(j, b);
-		//if (TO_BE_IGNORED(b)) {
-        if (!other.get_acquisition(j, b)) {
-            j++;
+		if (!other.get_acquisition(j, b)) {
+			j++;
 			continue;
 		}
 		z += MRAcquisitionData::dot(a, b);
@@ -460,8 +444,6 @@ MRAcquisitionData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y)
 {
-	//complex_float_t a = *(complex_float_t*)ptr_a;
-	//complex_float_t b = *(complex_float_t*)ptr_b;
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(1, x, y, ptr_a, ptr_b);
@@ -539,41 +521,31 @@ const void* ptr_a, const void* ptr_b)
 	bool isempty = (number() < 1);
 	for (int ix = 0, iy = 0, ia = 0, ib = 0, k = 0; 
 		ix < nx && iy < ny && ia < na && ib < nb;) {
-		//x.get_acquisition(ix, ax);
-		//if (TO_BE_IGNORED(ax)) {
-        if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+		if (!x.get_acquisition(ix, ax)) {
+			std::cout << ix << " ignored (ax)\n";
 			ix++;
 			continue;
 		}
-		//y.get_acquisition(iy, ay);
-		//if (TO_BE_IGNORED(ay)) {
-        if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
+		if (!y.get_acquisition(iy, ay)) {
+			std::cout << iy << " ignored (ay)\n";
 			iy++;
 			continue;
 		}
 		if (op < 0) {
-			//ptr_aa->get_acquisition(ia, aa);
-			//if (TO_BE_IGNORED(aa)) {
-            if (!ptr_aa->get_acquisition(ia, aa)) {
-                std::cout << ia << " ignored (aa)\n";
+			if (!ptr_aa->get_acquisition(ia, aa)) {
+				std::cout << ia << " ignored (aa)\n";
 				ia++;
 				continue;
 			}
-			//ptr_ab->get_acquisition(ib, ab);
-			//if (TO_BE_IGNORED(ab)) {
-            if (!ptr_ab->get_acquisition(ib, ab)) {
-                std::cout << ib << " ignored (ab)\n";
+			if (!ptr_ab->get_acquisition(ib, ab)) {
+				std::cout << ib << " ignored (ab)\n";
 				ib++;
 				continue;
 			}
 		}
 		if (!isempty) {
-			//get_acquisition(k, acq);
-			//if (TO_BE_IGNORED(acq)) {
-            if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+			if (!get_acquisition(k, acq)) {
+				std::cout << k << " ignored (acq)\n";
 				k++;
 				continue;
 			}
@@ -617,10 +589,8 @@ MRAcquisitionData::norm() const
 	float r = 0;
 	ISMRMRD::Acquisition a;
 	for (int i = 0; i < n; i++) {
-		//get_acquisition(i, a);
-		//if (TO_BE_IGNORED(a)) {
-        if (!get_acquisition(i, a)) {
-            continue;
+		if (!get_acquisition(i, a)) {
+			continue;
 		}
 		float s = MRAcquisitionData::norm(a);
 		r += s*s;
