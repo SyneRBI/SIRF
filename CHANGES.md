@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v3.5.0
+
+* MR
+  - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible.
+
 ## v3.4.0
 
 * MR:
