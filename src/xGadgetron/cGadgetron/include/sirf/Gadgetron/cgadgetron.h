@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
-Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2023 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -64,7 +64,7 @@ extern "C" {
 	void* cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 
 	// acquisition data methods
-	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
+	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
