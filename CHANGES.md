@@ -1,23 +1,51 @@
 # ChangeLog
 
+## v3.5.0
+
+* MR
+  - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible.
+
+## v3.4.0
+
+* MR:
+  - Added support for spiral trajectories that are pre-computed by the user (by exposing a trajectory setter).
+  - Writing images to `.dcm` files fixed.
+  - Running image processing chains after reconstruction fixed.
+  - Use C++ 17 if Gadgetron-support is enabled
+  - Support Gadgetron `master` of end November 2022
+      - using `find_package(gadgetron)` in CMake, but still support old version by looking for toolboxes.
+
+* PET/SPECT
+  - Require STIR 5.0 and support 5.1.
+  - If SIRF is compiled with STIR 5.1, we now support **Pinhole SPECT** via the `PinholeSPECTUBMatrix` acquisition model. Examples are provided (but the code is not yet tested).
+  - `sirf.STIR.AcquisitionData` constructor taking a scanner now has an extra optional argument
+  tof_mash_factor (defaulting to 1). This is only functional if a STIR version supporting TOF is used.
+  - C++: Renamed PETAcquisitionData and derived classes to STIRAcquisitionData* as STIR now supports SPECT in addition to PET modality. Backward compatibility ensured by defining old nomenclature via typedefs until the release of SIRF 4.
+
+* Documentation
+  - revision of READMEs for the examples.
+
+* Changed Python test framework to pytest.
+
+* Added support for the extraction of subsets of STIR and Gadgetron acquisition data.
+
 ## v3.3.0
 
-* SPECTUBMatrix for (simple) usage in SPECT added.
+* Added a new acquisition model `SPECTUBMatrix` for (simple) usage in SPECT.
+  `sirf.STIR.ImageData` has now a way to set/get the modality.
 
 * interactive Python demos superseded by SIRF-Exercises notebooks removed.
 
 * arguments setting number of CG iterations and verbosity of output
-  of acquisition models method norm() added.
+  of acquisition models method `norm()` added.
 
 * path for ISMRMRD shared library when generating MR data fixed.
 
-* extension processing in ISMRMRDImageData::write fixed.
+* extension processing in `ISMRMRDImageData::write` fixed.
 
 * Python int array check/conversion ensuring C++ compatibility added.
 
 * C/Python interfaces for computing prior value added.
-
-* STIR spect matrix added.
 
 * Zenodo citation file added.
 

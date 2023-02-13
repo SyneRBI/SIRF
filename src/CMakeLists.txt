@@ -25,7 +25,6 @@ ADD_SUBDIRECTORY(iUtilities)
 ##########################################################################
 #                              Gadgetron                                 #
 ##########################################################################
-option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
 if (DISABLE_Gadgetron)
   message(STATUS "Gadgetron support disabled.")
 else()
@@ -88,9 +87,9 @@ if (DISABLE_STIR)
 else()
   find_package(STIR REQUIRED)
   message(STATUS "STIR version found: ${STIR_VERSION}")
-  if (STIR_VERSION  VERSION_LESS 4.1.0)
-    # Note: we support both version 4 and 5, so cannot put the version in the find_package statement
-    message(FATAL_ERROR "SIRF requires STIR version at least 4.1.0")
+  if (STIR_VERSION  VERSION_LESS 5.0.0)
+    # Note: we support both version 5 and 6, so cannot put the version in the find_package statement
+    message(FATAL_ERROR "SIRF requires STIR version at least 5.0.0")
   endif()
   if (STIR_WITH_NiftyPET_PROJECTOR)
     set(NiftyPET_BOOL_STR "1")

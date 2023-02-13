@@ -19,6 +19,8 @@ limitations under the License.
 
 */
 
+#include <vector>
+
 #include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/DataHandle.h"
@@ -141,15 +143,23 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (sirf::iequals(name, "SPECTUBMatrix"))
 			return NEW_OBJECT_HANDLE(SPECTUBMatrix);
+#if STIR_VERSION >= 050100
+		if (sirf::iequals(name, "PinholeSPECTUBMatrix"))
+			return NEW_OBJECT_HANDLE(PinholeSPECTUBMatrix);
+#endif
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (sirf::iequals(name, "PLSPrior"))
 			return NEW_OBJECT_HANDLE(PLSPrior<float>);
 		if (sirf::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
+		if (sirf::iequals(name, "Box3D"))
+			return NEW_OBJECT_HANDLE(xSTIR_Box3D);
+		if (sirf::iequals(name, "Ellipsoid"))
+			return NEW_OBJECT_HANDLE(Ellipsoid);
 		if (sirf::iequals(name, "EllipsoidalCylinder"))
 			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
-                if (sirf::iequals(name, "PETSingleScatterSimulator"))
+		if (sirf::iequals(name, "PETSingleScatterSimulator"))
                   return NEW_OBJECT_HANDLE(PETSingleScatterSimulator);
                 if (sirf::iequals(name, "PETScatterEstimator"))
                   return NEW_OBJECT_HANDLE(PETScatterEstimator);
@@ -167,12 +177,18 @@ void* cSTIR_setParameter
 	try {
 		CAST_PTR(DataHandle, hs, ptr_s);
 		CAST_PTR(DataHandle, hv, ptr_v);
-		if (sirf::iequals(obj, "ListmodeToSinograms"))
+		if (sirf::iequals(obj, "ImageData"))
+			return cSTIR_setImageDataParameter(ptr_s, name, ptr_v);
+		else if (sirf::iequals(obj, "ListmodeToSinograms"))
 			return cSTIR_setListmodeToSinogramsParameter(ptr_s, name, ptr_v);
 		else if (sirf::iequals(obj, "SeparableGaussianImageFilter"))
 			return cSTIR_setSeparableGaussianImageFilterParameter(ptr_s, name, ptr_v);
 		else if (sirf::iequals(obj, "Shape"))
 			return cSTIR_setShapeParameter(ptr_s, name, ptr_v);
+		else if (sirf::iequals(obj, "Box3D"))
+			return cSTIR_setBox3DParameter(hs, name, hv);
+		else if (sirf::iequals(obj, "Ellipsoid"))
+			return cSTIR_setEllipsoidParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "EllipsoidalCylinder"))
 			return cSTIR_setEllipsoidalCylinderParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
@@ -190,6 +206,8 @@ void* cSTIR_setParameter
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "SPECTUBMatrix"))
 			return cSTIR_setSPECTUBMatrixParameter(hs, name, hv);
+		else if (sirf::iequals(obj, "PinholeSPECTUBMatrix"))
+			return cSTIR_setPinholeSPECTUBMatrixParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "QuadraticPrior"))
@@ -237,15 +255,25 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 		CAST_PTR(DataHandle, handle, ptr);
 		if (sirf::iequals(obj, "Shape"))
 			return cSTIR_shapeParameter(handle, name);
+		else if (sirf::iequals(obj, "Box3D"))
+			return cSTIR_Box3DParameter(handle, name);
+		else if (sirf::iequals(obj, "Ellipsoid"))
+			return cSTIR_ellipsoidParameter(handle, name);
 		else if (sirf::iequals(obj, "EllipsoidalCylinder"))
 			return cSTIR_ellipsoidalCylinderParameter(handle, name);
 		else if (sirf::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 			return cSTIR_truncateToCylindricalFOVImageProcessorParameter
 			(handle, name);
+		else if (sirf::iequals(obj, "AcquisitionData"))
+			return cSTIR_AcquisitionDataParameter(handle, name);
+		else if (sirf::iequals(obj, "ImageData"))
+			return cSTIR_ImageDataParameter(handle, name);
 		else if (sirf::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_rayTracingMatrixParameter(handle, name);
 		else if (sirf::iequals(obj, "SPECTUBMatrix"))
 			return cSTIR_SPECTUBMatrixParameter(handle, name);
+		else if (sirf::iequals(obj, "PinholeSPECTUBMatrix"))
+			return cSTIR_PinholeSPECTUBMatrixParameter(handle, name);
 		else if (sirf::iequals(obj, "AcquisitionModel"))
 			return cSTIR_AcquisitionModelParameter(handle, name);
 		else if (sirf::iequals(obj, "AcqModUsingMatrix"))
@@ -300,11 +328,11 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 		}
 		if (sirf::iequals(name, "AcquisitionData")) {
 
-            std::shared_ptr<PETAcquisitionData> sptr;
-            if (PETAcquisitionData::storage_scheme().compare("file") == 0)
-                sptr.reset(new PETAcquisitionDataInFile(filename));
+            std::shared_ptr<STIRAcquisitionData> sptr;
+            if (STIRAcquisitionData::storage_scheme().compare("file") == 0)
+                sptr.reset(new STIRAcquisitionDataInFile(filename));
             else
-                sptr.reset(new PETAcquisitionDataInMemory(filename));
+                sptr.reset(new STIRAcquisitionDataInMemory(filename));
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "ListmodeToSinograms")) {
@@ -407,7 +435,7 @@ void* cSTIR_scatterSimulatorFwdReplace
 	try {
 		auto& am = objectFromHandle<PETSingleScatterSimulator>(ptr_am);
 		auto& id = objectFromHandle<STIRImageData>(ptr_im);
-		auto& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		auto& ad = objectFromHandle<STIRAcquisitionData>(ptr_ad);
                 am.forward(ad, id);
 		return new DataHandle;
 	}
@@ -421,7 +449,7 @@ void* cSTIR_setupScatterSimulator
 	try {
 		auto& am = objectFromHandle<PETSingleScatterSimulator>(ptr_am);
 		SPTR_FROM_HANDLE(STIRImageData, id, ptr_im);
-		SPTR_FROM_HANDLE(PETAcquisitionData, ad, ptr_ad);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, ad, ptr_ad);
                 am.set_up(ad, id);
 		return new DataHandle;
 	}
@@ -513,7 +541,7 @@ void* cSTIR_createPETAcquisitionSensitivityModel
 	try {
 		shared_ptr<PETAcquisitionSensitivityModel> sptr;
 		if (sirf::iequals(src, "s")) {
-			PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_src);
+			STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(ptr_src);
 			sptr.reset(new PETAcquisitionSensitivityModel(ad));
 		}
 		else if (sirf::iequals(src, "n")) {
@@ -560,7 +588,7 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 	try {
 		PETAcquisitionSensitivityModel& sm = 
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_ad);
 		sm.set_up(sptr_ad->get_exam_info_sptr(),
 			sptr_ad->get_proj_data_info_sptr()->create_shared_clone());
 		return (void*) new DataHandle;
@@ -575,7 +603,7 @@ void* cSTIR_applyAcquisitionSensitivityModel
 	try {
 		PETAcquisitionSensitivityModel& sm =
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_ad);
 
 		if (sirf::iequals(job, "fwd"))
 			return newObjectHandle(sm.forward(*sptr_ad));
@@ -598,7 +626,7 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 	try {
 		//writeText("setting up acquisition model\n");
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_dt, ptr_dt);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_dt, ptr_dt);
 		SPTR_FROM_HANDLE(STIRImageData, sptr_id, ptr_im);
 		am.set_up(sptr_dt, sptr_id);
 		return (void*) new DataHandle;
@@ -645,7 +673,7 @@ void* cSTIR_acquisitionModelFwdReplace
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
-		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(ptr_ad);
 		am.forward(ad, id, subset_num, num_subsets, num_subsets > 1);
 		return new DataHandle;
 	}
@@ -658,7 +686,7 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 {
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
-		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(ptr_ad);
 		return newObjectHandle(am.backward(ad, subset_num, num_subsets));
 	}
 	CATCH;
@@ -683,7 +711,7 @@ void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
 {
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
-		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(ptr_ad);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		am.backward(id, ad, subset_num, num_subsets);
 		return new DataHandle;
@@ -708,9 +736,9 @@ cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 { 
 	try {
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
-			PETAcquisitionDataInFile::set_as_template();
+			STIRAcquisitionDataInFile::set_as_template();
 		else
-			PETAcquisitionDataInMemory::set_as_template();
+			STIRAcquisitionDataInMemory::set_as_template();
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -721,15 +749,15 @@ void*
 cSTIR_getAcquisitionDataStorageScheme()
 {
 	return charDataHandleFromCharData
-		(PETAcquisitionData::storage_scheme().c_str());
+		(STIRAcquisitionData::storage_scheme().c_str());
 }
 
 extern "C"
 void* cSTIR_acquisitionDataFromTemplate(void* ptr_t)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
-                std::shared_ptr<PETAcquisitionData> sptr(sptr_t->new_acquisition_data());
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_t, ptr_t);
+                std::shared_ptr<STIRAcquisitionData> sptr(sptr_t->new_acquisition_data());
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -739,8 +767,8 @@ extern "C"
 void* cSTIR_cloneAcquisitionData(void* ptr_ad)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
-                std::shared_ptr<PETAcquisitionData> sptr(sptr_ad->clone());
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_ad);
+                std::shared_ptr<STIRAcquisitionData> sptr(sptr_ad->clone());
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -752,19 +780,21 @@ const int num_segments_to_combine,
 const int num_views_to_combine,
 const int num_tang_poss_to_trim,
 const bool do_normalisation,
-const int max_in_segment_num_to_process
+const int max_in_segment_num_to_process,
+const int num_tof_bins_to_combine
 )
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
-                std::shared_ptr<PETAcquisitionData> sptr =
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_t, ptr_t);
+                std::shared_ptr<STIRAcquisitionData> sptr =
 			sptr_t->single_slice_rebinned_data(
 			num_segments_to_combine,
 			num_views_to_combine,
 			num_tang_poss_to_trim,
 			do_normalisation,
-			max_in_segment_num_to_process
-			);
+			max_in_segment_num_to_process,
+			num_tof_bins_to_combine
+		);
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -772,18 +802,21 @@ const int max_in_segment_num_to_process
 
 extern "C"
 void* cSTIR_acquisitionDataFromScannerInfo
-(const char* scanner, int span, int max_ring_diff, int view_mash_factor)
+(const char* scanner, int span, int max_ring_diff, int view_mash_factor, int tof_mash_factor)
 {
 	try{
                 stir::shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
         sptr_ei->imaging_modality = ImagingModality::PT;
 		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
-			PETAcquisitionData::proj_data_info_from_scanner
+			STIRAcquisitionData::proj_data_info_from_scanner
 			(scanner, span, max_ring_diff, view_mash_factor);
-		PETAcquisitionDataInFile::init();
-		std::shared_ptr<PETAcquisitionData> sptr_t =
-			PETAcquisitionData::storage_template();
-		std::shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
+#if STIR_VERSION >= 050000
+                sptr_pdi->set_tof_mash_factor(tof_mash_factor);
+#endif
+		STIRAcquisitionDataInFile::init();
+		std::shared_ptr<STIRAcquisitionData> sptr_t =
+			STIRAcquisitionData::storage_template();
+		std::shared_ptr<STIRAcquisitionData> sptr(sptr_t->same_acquisition_data
 			(sptr_ei, sptr_pdi));
 		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
@@ -796,7 +829,7 @@ void* cSTIR_getAcquisitionDataDimensions(const void* ptr_acq, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
 		dim[0] = sptr_ad->get_num_tangential_poss();
 		dim[1] = sptr_ad->get_num_views();
 		dim[2] = sptr_ad->get_num_non_TOF_sinograms();
@@ -811,7 +844,7 @@ void* cSTIR_getAcquisitionData(const void* ptr_acq, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
 		if (sptr_ad->is_empty())
 			return DataHandle::error_handle(
 				"Failed to get acquisition data: dealing with empty template?",
@@ -826,7 +859,7 @@ extern "C"
 void* cSTIR_fillAcquisitionData(void* ptr_acq, float v)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
 		sptr_ad->fill(v);
 		return (void*)new DataHandle;
 	}
@@ -838,8 +871,8 @@ void* cSTIR_fillAcquisitionDataFromAcquisitionData
 (void* ptr_acq, const void* ptr_from)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_from, ptr_from);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_from, ptr_from);
 		sptr_ad->fill(*sptr_from);
 		return (void*)new DataHandle;
 	}
@@ -850,7 +883,7 @@ extern "C"
 void* cSTIR_setAcquisitionData(void* ptr_acq, size_t ptr_data)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
 		float *data = (float *)ptr_data;
 		sptr_ad->fill_from(data);
 		return (void*)new DataHandle;
@@ -862,7 +895,7 @@ extern "C"
 void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
 		sptr_ad->write(filename);
 		return (void*)new DataHandle;
 	}
@@ -873,9 +906,22 @@ extern "C"
 void* cSTIR_get_ProjDataInfo(void* ptr_acq)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
 		return charDataHandleFromCharData(
 			sptr_ad->get_proj_data_info_sptr()->parameter_info().c_str());
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_get_subset(void* ptr_acq, int nv, size_t ptr_views)
+{
+	try {
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
+		int* ptr_v = (int*)ptr_views;
+		std::vector<int> v(ptr_v, ptr_v + nv);
+		std::shared_ptr<STIRAcquisitionData> sptr = std::move(sptr_ad->get_subset(v));
+		return newObjectHandle(sptr);
 	}
 	CATCH;
 }
@@ -1222,7 +1268,7 @@ void* cSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_
 {
     try {
         STIRImageData& im = objectFromHandle<STIRImageData>(im_ptr);
-        PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(acq_data_ptr);
+        STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(acq_data_ptr);
         im.move_to_scanner_centre(ad);
 
         return static_cast<void*>(new DataHandle);
@@ -1235,7 +1281,7 @@ extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_ad);
 		shared_ptr<STIRImageData> sptr(new STIRImageData(*sptr_ad));
 		return newObjectHandle(sptr);
 	}
@@ -1246,7 +1292,7 @@ extern "C"
 void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny)
 {
 	try {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_ad);
 		STIRImageData id(*sptr_ad);
 		int dim[3];
 		float vs[3];

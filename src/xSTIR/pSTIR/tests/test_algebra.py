@@ -20,12 +20,12 @@
 import os
 import unittest
 import sirf.STIR as pet
-from sirf.Utilities import examples_data_path, TestDataContainerAlgebra
+from sirf.Utilities import examples_data_path, DataContainerAlgebraTests
 
 pet.AcquisitionData.set_storage_scheme('file')
 pet.set_verbosity(0)
 
-class TestSTIRImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
+class TestSTIRImageDataAlgebra(unittest.TestCase, DataContainerAlgebraTests):
     def setUp(self):
         self.image1 = pet.ImageData(os.path.join(
             examples_data_path('PET'),'thorax_single_slice','emission.hv')
@@ -38,7 +38,7 @@ class TestSTIRImageDataAlgebra(unittest.TestCase, TestDataContainerAlgebra):
         # shutil.rmtree(self.cwd)
         pass
 
-class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, TestDataContainerAlgebra):
+class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, DataContainerAlgebraTests):
 
     def setUp(self):
         path = os.path.join(
@@ -62,7 +62,7 @@ class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, TestDataContainerAlg
         pass
 
 
-class TestSTIRAcquisitionDataAlgebraMemory(unittest.TestCase, TestDataContainerAlgebra):
+class TestSTIRAcquisitionDataAlgebraMemory(unittest.TestCase, DataContainerAlgebraTests):
     def setUp(self):
         pet.AcquisitionData.set_storage_scheme('file')
         path = os.path.join(

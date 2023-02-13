@@ -9,7 +9,7 @@ import re
 from deprecation import deprecated
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
 Copyright 2015 - 2021 University College London
 Copyright 2021 CSIRO
 
@@ -594,8 +594,7 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True
                 print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
     return True
 
-
-class TestDataContainerAlgebra(object):
+class DataContainerAlgebraTests(object):
 
     '''A base class for unit test of DataContainer algebra.'''
     def test_divide_scalar(self):

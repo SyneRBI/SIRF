@@ -86,6 +86,15 @@ def main():
         acq_data.show(range(dim[1]//4))
     acq_array = acq_data.as_array()
 
+    if storage[0] == 'm':  # for now, we can only subset acquisition data stored in memory
+        nv = dim[2]//2
+        views = numpy.arange(nv)
+        acq_subset = acq_data.get_subset(views)
+        dim_subset = acq_subset.dimensions()
+        print('subset dimensions: %d x %d x %d x %d' % dim_subset)
+        if show_plot:
+            acq_subset.show(range(dim[1]//4), title='Sinograms of a subset of views')
+
     # rebin the acquisition data
     new_acq_data = acq_data.rebin(3)
     rdim = new_acq_data.dimensions()
@@ -116,6 +125,7 @@ def main():
     print('norm of acq_copy - acq_data: %f' % diff.norm())
     diff = -acq_copy.fill(acq_data) + acq_data
     print('norm of -acq_copy.fill(acq_data) + acq_data: %f' % diff.norm())
+    print('TOF mashing factor %d' % acq_data.get_tof_mash_factor())
 
     if show_plot:
         # display the scaled data

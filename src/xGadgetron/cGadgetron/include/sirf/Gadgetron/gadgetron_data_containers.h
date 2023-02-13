@@ -1,8 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2020 University College London
-Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2023 University College London
+Copyright 2020 - 2023 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -42,7 +42,7 @@ limitations under the License.
 #include <ismrmrd/dataset.h>
 
 #include "sirf/common/DataContainer.h"
-#include "sirf/common/MRImageData.h"
+#include "sirf/common/ImageData.h"
 #include "sirf/common/multisort.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_image_wrap.h"
@@ -382,7 +382,7 @@ namespace sirf {
 
 		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition>
 			get_acquisition_sptr(unsigned int num) = 0;
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
+		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
@@ -445,6 +445,23 @@ namespace sirf {
         void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
 
         ISMRMRD::TrajectoryType get_trajectory_type() const;
+		
+		void set_trajectory_type(const ISMRMRD::TrajectoryType type);
+
+		void set_trajectory(const uint16_t traj_dim, float* traj)
+		{
+			ISMRMRD::Acquisition acq;
+			for(int i=0; i<number(); ++i)
+			{
+				get_acquisition(i, acq);
+				const uint16_t num_samples = acq.number_of_samples();
+				const uint16_t num_channels = acq.active_channels();
+				acq.resize(num_samples,num_channels,traj_dim);
+				int const offset = i*traj_dim*num_samples;
+				acq.setTraj(traj + offset);
+				set_acquisition(i, acq);
+			}
+		} 
 
 		gadgetron::unique_ptr<MRAcquisitionData> clone() const
 		{
@@ -510,7 +527,7 @@ namespace sirf {
 			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
 			* to exclude potentially incompatible input. 
     	*/
-		void read( const std::string& filename_ismrmrd_with_ext );
+		void read(const std::string& filename_ismrmrd_with_ext, int all = 0);
 
 	protected:
 		bool sorted_ = false;
@@ -541,9 +558,9 @@ namespace sirf {
 	*/
 	class AcquisitionsVector : public MRAcquisitionData {
 	public:
-        AcquisitionsVector(const std::string& filename_with_ext)
+        AcquisitionsVector(const std::string& filename_with_ext, int all = 0)
         {
-            this->read(filename_with_ext);
+            this->read(filename_with_ext, all);
         }
 
         AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo())
@@ -565,10 +582,17 @@ namespace sirf {
 			int ind = index(num);
 			return acqs_[ind];
 		}
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
+		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 		{
 			int ind = index(num);
 			acq = *acqs_[ind];
+			if (!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
+				(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
+				return 0;
+			return 1;
 		}
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
@@ -612,7 +636,7 @@ namespace sirf {
 
 	*/
 
-	class ISMRMRDImageData : public MRImageData {
+	class ISMRMRDImageData : public ImageData {
 	public:
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
@@ -894,7 +918,7 @@ namespace sirf {
 			ImageWrapIter;
 		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator 
 			ImageWrapIter_const;
-		class Iterator : public MRImageData::Iterator {
+		class Iterator : public ImageData::Iterator {
 		public:
 			Iterator(ImageWrapIter iw, int n, int i, const ImageWrap::Iterator& it) :
 				iw_(iw), n_(n), i_(i), iter_(it), end_((**iw).end())
@@ -966,7 +990,7 @@ namespace sirf {
 			gadgetron::shared_ptr<Iterator> sptr_iter_;
 		};
 
-		class Iterator_const : public MRImageData::Iterator_const {
+		class Iterator_const : public ImageData::Iterator_const {
 		public:
 			Iterator_const(ImageWrapIter_const iw, int n, int i, 
 				const ImageWrap::Iterator_const& it) :

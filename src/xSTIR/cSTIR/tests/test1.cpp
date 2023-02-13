@@ -33,6 +33,7 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
+#include "stir/ExamData.h"
 
 #include "sirf/common/iequals.h"
 #include "sirf/STIR/stir_x.h"
@@ -83,7 +84,7 @@ int test1()
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
 		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
 		fix_path_separator(filename);
-		CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
+		CREATE_OBJECT(STIRAcquisitionData, STIRAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();
 		views = acq_data.get_num_views();
@@ -97,7 +98,7 @@ int test1()
 
 		// all acquisition-like data except acq_data will be stored in memory
 		// (default storage is temporary files)
-		PETAcquisitionDataInMemory::set_as_template();
+		STIRAcquisitionDataInMemory::set_as_template();
 
 		// create compatible image
 		CREATE_OBJ(STIRImageData, image_data, sptr_id, acq_data);
@@ -113,22 +114,36 @@ int test1()
 		std::cout << geom_info.get_info().c_str();
 		ok = (geom_info == geom_info_copy);
 		if (ok)
-			std::cout << "== ok\n";
+			std::cout << "geom_info == ok\n";
 		else
-			std::cout << "== failed \n";
+			std::cout << "geom_info == failed \n";
 		fail = fail || !ok;
 
+		// show and change modality demo
+		std::string mod = image_data.modality();
+		std::cout << '\n' << "modality: " << mod << '\n';
+		image_data.set_modality("NM");
+		std::cout << "new modality set: " << image_data.modality() << '\n';
+		ok = sirf::iequals(image_data.modality(), "NM");
+		if (ok)
+			std::cout << "set_modality ok\n";
+		else
+			std::cout << "set_modality failed \n";
+		fail = fail || !ok;
+		// restore
+		image_data.set_modality(mod);
+
 		// create additive term
-		shared_ptr<PETAcquisitionData> sptr_a = acq_data.new_acquisition_data();
-		PETAcquisitionData& at = *sptr_a;
+		shared_ptr<STIRAcquisitionData> sptr_a = acq_data.new_acquisition_data();
+		STIRAcquisitionData& at = *sptr_a;
 		at.fill(0.05f);
 		// create background term
-		shared_ptr<PETAcquisitionData> sptr_b = acq_data.new_acquisition_data();
-		PETAcquisitionData& bt = *sptr_b;
+		shared_ptr<STIRAcquisitionData> sptr_b = acq_data.new_acquisition_data();
+		STIRAcquisitionData& bt = *sptr_b;
 		bt.fill(0.1f);
 		// create bin efficiencies term
-		shared_ptr<PETAcquisitionData> sptr_e = acq_data.new_acquisition_data();
-		PETAcquisitionData& be = *sptr_e;
+		shared_ptr<STIRAcquisitionData> sptr_e = acq_data.new_acquisition_data();
+		STIRAcquisitionData& be = *sptr_e;
 		be.fill(2.0f);
 
 		// create acquisition model that uses ray tracing matrix
@@ -201,8 +216,8 @@ int test1()
 
 		// forward-project the image to simulate the acquisition process
 		std::cout << "projecting...\n";
-		shared_ptr<PETAcquisitionData> sptr_sd = am.forward(image_data);
-		PETAcquisitionData& sim_data = *sptr_sd;
+		shared_ptr<STIRAcquisitionData> sptr_sd = am.forward(image_data);
+		STIRAcquisitionData& sim_data = *sptr_sd;
 		sinos = sim_data.get_num_sinograms();
 		views = sim_data.get_num_views();
 		tangs = sim_data.get_num_tangential_poss();
@@ -213,8 +228,8 @@ int test1()
 		std::cout << "simulated data norm: " << sim_norm << '\n';
 
 		// compare the simulated acquisition data with raw acquisition data
-		shared_ptr<PETAcquisitionData> sptr_diff(acq_data.new_acquisition_data());
-		PETAcquisitionData& acq_diff = *sptr_diff;
+		shared_ptr<STIRAcquisitionData> sptr_diff(acq_data.new_acquisition_data());
+		STIRAcquisitionData& acq_diff = *sptr_diff;
 		float alpha = 1.0 / sim_norm;
 		float beta = -alpha;
 		acq_diff.axpby
@@ -258,7 +273,7 @@ int test1()
 		fail = fail || !ok;
 
 		// restore the default storage scheme
-		PETAcquisitionDataInFile::set_as_template();
+		STIRAcquisitionDataInFile::set_as_template();
 
 		h.set_information_channel(0);
 

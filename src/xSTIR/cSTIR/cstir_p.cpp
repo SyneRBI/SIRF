@@ -95,6 +95,37 @@ wrongFloatParameterValue
 }
 
 void*
+sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
+{
+	STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(hp);
+	if (sirf::iequals(name, "tof_mash_factor"))
+		return dataHandle<int>(ad.get_tof_mash_factor());
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+sirf::cSTIR_setImageDataParameter(void* hp, const char* name, const void* hv)
+{
+	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
+	if (sirf::iequals(name, "modality"))
+		id.set_modality(charDataFromHandle(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
+{
+	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
+	if (sirf::iequals(name, "modality"))
+		return charDataHandleFromCharData(id.modality().c_str());
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv)
 {
 	ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(hp);
@@ -105,7 +136,7 @@ sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const vo
 	else if (sirf::iequals(name, "template_file"))
 		lm2s.set_template(charDataFromHandle(hv));
 	else if (sirf::iequals(name, "template"))
-		lm2s.set_template(objectFromHandle<PETAcquisitionData>(hv));
+		lm2s.set_template(objectFromHandle<STIRAcquisitionData>(hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -181,6 +212,74 @@ sirf::cSTIR_shapeParameter(const DataHandle* handle, const char* name)
 		return dataHandle<float>(origin.z());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+sirf::cSTIR_setBox3DParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_Box3D& box =
+		objectFromHandle<xSTIR_Box3D>(hp);
+	float value = dataFromHandle<float>(hv);
+	if (sirf::iequals(name, "length_x"))
+		box.set_length_x(value);
+	else if (sirf::iequals(name, "length_y"))
+		box.set_length_y(value);
+	else if (sirf::iequals(name, "length_z"))
+		box.set_length_z(value);
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_Box3DParameter(const DataHandle* handle, const char* name)
+{
+	xSTIR_Box3D& box =
+		objectFromHandle<xSTIR_Box3D>(handle);
+	if (sirf::iequals(name, "length_x"))
+		return dataHandle<float>(box.get_length_x());
+	if (sirf::iequals(name, "length_y"))
+		return dataHandle<float>(box.get_length_y());
+	if (sirf::iequals(name, "length_z"))
+		return dataHandle<float>(box.get_length_z());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+sirf::cSTIR_setEllipsoidParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	Ellipsoid& c =
+		objectFromHandle<Ellipsoid>(hp);
+	float value = dataFromHandle<float>(hv);
+	float x = c.get_radius_x();
+	float y = c.get_radius_y();
+	float z = c.get_radius_z();
+	if (sirf::iequals(name, "radius_x"))
+		x = value;
+	else if (sirf::iequals(name, "radius_y"))
+		y = value;
+	else if (sirf::iequals(name, "radius_z"))
+		z = value;
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	c.set_radii(Coord3DF(x, y, z));
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_ellipsoidParameter(const DataHandle* handle, const char* name)
+{
+	Ellipsoid& c =
+		objectFromHandle<Ellipsoid>(handle);
+	if (sirf::iequals(name, "radius_x"))
+		return dataHandle<float>(c.get_radius_x());
+	if (sirf::iequals(name, "radius_y"))
+		return dataHandle<float>(c.get_radius_y());
+	if (sirf::iequals(name, "radius_z"))
+		return dataHandle<float>(c.get_radius_z());
+	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 void*
@@ -324,16 +423,120 @@ sirf::cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name)
 }
 
 void*
+sirf::cSTIR_setPinholeSPECTUBMatrixParameter(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+#if STIR_VERSION < 050100
+    DataHandle* handle = new DataHandle;
+    ExecutionStatus status("STIR version older than 5.1 so PinholeSPECTUB not supported" , __FILE__, __LINE__);
+    handle->set(0, &status);
+    return (void*)handle;
+#else
+        
+    PinholeSPECTUBMatrix& matrix = 
+        objectFromHandle< PinholeSPECTUBMatrix >(hp);
+    if (sirf::iequals(name, "maximum_number_of_sigmas"))
+        matrix.set_maximum_number_of_sigmas(dataFromHandle<float>(hv));
+    else if (sirf::iequals(name, "spatial_resolution_PSF"))
+        matrix.set_spatial_resolution_PSF(dataFromHandle<float>(hv));
+    else if (sirf::iequals(name, "subsampling_factor_PSF"))
+        matrix.set_subsampling_factor_PSF(dataFromHandle<int>(hv));
+    else if (sirf::iequals(name, "detector_file"))
+        matrix.set_detector_file(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "collimator_file"))
+        matrix.set_collimator_file(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "psf_correction"))
+        matrix.set_psf_correction(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "doi_correction"))
+        matrix.set_doi_correction(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "attenuation_type"))
+        matrix.set_attenuation_type(charDataFromDataHandle(hv));
+    else if (sirf::iequals(name, "object_radius"))
+        matrix.set_object_radius(dataFromHandle<float>(hv));
+    else if (sirf::iequals(name, "attenuation_image"))
+    {
+        STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+        matrix.set_attenuation_image_sptr(id.data_sptr());
+    }
+    else if (sirf::iequals(name, "mask_image"))
+    {
+        STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+        matrix.set_mask_image_sptr(id.data_sptr());
+    }
+    else if (sirf::iequals(name, "mask_from_attenuation_map"))
+        matrix.set_mask_from_attenuation_map(dataFromHandle<bool>(hv));
+    else if (sirf::iequals(name, "keep_all_views_in_cache"))
+        matrix.set_keep_all_views_in_cache(dataFromHandle<bool>(hv));
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+    return new DataHandle;
+#endif
+}
+
+void*
+sirf::cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* name)
+{
+#if STIR_VERSION < 050100
+    DataHandle* h = new DataHandle;
+    ExecutionStatus status("STIR version older than 5.1 so PinholeSPECTUB not supported" , __FILE__, __LINE__);
+    h->set(0, &status);
+    return (void*)h;
+#else
+
+    PinholeSPECTUBMatrix& matrix =
+        objectFromHandle< PinholeSPECTUBMatrix >(handle);
+    if (sirf::iequals(name, "maximum_number_of_sigmas"))
+        return dataHandle<float>(matrix.get_maximum_number_of_sigmas());
+    else if (sirf::iequals(name, "spatial_resolution_PSF"))
+        return dataHandle<float>(matrix.get_spatial_resolution_PSF());
+    else if (sirf::iequals(name, "subsampling_factor_PSF"))
+        return dataHandle<int>(matrix.get_subsampling_factor_PSF());
+    if (sirf::iequals(name, "psf_correction"))
+        return charDataHandleFromCharData(matrix.get_psf_correction().c_str());
+    if (sirf::iequals(name, "doi_correction"))
+        return charDataHandleFromCharData(matrix.get_doi_correction().c_str());
+    if (sirf::iequals(name, "attenuation_type"))
+        return charDataHandleFromCharData(matrix.get_attenuation_type().c_str());
+    if (sirf::iequals(name, "object_radius"))
+        return dataHandle<float>(matrix.get_object_radius());
+    else if (sirf::iequals(name, "attenuation_image"))
+    {
+        shared_ptr<const DiscretisedDensity<3,float> > att_im_sptr(matrix.get_attenuation_image_sptr());
+        if (!att_im_sptr)
+           return handle_error("PinholeSPECTUBMatrix: attenuation image not set", __FILE__, __LINE__);
+        sptrImage3DF sptr_im(att_im_sptr->clone());
+        shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+        return newObjectHandle(sptr_id);
+    }
+    else if (sirf::iequals(name, "mask_image"))
+    {
+        shared_ptr<const DiscretisedDensity<3,float> > msk_im_sptr(matrix.get_mask_image_sptr());
+        if (!msk_im_sptr)
+           return handle_error("PinholeSPECTUBMatrix: mask image not set", __FILE__, __LINE__);
+        sptrImage3DF sptr_im(msk_im_sptr->clone());
+        shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
+        return newObjectHandle(sptr_id);
+    }
+    else if (sirf::iequals(name, "mask_from_attenuation_map"))
+        return dataHandle<bool>(matrix.get_mask_from_attenuation_map());
+    else if (sirf::iequals(name, "keep_all_views_in_cache"))
+        return dataHandle<bool>(matrix.get_keep_all_views_in_cache());
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+        
+#endif
+}
+
+void*
 sirf::cSTIR_setAcquisitionModelParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	AcqMod3DF& am = objectFromHandle< AcqMod3DF >(hp);
 	if (sirf::iequals(name, "additive_term")) {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, hv);
 		am.set_additive_term(sptr_ad);
 	}
 	else if (sirf::iequals(name, "background_term")) {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, hv);
 		am.set_background_term(sptr_ad);
 	}
 	else if (sirf::iequals(name, "asm")) {
@@ -534,12 +737,12 @@ sirf::cSTIR_setScatterEstimatorParameter
 
     if (sirf::iequals(name, "setInput"))
     {
-        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_pd, hv);
+        SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_pd, hv);
         obj.set_input_sptr(sptr_pd);
     }
     else if (sirf::iequals(name, "setRandoms"))
     {
-        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_pd, hv);
+        SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_pd, hv);
         obj.set_background_sptr(sptr_pd);
     }
     else if (sirf::iequals(name, "setAttenuationImage"))
@@ -549,7 +752,7 @@ sirf::cSTIR_setScatterEstimatorParameter
     }
     else if (sirf::iequals(name, "setAttenuationCorrectionFactors"))
     {
-        SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
+        SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, hv);
         obj.set_attenuation_correction_factors_sptr(sptr_ad);
     }
     else if (sirf::iequals(name, "setASM"))
@@ -648,7 +851,7 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 	//else if (sirf::iequals(name, "max_segment_num_to_process"))
 	//	obj_fun.set_max_segment_num_toa_process(dataFromHandle<int>((void*)hv));
 	else if (sirf::iequals(name, "acquisition_data")) {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, hv);
 		obj_fun.set_acquisition_data(sptr_ad);
 	}
 	else if (sirf::iequals(name, "acquisition_model")) {
@@ -684,7 +887,7 @@ sirf::cSTIR_setReconstructionParameter
 	if (sirf::iequals(name, "output_filename_prefix"))
 		recon.set_output_filename_prefix(charDataFromDataHandle(hv));
 	else if (sirf::iequals(name, "input_data")) {
-		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, hv);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, hv);
 		recon.set_input_data(sptr_ad->data());
 	}
 	else if (sirf::iequals(name, "disable_output")) {
@@ -859,7 +1062,7 @@ sirf::cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle
 	xSTIR_FBP2DReconstruction& recon =
 		objectFromHandle<xSTIR_FBP2DReconstruction >(hp);
 	if (sirf::iequals(name, "input")) {
-		PETAcquisitionData& acq_data = objectFromHandle<PETAcquisitionData>(hv);
+		STIRAcquisitionData& acq_data = objectFromHandle<STIRAcquisitionData>(hv);
 		recon.set_input(acq_data);
 	}
 	else if (sirf::iequals(name, "zoom")) {
