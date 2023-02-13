@@ -1,8 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
-Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2023 University College London
+Copyright 2020 - 2023 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -91,10 +91,6 @@ MRAcquisitionData::write(const std::string &filename) const
 	ISMRMRD::Acquisition a;
 	for (int i = 0; i < n; i++) {
 		get_acquisition(i, a);
-		//std::cout << i << ' ' << a.idx().repetition << '\n';
-		//if (TO_BE_IGNORED(a)) {
-		//	continue;
-		//}
 		mtx.lock();
 		dataset->appendAcquisition(a);
 		mtx.unlock();
@@ -102,7 +98,7 @@ MRAcquisitionData::write(const std::string &filename) const
 }
 
 void
-MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
+MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 {
 	
     bool const verbose = true;
@@ -158,9 +154,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			d.readAcquisition( i_acqu, acq);
 			mtx.unlock();
 
-			if( TO_BE_IGNORED(acq) )
-				continue;
-			else
+			if(all || !TO_BE_IGNORED(acq))
 				this->append_acquisition( acq );
 		}
         this->sort_by_time();
@@ -188,26 +182,33 @@ int
 MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 {
     int na = number();
-    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+    ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     int* dim = (int*)ptr_dim;
+
     ISMRMRD::Acquisition acq;
-    get_acquisition(0, acq);
-
-    int ns = acq.number_of_samples();
-    int nc = acq.active_channels();
-
-    for(int i=1; i<na; ++i)
+    int ns;
+    int nc;
+    int num_acq = 0;
+    for (int i = 0; i < na; ++i)
     {
-        get_acquisition(i, acq);
-        ASSERT(acq.number_of_samples() == ns, "One of your acquisitions has a different number of samples. Please make sure the dimensions are consistent.");
-        ASSERT(acq.active_channels() == nc, "One of your acquisitions has a different number of active channels. Please make sure the dimensions are consistent.");
+        if (!get_acquisition(i, acq))
+            continue;
+        if (num_acq == 0) {
+            ns = acq.number_of_samples();
+            nc = acq.active_channels();
+        }
+        else {
+            ASSERT(acq.number_of_samples() == ns, "One of your acquisitions has a different number of samples. Please make sure the dimensions are consistent.");
+            ASSERT(acq.active_channels() == nc, "One of your acquisitions has a different number of active channels. Please make sure the dimensions are consistent.");
+        }
+        num_acq++;
     }
 
     int const num_dims = 3;
     dim[0] = ns;
     dim[1] = nc;
-    dim[2] = na;
+    dim[2] = num_acq;
 
     return num_dims;
 }
@@ -215,52 +216,52 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
 {
     int na = number();
-    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+    ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    get_acquisition(0,acq);
-
-    uint16_t const traj_dims = acq.trajectory_dimensions();
-    bool trajectory_consistent = true;
-    for(int i=1; i<na; ++i)
+    uint16_t traj_dims = 65535;
+    for (int i = 0; i < na; ++i)
     {
-        get_acquisition(i, acq);
-        trajectory_consistent *= (traj_dims== acq.trajectory_dimensions());
+        if (!get_acquisition(i, acq))
+            continue;
+        if (traj_dims == 65535)
+            traj_dims = acq.trajectory_dimensions();
+        else if (acq.trajectory_dimensions() != traj_dims)
+            throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
     }
-    if(trajectory_consistent)
-        return traj_dims;
-    else
-        throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
+    return traj_dims;
 }
 
 void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
 {
     int na = number();
-    ASSERT(na>0, "You are asking for dimensions on an empty acquisition container. Please dont... ");
+    ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    get_acquisition(0,acq);
-
-    int nro = acq.number_of_samples();
-    int nc = acq.active_channels();
-
-    std::vector<size_t> empty_data;
-    dims.swap(empty_data);
-
-    for(int i=1; i<na; ++i)
+    int nro = -1;
+    int nc;
+    for (int i = 0; i < na; ++i)
     {
-        get_acquisition(i, acq);
-
-        if(acq.active_channels() !=nc)
-            throw std::runtime_error("The number of channels is not consistent within this container.");
-        if(acq.number_of_samples() != nro)
-            throw std::runtime_error("The number of readout points is not consistent within this container.");
+        if (!get_acquisition(i, acq))
+            continue;
+        if (nro == -1) {
+            nro = acq.number_of_samples();
+            nc = acq.active_channels();
+        }
+        else {
+            if (acq.active_channels() != nc)
+                throw std::runtime_error("The number of channels is not consistent within this container.");
+            if (acq.number_of_samples() != nro)
+                throw std::runtime_error("The number of readout points is not consistent within this container.");
+        }
     }
 
     ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
     ISMRMRD::Encoding e = hdr.encoding[0];
     ISMRMRD::EncodingSpace enc_space = e.encodedSpace;
 
+    std::vector<size_t> empty_data;
+    dims.swap(empty_data);
     dims.push_back(nro);
     dims.push_back(enc_space.matrixSize.y);
     dims.push_back(enc_space.matrixSize.z);
@@ -286,8 +287,7 @@ MRAcquisitionData::get_data(complex_float_t* z, int a)
 		return;
 	}
 	for (unsigned int a = 0, i = 0; a < na; a++) {
-		get_acquisition(a, acq);
-		if (TO_BE_IGNORED(acq)) {
+		if (!get_acquisition(a, acq)) {
 			std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
@@ -423,13 +423,11 @@ MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 	ISMRMRD::Acquisition a;
 	ISMRMRD::Acquisition b;
 	for (int i = 0, j = 0; i < n && j < m;) {
-		get_acquisition(i, a);
-		if (TO_BE_IGNORED(a)) {
+		if (!get_acquisition(i, a)) {
 			i++;
 			continue;
 		}
-		other.get_acquisition(j, b);
-		if (TO_BE_IGNORED(b)) {
+		if (!other.get_acquisition(j, b)) {
 			j++;
 			continue;
 		}
@@ -446,8 +444,6 @@ MRAcquisitionData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y)
 {
-	//complex_float_t a = *(complex_float_t*)ptr_a;
-	//complex_float_t b = *(complex_float_t*)ptr_b;
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op_(1, x, y, ptr_a, ptr_b);
@@ -525,35 +521,30 @@ const void* ptr_a, const void* ptr_b)
 	bool isempty = (number() < 1);
 	for (int ix = 0, iy = 0, ia = 0, ib = 0, k = 0; 
 		ix < nx && iy < ny && ia < na && ib < nb;) {
-		x.get_acquisition(ix, ax);
-		if (TO_BE_IGNORED(ax)) {
+		if (!x.get_acquisition(ix, ax)) {
 			std::cout << ix << " ignored (ax)\n";
 			ix++;
 			continue;
 		}
-		y.get_acquisition(iy, ay);
-		if (TO_BE_IGNORED(ay)) {
+		if (!y.get_acquisition(iy, ay)) {
 			std::cout << iy << " ignored (ay)\n";
 			iy++;
 			continue;
 		}
 		if (op < 0) {
-			ptr_aa->get_acquisition(ia, aa);
-			if (TO_BE_IGNORED(aa)) {
+			if (!ptr_aa->get_acquisition(ia, aa)) {
 				std::cout << ia << " ignored (aa)\n";
 				ia++;
 				continue;
 			}
-			ptr_ab->get_acquisition(ib, ab);
-			if (TO_BE_IGNORED(ab)) {
+			if (!ptr_ab->get_acquisition(ib, ab)) {
 				std::cout << ib << " ignored (ab)\n";
 				ib++;
 				continue;
 			}
 		}
 		if (!isempty) {
-			get_acquisition(k, acq);
-			if (TO_BE_IGNORED(acq)) {
+			if (!get_acquisition(k, acq)) {
 				std::cout << k << " ignored (acq)\n";
 				k++;
 				continue;
@@ -598,8 +589,7 @@ MRAcquisitionData::norm() const
 	float r = 0;
 	ISMRMRD::Acquisition a;
 	for (int i = 0; i < n; i++) {
-		get_acquisition(i, a);
-		if (TO_BE_IGNORED(a)) {
+		if (!get_acquisition(i, a)) {
 			continue;
 		}
 		float s = MRAcquisitionData::norm(a);

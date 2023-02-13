@@ -70,7 +70,7 @@ exec('from sirf.' + args['--engine'] + ' import *')
 sino_file = args['--sino']
 if not sino_file:
     print("Sinogram not given, using data/examples/PET/my_forward_projection.hs")
-    sino_file = examples_data_path('PET') + "/my_forward_projection.hs"
+    sino_file = os.path.join(examples_data_path('PET'), "my_forward_projection.hs")
 if not file_exists(sino_file):
     raise error("Sinogram not found: " + sino_file)
 

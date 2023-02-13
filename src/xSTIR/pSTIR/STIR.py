@@ -3083,6 +3083,15 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         v = 1 if tf else 0
         parms.set_int_par(self.handle, 'KOSMAPOSL', 'hybrid', v)
 
+    def compute_kernelised_image(self, image, alpha):
+        assert_validity(image, ImageData)
+        assert_validity(alpha, ImageData)
+        ki = ImageData()
+        ki.handle = pystir.cSTIR_computeKernelisedImage \
+            (self.handle, image.handle, alpha.handle)
+        check_status(ki.handle)
+        return ki
+
 
 class SingleScatterSimulator():
     '''

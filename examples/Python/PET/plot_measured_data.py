@@ -8,6 +8,7 @@ Options:
   -f <file>, --file=<file>    raw data file [default: sinograms_f1g1d0b0.hs]
   -r <file>, --randoms=<file> filename with randoms [default: None]
   -s <file>, --scatter=<file> scatter data file [default: None]
+  --non-interactive           do not show plots
 '''
 
 ## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -31,6 +32,8 @@ __version__ = '1.0.0'
 from docopt import docopt
 
 args = docopt(__doc__, version=__version__)
+if args['--non-interactive']:
+    exit()
 
 prompts = args["--file"]
 scatter = args["--scatter"]
