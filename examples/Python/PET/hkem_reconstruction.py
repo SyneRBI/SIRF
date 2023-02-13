@@ -111,7 +111,7 @@ def image_data_processor(image_array, im_num):
 
 
 def main():
- 
+
     # direct all engine's information and warnings printing to files
     msg_red = MessageRedirector('info.txt', 'warn.txt')
 
@@ -227,10 +227,10 @@ def main():
     mean2=np.mean(image_update2.as_array())
     mean1=np.mean(image_update1.as_array())
     diff_im.fill(abs(image_update2.as_array()/mean2-image_update1.as_array()/mean1))
-    max=np.max(diff_im.as_array())
-    mean=np.mean(diff_im.as_array())
+    max_diff=np.max(diff_im.as_array())
+    mean_diff=np.mean(diff_im.as_array())
     max_im=np.max(image_update1.as_array())
-    rel_diff=(max)/(max_im)*100
+    rel_diff=(max_diff)/(max_im)*100
     print('Max perc difference : %e' % (rel_diff))
     if rel_diff < 1:
         print('Max difference is less then 1% so is probably OK')
