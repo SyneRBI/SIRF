@@ -98,6 +98,8 @@ def main():
 
     # create initial image estimate
     image = anatomical_image.get_uniform_copy()
+    if show_plot:
+        image.show(title='Image used as initial guess')
 
     # set up acquisition model
     acq_model.set_up(acq_data, image)
@@ -129,6 +131,10 @@ def main():
     # computing/reading sensitivity image etc etc.)
     print('setting up, please wait...')
     recon.set_up(image)
+
+    image = recon.compute_kernelised_image(image, anatomical_image)
+    if show_plot:
+        image.show(title='kernelised image')
 
     recon.set_current_estimate(image)
     # in order to see the reconstructed image evolution
