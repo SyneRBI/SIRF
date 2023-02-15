@@ -488,9 +488,17 @@ class DataContainer(ABC):
             )
         else:
             assert_validities(self, other)
-            z.fill(
-               numpy.maximum(self.as_array(), other.as_array())
-            )
+            try:
+                handle = pysirf.cSIRF_maximum(self.handle, other.handle)
+                check_status(handle)
+                if z.handle is not None:
+                    pyiutil.deleteDataHandle(z.handle)
+                z.handle = handle
+            except:
+                #print('maximum not implemented in C++, use numpy')
+                z.fill(
+                   numpy.maximum(self.as_array(), other.as_array())
+                )
         return z
     def minimum(self, other, out=None):
         '''Element-wise minimum of DataContainer elements.
@@ -512,9 +520,17 @@ class DataContainer(ABC):
             )
         else:
             assert_validities(self, other)
-            z.fill(
-               numpy.minimum(self.as_array(), other.as_array())
-            )
+            try:
+                handle = pysirf.cSIRF_minimum(self.handle, other.handle)
+                check_status(handle)
+                if z.handle is not None:
+                    pyiutil.deleteDataHandle(z.handle)
+                z.handle = handle
+            except:
+                #print('minimum not implemented in C++, use numpy')
+                z.fill(
+                   numpy.minimum(self.as_array(), other.as_array())
+                )
         return z
     # inline algebra
     def __iadd__(self, other):

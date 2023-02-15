@@ -57,6 +57,8 @@ void* cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z);
 void* cSIRF_product(const void* ptr_x, const void* ptr_y);
 void* cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z);
 void* cSIRF_ratio(const void* ptr_x, const void* ptr_y);
+void* cSIRF_maximum(const void* ptr_x, const void* ptr_y);
+void* cSIRF_minimum(const void* ptr_x, const void* ptr_y);
 void* cSIRF_write(const void* ptr, const char* filename);
 void* cSIRF_clone(void* ptr_x);
 

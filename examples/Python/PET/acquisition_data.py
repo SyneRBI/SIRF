@@ -119,6 +119,10 @@ def main():
     acq_factor = acq_data.get_uniform_copy(0.1)
     new_acq_data = acq_data / acq_factor
     print('norm of acq_data*10: %f' % new_acq_data.norm())
+    acq_data_max = new_acq_data.maximum(acq_data)
+    print('norm of max(acq_data, acq_data*10): %f' % acq_data_max.norm())
+    acq_data_min = new_acq_data.minimum(acq_data)
+    print('norm of min(acq_data, acq_data*10): %f' % acq_data_min.norm())
     acq_copy = acq_data.get_uniform_copy(1.0)
     acq_copy *= acq_data
     diff = acq_copy - acq_data
@@ -141,8 +145,12 @@ def main():
     print('image.norm(): %f' % s)
     print('sqrt(image.dot(image)): %f' % math.sqrt(t))
     image_factor = image.get_uniform_copy(0.1)
-    image = image / image_factor
-    print('norm of image*10: %f' % image.norm())
+    new_image = image / image_factor
+    print('norm of image*10: %f' % new_image.norm())
+    image_max = new_image.maximum(image)
+    print('norm of max(image, image*10): %f' % image_max.norm())
+    image_min = new_image.minimum(image)
+    print('norm of min(image, image*10): %f' % image_min.norm())
     diff = image.clone() - image
     print('norm of image.clone() - image: %f' % diff.norm())
     image_copy = image.get_uniform_copy()

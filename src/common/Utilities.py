@@ -446,9 +446,9 @@ def check_status(handle, stack=None):
     if pyiutil.executionStatus(handle) != 0:
         if stack is None:
             stack = inspect.stack()[1]
-        print('\nFile: %s' % stack[1])
-        print('Line: %d' % stack[2])
-        print('check_status found the following message sent from the engine:')
+#        print('\nFile: %s' % stack[1])
+#        print('Line: %d' % stack[2])
+#        print('check_status found the following message sent from the engine:')
         msg = pyiutil.executionError(handle)
         file = pyiutil.executionErrorFile(handle)
         line = pyiutil.executionErrorLine(handle)

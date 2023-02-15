@@ -299,6 +299,40 @@ cSIRF_ratio(const void* ptr_x, const void* ptr_y)
 
 extern "C"
 void*
+cSIRF_maximum(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.maximum(x, y);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_minimum(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.minimum(x, y);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_write(const void* ptr, const char* filename)
 {
 	try {

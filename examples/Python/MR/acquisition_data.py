@@ -143,7 +143,12 @@ def main():
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
     print('pre-processing acquisition data...')
-    processed_acq_data = preprocess_acquisition_data(acq_data)
+    processed_acq_data = preprocess_acquisition_data(acq_data).abs()
+    acq_max = processed_acq_data.maximum(processed_acq_data*10)
+    acq_min = processed_acq_data.minimum(processed_acq_data*10)
+    print('norm of acq_data: %f' % processed_acq_data.norm())
+    print('norm of max(acq_data, acq_data*10): %f' % acq_max.norm())
+    print('norm of min(acq_data, acq_data*10): %f' % acq_min.norm())
 
     # by removing the oversampling factor of 2 along the readout direction, the
     # number of readout samples was halfed
