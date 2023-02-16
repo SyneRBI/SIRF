@@ -175,11 +175,32 @@ STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
 	}
 }
 
+float
+STIRAcquisitionData::product_(float x, float y)
+{
+	return x * y;
+}
+float
+STIRAcquisitionData::ratio_(float x, float y)
+{
+	return x / y;
+}
+float
+STIRAcquisitionData::max_(float x, float y)
+{
+	return std::max(x, y);
+}
+float
+STIRAcquisitionData::min_(float x, float y)
+{
+	return std::min(x, y);
+}
+
 void
 STIRAcquisitionData::binary_op_(
 	const DataContainer& a_x,
 	const DataContainer& a_y,
-	int job
+	float(*f)(float, float)
 )
 {
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
@@ -200,20 +221,7 @@ STIRAcquisitionData::binary_op_(
 			seg_iter != seg.end_all() &&
 			sx_iter != sx.end_all() && sy_iter != sy.end_all();
 			/*empty*/) {
-			switch (job) {
-			case 1:
-				*seg_iter++ = (*sx_iter++) * (*sy_iter++);
-				break;
-			case 2:
-				*seg_iter++ = (*sx_iter++) / (*sy_iter++);
-				break;
-			case 3:
-				*seg_iter++ = std::max(*sx_iter++, *sy_iter++);
-				break;
-			case 4:
-				*seg_iter++ = std::min(*sx_iter++, *sy_iter++);
-				break;
-			}
+			*seg_iter++ = f(*sx_iter++, *sy_iter++);
 		}
 		set_segment(seg);
 		if (s != 0) {
@@ -225,20 +233,7 @@ STIRAcquisitionData::binary_op_(
 				seg_iter != seg.end_all() &&
 				sx_iter != sx.end_all() && sy_iter != sy.end_all();
 				/*empty*/) {
-				switch (job) {
-				case 1:
-					*seg_iter++ = (*sx_iter++) * (*sy_iter++);
-					break;
-				case 2:
-					*seg_iter++ = (*sx_iter++) / (*sy_iter++);
-					break;
-				case 3:
-					*seg_iter++ = std::max((*sx_iter++), (*sy_iter++));
-					break;
-				case 4:
-					*seg_iter++ = std::min((*sx_iter++), (*sy_iter++));
-					break;
-				}
+				*seg_iter++ = f(*sx_iter++, *sy_iter++);
 			}
 			set_segment(seg);
 		}
@@ -445,11 +440,32 @@ STIRImageData::scale(float s)
 		*iter /= s;
 }
 
+float
+STIRImageData::product_(float x, float y)
+{
+	return x * y;
+}
+float
+STIRImageData::ratio_(float x, float y)
+{
+	return x / y;
+}
+float
+STIRImageData::max_(float x, float y)
+{
+	return std::max(x, y);
+}
+float
+STIRImageData::min_(float x, float y)
+{
+	return std::min(x, y);
+}
+
 void
 STIRImageData::binary_op_(
 	const DataContainer& a_x,
 	const DataContainer& a_y, 
-	int job
+	float (*f)(float, float)
 ){
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
@@ -468,20 +484,7 @@ STIRImageData::binary_op_(
 		iter != data().end_all() &&
 		iter_x != x.data().end_all() && iter_y != y.data().end_all();
 		iter++, iter_x++, iter_y++)
-		switch (job) {
-		case 1:
-			*iter = (*iter_x) * (*iter_y);
-			break;
-		case 2:
-			*iter = (*iter_x) / (*iter_y);
-			break;
-		case 3:
-			*iter = std::max(*iter_x, *iter_y);
-			break;
-		case 4:
-			*iter = std::min(*iter_x, *iter_y);
-			break;
-		}
+		*iter = f(*iter_x, *iter_y);
 }
 
 int
