@@ -175,25 +175,69 @@ STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
 	}
 }
 
-float
-STIRAcquisitionData::product_(float x, float y)
+void
+STIRAcquisitionData::unary_op_(
+	const DataContainer& a_x,
+	float(*f)(float)
+)
 {
-	return x * y;
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+	for (int s = 0; s <= n && s <= nx; ++s) {
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		SegmentBySinogram<float>::full_iterator sx_iter;
+		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+			seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+			*seg_iter++ = f(*sx_iter++);
+		set_segment(seg);
+		if (s > 0) {
+			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s);
+			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s);
+			SegmentBySinogram<float>::full_iterator seg_iter;
+			SegmentBySinogram<float>::full_iterator sx_iter;
+			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+				seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+				*seg_iter++ = f(*sx_iter++);
+			set_segment(seg);
+		}
+	}
+
 }
-float
-STIRAcquisitionData::ratio_(float x, float y)
+
+void
+STIRAcquisitionData::semibinary_op_(
+	const DataContainer& a_x,
+	float y,
+	float(*f)(float, float)
+)
 {
-	return x / y;
-}
-float
-STIRAcquisitionData::max_(float x, float y)
-{
-	return std::max(x, y);
-}
-float
-STIRAcquisitionData::min_(float x, float y)
-{
-	return std::min(x, y);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+	for (int s = 0; s <= n && s <= nx; ++s) {
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		SegmentBySinogram<float>::full_iterator sx_iter;
+		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+			seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+			*seg_iter++ = f(*sx_iter++, y);
+		set_segment(seg);
+		if (s > 0) {
+			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s);
+			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s);
+			SegmentBySinogram<float>::full_iterator seg_iter;
+			SegmentBySinogram<float>::full_iterator sx_iter;
+			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+				seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+				*seg_iter++ = f(*sx_iter++, y);
+			set_segment(seg);
+		}
+	}
+
 }
 
 void
@@ -440,33 +484,57 @@ STIRImageData::scale(float s)
 		*iter /= s;
 }
 
-float
-STIRImageData::product_(float x, float y)
-{
-	return x * y;
+void
+STIRImageData::unary_op_(
+	const DataContainer& a_x,
+	float (*f)(float)
+) {
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+#endif
+
+	for (iter = data().begin_all(),
+		iter_x = x.data().begin_all();
+		iter != data().end_all() &&
+		iter_x != x.data().end_all();
+		iter++, iter_x++)
+		*iter = f(*iter_x);
 }
-float
-STIRImageData::ratio_(float x, float y)
-{
-	return x / y;
-}
-float
-STIRImageData::max_(float x, float y)
-{
-	return std::max(x, y);
-}
-float
-STIRImageData::min_(float x, float y)
-{
-	return std::min(x, y);
+
+void
+STIRImageData::semibinary_op_(
+	const DataContainer& a_x,
+	float y, 
+	float (*f)(float, float)
+){
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+#endif
+
+	for (iter = data().begin_all(),
+		iter_x = x.data().begin_all();
+		iter != data().end_all() &&
+		iter_x != x.data().end_all();
+		iter++, iter_x++)
+		*iter = f(*iter_x, y);
 }
 
 void
 STIRImageData::binary_op_(
 	const DataContainer& a_x,
-	const DataContainer& a_y, 
+	const DataContainer& a_y,
 	float (*f)(float, float)
-){
+) {
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900

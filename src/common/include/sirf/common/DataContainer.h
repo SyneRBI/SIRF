@@ -108,6 +108,30 @@ namespace sirf {
 			return std::unique_ptr<DataContainer>(ptr);
 		}
 
+		template<typename T>
+		static T product(T x, T y)
+		{
+			return x * y;
+		}
+
+		template<typename T>
+		static T ratio(T x, T y)
+		{
+			return x / y;
+		}
+
+		template<typename T>
+		static T maximum(T x, T y)
+		{
+			return std::max(x, y);
+		}
+
+		template<typename T>
+		static T minimum(T x, T y)
+		{
+			return std::min(x, y);
+		}
+
 	protected:
 		virtual DataContainer* clone_impl() const = 0;
 		/// we assume data to be real, complex data containers must override this

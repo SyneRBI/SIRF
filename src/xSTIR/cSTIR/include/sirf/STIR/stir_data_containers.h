@@ -275,21 +275,41 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op_(x, std::abs);
+		}
+		virtual void multiply(const DataContainer& x, float y)
+		{
+			semibinary_op_(x, y, DataContainer::product<float>);
+		}
+		virtual void divide(const DataContainer& x, float y)
+		{
+			semibinary_op_(x, y, DataContainer::ratio<float>);
+		}
+		virtual void maximum(const DataContainer& x, float y)
+		{
+			semibinary_op_(x, y, DataContainer::maximum<float>);
+		}
+		virtual void minimum(const DataContainer& x, float y)
+		{
+			semibinary_op_(x, y, DataContainer::minimum<float>);
+		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, &product_);
+			binary_op_(x, y, DataContainer::product<float>);
 		}
 		virtual void divide(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, &ratio_);
+			binary_op_(x, y, DataContainer::ratio<float>);
 		}
 		virtual void maximum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, &max_);
+			binary_op_(x, y, DataContainer::maximum<float>);
 		}
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, &min_);
+			binary_op_(x, y, DataContainer::minimum<float>);
 		}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
@@ -408,12 +428,9 @@ namespace sirf {
 
 	private:
 		mutable int _is_empty = -1;
+		void unary_op_(const DataContainer& a_x, float(*f)(float));
+		void semibinary_op_(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op_(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
-		static float product_(float x, float y);
-		static float ratio_(float x, float y);
-		static float max_(float x, float y);
-		static float min_(float x, float y);
-
 	};
 
 	/*!
@@ -1000,21 +1017,41 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op_(x, std::abs);
+		}
+		virtual void multiply(const DataContainer& x, float y)
+		{
+			semibinary_op_(x, y, DataContainer::product<float>);
+		}
+		virtual void divide(const DataContainer& x, float y)
+		{
+			semibinary_op_(x, y, DataContainer::ratio<float>);
+		}
+		virtual void maximum(const DataContainer& x, float y)
+		{
+			semibinary_op_(x, y, DataContainer::maximum<float>);
+		}
+		virtual void minimum(const DataContainer& x, float y)
+		{
+			semibinary_op_(x, y, DataContainer::minimum<float>);
+		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, &product_);
+			binary_op_(x, y, DataContainer::product<float>);
 		}
 		virtual void divide(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, &ratio_);
+			binary_op_(x, y, DataContainer::ratio<float>);
 		}
 		virtual void maximum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, &max_);
+			binary_op_(x, y, DataContainer::maximum<float>);
 		}
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, &min_);
+			binary_op_(x, y, DataContainer::minimum<float>);
 		}
 
 		Image3DF& data()
@@ -1136,14 +1173,11 @@ namespace sirf {
         {
             return new STIRImageData(*this);
         }
+		void unary_op_(const DataContainer& a_x, float(*f)(float));
+		void semibinary_op_(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op_(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
-		static float product_(float x, float y);
-		static float ratio_(float x, float y);
-		static float max_(float x, float y);
-		static float min_(float x, float y);
 
 	protected:
-
 		stir::shared_ptr<Image3DF> _data;
 		mutable std::shared_ptr<Iterator> _begin;
 		mutable std::shared_ptr<Iterator> _end;
