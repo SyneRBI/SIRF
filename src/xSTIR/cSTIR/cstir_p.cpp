@@ -950,7 +950,7 @@ sirf::cSTIR_setReconstructionParameter
 	if (sirf::iequals(name, "output_filename_prefix"))
 		recon.set_output_filename_prefix(charDataFromDataHandle(hv));
 	else if (sirf::iequals(name, "input_data")) {
-		SPTR_FROM_HANDLE(PETScanData, sptr_ad, hv);
+		SPTR_FROM_HANDLE(STIRScanData, sptr_ad, hv);
 		recon.set_input_data(sptr_ad->data_sptr());
 	}
 	else if (sirf::iequals(name, "disable_output")) {

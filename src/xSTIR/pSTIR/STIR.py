@@ -1082,12 +1082,12 @@ class PinholeSPECTUBMatrix:
         return self
 
 
-class PETScanData(DataContainer):
-    """Abstract base class for PET raw data."""
+class ScanData(DataContainer):
+    """Abstract base class for STIR raw data."""
 
 
-class ListmodeData(PETScanData):
-    """Class for PET list mode data."""
+class ListmodeData(ScanData):
+    """Class for STIR list mode data."""
 
     def __init__(self, filename=None):
         self.handle = None
@@ -1119,11 +1119,11 @@ class ListmodeData(PETScanData):
         self.read_only = True
 
 
-PETScanData.register(ListmodeData)
+ScanData.register(ListmodeData)
 
 
-class AcquisitionData(PETScanData):
-    """Class for PET sinogram (or projection) acquisition data."""
+class AcquisitionData(ScanData):
+    """Class for stir sinogram (or projection) acquisition data."""
 
     def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1, tof_mash_factor=1):
         """Creates new AcquisitionData.
@@ -1453,7 +1453,7 @@ class AcquisitionData(PETScanData):
         return numpy.float32
 
 
-PETScanData.register(AcquisitionData)
+ScanData.register(AcquisitionData)
 
 
 class ListmodeToSinograms(object):
@@ -2776,7 +2776,7 @@ class Reconstructor(object):
 
     def set_input(self, input_data):
         """Sets the acquisition data to use for reconstruction."""
-        assert_validity(input_data, PETScanData)
+        assert_validity(input_data, ScanData)
         parms.set_parameter(
             self.handle, 'Reconstruction',
             'input_data', input_data.handle)

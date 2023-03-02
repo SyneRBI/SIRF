@@ -139,9 +139,9 @@ namespace sirf {
 	\ingroup PET
 	\brief Abstract base class for PET scanner data
 	*/
-	class PETScanData : public DataContainer {
+	class STIRScanData : public DataContainer {
 	public:
-		virtual ~PETScanData() {}
+		virtual ~STIRScanData() {}
 		//virtual stir::shared_ptr<stir::ExamData> data_sptr() = 0;
 		virtual stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
 		//virtual const stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
@@ -158,7 +158,7 @@ namespace sirf {
 	storage mode (file/memory) selection.
 	*/
 
-	class STIRAcquisitionData : public PETScanData {
+	class STIRAcquisitionData : public STIRScanData {
 	public:
 		virtual ~STIRAcquisitionData() {}
 
