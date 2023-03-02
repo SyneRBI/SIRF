@@ -54,7 +54,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
     end
     methods
         function self = AcquisitionData...
-                (arg, span, max_ring_diff, view_mash_factor)
+                (arg, span, max_ring_diff, view_mash_factor, tof_mash_factor)
 %***SIRF*** AcquisitionData(arg) creates a new AcquisitionData object 
 %           from a file or scanner or another AcquisitionData object;
 %           arg:  file or scanner name or AcquisitionData object.
@@ -62,7 +62,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
 %           given to specify the data size, e.g.:
 %                acq=AcquisitionData('Siemens_mMR',span,max_ring_diff,view_mash_factor);
 %           Defaults are: 
-%                span=1, max_ring_diff=-1 (i.e. all), view_mash_factor=1
+%                span=1, max_ring_diff=-1 (i.e. all), view_mash_factor=1, tof_mash_factor=1
             self.handle_ = [];
             self.name = 'AcquisitionData';
             self.read_only = false;
@@ -71,6 +71,9 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             elseif ischar(arg)
                 i = strfind(arg, '.');
                 if isempty(i)
+                    if nargin < 5
+                        tof_mash_factor = 1;
+                    end
                     if nargin < 4
                         view_mash_factor = 1;
                     end
@@ -82,7 +85,7 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
                     end
                     self.handle_ = calllib...
                         ('mstir', 'mSTIR_acquisitionDataFromScannerInfo',...
-                        arg, span, max_ring_diff, view_mash_factor);
+                        arg, span, max_ring_diff, view_mash_factor, tof_mash_factor);
                     status = calllib('miutilities', 'mExecutionStatus', ...
                         self.handle_);
                     if status ~= 0

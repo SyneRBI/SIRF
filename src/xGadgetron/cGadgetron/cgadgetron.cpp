@@ -1,8 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
-Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2023 University College London
+Copyright 2020 - 2023 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -154,6 +154,8 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(PhysioInterpolationGadget);
 		NEW_GADGET(GPURadialSensePrepGadget);
 		NEW_GADGET(GPUCGSenseGadget);
+		NEW_GADGET(FFTGadget);
+		NEW_GADGET(CombineGadget);
 		NEW_GADGET(ExtractGadget);
 		NEW_GADGET(AutoScaleGadget);
 		NEW_GADGET(ComplexToFloatGadget);
@@ -486,14 +488,14 @@ cGT_sortAcquisitionsByTime(void* ptr_acqs)
 
 extern "C"
 void*
-cGT_ISMRMRDAcquisitionsFromFile(const char* file)
+cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all)
 {
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
 		shared_ptr<MRAcquisitionData>
 			acquisitions(new AcquisitionsVector);
-		acquisitions->read(file);
+		acquisitions->read(file, all);
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;
@@ -929,6 +931,39 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
     CATCH;
 }
 
+extern "C"
+void*
+cGT_setDataTrajectory(void* ptr_acqs, int const traj_dim, size_t ptr_traj)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* fltptr_traj = (float*) ptr_traj;
+		acqs.set_trajectory(traj_dim, fltptr_traj);
+	
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void*
+cGT_setTrajectoryType(void* ptr_acqs, int const traj_type)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+		
+		const ISMRMRD::TrajectoryType type = static_cast<ISMRMRD::TrajectoryType>(traj_type);
+		acqs.set_trajectory_type(type);
+			
+        return new DataHandle;
+    }
+    CATCH;
+}
 
 extern "C"
 void* cGT_setAcquisitionUserFloat(void* ptr_acqs, size_t ptr_floats, int idx)
@@ -1008,13 +1043,14 @@ cGT_imageParameter(void* ptr_im, const char* name)
 
 extern "C"
 void*
-cGT_reconstructImages(void* ptr_recon, void* ptr_input)
+cGT_reconstructImages(void* ptr_recon, void* ptr_input, const char* dcm_prefix)
 {
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		CAST_PTR(DataHandle, h_input, ptr_input);
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		MRAcquisitionData& input = objectFromHandle<MRAcquisitionData>(h_input);
+		recon.set_dcm_prefix(dcm_prefix);
 		recon.process(input);
 		return new DataHandle;
 	}
@@ -1136,6 +1172,7 @@ cGT_getImageDim(void* ptr_img, size_t ptr_dim)
 	int* dim = (int*)ptr_dim;
 	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
 	image.get_dim(dim);
+//	image.show_attributes();
 }
 
 extern "C"

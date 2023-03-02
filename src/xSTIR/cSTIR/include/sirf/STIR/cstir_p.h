@@ -27,6 +27,15 @@ limitations under the License.
 namespace sirf {
 
 	void*
+		cSTIR_setImageDataParameter(void* hp, const char* name, const void* hv);
+
+	void*
+		cSTIR_AcquisitionDataParameter(void* hp, const char* name);
+
+	void*
+		cSTIR_ImageDataParameter(void* hp, const char* name);
+
+	void*
 		cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv);
 
 	void*
@@ -34,6 +43,20 @@ namespace sirf {
 
 	void*
 		cSTIR_shapeParameter(const DataHandle* handle, const char* name);
+
+	void*
+		cSTIR_setBox3DParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_Box3DParameter(const DataHandle* handle, const char* name);
+
+	void*
+		cSTIR_setEllipsoidParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_ellipsoidParameter(const DataHandle* handle, const char* name);
 
 	void*
 		cSTIR_setEllipsoidalCylinderParameter
@@ -55,6 +78,13 @@ namespace sirf {
 
 	void*
 		cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name);
+		
+	void*
+		cSTIR_setPinholeSPECTUBMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* name);
 
 	void*
 		cSTIR_setAcquisitionModelParameter

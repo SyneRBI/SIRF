@@ -12,7 +12,7 @@ Options:
   -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
   -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr]
   -I <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
-                               (no space after comma) [default: (0,50)]
+                               (no space after comma) [default: (0,100)]
   -d <nxny>, --nxny=<nxny>     image x and y dimensions as string '(nx,ny)'
                                (no space after comma) [default: (127,127)]
   -S <subs>, --subs=<subs>     number of subsets [default: 7]

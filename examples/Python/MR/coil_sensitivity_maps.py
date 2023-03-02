@@ -83,7 +83,9 @@ def main():
     print('A) calculating from raw data...')
     CSMs.calculate(processed_data)
     #
-    #CSMs.write('csm.h5')
+    # check fill & as_array compatibility
+    zero = CSMs - CSMs.fill(CSMs.as_array())
+    print('CSMs - CSMs.fill(CSMs.as_array()) = %f' % zero.norm())
     if show_plot:
         # display coil sensitivity maps
         csms_array = CSMs.as_array()

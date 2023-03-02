@@ -1,7 +1,7 @@
 """Object-Oriented wrap for the cSTIR-to-Python interface pystir.py."""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+# Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
 # Copyright 2015 - 2022 University College London
 # Copyright 2019 University of Hull
 #
@@ -219,6 +219,98 @@ class Shape(object):
         z = parms.float_par(self.handle, 'Shape', 'z')
         return (x, y, z)
 
+class Box3D(Shape):
+    """Class for elliptic cylinder shape."""
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'Box3D'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_length_x(self, value):
+        """Sets dimension x length in mm."""
+        parms.set_float_par(self.handle, self.name, 'length_x', value)
+
+    def get_length_x(self):
+        """Returns dimension x length in mm."""
+        return parms.float_par(self.handle, self.name, 'length_x')
+
+    def set_length_y(self, value):
+        """Sets dimension y length in mm."""
+        parms.set_float_par(self.handle, self.name, 'length_y', value)
+
+    def get_length_y(self):
+        """Returns dimension y length in mm."""
+        return parms.float_par(self.handle, self.name, 'length_y')
+
+    def set_length_z(self, value):
+        """Sets dimension z length in mm."""
+        parms.set_float_par(self.handle, self.name, 'length_z', value)
+
+    def get_length_z(self):
+        """Returns dimension z length in mm."""
+        return parms.float_par(self.handle, self.name, 'length_z')
+
+    def set_lengths(self, value):
+        """Sets lengths in mm."""
+        parms.set_float_par(self.handle, self.name, 'length_x', value[0])
+        parms.set_float_par(self.handle, self.name, 'length_y', value[1])
+        parms.set_float_par(self.handle, self.name, 'length_z', value[2])
+
+    def get_lengths(self):
+        """Returns lengths in mm."""
+        length_x = parms.float_par(self.handle, self.name, 'length_x')
+        length_y = parms.float_par(self.handle, self.name, 'length_y')
+        length_z = parms.float_par(self.handle, self.name, 'length_z')
+        return (length_x, length_y, length_z)
+
+
+class Ellipsoid(Shape):
+    """Class for ellipsoid shape."""
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'Ellipsoid'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_radius_x(self, value):
+        """Sets x radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_x', value)
+
+    def get_radius_x(self):
+        """Returns x radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_x')
+
+    def set_radius_y(self, value):
+        """Sets y radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_y', value)
+
+    def get_radius_y(self):
+        """Returns y radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_y')
+
+    def set_radius_z(self, value):
+        """Sets z radius in mm."""
+        parms.set_float_par(self.handle, self.name, 'radius_z', value)
+
+    def get_radius_z(self):
+        """Returns z radius in mm."""
+        return parms.float_par(self.handle, self.name, 'radius_z')
+
 
 class EllipticCylinder(Shape):
     """Class for elliptic cylinder shape."""
@@ -322,6 +414,17 @@ class ImageData(SIRF.ImageData):
     def same_object(self):
         """See DataContainer method."""
         return ImageData()
+
+    def modality(self):
+        """Returns imaging modality as Python string."""
+        return parms.char_par(self.handle, 'ImageData', 'modality')
+
+    def set_modality(self, mod):
+        """Sets imaging modality.
+
+        mod: "PT" or "NM" or "MR" or "CT" or "US" or "Optical"
+        """
+        return parms.set_char_par(self.handle, 'ImageData', 'modality', mod)
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
@@ -856,6 +959,129 @@ class SPECTUBMatrix:
         try_calling(pystir.cSTIR_SPECTUBMatrixSetResolution(self.handle, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D))
 
 
+class PinholeSPECTUBMatrix:
+    """
+    Class for objects holding sparse matrix representation of a pinhole SPECT
+    projector (developed at the University of Barcelona) (see AcquisitionModel class).
+    """
+    name = 'PinholeSPECTUBMatrix'
+
+    def __init__(self):
+        """Create a new matrix. Default settings use neither attenuation, PSF, or DOI modelling."""
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+            
+    def get_maximum_number_of_sigmas(self):
+        """Returns the number of sigmas to consider when correcting for intrinsic PSF."""
+        return parms.float_par(self.handle, self.name, 'maximum_number_of_sigmas')
+    
+    def set_maximum_number_of_sigmas(self, value):
+        """Sets the number of sigmas to consider when correcting for intrinsic PSF."""
+        parms.set_float_par(self.handle, self.name, 'maximum_number_of_sigmas', value)
+        
+    def get_spatial_resolution_PSF(self):
+        """Returns the spatial high resolution in which to sample distributions (in cm)."""
+        return parms.float_par(self.handle, self.name, 'spatial_resolution_PSF')
+    
+    def set_spatial_resolution_PSF(self, value):
+        """Sets the spatial high resolution in which to sample distributions (in cm)."""
+        parms.set_float_par(self.handle, self.name, 'spatial_resolution_PSF', value)
+        
+    def get_subsampling_factor_PSF(self):
+        """Returns the subsampling factor to compute convolutions when PSF or DOI corrections are enabled."""
+        return parms.int_par(self.handle, self.name, 'subsampling_factor_PSF')
+    
+    def set_subsampling_factor_PSF(self, value):
+        """Sets the subsampling factor to compute convolutions when PSF or DOI corrections are enabled."""
+        parms.set_int_par(self.handle, self.name, 'subsampling_factor_PSF', value)
+
+    def set_detector_file(self, filename):
+        """Sets the name of the file containing the detector information."""
+        parms.set_char_par(self.handle, self.name, 'detector_file', filename)
+    
+    def set_collimator_file(self, filename):
+        """Sets the name of the file containing the collimator information."""
+        parms.set_char_par(self.handle, self.name, 'collimator_file', filename)
+        
+    def get_psf_correction(self):
+        """Returns the setting for enabling corrections for intrinsic PSF."""
+        return parms.char_par(self.handle, self.name, 'psf_correction')
+        
+    def set_psf_correction(self, value):
+        """Enable or disable corrections for intrinsic PSF."""
+        parms.set_char_par(self.handle, self.name, 'psf_correction', value)
+        
+    def get_doi_correction(self):
+        """Returns the setting for enabling corrections for depth of interaction."""
+        return parms.char_par(self.handle, self.name, 'doi_correction')
+        
+    def set_doi_correction(self, value):
+        """Enable or disable corrections for depth of interaction."""
+        parms.set_char_par(self.handle, self.name, 'doi_correction', value)
+        
+    def get_attenuation_type(self):
+        """Returns the attenuation type: full, simple, or no."""
+        return parms.char_par(self.handle, self.name, 'attenuation_type')
+        
+    def set_attenuation_type(self, value):
+        """Set the attenuation type to full, simple, or no."""
+        parms.set_char_par(self.handle, self.name, 'attenuation_type', value)
+        
+    def get_attenuation_image(self):
+        """Returns the attenuation image used by the projector."""
+        image = ImageData()
+        image.handle = parms.parameter_handle(self.handle, self.name, 'attenuation_image')
+        return image
+
+    def set_attenuation_image(self, value):
+        """Sets the attenuation image used by the projector."""
+        assert_validity(value, ImageData)
+        parms.set_parameter(self.handle, self.name, 'attenuation_image', value.handle)
+        return self
+        
+    def get_object_radius(self):
+        """Returns the radius of the object in the xy plane of the image volume."""
+        return parms.float_par(self.handle, self.name, 'object_radius')
+    
+    def set_object_radius(self, value):
+        """Sets the radius of the object in the xy plane of the image volume. Could be used for masking."""
+        parms.set_float_par(self.handle, self.name, 'object_radius', value)
+        
+    def get_mask_image(self):
+        """Returns the mask image used by the projector."""
+        image = ImageData()
+        image.handle = parms.parameter_handle(self.handle, self.name, 'mask_image')
+        return image
+
+    def set_mask_image(self, value):
+        """Sets the mask image used by the projector."""
+        assert_validity(value, ImageData)
+        parms.set_parameter(self.handle, self.name, 'mask_image', value.handle)
+        return self
+        
+    def get_keep_all_views_in_cache(self):
+        """Returns a bool checking if we're keeping the whole matrix in memory or not."""
+        return parms.bool_par(self.handle, self.name, 'keep_all_views_in_cache')
+            
+    def set_keep_all_views_in_cache(self, value):
+        """Enable keeping the matrix in memory to speed-up calculations (can use lots of memory)."""
+        parms.set_bool_par(self.handle, self.name, 'keep_all_views_in_cache', value)
+        return self
+        
+    def get_mask_from_attenuation_map(self):
+        """Returns a bool checking if we're masking with the attenuation map or not."""
+        return parms.bool_par(self.handle, self.name, 'mask_from_attenuation_map')
+            
+    def set_mask_from_attenuation_map(self, value):
+        """Enable masking from attenuation map if mask file is not set."""
+        parms.set_bool_par(self.handle, self.name, 'mask_from_attenuation_map', value)
+        return self
+
+
 class PETScanData(DataContainer):
     """Abstract base class for PET raw data."""
 
@@ -897,9 +1123,9 @@ PETScanData.register(ListmodeData)
 
 
 class AcquisitionData(PETScanData):
-    """Class for PET acquisition data."""
+    """Class for PET sinogram (or projection) acquisition data."""
 
-    def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1):
+    def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1, tof_mash_factor=1):
         """Creates new AcquisitionData.
 
         Can create object from a file or another AcquisitionData object.
@@ -922,7 +1148,7 @@ class AcquisitionData(PETScanData):
             else:
                 # src is a scanner name
                 self.handle = pystir.cSTIR_acquisitionDataFromScannerInfo(
-                    src, span, max_ring_diff, view_mash_factor)
+                    src, span, max_ring_diff, view_mash_factor, tof_mash_factor)
                 if pyiutil.executionStatus(self.handle) != 0:
                     msg = pyiutil.executionError(self.handle)
                     if msg == 'Unknown scanner':
@@ -1028,6 +1254,10 @@ class AcquisitionData(PETScanData):
         dim = dim[:4]
         return tuple(dim[::-1])
 
+    def get_tof_mash_factor(self):
+        '''Returns TOF mashing factor.'''
+        return parms.int_par(self.handle, 'AcquisitionData', 'tof_mash_factor')
+
     def as_array(self):
         """Returns bin values as ndarray.
 
@@ -1102,7 +1332,8 @@ class AcquisitionData(PETScanData):
 
     def rebin(self, num_segments_to_combine,
               num_views_to_combine=1, num_tang_poss_to_trim=0,
-              do_normalisation=True, max_in_segment_num_to_process=-1):
+              do_normalisation=True, max_in_segment_num_to_process=-1,
+              num_tof_bins_to_combine=1):
         """Re-bins the data to lower resolution.
 
         Keyword arguments:
@@ -1118,18 +1349,19 @@ class AcquisitionData(PETScanData):
 			while the former should be used for corrected data (or for attenuation correction factors).
 		max_in_segment_num_to_process -- by default all input data are used. If set to a non-negative
 		    number, it will remove the most oblique segments.
+		num_tof_bins_to_combine -- number of TOF bins to combine.
         """
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_rebinnedAcquisitionData(
             self.handle,
             num_segments_to_combine, num_views_to_combine,
             num_tang_poss_to_trim, do_normalisation,
-            max_in_segment_num_to_process)
+            max_in_segment_num_to_process, num_tof_bins_to_combine)
         check_status(ad.handle)
         return ad
 
     def show(self, sino=None, tof=0, title=None):
-        '''Displays interactively selected sinograms.'''
+        '''Displays selected sinograms.'''
         if self.handle is None:
             raise AssertionError()
         if not HAVE_PYLAB:
@@ -1198,6 +1430,19 @@ class AcquisitionData(PETScanData):
         info = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return info
+
+    def get_subset(self, views):
+        """Returns the subset of self data formed by specified views
+
+        views: array of views (will be converted to numpy ndarray)
+        """
+        # Ensure the array passed to C++ is a contiguous array of C++ int's
+        v = cpp_int_array(views)
+        n = len(views)
+        subset = AcquisitionData()
+        subset.handle = pystir.cSTIR_get_subset(self.handle, n, v.ctypes.data)
+        check_status(subset.handle)
+        return subset
 
     @property
     def shape(self):
@@ -1880,12 +2125,11 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         Sets the matrix G to be used for projecting;
         matrix:  a matrix object to represent G in acquisition model (F).
         '''
-        # TODO will need to allow for different matrices here
+        # The following allows for different matrices
         try:
-            assert_validity(matrix, SPECTUBMatrix)
+            parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
         except:
-            assert_validity(matrix, RayTracingMatrix)
-        parms.set_parameter(self.handle, self.name, 'matrix', matrix.handle)
+            raise AssertionError('Unknown matrix type.')
 
 
 class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
@@ -2940,6 +3184,15 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         """Sets use hybrid mode flag."""
         v = 1 if tf else 0
         parms.set_int_par(self.handle, 'KOSMAPOSL', 'hybrid', v)
+
+    def compute_kernelised_image(self, image, alpha):
+        assert_validity(image, ImageData)
+        assert_validity(alpha, ImageData)
+        ki = ImageData()
+        ki.handle = pystir.cSTIR_computeKernelisedImage \
+            (self.handle, image.handle, alpha.handle)
+        check_status(ki.handle)
+        return ki
 
 
 class SingleScatterSimulator():
