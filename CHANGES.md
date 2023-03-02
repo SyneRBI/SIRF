@@ -3,7 +3,7 @@
 ## v3.5.0
 
 * MR
-  - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible.
+  - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible. See https://github.com/SyneRBI/SIRF/pull/1174 for more information
 
 ## v3.4.0
 
