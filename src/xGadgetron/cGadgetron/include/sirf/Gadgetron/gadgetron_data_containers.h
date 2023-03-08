@@ -235,11 +235,11 @@ namespace sirf {
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
 		// elementwise multiplication
 		// y := x .* y
-		static void multiply
+		static void multiply_acq
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// elementwise division
 		// y := x ./ y
-		static void divide
+		static void divide_acq
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// l2 norm of x
 		static float norm(const ISMRMRD::Acquisition& acq_x);
@@ -542,9 +542,8 @@ namespace sirf {
 		virtual MRAcquisitionData* clone_impl() const = 0;
 
 	private:
-		void binary_op_(int op, 
-			const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
-			const void* ptr_a = 0, const void* ptr_b = 0);
+		void binary_op_(const DataContainer& a_x, const DataContainer& a_y,
+			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
 	};
 

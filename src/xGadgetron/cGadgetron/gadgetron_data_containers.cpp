@@ -317,8 +317,6 @@ MRAcquisitionData::set_user_floats(float const * const z, int const idx)
     }
 }
 
-
-
 void 
 MRAcquisitionData::axpby
 (complex_float_t a, const ISMRMRD::Acquisition& acq_x,
@@ -362,7 +360,7 @@ MRAcquisitionData::xapyb
 }
 
 void
-MRAcquisitionData::multiply
+MRAcquisitionData::multiply_acq
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
 	complex_float_t* px;
@@ -374,7 +372,7 @@ MRAcquisitionData::multiply
 }
 
 void
-MRAcquisitionData::divide
+MRAcquisitionData::divide_acq
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
 	complex_float_t* px;
@@ -441,22 +439,115 @@ MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 
 void
 MRAcquisitionData::axpby(
-const void* ptr_a, const DataContainer& a_x,
-const void* ptr_b, const DataContainer& a_y)
+    const void* ptr_a, const DataContainer& a_x,
+    const void* ptr_b, const DataContainer& a_y)
 {
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(1, x, y, ptr_a, ptr_b);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+    if (!x.sorted() || !y.sorted())
+        THROW("a*x + b*y cannot be applied to unsorted x or y");
+    complex_float_t a = *(complex_float_t*)ptr_a;
+    complex_float_t b = *(complex_float_t*)ptr_b;
+    int nx = x.number();
+    int ny = y.number();
+    ISMRMRD::Acquisition ax;
+    ISMRMRD::Acquisition ay;
+    ISMRMRD::Acquisition acq;
+    bool isempty = (number() < 1);
+    for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
+        if (!x.get_acquisition(ix, ax)) {
+            std::cout << ix << " ignored (ax)\n";
+            ix++;
+            continue;
+        }
+        if (!y.get_acquisition(iy, ay)) {
+            std::cout << iy << " ignored (ay)\n";
+            iy++;
+            continue;
+        }
+        if (!isempty) {
+            if (!get_acquisition(k, acq)) {
+                std::cout << k << " ignored (acq)\n";
+                k++;
+                continue;
+            }
+        }
+        MRAcquisitionData::axpby(a, ax, b, ay);
+        if (isempty)
+            append_acquisition(ay);
+        else
+            set_acquisition(k, ay);
+        ix++;
+        iy++;
+        k++;
+    }
+    this->set_sorted(true);
+    this->organise_kspace();
 }
 
 void
 MRAcquisitionData::xapyb(
-	const DataContainer& a_x, const DataContainer& a_a,
-	const DataContainer& a_y, const DataContainer& a_b)
+    const DataContainer& a_x, const DataContainer& a_a,
+    const DataContainer& a_y, const DataContainer& a_b)
 {
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(-1, x, y, &a_a, &a_b);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, a, a_a);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, b, a_b);
+    if (!x.sorted() || !y.sorted() || !a.sorted() || !b.sorted())
+        THROW("x*a + y*b cannot be applied to unsorted a, b, x or y");
+    int nx = x.number();
+    int ny = y.number();
+    int na = a.number();
+    int nb = b.number();
+    ISMRMRD::Acquisition ax;
+    ISMRMRD::Acquisition ay;
+    ISMRMRD::Acquisition aa;
+    ISMRMRD::Acquisition ab;
+    ISMRMRD::Acquisition acq;
+    bool isempty = (number() < 1);
+    for (int ix = 0, iy = 0, ia = 0, ib = 0, k = 0;
+        ix < nx && iy < ny && ia < na && ib < nb;) {
+        if (!x.get_acquisition(ix, ax)) {
+            std::cout << ix << " ignored (ax)\n";
+            ix++;
+            continue;
+        }
+        if (!y.get_acquisition(iy, ay)) {
+            std::cout << iy << " ignored (ay)\n";
+            iy++;
+            continue;
+        }
+        if (!a.get_acquisition(ia, aa)) {
+            std::cout << ia << " ignored (aa)\n";
+            ia++;
+            continue;
+        }
+        if (!b.get_acquisition(ib, ab)) {
+            std::cout << ib << " ignored (ab)\n";
+            ib++;
+            continue;
+        }
+        if (!isempty) {
+            if (!get_acquisition(k, acq)) {
+                std::cout << k << " ignored (acq)\n";
+                k++;
+                continue;
+            }
+        }
+        MRAcquisitionData::xapyb(ax, aa, ay, ab);
+        if (isempty)
+            append_acquisition(ay);
+        else
+            set_acquisition(k, ay);
+        ix++;
+        iy++;
+        ia++;
+        ib++;
+        k++;
+    }
+    this->set_sorted(true);
+    this->organise_kspace();
 }
 
 void
@@ -472,7 +563,7 @@ MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(2, x, y);
+	binary_op_(x, y, MRAcquisitionData::multiply_acq);
 }
 
 void
@@ -480,47 +571,27 @@ MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
 {
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(3, x, y);
+	binary_op_(x, y, MRAcquisitionData::divide_acq);
 }
 
 void 
-MRAcquisitionData::binary_op_(int op, 
-const MRAcquisitionData& x, const MRAcquisitionData& y,
-const void* ptr_a, const void* ptr_b)
+MRAcquisitionData::binary_op_(
+    const DataContainer& a_x, const DataContainer& a_y,
+    void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&))
 {
-	//SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	//SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	if (!x.sorted() || !y.sorted())
 		THROW("binary algebraic operations cannot be applied to unsorted data");
-	complex_float_t a;
-	complex_float_t b;
-	const MRAcquisitionData* ptr_aa;
-	const MRAcquisitionData* ptr_ab;
-	if (op == 1) {
-		a = *(complex_float_t*)ptr_a;
-		b = *(complex_float_t*)ptr_b;
-	}
-	else if (op == -1) {
-		ptr_aa = (const MRAcquisitionData*)ptr_a;
-		ptr_ab = (const MRAcquisitionData*)ptr_b;
-	}
 
 	int nx = x.number();
 	int ny = y.number();
-	int na = 1;
-	int nb = 1;
-	if (op < 0) {
-		na = ptr_aa->number();
-		nb = ptr_ab->number();
-	}
 	ISMRMRD::Acquisition ax;
 	ISMRMRD::Acquisition ay;
-	ISMRMRD::Acquisition aa;
-	ISMRMRD::Acquisition ab;
 	ISMRMRD::Acquisition acq;
 	bool isempty = (number() < 1);
-	for (int ix = 0, iy = 0, ia = 0, ib = 0, k = 0; 
-		ix < nx && iy < ny && ia < na && ib < nb;) {
+    for (int ix = 0, iy = 0, ia = 0, ib = 0, k = 0;
+        ix < nx && iy < ny;){ // && ia < na && ib < nb;) {
 		if (!x.get_acquisition(ix, ax)) {
 			std::cout << ix << " ignored (ax)\n";
 			ix++;
@@ -531,18 +602,6 @@ const void* ptr_a, const void* ptr_b)
 			iy++;
 			continue;
 		}
-		if (op < 0) {
-			if (!ptr_aa->get_acquisition(ia, aa)) {
-				std::cout << ia << " ignored (aa)\n";
-				ia++;
-				continue;
-			}
-			if (!ptr_ab->get_acquisition(ib, ab)) {
-				std::cout << ib << " ignored (ab)\n";
-				ib++;
-				continue;
-			}
-		}
 		if (!isempty) {
 			if (!get_acquisition(k, acq)) {
 				std::cout << k << " ignored (acq)\n";
@@ -550,32 +609,13 @@ const void* ptr_a, const void* ptr_b)
 				continue;
 			}
 		}
-		switch (op) {
-		case 1:
-			MRAcquisitionData::axpby(a, ax, b, ay);
-			break;
-		case -1:
-			MRAcquisitionData::xapyb(ax, aa, ay, ab);
-			break;
-		case 2:
-			MRAcquisitionData::multiply(ax, ay);
-			break;
-		case 3:
-			MRAcquisitionData::divide(ax, ay);
-			break;
-		default:
-			THROW("wrong operation in MRAcquisitionData::binary_op_");
-		}
+        f(ax, ay);
 		if (isempty)
 			append_acquisition(ay);
 		else
 			set_acquisition(k, ay);
 		ix++;
 		iy++;
-		if (op < 0) {
-			ia++;
-			ib++;
-		}
 		k++;
 	}
 	this->set_sorted(true);
