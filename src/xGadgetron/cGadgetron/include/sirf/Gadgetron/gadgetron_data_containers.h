@@ -219,6 +219,9 @@ namespace sirf {
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
 		// acquisition data
+		static void binary_op
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
+			complex_float_t (*f)(complex_float_t, complex_float_t));
 		// y := a x + b y
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
