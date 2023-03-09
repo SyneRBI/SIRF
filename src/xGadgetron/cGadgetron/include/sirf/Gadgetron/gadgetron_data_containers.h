@@ -778,14 +778,14 @@ namespace sirf {
 			complex_float_t(*f)(complex_float_t, complex_float_t));
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
 		virtual void divide(const DataContainer& x, const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("maximum not defined for ISMRMRDImageData");
-		}
-		virtual void minimum(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("minimum not defined for ISMRMRDImageData");
-		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y);
+		//{
+		//	THROW("maximum not defined for ISMRMRDImageData");
+		//}
+		virtual void minimum(const DataContainer& x, const DataContainer& y);
+		//{
+		//	THROW("minimum not defined for ISMRMRDImageData");
+		//}
 
 		void fill(float s);
 		void scale(float s);

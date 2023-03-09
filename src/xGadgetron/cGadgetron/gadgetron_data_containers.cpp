@@ -1139,7 +1139,27 @@ const DataContainer& a_y)
     binary_op(x, y, DataContainer::ratio<complex_float_t>);
 }
 
-float 
+void
+GadgetronImageData::maximum(
+    const DataContainer& a_x,
+    const DataContainer& a_y)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+    binary_op(x, y, DataContainer::maxabs<complex_float_t>);
+}
+
+void
+GadgetronImageData::minimum(
+    const DataContainer& a_x,
+    const DataContainer& a_y)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+    binary_op(x, y, DataContainer::minabs<complex_float_t>);
+}
+
+float
 GadgetronImageData::norm() const
 {
 	float r = 0;

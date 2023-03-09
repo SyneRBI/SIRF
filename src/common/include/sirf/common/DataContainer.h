@@ -125,11 +125,21 @@ namespace sirf {
 		{
 			return std::max(x, y);
 		}
+		template<typename T>
+		static T maxabs(T x, T y)
+		{
+			return std::max(std::abs(x), std::abs(y));
+		}
 
 		template<typename T>
 		static T minimum(T x, T y)
 		{
 			return std::min(x, y);
+		}
+		template<typename T>
+		static T minabs(T x, T y)
+		{
+			return std::min(std::abs(x), std::abs(y));
 		}
 
 	protected:

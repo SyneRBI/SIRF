@@ -124,6 +124,17 @@ def test_main(rec=False, verb=False, throw=True):
     d = numpy.linalg.norm(ci_diff)/s
     print('images / error: %.1e' % d)
     test.check_if_equal(1, d < 1e-6)
+    ci_max = complex_images.maximum(complex_images*2)
+    ci_diff = ci_max - complex_images*2
+    d = ci_diff.norm()
+    print('images max error: %.1e' % d)
+    test.check_if_equal(0, d)
+    ci_min = complex_images.minimum(complex_images*2)
+    ci_diff = ci_min - complex_images
+    d = ci_diff.norm()
+    print('images min error: %.1e' % d)
+    test.check_if_equal(0, d)
+
     ci_abs1 = numpy.abs(complex_images.as_array())
     ci_abs2 = complex_images.abs().as_array()
     d = numpy.linalg.norm(ci_abs1 - ci_abs2)
