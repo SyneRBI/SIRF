@@ -773,6 +773,9 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
+		void binary_op(
+			const DataContainer& a_x, const DataContainer& a_y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
 		virtual void divide(const DataContainer& x, const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y)

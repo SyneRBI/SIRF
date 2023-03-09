@@ -39,6 +39,18 @@ def test_main(rec=False, verb=False, throw=True):
     recon.process()
     complex_images = recon.get_output()
 
+    pd_aux = processed_data*processed_data
+    s = pd_aux.norm()
+    pd_diff = pd_aux.as_array() - processed_data.as_array()*processed_data.as_array()
+    d = numpy.linalg.norm(pd_diff)/s
+    print('acquisitions * error: %.1e' % d)
+    test.check_if_equal(1, d < 1e-6)
+    pd_aux = processed_data/processed_data
+    s = pd_aux.norm()
+    pd_diff = pd_aux.as_array() - processed_data.as_array()/processed_data.as_array()
+    d = numpy.linalg.norm(pd_diff)/s
+    print('acquisitions / error: %.1e' % d)
+    test.check_if_equal(1, d < 1e-6)
     pad2 = processed_data - processed_data
     pad2_arr = pad2.as_array()
     d = numpy.linalg.norm(pad2_arr)
@@ -100,6 +112,18 @@ def test_main(rec=False, verb=False, throw=True):
     d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
     test.check_if_equal(0, d)
 
+    ci_aux = complex_images*complex_images
+    s = ci_aux.norm()
+    ci_diff = ci_aux.as_array() - complex_images.as_array()*complex_images.as_array()
+    d = numpy.linalg.norm(ci_diff)/s
+    print('images * error: %.1e' % d)
+    test.check_if_equal(1, d < 1e-6)
+    ci_aux = complex_images/complex_images
+    s = ci_aux.norm()
+    ci_diff = ci_aux.as_array() - complex_images.as_array()/complex_images.as_array()
+    d = numpy.linalg.norm(ci_diff)/s
+    print('images / error: %.1e' % d)
+    test.check_if_equal(1, d < 1e-6)
     ci_abs1 = numpy.abs(complex_images.as_array())
     ci_abs2 = complex_images.abs().as_array()
     d = numpy.linalg.norm(ci_abs1 - ci_abs2)
