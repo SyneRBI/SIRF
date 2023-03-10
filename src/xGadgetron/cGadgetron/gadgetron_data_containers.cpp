@@ -373,17 +373,31 @@ MRAcquisitionData::binary_op
 }
 
 void
-MRAcquisitionData::multiply_acq
+MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
     MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::product<complex_float_t>);
 }
 
 void
-MRAcquisitionData::divide_acq
+MRAcquisitionData::divide
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
     MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::ratio<complex_float_t>);
+}
+
+void
+MRAcquisitionData::maximum
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::maxabs<complex_float_t>);
+}
+
+void
+MRAcquisitionData::minimum
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::minabs<complex_float_t>);
 }
 
 complex_float_t
@@ -566,7 +580,7 @@ MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(x, y, MRAcquisitionData::multiply_acq);
+	binary_op_(x, y, MRAcquisitionData::multiply);
 }
 
 void
@@ -574,10 +588,26 @@ MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
 {
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(x, y, MRAcquisitionData::divide_acq);
+	binary_op_(x, y, MRAcquisitionData::divide);
 }
 
-void 
+void
+MRAcquisitionData::maximum(const DataContainer& a_x, const DataContainer& a_y)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+    binary_op_(x, y, MRAcquisitionData::maximum);
+}
+
+void
+MRAcquisitionData::minimum(const DataContainer& a_x, const DataContainer& a_y)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+    binary_op_(x, y, MRAcquisitionData::minimum);
+}
+
+void
 MRAcquisitionData::binary_op_(
     const DataContainer& a_x, const DataContainer& a_y,
     void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&))

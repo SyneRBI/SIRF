@@ -238,11 +238,19 @@ namespace sirf {
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
 		// elementwise multiplication
 		// y := x .* y
-		static void multiply_acq
+		static void multiply
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// elementwise division
 		// y := x ./ y
-		static void divide_acq
+		static void divide
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// elementwise maximum magnitude
+		// y := max(abs(x), abs(y))
+		static void maximum
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// elementwise minimum magnitude
+		// y := min(abs(x), abs(y))
+		static void minimum
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// l2 norm of x
 		static float norm(const ISMRMRD::Acquisition& acq_x);
@@ -429,14 +437,14 @@ namespace sirf {
 		//}
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
 		virtual void divide(const DataContainer& x,	const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("maximum not defined for MRAcquisitionData");
-		}
-		virtual void minimum(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("minimum not defined for MRAcquisitionData");
-		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y);
+		//{
+		//	THROW("maximum not defined for MRAcquisitionData");
+		//}
+		virtual void minimum(const DataContainer& x, const DataContainer& y);
+		//{
+		//	THROW("minimum not defined for MRAcquisitionData");
+		//}
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;

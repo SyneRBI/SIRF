@@ -51,6 +51,17 @@ def test_main(rec=False, verb=False, throw=True):
     d = numpy.linalg.norm(pd_diff)/s
     print('acquisitions / error: %.1e' % d)
     test.check_if_equal(1, d < 1e-6)
+    pd_max = processed_data.maximum(processed_data*2)
+    pd_diff = pd_max - processed_data.abs()*2
+    d = pd_diff.norm()/processed_data.norm()
+    print('acquisitions max error: %.1e' % d)
+    test.check_if_equal(1, d < 1e-6)
+    pd_min = processed_data.minimum(processed_data*2)
+    pd_diff = pd_min - processed_data.abs()
+    d = pd_diff.norm()/processed_data.norm()
+    print('acquisitions min error: %.1e' % d)
+    test.check_if_equal(1, d < 1e-6)
+
     pad2 = processed_data - processed_data
     pad2_arr = pad2.as_array()
     d = numpy.linalg.norm(pad2_arr)
