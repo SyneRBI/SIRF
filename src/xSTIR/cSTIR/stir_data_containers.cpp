@@ -252,21 +252,22 @@ STIRAcquisitionData::binary_op_(
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
+	if (n != nx || n != ny)
+		throw std::runtime_error("binary_op_ error: operands sizes differ");
+	SegmentBySinogram<float>::full_iterator seg_iter;
+	SegmentBySinogram<float>::full_iterator sx_iter;
+	SegmentBySinogram<float>::full_iterator sy_iter;
 	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
 	{
 		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
 		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
 		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		SegmentBySinogram<float>::full_iterator sy_iter;
+		if (seg.size_all() != sx.size_all() || seg.size_all() != sy.size_all())
+			throw std::runtime_error("binary_op_ error: operands sizes differ");
 		for (seg_iter = seg.begin_all(),
 			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all() &&
-			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-			/*empty*/) {
+			seg_iter != seg.end_all(); /*empty*/)
 			*seg_iter++ = f(*sx_iter++, *sy_iter++);
-		}
 		set_segment(seg);
 		if (s != 0) {
 			seg = get_empty_segment_by_sinogram(-s);
@@ -274,11 +275,8 @@ STIRAcquisitionData::binary_op_(
 			sy = y.get_segment_by_sinogram(-s);
 			for (seg_iter = seg.begin_all(),
 				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all() &&
-				sx_iter != sx.end_all() && sy_iter != sy.end_all();
-				/*empty*/) {
+				seg_iter != seg.end_all();	/*empty*/)
 				*seg_iter++ = f(*sx_iter++, *sy_iter++);
-			}
 			set_segment(seg);
 		}
 	}
