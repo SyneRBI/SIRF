@@ -282,6 +282,56 @@ STIRAcquisitionData::binary_op_(
 	}
 }
 
+void
+STIRAcquisitionData::xapyb(
+	const DataContainer& a_x, const void* ptr_a,
+	const DataContainer& a_y, const DataContainer& a_b)
+{
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, b, a_b);
+	float a = *(float*)ptr_a;
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+	int ny = y.get_max_segment_num();
+	int nb = b.get_max_segment_num();
+	if (n != nx || n != ny || n != nb)
+		throw std::runtime_error("binary_op_ error: operands sizes differ");
+	SegmentBySinogram<float>::full_iterator seg_iter;
+	SegmentBySinogram<float>::full_iterator sx_iter;
+	SegmentBySinogram<float>::full_iterator sy_iter;
+	SegmentBySinogram<float>::full_iterator sb_iter;
+	for (int s = 0; s <= n; ++s)
+	{
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> sb = b.get_segment_by_sinogram(s);
+		size_t size_seg = seg.size_all();
+		size_t size_sx = sx.size_all();
+		size_t size_sy = sy.size_all();
+		size_t size_sb = sb.size_all();
+		if (size_seg != size_sx || size_seg != size_sy || size_seg != size_sb)
+			throw std::runtime_error("binary_op_ error: operands sizes differ");
+		for (seg_iter = seg.begin_all(),
+			sx_iter = sx.begin_all(), sy_iter = sy.begin_all(), sb_iter = sb.begin_all();
+			seg_iter != seg.end_all(); /*empty*/)
+			*seg_iter++ = (*sx_iter++) * a + (*sy_iter++) * (*sb_iter++);
+		set_segment(seg);
+		if (s != 0) {
+			seg = get_empty_segment_by_sinogram(-s);
+			sx = x.get_segment_by_sinogram(-s);
+			sy = y.get_segment_by_sinogram(-s);
+			sb = b.get_segment_by_sinogram(-s);
+			for (seg_iter = seg.begin_all(),
+				sx_iter = sx.begin_all(), sy_iter = sy.begin_all(), sb_iter = sb.begin_all();
+				seg_iter != seg.end_all(); /*empty*/)
+				*seg_iter++ = (*sx_iter++) * a + (*sy_iter++) * (*sb_iter++);
+			set_segment(seg);
+		}
+	}
+}
+
 std::unique_ptr<STIRAcquisitionData>
 STIRAcquisitionDataInFile::get_subset(const std::vector<int>& views) const
 {
@@ -409,6 +459,9 @@ const DataContainer& a_y, const void* ptr_b)
 	typename Array<3, float>::const_full_iterator iter_y;
 #endif
 
+	if (size() != x.size() || size() != y.size())
+		throw std::runtime_error("xapyb error: operands sizes differ");
+
 	for (iter = data().begin_all(),
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
 		iter != data().end_all() &&
@@ -419,11 +472,43 @@ const DataContainer& a_y, const void* ptr_b)
 
 void
 STIRImageData::xapyb(
-const DataContainer& a_x, const DataContainer& a_a,
+const DataContainer& a_x, const void* ptr_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
+	float a = *(float*)ptr_a;
+	SIRF_DYNAMIC_CAST(const STIRImageData, b, a_b);
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+	Image3DF::const_full_iterator iter_y;
+	Image3DF::const_full_iterator iter_b;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+	typename Array<3, float>::const_full_iterator iter_y;
+	typename Array<3, float>::const_full_iterator iter_b;
+#endif
+
+	if (size() != x.size() || size() != y.size() || size() != b.size())
+		throw std::runtime_error("xapyb error: operands sizes differ");
+
+	for (iter = data().begin_all(),
+		iter_b = b.data().begin_all(),
+		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
+		iter != data().end_all();
+		iter++, iter_x++, iter_y++, iter_b++)
+		*iter = a * (*iter_x) + (*iter_b) * (*iter_y);
+}
+
+void
+STIRImageData::xapyb(
+	const DataContainer& a_x, const DataContainer& a_a,
+	const DataContainer& a_y, const DataContainer& a_b)
+{
 	SIRF_DYNAMIC_CAST(const STIRImageData, a, a_a);
-	SIRF_DYNAMIC_CAST(const STIRImageData, b, a_b);	
+	SIRF_DYNAMIC_CAST(const STIRImageData, b, a_b);
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -431,23 +516,24 @@ const DataContainer& a_y, const DataContainer& a_b)
 	Image3DF::const_full_iterator iter_x;
 	Image3DF::const_full_iterator iter_y;
 	Image3DF::const_full_iterator iter_a;
-	Image3DF::const_full_iterator iter_b;	
+	Image3DF::const_full_iterator iter_b;
 #else
 	typename Array<3, float>::full_iterator iter;
 	typename Array<3, float>::const_full_iterator iter_x;
 	typename Array<3, float>::const_full_iterator iter_y;
 	typename Array<3, float>::const_full_iterator iter_a;
-	typename Array<3, float>::const_full_iterator iter_b;	
+	typename Array<3, float>::const_full_iterator iter_b;
 #endif
+
+	if (size() != x.size() || size() != y.size() ||
+		size() != a.size() || size() != b.size())
+		throw std::runtime_error("xapyb error: operands sizes differ");
 
 	for (iter = data().begin_all(),
 		iter_a = a.data().begin_all(), iter_b = b.data().begin_all(),
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all() &&
-		iter_x != x.data().end_all() && iter_y != y.data().end_all()
-		&& iter_a != a.data().end_all() && iter_b != b.data().end_all();
-	iter++, iter_x++, iter_y++, iter_a++, iter_b++)
-
+		iter != data().end_all();
+		iter++, iter_x++, iter_y++, iter_a++, iter_b++)
 		*iter = (*iter_a) * (*iter_x) + (*iter_b) * (*iter_y);
 }
 

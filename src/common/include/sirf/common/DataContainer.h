@@ -82,6 +82,19 @@ namespace sirf {
 			const DataContainer& x, const DataContainer& a,
 			const DataContainer& y, const DataContainer& b) = 0;
 
+		/// \c *this = elementwise sum of \c x*a and elementwise \c y*b
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b) = 0;
+
+		/// \c *this = elementwise sum of elementwise \c x*a and \c y*b
+		void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const void* ptr_b)
+		{
+			xapyb(a_y, ptr_b, a_x, a_a);
+		}
+
 		virtual void write(const std::string &filename) const = 0;
 
 		bool is_empty() const

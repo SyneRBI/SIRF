@@ -275,6 +275,9 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void abs(const DataContainer& x)
 		{
 			unary_op_(x, std::abs);
@@ -1017,6 +1020,9 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void abs(const DataContainer& x)
 		{
 			unary_op_(x, std::abs);
@@ -1106,6 +1112,10 @@ namespace sirf {
 		{
 			xapyb(a_x, &a, a_y, &b);
 		}	
+		size_t size() const
+		{
+			return _data->size_all();
+		}
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;

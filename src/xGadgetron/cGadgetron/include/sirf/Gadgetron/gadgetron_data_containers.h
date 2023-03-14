@@ -230,6 +230,9 @@ namespace sirf {
 			(const ISMRMRD::Acquisition& acq_x, complex_float_t a,
 			ISMRMRD::Acquisition& acq_y, complex_float_t b);
 		static void xapyb
+			(const ISMRMRD::Acquisition& acq_x, complex_float_t a,
+			ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b);
+		static void xapyb
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
 				ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b);
 
@@ -431,10 +434,13 @@ namespace sirf {
 			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b);
-		//{
-		//	axpby(ptr_a, a_x, ptr_b, a_y);
-		//}
+			const DataContainer& a_y, const void* ptr_b)
+		{
+			axpby(ptr_a, a_x, ptr_b, a_y);
+		}
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
 		virtual void divide(const DataContainer& x,	const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
@@ -765,14 +771,14 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		virtual void xapyb(
-			const DataContainer& a_x, const DataContainer& a_a,
-			const DataContainer& a_y, const void* ptr_b)
-		{
-			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
-			ComplexFloat_ b(*(complex_float_t*)ptr_b);
-			xapyb_(a_x, a, a_y, b);
-		}
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const DataContainer& a_a,
+		//	const DataContainer& a_y, const void* ptr_b)
+		//{
+		//	SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
+		//	ComplexFloat_ b(*(complex_float_t*)ptr_b);
+		//	xapyb_(a_x, a, a_y, b);
+		//}
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b)

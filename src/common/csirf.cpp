@@ -211,6 +211,42 @@ cSIRF_xapybAlt(
 
 extern "C"
 void*
+cSIRF_XapYB(
+	const void* ptr_x, const void* ptr_a,
+	const void* ptr_y, const void* ptr_b
+) {
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto const& y = objectFromHandle<DataContainer>(ptr_y);
+		auto const& b = objectFromHandle<DataContainer>(ptr_b);
+		void* h = x.new_data_container_handle();
+		auto& z = objectFromHandle<DataContainer>(h);
+		z.xapyb(x, ptr_a, y, b);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_XapYBAlt(
+	const void* ptr_x, const void* ptr_a,
+	const void* ptr_y, const void* ptr_b,
+	void* ptr_z
+) {
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto const& y = objectFromHandle<DataContainer>(ptr_y);
+		auto const& b = objectFromHandle<DataContainer>(ptr_b);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		z.xapyb(x, ptr_a, y, b);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 {
 	try {
