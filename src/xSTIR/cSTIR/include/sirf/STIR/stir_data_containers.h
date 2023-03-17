@@ -251,7 +251,7 @@ namespace sirf {
 			try {
 				get_segment_by_sinogram(0);
 			}
-			catch (std::string msg) {
+			catch (...) {
 				_is_empty = 1;
 				return 0; // no data found - this must be a template
 			}
