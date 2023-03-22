@@ -1107,6 +1107,20 @@ The actual algorithm is described in
 		}
 	};
 
+	class xSTIR_KOSMAPOSLReconstruction3DF : public stir::KOSMAPOSLReconstruction< Image3DF > {
+	public:
+		void compute_kernelised_image_x(
+                         Image3DF& kernelised_image_out,
+                         const Image3DF& image_to_kernelise,
+                         const Image3DF& current_alpha_estimate)
+		{
+			compute_kernelised_image(
+				kernelised_image_out,
+				image_to_kernelise,
+				current_alpha_estimate);
+		}
+	};
+
 	class xSTIR_OSSPSReconstruction3DF : public stir::OSSPSReconstruction < Image3DF > {
 	public:
 		float& relaxation_parameter_value() {

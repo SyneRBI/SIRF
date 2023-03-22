@@ -10,7 +10,7 @@ Options:
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
-  -o <file>, --output=<file>   output attenuation factors sinogram
+  -o <file>, --output=<file>   output attenuation factors sinogram [default: acf.hs]
   --non-interactive            do not show plots
 '''
 

@@ -3,9 +3,9 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 '''
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-# Copyright 2018 - 2020 University College London
-# Copyright 2018 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
+# Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+# Copyright 2018 - 2023 University College London
+# Copyright 2018 - 2023 Physikalisch-Technische Bundesanstalt (PTB)
 #
 # This is software developed for the Collaborative Computational
 # Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -840,12 +840,12 @@ class AcquisitionData(DataContainer):
     Class for an MR acquisitions container.
     Each item is a 2D complex array of acquisition samples for each coil.
     '''
-    def __init__(self, file = None):
+    def __init__(self, file=None, all_=False):
         self.handle = None
         self.sorted = False
         self.info = None
         if file is not None:
-            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
+            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all_)
             check_status(self.handle)
 
     def __del__(self):
@@ -1005,9 +1005,8 @@ class AcquisitionData(DataContainer):
         if self.number() < 1:
             return numpy.zeros((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype=cpp_int_dtype())
-        hv = pygadgetron.cGT_getAcquisitionDataDimensions\
-             (self.handle, dim.ctypes.data)
-        pyiutil.deleteDataHandle(hv)
+        try_calling(pygadgetron.cGT_getAcquisitionDataDimensions\
+             (self.handle, dim.ctypes.data))
         dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
 
