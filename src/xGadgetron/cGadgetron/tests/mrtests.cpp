@@ -101,22 +101,7 @@ bool test_set_encoding_limits(AcquisitionsVector ad)
     try{
         std::cout << "Running " << __FUNCTION__ << std::endl;
 
-        std::vector<std::string> possible_names{"kspace_encoding_step_0",\
-            "kspace_encoding_step_1",\
-            "kspace_encoding_step_2",\
-            "average",\
-            "slice",\
-            "contrast",\
-            "phase",\
-            "repetition",\
-            "set",\
-            "segment"};
-
-        std::random_device dev;
-        std::mt19937 rng(dev());
-        std::uniform_int_distribution<std::mt19937::result_type> distri(0,possible_names.size()-1);
-
-        std::string name = possible_names[distri(rng)];
+        std::string name = "repetition"; // repetitions are the only encoding limits that are in the Shepp-Logan file. Other names will fail.
         std::cout << "We are testing the setter of encoding limts for " << name << std::endl;
 
         unsigned short min = distri(rng);
