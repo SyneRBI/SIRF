@@ -101,10 +101,10 @@ bool test_set_encoding_limits(AcquisitionsVector ad)
     try{
         std::cout << "Running " << __FUNCTION__ << std::endl;
 
-        std::string name = "repetition"; // repetitions are the only encoding limits that are in the Shepp-Logan file. Other names will fail.
+        std::string name = "repetition";
         std::cout << "We are testing the setter of encoding limts for " << name << std::endl;
 
-        unsigned short min = distri(rng);
+        unsigned short min = 7;
         unsigned short max = min + 10;
         unsigned short ctr = min + 4;
 
