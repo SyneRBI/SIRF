@@ -832,7 +832,7 @@ class Acquisition(object):
     def set_physiology_time_stamp(self,val,stampnum):
         assert self.handle is not None
         assert stampnum >=0 and stampnum <3, f"stampnum must be either 0, 1 or 2. You gave {stampnum}."
-        attribute = f"physiology_time_stamp{stampnum}" 
+        attribute = f"physiology_time_stamp{stampnum}"
         return parms.set_int_par(self.handle, 'acquisition', attribute, int(val))
 
 class AcquisitionData(DataContainer):
