@@ -1663,7 +1663,7 @@ def set_radial2D_trajectory(ad, traj=None):
         expected_traj_shape = (num_readouts, num_samples, traj_dim)
 
         if traj.shape != expected_traj_shape:
-            raise AssertionError("Pass the radial trajectory in the shape {}. You gave a shape of {}".format(expected_traj.shape, traj.shape))
+            raise AssertionError("Pass the radial trajectory in the shape {}. You gave a shape of {}".format(expected_traj_shape, traj.shape))
         
         ad = set_data_trajectory(ad, traj)
     return ad
@@ -1696,7 +1696,7 @@ def set_spiral2D_trajectory(ad, traj):
     expected_traj_shape = (num_readouts, num_samples, traj_dim)
 
     if traj.shape != expected_traj_shape:
-        raise AssertionError("Pass the spiral trajectory in the shape {}. You gave a shape of {}".format(expected_traj.shape, traj.shape))
+        raise AssertionError("Pass the spiral trajectory in the shape {}. You gave a shape of {}".format(expected_traj_shape, traj.shape))
     
     return(set_data_trajectory(ad, traj))
     
