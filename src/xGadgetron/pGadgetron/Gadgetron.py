@@ -1638,7 +1638,7 @@ def set_grpe_trajectory(ad, traj=None):
     '''    
     assert_validity(ad, AcquisitionData)
 
-    if traj == None:
+    if traj is None:
         try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
     else:
         raise NotImplementedError("RPE trajectory can not be set yet.")
@@ -1653,7 +1653,7 @@ def set_radial2D_trajectory(ad, traj=None):
     '''
     assert_validity(ad, AcquisitionData)
 
-    if traj == None:
+    if traj is None:
         try_calling(pygadgetron.cGT_setRadial2DTrajectory(ad.handle))
     else:
         traj_dim = int(2)
@@ -1676,7 +1676,7 @@ def set_goldenangle2D_trajectory(ad, traj=None):
     '''
     assert_validity(ad, AcquisitionData)
 
-    if traj == None:
+    if traj is None:
         try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
     else:
         ad = set_radial2D_trajectory(ad, traj)
