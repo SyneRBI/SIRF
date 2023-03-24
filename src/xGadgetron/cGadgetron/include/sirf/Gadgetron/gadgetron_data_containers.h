@@ -749,6 +749,10 @@ namespace sirf {
 		{
 			return image_wrap(im_num).type();
 		}
+		virtual size_t num_data_elm() const
+		{
+			return image_wrap(0).num_data_elm();
+		}
 
 		virtual float norm() const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
@@ -877,6 +881,10 @@ namespace sirf {
 			{
 				return v_;
 			}
+			size_t num_data_elm()
+			{
+				return 1;
+			}
 		private:
 			complex_float_t v_;
 		};
@@ -891,6 +899,7 @@ namespace sirf {
 			unsigned int ny = y.number();
 			unsigned int nb = b.number();
 			//std::cout << nx << ' ' << ny << '\n';
+			//std::cout << na << ' ' << nb << '\n';
 			if (nx != ny)
 				THROW("ImageData sizes mismatch in axpby");
 			if (na > 0 && na != nx)

@@ -54,10 +54,10 @@ void* cSIRF_xapybAlt(
 	const void* ptr_y, const void* ptr_b,
 	void* ptr_z);
 void* cSIRF_XapYB(
-	const void* ptr_x, const void* ptr_a,
+	const void* ptr_x, const PTR_FLOAT ptr_a,
 	const void* ptr_y, const void* ptr_b);
 void* cSIRF_XapYBAlt(
-	const void* ptr_x, const void* ptr_a,
+	const void* ptr_x, const PTR_FLOAT ptr_a,
 	const void* ptr_y, const void* ptr_b,
 	void* ptr_z);
 void* cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z);

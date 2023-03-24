@@ -332,6 +332,10 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_size_, ptr_, s);
 			return s;
 		}
+		size_t num_data_elm() const
+		{
+			IMAGE_PROCESSING_SWITCH_CONST(type_, return num_data_elm_, ptr_);
+		}
 		ISMRMRD::ImageHeader& head()
 		{
 			IMAGE_PROCESSING_SWITCH(type_, return get_head_ref_, ptr_);
@@ -503,12 +507,12 @@ namespace sirf {
 			const ImageWrap& y, const ImageWrap& b)
 		{
 			IMAGE_PROCESSING_SWITCH(type_, xapyb_, x.ptr_image(), &a,
-				y.ptr_image(), &b, 0, 1);
+				y.ptr_image(), b.ptr_image(), 0, 1);
 		}
 		void xapyb(const ImageWrap& x, const ImageWrap& a,
 			const ImageWrap& y, complex_float_t b)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, xapyb_, x.ptr_image(), &a,
+			IMAGE_PROCESSING_SWITCH(type_, xapyb_, x.ptr_image(), a.ptr_image(),
 				y.ptr_image(), &b, 1, 0);
 		}
 		void xapyb(const ImageWrap& x, const ImageWrap& a,
@@ -601,6 +605,12 @@ namespace sirf {
 			*n *= dim[2];
 			*n *= dim[3];
 			//*n = ptr_im->getDataSize()/(*dsize);
+		}
+
+		template<typename T>
+		size_t num_data_elm_(const ISMRMRD::Image<T>* ptr) const
+		{
+			return ptr->getNumberOfDataElements();
 		}
 
 		template<typename T>
@@ -861,6 +871,8 @@ namespace sirf {
 			else {
 				ISMRMRD::Image<T>* ptr_b = (ISMRMRD::Image<T>*)vptr_b;
 				nb = ptr_b->getNumberOfDataElements();
+				//if (nb != n)
+				//	std::cout << nb << ' ' << n << '\n';
 				if (nb != n)
 					THROW("sizes mismatch in ImageWrap xapyb: nb != n");
 				ib = ptr_b->getDataPtr();

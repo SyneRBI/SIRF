@@ -39,8 +39,12 @@ def test_main(rec=False, verb=False, throw=True):
     recon.process()
     complex_images = recon.get_output()
 
+    pd_aux = processed_data.sapyb(0.0, processed_data, processed_data)
+    s = pd_aux.norm()
+    print(s)
     pd_aux = processed_data*processed_data
     s = pd_aux.norm()
+    print(s)
     pd_diff = pd_aux.as_array() - processed_data.as_array()*processed_data.as_array()
     d = numpy.linalg.norm(pd_diff)/s
     print('acquisitions * error: %.1e' % d)
@@ -123,8 +127,12 @@ def test_main(rec=False, verb=False, throw=True):
     d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
     test.check_if_equal(0, d)
 
+    ci_aux = complex_images.sapyb(0.0, complex_images, complex_images)
+    s = ci_aux.norm()
+    print(s)
     ci_aux = complex_images*complex_images
     s = ci_aux.norm()
+    print(s)
     ci_diff = ci_aux.as_array() - complex_images.as_array()*complex_images.as_array()
     d = numpy.linalg.norm(ci_diff)/s
     print('images * error: %.1e' % d)
