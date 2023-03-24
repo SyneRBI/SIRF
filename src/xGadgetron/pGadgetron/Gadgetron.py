@@ -1630,63 +1630,92 @@ def preprocess_acquisition_data(input_data):
          'AsymmetricEchoAdjustROGadget', \
          'RemoveROOversamplingGadget'])
     
-def set_grpe_trajectory(ad):
+def set_grpe_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with golden angle radial
-    phase encoding trajectory.
+    phase encoding trajectory (traj=None) or fills in a precaculated RPE trajectory.
     ad: AcquisitionData
     '''    
     assert_validity(ad, AcquisitionData)
 
-    try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
+    if traj == None:
+        try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
+    else:
+        raise NotImplementedError("RPE trajectory can not be set yet.")
+   
     return ad
     
-def set_radial2D_trajectory(ad):
+def set_radial2D_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with linear increment 2D radial
-    readout trajectory.
+    readout trajectory (traj=None) or fills in a precaculated radial trajectory.
     ad: AcquisitionData
     '''
     assert_validity(ad, AcquisitionData)
 
-    try_calling(pygadgetron.cGT_setRadial2DTrajectory(ad.handle))
+    if traj == None:
+        try_calling(pygadgetron.cGT_setRadial2DTrajectory(ad.handle))
+    else:
+        traj_dim = int(2)
+        dims = ad.dimensions()
+        num_readouts = dims[0]
+        num_samples = dims[2]
+        expected_traj_shape = (num_readouts, num_samples, traj_dim)
+
+        if traj.shape != expected_traj_shape:
+            raise AssertionError("Pass the radial trajectory in the shape {}. You gave a shape of {}".format(expected_traj.shape, traj.shape))
+        
+        ad = set_data_trajectory(ad, traj)
     return ad
 
-def set_goldenangle2D_trajectory(ad):
+def set_goldenangle2D_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with golden angle increment 2D radial
-    readout trajectory.
+    readout trajectory (traj=None) or fills in a precaculated radial trajectory.
     ad: AcquisitionData
     '''
     assert_validity(ad, AcquisitionData)
 
-    try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
+    if traj == None:
+        try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
+    else:
+        ad = set_radial2D_trajectory(ad, traj)
     return ad
 
-def set_spiral2D_trajectory(ad, data):
-    
+def set_spiral2D_trajectory(ad, traj):
+    '''
+    Function that fills in a precalculated spiral trajectory
+    '''
     traj_type = int(4) # == spiral
     pygadgetron.cGT_setTrajectoryType(ad.handle, traj_type)
 
     traj_dim = int(2)
     dims = ad.dimensions()
-    
     num_readouts = dims[0]
     num_samples = dims[2]
-    expected_data_shape = (num_readouts, num_samples, traj_dim)
+    expected_traj_shape = (num_readouts, num_samples, traj_dim)
 
-    if data.shape != expected_data_shape:
-        raise AssertionError("Pass the spiral trajectory in the shape {}. You gave a shape of {}".format(expected_data_shape, data.shape))
+    if traj.shape != expected_traj_shape:
+        raise AssertionError("Pass the spiral trajectory in the shape {}. You gave a shape of {}".format(expected_traj.shape, traj.shape))
     
-    data = numpy.array(data, numpy.float32)
-    convert = not data.flags['C_CONTIGUOUS']
+    return(set_data_trajectory(ad, traj))
+    
+def set_data_trajectory(ad, traj):
+    '''
+    Function that sets the trajectory of AcquisitionData with traj.
+    ad: AcquisitionData
+    traj: k-space trajectory
+    ''' 
+    traj_dim = int(traj.shape[-1])
+    
+    traj = numpy.array(traj, numpy.float32)
+    convert = not traj.flags['C_CONTIGUOUS']
     if convert:
-        data = numpy.ascontiguousarray(data)
-    pygadgetron.cGT_setDataTrajectory(ad.handle, traj_dim, data.ctypes.data)
-
-
-
-
+        traj = numpy.ascontiguousarray(traj)
+    pygadgetron.cGT_setDataTrajectory(ad.handle, traj_dim, traj.ctypes.data)
+    
+    return(ad)
+    
 def get_data_trajectory(ad):
     '''
     Function that gets the trajectory of AcquisitionData depending on the rawdata trajectory.
