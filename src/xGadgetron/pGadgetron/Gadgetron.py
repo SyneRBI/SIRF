@@ -1641,8 +1641,18 @@ def set_grpe_trajectory(ad, traj=None):
     if traj is None:
         try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
     else:
-        raise NotImplementedError("RPE trajectory can not be set yet.")
-   
+        traj_type = int(5) # == other
+        pygadgetron.cGT_setTrajectoryType(ad.handle, traj_type)
+
+        traj_dim = int(3)
+        dims = ad.dimensions()
+        num_samples = dims[0]
+        expected_traj_shape = (num_samples, traj_dim)
+
+        if traj.shape != expected_traj_shape:
+            raise AssertionError("Pass the RPE trajectory in the shape {}. You gave a shape of {}".format(expected_traj_shape, traj.shape))
+        
+        ad = set_data_trajectory(ad, traj)
     return ad
     
 def set_radial2D_trajectory(ad, traj=None):
