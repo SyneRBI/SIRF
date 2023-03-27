@@ -271,48 +271,54 @@ class DataContainer(ABC):
                     
             else:
                 #a is scalar, b is array
-                one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
-                tmp = y.multiply(b)
+#                one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
+#                tmp = y.multiply(b)
                 
                 if out is None:
-                    z.handle = pysirf.cSIRF_axpby(alpha.ctypes.data, self.handle, one.ctypes.data, tmp.handle)
+#                    z.handle = pysirf.cSIRF_axpby(alpha.ctypes.data, self.handle, one.ctypes.data, tmp.handle)
+                    z.handle = pysirf.cSIRF_XapYB(self.handle, alpha.ctypes.data, y.handle, b.handle)
                 else:
-                    try_calling(pysirf.cSIRF_axpbyAlt(alpha.ctypes.data, self.handle, one.ctypes.data, tmp.handle, z.handle))
+#                    try_calling(pysirf.cSIRF_axpbyAlt(alpha.ctypes.data, self.handle, one.ctypes.data, tmp.handle, z.handle))
+                    try_calling(pysirf.cSIRF_XapYBAlt(self.handle, alpha.ctypes.data, y.handle, b.handle, z.handle))
         else:
             assert_validities(self, a)
             if isinstance(b, Number):
                 #a is array, b is scalar
-                one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
+#                one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
                 beta = numpy.asarray([b.real, b.imag], dtype = numpy.float32)
-                tmp = self.multiply(a)
+#                tmp = self.multiply(a)
                 if out is None:
-                    z.handle = pysirf.cSIRF_axpby(one.ctypes.data, tmp.handle, beta.ctypes.data, y.handle)
+#                    z.handle = pysirf.cSIRF_axpby(one.ctypes.data, tmp.handle, beta.ctypes.data, y.handle)
+                    z.handle = pysirf.cSIRF_XapYB(y.handle, beta.ctypes.data, self.handle, a.handle)
                 else:
-                    try_calling(pysirf.cSIRF_axpbyAlt(one.ctypes.data, tmp.handle, beta.ctypes.data, y.handle, z.handle))
+#                    try_calling(pysirf.cSIRF_axpbyAlt(one.ctypes.data, tmp.handle, beta.ctypes.data, y.handle, z.handle))
+                    try_calling(pysirf.cSIRF_XapYBAlt(y.handle, beta.ctypes.data, self.handle, a.handle, z.handle))
             else:
                 #a is array, b is array
                 assert_validities(self, b)
                 if out is None:
-                    try:
-                        z.handle = pysirf.cSIRF_xapyb(self.handle, a.handle, y.handle, b.handle)
-                        check_status(z.handle)
-                    except error as e:
-                        if 'NotImplemented' in str(e):
-                            tmp = self.multiply(a)
-                            z = y.multiply(b)
-                            z.add(tmp, out=z)
-                        else:
-                            raise RuntimeError(str(e))
+                    z.handle = pysirf.cSIRF_xapyb(self.handle, a.handle, y.handle, b.handle)
+##                    try:
+##                        z.handle = pysirf.cSIRF_xapyb(self.handle, a.handle, y.handle, b.handle)
+##                        check_status(z.handle)
+##                    except error as e:
+##                        if 'NotImplemented' in str(e):
+##                            tmp = self.multiply(a)
+##                            z = y.multiply(b)
+##                            z.add(tmp, out=z)
+##                        else:
+##                            raise RuntimeError(str(e))
                 else:
-                    try:
-                        try_calling(pysirf.cSIRF_xapybAlt(self.handle, a.handle, y.handle, b.handle, z.handle))
-                    except error as e:
-                        if 'NotImplemented' in str(e):
-                            tmp = self.multiply(a)
-                            y.multiply(b, out=z)
-                            z.add(tmp, out=z)
-                        else:
-                            raise RuntimeError(str(e))
+                    try_calling(pysirf.cSIRF_xapybAlt(self.handle, a.handle, y.handle, b.handle, z.handle))
+##                    try:
+##                        try_calling(pysirf.cSIRF_xapybAlt(self.handle, a.handle, y.handle, b.handle, z.handle))
+##                    except error as e:
+##                        if 'NotImplemented' in str(e):
+##                            tmp = self.multiply(a)
+##                            y.multiply(b, out=z)
+##                            z.add(tmp, out=z)
+##                        else:
+##                            raise RuntimeError(str(e))
 
         check_status(z.handle)
         return z
