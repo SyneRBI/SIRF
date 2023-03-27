@@ -1652,6 +1652,9 @@ def set_grpe_trajectory(ad, traj=None):
         if traj.shape != expected_traj_shape:
             raise AssertionError("Pass the RPE trajectory in the shape {}. You gave a shape of {}".format(expected_traj_shape, traj.shape))
         
+        # Same phase encoding trajectory for each readout
+        traj = numpy.tile(traj[:,numpy.newaxis,:], (1,dims[2],1))
+
         ad = set_data_trajectory(ad, traj)
     return ad
     
