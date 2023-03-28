@@ -654,7 +654,7 @@ MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(x, y, MRAcquisitionData::multiply);
+	binary_op(x, y, MRAcquisitionData::multiply);
 }
 
 void
@@ -662,7 +662,7 @@ MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
 {
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op_(x, y, MRAcquisitionData::divide);
+	binary_op(x, y, MRAcquisitionData::divide);
 }
 
 void
@@ -670,7 +670,7 @@ MRAcquisitionData::maximum(const DataContainer& a_x, const DataContainer& a_y)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-    binary_op_(x, y, MRAcquisitionData::maximum);
+    binary_op(x, y, MRAcquisitionData::maximum);
 }
 
 void
@@ -678,11 +678,11 @@ MRAcquisitionData::minimum(const DataContainer& a_x, const DataContainer& a_y)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-    binary_op_(x, y, MRAcquisitionData::minimum);
+    binary_op(x, y, MRAcquisitionData::minimum);
 }
 
 void
-MRAcquisitionData::binary_op_(
+MRAcquisitionData::binary_op(
     const DataContainer& a_x, const DataContainer& a_y,
     void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&))
 {

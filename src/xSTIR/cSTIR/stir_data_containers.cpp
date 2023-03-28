@@ -176,7 +176,7 @@ STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
 }
 
 void
-STIRAcquisitionData::unary_op_(
+STIRAcquisitionData::unary_op(
 	const DataContainer& a_x,
 	float(*f)(float)
 )
@@ -208,7 +208,7 @@ STIRAcquisitionData::unary_op_(
 }
 
 void
-STIRAcquisitionData::semibinary_op_(
+STIRAcquisitionData::semibinary_op(
 	const DataContainer& a_x,
 	float y,
 	float(*f)(float, float)
@@ -241,7 +241,7 @@ STIRAcquisitionData::semibinary_op_(
 }
 
 void
-STIRAcquisitionData::binary_op_(
+STIRAcquisitionData::binary_op(
 	const DataContainer& a_x,
 	const DataContainer& a_y,
 	float(*f)(float, float)
@@ -253,7 +253,7 @@ STIRAcquisitionData::binary_op_(
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
 	if (n != nx || n != ny)
-		throw std::runtime_error("binary_op_ error: operands sizes differ");
+		throw std::runtime_error("binary_op error: operands sizes differ");
 	SegmentBySinogram<float>::full_iterator seg_iter;
 	SegmentBySinogram<float>::full_iterator sx_iter;
 	SegmentBySinogram<float>::full_iterator sy_iter;
@@ -263,7 +263,7 @@ STIRAcquisitionData::binary_op_(
 		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
 		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
 		if (seg.size_all() != sx.size_all() || seg.size_all() != sy.size_all())
-			throw std::runtime_error("binary_op_ error: operands sizes differ");
+			throw std::runtime_error("binary_op error: operands sizes differ");
 		for (seg_iter = seg.begin_all(),
 			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
 			seg_iter != seg.end_all(); /*empty*/)
@@ -296,7 +296,7 @@ STIRAcquisitionData::xapyb(
 	int ny = y.get_max_segment_num();
 	int nb = b.get_max_segment_num();
 	if (n != nx || n != ny || n != nb)
-		throw std::runtime_error("binary_op_ error: operands sizes differ");
+		throw std::runtime_error("binary_op error: operands sizes differ");
 	SegmentBySinogram<float>::full_iterator seg_iter;
 	SegmentBySinogram<float>::full_iterator sx_iter;
 	SegmentBySinogram<float>::full_iterator sy_iter;
@@ -312,7 +312,7 @@ STIRAcquisitionData::xapyb(
 		size_t size_sy = sy.size_all();
 		size_t size_sb = sb.size_all();
 		if (size_seg != size_sx || size_seg != size_sy || size_seg != size_sb)
-			throw std::runtime_error("binary_op_ error: operands sizes differ");
+			throw std::runtime_error("binary_op error: operands sizes differ");
 		for (seg_iter = seg.begin_all(),
 			sx_iter = sx.begin_all(), sy_iter = sy.begin_all(), sb_iter = sb.begin_all();
 			seg_iter != seg.end_all(); /*empty*/)
@@ -569,7 +569,7 @@ STIRImageData::scale(float s)
 }
 
 void
-STIRImageData::unary_op_(
+STIRImageData::unary_op(
 	const DataContainer& a_x,
 	float (*f)(float)
 ) {
@@ -591,7 +591,7 @@ STIRImageData::unary_op_(
 }
 
 void
-STIRImageData::semibinary_op_(
+STIRImageData::semibinary_op(
 	const DataContainer& a_x,
 	float y, 
 	float (*f)(float, float)
@@ -614,7 +614,7 @@ STIRImageData::semibinary_op_(
 }
 
 void
-STIRImageData::binary_op_(
+STIRImageData::binary_op(
 	const DataContainer& a_x,
 	const DataContainer& a_y,
 	float (*f)(float, float)

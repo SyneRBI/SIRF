@@ -456,6 +456,8 @@ namespace sirf {
 		virtual void write(const std::string &filename) const;
 
 		// regular methods
+		void binary_op(const DataContainer& a_x, const DataContainer& a_y,
+			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
@@ -559,8 +561,6 @@ namespace sirf {
 		virtual MRAcquisitionData* clone_impl() const = 0;
 
 	private:
-		void binary_op_(const DataContainer& a_x, const DataContainer& a_y,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
 	};
 
@@ -791,9 +791,6 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		void binary_op(
-			const DataContainer& a_x, const DataContainer& a_y,
-			complex_float_t(*f)(complex_float_t, complex_float_t));
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
 		virtual void divide(const DataContainer& x, const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
@@ -804,6 +801,10 @@ namespace sirf {
 		//{
 		//	THROW("minimum not defined for ISMRMRDImageData");
 		//}
+
+		void binary_op(
+			const DataContainer& a_x, const DataContainer& a_y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
 
 		void fill(float s);
 		void scale(float s);
