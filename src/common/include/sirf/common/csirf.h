@@ -62,6 +62,8 @@ void* cSIRF_XapYBAlt(
 	void* ptr_z);
 void* cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z);
 void* cSIRF_product(const void* ptr_x, const void* ptr_y);
+void* cSIRF_scale(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
+void* cSIRF_scaled(const void* ptr_x, PTR_FLOAT ptr_y);
 void* cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z);
 void* cSIRF_ratio(const void* ptr_x, const void* ptr_y);
 void* cSIRF_maximum(const void* ptr_x, const void* ptr_y);

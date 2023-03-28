@@ -369,8 +369,9 @@ class DataContainer(ABC):
             z = self.same_object()
             a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             zero = numpy.zeros((2,), dtype=numpy.float32)
-            z.handle = pysirf.cSIRF_axpby \
-                (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
+#            z.handle = pysirf.cSIRF_axpby \
+#                (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
+            z.handle = pysirf.cSIRF_scaled(self.handle, a.ctypes.data)
             z.src = 'mult'
             check_status(z.handle)
             return z
@@ -384,6 +385,7 @@ class DataContainer(ABC):
         other: a real or complex scalar
         '''
         assert self.handle is not None
+        return self*other
 
         if isinstance(other, Number):
             z = self.same_object()

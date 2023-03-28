@@ -276,6 +276,33 @@ cSIRF_product(const void* ptr_x, const void* ptr_y)
 
 extern "C"
 void*
+cSIRF_scale(const void* ptr_x, const void* ptr_y, const void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		z.multiply(x, ptr_y);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_scaled(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		void* h = x.new_data_container_handle();
+		auto& z = objectFromHandle<DataContainer>(h);
+		z.multiply(x, ptr_y);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 {
 	try {

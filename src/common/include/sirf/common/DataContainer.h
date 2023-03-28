@@ -55,6 +55,8 @@ namespace sirf {
 		/// \c *this = the elementwise product \c x*y
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void multiply
+			(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the elementwise ratio \c x/y
 		virtual void divide

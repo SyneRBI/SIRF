@@ -282,8 +282,9 @@ namespace sirf {
 		{
 			unary_op(x, std::abs);
 		}
-		virtual void multiply(const DataContainer& x, float y)
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
+			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::product<float>);
 		}
 		virtual void divide(const DataContainer& x, float y)
@@ -1028,8 +1029,13 @@ namespace sirf {
 		{
 			unary_op(x, std::abs);
 		}
-		virtual void multiply(const DataContainer& x, float y)
+		//virtual void multiply(const DataContainer& x, float y)
+		//{
+		//	semibinary_op(x, y, DataContainer::product<float>);
+		//}
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
+			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::product<float>);
 		}
 		virtual void divide(const DataContainer& x, float y)

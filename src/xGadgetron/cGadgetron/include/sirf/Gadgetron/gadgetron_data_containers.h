@@ -222,6 +222,9 @@ namespace sirf {
 		static void binary_op
 		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
 			complex_float_t (*f)(complex_float_t, complex_float_t));
+		static void semibinary_op
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
 		// y := a x + b y
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
@@ -243,6 +246,8 @@ namespace sirf {
 		// y := x .* y
 		static void multiply
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void multiply
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise division
 		// y := x ./ y
 		static void divide
@@ -442,15 +447,10 @@ namespace sirf {
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
+		virtual void multiply(const DataContainer& x, const void* y);
 		virtual void divide(const DataContainer& x,	const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
-		//{
-		//	THROW("maximum not defined for MRAcquisitionData");
-		//}
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
-		//{
-		//	THROW("minimum not defined for MRAcquisitionData");
-		//}
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
@@ -458,6 +458,9 @@ namespace sirf {
 		// regular methods
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y,
 			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
+		void semibinary_op(
+			const DataContainer& a_x, complex_float_t y,
+			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
@@ -792,18 +795,16 @@ namespace sirf {
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
+		virtual void multiply(const DataContainer& x, const void* ptr_y);
 		virtual void divide(const DataContainer& x, const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
-		//{
-		//	THROW("maximum not defined for ISMRMRDImageData");
-		//}
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
-		//{
-		//	THROW("minimum not defined for ISMRMRDImageData");
-		//}
 
 		void binary_op(
 			const DataContainer& a_x, const DataContainer& a_y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
+		void semibinary_op(
+			const DataContainer& a_x, complex_float_t y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
 
 		void fill(float s);
