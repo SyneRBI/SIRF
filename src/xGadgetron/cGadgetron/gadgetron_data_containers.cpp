@@ -322,7 +322,7 @@ MRAcquisitionData::axpby
 (complex_float_t a, const ISMRMRD::Acquisition& acq_x,
 	complex_float_t b, ISMRMRD::Acquisition& acq_y)
 {
-	complex_float_t* px;
+	const complex_float_t* px;
 	complex_float_t* py;
 	for (px = acq_x.data_begin(), py = acq_y.data_begin();
 		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
@@ -346,10 +346,10 @@ MRAcquisitionData::xapyb
 (const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
 	ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b)
 {
-	complex_float_t* px;
-	complex_float_t* pa;
+	const complex_float_t* px;
+	const complex_float_t* pa;
 	complex_float_t* py;
-	complex_float_t* pb;
+	const complex_float_t* pb;
 	for (px = acq_x.data_begin(), pa = acq_a.data_begin(),
 		py = acq_y.data_begin(), pb = acq_b.data_begin();
 		px != acq_x.data_end() && pa != acq_a.data_end(),
@@ -364,9 +364,9 @@ MRAcquisitionData::xapyb
 (const ISMRMRD::Acquisition& acq_x, complex_float_t a,
     ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b)
 {
-    complex_float_t* px;
+    const complex_float_t* px;
     complex_float_t* py;
-    complex_float_t* pb;
+    const complex_float_t* pb;
     for (px = acq_x.data_begin(),
         py = acq_y.data_begin(), pb = acq_b.data_begin();
         px != acq_x.data_end() &&
@@ -381,7 +381,7 @@ MRAcquisitionData::binary_op
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, 
     complex_float_t (*f)(complex_float_t, complex_float_t))
 {
-    complex_float_t* px;
+    const complex_float_t* px;
     complex_float_t* py;
     for (px = acq_x.data_begin(), py = acq_y.data_begin();
         px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
@@ -394,7 +394,7 @@ MRAcquisitionData::semibinary_op
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y,
     complex_float_t(*f)(complex_float_t, complex_float_t))
 {
-    complex_float_t* px;
+    const complex_float_t* px;
     complex_float_t* py;
     for (px = acq_x.data_begin(), py = acq_y.data_begin();
         px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
@@ -441,8 +441,8 @@ complex_float_t
 MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
 {
-	complex_float_t* pa;
-	complex_float_t* pb;
+	const complex_float_t* pa;
+	const complex_float_t* pb;
 	complex_float_t z = 0;
 	for (pa = acq_a.data_begin(), pb = acq_b.data_begin();
 		pa != acq_a.data_end() && pb != acq_b.data_end(); pa++, pb++) {
@@ -454,7 +454,7 @@ MRAcquisitionData::dot
 float 
 MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 {
-	complex_float_t* pa;
+	const complex_float_t* pa;
 	float r = 0;
 	for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++) {
 		complex_float_t z = std::conj(*pa) * (*pa);
