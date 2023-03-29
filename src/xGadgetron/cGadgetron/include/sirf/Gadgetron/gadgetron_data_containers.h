@@ -246,7 +246,13 @@ namespace sirf {
 		// y := x .* y
 		static void multiply
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// multiply by scalar
+		// y := x * y
 		static void multiply
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		// add scalar
+		// y := x + y
+		static void add
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise division
 		// y := x ./ y
@@ -447,10 +453,11 @@ namespace sirf {
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* y);
 		virtual void divide(const DataContainer& x,	const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
+		virtual void multiply(const DataContainer& x, const void* y);
+		virtual void add(const DataContainer& x, const void* ptr_y);
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
@@ -795,10 +802,11 @@ namespace sirf {
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* ptr_y);
 		virtual void divide(const DataContainer& x, const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
+		virtual void multiply(const DataContainer& x, const void* ptr_y);
+		virtual void add(const DataContainer& x, const void* ptr_y);
 
 		void binary_op(
 			const DataContainer& a_x, const DataContainer& a_y,

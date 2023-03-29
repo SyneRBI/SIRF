@@ -287,16 +287,24 @@ namespace sirf {
 			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::product<float>);
 		}
-		virtual void divide(const DataContainer& x, float y)
+		virtual void add(const DataContainer& x, const void* ptr_y)
 		{
+			float y = *(float*)ptr_y;
+			semibinary_op(x, y, DataContainer::sum<float>);
+		}
+		virtual void divide(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::ratio<float>);
 		}
-		virtual void maximum(const DataContainer& x, float y)
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
 		{
+			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::maximum<float>);
 		}
-		virtual void minimum(const DataContainer& x, float y)
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
 		{
+			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::minimum<float>);
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
@@ -1029,25 +1037,29 @@ namespace sirf {
 		{
 			unary_op(x, std::abs);
 		}
-		//virtual void multiply(const DataContainer& x, float y)
-		//{
-		//	semibinary_op(x, y, DataContainer::product<float>);
-		//}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::product<float>);
 		}
-		virtual void divide(const DataContainer& x, float y)
+		virtual void add(const DataContainer& x, const void* ptr_y)
 		{
+			float y = *(float*)ptr_y;
+			semibinary_op(x, y, DataContainer::sum<float>);
+		}
+		virtual void divide(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::ratio<float>);
 		}
-		virtual void maximum(const DataContainer& x, float y)
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
 		{
+			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::maximum<float>);
 		}
-		virtual void minimum(const DataContainer& x, float y)
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
 		{
+			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::minimum<float>);
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)

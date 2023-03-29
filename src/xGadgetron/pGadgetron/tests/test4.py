@@ -39,6 +39,18 @@ def test_main(rec=False, verb=False, throw=True):
     recon.process()
     complex_images = recon.get_output()
 
+    pd_aux = processed_data.clone() #* 0
+    processed_data.divide(1.0, out=pd_aux)
+    pd_aux = pd_aux - processed_data
+    pd_aux = pd_aux.subtract(0.0)
+    s = pd_aux.norm()
+    print(s)
+    pd_aux = processed_data/1.0 - processed_data
+    s = pd_aux.norm()
+    print(s)
+    processed_data.multiply(0, out=pd_aux)
+    s = pd_aux.norm()
+    print(s)
     pd_aux = processed_data.sapyb(0.0, processed_data, processed_data)
     s = pd_aux.norm()
     print(s)

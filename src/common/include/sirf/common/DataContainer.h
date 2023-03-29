@@ -55,10 +55,15 @@ namespace sirf {
 		/// \c *this = the elementwise product \c x*y
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y) = 0;
+		/// \c *this = the product \c x * y with scalar y
 		virtual void multiply
 			(const DataContainer& x, const void* ptr_y) = 0;
 
-		/// \c *this = the elementwise ratio \c x/y
+		/// \c *this = the sum \c x + y with scalar y
+		virtual void add
+		(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise ratio \c x / y
 		virtual void divide
 			(const DataContainer& x, const DataContainer& y) = 0;
 
@@ -133,6 +138,18 @@ namespace sirf {
 		static T ratio(T x, T y)
 		{
 			return x / y;
+		}
+
+		template<typename T>
+		static T inverse_ratio(T x, T y)
+		{
+			return y / x;
+		}
+
+		template<typename T>
+		static T sum(T x, T y)
+		{
+			return x + y;
 		}
 
 		template<typename T>

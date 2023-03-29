@@ -417,6 +417,13 @@ MRAcquisitionData::multiply
 }
 
 void
+MRAcquisitionData::add
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
+{
+    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::sum<complex_float_t>);
+}
+
+void
 MRAcquisitionData::divide
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
@@ -683,6 +690,14 @@ MRAcquisitionData::multiply(const DataContainer& a_x, const void* ptr_y)
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, MRAcquisitionData::multiply);
+}
+
+void
+MRAcquisitionData::add(const DataContainer& a_x, const void* ptr_y)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    complex_float_t y = *(complex_float_t*)ptr_y;
+    semibinary_op(x, y, MRAcquisitionData::add);
 }
 
 void
@@ -1234,11 +1249,11 @@ GadgetronImageData::binary_op(
     unsigned int nx = x.number();
     unsigned int ny = y.number();
     if (nx != ny)
-        THROW("ImageData sizes mismatch in multiply");
+        THROW("ImageData sizes mismatch in binary_op");
     unsigned int n = number();
     if (n > 0) {
         if (n != nx)
-            THROW("ImageData sizes mismatch in multiply");
+            THROW("ImageData sizes mismatch in binary_op");
         for (unsigned int i = 0; i < nx && i < ny; i++)
             image_wrap(i).binary_op(x.image_wrap(i), y.image_wrap(i), f);
     }
@@ -1262,7 +1277,7 @@ GadgetronImageData::semibinary_op(
     unsigned int n = number();
     if (n > 0) {
         if (n != nx)
-            THROW("ImageData sizes mismatch in multiply");
+            THROW("ImageData sizes mismatch in semibinary_op");
         for (unsigned int i = 0; i < nx; i++)
             image_wrap(i).semibinary_op(x.image_wrap(i), y, f);
     }
@@ -1290,6 +1305,14 @@ GadgetronImageData::multiply(const DataContainer& a_x, const void* ptr_y)
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
     complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, DataContainer::product<complex_float_t>);
+}
+
+void
+GadgetronImageData::add(const DataContainer& a_x, const void* ptr_y)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    complex_float_t y = *(complex_float_t*)ptr_y;
+    semibinary_op(x, y, DataContainer::sum<complex_float_t>);
 }
 
 void

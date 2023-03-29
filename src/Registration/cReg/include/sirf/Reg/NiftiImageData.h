@@ -455,7 +455,7 @@ protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
 
-    enum MathsType { add, sub, mul, div};
+    enum MathsType { ADD, sub, mul, div};
 
     /// Image data as a nifti object
     std::shared_ptr<nifti_image>  _nifti_image;
@@ -615,11 +615,12 @@ protected:
         const DataContainer& a_y, const DataContainer& a_b);
     virtual float norm() const;
     virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
-    virtual void multiply(const DataContainer& a_x, const void* a_y);
     virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
 	virtual void maximum(const DataContainer& x, const DataContainer& y);
 	virtual void minimum(const DataContainer& x, const DataContainer& y);
-	virtual Dimensions dimensions() const
+    virtual void multiply(const DataContainer& a_x, const void* a_y);
+    virtual void add(const DataContainer& a_x, const void* a_y);
+    virtual Dimensions dimensions() const
     {
         Dimensions dim;
         int *d = _nifti_image->dim;

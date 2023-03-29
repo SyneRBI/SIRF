@@ -66,6 +66,8 @@ void* cSIRF_scale(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
 void* cSIRF_scaled(const void* ptr_x, PTR_FLOAT ptr_y);
 void* cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z);
 void* cSIRF_ratio(const void* ptr_x, const void* ptr_y);
+void* cSIRF_add(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
+void* cSIRF_sum(const void* ptr_x, PTR_FLOAT ptr_y);
 void* cSIRF_maximum(const void* ptr_x, const void* ptr_y);
 void* cSIRF_minimum(const void* ptr_x, const void* ptr_y);
 void* cSIRF_write(const void* ptr, const char* filename);

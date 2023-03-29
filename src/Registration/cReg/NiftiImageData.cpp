@@ -263,7 +263,7 @@ bool NiftiImageData<dataType>::operator!=(const NiftiImageData<dataType> &other)
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator+=(const NiftiImageData<dataType>& rhs)
 {
-    maths(rhs, add);
+    maths(rhs, ADD);
     return *this;
 }
 
@@ -277,7 +277,7 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator-=(const NiftiImageD
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator+=(const float val)
 {
-    maths(val, add);
+    maths(val, ADD);
     return *this;
 }
 
@@ -607,11 +607,11 @@ void NiftiImageData<dataType>::maths(const NiftiImageData<dataType>& c, const Ma
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: at least one image is not initialised.");
     if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*this, c, true))
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: metadata do not match.");
-    if (type != add && type != sub && type != mul && type != div)
+    if (type != ADD && type != sub && type != mul && type != div)
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: only implemented for add, subtract, multiply and divide.");
 
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
-        if (type == add) (*this)(i) += c(i);
+        if (type == ADD) (*this)(i) += c(i);
         else if (type == sub) (*this)(i) -= c(i);
         else if (type == mul) (*this)(i) *= c(i);
         else if (type == div) {
@@ -627,11 +627,11 @@ void NiftiImageData<dataType>::maths(const float val, const MathsType type)
 {
     if (!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: image is not initialised.");
-    if (type != add && type != sub && type != mul && type != div)
+    if (type != ADD && type != sub && type != mul && type != div)
         throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: only implemented for add, subtract, multiply and divide.");
 
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
-        if      (type == add) (*this)(i) += val;
+        if      (type == ADD) (*this)(i) += val;
         else if (type == sub) (*this)(i) -= val;
         else if (type == mul) (*this)(i) *= val;
         else if (type == div) {
@@ -1871,6 +1871,23 @@ void NiftiImageData<dataType>::multiply
 
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
         _data[i] = x._data[i] * y;
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::add
+(const DataContainer& a_x, const void* a_y)
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    float y = *(float*)a_y;
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "add operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = x._data[i] + y;
 }
 
 template<class dataType>

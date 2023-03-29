@@ -131,6 +131,7 @@ class DataContainer(ABC):
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return r;
+
     def dot(self, other):
         '''
         Returns the dot product of the container data with another container 
@@ -150,29 +151,38 @@ class DataContainer(ABC):
             return re
         else:
             return re + 1j*im
+
     def multiply(self, other, out=None):
         '''
-        Returns the elementwise product of this and another container 
-        data viewed as vectors.
-        other: DataContainer
+        Multiplication for data containers.
+
+        If other is a DataContainer, returns the elementwise product of data
+        stored in self and other viewed as vector data.
+        If other is a scalar, returns self scaled by other.
+        other: DataContainer or scalar.
         out:   DataContainer to store the result to.
         '''
-        if not isinstance (other, ( DataContainer , Number )):
-            return NotImplemented
-        if isinstance(other , Number):
-            tmp = other + numpy.zeros(self.shape, self.dtype)
-            other = self.copy()
-            other.fill(tmp)
-        assert_validities(self, other)
         if out is None:
-            out = self.same_object()
-            out.handle = pysirf.cSIRF_product(self.handle, other.handle)
-            check_status(out.handle)
-            #out = self.copy()
+            z = self.same_object()
         else:
-            assert_validities(self, out)
-            try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, out.handle))
-        return out
+            z = out
+            assert_validities(self, z)
+        if isinstance(other, Number):
+            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            if out is None:
+                z.handle = pysirf.cSIRF_scaled(self.handle, a.ctypes.data)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_scale(self.handle, a.ctypes.data, z.handle))
+        else:
+            assert_validities(self, other)
+            if out is None:
+                z.handle = pysirf.cSIRF_product(self.handle, other.handle)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, z.handle))
+        return z
+
     def divide(self, other, out=None):
         '''
         Returns the elementwise ratio of this and another container 
@@ -180,22 +190,28 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if not isinstance (other, ( DataContainer , Number )):
-            return NotImplemented
-        if isinstance(other , Number ):
-            tmp = other + numpy.zeros(self.shape, self.dtype)
-            other = self.copy()
-            other.fill(tmp)
-        assert_validities(self, other)
         if out is None:
-            out = self.same_object()
-            out.handle = pysirf.cSIRF_ratio(self.handle, other.handle)
-            check_status(out.handle)
-            #out = self.copy()
+            z = self.same_object()
         else:
-            assert_validities(self, out)
-            try_calling(pysirf.cSIRF_divide(self.handle, other.handle, out.handle))
-        return out
+            z = out
+            assert_validities(self, z)
+        if isinstance(other, Number):
+            other = 1./other
+            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            if out is None:
+                z.handle = pysirf.cSIRF_scaled(self.handle, a.ctypes.data)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_scale(self.handle, a.ctypes.data, z.handle))
+        else:
+            assert_validities(self, other)
+            if out is None:
+                z.handle = pysirf.cSIRF_ratio(self.handle, other.handle)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_divide(self.handle, other.handle, z.handle))
+        return z
+
     def add(self, other, out=None):
         '''
         Addition for data containers.
@@ -205,24 +221,26 @@ class DataContainer(ABC):
         other: DataContainer
         out:   DataContainer to store the result to.
         '''
-        if not isinstance (other, ( DataContainer , Number )):
-            return NotImplemented
-        if isinstance(other , Number):
-            tmp = other + numpy.zeros(self.shape, self.dtype)
-            other = self.copy()
-            other.fill(tmp)
-        assert_validities(self, other)
-        one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
         if out is None:
             z = self.same_object()
-            z.handle = pysirf.cSIRF_axpby \
-                (one.ctypes.data, self.handle, one.ctypes.data, other.handle)
-            check_status(z.handle)
         else:
-            assert_validities(self, out)
             z = out
-            try_calling(pysirf.cSIRF_axpbyAlt \
-                (one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
+            assert_validities(self, z)
+        if isinstance(other, Number):
+            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            if out is None:
+                z.handle = pysirf.cSIRF_sum(self.handle, a.ctypes.data)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_add(self.handle, a.ctypes.data, z.handle))
+        else:
+            assert_validities(self, other)
+            one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
+            if out is None:
+                z.handle = pysirf.cSIRF_axpby(one.ctypes.data, self.handle, one.ctypes.data, other.handle)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_axpbyAlt(one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
         return z
 
     @deprecation.deprecated(details="Please use the sapyb method instead")
@@ -320,9 +338,10 @@ class DataContainer(ABC):
         if not isinstance (other, ( DataContainer , Number )):
             return NotImplemented
         if isinstance(other , Number):
-            tmp = other + numpy.zeros(self.shape, self.dtype)
-            other = self.copy()
-            other.fill(tmp)
+            return self.add(-other, out=out)
+##            tmp = other + numpy.zeros(self.shape, self.dtype)
+##            other = self.copy()
+##            other.fill(tmp)
         assert_validities(self, other)
         pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
         mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
@@ -361,6 +380,7 @@ class DataContainer(ABC):
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
+        return self.multiply(other)
 
         if type(self) == type(other):
             return self.multiply(other)
