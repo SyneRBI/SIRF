@@ -557,7 +557,8 @@ def str_to_int_list(str_list):
         int_list = int_list + int_item
     return int_list
 
-def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True):
+
+def is_operator_adjoint(operator, num_tests=5, max_err=10e-5, verbose=True):
     '''
     Test if a given operator is adjoint.
     The operator needs to have been already set_up() with valid objects.
@@ -593,6 +594,127 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True
             elif verbose:
                 print("Pass, with a with normalized error of " + str(norm_err) + " (max: " + str(max_err) + ")")
     return True
+
+
+def test_data_container_algebra(test, x, eps=1e-5):
+
+    ax = x.as_array()
+    ay = numpy.ones_like(ax)
+    y = x.clone()
+    y.fill(ay)
+
+    s = x.norm()
+    t = numpy.linalg.norm(ax)
+    test.check_if_equal(1, abs(t - s) <= eps * abs(t))
+
+    s = x.dot(y)
+    t = numpy.vdot(ay, ax)
+    test.check_if_equal(1, abs(t - s) <= eps * abs(t))
+
+    x2 = x.multiply(2)
+    ax2 = x2.as_array()
+    s = numpy.linalg.norm(ax2 - 2*ax)
+    t = numpy.linalg.norm(ax2)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    x2 *= 0
+    x.multiply(2, out=x2)
+    ax2 = x2.as_array()
+    s = numpy.linalg.norm(ax2 - 2*ax)
+    t = numpy.linalg.norm(ax2)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    t = x2.norm()
+    x2 -= x*2
+    s = x2.norm()
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y = x.multiply(x)
+    ax = x.as_array()
+    ay = y.as_array()
+    s = numpy.linalg.norm(ay - ax * ax)
+    t = numpy.linalg.norm(ay)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y *= 0
+    x.multiply(x, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    s = numpy.linalg.norm(ay - ax * ax)
+    t = numpy.linalg.norm(ay)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    z = x*y
+    az = z.as_array()
+    s = numpy.linalg.norm(az - ax * ay)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y = x + 1
+    ax = x.as_array()
+    ay = y.as_array()
+    s = numpy.linalg.norm(ay - (ax + 1))
+    t = numpy.linalg.norm(ay)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y *= 0
+    x.add(1, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    s = numpy.linalg.norm(ay - (ax + 1))
+    t = numpy.linalg.norm(ay)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    z = x/y
+    az = z.as_array()
+    s = numpy.linalg.norm(az - ax/ay)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    z *= 0
+    x.divide(y, out=z)
+    az = z.as_array()
+    s = numpy.linalg.norm(az - ax/ay)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y = x.sapyb(1, x, -1)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.sapyb(1, x, -1, out=y)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y = x.sapyb(z, x, -z)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.sapyb(z, x, -z, out=y)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y = x.sapyb(x, x*x, -1)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.sapyb(x, x*x, -1, out=y)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    z = x*x
+    y = z.sapyb(1, x, -x)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y *= 0
+    z.sapyb(1, x, -x, out=y)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
 
 class DataContainerAlgebraTests(object):
 
