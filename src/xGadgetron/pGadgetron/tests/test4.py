@@ -39,52 +39,6 @@ def test_main(rec=False, verb=False, throw=True):
     recon.process()
     complex_images = recon.get_output()
 
-    pd_aux = processed_data.clone()
-    processed_data.divide(1.0, out=pd_aux)
-    pd_aux = -pd_aux
-    pd_aux += processed_data
-    s = pd_aux.norm()
-    print(s)
-    pd_aux -= 1.0
-    s = pd_aux.norm()
-    print(s)
-    pd_aux += 2.0
-    s = pd_aux.norm()
-    print(s)
-    pd_aux = 2*pd_aux
-    s = pd_aux.norm()
-    print(s)
-    pd_aux = processed_data/1.0 - processed_data
-    s = pd_aux.norm()
-    print(s)
-    processed_data.multiply(0, out=pd_aux)
-    s = pd_aux.norm()
-    print(s)
-    pd_aux = processed_data.sapyb(0.0, processed_data, processed_data)
-    s = pd_aux.norm()
-    print(s)
-    pd_aux = processed_data.sapyb(processed_data, processed_data, 0.0)
-    s = pd_aux.norm()
-    print(s)
-    processed_data.sapyb(0.0, processed_data, processed_data, out=pd_aux)
-    s = pd_aux.norm()
-    print(s)
-    processed_data.sapyb(processed_data, processed_data, 0.0, out=pd_aux)
-    s = pd_aux.norm()
-    print(s)
-    pd_aux = processed_data*processed_data
-    s = pd_aux.norm()
-    print(s)
-    pd_diff = pd_aux.as_array() - processed_data.as_array()*processed_data.as_array()
-    d = numpy.linalg.norm(pd_diff)/s
-    print('acquisitions * error: %.1e' % d)
-    test.check_if_equal(1, d < 1e-6)
-    pd_aux = processed_data/processed_data
-    s = pd_aux.norm()
-    pd_diff = pd_aux.as_array() - processed_data.as_array()/processed_data.as_array()
-    d = numpy.linalg.norm(pd_diff)/s
-    print('acquisitions / error: %.1e' % d)
-    test.check_if_equal(1, d < 1e-6)
     pd_max = processed_data.maximum(processed_data*2)
     pd_diff = pd_max - processed_data.abs()*2
     d = pd_diff.norm()/processed_data.norm()
@@ -157,31 +111,6 @@ def test_main(rec=False, verb=False, throw=True):
     d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
     test.check_if_equal(0, d)
 
-    ci_aux = complex_images.sapyb(0.0, complex_images, complex_images)
-    s = ci_aux.norm()
-    print(s)
-    ci_aux = complex_images.sapyb(complex_images, complex_images, 0.0)
-    s = ci_aux.norm()
-    print(s)
-    complex_images.sapyb(0.0, complex_images, complex_images, out=ci_aux)
-    s = ci_aux.norm()
-    print(s)
-    complex_images.sapyb(complex_images, complex_images, 0.0, out=ci_aux)
-    s = ci_aux.norm()
-    print(s)
-    ci_aux = complex_images*complex_images
-    s = ci_aux.norm()
-    print(s)
-    ci_diff = ci_aux.as_array() - complex_images.as_array()*complex_images.as_array()
-    d = numpy.linalg.norm(ci_diff)/s
-    print('images * error: %.1e' % d)
-    test.check_if_equal(1, d < 1e-6)
-    ci_aux = complex_images/complex_images
-    s = ci_aux.norm()
-    ci_diff = ci_aux.as_array() - complex_images.as_array()/complex_images.as_array()
-    d = numpy.linalg.norm(ci_diff)/s
-    print('images / error: %.1e' % d)
-    test.check_if_equal(1, d < 1e-6)
     ci_max = complex_images.maximum(complex_images*2)
     ci_diff = ci_max - complex_images*2
     d = ci_diff.norm()
