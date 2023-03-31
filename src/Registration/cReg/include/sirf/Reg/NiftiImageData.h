@@ -620,6 +620,8 @@ protected:
 	virtual void minimum(const DataContainer& x, const DataContainer& y);
     virtual void multiply(const DataContainer& a_x, const void* a_y);
     virtual void add(const DataContainer& a_x, const void* a_y);
+    virtual void maximum(const DataContainer& x, const void* a_y);
+    virtual void minimum(const DataContainer& x, const void* a_y);
     virtual Dimensions dimensions() const
     {
         Dimensions dim;

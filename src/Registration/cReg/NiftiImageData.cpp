@@ -1930,6 +1930,23 @@ void NiftiImageData<dataType>::maximum
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::maximum
+(const DataContainer& a_x, const void* a_y)
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    float y = *(float*)a_y;
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "add operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = std::max(x._data[i], y);
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::minimum
 (const DataContainer& a_x, const DataContainer& a_y)
 {
@@ -1945,6 +1962,23 @@ void NiftiImageData<dataType>::minimum
 
 	for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
 		_data[i] = std::min(x._data[i], y._data[i]);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::minimum
+(const DataContainer& a_x, const void* a_y)
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    float y = *(float*)a_y;
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "add operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = std::min(x._data[i], y);
 }
 
 template<class dataType>

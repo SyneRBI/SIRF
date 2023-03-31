@@ -258,14 +258,18 @@ namespace sirf {
 		// y := x ./ y
 		static void divide
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
-		// elementwise maximum magnitude
-		// y := max(abs(x), abs(y))
+		// elementwise maximum
+		// y := std::real(x) > std::real(y) ? x : y
 		static void maximum
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
-		// elementwise minimum magnitude
-		// y := min(abs(x), abs(y))
+		static void maximum
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		// elementwise minimum
+		// y := std::real(x) < std::real(y) ? x : y
 		static void minimum
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void minimum
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// l2 norm of x
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
@@ -458,6 +462,8 @@ namespace sirf {
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
 		virtual void multiply(const DataContainer& x, const void* y);
 		virtual void add(const DataContainer& x, const void* ptr_y);
+		virtual void maximum(const DataContainer& x, const void* y);
+		virtual void minimum(const DataContainer& x, const void* y);
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
@@ -807,6 +813,8 @@ namespace sirf {
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
 		virtual void multiply(const DataContainer& x, const void* ptr_y);
 		virtual void add(const DataContainer& x, const void* ptr_y);
+		virtual void maximum(const DataContainer& x, const void* ptr_y);
+		virtual void minimum(const DataContainer& x, const void* ptr_y);
 
 		void binary_op(
 			const DataContainer& a_x, const DataContainer& a_y,

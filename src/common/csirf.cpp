@@ -363,11 +363,52 @@ cSIRF_maximum(const void* ptr_x, const void* ptr_y)
 {
 	try {
 		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
+		auto const& y = objectFromHandle<DataContainer>(ptr_y);
 		void* h = x.new_data_container_handle();
 		auto& z = objectFromHandle<DataContainer>(h);
 		z.maximum(x, y);
 		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_compute_maximum(const void* ptr_x, const void* ptr_y, const void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		auto const& y = objectFromHandle<DataContainer>(ptr_y);
+		z.maximum(x, y);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_above(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		void* h = x.new_data_container_handle();
+		auto& z = objectFromHandle<DataContainer>(h);
+		z.maximum(x, ptr_y);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_compute_above(const void* ptr_x, const void* ptr_y, const void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		z.maximum(x, ptr_y);
+		return new DataHandle;
 	}
 	CATCH;
 }
@@ -383,6 +424,47 @@ cSIRF_minimum(const void* ptr_x, const void* ptr_y)
 		auto& z = objectFromHandle<DataContainer>(h);
 		z.minimum(x, y);
 		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_compute_minimum(const void* ptr_x, const void* ptr_y, const void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		auto const& y = objectFromHandle<DataContainer>(ptr_y);
+		z.minimum(x, y);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_below(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		void* h = x.new_data_container_handle();
+		auto& z = objectFromHandle<DataContainer>(h);
+		z.minimum(x, ptr_y);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_compute_below(const void* ptr_x, const void* ptr_y, const void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		z.minimum(x, ptr_y);
+		return new DataHandle;
 	}
 	CATCH;
 }

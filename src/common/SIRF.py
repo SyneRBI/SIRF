@@ -250,6 +250,68 @@ class DataContainer(ABC):
                 try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, z.handle))
         return z
 
+    def maximum(self, other, out=None):
+        '''
+        Multiplication for data containers.
+
+        If other is a DataContainer, returns the elementwise product of data
+        stored in self and other viewed as vector data.
+        If other is a scalar, returns self scaled by other.
+        other: DataContainer or scalar.
+        out:   DataContainer to store the result to.
+        '''
+        if out is None:
+            z = self.same_object()
+        else:
+            z = out
+            assert_validities(self, z)
+        if isinstance(other, Number):
+            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            if out is None:
+                z.handle = pysirf.cSIRF_above(self.handle, a.ctypes.data)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_compute_above(self.handle, a.ctypes.data, z.handle))
+        else:
+            assert_validities(self, other)
+            if out is None:
+                z.handle = pysirf.cSIRF_maximum(self.handle, other.handle)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_compute_maximum(self.handle, other.handle, z.handle))
+        return z
+
+    def minimum(self, other, out=None):
+        '''
+        Multiplication for data containers.
+
+        If other is a DataContainer, returns the elementwise product of data
+        stored in self and other viewed as vector data.
+        If other is a scalar, returns self scaled by other.
+        other: DataContainer or scalar.
+        out:   DataContainer to store the result to.
+        '''
+        if out is None:
+            z = self.same_object()
+        else:
+            z = out
+            assert_validities(self, z)
+        if isinstance(other, Number):
+            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            if out is None:
+                z.handle = pysirf.cSIRF_below(self.handle, a.ctypes.data)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_compute_below(self.handle, a.ctypes.data, z.handle))
+        else:
+            assert_validities(self, other)
+            if out is None:
+                z.handle = pysirf.cSIRF_minimum(self.handle, other.handle)
+                check_status(z.handle)
+            else:
+                try_calling(pysirf.cSIRF_compute_minimum(self.handle, other.handle, z.handle))
+        return z
+
     def divide(self, other, out=None):
         '''
         Returns the elementwise ratio of this and another container 
@@ -437,71 +499,6 @@ class DataContainer(ABC):
             z.fill(
                numpy.power(self.as_array(), other.as_array())
             )
-        return z
-
-    def maximum(self, other, out=None):
-        '''Element-wise maximum of DataContainer elements.
-
-        Compare two DataContainers and returns a new array containing the element-wise maxima. Output can be pre-allocated in variable out.
-
-        uses NumPy
-        SIRF/CIL compatibility
-        '''
-        if out is None:
-            z = self.clone()
-        else:
-            assert_validities(self, out)
-            z = out
-        if isinstance(other, Number):
-            z.fill(
-               numpy.maximum(self.as_array(), other)
-            )
-        else:
-            assert_validities(self, other)
-            try:
-                handle = pysirf.cSIRF_maximum(self.handle, other.handle)
-                check_status(handle)
-                if z.handle is not None:
-                    pyiutil.deleteDataHandle(z.handle)
-                z.handle = handle
-            except:
-                #print('maximum not implemented in C++, use numpy')
-                z.fill(
-                   numpy.maximum(self.as_array(), other.as_array())
-                )
-        return z
-
-    def minimum(self, other, out=None):
-        '''Element-wise minimum of DataContainer elements.
-
-        Compare two DataContainers and returns a new array containing the element-wise minima. Output can be pre-allocated in variable out.
-
-        uses NumPy
-        SIRF/CIL compatibility
-        '''
-
-        if out is None:
-            z = self.clone()
-        else:
-            assert_validities(self, out)
-            z = out
-        if isinstance(other, Number):
-            z.fill(
-               numpy.minimum(self.as_array(), other)
-            )
-        else:
-            assert_validities(self, other)
-            try:
-                handle = pysirf.cSIRF_minimum(self.handle, other.handle)
-                check_status(handle)
-                if z.handle is not None:
-                    pyiutil.deleteDataHandle(z.handle)
-                z.handle = handle
-            except:
-                #print('minimum not implemented in C++, use numpy')
-                z.fill(
-                   numpy.minimum(self.as_array(), other.as_array())
-                )
         return z
 
     # inline algebra

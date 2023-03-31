@@ -723,11 +723,59 @@ def test_data_container_algebra(test, x, eps=1e-5):
     s = numpy.linalg.norm(ay)
     test.check_if_equal(0, s)
 
+    y *= 0
+    x.maximum(z, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    ay -= numpy.maximum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y = x.maximum(0)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.maximum(ax, 0)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.maximum(0, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.maximum(ax, 0)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
     y = x.minimum(z)
     ax = x.as_array()
     ay = y.as_array()
     az = z.as_array()
     ay -= numpy.minimum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.minimum(z, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    ay -= numpy.minimum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y = x.minimum(0)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.minimum(ax, 0)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.minimum(0, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.minimum(ax, 0)
     s = numpy.linalg.norm(ay)
     test.check_if_equal(0, s)
 

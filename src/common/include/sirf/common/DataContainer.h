@@ -70,10 +70,14 @@ namespace sirf {
 		/// \c *this = the elementwise \c max(x, y)
 		virtual void maximum
 			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void maximum
+			(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the elementwise \c min(x, y)
 		virtual void minimum
 			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void minimum
+			(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the linear combination of \c x and \c y
 		virtual void axpby(
