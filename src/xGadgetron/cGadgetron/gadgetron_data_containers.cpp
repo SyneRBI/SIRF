@@ -434,14 +434,14 @@ void
 MRAcquisitionData::maximum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::maxabs<complex_float_t>);
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::maxreal<complex_float_t>);
 }
 
 void
 MRAcquisitionData::minimum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::minabs<complex_float_t>);
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::minreal<complex_float_t>);
 }
 
 complex_float_t
@@ -1330,7 +1330,7 @@ GadgetronImageData::maximum(
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
     SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::maxabs<complex_float_t>);
+    binary_op(x, y, DataContainer::maxreal<complex_float_t>);
 }
 
 void
@@ -1340,7 +1340,7 @@ GadgetronImageData::minimum(
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
     SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::minabs<complex_float_t>);
+    binary_op(x, y, DataContainer::minreal<complex_float_t>);
 }
 
 float

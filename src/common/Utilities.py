@@ -715,6 +715,22 @@ def test_data_container_algebra(test, x, eps=1e-5):
     s = y.norm()
     test.check_if_equal(0, s)
 
+    y = x.maximum(z)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    ay -= numpy.maximum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y = x.minimum(z)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    ay -= numpy.minimum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
 
 class DataContainerAlgebraTests(object):
 

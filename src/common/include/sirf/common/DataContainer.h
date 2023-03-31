@@ -162,6 +162,11 @@ namespace sirf {
 		{
 			return std::max(std::abs(x), std::abs(y));
 		}
+		template<typename T>
+		static T maxreal(T x, T y)
+		{
+			return std::real(x) > std::real(y) ? x : y;
+		}
 
 		template<typename T>
 		static T minimum(T x, T y)
@@ -172,6 +177,11 @@ namespace sirf {
 		static T minabs(T x, T y)
 		{
 			return std::min(std::abs(x), std::abs(y));
+		}
+		template<typename T>
+		static T minreal(T x, T y)
+		{
+			return std::real(x) < std::real(y) ? x : y;
 		}
 
 	protected:
