@@ -1633,7 +1633,7 @@ def preprocess_acquisition_data(input_data):
 def set_grpe_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with golden angle radial
-    phase encoding trajectory (traj=None) or fills in a precaculated RPE trajectory.
+    phase encoding trajectory (traj=None) or fills in a precalculated RPE trajectory.
     ad: AcquisitionData
     '''    
     assert_validity(ad, AcquisitionData)
@@ -1661,7 +1661,7 @@ def set_grpe_trajectory(ad, traj=None):
 def set_radial2D_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with linear increment 2D radial
-    readout trajectory (traj=None) or fills in a precaculated radial trajectory.
+    readout trajectory (traj=None) or fills in a precalculated radial trajectory.
     ad: AcquisitionData
     '''
     assert_validity(ad, AcquisitionData)
@@ -1684,7 +1684,7 @@ def set_radial2D_trajectory(ad, traj=None):
 def set_goldenangle2D_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with golden angle increment 2D radial
-    readout trajectory (traj=None) or fills in a precaculated radial trajectory.
+    readout trajectory (traj=None) or fills in a precalculated radial trajectory.
     ad: AcquisitionData
     '''
     assert_validity(ad, AcquisitionData)
