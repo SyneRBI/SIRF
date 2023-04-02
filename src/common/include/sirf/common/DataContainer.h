@@ -187,6 +187,28 @@ namespace sirf {
 		{
 			return std::real(x) < std::real(y) ? x : y;
 		}
+		template<typename T>
+		static T exp(T x)
+		{
+			float re = std::real(x);
+			float im = std::imag(x);
+			float a = std::exp(re);
+			if (im == 0.0)
+				return a;
+			complex_float_t i(0, 1);
+			return a * (cos(im) + i*sin(im));
+		}
+		template<typename T>
+		static T log(T x)
+		{
+			float re = std::real(x);
+			float im = std::imag(x);
+			if (im == 0.0)
+				return std::log(re);
+			float s = sqrt(re * re + im * im);
+			complex_float_t i(0, 1);
+			return std::log(s) + i * std::atan(im/re);
+		}
 
 	protected:
 		virtual DataContainer* clone_impl() const = 0;
