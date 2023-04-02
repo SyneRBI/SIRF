@@ -529,6 +529,10 @@ namespace sirf {
 		{
 			IMAGE_PROCESSING_SWITCH(type_, semibinary_op_, x.ptr_image(), y, f);
 		}
+		void unary_op(const ImageWrap& x, complex_float_t(*f)(complex_float_t))
+		{
+			IMAGE_PROCESSING_SWITCH(type_, unary_op_, x.ptr_image(), f);
+		}
 		void multiply(const ImageWrap& x, const ImageWrap& y)
 		{
 			binary_op(x, y, DataContainer::product<complex_float_t>);
@@ -929,6 +933,24 @@ namespace sirf {
 			for (; ii < n; i++, k++, ii++) {
 				complex_float_t x = (complex_float_t)*i;
 				xGadgetronUtilities::convert_complex(f(x, y), *k);
+			}
+		}
+
+		template<typename T>
+		void unary_op_(const ISMRMRD::Image<T>* ptr_x,
+			complex_float_t(*f)(complex_float_t))
+		{
+			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;
+			size_t nx = ptr_x->getNumberOfDataElements();
+			size_t n = ptr->getNumberOfDataElements();
+			if (n != nx)
+				THROW("sizes mismatch in ImageWrap semibinary_op_");
+			const T* i = ptr_x->getDataPtr();
+			T* k = ptr->getDataPtr();
+			size_t ii = 0;
+			for (; ii < n; i++, k++, ii++) {
+				complex_float_t x = (complex_float_t)*i;
+				xGadgetronUtilities::convert_complex(f(x), *k);
 			}
 		}
 

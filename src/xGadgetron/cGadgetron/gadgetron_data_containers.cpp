@@ -403,6 +403,19 @@ MRAcquisitionData::semibinary_op
 }
 
 void
+MRAcquisitionData::unary_op
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
+    complex_float_t(*f)(complex_float_t))
+{
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = f(*px);
+    }
+}
+
+void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
@@ -803,8 +816,7 @@ MRAcquisitionData::binary_op(
 }
 
 void
-MRAcquisitionData::semibinary_op(
-    const DataContainer& a_x, complex_float_t y,
+MRAcquisitionData::semibinary_op(const DataContainer& a_x, complex_float_t y,
     void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t y))
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
@@ -832,6 +844,46 @@ MRAcquisitionData::semibinary_op(
         }
         x.get_acquisition(ix, ay);
         f(ax, ay, y);
+        if (isempty)
+            append_acquisition(ay);
+        else
+            set_acquisition(k, ay);
+        ix++;
+        k++;
+    }
+    this->set_sorted(true);
+    this->organise_kspace();
+}
+
+void
+MRAcquisitionData::unary_op(const DataContainer& a_x,
+    void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&))
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    if (!x.sorted())
+        THROW("binary algebraic operations cannot be applied to unsorted data");
+
+    int nx = x.number();
+    ISMRMRD::Acquisition ax;
+    ISMRMRD::Acquisition ay;
+    ISMRMRD::Acquisition acq;
+    bool isempty = (number() < 1);
+    for (int ix = 0, ia = 0, ib = 0, k = 0;
+        ix < nx;) { // && ia < na && ib < nb;) {
+        if (!x.get_acquisition(ix, ax)) {
+            std::cout << ix << " ignored (ax)\n";
+            ix++;
+            continue;
+        }
+        if (!isempty) {
+            if (!get_acquisition(k, acq)) {
+                std::cout << k << " ignored (acq)\n";
+                k++;
+                continue;
+            }
+        }
+        x.get_acquisition(ix, ay);
+        f(ax, ay);
         if (isempty)
             append_acquisition(ay);
         else
@@ -1315,6 +1367,29 @@ GadgetronImageData::semibinary_op(
         for (unsigned int i = 0; i < nx; i++) {
             ImageWrap w(x.image_wrap(i));
             w.semibinary_op(x.image_wrap(i), y, f);
+            append(w);
+        }
+    }
+    this->set_meta_data(x.get_meta_data());
+}
+
+void
+GadgetronImageData::unary_op(const DataContainer& a_x,
+    complex_float_t(*f)(complex_float_t))
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    unsigned int nx = x.number();
+    unsigned int n = number();
+    if (n > 0) {
+        if (n != nx)
+            THROW("ImageData sizes mismatch in semibinary_op");
+        for (unsigned int i = 0; i < nx; i++)
+            image_wrap(i).unary_op(x.image_wrap(i), f);
+    }
+    else {
+        for (unsigned int i = 0; i < nx; i++) {
+            ImageWrap w(x.image_wrap(i));
+            w.unary_op(x.image_wrap(i), f);
             append(w);
         }
     }

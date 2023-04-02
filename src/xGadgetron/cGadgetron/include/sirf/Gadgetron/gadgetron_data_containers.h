@@ -225,6 +225,9 @@ namespace sirf {
 		static void semibinary_op
 		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
+		static void unary_op
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
+			complex_float_t(*f)(complex_float_t));
 		// y := a x + b y
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
@@ -471,9 +474,10 @@ namespace sirf {
 		// regular methods
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y,
 			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
-		void semibinary_op(
-			const DataContainer& a_x, complex_float_t y,
+		void semibinary_op(const DataContainer& a_x, complex_float_t y,
 			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
+		void unary_op(const DataContainer& a_x,
+			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
@@ -822,6 +826,7 @@ namespace sirf {
 		void semibinary_op(
 			const DataContainer& a_x, complex_float_t y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
+		void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
 
 		void fill(float s);
 		void scale(float s);
