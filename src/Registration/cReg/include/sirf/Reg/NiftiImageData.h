@@ -635,6 +635,9 @@ protected:
         dim["w"] = d[7];
         return dim;
     }
+    void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
+    void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
+    void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
 public:
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();

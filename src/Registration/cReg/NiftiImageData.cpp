@@ -1839,8 +1839,43 @@ float NiftiImageData<dataType>::norm() const
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::multiply
-    (const DataContainer& a_x, const DataContainer& a_y)
+void 
+NiftiImageData<dataType>::unary_op(const DataContainer& a_x,
+    dataType(*f)(dataType))
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = f(x._data[i]);
+}
+
+template<class dataType>
+void
+NiftiImageData<dataType>::semibinary_op(const DataContainer& a_x,
+    const void* a_y, dataType(*f)(dataType, dataType))
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    dataType y = *(dataType*)a_y;
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = f(x._data[i], y);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::binary_op(const DataContainer& a_x,
+    const DataContainer& a_y, dataType(*f)(dataType, dataType))
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
@@ -1849,136 +1884,67 @@ void NiftiImageData<dataType>::multiply
     if (!this->is_initialised())
         *this = *x.clone();
 
-	ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "multiply operands size mismatch");
-	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "multiply operands size mismatch");
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+    ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "operands size mismatch");
 
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        _data[i] = x._data[i] * y._data[i];
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = f(x._data[i], y._data[i]);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::multiply
+    (const DataContainer& a_x, const DataContainer& a_y)
+{
+    binary_op(a_x, a_y, DataContainer::product<dataType>);
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::multiply
 (const DataContainer& a_x, const void* a_y)
 {
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    float y = *(float*)a_y;
-
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
-
-    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "multiply operands size mismatch");
-
-    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-        _data[i] = x._data[i] * y;
+    semibinary_op(a_x, a_y, DataContainer::product<dataType>);
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::add
 (const DataContainer& a_x, const void* a_y)
 {
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    float y = *(float*)a_y;
-
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
-
-    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "add operands size mismatch");
-
-    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-        _data[i] = x._data[i] + y;
+    semibinary_op(a_x, a_y, DataContainer::sum<dataType>);
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::divide
     (const DataContainer& a_x, const DataContainer& a_y)
 {
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
-
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
-
-	ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "divide operands size mismatch");
-	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "divide operands size mismatch");
-
-    if (y.get_max() < 1.e-12F)
-        THROW("division by zero in NiftiImageData::divide");
-
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        _data[i] = x._data[i] / abs(y._data[i]);
+    binary_op(a_x, a_y, DataContainer::ratio<dataType>);
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::maximum
 (const DataContainer& a_x, const DataContainer& a_y)
 {
-	const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-	const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
-
-	// If the result hasn't been initialised, make a clone of one of them
-	if (!this->is_initialised())
-		*this = *x.clone();
-
-	ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "multiply operands size mismatch");
-	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "multiply operands size mismatch");
-
-	for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-		_data[i] = std::max(x._data[i], y._data[i]);
+    binary_op(a_x, a_y, DataContainer::maximum<dataType>);
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::maximum
 (const DataContainer& a_x, const void* a_y)
 {
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    float y = *(float*)a_y;
-
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
-
-    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "add operands size mismatch");
-
-    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-        _data[i] = std::max(x._data[i], y);
+    semibinary_op(a_x, a_y, DataContainer::maximum<dataType>);
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::minimum
 (const DataContainer& a_x, const DataContainer& a_y)
 {
-	const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-	const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
-
-	// If the result hasn't been initialised, make a clone of one of them
-	if (!this->is_initialised())
-		*this = *x.clone();
-
-	ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "multiply operands size mismatch");
-	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "multiply operands size mismatch");
-
-	for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-		_data[i] = std::min(x._data[i], y._data[i]);
+    binary_op(a_x, a_y, DataContainer::minimum<dataType>);
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::minimum
 (const DataContainer& a_x, const void* a_y)
 {
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    float y = *(float*)a_y;
-
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
-
-    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "add operands size mismatch");
-
-    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-        _data[i] = std::min(x._data[i], y);
+    semibinary_op(a_x, a_y, DataContainer::minimum<dataType>);
 }
 
 template<class dataType>
