@@ -282,6 +282,14 @@ namespace sirf {
 		{
 			unary_op(x, std::abs);
 		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op(x, std::exp);
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op(x, std::log);
+		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *(float*)ptr_y;
@@ -1036,6 +1044,14 @@ namespace sirf {
 		virtual void abs(const DataContainer& x)
 		{
 			unary_op(x, std::abs);
+		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op(x, std::exp);
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op(x, std::log);
 		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{

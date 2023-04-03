@@ -1948,6 +1948,18 @@ void NiftiImageData<dataType>::minimum
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::exp(const DataContainer& a_x)
+{
+    unary_op(a_x, std::exp);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::log(const DataContainer& a_x)
+{
+    unary_op(a_x, std::log);
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::set_up_geom_info()
 {
 #ifndef NDEBUG

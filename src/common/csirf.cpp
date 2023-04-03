@@ -24,6 +24,7 @@ limitations under the License.
 
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
+#include "sirf/common/iequals.h"
 #include "sirf/common/ImageData.h"
 #include "sirf/Syn/utilities.h"
 #include "sirf/common/deprecate.h"
@@ -464,6 +465,43 @@ cSIRF_compute_below(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
 		auto& z = objectFromHandle<DataContainer>(ptr_z);
 		z.minimum(x, ptr_y);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_unary(const void* ptr_x, const char* f)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		void* h = x.new_data_container_handle();
+		auto& z = objectFromHandle<DataContainer>(h);
+		if (sirf::iequals(f, "exp"))
+			z.exp(x);
+		else if (sirf::iequals(f, "log"))
+			z.log(x);
+		else
+			return unknownObject("function", f, __FILE__, __LINE__);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_compute_unary(const void* ptr_x, const char* f, const void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		if (sirf::iequals(f, "exp"))
+			z.exp(x);
+		else if (sirf::iequals(f, "log"))
+			z.log(x);
+		else
+			return unknownObject("function", f, __FILE__, __LINE__);
 		return new DataHandle;
 	}
 	CATCH;

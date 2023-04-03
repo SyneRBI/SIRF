@@ -518,6 +518,20 @@ class DataContainer(ABC):
         self.divide(other, out=self)
         return self
 
+    def unary(self, f, out=None):
+        '''Returns the result of appying function f element-wise to self data.
+
+        f: the name of the function to apply, Python str.
+        '''
+        if out is None:
+            out = self.same_object()
+            out.handle = pysirf.cSIRF_unary(self.handle, f)
+            check_status(out.handle)
+        else:
+            assert_validities(self, out)
+            try_calling(pysirf.cSIRF_compute_unary(self.handle, f, out.handle))
+        return out
+
     def abs(self, out=None):
         '''Returns the element-wise absolute value of the DataContainer data
         
@@ -566,23 +580,18 @@ class DataContainer(ABC):
     def exp(self, out=None):
         '''Returns the element-wise exp of the DataContainer data
 
-           uses NumPy
         '''
         if out is None:
-            z = self.clone()
-        else:
-            assert_validities(self, out)
-            z = out
-        z.fill(
-               numpy.exp(self.as_array())
-        )
-        return z
+            return self.unary('exp')
+        self.unary('exp', out=out)
 
     def log(self, out=None):
         '''Returns the element-wise log of the DataContainer data
 
-           uses NumPy
         '''
+##        if out is None:
+##            return self.unary('log')
+##        self.unary('log', out=out)
         if out is None:
             z = self.clone()
         else:

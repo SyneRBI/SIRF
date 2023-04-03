@@ -471,6 +471,20 @@ MRAcquisitionData::minimum
     MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::minreal<complex_float_t>);
 }
 
+void
+MRAcquisitionData::exp
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::exp);
+}
+
+void
+MRAcquisitionData::log
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::log);
+}
+
 complex_float_t
 MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
@@ -765,6 +779,20 @@ MRAcquisitionData::minimum(const DataContainer& a_x, const void* ptr_y)
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, MRAcquisitionData::minimum);
+}
+
+void
+MRAcquisitionData::exp(const DataContainer& a_x)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    unary_op(x, MRAcquisitionData::exp);
+}
+
+void
+MRAcquisitionData::log(const DataContainer& a_x)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    unary_op(x, MRAcquisitionData::log);
 }
 
 void
@@ -1462,6 +1490,20 @@ GadgetronImageData::minimum(const DataContainer& a_x, const void* ptr_y)
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
     complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, DataContainer::minreal<complex_float_t>);
+}
+
+void
+GadgetronImageData::exp(const DataContainer& a_x)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    unary_op(x, DataContainer::exp);
+}
+
+void
+GadgetronImageData::log(const DataContainer& a_x)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    unary_op(x, DataContainer::log);
 }
 
 float

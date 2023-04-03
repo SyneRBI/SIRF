@@ -21,6 +21,7 @@ limitations under the License.
 #ifndef SIRF_ABSTRACT_DATA_CONTAINER_TYPE
 #define SIRF_ABSTRACT_DATA_CONTAINER_TYPE
 
+#include<complex>
 #include <map>
 #include "sirf/iUtilities/DataHandle.h"
 
@@ -78,6 +79,11 @@ namespace sirf {
 			(const DataContainer& x, const DataContainer& y) = 0;
 		virtual void minimum
 			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise \c exp(x)
+		virtual void exp(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c log(x)
+		virtual void log(const DataContainer& x) = 0;
 
 		/// \c *this = the linear combination of \c x and \c y
 		virtual void axpby(
@@ -187,27 +193,36 @@ namespace sirf {
 		{
 			return std::real(x) < std::real(y) ? x : y;
 		}
-		template<typename T>
-		static T exp(T x)
+		static std::complex<float> exp(std::complex<float> x)
 		{
 			float re = std::real(x);
 			float im = std::imag(x);
 			float a = std::exp(re);
 			if (im == 0.0)
 				return a;
-			complex_float_t i(0, 1);
-			return a * (cos(im) + i*sin(im));
+			std::complex<float> i(0, 1);
+			return a * (cos(im) + i * sin(im));
 		}
-		template<typename T>
-		static T log(T x)
+		static std::complex<float> log(std::complex<float> x)
 		{
 			float re = std::real(x);
 			float im = std::imag(x);
-			if (im == 0.0)
+			if (im == 0.0 && re > 0)
 				return std::log(re);
 			float s = sqrt(re * re + im * im);
-			complex_float_t i(0, 1);
-			return std::log(s) + i * std::atan(im/re);
+			std::complex<float> i(0, 1);
+			if (abs(re) < abs(im)) {
+				float ac = std::acos(re / s);
+				if (im < 0)
+					ac = -ac;
+				return std::log(s) + i * ac;
+			}
+			else {
+				float as = std::asin(im / s);
+				if (re < 0)
+					as = 3.14159265 - as;
+				return std::log(s) + i * as;
+			}
 		}
 
 	protected:

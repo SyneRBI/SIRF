@@ -273,6 +273,12 @@ namespace sirf {
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		static void minimum
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		// y := exp(x)
+		static void exp
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// y := log(x)
+		static void log
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// l2 norm of x
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
@@ -467,6 +473,8 @@ namespace sirf {
 		virtual void add(const DataContainer& x, const void* ptr_y);
 		virtual void maximum(const DataContainer& x, const void* y);
 		virtual void minimum(const DataContainer& x, const void* y);
+		virtual void exp(const DataContainer& x);
+		virtual void log(const DataContainer& x);
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
@@ -819,6 +827,8 @@ namespace sirf {
 		virtual void add(const DataContainer& x, const void* ptr_y);
 		virtual void maximum(const DataContainer& x, const void* ptr_y);
 		virtual void minimum(const DataContainer& x, const void* ptr_y);
+		virtual void exp(const DataContainer& x);
+		virtual void log(const DataContainer& x);
 
 		void binary_op(
 			const DataContainer& a_x, const DataContainer& a_y,

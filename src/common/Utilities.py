@@ -1,6 +1,7 @@
 '''Utilities used by all engines
 '''
 import inspect
+import math
 import numpy
 import os
 import sirf
@@ -778,6 +779,23 @@ def test_data_container_algebra(test, x, eps=1e-5):
     ay -= numpy.minimum(ax, 0)
     s = numpy.linalg.norm(ay)
     test.check_if_equal(0, s)
+
+    y = x.exp()
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.exp(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    y *= 0
+    x.exp(out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.exp(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
 
 
 class DataContainerAlgebraTests(object):
