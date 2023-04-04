@@ -199,29 +199,32 @@ namespace sirf {
 			float im = std::imag(x);
 			float a = std::exp(re);
 			if (im == 0.0)
-				return a;
-			std::complex<float> i(0, 1);
-			return a * (cos(im) + i * sin(im));
+				return std::complex<float>(a, 0.);
+			return std::complex<float>(a * cos(im), a * sin(im));
+			//std::complex<float> i(0, 1);
+			//return a * (cos(im) + i * sin(im));
 		}
 		static std::complex<float> log(std::complex<float> x)
 		{
 			float re = std::real(x);
 			float im = std::imag(x);
 			if (im == 0.0 && re > 0)
-				return std::log(re);
+				return std::complex<float>(std::log(re), 0.);
 			float s = sqrt(re * re + im * im);
-			std::complex<float> i(0, 1);
+			//std::complex<float> i(0, 1);
 			if (abs(re) < abs(im)) {
 				float ac = std::acos(re / s);
 				if (im < 0)
 					ac = -ac;
-				return std::log(s) + i * ac;
+				return std::complex<float>(std::log(s), ac);
+				//return std::log(s) + i * ac;
 			}
 			else {
 				float as = std::asin(im / s);
 				if (re < 0)
 					as = 3.14159265 - as;
-				return std::log(s) + i * as;
+				return std::complex<float>(std::log(s), as);
+				//return std::log(s) + i * as;
 			}
 		}
 
