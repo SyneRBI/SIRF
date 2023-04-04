@@ -221,8 +221,12 @@ namespace sirf {
 			}
 			else {
 				float as = std::asin(im / s);
-				if (re < 0)
-					as = 3.14159265 - as;
+				if (re < 0) {
+					if (im > 0)
+						as = 3.14159265 - as;
+					else
+						as = -3.14159265 - as;
+				}
 				return std::complex<float>(std::log(s), as);
 				//return std::log(s) + i * as;
 			}

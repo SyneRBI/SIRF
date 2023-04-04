@@ -797,6 +797,18 @@ def test_data_container_algebra(test, x, eps=1e-5):
     t = y.norm()
     test.check_if_equal(1, s <= eps * t)
 
+    y = x.log()
+    ax = x.as_array()
+    ay = y.as_array()
+    az = numpy.log(ax)
+    ay -= az
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    if (math.isnan(s) or math.isinf(s)) and (math.isnan(t) or math.isinf(t)):
+        s = 0
+        t = 0
+    test.check_if_equal(1, s <= eps * t)
+
 
 class DataContainerAlgebraTests(object):
 

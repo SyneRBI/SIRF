@@ -589,18 +589,9 @@ class DataContainer(ABC):
         '''Returns the element-wise log of the DataContainer data
 
         '''
-##        if out is None:
-##            return self.unary('log')
-##        self.unary('log', out=out)
         if out is None:
-            z = self.clone()
-        else:
-            assert_validities(self, out)
-            z = out
-        z.fill(
-               numpy.log(self.as_array())
-        )
-        return z
+            return self.unary('log')
+        self.unary('log', out=out)
 
     def sum(self):
         '''Returns the sum of DataContainer elements.
