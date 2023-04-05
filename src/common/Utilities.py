@@ -801,12 +801,11 @@ def test_data_container_algebra(test, x, eps=1e-5):
     ax = x.as_array()
     ay = y.as_array()
     az = numpy.log(ax)
+    numpy.nan_to_num(ay, copy=False, posinf=0.0, neginf=0.0)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
     ay -= az
     s = numpy.linalg.norm(ay)
-    t = y.norm()
-    if (math.isnan(s) or math.isinf(s)) and (math.isnan(t) or math.isinf(t)):
-        s = 0
-        t = 0
+    t = numpy.linalg.norm(az)
     test.check_if_equal(1, s <= eps * t)
 
 
