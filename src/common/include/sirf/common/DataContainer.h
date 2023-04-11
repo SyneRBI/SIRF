@@ -84,6 +84,8 @@ namespace sirf {
 		virtual void exp(const DataContainer& x) = 0;
 		/// \c *this = the elementwise \c log(x)
 		virtual void log(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c sqrt(x)
+		virtual void sqrt(const DataContainer& x) = 0;
 
 		/// \c *this = the linear combination of \c x and \c y
 		virtual void axpby(
@@ -200,6 +202,10 @@ namespace sirf {
 		static std::complex<float> log(std::complex<float> x)
 		{
 			return std::log(x);
+		}
+		static std::complex<float> sqrt(std::complex<float> x)
+		{
+			return std::sqrt(x);
 		}
 
 	protected:

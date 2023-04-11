@@ -458,7 +458,7 @@ float NiftiImageData<dataType>::get_variance() const
 template<class dataType>
 float NiftiImageData<dataType>::get_standard_deviation() const
 {
-    return sqrt(this->get_variance());
+    return std::sqrt(this->get_variance());
 }
 
 template<class dataType>
@@ -536,7 +536,7 @@ float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) 
         if (!std::isnan(this->operator()(i)+other(i)))
             result += double(pow( this->operator()(i) - other(i), 2));
 
-    return float(sqrt(result));
+    return float(std::sqrt(result));
 }
 
 template<class dataType>
@@ -1835,7 +1835,7 @@ float NiftiImageData<dataType>::norm() const
     double s = 0.0;
     for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
         s += double(_data[i]*_data[i]);
-    return float(sqrt(s));
+    return float(std::sqrt(s));
 }
 
 template<class dataType>
@@ -1957,6 +1957,12 @@ template<class dataType>
 void NiftiImageData<dataType>::log(const DataContainer& a_x)
 {
     unary_op(a_x, std::log);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::sqrt(const DataContainer& a_x)
+{
+    unary_op(a_x, std::sqrt);
 }
 
 template<class dataType>

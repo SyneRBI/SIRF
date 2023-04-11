@@ -290,6 +290,10 @@ namespace sirf {
 		{
 			unary_op(x, std::log);
 		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op(x, std::sqrt);
+		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *(float*)ptr_y;
@@ -739,7 +743,7 @@ namespace sirf {
             auto iter = pd_ptr->begin();
 			for (; iter != pd_ptr->end(); ++iter)
 				t += (*iter) * (*iter);
-			return sqrt((float)t);
+			return std::sqrt((float)t);
         }
         virtual void dot(const DataContainer& a_x, void* ptr) const
         {
@@ -1052,6 +1056,10 @@ namespace sirf {
 		virtual void log(const DataContainer& x)
 		{
 			unary_op(x, std::log);
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op(x, std::sqrt);
 		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{

@@ -53,7 +53,7 @@ STIRAcquisitionData::norm() const
 			}
 		}
 	}
-	return sqrt((float)t);
+	return std::sqrt((float)t);
 }
 
 void
@@ -553,7 +553,7 @@ STIRImageData::norm() const
 		s += t*t;
 	}
 	//std::cout << "voxels count: " << i << std::endl;
-	return (float)sqrt(s);
+	return (float)std::sqrt(s);
 }
 
 void

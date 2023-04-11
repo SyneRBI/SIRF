@@ -568,14 +568,8 @@ class DataContainer(ABC):
            uses NumPy
         '''
         if out is None:
-            z = self.clone()
-        else:
-            assert_validities(self, out)
-            z = out
-        z.fill(
-               numpy.sqrt(self.as_array())
-        )
-        return z
+            return self.unary('sqrt')
+        self.unary('sqrt', out=out)
 
     def exp(self, out=None):
         '''Returns the element-wise exp of the DataContainer data

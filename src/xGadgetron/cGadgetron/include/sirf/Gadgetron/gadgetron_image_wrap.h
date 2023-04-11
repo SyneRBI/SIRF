@@ -549,6 +549,10 @@ namespace sirf {
 		{
 			unary_op(x, DataContainer::log);
 		}
+		void sqrt(const ImageWrap& x)
+		{
+			unary_op(x, DataContainer::sqrt);
+		}
 		complex_float_t dot(const ImageWrap& iw) const
 		{
 			complex_float_t z;
