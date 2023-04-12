@@ -472,6 +472,20 @@ MRAcquisitionData::minimum
 }
 
 void
+MRAcquisitionData::power
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::power);
+}
+
+void
+MRAcquisitionData::power
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
+{
+    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::power);
+}
+
+void
 MRAcquisitionData::exp
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
@@ -800,6 +814,22 @@ MRAcquisitionData::minimum(const DataContainer& a_x, const void* ptr_y)
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, MRAcquisitionData::minimum);
+}
+
+void
+MRAcquisitionData::power(const DataContainer& a_x, const DataContainer& a_y)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+    binary_op(x, y, MRAcquisitionData::power);
+}
+
+void
+MRAcquisitionData::power(const DataContainer& a_x, const void* ptr_y)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    complex_float_t y = *(complex_float_t*)ptr_y;
+    semibinary_op(x, y, MRAcquisitionData::power);
 }
 
 void
@@ -1532,6 +1562,24 @@ GadgetronImageData::minimum(const DataContainer& a_x, const void* ptr_y)
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
     complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, DataContainer::minreal<complex_float_t>);
+}
+
+void
+GadgetronImageData::power(
+    const DataContainer& a_x,
+    const DataContainer& a_y)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+    binary_op(x, y, DataContainer::power);
+}
+
+void
+GadgetronImageData::power(const DataContainer& a_x, const void* ptr_y)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    complex_float_t y = *(complex_float_t*)ptr_y;
+    semibinary_op(x, y, DataContainer::power);
 }
 
 void

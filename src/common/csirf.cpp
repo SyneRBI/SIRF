@@ -472,6 +472,74 @@ cSIRF_compute_below(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 
 extern "C"
 void*
+cSIRF_binary(const void* ptr_x, const void* ptr_y, const char* f)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto const& y = objectFromHandle<DataContainer>(ptr_y);
+		void* h = x.new_data_container_handle();
+		auto& z = objectFromHandle<DataContainer>(h);
+		if (sirf::iequals(f, "power"))
+			z.power(x, y);
+		else
+			return unknownObject("function", f, __FILE__, __LINE__);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_compute_binary(const void* ptr_x, const void* ptr_y, const char* f, const void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		auto const& y = objectFromHandle<DataContainer>(ptr_y);
+		if (sirf::iequals(f, "power"))
+			z.power(x, y);
+		else
+			return unknownObject("function", f, __FILE__, __LINE__);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_semibinary(const void* ptr_x, const void* ptr_y, const char* f)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		void* h = x.new_data_container_handle();
+		auto& z = objectFromHandle<DataContainer>(h);
+		if (sirf::iequals(f, "power"))
+			z.power(x, ptr_y);
+		else
+			return unknownObject("function", f, __FILE__, __LINE__);
+		return h;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_compute_semibinary(const void* ptr_x, const void* ptr_y, const char* f, const void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto& z = objectFromHandle<DataContainer>(ptr_z);
+		if (sirf::iequals(f, "power"))
+			z.power(x, ptr_y);
+		else
+			return unknownObject("function", f, __FILE__, __LINE__);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_unary(const void* ptr_x, const char* f)
 {
 	try {

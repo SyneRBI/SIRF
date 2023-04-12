@@ -323,6 +323,11 @@ namespace sirf {
 			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::minimum<float>);
 		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *(float*)ptr_y;
+			semibinary_op(x, y, std::pow);
+		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, DataContainer::product<float>);
@@ -338,6 +343,10 @@ namespace sirf {
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, std::pow);
 		}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
@@ -1094,6 +1103,11 @@ namespace sirf {
 			float y = *(float*)ptr_y;
 			semibinary_op(x, y, DataContainer::minimum<float>);
 		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *(float*)ptr_y;
+			semibinary_op(x, y, std::pow);
+		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, DataContainer::product<float>);
@@ -1109,6 +1123,10 @@ namespace sirf {
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, std::pow);
 		}
 
 		Image3DF& data()

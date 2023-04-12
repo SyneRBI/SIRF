@@ -273,6 +273,11 @@ namespace sirf {
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		static void minimum
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		// y := pow(x, y)
+		static void power
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void power
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// y := exp(x)
 		static void exp
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
@@ -478,10 +483,12 @@ namespace sirf {
 		virtual void divide(const DataContainer& x,	const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
+		virtual void power(const DataContainer& x, const DataContainer& y);
 		virtual void multiply(const DataContainer& x, const void* y);
 		virtual void add(const DataContainer& x, const void* ptr_y);
 		virtual void maximum(const DataContainer& x, const void* y);
 		virtual void minimum(const DataContainer& x, const void* y);
+		virtual void power(const DataContainer& x, const void* y);
 		virtual void exp(const DataContainer& x);
 		virtual void log(const DataContainer& x);
 		virtual void sqrt(const DataContainer& x);
@@ -835,10 +842,12 @@ namespace sirf {
 		virtual void divide(const DataContainer& x, const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
+		virtual void power(const DataContainer& x, const DataContainer& y);
 		virtual void multiply(const DataContainer& x, const void* ptr_y);
 		virtual void add(const DataContainer& x, const void* ptr_y);
 		virtual void maximum(const DataContainer& x, const void* ptr_y);
 		virtual void minimum(const DataContainer& x, const void* ptr_y);
+		virtual void power(const DataContainer& x, const void* ptr_y);
 		virtual void exp(const DataContainer& x);
 		virtual void log(const DataContainer& x);
 		virtual void sqrt(const DataContainer& x);

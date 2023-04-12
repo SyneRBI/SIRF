@@ -76,6 +76,10 @@ void* cSIRF_minimum(const void* ptr_x, const void* ptr_y);
 void* cSIRF_compute_minimum(const void* ptr_x, const void* ptr_y, const void* ptr_z);
 void* cSIRF_below(const void* ptr_x, PTR_FLOAT ptr_y);
 void* cSIRF_compute_below(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
+void* cSIRF_binary(const void* ptr_x, const void* ptr_y, const char* f);
+void* cSIRF_compute_binary(const void* ptr_x, const void* ptr_y, const char* f, const void* ptr_z);
+void* cSIRF_semibinary(const void* ptr_x, PTR_FLOAT ptr_y, const char* f);
+void* cSIRF_compute_semibinary(const void* ptr_x, PTR_FLOAT ptr_y, const char* f, const void* ptr_z);
 void* cSIRF_unary(const void* ptr_x, const char* f);
 void* cSIRF_compute_unary(const void* ptr_x, const char* f, const void* ptr_z);
 

@@ -618,10 +618,12 @@ protected:
     virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
 	virtual void maximum(const DataContainer& x, const DataContainer& y);
 	virtual void minimum(const DataContainer& x, const DataContainer& y);
+    virtual void power(const DataContainer& x, const DataContainer& y);
     virtual void multiply(const DataContainer& a_x, const void* a_y);
     virtual void add(const DataContainer& a_x, const void* a_y);
     virtual void maximum(const DataContainer& x, const void* a_y);
     virtual void minimum(const DataContainer& x, const void* a_y);
+    virtual void power(const DataContainer& x, const void* a_y);
     virtual void exp(const DataContainer& x);
     virtual void log(const DataContainer& x);
     virtual void sqrt(const DataContainer& x);

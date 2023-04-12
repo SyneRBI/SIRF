@@ -533,34 +533,34 @@ namespace sirf {
 		{
 			IMAGE_PROCESSING_SWITCH(type_, unary_op_, x.ptr_image(), f);
 		}
-		void multiply(const ImageWrap& x, const ImageWrap& y)
-		{
-			binary_op(x, y, DataContainer::product<complex_float_t>);
-		}
-		void divide(const ImageWrap& x, const ImageWrap& y)
-		{
-			binary_op(x, y, DataContainer::ratio<complex_float_t>);
-		}
-		void exp(const ImageWrap& x)
-		{
-			unary_op(x, DataContainer::exp);
-		}
-		void log(const ImageWrap& x)
-		{
-			unary_op(x, DataContainer::log);
-		}
-		void sqrt(const ImageWrap& x)
-		{
-			unary_op(x, DataContainer::sqrt);
-		}
-		void sign(const ImageWrap& x)
-		{
-			unary_op(x, DataContainer::sign);
-		}
-		void abs(const ImageWrap& x)
-		{
-			unary_op(x, DataContainer::abs);
-		}
+		//void multiply(const ImageWrap& x, const ImageWrap& y)
+		//{
+		//	binary_op(x, y, DataContainer::product<complex_float_t>);
+		//}
+		//void divide(const ImageWrap& x, const ImageWrap& y)
+		//{
+		//	binary_op(x, y, DataContainer::ratio<complex_float_t>);
+		//}
+		//void exp(const ImageWrap& x)
+		//{
+		//	unary_op(x, DataContainer::exp);
+		//}
+		//void log(const ImageWrap& x)
+		//{
+		//	unary_op(x, DataContainer::log);
+		//}
+		//void sqrt(const ImageWrap& x)
+		//{
+		//	unary_op(x, DataContainer::sqrt);
+		//}
+		//void sign(const ImageWrap& x)
+		//{
+		//	unary_op(x, DataContainer::sign);
+		//}
+		//void abs(const ImageWrap& x)
+		//{
+		//	unary_op(x, DataContainer::abs);
+		//}
 		complex_float_t dot(const ImageWrap& iw) const
 		{
 			complex_float_t z;

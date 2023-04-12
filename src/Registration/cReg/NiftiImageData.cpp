@@ -1948,6 +1948,20 @@ void NiftiImageData<dataType>::minimum
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::power
+(const DataContainer& a_x, const DataContainer& a_y)
+{
+    binary_op(a_x, a_y, std::pow);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::power
+(const DataContainer& a_x, const void* a_y)
+{
+    semibinary_op(a_x, a_y, std::pow);
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::exp(const DataContainer& a_x)
 {
     unary_op(a_x, std::exp);

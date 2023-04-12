@@ -62,7 +62,7 @@ namespace sirf {
 
 		/// \c *this = the sum \c x + y with scalar y
 		virtual void add
-		(const DataContainer& x, const void* ptr_y) = 0;
+			(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the elementwise ratio \c x / y
 		virtual void divide
@@ -78,6 +78,12 @@ namespace sirf {
 		virtual void minimum
 			(const DataContainer& x, const DataContainer& y) = 0;
 		virtual void minimum
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise \c pow(x, y)
+		virtual void power
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void power
 			(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the elementwise \c exp(x)
@@ -198,6 +204,10 @@ namespace sirf {
 		static T minreal(T x, T y)
 		{
 			return std::real(x) < std::real(y) ? x : y;
+		}
+		static std::complex<float> power(std::complex<float> x, std::complex<float> y)
+		{
+			return std::pow(x, y);
 		}
 		static std::complex<float> exp(std::complex<float> x)
 		{
