@@ -626,6 +626,7 @@ protected:
     virtual void log(const DataContainer& x);
     virtual void sqrt(const DataContainer& x);
     virtual void sign(const DataContainer& x);
+    virtual void abs(const DataContainer& x);
 
     virtual Dimensions dimensions() const
     {

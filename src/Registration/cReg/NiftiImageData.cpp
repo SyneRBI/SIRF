@@ -1972,6 +1972,12 @@ void NiftiImageData<dataType>::sign(const DataContainer& a_x)
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::abs(const DataContainer& a_x)
+{
+    unary_op(a_x, DataContainer::abs);
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::set_up_geom_info()
 {
 #ifndef NDEBUG

@@ -535,22 +535,14 @@ class DataContainer(ABC):
     def abs(self, out=None):
         '''Returns the element-wise absolute value of the DataContainer data
         
-           uses NumPy 
         '''
         if out is None:
-            z = self.clone()
-        else:
-            assert_validities(self, out)
-            z = out
-        z.fill(
-               numpy.abs(self.as_array())
-        )
-        return z
+            return self.unary('abs')
+        self.unary('abs', out=out)
 
     def sign(self, out=None):
         '''Returns the element-wise sign of the DataContainer data
         
-           uses NumPy 
         '''
         if out is None:
             return self.unary('sign')
@@ -559,7 +551,6 @@ class DataContainer(ABC):
     def sqrt(self, out=None):
         '''Returns the element-wise sqrt of the DataContainer data
 
-           uses NumPy
         '''
         if out is None:
             return self.unary('sqrt')

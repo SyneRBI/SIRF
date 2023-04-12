@@ -499,6 +499,13 @@ MRAcquisitionData::sign
     MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::sign);
 }
 
+void
+MRAcquisitionData::abs
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::abs);
+}
+
 complex_float_t
 MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
@@ -821,6 +828,13 @@ MRAcquisitionData::sign(const DataContainer& a_x)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     unary_op(x, MRAcquisitionData::sign);
+}
+
+void
+MRAcquisitionData::abs(const DataContainer& a_x)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    unary_op(x, MRAcquisitionData::abs);
 }
 
 void
@@ -1546,6 +1560,13 @@ GadgetronImageData::sign(const DataContainer& a_x)
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
     unary_op(x, DataContainer::sign);
+}
+
+void
+GadgetronImageData::abs(const DataContainer& a_x)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    unary_op(x, DataContainer::abs);
 }
 
 float

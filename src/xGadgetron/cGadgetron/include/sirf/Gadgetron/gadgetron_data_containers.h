@@ -286,6 +286,9 @@ namespace sirf {
 		static void sign
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// l2 norm of x
+		// y := abs(x)
+		static void abs
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
 		// type and dimension of an ISMRMRD::Acquisition parameter
@@ -483,6 +486,7 @@ namespace sirf {
 		virtual void log(const DataContainer& x);
 		virtual void sqrt(const DataContainer& x);
 		virtual void sign(const DataContainer& x);
+		virtual void abs(const DataContainer& x);
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
@@ -839,6 +843,7 @@ namespace sirf {
 		virtual void log(const DataContainer& x);
 		virtual void sqrt(const DataContainer& x);
 		virtual void sign(const DataContainer& x);
+		virtual void abs(const DataContainer& x);
 
 		void binary_op(
 			const DataContainer& a_x, const DataContainer& a_y,

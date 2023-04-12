@@ -88,6 +88,8 @@ namespace sirf {
 		virtual void sqrt(const DataContainer& x) = 0;
 		/// \c *this = the elementwise \c sign(x)
 		virtual void sign(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c abs(x)
+		virtual void abs(const DataContainer& x) = 0;
 
 		/// \c *this = the linear combination of \c x and \c y
 		virtual void axpby(
@@ -213,6 +215,11 @@ namespace sirf {
 		static T sign(T x)
 		{
 			return (std::real(x) > 0) - (std::real(x) < 0);
+		}
+		template<typename T>
+		static T abs(T x)
+		{
+			return T(std::abs(x));
 		}
 
 	protected:
