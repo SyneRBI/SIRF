@@ -484,6 +484,8 @@ cSIRF_unary(const void* ptr_x, const char* f)
 			z.log(x);
 		else if (sirf::iequals(f, "sqrt"))
 			z.sqrt(x);
+		else if (sirf::iequals(f, "sign"))
+			z.sign(x);
 		else
 			return unknownObject("function", f, __FILE__, __LINE__);
 		return h;
@@ -504,6 +506,8 @@ cSIRF_compute_unary(const void* ptr_x, const char* f, const void* ptr_z)
 			z.log(x);
 		else if (sirf::iequals(f, "sqrt"))
 			z.sqrt(x);
+		else if (sirf::iequals(f, "sign"))
+			z.sign(x);
 		else
 			return unknownObject("function", f, __FILE__, __LINE__);
 		return new DataHandle;

@@ -294,6 +294,10 @@ namespace sirf {
 		{
 			unary_op(x, std::sqrt);
 		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op(x, DataContainer::sign);
+		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *(float*)ptr_y;
@@ -1060,6 +1064,10 @@ namespace sirf {
 		virtual void sqrt(const DataContainer& x)
 		{
 			unary_op(x, std::sqrt);
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op(x, DataContainer::sign);
 		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{

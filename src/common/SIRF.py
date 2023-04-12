@@ -553,14 +553,8 @@ class DataContainer(ABC):
            uses NumPy 
         '''
         if out is None:
-            z = self.clone()
-        else:
-            assert_validities(self, out)
-            z = out
-        z.fill(
-               numpy.sign(self.as_array())
-        )
-        return z
+            return self.unary('sign')
+        self.unary('sign', out=out)
 
     def sqrt(self, out=None):
         '''Returns the element-wise sqrt of the DataContainer data

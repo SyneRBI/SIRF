@@ -553,6 +553,10 @@ namespace sirf {
 		{
 			unary_op(x, DataContainer::sqrt);
 		}
+		void sign(const ImageWrap& x)
+		{
+			unary_op(x, DataContainer::sign);
+		}
 		complex_float_t dot(const ImageWrap& iw) const
 		{
 			complex_float_t z;
