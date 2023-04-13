@@ -522,6 +522,36 @@ class DataContainer(ABC):
         self.divide(other, out=self)
         return self
 
+    def binary(self, other, f, out=None):
+        '''Applies function f(x,y) element-wise to self and other.
+
+        other: DataContainer or Number
+        f: the name of the function to apply, Python str.
+        '''
+        assert_validities(self, other)
+        if out is not None:
+            assert_validities(self, out)
+        else:
+            out = self.same_object()
+
+        if isinstance(a, Number):
+            y = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
+            if out.handle is None:
+                out.handle = pysirf.cSIRF_semibinary(self.handle, y.ctypes.data, f)
+                check_status(out.handle)
+                return out
+            else:
+                try_calling(pysirf.cSIRF_compute_semibinary(self.handle, y.ctypes.data, \
+                                                        f, out.handle))
+        else:
+            if out.handle is None:
+                out.handle = pysirf.cSIRF_binary(self.handle, other.handle, f)
+                check_status(out.handle)
+                return out
+            else:
+                try_calling(pysirf.cSIRF_compute_binary(self.handle, other.handle, \
+                                                        f, out.handle))
+
     def unary(self, f, out=None):
         '''Applies function f(x) element-wise to self data.
 
