@@ -137,9 +137,10 @@ class DataContainer(ABC):
         Since this class is abstract, its methods cannot itself create a new
         object when e.g. adding two objects of this class, so new object is
         created by the first object using its same_object() method - see
-        __add__ below.
+        clone() below.
         '''
         pass
+
     def clone(self):
         assert self.handle is not None
         x = self.same_object()
@@ -183,6 +184,8 @@ class DataContainer(ABC):
             x = self.same_object()
         else:
             x = out
+        if x.handle is not None:
+            pyiutil.deleteDataHandle(x.handle)
         x.handle = pysirf.cSIRF_conjugated(self.handle)
         check_status(x.handle)
         if out is None:
@@ -205,7 +208,7 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        assert_validities(self,other)
+        assert_validities(self, other)
         # Check if input are the same size
         if numpy.prod(self.dimensions()) != numpy.prod(other.dimensions()):
             raise ValueError("Input sizes are expected to be equal, got " + numpy.prod(self.dimensions()) + " and " + numpy.prod(other.dimensions()) + " instead.")
@@ -438,8 +441,9 @@ class DataContainer(ABC):
                 else:
                     try_calling(pysirf.cSIRF_xapybAlt(self.handle, a.handle, y.handle, b.handle, z.handle))
 
-        check_status(z.handle)
-        return z
+        if out is None:
+            check_status(z.handle)
+            return z
 
     def write(self, filename):
         '''
@@ -458,7 +462,7 @@ class DataContainer(ABC):
         '''
         if not isinstance (other, (DataContainer, Number)):
             return NotImplemented
-        if isinstance(other , Number):
+        if isinstance(other, Number):
             return self.add(-other, out=out)
         assert_validities(self, other)
         pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
@@ -468,12 +472,12 @@ class DataContainer(ABC):
             z.handle = pysirf.cSIRF_axpby \
                 (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle)
             check_status(z.handle)
+            return z
         else:
             assert_validities(self, out)
             z = out
             try_calling(pysirf.cSIRF_axpbyAlt \
                 (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle, z.handle))
-        return z
 
     def copy(self):
         '''alias of clone'''
@@ -519,7 +523,7 @@ class DataContainer(ABC):
         return self
 
     def unary(self, f, out=None):
-        '''Returns the result of appying function f element-wise to self data.
+        '''Applies function f(x) element-wise to self data.
 
         f: the name of the function to apply, Python str.
         '''
@@ -527,10 +531,10 @@ class DataContainer(ABC):
             out = self.same_object()
             out.handle = pysirf.cSIRF_unary(self.handle, f)
             check_status(out.handle)
+            return out
         else:
             assert_validities(self, out)
             try_calling(pysirf.cSIRF_compute_unary(self.handle, f, out.handle))
-        return out
 
     def abs(self, out=None):
         '''Returns the element-wise absolute value of the DataContainer data
