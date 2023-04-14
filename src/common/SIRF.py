@@ -486,24 +486,11 @@ class DataContainer(ABC):
     def power(self, other, out=None):
         '''Power function for DataContainers
 
-        uses NumPy
         SIRF/CIL compatibility
         '''
         if out is None:
-            z = self.clone()
-        else:
-            assert_validities(self, out)
-            z = out
-        
-        if isinstance(other, Number):
-            tmp =  numpy.power(self.as_array(), other)
-            z.fill( tmp )
-        else:
-            assert_validities(self, other)
-            z.fill(
-               numpy.power(self.as_array(), other.as_array())
-            )
-        return z
+            return self.binary(other, 'power')
+        self.binary(other, 'power', out=out)
 
     # inline algebra
     def __iadd__(self, other):
@@ -528,13 +515,9 @@ class DataContainer(ABC):
         other: DataContainer or Number
         f: the name of the function to apply, Python str.
         '''
-        assert_validities(self, other)
-        if out is not None:
-            assert_validities(self, out)
-        else:
+        if out is None:
             out = self.same_object()
-
-        if isinstance(a, Number):
+        if isinstance(other, Number):
             y = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             if out.handle is None:
                 out.handle = pysirf.cSIRF_semibinary(self.handle, y.ctypes.data, f)
@@ -544,6 +527,7 @@ class DataContainer(ABC):
                 try_calling(pysirf.cSIRF_compute_semibinary(self.handle, y.ctypes.data, \
                                                         f, out.handle))
         else:
+            assert_validities(self, other)
             if out.handle is None:
                 out.handle = pysirf.cSIRF_binary(self.handle, other.handle, f)
                 check_status(out.handle)
@@ -559,6 +543,7 @@ class DataContainer(ABC):
         '''
         if out is None:
             out = self.same_object()
+        if out.handle is None:
             out.handle = pysirf.cSIRF_unary(self.handle, f)
             check_status(out.handle)
             return out

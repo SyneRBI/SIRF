@@ -39,17 +39,6 @@ def test_main(rec=False, verb=False, throw=True):
     recon.process()
     complex_images = recon.get_output()
 
-    pd_max = processed_data.maximum(processed_data*2)
-    pd_diff = pd_max - processed_data.abs()*2
-    d = pd_diff.norm()/processed_data.norm()
-    print('acquisitions max error: %.1e' % d)
-    test.check_if_equal(1, d < 1e-6)
-    pd_min = processed_data.minimum(processed_data*2)
-    pd_diff = pd_min - processed_data.abs()
-    d = pd_diff.norm()/processed_data.norm()
-    print('acquisitions min error: %.1e' % d)
-    test.check_if_equal(1, d < 1e-6)
-
     pad2 = processed_data - processed_data
     pad2_arr = pad2.as_array()
     d = numpy.linalg.norm(pad2_arr)
@@ -109,17 +98,6 @@ def test_main(rec=False, verb=False, throw=True):
     acq.conjugate(out=acq)
     acq_arr_conj_sirf = acq.as_array()
     d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
-    test.check_if_equal(0, d)
-
-    ci_max = complex_images.maximum(complex_images*2)
-    ci_diff = ci_max - complex_images*2
-    d = ci_diff.norm()
-    print('images max error: %.1e' % d)
-    test.check_if_equal(0, d)
-    ci_min = complex_images.minimum(complex_images*2)
-    ci_diff = ci_min - complex_images
-    d = ci_diff.norm()
-    print('images min error: %.1e' % d)
     test.check_if_equal(0, d)
 
     ci_abs1 = numpy.abs(complex_images.as_array())

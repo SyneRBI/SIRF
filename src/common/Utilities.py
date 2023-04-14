@@ -871,6 +871,54 @@ def test_data_container_algebra(test, x, eps=1e-5):
     t = y.norm()
     test.check_if_equal(1, s <= eps * t)
 
+    p = -0.5
+    z = x.power(p)
+    ax = x.as_array()
+    az = z.as_array()
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    t = numpy.linalg.norm(az)
+    az -= numpy.power(ax, p)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    s = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+    z *= 0
+    x.power(p, out=z)
+    ax = x.as_array()
+    az = z.as_array()
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    t = numpy.linalg.norm(az)
+    az -= numpy.power(ax, p)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    s = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+    ax = x.as_array()
+    ay = -numpy.ones_like(ax)/2
+    y.fill(ay)
+    z = x.power(y)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    t = numpy.linalg.norm(az)
+    az -= numpy.power(ax, ay)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    s = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+    z *= 0
+    x.power(y, out=z)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    t = numpy.linalg.norm(az)
+    az -= numpy.power(ax, ay)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    s = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
 
 class DataContainerAlgebraTests(object):
 
