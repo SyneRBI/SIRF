@@ -15,8 +15,13 @@ Options:
 {licence}
 """
 
+<<<<<<< HEAD
 from sirf.Gadgetron import AcquisitionData, examples_data_path
 from sirf.Utilities import runner
+=======
+from sirf.Gadgetron import *
+from sirf.Utilities import runner, __license__
+>>>>>>> c4df80e68646691a2d10f7db5c14ba9f1db9e015
 __version__ = "0.2.3"
 __author__ = "Johannes Mayer"
 
