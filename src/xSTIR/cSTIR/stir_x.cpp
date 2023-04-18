@@ -555,7 +555,7 @@ PETAcquisitionModel::forward(const STIRImageData& image,
 }
 
 std::shared_ptr<STIRImageData> 
-PETAcquisitionModel::backward(STIRAcquisitionData& ad,
+PETAcquisitionModel::backward(const STIRAcquisitionData& ad,
 	int subset_num, int num_subsets) const
 {
 	if (!sptr_image_template_.get())
@@ -567,7 +567,7 @@ PETAcquisitionModel::backward(STIRAcquisitionData& ad,
 }
 
 void
-PETAcquisitionModel::backward(STIRImageData& id, STIRAcquisitionData& ad,
+PETAcquisitionModel::backward(STIRImageData& id, const STIRAcquisitionData& ad,
 	int subset_num, int num_subsets) const
 {
         stir::shared_ptr<Image3DF> sptr_im = id.data_sptr();
