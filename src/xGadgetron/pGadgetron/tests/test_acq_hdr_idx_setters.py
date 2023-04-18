@@ -15,8 +15,8 @@ Options:
 {licence}
 """
 
-from sirf.Gadgetron import *
-from sirf.Utilities import runner, RE_PYEXT, __license__
+from sirf.Gadgetron import AcquisitionData, examples_data_path
+from sirf.Utilities import runner
 __version__ = "0.2.3"
 __author__ = "Johannes Mayer"
 
