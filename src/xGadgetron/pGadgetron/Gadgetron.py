@@ -1694,42 +1694,39 @@ def set_data_trajectory(ad, traj, traj_type_str):
                             - rpe
     '''
     assert_validity(ad, AcquisitionData)
-    assert isinstance(traj, numpy.ndarray), 'Trajectory should be numpy array. Got {}'.format(type(traj))
-    
-    # Check trajectory type
-    if traj_type_str == 'radial':
-        traj_type = int(2)
-    elif traj_type_str == 'goldenangle':
-        traj_type = int(3)
-    elif traj_type_str == 'spiral':
-        traj_type = int(4)
-    elif traj_type_str == 'rpe':
-        traj_type = int(5) # other
-    else:
-        raise ValueError("Trajectory type {} cannot be set. Only radial, spiral, goldenangle and rpe can be set.".format(traj_type_str))
-    
-    # Check dimensions of trajectory
-    dims = ad.dimensions()
-    if traj_type_str == 'radial' or traj_type_str == 'goldenangle' or traj_type_str == 'spiral':
-        traj_dim = int(2)
-        expected_traj_shape = (dims[0], dims[2], traj_dim)
-    elif traj_type_str == 'rpe':
-        traj_dim = int(3)
-        expected_traj_shape = (dims[0], traj_dim)
-    if traj.shape != expected_traj_shape:
-        raise AssertionError("Pass the {} trajectory in the shape {}. You gave a shape of {}".format(traj_type_str, expected_traj_shape, traj.shape))
+    if isinstance(traj, numpy.ndarray):
 
-    if traj_type_str == 'rpe':
-        # Same phase encoding trajectory for each readout
-        traj = numpy.tile(traj[:, numpy.newaxis, :], (1, dims[2], 1))
+        # Check trajectory type
+        supported_traj = ['radial', 'goldenangle', 'spiral', 'rpe']
+        if traj_type_str not in supported_traj:
+            raise Error("Trajectory type {} cannot be set. Only {} can be set.".format(traj_type_str, supported_traj))
         
-    traj = numpy.array(traj, numpy.float32)
-    convert = not traj.flags['C_CONTIGUOUS']
-    if convert:
-        traj = numpy.ascontiguousarray(traj)
-    pygadgetron.cGT_setDataTrajectory(ad.handle, traj_dim, traj.ctypes.data)
+        # Check dimensions of trajectory
+        dims = ad.dimensions()
+        if traj_type_str == 'radial' or traj_type_str == 'goldenangle' or traj_type_str == 'spiral':
+            traj_dim = int(2)
+            expected_traj_shape = (dims[0], dims[2], traj_dim)
+        elif traj_type_str == 'rpe':
+            traj_dim = int(3)
+            expected_traj_shape = (dims[0], traj_dim)
+        if traj.shape != expected_traj_shape:
+            raise AssertionError("Pass the {} trajectory in the shape {}. You gave a shape of {}".format(traj_type_str, expected_traj_shape, traj.shape))
+
+        if traj_type_str == 'rpe':
+            # Same phase encoding trajectory for each readout
+            traj = numpy.tile(traj[:, numpy.newaxis, :], (1, dims[2], 1))
+            
+        traj = numpy.array(traj, numpy.float32)
+        convert = not traj.flags['C_CONTIGUOUS']
+        if convert:
+            traj = numpy.ascontiguousarray(traj)
+        pygadgetron.cGT_setDataTrajectory(ad.handle, traj_dim, traj.ctypes.data)
+        
+        return(ad)
+    else:
+        raise error('Trajectory should be numpy array. Got {}'.format(type(traj)))
     
-    return(ad)
+    
     
 def get_data_trajectory(ad):
     '''
