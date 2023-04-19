@@ -324,7 +324,7 @@ MRAcquisitionData::axpby
 (complex_float_t a, const ISMRMRD::Acquisition& acq_x,
 	complex_float_t b, ISMRMRD::Acquisition& acq_y)
 {
-	complex_float_t* px;
+	const complex_float_t* px;
 	complex_float_t* py;
 	for (px = acq_x.data_begin(), py = acq_y.data_begin();
 		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
@@ -348,10 +348,10 @@ MRAcquisitionData::xapyb
 (const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
 	ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b)
 {
-	complex_float_t* px;
-	complex_float_t* pa;
+	const complex_float_t* px;
+	const complex_float_t* pa;
 	complex_float_t* py;
-	complex_float_t* pb;
+	const complex_float_t* pb;
 	for (px = acq_x.data_begin(), pa = acq_a.data_begin(),
 		py = acq_y.data_begin(), pb = acq_b.data_begin();
 		px != acq_x.data_end() && pa != acq_a.data_end(),
@@ -365,7 +365,7 @@ void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-	complex_float_t* px;
+	const complex_float_t* px;
 	complex_float_t* py;
 	for (px = acq_x.data_begin(), py = acq_y.data_begin();
 		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
@@ -377,7 +377,7 @@ void
 MRAcquisitionData::divide
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-	complex_float_t* px;
+	const complex_float_t* px;
 	complex_float_t* py;
 	for (px = acq_x.data_begin(), py = acq_y.data_begin();
 		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
@@ -389,8 +389,8 @@ complex_float_t
 MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
 {
-	complex_float_t* pa;
-	complex_float_t* pb;
+	const complex_float_t* pa;
+	const complex_float_t* pb;
 	complex_float_t z = 0;
 	for (pa = acq_a.data_begin(), pb = acq_b.data_begin();
 		pa != acq_a.data_end() && pb != acq_b.data_end(); pa++, pb++) {
@@ -402,7 +402,7 @@ MRAcquisitionData::dot
 float 
 MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 {
-	complex_float_t* pa;
+	const complex_float_t* pa;
 	float r = 0;
 	for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++) {
 		complex_float_t z = std::conj(*pa) * (*pa);
@@ -1957,7 +1957,7 @@ CFImage CoilSensitivitiesVector::get_csm_as_cfimage(const KSpaceSubset::TagType 
     throw LocalisedException("No coilmap with this tag was in the coilsensitivity container.",   __FILE__, __LINE__);
 }
 
-void CoilSensitivitiesVector::forward(GadgetronImageData& img, GadgetronImageData& combined_img)const
+void CoilSensitivitiesVector::forward(GadgetronImageData& img, const GadgetronImageData& combined_img)const
 {
     if(combined_img.items() != this->items() )
         throw LocalisedException("The number of coilmaps does not equal the number of images to which they should be applied to.",   __FILE__, __LINE__);
@@ -1974,12 +1974,12 @@ void CoilSensitivitiesVector::forward(GadgetronImageData& img, GadgetronImageDat
     this->coilchannels_from_combined_image(img, combined_img);
 }
 
-void CoilSensitivitiesVector::coilchannels_from_combined_image(GadgetronImageData& img, GadgetronImageData& combined_img) const
+void CoilSensitivitiesVector::coilchannels_from_combined_image(GadgetronImageData& img, const GadgetronImageData& combined_img) const
 {
     for(size_t i_img=0; i_img<combined_img.items(); ++i_img)
     {
-        ImageWrap& iw_src = combined_img.image_wrap(i_img);
-        CFImage* ptr_src_img = static_cast<CFImage*>(iw_src.ptr_image());
+        const ImageWrap& iw_src = combined_img.image_wrap(i_img);
+        const CFImage* ptr_src_img = static_cast<const CFImage*>(iw_src.ptr_image());
 
         CFImage coilmap = get_csm_as_cfimage( KSpaceSubset::get_tag_from_img(*ptr_src_img), i_img);
 
@@ -1999,7 +1999,9 @@ void CoilSensitivitiesVector::coilchannels_from_combined_image(GadgetronImageDat
         for( size_t ny=0;ny<Ny ; ny++)
         for( size_t nx=0;nx<Nx ; nx++)
         {
-            (*ptr_dst_img)(nx, ny, nz, nc) =  (*ptr_src_img)(nx, ny, nz, 0) * coilmap(nx, ny, nz, nc);
+            (*ptr_dst_img)(nx, ny, nz, nc) =
+            *(ptr_src_img->getDataPtr() + nx + Nx * (ny + Ny * nz))
+            * coilmap(nx, ny, nz, nc);
         }
 
         img.append(iw_dst);
