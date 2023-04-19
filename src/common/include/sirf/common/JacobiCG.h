@@ -65,33 +65,33 @@ namespace sirf {
 			std::unique_ptr<vector_type> uptr_Az = x.clone();
 			vector_type& Az = *uptr_Az;
 
-			float s = sqrt(abs(x.dot(x)));
+			float s = x.norm();
 			x.scale(s);
 			std::shared_ptr<vector_type> sptr_Ax = A(x);
 			vector_type& Ax = *sptr_Ax;
 
 			for (int it = 0; it < nit_; it++) {
-				lmd = Ax.dot(x);
+				lmd = dot(Ax, x);
 				y.axpby(1.0, Ax, -lmd, x); // residual
 				if (verb > 0)
 					std::cout << "CG iteration " << it
 						<< ": largest eigenvalue " << std::real(lmd) << '\n';
 				if (it) { // conjugate y to the previous search direction
-					t = Az.dot(z);
+					t = dot(Az, z);
 					w.axpby(1.0, Az, -t, z);
-					t = w.dot(y) / (lmd - t);
+					t = dot(w, y) / (lmd - t);
 					y.axpby(1.0, y, t, z);
 				}
 				// normalize y
-				s = sqrt(abs(y.dot(y)));
+				s = y.norm();
 				if (s == 0.0)
 					break; // converged
 				y.scale(s);
 				// orthogonalize y to x
-				t = y.dot(x);
+				t = dot(y, x);
 				y.axpby(1.0, y, -t, x);
 				// normalize y again
-				s = sqrt(abs(y.dot(y)));
+				s = y.norm();
 				if (s == 0.0)
 					break; // converged
 				y.scale(s);
@@ -99,9 +99,9 @@ namespace sirf {
 				std::shared_ptr<vector_type> sptr_Ay = A(y);
 				vector_type& Ay = *sptr_Ay;
 				a[0] = lmd;
-				a[1] = Ay.dot(x);
-				a[2] = x.dot(Ay);
-				a[3] = Ay.dot(y);
+				a[1] = dot(Ay, x);
+				a[2] = dot(x, Ay);
+				a[3] = dot(Ay, y);
 				// compute eigenvalues and eigenvectors of 2x2 matrix a
 				eigh2_(a, mu, u, v);
 				z.axpby(u[0], x, u[1], y);
@@ -112,11 +112,18 @@ namespace sirf {
 				Az.axpby(u[0], Ax, u[1], Ay);
 				Ax.axpby(v[0], Ax, v[1], Ay);
 				lmd = mu[1];
-				s = sqrt(abs(x.dot(x)));
+				s = x.norm();
 				x.scale(s);
 				Ax.scale(s);
 			}
 			return std::real(lmd);
+		}
+		template<class vector_type>
+		value_type dot(const vector_type& x, const vector_type& y)
+		{
+			value_type s;
+			x.dot(y, &s);
+			return s;
 		}
 	private:
 		int nit_;
