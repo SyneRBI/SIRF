@@ -1699,7 +1699,7 @@ def set_data_trajectory(ad, traj, traj_type_str):
         # Check trajectory type
         supported_traj = ['radial', 'goldenangle', 'spiral', 'rpe']
         if traj_type_str not in supported_traj:
-            raise Error("Trajectory type {} cannot be set. Only {} can be set.".format(traj_type_str, supported_traj))
+            raise error("Trajectory type {} cannot be set. Only {} can be set.".format(traj_type_str, supported_traj))
         
         # Check dimensions of trajectory
         dims = ad.dimensions()
