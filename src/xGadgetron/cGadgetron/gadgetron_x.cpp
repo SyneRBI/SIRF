@@ -420,7 +420,7 @@ MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
 }
 
 void
-MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
+MRAcquisitionModel::fwd(const GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
     GadgetronImagesVector images_channelresolved;
