@@ -165,4 +165,36 @@ namespace sirf {
 			return;
 		}
 	};
-}
+
+	template<typename X>
+	class Wrapped_sptr {
+	public:
+		Wrapped_sptr(std::shared_ptr<X> sptr) : sptr_(sptr) {}
+		std::shared_ptr<X> sptr() const
+		{
+			return sptr_;
+		}
+		std::unique_ptr<Wrapped_sptr> clone() const
+		{
+			std::shared_ptr<X> sptr(sptr_->clone());
+			return std::unique_ptr<Wrapped_sptr>(new Wrapped_sptr(sptr));
+		}
+		float norm()
+		{
+			return sptr_->norm();
+		}
+		void scale(float s)
+		{
+			sptr_->scale(s);
+		}
+		void dot(const Wrapped_sptr& y, void* ptr)
+		{
+			sptr_->dot(*y.sptr(), ptr);
+		}
+		void axpby(const void* ptr_a, const Wrapped_sptr& x, const void* ptr_b, const Wrapped_sptr& y)
+		{
+			sptr_->axpby(ptr_a, *x.sptr(), ptr_b, *y.sptr());
+		}
+	protected:
+		std::shared_ptr<X> sptr_;
+};}
