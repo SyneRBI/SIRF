@@ -197,4 +197,5 @@ namespace sirf {
 		}
 	protected:
 		std::shared_ptr<X> sptr_;
-};}
+	};
+}
