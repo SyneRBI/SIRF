@@ -174,12 +174,12 @@ namespace sirf {
 		{
 			return sptr_;
 		}
-		std::unique_ptr<Wrapped_sptr> clone() const
+		std::unique_ptr<Wrapped_sptr<X>> clone() const
 		{
 			std::shared_ptr<X> sptr(sptr_->clone());
 			return std::unique_ptr<Wrapped_sptr>(new Wrapped_sptr(sptr));
 		}
-		float norm()
+		float norm() const
 		{
 			return sptr_->norm();
 		}

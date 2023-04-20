@@ -123,6 +123,24 @@ public:
     /// Do the adjoint transformation
     virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
 
+/*    std::shared_ptr<const ImageData> reference_image_sptr() const
+    {
+        return this->_reference_image_sptr;
+    }
+
+    virtual float norm(int num_iter, int verb)
+    {
+        BFOperator<dataType> bf(std::shared_ptr<NiftyResampler<dataType> >(new NiftyResampler<dataType>));
+        JacobiCG<dataType> jcg;
+        jcg.set_num_iterations(num_iter);
+        std::shared_ptr<const ImageData> sptr_ri = reference_image_sptr();
+        std::shared_ptr<ImageData> sptr_id = sptr_ri->clone();
+        sptr_id->fill(1.0f);
+        Wrapped_sptr<ImageData> wsptr_id(sptr_id);
+        float lmd = jcg.largest(bf, wsptr_id, verb);
+        return std::sqrt(lmd);
+    }
+*/
 protected:
 
     /// Set up

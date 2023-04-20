@@ -78,6 +78,14 @@ namespace sirf {
             for (; dst != end; ++dst, ++src)
 				*dst = *src;
         }
+        void fill(float v)
+        {
+            Iterator& dst = this->begin();
+            Iterator& end = this->end();
+            FloatRef fr(&v);
+            for (; dst != end; ++dst)
+                *dst = fr;
+        }
         /// Write image to file
         //virtual void write(const std::string &filename) const = 0;
 		virtual bool operator==(const ImageData& id) const
