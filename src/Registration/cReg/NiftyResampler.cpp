@@ -339,6 +339,22 @@ void NiftyResampler<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, c
     set_post_resample_outputs(output_sptr, this->_output_image_sptr, _output_image_adjoint_niftis);
 }
 
+/*
+template<class dataType>
+float NiftyResampler<dataType>::norm(int num_iter, int verb) const
+{
+        BFOperator<dataType> bf(std::shared_ptr<NiftyResampler<dataType> >(new NiftyResampler<dataType>));
+        JacobiCG<dataType> jcg;
+        jcg.set_num_iterations(num_iter);
+        std::shared_ptr<const ImageData> sptr_ri = reference_image_sptr();
+        std::shared_ptr<ImageData> sptr_id = sptr_ri->clone();
+        sptr_id->fill(1.0f);
+        Wrapped_sptr<ImageData> wsptr_id(sptr_id);
+        float lmd = jcg.largest(bf, wsptr_id, verb);
+        return std::sqrt(lmd);
+}
+*/
+
 namespace sirf {
 template class NiftyResampler<float>;
 using NiftyResample SIRF_DEPRECATED_USING = NiftyResampler<float>;
