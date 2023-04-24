@@ -823,17 +823,18 @@ class Acquisition(object):
     def set_segment(self,val):
         assert self.handle is not None
         return parms.set_int_par(self.handle, 'acquisition', 'idx_segment', int(val))
-    '''
-    Setter for acquisitions physiology time stamp.
-    input: 
-        val: time in tics! (1 tic usually corresponds to 2.5ms for SIEMENS data).
-        stampnum: which physiology time stamp is set, 0, 1 or 2 (stampnum=0 corresponds to trigger delay).
-    '''
+
     def set_physiology_time_stamp(self,val,stampnum):
+        '''
+        Setter for acquisitions physiology time stamp.
+        input: 
+            val: time in tics! (1 tic usually corresponds to 2.5ms for SIEMENS data).
+            stampnum: which physiology time stamp is set, 0, 1 or 2 (stampnum=0 corresponds to trigger delay).
+        '''
         assert self.handle is not None
         if stampnum <0 or stampnum >2:
             raise AssertionError(f"stampnum must be either 0, 1 or 2. You gave {stampnum}.")
-        attribute = f"physiology_time_stamp{stampnum}" 
+        attribute = f"physiology_time_stamp{stampnum}"
         return parms.set_int_par(self.handle, 'acquisition', attribute, int(val))
 
 class AcquisitionData(DataContainer):
