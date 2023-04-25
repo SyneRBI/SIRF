@@ -346,7 +346,7 @@ float NiftyResampler<dataType>::norm(int num_iter, int verb) const
         BFOperator<dataType> bf(std::shared_ptr<NiftyResampler<dataType> >(new NiftyResampler<dataType>));
         JacobiCG<dataType> jcg;
         jcg.set_num_iterations(num_iter);
-        std::shared_ptr<const ImageData> sptr_ri = reference_image_sptr();
+        std::shared_ptr<const ImageData> sptr_ri = this->reference_image_sptr(); //<dataType>();
         std::shared_ptr<ImageData> sptr_id = sptr_ri->clone();
         sptr_id->fill(1.0f);
         Wrapped_sptr<ImageData> wsptr_id(sptr_id);

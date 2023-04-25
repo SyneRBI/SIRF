@@ -130,6 +130,10 @@ public:
     /// Backward. Alias for Adjoint
     virtual void backward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
 
+    std::shared_ptr<const ImageData> reference_image_sptr() const
+    {
+        return _reference_image_sptr;
+    }
     //virtual float norm(int num_iter, int verb) const = 0;
 
 protected:
@@ -172,7 +176,7 @@ template<class dataType>
 class BFOperator : public Operator<Wrapped_sptr<ImageData> >{
 public:
     BFOperator(std::shared_ptr<Resampler<dataType> > sptr_r) : sptr_r_(sptr_r) {}
-    std::shared_ptr<Wrapped_sptr<ImageData> > apply(const Wrapped_sptr<const ImageData>& wsptr)
+    std::shared_ptr<Wrapped_sptr<ImageData> > apply(const Wrapped_sptr<ImageData>& wsptr)
     {
         std::shared_ptr<const ImageData> sptr_im = wsptr.sptr();
         std::shared_ptr<ImageData> sptr_f = sptr_r_->forward(sptr_im);
