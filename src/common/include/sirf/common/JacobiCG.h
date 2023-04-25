@@ -71,15 +71,15 @@ namespace sirf {
 			vector_type& Ax = *sptr_Ax;
 
 			for (int it = 0; it < nit_; it++) {
-				lmd = dot(Ax, x);
+				lmd = Ax.dot(x);
 				y.axpby(1.0, Ax, -lmd, x); // residual
 				if (verb > 0)
 					std::cout << "CG iteration " << it
 						<< ": largest eigenvalue " << std::real(lmd) << '\n';
 				if (it) { // conjugate y to the previous search direction
-					t = dot(Az, z);
+					t = Az.dot(z);
 					w.axpby(1.0, Az, -t, z);
-					t = dot(w, y) / (lmd - t);
+					t = w.dot(y) / (lmd - t);
 					y.axpby(1.0, y, t, z);
 				}
 				// normalize y
@@ -88,7 +88,7 @@ namespace sirf {
 					break; // converged
 				y.scale(s);
 				// orthogonalize y to x
-				t = dot(y, x);
+				t = y.dot(x);
 				y.axpby(1.0, y, -t, x);
 				// normalize y again
 				s = y.norm();
@@ -99,9 +99,9 @@ namespace sirf {
 				std::shared_ptr<vector_type> sptr_Ay = A(y);
 				vector_type& Ay = *sptr_Ay;
 				a[0] = lmd;
-				a[1] = dot(Ay, x);
-				a[2] = dot(x, Ay);
-				a[3] = dot(Ay, y);
+				a[1] = Ay.dot(x);
+				a[2] = x.dot(Ay);
+				a[3] = Ay.dot(y);
 				// compute eigenvalues and eigenvectors of 2x2 matrix a
 				eigh2_(a, mu, u, v);
 				z.axpby(u[0], x, u[1], y);
@@ -117,13 +117,6 @@ namespace sirf {
 				Ax.scale(s);
 			}
 			return std::real(lmd);
-		}
-		template<class vector_type>
-		value_type dot(const vector_type& x, const vector_type& y)
-		{
-			value_type s;
-			x.dot(y, &s);
-			return s;
 		}
 	private:
 		int nit_;
@@ -166,17 +159,17 @@ namespace sirf {
 		}
 	};
 
-	template<typename X>
+	template<typename vector_type, typename value_type>
 	class Wrapped_sptr {
 	public:
-		Wrapped_sptr(std::shared_ptr<X> sptr) : sptr_(sptr) {}
-		std::shared_ptr<X> sptr() const
+		Wrapped_sptr(std::shared_ptr<vector_type> sptr) : sptr_(sptr) {}
+		std::shared_ptr<vector_type> sptr() const
 		{
 			return sptr_;
 		}
-		std::unique_ptr<Wrapped_sptr<X>> clone() const
+		std::unique_ptr<Wrapped_sptr<vector_type, value_type> > clone() const
 		{
-			std::shared_ptr<X> sptr(sptr_->clone());
+			std::shared_ptr<vector_type> sptr(sptr_->clone());
 			return std::unique_ptr<Wrapped_sptr>(new Wrapped_sptr(sptr));
 		}
 		float norm() const
@@ -187,15 +180,20 @@ namespace sirf {
 		{
 			sptr_->scale(s);
 		}
-		void dot(const Wrapped_sptr& y, void* ptr)
+		value_type dot(const Wrapped_sptr& y)
 		{
+			value_type s;
+			void* ptr = (void*)&s;
 			sptr_->dot(*y.sptr(), ptr);
+			return s;
 		}
-		void axpby(const void* ptr_a, const Wrapped_sptr& x, const void* ptr_b, const Wrapped_sptr& y)
+		void axpby(value_type a, const Wrapped_sptr& x, value_type b, const Wrapped_sptr& y)
 		{
+			void* ptr_a = (void*)&a;
+			void* ptr_b = (void*)&b;
 			sptr_->axpby(ptr_a, *x.sptr(), ptr_b, *y.sptr());
 		}
 	protected:
-		std::shared_ptr<X> sptr_;
+		std::shared_ptr<vector_type> sptr_;
 	};
 }

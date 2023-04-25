@@ -173,15 +173,15 @@ protected:
 
 /// Backward projection of the forward projected image
 template<class dataType>
-class BFOperator : public Operator<Wrapped_sptr<ImageData> >{
+class BFOperator : public Operator<Wrapped_sptr<ImageData, dataType> >{
 public:
     BFOperator(std::shared_ptr<Resampler<dataType> > sptr_r) : sptr_r_(sptr_r) {}
-    std::shared_ptr<Wrapped_sptr<ImageData> > apply(const Wrapped_sptr<ImageData>& wsptr)
+    std::shared_ptr<Wrapped_sptr<ImageData, dataType> > apply(const Wrapped_sptr<ImageData, dataType>& wsptr)
     {
         std::shared_ptr<const ImageData> sptr_im = wsptr.sptr();
         std::shared_ptr<ImageData> sptr_f = sptr_r_->forward(sptr_im);
         std::shared_ptr<ImageData> sptr_bf = sptr_r_->backward(sptr_f);
-        return std::unique_ptr<Wrapped_sptr<ImageData> >(new Wrapped_sptr<ImageData>(sptr_bf));
+        return std::unique_ptr<Wrapped_sptr<ImageData, dataType> >(new Wrapped_sptr<ImageData, dataType>(sptr_bf));
     }
 /*
     std::shared_ptr<const ImageData> reference_image_sptr() const
