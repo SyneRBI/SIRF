@@ -594,6 +594,18 @@ public:
         _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
         return *_end_const;
     }
+    unsigned int items() const { return 1; }
+    virtual void dot      (const DataContainer& a_x, void* ptr) const;
+    virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
+    virtual void xapyb    (const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
+    virtual void xapyb    (const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
+    virtual float norm() const;
+    virtual void scale(float s);
+    virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
+    virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
+	virtual void maximum(const DataContainer& x, const DataContainer& y);
+	virtual void minimum(const DataContainer& x, const DataContainer& y);
+
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData* clone_impl() const
@@ -605,16 +617,6 @@ protected:
         return new ObjectHandle<DataContainer>
             (std::shared_ptr<DataContainer>(new NiftiImageData));
     }
-    unsigned int items() const { return 1; }
-    virtual void dot      (const DataContainer& a_x, void* ptr) const;
-    virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
-    virtual void xapyb    (const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
-    virtual void xapyb    (const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
-    virtual float norm() const;
-    virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
-    virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
-	virtual void maximum(const DataContainer& x, const DataContainer& y);
-	virtual void minimum(const DataContainer& x, const DataContainer& y);
 	virtual Dimensions dimensions() const
     {
         Dimensions dim;

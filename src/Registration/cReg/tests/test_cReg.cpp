@@ -805,6 +805,14 @@ int main(int argc, char* argv[])
         resample.add_transformation(def_inverse_sptr);
         const std::shared_ptr<const NiftiImageData<float> > out1_sptr = std::dynamic_pointer_cast<const NiftiImageData<float> >(resample.forward(ref_aladin));
 
+        std::cout << "ref image norm: " << flo_aladin->norm() << '\n';
+        std::cout << "flo image norm: " << ref_aladin->norm() << '\n';
+        std::cout << "fwd(flo) image norm: " << out1_sptr->norm() << '\n';
+
+        float s = resample.norm(8, 1);
+        std::cout << "resampler norm: " << s << '\n';
+        return 0;
+
         // Reference forward with def_fwd_then_inv_sptr
         resample.clear_transformations();
         resample.add_transformation(def_fwd_then_inv_sptr);

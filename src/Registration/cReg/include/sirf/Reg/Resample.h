@@ -134,6 +134,14 @@ public:
     {
         return _reference_image_sptr;
     }
+    std::shared_ptr<const ImageData> floating_image_sptr() const
+    {
+        return _floating_image_sptr;
+    }
+    std::vector<std::shared_ptr<const Transformation<dataType> > > transformations_sptr() const
+    {
+	return _transformations;
+    }
     //virtual float norm(int num_iter, int verb) const = 0;
 
 protected:

@@ -61,6 +61,7 @@ namespace sirf {
 		virtual Iterator_const& begin() const = 0;
 		virtual Iterator& end() = 0;
 		virtual Iterator_const& end() const = 0;
+		virtual void scale(float s) = 0;
 		virtual bool ordered() const
 		{
 			return true;

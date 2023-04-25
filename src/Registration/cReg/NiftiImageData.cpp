@@ -1817,6 +1817,13 @@ float NiftiImageData<dataType>::norm() const
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::scale(float s)
+{
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] /= s;
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::multiply
     (const DataContainer& a_x, const DataContainer& a_y)
 {
