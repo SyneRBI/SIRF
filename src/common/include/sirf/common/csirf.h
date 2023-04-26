@@ -60,22 +60,8 @@ void* cSIRF_XapYBAlt(
 	const void* ptr_x, const PTR_FLOAT ptr_a,
 	const void* ptr_y, const void* ptr_b,
 	void* ptr_z);
-void* cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z);
-void* cSIRF_product(const void* ptr_x, const void* ptr_y);
-void* cSIRF_scale(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
-void* cSIRF_scaled(const void* ptr_x, PTR_FLOAT ptr_y);
-void* cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z);
-void* cSIRF_ratio(const void* ptr_x, const void* ptr_y);
 void* cSIRF_add(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
 void* cSIRF_sum(const void* ptr_x, PTR_FLOAT ptr_y);
-void* cSIRF_maximum(const void* ptr_x, const void* ptr_y);
-void* cSIRF_compute_maximum(const void* ptr_x, const void* ptr_y, const void* ptr_z);
-void* cSIRF_above(const void* ptr_x, PTR_FLOAT ptr_y);
-void* cSIRF_compute_above(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
-void* cSIRF_minimum(const void* ptr_x, const void* ptr_y);
-void* cSIRF_compute_minimum(const void* ptr_x, const void* ptr_y, const void* ptr_z);
-void* cSIRF_below(const void* ptr_x, PTR_FLOAT ptr_y);
-void* cSIRF_compute_below(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
 void* cSIRF_binary(const void* ptr_x, const void* ptr_y, const char* f);
 void* cSIRF_compute_binary(const void* ptr_x, const void* ptr_y, const char* f, const void* ptr_z);
 void* cSIRF_semibinary(const void* ptr_x, PTR_FLOAT ptr_y, const char* f);

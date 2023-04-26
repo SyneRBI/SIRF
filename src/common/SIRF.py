@@ -224,133 +224,66 @@ class DataContainer(ABC):
 
     def multiply(self, other, out=None):
         '''
-        Multiplication for data containers.
+        Elementwise multiplication for data containers.
 
-        If other is a DataContainer, returns the elementwise product of data
-        stored in self and other viewed as vector data.
-        If other is a scalar, returns self scaled by other.
+        Returns the elementwise product of data stored in self and other.
         other: DataContainer or scalar.
         out:   DataContainer to store the result to.
         '''
         if out is None:
-            z = self.same_object()
-        else:
-            z = out
-            assert_validities(self, z)
-        if isinstance(other, Number):
-            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
-            if out is None:
-                z.handle = pysirf.cSIRF_scaled(self.handle, a.ctypes.data)
-                check_status(z.handle)
-            else:
-                try_calling(pysirf.cSIRF_scale(self.handle, a.ctypes.data, z.handle))
-        else:
-            assert_validities(self, other)
-            if out is None:
-                z.handle = pysirf.cSIRF_product(self.handle, other.handle)
-                check_status(z.handle)
-            else:
-                try_calling(pysirf.cSIRF_multiply(self.handle, other.handle, z.handle))
-        return z
+            return self.binary(other, 'multiply')
+        self.binary(other, 'multiply', out=out)
 
     def maximum(self, other, out=None):
         '''
-        Multiplication for data containers.
+        Elementwise maximum for data containers.
 
-        If other is a DataContainer, returns the elementwise product of data
-        stored in self and other viewed as vector data.
-        If other is a scalar, returns self scaled by other.
+        Returns the elementwise maximum of data stored in self and other.
         other: DataContainer or scalar.
         out:   DataContainer to store the result to.
         '''
         if out is None:
-            z = self.same_object()
-        else:
-            z = out
-            assert_validities(self, z)
-        if isinstance(other, Number):
-            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
-            if out is None:
-                z.handle = pysirf.cSIRF_above(self.handle, a.ctypes.data)
-                check_status(z.handle)
-            else:
-                try_calling(pysirf.cSIRF_compute_above(self.handle, a.ctypes.data, z.handle))
-        else:
-            assert_validities(self, other)
-            if out is None:
-                z.handle = pysirf.cSIRF_maximum(self.handle, other.handle)
-                check_status(z.handle)
-            else:
-                try_calling(pysirf.cSIRF_compute_maximum(self.handle, other.handle, z.handle))
-        return z
+            return self.binary(other, 'maximum')
+        self.binary(other, 'maximum', out=out)
 
     def minimum(self, other, out=None):
         '''
-        Multiplication for data containers.
+        Elementwise minimum for data containers.
 
-        If other is a DataContainer, returns the elementwise product of data
-        stored in self and other viewed as vector data.
-        If other is a scalar, returns self scaled by other.
+        Returns the elementwise minimum of data stored in self and other.
         other: DataContainer or scalar.
         out:   DataContainer to store the result to.
         '''
         if out is None:
-            z = self.same_object()
-        else:
-            z = out
-            assert_validities(self, z)
-        if isinstance(other, Number):
-            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
-            if out is None:
-                z.handle = pysirf.cSIRF_below(self.handle, a.ctypes.data)
-                check_status(z.handle)
-            else:
-                try_calling(pysirf.cSIRF_compute_below(self.handle, a.ctypes.data, z.handle))
-        else:
-            assert_validities(self, other)
-            if out is None:
-                z.handle = pysirf.cSIRF_minimum(self.handle, other.handle)
-                check_status(z.handle)
-            else:
-                try_calling(pysirf.cSIRF_compute_minimum(self.handle, other.handle, z.handle))
-        return z
+            return self.binary(other, 'minimum')
+        self.binary(other, 'minimum', out=out)
 
     def divide(self, other, out=None):
         '''
-        Returns the elementwise ratio of this and another container 
-        data viewed as vectors.
-        other: DataContainer
+        Elementwise ratio for data containers.
+
+        Returns the elementwise ratio of data stored in self and other.
+        other: DataContainer or scalar.
         out:   DataContainer to store the result to.
         '''
-        if out is None:
-            z = self.same_object()
-        else:
-            z = out
-            assert_validities(self, z)
         if isinstance(other, Number):
-            other = 1./other
-            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
             if out is None:
-                z.handle = pysirf.cSIRF_scaled(self.handle, a.ctypes.data)
-                check_status(z.handle)
-            else:
-                try_calling(pysirf.cSIRF_scale(self.handle, a.ctypes.data, z.handle))
+                return self.binary(1./other, 'multiply')
+            self.binary(1./other, 'multiply', out=out)
         else:
-            assert_validities(self, other)
             if out is None:
-                z.handle = pysirf.cSIRF_ratio(self.handle, other.handle)
-                check_status(z.handle)
-            else:
-                try_calling(pysirf.cSIRF_divide(self.handle, other.handle, z.handle))
-        return z
+                return self.binary(other, 'divide')
+            self.binary(other, 'divide', out=out)
 
     def add(self, other, out=None):
         '''
         Addition for data containers.
 
-        Returns the sum of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
+        If other is a DataContainer, returns the sum of data
+        stored in self and other viewed as vectors.
+        If other is a scalar, returns the same with the second vector filled
+        with the value of other.
+        other: DataContainer or scalar.
         out:   DataContainer to store the result to.
         '''
         if out is None:
@@ -454,10 +387,13 @@ class DataContainer(ABC):
 
     def subtract(self, other, out=None):
         '''
-        Overloads - for data containers.
+        Subtraction for data containers.
 
-        Returns the difference of the container data with another container 
-        data viewed as vectors.
+        If other is a DataContainer, returns the difference of data
+        stored in self and other viewed as vectors.
+        If other is a scalar, returns the same with the second vector filled
+        with the value of other.
+        other: DataContainer or scalar.
         other: DataContainer
         '''
         if not isinstance (other, (DataContainer, Number)):

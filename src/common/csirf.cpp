@@ -248,91 +248,6 @@ cSIRF_XapYBAlt(
 
 extern "C"
 void*
-cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z)
-{
-	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.multiply(x, y);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_product(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.multiply(x, y);
-		return h;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_scale(const void* ptr_x, const void* ptr_y, const void* ptr_z)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.multiply(x, ptr_y);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_scaled(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.multiply(x, ptr_y);
-		return h;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z)
-{
-	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.divide(x, y);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_ratio(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.divide(x, y);
-		return h;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
 cSIRF_add(const void* ptr_x, const void* ptr_y, const void* ptr_z)
 {
 	try {
@@ -360,118 +275,6 @@ cSIRF_sum(const void* ptr_x, const void* ptr_y)
 
 extern "C"
 void*
-cSIRF_maximum(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y = objectFromHandle<DataContainer>(ptr_y);
-		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.maximum(x, y);
-		return h;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_compute_maximum(const void* ptr_x, const void* ptr_y, const void* ptr_z)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		auto const& y = objectFromHandle<DataContainer>(ptr_y);
-		z.maximum(x, y);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_above(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.maximum(x, ptr_y);
-		return h;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_compute_above(const void* ptr_x, const void* ptr_y, const void* ptr_z)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.maximum(x, ptr_y);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_minimum(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.minimum(x, y);
-		return h;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_compute_minimum(const void* ptr_x, const void* ptr_y, const void* ptr_z)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		auto const& y = objectFromHandle<DataContainer>(ptr_y);
-		z.minimum(x, y);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_below(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.minimum(x, ptr_y);
-		return h;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cSIRF_compute_below(const void* ptr_x, const void* ptr_y, const void* ptr_z)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.minimum(x, ptr_y);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
 cSIRF_binary(const void* ptr_x, const void* ptr_y, const char* f)
 {
 	try {
@@ -481,6 +284,14 @@ cSIRF_binary(const void* ptr_x, const void* ptr_y, const char* f)
 		auto& z = objectFromHandle<DataContainer>(h);
 		if (sirf::iequals(f, "power"))
 			z.power(x, y);
+		else if (sirf::iequals(f, "multiply"))
+			z.multiply(x, y);
+		else if (sirf::iequals(f, "divide"))
+			z.divide(x, y);
+		else if (sirf::iequals(f, "maximum"))
+			z.maximum(x, y);
+		else if (sirf::iequals(f, "minimum"))
+			z.minimum(x, y);
 		else
 			return unknownObject("function", f, __FILE__, __LINE__);
 		return h;
@@ -498,6 +309,14 @@ cSIRF_compute_binary(const void* ptr_x, const void* ptr_y, const char* f, const 
 		auto const& y = objectFromHandle<DataContainer>(ptr_y);
 		if (sirf::iequals(f, "power"))
 			z.power(x, y);
+		else if (sirf::iequals(f, "multiply"))
+			z.multiply(x, y);
+		else if (sirf::iequals(f, "divide"))
+			z.divide(x, y);
+		else if (sirf::iequals(f, "maximum"))
+			z.maximum(x, y);
+		else if (sirf::iequals(f, "minimum"))
+			z.minimum(x, y);
 		else
 			return unknownObject("function", f, __FILE__, __LINE__);
 		return new DataHandle;
@@ -515,6 +334,12 @@ cSIRF_semibinary(const void* ptr_x, const void* ptr_y, const char* f)
 		auto& z = objectFromHandle<DataContainer>(h);
 		if (sirf::iequals(f, "power"))
 			z.power(x, ptr_y);
+		else if (sirf::iequals(f, "multiply"))
+			z.multiply(x, ptr_y);
+		else if (sirf::iequals(f, "maximum"))
+			z.maximum(x, ptr_y);
+		else if (sirf::iequals(f, "minimum"))
+			z.minimum(x, ptr_y);
 		else
 			return unknownObject("function", f, __FILE__, __LINE__);
 		return h;
@@ -531,6 +356,12 @@ cSIRF_compute_semibinary(const void* ptr_x, const void* ptr_y, const char* f, co
 		auto& z = objectFromHandle<DataContainer>(ptr_z);
 		if (sirf::iequals(f, "power"))
 			z.power(x, ptr_y);
+		else if (sirf::iequals(f, "multiply"))
+			z.multiply(x, ptr_y);
+		else if (sirf::iequals(f, "maximum"))
+			z.maximum(x, ptr_y);
+		else if (sirf::iequals(f, "minimum"))
+			z.minimum(x, ptr_y);
 		else
 			return unknownObject("function", f, __FILE__, __LINE__);
 		return new DataHandle;
