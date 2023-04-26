@@ -1170,6 +1170,16 @@ class NiftyResampler(object):
         """Set padding value."""
         parms.set_float_par(self.handle, self.name, 'padding', val)
 
+    def norm(self, num_iter=2, verb=0):
+        '''Computes the norm of the forward projection operator.
+        '''
+        assert self.handle is not None
+        handle = pyreg.cReg_NiftyResampler_norm(self.handle, num_iter, verb)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r;
+
     def process(self):
         """Process.
 

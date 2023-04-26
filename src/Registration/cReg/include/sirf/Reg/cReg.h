@@ -110,6 +110,7 @@ extern "C" {
     void* cReg_NiftyResampler_process(void* ptr);
     void* cReg_NiftyResampler_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
     void* cReg_NiftyResampler_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    void* cReg_NiftyResampler_norm(const void* ptr_res, int num_iter, int verb);
 
     // ImageWeightedMean
     void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);

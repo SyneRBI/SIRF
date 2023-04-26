@@ -351,12 +351,10 @@ float NiftyResampler<dataType>::norm(int num_iter, int verb) const
         for (int i = 0; i < trans.size(); i++)
 	        resampler.add_transformation(this->transformations_sptr()[i]);
         BFOperator<dataType> bf(sptr_r);
-        //BFOperator<dataType> bf(std::shared_ptr<NiftyResampler<dataType> >(new NiftyResampler<dataType>));
         JacobiCG<dataType> jcg;
         jcg.set_num_iterations(num_iter);
-        //std::shared_ptr<const ImageData> sptr_ri = this->reference_image_sptr();
-        std::shared_ptr<const ImageData> sptr_ri = this->floating_image_sptr();
-        std::shared_ptr<ImageData> sptr_id = sptr_ri->clone();
+        std::shared_ptr<const ImageData> sptr_im = this->floating_image_sptr();
+        std::shared_ptr<ImageData> sptr_id = sptr_im->clone();
         sptr_id->fill(1.0f);
         Wrapped_sptr<ImageData, dataType> wsptr_id(sptr_id);
         float lmd = jcg.largest(bf, wsptr_id, verb);

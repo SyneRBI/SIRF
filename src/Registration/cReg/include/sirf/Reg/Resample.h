@@ -142,7 +142,7 @@ public:
     {
 	return _transformations;
     }
-    //virtual float norm(int num_iter, int verb) const = 0;
+    virtual float norm(int num_iter, int verb) const = 0;
 
 protected:
 
@@ -191,12 +191,6 @@ public:
         std::shared_ptr<ImageData> sptr_bf = sptr_r_->backward(sptr_f);
         return std::unique_ptr<Wrapped_sptr<ImageData, dataType> >(new Wrapped_sptr<ImageData, dataType>(sptr_bf));
     }
-/*
-    std::shared_ptr<const ImageData> reference_image_sptr() const
-    {
-        return sptr_r_->reference_image_sptr();
-    }
-*/
 private:
         std::shared_ptr<Resampler<dataType> > sptr_r_;
 };

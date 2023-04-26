@@ -128,7 +128,7 @@ public:
         return this->_reference_image_sptr;
     }
 
-    //virtual float norm(int num_iter, int verb) const;
+    virtual float norm(int num_iter, int verb) const;
 
 protected:
 

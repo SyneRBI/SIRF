@@ -73,9 +73,12 @@ namespace sirf {
 			for (int it = 0; it < nit_; it++) {
 				lmd = Ax.dot(x);
 				y.axpby(1.0, Ax, -lmd, x); // residual
-				if (verb > 0)
+				if (verb > 0) {
+					if (it == 0)
+						std::cout << '\n' << std::flush;
 					std::cout << "CG iteration " << it
 						<< ": largest eigenvalue " << std::real(lmd) << '\n';
+				}
 				if (it) { // conjugate y to the previous search direction
 					t = Az.dot(z);
 					w.axpby(1.0, Az, -t, z);
