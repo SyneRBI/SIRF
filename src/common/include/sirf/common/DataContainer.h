@@ -53,6 +53,9 @@ namespace sirf {
 		/// calculates the dot product of this container with another one
 		virtual void dot(const DataContainer& dc, void* ptr) const = 0;
 
+		/// calculates the sum of this container elements
+		virtual void sum(void* ptr) const = 0;
+
 		/// \c *this = the elementwise product \c x*y
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y) = 0;

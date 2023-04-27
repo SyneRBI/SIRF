@@ -57,6 +57,27 @@ STIRAcquisitionData::norm() const
 }
 
 void
+STIRAcquisitionData::sum(void* ptr) const
+{
+	int n = get_max_segment_num();
+	double t = 0;
+	for (int s = 0; s <= n; ++s)
+	{
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+			t += *seg_iter++;
+		if (s != 0) {
+			seg = get_segment_by_sinogram(-s);
+			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+				t += *seg_iter++;
+		}
+	}
+	float* ptr_t = (float*)ptr;
+	*ptr_t = (float)t;
+}
+
+void
 STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
 	//STIRAcquisitionData& x = (STIRAcquisitionData&)a_x;
@@ -73,7 +94,7 @@ STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 			seg_iter != seg.end_all() && sx_iter != sx.end_all();
 			/*empty*/) {
-			t += (*seg_iter++)*double(*sx_iter++);
+			t += (*seg_iter++) * double(*sx_iter++);
 		}
 		if (s != 0) {
 			seg = get_segment_by_sinogram(-s);
@@ -81,7 +102,7 @@ STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 				seg_iter != seg.end_all() && sx_iter != sx.end_all();
 				/*empty*/)
-				t += (*seg_iter++)*double(*sx_iter++);
+				t += (*seg_iter++) * double(*sx_iter++);
 		}
 	}
 	float* ptr_t = (float*)ptr;
@@ -405,6 +426,22 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
         format_sptr = OutputFileFormat<Image3DF>::default_sptr();
 
     format_sptr->write_to_file(filename, image);
+}
+
+void
+STIRImageData::sum(void* ptr) const
+{
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::const_full_iterator iter;
+#else
+	typename Array<3, float>::const_full_iterator iter;
+#endif
+
+	double s = 0.0;
+	for (iter = data().begin_all(); iter != data().end_all(); iter++)
+		s += *iter;
+	float* ptr_s = (float*)ptr;
+	*ptr_s = (float)s;
 }
 
 void

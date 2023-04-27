@@ -245,6 +245,8 @@ namespace sirf {
 		// the inner (l2) product of x and y
 		static complex_float_t dot
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
+		// the sum of the elements of x
+		static complex_float_t sum(const ISMRMRD::Acquisition& acq_x);
 		// elementwise multiplication
 		// y := x .* y
 		static void multiply
@@ -457,6 +459,7 @@ namespace sirf {
 		}
 
 		// acquisition data algebra
+		virtual void sum(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		complex_float_t dot(const DataContainer& a_x)
 		{
@@ -802,6 +805,7 @@ namespace sirf {
 		}
 
 		virtual float norm() const;
+		virtual void sum(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,

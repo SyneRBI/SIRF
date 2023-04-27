@@ -1750,6 +1750,16 @@ void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr) const
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::sum(void* ptr) const
+{
+    double s = 0.0;
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        s += double(_data[i]);
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = float(s);
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::axpby(
     const void* ptr_a, const DataContainer& a_x,
     const void* ptr_b, const DataContainer& a_y)

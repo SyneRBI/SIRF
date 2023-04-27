@@ -547,6 +547,17 @@ MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 	return r;
 }
 
+complex_float_t
+MRAcquisitionData::sum
+(const ISMRMRD::Acquisition& acq_a)
+{
+    const complex_float_t* pa;
+    complex_float_t z = 0;
+    for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++)
+        z += *pa;
+    return z;
+}
+
 void
 MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
@@ -572,6 +583,24 @@ MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 	}
 	complex_float_t* ptr_z = (complex_float_t*)ptr;
 	*ptr_z = z;
+}
+
+void
+MRAcquisitionData::sum(void* ptr) const
+{
+    int n = number();
+    complex_float_t z = 0;
+    ISMRMRD::Acquisition a;
+    for (int i = 0; i < n;) {
+        if (!get_acquisition(i, a)) {
+            i++;
+            continue;
+        }
+        z += MRAcquisitionData::sum(a);
+        i++;
+    }
+    complex_float_t* ptr_z = (complex_float_t*)ptr;
+    *ptr_z = z;
 }
 
 void
@@ -1378,6 +1407,19 @@ GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 	}
 	complex_float_t* ptr_z = (complex_float_t*)ptr;
 	*ptr_z = z;
+}
+
+void
+GadgetronImageData::sum(void* ptr) const
+{
+    complex_float_t z = 0;
+    for (unsigned int i = 0; i < number(); i++) {
+        const ImageWrap& u = image_wrap(i);
+        complex_float_t t = u.sum();
+        z += t;
+    }
+    complex_float_t* ptr_z = (complex_float_t*)ptr;
+    *ptr_z = z;
 }
 
 void

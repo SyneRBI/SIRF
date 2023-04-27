@@ -573,6 +573,12 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, norm_, ptr_, &r);
 			return r;
 		}
+		complex_float_t sum() const
+		{
+			complex_float_t s;
+			IMAGE_PROCESSING_SWITCH_CONST(type_, sum_, ptr_, &s);
+			return s;
+		}
 		float diff(ImageWrap& iw) const
 		{
 			float s;
@@ -1040,6 +1046,17 @@ namespace sirf {
 				*r += std::abs(std::conj(a) * a);
 			}
 			*r = std::sqrt(*r);
+		}
+
+		template<typename T>
+		void sum_(const ISMRMRD::Image<T>* ptr, complex_float_t* s) const
+		{
+			const T* i;
+			*s = 0;
+			size_t ii = 0;
+			size_t n = ptr->getNumberOfDataElements();
+			for (i = ptr->getDataPtr(); ii < n; i++, ii++)
+				*s += (complex_float_t)*i;
 		}
 
 		template<typename T>

@@ -259,6 +259,7 @@ namespace sirf {
 			return 1; // data ok
 		}
 		virtual float norm() const;
+		virtual void sum(void* ptr) const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		float dot(const DataContainer& a_x) const
 		{
@@ -1045,6 +1046,7 @@ namespace sirf {
 		virtual void write(const std::string& filename, const std::string& format_file) const;
 
 		virtual float norm() const;
+		virtual void sum(void* ptr) const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
