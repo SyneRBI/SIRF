@@ -236,6 +236,20 @@ class DataContainer(ABC):
         else:
             return re + 1j*im
 
+    def max(self):
+        '''
+        Returns the sum of the elements of self data
+        '''
+        handle = pysirf.cSIRF_max(self.handle)
+        check_status(handle)
+        re = pyiutil.floatReDataFromHandle(handle)
+        im = pyiutil.floatImDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        if im == 0:
+            return re
+        else:
+            return re + 1j*im
+
     def multiply(self, other, out=None):
         '''
         Elementwise multiplication for data containers.
@@ -569,10 +583,6 @@ class DataContainer(ABC):
         '''return default type as float32'''
         return numpy.float32
     
-    def max(self):
-        '''returns the max element in the DataContainer'''
-        return numpy.max(self.as_array())
-
 
 class ImageData(DataContainer):
     '''

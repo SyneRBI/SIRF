@@ -607,6 +607,7 @@ protected:
     }
     unsigned int items() const { return 1; }
     virtual void sum      (void* ptr) const;
+    virtual void max      (void* ptr) const;
     virtual void dot      (const DataContainer& a_x, void* ptr) const;
     virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
     virtual void xapyb    (const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);

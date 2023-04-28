@@ -152,6 +152,19 @@ cSIRF_integral(const void* ptr_x)
 
 extern "C"
 void*
+cSIRF_max(const void* ptr_x)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		std::complex<float> z(0.0, 0.0);
+		x.max(&z);
+		return dataHandle(z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_axpby(
 	const void* ptr_a, const void* ptr_x,
 	const void* ptr_b, const void* ptr_y

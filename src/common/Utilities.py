@@ -608,6 +608,10 @@ def test_data_container_algebra(test, x, eps=1e-5):
     t = numpy.linalg.norm(ax)
     test.check_if_equal(1, abs(t - s) <= eps * abs(t))
 
+    s = x.max()
+    t = numpy.max(ax)
+    test.check_if_equal(1, abs(t - s) <= eps * abs(t))
+
     s = x.sum()
     t = numpy.sum(ax)
     r = numpy.sum(abs(ax))

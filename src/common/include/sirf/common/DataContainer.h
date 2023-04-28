@@ -56,6 +56,9 @@ namespace sirf {
 		/// calculates the sum of this container elements
 		virtual void sum(void* ptr) const = 0;
 
+		/// calculates the value of this container's element with the largest real part
+		virtual void max(void* ptr) const = 0;
+
 		/// \c *this = the elementwise product \c x*y
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y) = 0;

@@ -78,6 +78,27 @@ STIRAcquisitionData::sum(void* ptr) const
 }
 
 void
+STIRAcquisitionData::max(void* ptr) const
+{
+	int n = get_max_segment_num();
+	float t = 0;
+	for (int s = 0; s <= n; ++s)
+	{
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+			t = std::max(t, *seg_iter++);
+		if (s != 0) {
+			seg = get_segment_by_sinogram(-s);
+			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+				t = std::max(t, *seg_iter++);
+		}
+	}
+	float* ptr_t = (float*)ptr;
+	*ptr_t = (float)t;
+}
+
+void
 STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
 	//STIRAcquisitionData& x = (STIRAcquisitionData&)a_x;
@@ -440,6 +461,22 @@ STIRImageData::sum(void* ptr) const
 	double s = 0.0;
 	for (iter = data().begin_all(); iter != data().end_all(); iter++)
 		s += *iter;
+	float* ptr_s = (float*)ptr;
+	*ptr_s = (float)s;
+}
+
+void
+STIRImageData::max(void* ptr) const
+{
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::const_full_iterator iter;
+#else
+	typename Array<3, float>::const_full_iterator iter;
+#endif
+
+	float s = 0.0;
+	for (iter = data().begin_all(); iter != data().end_all(); iter++)
+		s = std::max(s, *iter);
 	float* ptr_s = (float*)ptr;
 	*ptr_s = (float)s;
 }
