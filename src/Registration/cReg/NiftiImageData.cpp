@@ -1742,36 +1742,34 @@ void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr) const
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "dot operands size mismatch");
-    dataType s = 0.0;
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        s += dataType(_data[i] * std::conj(x._data[i]));
-    dataType* ptr_s = static_cast<dataType*>(ptr);
-    *ptr_s = dataType(s);
+    float s = 0.0;
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        s += _data[i] * x._data[i];
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = s;
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::sum(void* ptr) const
 {
-    dataType s = 0.0;
+    float s = 0.0;
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
         s += _data[i];
-    dataType* ptr_s = static_cast<dataType*>(ptr);
-    *ptr_s = dataType(s);
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = s;
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::max(void* ptr) const
 {
-    dataType s = 0.0;
+    float s = 0.0;
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i) {
-        dataType si = _data[i];
-        float r = std::real(s);
-        float ri = std::real(si);
-        if (ri > r)
+        float si = _data[i];
+        if (si > s)
             s = si;
     }
-    dataType* ptr_s = static_cast<dataType*>(ptr);
-    *ptr_s = dataType(s);
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = s;
 }
 
 template<class dataType>
