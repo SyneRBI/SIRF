@@ -13,8 +13,6 @@ Options:
 
 {licence}
 """
-import math
-import warnings
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
 from sirf.Utilities import test_data_container_algebra

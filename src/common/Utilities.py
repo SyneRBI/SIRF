@@ -1,7 +1,6 @@
 '''Utilities used by all engines
 '''
 import inspect
-import math
 import numpy
 import os
 import sirf

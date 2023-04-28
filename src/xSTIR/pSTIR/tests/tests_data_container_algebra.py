@@ -13,8 +13,6 @@ Options:
 
 {licence}
 """
-import math
-import warnings
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
 from sirf.Utilities import test_data_container_algebra
@@ -24,7 +22,7 @@ __author__ = "Evgueni Ovtchinnikov"
 
 
 def test_main(rec=False, verb=False, throw=True):
-    msg_red = MessageRedirector()
+    MessageRedirector()
 
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
