@@ -556,14 +556,13 @@ class DataContainer(ABC):
     @property
     def shape(self):
         '''Returns the shape of the data array
-        
-        CIL/SIRF compatibility
         '''
-        return self.as_array().shape
+        return self.dimensions()
+
     @property
     def size(self):
         '''Returns the (total) size of the data array.'''
-        return self.as_array().size
+        return numpy.prod(self.dimensions())
 
     @property
     def dtype(self):
