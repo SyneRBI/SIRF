@@ -130,9 +130,21 @@ cSIRF_dot(const void* ptr_x, const void* ptr_y)
 	try {
 		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
 		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		float s;
 		std::complex<float> z(0.0, 0.0);
 		x.dot(y, &z);
+		return dataHandle(z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_integral(const void* ptr_x)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		std::complex<float> z(0.0, 0.0);
+		x.sum(&z);
 		return dataHandle(z);
 	}
 	CATCH;

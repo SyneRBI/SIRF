@@ -222,6 +222,20 @@ class DataContainer(ABC):
         else:
             return re + 1j*im
 
+    def sum(self):
+        '''
+        Returns the sum of the elements of self data
+        '''
+        handle = pysirf.cSIRF_integral(self.handle)
+        check_status(handle)
+        re = pyiutil.floatReDataFromHandle(handle)
+        im = pyiutil.floatImDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        if im == 0:
+            return re
+        else:
+            return re + 1j*im
+
     def multiply(self, other, out=None):
         '''
         Elementwise multiplication for data containers.
@@ -526,15 +540,6 @@ class DataContainer(ABC):
         if out is None:
             return self.unary('log')
         self.unary('log', out=out)
-
-    def sum(self):
-        '''Returns the sum of DataContainer elements.
-
-           it is a reduction operation
-
-           uses NumPy
-        '''
-        return numpy.sum(self.as_array())
 
     def get_uniform_copy(self, value=1.0):
         '''Initialises an instance of DataContainer based on the template'''
