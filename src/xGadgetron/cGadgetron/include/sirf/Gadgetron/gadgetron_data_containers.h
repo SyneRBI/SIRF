@@ -1390,12 +1390,12 @@ namespace sirf {
             GadgetronImagesVector::get_image_dimensions(num_csm, dim);
         }
 
-        void forward(GadgetronImageData& img, GadgetronImageData& combined_img)const;
+        void forward(GadgetronImageData& img, const GadgetronImageData& combined_img)const;
         void backward(GadgetronImageData& combined_img, const GadgetronImageData& img)const;
 
     protected:
 
-        void coilchannels_from_combined_image(GadgetronImageData& img, GadgetronImageData& combined_img) const;
+        void coilchannels_from_combined_image(GadgetronImageData& img, const GadgetronImageData& combined_img) const;
         void combine_images_with_coilmaps(GadgetronImageData& combined_img, const GadgetronImageData& img) const;
 
         void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);

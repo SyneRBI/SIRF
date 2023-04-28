@@ -361,7 +361,7 @@ The actual algorithm is described in
 			{
 				num_sub_ = num_sub;
 			}
-			virtual std::shared_ptr<STIRImageData> apply(STIRImageData& image_data)
+			virtual std::shared_ptr<STIRImageData> apply(const STIRImageData& image_data)
 			{
 				std::shared_ptr<STIRAcquisitionData> sptr_fwd =
 					sptr_am_->forward(image_data, sub_num_, num_sub_); // , true);
@@ -506,10 +506,10 @@ The actual algorithm is described in
 			int subset_num, int num_subsets, bool zero = false, bool do_linear_only = false) const;
 
 		// computes and returns back-projected subset of acquisition data 
-		std::shared_ptr<STIRImageData> backward(STIRAcquisitionData& ad,
+		std::shared_ptr<STIRImageData> backward(const STIRAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1) const;
 		// puts back-projected subset of acquisition data into image 
-		void backward(STIRImageData& image, STIRAcquisitionData& ad,
+		void backward(STIRImageData& image, const STIRAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1) const;
 
 	protected:
