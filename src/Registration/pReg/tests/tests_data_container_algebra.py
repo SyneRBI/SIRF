@@ -25,7 +25,7 @@ __author__ = "Evgueni Ovtchinnikov"
 
 
 def test_main(rec=False, verb=False, throw=True):
-    #MessageRedirector()
+    MessageRedirector()
 
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
