@@ -173,56 +173,7 @@ class NiftiImageData(SIRF.ImageData):
         """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-    '''
-    def __add__(self, other):
-        """Overloads + operator."""
-        z = self.clone()
-        if isinstance(other, NiftiImageData):
-            try_calling(
-                pyreg.cReg_NiftiImageData_maths_im(
-                    z.handle, self.handle, other.handle, NiftiImageData._ADD))
-        else:
-            try_calling(
-                pyreg.cReg_NiftiImageData_maths_num(
-                    z.handle, self.handle, float(other), NiftiImageData._ADD))
-        check_status(z.handle)
-        return z
 
-    def __sub__(self, other):
-        """Overloads - operator."""
-        z = self.clone()
-        if isinstance(other, NiftiImageData):
-            try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData._SUBTRACT))
-        else:
-            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData._SUBTRACT))
-        check_status(z.handle)
-        return z
-
-    def __mul__(self, other):
-        """Overloads * operator."""
-        z = self.clone()
-        if isinstance(other, NiftiImageData):
-            try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData._MULTIPLY))
-        else:
-            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData._MULTIPLY))
-        check_status(z.handle)
-        return z
-    def __div__(self, other):
-        """Overloads / operator."""
-        z = self.clone()
-        if isinstance(other, NiftiImageData):
-            try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData._DIVIDE))
-        else:
-            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData._DIVIDE))
-        check_status(z.handle)
-        return z
-        '''
     def equal(self, other):
         """Overload comparison operator."""
         if not isinstance(other, NiftiImageData):

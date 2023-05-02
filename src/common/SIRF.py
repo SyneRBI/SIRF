@@ -77,8 +77,6 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        assert self.handle is not None
-
         if isinstance(other, (DataContainer, Number) ):
             return self.subtract(other)
         return NotImplemented
@@ -92,7 +90,6 @@ class DataContainer(ABC):
         or the elementwise product if other is of the same type as self.
         other: DataContainer or a (real or complex) scalar
         '''
-        assert self.handle is not None
         return self.multiply(other)
 
     def __rmul__(self, other):
@@ -101,8 +98,7 @@ class DataContainer(ABC):
         the left, i.e. computes and returns the product other*self.
         other: a real or complex scalar
         '''
-        assert self.handle is not None
-        return self*other
+        return self * other
 
     def __truediv__(self, other):
         '''
@@ -113,8 +109,6 @@ class DataContainer(ABC):
         or the elementwise ratio if other is of the same type as self.
         other: DataContainer or a (real or complex) scalar
         '''
-        assert self.handle is not None
-
         if type(self) == type(other):
             return self.divide(other)
 
@@ -139,7 +133,7 @@ class DataContainer(ABC):
         created by the first object using its same_object() method - see
         clone() below.
         '''
-        pass
+        return DataContainer()
 
     def clone(self):
         assert self.handle is not None
@@ -176,7 +170,6 @@ class DataContainer(ABC):
             Use y = x.conjugate() to get the conjugated copy of x.
             Use x.conjugate(out=x) to conjugate in-place.
         '''
-        assert self.handle is not None
         if out is self:
             try_calling(pysirf.cSIRF_conjugate(self.handle))
             return
@@ -195,7 +188,6 @@ class DataContainer(ABC):
         '''
         Returns the 2-norm of the container data viewed as a vector.
         '''
-        assert self.handle is not None
         handle = pysirf.cSIRF_norm(self.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
@@ -410,7 +402,6 @@ class DataContainer(ABC):
         '''
         Writes to file.
         '''
-        assert self.handle is not None
         try_calling(pysirf.cSIRF_write(self.handle, filename))
 
     def subtract(self, other, out=None):
