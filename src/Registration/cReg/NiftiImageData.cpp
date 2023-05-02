@@ -1884,7 +1884,8 @@ NiftiImageData<dataType>::semibinary_op(const DataContainer& a_x,
     const void* a_y, dataType(*f)(dataType, dataType))
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    dataType y = *(dataType*)a_y;
+    dataType y = *static_cast<const dataType*>(a_y);
+    //dataType y = *(dataType*)a_y;
 
     // If the result hasn't been initialised, make a clone of one of them
     if (!this->is_initialised())

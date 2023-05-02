@@ -829,7 +829,8 @@ void
 MRAcquisitionData::multiply(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, MRAcquisitionData::multiply);
 }
 
@@ -837,7 +838,8 @@ void
 MRAcquisitionData::add(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, MRAcquisitionData::add);
 }
 
@@ -861,7 +863,8 @@ void
 MRAcquisitionData::maximum(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, MRAcquisitionData::maximum);
 }
 
@@ -877,7 +880,8 @@ void
 MRAcquisitionData::minimum(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, MRAcquisitionData::minimum);
 }
 
@@ -893,7 +897,8 @@ void
 MRAcquisitionData::power(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, MRAcquisitionData::power);
 }
 
