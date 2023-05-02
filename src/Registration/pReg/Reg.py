@@ -173,7 +173,7 @@ class NiftiImageData(SIRF.ImageData):
         """del."""
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-
+    '''
     def __add__(self, other):
         """Overloads + operator."""
         z = self.clone()
@@ -222,6 +222,7 @@ class NiftiImageData(SIRF.ImageData):
                         self.handle, float(other), NiftiImageData._DIVIDE))
         check_status(z.handle)
         return z
+        '''
     def equal(self, other):
         """Overload comparison operator."""
         if not isinstance(other, NiftiImageData):
@@ -455,7 +456,12 @@ class NiftiImageData(SIRF.ImageData):
 
     def same_object(self):
         """See DataContainer method."""
-        return NiftiImageData()
+        obj = NiftiImageData()
+        if obj.handle is not None:
+            pyiutil.deleteDataHandle(obj.handle)
+            obj.handle = None
+        return obj
+        #return NiftiImageData()
 
     def set_voxel_spacing(self, spacing, interpolation_order):
         """Set the voxel spacing.
