@@ -605,6 +605,7 @@ protected:
         return new ObjectHandle<DataContainer>
             (std::shared_ptr<DataContainer>(new NiftiImageData));
     }
+public:
     unsigned int items() const { return 1; }
     virtual void sum      (void* ptr) const;
     virtual void max      (void* ptr) const;
@@ -648,7 +649,6 @@ protected:
     void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
     void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
     void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
-public:
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
 protected:
