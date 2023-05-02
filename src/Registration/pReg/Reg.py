@@ -456,7 +456,7 @@ class NiftiImageData(SIRF.ImageData):
 
     def same_object(self):
         """See DataContainer method."""
-        obj = NiftiImageData()
+        obj = ImageData()
         if obj.handle is not None:
             pyiutil.deleteDataHandle(obj.handle)
             obj.handle = None
