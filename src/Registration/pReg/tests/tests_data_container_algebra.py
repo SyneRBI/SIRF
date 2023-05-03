@@ -3,7 +3,7 @@
 v{version}
 
 Usage:
-  tests_six [--help | options]
+  tests_data_container_algebra [--help | options]
 
 Options:
   -r, --record   not used
