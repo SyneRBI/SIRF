@@ -27,7 +27,6 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
-//#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
 #define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
 std::string STIRAcquisitionData::_storage_scheme;
@@ -101,7 +100,6 @@ STIRAcquisitionData::max(void* ptr) const
 void
 STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
-	//STIRAcquisitionData& x = (STIRAcquisitionData&)a_x;
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
@@ -187,7 +185,6 @@ const DataContainer& a_y, const DataContainer& a_b
 void
 STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
 {
-	//STIRAcquisitionData& x = (STIRAcquisitionData&)a_x;
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
@@ -299,7 +296,6 @@ STIRAcquisitionData::binary_op(
 	SegmentBySinogram<float>::full_iterator seg_iter;
 	SegmentBySinogram<float>::full_iterator sx_iter;
 	SegmentBySinogram<float>::full_iterator sy_iter;
-	//for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
 	for (int s = 0; s <= n; ++s)
 	{
 		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
@@ -485,7 +481,6 @@ STIRImageData::max(void* ptr) const
 void
 STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
-	//STIRImageData& x = (STIRImageData&)a_x;
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
@@ -733,7 +728,6 @@ STIRImageData::get_dimensions(int* dim) const
 void
 STIRImageData::get_voxel_sizes(float* vsize) const
 {
-	//const Voxels3DF& voxels = (const Voxels3DF&)*_data;
 	SIRF_DYNAMIC_CAST(const Voxels3DF, voxels, *_data);
 	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
 	for (int i = 0; i < 3; i++)
@@ -747,7 +741,6 @@ STIRImageData::get_data(float* data) const
 	Coordinate3D<int> max_indices;
 	if (!_data->get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
-		//return -1;
 	//std::cout << "trying new const iterator...\n";
 	STIRImageData::Iterator_const iter(begin());
 	for (int i = 0; iter != end(); ++i, ++iter)
@@ -757,14 +750,6 @@ STIRImageData::get_data(float* data) const
 	//auto iter = image.begin_all();
 	//for (int i = 0; iter != image.end_all(); i++, iter++)
 	//	data[i] = *iter;
-	//for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-	//	for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-	//		for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-	//			data[i] = image[z][y][x];
-	//		}
-	//	}
-	//}
-	//return 0;
 }
 
 void
@@ -775,7 +760,6 @@ STIRImageData::set_data(const float* data)
 	Coordinate3D<int> max_indices;
 	if (!image.get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
-	//return -1;
 	size_t n = 1;
 	for (int i = 0; i < 3; i++)
 		n *= (max_indices[i + 1] - min_indices[i + 1] + 1);
@@ -785,14 +769,6 @@ STIRImageData::set_data(const float* data)
 		*iter = data[i];
 	//std::copy(data, data + n, begin());
 	//std::copy(data, data + n, image.begin_all());
-	//for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-	//	for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-	//		for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-	//			image[z][y][x] = data[i];
-	//		}
-	//	}
-	//}
-	//return 0;
 }
 
 void
