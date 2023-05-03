@@ -299,7 +299,8 @@ STIRAcquisitionData::binary_op(
 	SegmentBySinogram<float>::full_iterator seg_iter;
 	SegmentBySinogram<float>::full_iterator sx_iter;
 	SegmentBySinogram<float>::full_iterator sy_iter;
-	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
+	//for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
+	for (int s = 0; s <= n; ++s)
 	{
 		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
 		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);

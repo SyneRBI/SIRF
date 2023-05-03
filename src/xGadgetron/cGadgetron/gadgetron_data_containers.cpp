@@ -1475,7 +1475,8 @@ GadgetronImageData::max(void* ptr) const
         if (ri > r)
             z = zi;
     }
-    complex_float_t* ptr_z = (complex_float_t*)ptr;
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    //complex_float_t* ptr_z = (complex_float_t*)ptr;
     *ptr_z = z;
 }
 
@@ -1607,7 +1608,8 @@ void
 GadgetronImageData::multiply(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, DataContainer::product<complex_float_t>);
 }
 
@@ -1615,7 +1617,8 @@ void
 GadgetronImageData::add(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, DataContainer::sum<complex_float_t>);
 }
 
@@ -1641,7 +1644,8 @@ void
 GadgetronImageData::maximum(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, DataContainer::maxreal<complex_float_t>);
 }
 
@@ -1659,7 +1663,8 @@ void
 GadgetronImageData::minimum(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, DataContainer::minreal<complex_float_t>);
 }
 
@@ -1677,7 +1682,8 @@ void
 GadgetronImageData::power(const DataContainer& a_x, const void* ptr_y)
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *(complex_float_t*)ptr_y;
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+    //complex_float_t y = *(complex_float_t*)ptr_y;
     semibinary_op(x, y, DataContainer::power);
 }
 
