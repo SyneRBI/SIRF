@@ -124,6 +124,23 @@ class DataContainer(ABC):
 
         return NotImplemented
 
+    # inline algebra
+    def __iadd__(self, other):
+        self.add(other, out=self)
+        return self
+
+    def __imul__(self, other):
+        self.multiply(other, out=self)
+        return self
+
+    def __isub__(self, other):
+        self.subtract(other, out=self)
+        return self
+
+    def __itruediv__(self, other):
+        self.divide(other, out=self)
+        return self
+
     def same_object(self):
         '''
         Returns an object of the same type as self.
@@ -141,6 +158,22 @@ class DataContainer(ABC):
         x.handle = pysirf.cSIRF_clone(self.handle)
         check_status(x.handle)
         return x
+
+    def copy(self):
+        '''alias of clone'''
+        return self.clone()
+
+    def get_uniform_copy(self, value=1.0):
+        '''Initialises an instance of DataContainer based on the template'''
+        y = self.clone()
+        y.fill(value)
+        return y
+
+    def write(self, filename):
+        '''
+        Writes to file.
+        '''
+        try_calling(pysirf.cSIRF_write(self.handle, filename))
 
     def number(self):
         '''
@@ -194,6 +227,12 @@ class DataContainer(ABC):
         pyiutil.deleteDataHandle(handle)
         return r;
 
+    def squared_norm(self):
+        '''Returns the squared norm of a DataContainer viewed as a vector
+
+        CIL/SIRF compatibility'''
+        return self.norm() ** 2
+
     def dot(self, other):
         '''
         Returns the dot product of the container data with another container 
@@ -242,59 +281,6 @@ class DataContainer(ABC):
         else:
             return re + 1j*im
 
-    def multiply(self, other, out=None):
-        '''
-        Elementwise multiplication for data containers.
-
-        Returns the elementwise product of data stored in self and other.
-        other: DataContainer or scalar.
-        out:   DataContainer to store the result to.
-        '''
-        if out is None:
-            return self.binary(other, 'multiply')
-        self.binary(other, 'multiply', out=out)
-
-    def maximum(self, other, out=None):
-        '''
-        Elementwise maximum for data containers.
-
-        Returns the elementwise maximum of data stored in self and other.
-        other: DataContainer or scalar.
-        out:   DataContainer to store the result to.
-        '''
-        if out is None:
-            return self.binary(other, 'maximum')
-        self.binary(other, 'maximum', out=out)
-
-    def minimum(self, other, out=None):
-        '''
-        Elementwise minimum for data containers.
-
-        Returns the elementwise minimum of data stored in self and other.
-        other: DataContainer or scalar.
-        out:   DataContainer to store the result to.
-        '''
-        if out is None:
-            return self.binary(other, 'minimum')
-        self.binary(other, 'minimum', out=out)
-
-    def divide(self, other, out=None):
-        '''
-        Elementwise ratio for data containers.
-
-        Returns the elementwise ratio of data stored in self and other.
-        other: DataContainer or scalar.
-        out:   DataContainer to store the result to.
-        '''
-        if isinstance(other, Number):
-            if out is None:
-                return self.binary(1./other, 'multiply')
-            self.binary(1./other, 'multiply', out=out)
-        else:
-            if out is None:
-                return self.binary(other, 'divide')
-            self.binary(other, 'divide', out=out)
-
     def add(self, other, out=None):
         '''
         Addition for data containers.
@@ -327,6 +313,89 @@ class DataContainer(ABC):
             else:
                 try_calling(pysirf.cSIRF_axpbyAlt(one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
         return z
+
+    def subtract(self, other, out=None):
+        '''
+        Subtraction for data containers.
+
+        If other is a DataContainer, returns the difference of data
+        stored in self and other viewed as vectors.
+        If other is a scalar, returns the same with the second vector filled
+        with the value of other.
+        other: DataContainer or scalar.
+        other: DataContainer
+        '''
+        if not isinstance (other, (DataContainer, Number)):
+            return NotImplemented
+        if isinstance(other, Number):
+            return self.add(-other, out=out)
+        assert_validities(self, other)
+        pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
+        mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
+        if out is None:
+            z = self.same_object()
+            z.handle = pysirf.cSIRF_axpby \
+                (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle)
+            check_status(z.handle)
+            return z
+        else:
+            assert_validities(self, out)
+            z = out
+            try_calling(pysirf.cSIRF_axpbyAlt \
+                (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle, z.handle))
+
+    def multiply(self, other, out=None):
+        '''
+        Elementwise multiplication for data containers.
+
+        Returns the elementwise product of data stored in self and other.
+        other: DataContainer or scalar.
+        out:   DataContainer to store the result to.
+        '''
+        if out is None:
+            return self.binary(other, 'multiply')
+        self.binary(other, 'multiply', out=out)
+
+    def divide(self, other, out=None):
+        '''
+        Elementwise ratio for data containers.
+
+        Returns the elementwise ratio of data stored in self and other.
+        other: DataContainer or scalar.
+        out:   DataContainer to store the result to.
+        '''
+        if isinstance(other, Number):
+            if out is None:
+                return self.binary(1./other, 'multiply')
+            self.binary(1./other, 'multiply', out=out)
+        else:
+            if out is None:
+                return self.binary(other, 'divide')
+            self.binary(other, 'divide', out=out)
+
+    def maximum(self, other, out=None):
+        '''
+        Elementwise maximum for data containers.
+
+        Returns the elementwise maximum of data stored in self and other.
+        other: DataContainer or scalar.
+        out:   DataContainer to store the result to.
+        '''
+        if out is None:
+            return self.binary(other, 'maximum')
+        self.binary(other, 'maximum', out=out)
+
+    def minimum(self, other, out=None):
+        '''
+        Elementwise minimum for data containers.
+
+        Returns the elementwise minimum of data stored in self and other.
+        other: DataContainer or scalar.
+        out:   DataContainer to store the result to.
+        '''
+        if out is None:
+            return self.binary(other, 'minimum')
+        self.binary(other, 'minimum', out=out)
 
     @deprecation.deprecated(details="Please use the sapyb method instead")
     def axpby(self, a, b, y, out=None, **kwargs):
@@ -398,46 +467,6 @@ class DataContainer(ABC):
             check_status(z.handle)
             return z
 
-    def write(self, filename):
-        '''
-        Writes to file.
-        '''
-        try_calling(pysirf.cSIRF_write(self.handle, filename))
-
-    def subtract(self, other, out=None):
-        '''
-        Subtraction for data containers.
-
-        If other is a DataContainer, returns the difference of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: DataContainer or scalar.
-        other: DataContainer
-        '''
-        if not isinstance (other, (DataContainer, Number)):
-            return NotImplemented
-        if isinstance(other, Number):
-            return self.add(-other, out=out)
-        assert_validities(self, other)
-        pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
-        mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
-        if out is None:
-            z = self.same_object()
-            z.handle = pysirf.cSIRF_axpby \
-                (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle)
-            check_status(z.handle)
-            return z
-        else:
-            assert_validities(self, out)
-            z = out
-            try_calling(pysirf.cSIRF_axpbyAlt \
-                (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle, z.handle))
-
-    def copy(self):
-        '''alias of clone'''
-        return self.clone()
-
     def power(self, other, out=None):
         '''Power function for DataContainers
 
@@ -447,22 +476,45 @@ class DataContainer(ABC):
             return self.binary(other, 'power')
         self.binary(other, 'power', out=out)
 
-    # inline algebra
-    def __iadd__(self, other):
-        self.add(other, out=self)
-        return self
+    def abs(self, out=None):
+        '''Returns the element-wise absolute value of the DataContainer data
 
-    def __imul__(self, other):
-        self.multiply(other, out=self)
-        return self
+        '''
+        if out is None:
+            return self.unary('abs')
+        self.unary('abs', out=out)
 
-    def __isub__(self, other):
-        self.subtract(other, out=self)
-        return self
+    def sign(self, out=None):
+        '''Returns the element-wise sign of the DataContainer data
 
-    def __itruediv__(self, other):
-        self.divide(other, out=self)
-        return self
+        '''
+        if out is None:
+            return self.unary('sign')
+        self.unary('sign', out=out)
+
+    def sqrt(self, out=None):
+        '''Returns the element-wise sqrt of the DataContainer data
+
+        '''
+        if out is None:
+            return self.unary('sqrt')
+        self.unary('sqrt', out=out)
+
+    def exp(self, out=None):
+        '''Returns the element-wise exp of the DataContainer data
+
+        '''
+        if out is None:
+            return self.unary('exp')
+        self.unary('exp', out=out)
+
+    def log(self, out=None):
+        '''Returns the element-wise log of the DataContainer data
+
+        '''
+        if out is None:
+            return self.unary('log')
+        self.unary('log', out=out)
 
     def binary(self, other, f, out=None):
         '''Applies function f(x,y) element-wise to self and other.
@@ -505,58 +557,6 @@ class DataContainer(ABC):
         else:
             assert_validities(self, out)
             try_calling(pysirf.cSIRF_compute_unary(self.handle, f, out.handle))
-
-    def abs(self, out=None):
-        '''Returns the element-wise absolute value of the DataContainer data
-        
-        '''
-        if out is None:
-            return self.unary('abs')
-        self.unary('abs', out=out)
-
-    def sign(self, out=None):
-        '''Returns the element-wise sign of the DataContainer data
-        
-        '''
-        if out is None:
-            return self.unary('sign')
-        self.unary('sign', out=out)
-
-    def sqrt(self, out=None):
-        '''Returns the element-wise sqrt of the DataContainer data
-
-        '''
-        if out is None:
-            return self.unary('sqrt')
-        self.unary('sqrt', out=out)
-
-    def exp(self, out=None):
-        '''Returns the element-wise exp of the DataContainer data
-
-        '''
-        if out is None:
-            return self.unary('exp')
-        self.unary('exp', out=out)
-
-    def log(self, out=None):
-        '''Returns the element-wise log of the DataContainer data
-
-        '''
-        if out is None:
-            return self.unary('log')
-        self.unary('log', out=out)
-
-    def get_uniform_copy(self, value=1.0):
-        '''Initialises an instance of DataContainer based on the template'''
-        y = self.clone()
-        y.fill(value)
-        return y
-
-    def squared_norm(self):
-        '''Returns the squared norm of a DataContainer viewed as a vector
-        
-        CIL/SIRF compatibility'''
-        return self.norm() ** 2
 
     @property
     def shape(self):
