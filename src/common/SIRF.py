@@ -31,7 +31,7 @@ import sys
 import warnings
 
 from sirf.Utilities import assert_validity, assert_validities, \
-     check_status, try_calling
+     cpp_int_dtype, check_status, try_calling
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
