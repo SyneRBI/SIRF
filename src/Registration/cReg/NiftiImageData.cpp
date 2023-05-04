@@ -1742,21 +1742,21 @@ void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr) const
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "dot operands size mismatch");
-    float s = 0.0;
+    double s = 0.0;
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-        s += _data[i] * x._data[i];
+        s += double(_data[i]) * x._data[i];
     float* ptr_s = static_cast<float*>(ptr);
-    *ptr_s = s;
+    *ptr_s = (float)s;
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::sum(void* ptr) const
 {
-    float s = 0.0;
+    double s = 0.0;
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
         s += _data[i];
     float* ptr_s = static_cast<float*>(ptr);
-    *ptr_s = s;
+    *ptr_s = (float)s;
 }
 
 template<class dataType>
