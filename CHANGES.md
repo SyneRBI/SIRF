@@ -5,6 +5,8 @@
 * MR
   - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible. See https://github.com/SyneRBI/SIRF/pull/1174 for more information
   - Allow user to set radial, goldenangle, spiral and rpe trajectories
+  - Added setter for acquisition header information and encoding limits. This allows the user to modify the reconstructed k-space dimensions and enables e.g. retrospective motion 
+    resolved or time-resolved reconstructions, or combinations of such dimensions. The acquisition model picks up these changes automatically if the encoding limits are set correctly.
 
 ## v3.4.0
 
