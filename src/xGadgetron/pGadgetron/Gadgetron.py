@@ -1,4 +1,4 @@
-''' 
+'''
 Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 '''
 
@@ -234,7 +234,7 @@ class Image(object):
 class ImageData(SIRF.ImageData):
     '''
     Class for an MR images container.
-    Each item in the container is a 3D complex or float array of the image 
+    Each item in the container is a 3D complex or float array of the image
     values on an xyz-slice (z-dimension is normally 1).
     '''
     def __init__(self, file = None):
@@ -281,7 +281,7 @@ class ImageData(SIRF.ImageData):
     def data_type(self, im_num):
         '''
         Returns the data type for a specified image (see 8 data types above).
-        im_num: image (slice) 
+        im_num: image (slice)
         '''
         assert self.handle is not None
         handle = pygadgetron.cGT_imageDataType(self.handle, im_num)
@@ -303,7 +303,7 @@ class ImageData(SIRF.ImageData):
         '''
         Returns processed self with an image processor specified by
         a list of gadgets.
-        list: Python list of gadget description strings, each gadget 
+        list: Python list of gadget description strings, each gadget
               description being a string of the form
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
@@ -330,7 +330,7 @@ class ImageData(SIRF.ImageData):
 
     def get_ISMRMRD_info(self, par):
         '''
-        Returns the array of values of the specified image information 
+        Returns the array of values of the specified image information
         parameter. Parameters names are the same as the names of sirf.Gadgetron.Image class
         public methods (except is_real and info).
 
@@ -509,7 +509,7 @@ class ImageData(SIRF.ImageData):
             shape = out.as_array().shape
             seed = kwargs.get('seed', None)
             if seed is not None:
-                numpy.random.seed(seed) 
+                numpy.random.seed(seed)
             if value == 'random':
                 out.fill(numpy.random.random_sample(shape))
             elif value == 'random_int':
@@ -561,7 +561,7 @@ SIRF.ImageData.register(CoilImagesData)
 class CoilSensitivityData(ImageData):
     '''
     Class for a coil sensitivity maps (csm) container.
-    Each item in the container is a 4D complex array of csm values on an 
+    Each item in the container is a 4D complex array of csm values on an
     xyz-slice (z-dimension is normally 1).
     '''
     def __init__(self):
@@ -579,10 +579,10 @@ class CoilSensitivityData(ImageData):
         check_status(self.handle)
     def calculate(self, data, method=None):
         '''
-        Calculates coil sensitivity maps from coil images or sorted 
+        Calculates coil sensitivity maps from coil images or sorted
         acquisitions.
         data  : either AcquisitionData or CoilImages
-        method: either SRSS (Square Root of the Sum of Squares, default) or 
+        method: either SRSS (Square Root of the Sum of Squares, default) or
                 Inati
         '''
         if isinstance(data, AcquisitionData):
@@ -695,7 +695,7 @@ class Acquisition(object):
         return parms.int_par(self.handle, 'acquisition', 'version')
     def flags(self):
         '''
-        Returns acquisition flags as an integer (each bit corresponding to a 
+        Returns acquisition flags as an integer (each bit corresponding to a
         flag).
         '''
         assert self.handle is not None
@@ -938,7 +938,7 @@ class AcquisitionData(DataContainer):
         '''
         Returns processed self with an acquisition processor specified by
         a list of gadgets.
-        list: Python list of gadget description strings, each gadget 
+        list: Python list of gadget description strings, each gadget
               description being a string of the form
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
@@ -981,7 +981,7 @@ class AcquisitionData(DataContainer):
         into the raw data.
         data: numpy array
         idx: integer in range 0 to 7
-        '''        
+        '''
         if self.handle is None:
             raise AssertionError('self.handle is None')
                     
@@ -1014,7 +1014,7 @@ class AcquisitionData(DataContainer):
 
     def get_ISMRMRD_info(self, par, which='all'):
         '''
-        Returns the array of values of the specified acquisition information 
+        Returns the array of values of the specified acquisition information
         parameter.
 
         par: parameter name (see sirf.Gadgetron.Acquisition class methods except info)
@@ -1126,7 +1126,7 @@ class AcquisitionData(DataContainer):
             a = self.acquisition(acq)
             nc = a.active_channels()
             ns = a.number_of_samples()
-            z = numpy.ndarray((nc, ns), dtype = numpy.complex64)            
+            z = numpy.ndarray((nc, ns), dtype = numpy.complex64)
         try_calling(pygadgetron.cGT_acquisitionDataAsArray\
             (self.handle, z.ctypes.data, acq))
         return z
@@ -1182,7 +1182,7 @@ class AcquisitionData(DataContainer):
             shape = out.as_array().shape
             seed = kwargs.get('seed', None)
             if seed is not None:
-                numpy.random.seed(seed) 
+                numpy.random.seed(seed)
             if value == 'random':
                 out.fill(numpy.random.random_sample(shape))
             elif value == 'random_int':
@@ -1368,7 +1368,7 @@ class Gadget(object):
     def set_properties(self, prop):
         '''
         Assigns specified values to specified gadget properties.
-        prop: a string with comma-separated list of property value assignments 
+        prop: a string with comma-separated list of property value assignments
               prop_name=prop_value
         '''
         try_calling(pygadgetron.cGT_setGadgetProperties(self.handle, prop))
@@ -1456,7 +1456,7 @@ class GadgetChain(object):
 
 class Reconstructor(GadgetChain):
     '''
-    Class for a chain of gadgets that has AcquisitionData on input and 
+    Class for a chain of gadgets that has AcquisitionData on input and
     ImageData on output.
     '''
     def __init__(self, list=None):
@@ -1497,7 +1497,7 @@ class Reconstructor(GadgetChain):
              (self.handle, self.input_data.handle, self.dcm_prefix))
     def get_output(self, subset = None):
         '''
-        Returns specified subset of the output ImageData. If no subset is 
+        Returns specified subset of the output ImageData. If no subset is
         specified, returns all output.
         subset: the name of the subset (e.g. images, gfactors,...)
         '''
@@ -1530,7 +1530,7 @@ class ImageDataProcessor(GadgetChain):
     def __init__(self, list = None):
         '''
         Creates an image processor specified by a list of gadgets.
-        list: Python list of gadget description strings, each gadget 
+        list: Python list of gadget description strings, each gadget
               description being a string of the form
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
@@ -1587,7 +1587,7 @@ class AcquisitionDataProcessor(GadgetChain):
     def __init__(self, list = None):
         '''
         Creates an acquisition processor specified by a list of gadgets.
-        list: Python list of gadget description strings, each gadget 
+        list: Python list of gadget description strings, each gadget
               description being a string of the form
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
@@ -1675,68 +1675,109 @@ def preprocess_acquisition_data(input_data):
          'AsymmetricEchoAdjustROGadget', \
          'RemoveROOversamplingGadget'])
     
-def set_grpe_trajectory(ad):
+def set_grpe_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with golden angle radial
-    phase encoding trajectory.
+    phase encoding trajectory (traj=None) or fills in a precalculated RPE trajectory.
     ad: AcquisitionData
-    '''    
+    '''
     assert_validity(ad, AcquisitionData)
 
-    try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
+    if traj is None:
+        try_calling(pygadgetron.cGT_setGRPETrajectory(ad.handle))
+    else:
+        ad = set_data_trajectory(ad, traj, 'rpe')
     return ad
     
-def set_radial2D_trajectory(ad):
+def set_radial2D_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with linear increment 2D radial
-    readout trajectory.
+    readout trajectory (traj=None) or fills in a precalculated radial trajectory.
     ad: AcquisitionData
     '''
     assert_validity(ad, AcquisitionData)
 
-    try_calling(pygadgetron.cGT_setRadial2DTrajectory(ad.handle))
+    if traj is None:
+        try_calling(pygadgetron.cGT_setRadial2DTrajectory(ad.handle))
+    else:
+        ad = set_data_trajectory(ad, traj, 'radial')
     return ad
 
-def set_goldenangle2D_trajectory(ad):
+def set_goldenangle2D_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with golden angle increment 2D radial
-    readout trajectory.
+    readout trajectory (traj=None) or fills in a precalculated radial trajectory.
     ad: AcquisitionData
     '''
     assert_validity(ad, AcquisitionData)
 
-    try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
+    if traj is None:
+        try_calling(pygadgetron.cGT_setGoldenAngle2DTrajectory(ad.handle))
+    else:
+        ad = set_data_trajectory(ad, traj, 'goldenangle')
     return ad
 
-def set_spiral2D_trajectory(ad, data):
+def set_spiral2D_trajectory(ad, traj):
+    '''
+    Function that fills in a precalculated spiral trajectory
+    '''
+    if traj is None:
+        raise NotImplementedError("Spiral trajectories cannot be calculated but need to be provided by you.")
+    else:
+        return(set_data_trajectory(ad, traj, 'spiral'))
     
-    traj_type = int(4) # == spiral
-    pygadgetron.cGT_setTrajectoryType(ad.handle, traj_type)
+def set_data_trajectory(ad, traj, traj_type_str):
+    '''
+    Function that sets the trajectory of AcquisitionData with traj.
+    ad: AcquisitionData
+    traj: k-space trajectory as numpy array
+    traj_type_str: String identifying trajectory type
+                    Possible choices are:
+                            - radial
+                            - goldenangle
+                            - spiral
+                            - rpe
+    '''
+    assert_validity(ad, AcquisitionData)
+    if isinstance(traj, numpy.ndarray):
 
-    traj_dim = int(2)
-    dims = ad.dimensions()
+        # Check trajectory type
+        supported_traj = ['radial', 'goldenangle', 'spiral', 'rpe']
+        if traj_type_str not in supported_traj:
+            raise error("Trajectory type {} cannot be set. Only {} can be set.".format(traj_type_str, supported_traj))
+        
+        # Check dimensions of trajectory
+        dims = ad.dimensions()
+        if traj_type_str == 'radial' or traj_type_str == 'goldenangle' or traj_type_str == 'spiral':
+            traj_dim = int(2)
+            expected_traj_shape = (dims[0], dims[2], traj_dim)
+        elif traj_type_str == 'rpe':
+            traj_dim = int(3)
+            expected_traj_shape = (dims[0], traj_dim)
+        if traj.shape != expected_traj_shape:
+            raise AssertionError("Pass the {} trajectory in the shape {}. You gave a shape of {}".format(traj_type_str, expected_traj_shape, traj.shape))
+
+        if traj_type_str == 'rpe':
+            # Same phase encoding trajectory for each readout
+            traj = numpy.tile(traj[:, numpy.newaxis, :], (1, dims[2], 1))
+            
+        traj = numpy.array(traj, numpy.float32)
+        convert = not traj.flags['C_CONTIGUOUS']
+        if convert:
+            traj = numpy.ascontiguousarray(traj)
+        pygadgetron.cGT_setDataTrajectory(ad.handle, traj_dim, traj.ctypes.data)
+        
+        return(ad)
+    else:
+        raise error('Trajectory should be numpy array. Got {}'.format(type(traj)))
     
-    num_readouts = dims[0]
-    num_samples = dims[2]
-    expected_data_shape = (num_readouts, num_samples, traj_dim)
-
-    if data.shape != expected_data_shape:
-        raise AssertionError("Pass the spiral trajectory in the shape {}. You gave a shape of {}".format(expected_data_shape, data.shape))
     
-    data = numpy.array(data, numpy.float32)
-    convert = not data.flags['C_CONTIGUOUS']
-    if convert:
-        data = numpy.ascontiguousarray(data)
-    pygadgetron.cGT_setDataTrajectory(ad.handle, traj_dim, data.ctypes.data)
-
-
-
-
+    
 def get_data_trajectory(ad):
     '''
     Function that gets the trajectory of AcquisitionData depending on the rawdata trajectory.
     ad: AcquisitionData
-    '''    
+    '''
     assert_validity(ad, AcquisitionData)
     
     if ad.check_traj_type('cartesian'):
@@ -1760,7 +1801,7 @@ def compute_kspace_density(ad):
     '''
     Function that computes the kspace density depending the
     ad: AcquisitionData
-    '''  
+    '''
     assert_validity(ad, AcquisitionData)
 
     if ad.check_traj_type('cartesian'):
