@@ -29,7 +29,7 @@ def test_main(rec=False, verb=False, throw=True):
     rawdata = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
 
     encoding_limit = (10,100,50)
-    encoding_name = "repetition" # any other string will cause failure since the encoding was not performed.
+    encoding_name = "repetition" # any other string will cause failure since the simulated dataset only contains this encoding limit dimension in the header.
     rawdata.set_encoding_limit(encoding_name, encoding_limit)
 
     print(rawdata.get_header())
