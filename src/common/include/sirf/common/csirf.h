@@ -38,6 +38,7 @@ void* cSIRF_newObject(const char* name);
 // Data container methods
 void* cSIRF_dataItems(const void* ptr_x);
 void* cSIRF_isComplex(const void* ptr_x);
+void* cSIRF_bits(const void* ptr_x);
 void* cSIRF_conjugate(void* ptr);
 void* cSIRF_conjugated(void* ptr);
 void* cSIRF_norm(const void* ptr_x);

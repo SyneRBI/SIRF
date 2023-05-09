@@ -530,11 +530,7 @@ class ImageData(SIRF.ImageData):
     def print_header(self, im_num):
         """Print the header of one of the images. zero based."""
         try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
-    @property
-    def dtype(self):
-        if self.is_real():
-            return numpy.float32
-        return numpy.complex64
+
     @property
     def shape(self):
         return self.dimensions()
@@ -1154,13 +1150,11 @@ class AcquisitionData(DataContainer):
             tmp = value * numpy.ones(out.as_array().shape)
             out.fill(tmp)
         return out
+
     @property
     def shape(self):
         return self.dimensions()
-    @property
-    def dtype(self):
-        return numpy.complex64
-    
+
     
 DataContainer.register(AcquisitionData)
 

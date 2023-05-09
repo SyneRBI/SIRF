@@ -46,6 +46,12 @@ namespace sirf {
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
 		virtual unsigned int items() const = 0;
 		virtual bool is_complex() const = 0;
+		/// returns the size of data elements
+		virtual int bits() const
+		{
+			// default value
+			return is_complex() ? 16 * sizeof(float) : 8 * sizeof(float);
+		}
 
 		/// returns the norm of this container viewed as a vector
 		virtual float norm() const = 0;

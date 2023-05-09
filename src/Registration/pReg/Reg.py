@@ -518,9 +518,6 @@ class NiftiImageData(SIRF.ImageData):
     @property
     def shape(self):
         return self.dimensions()
-    @property
-    def dtype(self):
-        return numpy.float32
 
 
 class NiftiImageData3D(NiftiImageData):

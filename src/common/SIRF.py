@@ -571,8 +571,15 @@ class DataContainer(ABC):
 
     @property
     def dtype(self):
-        '''return default type as float32'''
-        return numpy.float32
+        handle = pysirf.cSIRF_bits(self.handle)
+        check_status(handle)
+        bits = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        if self.is_complex():
+            dt = 'complex%s' % bits
+        else:
+            dt = 'float%s' % bits
+        return numpy.dtype(dt)
     
 
 class ImageData(DataContainer):
