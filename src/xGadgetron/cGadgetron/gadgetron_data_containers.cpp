@@ -592,8 +592,8 @@ MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 		i++;
 		j++;
 	}
-	complex_float_t* ptr_z = (complex_float_t*)ptr;
-	*ptr_z = z;
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    *ptr_z = z;
 }
 
 void
@@ -610,7 +610,7 @@ MRAcquisitionData::sum(void* ptr) const
         z += MRAcquisitionData::sum(a);
         i++;
     }
-    complex_float_t* ptr_z = (complex_float_t*)ptr;
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
     *ptr_z = z;
 }
 
@@ -632,7 +632,7 @@ MRAcquisitionData::max(void* ptr) const
             z = zi;
         i++;
     }
-    complex_float_t* ptr_z = (complex_float_t*)ptr;
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
     *ptr_z = z;
 }
 
@@ -645,8 +645,8 @@ MRAcquisitionData::axpby(
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
     if (!x.sorted() || !y.sorted())
         THROW("a*x + b*y cannot be applied to unsorted x or y");
-    complex_float_t a = *(complex_float_t*)ptr_a;
-    complex_float_t b = *(complex_float_t*)ptr_b;
+    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
+    complex_float_t b = *static_cast<const complex_float_t*>(ptr_b);
     int nx = x.number();
     int ny = y.number();
     ISMRMRD::Acquisition ax;
@@ -759,7 +759,7 @@ MRAcquisitionData::xapyb(
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, b, a_b);
     if (!x.sorted() || !y.sorted() || !b.sorted())
         THROW("x*a + y*b cannot be applied to unsorted a, b, x or y");
-    complex_float_t a = *(complex_float_t*)ptr_a;
+    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
     int nx = x.number();
     int ny = y.number();
     int nb = b.number();
@@ -1426,8 +1426,8 @@ GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 		const ImageWrap& v = ic.image_wrap(i);
 		z += u.dot(v);
 	}
-	complex_float_t* ptr_z = (complex_float_t*)ptr;
-	*ptr_z = z;
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    *ptr_z = z;
 }
 
 void
@@ -1439,7 +1439,7 @@ GadgetronImageData::sum(void* ptr) const
         complex_float_t t = u.sum();
         z += t;
     }
-    complex_float_t* ptr_z = (complex_float_t*)ptr;
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
     *ptr_z = z;
 }
 
@@ -1464,9 +1464,9 @@ GadgetronImageData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y)
 {
-	complex_float_t a = *(complex_float_t*)ptr_a;
-	complex_float_t b = *(complex_float_t*)ptr_b;
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
+    complex_float_t b = *static_cast<const complex_float_t*>(ptr_b);
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
 	unsigned int ny = y.number();
@@ -1874,10 +1874,6 @@ GadgetronImageData::read(std::string filename, std::string variable, int iv)
 			append(*sptr_iw);
 			//images_.push_back(sptr_iw);
 		}
-		//int dim[3];
-		//sptr_iw->get_dim(dim);
-		//std::cout << "image dimensions: "
-		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 		if (vsize > 0 && strcmp(var, variable.c_str()) == 0)
 			break;
 		if (iv > 0 && ig == iv)
@@ -2133,7 +2129,6 @@ GadgetronImagesVector::set_data(const complex_float_t* data)
 void
 GadgetronImagesVector::get_real_data(float* data) const
 {
-	//std::cout << "in get_real_data...\n";
 	GadgetronImagesVector::Iterator_const stop = end();
 	GadgetronImagesVector::Iterator_const iter = begin();
 	for (; iter != stop; ++iter, ++data)
