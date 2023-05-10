@@ -302,32 +302,32 @@ namespace sirf {
 		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::product<float>);
 		}
 		virtual void add(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::sum<float>);
 		}
 		virtual void divide(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::ratio<float>);
 		}
 		virtual void maximum(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::maximum<float>);
 		}
 		virtual void minimum(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::minimum<float>);
 		}
 		virtual void power(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, std::pow);
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
@@ -775,10 +775,10 @@ namespace sirf {
             auto iter = pd_ptr->begin();
             auto iter_other = pd2_ptr->begin();
             while (iter != pd_ptr->end())
-                t += (*iter++) * (*iter_other++);
+                t += (*iter++) * double(*iter_other++);
 
-            float* ptr_t = (float*)ptr;
-            *ptr_t = (float)t;
+			float* ptr_t = static_cast<float*>(ptr);
+			*ptr_t = (float)t;
         }
         virtual void multiply(const DataContainer& x, const DataContainer& y)
         {
@@ -1084,32 +1084,32 @@ namespace sirf {
 		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::product<float>);
 		}
 		virtual void add(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::sum<float>);
 		}
 		virtual void divide(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::ratio<float>);
 		}
 		virtual void maximum(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::maximum<float>);
 		}
 		virtual void minimum(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::minimum<float>);
 		}
 		virtual void power(const DataContainer& x, const void* ptr_y)
 		{
-			float y = *(float*)ptr_y;
+			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, std::pow);
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
