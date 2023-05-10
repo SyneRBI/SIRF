@@ -72,7 +72,7 @@ STIRAcquisitionData::sum(void* ptr) const
 				t += *seg_iter++;
 		}
 	}
-	float* ptr_t = (float*)ptr;
+	float* ptr_t = static_cast<float*>(ptr);
 	*ptr_t = (float)t;
 }
 
@@ -93,7 +93,7 @@ STIRAcquisitionData::max(void* ptr) const
 				t = std::max(t, *seg_iter++);
 		}
 	}
-	float* ptr_t = (float*)ptr;
+	float* ptr_t = static_cast<float*>(ptr);
 	*ptr_t = (float)t;
 }
 
@@ -124,7 +124,7 @@ STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 				t += (*seg_iter++) * double(*sx_iter++);
 		}
 	}
-	float* ptr_t = (float*)ptr;
+	float* ptr_t = static_cast<float*>(ptr);
 	*ptr_t = (float)t;
 }
 
@@ -145,9 +145,9 @@ const DataContainer& a_y, const void* ptr_b
 )
 {
     // Cast to correct types
-    float a = *(float*)ptr_a;
-    float b = *(float*)ptr_b;
-    auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
+	float a = *static_cast<const float*>(ptr_a);
+	float b = *static_cast<const float*>(ptr_b);
+	auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
     auto y = dynamic_cast<const STIRAcquisitionData*>(&a_y);
 
     if (is_null_ptr(x) || is_null_ptr(x->data()) ||
@@ -329,7 +329,7 @@ STIRAcquisitionData::xapyb(
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, y, a_y);
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, b, a_b);
-	float a = *(float*)ptr_a;
+	float a = *static_cast<const float*>(ptr_a);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
@@ -458,7 +458,7 @@ STIRImageData::sum(void* ptr) const
 	double s = 0.0;
 	for (iter = data().begin_all(); iter != data().end_all(); iter++)
 		s += *iter;
-	float* ptr_s = (float*)ptr;
+	float* ptr_s = static_cast<float*>(ptr);
 	*ptr_s = (float)s;
 }
 
@@ -474,7 +474,7 @@ STIRImageData::max(void* ptr) const
 	float s = 0.0;
 	for (iter = data().begin_all(); iter != data().end_all(); iter++)
 		s = std::max(s, *iter);
-	float* ptr_s = (float*)ptr;
+	float* ptr_s = static_cast<float*>(ptr);
 	*ptr_s = (float)s;
 }
 
@@ -497,7 +497,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 		double t = *iter;
 		s += t * (*iter_x);
 	}
-	float* ptr_s = (float*)ptr;
+	float* ptr_s = static_cast<float*>(ptr);
 	*ptr_s = (float)s;
 }
 
@@ -515,8 +515,8 @@ STIRImageData::xapyb(
 const DataContainer& a_x, const void* ptr_a,
 const DataContainer& a_y, const void* ptr_b)
 {
-	float a = *(float*)ptr_a;
-	float b = *(float*)ptr_b;
+	float a = *static_cast<const float*>(ptr_a);
+	float b = *static_cast<const float*>(ptr_b);
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -545,7 +545,7 @@ STIRImageData::xapyb(
 const DataContainer& a_x, const void* ptr_a,
 const DataContainer& a_y, const DataContainer& a_b)
 {
-	float a = *(float*)ptr_a;
+	float a = *static_cast<const float*>(ptr_a);
 	SIRF_DYNAMIC_CAST(const STIRImageData, b, a_b);
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
