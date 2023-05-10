@@ -227,45 +227,34 @@ class DataContainer(ABC):
         '''
         assert_validities(self, other)
         # Check if input are the same size
-        if numpy.prod(self.dimensions()) != numpy.prod(other.dimensions()):
-            raise ValueError("Input sizes are expected to be equal, got " + numpy.prod(self.dimensions()) + " and " + numpy.prod(other.dimensions()) + " instead.")
-        handle = pysirf.cSIRF_dot(self.handle, other.handle)
-        check_status(handle)
-        re = pyiutil.floatReDataFromHandle(handle)
-        im = pyiutil.floatImDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        if im == 0:
-            return re
-        else:
-            return re + 1j*im
+        if self.size != other.size:
+            raise ValueError("Input sizes are expected to be equal, got " \
+                + self.size + " and " + other.size + " instead.")
+        z = numpy.zeros((2,), dtype=numpy.float32)
+        try_calling(pysirf.cSIRF_compute_dot(self.handle, other.handle, z.ctypes.data))
+        if z[1] == 0:
+            return z[0]
+        return z[0] + 1j*z[1]
 
     def sum(self):
         '''
         Returns the sum of the elements of self data
         '''
-        handle = pysirf.cSIRF_integral(self.handle)
-        check_status(handle)
-        re = pyiutil.floatReDataFromHandle(handle)
-        im = pyiutil.floatImDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        if im == 0:
-            return re
-        else:
-            return re + 1j*im
+        z = numpy.zeros((2,), dtype=numpy.float32)
+        try_calling(pysirf.cSIRF_compute_sum(self.handle, z.ctypes.data))
+        if z[1] == 0:
+            return z[0]
+        return z[0] + 1j*z[1]
 
     def max(self):
         '''
-        Returns the sum of the elements of self data
+        Returns the maximum of the elements of self data
         '''
-        handle = pysirf.cSIRF_max(self.handle)
-        check_status(handle)
-        re = pyiutil.floatReDataFromHandle(handle)
-        im = pyiutil.floatImDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        if im == 0:
-            return re
-        else:
-            return re + 1j*im
+        z = numpy.zeros((2,), dtype=numpy.float32)
+        try_calling(pysirf.cSIRF_compute_max(self.handle, z.ctypes.data))
+        if z[1] == 0:
+            return z[0]
+        return z[0] + 1j*z[1]
 
     def add(self, other, out=None):
         '''

@@ -42,9 +42,9 @@ void* cSIRF_bits(const void* ptr_x);
 void* cSIRF_conjugate(void* ptr);
 void* cSIRF_conjugated(void* ptr);
 void* cSIRF_norm(const void* ptr_x);
-void* cSIRF_dot(const void* ptr_x, const void* ptr_y);
-void* cSIRF_integral(const void* ptr_x);
-void* cSIRF_max(const void* ptr_x);
+void* cSIRF_compute_dot(const void* ptr_x, const void* ptr_y, PTR_FLOAT ptr_z);
+void* cSIRF_compute_sum(const void* ptr_x, PTR_FLOAT ptr_z);
+void* cSIRF_compute_max(const void* ptr_x, PTR_FLOAT ptr_z);
 void* cSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x,
 	const PTR_FLOAT ptr_b, const void* ptr_y);
 void* cSIRF_axpbyAlt(const PTR_FLOAT ptr_a, const void* ptr_x,

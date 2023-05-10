@@ -19,7 +19,6 @@ limitations under the License.
 
 */
 
-#include <complex>
 #include <memory>
 
 #include "sirf/iUtilities/DataHandle.h"
@@ -137,40 +136,37 @@ cSIRF_norm(const void* ptr_x)
 
 extern "C"
 void*
-cSIRF_dot(const void* ptr_x, const void* ptr_y)
+cSIRF_compute_dot(const void* ptr_x, const void* ptr_y, void* ptr_z)
 {
 	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		std::complex<float> z(0.0, 0.0);
-		x.dot(y, &z);
-		return dataHandle(z);
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		auto const& y = objectFromHandle<DataContainer>(ptr_y);
+		x.dot(y, ptr_z);
+		return new DataHandle;
 	}
 	CATCH;
 }
 
 extern "C"
 void*
-cSIRF_integral(const void* ptr_x)
+cSIRF_compute_sum(const void* ptr_x, void* ptr_z)
 {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		std::complex<float> z(0.0, 0.0);
-		x.sum(&z);
-		return dataHandle(z);
+		x.sum(ptr_z);
+		return new DataHandle;
 	}
 	CATCH;
 }
 
 extern "C"
 void*
-cSIRF_max(const void* ptr_x)
+cSIRF_compute_max(const void* ptr_x, void* ptr_z)
 {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		std::complex<float> z(0.0, 0.0);
-		x.max(&z);
-		return dataHandle(z);
+		x.max(ptr_z);
+		return new DataHandle;
 	}
 	CATCH;
 }
