@@ -109,22 +109,8 @@ class DataContainer(ABC):
         or the elementwise ratio if other is of the same type as self.
         other: DataContainer or a (real or complex) scalar
         '''
-        if type(self) == type(other):
-            return self.divide(other)
+        return self.divide(other)
 
-        if isinstance(other, Number):
-            z = self.same_object()
-            other = 1.0/other
-            a = numpy.asarray([other.real, other.imag], dtype=numpy.float32)
-            zero = numpy.zeros((2,), dtype=numpy.float32)
-            z.handle = pysirf.cSIRF_axpby \
-                (a.ctypes.data, self.handle, zero.ctypes.data, self.handle)
-            check_status(z.handle)
-            return z
-
-        return NotImplemented
-
-    # inline algebra
     def __iadd__(self, other):
         self.add(other, out=self)
         return self

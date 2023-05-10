@@ -680,6 +680,12 @@ def test_data_container_algebra(test, x, eps=1e-5):
     t = numpy.linalg.norm(az)
     test.check_if_equal(1, abs(s) <= eps * abs(t))
 
+    z = x/2
+    az = z.as_array()
+    s = numpy.linalg.norm(az - ax/2)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
     z *= 0
     x.divide(y, out=z)
     az = z.as_array()
