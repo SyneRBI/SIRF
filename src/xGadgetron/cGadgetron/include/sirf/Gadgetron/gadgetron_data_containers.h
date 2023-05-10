@@ -818,15 +818,15 @@ namespace sirf {
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const void* ptr_b)
 		{
-			ComplexFloat_ a(*(complex_float_t*)ptr_a);
-			ComplexFloat_ b(*(complex_float_t*)ptr_b);
+			ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
+			ComplexFloat_ b(*static_cast<const complex_float_t*>(ptr_b));
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b)
 		{
-			ComplexFloat_ a(*(complex_float_t*)ptr_a);
+			ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
