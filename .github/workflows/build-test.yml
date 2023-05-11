@@ -44,7 +44,12 @@ jobs:
           DEVEL_BUILD: "ON"
           EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
           CMAKE_BUILD_TYPE: "Release"
-        # need to upgrade Gadgetron before we can enable gcc 10
+        - os: ubuntu-latest
+          compiler: gcc
+          compiler_version: 9
+          DEVEL_BUILD: "ON"
+          EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON -DDISABLE_Gadgetron:BOOL=ON"
+          CMAKE_BUILD_TYPE: "Release"
         #- os: ubuntu-latest
         #  compiler: gcc
         #  compiler_version: 10

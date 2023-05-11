@@ -32,28 +32,18 @@ If multiple transformations are given, they will be applied in the order they we
 
 #include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/Syn/utilities.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
-#include "sirf/STIR/stir_data_containers.h"
 
 
 using namespace sirf;
 
 static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
 {
-    if (strcmp(engine.c_str(), "Nifti") == 0)
-        return std::make_shared<const NiftiImageData<float> >(filename);
-    else if (strcmp(engine.c_str(), "STIR") == 0)
-        return std::make_shared<const STIRImageData>(filename);
-    else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
-        std::shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
-		sptr_img->read(filename);
-        return sptr_img;
-    }
-    else
-        throw std::runtime_error("unknown engine - " + engine + ".\n");
+  ImageDataWrap i(filename, engine, false);
+  return i.data_sptr();
 }
 
 static std::shared_ptr<Resampler<float> > algo_as_sptr(const std::string &algorithm)

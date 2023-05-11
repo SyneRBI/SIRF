@@ -20,15 +20,19 @@ SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 # Executables
 SET(SYN_executables
+    sirf_convert_image_type
+    )
+if (SIRF_BUILT_WITH_REGISTRATION)
+list(APPEND SYN_executables
     sirf_registration
     sirf_do_images_match
     sirf_resample
-    sirf_convert_image_type
-    )
+)
+endif()
 
 FOREACH(elem ${SYN_executables})
     ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
-    TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf iutilities cstir cgadgetron Reg)
+    TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC csirf csyn)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${SYN_executables})
 

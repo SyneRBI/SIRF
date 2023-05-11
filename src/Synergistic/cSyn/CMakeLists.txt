@@ -28,7 +28,15 @@ target_include_directories(csyn PUBLIC
 target_include_directories(csyn PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(csyn PUBLIC cgadgetron cstir Reg)
+if(SIRF_BUILT_WITH_ISMRMRD)
+  target_link_libraries(csyn PUBLIC cgadgetron)
+endif()
+if(SIRF_BUILT_WITH_STIR)
+  target_link_libraries(csyn PUBLIC cstir)
+endif()
+if(SIRF_BUILT_WITH_REGISTRATION)
+  target_link_libraries(csyn PUBLIC Reg)
+endif()
 target_compile_definitions(csyn PRIVATE WIN32_LEAN_AND_MEAN)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"

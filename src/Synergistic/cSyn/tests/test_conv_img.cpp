@@ -22,8 +22,6 @@ limitations under the License.
 #include <iostream>
 #include <string>
 
-#include "sirf/Gadgetron/gadgetron_data_containers.h"
-#include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Syn/utilities.h"
 

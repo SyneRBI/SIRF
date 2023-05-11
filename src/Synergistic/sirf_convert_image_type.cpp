@@ -27,43 +27,28 @@ limitations under the License.
 \author SyneRBI
 */
 
+#include "sirf/Syn/utilities.h"
+#ifdef SIRF_BUILT_WITH_REGISTRATION
 #include "sirf/Reg/NiftiImageData3D.h"
+#endif
+#ifdef SIRF_BUILT_WITH_ISMRMRD
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
+#endif
+#ifdef SIRF_BUILT_WITH_STIR
 #include "sirf/STIR/stir_data_containers.h"
+#endif
 
 using namespace sirf;
 
 static const std::shared_ptr<ImageData> image_as_sptr(const std::string &filename, const std::string &engine, const bool verbose)
 {
-    std::shared_ptr<ImageData> img_sptr;
-
-    if (strcmp(engine.c_str(), "Reg") == 0) {
-        std::shared_ptr<NiftiImageData<float> > nifti_sptr = std::make_shared<NiftiImageData3D<float> >(filename);
-        if (verbose) nifti_sptr->print_header();
-        img_sptr = nifti_sptr;
-    }
-    else if (strcmp(engine.c_str(), "STIR") == 0) {
-        img_sptr = std::make_shared<STIRImageData>(filename);
-    }
-
-    else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
-        std::shared_ptr<GadgetronImagesVector> gadgetron_sptr(new GadgetronImagesVector);
-		gadgetron_sptr->read(filename);
-        if (verbose) gadgetron_sptr->print_header(0);
-        img_sptr = gadgetron_sptr;
-    }
-    else
-        throw std::runtime_error("unknown engine - " + engine + ".\n");
-
-    // If verbose print geom info
-    if (verbose) img_sptr->get_geom_info_sptr()->print_info();
-
-    // return
-    return img_sptr;
+  ImageDataWrap i(filename, engine, verbose);
+  return i.data_sptr();
 }
 
 static void convert_and_write_image(const std::string &filename, const std::string &engine, const std::shared_ptr<ImageData> &in_img_sptr, const std::string &param_file, const bool verbose)
 {
+#ifdef SIRF_BUILT_WITH_REGISTRATION
     if (strcmp(engine.c_str(), "Reg") == 0) {
         NiftiImageData<float> im(*in_img_sptr);
         im.write(filename);
@@ -71,8 +56,11 @@ static void convert_and_write_image(const std::string &filename, const std::stri
             im.print_header();
             im.get_geom_info_sptr()->print_info();
         }
+        return;
     }
-    else if (strcmp(engine.c_str(), "STIR") == 0) {
+#endif
+#ifdef SIRF_BUILT_WITH_STIR
+    if (strcmp(engine.c_str(), "STIR") == 0) {
         STIRImageData im(*in_img_sptr);
         if (param_file.empty())
             im.write(filename);
@@ -80,12 +68,15 @@ static void convert_and_write_image(const std::string &filename, const std::stri
             im.write(filename,param_file);
         if (verbose)
             im.get_geom_info_sptr()->print_info();
+        return;
     }
-    else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
+#endif
+#ifdef SIRF_BUILT_WITH_ISMRMRD
+    if (strcmp(engine.c_str(), "Gadgetron") == 0) {
         throw std::runtime_error("Converter to GadgetronImagesVector not yet implemented.\n");
     }
-    else
-        throw std::runtime_error("unknown engine - " + engine + ".\n");
+#endif
+    throw std::runtime_error("unknown engine - " + engine + ".\n");
 }
 
 /// print usage

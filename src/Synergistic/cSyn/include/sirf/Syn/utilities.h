@@ -29,8 +29,11 @@ limitations under the License.
 */
 
 #pragma once
-
+#include <string>
+#include <memory>
 namespace sirf {
+        class ImageData;
+
 	class ImageDataWrap {
 	public:
 		ImageDataWrap(const std::string &filename, const std::string &engine, bool verbose);

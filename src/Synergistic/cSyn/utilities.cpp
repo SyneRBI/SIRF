@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2020 Rutherford Appleton Laboratory STFC
-Copyright 2020 University College London
+Copyright 2020, 2023 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -26,34 +26,48 @@ limitations under the License.
 
 \author Richard Brown
 \author Evgueni Ovtchinnikov
+\author Kris Thielemans
 \author SyneRBI
 */
 
+#ifdef SIRF_BUILT_WITH_ISMRMRD
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
+#endif
+#ifdef SIRF_BUILT_WITH_STIR
 #include "sirf/STIR/stir_data_containers.h"
+#endif
+#ifdef SIRF_BUILT_WITH_REGISTRATION
 #include "sirf/Reg/NiftiImageData3D.h"
+#endif
 #include "sirf/Syn/utilities.h"
 
 using namespace sirf;
 
 ImageDataWrap::ImageDataWrap(const std::string &filename, const std::string &engine, bool verbose)
 {
+  img_sptr_ = 0;
+#ifdef SIRF_BUILT_WITH_REGISTRATION
     if (strcmp(engine.c_str(), "Reg") == 0) {
         std::shared_ptr<NiftiImageData<float> > nifti_sptr = 
 		std::make_shared<NiftiImageData3D<float> >(filename);
         if (verbose) nifti_sptr->print_header();
         img_sptr_ = nifti_sptr;
     }
-    else if (strcmp(engine.c_str(), "STIR") == 0) {
+#endif
+#ifdef SIRF_BUILT_WITH_STIR
+    if (strcmp(engine.c_str(), "STIR") == 0) {
         img_sptr_ = std::make_shared<STIRImageData>(filename);
     }
-    else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
+#endif
+#ifdef SIRF_BUILT_WITH_ISMRMRD
+    if (strcmp(engine.c_str(), "Gadgetron") == 0) {
         std::shared_ptr<GadgetronImagesVector> gadgetron_sptr(new GadgetronImagesVector);
 		gadgetron_sptr->read(filename);
         if (verbose) gadgetron_sptr->print_header(0);
         img_sptr_ = gadgetron_sptr;
     }
-    else
+#endif
+    if (!img_sptr_)
         throw std::runtime_error("unknown engine - " + engine + ".\n");
 
     // If verbose print geom info

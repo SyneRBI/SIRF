@@ -33,8 +33,11 @@ else()
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
   find_package(FFTW3 COMPONENTS single REQUIRED)
   ADD_SUBDIRECTORY(xGadgetron)
-  set(SIRF_BUILT_WITH_ISMRMRD TRUE PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_ISMRMRD TRUE) # set for directories "below"
+  set(SIRF_BUILT_WITH_ISMRMRD TRUE PARENT_SCOPE) # set for directory "above"
   set(ISMRMRD_VERSION ${ISMRMRD_VERSION} PARENT_SCOPE)
+  # TODO use target_compile_definitions
+  add_definitions(-DSIRF_BUILT_WITH_ISMRMRD)
 endif()
 
 
@@ -71,7 +74,10 @@ else()
   endif()
   ADD_SUBDIRECTORY(Registration)
   set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION TRUE)
   set(SIRF_BUILT_WITH_REGISTRATION TRUE PARENT_SCOPE)
+  # TODO use target_compile_definitions
+  add_definitions(-DSIRF_BUILT_WITH_REGISTRATION)
 endif()
 
 
@@ -111,38 +117,26 @@ else()
     set(Parallelproj_BOOL_STR "0")
   endif()
   ADD_SUBDIRECTORY(xSTIR)
+  set(SIRF_BUILT_WITH_STIR TRUE)
   set(SIRF_BUILT_WITH_STIR TRUE PARENT_SCOPE)
   set(STIR_VERSION ${STIR_VERSION} PARENT_SCOPE)
+  # TODO use target_compile_definitions
+  add_definitions(-DSIRF_BUILT_WITH_STIR)
+
 endif()
 set(NiftyPET_BOOL_STR ${NiftyPET_BOOL_STR} PARENT_SCOPE)
 set(Parallelproj_BOOL_STR ${Parallelproj_BOOL_STR} PARENT_SCOPE)
-
 
 ##########################################################################
 #                             Synergistic                                #
 ##########################################################################
 # Synergistic code currently only works if STIR (with ITK), ISMRMRD and Registration are built
+# Currently cannot do this as ImageData.read depends on synergistic/ImageDataWrapper
 option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
 if (DISABLE_Synergistic)
   message(STATUS "Synergistic code disabled.")
 else()
-  if ((NOT DISABLE_STIR) AND (NOT DISABLE_Gadgetron) AND (NOT DISABLE_Registration) AND "${STIR_BUILT_WITH_ITK}")
-    MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built. Building synergistic code.")
-    ADD_SUBDIRECTORY(Synergistic)
-  else()
-    MESSAGE(STATUS "One or more of the following components are missing: Registration, ISMRMRD and STIR (with ITK). Synergistic code will not be built.")
-    if (DISABLE_STIR)
-      MESSAGE(STATUS "STIR missing.")
-    elseif(NOT STIR_BUILT_WITH_ITK)
-      MESSAGE(STATUS "STIR not built with ITK.")
-    endif()
-    if (DISABLE_Gadgetron)
-      MESSAGE(STATUS "ISMRMRD missing.")
-    endif()
-    if (DISABLE_Registration)
-      MESSAGE(STATUS "Registration missing.")
-    endif()
-  endif()
+  ADD_SUBDIRECTORY(Synergistic)
 endif()
 
 ADD_SUBDIRECTORY(common)
