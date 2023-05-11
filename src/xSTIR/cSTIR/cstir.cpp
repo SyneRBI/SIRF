@@ -720,6 +720,20 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 }
 
 extern "C"
+void* cSTIR_setupSPECTUBMatrix
+(const void* h_smx, const void* h_acq, const void* h_img)
+{
+	try {
+		SPECTUBMatrix& matrix = objectFromHandle<SPECTUBMatrix>(h_smx);
+		PETAcquisitionData& acq = objectFromHandle<PETAcquisitionData>(h_acq);
+		STIRImageData& img = objectFromHandle<STIRImageData>(h_img);
+		matrix.set_up(acq.get_proj_data_info_sptr(), img.data_sptr());
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_SPECTUBMatrixSetResolution
 	(const void* ptr_acq_matrix,
          const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D)
@@ -1457,6 +1471,27 @@ void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src)
 	}
 	CATCH;
 }
+
+#ifdef USE_HKEM
+extern "C"
+void* cSTIR_computeKernelisedImage(void* ptr_r, void* ptr_i, void* ptr_a)
+{
+	try {
+		xSTIR_KOSMAPOSLReconstruction3DF& recon =
+			objectFromHandle<xSTIR_KOSMAPOSLReconstruction3DF>(ptr_r);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		Image3DF& image = id.data();
+		shared_ptr<STIRImageData> sptr_ki(new STIRImageData(id));
+		STIRImageData& ki = *sptr_ki;
+		Image3DF& kernelised_image = ki.data();
+		STIRImageData& ad = objectFromHandle<STIRImageData>(ptr_a);
+		Image3DF& alpha = ad.data();
+		recon.compute_kernelised_image_x(kernelised_image, image, alpha);
+		return (void*)newObjectHandle(sptr_ki);
+	}
+	CATCH;
+}
+#endif
 
 //extern "C"
 //void* setParameter

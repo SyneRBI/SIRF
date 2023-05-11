@@ -7,12 +7,16 @@ on:
     - '**.md'
     - LICENSE.txt
     - NOTICE.txt
+    - .mailmap
+    - CITATION.cff
   pull_request:
     branches: [ master ]
     paths-ignore:
     - '**.md'
     - LICENSE.txt
     - NOTICE.txt
+    - .mailmap
+    - CITATION.cff
 
 jobs:
   build:
@@ -21,12 +25,13 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: ubuntu-20.04
-          compiler: gcc
-          compiler_version: 8
-          DEVEL_BUILD: "OFF"
-          EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
-          CMAKE_BUILD_TYPE: "Release"
+# remove Ubuntu 20.04 until #1179
+#         - os: ubuntu-20.04
+#           compiler: gcc
+#           compiler_version: 8
+#           DEVEL_BUILD: "OFF"
+#           EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
+#           CMAKE_BUILD_TYPE: "Release"
         - os: ubuntu-latest
           compiler: gcc
           compiler_version: 9

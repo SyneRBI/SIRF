@@ -1,8 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2020 University College London
-Copyright 2020 - 2021 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2023 University College London
+Copyright 2020 - 2023 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -35,6 +35,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <tuple>
 
 //#include <boost/algorithm/string.hpp>
 
@@ -219,6 +220,15 @@ namespace sirf {
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
 		// acquisition data
+		static void binary_op
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
+			complex_float_t (*f)(complex_float_t, complex_float_t));
+		static void semibinary_op
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
+		static void unary_op
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
+			complex_float_t(*f)(complex_float_t));
 		// y := a x + b y
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
@@ -227,21 +237,68 @@ namespace sirf {
 			(const ISMRMRD::Acquisition& acq_x, complex_float_t a,
 			ISMRMRD::Acquisition& acq_y, complex_float_t b);
 		static void xapyb
+			(const ISMRMRD::Acquisition& acq_x, complex_float_t a,
+			ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b);
+		static void xapyb
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_a,
 				ISMRMRD::Acquisition& acq_y, const ISMRMRD::Acquisition& acq_b);
 
 		// the inner (l2) product of x and y
 		static complex_float_t dot
 			(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
+		// the sum of the elements of x
+		static complex_float_t sum(const ISMRMRD::Acquisition& acq_x);
+		// the value of the element of x with the largest real part
+		static complex_float_t max(const ISMRMRD::Acquisition& acq_x);
 		// elementwise multiplication
 		// y := x .* y
 		static void multiply
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// multiply by scalar
+		// y := x * y
+		static void multiply
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		// add scalar
+		// y := x + y
+		static void add
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise division
 		// y := x ./ y
 		static void divide
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// elementwise maximum
+		// y := std::real(x) > std::real(y) ? x : y
+		static void maximum
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void maximum
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		// elementwise minimum
+		// y := std::real(x) < std::real(y) ? x : y
+		static void minimum
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void minimum
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		// y := pow(x, y)
+		static void power
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void power
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		// y := exp(x)
+		static void exp
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// y := log(x)
+		static void log
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// y := sqrt(x)
+		static void sqrt
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		// y := sign(x) (x < 0: -1, x == 0: 0, x > 0: 1)
+		static void sign
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// l2 norm of x
+		// y := abs(x)
+		static void abs
+			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
 		// type and dimension of an ISMRMRD::Acquisition parameter
@@ -371,6 +428,81 @@ namespace sirf {
 					v[i] = u[i];
 			}
 		}
+		/*! 
+    		\brief Setter for the encoding limits in the header of the acquisition.
+      		inputs: 
+				name, name of k-space dimension to modify
+				min_max_ctr = minimium, maximum and center value of sampled region
+    	*/
+		void set_encoding_limits(const std::string& name, \
+									const std::tuple<unsigned short,unsigned short,unsigned short> min_max_ctr)
+		{
+			ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
+			ISMRMRD::EncodingLimits enc_limits = hdr.encoding[0].encodingLimits;
+
+			ISMRMRD::Limit limit;
+			limit.minimum = std::get<0>(min_max_ctr);
+			limit.maximum = std::get<1>(min_max_ctr);
+			limit.center = std::get<2>(min_max_ctr);
+
+			if(sirf::iequals(name, "kspace_encoding_step_1"))
+				enc_limits.kspace_encoding_step_1.get() = limit;
+			else if(sirf::iequals(name, "kspace_encoding_step_2"))
+				enc_limits.kspace_encoding_step_2.get() = limit;
+			else if(sirf::iequals(name, "average"))
+				enc_limits.average.get() = limit;
+			else if(sirf::iequals(name, "slice"))
+				enc_limits.slice.get() = limit;
+			else if(sirf::iequals(name, "contrast"))
+				enc_limits.contrast.get() = limit;
+			else if(sirf::iequals(name, "phase"))
+				enc_limits.phase.get() = limit;
+			else if(sirf::iequals(name, "repetition"))
+				enc_limits.repetition.get() = limit;
+			else if(sirf::iequals(name, "set"))
+				enc_limits.set.get() = limit;
+			else if(sirf::iequals(name, "segment"))
+				enc_limits.segment.get() = limit;
+			else
+				throw std::runtime_error("You passed a name that is not an encoding limit.");
+
+			hdr.encoding[0].encodingLimits = enc_limits;
+			std::stringstream serialised_hdr;
+			ISMRMRD::serialize(hdr, serialised_hdr);
+			this->set_acquisitions_info(AcquisitionsInfo(serialised_hdr.str()));
+		}
+
+		std::tuple<unsigned short,unsigned short,unsigned short>
+		get_encoding_limits(const std::string& name) const
+		{
+			ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
+			ISMRMRD::EncodingLimits enc_limits = hdr.encoding[0].encodingLimits;
+
+			ISMRMRD::Limit limit;
+
+			if(sirf::iequals(name, "kspace_encoding_step_1"))
+				limit = enc_limits.kspace_encoding_step_1.get();
+			else if(sirf::iequals(name, "kspace_encoding_step_2"))
+				limit = enc_limits.kspace_encoding_step_2.get();
+			else if(sirf::iequals(name, "average"))
+				limit = enc_limits.average.get();
+			else if(sirf::iequals(name, "slice"))
+				limit = enc_limits.slice.get();
+			else if(sirf::iequals(name, "contrast"))
+				limit = enc_limits.contrast.get();
+			else if(sirf::iequals(name, "phase"))
+				limit = enc_limits.phase.get();
+			else if(sirf::iequals(name, "repetition"))
+				limit = enc_limits.repetition.get();
+			else if(sirf::iequals(name, "set"))
+				limit = enc_limits.set.get();
+			else if(sirf::iequals(name, "segment"))
+				limit = enc_limits.segment.get();
+			else
+				throw std::runtime_error("You passed a name that is not an encoding limit.");
+
+			return std::make_tuple(limit.minimum, limit.maximum, limit.center);
+		}
 
 		// abstract methods
 
@@ -382,7 +514,7 @@ namespace sirf {
 
 		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition>
 			get_acquisition_sptr(unsigned int num) = 0;
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
+		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
@@ -405,6 +537,9 @@ namespace sirf {
 		}
 
 		// acquisition data algebra
+		/// below all void* are actually complex_float_t*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		complex_float_t dot(const DataContainer& a_x)
 		{
@@ -420,25 +555,39 @@ namespace sirf {
 			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b);
-		//{
-		//	axpby(ptr_a, a_x, ptr_b, a_y);
-		//}
+			const DataContainer& a_y, const void* ptr_b)
+		{
+			axpby(ptr_a, a_x, ptr_b, a_y);
+		}
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
 		virtual void divide(const DataContainer& x,	const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("maximum not defined for MRAcquisitionData");
-		}
-		virtual void minimum(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("minimum not defined for MRAcquisitionData");
-		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y);
+		virtual void minimum(const DataContainer& x, const DataContainer& y);
+		virtual void power(const DataContainer& x, const DataContainer& y);
+		virtual void multiply(const DataContainer& x, const void* y);
+		virtual void add(const DataContainer& x, const void* ptr_y);
+		virtual void maximum(const DataContainer& x, const void* y);
+		virtual void minimum(const DataContainer& x, const void* y);
+		virtual void power(const DataContainer& x, const void* y);
+		virtual void exp(const DataContainer& x);
+		virtual void log(const DataContainer& x);
+		virtual void sqrt(const DataContainer& x);
+		virtual void sign(const DataContainer& x);
+		virtual void abs(const DataContainer& x);
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
 
 		// regular methods
+		void binary_op(const DataContainer& a_x, const DataContainer& a_y,
+			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
+		void semibinary_op(const DataContainer& a_x, complex_float_t y,
+			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
+		void unary_op(const DataContainer& a_x,
+			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
@@ -527,7 +676,7 @@ namespace sirf {
 			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
 			* to exclude potentially incompatible input. 
     	*/
-		void read( const std::string& filename_ismrmrd_with_ext );
+		void read(const std::string& filename_ismrmrd_with_ext, int all = 0);
 
 	protected:
 		bool sorted_ = false;
@@ -542,9 +691,6 @@ namespace sirf {
 		virtual MRAcquisitionData* clone_impl() const = 0;
 
 	private:
-		void binary_op_(int op, 
-			const MRAcquisitionData& a_x, const MRAcquisitionData& a_y,
-			const void* ptr_a = 0, const void* ptr_b = 0);
 
 	};
 
@@ -558,9 +704,9 @@ namespace sirf {
 	*/
 	class AcquisitionsVector : public MRAcquisitionData {
 	public:
-        AcquisitionsVector(const std::string& filename_with_ext)
+        AcquisitionsVector(const std::string& filename_with_ext, int all = 0)
         {
-            this->read(filename_with_ext);
+            this->read(filename_with_ext, all);
         }
 
         AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo())
@@ -582,10 +728,17 @@ namespace sirf {
 			int ind = index(num);
 			return acqs_[ind];
 		}
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
+		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 		{
 			int ind = index(num);
 			acq = *acqs_[ind];
+			if (!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
+				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
+				(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
+				return 0;
+			return 1;
 		}
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
@@ -726,8 +879,15 @@ namespace sirf {
 		{
 			return image_wrap(im_num).type();
 		}
+		virtual size_t num_data_elm() const
+		{
+			return image_wrap(0).num_data_elm();
+		}
 
 		virtual float norm() const;
+		/// below all void* are actually complex_float_t*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
@@ -736,26 +896,26 @@ namespace sirf {
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const void* ptr_b)
 		{
-			ComplexFloat_ a(*(complex_float_t*)ptr_a);
-			ComplexFloat_ b(*(complex_float_t*)ptr_b);
+			ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
+			ComplexFloat_ b(*static_cast<const complex_float_t*>(ptr_b));
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b)
 		{
-			ComplexFloat_ a(*(complex_float_t*)ptr_a);
+			ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		virtual void xapyb(
-			const DataContainer& a_x, const DataContainer& a_a,
-			const DataContainer& a_y, const void* ptr_b)
-		{
-			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
-			ComplexFloat_ b(*(complex_float_t*)ptr_b);
-			xapyb_(a_x, a, a_y, b);
-		}
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const DataContainer& a_a,
+		//	const DataContainer& a_y, const void* ptr_b)
+		//{
+		//	SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
+		//	ComplexFloat_ b(*(complex_float_t*)ptr_b);
+		//	xapyb_(a_x, a, a_y, b);
+		//}
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b)
@@ -766,14 +926,27 @@ namespace sirf {
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y);
 		virtual void divide(const DataContainer& x, const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("maximum not defined for ISMRMRDImageData");
-		}
-		virtual void minimum(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("minimum not defined for ISMRMRDImageData");
-		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y);
+		virtual void minimum(const DataContainer& x, const DataContainer& y);
+		virtual void power(const DataContainer& x, const DataContainer& y);
+		virtual void multiply(const DataContainer& x, const void* ptr_y);
+		virtual void add(const DataContainer& x, const void* ptr_y);
+		virtual void maximum(const DataContainer& x, const void* ptr_y);
+		virtual void minimum(const DataContainer& x, const void* ptr_y);
+		virtual void power(const DataContainer& x, const void* ptr_y);
+		virtual void exp(const DataContainer& x);
+		virtual void log(const DataContainer& x);
+		virtual void sqrt(const DataContainer& x);
+		virtual void sign(const DataContainer& x);
+		virtual void abs(const DataContainer& x);
+
+		void binary_op(
+			const DataContainer& a_x, const DataContainer& a_y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
+		void semibinary_op(
+			const DataContainer& a_x, complex_float_t y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
+		void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
 
 		void fill(float s);
 		void scale(float s);
@@ -851,6 +1024,10 @@ namespace sirf {
 			{
 				return v_;
 			}
+			size_t num_data_elm()
+			{
+				return 1;
+			}
 		private:
 			complex_float_t v_;
 		};
@@ -865,6 +1042,7 @@ namespace sirf {
 			unsigned int ny = y.number();
 			unsigned int nb = b.number();
 			//std::cout << nx << ' ' << ny << '\n';
+			//std::cout << na << ' ' << nb << '\n';
 			if (nx != ny)
 				THROW("ImageData sizes mismatch in axpby");
 			if (na > 0 && na != nx)
@@ -1290,12 +1468,12 @@ namespace sirf {
             GadgetronImagesVector::get_image_dimensions(num_csm, dim);
         }
 
-        void forward(GadgetronImageData& img, GadgetronImageData& combined_img)const;
+        void forward(GadgetronImageData& img, const GadgetronImageData& combined_img)const;
         void backward(GadgetronImageData& combined_img, const GadgetronImageData& img)const;
 
     protected:
 
-        void coilchannels_from_combined_image(GadgetronImageData& img, GadgetronImageData& combined_img) const;
+        void coilchannels_from_combined_image(GadgetronImageData& img, const GadgetronImageData& combined_img) const;
         void combine_images_with_coilmaps(GadgetronImageData& combined_img, const GadgetronImageData& img) const;
 
         void calculate_csm(ISMRMRD::NDArray<complex_float_t>& cm, ISMRMRD::NDArray<float>& img, ISMRMRD::NDArray<complex_float_t>& csm);

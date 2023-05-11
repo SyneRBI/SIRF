@@ -710,10 +710,6 @@ class ImageData(SIRF.ImageData):
     def shape(self):
         return self.dimensions()
 
-    @property
-    def dtype(self):
-        return numpy.float32
-
 
 SIRF.ImageData.register(ImageData)
 
@@ -984,6 +980,9 @@ class SPECTUBMatrix:
         You have to call set_up() after this.
         '''
         try_calling(pystir.cSTIR_SPECTUBMatrixSetResolution(self.handle, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D))
+
+    def set_up(self, acq, img):
+        try_calling(pystir.cSTIR_setupSPECTUBMatrix(self.handle, acq.handle, img.handle))
 
 
 class PinholeSPECTUBMatrix:
@@ -1434,10 +1433,6 @@ class AcquisitionData(DataContainer):
     @property
     def shape(self):
         return self.dimensions()
-
-    @property
-    def dtype(self):
-        return numpy.float32
 
 
 DataContainer.register(AcquisitionData)
@@ -3109,6 +3104,15 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         """Sets use hybrid mode flag."""
         v = 1 if tf else 0
         parms.set_int_par(self.handle, 'KOSMAPOSL', 'hybrid', v)
+
+    def compute_kernelised_image(self, image, alpha):
+        assert_validity(image, ImageData)
+        assert_validity(alpha, ImageData)
+        ki = ImageData()
+        ki.handle = pystir.cSTIR_computeKernelisedImage \
+            (self.handle, image.handle, alpha.handle)
+        check_status(ki.handle)
+        return ki
 
 
 class SingleScatterSimulator():

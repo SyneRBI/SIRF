@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2023 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -420,7 +420,7 @@ MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
 }
 
 void
-MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
+MRAcquisitionModel::fwd(const GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 	MRAcquisitionData& ac)
 {
     GadgetronImagesVector images_channelresolved;

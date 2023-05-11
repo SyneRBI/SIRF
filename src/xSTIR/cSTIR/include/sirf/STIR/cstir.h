@@ -93,10 +93,11 @@ extern "C" {
 		int subset_num, int num_subsets, void* ptr_im);
         void* cSTIR_get_MatrixInfo(void* ptr);
 
-        // Acquisition Model Matrix
-        void* cSTIR_SPECTUBMatrixSetResolution
-                 (const void* ptr_acq_matrix,
-                  const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D);
+    // Acquisition Model Matrix
+    void* cSTIR_setupSPECTUBMatrix(const void* h_smx, const void* h_acq, const void* h_img);
+    void* cSTIR_SPECTUBMatrixSetResolution
+        (const void* ptr_acq_matrix,
+        const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D);
 
 	// Acquisition data methods
 	void* cSTIR_getAcquisitionDataStorageScheme();
@@ -175,6 +176,7 @@ extern "C" {
                                      const PTR_INT new_sizes_ptr_raw,
                                      const char * const zoom_options);
     void* cSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_ptr);
+	void* cSTIR_computeKernelisedImage(void* ptr_r, void* ptr_i, void* ptr_a);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);
