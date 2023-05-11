@@ -954,6 +954,9 @@ class SPECTUBMatrix:
         '''
         try_calling(pystir.cSTIR_SPECTUBMatrixSetResolution(self.handle, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D))
 
+    def set_up(self, acq, img):
+        try_calling(pystir.cSTIR_setupSPECTUBMatrix(self.handle, acq.handle, img.handle))
+
 
 class PinholeSPECTUBMatrix:
     """
