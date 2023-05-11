@@ -27,7 +27,10 @@ target_include_directories(csirf PUBLIC
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
-#target_include_directories(csirf PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>" "$<BUILD_INTERFACE:${BUILD_INCLUDE_DIRECTORY}>" "$<INSTALL_INTERFACE:include>")
+target_include_directories(csirf PUBLIC
+  "$<BUILD_INTERFACE:${BUILD_INCLUDE_DIRECTORY}>$<INSTALL_INTERFACE:include>"
+  )
+
 if ((NOT DISABLE_STIR) AND (NOT DISABLE_Gadgetron) AND (NOT DISABLE_Registration) AND "${STIR_BUILT_WITH_ITK}")
   MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built.")
   target_link_libraries(csirf PUBLIC iutilities csyn)

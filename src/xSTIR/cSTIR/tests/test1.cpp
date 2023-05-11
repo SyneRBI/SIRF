@@ -41,7 +41,7 @@ limitations under the License.
 #include "sirf/common/utilities.h"
 #include "sirf/STIR/stir_x.h"
 
-#include "getenv.h"
+#include "sirf/common/getenv.h"
 #include "object.h"
 
 using namespace stir;

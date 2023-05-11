@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "sirf/common/version.h"
+#include "sirf/common/getenv.h"
 
 namespace sirf {
 	char path_separator()
@@ -43,7 +44,6 @@ namespace sirf {
 		va_end(args);
 		return r;
 	}
-	std::string getenv(const char* name, bool throws = false);
 	std::string examples_data_path(const char* data_type)
 	{
 		std::string SIRF_data_path = sirf::getenv("SIRF_DATA_PATH");

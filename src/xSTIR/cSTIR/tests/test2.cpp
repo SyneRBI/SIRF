@@ -38,7 +38,7 @@ SIRF C interface test.
 #include "sirf/STIR/cstir.h"
 #include "sirf/STIR/stir_types.h"
 
-#include "getenv.h"
+#include "sirf/common/getenv.h"
 #include "handle.h"
 
 using namespace stir;
