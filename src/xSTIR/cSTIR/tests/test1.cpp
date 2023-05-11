@@ -71,7 +71,7 @@ int test1()
 	std::cout << "STIR examples path: " << get_STIR_examples_dir() << '\n';
 
         {
-		ok = file_exists(append_path(get_STIR_examples_dir(), "README.md", (const char *)NULL));
+		ok = file_exists(append_path(get_STIR_examples_dir(), "README.md"));
 		if (ok)
 			std::cout << "Found README.md in STIR_examples_dir\n";
 		else
@@ -94,7 +94,7 @@ int test1()
 		int dim[10];
 		size_t sinos, views, tangs;
 		// locate acquisition data
-		filename = append_path(SIRF_data_path, "my_forward_projection.hs", (const char*)NULL);
+		filename = append_path(SIRF_data_path, "my_forward_projection.hs");
 		std::cout << "reading raw data from " << filename << "...\n";
 		CREATE_OBJECT(STIRAcquisitionData, STIRAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());

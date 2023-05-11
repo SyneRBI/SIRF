@@ -99,7 +99,7 @@ int test2()
 			CALL(cSTIR_setParameter
 			(matrix, "RayTracingMatrix", "num_tangential_LORs", intDataHandle(2)));
 
-			filename = append_path(data_path, "mMR", "mMR_template_span11_small.hs", (const char*)NULL);
+			filename = append_path(data_path, "mMR", "mMR_template_span11_small.hs");
 			std::cout << "reading data from " << filename << "...\n";
 			//BUG: fails if storage scheme is "memory"!
 			HANDLE(ad, cSTIR_objectFromFile("AcquisitionData", filename.c_str()));
@@ -130,7 +130,7 @@ int test2()
 			CALL(cSTIR_setParameter(am, "AcqModUsingMatrix", "matrix", matrix));
 			CALL(cSTIR_setupAcquisitionModel(am, ad, image));
 
-			filename = append_path(data_path, "mMR", "mu_map.hv", (const char*)NULL);
+			filename = append_path(data_path, "mMR", "mu_map.hv");
 			HANDLE(ai, cSTIR_objectFromFile("Image", filename.c_str()));
 			HANDLE(sma, cSTIR_createPETAttenuationModel(ai, am));
 			CALL(cSTIR_setupAcquisitionSensitivityModel(sma, ad));

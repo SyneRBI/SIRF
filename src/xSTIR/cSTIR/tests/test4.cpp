@@ -53,9 +53,9 @@ int test4()
             std::cout << "cannot find data" << std::endl;
             return 1;
         }
-        std::string path = append_path(SIRF_data_path, "mMR", (const char*)NULL);
-        std::string f_listmode = append_path(path, "list.l.hdr", (const char*)NULL);
-        std::string f_template = append_path(path, "mMR_template_span11_small.hs", (const char*)NULL);
+        std::string path = append_path(SIRF_data_path, "mMR");
+        std::string f_listmode = append_path(path, "list.l.hdr");
+        std::string f_template = append_path(path, "mMR_template_span11_small.hs");
 
 		STIRAcquisitionDataInFile acq_data_template(f_template.c_str());
 
