@@ -795,6 +795,48 @@ class Acquisition(object):
     def info(self, method):
         return eval('self.' + method + '()')
 
+
+    def set_kspace_encode_step_1(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1', int(val))
+    def set_kspace_encode_step_2(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2', int(val))
+    def set_average(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_average', int(val))
+    def set_slice(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_slice', int(val))
+    def set_contrast(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_contrast', int(val))
+    def set_phase(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_phase', int(val))
+    def set_repetition(self, val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_repetition', val)
+    def set_set(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_set', int(val))
+    def set_segment(self,val):
+        assert self.handle is not None
+        return parms.set_int_par(self.handle, 'acquisition', 'idx_segment', int(val))
+
+    def set_physiology_time_stamp(self,val,stampnum):
+        '''
+        Setter for acquisitions physiology time stamp.
+        input: 
+            val: time in tics! (1 tic usually corresponds to 2.5ms for SIEMENS data).
+            stampnum: which physiology time stamp is set, 0, 1 or 2 (stampnum=0 corresponds to trigger delay).
+        '''
+        assert self.handle is not None
+        if stampnum <0 or stampnum >2:
+            raise AssertionError(f"stampnum must be either 0, 1 or 2. You gave {stampnum}.")
+        attribute = f"physiology_time_stamp{stampnum}"
+        return parms.set_int_par(self.handle, 'acquisition', attribute, int(val))
+
 class AcquisitionData(DataContainer):
     '''
     Class for an MR acquisitions container.
@@ -886,6 +928,10 @@ class AcquisitionData(DataContainer):
     def set_header(self, header):
         assert self.handle is not None
         try_calling(pygadgetron.cGT_setAcquisitionsInfo(self.handle, header))
+    def set_encoding_limit(self, name:str, limit:tuple):
+        if len(limit)!=3:
+            raise AssertionError("Please give three values, min, max and ctr")
+        try_calling(pygadgetron.cGT_setEncodingLimits(self.handle, name, int(limit[0]), int(limit[1]), int(limit[2])))
     def get_header(self):
         assert self.handle is not None
         return parms.char_par(self.handle, 'acquisitions', 'info')
