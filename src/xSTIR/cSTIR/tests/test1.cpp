@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2018 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2018 - 2020, 2023 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -31,7 +31,6 @@ limitations under the License.
 #include <fstream>
 #include <string>
 
-#include "stir/common.h"
 #include "stir/config.h"
 #include "stir/find_STIR_config.h"
 #include "stir/IO/stir_ecat_common.h"
@@ -41,7 +40,6 @@ limitations under the License.
 #include "sirf/common/utilities.h"
 #include "sirf/STIR/stir_x.h"
 
-#include "sirf/common/getenv.h"
 #include "object.h"
 
 using namespace stir;
@@ -65,9 +63,21 @@ void openChannel(int channel, void* ptr_w);
 int test1()
 {
 	std::cout << "running test1.cpp...\n";
+	bool ok;
+	bool fail = false;
+
 	std::cout << "STIR version: " << STIR_VERSION_STRING << '\n';
 	std::cout << "STIR doc path: " << get_STIR_doc_dir() << '\n';
 	std::cout << "STIR examples path: " << get_STIR_examples_dir() << '\n';
+
+        {
+		ok = file_exists(append_path(get_STIR_examples_dir(), "README.md", (const char *)NULL));
+		if (ok)
+			std::cout << "Found README.md in STIR_examples_dir\n";
+		else
+			std::cout << "Failed to find README.md in STIR_examples_dir\n";
+		fail = fail || !ok;
+	}
 
 	try {
 		std::string SIRF_data_path = sirf::examples_data_path("PET");
@@ -79,9 +89,6 @@ int test1()
 		TextWriter w; // create writer with no output
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
-
-		bool ok;
-		bool fail = false;
 
 		std::string filename;
 		int dim[10];
