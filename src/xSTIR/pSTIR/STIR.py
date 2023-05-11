@@ -683,10 +683,6 @@ class ImageData(SIRF.ImageData):
     def shape(self):
         return self.dimensions()
 
-    @property
-    def dtype(self):
-        return numpy.float32
-
 
 SIRF.ImageData.register(ImageData)
 
@@ -1407,10 +1403,6 @@ class AcquisitionData(DataContainer):
     @property
     def shape(self):
         return self.dimensions()
-
-    @property
-    def dtype(self):
-        return numpy.float32
 
 
 DataContainer.register(AcquisitionData)

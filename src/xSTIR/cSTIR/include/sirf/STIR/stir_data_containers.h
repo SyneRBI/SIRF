@@ -259,6 +259,9 @@ namespace sirf {
 			return 1; // data ok
 		}
 		virtual float norm() const;
+		/// below all void* are actually float*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		float dot(const DataContainer& a_x) const
 		{
@@ -275,21 +278,78 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op(x, std::abs);
+		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op(x, std::exp);
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op(x, std::log);
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op(x, std::sqrt);
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op(x, DataContainer::sign);
+		}
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::product<float>);
+		}
+		virtual void add(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::sum<float>);
+		}
+		virtual void divide(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::ratio<float>);
+		}
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::maximum<float>);
+		}
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, std::pow);
+		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, 1);
+			binary_op(x, y, DataContainer::product<float>);
 		}
 		virtual void divide(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, 2);
+			binary_op(x, y, DataContainer::ratio<float>);
 		}
 		virtual void maximum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, 3);
+			binary_op(x, y, DataContainer::maximum<float>);
 		}
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, 4);
+			binary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, std::pow);
 		}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
@@ -391,6 +451,10 @@ namespace sirf {
 				(sptr_s, span, max_ring_diff, num_views, num_tang_pos, false));
 		}
 
+		void unary_op(const DataContainer& a_x, float(*f)(float));
+		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
+		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+
 	protected:
 		static std::string _storage_scheme;
 		static std::shared_ptr<STIRAcquisitionData> _template;
@@ -408,7 +472,6 @@ namespace sirf {
 
 	private:
 		mutable int _is_empty = -1;
-		void binary_op_(const DataContainer& a_x, const DataContainer& a_y, int job);
 	};
 
 	/*!
@@ -696,7 +759,7 @@ namespace sirf {
             auto iter = pd_ptr->begin();
 			for (; iter != pd_ptr->end(); ++iter)
 				t += (*iter) * (*iter);
-			return sqrt((float)t);
+			return std::sqrt((float)t);
         }
         virtual void dot(const DataContainer& a_x, void* ptr) const
         {
@@ -713,10 +776,10 @@ namespace sirf {
             auto iter = pd_ptr->begin();
             auto iter_other = pd2_ptr->begin();
             while (iter != pd_ptr->end())
-                t += (*iter++) * (*iter_other++);
+                t += (*iter++) * double(*iter_other++);
 
-            float* ptr_t = (float*)ptr;
-            *ptr_t = (float)t;
+			float* ptr_t = static_cast<float*>(ptr);
+			*ptr_t = (float)t;
         }
         virtual void multiply(const DataContainer& x, const DataContainer& y)
         {
@@ -795,14 +858,14 @@ namespace sirf {
 		typedef ImageData::Iterator_const BaseIter_const;
 		class Iterator : public BaseIter {
 		public:
-                        //! \name typedefs for std::iterator_traits
-                        //@{
-                        typedef Image3DFIterator::difference_type difference_type;
-                        typedef Image3DFIterator::value_type value_type;
-                        typedef Image3DFIterator::reference reference;
-                        typedef Image3DFIterator::pointer pointer;
-                        typedef std::forward_iterator_tag iterator_category;
-                        //@}
+			//! \name typedefs for std::iterator_traits
+			//@{
+			typedef Image3DFIterator::difference_type difference_type;
+			typedef Image3DFIterator::value_type value_type;
+			typedef Image3DFIterator::reference reference;
+			typedef Image3DFIterator::pointer pointer;
+			typedef std::forward_iterator_tag iterator_category;
+			//@}
 			Iterator(const Image3DFIterator& iter) : _iter(iter)
 			{}
 			Iterator& operator=(const Iterator& iter)
@@ -888,47 +951,47 @@ namespace sirf {
 			std::shared_ptr<Iterator_const> _sptr_iter;
 		};
 		STIRImageData() {}
-        STIRImageData(const ImageData& id);
+		STIRImageData(const ImageData& id);
 		STIRImageData(const STIRImageData& image)
 		{
 			_data.reset(image.data().clone());
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(const STIRAcquisitionData& ad)
 		{
-                  _data.reset(new Voxels3DF(MAKE_SHARED<stir::ExamInfo>(*ad.get_exam_info_sptr()),*ad.get_proj_data_info_sptr()));
-            this->set_up_geom_info();
+			_data.reset(new Voxels3DF(MAKE_SHARED<stir::ExamInfo>(*ad.get_exam_info_sptr()), *ad.get_proj_data_info_sptr()));
+			this->set_up_geom_info();
 		}
 		STIRImageData(const Image3DF& image)
 		{
 			_data.reset(image.clone());
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(const Voxels3DF& v)
 		{
 			_data.reset(v.clone());
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(const stir::ProjDataInfo& pdi)
 		{
 			_data.reset(new Voxels3DF(pdi));
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(stir::shared_ptr<Image3DF> ptr)
 		{
 			_data = ptr;
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(std::string filename)
 		{
 			_data = stir::read_from_file<Image3DF>(filename);
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData* same_image_data() const
 		{
 			STIRImageData* ptr_image = new STIRImageData;
 			ptr_image->_data.reset(_data->get_empty_copy());
-            ptr_image->set_up_geom_info();
+			ptr_image->set_up_geom_info();
 			return ptr_image;
 		}
 		std::shared_ptr<STIRImageData> new_image_data()
@@ -962,54 +1025,114 @@ namespace sirf {
 		}
 
 		/// Write to file
-        virtual void write(const std::string &filename) const;
-        /// Write to file using format file.
-        /*! This allows speciyfing the output file format used by STIR using a text file.
-            Keywords are specified by STIR.
+		virtual void write(const std::string& filename) const;
+		/// Write to file using format file.
+		/*! This allows speciyfing the output file format used by STIR using a text file.
+			Keywords are specified by STIR.
 
-            If "" is passed as argument for format_file, the default format will be used.
+			If "" is passed as argument for format_file, the default format will be used.
 
-            An example is given below for writing the image in the nifti format. STIR uses
-            ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
-            \verbatim
-            OutputFileFormat Parameters:=
-                output file format type := ITK
-                ITK Output File Format Parameters:=
-                number format := float
-                number_of_bytes_per_pixel:=4
-                default extension:=.nii
-                End ITK Output File Format Parameters:=
-           End:=
-           \endverbatim
-        */
-        virtual void write(const std::string &filename, const std::string &format_file) const;
+			An example is given below for writing the image in the nifti format. STIR uses
+			ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
+			\verbatim
+			OutputFileFormat Parameters:=
+				output file format type := ITK
+				ITK Output File Format Parameters:=
+				number format := float
+				number_of_bytes_per_pixel:=4
+				default extension:=.nii
+				End ITK Output File Format Parameters:=
+		   End:=
+		   \endverbatim
+		*/
+		virtual void write(const std::string& filename, const std::string& format_file) const;
 
 		virtual float norm() const;
+		/// below all void* are actually float*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b);		
+			const DataContainer& a_y, const void* ptr_b);
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op(x, std::abs);
+		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op(x, std::exp);
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op(x, std::log);
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op(x, std::sqrt);
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op(x, DataContainer::sign);
+		}
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::product<float>);
+		}
+		virtual void add(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::sum<float>);
+		}
+		virtual void divide(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::ratio<float>);
+		}
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::maximum<float>);
+		}
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, std::pow);
+		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, 1);
+			binary_op(x, y, DataContainer::product<float>);
 		}
 		virtual void divide(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, 2);
+			binary_op(x, y, DataContainer::ratio<float>);
 		}
 		virtual void maximum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, 3);
+			binary_op(x, y, DataContainer::maximum<float>);
 		}
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_(x, y, 4);
+			binary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, std::pow);
 		}
 
 		Image3DF& data()
@@ -1055,7 +1178,7 @@ namespace sirf {
 		void axpby(
 			float a, const DataContainer& a_x,
 			float b, const DataContainer& a_y)
-		{	
+		{
 			axpby(&a, a_x, &b, a_y);
 		}
 		void xapyb(
@@ -1063,7 +1186,11 @@ namespace sirf {
 			const DataContainer& a_y, float b)
 		{
 			xapyb(a_x, &a, a_y, &b);
-		}	
+		}
+		size_t size() const
+		{
+			return _data->size_all();
+		}
 		virtual Dimensions dimensions() const
 		{
 			Dimensions dim;
@@ -1099,42 +1226,44 @@ namespace sirf {
 			return *_end_const;
 		}
 
-        /// Clone and return as unique pointer.
-        std::unique_ptr<STIRImageData> clone() const
-        {
-            return std::unique_ptr<STIRImageData>(this->clone_impl());
-        }
+		/// Clone and return as unique pointer.
+		std::unique_ptr<STIRImageData> clone() const
+		{
+			return std::unique_ptr<STIRImageData>(this->clone_impl());
+		}
 
-        /// Zoom the image (modifies itself).
-        /// All indices and coordinates should be (z,y,x) order.
-        /// To leave the size unchanged in any dimension, set the corresponding size to -1.
-        void zoom_image(const Coord3DF &zooms={1.f,1.f,1.f}, const Coord3DF &offsets_in_mm={0.f,0.f,0.f},
-                        const Coord3DI &new_sizes={-1,-1,-1}, const char * const zoom_options_str="preserve_sum");
+		/// Zoom the image (modifies itself).
+		/// All indices and coordinates should be (z,y,x) order.
+		/// To leave the size unchanged in any dimension, set the corresponding size to -1.
+		void zoom_image(const Coord3DF& zooms = { 1.f,1.f,1.f }, const Coord3DF& offsets_in_mm = { 0.f,0.f,0.f },
+			const Coord3DI& new_sizes = { -1,-1,-1 }, const char* const zoom_options_str = "preserve_sum");
 
-        /// Zoom the image (modifies itself).
-        /// All indices and coordinates should be (z,y,x) order.
-        /// To leave the size unchanged in any dimension, set the corresponding size to -1.
-        void zoom_image(const Coord3DF &zooms={1.f,1.f,1.f}, const Coord3DF &offsets_in_mm={0.f,0.f,0.f},
-                        const Coord3DI &new_sizes={-1,-1,-1},
-                        const stir::ZoomOptions zoom_options=stir::ZoomOptions::preserve_sum);
+		/// Zoom the image (modifies itself).
+		/// All indices and coordinates should be (z,y,x) order.
+		/// To leave the size unchanged in any dimension, set the corresponding size to -1.
+		void zoom_image(const Coord3DF& zooms = { 1.f,1.f,1.f }, const Coord3DF& offsets_in_mm = { 0.f,0.f,0.f },
+			const Coord3DI& new_sizes = { -1,-1,-1 },
+			const stir::ZoomOptions zoom_options = stir::ZoomOptions::preserve_sum);
 
-        /// Move to scanner centre. The acquisition needs to be supplied such that in the future,
-        /// bed offset etc can be taken into account.
-        void move_to_scanner_centre(const STIRAcquisitionData &);
+		/// Move to scanner centre. The acquisition needs to be supplied such that in the future,
+		/// bed offset etc can be taken into account.
+		void move_to_scanner_centre(const STIRAcquisitionData&);
 
-        /// Populate the geometrical info metadata (from the image's own metadata)
-        virtual void set_up_geom_info();
+		/// Populate the geometrical info metadata (from the image's own metadata)
+		virtual void set_up_geom_info();
 
-    private:
-        /// Clone helper function. Don't use.
-        virtual STIRImageData* clone_impl() const
-        {
-            return new STIRImageData(*this);
-        }
-		void binary_op_(const DataContainer& a_x, const DataContainer& a_y, int job);
+		void unary_op(const DataContainer& a_x, float(*f)(float));
+		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
+		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+
+	private:
+		/// Clone helper function. Don't use.
+		virtual STIRImageData* clone_impl() const
+		{
+			return new STIRImageData(*this);
+		}
 
 	protected:
-
 		stir::shared_ptr<Image3DF> _data;
 		mutable std::shared_ptr<Iterator> _begin;
 		mutable std::shared_ptr<Iterator> _end;

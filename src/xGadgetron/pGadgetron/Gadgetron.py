@@ -249,7 +249,10 @@ class ImageData(SIRF.ImageData):
     def same_object(self):
         return ImageData()
 
-    def abs(self, out=None):
+    def real_abs(self, out=None):
+        ''' WARNING: this method produces images of type different from that
+            of self.
+        '''
         if out is None:
             images = ImageData()
         else:
@@ -260,6 +263,9 @@ class ImageData(SIRF.ImageData):
             return images
 
     def real(self):
+        ''' WARNING: this method produces images of type different from that
+            of self.
+        '''
         images = ImageData()
         images.handle = pygadgetron.cGT_realImageData(self.handle, 'real')
         check_status(images.handle)
@@ -524,11 +530,7 @@ class ImageData(SIRF.ImageData):
     def print_header(self, im_num):
         """Print the header of one of the images. zero based."""
         try_calling(pygadgetron.cGT_print_header(self.handle, im_num))
-    @property
-    def dtype(self):
-        if self.is_real():
-            return numpy.float32
-        return numpy.complex64
+
     @property
     def shape(self):
         return self.dimensions()
@@ -1194,13 +1196,11 @@ class AcquisitionData(DataContainer):
             tmp = value * numpy.ones(out.as_array().shape)
             out.fill(tmp)
         return out
+
     @property
     def shape(self):
         return self.dimensions()
-    @property
-    def dtype(self):
-        return numpy.complex64
-    
+
     
 DataContainer.register(AcquisitionData)
 

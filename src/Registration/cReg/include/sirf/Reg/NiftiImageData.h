@@ -455,7 +455,7 @@ protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
 
-    enum MathsType { add, sub, mul, div};
+    enum MathsType { ADD, sub, mul, div};
 
     /// Image data as a nifti object
     std::shared_ptr<nifti_image>  _nifti_image;
@@ -605,17 +605,36 @@ protected:
         return new ObjectHandle<DataContainer>
             (std::shared_ptr<DataContainer>(new NiftiImageData));
     }
+public:
     unsigned int items() const { return 1; }
+    /// below all void* are actually float*
+    virtual void sum      (void* ptr) const;
+    virtual void max      (void* ptr) const;
     virtual void dot      (const DataContainer& a_x, void* ptr) const;
     virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
     virtual void xapyb    (const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
     virtual void xapyb    (const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
+    virtual void xapyb(
+        const DataContainer& a_x, const void* ptr_a,
+        const DataContainer& a_y, const DataContainer& a_b);
     virtual float norm() const;
     virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
     virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
 	virtual void maximum(const DataContainer& x, const DataContainer& y);
 	virtual void minimum(const DataContainer& x, const DataContainer& y);
-	virtual Dimensions dimensions() const
+    virtual void power(const DataContainer& x, const DataContainer& y);
+    virtual void multiply(const DataContainer& a_x, const void* a_y);
+    virtual void add(const DataContainer& a_x, const void* a_y);
+    virtual void maximum(const DataContainer& x, const void* a_y);
+    virtual void minimum(const DataContainer& x, const void* a_y);
+    virtual void power(const DataContainer& x, const void* a_y);
+    virtual void exp(const DataContainer& x);
+    virtual void log(const DataContainer& x);
+    virtual void sqrt(const DataContainer& x);
+    virtual void sign(const DataContainer& x);
+    virtual void abs(const DataContainer& x);
+
+    virtual Dimensions dimensions() const
     {
         Dimensions dim;
         int *d = _nifti_image->dim;
@@ -628,7 +647,9 @@ protected:
         dim["w"] = d[7];
         return dim;
     }
-public:
+    void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
+    void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
+    void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
 protected:
