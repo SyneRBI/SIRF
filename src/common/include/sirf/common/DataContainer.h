@@ -56,6 +56,9 @@ namespace sirf {
 		/// returns the norm of this container viewed as a vector
 		virtual float norm() const = 0;
 
+		/// below all void* are actually either float* (STIR containers and NiftiImageData)
+		/// or complex_float_t* (Gadgetron containers)
+
 		/// calculates the dot product of this container with another one
 		virtual void dot(const DataContainer& dc, void* ptr) const = 0;
 

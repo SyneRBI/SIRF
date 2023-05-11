@@ -607,6 +607,7 @@ protected:
     }
 public:
     unsigned int items() const { return 1; }
+    /// below all void* are actually float*
     virtual void sum      (void* ptr) const;
     virtual void max      (void* ptr) const;
     virtual void dot      (const DataContainer& a_x, void* ptr) const;

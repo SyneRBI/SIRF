@@ -461,6 +461,7 @@ namespace sirf {
 		}
 
 		// acquisition data algebra
+		/// below all void* are actually complex_float_t*
 		virtual void sum(void* ptr) const;
 		virtual void max(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
@@ -808,6 +809,7 @@ namespace sirf {
 		}
 
 		virtual float norm() const;
+		/// below all void* are actually complex_float_t*
 		virtual void sum(void* ptr) const;
 		virtual void max(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
