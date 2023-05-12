@@ -23,10 +23,11 @@ limitations under the License.
 
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
+#include "sirf/common/deprecate.h"
 #include "sirf/common/iequals.h"
 #include "sirf/common/ImageData.h"
+#include "sirf/common/utilities.h"
 #include "sirf/Syn/utilities.h"
-#include "sirf/common/deprecate.h"
 
 using namespace sirf;
 
@@ -61,6 +62,12 @@ void* cSIRF_newObject(const char* name)
 	CATCH;
 }
 
+extern "C"
+void*
+cSIRF_examples_data_path(const char* data_type)
+{
+	return charDataHandleFromCharData(examples_data_path(data_type).c_str());
+}
 
 extern "C"
 void*
