@@ -35,6 +35,9 @@ extern "C" {
 // New SIRF objects
 void* cSIRF_newObject(const char* name);
 
+// path to the examples data folder
+void* cSIRF_examples_data_path(const char* data_type);
+
 // Data container methods
 void* cSIRF_dataItems(const void* ptr_x);
 void* cSIRF_isComplex(const void* ptr_x);

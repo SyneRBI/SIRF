@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2018 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2018 - 2020, 2023 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -31,14 +31,15 @@ limitations under the License.
 #include <fstream>
 #include <string>
 
-#include "stir/common.h"
+#include "stir/config.h"
+#include "stir/find_STIR_config.h"
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/ExamData.h"
 
 #include "sirf/common/iequals.h"
+#include "sirf/common/utilities.h"
 #include "sirf/STIR/stir_x.h"
 
-#include "getenv.h"
 #include "object.h"
 
 using namespace stir;
@@ -62,11 +63,26 @@ void openChannel(int channel, void* ptr_w);
 int test1()
 {
 	std::cout << "running test1.cpp...\n";
+	bool ok;
+	bool fail = false;
+
+	std::cout << "STIR version: " << STIR_VERSION_STRING << '\n';
+	std::cout << "STIR doc path: " << get_STIR_doc_dir() << '\n';
+	std::cout << "STIR examples path: " << get_STIR_examples_dir() << '\n';
+
+        {
+		ok = file_exists(append_path(get_STIR_examples_dir(), "README.md"));
+		if (ok)
+			std::cout << "Found README.md in STIR_examples_dir\n";
+		else
+			std::cout << "Failed to find README.md in STIR_examples_dir\n";
+		fail = fail || !ok;
+	}
 
 	try {
-		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-		if (SIRF_path.length() < 1) {
-			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+		std::string SIRF_data_path = sirf::examples_data_path("PET");
+		if (SIRF_data_path.length() < 1) {
+			std::cout << "cannot find data" << std::endl;
 			return 1;
 		}
 
@@ -74,16 +90,12 @@ int test1()
 		TextWriterHandle h;
 		h.set_information_channel(&w); // suppress STIR info output
 
-		bool ok;
-		bool fail = false;
-
 		std::string filename;
 		int dim[10];
 		size_t sinos, views, tangs;
 		// locate acquisition data
-		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
-		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
-		fix_path_separator(filename);
+		filename = append_path(SIRF_data_path, "my_forward_projection.hs");
+		std::cout << "reading raw data from " << filename << "...\n";
 		CREATE_OBJECT(STIRAcquisitionData, STIRAcquisitionDataInFile,
 			acq_data, sptr_ad, filename.c_str());
 		sinos = acq_data.get_num_sinograms();

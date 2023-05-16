@@ -5,6 +5,7 @@ import numpy
 import os
 import sirf
 import sirf.pyiutilities as pyiutil
+import sirf.pysirf as pysirf
 import re
 from deprecation import deprecated
 
@@ -70,20 +71,11 @@ def examples_data_path(data_type):
     Returns the path to PET/MR/Registration data used by SIRF/examples demos.
     data_type: either 'PET' or 'MR' or 'Registration'
     '''
-    data_path = os.path.join('share', 'SIRF-{}.{}'.format(sirf.__version_major__, sirf.__version_minor__),
-                             'data', 'examples', data_type)
-    SIRF_INSTALL_PATH = os.environ.get('SIRF_INSTALL_PATH')
-    SIRF_DATA_PATH = os.environ.get('SIRF_DATA_PATH')
-    SIRF_PATH = os.environ.get('SIRF_PATH')
-    if SIRF_DATA_PATH is not None:
-        return os.path.join(SIRF_DATA_PATH , 'examples', data_type)
-    elif SIRF_INSTALL_PATH is not None:
-        return os.path.join(SIRF_INSTALL_PATH , data_path)
-    elif SIRF_PATH is not None:
-        return os.path.join(SIRF_PATH, 'data', 'examples', data_type)
-    else:
-        errorMsg = 'You need to set the SIRF_DATA_PATH or SIRF_INSTALL_PATH environment variable to allow finding the raw data.'
-        raise ValueError(errorMsg)
+    h = pysirf.cSIRF_examples_data_path(data_type)
+    check_status(h)
+    path = pyiutil.charDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return path
 
 
 def existing_filepath(data_path, file_name):

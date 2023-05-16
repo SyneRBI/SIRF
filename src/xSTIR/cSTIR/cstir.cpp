@@ -25,7 +25,9 @@ limitations under the License.
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/cstir_p.h"
+#include "stir/find_STIR_config.h"
 #include "sirf/STIR/stir_x.h"
+#include "stir/config.h"
 #include "stir/ImagingModality.h"
 #include "stir/Scanner.h"
 #include "stir/Verbosity.h"
@@ -50,6 +52,31 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	ExecutionStatus status(error.c_str(), file, line);
 	handle->set(0, &status);
 	return (void*)handle;
+}
+
+extern "C"
+void*
+cSTIR_STIR_version_string()
+{
+#if defined(STIR_VERSION_STRING)
+	return charDataHandleFromCharData(STIR_VERSION_STRING);
+#else
+	return charDataHandleFromCharData("unknown");
+#endif
+}
+
+extern "C"
+void*
+cSTIR_get_STIR_doc_dir()
+{
+	return charDataHandleFromCharData(get_STIR_doc_dir().c_str());
+}
+
+extern "C"
+void*
+cSTIR_get_STIR_examples_dir()
+{
+	return charDataHandleFromCharData(get_STIR_examples_dir().c_str());
 }
 
 template<class Method>

@@ -8,6 +8,9 @@
   - Added setter for acquisition header information and encoding limits. This allows the user to modify the reconstructed k-space dimensions and enables e.g. retrospective motion 
     resolved or time-resolved reconstructions, or combinations of such dimensions. The acquisition model picks up these changes automatically if the encoding limits are set correctly.
 
+* PET/SPECT
+  - Added SIRF interfaces to STIR functions to know where its files are: `get_STIR_doc_dir()` and `get_STIR_examples_dir()`.
+
 ## v3.4.0
 
 * MR:
