@@ -12,6 +12,7 @@ Options:
   -O <outp>, --outp=<outp>      output file [default: multiplicative]
   -T <file>, --trans=<file>     transform for attn image
   -t <str>, --trans_type=<str>  transform type (tm, disp, def) [default: tm]
+  --non-interactive           do not show plots
 """
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)

@@ -25,7 +25,9 @@ limitations under the License.
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/cstir_p.h"
+#include "stir/find_STIR_config.h"
 #include "sirf/STIR/stir_x.h"
+#include "stir/config.h"
 #include "stir/ImagingModality.h"
 #include "stir/Scanner.h"
 #include "stir/Verbosity.h"
@@ -50,6 +52,31 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	ExecutionStatus status(error.c_str(), file, line);
 	handle->set(0, &status);
 	return (void*)handle;
+}
+
+extern "C"
+void*
+cSTIR_STIR_version_string()
+{
+#if defined(STIR_VERSION_STRING)
+	return charDataHandleFromCharData(STIR_VERSION_STRING);
+#else
+	return charDataHandleFromCharData("unknown");
+#endif
+}
+
+extern "C"
+void*
+cSTIR_get_STIR_doc_dir()
+{
+	return charDataHandleFromCharData(get_STIR_doc_dir().c_str());
+}
+
+extern "C"
+void*
+cSTIR_get_STIR_examples_dir()
+{
+	return charDataHandleFromCharData(get_STIR_examples_dir().c_str());
 }
 
 template<class Method>
@@ -143,6 +170,10 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (sirf::iequals(name, "SPECTUBMatrix"))
 			return NEW_OBJECT_HANDLE(SPECTUBMatrix);
+#if STIR_VERSION >= 050100
+		if (sirf::iequals(name, "PinholeSPECTUBMatrix"))
+			return NEW_OBJECT_HANDLE(PinholeSPECTUBMatrix);
+#endif
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (sirf::iequals(name, "PLSPrior"))
@@ -202,6 +233,8 @@ void* cSTIR_setParameter
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "SPECTUBMatrix"))
 			return cSTIR_setSPECTUBMatrixParameter(hs, name, hv);
+		else if (sirf::iequals(obj, "PinholeSPECTUBMatrix"))
+			return cSTIR_setPinholeSPECTUBMatrixParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "QuadraticPrior"))
@@ -266,6 +299,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_rayTracingMatrixParameter(handle, name);
 		else if (sirf::iequals(obj, "SPECTUBMatrix"))
 			return cSTIR_SPECTUBMatrixParameter(handle, name);
+		else if (sirf::iequals(obj, "PinholeSPECTUBMatrix"))
+			return cSTIR_PinholeSPECTUBMatrixParameter(handle, name);
 		else if (sirf::iequals(obj, "AcquisitionModel"))
 			return cSTIR_AcquisitionModelParameter(handle, name);
 		else if (sirf::iequals(obj, "AcqModUsingMatrix"))
@@ -680,6 +715,20 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(ptr_ad);
 		return newObjectHandle(am.backward(ad, subset_num, num_subsets));
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setupSPECTUBMatrix
+(const void* h_smx, const void* h_acq, const void* h_img)
+{
+	try {
+		SPECTUBMatrix& matrix = objectFromHandle<SPECTUBMatrix>(h_smx);
+		PETAcquisitionData& acq = objectFromHandle<PETAcquisitionData>(h_acq);
+		STIRImageData& img = objectFromHandle<STIRImageData>(h_img);
+		matrix.set_up(acq.get_proj_data_info_sptr(), img.data_sptr());
+		return (void*)new DataHandle;
 	}
 	CATCH;
 }
@@ -1422,6 +1471,27 @@ void* cSTIR_setImageDataFromImage(void* ptr_im, const void* ptr_src)
 	}
 	CATCH;
 }
+
+#ifdef USE_HKEM
+extern "C"
+void* cSTIR_computeKernelisedImage(void* ptr_r, void* ptr_i, void* ptr_a)
+{
+	try {
+		xSTIR_KOSMAPOSLReconstruction3DF& recon =
+			objectFromHandle<xSTIR_KOSMAPOSLReconstruction3DF>(ptr_r);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		Image3DF& image = id.data();
+		shared_ptr<STIRImageData> sptr_ki(new STIRImageData(id));
+		STIRImageData& ki = *sptr_ki;
+		Image3DF& kernelised_image = ki.data();
+		STIRImageData& ad = objectFromHandle<STIRImageData>(ptr_a);
+		Image3DF& alpha = ad.data();
+		recon.compute_kernelised_image_x(kernelised_image, image, alpha);
+		return (void*)newObjectHandle(sptr_ki);
+	}
+	CATCH;
+}
+#endif
 
 //extern "C"
 //void* setParameter

@@ -34,10 +34,11 @@ SIRF C interface test.
 
 #include "sirf/common/csirf.h"
 #include "sirf/common/iequals.h"
+#include "sirf/common/utilities.h"
 #include "sirf/STIR/cstir.h"
 #include "sirf/STIR/stir_types.h"
 
-#include "getenv.h"
+#include "sirf/common/getenv.h"
 #include "handle.h"
 
 using namespace stir;
@@ -83,13 +84,11 @@ int test2()
 
 	int status = 1;
 	try {
-		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-		if (SIRF_path.length() < 1) {
-			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+		std::string data_path = sirf::examples_data_path("PET");
+		if (data_path.length() < 1) {
+			std::cout << "cannot find data" << std::endl;
 			return 1;
 		}
-		std::string data_path = SIRF_path + "/data/examples/PET/";
-		fix_path_separator(data_path);
 
 		TextWriter w;
 		openChannel(0, &w); // suppress STIR info output
@@ -100,9 +99,8 @@ int test2()
 			CALL(cSTIR_setParameter
 			(matrix, "RayTracingMatrix", "num_tangential_LORs", intDataHandle(2)));
 
-			filename = data_path + "mMR/mMR_template_span11_small.hs";
-			//filename = path + "my_forward_projection.hs";
-			//std::cout << "reading data from " << filename << "...";
+			filename = append_path(data_path, "mMR", "mMR_template_span11_small.hs");
+			std::cout << "reading data from " << filename << "...\n";
 			//BUG: fails if storage scheme is "memory"!
 			HANDLE(ad, cSTIR_objectFromFile("AcquisitionData", filename.c_str()));
 			//std::cout << "ok\n";
@@ -132,7 +130,7 @@ int test2()
 			CALL(cSTIR_setParameter(am, "AcqModUsingMatrix", "matrix", matrix));
 			CALL(cSTIR_setupAcquisitionModel(am, ad, image));
 
-			filename = data_path + "mMR/mu_map.hv";
+			filename = append_path(data_path, "mMR", "mu_map.hv");
 			HANDLE(ai, cSTIR_objectFromFile("Image", filename.c_str()));
 			HANDLE(sma, cSTIR_createPETAttenuationModel(ai, am));
 			CALL(cSTIR_setupAcquisitionSensitivityModel(sma, ad));

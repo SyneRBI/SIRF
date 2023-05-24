@@ -1,22 +1,42 @@
 # ChangeLog
+
+## v3.5.0
+* GitHub Action: remove temporarily the Ubuntu 20.04 build, #1178
+* MR
+  - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible. See https://github.com/SyneRBI/SIRF/pull/1174 for more information
+  - Allow user to set radial, goldenangle, spiral and rpe trajectories
+  - Added setter for acquisition header information and encoding limits. This allows the user to modify the reconstructed k-space dimensions and enables e.g. retrospective motion 
+    resolved or time-resolved reconstructions, or combinations of such dimensions. The acquisition model picks up these changes automatically if the encoding limits are set correctly.
+
+* PET/SPECT
+  - Added SIRF interfaces to STIR functions to know where its files are: `get_STIR_doc_dir()` and `get_STIR_examples_dir()`.
+
+* C++
+  - added `examples_data_path` and utility functions such as `append_path` in `common/utilities.h`
+
 ## v3.4.0
-* changed Python test framework to pytest
+
 * MR:
-  - Added support for spiral trajectories that are pre-computed by the user by exposing a setter.
+  - Added support for spiral trajectories that are pre-computed by the user (by exposing a trajectory setter).
   - Writing images to `.dcm` files fixed.
   - Running image processing chains after reconstruction fixed.
   - Use C++ 17 if Gadgetron-support is enabled
-  - Support Gadgetron master of end November 2022
-      - using `find_package(gadgetron)` in CMake.
+  - Support Gadgetron `master` of end November 2022
+      - using `find_package(gadgetron)` in CMake, but still support old version by looking for toolboxes.
 
 * PET/SPECT
-  - Require STIR 5.0
-  - sirf.STIR.AcquisitionData constructor taking a scanner now has an extra optional argument
+  - Require STIR 5.0 and support 5.1.
+  - If SIRF is compiled with STIR 5.1, we now support **Pinhole SPECT** via the `PinholeSPECTUBMatrix` acquisition model. Examples are provided (but the code is not yet tested).
+  - `sirf.STIR.AcquisitionData` constructor taking a scanner now has an extra optional argument
   tof_mash_factor (defaulting to 1). This is only functional if a STIR version supporting TOF is used.
-  - Renamed PETAcquisitionData and derived classes to STIRAcquisitionData* as STIR now supports SPECT in addition to PET modality. Backward compatibility ensured by defining old nomenclature via typedefs until the release of SIRF 4.
+  - C++: Renamed PETAcquisitionData and derived classes to STIRAcquisitionData* as STIR now supports SPECT in addition to PET modality. Backward compatibility ensured by defining old nomenclature via typedefs until the release of SIRF 4.
 
 * Documentation
-  - revision of READMEs for the examples
+  - revision of READMEs for the examples.
+
+* Changed Python test framework to pytest.
+
+* Added support for the extraction of subsets of STIR and Gadgetron acquisition data.
 
 ## v3.3.0
 
