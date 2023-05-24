@@ -11,6 +11,9 @@
 * PET/SPECT
   - Added SIRF interfaces to STIR functions to know where its files are: `get_STIR_doc_dir()` and `get_STIR_examples_dir()`.
 
+* C++
+  - added `examples_data_path` and utility functions such as `append_path` in `common/utilities.h`
+
 ## v3.4.0
 
 * MR:
