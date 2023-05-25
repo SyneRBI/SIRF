@@ -5,11 +5,12 @@ import numpy
 import os
 import sirf
 import sirf.pyiutilities as pyiutil
+import sirf.pysirf as pysirf
 import re
 from deprecation import deprecated
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
 Copyright 2015 - 2021 University College London
 Copyright 2021 CSIRO
 
@@ -70,20 +71,11 @@ def examples_data_path(data_type):
     Returns the path to PET/MR/Registration data used by SIRF/examples demos.
     data_type: either 'PET' or 'MR' or 'Registration'
     '''
-    data_path = os.path.join('share', 'SIRF-{}.{}'.format(sirf.__version_major__, sirf.__version_minor__),
-                             'data', 'examples', data_type)
-    SIRF_INSTALL_PATH = os.environ.get('SIRF_INSTALL_PATH')
-    SIRF_DATA_PATH = os.environ.get('SIRF_DATA_PATH')
-    SIRF_PATH = os.environ.get('SIRF_PATH')
-    if SIRF_DATA_PATH is not None:
-        return os.path.join(SIRF_DATA_PATH , 'examples', data_type)
-    elif SIRF_INSTALL_PATH is not None:
-        return os.path.join(SIRF_INSTALL_PATH , data_path)
-    elif SIRF_PATH is not None:
-        return os.path.join(SIRF_PATH, 'data', 'examples', data_type)
-    else:
-        errorMsg = 'You need to set the SIRF_DATA_PATH or SIRF_INSTALL_PATH environment variable to allow finding the raw data.'
-        raise ValueError(errorMsg)
+    h = pysirf.cSIRF_examples_data_path(data_type)
+    check_status(h)
+    path = pyiutil.charDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return path
 
 
 def existing_filepath(data_path, file_name):
@@ -446,9 +438,9 @@ def check_status(handle, stack=None):
     if pyiutil.executionStatus(handle) != 0:
         if stack is None:
             stack = inspect.stack()[1]
-        print('\nFile: %s' % stack[1])
-        print('Line: %d' % stack[2])
-        print('check_status found the following message sent from the engine:')
+#        print('\nFile: %s' % stack[1])
+#        print('Line: %d' % stack[2])
+#        print('check_status found the following message sent from the engine:')
         msg = pyiutil.executionError(handle)
         file = pyiutil.executionErrorFile(handle)
         line = pyiutil.executionErrorLine(handle)
@@ -557,7 +549,8 @@ def str_to_int_list(str_list):
         int_list = int_list + int_item
     return int_list
 
-def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True):
+
+def is_operator_adjoint(operator, num_tests=5, max_err=10e-5, verbose=True):
     '''
     Test if a given operator is adjoint.
     The operator needs to have been already set_up() with valid objects.
@@ -595,7 +588,345 @@ def is_operator_adjoint(operator, num_tests = 5, max_err = 10e-5, verbose = True
     return True
 
 
-class TestDataContainerAlgebra(object):
+def test_data_container_algebra(test, x, eps=1e-5):
+
+    ax = x.as_array()
+    ay = numpy.ones_like(ax)
+    y = x.clone()
+    y.fill(ay)
+
+    s = x.norm()
+    t = numpy.linalg.norm(ax)
+    test.check_if_equal(1, abs(t - s) <= eps * abs(t))
+
+    s = x.max()
+    t = numpy.max(ax)
+    test.check_if_equal(1, abs(t - s) <= eps * abs(t))
+
+    s = x.sum()
+    t = numpy.sum(ax)
+    r = numpy.sum(abs(ax))
+    test.check_if_equal(1, abs(t - s) <= eps * r)
+
+    s = x.dot(y)
+    t = numpy.vdot(ay, ax)
+    test.check_if_equal(1, abs(t - s) <= eps * abs(t))
+
+    x2 = x.multiply(2)
+    ax2 = x2.as_array()
+    s = numpy.linalg.norm(ax2 - 2*ax)
+    t = numpy.linalg.norm(ax2)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    x2 *= 0
+    x.multiply(2, out=x2)
+    ax2 = x2.as_array()
+    s = numpy.linalg.norm(ax2 - 2*ax)
+    t = numpy.linalg.norm(ax2)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    t = x2.norm()
+    x2 -= x*2
+    s = x2.norm()
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y = x.multiply(x)
+    ax = x.as_array()
+    ay = y.as_array()
+    s = numpy.linalg.norm(ay - ax * ax)
+    t = numpy.linalg.norm(ay)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y *= 0
+    x.multiply(x, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    s = numpy.linalg.norm(ay - ax * ax)
+    t = numpy.linalg.norm(ay)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    z = x*y
+    az = z.as_array()
+    s = numpy.linalg.norm(az - ax * ay)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y = x + 1
+    ax = x.as_array()
+    ay = y.as_array()
+    s = numpy.linalg.norm(ay - (ax + 1))
+    t = numpy.linalg.norm(ay)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y *= 0
+    x.add(1, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    s = numpy.linalg.norm(ay - (ax + 1))
+    t = numpy.linalg.norm(ay)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    z = x/y
+    az = z.as_array()
+    s = numpy.linalg.norm(az - ax/ay)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    z = x/2
+    az = z.as_array()
+    s = numpy.linalg.norm(az - ax/2)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    z *= 0
+    x.divide(y, out=z)
+    az = z.as_array()
+    s = numpy.linalg.norm(az - ax/ay)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, abs(s) <= eps * abs(t))
+
+    y = x.sapyb(1, x, -1)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.sapyb(1, x, -1, out=y)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y = x.sapyb(z, x, -z)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.sapyb(z, x, -z, out=y)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y = x.sapyb(x, x*x, -1)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.sapyb(x, x*x, -1, out=y)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    z = x*x
+    y = z.sapyb(1, x, -x)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y *= 0
+    z.sapyb(1, x, -x, out=y)
+    s = y.norm()
+    test.check_if_equal(0, s)
+
+    y = x.maximum(z)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    ay -= numpy.maximum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.maximum(z, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    ay -= numpy.maximum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y = x.maximum(0)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.maximum(ax, 0)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.maximum(0, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.maximum(ax, 0)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y = x.minimum(z)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    ay -= numpy.minimum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.minimum(z, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    ay -= numpy.minimum(ax, az)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y = x.minimum(0)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.minimum(ax, 0)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y *= 0
+    x.minimum(0, out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.minimum(ax, 0)
+    s = numpy.linalg.norm(ay)
+    test.check_if_equal(0, s)
+
+    y = x.exp()
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.exp(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    y *= 0
+    x.exp(out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.exp(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    y = x.log()
+    ax = x.as_array()
+    ay = y.as_array()
+    az = numpy.log(ax)
+    numpy.nan_to_num(ay, copy=False, posinf=0.0, neginf=0.0)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    ay -= az
+    s = numpy.linalg.norm(ay)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+    y *= 0
+    x.log(out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = numpy.log(ax)
+    numpy.nan_to_num(ay, copy=False, posinf=0.0, neginf=0.0)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    ay -= az
+    s = numpy.linalg.norm(ay)
+    t = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+    y = x.sqrt()
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.sqrt(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    y *= 0
+    x.sqrt(out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.sqrt(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    y = x.sign()
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.sign(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    y *= 0
+    x.sign(out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.sign(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    y = x.abs()
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.abs(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    y *= 0
+    x.abs(out=y)
+    ax = x.as_array()
+    ay = y.as_array()
+    ay -= numpy.abs(ax)
+    s = numpy.linalg.norm(ay)
+    t = y.norm()
+    test.check_if_equal(1, s <= eps * t)
+
+    p = -0.5
+    z = x.power(p)
+    ax = x.as_array()
+    az = z.as_array()
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    t = numpy.linalg.norm(az)
+    az -= numpy.power(ax, p)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    s = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+    z *= 0
+    x.power(p, out=z)
+    ax = x.as_array()
+    az = z.as_array()
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    t = numpy.linalg.norm(az)
+    az -= numpy.power(ax, p)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    s = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+    ax = x.as_array()
+    ay = -numpy.ones_like(ax)/2
+    y.fill(ay)
+    z = x.power(y)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    t = numpy.linalg.norm(az)
+    az -= numpy.power(ax, ay)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    s = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+    z *= 0
+    x.power(y, out=z)
+    ax = x.as_array()
+    ay = y.as_array()
+    az = z.as_array()
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    t = numpy.linalg.norm(az)
+    az -= numpy.power(ax, ay)
+    numpy.nan_to_num(az, copy=False, posinf=0.0, neginf=0.0)
+    s = numpy.linalg.norm(az)
+    test.check_if_equal(1, s <= eps * t)
+
+
+class DataContainerAlgebraTests(object):
 
     '''A base class for unit test of DataContainer algebra.'''
     def test_divide_scalar(self):

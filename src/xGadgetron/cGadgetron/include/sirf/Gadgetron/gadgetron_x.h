@@ -1,6 +1,6 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -322,6 +322,8 @@ namespace sirf {
 		void process(const GadgetronImageData& images);
 		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
+			//if (dicom_)
+			//	THROW("Output to both memory and DICOM files not implemented.");
 			return sptr_images_;
 		}
 
@@ -374,7 +376,7 @@ namespace sirf {
 		public:
 			BFOperator(gadgetron::shared_ptr<MRAcquisitionModel> sptr_am) : sptr_am_(sptr_am) {}
 			virtual gadgetron::shared_ptr<GadgetronImageData>
-				apply(GadgetronImageData& image_data)
+				apply(const GadgetronImageData& image_data)
 			{
 				gadgetron::shared_ptr<MRAcquisitionData> sptr_fwd =
 					sptr_am_->fwd(image_data);
@@ -410,14 +412,14 @@ namespace sirf {
 		}
 		
 		/*!
-		\ingroup PET
+		\ingroup MR
 		\brief Method computing the norm of the MR acquisition model operator A.
 
 		Computes the norm of A as the square root of the largest eigenvalue of A' A
 		computed by a variant of Conjugate Gradient method adapted to the eigenvalue
 		computation (see JacobiCG.h for details).
 		*/
-		float norm(int num_iter = 2, int verb = 0)
+		float norm(int num_iter = 16, int verb = 0)
 		{
 			gadgetron::shared_ptr<MRAcquisitionModel> sptr_am
 				(new MRAcquisitionModel(sptr_acqs_, sptr_imgs_, sptr_csms_, acqs_info_));
@@ -475,7 +477,7 @@ namespace sirf {
 		
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
-        void fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
+        void fwd(const GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 			MRAcquisitionData& ac);
 
 		// Backprojects the whole AcquisitionContainer using
@@ -485,7 +487,7 @@ namespace sirf {
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps referred to by sptr_csms_.
-		gadgetron::shared_ptr<MRAcquisitionData> fwd(GadgetronImageData& ic)
+		gadgetron::shared_ptr<MRAcquisitionData> fwd(const GadgetronImageData& ic)
 		{
 
             if (!sptr_acqs_.get())

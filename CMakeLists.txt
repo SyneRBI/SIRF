@@ -210,7 +210,8 @@ ENABLE_TESTING()
 # create location of SHARE_DIR to be used when creating Shepp Logan phantom during build
 set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
 
-configure_file("cmake/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h")
+set(BUILD_INCLUDE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/include)
+configure_file("cmake/version.h.in" "${BUILD_INCLUDE_DIRECTORY}/sirf/common/version.h")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
 
 if (CMAKE_VERSION VERSION_LESS 3.21.0)
@@ -226,10 +227,11 @@ endif()
 
 ADD_SUBDIRECTORY(src)
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
-configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
-
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
+if(PYTHONLIBS_FOUND)
+  include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
+  configure_file("cmake/config.py.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py")
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/config.py" DESTINATION "${PYTHON_DEST}/sirf")
+endif(PYTHONLIBS_FOUND)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples 
         COMPONENT DOC

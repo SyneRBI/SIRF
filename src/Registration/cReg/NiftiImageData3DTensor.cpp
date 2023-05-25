@@ -210,7 +210,7 @@ tensor_component_maths(
     for (unsigned i=0; i<nii_scalar_im_sptr->get_num_voxels(); ++i) {
         if (maths_type == NiftiImageData<dataType>::mul)
             (*this)(i+tensor_index_offset) *= (*nii_scalar_im_sptr)(i);
-        else if (maths_type == NiftiImageData<dataType>::add)
+        else if (maths_type == NiftiImageData<dataType>::ADD)
             (*this)(i+tensor_index_offset) += (*nii_scalar_im_sptr)(i);
     }
 }
@@ -229,7 +229,7 @@ void NiftiImageData3DTensor<dataType>::
 add_to_tensor_component
 (const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
 {
-    this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::add);
+    this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::ADD);
 }
 
 namespace sirf {

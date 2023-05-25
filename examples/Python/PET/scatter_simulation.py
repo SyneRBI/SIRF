@@ -11,6 +11,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data [default: scatter_output.hs]
+  --non-interactive           do not show plots
 
 WARNING: Currently this computes scatter at the same sampling as the template. If you use
 real projection data as template, this will be very slow (and might run out of memory).
@@ -55,6 +56,7 @@ if data_path is None:
     print(data_path)
 acq_template_filename = PET.existing_filepath(data_path, data_file)
 output_file = args['--output']
+interactive = not args['--non-interactive']
 
 
 def main():
@@ -85,9 +87,10 @@ def main():
     # z-pixel coordinate of the xy-crossection to show
     z = int(image_size[0]*0.5)
 
-    # show the phantom image
-    atten_image_array = atten_image.as_array()
-    show_2D_array('Attenuation image', atten_image_array[z,:,:])
+    if interactive:
+        # show the phantom image
+        atten_image_array = atten_image.as_array()
+        show_2D_array('Attenuation image', atten_image_array[z,:,:])
 
     # Create the activity image
     act_image = atten_image.clone()
@@ -107,9 +110,10 @@ def main():
     # z-pixel coordinate of the xy-crossection to show
     z = int(image_size[0] * 0.5)
 
-    # show the phantom image
-    act_image_array = act_image.as_array()
-    show_2D_array('Activity image', act_image_array[z, :, :])
+    if interactive:
+        # show the phantom image
+        act_image_array = act_image.as_array()
+        show_2D_array('Activity image', act_image_array[z, :, :])
 
     # Create the Single Scatter Simulation model
     sss = PET.SingleScatterSimulator()
@@ -122,9 +126,10 @@ def main():
     # Simulate!
     sss_data = sss.forward(act_image)
 
-    # show simulated scatter data
-    simulated_scatter_as_array = sss_data.as_array()
-    show_2D_array('scatter simulation', simulated_scatter_as_array[0,0,:,:])
+    if interactive:
+        # show simulated scatter data
+        simulated_scatter_as_array = sss_data.as_array()
+        show_2D_array('scatter simulation', simulated_scatter_as_array[0,0,:,:])
 
     sss_data.write(output_file)
 
@@ -138,6 +143,8 @@ def main():
     #unscattered_data = acq_template.get_uniform_copy()
     unscattered_data = acq_model.forward(act_image)
     simulated_unscatter_as_array = unscattered_data.as_array()
+    if not interactive:
+        return
     show_2D_array('unscattered simulation', simulated_unscatter_as_array[0,0,:,:])
 
     plt.figure()

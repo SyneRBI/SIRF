@@ -9,8 +9,8 @@ Usage:
   scatter_estimation [--help | options]
 
 Options: (defaults are set to work for mMR data processed in the current directory)
-  -f <file>, --file=<file>    raw data file [default: sinospan11_f1g1d0b0.hs]
-  -r <file>, --randoms=<file>  filename with randoms [default: MLrandomsspan11_f1.hs]
+  -f <file>, --file=<file>    raw data file [default: sinograms_f1g1d0b0.hs]
+  -r <file>, --randoms=<file>  filename with randoms [default: randoms.hs]
   -p <path>, --path=<path>    path to normalization and attenuation files,
                               defaults to data/examples/PET/mMR
   -n <norm>, --norm=<norm>    normalization file [default: norm.n.hdr]
@@ -21,7 +21,7 @@ Options: (defaults are set to work for mMR data processed in the current directo
   -o <file>, --output=<file>  output prefix for scatter estimates [default: scatter_estimate]
                               ("_#.hs" will be appended, with # the iteration number).
                               Set this to an empty string to prevent output on disk.
-
+  --non-interactive           do not show plots
 '''
 
 ## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
@@ -65,6 +65,7 @@ if data_path is None:
 norm_file = PET.existing_filepath(data_path, args['--norm'])
 mu_map_file = PET.existing_filepath(data_path, args['--attenuation_image'])
 output_prefix = args['--output']
+interactive = not args['--non-interactive']
 
 
 def main():
@@ -100,6 +101,9 @@ def main():
     se.set_up()
     se.process()
     scatter_estimate = se.get_output()
+
+    if not interactive:
+        return
 
     ## show estimated scatter data
     scatter_estimate_as_array = scatter_estimate.as_array()

@@ -45,6 +45,20 @@ namespace sirf {
 		cSTIR_shapeParameter(const DataHandle* handle, const char* name);
 
 	void*
+		cSTIR_setBox3DParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_Box3DParameter(const DataHandle* handle, const char* name);
+
+	void*
+		cSTIR_setEllipsoidParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_ellipsoidParameter(const DataHandle* handle, const char* name);
+
+	void*
 		cSTIR_setEllipsoidalCylinderParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 
@@ -64,6 +78,13 @@ namespace sirf {
 
 	void*
 		cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name);
+		
+	void*
+		cSTIR_setPinholeSPECTUBMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* name);
 
 	void*
 		cSTIR_setAcquisitionModelParameter

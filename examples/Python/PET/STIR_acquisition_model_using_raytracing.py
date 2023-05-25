@@ -1,7 +1,10 @@
 '''Demo for setting advanced parameters in sirf.STIR.AcquisitionModelUsingRayTracingMatrix
 
 Usage:
-  STIR_acquisition_model_using_raytracing.py
+  STIR_acquisition_model_using_raytracing [options]
+
+Options:
+  --non-interactive           do not show plots
 
 This just sets some parameters and prints settings. Check other demos on how to use it.
 '''

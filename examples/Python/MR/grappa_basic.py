@@ -1,6 +1,6 @@
 '''
-Demonstrates GRAPPA reconstruction of undersampled data. 
-See function grappa_detail.py for an example showing more of the 
+Demonstrates GRAPPA reconstruction of undersampled data.
+See function grappa_detail.py for an example showing more of the
 workings and functionality of the SIRF code.
 
 Pre-requisites:
@@ -13,7 +13,7 @@ Pre-requisites:
 
  2) An input data file from a GRAPPA MRI acquisition in the ISMRMRD format.
     Example GRAPPA datasets:
-    a) 'meas_MID00108_FID57249_test_2D_2x.dat' is 
+    a) 'meas_MID00108_FID57249_test_2D_2x.dat' is
        available from https://www.ccpsynerbi.ac.uk/downloads
        This is in the manufacturer's raw data format and needs to be
        converted to ISMRMRD format using 'siemens_to_ismrmrd'.
@@ -69,18 +69,13 @@ output_file = args['--output']
 show_plot = not args['--non-interactive']
 
 output_file = args['--output']
-if output_file is not None and output_file[-4:] == '.dcm':
-    dcm_prefix = output_file[: -4]
-else:
-    dcm_prefix = ''
-dcm_output = len(dcm_prefix)
 
 
 def main():
-    
+
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
-    
+
     # Initially we create a container that points to the h5 file.
     # Data is not read from file until the 'process' method of the
     # reconstructor object is called.
@@ -103,38 +98,27 @@ def main():
     
     # 2. set the reconstruction input to be the data we just preprocessed.
     recon.set_input(preprocessed_data);
-    if dcm_output:
-        recon.set_dcm_prefix(dcm_prefix)
     
     # 3. run (i.e. 'process') the reconstruction.
     print('---\n reconstructing...\n');
     recon.process();
 
-    if dcm_output:
-        print('== Gadgetron cannot output to both memory and DICOM files, quitting')
-        print('== Set output file extension to .h5 to run the rest of this demo')
-        return
-
     # retrieve reconstruced image and G-factor data
     image_data = recon.get_output('image')
-    #print(image_data.dimensions())
     gfact_data = recon.get_output('gfactor')
     if show_plot:
-      image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
-      gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
+        image_data.show(title = 'Reconstructed image data (magnitude)', postpone = True)
+        gfact_data.show(title = 'Reconstructed G-factor data (magnitude)')
 
     if output_file is not None:
-      # write images to a new group in args.output
-      # named after the current date and time
-      time_str = time.asctime()
-      print('writing to %s' % output_file)
-      image_data = image_data.real()
-      image_data.write(output_file) #, time_str)
+        # save images to <output_file>
+        image_data = image_data.real()
+        image_data.write(output_file)
+
 
 try:
     main()
     print('\n=== done with %s' % __file__)
-
 except error as err:
     # display error information
     print('??? %s' % err.value)
