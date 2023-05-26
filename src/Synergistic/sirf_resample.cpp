@@ -41,7 +41,7 @@ If multiple transformations are given, they will be applied in the order they we
 
 using namespace sirf;
 
-static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
+static std::shared_ptr<const DataContainer> image_as_sptr(const std::string &filename, const std::string &engine)
 {
     if (strcmp(engine.c_str(), "Nifti") == 0)
         return std::make_shared<const NiftiImageData<float> >(filename);
@@ -217,24 +217,24 @@ int main(int argc, char* argv[])
             err("Error: -flo required.");
 
         // Get images as NiftiImages
-        std::shared_ptr<const ImageData> ref = image_as_sptr(ref_filename,eng_ref);
-        std::shared_ptr<const ImageData> flo = image_as_sptr(flo_filename,eng_flo);
+        std::shared_ptr<const DataContainer> ref = image_as_sptr(ref_filename,eng_ref);
+        std::shared_ptr<const DataContainer> flo = image_as_sptr(flo_filename,eng_flo);
 
         // Resample
         std::shared_ptr<Resampler<float> > res = algo_as_sptr(algo);
-        res->set_reference_image(ref);
-        res->set_floating_image(flo);
+        res->set_reference_image(std::dynamic_pointer_cast<const ImageData<float>>(ref));
+        res->set_floating_image(std::dynamic_pointer_cast<const ImageData<float>>(flo));
         for (size_t i=0; i<trans.size(); ++i)
             res->add_transformation(trans[i]);
         res->set_interpolation_type(interp);
         if (pad_set)
             res->set_padding_value(pad);
 
-        std::shared_ptr<ImageData> output_sptr;
+        std::shared_ptr<DataContainer> output_sptr;
         if (forward)
-            output_sptr = res->forward(flo);
+            output_sptr = res->forward(std::dynamic_pointer_cast<const ImageData<float>>(flo));
         else
-            output_sptr = res->adjoint(ref);
+            output_sptr = res->adjoint(std::dynamic_pointer_cast<const ImageData<float>>(ref));
         output_sptr->write(output);
     }
 

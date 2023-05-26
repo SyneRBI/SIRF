@@ -42,18 +42,19 @@ using namespace sirf;
 using namespace detail;
 
 template<class dataType>
-static void convert_ImageData_to_ComplexNiftiImageData(ComplexNiftiImageData<dataType> &output, const std::shared_ptr<const ImageData> input_sptr)
+static void convert_ImageData_to_ComplexNiftiImageData(ComplexNiftiImageData<dataType> &output, const std::shared_ptr<const DataContainer> input_sptr)
 {
     // if input is real, only convert first bit
     if (!input_sptr->is_complex()) {
-        output.real() = std::make_shared<NiftiImageData<dataType> >(*input_sptr);
+        output.real() = std::make_shared<NiftiImageData<dataType> > //(*input_sptr);
+            (*std::dynamic_pointer_cast<const ImageData<float> >(input_sptr));
         output.imag().reset();
     }
     // if input is complex, only set both
     else {
         std::shared_ptr<NiftiImageData<dataType> > &output_real = output.real();
         std::shared_ptr<NiftiImageData<dataType> > &output_imag = output.imag();
-        NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(output_real,output_imag,input_sptr);
+        NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(output_real, output_imag, input_sptr);
     }
 }
 
@@ -228,8 +229,9 @@ static void check_images_match(
 }
 
 template<class dataType>
-static void set_post_resample_outputs(std::shared_ptr<ImageData> &output_to_return_sptr, std::shared_ptr<ImageData> &output_as_member_sptr, const ComplexNiftiImageData<dataType> resampled_niftis)
+static void set_post_resample_outputs(std::shared_ptr<DataContainer> &out_to_return_sptr, std::shared_ptr<DataContainer> &output_as_member_sptr, const ComplexNiftiImageData<dataType> resampled_niftis)
 {
+    std::shared_ptr<ImageData<dataType> > output_to_return_sptr = std::dynamic_pointer_cast<ImageData<dataType> >(out_to_return_sptr);
     // If output is only real, set that
     if (!output_to_return_sptr->is_complex())
         output_to_return_sptr->fill(*resampled_niftis.real());
@@ -238,7 +240,7 @@ static void set_post_resample_outputs(std::shared_ptr<ImageData> &output_to_retu
         NumberType::Type output_num_type = (*output_to_return_sptr->begin()).get_typeID();
         if (output_num_type != NumberType::CXFLOAT)
             throw std::runtime_error("NiftyResampler: Only complex type currently supported is complex float");
-        ImageData::Iterator &it_out = output_to_return_sptr->begin();
+        ImageData<dataType> ::Iterator &it_out = output_to_return_sptr->begin();
         auto &it_real = resampled_niftis.real()->begin();
         auto &it_imag = resampled_niftis.imag()->begin();
         for (; it_out!=output_to_return_sptr->end(); ++it_real, ++it_imag, ++it_out) {
@@ -252,19 +254,19 @@ static void set_post_resample_outputs(std::shared_ptr<ImageData> &output_to_retu
 }
 
 template<class dataType>
-std::shared_ptr<ImageData> NiftyResampler<dataType>::forward(const std::shared_ptr<const ImageData> input_sptr)
+std::shared_ptr<DataContainer> NiftyResampler<dataType>::forward(const std::shared_ptr<const DataContainer> input_sptr)
 {
     // Call the set up
     set_up_forward();
 
-    std::shared_ptr<ImageData> output_sptr = this->_reference_image_sptr->clone();
+    std::shared_ptr<DataContainer> output_sptr = this->_reference_image_sptr->clone();
     forward(output_sptr, input_sptr);
 
     return output_sptr;
 }
 
 template<class dataType>
-void NiftyResampler<dataType>::forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
+void NiftyResampler<dataType>::forward(std::shared_ptr<DataContainer> output_sptr, const std::shared_ptr<const DataContainer> input_sptr)
 {
     // Call the set up
     set_up_forward();
@@ -295,19 +297,19 @@ void NiftyResampler<dataType>::forward(std::shared_ptr<ImageData> output_sptr, c
 }
 
 template<class dataType>
-std::shared_ptr<ImageData> NiftyResampler<dataType>::adjoint(const std::shared_ptr<const ImageData> input_sptr)
+std::shared_ptr<DataContainer> NiftyResampler<dataType>::adjoint(const std::shared_ptr<const DataContainer> input_sptr)
 {
     // Call the set up
     set_up_adjoint();
 
-    std::shared_ptr<ImageData> output_sptr = this->_floating_image_sptr->clone();
+    std::shared_ptr<DataContainer> output_sptr = this->_floating_image_sptr->clone();
     adjoint(output_sptr, input_sptr);
 
     return output_sptr;
 }
 
 template<class dataType>
-void NiftyResampler<dataType>::adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr)
+void NiftyResampler<dataType>::adjoint(std::shared_ptr<DataContainer> output_sptr, const std::shared_ptr<const DataContainer> input_sptr)
 {
     // Call the set up
     set_up_adjoint();

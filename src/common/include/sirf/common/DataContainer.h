@@ -37,11 +37,239 @@ which rely on the same features of the items.
 
 namespace sirf {
 
-	typedef std::map<std::string, int> Dimensions;
-
 	class DataContainer {
 	public:
 		virtual ~DataContainer() {}
+
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
+
+		virtual std::string data_type() const = 0;
+
+		virtual unsigned int items() const = 0;
+
+		virtual bool is_complex() const
+		{
+			// default value
+			return false;
+		}
+
+		/// returns the size of data elements
+		virtual int bits() const
+		{
+			// default value
+			return is_complex() ? 16 * sizeof(float) : 8 * sizeof(float);
+		}
+
+		virtual void write(const std::string& filename) const = 0;
+
+		bool is_empty() const
+		{
+			return items() < 1;
+		}
+
+		std::unique_ptr<DataContainer> clone() const
+		{
+			return std::unique_ptr<DataContainer>(this->clone_impl());
+		}
+
+		/// overwrites this container's complex data with complex conjugate values
+		void conjugate()
+		{
+			this->conjugate_impl();
+		}
+
+		///  returns unique pointer to the complex-conjugated copy of this container
+		std::unique_ptr<DataContainer> conjugate() const
+		{
+			DataContainer* ptr = this->clone_impl();
+			ptr->conjugate();
+			return std::unique_ptr<DataContainer>(ptr);
+		}
+
+		/// returns the norm of this container viewed as a vector
+		virtual float norm() const = 0;
+
+	protected:
+		virtual DataContainer* clone_impl() const = 0;
+		/// we assume data to be real, complex data containers must override this
+		virtual void conjugate_impl()
+		{
+			if (is_complex())
+				THROW("complex data containes must override conjugate_impl()");
+		}
+	};
+
+	template<typename T>
+	class DataContainerTempl : public DataContainer {
+	public:
+		virtual ~DataContainerTempl() {}
+
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
+
+		virtual std::string data_type() const = 0;
+
+		virtual unsigned int items() const = 0;
+
+		/// returns the norm of this container viewed as a vector
+		virtual float norm() const = 0;
+
+		/// calculates the sum of this container elements
+		virtual T sum() const = 0;
+
+		/// calculates the value of this container's element with the largest real part
+		virtual T max() const = 0;
+
+		/// calculates the dot product of this container with another one
+		virtual T dot(const DataContainer& dc) const = 0;
+
+		/// \c *this = the elementwise product \c x*y
+		virtual void multiply
+			(const DataContainer& x, const DataContainer& y) = 0;
+		/// \c *this = the product \c x * y with scalar y
+		virtual void multiply
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the sum \c x + y with scalar y
+		virtual void add
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise ratio \c x / y
+		virtual void divide
+			(const DataContainer& x, const DataContainer& y) = 0;
+
+		/// \c *this = the elementwise \c max(x, y)
+		virtual void maximum
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void maximum
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise \c min(x, y)
+		virtual void minimum
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void minimum
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise \c pow(x, y)
+		virtual void power
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void power
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise \c exp(x)
+		virtual void exp(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c log(x)
+		virtual void log(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c sqrt(x)
+		virtual void sqrt(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c sign(x)
+		virtual void sign(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c abs(x)
+		virtual void abs(const DataContainer& x) = 0;
+
+		/// \c *this = the linear combination of \c x and \c y
+		virtual void axpby(
+			const void* ptr_a, const DataContainer& x,
+			const void* ptr_b, const DataContainer& y) = 0;
+		/// alternative interface to the above
+		virtual void xapyb(
+			const DataContainer& x, const void* ptr_a,
+			const DataContainer& y, const void* ptr_b) = 0;
+
+		/// \c *this = elementwise sum of two elementwise products \c x*a and \c y*b
+		virtual void xapyb(
+			const DataContainer& x, const DataContainer& a,
+			const DataContainer& y, const DataContainer& b) = 0;
+
+		/// \c *this = elementwise sum of \c x*a and elementwise \c y*b
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b) = 0;
+
+		/// \c *this = elementwise sum of elementwise \c x*a and \c y*b
+		void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const void* ptr_b)
+		{
+			xapyb(a_y, ptr_b, a_x, a_a);
+		}
+
+		static T product(T x, T y)
+		{
+			return x * y;
+		}
+
+		static T ratio(T x, T y)
+		{
+			return x / y;
+		}
+
+		static T inverse_ratio(T x, T y)
+		{
+			return y / x;
+		}
+
+		static T sum(T x, T y)
+		{
+			return x + y;
+		}
+
+		static T maximum(T x, T y)
+		{
+			return std::max(x, y);
+		}
+		static T maxabs(T x, T y)
+		{
+			return std::max(std::abs(x), std::abs(y));
+		}
+		static T maxreal(T x, T y)
+		{
+			return std::real(x) > std::real(y) ? x : y;
+		}
+
+		static T minimum(T x, T y)
+		{
+			return std::min(x, y);
+		}
+		static T minabs(T x, T y)
+		{
+			return std::min(std::abs(x), std::abs(y));
+		}
+		static T minreal(T x, T y)
+		{
+			return std::real(x) < std::real(y) ? x : y;
+		}
+		static std::complex<float> power(std::complex<float> x, std::complex<float> y)
+		{
+			return std::pow(x, y);
+		}
+		static std::complex<float> exp(std::complex<float> x)
+		{
+			return std::exp(x);
+		}
+		static std::complex<float> log(std::complex<float> x)
+		{
+			return std::log(x);
+		}
+		static std::complex<float> sqrt(std::complex<float> x)
+		{
+			return std::sqrt(x);
+		}
+		static T sign(T x)
+		{
+			return (std::real(x) > 0) - (std::real(x) < 0);
+		}
+		static T abs(T x)
+		{
+			return T(std::abs(x));
+		}
+	};
+
+	typedef std::map<std::string, int> Dimensions;
+
+	// Old DataContainer - to be removed
+	class OldDataContainer {
+	public:
+		virtual ~OldDataContainer() {}
 		//virtual DataContainer* new_data_container() const = 0;
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
 		virtual unsigned int items() const = 0;
@@ -146,9 +374,9 @@ namespace sirf {
 			return items() < 1;
 		}
 
-		std::unique_ptr<DataContainer> clone() const
+		std::unique_ptr<OldDataContainer> clone() const
 		{
-			return std::unique_ptr<DataContainer>(this->clone_impl());
+			return std::unique_ptr<OldDataContainer>(this->clone_impl());
 		}
 
 		/// overwrites this container's complex data with complex conjugate values
@@ -158,11 +386,11 @@ namespace sirf {
 		}
 
 		///  returns unique pointer to the complex-conjugated copy of this container
-		std::unique_ptr<DataContainer> conjugate() const
+		std::unique_ptr<OldDataContainer> conjugate() const
 		{
-			DataContainer* ptr = this->clone_impl();
+			OldDataContainer* ptr = this->clone_impl();
 			ptr->conjugate();
-			return std::unique_ptr<DataContainer>(ptr);
+			return std::unique_ptr<OldDataContainer>(ptr);
 		}
 
 		template<typename T>
@@ -248,7 +476,7 @@ namespace sirf {
 		}
 
 	protected:
-		virtual DataContainer* clone_impl() const = 0;
+		virtual OldDataContainer* clone_impl() const = 0;
 		/// we assume data to be real, complex data containers must override this
 		virtual void conjugate_impl()
 		{

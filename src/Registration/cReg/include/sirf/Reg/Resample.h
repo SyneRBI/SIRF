@@ -38,7 +38,8 @@ namespace sirf {
 
 // Forward declarations
 template<class dataType> class Transformation;
-class ImageData;
+//template<class dataType> class ImageData;
+class DataContainer;
 
 /*!
 \file
@@ -72,10 +73,10 @@ public:
     virtual ~Resampler() {}
 
     /// Set reference image. This is the image that would be the reference if you were doing a forward transformation.
-    virtual void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr);
+    virtual void set_reference_image(const std::shared_ptr<const DataContainer > reference_image_sptr);
 
     /// Set floating image. This is the image that would be the floating if you were doing a forward transformation.
-    virtual void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
+    virtual void set_floating_image(const std::shared_ptr<const DataContainer > floating_image_sptr);
 
     /// Add transformation
     virtual void add_transformation(const std::shared_ptr<const Transformation<dataType> > transformation_sptr);
@@ -108,25 +109,25 @@ public:
     virtual void process() = 0;
 
     /// Get output
-    const std::shared_ptr<const ImageData> get_output_sptr() const { return _output_image_sptr; }
+    const std::shared_ptr<const DataContainer > get_output_sptr() const { return _output_image_sptr; }
 
     /// Do the forward transformation
-    virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const ImageData> input_sptr) = 0;
+    virtual std::shared_ptr<DataContainer > forward(const std::shared_ptr<const DataContainer > input_sptr) = 0;
 
     /// Do the forward transformation
-    virtual void forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr) = 0;
+    virtual void forward(std::shared_ptr<DataContainer > output_sptr, const std::shared_ptr<const DataContainer > input_sptr) = 0;
 
     /// Do the adjoint transformation
-    virtual std::shared_ptr<ImageData> adjoint(const std::shared_ptr<const ImageData> input_sptr) = 0;
+    virtual std::shared_ptr<DataContainer > adjoint(const std::shared_ptr<const DataContainer > input_sptr) = 0;
 
     /// Do the adjoint transformation
-    virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr) = 0;
+    virtual void adjoint(std::shared_ptr<DataContainer > output_sptr, const std::shared_ptr<const DataContainer > input_sptr) = 0;
 
     /// Backward. Alias for Adjoint
-    virtual std::shared_ptr<ImageData> backward(const std::shared_ptr<const ImageData> input_sptr);
+    virtual std::shared_ptr<DataContainer > backward(const std::shared_ptr<const DataContainer > input_sptr);
 
     /// Backward. Alias for Adjoint
-    virtual void backward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
+    virtual void backward(std::shared_ptr<DataContainer > output_sptr, const std::shared_ptr<const DataContainer > input_sptr);
 
 protected:
 
@@ -143,9 +144,9 @@ protected:
     virtual void check_parameters();
 
     /// Reference image
-    std::shared_ptr<const ImageData> _reference_image_sptr;
+    std::shared_ptr<const DataContainer > _reference_image_sptr;
     /// Floating image
-    std::shared_ptr<const ImageData> _floating_image_sptr;
+    std::shared_ptr<const DataContainer > _floating_image_sptr;
 
     /// Transformations (could be mixture of affine, displacements, deformations).
     std::vector<std::shared_ptr<const Transformation<dataType> > > _transformations;
@@ -154,7 +155,7 @@ protected:
     InterpolationType  _interpolation_type;
 
     /// Output image
-    std::shared_ptr<ImageData> _output_image_sptr;
+    std::shared_ptr<DataContainer > _output_image_sptr;
 
     /// Padding value
     float _padding_value = 0;

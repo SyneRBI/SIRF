@@ -55,8 +55,8 @@ STIRAcquisitionData::norm() const
 	return std::sqrt((float)t);
 }
 
-void
-STIRAcquisitionData::sum(void* ptr) const
+float
+STIRAcquisitionData::sum() const
 {
 	int n = get_max_segment_num();
 	double t = 0;
@@ -72,12 +72,13 @@ STIRAcquisitionData::sum(void* ptr) const
 				t += *seg_iter++;
 		}
 	}
-	float* ptr_t = static_cast<float*>(ptr);
-	*ptr_t = (float)t;
+	return (float)t;
+	//float* ptr_t = static_cast<float*>(ptr);
+	//*ptr_t = (float)t;
 }
 
-void
-STIRAcquisitionData::max(void* ptr) const
+float
+STIRAcquisitionData::max() const
 {
 	int n = get_max_segment_num();
 	float t = 0;
@@ -93,12 +94,13 @@ STIRAcquisitionData::max(void* ptr) const
 				t = std::max(t, *seg_iter++);
 		}
 	}
-	float* ptr_t = static_cast<float*>(ptr);
-	*ptr_t = (float)t;
+	return (float)t;
+	//float* ptr_t = static_cast<float*>(ptr);
+	//*ptr_t = (float)t;
 }
 
-void
-STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
+float
+STIRAcquisitionData::dot(const DataContainer& a_x) const
 {
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
@@ -124,8 +126,9 @@ STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 				t += (*seg_iter++) * double(*sx_iter++);
 		}
 	}
-	float* ptr_t = static_cast<float*>(ptr);
-	*ptr_t = (float)t;
+	return (float)t;
+	//float* ptr_t = static_cast<float*>(ptr);
+	//*ptr_t = (float)t;
 }
 
 void
@@ -446,8 +449,8 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
     format_sptr->write_to_file(filename, image);
 }
 
-void
-STIRImageData::sum(void* ptr) const
+float
+STIRImageData::sum() const
 {
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
@@ -458,12 +461,13 @@ STIRImageData::sum(void* ptr) const
 	double s = 0.0;
 	for (iter = data().begin_all(); iter != data().end_all(); iter++)
 		s += *iter;
-	float* ptr_s = static_cast<float*>(ptr);
-	*ptr_s = (float)s;
+	return (float)s;
+	//float* ptr_s = static_cast<float*>(ptr);
+	//*ptr_s = (float)s;
 }
 
-void
-STIRImageData::max(void* ptr) const
+float
+STIRImageData::max() const
 {
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
@@ -474,12 +478,13 @@ STIRImageData::max(void* ptr) const
 	float s = 0.0;
 	for (iter = data().begin_all(); iter != data().end_all(); iter++)
 		s = std::max(s, *iter);
-	float* ptr_s = static_cast<float*>(ptr);
-	*ptr_s = (float)s;
+	return s;
+	//float* ptr_s = static_cast<float*>(ptr);
+	//*ptr_s = (float)s;
 }
 
-void
-STIRImageData::dot(const DataContainer& a_x, void* ptr) const
+float
+STIRImageData::dot(const DataContainer& a_x) const
 {
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -497,8 +502,9 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 		double t = *iter;
 		s += t * (*iter_x);
 	}
-	float* ptr_s = static_cast<float*>(ptr);
-	*ptr_s = (float)s;
+	return (float)s;
+	//float* ptr_s = static_cast<float*>(ptr);
+	//*ptr_s = (float)s;
 }
 
 void

@@ -214,8 +214,13 @@ namespace sirf {
 	\brief Abstract MR acquisition data container class.
 
 	*/
-	class MRAcquisitionData : public DataContainer {
+	class MRAcquisitionData : public DataContainerTempl<complex_float_t> {
 	public:
+		virtual std::string data_type() const
+		{
+			return std::string("complex_float");
+		}
+
 		// static methods
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
@@ -538,15 +543,17 @@ namespace sirf {
 
 		// acquisition data algebra
 		/// below all void* are actually complex_float_t*
-		virtual void sum(void* ptr) const;
-		virtual void max(void* ptr) const;
-		virtual void dot(const DataContainer& dc, void* ptr) const;
-		complex_float_t dot(const DataContainer& a_x)
-		{
-			complex_float_t z;
-			dot(a_x, &z);
-			return z;
-		}
+		virtual complex_float_t sum() const;
+		virtual complex_float_t max() const;
+		virtual complex_float_t dot(const DataContainer& dc) const;
+		//virtual void sum(void* ptr) const;
+		//virtual void max(void* ptr) const;
+		//complex_float_t dot(const DataContainer& a_x)
+		//{
+		//	complex_float_t z;
+		//	dot(a_x, &z);
+		//	return z;
+		//}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -716,7 +723,7 @@ namespace sirf {
 		virtual void empty();
 		virtual void take_over(MRAcquisitionData& ad) {}
 		virtual unsigned int number() const { return (unsigned int)acqs_.size(); }
-		virtual unsigned int items() const { return (unsigned int)acqs_.size(); }
+		virtual unsigned int items() const { return (unsigned int)this->acqs_.size(); }
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 		{
 			acqs_.push_back(gadgetron::shared_ptr<ISMRMRD::Acquisition>
@@ -782,7 +789,7 @@ namespace sirf {
 
 	*/
 
-	class ISMRMRDImageData : public ImageData {
+	class ISMRMRDImageData : public ImageData<complex_float_t> {
 	public:
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
@@ -886,9 +893,12 @@ namespace sirf {
 
 		virtual float norm() const;
 		/// below all void* are actually complex_float_t*
-		virtual void sum(void* ptr) const;
-		virtual void max(void* ptr) const;
-		virtual void dot(const DataContainer& dc, void* ptr) const;
+		//virtual void sum(void* ptr) const;
+		//virtual void max(void* ptr) const;
+		//virtual void dot(const DataContainer& dc, void* ptr) const;
+		virtual complex_float_t sum() const;
+		virtual complex_float_t max() const;
+		virtual complex_float_t dot(const DataContainer& dc) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -950,12 +960,12 @@ namespace sirf {
 
 		void fill(float s);
 		void scale(float s);
-		complex_float_t dot(const DataContainer& a_x)
-		{
-			complex_float_t z;
-			dot(a_x, &z);
-			return z;
-		}
+		//complex_float_t dot(const DataContainer& a_x);
+		//{
+		//	complex_float_t z;
+		//	dot(a_x, &z);
+		//	return z;
+		//}
 		void axpby(
 			complex_float_t a, const DataContainer& a_x,
 			complex_float_t b, const DataContainer& a_y)
@@ -1083,6 +1093,10 @@ namespace sirf {
 
 	class GadgetronImagesVector : public GadgetronImageData {
 	public:
+		virtual std::string data_type() const
+		{
+			return std::string("complex_float");
+		}
 		typedef ImageData::Iterator BaseIter;
 		typedef ImageData::Iterator_const BaseIter_const;
 		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::iterator
@@ -1262,7 +1276,7 @@ namespace sirf {
 		}
 		virtual unsigned int items() const
 		{ 
-			return (unsigned int)images_.size(); 
+			return (unsigned int)this->images_.size(); 
 		}
 		virtual unsigned int number() const 
 		{ 

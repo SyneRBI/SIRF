@@ -33,13 +33,14 @@ limitations under the License.
 
 using namespace sirf;
 
-static const std::shared_ptr<ImageData> image_as_sptr(const std::string &filename, const std::string &engine, const bool verbose)
+static const std::shared_ptr<DataContainer> image_as_sptr(const std::string &filename, const std::string &engine, const bool verbose)
 {
-    std::shared_ptr<ImageData> img_sptr;
+    std::shared_ptr<DataContainer> img_sptr;
 
     if (strcmp(engine.c_str(), "Reg") == 0) {
         std::shared_ptr<NiftiImageData<float> > nifti_sptr = std::make_shared<NiftiImageData3D<float> >(filename);
         if (verbose) nifti_sptr->print_header();
+        if (verbose) nifti_sptr->get_geom_info_sptr()->print_info();
         img_sptr = nifti_sptr;
     }
     else if (strcmp(engine.c_str(), "STIR") == 0) {
@@ -50,19 +51,20 @@ static const std::shared_ptr<ImageData> image_as_sptr(const std::string &filenam
         std::shared_ptr<GadgetronImagesVector> gadgetron_sptr(new GadgetronImagesVector);
 		gadgetron_sptr->read(filename);
         if (verbose) gadgetron_sptr->print_header(0);
+        if (verbose) gadgetron_sptr->get_geom_info_sptr()->print_info();
         img_sptr = gadgetron_sptr;
     }
     else
         throw std::runtime_error("unknown engine - " + engine + ".\n");
 
-    // If verbose print geom info
-    if (verbose) img_sptr->get_geom_info_sptr()->print_info();
+    //// If verbose print geom info
+    //if (verbose) img_sptr->get_geom_info_sptr()->print_info();
 
     // return
     return img_sptr;
 }
 
-static void convert_and_write_image(const std::string &filename, const std::string &engine, const std::shared_ptr<ImageData> &in_img_sptr, const std::string &param_file, const bool verbose)
+static void convert_and_write_image(const std::string &filename, const std::string &engine, const std::shared_ptr<DataContainer> &in_img_sptr, const std::string &param_file, const bool verbose)
 {
     if (strcmp(engine.c_str(), "Reg") == 0) {
         NiftiImageData<float> im(*in_img_sptr);
@@ -73,7 +75,9 @@ static void convert_and_write_image(const std::string &filename, const std::stri
         }
     }
     else if (strcmp(engine.c_str(), "STIR") == 0) {
-        STIRImageData im(*in_img_sptr);
+        const STIRImageData* ptr = dynamic_cast<const STIRImageData*>(in_img_sptr.get());
+        STIRImageData im(*ptr);
+       // STIRImageData im(*in_img_sptr);
         if (param_file.empty())
             im.write(filename);
         else
@@ -174,7 +178,7 @@ int main(int argc, char* argv[])
         }
 
         // Read input image
-        std::shared_ptr<ImageData> in_img_sptr = image_as_sptr(in_filename, in_engine, verbose);
+        std::shared_ptr<DataContainer> in_img_sptr = image_as_sptr(in_filename, in_engine, verbose);
 
         // Convert and write
         convert_and_write_image(out_filename, out_engine, in_img_sptr, param_file, verbose);

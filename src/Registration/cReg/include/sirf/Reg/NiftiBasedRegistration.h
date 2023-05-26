@@ -61,7 +61,7 @@ public:
     virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const;
 
     /// Convert an ImageData to NiftiImageData. Try to dynamic pointer cast, else create new image.
-    static void convert_to_NiftiImageData_if_not_already(std::shared_ptr<const NiftiImageData3D<dataType> > &output_sptr, const std::shared_ptr<const ImageData> &input_sptr);
+    static void convert_to_NiftiImageData_if_not_already(std::shared_ptr<const NiftiImageData3D<dataType> > &output_sptr, const std::shared_ptr<const ImageData<dataType> > &input_sptr);
 
 protected:
 

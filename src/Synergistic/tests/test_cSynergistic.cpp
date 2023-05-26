@@ -185,8 +185,8 @@ int main(int argc, char* argv[])
             res_complex.set_floating_image(ismrmrd_im_sptr);
             res_complex.set_interpolation_type_to_linear();
             res_complex.add_transformation(tm_sptr);
-            std::shared_ptr<ImageData> forward_cplx_sptr = res_complex.forward(ismrmrd_im_sptr);
-            std::shared_ptr<ImageData> adjoint_cplx_sptr = res_complex.adjoint(ismrmrd_im_sptr);
+            std::shared_ptr<DataContainer> forward_cplx_sptr = res_complex.forward(ismrmrd_im_sptr);
+            std::shared_ptr<DataContainer> adjoint_cplx_sptr = res_complex.adjoint(ismrmrd_im_sptr);
 
             // Get the output
             std::shared_ptr<NiftiImageData<float> > forward_cplx_real_sptr, forward_cplx_imag_sptr, adjoint_cplx_real_sptr, adjoint_cplx_imag_sptr;
@@ -297,10 +297,12 @@ int main(int argc, char* argv[])
             res.set_padding_value(0.f);
             res.set_interpolation_type_to_linear();
             res.add_transformation(std::make_shared<const AffineTransformation<float> >(trans_sptr->get_inverse()));
-            std::shared_ptr<ImageData> resampled_G2_sptr = res.forward(G2_sptr);
+            std::shared_ptr<DataContainer> resampled_G2_sptr = res.forward(G2_sptr);
 
             std::cout << "\n reoriented back to original space:\n";
-            resampled_G2_sptr->get_geom_info_sptr()->print_info();
+            std::shared_ptr<GadgetronImagesVector> sptr_im = std::dynamic_pointer_cast<GadgetronImagesVector>(resampled_G2_sptr);
+            sptr_im->get_geom_info_sptr()->print_info();
+            //resampled_G2_sptr->get_geom_info_sptr()->print_info();
 
             if (NiftiImageData<float>(*G1_sptr) != NiftiImageData<float>(*resampled_G2_sptr))
                 throw std::runtime_error("GadgetronImagesVector::reorient test failed");

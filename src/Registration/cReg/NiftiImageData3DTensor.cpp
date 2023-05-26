@@ -218,7 +218,7 @@ tensor_component_maths(
 template<class dataType>
 void NiftiImageData3DTensor<dataType>::
 multiply_tensor_component
-(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+(const int dim, const std::shared_ptr<const ImageData<dataType> > &scalar_im_sptr)
 {
     this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::mul);
 }
@@ -227,7 +227,7 @@ multiply_tensor_component
 template<class dataType>
 void NiftiImageData3DTensor<dataType>::
 add_to_tensor_component
-(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr)
+(const int dim, const std::shared_ptr<const ImageData<dataType> > &scalar_im_sptr)
 {
     this->tensor_component_maths(dim, scalar_im_sptr, NiftiImageData<dataType>::ADD);
 }

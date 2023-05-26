@@ -112,16 +112,16 @@ public:
     virtual void process();
 
     /// Do the forward transformation
-    virtual std::shared_ptr<ImageData> forward(const std::shared_ptr<const ImageData> input_sptr);
+    virtual std::shared_ptr<DataContainer> forward(const std::shared_ptr<const DataContainer> input_sptr);
 
     /// Do the forward transformation
-    virtual void forward(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
+    virtual void forward(std::shared_ptr<DataContainer> output_sptr, const std::shared_ptr<const DataContainer> input_sptr);
 
     /// Do the adjoint transformation
-    virtual std::shared_ptr<ImageData> adjoint(const std::shared_ptr<const ImageData> input_sptr);
+    virtual std::shared_ptr<DataContainer> adjoint(const std::shared_ptr<const DataContainer> input_sptr);
 
     /// Do the adjoint transformation
-    virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
+    virtual void adjoint(std::shared_ptr<DataContainer> output_sptr, const std::shared_ptr<const DataContainer> input_sptr);
 
 protected:
 

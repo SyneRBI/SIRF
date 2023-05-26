@@ -466,12 +466,12 @@ extern "C"
 void* cReg_NiftiImageData_from_SIRFImageData(void* ptr, const int is_3D)
 {
     try {
-        ImageData& sirf_im = objectFromHandle<ImageData>(ptr);
+        ImageData<float>& sirf_im = objectFromHandle<ImageData<float> >(ptr);
 
         if (is_3D)
-          return newObjectHandle(std::make_shared<NiftiImageData3D<float>>(sirf_im));
+          return newObjectHandle(std::make_shared<NiftiImageData3D<float> >(sirf_im));
         else
-          return newObjectHandle(std::make_shared<NiftiImageData<float>>(sirf_im));
+          return newObjectHandle(std::make_shared<NiftiImageData<float> >(sirf_im));
     }
 	CATCH;
 }
@@ -480,8 +480,8 @@ extern "C"
 void* cReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr)
 {
     try {
-        std::shared_ptr<ImageData> in_sptr;
-        getObjectSptrFromHandle<ImageData>(in_ptr, in_sptr);
+        std::shared_ptr<DataContainer> in_sptr;
+        getObjectSptrFromHandle<DataContainer>(in_ptr, in_sptr);
         std::shared_ptr<NiftiImageData<float> > out_sptr;
         NiftiImageData<float>::construct_NiftiImageData_from_complex_im_real_component(out_sptr, in_sptr);
         return newObjectHandle(out_sptr);
@@ -493,8 +493,8 @@ extern "C"
 void* cReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr)
 {
     try {
-        std::shared_ptr<ImageData> in_sptr;
-        getObjectSptrFromHandle<ImageData>(in_ptr, in_sptr);
+        std::shared_ptr<DataContainer> in_sptr;
+        getObjectSptrFromHandle<DataContainer>(in_ptr, in_sptr);
         std::shared_ptr<NiftiImageData<float> > out_sptr;
         NiftiImageData<float>::construct_NiftiImageData_from_complex_im_imag_component(out_sptr, in_sptr);
         return newObjectHandle(out_sptr);
@@ -554,9 +554,9 @@ extern "C"
 void* cReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr)
 {
     try {
-        ImageData& x = objectFromHandle<ImageData>(x_ptr);
-        ImageData& y = objectFromHandle<ImageData>(y_ptr);
-        ImageData& z = objectFromHandle<ImageData>(z_ptr);
+        ImageData<float>& x = objectFromHandle<ImageData<float> >(x_ptr);
+        ImageData<float>& y = objectFromHandle<ImageData<float> >(y_ptr);
+        ImageData<float>& z = objectFromHandle<ImageData<float> >(z_ptr);
 
         std::shared_ptr<NiftiImageData3DTensor<float> > sptr;
         if (strcmp(obj,"NiftiImageData3DTensor") == 0)
@@ -678,8 +678,8 @@ void* cReg_Registration_add_floating(const void* ptr, const void* im_ptr)
 {
     try {
         Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
-        std::shared_ptr<const ImageData> im_sptr;
-        getObjectSptrFromHandle<const ImageData>(im_ptr, im_sptr);
+        std::shared_ptr<const ImageData<float> > im_sptr;
+        getObjectSptrFromHandle<const ImageData<float> >(im_ptr, im_sptr);
         reg.add_floating_image(im_sptr);
         return new DataHandle;
     }
@@ -853,10 +853,10 @@ void* cReg_NiftyResampler_forward(const void* output_ptr, const void * const inp
         getObjectSptrFromHandle<NiftyResampler<float> >(resampler_ptr, resampler_sptr);
 
         // Get input and output images
-        std::shared_ptr<const ImageData> input_sptr;
-        getObjectSptrFromHandle<const ImageData>(input_ptr, input_sptr);
-        std::shared_ptr<ImageData> output_sptr;
-        getObjectSptrFromHandle<ImageData>(output_ptr, output_sptr);
+        std::shared_ptr<const ImageData<float> > input_sptr;
+        getObjectSptrFromHandle<const ImageData<float> >(input_ptr, input_sptr);
+        std::shared_ptr<ImageData<float> > output_sptr;
+        getObjectSptrFromHandle<ImageData<float> >(output_ptr, output_sptr);
 
         // Forward transformation
         resampler_sptr->forward(output_sptr,input_sptr);
@@ -874,10 +874,10 @@ void* cReg_NiftyResampler_adjoint(const void* output_ptr, const void * const inp
         getObjectSptrFromHandle<NiftyResampler<float> >(resampler_ptr, resampler_sptr);
 
         // Get input and output images
-        std::shared_ptr<const ImageData> input_sptr;
-        getObjectSptrFromHandle<const ImageData>(input_ptr, input_sptr);
-        std::shared_ptr<ImageData> output_sptr;
-        getObjectSptrFromHandle<ImageData>(output_ptr, output_sptr);
+        std::shared_ptr<const ImageData<float> > input_sptr;
+        getObjectSptrFromHandle<const ImageData<float> >(input_ptr, input_sptr);
+        std::shared_ptr<ImageData<float> > output_sptr;
+        getObjectSptrFromHandle<ImageData<float> >(output_ptr, output_sptr);
 
         // Forward transformation
         resampler_sptr->adjoint(output_sptr,input_sptr);
