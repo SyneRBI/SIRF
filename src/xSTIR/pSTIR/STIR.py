@@ -2349,17 +2349,80 @@ class QuadraticPrior(Prior):
         return image
 
 
+class LogcoshPrior(Prior):
+    r"""Class for Log-cosh Prior.
+
+    Implements the prior, Log-cosh Prior, one of the earliest uses in P. J. 
+    Green's paper "Bayesian reconstructions from emission tomography data using 
+    a modified EM algorithm," in IEEE Transactions on Medical Imaging, vol. 9, 
+    no. 1, pp. 84-93, March 1990, doi: 10.1109/42.52985.
+
+    The prior has one parameter the scalar, it is the edge-preservation parameter.
+
+    The log-cosh function is given by:
+    \f[
+        f = \sum_{dr} w_{dr} 1/scalar^2 * log(cosh(\lambda_r - \lambda_{r+dr})) * \kappa_r * \kappa_{r+dr}))
+    \f]
+
+    Kappa is a spatially varying penalty strength.
+    """
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'LogcoshPrior'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_scalar(self, v):
+        """Sets scalar."""
+        parms.set_float_par(self.handle, 'LogcoshPrior', 'scalar', v)
+
+    def get_scalar(self):
+        """Returns scalar."""
+        return parms.float_par(self.handle, 'LogcoshPrior', 'scalar')
+
+    def set_kappa(self, image):
+        """Sets kappa."""
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, 'LogcoshPrior', 'kappa', image.handle)
+
+    def get_kappa(self):
+        """Returns kappa."""
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'LogcoshPrior', 'kappa')
+        check_status(image.handle)
+        return image
+
+
 class RelativeDifferencePrior(Prior):
-    r"""Class for the prior that is the relative difference prior.
+    r"""Class for Relative Difference Prior.
 
-    J. Nuyts, D. Beque, P. Dupont, and L. Mortelmans, "A Concave 
-    Prior Penalizing Relative Differences for Maximum-a-Posteriori 
-    Reconstruction in Emission Tomography," vol. 49, no. 1, pp. 
-    56-60, 2002.
+    Implements the prior, Relative Difference Prior, proposed by Johan Nuyts et.
+    al in "A concave prior penalizing relative differences for 
+    maximum-a-posteriori reconstruction in emission tomography," in IEEE 
+    Transactions on Nuclear Science, vol. 49, no. 1, pp. 56-60, Feb. 2002, 
+    doi: 10.1109/TNS.2002.998681.
 
-    gamma
-    eps
-    kappa
+    The gradient of the prior is computed as follows:
+
+    \f[
+    g_r = \sum_{dr} w_{dr} *
+    \frac{\left(\lambda_{j}-\lambda_{k}\right)\left(\gamma\left|\lambda_{j}-\lambda_{k}\right|+\lambda_{j}+3 \lambda_{k} + 2 \epsilon \right)}
+    {\left(\lambda_{j}+\lambda_{k}+\gamma\left|\lambda_{j}-\lambda_{k}\right| + \epsilon \right)^{2}} *
+    \kappa_r * \kappa_{r+dr}
+    \f]
+
+    The prior has 2 parameters epsilon and gamma. The former is to ensure
+    numerical stability and the gamma is the edge-preservation parameters
+    typically set as 2 in clinical practice (citation required).
+
+    Kappa is a spatially varying penalty strength.
     """
 
     def __init__(self):

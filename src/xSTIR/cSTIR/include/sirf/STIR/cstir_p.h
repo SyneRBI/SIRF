@@ -133,6 +133,13 @@ namespace sirf {
 		(DataHandle* hp, const char* name);
 
 	void*
+		cSTIR_setLogcoshPriorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_LogcoshPriorParameter
+		(DataHandle* hp, const char* name);
+
+	void*
 		cSTIR_setRelativeDifferencePriorParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
 	void*

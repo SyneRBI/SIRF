@@ -176,6 +176,8 @@ void* cSTIR_newObject(const char* name)
 #endif
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
+		if (sirf::iequals(name, "LogcoshPrior"))
+			return NEW_OBJECT_HANDLE(LogPrior3DF);
 		if (sirf::iequals(name, "RelativeDifferencePrior"))
 			return NEW_OBJECT_HANDLE(RDPrior3DF);
 		if (sirf::iequals(name, "PLSPrior"))
@@ -241,6 +243,8 @@ void* cSTIR_setParameter
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "QuadraticPrior"))
 			return cSTIR_setQuadraticPriorParameter(hs, name, hv);
+		else if (sirf::iequals(obj, "LogcoshPrior"))
+			return cSTIR_setLogcoshPriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "RelativeDifferencePrior"))
 			return cSTIR_setRelativeDifferencePriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "PLSPrior"))
@@ -315,6 +319,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_PLSPriorParameter(handle, name);
 		else if (sirf::iequals(obj, "QuadraticPrior"))
 			return cSTIR_QuadraticPriorParameter(handle, name);
+		else if (sirf::iequals(obj, "LogcoshPrior"))
+			return cSTIR_LogcoshPriorParameter(handle, name);
 		else if (sirf::iequals(obj, "RelativeDifferencePrior"))
 			return cSTIR_RelativeDifferencePriorParameter(handle, name);
 		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))

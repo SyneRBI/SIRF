@@ -652,10 +652,45 @@ sirf::cSTIR_QuadraticPriorParameter
 	xSTIR_QuadraticPrior3DF& prior =
 		objectFromHandle<xSTIR_QuadraticPrior3DF >(hp);
 	if (sirf::iequals(name, "kappa")) {
-		auto sptr_im = prior.get_kappa_sptr();
-		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
-		return newObjectHandle(sptr_id);
+		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
+		return newObjectHandle(sptr_im);
 	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_setLogcoshPriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_LogcoshPrior3DF& prior =
+		objectFromHandle<xSTIR_LogcoshPrior3DF>(hp);
+	if (sirf::iequals(name, "only_2D"))
+		prior.only2D(dataFromHandle<int>((void*)hv));
+	else if (sirf::iequals(name, "kappa")) {
+		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		prior.set_kappa_sptr(id.data_sptr());
+	}
+	else if (sirf::iequals(name, "scalar"))
+		prior.set_scalar(dataFromHandle<float>((void*)hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_LogcoshPriorParameter
+(DataHandle* hp, const char* name)
+{
+	xSTIR_LogcoshPrior3DF& prior =
+		objectFromHandle<xSTIR_LogcoshPrior3DF >(hp);
+	if (sirf::iequals(name, "kappa")) {
+		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
+		return newObjectHandle(sptr_im);
+	}
+	else if (sirf::iequals(name, "scalar"))
+		return dataHandle<float>(prior.get_scalar());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -689,9 +724,8 @@ sirf::cSTIR_RelativeDifferencePriorParameter
 	xSTIR_RelativeDifferencePrior3DF& prior =
 		objectFromHandle<xSTIR_RelativeDifferencePrior3DF >(hp);
 	if (sirf::iequals(name, "kappa")) {
-		auto sptr_im = prior.get_kappa_sptr();
-		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
-		return newObjectHandle(sptr_id);
+		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
+		return newObjectHandle(sptr_im);
 	}
 	else if (sirf::iequals(name, "gamma"))
 		return dataHandle<float>(prior.get_gamma());
@@ -751,9 +785,8 @@ sirf::cSTIR_PLSPriorParameter
 		return newObjectHandle(sptr_id);
 	}
 	else if (sirf::iequals(name, "kappa")) {
-		auto sptr_im = prior.get_kappa_sptr();
-		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
-		return newObjectHandle(sptr_id);
+		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
+		return newObjectHandle(sptr_im);
 	}
 	else if (sirf::iequals(name, "norm")) {
 		auto sptr_im = prior.get_norm_sptr();
