@@ -240,7 +240,7 @@ static void set_post_resample_outputs(std::shared_ptr<DataContainer> &out_to_ret
         NumberType::Type output_num_type = (*output_to_return_sptr->begin()).get_typeID();
         if (output_num_type != NumberType::CXFLOAT)
             throw std::runtime_error("NiftyResampler: Only complex type currently supported is complex float");
-        ImageData<dataType> ::Iterator &it_out = output_to_return_sptr->begin();
+        typename ImageData<dataType> ::Iterator &it_out = output_to_return_sptr->begin();
         auto &it_real = resampled_niftis.real()->begin();
         auto &it_imag = resampled_niftis.imag()->begin();
         for (; it_out!=output_to_return_sptr->end(); ++it_real, ++it_imag, ++it_out) {

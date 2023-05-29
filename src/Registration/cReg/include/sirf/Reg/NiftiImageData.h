@@ -81,8 +81,8 @@ namespace sirf {
     {
     public:
 
-        typedef ImageData<dataType>::Iterator BaseIter;
-        typedef ImageData<dataType>::Iterator_const BaseIter_const;
+        typedef typename ImageData<dataType>::Iterator BaseIter;
+        typedef typename ImageData<dataType>::Iterator_const BaseIter_const;
         class Iterator : public BaseIter {
         public:
             Iterator(dataType* iter) : _iter(iter)

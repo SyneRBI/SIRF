@@ -181,7 +181,7 @@ template<class dataType>
 void NiftiImageData3DTensor<dataType>::
 tensor_component_maths(
         const int dim,
-        const std::shared_ptr<const ImageData> &scalar_im_sptr,
+        const std::shared_ptr<const ImageData<dataType> > &scalar_im_sptr,
         const typename NiftiImageData<dataType>::MathsType maths_type)
 {
     // Check the dimension to multiply, that dims==5 and nu==3
