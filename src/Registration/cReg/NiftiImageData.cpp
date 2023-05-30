@@ -64,6 +64,7 @@ static void check_folder_exists_if_not_create(const std::string &path)
 template<class dataType>
 NiftiImageData<dataType>::NiftiImageData(const NiftiImageData<dataType>& to_copy)
 {
+//std::cout << "in NiftiImageData(const NiftiImageData<dataType>& to_copy)...\n";
     *this = dynamic_cast<const ImageData<dataType>&>(to_copy);
 }
 
@@ -75,16 +76,60 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const NiftiImageDa
 }
 
 template<class dataType>
-NiftiImageData<dataType>::NiftiImageData(const ImageData<dataType>& to_copy)
+NiftiImageData<dataType>::NiftiImageData(const ImageData<float>& to_copy)
 {
+//std::cout << "in NiftiImageData(const ImageData<dataType>& to_copy)...\n";
     *this = to_copy;
 }
 
 template<class dataType>
-NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<dataType>& to_copy)
+NiftiImageData<dataType>::NiftiImageData(const ImageData<complex_float_t>& to_copy)
+{
+//std::cout << "in NiftiImageData(const ImageData<dataType>& to_copy)...\n";
+    *this = to_copy;
+}
+
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<float>& to_copy)
+{
+//std::cout << "in operator=...\n";
+    // Check for self-assignment
+    if ((void*)this != (void*)&to_copy) {
+//std::cout << "here...\n";
+        // Try to cast to NiftiImageData.
+        const NiftiImageData<dataType> * const nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
+        if (nii_ptr) {
+            // Check the image is copyable
+            if (!nii_ptr->is_initialised())
+                throw std::runtime_error("Trying to copy an uninitialised image.");
+
+            copy_nifti_image(_nifti_image,nii_ptr->_nifti_image);
+            this->_data = static_cast<float*>(_nifti_image->data);
+            this->_original_datatype = nii_ptr->_original_datatype;
+            set_up_geom_info();
+        }
+        else {
+//std::cout << "there...\n";
+            this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*to_copy.get_geom_info_sptr());
+            // Always float
+            this->set_up_data(NIFTI_TYPE_FLOAT32);
+            // Finally, copy the data
+            auto &it_src = to_copy.begin();
+            auto &it_dst = this->begin();
+            for (; it_src != to_copy.end(); ++it_src, ++it_dst)
+                *it_dst = *it_src;
+            set_up_geom_info();
+//std::cout << "ok...\n";
+        }
+    }
+    return *this;
+}
+
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<complex_float_t>& to_copy)
 {
     // Check for self-assignment
-    if (this != &to_copy) {
+    if ((void*)this != (void*)&to_copy) {
         // Try to cast to NiftiImageData.
         const NiftiImageData<dataType> * const nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
         if (nii_ptr) {
@@ -102,7 +147,11 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<da
             // Always float
             this->set_up_data(NIFTI_TYPE_FLOAT32);
             // Finally, copy the data
-            this->copy(to_copy.begin(), this->begin(), this->end());
+            auto &it_src = to_copy.begin();
+            auto &it_dst = this->begin();
+            for (; it_src != to_copy.end(); ++it_src, ++it_dst)
+                *it_dst = (*it_src).complex_float().real();
+            set_up_geom_info();
         }
     }
     return *this;
@@ -215,30 +264,33 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
 template<class dataType>
 void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData>& out_sptr, const std::shared_ptr<const DataContainer> dc_sptr)
 {
+//std::cout << "in construct_NiftiImageData_from_complex_im_real_component...\n";
     auto in_sptr = std::dynamic_pointer_cast<const ImageData<complex_float_t> >(dc_sptr);
-    // Create image from input
-    out_sptr = std::make_shared<NiftiImageData<dataType> >(*dc_sptr);
+    out_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
 
     auto &it_in = in_sptr->begin();
     auto &it_out = out_sptr->begin();
     for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().real();
+//std::cout << "leaving...\n";
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData>& out_sptr, const std::shared_ptr<const DataContainer> dc_sptr)
 {
+//std::cout << "in construct_NiftiImageData_from_complex_im_imag_component...\n";
     auto in_sptr = std::dynamic_pointer_cast<const ImageData<complex_float_t> >(dc_sptr);
     if (!in_sptr->is_complex())
         std::cout << "\nNiftiImageData<dataType>::construct_NiftiImageData_from_complex_im. Warning, input image is not complex. Complex component will be empty\n";
 
     // Create image from input
-    out_sptr = std::make_shared<NiftiImageData<dataType> >(*dc_sptr);
+    out_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
 
     auto &it_in = in_sptr->begin();
     auto &it_out = out_sptr->begin();
     for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().imag();
+//std::cout << "leaving...\n";
 }
 
 template<class dataType>

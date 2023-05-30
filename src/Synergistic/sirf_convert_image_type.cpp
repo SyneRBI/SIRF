@@ -67,7 +67,9 @@ static const std::shared_ptr<DataContainer> image_as_sptr(const std::string &fil
 static void convert_and_write_image(const std::string &filename, const std::string &engine, const std::shared_ptr<DataContainer> &in_img_sptr, const std::string &param_file, const bool verbose)
 {
     if (strcmp(engine.c_str(), "Reg") == 0) {
-        NiftiImageData<float> im(*in_img_sptr);
+        auto im_sptr = std::dynamic_pointer_cast<const NiftiImageData<float> >(in_img_sptr);
+        auto im = *im_sptr;
+        //NiftiImageData<float> im(*in_img_sptr);
         im.write(filename);
         if (verbose) {
             im.print_header();

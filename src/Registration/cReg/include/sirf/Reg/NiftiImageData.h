@@ -76,13 +76,13 @@ namespace sirf {
     //template<typename dataType>
     //class ImageData;
 
-    template<typename dataType>
+    template<typename dataType> //, typename datatype = dataType>
     class NiftiImageData : public ImageData<dataType>
     {
     public:
 
-        typedef ImageData<dataType>::Iterator BaseIter;
-        typedef ImageData<dataType>::Iterator_const BaseIter_const;
+        typedef typename ImageData<dataType>::Iterator BaseIter;
+        typedef typename ImageData<dataType>::Iterator_const BaseIter_const;
         class Iterator : public BaseIter {
         public:
             Iterator(dataType* iter) : _iter(iter)
@@ -174,15 +174,18 @@ namespace sirf {
         /// Copy constructor
         NiftiImageData(const DataContainer& to_copy)
         {
+            //std::cout << "in NiftiImageData(const DataContainer& to_copy...)\n";
             const ImageData<dataType>& im_data = dynamic_cast<const ImageData<dataType>&>(to_copy);
             *this = im_data;
         }
 
         /// Copy constructor
-        NiftiImageData(const ImageData<dataType>& to_copy);
+        NiftiImageData(const ImageData<float>& to_copy);
+        NiftiImageData(const ImageData<complex_float_t>& to_copy);
 
         /// Assignment
-        NiftiImageData& operator=(const ImageData<dataType>& to_copy);
+        NiftiImageData& operator=(const ImageData<float>& to_copy);
+        NiftiImageData& operator=(const ImageData<complex_float_t>& to_copy);
 
         /// Filename constructor
         NiftiImageData(const std::string& filename);
@@ -227,15 +230,12 @@ namespace sirf {
 
         /// Construct NiftiImageData from the real component of a complex SIRF ImageData
         static void construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData>& out_sptr, const std::shared_ptr<const DataContainer> in_sptr);
-        //static void construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData>& out_sptr, const std::shared_ptr<const ImageData<complex_float_t> > in_sptr);
 
         /// Construct NiftiImageData from the imaginary component of a complex SIRF ImageData
         static void construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData>& out_sptr, const std::shared_ptr<const DataContainer> in_sptr);
-        //static void construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData>& out_sptr, const std::shared_ptr<const ImageData<complex_float_t> > in_sptr);
 
         /// Construct two NiftiImageData from a complex SIRF ImageData
         static void construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData>& out_real_sptr, std::shared_ptr<NiftiImageData>& out_imag_sptr, const std::shared_ptr<const DataContainer> in_sptr);
-        //static void construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData>& out_real_sptr, std::shared_ptr<NiftiImageData>& out_imag_sptr, const std::shared_ptr<const ImageData<complex_float_t> > in_sptr);
 
         /// Equality operator
         bool operator==(const NiftiImageData& other) const;

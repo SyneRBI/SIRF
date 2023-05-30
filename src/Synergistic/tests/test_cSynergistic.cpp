@@ -170,9 +170,12 @@ int main(int argc, char* argv[])
             // Convert the complex image to two niftis
             std::shared_ptr<NiftiImageData<float> > real_sptr, imag_sptr;
             NiftiImageData<float>::construct_NiftiImageData_from_complex_im(real_sptr,imag_sptr,ismrmrd_im_sptr);
+            //std::cout << "ok1\n";
 
             real_sptr->write("results/real");
+            //std::cout << "ok2\n";
             imag_sptr->write("results/imag");
+            //std::cout << "ok3\n";
 
             // Create affine transformation
             std::shared_ptr<AffineTransformation<float> > tm_sptr =
