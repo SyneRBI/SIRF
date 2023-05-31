@@ -272,6 +272,8 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_com
     auto &it_out = out_sptr->begin();
     for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().real();
+//    out_sptr->set_up_data(NIFTI_TYPE_FLOAT32);
+//    out_sptr->set_up_geom_info();
 //std::cout << "leaving...\n";
 }
 
@@ -290,6 +292,8 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_com
     auto &it_out = out_sptr->begin();
     for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().imag();
+//    out_sptr->set_up_data(NIFTI_TYPE_FLOAT32);
+//    out_sptr->set_up_geom_info();
 //std::cout << "leaving...\n";
 }
 
@@ -448,23 +452,30 @@ void NiftiImageData<dataType>::write(const std::string &filename, const int data
 
     // Create a deep copy in case we need to change datatype
     NiftiImageData copy = *this;
+    //std::cout << "\nwrite ok1\n" << std::flush;
 
     // If user wants to save in a different datatype
     if (datatype != -1)
         copy.change_datatype(datatype);
     else
         copy.change_datatype(_original_datatype);
+    //std::cout << "write ok2\n" << std::flush;
 
     // If ndim==1,but pixdim[2] != 1, set image to 2D (could be 2D image with 1 voxel in 2nd dimension)
     // Similarly, if ndim==2,but pixdim[3] != 1, set image to 3D (could be 3D image with 1 voxel in 3rd dimension)
     for (int i=1; i<=2; ++i)
         if (copy.get_raw_nifti_sptr()->ndim==i && std::abs(copy.get_raw_nifti_sptr()->pixdim[i+1]-1.f) > 1e-4f)
             copy.get_raw_nifti_sptr()->ndim=i+1;
+    //std::cout << "write ok3\n" << std::flush;
+    //std::cout << copy.get_raw_nifti_sptr()->ndim << '\n' << std::flush;
+    //std::cout << copy.get_raw_nifti_sptr()->dim[0] << '\n' << std::flush;
     copy.get_raw_nifti_sptr()->dim[0]=copy.get_raw_nifti_sptr()->ndim;
+    //std::cout << "write ok4\n" << std::flush;
 
     nifti_set_filenames(copy._nifti_image.get(), filename.c_str(), 0, 0);
+    //std::cout << "write ok5\n" << std::flush;
     nifti_image_write(copy._nifti_image.get());
-    std::cout << "done.\n\n";
+    std::cout << "done.\n\n" << std::flush;
 }
 
 template<class dataType>

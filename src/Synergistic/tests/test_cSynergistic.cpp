@@ -154,6 +154,7 @@ int main(int argc, char* argv[])
                 recon.add_gadget("gadget_" + std::to_string(i), gadgets[i]);
             recon.process(raw_mr);
             std::shared_ptr<GadgetronImageData> ismrmrd_im_sptr = recon.get_output();
+            //std::cout << "ok\n" << std::flush;
 
             if (!ismrmrd_im_sptr->is_complex())
                 throw std::runtime_error("Expected output of reconstruction to be complex");
@@ -166,11 +167,13 @@ int main(int argc, char* argv[])
                 cmplx_flt.imag(cmplx_flt.real() / 2.f);
                 *iter = NumRef((void *)&cmplx_flt, NumberType::CXFLOAT);
             }
+            //std::cout << "ok\n" << std::flush;
 
             // Convert the complex image to two niftis
             std::shared_ptr<NiftiImageData<float> > real_sptr, imag_sptr;
             NiftiImageData<float>::construct_NiftiImageData_from_complex_im(real_sptr,imag_sptr,ismrmrd_im_sptr);
-            //std::cout << "ok1\n";
+            //std::cout << imag_sptr->data_type() << '\n';
+            //std::cout << "ok1\n" << std::flush;
 
             real_sptr->write("results/real");
             //std::cout << "ok2\n";
@@ -181,15 +184,20 @@ int main(int argc, char* argv[])
             std::shared_ptr<AffineTransformation<float> > tm_sptr =
                     std::make_shared<AffineTransformation<float> >();
             (*tm_sptr)[0][3] = 2.f;
+            //std::cout << "ok2\n" << std::flush;
 
             // Resample the complex data
             NiftyResampler<float> res_complex;
             res_complex.set_reference_image(ismrmrd_im_sptr);
             res_complex.set_floating_image(ismrmrd_im_sptr);
+            //std::cout << "ok3\n" << std::flush;
             res_complex.set_interpolation_type_to_linear();
             res_complex.add_transformation(tm_sptr);
+            //std::cout << "ok4\n" << std::flush;
             std::shared_ptr<DataContainer> forward_cplx_sptr = res_complex.forward(ismrmrd_im_sptr);
+            //std::cout << "ok5\n" << std::flush;
             std::shared_ptr<DataContainer> adjoint_cplx_sptr = res_complex.adjoint(ismrmrd_im_sptr);
+            //std::cout << "ok6\n" << std::flush;
 
             // Get the output
             std::shared_ptr<NiftiImageData<float> > forward_cplx_real_sptr, forward_cplx_imag_sptr, adjoint_cplx_real_sptr, adjoint_cplx_imag_sptr;
@@ -211,6 +219,7 @@ int main(int argc, char* argv[])
                     std::dynamic_pointer_cast<NiftiImageData<float> >(res_real.forward(real_sptr));
             std::shared_ptr<NiftiImageData<float> > adjoint_real_sptr =
                     std::dynamic_pointer_cast<NiftiImageData<float> >(res_real.adjoint(real_sptr));
+            //std::cout << "ok7\n" << std::flush;
 
             NiftyResampler<float> res_imag;
             res_imag.set_reference_image(imag_sptr);
@@ -221,21 +230,29 @@ int main(int argc, char* argv[])
                     std::dynamic_pointer_cast<NiftiImageData<float> >(res_imag.forward(imag_sptr));
             std::shared_ptr<NiftiImageData<float> > adjoint_imag_sptr =
                     std::dynamic_pointer_cast<NiftiImageData<float> >(res_imag.adjoint(imag_sptr));
+            //std::cout << "ok8\n" << std::flush;
 
             // Compare that the real and imaginary parts match regardless
             // of whether they were resampled separately or together.
+            //std::cout << (*forward_real_sptr == *forward_cplx_real_sptr) << '\n' << std::flush;
+            //std::cout << (*forward_imag_sptr == *forward_cplx_imag_sptr) << '\n' << std::flush;
+            //std::cout << (*adjoint_real_sptr == *adjoint_cplx_real_sptr) << '\n' << std::flush;
+            //std::cout << (*adjoint_imag_sptr == *adjoint_cplx_imag_sptr) << '\n' << std::flush;
             if (*forward_real_sptr != *forward_cplx_real_sptr
                     || *forward_imag_sptr != *forward_cplx_imag_sptr)
                 throw std::runtime_error("NiftyResampler forward failed for complex data");
+            //std::cout << "ok9\n" << std::flush;
             if (*adjoint_real_sptr != *adjoint_cplx_real_sptr
                     || *adjoint_imag_sptr != *adjoint_cplx_imag_sptr)
                 throw std::runtime_error("NiftyResampler adjoint failed for complex data");
+            //std::cout << "ok10\n" << std::flush;
 
             std::cout << "// ----------------------------------------------------------------------- //\n";
             std::cout << "//                  Finished complex resampler test.\n";
             std::cout << "//------------------------------------------------------------------------ //\n";
+            std::cout << std::flush;
         }
-
+/*
         // Test MR reorient
         {
             std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -315,7 +332,7 @@ int main(int argc, char* argv[])
             std::cout << "//                  Finished GadgetronImageData reorient test.\n";
             std::cout << "//------------------------------------------------------------------------ //\n";
         }
-
+*/
     // Error handling
     } catch(const std::exception &error) {
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";

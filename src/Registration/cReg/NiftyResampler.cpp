@@ -231,26 +231,33 @@ static void check_images_match(
 template<class dataType>
 static void set_post_resample_outputs(std::shared_ptr<DataContainer> &out_to_return_sptr, std::shared_ptr<DataContainer> &output_as_member_sptr, const ComplexNiftiImageData<dataType> resampled_niftis)
 {
-    std::shared_ptr<ImageData<dataType> > output_to_return_sptr = std::dynamic_pointer_cast<ImageData<dataType> >(out_to_return_sptr);
     // If output is only real, set that
-    if (!output_to_return_sptr->is_complex())
+    if (!out_to_return_sptr->is_complex()) {
+        //std::shared_ptr<ImageData<dataType> > 
+        auto output_to_return_sptr = std::dynamic_pointer_cast<ImageData<float> >(out_to_return_sptr);
         output_to_return_sptr->fill(*resampled_niftis.real());
+        output_as_member_sptr = output_to_return_sptr;
+    }
     // Else, set the complex bit
     else {
-        NumberType::Type output_num_type = (*output_to_return_sptr->begin()).get_typeID();
-        if (output_num_type != NumberType::CXFLOAT)
+        auto output_to_return_sptr = std::dynamic_pointer_cast<ImageData<complex_float_t> >(out_to_return_sptr);
+        //NumberType::Type output_num_type = (*output_to_return_sptr->begin()).get_typeID();
+        //if (output_num_type != NumberType::CXFLOAT)
+        if (!output_to_return_sptr.get())
             throw std::runtime_error("NiftyResampler: Only complex type currently supported is complex float");
-        typename ImageData<dataType> ::Iterator &it_out = output_to_return_sptr->begin();
+        typename ImageData<complex_float_t> ::Iterator &it_out = output_to_return_sptr->begin();
         auto &it_real = resampled_niftis.real()->begin();
         auto &it_imag = resampled_niftis.imag()->begin();
         for (; it_out!=output_to_return_sptr->end(); ++it_real, ++it_imag, ++it_out) {
             complex_float_t cmplx_flt(*it_real,*it_imag);
-            *it_out = NumRef((void *)&cmplx_flt, output_num_type);
+            *it_out = NumRef((void *)&cmplx_flt, NumberType::CXFLOAT);
         }
+        output_as_member_sptr = output_to_return_sptr;
     }
+    //std::cout << "ok 4\n" << std::flush;
 
     // Copy the output so that backwards compatibility of get_output() is preserved.
-    output_as_member_sptr = output_to_return_sptr;
+    //output_as_member_sptr = output_to_return_sptr;
 }
 
 template<class dataType>
@@ -258,9 +265,12 @@ std::shared_ptr<DataContainer> NiftyResampler<dataType>::forward(const std::shar
 {
     // Call the set up
     set_up_forward();
+//            std::cout << "fwd 1\n" << std::flush;
 
     std::shared_ptr<DataContainer> output_sptr = this->_reference_image_sptr->clone();
+//            std::cout << "fwd 2\n" << std::flush;
     forward(output_sptr, input_sptr);
+//            std::cout << "fwd done\n" << std::flush;
 
     return output_sptr;
 }
@@ -270,17 +280,21 @@ void NiftyResampler<dataType>::forward(std::shared_ptr<DataContainer> output_spt
 {
     // Call the set up
     set_up_forward();
+//            std::cout << "fwd 3\n" << std::flush;
 
     // Get the input image as NiftiImageData
     ComplexNiftiImageData<dataType> input_niftis, output_niftis;
     convert_ImageData_to_ComplexNiftiImageData(input_niftis, input_sptr);
+//            std::cout << "fwd 4\n" << std::flush;
     convert_ImageData_to_ComplexNiftiImageData(output_niftis, output_sptr);
+//            std::cout << "fwd 5\n" << std::flush;
 
     // Check that the metadata match
     check_images_match(input_niftis, this->_floating_image_niftis,
                        "NiftyResampler::forward: Metadata of input image should match floating image.");
     check_images_match(output_niftis, this->_reference_image_niftis,
                        "NiftyResampler::forward: Metadata of output image should match reference image.");
+//            std::cout << _output_image_forward_niftis.size() << '\n' << std::flush;
 
     // Loop over as many output images
     for (unsigned i=0; i<_output_image_forward_niftis.size(); ++i) {
@@ -292,8 +306,10 @@ void NiftyResampler<dataType>::forward(std::shared_ptr<DataContainer> output_spt
                           this->_interpolation_type,
                           this->_padding_value);
     }
+//            std::cout << "fwd 6\n" << std::flush;
 
     set_post_resample_outputs(output_sptr, this->_output_image_sptr, _output_image_forward_niftis);
+//            std::cout << "fwd 7\n" << std::flush;
 }
 
 template<class dataType>
