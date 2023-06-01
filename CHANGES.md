@@ -10,6 +10,8 @@
 
 * PET/SPECT
   - Added SIRF interfaces to STIR functions to know where its files are: `get_STIR_doc_dir()` and `get_STIR_examples_dir()`.
+  - Added SIRF interfaces to STIR functions for LogcoshPrior and RelativeDifferencePrior
+  - Added SIRF interfaces to STIR functions for kappa (spatially variant penalty strengths) for QP, Log-cosh, and RDP
 
 * C++
   - added `examples_data_path` and utility functions such as `append_path` in `common/utilities.h`

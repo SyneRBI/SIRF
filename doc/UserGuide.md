@@ -887,6 +887,46 @@ class will effectively use 1 for all \kappa's.
 By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
 to x-voxel_size divided by the Euclidean distance between the points.
 
+##### LogcoshPrior (PET)
+
+This implements a Logcosh. The gradient of the prior is computed as follows:
+
+    g_r = \sum_dr w_{dr} \frac{1}{s} \tanh (s (\lambda_r-\lambda_{dr}))* \kappa_r * \kappa_{r+dr}
+
+where \lambda is the image where the gradient is computed and r and dr are 
+indices and the sum is over the neighbourhood where the weights wdr are 
+non-zero. s (a.k.a. scalar) controls the transition between the quadratic 
+(smooth) and linear (edge-preserving) nature of the prior
+
+The \kappa image can be used to have spatially-varying penalties such
+as in Jeff Fessler's papers. It should have identical dimensions to the
+image for which the penalty is computed. If \kappa is not set, this
+class will effectively use 1 for all \kappa's.
+
+By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+to x-voxel_size divided by the Euclidean distance between the points.
+
+##### RelativeDifferencePrior (PET)
+
+This implements a Relative Difference Prior RDP, proposed by J. Nuyts, et.al., 
+2002. The gradient of the prior is computed as follows:
+
+    g_r = \sum_dr w_{dr} \frac{(\lambda_r - \lambda_{r+dr}) (\gamma |\lambda_r - \lambda_{r+dr}|+ \lambda_r + 3\lambda_{r+dr} + 2 \epsilon)}
+    {(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)^2} * \kappa_r * \kappa_{r+dr}
+
+where \lambda is the image where the gradient is computed and r and dr are 
+indices and the sum is over the neighbourhood where the weights wdr are 
+non-zero. \gamma is a edge preservation hyper-parameter and \epsilon is small 
+modification the penalty function used to prevent divide by zero’s.
+
+The \kappa image can be used to have spatially-varying penalties such
+as in Jeff Fessler's papers. It should have identical dimensions to the
+image for which the penalty is computed. If \kappa is not set, this
+class will effectively use 1 for all \kappa's.
+
+By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+to x-voxel_size divided by the Euclidean distance between the points.
+
 ##### PLSPrior (PET)
 
 Class for Parallel Level Sets prior. Inherits from Prior.

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""sirf.STIR prior tests (including stir.STIR.QuadraticPrior and sirf.STIR.RelativeDifferencePrior tests)
+"""sirf.STIR prior tests (including stir.STIR.QuadraticPrior, stir.STIR.LogcoshPrior 
+and sirf.STIR.RelativeDifferencePrior tests)
 v{version}
 
 Usage:
