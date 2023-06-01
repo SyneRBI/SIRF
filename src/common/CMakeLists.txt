@@ -22,9 +22,6 @@ set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 add_library(csirf csirf.cpp ImageData.cpp GeometricalInfo.cpp iequals.cpp utilities.cpp)
 target_include_directories(csirf PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
-  )
-target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
 target_include_directories(csirf PUBLIC

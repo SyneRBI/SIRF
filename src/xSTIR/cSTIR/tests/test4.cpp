@@ -30,17 +30,12 @@ limitations under the License.
 #include <iostream>
 #include <cstdlib>
 
-#include "stir/common.h"
-#include "stir/IO/stir_ecat_common.h"
 #include "stir/Verbosity.h"
 
 #include "sirf/STIR/stir_x.h"
-#include "sirf/common/getenv.h"
-#include "sirf/common/iequals.h"
 #include "sirf/common/utilities.h"
 
 using namespace stir;
-using namespace ecat;
 using namespace sirf;
 
 int test4()

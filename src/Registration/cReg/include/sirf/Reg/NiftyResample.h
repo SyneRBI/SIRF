@@ -34,7 +34,6 @@ limitations under the License.
 #include <vector>
 #include <iostream>
 #include "sirf/Reg/Resample.h"
-#include "sirf/iUtilities/iutilities.h"
 
 namespace NiftyMoMo {
 class BSplineTransformation;
