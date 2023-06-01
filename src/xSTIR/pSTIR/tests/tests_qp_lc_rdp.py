@@ -26,18 +26,29 @@ def test_main(rec=False, verb=False, throw=True):
 
     msg_red = MessageRedirector(warn=None)
 
-    image = ImageData(examples_data_path('PET') + '/thorax_single_slice/emission.hv')
-    ones = image.get_uniform_copy()
+    im_thorax = ImageData(examples_data_path('PET') + '/thorax_single_slice/emission.hv')
+    im_1 = im_thorax.get_uniform_copy()
+    im_2 = im_thorax.get_uniform_copy()*2
 
-    for prior in [QuadraticPrior(), LogcoshPrior(), RelativeDifferencePrior()]:
-      prior.set_penalisation_factor(1)
-      prior.set_kappa(image)
-      prior.set_up(image)
-      test.check_if_equal_within_tolerance(image.norm(),prior.get_kappa().norm())
-      pgrad_img = prior.get_gradient(image)
-      test.check(pgrad_img.norm())
-      test.check_if_equal_within_tolerance(prior.get_gradient(ones).norm(),0)
+    for im in [im_thorax, im_1, im_2]:
+      for penalisation_factor in [0,1,4]:
+        for kappa in [True, False]:
+          for prior in [QuadraticPrior(), LogcoshPrior(), RelativeDifferencePrior()]:
+            if kappa:
+              prior.set_kappa(im_thorax)
+              # Check if the kappa is stored/returned correctly
+              test.check_if_equal_within_tolerance(im_thorax.norm(),prior.get_kappa().norm())
 
+            prior.set_penalisation_factor(penalisation_factor)
+            prior.set_up(im)
+            # check if constant image or penalisation is zero
+            if im.as_array().min()==im.as_array().max() or penalisation_factor == 0:
+              # then grad norm should be zero
+              test.check_if_equal_within_tolerance(prior.get_gradient(im).norm(),0)
+            else:
+              # or check against .txt
+              test.check(prior.get_gradient(im).norm())
+            
     return test.failed, test.ntest
 
 
