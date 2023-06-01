@@ -1,7 +1,10 @@
 
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 - 2020 University College London
+# Author: Evgueni Ovtchinnikov
+# Author: Edoardo Pasca
+# Author: Richard Brown
+# Copyright 2016 - 2023 University College London
 # Copyright 2016 - 2020 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");

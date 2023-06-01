@@ -1,8 +1,9 @@
 
 #========================================================================
 # Author: Richard Brown, Kris Thielemans
-# Copyright 2016 - 2020 University College London
-# Copyright 2016 - 2020 Science Technology Facilities Council
+# Author: Evgueni Ovtchinnikov
+# Copyright 2016 - 2023 University College London
+# Copyright 2016 - 2023 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -134,7 +135,7 @@ endif()
 #                             Synergistic                                #
 ##########################################################################
 if (NOT BUILD_PYTHON AND NOT BUILD_MATLAB)
-  # Currently only disable synergistic library when not using Python/MATLAB,
+  # Currently only offer to disable synergistic library when not using Python/MATLAB,
   # as their ImageData.read depends on synergistic/ImageDataWrapper (TODO)
   option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
 else()

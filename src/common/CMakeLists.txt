@@ -1,6 +1,9 @@
 #========================================================================
 # Author: Evgueni Ovtchinnikov
-# Copyright 2020 University College London
+# Author: Kris Thielemans
+# Author: Richard Brown
+# Copyright 2018-2021, 2023 University College London
+# Copyright 2018-2023 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
