@@ -40,48 +40,6 @@ else()
   add_definitions(-DSIRF_BUILT_WITH_ISMRMRD)
 endif()
 
-
-
-##########################################################################
-#                             Registration                               #
-##########################################################################
-option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
-if (DISABLE_Registration)
-  message(STATUS "Registration support disabled.")
-  set(SPM_BOOL_STR "0" PARENT_SCOPE)
-  set(SIRF_BUILT_WITH_REGISTRATION False PARENT_SCOPE)
-else()
-  FIND_PACKAGE(NIFTYREG 1.5.61 REQUIRED)
-  # NIFTYREG
-  FOREACH(NR_lib ${NIFTYREG_LIBRARIES})
-    find_library(${NR_lib}_full_path "${NR_lib}" "${NIFTYREG_LIBRARY_DIRS}")
-    if(NOT ${NR_lib}_full_path)
-      message(FATAL_ERROR "${NR_lib} not found")
-    endif()
-    SET(NR_libs_full_path "${NR_libs_full_path};${${NR_lib}_full_path}")
-  ENDFOREACH()
-  # If niftyreg was bulit with OpenMP
-  if (NIFTYREG_BUILT_WITH_OPENMP)
-    find_package(OpenMP REQUIRED)
-    if (OpenMP_CXX_FOUND)
-      SET(NR_libs_full_path "${NR_libs_full_path};OpenMP::OpenMP_CXX")
-    endif()
-  endif()
-  # If niftyreg was bulit with CUDA
-  if (NIFTYREG_BUILT_WITH_CUDA)
-    find_package(CUDA REQUIRED)
-    SET(NR_libs_full_path "${NR_libs_full_path};${CUDA_CUDA_LIBRARY};${CUDA_CUDART_LIBRARY}")
-  endif()
-  ADD_SUBDIRECTORY(Registration)
-  set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
-  set(SIRF_BUILT_WITH_REGISTRATION TRUE)
-  set(SIRF_BUILT_WITH_REGISTRATION TRUE PARENT_SCOPE)
-  # TODO use target_compile_definitions
-  add_definitions(-DSIRF_BUILT_WITH_REGISTRATION)
-endif()
-
-
-
 ##########################################################################
 #                                 STIR                                   #
 ##########################################################################
@@ -126,6 +84,51 @@ else()
 endif()
 set(NiftyPET_BOOL_STR ${NiftyPET_BOOL_STR} PARENT_SCOPE)
 set(Parallelproj_BOOL_STR ${Parallelproj_BOOL_STR} PARENT_SCOPE)
+
+
+##########################################################################
+#                             Registration                               #
+##########################################################################
+# Note:
+# The Python/MATLAB interface for Reg depends on STIR sadly, so STIR stuff
+# needs to come first. We could add some checks here to see if Registration should be
+# disabled, but we'll just check it in the cReg/CMakeLists.txt and leave it to the user
+# to either enable STIR or disable Registration.
+option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
+if (DISABLE_Registration)
+  message(STATUS "Registration support disabled.")
+  set(SPM_BOOL_STR "0" PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION False PARENT_SCOPE)
+else()
+  FIND_PACKAGE(NIFTYREG 1.5.61 REQUIRED)
+  # NIFTYREG
+  FOREACH(NR_lib ${NIFTYREG_LIBRARIES})
+    find_library(${NR_lib}_full_path "${NR_lib}" "${NIFTYREG_LIBRARY_DIRS}")
+    if(NOT ${NR_lib}_full_path)
+      message(FATAL_ERROR "${NR_lib} not found")
+    endif()
+    SET(NR_libs_full_path "${NR_libs_full_path};${${NR_lib}_full_path}")
+  ENDFOREACH()
+  # If niftyreg was bulit with OpenMP
+  if (NIFTYREG_BUILT_WITH_OPENMP)
+    find_package(OpenMP REQUIRED)
+    if (OpenMP_CXX_FOUND)
+      SET(NR_libs_full_path "${NR_libs_full_path};OpenMP::OpenMP_CXX")
+    endif()
+  endif()
+  # If niftyreg was bulit with CUDA
+  if (NIFTYREG_BUILT_WITH_CUDA)
+    find_package(CUDA REQUIRED)
+    SET(NR_libs_full_path "${NR_libs_full_path};${CUDA_CUDA_LIBRARY};${CUDA_CUDART_LIBRARY}")
+  endif()
+  ADD_SUBDIRECTORY(Registration)
+  set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION TRUE)
+  set(SIRF_BUILT_WITH_REGISTRATION TRUE PARENT_SCOPE)
+  # TODO use target_compile_definitions
+  add_definitions(-DSIRF_BUILT_WITH_REGISTRATION)
+endif()
+
 
 ##########################################################################
 #                             Synergistic                                #

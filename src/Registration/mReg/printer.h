@@ -24,7 +24,7 @@ limitations under the License.
 
 #include "stir/TextWriter.h"
 
-class mexTextPrinter : public aTextWriter {
+class mexTextPrinter : public stir::aTextWriter {
 public:
 	virtual void write(const char* text) const {
         //mexPrintf("mexPrintf is called...\n");
