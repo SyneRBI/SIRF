@@ -649,8 +649,7 @@ void*
 sirf::cSTIR_QuadraticPriorParameter
 (DataHandle* hp, const char* name)
 {
-	xSTIR_QuadraticPrior3DF& prior =
-		objectFromHandle<xSTIR_QuadraticPrior3DF >(hp);
+	auto& prior = objectFromHandle<xSTIR_QuadraticPrior3DF >(hp);
 	if (sirf::iequals(name, "kappa")) {
 		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
 		return newObjectHandle(sptr_im);
