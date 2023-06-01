@@ -46,14 +46,21 @@ static void convert_ImageData_to_ComplexNiftiImageData(ComplexNiftiImageData<dat
 {
     // if input is real, only convert first bit
     if (!input_sptr->is_complex()) {
+		//std::cout << "convert a1\n" << std::flush;
+		//auto im_sptr = std::dynamic_pointer_cast<const ImageData<float> >(input_sptr);
+		//std::cout << (size_t)im_sptr.get() << '\n' << std::flush;
         output.real() = std::make_shared<NiftiImageData<dataType> > //(*input_sptr);
             (*std::dynamic_pointer_cast<const ImageData<float> >(input_sptr));
+		//std::cout << "convert a2\n" << std::flush;
         output.imag().reset();
     }
     // if input is complex, only set both
     else {
+		//std::cout << "convert b1\n" << std::flush;
         std::shared_ptr<NiftiImageData<dataType> > &output_real = output.real();
+		//std::cout << "convert b2\n" << std::flush;
         std::shared_ptr<NiftiImageData<dataType> > &output_imag = output.imag();
+		//std::cout << "convert b3\n" << std::flush;
         NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(output_real, output_imag, input_sptr);
     }
 }
@@ -101,27 +108,32 @@ static void set_up_output_image(ComplexNiftiImageData<dataType> &output,
 template<class dataType>
 void NiftyResampler<dataType>::set_up()
 {
+//std::cout << "in NiftyResampler<dataType>::set_up...\n" << std::flush;
     // If set up has already been called, nothing to do.
     if (!this->_need_to_set_up)
         return;
 
     // Check that all the required information has been entered
     this->check_parameters();
+		//std::cout << "set_up 1\n" << std::flush;
 
     // Get reference and floating images as NiftiImageData
     set_up_input_images();
+		//std::cout << "set_up 2\n" << std::flush;
 
     // If no transformations, use identity.
     if (this->_transformations.size() == 0) {
         std::cout << "\nNo transformations set, using identity.\n";
         this->_transformations.push_back(std::make_shared<AffineTransformation<float> >());
     }
+		//std::cout << "set_up 3\n" << std::flush;
 
     // If there are multiple transformations, compose them into single transformation.
     // Use the reference regardless of forward/adjoint.
     this->_deformation_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >(
             NiftiImageData3DDeformation<dataType>::compose_single_deformation(
                 this->_transformations,*this->_reference_image_niftis.real()));
+		//std::cout << "set_up 4\n" << std::flush;
 
     this->_need_to_set_up = false;
 }
@@ -198,8 +210,11 @@ void NiftyResampler<dataType>::process()
 template<class dataType>
 void NiftyResampler<dataType>::set_up_input_images()
 {
+//std::cout << "in NiftyResampler<dataType>::set_up_input_images...\n" << std::flush;
     convert_ImageData_to_ComplexNiftiImageData(this->_reference_image_niftis, this->_reference_image_sptr);
+		//std::cout << "set_up_input_images 1\n" << std::flush;
     convert_ImageData_to_ComplexNiftiImageData(this->_floating_image_niftis,  this->_floating_image_sptr);
+		//std::cout << "set_up_input_images 2\n" << std::flush;
 
 #ifndef NDEBUG
     if (!_reference_image_niftis.is_complex() && !_floating_image_niftis.is_complex())
@@ -263,14 +278,15 @@ static void set_post_resample_outputs(std::shared_ptr<DataContainer> &out_to_ret
 template<class dataType>
 std::shared_ptr<DataContainer> NiftyResampler<dataType>::forward(const std::shared_ptr<const DataContainer> input_sptr)
 {
+            //std::cout << "in NiftyResampler<dataType>::forward...\n" << std::flush;
     // Call the set up
     set_up_forward();
-//            std::cout << "fwd 1\n" << std::flush;
+            //std::cout << "fwd 1\n" << std::flush;
 
     std::shared_ptr<DataContainer> output_sptr = this->_reference_image_sptr->clone();
-//            std::cout << "fwd 2\n" << std::flush;
+            //std::cout << "fwd 2\n" << std::flush;
     forward(output_sptr, input_sptr);
-//            std::cout << "fwd done\n" << std::flush;
+            //std::cout << "fwd done\n" << std::flush;
 
     return output_sptr;
 }
@@ -280,21 +296,21 @@ void NiftyResampler<dataType>::forward(std::shared_ptr<DataContainer> output_spt
 {
     // Call the set up
     set_up_forward();
-//            std::cout << "fwd 3\n" << std::flush;
+            //std::cout << "fwd 3\n" << std::flush;
 
     // Get the input image as NiftiImageData
     ComplexNiftiImageData<dataType> input_niftis, output_niftis;
     convert_ImageData_to_ComplexNiftiImageData(input_niftis, input_sptr);
-//            std::cout << "fwd 4\n" << std::flush;
+            //std::cout << "fwd 4\n" << std::flush;
     convert_ImageData_to_ComplexNiftiImageData(output_niftis, output_sptr);
-//            std::cout << "fwd 5\n" << std::flush;
+            //std::cout << "fwd 5\n" << std::flush;
 
     // Check that the metadata match
     check_images_match(input_niftis, this->_floating_image_niftis,
                        "NiftyResampler::forward: Metadata of input image should match floating image.");
     check_images_match(output_niftis, this->_reference_image_niftis,
                        "NiftyResampler::forward: Metadata of output image should match reference image.");
-//            std::cout << _output_image_forward_niftis.size() << '\n' << std::flush;
+            //std::cout << _output_image_forward_niftis.size() << '\n' << std::flush;
 
     // Loop over as many output images
     for (unsigned i=0; i<_output_image_forward_niftis.size(); ++i) {
@@ -306,10 +322,10 @@ void NiftyResampler<dataType>::forward(std::shared_ptr<DataContainer> output_spt
                           this->_interpolation_type,
                           this->_padding_value);
     }
-//            std::cout << "fwd 6\n" << std::flush;
+            //std::cout << "fwd 6\n" << std::flush;
 
     set_post_resample_outputs(output_sptr, this->_output_image_sptr, _output_image_forward_niftis);
-//            std::cout << "fwd 7\n" << std::flush;
+            //std::cout << "fwd 7\n" << std::flush;
 }
 
 template<class dataType>

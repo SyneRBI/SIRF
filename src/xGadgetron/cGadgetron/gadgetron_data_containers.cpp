@@ -2246,7 +2246,7 @@ GadgetronImagesVector::print_header(const unsigned im_num)
         std::cout << acqs_info_.c_str() << "\n";
     }
 }
-
+/*
 bool GadgetronImagesVector::is_complex() const {
     // If any of the wraps are complex, return true.
     for (unsigned i=0; i<number(); ++i)
@@ -2254,7 +2254,7 @@ bool GadgetronImagesVector::is_complex() const {
             return true;
     return false;
 }
-
+*/
 void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info_out)
 {
     const VoxelisedGeometricalInfo3D &geom_info_in = *this->get_geom_info_sptr();

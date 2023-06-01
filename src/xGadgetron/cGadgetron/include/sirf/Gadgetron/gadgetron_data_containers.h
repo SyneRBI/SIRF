@@ -794,6 +794,10 @@ namespace sirf {
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
 		
+		virtual bool is_complex() const
+		{
+			return true;
+		}
 		virtual void empty() = 0;
 		virtual unsigned int number() const = 0;
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
@@ -1399,7 +1403,7 @@ namespace sirf {
         void print_header(const unsigned im_num);
 
         /// Is complex?
-        virtual bool is_complex() const;
+        //virtual bool is_complex() const;
 
         /// Reorient image. Requires that dimensions match
         virtual void reorient(const VoxelisedGeometricalInfo3D &geom_info_out);

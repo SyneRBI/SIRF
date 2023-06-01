@@ -143,6 +143,7 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<co
             set_up_geom_info();
         }
         else {
+        //std::cout << "here\n" << std::flush;
             this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*to_copy.get_geom_info_sptr());
             // Always float
             this->set_up_data(NIFTI_TYPE_FLOAT32);

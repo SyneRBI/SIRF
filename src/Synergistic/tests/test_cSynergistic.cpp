@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
             std::cout << "//------------------------------------------------------------------------ //\n";
             std::cout << std::flush;
         }
-/*
+
         // Test MR reorient
         {
             std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -262,11 +262,13 @@ int main(int argc, char* argv[])
             // Read ISMRMRD image
             std::shared_ptr<GadgetronImagesVector> G1_sptr = std::make_shared<GadgetronImagesVector>();
             G1_sptr->read(mr_recon_h5_filename);
+            //std::cout << G1_sptr->is_complex() << " ok 1\n" << std::flush;
 
             // Convert ISMRMRD image to nifti
             std::shared_ptr<NiftiImageData<float> > G1_nii_sptr =
                     std::make_shared<NiftiImageData<float> >(*G1_sptr);
             std::shared_ptr<nifti_image> raw_nii_sptr = G1_nii_sptr->get_raw_nifti_sptr();
+            //std::cout << "ok 2\n" << std::flush;
 
             // Affine transformation as translation by integer num voxels (so no interpolation)
             std::array<float,3> trans = {  G1_sptr->get_geom_info_sptr()->get_spacing()[0] * 2.f,
@@ -300,15 +302,26 @@ int main(int argc, char* argv[])
             reg_checkAndCorrectDimension(raw_nii_sptr.get());
             // Re-set up geom info
             G1_nii_sptr->set_up_geom_info();
+            //std::cout << "ok 3\n" << std::flush;
 
             // Reorient gadgetron image with modified G1_nii_sptr's geom info
             std::shared_ptr<GadgetronImagesVector> G2_sptr = G1_sptr->clone();
+            /*
+            std::shared_ptr<DataContainer> x = std::dynamic_pointer_cast<DataContainer>(G2_sptr);
+            std::cout << (size_t)x.get() << '\n' << std::flush;
+            std::shared_ptr<GadgetronImagesVector> y  = std::dynamic_pointer_cast<GadgetronImagesVector>(x);
+            std::cout << (size_t)y.get() << '\n' << std::flush;
+            std::shared_ptr<ImageData<float> > z  = std::dynamic_pointer_cast<ImageData<float> >(x);
+            std::cout << (size_t)z.get() << '\n' << std::flush;
+            */
             G2_sptr->reorient(*G1_nii_sptr->get_geom_info_sptr());
+            //std::cout << "ok 4\n" << std::flush;
 
             std::cout << "\n original:\n";
             G1_sptr->get_geom_info_sptr()->print_info();
             std::cout << "\n resampled:\n";
             G2_sptr->get_geom_info_sptr()->print_info();
+            //std::cout << "ok 5\n" << std::flush;
 
             // Now resampled G2 back to G1 using inverse TM, should be the same
             NiftyResampler<float> res;
@@ -317,22 +330,28 @@ int main(int argc, char* argv[])
             res.set_padding_value(0.f);
             res.set_interpolation_type_to_linear();
             res.add_transformation(std::make_shared<const AffineTransformation<float> >(trans_sptr->get_inverse()));
+            //std::cout << "ok 6-\n" << std::flush;
             std::shared_ptr<DataContainer> resampled_G2_sptr = res.forward(G2_sptr);
+            //std::cout << "ok 6\n" << std::flush;
 
             std::cout << "\n reoriented back to original space:\n";
-            std::shared_ptr<GadgetronImagesVector> sptr_im = std::dynamic_pointer_cast<GadgetronImagesVector>(resampled_G2_sptr);
-            sptr_im->get_geom_info_sptr()->print_info();
+            std::shared_ptr<GadgetronImagesVector> sptr_im1 = std::dynamic_pointer_cast<GadgetronImagesVector>(G1_sptr);
+            std::shared_ptr<GadgetronImagesVector> sptr_im2 = std::dynamic_pointer_cast<GadgetronImagesVector>(resampled_G2_sptr);
+            sptr_im2->get_geom_info_sptr()->print_info();
             //resampled_G2_sptr->get_geom_info_sptr()->print_info();
+            //std::cout << "ok 7\n" << std::flush;
 
-            if (NiftiImageData<float>(*G1_sptr) != NiftiImageData<float>(*resampled_G2_sptr))
+            auto sptr_G1 = std::dynamic_pointer_cast<NiftiImageData<float> >(G1_sptr);
+            auto sptr_G2 = std::dynamic_pointer_cast<NiftiImageData<float> >(resampled_G2_sptr);
+            //if (NiftiImageData<float>(*G1_sptr) != NiftiImageData<float>(*resampled_G2_sptr))
+            if (*sptr_G1 != *sptr_G2)
                 throw std::runtime_error("GadgetronImagesVector::reorient test failed");
-
 
             std::cout << "// ----------------------------------------------------------------------- //\n";
             std::cout << "//                  Finished GadgetronImageData reorient test.\n";
             std::cout << "//------------------------------------------------------------------------ //\n";
         }
-*/
+
     // Error handling
     } catch(const std::exception &error) {
         std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
