@@ -1,6 +1,7 @@
-#========================================================================
+##========================================================================
 # Author: Richard Brown
-# Copyright 2018 - 2020 University College London
+# Author: Kris Thielemans
+# Copyright 2018 - 2020, 2023 University College London
 # Author: Evgueni Ovtchinnikov
 # Copyright 2020 UKRI-STFC
 #
@@ -21,12 +22,19 @@
 set(MR_vendor_dicom_as_nifti "${CMAKE_SOURCE_DIR}/data/examples/MR/zenodo/dicom_as_nifti.nii")
 set(MR_SIRF_recon "${CMAKE_SOURCE_DIR}/data/examples/MR/zenodo/SIRF_recon.h5")
 
-ADD_TEST(NAME SYN_TEST_GADGETRON_TO_NIFTI_PYTHON
-COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests_syn.py 
-	${MR_SIRF_recon} "Gadgetron"
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-ADD_TEST(NAME SYN_TEST_STIR_TO_NIFTI_PYTHON
-COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests_syn.py 
-	${MR_vendor_dicom_as_nifti} "STIR"
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+if (SIRF_BUILT_WITH_REGISTRATION) # needed for Nifti
+
+  if (SIRF_BUILT_WITH_ISMRMRD)
+    ADD_TEST(NAME SYN_TEST_GADGETRON_TO_NIFTI_PYTHON
+      COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests_syn.py
+      ${MR_SIRF_recon} "Gadgetron"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+  if (SIRF_BUILT_WITH_STIR)
+    ADD_TEST(NAME SYN_TEST_STIR_TO_NIFTI_PYTHON
+      COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests_syn.py
+      ${MR_vendor_dicom_as_nifti} "STIR"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+endif()
 

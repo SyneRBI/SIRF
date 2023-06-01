@@ -20,22 +20,40 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-add_library(csirf csirf.cpp ImageData.cpp GeometricalInfo.cpp iequals.cpp utilities.cpp)
+# C++ library
+add_library(csirf ImageData.cpp GeometricalInfo.cpp iequals.cpp utilities.cpp)
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${BUILD_INCLUDE_DIRECTORY}>$<INSTALL_INTERFACE:include>"
   )
-target_include_directories(csirf PUBLIC
+# currently necessary for LocalisedException.h  and DataHandle.h (and others?)
+#target_include_directories(csirf PUBLIC
+#  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Synergistic/cSyn/include>$<INSTALL_INTERFACE:include>"
+#  )
+target_link_libraries(csirf PUBLIC iutilities)
+
+# C interface
+add_library(cinterface-sirf csirf.cpp)
+target_include_directories(cinterface-sirf PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
+  )
+target_include_directories(cinterface-sirf PUBLIC
+  "$<BUILD_INTERFACE:${BUILD_INCLUDE_DIRECTORY}>$<INSTALL_INTERFACE:include>"
+  )
+target_include_directories(cinterface-sirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Synergistic/cSyn/include>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(csirf PUBLIC iutilities)# csyn)
+target_link_libraries(cinterface-sirf PUBLIC csirf csyn)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
   COMPONENT Development
   DESTINATION include)
 install(TARGETS csirf EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
+install(TARGETS cinterface-sirf EXPORT SIRFTargets
   COMPONENT Development
   DESTINATION lib)
 
@@ -51,7 +69,7 @@ if (BUILD_PYTHON)
   set(SWIG_MODULE_pysirf_EXTRA_DEPS "${cSIRF_INCLUDE_DIR}/sirf/common/csirf.h")
   SWIG_ADD_LIBRARY(pysirf LANGUAGE python TYPE MODULE SOURCES pysirf.i ${STIR_REGISTRIES})
   TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pysirf_REAL_NAME} PUBLIC ${Python_INCLUDE_DIRS})
-  SWIG_LINK_LIBRARIES(pysirf csirf iutilities ${Python_LIBRARIES})
+  SWIG_LINK_LIBRARIES(pysirf cinterface-sirf iutilities ${Python_LIBRARIES})
   INSTALL(TARGETS ${SWIG_MODULE_pysirf_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirf.py" DESTINATION "${PYTHON_DEST}/sirf")
   #file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
@@ -68,7 +86,7 @@ if (BUILD_MATLAB)
   set(msirf_h ${CMAKE_CURRENT_BINARY_DIR}/msirf.h)
 
   add_executable(gmi_csirf gmi/gmi_csirf.cpp)
-  target_link_libraries(gmi_csirf mig csirf)
+  target_link_libraries(gmi_csirf mig cinterface-sirf)
   # Generate m-files on the fly
   add_custom_command(
     OUTPUT ${msirf_c} ${msirf_h}
@@ -81,7 +99,7 @@ if (BUILD_MATLAB)
   add_library(msirf SHARED ${msirf_c})
   target_include_directories(msirf PUBLIC ${Matlab_INCLUDE_DIRS})
   SET_TARGET_PROPERTIES(msirf PROPERTIES SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
-  target_link_libraries(msirf csirf iutilities ${Matlab_LIBRARIES})
+  target_link_libraries(msirf cinterface-sirf iutilities ${Matlab_LIBRARIES})
 
   INSTALL(TARGETS msirf DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES ${msirf_h} DESTINATION "${MATLAB_DEST}")

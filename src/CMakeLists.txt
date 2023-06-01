@@ -130,9 +130,14 @@ set(Parallelproj_BOOL_STR ${Parallelproj_BOOL_STR} PARENT_SCOPE)
 ##########################################################################
 #                             Synergistic                                #
 ##########################################################################
-# Synergistic code currently only works if STIR (with ITK), ISMRMRD and Registration are built
-# Currently cannot do this as ImageData.read depends on synergistic/ImageDataWrapper
-option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
+if (NOT BUILD_PYTHON AND NOT BUILD_MATLAB)
+  # Currently only disable synergistic library when not using Python/MATLAB,
+  # as their ImageData.read depends on synergistic/ImageDataWrapper (TODO)
+  option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
+else()
+  # DISABLE_Synergistic will be not set, which in CMake means it is equivalent to FALSE
+endif()
+
 if (DISABLE_Synergistic)
   message(STATUS "Synergistic code disabled.")
 else()
