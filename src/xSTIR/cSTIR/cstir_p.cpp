@@ -611,7 +611,7 @@ void*
 sirf::cSTIR_setGeneralisedPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	Prior3DF& prior = objectFromHandle< Prior3DF >(hp);
+	auto& prior = objectFromHandle< Prior3DF >(hp);
 	if (sirf::iequals(name, "penalisation_factor"))
 		prior.set_penalisation_factor(dataFromHandle<float>((void*)hv));
 	else
@@ -622,7 +622,7 @@ sirf::cSTIR_setGeneralisedPriorParameter
 void*
 sirf::cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name)
 {
-	Prior3DF& prior = objectFromHandle< Prior3DF >(handle);
+	auto& prior = objectFromHandle<Prior3DF>(handle);
 	if (sirf::iequals(name, "penalisation_factor"))
 		return dataHandle<float>(prior.get_penalisation_factor());
 	return parameterNotFound(name, __FILE__, __LINE__);
@@ -632,12 +632,11 @@ void*
 sirf::cSTIR_setQuadraticPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	xSTIR_QuadraticPrior3DF& prior =
-		objectFromHandle<xSTIR_QuadraticPrior3DF>(hp);
+	auto& prior = objectFromHandle<xSTIR_QuadraticPrior3DF>(hp);
 	if (sirf::iequals(name, "only_2D"))
 		prior.only2D(dataFromHandle<int>((void*)hv));
 	else if (sirf::iequals(name, "kappa")) {
-		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		auto& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
 	}
 	else
@@ -649,7 +648,7 @@ void*
 sirf::cSTIR_QuadraticPriorParameter
 (DataHandle* hp, const char* name)
 {
-	auto& prior = objectFromHandle<xSTIR_QuadraticPrior3DF >(hp);
+	auto& prior = objectFromHandle<xSTIR_QuadraticPrior3DF>(hp);
 	if (sirf::iequals(name, "kappa")) {
 		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
 		return newObjectHandle(sptr_im);
@@ -663,12 +662,11 @@ void*
 sirf::cSTIR_setLogcoshPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	xSTIR_LogcoshPrior3DF& prior =
-		objectFromHandle<xSTIR_LogcoshPrior3DF>(hp);
+	auto& prior = objectFromHandle<xSTIR_LogcoshPrior3DF>(hp);
 	if (sirf::iequals(name, "only_2D"))
 		prior.only2D(dataFromHandle<int>((void*)hv));
 	else if (sirf::iequals(name, "kappa")) {
-		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		auto& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
 	}
 	else if (sirf::iequals(name, "scalar"))
@@ -682,8 +680,7 @@ void*
 sirf::cSTIR_LogcoshPriorParameter
 (DataHandle* hp, const char* name)
 {
-	xSTIR_LogcoshPrior3DF& prior =
-		objectFromHandle<xSTIR_LogcoshPrior3DF >(hp);
+	auto& prior = objectFromHandle<xSTIR_LogcoshPrior3DF >(hp);
 	if (sirf::iequals(name, "kappa")) {
 		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
 		return newObjectHandle(sptr_im);
@@ -699,12 +696,11 @@ void*
 sirf::cSTIR_setRelativeDifferencePriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	xSTIR_RelativeDifferencePrior3DF& prior =
-		objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
+	auto& prior = objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
 	if (sirf::iequals(name, "only_2D"))
 		prior.only2D(dataFromHandle<int>((void*)hv));
 	else if (sirf::iequals(name, "kappa")) {
-		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		auto& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
 	}
 	else if (sirf::iequals(name, "gamma"))
@@ -720,8 +716,7 @@ void*
 sirf::cSTIR_RelativeDifferencePriorParameter
 (DataHandle* hp, const char* name)
 {
-	xSTIR_RelativeDifferencePrior3DF& prior =
-		objectFromHandle<xSTIR_RelativeDifferencePrior3DF >(hp);
+	auto& prior = objectFromHandle<xSTIR_RelativeDifferencePrior3DF >(hp);
 	if (sirf::iequals(name, "kappa")) {
 		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
 		return newObjectHandle(sptr_im);
@@ -739,10 +734,7 @@ void*
 sirf::cSTIR_setPLSPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	//xSTIR_PLSPrior3DF& prior =
-	//	objectFromHandle<xSTIR_PLSPrior3DF>(hp);
-	PLSPrior<float>& prior =
-		objectFromHandle<PLSPrior<float> >(hp);
+	auto& prior = objectFromHandle<PLSPrior<float> >(hp);
 	if (sirf::iequals(name, "only_2D"))
 		prior.set_only_2D(dataFromHandle<int>((void*)hv));
 	else if (sirf::iequals(name, "alpha"))
@@ -750,11 +742,11 @@ sirf::cSTIR_setPLSPriorParameter
 	else if (sirf::iequals(name, "eta"))
 		prior.set_eta(dataFromHandle<float>((void*)hv));
 	else if (sirf::iequals(name, "anatomical_image")) {
-		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		auto& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_anatomical_image_sptr(id.data_sptr());
 	}
 	else if (sirf::iequals(name, "kappa")) {
-		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		auto& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
 	}
 	else if (sirf::iequals(name, "kappa_filename"))
@@ -770,8 +762,7 @@ void*
 sirf::cSTIR_PLSPriorParameter
 (DataHandle* hp, const char* name)
 {
-	PLSPrior<float>& prior =
-		objectFromHandle<PLSPrior<float> >(hp);
+	auto& prior = objectFromHandle<PLSPrior<float> >(hp);
 	if (sirf::iequals(name, "only_2D"))
 		return dataHandle<int>(prior.get_only_2D());
 	else if (sirf::iequals(name, "alpha"))
