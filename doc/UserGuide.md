@@ -900,7 +900,7 @@ The gradient of Logcosh prior is computed as follows:
 $$g_r = \sum_{dr} w_{dr} \frac{1}{s} \tanh (s (\lambda_r-\lambda_{r + dr}))* \kappa_r * \kappa_{r+dr}$$
 
 where $\lambda$ is the image where the gradient is computed and $r$ and $dr$ are 
-indices and the sum is over the neighbourhood where the weights wdr are 
+indices and the sum is over the neighbourhood where the weights $w_{dr}$ are 
 non-zero. $s$ (a.k.a. scalar) controls the transition between the quadratic 
 (smooth) and linear (edge-preserving) nature of the prior
 
@@ -918,9 +918,9 @@ $$f_r= \sum_{dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}{(\lambda
 The gradient of the prior is computed as follows:
 $$g_r = \sum_{dr} w_{dr} \frac{(\lambda_r - \lambda_{r+dr}) (\gamma |\lambda_r - \lambda_{r+dr}|+ \lambda_r + 3\lambda_{r+dr} + 2 \epsilon)}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)^2} * \kappa_r * \kappa_{r+dr}$$
 
-where \lambda is the image where the gradient is computed and r and dr are 
-indices and the sum is over the neighbourhood where the weights wdr are 
-non-zero. \gamma is a edge preservation hyper-parameter and \epsilon is small 
+where $\lambda$ is the image where the gradient is computed and $r$ and $dr$ are 
+indices and the sum is over the neighbourhood where the weights $w_{dr}$ are 
+non-zero. $\gamma$ is a edge preservation hyper-parameter and $\epsilon$ is small 
 modification the penalty function used to prevent divide by zero’s.
 
 The $\kappa$ image is the spatially-varying penalties as before.
