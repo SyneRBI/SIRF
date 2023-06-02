@@ -859,7 +859,9 @@ The user have an option of adding a penalty term (referred to as prior) to the o
 
 ##### Prior (PET)
 
-An abstract base class for a penalty term to be added to the objective function. The value $f_r$ and gradient $g_r$ for each prior is presented for the $r^{th}$ voxel over a neighbourhood $dr$.
+An abstract base class for a penalty term to be added to the objective function. 
+The value $f_r$ and gradient $g_r$ for each prior is presented for the $r^{th}$ 
+voxel over a neighbourhood $dr$.
 
 ###### Methods: 
 
@@ -911,12 +913,10 @@ to x-voxel_size divided by the Euclidean distance between the points.
 
 This implements a Relative Difference Prior (RDP), proposed by J. Nuyts, et.al., 
 2002. RDP is given by:
-$$f_r= \sum_{dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}
-    {(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)} * \kappa_r * \kappa_{r+dr}$$
+$$f_r= \sum_{dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)} * \kappa_r * \kappa_{r+dr}$$
 
 The gradient of the prior is computed as follows:
-$$g_r = \sum_{dr} w_{dr} \frac{(\lambda_r - \lambda_{r+dr}) (\gamma |\lambda_r - \lambda_{r+dr}|+ \lambda_r + 3\lambda_{r+dr} + 2 \epsilon)}
-    {(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)^2} * \kappa_r * \kappa_{r+dr}$$
+$$g_r = \sum_{dr} w_{dr} \frac{(\lambda_r - \lambda_{r+dr}) (\gamma |\lambda_r - \lambda_{r+dr}|+ \lambda_r + 3\lambda_{r+dr} + 2 \epsilon)}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)^2} * \kappa_r * \kappa_{r+dr}$$
 
 where \lambda is the image where the gradient is computed and r and dr are 
 indices and the sum is over the neighbourhood where the weights wdr are 
