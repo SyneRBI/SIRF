@@ -913,7 +913,7 @@ to x-voxel_size divided by the Euclidean distance between the points.
 
 This implements a Relative Difference Prior (RDP), proposed by J. Nuyts, et.al., 
 2002. RDP is given by:
-$$f_r= \sum_{dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)} * \kappa_r * \kappa_{r+dr}$$
+$$f= \sum_{r,dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)} * \kappa_r * \kappa_{r+dr}$$
 
 The gradient of the prior is computed as follows:
 $$g_r = \sum_{dr} w_{dr} \frac{(\lambda_r - \lambda_{r+dr}) (\gamma |\lambda_r - \lambda_{r+dr}|+ \lambda_r + 3\lambda_{r+dr} + 2 \epsilon)}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)^2} * \kappa_r * \kappa_{r+dr}$$
