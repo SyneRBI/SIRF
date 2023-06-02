@@ -28,8 +28,8 @@ def test_main(rec=False, verb=False, throw=True):
     msg_red = MessageRedirector(warn=None)
 
     im_thorax = ImageData(examples_data_path('PET') + '/thorax_single_slice/emission.hv')
-    im_1 = im_thorax.get_uniform_copy()
-    im_2 = im_thorax.get_uniform_copy()*2
+    im_1 = im_thorax.get_uniform_copy(1)
+    im_2 = im_thorax.get_uniform_copy(2)
 
     for im in [im_thorax, im_1, im_2]:
       for penalisation_factor in [0,1,4]:
