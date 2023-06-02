@@ -48,7 +48,14 @@ def test_main(rec=False, verb=False, throw=True):
               test.check_if_equal_within_tolerance(prior.get_gradient(im).norm(),0)
             else:
               # or check against .txt
-              test.check(prior.get_gradient(im).norm())
+              grad_norm = prior.get_gradient(im).norm()
+              test.check(grad_norm)
+              if kappa:
+                    # check if multiplying kappa and dividing penalisation factor gives same result
+                   prior.set_penalisation_factor(penalisation_factor/4)
+                   prior.set_kappa(im_thorax*2)
+                   prior.set_up(im)
+                   test.check_if_equal_within_tolerance(prior.get_gradient(im).norm(), grad_norm)
             
     return test.failed, test.ntest
 
