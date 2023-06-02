@@ -874,7 +874,7 @@ voxel over a neighbourhood $dr$.
 Class for the prior that is a quadratic functions of the image values.
 
 Implements a quadratic Gibbs prior:
-    $$f_r = \sum_{dr} w_{dr} (\lambda_r - \lambda_{r+dr})^2 * \kappa_r * \kappa_{r+dr}$$
+    $$f = \sum_{r,dr} w_{dr} (\lambda_r - \lambda_{r+dr})^2 * \kappa_r * \kappa_{r+dr}$$
 
 
 The gradient of the prior is computed as follows:
