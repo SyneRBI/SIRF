@@ -633,11 +633,12 @@ extern "C"
 void*
 cSIRF_ImageData_get_geom_info(const void* ptr_im)
 {
+std::cout << "in cSIRF_ImageData_get_geom_info...\n" << std::flush;
 	try {
 		const auto& id = objectFromHandle<const DataContainer>(ptr_im);
-		void** ptr;
-		SELECT_DATA_CASE(id.data_type(), geom_info_templ, ptr_im, ptr);
-		return *ptr;
+		void* v;
+		SELECT_DATA_CASE(id.data_type(), geom_info_templ, ptr_im, &v);
+		return v;
 	}
 	CATCH;
 }
