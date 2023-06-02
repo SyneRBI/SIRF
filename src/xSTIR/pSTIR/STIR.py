@@ -2361,7 +2361,7 @@ class LogcoshPrior(Prior):
 
     The log-cosh function is given by:
     \f[
-        f_r = \sum_{r,dr} w_{dr} \frac{1}{2 s^2}  log(cosh(s(\lambda_r - \lambda_{r+dr}))) * \kappa_r * \kappa_{r+dr}$
+        f = \sum_{r,dr} w_{dr} \frac{1}{2 s^2}  log(cosh(s(\lambda_r - \lambda_{r+dr}))) * \kappa_r * \kappa_{r+dr}$
     \f]
 
     Kappa is a spatially varying penalty strength.
@@ -2409,13 +2409,10 @@ class RelativeDifferencePrior(Prior):
     Transactions on Nuclear Science, vol. 49, no. 1, pp. 56-60, Feb. 2002, 
     doi: 10.1109/TNS.2002.998681.
 
-    The gradient of the prior is computed as follows:
+    The value of the prior is computed as follows:
 
     \f[
-    g_r = \sum_{dr} w_{dr} *
-    \frac{\left(\lambda_{j}-\lambda_{k}\right)\left(\gamma\left|\lambda_{j}-\lambda_{k}\right|+\lambda_{j}+3 \lambda_{k} + 2 \epsilon \right)}
-    {\left(\lambda_{j}+\lambda_{k}+\gamma\left|\lambda_{j}-\lambda_{k}\right| + \epsilon \right)^{2}} *
-    \kappa_r * \kappa_{r+dr}
+    f = \sum_{r,dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)} * \kappa_r * \kappa_{r+dr}
     \f]
 
     The prior has 2 parameters epsilon and gamma. The former is to ensure
