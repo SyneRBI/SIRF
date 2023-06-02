@@ -894,7 +894,7 @@ to x-voxel_size divided by the Euclidean distance between the points.
 ##### LogcoshPrior (PET)
 
 This implements a Logcosh prior that is given by:
-$$f_r = \sum_{dr} w_{dr} \frac{1}{2 s^2}  log(cosh(s(\lambda_r - \lambda_{r+dr}))) * \kappa_r * \kappa_{r+dr}$$
+$$f = \sum_{r,dr} w_{dr} \frac{1}{2 s^2}  log(cosh(s(\lambda_r - \lambda_{r+dr}))) * \kappa_r * \kappa_{r+dr}$$
 
 The gradient of Logcosh prior is computed as follows:
 $$g_r = \sum_{dr} w_{dr} \frac{1}{s} \tanh (s (\lambda_r-\lambda_{r + dr}))* \kappa_r * \kappa_{r+dr}$$
