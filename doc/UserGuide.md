@@ -946,7 +946,7 @@ where
 $\nabla$ is the finite difference operator (not taking voxel-sizes into account) and
 $\xi$ is the normalised gradient of the anatomical image $v$ calculated
 as follows:
-  $$\xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2)$$
+  $$\xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2}$$
 The parameter $\alpha$ controls the edge-preservation property
 of PLS, and depends on the scale of the emission image, and $\eta$ avoids
 division by zero, and depends on the scale of the anatomical image.
