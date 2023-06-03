@@ -874,7 +874,7 @@ voxel) for each prior is presented below.
 Class for the prior that is a quadratic functions of the image values.
 
 Implements a quadratic Gibbs prior:
-    $$f = \fract{1}{4} \sum_{r,dr} w_{dr} (\lambda_r - \lambda_{r+dr})^2 * \kappa_r * \kappa_{r+dr}$$
+    $$f = \frac{1}{4} \sum_{r,dr} w_{dr} (\lambda_r - \lambda_{r+dr})^2 * \kappa_r * \kappa_{r+dr}$$
 
 
 The gradient of the prior is computed as follows:
@@ -941,16 +941,12 @@ provided.
 
 The prior has 2 parameters $\alpha$ (alpha) and $\eta$ (eta). It is computed for an image
 $f$ as
-$$
-    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {(\nabla f,\xi)}^2}
-$$
+  $$\phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {(\nabla f,\xi)}^2}$$
 where
 $\nabla$ is the finite difference operator (not taking voxel-sizes into account) and
 $\xi$ is the normalised gradient of the anatomical image $v$ calculated
 as follows:
-$$
-    \xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2)
-$$
+  $$\xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2)$$
 The parameter $\alpha$ controls the edge-preservation property
 of PLS, and depends on the scale of the emission image, and $\eta$ avoids
 division by zero, and depends on the scale of the anatomical image.
