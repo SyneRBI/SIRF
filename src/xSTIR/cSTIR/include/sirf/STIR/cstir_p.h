@@ -128,6 +128,23 @@ namespace sirf {
 	void*
 		cSTIR_setQuadraticPriorParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_QuadraticPriorParameter
+		(DataHandle* hp, const char* name);
+
+	void*
+		cSTIR_setLogcoshPriorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_LogcoshPriorParameter
+		(DataHandle* hp, const char* name);
+
+	void*
+		cSTIR_setRelativeDifferencePriorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_RelativeDifferencePriorParameter
+		(DataHandle* hp, const char* name);
 
 	void*
 		cSTIR_setPLSPriorParameter

@@ -860,6 +860,8 @@ The user have an option of adding a penalty term (referred to as prior) to the o
 ##### Prior (PET)
 
 An abstract base class for a penalty term to be added to the objective function. 
+The value $f_r$ and gradient $g_r$ for each prior is presented for the $r^{th}$ 
+voxel over a neighbourhood $dr$.
 
 ###### Methods: 
 
@@ -871,18 +873,57 @@ An abstract base class for a penalty term to be added to the objective function.
 
 Class for the prior that is a quadratic functions of the image values.
 
-Implements a quadratic Gibbs prior. The gradient of the prior is computed
-as follows:
+Implements a quadratic Gibbs prior:
+    $$f = \sum_{r,dr} w_{dr} (\lambda_r - \lambda_{r+dr})^2 * \kappa_r * \kappa_{r+dr}$$
 
-    g_r = \sum_dr w_{dr} (\lambda_r - \lambda_{r+dr}) * \kappa_r * \kappa_{r+dr}
 
-where \lambda is the image and r and dr are indices and the sum is over 
-the neighbourhood where the weights w_{dr} are non-zero.
+The gradient of the prior is computed as follows:
+    $$g_r = \sum_{dr} \frac{w_{dr}}{2} (\lambda_r - \lambda_{r+dr}) * \kappa_r * \kappa_{r+dr}$$
 
-The \kappa image can be used to have spatially-varying penalties such
+where $\lambda$ is the image and r and dr are indices and the sum is over 
+the neighbourhood where the weights $w_{dr}$ are non-zero.
+
+The $\kappa$ image can be used to have spatially-varying penalties such
 as in Jeff Fessler's papers. It should have identical dimensions to the
-image for which the penalty is computed. If \kappa is not set, this
-class will effectively use 1 for all \kappa's.
+image for which the penalty is computed. If $\kappa$ is not set, this
+class will effectively use 1 for all $\kappa$'s.
+
+By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+to x-voxel_size divided by the Euclidean distance between the points.
+
+##### LogcoshPrior (PET)
+
+This implements a Logcosh prior that is given by:
+$$f = \sum_{r,dr} w_{dr} \frac{1}{2 s^2}  log(cosh(s(\lambda_r - \lambda_{r+dr}))) * \kappa_r * \kappa_{r+dr}$$
+
+The gradient of Logcosh prior is computed as follows:
+$$g_r = \sum_{dr} w_{dr} \frac{1}{s} \tanh (s (\lambda_r-\lambda_{r + dr}))* \kappa_r * \kappa_{r+dr}$$
+
+where $\lambda$ is the image where the gradient is computed and $r$ and $dr$ are 
+indices and the sum is over the neighbourhood where the weights $w_{dr}$ are 
+non-zero. $s$ (a.k.a. scalar) controls the transition between the quadratic 
+(smooth) and linear (edge-preserving) nature of the prior
+
+The $\kappa$ image is the spatially-varying penalties as before.
+
+By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+to x-voxel_size divided by the Euclidean distance between the points.
+
+##### RelativeDifferencePrior (PET)
+
+This implements a Relative Difference Prior (RDP), proposed by J. Nuyts, et.al., 
+2002. RDP is given by:
+$$f= \sum_{r,dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)} * \kappa_r * \kappa_{r+dr}$$
+
+The gradient of the prior is computed as follows:
+$$g_r = \sum_{dr} w_{dr} \frac{(\lambda_r - \lambda_{r+dr}) (\gamma |\lambda_r - \lambda_{r+dr}|+ \lambda_r + 3\lambda_{r+dr} + 2 \epsilon)}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)^2} * \kappa_r * \kappa_{r+dr}$$
+
+where $\lambda$ is the image where the gradient is computed and $r$ and $dr$ are 
+indices and the sum is over the neighbourhood where the weights $w_{dr}$ are 
+non-zero. $\gamma$ is a edge preservation hyper-parameter and $\epsilon$ is small 
+modification the penalty function used to prevent divide by zero’s.
+
+The $\kappa$ image is the spatially-varying penalties as before.
 
 By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
 to x-voxel_size divided by the Euclidean distance between the points.
