@@ -335,7 +335,6 @@ int main(int argc, char* argv[])
             //std::cout << "ok 6\n" << std::flush;
 
             std::cout << "\n reoriented back to original space:\n";
-            std::shared_ptr<GadgetronImagesVector> sptr_im1 = std::dynamic_pointer_cast<GadgetronImagesVector>(G1_sptr);
             std::shared_ptr<GadgetronImagesVector> sptr_im2 = std::dynamic_pointer_cast<GadgetronImagesVector>(resampled_G2_sptr);
             sptr_im2->get_geom_info_sptr()->print_info();
             //resampled_G2_sptr->get_geom_info_sptr()->print_info();

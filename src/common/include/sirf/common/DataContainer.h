@@ -193,6 +193,7 @@ namespace sirf {
 			xapyb(a_y, ptr_b, a_x, a_a);
 		}
 
+	protected:
 		static T product(T x, T y)
 		{
 			return x * y;

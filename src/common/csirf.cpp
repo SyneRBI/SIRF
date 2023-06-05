@@ -633,7 +633,6 @@ extern "C"
 void*
 cSIRF_ImageData_get_geom_info(const void* ptr_im)
 {
-std::cout << "in cSIRF_ImageData_get_geom_info...\n" << std::flush;
 	try {
 		const auto& id = objectFromHandle<const DataContainer>(ptr_im);
 		void* v;
