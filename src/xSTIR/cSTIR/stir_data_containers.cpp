@@ -432,12 +432,16 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
 
     if (!format_file.empty()) {
         KeyParser parser;
+        // STIR format
+        parser.add_start_key("Output File Format Parameters");
+        // old SIRF format, still accepted
         parser.add_start_key("OutputFileFormat Parameters");
         parser.add_parsing_key("output file format type", &format_sptr);
         parser.add_stop_key("END");
         parser.parse(format_file.c_str());
         if(is_null_ptr(format_sptr))
-            throw std::runtime_error("STIRImageData::write: Parsing of output format file (" + format_file + ") failed "
+            throw std::runtime_error("STIRImageData::write: Parsing of output format file (" + format_file + ") failed.\n"
+                                     "STIR should have written a warning message why (if you don't see it, redirect warnings to a file using MessageRedirector)\n"
                                      "(see examples/parameter_files/STIR_output_file_format_xxx.par for help).");
     }
     if(is_null_ptr(format_sptr))
