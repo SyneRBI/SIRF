@@ -1032,17 +1032,18 @@ namespace sirf {
 
 			If "" is passed as argument for format_file, the default format will be used.
 
-			An example is given below for writing the image in the nifti format. STIR uses
+			An example is given below for writing the image in the nifti format (when using the
+                        `.nii` extension or when not specifying an extension). STIR uses
 			ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
 			\verbatim
-			OutputFileFormat Parameters:=
+			Output File Format Parameters:=
 				output file format type := ITK
 				ITK Output File Format Parameters:=
 				number format := float
 				number_of_bytes_per_pixel:=4
 				default extension:=.nii
 				End ITK Output File Format Parameters:=
-		   End:=
+		        End:=
 		   \endverbatim
 		*/
 		virtual void write(const std::string& filename, const std::string& format_file) const;
