@@ -216,6 +216,8 @@ namespace sirf {
 	*/
 	class MRAcquisitionData : public DataContainerTempl<complex_float_t> {
 	public:
+		typedef MRAcquisitionData self_type;
+
 		virtual std::string data_type() const
 		{
 			return std::string("complex_float");
@@ -791,6 +793,8 @@ namespace sirf {
 
 	class ISMRMRDImageData : public ImageData<complex_float_t> {
 	public:
+		typedef ISMRMRDImageData self_type;
+
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
 		

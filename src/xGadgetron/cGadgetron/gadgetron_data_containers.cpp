@@ -812,9 +812,9 @@ MRAcquisitionData::xapyb(
 void
 MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op(x, y, MRAcquisitionData::multiply);
+    SIRF_DYNAMIC_CAST(const self_type, x, a_x);
+    SIRF_DYNAMIC_CAST(const self_type, y, a_y);
+    binary_op(x, y, self_type::multiply);
 }
 
 void
@@ -1575,9 +1575,9 @@ GadgetronImageData::unary_op(const DataContainer& a_x,
 void
 GadgetronImageData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainerTempl<complex_float_t>::product);
+    SIRF_DYNAMIC_CAST(const self_type, x, a_x);
+    SIRF_DYNAMIC_CAST(const self_type, y, a_y);
+    binary_op(x, y, self_type::product);
 }
 
 void
