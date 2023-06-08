@@ -814,7 +814,8 @@ MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
     SIRF_DYNAMIC_CAST(const self_type, x, a_x);
     SIRF_DYNAMIC_CAST(const self_type, y, a_y);
-    binary_op(x, y, self_type::multiply);
+    binary_op_new(x, y, self_type::product);
+    //binary_op(x, y, self_type::multiply);
 }
 
 void
@@ -922,6 +923,58 @@ MRAcquisitionData::abs(const DataContainer& a_x)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     unary_op(x, MRAcquisitionData::abs);
+}
+
+void
+MRAcquisitionData::binary_op_new(
+    const DataContainer& a_x, const DataContainer& a_y,
+    complex_float_t(*f)(complex_float_t, complex_float_t))
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+    if (!x.sorted() || !y.sorted())
+        THROW("binary algebraic operations cannot be applied to unsorted data");
+
+    int nx = x.number();
+    int ny = y.number();
+    ISMRMRD::Acquisition ax;
+    ISMRMRD::Acquisition ay;
+    ISMRMRD::Acquisition acq;
+    bool isempty = (number() < 1);
+    for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
+        if (!x.get_acquisition(ix, ax)) {
+            std::cout << ix << " ignored (ax)\n";
+            ix++;
+            continue;
+        }
+        if (!y.get_acquisition(iy, ay)) {
+            std::cout << iy << " ignored (ay)\n";
+            iy++;
+            continue;
+        }
+        if (!isempty) {
+            if (!get_acquisition(k, acq)) {
+                std::cout << k << " ignored (acq)\n";
+                k++;
+                continue;
+            }
+        }
+        const complex_float_t* px;
+        complex_float_t* py;
+        for (px = ax.data_begin(), py = ay.data_begin();
+            px != ax.data_end() && py != ay.data_end(); px++, py++) {
+            *py = f(*px, *py);
+        }
+        if (isempty)
+            append_acquisition(ay);
+        else
+            set_acquisition(k, ay);
+        ix++;
+        iy++;
+        k++;
+    }
+    this->set_sorted(true);
+    this->organise_kspace();
 }
 
 void
