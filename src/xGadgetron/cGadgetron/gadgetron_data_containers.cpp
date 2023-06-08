@@ -812,10 +812,7 @@ MRAcquisitionData::xapyb(
 void
 MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
-    SIRF_DYNAMIC_CAST(const self_type, x, a_x);
-    SIRF_DYNAMIC_CAST(const self_type, y, a_y);
-    binary_op_new(x, y, self_type::product);
-    //binary_op(x, y, self_type::multiply);
+    binary_op_new(a_x, a_y, self_type::product);
 }
 
 void
