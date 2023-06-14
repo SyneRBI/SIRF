@@ -129,12 +129,20 @@ namespace sirf {
 			binary_op(x, y, product);
 		}
 		/// \c *this = the product \c x * y with scalar y
-		virtual void multiply
-			(const DataContainer& x, const void* ptr_y) = 0;
+		//virtual 
+		void multiply(const DataContainer& x, const void* ptr_y) //= 0;
+		{
+			T y = *static_cast<const T*>(ptr_y);
+			semibinary_op(x, y, product);
+		}
 
 		/// \c *this = the sum \c x + y with scalar y
-		virtual void add
-			(const DataContainer& x, const void* ptr_y) = 0;
+		//virtual 
+		void add(const DataContainer& x, const void* ptr_y) //= 0;
+		{
+			T y = *static_cast<const T*>(ptr_y);
+			semibinary_op(x, y, sum);
+		}
 
 		/// \c *this = the elementwise ratio \c x / y
 		//virtual 
@@ -149,8 +157,12 @@ namespace sirf {
 		{
 			binary_op(x, y, maxreal);
 		}
-		virtual void maximum
-			(const DataContainer& x, const void* ptr_y) = 0;
+		//virtual 
+		void maximum(const DataContainer& x, const void* ptr_y) //= 0;
+		{
+			T y = *static_cast<const T*>(ptr_y);
+			semibinary_op(x, y, maxreal);
+		}
 
 		/// \c *this = the elementwise \c min(x, y)
 		//virtual 
@@ -158,8 +170,12 @@ namespace sirf {
 		{
 			binary_op(x, y, minreal);
 		}
-		virtual void minimum
-			(const DataContainer& x, const void* ptr_y) = 0;
+		//virtual 
+		void minimum(const DataContainer& x, const void* ptr_y) //= 0;
+		{
+			T y = *static_cast<const T*>(ptr_y);
+			semibinary_op(x, y, minreal);
+		}
 
 		/// \c *this = the elementwise \c pow(x, y)
 		virtual 
@@ -167,8 +183,7 @@ namespace sirf {
 		//{
 		//	//binary_op(x, y, std::pow);
 		//}
-		virtual void power
-			(const DataContainer& x, const void* ptr_y) = 0;
+		virtual void power(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the elementwise \c exp(x)
 		virtual void exp(const DataContainer& x) = 0;
@@ -176,11 +191,20 @@ namespace sirf {
 		virtual void log(const DataContainer& x) = 0;
 		/// \c *this = the elementwise \c sqrt(x)
 		virtual void sqrt(const DataContainer& x) = 0;
+		//{
+		//	unary_op(x, sqrt);
+		//}
 		/// \c *this = the elementwise \c sign(x)
 		virtual void sign(const DataContainer& x) = 0;
+		//{
+		//	unary_op(x, sign);
+		//}
 		/// \c *this = the elementwise \c abs(x)
-		virtual void abs(const DataContainer& x) = 0;
-
+		//virtual 
+		void abs(const DataContainer& x) //= 0;
+		{
+			unary_op(x, abs);
+		}
 		/// \c *this = the linear combination of \c x and \c y
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& x,
@@ -211,6 +235,8 @@ namespace sirf {
 	protected:
 
 		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y, T(*f)(T, T)) = 0;
+		virtual void semibinary_op(const DataContainer& a_x, T y, T(*f)(T, T)) = 0;
+		virtual void unary_op(const DataContainer& a_x, T(*f)(T)) = 0;
 
 		static T product(T x, T y)
 		{
@@ -271,7 +297,7 @@ namespace sirf {
 		}
 		static std::complex<float> sqrt(std::complex<float> x)
 		{
-			return std::sqrt(x);
+			return T(std::sqrt(x));
 		}
 		static T sign(T x)
 		{

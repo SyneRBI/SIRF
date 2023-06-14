@@ -639,16 +639,16 @@ namespace sirf {
         //virtual void maximum(const DataContainer& x, const DataContainer& y);
         //virtual void minimum(const DataContainer& x, const DataContainer& y);
         virtual void power(const DataContainer& x, const DataContainer& y);
-        virtual void multiply(const DataContainer& a_x, const void* a_y);
-        virtual void add(const DataContainer& a_x, const void* a_y);
-        virtual void maximum(const DataContainer& x, const void* a_y);
-        virtual void minimum(const DataContainer& x, const void* a_y);
+        //virtual void multiply(const DataContainer& a_x, const void* a_y);
+        //virtual void add(const DataContainer& a_x, const void* a_y);
+        //virtual void maximum(const DataContainer& x, const void* a_y);
+        //virtual void minimum(const DataContainer& x, const void* a_y);
         virtual void power(const DataContainer& x, const void* a_y);
         virtual void exp(const DataContainer& x);
         virtual void log(const DataContainer& x);
         virtual void sqrt(const DataContainer& x);
         virtual void sign(const DataContainer& x);
-        virtual void abs(const DataContainer& x);
+        //virtual void abs(const DataContainer& x);
 
         virtual Dimensions dimensions() const
         {
@@ -663,9 +663,10 @@ namespace sirf {
             dim["w"] = d[7];
             return dim;
         }
-        void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
-        void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
-        void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
+        virtual void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
+        //virtual void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
+        virtual void semibinary_op(const DataContainer& a_x, dataType y, dataType(*f)(dataType, dataType));
+        virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
         //virtual void binary_op_new(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType)) {}
         /// Set up the geometrical info. Use qform preferentially over sform.
         virtual void set_up_geom_info();

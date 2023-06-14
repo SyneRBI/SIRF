@@ -576,16 +576,16 @@ namespace sirf {
 		//virtual void maximum(const DataContainer& x, const DataContainer& y);
 		//virtual void minimum(const DataContainer& x, const DataContainer& y);
 		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* y);
-		virtual void add(const DataContainer& x, const void* ptr_y);
-		virtual void maximum(const DataContainer& x, const void* y);
-		virtual void minimum(const DataContainer& x, const void* y);
+		//virtual void multiply(const DataContainer& x, const void* y);
+		//virtual void add(const DataContainer& x, const void* ptr_y);
+		//virtual void maximum(const DataContainer& x, const void* y);
+		//virtual void minimum(const DataContainer& x, const void* y);
 		virtual void power(const DataContainer& x, const void* y);
 		virtual void exp(const DataContainer& x);
 		virtual void log(const DataContainer& x);
 		virtual void sqrt(const DataContainer& x);
 		virtual void sign(const DataContainer& x);
-		virtual void abs(const DataContainer& x);
+		//virtual void abs(const DataContainer& x);
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
@@ -600,6 +600,10 @@ namespace sirf {
 		//}
 		//void binary_op_old(const DataContainer& a_x, const DataContainer& a_y,
 		//	void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
+		virtual void semibinary_op(
+			const DataContainer& a_x, complex_float_t y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
+		virtual void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
 		void semibinary_op(const DataContainer& a_x, complex_float_t y,
 			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
 		void unary_op(const DataContainer& a_x,
@@ -954,16 +958,16 @@ namespace sirf {
 		//virtual void maximum(const DataContainer& x, const DataContainer& y);
 		//virtual void minimum(const DataContainer& x, const DataContainer& y);
 		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* ptr_y);
-		virtual void add(const DataContainer& x, const void* ptr_y);
-		virtual void maximum(const DataContainer& x, const void* ptr_y);
-		virtual void minimum(const DataContainer& x, const void* ptr_y);
+		//virtual void multiply(const DataContainer& x, const void* ptr_y);
+		//virtual void add(const DataContainer& x, const void* ptr_y);
+		//virtual void maximum(const DataContainer& x, const void* ptr_y);
+		//virtual void minimum(const DataContainer& x, const void* ptr_y);
 		virtual void power(const DataContainer& x, const void* ptr_y);
 		virtual void exp(const DataContainer& x);
 		virtual void log(const DataContainer& x);
 		virtual void sqrt(const DataContainer& x);
 		virtual void sign(const DataContainer& x);
-		virtual void abs(const DataContainer& x);
+		//virtual void abs(const DataContainer& x);
 
 		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
