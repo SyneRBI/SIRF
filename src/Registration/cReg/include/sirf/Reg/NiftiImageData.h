@@ -634,10 +634,10 @@ namespace sirf {
         virtual void xapyb(const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
         virtual void xapyb(const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
         virtual void xapyb(const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const DataContainer& a_b);
-        virtual void multiply(const DataContainer& a_x, const DataContainer& a_y);
-        virtual void divide(const DataContainer& a_x, const DataContainer& a_y);
-        virtual void maximum(const DataContainer& x, const DataContainer& y);
-        virtual void minimum(const DataContainer& x, const DataContainer& y);
+        //virtual void multiply(const DataContainer& a_x, const DataContainer& a_y);
+        //virtual void divide(const DataContainer& a_x, const DataContainer& a_y);
+        //virtual void maximum(const DataContainer& x, const DataContainer& y);
+        //virtual void minimum(const DataContainer& x, const DataContainer& y);
         virtual void power(const DataContainer& x, const DataContainer& y);
         virtual void multiply(const DataContainer& a_x, const void* a_y);
         virtual void add(const DataContainer& a_x, const void* a_y);
@@ -666,6 +666,7 @@ namespace sirf {
         void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
         void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
         void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
+        //virtual void binary_op_new(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType)) {}
         /// Set up the geometrical info. Use qform preferentially over sform.
         virtual void set_up_geom_info();
     protected:

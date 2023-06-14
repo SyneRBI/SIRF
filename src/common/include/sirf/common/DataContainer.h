@@ -123,8 +123,11 @@ namespace sirf {
 		virtual T dot(const DataContainer& dc) const = 0;
 
 		/// \c *this = the elementwise product \c x*y
-		virtual void multiply
-			(const DataContainer& x, const DataContainer& y) = 0;
+		//virtual 
+		void multiply(const DataContainer& x, const DataContainer& y) //= 0;
+		{
+			binary_op(x, y, product);
+		}
 		/// \c *this = the product \c x * y with scalar y
 		virtual void multiply
 			(const DataContainer& x, const void* ptr_y) = 0;
@@ -134,24 +137,36 @@ namespace sirf {
 			(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the elementwise ratio \c x / y
-		virtual void divide
-			(const DataContainer& x, const DataContainer& y) = 0;
+		//virtual 
+		void divide(const DataContainer& x, const DataContainer& y) //= 0;
+		{
+			binary_op(x, y, ratio);
+		}
 
 		/// \c *this = the elementwise \c max(x, y)
-		virtual void maximum
-			(const DataContainer& x, const DataContainer& y) = 0;
+		//virtual 
+		void maximum(const DataContainer& x, const DataContainer& y) //= 0;
+		{
+			binary_op(x, y, maxreal);
+		}
 		virtual void maximum
 			(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the elementwise \c min(x, y)
-		virtual void minimum
-			(const DataContainer& x, const DataContainer& y) = 0;
+		//virtual 
+		void minimum(const DataContainer& x, const DataContainer& y) //= 0;
+		{
+			binary_op(x, y, minreal);
+		}
 		virtual void minimum
 			(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the elementwise \c pow(x, y)
-		virtual void power
-			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual 
+		void power(const DataContainer& x, const DataContainer& y) = 0;
+		//{
+		//	//binary_op(x, y, std::pow);
+		//}
 		virtual void power
 			(const DataContainer& x, const void* ptr_y) = 0;
 
@@ -194,6 +209,9 @@ namespace sirf {
 		}
 
 	protected:
+
+		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y, T(*f)(T, T)) = 0;
+
 		static T product(T x, T y)
 		{
 			return x * y;

@@ -1951,12 +1951,12 @@ void NiftiImageData<dataType>::binary_op(const DataContainer& a_x,
         _data[i] = f(x._data[i], y._data[i]);
 }
 
-template<class dataType>
-void NiftiImageData<dataType>::multiply
-    (const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, DataContainerTempl<dataType>::product);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::multiply
+//    (const DataContainer& a_x, const DataContainer& a_y)
+//{
+//    binary_op(a_x, a_y, DataContainerTempl<dataType>::product);
+//}
 
 template<class dataType>
 void NiftiImageData<dataType>::multiply
@@ -1972,19 +1972,19 @@ void NiftiImageData<dataType>::add
     semibinary_op(a_x, a_y, DataContainerTempl<dataType>::sum);
 }
 
-template<class dataType>
-void NiftiImageData<dataType>::divide
-    (const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, DataContainerTempl<dataType>::ratio);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::divide
+//    (const DataContainer& a_x, const DataContainer& a_y)
+//{
+//    binary_op(a_x, a_y, DataContainerTempl<dataType>::ratio);
+//}
 
-template<class dataType>
-void NiftiImageData<dataType>::maximum
-(const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, DataContainerTempl<dataType>::maximum);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::maximum
+//(const DataContainer& a_x, const DataContainer& a_y)
+//{
+//    binary_op(a_x, a_y, DataContainerTempl<dataType>::maximum);
+//}
 
 template<class dataType>
 void NiftiImageData<dataType>::maximum
@@ -1993,12 +1993,12 @@ void NiftiImageData<dataType>::maximum
     semibinary_op(a_x, a_y, DataContainerTempl<dataType>::maximum);
 }
 
-template<class dataType>
-void NiftiImageData<dataType>::minimum
-(const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, DataContainerTempl<dataType>::minimum);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::minimum
+//(const DataContainer& a_x, const DataContainer& a_y)
+//{
+//    binary_op(a_x, a_y, DataContainerTempl<dataType>::minimum);
+//}
 
 template<class dataType>
 void NiftiImageData<dataType>::minimum
@@ -2008,15 +2008,13 @@ void NiftiImageData<dataType>::minimum
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::power
-(const DataContainer& a_x, const DataContainer& a_y)
+void NiftiImageData<dataType>::power(const DataContainer& x, const DataContainer& y)
 {
-    binary_op(a_x, a_y, std::pow);
+    binary_op(x, y, std::pow);
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::power
-(const DataContainer& a_x, const void* a_y)
+void NiftiImageData<dataType>::power(const DataContainer& a_x, const void* a_y)
 {
     semibinary_op(a_x, a_y, std::pow);
 }

@@ -337,22 +337,22 @@ namespace sirf {
 			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, std::pow);
 		}
-		virtual void multiply(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, DataContainerTempl<float>::product);
-		}
-		virtual void divide(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, DataContainerTempl<float>::ratio);
-		}
-		virtual void maximum(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, DataContainerTempl<float>::maximum);
-		}
-		virtual void minimum(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, DataContainerTempl<float>::minimum);
-		}
+		//virtual void multiply(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, DataContainerTempl<float>::product);
+		//}
+		//virtual void divide(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, DataContainerTempl<float>::ratio);
+		//}
+		//virtual void maximum(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, DataContainerTempl<float>::maximum);
+		//}
+		//virtual void minimum(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, DataContainerTempl<float>::minimum);
+		//}
 		virtual void power(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, std::pow);
@@ -460,6 +460,7 @@ namespace sirf {
 		void unary_op(const DataContainer& a_x, float(*f)(float));
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+		//virtual void binary_op_new(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float)) {}
 
 	protected:
 		static std::string _storage_scheme;
@@ -799,7 +800,8 @@ namespace sirf {
 
             // If either cast failed, fall back to general method
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_x_ptr))
-                return this->STIRAcquisitionData::multiply(x,y);
+				//return this->STIRAcquisitionData::multiply(x, y);
+				return this->DataContainerTempl<float>::multiply(x, y);
 
             // do it
             auto iter = pd_ptr->begin();
@@ -820,7 +822,8 @@ namespace sirf {
 
             // If either cast failed, fall back to general method
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_x_ptr))
-                return this->STIRAcquisitionData::divide(x,y);
+                //return this->STIRAcquisitionData::divide(x,y);
+				return this->DataContainerTempl<float>::divide(x, y);
 
             // do it
             auto iter = pd_ptr->begin();
@@ -1127,22 +1130,22 @@ namespace sirf {
 			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, std::pow);
 		}
-		virtual void multiply(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, DataContainerTempl<float>::product);
-		}
-		virtual void divide(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, DataContainerTempl<float>::ratio);
-		}
-		virtual void maximum(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, DataContainerTempl<float>::maximum);
-		}
-		virtual void minimum(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, DataContainerTempl<float>::minimum);
-		}
+		//virtual void multiply(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, DataContainerTempl<float>::product);
+		//}
+		//virtual void divide(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, DataContainerTempl<float>::ratio);
+		//}
+		//virtual void maximum(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, DataContainerTempl<float>::maximum);
+		//}
+		//virtual void minimum(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, DataContainerTempl<float>::minimum);
+		//}
 		virtual void power(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, std::pow);
@@ -1268,6 +1271,7 @@ namespace sirf {
 		void unary_op(const DataContainer& a_x, float(*f)(float));
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+		//virtual void binary_op_new(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float)) {}
 
 	private:
 		/// Clone helper function. Don't use.
