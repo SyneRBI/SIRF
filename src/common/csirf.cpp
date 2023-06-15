@@ -221,8 +221,10 @@ axpby_templ(
 ) {
 	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
 	auto const& y = objectFromHandle<DataContainerTempl<T> >(ptr_y);
+	T a = *static_cast<const T*>(ptr_a);
+	T b = *static_cast<const T*>(ptr_b);
 	auto& z = objectFromHandle<DataContainerTempl<T> >(h);
-	z.xapyb(x, ptr_a, y, ptr_b);
+	z.xapyb(x, a, y, b);
 }
 
 extern "C"
@@ -307,9 +309,10 @@ XapYB_templ(
 ) {
 	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
 	auto const& y = objectFromHandle<DataContainerTempl<T> >(ptr_y);
+	T a = *static_cast<const T*>(ptr_a);
 	auto const& b = objectFromHandle<DataContainerTempl<T> >(ptr_b);
 	auto& z = objectFromHandle<DataContainerTempl<T> >(h);
-	z.xapyb(x, ptr_a, y, b);
+	z.xapyb(x, a, y, b);
 }
 
 extern "C"

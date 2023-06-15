@@ -123,8 +123,7 @@ namespace sirf {
 		virtual T dot(const DataContainer& dc) const = 0;
 
 		/// \c *this = the elementwise product \c x*y
-		//virtual 
-		void multiply(const DataContainer& x, const DataContainer& y) //= 0;
+		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, product);
 		}
@@ -141,7 +140,7 @@ namespace sirf {
 		}
 
 		/// \c *this = the elementwise ratio \c x / y
-		void divide(const DataContainer& x, const DataContainer& y)
+		virtual void divide(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, ratio);
 		}
@@ -204,12 +203,18 @@ namespace sirf {
 		}
 		/// \c *this = the linear combination of \c x and \c y
 		virtual void axpby(
-			const void* ptr_a, const DataContainer& x,
-			const void* ptr_b, const DataContainer& y) = 0;
-		/// alternative interface to the above
+			T a, const DataContainer& x,
+			T b, const DataContainer& y) = 0;
 		virtual void xapyb(
-			const DataContainer& x, const void* ptr_a,
-			const DataContainer& y, const void* ptr_b) = 0;
+			const DataContainer& x, T a,
+			const DataContainer& y, T b) = 0;
+		//virtual void axpby(
+		//	const void* ptr_a, const DataContainer& x,
+		//	const void* ptr_b, const DataContainer& y) = 0;
+		/// alternative interface to the above
+		//virtual void xapyb(
+		//	const DataContainer& x, const void* ptr_a,
+		//	const DataContainer& y, const void* ptr_b) = 0;
 
 		/// \c *this = elementwise sum of two elementwise products \c x*a and \c y*b
 		virtual void xapyb(
@@ -218,16 +223,25 @@ namespace sirf {
 
 		/// \c *this = elementwise sum of \c x*a and elementwise \c y*b
 		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_x, T a,
 			const DataContainer& a_y, const DataContainer& a_b) = 0;
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const DataContainer& a_b) = 0;
 
 		/// \c *this = elementwise sum of elementwise \c x*a and \c y*b
 		void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
-			const DataContainer& a_y, const void* ptr_b)
+			const DataContainer& a_y, T b)
 		{
-			xapyb(a_y, ptr_b, a_x, a_a);
+			xapyb(a_y, b, a_x, a_a);
 		}
+		//void xapyb(
+		//	const DataContainer& a_x, const DataContainer& a_a,
+		//	const DataContainer& a_y, const void* ptr_b)
+		//{
+		//	xapyb(a_y, ptr_b, a_x, a_a);
+		//}
 
 	protected:
 

@@ -552,6 +552,18 @@ namespace sirf {
 		virtual complex_float_t max() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
 		virtual void axpby(
+			complex_float_t a, const DataContainer& a_x,
+			complex_float_t b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, complex_float_t a,
+			const DataContainer& a_y, complex_float_t b)
+		{
+			axpby(a, a_x, b, a_y);
+		}
+		virtual void xapyb(
+			const DataContainer& a_x, complex_float_t a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
@@ -887,6 +899,25 @@ namespace sirf {
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
+		void axpby(
+			complex_float_t a, const DataContainer& a_x,
+			complex_float_t b, const DataContainer& a_y);
+		void xapyb(
+			const DataContainer& a_x, complex_float_t a_a,
+			const DataContainer& a_y, complex_float_t a_b)
+		{
+			ComplexFloat_ a(a_a);
+			ComplexFloat_ b(a_b);
+			xapyb_(a_x, a, a_y, b);
+		}
+		virtual void xapyb(
+			const DataContainer& a_x, complex_float_t a_a,
+			const DataContainer& a_y, const DataContainer& a_b)
+		{
+			ComplexFloat_ a(a_a);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
+			xapyb_(a_x, a, a_y, b);
+		}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -924,18 +955,18 @@ namespace sirf {
 
 		void fill(float s);
 		void scale(float s);
-		void axpby(
-			complex_float_t a, const DataContainer& a_x,
-			complex_float_t b, const DataContainer& a_y)
-		{
-			axpby(&a, a_x, &b, a_y);
-		}
-		void xapyb(
-			const DataContainer& a_x, complex_float_t a,
-			const DataContainer& a_y, complex_float_t b)
-		{
-			xapyb(a_x, &a, a_y, &b);
-		}			
+		//void axpby(
+		//	complex_float_t a, const DataContainer& a_x,
+		//	complex_float_t b, const DataContainer& a_y)
+		//{
+		//	axpby(&a, a_x, &b, a_y);
+		//}
+		//void xapyb(
+		//	const DataContainer& a_x, complex_float_t a,
+		//	const DataContainer& a_y, complex_float_t b)
+		//{
+		//	xapyb(a_x, &a, a_y, &b);
+		//}			
 		gadgetron::unique_ptr<ISMRMRDImageData> clone() const
 		{
 			return gadgetron::unique_ptr<ISMRMRDImageData>(this->clone_impl());

@@ -630,6 +630,9 @@ namespace sirf {
         virtual float sum() const;
         virtual float max() const;
         virtual float dot(const DataContainer& a_x) const;
+        virtual void axpby(dataType a, const DataContainer& a_x, dataType b, const DataContainer& a_y);
+        virtual void xapyb(const DataContainer& a_x, dataType a, const DataContainer& a_y, dataType b);
+        virtual void xapyb(const DataContainer& a_x, dataType a, const DataContainer& a_y, const DataContainer& a_b);
         virtual void axpby(const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
         virtual void xapyb(const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
         virtual void xapyb(const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);

@@ -268,6 +268,15 @@ namespace sirf {
 		virtual float max() const;
 		virtual float dot(const DataContainer& a_x) const;
 		virtual void axpby(
+			float a, const DataContainer& a_x,
+			float b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, float a,
+			const DataContainer& a_y, float b);
+		virtual void xapyb(
+			const DataContainer& a_x, float a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
@@ -989,6 +998,15 @@ namespace sirf {
 		virtual float max() const;
 		virtual float dot(const DataContainer& dc) const;
 		virtual void axpby(
+			float a, const DataContainer& a_x,
+			float b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, float a,
+			const DataContainer& a_y, float b);
+		virtual void xapyb(
+			const DataContainer& a_x, float a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
@@ -1035,18 +1053,18 @@ namespace sirf {
 			_data->fill(v);
 		}
 		void scale(float s);
-		void axpby(
-			float a, const DataContainer& a_x,
-			float b, const DataContainer& a_y)
-		{
-			axpby(&a, a_x, &b, a_y);
-		}
-		void xapyb(
-			const DataContainer& a_x, float a,
-			const DataContainer& a_y, float b)
-		{
-			xapyb(a_x, &a, a_y, &b);
-		}
+		//void axpby(
+		//	float a, const DataContainer& a_x,
+		//	float b, const DataContainer& a_y)
+		//{
+		//	axpby(&a, a_x, &b, a_y);
+		//}
+		//void xapyb(
+		//	const DataContainer& a_x, float a,
+		//	const DataContainer& a_y, float b)
+		//{
+		//	xapyb(a_x, &a, a_y, &b);
+		//}
 		size_t size() const
 		{
 			return _data->size_all();
