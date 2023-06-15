@@ -515,8 +515,8 @@ PETAcquisitionModel::forward(STIRAcquisitionData& ad, const STIRImageData& image
 
 	if (sptr_add_.get() && !do_linear_only) {
 		if (stir::Verbosity::get() > 1) std::cout << "additive term added...";
-		ad.axpby(&one, ad, &one, *sptr_add_);
-		//ad.axpby(1.0, ad, 1.0, *sptr_add_);
+		//ad.axpby(&one, ad, &one, *sptr_add_);
+		ad.axpby(1.0, ad, 1.0, *sptr_add_);
 		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 	else
@@ -533,8 +533,8 @@ PETAcquisitionModel::forward(STIRAcquisitionData& ad, const STIRImageData& image
 
 	if (sptr_background_.get() && !do_linear_only) {
 		if (stir::Verbosity::get() > 1) std::cout << "background term added...";
-		ad.axpby(&one, ad, &one, *sptr_background_);
-		//ad.axpby(1.0, ad, 1.0, *sptr_background_);
+		//ad.axpby(&one, ad, &one, *sptr_background_);
+		ad.axpby(1.0, ad, 1.0, *sptr_background_);
 		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 	else

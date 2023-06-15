@@ -1045,7 +1045,8 @@ The actual algorithm is described in
 				if (have_a) {
 					auto sptr_a = am.additive_term_sptr();
 					float a = 1.0f;
-					sptr->axpby(&a, *sptr, &a, *sptr_a);
+					sptr->axpby(a, *sptr, a, *sptr_a);
+					//sptr->axpby(&a, *sptr, &a, *sptr_a);
 				}
 				set_additive_proj_data_sptr(sptr->data());
 			}

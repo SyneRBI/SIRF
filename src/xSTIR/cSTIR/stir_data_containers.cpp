@@ -141,15 +141,15 @@ STIRAcquisitionData::axpby(
 	STIRAcquisitionData::xapyb(a_x, a, a_y, b);
 }
 
-void
-STIRAcquisitionData::axpby(
-const void* ptr_a, const DataContainer& a_x,
-const void* ptr_b, const DataContainer& a_y
-)
-{
-	//Add deprecation warning
-    STIRAcquisitionData::xapyb(a_x, ptr_a, a_y, ptr_b);
-}
+//void
+//STIRAcquisitionData::axpby(
+//const void* ptr_a, const DataContainer& a_x,
+//const void* ptr_b, const DataContainer& a_y
+//)
+//{
+//	//Add deprecation warning
+//    STIRAcquisitionData::xapyb(a_x, ptr_a, a_y, ptr_b);
+//}
 
 void
 STIRAcquisitionData::xapyb(
@@ -170,26 +170,26 @@ STIRAcquisitionData::xapyb(
 	data()->xapyb(*x->data(), a, *y->data(), b);
 }
 
-void
-STIRAcquisitionData::xapyb(
-const DataContainer& a_x, const void* ptr_a,
-const DataContainer& a_y, const void* ptr_b
-)
-{
-    // Cast to correct types
-	float a = *static_cast<const float*>(ptr_a);
-	float b = *static_cast<const float*>(ptr_b);
-	auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
-    auto y = dynamic_cast<const STIRAcquisitionData*>(&a_y);
-
-    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
-            is_null_ptr(y) || is_null_ptr(y->data()))
-        throw std::runtime_error("STIRAcquisitionData::xapyb: At least one argument is not"
-                                 "STIRAcquisitionData or is not initialised.");
-
-    // Call STIR's xapyb
-    data()->xapyb(*x->data(), a, *y->data(), b);
-}
+//void
+//STIRAcquisitionData::xapyb(
+//const DataContainer& a_x, const void* ptr_a,
+//const DataContainer& a_y, const void* ptr_b
+//)
+//{
+//    // Cast to correct types
+//	float a = *static_cast<const float*>(ptr_a);
+//	float b = *static_cast<const float*>(ptr_b);
+//	auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
+//    auto y = dynamic_cast<const STIRAcquisitionData*>(&a_y);
+//
+//    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
+//            is_null_ptr(y) || is_null_ptr(y->data()))
+//        throw std::runtime_error("STIRAcquisitionData::xapyb: At least one argument is not"
+//                                 "STIRAcquisitionData or is not initialised.");
+//
+//    // Call STIR's xapyb
+//    data()->xapyb(*x->data(), a, *y->data(), b);
+//}
 
 void
 STIRAcquisitionData::xapyb(
@@ -401,7 +401,7 @@ STIRAcquisitionData::xapyb(
 		}
 	}
 }
-
+/*
 void
 STIRAcquisitionData::xapyb(
 	const DataContainer& a_x, const void* ptr_a,
@@ -435,7 +435,7 @@ STIRAcquisitionData::xapyb(
 			throw std::runtime_error("binary_op error: operands sizes differ");
 		for (seg_iter = seg.begin_all(),
 			sx_iter = sx.begin_all(), sy_iter = sy.begin_all(), sb_iter = sb.begin_all();
-			seg_iter != seg.end_all(); /*empty*/)
+			seg_iter != seg.end_all();)
 			*seg_iter++ = (*sx_iter++) * a + (*sy_iter++) * (*sb_iter++);
 		set_segment(seg);
 		if (s != 0) {
@@ -445,13 +445,13 @@ STIRAcquisitionData::xapyb(
 			sb = b.get_segment_by_sinogram(-s);
 			for (seg_iter = seg.begin_all(),
 				sx_iter = sx.begin_all(), sy_iter = sy.begin_all(), sb_iter = sb.begin_all();
-				seg_iter != seg.end_all(); /*empty*/)
+				seg_iter != seg.end_all();)
 				*seg_iter++ = (*sx_iter++) * a + (*sy_iter++) * (*sb_iter++);
 			set_segment(seg);
 		}
 	}
 }
-
+*/
 std::unique_ptr<STIRAcquisitionData>
 STIRAcquisitionDataInFile::get_subset(const std::vector<int>& views) const
 {
@@ -652,7 +652,7 @@ STIRImageData::xapyb(
 		iter++, iter_x++, iter_y++, iter_b++)
 		*iter = a * (*iter_x) + (*iter_b) * (*iter_y);
 }
-
+/*
 void
 STIRImageData::axpby(
 const void* ptr_a, const DataContainer& a_x,
@@ -723,7 +723,7 @@ const DataContainer& a_y, const DataContainer& a_b)
 		iter++, iter_x++, iter_y++, iter_b++)
 		*iter = a * (*iter_x) + (*iter_b) * (*iter_y);
 }
-
+*/
 void
 STIRImageData::xapyb(
 	const DataContainer& a_x, const DataContainer& a_a,

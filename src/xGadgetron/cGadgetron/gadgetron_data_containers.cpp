@@ -733,7 +733,7 @@ MRAcquisitionData::xapyb(
     this->set_sorted(true);
     this->organise_kspace();
 }
-
+/*
 void
 MRAcquisitionData::axpby(
     const void* ptr_a, const DataContainer& a_x,
@@ -781,7 +781,7 @@ MRAcquisitionData::axpby(
     this->set_sorted(true);
     this->organise_kspace();
 }
-
+*/
 void
 MRAcquisitionData::xapyb(
     const DataContainer& a_x, const DataContainer& a_a,
@@ -846,7 +846,7 @@ MRAcquisitionData::xapyb(
     this->set_sorted(true);
     this->organise_kspace();
 }
-
+/*
 void
 MRAcquisitionData::xapyb(
     const DataContainer& a_x, const void* ptr_a,
@@ -903,7 +903,7 @@ MRAcquisitionData::xapyb(
     this->set_sorted(true);
     this->organise_kspace();
 }
-
+*/
 void
 MRAcquisitionData::binary_op(
     const DataContainer& a_x, const DataContainer& a_y,
@@ -1479,7 +1479,7 @@ GadgetronImageData::axpby(
 	}
 	this->set_meta_data(x.get_meta_data());
 }
-
+/*
 void
 GadgetronImageData::axpby(
     const void* ptr_a, const DataContainer& a_x,
@@ -1511,7 +1511,7 @@ GadgetronImageData::axpby(
     }
     this->set_meta_data(x.get_meta_data());
 }
-
+*/
 void
 GadgetronImageData::binary_op(
     const DataContainer& a_x, const DataContainer& a_y,

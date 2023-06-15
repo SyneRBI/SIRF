@@ -263,7 +263,6 @@ namespace sirf {
 			return 1; // data ok
 		}
 		virtual float norm() const;
-		/// below all void* are actually float*
 		virtual float sum() const;
 		virtual float max() const;
 		virtual float dot(const DataContainer& a_x) const;
@@ -276,18 +275,18 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, float a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void axpby(
-			const void* ptr_a, const DataContainer& a_x,
-			const void* ptr_b, const DataContainer& a_y);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b);	
+		//virtual void axpby(
+		//	const void* ptr_a, const DataContainer& a_x,
+		//	const void* ptr_b, const DataContainer& a_y);
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const void* ptr_b);	
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const DataContainer& a_b);
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const DataContainer& a_b);
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
 		{
@@ -993,7 +992,6 @@ namespace sirf {
 		virtual void write(const std::string& filename, const std::string& format_file) const;
 
 		virtual float norm() const;
-		/// below all void* are actually float*
 		virtual float sum() const;
 		virtual float max() const;
 		virtual float dot(const DataContainer& dc) const;
@@ -1006,18 +1004,18 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, float a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void axpby(
-			const void* ptr_a, const DataContainer& a_x,
-			const void* ptr_b, const DataContainer& a_y);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b);
+		//virtual void axpby(
+		//	const void* ptr_a, const DataContainer& a_x,
+		//	const void* ptr_b, const DataContainer& a_y);
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const void* ptr_b);
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const DataContainer& a_b);
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const DataContainer& a_b);
 
 		Image3DF& data()
 		{

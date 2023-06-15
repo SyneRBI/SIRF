@@ -546,7 +546,6 @@ namespace sirf {
 		}
 
 		// acquisition data algebra
-		/// below all void* are actually complex_float_t*
 		virtual float norm() const;
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
@@ -563,21 +562,21 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, complex_float_t a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void axpby(
-			const void* ptr_a, const DataContainer& a_x,
-			const void* ptr_b, const DataContainer& a_y);
+		//virtual void axpby(
+		//	const void* ptr_a, const DataContainer& a_x,
+		//	const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b)
-		{
-			axpby(ptr_a, a_x, ptr_b, a_y);
-		}
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const DataContainer& a_b);
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const void* ptr_b)
+		//{
+		//	axpby(ptr_a, a_x, ptr_b, a_y);
+		//}
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const DataContainer& a_b);
 
 		virtual void write(const std::string &filename) const;
 
@@ -895,7 +894,6 @@ namespace sirf {
 		}
 
 		virtual float norm() const;
-		/// below all void* are actually complex_float_t*
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
@@ -918,25 +916,25 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		virtual void axpby(
-			const void* ptr_a, const DataContainer& a_x,
-			const void* ptr_b, const DataContainer& a_y);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b)
-		{
-			ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
-			ComplexFloat_ b(*static_cast<const complex_float_t*>(ptr_b));
-			xapyb_(a_x, a, a_y, b);
-		}
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const DataContainer& a_b)
-		{
-			ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
-			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
-			xapyb_(a_x, a, a_y, b);
-		}
+		//virtual void axpby(
+		//	const void* ptr_a, const DataContainer& a_x,
+		//	const void* ptr_b, const DataContainer& a_y);
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const void* ptr_b)
+		//{
+		//	ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
+		//	ComplexFloat_ b(*static_cast<const complex_float_t*>(ptr_b));
+		//	xapyb_(a_x, a, a_y, b);
+		//}
+		//virtual void xapyb(
+		//	const DataContainer& a_x, const void* ptr_a,
+		//	const DataContainer& a_y, const DataContainer& a_b)
+		//{
+		//	ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
+		//	SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
+		//	xapyb_(a_x, a, a_y, b);
+		//}
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b)

@@ -1859,7 +1859,7 @@ void NiftiImageData<dataType>::xapyb(
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
         _data[i] = a * x._data[i] + b._data[i] * y._data[i];
 }
-
+/*
 template<class dataType>
 void NiftiImageData<dataType>::axpby(
     const void* ptr_a, const DataContainer& a_x,
@@ -1910,7 +1910,7 @@ void NiftiImageData<dataType>::xapyb(
 {
 	NiftiImageData<dataType>::axpby(ptr_a, a_x, ptr_b, a_y);
 }
-
+*/
 template<class dataType>
 void NiftiImageData<dataType>::xapyb(
     const DataContainer& a_x, const DataContainer& a_a,
