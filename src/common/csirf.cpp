@@ -347,8 +347,9 @@ void
 add_templ(const void* ptr_x, const void* ptr_y, void* ptr_z)
 {
 	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	T y = *static_cast<const T*>(ptr_y);
 	auto& z = objectFromHandle<DataContainerTempl<T> >(ptr_z);
-	z.add(x, ptr_y);
+	z.add(x, y);
 }
 
 extern "C"
@@ -428,16 +429,15 @@ semibinary_templ(const void* ptr_x, const void* ptr_y, const char* f, void* h)
 {
 	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
 	auto& z = objectFromHandle<DataContainerTempl<T> >(h);
+	T y = *static_cast<const T*>(ptr_y);
 	if (sirf::iequals(f, "power"))
-		z.power(x, ptr_y);
+		z.power(x, y);
 	else if (sirf::iequals(f, "multiply"))
-		z.multiply(x, ptr_y);
+		z.multiply(x, y);
 	else if (sirf::iequals(f, "maximum"))
-		z.maximum(x, ptr_y);
+		z.maximum(x, y);
 	else if (sirf::iequals(f, "minimum"))
-		z.minimum(x, ptr_y);
-	//else
-	//	return unknownObject("function", f, __FILE__, __LINE__);
+		z.minimum(x, y);
 }
 
 extern "C"

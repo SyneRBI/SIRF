@@ -129,96 +129,76 @@ namespace sirf {
 			binary_op(x, y, product);
 		}
 		/// \c *this = the product \c x * y with scalar y
-		//virtual 
-		void multiply(const DataContainer& x, const void* ptr_y) //= 0;
+		void multiply(const DataContainer& x, T y)
 		{
-			T y = *static_cast<const T*>(ptr_y);
 			semibinary_op(x, y, product);
 		}
 
 		/// \c *this = the sum \c x + y with scalar y
-		//virtual 
-		void add(const DataContainer& x, const void* ptr_y) //= 0;
+		void add(const DataContainer& x, T y)
 		{
-			T y = *static_cast<const T*>(ptr_y);
 			semibinary_op(x, y, sum);
 		}
 
 		/// \c *this = the elementwise ratio \c x / y
-		//virtual 
-		void divide(const DataContainer& x, const DataContainer& y) //= 0;
+		void divide(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, ratio);
 		}
 
 		/// \c *this = the elementwise \c max(x, y)
-		//virtual 
-		void maximum(const DataContainer& x, const DataContainer& y) //= 0;
+		void maximum(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, maxreal);
 		}
-		//virtual 
-		void maximum(const DataContainer& x, const void* ptr_y) //= 0;
+		void maximum(const DataContainer& x, T y)
 		{
-			T y = *static_cast<const T*>(ptr_y);
 			semibinary_op(x, y, maxreal);
 		}
 
 		/// \c *this = the elementwise \c min(x, y)
-		//virtual 
-		void minimum(const DataContainer& x, const DataContainer& y) //= 0;
+		void minimum(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, minreal);
 		}
-		//virtual 
-		void minimum(const DataContainer& x, const void* ptr_y) //= 0;
+		void minimum(const DataContainer& x, T y)
 		{
-			T y = *static_cast<const T*>(ptr_y);
 			semibinary_op(x, y, minreal);
 		}
 
 		/// \c *this = the elementwise \c pow(x, y)
-		//virtual 
-		void power(const DataContainer& x, const DataContainer& y) //= 0;
+		void power(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op(x, y, power);
 			//binary_op(x, y, std::pow);
 		}
-		//virtual 
-		void power(const DataContainer& x, const void* ptr_y) //= 0;
+		void power(const DataContainer& x, T y)
 		{
-			T y = *static_cast<const T*>(ptr_y);
 			semibinary_op(x, y, power);
-			//binary_op(x, y, std::pow);
 		}
 
 		/// \c *this = the elementwise \c exp(x)
-		//virtual 
-		void exp(const DataContainer& x) //= 0;
+		void exp(const DataContainer& x)
 		{
 			unary_op(x, exp);
 		}
 		/// \c *this = the elementwise \c log(x)
-		//virtual 
-		void log(const DataContainer& x) //= 0;
+		void log(const DataContainer& x)
 		{
 			unary_op(x, log);
 		}
 		/// \c *this = the elementwise \c sqrt(x)
-		//virtual 
-		void sqrt(const DataContainer& x) //= 0;
+		void sqrt(const DataContainer& x)
 		{
 			unary_op(x, sqrt);
 		}
 		/// \c *this = the elementwise \c sign(x)
-		//virtual 
-		void sign(const DataContainer& x) //= 0;
+		void sign(const DataContainer& x)
 		{
 			unary_op(x, sign);
 		}
 		/// \c *this = the elementwise \c abs(x)
-		//virtual 
-		void abs(const DataContainer& x) //= 0;
+		void abs(const DataContainer& x)
 		{
 			unary_op(x, abs);
 		}
@@ -300,22 +280,18 @@ namespace sirf {
 		{
 			return std::real(x) < std::real(y) ? x : y;
 		}
-		//static std::complex<float> power(std::complex<float> x, std::complex<float> y)
 		static T power(T x, T y)
 		{
 			return std::pow(x, y);
 		}
-		//static std::complex<float> exp(std::complex<float> x)
 		static T exp(T x)
 		{
 			return std::exp(x);
 		}
-		//static std::complex<float> log(std::complex<float> x)
 		static T log(T x)
 		{
 			return std::log(x);
 		}
-		//static std::complex<float> sqrt(std::complex<float> x)
 		static T sqrt(T x)
 		{
 			return T(std::sqrt(x));
