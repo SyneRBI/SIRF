@@ -373,7 +373,7 @@ MRAcquisitionData::xapyb
         *py = a * (*px) + (*pb) * (*py);
     }
 }
-
+/*
 void
 MRAcquisitionData::binary_op
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, 
@@ -517,7 +517,7 @@ MRAcquisitionData::abs
 {
     MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::abs);
 }
-
+*/
 complex_float_t
 MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)

@@ -257,6 +257,7 @@ namespace sirf {
 		static complex_float_t sum(const ISMRMRD::Acquisition& acq_x);
 		// the value of the element of x with the largest real part
 		static complex_float_t max(const ISMRMRD::Acquisition& acq_x);
+/*
 		// elementwise multiplication
 		// y := x .* y
 		static void multiply
@@ -306,6 +307,7 @@ namespace sirf {
 		// y := abs(x)
 		static void abs
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+*/
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
 		// type and dimension of an ISMRMRD::Acquisition parameter
