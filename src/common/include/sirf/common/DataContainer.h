@@ -193,19 +193,29 @@ namespace sirf {
 		}
 
 		/// \c *this = the elementwise \c exp(x)
-		virtual void exp(const DataContainer& x) = 0;
+		//virtual 
+		void exp(const DataContainer& x) //= 0;
+		{
+			unary_op(x, exp);
+		}
 		/// \c *this = the elementwise \c log(x)
-		virtual void log(const DataContainer& x) = 0;
+		//virtual 
+		void log(const DataContainer& x) //= 0;
+		{
+			unary_op(x, log);
+		}
 		/// \c *this = the elementwise \c sqrt(x)
-		virtual void sqrt(const DataContainer& x) = 0;
-		//{
-		//	unary_op(x, sqrt);
-		//}
+		//virtual 
+		void sqrt(const DataContainer& x) //= 0;
+		{
+			unary_op(x, sqrt);
+		}
 		/// \c *this = the elementwise \c sign(x)
-		virtual void sign(const DataContainer& x) = 0;
-		//{
-		//	unary_op(x, sign);
-		//}
+		//virtual 
+		void sign(const DataContainer& x) //= 0;
+		{
+			unary_op(x, sign);
+		}
 		/// \c *this = the elementwise \c abs(x)
 		//virtual 
 		void abs(const DataContainer& x) //= 0;
@@ -295,15 +305,18 @@ namespace sirf {
 		{
 			return std::pow(x, y);
 		}
-		static std::complex<float> exp(std::complex<float> x)
+		//static std::complex<float> exp(std::complex<float> x)
+		static T exp(T x)
 		{
 			return std::exp(x);
 		}
-		static std::complex<float> log(std::complex<float> x)
+		//static std::complex<float> log(std::complex<float> x)
+		static T log(T x)
 		{
 			return std::log(x);
 		}
-		static std::complex<float> sqrt(std::complex<float> x)
+		//static std::complex<float> sqrt(std::complex<float> x)
+		static T sqrt(T x)
 		{
 			return T(std::sqrt(x));
 		}

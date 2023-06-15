@@ -2026,29 +2026,29 @@ void NiftiImageData<dataType>::binary_op(const DataContainer& a_x,
 //    semibinary_op(a_x, a_y, std::pow);
 //}
 
-template<class dataType>
-void NiftiImageData<dataType>::exp(const DataContainer& a_x)
-{
-    unary_op(a_x, std::exp);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::exp(const DataContainer& a_x)
+//{
+//    unary_op(a_x, std::exp);
+//}
 
-template<class dataType>
-void NiftiImageData<dataType>::log(const DataContainer& a_x)
-{
-    unary_op(a_x, std::log);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::log(const DataContainer& a_x)
+//{
+//    unary_op(a_x, std::log);
+//}
 
-template<class dataType>
-void NiftiImageData<dataType>::sqrt(const DataContainer& a_x)
-{
-    unary_op(a_x, std::sqrt);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::sqrt(const DataContainer& a_x)
+//{
+//    unary_op(a_x, std::sqrt);
+//}
 
-template<class dataType>
-void NiftiImageData<dataType>::sign(const DataContainer& a_x)
-{
-    unary_op(a_x, DataContainerTempl<float>::sign);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::sign(const DataContainer& a_x)
+//{
+//    unary_op(a_x, DataContainerTempl<float>::sign);
+//}
 
 //template<class dataType>
 //void NiftiImageData<dataType>::abs(const DataContainer& a_x)

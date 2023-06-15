@@ -291,22 +291,22 @@ namespace sirf {
 		//{
 		//	unary_op(x, std::abs);
 		//}
-		virtual void exp(const DataContainer& x)
-		{
-			unary_op(x, std::exp);
-		}
-		virtual void log(const DataContainer& x)
-		{
-			unary_op(x, std::log);
-		}
-		virtual void sqrt(const DataContainer& x)
-		{
-			unary_op(x, std::sqrt);
-		}
-		virtual void sign(const DataContainer& x)
-		{
-			unary_op(x, DataContainerTempl<float>::sign);
-		}
+		//virtual void exp(const DataContainer& x)
+		//{
+		//	unary_op(x, std::exp);
+		//}
+		//virtual void log(const DataContainer& x)
+		//{
+		//	unary_op(x, std::log);
+		//}
+		//virtual void sqrt(const DataContainer& x)
+		//{
+		//	unary_op(x, std::sqrt);
+		//}
+		//virtual void sign(const DataContainer& x)
+		//{
+		//	unary_op(x, DataContainerTempl<float>::sign);
+		//}
 		//virtual void multiply(const DataContainer& x, const void* ptr_y)
 		//{
 		//	float y = *static_cast<const float*>(ptr_y);
@@ -1085,22 +1085,22 @@ namespace sirf {
 		//{
 		//	unary_op(x, std::abs);
 		//}
-		virtual void exp(const DataContainer& x)
-		{
-			unary_op(x, std::exp);
-		}
-		virtual void log(const DataContainer& x)
-		{
-			unary_op(x, std::log);
-		}
-		virtual void sqrt(const DataContainer& x)
-		{
-			unary_op(x, std::sqrt);
-		}
-		virtual void sign(const DataContainer& x)
-		{
-			unary_op(x, DataContainerTempl<float>::sign);
-		}
+		//virtual void exp(const DataContainer& x)
+		//{
+		//	unary_op(x, std::exp);
+		//}
+		//virtual void log(const DataContainer& x)
+		//{
+		//	unary_op(x, std::log);
+		//}
+		//virtual void sqrt(const DataContainer& x)
+		//{
+		//	unary_op(x, std::sqrt);
+		//}
+		//virtual void sign(const DataContainer& x)
+		//{
+		//	unary_op(x, DataContainerTempl<float>::sign);
+		//}
 		//virtual void multiply(const DataContainer& x, const void* ptr_y)
 		//{
 		//	float y = *static_cast<const float*>(ptr_y);

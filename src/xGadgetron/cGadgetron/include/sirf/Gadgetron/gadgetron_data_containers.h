@@ -545,6 +545,7 @@ namespace sirf {
 
 		// acquisition data algebra
 		/// below all void* are actually complex_float_t*
+		virtual float norm() const;
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
@@ -581,12 +582,11 @@ namespace sirf {
 		//virtual void maximum(const DataContainer& x, const void* y);
 		//virtual void minimum(const DataContainer& x, const void* y);
 		//virtual void power(const DataContainer& x, const void* y);
-		virtual void exp(const DataContainer& x);
-		virtual void log(const DataContainer& x);
-		virtual void sqrt(const DataContainer& x);
-		virtual void sign(const DataContainer& x);
+		//virtual void exp(const DataContainer& x);
+		//virtual void log(const DataContainer& x);
+		//virtual void sqrt(const DataContainer& x);
+		//virtual void sign(const DataContainer& x);
 		//virtual void abs(const DataContainer& x);
-		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
 
@@ -963,10 +963,10 @@ namespace sirf {
 		//virtual void maximum(const DataContainer& x, const void* ptr_y);
 		//virtual void minimum(const DataContainer& x, const void* ptr_y);
 		//virtual void power(const DataContainer& x, const void* ptr_y);
-		virtual void exp(const DataContainer& x);
-		virtual void log(const DataContainer& x);
-		virtual void sqrt(const DataContainer& x);
-		virtual void sign(const DataContainer& x);
+		//virtual void exp(const DataContainer& x);
+		//virtual void log(const DataContainer& x);
+		//virtual void sqrt(const DataContainer& x);
+		//virtual void sign(const DataContainer& x);
 		//virtual void abs(const DataContainer& x);
 
 		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y,

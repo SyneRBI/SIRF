@@ -893,38 +893,38 @@ MRAcquisitionData::xapyb(
 //    //semibinary_op(x, y, MRAcquisitionData::power);
 //}
 
-void
-MRAcquisitionData::exp(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, DataContainerTempl<complex_float_t>::exp);
-    //unary_op(x, MRAcquisitionData::exp);
-}
+//void
+//MRAcquisitionData::exp(const DataContainer& a_x)
+//{
+//    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+//    unary_op(x, DataContainerTempl<complex_float_t>::exp);
+//    //unary_op(x, MRAcquisitionData::exp);
+//}
 
-void
-MRAcquisitionData::log(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, DataContainerTempl<complex_float_t>::log);
-    //unary_op(x, MRAcquisitionData::log);
-}
+//void
+//MRAcquisitionData::log(const DataContainer& a_x)
+//{
+//    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+//    unary_op(x, DataContainerTempl<complex_float_t>::log);
+//    //unary_op(x, MRAcquisitionData::log);
+//}
 
-void
-MRAcquisitionData::sqrt(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, DataContainerTempl<complex_float_t>::sqrt);
-    //unary_op(x, std::sqrt);
-    //unary_op(x, MRAcquisitionData::sqrt);
-}
+//void
+//MRAcquisitionData::sqrt(const DataContainer& a_x)
+//{
+//    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+//    unary_op(x, DataContainerTempl<complex_float_t>::sqrt);
+//    //unary_op(x, std::sqrt);
+//    //unary_op(x, MRAcquisitionData::sqrt);
+//}
 
-void
-MRAcquisitionData::sign(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, DataContainerTempl<complex_float_t>::sign);
-    //unary_op(x, MRAcquisitionData::sign);
-}
+//void
+//MRAcquisitionData::sign(const DataContainer& a_x)
+//{
+//    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+//    unary_op(x, DataContainerTempl<complex_float_t>::sign);
+//    //unary_op(x, MRAcquisitionData::sign);
+//}
 
 //void
 //MRAcquisitionData::abs(const DataContainer& a_x)
@@ -1809,33 +1809,33 @@ GadgetronImageData::unary_op(const DataContainer& a_x,
 //    semibinary_op(x, y, DataContainerTempl<complex_float_t>::power);
 //}
 
-void
-GadgetronImageData::exp(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainerTempl<complex_float_t>::exp);
-}
+//void
+//GadgetronImageData::exp(const DataContainer& a_x)
+//{
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+//    unary_op(x, DataContainerTempl<complex_float_t>::exp);
+//}
 
-void
-GadgetronImageData::log(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainerTempl<complex_float_t>::log);
-}
+//void
+//GadgetronImageData::log(const DataContainer& a_x)
+//{
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+//    unary_op(x, DataContainerTempl<complex_float_t>::log);
+//}
 
-void
-GadgetronImageData::sqrt(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainerTempl<complex_float_t>::sqrt);
-}
+//void
+//GadgetronImageData::sqrt(const DataContainer& a_x)
+//{
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+//    unary_op(x, DataContainerTempl<complex_float_t>::sqrt);
+//}
 
-void
-GadgetronImageData::sign(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainerTempl<complex_float_t>::sign);
-}
+//void
+//GadgetronImageData::sign(const DataContainer& a_x)
+//{
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+//    unary_op(x, DataContainerTempl<complex_float_t>::sign);
+//}
 
 //void
 //GadgetronImageData::abs(const DataContainer& a_x)
