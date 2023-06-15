@@ -634,21 +634,6 @@ namespace sirf {
         virtual void xapyb(const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
         virtual void xapyb(const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
         virtual void xapyb(const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const DataContainer& a_b);
-        //virtual void multiply(const DataContainer& a_x, const DataContainer& a_y);
-        //virtual void divide(const DataContainer& a_x, const DataContainer& a_y);
-        //virtual void maximum(const DataContainer& x, const DataContainer& y);
-        //virtual void minimum(const DataContainer& x, const DataContainer& y);
-        //virtual void power(const DataContainer& x, const DataContainer& y);
-        //virtual void multiply(const DataContainer& a_x, const void* a_y);
-        //virtual void add(const DataContainer& a_x, const void* a_y);
-        //virtual void maximum(const DataContainer& x, const void* a_y);
-        //virtual void minimum(const DataContainer& x, const void* a_y);
-        //virtual void power(const DataContainer& x, const void* a_y);
-        //virtual void exp(const DataContainer& x);
-        //virtual void log(const DataContainer& x);
-        //virtual void sqrt(const DataContainer& x);
-        //virtual void sign(const DataContainer& x);
-        //virtual void abs(const DataContainer& x);
 
         virtual Dimensions dimensions() const
         {

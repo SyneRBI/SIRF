@@ -264,17 +264,9 @@ namespace sirf {
 		}
 		virtual float norm() const;
 		/// below all void* are actually float*
-		//virtual void sum(void* ptr) const;
-		//virtual void max(void* ptr) const;
-		//virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual float sum() const;
 		virtual float max() const;
 		virtual float dot(const DataContainer& a_x) const;
-		//{
-		//	float s;
-		//	dot(a_x, &s);
-		//	return s;
-		//}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -287,76 +279,6 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		//virtual void abs(const DataContainer& x)
-		//{
-		//	unary_op(x, std::abs);
-		//}
-		//virtual void exp(const DataContainer& x)
-		//{
-		//	unary_op(x, std::exp);
-		//}
-		//virtual void log(const DataContainer& x)
-		//{
-		//	unary_op(x, std::log);
-		//}
-		//virtual void sqrt(const DataContainer& x)
-		//{
-		//	unary_op(x, std::sqrt);
-		//}
-		//virtual void sign(const DataContainer& x)
-		//{
-		//	unary_op(x, DataContainerTempl<float>::sign);
-		//}
-		//virtual void multiply(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::product);
-		//}
-		//virtual void add(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::sum);
-		//}
-		//virtual void divide(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::ratio);
-		//}
-		//virtual void maximum(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::maximum);
-		//}
-		//virtual void minimum(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::minimum);
-		//}
-		//virtual void power(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, std::pow);
-		//}
-		//virtual void multiply(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, DataContainerTempl<float>::product);
-		//}
-		//virtual void divide(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, DataContainerTempl<float>::ratio);
-		//}
-		//virtual void maximum(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, DataContainerTempl<float>::maximum);
-		//}
-		//virtual void minimum(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, DataContainerTempl<float>::minimum);
-		//}
-		//virtual void power(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, std::pow);
-		//}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
 		{
@@ -1063,9 +985,6 @@ namespace sirf {
 
 		virtual float norm() const;
 		/// below all void* are actually float*
-		//virtual void sum(void* ptr) const;
-		//virtual void max(void* ptr) const;
-		//virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual float sum() const;
 		virtual float max() const;
 		virtual float dot(const DataContainer& dc) const;
@@ -1081,76 +1000,6 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		//virtual void abs(const DataContainer& x)
-		//{
-		//	unary_op(x, std::abs);
-		//}
-		//virtual void exp(const DataContainer& x)
-		//{
-		//	unary_op(x, std::exp);
-		//}
-		//virtual void log(const DataContainer& x)
-		//{
-		//	unary_op(x, std::log);
-		//}
-		//virtual void sqrt(const DataContainer& x)
-		//{
-		//	unary_op(x, std::sqrt);
-		//}
-		//virtual void sign(const DataContainer& x)
-		//{
-		//	unary_op(x, DataContainerTempl<float>::sign);
-		//}
-		//virtual void multiply(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::product);
-		//}
-		//virtual void add(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::sum);
-		//}
-		//virtual void divide(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::ratio);
-		//}
-		//virtual void maximum(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::maximum);
-		//}
-		//virtual void minimum(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, DataContainerTempl<float>::minimum);
-		//}
-		//virtual void power(const DataContainer& x, const void* ptr_y)
-		//{
-		//	float y = *static_cast<const float*>(ptr_y);
-		//	semibinary_op(x, y, std::pow);
-		//}
-		//virtual void multiply(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, DataContainerTempl<float>::product);
-		//}
-		//virtual void divide(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, DataContainerTempl<float>::ratio);
-		//}
-		//virtual void maximum(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, DataContainerTempl<float>::maximum);
-		//}
-		//virtual void minimum(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, DataContainerTempl<float>::minimum);
-		//}
-		//virtual void power(const DataContainer& x, const DataContainer& y)
-		//{
-		//	binary_op(x, y, std::pow);
-		//}
 
 		Image3DF& data()
 		{
@@ -1186,12 +1035,6 @@ namespace sirf {
 			_data->fill(v);
 		}
 		void scale(float s);
-		//float dot(const DataContainer& a_x) const
-		//{
-		//	float s;
-		//	dot(a_x, &s);
-		//	return s;
-		//}
 		void axpby(
 			float a, const DataContainer& a_x,
 			float b, const DataContainer& a_y)
@@ -1272,7 +1115,6 @@ namespace sirf {
 		virtual void unary_op(const DataContainer& a_x, float(*f)(float));
 		virtual void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
-		//virtual void binary_op_new(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float)) {}
 
 	private:
 		/// Clone helper function. Don't use.

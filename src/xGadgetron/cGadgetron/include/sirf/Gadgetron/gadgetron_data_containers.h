@@ -551,14 +551,6 @@ namespace sirf {
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
-		//virtual void sum(void* ptr) const;
-		//virtual void max(void* ptr) const;
-		//complex_float_t dot(const DataContainer& a_x)
-		//{
-		//	complex_float_t z;
-		//	dot(a_x, &z);
-		//	return z;
-		//}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -574,42 +566,20 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		//virtual void multiply(const DataContainer& x, const DataContainer& y);
-		//virtual void divide(const DataContainer& x,	const DataContainer& y);
-		//virtual void maximum(const DataContainer& x, const DataContainer& y);
-		//virtual void minimum(const DataContainer& x, const DataContainer& y);
-		//virtual void power(const DataContainer& x, const DataContainer& y);
-		//virtual void multiply(const DataContainer& x, const void* y);
-		//virtual void add(const DataContainer& x, const void* ptr_y);
-		//virtual void maximum(const DataContainer& x, const void* y);
-		//virtual void minimum(const DataContainer& x, const void* y);
-		//virtual void power(const DataContainer& x, const void* y);
-		//virtual void exp(const DataContainer& x);
-		//virtual void log(const DataContainer& x);
-		//virtual void sqrt(const DataContainer& x);
-		//virtual void sign(const DataContainer& x);
-		//virtual void abs(const DataContainer& x);
 
 		virtual void write(const std::string &filename) const;
 
 		// regular methods
 		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
-		//virtual void binary_op_new(const DataContainer& a_x, const DataContainer& a_y,
-		//	complex_float_t(*f)(complex_float_t, complex_float_t))
-		//{
-		//	binary_op(a_x, a_y, f);
-		//}
-		//void binary_op_old(const DataContainer& a_x, const DataContainer& a_y,
-		//	void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 		virtual void semibinary_op(
 			const DataContainer& a_x, complex_float_t y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
 		virtual void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
-		void semibinary_op(const DataContainer& a_x, complex_float_t y,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
-		void unary_op(const DataContainer& a_x,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
+		//void semibinary_op(const DataContainer& a_x, complex_float_t y,
+		//	void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
+		//void unary_op(const DataContainer& a_x,
+		//	void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
@@ -914,9 +884,6 @@ namespace sirf {
 
 		virtual float norm() const;
 		/// below all void* are actually complex_float_t*
-		//virtual void sum(void* ptr) const;
-		//virtual void max(void* ptr) const;
-		//virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
@@ -939,14 +906,6 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		//virtual void xapyb(
-		//	const DataContainer& a_x, const DataContainer& a_a,
-		//	const DataContainer& a_y, const void* ptr_b)
-		//{
-		//	SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
-		//	ComplexFloat_ b(*(complex_float_t*)ptr_b);
-		//	xapyb_(a_x, a, a_y, b);
-		//}
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b)
@@ -955,30 +914,9 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		//virtual void multiply(const DataContainer& x, const DataContainer& y);
-		//virtual void divide(const DataContainer& x, const DataContainer& y);
-		//virtual void maximum(const DataContainer& x, const DataContainer& y);
-		//virtual void minimum(const DataContainer& x, const DataContainer& y);
-		//virtual void power(const DataContainer& x, const DataContainer& y);
-		//virtual void multiply(const DataContainer& x, const void* ptr_y);
-		//virtual void add(const DataContainer& x, const void* ptr_y);
-		//virtual void maximum(const DataContainer& x, const void* ptr_y);
-		//virtual void minimum(const DataContainer& x, const void* ptr_y);
-		//virtual void power(const DataContainer& x, const void* ptr_y);
-		//virtual void exp(const DataContainer& x);
-		//virtual void log(const DataContainer& x);
-		//virtual void sqrt(const DataContainer& x);
-		//virtual void sign(const DataContainer& x);
-		//virtual void abs(const DataContainer& x);
 
 		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
-		//void binary_op(
-		//	const DataContainer& a_x, const DataContainer& a_y,
-		//	complex_float_t(*f)(complex_float_t, complex_float_t))
-		//{
-		//	binary_op_new(a_x, a_y, f);
-		//}
 		void semibinary_op(
 			const DataContainer& a_x, complex_float_t y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
@@ -986,12 +924,6 @@ namespace sirf {
 
 		void fill(float s);
 		void scale(float s);
-		//complex_float_t dot(const DataContainer& a_x);
-		//{
-		//	complex_float_t z;
-		//	dot(a_x, &z);
-		//	return z;
-		//}
 		void axpby(
 			complex_float_t a, const DataContainer& a_x,
 			complex_float_t b, const DataContainer& a_y)
