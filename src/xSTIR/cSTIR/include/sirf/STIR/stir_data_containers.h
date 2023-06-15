@@ -332,11 +332,11 @@ namespace sirf {
 		//	float y = *static_cast<const float*>(ptr_y);
 		//	semibinary_op(x, y, DataContainerTempl<float>::minimum);
 		//}
-		virtual void power(const DataContainer& x, const void* ptr_y)
-		{
-			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, std::pow);
-		}
+		//virtual void power(const DataContainer& x, const void* ptr_y)
+		//{
+		//	float y = *static_cast<const float*>(ptr_y);
+		//	semibinary_op(x, y, std::pow);
+		//}
 		//virtual void multiply(const DataContainer& x, const DataContainer& y)
 		//{
 		//	binary_op(x, y, DataContainerTempl<float>::product);
@@ -353,10 +353,10 @@ namespace sirf {
 		//{
 		//	binary_op(x, y, DataContainerTempl<float>::minimum);
 		//}
-		virtual void power(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, std::pow);
-		}
+		//virtual void power(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, std::pow);
+		//}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
 		{
@@ -1126,11 +1126,11 @@ namespace sirf {
 		//	float y = *static_cast<const float*>(ptr_y);
 		//	semibinary_op(x, y, DataContainerTempl<float>::minimum);
 		//}
-		virtual void power(const DataContainer& x, const void* ptr_y)
-		{
-			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, std::pow);
-		}
+		//virtual void power(const DataContainer& x, const void* ptr_y)
+		//{
+		//	float y = *static_cast<const float*>(ptr_y);
+		//	semibinary_op(x, y, std::pow);
+		//}
 		//virtual void multiply(const DataContainer& x, const DataContainer& y)
 		//{
 		//	binary_op(x, y, DataContainerTempl<float>::product);
@@ -1147,10 +1147,10 @@ namespace sirf {
 		//{
 		//	binary_op(x, y, DataContainerTempl<float>::minimum);
 		//}
-		virtual void power(const DataContainer& x, const DataContainer& y)
-		{
-			binary_op(x, y, std::pow);
-		}
+		//virtual void power(const DataContainer& x, const DataContainer& y)
+		//{
+		//	binary_op(x, y, std::pow);
+		//}
 
 		Image3DF& data()
 		{

@@ -2013,18 +2013,18 @@ void NiftiImageData<dataType>::binary_op(const DataContainer& a_x,
 //    semibinary_op(a_x, a_y, DataContainerTempl<dataType>::minimum);
 //}
 
-template<class dataType>
-void NiftiImageData<dataType>::power(const DataContainer& x, const DataContainer& y)
-{
-    binary_op(x, y, std::pow);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::power(const DataContainer& x, const DataContainer& y)
+//{
+//    binary_op(x, y, std::pow);
+//}
 
-template<class dataType>
-void NiftiImageData<dataType>::power(const DataContainer& a_x, const void* ptr_y)
-{
-    dataType a_y = *static_cast<const dataType*>(ptr_y);
-    semibinary_op(a_x, a_y, std::pow);
-}
+//template<class dataType>
+//void NiftiImageData<dataType>::power(const DataContainer& a_x, const void* ptr_y)
+//{
+//    dataType a_y = *static_cast<const dataType*>(ptr_y);
+//    semibinary_op(a_x, a_y, std::pow);
+//}
 
 template<class dataType>
 void NiftiImageData<dataType>::exp(const DataContainer& a_x)
