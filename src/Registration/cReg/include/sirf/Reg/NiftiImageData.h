@@ -632,10 +632,7 @@ namespace sirf {
         virtual void axpby(dataType a, const DataContainer& a_x, dataType b, const DataContainer& a_y);
         virtual void xapyb(const DataContainer& a_x, dataType a, const DataContainer& a_y, dataType b);
         virtual void xapyb(const DataContainer& a_x, dataType a, const DataContainer& a_y, const DataContainer& a_b);
-        //virtual void axpby(const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
-        //virtual void xapyb(const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
         virtual void xapyb(const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
-        //virtual void xapyb(const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const DataContainer& a_b);
 
         virtual Dimensions dimensions() const
         {
@@ -651,10 +648,8 @@ namespace sirf {
             return dim;
         }
         virtual void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
-        //virtual void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
         virtual void semibinary_op(const DataContainer& a_x, dataType y, dataType(*f)(dataType, dataType));
         virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
-        //virtual void binary_op_new(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType)) {}
         /// Set up the geometrical info. Use qform preferentially over sform.
         virtual void set_up_geom_info();
     protected:

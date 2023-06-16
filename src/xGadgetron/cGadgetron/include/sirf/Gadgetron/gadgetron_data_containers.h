@@ -513,7 +513,7 @@ namespace sirf {
 			return std::make_tuple(limit.minimum, limit.maximum, limit.center);
 		}
 
-		// abstract methods
+		// virtual methods
 
 		virtual void empty() = 0;
 		virtual void take_over(MRAcquisitionData&) = 0;
@@ -562,36 +562,20 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, complex_float_t a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		//virtual void axpby(
-		//	const void* ptr_a, const DataContainer& a_x,
-		//	const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		//virtual void xapyb(
-		//	const DataContainer& a_x, const void* ptr_a,
-		//	const DataContainer& a_y, const void* ptr_b)
-		//{
-		//	axpby(ptr_a, a_x, ptr_b, a_y);
-		//}
-		//virtual void xapyb(
-		//	const DataContainer& a_x, const void* ptr_a,
-		//	const DataContainer& a_y, const DataContainer& a_b);
 
 		virtual void write(const std::string &filename) const;
 
-		// regular methods
 		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
 		virtual void semibinary_op(
 			const DataContainer& a_x, complex_float_t y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
 		virtual void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
-		//void semibinary_op(const DataContainer& a_x, complex_float_t y,
-		//	void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
-		//void unary_op(const DataContainer& a_x,
-		//	void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
+		// regular methods
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
         void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
@@ -916,25 +900,6 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		//virtual void axpby(
-		//	const void* ptr_a, const DataContainer& a_x,
-		//	const void* ptr_b, const DataContainer& a_y);
-		//virtual void xapyb(
-		//	const DataContainer& a_x, const void* ptr_a,
-		//	const DataContainer& a_y, const void* ptr_b)
-		//{
-		//	ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
-		//	ComplexFloat_ b(*static_cast<const complex_float_t*>(ptr_b));
-		//	xapyb_(a_x, a, a_y, b);
-		//}
-		//virtual void xapyb(
-		//	const DataContainer& a_x, const void* ptr_a,
-		//	const DataContainer& a_y, const DataContainer& a_b)
-		//{
-		//	ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
-		//	SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
-		//	xapyb_(a_x, a, a_y, b);
-		//}
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b)
@@ -946,25 +911,14 @@ namespace sirf {
 
 		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
-		void semibinary_op(
+		virtual void semibinary_op(
 			const DataContainer& a_x, complex_float_t y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
-		void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
+		virtual void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
 
 		void fill(float s);
 		void scale(float s);
-		//void axpby(
-		//	complex_float_t a, const DataContainer& a_x,
-		//	complex_float_t b, const DataContainer& a_y)
-		//{
-		//	axpby(&a, a_x, &b, a_y);
-		//}
-		//void xapyb(
-		//	const DataContainer& a_x, complex_float_t a,
-		//	const DataContainer& a_y, complex_float_t b)
-		//{
-		//	xapyb(a_x, &a, a_y, &b);
-		//}			
+
 		gadgetron::unique_ptr<ISMRMRDImageData> clone() const
 		{
 			return gadgetron::unique_ptr<ISMRMRDImageData>(this->clone_impl());

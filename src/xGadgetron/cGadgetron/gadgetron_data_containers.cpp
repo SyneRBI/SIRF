@@ -733,55 +733,7 @@ MRAcquisitionData::xapyb(
     this->set_sorted(true);
     this->organise_kspace();
 }
-/*
-void
-MRAcquisitionData::axpby(
-    const void* ptr_a, const DataContainer& a_x,
-    const void* ptr_b, const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-    if (!x.sorted() || !y.sorted())
-        THROW("a*x + b*y cannot be applied to unsorted x or y");
-    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
-    complex_float_t b = *static_cast<const complex_float_t*>(ptr_b);
-    int nx = x.number();
-    int ny = y.number();
-    ISMRMRD::Acquisition ax;
-    ISMRMRD::Acquisition ay;
-    ISMRMRD::Acquisition acq;
-    bool isempty = (number() < 1);
-    for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
-        if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
-            ix++;
-            continue;
-        }
-        if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
-            iy++;
-            continue;
-        }
-        if (!isempty) {
-            if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
-                k++;
-                continue;
-            }
-        }
-        MRAcquisitionData::axpby(a, ax, b, ay);
-        if (isempty)
-            append_acquisition(ay);
-        else
-            set_acquisition(k, ay);
-        ix++;
-        iy++;
-        k++;
-    }
-    this->set_sorted(true);
-    this->organise_kspace();
-}
-*/
+
 void
 MRAcquisitionData::xapyb(
     const DataContainer& a_x, const DataContainer& a_a,
@@ -846,64 +798,7 @@ MRAcquisitionData::xapyb(
     this->set_sorted(true);
     this->organise_kspace();
 }
-/*
-void
-MRAcquisitionData::xapyb(
-    const DataContainer& a_x, const void* ptr_a,
-    const DataContainer& a_y, const DataContainer& a_b)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, b, a_b);
-    if (!x.sorted() || !y.sorted() || !b.sorted())
-        THROW("x*a + y*b cannot be applied to unsorted a, b, x or y");
-    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
-    int nx = x.number();
-    int ny = y.number();
-    int nb = b.number();
-    ISMRMRD::Acquisition ax;
-    ISMRMRD::Acquisition ay;
-    ISMRMRD::Acquisition ab;
-    ISMRMRD::Acquisition acq;
-    bool isempty = (number() < 1);
-    for (int ix = 0, iy = 0, ib = 0, k = 0;
-        ix < nx && iy < ny && ib < nb;) {
-        if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
-            ix++;
-            continue;
-        }
-        if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
-            iy++;
-            continue;
-        }
-        if (!b.get_acquisition(ib, ab)) {
-            std::cout << ib << " ignored (ab)\n";
-            ib++;
-            continue;
-        }
-        if (!isempty) {
-            if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
-                k++;
-                continue;
-            }
-        }
-        MRAcquisitionData::xapyb(ax, a, ay, ab);
-        if (isempty)
-            append_acquisition(ay);
-        else
-            set_acquisition(k, ay);
-        ix++;
-        iy++;
-        ib++;
-        k++;
-    }
-    this->set_sorted(true);
-    this->organise_kspace();
-}
-*/
+
 void
 MRAcquisitionData::binary_op(
     const DataContainer& a_x, const DataContainer& a_y,
@@ -1479,39 +1374,7 @@ GadgetronImageData::axpby(
 	}
 	this->set_meta_data(x.get_meta_data());
 }
-/*
-void
-GadgetronImageData::axpby(
-    const void* ptr_a, const DataContainer& a_x,
-    const void* ptr_b, const DataContainer& a_y)
-{
-    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
-    complex_float_t b = *static_cast<const complex_float_t*>(ptr_b);
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    unsigned int nx = x.number();
-    unsigned int ny = y.number();
-    if (nx != ny)
-        THROW("ImageData sizes mismatch in axpby");
-    unsigned int n = number();
-    if (n > 0) {
-        if (n != nx)
-            THROW("ImageData sizes mismatch in axpby");
-        for (unsigned int i = 0; i < nx; i++)
-            image_wrap(i).axpby(a, x.image_wrap(i), b, y.image_wrap(i));
-    }
-    else {
-        for (unsigned int i = 0; i < nx; i++) {
-            const ImageWrap& u = x.image_wrap(i);
-            const ImageWrap& v = y.image_wrap(i);
-            ImageWrap w(u);
-            w.axpby(a, u, b, v);
-            append(w);
-        }
-    }
-    this->set_meta_data(x.get_meta_data());
-}
-*/
+
 void
 GadgetronImageData::binary_op(
     const DataContainer& a_x, const DataContainer& a_y,
