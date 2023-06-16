@@ -1293,7 +1293,7 @@ for fully sampled reconstruction.
 | | | trigger_dimension | "repetition" |
 | | | split_slices | "true" |
 
-### Using the C++ libraries<a name="using_the_c++_libraries</name>
+### Using the C++ libraries<a name="using_the_c++_libraries"></a>
 
 The Python/MATLAB interface is based on the underlying C++ code. However, the mapping is currently not one-to-one. Python/MATLAB classes do correspond to C++ classes but might have extra methods or vice versa.
 
