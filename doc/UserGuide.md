@@ -1141,7 +1141,7 @@ Inserts the data collected in a bucket into a buffer. A buffer is more suitable 
 
 | input | output | parameters | default values |
 | - | - | - | - |
-| AcquisitionData | AcquisitionData | debug_folder | "" |
+| internal2 | internal3 | debug_folder | "" |
 | | | perform_timing | "true" |
 | | | verbose | "true" |
 | | | average_all_ref_N | "true" |
@@ -1156,7 +1156,7 @@ Coil compression by calculating the Eigen values along the coil dimension and on
 
 | input | output | parameters | default values |
 | - | - | - | - |
-| AcquisitionData | AcquisitionData | debug_folder | "" |
+| internal2 | internal3 | debug_folder | "" |
 | | | perform_timing | "false" |
 | | | verbose | "false" |
 | | | skip_processing_meta_field | "Skip_processing_after_recon" |
@@ -1171,7 +1171,7 @@ Handle partial Fourier encoding and apply filter along the partial Fourier direc
 
 | input | output | parameters | default values |
 | - | - | - | - |
-| AcquisitionData | AcquisitionData | debug_folder | "" |
+| internal4 | internal5 | debug_folder | "" |
 | | | perform_timing | "false" |
 | | | verbose | "false" |
 | | | skip_processing_meta_field | "Skip_processing_after_recon" |
@@ -1185,7 +1185,7 @@ Handle partial Fourier encoding and apply filter along the partial Fourier direc
 | | | filterE2_sigma | "1.0" |
 | | | filterE2_width | "0.15" |
 
-Apply a filter along different k-space dimensions.
+Apply a filter along different k-space dimensions on an image. Image is transformed to k-space, filter is applied and image is transformed back.
 
 #### SimpleReconGadget
 
