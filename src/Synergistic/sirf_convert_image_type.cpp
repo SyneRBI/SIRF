@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
         }
 
         // Check number of inputs
-        if(argc < 5 && argc < 7) {
+        if (argc < 5) {
             print_usage(argv[0]);
             exit(EXIT_FAILURE);
         }
