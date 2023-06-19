@@ -1137,6 +1137,56 @@ Collects lines of k-space until a certain trigger condition is encountered, i.e.
 
 Inserts the data collected in a bucket into a buffer. A buffer is more suitable for the reconstruction processing.
 
+#### GenericReconEigenChannelGadget
+
+| input | output | parameters | default values |
+| - | - | - | - |
+| AcquisitionData | AcquisitionData | debug_folder | "" |
+| | | perform_timing | "true" |
+| | | verbose | "true" |
+| | | average_all_ref_N | "true" |
+| | | average_all_ref_S | "true" |
+| | | upstream_coil_compression | "true" |
+| | | upstream_coil_compression_thres | "0.002" |
+| | | upstream_coil_compression_num_modesKep | "0" |
+
+Coil compression by calculating the Eigen values along the coil dimension and only keeping the values above a certain threshhold.
+
+#### GenericReconPartialFourierHandlingFilterGadget
+
+| input | output | parameters | default values |
+| - | - | - | - |
+| AcquisitionData | AcquisitionData | debug_folder | "" |
+| | | perform_timing | "false" |
+| | | verbose | "false" |
+| | | skip_processing_meta_field | "Skip_processing_after_recon" |
+| | | partial_fourier_filter_RO_width | "0.15" |
+| | | partial_fourier_filter_E1_width | "0.15" |
+| | | partial_fourier_filter_E2_width | "0.15" |
+| | | partial_fourier_filter_densityComp | "false" |
+
+Handle partial Fourier encoding and apply filter along the partial Fourier directions.
+
+#### GenericReconKSpaceFilteringGadget
+
+| input | output | parameters | default values |
+| - | - | - | - |
+| AcquisitionData | AcquisitionData | debug_folder | "" |
+| | | perform_timing | "false" |
+| | | verbose | "false" |
+| | | skip_processing_meta_field | "Skip_processing_after_recon" |
+| | | filterRO | "Gaussian" |
+| | | filterRO_sigma | "1.0" |
+| | | filterRO_width | "0.15" |
+| | | filterE1 | "Gaussian" |
+| | | filterE1_sigma | "1.0" |
+| | | filterE1_width | "0.15" |
+| | | filterE2 | "Gaussian" |
+| | | filterE2_sigma | "1.0" |
+| | | filterE2_width | "0.15" |
+
+Apply a filter along different k-space dimensions.
+
 #### SimpleReconGadget
 
 | input | output | parameters |
