@@ -1031,8 +1031,9 @@ class AcquisitionData(DataContainer):
         encoding = acq_data.get_ISMRMRD_info('kspace_encode_step_1')
 
         '''
-        na, nc, ns = self.dimensions()
+        #na, nc, ns = self.dimensions()
         if which == 'all':
+            na = self.number()
             rng = range(na)
         else:
             rng = which
