@@ -179,6 +179,8 @@ def main():
     recon.set_up(current_alpha1)
     # set the initial image estimate
     sens1=obj_fun.get_subset_sensitivity(0)
+    # alternatively:
+    #sens1=recon.get_subset_sensitivity()
 
     Ksensitivity1 = recon.compute_kernelised_image(sens1, iterative_kernel_info1)
     recon.set_current_estimate(current_alpha1)

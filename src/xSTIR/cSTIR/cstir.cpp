@@ -334,6 +334,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_iterativeReconstructionParameter(handle, name);
 		else if (sirf::iequals(obj, "OSMAPOSL"))
 			return cSTIR_OSMAPOSLParameter(handle, name);
+		else if (sirf::iequals(obj, "KOSMAPOSL"))
+			return cSTIR_OSMAPOSLParameter(handle, name);
 		else if (sirf::iequals(obj, "OSSPS"))
 			return cSTIR_OSSPSParameter(handle, name);
 		else if (sirf::iequals(obj, "FBP2D"))

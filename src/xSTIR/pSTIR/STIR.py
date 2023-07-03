@@ -2695,6 +2695,11 @@ class ObjectiveFunction(object):
         """
         return self.gradient(image, subset)
 
+    @abc.abstractmethod
+    def get_subset_sensitivity(self, subset):
+        #print('in base class ObjectiveFunction')
+        pass
+
 
 class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
     """Class for STIR PoissonLogLikelihoodWithLinearModelForMean object.
@@ -3006,7 +3011,10 @@ class IterativeReconstructor(Reconstructor):
         assert_validity(obj, ObjectiveFunction)
         parms.set_parameter(self.handle, 'IterativeReconstruction',
             'objective_function', obj.handle)
-#    def get_objective_function(self):
+
+    abc.abstractmethod
+    def get_objective_function(self):
+        pass
 #        obj_fun = ObjectiveFunction()
 #        obj_fun.handle = pystir.cSTIR_parameter\
 #            (self.handle, 'IterativeReconstruction', 'objective_function')
@@ -3123,12 +3131,12 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
 #    def set_MAP_model(self, model):
 #        parms.set_char_par\
 #            (self.handle, self.name, 'MAP_model', model)
-#    def get_objective_function(self):
-#        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
-#        obj_fun.handle = pystir.cSTIR_parameter\
-#            (self.handle, self.name, 'objective_function')
-#        check_status(obj_fun.handle)
-#        return obj_fun
+    def get_objective_function(self):
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+        obj_fun.handle = pystir.cSTIR_parameter\
+            (self.handle, self.name, 'objective_function')
+        check_status(obj_fun.handle)
+        return obj_fun
 
 
 class KOSMAPOSLReconstructor(IterativeReconstructor):
@@ -3176,6 +3184,7 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
 
     def __init__(self, filename=''):
         """init."""
+        IterativeReconstructor.__init__(self)
         self.handle = None
         self.image = None
         self.name = 'KOSMAPOSL'
@@ -3239,6 +3248,13 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
             (self.handle, image.handle, alpha.handle)
         check_status(ki.handle)
         return ki
+
+    def get_objective_function(self):
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+        obj_fun.handle = pystir.cSTIR_parameter\
+            (self.handle, self.name, 'objective_function')
+        check_status(obj_fun.handle)
+        return obj_fun
 
 
 class SingleScatterSimulator():

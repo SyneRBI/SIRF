@@ -1086,6 +1086,7 @@ sirf::cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 		return newObjectHandle(recon.get_objective_function_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
+
 #ifdef USE_HKEM
 void*
 sirf::cSTIR_setKOSMAPOSLParameter
@@ -1119,7 +1120,18 @@ sirf::cSTIR_setKOSMAPOSLParameter
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
 }
+
+void*
+sirf::cSTIR_KOSMAPOSLParameter(const DataHandle* handle, const char* name)
+{
+	OSMAPOSLReconstruction<Image3DF>& recon =
+		objectFromHandle<OSMAPOSLReconstruction<Image3DF> >(handle);
+	if (sirf::iequals(name, "objective_function"))
+		return newObjectHandle(recon.get_objective_function_sptr());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
 #endif
+
 void*
 sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
