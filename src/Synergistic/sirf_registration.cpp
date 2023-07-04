@@ -31,8 +31,7 @@ limitations under the License.
 #include "sirf/Reg/NiftyF3dSym.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/Gadgetron/gadgetron_data_containers.h"
-#include "sirf/STIR/stir_data_containers.h"
+#include "sirf/Syn/utilities.h"
 #include <boost/filesystem.hpp>
 #ifdef SIRF_SPM
 #include "sirf/Reg/SPMRegistration.h"
@@ -48,18 +47,10 @@ enum Algorithm {
 
 static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
 {
-    if      (strcmp(engine.c_str(), "Reg") == 0)
-        return std::make_shared<const NiftiImageData3D<float> >(filename);
-    else if (strcmp(engine.c_str(), "STIR") == 0)
-        return std::make_shared<const STIRImageData>(filename);
-    else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
-        std::shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
-		sptr_img->read(filename);
-        return std::move(sptr_img);
-    }
-    else
-        throw std::runtime_error("sirf_registration: unknown image engine - " + engine + ".\n");
+  ImageDataWrap i(filename, engine, false);
+  return i.data_sptr();
 }
+
 //reg,algo,is_affine_or_rigid,algo_str
 static void algo_as_sptr(std::shared_ptr<Registration<float> > &algo_sptr, Algorithm &algo, const std::string &algorithm)
 {

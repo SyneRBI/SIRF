@@ -24,6 +24,7 @@ limitations under the License.
 
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/DataHandle.h"
+#include "sirf/iUtilities/iutilities.h"
 #include "sirf/STIR/cstir_p.h"
 #include "sirf/STIR/stir_x.h"
 
@@ -35,9 +36,6 @@ using namespace sirf;
 #define STIRSPTR_FROM_HANDLE(Object, X, H) \
   stir::shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 #define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
-
-extern "C"
-char* charDataFromHandle(const void* ptr);
 
 static void*
 handle_error(const std::string& error_string, const char* file, int line) 

@@ -27,18 +27,26 @@ limitations under the License.
 \author SyneRBI
 */
 
+#ifdef SIRF_BUILT_WITH_ISMRMRD
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
+#include "sirf/Gadgetron/gadgetron_x.h"
+#include "sirf/Gadgetron/gadget_lib.h"
+#endif
+#ifdef SIRF_BUILT_WITH_STIR
 #include "sirf/STIR/stir_data_containers.h"
+#endif
+#ifdef SIRF_BUILT_WITH_REGISTRATION
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/AffineTransformation.h"
-#include "sirf/Gadgetron/gadgetron_x.h"
-#include "sirf/Gadgetron/gadget_lib.h"
+#endif
+#include "sirf/Syn/utilities.h"
 
 using namespace sirf;
 
 #define ADD_GADGET(X, T) X.push_back(std::make_shared<T>())
 
+#ifdef SIRF_BUILT_WITH_STIR
 static void create_stir_output_file_format(const std::string &path)
 {
     std::ofstream file(path);
@@ -54,6 +62,7 @@ static void create_stir_output_file_format(const std::string &path)
     file << "End:=\n";
     file.close();
 }
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -70,6 +79,7 @@ int main(int argc, char* argv[])
         if (argc > 3)
             mr_recon_h5_filename = argv[3];
 
+#ifdef SIRF_BUILT_WITH_STIR
         // Test STIR -> Nifti
         {
             std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -96,7 +106,9 @@ int main(int argc, char* argv[])
             std::cout << "//                  Finished STIRImageData->NiftiImageData test.\n";
             std::cout << "//------------------------------------------------------------------------ //\n";
         }
+#endif
 
+#ifdef SIRF_BUILT_WITH_ISMRMRD
         // Test Gadgetron -> Nifti
         if (!mr_recon_h5_filename.empty()) {
 
@@ -310,6 +322,7 @@ int main(int argc, char* argv[])
             std::cout << "//                  Finished GadgetronImageData reorient test.\n";
             std::cout << "//------------------------------------------------------------------------ //\n";
         }
+#endif
 
     // Error handling
     } catch(const std::exception &error) {

@@ -1,8 +1,9 @@
 
 #========================================================================
 # Author: Richard Brown, Kris Thielemans
-# Copyright 2016 - 2020 University College London
-# Copyright 2016 - 2020 Science Technology Facilities Council
+# Author: Evgueni Ovtchinnikov
+# Copyright 2016 - 2023 University College London
+# Copyright 2016 - 2023 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -33,48 +34,12 @@ else()
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
   find_package(FFTW3 COMPONENTS single REQUIRED)
   ADD_SUBDIRECTORY(xGadgetron)
-  set(SIRF_BUILT_WITH_ISMRMRD TRUE PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_ISMRMRD TRUE) # set for directories "below"
+  set(SIRF_BUILT_WITH_ISMRMRD TRUE PARENT_SCOPE) # set for directory "above"
   set(ISMRMRD_VERSION ${ISMRMRD_VERSION} PARENT_SCOPE)
+  # TODO use target_compile_definitions
+  add_definitions(-DSIRF_BUILT_WITH_ISMRMRD)
 endif()
-
-
-
-##########################################################################
-#                             Registration                               #
-##########################################################################
-option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
-if (DISABLE_Registration)
-  message(STATUS "Registration support disabled.")
-  set(SPM_BOOL_STR "0" PARENT_SCOPE)
-  set(SIRF_BUILT_WITH_REGISTRATION False PARENT_SCOPE)
-else()
-  FIND_PACKAGE(NIFTYREG 1.5.61 REQUIRED)
-  # NIFTYREG
-  FOREACH(NR_lib ${NIFTYREG_LIBRARIES})
-    find_library(${NR_lib}_full_path "${NR_lib}" "${NIFTYREG_LIBRARY_DIRS}")
-    if(NOT ${NR_lib}_full_path)
-      message(FATAL_ERROR "${NR_lib} not found")
-    endif()
-    SET(NR_libs_full_path "${NR_libs_full_path};${${NR_lib}_full_path}")
-  ENDFOREACH()
-  # If niftyreg was bulit with OpenMP
-  if (NIFTYREG_BUILT_WITH_OPENMP)
-    find_package(OpenMP REQUIRED)
-    if (OpenMP_CXX_FOUND)
-      SET(NR_libs_full_path "${NR_libs_full_path};OpenMP::OpenMP_CXX")
-    endif()
-  endif()
-  # If niftyreg was bulit with CUDA
-  if (NIFTYREG_BUILT_WITH_CUDA)
-    find_package(CUDA REQUIRED)
-    SET(NR_libs_full_path "${NR_libs_full_path};${CUDA_CUDA_LIBRARY};${CUDA_CUDART_LIBRARY}")
-  endif()
-  ADD_SUBDIRECTORY(Registration)
-  set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
-  set(SIRF_BUILT_WITH_REGISTRATION TRUE PARENT_SCOPE)
-endif()
-
-
 
 ##########################################################################
 #                                 STIR                                   #
@@ -111,38 +76,76 @@ else()
     set(Parallelproj_BOOL_STR "0")
   endif()
   ADD_SUBDIRECTORY(xSTIR)
+  set(SIRF_BUILT_WITH_STIR TRUE)
   set(SIRF_BUILT_WITH_STIR TRUE PARENT_SCOPE)
   set(STIR_VERSION ${STIR_VERSION} PARENT_SCOPE)
+  # TODO use target_compile_definitions
+  add_definitions(-DSIRF_BUILT_WITH_STIR)
+
 endif()
 set(NiftyPET_BOOL_STR ${NiftyPET_BOOL_STR} PARENT_SCOPE)
 set(Parallelproj_BOOL_STR ${Parallelproj_BOOL_STR} PARENT_SCOPE)
 
 
 ##########################################################################
+#                             Registration                               #
+##########################################################################
+# Note:
+# The Python/MATLAB interface for Reg depends on STIR sadly, so STIR stuff
+# needs to come first. We could add some checks here to see if Registration should be
+# disabled, but we'll just check it in the cReg/CMakeLists.txt and leave it to the user
+# to either enable STIR or disable Registration.
+option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
+if (DISABLE_Registration)
+  message(STATUS "Registration support disabled.")
+  set(SPM_BOOL_STR "0" PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION False PARENT_SCOPE)
+else()
+  FIND_PACKAGE(NIFTYREG 1.5.61 REQUIRED)
+  # NIFTYREG
+  FOREACH(NR_lib ${NIFTYREG_LIBRARIES})
+    find_library(${NR_lib}_full_path "${NR_lib}" "${NIFTYREG_LIBRARY_DIRS}")
+    if(NOT ${NR_lib}_full_path)
+      message(FATAL_ERROR "${NR_lib} not found")
+    endif()
+    SET(NR_libs_full_path "${NR_libs_full_path};${${NR_lib}_full_path}")
+  ENDFOREACH()
+  # If niftyreg was bulit with OpenMP
+  if (NIFTYREG_BUILT_WITH_OPENMP)
+    find_package(OpenMP REQUIRED)
+    if (OpenMP_CXX_FOUND)
+      SET(NR_libs_full_path "${NR_libs_full_path};OpenMP::OpenMP_CXX")
+    endif()
+  endif()
+  # If niftyreg was bulit with CUDA
+  if (NIFTYREG_BUILT_WITH_CUDA)
+    find_package(CUDA REQUIRED)
+    SET(NR_libs_full_path "${NR_libs_full_path};${CUDA_CUDA_LIBRARY};${CUDA_CUDART_LIBRARY}")
+  endif()
+  ADD_SUBDIRECTORY(Registration)
+  set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION TRUE)
+  set(SIRF_BUILT_WITH_REGISTRATION TRUE PARENT_SCOPE)
+  # TODO use target_compile_definitions
+  add_definitions(-DSIRF_BUILT_WITH_REGISTRATION)
+endif()
+
+
+##########################################################################
 #                             Synergistic                                #
 ##########################################################################
-# Synergistic code currently only works if STIR (with ITK), ISMRMRD and Registration are built
-option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
+if (NOT BUILD_PYTHON AND NOT BUILD_MATLAB)
+  # Currently only offer to disable synergistic library when not using Python/MATLAB,
+  # as their ImageData.read depends on synergistic/ImageDataWrapper (TODO)
+  option(DISABLE_Synergistic "Disable building the synergistic code" OFF)
+else()
+  # DISABLE_Synergistic will be not set, which in CMake means it is equivalent to FALSE
+endif()
+
 if (DISABLE_Synergistic)
   message(STATUS "Synergistic code disabled.")
 else()
-  if ((NOT DISABLE_STIR) AND (NOT DISABLE_Gadgetron) AND (NOT DISABLE_Registration) AND "${STIR_BUILT_WITH_ITK}")
-    MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built. Building synergistic code.")
-    ADD_SUBDIRECTORY(Synergistic)
-  else()
-    MESSAGE(STATUS "One or more of the following components are missing: Registration, ISMRMRD and STIR (with ITK). Synergistic code will not be built.")
-    if (DISABLE_STIR)
-      MESSAGE(STATUS "STIR missing.")
-    elseif(NOT STIR_BUILT_WITH_ITK)
-      MESSAGE(STATUS "STIR not built with ITK.")
-    endif()
-    if (DISABLE_Gadgetron)
-      MESSAGE(STATUS "ISMRMRD missing.")
-    endif()
-    if (DISABLE_Registration)
-      MESSAGE(STATUS "Registration missing.")
-    endif()
-  endif()
+  ADD_SUBDIRECTORY(Synergistic)
 endif()
 
 ADD_SUBDIRECTORY(common)

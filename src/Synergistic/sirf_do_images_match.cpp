@@ -28,25 +28,18 @@ limitations under the License.
 */
 
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/Gadgetron/gadgetron_data_containers.h"
-#include "sirf/STIR/stir_data_containers.h"
-
+#include "sirf/Syn/utilities.h"
+#include <memory>
 
 using namespace sirf;
 
 static std::shared_ptr<const NiftiImageData3D<float> > image_as_sptr(const std::string &filename, const std::string &engine)
 {
-    if (strcmp(engine.c_str(), "Nifti") == 0)
-        return std::make_shared<const NiftiImageData3D<float> >(filename);
-    else if (strcmp(engine.c_str(), "STIR") == 0)
-        return std::make_shared<const NiftiImageData3D<float> >(STIRImageData(filename));
-    else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
-        std::shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
-		sptr_img->read(filename);
-        return std::make_shared<const NiftiImageData3D<float> >(*sptr_img);
-    }
-    else
-        throw std::runtime_error("unknown engine - " + engine + ".\n");
+  ImageDataWrap i(filename, engine, false);
+  if (auto cast_sptr = std::dynamic_pointer_cast<NiftiImageData3D<float>>(i.data_sptr()))
+    return cast_sptr;
+  else
+    return std::make_shared<const NiftiImageData3D<float> >(i.data());
 }
 
 /// print usage

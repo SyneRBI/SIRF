@@ -1,7 +1,6 @@
 # ChangeLog
 
 ## v3.5.0
-* GitHub Action: remove temporarily the Ubuntu 20.04 build, #1178
 * MR
   - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible. See https://github.com/SyneRBI/SIRF/pull/1174 for more information
   - Allow user to set radial, goldenangle, spiral and rpe trajectories
@@ -16,6 +15,13 @@
 
 * C++
   - added `examples_data_path` and utility functions such as `append_path` in `common/utilities.h`
+
+* Other, including CMake files
+  - resolve dependencies such that DISABLE_Gadgetron works now
+  - split some C interfaces into separate libraries, i.e. cinterface-sirf and cinterface-Reg
+
+* GitHub Action:
+   - add a build with DISABLE_Gadgetron
 
 ## v3.4.0
 

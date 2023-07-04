@@ -32,7 +32,6 @@ limitations under the License.
 #include <vector>
 #include <memory>
 #include "sirf/Reg/Transformation.h"
-#include "sirf/iUtilities/iutilities.h"
 
 namespace sirf {
 

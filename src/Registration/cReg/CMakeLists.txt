@@ -1,6 +1,9 @@
 #========================================================================
+# Author: Evgueni Ovtchinnikov
+# Author: Kris Thielemans
 # Author: Richard Brown
-# Copyright 2018 - 2020 University College London
+# Copyright 2018-2021, 2023 University College London
+# Copyright 2018-2023 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -33,11 +36,6 @@ SET(SOURCES
   "NiftiImageData3DTensor.cpp"
   "NiftiImageData3DDeformation.cpp"
   "NiftiImageData3DDisplacement.cpp")
-
-# If we're also wrapping to python or matlab, include the c-files
-IF(BUILD_PYTHON OR BUILD_MATLAB)
-	SET(SOURCES ${SOURCES} "cReg.cpp" "cReg_p.cpp")
-ENDIF()
 
 # Add SPM source
 IF(SPM_FOUND)
@@ -129,5 +127,14 @@ FOREACH(elem ${REG_executables})
     TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${REG_executables})
+
+IF(BUILD_PYTHON OR BUILD_MATLAB)
+  ADD_LIBRARY(cinterface-Reg cReg.cpp cReg_p.cpp)
+  # add dependencies. Note that cstir is required for deleteTextWriter sadly
+  if (NOT SIRF_BUILT_WITH_STIR)
+    message(FATAL_ERROR "Python/MATLAB interface for Registration currently depends on STIR.")
+  endif()
+  target_link_libraries(cinterface-Reg Reg cstir)
+endif()
 
 ADD_SUBDIRECTORY(tests)

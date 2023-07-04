@@ -20,6 +20,7 @@ limitations under the License.
 */
 
 #include "sirf/iUtilities/DataHandle.h"
+#include "sirf/iUtilities/iutilities.h"
 #include "sirf/Reg/cReg_p.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/Registration.h"
@@ -32,13 +33,6 @@ limitations under the License.
 #endif
 
 using namespace sirf;
-
-extern "C"
-char* charDataFromHandle(const void* ptr);
-extern "C"
-int intDataFromHandle(const void* ptr);
-extern "C"
-float floatDataFromHandle(const void* ptr);
 
 static void*
 parameterNotFound(const char* name, const char* file, int line) 
