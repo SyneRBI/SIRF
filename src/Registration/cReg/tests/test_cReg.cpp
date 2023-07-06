@@ -29,7 +29,7 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "sirf/common/getenv.h"
+#include "sirf/common/utilities.h"
 #include "sirf/Reg/NiftyAladinSym.h"
 #include "sirf/Reg/NiftyF3dSym.h"
 #include "sirf/Reg/NiftyResampler.h"
@@ -52,12 +52,7 @@ int main(int argc, char* argv[])
     try {
 
     // Paths
-    std::string SIRF_PATH;
-    if (argc==1)
-        SIRF_PATH = sirf::getenv("SIRF_PATH", true);
-    else
-        SIRF_PATH = argv[1];
-    const std::string examples_path = SIRF_PATH + "/data/examples/Registration";
+    const std::string examples_path = examples_data_path("Registration");
     const std::string output_prefix   = "results/cplusplus_";
 
     // Input filenames

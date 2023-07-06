@@ -59,6 +59,33 @@ MAX_ACQ_DIMS = 10
 MAX_IMG_DIMS = 10
 
 
+def get_STIR_version_string():
+    """Returns STIR engine version as Python str."""
+    handle = pystir.cSTIR_STIR_version_string()
+    check_status(handle)
+    version = pyiutil.charDataFromHandle(handle)
+    pyiutil.deleteDataHandle(handle)
+    return version
+
+
+def get_STIR_doc_dir():
+    """Returns STIR engine version as Python str."""
+    handle = pystir.cSTIR_get_STIR_doc_dir()
+    check_status(handle)
+    path = pyiutil.charDataFromHandle(handle)
+    pyiutil.deleteDataHandle(handle)
+    return path
+
+
+def get_STIR_examples_dir():
+    """Returns STIR engine version as Python str."""
+    handle = pystir.cSTIR_get_STIR_examples_dir()
+    check_status(handle)
+    path = pyiutil.charDataFromHandle(handle)
+    pyiutil.deleteDataHandle(handle)
+    return path
+
+
 def set_verbosity(verbosity):
     """Set the verbosity of all STIR output."""
     try_calling(pystir.cSTIR_setVerbosity(verbosity))
@@ -683,10 +710,6 @@ class ImageData(SIRF.ImageData):
     def shape(self):
         return self.dimensions()
 
-    @property
-    def dtype(self):
-        return numpy.float32
-
 
 SIRF.ImageData.register(ImageData)
 
@@ -957,6 +980,9 @@ class SPECTUBMatrix:
         You have to call set_up() after this.
         '''
         try_calling(pystir.cSTIR_SPECTUBMatrixSetResolution(self.handle, collimator_sigma_0_in_mm, collimator_slope_in_mm, full_3D))
+
+    def set_up(self, acq, img):
+        try_calling(pystir.cSTIR_setupSPECTUBMatrix(self.handle, acq.handle, img.handle))
 
 
 class PinholeSPECTUBMatrix:
@@ -1407,10 +1433,6 @@ class AcquisitionData(DataContainer):
     @property
     def shape(self):
         return self.dimensions()
-
-    @property
-    def dtype(self):
-        return numpy.float32
 
 
 DataContainer.register(AcquisitionData)
@@ -2314,6 +2336,132 @@ class QuadraticPrior(Prior):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def set_kappa(self, image):
+        """Sets kappa."""
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, 'QuadraticPrior', 'kappa', image.handle)
+
+    def get_kappa(self):
+        """Returns kappa."""
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'QuadraticPrior', 'kappa')
+        check_status(image.handle)
+        return image
+
+
+class LogcoshPrior(Prior):
+    r"""Class for Log-cosh Prior.
+
+    Implements the prior, Log-cosh Prior, one of the earliest uses in P. J. 
+    Green's paper "Bayesian reconstructions from emission tomography data using 
+    a modified EM algorithm," in IEEE Transactions on Medical Imaging, vol. 9, 
+    no. 1, pp. 84-93, March 1990, doi: 10.1109/42.52985.
+
+    The prior has one parameter the scalar, it is the edge-preservation parameter.
+
+    The log-cosh function is given by:
+    \f[
+        f = \sum_{r,dr} w_{dr} \frac{1}{2 s^2}  log(cosh(s(\lambda_r - \lambda_{r+dr}))) * \kappa_r * \kappa_{r+dr}$
+    \f]
+
+    Kappa is a spatially varying penalty strength.
+    """
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'LogcoshPrior'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_scalar(self, v):
+        """Sets scalar."""
+        parms.set_float_par(self.handle, 'LogcoshPrior', 'scalar', v)
+
+    def get_scalar(self):
+        """Returns scalar."""
+        return parms.float_par(self.handle, 'LogcoshPrior', 'scalar')
+
+    def set_kappa(self, image):
+        """Sets kappa."""
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, 'LogcoshPrior', 'kappa', image.handle)
+
+    def get_kappa(self):
+        """Returns kappa."""
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'LogcoshPrior', 'kappa')
+        check_status(image.handle)
+        return image
+
+
+class RelativeDifferencePrior(Prior):
+    r"""Class for Relative Difference Prior.
+
+    Implements the prior, Relative Difference Prior, proposed by Johan Nuyts et.
+    al in "A concave prior penalizing relative differences for 
+    maximum-a-posteriori reconstruction in emission tomography," in IEEE 
+    Transactions on Nuclear Science, vol. 49, no. 1, pp. 56-60, Feb. 2002, 
+    doi: 10.1109/TNS.2002.998681.
+
+    The value of the prior is computed as follows:
+
+    \f[
+    f = \sum_{r,dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)} * \kappa_r * \kappa_{r+dr}
+    \f]
+
+    The prior has 2 parameters epsilon and gamma. The former is to ensure
+    numerical stability and the gamma is the edge-preservation parameters
+    typically set as 2 in clinical practice (citation required).
+
+    Kappa is a spatially varying penalty strength.
+    """
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'RelativeDifferencePrior'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_gamma(self, v):
+        """Sets gamma."""
+        parms.set_float_par(self.handle, 'RelativeDifferencePrior', 'gamma', v)
+
+    def get_gamma(self):
+        """Returns gamma."""
+        return parms.float_par(self.handle, 'RelativeDifferencePrior', 'gamma')
+
+    def set_epsilon(self, v):
+        """Sets epsilon."""
+        parms.set_float_par(self.handle, 'RelativeDifferencePrior', 'epsilon', v)
+
+    def get_epsilon(self):
+        """Returns epsilon."""
+        return parms.float_par(self.handle, 'RelativeDifferencePrior', 'epsilon')
+
+    def set_kappa(self, image):
+        """Sets kappa."""
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, 'RelativeDifferencePrior', 'kappa', image.handle)
+
+    def get_kappa(self):
+        """Returns kappa."""
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'RelativeDifferencePrior', 'kappa')
+        check_status(image.handle)
+        return image
+
 
 class PLSPrior(Prior):
     r"""Class for Parallel Level Sets prior.
@@ -2546,6 +2694,11 @@ class ObjectiveFunction(object):
         subset: Python integer scalar
         """
         return self.gradient(image, subset)
+
+    @abc.abstractmethod
+    def get_subset_sensitivity(self, subset):
+        #print('in base class ObjectiveFunction')
+        pass
 
 
 class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
@@ -2858,7 +3011,10 @@ class IterativeReconstructor(Reconstructor):
         assert_validity(obj, ObjectiveFunction)
         parms.set_parameter(self.handle, 'IterativeReconstruction',
             'objective_function', obj.handle)
-#    def get_objective_function(self):
+
+    abc.abstractmethod
+    def get_objective_function(self):
+        pass
 #        obj_fun = ObjectiveFunction()
 #        obj_fun.handle = pystir.cSTIR_parameter\
 #            (self.handle, 'IterativeReconstruction', 'objective_function')
@@ -2975,12 +3131,12 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
 #    def set_MAP_model(self, model):
 #        parms.set_char_par\
 #            (self.handle, self.name, 'MAP_model', model)
-#    def get_objective_function(self):
-#        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
-#        obj_fun.handle = pystir.cSTIR_parameter\
-#            (self.handle, self.name, 'objective_function')
-#        check_status(obj_fun.handle)
-#        return obj_fun
+    def get_objective_function(self):
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+        obj_fun.handle = pystir.cSTIR_parameter\
+            (self.handle, self.name, 'objective_function')
+        check_status(obj_fun.handle)
+        return obj_fun
 
 
 class KOSMAPOSLReconstructor(IterativeReconstructor):
@@ -3028,6 +3184,7 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
 
     def __init__(self, filename=''):
         """init."""
+        IterativeReconstructor.__init__(self)
         self.handle = None
         self.image = None
         self.name = 'KOSMAPOSL'
@@ -3091,6 +3248,13 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
             (self.handle, image.handle, alpha.handle)
         check_status(ki.handle)
         return ki
+
+    def get_objective_function(self):
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+        obj_fun.handle = pystir.cSTIR_parameter\
+            (self.handle, self.name, 'objective_function')
+        check_status(obj_fun.handle)
+        return obj_fun
 
 
 class SingleScatterSimulator():

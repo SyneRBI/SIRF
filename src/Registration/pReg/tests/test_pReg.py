@@ -29,11 +29,11 @@ except ImportError:
     print('WARNING: nibabel is not installed, so not running corresponding tests')
 
 import sirf.Reg
+from sirf.Utilities import examples_data_path
 from sirf.Utilities import is_operator_adjoint
 
 # Paths
-SIRF_PATH = os.environ.get('SIRF_PATH')
-examples_path = SIRF_PATH + '/data/examples/Registration'
+examples_path = examples_data_path('Registration')
 output_prefix = os.getcwd() + '/results/python_'
 
 # Input filenames

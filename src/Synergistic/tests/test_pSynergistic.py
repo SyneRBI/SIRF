@@ -25,9 +25,7 @@ import sirf.STIR as pet
 import sirf.Gadgetron as mr
 import sirf.Reg as reg
 from sirf.Utilities import error
-
-# Paths
-SIRF_PATH = os.environ.get('SIRF_PATH')
+from sirf.Utilities import examples_data_path
 
 
 def try_stirtonifti(nifti_filename):
@@ -199,13 +197,15 @@ def try_complex_resample(raw_mr_filename):
 
 
 def test():
-    raw_mr_filename = SIRF_PATH + "/data/examples/MR/grappa2_1rep.h5"
-    if os.path.isfile(SIRF_PATH + "/data/examples/MR/zenodo/dicom_as_nifti.nii"):
-        nifti_filename = SIRF_PATH + "/data/examples/MR/zenodo/dicom_as_nifti.nii"
-        mr_recon_h5_filename = SIRF_PATH + "/data/examples/MR/zenodo/SIRF_recon.h5"
-    else:
-        nifti_filename = SIRF_PATH + "/data/examples/Registration/test2.nii.gz"
 
+    mr_data_path = examples_data_path('MR')
+    reg_data_path = examples_data_path('Registration')
+    raw_mr_filename = mr_data_path + "/grappa2_1rep.h5"
+    if os.path.isfile(mr_data_path + "/zenodo/dicom_as_nifti.nii"):
+        nifti_filename = mr_data_path + "/zenodo/dicom_as_nifti.nii"
+        mr_recon_h5_filename = mr_data_path + "/zenodo/SIRF_recon.h5"
+    else:
+        nifti_filename = reg_data_path + "/test2.nii.gz"
     try_stirtonifti(nifti_filename)
     if mr_recon_h5_filename:
         try_gadgetrontonifti(nifti_filename, mr_recon_h5_filename)
