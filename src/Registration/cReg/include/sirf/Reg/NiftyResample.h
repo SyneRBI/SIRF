@@ -123,6 +123,13 @@ public:
     /// Do the adjoint transformation
     virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
 
+    std::shared_ptr<const ImageData> reference_image_sptr() const
+    {
+        return this->_reference_image_sptr;
+    }
+
+    virtual float norm(int num_iter, int verb) const;
+
 protected:
 
     /// Set up

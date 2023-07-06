@@ -65,7 +65,7 @@ namespace sirf {
 			std::unique_ptr<vector_type> uptr_Az = x.clone();
 			vector_type& Az = *uptr_Az;
 
-			float s = sqrt(abs(x.dot(x)));
+			float s = x.norm();
 			x.scale(s);
 			std::shared_ptr<vector_type> sptr_Ax = A(x);
 			vector_type& Ax = *sptr_Ax;
@@ -73,9 +73,12 @@ namespace sirf {
 			for (int it = 0; it < nit_; it++) {
 				lmd = Ax.dot(x);
 				y.axpby(1.0, Ax, -lmd, x); // residual
-				if (verb > 0)
+				if (verb > 0) {
+					if (it == 0)
+						std::cout << '\n' << std::flush;
 					std::cout << "CG iteration " << it
 						<< ": largest eigenvalue " << std::real(lmd) << '\n';
+				}
 				if (it) { // conjugate y to the previous search direction
 					t = Az.dot(z);
 					w.axpby(1.0, Az, -t, z);
@@ -83,7 +86,7 @@ namespace sirf {
 					y.axpby(1.0, y, t, z);
 				}
 				// normalize y
-				s = sqrt(abs(y.dot(y)));
+				s = y.norm();
 				if (s == 0.0)
 					break; // converged
 				y.scale(s);
@@ -91,7 +94,7 @@ namespace sirf {
 				t = y.dot(x);
 				y.axpby(1.0, y, -t, x);
 				// normalize y again
-				s = sqrt(abs(y.dot(y)));
+				s = y.norm();
 				if (s == 0.0)
 					break; // converged
 				y.scale(s);
@@ -112,7 +115,7 @@ namespace sirf {
 				Az.axpby(u[0], Ax, u[1], Ay);
 				Ax.axpby(v[0], Ax, v[1], Ay);
 				lmd = mu[1];
-				s = sqrt(abs(x.dot(x)));
+				s = x.norm();
 				x.scale(s);
 				Ax.scale(s);
 			}
@@ -157,5 +160,43 @@ namespace sirf {
 			y[1] = pc / s;
 			return;
 		}
+	};
+
+	template<typename vector_type, typename value_type>
+	class Wrapped_sptr {
+	public:
+		Wrapped_sptr(std::shared_ptr<vector_type> sptr) : sptr_(sptr) {}
+		std::shared_ptr<vector_type> sptr() const
+		{
+			return sptr_;
+		}
+		std::unique_ptr<Wrapped_sptr<vector_type, value_type> > clone() const
+		{
+			std::shared_ptr<vector_type> sptr(sptr_->clone());
+			return std::unique_ptr<Wrapped_sptr>(new Wrapped_sptr(sptr));
+		}
+		float norm() const
+		{
+			return sptr_->norm();
+		}
+		void scale(float s)
+		{
+			sptr_->scale(s);
+		}
+		value_type dot(const Wrapped_sptr& y)
+		{
+			value_type s;
+			void* ptr = (void*)&s;
+			sptr_->dot(*y.sptr(), ptr);
+			return s;
+		}
+		void axpby(value_type a, const Wrapped_sptr& x, value_type b, const Wrapped_sptr& y)
+		{
+			void* ptr_a = (void*)&a;
+			void* ptr_b = (void*)&b;
+			sptr_->axpby(ptr_a, *x.sptr(), ptr_b, *y.sptr());
+		}
+	protected:
+		std::shared_ptr<vector_type> sptr_;
 	};
 }

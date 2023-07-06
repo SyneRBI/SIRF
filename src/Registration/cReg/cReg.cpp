@@ -886,6 +886,17 @@ void* cReg_NiftyResampler_adjoint(const void* output_ptr, const void * const inp
     }
     CATCH;
 }
+
+extern "C"
+void* cReg_NiftyResampler_norm(const void* ptr_res, int num_iter, int verb)
+{
+    try {
+        NiftyResampler<float>& res = objectFromHandle<NiftyResampler<float> >(ptr_res);
+        return dataHandle(res.norm(num_iter, verb));
+    }
+    CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      ImageWeightedMean
 // -------------------------------------------------------------------------------- //
