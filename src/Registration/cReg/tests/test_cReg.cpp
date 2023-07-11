@@ -806,7 +806,7 @@ int main(int argc, char* argv[])
 
         float s = resample.norm(8, 1);
         std::cout << "resampler norm: " << s << '\n';
-        return 0;
+        //return 0;
 
         // Reference forward with def_fwd_then_inv_sptr
         resample.clear_transformations();
