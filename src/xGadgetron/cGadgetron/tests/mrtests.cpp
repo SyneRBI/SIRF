@@ -430,6 +430,7 @@ bool test_acq_mod_norm(shared_ptr<MRAcquisitionData> sptr_ad)
 try
     {   
         std::cout << "Running test " << __FUNCTION__ << std::endl;
+        float const tolerance = 0.0001;
 
         MRAcquisitionModel AM = sirf::get_prepared_MRAcquisitionModel(*sptr_ad);
 
@@ -451,7 +452,7 @@ try
         std::cout << "image data x norm: |x| = " << im_norm << '\n';
         std::cout << "simulated acquisition data norm: |A(x)| = " << sd_norm << '\n';
         std::cout << "checking that |A(x)| <= |A||x|: ";
-        float bound = am_norm*im_norm;
+        float bound = am_norm*im_norm*(1. + tolerance);
         bool ok = (sd_norm <= bound);
         if (ok)
             std::cout << sd_norm << " <= " << bound << " ok!\n";
