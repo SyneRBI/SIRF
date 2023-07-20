@@ -3461,6 +3461,23 @@ class OSSPSReconstructor(IterativeReconstructor):
         parms.set_float_par(
             self.handle, self.name, 'relaxation_gamma', value)
 
+    def set_upper_bound(self, value):
+        """Sets upper bound parameter."""
+        parms.set_double_par(
+            self.handle, self.name, 'upper_bound', value)
+
+    def get_relaxation_parameter(self):
+        """Returns relaxation parameter value."""
+        return parms.float_par(self.handle, self.name, 'relaxation_parameter')
+
+    def get_relaxation_gamma(self):
+        """Returns relaxation gamma value."""
+        return parms.float_par(self.handle, self.name, 'relaxation_gamma')
+
+    def get_upper_bound(self):
+        """Returns upper bound value."""
+        return parms.double_par(self.handle, self.name, 'upper_bound')
+
 
 def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
                                acq_model=None):
