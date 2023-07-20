@@ -3456,6 +3456,11 @@ class OSSPSReconstructor(IterativeReconstructor):
         parms.set_float_par(
             self.handle, self.name, 'relaxation_parameter', value)
 
+    def set_relaxation_gamma(self, value):
+        """Sets relaxation gamma parameter."""
+        parms.set_float_par(
+            self.handle, self.name, 'relaxation_gamma', value)
+
 
 def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
                                acq_model=None):

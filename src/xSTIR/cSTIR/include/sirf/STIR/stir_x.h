@@ -1140,6 +1140,9 @@ The actual algorithm is described in
 		float& relaxation_parameter_value() {
 			return relaxation_parameter;
 		}
+		float& relaxation_gamma_value() {
+			return relaxation_gamma;
+		}
 	};
 
 	class xSTIR_FBP2DReconstruction : public stir::FBP2DReconstruction {

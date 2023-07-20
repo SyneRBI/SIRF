@@ -1139,6 +1139,8 @@ sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle
 		objectFromHandle<xSTIR_OSSPSReconstruction3DF >(hp);
 	if (sirf::iequals(name, "relaxation_parameter"))
 		recon.relaxation_parameter_value() = dataFromHandle<float>(hv);
+	else if (sirf::iequals(name, "relaxation_gamma"))
+		recon.relaxation_gamma_value() = dataFromHandle<float>(hv);
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
