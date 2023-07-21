@@ -55,20 +55,6 @@ limitations under the License.
 
 /*!
 \ingroup MR
-\brief Acquisitions filter.
-
-Some acquisitions do not participate directly in the reconstruction process
-(e.g. noise calibration acquisitions).
-*/
-#define TO_BE_IGNORED(acq) \
-	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
-	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
-	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
-	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
-	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
-
-/*!
-\ingroup MR
 \brief Serialized ISMRMRD acquisition header (cf. ismrmrd.h).
 
 */
@@ -127,6 +113,57 @@ namespace sirf {
 		std::string data_;
         mutable ISMRMRD::IsmrmrdHeader header_;
         mutable bool have_header_;
+	};
+
+	/*!
+	\ingroup Gadgetron Data Containers
+	\brief Class for ignoring certain 'irregular' acquisitions.
+	*/
+	class IgnoreMask {
+	public:
+		IgnoreMask(size_t mask = ~0x13bffff) : ignore_(mask) {}
+		void set(size_t mask)
+		{
+			ignore_ = mask;
+		}
+		void ignore(int i)
+		{
+			size_t one = 1;
+			ignore_ = ignore_ | (one << (i - 1));
+		}
+		void ignore_not(int i)
+		{
+			size_t one = 1;
+			ignore_ = ignore_ & ~(one << (i - 1));
+		}
+		bool bit(int i) const
+		{
+			if (i < 1 || i - 1 >= max_)
+				return true;
+			size_t one = 1;
+			return ignore_ & (one << (i - 1));
+		}
+		size_t bits() const
+		{
+			return ignore_;
+		}
+		bool ignored(size_t bits) const
+		{
+			return bits & ignore_;
+		}
+		void show_bits() const
+		{
+			size_t one = 1;
+			for (int i = 0; i < max_; i++) {
+				std::cout << bool(ignore_ & (one << i));
+				if ((i + 1) % 4 == 0)
+					std::cout << ' ';
+			}
+			std::cout << '\n';
+		}
+	private:
+		size_t ignore_;
+		const int max_ = 8 * sizeof(size_t);
 	};
 
     /*!
@@ -216,6 +253,8 @@ namespace sirf {
 	*/
 	class MRAcquisitionData : public DataContainer {
 	public:
+		IgnoreMask ignore_mask;
+
 		// static methods
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
@@ -732,11 +771,7 @@ namespace sirf {
 		{
 			int ind = index(num);
 			acq = *acqs_[ind];
-			if (!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
-				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
-				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
-				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
-				(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
+			if (this->ignore_mask.ignored(acq.flags()))
 				return 0;
 			return 1;
 		}

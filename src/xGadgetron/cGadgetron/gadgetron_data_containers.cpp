@@ -152,8 +152,8 @@ MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 			d.readAcquisition( i_acqu, acq);
 			mtx.unlock();
 
-			if(all || !TO_BE_IGNORED(acq))
-				this->append_acquisition( acq );
+			if (all || !this->ignore_mask.ignored(acq.flags()))
+				this->append_acquisition(acq);
 		}
         this->sort_by_time();
 		if( verbose )
@@ -1330,7 +1330,7 @@ AcquisitionsVector::set_data(const complex_float_t* z, int all)
 	for (int a = 0, i = 0; a < na; a++) {
 		int ia = index(a);
 		ISMRMRD::Acquisition& acq = *acqs_[ia];
-		if (!all && TO_BE_IGNORED(acq)) {
+		if (!all && this->ignore_mask.ignored(acq.flags())) {
 			std::cout << "ignoring acquisition " << ia << '\n';
 			continue;
 		}
