@@ -117,7 +117,7 @@ namespace sirf {
 
 	/*!
 	\ingroup Gadgetron Data Containers
-	\brief Class for ignoring certain 'irregular' acquisitions.
+	\brief Class enabling ignoring certain 'irregular' acquisitions.
 	*/
 	class IgnoreMask {
 	public:
@@ -253,8 +253,6 @@ namespace sirf {
 	*/
 	class MRAcquisitionData : public DataContainer {
 	public:
-		IgnoreMask ignore_mask;
-
 		// static methods
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
@@ -553,8 +551,11 @@ namespace sirf {
 
 		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition>
 			get_acquisition_sptr(unsigned int num) = 0;
-		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
-		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+		virtual int get_acquisition(unsigned int,
+			ISMRMRD::Acquisition&,
+			IgnoreMask ignore_mask = IgnoreMask()) const = 0;
+		virtual void set_acquisition(unsigned int,
+			ISMRMRD::Acquisition&) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
@@ -565,10 +566,12 @@ namespace sirf {
 		virtual MRAcquisitionData*
 			same_acquisitions_container(const AcquisitionsInfo& info) const = 0;
 
-		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
-		virtual void get_data(complex_float_t* z, int all = 1);
+		virtual void set_data(const complex_float_t* z, int all = 1,
+			IgnoreMask ignore_mask = IgnoreMask()) = 0;
+		virtual void get_data(complex_float_t* z, int all = 1,
+			IgnoreMask ignore_mask = IgnoreMask());
 
-        virtual void set_user_floats(float const * const z, int const idx);
+		virtual void set_user_floats(float const * const z, int const idx);
 
 		virtual bool is_complex() const
 		{
@@ -706,16 +709,16 @@ namespace sirf {
 				return i;
 		}
 
-    	/*! 
-    		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file. 
-      		*	filename_ismrmrd_with_ext:	filename of ISMRMRD rawdata file with .h5 extension.
-      		* 
-      		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it, 
-      		* displays the message and throws it again.
-			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
-			* to exclude potentially incompatible input. 
-    	*/
-		void read(const std::string& filename_ismrmrd_with_ext, int all = 0);
+		/*!
+		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file.
+		* filename_ismrmrd_with_ext: filename of ISMRMRD rawdata file with .h5 extension.
+		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it,
+		* displays the message and throws it again.
+		* To avoid reading noise samples and other calibration data, IgnoreMask may be employed
+		* to exclude potentially incompatible input.
+		*/
+		void read(const std::string& filename_ismrmrd_with_ext, int all = 0,
+			IgnoreMask ignore_mask = 0);
 
 	protected:
 		bool sorted_ = false;
@@ -767,11 +770,13 @@ namespace sirf {
 			int ind = index(num);
 			return acqs_[ind];
 		}
-		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
+		virtual int get_acquisition(unsigned int num,
+			ISMRMRD::Acquisition& acq,
+			IgnoreMask ignore_mask = IgnoreMask()) const
 		{
 			int ind = index(num);
 			acq = *acqs_[ind];
-			if (this->ignore_mask.ignored(acq.flags()))
+			if (ignore_mask.ignored(acq.flags()))
 				return 0;
 			return 1;
 		}
@@ -785,7 +790,8 @@ namespace sirf {
 			acqs_info_ = ac.acquisitions_info();
 		}
 		virtual void copy_acquisitions_data(const MRAcquisitionData& ac);
-		virtual void set_data(const complex_float_t* z, int all = 1);
+		virtual void set_data(const complex_float_t* z, int all = 1,
+			IgnoreMask ignore_mask = IgnoreMask());
 
 		virtual AcquisitionsVector* same_acquisitions_container
 			(const AcquisitionsInfo& info) const

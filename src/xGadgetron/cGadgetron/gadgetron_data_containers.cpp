@@ -96,7 +96,8 @@ MRAcquisitionData::write(const std::string &filename) const
 }
 
 void
-MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
+MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all,
+	IgnoreMask ignore_mask)
 {
 	
     bool const verbose = true;
@@ -109,10 +110,8 @@ MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 		mtx.lock();
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
 		d.readHeader(this->acqs_info_);
-
-        ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
-        
-        uint32_t num_acquis = d.getNumberOfAcquisitions();
+		ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
+		uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
 		std::stringstream str;
@@ -144,7 +143,8 @@ MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 			if( verbose )
 			{
 				if( i_acqu%( num_acquis/10 ) == 0 )
-					std::cout << std::ceil(float(i_acqu) / num_acquis * 100) << "%.." << std::flush;
+					std::cout << std::ceil(float(i_acqu) / num_acquis * 100)
+					<< "%.." << std::flush;
 			}
 
 			ISMRMRD::Acquisition acq;
@@ -152,10 +152,10 @@ MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 			d.readAcquisition( i_acqu, acq);
 			mtx.unlock();
 
-			if (all || !this->ignore_mask.ignored(acq.flags()))
+			if (all || !ignore_mask.ignored(acq.flags()))
 				this->append_acquisition(acq);
 		}
-        this->sort_by_time();
+		this->sort_by_time();
 		if( verbose )
 			std::cout<< "\nFinished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	}
@@ -269,7 +269,7 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
 
 
 void
-MRAcquisitionData::get_data(complex_float_t* z, int a)
+MRAcquisitionData::get_data(complex_float_t* z, int a, IgnoreMask ignore_mask)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
@@ -285,7 +285,7 @@ MRAcquisitionData::get_data(complex_float_t* z, int a)
 		return;
 	}
 	for (unsigned int a = 0, i = 0; a < na; a++) {
-		if (!get_acquisition(a, acq)) {
+		if (!get_acquisition(a, acq, ignore_mask)) {
 			std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
@@ -1324,13 +1324,14 @@ AcquisitionsVector::conjugate_impl()
 }
 
 void
-AcquisitionsVector::set_data(const complex_float_t* z, int all)
+AcquisitionsVector::set_data(const complex_float_t* z, int all,
+	IgnoreMask ignore_mask)
 {
 	int na = number();
 	for (int a = 0, i = 0; a < na; a++) {
 		int ia = index(a);
 		ISMRMRD::Acquisition& acq = *acqs_[ia];
-		if (!all && this->ignore_mask.ignored(acq.flags())) {
+		if (!all && ignore_mask.ignored(acq.flags())) {
 			std::cout << "ignoring acquisition " << ia << '\n';
 			continue;
 		}
