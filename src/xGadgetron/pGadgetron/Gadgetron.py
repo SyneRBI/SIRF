@@ -66,7 +66,7 @@ ISMRMRD_IMTYPE_PHASE     = 2
 ISMRMRD_IMTYPE_REAL      = 3
 ISMRMRD_IMTYPE_IMAG      = 4
 
-#image data type
+# image data type
 ISMRMRD_USHORT   = 1 ##, /**< corresponds to uint16_t */
 ISMRMRD_SHORT    = 2 ##, /**< corresponds to int16_t */
 ISMRMRD_UINT     = 3 ##, /**< corresponds to uint32_t */
@@ -76,7 +76,7 @@ ISMRMRD_DOUBLE   = 6 ##, /**< corresponds to double */
 ISMRMRD_CXFLOAT  = 7 ##, /**< corresponds to complex float */
 ISMRMRD_CXDOUBLE = 8 ##  /**< corresponds to complex double */
 
-#ISMRMRD acquisition flags
+# ISMRMRD acquisition flags
 ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1               =  1
 ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1                =  2
 ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2               =  3
@@ -119,6 +119,23 @@ ISMRMRD_ACQ_USER5                               = 61
 ISMRMRD_ACQ_USER6                               = 62
 ISMRMRD_ACQ_USER7                               = 63
 ISMRMRD_ACQ_USER8                               = 64
+
+
+# acquisition ignoring helper class
+class IgnoreMask(object):
+    def __init__(self, mask = None):
+        if mask is None:
+            self.mask = ~0x13BFFFF
+        else:
+            self.mask = mask
+    def set(self, mask):
+        self.mask = mask
+    def ignore(self, bit):
+        self.mask = self.mask | 1 << (bit - 1)
+    def ignore_not(self, bit):
+        self.mask = self.mask & ~(1 << (bit - 1))
+    def ignored(self, bits):
+        return bits & self.mask
 
 
 # data path finding helper functions
@@ -889,12 +906,12 @@ class AcquisitionData(DataContainer):
     Class for an MR acquisitions container.
     Each item is a 2D complex array of acquisition samples for each coil.
     '''
-    def __init__(self, file=None, all_=False):
+    def __init__(self, file=None, all_=False, ignored = IgnoreMask(0)):
         self.handle = None
         self.sorted = False
         self.info = None
         if file is not None:
-            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all_)
+            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all_, ignored.mask)
             check_status(self.handle)
 
     def __del__(self):

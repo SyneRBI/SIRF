@@ -561,14 +561,14 @@ cGT_sortAcquisitionsByTime(void* ptr_acqs)
 
 extern "C"
 void*
-cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all)
+cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, int ignored)
 {
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
 		shared_ptr<MRAcquisitionData>
 			acquisitions(new AcquisitionsVector);
-		acquisitions->read(file, all);
+		acquisitions->read(file, all, ignored);
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;
