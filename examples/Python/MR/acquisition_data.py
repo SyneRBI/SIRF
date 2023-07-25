@@ -11,6 +11,9 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -s <slcs>, --slices=<slcs>  max number of slices to display [default: 8]
+  -i <flag>, --ignore=<flag>  ignore acquisitions with non-zero value of <flag>
+                              (try e.g. --ignore=ISMRMRD_ACQ_IS_NOISE_MEASUREMENT
+                              and --file=grappa2_6rep.h5)
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   --non-interactive           do not show plots
 '''
@@ -49,6 +52,10 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 slcs = int(args['--slices'])
+to_be_ignored = args['--ignore']
+ignored_mask = IgnoreMask(0)
+if to_be_ignored is not None:
+    ignored_mask.ignore(eval(to_be_ignored))
 show_plot = not args['--non-interactive']
 
 def main():
@@ -57,7 +64,7 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    acq_data = AcquisitionData(input_file)
+    acq_data = AcquisitionData(input_file, ignored=ignored_mask)
 
     # the raw k-space data is a list of different readouts
     # of different data type (e.g. noise correlation data, navigator data,
@@ -68,11 +75,7 @@ def main():
     ni = acq_data.number_of_readouts()
     print('readouts: total %d, image data %d' % (na, ni))
 
-    # sort acquisition data;
-    # currently performed with respect to (in this order):
-    #    - repetition
-    #    - slice
-    #    - kspace encode step 1
+    # sort acquisition data with respect to the acquisition times
     print('sorting...')
     acq_data.sort()
 
@@ -88,11 +91,13 @@ def main():
     if flags0 & IMAGE_DATA_MASK:
         print('first readout is image data')
     else:
-        # should see this if input data file is test_2D_2x.h5
+        # should see this if input data file is e.g. grappa2_6rep.h5
         print('first readout is not image data')
         a0 = acq_data.as_array(0)
         print('first readout shape: %dx%d' % a0.shape)
         
+    print('Checking acquisitions %d to %d...' % (first, last))
+
     # display flags
     print('Flags')
     print(flags)
