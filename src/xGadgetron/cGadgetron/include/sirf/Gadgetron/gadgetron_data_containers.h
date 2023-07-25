@@ -718,7 +718,7 @@ namespace sirf {
 		* to exclude potentially incompatible input.
 		*/
 		void read(const std::string& filename_ismrmrd_with_ext, int all = 0,
-			IgnoreMask ignore_mask = 0);
+			IgnoreMask ignore_mask = IgnoreMask());
 
 	protected:
 		bool sorted_ = false;
