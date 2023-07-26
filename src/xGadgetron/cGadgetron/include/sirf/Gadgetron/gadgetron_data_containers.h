@@ -121,49 +121,64 @@ namespace sirf {
 	*/
 	class IgnoreMask {
 	public:
-		IgnoreMask(size_t mask = ~0x13bffff) : ignore_(mask) {}
-		void set(size_t mask)
+		IgnoreMask(int mask = ~0x13bffff) : ignore_(mask) {}
+		void set(int mask)
 		{
 			ignore_ = mask;
 		}
-		void ignore(int i)
+		void ignore(unsigned int i)
 		{
+			if (i < 1 || i > max_)
+				return;
 			size_t one = 1;
 			ignore_ = ignore_ | (one << (i - 1));
 		}
-		void ignore_not(int i)
+		void ignore_not(unsigned int i)
 		{
-			size_t one = 1;
+			if (i < 1 || i > max_)
+				return;
+			int one = 1;
 			ignore_ = ignore_ & ~(one << (i - 1));
 		}
-		bool bit(int i) const
+		bool bit(unsigned int i) const
 		{
-			if (i < 1 || i - 1 >= max_)
+			if (i < 1 || i > max_)
 				return true;
-			size_t one = 1;
+			int one = 1;
 			return ignore_ & (one << (i - 1));
 		}
-		size_t bits() const
+		int bits() const
 		{
 			return ignore_;
 		}
-		bool ignored(size_t bits) const
+		bool ignored(int bits) const
 		{
 			return bits & ignore_;
 		}
 		void show_bits() const
 		{
-			size_t one = 1;
-			for (int i = 0; i < max_; i++) {
+			int one = 1;
+			for (unsigned int i = 0; i < max_; i++) {
 				std::cout << bool(ignore_ & (one << i));
 				if ((i + 1) % 4 == 0)
 					std::cout << ' ';
 			}
 			std::cout << '\n';
 		}
+		static void show_bits(int mask)
+		{
+			unsigned int size = 8 * sizeof(int);
+			unsigned int bitmask = (1 << (size - 1));
+			for (unsigned int i = 0; i < size; i++) {
+				std::cout << bool(mask & (bitmask >> i));
+				if ((i + 1) % 4 == 0)
+					std::cout << ' ';
+			}
+			std::cout << '\n';
+		}
 	private:
-		size_t ignore_;
-		const int max_ = 8 * sizeof(size_t);
+		int ignore_;
+		const unsigned int max_ = 8 * sizeof(int);
 	};
 
     /*!
