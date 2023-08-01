@@ -567,7 +567,10 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, int ignored)
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
 		std::cout << "reading from " << file << " using ignore mask ";
-		IgnoreMask::show_bits(ignored);
+		if (all)
+			IgnoreMask::show_bits(0);
+		else
+			IgnoreMask::show_bits(ignored);
 		shared_ptr<MRAcquisitionData>
 			acquisitions(new AcquisitionsVector);
 		acquisitions->read(file, all, ignored);
