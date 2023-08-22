@@ -23,6 +23,8 @@ limitations under the License.
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
 #include "stir/zoom.h"
+#include "stir/CartesianCoordinate3D.h"
+#include "stir/numerics/norm.h"
 
 using namespace stir;
 using namespace sirf;
@@ -45,23 +47,12 @@ STIRAcquisitionData::norm() const
 {
 	double t = 0.0;
         TOF_LOOP
-	for (int s = 0; s <= get_max_segment_num(); ++s)
+          for (int s = data()->get_min_segment_num(); s <= data()->get_max_segment_num(); ++s)
 	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
-			double r = *seg_iter++;
-			t += r*r;
-		}
-		if (s != 0) {
-			seg = get_segment_by_sinogram(-s TOF_ARG);
-			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
-				double r = *seg_iter++;
-				t += r*r;
-			}
-		}
+		const auto seg = get_segment_by_sinogram(s TOF_ARG);
+		t += stir::norm_squared(seg.begin_all(), seg.end_all());
 	}
-	return std::sqrt((float)t);
+	return static_cast<float>(std::sqrt(t));
 }
 
 void
@@ -887,7 +878,7 @@ STIRImageData::set_up_geom_info()
             = vox_image->get_LPS_coordinates_for_indices(next_vox_along_axis);
         Coord3DF axis_direction
             = next_vox_along_axis_coord - first_vox_coord;
-        axis_direction /= stir::norm(axis_direction);
+        axis_direction /= stir::norm(axis_direction.begin(), axis_direction.end());
         for (int dim = 0; dim < 3; dim++)
             direction[dim][axis] = axis_direction[3 - dim];
     }
